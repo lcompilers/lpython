@@ -348,6 +348,7 @@ int emit_prescan(const std::string &infile, CompilerOptions &compiler_options)
 {
     std::string input = read_file(infile);
     LFortran::LocationManager lm;
+    lm.in_filename = infile;
     std::string prescan = LFortran::fix_continuation(input, lm,
         compiler_options.fixed_form);
     std::cout << prescan << std::endl;
@@ -385,6 +386,7 @@ int emit_ast(const std::string &infile, CompilerOptions &compiler_options)
 
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
+    lm.in_filename = infile;
     LFortran::FortranEvaluator::Result<std::string> r = fe.get_ast(input, lm);
     if (r.ok) {
         std::cout << r.result << std::endl;
@@ -464,6 +466,7 @@ int python_wrapper(const std::string &infile, std::string array_order,
 
     // Src -> AST -> ASR
     LFortran::LocationManager lm;
+    lm.in_filename = infile;
     LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
         result = fe.get_asr2(input, lm);
     if (result.ok) {
@@ -512,6 +515,7 @@ int emit_asr(const std::string &infile,
 
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
+    lm.in_filename = infile;
     LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
         r = fe.get_asr2(input, lm);
     if (!r.ok) {
@@ -569,6 +573,7 @@ int emit_cpp(const std::string &infile, CompilerOptions &compiler_options)
 
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
+    lm.in_filename = infile;
     LFortran::FortranEvaluator::Result<std::string> cpp = fe.get_cpp(input, lm);
     if (cpp.ok) {
         std::cout << cpp.result;
@@ -630,6 +635,7 @@ int emit_llvm(const std::string &infile, CompilerOptions &compiler_options)
 
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
+    lm.in_filename = infile;
     LFortran::FortranEvaluator::Result<std::string> llvm
         = fe.get_llvm(input, lm);
     if (llvm.ok) {
@@ -647,6 +653,7 @@ int emit_asm(const std::string &infile, CompilerOptions &compiler_options)
 
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
+    lm.in_filename = infile;
     LFortran::FortranEvaluator::Result<std::string> r = fe.get_asm(input, lm);
     if (r.ok) {
         std::cout << r.result;
@@ -670,6 +677,7 @@ int compile_to_object_file(const std::string &infile,
 
     // Src -> AST -> ASR
     LFortran::LocationManager lm;
+    lm.in_filename = infile;
     LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
     result = fe.get_asr2(input, lm);
     if (result.ok) {
@@ -818,6 +826,7 @@ int compile_to_object_file_cpp(const std::string &infile,
 
     // Src -> AST -> ASR
     LFortran::LocationManager lm;
+    lm.in_filename = infile;
     LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
         result = fe.get_asr2(input, lm);
     if (result.ok) {
@@ -1060,6 +1069,7 @@ int emit_c_preprocessor(const std::string &infile, CompilerOptions &/*compiler_o
 
     LFortran::CPreprocessor cpp;
     LFortran::LocationManager lm;
+    lm.in_filename = infile;
     std::string s = cpp.run(input, lm);
     std::cout << s;
     return 0;

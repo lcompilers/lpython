@@ -132,6 +132,10 @@ filename = "preprocessor2.f90"
 asr_preprocess = true
 
 [[test]]
+filename = "preprocessor3.f90"
+asr_preprocess = true
+
+[[test]]
 filename = "expr1.f90"
 ast = true
 asr = true

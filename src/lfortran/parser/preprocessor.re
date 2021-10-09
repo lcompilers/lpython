@@ -3,6 +3,8 @@
 
 #include <lfortran/parser/preprocessor.h>
 #include <lfortran/assert.h>
+#include <lfortran/utils.h>
+#include <lfortran/string_utils.h>
 
 namespace LFortran
 {
@@ -23,6 +25,17 @@ void parse_macro_definition(const std::string &line,
     name = std::string(&line[s1], i-s1);
     while (line[i] == ' ') i++;
     subs = line.substr(i, line.size()-i-1);
+}
+
+void parse_include_line(const std::string &line, std::string &filename)
+{
+    size_t i = 0;
+    i += std::string("#include").size();
+    while (line[i] != '"') i++;
+    i++;
+    size_t s1 = i;
+    while (line[i] != '"') i++;
+    filename = std::string(&line[s1], i-s1);
 }
 
 void get_newlines(const std::string &s, std::vector<uint32_t> &newlines) {
@@ -79,6 +92,49 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm) co
                 size_t N = lm.out_start0.size()-2;
                 lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
                 lm.interval_type0.push_back(0);
+                continue;
+            }
+            "#include" whitespace '"' [^"\x00]* '"' [^\n\x00]* newline {
+                std::string line = token(tok, cur);
+                std::string include;
+                // Recursively include header files:
+                // TODO: extend this to a full c processing of includes
+                while (startswith(line, "#include")) {
+                    std::string filename;
+                    parse_include_line(line, filename);
+                    // Construct a filename relative to the current file
+                    // TODO: make this multiplatform
+                    std::string base_dir = lm.in_filename;
+                    std::string::size_type n = base_dir.rfind("/");
+                    if (n != std::string::npos) {
+                        base_dir = base_dir.substr(0, n);
+                        filename = base_dir + "/" + filename;
+                    }
+                    if (!read_file(filename, include)) {
+                        throw LFortranException("C preprocessor: include file '" + filename + "' cannot be opened");
+                    }
+                    line = include;
+                }
+
+                // Prepare the start of the interval
+                lm.out_start0.push_back(output.size());
+                lm.in_start0.push_back(tok-string_start);
+                // The just created interval ID:
+                size_t N = lm.out_start0.size()-2;
+                lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
+                lm.interval_type0.push_back(0);
+
+                // Include
+                output.append(include);
+
+                // Prepare the end of the interval
+                lm.out_start0.push_back(output.size());
+                lm.in_start0.push_back(cur-string_start);
+                // The just created interval ID:
+                N = lm.out_start0.size()-2;
+                lm.in_size0.push_back(token(tok, cur).size()-1);
+                lm.interval_type0.push_back(1);
+                continue;
             }
             name {
                 std::string t = token(tok, cur);
@@ -92,6 +148,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm) co
                     lm.interval_type0.push_back(0);
 
                     // Expand the macro
+                    // TODO: extend this to a full c processing of expansion
                     std::string expansion = macro_definitions[t];
                     int i = 0;
                     while (macro_definitions.find(expansion) != macro_definitions.end()) {

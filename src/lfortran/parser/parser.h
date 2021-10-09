@@ -121,6 +121,7 @@ struct LocationManager {
     // TODO: design a common structure, that also works with #include, that
     // has these mappings for each file
     bool preprocessor = false;
+    std::string in_filename;
     std::vector<uint32_t> out_start0; // consecutive intervals in the output code
     std::vector<uint32_t> in_start0; // start + size in the original code
     std::vector<uint32_t> in_size0; // Size of the `in` interval
