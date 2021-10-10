@@ -133,7 +133,7 @@ struct LocationManager {
     // Converts a position in the output code to a position in the original code
     // Every character in the output code has a corresponding location in the
     // original code, so this function always succeeds
-    uint32_t output_to_input_pos(uint32_t out_pos) const {
+    uint32_t output_to_input_pos(uint32_t out_pos, bool show_last) const {
         uint32_t interval = bisection(out_start, out_pos)-1;
         uint32_t rel_pos = out_pos - out_start[interval];
         uint32_t in_pos = in_start[interval] + rel_pos;
@@ -148,7 +148,7 @@ struct LocationManager {
             } else {
                 // many to many interval
                 uint32_t in_pos0;
-                if (in_pos == out_start0[interval0+1]-1) {
+                if (in_pos == out_start0[interval0+1]-1 || show_last) {
                     // The end of the interval in "out" code
                     // Return the end of the interval in "in" code
                     in_pos0 = in_start0[interval0]+in_size0[interval0]-1;

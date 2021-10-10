@@ -662,8 +662,8 @@ std::string format_syntax_error(const std::string &filename,
         const LocationManager &lm)
 {
     uint32_t first_line, first_column, last_line, last_column;
-    lm.pos_to_linecol(lm.output_to_input_pos(loc.first), first_line, first_column);
-    lm.pos_to_linecol(lm.output_to_input_pos(loc.last), last_line, last_column);
+    lm.pos_to_linecol(lm.output_to_input_pos(loc.first, false), first_line, first_column);
+    lm.pos_to_linecol(lm.output_to_input_pos(loc.last, true), last_line, last_column);
 
     std::stringstream out;
     out << filename << ":" << first_line << ":" << first_column;
@@ -710,8 +710,8 @@ std::string format_semantic_error(const std::string &filename,
         const LocationManager &lm)
 {
     uint32_t first_line, first_column, last_line, last_column;
-    lm.pos_to_linecol(lm.output_to_input_pos(loc.first), first_line, first_column);
-    lm.pos_to_linecol(lm.output_to_input_pos(loc.last), last_line, last_column);
+    lm.pos_to_linecol(lm.output_to_input_pos(loc.first, false), first_line, first_column);
+    lm.pos_to_linecol(lm.output_to_input_pos(loc.last, true), last_line, last_column);
 
     std::stringstream out;
     out << filename << ":" << first_line << ":" << first_column;
