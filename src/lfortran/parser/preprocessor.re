@@ -111,7 +111,8 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                     throw LFortranException("C preprocessor: include file '" + filename + "' cannot be opened");
                 }
 
-                include = run(include, lm, macro_definitions);
+                LocationManager lm_tmp = lm; // Make a copy
+                include = run(include, lm_tmp, macro_definitions);
 
                 // Prepare the start of the interval
                 lm.out_start0.push_back(output.size());
@@ -150,7 +151,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                     int i = 0;
                     while (expansion2 != expansion) {
                         expansion2 = expansion;
-                        LocationManager lm_tmp;
+                        LocationManager lm_tmp = lm; // Make a copy
                         expansion = run(expansion2, lm_tmp, macro_definitions);
                         i++;
                         if (i == 40) {

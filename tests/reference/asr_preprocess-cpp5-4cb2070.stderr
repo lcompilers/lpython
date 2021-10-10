@@ -1,0 +1,3 @@
+input:5:13 semantic error: Variable 'z12345678' not declared
+print *, x, C123
+            ^
