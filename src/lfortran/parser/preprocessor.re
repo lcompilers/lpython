@@ -27,6 +27,22 @@ void parse_macro_definition(const std::string &line,
     subs = line.substr(i, line.size()-i-1);
 }
 
+void parse_macro_definition2(const std::string &line,
+    std::string &name, std::vector<std::string> &/*args*/, std::string &subs)
+{
+    size_t i = 0;
+    i += std::string("#define").size();
+    while (line[i] == ' ') i++;
+    size_t s1 = i;
+    while (line[i] != '(') i++;
+    name = std::string(&line[s1], i-s1);
+    // TODO: parse args here
+    while (line[i] != ')') i++;
+    i++;
+    while (line[i] == ' ') i++;
+    subs = line.substr(i, line.size()-i-1);
+}
+
 void parse_include_line(const std::string &line, std::string &filename)
 {
     size_t i = 0;
@@ -44,11 +60,17 @@ void get_newlines(const std::string &s, std::vector<uint32_t> &newlines) {
     }
 }
 
+struct FnMacro {
+    std::vector<std::string> args;
+    std::string expansion;
+};
+
 std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
         std::map<std::string, std::string> &macro_definitions) const {
     LFORTRAN_ASSERT(input[input.size()] == '\0');
     unsigned char *string_start=(unsigned char*)(&input[0]);
     unsigned char *cur = string_start;
+    std::map<std::string, FnMacro> fn_macro_definitions;
     Location loc;
     std::string output;
     lm.preprocessor = true;
@@ -86,6 +108,23 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 parse_macro_definition(token(tok, cur),
                     macro_name, macro_subs);
                 macro_definitions[macro_name] = macro_subs;
+                lm.out_start0.push_back(output.size());
+                lm.in_start0.push_back(cur-string_start);
+                // The just created interval ID:
+                size_t N = lm.out_start0.size()-2;
+                lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
+                lm.interval_type0.push_back(0);
+                continue;
+            }
+            "#define" whitespace name '(' name (',' name)* ')' whitespace [^\n\x00]* newline  {
+                std::string macro_name, macro_subs;
+                std::vector<std::string> args;
+                parse_macro_definition2(token(tok, cur),
+                    macro_name, args, macro_subs);
+                FnMacro fn;
+                fn.args = args;
+                fn.expansion = macro_subs;
+                fn_macro_definitions[macro_name] = fn;
                 lm.out_start0.push_back(output.size());
                 lm.in_start0.push_back(cur-string_start);
                 // The just created interval ID:
