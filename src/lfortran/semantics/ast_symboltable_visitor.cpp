@@ -157,6 +157,7 @@ public:
         add_generic_procedures();
         add_overloaded_procedures();
         add_class_procedures();
+        add_generic_class_procedures();
         add_assignment_procedures();
         tmp = tmp0;
         // Add module dependencies
@@ -1097,10 +1098,8 @@ public:
     void add_generic_class_procedures() {
         for (auto &proc : generic_class_procedures) {
             Location loc;
-            loc.first_line = 1;
-            loc.last_line = 1;
-            loc.first_column = 1;
-            loc.last_column = 1;
+            loc.first = 1;
+            loc.last = 1;
             ASR::DerivedType_t *clss = ASR::down_cast<ASR::DerivedType_t>(
                                             current_scope->scope[proc.first]);
             for (auto &pname : proc.second) {
@@ -1389,15 +1388,16 @@ public:
         }
     }
 
-};
-
-void visit_GenericName(const AST::GenericName_t& x) {
-    std::string generic_name = to_lower(std::string(x.m_name));
-    for( size_t i = 0; i < x.n_names; i++ ) {
-        std::string x_m_name = std::string(x.m_names[i]);
-        generic_class_procedures[dt_name][generic_name].push_back(to_lower(x_m_name));
+    void visit_GenericName(const AST::GenericName_t& x) {
+        std::string generic_name = to_lower(std::string(x.m_name));
+        // std::cout<<"generic_name: "<<generic_name<<std::endl;
+        for( size_t i = 0; i < x.n_names; i++ ) {
+            std::string x_m_name = std::string(x.m_names[i]);
+            generic_class_procedures[dt_name][generic_name].push_back(to_lower(x_m_name));
+        }
     }
-}
+
+};
 
 ASR::asr_t *symbol_table_visitor(Allocator &al, AST::TranslationUnit_t &ast,
         SymbolTable *symbol_table)

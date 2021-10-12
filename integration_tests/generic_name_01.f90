@@ -36,11 +36,18 @@ end module
 program generic_name_01
     use Complex_module, only: ComplexType
     implicit none
-  
+    real :: fpone, fptwo, fpzero, negfpone
+    integer :: ione, izero
     type(ComplexType) :: a, c
-    c = ComplexType(1.0, 2.0)
-    call c%add(1, 0, a)
+    fpone = 1.0
+    fptwo = 2.0
+    fpzero = 0.0
+    ione = 1
+    izero = 0
+    negfpone = -1.0
+    c = ComplexType(fpone, fptwo)
+    call c%add(ione, izero, a)
     print *, a%r, a%i
-    call c%add(0.0, -1.0, a)
+    call c%add(fpzero, negfpone, a)
     print *, a%r, a%i
 end program
