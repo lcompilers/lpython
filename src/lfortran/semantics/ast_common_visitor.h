@@ -1419,13 +1419,13 @@ public:
     template <typename T>
     bool argument_types_match(const Vec<ASR::expr_t*> &args,
             const T &sub) {
-        // std::cout<<"Debug: "<<args.size()<<" "<<sub.n_args<<std::endl;
+        "Debug: "<<args.size()<<" "<<sub.n_args<<std::endl;
         if (args.size() == sub.n_args) {
             for (size_t i=0; i < args.size(); i++) {
                 ASR::Variable_t *v = LFortran::ASRUtils::EXPR2VAR(sub.m_args[i]);
                 ASR::ttype_t *arg1 = LFortran::ASRUtils::expr_type(args[i]);
                 ASR::ttype_t *arg2 = v->m_type;
-                // std::cout<<"Debug: "<<i<<" "<<arg1->type<<" "<<arg2->type<<std::endl;
+                "Debug: "<<i<<" "<<arg1->type<<" "<<arg2->type<<std::endl;
                 if (!types_equal(*arg1, *arg2)) {
                     return false;
                 }

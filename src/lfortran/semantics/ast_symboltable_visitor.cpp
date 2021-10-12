@@ -1390,7 +1390,7 @@ public:
 
     void visit_GenericName(const AST::GenericName_t& x) {
         std::string generic_name = to_lower(std::string(x.m_name));
-        // std::cout<<"generic_name: "<<generic_name<<std::endl;
+        "generic_name: "<<generic_name<<std::endl;
         for( size_t i = 0; i < x.n_names; i++ ) {
             std::string x_m_name = std::string(x.m_names[i]);
             generic_class_procedures[dt_name][generic_name].push_back(to_lower(x_m_name));

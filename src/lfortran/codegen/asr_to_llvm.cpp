@@ -522,7 +522,7 @@ public:
                 if (!ASR::is_a<ASR::ClassProcedure_t>(*itr->second) &&
                     !ASR::is_a<ASR::GenericProcedure_t>(*itr->second)) { 
                     ASR::Variable_t* member = (ASR::Variable_t*)(&(itr->second->base));
-                    // std::cout<<"Debug: "<<member->m_name<<std::endl;
+                    "Debug: "<<member->m_name<<std::endl;
                     llvm::Type* mem_type = nullptr;
                     switch( member->m_type->type ) {
                         case ASR::ttypeType::Integer: {
@@ -532,7 +532,7 @@ public:
                         }
                         case ASR::ttypeType::Real: {
                             int a_kind = down_cast<ASR::Real_t>(member->m_type)->m_kind;
-                            // std::cout<<a_kind<<std::endl;
+                            a_kind<<std::endl;
                             mem_type = getFPType(a_kind);
                             break;
                         }
