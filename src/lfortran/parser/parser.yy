@@ -1796,8 +1796,8 @@ select_type_body_statement
     ;
 
 while_statement
-    : KW_DO KW_WHILE "(" expr ")" sep statements enddo {
-            $$ = WHILE($4, TRIVIA_AFTER($6, @$), $7, @$); }
+    : KW_DO comma_opt KW_WHILE "(" expr ")" sep statements enddo {
+            $$ = WHILE($5, TRIVIA_AFTER($7, @$), $8, @$); }
     | KW_DOWHILE "(" expr ")" sep statements enddo {
                 $$ = WHILE($3, TRIVIA_AFTER($5, @$), $6, @$); }
     ;
@@ -1806,20 +1806,20 @@ while_statement
 do_statement
     : KW_DO sep statements enddo {
             $$ = DO1(TRIVIA_AFTER($2, @$), $3, @$); }
-    | KW_DO id "=" expr "," expr sep statements enddo {
-            $$ = DO2($2, $4, $6, TRIVIA_AFTER($7, @$), $8, @$); }
-    | KW_DO id "=" expr "," expr "," expr sep statements enddo {
-            $$ = DO3($2, $4, $6, $8, TRIVIA_AFTER($9, @$), $10, @$); }
-    | KW_DO TK_INTEGER id "=" expr "," expr sep statements enddo {
-            $$ = DO2_LABEL(INTEGER3($2), $3, $5, $7, TRIVIA_AFTER($8, @$), $9, @$); }
-    | KW_DO TK_INTEGER id "=" expr "," expr "," expr sep statements enddo {
-            $$ = DO3_LABEL(INTEGER3($2), $3, $5, $7, $9, TRIVIA_AFTER($10, @$), $11, @$); }
-    | KW_DO KW_CONCURRENT "(" concurrent_control_list ")"
+    | KW_DO comma_opt id "=" expr "," expr sep statements enddo {
+            $$ = DO2($3, $5, $7, TRIVIA_AFTER($8, @$), $9, @$); }
+    | KW_DO comma_opt id "=" expr "," expr "," expr sep statements enddo {
+            $$ = DO3($3, $5, $7, $9, TRIVIA_AFTER($10, @$), $11, @$); }
+    | KW_DO TK_INTEGER comma_opt id "=" expr "," expr sep statements enddo {
+            $$ = DO2_LABEL(INTEGER3($2), $4, $6, $8, TRIVIA_AFTER($9, @$), $10, @$); }
+    | KW_DO TK_INTEGER comma_opt id "=" expr "," expr "," expr sep statements enddo {
+            $$ = DO3_LABEL(INTEGER3($2), $4, $6, $8, $10, TRIVIA_AFTER($11, @$), $12, @$); }
+    | KW_DO comma_opt KW_CONCURRENT "(" concurrent_control_list ")"
         concurrent_locality_star sep statements enddo {
-            $$ = DO_CONCURRENT1($4, $6, TRIVIA_AFTER($7, @$), $8, @$); }
-    | KW_DO KW_CONCURRENT "(" concurrent_control_list "," expr ")"
+            $$ = DO_CONCURRENT1($5, $7, TRIVIA_AFTER($8, @$), $9, @$); }
+    | KW_DO comma_opt KW_CONCURRENT "(" concurrent_control_list "," expr ")"
         concurrent_locality_star sep statements enddo {
-            $$ = DO_CONCURRENT2($4, $6, $8, TRIVIA_AFTER($9, @$), $10, @$); }
+            $$ = DO_CONCURRENT2($5, $7, $9, TRIVIA_AFTER($10, @$), $11, @$); }
     ;
 
 concurrent_control_list
@@ -1848,6 +1848,11 @@ concurrent_locality
     | KW_DEFAULT "(" KW_NONE ")" { $$ = CONCURRENT_DEFAULT(@$); }
     | KW_REDUCE "(" reduce_op ":" id_list ")" {
         $$ = CONCURRENT_REDUCE($3, $5, @$); }
+    ;
+
+comma_opt
+    : ","
+    | %empty
     ;
 
 forall_statement

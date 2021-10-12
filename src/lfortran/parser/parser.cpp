@@ -209,8 +209,8 @@ void copy_rest_of_line(std::string &out, const std::string &s, size_t &pos)
 }
 
 // Checks that newlines are computed correctly
-bool check_newlines(const std::string &s, const std::vector<uint32_t> newlines) {
-    std::vector<uint32_t> newlines2 = {0};
+bool check_newlines(const std::string &s, const std::vector<uint32_t> &newlines) {
+    std::vector<uint32_t> newlines2;
     for (uint32_t pos=0; pos < s.size(); pos++) {
         if (s[pos] == '\n') newlines2.push_back(pos);
     }
@@ -293,7 +293,6 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
         // `out` is the final code (outcome)
         lm.out_start.push_back(0);
         lm.in_start.push_back(0);
-        lm.in_newlines.push_back(0);
         std::string out;
         size_t pos = 0;
         bool in_comment = false;
@@ -333,7 +332,6 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
 
         // Add the position of EOF as the last \n, whether or not the original
         // file has it
-        lm.in_newlines.push_back(pos);
         lm.in_start.push_back(pos);
         lm.out_start.push_back(out.size());
         return out;
@@ -664,8 +662,8 @@ std::string format_syntax_error(const std::string &filename,
         const LocationManager &lm)
 {
     uint32_t first_line, first_column, last_line, last_column;
-    lm.pos_to_linecol(lm.output_to_input_pos(loc.first), first_line, first_column);
-    lm.pos_to_linecol(lm.output_to_input_pos(loc.last), last_line, last_column);
+    lm.pos_to_linecol(lm.output_to_input_pos(loc.first, false), first_line, first_column);
+    lm.pos_to_linecol(lm.output_to_input_pos(loc.last, true), last_line, last_column);
 
     std::stringstream out;
     out << filename << ":" << first_line << ":" << first_column;
@@ -712,8 +710,8 @@ std::string format_semantic_error(const std::string &filename,
         const LocationManager &lm)
 {
     uint32_t first_line, first_column, last_line, last_column;
-    lm.pos_to_linecol(lm.output_to_input_pos(loc.first), first_line, first_column);
-    lm.pos_to_linecol(lm.output_to_input_pos(loc.last), last_line, last_column);
+    lm.pos_to_linecol(lm.output_to_input_pos(loc.first, false), first_line, first_column);
+    lm.pos_to_linecol(lm.output_to_input_pos(loc.last, true), last_line, last_column);
 
     std::stringstream out;
     out << filename << ":" << first_line << ":" << first_column;

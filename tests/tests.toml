@@ -108,6 +108,42 @@ filename = "errors/subroutine5.f90"
 asr = true
 
 [[test]]
+filename = "errors/cpp1.f90"
+asr_preprocess = true
+
+[[test]]
+filename = "errors/cpp2.f90"
+asr_preprocess = true
+
+[[test]]
+filename = "errors/cpp3.f90"
+asr_preprocess = true
+
+[[test]]
+filename = "errors/cpp4.f90"
+asr_preprocess = true
+
+[[test]]
+filename = "errors/cpp5.f90"
+asr_preprocess = true
+
+[[test]]
+filename = "errors/cpp6.f90"
+asr_preprocess = true
+
+[[test]]
+filename = "preprocessor1.f90"
+asr_preprocess = true
+
+[[test]]
+filename = "preprocessor2.f90"
+asr_preprocess = true
+
+[[test]]
+filename = "preprocessor3.f90"
+asr_preprocess = true
+
+[[test]]
 filename = "expr1.f90"
 ast = true
 asr = true
