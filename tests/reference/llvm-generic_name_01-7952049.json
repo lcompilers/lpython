@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-generic_name_01-7952049",
+    "cmd": "lfortran --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/generic_name_01.f90",
+    "infile_hash": "412cff197c97ec2ab225b22c480cea7fa3755e6a6f963ab8d08d2995",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-generic_name_01-7952049.stdout",
+    "stdout_hash": "a036c42f3e9c25447815ebd4355ebf5eed8b9ed47648cabe60bf858a",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
