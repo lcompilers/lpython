@@ -531,7 +531,6 @@ public:
                         }
                         case ASR::ttypeType::Real: {
                             int a_kind = down_cast<ASR::Real_t>(member->m_type)->m_kind;
-                            a_kind<<std::endl;
                             mem_type = getFPType(a_kind);
                             break;
                         }
