@@ -27,8 +27,17 @@ void parse_macro_definition(const std::string &line,
     subs = line.substr(i, line.size()-i-1);
 }
 
+std::string parse_argument(const std::string &line, size_t &i) {
+    std::string arg;
+    while (line[i] != ')' && line[i] != ',') {
+        arg += line[i];
+        i++;
+    }
+    return arg;
+}
+
 void parse_macro_definition2(const std::string &line,
-    std::string &name, std::vector<std::string> &/*args*/, std::string &subs)
+    std::string &name, std::vector<std::string> &args, std::string &subs)
 {
     size_t i = 0;
     i += std::string("#define").size();
@@ -36,9 +45,11 @@ void parse_macro_definition2(const std::string &line,
     size_t s1 = i;
     while (line[i] != '(') i++;
     name = std::string(&line[s1], i-s1);
-    // TODO: parse args here
-    while (line[i] != ')') i++;
     i++;
+    while (line[i] != ')') {
+        args.push_back(parse_argument(line, i));
+        if (line[i] == ',') i++;
+    }
     while (line[i] == ' ') i++;
     subs = line.substr(i, line.size()-i-1);
 }
