@@ -420,31 +420,32 @@ int emit_ast_f90(const std::string &infile, CompilerOptions &compiler_options)
     return 0;
 }
 
-int format(const std::string &file, bool inplace, bool color, int indent,
-    bool indent_unit, bool fixed_form)
+int format(const std::string &infile, bool inplace, bool color, int indent,
+    bool indent_unit, bool fixed_form, CompilerOptions &compiler_options)
 {
-    if (inplace) color = false;
-    std::string input = read_file(file);
-    // Src -> AST
-    Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::parse2(al, input, color, fixed_form);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
-        return 1;
-    } catch (const LFortran::ParserError &e) {
-        std::cerr << "Parsing error: " << e.msg() << std::endl;
+    std::string input = read_file(infile);
+
+    compiler_options.fixed_form = fixed_form;
+
+    LFortran::FortranEvaluator fe(compiler_options);
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    LFortran::FortranEvaluator::Result<LFortran::AST::TranslationUnit_t*>
+        r = fe.get_ast2(input, lm);
+    if (!r.ok) {
+        std::cerr << fe.format_error(r.error, input, lm);
         return 2;
     }
+    LFortran::AST::TranslationUnit_t* ast = r.result;
 
     // AST -> Source
+    if (inplace) color = false;
     std::string source = LFortran::ast_to_src(*ast, color,
         indent, indent_unit);
 
     if (inplace) {
         std::ofstream out;
-        out.open(file);
+        out.open(infile);
         out << source;
     } else {
         std::cout << source;
@@ -1242,7 +1243,7 @@ int main(int argc, char *argv[])
 
         if (fmt) {
             return format(arg_fmt_file, arg_fmt_inplace, !arg_fmt_no_color,
-                arg_fmt_indent, arg_fmt_indent_unit, arg_fmt_fixed_form);
+                arg_fmt_indent, arg_fmt_indent_unit, arg_fmt_fixed_form, compiler_options);
         }
 
         if (kernel) {
