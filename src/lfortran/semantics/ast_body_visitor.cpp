@@ -785,6 +785,14 @@ public:
             throw SemanticError("Subroutine '" + sub_name + "' not declared", x.base.base.loc);
         }
         Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+        Vec<ASR::expr_t*> args_with_mdt;
+        if( x.n_member == 1 ) {
+            args_with_mdt.reserve(al, x.n_args + 1);
+            args_with_mdt.push_back(al, v_expr);
+            for( size_t i = 0; i < args.size(); i++ ) {
+                args_with_mdt.push_back(al, args[i]);
+            }
+        }
         ASR::symbol_t *final_sym=nullptr;
         switch (original_sym->type) {
             case (ASR::symbolType::Subroutine) : {
@@ -794,7 +802,13 @@ public:
             }
             case (ASR::symbolType::GenericProcedure) : {
                 ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(original_sym);
-                int idx = select_generic_procedure(args, *p, x.base.base.loc);
+                int idx;
+                if( x.n_member == 1 ) {
+                    idx = select_generic_procedure(args_with_mdt, *p, x.base.base.loc);
+                } else {
+                    idx = select_generic_procedure(args, *p, x.base.base.loc);
+                }
+                // Create ExternalSymbol for procedures in different modules.
                 final_sym = p->m_procs[idx];
                 break;
             }

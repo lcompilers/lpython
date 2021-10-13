@@ -66,6 +66,7 @@ class SymbolTableVisitor : public CommonVisitor<SymbolTableVisitor> {
 public:
     SymbolTable *global_scope;
     std::map<std::string, std::vector<std::string>> generic_procedures;
+    std::map<std::string, std::map<std::string, std::vector<std::string>>> generic_class_procedures;
     std::map<AST::intrinsicopType, std::vector<std::string>> overloaded_op_procs;
     std::map<std::string, std::vector<std::string>> defined_op_procs;
     std::map<std::string, std::map<std::string, std::string>> class_procedures;
@@ -156,6 +157,7 @@ public:
         add_generic_procedures();
         add_overloaded_procedures();
         add_class_procedures();
+        add_generic_class_procedures();
         add_assignment_procedures();
         tmp = tmp0;
         // Add module dependencies
@@ -1093,6 +1095,35 @@ public:
         }
     }
 
+    void add_generic_class_procedures() {
+        for (auto &proc : generic_class_procedures) {
+            Location loc;
+            loc.first = 1;
+            loc.last = 1;
+            ASR::DerivedType_t *clss = ASR::down_cast<ASR::DerivedType_t>(
+                                            current_scope->scope[proc.first]);
+            for (auto &pname : proc.second) {
+                Vec<ASR::symbol_t*> cand_procs;
+                cand_procs.reserve(al, pname.second.size());
+                for( std::string &cand_proc: pname.second ) {
+                    if( clss->m_symtab->scope.find(cand_proc) != clss->m_symtab->scope.end() ) {
+                        cand_procs.push_back(al, clss->m_symtab->scope[cand_proc]);
+                    } else {
+                        throw SemanticError(cand_proc + " doesn't exist inside " + proc.first + " type", loc);
+                    }
+                }
+                Str s;
+                s.from_str_view(pname.first);
+                char *generic_name = s.c_str(al);
+                ASR::asr_t *v = ASR::make_GenericProcedure_t(al, loc,
+                    clss->m_symtab, generic_name, cand_procs.p, cand_procs.size(),
+                    ASR::accessType::Public); // Update the access as per the input Fortran code
+                ASR::symbol_t *cls_proc_sym = ASR::down_cast<ASR::symbol_t>(v);
+                clss->m_symtab->scope[pname.first] = cls_proc_sym;
+            }
+        }
+    }
+
     void add_class_procedures() {
         for (auto &proc : class_procedures) {
             // FIXME LOCATION
@@ -1354,6 +1385,14 @@ public:
                     throw LFortranException("Only Subroutines, Functions, Variables and Derived supported in 'use'");
                 }
             }
+        }
+    }
+
+    void visit_GenericName(const AST::GenericName_t& x) {
+        std::string generic_name = to_lower(std::string(x.m_name));
+        for( size_t i = 0; i < x.n_names; i++ ) {
+            std::string x_m_name = std::string(x.m_names[i]);
+            generic_class_procedures[dt_name][generic_name].push_back(to_lower(x_m_name));
         }
     }
 
