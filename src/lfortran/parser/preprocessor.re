@@ -29,10 +29,12 @@ void parse_macro_definition(const std::string &line,
 
 std::string parse_argument(const std::string &line, size_t &i) {
     std::string arg;
-    while (line[i] != ')' && line[i] != ',') {
+    while (line[i] == ' ') i++;
+    while (line[i] != ')' && line[i] != ',' && line[i] != ' ') {
         arg += line[i];
         i++;
     }
+    while (line[i] == ' ') i++;
     return arg;
 }
 
@@ -123,7 +125,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
-            "#define" whitespace name '(' name (',' name)* ')' whitespace [^\n\x00]* newline  {
+            "#define" whitespace name '(' whitespace? name whitespace? (',' whitespace? name whitespace?)* ')' whitespace [^\n\x00]* newline  {
                 std::string macro_name, macro_subs;
                 std::vector<std::string> args;
                 parse_macro_definition2(token(tok, cur),
