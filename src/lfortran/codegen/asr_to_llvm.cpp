@@ -522,7 +522,6 @@ public:
                 if (!ASR::is_a<ASR::ClassProcedure_t>(*itr->second) &&
                     !ASR::is_a<ASR::GenericProcedure_t>(*itr->second)) { 
                     ASR::Variable_t* member = (ASR::Variable_t*)(&(itr->second->base));
-                    "Debug: "<<member->m_name<<std::endl;
                     llvm::Type* mem_type = nullptr;
                     switch( member->m_type->type ) {
                         case ASR::ttypeType::Integer: {
