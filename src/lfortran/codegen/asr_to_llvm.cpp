@@ -521,7 +521,7 @@ public:
             for( auto itr = scope.begin(); itr != scope.end(); itr++ ) {
                 if (!ASR::is_a<ASR::ClassProcedure_t>(*itr->second) &&
                     !ASR::is_a<ASR::GenericProcedure_t>(*itr->second)) { 
-                    ASR::Variable_t* member = (ASR::Variable_t*)(&(itr->second->base));
+                    ASR::Variable_t* member = ASR::down_cast<ASR::Variable_t>(itr->second);
                     llvm::Type* mem_type = nullptr;
                     switch( member->m_type->type ) {
                         case ASR::ttypeType::Integer: {
