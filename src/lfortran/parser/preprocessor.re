@@ -70,7 +70,6 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
     LFORTRAN_ASSERT(input[input.size()] == '\0');
     unsigned char *string_start=(unsigned char*)(&input[0]);
     unsigned char *cur = string_start;
-    std::map<std::string, FnMacro> fn_macro_definitions;
     Location loc;
     std::string output;
     lm.preprocessor = true;
@@ -124,7 +123,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 FnMacro fn;
                 fn.args = args;
                 fn.expansion = macro_subs;
-                fn_macro_definitions[macro_name] = fn;
+                macro_definitions[macro_name] = macro_subs;
                 lm.out_start0.push_back(output.size());
                 lm.in_start0.push_back(cur-string_start);
                 // The just created interval ID:
