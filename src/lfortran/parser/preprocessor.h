@@ -7,12 +7,26 @@
 namespace LFortran
 {
 
+struct CPPMacro {
+    /*
+        Is the macro function-like.
+
+        true:  #define f(a,b,c) a+b+c
+        false: #define f something
+    */
+    bool function_like=false;
+    std::vector<std::string> args; // Only used if function_like == true
+    std::string expansion;
+};
+
+typedef std::map<std::string, CPPMacro> cpp_symtab;
+
 class CPreprocessor
 {
 public:
     std::string token(unsigned char *tok, unsigned char* cur) const;
     std::string run(const std::string &input, LocationManager &lm,
-        std::map<std::string, std::string> &macro_definitions) const;
+        cpp_symtab &macro_definitions) const;
 
     // Return the current token's location
     void token_loc(Location &loc, unsigned char *tok, unsigned char* cur,

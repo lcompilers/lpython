@@ -60,13 +60,8 @@ void get_newlines(const std::string &s, std::vector<uint32_t> &newlines) {
     }
 }
 
-struct FnMacro {
-    std::vector<std::string> args;
-    std::string expansion;
-};
-
 std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
-        std::map<std::string, std::string> &macro_definitions) const {
+        cpp_symtab &macro_definitions) const {
     LFORTRAN_ASSERT(input[input.size()] == '\0');
     unsigned char *string_start=(unsigned char*)(&input[0]);
     unsigned char *cur = string_start;
@@ -106,7 +101,9 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 std::string macro_name, macro_subs;
                 parse_macro_definition(token(tok, cur),
                     macro_name, macro_subs);
-                macro_definitions[macro_name] = macro_subs;
+                CPPMacro fn;
+                fn.expansion = macro_subs;
+                macro_definitions[macro_name] = fn;
                 lm.out_start0.push_back(output.size());
                 lm.in_start0.push_back(cur-string_start);
                 // The just created interval ID:
@@ -120,10 +117,11 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 std::vector<std::string> args;
                 parse_macro_definition2(token(tok, cur),
                     macro_name, args, macro_subs);
-                FnMacro fn;
+                CPPMacro fn;
+                fn.function_like = true;
                 fn.args = args;
                 fn.expansion = macro_subs;
-                macro_definitions[macro_name] = macro_subs;
+                macro_definitions[macro_name] = fn;
                 lm.out_start0.push_back(output.size());
                 lm.in_start0.push_back(cur-string_start);
                 // The just created interval ID:
@@ -184,7 +182,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                     lm.interval_type0.push_back(0);
 
                     // Expand the macro recursively
-                    std::string expansion = macro_definitions[t];
+                    std::string expansion = macro_definitions[t].expansion;
                     std::string expansion2;
                     int i = 0;
                     while (expansion2 != expansion) {
