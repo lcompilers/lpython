@@ -42,6 +42,21 @@ void get_newlines(const std::string &s, std::vector<uint32_t> &newlines) {
     }
 }
 
+void interval_end(LocationManager &lm, size_t output_len,
+                size_t input_len, size_t input_interval_len,
+                uint32_t interval_type) {
+    lm.out_start0.push_back(output_len);
+    lm.in_start0.push_back(input_len);
+    lm.in_size0.push_back(input_interval_len);
+    lm.interval_type0.push_back(interval_type);
+}
+
+void interval_end_type_0(LocationManager &lm, size_t output_len,
+                size_t input_len) {
+    size_t input_interval_len = output_len-lm.out_start0[lm.out_start0.size()-1];
+    interval_end(lm, output_len, input_len, input_interval_len, 0);
+}
+
 struct IfDef {
     bool active=true;
     bool branch_enabled=true;
@@ -98,12 +113,8 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 CPPMacro fn;
                 fn.expansion = macro_subs;
                 macro_definitions[macro_name] = fn;
-                lm.out_start0.push_back(output.size());
-                lm.in_start0.push_back(cur-string_start);
-                // The just created interval ID:
-                size_t N = lm.out_start0.size()-2;
-                lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
-                lm.interval_type0.push_back(0);
+
+                interval_end_type_0(lm, output.size(), cur-string_start);
                 continue;
             }
             "#" whitespace? "define" whitespace @t1 name @t2 '(' whitespace? name whitespace? (',' whitespace? name whitespace?)* ')' whitespace @t3 [^\n\x00]* @t4 newline  {
@@ -116,12 +127,8 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 fn.args = args;
                 fn.expansion = macro_subs;
                 macro_definitions[macro_name] = fn;
-                lm.out_start0.push_back(output.size());
-                lm.in_start0.push_back(cur-string_start);
-                // The just created interval ID:
-                size_t N = lm.out_start0.size()-2;
-                lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
-                lm.interval_type0.push_back(0);
+
+                interval_end_type_0(lm, output.size(), cur-string_start);
                 continue;
             }
             "#" whitespace? "undef" whitespace @t1 name @t2 whitespace? newline  {
@@ -131,12 +138,8 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 if (search != macro_definitions.end()) {
                     macro_definitions.erase(search);
                 }
-                lm.out_start0.push_back(output.size());
-                lm.in_start0.push_back(cur-string_start);
-                // The just created interval ID:
-                size_t N = lm.out_start0.size()-2;
-                lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
-                lm.interval_type0.push_back(0);
+
+                interval_end_type_0(lm, output.size(), cur-string_start);
                 continue;
             }
             "#" whitespace? "ifdef" whitespace @t1 name @t2 whitespace? newline  {
@@ -156,12 +159,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 ifdef_stack.push_back(ifdef);
                 if (!ifdef.active) continue;
 
-                lm.out_start0.push_back(output.size());
-                lm.in_start0.push_back(cur-string_start);
-                // The just created interval ID:
-                size_t N = lm.out_start0.size()-2;
-                lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
-                lm.interval_type0.push_back(0);
+                interval_end_type_0(lm, output.size(), cur-string_start);
                 continue;
             }
             "#" whitespace? "ifndef" whitespace @t1 name @t2 whitespace? newline  {
@@ -181,12 +179,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 ifdef_stack.push_back(ifdef);
                 if (!ifdef.active) continue;
 
-                lm.out_start0.push_back(output.size());
-                lm.in_start0.push_back(cur-string_start);
-                // The just created interval ID:
-                size_t N = lm.out_start0.size()-2;
-                lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
-                lm.interval_type0.push_back(0);
+                interval_end_type_0(lm, output.size(), cur-string_start);
                 continue;
             }
             "#" whitespace? "else" whitespace? newline  {
@@ -201,12 +194,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                     continue;
                 }
 
-                lm.out_start0.push_back(output.size());
-                lm.in_start0.push_back(cur-string_start);
-                // The just created interval ID:
-                size_t N = lm.out_start0.size()-2;
-                lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
-                lm.interval_type0.push_back(0);
+                interval_end_type_0(lm, output.size(), cur-string_start);
                 continue;
             }
             "#" whitespace? "endif" whitespace? newline  {
@@ -221,12 +209,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                     continue;
                 }
 
-                lm.out_start0.push_back(output.size());
-                lm.in_start0.push_back(cur-string_start);
-                // The just created interval ID:
-                size_t N = lm.out_start0.size()-2;
-                lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
-                lm.interval_type0.push_back(0);
+                interval_end_type_0(lm, output.size(), cur-string_start);
                 continue;
             }
             "#" whitespace? "include" whitespace '"' @t1 [^"\x00]* @t2 '"' [^\n\x00]* newline {
@@ -249,23 +232,14 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 include = run(include, lm_tmp, macro_definitions);
 
                 // Prepare the start of the interval
-                lm.out_start0.push_back(output.size());
-                lm.in_start0.push_back(tok-string_start);
-                // The just created interval ID:
-                size_t N = lm.out_start0.size()-2;
-                lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
-                lm.interval_type0.push_back(0);
+                interval_end_type_0(lm, output.size(), tok-string_start);
 
                 // Include
                 output.append(include);
 
                 // Prepare the end of the interval
-                lm.out_start0.push_back(output.size());
-                lm.in_start0.push_back(cur-string_start);
-                // The just created interval ID:
-                N = lm.out_start0.size()-2;
-                lm.in_size0.push_back(token(tok, cur).size()-1);
-                lm.interval_type0.push_back(1);
+                interval_end(lm, output.size(), cur-string_start,
+                    token(tok, cur).size()-1, 1);
                 continue;
             }
             name {
@@ -273,12 +247,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 std::string t = token(tok, cur);
                 if (macro_definitions.find(t) != macro_definitions.end()) {
                     // Prepare the start of the interval
-                    lm.out_start0.push_back(output.size());
-                    lm.in_start0.push_back(tok-string_start);
-                    // The just created interval ID:
-                    size_t N = lm.out_start0.size()-2;
-                    lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
-                    lm.interval_type0.push_back(0);
+                    interval_end_type_0(lm, output.size(), tok-string_start);
 
                     // Expand the macro once
                     std::string expansion;
@@ -317,12 +286,8 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                     output.append(expansion);
 
                     // Prepare the end of the interval
-                    lm.out_start0.push_back(output.size());
-                    lm.in_start0.push_back(cur-string_start);
-                    // The just created interval ID:
-                    N = lm.out_start0.size()-2;
-                    lm.in_size0.push_back(t.size());
-                    lm.interval_type0.push_back(1);
+                    interval_end(lm, output.size(), cur-string_start,
+                        t.size(), 1);
                 } else {
                     output.append(t);
                 }
