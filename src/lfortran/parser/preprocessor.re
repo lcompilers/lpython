@@ -176,6 +176,24 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
+            "#ifndef" whitespace name whitespace? newline  {
+                std::string macro_name, empty;
+                parse_macro_definition(token(tok, cur),
+                    macro_name, empty);
+                LFORTRAN_ASSERT(empty.size() == 0);
+                if (macro_definitions.find(macro_name) != macro_definitions.end()) {
+                    branch_enabled = false;
+                } else {
+                    branch_enabled = true;
+                }
+                lm.out_start0.push_back(output.size());
+                lm.in_start0.push_back(cur-string_start);
+                // The just created interval ID:
+                size_t N = lm.out_start0.size()-2;
+                lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
+                lm.interval_type0.push_back(0);
+                continue;
+            }
             "#else" whitespace? newline  {
                 branch_enabled = !branch_enabled;
 
