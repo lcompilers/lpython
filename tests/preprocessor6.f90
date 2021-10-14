@@ -75,4 +75,51 @@ print *, "2b"
 # endif
 #endif
 
+! more nesting
+
+#ifdef X
+print *, "10"
+# ifdef Y
+  print *, "1a0"
+#   ifdef Z
+    print *, "1aa"
+#   else
+    print *, "1ab"
+#   endif
+  print *, "1ac"
+# else
+print *, "1b"
+# endif
+print *, "1c"
+#else
+print *, "20"
+# ifdef Y
+  print *, "20"
+#   ifdef Z
+    print *, "2aa"
+#   else
+    print *, "2ab"
+#   endif
+  print *, "2a"
+# else
+  print *, "2b"
+# endif
+print *, "2c"
+#endif
+
+
+#ifdef X
+print *, "10"
+# ifdef Y
+  print *, "1a0"
+#   ifdef X
+    print *, "1aa"
+#   else
+    print *, "1ab"
+#   endif
+  print *, "1ac"
+# endif
+print *, "1c"
+#endif
+
 end program
