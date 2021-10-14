@@ -196,8 +196,7 @@ Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(
         if (compiler_options.c_preprocessor) {
             // Preprocessor
             CPreprocessor cpp;
-            cpp_symtab md;
-            tmp = cpp.run(code_orig, lm, md);
+            tmp = cpp.run(code_orig, lm, cpp.macro_definitions);
             code = &tmp;
         }
         if (compiler_options.prescan || compiler_options.fixed_form) {

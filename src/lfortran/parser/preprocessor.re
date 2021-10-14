@@ -9,6 +9,11 @@
 namespace LFortran
 {
 
+CPreprocessor::CPreprocessor() {
+    CPPMacro md;
+    md.expansion = "1";
+    macro_definitions["__LFORTRAN__"] = md;
+}
 std::string CPreprocessor::token(unsigned char *tok, unsigned char* cur) const
 {
     return std::string((char *)tok, cur - tok);
