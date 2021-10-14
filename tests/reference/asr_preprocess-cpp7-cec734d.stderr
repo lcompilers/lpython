@@ -1,0 +1,3 @@
+input:116:21 semantic error: Variable 'z12' not declared
+    print *, "1aa", z12, 5
+                    ^~~
