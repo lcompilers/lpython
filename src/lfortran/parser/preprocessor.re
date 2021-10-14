@@ -21,8 +21,9 @@ void parse_macro_definition(const std::string &line,
     i += std::string("#define").size();
     while (line[i] == ' ') i++;
     size_t s1 = i;
-    while (line[i] != ' ') i++;
+    while (line[i] != '\n' && line[i] != ' ') i++;
     name = std::string(&line[s1], i-s1);
+    if (line[i] == '\n') return; // Just a macro definition, no expansion
     while (line[i] == ' ') i++;
     subs = line.substr(i, line.size()-i-1);
 }
