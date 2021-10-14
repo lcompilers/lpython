@@ -42,6 +42,11 @@ void get_newlines(const std::string &s, std::vector<uint32_t> &newlines) {
     }
 }
 
+struct IfDef {
+    bool active=true;
+    bool branch_enabled=true;
+};
+
 std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
         cpp_symtab &macro_definitions) const {
     LFORTRAN_ASSERT(input[input.size()] == '\0');
@@ -52,6 +57,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
     get_newlines(input, lm.in_newlines0);
     lm.out_start0.push_back(0);
     lm.in_start0.push_back(0);
+    std::vector<IfDef> ifdef_stack;
     bool branch_enabled = true;
     for (;;) {
         unsigned char *tok = cur;
@@ -134,12 +140,22 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 continue;
             }
             "#" whitespace? "ifdef" whitespace @t1 name @t2 whitespace? newline  {
-                std::string macro_name = token(t1, t2);
-                if (macro_definitions.find(macro_name) != macro_definitions.end()) {
-                    branch_enabled = true;
+                IfDef ifdef;
+                ifdef.active = branch_enabled;
+                if (ifdef.active) {
+                    std::string macro_name = token(t1, t2);
+                    if (macro_definitions.find(macro_name) != macro_definitions.end()) {
+                        ifdef.branch_enabled = true;
+                    } else {
+                        ifdef.branch_enabled = false;
+                    }
+                    branch_enabled = ifdef.branch_enabled;
                 } else {
-                    branch_enabled = false;
+                    ifdef.branch_enabled = false;
                 }
+                ifdef_stack.push_back(ifdef);
+                if (!ifdef.active) continue;
+
                 lm.out_start0.push_back(output.size());
                 lm.in_start0.push_back(cur-string_start);
                 // The just created interval ID:
@@ -149,12 +165,22 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 continue;
             }
             "#" whitespace? "ifndef" whitespace @t1 name @t2 whitespace? newline  {
-                std::string macro_name = token(t1, t2);
-                if (macro_definitions.find(macro_name) != macro_definitions.end()) {
-                    branch_enabled = false;
+                IfDef ifdef;
+                ifdef.active = branch_enabled;
+                if (ifdef.active) {
+                    std::string macro_name = token(t1, t2);
+                    if (macro_definitions.find(macro_name) != macro_definitions.end()) {
+                        ifdef.branch_enabled = false;
+                    } else {
+                        ifdef.branch_enabled = true;
+                    }
+                    branch_enabled = ifdef.branch_enabled;
                 } else {
-                    branch_enabled = true;
+                    ifdef.branch_enabled = false;
                 }
+                ifdef_stack.push_back(ifdef);
+                if (!ifdef.active) continue;
+
                 lm.out_start0.push_back(output.size());
                 lm.in_start0.push_back(cur-string_start);
                 // The just created interval ID:
@@ -164,7 +190,16 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 continue;
             }
             "#" whitespace? "else" whitespace? newline  {
-                branch_enabled = !branch_enabled;
+                if (ifdef_stack.size() == 0) {
+                    throw LFortranException("C preprocessor: #else encountered outside of #ifdef or #ifndef");
+                }
+                IfDef ifdef = ifdef_stack[ifdef_stack.size()-1];
+                if (ifdef.active) {
+                    ifdef.branch_enabled = !ifdef.branch_enabled;
+                    branch_enabled = ifdef.branch_enabled;
+                } else {
+                    continue;
+                }
 
                 lm.out_start0.push_back(output.size());
                 lm.in_start0.push_back(cur-string_start);
@@ -175,7 +210,16 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 continue;
             }
             "#" whitespace? "endif" whitespace? newline  {
-                branch_enabled = true;
+                if (ifdef_stack.size() == 0) {
+                    throw LFortranException("C preprocessor: #endif encountered outside of #ifdef or #ifndef");
+                }
+                IfDef ifdef = ifdef_stack[ifdef_stack.size()-1];
+                ifdef_stack.pop_back();
+                if (ifdef.active) {
+                    branch_enabled = true;
+                } else {
+                    continue;
+                }
 
                 lm.out_start0.push_back(output.size());
                 lm.in_start0.push_back(cur-string_start);
