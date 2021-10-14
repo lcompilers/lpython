@@ -41,30 +41,13 @@ std::string parse_argument(unsigned char *&cur) {
 
 std::vector<std::string> parse_arguments(unsigned char *&cur) {
     std::vector<std::string> args;
+    LFORTRAN_ASSERT(*cur == '(');
+    cur++;
     while (*cur != ')') {
         args.push_back(parse_argument(cur));
         if (*cur == ',') cur++;
     }
     return args;
-}
-
-void parse_macro_definition2(const std::string &line,
-    std::string &name, std::vector<std::string> &args, std::string &subs)
-{
-    size_t i = 0;
-    i += std::string("#define").size();
-    while (line[i] == ' ') i++;
-    size_t s1 = i;
-    while (line[i] != '(') i++;
-    name = std::string(&line[s1], i-s1);
-    i++;
-    const char *line_i = &line[i];
-    unsigned char *cur0 = (unsigned char*) line_i;
-    unsigned char *cur = cur0;
-    args = parse_arguments(cur);
-    i += cur-cur0+1;
-    while (line[i] == ' ') i++;
-    subs = line.substr(i, line.size()-i-1);
 }
 
 void get_newlines(const std::string &s, std::vector<uint32_t> &newlines) {
@@ -131,12 +114,11 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
-            "#define" whitespace name '(' whitespace? name whitespace? (',' whitespace? name whitespace?)* ')' whitespace [^\n\x00]* newline  {
+            "#" whitespace? "define" whitespace @t1 name @t2 '(' whitespace? name whitespace? (',' whitespace? name whitespace?)* ')' whitespace @t3 [^\n\x00]* @t4 newline  {
                 if (!branch_enabled) continue;
-                std::string macro_name, macro_subs;
-                std::vector<std::string> args;
-                parse_macro_definition2(token(tok, cur),
-                    macro_name, args, macro_subs);
+                std::string macro_name = token(t1, t2),
+                        macro_subs = token(t3, t4);
+                std::vector<std::string> args = parse_arguments(t2);
                 CPPMacro fn;
                 fn.function_like = true;
                 fn.args = args;
@@ -274,7 +256,6 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                         if (*cur != '(') {
                             throw LFortranException("C preprocessor: function-like macro invocation must have argument list");
                         }
-                        cur++;
                         std::vector<std::string> args;
                         args = parse_arguments(cur);
                         if (*cur != ')') {
