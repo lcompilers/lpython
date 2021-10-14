@@ -204,7 +204,8 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                     lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
                     lm.interval_type0.push_back(0);
 
-                    // Expand the macro recursively
+                    // Expand the macro once
+                    std::string expansion;
                     if (macro_definitions[t].function_like) {
                         if (*cur != '(') {
                             throw LFortranException("C preprocessor: function-like macro invocation must have argument list");
@@ -216,27 +217,29 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                             throw LFortranException("C preprocessor: expected )");
                         }
                         cur++;
-                        std::string expansion = function_like_macro_expansion(
+                        expansion = function_like_macro_expansion(
                             macro_definitions[t].args,
                             macro_definitions[t].expansion,
                             args);
-                        // TODO: recursive expansion
-                        output.append(expansion);
                     } else {
-                        std::string expansion = macro_definitions[t].expansion;
-                        std::string expansion2;
-                        int i = 0;
-                        while (expansion2 != expansion) {
-                            expansion2 = expansion;
-                            LocationManager lm_tmp = lm; // Make a copy
-                            expansion = run(expansion2, lm_tmp, macro_definitions);
-                            i++;
-                            if (i == 40) {
-                                throw LFortranException("C preprocessor: maximum recursion limit reached");
-                            }
-                        }
-                        output.append(expansion);
+                        expansion = macro_definitions[t].expansion;
                     }
+
+                    // Recursively expand the expansion
+                    std::string expansion2;
+                    int i = 0;
+                    while (expansion2 != expansion) {
+                        expansion2 = expansion;
+                        LocationManager lm_tmp = lm; // Make a copy
+                        expansion = run(expansion2, lm_tmp, macro_definitions);
+                        i++;
+                        if (i == 40) {
+                            throw LFortranException("C preprocessor: maximum recursion limit reached");
+                        }
+                    }
+
+                    // Output the final recursively expanded macro
+                    output.append(expansion);
 
                     // Prepare the end of the interval
                     lm.out_start0.push_back(output.size());
