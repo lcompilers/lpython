@@ -9,6 +9,22 @@
 namespace LFortran
 {
 
+CPreprocessor::CPreprocessor(CompilerOptions &compiler_options)
+    : compiler_options{compiler_options} {
+    CPPMacro md;
+    md.expansion = "1";
+    macro_definitions["__LFORTRAN__"] = md;
+    md.expansion = "\"" + std::string(LFORTRAN_VERSION) + "\"";
+    macro_definitions["__VERSION__"] = md;
+    if (compiler_options.platform == Platform::Windows) {
+        md.expansion = "1";
+        macro_definitions["_WIN32"] = md;
+    }
+    md.expansion = "\"\"";
+    macro_definitions["__FILE__"] = md;
+    md.expansion = "0";
+    macro_definitions["__LINE__"] = md;
+}
 std::string CPreprocessor::token(unsigned char *tok, unsigned char* cur) const
 {
     return std::string((char *)tok, cur - tok);
@@ -74,6 +90,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
     lm.in_start0.push_back(0);
     std::vector<IfDef> ifdef_stack;
     bool branch_enabled = true;
+    macro_definitions["__FILE__"].expansion = "\"" + lm.in_filename + "\"";
     for (;;) {
         unsigned char *tok = cur;
         unsigned char *mar;
@@ -266,7 +283,14 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                             macro_definitions[t].expansion,
                             args);
                     } else {
-                        expansion = macro_definitions[t].expansion;
+                        if (t == "__LINE__") {
+                            uint32_t pos = cur-string_start;
+                            uint32_t line, col;
+                            lm.pos_to_linecol(pos, line, col);
+                            expansion = std::to_string(line);
+                        } else {
+                            expansion = macro_definitions[t].expansion;
+                        }
                     }
 
                     // Recursively expand the expansion
