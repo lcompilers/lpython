@@ -99,10 +99,13 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
     for (;;) {
         unsigned char *tok = cur;
         unsigned char *mar;
+        unsigned char *t1, *t2;
+        /*!stags:re2c format = 'unsigned char *@@;\n'; */
         /*!re2c
             re2c:define:YYCURSOR = cur;
             re2c:define:YYMARKER = mar;
             re2c:yyfill:enable = 0;
+            re2c:flags:tags = 1;
             re2c:define:YYCTYPE = "unsigned char";
 
             end = "\x00";
@@ -158,12 +161,9 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
-            "#undef" whitespace name whitespace? newline  {
+            "#undef" whitespace @t1 name @t2 whitespace? newline  {
                 if (!branch_enabled) continue;
-                std::string macro_name, empty;
-                parse_macro_definition(token(tok, cur),
-                    macro_name, empty);
-                LFORTRAN_ASSERT(empty.size() == 0);
+                std::string macro_name = token(t1, t2);
                 auto search = macro_definitions.find(macro_name);
                 if (search != macro_definitions.end()) {
                     macro_definitions.erase(search);
