@@ -161,7 +161,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
-            "#undef" whitespace @t1 name @t2 whitespace? newline  {
+            "#" whitespace? "undef" whitespace @t1 name @t2 whitespace? newline  {
                 if (!branch_enabled) continue;
                 std::string macro_name = token(t1, t2);
                 auto search = macro_definitions.find(macro_name);
