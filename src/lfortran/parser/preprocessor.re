@@ -123,7 +123,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
             end {
                 break;
             }
-            "#define" whitespace name whitespace [^\n\x00]* newline  {
+            "#define" whitespace name (whitespace? | whitespace [^\n\x00]* ) newline  {
                 if (!branch_enabled) continue;
                 std::string macro_name, macro_subs;
                 parse_macro_definition(token(tok, cur),
