@@ -67,17 +67,6 @@ void parse_macro_definition2(const std::string &line,
     subs = line.substr(i, line.size()-i-1);
 }
 
-void parse_include_line(const std::string &line, std::string &filename)
-{
-    size_t i = 0;
-    i += std::string("#include").size();
-    while (line[i] != '"') i++;
-    i++;
-    size_t s1 = i;
-    while (line[i] != '"') i++;
-    filename = std::string(&line[s1], i-s1);
-}
-
 void get_newlines(const std::string &s, std::vector<uint32_t> &newlines) {
     for (uint32_t pos=0; pos < s.size(); pos++) {
         if (s[pos] == '\n') newlines.push_back(pos);
@@ -228,12 +217,9 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
-            "#include" whitespace '"' [^"\x00]* '"' [^\n\x00]* newline {
+            "#" whitespace? "include" whitespace '"' @t1 [^"\x00]* @t2 '"' [^\n\x00]* newline {
                 if (!branch_enabled) continue;
-                std::string line = token(tok, cur);
-                std::string include;
-                std::string filename;
-                parse_include_line(line, filename);
+                std::string filename = token(t1, t2);
                 // Construct a filename relative to the current file
                 // TODO: make this multiplatform
                 std::string base_dir = lm.in_filename;
@@ -242,6 +228,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                     base_dir = base_dir.substr(0, n);
                     filename = base_dir + "/" + filename;
                 }
+                std::string include;
                 if (!read_file(filename, include)) {
                     throw LFortranException("C preprocessor: include file '" + filename + "' cannot be opened");
                 }
