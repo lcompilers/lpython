@@ -14,20 +14,6 @@ std::string CPreprocessor::token(unsigned char *tok, unsigned char* cur) const
     return std::string((char *)tok, cur - tok);
 }
 
-void parse_macro_definition(const std::string &line,
-    std::string &name, std::string &subs)
-{
-    size_t i = 0;
-    i += std::string("#define").size();
-    while (line[i] == ' ') i++;
-    size_t s1 = i;
-    while (line[i] != '\n' && line[i] != ' ') i++;
-    name = std::string(&line[s1], i-s1);
-    if (line[i] == '\n') return; // Just a macro definition, no expansion
-    while (line[i] == ' ') i++;
-    subs = line.substr(i, line.size()-i-1);
-}
-
 std::string parse_argument(unsigned char *&cur) {
     std::string arg;
     while (*cur == ' ') cur++;
