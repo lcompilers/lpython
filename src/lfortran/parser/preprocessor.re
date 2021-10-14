@@ -78,7 +78,6 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
     LFORTRAN_ASSERT(input[input.size()] == '\0');
     unsigned char *string_start=(unsigned char*)(&input[0]);
     unsigned char *cur = string_start;
-    Location loc;
     std::string output;
     lm.preprocessor = true;
     get_newlines(input, lm.in_newlines0);
@@ -108,7 +107,6 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
 
             * {
                 if (!branch_enabled) continue;
-                token_loc(loc, tok, cur, string_start);
                 output.append(token(tok, cur));
                 continue;
             }
