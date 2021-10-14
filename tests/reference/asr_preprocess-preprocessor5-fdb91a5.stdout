@@ -1,0 +1,1 @@
+(TranslationUnit (SymbolTable 1 {preprocessor5: (Program (SymbolTable 2 {}) preprocessor5 [] [(Print () [(ConstantInteger 1 (Integer 4 []))]) (Print () [(ConstantInteger 3 (Integer 4 []))]) (Print () [(ConstantInteger 6 (Integer 4 []))])])}) [])
