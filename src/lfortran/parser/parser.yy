@@ -373,6 +373,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> sub_args
 %type <ast> function
 %type <ast> use_statement
+%type <ast> use_statement1
 %type <vec_ast> use_statement_star
 %type <ast> use_symbol
 %type <vec_ast> use_symbol_list
@@ -1085,13 +1086,17 @@ use_statement_star
     ;
 
 use_statement
-    : KW_USE use_modifiers id sep { $$ = USE1($2, $3, TRIVIA_AFTER($4, @$), @$); }
-    | KW_USE use_modifiers id "," KW_ONLY ":" use_symbol_list sep {
-            $$ = USE2($2, $3, $7, TRIVIA_AFTER($8, @$), @$); }
-    | KW_USE use_modifiers id "," KW_ONLY ":" sep {
-            $$ = USE3($2, $3, TRIVIA_AFTER($7, @$), @$); }
-    | KW_USE use_modifiers id "," use_symbol_list sep {
-            $$ = USE4($2, $3, $5, TRIVIA_AFTER($6, @$), @$); }
+    : use_statement1 sep { $$ = $1; TRIVIA2_($$, TRIVIA_AFTER($2, @$)); }
+    ;
+
+use_statement1
+    : KW_USE use_modifiers id { $$ = USE1($2, $3, nullptr, @$); }
+    | KW_USE use_modifiers id "," KW_ONLY ":" use_symbol_list {
+            $$ = USE2($2, $3, $7, nullptr, @$); }
+    | KW_USE use_modifiers id "," KW_ONLY ":" {
+            $$ = USE3($2, $3, nullptr, @$); }
+    | KW_USE use_modifiers id "," use_symbol_list {
+            $$ = USE4($2, $3, $5, nullptr, @$); }
     ;
 
 import_statement_star

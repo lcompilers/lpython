@@ -2088,6 +2088,8 @@ ast_t* set_trivia(Allocator &al, Location &l,
 
 #define TRIVIA_(stmt, trivia) if(trivia != nullptr) \
         set_m_trivia(down_cast<stmt_t>(stmt), down_cast<trivia_t>(trivia));
+#define TRIVIA2_(stmt, trivia) if(trivia != nullptr) \
+        down_cast2<Use_t>(stmt)->m_trivia = down_cast<trivia_t>(trivia);
 #define TRIVIA(x, y, l) set_trivia(p.m_a, l, \
         VEC_CAST(x, trivia_node), x.size(), \
         VEC_CAST(y, trivia_node), y.size())
