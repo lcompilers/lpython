@@ -9,7 +9,8 @@
 namespace LFortran
 {
 
-CPreprocessor::CPreprocessor() {
+CPreprocessor::CPreprocessor(CompilerOptions &compiler_options)
+    : compiler_options{compiler_options} {
     CPPMacro md;
     md.expansion = "1";
     macro_definitions["__LFORTRAN__"] = md;

@@ -1062,11 +1062,11 @@ int link_executable(const std::vector<std::string> &infiles,
     }
 }
 
-int emit_c_preprocessor(const std::string &infile, CompilerOptions &/*compiler_options*/)
+int emit_c_preprocessor(const std::string &infile, CompilerOptions &compiler_options)
 {
     std::string input = read_file(infile);
 
-    LFortran::CPreprocessor cpp;
+    LFortran::CPreprocessor cpp(compiler_options);
     LFortran::LocationManager lm;
     lm.in_filename = infile;
     std::string s = cpp.run(input, lm, cpp.macro_definitions);
