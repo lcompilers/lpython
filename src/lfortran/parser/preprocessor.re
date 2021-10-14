@@ -191,11 +191,8 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
-            "#ifndef" whitespace name whitespace? newline  {
-                std::string macro_name, empty;
-                parse_macro_definition(token(tok, cur),
-                    macro_name, empty);
-                LFORTRAN_ASSERT(empty.size() == 0);
+            "#" whitespace? "ifndef" whitespace @t1 name @t2 whitespace? newline  {
+                std::string macro_name = token(t1, t2);
                 if (macro_definitions.find(macro_name) != macro_definitions.end()) {
                     branch_enabled = false;
                 } else {
@@ -209,7 +206,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
-            "#else" whitespace? newline  {
+            "#" whitespace? "else" whitespace? newline  {
                 branch_enabled = !branch_enabled;
 
                 lm.out_start0.push_back(output.size());
@@ -220,7 +217,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
-            "#endif" whitespace? newline  {
+            "#" whitespace? "endif" whitespace? newline  {
                 branch_enabled = true;
 
                 lm.out_start0.push_back(output.size());
