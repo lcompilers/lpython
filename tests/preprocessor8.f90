@@ -3,7 +3,9 @@ program preprocessor8
 implicit none
 
 print *, __LFORTRAN__
-print *, __VERSION__
+#ifdef __VERSION__
+print *, "__VERSION__ present"
+#endif
 print *, __FILE__
 print *, __LINE__
 print *, __LINE__
