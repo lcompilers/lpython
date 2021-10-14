@@ -61,7 +61,7 @@ void parse_macro_definition2(const std::string &line,
     unsigned char *cur0 = (unsigned char*) line_i;
     unsigned char *cur = cur0;
     args = parse_arguments(cur);
-    i += cur-cur0;
+    i += cur-cur0+1;
     while (line[i] == ' ') i++;
     subs = line.substr(i, line.size()-i-1);
 }
@@ -216,7 +216,12 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                             throw LFortranException("C preprocessor: expected )");
                         }
                         cur++;
-                        std::cout << args.size() << std::endl;
+                        std::string expansion = function_like_macro_expansion(
+                            macro_definitions[t].args,
+                            macro_definitions[t].expansion,
+                            args);
+                        // TODO: recursive expansion
+                        output.append(expansion);
                     } else {
                         std::string expansion = macro_definitions[t].expansion;
                         std::string expansion2;
@@ -280,5 +285,54 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
 
     return output;
 }
+
+std::string CPreprocessor::function_like_macro_expansion(
+            std::vector<std::string> &def_args,
+            std::string &expansion,
+            std::vector<std::string> &call_args) const {
+    LFORTRAN_ASSERT(expansion[expansion.size()] == '\0');
+    unsigned char *string_start=(unsigned char*)(&expansion[0]);
+    unsigned char *cur = string_start;
+    std::string output;
+    for (;;) {
+        unsigned char *tok = cur;
+        unsigned char *mar;
+        /*!re2c
+            re2c:define:YYCURSOR = cur;
+            re2c:define:YYMARKER = mar;
+            re2c:yyfill:enable = 0;
+            re2c:define:YYCTYPE = "unsigned char";
+
+            * {
+                output.append(token(tok, cur));
+                continue;
+            }
+            end {
+                break;
+            }
+            name {
+                std::string t = token(tok, cur);
+                auto search = std::find(def_args.begin(), def_args.end(), t);
+                if (search != def_args.end()) {
+                    size_t i = std::distance(def_args.begin(), search);
+                    output.append(call_args[i]);
+                } else {
+                    output.append(t);
+                }
+                continue;
+            }
+            '"' ('""'|[^"\x00])* '"' {
+                output.append(token(tok, cur));
+                continue;
+            }
+            "'" ("''"|[^'\x00])* "'" {
+                output.append(token(tok, cur));
+                continue;
+            }
+        */
+    }
+    return output;
+}
+
 
 } // namespace LFortran
