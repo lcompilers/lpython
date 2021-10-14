@@ -27,22 +27,22 @@ void parse_macro_definition(const std::string &line,
     subs = line.substr(i, line.size()-i-1);
 }
 
-std::string parse_argument(const std::string &line, size_t &i) {
+std::string parse_argument(unsigned char *&cur) {
     std::string arg;
-    while (line[i] == ' ') i++;
-    while (line[i] != ')' && line[i] != ',' && line[i] != ' ') {
-        arg += line[i];
-        i++;
+    while (*cur == ' ') cur++;
+    while (*cur != ')' && *cur != ',' && *cur != ' ') {
+        arg += *cur;
+        cur++;
     }
-    while (line[i] == ' ') i++;
+    while (*cur == ' ') cur++;
     return arg;
 }
 
-std::vector<std::string> parse_arguments(const std::string &line, size_t &i) {
+std::vector<std::string> parse_arguments(unsigned char *&cur) {
     std::vector<std::string> args;
-    while (line[i] != ')') {
-        args.push_back(parse_argument(line, i));
-        if (line[i] == ',') i++;
+    while (*cur != ')') {
+        args.push_back(parse_argument(cur));
+        if (*cur == ',') cur++;
     }
     return args;
 }
@@ -57,7 +57,11 @@ void parse_macro_definition2(const std::string &line,
     while (line[i] != '(') i++;
     name = std::string(&line[s1], i-s1);
     i++;
-    args = parse_arguments(line, i);
+    const char *line_i = &line[i];
+    unsigned char *cur0 = (unsigned char*) line_i;
+    unsigned char *cur = cur0;
+    args = parse_arguments(cur);
+    i += cur-cur0;
     while (line[i] == ' ') i++;
     subs = line.substr(i, line.size()-i-1);
 }
