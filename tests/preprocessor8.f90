@@ -3,5 +3,6 @@ program preprocessor8
 implicit none
 
 print *, __LFORTRAN__
+print *, __VERSION__
 
 end program

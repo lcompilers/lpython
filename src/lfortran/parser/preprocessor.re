@@ -14,6 +14,8 @@ CPreprocessor::CPreprocessor(CompilerOptions &compiler_options)
     CPPMacro md;
     md.expansion = "1";
     macro_definitions["__LFORTRAN__"] = md;
+    md.expansion = "\"" + std::string(LFORTRAN_VERSION) + "\"";
+    macro_definitions["__VERSION__"] = md;
 }
 std::string CPreprocessor::token(unsigned char *tok, unsigned char* cur) const
 {
