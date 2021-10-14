@@ -14,20 +14,6 @@ std::string CPreprocessor::token(unsigned char *tok, unsigned char* cur) const
     return std::string((char *)tok, cur - tok);
 }
 
-void parse_macro_definition(const std::string &line,
-    std::string &name, std::string &subs)
-{
-    size_t i = 0;
-    i += std::string("#define").size();
-    while (line[i] == ' ') i++;
-    size_t s1 = i;
-    while (line[i] != '\n' && line[i] != ' ') i++;
-    name = std::string(&line[s1], i-s1);
-    if (line[i] == '\n') return; // Just a macro definition, no expansion
-    while (line[i] == ' ') i++;
-    subs = line.substr(i, line.size()-i-1);
-}
-
 std::string parse_argument(unsigned char *&cur) {
     std::string arg;
     while (*cur == ' ') cur++;
@@ -41,41 +27,13 @@ std::string parse_argument(unsigned char *&cur) {
 
 std::vector<std::string> parse_arguments(unsigned char *&cur) {
     std::vector<std::string> args;
+    LFORTRAN_ASSERT(*cur == '(');
+    cur++;
     while (*cur != ')') {
         args.push_back(parse_argument(cur));
         if (*cur == ',') cur++;
     }
     return args;
-}
-
-void parse_macro_definition2(const std::string &line,
-    std::string &name, std::vector<std::string> &args, std::string &subs)
-{
-    size_t i = 0;
-    i += std::string("#define").size();
-    while (line[i] == ' ') i++;
-    size_t s1 = i;
-    while (line[i] != '(') i++;
-    name = std::string(&line[s1], i-s1);
-    i++;
-    const char *line_i = &line[i];
-    unsigned char *cur0 = (unsigned char*) line_i;
-    unsigned char *cur = cur0;
-    args = parse_arguments(cur);
-    i += cur-cur0+1;
-    while (line[i] == ' ') i++;
-    subs = line.substr(i, line.size()-i-1);
-}
-
-void parse_include_line(const std::string &line, std::string &filename)
-{
-    size_t i = 0;
-    i += std::string("#include").size();
-    while (line[i] != '"') i++;
-    i++;
-    size_t s1 = i;
-    while (line[i] != '"') i++;
-    filename = std::string(&line[s1], i-s1);
 }
 
 void get_newlines(const std::string &s, std::vector<uint32_t> &newlines) {
@@ -89,7 +47,6 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
     LFORTRAN_ASSERT(input[input.size()] == '\0');
     unsigned char *string_start=(unsigned char*)(&input[0]);
     unsigned char *cur = string_start;
-    Location loc;
     std::string output;
     lm.preprocessor = true;
     get_newlines(input, lm.in_newlines0);
@@ -99,10 +56,13 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
     for (;;) {
         unsigned char *tok = cur;
         unsigned char *mar;
+        unsigned char *t1, *t2, *t3, *t4;
+        /*!stags:re2c format = 'unsigned char *@@;\n'; */
         /*!re2c
             re2c:define:YYCURSOR = cur;
             re2c:define:YYMARKER = mar;
             re2c:yyfill:enable = 0;
+            re2c:flags:tags = 1;
             re2c:define:YYCTYPE = "unsigned char";
 
             end = "\x00";
@@ -116,18 +76,19 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
 
             * {
                 if (!branch_enabled) continue;
-                token_loc(loc, tok, cur, string_start);
                 output.append(token(tok, cur));
                 continue;
             }
             end {
                 break;
             }
-            "#define" whitespace name (whitespace? | whitespace [^\n\x00]* ) newline  {
+            "#" whitespace? "define" whitespace @t1 name @t2 (whitespace? | whitespace @t3 [^\n\x00]* @t4 ) newline  {
                 if (!branch_enabled) continue;
-                std::string macro_name, macro_subs;
-                parse_macro_definition(token(tok, cur),
-                    macro_name, macro_subs);
+                std::string macro_name = token(t1, t2), macro_subs;
+                if (t3 != nullptr) {
+                    LFORTRAN_ASSERT(t4 != nullptr);
+                    macro_subs = token(t3, t4);
+                }
                 CPPMacro fn;
                 fn.expansion = macro_subs;
                 macro_definitions[macro_name] = fn;
@@ -139,12 +100,11 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
-            "#define" whitespace name '(' whitespace? name whitespace? (',' whitespace? name whitespace?)* ')' whitespace [^\n\x00]* newline  {
+            "#" whitespace? "define" whitespace @t1 name @t2 '(' whitespace? name whitespace? (',' whitespace? name whitespace?)* ')' whitespace @t3 [^\n\x00]* @t4 newline  {
                 if (!branch_enabled) continue;
-                std::string macro_name, macro_subs;
-                std::vector<std::string> args;
-                parse_macro_definition2(token(tok, cur),
-                    macro_name, args, macro_subs);
+                std::string macro_name = token(t1, t2),
+                        macro_subs = token(t3, t4);
+                std::vector<std::string> args = parse_arguments(t2);
                 CPPMacro fn;
                 fn.function_like = true;
                 fn.args = args;
@@ -158,12 +118,9 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
-            "#undef" whitespace name whitespace? newline  {
+            "#" whitespace? "undef" whitespace @t1 name @t2 whitespace? newline  {
                 if (!branch_enabled) continue;
-                std::string macro_name, empty;
-                parse_macro_definition(token(tok, cur),
-                    macro_name, empty);
-                LFORTRAN_ASSERT(empty.size() == 0);
+                std::string macro_name = token(t1, t2);
                 auto search = macro_definitions.find(macro_name);
                 if (search != macro_definitions.end()) {
                     macro_definitions.erase(search);
@@ -176,11 +133,8 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
-            "#ifdef" whitespace name whitespace? newline  {
-                std::string macro_name, empty;
-                parse_macro_definition(token(tok, cur),
-                    macro_name, empty);
-                LFORTRAN_ASSERT(empty.size() == 0);
+            "#" whitespace? "ifdef" whitespace @t1 name @t2 whitespace? newline  {
+                std::string macro_name = token(t1, t2);
                 if (macro_definitions.find(macro_name) != macro_definitions.end()) {
                     branch_enabled = true;
                 } else {
@@ -194,11 +148,8 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
-            "#ifndef" whitespace name whitespace? newline  {
-                std::string macro_name, empty;
-                parse_macro_definition(token(tok, cur),
-                    macro_name, empty);
-                LFORTRAN_ASSERT(empty.size() == 0);
+            "#" whitespace? "ifndef" whitespace @t1 name @t2 whitespace? newline  {
+                std::string macro_name = token(t1, t2);
                 if (macro_definitions.find(macro_name) != macro_definitions.end()) {
                     branch_enabled = false;
                 } else {
@@ -212,7 +163,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
-            "#else" whitespace? newline  {
+            "#" whitespace? "else" whitespace? newline  {
                 branch_enabled = !branch_enabled;
 
                 lm.out_start0.push_back(output.size());
@@ -223,7 +174,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
-            "#endif" whitespace? newline  {
+            "#" whitespace? "endif" whitespace? newline  {
                 branch_enabled = true;
 
                 lm.out_start0.push_back(output.size());
@@ -234,12 +185,9 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
-            "#include" whitespace '"' [^"\x00]* '"' [^\n\x00]* newline {
+            "#" whitespace? "include" whitespace '"' @t1 [^"\x00]* @t2 '"' [^\n\x00]* newline {
                 if (!branch_enabled) continue;
-                std::string line = token(tok, cur);
-                std::string include;
-                std::string filename;
-                parse_include_line(line, filename);
+                std::string filename = token(t1, t2);
                 // Construct a filename relative to the current file
                 // TODO: make this multiplatform
                 std::string base_dir = lm.in_filename;
@@ -248,6 +196,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                     base_dir = base_dir.substr(0, n);
                     filename = base_dir + "/" + filename;
                 }
+                std::string include;
                 if (!read_file(filename, include)) {
                     throw LFortranException("C preprocessor: include file '" + filename + "' cannot be opened");
                 }
@@ -293,7 +242,6 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                         if (*cur != '(') {
                             throw LFortranException("C preprocessor: function-like macro invocation must have argument list");
                         }
-                        cur++;
                         std::vector<std::string> args;
                         args = parse_arguments(cur);
                         if (*cur != ')') {
