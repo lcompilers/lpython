@@ -87,7 +87,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
     for (;;) {
         unsigned char *tok = cur;
         unsigned char *mar;
-        unsigned char *t1, *t2;
+        unsigned char *t1, *t2, *t3, *t4;
         /*!stags:re2c format = 'unsigned char *@@;\n'; */
         /*!re2c
             re2c:define:YYCURSOR = cur;
@@ -113,11 +113,13 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
             end {
                 break;
             }
-            "#define" whitespace name (whitespace? | whitespace [^\n\x00]* ) newline  {
+            "#" whitespace? "define" whitespace @t1 name @t2 (whitespace? | whitespace @t3 [^\n\x00]* @t4 ) newline  {
                 if (!branch_enabled) continue;
-                std::string macro_name, macro_subs;
-                parse_macro_definition(token(tok, cur),
-                    macro_name, macro_subs);
+                std::string macro_name = token(t1, t2), macro_subs;
+                if (t3 != nullptr) {
+                    LFORTRAN_ASSERT(t4 != nullptr);
+                    macro_subs = token(t3, t4);
+                }
                 CPPMacro fn;
                 fn.expansion = macro_subs;
                 macro_definitions[macro_name] = fn;
