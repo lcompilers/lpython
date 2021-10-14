@@ -21,8 +21,9 @@ void parse_macro_definition(const std::string &line,
     i += std::string("#define").size();
     while (line[i] == ' ') i++;
     size_t s1 = i;
-    while (line[i] != ' ') i++;
+    while (line[i] != '\n' && line[i] != ' ') i++;
     name = std::string(&line[s1], i-s1);
+    if (line[i] == '\n') return; // Just a macro definition, no expansion
     while (line[i] == ' ') i++;
     subs = line.substr(i, line.size()-i-1);
 }
@@ -94,6 +95,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
     get_newlines(input, lm.in_newlines0);
     lm.out_start0.push_back(0);
     lm.in_start0.push_back(0);
+    bool branch_enabled = true;
     for (;;) {
         unsigned char *tok = cur;
         unsigned char *mar;
@@ -113,6 +115,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
             int = digit+;
 
             * {
+                if (!branch_enabled) continue;
                 token_loc(loc, tok, cur, string_start);
                 output.append(token(tok, cur));
                 continue;
@@ -120,7 +123,8 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
             end {
                 break;
             }
-            "#define" whitespace name whitespace [^\n\x00]* newline  {
+            "#define" whitespace name (whitespace? | whitespace [^\n\x00]* ) newline  {
+                if (!branch_enabled) continue;
                 std::string macro_name, macro_subs;
                 parse_macro_definition(token(tok, cur),
                     macro_name, macro_subs);
@@ -136,6 +140,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 continue;
             }
             "#define" whitespace name '(' whitespace? name whitespace? (',' whitespace? name whitespace?)* ')' whitespace [^\n\x00]* newline  {
+                if (!branch_enabled) continue;
                 std::string macro_name, macro_subs;
                 std::vector<std::string> args;
                 parse_macro_definition2(token(tok, cur),
@@ -153,7 +158,48 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
+            "#ifdef" whitespace name whitespace? newline  {
+                std::string macro_name, empty;
+                parse_macro_definition(token(tok, cur),
+                    macro_name, empty);
+                LFORTRAN_ASSERT(empty.size() == 0);
+                if (macro_definitions.find(macro_name) != macro_definitions.end()) {
+                    branch_enabled = true;
+                } else {
+                    branch_enabled = false;
+                }
+                lm.out_start0.push_back(output.size());
+                lm.in_start0.push_back(cur-string_start);
+                // The just created interval ID:
+                size_t N = lm.out_start0.size()-2;
+                lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
+                lm.interval_type0.push_back(0);
+                continue;
+            }
+            "#else" whitespace? newline  {
+                branch_enabled = !branch_enabled;
+
+                lm.out_start0.push_back(output.size());
+                lm.in_start0.push_back(cur-string_start);
+                // The just created interval ID:
+                size_t N = lm.out_start0.size()-2;
+                lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
+                lm.interval_type0.push_back(0);
+                continue;
+            }
+            "#endif" whitespace? newline  {
+                branch_enabled = true;
+
+                lm.out_start0.push_back(output.size());
+                lm.in_start0.push_back(cur-string_start);
+                // The just created interval ID:
+                size_t N = lm.out_start0.size()-2;
+                lm.in_size0.push_back(lm.out_start0[N+1]-lm.out_start0[N]);
+                lm.interval_type0.push_back(0);
+                continue;
+            }
             "#include" whitespace '"' [^"\x00]* '"' [^\n\x00]* newline {
+                if (!branch_enabled) continue;
                 std::string line = token(tok, cur);
                 std::string include;
                 std::string filename;
@@ -194,6 +240,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 continue;
             }
             name {
+                if (!branch_enabled) continue;
                 std::string t = token(tok, cur);
                 if (macro_definitions.find(t) != macro_definitions.end()) {
                     // Prepare the start of the interval
@@ -254,10 +301,12 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 continue;
             }
             '"' ('""'|[^"\x00])* '"' {
+                if (!branch_enabled) continue;
                 output.append(token(tok, cur));
                 continue;
             }
             "'" ("''"|[^'\x00])* "'" {
+                if (!branch_enabled) continue;
                 output.append(token(tok, cur));
                 continue;
             }
