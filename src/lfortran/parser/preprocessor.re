@@ -205,19 +205,33 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                     lm.interval_type0.push_back(0);
 
                     // Expand the macro recursively
-                    std::string expansion = macro_definitions[t].expansion;
-                    std::string expansion2;
-                    int i = 0;
-                    while (expansion2 != expansion) {
-                        expansion2 = expansion;
-                        LocationManager lm_tmp = lm; // Make a copy
-                        expansion = run(expansion2, lm_tmp, macro_definitions);
-                        i++;
-                        if (i == 40) {
-                            throw LFortranException("C preprocessor: maximum recursion limit reached");
+                    if (macro_definitions[t].function_like) {
+                        if (*cur != '(') {
+                            throw LFortranException("C preprocessor: function-like macro invocation must have argument list");
                         }
+                        cur++;
+                        std::vector<std::string> args;
+                        args = parse_arguments(cur);
+                        if (*cur != ')') {
+                            throw LFortranException("C preprocessor: expected )");
+                        }
+                        cur++;
+                        std::cout << args.size() << std::endl;
+                    } else {
+                        std::string expansion = macro_definitions[t].expansion;
+                        std::string expansion2;
+                        int i = 0;
+                        while (expansion2 != expansion) {
+                            expansion2 = expansion;
+                            LocationManager lm_tmp = lm; // Make a copy
+                            expansion = run(expansion2, lm_tmp, macro_definitions);
+                            i++;
+                            if (i == 40) {
+                                throw LFortranException("C preprocessor: maximum recursion limit reached");
+                            }
+                        }
+                        output.append(expansion);
                     }
-                    output.append(expansion);
 
                     // Prepare the end of the interval
                     lm.out_start0.push_back(output.size());
