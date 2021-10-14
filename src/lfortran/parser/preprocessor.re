@@ -176,11 +176,8 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 lm.interval_type0.push_back(0);
                 continue;
             }
-            "#ifdef" whitespace name whitespace? newline  {
-                std::string macro_name, empty;
-                parse_macro_definition(token(tok, cur),
-                    macro_name, empty);
-                LFORTRAN_ASSERT(empty.size() == 0);
+            "#" whitespace? "ifdef" whitespace @t1 name @t2 whitespace? newline  {
+                std::string macro_name = token(t1, t2);
                 if (macro_definitions.find(macro_name) != macro_definitions.end()) {
                     branch_enabled = true;
                 } else {
