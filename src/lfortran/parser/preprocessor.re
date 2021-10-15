@@ -531,6 +531,7 @@ bool CPreprocessor::evaluate_if_argument(
     CPPTokenType type;
     std::string str;
     get_next_token(cur, type, str);
+    // TODO: Implement recursive descent parser, repeating terms
     if (type == CPPTokenType::TK_NAME) {
         if (str == "defined") {
             accept(cur, CPPTokenType::TK_LPAREN);
