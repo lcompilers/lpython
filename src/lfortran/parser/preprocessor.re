@@ -30,6 +30,20 @@ std::string CPreprocessor::token(unsigned char *tok, unsigned char* cur) const
     return std::string((char *)tok, cur - tok);
 }
 
+std::string parse_continuation_lines(unsigned char *&cur) {
+    std::string output;
+    while (*cur != '\n') {
+        output += *cur;
+        cur++;
+    }
+    cur++;
+    if (output.size() > 0 && output[output.size()-1] == '\\') {
+        output = output.substr(0, output.size()-1);
+        output += parse_continuation_lines(cur);
+    }
+    return output;
+}
+
 std::string parse_argument(unsigned char *&cur) {
     std::string arg;
     while (*cur == ' ') cur++;
@@ -126,6 +140,10 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 if (t3 != nullptr) {
                     LFORTRAN_ASSERT(t4 != nullptr);
                     macro_subs = token(t3, t4);
+                    if (macro_subs.size() > 0 && macro_subs[macro_subs.size()-1] == '\\') {
+                        macro_subs = macro_subs.substr(0, macro_subs.size()-1);
+                        macro_subs += parse_continuation_lines(cur);
+                    }
                 }
                 CPPMacro fn;
                 fn.expansion = macro_subs;
