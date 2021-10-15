@@ -630,6 +630,7 @@ int parse_term(unsigned char *&cur, const cpp_symtab &macro_definitions) {
 factor
     = TK_INTEGER
     | TK_NAME
+    | (-,+) factor
     | "(" b-expr ")"
 */
 int parse_factor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
@@ -647,6 +648,12 @@ int parse_factor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
     } else if (type == CPPTokenType::TK_INTEGER) {
         int i = std::stoi(str);
         return i;
+    } else if (type == CPPTokenType::TK_MINUS) {
+        int result = parse_factor(cur, macro_definitions);
+        return -result;
+    } else if (type == CPPTokenType::TK_PLUS) {
+        int result = parse_factor(cur, macro_definitions);
+        return +result;
     } else if (type == CPPTokenType::TK_LPAREN) {
         int result = parse_bexpr(cur, macro_definitions);
         accept(cur, CPPTokenType::TK_RPAREN);
