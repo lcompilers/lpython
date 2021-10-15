@@ -58,4 +58,11 @@ print *, "X and Y or Z is defined"
 print *, "X and Y or Z is not defined"
 #endif
 
+#if defined(X) &&    \
+    !defined(Y) || !defined(Z)
+print *, "X and !Y or !Z is defined"
+#else
+print *, "X and !Y or !Z is not defined"
+#endif
+
 end program
