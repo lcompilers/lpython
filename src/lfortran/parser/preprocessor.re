@@ -557,6 +557,7 @@ bool parse_expr(unsigned char *&cur, const cpp_symtab &macro_definitions) {
     CPPTokenType type;
     std::string str;
     get_next_token(cur, type, str);
+    unsigned char *old_cur = cur;
     while (type == CPPTokenType::TK_AND || type == CPPTokenType::TK_OR) {
         bool factor = parse_factor(cur, macro_definitions);
         if (type == CPPTokenType::TK_AND) {
@@ -564,13 +565,11 @@ bool parse_expr(unsigned char *&cur, const cpp_symtab &macro_definitions) {
         } else {
             tmp = tmp || factor;
         }
+        old_cur = cur;
         get_next_token(cur, type, str);
     }
-    if (type == CPPTokenType::TK_EOF) {
-        return tmp;
-    } else {
-        throw LFortranException("Unexpected token in expr()");
-    }
+    cur = old_cur; // Revert the last token, as we will not consume it
+    return tmp;
 }
 
 /*
