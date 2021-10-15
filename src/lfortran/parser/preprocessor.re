@@ -547,8 +547,8 @@ std::string accept_name(unsigned char *&cur) {
 bool parse_factor(unsigned char *&cur, const cpp_symtab &macro_definitions);
 
 /*
-expr
-    = factor (("&&"|"||") factor)*
+b-expr
+    = b-factor (("&&"|"||") b-factor)*
 */
 bool parse_expr(unsigned char *&cur, const cpp_symtab &macro_definitions) {
     bool tmp;
@@ -573,10 +573,10 @@ bool parse_expr(unsigned char *&cur, const cpp_symtab &macro_definitions) {
 }
 
 /*
-factor
+b-factor
     = "defined(" TK_NAME ")"
-    | "!" factor
-    | "(" expr ")"
+    | "!" b-factor
+    | "(" b-expr ")"
 */
 bool parse_factor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
     CPPTokenType type;
