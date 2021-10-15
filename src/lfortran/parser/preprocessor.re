@@ -181,7 +181,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 interval_end_type_0(lm, output.size(), cur-string_start);
                 continue;
             }
-            "#" whitespace? "ifdef" whitespace @t1 name @t2 whitespace? newline  {
+            "#" whitespace? "ifdef" whitespace @t1 name @t2 whitespace? newline {
                 IfDef ifdef;
                 ifdef.active = branch_enabled;
                 if (ifdef.active) {
@@ -201,7 +201,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 interval_end_type_0(lm, output.size(), cur-string_start);
                 continue;
             }
-            "#" whitespace? "ifndef" whitespace @t1 name @t2 whitespace? newline  {
+            "#" whitespace? "ifndef" whitespace @t1 name @t2 whitespace? newline {
                 IfDef ifdef;
                 ifdef.active = branch_enabled;
                 if (ifdef.active) {
@@ -210,6 +210,26 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                         ifdef.branch_enabled = false;
                     } else {
                         ifdef.branch_enabled = true;
+                    }
+                    branch_enabled = ifdef.branch_enabled;
+                } else {
+                    ifdef.branch_enabled = false;
+                }
+                ifdef_stack.push_back(ifdef);
+                if (!ifdef.active) continue;
+
+                interval_end_type_0(lm, output.size(), cur-string_start);
+                continue;
+            }
+            "#" whitespace? "if" whitespace "defined" "(" whitespace? @t1 name @t2 whitespace? ")" whitespace? newline {
+                IfDef ifdef;
+                ifdef.active = branch_enabled;
+                if (ifdef.active) {
+                    std::string macro_name = token(t1, t2);
+                    if (macro_definitions.find(macro_name) != macro_definitions.end()) {
+                        ifdef.branch_enabled = true;
+                    } else {
+                        ifdef.branch_enabled = false;
                     }
                     branch_enabled = ifdef.branch_enabled;
                 } else {
