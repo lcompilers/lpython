@@ -528,7 +528,10 @@ void accept(unsigned char *&cur, CPPTokenType type_expected) {
     std::string str;
     get_next_token(cur, type, str);
     if (type != type_expected) {
-        throw LFortranException("Unexpected token");
+        throw LFortranException("Unexpected token type "
+            + std::to_string((int)type)
+            + ", expected type "
+            + std::to_string((int)type_expected) );
     }
 }
 
@@ -537,7 +540,9 @@ std::string accept_name(unsigned char *&cur) {
     std::string str;
     get_next_token(cur, type, str);
     if (type != CPPTokenType::TK_NAME) {
-        throw LFortranException("Unexpected token, expected TK_NAME");
+        throw LFortranException("Unexpected token type "
+            + std::to_string((int)type)
+            + ", expected TK_NAME");
     }
     return str;
 }
@@ -656,8 +661,14 @@ int parse_factor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
         int result = parse_bexpr(cur, macro_definitions);
         accept(cur, CPPTokenType::TK_RPAREN);
         return result;
+
+    // This is the only place where we can get unexpected tokens. Let us
+    // handle them here:
+    } else if (type == CPPTokenType::TK_EOF) {
+        // EOF means the expression
+        throw LFortranException("factor(): The expression is not complete, expecting integer, name, +, - or (");
     } else {
-        throw LFortranException("Unexpected token type " + std::to_string((int)type) + " in expr()");
+        throw LFortranException("Unexpected token type " + std::to_string((int)type) + " in factor()");
     }
 }
 
@@ -726,7 +737,6 @@ int parse_bfactor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
         cur = old_cur; // Restore the token
         int result = parse_relation(cur, macro_definitions);
         return result;
-//        throw LFortranException("Unexpected token type " + std::to_string((int)type) + " in factor()");
     }
 }
 
