@@ -98,6 +98,12 @@ struct IfDef {
     bool branch_enabled=true;
 };
 
+namespace {
+
+bool parse_expr(unsigned char *&cur, const cpp_symtab &macro_definitions);
+
+}
+
 std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
         cpp_symtab &macro_definitions) const {
     LFORTRAN_ASSERT(input[input.size()] == '\0');
@@ -225,8 +231,8 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 IfDef ifdef;
                 ifdef.active = branch_enabled;
                 if (ifdef.active) {
-                    std::string arg = token(t1, t2);
-                    bool test_true = evaluate_if_argument(arg, macro_definitions);
+                    bool test_true = parse_expr(t1, macro_definitions);
+                    cur = t1;
                     if (test_true) {
                         ifdef.branch_enabled = true;
                     } else {
@@ -463,7 +469,7 @@ void get_next_token(unsigned char *&cur, CPPTokenType &type, std::string &str) {
     std::string output;
     for (;;) {
         unsigned char *tok = cur;
-        //unsigned char *mar;
+        unsigned char *mar;
         /*!re2c
             re2c:define:YYCURSOR = cur;
             re2c:define:YYMARKER = mar;
@@ -475,11 +481,18 @@ void get_next_token(unsigned char *&cur, CPPTokenType &type, std::string &str) {
                 throw LFortranException("Unknown token: " + t);
             }
             end {
-                type = CPPTokenType::TK_EOF;
+                throw LFortranException("Unexpected end of file");
                 return;
             }
             whitespace {
                 continue;
+            }
+            "\\" whitespace? newline {
+                continue;
+            }
+            newline {
+                type = CPPTokenType::TK_EOF;
+                return;
             }
             "&&" {
                 type = CPPTokenType::TK_AND;
@@ -588,15 +601,5 @@ bool parse_factor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
 }
 
 }
-
-bool CPreprocessor::evaluate_if_argument(
-            std::string &arg,
-            const cpp_symtab &macro_definitions) const {
-    LFORTRAN_ASSERT(arg[arg.size()] == '\0');
-    unsigned char *cur=(unsigned char*)(&arg[0]);
-    bool result = parse_expr(cur, macro_definitions);
-    return result;
-}
-
 
 } // namespace LFortran
