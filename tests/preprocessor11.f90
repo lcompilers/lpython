@@ -71,4 +71,28 @@ print *, "Y is (6*5-6)/5"
 print *, "Y is not (6*5-6)/5"
 #endif
 
+#if Y == (-5+6*5)/5
+print *, "Y is (-5+6*5)/5"
+#else
+print *, "Y is not (-5+6*5)/5"
+#endif
+
+#if Y == (-6+6*5)/5
+print *, "Y is (-6+6*5)/5"
+#else
+print *, "Y is not (-6+6*5)/5"
+#endif
+
+#if Y == (+5+6*5)/7
+print *, "Y is (+5+6*5)/7"
+#else
+print *, "Y is not (+5+6*5)/7"
+#endif
+
+#if Y == (+4+6*5)/7
+print *, "Y is (+4+6*5)/7"
+#else
+print *, "Y is not (+4+6*5)/7"
+#endif
+
 end program
