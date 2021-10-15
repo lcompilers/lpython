@@ -168,6 +168,10 @@ filename = "preprocessor8.f90"
 asr_preprocess = true
 
 [[test]]
+filename = "preprocessor9.f90"
+asr_preprocess = true
+
+[[test]]
 filename = "expr1.f90"
 ast = true
 asr = true
