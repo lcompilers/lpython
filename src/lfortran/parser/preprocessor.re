@@ -98,6 +98,12 @@ struct IfDef {
     bool branch_enabled=true;
 };
 
+namespace {
+
+bool parse_expr(unsigned char *&cur, const cpp_symtab &macro_definitions);
+
+}
+
 std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
         cpp_symtab &macro_definitions) const {
     LFORTRAN_ASSERT(input[input.size()] == '\0');
@@ -181,7 +187,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 interval_end_type_0(lm, output.size(), cur-string_start);
                 continue;
             }
-            "#" whitespace? "ifdef" whitespace @t1 name @t2 whitespace? newline  {
+            "#" whitespace? "ifdef" whitespace @t1 name @t2 whitespace? newline {
                 IfDef ifdef;
                 ifdef.active = branch_enabled;
                 if (ifdef.active) {
@@ -201,7 +207,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 interval_end_type_0(lm, output.size(), cur-string_start);
                 continue;
             }
-            "#" whitespace? "ifndef" whitespace @t1 name @t2 whitespace? newline  {
+            "#" whitespace? "ifndef" whitespace @t1 name @t2 whitespace? newline {
                 IfDef ifdef;
                 ifdef.active = branch_enabled;
                 if (ifdef.active) {
@@ -210,6 +216,27 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                         ifdef.branch_enabled = false;
                     } else {
                         ifdef.branch_enabled = true;
+                    }
+                    branch_enabled = ifdef.branch_enabled;
+                } else {
+                    ifdef.branch_enabled = false;
+                }
+                ifdef_stack.push_back(ifdef);
+                if (!ifdef.active) continue;
+
+                interval_end_type_0(lm, output.size(), cur-string_start);
+                continue;
+            }
+            "#" whitespace? "if" whitespace @t1 [^\n\x00]* @t2 newline {
+                IfDef ifdef;
+                ifdef.active = branch_enabled;
+                if (ifdef.active) {
+                    bool test_true = parse_expr(t1, macro_definitions);
+                    cur = t1;
+                    if (test_true) {
+                        ifdef.branch_enabled = true;
+                    } else {
+                        ifdef.branch_enabled = false;
                     }
                     branch_enabled = ifdef.branch_enabled;
                 } else {
@@ -425,5 +452,157 @@ std::string CPreprocessor::function_like_macro_expansion(
     return output;
 }
 
+enum CPPTokenType {
+    TK_EOF, TK_NAME, TK_STRING, TK_AND, TK_OR, TK_NEG, TK_LPAREN, TK_RPAREN
+};
+
+namespace {
+
+std::string token(unsigned char *tok, unsigned char* cur)
+{
+    return std::string((char *)tok, cur - tok);
+}
+
+}
+
+void get_next_token(unsigned char *&cur, CPPTokenType &type, std::string &str) {
+    std::string output;
+    for (;;) {
+        unsigned char *tok = cur;
+        unsigned char *mar;
+        /*!re2c
+            re2c:define:YYCURSOR = cur;
+            re2c:define:YYMARKER = mar;
+            re2c:yyfill:enable = 0;
+            re2c:define:YYCTYPE = "unsigned char";
+
+            * {
+                std::string t = token(tok, cur);
+                throw LFortranException("Unknown token: " + t);
+            }
+            end {
+                throw LFortranException("Unexpected end of file");
+                return;
+            }
+            whitespace {
+                continue;
+            }
+            "\\" whitespace? newline {
+                continue;
+            }
+            newline {
+                type = CPPTokenType::TK_EOF;
+                return;
+            }
+            "&&" {
+                type = CPPTokenType::TK_AND;
+                return;
+            }
+            "||" {
+                type = CPPTokenType::TK_OR;
+                return;
+            }
+            "!" {
+                type = CPPTokenType::TK_NEG;
+                return;
+            }
+            "(" {
+                type = CPPTokenType::TK_LPAREN;
+                return;
+            }
+            ")" {
+                type = CPPTokenType::TK_RPAREN;
+                return;
+            }
+            name {
+                str = token(tok, cur);
+                type = CPPTokenType::TK_NAME;
+                return;
+            }
+        */
+    }
+}
+
+namespace {
+
+void accept(unsigned char *&cur, CPPTokenType type_expected) {
+    CPPTokenType type;
+    std::string str;
+    get_next_token(cur, type, str);
+    if (type != type_expected) {
+        throw LFortranException("Unexpected token");
+    }
+}
+
+std::string accept_name(unsigned char *&cur) {
+    CPPTokenType type;
+    std::string str;
+    get_next_token(cur, type, str);
+    if (type != CPPTokenType::TK_NAME) {
+        throw LFortranException("Unexpected token, expected TK_NAME");
+    }
+    return str;
+}
+
+bool parse_factor(unsigned char *&cur, const cpp_symtab &macro_definitions);
+
+/*
+expr
+    = factor (("&&"|"||") factor)*
+*/
+bool parse_expr(unsigned char *&cur, const cpp_symtab &macro_definitions) {
+    bool tmp;
+    tmp = parse_factor(cur, macro_definitions);
+
+    CPPTokenType type;
+    std::string str;
+    get_next_token(cur, type, str);
+    unsigned char *old_cur = cur;
+    while (type == CPPTokenType::TK_AND || type == CPPTokenType::TK_OR) {
+        bool factor = parse_factor(cur, macro_definitions);
+        if (type == CPPTokenType::TK_AND) {
+            tmp = tmp && factor;
+        } else {
+            tmp = tmp || factor;
+        }
+        old_cur = cur;
+        get_next_token(cur, type, str);
+    }
+    cur = old_cur; // Revert the last token, as we will not consume it
+    return tmp;
+}
+
+/*
+factor
+    = "defined(" TK_NAME ")"
+    | "!" factor
+    | "(" expr ")"
+*/
+bool parse_factor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
+    CPPTokenType type;
+    std::string str;
+    get_next_token(cur, type, str);
+    if (type == CPPTokenType::TK_NAME && str == "defined") {
+        accept(cur, CPPTokenType::TK_LPAREN);
+        std::string macro_name = accept_name(cur);
+        accept(cur, CPPTokenType::TK_RPAREN);
+        if (macro_definitions.find(macro_name) != macro_definitions.end()) {
+            return true;
+        } else {
+            return false;
+        }
+    } else if (type == CPPTokenType::TK_NEG) {
+        bool result = parse_factor(cur, macro_definitions);
+        return !result;
+    } else if (type == CPPTokenType::TK_LPAREN) {
+        bool result = parse_expr(cur, macro_definitions);
+        accept(cur, CPPTokenType::TK_RPAREN);
+        return result;
+    } else {
+        throw LFortranException("Unexpected token in factor()");
+    }
+}
+
+}
 
 } // namespace LFortran

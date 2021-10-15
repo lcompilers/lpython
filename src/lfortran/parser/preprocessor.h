@@ -36,7 +36,6 @@ public:
                 std::string &expansion,
                 std::vector<std::string> &call_args) const;
 
-
     // Return the current token's location
     void token_loc(Location &loc, unsigned char *tok, unsigned char* cur,
             unsigned char *string_start) const
