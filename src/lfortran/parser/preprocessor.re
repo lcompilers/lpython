@@ -30,6 +30,8 @@ std::string CPreprocessor::token(unsigned char *tok, unsigned char* cur) const
     return std::string((char *)tok, cur - tok);
 }
 
+void handle_continuation_lines(std::string &s, unsigned char *&cur);
+
 std::string parse_continuation_lines(unsigned char *&cur) {
     std::string output;
     while (*cur != '\n') {
@@ -37,10 +39,7 @@ std::string parse_continuation_lines(unsigned char *&cur) {
         cur++;
     }
     cur++;
-    if (output.size() > 0 && output[output.size()-1] == '\\') {
-        output = output.substr(0, output.size()-1);
-        output += parse_continuation_lines(cur);
-    }
+    handle_continuation_lines(output, cur);
     return output;
 }
 
