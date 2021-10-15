@@ -1615,3 +1615,7 @@ ast_f90 = true
 filename = "issue532.f90"
 asr = true
 llvm = true
+
+[[test]]
+filename = "../integration_tests/bits_01.f90"
+asr = true
