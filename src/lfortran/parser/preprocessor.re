@@ -50,6 +50,8 @@ void handle_continuation_lines(std::string &s, unsigned char *&cur) {
     }
 }
 
+// Parse a macro declaration argument, e.g. in:
+// f(a,b, c,  d  )
 std::string parse_argument(unsigned char *&cur) {
     std::string arg;
     while (*cur == ' ') cur++;
@@ -61,6 +63,8 @@ std::string parse_argument(unsigned char *&cur) {
     return arg;
 }
 
+// Parse a macro call argument, e.g. in:
+// ASSERT(fn(3, 5))
 std::string parse_argument2(unsigned char *&cur) {
     std::string arg;
     while (*cur != ')' && *cur != ',') {
