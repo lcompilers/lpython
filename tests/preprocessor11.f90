@@ -4,6 +4,9 @@ implicit none
 
 #define X 1
 #define Y 5
+#define Z 1+Y*3
+
+print *, Z
 
 #if X == 1
 print *, "X is 1"
@@ -93,6 +96,12 @@ print *, "Y is not (+5+6*5)/7"
 print *, "Y is (+4+6*5)/7"
 #else
 print *, "Y is not (+4+6*5)/7"
+#endif
+
+#if Y == (+5+6*Y)/7
+print *, "Y is (+5+6*Y)/7"
+#else
+print *, "Y is not (+5+6*Y)/7"
 #endif
 
 end program
