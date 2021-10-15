@@ -554,8 +554,7 @@ b-expr
     = b-factor (("&&"|"||") b-factor)*
 */
 int parse_bexpr(unsigned char *&cur, const cpp_symtab &macro_definitions) {
-    bool tmp;
-    tmp = parse_bfactor(cur, macro_definitions) > 0;
+    int tmp = parse_bfactor(cur, macro_definitions);
 
     CPPTokenType type;
     std::string str;
@@ -564,15 +563,15 @@ int parse_bexpr(unsigned char *&cur, const cpp_symtab &macro_definitions) {
     while (type == CPPTokenType::TK_AND || type == CPPTokenType::TK_OR) {
         bool factor = parse_bfactor(cur, macro_definitions) > 0;
         if (type == CPPTokenType::TK_AND) {
-            tmp = tmp && factor;
+            tmp = (int)( (tmp > 0) && (factor > 0) );
         } else {
-            tmp = tmp || factor;
+            tmp = (int)( (tmp > 0) || (factor > 0) );
         }
         old_cur = cur;
         get_next_token(cur, type, str);
     }
     cur = old_cur; // Revert the last token, as we will not consume it
-    return (int)tmp;
+    return tmp;
 }
 
 /*
@@ -698,7 +697,6 @@ b-factor
     = "defined(" TK_NAME ")"
     | "!" b-factor
     | relation
-    | "(" b-expr ")"
 */
 int parse_bfactor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
     CPPTokenType type;
@@ -715,15 +713,9 @@ int parse_bfactor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
             return false;
         }
     } else if (type == CPPTokenType::TK_NEG) {
-        int result = parse_bfactor(cur, macro_definitions);
-        bool bresult = result > 0;
-        bresult = !bresult; // Apply !
-        result = (int) bresult;
-        return result;
-    } else if (type == CPPTokenType::TK_LPAREN) {
-        int result = parse_bexpr(cur, macro_definitions);
-        accept(cur, CPPTokenType::TK_RPAREN);
-        return result;
+        bool bresult = parse_bfactor(cur, macro_definitions) > 0;
+        bresult = !bresult; // Apply "!"
+        return (int) bresult;
     } else {
         // For everything else we commit to relation and handle any potential errors there:
         cur = old_cur; // Restore the token
