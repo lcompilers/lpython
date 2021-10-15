@@ -21,4 +21,10 @@ print *, "Z is defined"
 print *, "Z is not defined"
 #endif
 
+#if defined(X) && defined(Y)
+print *, "X and Y is defined"
+#else
+print *, "X and Y is not defined"
+#endif
+
 end program
