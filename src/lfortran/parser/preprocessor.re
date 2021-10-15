@@ -20,6 +20,17 @@ CPreprocessor::CPreprocessor(CompilerOptions &compiler_options)
         md.expansion = "1";
         macro_definitions["_WIN32"] = md;
     }
+    for (auto &d : compiler_options.c_preprocessor_defines) {
+        std::size_t idx = d.find("=");
+        if (idx != std::string::npos) {
+            md.expansion = d.substr(idx+1);
+            d = d.substr(0, idx);
+        } else {
+            md.expansion = "1";
+        }
+        macro_definitions[d] = md;
+    }
+
     md.expansion = "\"\"";
     macro_definitions["__FILE__"] = md;
     md.expansion = "0";
