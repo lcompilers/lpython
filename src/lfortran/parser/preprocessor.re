@@ -338,9 +338,14 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                             args);
                     } else {
                         if (t == "__LINE__") {
-                            uint32_t pos = cur-string_start;
-                            uint32_t line, col;
-                            lm.pos_to_linecol(pos, line, col);
+                            uint32_t line;
+                            if (lm.current_line == 0) {
+                                uint32_t pos = cur-string_start;
+                                uint32_t col;
+                                lm.pos_to_linecol(pos, line, col);
+                            } else {
+                                line = lm.current_line;
+                            }
                             expansion = std::to_string(line);
                         } else {
                             expansion = macro_definitions[t].expansion;
@@ -353,6 +358,12 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                     while (expansion2 != expansion) {
                         expansion2 = expansion;
                         LocationManager lm_tmp = lm; // Make a copy
+
+                        uint32_t pos = cur-string_start;
+                        uint32_t line, col;
+                        lm.pos_to_linecol(pos, line, col);
+                        lm_tmp.current_line = line;
+
                         expansion = run(expansion2, lm_tmp, macro_definitions);
                         i++;
                         if (i == 40) {
