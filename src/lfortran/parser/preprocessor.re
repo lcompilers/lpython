@@ -146,6 +146,11 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
             end {
                 break;
             }
+            "!" [^\n\x00]* newline {
+                if (!branch_enabled) continue;
+                output.append(token(tok, cur));
+                continue;
+            }
             "#" whitespace? "define" whitespace @t1 name @t2 (whitespace? | whitespace @t3 [^\n\x00]* @t4 ) newline  {
                 if (!branch_enabled) continue;
                 std::string macro_name = token(t1, t2), macro_subs;
