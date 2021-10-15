@@ -576,6 +576,7 @@ bool parse_expr(unsigned char *&cur, const cpp_symtab &macro_definitions) {
 /*
 factor
     = "defined(" TK_NAME ")"
+    | "!" factor
     | "(" expr ")"
 */
 bool parse_factor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
@@ -591,6 +592,9 @@ bool parse_factor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
         } else {
             return false;
         }
+    } else if (type == CPPTokenType::TK_NEG) {
+        bool result = parse_factor(cur, macro_definitions);
+        return !result;
     } else if (type == CPPTokenType::TK_LPAREN) {
         bool result = parse_expr(cur, macro_definitions);
         accept(cur, CPPTokenType::TK_RPAREN);
