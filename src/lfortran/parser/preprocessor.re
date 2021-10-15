@@ -63,12 +63,35 @@ std::string parse_argument(unsigned char *&cur) {
     return arg;
 }
 
+std::string match_parentheses(unsigned char *&cur) {
+    LFORTRAN_ASSERT(*cur == '(')
+    std::string arg;
+    arg += *cur;
+    cur++;
+    while (*cur != ')') {
+        if (*cur == '(') {
+            arg += match_parentheses(cur);
+            LFORTRAN_ASSERT(*cur == ')')
+        } else {
+            arg += *cur;
+        }
+        cur++;
+    }
+    arg += *cur;
+    return arg;
+}
+
 // Parse a macro call argument, e.g. in:
 // ASSERT(fn(3, 5))
 std::string parse_argument2(unsigned char *&cur) {
     std::string arg;
     while (*cur != ')' && *cur != ',') {
-        arg += *cur;
+        if (*cur == '(') {
+            arg += match_parentheses(cur);
+            LFORTRAN_ASSERT(*cur == ')')
+        } else {
+            arg += *cur;
+        }
         cur++;
     }
     return arg;
