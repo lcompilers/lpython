@@ -35,6 +35,8 @@ public:
                 std::vector<std::string> &def_args,
                 std::string &expansion,
                 std::vector<std::string> &call_args) const;
+    bool evaluate_if_argument(std::string &arg,
+            const cpp_symtab &macro_definitions) const;
 
 
     // Return the current token's location

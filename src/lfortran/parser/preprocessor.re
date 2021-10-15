@@ -221,12 +221,13 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 interval_end_type_0(lm, output.size(), cur-string_start);
                 continue;
             }
-            "#" whitespace? "if" whitespace "defined" "(" whitespace? @t1 name @t2 whitespace? ")" whitespace? newline {
+            "#" whitespace? "if" whitespace @t1 [^\n\x00]* @t2 newline {
                 IfDef ifdef;
                 ifdef.active = branch_enabled;
                 if (ifdef.active) {
-                    std::string macro_name = token(t1, t2);
-                    if (macro_definitions.find(macro_name) != macro_definitions.end()) {
+                    std::string arg = token(t1, t2);
+                    bool test_true = evaluate_if_argument(arg, macro_definitions);
+                    if (test_true) {
                         ifdef.branch_enabled = true;
                     } else {
                         ifdef.branch_enabled = false;
@@ -443,6 +444,96 @@ std::string CPreprocessor::function_like_macro_expansion(
         */
     }
     return output;
+}
+
+enum CPPTokenType {
+    TK_EOF, TK_NAME, TK_STRING, TK_AND, TK_OR, TK_NEG, TK_LPAREN, TK_RPAREN
+};
+namespace {
+
+std::string token(unsigned char *tok, unsigned char* cur)
+{
+    return std::string((char *)tok, cur - tok);
+}
+
+}
+
+void get_next_token(unsigned char *&cur, CPPTokenType &type, std::string &str) {
+    std::string output;
+    for (;;) {
+        unsigned char *tok = cur;
+        //unsigned char *mar;
+        /*!re2c
+            re2c:define:YYCURSOR = cur;
+            re2c:define:YYMARKER = mar;
+            re2c:yyfill:enable = 0;
+            re2c:define:YYCTYPE = "unsigned char";
+
+            * {
+                std::string t = token(tok, cur);
+                throw LFortranException("Unknown token: " + t);
+            }
+            end {
+                type = CPPTokenType::TK_EOF;
+                return;
+            }
+            whitespace {
+                continue;
+            }
+            "&&" {
+                type = CPPTokenType::TK_AND;
+                return;
+            }
+            "||" {
+                type = CPPTokenType::TK_OR;
+                return;
+            }
+            "!" {
+                type = CPPTokenType::TK_NEG;
+                return;
+            }
+            "(" {
+                type = CPPTokenType::TK_LPAREN;
+                return;
+            }
+            ")" {
+                type = CPPTokenType::TK_RPAREN;
+                return;
+            }
+            name {
+                str = token(tok, cur);
+                type = CPPTokenType::TK_NAME;
+                return;
+            }
+        */
+    }
+}
+
+bool CPreprocessor::evaluate_if_argument(
+            std::string &arg,
+            const cpp_symtab &macro_definitions) const {
+    LFORTRAN_ASSERT(arg[arg.size()] == '\0');
+    unsigned char *cur=(unsigned char*)(&arg[0]);
+    CPPTokenType type;
+    std::string str;
+    get_next_token(cur, type, str);
+    if (type == CPPTokenType::TK_NAME) {
+        if (str == "defined") {
+            get_next_token(cur, type, str);
+            LFORTRAN_ASSERT(type == CPPTokenType::TK_LPAREN);
+            get_next_token(cur, type, str);
+            LFORTRAN_ASSERT(type == CPPTokenType::TK_NAME);
+            std::string macro_name = str;
+            get_next_token(cur, type, str);
+            LFORTRAN_ASSERT(type == CPPTokenType::TK_RPAREN);
+            if (macro_definitions.find(macro_name) != macro_definitions.end()) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+    return false;
 }
 
 
