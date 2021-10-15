@@ -12,9 +12,16 @@ ASSERT(.true.)
 ASSERT(5 > 3)
 ASSERT(5+3*8 > 3)
 
+ASSERT(fn(3, 5))
+
 ASSERT(5 < 3)
 
 contains
+
+    logical function fn(a, b)
+    integer, intent(in) :: a, b
+    fn = a < b
+    end function
 
     subroutine f90_assert(file, line)
     character(len=*), intent(in) :: file
