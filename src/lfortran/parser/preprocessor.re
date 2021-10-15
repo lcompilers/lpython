@@ -521,6 +521,72 @@ void accept(unsigned char *&cur, CPPTokenType type_expected) {
     }
 }
 
+std::string accept_name(unsigned char *&cur) {
+    CPPTokenType type;
+    std::string str;
+    get_next_token(cur, type, str);
+    if (type != CPPTokenType::TK_NAME) {
+        throw LFortranException("Unexpected token, expected TK_NAME");
+    }
+    return str;
+}
+
+bool parse_factor(unsigned char *&cur, const cpp_symtab &macro_definitions);
+
+/*
+expr
+    = factor (("&&"|"||") factor)*
+*/
+bool parse_expr(unsigned char *&cur, const cpp_symtab &macro_definitions) {
+    bool tmp;
+    tmp = parse_factor(cur, macro_definitions);
+
+    CPPTokenType type;
+    std::string str;
+    get_next_token(cur, type, str);
+    while (type == CPPTokenType::TK_AND || type == CPPTokenType::TK_OR) {
+        bool factor = parse_factor(cur, macro_definitions);
+        if (type == CPPTokenType::TK_AND) {
+            tmp = tmp && factor;
+        } else {
+            tmp = tmp || factor;
+        }
+        get_next_token(cur, type, str);
+    }
+    if (type == CPPTokenType::TK_EOF) {
+        return tmp;
+    } else {
+        throw LFortranException("Unexpected token in expr()");
+    }
+}
+
+/*
+factor
+    = "defined(" TK_NAME ")"
+    | "(" expr ")"
+*/
+bool parse_factor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
+    CPPTokenType type;
+    std::string str;
+    get_next_token(cur, type, str);
+    if (type == CPPTokenType::TK_NAME && str == "defined") {
+        accept(cur, CPPTokenType::TK_LPAREN);
+        std::string macro_name = accept_name(cur);
+        accept(cur, CPPTokenType::TK_RPAREN);
+        if (macro_definitions.find(macro_name) != macro_definitions.end()) {
+            return true;
+        } else {
+            return false;
+        }
+    } else if (type == CPPTokenType::TK_LPAREN) {
+        bool result = parse_expr(cur, macro_definitions);
+        accept(cur, CPPTokenType::TK_RPAREN);
+        return result;
+    } else {
+        throw LFortranException("Unexpected token in factor()");
+    }
+}
+
 }
 
 bool CPreprocessor::evaluate_if_argument(
@@ -528,25 +594,8 @@ bool CPreprocessor::evaluate_if_argument(
             const cpp_symtab &macro_definitions) const {
     LFORTRAN_ASSERT(arg[arg.size()] == '\0');
     unsigned char *cur=(unsigned char*)(&arg[0]);
-    CPPTokenType type;
-    std::string str;
-    get_next_token(cur, type, str);
-    // TODO: Implement recursive descent parser, repeating terms
-    if (type == CPPTokenType::TK_NAME) {
-        if (str == "defined") {
-            accept(cur, CPPTokenType::TK_LPAREN);
-            get_next_token(cur, type, str);
-            LFORTRAN_ASSERT(type == CPPTokenType::TK_NAME);
-            std::string macro_name = str;
-            accept(cur, CPPTokenType::TK_RPAREN);
-            if (macro_definitions.find(macro_name) != macro_definitions.end()) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-    }
-    return false;
+    bool result = parse_expr(cur, macro_definitions);
+    return result;
 }
 
 
