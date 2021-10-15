@@ -449,6 +449,7 @@ std::string CPreprocessor::function_like_macro_expansion(
 enum CPPTokenType {
     TK_EOF, TK_NAME, TK_STRING, TK_AND, TK_OR, TK_NEG, TK_LPAREN, TK_RPAREN
 };
+
 namespace {
 
 std::string token(unsigned char *tok, unsigned char* cur)
@@ -509,6 +510,19 @@ void get_next_token(unsigned char *&cur, CPPTokenType &type, std::string &str) {
     }
 }
 
+namespace {
+
+void accept(unsigned char *&cur, CPPTokenType type_expected) {
+    CPPTokenType type;
+    std::string str;
+    get_next_token(cur, type, str);
+    if (type != type_expected) {
+        throw LFortranException("Unexpected token");
+    }
+}
+
+}
+
 bool CPreprocessor::evaluate_if_argument(
             std::string &arg,
             const cpp_symtab &macro_definitions) const {
@@ -519,13 +533,11 @@ bool CPreprocessor::evaluate_if_argument(
     get_next_token(cur, type, str);
     if (type == CPPTokenType::TK_NAME) {
         if (str == "defined") {
-            get_next_token(cur, type, str);
-            LFORTRAN_ASSERT(type == CPPTokenType::TK_LPAREN);
+            accept(cur, CPPTokenType::TK_LPAREN);
             get_next_token(cur, type, str);
             LFORTRAN_ASSERT(type == CPPTokenType::TK_NAME);
             std::string macro_name = str;
-            get_next_token(cur, type, str);
-            LFORTRAN_ASSERT(type == CPPTokenType::TK_RPAREN);
+            accept(cur, CPPTokenType::TK_RPAREN);
             if (macro_definitions.find(macro_name) != macro_definitions.end()) {
                 return true;
             } else {
