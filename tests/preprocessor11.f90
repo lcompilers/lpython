@@ -104,4 +104,10 @@ print *, "Y is (+5+6*Y)/7"
 print *, "Y is not (+5+6*Y)/7"
 #endif
 
+#if Z == 16
+print *, "Z is 16"
+#else
+print *, "Z is not 16"
+#endif
+
 end program
