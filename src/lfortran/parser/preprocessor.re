@@ -559,8 +559,8 @@ int parse_bexpr(unsigned char *&cur, const cpp_symtab &macro_definitions) {
 
     CPPTokenType type;
     std::string str;
-    get_next_token(cur, type, str);
     unsigned char *old_cur = cur;
+    get_next_token(cur, type, str);
     while (type == CPPTokenType::TK_AND || type == CPPTokenType::TK_OR) {
         bool factor = parse_bfactor(cur, macro_definitions) > 0;
         if (type == CPPTokenType::TK_AND) {
@@ -585,8 +585,8 @@ int parse_expr(unsigned char *&cur, const cpp_symtab &macro_definitions) {
 
     CPPTokenType type;
     std::string str;
-    get_next_token(cur, type, str);
     unsigned char *old_cur = cur;
+    get_next_token(cur, type, str);
     while (type == CPPTokenType::TK_PLUS || type == CPPTokenType::TK_MINUS) {
         int term = parse_term(cur, macro_definitions);
         if (type == CPPTokenType::TK_PLUS) {
@@ -611,8 +611,8 @@ int parse_term(unsigned char *&cur, const cpp_symtab &macro_definitions) {
 
     CPPTokenType type;
     std::string str;
-    get_next_token(cur, type, str);
     unsigned char *old_cur = cur;
+    get_next_token(cur, type, str);
     while (type == CPPTokenType::TK_MUL || type == CPPTokenType::TK_DIV) {
         int term = parse_factor(cur, macro_definitions);
         if (type == CPPTokenType::TK_MUL) {
