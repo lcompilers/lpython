@@ -61,12 +61,25 @@ std::string parse_argument(unsigned char *&cur) {
     return arg;
 }
 
-std::vector<std::string> parse_arguments(unsigned char *&cur) {
+std::string parse_argument2(unsigned char *&cur) {
+    std::string arg;
+    while (*cur != ')' && *cur != ',') {
+        arg += *cur;
+        cur++;
+    }
+    return arg;
+}
+
+std::vector<std::string> parse_arguments(unsigned char *&cur, bool skip_spaces) {
     std::vector<std::string> args;
     LFORTRAN_ASSERT(*cur == '(');
     cur++;
     while (*cur != ')') {
-        args.push_back(parse_argument(cur));
+        if (skip_spaces) {
+            args.push_back(parse_argument(cur));
+        } else {
+            args.push_back(parse_argument2(cur));
+        }
         if (*cur == ',') cur++;
     }
     return args;
@@ -171,7 +184,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 std::string macro_name = token(t1, t2),
                         macro_subs = token(t3, t4);
                 handle_continuation_lines(macro_subs, cur);
-                std::vector<std::string> args = parse_arguments(t2);
+                std::vector<std::string> args = parse_arguments(t2, true);
                 CPPMacro fn;
                 fn.function_like = true;
                 fn.args = args;
@@ -327,7 +340,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                             throw LFortranException("C preprocessor: function-like macro invocation must have argument list");
                         }
                         std::vector<std::string> args;
-                        args = parse_arguments(cur);
+                        args = parse_arguments(cur, false);
                         if (*cur != ')') {
                             throw LFortranException("C preprocessor: expected )");
                         }
