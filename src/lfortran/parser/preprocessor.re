@@ -573,9 +573,24 @@ bool parse_expr(unsigned char *&cur, const cpp_symtab &macro_definitions) {
 }
 
 /*
+expr
+    = term ((+,-) term)*
+term
+    = factor ((*,/) factor)*
+factor
+    = TK_INTEGER
+    | TK_NAME
+    | "(" b-expr ")"
+relation
+    = expr
+    | expr (<,>,>=,<=,/=,!=,==) expr
+*/
+
+/*
 b-factor
     = "defined(" TK_NAME ")"
     | "!" b-factor
+    | relation
     | "(" b-expr ")"
 */
 bool parse_factor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
