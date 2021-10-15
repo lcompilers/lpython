@@ -1,0 +1,24 @@
+program preprocessor10
+! #if
+implicit none
+
+#define X
+#define Y(x) 4*(x)
+
+#if defined(X)
+print *, "X is defined"
+#endif
+
+#if defined( Y )
+print *, "Y is defined"
+#else
+print *, "Y is not defined"
+#endif
+
+#if defined(Z)
+print *, "Z is defined"
+#else
+print *, "Z is not defined"
+#endif
+
+end program
