@@ -100,7 +100,7 @@ struct IfDef {
 
 namespace {
 
-bool parse_bexpr(unsigned char *&cur, const cpp_symtab &macro_definitions);
+int parse_bexpr(unsigned char *&cur, const cpp_symtab &macro_definitions);
 
 }
 
@@ -236,7 +236,7 @@ std::string CPreprocessor::run(const std::string &input, LocationManager &lm,
                 IfDef ifdef;
                 ifdef.active = branch_enabled;
                 if (ifdef.active) {
-                    bool test_true = parse_bexpr(t1, macro_definitions);
+                    bool test_true = parse_bexpr(t1, macro_definitions) > 0;
                     cur = t1;
                     if (test_true) {
                         ifdef.branch_enabled = true;
@@ -547,22 +547,22 @@ std::string accept_name(unsigned char *&cur) {
 
 int parse_term(unsigned char *&cur, const cpp_symtab &macro_definitions);
 int parse_factor(unsigned char *&cur, const cpp_symtab &macro_definitions);
-bool parse_bfactor(unsigned char *&cur, const cpp_symtab &macro_definitions);
+int parse_bfactor(unsigned char *&cur, const cpp_symtab &macro_definitions);
 
 /*
 b-expr
     = b-factor (("&&"|"||") b-factor)*
 */
-bool parse_bexpr(unsigned char *&cur, const cpp_symtab &macro_definitions) {
+int parse_bexpr(unsigned char *&cur, const cpp_symtab &macro_definitions) {
     bool tmp;
-    tmp = parse_bfactor(cur, macro_definitions);
+    tmp = parse_bfactor(cur, macro_definitions) > 0;
 
     CPPTokenType type;
     std::string str;
     get_next_token(cur, type, str);
     unsigned char *old_cur = cur;
     while (type == CPPTokenType::TK_AND || type == CPPTokenType::TK_OR) {
-        bool factor = parse_bfactor(cur, macro_definitions);
+        bool factor = parse_bfactor(cur, macro_definitions) > 0;
         if (type == CPPTokenType::TK_AND) {
             tmp = tmp && factor;
         } else {
@@ -572,7 +572,7 @@ bool parse_bexpr(unsigned char *&cur, const cpp_symtab &macro_definitions) {
         get_next_token(cur, type, str);
     }
     cur = old_cur; // Revert the last token, as we will not consume it
-    return tmp;
+    return (int)tmp;
 }
 
 /*
@@ -649,9 +649,9 @@ int parse_factor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
         int i = std::stoi(str);
         return i;
     } else if (type == CPPTokenType::TK_LPAREN) {
-        bool result = parse_bexpr(cur, macro_definitions);
+        int result = parse_bexpr(cur, macro_definitions);
         accept(cur, CPPTokenType::TK_RPAREN);
-        return (int)result;
+        return result;
     } else {
         throw LFortranException("Unexpected token type " + std::to_string((int)type) + " in expr()");
     }
@@ -662,7 +662,7 @@ relation
     = expr
     | expr (<,>,>=,<=,/=,!=,==) expr
 */
-bool parse_relation(unsigned char *&cur, const cpp_symtab &macro_definitions) {
+int parse_relation(unsigned char *&cur, const cpp_symtab &macro_definitions) {
     int lhs;
     lhs = parse_expr(cur, macro_definitions);
     unsigned char *old_cur = cur;
@@ -689,7 +689,7 @@ bool parse_relation(unsigned char *&cur, const cpp_symtab &macro_definitions) {
         }
     } else {
         cur = old_cur; // Revert the last token, as we will not consume it
-        return lhs > 0;
+        return lhs;
     }
 }
 
@@ -700,7 +700,7 @@ b-factor
     | relation
     | "(" b-expr ")"
 */
-bool parse_bfactor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
+int parse_bfactor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
     CPPTokenType type;
     std::string str;
     unsigned char *old_cur = cur;
@@ -715,16 +715,19 @@ bool parse_bfactor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
             return false;
         }
     } else if (type == CPPTokenType::TK_NEG) {
-        bool result = parse_bfactor(cur, macro_definitions);
-        return !result;
+        int result = parse_bfactor(cur, macro_definitions);
+        bool bresult = result > 0;
+        bresult = !bresult; // Apply !
+        result = (int) bresult;
+        return result;
     } else if (type == CPPTokenType::TK_LPAREN) {
-        bool result = parse_bexpr(cur, macro_definitions);
+        int result = parse_bexpr(cur, macro_definitions);
         accept(cur, CPPTokenType::TK_RPAREN);
         return result;
     } else {
         // For everything else we commit to relation and handle any potential errors there:
         cur = old_cur; // Restore the token
-        bool result = parse_relation(cur, macro_definitions);
+        int result = parse_relation(cur, macro_definitions);
         return result;
 //        throw LFortranException("Unexpected token type " + std::to_string((int)type) + " in factor()");
     }
