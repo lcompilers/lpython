@@ -487,13 +487,10 @@ void get_next_token(unsigned char *&cur, CPPTokenType &type, std::string &str) {
                 std::string t = token(tok, cur);
                 throw LFortranException("Unknown token: " + t);
             }
-            end {
-                throw LFortranException("Unexpected end of file");
-                return;
-            }
+            end { type = CPPTokenType::TK_EOF; return; }
+            newline { type = CPPTokenType::TK_EOF; return; }
             whitespace { continue; }
             "\\" whitespace? newline { continue; }
-            newline { type = CPPTokenType::TK_EOF; return; }
             "+" { type = CPPTokenType::TK_PLUS; return; }
             "-" { type = CPPTokenType::TK_MINUS; return; }
             "*" { type = CPPTokenType::TK_MUL; return; }
@@ -640,7 +637,8 @@ int parse_factor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
     if (type == CPPTokenType::TK_NAME) {
         if (macro_definitions.find(str) != macro_definitions.end()) {
             std::string v = macro_definitions.at(str).expansion;
-            int i = std::stoi(v);
+            unsigned char *cur2 = (unsigned char*)(&v[0]);
+            int i = parse_expr(cur2, macro_definitions);
             return i;
         } else {
             throw LFortranException("Variable/macro '" + str + "' not defined");
