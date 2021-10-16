@@ -1,12 +1,8 @@
+#include "assert.fpp"
+
 program preprocessor12
 ! Test that a typical ASSERT macro works
 implicit none
-
-#ifdef NDEBUG
-# define ASSERT(x) !! assert( x )
-#else
-# define ASSERT(x) if(.not.(x)) call f90_assert(__FILE__,__LINE__)
-#endif
 
 ASSERT(.true.)
 ASSERT(5 > 3)
