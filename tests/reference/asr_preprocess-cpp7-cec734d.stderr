@@ -1,3 +1,5 @@
-tests/errors/cpp7.f90:116:21 semantic error: Variable 'z12' not declared
-    print *, "1aa", z12, 5
-                    ^~~
+semantic error: Variable 'z12' not declared
+   --> tests/errors/cpp7.f90:116:21
+    |
+116 |     print *, "1aa", z12, 5
+    |                     ^^^ Variable 'z12' not declared

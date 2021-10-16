@@ -1,3 +1,5 @@
-tests/errors/dim_assgn_test.f90:2:1 semantic error: Cannot specify dimensions both ways
-integer, private, dimension(2,2) :: a(2,2)
-^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+semantic error: Cannot specify dimensions both ways
+ --> tests/errors/dim_assgn_test.f90:2:1
+  |
+2 | integer, private, dimension(2,2) :: a(2,2)
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot specify dimensions both ways
