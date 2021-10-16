@@ -720,7 +720,8 @@ int parse_factor(unsigned char *&cur, const cpp_symtab &macro_definitions) {
             int i = parse_expr(cur2, macro_definitions);
             return i;
         } else {
-            throw LFortranException("Variable/macro '" + str + "' not defined");
+            // If the variable/macro is not defined, we evaluate it as 0
+            return 0;
         }
     } else if (type == CPPTokenType::TK_INTEGER) {
         int i = std::stoi(str);
