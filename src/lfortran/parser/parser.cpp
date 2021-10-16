@@ -705,7 +705,29 @@ std::string format_syntax_error(const std::string &filename,
     return out.str();
 }
 
-std::string format_semantic_error(const std::string &filename,
+void populate_span(diag::Span &s, const LocationManager &lm,
+        const std::string &input) {
+    lm.pos_to_linecol(lm.output_to_input_pos(s.loc.first, false),
+        s.first_line, s.first_column);
+    lm.pos_to_linecol(lm.output_to_input_pos(s.loc.last, true),
+        s.last_line, s.last_column);
+    s.filename = lm.in_filename;
+    for (uint32_t i = s.first_line; i <= s.last_line; i++) {
+        s.source_code.push_back(get_line(input, i));
+    }
+}
+
+// Loop over all labels and their spans, populate all of them
+void populate_spans(diag::Diagnostic &d, const LocationManager &lm,
+        const std::string &input) {
+    for (auto &l : d.labels) {
+        for (auto &s : l.spans) {
+            populate_span(s, lm, input);
+        }
+    }
+}
+
+std::string format_semantic_error(const std::string &/*filename*/,
         const std::string &input, const Location &loc,
         const std::string msg, bool use_colors,
         const LocationManager &lm)
@@ -714,25 +736,9 @@ std::string format_semantic_error(const std::string &filename,
     // and then render the error message using it. Later on we will
     // fill in the Diagnostic class in the semantic part itself and just
     // pass it through.
-    //
-    // We still have to convert to line numbers and get source code strings
-    // here.
-    //
-    uint32_t first_line, first_column, last_line, last_column;
-    lm.pos_to_linecol(lm.output_to_input_pos(loc.first, false), first_line, first_column);
-    lm.pos_to_linecol(lm.output_to_input_pos(loc.last, true), last_line, last_column);
 
     diag::Span s;
     s.loc = loc;
-    s.first_line = first_line;
-    s.first_column = first_column;
-    s.last_line = last_line;
-    s.last_column = last_column;
-    s.filename = filename;
-    for (uint32_t i = first_line; i <= last_line; i++) {
-        s.source_code.push_back(get_line(input, i));
-    }
-
     diag::Label l;
     l.primary = true;
     l.message = msg;
@@ -743,6 +749,10 @@ std::string format_semantic_error(const std::string &filename,
     d.message = msg;
     d.labels.push_back(l);
 
+
+    // Convert to line numbers and get source code strings
+    populate_spans(d, lm, input);
+    // Render the message
     return diag::render_diagnostic(d, use_colors);
 }
 
