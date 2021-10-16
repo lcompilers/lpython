@@ -110,4 +110,16 @@ print *, "Z is 16"
 print *, "Z is not 16"
 #endif
 
+#if defined(Y) && (3 <= Y)
+print *, "Y defined and 1 <= Y"
+#else
+print *, "Y not defined or not 1 <= Y"
+#endif
+
+#if defined(A) && (3 <= A)
+print *, "A defined and 1 <= A"
+#else
+print *, "A not defined or not 1 <= A"
+#endif
+
 end program
