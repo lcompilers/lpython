@@ -52,19 +52,86 @@ std::string highlight_line(const std::string &line,
 
 
 std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
+    std::string bold  = "\033[0;1m";
+    std::string red_bold  = "\033[0;31;1m";
+    std::string yellow_bold  = "\033[0;33;1m";
+    std::string blue_bold  = "\033[0;34;1m";
+    std::string reset = "\033[0;00m";
+    if (!use_colors) {
+        bold = "";
+        red_bold = "";
+        yellow_bold = "";
+        blue_bold = "";
+        reset = "";
+    }
     std::stringstream out;
     Label l = d.labels[0];
     Span s = l.spans[0];
-    out << s.filename << ":" << s.first_line << ":" << s.first_column;
+    int line_num_width = 1;
+    if (s.last_line >= 10000) {
+        line_num_width = 5;
+    } else if (s.last_line >= 1000) {
+        line_num_width = 4;
+    } else if (s.last_line >= 100) {
+        line_num_width = 3;
+    } else if (s.last_line >= 10) {
+        line_num_width = 2;
+    }
+    std::string message_type = "";
+    switch (d.level) {
+        case (Level::Error):
+            switch (d.stage) {
+                case (Stage::CPreprocessor):
+                    message_type = "C preprocessor error";
+                    break;
+                case (Stage::Prescanner):
+                    message_type = "prescanner error";
+                    break;
+                case (Stage::Tokenizer):
+                    message_type = "tokenizer error";
+                    break;
+                case (Stage::Parser):
+                    message_type = "syntax error";
+                    break;
+                case (Stage::Semantic):
+                    message_type = "semantic error";
+                    break;
+                case (Stage::ASRPass):
+                    message_type = "ASR pass error";
+                    break;
+                case (Stage::CodeGen):
+                    message_type = "code generation error";
+                    break;
+            }
+            break;
+        case (Level::Warning):
+            message_type = "warning";
+            break;
+        case (Level::Note):
+            message_type = "note";
+            break;
+        case (Level::Help):
+            message_type = "help";
+            break;
+    }
+    out << red_bold << message_type << reset << bold << ": " << d.message << reset << std::endl;
+    out << std::string(line_num_width, ' ') << blue_bold << "-->" << reset << " " << s.filename << ":" << s.first_line << ":" << s.first_column;
     if (s.first_line != s.last_line) {
         out << " - " << s.last_line << ":" << s.last_column;
     }
-    if (use_colors) out << " " << redon << "semantic error:" << redoff << " ";
-    else out << " " << "semantic error:" <<  " ";
-    out << d.message << std::endl;
+    out << std::endl;
     if (s.first_line == s.last_line) {
+        out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+            << reset << std::endl;
         std::string line = s.source_code[0];
-        out << highlight_line(line, s.first_column, s.last_column, use_colors);
+        out << blue_bold << std::setw(line_num_width)
+            << std::to_string(s.first_line) << " |" << reset << " "
+            << line << std::endl;
+        out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+            << reset << " ";
+        out << std::string(s.first_column-1, ' ');
+        out << red_bold << std::string(s.last_column-s.first_column+1, '^')
+            << " " << l.message << reset << std::endl;
     } else {
         out << "first (" << s.first_line << ":" << s.first_column;
         out << ")" << std::endl;
