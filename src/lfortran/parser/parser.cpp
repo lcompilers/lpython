@@ -4,6 +4,7 @@
 
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/parser.tab.hh>
+#include <lfortran/diagnostics.h>
 
 namespace LFortran
 {
@@ -709,32 +710,40 @@ std::string format_semantic_error(const std::string &filename,
         const std::string msg, bool use_colors,
         const LocationManager &lm)
 {
+    // For now we will fill in the new diagnostic data structures
+    // and then render the error message using it. Later on we will
+    // fill in the Diagnostic class in the semantic part itself and just
+    // pass it through.
+    //
+    // We still have to convert to line numbers and get source code strings
+    // here.
+    //
     uint32_t first_line, first_column, last_line, last_column;
     lm.pos_to_linecol(lm.output_to_input_pos(loc.first, false), first_line, first_column);
     lm.pos_to_linecol(lm.output_to_input_pos(loc.last, true), last_line, last_column);
 
-    std::stringstream out;
-    out << filename << ":" << first_line << ":" << first_column;
-    if (first_line != last_line) {
-        out << " - " << last_line << ":" << last_column;
+    diag::Span s;
+    s.loc = loc;
+    s.first_line = first_line;
+    s.first_column = first_column;
+    s.last_line = last_line;
+    s.last_column = last_column;
+    s.filename = filename;
+    for (uint32_t i = first_line; i <= last_line; i++) {
+        s.source_code.push_back(get_line(input, i));
     }
-    if(use_colors) out << " " << redon << "semantic error:" << redoff << " ";
-    else out << " " << "semantic error:" <<  " ";
-    out << msg << std::endl;
-    if (first_line == last_line) {
-        std::string line = get_line(input, first_line);
-        out << highlight_line(line, first_column, last_column, use_colors);
-    } else {
-        out << "first (" << first_line << ":" << first_column;
-        out << ")" << std::endl;
-        std::string line = get_line(input, first_line);
-        out << highlight_line(line, first_column, line.size(), use_colors);
-        out << "last (" << last_line << ":" << last_column;
-        out << ")" << std::endl;
-        line = get_line(input, last_line);
-        out << highlight_line(line, 1, last_column, use_colors);
-    }
-    return out.str();
+
+    diag::Label l;
+    l.primary = true;
+    l.message = msg;
+    l.spans.push_back(s);
+    diag::Diagnostic d;
+    d.level = diag::Level::Error;
+    d.stage = diag::Stage::Semantic;
+    d.message = msg;
+    d.labels.push_back(l);
+
+    return diag::render_diagnostic(d, use_colors);
 }
 
 }
