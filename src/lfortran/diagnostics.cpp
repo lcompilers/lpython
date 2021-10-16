@@ -1,6 +1,9 @@
+#include <iomanip>
 #include <sstream>
 
 #include <lfortran/diagnostics.h>
+#include <lfortran/assert.h>
+#include <lfortran/exception.h>
 
 namespace LFortran::diag {
 

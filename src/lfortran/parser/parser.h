@@ -6,14 +6,11 @@
 #include <memory>
 
 #include <lfortran/containers.h>
+#include <lfortran/diagnostics.h>
 #include <lfortran/parser/tokenizer.h>
 
 namespace LFortran
 {
-
-namespace diag {
-    struct Diagnostic;
-}
 
 class Parser
 {

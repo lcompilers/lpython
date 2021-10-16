@@ -29,6 +29,7 @@ typedef enum {
 #include <lfortran/parser/location.h>
 #include <lfortran/config.h>
 #include <lfortran/stacktrace.h>
+#include <lfortran/diagnostics.h>
 
 namespace LFortran
 {
@@ -119,6 +120,8 @@ class SemanticError : public LFortranException
 {
 public:
     Location loc;
+    bool new_diagnostic=false;
+    diag::Diagnostic d;
 public:
     SemanticError(const std::string &msg, const Location &loc)
         : LFortranException(msg, LFORTRAN_SEMANTIC_ERROR), loc{loc}

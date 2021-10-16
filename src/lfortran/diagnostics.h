@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_DIAGNOSTICS_H
 #define LFORTRAN_DIAGNOSTICS_H
 
-#include <lfortran/parser/parser.h>
+#include <lfortran/parser/location.h>
 
 namespace LFortran {
 

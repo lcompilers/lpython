@@ -267,6 +267,10 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
     } catch (const SemanticError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::Semantic;
+        if (e.new_diagnostic) {
+            error.new_diagnostic = true;
+            error.d = e.d;
+        }
         error.loc = e.loc;
         error.msg = e.msg();
         error.stacktrace_addresses = e.stacktrace_addresses();
