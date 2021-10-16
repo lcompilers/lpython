@@ -11,6 +11,10 @@
 namespace LFortran
 {
 
+namespace diag {
+    struct Diagnostic;
+}
+
 class Parser
 {
 public:
@@ -210,6 +214,9 @@ std::string format_semantic_error(const std::string &filename,
         const std::string &input, const Location &loc,
         const std::string msg, bool use_colors,
         const LocationManager &lm);
+
+void populate_spans(diag::Diagnostic &d, const LocationManager &lm,
+        const std::string &input);
 
 // Tokenizes the `input` and return a list of tokens
 std::vector<int> tokens(Allocator &al, const std::string &input,

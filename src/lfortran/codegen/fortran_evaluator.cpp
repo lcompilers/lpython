@@ -417,6 +417,13 @@ std::string FortranEvaluator::format_error(const Error &e, const std::string &in
     if (compiler_options.show_stacktrace) {
         out += error_stacktrace(e);
     }
+    if (e.new_diagnostic) {
+        // Convert to line numbers and get source code strings
+        diag::Diagnostic d = e.d;
+        populate_spans(d, lm, input);
+        // Render the message
+        return diag::render_diagnostic(d, compiler_options.use_colors);
+    }
     switch (e.type) {
         case (LFortran::FortranEvaluator::Error::Tokenizer) : {
             out += format_syntax_error(lm.in_filename, input, e.loc, -1, &e.token_str,
