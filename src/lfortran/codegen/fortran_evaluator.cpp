@@ -426,7 +426,8 @@ std::string FortranEvaluator::format_error(const Error &e, const std::string &in
         diag::Diagnostic d = e.d;
         populate_spans(d, lm, input);
         // Render the message
-        return diag::render_diagnostic(d, compiler_options.use_colors);
+        out += diag::render_diagnostic(d, compiler_options.use_colors);
+        return out;
     }
     switch (e.type) {
         case (LFortran::FortranEvaluator::Error::Tokenizer) : {
