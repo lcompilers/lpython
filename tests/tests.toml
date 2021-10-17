@@ -52,16 +52,6 @@ filename = "do6.f90"
 ast = true
 
 [[test]]
-filename = "errors/esub1.f90"
-tokens = true
-ast = true
-
-[[test]]
-filename = "errors/esub2.f90"
-tokens = true
-ast = true
-
-[[test]]
 filename = "subroutine4.f90"
 ast = true
 ast_f90 = true
@@ -104,7 +94,25 @@ ast = true
 asr = true
 
 [[test]]
+filename = "errors/esub1.f90"
+tokens = true
+ast = true
+
+[[test]]
+filename = "errors/esub2.f90"
+tokens = true
+ast = true
+
+[[test]]
 filename = "errors/subroutine5.f90"
+asr = true
+
+[[test]]
+filename = "errors/dim_assgn_test.f90"
+asr = true
+
+[[test]]
+filename = "errors/redeclaration1.f90"
 asr = true
 
 [[test]]
@@ -1233,10 +1241,6 @@ asr = true
 
 [[test]]
 filename = "../integration_tests/intrinsics_open_close_read_write.f90"
-asr = true
-
-[[test]]
-filename = "errors/dim_assgn_test.f90"
 asr = true
 
 [[test]]
