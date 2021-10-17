@@ -990,4 +990,17 @@ end interface
 r = c_zatanh(x)
 end function
 
+! cpu_time ---------------------------------------------------------------------
+
+pure subroutine cpu_time(t)
+real(dp), intent(out) :: t
+interface
+    pure subroutine c_cpu_time(t) bind(c, name="_lfortran_cpu_time")
+    import :: c_double
+    real(c_double), intent(out) :: t
+    end subroutine
+end interface
+call c_cpu_time(t)
+end subroutine
+
 end module
