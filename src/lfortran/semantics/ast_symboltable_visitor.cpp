@@ -623,8 +623,20 @@ public:
                     if (current_scope->parent != nullptr) {
                         // re-declaring a global scope variable is allowed
                         // Otherwise raise an error
-                        throw SemanticError("Symbol already declared",
-                                x.base.base.loc);
+                        diag::Span span;
+                        span.loc = s.loc;
+                        diag::Label l;
+                        l.primary = true;
+                        l.message = "redeclaration";
+                        l.spans = {span};
+                        diag::Diagnostic d;
+                        d.level = diag::Level::Error;
+                        d.stage = diag::Stage::Semantic;
+                        d.message = "Symbol is already declared";
+                        d.labels.push_back(l);
+                        throw SemanticError(d);
+                        //throw SemanticError("Symbol already declared",
+                        //        x.base.base.loc);
                     }
                 }
                 ASR::intentType s_intent;
