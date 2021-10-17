@@ -566,6 +566,8 @@ LFORTRAN_API void _lfortran_string_init(int size_plus_one, char *s) {
     s[size] = '\0';
 }
 
+// bit  ------------------------------------------------------------------------
+
 LFORTRAN_API int32_t _lfortran_iand32(int32_t x, int32_t y) {
     return x & y;
 }
@@ -604,4 +606,11 @@ LFORTRAN_API int32_t _lfortran_btest32(int32_t i, int pos) {
 
 LFORTRAN_API int64_t _lfortran_btest64(int64_t i, int pos) {
     return i & (1LL << pos);
+}
+
+// cpu_time  -------------------------------------------------------------------
+
+LFORTRAN_API void _lfortran_cpu_time(double *t) {
+    // TODO:
+    *t = 5.0;
 }

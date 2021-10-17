@@ -1834,7 +1834,8 @@ public:
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
         if (x.m_abi != ASR::abiType::Source &&
-            x.m_abi != ASR::abiType::Interactive) {
+            x.m_abi != ASR::abiType::Interactive &&
+            x.m_abi != ASR::abiType::Intrinsic) {
                 return;
         }
         instantiate_subroutine(x);
@@ -3689,6 +3690,8 @@ public:
         } else if (s->m_abi == ASR::abiType::Source) {
             h = get_hash((ASR::asr_t*)s);
         } else if (s->m_abi == ASR::abiType::BindC) {
+            h = get_hash((ASR::asr_t*)s);
+        } else if (s->m_abi == ASR::abiType::Intrinsic) {
             h = get_hash((ASR::asr_t*)s);
         } else {
             throw CodeGenError("ABI type not implemented yet in SubroutineCall.");

@@ -104,6 +104,9 @@ struct IntrinsicProcedures {
             {"minval", {m_array, &not_implemented, false}},
             {"maxval", {m_array, &not_implemented, false}},
             {"sum", {m_array, &not_implemented, false}},
+
+            // Subroutines
+            {"cpu_time", {m_math, &not_implemented, false}},
         };
     }
 
