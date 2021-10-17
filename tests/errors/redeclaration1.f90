@@ -1,8 +1,8 @@
 program redeclaration1
 implicit none
-integer :: i
-real :: j, i
-i = 5
+integer :: idx1
+real :: j, idx1
+idx1 = 5
 j = 6
-print *, i, j
+print *, idx1, j
 end program
