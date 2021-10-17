@@ -1155,23 +1155,23 @@ var_decl_star
 
 var_decl
     : var_type var_modifiers var_sym_decl_list sep {
-            $$ = VAR_DECL1($1, $2, $3, TRIVIA_AFTER($4, @$), @$); }
+        LLOC(@$, @3); $$ = VAR_DECL1($1, $2, $3, TRIVIA_AFTER($4, @$), @$); }
     | var_modifier sep {
-            $$ = VAR_DECL2($1, TRIVIA_AFTER($2, @$), @$); }
+        LLOC(@$, @1); $$ = VAR_DECL2($1, TRIVIA_AFTER($2, @$), @$); }
     | var_modifier var_sym_decl_list sep {
-            $$ = VAR_DECL3($1, $2, TRIVIA_AFTER($3, @$), @$); }
+        LLOC(@$, @2); $$ = VAR_DECL3($1, $2, TRIVIA_AFTER($3, @$), @$); }
     | var_modifier "::" var_sym_decl_list sep {
-            $$ = VAR_DECL3($1, $3, TRIVIA_AFTER($4, @$), @$); }
+        LLOC(@$, @3); $$ = VAR_DECL3($1, $3, TRIVIA_AFTER($4, @$), @$); }
     | KW_PARAMETER "(" named_constant_def_list ")" sep {
-            $$ = VAR_DECL_PARAMETER($3, TRIVIA_AFTER($5, @$), @$); }
+        LLOC(@$, @4); $$ = VAR_DECL_PARAMETER($3, TRIVIA_AFTER($5, @$), @$); }
     | KW_NAMELIST "/" id "/" id_list sep {
-            $$ = VAR_DECL_NAMELIST($3, $5, TRIVIA_AFTER($6, @$), @$); }
+        LLOC(@$, @5); $$ = VAR_DECL_NAMELIST($3, $5, TRIVIA_AFTER($6, @$), @$);}
     | KW_COMMON common_block_list sep {
-            $$ = VAR_DECL_COMMON($2, TRIVIA_AFTER($3, @$), @$); }
+        LLOC(@$, @2); $$ = VAR_DECL_COMMON($2, TRIVIA_AFTER($3, @$), @$); }
     | KW_DATA data_set_list sep {
-            $$ = VAR_DECL_DATA($2, TRIVIA_AFTER($3, @$), @$); }
+        LLOC(@$, @2); $$ = VAR_DECL_DATA($2, TRIVIA_AFTER($3, @$), @$); }
     | KW_EQUIVALENCE equivalence_set_list sep {
-        $$ = VAR_DECL_EQUIVALENCE($2, TRIVIA_AFTER($3, @$), @$); }
+        LLOC(@$, @2); $$ = VAR_DECL_EQUIVALENCE($2, TRIVIA_AFTER($3, @$), @$);}
     ;
 
 equivalence_set_list

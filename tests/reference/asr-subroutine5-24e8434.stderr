@@ -1,3 +1,5 @@
-input:4:9 semantic error: Variable 'd' not declared
-c = a + d
-        ^
+semantic error: Variable 'd' is not declared
+ --> tests/errors/subroutine5.f90:4:9
+  |
+4 | c = a + d
+  |         ^ 'd' is undeclared

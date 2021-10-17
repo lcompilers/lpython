@@ -36,6 +36,8 @@ set(SRC
     serialization.cpp
     cwrapper.cpp
 
+    diagnostics.cpp
+
     ast_to_src.cpp
     ast_to_openmp.cpp
 

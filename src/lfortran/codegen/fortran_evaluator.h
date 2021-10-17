@@ -11,6 +11,7 @@
 #include <lfortran/asr.h>
 #include <lfortran/utils.h>
 #include <lfortran/config.h>
+#include <lfortran/diagnostics.h>
 
 namespace LFortran {
 
@@ -49,6 +50,8 @@ public:
         std::string msg;
         std::string token_str;
         std::vector<StacktraceItem> stacktrace_addresses;
+        bool new_diagnostic=false; // if true, use `d` for the error
+        diag::Diagnostic d;
     };
 
     template<typename T>

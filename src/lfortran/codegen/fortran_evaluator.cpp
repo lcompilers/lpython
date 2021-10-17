@@ -267,6 +267,10 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
     } catch (const SemanticError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::Semantic;
+        if (e.new_diagnostic) {
+            error.new_diagnostic = true;
+            error.d = e.d;
+        }
         error.loc = e.loc;
         error.msg = e.msg();
         error.stacktrace_addresses = e.stacktrace_addresses();
@@ -417,19 +421,27 @@ std::string FortranEvaluator::format_error(const Error &e, const std::string &in
     if (compiler_options.show_stacktrace) {
         out += error_stacktrace(e);
     }
+    if (e.new_diagnostic) {
+        // Convert to line numbers and get source code strings
+        diag::Diagnostic d = e.d;
+        populate_spans(d, lm, input);
+        // Render the message
+        out += diag::render_diagnostic(d, compiler_options.use_colors);
+        return out;
+    }
     switch (e.type) {
         case (LFortran::FortranEvaluator::Error::Tokenizer) : {
-            out += format_syntax_error("input", input, e.loc, -1, &e.token_str,
+            out += format_syntax_error(lm.in_filename, input, e.loc, -1, &e.token_str,
                 compiler_options.use_colors, lm);
             break;
         }
         case (LFortran::FortranEvaluator::Error::Parser) : {
-            out += format_syntax_error("input", input, e.loc, e.token, nullptr,
+            out += format_syntax_error(lm.in_filename, input, e.loc, e.token, nullptr,
                 compiler_options.use_colors, lm);
             break;
         }
         case (LFortran::FortranEvaluator::Error::Semantic) : {
-            out += format_semantic_error("input", input, e.loc, e.msg,
+            out += format_semantic_error(lm.in_filename, input, e.loc, e.msg,
                 compiler_options.use_colors, lm);
             break;
         }
