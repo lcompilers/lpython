@@ -5,6 +5,7 @@
 #include <complex.h>
 #include <string.h>
 #include <inttypes.h>
+#include <time.h>
 
 struct _lfortran_complex {
     float re, im;
@@ -611,6 +612,5 @@ LFORTRAN_API int64_t _lfortran_btest64(int64_t i, int pos) {
 // cpu_time  -------------------------------------------------------------------
 
 LFORTRAN_API void _lfortran_cpu_time(double *t) {
-    // TODO:
-    *t = 5.0;
+    *t = ((double) clock()) / CLOCKS_PER_SEC;
 }
