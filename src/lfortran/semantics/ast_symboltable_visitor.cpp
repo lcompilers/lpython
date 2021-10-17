@@ -623,17 +623,24 @@ public:
                     if (current_scope->parent != nullptr) {
                         // re-declaring a global scope variable is allowed
                         // Otherwise raise an error
-                        diag::Span span;
-                        span.loc = s.loc;
-                        diag::Label l;
-                        l.primary = true;
-                        l.message = "redeclaration";
-                        l.spans = {span};
+                        diag::Span span1;
+                        span1.loc = s.loc;
+                        diag::Label l1;
+                        l1.primary = true;
+                        l1.message = "redeclaration";
+                        l1.spans = {span1};
+                        diag::Span span2;
+                        ASR::symbol_t *orig_decl = current_scope->scope[sym];
+                        span2.loc = orig_decl->base.loc;
+                        diag::Label l2;
+                        l2.primary = false;
+                        l2.message = "original declaration";
+                        l2.spans = {span2};
                         diag::Diagnostic d;
                         d.level = diag::Level::Error;
                         d.stage = diag::Stage::Semantic;
-                        d.message = "Symbol is already declared";
-                        d.labels.push_back(l);
+                        d.message = "Symbol is already declared in the same scope";
+                        d.labels = {l1, l2};
                         throw SemanticError(d);
                         //throw SemanticError("Symbol already declared",
                         //        x.base.base.loc);
