@@ -125,7 +125,13 @@ public:
 public:
     SemanticError(const std::string &msg, const Location &loc)
         : LFortranException(msg, LFORTRAN_SEMANTIC_ERROR), loc{loc}
-    {
+    { }
+
+    SemanticError(const diag::Diagnostic &d)
+            : LFortranException(d.message, LFORTRAN_SEMANTIC_ERROR),
+            loc{d.labels[0].spans[0].loc},
+            new_diagnostic{true},
+            d{d} {
     }
 };
 
