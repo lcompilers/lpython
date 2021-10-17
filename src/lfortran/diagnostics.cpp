@@ -133,8 +133,18 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
         out << std::string(line_num_width+1, ' ') << blue_bold << "|"
             << reset << " ";
         out << std::string(s.first_column-1, ' ');
-        out << red_bold << std::string(s.last_column-s.first_column+1, '^')
-            << " " << l.message << reset << std::endl;
+        out << red_bold << std::string(s.last_column-s.first_column+1, '^');
+        if (l.spans.size() == 2) {
+            // For now we paint the second span only if it is "easy"
+            Span s2=l.spans[1];
+            if (s2.first_line == s2.last_line && s2.first_line == s.first_line)  {
+                if (s2.first_column > s.last_column+1) {
+                    out << std::string(s2.first_column-s.last_column-1, ' ');
+                    out << std::string(s2.last_column-s2.first_column+1, '^');
+                }
+            }
+        }
+        out << " " << l.message << reset << std::endl;
     } else {
         out << "first (" << s.first_line << ":" << s.first_column;
         out << ")" << std::endl;
