@@ -903,7 +903,7 @@ public:
                         }
                     }
                 }
-                ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
+                ASR::asr_t *v = ASR::make_Variable_t(al, s.loc, current_scope,
                         s2c(al, to_lower(s.m_name)), s_intent, init_expr, value, storage_type, type,
                         current_procedure_abi_type, s_access, s_presence,
                         value_attr);
