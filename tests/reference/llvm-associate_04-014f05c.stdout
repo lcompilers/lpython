@@ -12,6 +12,17 @@ declare i8* @__module_lfortran_intrinsic_array_char(i32*)
 
 declare void @__module_lfortran_intrinsic_iso_c_binding_c_f_pointer(%c_ptr*, i32*)
 
+define void @__module_lfortran_intrinsic_math_cpu_time(double* %t) {
+.entry:
+  call void @_lfortran_cpu_time(double* %t)
+  br label %return
+
+return:                                           ; preds = %.entry
+  ret void
+}
+
+declare void @_lfortran_cpu_time(double*)
+
 define float @__module_lfortran_intrinsic_math_scos(float* %x) {
 .entry:
   %r = alloca float, align 4
