@@ -782,7 +782,7 @@ public:
             original_sym = current_scope->resolve_symbol(sub_name);
         }
         if (!original_sym) {
-            throw SemanticError("Subroutine '" + sub_name + "' not declared", x.base.base.loc);
+            original_sym = resolve_intrinsic_function(x.base.base.loc, sub_name);
         }
         Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
         Vec<ASR::expr_t*> args_with_mdt;
