@@ -83,6 +83,8 @@ declare %complex_8 @_lfortran_ztan(%complex_8)
 
 define i32 @main() {
 .entry:
+  %call_arg_value1 = alloca double, align 8
+  %call_arg_value = alloca double, align 8
   %x = alloca double, align 8
   %z = alloca %complex_8, align 8
   store double 1.500000e+00, double* %x, align 8
@@ -92,11 +94,10 @@ define i32 @main() {
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @1, i32 0, i32 0), double %1)
   %2 = load double, double* %x, align 8
   %3 = fsub double %2, 0x402C33ED50B88778
-  %4 = alloca double, align 8
-  store double %3, double* %4, align 8
-  %5 = call double @__module_lfortran_intrinsic_math_dabs(double* %4)
-  %6 = fcmp ugt double %5, 1.000000e-10
-  br i1 %6, label %then, label %else
+  store double %3, double* %call_arg_value, align 8
+  %4 = call double @__module_lfortran_intrinsic_math_dabs(double* %call_arg_value)
+  %5 = fcmp ugt double %4, 1.000000e-10
+  br i1 %5, label %then, label %else
 
 then:                                             ; preds = %.entry
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @2, i32 0, i32 0))
@@ -107,46 +108,45 @@ else:                                             ; preds = %.entry
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then
-  %7 = alloca %complex_8, align 8
-  %8 = getelementptr %complex_8, %complex_8* %7, i32 0, i32 0
-  %9 = getelementptr %complex_8, %complex_8* %7, i32 0, i32 1
-  store double 1.500000e+00, double* %8, align 8
-  store double 3.500000e+00, double* %9, align 8
-  %10 = load %complex_8, %complex_8* %7, align 8
+  %6 = alloca %complex_8, align 8
+  %7 = getelementptr %complex_8, %complex_8* %6, i32 0, i32 0
+  %8 = getelementptr %complex_8, %complex_8* %6, i32 0, i32 1
+  store double 1.500000e+00, double* %7, align 8
+  store double 3.500000e+00, double* %8, align 8
+  %9 = load %complex_8, %complex_8* %6, align 8
+  store %complex_8 %9, %complex_8* %z, align 8
+  %10 = call %complex_8 @__module_lfortran_intrinsic_math_ztan(%complex_8* %z)
   store %complex_8 %10, %complex_8* %z, align 8
-  %11 = call %complex_8 @__module_lfortran_intrinsic_math_ztan(%complex_8* %z)
-  store %complex_8 %11, %complex_8* %z, align 8
-  %12 = load %complex_8, %complex_8* %z, align 8
-  %13 = alloca %complex_8, align 8
-  store %complex_8 %12, %complex_8* %13, align 8
-  %14 = getelementptr %complex_8, %complex_8* %13, i32 0, i32 0
-  %15 = load double, double* %14, align 8
-  %16 = alloca %complex_8, align 8
-  store %complex_8 %12, %complex_8* %16, align 8
-  %17 = getelementptr %complex_8, %complex_8* %16, i32 0, i32 1
-  %18 = load double, double* %17, align 8
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @3, i32 0, i32 0), double %15, double %18)
-  %19 = load %complex_8, %complex_8* %z, align 8
-  %20 = alloca %complex_8, align 8
-  store %complex_8 %19, %complex_8* %20, align 8
-  %21 = getelementptr %complex_8, %complex_8* %20, i32 0, i32 0
-  %22 = load double, double* %21, align 8
-  %23 = fsub double %22, 0x3F30E5C06C0C177D
-  %24 = alloca double, align 8
-  store double %23, double* %24, align 8
-  %25 = call double @__module_lfortran_intrinsic_math_dabs(double* %24)
-  %26 = fcmp ugt double %25, 1.000000e-10
-  br i1 %26, label %then1, label %else2
+  %11 = load %complex_8, %complex_8* %z, align 8
+  %12 = alloca %complex_8, align 8
+  store %complex_8 %11, %complex_8* %12, align 8
+  %13 = getelementptr %complex_8, %complex_8* %12, i32 0, i32 0
+  %14 = load double, double* %13, align 8
+  %15 = alloca %complex_8, align 8
+  store %complex_8 %11, %complex_8* %15, align 8
+  %16 = getelementptr %complex_8, %complex_8* %15, i32 0, i32 1
+  %17 = load double, double* %16, align 8
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @3, i32 0, i32 0), double %14, double %17)
+  %18 = load %complex_8, %complex_8* %z, align 8
+  %19 = alloca %complex_8, align 8
+  store %complex_8 %18, %complex_8* %19, align 8
+  %20 = getelementptr %complex_8, %complex_8* %19, i32 0, i32 0
+  %21 = load double, double* %20, align 8
+  %22 = fsub double %21, 0x3F30E5C06C0C177D
+  store double %22, double* %call_arg_value1, align 8
+  %23 = call double @__module_lfortran_intrinsic_math_dabs(double* %call_arg_value1)
+  %24 = fcmp ugt double %23, 1.000000e-10
+  br i1 %24, label %then2, label %else3
 
-then1:                                            ; preds = %ifcont
+then2:                                            ; preds = %ifcont
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @4, i32 0, i32 0))
   call void @exit(i32 1)
-  br label %ifcont3
+  br label %ifcont4
 
-else2:                                            ; preds = %ifcont
-  br label %ifcont3
+else3:                                            ; preds = %ifcont
+  br label %ifcont4
 
-ifcont3:                                          ; preds = %else2, %then1
+ifcont4:                                          ; preds = %else3, %then2
   ret i32 0
 }
 

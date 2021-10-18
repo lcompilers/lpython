@@ -72,15 +72,15 @@ declare void @_lfortran_printf(i8*, ...)
 
 define i32 @main() {
 .entry:
-  %0 = alloca float, align 4
-  store float 1.500000e+00, float* %0, align 4
-  %1 = alloca float, align 4
-  store float 2.000000e+00, float* %1, align 4
-  call void @__module_callback_03_foo1(float* %0, float* %1)
-  %2 = alloca float, align 4
-  store float 1.500000e+00, float* %2, align 4
-  %3 = alloca float, align 4
-  store float 2.000000e+00, float* %3, align 4
-  call void @__module_callback_03_foo2(float* %2, float* %3)
+  %call_arg_value3 = alloca float, align 4
+  %call_arg_value2 = alloca float, align 4
+  %call_arg_value1 = alloca float, align 4
+  %call_arg_value = alloca float, align 4
+  store float 1.500000e+00, float* %call_arg_value, align 4
+  store float 2.000000e+00, float* %call_arg_value1, align 4
+  call void @__module_callback_03_foo1(float* %call_arg_value, float* %call_arg_value1)
+  store float 1.500000e+00, float* %call_arg_value2, align 4
+  store float 2.000000e+00, float* %call_arg_value3, align 4
+  call void @__module_callback_03_foo2(float* %call_arg_value2, float* %call_arg_value3)
   ret i32 0
 }
