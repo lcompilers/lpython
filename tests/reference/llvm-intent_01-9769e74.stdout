@@ -37,10 +37,10 @@ declare void @_lfortran_printf(i8*, ...)
 
 define i32 @main() {
 .entry:
-  %0 = alloca float, align 4
-  store float 0.000000e+00, float* %0, align 4
-  %1 = alloca float, align 4
-  store float 2.000000e+00, float* %1, align 4
-  call void @__module_dflt_intent_foo(float* %0, float* %1)
+  %call_arg_value1 = alloca float, align 4
+  %call_arg_value = alloca float, align 4
+  store float 0.000000e+00, float* %call_arg_value, align 4
+  store float 2.000000e+00, float* %call_arg_value1, align 4
+  call void @__module_dflt_intent_foo(float* %call_arg_value, float* %call_arg_value1)
   ret i32 0
 }

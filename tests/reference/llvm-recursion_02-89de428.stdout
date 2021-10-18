@@ -20,41 +20,41 @@ source_filename = "LFortran"
 
 define i32 @__module_recursion_02_solver(i32 ()* %f, i32* %iter) {
 .entry:
+  %call_arg_value1 = alloca i32, align 4
+  %call_arg_value = alloca i32, align 4
   %solver = alloca i32, align 4
   %0 = call i32 %f()
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @1, i32 0, i32 0), i8* getelementptr inbounds ([8 x i8], [8 x i8]* @0, i32 0, i32 0), i32 %0)
-  %1 = alloca i32, align 4
-  store i32 2, i32* %1, align 4
-  %2 = load i32, i32* %iter, align 4
-  %3 = sub i32 %2, 1
-  %4 = alloca i32, align 4
-  store i32 %3, i32* %4, align 4
-  %5 = call i32 @__module_recursion_02_sub1(i32* %1, i32* %4)
-  %6 = load i32, i32* @sp_sub1, align 4
-  %7 = icmp sgt i32 %6, 0
-  br i1 %7, label %decrement_sp, label %normal_continue
+  store i32 2, i32* %call_arg_value, align 4
+  %1 = load i32, i32* %iter, align 4
+  %2 = sub i32 %1, 1
+  store i32 %2, i32* %call_arg_value1, align 4
+  %3 = call i32 @__module_recursion_02_sub1(i32* %call_arg_value, i32* %call_arg_value1)
+  %4 = load i32, i32* @sp_sub1, align 4
+  %5 = icmp sgt i32 %4, 0
+  br i1 %5, label %decrement_sp, label %normal_continue
 
 decrement_sp:                                     ; preds = %.entry
-  %8 = add i32 -1, %6
-  store i32 %8, i32* @sp_sub1, align 4
-  %9 = load i32, i32* @sp_sub1, align 4
-  %10 = getelementptr [1000 x %sub1_vals], [1000 x %sub1_vals]* @sub1_nstd_strct_stack, i32 0, i32 %9
-  %11 = getelementptr %sub1_vals, %sub1_vals* %10, i32 0, i32 0
-  %12 = load i32, i32* %11, align 4
-  %13 = load i32*, i32** getelementptr inbounds (%sub1_nstd_types, %sub1_nstd_types* @sub1_nstd_strct, i32 0, i32 0), align 8
-  store i32 %12, i32* %13, align 4
-  store i32* %13, i32** getelementptr inbounds (%sub1_nstd_types, %sub1_nstd_types* @sub1_nstd_strct, i32 0, i32 0), align 8
+  %6 = add i32 -1, %4
+  store i32 %6, i32* @sp_sub1, align 4
+  %7 = load i32, i32* @sp_sub1, align 4
+  %8 = getelementptr [1000 x %sub1_vals], [1000 x %sub1_vals]* @sub1_nstd_strct_stack, i32 0, i32 %7
+  %9 = getelementptr %sub1_vals, %sub1_vals* %8, i32 0, i32 0
+  %10 = load i32, i32* %9, align 4
+  %11 = load i32*, i32** getelementptr inbounds (%sub1_nstd_types, %sub1_nstd_types* @sub1_nstd_strct, i32 0, i32 0), align 8
+  store i32 %10, i32* %11, align 4
+  store i32* %11, i32** getelementptr inbounds (%sub1_nstd_types, %sub1_nstd_types* @sub1_nstd_strct, i32 0, i32 0), align 8
   br label %normal_continue
 
 normal_continue:                                  ; preds = %decrement_sp, %.entry
-  store i32 %5, i32* %solver, align 4
-  %14 = call i32 %f()
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @3, i32 0, i32 0), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @2, i32 0, i32 0), i32 %14)
+  store i32 %3, i32* %solver, align 4
+  %12 = call i32 %f()
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @3, i32 0, i32 0), i8* getelementptr inbounds ([7 x i8], [7 x i8]* @2, i32 0, i32 0), i32 %12)
   br label %return
 
 return:                                           ; preds = %normal_continue
-  %15 = load i32, i32* %solver, align 4
-  ret i32 %15
+  %13 = load i32, i32* %solver, align 4
+  ret i32 %13
 }
 
 declare i32 @__module_recursion_02_f()
@@ -125,14 +125,14 @@ declare void @_lfortran_printf(i8*, ...)
 
 define i32 @main() {
 .entry:
+  %call_arg_value1 = alloca i32, align 4
+  %call_arg_value = alloca i32, align 4
   %r = alloca i32, align 4
-  %0 = alloca i32, align 4
-  store i32 3, i32* %0, align 4
-  %1 = alloca i32, align 4
-  store i32 3, i32* %1, align 4
-  %2 = call i32 @__module_recursion_02_sub1(i32* %0, i32* %1)
-  store i32 %2, i32* %r, align 4
-  %3 = load i32, i32* %r, align 4
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @9, i32 0, i32 0), i8* getelementptr inbounds ([4 x i8], [4 x i8]* @8, i32 0, i32 0), i32 %3)
+  store i32 3, i32* %call_arg_value, align 4
+  store i32 3, i32* %call_arg_value1, align 4
+  %0 = call i32 @__module_recursion_02_sub1(i32* %call_arg_value, i32* %call_arg_value1)
+  store i32 %0, i32* %r, align 4
+  %1 = load i32, i32* %r, align 4
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @9, i32 0, i32 0), i8* getelementptr inbounds ([4 x i8], [4 x i8]* @8, i32 0, i32 0), i32 %1)
   ret i32 0
 }

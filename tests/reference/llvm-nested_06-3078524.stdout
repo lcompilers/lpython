@@ -37,8 +37,8 @@ declare void @_lfortran_printf(i8*, ...)
 
 define i32 @main() {
 .entry:
-  %0 = alloca float, align 4
-  store float 6.000000e+00, float* %0, align 4
-  call void @__module_nested_06_a_b(float* %0)
+  %call_arg_value = alloca float, align 4
+  store float 6.000000e+00, float* %call_arg_value, align 4
+  call void @__module_nested_06_a_b(float* %call_arg_value)
   ret i32 0
 }

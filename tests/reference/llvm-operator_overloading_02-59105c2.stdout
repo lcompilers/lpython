@@ -19,17 +19,17 @@ return:                                           ; preds = %.entry
 
 define i32 @main() {
 .entry:
+  %call_arg_value1 = alloca i32, align 4
+  %call_arg_value = alloca i32, align 4
   %tf = alloca i1, align 1
-  %0 = alloca i32, align 4
-  store i32 0, i32* %0, align 4
-  call void @__module_overload_assignment_m_logical_gets_integer(i1* %tf, i32* %0)
+  store i32 0, i32* %call_arg_value, align 4
+  call void @__module_overload_assignment_m_logical_gets_integer(i1* %tf, i32* %call_arg_value)
+  %0 = load i1, i1* %tf, align 1
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @1, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @0, i32 0, i32 0), i1 %0)
+  store i32 1, i32* %call_arg_value1, align 4
+  call void @__module_overload_assignment_m_logical_gets_integer(i1* %tf, i32* %call_arg_value1)
   %1 = load i1, i1* %tf, align 1
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @1, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @0, i32 0, i32 0), i1 %1)
-  %2 = alloca i32, align 4
-  store i32 1, i32* %2, align 4
-  call void @__module_overload_assignment_m_logical_gets_integer(i1* %tf, i32* %2)
-  %3 = load i1, i1* %tf, align 1
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @3, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @2, i32 0, i32 0), i1 %3)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @3, i32 0, i32 0), i8* getelementptr inbounds ([6 x i8], [6 x i8]* @2, i32 0, i32 0), i1 %1)
   ret i32 0
 }
 
