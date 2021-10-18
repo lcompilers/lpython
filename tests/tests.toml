@@ -52,6 +52,10 @@ filename = "do6.f90"
 ast = true
 
 [[test]]
+filename = "do7.f90"
+llvm = true
+
+[[test]]
 filename = "subroutine4.f90"
 ast = true
 ast_f90 = true
