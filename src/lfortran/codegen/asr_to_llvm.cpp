@@ -3654,7 +3654,7 @@ public:
                                     llvm::IRBuilder<> builder0(context);
                                     builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
                                     llvm::AllocaInst *target = builder0.CreateAlloca(
-                                        target_type, nullptr); // call_arg_value
+                                        target_type, nullptr, "call_arg_value");
                                     builder->CreateStore(value, target);
                                     tmp = target;
                                 }
