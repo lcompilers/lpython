@@ -3646,8 +3646,13 @@ public:
                                     use_value = true;
                                 }
                                 if (!use_value) {
-                                    llvm::AllocaInst *target = builder->CreateAlloca(
-                                        target_type, nullptr);
+                                    // Create alloca to get a pointer, but do it
+                                    // at the beginning of the function to avoid
+                                    // using alloca inside a loop, which would
+                                    // run out of stack
+                                    llvm::Function *fn = builder->GetInsertBlock()->getParent();
+                                    llvm::Instruction &fi = fn->getEntryBlock().front();
+                                    llvm::AllocaInst *target = new llvm::AllocaInst(target_type, 0, nullptr, "call_arg_value", &fi);
                                     builder->CreateStore(value, target);
                                     tmp = target;
                                 }
