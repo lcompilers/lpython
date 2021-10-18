@@ -732,16 +732,14 @@ std::string format_semantic_error(const std::string &/*filename*/,
         const std::string msg, bool use_colors,
         const LocationManager &lm)
 {
-    // For now we will fill in the new diagnostic data structures
-    // and then render the error message using it. Later on we will
-    // fill in the Diagnostic class in the semantic part itself and just
-    // pass it through.
+    // We fill in the new diagnostic data structures and then render the error
+    // message using it.
 
     diag::Span s;
     s.loc = loc;
     diag::Label l;
     l.primary = true;
-    l.message = msg;
+    l.message = "";
     l.spans.push_back(s);
     diag::Diagnostic d;
     d.level = diag::Level::Error;
