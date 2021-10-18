@@ -3650,9 +3650,11 @@ public:
                                     // at the beginning of the function to avoid
                                     // using alloca inside a loop, which would
                                     // run out of stack
-                                    llvm::Function *fn = builder->GetInsertBlock()->getParent();
-                                    llvm::Instruction &fi = fn->getEntryBlock().front();
-                                    llvm::AllocaInst *target = new llvm::AllocaInst(target_type, 0, nullptr, "call_arg_value", &fi);
+                                    llvm::BasicBlock &entry_block = builder->GetInsertBlock()->getParent()->getEntryBlock();
+                                    llvm::IRBuilder<> builder0(context);
+                                    builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
+                                    llvm::AllocaInst *target = builder0.CreateAlloca(
+                                        target_type, nullptr); // call_arg_value
                                     builder->CreateStore(value, target);
                                     tmp = target;
                                 }
