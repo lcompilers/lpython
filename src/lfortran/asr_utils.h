@@ -304,7 +304,7 @@ static inline bool all_args_evaluated(const Vec<ASR::expr_t*> &args) {
             // OK
         } else if (ASR::is_a<ASR::ConstantString_t>(*a)) {
             // OK
-        } else {
+        } else if (LFortran::ASRUtils::expr_value(a) == nullptr) {
             return false;
         }
     }

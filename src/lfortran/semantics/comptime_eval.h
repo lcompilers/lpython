@@ -497,6 +497,12 @@ TRIG(sqrt)
 
     static ASR::expr_t *eval_int(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         ASR::expr_t* int_expr = args[0];
+        if( int_expr->type == ASR::exprType::BOZ ) {
+            // TODO: BOZ to be processed later
+            // Return 32
+            ASR::ttype_t* tmp_int_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, 32, tmp_int_type));;
+        }
         ASR::ttype_t* int_type = LFortran::ASRUtils::expr_type(int_expr);
         int int_kind = ASRUtils::extract_kind_from_ttype_t(int_type);
         if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*int_type)) {
@@ -551,6 +557,29 @@ TRIG(sqrt)
                 str_val, str_type));
         } else {
             throw SemanticError("char() must have one integer argument", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_achar(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        ASR::expr_t* int_expr = args[0];
+        ASR::ttype_t* int_type = LFortran::ASRUtils::expr_type(int_expr);
+        if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*int_type)) {
+            int64_t c = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(int_expr))->m_n;
+            ASR::ttype_t* str_type =
+                LFortran::ASRUtils::TYPE(ASR::make_Character_t(al,
+                loc, 1, 1, nullptr, nullptr, 0));
+            char cc = c;
+            std::string svalue;
+            svalue += cc;
+            Str s;
+            s.from_str_view(svalue);
+            char *str_val = s.c_str(al);
+            return ASR::down_cast<ASR::expr_t>(
+                ASR::make_ConstantString_t(al, loc,
+                str_val, str_type));
+        } else {
+            throw SemanticError("achar() must have one integer argument", loc);
         }
     }
 
