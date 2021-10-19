@@ -38,7 +38,7 @@ set(SRC
     ../impure/lfortran_intrinsic_sin.f90
     ../impure/lfortran_intrinsic_sin_c.c
     ../pure/lfortran_intrinsic_kind.f90
-    ../builtin/lfortran_intrinsic_array.f90
+    ../builtin/lfortran_intrinsic_builtin.f90
     ../pure/lfortran_intrinsic_iso_fortran_env.f90
     ../pure/lfortran_intrinsic_iso_c_binding.f90
 )

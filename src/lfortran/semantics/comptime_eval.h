@@ -14,7 +14,7 @@ namespace LFortran {
 struct IntrinsicProcedures {
 
     const std::string m_kind = "lfortran_intrinsic_kind";
-    const std::string m_array = "lfortran_intrinsic_array";
+    const std::string m_builtin = "lfortran_intrinsic_builtin";
     const std::string m_trig = "lfortran_intrinsic_trig";
     const std::string m_math = "lfortran_intrinsic_math";
     const std::string m_math2 = "lfortran_intrinsic_math2";
@@ -40,13 +40,13 @@ struct IntrinsicProcedures {
         comptime_eval_map = {
             // Arguments can be evaluated or not
             {"kind", {m_kind, &eval_kind, false}},
-            {"tiny", {m_array, &eval_tiny, false}},
-            {"int", {m_array, &eval_int, false}},
-            {"real", {m_array, &not_implemented, false}}, // Implemented separately
+            {"tiny", {m_builtin, &eval_tiny, false}},
+            {"int", {m_builtin, &eval_int, false}},
+            {"real", {m_builtin, &not_implemented, false}}, // Implemented separately
 
             // Require evaluated arguments
             {"aimag", {m_math, &eval_aimag, true}},
-            {"char", {m_array, &eval_char, true}},
+            {"char", {m_builtin, &eval_char, true}},
             {"floor", {m_math2, &eval_floor, true}},
             {"nint", {m_math2, &eval_nint, true}},
             {"mod", {m_math2, &eval_mod, true}},
@@ -95,15 +95,15 @@ struct IntrinsicProcedures {
             // left unevaluated in body visitor
             {"trim", {m_string, &not_implemented, false}},
             {"len_trim", {m_string, &not_implemented, false}},
-            {"len", {m_array, &not_implemented, false}},
-            {"size", {m_array, &not_implemented, false}},
-            {"present", {m_array, &not_implemented, false}},
-            {"lbound", {m_array, &not_implemented, false}},
-            {"ubound", {m_array, &not_implemented, false}},
-            {"allocated", {m_array, &not_implemented, false}},
-            {"minval", {m_array, &not_implemented, false}},
-            {"maxval", {m_array, &not_implemented, false}},
-            {"sum", {m_array, &not_implemented, false}},
+            {"len", {m_builtin, &not_implemented, false}},
+            {"size", {m_builtin, &not_implemented, false}},
+            {"present", {m_builtin, &not_implemented, false}},
+            {"lbound", {m_builtin, &not_implemented, false}},
+            {"ubound", {m_builtin, &not_implemented, false}},
+            {"allocated", {m_builtin, &not_implemented, false}},
+            {"minval", {m_builtin, &not_implemented, false}},
+            {"maxval", {m_builtin, &not_implemented, false}},
+            {"sum", {m_builtin, &not_implemented, false}},
 
             // Subroutines
             {"cpu_time", {m_math, &not_implemented, false}},

@@ -7,7 +7,7 @@ source_filename = "LFortran"
 
 @0 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 
-define i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %x, i32* %dim) {
+define i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %x, i32* %dim) {
 .entry:
   %lbound = alloca i32, align 4
   %0 = load %dimension_descriptor*, %dimension_descriptor** %x, align 8
@@ -24,7 +24,7 @@ return:                                           ; preds = %.entry
   ret i32 %6
 }
 
-define i32 @__module_lfortran_intrinsic_array_size(%size_arg* %x) {
+define i32 @__module_lfortran_intrinsic_builtin_size(%size_arg* %x) {
 .entry:
   %size = alloca i32, align 4
   %0 = getelementptr %size_arg, %size_arg* %x, i32 0, i32 0
@@ -61,7 +61,7 @@ return:                                           ; preds = %loop.end
   ret i32 %14
 }
 
-define i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %x, i32* %dim) {
+define i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %x, i32* %dim) {
 .entry:
   %ubound = alloca i32, align 4
   %0 = load %dimension_descriptor*, %dimension_descriptor** %x, align 8
@@ -98,14 +98,14 @@ define i32 @whole_square(%array* %a, %array* %b, %array* %c) {
   store %dimension_descriptor* %2, %dimension_descriptor** %0, align 8
   %3 = alloca i32, align 4
   store i32 1, i32* %3, align 4
-  %4 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %0, i32* %3)
+  %4 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %0, i32* %3)
   %5 = alloca %dimension_descriptor*, align 8
   %6 = getelementptr %array, %array* %a, i32 0, i32 2
   %7 = getelementptr [1 x %dimension_descriptor], [1 x %dimension_descriptor]* %6, i32 0, i32 0
   store %dimension_descriptor* %7, %dimension_descriptor** %5, align 8
   %8 = alloca i32, align 4
   store i32 1, i32* %8, align 4
-  %9 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %5, i32* %8)
+  %9 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %5, i32* %8)
   %10 = getelementptr %array, %array* %"~0_bin_op_res", i32 0, i32 1
   store i32 0, i32* %10, align 4
   %11 = getelementptr %array, %array* %"~0_bin_op_res", i32 0, i32 2
@@ -138,14 +138,14 @@ define i32 @whole_square(%array* %a, %array* %b, %array* %c) {
   store %dimension_descriptor* %30, %dimension_descriptor** %28, align 8
   %31 = alloca i32, align 4
   store i32 1, i32* %31, align 4
-  %32 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %28, i32* %31)
+  %32 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %28, i32* %31)
   %33 = alloca %dimension_descriptor*, align 8
   %34 = getelementptr %array, %array* %b, i32 0, i32 2
   %35 = getelementptr [1 x %dimension_descriptor], [1 x %dimension_descriptor]* %34, i32 0, i32 0
   store %dimension_descriptor* %35, %dimension_descriptor** %33, align 8
   %36 = alloca i32, align 4
   store i32 1, i32* %36, align 4
-  %37 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %33, i32* %36)
+  %37 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %33, i32* %36)
   %38 = getelementptr %array, %array* %"~1_bin_op_res", i32 0, i32 1
   store i32 0, i32* %38, align 4
   %39 = getelementptr %array, %array* %"~1_bin_op_res", i32 0, i32 2
@@ -178,14 +178,14 @@ define i32 @whole_square(%array* %a, %array* %b, %array* %c) {
   store %dimension_descriptor* %58, %dimension_descriptor** %56, align 8
   %59 = alloca i32, align 4
   store i32 1, i32* %59, align 4
-  %60 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %56, i32* %59)
+  %60 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %56, i32* %59)
   %61 = alloca %dimension_descriptor*, align 8
   %62 = getelementptr %array, %array* %c, i32 0, i32 2
   %63 = getelementptr [1 x %dimension_descriptor], [1 x %dimension_descriptor]* %62, i32 0, i32 0
   store %dimension_descriptor* %63, %dimension_descriptor** %61, align 8
   %64 = alloca i32, align 4
   store i32 1, i32* %64, align 4
-  %65 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %61, i32* %64)
+  %65 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %61, i32* %64)
   %66 = getelementptr %array, %array* %"~2_bin_op_res", i32 0, i32 1
   store i32 0, i32* %66, align 4
   %67 = getelementptr %array, %array* %"~2_bin_op_res", i32 0, i32 2
@@ -218,14 +218,14 @@ define i32 @whole_square(%array* %a, %array* %b, %array* %c) {
   store %dimension_descriptor* %86, %dimension_descriptor** %84, align 8
   %87 = alloca i32, align 4
   store i32 1, i32* %87, align 4
-  %88 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %84, i32* %87)
+  %88 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %84, i32* %87)
   %89 = alloca %dimension_descriptor*, align 8
   %90 = getelementptr %array, %array* %a, i32 0, i32 2
   %91 = getelementptr [1 x %dimension_descriptor], [1 x %dimension_descriptor]* %90, i32 0, i32 0
   store %dimension_descriptor* %91, %dimension_descriptor** %89, align 8
   %92 = alloca i32, align 4
   store i32 1, i32* %92, align 4
-  %93 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %89, i32* %92)
+  %93 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %89, i32* %92)
   %94 = getelementptr %array, %array* %"~3_bin_op_res", i32 0, i32 1
   store i32 0, i32* %94, align 4
   %95 = getelementptr %array, %array* %"~3_bin_op_res", i32 0, i32 2
@@ -258,14 +258,14 @@ define i32 @whole_square(%array* %a, %array* %b, %array* %c) {
   store %dimension_descriptor* %114, %dimension_descriptor** %112, align 8
   %115 = alloca i32, align 4
   store i32 1, i32* %115, align 4
-  %116 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %112, i32* %115)
+  %116 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %112, i32* %115)
   %117 = alloca %dimension_descriptor*, align 8
   %118 = getelementptr %array, %array* %a, i32 0, i32 2
   %119 = getelementptr [1 x %dimension_descriptor], [1 x %dimension_descriptor]* %118, i32 0, i32 0
   store %dimension_descriptor* %119, %dimension_descriptor** %117, align 8
   %120 = alloca i32, align 4
   store i32 1, i32* %120, align 4
-  %121 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %117, i32* %120)
+  %121 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %117, i32* %120)
   %122 = getelementptr %array, %array* %"~4_bin_op_res", i32 0, i32 1
   store i32 0, i32* %122, align 4
   %123 = getelementptr %array, %array* %"~4_bin_op_res", i32 0, i32 2
@@ -298,7 +298,7 @@ define i32 @whole_square(%array* %a, %array* %b, %array* %c) {
   store %dimension_descriptor* %142, %dimension_descriptor** %143, align 8
   %144 = getelementptr %size_arg, %size_arg* %140, i32 0, i32 1
   store i32 1, i32* %144, align 4
-  %145 = call i32 @__module_lfortran_intrinsic_array_size(%size_arg* %140)
+  %145 = call i32 @__module_lfortran_intrinsic_builtin_size(%size_arg* %140)
   store i32 %145, i32* %n, align 4
   %146 = load i32, i32* %n, align 4
   %147 = getelementptr %array, %array* %a_2, i32 0, i32 1
@@ -504,7 +504,7 @@ define i32 @whole_square(%array* %a, %array* %b, %array* %c) {
   store %dimension_descriptor* %288, %dimension_descriptor** %286, align 8
   %289 = alloca i32, align 4
   store i32 1, i32* %289, align 4
-  %290 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %286, i32* %289)
+  %290 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %286, i32* %289)
   %291 = sub i32 %290, 1
   store i32 %291, i32* %"1_t", align 4
   br label %loop.head
@@ -518,7 +518,7 @@ loop.head:                                        ; preds = %loop.body, %.entry
   store %dimension_descriptor* %296, %dimension_descriptor** %294, align 8
   %297 = alloca i32, align 4
   store i32 1, i32* %297, align 4
-  %298 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %294, i32* %297)
+  %298 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %294, i32* %297)
   %299 = icmp sle i32 %293, %298
   br i1 %299, label %loop.body, label %loop.end
 
@@ -585,7 +585,7 @@ loop.end:                                         ; preds = %loop.head
   store %dimension_descriptor* %351, %dimension_descriptor** %349, align 8
   %352 = alloca i32, align 4
   store i32 1, i32* %352, align 4
-  %353 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %349, i32* %352)
+  %353 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %349, i32* %352)
   %354 = sub i32 %353, 1
   store i32 %354, i32* %"1_t", align 4
   br label %loop.head1
@@ -599,7 +599,7 @@ loop.head1:                                       ; preds = %loop.body2, %loop.e
   store %dimension_descriptor* %359, %dimension_descriptor** %357, align 8
   %360 = alloca i32, align 4
   store i32 1, i32* %360, align 4
-  %361 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %357, i32* %360)
+  %361 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %357, i32* %360)
   %362 = icmp sle i32 %356, %361
   br i1 %362, label %loop.body2, label %loop.end3
 
@@ -666,7 +666,7 @@ loop.end3:                                        ; preds = %loop.head1
   store %dimension_descriptor* %414, %dimension_descriptor** %412, align 8
   %415 = alloca i32, align 4
   store i32 1, i32* %415, align 4
-  %416 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %412, i32* %415)
+  %416 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %412, i32* %415)
   %417 = sub i32 %416, 1
   store i32 %417, i32* %"1_t", align 4
   br label %loop.head4
@@ -680,7 +680,7 @@ loop.head4:                                       ; preds = %loop.body5, %loop.e
   store %dimension_descriptor* %422, %dimension_descriptor** %420, align 8
   %423 = alloca i32, align 4
   store i32 1, i32* %423, align 4
-  %424 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %420, i32* %423)
+  %424 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %420, i32* %423)
   %425 = icmp sle i32 %419, %424
   br i1 %425, label %loop.body5, label %loop.end6
 
@@ -747,7 +747,7 @@ loop.end6:                                        ; preds = %loop.head4
   store %dimension_descriptor* %477, %dimension_descriptor** %475, align 8
   %478 = alloca i32, align 4
   store i32 1, i32* %478, align 4
-  %479 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %475, i32* %478)
+  %479 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %475, i32* %478)
   %480 = sub i32 %479, 1
   store i32 %480, i32* %"1_t", align 4
   br label %loop.head7
@@ -761,7 +761,7 @@ loop.head7:                                       ; preds = %loop.body8, %loop.e
   store %dimension_descriptor* %485, %dimension_descriptor** %483, align 8
   %486 = alloca i32, align 4
   store i32 1, i32* %486, align 4
-  %487 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %483, i32* %486)
+  %487 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %483, i32* %486)
   %488 = icmp sle i32 %482, %487
   br i1 %488, label %loop.body8, label %loop.end9
 
@@ -813,7 +813,7 @@ loop.end9:                                        ; preds = %loop.head7
   store %dimension_descriptor* %525, %dimension_descriptor** %523, align 8
   %526 = alloca i32, align 4
   store i32 1, i32* %526, align 4
-  %527 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %523, i32* %526)
+  %527 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %523, i32* %526)
   %528 = sub i32 %527, 1
   store i32 %528, i32* %"1_t", align 4
   br label %loop.head10
@@ -827,7 +827,7 @@ loop.head10:                                      ; preds = %loop.body11, %loop.
   store %dimension_descriptor* %533, %dimension_descriptor** %531, align 8
   %534 = alloca i32, align 4
   store i32 1, i32* %534, align 4
-  %535 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %531, i32* %534)
+  %535 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %531, i32* %534)
   %536 = icmp sle i32 %530, %535
   br i1 %536, label %loop.body11, label %loop.end12
 
@@ -894,7 +894,7 @@ loop.end12:                                       ; preds = %loop.head10
   store %dimension_descriptor* %588, %dimension_descriptor** %586, align 8
   %589 = alloca i32, align 4
   store i32 1, i32* %589, align 4
-  %590 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %586, i32* %589)
+  %590 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %586, i32* %589)
   %591 = sub i32 %590, 1
   store i32 %591, i32* %"1_t", align 4
   br label %loop.head13
@@ -908,7 +908,7 @@ loop.head13:                                      ; preds = %loop.body14, %loop.
   store %dimension_descriptor* %596, %dimension_descriptor** %594, align 8
   %597 = alloca i32, align 4
   store i32 1, i32* %597, align 4
-  %598 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %594, i32* %597)
+  %598 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %594, i32* %597)
   %599 = icmp sle i32 %593, %598
   br i1 %599, label %loop.body14, label %loop.end15
 
@@ -960,7 +960,7 @@ loop.end15:                                       ; preds = %loop.head13
   store %dimension_descriptor* %636, %dimension_descriptor** %634, align 8
   %637 = alloca i32, align 4
   store i32 1, i32* %637, align 4
-  %638 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %634, i32* %637)
+  %638 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %634, i32* %637)
   %639 = sub i32 %638, 1
   store i32 %639, i32* %"1_t", align 4
   br label %loop.head16
@@ -974,7 +974,7 @@ loop.head16:                                      ; preds = %loop.body17, %loop.
   store %dimension_descriptor* %644, %dimension_descriptor** %642, align 8
   %645 = alloca i32, align 4
   store i32 1, i32* %645, align 4
-  %646 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %642, i32* %645)
+  %646 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %642, i32* %645)
   %647 = icmp sle i32 %641, %646
   br i1 %647, label %loop.body17, label %loop.end18
 
@@ -1041,7 +1041,7 @@ loop.end18:                                       ; preds = %loop.head16
   store %dimension_descriptor* %699, %dimension_descriptor** %697, align 8
   %700 = alloca i32, align 4
   store i32 1, i32* %700, align 4
-  %701 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %697, i32* %700)
+  %701 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %697, i32* %700)
   %702 = sub i32 %701, 1
   store i32 %702, i32* %"1_t", align 4
   br label %loop.head19
@@ -1055,7 +1055,7 @@ loop.head19:                                      ; preds = %loop.body20, %loop.
   store %dimension_descriptor* %707, %dimension_descriptor** %705, align 8
   %708 = alloca i32, align 4
   store i32 1, i32* %708, align 4
-  %709 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %705, i32* %708)
+  %709 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %705, i32* %708)
   %710 = icmp sle i32 %704, %709
   br i1 %710, label %loop.body20, label %loop.end21
 
@@ -1107,7 +1107,7 @@ loop.end21:                                       ; preds = %loop.head19
   store %dimension_descriptor* %747, %dimension_descriptor** %745, align 8
   %748 = alloca i32, align 4
   store i32 1, i32* %748, align 4
-  %749 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %745, i32* %748)
+  %749 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %745, i32* %748)
   %750 = sub i32 %749, 1
   store i32 %750, i32* %"1_t", align 4
   br label %loop.head22
@@ -1121,7 +1121,7 @@ loop.head22:                                      ; preds = %loop.body23, %loop.
   store %dimension_descriptor* %755, %dimension_descriptor** %753, align 8
   %756 = alloca i32, align 4
   store i32 1, i32* %756, align 4
-  %757 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %753, i32* %756)
+  %757 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %753, i32* %756)
   %758 = icmp sle i32 %752, %757
   br i1 %758, label %loop.body23, label %loop.end24
 
@@ -1188,7 +1188,7 @@ loop.end24:                                       ; preds = %loop.head22
   store %dimension_descriptor* %810, %dimension_descriptor** %808, align 8
   %811 = alloca i32, align 4
   store i32 1, i32* %811, align 4
-  %812 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %808, i32* %811)
+  %812 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %808, i32* %811)
   %813 = sub i32 %812, 1
   store i32 %813, i32* %"1_t", align 4
   br label %loop.head25
@@ -1202,7 +1202,7 @@ loop.head25:                                      ; preds = %loop.body26, %loop.
   store %dimension_descriptor* %818, %dimension_descriptor** %816, align 8
   %819 = alloca i32, align 4
   store i32 1, i32* %819, align 4
-  %820 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %816, i32* %819)
+  %820 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %816, i32* %819)
   %821 = icmp sle i32 %815, %820
   br i1 %821, label %loop.body26, label %loop.end27
 
@@ -1254,7 +1254,7 @@ loop.end27:                                       ; preds = %loop.head25
   store %dimension_descriptor* %858, %dimension_descriptor** %856, align 8
   %859 = alloca i32, align 4
   store i32 1, i32* %859, align 4
-  %860 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %856, i32* %859)
+  %860 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %856, i32* %859)
   %861 = sub i32 %860, 1
   store i32 %861, i32* %"1_t", align 4
   br label %loop.head28
@@ -1268,7 +1268,7 @@ loop.head28:                                      ; preds = %loop.body29, %loop.
   store %dimension_descriptor* %866, %dimension_descriptor** %864, align 8
   %867 = alloca i32, align 4
   store i32 1, i32* %867, align 4
-  %868 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %864, i32* %867)
+  %868 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %864, i32* %867)
   %869 = icmp sle i32 %863, %868
   br i1 %869, label %loop.body29, label %loop.end30
 
@@ -1335,7 +1335,7 @@ loop.end30:                                       ; preds = %loop.head28
   store %dimension_descriptor* %921, %dimension_descriptor** %919, align 8
   %922 = alloca i32, align 4
   store i32 1, i32* %922, align 4
-  %923 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %919, i32* %922)
+  %923 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %919, i32* %922)
   %924 = sub i32 %923, 1
   store i32 %924, i32* %"1_t", align 4
   br label %loop.head31
@@ -1349,7 +1349,7 @@ loop.head31:                                      ; preds = %loop.body32, %loop.
   store %dimension_descriptor* %929, %dimension_descriptor** %927, align 8
   %930 = alloca i32, align 4
   store i32 1, i32* %930, align 4
-  %931 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %927, i32* %930)
+  %931 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %927, i32* %930)
   %932 = icmp sle i32 %926, %931
   br i1 %932, label %loop.body32, label %loop.end33
 
@@ -1668,7 +1668,7 @@ define i32 @main() {
   store %dimension_descriptor* %62, %dimension_descriptor** %60, align 8
   %63 = alloca i32, align 4
   store i32 1, i32* %63, align 4
-  %64 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %60, i32* %63)
+  %64 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %60, i32* %63)
   %65 = sub i32 %64, 1
   store i32 %65, i32* %"1_k", align 4
   br label %loop.head
@@ -1682,7 +1682,7 @@ loop.head:                                        ; preds = %loop.body, %.entry
   store %dimension_descriptor* %70, %dimension_descriptor** %68, align 8
   %71 = alloca i32, align 4
   store i32 1, i32* %71, align 4
-  %72 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %68, i32* %71)
+  %72 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %68, i32* %71)
   %73 = icmp sle i32 %67, %72
   br i1 %73, label %loop.body, label %loop.end
 
@@ -1714,7 +1714,7 @@ loop.end:                                         ; preds = %loop.head
   store %dimension_descriptor* %92, %dimension_descriptor** %90, align 8
   %93 = alloca i32, align 4
   store i32 1, i32* %93, align 4
-  %94 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %90, i32* %93)
+  %94 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %90, i32* %93)
   %95 = sub i32 %94, 1
   store i32 %95, i32* %"1_k", align 4
   br label %loop.head1
@@ -1728,7 +1728,7 @@ loop.head1:                                       ; preds = %loop.body2, %loop.e
   store %dimension_descriptor* %100, %dimension_descriptor** %98, align 8
   %101 = alloca i32, align 4
   store i32 1, i32* %101, align 4
-  %102 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %98, i32* %101)
+  %102 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %98, i32* %101)
   %103 = icmp sle i32 %97, %102
   br i1 %103, label %loop.body2, label %loop.end3
 
@@ -1760,7 +1760,7 @@ loop.end3:                                        ; preds = %loop.head1
   store %dimension_descriptor* %122, %dimension_descriptor** %120, align 8
   %123 = alloca i32, align 4
   store i32 1, i32* %123, align 4
-  %124 = call i32 @__module_lfortran_intrinsic_array_lbound(%dimension_descriptor** %120, i32* %123)
+  %124 = call i32 @__module_lfortran_intrinsic_builtin_lbound(%dimension_descriptor** %120, i32* %123)
   %125 = sub i32 %124, 1
   store i32 %125, i32* %"1_k", align 4
   br label %loop.head4
@@ -1774,7 +1774,7 @@ loop.head4:                                       ; preds = %loop.body5, %loop.e
   store %dimension_descriptor* %130, %dimension_descriptor** %128, align 8
   %131 = alloca i32, align 4
   store i32 1, i32* %131, align 4
-  %132 = call i32 @__module_lfortran_intrinsic_array_ubound(%dimension_descriptor** %128, i32* %131)
+  %132 = call i32 @__module_lfortran_intrinsic_builtin_ubound(%dimension_descriptor** %128, i32* %131)
   %133 = icmp sle i32 %127, %132
   br i1 %133, label %loop.body5, label %loop.end6
 

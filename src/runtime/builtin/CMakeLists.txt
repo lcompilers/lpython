@@ -4,5 +4,5 @@ project(lfortran_runtime_builtin C Fortran)
 
 add_library(lfortran_runtime_builtin
     STATIC
-    lfortran_intrinsic_array.f90
+    lfortran_intrinsic_builtin.f90
 )
