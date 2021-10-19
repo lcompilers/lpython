@@ -1084,7 +1084,7 @@ public:
                 if (ASR::is_a<ASR::Function_t>(*f2)) {
                     ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(f2);
                     visit_kwargs(args, x.m_keywords, x.n_keywords,
-                        f->m_args, f->n_args);
+                        f->m_args, f->n_args, x.base.base.loc);
                 } else {
                     LFORTRAN_ASSERT(ASR::is_a<ASR::GenericProcedure_t>(*f2))
                     diag::Span s;
@@ -1358,7 +1358,23 @@ public:
     }
 
     void visit_kwargs(Vec<ASR::expr_t*> &args, AST::keyword_t *kwargs, size_t n,
-                ASR::expr_t **fn_args, size_t fn_n_args) {
+                ASR::expr_t **fn_args, size_t fn_n_args, const Location &loc) {
+        if (args.size() + n != fn_n_args) {
+            diag::Span s;
+            s.loc = loc;
+            diag::Label l;
+            l.primary = true;
+            l.message = "";
+            l.spans.push_back(s);
+            diag::Diagnostic d;
+            d.level = diag::Level::Error;
+            d.stage = diag::Stage::Semantic;
+            d.message = "Procedure accepts " + std::to_string(fn_n_args)
+                + " arguments, but " + std::to_string(args.size() + n)
+                + " were provided";
+            d.labels.push_back(l);
+            throw SemanticError(d);
+        }
         // TODO: lookup arguments by their name and create a correct order
         for (size_t i=0; i<n; i++) {
             this->visit_expr(*kwargs[i].m_value);

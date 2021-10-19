@@ -790,7 +790,7 @@ public:
             if (ASR::is_a<ASR::Subroutine_t>(*f2)) {
                 ASR::Subroutine_t *f = ASR::down_cast<ASR::Subroutine_t>(f2);
                 visit_kwargs(args, x.m_keywords, x.n_keywords,
-                    f->m_args, f->n_args);
+                    f->m_args, f->n_args, x.base.base.loc);
             } else {
                 diag::Span s;
                 s.loc = x.base.base.loc;
