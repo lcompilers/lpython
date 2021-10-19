@@ -1080,6 +1080,7 @@ public:
         ASR::symbol_t *f2 = ASRUtils::symbol_get_past_external(v);
         if (ASR::is_a<ASR::Function_t>(*f2) || ASR::is_a<ASR::GenericProcedure_t>(*f2)) {
             Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+            visit_kwargs(args, x.m_keywords, x.n_keywords);
             tmp = create_FunctionCall(x.base.base.loc, v, args);
         } else {
             switch (f2->type) {
@@ -1334,6 +1335,15 @@ public:
             asr_list.push_back(al, expr);
         }
         return asr_list;
+    }
+
+    void visit_kwargs(Vec<ASR::expr_t*> &args, AST::keyword_t *kwargs, size_t n) {
+        // TODO: lookup arguments by their name and create a correct order
+        for (size_t i=0; i<n; i++) {
+            this->visit_expr(*kwargs[i].m_value);
+            ASR::expr_t *expr = LFortran::ASRUtils::EXPR(tmp);
+            args.push_back(al, expr);
+        }
     }
 
     void visit_Name(const AST::Name_t &x) {

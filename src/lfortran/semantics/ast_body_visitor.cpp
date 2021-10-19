@@ -785,6 +785,7 @@ public:
             original_sym = resolve_intrinsic_function(x.base.base.loc, sub_name);
         }
         Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+        visit_kwargs(args, x.m_keywords, x.n_keywords);
         Vec<ASR::expr_t*> args_with_mdt;
         if( x.n_member == 1 ) {
             args_with_mdt.reserve(al, x.n_args + 1);
