@@ -1,4 +1,4 @@
-module lfortran_intrinsic_array
+module lfortran_intrinsic_builtin
 implicit none
 
 interface
