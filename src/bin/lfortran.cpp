@@ -709,13 +709,12 @@ int compile_to_object_file(const std::string &infile,
     try {
         m = LFortran::asr_to_llvm(*asr, e.get_context(), al, compiler_options.platform);
     } catch (const LFortran::CodeGenError &e) {
-        if (compiler_options.show_stacktrace) {
-            std::vector<LFortran::StacktraceItem> d = e.stacktrace_addresses();
-            get_local_addresses(d);
-            get_local_info(d);
-            std::cerr << stacktrace2str(d, LFortran::stacktrace_depth);
-        }
-        std::cerr << "Code generation error: " << e.msg() << std::endl;
+        LFortran::FortranEvaluator::Error error;
+        error.type = LFortran::FortranEvaluator::Error::CodeGen;
+        error.new_diagnostic = true;
+        error.d = e.d;
+        error.stacktrace_addresses = e.stacktrace_addresses();
+        std::cerr << fe.format_error(error, input, lm);
         return 5;
     }
 
@@ -875,7 +874,12 @@ int compile_to_object_file_cpp(const std::string &infile,
     try {
         src = LFortran::asr_to_cpp(*asr);
     } catch (const LFortran::CodeGenError &e) {
-        std::cerr << "Code generation error: " << e.msg() << std::endl;
+        LFortran::FortranEvaluator::Error error;
+        error.type = LFortran::FortranEvaluator::Error::CodeGen;
+        error.new_diagnostic = true;
+        error.d = e.d;
+        error.stacktrace_addresses = e.stacktrace_addresses();
+        std::cerr << fe.format_error(error, input, lm);
         return 5;
     }
 

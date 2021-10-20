@@ -61,13 +61,21 @@ enum Stage {
 /*
  * A diagnostic message has a level and message and labels.
  *
- * Errors have one or more primary and zero or more secondary labels.
+ * Errors have zero or more primary and zero or more secondary labels.
  * Help uses primary to show what should change.
  * Notes may not have any labels attached.
  *
  * The message describes the overall error/warning/note. Labels are used
  * to briefly but approachably describe what went wrong (primary label) and why
  * it happened (secondary label).
+ *
+ * A progression of error messages:
+ *   * a message with no label
+ *   * a message with a primary label, no attached message
+ *   * a message with a primary label and attached message
+ *   * a message with a primary label and attached message and secondary labels
+ *   * ...
+ * If there are labels attached, there must be at least one primary.
  *
  * The main diagnostic message is the parent. It can have children that can
  * attach notes, help, etc. to the main error or warning message.
@@ -169,6 +177,14 @@ struct Diagnostic {
         l.message = message;
         l.spans.push_back(s);
         this->labels.push_back(l);
+    }
+
+    static Diagnostic codegen_error(const std::string &message) {
+        diag::Diagnostic d;
+        d.level = Level::Error;
+        d.stage = Stage::CodeGen;
+        d.message = message;
+        return d;
     }
 
 /*
