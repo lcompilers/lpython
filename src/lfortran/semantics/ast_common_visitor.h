@@ -1211,8 +1211,7 @@ public:
     }
 
     void visit_BOZ(const AST::BOZ_t& x) {
-        std::string s = x.m_s; 
-        std::string boz_content = s.substr(1);
+        std::string s = std::string(x.m_s); 
         int base = -1;
         ASR::bozType boz_type;
         if( s[0] == 'b' || s[0] == 'B' ) {
@@ -1230,7 +1229,8 @@ public:
                                 BOZ literal constants.)""", 
                                 x.base.base.loc);
         }
-        int64_t boz_int = std::stoi(boz_content, nullptr, base);
+        std::string boz_str = s.substr(2, s.size() - 2);
+        int boz_int = std::stoi(boz_str, nullptr, base);
         tmp = ASR::make_BOZ_t(al, x.base.base.loc, boz_int,
                                 boz_type, nullptr);
     }
