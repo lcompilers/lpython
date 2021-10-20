@@ -40,7 +40,7 @@ int yylex(LFortran::YYSTYPE *yylval, YYLTYPE *yyloc, LFortran::Parser &p)
 
 void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 {
-    p.handle_yyerror(yyloc, msg);
+    p.handle_yyerror(*yyloc, msg);
 }
 
 #define YYLLOC_DEFAULT(Current, Rhs, N)                                 \

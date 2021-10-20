@@ -28,7 +28,7 @@ public:
 
     void parse(const std::string &input);
     int parse();
-    void handle_yyerror(YYLTYPE *yyloc, const std::string &msg);
+    void handle_yyerror(const Location &loc, const std::string &msg);
 };
 
 static inline uint32_t bisection(const std::vector<uint32_t> &vec, uint32_t i) {

@@ -704,7 +704,7 @@ std::string format_syntax_error(const std::string &filename,
     return out.str();
 }
 
-void Parser::handle_yyerror(YYLTYPE *yyloc, const std::string &msg)
+void Parser::handle_yyerror(const Location &loc, const std::string &msg)
 {
     std::string message;
     if (msg == "syntax is ambiguous") {
@@ -728,7 +728,7 @@ void Parser::handle_yyerror(YYLTYPE *yyloc, const std::string &msg)
     } else {
         message = "Internal Compiler Error: parser returned unknown error";
     }
-    throw LFortran::ParserError(message, *yyloc);
+    throw LFortran::ParserError(message, loc);
 }
 
 void populate_span(diag::Span &s, const LocationManager &lm,
