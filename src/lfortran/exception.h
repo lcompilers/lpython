@@ -119,19 +119,15 @@ public:
 class SemanticError : public LFortranException
 {
 public:
-    Location loc;
-    bool new_diagnostic=false;
     diag::Diagnostic d;
 public:
     SemanticError(const std::string &msg, const Location &loc)
-        : LFortranException(msg, LFORTRAN_SEMANTIC_ERROR), loc{loc},
+        : LFortranException(msg, LFORTRAN_SEMANTIC_ERROR),
         d{diag::Diagnostic::semantic_error(msg, loc)}
     { }
 
     SemanticError(const diag::Diagnostic &d)
             : LFortranException(d.message, LFORTRAN_SEMANTIC_ERROR),
-            loc{d.labels[0].spans[0].loc},
-            new_diagnostic{true},
             d{d} {
     }
 };

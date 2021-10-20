@@ -160,8 +160,8 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
     } catch (const SemanticError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::Semantic;
-        error.loc = e.loc;
-        error.msg = e.msg();
+        error.new_diagnostic = true;
+        error.d = e.d;
         return error;
     } catch (const CodeGenError &e) {
         FortranEvaluator::Error error;
@@ -267,12 +267,8 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
     } catch (const SemanticError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::Semantic;
-        if (e.new_diagnostic) {
-            error.new_diagnostic = true;
-            error.d = e.d;
-        }
-        error.loc = e.loc;
-        error.msg = e.msg();
+        error.new_diagnostic = true;
+        error.d = e.d;
         error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
     } catch (const CodeGenError &e) {
@@ -385,8 +381,8 @@ Result<std::string> FortranEvaluator::get_cpp(const std::string &code,
             // SemanticError to get the location information.
             FortranEvaluator::Error error;
             error.type = FortranEvaluator::Error::Semantic;
-            error.loc = e.loc;
-            error.msg = e.msg();
+            error.new_diagnostic = true;
+            error.d = e.d;
             error.stacktrace_addresses = e.stacktrace_addresses();
             return error;
         } catch (const CodeGenError &e) {
