@@ -40,11 +40,7 @@ int yylex(LFortran::YYSTYPE *yylval, YYLTYPE *yyloc, LFortran::Parser &p)
 
 void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 {
-    LFortran::YYSTYPE yylval_;
-    YYLTYPE yyloc_;
-    p.m_tokenizer.cur = p.m_tokenizer.tok;
-    int token = p.m_tokenizer.lex(p.m_a, yylval_, yyloc_);
-    throw LFortran::ParserError(msg, *yyloc, token);
+    p.handle_yyerror(yyloc, msg);
 }
 
 #define YYLLOC_DEFAULT(Current, Rhs, N)                                 \
