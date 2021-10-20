@@ -1211,23 +1211,27 @@ public:
     }
 
     void visit_BOZ(const AST::BOZ_t& x) {
-        LFortran::Str boz_content;
         std::string s = x.m_s; 
-        boz_content.from_str(al, s.substr(1));
+        std::string boz_content = s.substr(1);
+        int base = -1;
         ASR::bozType boz_type;
         if( s[0] == 'b' || s[0] == 'B' ) {
             boz_type = ASR::bozType::Binary;
+            base = 2;
         } else if( s[0] == 'z' || s[0] == 'Z' ) {
             boz_type = ASR::bozType::Hex;
+            base = 16;
         } else if( s[0] == 'o' || s[0] == 'O' ) {
             boz_type = ASR::bozType::Octal;
+            base = 8;
         } else {
             throw SemanticError(R"""(Only 'b', 'o' and 'z' 
                                 are accepted as prefixes of 
                                 BOZ literal constants.)""", 
                                 x.base.base.loc);
         }
-        tmp = ASR::make_BOZ_t(al, x.base.base.loc, boz_content.c_str(al),
+        int64_t boz_int = std::stoi(boz_content, nullptr, base);
+        tmp = ASR::make_BOZ_t(al, x.base.base.loc, boz_int,
                                 boz_type, nullptr);
     }
 
