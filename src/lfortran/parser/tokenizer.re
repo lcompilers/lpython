@@ -219,8 +219,11 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
 
             * { token_loc(loc);
                 std::string t = token();
-                throw LFortran::TokenizerError("token '" + t
-                    + "' is not recognized", loc);
+                throw LFortran::TokenizerError(diag::Diagnostic::tokenizer_error_label(
+                    "Token '" + t + "' is not recognized",
+                    loc,
+                    "token not recognized"
+                    ));
             }
             end { RET(END_OF_FILE); }
             whitespace { continue; }
