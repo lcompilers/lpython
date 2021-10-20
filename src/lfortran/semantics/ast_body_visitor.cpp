@@ -785,6 +785,27 @@ public:
             original_sym = resolve_intrinsic_function(x.base.base.loc, sub_name);
         }
         Vec<ASR::expr_t*> args = visit_expr_list(x.m_args, x.n_args);
+        if (x.n_keywords > 0) {
+            ASR::symbol_t* f2 = LFortran::ASRUtils::symbol_get_past_external(original_sym);
+            if (ASR::is_a<ASR::Subroutine_t>(*f2)) {
+                ASR::Subroutine_t *f = ASR::down_cast<ASR::Subroutine_t>(f2);
+                visit_kwargs(args, x.m_keywords, x.n_keywords,
+                    f->m_args, f->n_args, x.base.base.loc);
+            } else {
+                diag::Span s;
+                s.loc = x.base.base.loc;
+                diag::Label l;
+                l.primary = true;
+                l.message = "";
+                l.spans.push_back(s);
+                diag::Diagnostic d;
+                d.level = diag::Level::Error;
+                d.stage = diag::Stage::Semantic;
+                d.message = "Keyword arguments are not implemented for generic subroutines yet";
+                d.labels.push_back(l);
+                throw SemanticError(d);
+            }
+        }
         Vec<ASR::expr_t*> args_with_mdt;
         if( x.n_member == 1 ) {
             args_with_mdt.reserve(al, x.n_args + 1);
