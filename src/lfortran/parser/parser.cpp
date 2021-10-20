@@ -35,14 +35,11 @@ AST::TranslationUnit_t* parse2(Allocator &al, const std::string &code_original,
     try {
         result = parse(al, code_prescanned);
     } catch (const LFortran::ParserError &e) {
-        int token;
-        if (e.msg() == "syntax is ambiguous") {
-            token = -2;
-        } else {
-            token = e.token;
-        }
-        std::cerr << format_syntax_error("input", code_prescanned, e.loc,
-            token, nullptr, use_colors, lm);
+        // Convert to line numbers and get source code strings
+        diag::Diagnostic d = e.d;
+        populate_spans(d, lm, code_prescanned);
+        // Render the message
+        std::cerr << diag::render_diagnostic(d, use_colors);
         throw;
     } catch (const LFortran::TokenizerError &e) {
         // Convert to line numbers and get source code strings
@@ -67,8 +64,7 @@ void Parser::parse(const std::string &input)
     if (yyparse(*this) == 0) {
         return;
     }
-    Location loc;
-    throw ParserError("Parsing Unsuccessful", loc, 0);
+    throw ParserError("Parsing unsuccessful (internal compiler error)");
 }
 
 std::vector<int> tokens(Allocator &al, const std::string &input,
@@ -706,6 +702,33 @@ std::string format_syntax_error(const std::string &filename,
         out << highlight_line(line, 1, last_column, use_colors);
     }
     return out.str();
+}
+
+void Parser::handle_yyerror(const Location &loc, const std::string &msg)
+{
+    std::string message;
+    if (msg == "syntax is ambiguous") {
+        message = "Syntax is ambiguous";
+    } else if (msg == "syntax error") {
+        LFortran::YYSTYPE yylval_;
+        YYLTYPE yyloc_;
+        this->m_tokenizer.cur = this->m_tokenizer.tok;
+        int token = this->m_tokenizer.lex(this->m_a, yylval_, yyloc_);
+        if (token == yytokentype::END_OF_FILE) {
+            message =  "End of file is unexpected here";
+        } else {
+            std::string token_str = this->m_tokenizer.token();
+            std::string token_type = token2text(token);
+            if (token_str == token_type) {
+                message =  "Token '" + token_str + "' is unexpected here";
+            } else {
+                message =  "Token '" + token_str + "' (of type '" + token2text(token) + "') is unexpected here";
+            }
+        }
+    } else {
+        message = "Internal Compiler Error: parser returned unknown error";
+    }
+    throw LFortran::ParserError(message, loc);
 }
 
 void populate_span(diag::Span &s, const LocationManager &lm,

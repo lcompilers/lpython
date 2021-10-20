@@ -1303,11 +1303,8 @@ TEST_CASE("Errors") {
         parse(al, input);
         CHECK(false);
     } catch (const LFortran::ParserError &e) {
-        CHECK(e.msg() == "syntax error");
-        CHECK(e.token == yytokentype::TK_NEWLINE);
-//        std::cerr << format_syntax_error("input", input, e.loc, e.token);
-        CHECK(e.loc.first == 5);
-        CHECK(e.loc.last == 5);
+        CHECK(e.d.labels[0].spans[0].loc.first == 5);
+        CHECK(e.d.labels[0].spans[0].loc.last == 5);
     }
 
     input = R"(function f()
@@ -1318,11 +1315,8 @@ TEST_CASE("Errors") {
         parse(al, input);
         CHECK(false);
     } catch (const LFortran::ParserError &e) {
-        CHECK(e.msg() == "syntax error");
-        CHECK(e.token == tt::TK_STAR);
-//        std::cerr << format_syntax_error("input", input, e.loc, e.token);
-        CHECK(e.loc.first == 38);
-        CHECK(e.loc.last == 38);
+        CHECK(e.d.labels[0].spans[0].loc.first == 38);
+        CHECK(e.d.labels[0].spans[0].loc.last == 38);
     }
 
     input = R"(function f()
@@ -1333,11 +1327,8 @@ TEST_CASE("Errors") {
         parse(al, input);
         CHECK(false);
     } catch (const LFortran::ParserError &e) {
-        CHECK(e.msg() == "syntax error");
-        CHECK(e.token == tt::TK_STAR);
-//        std::cerr << format_syntax_error("input", input, e.loc, e.token);
-        CHECK(e.loc.first == 35);
-        CHECK(e.loc.last == 35);
+        CHECK(e.d.labels[0].spans[0].loc.first == 35);
+        CHECK(e.d.labels[0].spans[0].loc.last == 35);
     }
 
     input = R"(function f()
@@ -1348,11 +1339,8 @@ TEST_CASE("Errors") {
         parse(al, input);
         CHECK(false);
     } catch (const LFortran::ParserError &e) {
-        CHECK(e.msg() == "syntax error");
-        CHECK(e.token == yytokentype::TK_NAME);
-//        std::cerr << format_syntax_error("input", input, e.loc, e.token);
-        CHECK(e.loc.first == 23);
-        CHECK(e.loc.last == 25);
+        CHECK(e.d.labels[0].spans[0].loc.first == 23);
+        CHECK(e.d.labels[0].spans[0].loc.last == 25);
     }
 
     input = "1 + .notx.";
@@ -1360,11 +1348,8 @@ TEST_CASE("Errors") {
         parse(al, input);
         CHECK(false);
     } catch (const LFortran::ParserError &e) {
-        CHECK(e.msg() == "syntax error");
-        CHECK(e.token == yytokentype::TK_NEWLINE);
-//        std::cerr << format_syntax_error("input", input, e.loc, e.token);
-        CHECK(e.loc.first == 10);
-        CHECK(e.loc.last == 10);
+        CHECK(e.d.labels[0].spans[0].loc.first == 10);
+        CHECK(e.d.labels[0].spans[0].loc.last == 10);
     }
 
     input = "1 + x allocate y";
@@ -1372,11 +1357,8 @@ TEST_CASE("Errors") {
         parse(al, input);
         CHECK(false);
     } catch (const LFortran::ParserError &e) {
-        CHECK(e.msg() == "syntax error");
-        CHECK(e.token == yytokentype::KW_ALLOCATE);
-//        std::cerr << format_syntax_error("input", input, e.loc, e.token);
-        CHECK(e.loc.first == 6);
-        CHECK(e.loc.last == 13);
+        CHECK(e.d.labels[0].spans[0].loc.first == 6);
+        CHECK(e.d.labels[0].spans[0].loc.last == 13);
     }
     CHECK_THROWS_AS(parse2(al, input), LFortran::ParserError);
 

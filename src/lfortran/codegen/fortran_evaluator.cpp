@@ -144,17 +144,10 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
         error.d = e.d;
         return error;
     } catch (const ParserError &e) {
-        int token;
-        if (e.msg() == "syntax is ambiguous") {
-            token = -2;
-        } else {
-            token = e.token;
-        }
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::Parser;
-        error.loc = e.loc;
-        error.token = token;
-        error.msg = e.msg();
+        error.new_diagnostic = true;
+        error.d = e.d;
         return error;
     } catch (const SemanticError &e) {
         FortranEvaluator::Error error;
@@ -213,17 +206,10 @@ Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(
         error.d = e.d;
         return error;
     } catch (const ParserError &e) {
-        int token;
-        if (e.msg() == "syntax is ambiguous") {
-            token = -2;
-        } else {
-            token = e.token;
-        }
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::Parser;
-        error.loc = e.loc;
-        error.token = token;
-        error.msg = e.msg();
+        error.new_diagnostic = true;
+        error.d = e.d;
         return error;
     }
 }

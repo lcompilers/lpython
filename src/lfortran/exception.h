@@ -109,11 +109,17 @@ public:
 class ParserError : public LFortranException
 {
 public:
-    Location loc;
-    int token;
+    diag::Diagnostic d;
 public:
-    ParserError(const std::string &msg, const Location &loc, const int token)
-        : LFortranException(msg, LFORTRAN_PARSER_ERROR), loc{loc}, token{token}
+    ParserError(const std::string &msg, const Location &loc)
+        : LFortranException(msg, LFORTRAN_PARSER_ERROR),
+        d{diag::Diagnostic::parser_error(msg, loc)}
+    {
+    }
+
+    ParserError(const std::string &msg)
+        : LFortranException(msg, LFORTRAN_PARSER_ERROR),
+        d{diag::Diagnostic::parser_error(msg)}
     {
     }
 };
