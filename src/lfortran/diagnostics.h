@@ -94,6 +94,21 @@ struct Diagnostic {
         return d;
     }
 
+    static Diagnostic tokenizer_error(const std::string &message, const Location &loc) {
+        diag::Span s;
+        s.loc = loc;
+        diag::Label l;
+        l.primary = true;
+        l.message = "";
+        l.spans.push_back(s);
+        diag::Diagnostic d;
+        d.level = Level::Error;
+        d.stage = Stage::Tokenizer;
+        d.message = message;
+        d.labels.push_back(l);
+        return d;
+    }
+
     static Diagnostic semantic_error_label(const std::string &message,
             const Location &loc, const std::string &error_label) {
         diag::Span s;

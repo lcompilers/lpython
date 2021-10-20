@@ -1385,10 +1385,8 @@ TEST_CASE("Errors") {
         parse(al, input);
         CHECK(false);
     } catch (const LFortran::TokenizerError &e) {
-        CHECK(e.token == "@");
-//        std::cerr << format_syntax_error("input", input, e.loc, -1, &e.token);
-        CHECK(e.loc.first == 2);
-        CHECK(e.loc.last == 2);
+        CHECK(e.d.labels[0].spans[0].loc.first == 2);
+        CHECK(e.d.labels[0].spans[0].loc.last == 2);
     }
     CHECK_THROWS_AS(parse2(al, input), LFortran::TokenizerError);
 }

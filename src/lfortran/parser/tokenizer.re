@@ -220,7 +220,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
             * { token_loc(loc);
                 std::string t = token();
                 throw LFortran::TokenizerError("token '" + t
-                    + "' is not recognized", loc, t);
+                    + "' is not recognized", loc);
             }
             end { RET(END_OF_FILE); }
             whitespace { continue; }
@@ -571,8 +571,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
                     } else {
                         token_loc(loc);
                         std::string t = token();
-                        throw LFortran::TokenizerError("Integer too large",
-                            loc, t);
+                        throw LFortran::TokenizerError("Integer '" + t + "' too large",
+                            loc);
                     }
                 } else {
                     lex_int_large(al, tok, cur,
@@ -687,7 +687,7 @@ void lex_format(unsigned char *&cur, Location &loc,
                 token_loc(loc);
                 std::string t = token(tok, cur);
                 throw LFortran::TokenizerError("Token '" + t
-                    + "' is not recognized in `format` statement", loc, t);
+                    + "' is not recognized in `format` statement", loc);
             }
             '(' {
                 if (num_paren == 0) {
@@ -721,7 +721,7 @@ void lex_format(unsigned char *&cur, Location &loc,
                 token_loc(loc);
                 std::string t = token(tok, cur);
                 throw LFortran::TokenizerError(
-                    "End of file not expected in `format` statemenet", loc, t);
+                    "End of file not expected in `format` statement '" + t + "'", loc);
             }
             whitespace { continue; }
             ',' { continue; }

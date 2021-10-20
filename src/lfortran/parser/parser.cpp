@@ -45,8 +45,11 @@ AST::TranslationUnit_t* parse2(Allocator &al, const std::string &code_original,
             token, nullptr, use_colors, lm);
         throw;
     } catch (const LFortran::TokenizerError &e) {
-        std::cerr << format_syntax_error("input", code_prescanned, e.loc,
-            -1, &e.token, use_colors, lm);
+        // Convert to line numbers and get source code strings
+        diag::Diagnostic d = e.d;
+        populate_spans(d, lm, code_prescanned);
+        // Render the message
+        std::cerr << diag::render_diagnostic(d, use_colors);
         throw;
     }
     return result;
