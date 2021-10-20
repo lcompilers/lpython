@@ -305,7 +305,7 @@ namespace LFortran {
                                 SymbolTable*& current_scope) {
             ASR::symbol_t *v;
             std::string remote_sym = bound;
-            std::string module_name = "lfortran_intrinsic_array";
+            std::string module_name = "lfortran_intrinsic_builtin";
             SymbolTable* current_scope_copy = current_scope;
             current_scope = unit.m_global_scope;
             ASR::Module_t *m = LFortran::ASRUtils::load_module(al, current_scope,

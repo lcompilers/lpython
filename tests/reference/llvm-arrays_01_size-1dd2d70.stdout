@@ -19,7 +19,7 @@ source_filename = "LFortran"
 @10 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
 @11 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
 
-define i32 @__module_lfortran_intrinsic_array_size(%size_arg* %x) {
+define i32 @__module_lfortran_intrinsic_builtin_size(%size_arg* %x) {
 .entry:
   %size = alloca i32, align 4
   %0 = getelementptr %size_arg, %size_arg* %x, i32 0, i32 0
@@ -102,7 +102,7 @@ define i32 @main() {
   store %dimension_descriptor* %24, %dimension_descriptor** %25, align 8
   %26 = getelementptr %size_arg, %size_arg* %22, i32 0, i32 1
   store i32 1, i32* %26, align 4
-  %27 = call i32 @__module_lfortran_intrinsic_array_size(%size_arg* %22)
+  %27 = call i32 @__module_lfortran_intrinsic_builtin_size(%size_arg* %22)
   store i32 %27, i32* %size_a, align 4
   %28 = alloca %size_arg, align 8
   %29 = getelementptr %array.1, %array.1* %b, i32 0, i32 2
@@ -111,7 +111,7 @@ define i32 @main() {
   store %dimension_descriptor* %30, %dimension_descriptor** %31, align 8
   %32 = getelementptr %size_arg, %size_arg* %28, i32 0, i32 1
   store i32 1, i32* %32, align 4
-  %33 = call i32 @__module_lfortran_intrinsic_array_size(%size_arg* %28)
+  %33 = call i32 @__module_lfortran_intrinsic_builtin_size(%size_arg* %28)
   store i32 %33, i32* %size_b, align 4
   store i32 0, i32* %i, align 4
   br label %loop.head

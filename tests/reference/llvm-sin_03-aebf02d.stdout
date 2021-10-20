@@ -6,7 +6,7 @@ source_filename = "LFortran"
 @0 = private unnamed_addr constant [1 x i8] zeroinitializer, align 1
 @1 = private unnamed_addr constant [9 x i8] c"%23.17f\0A\00", align 1
 
-declare i8* @__module_lfortran_intrinsic_array_char(i32*)
+declare i8* @__module_lfortran_intrinsic_builtin_char(i32*)
 
 declare void @__module_lfortran_intrinsic_iso_c_binding_c_f_pointer(%c_ptr*, i32*)
 
