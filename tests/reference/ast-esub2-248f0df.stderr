@@ -1,3 +1,5 @@
-tests/errors/esub2.f90:3:5 syntax error: token '~' is not recognized
-x = ~1
-    ^
+tokenizer error: token '~' is not recognized
+ --> tests/errors/esub2.f90:3:5
+  |
+3 | x = ~1
+  |     ^ 
