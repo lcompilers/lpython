@@ -654,17 +654,9 @@ public:
         SymbolTable *scope = current_scope;
         ASR::symbol_t *v = scope->resolve_symbol(var_name);
         if (!v) {
-            diag::Span s;
-            s.loc = loc;
-            diag::Label l;
-            l.primary = true;
-            l.message = "'" + var_name + "' is undeclared";
-            l.spans.push_back(s);
-            diag::Diagnostic d;
-            d.level = diag::Level::Error;
-            d.stage = diag::Stage::Semantic;
-            d.message = "Variable '" + var_name + "' is not declared";
-            d.labels.push_back(l);
+            diag::Diagnostic d{diag::Diagnostic::semantic_error_label
+                ("Variable '" + var_name + "' is not declared", loc,
+                 "'" + var_name + "' is undeclared")};
             throw SemanticError(d);
             //throw SemanticError("Variable '" + var_name + "' not declared", loc);
         }
@@ -1087,17 +1079,10 @@ public:
                         f->m_args, f->n_args, x.base.base.loc);
                 } else {
                     LFORTRAN_ASSERT(ASR::is_a<ASR::GenericProcedure_t>(*f2))
-                    diag::Span s;
-                    s.loc = x.base.base.loc;
-                    diag::Label l;
-                    l.primary = true;
-                    l.message = "";
-                    l.spans.push_back(s);
-                    diag::Diagnostic d;
-                    d.level = diag::Level::Error;
-                    d.stage = diag::Stage::Semantic;
-                    d.message = "Keyword arguments are not implemented for generic functions yet";
-                    d.labels.push_back(l);
+                    diag::Diagnostic d{diag::Diagnostic::semantic_error(
+                        "Keyword arguments are not implemented for generic functions yet",
+                        x.base.base.loc
+                    )};
                     throw SemanticError(d);
                 }
             }
@@ -1374,19 +1359,12 @@ public:
                 ASR::expr_t **fn_args, size_t fn_n_args, const Location &loc) {
         size_t n_args = args.size();
         if (args.size() + n != fn_n_args) {
-            diag::Span s;
-            s.loc = loc;
-            diag::Label l;
-            l.primary = true;
-            l.message = "";
-            l.spans.push_back(s);
-            diag::Diagnostic d;
-            d.level = diag::Level::Error;
-            d.stage = diag::Stage::Semantic;
-            d.message = "Procedure accepts " + std::to_string(fn_n_args)
+            diag::Diagnostic d{diag::Diagnostic::semantic_error(
+                "Procedure accepts " + std::to_string(fn_n_args)
                 + " arguments, but " + std::to_string(args.size() + n)
-                + " were provided";
-            d.labels.push_back(l);
+                + " were provided",
+                loc
+            )};
             throw SemanticError(d);
         }
         for (size_t i=0; i<n; i++) {

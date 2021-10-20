@@ -735,18 +735,7 @@ std::string format_semantic_error(const std::string &/*filename*/,
     // We fill in the new diagnostic data structures and then render the error
     // message using it.
 
-    diag::Span s;
-    s.loc = loc;
-    diag::Label l;
-    l.primary = true;
-    l.message = "";
-    l.spans.push_back(s);
-    diag::Diagnostic d;
-    d.level = diag::Level::Error;
-    d.stage = diag::Stage::Semantic;
-    d.message = msg;
-    d.labels.push_back(l);
-
+    diag::Diagnostic d{diag::Diagnostic::semantic_error(msg, loc)};
 
     // Convert to line numbers and get source code strings
     populate_spans(d, lm, input);
