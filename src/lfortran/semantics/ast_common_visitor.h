@@ -1357,8 +1357,22 @@ public:
         return asr_list;
     }
 
+    std::vector<std::string> convert_fn_args_to_string(
+            ASR::expr_t **expr_list, size_t n, const Location &loc) {
+        std::vector<std::string> result;
+        for (size_t i=0; i < n; i++) {
+            ASR::Variable_t *v = ASRUtils::EXPR2VAR(expr_list[i]);
+            if (v->m_presence == ASR::presenceType::Optional) {
+                SemanticError("Keyword arguments with optional arguments are not implemented yet", loc);
+            }
+            result.push_back(v->m_name);
+        }
+        return result;
+    }
+
     void visit_kwargs(Vec<ASR::expr_t*> &args, AST::keyword_t *kwargs, size_t n,
                 ASR::expr_t **fn_args, size_t fn_n_args, const Location &loc) {
+        size_t n_args = args.size();
         if (args.size() + n != fn_n_args) {
             diag::Span s;
             s.loc = loc;
@@ -1375,11 +1389,33 @@ public:
             d.labels.push_back(l);
             throw SemanticError(d);
         }
-        // TODO: lookup arguments by their name and create a correct order
+        for (size_t i=0; i<n; i++) {
+            args.push_back(al, nullptr);
+        }
+        std::vector<std::string> fn_args2 = convert_fn_args_to_string(
+                fn_args, fn_n_args, loc);
         for (size_t i=0; i<n; i++) {
             this->visit_expr(*kwargs[i].m_value);
             ASR::expr_t *expr = LFortran::ASRUtils::EXPR(tmp);
-            args.push_back(al, expr);
+            std::string name = kwargs[i].m_arg;
+            auto search = std::find(fn_args2.begin(), fn_args2.end(), name);
+            if (search != fn_args2.end()) {
+                size_t idx = std::distance(fn_args2.begin(), search);
+                if (idx < n_args) {
+                    throw SemanticError("Keyword argument is already specified as a non-keyword argument", loc);
+                }
+                if (args[idx] != nullptr) {
+                    throw SemanticError("Keyword argument is already specified as another keyword argument", loc);
+                }
+                args.p[idx] = expr;
+            } else {
+                throw SemanticError("Keyword argument not found", loc);
+            }
+        }
+        for (size_t i=0; i<args.size(); i++) {
+            if (args[i] == nullptr) {
+                throw SemanticError("Argument was not specified", loc);
+            }
         }
     }
 
