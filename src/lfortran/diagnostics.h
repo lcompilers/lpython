@@ -78,6 +78,103 @@ struct Diagnostic {
     std::string message;
     std::vector<Label> labels;
     std::vector<Diagnostic> children;
+
+    static Diagnostic semantic_error(const std::string &message, const Location &loc) {
+        diag::Span s;
+        s.loc = loc;
+        diag::Label l;
+        l.primary = true;
+        l.message = "";
+        l.spans.push_back(s);
+        diag::Diagnostic d;
+        d.level = Level::Error;
+        d.stage = Stage::Semantic;
+        d.message = message;
+        d.labels.push_back(l);
+        return d;
+    }
+
+    static Diagnostic tokenizer_error(const std::string &message, const Location &loc) {
+        diag::Span s;
+        s.loc = loc;
+        diag::Label l;
+        l.primary = true;
+        l.message = "";
+        l.spans.push_back(s);
+        diag::Diagnostic d;
+        d.level = Level::Error;
+        d.stage = Stage::Tokenizer;
+        d.message = message;
+        d.labels.push_back(l);
+        return d;
+    }
+
+    static Diagnostic semantic_error_label(const std::string &message,
+            const Location &loc, const std::string &error_label) {
+        diag::Span s;
+        s.loc = loc;
+        diag::Label l;
+        l.primary = true;
+        l.message = error_label;
+        l.spans.push_back(s);
+        diag::Diagnostic d;
+        d.level = Level::Error;
+        d.stage = Stage::Semantic;
+        d.message = message;
+        d.labels.push_back(l);
+        return d;
+    }
+
+    static Diagnostic tokenizer_error_label(const std::string &message,
+            const Location &loc, const std::string &error_label) {
+        diag::Span s;
+        s.loc = loc;
+        diag::Label l;
+        l.primary = true;
+        l.message = error_label;
+        l.spans.push_back(s);
+        diag::Diagnostic d;
+        d.level = Level::Error;
+        d.stage = Stage::Tokenizer;
+        d.message = message;
+        d.labels.push_back(l);
+        return d;
+    }
+
+    static Diagnostic semantic_error_label(const std::string &message,
+            const std::vector<Location> &locations, const std::string &error_label) {
+        diag::Label l;
+        l.primary = true;
+        l.message = error_label;
+        for (auto &loc : locations) {
+            Span s;
+            s.loc = loc;
+            l.spans.push_back(s);
+
+        }
+        diag::Diagnostic d;
+        d.level = Level::Error;
+        d.stage = Stage::Semantic;
+        d.message = message;
+        d.labels.push_back(l);
+        return d;
+    }
+
+    void secondary_label(const std::string &message,
+            const Location &loc) {
+        diag::Span s;
+        s.loc = loc;
+        diag::Label l;
+        l.primary = false;
+        l.message = message;
+        l.spans.push_back(s);
+        this->labels.push_back(l);
+    }
+
+/*
+    private:
+        Diagnostic() {}
+*/
 };
 
 std::string render_diagnostic(const Diagnostic &d, bool use_colors);

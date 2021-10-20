@@ -140,9 +140,8 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
     } catch (const TokenizerError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::Tokenizer;
-        error.loc = e.loc;
-        error.msg = e.msg();
-        error.token_str = e.token;
+        error.new_diagnostic = true;
+        error.d = e.d;
         return error;
     } catch (const ParserError &e) {
         int token;
@@ -160,8 +159,8 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
     } catch (const SemanticError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::Semantic;
-        error.loc = e.loc;
-        error.msg = e.msg();
+        error.new_diagnostic = true;
+        error.d = e.d;
         return error;
     } catch (const CodeGenError &e) {
         FortranEvaluator::Error error;
@@ -209,9 +208,8 @@ Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(
     } catch (const TokenizerError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::Tokenizer;
-        error.loc = e.loc;
-        error.msg = e.msg();
-        error.token_str = e.token;
+        error.new_diagnostic = true;
+        error.d = e.d;
         return error;
     } catch (const ParserError &e) {
         int token;
@@ -267,12 +265,8 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
     } catch (const SemanticError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::Semantic;
-        if (e.new_diagnostic) {
-            error.new_diagnostic = true;
-            error.d = e.d;
-        }
-        error.loc = e.loc;
-        error.msg = e.msg();
+        error.new_diagnostic = true;
+        error.d = e.d;
         error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
     } catch (const CodeGenError &e) {
@@ -385,8 +379,8 @@ Result<std::string> FortranEvaluator::get_cpp(const std::string &code,
             // SemanticError to get the location information.
             FortranEvaluator::Error error;
             error.type = FortranEvaluator::Error::Semantic;
-            error.loc = e.loc;
-            error.msg = e.msg();
+            error.new_diagnostic = true;
+            error.d = e.d;
             error.stacktrace_addresses = e.stacktrace_addresses();
             return error;
         } catch (const CodeGenError &e) {
@@ -430,18 +424,8 @@ std::string FortranEvaluator::format_error(const Error &e, const std::string &in
         return out;
     }
     switch (e.type) {
-        case (LFortran::FortranEvaluator::Error::Tokenizer) : {
-            out += format_syntax_error(lm.in_filename, input, e.loc, -1, &e.token_str,
-                compiler_options.use_colors, lm);
-            break;
-        }
         case (LFortran::FortranEvaluator::Error::Parser) : {
             out += format_syntax_error(lm.in_filename, input, e.loc, e.token, nullptr,
-                compiler_options.use_colors, lm);
-            break;
-        }
-        case (LFortran::FortranEvaluator::Error::Semantic) : {
-            out += format_semantic_error(lm.in_filename, input, e.loc, e.msg,
                 compiler_options.use_colors, lm);
             break;
         }

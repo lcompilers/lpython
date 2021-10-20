@@ -623,24 +623,13 @@ public:
                     if (current_scope->parent != nullptr) {
                         // re-declaring a global scope variable is allowed
                         // Otherwise raise an error
-                        diag::Span span1;
-                        span1.loc = s.loc;
-                        diag::Label l1;
-                        l1.primary = true;
-                        l1.message = "redeclaration";
-                        l1.spans = {span1};
-                        diag::Span span2;
                         ASR::symbol_t *orig_decl = current_scope->scope[sym];
-                        span2.loc = orig_decl->base.loc;
-                        diag::Label l2;
-                        l2.primary = false;
-                        l2.message = "original declaration";
-                        l2.spans = {span2};
-                        diag::Diagnostic d;
-                        d.level = diag::Level::Error;
-                        d.stage = diag::Stage::Semantic;
-                        d.message = "Symbol is already declared in the same scope";
-                        d.labels = {l1, l2};
+                        diag::Diagnostic d{diag::Diagnostic::semantic_error_label(
+                            "Symbol is already declared in the same scope",
+                            s.loc,
+                            "redeclaration"
+                        )};
+                        d.secondary_label("original declaration", orig_decl->base.loc);
                         throw SemanticError(d);
                         //throw SemanticError("Symbol already declared",
                         //        x.base.base.loc);
@@ -735,19 +724,11 @@ public:
                     if (dims.size() > 0) {
                         // This happens for:
                         // integer, private, dimension(2,2) :: a(2,2)
-                        diag::Span span_attr;
-                        span_attr.loc = dims_attr_loc; // dimension(2,2)
-                        diag::Span span_var;
-                        span_var.loc = s.loc; // a(2,2)
-                        diag::Label l;
-                        l.primary = true;
-                        l.message = "dimensions specified at both places";
-                        l.spans = {span_attr, span_var};
-                        diag::Diagnostic d;
-                        d.level = diag::Level::Error;
-                        d.stage = diag::Stage::Semantic;
-                        d.message = "Dimensions cannot be specified twice";
-                        d.labels.push_back(l);
+                        diag::Diagnostic d{diag::Diagnostic::semantic_error_label(
+                            "Dimensions cannot be specified twice",
+                            {dims_attr_loc, s.loc}, // dimension(2,2), a(2,2)
+                            "dimensions specified at both places"
+                        )};
                         throw SemanticError(d);
                         //throw SemanticError("Cannot specify dimensions both ways",
                         //        x.base.base.loc);

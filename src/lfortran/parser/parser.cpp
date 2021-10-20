@@ -45,8 +45,11 @@ AST::TranslationUnit_t* parse2(Allocator &al, const std::string &code_original,
             token, nullptr, use_colors, lm);
         throw;
     } catch (const LFortran::TokenizerError &e) {
-        std::cerr << format_syntax_error("input", code_prescanned, e.loc,
-            -1, &e.token, use_colors, lm);
+        // Convert to line numbers and get source code strings
+        diag::Diagnostic d = e.d;
+        populate_spans(d, lm, code_prescanned);
+        // Render the message
+        std::cerr << diag::render_diagnostic(d, use_colors);
         throw;
     }
     return result;
@@ -735,18 +738,7 @@ std::string format_semantic_error(const std::string &/*filename*/,
     // We fill in the new diagnostic data structures and then render the error
     // message using it.
 
-    diag::Span s;
-    s.loc = loc;
-    diag::Label l;
-    l.primary = true;
-    l.message = "";
-    l.spans.push_back(s);
-    diag::Diagnostic d;
-    d.level = diag::Level::Error;
-    d.stage = diag::Stage::Semantic;
-    d.message = msg;
-    d.labels.push_back(l);
-
+    diag::Diagnostic d{diag::Diagnostic::semantic_error(msg, loc)};
 
     // Convert to line numbers and get source code strings
     populate_spans(d, lm, input);

@@ -93,14 +93,16 @@ public:
 class TokenizerError : public LFortranException
 {
 public:
-    Location loc;
-    std::string token;
+    diag::Diagnostic d;
 public:
-    TokenizerError(const std::string &msg, const Location &loc,
-            const std::string &token)
-        : LFortranException(msg, LFORTRAN_TOKENIZER_ERROR), loc{loc},
-            token{token}
-    {
+    TokenizerError(const std::string &msg, const Location &loc)
+        : LFortranException(msg, LFORTRAN_TOKENIZER_ERROR),
+        d{diag::Diagnostic::tokenizer_error(msg, loc)}
+    { }
+
+    TokenizerError(const diag::Diagnostic &d)
+            : LFortranException(d.message, LFORTRAN_TOKENIZER_ERROR),
+            d{d} {
     }
 };
 
@@ -119,18 +121,15 @@ public:
 class SemanticError : public LFortranException
 {
 public:
-    Location loc;
-    bool new_diagnostic=false;
     diag::Diagnostic d;
 public:
     SemanticError(const std::string &msg, const Location &loc)
-        : LFortranException(msg, LFORTRAN_SEMANTIC_ERROR), loc{loc}
+        : LFortranException(msg, LFORTRAN_SEMANTIC_ERROR),
+        d{diag::Diagnostic::semantic_error(msg, loc)}
     { }
 
     SemanticError(const diag::Diagnostic &d)
             : LFortranException(d.message, LFORTRAN_SEMANTIC_ERROR),
-            loc{d.labels[0].spans[0].loc},
-            new_diagnostic{true},
             d{d} {
     }
 };
