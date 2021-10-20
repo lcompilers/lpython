@@ -165,7 +165,8 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
     } catch (const CodeGenError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::CodeGen;
-        error.msg = e.msg();
+        error.new_diagnostic = true;
+        error.d = e.d;
         return error;
     }
 #else
@@ -272,7 +273,8 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
     } catch (const CodeGenError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::CodeGen;
-        error.msg = e.msg();
+        error.new_diagnostic = true;
+        error.d = e.d;
         error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
     }
@@ -325,7 +327,8 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
     } catch (const CodeGenError &e) {
         FortranEvaluator::Error error;
         error.type = FortranEvaluator::Error::CodeGen;
-        error.msg = e.msg();
+        error.new_diagnostic = true;
+        error.d = e.d;
         error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
     }
@@ -386,7 +389,8 @@ Result<std::string> FortranEvaluator::get_cpp(const std::string &code,
         } catch (const CodeGenError &e) {
             FortranEvaluator::Error error;
             error.type = FortranEvaluator::Error::CodeGen;
-            error.msg = e.msg();
+            error.new_diagnostic = true;
+            error.d = e.d;
             error.stacktrace_addresses = e.stacktrace_addresses();
             return error;
         }
@@ -427,10 +431,6 @@ std::string FortranEvaluator::format_error(const Error &e, const std::string &in
         case (LFortran::FortranEvaluator::Error::Parser) : {
             out += format_syntax_error(lm.in_filename, input, e.loc, e.token, nullptr,
                 compiler_options.use_colors, lm);
-            break;
-        }
-        case (LFortran::FortranEvaluator::Error::CodeGen) : {
-            out += "Code generation error: " + e.msg + "\n";
             break;
         }
         default : {
