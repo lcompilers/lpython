@@ -96,8 +96,9 @@ public:
         {AST::intrinsicopType::GTE, "~gte"}
     };
 
-    SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
-      : CommonVisitor(al, symbol_table), is_derived_type{false} {}
+    SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table,
+        diag::Diagnostics &diagnostics)
+      : CommonVisitor(al, symbol_table, diagnostics), is_derived_type{false} {}
 
 
     ASR::symbol_t* resolve_symbol(const Location &loc, const std::string &sub_name) {
@@ -1419,18 +1420,16 @@ Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, AST::TranslationUnit_t &
         diag::Diagnostics &diagnostics,
         SymbolTable *symbol_table)
 {
-    SymbolTableVisitor v(al, symbol_table);
+    SymbolTableVisitor v(al, symbol_table, diagnostics);
     try {
         v.visit_TranslationUnit(ast);
     } catch (const SemanticError &e) {
         Error error;
-        v.diag.diagnostics.push_back(e.d);
-        diagnostics = std::move(v.diag);
+        diagnostics.diagnostics.push_back(e.d);
         error.d = e.d;
         return error;
     }
     ASR::asr_t *unit = v.tmp;
-    diagnostics = std::move(v.diag);
     return unit;
 }
 
