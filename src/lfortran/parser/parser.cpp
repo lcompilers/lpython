@@ -708,7 +708,7 @@ void Parser::handle_yyerror(const Location &loc, const std::string &msg)
 {
     std::string message;
     if (msg == "syntax is ambiguous") {
-        message = "Syntax is ambiguous";
+        message = "Internal Compiler Error: syntax is ambiguous in the parser";
     } else if (msg == "syntax error") {
         LFortran::YYSTYPE yylval_;
         YYLTYPE yyloc_;
@@ -716,6 +716,8 @@ void Parser::handle_yyerror(const Location &loc, const std::string &msg)
         int token = this->m_tokenizer.lex(this->m_a, yylval_, yyloc_);
         if (token == yytokentype::END_OF_FILE) {
             message =  "End of file is unexpected here";
+        } else if (token == yytokentype::TK_NEWLINE) {
+            message =  "Newline is unexpected here";
         } else {
             std::string token_str = this->m_tokenizer.token();
             std::string token_type = token2text(token);
