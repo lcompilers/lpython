@@ -193,6 +193,25 @@ struct Diagnostic {
         return d;
     }
 
+    static Diagnostic semantic_warning_label(const std::string &message,
+            const std::vector<Location> &locations, const std::string &error_label) {
+        diag::Label l;
+        l.primary = true;
+        l.message = error_label;
+        for (auto &loc : locations) {
+            Span s;
+            s.loc = loc;
+            l.spans.push_back(s);
+
+        }
+        diag::Diagnostic d;
+        d.level = Level::Warning;
+        d.stage = Stage::Semantic;
+        d.message = message;
+        d.labels.push_back(l);
+        return d;
+    }
+
     void secondary_label(const std::string &message,
             const Location &loc) {
         diag::Span s;
