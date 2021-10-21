@@ -139,26 +139,18 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
         return result;
     } catch (const TokenizerError &e) {
         FortranEvaluator::Error error;
-        error.type = FortranEvaluator::Error::Tokenizer;
-        error.new_diagnostic = true;
         error.d = e.d;
         return error;
     } catch (const ParserError &e) {
         FortranEvaluator::Error error;
-        error.type = FortranEvaluator::Error::Parser;
-        error.new_diagnostic = true;
         error.d = e.d;
         return error;
     } catch (const SemanticError &e) {
         FortranEvaluator::Error error;
-        error.type = FortranEvaluator::Error::Semantic;
-        error.new_diagnostic = true;
         error.d = e.d;
         return error;
     } catch (const CodeGenError &e) {
         FortranEvaluator::Error error;
-        error.type = FortranEvaluator::Error::CodeGen;
-        error.new_diagnostic = true;
         error.d = e.d;
         return error;
     }
@@ -201,14 +193,10 @@ Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(
         return ast;
     } catch (const TokenizerError &e) {
         FortranEvaluator::Error error;
-        error.type = FortranEvaluator::Error::Tokenizer;
-        error.new_diagnostic = true;
         error.d = e.d;
         return error;
     } catch (const ParserError &e) {
         FortranEvaluator::Error error;
-        error.type = FortranEvaluator::Error::Parser;
-        error.new_diagnostic = true;
         error.d = e.d;
         return error;
     }
@@ -251,15 +239,11 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
         if (!symbol_table) symbol_table = asr->m_global_scope;
     } catch (const SemanticError &e) {
         FortranEvaluator::Error error;
-        error.type = FortranEvaluator::Error::Semantic;
-        error.new_diagnostic = true;
         error.d = e.d;
         error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
     } catch (const CodeGenError &e) {
         FortranEvaluator::Error error;
-        error.type = FortranEvaluator::Error::CodeGen;
-        error.new_diagnostic = true;
         error.d = e.d;
         error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
@@ -312,8 +296,6 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
             run_fn);
     } catch (const CodeGenError &e) {
         FortranEvaluator::Error error;
-        error.type = FortranEvaluator::Error::CodeGen;
-        error.new_diagnostic = true;
         error.d = e.d;
         error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
@@ -367,15 +349,11 @@ Result<std::string> FortranEvaluator::get_cpp(const std::string &code,
             // CodeGenError. We need to add it. Until then we can raise
             // SemanticError to get the location information.
             FortranEvaluator::Error error;
-            error.type = FortranEvaluator::Error::Semantic;
-            error.new_diagnostic = true;
             error.d = e.d;
             error.stacktrace_addresses = e.stacktrace_addresses();
             return error;
         } catch (const CodeGenError &e) {
             FortranEvaluator::Error error;
-            error.type = FortranEvaluator::Error::CodeGen;
-            error.new_diagnostic = true;
             error.d = e.d;
             error.stacktrace_addresses = e.stacktrace_addresses();
             return error;
@@ -405,24 +383,11 @@ std::string FortranEvaluator::format_error(const Error &e, const std::string &in
     if (compiler_options.show_stacktrace) {
         out += error_stacktrace(e);
     }
-    if (e.new_diagnostic) {
-        // Convert to line numbers and get source code strings
-        diag::Diagnostic d = e.d;
-        populate_spans(d, lm, input);
-        // Render the message
-        out += diag::render_diagnostic(d, compiler_options.use_colors);
-        return out;
-    }
-    switch (e.type) {
-        case (LFortran::FortranEvaluator::Error::Parser) : {
-            out += format_syntax_error(lm.in_filename, input, e.loc, e.token, nullptr,
-                compiler_options.use_colors, lm);
-            break;
-        }
-        default : {
-            throw LFortranException("Unknown error type");
-        }
-    }
+    // Convert to line numbers and get source code strings
+    diag::Diagnostic d = e.d;
+    populate_spans(d, lm, input);
+    // Render the message
+    out += diag::render_diagnostic(d, compiler_options.use_colors);
     return out;
 }
 

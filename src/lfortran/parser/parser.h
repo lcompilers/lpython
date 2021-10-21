@@ -199,17 +199,6 @@ AST::TranslationUnit_t* parse(Allocator &al, const std::string &s);
 AST::TranslationUnit_t* parse2(Allocator &al, const std::string &s,
         bool use_colors=true, bool fixed_form=false);
 
-// Returns a nice error message as a string
-std::string format_syntax_error(const std::string &filename,
-        const std::string &input, const Location &loc, const int token,
-        const std::string *tstr, bool use_colors,
-        const LocationManager &lm);
-
-std::string format_semantic_error(const std::string &filename,
-        const std::string &input, const Location &loc,
-        const std::string msg, bool use_colors,
-        const LocationManager &lm);
-
 void populate_spans(diag::Diagnostic &d, const LocationManager &lm,
         const std::string &input);
 

@@ -512,15 +512,15 @@ TEST_CASE("FortranEvaluator 6") {
     FortranEvaluator::Result<FortranEvaluator::EvalResult>
     r = e.evaluate2("$");
     CHECK(!r.ok);
-    CHECK(r.error.type == FortranEvaluator::Error::Tokenizer);
+    CHECK(r.error.d.stage == LFortran::diag::Stage::Tokenizer);
 
     r = e.evaluate2("1x");
     CHECK(!r.ok);
-    CHECK(r.error.type == FortranEvaluator::Error::Parser);
+    CHECK(r.error.d.stage == LFortran::diag::Stage::Parser);
 
     r = e.evaluate2("x = 'x'");
     CHECK(!r.ok);
-    CHECK(r.error.type == FortranEvaluator::Error::Semantic);
+    CHECK(r.error.d.stage == LFortran::diag::Stage::Semantic);
 }
 
 // Tests passing the complex struct by reference

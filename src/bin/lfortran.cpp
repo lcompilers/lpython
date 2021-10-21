@@ -710,8 +710,6 @@ int compile_to_object_file(const std::string &infile,
         m = LFortran::asr_to_llvm(*asr, e.get_context(), al, compiler_options.platform);
     } catch (const LFortran::CodeGenError &e) {
         LFortran::FortranEvaluator::Error error;
-        error.type = LFortran::FortranEvaluator::Error::CodeGen;
-        error.new_diagnostic = true;
         error.d = e.d;
         error.stacktrace_addresses = e.stacktrace_addresses();
         std::cerr << fe.format_error(error, input, lm);
@@ -875,8 +873,6 @@ int compile_to_object_file_cpp(const std::string &infile,
         src = LFortran::asr_to_cpp(*asr);
     } catch (const LFortran::CodeGenError &e) {
         LFortran::FortranEvaluator::Error error;
-        error.type = LFortran::FortranEvaluator::Error::CodeGen;
-        error.new_diagnostic = true;
         error.d = e.d;
         error.stacktrace_addresses = e.stacktrace_addresses();
         std::cerr << fe.format_error(error, input, lm);
