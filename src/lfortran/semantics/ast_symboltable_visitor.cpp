@@ -864,14 +864,10 @@ public:
                     LFORTRAN_ASSERT(init_expr != nullptr);
                     if (storage_type == ASR::storage_typeType::Parameter) {
                         value = ASRUtils::expr_value(init_expr);
-                        /*
-                        Blocking progress for other features.
-                        TODO: Uncomment this once compile time optimisations are fully implemented.
                         if (value == nullptr) {
                             throw SemanticError("Value of a parameter variable must evaluate to a compile time constant",
                                 x.base.base.loc);
                         }
-                        */
                         if (sym_type->m_type == AST::decl_typeType::TypeCharacter) {
                             ASR::Character_t *lhs_type = ASR::down_cast<ASR::Character_t>(type);
                             ASR::Character_t *rhs_type = ASR::down_cast<ASR::Character_t>(ASRUtils::expr_type(value));
