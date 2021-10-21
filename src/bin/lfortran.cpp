@@ -862,13 +862,12 @@ int compile_to_object_file_cpp(const std::string &infile,
 
     // ASR -> C++
     std::string src;
-    try {
-        src = LFortran::asr_to_cpp(*asr);
-    } catch (const LFortran::CodeGenError &e) {
-        LFortran::FortranEvaluator::Error error;
-        error.d = e.d;
-        error.stacktrace_addresses = e.stacktrace_addresses();
-        std::cerr << fe.format_error(error, input, lm);
+    LFortran::FortranEvaluator::Result<std::string> res
+        = fe.get_cpp2(*asr);
+    if (res.ok) {
+        src = res.result;
+    } else {
+        std::cerr << fe.format_error(res.error, input, lm);
         return 5;
     }
 
