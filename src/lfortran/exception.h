@@ -139,22 +139,6 @@ public:
     }
 };
 
-class TokenizerError : public LFortranException
-{
-public:
-    diag::Diagnostic d;
-public:
-    TokenizerError(const std::string &msg, const Location &loc)
-        : LFortranException(msg, LFORTRAN_TOKENIZER_ERROR),
-        d{diag::Diagnostic::tokenizer_error(msg, loc)}
-    { }
-
-    TokenizerError(const diag::Diagnostic &d)
-            : LFortranException(d.message, LFORTRAN_TOKENIZER_ERROR),
-            d{d} {
-    }
-};
-
 class SemanticError : public LFortranException
 {
 public:

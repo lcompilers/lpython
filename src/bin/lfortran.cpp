@@ -107,10 +107,11 @@ int emit_tokens(const std::string &input, std::vector<std::string>
     Allocator al(64*1024*1024);
     //std::vector<int> toks;
     //std::vector<LFortran::YYSTYPE> stypes;
-    try {
-        toks = LFortran::tokens(al, input, &stypes);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+    auto res = LFortran::tokens(al, input, &stypes);
+    if (res.ok) {
+        toks = res.result;
+    } else {
+        std::cerr << "Tokenizing error: " << res.error.d.message << std::endl;
         return 1;
     }
 
@@ -364,10 +365,11 @@ int emit_tokens(const std::string &infile, bool line_numbers=false)
     std::vector<int> toks;
     std::vector<LFortran::YYSTYPE> stypes;
     std::vector<LFortran::Location> locations;
-    try {
-        toks = LFortran::tokens(al, input, &stypes, &locations);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
+    auto res = LFortran::tokens(al, input, &stypes, &locations);
+    if (res.ok) {
+        toks = res.result;
+    } else {
+        std::cerr << "Tokenizing error: " << res.error.d.message << std::endl;
         return 1;
     }
 

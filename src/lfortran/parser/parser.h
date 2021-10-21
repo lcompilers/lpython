@@ -198,7 +198,7 @@ void populate_spans(diag::Diagnostic &d, const LocationManager &lm,
         const std::string &input);
 
 // Tokenizes the `input` and return a list of tokens
-std::vector<int> tokens(Allocator &al, const std::string &input,
+Result<std::vector<int>> tokens(Allocator &al, const std::string &input,
         std::vector<YYSTYPE> *stypes=nullptr,
         std::vector<Location> *locations=nullptr);
 
