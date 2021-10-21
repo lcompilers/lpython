@@ -64,36 +64,39 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
         EvalResult result;
 
         // Src -> AST
-        LFortran::AST::TranslationUnit_t* ast;
-        std::string code = LFortran::fix_continuation(code_orig, lm, false);
-        ast = LFortran::parse(al, code);
+        Result<AST::TranslationUnit_t*> res = get_ast2(code_orig, lm);
+        AST::TranslationUnit_t* ast;
+        if (res.ok) {
+            ast = res.result;
+        } else {
+            return res.error;
+        }
 
         if (verbose) {
             result.ast = LFortran::pickle(*ast, true);
         }
 
         // AST -> ASR
+        Result<ASR::TranslationUnit_t*> res2 = get_asr3(*ast);
         LFortran::ASR::TranslationUnit_t* asr;
-        // Remove the old execution function if it exists
-        if (symbol_table) {
-            if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
-                symbol_table->scope.erase(run_fn);
-            }
-            symbol_table->mark_all_variables_external(al);
+        if (res2.ok) {
+            asr = res2.result;
+        } else {
+            return res2.error;
         }
-        asr = LFortran::ast_to_asr(al, *ast, symbol_table);
-        if (!symbol_table) symbol_table = asr->m_global_scope;
 
         if (verbose) {
             result.asr = LFortran::pickle(*asr, true);
         }
 
-        eval_count++;
-        run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
-
         // ASR -> LLVM
+        Result<std::unique_ptr<LLVMModule>> res3 = get_llvm3(*asr);
         std::unique_ptr<LFortran::LLVMModule> m;
-        m = LFortran::asr_to_llvm(*asr, e->get_context(), al, compiler_options.platform, run_fn);
+        if (res3.ok) {
+            m = std::move(res3.result);
+        } else {
+            return res3.error;
+        }
 
         if (verbose) {
             result.llvm_ir = m->str();
