@@ -60,104 +60,86 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
             )
 {
 #ifdef HAVE_LFORTRAN_LLVM
-    try {
-        EvalResult result;
+    EvalResult result;
 
-        // Src -> AST
-        Result<AST::TranslationUnit_t*> res = get_ast2(code_orig, lm);
-        AST::TranslationUnit_t* ast;
-        if (res.ok) {
-            ast = res.result;
-        } else {
-            return res.error;
-        }
-
-        if (verbose) {
-            result.ast = LFortran::pickle(*ast, true);
-        }
-
-        // AST -> ASR
-        Result<ASR::TranslationUnit_t*> res2 = get_asr3(*ast);
-        LFortran::ASR::TranslationUnit_t* asr;
-        if (res2.ok) {
-            asr = res2.result;
-        } else {
-            return res2.error;
-        }
-
-        if (verbose) {
-            result.asr = LFortran::pickle(*asr, true);
-        }
-
-        // ASR -> LLVM
-        Result<std::unique_ptr<LLVMModule>> res3 = get_llvm3(*asr);
-        std::unique_ptr<LFortran::LLVMModule> m;
-        if (res3.ok) {
-            m = std::move(res3.result);
-        } else {
-            return res3.error;
-        }
-
-        if (verbose) {
-            result.llvm_ir = m->str();
-        }
-
-        std::string return_type = m->get_return_type(run_fn);
-
-        // LLVM -> Machine code -> Execution
-        e->add_module(std::move(m));
-        if (return_type == "integer4") {
-            int32_t r = e->int32fn(run_fn);
-            result.type = EvalResult::integer4;
-            result.i32 = r;
-        } else if (return_type == "integer8") {
-            int64_t r = e->int64fn(run_fn);
-            result.type = EvalResult::integer8;
-            result.i64 = r;
-        } else if (return_type == "real4") {
-            float r = e->floatfn(run_fn);
-            result.type = EvalResult::real4;
-            result.f32 = r;
-        } else if (return_type == "real8") {
-            double r = e->doublefn(run_fn);
-            result.type = EvalResult::real8;
-            result.f64 = r;
-        } else if (return_type == "complex4") {
-            std::complex<float> r = e->complex4fn(run_fn);
-            result.type = EvalResult::complex4;
-            result.c32.re = r.real();
-            result.c32.im = r.imag();
-        } else if (return_type == "complex8") {
-            std::complex<double> r = e->complex8fn(run_fn);
-            result.type = EvalResult::complex8;
-            result.c64.re = r.real();
-            result.c64.im = r.imag();
-        } else if (return_type == "void") {
-            e->voidfn(run_fn);
-            result.type = EvalResult::statement;
-        } else if (return_type == "none") {
-            result.type = EvalResult::none;
-        } else {
-            throw LFortranException("FortranEvaluator::evaluate(): Return type not supported");
-        }
-        return result;
-    } catch (const TokenizerError &e) {
-        FortranEvaluator::Error error;
-        error.d = e.d;
-        return error;
-    } catch (const ParserError &e) {
-        FortranEvaluator::Error error;
-        error.d = e.d;
-        return error;
-    } catch (const SemanticError &e) {
-        FortranEvaluator::Error error;
-        error.d = e.d;
-        return error;
-    } catch (const CodeGenError &e) {
-        FortranEvaluator::Error error;
-        error.d = e.d;
-        return error;
+    // Src -> AST
+    Result<AST::TranslationUnit_t*> res = get_ast2(code_orig, lm);
+    AST::TranslationUnit_t* ast;
+    if (res.ok) {
+        ast = res.result;
+    } else {
+        return res.error;
     }
+
+    if (verbose) {
+        result.ast = LFortran::pickle(*ast, true);
+    }
+
+    // AST -> ASR
+    Result<ASR::TranslationUnit_t*> res2 = get_asr3(*ast);
+    LFortran::ASR::TranslationUnit_t* asr;
+    if (res2.ok) {
+        asr = res2.result;
+    } else {
+        return res2.error;
+    }
+
+    if (verbose) {
+        result.asr = LFortran::pickle(*asr, true);
+    }
+
+    // ASR -> LLVM
+    Result<std::unique_ptr<LLVMModule>> res3 = get_llvm3(*asr);
+    std::unique_ptr<LFortran::LLVMModule> m;
+    if (res3.ok) {
+        m = std::move(res3.result);
+    } else {
+        return res3.error;
+    }
+
+    if (verbose) {
+        result.llvm_ir = m->str();
+    }
+
+    std::string return_type = m->get_return_type(run_fn);
+
+    // LLVM -> Machine code -> Execution
+    e->add_module(std::move(m));
+    if (return_type == "integer4") {
+        int32_t r = e->int32fn(run_fn);
+        result.type = EvalResult::integer4;
+        result.i32 = r;
+    } else if (return_type == "integer8") {
+        int64_t r = e->int64fn(run_fn);
+        result.type = EvalResult::integer8;
+        result.i64 = r;
+    } else if (return_type == "real4") {
+        float r = e->floatfn(run_fn);
+        result.type = EvalResult::real4;
+        result.f32 = r;
+    } else if (return_type == "real8") {
+        double r = e->doublefn(run_fn);
+        result.type = EvalResult::real8;
+        result.f64 = r;
+    } else if (return_type == "complex4") {
+        std::complex<float> r = e->complex4fn(run_fn);
+        result.type = EvalResult::complex4;
+        result.c32.re = r.real();
+        result.c32.im = r.imag();
+    } else if (return_type == "complex8") {
+        std::complex<double> r = e->complex8fn(run_fn);
+        result.type = EvalResult::complex8;
+        result.c64.re = r.real();
+        result.c64.im = r.imag();
+    } else if (return_type == "void") {
+        e->voidfn(run_fn);
+        result.type = EvalResult::statement;
+    } else if (return_type == "none") {
+        result.type = EvalResult::none;
+    } else {
+        throw LFortranException("FortranEvaluator::evaluate(): Return type not supported");
+    }
+    return result;
 #else
     throw LFortranException("LLVM is not enabled");
 #endif
