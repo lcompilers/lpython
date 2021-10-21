@@ -24,7 +24,6 @@ using LFortran::Vec;
 using LFortran::FnArg;
 using LFortran::CoarrayArg;
 using LFortran::VarType;
-using LFortran::SemanticError;
 using LFortran::ArgStarKw;
 
 
@@ -634,7 +633,7 @@ static inline reduce_opType convert_id_to_reduce_type(
         } else if (s_id == "MAX") {
                 return reduce_opType::ReduceMAX;
         } else {
-                throw SemanticError("Unsupported operation in reduction", loc);
+                throw LFortran::parser_local::ParserError("Unsupported operation in reduction", loc);
         }
 }
 
