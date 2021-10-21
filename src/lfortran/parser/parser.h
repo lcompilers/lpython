@@ -27,7 +27,6 @@ public:
     }
 
     void parse(const std::string &input);
-    int parse();
     void handle_yyerror(const Location &loc, const std::string &msg);
 };
 
