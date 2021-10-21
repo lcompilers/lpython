@@ -279,8 +279,12 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
     }
     Result<std::unique_ptr<LLVMModule>> res = get_llvm3(*asr.result);
     if (res.ok) {
+#ifdef HAVE_LFORTRAN_LLVM
         std::unique_ptr<LLVMModule> m = std::move(res.result);
         return m;
+#else
+        throw LFortranException("LLVM is not enabled");
+#endif
     } else {
         return res.error;
     }
