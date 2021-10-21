@@ -15,12 +15,12 @@ Result<AST::TranslationUnit_t*> parse(Allocator &al, const std::string &s)
     Parser p(al);
     try {
         p.parse(s);
-    } catch (const TokenizerError &e) {
+    } catch (const parser_local::TokenizerError &e) {
         Error error;
         error.d = e.d;
         error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
-    } catch (const ParserError &e) {
+    } catch (const parser_local::ParserError &e) {
         Error error;
         error.d = e.d;
         error.stacktrace_addresses = e.stacktrace_addresses();
@@ -50,7 +50,7 @@ void Parser::parse(const std::string &input)
     if (yyparse(*this) == 0) {
         return;
     }
-    throw ParserError("Parsing unsuccessful (internal compiler error)");
+    throw parser_local::ParserError("Parsing unsuccessful (internal compiler error)");
 }
 
 Result<std::vector<int>> tokens(Allocator &al, const std::string &input,
@@ -66,7 +66,7 @@ Result<std::vector<int>> tokens(Allocator &al, const std::string &input,
         Location l;
         try {
             token = t.lex(al, y, l);
-        } catch (const LFortran::TokenizerError &e) {
+        } catch (const parser_local::TokenizerError &e) {
             Error error;
             error.d = e.d;
             error.stacktrace_addresses = e.stacktrace_addresses();
@@ -629,7 +629,7 @@ void Parser::handle_yyerror(const Location &loc, const std::string &msg)
     } else {
         message = "Internal Compiler Error: parser returned unknown error";
     }
-    throw ParserError(message, loc);
+    throw parser_local::ParserError(message, loc);
 }
 
 void populate_span(diag::Span &s, const LocationManager &lm,

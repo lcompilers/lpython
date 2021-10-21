@@ -5,7 +5,7 @@
 
 namespace LFortran {
 
-namespace {
+namespace parser_local {
 
     // Local exceptions that are used to terminate the parser.
     // It is not propagated outside.
