@@ -79,6 +79,7 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
     if (res2.ok) {
         asr = res2.result;
     } else {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return res2.error;
     }
 
@@ -186,6 +187,7 @@ Result<std::string> FortranEvaluator::get_asr(const std::string &code,
     if (asr.ok) {
         return LFortran::pickle(*asr.result, true);
     } else {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return asr.error;
     }
 }
@@ -208,6 +210,7 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
     if (res2.ok) {
         return res2.result;
     } else {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return res2.error;
     }
 }
@@ -229,6 +232,7 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr3(
     if (res.ok) {
         asr = res.result;
     } else {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return res.error;
     }
     if (!symbol_table) symbol_table = asr->m_global_scope;
@@ -248,6 +252,7 @@ Result<std::string> FortranEvaluator::get_llvm(
         throw LFortranException("LLVM is not enabled");
 #endif
     } else {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return res.error;
     }
 }
@@ -268,6 +273,7 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
         throw LFortranException("LLVM is not enabled");
 #endif
     } else {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return res.error;
     }
 }
@@ -319,6 +325,7 @@ Result<std::string> FortranEvaluator::get_asm(
     if (res.ok) {
         return e->get_asm(*res.result->m_m);
     } else {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return res.error;
     }
 #else
@@ -338,6 +345,7 @@ Result<std::string> FortranEvaluator::get_cpp(const std::string &code,
     if (asr.ok) {
         return get_cpp2(*asr.result);
     } else {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return asr.error;
     }
 }
