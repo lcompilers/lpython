@@ -13,7 +13,7 @@ void section(const std::string &s)
 std::string p(Allocator &al, const std::string &s)
 {
     LFortran::AST::TranslationUnit_t* result;
-    result = LFortran::parse2(al, s);
+    result = LFortran::parse(al, s);
     LFortran::AST::ast_t* ast;
     if (result->n_items >= 1) {
         ast = result->m_items[0];

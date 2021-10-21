@@ -194,11 +194,6 @@ struct LocationManager {
 // Parses Fortran code to AST
 AST::TranslationUnit_t* parse(Allocator &al, const std::string &s);
 
-// Just like `parse`, but prints a nice error message to std::cout if a
-// syntax error happens:
-AST::TranslationUnit_t* parse2(Allocator &al, const std::string &s,
-        bool use_colors=true, bool fixed_form=false);
-
 void populate_spans(diag::Diagnostic &d, const LocationManager &lm,
         const std::string &input);
 

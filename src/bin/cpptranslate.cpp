@@ -64,7 +64,7 @@ int emit_ast(const std::string &infile)
     Allocator al(64*1024*1024);
     LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parse2(al, input);
+        ast = LFortran::parse(al, input);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -88,7 +88,7 @@ int emit_asr(const std::string &infile)
     Allocator al(64*1024*1024);
     LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parse2(al, input);
+        ast = LFortran::parse(al, input);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -122,7 +122,7 @@ int emit_ast_f90(const std::string &infile)
     Allocator al(64*1024*1024);
     LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parse2(al, input);
+        ast = LFortran::parse(al, input);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;
@@ -149,7 +149,7 @@ int emit_ast_openmp(const std::string &infile)
     Allocator al(64*1024*1024);
     LFortran::AST::TranslationUnit_t* ast;
     try {
-        ast = LFortran::parse2(al, input);
+        ast = LFortran::parse(al, input);
     } catch (const LFortran::TokenizerError &e) {
         std::cerr << "Tokenizing error: " << e.msg() << std::endl;
         return 1;

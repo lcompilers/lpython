@@ -400,24 +400,19 @@ int emit_ast(const std::string &infile, CompilerOptions &compiler_options)
 int emit_ast_f90(const std::string &infile, CompilerOptions &compiler_options)
 {
     std::string input = read_file(infile);
-    // Src -> AST
-    Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::parse2(al, input, compiler_options.use_colors, compiler_options.fixed_form);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
-        return 1;
-    } catch (const LFortran::ParserError &e) {
-        std::cerr << "Parsing error: " << e.msg() << std::endl;
+    LFortran::FortranEvaluator fe(compiler_options);
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    LFortran::FortranEvaluator::Result<LFortran::AST::TranslationUnit_t*> r
+            = fe.get_ast2(input, lm);
+    if (r.ok) {
+        std::cout << LFortran::ast_to_src(*r.result,
+            compiler_options.use_colors);
+        return 0;
+    } else {
+        std::cerr << fe.format_error(r.error, input, lm);
         return 2;
     }
-
-    // AST -> Source
-    std::string source = LFortran::ast_to_src(*ast, compiler_options.use_colors);
-
-    std::cout << source;
-    return 0;
 }
 
 int format(const std::string &infile, bool inplace, bool color, int indent,
@@ -705,14 +700,12 @@ int compile_to_object_file(const std::string &infile,
     }
 
     std::unique_ptr<LFortran::LLVMModule> m;
-    Allocator al(64*1024*1024);
-    try {
-        m = LFortran::asr_to_llvm(*asr, e.get_context(), al, compiler_options.platform);
-    } catch (const LFortran::CodeGenError &e) {
-        LFortran::FortranEvaluator::Error error;
-        error.d = e.d;
-        error.stacktrace_addresses = e.stacktrace_addresses();
-        std::cerr << fe.format_error(error, input, lm);
+    LFortran::FortranEvaluator::Result<std::unique_ptr<LFortran::LLVMModule>>
+        res = fe.get_llvm3(*asr);
+    if (res.ok) {
+        m = std::move(res.result);
+    } else {
+        std::cerr << fe.format_error(res.error, input, lm);
         return 5;
     }
 
@@ -763,7 +756,7 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
     {
         auto t1 = std::chrono::high_resolution_clock::now();
         try {
-            ast = LFortran::parse2(al, input);
+            ast = LFortran::parse(al, input);
         } catch (const LFortran::TokenizerError &e) {
             std::cerr << "Tokenizing error: " << e.msg() << std::endl;
             return 1;
@@ -869,13 +862,12 @@ int compile_to_object_file_cpp(const std::string &infile,
 
     // ASR -> C++
     std::string src;
-    try {
-        src = LFortran::asr_to_cpp(*asr);
-    } catch (const LFortran::CodeGenError &e) {
-        LFortran::FortranEvaluator::Error error;
-        error.d = e.d;
-        error.stacktrace_addresses = e.stacktrace_addresses();
-        std::cerr << fe.format_error(error, input, lm);
+    LFortran::FortranEvaluator::Result<std::string> res
+        = fe.get_cpp2(*asr);
+    if (res.ok) {
+        src = res.result;
+    } else {
+        std::cerr << fe.format_error(res.error, input, lm);
         return 5;
     }
 
