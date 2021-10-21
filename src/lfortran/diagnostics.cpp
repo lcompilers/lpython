@@ -62,6 +62,7 @@ std::string Diagnostics::render(const std::string &input,
         out += render_diagnostic(d, input, lm,
             compiler_options.use_colors,
             compiler_options.show_stacktrace);
+        if (&d != &this->diagnostics.back()) out += "\n";
     }
     return out;
 }
