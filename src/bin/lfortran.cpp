@@ -700,14 +700,12 @@ int compile_to_object_file(const std::string &infile,
     }
 
     std::unique_ptr<LFortran::LLVMModule> m;
-    Allocator al(64*1024*1024);
-    try {
-        m = LFortran::asr_to_llvm(*asr, e.get_context(), al, compiler_options.platform);
-    } catch (const LFortran::CodeGenError &e) {
-        LFortran::FortranEvaluator::Error error;
-        error.d = e.d;
-        error.stacktrace_addresses = e.stacktrace_addresses();
-        std::cerr << fe.format_error(error, input, lm);
+    LFortran::FortranEvaluator::Result<std::unique_ptr<LFortran::LLVMModule>>
+        res = fe.get_llvm3(*asr);
+    if (res.ok) {
+        m = std::move(res.result);
+    } else {
+        std::cerr << fe.format_error(res.error, input, lm);
         return 5;
     }
 
