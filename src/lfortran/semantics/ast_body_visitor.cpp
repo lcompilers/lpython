@@ -27,7 +27,8 @@ public:
     ASR::asr_t *asr;
     Vec<ASR::stmt_t*> *current_body;
 
-    BodyVisitor(Allocator &al, ASR::asr_t *unit) : CommonVisitor(al, nullptr), asr{unit} {}
+    BodyVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics)
+         : CommonVisitor(al, nullptr, diagnostics), asr{unit} {}
 
     void visit_Declaration(const AST::Declaration_t & /* x */){
         // Already visited this AST node in the SymbolTableVisitor
@@ -1121,11 +1122,20 @@ public:
 
 };
 
-ASR::TranslationUnit_t *body_visitor(Allocator &al,
-        AST::TranslationUnit_t &ast, ASR::asr_t *unit)
+Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al,
+        AST::TranslationUnit_t &ast,
+        diag::Diagnostics &diagnostics,
+        ASR::asr_t *unit)
 {
-    BodyVisitor b(al, unit);
-    b.visit_TranslationUnit(ast);
+    BodyVisitor b(al, unit, diagnostics);
+    try {
+        b.visit_TranslationUnit(ast);
+    } catch (const SemanticError &e) {
+        Error error;
+        diagnostics.diagnostics.push_back(e.d);
+        error.d = e.d;
+        return error;
+    }
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
     return tu;
 }

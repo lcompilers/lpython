@@ -4,6 +4,8 @@
 #include <lfortran/diagnostics.h>
 #include <lfortran/assert.h>
 #include <lfortran/exception.h>
+#include <lfortran/codegen/fortran_evaluator.h>
+#include <lfortran/parser/parser.h>
 
 namespace LFortran::diag {
 
@@ -53,6 +55,31 @@ std::string highlight_line(const std::string &line,
     return out.str();
 }
 
+std::string Diagnostics::render(const std::string &input,
+        const LocationManager &lm, const CompilerOptions &compiler_options) {
+    std::string out;
+    for (auto &d : this->diagnostics) {
+        out += render_diagnostic(d, input, lm,
+            compiler_options.use_colors,
+            compiler_options.show_stacktrace);
+        if (&d != &this->diagnostics.back()) out += "\n";
+    }
+    return out;
+}
+
+// Fills Diagnostic with span details and renders it
+std::string render_diagnostic(Diagnostic &d, const std::string &input,
+        const LocationManager &lm, bool use_colors, bool show_stacktrace) {
+    std::string out;
+    if (show_stacktrace) {
+        out += FortranEvaluator::error_stacktrace(d.stacktrace);
+    }
+    // Convert to line numbers and get source code strings
+    populate_spans(d, lm, input);
+    // Render the message
+    out += render_diagnostic(d, use_colors);
+    return out;
+}
 
 std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
     std::string bold  = "\033[0;1m";

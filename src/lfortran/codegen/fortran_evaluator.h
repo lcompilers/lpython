@@ -51,15 +51,16 @@ public:
         LocationManager &lm);
     Result<AST::TranslationUnit_t*> get_ast2(const std::string &code,
         LocationManager &lm);
-    Result<ASR::TranslationUnit_t*> get_asr3(AST::TranslationUnit_t &ast);
+    Result<ASR::TranslationUnit_t*> get_asr3(AST::TranslationUnit_t &ast,
+        diag::Diagnostics &diagnostics);
     Result<std::string> get_asr(const std::string &code,
-        LocationManager &lm);
+        LocationManager &lm, diag::Diagnostics &diagnostics);
     Result<ASR::TranslationUnit_t*> get_asr2(const std::string &code,
-        LocationManager &lm);
+        LocationManager &lm, diag::Diagnostics &diagnostics);
     Result<std::string> get_llvm(const std::string &code,
-        LocationManager &lm);
+        LocationManager &lm, diag::Diagnostics &diagnostics);
     Result<std::unique_ptr<LLVMModule>> get_llvm2(const std::string &code,
-        LocationManager &lm);
+        LocationManager &lm, diag::Diagnostics &diagnostics);
     Result<std::unique_ptr<LLVMModule>> get_llvm3(ASR::TranslationUnit_t &asr);
     Result<std::string> get_asm(const std::string &code, LocationManager &lm);
     Result<std::string> get_cpp(const std::string &code, LocationManager &lm);
@@ -68,7 +69,7 @@ public:
 
     std::string format_error(const Error &e, const std::string &input,
             const LocationManager &lm) const;
-    std::string error_stacktrace(const std::vector<StacktraceItem> &stacktrace) const;
+    static std::string error_stacktrace(const std::vector<StacktraceItem> &stacktrace);
 
 private:
     Allocator al;

@@ -73,7 +73,9 @@ void asr_ser(const std::string &src) {
 
     LFortran::AST::TranslationUnit_t* ast0;
     ast0 = TRY(LFortran::parse(al, src));
-    LFortran::ASR::TranslationUnit_t* asr = TRY(LFortran::ast_to_asr(al, *ast0));
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::ASR::TranslationUnit_t* asr = TRY(LFortran::ast_to_asr(al, *ast0,
+        diagnostics));
 
     std::string asr_orig = LFortran::pickle(*asr);
     std::string binary = LFortran::serialize(*asr);
@@ -97,7 +99,9 @@ void asr_mod(const std::string &src) {
 
     LFortran::AST::TranslationUnit_t* ast0;
     ast0 = TRY(LFortran::parse(al, src));
-    LFortran::ASR::TranslationUnit_t* asr = TRY(LFortran::ast_to_asr(al, *ast0));
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::ASR::TranslationUnit_t* asr = TRY(LFortran::ast_to_asr(al, *ast0,
+        diagnostics));
 
     std::string modfile = LFortran::save_modfile(*asr);
     LFortran::SymbolTable symtab(nullptr);

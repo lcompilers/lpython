@@ -96,8 +96,9 @@ public:
         {AST::intrinsicopType::GTE, "~gte"}
     };
 
-    SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table)
-      : CommonVisitor(al, symbol_table), is_derived_type{false} {}
+    SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table,
+        diag::Diagnostics &diagnostics)
+      : CommonVisitor(al, symbol_table, diagnostics), is_derived_type{false} {}
 
 
     ASR::symbol_t* resolve_symbol(const Location &loc, const std::string &sub_name) {
@@ -724,14 +725,12 @@ public:
                     if (dims.size() > 0) {
                         // This happens for:
                         // integer, private, dimension(2,2) :: a(2,2)
-                        diag::Diagnostic d{diag::Diagnostic::semantic_warning_label(
+                        diag.semantic_warning_label(
                             "Dimensions are specified twice",
                             {dims_attr_loc, s.loc}, // dimension(2,2), a(2,2)
                             "help: consider specifying it just one way or the other"
-                        )};
-                        throw SemanticError(d);
-                        //throw SemanticError("Cannot specify dimensions both ways",
-                        //        x.base.base.loc);
+                        );
+                        dims.n = 0;
                     }
                     process_dims(al, dims, s.m_dim, s.n_dim);
                 }
@@ -1417,11 +1416,19 @@ public:
 
 };
 
-ASR::asr_t *symbol_table_visitor(Allocator &al, AST::TranslationUnit_t &ast,
+Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, AST::TranslationUnit_t &ast,
+        diag::Diagnostics &diagnostics,
         SymbolTable *symbol_table)
 {
-    SymbolTableVisitor v(al, symbol_table);
-    v.visit_TranslationUnit(ast);
+    SymbolTableVisitor v(al, symbol_table, diagnostics);
+    try {
+        v.visit_TranslationUnit(ast);
+    } catch (const SemanticError &e) {
+        Error error;
+        diagnostics.diagnostics.push_back(e.d);
+        error.d = e.d;
+        return error;
+    }
     ASR::asr_t *unit = v.tmp;
     return unit;
 }

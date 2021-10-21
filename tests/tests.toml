@@ -148,6 +148,10 @@ filename = "errors/cpp7.f90"
 asr_preprocess = true
 
 [[test]]
+filename = "warnings/dim_assgn_test.f90"
+asr = true
+
+[[test]]
 filename = "preprocessor1.f90"
 asr_preprocess = true
 
