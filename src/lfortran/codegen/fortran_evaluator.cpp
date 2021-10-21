@@ -360,7 +360,7 @@ std::string FortranEvaluator::format_error(const Error &e, const std::string &in
 {
     std::string out;
     if (compiler_options.show_stacktrace) {
-        out += error_stacktrace(e);
+        out += error_stacktrace(e.d.stacktrace);
     }
     // Convert to line numbers and get source code strings
     diag::Diagnostic d = e.d;
@@ -370,9 +370,9 @@ std::string FortranEvaluator::format_error(const Error &e, const std::string &in
     return out;
 }
 
-std::string FortranEvaluator::error_stacktrace(const Error &e) const
+std::string FortranEvaluator::error_stacktrace(const std::vector<StacktraceItem> &stacktrace) const
 {
-    std::vector<StacktraceItem> d = e.stacktrace_addresses;
+    std::vector<StacktraceItem> d = stacktrace;
     get_local_addresses(d);
     get_local_info(d);
     return stacktrace2str(d, stacktrace_depth-1);

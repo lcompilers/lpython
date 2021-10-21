@@ -34,7 +34,6 @@ Result<ASR::TranslationUnit_t*> ast_to_asr(Allocator &al, AST::TranslationUnit_t
     } catch (const SemanticError &e) {
         Error error;
         error.d = e.d;
-        error.stacktrace_addresses = e.m_stacktrace_addresses;
         return error;
     }
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
@@ -46,7 +45,6 @@ Result<ASR::TranslationUnit_t*> ast_to_asr(Allocator &al, AST::TranslationUnit_t
         } catch (const SemanticError &e) {
             Error error;
             error.d = e.d;
-            error.stacktrace_addresses = e.m_stacktrace_addresses;
             return error;
         }
         LFORTRAN_ASSERT(asr_verify(*tu));

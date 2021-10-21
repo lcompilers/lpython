@@ -16,36 +16,26 @@ namespace parser_local {
     {
     public:
         diag::Diagnostic d;
-        std::vector<StacktraceItem> m_stacktrace_addresses;
     public:
         TokenizerError(const std::string &msg, const Location &loc)
-            : d{diag::Diagnostic::tokenizer_error(msg, loc)},
-            m_stacktrace_addresses{get_stacktrace_addresses()}
+            : d{diag::Diagnostic::tokenizer_error(msg, loc)}
         { }
 
-        TokenizerError(const diag::Diagnostic &d)
-             : d{d},
-            m_stacktrace_addresses{get_stacktrace_addresses()}
-        { }
+        TokenizerError(const diag::Diagnostic &d) : d{d} { }
     };
 
     class ParserError
     {
     public:
         LFortran::diag::Diagnostic d;
-        std::vector<StacktraceItem> m_stacktrace_addresses;
     public:
         ParserError(const std::string &msg, const LFortran::Location &loc)
-            : d{LFortran::diag::Diagnostic::parser_error(msg, loc)},
-            m_stacktrace_addresses{get_stacktrace_addresses()}
-        {
-        }
+            : d{LFortran::diag::Diagnostic::parser_error(msg, loc)}
+        { }
 
         ParserError(const std::string &msg)
-            : d{LFortran::diag::Diagnostic::parser_error(msg)},
-            m_stacktrace_addresses{get_stacktrace_addresses()}
-        {
-        }
+            : d{LFortran::diag::Diagnostic::parser_error(msg)}
+        { }
     };
 
 }

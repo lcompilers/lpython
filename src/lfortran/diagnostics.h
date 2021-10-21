@@ -2,6 +2,7 @@
 #define LFORTRAN_DIAGNOSTICS_H
 
 #include <lfortran/parser/location.h>
+#include <lfortran/stacktrace.h>
 
 namespace LFortran {
 
@@ -86,6 +87,7 @@ struct Diagnostic {
     std::string message;
     std::vector<Label> labels;
     std::vector<Diagnostic> children;
+    std::vector<StacktraceItem> stacktrace = get_stacktrace_addresses();
 
     static Diagnostic semantic_error(const std::string &message, const Location &loc) {
         diag::Span s;
