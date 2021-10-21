@@ -55,6 +55,17 @@ std::string highlight_line(const std::string &line,
     return out.str();
 }
 
+std::string Diagnostics::render(const std::string &input,
+        const LocationManager &lm, const CompilerOptions &compiler_options) {
+    std::string out;
+    for (auto &d : this->diagnostics) {
+        out += render_diagnostic(d, input, lm,
+            compiler_options.use_colors,
+            compiler_options.show_stacktrace);
+    }
+    return out;
+}
+
 // Fills Diagnostic with span details and renders it
 std::string render_diagnostic(Diagnostic &d, const std::string &input,
         const LocationManager &lm, bool use_colors, bool show_stacktrace) {

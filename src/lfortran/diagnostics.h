@@ -7,6 +7,7 @@
 namespace LFortran {
 
 struct LocationManager;
+struct CompilerOptions;
 
 namespace diag {
 
@@ -256,6 +257,9 @@ struct Diagnostic {
 
 struct Diagnostics {
     std::vector<Diagnostic> diagnostics;
+
+    std::string render(const std::string &input,
+            const LocationManager &lm, const CompilerOptions &compiler_options);
 
     void semantic_warning_label(const std::string &message,
             const std::vector<Location> &locations, const std::string &error_label) {
