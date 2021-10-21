@@ -70,8 +70,10 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
     std::stringstream out;
 
     std::string message_type = "";
+    std::string primary_color = "";
     switch (d.level) {
         case (Level::Error):
+            primary_color = red_bold;    
             switch (d.stage) {
                 case (Stage::CPreprocessor):
                     message_type = "C preprocessor error";
@@ -97,17 +99,20 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
             }
             break;
         case (Level::Warning):
+            primary_color = yellow_bold;    
             message_type = "warning";
             break;
         case (Level::Note):
+            primary_color = bold;    
             message_type = "note";
             break;
         case (Level::Help):
+            primary_color = bold;    
             message_type = "help";
             break;
     }
 
-    out << red_bold << message_type << reset << bold << ": " << d.message << reset << std::endl;
+    out << primary_color << message_type << reset << bold << ": " << d.message << reset << std::endl;
 
     if (d.labels.size() > 0) {
         Label l = d.labels[0];
@@ -138,7 +143,7 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
             out << std::string(line_num_width+1, ' ') << blue_bold << "|"
                 << reset << " ";
             out << std::string(s.first_column-1, ' ');
-            out << red_bold << std::string(s.last_column-s.first_column+1, '^');
+            out << primary_color << std::string(s.last_column-s.first_column+1, '^');
             if (l.spans.size() == 2) {
                 // For now we paint the second span only if it is "easy"
                 Span s2=l.spans[1];

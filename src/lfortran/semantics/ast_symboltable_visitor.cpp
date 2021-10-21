@@ -724,10 +724,10 @@ public:
                     if (dims.size() > 0) {
                         // This happens for:
                         // integer, private, dimension(2,2) :: a(2,2)
-                        diag::Diagnostic d{diag::Diagnostic::semantic_error_label(
-                            "Dimensions cannot be specified twice",
+                        diag::Diagnostic d{diag::Diagnostic::semantic_warning_label(
+                            "Dimensions are specified twice",
                             {dims_attr_loc, s.loc}, // dimension(2,2), a(2,2)
-                            "dimensions specified at both places"
+                            "help: consider specifying it just one way or the other"
                         )};
                         throw SemanticError(d);
                         //throw SemanticError("Cannot specify dimensions both ways",
