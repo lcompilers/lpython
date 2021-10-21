@@ -106,24 +106,6 @@ public:
     }
 };
 
-class ParserError : public LFortranException
-{
-public:
-    diag::Diagnostic d;
-public:
-    ParserError(const std::string &msg, const Location &loc)
-        : LFortranException(msg, LFORTRAN_PARSER_ERROR),
-        d{diag::Diagnostic::parser_error(msg, loc)}
-    {
-    }
-
-    ParserError(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_PARSER_ERROR),
-        d{diag::Diagnostic::parser_error(msg)}
-    {
-    }
-};
-
 class SemanticError : public LFortranException
 {
 public:

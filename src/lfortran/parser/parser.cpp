@@ -5,6 +5,7 @@
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/parser.tab.hh>
 #include <lfortran/diagnostics.h>
+#include <lfortran/parser/parser_exception.h>
 
 namespace LFortran
 {
@@ -609,7 +610,7 @@ void Parser::handle_yyerror(const Location &loc, const std::string &msg)
     } else {
         message = "Internal Compiler Error: parser returned unknown error";
     }
-    throw LFortran::ParserError(message, loc);
+    throw ParserError(message, loc);
 }
 
 void populate_span(diag::Span &s, const LocationManager &lm,
