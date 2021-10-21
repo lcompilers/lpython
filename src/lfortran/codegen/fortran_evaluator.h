@@ -99,6 +99,7 @@ public:
         LocationManager &lm);
     Result<AST::TranslationUnit_t*> get_ast2(const std::string &code,
         LocationManager &lm);
+    Result<ASR::TranslationUnit_t*> get_asr3(AST::TranslationUnit_t &ast);
     Result<std::string> get_asr(const std::string &code,
         LocationManager &lm);
     Result<ASR::TranslationUnit_t*> get_asr2(const std::string &code,

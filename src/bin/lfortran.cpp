@@ -774,9 +774,17 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
     // AST -> ASR
     {
         auto t1 = std::chrono::high_resolution_clock::now();
-        asr = LFortran::ast_to_asr(al, *ast);
+        LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
+            result = fe.get_asr3(*ast);
         auto t2 = std::chrono::high_resolution_clock::now();
         time_ast_to_asr = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+
+        if (result.ok) {
+            asr = result.result;
+        } else {
+            std::cerr << fe.format_error(result.error, input, lm);
+            return 2;
+        }
     }
 
     // ASR -> x86 machine code

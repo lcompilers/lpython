@@ -218,17 +218,29 @@ Result<std::string> FortranEvaluator::get_asr(const std::string &code,
 Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
             const std::string &code_orig, LocationManager &lm)
 {
+    // Src -> AST
+    Result<AST::TranslationUnit_t*> res = get_ast2(code_orig, lm);
+    AST::TranslationUnit_t* ast;
+    if (res.ok) {
+        ast = res.result;
+    } else {
+        return res.error;
+    }
+
+    // AST -> ASR
+    Result<ASR::TranslationUnit_t*> res2 = get_asr3(*ast);
+    if (res2.ok) {
+        return res2.result;
+    } else {
+        return res2.error;
+    }
+}
+
+Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr3(
+            AST::TranslationUnit_t &ast)
+{
     ASR::TranslationUnit_t* asr;
     try {
-        // Src -> AST
-        Result<AST::TranslationUnit_t*> res = get_ast2(code_orig, lm);
-        AST::TranslationUnit_t* ast;
-        if (res.ok) {
-            ast = res.result;
-        } else {
-            return res.error;
-        }
-
         // AST -> ASR
         // Remove the old execution function if it exists
         if (symbol_table) {
@@ -237,7 +249,7 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
             }
             symbol_table->mark_all_variables_external(al);
         }
-        asr = ast_to_asr(al, *ast, symbol_table, compiler_options.symtab_only);
+        asr = ast_to_asr(al, ast, symbol_table, compiler_options.symtab_only);
         if (!symbol_table) symbol_table = asr->m_global_scope;
     } catch (const SemanticError &e) {
         FortranEvaluator::Error error;
