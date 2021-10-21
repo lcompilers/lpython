@@ -7,7 +7,7 @@
 
 namespace LFortran {
 
-    FortranEvaluator::Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
+    Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
             llvm::LLVMContext &context, Allocator &al, Platform platform,
             std::string run_fn="f");
 

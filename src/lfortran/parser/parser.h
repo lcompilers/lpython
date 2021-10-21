@@ -192,7 +192,8 @@ struct LocationManager {
 
 
 // Parses Fortran code to AST
-AST::TranslationUnit_t* parse(Allocator &al, const std::string &s);
+Result<AST::TranslationUnit_t*> parse(Allocator &al,
+    const std::string &s);
 
 void populate_spans(diag::Diagnostic &d, const LocationManager &lm,
         const std::string &input);

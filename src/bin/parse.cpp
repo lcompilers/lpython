@@ -42,7 +42,7 @@ int main()
     auto t1 = std::chrono::high_resolution_clock::now();
     auto result = parse(al, text);
     auto t2 = std::chrono::high_resolution_clock::now();
-    int c = count(*result->m_items[0]);
+    int c = count(*LFortran::TRY(result)->m_items[0]);
     auto t3 = std::chrono::high_resolution_clock::now();
     std::cout << "Parsing: " <<
         std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count()

@@ -3880,7 +3880,7 @@ public:
 
 
 
-FortranEvaluator::Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
+Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
         llvm::LLVMContext &context, Allocator &al, Platform platform,
         std::string run_fn)
 {
@@ -3902,7 +3902,7 @@ FortranEvaluator::Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::Translati
     try {
         v.visit_asr((ASR::asr_t&)asr);
     } catch (const CodeGenError &e) {
-        FortranEvaluator::Error error;
+        Error error;
         error.d = e.d;
         error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
@@ -3916,7 +3916,7 @@ FortranEvaluator::Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::Translati
         std::cout << os.str();
         std::string msg = "asr_to_llvm: module failed verification. Error:\n"
             + err.str();
-        FortranEvaluator::Error error;
+        Error error;
         error.d = diag::Diagnostic::codegen_error(msg);
         error.stacktrace_addresses = get_stacktrace_addresses();
         return error;

@@ -42,7 +42,7 @@ print *, x
 end program
 )""";
 
-    AST::TranslationUnit_t* ast = LFortran::parse(al, src);
+    AST::TranslationUnit_t* ast = LFortran::TRY(LFortran::parse(al, src));
     ASR::TranslationUnit_t* asr = LFortran::ast_to_asr(al, *ast);
 
     CHECK(asr_verify(*asr)); // Passes

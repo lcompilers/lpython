@@ -611,7 +611,7 @@ public:
 };
 
 
-FortranEvaluator::Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
+Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
         const std::string &filename, bool time_report)
 {
     int time_pass_global=0;
@@ -641,7 +641,7 @@ FortranEvaluator::Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator 
         try {
             v.visit_asr((ASR::asr_t &)asr);
         } catch (const CodeGenError &e) {
-            FortranEvaluator::Error error;
+            Error error;
             error.d = e.d;
             error.stacktrace_addresses = e.stacktrace_addresses();
             return error;

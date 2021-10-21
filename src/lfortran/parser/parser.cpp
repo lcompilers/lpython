@@ -10,10 +10,17 @@
 namespace LFortran
 {
 
-AST::TranslationUnit_t* parse(Allocator &al, const std::string &s)
+Result<AST::TranslationUnit_t*> parse(Allocator &al, const std::string &s)
 {
     Parser p(al);
-    p.parse(s);
+    try {
+        p.parse(s);
+    } catch (const ParserError &e) {
+        Error error;
+        error.d = e.d;
+        error.stacktrace_addresses = e.stacktrace_addresses();
+        return error;
+    }
     Location l;
     if (p.result.size() == 0) {
         l.first=0;
