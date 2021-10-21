@@ -95,14 +95,15 @@ namespace {
 
     // Local exception that is only used in this file to exit the visitor
     // pattern and caught later (not propagated outside)
-    class CodeGenError : public LFortranException
+    class CodeGenError
     {
     public:
         diag::Diagnostic d;
+        std::vector<StacktraceItem> m_stacktrace_addresses;
     public:
         CodeGenError(const std::string &msg)
-            : LFortranException(msg, LFORTRAN_CODEGEN_ERROR),
-            d{diag::Diagnostic::codegen_error(msg)}
+            : d{diag::Diagnostic::codegen_error(msg)},
+            m_stacktrace_addresses{get_stacktrace_addresses()}
         { }
     };
 

@@ -8,20 +8,21 @@ namespace LFortran {
 // This exception is only used internally in the lfortran/semantics/ directory
 // and in lfortran/asr_utils.h/cpp. Nowhere else.
 
-class SemanticError : public LFortranException
+class SemanticError
 {
 public:
     diag::Diagnostic d;
+    std::vector<StacktraceItem> m_stacktrace_addresses;
 public:
     SemanticError(const std::string &msg, const Location &loc)
-        : LFortranException(msg, LFORTRAN_SEMANTIC_ERROR),
-        d{diag::Diagnostic::semantic_error(msg, loc)}
+        : d{diag::Diagnostic::semantic_error(msg, loc)},
+        m_stacktrace_addresses{get_stacktrace_addresses()}
     { }
 
     SemanticError(const diag::Diagnostic &d)
-            : LFortranException(d.message, LFORTRAN_SEMANTIC_ERROR),
-            d{d} {
-    }
+        : d{d},
+        m_stacktrace_addresses{get_stacktrace_addresses()}
+    { }
 };
 
 }

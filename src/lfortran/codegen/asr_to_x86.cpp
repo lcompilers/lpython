@@ -18,14 +18,15 @@ namespace {
 
     // Local exception that is only used in this file to exit the visitor
     // pattern and caught later (not propagated outside)
-    class CodeGenError : public LFortranException
+    class CodeGenError
     {
     public:
         diag::Diagnostic d;
+        std::vector<StacktraceItem> m_stacktrace_addresses;
     public:
         CodeGenError(const std::string &msg)
-            : LFortranException(msg, LFORTRAN_CODEGEN_ERROR),
-            d{diag::Diagnostic::codegen_error(msg)}
+            : d{diag::Diagnostic::codegen_error(msg)},
+            m_stacktrace_addresses{get_stacktrace_addresses()}
         { }
     };
 
@@ -643,7 +644,7 @@ Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
         } catch (const CodeGenError &e) {
             Error error;
             error.d = e.d;
-            error.stacktrace_addresses = e.stacktrace_addresses();
+            error.stacktrace_addresses = e.m_stacktrace_addresses;
             return error;
         }
         auto t2 = std::chrono::high_resolution_clock::now();
