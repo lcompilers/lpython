@@ -1,5 +1,5 @@
-semantic error: Dimensions cannot be specified twice
+warning: Dimensions are specified twice
  --> tests/errors/dim_assgn_test.f90:2:19
   |
 2 | integer, private, dimension(2,2) :: a(2,2)
-  |                   ^^^^^^^^^^^^^^    ^^^^^^ dimensions specified at both places
+  |                   ^^^^^^^^^^^^^^    ^^^^^^ help: consider specifying it just one way or the other
