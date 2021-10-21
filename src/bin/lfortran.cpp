@@ -267,10 +267,11 @@ int prompt(bool verbose)
             lm.in_filename = "input";
             LFortran::Result<LFortran::FortranEvaluator::EvalResult>
             res = e.evaluate(input, verbose, lm, diagnostics);
+            std::cerr << diagnostics.render(input, lm, cu);
             if (res.ok) {
                 r = res.result;
             } else {
-                std::cerr << e.format_error(res.error, input, lm);
+                LFORTRAN_ASSERT(diagnostics.has_error())
                 continue;
             }
         } catch (const LFortran::LFortranException &e) {
@@ -393,11 +394,12 @@ int emit_ast(const std::string &infile, CompilerOptions &compiler_options)
     LFortran::diag::Diagnostics diagnostics;
     lm.in_filename = infile;
     LFortran::Result<std::string> r = fe.get_ast(input, lm, diagnostics);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
     if (r.ok) {
         std::cout << r.result << std::endl;
         return 0;
     } else {
-        std::cerr << fe.format_error(r.error, input, lm);
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 2;
     }
 }
@@ -411,12 +413,13 @@ int emit_ast_f90(const std::string &infile, CompilerOptions &compiler_options)
     lm.in_filename = infile;
     LFortran::Result<LFortran::AST::TranslationUnit_t*> r
             = fe.get_ast2(input, lm, diagnostics);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
     if (r.ok) {
         std::cout << LFortran::ast_to_src(*r.result,
             compiler_options.use_colors);
         return 0;
     } else {
-        std::cerr << fe.format_error(r.error, input, lm);
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 2;
     }
 }
@@ -432,8 +435,9 @@ int format(const std::string &infile, bool inplace, bool color, int indent,
     lm.in_filename = infile;
     LFortran::Result<LFortran::AST::TranslationUnit_t*>
         r = fe.get_ast2(input, lm, diagnostics);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
-        std::cerr << fe.format_error(r.error, input, lm);
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 2;
     }
     LFortran::AST::TranslationUnit_t* ast = r.result;
@@ -471,10 +475,11 @@ int python_wrapper(const std::string &infile, std::string array_order,
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         result = fe.get_asr2(input, lm, diagnostics);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
     if (result.ok) {
         asr = result.result;
     } else {
-        std::cerr << fe.format_error(result.error, input, lm);
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 1;
     }
 
@@ -523,9 +528,7 @@ int emit_asr(const std::string &infile,
         r = fe.get_asr2(input, lm, diagnostics);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
-        if (r.error.d.stage != LFortran::diag::Stage::Semantic) {
-            std::cerr << fe.format_error(r.error, input, lm);
-        }
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 2;
     }
     LFortran::ASR::TranslationUnit_t* asr = r.result;
@@ -582,11 +585,12 @@ int emit_cpp(const std::string &infile, CompilerOptions &compiler_options)
     LFortran::diag::Diagnostics diagnostics;
     lm.in_filename = infile;
     LFortran::Result<std::string> cpp = fe.get_cpp(input, lm, diagnostics);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
     if (cpp.ok) {
         std::cout << cpp.result;
         return 0;
     } else {
-        std::cerr << fe.format_error(cpp.error, input, lm);
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 1;
     }
 }
@@ -646,11 +650,12 @@ int emit_llvm(const std::string &infile, CompilerOptions &compiler_options)
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<std::string> llvm
         = fe.get_llvm(input, lm, diagnostics);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
     if (llvm.ok) {
         std::cout << llvm.result;
         return 0;
     } else {
-        std::cerr << fe.format_error(llvm.error, input, lm);
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 1;
     }
 }
@@ -664,11 +669,12 @@ int emit_asm(const std::string &infile, CompilerOptions &compiler_options)
     LFortran::diag::Diagnostics diagnostics;
     lm.in_filename = infile;
     LFortran::Result<std::string> r = fe.get_asm(input, lm, diagnostics);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
     if (r.ok) {
         std::cout << r.result;
         return 0;
     } else {
-        std::cerr << fe.format_error(r.error, input, lm);
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 1;
     }
 }
@@ -690,10 +696,11 @@ int compile_to_object_file(const std::string &infile,
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         result = fe.get_asr2(input, lm, diagnostics);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
     if (result.ok) {
         asr = result.result;
     } else {
-        std::cerr << fe.format_error(result.error, input, lm);
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 1;
     }
 
@@ -716,12 +723,14 @@ int compile_to_object_file(const std::string &infile,
     }
 
     std::unique_ptr<LFortran::LLVMModule> m;
+    diagnostics.diagnostics.clear();
     LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
         res = fe.get_llvm3(*asr, diagnostics);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
     if (res.ok) {
         m = std::move(res.result);
     } else {
-        std::cerr << fe.format_error(res.error, input, lm);
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 5;
     }
 
@@ -780,26 +789,29 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
         auto t2 = std::chrono::high_resolution_clock::now();
         time_src_to_ast = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 
+        std::cerr << diagnostics.render(input, lm, compiler_options);
         if (result.ok) {
             ast = result.result;
         } else {
-            std::cerr << fe.format_error(result.error, input, lm);
+            LFORTRAN_ASSERT(diagnostics.has_error())
             return 1;
         }
     }
 
     // AST -> ASR
     {
+        diagnostics.diagnostics.clear();
         auto t1 = std::chrono::high_resolution_clock::now();
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
             result = fe.get_asr3(*ast, diagnostics);
         auto t2 = std::chrono::high_resolution_clock::now();
         time_ast_to_asr = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 
+        std::cerr << diagnostics.render(input, lm, compiler_options);
         if (result.ok) {
             asr = result.result;
         } else {
-            std::cerr << fe.format_error(result.error, input, lm);
+            LFORTRAN_ASSERT(diagnostics.has_error())
             return 2;
         }
     }
@@ -855,10 +867,11 @@ int compile_to_object_file_cpp(const std::string &infile,
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         result = fe.get_asr2(input, lm, diagnostics);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
     if (result.ok) {
         asr = result.result;
     } else {
-        std::cerr << fe.format_error(result.error, input, lm);
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 1;
     }
 
@@ -899,12 +912,14 @@ int compile_to_object_file_cpp(const std::string &infile,
 
     // ASR -> C++
     std::string src;
+    diagnostics.diagnostics.clear();
     LFortran::Result<std::string> res
         = fe.get_cpp2(*asr, diagnostics);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
     if (res.ok) {
         src = res.result;
     } else {
-        std::cerr << fe.format_error(res.error, input, lm);
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 5;
     }
 
