@@ -69,7 +69,7 @@ public:
 
     std::string format_error(const Error &e, const std::string &input,
             const LocationManager &lm) const;
-    std::string error_stacktrace(const std::vector<StacktraceItem> &stacktrace) const;
+    static std::string error_stacktrace(const std::vector<StacktraceItem> &stacktrace);
 
 private:
     Allocator al;

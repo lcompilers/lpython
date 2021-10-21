@@ -364,19 +364,12 @@ Result<std::string> FortranEvaluator::get_fmt(const std::string &code,
 std::string FortranEvaluator::format_error(const Error &e, const std::string &input,
         const LocationManager &lm) const
 {
-    std::string out;
-    if (compiler_options.show_stacktrace) {
-        out += error_stacktrace(e.d.stacktrace);
-    }
-    // Convert to line numbers and get source code strings
     diag::Diagnostic d = e.d;
-    populate_spans(d, lm, input);
-    // Render the message
-    out += diag::render_diagnostic(d, compiler_options.use_colors);
-    return out;
+    return diag::render_diagnostic(d, input, lm, compiler_options.use_colors,
+        compiler_options.show_stacktrace);
 }
 
-std::string FortranEvaluator::error_stacktrace(const std::vector<StacktraceItem> &stacktrace) const
+std::string FortranEvaluator::error_stacktrace(const std::vector<StacktraceItem> &stacktrace)
 {
     std::vector<StacktraceItem> d = stacktrace;
     get_local_addresses(d);
