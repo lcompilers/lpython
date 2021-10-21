@@ -78,7 +78,7 @@ namespace LFortran {
                     break;
                 }
                 default: {
-                    throw CodeGenError("Explicit shape checking supported only for integer, real, complex, logical and derived types.");
+                    throw LFortranException("Explicit shape checking supported only for integer, real, complex, logical and derived types.");
                 }
             }
             return compile_time_dimensions_t(m_dims, n_dims);

@@ -66,7 +66,7 @@ public:
                     type_ptr = llvm::Type::getInt64PtrTy(context);
                     break;
                 default:
-                    throw CodeGenError("Only 32 and 64 bits integer kinds are supported.");
+                    throw LFortranException("Only 32 and 64 bits integer kinds are supported.");
             }
         } else {
             switch(a_kind)
@@ -78,7 +78,7 @@ public:
                     type_ptr = llvm::Type::getInt64Ty(context);
                     break;
                 default:
-                    throw CodeGenError("Only 32 and 64 bits integer kinds are supported.");
+                    throw LFortranException("Only 32 and 64 bits integer kinds are supported.");
             }
         }
         return type_ptr;
@@ -96,7 +96,7 @@ public:
                     type_ptr =  llvm::Type::getDoublePtrTy(context);
                     break;
                 default:
-                    throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
+                    throw LFortranException("Only 32 and 64 bits real kinds are supported.");
             }
         } else {
             switch(a_kind)
@@ -108,7 +108,7 @@ public:
                     type_ptr = llvm::Type::getDoubleTy(context);
                     break;
                 default:
-                    throw CodeGenError("Only 32 and 64 bits real kinds are supported.");
+                    throw LFortranException("Only 32 and 64 bits real kinds are supported.");
             }
         }
         return type_ptr;
@@ -299,7 +299,7 @@ public:
                             break;
                         }
                         default: {
-                                throw CodeGenError("Variable type not \
+                                throw LFortranException("Variable type not \
                                         supported in nested functions");
                             break;
                         }

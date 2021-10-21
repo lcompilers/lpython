@@ -140,17 +140,6 @@ public:
     }
 };
 
-class CodeGenError : public LFortranException
-{
-public:
-    diag::Diagnostic d;
-public:
-    CodeGenError(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_CODEGEN_ERROR),
-        d{diag::Diagnostic::codegen_error(msg)}
-    { }
-};
-
 class AssertFailed : public LFortranException
 {
 public:

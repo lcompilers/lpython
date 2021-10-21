@@ -11,6 +11,23 @@
 
 namespace LFortran {
 
+namespace {
+
+    // Local exception that is only used in this file to exit the visitor
+    // pattern and caught later (not propagated outside)
+    class CodeGenError : public LFortranException
+    {
+    public:
+        diag::Diagnostic d;
+    public:
+        CodeGenError(const std::string &msg)
+            : LFortranException(msg, LFORTRAN_CODEGEN_ERROR),
+            d{diag::Diagnostic::codegen_error(msg)}
+        { }
+    };
+
+}
+
 using ASR::is_a;
 using ASR::down_cast;
 using ASR::down_cast2;
