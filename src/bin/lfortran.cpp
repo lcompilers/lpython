@@ -579,8 +579,9 @@ int emit_cpp(const std::string &infile, CompilerOptions &compiler_options)
 
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
+    LFortran::diag::Diagnostics diagnostics;
     lm.in_filename = infile;
-    LFortran::Result<std::string> cpp = fe.get_cpp(input, lm);
+    LFortran::Result<std::string> cpp = fe.get_cpp(input, lm, diagnostics);
     if (cpp.ok) {
         std::cout << cpp.result;
         return 0;
@@ -660,8 +661,9 @@ int emit_asm(const std::string &infile, CompilerOptions &compiler_options)
 
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
+    LFortran::diag::Diagnostics diagnostics;
     lm.in_filename = infile;
-    LFortran::Result<std::string> r = fe.get_asm(input, lm);
+    LFortran::Result<std::string> r = fe.get_asm(input, lm, diagnostics);
     if (r.ok) {
         std::cout << r.result;
         return 0;
@@ -898,7 +900,7 @@ int compile_to_object_file_cpp(const std::string &infile,
     // ASR -> C++
     std::string src;
     LFortran::Result<std::string> res
-        = fe.get_cpp2(*asr);
+        = fe.get_cpp2(*asr, diagnostics);
     if (res.ok) {
         src = res.result;
     } else {

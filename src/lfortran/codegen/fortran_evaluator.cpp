@@ -324,14 +324,15 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm3(
 
 Result<std::string> FortranEvaluator::get_asm(
 #ifdef HAVE_LFORTRAN_LLVM
-    const std::string &code, LocationManager &lm
+    const std::string &code, LocationManager &lm,
+    diag::Diagnostics &diagnostics
 #else
-    const std::string &/*code*/, LocationManager &/*lm*/
+    const std::string &/*code*/, LocationManager &/*lm*/,
+    diag::Diagnostics &/*diagnostics*/
 #endif
     )
 {
 #ifdef HAVE_LFORTRAN_LLVM
-    diag::Diagnostics diagnostics;
     Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code, lm, diagnostics);
     if (res.ok) {
         return e->get_asm(*res.result->m_m);
@@ -345,23 +346,23 @@ Result<std::string> FortranEvaluator::get_asm(
 }
 
 Result<std::string> FortranEvaluator::get_cpp(const std::string &code,
-    LocationManager &lm)
+    LocationManager &lm, diag::Diagnostics &diagnostics)
 {
     // Src -> AST -> ASR
     SymbolTable *old_symbol_table = symbol_table;
     symbol_table = nullptr;
-    diag::Diagnostics diagnostics;
     Result<ASR::TranslationUnit_t*> asr = get_asr2(code, lm, diagnostics);
     symbol_table = old_symbol_table;
     if (asr.ok) {
-        return get_cpp2(*asr.result);
+        return get_cpp2(*asr.result, diagnostics);
     } else {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return asr.error;
     }
 }
 
-Result<std::string> FortranEvaluator::get_cpp2(ASR::TranslationUnit_t &asr)
+Result<std::string> FortranEvaluator::get_cpp2(ASR::TranslationUnit_t &asr,
+        diag::Diagnostics &/*diagnostics*/)
 {
     // ASR -> C++
     return asr_to_cpp(asr);
