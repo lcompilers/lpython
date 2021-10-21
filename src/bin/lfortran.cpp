@@ -517,8 +517,11 @@ int emit_asr(const std::string &infile,
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r = fe.get_asr2(input, lm, diagnostics);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
-        std::cerr << fe.format_error(r.error, input, lm);
+        if (r.error.d.stage != LFortran::diag::Stage::Semantic) {
+            std::cerr << fe.format_error(r.error, input, lm);
+        }
         return 2;
     }
     LFortran::ASR::TranslationUnit_t* asr = r.result;

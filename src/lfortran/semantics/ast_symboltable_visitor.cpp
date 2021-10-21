@@ -1429,6 +1429,7 @@ Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, AST::TranslationUnit_t &
         return error;
     }
     ASR::asr_t *unit = v.tmp;
+    diagnostics = std::move(v.diag);
     return unit;
 }
 
