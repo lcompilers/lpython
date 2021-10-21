@@ -107,6 +107,7 @@ public:
         LocationManager &lm);
     Result<std::unique_ptr<LLVMModule>> get_llvm2(const std::string &code,
         LocationManager &lm);
+    Result<std::unique_ptr<LLVMModule>> get_llvm3(ASR::TranslationUnit_t &asr);
     Result<std::string> get_asm(const std::string &code, LocationManager &lm);
     Result<std::string> get_cpp(const std::string &code, LocationManager &lm);
     Result<std::string> get_fmt(const std::string &code, LocationManager &lm);

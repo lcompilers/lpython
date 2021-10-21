@@ -265,26 +265,37 @@ Result<std::string> FortranEvaluator::get_llvm(
 }
 
 Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
-#ifdef HAVE_LFORTRAN_LLVM
-    const std::string &code, LocationManager &lm
-#else
-    const std::string &/*code*/, LocationManager &/*lm*/
-#endif
-    )
+    const std::string &code, LocationManager &lm)
 {
-#ifdef HAVE_LFORTRAN_LLVM
     Result<ASR::TranslationUnit_t*> asr = get_asr2(code, lm);
     if (!asr.ok) {
         return asr.error;
     }
+    Result<std::unique_ptr<LLVMModule>> res = get_llvm3(*asr.result);
+    if (res.ok) {
+        std::unique_ptr<LLVMModule> m = std::move(res.result);
+        return m;
+    } else {
+        return res.error;
+    }
+}
 
+Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm3(
+#ifdef HAVE_LFORTRAN_LLVM
+    ASR::TranslationUnit_t &asr
+#else
+    ASR::TranslationUnit_t &/*asr*/
+#endif
+    )
+{
+#ifdef HAVE_LFORTRAN_LLVM
     eval_count++;
     run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
 
     // ASR -> LLVM
     std::unique_ptr<LFortran::LLVMModule> m;
     try {
-        m = LFortran::asr_to_llvm(*asr.result, e->get_context(), al, compiler_options.platform,
+        m = LFortran::asr_to_llvm(asr, e->get_context(), al, compiler_options.platform,
             run_fn);
     } catch (const CodeGenError &e) {
         FortranEvaluator::Error error;
