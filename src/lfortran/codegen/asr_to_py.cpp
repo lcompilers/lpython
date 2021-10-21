@@ -99,11 +99,9 @@ namespace {
     {
     public:
         diag::Diagnostic d;
-        std::vector<StacktraceItem> m_stacktrace_addresses;
     public:
         CodeGenError(const std::string &msg)
-            : d{diag::Diagnostic::codegen_error(msg)},
-            m_stacktrace_addresses{get_stacktrace_addresses()}
+            : d{diag::Diagnostic::codegen_error(msg)}
         { }
     };
 

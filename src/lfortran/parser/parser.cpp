@@ -18,12 +18,10 @@ Result<AST::TranslationUnit_t*> parse(Allocator &al, const std::string &s)
     } catch (const parser_local::TokenizerError &e) {
         Error error;
         error.d = e.d;
-        error.stacktrace_addresses = e.m_stacktrace_addresses;
         return error;
     } catch (const parser_local::ParserError &e) {
         Error error;
         error.d = e.d;
-        error.stacktrace_addresses = e.m_stacktrace_addresses;
         return error;
     }
     Location l;
@@ -69,7 +67,6 @@ Result<std::vector<int>> tokens(Allocator &al, const std::string &input,
         } catch (const parser_local::TokenizerError &e) {
             Error error;
             error.d = e.d;
-            error.stacktrace_addresses = e.m_stacktrace_addresses;
             return error;
         }
         tst.push_back(token);

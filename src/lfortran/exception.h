@@ -32,7 +32,6 @@ namespace LFortran
 {
 
 struct Error {
-    std::vector<StacktraceItem> stacktrace_addresses;
     diag::Diagnostic d;
 };
 
@@ -87,15 +86,10 @@ class LFortranException : public std::exception
     std::string m_msg;
     lfortran_exceptions_t ec;
     std::vector<StacktraceItem> m_stacktrace_addresses;
-
 public:
     LFortranException(const std::string &msg, lfortran_exceptions_t error)
-        : m_msg{msg}, ec{error}
-    {
-#if defined(HAVE_LFORTRAN_STACKTRACE)
-        m_stacktrace_addresses = get_stacktrace_addresses();
-#endif
-    }
+        : m_msg{msg}, ec{error}, m_stacktrace_addresses{get_stacktrace_addresses()}
+    { }
     LFortranException(const std::string &msg)
         : LFortranException(msg, LFORTRAN_EXCEPTION)
     {

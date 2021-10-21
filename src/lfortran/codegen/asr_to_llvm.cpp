@@ -69,16 +69,13 @@ namespace {
     {
     public:
         diag::Diagnostic d;
-        std::vector<StacktraceItem> m_stacktrace_addresses;
     public:
         CodeGenError(const std::string &msg)
-            : d{diag::Diagnostic::codegen_error(msg)},
-            m_stacktrace_addresses{get_stacktrace_addresses()}
+            : d{diag::Diagnostic::codegen_error(msg)}
         { }
 
         CodeGenError(const std::string &msg, const Location &loc)
-            : d{diag::Diagnostic::codegen_error(msg, loc)},
-            m_stacktrace_addresses{get_stacktrace_addresses()}
+            : d{diag::Diagnostic::codegen_error(msg, loc)}
         { }
     };
 
@@ -3910,7 +3907,6 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
     } catch (const CodeGenError &e) {
         Error error;
         error.d = e.d;
-        error.stacktrace_addresses = e.m_stacktrace_addresses;
         return error;
     }
     std::string msg;
@@ -3924,7 +3920,6 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
             + err.str();
         Error error;
         error.d = diag::Diagnostic::codegen_error(msg);
-        error.stacktrace_addresses = get_stacktrace_addresses();
         return error;
     };
     return std::make_unique<LLVMModule>(std::move(v.module));
