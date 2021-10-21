@@ -53,7 +53,7 @@ Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop) {
         LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::ConstantInteger);
         increment = - down_cast<ASR::ConstantInteger_t>(u->m_operand)->m_n;
     } else {
-        throw CodeGenError("Do loop increment type not supported");
+        throw LFortranException("Do loop increment type not supported");
     }
     ASR::cmpopType cmp_op;
     if (increment > 0) {

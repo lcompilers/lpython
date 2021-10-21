@@ -96,7 +96,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 body.push_back(al, asr_stmt);
                 return_var = nullptr;
             } else {
-                throw CodeGenError("Unsupported type of global scope node");
+                throw LFortranException("Unsupported type of global scope node");
             }
         }
 
