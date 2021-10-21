@@ -11,13 +11,6 @@
 #include <lfortran/ast_to_openmp.h>
 #include <lfortran/config.h>
 
-
-std::string remove_extension(const std::string& filename) {
-    size_t lastdot = filename.find_last_of(".");
-    if (lastdot == std::string::npos) return filename;
-    return filename.substr(0, lastdot);
-}
-
 std::string read_file(const std::string &filename)
 {
     std::ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary
@@ -34,104 +27,6 @@ std::string read_file(const std::string &filename)
     return std::string(&bytes[0], filesize);
 }
 
-int emit_tokens(const std::string &infile)
-{
-    std::string input = read_file(infile);
-    // Src -> Tokens
-    Allocator al(64*1024*1024);
-    std::vector<int> toks;
-    std::vector<LFortran::YYSTYPE> stypes;
-    try {
-        toks = LFortran::tokens(al, input, &stypes);
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
-        return 1;
-    } catch (const LFortran::LFortranException &e) {
-        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
-        return 3;
-    }
-
-    for (size_t i=0; i < toks.size(); i++) {
-        std::cout << LFortran::pickle(toks[i], stypes[i]) << std::endl;
-    }
-    return 0;
-}
-
-int emit_ast(const std::string &infile)
-{
-    std::string input = read_file(infile);
-    // Src -> AST
-    Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::TRY(LFortran::parse(al, input));
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
-        return 1;
-    } catch (const LFortran::LFortranException &e) {
-        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
-        return 3;
-    }
-
-    std::cout << LFortran::pickle(*ast) << std::endl;
-    return 0;
-}
-
-int emit_asr(const std::string &infile)
-{
-    std::string input = read_file(infile);
-
-    // Src -> AST
-    Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::TRY(LFortran::parse(al, input));
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
-        return 1;
-    } catch (const LFortran::LFortranException &e) {
-        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
-        return 3;
-    }
-
-    // AST -> ASR
-    LFortran::ASR::TranslationUnit_t* asr;
-    try {
-        // FIXME: For now we only transform the first node in the list:
-        asr = LFortran::ast_to_asr(al, *ast);
-    } catch (const LFortran::LFortranException &e) {
-        std::cerr << "LFortran exception: " << e.msg() << std::endl;
-        return 4;
-    }
-
-    std::cout << LFortran::pickle(*asr) << std::endl;
-    return 0;
-}
-
-int emit_ast_f90(const std::string &infile)
-{
-    std::string input = read_file(infile);
-
-    // Src -> AST
-    Allocator al(64*1024*1024);
-    LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::TRY(LFortran::parse(al, input));
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
-        return 1;
-    } catch (const LFortran::LFortranException &e) {
-        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
-        return 3;
-    }
-
-    // AST -> Source
-    std::string source = LFortran::ast_to_src(*ast);
-
-    std::cout << source << std::endl;
-    return 0;
-}
-
 int emit_ast_openmp(const std::string &infile)
 {
     std::string input = read_file(infile);
@@ -139,15 +34,7 @@ int emit_ast_openmp(const std::string &infile)
     // Src -> AST
     Allocator al(64*1024*1024);
     LFortran::AST::TranslationUnit_t* ast;
-    try {
-        ast = LFortran::TRY(LFortran::parse(al, input));
-    } catch (const LFortran::TokenizerError &e) {
-        std::cerr << "Tokenizing error: " << e.msg() << std::endl;
-        return 1;
-    } catch (const LFortran::LFortranException &e) {
-        std::cerr << "Other LFortran exception: " << e.msg() << std::endl;
-        return 3;
-    }
+    ast = LFortran::TRY(LFortran::parse(al, input));
 
     // AST -> Source
     // FIXME: For now we only transform the first node in the list:
@@ -189,18 +76,6 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    if (show_tokens) {
-        return emit_tokens(arg_file);
-    }
-    if (show_ast) {
-        return emit_ast(arg_file);
-    }
-    if (show_asr) {
-        return emit_asr(arg_file);
-    }
-    if (show_ast_f90) {
-        return emit_ast_f90(arg_file);
-    }
     if (show_ast_openmp) {
         return emit_ast_openmp(arg_file);
     }
