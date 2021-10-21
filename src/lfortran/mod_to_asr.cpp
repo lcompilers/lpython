@@ -272,7 +272,7 @@ ASR::TranslationUnit_t* parse_gfortran_mod_file(Allocator &al, const std::string
                 s.p.proc = down_cast<ASR::symbol_t>(asr);
                 std::string sym_name = s.name;
                 if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
-                    throw SemanticError("Procedure already defined", asr->loc);
+                    throw LFortranException("Procedure already defined");
                 }
                 parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(asr);
 
