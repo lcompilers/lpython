@@ -624,6 +624,7 @@ static ASR::asr_t* comptime_intrinsic_real(ASR::expr_t *A,
 template <class Derived>
 class CommonVisitor : public AST::BaseVisitor<Derived> {
 public:
+    diag::Diagnostics diag;
     std::map<AST::operatorType, std::string> binop2str = {
         {AST::operatorType::Mul, "~mul"},
         {AST::operatorType::Add, "~add"},

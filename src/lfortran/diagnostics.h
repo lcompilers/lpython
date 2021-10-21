@@ -252,6 +252,20 @@ struct Diagnostic {
 */
 };
 
+struct Diagnostics {
+    std::vector<Diagnostic> diagnostics;
+
+    void semantic_warning_label(const std::string &message,
+            const std::vector<Location> &locations, const std::string &error_label) {
+        diagnostics.push_back(
+            Diagnostic::semantic_warning_label(
+                message, locations, error_label
+            )
+        );
+    }
+
+};
+
 std::string render_diagnostic(const Diagnostic &d, bool use_colors);
 
 } // namespace diag
