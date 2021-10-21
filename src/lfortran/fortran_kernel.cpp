@@ -117,7 +117,7 @@ namespace LFortran
             if (startswith(code, "%%showast")) {
                 code0 = code.substr(code.find("\n")+1);
                 LocationManager lm;
-                FortranEvaluator::Result<std::string>
+                Result<std::string>
                     res = e.get_ast(code0, lm);
                 nl::json result;
                 if (res.ok) {
@@ -138,7 +138,7 @@ namespace LFortran
             if (startswith(code, "%%showasr")) {
                 code0 = code.substr(code.find("\n")+1);
                 LocationManager lm;
-                FortranEvaluator::Result<std::string>
+                Result<std::string>
                 res = e.get_asr(code0, lm);
                 nl::json result;
                 if (res.ok) {
@@ -159,7 +159,7 @@ namespace LFortran
             if (startswith(code, "%%showllvm")) {
                 code0 = code.substr(code.find("\n")+1);
                 LocationManager lm;
-                FortranEvaluator::Result<std::string>
+                Result<std::string>
                 res = e.get_llvm(code0, lm);
                 nl::json result;
                 if (res.ok) {
@@ -180,7 +180,7 @@ namespace LFortran
             if (startswith(code, "%%showasm")) {
                 code0 = code.substr(code.find("\n")+1);
                 LocationManager lm;
-                FortranEvaluator::Result<std::string>
+                Result<std::string>
                 res = e.get_asm(code0, lm);
                 nl::json result;
                 if (res.ok) {
@@ -201,7 +201,7 @@ namespace LFortran
             if (startswith(code, "%%showcpp")) {
                 code0 = code.substr(code.find("\n")+1);
                 LocationManager lm;
-                FortranEvaluator::Result<std::string>
+                Result<std::string>
                 res = e.get_cpp(code0, lm);
                 nl::json result;
                 if (res.ok) {
@@ -222,7 +222,7 @@ namespace LFortran
             if (startswith(code, "%%showfmt")) {
                 code0 = code.substr(code.find("\n")+1);
                 LocationManager lm;
-                FortranEvaluator::Result<std::string>
+                Result<std::string>
                 res = e.get_fmt(code0, lm);
                 nl::json result;
                 if (res.ok) {
@@ -244,7 +244,7 @@ namespace LFortran
             RedirectStdout s(std_out);
             code0 = code;
             LocationManager lm;
-            FortranEvaluator::Result<FortranEvaluator::EvalResult>
+            Result<FortranEvaluator::EvalResult>
             res = e.evaluate(code0, false, lm);
             if (res.ok) {
                 r = res.result;
