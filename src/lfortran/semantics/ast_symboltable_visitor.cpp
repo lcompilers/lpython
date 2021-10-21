@@ -1415,11 +1415,19 @@ public:
 
 };
 
-ASR::asr_t *symbol_table_visitor(Allocator &al, AST::TranslationUnit_t &ast,
-        SymbolTable *symbol_table)
+Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, AST::TranslationUnit_t &ast,
+        SymbolTable *symbol_table, diag::Diagnostics &diagnostics)
 {
     SymbolTableVisitor v(al, symbol_table);
-    v.visit_TranslationUnit(ast);
+    try {
+        v.visit_TranslationUnit(ast);
+    } catch (const SemanticError &e) {
+        Error error;
+        v.diag.diagnostics.push_back(e.d);
+        diagnostics = std::move(v.diag);
+        error.d = e.d;
+        return error;
+    }
     ASR::asr_t *unit = v.tmp;
     return unit;
 }

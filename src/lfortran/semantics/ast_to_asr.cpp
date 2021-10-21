@@ -19,22 +19,22 @@
 
 namespace LFortran {
 
-ASR::asr_t *symbol_table_visitor(Allocator &al, AST::TranslationUnit_t &ast,
-        SymbolTable *symbol_table);
+Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, AST::TranslationUnit_t &ast,
+        SymbolTable *symbol_table, diag::Diagnostics &diagnostics);
 
 ASR::TranslationUnit_t *body_visitor(Allocator &al,
         AST::TranslationUnit_t &ast, ASR::asr_t *unit);
 
-Result<ASR::TranslationUnit_t*> ast_to_asr(Allocator &al, AST::TranslationUnit_t &ast,
-        SymbolTable *symbol_table, bool symtab_only)
+Result<ASR::TranslationUnit_t*> ast_to_asr(Allocator &al,
+    AST::TranslationUnit_t &ast, diag::Diagnostics &diagnostics,
+    SymbolTable *symbol_table, bool symtab_only)
 {
     ASR::asr_t *unit;
-    try {
-        unit = symbol_table_visitor(al, ast, symbol_table);
-    } catch (const SemanticError &e) {
-        Error error;
-        error.d = e.d;
-        return error;
+    auto res = symbol_table_visitor(al, ast, symbol_table, diagnostics);
+    if (res.ok) {
+        unit = res.result;
+    } else {
+        return res.error;
     }
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
     LFORTRAN_ASSERT(asr_verify(*tu));

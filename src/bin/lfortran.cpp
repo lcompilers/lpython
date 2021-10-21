@@ -464,8 +464,9 @@ int python_wrapper(const std::string &infile, std::string array_order,
     // Src -> AST -> ASR
     LFortran::LocationManager lm;
     lm.in_filename = infile;
+    LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        result = fe.get_asr2(input, lm);
+        result = fe.get_asr2(input, lm, diagnostics);
     if (result.ok) {
         asr = result.result;
     } else {
@@ -513,8 +514,9 @@ int emit_asr(const std::string &infile,
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
     lm.in_filename = infile;
+    LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r = fe.get_asr2(input, lm);
+        r = fe.get_asr2(input, lm, diagnostics);
     if (!r.ok) {
         std::cerr << fe.format_error(r.error, input, lm);
         return 2;
@@ -633,8 +635,9 @@ int emit_llvm(const std::string &infile, CompilerOptions &compiler_options)
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
     lm.in_filename = infile;
+    LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<std::string> llvm
-        = fe.get_llvm(input, lm);
+        = fe.get_llvm(input, lm, diagnostics);
     if (llvm.ok) {
         std::cout << llvm.result;
         return 0;
@@ -675,8 +678,9 @@ int compile_to_object_file(const std::string &infile,
     // Src -> AST -> ASR
     LFortran::LocationManager lm;
     lm.in_filename = infile;
+    LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-    result = fe.get_asr2(input, lm);
+        result = fe.get_asr2(input, lm, diagnostics);
     if (result.ok) {
         asr = result.result;
     } else {
@@ -776,9 +780,10 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
 
     // AST -> ASR
     {
+        LFortran::diag::Diagnostics diagnostics;
         auto t1 = std::chrono::high_resolution_clock::now();
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-            result = fe.get_asr3(*ast);
+            result = fe.get_asr3(*ast, diagnostics);
         auto t2 = std::chrono::high_resolution_clock::now();
         time_ast_to_asr = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 
@@ -838,8 +843,9 @@ int compile_to_object_file_cpp(const std::string &infile,
     // Src -> AST -> ASR
     LFortran::LocationManager lm;
     lm.in_filename = infile;
+    LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        result = fe.get_asr2(input, lm);
+        result = fe.get_asr2(input, lm, diagnostics);
     if (result.ok) {
         asr = result.result;
     } else {

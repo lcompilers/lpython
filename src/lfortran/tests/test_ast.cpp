@@ -43,7 +43,9 @@ end program
 )""";
 
     AST::TranslationUnit_t* ast = TRY(LFortran::parse(al, src));
-    ASR::TranslationUnit_t* asr = TRY(LFortran::ast_to_asr(al, *ast));
+    LFortran::diag::Diagnostics diagnostics;
+    ASR::TranslationUnit_t* asr = TRY(LFortran::ast_to_asr(al, *ast,
+        diagnostics));
 
     CHECK(asr_verify(*asr)); // Passes
 
