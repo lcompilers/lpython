@@ -47,6 +47,7 @@ FortranEvaluator::~FortranEvaluator() = default;
 
 Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate2(const std::string &code) {
     LocationManager lm;
+    lm.in_filename = "input";
     return evaluate(code, false, lm);
 }
 Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(

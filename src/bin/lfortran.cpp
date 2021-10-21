@@ -262,6 +262,7 @@ int prompt(bool verbose)
 
         try {
             LFortran::LocationManager lm;
+            lm.in_filename = "input";
             LFortran::FortranEvaluator::Result<LFortran::FortranEvaluator::EvalResult>
             res = e.evaluate(input, verbose, lm);
             if (res.ok) {
