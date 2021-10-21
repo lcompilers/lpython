@@ -258,7 +258,11 @@ Result<std::string> FortranEvaluator::get_llvm(
 {
     Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code, lm);
     if (res.ok) {
+#ifdef HAVE_LFORTRAN_LLVM
         return res.result->str();
+#else
+        throw LFortranException("LLVM is not enabled");
+#endif
     } else {
         return res.error;
     }
