@@ -156,31 +156,24 @@ Result<std::string> FortranEvaluator::get_ast(const std::string &code,
 Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(
             const std::string &code_orig, LocationManager &lm)
 {
-    try {
-        // Src -> AST
-        const std::string *code=&code_orig;
-        std::string tmp;
-        if (compiler_options.c_preprocessor) {
-            // Preprocessor
-            CPreprocessor cpp(compiler_options);
-            tmp = cpp.run(code_orig, lm, cpp.macro_definitions);
-            code = &tmp;
-        }
-        if (compiler_options.prescan || compiler_options.fixed_form) {
-            tmp = fix_continuation(*code, lm, compiler_options.fixed_form);
-            code = &tmp;
-        }
-        Result<AST::TranslationUnit_t*> res = parse(al, *code);
-        if (res.ok) {
-            return res.result;
-        } else {
-            return res.error;
-        }
-    } catch (const TokenizerError &e) {
-        Error error;
-        error.d = e.d;
-        error.stacktrace_addresses = e.stacktrace_addresses();
-        return error;
+    // Src -> AST
+    const std::string *code=&code_orig;
+    std::string tmp;
+    if (compiler_options.c_preprocessor) {
+        // Preprocessor
+        CPreprocessor cpp(compiler_options);
+        tmp = cpp.run(code_orig, lm, cpp.macro_definitions);
+        code = &tmp;
+    }
+    if (compiler_options.prescan || compiler_options.fixed_form) {
+        tmp = fix_continuation(*code, lm, compiler_options.fixed_form);
+        code = &tmp;
+    }
+    Result<AST::TranslationUnit_t*> res = parse(al, *code);
+    if (res.ok) {
+        return res.result;
+    } else {
+        return res.error;
     }
 }
 

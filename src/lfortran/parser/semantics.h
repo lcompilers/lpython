@@ -1467,7 +1467,7 @@ return make_Program_t(al, a_loc,
         /*body*/ STMTS(body), \
         /*n_body*/ body.size(), trivia_cast(trivia), nullptr); \
         if (label == 0) { \
-            throw ParserError("Zero is not a valid statement label", l); \
+            throw LFortran::parser_local::ParserError("Zero is not a valid statement label", l); \
         }
 
 #define DO3_LABEL(label, i, a, b, c, trivia, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, \
@@ -1475,7 +1475,7 @@ return make_Program_t(al, a_loc,
         /*body*/ STMTS(body), \
         /*n_body*/ body.size(), trivia_cast(trivia), nullptr); \
         if (label == 0) { \
-            throw ParserError("Zero is not a valid statement label", l); \
+            throw LFortran::parser_local::ParserError("Zero is not a valid statement label", l); \
         }
 #define DO3(i, a, b, c, trivia, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, 0, \
         name2char(i), EXPR(a), EXPR(b), EXPR(c), \

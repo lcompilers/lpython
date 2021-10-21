@@ -11,7 +11,6 @@
 
 using LFortran::parse;
 using LFortran::TRY;
-using LFortran::tokens;
 using LFortran::Result;
 using LFortran::AST::ast_t;
 using LFortran::AST::expr_t;
@@ -70,6 +69,17 @@ int count(const ast_t &b) {
     return v.get_count();
 }
 
+class TokenizerError0 {
+};
+
+std::vector<int> tokens(Allocator &al, const std::string &input) {
+    auto res = LFortran::tokens(al, input);
+    if (res.ok) {
+        return res.result;
+    } else {
+        throw TokenizerError0();
+    }
+}
 
 TEST_CASE("Test longer parser (N = 500)") {
     int N;
@@ -455,31 +465,31 @@ TEST_CASE("Tokenizer") {
     CHECK(tokens(al, s) == ref);
 
     s = "2*??";
-    CHECK_THROWS_AS(tokens(al, s), LFortran::TokenizerError);
+    CHECK_THROWS_AS(tokens(al, s), TokenizerError0);
 
     s = "2*@";
-    CHECK_THROWS_AS(tokens(al, s), LFortran::TokenizerError);
+    CHECK_THROWS_AS(tokens(al, s), TokenizerError0);
 
     s = "2*#";
-    CHECK_THROWS_AS(tokens(al, s), LFortran::TokenizerError);
+    CHECK_THROWS_AS(tokens(al, s), TokenizerError0);
 
     s = "2*$";
-    CHECK_THROWS_AS(tokens(al, s), LFortran::TokenizerError);
+    CHECK_THROWS_AS(tokens(al, s), TokenizerError0);
 
     s = "2*^";
-    CHECK_THROWS_AS(tokens(al, s), LFortran::TokenizerError);
+    CHECK_THROWS_AS(tokens(al, s), TokenizerError0);
 
     s = "2*&";
-    CHECK_THROWS_AS(tokens(al, s), LFortran::TokenizerError);
+    CHECK_THROWS_AS(tokens(al, s), TokenizerError0);
 
     s = "2*~";
-    CHECK_THROWS_AS(tokens(al, s), LFortran::TokenizerError);
+    CHECK_THROWS_AS(tokens(al, s), TokenizerError0);
 
     s = "2*`";
-    CHECK_THROWS_AS(tokens(al, s), LFortran::TokenizerError);
+    CHECK_THROWS_AS(tokens(al, s), TokenizerError0);
 
     s = "2*\\";
-    CHECK_THROWS_AS(tokens(al, s), LFortran::TokenizerError);
+    CHECK_THROWS_AS(tokens(al, s), TokenizerError0);
 
     s = "2*4294967295"; // 2**32-1, works everywhere
     ref = {
@@ -488,14 +498,14 @@ TEST_CASE("Tokenizer") {
         tt::TK_INTEGER,
         tt::END_OF_FILE,
     };
-    CHECK(tokens(al, s, &stypes) == ref);
+    CHECK(TRY(tokens(al, s, &stypes)) == ref);
     CHECK(stypes[0].int_suffix.int_n.n == 2);
     unsigned long nref = 4294967295U;
     CHECK(stypes[2].int_suffix.int_n.n == nref);
 
     s = "2*18446744073709551616"; // 2**64, too large, will throw an exception
     stypes.clear();
-    CHECK(tokens(al, s, &stypes) == ref);
+    CHECK(TRY(tokens(al, s, &stypes)) == ref);
     LFortran::BigInt::BigInt n = stypes[2].int_suffix.int_n;
     CHECK(n.is_large());
     CHECK(n.str() == "18446744073709551616");
@@ -1029,10 +1039,10 @@ TEST_CASE("Tokenizer") {
     CHECK(tokens(al, s) == ref);
 
     s = ".and .false.";
-    CHECK_THROWS_AS(tokens(al, s), LFortran::TokenizerError);
+    CHECK_THROWS_AS(tokens(al, s), TokenizerError0);
 
     s = "and. .false.";
-    CHECK_THROWS_AS(tokens(al, s), LFortran::TokenizerError);
+    CHECK_THROWS_AS(tokens(al, s), TokenizerError0);
 
     s = R"(print *, "ok", 3)";
     ref = {
@@ -1203,13 +1213,13 @@ TEST_CASE("Tokenizer") {
     CHECK(tokens(al, s) == ref);
 
     s = R"(print *, "o,'"k", "s''""''")";
-    CHECK_THROWS_AS(tokens(al, s), LFortran::TokenizerError);
+    CHECK_THROWS_AS(tokens(al, s), TokenizerError0);
 
     s = R"(x ")";
-    CHECK_THROWS_AS(tokens(al, s), LFortran::TokenizerError);
+    CHECK_THROWS_AS(tokens(al, s), TokenizerError0);
 
     s = R"(x ')";
-    CHECK_THROWS_AS(tokens(al, s), LFortran::TokenizerError);
+    CHECK_THROWS_AS(tokens(al, s), TokenizerError0);
 
 
     s = R"(if (x) then
@@ -1302,6 +1312,7 @@ TEST_CASE("Errors") {
     input = "(2+3+";
     Result<LFortran::AST::TranslationUnit_t*> res = parse(al, input);
     CHECK(res.ok == false);
+    CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
     CHECK(res.error.d.labels[0].spans[0].loc.first == 5);
     CHECK(res.error.d.labels[0].spans[0].loc.last == 5);
 
@@ -1311,6 +1322,7 @@ TEST_CASE("Errors") {
     end function)";
     res = parse(al, input);
     CHECK(res.ok == false);
+    CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
     CHECK(res.error.d.labels[0].spans[0].loc.first == 38);
     CHECK(res.error.d.labels[0].spans[0].loc.last == 38);
 
@@ -1320,6 +1332,7 @@ TEST_CASE("Errors") {
     end function)";
     res = parse(al, input);
     CHECK(res.ok == false);
+    CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
     CHECK(res.error.d.labels[0].spans[0].loc.first == 35);
     CHECK(res.error.d.labels[0].spans[0].loc.last == 35);
 
@@ -1329,28 +1342,28 @@ TEST_CASE("Errors") {
     end function)";
     res = parse(al, input);
     CHECK(res.ok == false);
+    CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
     CHECK(res.error.d.labels[0].spans[0].loc.first == 23);
     CHECK(res.error.d.labels[0].spans[0].loc.last == 25);
 
     input = "1 + .notx.";
     res = parse(al, input);
     CHECK(res.ok == false);
+    CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
     CHECK(res.error.d.labels[0].spans[0].loc.first == 10);
     CHECK(res.error.d.labels[0].spans[0].loc.last == 10);
 
     input = "1 + x allocate y";
     res = parse(al, input);
     CHECK(res.ok == false);
+    CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
     CHECK(res.error.d.labels[0].spans[0].loc.first == 6);
     CHECK(res.error.d.labels[0].spans[0].loc.last == 13);
 
     input = "1 @ x allocate y";
-    try {
-        parse(al, input);
-        CHECK(false);
-    } catch (const LFortran::TokenizerError &e) {
-        CHECK(e.d.labels[0].spans[0].loc.first == 2);
-        CHECK(e.d.labels[0].spans[0].loc.last == 2);
-    }
-    CHECK_THROWS_AS(parse(al, input), LFortran::TokenizerError);
+    res = parse(al, input);
+    CHECK(res.ok == false);
+    CHECK(res.error.d.stage == LFortran::diag::Stage::Tokenizer);
+    CHECK(res.error.d.labels[0].spans[0].loc.first == 2);
+    CHECK(res.error.d.labels[0].spans[0].loc.last == 2);
 }

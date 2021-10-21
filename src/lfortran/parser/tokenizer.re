@@ -1,8 +1,9 @@
 #include <limits>
 
-#include "tokenizer.h"
+#include <lfortran/parser/parser_exception.h>
+#include <lfortran/parser/tokenizer.h>
+#include <lfortran/parser/parser.tab.hh>
 #include <lfortran/bigint.h>
-#include "parser.tab.hh"
 
 namespace LFortran
 {
@@ -219,7 +220,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
 
             * { token_loc(loc);
                 std::string t = token();
-                throw LFortran::TokenizerError(diag::Diagnostic::tokenizer_error_label(
+                throw LFortran::parser_local::TokenizerError(diag::Diagnostic::tokenizer_error_label(
                     "Token '" + t + "' is not recognized",
                     loc,
                     "token not recognized"
@@ -574,7 +575,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc)
                     } else {
                         token_loc(loc);
                         std::string t = token();
-                        throw LFortran::TokenizerError("Integer '" + t + "' too large",
+                        throw LFortran::parser_local::TokenizerError("Integer '" + t + "' too large",
                             loc);
                     }
                 } else {
@@ -689,7 +690,7 @@ void lex_format(unsigned char *&cur, Location &loc,
             * {
                 token_loc(loc);
                 std::string t = token(tok, cur);
-                throw LFortran::TokenizerError("Token '" + t
+                throw LFortran::parser_local::TokenizerError("Token '" + t
                     + "' is not recognized in `format` statement", loc);
             }
             '(' {
@@ -723,7 +724,7 @@ void lex_format(unsigned char *&cur, Location &loc,
             end {
                 token_loc(loc);
                 std::string t = token(tok, cur);
-                throw LFortran::TokenizerError(
+                throw LFortran::parser_local::TokenizerError(
                     "End of file not expected in `format` statement '" + t + "'", loc);
             }
             whitespace { continue; }
