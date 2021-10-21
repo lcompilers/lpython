@@ -88,11 +88,13 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
     }
 
     // ASR -> LLVM
-    Result<std::unique_ptr<LLVMModule>> res3 = get_llvm3(*asr);
+    Result<std::unique_ptr<LLVMModule>> res3 = get_llvm3(*asr,
+        diagnostics);
     std::unique_ptr<LFortran::LLVMModule> m;
     if (res3.ok) {
         m = std::move(res3.result);
     } else {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return res3.error;
     }
 
@@ -264,7 +266,7 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
     if (!asr.ok) {
         return asr.error;
     }
-    Result<std::unique_ptr<LLVMModule>> res = get_llvm3(*asr.result);
+    Result<std::unique_ptr<LLVMModule>> res = get_llvm3(*asr.result, diagnostics);
     if (res.ok) {
 #ifdef HAVE_LFORTRAN_LLVM
         std::unique_ptr<LLVMModule> m = std::move(res.result);
@@ -280,9 +282,9 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
 
 Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm3(
 #ifdef HAVE_LFORTRAN_LLVM
-    ASR::TranslationUnit_t &asr
+    ASR::TranslationUnit_t &asr, diag::Diagnostics &diagnostics
 #else
-    ASR::TranslationUnit_t &/*asr*/
+    ASR::TranslationUnit_t &/*asr*/, diag::Diagnostics &/*diagnostics*/
 #endif
     )
 {
@@ -293,11 +295,13 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm3(
     // ASR -> LLVM
     std::unique_ptr<LFortran::LLVMModule> m;
     Result<std::unique_ptr<LFortran::LLVMModule>> res
-        = asr_to_llvm(asr, e->get_context(), al, compiler_options.platform,
+        = asr_to_llvm(asr, diagnostics,
+            e->get_context(), al, compiler_options.platform,
             run_fn);
     if (res.ok) {
         m = std::move(res.result);
     } else {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return res.error;
     }
 

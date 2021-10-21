@@ -711,7 +711,7 @@ int compile_to_object_file(const std::string &infile,
 
     std::unique_ptr<LFortran::LLVMModule> m;
     LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
-        res = fe.get_llvm3(*asr);
+        res = fe.get_llvm3(*asr, diagnostics);
     if (res.ok) {
         m = std::move(res.result);
     } else {

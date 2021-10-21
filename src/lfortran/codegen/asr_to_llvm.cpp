@@ -172,6 +172,7 @@ private:
     }
 
 public:
+    diag::Diagnostics &diag;
     llvm::LLVMContext &context;
     std::unique_ptr<llvm::Module> module;
     std::unique_ptr<llvm::IRBuilder<>> builder;
@@ -239,7 +240,9 @@ public:
     std::unique_ptr<LLVMUtils> llvm_utils;
     std::unique_ptr<LLVMArrUtils::Descriptor> arr_descr;
 
-    ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, Platform platform) :
+    ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, Platform platform,
+        diag::Diagnostics &diagnostics) :
+    diag{diagnostics},
     context(context),
     builder(std::make_unique<llvm::IRBuilder<>>(context)),
     platform{platform},
@@ -3884,10 +3887,11 @@ public:
 
 
 Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
+        diag::Diagnostics &diagnostics,
         llvm::LLVMContext &context, Allocator &al, Platform platform,
         std::string run_fn)
 {
-    ASRToLLVMVisitor v(al, context, platform);
+    ASRToLLVMVisitor v(al, context, platform, diagnostics);
     pass_wrap_global_stmts_into_function(al, asr, run_fn);
 
     // Uncomment for debugging the ASR after the transformation
@@ -3907,6 +3911,7 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
     } catch (const CodeGenError &e) {
         Error error;
         error.d = e.d;
+        diagnostics.diagnostics.push_back(e.d);
         return error;
     }
     std::string msg;
@@ -3920,6 +3925,7 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
             + err.str();
         Error error;
         error.d = diag::Diagnostic::codegen_error(msg);
+        diagnostics.diagnostics.push_back(error.d);
         return error;
     };
     return std::make_unique<LLVMModule>(std::move(v.module));
