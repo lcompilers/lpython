@@ -343,26 +343,31 @@ Result<std::string> FortranEvaluator::get_cpp(const std::string &code,
     Result<ASR::TranslationUnit_t*> asr = get_asr2(code, lm);
     symbol_table = old_symbol_table;
     if (asr.ok) {
-        // ASR -> C++
-        try {
-            return LFortran::asr_to_cpp(*asr.result);
-        } catch (const SemanticError &e) {
-            // Note: the asr_to_cpp should only throw CodeGenError
-            // but we currently do not have location information for
-            // CodeGenError. We need to add it. Until then we can raise
-            // SemanticError to get the location information.
-            FortranEvaluator::Error error;
-            error.d = e.d;
-            error.stacktrace_addresses = e.stacktrace_addresses();
-            return error;
-        } catch (const CodeGenError &e) {
-            FortranEvaluator::Error error;
-            error.d = e.d;
-            error.stacktrace_addresses = e.stacktrace_addresses();
-            return error;
-        }
+        return get_cpp2(*asr.result);
     } else {
         return asr.error;
+    }
+}
+
+Result<std::string> FortranEvaluator::get_cpp2(ASR::TranslationUnit_t &asr)
+{
+    // ASR -> C++
+    try {
+        return LFortran::asr_to_cpp(asr);
+    } catch (const SemanticError &e) {
+        // Note: the asr_to_cpp should only throw CodeGenError
+        // but we currently do not have location information for
+        // CodeGenError. We need to add it. Until then we can raise
+        // SemanticError to get the location information.
+        FortranEvaluator::Error error;
+        error.d = e.d;
+        error.stacktrace_addresses = e.stacktrace_addresses();
+        return error;
+    } catch (const CodeGenError &e) {
+        FortranEvaluator::Error error;
+        error.d = e.d;
+        error.stacktrace_addresses = e.stacktrace_addresses();
+        return error;
     }
 }
 
