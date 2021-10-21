@@ -10,7 +10,6 @@
 #include <lfortran/bigint.h>
 
 using LFortran::parse;
-using LFortran::parse2;
 using LFortran::tokens;
 using LFortran::AST::ast_t;
 using LFortran::AST::expr_t;
@@ -1360,7 +1359,7 @@ TEST_CASE("Errors") {
         CHECK(e.d.labels[0].spans[0].loc.first == 6);
         CHECK(e.d.labels[0].spans[0].loc.last == 13);
     }
-    CHECK_THROWS_AS(parse2(al, input), LFortran::ParserError);
+    CHECK_THROWS_AS(parse(al, input), LFortran::ParserError);
 
     input = "1 @ x allocate y";
     try {
@@ -1370,5 +1369,5 @@ TEST_CASE("Errors") {
         CHECK(e.d.labels[0].spans[0].loc.first == 2);
         CHECK(e.d.labels[0].spans[0].loc.last == 2);
     }
-    CHECK_THROWS_AS(parse2(al, input), LFortran::TokenizerError);
+    CHECK_THROWS_AS(parse(al, input), LFortran::TokenizerError);
 }

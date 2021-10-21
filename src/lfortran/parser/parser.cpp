@@ -25,33 +25,6 @@ AST::TranslationUnit_t* parse(Allocator &al, const std::string &s)
         p.result.p, p.result.size());
 }
 
-AST::TranslationUnit_t* parse2(Allocator &al, const std::string &code_original,
-        bool use_colors, bool fixed_form)
-{
-    LFortran::LocationManager lm;
-    std::string code_prescanned = LFortran::fix_continuation(code_original, lm,
-            fixed_form);
-    AST::TranslationUnit_t* result;
-    try {
-        result = parse(al, code_prescanned);
-    } catch (const LFortran::ParserError &e) {
-        // Convert to line numbers and get source code strings
-        diag::Diagnostic d = e.d;
-        populate_spans(d, lm, code_prescanned);
-        // Render the message
-        std::cerr << diag::render_diagnostic(d, use_colors);
-        throw;
-    } catch (const LFortran::TokenizerError &e) {
-        // Convert to line numbers and get source code strings
-        diag::Diagnostic d = e.d;
-        populate_spans(d, lm, code_prescanned);
-        // Render the message
-        std::cerr << diag::render_diagnostic(d, use_colors);
-        throw;
-    }
-    return result;
-}
-
 void Parser::parse(const std::string &input)
 {
     inp = input;
