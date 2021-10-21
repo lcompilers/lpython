@@ -253,23 +253,15 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
 }
 
 Result<std::string> FortranEvaluator::get_llvm(
-#ifdef HAVE_LFORTRAN_LLVM
     const std::string &code, LocationManager &lm
-#else
-    const std::string &/*code*/, LocationManager &/*lm*/
-#endif
     )
 {
-#ifdef HAVE_LFORTRAN_LLVM
     Result<std::unique_ptr<LLVMModule>> res = get_llvm2(code, lm);
     if (res.ok) {
         return res.result->str();
     } else {
         return res.error;
     }
-#else
-    throw LFortranException("LLVM is not enabled");
-#endif
 }
 
 Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm2(
