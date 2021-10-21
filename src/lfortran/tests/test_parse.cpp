@@ -10,7 +10,9 @@
 #include <lfortran/bigint.h>
 
 using LFortran::parse;
+using LFortran::TRY;
 using LFortran::tokens;
+using LFortran::Result;
 using LFortran::AST::ast_t;
 using LFortran::AST::expr_t;
 using LFortran::AST::Name_t;
@@ -83,7 +85,7 @@ TEST_CASE("Test longer parser (N = 500)") {
     Allocator al(1024*1024);
     std::cout << "Parse" << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
-    auto result = parse(al, text)->m_items[0];
+    auto result = LFortran::TRY(parse(al, text))->m_items[0];
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                      .count()
@@ -1253,7 +1255,7 @@ TEST_CASE("Location") {
     end subroutine)";
 
     Allocator al(1024*1024);
-    LFortran::AST::ast_t* result = parse(al, input)->m_items[0];
+    LFortran::AST::ast_t* result = LFortran::TRY(parse(al, input))->m_items[0];
     CHECK(result->loc.first == 0);
     CHECK(result->loc.last == 56);
     auto sub = cast(Subroutine, result);
@@ -1280,7 +1282,7 @@ TEST_CASE("Location") {
     x = y
     x = 213*yz
     end function)";
-    result = parse(al, input)->m_items[0];
+    result = TRY(parse(al, input))->m_items[0];
     CHECK(result->loc.first == 0);
     CHECK(result->loc.last == 54);
 
@@ -1288,7 +1290,7 @@ TEST_CASE("Location") {
     x = y
     x = 213*yz
     end program)";
-    result = parse(al, input)->m_items[0];
+    result = TRY(parse(al, input))->m_items[0];
     CHECK(result->loc.first == 0);
     CHECK(result->loc.last == 50);
 }
@@ -1298,68 +1300,49 @@ TEST_CASE("Errors") {
     std::string input;
 
     input = "(2+3+";
-    try {
-        parse(al, input);
-        CHECK(false);
-    } catch (const LFortran::ParserError &e) {
-        CHECK(e.d.labels[0].spans[0].loc.first == 5);
-        CHECK(e.d.labels[0].spans[0].loc.last == 5);
-    }
+    Result<LFortran::AST::TranslationUnit_t*> res = parse(al, input);
+    CHECK(res.ok == false);
+    CHECK(res.error.d.labels[0].spans[0].loc.first == 5);
+    CHECK(res.error.d.labels[0].spans[0].loc.last == 5);
 
     input = R"(function f()
     x = y
     x = 213*yz+*
     end function)";
-    try {
-        parse(al, input);
-        CHECK(false);
-    } catch (const LFortran::ParserError &e) {
-        CHECK(e.d.labels[0].spans[0].loc.first == 38);
-        CHECK(e.d.labels[0].spans[0].loc.last == 38);
-    }
+    res = parse(al, input);
+    CHECK(res.ok == false);
+    CHECK(res.error.d.labels[0].spans[0].loc.first == 38);
+    CHECK(res.error.d.labels[0].spans[0].loc.last == 38);
 
     input = R"(function f()
     x = y
     x = 213-*yz
     end function)";
-    try {
-        parse(al, input);
-        CHECK(false);
-    } catch (const LFortran::ParserError &e) {
-        CHECK(e.d.labels[0].spans[0].loc.first == 35);
-        CHECK(e.d.labels[0].spans[0].loc.last == 35);
-    }
+    res = parse(al, input);
+    CHECK(res.ok == false);
+    CHECK(res.error.d.labels[0].spans[0].loc.first == 35);
+    CHECK(res.error.d.labels[0].spans[0].loc.last == 35);
 
     input = R"(function f()
     x = y xxy xx
     x = 213*yz
     end function)";
-    try {
-        parse(al, input);
-        CHECK(false);
-    } catch (const LFortran::ParserError &e) {
-        CHECK(e.d.labels[0].spans[0].loc.first == 23);
-        CHECK(e.d.labels[0].spans[0].loc.last == 25);
-    }
+    res = parse(al, input);
+    CHECK(res.ok == false);
+    CHECK(res.error.d.labels[0].spans[0].loc.first == 23);
+    CHECK(res.error.d.labels[0].spans[0].loc.last == 25);
 
     input = "1 + .notx.";
-    try {
-        parse(al, input);
-        CHECK(false);
-    } catch (const LFortran::ParserError &e) {
-        CHECK(e.d.labels[0].spans[0].loc.first == 10);
-        CHECK(e.d.labels[0].spans[0].loc.last == 10);
-    }
+    res = parse(al, input);
+    CHECK(res.ok == false);
+    CHECK(res.error.d.labels[0].spans[0].loc.first == 10);
+    CHECK(res.error.d.labels[0].spans[0].loc.last == 10);
 
     input = "1 + x allocate y";
-    try {
-        parse(al, input);
-        CHECK(false);
-    } catch (const LFortran::ParserError &e) {
-        CHECK(e.d.labels[0].spans[0].loc.first == 6);
-        CHECK(e.d.labels[0].spans[0].loc.last == 13);
-    }
-    CHECK_THROWS_AS(parse(al, input), LFortran::ParserError);
+    res = parse(al, input);
+    CHECK(res.ok == false);
+    CHECK(res.error.d.labels[0].spans[0].loc.first == 6);
+    CHECK(res.error.d.labels[0].spans[0].loc.last == 13);
 
     input = "1 @ x allocate y";
     try {

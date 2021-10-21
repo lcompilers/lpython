@@ -34,6 +34,55 @@ typedef enum {
 namespace LFortran
 {
 
+struct Error {
+    std::vector<StacktraceItem> stacktrace_addresses;
+    diag::Diagnostic d;
+};
+
+template<typename T>
+struct Result {
+    bool ok;
+    union {
+        T result;
+        Error error;
+    };
+    // Default constructor
+    Result() = delete;
+    // Success result constructor
+    Result(const T &result) : ok{true}, result{result} {}
+    // Error result constructor
+    Result(const Error &error) : ok{false}, error{error} {}
+    // Destructor
+    ~Result() {
+        if (!ok) {
+            error.~Error();
+        }
+    }
+    // Copy constructor
+    Result(const Result<T> &other) : ok{other.ok} {
+        if (ok) {
+            new(&result) T(other.result);
+        } else {
+            new(&error) Error(other.error);
+        }
+    }
+    // Copy assignment
+    Result<T>& operator=(const Result<T> &other) {
+        ok = other.ok;
+        if (ok) {
+            new(&result) T(other.result);
+        } else {
+            new(&error) Error(other.error);
+        }
+        return *this;
+    }
+    // Move constructor
+    Result(T &&result) : ok{true}, result{std::move(result)} {}
+    // Move assignment
+    Result<T>&& operator=(T &&other) = delete;
+};
+
+
 const int stacktrace_depth = 4;
 
 class LFortranException : public std::exception
@@ -106,24 +155,6 @@ public:
     }
 };
 
-class ParserError : public LFortranException
-{
-public:
-    diag::Diagnostic d;
-public:
-    ParserError(const std::string &msg, const Location &loc)
-        : LFortranException(msg, LFORTRAN_PARSER_ERROR),
-        d{diag::Diagnostic::parser_error(msg, loc)}
-    {
-    }
-
-    ParserError(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_PARSER_ERROR),
-        d{diag::Diagnostic::parser_error(msg)}
-    {
-    }
-};
-
 class SemanticError : public LFortranException
 {
 public:
@@ -157,6 +188,16 @@ public:
     {
     }
 };
+
+template<typename T>
+static inline T TRY(Result<T> result) {
+    if (result.ok) {
+        return result.result;
+    } else {
+        throw LFortranException("Internal Compiler Error: TRY failed, error was not handled explicitly");
+    }
+}
+
 
 } // Namespace LFortran
 

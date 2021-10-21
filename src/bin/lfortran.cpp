@@ -263,7 +263,7 @@ int prompt(bool verbose)
         try {
             LFortran::LocationManager lm;
             lm.in_filename = "input";
-            LFortran::FortranEvaluator::Result<LFortran::FortranEvaluator::EvalResult>
+            LFortran::Result<LFortran::FortranEvaluator::EvalResult>
             res = e.evaluate(input, verbose, lm);
             if (res.ok) {
                 r = res.result;
@@ -388,7 +388,7 @@ int emit_ast(const std::string &infile, CompilerOptions &compiler_options)
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
     lm.in_filename = infile;
-    LFortran::FortranEvaluator::Result<std::string> r = fe.get_ast(input, lm);
+    LFortran::Result<std::string> r = fe.get_ast(input, lm);
     if (r.ok) {
         std::cout << r.result << std::endl;
         return 0;
@@ -404,7 +404,7 @@ int emit_ast_f90(const std::string &infile, CompilerOptions &compiler_options)
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
     lm.in_filename = infile;
-    LFortran::FortranEvaluator::Result<LFortran::AST::TranslationUnit_t*> r
+    LFortran::Result<LFortran::AST::TranslationUnit_t*> r
             = fe.get_ast2(input, lm);
     if (r.ok) {
         std::cout << LFortran::ast_to_src(*r.result,
@@ -424,7 +424,7 @@ int format(const std::string &infile, bool inplace, bool color, int indent,
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
     lm.in_filename = infile;
-    LFortran::FortranEvaluator::Result<LFortran::AST::TranslationUnit_t*>
+    LFortran::Result<LFortran::AST::TranslationUnit_t*>
         r = fe.get_ast2(input, lm);
     if (!r.ok) {
         std::cerr << fe.format_error(r.error, input, lm);
@@ -462,7 +462,7 @@ int python_wrapper(const std::string &infile, std::string array_order,
     // Src -> AST -> ASR
     LFortran::LocationManager lm;
     lm.in_filename = infile;
-    LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
+    LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         result = fe.get_asr2(input, lm);
     if (result.ok) {
         asr = result.result;
@@ -511,7 +511,7 @@ int emit_asr(const std::string &infile,
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
     lm.in_filename = infile;
-    LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
+    LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r = fe.get_asr2(input, lm);
     if (!r.ok) {
         std::cerr << fe.format_error(r.error, input, lm);
@@ -569,7 +569,7 @@ int emit_cpp(const std::string &infile, CompilerOptions &compiler_options)
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
     lm.in_filename = infile;
-    LFortran::FortranEvaluator::Result<std::string> cpp = fe.get_cpp(input, lm);
+    LFortran::Result<std::string> cpp = fe.get_cpp(input, lm);
     if (cpp.ok) {
         std::cout << cpp.result;
         return 0;
@@ -631,7 +631,7 @@ int emit_llvm(const std::string &infile, CompilerOptions &compiler_options)
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
     lm.in_filename = infile;
-    LFortran::FortranEvaluator::Result<std::string> llvm
+    LFortran::Result<std::string> llvm
         = fe.get_llvm(input, lm);
     if (llvm.ok) {
         std::cout << llvm.result;
@@ -649,7 +649,7 @@ int emit_asm(const std::string &infile, CompilerOptions &compiler_options)
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
     lm.in_filename = infile;
-    LFortran::FortranEvaluator::Result<std::string> r = fe.get_asm(input, lm);
+    LFortran::Result<std::string> r = fe.get_asm(input, lm);
     if (r.ok) {
         std::cout << r.result;
         return 0;
@@ -673,7 +673,7 @@ int compile_to_object_file(const std::string &infile,
     // Src -> AST -> ASR
     LFortran::LocationManager lm;
     lm.in_filename = infile;
-    LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
+    LFortran::Result<LFortran::ASR::TranslationUnit_t*>
     result = fe.get_asr2(input, lm);
     if (result.ok) {
         asr = result.result;
@@ -701,7 +701,7 @@ int compile_to_object_file(const std::string &infile,
     }
 
     std::unique_ptr<LFortran::LLVMModule> m;
-    LFortran::FortranEvaluator::Result<std::unique_ptr<LFortran::LLVMModule>>
+    LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
         res = fe.get_llvm3(*asr);
     if (res.ok) {
         m = std::move(res.result);
@@ -759,7 +759,7 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
     lm.in_filename = infile;
     {
         auto t1 = std::chrono::high_resolution_clock::now();
-        LFortran::FortranEvaluator::Result<LFortran::AST::TranslationUnit_t*>
+        LFortran::Result<LFortran::AST::TranslationUnit_t*>
             result = fe.get_ast2(input, lm);
         auto t2 = std::chrono::high_resolution_clock::now();
         time_src_to_ast = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
@@ -775,7 +775,7 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
     // AST -> ASR
     {
         auto t1 = std::chrono::high_resolution_clock::now();
-        LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
+        LFortran::Result<LFortran::ASR::TranslationUnit_t*>
             result = fe.get_asr3(*ast);
         auto t2 = std::chrono::high_resolution_clock::now();
         time_ast_to_asr = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
@@ -791,7 +791,7 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
     // ASR -> x86 machine code
     {
         auto t1 = std::chrono::high_resolution_clock::now();
-        LFortran::FortranEvaluator::Result<int>
+        LFortran::Result<int>
             result = LFortran::asr_to_x86(*asr, al, outfile, time_report);
         auto t2 = std::chrono::high_resolution_clock::now();
         time_asr_to_x86 = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
@@ -836,7 +836,7 @@ int compile_to_object_file_cpp(const std::string &infile,
     // Src -> AST -> ASR
     LFortran::LocationManager lm;
     lm.in_filename = infile;
-    LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
+    LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         result = fe.get_asr2(input, lm);
     if (result.ok) {
         asr = result.result;
@@ -882,7 +882,7 @@ int compile_to_object_file_cpp(const std::string &infile,
 
     // ASR -> C++
     std::string src;
-    LFortran::FortranEvaluator::Result<std::string> res
+    LFortran::Result<std::string> res
         = fe.get_cpp2(*asr);
     if (res.ok) {
         src = res.result;

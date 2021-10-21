@@ -23,10 +23,6 @@ namespace LFortran {
 
 namespace LFortran {
 
-template<typename T>
-using Result = FortranEvaluator::Result<T>;
-
-
 
 /* ------------------------------------------------------------------------- */
 // FortranEvaluator
@@ -174,16 +170,14 @@ Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(
             tmp = fix_continuation(*code, lm, compiler_options.fixed_form);
             code = &tmp;
         }
-        AST::TranslationUnit_t* ast;
-        ast = parse(al, *code);
-        return ast;
+        Result<AST::TranslationUnit_t*> res = parse(al, *code);
+        if (res.ok) {
+            return res.result;
+        } else {
+            return res.error;
+        }
     } catch (const TokenizerError &e) {
-        FortranEvaluator::Error error;
-        error.d = e.d;
-        error.stacktrace_addresses = e.stacktrace_addresses();
-        return error;
-    } catch (const ParserError &e) {
-        FortranEvaluator::Error error;
+        Error error;
         error.d = e.d;
         error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
@@ -238,7 +232,7 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr3(
         asr = ast_to_asr(al, ast, symbol_table, compiler_options.symtab_only);
         if (!symbol_table) symbol_table = asr->m_global_scope;
     } catch (const SemanticError &e) {
-        FortranEvaluator::Error error;
+        Error error;
         error.d = e.d;
         error.stacktrace_addresses = e.stacktrace_addresses();
         return error;

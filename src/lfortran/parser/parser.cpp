@@ -5,14 +5,22 @@
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/parser.tab.hh>
 #include <lfortran/diagnostics.h>
+#include <lfortran/parser/parser_exception.h>
 
 namespace LFortran
 {
 
-AST::TranslationUnit_t* parse(Allocator &al, const std::string &s)
+Result<AST::TranslationUnit_t*> parse(Allocator &al, const std::string &s)
 {
     Parser p(al);
-    p.parse(s);
+    try {
+        p.parse(s);
+    } catch (const ParserError &e) {
+        Error error;
+        error.d = e.d;
+        error.stacktrace_addresses = e.stacktrace_addresses();
+        return error;
+    }
     Location l;
     if (p.result.size() == 0) {
         l.first=0;
@@ -609,7 +617,7 @@ void Parser::handle_yyerror(const Location &loc, const std::string &msg)
     } else {
         message = "Internal Compiler Error: parser returned unknown error";
     }
-    throw LFortran::ParserError(message, loc);
+    throw ParserError(message, loc);
 }
 
 void populate_span(diag::Span &s, const LocationManager &lm,

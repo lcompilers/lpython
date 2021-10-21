@@ -6,7 +6,7 @@
 
 namespace LFortran {
 
-    FortranEvaluator::Result<std::string> asr_to_cpp(ASR::TranslationUnit_t &asr);
+    Result<std::string> asr_to_cpp(ASR::TranslationUnit_t &asr);
 
 } // namespace LFortran
 
