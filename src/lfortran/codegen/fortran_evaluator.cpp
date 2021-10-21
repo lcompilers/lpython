@@ -194,10 +194,12 @@ Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(
     } catch (const TokenizerError &e) {
         FortranEvaluator::Error error;
         error.d = e.d;
+        error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
     } catch (const ParserError &e) {
         FortranEvaluator::Error error;
         error.d = e.d;
+        error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
     }
 }
