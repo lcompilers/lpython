@@ -872,7 +872,7 @@ public:
                                 x.base.base.loc);
                         }
                         */
-                        if (sym_type->m_type == AST::decl_typeType::TypeCharacter && value) {
+                        if (sym_type->m_type == AST::decl_typeType::TypeCharacter) {
                             ASR::Character_t *lhs_type = ASR::down_cast<ASR::Character_t>(type);
                             ASR::Character_t *rhs_type = ASR::down_cast<ASR::Character_t>(ASRUtils::expr_type(value));
                             int lhs_len = lhs_type->m_len;

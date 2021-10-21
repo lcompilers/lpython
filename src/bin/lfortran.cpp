@@ -1451,10 +1451,9 @@ int main(int argc, char *argv[])
     } catch(const std::exception &e) {
         std::cerr << "std::exception: " << e.what() << std::endl;
         return 1;
+    } catch(...) {
+        std::cerr << "Unknown Exception" << std::endl;
+        return 1;
     }
-    // } catch(...) {
-    //     std::cerr << "Unknown Exception" << std::endl;
-    //     return 1;
-    // }
     return 0;
 }
