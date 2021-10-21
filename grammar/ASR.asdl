@@ -205,6 +205,7 @@ expr
     | ConstantComplex(float re, float im, ttype type)
     | ConstantLogical(bool value, ttype type)
     | ConstantString(string s, ttype type)
+    | BOZ(int v, boz boz_type, ttype? type)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type, expr? value)
     | DerivedRef(expr v, symbol m, ttype type, expr? value)
@@ -241,6 +242,8 @@ unaryop = Invert | Not | UAdd | USub
 strop = Concat
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
+
+boz = Binary | Hex | Octal
 
 cast_kind
     = RealToInteger

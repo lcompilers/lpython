@@ -1216,6 +1216,31 @@ public:
         tmp = ASR::make_ConstantString_t(al, x.base.base.loc, x.m_s, type);
     }
 
+    void visit_BOZ(const AST::BOZ_t& x) {
+        std::string s = std::string(x.m_s); 
+        int base = -1;
+        ASR::bozType boz_type;
+        if( s[0] == 'b' || s[0] == 'B' ) {
+            boz_type = ASR::bozType::Binary;
+            base = 2;
+        } else if( s[0] == 'z' || s[0] == 'Z' ) {
+            boz_type = ASR::bozType::Hex;
+            base = 16;
+        } else if( s[0] == 'o' || s[0] == 'O' ) {
+            boz_type = ASR::bozType::Octal;
+            base = 8;
+        } else {
+            throw SemanticError(R"""(Only 'b', 'o' and 'z' 
+                                are accepted as prefixes of 
+                                BOZ literal constants.)""", 
+                                x.base.base.loc);
+        }
+        std::string boz_str = s.substr(2, s.size() - 2);
+        int boz_int = std::stoi(boz_str, nullptr, base);
+        tmp = ASR::make_BOZ_t(al, x.base.base.loc, boz_int,
+                                boz_type, nullptr);
+    }
+
     void visit_Num(const AST::Num_t &x) {
         int ikind = 4;
         if (x.m_kind) {
