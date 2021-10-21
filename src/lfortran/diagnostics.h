@@ -210,6 +210,21 @@ struct Diagnostic {
         return d;
     }
 
+    static Diagnostic codegen_error(const std::string &message, const Location &loc) {
+        diag::Span s;
+        s.loc = loc;
+        diag::Label l;
+        l.primary = true;
+        l.message = "";
+        l.spans.push_back(s);
+        diag::Diagnostic d;
+        d.level = Level::Error;
+        d.stage = Stage::CodeGen;
+        d.message = message;
+        d.labels.push_back(l);
+        return d;
+    }
+
 /*
     private:
         Diagnostic() {}

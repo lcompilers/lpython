@@ -6,7 +6,7 @@
 
 namespace LFortran {
 
-    ASR::TranslationUnit_t *ast_to_asr(Allocator &al,
+    Result<ASR::TranslationUnit_t*> ast_to_asr(Allocator &al,
         AST::TranslationUnit_t &ast, SymbolTable *symbol_table=nullptr,
         bool symtab_only=false);
 

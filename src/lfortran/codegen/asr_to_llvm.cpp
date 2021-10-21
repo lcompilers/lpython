@@ -74,6 +74,11 @@ namespace {
             : LFortranException(msg, LFORTRAN_CODEGEN_ERROR),
             d{diag::Diagnostic::codegen_error(msg)}
         { }
+
+        CodeGenError(const std::string &msg, const Location &loc)
+            : LFortranException(msg, LFORTRAN_CODEGEN_ERROR),
+            d{diag::Diagnostic::codegen_error(msg, loc)}
+        { }
     };
 
 }
@@ -486,7 +491,7 @@ public:
                         break;
                     }
                     default:
-                        throw SemanticError("Cannot identify the type of member, '" + 
+                        throw CodeGenError("Cannot identify the type of member, '" + 
                                             std::string(member->m_name) + 
                                             "' in derived type, '" + der_type_name + "'.", 
                                             member->base.base.loc);
@@ -562,7 +567,7 @@ public:
                             break;
                         }
                         default:
-                            throw SemanticError("Cannot identify the type of member, '" + 
+                            throw CodeGenError("Cannot identify the type of member, '" + 
                                                 std::string(member->m_name) + 
                                                 "' in derived type, '" + der_type_name + "'.", 
                                                 member->base.base.loc);
@@ -987,7 +992,7 @@ public:
         LFORTRAN_ASSERT(der_type_name.size() != 0);
         while( name2memidx[der_type_name].find(member_name) == name2memidx[der_type_name].end() ) {
             if( dertype2parent.find(der_type_name) == dertype2parent.end() ) {
-                throw SemanticError(der_type_name + " doesn't have any member named " + member_name,
+                throw CodeGenError(der_type_name + " doesn't have any member named " + member_name,
                                     x.base.base.loc);
             }
             tmp = llvm_utils->create_gep(tmp, 0);
@@ -2439,7 +2444,7 @@ public:
                     break;
                 }
                 default : {
-                    throw SemanticError("Comparison operator not implemented",
+                    throw CodeGenError("Comparison operator not implemented",
                             x.base.base.loc);
                 }
             }
@@ -2470,7 +2475,7 @@ public:
                     break;
                 }
                 default : {
-                    throw SemanticError("Comparison operator not implemented",
+                    throw CodeGenError("Comparison operator not implemented",
                             x.base.base.loc);
                 }
             }
@@ -2492,7 +2497,7 @@ public:
                     break;
                 }
                 default : {
-                    throw SemanticError("Comparison operator not implemented",
+                    throw CodeGenError("Comparison operator not implemented",
                             x.base.base.loc);
                 }
             }
@@ -2527,7 +2532,7 @@ public:
                     break;
                 }
                 default : {
-                    throw SemanticError("Comparison operator not implemented.",
+                    throw CodeGenError("Comparison operator not implemented.",
                             x.base.base.loc);
                 }
             }
@@ -3107,7 +3112,7 @@ public:
                         break;
                     }
                     default : {
-                        throw SemanticError(R"""(Only 32 and 64 bit real kinds are implemented)""", 
+                        throw CodeGenError(R"""(Only 32 and 64 bit real kinds are implemented)""", 
                                             x.base.base.loc);
                     }
                 }
@@ -3307,7 +3312,7 @@ public:
                         break;
                     }
                     default: {
-                        throw SemanticError(R"""(Printing support is available only 
+                        throw CodeGenError(R"""(Printing support is available only 
                                             for 32, and 64 bit integer kinds.)""", 
                                             x.base.base.loc);
                     }
@@ -3334,7 +3339,7 @@ public:
                         break;
                     }
                     default: {
-                        throw SemanticError(R"""(Printing support is available only 
+                        throw CodeGenError(R"""(Printing support is available only 
                                             for 32, and 64 bit real kinds.)""", 
                                             x.base.base.loc);
                     }
@@ -3364,7 +3369,7 @@ public:
                         break;
                     }
                     default: {
-                        throw SemanticError(R"""(Printing support is available only 
+                        throw CodeGenError(R"""(Printing support is available only 
                                             for 32, and 64 bit complex kinds.)""", 
                                             x.base.base.loc);
                     }

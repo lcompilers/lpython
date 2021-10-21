@@ -2579,8 +2579,7 @@ public:
 
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
         if (x.n_control != 1) {
-            throw SemanticError("Do concurrent: exactly one control statement is required for now",
-            x.base.base.loc);
+            throw LFortranException("Do concurrent: exactly one control statement is implemented for now");
         }
         std::string r = indent;
         r += print_label(x);

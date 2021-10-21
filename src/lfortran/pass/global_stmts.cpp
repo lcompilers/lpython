@@ -86,8 +86,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                     target = return_var_ref;
                     idx++;
                 } else {
-                    throw SemanticError("Return type not supported in interactive mode",
-                            loc);
+                    throw LFortranException("Return type not supported in interactive mode");
                 }
                 ASR::stmt_t* asr_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target, value, nullptr));
                 body.push_back(al, asr_stmt);
@@ -119,7 +118,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 ASR::Public, ASR::Implementation, nullptr);
             std::string sym_name = fn_name;
             if (unit.m_global_scope->scope.find(sym_name) != unit.m_global_scope->scope.end()) {
-                throw SemanticError("Function already defined", fn->loc);
+                throw LFortranException("Function already defined");
             }
             unit.m_global_scope->scope[sym_name] = down_cast<ASR::symbol_t>(fn);
         } else {
@@ -137,7 +136,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 ASR::Public, ASR::Implementation, nullptr);
             std::string sym_name = fn_name;
             if (unit.m_global_scope->scope.find(sym_name) != unit.m_global_scope->scope.end()) {
-                throw SemanticError("Function already defined", fn->loc);
+                throw LFortranException("Function already defined");
             }
             unit.m_global_scope->scope[sym_name] = down_cast<ASR::symbol_t>(fn);
         }

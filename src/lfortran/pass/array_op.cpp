@@ -476,8 +476,8 @@ public:
         }
         if( rank_left > 0 && rank_right > 0 ) {
             if( rank_left != rank_right ) {
-                throw SemanticError("Cannot generate loop for operands of different shapes", 
-                                    x.base.base.loc);
+                // This should be checked by verify() and thus should not happen
+                throw LFortranException("Cannot generate loop for operands of different shapes");
             }
             result_var = result_var_copy;
             if( result_var == nullptr ) {
@@ -532,8 +532,7 @@ public:
                                                 ref_1, (ASR::boolopType)x.m_op, ref_2, x.m_type, nullptr));
                             break;
                         default:
-                            throw SemanticError("The desired operation is not supported yet for arrays.",
-                                                x.base.base.loc);
+                            throw LFortranException("The desired operation is not supported yet for arrays.");
                     }
                     ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr));
                     doloop_body.push_back(al, assign);
@@ -616,8 +615,7 @@ public:
                                                     ref, (ASR::boolopType)x.m_op, other_expr, x.m_type, nullptr));
                             break;
                         default:
-                            throw SemanticError("The desired operation is not supported yet for arrays.",
-                                                x.base.base.loc);
+                            throw LFortranException("The desired operation is not supported yet for arrays.");
                     }
                     ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr));
                     doloop_body.push_back(al, assign);

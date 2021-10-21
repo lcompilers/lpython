@@ -355,8 +355,7 @@ namespace LFortran {
             if( cast_kind > 0 ) {
                 return LFortran::ASRUtils::EXPR(ASR::make_ImplicitCast_t(al, x->base.loc, x, (ASR::cast_kindType)cast_kind, int64type, nullptr));
             } else {
-                throw SemanticError("Array indices can only be of type real or integer.",
-                                    x->base.loc);
+                throw LFortranException("Array indices can only be of type real or integer.");
             }
             return nullptr;
         }
