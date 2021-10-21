@@ -588,8 +588,7 @@ public:
     //Converts do concurrent to a regular do loop. Adds OpenMP pragmas.
     void visit_DoConcurrentLoop(const DoConcurrentLoop_t &x) {
         if (x.n_control != 1) {
-            throw SemanticError("Do concurrent: exactly one control statement is required for now",
-            x.base.base.loc);
+            throw LFortranException("Do concurrent: exactly one control statement is implemented for now");
         }
         AST::ConcurrentControl_t &h = *(AST::ConcurrentControl_t*) x.m_control[0];
         AST::ConcurrentReduce_t *red=nullptr;

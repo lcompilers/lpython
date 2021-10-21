@@ -213,23 +213,21 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr3(
             AST::TranslationUnit_t &ast)
 {
     ASR::TranslationUnit_t* asr;
-    try {
-        // AST -> ASR
-        // Remove the old execution function if it exists
-        if (symbol_table) {
-            if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
-                symbol_table->scope.erase(run_fn);
-            }
-            symbol_table->mark_all_variables_external(al);
+    // AST -> ASR
+    // Remove the old execution function if it exists
+    if (symbol_table) {
+        if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
+            symbol_table->scope.erase(run_fn);
         }
-        asr = ast_to_asr(al, ast, symbol_table, compiler_options.symtab_only);
-        if (!symbol_table) symbol_table = asr->m_global_scope;
-    } catch (const SemanticError &e) {
-        Error error;
-        error.d = e.d;
-        error.stacktrace_addresses = e.stacktrace_addresses();
-        return error;
+        symbol_table->mark_all_variables_external(al);
     }
+    auto res = ast_to_asr(al, ast, symbol_table, compiler_options.symtab_only);
+    if (res.ok) {
+        asr = res.result;
+    } else {
+        return res.error;
+    }
+    if (!symbol_table) symbol_table = asr->m_global_scope;
 
     return asr;
 }

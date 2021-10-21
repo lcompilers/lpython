@@ -4,6 +4,7 @@
 #include <lfortran/assert.h>
 #include <lfortran/asr.h>
 #include <lfortran/string_utils.h>
+#include <lfortran/semantics/semantic_exception.h>
 
 namespace LFortran  {
 
