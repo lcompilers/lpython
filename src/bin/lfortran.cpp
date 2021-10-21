@@ -260,12 +260,13 @@ int prompt(bool verbose)
         }
 
         LFortran::FortranEvaluator::EvalResult r;
+        LFortran::diag::Diagnostics diagnostics;
 
         try {
             LFortran::LocationManager lm;
             lm.in_filename = "input";
             LFortran::Result<LFortran::FortranEvaluator::EvalResult>
-            res = e.evaluate(input, verbose, lm);
+            res = e.evaluate(input, verbose, lm, diagnostics);
             if (res.ok) {
                 r = res.result;
             } else {

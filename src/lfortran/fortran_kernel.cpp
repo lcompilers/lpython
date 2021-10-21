@@ -248,8 +248,9 @@ namespace LFortran
             RedirectStdout s(std_out);
             code0 = code;
             LocationManager lm;
+            diag::Diagnostics diagnostics;
             Result<FortranEvaluator::EvalResult>
-            res = e.evaluate(code0, false, lm);
+            res = e.evaluate(code0, false, lm, diagnostics);
             if (res.ok) {
                 r = res.result;
             } else {

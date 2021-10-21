@@ -44,7 +44,7 @@ public:
     // Evaluates `code`.
     // If `verbose=true`, it saves ast, asr and llvm_ir in Result.
     Result<EvalResult> evaluate(const std::string &code, bool verbose,
-        LocationManager &lm);
+        LocationManager &lm, diag::Diagnostics &diagnostics);
     Result<EvalResult> evaluate2(const std::string &code);
 
     Result<std::string> get_ast(const std::string &code,

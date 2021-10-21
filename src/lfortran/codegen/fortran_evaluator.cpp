@@ -44,21 +44,22 @@ FortranEvaluator::~FortranEvaluator() = default;
 Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate2(const std::string &code) {
     LocationManager lm;
     lm.in_filename = "input";
-    return evaluate(code, false, lm);
+    diag::Diagnostics diagnostics;
+    return evaluate(code, false, lm, diagnostics);
 }
 
 Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
 #ifdef HAVE_LFORTRAN_LLVM
-            const std::string &code_orig, bool verbose, LocationManager &lm
+            const std::string &code_orig, bool verbose, LocationManager &lm,
+            diag::Diagnostics &diagnostics
 #else
             const std::string &/*code_orig*/, bool /*verbose*/,
-                LocationManager &/*lm*/
+                LocationManager &/*lm*/, diag::Diagnostics &/*diagnostics*/
 #endif
             )
 {
 #ifdef HAVE_LFORTRAN_LLVM
     EvalResult result;
-    diag::Diagnostics diagnostics;
 
     // Src -> AST
     Result<AST::TranslationUnit_t*> res = get_ast2(code_orig, lm,
