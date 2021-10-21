@@ -594,7 +594,7 @@ public:
 };
 
 
-void asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
+FortranEvaluator::Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
         const std::string &filename, bool time_report)
 {
     int time_pass_global=0;
@@ -621,7 +621,14 @@ void asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
 
     {
         auto t1 = std::chrono::high_resolution_clock::now();
-        v.visit_asr((ASR::asr_t&)asr);
+        try {
+            v.visit_asr((ASR::asr_t &)asr);
+        } catch (const CodeGenError &e) {
+            FortranEvaluator::Error error;
+            error.d = e.d;
+            error.stacktrace_addresses = e.stacktrace_addresses();
+            return error;
+        }
         auto t2 = std::chrono::high_resolution_clock::now();
         time_visit_asr = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     }
@@ -650,6 +657,7 @@ void asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
         int total = time_pass_global + time_pass_do_loops + time_visit_asr + time_verify + time_verify + time_save;
         std::cout << "Total:      " << std::setw(5) << total << std::endl;
     }
+    return 0;
 }
 
 } // namespace LFortran
