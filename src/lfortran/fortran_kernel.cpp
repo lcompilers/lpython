@@ -117,8 +117,9 @@ namespace LFortran
             if (startswith(code, "%%showast")) {
                 code0 = code.substr(code.find("\n")+1);
                 LocationManager lm;
+                diag::Diagnostics diagnostics;
                 Result<std::string>
-                    res = e.get_ast(code0, lm);
+                    res = e.get_ast(code0, lm, diagnostics);
                 nl::json result;
                 if (res.ok) {
                     publish_stream("stdout", res.result);
@@ -224,8 +225,9 @@ namespace LFortran
             if (startswith(code, "%%showfmt")) {
                 code0 = code.substr(code.find("\n")+1);
                 LocationManager lm;
+                diag::Diagnostics diagnostics;
                 Result<std::string>
-                res = e.get_fmt(code0, lm);
+                res = e.get_fmt(code0, lm, diagnostics);
                 nl::json result;
                 if (res.ok) {
                     publish_stream("stdout", res.result);

@@ -389,8 +389,9 @@ int emit_ast(const std::string &infile, CompilerOptions &compiler_options)
 
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
+    LFortran::diag::Diagnostics diagnostics;
     lm.in_filename = infile;
-    LFortran::Result<std::string> r = fe.get_ast(input, lm);
+    LFortran::Result<std::string> r = fe.get_ast(input, lm, diagnostics);
     if (r.ok) {
         std::cout << r.result << std::endl;
         return 0;
@@ -405,9 +406,10 @@ int emit_ast_f90(const std::string &infile, CompilerOptions &compiler_options)
     std::string input = read_file(infile);
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
+    LFortran::diag::Diagnostics diagnostics;
     lm.in_filename = infile;
     LFortran::Result<LFortran::AST::TranslationUnit_t*> r
-            = fe.get_ast2(input, lm);
+            = fe.get_ast2(input, lm, diagnostics);
     if (r.ok) {
         std::cout << LFortran::ast_to_src(*r.result,
             compiler_options.use_colors);
@@ -425,9 +427,10 @@ int format(const std::string &infile, bool inplace, bool color, int indent,
 
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
+    LFortran::diag::Diagnostics diagnostics;
     lm.in_filename = infile;
     LFortran::Result<LFortran::AST::TranslationUnit_t*>
-        r = fe.get_ast2(input, lm);
+        r = fe.get_ast2(input, lm, diagnostics);
     if (!r.ok) {
         std::cerr << fe.format_error(r.error, input, lm);
         return 2;
@@ -751,6 +754,7 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
     int time_asr_to_x86=0;
 
     std::string input;
+    LFortran::diag::Diagnostics diagnostics;
     LFortran::FortranEvaluator fe(compiler_options);
     Allocator al(64*1024*1024); // Allocate 64 MB
     LFortran::AST::TranslationUnit_t* ast;
@@ -769,7 +773,7 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
     {
         auto t1 = std::chrono::high_resolution_clock::now();
         LFortran::Result<LFortran::AST::TranslationUnit_t*>
-            result = fe.get_ast2(input, lm);
+            result = fe.get_ast2(input, lm, diagnostics);
         auto t2 = std::chrono::high_resolution_clock::now();
         time_src_to_ast = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 
@@ -783,7 +787,6 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
 
     // AST -> ASR
     {
-        LFortran::diag::Diagnostics diagnostics;
         auto t1 = std::chrono::high_resolution_clock::now();
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
             result = fe.get_asr3(*ast, diagnostics);

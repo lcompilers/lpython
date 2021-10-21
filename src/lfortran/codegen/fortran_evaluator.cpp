@@ -58,9 +58,11 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
 {
 #ifdef HAVE_LFORTRAN_LLVM
     EvalResult result;
+    diag::Diagnostics diagnostics;
 
     // Src -> AST
-    Result<AST::TranslationUnit_t*> res = get_ast2(code_orig, lm);
+    Result<AST::TranslationUnit_t*> res = get_ast2(code_orig, lm,
+        diagnostics);
     AST::TranslationUnit_t* ast;
     if (res.ok) {
         ast = res.result;
@@ -73,7 +75,6 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
     }
 
     // AST -> ASR
-    diag::Diagnostics diagnostics;
     Result<ASR::TranslationUnit_t*> res2 = get_asr3(*ast, diagnostics);
     LFortran::ASR::TranslationUnit_t* asr;
     if (res2.ok) {
@@ -147,19 +148,22 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
 }
 
 Result<std::string> FortranEvaluator::get_ast(const std::string &code,
-    LocationManager &lm)
+    LocationManager &lm, diag::Diagnostics &diagnostics)
 {
-    Result<AST::TranslationUnit_t*> ast = get_ast2(code, lm);
+    Result<AST::TranslationUnit_t*> ast = get_ast2(code, lm,
+        diagnostics);
     if (ast.ok) {
         return LFortran::pickle(*ast.result, compiler_options.use_colors,
             compiler_options.indent);
     } else {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return ast.error;
     }
 }
 
 Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(
-            const std::string &code_orig, LocationManager &lm)
+            const std::string &code_orig, LocationManager &lm,
+            diag::Diagnostics &diagnostics)
 {
     // Src -> AST
     const std::string *code=&code_orig;
@@ -174,10 +178,11 @@ Result<AST::TranslationUnit_t*> FortranEvaluator::get_ast2(
         tmp = fix_continuation(*code, lm, compiler_options.fixed_form);
         code = &tmp;
     }
-    Result<AST::TranslationUnit_t*> res = parse(al, *code);
+    Result<AST::TranslationUnit_t*> res = parse(al, *code, diagnostics);
     if (res.ok) {
         return res.result;
     } else {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return res.error;
     }
 }
@@ -199,11 +204,12 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
             diag::Diagnostics &diagnostics)
 {
     // Src -> AST
-    Result<AST::TranslationUnit_t*> res = get_ast2(code_orig, lm);
+    Result<AST::TranslationUnit_t*> res = get_ast2(code_orig, lm, diagnostics);
     AST::TranslationUnit_t* ast;
     if (res.ok) {
         ast = res.result;
     } else {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return res.error;
     }
 
@@ -361,14 +367,15 @@ Result<std::string> FortranEvaluator::get_cpp2(ASR::TranslationUnit_t &asr)
 }
 
 Result<std::string> FortranEvaluator::get_fmt(const std::string &code,
-    LocationManager &lm)
+    LocationManager &lm, diag::Diagnostics &diagnostics)
 {
     // Src -> AST
-    Result<AST::TranslationUnit_t*> ast = get_ast2(code, lm);
+    Result<AST::TranslationUnit_t*> ast = get_ast2(code, lm, diagnostics);
     if (ast.ok) {
         // AST -> Fortran
         return LFortran::ast_to_src(*ast.result, true);
     } else {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return ast.error;
     }
 }

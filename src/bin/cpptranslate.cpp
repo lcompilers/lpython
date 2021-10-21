@@ -32,9 +32,10 @@ int emit_ast_openmp(const std::string &infile)
     std::string input = read_file(infile);
 
     // Src -> AST
+    LFortran::diag::Diagnostics diagnostics;
     Allocator al(64*1024*1024);
     LFortran::AST::TranslationUnit_t* ast;
-    ast = LFortran::TRY(LFortran::parse(al, input));
+    ast = LFortran::TRY(LFortran::parse(al, input, diagnostics));
 
     // AST -> Source
     // FIXME: For now we only transform the first node in the list:

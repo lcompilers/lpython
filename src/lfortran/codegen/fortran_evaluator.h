@@ -48,9 +48,9 @@ public:
     Result<EvalResult> evaluate2(const std::string &code);
 
     Result<std::string> get_ast(const std::string &code,
-        LocationManager &lm);
+        LocationManager &lm, diag::Diagnostics &diagnostics);
     Result<AST::TranslationUnit_t*> get_ast2(const std::string &code,
-        LocationManager &lm);
+        LocationManager &lm, diag::Diagnostics &diagnostics);
     Result<ASR::TranslationUnit_t*> get_asr3(AST::TranslationUnit_t &ast,
         diag::Diagnostics &diagnostics);
     Result<std::string> get_asr(const std::string &code,
@@ -66,7 +66,8 @@ public:
     Result<std::string> get_asm(const std::string &code, LocationManager &lm);
     Result<std::string> get_cpp(const std::string &code, LocationManager &lm);
     Result<std::string> get_cpp2(ASR::TranslationUnit_t &asr);
-    Result<std::string> get_fmt(const std::string &code, LocationManager &lm);
+    Result<std::string> get_fmt(const std::string &code, LocationManager &lm,
+        diag::Diagnostics &diagnostics);
 
     std::string format_error(const Error &e, const std::string &input,
             const LocationManager &lm) const;

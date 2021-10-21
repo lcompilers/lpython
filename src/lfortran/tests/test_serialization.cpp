@@ -55,7 +55,8 @@ void ast_ser(const std::string &src) {
     Allocator al(4*1024);
 
     LFortran::AST::TranslationUnit_t* result;
-    result = TRY(LFortran::parse(al, src));
+    LFortran::diag::Diagnostics diagnostics;
+    result = TRY(LFortran::parse(al, src, diagnostics));
     std::string ast_orig = LFortran::pickle(*result);
     std::string binary = LFortran::serialize(*result);
 
@@ -72,8 +73,8 @@ void asr_ser(const std::string &src) {
     Allocator al(4*1024);
 
     LFortran::AST::TranslationUnit_t* ast0;
-    ast0 = TRY(LFortran::parse(al, src));
     LFortran::diag::Diagnostics diagnostics;
+    ast0 = TRY(LFortran::parse(al, src, diagnostics));
     LFortran::ASR::TranslationUnit_t* asr = TRY(LFortran::ast_to_asr(al, *ast0,
         diagnostics));
 
@@ -98,8 +99,8 @@ void asr_mod(const std::string &src) {
     Allocator al(4*1024);
 
     LFortran::AST::TranslationUnit_t* ast0;
-    ast0 = TRY(LFortran::parse(al, src));
     LFortran::diag::Diagnostics diagnostics;
+    ast0 = TRY(LFortran::parse(al, src, diagnostics));
     LFortran::ASR::TranslationUnit_t* asr = TRY(LFortran::ast_to_asr(al, *ast0,
         diagnostics));
 

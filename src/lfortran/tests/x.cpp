@@ -38,7 +38,8 @@ int main()
 
 
     //yydebug=1;
-    result = LFortran::TRY(LFortran::parse(al, input))->m_items[0];
+    LFortran::diag::Diagnostics diagnostics;
+    result = LFortran::TRY(LFortran::parse(al, input, diagnostics))->m_items[0];
     std::string p = LFortran::pickle(*result);
     std::cout << p << std::endl;
 
