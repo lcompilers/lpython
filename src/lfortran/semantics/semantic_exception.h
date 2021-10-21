@@ -5,6 +5,9 @@
 
 namespace LFortran {
 
+// This exception is only used internally in the lfortran/semantics/ directory
+// and in lfortran/asr_utils.h/cpp. Nowhere else.
+
 class SemanticError : public LFortranException
 {
 public:
