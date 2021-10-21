@@ -365,8 +365,11 @@ end function)";
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
-    std::unique_ptr<LFortran::LLVMModule> m = LFortran::asr_to_llvm(*asr,
-            e.get_context(), al, LFortran::get_platform());
+    LFortran::FortranEvaluator::Result<std::unique_ptr<LFortran::LLVMModule>>
+        res = LFortran::asr_to_llvm(*asr, e.get_context(), al,
+            LFortran::get_platform());
+    REQUIRE(res.ok);
+    std::unique_ptr<LFortran::LLVMModule> m = std::move(res.result);
     std::cout << "Module:" << std::endl;
     std::cout << m->str() << std::endl;
 
@@ -392,8 +395,11 @@ end function)";
     CHECK(LFortran::pickle(*asr) == "(TranslationUnit (SymbolTable 3 {f: (Function (SymbolTable 4 {f: (Variable 4 f ReturnVar () () Default (Integer 4 []) Source Public Required .false.)}) f [] [(= (Var 4 f) (ConstantInteger 4 (Integer 4 [])) ())] (Var 4 f) Source Public Implementation ())}) [])");
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
-    std::unique_ptr<LFortran::LLVMModule> m = LFortran::asr_to_llvm(*asr,
-            e.get_context(), al, LFortran::get_platform());
+    LFortran::FortranEvaluator::Result<std::unique_ptr<LFortran::LLVMModule>>
+        res = LFortran::asr_to_llvm(*asr, e.get_context(), al,
+            LFortran::get_platform());
+    REQUIRE(res.ok);
+    std::unique_ptr<LFortran::LLVMModule> m = std::move(res.result);
     std::cout << "Module:" << std::endl;
     std::cout << m->str() << std::endl;
 

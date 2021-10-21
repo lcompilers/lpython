@@ -3862,7 +3862,7 @@ public:
 
 
 
-std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
+FortranEvaluator::Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
         llvm::LLVMContext &context, Allocator &al, Platform platform,
         std::string run_fn)
 {
@@ -3881,7 +3881,14 @@ std::unique_ptr<LLVMModule> asr_to_llvm(ASR::TranslationUnit_t &asr,
     pass_unused_functions(al, asr);
     v.nested_func_types = pass_find_nested_vars(asr, context, 
         v.nested_globals, v.nested_call_out, v.nesting_map);
-    v.visit_asr((ASR::asr_t&)asr);
+    try {
+        v.visit_asr((ASR::asr_t&)asr);
+    } catch (const CodeGenError &e) {
+        FortranEvaluator::Error error;
+        error.d = e.d;
+        error.stacktrace_addresses = e.stacktrace_addresses();
+        return error;
+    }
     std::string msg;
     llvm::raw_string_ostream err(msg);
     if (llvm::verifyModule(*v.module, &err)) {

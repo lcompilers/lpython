@@ -297,14 +297,13 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm3(
 
     // ASR -> LLVM
     std::unique_ptr<LFortran::LLVMModule> m;
-    try {
-        m = LFortran::asr_to_llvm(asr, e->get_context(), al, compiler_options.platform,
+    Result<std::unique_ptr<LFortran::LLVMModule>> res
+        = asr_to_llvm(asr, e->get_context(), al, compiler_options.platform,
             run_fn);
-    } catch (const CodeGenError &e) {
-        FortranEvaluator::Error error;
-        error.d = e.d;
-        error.stacktrace_addresses = e.stacktrace_addresses();
-        return error;
+    if (res.ok) {
+        m = std::move(res.result);
+    } else {
+        return res.error;
     }
 
     if (compiler_options.fast) {
