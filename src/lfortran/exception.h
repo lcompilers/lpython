@@ -9,10 +9,7 @@ typedef enum {
     LFORTRAN_NO_EXCEPTION    = 0,
     LFORTRAN_RUNTIME_ERROR   = 1,
     LFORTRAN_EXCEPTION       = 2,
-    LFORTRAN_TOKENIZER_ERROR = 3,
     LFORTRAN_PARSER_ERROR    = 4,
-    LFORTRAN_SEMANTIC_ERROR  = 5,
-    LFORTRAN_CODEGEN_ERROR   = 6,
     LFORTRAN_ASSERT_FAILED   = 7,
     LFORTRAN_ASSEMBLER_ERROR = 8,
 } lfortran_exceptions_t;
@@ -116,14 +113,6 @@ public:
         switch (ec) {
             case (lfortran_exceptions_t::LFORTRAN_EXCEPTION) :
                 return "LFortranException";
-            case (lfortran_exceptions_t::LFORTRAN_TOKENIZER_ERROR) :
-                return "TokenizerError";
-            case (lfortran_exceptions_t::LFORTRAN_PARSER_ERROR) :
-                return "ParserError";
-            case (lfortran_exceptions_t::LFORTRAN_SEMANTIC_ERROR) :
-                return "SemanticError";
-            case (lfortran_exceptions_t::LFORTRAN_CODEGEN_ERROR) :
-                return "CodeGenError";
             case (lfortran_exceptions_t::LFORTRAN_ASSERT_FAILED) :
                 return "AssertFailed";
             default : return "Unknown Exception";
