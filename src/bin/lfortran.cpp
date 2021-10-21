@@ -733,7 +733,7 @@ int compile_to_assembly_file(const std::string &infile,
 
 int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
         bool time_report,
-        CompilerOptions &/*compiler_options*/)
+        CompilerOptions &compiler_options)
 {
     int time_file_read=0;
     int time_src_to_ast=0;
@@ -741,6 +741,7 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
     int time_asr_to_x86=0;
 
     std::string input;
+    LFortran::FortranEvaluator fe(compiler_options);
     Allocator al(64*1024*1024); // Allocate 64 MB
     LFortran::AST::TranslationUnit_t* ast;
     LFortran::ASR::TranslationUnit_t* asr;
@@ -753,27 +754,37 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
     }
 
     // Src -> AST
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
     {
         auto t1 = std::chrono::high_resolution_clock::now();
-        try {
-            ast = LFortran::parse(al, input);
-        } catch (const LFortran::TokenizerError &e) {
-            std::cerr << "Tokenizing error: " << e.msg() << std::endl;
-            return 1;
-        } catch (const LFortran::ParserError &e) {
-            std::cerr << "Parsing error: " << e.msg() << std::endl;
-            return 2;
-        }
+        LFortran::FortranEvaluator::Result<LFortran::AST::TranslationUnit_t*>
+            result = fe.get_ast2(input, lm);
         auto t2 = std::chrono::high_resolution_clock::now();
         time_src_to_ast = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+
+        if (result.ok) {
+            ast = result.result;
+        } else {
+            std::cerr << fe.format_error(result.error, input, lm);
+            return 1;
+        }
     }
 
     // AST -> ASR
     {
         auto t1 = std::chrono::high_resolution_clock::now();
-        asr = LFortran::ast_to_asr(al, *ast);
+        LFortran::FortranEvaluator::Result<LFortran::ASR::TranslationUnit_t*>
+            result = fe.get_asr3(*ast);
         auto t2 = std::chrono::high_resolution_clock::now();
         time_ast_to_asr = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+
+        if (result.ok) {
+            asr = result.result;
+        } else {
+            std::cerr << fe.format_error(result.error, input, lm);
+            return 2;
+        }
     }
 
     // ASR -> x86 machine code
