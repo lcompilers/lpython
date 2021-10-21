@@ -50,7 +50,7 @@ define i64 @f1()
     ; FAIL: "=x" is incorrect syntax
     %1 =x alloca i64
 }
-        )"""), LFortran::CodeGenError);
+        )"""), std::runtime_error);
     CHECK_THROWS_WITH(e.add_module(R"""(
 define i64 @f1()
 {
@@ -93,7 +93,7 @@ define i64 @f3()
     %1 = load i64, i64* @count
     ret i64 %1
 }
-        )"""), LFortran::CodeGenError);
+        )"""), std::runtime_error);
 }
 
 TEST_CASE("llvm 3") {
@@ -232,7 +232,7 @@ define void @inc2()
     call void @inc()
     ret void
 }
-        )"""), LFortran::CodeGenError);
+        )"""), std::runtime_error);
 }
 
 TEST_CASE("llvm array 1") {
@@ -365,8 +365,11 @@ end function)";
 
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
-    std::unique_ptr<LFortran::LLVMModule> m = LFortran::asr_to_llvm(*asr,
-            e.get_context(), al, LFortran::get_platform());
+    LFortran::FortranEvaluator::Result<std::unique_ptr<LFortran::LLVMModule>>
+        res = LFortran::asr_to_llvm(*asr, e.get_context(), al,
+            LFortran::get_platform());
+    REQUIRE(res.ok);
+    std::unique_ptr<LFortran::LLVMModule> m = std::move(res.result);
     std::cout << "Module:" << std::endl;
     std::cout << m->str() << std::endl;
 
@@ -392,8 +395,11 @@ end function)";
     CHECK(LFortran::pickle(*asr) == "(TranslationUnit (SymbolTable 3 {f: (Function (SymbolTable 4 {f: (Variable 4 f ReturnVar () () Default (Integer 4 []) Source Public Required .false.)}) f [] [(= (Var 4 f) (ConstantInteger 4 (Integer 4 [])) ())] (Var 4 f) Source Public Implementation ())}) [])");
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
-    std::unique_ptr<LFortran::LLVMModule> m = LFortran::asr_to_llvm(*asr,
-            e.get_context(), al, LFortran::get_platform());
+    LFortran::FortranEvaluator::Result<std::unique_ptr<LFortran::LLVMModule>>
+        res = LFortran::asr_to_llvm(*asr, e.get_context(), al,
+            LFortran::get_platform());
+    REQUIRE(res.ok);
+    std::unique_ptr<LFortran::LLVMModule> m = std::move(res.result);
     std::cout << "Module:" << std::endl;
     std::cout << m->str() << std::endl;
 

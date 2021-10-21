@@ -167,7 +167,7 @@ LLVMEvaluator::LLVMEvaluator(const std::string &t)
     std::string Error;
     const llvm::Target *target = llvm::TargetRegistry::lookupTarget(target_triple, Error);
     if (!target) {
-        throw LFortran::CodeGenError(Error);
+        throw LFortranException(Error);
     }
     std::string CPU = "generic";
     std::string features = "";
@@ -194,12 +194,13 @@ std::unique_ptr<llvm::Module> LLVMEvaluator::parse_module(const std::string &sou
     std::unique_ptr<llvm::Module> module
         = llvm::parseAssemblyString(source, err, *context);
     if (!module) {
-        throw CodeGenError("Invalid LLVM IR");
+        std::cerr << "Invalid LLVM IR" << std::endl;
+        throw std::runtime_error("Invalid LLVM IR");
     }
     bool v = llvm::verifyModule(*module);
     if (v) {
         std::cerr << "Error: module failed verification." << std::endl;
-        throw std::runtime_error("add_module");
+        throw std::runtime_error("parse_module");
     };
     module->setTargetTriple(target_triple);
     module->setDataLayout(jit->getTargetMachine().createDataLayout());

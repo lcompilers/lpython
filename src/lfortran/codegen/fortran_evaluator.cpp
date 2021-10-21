@@ -47,6 +47,7 @@ FortranEvaluator::~FortranEvaluator() = default;
 
 Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate2(const std::string &code) {
     LocationManager lm;
+    lm.in_filename = "input";
     return evaluate(code, false, lm);
 }
 Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
@@ -59,101 +60,86 @@ Result<FortranEvaluator::EvalResult> FortranEvaluator::evaluate(
             )
 {
 #ifdef HAVE_LFORTRAN_LLVM
-    try {
-        EvalResult result;
+    EvalResult result;
 
-        // Src -> AST
-        LFortran::AST::TranslationUnit_t* ast;
-        std::string code = LFortran::fix_continuation(code_orig, lm, false);
-        ast = LFortran::parse(al, code);
-
-        if (verbose) {
-            result.ast = LFortran::pickle(*ast, true);
-        }
-
-        // AST -> ASR
-        LFortran::ASR::TranslationUnit_t* asr;
-        // Remove the old execution function if it exists
-        if (symbol_table) {
-            if (symbol_table->scope.find(run_fn) != symbol_table->scope.end()) {
-                symbol_table->scope.erase(run_fn);
-            }
-            symbol_table->mark_all_variables_external(al);
-        }
-        asr = LFortran::ast_to_asr(al, *ast, symbol_table);
-        if (!symbol_table) symbol_table = asr->m_global_scope;
-
-        if (verbose) {
-            result.asr = LFortran::pickle(*asr, true);
-        }
-
-        eval_count++;
-        run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
-
-        // ASR -> LLVM
-        std::unique_ptr<LFortran::LLVMModule> m;
-        m = LFortran::asr_to_llvm(*asr, e->get_context(), al, compiler_options.platform, run_fn);
-
-        if (verbose) {
-            result.llvm_ir = m->str();
-        }
-
-        std::string return_type = m->get_return_type(run_fn);
-
-        // LLVM -> Machine code -> Execution
-        e->add_module(std::move(m));
-        if (return_type == "integer4") {
-            int32_t r = e->int32fn(run_fn);
-            result.type = EvalResult::integer4;
-            result.i32 = r;
-        } else if (return_type == "integer8") {
-            int64_t r = e->int64fn(run_fn);
-            result.type = EvalResult::integer8;
-            result.i64 = r;
-        } else if (return_type == "real4") {
-            float r = e->floatfn(run_fn);
-            result.type = EvalResult::real4;
-            result.f32 = r;
-        } else if (return_type == "real8") {
-            double r = e->doublefn(run_fn);
-            result.type = EvalResult::real8;
-            result.f64 = r;
-        } else if (return_type == "complex4") {
-            std::complex<float> r = e->complex4fn(run_fn);
-            result.type = EvalResult::complex4;
-            result.c32.re = r.real();
-            result.c32.im = r.imag();
-        } else if (return_type == "complex8") {
-            std::complex<double> r = e->complex8fn(run_fn);
-            result.type = EvalResult::complex8;
-            result.c64.re = r.real();
-            result.c64.im = r.imag();
-        } else if (return_type == "void") {
-            e->voidfn(run_fn);
-            result.type = EvalResult::statement;
-        } else if (return_type == "none") {
-            result.type = EvalResult::none;
-        } else {
-            throw LFortranException("FortranEvaluator::evaluate(): Return type not supported");
-        }
-        return result;
-    } catch (const TokenizerError &e) {
-        FortranEvaluator::Error error;
-        error.d = e.d;
-        return error;
-    } catch (const ParserError &e) {
-        FortranEvaluator::Error error;
-        error.d = e.d;
-        return error;
-    } catch (const SemanticError &e) {
-        FortranEvaluator::Error error;
-        error.d = e.d;
-        return error;
-    } catch (const CodeGenError &e) {
-        FortranEvaluator::Error error;
-        error.d = e.d;
-        return error;
+    // Src -> AST
+    Result<AST::TranslationUnit_t*> res = get_ast2(code_orig, lm);
+    AST::TranslationUnit_t* ast;
+    if (res.ok) {
+        ast = res.result;
+    } else {
+        return res.error;
     }
+
+    if (verbose) {
+        result.ast = LFortran::pickle(*ast, true);
+    }
+
+    // AST -> ASR
+    Result<ASR::TranslationUnit_t*> res2 = get_asr3(*ast);
+    LFortran::ASR::TranslationUnit_t* asr;
+    if (res2.ok) {
+        asr = res2.result;
+    } else {
+        return res2.error;
+    }
+
+    if (verbose) {
+        result.asr = LFortran::pickle(*asr, true);
+    }
+
+    // ASR -> LLVM
+    Result<std::unique_ptr<LLVMModule>> res3 = get_llvm3(*asr);
+    std::unique_ptr<LFortran::LLVMModule> m;
+    if (res3.ok) {
+        m = std::move(res3.result);
+    } else {
+        return res3.error;
+    }
+
+    if (verbose) {
+        result.llvm_ir = m->str();
+    }
+
+    std::string return_type = m->get_return_type(run_fn);
+
+    // LLVM -> Machine code -> Execution
+    e->add_module(std::move(m));
+    if (return_type == "integer4") {
+        int32_t r = e->int32fn(run_fn);
+        result.type = EvalResult::integer4;
+        result.i32 = r;
+    } else if (return_type == "integer8") {
+        int64_t r = e->int64fn(run_fn);
+        result.type = EvalResult::integer8;
+        result.i64 = r;
+    } else if (return_type == "real4") {
+        float r = e->floatfn(run_fn);
+        result.type = EvalResult::real4;
+        result.f32 = r;
+    } else if (return_type == "real8") {
+        double r = e->doublefn(run_fn);
+        result.type = EvalResult::real8;
+        result.f64 = r;
+    } else if (return_type == "complex4") {
+        std::complex<float> r = e->complex4fn(run_fn);
+        result.type = EvalResult::complex4;
+        result.c32.re = r.real();
+        result.c32.im = r.imag();
+    } else if (return_type == "complex8") {
+        std::complex<double> r = e->complex8fn(run_fn);
+        result.type = EvalResult::complex8;
+        result.c64.re = r.real();
+        result.c64.im = r.imag();
+    } else if (return_type == "void") {
+        e->voidfn(run_fn);
+        result.type = EvalResult::statement;
+    } else if (return_type == "none") {
+        result.type = EvalResult::none;
+    } else {
+        throw LFortranException("FortranEvaluator::evaluate(): Return type not supported");
+    }
+    return result;
 #else
     throw LFortranException("LLVM is not enabled");
 #endif
@@ -256,11 +242,6 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr3(
         error.d = e.d;
         error.stacktrace_addresses = e.stacktrace_addresses();
         return error;
-    } catch (const CodeGenError &e) {
-        FortranEvaluator::Error error;
-        error.d = e.d;
-        error.stacktrace_addresses = e.stacktrace_addresses();
-        return error;
     }
 
     return asr;
@@ -316,14 +297,13 @@ Result<std::unique_ptr<LLVMModule>> FortranEvaluator::get_llvm3(
 
     // ASR -> LLVM
     std::unique_ptr<LFortran::LLVMModule> m;
-    try {
-        m = LFortran::asr_to_llvm(asr, e->get_context(), al, compiler_options.platform,
+    Result<std::unique_ptr<LFortran::LLVMModule>> res
+        = asr_to_llvm(asr, e->get_context(), al, compiler_options.platform,
             run_fn);
-    } catch (const CodeGenError &e) {
-        FortranEvaluator::Error error;
-        error.d = e.d;
-        error.stacktrace_addresses = e.stacktrace_addresses();
-        return error;
+    if (res.ok) {
+        m = std::move(res.result);
+    } else {
+        return res.error;
     }
 
     if (compiler_options.fast) {
@@ -374,23 +354,7 @@ Result<std::string> FortranEvaluator::get_cpp(const std::string &code,
 Result<std::string> FortranEvaluator::get_cpp2(ASR::TranslationUnit_t &asr)
 {
     // ASR -> C++
-    try {
-        return LFortran::asr_to_cpp(asr);
-    } catch (const SemanticError &e) {
-        // Note: the asr_to_cpp should only throw CodeGenError
-        // but we currently do not have location information for
-        // CodeGenError. We need to add it. Until then we can raise
-        // SemanticError to get the location information.
-        FortranEvaluator::Error error;
-        error.d = e.d;
-        error.stacktrace_addresses = e.stacktrace_addresses();
-        return error;
-    } catch (const CodeGenError &e) {
-        FortranEvaluator::Error error;
-        error.d = e.d;
-        error.stacktrace_addresses = e.stacktrace_addresses();
-        return error;
-    }
+    return asr_to_cpp(asr);
 }
 
 Result<std::string> FortranEvaluator::get_fmt(const std::string &code,

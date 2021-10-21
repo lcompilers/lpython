@@ -262,6 +262,7 @@ int prompt(bool verbose)
 
         try {
             LFortran::LocationManager lm;
+            lm.in_filename = "input";
             LFortran::FortranEvaluator::Result<LFortran::FortranEvaluator::EvalResult>
             res = e.evaluate(input, verbose, lm);
             if (res.ok) {
@@ -790,9 +791,17 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
     // ASR -> x86 machine code
     {
         auto t1 = std::chrono::high_resolution_clock::now();
-        LFortran::asr_to_x86(*asr, al, outfile, time_report);
+        LFortran::FortranEvaluator::Result<int>
+            result = LFortran::asr_to_x86(*asr, al, outfile, time_report);
         auto t2 = std::chrono::high_resolution_clock::now();
         time_asr_to_x86 = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+
+        if (result.ok) {
+            // pass
+        } else {
+            std::cerr << fe.format_error(result.error, input, lm);
+            return 3;
+        }
     }
 
     if (time_report) {

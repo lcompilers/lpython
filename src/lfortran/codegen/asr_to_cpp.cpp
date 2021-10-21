@@ -973,10 +973,17 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
 };
 
-std::string asr_to_cpp(ASR::TranslationUnit_t &asr)
+FortranEvaluator::Result<std::string> asr_to_cpp(ASR::TranslationUnit_t &asr)
 {
     ASRToCPPVisitor v;
-    v.visit_asr((ASR::asr_t &)asr);
+    try {
+        v.visit_asr((ASR::asr_t &)asr);
+    } catch (const CodeGenError &e) {
+        FortranEvaluator::Error error;
+        error.d = e.d;
+        error.stacktrace_addresses = e.stacktrace_addresses();
+        return error;
+    }
     return v.src;
 }
 
