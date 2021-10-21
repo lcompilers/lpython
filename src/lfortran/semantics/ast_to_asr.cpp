@@ -20,17 +20,20 @@
 namespace LFortran {
 
 Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, AST::TranslationUnit_t &ast,
-        SymbolTable *symbol_table, diag::Diagnostics &diagnostics);
+        diag::Diagnostics &diagnostics,
+        SymbolTable *symbol_table);
 
-ASR::TranslationUnit_t *body_visitor(Allocator &al,
-        AST::TranslationUnit_t &ast, ASR::asr_t *unit);
+Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al,
+        AST::TranslationUnit_t &ast,
+        diag::Diagnostics &diagnostics,
+        ASR::asr_t *unit);
 
 Result<ASR::TranslationUnit_t*> ast_to_asr(Allocator &al,
     AST::TranslationUnit_t &ast, diag::Diagnostics &diagnostics,
     SymbolTable *symbol_table, bool symtab_only)
 {
     ASR::asr_t *unit;
-    auto res = symbol_table_visitor(al, ast, symbol_table, diagnostics);
+    auto res = symbol_table_visitor(al, ast, diagnostics, symbol_table);
     if (res.ok) {
         unit = res.result;
     } else {
@@ -40,12 +43,11 @@ Result<ASR::TranslationUnit_t*> ast_to_asr(Allocator &al,
     LFORTRAN_ASSERT(asr_verify(*tu));
 
     if (!symtab_only) {
-        try {
-            tu = body_visitor(al, ast, unit);
-        } catch (const SemanticError &e) {
-            Error error;
-            error.d = e.d;
-            return error;
+        auto res = body_visitor(al, ast, diagnostics, unit);
+        if (res.ok) {
+            tu = res.result;
+        } else {
+            return res.error;
         }
         LFORTRAN_ASSERT(asr_verify(*tu));
     }

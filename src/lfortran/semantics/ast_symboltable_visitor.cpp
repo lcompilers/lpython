@@ -1416,7 +1416,8 @@ public:
 };
 
 Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, AST::TranslationUnit_t &ast,
-        SymbolTable *symbol_table, diag::Diagnostics &diagnostics)
+        diag::Diagnostics &diagnostics,
+        SymbolTable *symbol_table)
 {
     SymbolTableVisitor v(al, symbol_table);
     try {

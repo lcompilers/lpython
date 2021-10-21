@@ -1121,12 +1121,23 @@ public:
 
 };
 
-ASR::TranslationUnit_t *body_visitor(Allocator &al,
-        AST::TranslationUnit_t &ast, ASR::asr_t *unit)
+Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al,
+        AST::TranslationUnit_t &ast,
+        diag::Diagnostics &diagnostics,
+        ASR::asr_t *unit)
 {
     BodyVisitor b(al, unit);
-    b.visit_TranslationUnit(ast);
+    try {
+        b.visit_TranslationUnit(ast);
+    } catch (const SemanticError &e) {
+        Error error;
+        b.diag.diagnostics.push_back(e.d);
+        diagnostics = std::move(b.diag);
+        error.d = e.d;
+        return error;
+    }
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
+    diagnostics = std::move(b.diag);
     return tu;
 }
 
