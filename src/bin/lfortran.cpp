@@ -1453,6 +1453,7 @@ int main(int argc, char *argv[])
                     backend, static_link, true, compiler_options);
         }
     } catch(const LFortran::LFortranException &e) {
+        std::cerr << "Internal Compiler Error: Unhandled exception" << std::endl;
         std::vector<LFortran::StacktraceItem> d = e.stacktrace_addresses();
         get_local_addresses(d);
         get_local_info(d);
