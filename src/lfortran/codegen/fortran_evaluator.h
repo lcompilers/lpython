@@ -42,14 +42,7 @@ public:
     };
 
     struct Error {
-        enum {
-            Tokenizer, Parser, Semantic, CodeGen
-        } type;
-        Location loc;
-        int token;
-        std::string msg;
         std::vector<StacktraceItem> stacktrace_addresses;
-        bool new_diagnostic=false; // if true, use `d` for the error
         diag::Diagnostic d;
     };
 
