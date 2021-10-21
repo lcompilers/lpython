@@ -3896,8 +3896,12 @@ FortranEvaluator::Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::Translati
         llvm::raw_string_ostream os(buf);
         v.module->print(os, nullptr);
         std::cout << os.str();
-        throw CodeGenError("asr_to_llvm: module failed verification. Error:\n"
-            + err.str());
+        std::string msg = "asr_to_llvm: module failed verification. Error:\n"
+            + err.str();
+        FortranEvaluator::Error error;
+        error.d = diag::Diagnostic::codegen_error(msg);
+        error.stacktrace_addresses = get_stacktrace_addresses();
+        return error;
     };
     return std::make_unique<LLVMModule>(std::move(v.module));
 }
