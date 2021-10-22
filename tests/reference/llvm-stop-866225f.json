@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-stop-866225f",
+    "cmd": "lfortran --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/stop.f90",
+    "infile_hash": "4992b783d9f3aeee0fc682e7600ed3b3e57f5d9e8ea4ef63ab0bbb4d",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-stop-866225f.stdout",
+    "stdout_hash": "90842ec77184ee300e78aa1c219b9c66bed610f54312837817ad644c",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

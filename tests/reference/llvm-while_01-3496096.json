@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-while_01-3496096",
+    "cmd": "lfortran --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/while_01.f90",
+    "infile_hash": "41dfb6c31552489d495806f20788fe3012284c0d6afbbc686d400c42",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-while_01-3496096.stdout",
+    "stdout_hash": "cd8d8c520820332d871202f4069f20e19e0d684ec8e44ef4d726d6de",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

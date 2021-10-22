@@ -1,0 +1,13 @@
+{
+    "basename": "obj-empty-d0abeda",
+    "cmd": "lfortran --no-color -c {infile} -o output.o",
+    "infile": "tests/empty.f90",
+    "infile_hash": "d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

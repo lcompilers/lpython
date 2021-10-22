@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-kokkos_program2-43a2cc6",
+    "cmd": "lfortran --no-color --show-cpp {infile}",
+    "infile": "tests/kokkos_program2.f90",
+    "infile_hash": "bba0b0329c504e01dd099058af96e20a7fe00294f66456fe3da634e0",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-kokkos_program2-43a2cc6.stdout",
+    "stdout_hash": "cb8704874604c5c5746cb7cc5fbeb523d421fc899ccc77453c178104",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

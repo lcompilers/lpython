@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-allocate_03-495d621",
+    "cmd": "lfortran --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/allocate_03.f90",
+    "infile_hash": "cc91318a8c55753718f222c8b5aa1722c4bcad1ff8252f830ce98647",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-allocate_03-495d621.stdout",
+    "stdout_hash": "83bd2df33ea88ed0711c582ce45e221da5e95908d350758f7fbb5a89",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

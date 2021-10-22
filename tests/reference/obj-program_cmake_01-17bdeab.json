@@ -1,0 +1,13 @@
+{
+    "basename": "obj-program_cmake_01-17bdeab",
+    "cmd": "lfortran --no-color -c {infile} -o output.o",
+    "infile": "tests/../integration_tests/program_cmake_01.f90",
+    "infile_hash": "0e854d9b2ed613d6193d78290dc20a45ec66f60ab17e1c0229c3febe",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

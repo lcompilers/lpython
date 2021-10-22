@@ -1,0 +1,13 @@
+{
+    "basename": "obj-expr5-7a93333",
+    "cmd": "lfortran --no-color -c {infile} -o output.o",
+    "infile": "tests/expr5.f90",
+    "infile_hash": "030f3f956944c6d24d536fd1f434f877d95bf12aac6f367d2ad1827e",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

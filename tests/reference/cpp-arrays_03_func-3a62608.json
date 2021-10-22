@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-arrays_03_func-3a62608",
+    "cmd": "lfortran --no-color --show-cpp {infile}",
+    "infile": "tests/../integration_tests/arrays_03_func.f90",
+    "infile_hash": "9feab893fd240821f352bd8b0c12cb132cf39c706950d08f5a41cc54",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-arrays_03_func-3a62608.stdout",
+    "stdout_hash": "226678a6df39c8dd656a0747cfa69e4430a2049166f92be9a7fd3782",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-expr2-6f9abe8",
+    "cmd": "lfortran --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/expr2.f90",
+    "infile_hash": "d666975e3f2e2c0cc5c739b85bb21073accdf5692bcb64c9e0278d62",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-expr2-6f9abe8.stdout",
+    "stdout_hash": "d4324d2fd3b6efb7aae258c59fbd7aeb29c5c624d5f12568e06b16c5",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

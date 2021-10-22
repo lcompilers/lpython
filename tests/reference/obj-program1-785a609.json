@@ -1,0 +1,13 @@
+{
+    "basename": "obj-program1-785a609",
+    "cmd": "lfortran --no-color -c {infile} -o output.o",
+    "infile": "tests/program1.f90",
+    "infile_hash": "ec4ccdfed01d45648718ca57a9ceb3e5aa82e55e57d8906636902e7b",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

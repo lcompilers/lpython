@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-nested_02-726d5e8",
+    "cmd": "lfortran --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/nested_02.f90",
+    "infile_hash": "ca630d38e8d596a7d4b2db926185e9ec245f6831a9c826a87d669557",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-nested_02-726d5e8.stdout",
+    "stdout_hash": "c3418d17b8ba29086a620c9a97d320eeb36a0804e365fcdb82699806",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

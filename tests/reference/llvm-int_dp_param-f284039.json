@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-int_dp_param-f284039",
+    "cmd": "lfortran --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/int_dp_param.f90",
+    "infile_hash": "bb7549fda78172a3f68b883fd1423773bf823a71a4dd2f89476886b5",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-int_dp_param-f284039.stdout",
+    "stdout_hash": "25c5b0db9f73ab2cec4b881d1c312d0bd11aa12684356e650c308310",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

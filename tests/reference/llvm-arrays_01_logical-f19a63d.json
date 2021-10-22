@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-arrays_01_logical-f19a63d",
+    "cmd": "lfortran --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/arrays_01_logical.f90",
+    "infile_hash": "494cd2aba8ceee4c9a0bddba4b51d7a4b0b3f817d92e8c0894e4b08b",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-arrays_01_logical-f19a63d.stdout",
+    "stdout_hash": "d53f34043ce98a0d51a244e341269998aa535bddb11faedf15bb52b0",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
