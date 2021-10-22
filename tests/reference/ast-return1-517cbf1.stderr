@@ -1,16 +1,16 @@
-warning: Style suggestion: use '==' instead of '.eq.'
+style suggestion: Use '==' instead of '.eq.'
  --> tests/return1.f90:8:11
   |
 8 |     if (i .eq. a) return 1
   |           ^^^^ help: write this as '=='
 
-warning: Style suggestion: use '==' instead of '.eq.'
+style suggestion: Use '==' instead of '.eq.'
  --> tests/return1.f90:9:11
   |
 9 |     if (i .eq. b) return 2
   |           ^^^^ help: write this as '=='
 
-warning: Style suggestion: use '==' instead of '.eq.'
+style suggestion: Use '==' instead of '.eq.'
   --> tests/return1.f90:10:11
    |
 10 |     if (i .eq. c) return 3

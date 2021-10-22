@@ -1,10 +1,10 @@
-warning: Style suggestion: use 'end do' instead of 'enddo'
+style suggestion: Use 'end do' instead of 'enddo'
  --> tests/do2.f90:5:1
   |
 5 | enddo
   | ^^^^^ help: write this as 'end do'
 
-warning: Style suggestion: use 'end do' instead of 'enddo'
+style suggestion: Use 'end do' instead of 'enddo'
   --> tests/do2.f90:10:1
    |
 10 | enddo
