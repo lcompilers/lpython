@@ -66,7 +66,7 @@ std::string Diagnostics::render(const std::string &input,
         const LocationManager &lm, const CompilerOptions &compiler_options) {
     std::string out;
     for (auto &d : this->diagnostics) {
-        if (d.level == Level::Warning && compiler_options.no_warnings) {
+        if (compiler_options.no_warnings && d.level != Level::Error) {
             continue;
         }
         out += render_diagnostic(d, input, lm,
