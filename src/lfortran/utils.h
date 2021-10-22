@@ -23,6 +23,7 @@ struct CompilerOptions {
     bool indent = false;
     bool fast = false;
     bool openmp = false;
+    bool no_warnings = false;
     std::string target = "";
     Platform platform;
 
