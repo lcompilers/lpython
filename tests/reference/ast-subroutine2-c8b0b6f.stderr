@@ -1,0 +1,5 @@
+warning: Style suggestion: use 'end do' instead of 'enddo'
+  --> tests/subroutine2.f90:75:1
+   |
+75 | enddo
+   | ^^^^^ help: write this as 'end do'

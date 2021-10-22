@@ -1901,8 +1901,8 @@ inout
 enddo
     : KW_END_DO
     | TK_LABEL KW_END_DO
-    | KW_ENDDO
-    | TK_LABEL KW_ENDDO
+    | KW_ENDDO { WARN_ENDDO(@$); }
+    | TK_LABEL KW_ENDDO {}
     ;
 
 endforall
@@ -1912,7 +1912,7 @@ endforall
 
 endif
     : KW_END_IF
-    | KW_ENDIF
+    | KW_ENDIF { WARN_ENDIF(@$); }
     ;
 
 endwhere
