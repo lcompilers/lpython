@@ -128,8 +128,8 @@ void Tokenizer::add_rel_warning(diag::Diagnostics &diagnostics, int rel_token) c
     const std::string rel_old = m.at(rel_token).second;
     Location loc;
     token_loc(loc);
-    diagnostics.tokenizer_warning_label(
-        "Style suggestion: use '" + rel_new + "' instead of '" + rel_old + "'",
+    diagnostics.tokenizer_style_label(
+        "Use '" + rel_new + "' instead of '" + rel_old + "'",
         {loc},
         "help: write this as '" + rel_new + "'");
 }

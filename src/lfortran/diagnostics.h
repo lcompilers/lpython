@@ -52,7 +52,7 @@ struct Label {
  * We can have errors, warnings, notes and help messages.
  */
 enum Level {
-    Error, Warning, Note, Help
+    Error, Warning, Note, Help, Style
 };
 
 /*
@@ -253,6 +253,44 @@ struct Diagnostic {
         return d;
     }
 
+    static Diagnostic tokenizer_style_label(const std::string &message,
+            const std::vector<Location> &locations, const std::string &error_label) {
+        diag::Label l;
+        l.primary = true;
+        l.message = error_label;
+        for (auto &loc : locations) {
+            Span s;
+            s.loc = loc;
+            l.spans.push_back(s);
+
+        }
+        diag::Diagnostic d;
+        d.level = Level::Style;
+        d.stage = Stage::Tokenizer;
+        d.message = message;
+        d.labels.push_back(l);
+        return d;
+    }
+
+    static Diagnostic parser_style_label(const std::string &message,
+            const std::vector<Location> &locations, const std::string &error_label) {
+        diag::Label l;
+        l.primary = true;
+        l.message = error_label;
+        for (auto &loc : locations) {
+            Span s;
+            s.loc = loc;
+            l.spans.push_back(s);
+
+        }
+        diag::Diagnostic d;
+        d.level = Level::Style;
+        d.stage = Stage::Parser;
+        d.message = message;
+        d.labels.push_back(l);
+        return d;
+    }
+
     void secondary_label(const std::string &message,
             const Location &loc) {
         diag::Span s;
@@ -324,6 +362,24 @@ struct Diagnostics {
             const std::vector<Location> &locations, const std::string &error_label) {
         diagnostics.push_back(
             Diagnostic::parser_warning_label(
+                message, locations, error_label
+            )
+        );
+    }
+
+    void tokenizer_style_label(const std::string &message,
+            const std::vector<Location> &locations, const std::string &error_label) {
+        diagnostics.push_back(
+            Diagnostic::tokenizer_style_label(
+                message, locations, error_label
+            )
+        );
+    }
+
+    void parser_style_label(const std::string &message,
+            const std::vector<Location> &locations, const std::string &error_label) {
+        diagnostics.push_back(
+            Diagnostic::parser_style_label(
                 message, locations, error_label
             )
         );
