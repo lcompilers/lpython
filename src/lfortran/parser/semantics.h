@@ -1459,10 +1459,16 @@ void add_ws_warning(const Location &loc,
             "Style suggestion: write 'end do' instead of 'enddo'",
             {loc},
             "help: write this as 'end do'");
+    } else if (end_token == yytokentype::KW_ENDIF) {
+        diagnostics.parser_warning_label(
+            "Style suggestion: write 'end if' instead of 'endif'",
+            {loc},
+            "help: write this as 'end if'");
     }
 }
 
 #define WARN_ENDDO(l) add_ws_warning(l, p.diag, KW_ENDDO)
+#define WARN_ENDIF(l) add_ws_warning(l, p.diag, KW_ENDIF)
 
 #define DO1(trivia, body, l) make_DoLoop_t(p.m_a, l, 0, nullptr, 0, \
         nullptr, nullptr, nullptr, nullptr, \

@@ -1912,7 +1912,7 @@ endforall
 
 endif
     : KW_END_IF
-    | KW_ENDIF
+    | KW_ENDIF { WARN_ENDIF(@$); }
     ;
 
 endwhere
