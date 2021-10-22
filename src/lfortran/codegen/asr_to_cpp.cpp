@@ -351,7 +351,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 std::string(x.m_name) == "int" ||
                 std::string(x.m_name) == "char" ||
                 std::string(x.m_name) == "present" ||
-                std::string(x.m_name) == "len"
+                std::string(x.m_name) == "len" ||
+                std::string(x.m_name) == "not"
                 ) && intrinsic_module) {
             // Intrinsic function `int`
             SymbolInfo s;
@@ -445,6 +446,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 LFORTRAN_ASSERT(x.n_args > 0);
                 visit_expr(*x.m_args[0]);
                 src = "(int)" + src;
+            } else if (fn_name == "not") {
+                LFORTRAN_ASSERT(x.n_args > 0);
+                visit_expr(*x.m_args[0]);
+                src = "!(" + src + ")";
             } else if (fn_name == "len") {
                 LFORTRAN_ASSERT(x.n_args > 0);
                 visit_expr(*x.m_args[0]);

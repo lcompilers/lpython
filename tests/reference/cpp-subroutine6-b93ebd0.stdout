@@ -13,10 +13,28 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+std::string achar(int i, int kind)
+{
+    std::string achar;
+    return achar;
+}
+
 bool allocated(const Kokkos::View<const int*> &x)
 {
     bool allocated;
     return allocated;
+}
+
+int bit_size(int x)
+{
+    int bit_size;
+    return bit_size;
+}
+
+int iachar(std::string c, int kind)
+{
+    int iachar;
+    return iachar;
 }
 
 int lbound(const Kokkos::View<const int*> &x, int dim)
