@@ -1,1 +1,5 @@
-Tokenizing error: Token '~' is not recognized
+tokenizer error: Token '~' is not recognized
+ --> tests/errors/esub2.f90:3:5
+  |
+3 | x = ~1
+  |     ^ token not recognized

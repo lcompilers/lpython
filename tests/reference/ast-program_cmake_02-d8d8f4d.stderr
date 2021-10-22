@@ -1,0 +1,5 @@
+warning: Style suggestion: use '==' instead of '.eq.'
+ --> tests/../integration_tests/program_cmake_02.f90:4:49
+  |
+4 |       integer stop ; stop = 1 ; do while ( stop .eq. 0 ) ; end do
+  |                                                 ^^^^ help: write this as '=='

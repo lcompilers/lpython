@@ -1,0 +1,5 @@
+warning: Style suggestion: use '>' instead of '.gt.'
+ --> tests/../integration_tests/return_01.f90:8:15
+  |
+8 |         if (i .GT. 5) then
+  |               ^^^^ help: write this as '>'
