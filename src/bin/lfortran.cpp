@@ -1048,7 +1048,8 @@ int link_executable(const std::vector<std::string> &infiles,
             }
         } else {
             std::string CC;
-            if (compiler_options.platform == LFortran::Platform::macOS) {
+            if (compiler_options.platform == LFortran::Platform::macOS_Intel
+                || compiler_options.platform == LFortran::Platform::macOS_ARM) {
                 CC = "clang";
             } else {
                 CC = "gcc";
@@ -1059,7 +1060,8 @@ int link_executable(const std::vector<std::string> &infiles,
             std::string options;
             std::string runtime_lib = "lfortran_runtime";
             if (static_executable) {
-                if (compiler_options.platform != LFortran::Platform::macOS) {
+                if (compiler_options.platform != LFortran::Platform::macOS_Intel
+                && compiler_options.platform != LFortran::Platform::macOS_ARM) {
                     options += " -static ";
                 }
                 runtime_lib = "lfortran_runtime_static";
@@ -1269,7 +1271,8 @@ int main(int argc, char *argv[])
             std::cout << "Platform: ";
             switch (compiler_options.platform) {
                 case (LFortran::Platform::Linux) : std::cout << "Linux"; break;
-                case (LFortran::Platform::macOS) : std::cout << "macOS"; break;
+                case (LFortran::Platform::macOS_Intel) : std::cout << "macOS Intel"; break;
+                case (LFortran::Platform::macOS_ARM) : std::cout << "macOS ARM"; break;
                 case (LFortran::Platform::Windows) : std::cout << "Windows"; break;
             }
             std::cout << std::endl;

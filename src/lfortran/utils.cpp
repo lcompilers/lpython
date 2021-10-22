@@ -80,7 +80,11 @@ Platform get_platform()
     return Platform::Windows;
 #else
 #    ifdef __APPLE__
-    return Platform::macOS;
+#        ifdef __aarch64__
+    return Platform::macOS_ARM;
+#        else
+    return Platform::macOS_Intel;
+#        endif
 #    else
     return Platform::Linux;
 #    endif
