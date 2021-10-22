@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-complex1-0e93fa9",
+    "cmd": "lfortran --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/complex1.f90",
+    "infile_hash": "3243c29c947c9700891971aae8780afac25cd01387e0307063f3928a",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-complex1-0e93fa9.stdout",
+    "stdout_hash": "a33ab6b5154b634330403859f8fcf02e166c0942d90dfe39d7f47920",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

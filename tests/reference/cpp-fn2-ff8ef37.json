@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-fn2-ff8ef37",
+    "cmd": "lfortran --no-color --show-cpp {infile}",
+    "infile": "tests/fn2.f90",
+    "infile_hash": "9f61561c47397aa03014fe07094ac838ada4865e513025e384edae00",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-fn2-ff8ef37.stdout",
+    "stdout_hash": "b26bd21de50352e87aefa201c4560209c71e376b0ea743f4cee760e1",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

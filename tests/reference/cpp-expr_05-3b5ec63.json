@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-expr_05-3b5ec63",
+    "cmd": "lfortran --no-color --show-cpp {infile}",
+    "infile": "tests/../integration_tests/expr_05.f90",
+    "infile_hash": "9ba64c46165206d070ba772850f2de89fe32d27c80328477131806ac",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-expr_05-3b5ec63.stdout",
+    "stdout_hash": "55b9735e25a2f7480ee2cafa825e785c159720d7ac75ed338ca081fd",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

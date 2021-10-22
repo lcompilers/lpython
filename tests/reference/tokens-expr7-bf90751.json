@@ -1,0 +1,13 @@
+{
+    "basename": "tokens-expr7-bf90751",
+    "cmd": "lfortran --no-color --show-tokens {infile} -o {outfile}",
+    "infile": "tests/expr7.f90",
+    "infile_hash": "9b01fedf331316b08b35441cb9f4cb6f7808edd93b29c70e1caeea03",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "tokens-expr7-bf90751.stdout",
+    "stdout_hash": "5e07b110d4feed247c9fb163c38f17f1ed469bcc3eb61a8302ac4826",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

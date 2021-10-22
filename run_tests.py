@@ -61,7 +61,7 @@ def main():
         print(color(style.bold)+"TEST:"+color(style.reset), filename)
 
         if tokens:
-            run_test("tokens", "lfortran --show-tokens {infile} -o {outfile}",
+            run_test("tokens", "lfortran --no-color --show-tokens {infile} -o {outfile}",
                     filename, update_reference)
 
         if ast:
@@ -119,26 +119,26 @@ def main():
             if no_llvm:
                 print("    * llvm   SKIPPED as requested")
             else:
-                run_test("llvm", "lfortran --show-llvm {infile} -o {outfile}",
+                run_test("llvm", "lfortran --no-color --show-llvm {infile} -o {outfile}",
                         filename, update_reference)
 
         if cpp:
-            run_test("cpp", "lfortran --show-cpp {infile}",
+            run_test("cpp", "lfortran --no-color --show-cpp {infile}",
                     filename, update_reference)
 
         if obj:
             if no_llvm:
                 print("    * obj    SKIPPED as requested")
             else:
-                run_test("obj", "lfortran -c {infile} -o output.o",
+                run_test("obj", "lfortran --no-color -c {infile} -o output.o",
                         filename, update_reference)
 
         if x86:
-            run_test("x86", "lfortran --backend=x86 {infile} -o output",
+            run_test("x86", "lfortran --no-color --backend=x86 {infile} -o output",
                     filename, update_reference)
 
         if bin_:
-            run_test("bin", "lfortran {infile} -o {outfile}",
+            run_test("bin", "lfortran --no-color {infile} -o {outfile}",
                     filename, update_reference)
 
 

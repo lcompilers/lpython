@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-subroutines_02-83f1d9f",
+    "cmd": "lfortran --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/subroutines_02.f90",
+    "infile_hash": "4484a05d86189244a0e0fd3d37b37c88ef5510e22bdd1b38633a1bc8",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-subroutines_02-83f1d9f.stdout",
+    "stdout_hash": "d30e24ef157e537b984faa8ac88e05182ab4f9d82c42753d1f3e7156",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

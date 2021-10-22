@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-arrays_01_complex-c90dbdd",
+    "cmd": "lfortran --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/arrays_01_complex.f90",
+    "infile_hash": "2f81875039547fcf7eaa3375e4f99fbc8ef6d91ac2bb214c88cff999",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-arrays_01_complex-c90dbdd.stdout",
+    "stdout_hash": "abb370e67338e50b32ab27150debfdaae0b16e1bd6cb8201e4af8cfb",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
