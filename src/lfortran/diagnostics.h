@@ -215,6 +215,25 @@ struct Diagnostic {
         return d;
     }
 
+    static Diagnostic tokenizer_warning_label(const std::string &message,
+            const std::vector<Location> &locations, const std::string &error_label) {
+        diag::Label l;
+        l.primary = true;
+        l.message = error_label;
+        for (auto &loc : locations) {
+            Span s;
+            s.loc = loc;
+            l.spans.push_back(s);
+
+        }
+        diag::Diagnostic d;
+        d.level = Level::Warning;
+        d.stage = Stage::Tokenizer;
+        d.message = message;
+        d.labels.push_back(l);
+        return d;
+    }
+
     void secondary_label(const std::string &message,
             const Location &loc) {
         diag::Span s;
@@ -268,6 +287,15 @@ struct Diagnostics {
             const std::vector<Location> &locations, const std::string &error_label) {
         diagnostics.push_back(
             Diagnostic::semantic_warning_label(
+                message, locations, error_label
+            )
+        );
+    }
+
+    void tokenizer_warning_label(const std::string &message,
+            const std::vector<Location> &locations, const std::string &error_label) {
+        diagnostics.push_back(
+            Diagnostic::tokenizer_warning_label(
                 message, locations, error_label
             )
         );

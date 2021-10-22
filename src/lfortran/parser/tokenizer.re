@@ -115,8 +115,22 @@ uint64_t parse_int(const unsigned char *s)
 #define RET(x) token_loc(loc); last_token=yytokentype::x; return yytokentype::x;
 #define WARN_WS(x) add_ws_warning(diagnostics, yytokentype::KW_##x);
 
-void add_ws_warning(diag::Diagnostics &diagnostics, yytokentype end_token) {
-    // pass
+void Tokenizer::add_ws_warning(diag::Diagnostics &diagnostics, int end_token) {
+    if (end_token == yytokentype::KW_ENDIF) {
+        Location loc;
+        token_loc(loc);
+        diagnostics.tokenizer_warning_label(
+            "Style suggestion: write 'end if' instead of 'endif'",
+            {loc},
+            "help: write it as 'end if' to silence this warning");
+    } else if (end_token == yytokentype::KW_ENDDO) {
+        Location loc;
+        token_loc(loc);
+        diagnostics.tokenizer_warning_label(
+            "Style suggestion: write 'end do' instead of 'enddo'",
+            {loc},
+            "help: write it as 'end do' to silence this warning");
+    }
 }
 
 int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnostics &diagnostics)

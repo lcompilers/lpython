@@ -58,6 +58,7 @@ public:
         loc.first = tok-string_start;
         loc.last = cur-string_start-1;
     }
+    void add_ws_warning(diag::Diagnostics &diagnostics, int end_token);
 };
 
 bool lex_int(const unsigned char *s, const unsigned char *e, uint64_t &u,
