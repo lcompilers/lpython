@@ -1455,13 +1455,13 @@ return make_Program_t(al, a_loc,
 void add_ws_warning(const Location &loc,
         LFortran::diag::Diagnostics &diagnostics, int end_token) {
     if (end_token == yytokentype::KW_ENDDO) {
-        diagnostics.parser_warning_label(
-            "Style suggestion: use 'end do' instead of 'enddo'",
+        diagnostics.parser_style_label(
+            "Use 'end do' instead of 'enddo'",
             {loc},
             "help: write this as 'end do'");
     } else if (end_token == yytokentype::KW_ENDIF) {
-        diagnostics.parser_warning_label(
-            "Style suggestion: use 'end if' instead of 'endif'",
+        diagnostics.parser_style_label(
+            "Use 'end if' instead of 'endif'",
             {loc},
             "help: write this as 'end if'");
     }

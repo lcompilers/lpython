@@ -1,4 +1,4 @@
-warning: Style suggestion: use '==' instead of '.eq.'
+style suggestion: Use '==' instead of '.eq.'
  --> tests/../integration_tests/block_02.f90:7:14
   |
 7 |         IF (A.EQ.15) GO TO 1
