@@ -1901,8 +1901,8 @@ inout
 enddo
     : KW_END_DO
     | TK_LABEL KW_END_DO
-    | KW_ENDDO
-    | TK_LABEL KW_ENDDO
+    | KW_ENDDO { WARN_ENDDO(@$); }
+    | TK_LABEL KW_ENDDO {}
     ;
 
 endforall
