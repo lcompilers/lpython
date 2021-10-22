@@ -18,11 +18,13 @@ public:
     std::string inp;
 
 public:
+    diag::Diagnostics &diag;
     Allocator &m_a;
     Tokenizer m_tokenizer;
     Vec<AST::ast_t*> result;
 
-    Parser(Allocator &al) : m_a{al} {
+    Parser(Allocator &al, diag::Diagnostics &diagnostics)
+            : diag{diagnostics}, m_a{al} {
         result.reserve(al, 32);
     }
 
@@ -192,7 +194,8 @@ struct LocationManager {
 
 // Parses Fortran code to AST
 Result<AST::TranslationUnit_t*> parse(Allocator &al,
-    const std::string &s);
+    const std::string &s,
+    diag::Diagnostics &diagnostics);
 
 void populate_spans(diag::Diagnostic &d, const LocationManager &lm,
         const std::string &input);

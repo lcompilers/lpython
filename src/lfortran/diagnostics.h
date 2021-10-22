@@ -261,6 +261,9 @@ struct Diagnostics {
     std::string render(const std::string &input,
             const LocationManager &lm, const CompilerOptions &compiler_options);
 
+    // Returns true iff diagnostics contains at least one error message
+    bool has_error() const;
+
     void semantic_warning_label(const std::string &message,
             const std::vector<Location> &locations, const std::string &error_label) {
         diagnostics.push_back(

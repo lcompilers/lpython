@@ -356,12 +356,13 @@ end function)";
 
     // Src -> AST
     Allocator al(4*1024);
-    LFortran::AST::TranslationUnit_t* tu = TRY(LFortran::parse(al, source));
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::AST::TranslationUnit_t* tu = TRY(LFortran::parse(al, source,
+        diagnostics));
     LFortran::AST::ast_t* ast = tu->m_items[0];
     CHECK(LFortran::pickle(*ast) == "(Function f [] [] () () () [] [] [] [(Declaration (AttrType TypeInteger [] () None) [] [(f [] [] () None ())] ())] [(= 0 f 5 ())] [])");
 
     // AST -> ASR
-    LFortran::diag::Diagnostics diagnostics;
     LFortran::ASR::TranslationUnit_t* asr = TRY(LFortran::ast_to_asr(al, *tu,
         diagnostics));
     CHECK(LFortran::pickle(*asr) == "(TranslationUnit (SymbolTable 1 {f: (Function (SymbolTable 2 {f: (Variable 2 f ReturnVar () () Default (Integer 4 []) Source Public Required .false.)}) f [] [(= (Var 2 f) (ConstantInteger 5 (Integer 4 [])) ())] (Var 2 f) Source Public Implementation ())}) [])");
@@ -369,7 +370,7 @@ end function)";
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
     LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
-        res = LFortran::asr_to_llvm(*asr, e.get_context(), al,
+        res = LFortran::asr_to_llvm(*asr, diagnostics, e.get_context(), al,
             LFortran::get_platform());
     REQUIRE(res.ok);
     std::unique_ptr<LFortran::LLVMModule> m = std::move(res.result);
@@ -389,19 +390,20 @@ end function)";
 
     // Src -> AST
     Allocator al(4*1024);
-    LFortran::AST::TranslationUnit_t* tu = TRY(LFortran::parse(al, source));
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::AST::TranslationUnit_t* tu = TRY(LFortran::parse(al, source,
+        diagnostics));
     LFortran::AST::ast_t* ast = tu->m_items[0];
     CHECK(LFortran::pickle(*ast) == "(Function f [] [] () () () [] [] [] [(Declaration (AttrType TypeInteger [] () None) [] [(f [] [] () None ())] ())] [(= 0 f 4 ())] [])");
 
     // AST -> ASR
-    LFortran::diag::Diagnostics diagnostics;
     LFortran::ASR::TranslationUnit_t* asr = TRY(LFortran::ast_to_asr(al, *tu,
         diagnostics));
     CHECK(LFortran::pickle(*asr) == "(TranslationUnit (SymbolTable 3 {f: (Function (SymbolTable 4 {f: (Variable 4 f ReturnVar () () Default (Integer 4 []) Source Public Required .false.)}) f [] [(= (Var 4 f) (ConstantInteger 4 (Integer 4 [])) ())] (Var 4 f) Source Public Implementation ())}) [])");
     // ASR -> LLVM
     LFortran::LLVMEvaluator e;
     LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
-        res = LFortran::asr_to_llvm(*asr, e.get_context(), al,
+        res = LFortran::asr_to_llvm(*asr, diagnostics, e.get_context(), al,
             LFortran::get_platform());
     REQUIRE(res.ok);
     std::unique_ptr<LFortran::LLVMModule> m = std::move(res.result);

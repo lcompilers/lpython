@@ -94,8 +94,9 @@ TEST_CASE("Test longer parser (N = 500)") {
     }
     Allocator al(1024*1024);
     std::cout << "Parse" << std::endl;
+    LFortran::diag::Diagnostics diagnostics;
     auto t1 = std::chrono::high_resolution_clock::now();
-    auto result = LFortran::TRY(parse(al, text))->m_items[0];
+    auto result = LFortran::TRY(parse(al, text, diagnostics))->m_items[0];
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                      .count()
@@ -1265,7 +1266,8 @@ TEST_CASE("Location") {
     end subroutine)";
 
     Allocator al(1024*1024);
-    LFortran::AST::ast_t* result = LFortran::TRY(parse(al, input))->m_items[0];
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::AST::ast_t* result = LFortran::TRY(parse(al, input, diagnostics))->m_items[0];
     CHECK(result->loc.first == 0);
     CHECK(result->loc.last == 56);
     auto sub = cast(Subroutine, result);
@@ -1292,7 +1294,7 @@ TEST_CASE("Location") {
     x = y
     x = 213*yz
     end function)";
-    result = TRY(parse(al, input))->m_items[0];
+    result = TRY(parse(al, input, diagnostics))->m_items[0];
     CHECK(result->loc.first == 0);
     CHECK(result->loc.last == 54);
 
@@ -1300,7 +1302,7 @@ TEST_CASE("Location") {
     x = y
     x = 213*yz
     end program)";
-    result = TRY(parse(al, input))->m_items[0];
+    result = TRY(parse(al, input, diagnostics))->m_items[0];
     CHECK(result->loc.first == 0);
     CHECK(result->loc.last == 50);
 }
@@ -1308,9 +1310,10 @@ TEST_CASE("Location") {
 TEST_CASE("Errors") {
     Allocator al(1024*1024);
     std::string input;
+    LFortran::diag::Diagnostics diagnostics;
 
     input = "(2+3+";
-    Result<LFortran::AST::TranslationUnit_t*> res = parse(al, input);
+    Result<LFortran::AST::TranslationUnit_t*> res = parse(al, input, diagnostics);
     CHECK(res.ok == false);
     CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
     CHECK(res.error.d.labels[0].spans[0].loc.first == 5);
@@ -1320,7 +1323,7 @@ TEST_CASE("Errors") {
     x = y
     x = 213*yz+*
     end function)";
-    res = parse(al, input);
+    res = parse(al, input, diagnostics);
     CHECK(res.ok == false);
     CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
     CHECK(res.error.d.labels[0].spans[0].loc.first == 38);
@@ -1330,7 +1333,7 @@ TEST_CASE("Errors") {
     x = y
     x = 213-*yz
     end function)";
-    res = parse(al, input);
+    res = parse(al, input, diagnostics);
     CHECK(res.ok == false);
     CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
     CHECK(res.error.d.labels[0].spans[0].loc.first == 35);
@@ -1340,28 +1343,28 @@ TEST_CASE("Errors") {
     x = y xxy xx
     x = 213*yz
     end function)";
-    res = parse(al, input);
+    res = parse(al, input, diagnostics);
     CHECK(res.ok == false);
     CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
     CHECK(res.error.d.labels[0].spans[0].loc.first == 23);
     CHECK(res.error.d.labels[0].spans[0].loc.last == 25);
 
     input = "1 + .notx.";
-    res = parse(al, input);
+    res = parse(al, input, diagnostics);
     CHECK(res.ok == false);
     CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
     CHECK(res.error.d.labels[0].spans[0].loc.first == 10);
     CHECK(res.error.d.labels[0].spans[0].loc.last == 10);
 
     input = "1 + x allocate y";
-    res = parse(al, input);
+    res = parse(al, input, diagnostics);
     CHECK(res.ok == false);
     CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
     CHECK(res.error.d.labels[0].spans[0].loc.first == 6);
     CHECK(res.error.d.labels[0].spans[0].loc.last == 13);
 
     input = "1 @ x allocate y";
-    res = parse(al, input);
+    res = parse(al, input, diagnostics);
     CHECK(res.ok == false);
     CHECK(res.error.d.stage == LFortran::diag::Stage::Tokenizer);
     CHECK(res.error.d.labels[0].spans[0].loc.first == 2);

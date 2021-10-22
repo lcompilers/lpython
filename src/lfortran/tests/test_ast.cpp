@@ -42,8 +42,8 @@ print *, x
 end program
 )""";
 
-    AST::TranslationUnit_t* ast = TRY(LFortran::parse(al, src));
     LFortran::diag::Diagnostics diagnostics;
+    AST::TranslationUnit_t* ast = TRY(LFortran::parse(al, src, diagnostics));
     ASR::TranslationUnit_t* asr = TRY(LFortran::ast_to_asr(al, *ast,
         diagnostics));
 

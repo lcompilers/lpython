@@ -10,18 +10,21 @@
 namespace LFortran
 {
 
-Result<AST::TranslationUnit_t*> parse(Allocator &al, const std::string &s)
+Result<AST::TranslationUnit_t*> parse(Allocator &al, const std::string &s,
+        diag::Diagnostics &diagnostics)
 {
-    Parser p(al);
+    Parser p(al, diagnostics);
     try {
         p.parse(s);
     } catch (const parser_local::TokenizerError &e) {
         Error error;
         error.d = e.d;
+        diagnostics.diagnostics.push_back(e.d);
         return error;
     } catch (const parser_local::ParserError &e) {
         Error error;
         error.d = e.d;
+        diagnostics.diagnostics.push_back(e.d);
         return error;
     }
     Location l;

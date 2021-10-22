@@ -30,9 +30,10 @@ end subroutine)";
     }
 
     Allocator al(64*1024*1024); // The actual size is 31,600,600
+    LFortran::diag::Diagnostics diagnostics;
     std::cout << "Parse" << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
-    auto result = LFortran::parse(al, text);
+    auto result = LFortran::parse(al, text, diagnostics);
     auto t2 = std::chrono::high_resolution_clock::now();
 
     std::string p = LFortran::pickle(*LFortran::TRY(result));
