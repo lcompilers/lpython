@@ -189,6 +189,19 @@ struct LocationManager {
         }
     }
 
+    void get_newlines(const std::string &s, std::vector<uint32_t> &newlines) {
+        for (uint32_t pos=0; pos < s.size(); pos++) {
+            if (s[pos] == '\n') newlines.push_back(pos);
+        }
+    }
+
+    void init_simple(const std::string &input) {
+        uint32_t n = input.size();
+        out_start = {0, n};
+        in_start = {0, n};
+        get_newlines(input, in_newlines);
+    }
+
 };
 
 

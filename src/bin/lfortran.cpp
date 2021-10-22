@@ -110,6 +110,8 @@ int emit_tokens(const std::string &input, std::vector<std::string>
     LFortran::diag::Diagnostics diagnostics;
     auto res = LFortran::tokens(al, input, diagnostics, &stypes);
     LFortran::LocationManager lm;
+    lm.in_filename = "input";
+    lm.init_simple(input);
     LFortran::CompilerOptions cu;
     std::cerr << diagnostics.render(input, lm, cu);
     if (res.ok) {
@@ -374,6 +376,8 @@ int emit_tokens(const std::string &infile, bool line_numbers=false)
     LFortran::diag::Diagnostics diagnostics;
     auto res = LFortran::tokens(al, input, diagnostics, &stypes, &locations);
     LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    lm.init_simple(input);
     LFortran::CompilerOptions cu;
     std::cerr << diagnostics.render(input, lm, cu);
     if (res.ok) {
