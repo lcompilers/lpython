@@ -1,0 +1,5 @@
+warning: Style suggestion: use 'end if' instead of 'endif'
+  --> tests/../integration_tests/operator_overloading_01.f90:28:9
+   |
+28 |         endif
+   |         ^^^^^ help: write this as 'end if'

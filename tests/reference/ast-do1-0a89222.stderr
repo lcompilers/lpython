@@ -1,0 +1,5 @@
+warning: Style suggestion: use 'end do' instead of 'enddo'
+  --> tests/do1.f90:21:1
+   |
+21 | enddo
+   | ^^^^^ help: write this as 'end do'
