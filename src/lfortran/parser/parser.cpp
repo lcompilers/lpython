@@ -55,6 +55,7 @@ void Parser::parse(const std::string &input)
 }
 
 Result<std::vector<int>> tokens(Allocator &al, const std::string &input,
+        diag::Diagnostics &diagnostics,
         std::vector<YYSTYPE> *stypes,
         std::vector<Location> *locations)
 {
@@ -66,10 +67,11 @@ Result<std::vector<int>> tokens(Allocator &al, const std::string &input,
         YYSTYPE y;
         Location l;
         try {
-            token = t.lex(al, y, l);
+            token = t.lex(al, y, l, diagnostics);
         } catch (const parser_local::TokenizerError &e) {
             Error error;
             error.d = e.d;
+            diagnostics.diagnostics.push_back(e.d);
             return error;
         }
         tst.push_back(token);
@@ -612,7 +614,7 @@ void Parser::handle_yyerror(const Location &loc, const std::string &msg)
         LFortran::YYSTYPE yylval_;
         YYLTYPE yyloc_;
         this->m_tokenizer.cur = this->m_tokenizer.tok;
-        int token = this->m_tokenizer.lex(this->m_a, yylval_, yyloc_);
+        int token = this->m_tokenizer.lex(this->m_a, yylval_, yyloc_, diag);
         if (token == yytokentype::END_OF_FILE) {
             message =  "End of file is unexpected here";
         } else if (token == yytokentype::TK_NEWLINE) {

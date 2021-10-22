@@ -73,7 +73,8 @@ class TokenizerError0 {
 };
 
 std::vector<int> tokens(Allocator &al, const std::string &input) {
-    auto res = LFortran::tokens(al, input);
+    LFortran::diag::Diagnostics diagnostics;
+    auto res = LFortran::tokens(al, input, diagnostics);
     if (res.ok) {
         return res.result;
     } else {
@@ -409,6 +410,7 @@ TEST_CASE("Tokenizer") {
     std::string s;
     std::vector<int> ref;
     std::vector<LFortran::YYSTYPE> stypes;
+    LFortran::diag::Diagnostics diagnostics;
 
     s = R"(subroutine
     x = y
@@ -499,14 +501,14 @@ TEST_CASE("Tokenizer") {
         tt::TK_INTEGER,
         tt::END_OF_FILE,
     };
-    CHECK(TRY(tokens(al, s, &stypes)) == ref);
+    CHECK(TRY(tokens(al, s, diagnostics, &stypes)) == ref);
     CHECK(stypes[0].int_suffix.int_n.n == 2);
     unsigned long nref = 4294967295U;
     CHECK(stypes[2].int_suffix.int_n.n == nref);
 
     s = "2*18446744073709551616"; // 2**64, too large, will throw an exception
     stypes.clear();
-    CHECK(TRY(tokens(al, s, &stypes)) == ref);
+    CHECK(TRY(tokens(al, s, diagnostics, &stypes)) == ref);
     LFortran::BigInt::BigInt n = stypes[2].int_suffix.int_n;
     CHECK(n.is_large());
     CHECK(n.str() == "18446744073709551616");

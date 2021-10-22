@@ -35,7 +35,7 @@
 
 int yylex(LFortran::YYSTYPE *yylval, YYLTYPE *yyloc, LFortran::Parser &p)
 {
-    return p.m_tokenizer.lex(p.m_a, *yylval, *yyloc);
+    return p.m_tokenizer.lex(p.m_a, *yylval, *yyloc, p.diag);
 } // ylex
 
 void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)

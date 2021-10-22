@@ -107,11 +107,15 @@ int emit_tokens(const std::string &input, std::vector<std::string>
     Allocator al(64*1024*1024);
     //std::vector<int> toks;
     //std::vector<LFortran::YYSTYPE> stypes;
-    auto res = LFortran::tokens(al, input, &stypes);
+    LFortran::diag::Diagnostics diagnostics;
+    auto res = LFortran::tokens(al, input, diagnostics, &stypes);
+    LFortran::LocationManager lm;
+    LFortran::CompilerOptions cu;
+    std::cerr << diagnostics.render(input, lm, cu);
     if (res.ok) {
         toks = res.result;
     } else {
-        std::cerr << "Tokenizing error: " << res.error.d.message << std::endl;
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 1;
     }
 
@@ -367,11 +371,15 @@ int emit_tokens(const std::string &infile, bool line_numbers=false)
     std::vector<int> toks;
     std::vector<LFortran::YYSTYPE> stypes;
     std::vector<LFortran::Location> locations;
-    auto res = LFortran::tokens(al, input, &stypes, &locations);
+    LFortran::diag::Diagnostics diagnostics;
+    auto res = LFortran::tokens(al, input, diagnostics, &stypes, &locations);
+    LFortran::LocationManager lm;
+    LFortran::CompilerOptions cu;
+    std::cerr << diagnostics.render(input, lm, cu);
     if (res.ok) {
         toks = res.result;
     } else {
-        std::cerr << "Tokenizing error: " << res.error.d.message << std::endl;
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 1;
     }
 
