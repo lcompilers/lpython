@@ -1456,12 +1456,12 @@ void add_ws_warning(const Location &loc,
         LFortran::diag::Diagnostics &diagnostics, int end_token) {
     if (end_token == yytokentype::KW_ENDDO) {
         diagnostics.parser_warning_label(
-            "Style suggestion: write 'end do' instead of 'enddo'",
+            "Style suggestion: use 'end do' instead of 'enddo'",
             {loc},
             "help: write this as 'end do'");
     } else if (end_token == yytokentype::KW_ENDIF) {
         diagnostics.parser_warning_label(
-            "Style suggestion: write 'end if' instead of 'endif'",
+            "Style suggestion: use 'end if' instead of 'endif'",
             {loc},
             "help: write this as 'end if'");
     }
