@@ -181,7 +181,7 @@ if (MSVC)
     set(HAVE_LFORTRAN_DEMANGLE no)
 endif()
 
-# fmt
+# fmt (`conda install fmt`)
 set(WITH_FMT no CACHE BOOL "Build with `fmt` support")
 if (WITH_FMT)
     find_package(fmt)

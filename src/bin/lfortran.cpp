@@ -107,11 +107,17 @@ int emit_tokens(const std::string &input, std::vector<std::string>
     Allocator al(64*1024*1024);
     //std::vector<int> toks;
     //std::vector<LFortran::YYSTYPE> stypes;
-    auto res = LFortran::tokens(al, input, &stypes);
+    LFortran::diag::Diagnostics diagnostics;
+    auto res = LFortran::tokens(al, input, diagnostics, &stypes);
+    LFortran::LocationManager lm;
+    lm.in_filename = "input";
+    lm.init_simple(input);
+    LFortran::CompilerOptions cu;
+    std::cerr << diagnostics.render(input, lm, cu);
     if (res.ok) {
         toks = res.result;
     } else {
-        std::cerr << "Tokenizing error: " << res.error.d.message << std::endl;
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 1;
     }
 
@@ -359,7 +365,7 @@ int emit_prescan(const std::string &infile, CompilerOptions &compiler_options)
     return 0;
 }
 
-int emit_tokens(const std::string &infile, bool line_numbers=false)
+int emit_tokens(const std::string &infile, bool line_numbers, const CompilerOptions &compiler_options)
 {
     std::string input = read_file(infile);
     // Src -> Tokens
@@ -367,11 +373,16 @@ int emit_tokens(const std::string &infile, bool line_numbers=false)
     std::vector<int> toks;
     std::vector<LFortran::YYSTYPE> stypes;
     std::vector<LFortran::Location> locations;
-    auto res = LFortran::tokens(al, input, &stypes, &locations);
+    LFortran::diag::Diagnostics diagnostics;
+    auto res = LFortran::tokens(al, input, diagnostics, &stypes, &locations);
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    lm.init_simple(input);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
     if (res.ok) {
         toks = res.result;
     } else {
-        std::cerr << "Tokenizing error: " << res.error.d.message << std::endl;
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 1;
     }
 
@@ -1365,7 +1376,7 @@ int main(int argc, char *argv[])
             return emit_prescan(arg_file, compiler_options);
         }
         if (show_tokens) {
-            return emit_tokens(arg_file);
+            return emit_tokens(arg_file, false, compiler_options);
         }
         if (show_ast) {
             return emit_ast(arg_file, compiler_options);

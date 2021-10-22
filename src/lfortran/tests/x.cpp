@@ -24,11 +24,12 @@ int main()
     end subroutine)";
 
     LFortran::Tokenizer t;
+    LFortran::diag::Diagnostics diagnostics;
     t.set_string(input);
     LFortran::YYSTYPE y;
     LFortran::Location l;
     while (true) {
-        token = t.lex(al, y, l);
+        token = t.lex(al, y, l, diagnostics);
         std::cout << token << std::endl;
         if (token == yytokentype::TK_INTEGER) {
             print_loc(l);
@@ -38,7 +39,6 @@ int main()
 
 
     //yydebug=1;
-    LFortran::diag::Diagnostics diagnostics;
     result = LFortran::TRY(LFortran::parse(al, input, diagnostics))->m_items[0];
     std::string p = LFortran::pickle(*result);
     std::cout << p << std::endl;

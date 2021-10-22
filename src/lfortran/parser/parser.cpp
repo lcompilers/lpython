@@ -55,6 +55,7 @@ void Parser::parse(const std::string &input)
 }
 
 Result<std::vector<int>> tokens(Allocator &al, const std::string &input,
+        diag::Diagnostics &diagnostics,
         std::vector<YYSTYPE> *stypes,
         std::vector<Location> *locations)
 {
@@ -66,10 +67,11 @@ Result<std::vector<int>> tokens(Allocator &al, const std::string &input,
         YYSTYPE y;
         Location l;
         try {
-            token = t.lex(al, y, l);
+            token = t.lex(al, y, l, diagnostics);
         } catch (const parser_local::TokenizerError &e) {
             Error error;
             error.d = e.d;
+            diagnostics.diagnostics.push_back(e.d);
             return error;
         }
         tst.push_back(token);
@@ -220,6 +222,7 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
     if (fixed_form) {
         // `pos` is the position in the original code `s`
         // `out` is the final code (outcome)
+        lm.get_newlines(s, lm.in_newlines);
         lm.out_start.push_back(0);
         lm.in_start.push_back(0);
         std::string out;
@@ -252,11 +255,15 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
                 case LineType::Comment : {
                     // Skip
                     skip_rest_of_line(s, pos);
+                    lm.out_start.push_back(out.size());
+                    lm.in_start.push_back(pos);
                     break;
                 }
                 case LineType::Statement : {
                     // Copy from column 7
                     pos += 6;
+                    lm.out_start.push_back(out.size());
+                    lm.in_start.push_back(pos);
                     copy_rest_of_line(out, s, pos);
                     break;
                 }
@@ -264,6 +271,8 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
                     // Copy the label
                     copy_label(out, s, pos);
                     // Copy from column 7
+                    lm.out_start.push_back(out.size());
+                    lm.in_start.push_back(pos);
                     copy_rest_of_line(out, s, pos);
                     break;
                 }
@@ -271,6 +280,8 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
                     // Append from column 7 to previous line
                     out = out.substr(0, out.size()-1); // Remove the last '\n'
                     pos += 6;
+                    lm.out_start.push_back(out.size());
+                    lm.in_start.push_back(pos);
                     copy_rest_of_line(out, s, pos);
                     break;
                 }
@@ -280,6 +291,8 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
             };
             if (lt == LineType::EndOfFile) break;
         }
+        lm.in_start.push_back(pos);
+        lm.out_start.push_back(out.size());
         return out;
     } else {
         // `pos` is the position in the original code `s`
@@ -612,7 +625,7 @@ void Parser::handle_yyerror(const Location &loc, const std::string &msg)
         LFortran::YYSTYPE yylval_;
         YYLTYPE yyloc_;
         this->m_tokenizer.cur = this->m_tokenizer.tok;
-        int token = this->m_tokenizer.lex(this->m_a, yylval_, yyloc_);
+        int token = this->m_tokenizer.lex(this->m_a, yylval_, yyloc_, diag);
         if (token == yytokentype::END_OF_FILE) {
             message =  "End of file is unexpected here";
         } else if (token == yytokentype::TK_NEWLINE) {

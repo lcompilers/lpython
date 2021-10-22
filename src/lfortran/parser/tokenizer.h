@@ -30,7 +30,7 @@ public:
 
     // Get next token. Token ID is returned as function result, the semantic
     // value is put into `yylval`.
-    int lex(Allocator &al, YYSTYPE &yylval, Location &loc);
+    int lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnostics &diagnostics);
 
     // Return the current token as std::string
     std::string token() const
@@ -53,11 +53,12 @@ public:
     }
 
     // Return the current token's location
-    void token_loc(Location &loc)
+    void token_loc(Location &loc) const
     {
         loc.first = tok-string_start;
         loc.last = cur-string_start-1;
     }
+    void add_rel_warning(diag::Diagnostics &diagnostics, int rel_token) const;
 };
 
 bool lex_int(const unsigned char *s, const unsigned char *e, uint64_t &u,

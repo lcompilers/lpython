@@ -1,0 +1,17 @@
+warning: Style suggestion: use '>' instead of '.gt.'
+  --> tests/../integration_tests/goto_02.f90:10:12
+   |
+10 |       if (A.GT.2) go to 95
+   |            ^^^^ help: write this as '>'
+
+warning: Style suggestion: use '==' instead of '.eq.'
+  --> tests/../integration_tests/goto_02.f90:13:12
+   |
+13 |       if (A.EQ.1) go to 10
+   |            ^^^^ help: write this as '=='
+
+warning: Style suggestion: use '==' instead of '.eq.'
+  --> tests/../integration_tests/goto_02.f90:25:12
+   |
+25 |       if (A.EQ.2) go to 99
+   |            ^^^^ help: write this as '=='
