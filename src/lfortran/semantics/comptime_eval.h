@@ -95,6 +95,13 @@ struct IntrinsicProcedures {
             // left unevaluated in body visitor
             {"trim", {m_string, &not_implemented, false}},
             {"len_trim", {m_string, &not_implemented, false}},
+
+            // Subroutines
+            {"cpu_time", {m_math, &not_implemented, false}},
+            {"bit_size", {m_builtin, &not_implemented, false}},
+            {"not", {m_builtin, &not_implemented, false}},
+            {"iachar",  {m_builtin, &not_implemented, false}},
+            {"achar", {m_builtin, &eval_achar, false}},
             {"len", {m_builtin, &not_implemented, false}},
             {"size", {m_builtin, &not_implemented, false}},
             {"present", {m_builtin, &not_implemented, false}},
@@ -104,9 +111,9 @@ struct IntrinsicProcedures {
             {"minval", {m_builtin, &not_implemented, false}},
             {"maxval", {m_builtin, &not_implemented, false}},
             {"sum", {m_builtin, &not_implemented, false}},
-
-            // Subroutines
-            {"cpu_time", {m_math, &not_implemented, false}},
+            {"bit_size", {m_builtin, &not_implemented, false}},
+            {"not", {m_builtin, &not_implemented, false}},
+            {"index", {m_string, &not_implemented, false}},
         };
     }
 
@@ -556,6 +563,29 @@ TRIG(sqrt)
                 str_val, str_type));
         } else {
             throw SemanticError("char() must have one integer argument", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_achar(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        ASR::expr_t* int_expr = args[0];
+        ASR::ttype_t* int_type = LFortran::ASRUtils::expr_type(int_expr);
+        if (LFortran::ASR::is_a<LFortran::ASR::Integer_t>(*int_type)) {
+            int64_t c = ASR::down_cast<ASR::ConstantInteger_t>(LFortran::ASRUtils::expr_value(int_expr))->m_n;
+            ASR::ttype_t* str_type =
+                LFortran::ASRUtils::TYPE(ASR::make_Character_t(al,
+                loc, 1, 1, nullptr, nullptr, 0));
+            char cc = c;
+            std::string svalue;
+            svalue += cc;
+            Str s;
+            s.from_str_view(svalue);
+            char *str_val = s.c_str(al);
+            return ASR::down_cast<ASR::expr_t>(
+                ASR::make_ConstantString_t(al, loc,
+                str_val, str_type));
+        } else {
+            throw SemanticError("achar() must have one integer argument", loc);
         }
     }
 

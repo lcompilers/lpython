@@ -25,4 +25,33 @@ do i = 1, len(r)
 end do
 end function
 
+integer elemental function index(string_, substring_) result(idx)
+character(len=*), intent(in) :: string_
+character(len=*), intent(in) :: substring_
+integer :: i, j, k, pos
+logical :: found
+found = .true.
+idx = 0
+i = 1
+do while (i < len(string_) .and. found)
+    k = 0
+    j = 1
+    do while (j < len(substring_) .and. found)
+        pos = i + k
+        if( string_(pos:pos) /= substring_(j:j) ) then
+            found = .false.
+        end if
+        k = k + 1
+        j = j + 1
+    end do
+    if( found ) then
+        idx = i
+        found = .false.
+    else
+        found = .true.
+    end if
+    i = i + 1
+end do
+end function
+
 end module
