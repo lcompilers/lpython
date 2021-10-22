@@ -24,6 +24,7 @@ struct CompilerOptions {
     bool fast = false;
     bool openmp = false;
     bool no_warnings = false;
+    bool no_error_banner = false;
     std::string target = "";
     Platform platform;
 
