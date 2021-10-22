@@ -222,7 +222,9 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
             out << "first (" << s.first_line << ":" << s.first_column;
             out << ")" << std::endl;
             std::string line = s.source_code[0];
-            out << highlight_line(line, s.first_column, line.size(), use_colors);
+            if (s.first_column <= line.size()) {
+                out << highlight_line(line, s.first_column, line.size(), use_colors);
+            }
             out << "last (" << s.last_line << ":" << s.last_column;
             out << ")" << std::endl;
             line = s.source_code[s.source_code.size()-1];
