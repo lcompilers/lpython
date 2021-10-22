@@ -99,7 +99,7 @@ def fixdir(s):
     local_dir = os.getcwd()
     return s.replace(local_dir.encode(), "$DIR".encode())
 
-def run(basename, cmd, out_dir, infile=None):
+def run(basename, cmd, out_dir, infile=None, extra_args=None):
     """
     Runs the `cmd` and collects stdout, stderr, exit code.
 
@@ -118,6 +118,7 @@ def run(basename, cmd, out_dir, infile=None):
     out_dir .... output directory to store output
     infile ..... optional input file. If present, it will check that it exists
                  and hash it.
+    extra_args . extra arguments, not part of the hash
 
     Examples:
 
@@ -131,6 +132,8 @@ def run(basename, cmd, out_dir, infile=None):
         raise RunException("The input file does not exist")
     outfile = os.path.join(out_dir, basename + "." + "out")
     cmd2 = cmd.format(infile=infile, outfile=outfile)
+    if extra_args:
+        cmd2 += " " + extra_args
     r = subprocess.run(cmd2, shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
@@ -183,7 +186,8 @@ def run(basename, cmd, out_dir, infile=None):
     json.dump(data, open(json_file, "w"), indent=4)
     return json_file
 
-def run_test(basename, cmd, infile=None, update_reference=False):
+def run_test(basename, cmd, infile=None, update_reference=False,
+        extra_args=None):
     """
     Runs the test `cmd` and compare against reference results.
 
@@ -200,6 +204,8 @@ def run_test(basename, cmd, infile=None, update_reference=False):
                          it exists and hash it.
     update_reference ... if True, it will copy the output into the reference
                          directory as reference results, overwriting old ones
+    extra_args ......... Extra arguments to append to the command that are not
+                         part of the hash
 
     Examples:
 
@@ -212,7 +218,8 @@ def run_test(basename, cmd, infile=None, update_reference=False):
     basename = bname(basename, cmd, infile)
     if infile:
         infile = os.path.join("tests", infile)
-    jo = run(basename, cmd, os.path.join("tests", "output"), infile=infile)
+    jo = run(basename, cmd, os.path.join("tests", "output"), infile=infile,
+            extra_args=extra_args)
     jr = os.path.join("tests", "reference", os.path.basename(jo))
     do = json.load(open(jo))
     if update_reference:

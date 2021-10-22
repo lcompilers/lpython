@@ -60,32 +60,34 @@ def main():
 
         print(color(style.bold)+"TEST:"+color(style.reset), filename)
 
+        extra_args = "--no-error-banner"
+
         if tokens:
             run_test("tokens", "lfortran --no-color --show-tokens {infile} -o {outfile}",
-                    filename, update_reference)
+                    filename, update_reference, extra_args)
 
         if ast:
             if filename.endswith(".f"):
                 # Use fixed form
                 run_test("ast", "lfortran --fixed-form --show-ast --no-color {infile} -o {outfile}",
-                        filename, update_reference)
+                        filename, update_reference, extra_args)
             else:
                 # Use free form
                 run_test("ast", "lfortran --show-ast --no-color {infile} -o {outfile}",
-                        filename, update_reference)
+                        filename, update_reference, extra_args)
         if ast_indent:
             run_test("ast_indent", "lfortran --show-ast --indent --no-color {infile} -o {outfile}",
-                    filename, update_reference)
+                    filename, update_reference, extra_args)
 
         if ast_f90:
             if filename.endswith(".f"):
                 # Use fixed form
                 run_test("ast_f90", "lfortran --fixed-form --show-ast-f90 --no-color {infile}",
-                        filename, update_reference)
+                        filename, update_reference, extra_args)
             else:
                 # Use free form
                 run_test("ast_f90", "lfortran --show-ast-f90 --no-color {infile}",
-                        filename, update_reference)
+                        filename, update_reference, extra_args)
 
         if ast_openmp:
             run_test("ast_openmp", "cpptranslate --show-ast-openmp {infile}",
@@ -93,15 +95,15 @@ def main():
 
         if asr:
             run_test("asr", "lfortran --show-asr --no-color {infile} -o {outfile}",
-                    filename, update_reference)
+                    filename, update_reference, extra_args)
 
         if asr_preprocess:
             run_test("asr_preprocess", "lfortran --cpp --show-asr --no-color {infile} -o {outfile}",
-                    filename, update_reference)
+                    filename, update_reference, extra_args)
 
         if asr_indent:
             run_test("asr_indent", "lfortran --show-asr --indent --no-color {infile} -o {outfile}",
-                filename, update_reference)
+                filename, update_reference, extra_args)
 
         if mod_to_asr:
             run_test("mod_to_asr", "lfortran mod --show-asr --no-color {infile}",
@@ -109,37 +111,37 @@ def main():
 
         if pass_ == "do_loops":
             run_test("pass_do_loops", "lfortran --pass=do_loops --show-asr --no-color {infile} -o {outfile}",
-                    filename, update_reference)
+                    filename, update_reference, extra_args)
 
         if pass_ == "global_stmts":
             run_test("pass_global_stmts", "lfortran --pass=global_stmts --show-asr --no-color {infile} -o {outfile}",
-                    filename, update_reference)
+                    filename, update_reference, extra_args)
 
         if llvm:
             if no_llvm:
                 print("    * llvm   SKIPPED as requested")
             else:
                 run_test("llvm", "lfortran --no-color --show-llvm {infile} -o {outfile}",
-                        filename, update_reference)
+                        filename, update_reference, extra_args)
 
         if cpp:
             run_test("cpp", "lfortran --no-color --show-cpp {infile}",
-                    filename, update_reference)
+                    filename, update_reference, extra_args)
 
         if obj:
             if no_llvm:
                 print("    * obj    SKIPPED as requested")
             else:
                 run_test("obj", "lfortran --no-color -c {infile} -o output.o",
-                        filename, update_reference)
+                        filename, update_reference, extra_args)
 
         if x86:
             run_test("x86", "lfortran --no-color --backend=x86 {infile} -o output",
-                    filename, update_reference)
+                    filename, update_reference, extra_args)
 
         if bin_:
             run_test("bin", "lfortran --no-color {infile} -o {outfile}",
-                    filename, update_reference)
+                    filename, update_reference, extra_args)
 
 
         print()
