@@ -3284,6 +3284,10 @@ public:
     }
 
     void visit_Print(const ASR::Print_t &x) {
+        if (x.m_fmt != nullptr) {
+            diag.codegen_warning_label("format string in `print` is not implemented yet and it is currently treated as '*'",
+                {x.m_fmt->base.loc}, "treated as '*'");
+        }
         handle_print(x);
     }
 
