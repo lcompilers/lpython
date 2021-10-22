@@ -113,24 +113,25 @@ uint64_t parse_int(const unsigned char *s)
 
 #define KW(x) token(yylval.string); RET(KW_##x);
 #define RET(x) token_loc(loc); last_token=yytokentype::x; return yytokentype::x;
-#define WARN_WS(x) add_ws_warning(diagnostics, yytokentype::KW_##x);
+#define WARN_REL(x) add_rel_warning(diagnostics, yytokentype::TK_##x);
 
-void Tokenizer::add_ws_warning(diag::Diagnostics &diagnostics, int end_token) {
-    if (end_token == yytokentype::KW_ENDIF) {
-        Location loc;
-        token_loc(loc);
-        diagnostics.tokenizer_warning_label(
-            "Style suggestion: write 'end if' instead of 'endif'",
-            {loc},
-            "help: write it as 'end if' to silence this warning");
-    } else if (end_token == yytokentype::KW_ENDDO) {
-        Location loc;
-        token_loc(loc);
-        diagnostics.tokenizer_warning_label(
-            "Style suggestion: write 'end do' instead of 'enddo'",
-            {loc},
-            "help: write it as 'end do' to silence this warning");
-    }
+void Tokenizer::add_rel_warning(diag::Diagnostics &diagnostics, int rel_token) const {
+    static const std::map<int, std::pair<std::string, std::string>> m = {
+        {yytokentype::TK_EQ, {"==", ".eq."}},
+        {yytokentype::TK_NE, {"/=", ".ne."}},
+        {yytokentype::TK_LT, {"<",  ".lt."}},
+        {yytokentype::TK_GT, {">",  ".gt."}},
+        {yytokentype::TK_LE, {"<=", ".le."}},
+        {yytokentype::TK_GE, {">=", ".ge."}},
+    };
+    const std::string rel_new = m.at(rel_token).first;
+    const std::string rel_old = m.at(rel_token).second;
+    Location loc;
+    token_loc(loc);
+    diagnostics.tokenizer_warning_label(
+        "Style suggestion: use '" + rel_new + "' instead of '" + rel_old + "'",
+        {loc},
+        "help: write this as '" + rel_new + "'");
 }
 
 int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnostics &diagnostics)
@@ -344,7 +345,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             'endforall' { KW(ENDFORALL) }
 
             'end' whitespace 'if' { KW(END_IF) }
-            'endif' { WARN_WS(ENDIF) KW(ENDIF) }
+            'endif' { KW(ENDIF) }
 
             'end' whitespace 'interface' { KW(END_INTERFACE) }
             'endinterface' { KW(ENDINTERFACE) }
@@ -363,7 +364,6 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 if (enddo_newline_process) {
                     KW(CONTINUE)
                 } else {
-                    WARN_WS(ENDDO) 
                     KW(ENDDO)
                 }
             }
@@ -544,12 +544,24 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "=>" { RET(TK_ARROW) }
 
             // Relational operators
-            '.eq.' | "==" { RET(TK_EQ) }
-            '.ne.' | "/=" { RET(TK_NE) }
-            '.lt.' | "<"  { RET(TK_LT) }
-            '.le.' | "<=" { RET(TK_LE) }
-            '.gt.' | ">"  { RET(TK_GT) }
-            '.ge.' | ">=" { RET(TK_GE) }
+            "=="   { RET(TK_EQ) }
+            '.eq.' { WARN_REL(EQ) RET(TK_EQ) }
+
+            "/="   { RET(TK_NE) }
+            '.ne.' { WARN_REL(NE) RET(TK_NE) }
+
+            "<"    { RET(TK_LT) }
+            '.lt.' { WARN_REL(LT) RET(TK_LT) }
+
+            "<="   { RET(TK_LE) }
+            '.le.' { WARN_REL(LE) RET(TK_LE) }
+
+            ">"    { RET(TK_GT) }
+            '.gt.' { WARN_REL(GT) RET(TK_GT) }
+
+            ">="   { RET(TK_GE) }
+            '.ge.' { WARN_REL(GE) RET(TK_GE) }
+
 
             // Logical operators
             '.not.'  { RET(TK_NOT) }
