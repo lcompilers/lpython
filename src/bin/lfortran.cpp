@@ -829,16 +829,18 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
 
     // ASR -> x86 machine code
     {
+        diagnostics.diagnostics.clear();
         auto t1 = std::chrono::high_resolution_clock::now();
         LFortran::Result<int>
             result = LFortran::asr_to_x86(*asr, al, outfile, time_report);
         auto t2 = std::chrono::high_resolution_clock::now();
         time_asr_to_x86 = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
 
+        std::cerr << diagnostics.render(input, lm, compiler_options);
         if (result.ok) {
             // pass
         } else {
-            std::cerr << fe.format_error(result.error, input, lm);
+            LFORTRAN_ASSERT(diagnostics.has_error())
             return 3;
         }
     }

@@ -641,7 +641,6 @@ Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
             v.visit_asr((ASR::asr_t &)asr);
         } catch (const CodeGenError &e) {
             Error error;
-            error.d = e.d;
             return error;
         }
         auto t2 = std::chrono::high_resolution_clock::now();

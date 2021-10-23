@@ -18,12 +18,10 @@ Result<AST::TranslationUnit_t*> parse(Allocator &al, const std::string &s,
         p.parse(s);
     } catch (const parser_local::TokenizerError &e) {
         Error error;
-        error.d = e.d;
         diagnostics.diagnostics.push_back(e.d);
         return error;
     } catch (const parser_local::ParserError &e) {
         Error error;
-        error.d = e.d;
         diagnostics.diagnostics.push_back(e.d);
         return error;
     }
@@ -69,10 +67,8 @@ Result<std::vector<int>> tokens(Allocator &al, const std::string &input,
         try {
             token = t.lex(al, y, l, diagnostics);
         } catch (const parser_local::TokenizerError &e) {
-            Error error;
-            error.d = e.d;
             diagnostics.diagnostics.push_back(e.d);
-            return error;
+            return Error();
         }
         tst.push_back(token);
         if (stypes) stypes->push_back(y);

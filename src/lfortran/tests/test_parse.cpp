@@ -1317,9 +1317,12 @@ TEST_CASE("Errors") {
     input = "(2+3+";
     Result<LFortran::AST::TranslationUnit_t*> res = parse(al, input, diagnostics);
     CHECK(res.ok == false);
-    CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
-    CHECK(res.error.d.labels[0].spans[0].loc.first == 5);
-    CHECK(res.error.d.labels[0].spans[0].loc.last == 5);
+    REQUIRE(diagnostics.diagnostics.size() >= 1);
+    CHECK(diagnostics.diagnostics[0].stage == LFortran::diag::Stage::Parser);
+    CHECK(diagnostics.diagnostics[0].labels[0].spans[0].loc.first == 5);
+    CHECK(diagnostics.diagnostics[0].labels[0].spans[0].loc.last == 5);
+    diagnostics.diagnostics.clear();
+
 
     input = R"(function f()
     x = y
@@ -1327,9 +1330,11 @@ TEST_CASE("Errors") {
     end function)";
     res = parse(al, input, diagnostics);
     CHECK(res.ok == false);
-    CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
-    CHECK(res.error.d.labels[0].spans[0].loc.first == 38);
-    CHECK(res.error.d.labels[0].spans[0].loc.last == 38);
+    REQUIRE(diagnostics.diagnostics.size() >= 1);
+    CHECK(diagnostics.diagnostics[0].stage == LFortran::diag::Stage::Parser);
+    CHECK(diagnostics.diagnostics[0].labels[0].spans[0].loc.first == 38);
+    CHECK(diagnostics.diagnostics[0].labels[0].spans[0].loc.last == 38);
+    diagnostics.diagnostics.clear();
 
     input = R"(function f()
     x = y
@@ -1337,9 +1342,11 @@ TEST_CASE("Errors") {
     end function)";
     res = parse(al, input, diagnostics);
     CHECK(res.ok == false);
-    CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
-    CHECK(res.error.d.labels[0].spans[0].loc.first == 35);
-    CHECK(res.error.d.labels[0].spans[0].loc.last == 35);
+    REQUIRE(diagnostics.diagnostics.size() >= 1);
+    CHECK(diagnostics.diagnostics[0].stage == LFortran::diag::Stage::Parser);
+    CHECK(diagnostics.diagnostics[0].labels[0].spans[0].loc.first == 35);
+    CHECK(diagnostics.diagnostics[0].labels[0].spans[0].loc.last == 35);
+    diagnostics.diagnostics.clear();
 
     input = R"(function f()
     x = y xxy xx
@@ -1347,28 +1354,36 @@ TEST_CASE("Errors") {
     end function)";
     res = parse(al, input, diagnostics);
     CHECK(res.ok == false);
-    CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
-    CHECK(res.error.d.labels[0].spans[0].loc.first == 23);
-    CHECK(res.error.d.labels[0].spans[0].loc.last == 25);
+    REQUIRE(diagnostics.diagnostics.size() >= 1);
+    CHECK(diagnostics.diagnostics[0].stage == LFortran::diag::Stage::Parser);
+    CHECK(diagnostics.diagnostics[0].labels[0].spans[0].loc.first == 23);
+    CHECK(diagnostics.diagnostics[0].labels[0].spans[0].loc.last == 25);
+    diagnostics.diagnostics.clear();
 
     input = "1 + .notx.";
     res = parse(al, input, diagnostics);
     CHECK(res.ok == false);
-    CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
-    CHECK(res.error.d.labels[0].spans[0].loc.first == 10);
-    CHECK(res.error.d.labels[0].spans[0].loc.last == 10);
+    REQUIRE(diagnostics.diagnostics.size() >= 1);
+    CHECK(diagnostics.diagnostics[0].stage == LFortran::diag::Stage::Parser);
+    CHECK(diagnostics.diagnostics[0].labels[0].spans[0].loc.first == 10);
+    CHECK(diagnostics.diagnostics[0].labels[0].spans[0].loc.last == 10);
+    diagnostics.diagnostics.clear();
 
     input = "1 + x allocate y";
     res = parse(al, input, diagnostics);
     CHECK(res.ok == false);
-    CHECK(res.error.d.stage == LFortran::diag::Stage::Parser);
-    CHECK(res.error.d.labels[0].spans[0].loc.first == 6);
-    CHECK(res.error.d.labels[0].spans[0].loc.last == 13);
+    REQUIRE(diagnostics.diagnostics.size() >= 1);
+    CHECK(diagnostics.diagnostics[0].stage == LFortran::diag::Stage::Parser);
+    CHECK(diagnostics.diagnostics[0].labels[0].spans[0].loc.first == 6);
+    CHECK(diagnostics.diagnostics[0].labels[0].spans[0].loc.last == 13);
+    diagnostics.diagnostics.clear();
 
     input = "1 @ x allocate y";
     res = parse(al, input, diagnostics);
     CHECK(res.ok == false);
-    CHECK(res.error.d.stage == LFortran::diag::Stage::Tokenizer);
-    CHECK(res.error.d.labels[0].spans[0].loc.first == 2);
-    CHECK(res.error.d.labels[0].spans[0].loc.last == 2);
+    REQUIRE(diagnostics.diagnostics.size() >= 1);
+    CHECK(diagnostics.diagnostics[0].stage == LFortran::diag::Stage::Tokenizer);
+    CHECK(diagnostics.diagnostics[0].labels[0].spans[0].loc.first == 2);
+    CHECK(diagnostics.diagnostics[0].labels[0].spans[0].loc.last == 2);
+    diagnostics.diagnostics.clear();
 }

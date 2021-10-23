@@ -522,18 +522,29 @@ end subroutine
 TEST_CASE("FortranEvaluator 6") {
     CompilerOptions cu;
     FortranEvaluator e(cu);
+
+    LFortran::LocationManager lm;
+    lm.in_filename = "input";
+    LFortran::diag::Diagnostics diagnostics;
+
     LFortran::Result<FortranEvaluator::EvalResult>
-    r = e.evaluate2("$");
+    r = e.evaluate("$", false, lm, diagnostics);
     CHECK(!r.ok);
-    CHECK(r.error.d.stage == LFortran::diag::Stage::Tokenizer);
+    REQUIRE(diagnostics.diagnostics.size() >= 1);
+    CHECK(diagnostics.diagnostics[0].stage == LFortran::diag::Stage::Tokenizer);
+    diagnostics.diagnostics.clear();
 
-    r = e.evaluate2("1x");
+    r = e.evaluate("1x", false, lm, diagnostics);
     CHECK(!r.ok);
-    CHECK(r.error.d.stage == LFortran::diag::Stage::Parser);
+    REQUIRE(diagnostics.diagnostics.size() >= 1);
+    CHECK(diagnostics.diagnostics[0].stage == LFortran::diag::Stage::Parser);
+    diagnostics.diagnostics.clear();
 
-    r = e.evaluate2("x = 'x'");
+    r = e.evaluate("x = 'x'", false, lm, diagnostics);
     CHECK(!r.ok);
-    CHECK(r.error.d.stage == LFortran::diag::Stage::Semantic);
+    REQUIRE(diagnostics.diagnostics.size() >= 1);
+    CHECK(diagnostics.diagnostics[0].stage == LFortran::diag::Stage::Semantic);
+    diagnostics.diagnostics.clear();
 }
 
 // Tests passing the complex struct by reference

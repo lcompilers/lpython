@@ -31,8 +31,25 @@ typedef enum {
 namespace LFortran
 {
 
+/*
+    This Error structure is returned in Result when failure happens.
+
+    The diagnostic messages contain warnings and error(s). In the past when
+    just one error was returned, it made sense to return it as part of the
+    Error structure in Result. However now when warnings are also reported,
+    those we want to return in any case. Also since multiple errors can be
+    reported, they are now storted independently of the exception that is
+    internally used to abort the analysis (typically a visitor pattern).
+
+    For the above reasons the diagnostic messages are now returned as an
+    argument, independently of the Result<T>, and they can contain messages on
+    success also. On failure they contain at least one error message (and in
+    addition can contain warnings and more error messages).
+
+    Consequently, we do not currently store anything in the Error structure
+    below.
+*/
 struct Error {
-    diag::Diagnostic d;
 };
 
 template<typename T>

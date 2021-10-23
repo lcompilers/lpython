@@ -1426,7 +1426,6 @@ Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, AST::TranslationUnit_t &
     } catch (const SemanticError &e) {
         Error error;
         diagnostics.diagnostics.push_back(e.d);
-        error.d = e.d;
         return error;
     }
     ASR::asr_t *unit = v.tmp;

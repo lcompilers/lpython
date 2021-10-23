@@ -1138,7 +1138,6 @@ Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al,
     } catch (const SemanticError &e) {
         Error error;
         diagnostics.diagnostics.push_back(e.d);
-        error.d = e.d;
         return error;
     }
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
