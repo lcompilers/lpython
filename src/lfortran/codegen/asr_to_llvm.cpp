@@ -1411,6 +1411,10 @@ public:
                     if( is_array_type && !is_malloc_array_type ) {
                         fill_array_details(ptr, m_dims, n_dims);
                     }
+                    if( is_array_type && is_malloc_array_type ) {
+                        // Set allocatable arrays as unallocated
+                        arr_descr->set_is_allocated_flag(ptr, 0);
+                    }
                     if( v->m_symbolic_value != nullptr ) {
                         target_var = ptr;
                         this->visit_expr_wrapper(v->m_symbolic_value, true);
