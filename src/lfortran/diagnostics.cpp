@@ -74,6 +74,18 @@ std::string Diagnostics::render(const std::string &input,
             compiler_options.show_stacktrace);
         if (&d != &this->diagnostics.back()) out += "\n";
     }
+    if (this->diagnostics.size() > 0 && !compiler_options.no_error_banner) {
+        std::string bold  = "\033[0;1m";
+        std::string reset = "\033[0;00m";
+        if (!compiler_options.use_colors) {
+            bold = "";
+            reset = "";
+        }
+        out += "\n\n";
+        out += bold + "Note" + reset
+            + ": if any of the above error or warning messages are not clear or are\n";
+        out += "lacking context please report it to us, as we consider that a bug.\n";
+    }
     return out;
 }
 
