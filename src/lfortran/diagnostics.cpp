@@ -75,16 +75,18 @@ std::string Diagnostics::render(const std::string &input,
         if (&d != &this->diagnostics.back()) out += "\n";
     }
     if (this->diagnostics.size() > 0 && !compiler_options.no_error_banner) {
-        std::string bold  = "\033[0;1m";
-        std::string reset = "\033[0;00m";
-        if (!compiler_options.use_colors) {
-            bold = "";
-            reset = "";
+        if (!compiler_options.no_warnings || has_error()) {
+            std::string bold  = "\033[0;1m";
+            std::string reset = "\033[0;00m";
+            if (!compiler_options.use_colors) {
+                bold = "";
+                reset = "";
+            }
+            out += "\n\n";
+            out += bold + "Note" + reset
+                + ": if any of the above error or warning messages are not clear or are lacking\n";
+            out += "context please report it to us, as we consider that a bug that we need to fix.\n";
         }
-        out += "\n\n";
-        out += bold + "Note" + reset
-            + ": if any of the above error or warning messages are not clear or are\n";
-        out += "lacking context please report it to us, as we consider that a bug.\n";
     }
     return out;
 }
