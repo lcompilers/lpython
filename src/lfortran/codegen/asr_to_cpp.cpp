@@ -1001,7 +1001,6 @@ Result<std::string> asr_to_cpp(ASR::TranslationUnit_t &asr)
         v.visit_asr((ASR::asr_t &)asr);
     } catch (const CodeGenError &e) {
         Error error;
-        error.d = e.d;
         return error;
     }
     return v.src;

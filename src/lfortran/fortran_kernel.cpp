@@ -113,6 +113,7 @@ namespace LFortran
         FortranEvaluator::EvalResult r;
         std::string std_out;
         std::string code0;
+        CompilerOptions cu;
         try {
             if (startswith(code, "%%showast")) {
                 code0 = code.substr(code.find("\n")+1);
@@ -127,7 +128,7 @@ namespace LFortran
                     result["payload"] = nl::json::array();
                     result["user_expressions"] = nl::json::object();
                 } else {
-                    std::string msg = e.format_error(res.error, code0, lm);
+                    std::string msg = diagnostics.render(code0, lm, cu);
                     publish_stream("stderr", msg);
                     result["status"] = "error";
                     result["ename"] = "CompilerError";
@@ -149,7 +150,7 @@ namespace LFortran
                     result["payload"] = nl::json::array();
                     result["user_expressions"] = nl::json::object();
                 } else {
-                    std::string msg = e.format_error(res.error, code0, lm);
+                    std::string msg = diagnostics.render(code0, lm, cu);
                     publish_stream("stderr", msg);
                     result["status"] = "error";
                     result["ename"] = "CompilerError";
@@ -171,7 +172,7 @@ namespace LFortran
                     result["payload"] = nl::json::array();
                     result["user_expressions"] = nl::json::object();
                 } else {
-                    std::string msg = e.format_error(res.error, code0, lm);
+                    std::string msg = diagnostics.render(code0, lm, cu);
                     publish_stream("stderr", msg);
                     result["status"] = "error";
                     result["ename"] = "CompilerError";
@@ -193,7 +194,7 @@ namespace LFortran
                     result["payload"] = nl::json::array();
                     result["user_expressions"] = nl::json::object();
                 } else {
-                    std::string msg = e.format_error(res.error, code0, lm);
+                    std::string msg = diagnostics.render(code0, lm, cu);
                     publish_stream("stderr", msg);
                     result["status"] = "error";
                     result["ename"] = "CompilerError";
@@ -215,7 +216,7 @@ namespace LFortran
                     result["payload"] = nl::json::array();
                     result["user_expressions"] = nl::json::object();
                 } else {
-                    std::string msg = e.format_error(res.error, code0, lm);
+                    std::string msg = diagnostics.render(code0, lm, cu);
                     publish_stream("stderr", msg);
                     result["status"] = "error";
                     result["ename"] = "CompilerError";
@@ -237,7 +238,7 @@ namespace LFortran
                     result["payload"] = nl::json::array();
                     result["user_expressions"] = nl::json::object();
                 } else {
-                    std::string msg = e.format_error(res.error, code0, lm);
+                    std::string msg = diagnostics.render(code0, lm, cu);
                     publish_stream("stderr", msg);
                     result["status"] = "error";
                     result["ename"] = "CompilerError";
@@ -256,7 +257,7 @@ namespace LFortran
             if (res.ok) {
                 r = res.result;
             } else {
-                std::string msg = e.format_error(res.error, code0, lm);
+                std::string msg = diagnostics.render(code0, lm, cu);
                 publish_stream("stderr", msg);
                 nl::json result;
                 result["status"] = "error";

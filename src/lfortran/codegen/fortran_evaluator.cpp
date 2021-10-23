@@ -382,14 +382,6 @@ Result<std::string> FortranEvaluator::get_fmt(const std::string &code,
     }
 }
 
-std::string FortranEvaluator::format_error(const Error &e, const std::string &input,
-        const LocationManager &lm) const
-{
-    diag::Diagnostic d = e.d;
-    return diag::render_diagnostic(d, input, lm, compiler_options.use_colors,
-        compiler_options.show_stacktrace);
-}
-
 std::string FortranEvaluator::error_stacktrace(const std::vector<StacktraceItem> &stacktrace)
 {
     std::vector<StacktraceItem> d = stacktrace;

@@ -72,8 +72,6 @@ public:
     Result<std::string> get_fmt(const std::string &code, LocationManager &lm,
         diag::Diagnostics &diagnostics);
 
-    std::string format_error(const Error &e, const std::string &input,
-            const LocationManager &lm) const;
     static std::string error_stacktrace(const std::vector<StacktraceItem> &stacktrace);
 
 private:

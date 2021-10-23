@@ -3947,12 +3947,10 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
         v.visit_asr((ASR::asr_t&)asr);
     } catch (const CodeGenError &e) {
         Error error;
-        error.d = e.d;
         diagnostics.diagnostics.push_back(e.d);
         return error;
     } catch (const CodeGenAbort &) {
         Error error;
-        error.d = diagnostics.diagnostics.back();
         return error;
     }
     std::string msg;
@@ -3964,9 +3962,8 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
         std::cout << os.str();
         std::string msg = "asr_to_llvm: module failed verification. Error:\n"
             + err.str();
+        diagnostics.diagnostics.push_back(diag::Diagnostic::codegen_error(msg));
         Error error;
-        error.d = diag::Diagnostic::codegen_error(msg);
-        diagnostics.diagnostics.push_back(error.d);
         return error;
     };
     return std::make_unique<LLVMModule>(std::move(v.module));
