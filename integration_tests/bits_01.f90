@@ -4,4 +4,8 @@ implicit none
 
 if (ibclr(3_int32, 0) /= 2_int32) error stop
 if (ibclr(4_int64, 1) /= 4_int64) error stop
+
+if (ibset(1_int32, 2) /= 5_int32) error stop
+if (ibset(2_int64, 3) /= 10_int64) error stop
+
 end program
