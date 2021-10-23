@@ -729,36 +729,6 @@ public:
         tmp = nullptr;
     }
 
-    bool is_integer(ASR::ttype_t &t) {
-        if (ASR::is_a<ASR::Integer_t>(t) ||
-                ASR::is_a<ASR::IntegerPointer_t>(t)) {
-            return true;
-        }
-        return false;
-    }
-
-    bool is_real(ASR::ttype_t &t) {
-        if (ASR::is_a<ASR::Real_t>(t) ||
-                ASR::is_a<ASR::RealPointer_t>(t)) {
-            return true;
-        }
-        return false;
-    }
-
-    bool assignment_types_agree(ASR::ttype_t *target, ASR::ttype_t *value) {
-        // For now we will just check basic type mismatch
-        if (target->type == value->type) {
-            return true;
-        }
-        if (is_integer(*target) && is_integer(*value)) {
-            return true;
-        }
-        if (is_real(*target) && is_real(*value)) {
-            return true;
-        }
-        return false;
-    }
-
     void visit_Assignment(const AST::Assignment_t &x) {
         this->visit_expr(*x.m_target);
         ASR::expr_t *target = LFortran::ASRUtils::EXPR(tmp);
