@@ -988,7 +988,8 @@ public:
             std::vector<std::string> proc_names;
             fill_interface_proc_names(x, proc_names);
             generic_procedures[std::string(generic_name)] = proc_names;
-        } else if (AST::is_a<AST::InterfaceHeader_t>(*x.m_header)) {
+        } else if (AST::is_a<AST::InterfaceHeader_t>(*x.m_header) || 
+                   AST::is_a<AST::AbstractInterfaceHeader_t>(*x.m_header)) {
             std::vector<std::string> proc_names;
             for (size_t i = 0; i < x.n_items; i++) {
                 visit_interface_item(*x.m_items[i]);

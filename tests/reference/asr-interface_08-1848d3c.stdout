@@ -1,0 +1,1 @@
+(TranslationUnit (SymbolTable 1 {interface_08: (Module (SymbolTable 2 {sub: (Subroutine (SymbolTable 3 {x: (Variable 3 x In () () Default (Integer 4 []) Source Public Required .false.), y: (Variable 3 y In () () Default (Integer 4 []) Source Public Required .false.)}) sub [(Var 3 x) (Var 3 y)] [] Source Public Interface ())}) interface_08 [] .false.)}) [])
