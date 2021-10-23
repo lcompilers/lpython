@@ -10,6 +10,10 @@ interface ior
     module procedure ior32, ior64
 end interface
 
+interface ieor
+    module procedure ieor32, ieor64
+end interface
+
 interface ibclr
     module procedure ibclr32, ibclr64
 end interface
@@ -78,6 +82,34 @@ interface
     end function
 end interface
 r = c_ior64(x, y)
+end function
+
+! ieor --------------------------------------------------------------------------
+
+elemental integer(int32) function ieor32(x, y) result(r)
+integer(int32), intent(in) :: x
+integer(int32), intent(in) :: y
+interface
+    pure integer(int32) function c_ieor32(x, y) bind(c, name="_lfortran_ieor32")
+    import :: int32
+    integer(int32), intent(in), value :: x
+    integer(int32), intent(in), value :: y
+    end function
+end interface
+r = c_ieor32(x, y)
+end function
+
+elemental integer(int64) function ieor64(x, y) result(r)
+integer(int64), intent(in) :: x
+integer(int64), intent(in) :: y
+interface
+    pure integer(int64) function c_ieor64(x, y) bind(c, name="_lfortran_ieor64")
+    import :: int64
+    integer(int64), intent(in), value :: x
+    integer(int64), intent(in), value :: y
+    end function
+end interface
+r = c_ieor64(x, y)
 end function
 
 ! ibclr --------------------------------------------------------------------------
