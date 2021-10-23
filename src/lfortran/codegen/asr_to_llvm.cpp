@@ -1560,6 +1560,10 @@ public:
                                         // type_fx2 is i64
                                         llvm::Type* type_fx2 = llvm::Type::getInt64Ty(context);
                                         type = type_fx2;
+                                    } else if (platform == Platform::macOS_ARM) {
+                                        // type_fx2 is [2 x float]
+                                        llvm::Type* type_fx2 = llvm::ArrayType::get(llvm::Type::getFloatTy(context), 2);
+                                        type = type_fx2;
                                     } else {
                                         // type_fx2 is <2 x float>
                                         llvm::Type* type_fx2 = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2);
@@ -2014,6 +2018,9 @@ public:
                         if (platform == Platform::Windows) {
                             // i64
                             return_type = llvm::Type::getInt64Ty(context);
+                        } else if (platform == Platform::macOS_ARM) {
+                            // {float, float}
+                            return_type = getComplexType(a_kind);
                         } else {
                             // <2 x float>
                             return_type = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2);
@@ -2156,6 +2163,9 @@ public:
                         // Convert {float,float}* to i64* using bitcast
                         tmp = builder->CreateBitCast(tmp, type_fx2p);
                         // Then convert i64* -> i64
+                        tmp = builder->CreateLoad(tmp);
+                    } else if (platform == Platform::macOS_ARM) {
+                        // Pass by value
                         tmp = builder->CreateLoad(tmp);
                     } else {
                         // tmp is {float, float}*
@@ -3536,6 +3546,14 @@ public:
                                                         tmp = builder->CreateBitCast(tmp, type_fx2p);
                                                         // Then convert i64* -> i64
                                                         tmp = builder->CreateLoad(tmp);
+                                                    } else if (platform == Platform::macOS_ARM) {
+                                                        // tmp is {float, float}*
+                                                        // type_fx2p is [2 x float]*
+                                                        llvm::Type* type_fx2p = llvm::ArrayType::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
+                                                        // Convert {float,float}* to [2 x float]* using bitcast
+                                                        tmp = builder->CreateBitCast(tmp, type_fx2p);
+                                                        // Then convert [2 x float]* -> [2 x float]
+                                                        tmp = builder->CreateLoad(tmp);
                                                     } else {
                                                         // tmp is {float, float}*
                                                         // type_fx2p is <2 x float>*
@@ -3862,6 +3880,8 @@ public:
                         tmp = builder->CreateBitCast(p_fx2, complex_type_4->getPointerTo());
                         // Convert {float,float}* to {float,float}
                         tmp = builder->CreateLoad(tmp);
+                    } else if (platform == Platform::macOS_ARM) {
+                        // pass
                     } else {
                         // tmp is <2 x float>, have to convert to {float, float}
 

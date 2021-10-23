@@ -7,7 +7,10 @@
 namespace LFortran {
 
 enum Platform {
-    Linux, macOS, Windows
+    Linux,
+    macOS_Intel,
+    macOS_ARM,
+    Windows
 };
 
 Platform get_platform();
