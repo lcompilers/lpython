@@ -63,8 +63,21 @@ namespace LFortran {
 
 namespace {
 
+    // This exception is used to abort the visitor pattern when an error occurs.
+    // This is only used locally in this file, not propagated outside. An error
+    // must be already present in ASRToLLVMVisitor::diag before throwing this
+    // exception. This is checked with an assert when the CodeGenAbort is
+    // caught.
+    class CodeGenAbort
+    {
+    };
+
     // Local exception that is only used in this file to exit the visitor
-    // pattern and caught later (not propagated outside)
+    // pattern and caught later (not propagated outside). It accepts an error
+    // message that is then appended at the end of ASRToLLVMVisitor::diag.  The
+    // `diag` can already contain other errors or warnings.  This is a
+    // convenience class. One can also report the error into `diag` directly and
+    // call `CodeGenAbort` instead.
     class CodeGenError
     {
     public:
@@ -77,10 +90,6 @@ namespace {
         CodeGenError(const std::string &msg, const Location &loc)
             : d{diag::Diagnostic::codegen_error(msg, loc)}
         { }
-    };
-
-    class CodeGenAbort
-    {
     };
 
 }
@@ -3950,6 +3959,7 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
         diagnostics.diagnostics.push_back(e.d);
         return error;
     } catch (const CodeGenAbort &) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         Error error;
         return error;
     }
