@@ -916,7 +916,12 @@ public:
             ASR::expr_t *expr = LFortran::ASRUtils::EXPR(tmp);
             body.push_back(al, expr);
         }
-        tmp = ASR::make_Print_t(al, x.base.base.loc, nullptr,
+        ASR::expr_t *fmt=nullptr;
+        if (x.m_fmt != nullptr) {
+            this->visit_expr(*x.m_fmt);
+            fmt = ASRUtils::EXPR(tmp);
+        }
+        tmp = ASR::make_Print_t(al, x.base.base.loc, fmt,
             body.p, body.size());
     }
 

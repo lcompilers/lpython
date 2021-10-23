@@ -79,6 +79,10 @@ namespace {
         { }
     };
 
+    class CodeGenAbort
+    {
+    };
+
 }
 
 
@@ -3290,15 +3294,24 @@ public:
     }
 
     void visit_Print(const ASR::Print_t &x) {
+        if (x.m_fmt != nullptr) {
+            diag.codegen_warning_label("format string in `print` is not implemented yet and it is currently treated as '*'",
+                {x.m_fmt->base.loc}, "treated as '*'");
+        }
         handle_print(x);
     }
 
     void visit_Write(const ASR::Write_t &x) {
-        if (x.m_fmt == nullptr && x.m_unit == nullptr) {
-            handle_print(x);
-        } else {
-            throw CodeGenError("fmt and unit not implemented in write yet");
+        if (x.m_fmt != nullptr) {
+            diag.codegen_warning_label("format string in write() is not implemented yet and it is currently treated as '*'",
+                {x.m_fmt->base.loc}, "treated as '*'");
         }
+        if (x.m_unit != nullptr) {
+            diag.codegen_error_label("unit in write() is not implemented yet",
+                {x.m_unit->base.loc}, "not implemented");
+            throw CodeGenAbort();
+        }
+        handle_print(x);
     }
 
     template <typename T>
@@ -3932,6 +3945,10 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
         Error error;
         error.d = e.d;
         diagnostics.diagnostics.push_back(e.d);
+        return error;
+    } catch (const CodeGenAbort &) {
+        Error error;
+        error.d = diagnostics.diagnostics.back();
         return error;
     }
     std::string msg;

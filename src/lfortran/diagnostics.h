@@ -253,6 +253,49 @@ struct Diagnostic {
         return d;
     }
 
+    static Diagnostic codegen_warning_label(const std::string &message,
+            const std::vector<Location> &locations, const std::string &error_label) {
+        diag::Label l;
+        l.primary = true;
+        l.message = error_label;
+        for (auto &loc : locations) {
+            Span s;
+            s.loc = loc;
+            l.spans.push_back(s);
+
+        }
+        diag::Diagnostic d;
+        d.level = Level::Warning;
+        d.stage = Stage::CodeGen;
+        d.message = message;
+        d.labels.push_back(l);
+        return d;
+    }
+
+    static Diagnostic message_label(const std::string &message,
+            const std::vector<Location> &locations,
+            const std::string &error_label,
+            const Level &level,
+            const Stage &stage
+            ) {
+        diag::Label l;
+        l.primary = true;
+        l.message = error_label;
+        for (auto &loc : locations) {
+            Span s;
+            s.loc = loc;
+            l.spans.push_back(s);
+
+        }
+        diag::Diagnostic d;
+        d.level = level;
+        d.stage = stage;
+        d.message = message;
+        d.labels.push_back(l);
+        return d;
+    }
+
+
     static Diagnostic tokenizer_style_label(const std::string &message,
             const std::vector<Location> &locations, const std::string &error_label) {
         diag::Label l;
@@ -363,6 +406,25 @@ struct Diagnostics {
         diagnostics.push_back(
             Diagnostic::parser_warning_label(
                 message, locations, error_label
+            )
+        );
+    }
+
+    void codegen_warning_label(const std::string &message,
+            const std::vector<Location> &locations, const std::string &error_label) {
+        diagnostics.push_back(
+            Diagnostic::codegen_warning_label(
+                message, locations, error_label
+            )
+        );
+    }
+
+    void codegen_error_label(const std::string &message,
+            const std::vector<Location> &locations, const std::string &error_label) {
+        diagnostics.push_back(
+            Diagnostic::message_label(
+                message, locations, error_label,
+                Level::Error, Stage::CodeGen
             )
         );
     }
