@@ -88,7 +88,7 @@ struct IntrinsicProcedures {
             {"iand", {m_bit, &not_implemented, false}},
             {"ior", {m_bit, &not_implemented, false}},
             {"ibclr", {m_bit, &eval_ibclr, true}},
-            {"ibset", {m_bit, &not_implemented, false}},
+            {"ibset", {m_bit, &eval_ibset, true}},
             {"btest", {m_bit, &not_implemented, false}},
 
             // These will fail if used in symbol table visitor, but will be
@@ -682,12 +682,50 @@ TRIG(sqrt)
         }
     }
 
+    static ASR::expr_t *eval_ibset(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        if (args.size() != 2) {
+            throw SemanticError("The ibset intrinsic function accepts exactly 2 arguments", loc);
+        }
+        ASR::expr_t* arg1 = args[0];
+        ASR::expr_t* arg2 = args[1];
+        ASR::ttype_t* t1 = LFortran::ASRUtils::expr_type(arg1);
+        ASR::ttype_t* t2 = LFortran::ASRUtils::expr_type(arg2);
+        if (ASR::is_a<LFortran::ASR::Integer_t>(*t1) && ASR::is_a<LFortran::ASR::Integer_t>(*t2)) {
+            int pos = ASR::down_cast<ASR::ConstantInteger_t>(arg2)->m_n;
+            int t1_kind = ASRUtils::extract_kind_from_ttype_t(t1);
+            if (t1_kind == 4 && pos >= 0 && pos < 32) {
+                int32_t i = ASR::down_cast<ASR::ConstantInteger_t>(arg1)->m_n;
+                int32_t val = IntrinsicProcedures::lfortran_ibset32(i, pos);
+                ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, t1_kind, nullptr, 0));
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, val, type));
+            } else if (t1_kind == 8 && pos >= 0 && pos < 64) {
+                int64_t i = ASR::down_cast<ASR::ConstantInteger_t>(arg1)->m_n;
+                int64_t val = IntrinsicProcedures::lfortran_ibset64(i, pos);
+                ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, t1_kind, nullptr, 0));
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, val, type));
+            } else {
+                throw SemanticError("ibset(i, pos) for pos < 0 or pos >= bit_size(i) is not allowed", loc);
+            }
+        } else {
+            throw SemanticError("Arguments for this intrinsic function must be Integer", loc);
+        }
+    }
+
     static int32_t lfortran_ibclr32(int32_t i, int pos) {
         return i & ~(1 << pos);
     }
 
     static int64_t lfortran_ibclr64(int64_t i, int pos) {
         return i & ~(1LL << pos);
+    }
+
+    static int32_t lfortran_ibset32(int32_t i, int pos) {
+        return i | (1 << pos);
+    }
+
+    static int64_t lfortran_ibset64(int64_t i, int pos) {
+        return i | (1LL << pos);
     }
 
 }; // ComptimeEval
