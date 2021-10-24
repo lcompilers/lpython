@@ -103,6 +103,28 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
     }
 }
 
+static inline std::string type_to_str(const ASR::ttype_t *t)
+{
+    switch (t->type) {
+        case ASR::ttypeType::Integer: {
+            return "integer";
+        }
+        case ASR::ttypeType::Real: {
+            return "real";
+        }
+        case ASR::ttypeType::Complex: {
+            return "complex";
+        }
+        case ASR::ttypeType::Logical: {
+            return "logical";
+        }
+        case ASR::ttypeType::Character: {
+            return "character";
+        }
+        default : throw LFortranException("Not implemented");
+    }
+}
+
 static inline ASR::expr_t* expr_value(ASR::expr_t *f)
 {
     switch (f->type) {

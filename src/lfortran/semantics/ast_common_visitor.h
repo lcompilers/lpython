@@ -1081,14 +1081,14 @@ public:
         ImplicitCastRules::set_converted_value(al, x.base.base.loc, conversion_cand,
                                             source_type, dest_type);
 
-        if (!ASRUtils::check_equal_type(LFortran::ASRUtils::expr_type(left),
-                                    LFortran::ASRUtils::expr_type(right))) {
-            // TODO:
-            // * print the LHS and RHS types as strings
+        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(left),
+                                    ASRUtils::expr_type(right))) {
+            std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
+            std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
             diag.semantic_error_label(
                 "Type mismatch in binary operator, the types must be compatible",
                 {left->base.loc, right->base.loc},
-                "type mismatch"
+                "type mismatch (" + ltype + " and " + rtype + ")"
             );
             throw SemanticAbort();
         }
