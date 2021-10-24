@@ -1614,6 +1614,16 @@ public:
                     }
                     break;
                 }
+                case (ASR::ttypeType::Logical) : {
+                    ASR::Logical_t *a2 = ASR::down_cast<ASR::Logical_t>(&a);
+                    ASR::Logical_t *b2 = ASR::down_cast<ASR::Logical_t>(&b);
+                    if (a2->m_kind == b2->m_kind) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                    break;
+                }
                 default : return false;
             }
         }
