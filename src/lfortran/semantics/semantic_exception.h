@@ -20,6 +20,10 @@ public:
     SemanticError(const diag::Diagnostic &d) : d{d} { }
 };
 
+class SemanticAbort
+{
+};
+
 }
 
 

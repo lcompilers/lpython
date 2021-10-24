@@ -72,166 +72,6 @@ static inline int64_t stmt_label(AST::stmt_t *f)
 class CommonVisitorMethods {
 public:
 
-inline static void visit_BinOp(Allocator &al, const AST::BinOp_t &x,
-                                ASR::expr_t *&left, ASR::expr_t *&right,
-                                ASR::asr_t *&asr, std::string& intrinsic_op_name,
-                                SymbolTable* curr_scope) {
-    ASR::binopType op;
-    switch (x.m_op) {
-        case (AST::Add):
-            op = ASR::Add;
-            break;
-        case (AST::Sub):
-            op = ASR::Sub;
-            break;
-        case (AST::Mul):
-            op = ASR::Mul;
-            break;
-        case (AST::Div):
-            op = ASR::Div;
-            break;
-        case (AST::Pow):
-            op = ASR::Pow;
-            break;
-        // Fix compiler warning:
-        default: {
-            LFORTRAN_ASSERT(false);
-            op = ASR::binopType::Pow;
-        }
-    }
-
-    // Cast LHS or RHS if necessary
-    ASR::ttype_t *left_type = LFortran::ASRUtils::expr_type(left);
-    ASR::ttype_t *right_type = LFortran::ASRUtils::expr_type(right);
-    ASR::expr_t *overloaded = nullptr;
-    if( LFortran::ASRUtils::use_overloaded(left, right, op,
-        intrinsic_op_name, curr_scope, asr, al,
-        x.base.base.loc) ) {
-        overloaded = LFortran::ASRUtils::EXPR(asr);
-    }
-
-    ASR::expr_t **conversion_cand = &left;
-    ASR::ttype_t *source_type = left_type;
-    ASR::ttype_t *dest_type = right_type;
-
-    ImplicitCastRules::find_conversion_candidate(&left, &right, left_type,
-                                                 right_type, conversion_cand,
-                                                 &source_type, &dest_type);
-    ImplicitCastRules::set_converted_value(al, x.base.base.loc, conversion_cand,
-                                           source_type, dest_type);
-
-    LFORTRAN_ASSERT(
-        ASRUtils::check_equal_type(LFortran::ASRUtils::expr_type(left),
-                                   LFortran::ASRUtils::expr_type(right)));
-    ASR::expr_t *value = nullptr;
-    // Assign evaluation to `value` if possible, otherwise leave nullptr
-    if (LFortran::ASRUtils::expr_value(left) != nullptr &&
-                LFortran::ASRUtils::expr_value(right) != nullptr) {
-        if (ASR::is_a<LFortran::ASR::Integer_t>(*dest_type)) {
-            int64_t left_value = ASR::down_cast<ASR::ConstantInteger_t>(
-                                    LFortran::ASRUtils::expr_value(left))
-                                    ->m_n;
-            int64_t right_value = ASR::down_cast<ASR::ConstantInteger_t>(
-                                    LFortran::ASRUtils::expr_value(right))
-                                    ->m_n;
-            int64_t result;
-            switch (op) {
-                case (ASR::Add):
-                    result = left_value + right_value;
-                    break;
-                case (ASR::Sub):
-                    result = left_value - right_value;
-                    break;
-                case (ASR::Mul):
-                    result = left_value * right_value;
-                    break;
-                case (ASR::Div):
-                    result = left_value / right_value;
-                    break;
-                case (ASR::Pow):
-                    result = std::pow(left_value, right_value);
-                    break;
-                // Reconsider
-                default: {
-                    LFORTRAN_ASSERT(false);
-                    op = ASR::binopType::Pow;
-                }
-            }
-            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
-                al, x.base.base.loc, result, dest_type));
-        } else if (ASR::is_a<LFortran::ASR::Real_t>(*dest_type)) {
-            double left_value = ASR::down_cast<ASR::ConstantReal_t>(
-                                    LFortran::ASRUtils::expr_value(left))
-                                    ->m_r;
-            double right_value = ASR::down_cast<ASR::ConstantReal_t>(
-                                    LFortran::ASRUtils::expr_value(right))
-                                    ->m_r;
-            double result;
-            switch (op) {
-                case (ASR::Add):
-                    result = left_value + right_value;
-                    break;
-                case (ASR::Sub):
-                    result = left_value - right_value;
-                    break;
-                case (ASR::Mul):
-                    result = left_value * right_value;
-                    break;
-                case (ASR::Div):
-                    result = left_value / right_value;
-                    break;
-                case (ASR::Pow):
-                    result = std::pow(left_value, right_value);
-                    break;
-                // Reconsider
-                default: {
-                    LFORTRAN_ASSERT(false);
-                    op = ASR::binopType::Pow;
-                }
-            }
-            value = ASR::down_cast<ASR::expr_t>(
-                ASR::make_ConstantReal_t(al, x.base.base.loc, result, dest_type));
-        } else if (ASR::is_a<LFortran::ASR::Complex_t>(*dest_type)) {
-            ASR::ConstantComplex_t *left0
-                = ASR::down_cast<ASR::ConstantComplex_t>(
-                        LFortran::ASRUtils::expr_value(left));
-            ASR::ConstantComplex_t *right0
-                = ASR::down_cast<ASR::ConstantComplex_t>(
-                        LFortran::ASRUtils::expr_value(right));
-            std::complex<double> left_value(left0->m_re, left0->m_im);
-            std::complex<double> right_value(right0->m_re, right0->m_im);
-            std::complex<double> result;
-            switch (op) {
-                case (ASR::Add):
-                    result = left_value + right_value;
-                    break;
-                case (ASR::Sub):
-                    result = left_value - right_value;
-                    break;
-                case (ASR::Mul):
-                    result = left_value * right_value;
-                    break;
-                case (ASR::Div):
-                    result = left_value / right_value;
-                    break;
-                case (ASR::Pow):
-                    result = std::pow(left_value, right_value);
-                    break;
-                // Reconsider
-                default: {
-                    LFORTRAN_ASSERT(false);
-                    op = ASR::binopType::Pow;
-                }
-            }
-            value = ASR::down_cast<ASR::expr_t>(
-                ASR::make_ConstantComplex_t(al, x.base.base.loc,
-                    std::real(result), std::imag(result), dest_type));
-        }
-    }
-    asr = ASR::make_BinOp_t(al, x.base.base.loc, left, op, right, dest_type,
-                            value, overloaded);
-  }
-
   inline static void visit_Compare(Allocator &al, const AST::Compare_t &x,
                                    ASR::expr_t *&left, ASR::expr_t *&right,
                                    ASR::asr_t *&asr, std::string& intrinsic_op_name,
@@ -1163,12 +1003,211 @@ public:
         return v;
     }
 
+    bool is_integer(ASR::ttype_t &t) {
+        if (ASR::is_a<ASR::Integer_t>(t) ||
+                ASR::is_a<ASR::IntegerPointer_t>(t)) {
+            return true;
+        }
+        return false;
+    }
+
+    bool is_real(ASR::ttype_t &t) {
+        if (ASR::is_a<ASR::Real_t>(t) ||
+                ASR::is_a<ASR::RealPointer_t>(t)) {
+            return true;
+        }
+        return false;
+    }
+
+    bool assignment_types_agree(ASR::ttype_t *target, ASR::ttype_t *value) {
+        // For now we will just check basic type mismatch
+        if (target->type == value->type) {
+            return true;
+        }
+        if (is_integer(*target) && is_integer(*value)) {
+            return true;
+        }
+        if (is_real(*target) && is_real(*value)) {
+            return true;
+        }
+        return false;
+    }
+
+    void visit_BinOp2(Allocator &al, const AST::BinOp_t &x,
+                                    ASR::expr_t *&left, ASR::expr_t *&right,
+                                    ASR::asr_t *&asr, std::string& intrinsic_op_name,
+                                    SymbolTable* curr_scope) {
+        ASR::binopType op;
+        switch (x.m_op) {
+            case (AST::Add):
+                op = ASR::Add;
+                break;
+            case (AST::Sub):
+                op = ASR::Sub;
+                break;
+            case (AST::Mul):
+                op = ASR::Mul;
+                break;
+            case (AST::Div):
+                op = ASR::Div;
+                break;
+            case (AST::Pow):
+                op = ASR::Pow;
+                break;
+            // Fix compiler warning:
+            default: {
+                LFORTRAN_ASSERT(false);
+                op = ASR::binopType::Pow;
+            }
+        }
+
+        // Cast LHS or RHS if necessary
+        ASR::ttype_t *left_type = LFortran::ASRUtils::expr_type(left);
+        ASR::ttype_t *right_type = LFortran::ASRUtils::expr_type(right);
+        ASR::expr_t *overloaded = nullptr;
+        if( LFortran::ASRUtils::use_overloaded(left, right, op,
+            intrinsic_op_name, curr_scope, asr, al,
+            x.base.base.loc) ) {
+            overloaded = LFortran::ASRUtils::EXPR(asr);
+        }
+
+        ASR::expr_t **conversion_cand = &left;
+        ASR::ttype_t *source_type = left_type;
+        ASR::ttype_t *dest_type = right_type;
+
+        ImplicitCastRules::find_conversion_candidate(&left, &right, left_type,
+                                                    right_type, conversion_cand,
+                                                    &source_type, &dest_type);
+        ImplicitCastRules::set_converted_value(al, x.base.base.loc, conversion_cand,
+                                            source_type, dest_type);
+
+        if (!ASRUtils::check_equal_type(LFortran::ASRUtils::expr_type(left),
+                                    LFortran::ASRUtils::expr_type(right))) {
+            // TODO:
+            // * print the LHS and RHS types as strings
+            diag.semantic_error_label(
+                "Type mismatch in binary operator, the types must be compatible",
+                {left->base.loc, right->base.loc},
+                "type mismatch"
+            );
+            throw SemanticAbort();
+        }
+        ASR::expr_t *value = nullptr;
+        // Assign evaluation to `value` if possible, otherwise leave nullptr
+        if (LFortran::ASRUtils::expr_value(left) != nullptr &&
+                    LFortran::ASRUtils::expr_value(right) != nullptr) {
+            if (ASR::is_a<LFortran::ASR::Integer_t>(*dest_type)) {
+                int64_t left_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                        LFortran::ASRUtils::expr_value(left))
+                                        ->m_n;
+                int64_t right_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                        LFortran::ASRUtils::expr_value(right))
+                                        ->m_n;
+                int64_t result;
+                switch (op) {
+                    case (ASR::Add):
+                        result = left_value + right_value;
+                        break;
+                    case (ASR::Sub):
+                        result = left_value - right_value;
+                        break;
+                    case (ASR::Mul):
+                        result = left_value * right_value;
+                        break;
+                    case (ASR::Div):
+                        result = left_value / right_value;
+                        break;
+                    case (ASR::Pow):
+                        result = std::pow(left_value, right_value);
+                        break;
+                    // Reconsider
+                    default: {
+                        LFORTRAN_ASSERT(false);
+                        op = ASR::binopType::Pow;
+                    }
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
+                    al, x.base.base.loc, result, dest_type));
+            } else if (ASR::is_a<LFortran::ASR::Real_t>(*dest_type)) {
+                double left_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                        LFortran::ASRUtils::expr_value(left))
+                                        ->m_r;
+                double right_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                        LFortran::ASRUtils::expr_value(right))
+                                        ->m_r;
+                double result;
+                switch (op) {
+                    case (ASR::Add):
+                        result = left_value + right_value;
+                        break;
+                    case (ASR::Sub):
+                        result = left_value - right_value;
+                        break;
+                    case (ASR::Mul):
+                        result = left_value * right_value;
+                        break;
+                    case (ASR::Div):
+                        result = left_value / right_value;
+                        break;
+                    case (ASR::Pow):
+                        result = std::pow(left_value, right_value);
+                        break;
+                    // Reconsider
+                    default: {
+                        LFORTRAN_ASSERT(false);
+                        op = ASR::binopType::Pow;
+                    }
+                }
+                value = ASR::down_cast<ASR::expr_t>(
+                    ASR::make_ConstantReal_t(al, x.base.base.loc, result, dest_type));
+            } else if (ASR::is_a<LFortran::ASR::Complex_t>(*dest_type)) {
+                ASR::ConstantComplex_t *left0
+                    = ASR::down_cast<ASR::ConstantComplex_t>(
+                            LFortran::ASRUtils::expr_value(left));
+                ASR::ConstantComplex_t *right0
+                    = ASR::down_cast<ASR::ConstantComplex_t>(
+                            LFortran::ASRUtils::expr_value(right));
+                std::complex<double> left_value(left0->m_re, left0->m_im);
+                std::complex<double> right_value(right0->m_re, right0->m_im);
+                std::complex<double> result;
+                switch (op) {
+                    case (ASR::Add):
+                        result = left_value + right_value;
+                        break;
+                    case (ASR::Sub):
+                        result = left_value - right_value;
+                        break;
+                    case (ASR::Mul):
+                        result = left_value * right_value;
+                        break;
+                    case (ASR::Div):
+                        result = left_value / right_value;
+                        break;
+                    case (ASR::Pow):
+                        result = std::pow(left_value, right_value);
+                        break;
+                    // Reconsider
+                    default: {
+                        LFORTRAN_ASSERT(false);
+                        op = ASR::binopType::Pow;
+                    }
+                }
+                value = ASR::down_cast<ASR::expr_t>(
+                    ASR::make_ConstantComplex_t(al, x.base.base.loc,
+                        std::real(result), std::imag(result), dest_type));
+            }
+        }
+        asr = ASR::make_BinOp_t(al, x.base.base.loc, left, op, right, dest_type,
+                                value, overloaded);
+    }
+
+
     void visit_BinOp(const AST::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
-        CommonVisitorMethods::visit_BinOp(al, x, left, right, tmp, binop2str[x.m_op], current_scope);
+        visit_BinOp2(al, x, left, right, tmp, binop2str[x.m_op], current_scope);
     }
 
     void visit_BoolOp(const AST::BoolOp_t &x) {

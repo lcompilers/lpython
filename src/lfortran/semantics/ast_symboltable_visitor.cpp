@@ -1428,6 +1428,9 @@ Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, AST::TranslationUnit_t &
         Error error;
         diagnostics.diagnostics.push_back(e.d);
         return error;
+    } catch (const SemanticAbort &) {
+        Error error;
+        return error;
     }
     ASR::asr_t *unit = v.tmp;
     return unit;
