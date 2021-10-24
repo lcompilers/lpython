@@ -3709,9 +3709,8 @@ public:
         last_expr_precedence = 13;
     }
 
-    void visit_String(const String_t &x) {
+    void check_quotes(const std::string r) {
         s = syn(gr::String);
-        std::string r = x.m_s;
         int dq = 0, sq = 0;
         for (auto x: r) {
             if (x == '"') dq++;
@@ -3727,6 +3726,25 @@ public:
             s += "\"";
         }
         s += syn();
+    }
+
+    void visit_String(const String_t &x) {
+        check_quotes(x.m_s);
+        last_expr_precedence = 13;
+    }
+
+    void visit_Substring(const Substring_t &x) {
+        std::string r;
+        check_quotes(x.m_s);
+        r = s;
+        r.append("(");
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_fnarg(x.m_args[i]);
+            r.append(s);
+            if (i < x.n_args-1) r.append(", ");
+        }
+        r.append(")");
+        s = r;
         last_expr_precedence = 13;
     }
 
