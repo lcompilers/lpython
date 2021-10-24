@@ -1735,7 +1735,9 @@ ast_t* SUBSTRING_(Allocator &al, const LFortran::Str &str,
     Vec<fnarg_t> v;
     v.reserve(al, args.size());
     for (auto &item : args) {
-        LFORTRAN_ASSERT(!item.keyword);
+        if(item.keyword) {
+            throw LFortran::parser_local::ParserError("Keyword Assignment is not allowed in Character Substring", l);
+        }
         v.push_back(al, item.arg);
     }
     return make_Substring_t(al, l, str.c_str(al), v.p, v.size());
