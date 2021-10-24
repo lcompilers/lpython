@@ -392,6 +392,16 @@ struct Diagnostics {
         );
     }
 
+    void semantic_error_label(const std::string &message,
+            const std::vector<Location> &locations, const std::string &error_label) {
+        diagnostics.push_back(
+            Diagnostic::message_label(
+                message, locations, error_label,
+                Level::Error, Stage::Semantic
+            )
+        );
+    }
+
     void tokenizer_warning_label(const std::string &message,
             const std::vector<Location> &locations, const std::string &error_label) {
         diagnostics.push_back(
