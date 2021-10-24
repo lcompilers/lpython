@@ -1137,6 +1137,7 @@ int emit_c_preprocessor(const std::string &infile, CompilerOptions &compiler_opt
 
 int main(int argc, char *argv[])
 {
+    LFortran::initialize();
 #if defined(HAVE_LFORTRAN_STACKTRACE)
     LFortran::print_stack_on_segfault();
 #endif

@@ -1,3 +1,7 @@
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include <fstream>
 
 #include <bin/tpl/whereami/whereami.h>
@@ -91,5 +95,28 @@ Platform get_platform()
 #endif
 }
 
+// Platform-specific initialization
+// On Windows, enable colors in terminal. On other systems, does nothing.
+// Return value: 0 on success, negative number on failure.
+int initialize()
+{
+#ifdef _WIN32
+    HANDLE h_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (h_stdout == INVALID_HANDLE_VALUE)
+        return -1;
+
+    DWORD mode;
+    if (! GetConsoleMode(h_stdout, &mode))
+        return -2;
+
+    mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    if (! SetConsoleMode(h_stdout, mode))
+        return -3;
+
+    return 0;
+#else
+    return 0;
+#endif
+}
 
 }
