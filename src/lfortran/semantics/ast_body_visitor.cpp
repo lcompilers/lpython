@@ -762,12 +762,16 @@ public:
                                                     value_type, target_type);
 
         }
-        value_type = ASRUtils::expr_type(value);
-        if (!assignment_types_agree(target_type, value_type)) {
+        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(target),
+                                    ASRUtils::expr_type(value))) {
             // TODO:
             // * print the LHS and RHS types as strings
-            // * add primary (?) error labels to target and value
-            throw SemanticError("Type mismatch in assignment", x.base.base.loc);
+            diag.semantic_error_label(
+                "Type mismatch in assignment, the types must be compatible",
+                {target->base.loc, value->base.loc},
+                "type mismatch"
+            );
+            throw SemanticAbort();
         }
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
                                      overloaded_stmt);
