@@ -1033,7 +1033,7 @@ public:
         return false;
     }
 
-    inline static void visit_BinOp2(Allocator &al, const AST::BinOp_t &x,
+    void visit_BinOp2(Allocator &al, const AST::BinOp_t &x,
                                     ASR::expr_t *&left, ASR::expr_t *&right,
                                     ASR::asr_t *&asr, std::string& intrinsic_op_name,
                                     SymbolTable* curr_scope) {
@@ -1081,9 +1081,17 @@ public:
         ImplicitCastRules::set_converted_value(al, x.base.base.loc, conversion_cand,
                                             source_type, dest_type);
 
-        LFORTRAN_ASSERT(
-            ASRUtils::check_equal_type(LFortran::ASRUtils::expr_type(left),
-                                    LFortran::ASRUtils::expr_type(right)));
+        if (!ASRUtils::check_equal_type(LFortran::ASRUtils::expr_type(left),
+                                    LFortran::ASRUtils::expr_type(right))) {
+            // TODO:
+            // * print the LHS and RHS types as strings
+            diag.semantic_error_label(
+                "Type mismatch in binary operator, the types must be compatible",
+                {left->base.loc, right->base.loc},
+                "type mismatch"
+            );
+            throw SemanticAbort();
+        }
         ASR::expr_t *value = nullptr;
         // Assign evaluation to `value` if possible, otherwise leave nullptr
         if (LFortran::ASRUtils::expr_value(left) != nullptr &&
