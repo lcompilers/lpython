@@ -2103,6 +2103,7 @@ expr
     : id { $$ = $1; }
     | struct_member_star id { NAME1($$, $2, $1, @$); }
     | id "(" fnarray_arg_list_opt ")" { $$ = FUNCCALLORARRAY($1, $3, @$); }
+    | TK_STRING "(" fnarray_arg_list_opt ")" { $$ = SUBSTRING($1, $3, @$);}
     | struct_member_star id "(" fnarray_arg_list_opt ")" {
             $$ = FUNCCALLORARRAY2($1, $2, $4, @$); }
     | id "(" fnarray_arg_list_opt ")" "(" fnarray_arg_list_opt ")" {

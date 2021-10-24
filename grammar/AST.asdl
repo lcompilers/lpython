@@ -202,6 +202,7 @@ expr
     | Real(string n)
     | Complex(expr re, expr im)
     | String(string s)
+    | Substring(string s, fnarg* args)
     | BOZ(string s)
     | Name(identifier id, struct_member* member)
     | Logical(bool value)

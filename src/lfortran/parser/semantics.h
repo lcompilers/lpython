@@ -1730,6 +1730,19 @@ ast_t* FUNCCALLORARRAY0(Allocator &al, const ast_t *id,
 #define FUNCCALLORARRAY4(mem, id, args, subargs, l) FUNCCALLORARRAY0(p.m_a, id, \
         mem, args, subargs, l)
 
+ast_t* SUBSTRING_(Allocator &al, const LFortran::Str &str,
+        const Vec<FnArg> &args, Location &l) {
+    Vec<fnarg_t> v;
+    v.reserve(al, args.size());
+    for (auto &item : args) {
+        LFORTRAN_ASSERT(!item.keyword);
+        v.push_back(al, item.arg);
+    }
+    return make_Substring_t(al, l, str.c_str(al), v.p, v.size());
+}
+
+#define SUBSTRING(str, args, l) SUBSTRING_(p.m_a, str, args, l)
+
 ast_t* COARRAY(Allocator &al, const ast_t *id,
         const Vec<struct_member_t> &member,
         const Vec<FnArg> &args, const Vec<CoarrayArg> &coargs,
