@@ -764,12 +764,12 @@ public:
         }
         if (!ASRUtils::check_equal_type(ASRUtils::expr_type(target),
                                     ASRUtils::expr_type(value))) {
-            // TODO:
-            // * print the LHS and RHS types as strings
+            std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(target));
+            std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(value));
             diag.semantic_error_label(
                 "Type mismatch in assignment, the types must be compatible",
                 {target->base.loc, value->base.loc},
-                "type mismatch"
+                "type mismatch (" + ltype + " and " + rtype + ")"
             );
             throw SemanticAbort();
         }

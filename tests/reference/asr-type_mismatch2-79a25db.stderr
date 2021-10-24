@@ -2,4 +2,4 @@ semantic error: Type mismatch in binary operator, the types must be compatible
  --> tests/errors/type_mismatch2.f90:4:5
   |
 4 | x = 5 + "x"
-  |     ^   ^^^ type mismatch
+  |     ^   ^^^ type mismatch (integer and character)
