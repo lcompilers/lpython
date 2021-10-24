@@ -1,0 +1,13 @@
+{
+    "basename": "ast_f90-substring-ac57fb3",
+    "cmd": "lfortran --show-ast-f90 --no-color {infile}",
+    "infile": "tests/substring.f90",
+    "infile_hash": "c8a378c73c450c69e6694f02f51b2e1706ee25ae2e9645c28fd98788",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_f90-substring-ac57fb3.stdout",
+    "stdout_hash": "12af24b0dac9f8a696bebaf4ff8b5fa0298864c7a410609252ed8a52",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
