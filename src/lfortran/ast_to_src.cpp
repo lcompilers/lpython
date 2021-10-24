@@ -3730,6 +3730,35 @@ public:
         last_expr_precedence = 13;
     }
 
+    void visit_Substring(const Substring_t &x) {
+        std::string r = syn(gr::String);
+        s = x.m_s;
+        int dq = 0, sq = 0;
+        for (auto x: s) {
+            if (x == '"') dq++;
+            if (x == '\'') sq++;
+        }
+        if (dq > sq) {
+            r += "'";
+            r += replace(s, "'", "''");
+            r += "'";
+        } else {
+            r += "\"";
+            r += replace(s, "\"", "\"\"");
+            r += "\"";
+        }
+        r += syn();
+        r.append("(");
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_fnarg(x.m_args[i]);
+            r.append(s);
+            if (i < x.n_args-1) r.append(", ");
+        }
+        r.append(")");
+        s = r;
+        last_expr_precedence = 13;
+    }
+
     void visit_BOZ(const BOZ_t &x) {
         s = syn(gr::Integer);
         s += "\"" + std::string(x.m_s) + "\"";
