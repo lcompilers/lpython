@@ -18,8 +18,8 @@ using LFortran::CompilerOptions;
 
 
 TEST_CASE("llvm 1") {
-    std::cout << "LLVM Version:" << std::endl;
-    LFortran::LLVMEvaluator::print_version_message();
+    //std::cout << "LLVM Version:" << std::endl;
+    //LFortran::LLVMEvaluator::print_version_message();
 
     LFortran::LLVMEvaluator e;
     e.add_module(R"""(
@@ -375,8 +375,8 @@ end function)";
             LFortran::get_platform());
     REQUIRE(res.ok);
     std::unique_ptr<LFortran::LLVMModule> m = std::move(res.result);
-    std::cout << "Module:" << std::endl;
-    std::cout << m->str() << std::endl;
+    //std::cout << "Module:" << std::endl;
+    //std::cout << m->str() << std::endl;
 
     // LLVM -> Machine code -> Execution
     e.add_module(std::move(m));
@@ -408,8 +408,8 @@ end function)";
             LFortran::get_platform());
     REQUIRE(res.ok);
     std::unique_ptr<LFortran::LLVMModule> m = std::move(res.result);
-    std::cout << "Module:" << std::endl;
-    std::cout << m->str() << std::endl;
+    //std::cout << "Module:" << std::endl;
+    //std::cout << m->str() << std::endl;
 
     // LLVM -> Machine code -> Execution
     e.add_module(std::move(m));

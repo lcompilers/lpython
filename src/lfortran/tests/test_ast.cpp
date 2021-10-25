@@ -11,11 +11,6 @@
 
 namespace LFortran {
 
-TEST_CASE("Operator types") {
-    std::cout << "OK: " << AST::operatorType::Pow  << std::endl;
-    std::cout << "OK: " << ASR::binopType::Pow  << std::endl;
-}
-
 
 TEST_CASE("Test types") {
     Allocator al(1024*1024);
