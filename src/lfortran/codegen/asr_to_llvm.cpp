@@ -974,13 +974,13 @@ public:
 
                         //tmp = p;
                     } else {
-                        throw CodeGenError("Only string(a:b) for a==b supported for now.");
+                        throw CodeGenError("Only string(a:b) for a==b supported for now.", x.base.base.loc);
                     }
                 } else {
-                    throw CodeGenError("Only string(a:b) for a,b variables for now.");
+                    throw CodeGenError("Only string(a:b) for a,b variables for now.", x.base.base.loc);
                 }
             } else {
-                throw CodeGenError("Only string(a:b) supported for now.");
+                throw CodeGenError("Only string(a:b) supported for now.", x.base.base.loc);
             }
         } else {
             // Array indexing:
