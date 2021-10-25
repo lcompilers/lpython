@@ -12,23 +12,8 @@ macro(ADDTESTC name)
     add_test(${name} ${PROJECT_BINARY_DIR}/${name})
 endmacro(ADDTESTC)
 
-# Copies file from source to binary directory for out-of-tree builds
-macro(COPYFILE filename)
-    if (NOT(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_BINARY_DIR}))
-        add_custom_target(copy-${filename} ALL DEPENDS
-            ${CMAKE_CURRENT_BINARY_DIR}/${filename})
-        add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${filename}
-            COMMAND ${CMAKE_COMMAND} -E copy
-                ${CMAKE_CURRENT_SOURCE_DIR}/${filename}
-                ${CMAKE_CURRENT_BINARY_DIR}/${filename}
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${filename})
-    endif()
-endmacro(COPYFILE)
-
-
 ADDTESTC(test_cwrapper)
 ADDTEST(test_stacktrace)
-COPYFILE(ref_pickle.txt)
 
 set(SRC
     test_parse.cpp
