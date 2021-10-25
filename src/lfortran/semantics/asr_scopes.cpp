@@ -72,6 +72,10 @@ SymbolTable::SymbolTable(SymbolTable *parent) : parent{parent} {
     counter = symbol_table_counter;
 }
 
+void SymbolTable::reset_global_counter() {
+    symbol_table_counter = 0;
+}
+
 // TODO: Calculate the hash more robustly and using all the fields and for
 // any ASR node:
 // https://gitlab.com/lfortran/lfortran/-/issues/189

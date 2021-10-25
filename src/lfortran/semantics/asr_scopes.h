@@ -30,6 +30,7 @@ struct SymbolTable {
     std::string get_counter() {  // Returns a unique ID as a string
         return std::to_string(counter);
     }
+    static void reset_global_counter(); // Resets the internal global counter
 
     // Resolves the symbol `name` recursively in current and parent scopes.
     // Returns `nullptr` if symbol not found.
