@@ -202,4 +202,29 @@ semantic error: Error with two labels and message
   | ~~~ label3 secondary message
 )""");
     CHECK(out == ref);
+
+    // 3 Label 2 Spans, secondary, primary, secondary
+    d = Diagnostic(
+            "Error with three labels and message, two spans",
+            Level::Error, Stage::Semantic, {
+                Label("label1 secondary message", {loc1, loc2}, false),
+                Label("label2 primary message", {loc3, loc2}),
+                Label("label3 secondary message", {loc3}, false)
+            }
+        );
+    out = render_diagnostic(d, input, lm, false, false);
+    ref = S(R"""(
+semantic error: Error with three labels and message, two spans
+ --> input:1:5
+  |
+1 | One line text
+  |     ~~~~ ~~~~ label1 secondary message
+  |
+1 | One line text
+  | ^^^      ^^^^ label2 primary message
+  |
+1 | One line text
+  | ~~~ label3 secondary message
+)""");
+    CHECK(out == ref);
 }
