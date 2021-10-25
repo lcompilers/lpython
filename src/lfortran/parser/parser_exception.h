@@ -18,7 +18,9 @@ namespace parser_local {
         diag::Diagnostic d;
     public:
         TokenizerError(const std::string &msg, const Location &loc)
-            : d{diag::Diagnostic::tokenizer_error(msg, loc)}
+            : d{diag::Diagnostic(msg, diag::Level::Error, diag::Stage::Tokenizer, {
+                diag::Label("", {loc})
+            })}
         { }
 
         TokenizerError(const diag::Diagnostic &d) : d{d} { }
