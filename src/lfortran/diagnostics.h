@@ -21,6 +21,8 @@ struct Span {
     std::string filename;
     // Lines of source code from first_line to last_line
     std::vector<std::string> source_code;
+
+    Span(const Location &loc) : loc{loc} {}
 };
 
 /*
@@ -109,9 +111,7 @@ struct Diagnostic {
         l.primary = true;
         l.message = error_label;
         for (auto &loc : locations) {
-            Span s;
-            s.loc = loc;
-            l.spans.push_back(s);
+            l.spans.push_back(Span(loc));
         }
         Diagnostic d(message, level, stage);
         d.labels.push_back(l);
@@ -150,12 +150,10 @@ struct Diagnostic {
 
     void secondary_label(const std::string &message,
             const Location &loc) {
-        diag::Span s;
-        s.loc = loc;
         diag::Label l;
         l.primary = false;
         l.message = message;
-        l.spans.push_back(s);
+        l.spans.push_back(Span(loc));
         this->labels.push_back(l);
     }
 
