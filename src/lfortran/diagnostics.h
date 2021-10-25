@@ -111,44 +111,44 @@ struct Diagnostic {
         const std::vector<Label> &labels
         ) : level{level}, stage{stage}, message{message}, labels{labels} {}
 
-// Generic helper constructors:
-
-    static Diagnostic message_label(const std::string &message,
-            const std::vector<Location> &locations,
-            const std::string &error_label,
-            const Level &level,
-            const Stage &stage
-            ) {
-        return Diagnostic(message, level, stage,
-            {Label(error_label, locations)});
-    }
-
 // Specific helper constructors
 
     static Diagnostic semantic_error(const std::string &message, const Location &loc) {
-        return message_label(message, {loc}, "", Level::Error, Stage::Semantic);
+        return Diagnostic(message, Level::Error, Stage::Semantic, {
+            Label("", {loc})
+        });
     }
 
     static Diagnostic tokenizer_error(const std::string &message, const Location &loc) {
-        return message_label(message, {loc}, "", Level::Error, Stage::Tokenizer);
+        return Diagnostic(message, Level::Error, Stage::Tokenizer, {
+            Label("", {loc})
+        });
     }
 
     static Diagnostic parser_error(const std::string &message, const Location &loc) {
-        return message_label(message, {loc}, "", Level::Error, Stage::Parser);
+        return Diagnostic(message, Level::Error, Stage::Parser, {
+            Label("", {loc})
+        });
     }
 
     static Diagnostic semantic_error_label(const std::string &message,
             const Location &loc, const std::string &error_label) {
-        return message_label(message, {loc}, error_label, Level::Error, Stage::Semantic);
+        return Diagnostic(message, Level::Error, Stage::Semantic, {
+            Label(error_label, {loc})
+        });
     }
 
     static Diagnostic tokenizer_error_label(const std::string &message,
             const Location &loc, const std::string &error_label) {
-        return message_label(message, {loc}, error_label, Level::Error, Stage::Tokenizer);
+        return Diagnostic(message, Level::Error, Stage::Tokenizer, {
+            Label(error_label, {loc})
+        });
     }
 
     static Diagnostic codegen_error(const std::string &message, const Location &loc) {
-        return message_label(message, {loc}, "", Level::Error, Stage::CodeGen);
+        return Diagnostic(message, Level::Error, Stage::CodeGen, {
+            Label("", {loc})
+        });
     }
 
 };
@@ -169,10 +169,7 @@ struct Diagnostics {
             const Stage &stage
             ) {
         diagnostics.push_back(
-            Diagnostic::message_label(
-                message, locations, error_label,
-                level, stage
-            )
+            Diagnostic(message, level, stage, {Label(error_label, locations)})
         );
     }
 
