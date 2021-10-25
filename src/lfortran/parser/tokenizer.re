@@ -240,11 +240,12 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
 
             * { token_loc(loc);
                 std::string t = token();
-                throw LFortran::parser_local::TokenizerError(diag::Diagnostic::tokenizer_error_label(
+                throw parser_local::TokenizerError(diag::Diagnostic(
                     "Token '" + t + "' is not recognized",
-                    loc,
-                    "token not recognized"
-                    ));
+                    diag::Level::Error, diag::Stage::Tokenizer, {
+                        diag::Label("token not recognized", {loc})
+                    })
+                );
             }
             end { RET(END_OF_FILE); }
             whitespace { continue; }
