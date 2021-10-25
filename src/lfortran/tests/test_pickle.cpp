@@ -35,6 +35,7 @@ std::string p(Allocator &al, const std::string &s)
     std::string pickle = LFortran::pickle(*ast);
     std::string src = LFortran::ast_to_src(*result);
 
+    /*
     // Print the test nicely:
     section("--------------------------------------------------------------------------------");
     section("SRC:");
@@ -43,6 +44,7 @@ std::string p(Allocator &al, const std::string &s)
     std::cout << pickle << std::endl;
     section("AST -> SRC:");
     std::cout << src << std::endl;
+    */
 
     return pickle;
 }

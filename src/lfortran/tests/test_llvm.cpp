@@ -18,8 +18,8 @@ using LFortran::CompilerOptions;
 
 
 TEST_CASE("llvm 1") {
-    std::cout << "LLVM Version:" << std::endl;
-    LFortran::LLVMEvaluator::print_version_message();
+    //std::cout << "LLVM Version:" << std::endl;
+    //LFortran::LLVMEvaluator::print_version_message();
 
     LFortran::LLVMEvaluator e;
     e.add_module(R"""(
@@ -51,14 +51,14 @@ define i64 @f1()
     ; FAIL: "=x" is incorrect syntax
     %1 =x alloca i64
 }
-        )"""), std::runtime_error);
+        )"""), LFortran::LFortranException);
     CHECK_THROWS_WITH(e.add_module(R"""(
 define i64 @f1()
 {
     ; FAIL: "=x" is incorrect syntax
     %1 =x alloca i64
 }
-        )"""), "Invalid LLVM IR");
+        )"""), "parse_module(): Invalid LLVM IR");
 }
 
 
@@ -94,7 +94,7 @@ define i64 @f3()
     %1 = load i64, i64* @count
     ret i64 %1
 }
-        )"""), std::runtime_error);
+        )"""), LFortran::LFortranException);
 }
 
 TEST_CASE("llvm 3") {
@@ -233,7 +233,7 @@ define void @inc2()
     call void @inc()
     ret void
 }
-        )"""), std::runtime_error);
+        )"""), LFortran::LFortranException);
 }
 
 TEST_CASE("llvm array 1") {
@@ -375,8 +375,8 @@ end function)";
             LFortran::get_platform());
     REQUIRE(res.ok);
     std::unique_ptr<LFortran::LLVMModule> m = std::move(res.result);
-    std::cout << "Module:" << std::endl;
-    std::cout << m->str() << std::endl;
+    //std::cout << "Module:" << std::endl;
+    //std::cout << m->str() << std::endl;
 
     // LLVM -> Machine code -> Execution
     e.add_module(std::move(m));
@@ -408,8 +408,8 @@ end function)";
             LFortran::get_platform());
     REQUIRE(res.ok);
     std::unique_ptr<LFortran::LLVMModule> m = std::move(res.result);
-    std::cout << "Module:" << std::endl;
-    std::cout << m->str() << std::endl;
+    //std::cout << "Module:" << std::endl;
+    //std::cout << m->str() << std::endl;
 
     // LLVM -> Machine code -> Execution
     e.add_module(std::move(m));
