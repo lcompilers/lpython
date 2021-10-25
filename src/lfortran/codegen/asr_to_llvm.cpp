@@ -88,7 +88,9 @@ namespace {
         { }
 
         CodeGenError(const std::string &msg, const Location &loc)
-            : d{diag::Diagnostic::codegen_error(msg, loc)}
+            : d{diag::Diagnostic(msg, diag::Level::Error, diag::Stage::CodeGen, {
+                diag::Label("", {loc})
+            })}
         { }
     };
 

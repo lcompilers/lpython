@@ -101,8 +101,6 @@ struct Diagnostic {
     std::vector<Diagnostic> children;
     std::vector<StacktraceItem> stacktrace = get_stacktrace_addresses();
 
-// Main constructors:
-
     Diagnostic(const std::string &message, const Level &level,
         const Stage &stage) : level{level}, stage{stage}, message{message} {}
 
@@ -110,15 +108,6 @@ struct Diagnostic {
         const Stage &stage,
         const std::vector<Label> &labels
         ) : level{level}, stage{stage}, message{message}, labels{labels} {}
-
-// Specific helper constructors
-
-    static Diagnostic codegen_error(const std::string &message, const Location &loc) {
-        return Diagnostic(message, Level::Error, Stage::CodeGen, {
-            Label("", {loc})
-        });
-    }
-
 };
 
 struct Diagnostics {
