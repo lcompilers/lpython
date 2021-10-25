@@ -93,48 +93,15 @@ struct Diagnostic {
     std::vector<StacktraceItem> stacktrace = get_stacktrace_addresses();
 
     static Diagnostic semantic_error(const std::string &message, const Location &loc) {
-        diag::Span s;
-        s.loc = loc;
-        diag::Label l;
-        l.primary = true;
-        l.message = "";
-        l.spans.push_back(s);
-        diag::Diagnostic d;
-        d.level = Level::Error;
-        d.stage = Stage::Semantic;
-        d.message = message;
-        d.labels.push_back(l);
-        return d;
+        return message_label(message, {loc}, "", Level::Error, Stage::Semantic);
     }
 
     static Diagnostic tokenizer_error(const std::string &message, const Location &loc) {
-        diag::Span s;
-        s.loc = loc;
-        diag::Label l;
-        l.primary = true;
-        l.message = "";
-        l.spans.push_back(s);
-        diag::Diagnostic d;
-        d.level = Level::Error;
-        d.stage = Stage::Tokenizer;
-        d.message = message;
-        d.labels.push_back(l);
-        return d;
+        return message_label(message, {loc}, "", Level::Error, Stage::Tokenizer);
     }
 
     static Diagnostic parser_error(const std::string &message, const Location &loc) {
-        diag::Span s;
-        s.loc = loc;
-        diag::Label l;
-        l.primary = true;
-        l.message = "";
-        l.spans.push_back(s);
-        diag::Diagnostic d;
-        d.level = Level::Error;
-        d.stage = Stage::Parser;
-        d.message = message;
-        d.labels.push_back(l);
-        return d;
+        return message_label(message, {loc}, "", Level::Error, Stage::Parser);
     }
 
     static Diagnostic parser_error(const std::string &message) {
@@ -147,129 +114,12 @@ struct Diagnostic {
 
     static Diagnostic semantic_error_label(const std::string &message,
             const Location &loc, const std::string &error_label) {
-        diag::Span s;
-        s.loc = loc;
-        diag::Label l;
-        l.primary = true;
-        l.message = error_label;
-        l.spans.push_back(s);
-        diag::Diagnostic d;
-        d.level = Level::Error;
-        d.stage = Stage::Semantic;
-        d.message = message;
-        d.labels.push_back(l);
-        return d;
+        return message_label(message, {loc}, error_label, Level::Error, Stage::Semantic);
     }
 
     static Diagnostic tokenizer_error_label(const std::string &message,
             const Location &loc, const std::string &error_label) {
-        diag::Span s;
-        s.loc = loc;
-        diag::Label l;
-        l.primary = true;
-        l.message = error_label;
-        l.spans.push_back(s);
-        diag::Diagnostic d;
-        d.level = Level::Error;
-        d.stage = Stage::Tokenizer;
-        d.message = message;
-        d.labels.push_back(l);
-        return d;
-    }
-
-    static Diagnostic semantic_error_label(const std::string &message,
-            const std::vector<Location> &locations, const std::string &error_label) {
-        diag::Label l;
-        l.primary = true;
-        l.message = error_label;
-        for (auto &loc : locations) {
-            Span s;
-            s.loc = loc;
-            l.spans.push_back(s);
-
-        }
-        diag::Diagnostic d;
-        d.level = Level::Error;
-        d.stage = Stage::Semantic;
-        d.message = message;
-        d.labels.push_back(l);
-        return d;
-    }
-
-    static Diagnostic semantic_warning_label(const std::string &message,
-            const std::vector<Location> &locations, const std::string &error_label) {
-        diag::Label l;
-        l.primary = true;
-        l.message = error_label;
-        for (auto &loc : locations) {
-            Span s;
-            s.loc = loc;
-            l.spans.push_back(s);
-
-        }
-        diag::Diagnostic d;
-        d.level = Level::Warning;
-        d.stage = Stage::Semantic;
-        d.message = message;
-        d.labels.push_back(l);
-        return d;
-    }
-
-    static Diagnostic tokenizer_warning_label(const std::string &message,
-            const std::vector<Location> &locations, const std::string &error_label) {
-        diag::Label l;
-        l.primary = true;
-        l.message = error_label;
-        for (auto &loc : locations) {
-            Span s;
-            s.loc = loc;
-            l.spans.push_back(s);
-
-        }
-        diag::Diagnostic d;
-        d.level = Level::Warning;
-        d.stage = Stage::Tokenizer;
-        d.message = message;
-        d.labels.push_back(l);
-        return d;
-    }
-
-    static Diagnostic parser_warning_label(const std::string &message,
-            const std::vector<Location> &locations, const std::string &error_label) {
-        diag::Label l;
-        l.primary = true;
-        l.message = error_label;
-        for (auto &loc : locations) {
-            Span s;
-            s.loc = loc;
-            l.spans.push_back(s);
-
-        }
-        diag::Diagnostic d;
-        d.level = Level::Warning;
-        d.stage = Stage::Parser;
-        d.message = message;
-        d.labels.push_back(l);
-        return d;
-    }
-
-    static Diagnostic codegen_warning_label(const std::string &message,
-            const std::vector<Location> &locations, const std::string &error_label) {
-        diag::Label l;
-        l.primary = true;
-        l.message = error_label;
-        for (auto &loc : locations) {
-            Span s;
-            s.loc = loc;
-            l.spans.push_back(s);
-
-        }
-        diag::Diagnostic d;
-        d.level = Level::Warning;
-        d.stage = Stage::CodeGen;
-        d.message = message;
-        d.labels.push_back(l);
-        return d;
+        return message_label(message, {loc}, error_label, Level::Error, Stage::Tokenizer);
     }
 
     static Diagnostic message_label(const std::string &message,
@@ -295,45 +145,6 @@ struct Diagnostic {
         return d;
     }
 
-
-    static Diagnostic tokenizer_style_label(const std::string &message,
-            const std::vector<Location> &locations, const std::string &error_label) {
-        diag::Label l;
-        l.primary = true;
-        l.message = error_label;
-        for (auto &loc : locations) {
-            Span s;
-            s.loc = loc;
-            l.spans.push_back(s);
-
-        }
-        diag::Diagnostic d;
-        d.level = Level::Style;
-        d.stage = Stage::Tokenizer;
-        d.message = message;
-        d.labels.push_back(l);
-        return d;
-    }
-
-    static Diagnostic parser_style_label(const std::string &message,
-            const std::vector<Location> &locations, const std::string &error_label) {
-        diag::Label l;
-        l.primary = true;
-        l.message = error_label;
-        for (auto &loc : locations) {
-            Span s;
-            s.loc = loc;
-            l.spans.push_back(s);
-
-        }
-        diag::Diagnostic d;
-        d.level = Level::Style;
-        d.stage = Stage::Parser;
-        d.message = message;
-        d.labels.push_back(l);
-        return d;
-    }
-
     void secondary_label(const std::string &message,
             const Location &loc) {
         diag::Span s;
@@ -354,18 +165,7 @@ struct Diagnostic {
     }
 
     static Diagnostic codegen_error(const std::string &message, const Location &loc) {
-        diag::Span s;
-        s.loc = loc;
-        diag::Label l;
-        l.primary = true;
-        l.message = "";
-        l.spans.push_back(s);
-        diag::Diagnostic d;
-        d.level = Level::Error;
-        d.stage = Stage::CodeGen;
-        d.message = message;
-        d.labels.push_back(l);
-        return d;
+        return message_label(message, {loc}, "", Level::Error, Stage::CodeGen);
     }
 
 /*
@@ -383,78 +183,66 @@ struct Diagnostics {
     // Returns true iff diagnostics contains at least one error message
     bool has_error() const;
 
-    void semantic_warning_label(const std::string &message,
-            const std::vector<Location> &locations, const std::string &error_label) {
+    void message_label(const std::string &message,
+            const std::vector<Location> &locations,
+            const std::string &error_label,
+            const Level &level,
+            const Stage &stage
+            ) {
         diagnostics.push_back(
-            Diagnostic::semantic_warning_label(
-                message, locations, error_label
+            Diagnostic::message_label(
+                message, locations, error_label,
+                level, stage
             )
         );
+    }
+
+    void semantic_warning_label(const std::string &message,
+            const std::vector<Location> &locations, const std::string &error_label) {
+        message_label(message, locations, error_label,
+            Level::Warning, Stage::Semantic);
     }
 
     void semantic_error_label(const std::string &message,
             const std::vector<Location> &locations, const std::string &error_label) {
-        diagnostics.push_back(
-            Diagnostic::message_label(
-                message, locations, error_label,
-                Level::Error, Stage::Semantic
-            )
-        );
+        message_label(message, locations, error_label,
+            Level::Error, Stage::Semantic);
     }
 
     void tokenizer_warning_label(const std::string &message,
             const std::vector<Location> &locations, const std::string &error_label) {
-        diagnostics.push_back(
-            Diagnostic::tokenizer_warning_label(
-                message, locations, error_label
-            )
-        );
+        message_label(message, locations, error_label,
+            Level::Warning, Stage::Tokenizer);
     }
 
     void parser_warning_label(const std::string &message,
             const std::vector<Location> &locations, const std::string &error_label) {
-        diagnostics.push_back(
-            Diagnostic::parser_warning_label(
-                message, locations, error_label
-            )
-        );
+        message_label(message, locations, error_label,
+            Level::Warning, Stage::Parser);
     }
 
     void codegen_warning_label(const std::string &message,
             const std::vector<Location> &locations, const std::string &error_label) {
-        diagnostics.push_back(
-            Diagnostic::codegen_warning_label(
-                message, locations, error_label
-            )
-        );
+        message_label(message, locations, error_label,
+            Level::Warning, Stage::CodeGen);
     }
 
     void codegen_error_label(const std::string &message,
             const std::vector<Location> &locations, const std::string &error_label) {
-        diagnostics.push_back(
-            Diagnostic::message_label(
-                message, locations, error_label,
-                Level::Error, Stage::CodeGen
-            )
-        );
+        message_label(message, locations, error_label,
+            Level::Error, Stage::CodeGen);
     }
 
     void tokenizer_style_label(const std::string &message,
             const std::vector<Location> &locations, const std::string &error_label) {
-        diagnostics.push_back(
-            Diagnostic::tokenizer_style_label(
-                message, locations, error_label
-            )
-        );
+        message_label(message, locations, error_label,
+            Level::Style, Stage::Tokenizer);
     }
 
     void parser_style_label(const std::string &message,
             const std::vector<Location> &locations, const std::string &error_label) {
-        diagnostics.push_back(
-            Diagnostic::parser_style_label(
-                message, locations, error_label
-            )
-        );
+        message_label(message, locations, error_label,
+            Level::Style, Stage::Parser);
     }
 };
 
