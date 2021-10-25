@@ -29,7 +29,6 @@ endmacro(COPYFILE)
 ADDTESTC(test_cwrapper)
 ADDTEST(test_stacktrace)
 COPYFILE(ref_pickle.txt)
-ADDTEST(x)
 
 set(SRC
     test_parse.cpp
@@ -49,9 +48,6 @@ if (WITH_LLVM)
     set(SRC ${SRC}
         test_llvm.cpp
     )
-    if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        target_link_options(test_lfortran PRIVATE "LINKER:--export-dynamic")
-    endif()
 endif()
 
 
@@ -59,3 +55,9 @@ endif()
 add_executable(test_lfortran ${SRC})
 target_link_libraries(test_lfortran lfortran_lib p::doctest)
 add_test(test_lfortran ${PROJECT_BINARY_DIR}/test_lfortran)
+
+if (WITH_LLVM)
+    if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        target_link_options(test_lfortran PRIVATE "LINKER:--export-dynamic")
+    endif()
+endif()
