@@ -113,12 +113,6 @@ struct Diagnostic {
 
 // Specific helper constructors
 
-    static Diagnostic semantic_error(const std::string &message, const Location &loc) {
-        return Diagnostic(message, Level::Error, Stage::Semantic, {
-            Label("", {loc})
-        });
-    }
-
     static Diagnostic tokenizer_error(const std::string &message, const Location &loc) {
         return Diagnostic(message, Level::Error, Stage::Tokenizer, {
             Label("", {loc})

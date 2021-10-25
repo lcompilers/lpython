@@ -804,11 +804,9 @@ public:
                 visit_kwargs(args, x.m_keywords, x.n_keywords,
                     f->m_args, f->n_args, x.base.base.loc);
             } else {
-                diag::Diagnostic d{diag::Diagnostic::semantic_error(
+                throw SemanticError(
                     "Keyword arguments are not implemented for generic subroutines yet",
-                    x.base.base.loc
-                )};
-                throw SemanticError(d);
+                    x.base.base.loc);
             }
         }
         Vec<ASR::expr_t*> args_with_mdt;
