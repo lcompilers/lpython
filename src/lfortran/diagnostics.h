@@ -92,7 +92,12 @@ struct Diagnostic {
     std::vector<Diagnostic> children;
     std::vector<StacktraceItem> stacktrace = get_stacktrace_addresses();
 
-// Generic constructor:
+// Main constructor:
+
+    Diagnostic(const std::string &message, const Level &level,
+        const Stage &stage) : level{level}, stage{stage}, message{message} {}
+
+// Generic helper constructors:
 
     static Diagnostic message_label(const std::string &message,
             const std::vector<Location> &locations,
@@ -108,10 +113,7 @@ struct Diagnostic {
             s.loc = loc;
             l.spans.push_back(s);
         }
-        diag::Diagnostic d;
-        d.level = level;
-        d.stage = stage;
-        d.message = message;
+        diag::Diagnostic d(message, level, stage);
         d.labels.push_back(l);
         return d;
     }
@@ -119,19 +121,11 @@ struct Diagnostic {
 // Specific constructors
 
     static Diagnostic parser_error(const std::string &message) {
-        diag::Diagnostic d;
-        d.level = Level::Error;
-        d.stage = Stage::Parser;
-        d.message = message;
-        return d;
+        return diag::Diagnostic(message, Level::Error, Stage::Parser);
     }
 
     static Diagnostic codegen_error(const std::string &message) {
-        diag::Diagnostic d;
-        d.level = Level::Error;
-        d.stage = Stage::CodeGen;
-        d.message = message;
-        return d;
+        return diag::Diagnostic(message, Level::Error, Stage::CodeGen);
     }
 
     static Diagnostic semantic_error(const std::string &message, const Location &loc) {
@@ -173,11 +167,6 @@ struct Diagnostic {
         this->labels.push_back(l);
     }
 
-
-/*
-    private:
-        Diagnostic() {}
-*/
 };
 
 struct Diagnostics {
