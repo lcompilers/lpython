@@ -34,7 +34,7 @@ namespace parser_local {
         { }
 
         ParserError(const std::string &msg)
-            : d{LFortran::diag::Diagnostic::parser_error(msg)}
+            : d{diag::Diagnostic(msg, diag::Level::Error, diag::Stage::Parser)}
         { }
     };
 

@@ -113,20 +113,12 @@ struct Diagnostic {
             s.loc = loc;
             l.spans.push_back(s);
         }
-        diag::Diagnostic d(message, level, stage);
+        Diagnostic d(message, level, stage);
         d.labels.push_back(l);
         return d;
     }
 
 // Specific constructors
-
-    static Diagnostic parser_error(const std::string &message) {
-        return diag::Diagnostic(message, Level::Error, Stage::Parser);
-    }
-
-    static Diagnostic codegen_error(const std::string &message) {
-        return diag::Diagnostic(message, Level::Error, Stage::CodeGen);
-    }
 
     static Diagnostic semantic_error(const std::string &message, const Location &loc) {
         return message_label(message, {loc}, "", Level::Error, Stage::Semantic);

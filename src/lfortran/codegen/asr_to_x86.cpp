@@ -24,7 +24,7 @@ namespace {
         diag::Diagnostic d;
     public:
         CodeGenError(const std::string &msg)
-            : d{diag::Diagnostic::codegen_error(msg)}
+            : d{diag::Diagnostic(msg, diag::Level::Error, diag::Stage::CodeGen)}
         { }
     };
 
