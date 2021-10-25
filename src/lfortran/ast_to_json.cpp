@@ -15,16 +15,18 @@ using LFortran::AST::BaseWalkVisitor;
 
 namespace LFortran {
 
-std::string op2str(const operatorType type)
-{
-    switch (type) {
-        case (operatorType::Add) : return "Add";
-        case (operatorType::Sub) : return "Sub";
-        case (operatorType::Mul) : return "Mul";
-        case (operatorType::Div) : return "Div";
-        case (operatorType::Pow) : return "Pow";
+namespace {
+    std::string op2str(const operatorType type)
+    {
+        switch (type) {
+            case (operatorType::Add) : return "Add";
+            case (operatorType::Sub) : return "Sub";
+            case (operatorType::Mul) : return "Mul";
+            case (operatorType::Div) : return "Div";
+            case (operatorType::Pow) : return "Pow";
+        }
+        throw std::runtime_error("Unknown type");
     }
-    throw std::runtime_error("Unknown type");
 }
 
 
