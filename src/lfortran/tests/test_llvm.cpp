@@ -51,14 +51,14 @@ define i64 @f1()
     ; FAIL: "=x" is incorrect syntax
     %1 =x alloca i64
 }
-        )"""), std::runtime_error);
+        )"""), LFortran::LFortranException);
     CHECK_THROWS_WITH(e.add_module(R"""(
 define i64 @f1()
 {
     ; FAIL: "=x" is incorrect syntax
     %1 =x alloca i64
 }
-        )"""), "Invalid LLVM IR");
+        )"""), "parse_module(): Invalid LLVM IR");
 }
 
 
@@ -94,7 +94,7 @@ define i64 @f3()
     %1 = load i64, i64* @count
     ret i64 %1
 }
-        )"""), std::runtime_error);
+        )"""), LFortran::LFortranException);
 }
 
 TEST_CASE("llvm 3") {
@@ -233,7 +233,7 @@ define void @inc2()
     call void @inc()
     ret void
 }
-        )"""), std::runtime_error);
+        )"""), LFortran::LFortranException);
 }
 
 TEST_CASE("llvm array 1") {

@@ -194,13 +194,11 @@ std::unique_ptr<llvm::Module> LLVMEvaluator::parse_module(const std::string &sou
     std::unique_ptr<llvm::Module> module
         = llvm::parseAssemblyString(source, err, *context);
     if (!module) {
-        std::cerr << "Invalid LLVM IR" << std::endl;
-        throw std::runtime_error("Invalid LLVM IR");
+        throw LFortranException("parse_module(): Invalid LLVM IR");
     }
     bool v = llvm::verifyModule(*module);
     if (v) {
-        std::cerr << "Error: module failed verification." << std::endl;
-        throw std::runtime_error("parse_module");
+        throw LFortranException("parse_module(): module failed verification.");
     };
     module->setTargetTriple(target_triple);
     module->setDataLayout(jit->getTargetMachine().createDataLayout());
