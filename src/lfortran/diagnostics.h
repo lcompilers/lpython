@@ -46,6 +46,14 @@ struct Label {
     bool primary; // primary or secondary label
     std::string message; // message attached to the label
     std::vector<Span> spans; // one or more spans
+
+    Label(bool primary, const std::string &message,
+                const std::vector<Location> &locations)
+                : primary{primary}, message{message} {
+        for (auto &loc : locations) {
+            spans.push_back(Span(loc));
+        }
+    }
 };
 
 /*
@@ -107,14 +115,8 @@ struct Diagnostic {
             const Level &level,
             const Stage &stage
             ) {
-        diag::Label l;
-        l.primary = true;
-        l.message = error_label;
-        for (auto &loc : locations) {
-            l.spans.push_back(Span(loc));
-        }
         Diagnostic d(message, level, stage);
-        d.labels.push_back(l);
+        d.labels.push_back(Label(true, error_label, locations));
         return d;
     }
 
@@ -150,11 +152,7 @@ struct Diagnostic {
 
     void secondary_label(const std::string &message,
             const Location &loc) {
-        diag::Label l;
-        l.primary = false;
-        l.message = message;
-        l.spans.push_back(Span(loc));
-        this->labels.push_back(l);
+        this->labels.push_back(Label(false, message, {loc}));
     }
 
 };
