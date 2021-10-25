@@ -265,10 +265,9 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
                                 s0 = s2;
                                 continue;
                             }
-                        } else {
-                            // Otherwise finish the line
-                            out << " " << l.message << reset << std::endl;
                         }
+                        // Otherwise finish the line
+                        out << " " << l.message << reset << std::endl;
                     }
                     // and start a new one:
                     s0 = s2;

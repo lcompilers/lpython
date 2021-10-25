@@ -125,7 +125,8 @@ semantic error: Error with label and message
  --> input:1:5
   |
 1 | One line text
-  |     ^^^^ ^^^^  |
+  |     ^^^^ ^^^^ label message
+  |
 1 | One line text
   | ^^^ label message
 )""");
