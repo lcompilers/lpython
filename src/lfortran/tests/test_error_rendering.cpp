@@ -246,7 +246,7 @@ TEST_CASE("Error Render: primary/secondary labels, multi line") {
     loc2.first = 9; // 1 text
     loc2.last = 35; // 3 Third
     loc3.first = 0; // 1 One
-    loc3.last = 35; // 3 Third
+    loc3.last = 2; // 3 Third
 
     // 1 Label 1 Span
     auto d = Diagnostic(
@@ -287,6 +287,30 @@ semantic error: Error with label, two spans
   |
 2 |    Second line text
   | ...^^^^^^^^^^^ Two spans
+  |
+1 |    One line text
+  |             ^^^^...
+...
+  |
+3 |    Third line text
+  | ...^^^^^ Two spans
+)""");
+    CHECK(out == ref);
+
+    // 1 Label 2 Span
+    d = Diagnostic(
+            "Error with label, two spans",
+            Level::Error, Stage::Semantic, {
+                Label("Two spans", {loc3, loc2})
+            }
+        );
+    out = render_diagnostic(d, input, lm, false, false);
+    ref = S(R"""(
+semantic error: Error with label, two spans
+ --> input:1:1
+  |
+1 | One line text
+  | ^^^ Two spans
   |
 1 |    One line text
   |             ^^^^...
