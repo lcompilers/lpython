@@ -92,35 +92,7 @@ struct Diagnostic {
     std::vector<Diagnostic> children;
     std::vector<StacktraceItem> stacktrace = get_stacktrace_addresses();
 
-    static Diagnostic semantic_error(const std::string &message, const Location &loc) {
-        return message_label(message, {loc}, "", Level::Error, Stage::Semantic);
-    }
-
-    static Diagnostic tokenizer_error(const std::string &message, const Location &loc) {
-        return message_label(message, {loc}, "", Level::Error, Stage::Tokenizer);
-    }
-
-    static Diagnostic parser_error(const std::string &message, const Location &loc) {
-        return message_label(message, {loc}, "", Level::Error, Stage::Parser);
-    }
-
-    static Diagnostic parser_error(const std::string &message) {
-        diag::Diagnostic d;
-        d.level = Level::Error;
-        d.stage = Stage::Parser;
-        d.message = message;
-        return d;
-    }
-
-    static Diagnostic semantic_error_label(const std::string &message,
-            const Location &loc, const std::string &error_label) {
-        return message_label(message, {loc}, error_label, Level::Error, Stage::Semantic);
-    }
-
-    static Diagnostic tokenizer_error_label(const std::string &message,
-            const Location &loc, const std::string &error_label) {
-        return message_label(message, {loc}, error_label, Level::Error, Stage::Tokenizer);
-    }
+// Generic constructor:
 
     static Diagnostic message_label(const std::string &message,
             const std::vector<Location> &locations,
@@ -135,7 +107,6 @@ struct Diagnostic {
             Span s;
             s.loc = loc;
             l.spans.push_back(s);
-
         }
         diag::Diagnostic d;
         d.level = level;
@@ -144,6 +115,52 @@ struct Diagnostic {
         d.labels.push_back(l);
         return d;
     }
+
+// Specific constructors
+
+    static Diagnostic parser_error(const std::string &message) {
+        diag::Diagnostic d;
+        d.level = Level::Error;
+        d.stage = Stage::Parser;
+        d.message = message;
+        return d;
+    }
+
+    static Diagnostic codegen_error(const std::string &message) {
+        diag::Diagnostic d;
+        d.level = Level::Error;
+        d.stage = Stage::CodeGen;
+        d.message = message;
+        return d;
+    }
+
+    static Diagnostic semantic_error(const std::string &message, const Location &loc) {
+        return message_label(message, {loc}, "", Level::Error, Stage::Semantic);
+    }
+
+    static Diagnostic tokenizer_error(const std::string &message, const Location &loc) {
+        return message_label(message, {loc}, "", Level::Error, Stage::Tokenizer);
+    }
+
+    static Diagnostic parser_error(const std::string &message, const Location &loc) {
+        return message_label(message, {loc}, "", Level::Error, Stage::Parser);
+    }
+
+    static Diagnostic semantic_error_label(const std::string &message,
+            const Location &loc, const std::string &error_label) {
+        return message_label(message, {loc}, error_label, Level::Error, Stage::Semantic);
+    }
+
+    static Diagnostic tokenizer_error_label(const std::string &message,
+            const Location &loc, const std::string &error_label) {
+        return message_label(message, {loc}, error_label, Level::Error, Stage::Tokenizer);
+    }
+
+    static Diagnostic codegen_error(const std::string &message, const Location &loc) {
+        return message_label(message, {loc}, "", Level::Error, Stage::CodeGen);
+    }
+
+// Methods to add more information to the error:
 
     void secondary_label(const std::string &message,
             const Location &loc) {
@@ -156,17 +173,6 @@ struct Diagnostic {
         this->labels.push_back(l);
     }
 
-    static Diagnostic codegen_error(const std::string &message) {
-        diag::Diagnostic d;
-        d.level = Level::Error;
-        d.stage = Stage::CodeGen;
-        d.message = message;
-        return d;
-    }
-
-    static Diagnostic codegen_error(const std::string &message, const Location &loc) {
-        return message_label(message, {loc}, "", Level::Error, Stage::CodeGen);
-    }
 
 /*
     private:
