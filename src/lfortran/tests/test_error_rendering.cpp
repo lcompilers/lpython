@@ -93,13 +93,13 @@ semantic error: Error with label no message
     Location loc2;
     loc2.first = 9;
     loc2.last = 12;
-    auto d2 = Diagnostic(
+    d = Diagnostic(
             "Error with label and message",
             Level::Error, Stage::Semantic, {
                 Label("label message", {loc, loc2})
             }
         );
-    out = render_diagnostic(d2, input, lm, false, false);
+    out = render_diagnostic(d, input, lm, false, false);
     ref = S(R"""(
 semantic error: Error with label and message
  --> input:1:5
