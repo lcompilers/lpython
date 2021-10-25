@@ -125,8 +125,7 @@ semantic error: Error with label and message
  --> input:1:5
   |
 1 | One line text
-  |     ^^^^ ^^^^ label message
-  |
+  |     ^^^^ ^^^^  |
 1 | One line text
   | ^^^ label message
 )""");
@@ -244,7 +243,7 @@ TEST_CASE("Error Render: primary/secondary labels, multi line") {
     loc1.first = 4; // 1 line
     loc1.last = 24; // 2 line
     loc2.first = 9; // 1 text
-    loc2.last = 40; // 3 line
+    loc2.last = 35; // 3 Third
     loc3.first = 0; // 1 One
     loc3.last = 35; // 3 Third
 
@@ -266,6 +265,7 @@ semantic error: Error with label no message
   |
 2 |    Second line text
   | ...^^^^^^^^^^^ Multilines
+ Multilines
 )""");
     CHECK(out == ref);
 
@@ -287,6 +287,14 @@ semantic error: Error with label, two spans
   |
 2 |    Second line text
   | ...^^^^^^^^^^^ Two spans
+  |
+1 |    One line text
+  |             ^^^^...
+...
+  |
+3 |    Third line text
+  | ...^^^^^ Two spans
+ Two spans
 )""");
     CHECK(out == ref);
 }
