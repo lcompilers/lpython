@@ -311,7 +311,9 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
                     }
                 }
             }
-            out << " " << l.message << reset << std::endl;
+            if (s0.first_line == s0.last_line) {
+                out << " " << l.message << reset << std::endl;
+            }
         } // Labels
     }
     return out.str();

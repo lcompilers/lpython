@@ -265,7 +265,6 @@ semantic error: Error with label no message
   |
 2 |    Second line text
   | ...^^^^^^^^^^^ Multilines
- Multilines
 )""");
     CHECK(out == ref);
 
@@ -294,7 +293,6 @@ semantic error: Error with label, two spans
   |
 3 |    Third line text
   | ...^^^^^ Two spans
- Two spans
 )""");
     CHECK(out == ref);
 }
