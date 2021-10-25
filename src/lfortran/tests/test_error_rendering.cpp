@@ -108,4 +108,26 @@ semantic error: Error with label and message
   |     ^^^^ ^^^^ label message
 )""");
     CHECK(out == ref);
+
+    loc2.first = 9;
+    loc2.last = 12;
+    d = Diagnostic(
+            "Error with two labels and message",
+            Level::Error, Stage::Semantic, {
+                Label("label1 message", {loc}),
+                Label("label2 message", {loc2})
+            }
+        );
+    out = render_diagnostic(d, input, lm, false, false);
+    ref = S(R"""(
+semantic error: Error with two labels and message
+ --> input:1:5
+  |
+1 | One line text
+  |     ^^^^ label1 message
+  |
+1 | One line text
+  |          ~~~~ label2 message
+)""");
+    CHECK(out == ref);
 }
