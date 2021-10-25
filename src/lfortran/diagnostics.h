@@ -116,7 +116,7 @@ struct Diagnostic {
             const Stage &stage
             ) {
         Diagnostic d(message, level, stage);
-        d.labels.push_back(Label(true, error_label, locations));
+        d.primary_label(error_label, locations);
         return d;
     }
 
@@ -150,8 +150,12 @@ struct Diagnostic {
 
 // Methods to add more information to the error:
 
-    void secondary_label(const std::string &message,
-            const Location &loc) {
+    void primary_label(const std::string &message,
+            const std::vector<Location> &locations) {
+        this->labels.push_back(Label(true, message, locations));
+    }
+
+    void secondary_label(const std::string &message, const Location &loc) {
         this->labels.push_back(Label(false, message, {loc}));
     }
 
