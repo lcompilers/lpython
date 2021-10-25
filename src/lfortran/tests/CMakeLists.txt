@@ -22,6 +22,7 @@ set(SRC
     test_asm.cpp
     test_serialization.cpp
     test_pickle.cpp
+    test_error_rendering.cpp
 )
 
 if (WITH_JSON)
