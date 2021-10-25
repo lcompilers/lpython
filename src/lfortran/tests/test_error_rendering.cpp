@@ -57,7 +57,7 @@ warning: Error no label
     CHECK(out == ref);
 }
 
-TEST_CASE("Error Render: only primary labels") {
+TEST_CASE("Error Render: primary/secondary labels, single line") {
     // All combinations of primary error labels
     std::string out, ref, input;
     Location loc1, loc2, loc3;
@@ -225,6 +225,47 @@ semantic error: Error with three labels and message, two spans
   |
 1 | One line text
   | ~~~ label3 secondary message
+)""");
+    CHECK(out == ref);
+}
+
+TEST_CASE("Error Render: primary/secondary labels, multi line") {
+    std::string out, ref, input;
+    Location loc1, loc2, loc3;
+    LocationManager lm;
+    input = "One line text\nSecond line text\nThird line text\n";
+    lm.in_filename = "input";
+    lm.get_newlines(input, lm.in_newlines);
+    lm.out_start.push_back(0);
+    lm.in_start.push_back(0);
+    lm.in_start.push_back(input.size());
+    lm.out_start.push_back(input.size());
+
+    loc1.first = 4; // 1 line
+    loc1.last = 24; // 2 line
+    loc2.first = 26; // 2 text
+    loc2.last = 40; // 3 line
+    loc3.first = 0; // 1 One
+    loc3.last = 35; // 3 Third
+
+    // 1 Label 1 Span
+    auto d = Diagnostic(
+            "Error with label no message",
+            Level::Error, Stage::Semantic, {
+                Label("Multilines", {loc1})
+            }
+        );
+    out = render_diagnostic(d, input, lm, false, false);
+    ref = S(R"""(
+semantic error: Error with label no message
+ --> input:1:5 - 2:11
+  |
+1 |    One line text
+  |        ^^^^^^^^^...
+...
+  |
+2 |    Second line text
+  | ...^^^^^^^^^^^ Multilines
 )""");
     CHECK(out == ref);
 }

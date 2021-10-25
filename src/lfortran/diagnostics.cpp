@@ -258,19 +258,30 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
                 }
                 out << " " << l.message << reset << std::endl;
             } else {
-                throw LFortranException("Multiline span not implemented yet (II)");
-                /*
-                out << "first (" << s.first_line << ":" << s.first_column;
-                out << ")" << std::endl;
-                std::string line = s.source_code[0];
-                if (s.first_column <= line.size()) {
-                    out << highlight_line(line, s.first_column, line.size(), use_colors);
-                }
-                out << "last (" << s.last_line << ":" << s.last_column;
-                out << ")" << std::endl;
-                line = s.source_code[s.source_code.size()-1];
-                out << highlight_line(line, 1, s.last_column, use_colors);
-                */
+                out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                    << reset << std::endl;
+                std::string line = s0.source_code[0];
+                out << blue_bold << std::setw(line_num_width)
+                    << std::to_string(s0.first_line) << " |" << reset << " "
+                    << "   " + line << std::endl;
+                out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                    << reset << " ";
+                out << "   " + std::string(s0.first_column-1, ' ');
+                out << color << std::string(line.size()-s0.first_column+1, symbol);
+                out << "..." << reset << std::endl;
+
+                out << "..." << std::endl;
+
+                out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                    << reset << std::endl;
+                line = s0.source_code[s0.source_code.size()-1];
+                out << blue_bold << std::setw(line_num_width)
+                    << std::to_string(s0.last_line) << " |" << reset << " "
+                    << "   " + line << std::endl;
+                out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                    << reset << " ";
+                out << color << "..." + std::string(s0.last_column-1+1, symbol);
+                out << " " << l.message << reset << std::endl;
             }
         } // Labels
     }
