@@ -125,9 +125,12 @@ semantic error: Error with label and message
  --> input:1:5
   |
 1 | One line text
-  | ^^^ ^^^^ ^^^^ label message
+  |     ^^^^ ^^^^ label message
+  |
+1 | One line text
+  | ^^^ label message
 )""");
-//    CHECK(out == ref);
+    CHECK(out == ref);
 
     // 2 Label 1 Span
     d = Diagnostic(
