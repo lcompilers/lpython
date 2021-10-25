@@ -151,7 +151,7 @@ semantic error: Error with two labels and message
 1 | One line text
   |          ^^^^ label2 message
 )""");
-//    CHECK(out == ref);
+    CHECK(out == ref);
 
     // 3 Label 1 Span
     d = Diagnostic(
@@ -176,5 +176,5 @@ semantic error: Error with two labels and message
 1 | One line text
   | ^^^ label3 message
 )""");
-//    CHECK(out == ref);
+    CHECK(out == ref);
 }
