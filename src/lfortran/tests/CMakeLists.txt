@@ -41,12 +41,16 @@ set(SRC
 )
 
 if (WITH_JSON)
-    ADDTEST(test_ast_to_json p::doctest)
+    set(SRC ${SRC}
+        test_ast_to_json.cpp
+    )
 endif()
 if (WITH_LLVM)
-    ADDTEST(test_llvm p::doctest)
+    set(SRC ${SRC}
+        test_llvm.cpp
+    )
     if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        target_link_options(test_llvm PRIVATE "LINKER:--export-dynamic")
+        target_link_options(test_lfortran PRIVATE "LINKER:--export-dynamic")
     endif()
 endif()
 
