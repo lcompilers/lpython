@@ -497,11 +497,10 @@ public:
         SymbolTable *scope = current_scope;
         ASR::symbol_t *v = scope->resolve_symbol(var_name);
         if (!v) {
-            diag::Diagnostic d{diag::Diagnostic::semantic_error_label
-                ("Variable '" + var_name + "' is not declared", loc,
-                 "'" + var_name + "' is undeclared")};
-            throw SemanticError(d);
-            //throw SemanticError("Variable '" + var_name + "' not declared", loc);
+            diag.semantic_error_label("Variable '" + var_name
+                + "' is not declared", {loc},
+                "'" + var_name + "' is undeclared");
+            throw SemanticAbort();
         }
         if( v->type == ASR::symbolType::Variable ) {
             ASR::Variable_t* v_var = ASR::down_cast<ASR::Variable_t>(v);
@@ -922,11 +921,8 @@ public:
                         f->m_args, f->n_args, x.base.base.loc);
                 } else {
                     LFORTRAN_ASSERT(ASR::is_a<ASR::GenericProcedure_t>(*f2))
-                    diag::Diagnostic d{diag::Diagnostic::semantic_error(
-                        "Keyword arguments are not implemented for generic functions yet",
-                        x.base.base.loc
-                    )};
-                    throw SemanticError(d);
+                    throw SemanticError("Keyword arguments are not implemented for generic functions yet",
+                        x.base.base.loc);
                 }
             }
             tmp = create_FunctionCall(x.base.base.loc, v, args);
@@ -1426,13 +1422,12 @@ public:
                 ASR::expr_t **fn_args, size_t fn_n_args, const Location &loc) {
         size_t n_args = args.size();
         if (args.size() + n != fn_n_args) {
-            diag::Diagnostic d{diag::Diagnostic::semantic_error(
+            throw SemanticError(
                 "Procedure accepts " + std::to_string(fn_n_args)
                 + " arguments, but " + std::to_string(args.size() + n)
                 + " were provided",
                 loc
-            )};
-            throw SemanticError(d);
+            );
         }
         for (size_t i=0; i<n; i++) {
             args.push_back(al, nullptr);

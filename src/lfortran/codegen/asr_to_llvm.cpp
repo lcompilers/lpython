@@ -84,11 +84,13 @@ namespace {
         diag::Diagnostic d;
     public:
         CodeGenError(const std::string &msg)
-            : d{diag::Diagnostic::codegen_error(msg)}
+            : d{diag::Diagnostic(msg, diag::Level::Error, diag::Stage::CodeGen)}
         { }
 
         CodeGenError(const std::string &msg, const Location &loc)
-            : d{diag::Diagnostic::codegen_error(msg, loc)}
+            : d{diag::Diagnostic(msg, diag::Level::Error, diag::Stage::CodeGen, {
+                diag::Label("", {loc})
+            })}
         { }
     };
 
@@ -3972,7 +3974,8 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
         std::cout << os.str();
         std::string msg = "asr_to_llvm: module failed verification. Error:\n"
             + err.str();
-        diagnostics.diagnostics.push_back(diag::Diagnostic::codegen_error(msg));
+        diagnostics.diagnostics.push_back(diag::Diagnostic(msg,
+            diag::Level::Error, diag::Stage::CodeGen));
         Error error;
         return error;
     };
