@@ -497,11 +497,10 @@ public:
         SymbolTable *scope = current_scope;
         ASR::symbol_t *v = scope->resolve_symbol(var_name);
         if (!v) {
-            diag::Diagnostic d{diag::Diagnostic::semantic_error_label
-                ("Variable '" + var_name + "' is not declared", loc,
-                 "'" + var_name + "' is undeclared")};
-            throw SemanticError(d);
-            //throw SemanticError("Variable '" + var_name + "' not declared", loc);
+            diag.semantic_error_label("Variable '" + var_name
+                + "' is not declared", {loc},
+                "'" + var_name + "' is undeclared");
+            throw SemanticAbort();
         }
         if( v->type == ASR::symbolType::Variable ) {
             ASR::Variable_t* v_var = ASR::down_cast<ASR::Variable_t>(v);
