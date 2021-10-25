@@ -101,10 +101,15 @@ struct Diagnostic {
     std::vector<Diagnostic> children;
     std::vector<StacktraceItem> stacktrace = get_stacktrace_addresses();
 
-// Main constructor:
+// Main constructors:
 
     Diagnostic(const std::string &message, const Level &level,
         const Stage &stage) : level{level}, stage{stage}, message{message} {}
+
+    Diagnostic(const std::string &message, const Level &level,
+        const Stage &stage,
+        const std::vector<Label> &labels
+        ) : level{level}, stage{stage}, message{message}, labels{labels} {}
 
 // Generic helper constructors:
 
@@ -114,12 +119,11 @@ struct Diagnostic {
             const Level &level,
             const Stage &stage
             ) {
-        Diagnostic d(message, level, stage);
-        d.primary_label(error_label, locations);
-        return d;
+        return Diagnostic(message, level, stage,
+            {Label(error_label, locations)});
     }
 
-// Specific constructors
+// Specific helper constructors
 
     static Diagnostic semantic_error(const std::string &message, const Location &loc) {
         return message_label(message, {loc}, "", Level::Error, Stage::Semantic);
@@ -145,17 +149,6 @@ struct Diagnostic {
 
     static Diagnostic codegen_error(const std::string &message, const Location &loc) {
         return message_label(message, {loc}, "", Level::Error, Stage::CodeGen);
-    }
-
-// Methods to add more information to the error:
-
-    void primary_label(const std::string &message,
-            const std::vector<Location> &locations) {
-        this->labels.push_back(Label(message, locations));
-    }
-
-    void secondary_label(const std::string &message, const Location &loc) {
-        this->labels.push_back(Label(message, {loc}, false));
     }
 
 };

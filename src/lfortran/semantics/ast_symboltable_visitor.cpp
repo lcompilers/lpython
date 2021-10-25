@@ -625,15 +625,12 @@ public:
                         // re-declaring a global scope variable is allowed
                         // Otherwise raise an error
                         ASR::symbol_t *orig_decl = current_scope->scope[sym];
-                        diag::Diagnostic d{diag::Diagnostic::semantic_error_label(
+                        throw SemanticError(diag::Diagnostic(
                             "Symbol is already declared in the same scope",
-                            s.loc,
-                            "redeclaration"
-                        )};
-                        d.secondary_label("original declaration", orig_decl->base.loc);
-                        throw SemanticError(d);
-                        //throw SemanticError("Symbol already declared",
-                        //        x.base.base.loc);
+                            diag::Level::Error, diag::Stage::Semantic, {
+                                diag::Label("redeclaration", {s.loc}),
+                                diag::Label("original declaration", {orig_decl->base.loc}, false),
+                            }));
                     }
                 }
                 ASR::intentType s_intent;
