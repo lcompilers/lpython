@@ -190,75 +190,130 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
         } else if (s.last_line >= 10) {
             line_num_width = 2;
         }
+        // TODO: print the primary line+column here, not the first label:
         out << std::string(line_num_width, ' ') << blue_bold << "-->" << reset << " " << s.filename << ":" << s.first_line << ":" << s.first_column;
         if (s.first_line != s.last_line) {
             out << " - " << s.last_line << ":" << s.last_column;
         }
         out << std::endl;
-        if (s.first_line == s.last_line) {
-            // Primary label:
-            out << std::string(line_num_width+1, ' ') << blue_bold << "|"
-                << reset << std::endl;
-            std::string line = s.source_code[0];
-            out << blue_bold << std::setw(line_num_width)
-                << std::to_string(s.first_line) << " |" << reset << " "
-                << line << std::endl;
-            out << std::string(line_num_width+1, ' ') << blue_bold << "|"
-                << reset << " ";
-            out << std::string(s.first_column-1, ' ');
-            out << primary_color << std::string(s.last_column-s.first_column+1, '^');
-            if (l.spans.size() == 2) {
-                // For now we paint the second span only if it is "easy"
-                Span s2=l.spans[1];
-                if (s2.first_line == s2.last_line && s2.first_line == s.first_line)  {
-                    if (s2.first_column > s.last_column+1) {
-                        out << std::string(s2.first_column-s.last_column-1, ' ');
-                        out << std::string(s2.last_column-s2.first_column+1, '^');
-                    }
-                }
+        for (auto &l : d.labels) {
+            if (l.spans.size() == 0) {
+                throw LFortranException("ICE: Label does not have a span");
             }
-            out << " " << l.message << reset << std::endl;
+            std::string color;
+            char symbol;
+            if (l.primary) {
+                color = primary_color;
+                symbol = '^';
+            } else {
+                color = blue_bold;
+                symbol = '~';
+            }
+            Span s0 = l.spans[0];
+            if (s0.first_line == s0.last_line) {
+                out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                    << reset << std::endl;
+                std::string line = s0.source_code[0];
+                out << blue_bold << std::setw(line_num_width)
+                    << std::to_string(s0.first_line) << " |" << reset << " "
+                    << line << std::endl;
+                out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                    << reset << " ";
+                out << std::string(s0.first_column-1, ' ');
+                out << color << std::string(s0.last_column-s0.first_column+1, symbol);
+            } else {
+                out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                    << reset << std::endl;
+                std::string line = s0.source_code[0];
+                out << blue_bold << std::setw(line_num_width)
+                    << std::to_string(s0.first_line) << " |" << reset << " "
+                    << "   " + line << std::endl;
+                out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                    << reset << " ";
+                out << "   " + std::string(s0.first_column-1, ' ');
+                out << color << std::string(line.size()-s0.first_column+1, symbol);
+                out << "..." << reset << std::endl;
 
-            if (d.labels.size() == 2) {
-                // Secondary label
-                Label l = d.labels[1];
-                Span s = l.spans[0];
-                if (s.first_line == s.last_line) {
-                    out << std::string(line_num_width+1, ' ') << blue_bold << "|"
-                        << reset << std::endl;
-                    std::string line = s.source_code[0];
-                    out << blue_bold << std::setw(line_num_width)
-                        << std::to_string(s.first_line) << " |" << reset << " "
-                        << line << std::endl;
-                    out << std::string(line_num_width+1, ' ') << blue_bold << "|"
-                        << reset << " ";
-                    out << std::string(s.first_column-1, ' ');
-                    out << blue_bold << std::string(s.last_column-s.first_column+1, '~');
-                    if (l.spans.size() == 2) {
-                        // For now we paint the second span only if it is "easy"
-                        Span s2=l.spans[1];
-                        if (s2.first_line == s2.last_line && s2.first_line == s.first_line)  {
-                            if (s2.first_column > s.last_column+1) {
-                                out << std::string(s2.first_column-s.last_column-1, ' ');
-                                out << std::string(s2.last_column-s2.first_column+1, '~');
+                out << "..." << std::endl;
+
+                out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                    << reset << std::endl;
+                line = s0.source_code[s0.source_code.size()-1];
+                out << blue_bold << std::setw(line_num_width)
+                    << std::to_string(s0.last_line) << " |" << reset << " "
+                    << "   " + line << std::endl;
+                out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                    << reset << " ";
+                out << color << "..." + std::string(s0.last_column-1+1, symbol);
+                out << " " << l.message << reset << std::endl;
+            }
+            if (l.spans.size() > 1) {
+                // If the span is on the same line as the last span and to
+                // the right, we add it to the same line. Otherwise we start
+                // a new line.
+                for (size_t i=1; i < l.spans.size(); i++) {
+                    Span s2=l.spans[i];
+                    if (s0.first_line == s0.last_line) {
+                        // Previous span was single line
+                        if (s2.first_line == s2.last_line && s2.first_line == s0.first_line)  {
+                            // Current span is single line and on the same line
+                            if (s2.first_column > s0.last_column+1) {
+                                // And it comes after the previous span
+                                // Append the span and continue
+                                out << std::string(s2.first_column-s0.last_column-1, ' ');
+                                out << std::string(s2.last_column-s2.first_column+1, symbol);
+                                s0 = s2;
+                                continue;
                             }
                         }
+                        // Otherwise finish the line
+                        out << " " << l.message << reset << std::endl;
                     }
-                    out << " " << l.message << reset << std::endl;
+                    // and start a new one:
+                    s0 = s2;
+                    if (s0.first_line == s0.last_line) {
+                        out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                            << reset << std::endl;
+                        std::string line = s0.source_code[0];
+                        out << blue_bold << std::setw(line_num_width)
+                            << std::to_string(s0.first_line) << " |" << reset << " "
+                            << line << std::endl;
+                        out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                            << reset << " ";
+                        out << std::string(s0.first_column-1, ' ');
+                        out << color << std::string(s0.last_column-s0.first_column+1, symbol);
+                    } else {
+                        out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                            << reset << std::endl;
+                        std::string line = s0.source_code[0];
+                        out << blue_bold << std::setw(line_num_width)
+                            << std::to_string(s0.first_line) << " |" << reset << " "
+                            << "   " + line << std::endl;
+                        out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                            << reset << " ";
+                        out << "   " + std::string(s0.first_column-1, ' ');
+                        out << color << std::string(line.size()-s0.first_column+1, symbol);
+                        out << "..." << reset << std::endl;
+
+                        out << "..." << std::endl;
+
+                        out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                            << reset << std::endl;
+                        line = s0.source_code[s0.source_code.size()-1];
+                        out << blue_bold << std::setw(line_num_width)
+                            << std::to_string(s0.last_line) << " |" << reset << " "
+                            << "   " + line << std::endl;
+                        out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                            << reset << " ";
+                        out << color << "..." + std::string(s0.last_column-1+1, symbol);
+                        out << " " << l.message << reset << std::endl;
+                    }
                 }
             }
-        } else {
-            out << "first (" << s.first_line << ":" << s.first_column;
-            out << ")" << std::endl;
-            std::string line = s.source_code[0];
-            if (s.first_column <= line.size()) {
-                out << highlight_line(line, s.first_column, line.size(), use_colors);
+            if (s0.first_line == s0.last_line) {
+                out << " " << l.message << reset << std::endl;
             }
-            out << "last (" << s.last_line << ":" << s.last_column;
-            out << ")" << std::endl;
-            line = s.source_code[s.source_code.size()-1];
-            out << highlight_line(line, 1, s.last_column, use_colors);
-        }
+        } // Labels
     }
     return out.str();
 }
