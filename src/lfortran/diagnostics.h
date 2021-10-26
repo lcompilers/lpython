@@ -119,6 +119,10 @@ struct Diagnostics {
     // Returns true iff diagnostics contains at least one error message
     bool has_error() const;
 
+    void add(const Diagnostic &d) {
+        diagnostics.push_back(d);
+    }
+
     void message_label(const std::string &message,
             const std::vector<Location> &locations,
             const std::string &error_label,

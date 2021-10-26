@@ -8,6 +8,11 @@
 #include <lfortran/utils.h>
 #include <lfortran/semantics/comptime_eval.h>
 
+using LFortran::diag::Level;
+using LFortran::diag::Stage;
+using LFortran::diag::Label;
+using LFortran::diag::Diagnostic;
+
 namespace LFortran {
 
 #define LFORTRAN_STMT_LABEL_TYPE(x) \
@@ -1081,10 +1086,12 @@ public:
                                     ASRUtils::expr_type(right))) {
             std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
-            diag.semantic_error_label(
+            diag.add(Diagnostic(
                 "Type mismatch in binary operator, the types must be compatible",
-                {left->base.loc, right->base.loc},
-                "type mismatch (" + ltype + " and " + rtype + ")"
+                Level::Error, Stage::Semantic, {
+                    Label("type mismatch (" + ltype + " and " + rtype + ")",
+                            {left->base.loc, right->base.loc})
+                })
             );
             throw SemanticAbort();
         }
