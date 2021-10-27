@@ -99,7 +99,7 @@ struct IntrinsicProcedures {
 
             // Subroutines
             {"cpu_time", {m_math, &not_implemented, false}},
-            {"bit_size", {m_builtin, &not_implemented, false}},
+            {"bit_size", {m_builtin, &eval_bit_size, false}},
             {"not", {m_builtin, &not_implemented, false}},
             {"iachar",  {m_builtin, &not_implemented, false}},
             {"achar", {m_builtin, &eval_achar, false}},
@@ -112,7 +112,6 @@ struct IntrinsicProcedures {
             {"minval", {m_builtin, &not_implemented, false}},
             {"maxval", {m_builtin, &not_implemented, false}},
             {"sum", {m_builtin, &not_implemented, false}},
-            {"bit_size", {m_builtin, &not_implemented, false}},
             {"not", {m_builtin, &not_implemented, false}},
             {"index", {m_string, &not_implemented, false}},
         };
@@ -192,6 +191,26 @@ struct IntrinsicProcedures {
                     4, nullptr, 0));
         return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc,
                 kind_num, type));
+    }
+
+    static ASR::expr_t *eval_bit_size(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(args.size() >= 1);
+        ASR::expr_t* arg = args[0];
+        ASR::ttype_t* arg_type = ASRUtils::expr_type(arg);
+        int64_t bit_size_val = 0;
+        switch( arg_type->type ) {
+            case ASR::ttypeType::Integer: {
+                ASR::Integer_t* arg_int = ASR::down_cast<ASR::Integer_t>(arg_type);
+                bit_size_val = arg_int->m_kind * 8;
+                break;
+            }
+            default: {
+                LFORTRAN_ASSERT(false);
+                break;
+            }
+        }
+        ASR::ttype_t* int32_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        return ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, loc, bit_size_val, int32_type));
     }
 
     static ASR::expr_t *eval_tiny(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {

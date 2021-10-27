@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-bits_02-925bde2",
+    "cmd": "lfortran --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/bits_02.f90",
+    "infile_hash": "b8747b12cce7c4cfb756479c905afe9da827b32b6e75e3f13f2b6a1e",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-bits_02-925bde2.stdout",
+    "stdout_hash": "5d53383ce538b9db92b29853cd691eee4d84e92a353db44ec5702f4f",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

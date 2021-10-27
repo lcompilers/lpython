@@ -1666,6 +1666,11 @@ filename = "../integration_tests/bits_01.f90"
 asr = true
 
 [[test]]
+filename = "../integration_tests/bits_02.f90"
+asr = true
+llvm = true
+
+[[test]]
 filename = "../integration_tests/boz_01.f90"
 asr = true
 llvm = true
