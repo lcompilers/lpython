@@ -1081,6 +1081,51 @@ public:
                 body.size());
     }
 
+    void visit_ForAllSingle(const AST::ForAllSingle_t &x) {
+        if (x.n_control != 1) {
+            throw SemanticError("Forall statement: exactly one control statement is required for now",
+            x.base.base.loc);
+        }
+        AST::ConcurrentControl_t &h = *(AST::ConcurrentControl_t*) x.m_control[0];
+        if (! h.m_var) {
+            throw SemanticError("Forall statement: loop variable is required",
+                x.base.base.loc);
+        }
+        if (! h.m_start) {
+            throw SemanticError("Forall statement: start condition is required",
+                x.base.base.loc);
+        }
+        if (! h.m_end) {
+            throw SemanticError("Forall statement: end condition is required",
+                x.base.base.loc);
+        }
+        ASR::expr_t *var = LFortran::ASRUtils::EXPR(
+            resolve_variable(x.base.base.loc, to_lower(h.m_var))
+        );
+        visit_expr(*h.m_start);
+        ASR::expr_t *start = LFortran::ASRUtils::EXPR(tmp);
+        visit_expr(*h.m_end);
+        ASR::expr_t *end = LFortran::ASRUtils::EXPR(tmp);
+        ASR::expr_t *increment;
+        if (h.m_increment) {
+            visit_expr(*h.m_increment);
+            increment = LFortran::ASRUtils::EXPR(tmp);
+        } else {
+            increment = nullptr;
+        }
+
+        ASR::stmt_t* assign_stmt;
+        this->visit_stmt(*x.m_assign_stmt);
+        assign_stmt = LFortran::ASRUtils::STMT(tmp);
+        ASR::do_loop_head_t head;
+        head.m_v = var;
+        head.m_start = start;
+        head.m_end = end;
+        head.m_increment = increment;
+        head.loc = head.m_v->base.loc;
+        tmp = ASR::make_ForAllSingle_t(al, x.base.base.loc, head, assign_stmt);
+    }
+
     void visit_Exit(const AST::Exit_t &x) {
         // TODO: add a check here that we are inside a While loop
         tmp = ASR::make_Exit_t(al, x.base.base.loc);
