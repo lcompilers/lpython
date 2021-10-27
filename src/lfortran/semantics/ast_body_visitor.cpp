@@ -1115,7 +1115,7 @@ public:
         }
 
         ASR::stmt_t* assign_stmt;
-        this->visit_stmt(*x.m_assign_stmt);
+        this->visit_stmt(*x.m_assign);
         assign_stmt = LFortran::ASRUtils::STMT(tmp);
         ASR::do_loop_head_t head;
         head.m_v = var;
