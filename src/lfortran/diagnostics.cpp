@@ -239,6 +239,7 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
                     out << std::string(line_num_width+1, ' ') << blue_bold << "|"
                         << reset << std::endl;
                     std::string line = s0.source_code[0];
+                    std::replace(std::begin(line), std::end(line), '\t', ' ');
                     out << blue_bold << std::setw(line_num_width)
                         << std::to_string(s0.first_line) << " |" << reset << " "
                         << line << std::endl;
@@ -251,6 +252,7 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
                         out << std::string(line_num_width+1, ' ') << blue_bold << "|"
                             << reset << std::endl;
                         std::string line = s0.source_code[0];
+                        std::replace(std::begin(line), std::end(line), '\t', ' ');
                         out << blue_bold << std::setw(line_num_width)
                             << std::to_string(s0.first_line) << " |" << reset << " "
                             << "   " + line << std::endl;
@@ -265,6 +267,7 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
                         out << std::string(line_num_width+1, ' ') << blue_bold << "|"
                             << reset << std::endl;
                         line = s0.source_code[s0.source_code.size()-1];
+                        std::replace(std::begin(line), std::end(line), '\t', ' ');
                         out << blue_bold << std::setw(line_num_width)
                             << std::to_string(s0.last_line) << " |" << reset << " "
                             << "   " + line << std::endl;
