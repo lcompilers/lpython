@@ -25,6 +25,8 @@ namespace {
         { }
     };
 
+    class Abort {};
+
 }
 
 using ASR::is_a;
@@ -136,7 +138,8 @@ public:
                 sub += "=" + init;
             }
         } else {
-            throw CodeGenError("Type not supported");
+            diag.codegen_error_label("Type not supported", {v.base.base.loc}, "");
+            throw Abort();
         }
         return sub;
     }
@@ -1004,8 +1007,10 @@ Result<std::string> asr_to_cpp(ASR::TranslationUnit_t &asr,
     try {
         v.visit_asr((ASR::asr_t &)asr);
     } catch (const CodeGenError &e) {
-        Error error;
-        return error;
+        diagnostics.diagnostics.push_back(e.d);
+        return Error();
+    } catch (const Abort &) {
+        return Error();
     }
     return v.src;
 }
