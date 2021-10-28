@@ -569,8 +569,62 @@ public:
             v = orig_Var->m_v;
             type = ASR::down_cast<ASR::Variable_t>(v)->m_type;
         }
+        ASR::expr_t *arr_ref_val = nullptr;
+        bool all_args_eval = ASRUtils::all_args_evaluated(args);
+        for( auto& a : args ) {
+            // Assume that indices are constant integers
+            int64_t start = -1, end = -1, step = -1;
+            if( a.m_left ) {
+                if( all_args_eval ) {
+                    ASR::expr_t* m_left_expr = ASRUtils::expr_value(a.m_left);
+                    ASR::ConstantInteger_t *m_left = ASR::down_cast<ASR::ConstantInteger_t>(m_left_expr);
+                    start = m_left->m_n;
+                }
+            } else {
+                start = 1;
+            }
+            if( a.m_right ) {
+                if( all_args_eval ) {
+                    ASR::expr_t* m_right_expr = ASRUtils::expr_value(a.m_right);
+                    ASR::ConstantInteger_t *m_right = ASR::down_cast<ASR::ConstantInteger_t>(m_right_expr);
+                    end = m_right->m_n;
+                }
+            }
+            if( a.m_step ) {
+                if( all_args_eval ) {
+                    ASR::expr_t* m_step_expr = ASRUtils::expr_value(a.m_step);
+                    ASR::ConstantInteger_t *m_step = ASR::down_cast<ASR::ConstantInteger_t>(m_step_expr);
+                    step = m_step->m_n;
+                }
+            } else {
+                step = 1;
+            }
+            if( v->type == ASR::symbolType::Variable ) {
+                ASR::Variable_t *var = ASR::down_cast<ASR::Variable_t>(v);
+                ASR::expr_t *m_value = var->m_value;
+                if( m_value && m_value->type == ASR::exprType::ConstantString ) {
+                    ASR::ConstantString_t *m_str = ASR::down_cast<ASR::ConstantString_t>(m_value);
+                    std::string sliced_str;
+                    if( start != -1 && step != -1 && end == -1 ) {
+                        end = 0;
+                        while( m_str->m_s[end] != '\0' ) {
+                            end += 1;
+                        }
+                        end -= 1;
+                    }
+                    if( start != -1 && end != -1 && step != -1 ) {
+                        for( int i = start - 1; i <= end - 1; i += step ) {
+                            sliced_str.push_back(m_str->m_s[i]);
+                        }
+                        Str l_str;
+                        l_str.from_str(al, sliced_str);
+                        arr_ref_val = ASRUtils::EXPR(ASR::make_ConstantString_t(al, loc, l_str.c_str(al), m_str->m_type));
+                    }
+                }
+            }
+        }
         return ASR::make_ArrayRef_t(al, loc,
-            v, args.p, args.size(), type, nullptr);
+            v, args.p, args.size(), type, arr_ref_val);
     }
 
     ASR::ttype_t* handle_character_return(ASR::ttype_t *return_type, const Location &loc) {
