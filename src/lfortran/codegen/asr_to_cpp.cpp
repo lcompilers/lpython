@@ -94,6 +94,7 @@ std::string format_type(const std::string &dims, const std::string &type,
 class ASRToCPPVisitor : public ASR::BaseVisitor<ASRToCPPVisitor>
 {
 public:
+    diag::Diagnostics &diag;
     std::map<uint64_t, SymbolInfo> sym_info;
     std::string src;
     int indentation_level;
@@ -101,6 +102,8 @@ public:
     bool last_unary_plus;
     bool last_binary_plus;
     bool intrinsic_module = false;
+
+    ASRToCPPVisitor(diag::Diagnostics &diag) : diag{diag} {}
 
     std::string convert_variable_decl(const ASR::Variable_t &v)
     {
@@ -994,9 +997,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
 };
 
-Result<std::string> asr_to_cpp(ASR::TranslationUnit_t &asr)
+Result<std::string> asr_to_cpp(ASR::TranslationUnit_t &asr,
+    diag::Diagnostics &diagnostics)
 {
-    ASRToCPPVisitor v;
+    ASRToCPPVisitor v(diagnostics);
     try {
         v.visit_asr((ASR::asr_t &)asr);
     } catch (const CodeGenError &e) {
