@@ -1147,6 +1147,8 @@ class DeserializationVisitorVisitor(ASDLVisitor):
             self.emit(line, 2)
 
         self.emit(    'Location loc;', 2)
+        self.emit(    '// FIXME: read loc from the stream', 2)
+        self.emit(    'loc.first=0; loc.last=0;', 2)
         self.emit(    'return %s::make_%s_t(%s);' % (subs["mod"].upper(), name, ", ".join(args)), 2)
         self.emit("}", 1)
 
