@@ -210,8 +210,7 @@ public:
         current_scope = al.make_new<SymbolTable>(parent_scope);
         for (size_t i=0; i<x.n_args; i++) {
             char *arg=x.m_args[i].m_arg;
-            std::string arg_s = arg;
-            current_procedure_args.push_back(arg);
+            current_procedure_args.push_back(to_lower(arg));
         }
         current_procedure_abi_type = ASR::abiType::Source;
         char *bindc_name=nullptr;
@@ -295,8 +294,7 @@ public:
         current_scope = al.make_new<SymbolTable>(parent_scope);
         for (size_t i=0; i<x.n_args; i++) {
             char *arg=x.m_args[i].m_arg;
-            std::string arg_s = arg;
-            current_procedure_args.push_back(arg);
+            current_procedure_args.push_back(to_lower(arg));
         }
 
         // Determine the ABI (Source or BindC for now)
