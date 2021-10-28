@@ -137,6 +137,15 @@ public:
                 std::string init = src;
                 sub += "=" + init;
             }
+        } else if (is_a<ASR::Derived_t>(*v.m_type)) {
+            ASR::Derived_t *t = down_cast<ASR::Derived_t>(v.m_type);
+            std::string dims = convert_dims(t->n_dims, t->m_dims);
+            sub = format_type(dims, "struct", v.m_name, use_ref, dummy);
+            if (v.m_symbolic_value) {
+                this->visit_expr(*v.m_symbolic_value);
+                std::string init = src;
+                sub += "=" + init;
+            }
         } else {
             diag.codegen_error_label("Type not supported", {v.base.base.loc}, "");
             throw Abort();
