@@ -651,6 +651,7 @@ void populate_span(diag::Span &s, const LocationManager &lm,
     for (uint32_t i = s.first_line; i <= s.last_line; i++) {
         s.source_code.push_back(get_line(input, i));
     }
+    LFORTRAN_ASSERT(s.source_code.size() > 0)
 }
 
 // Loop over all labels and their spans, populate all of them
