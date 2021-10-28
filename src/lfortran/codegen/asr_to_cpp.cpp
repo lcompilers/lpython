@@ -147,7 +147,9 @@ public:
                 sub += "=" + init;
             }
         } else {
-            diag.codegen_error_label("Type not supported", {v.base.base.loc}, "");
+            diag.codegen_error_label("Type number '"
+                + std::to_string(v.m_type->type)
+                + "' not supported", {v.base.base.loc}, "");
             throw Abort();
         }
         return sub;
@@ -312,7 +314,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string sub = "void " + std::string(x.m_name) + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
+            LFORTRAN_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
             sub += convert_variable_decl(*arg);
             if (i < x.n_args-1) sub += ", ";
         }
