@@ -239,6 +239,7 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
                     out << std::string(line_num_width+1, ' ') << blue_bold << "|"
                         << reset << std::endl;
                     std::string line = s0.source_code[0];
+                    std::replace(std::begin(line), std::end(line), '\t', ' ');
                     out << blue_bold << std::setw(line_num_width)
                         << std::to_string(s0.first_line) << " |" << reset << " "
                         << line << std::endl;
@@ -247,30 +248,36 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
                     out << std::string(s0.first_column-1, ' ');
                     out << color << std::string(s0.last_column-s0.first_column+1, symbol);
                 } else {
-                    out << std::string(line_num_width+1, ' ') << blue_bold << "|"
-                        << reset << std::endl;
-                    std::string line = s0.source_code[0];
-                    out << blue_bold << std::setw(line_num_width)
-                        << std::to_string(s0.first_line) << " |" << reset << " "
-                        << "   " + line << std::endl;
-                    out << std::string(line_num_width+1, ' ') << blue_bold << "|"
-                        << reset << " ";
-                    out << "   " + std::string(s0.first_column-1, ' ');
-                    out << color << std::string(line.size()-s0.first_column+1, symbol);
-                    out << "..." << reset << std::endl;
+                    if (s0.first_line < s0.last_line) {
+                        out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                            << reset << std::endl;
+                        std::string line = s0.source_code[0];
+                        std::replace(std::begin(line), std::end(line), '\t', ' ');
+                        out << blue_bold << std::setw(line_num_width)
+                            << std::to_string(s0.first_line) << " |" << reset << " "
+                            << "   " + line << std::endl;
+                        out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                            << reset << " ";
+                        out << "   " + std::string(s0.first_column-1, ' ');
+                        out << color << std::string(line.size()-s0.first_column+1, symbol);
+                        out << "..." << reset << std::endl;
 
-                    out << "..." << std::endl;
+                        out << "..." << std::endl;
 
-                    out << std::string(line_num_width+1, ' ') << blue_bold << "|"
-                        << reset << std::endl;
-                    line = s0.source_code[s0.source_code.size()-1];
-                    out << blue_bold << std::setw(line_num_width)
-                        << std::to_string(s0.last_line) << " |" << reset << " "
-                        << "   " + line << std::endl;
-                    out << std::string(line_num_width+1, ' ') << blue_bold << "|"
-                        << reset << " ";
-                    out << color << "..." + std::string(s0.last_column-1+1, symbol);
-                    out << " " << l.message << reset << std::endl;
+                        out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                            << reset << std::endl;
+                        line = s0.source_code[s0.source_code.size()-1];
+                        std::replace(std::begin(line), std::end(line), '\t', ' ');
+                        out << blue_bold << std::setw(line_num_width)
+                            << std::to_string(s0.last_line) << " |" << reset << " "
+                            << "   " + line << std::endl;
+                        out << std::string(line_num_width+1, ' ') << blue_bold << "|"
+                            << reset << " ";
+                        out << color << "..." + std::string(s0.last_column-1+1, symbol);
+                        out << " " << l.message << reset << std::endl;
+                    } else {
+                        throw LFortranException("location last_line < first_line");
+                    }
                 }
             }
             if (s0.first_line == s0.last_line) {

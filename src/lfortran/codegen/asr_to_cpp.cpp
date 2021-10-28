@@ -25,6 +25,8 @@ namespace {
         { }
     };
 
+    class Abort {};
+
 }
 
 using ASR::is_a;
@@ -94,6 +96,7 @@ std::string format_type(const std::string &dims, const std::string &type,
 class ASRToCPPVisitor : public ASR::BaseVisitor<ASRToCPPVisitor>
 {
 public:
+    diag::Diagnostics &diag;
     std::map<uint64_t, SymbolInfo> sym_info;
     std::string src;
     int indentation_level;
@@ -101,6 +104,8 @@ public:
     bool last_unary_plus;
     bool last_binary_plus;
     bool intrinsic_module = false;
+
+    ASRToCPPVisitor(diag::Diagnostics &diag) : diag{diag} {}
 
     std::string convert_variable_decl(const ASR::Variable_t &v)
     {
@@ -132,8 +137,20 @@ public:
                 std::string init = src;
                 sub += "=" + init;
             }
+        } else if (is_a<ASR::Derived_t>(*v.m_type)) {
+            ASR::Derived_t *t = down_cast<ASR::Derived_t>(v.m_type);
+            std::string dims = convert_dims(t->n_dims, t->m_dims);
+            sub = format_type(dims, "struct", v.m_name, use_ref, dummy);
+            if (v.m_symbolic_value) {
+                this->visit_expr(*v.m_symbolic_value);
+                std::string init = src;
+                sub += "=" + init;
+            }
         } else {
-            throw CodeGenError("Type not supported");
+            diag.codegen_error_label("Type number '"
+                + std::to_string(v.m_type->type)
+                + "' not supported", {v.base.base.loc}, "");
+            throw Abort();
         }
         return sub;
     }
@@ -297,7 +314,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string sub = "void " + std::string(x.m_name) + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
+            LFORTRAN_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
             sub += convert_variable_decl(*arg);
             if (i < x.n_args-1) sub += ", ";
         }
@@ -994,14 +1011,17 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
 };
 
-Result<std::string> asr_to_cpp(ASR::TranslationUnit_t &asr)
+Result<std::string> asr_to_cpp(ASR::TranslationUnit_t &asr,
+    diag::Diagnostics &diagnostics)
 {
-    ASRToCPPVisitor v;
+    ASRToCPPVisitor v(diagnostics);
     try {
         v.visit_asr((ASR::asr_t &)asr);
     } catch (const CodeGenError &e) {
-        Error error;
-        return error;
+        diagnostics.diagnostics.push_back(e.d);
+        return Error();
+    } catch (const Abort &) {
+        return Error();
     }
     return v.src;
 }

@@ -362,10 +362,10 @@ Result<std::string> FortranEvaluator::get_cpp(const std::string &code,
 }
 
 Result<std::string> FortranEvaluator::get_cpp2(ASR::TranslationUnit_t &asr,
-        diag::Diagnostics &/*diagnostics*/)
+        diag::Diagnostics &diagnostics)
 {
     // ASR -> C++
-    return asr_to_cpp(asr);
+    return asr_to_cpp(asr, diagnostics);
 }
 
 Result<std::string> FortranEvaluator::get_fmt(const std::string &code,
