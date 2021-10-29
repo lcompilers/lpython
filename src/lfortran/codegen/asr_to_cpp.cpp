@@ -116,6 +116,10 @@ public:
             ASR::Integer_t *t = down_cast<ASR::Integer_t>(v.m_type);
             std::string dims = convert_dims(t->n_dims, t->m_dims);
             sub = format_type(dims, "int", v.m_name, use_ref, dummy);
+        } else if (is_a<ASR::IntegerPointer_t>(*v.m_type)) {
+            ASR::IntegerPointer_t *t = down_cast<ASR::IntegerPointer_t>(v.m_type);
+            std::string dims = convert_dims(t->n_dims, t->m_dims);
+            sub = format_type(dims, "int *", v.m_name, use_ref, dummy);
         } else if (is_a<ASR::Real_t>(*v.m_type)) {
             ASR::Real_t *t = down_cast<ASR::Real_t>(v.m_type);
             std::string dims = convert_dims(t->n_dims, t->m_dims);
