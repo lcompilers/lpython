@@ -27,7 +27,7 @@ contains
     integer :: i
     r = .true.
     do i = 1, size(a)
-        r = r .and. (a(i) .eq. b(i))
+        r = r .and. (a(i) == b(i))
     end do
     end function
 
