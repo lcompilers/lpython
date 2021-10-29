@@ -19,6 +19,7 @@
 #include <lfortran/codegen/fortran_evaluator.h>
 #include <lfortran/codegen/evaluator.h>
 #include <lfortran/pass/do_loops.h>
+#include <lfortran/pass/for_all.h>
 #include <lfortran/pass/global_stmts.h>
 #include <lfortran/pass/implied_do_loops.h>
 #include <lfortran/pass/array_op.h>
@@ -500,14 +501,14 @@ int python_wrapper(const std::string &infile, std::string array_order,
     auto pxd_fname = prefix  + "_pxd.pxd"; // the "_pxd" is an ugly hack, see comment in asr_to_py.cpp
     auto pyx_fname = prefix  + ".pyx";
 
-    // The ASR to Python converter needs to know the name of the .h file that will be written, 
+    // The ASR to Python converter needs to know the name of the .h file that will be written,
     // but needs all path information stripped off - just the filename.
     auto chdr_fname_forcodegen = chdr_fname;
     {
         // Find last ocurrence of \ or /, and delete everything up to that point.
         auto pos_windows = chdr_fname_forcodegen.rfind('\\');
         auto pos_other = chdr_fname_forcodegen.rfind('/');
-        auto lastpos = std::max( (pos_windows == std::string::npos ? 0 : pos_windows) , 
+        auto lastpos = std::max( (pos_windows == std::string::npos ? 0 : pos_windows) ,
                                  (pos_other   == std::string::npos ? 0 : pos_other) );
         if (lastpos > 0UL) chdr_fname_forcodegen.erase(0,lastpos+1);
     }
@@ -521,7 +522,7 @@ int python_wrapper(const std::string &infile, std::string array_order,
     std::ofstream(chdr_fname) << c_h;
     std::ofstream(pxd_fname)  << pxd;
     std::ofstream(pyx_fname)  << pyx;
-    
+
     return 0;
 }
 
