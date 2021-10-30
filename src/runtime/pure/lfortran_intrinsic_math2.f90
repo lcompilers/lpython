@@ -267,35 +267,20 @@ end function
 
 elemental integer(i32) function i32huge(x) result(r)
 integer(i32), intent(in) :: x
-interface
-    elemental integer(i32) function c_i32huge(x) bind(c, name="_lfortran_i32huge")
-        integer(i32), intent(in), value :: x
-    end function
-end interface
-! r = 2147483647
-r = c_i32huge(x)
+r = 2147483647
+! r = 2**31 - 1
 end function
 
 elemental real(sp) function sphuge(x) result(r)
 real(sp), intent(in) :: x
-interface
-    elemental real(sp) function c_sphuge(x) bind(c, name="_lfortran_sphuge")
-        real(sp), intent(in), value :: x
-    end function
-end interface
-! r = 3.40282347E+38
-r = c_sphuge(x)
+r = 3.40282347E+38
+! r = 2**128 * (1 - 2**-24)
 end function
 
 elemental real(dp) function dphuge(x) result(r)
 real(dp), intent(in) :: x
-interface
-    elemental real(dp) function c_dphuge(x) bind(c, name="_lfortran_dphuge")
-        real(dp), intent(in), value :: x
-    end function
-end interface
-! r = 1.7976931348623157E+308
-r = c_dphuge(x)
+r = 1.7976931348623157E+308
+! r = 2**1024 * (1 - 2**-53)
 end function
 
 end module
