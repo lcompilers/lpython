@@ -124,6 +124,7 @@ RUN(NAME goto_03 LABELS gfortran)
 RUN(NAME subroutines_01 LABELS gfortran llvm cpp x86)
 RUN(NAME subroutines_02 LABELS gfortran llvm cpp x86)
 RUN(NAME subroutines_04 LABELS gfortran llvm)
+RUN(NAME subroutines_06 LABELS gfortran)
 
 RUN(NAME functions_01 LABELS gfortran llvm cpp x86)
 RUN(NAME functions_02 LABELS gfortran llvm)
