@@ -7,25 +7,8 @@
 #include <inttypes.h>
 #include <time.h>
 
-struct _lfortran_complex {
-    float re, im;
-};
+#include "lfortran_intrinsics.h"
 
-#ifdef _MSC_VER
-typedef _Fcomplex float_complex_t;
-typedef _Dcomplex double_complex_t;
-#else
-typedef float _Complex float_complex_t;
-typedef double _Complex double_complex_t;
-#endif
-
-#ifdef _WIN32
-#define LFORTRAN_API __declspec(dllexport)
-#elif defined(__linux__)
-#define LFORTRAN_API __attribute__((visibility("default")))
-#else
-#define LFORTRAN_API /* Nothing */
-#endif
 
 LFORTRAN_API double _lfortran_sum(int n, double *v)
 {
