@@ -116,7 +116,7 @@ struct IntrinsicProcedures {
             {"index", {m_string, &not_implemented, false}},
 
             // Inquiry function
-            {"huge", {m_math2, &not_implemented, false}},
+            {"huge", {m_math2, &eval_huge, false}},
         };
     }
 
@@ -789,6 +789,34 @@ TRIG(sqrt)
 
     static int64_t lfortran_ieor64(int64_t x, int64_t y) {
         return x ^ y;
+    }
+
+    static ASR::expr_t *eval_huge(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        ASR::ttype_t* huge_type = LFortran::ASRUtils::expr_type(args[0]);
+        // TODO: Arrays are a valid argument for huge
+        if (LFortran::ASRUtils::is_array(huge_type)) {
+            throw SemanticError("Array values not implemented yet", loc);
+        }
+        if (ASR::is_a<LFortran::ASR::Integer_t>(*huge_type)) {
+            int max_val = std::numeric_limits<int>::max();
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, max_val, huge_type));
+        } else if (ASR::is_a<LFortran::ASR::Real_t>(*huge_type)) {
+            // TODO: Figure out how to deal with higher precision later
+            int kind = LFortran::ASRUtils::extract_kind_from_ttype_t(huge_type);
+            if (kind == 4){
+                float max_val = std::numeric_limits<float>::max();
+                return ASR::down_cast<ASR::expr_t>(
+                    ASR::make_ConstantReal_t(al, loc, max_val, huge_type)
+                );
+            } else {
+                double max_val = std::numeric_limits<double>::max();
+                return ASR::down_cast<ASR::expr_t>(
+                    ASR::make_ConstantReal_t(al, loc, max_val, huge_type)
+                );
+            }
+        } else {
+            throw SemanticError("Argument for huge() must be Real or Integer", loc);
+        }
     }
 
 }; // ComptimeEval
