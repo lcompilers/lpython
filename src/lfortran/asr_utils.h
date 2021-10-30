@@ -314,20 +314,62 @@ static inline bool all_args_have_value(const Vec<ASR::expr_t*> &args) {
     return true;
 }
 
+static inline bool is_value_constant(ASR::expr_t *a_value) {
+    if( a_value == nullptr ) {
+        return false;
+    }
+    if (ASR::is_a<ASR::ConstantInteger_t>(*a_value)) {
+        // OK
+    } else if (ASR::is_a<ASR::ConstantReal_t>(*a_value)) {
+        // OK
+    } else if (ASR::is_a<ASR::ConstantComplex_t>(*a_value)) {
+        // OK
+    } else if (ASR::is_a<ASR::ConstantLogical_t>(*a_value)) {
+        // OK
+    } else if (ASR::is_a<ASR::ConstantString_t>(*a_value)) {
+        // OK
+    } else {
+        return false;
+    }
+    return true;
+}
+
 // Returns true if all arguments are evaluated
 static inline bool all_args_evaluated(const Vec<ASR::expr_t*> &args) {
     for (auto &a : args) {
-        if (ASR::is_a<ASR::ConstantInteger_t>(*a)) {
-            // OK
-        } else if (ASR::is_a<ASR::ConstantReal_t>(*a)) {
-            // OK
-        } else if (ASR::is_a<ASR::ConstantComplex_t>(*a)) {
-            // OK
-        } else if (ASR::is_a<ASR::ConstantLogical_t>(*a)) {
-            // OK
-        } else if (ASR::is_a<ASR::ConstantString_t>(*a)) {
-            // OK
+        ASR::expr_t* a_value = ASRUtils::expr_value(a);
+        if( !is_value_constant(a_value) ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Returns true if all arguments are evaluated
+// Overload for array
+static inline bool all_args_evaluated(const Vec<ASR::array_index_t> &args) {
+    for (auto &a : args) {
+        bool is_m_left_const, is_m_right_const, is_m_step_const;
+        is_m_left_const = is_m_right_const = is_m_step_const = false;
+        if( a.m_left != nullptr ) {
+            ASR::expr_t *m_left_value = ASRUtils::expr_value(a.m_left);
+            is_m_left_const = is_value_constant(m_left_value);
         } else {
+            is_m_left_const = true;
+        }
+        if( a.m_right != nullptr ) {
+            ASR::expr_t *m_right_value = ASRUtils::expr_value(a.m_right);
+            is_m_right_const = is_value_constant(m_right_value);
+        } else {
+            is_m_right_const = true;
+        }
+        if( a.m_step != nullptr ) {
+            ASR::expr_t *m_step_value = ASRUtils::expr_value(a.m_step);
+            is_m_step_const = is_value_constant(m_step_value);
+        } else {
+            is_m_step_const = true;
+        }
+        if( !(is_m_left_const && is_m_right_const && is_m_step_const) ) {
             return false;
         }
     }
