@@ -6,7 +6,7 @@
 
 namespace LFortran {
 
-    Result<std::string> asr_to_cpp(ASR::TranslationUnit_t &asr,
+    Result<std::string> asr_to_cpp(Allocator &al, ASR::TranslationUnit_t &asr,
         diag::Diagnostics &diagnostics);
 
 } // namespace LFortran

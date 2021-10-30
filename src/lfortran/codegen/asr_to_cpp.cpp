@@ -7,6 +7,7 @@
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/string_utils.h>
+#include <lfortran/pass/unused_functions.h>
 
 
 namespace LFortran {
@@ -1015,9 +1016,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
 };
 
-Result<std::string> asr_to_cpp(ASR::TranslationUnit_t &asr,
+Result<std::string> asr_to_cpp(Allocator &al, ASR::TranslationUnit_t &asr,
     diag::Diagnostics &diagnostics)
 {
+    pass_unused_functions(al, asr);
     ASRToCPPVisitor v(diagnostics);
     try {
         v.visit_asr((ASR::asr_t &)asr);
