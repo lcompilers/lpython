@@ -114,6 +114,9 @@ struct IntrinsicProcedures {
             {"sum", {m_builtin, &not_implemented, false}},
             {"not", {m_builtin, &not_implemented, false}},
             {"index", {m_string, &not_implemented, false}},
+
+            // Inquiry function
+            {"huge", {m_math2, &not_implemented, false}},
         };
     }
 

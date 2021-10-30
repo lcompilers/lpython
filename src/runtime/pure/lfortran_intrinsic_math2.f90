@@ -1,6 +1,6 @@
 ! Temporary module, a subset of lfortran_intrinsic_math that works
 module lfortran_intrinsic_math2
-use, intrinsic :: iso_fortran_env, only: sp => real32, dp => real64
+use, intrinsic :: iso_fortran_env, only: i32 => int32, sp => real32, dp => real64
 implicit none
 
 interface abs
@@ -37,6 +37,10 @@ end interface
 
 interface max
     module procedure imax, smax, dmax
+end interface
+
+interface huge
+    module procedure i32huge, sphuge, dphuge
 end interface
 
 contains
@@ -257,6 +261,41 @@ if (x > y) then
 else
     r = y
 end if
+end function
+
+! huge -------------------------------------------------------------------------
+
+elemental integer(i32) function i32huge(x) result(r)
+integer(i32), intent(in) :: x
+interface
+    elemental integer(i32) function c_i32huge(x) bind(c, name="_lfortran_i32huge")
+        integer(i32), intent(in), value :: x
+    end function
+end interface
+! r = 2147483647
+r = c_i32huge(x)
+end function
+
+elemental real(sp) function sphuge(x) result(r)
+real(sp), intent(in) :: x
+interface
+    elemental real(sp) function c_sphuge(x) bind(c, name="_lfortran_sphuge")
+        real(sp), intent(in), value :: x
+    end function
+end interface
+! r = 3.40282347E+38
+r = c_sphuge(x)
+end function
+
+elemental real(dp) function dphuge(x) result(r)
+real(dp), intent(in) :: x
+interface
+    elemental real(dp) function c_dphuge(x) bind(c, name="_lfortran_dphuge")
+        real(dp), intent(in), value :: x
+    end function
+end interface
+! r = 1.7976931348623157E+308
+r = c_dphuge(x)
 end function
 
 end module

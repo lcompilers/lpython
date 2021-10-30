@@ -6,6 +6,8 @@
 #include <string.h>
 #include <inttypes.h>
 #include <time.h>
+#include <float.h>
+#include <limits.h>
 
 struct _lfortran_complex {
     float re, im;
@@ -621,4 +623,17 @@ LFORTRAN_API int64_t _lfortran_btest64(int64_t i, int pos) {
 
 LFORTRAN_API void _lfortran_cpu_time(double *t) {
     *t = ((double) clock()) / CLOCKS_PER_SEC;
+}
+
+// huge ------------------------------------------------------------------------
+LFORTRAN_API int32_t _lfortran_i32huge(int *t) {
+    return INT_MAX;
+}
+
+LFORTRAN_API float _lfortran_sphuge(float *t) {
+    return FLT_MAX;
+}
+
+LFORTRAN_API double _lfortran_dphuge(double *t) {
+    return DBL_MAX;
 }
