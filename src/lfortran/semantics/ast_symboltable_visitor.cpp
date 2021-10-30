@@ -241,6 +241,25 @@ public:
         if (is_interface){
             deftype = ASR::deftypeType::Interface;
         }
+        bool is_pure = false, is_module = false;
+        for( size_t i = 0; i < x.n_attributes; i++ ) {
+            switch( x.m_attributes[i]->type ) {
+                case AST::decl_attributeType::SimpleAttribute: {
+                    AST::SimpleAttribute_t* simple_attr = AST::down_cast<AST::SimpleAttribute_t>(x.m_attributes[i]);
+                    if( simple_attr->m_attr == AST::simple_attributeType::AttrPure ) {
+                        is_pure = true;
+                    } else if( simple_attr->m_attr == AST::simple_attributeType::AttrModule ) {
+                        is_module = true;
+                    }
+                    break;
+                }
+                default: {
+                    // Continue with the original behaviour
+                    // of not processing unrequired attributes
+                    break;
+                }
+            }
+        }
         tmp = ASR::make_Subroutine_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
@@ -250,7 +269,8 @@ public:
             /* a_body */ nullptr,
             /* n_body */ 0,
             current_procedure_abi_type,
-            s_access, deftype, bindc_name);
+            s_access, deftype, bindc_name,
+            is_pure, is_module);
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
             ASR::Subroutine_t *f2 = ASR::down_cast<ASR::Subroutine_t>(f1);
@@ -970,6 +990,22 @@ public:
                     */
                     char *proc_name = proc->m_names[i];
                     proc_names.push_back(std::string(proc_name));
+                }
+            } else if(AST::is_a<AST::InterfaceProc_t>(*item)) {
+                visit_interface_item(*item);
+                AST::InterfaceProc_t *proc
+                    = AST::down_cast<AST::InterfaceProc_t>(item);
+                switch(proc->m_proc->type) {
+                    case AST::program_unitType::Subroutine: {
+                        AST::Subroutine_t* subrout = AST::down_cast<AST::Subroutine_t>(proc->m_proc);
+                        char* proc_name = subrout->m_name;
+                        proc_names.push_back(std::string(proc_name));
+                        break;
+                    }
+                    default: {
+                        LFORTRAN_ASSERT(false);
+                        break;
+                    }
                 }
             } else {
                 throw SemanticError("Interface procedure type not imlemented yet", item->base.loc);
