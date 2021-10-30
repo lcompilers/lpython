@@ -7,6 +7,7 @@
 #include <lfortran/exception.h>
 #include <lfortran/asr_utils.h>
 #include <lfortran/string_utils.h>
+#include <lfortran/pass/unused_functions.h>
 
 
 namespace LFortran {
@@ -127,7 +128,7 @@ public:
         } else if (is_a<ASR::Complex_t>(*v.m_type)) {
             ASR::Complex_t *t = down_cast<ASR::Complex_t>(v.m_type);
             std::string dims = convert_dims(t->n_dims, t->m_dims);
-            sub = format_type(dims, "std::complex", v.m_name, use_ref, dummy);
+            sub = format_type(dims, "std::complex<float>", v.m_name, use_ref, dummy);
         } else if (is_a<ASR::Logical_t>(*v.m_type)) {
             ASR::Logical_t *t = down_cast<ASR::Logical_t>(v.m_type);
             std::string dims = convert_dims(t->n_dims, t->m_dims);
@@ -397,7 +398,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         } else if (is_a<ASR::Character_t>(*return_var->m_type)) {
             sub = "std::string ";
         } else if (is_a<ASR::Complex_t>(*return_var->m_type)) {
-            sub = "std::complex ";
+            sub = "std::complex<float> ";
         } else {
             throw CodeGenError("Return type not supported");
         }
@@ -580,7 +581,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 break;
             }
             case (ASR::cast_kindType::ComplexToReal) : {
-                src = "(double)(" + src + ")";
+                src = "std::real(" + src + ")";
                 break;
             }
             default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented");
@@ -1015,9 +1016,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
 };
 
-Result<std::string> asr_to_cpp(ASR::TranslationUnit_t &asr,
+Result<std::string> asr_to_cpp(Allocator &al, ASR::TranslationUnit_t &asr,
     diag::Diagnostics &diagnostics)
 {
+    pass_unused_functions(al, asr);
     ASRToCPPVisitor v(diagnostics);
     try {
         v.visit_asr((ASR::asr_t &)asr);
