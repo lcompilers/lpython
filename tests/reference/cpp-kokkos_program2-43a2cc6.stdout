@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <Kokkos_Core.hpp>
+#include <lfortran_intrinsics.h>
 
 template <typename T>
 Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
@@ -11,84 +12,6 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         r(i) = v[i];
     }
     return r;
-}
-
-std::string achar(int i, int kind)
-{
-    std::string achar;
-    return achar;
-}
-
-bool allocated(const Kokkos::View<const int*> &x)
-{
-    bool allocated;
-    return allocated;
-}
-
-int bit_size(int x)
-{
-    int bit_size;
-    return bit_size;
-}
-
-int iachar(std::string c, int kind)
-{
-    int iachar;
-    return iachar;
-}
-
-int lbound(const Kokkos::View<const int*> &x, int dim)
-{
-    int lbound;
-    return lbound;
-}
-
-int max(int a, int b)
-{
-    int max;
-    return max;
-}
-
-int maxval(const Kokkos::View<const int*> &x)
-{
-    int maxval;
-    return maxval;
-}
-
-int min(int a, int b)
-{
-    int min;
-    return min;
-}
-
-int minval(const Kokkos::View<const int*> &x)
-{
-    int minval;
-    return minval;
-}
-
-float real(const Kokkos::View<const int*> &x, int kind)
-{
-    float real;
-    return real;
-}
-
-int sum(const Kokkos::View<const int*> &x)
-{
-    int sum;
-    return sum;
-}
-
-float tiny(const Kokkos::View<const int*> &x)
-{
-    float tiny;
-    return tiny;
-}
-
-int ubound(const Kokkos::View<const int*> &x, int dim)
-{
-    int ubound;
-    return ubound;
 }
 
 namespace {

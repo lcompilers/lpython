@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <Kokkos_Core.hpp>
+#include <lfortran_intrinsics.h>
 
 template <typename T>
 Kokkos::View<T*> from_std_vector(const std::vector<T> &v)

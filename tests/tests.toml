@@ -381,6 +381,10 @@ filename = "../integration_tests/subroutines_05.f90"
 asr = true
 
 [[test]]
+filename = "../integration_tests/subroutines_06.f90"
+asr = true
+
+[[test]]
 filename = "scopes1.f90"
 asr = true
 
@@ -1323,6 +1327,10 @@ llvm = true
 filename = "../integration_tests/string_11.f90"
 asr = true
 llvm = true
+
+[[test]]
+filename = "../integration_tests/string_12.f90"
+asr = true
 
 [[test]]
 filename = "global_scope7.f90"

@@ -867,7 +867,7 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
 
 int compile_to_object_file_cpp(const std::string &infile,
         const std::string &outfile,
-        bool assembly, bool kokkos,
+        bool assembly, bool kokkos, const std::string &rtlib_header_dir,
         CompilerOptions &compiler_options)
 {
     std::string input = read_file(infile);
@@ -957,6 +957,7 @@ int compile_to_object_file_cpp(const std::string &infile,
             std::string kokkos_dir = get_kokkos_dir();
             options += "-std=c++17 -I" + kokkos_dir + "/include";
         }
+        options += " -I" + rtlib_header_dir;
         std::string cmd = CXX + " " + options + " -o " + outfile + " -c " + cppfile;
         int err = system(cmd.c_str());
         if (err) {
@@ -1147,6 +1148,7 @@ int main(int argc, char *argv[])
         LFortran::get_executable_path(LFortran::binary_executable_path, dirname_length);
 
         std::string runtime_library_dir = LFortran::get_runtime_library_dir();
+        std::string rtlib_header_dir = LFortran::get_runtime_library_header_dir();
         Backend backend;
 
         bool arg_S = false;
@@ -1466,7 +1468,7 @@ int main(int argc, char *argv[])
 #endif
             } else if (backend == Backend::cpp) {
                 return compile_to_object_file_cpp(arg_file, outfile, false,
-                        true, compiler_options);
+                        true, rtlib_header_dir, compiler_options);
             } else if (backend == Backend::x86) {
                 return compile_to_binary_x86(arg_file, outfile, time_report, compiler_options);
             } else {
@@ -1491,7 +1493,7 @@ int main(int argc, char *argv[])
 #endif
             } else if (backend == Backend::cpp) {
                 err = compile_to_object_file_cpp(arg_file, tmp_o, false,
-                        true, compiler_options);
+                        true, rtlib_header_dir, compiler_options);
             } else {
                 throw LFortran::LFortranException("Backend not supported");
             }

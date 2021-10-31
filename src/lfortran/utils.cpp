@@ -52,6 +52,14 @@ std::string get_runtime_library_dir()
     }
 }
 
+std::string get_runtime_library_header_dir()
+{
+    char *env_p = std::getenv("LFORTRAN_RUNTIME_LIBRARY_HEADER_DIR");
+    if (env_p) return env_p;
+
+    return get_runtime_library_dir() + "/impure";
+}
+
 bool read_file(const std::string &filename, std::string &text)
 {
     std::ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary
