@@ -798,8 +798,13 @@ TRIG(sqrt)
             throw SemanticError("Array values not implemented yet", loc);
         }
         if (ASR::is_a<LFortran::ASR::Integer_t>(*huge_type)) {
-            int max_val = std::numeric_limits<int>::max();
-            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, max_val, huge_type));
+            int kind = LFortran::ASRUtils::extract_kind_from_ttype_t(huge_type);
+            if(kind == 4) {
+                int max_val = std::numeric_limits<int>::max();
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, max_val, huge_type));
+            } else {
+                throw SemanticError("Only int32 kind is supported", loc);
+            }
         } else if (ASR::is_a<LFortran::ASR::Real_t>(*huge_type)) {
             // TODO: Figure out how to deal with higher precision later
             int kind = LFortran::ASRUtils::extract_kind_from_ttype_t(huge_type);
