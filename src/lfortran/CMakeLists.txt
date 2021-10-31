@@ -19,6 +19,7 @@ set(SRC
 
     pass/param_to_const.cpp
     pass/do_loops.cpp
+    pass/for_all.cpp
     pass/global_stmts.cpp
     pass/select_case.cpp
     pass/implied_do_loops.cpp
