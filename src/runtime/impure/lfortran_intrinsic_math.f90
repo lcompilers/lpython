@@ -95,6 +95,10 @@ interface atanh
     module procedure satanh, datanh, catanh, zatanh
 end interface
 
+interface system_clock
+    module procedure i32sys_clock, i64sys_clock
+end interface
+
 contains
 
 ! abs --------------------------------------------------------------------------
@@ -1001,6 +1005,30 @@ interface
     end subroutine
 end interface
 call c_cpu_time(t)
+end subroutine
+
+! system_clock------------------------------------------------------------------
+
+pure subroutine i32sys_clock(count, count_rate, count_max)
+integer(4), intent(out) :: count, count_rate, count_max
+interface
+    pure subroutine c_i32sys_clock(count, count_rate, count_max) &
+        bind(c, name="_lfortran_i32sys_clock")
+        integer(4), intent(out) :: count, count_rate, count_max
+    end subroutine
+end interface
+call c_i32sys_clock(count, count_rate, count_max)
+end subroutine
+
+pure subroutine i64sys_clock(count, count_rate, count_max)
+integer(8), intent(out) :: count, count_rate, count_max
+interface
+    pure subroutine c_i64sys_clock(count, count_rate, count_max) &
+        bind(c, name="_lfortran_i64sys_clock")
+        integer(8), intent(out) :: count, count_rate, count_max
+    end subroutine
+end interface
+call c_i64sys_clock(count, count_rate, count_max)
 end subroutine
 
 end module

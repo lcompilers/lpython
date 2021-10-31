@@ -607,3 +607,35 @@ LFORTRAN_API int64_t _lfortran_btest64(int64_t i, int pos) {
 LFORTRAN_API void _lfortran_cpu_time(double *t) {
     *t = ((double) clock()) / CLOCKS_PER_SEC;
 }
+
+// system_time -----------------------------------------------------------------
+
+LFORTRAN_API void _lfortran_i32sys_clock(
+        int32_t *count, int32_t *rate, int32_t *max) {
+    struct timespec ts;
+    if(clock_gettime(CLOCK_MONOTONIC, &ts) == -1) {
+        *count = (int32_t)(ts.tv_nsec / 1000000) + ((int32_t)ts.tv_sec * 1000);
+        *rate = 1e3; // milliseconds
+        *max = INT_MAX;
+    } else {
+        *count = - INT_MAX;
+        *rate = 0;
+        *max = 0;
+    }
+}
+
+LFORTRAN_API void _lfortran_i64sys_clock(
+        uint64_t *count, int64_t *rate, int64_t *max) {
+    struct timespec ts;
+    if(clock_gettime(CLOCK_MONOTONIC, &ts) == -1) {
+        *count = (uint64_t)(ts.tv_nsec) + ((uint64_t)ts.tv_sec * 1000000000);
+        // FIXME: Rate can be in microseconds or nanoseconds depending on
+        //          resolution of the underlying platform clock.
+        *rate = 1e9; // nanoseconds
+        *max = LLONG_MAX;
+    } else {
+        *count = - LLONG_MAX;
+        *rate = 0;
+        *max = 0;
+    }
+}
