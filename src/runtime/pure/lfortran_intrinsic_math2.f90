@@ -273,13 +273,13 @@ end function
 
 elemental real(sp) function sphuge(x) result(r)
 real(sp), intent(in) :: x
-r = 3.40282347E+38
+r = 3.40282347e38
 ! r = 2**128 * (1 - 2**-24)
 end function
 
 elemental real(dp) function dphuge(x) result(r)
 real(dp), intent(in) :: x
-r = 1.7976931348623157E+308
+r = 1.7976931348623157d308
 ! r = 2**1024 * (1 - 2**-53)
 end function
 
