@@ -1,6 +1,6 @@
 ! Temporary module, a subset of lfortran_intrinsic_math that works
 module lfortran_intrinsic_math2
-use, intrinsic :: iso_fortran_env, only: sp => real32, dp => real64
+use, intrinsic :: iso_fortran_env, only: i32 => int32, sp => real32, dp => real64
 implicit none
 
 interface abs
@@ -37,6 +37,10 @@ end interface
 
 interface max
     module procedure imax, smax, dmax
+end interface
+
+interface huge
+    module procedure i32huge, sphuge, dphuge
 end interface
 
 contains
@@ -257,6 +261,26 @@ if (x > y) then
 else
     r = y
 end if
+end function
+
+! huge -------------------------------------------------------------------------
+
+elemental integer(i32) function i32huge(x) result(r)
+integer(i32), intent(in) :: x
+r = 2147483647
+! r = 2**31 - 1
+end function
+
+elemental real(sp) function sphuge(x) result(r)
+real(sp), intent(in) :: x
+r = 3.40282347e38
+! r = 2**128 * (1 - 2**-24)
+end function
+
+elemental real(dp) function dphuge(x) result(r)
+real(dp), intent(in) :: x
+r = 1.7976931348623157d308
+! r = 2**1024 * (1 - 2**-53)
 end function
 
 end module
