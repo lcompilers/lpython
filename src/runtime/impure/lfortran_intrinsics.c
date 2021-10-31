@@ -612,6 +612,11 @@ LFORTRAN_API void _lfortran_cpu_time(double *t) {
 
 LFORTRAN_API void _lfortran_i32sys_clock(
         int32_t *count, int32_t *rate, int32_t *max) {
+#ifdef _MSC_VER
+        *count = - INT_MAX;
+        *rate = 0;
+        *max = 0;
+#else
     struct timespec ts;
     if(clock_gettime(CLOCK_MONOTONIC, &ts) == -1) {
         *count = (int32_t)(ts.tv_nsec / 1000000) + ((int32_t)ts.tv_sec * 1000);
@@ -622,10 +627,16 @@ LFORTRAN_API void _lfortran_i32sys_clock(
         *rate = 0;
         *max = 0;
     }
+#endif
 }
 
 LFORTRAN_API void _lfortran_i64sys_clock(
         uint64_t *count, int64_t *rate, int64_t *max) {
+#ifdef _MSC_VER
+        *count = - INT_MAX;
+        *rate = 0;
+        *max = 0;
+#else
     struct timespec ts;
     if(clock_gettime(CLOCK_MONOTONIC, &ts) == -1) {
         *count = (uint64_t)(ts.tv_nsec) + ((uint64_t)ts.tv_sec * 1000000000);
@@ -638,4 +649,5 @@ LFORTRAN_API void _lfortran_i64sys_clock(
         *rate = 0;
         *max = 0;
     }
+#endif
 }
