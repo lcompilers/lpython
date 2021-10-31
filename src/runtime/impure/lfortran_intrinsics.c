@@ -6,6 +6,8 @@
 #include <string.h>
 #include <inttypes.h>
 #include <time.h>
+#include <float.h>
+#include <limits.h>
 
 #include "lfortran_intrinsics.h"
 
