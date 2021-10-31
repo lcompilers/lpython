@@ -4,7 +4,7 @@
 #include <lfortran/asr_utils.h>
 #include <lfortran/asr_verify.h>
 #include <lfortran/pass/for_all.h>
-
+#include <lfortran/pass/stmt_walk_visitor.h>
 
 namespace LFortran {
 
@@ -20,15 +20,10 @@ namespace LFortran {
  *      end do
  */
 
-class ForAllVisitor : public ASR::BaseWalkVisitor<ForAllVisitor>
+class ForAllVisitor : public ASR::StatementWalkVisitor<ForAllVisitor>
 {
-private:
-    Allocator &al;
-    Vec<ASR::stmt_t*> for_all_result;
-
 public:
-    ForAllVisitor(Allocator &al) : al{al} {
-        for_all_result.n = 0;
+    ForAllVisitor(Allocator &al) : StatementWalkVisitor(al) {
     }
 
     void visit_ForAllSingle(const ASR::ForAllSingle_t &x) {
@@ -44,7 +39,7 @@ public:
         Vec<ASR::stmt_t*> result;
         result.reserve(al, 1);
         result.push_back(al, stmt);
-        for_all_result = result;
+        stmts = result;
     }
 };
 
