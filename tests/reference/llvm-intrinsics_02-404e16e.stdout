@@ -21,6 +21,28 @@ return:                                           ; preds = %.entry
 
 declare void @_lfortran_cpu_time(double*)
 
+define void @__module_lfortran_intrinsic_math_i32sys_clock(i32* %count, i32* %count_rate, i32* %count_max) {
+.entry:
+  call void @_lfortran_i32sys_clock(i32* %count, i32* %count_rate, i32* %count_max)
+  br label %return
+
+return:                                           ; preds = %.entry
+  ret void
+}
+
+declare void @_lfortran_i32sys_clock(i32*, i32*, i32*)
+
+define void @__module_lfortran_intrinsic_math_i64sys_clock(i64* %count, i64* %count_rate, i64* %count_max) {
+.entry:
+  call void @_lfortran_i64sys_clock(i64* %count, i64* %count_rate, i64* %count_max)
+  br label %return
+
+return:                                           ; preds = %.entry
+  ret void
+}
+
+declare void @_lfortran_i64sys_clock(i64*, i64*, i64*)
+
 define float @__module_lfortran_intrinsic_math_ssin(float* %x) {
 .entry:
   %r = alloca float, align 4
