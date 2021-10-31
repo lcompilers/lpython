@@ -1,5 +1,6 @@
 module lfortran_intrinsic_math
-use, intrinsic :: iso_fortran_env, only: sp => real32, dp => real64
+use, intrinsic :: iso_fortran_env, only: i32 => int32, i64 => int64, &
+    sp => real32, dp => real64
 use, intrinsic :: iso_c_binding, only: c_float, c_double
 implicit none
 
@@ -93,6 +94,10 @@ end interface
 
 interface atanh
     module procedure satanh, datanh, catanh, zatanh
+end interface
+
+interface system_clock
+    module procedure i32sys_clock, i64sys_clock
 end interface
 
 contains
@@ -1001,6 +1006,30 @@ interface
     end subroutine
 end interface
 call c_cpu_time(t)
+end subroutine
+
+! system_clock------------------------------------------------------------------
+
+pure subroutine i32sys_clock(count, count_rate, count_max)
+integer(i32), intent(out) :: count, count_rate, count_max
+interface
+    pure subroutine c_i32sys_clock(count, count_rate, count_max) &
+        bind(c, name="_lfortran_i32sys_clock")
+        integer(i32), intent(out) :: count, count_rate, count_max
+    end subroutine
+end interface
+call c_i32sys_clock(count, count_rate, count_max)
+end subroutine
+
+pure subroutine i64sys_clock(count, count_rate, count_max)
+integer(i64), intent(out) :: count, count_rate, count_max
+interface
+    pure subroutine c_i64sys_clock(count, count_rate, count_max) &
+        bind(c, name="_lfortran_i64sys_clock")
+        integer(i64), intent(out) :: count, count_rate, count_max
+    end subroutine
+end interface
+call c_i64sys_clock(count, count_rate, count_max)
 end subroutine
 
 end module

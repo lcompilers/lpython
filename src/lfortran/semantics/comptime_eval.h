@@ -114,6 +114,7 @@ struct IntrinsicProcedures {
             {"sum", {m_builtin, &not_implemented, false}},
             {"not", {m_builtin, &not_implemented, false}},
             {"index", {m_string, &not_implemented, false}},
+            {"system_clock", {m_math, &not_implemented, false}},
         };
     }
 
