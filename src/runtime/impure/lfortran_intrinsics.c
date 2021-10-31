@@ -628,7 +628,7 @@ LFORTRAN_API void _lfortran_i64sys_clock(
     struct timespec ts;
     if(clock_gettime(CLOCK_MONOTONIC, &ts) == -1) {
         *count = (uint64_t)(ts.tv_nsec) + ((uint64_t)ts.tv_sec * 1000000000);
-        // FIXME: Rate can also be in microseconds or nanoseconds depending on
+        // FIXME: Rate can be in microseconds or nanoseconds depending on
         //          resolution of the underlying platform clock.
         *rate = 1e9; // nanoseconds
         *max = LLONG_MAX;

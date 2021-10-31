@@ -133,6 +133,10 @@ LFORTRAN_API int64_t _lfortran_ibset64(int64_t i, int pos);
 LFORTRAN_API int32_t _lfortran_btest32(int32_t i, int pos);
 LFORTRAN_API int64_t _lfortran_btest64(int64_t i, int pos);
 LFORTRAN_API void _lfortran_cpu_time(double *t);
+LFORTRAN_API void _lfortran_i32sys_clock(
+        int32_t *count, int32_t *rate, int32_t *max);
+LFORTRAN_API void _lfortran_i64sys_clock(
+        uint64_t *count, int64_t *rate, int64_t *max);
 
 #ifdef __cplusplus
 }
