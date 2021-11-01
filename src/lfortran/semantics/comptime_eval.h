@@ -91,6 +91,8 @@ struct IntrinsicProcedures {
             {"ibclr", {m_bit, &eval_ibclr, true}},
             {"ibset", {m_bit, &eval_ibset, true}},
             {"btest", {m_bit, &not_implemented, false}},
+            // Elemental function
+            {"ishft", {m_bit, &eval_ishft, false}},
 
             // These will fail if used in symbol table visitor, but will be
             // left unevaluated in body visitor
@@ -822,6 +824,94 @@ TRIG(sqrt)
             }
         } else {
             throw SemanticError("Argument for huge() must be Real or Integer", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_ishft(Allocator &al,
+            const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        if (args.size() != 2) {
+            throw SemanticError(
+                "The ishft intrinsic function accepts exactly 2 arguments", loc
+            );
+        }
+        ASR::expr_t* i = args[0];
+        ASR::expr_t* shift = args[1];
+        ASR::ttype_t* t1 = LFortran::ASRUtils::expr_type(i);
+        ASR::ttype_t* t2 = LFortran::ASRUtils::expr_type(shift);
+        if (ASR::is_a<LFortran::ASR::Integer_t>(*t1) &&
+                ASR::is_a<LFortran::ASR::Integer_t>(*t2)) {
+            int t1_kind = ASRUtils::extract_kind_from_ttype_t(t1);
+            int t2_kind = ASRUtils::extract_kind_from_ttype_t(t2);
+            if (t1_kind == 4 && t2_kind == 4) {
+                int32_t x = ASR::down_cast<ASR::ConstantInteger_t>(i)->m_n;
+                int32_t y = 0;
+                if (shift->type == ASR::exprType::ConstantInteger) {
+                    y = ASR::down_cast<ASR::ConstantInteger_t>(shift)->m_n;
+                } else if(shift->type == ASR::exprType::UnaryOp){
+                    ASR::UnaryOp_t *u = ASR::down_cast<ASR::UnaryOp_t>(shift);
+                    LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
+                    y = - ASR::down_cast<ASR::ConstantInteger_t>(u->m_operand)->m_n;
+                }
+                if(abs(y) <= 31) {
+                    int32_t val;
+                    if(y > 0) {
+                        val = x << y;
+                    } else if(y < 0) {
+                        val = x >> abs(y);
+                    } else {
+                        val = x;
+                    }
+                    ASR::ttype_t *type = LFortran::ASRUtils::TYPE(
+                        ASR::make_Integer_t(al, loc, t1_kind, nullptr, 0)
+                    );
+                    return ASR::down_cast<ASR::expr_t>(
+                        ASR::make_ConstantInteger_t(al, loc, val, type)
+                    );
+                } else {
+                    throw SemanticError(
+                        "shift must be less than 32", loc
+                    );
+                }
+            } else if (t1_kind == 8 && t2_kind == 8) {
+                int64_t x = ASR::down_cast<ASR::ConstantInteger_t>(i)->m_n;
+                int64_t y = 0;
+                if (shift->type == ASR::exprType::ConstantInteger) {
+                    y = ASR::down_cast<ASR::ConstantInteger_t>(shift)->m_n;
+                } else if(shift->type == ASR::exprType::UnaryOp){
+                    ASR::UnaryOp_t *u = ASR::down_cast<ASR::UnaryOp_t>(shift);
+                    LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
+                    y = - ASR::down_cast<ASR::ConstantInteger_t>(u->m_operand)->m_n;
+                }
+                if(abs(y) <= 63) {
+                    int64_t val;
+                    if(y > 0) {
+                        val = x << y;
+                    } else if(y < 0) {
+                        val = x >> abs(y);
+                    } else {
+                        val = x;
+                    }
+                    ASR::ttype_t *type = LFortran::ASRUtils::TYPE(
+                        ASR::make_Integer_t(al, loc, t1_kind, nullptr, 0)
+                    );
+                    return ASR::down_cast<ASR::expr_t>(
+                        ASR::make_ConstantInteger_t(al, loc, val, type)
+                    );
+                } else {
+                    throw SemanticError(
+                        "shift must be less than 64", loc
+                    );
+                }
+            } else {
+                throw SemanticError(
+                    "ishft(x, y): x and y should have the same kind type", loc
+                );
+            }
+        } else {
+            throw SemanticError(
+                "Arguments for this intrinsic function must be an Integer", loc
+            );
         }
     }
 
