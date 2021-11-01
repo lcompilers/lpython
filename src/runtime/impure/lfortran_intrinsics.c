@@ -602,6 +602,26 @@ LFORTRAN_API int64_t _lfortran_btest64(int64_t i, int pos) {
     return i & (1LL << pos);
 }
 
+LFORTRAN_API int32_t _lfortran_ishft32(int32_t i, int32_t shift) {
+    if(shift > 0) {
+        return i << shift;
+    } else if(shift < 0) {
+        return i >> abs(shift);
+    } else {
+        return i;
+    }
+}
+
+LFORTRAN_API int64_t _lfortran_ishft64(int64_t i, int64_t shift) {
+    if(shift > 0) {
+        return i << shift;
+    } else if(shift < 0) {
+        return i >> abs(shift);
+    } else {
+        return i;
+    }
+}
+
 // cpu_time  -------------------------------------------------------------------
 
 LFORTRAN_API void _lfortran_cpu_time(double *t) {
