@@ -686,6 +686,10 @@ public:
     // TODO: add SymbolTable::get_symbol(), which will only check in Debug mode
         SymbolTable *old_scope = current_scope;
         ASR::symbol_t *t = current_scope->scope[to_lower(x.m_name)];
+        if( t->type == ASR::symbolType::GenericProcedure ) {
+            std::string subrout_name = "~" + to_lower(x.m_name);
+            t = current_scope->scope[subrout_name];
+        }
         ASR::Subroutine_t *v = ASR::down_cast<ASR::Subroutine_t>(t);
         current_scope = v->m_symtab;
         Vec<ASR::stmt_t*> body;

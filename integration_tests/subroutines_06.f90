@@ -10,6 +10,30 @@ module bitset
             logical, intent(in)       :: logical_vector(:)
         end subroutine assign_logint8_large
     end interface
+
+    interface error_handler
+        module subroutine error_handler( message, error, status, &
+            module, procedure )
+            character(*), intent(in)           :: message
+            integer, intent(in)                :: error
+            integer, intent(out), optional     :: status
+            character(*), intent(in), optional :: module
+            character(*), intent(in), optional :: procedure
+        end subroutine error_handler
+    end interface error_handler
+
+contains
+
+    module subroutine error_handler( message, error, status, module, procedure )
+        character(*), intent(in)           :: message
+        integer, intent(in)                :: error
+        integer, intent(out), optional     :: status
+        character(*), intent(in), optional :: module
+        character(*), intent(in), optional :: procedure
+
+        print *, error, status
+    end subroutine error_handler
+
 end module
 
 program subroutines_06
