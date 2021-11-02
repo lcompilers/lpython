@@ -2,14 +2,24 @@
 source_filename = "LFortran"
 
 @0 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
+@1 = private unnamed_addr constant [6 x i8] c"%lld\0A\00", align 1
+@2 = private unnamed_addr constant [6 x i8] c"%lld\0A\00", align 1
 
 declare i32 @__module_lfortran_intrinsic_builtin_bit_size(i32*)
 
+declare i32 @__module_lfortran_intrinsic_builtin_not(i32*)
+
 define i32 @main() {
 .entry:
+  %all_ones = alloca i64, align 8
+  store i64 -1, i64* %all_ones, align 4
+  %all_zeros = alloca i64, align 8
+  store i64 0, i64* %all_zeros, align 4
   %block_size = alloca i32, align 4
   store i32 64, i32* %block_size, align 4
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), i32 64)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @1, i32 0, i32 0), i64 0)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @2, i32 0, i32 0), i64 -1)
   ret i32 0
 }
 
