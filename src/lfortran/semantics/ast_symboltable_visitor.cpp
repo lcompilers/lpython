@@ -78,6 +78,7 @@ public:
     std::map<std::string, ASR::presenceType> assgnd_presence;
     bool in_module = false;
     bool is_interface = false;
+    std::string interface_name = "";
     bool is_derived_type = false;
     Vec<char*> data_member_names;
     std::vector<std::string> current_procedure_args;
@@ -260,10 +261,23 @@ public:
                 }
             }
         }
+        if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
+            ASR::symbol_t *f1 = parent_scope->scope[sym_name];
+            ASR::Subroutine_t *f2 = ASR::down_cast<ASR::Subroutine_t>(f1);
+            if (f2->m_abi == ASR::abiType::Interactive || f2->m_deftype == ASR::deftypeType::Interface) {
+                // Previous declaration will be shadowed
+            } else {
+                throw SemanticError("Subroutine already defined", tmp->loc);
+            }
+        }
+        if( sym_name == interface_name ) {
+            parent_scope->scope.erase(sym_name);
+            sym_name = "~" + sym_name;
+        }
         tmp = ASR::make_Subroutine_t(
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
-            /* a_name */ s2c(al, to_lower(x.m_name)),
+            /* a_name */ s2c(al, to_lower(sym_name)),
             /* a_args */ args.p,
             /* n_args */ args.size(),
             /* a_body */ nullptr,
@@ -271,15 +285,6 @@ public:
             current_procedure_abi_type,
             s_access, deftype, bindc_name,
             is_pure, is_module);
-        if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
-            ASR::symbol_t *f1 = parent_scope->scope[sym_name];
-            ASR::Subroutine_t *f2 = ASR::down_cast<ASR::Subroutine_t>(f1);
-            if (f2->m_abi == ASR::abiType::Interactive) {
-                // Previous declaration will be shadowed
-            } else {
-                throw SemanticError("Subroutine already defined", tmp->loc);
-            }
-        }
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(tmp);
         current_scope = parent_scope;
         /* FIXME: This can become incorrect/get cleared prematurely, perhaps
@@ -1002,6 +1007,12 @@ public:
                         proc_names.push_back(std::string(proc_name));
                         break;
                     }
+                    case AST::program_unitType::Function: {
+                        AST::Function_t* subrout = AST::down_cast<AST::Function_t>(proc->m_proc);
+                        char* proc_name = subrout->m_name;
+                        proc_names.push_back(std::string(proc_name));
+                        break;
+                    }
                     default: {
                         LFORTRAN_ASSERT(false);
                         break;
@@ -1016,9 +1027,11 @@ public:
     void visit_Interface(const AST::Interface_t &x) {
         if (AST::is_a<AST::InterfaceHeaderName_t>(*x.m_header)) {
             std::string generic_name = to_lower(AST::down_cast<AST::InterfaceHeaderName_t>(x.m_header)->m_name);
+            interface_name = generic_name;
             std::vector<std::string> proc_names;
             fill_interface_proc_names(x, proc_names);
             generic_procedures[std::string(generic_name)] = proc_names;
+            interface_name.clear();
         } else if (AST::is_a<AST::InterfaceHeader_t>(*x.m_header) || 
                    AST::is_a<AST::AbstractInterfaceHeader_t>(*x.m_header)) {
             std::vector<std::string> proc_names;
