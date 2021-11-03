@@ -1,5 +1,3 @@
-f32 = [1, 2, 3]
-
 def triad(a, b: f32[:], scalar: f32, c: f32[:]):
     N: i32
     i: i32
