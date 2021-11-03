@@ -973,10 +973,16 @@ public:
         for (size_t i = 0; i < x.n_symbols; i++) {
             AST::UseSymbol_t *use_sym = AST::down_cast<AST::UseSymbol_t>(
                 x.m_symbols[i]);
-            if (use_sym->m_local_rename) {
-                class_procedures[dt_name][to_lower(use_sym->m_local_rename)] = to_lower(use_sym->m_remote_sym);
+            std::string remote_sym_str = "";
+            if( x.m_name ) {
+                remote_sym_str = to_lower(x.m_name);
             } else {
-                class_procedures[dt_name][to_lower(use_sym->m_remote_sym)] = to_lower(use_sym->m_remote_sym);
+                remote_sym_str = to_lower(use_sym->m_remote_sym);
+            }
+            if (use_sym->m_local_rename) {
+                class_procedures[dt_name][to_lower(use_sym->m_local_rename)] = remote_sym_str;
+            } else {
+                class_procedures[dt_name][to_lower(use_sym->m_remote_sym)] = remote_sym_str;
             }
         }
     }
