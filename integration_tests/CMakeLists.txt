@@ -318,6 +318,7 @@ RUN(NAME logical4 LABELS gfortran llvm)
 RUN(NAME derived_types_01 LABELS gfortran llvm)
 RUN(NAME derived_types_02 LABELS gfortran)
 RUN(NAME derived_types_03 LABELS gfortran)
+RUN(NAME derived_types_04 LABELS gfortran)
 
 RUN(NAME line_continuation_01 LABELS gfortran llvm)
 RUN(NAME line_continuation_02 LABELS gfortran llvm)
