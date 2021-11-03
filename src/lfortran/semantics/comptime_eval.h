@@ -102,8 +102,8 @@ struct IntrinsicProcedures {
             // Subroutines
             {"cpu_time", {m_math, &not_implemented, false}},
             {"bit_size", {m_builtin, &eval_bit_size, false}},
-            {"not", {m_builtin, &not_implemented, false}},
-            {"iachar",  {m_builtin, &not_implemented, false}},
+            {"not", {m_builtin, &eval_not, false}},
+            {"iachar",  {m_builtin, &eval_iachar, false}},
             {"achar", {m_builtin, &eval_achar, false}},
             {"len", {m_builtin, &not_implemented, false}},
             {"size", {m_builtin, &not_implemented, false}},
@@ -114,7 +114,6 @@ struct IntrinsicProcedures {
             {"minval", {m_builtin, &not_implemented, false}},
             {"maxval", {m_builtin, &not_implemented, false}},
             {"sum", {m_builtin, &not_implemented, false}},
-            {"not", {m_builtin, &not_implemented, false}},
             {"index", {m_string, &not_implemented, false}},
             {"system_clock", {m_math, &not_implemented, false}},
 
@@ -217,6 +216,19 @@ struct IntrinsicProcedures {
         }
         ASR::ttype_t* int32_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         return ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, loc, bit_size_val, int32_type));
+    }
+
+    static ASR::expr_t *eval_not(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(args.size() >= 1);
+        ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
+        LFORTRAN_ASSERT(arg);
+        ASR::ttype_t* arg_type = ASRUtils::expr_type(arg);
+        LFORTRAN_ASSERT(arg_type->type == ASR::ttypeType::Integer);
+        ASR::Integer_t* arg_int_type = ASR::down_cast<ASR::Integer_t>(arg_type);
+        ASR::ConstantInteger_t* arg_int = ASR::down_cast<ASR::ConstantInteger_t>(arg);
+        int64_t not_arg = ~(arg_int->m_n);
+        ASR::ttype_t* int_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, arg_int_type->m_kind, nullptr, 0));
+        return ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, loc, not_arg, int_type));
     }
 
     static ASR::expr_t *eval_tiny(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
@@ -612,6 +624,23 @@ TRIG(sqrt)
                 str_val, str_type));
         } else {
             throw SemanticError("achar() must have one integer argument", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_iachar(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        ASR::expr_t* char_expr = args[0];
+        ASR::ttype_t* char_type = LFortran::ASRUtils::expr_type(char_expr);
+        if (LFortran::ASR::is_a<LFortran::ASR::Character_t>(*char_type)) {
+            char* c = ASR::down_cast<ASR::ConstantString_t>(LFortran::ASRUtils::expr_value(char_expr))->m_s;
+            ASR::ttype_t* int_type =
+                LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al,
+                loc, 4, nullptr, 0));
+            return ASR::down_cast<ASR::expr_t>(
+                ASR::make_ConstantInteger_t(al, loc,
+                c[0], int_type));
+        } else {
+            throw SemanticError("iachar() must have one character argument", loc);
         }
     }
 
