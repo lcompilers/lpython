@@ -304,45 +304,65 @@ public:
     llvm::Type*
     get_el_type(ASR::ttype_t* m_type_, int a_kind) {
         llvm::Type* el_type = nullptr;
-        switch(m_type_->type) {
-            case ASR::ttypeType::Integer: {
-                el_type = getIntType(a_kind);
-                break;
+        if (ASR::is_a<ASR::Pointer_t>(*m_type_)) {
+            ASR::ttype_t *t2 = ASR::down_cast<ASR::Pointer_t>(m_type_)->m_type;
+            switch(t2->type) {
+                case ASR::ttypeType::Integer: {
+                    el_type = getIntType(a_kind, true);
+                    break;
+                }
+                case ASR::ttypeType::Real: {
+                    el_type = getFPType(a_kind, true);
+                    break;
+                }
+                case ASR::ttypeType::Complex: {
+                    el_type = getComplexType(a_kind, true);
+                    break;
+                }
+                case ASR::ttypeType::Logical: {
+                    el_type = llvm::Type::getInt1Ty(context);
+                    break;
+                }
+                case ASR::ttypeType::Derived: {
+                    el_type = getDerivedType(m_type_);
+                    break;
+                }
+                case ASR::ttypeType::Character: {
+                    el_type = character_type;
+                    break;
+                }
+                default:
+                    break;
             }
-            case ASR::ttypeType::IntegerPointer: {
-                el_type = getIntType(a_kind, true);
-                break;
+        } else {
+            switch(m_type_->type) {
+                case ASR::ttypeType::Integer: {
+                    el_type = getIntType(a_kind);
+                    break;
+                }
+                case ASR::ttypeType::Real: {
+                    el_type = getFPType(a_kind);
+                    break;
+                }
+                case ASR::ttypeType::Complex: {
+                    el_type = getComplexType(a_kind);
+                    break;
+                }
+                case ASR::ttypeType::Logical: {
+                    el_type = llvm::Type::getInt1Ty(context);
+                    break;
+                }
+                case ASR::ttypeType::Derived: {
+                    el_type = getDerivedType(m_type_);
+                    break;
+                }
+                case ASR::ttypeType::Character: {
+                    el_type = character_type;
+                    break;
+                }
+                default:
+                    break;
             }
-            case ASR::ttypeType::Real: {
-                el_type = getFPType(a_kind);
-                break;
-            }
-            case ASR::ttypeType::RealPointer: {
-                el_type = getFPType(a_kind, true);
-                break;
-            }
-            case ASR::ttypeType::Complex: {
-                el_type = getComplexType(a_kind);
-                break;
-            }
-            case ASR::ttypeType::ComplexPointer: {
-                el_type = getComplexType(a_kind, true);
-                break;
-            }
-            case ASR::ttypeType::Logical: {
-                el_type = llvm::Type::getInt1Ty(context);
-                break;
-            }
-            case ASR::ttypeType::Derived: {
-                el_type = getDerivedType(m_type_);
-                break;
-            }
-            case ASR::ttypeType::Character: {
-                el_type = character_type;
-                break;
-            }
-            default:
-                break;
         }
         return el_type;
     }
@@ -1349,32 +1369,41 @@ public:
                             }
                             break;
                         }
-                        case (ASR::ttypeType::IntegerPointer) : {
-                            a_kind = down_cast<ASR::IntegerPointer_t>(v->m_type)->m_kind;
-                            type = getIntType(a_kind, true);
+                        case (ASR::ttypeType::Pointer) : {
+                            ASR::ttype_t *t2 = ASR::down_cast<ASR::Pointer_t>(v->m_type)->m_type;
+                            switch (t2->type) {
+                                case (ASR::ttypeType::Integer) : {
+                                    a_kind = down_cast<ASR::Integer_t>(t2)->m_kind;
+                                    type = getIntType(a_kind, true);
+                                    break;
+                                }
+                                case (ASR::ttypeType::Real) : {
+                                    a_kind = down_cast<ASR::Real_t>(t2)->m_kind;
+                                    type = getFPType(a_kind, true);
+                                    break;
+                                }
+                                case (ASR::ttypeType::Complex) : {
+                                    a_kind = down_cast<ASR::Complex_t>(t2)->m_kind;
+                                    type = getComplexType(a_kind, true);
+                                    break;
+                                }
+                                case (ASR::ttypeType::Character) : {
+                                    type = character_type;
+                                    break;
+                                }
+                                case (ASR::ttypeType::Derived) : {
+                                    throw CodeGenError("Pointers for Derived type not implemented yet in conversion");
+                                    break;
+                                }
+                                case (ASR::ttypeType::Logical) : {
+                                    type = llvm::Type::getInt1Ty(context);
+                                    break;
+                                }
+                                default :
+                                    throw CodeGenError("Type not implemented");
+                            }
                             break;
                         }
-                        case (ASR::ttypeType::RealPointer) : {
-                            a_kind = down_cast<ASR::RealPointer_t>(v->m_type)->m_kind;
-                            type = getFPType(a_kind, true);
-                            break;
-                        }
-                        case (ASR::ttypeType::ComplexPointer) : {
-                            a_kind = down_cast<ASR::ComplexPointer_t>(v->m_type)->m_kind;
-                            type = getComplexType(a_kind, true);
-                            break;
-                        }
-                        case (ASR::ttypeType::CharacterPointer) : {
-                            type = character_type;
-                            break;
-                        }
-                        case (ASR::ttypeType::DerivedPointer) : {
-                            throw CodeGenError("Pointers for Derived type not implemented yet in conversion");
-                            break;
-                        }
-                        case (ASR::ttypeType::LogicalPointer) :
-                            type = llvm::Type::getInt1Ty(context);
-                            break;
                         default :
                             throw CodeGenError("Type not implemented");
                     }
@@ -1520,13 +1549,21 @@ public:
                         }
                         break;
                     }
-                    case (ASR::ttypeType::IntegerPointer) : {
-                        ASR::IntegerPointer_t* v_type = down_cast<ASR::IntegerPointer_t>(arg->m_type);
-                        m_type_ = arg->m_type;
-                        m_dims = v_type->m_dims;
-                        n_dims = v_type->n_dims;
-                        a_kind = v_type->m_kind;
-                        type = getIntType(a_kind, true);
+                    case (ASR::ttypeType::Pointer) : {
+                        ASR::ttype_t *t2 = ASRUtils::type_get_past_pointer(arg->m_type);
+                        switch (t2->type) {
+                            case (ASR::ttypeType::Integer) : {
+                                ASR::Integer_t* v_type = down_cast<ASR::Integer_t>(t2);
+                                m_type_ = arg->m_type;
+                                m_dims = v_type->m_dims;
+                                n_dims = v_type->n_dims;
+                                a_kind = v_type->m_kind;
+                                type = getIntType(a_kind, true);
+                                break;
+                            }
+                            default:
+                                throw CodeGenError("Type not implemented");
+                        }
                         break;
                     }
                     case (ASR::ttypeType::Real) : {
@@ -2174,7 +2211,7 @@ public:
             ASR::ttype_t* arg_type = asr_retval->m_type;
             llvm::Value *tmp = ret_val;
             if (is_a<ASR::Complex_t>(*arg_type)) {
-                int c_kind = extract_kind_from_ttype_t(arg_type);
+                int c_kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
                 if (c_kind == 4) {
                     if (platform == Platform::Windows) {
                         // tmp is {float, float}*
@@ -2364,22 +2401,10 @@ public:
             ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
             h = get_hash((ASR::asr_t*)asr_target);
             if (llvm_symtab.find(h) != llvm_symtab.end()) {
-                switch( asr_target->m_type->type ) {
-                    case ASR::ttypeType::IntegerPointer:
-                    case ASR::ttypeType::RealPointer:
-                    case ASR::ttypeType::ComplexPointer:
-                    case ASR::ttypeType::CharacterPointer:
-                    case ASR::ttypeType::LogicalPointer:
-                    case ASR::ttypeType::DerivedPointer: {
-                        target = builder->CreateLoad(llvm_symtab[h]);
-                        break;
-                    }
-                    default: {
-                        target = llvm_symtab[h];
-                        break;
-                    }
+                target = llvm_symtab[h];
+                if (ASR::is_a<ASR::Pointer_t>(*asr_target->m_type)) {
+                    target = builder->CreateLoad(target);
                 }
-
             } else {
                 /* Target for assignment not in the symbol table - must be
                 assigning to an outer scope from a nested function - see
@@ -2721,8 +2746,7 @@ public:
         llvm::Value *left_val = tmp;
         this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
-        if (x.m_type->type == ASR::ttypeType::Integer ||
-            x.m_type->type == ASR::ttypeType::IntegerPointer) {
+        if (ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_pointer(x.m_type))) {
             switch (x.m_op) {
                 case ASR::binopType::Add: {
                     tmp = builder->CreateAdd(left_val, right_val);
@@ -2743,7 +2767,7 @@ public:
                 case ASR::binopType::Pow: {
                     llvm::Type *type;
                     int a_kind;
-                    a_kind = down_cast<ASR::Integer_t>(x.m_type)->m_kind;
+                    a_kind = down_cast<ASR::Integer_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
                     type = getFPType(a_kind);
                     llvm::Value *fleft = builder->CreateSIToFP(left_val,
                             type);
@@ -2764,8 +2788,7 @@ public:
                     break;
                 };
             }
-        } else if (x.m_type->type == ASR::ttypeType::Real ||
-                   x.m_type->type == ASR::ttypeType::RealPointer) {
+        } else if (ASR::is_a<ASR::Real_t>(*ASRUtils::type_get_past_pointer(x.m_type))) {
             switch (x.m_op) {
                 case ASR::binopType::Add: {
                     tmp = builder->CreateFAdd(left_val, right_val);
@@ -2786,7 +2809,7 @@ public:
                 case ASR::binopType::Pow: {
                     llvm::Type *type;
                     int a_kind;
-                    a_kind = down_cast<ASR::Real_t>(x.m_type)->m_kind;
+                    a_kind = down_cast<ASR::Real_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
                     type = getFPType(a_kind);
                     std::string func_name = a_kind == 4 ? "llvm.pow.f32" : "llvm.pow.f64";
                     llvm::Function *fn_pow = module->getFunction(func_name);
@@ -2801,15 +2824,10 @@ public:
                     break;
                 };
             }
-        } else if (x.m_type->type == ASR::ttypeType::Complex ||
-                   x.m_type->type == ASR::ttypeType::ComplexPointer) {
+        } else if (ASR::is_a<ASR::Complex_t>(*ASRUtils::type_get_past_pointer(x.m_type))) {
             llvm::Type *type;
             int a_kind;
-            if( x.m_type->type == ASR::ttypeType::ComplexPointer ) {
-                a_kind = down_cast<ASR::ComplexPointer_t>(x.m_type)->m_kind;
-            } else {
-                a_kind = down_cast<ASR::Complex_t>(x.m_type)->m_kind;
-            }
+            a_kind = down_cast<ASR::Complex_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
             type = getComplexType(a_kind);
             if( left_val->getType()->isPointerTy() ) {
                 left_val = builder->CreateLoad(left_val);
@@ -2947,7 +2965,7 @@ public:
     void visit_ConstantComplex(const ASR::ConstantComplex_t &x) {
         double re = x.m_re;
         double im = x.m_im;
-        int a_kind = extract_kind_from_ttype_t(x.m_type);
+        int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
         llvm::Value *re2, *im2;
         llvm::Type *type;
         switch( a_kind ) {
@@ -3038,15 +3056,23 @@ public:
             return;
         }
         switch( x->m_type->type ) {
-            case ASR::ttypeType::IntegerPointer:
-            case ASR::ttypeType::RealPointer:
-            case ASR::ttypeType::ComplexPointer: {
-                fetch_ptr(x);
-                break;
-            }
-            case ASR::ttypeType::CharacterPointer:
-            case ASR::ttypeType::LogicalPointer:
-            case ASR::ttypeType::DerivedPointer: {
+            case ASR::ttypeType::Pointer: {
+                ASR::ttype_t *t2 = ASRUtils::type_get_past_pointer(x->m_type);
+                switch (t2->type) {
+                    case ASR::ttypeType::Integer:
+                    case ASR::ttypeType::Real:
+                    case ASR::ttypeType::Complex: {
+                        fetch_ptr(x);
+                        break;
+                    }
+                    case ASR::ttypeType::Character:
+                    case ASR::ttypeType::Logical:
+                    case ASR::ttypeType::Derived: {
+                        break;
+                    }
+                    default:
+                        break;
+                }
                 break;
             }
             case ASR::ttypeType::Derived: {
@@ -3082,35 +3108,6 @@ public:
         fetch_var(v);
     }
 
-    inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
-        if( curr_type == nullptr ) {
-            return -1;
-        }
-        switch (curr_type->type) {
-            case ASR::ttypeType::Real : {
-                return ((ASR::Real_t*)(&(curr_type->base)))->m_kind;
-            }
-            case ASR::ttypeType::RealPointer : {
-                return ((ASR::RealPointer_t*)(&(curr_type->base)))->m_kind;
-            }
-            case ASR::ttypeType::Integer : {
-                return ((ASR::Integer_t*)(&(curr_type->base)))->m_kind;
-            }
-            case ASR::ttypeType::IntegerPointer : {
-                return ((ASR::IntegerPointer_t*)(&(curr_type->base)))->m_kind;
-            }
-            case ASR::ttypeType::Complex: {
-                return ((ASR::Complex_t*)(&(curr_type->base)))->m_kind;
-            }
-            case ASR::ttypeType::ComplexPointer: {
-                return ((ASR::ComplexPointer_t*)(&(curr_type->base)))->m_kind;
-            }
-            default : {
-                return -1;
-            }
-        }
-    }
-
     inline ASR::ttype_t* extract_ttype_t_from_expr(ASR::expr_t* expr) {
         return ASRUtils::expr_type(expr);
     }
@@ -3118,10 +3115,10 @@ public:
     void extract_kinds(const ASR::ImplicitCast_t& x,
                        int& arg_kind, int& dest_kind)
     {
-        dest_kind = extract_kind_from_ttype_t(x.m_type);
+        dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
         ASR::ttype_t* curr_type = extract_ttype_t_from_expr(x.m_arg);
         LFORTRAN_ASSERT(curr_type != nullptr)
-        arg_kind = extract_kind_from_ttype_t(curr_type);
+        arg_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
     }
 
     void visit_ImplicitCast(const ASR::ImplicitCast_t &x) {
@@ -3132,7 +3129,7 @@ public:
         this->visit_expr_wrapper(x.m_arg, true);
         switch (x.m_kind) {
             case (ASR::cast_kindType::IntegerToReal) : {
-                int a_kind = extract_kind_from_ttype_t(x.m_type);
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
                 switch (a_kind) {
                     case 4 : {
                         tmp = builder->CreateSIToFP(tmp, llvm::Type::getFloatTy(context));
@@ -3151,7 +3148,7 @@ public:
             }
             case (ASR::cast_kindType::RealToInteger) : {
                 llvm::Type *target_type;
-                int a_kind = extract_kind_from_ttype_t(x.m_type);
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
                 target_type = getIntType(a_kind);
                 tmp = builder->CreateFPToSI(tmp, target_type);
                 break;
@@ -3159,7 +3156,7 @@ public:
             case (ASR::cast_kindType::RealToComplex) : {
                 llvm::Type *target_type;
                 llvm::Value *zero;
-                int a_kind = extract_kind_from_ttype_t(x.m_type);
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
                 switch(a_kind)
                 {
                     case 4:
@@ -3179,7 +3176,7 @@ public:
                 break;
             }
             case (ASR::cast_kindType::IntegerToComplex) : {
-                int a_kind = extract_kind_from_ttype_t(x.m_type);
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
                 llvm::Type *target_type;
                 llvm::Type *complex_type;
                 llvm::Value *zero;
@@ -3338,10 +3335,9 @@ public:
             this->visit_expr_wrapper(x.m_values[i], true);
             ASR::expr_t *v = x.m_values[i];
             ASR::ttype_t *t = expr_type(v);
-            if (t->type == ASR::ttypeType::Integer ||
-                t->type == ASR::ttypeType::Logical ||
-                t->type == ASR::ttypeType::IntegerPointer) {
-                int a_kind = ((ASR::Integer_t*)(&(t->base)))->m_kind;
+            int a_kind = ASRUtils::extract_kind_from_ttype_t(t);
+            if (ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_pointer(t)) ||
+                ASR::is_a<ASR::Logical_t>(*ASRUtils::type_get_past_pointer(t)) ) {
                 switch( a_kind ) {
                     case 4 : {
                         fmt.push_back("%d");
@@ -3358,9 +3354,7 @@ public:
                     }
                 }
                 args.push_back(tmp);
-            } else if (t->type == ASR::ttypeType::Real ||
-                       t->type == ASR::ttypeType::RealPointer ) {
-                int a_kind = ((ASR::Real_t*)(&(t->base)))->m_kind;
+            } else if (ASR::is_a<ASR::Real_t>(*ASRUtils::type_get_past_pointer(t))) {
                 llvm::Value *d;
                 switch( a_kind ) {
                     case 4 : {
@@ -3388,9 +3382,7 @@ public:
             } else if (t->type == ASR::ttypeType::Character) {
                 fmt.push_back("%s");
                 args.push_back(tmp);
-            } else if (t->type == ASR::ttypeType::Complex ||
-                       t->type == ASR::ttypeType::ComplexPointer) {
-                int a_kind = ((ASR::Complex_t*)(&(t->base)))->m_kind;
+            } else if (ASR::is_a<ASR::Complex_t>(*ASRUtils::type_get_past_pointer(t))) {
                 llvm::Type *type, *complex_type;
                 switch( a_kind ) {
                     case 4 : {
@@ -3565,7 +3557,7 @@ public:
                                         && orig_arg->m_value_attr) {
                                             ASR::ttype_t* arg_type = arg->m_type;
                                             if (is_a<ASR::Complex_t>(*arg_type)) {
-                                                int c_kind = extract_kind_from_ttype_t(arg_type);
+                                                int c_kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
                                                 if (c_kind == 4) {
                                                     if (platform == Platform::Windows) {
                                                         // tmp is {float, float}*
