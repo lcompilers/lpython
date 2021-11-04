@@ -338,18 +338,15 @@ public:
             loc);
         ASR::Var_t *var = ASR::down_cast<ASR::Var_t>(dt);
         ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var->m_v);
+        ASR::ttype_t *t2 = ASRUtils::type_get_past_pointer(v->m_type);
         ASR::symbol_t *type_sym=nullptr;
-        switch (v->m_type->type) {
+        switch (t2->type) {
             case (ASR::ttypeType::Derived): {
-                type_sym = ASR::down_cast<ASR::Derived_t>(v->m_type)->m_derived_type;
-                break;
-            }
-            case (ASR::ttypeType::DerivedPointer): {
-                type_sym = ASR::down_cast<ASR::DerivedPointer_t>(v->m_type)->m_derived_type;
+                type_sym = ASR::down_cast<ASR::Derived_t>(t2)->m_derived_type;
                 break;
             }
             case (ASR::ttypeType::Class): {
-                type_sym = ASR::down_cast<ASR::Class_t>(v->m_type)->m_class_type;
+                type_sym = ASR::down_cast<ASR::Class_t>(t2)->m_class_type;
                 break;
             }
             default :
@@ -410,13 +407,11 @@ public:
         }
     }
 
-    void visit_DerivedPointer(const DerivedPointer_t &x) {
-        require(symtab_in_scope(current_symtab, x.m_derived_type),
-            "DerivedPointer::m_derived_type cannot point outside of its symbol table");
-        for (size_t i=0; i<x.n_dims; i++) {
-            visit_dimension(x.m_dims[i]);
-        }
+    /*
+    void visit_Pointer(const Pointer_t &x) {
+        visit_ttype(*x.m_type);
     }
+    */
 
 };
 

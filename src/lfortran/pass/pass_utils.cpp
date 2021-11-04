@@ -10,75 +10,40 @@ namespace LFortran {
     namespace PassUtils {
 
         void get_dim_rank(ASR::ttype_t* x_type, ASR::dimension_t*& m_dims, int& n_dims) {
-            switch( x_type->type ) {
+            ASR::ttype_t* t2 = ASRUtils::type_get_past_pointer(x_type);
+            switch( t2->type ) {
                 case ASR::ttypeType::Integer: {
-                    ASR::Integer_t* x_type_ref = ASR::down_cast<ASR::Integer_t>(x_type);
-                    n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
-                    break;
-                }
-                case ASR::ttypeType::IntegerPointer: {
-                    ASR::IntegerPointer_t* x_type_ref = ASR::down_cast<ASR::IntegerPointer_t>(x_type);
+                    ASR::Integer_t* x_type_ref = ASR::down_cast<ASR::Integer_t>(t2);
                     n_dims = x_type_ref->n_dims;
                     m_dims = x_type_ref->m_dims;
                     break;
                 }
                 case ASR::ttypeType::Real: {
-                    ASR::Real_t* x_type_ref = ASR::down_cast<ASR::Real_t>(x_type);
-                    n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
-                    break;
-                }
-                case ASR::ttypeType::RealPointer: {
-                    ASR::RealPointer_t* x_type_ref = ASR::down_cast<ASR::RealPointer_t>(x_type);
+                    ASR::Real_t* x_type_ref = ASR::down_cast<ASR::Real_t>(t2);
                     n_dims = x_type_ref->n_dims;
                     m_dims = x_type_ref->m_dims;
                     break;
                 }
                 case ASR::ttypeType::Complex: {
-                    ASR::Complex_t* x_type_ref = ASR::down_cast<ASR::Complex_t>(x_type);
-                    n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
-                    break;
-                }
-                case ASR::ttypeType::ComplexPointer: {
-                    ASR::ComplexPointer_t* x_type_ref = ASR::down_cast<ASR::ComplexPointer_t>(x_type);
+                    ASR::Complex_t* x_type_ref = ASR::down_cast<ASR::Complex_t>(t2);
                     n_dims = x_type_ref->n_dims;
                     m_dims = x_type_ref->m_dims;
                     break;
                 }
                 case ASR::ttypeType::Derived: {
-                    ASR::Derived_t* x_type_ref = ASR::down_cast<ASR::Derived_t>(x_type);
-                    n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
-                    break;
-                }
-                case ASR::ttypeType::DerivedPointer: {
-                    ASR::DerivedPointer_t* x_type_ref = ASR::down_cast<ASR::DerivedPointer_t>(x_type);
+                    ASR::Derived_t* x_type_ref = ASR::down_cast<ASR::Derived_t>(t2);
                     n_dims = x_type_ref->n_dims;
                     m_dims = x_type_ref->m_dims;
                     break;
                 }
                 case ASR::ttypeType::Logical: {
-                    ASR::Logical_t* x_type_ref = ASR::down_cast<ASR::Logical_t>(x_type);
-                    n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
-                    break;
-                }
-                case ASR::ttypeType::LogicalPointer: {
-                    ASR::LogicalPointer_t* x_type_ref = ASR::down_cast<ASR::LogicalPointer_t>(x_type);
+                    ASR::Logical_t* x_type_ref = ASR::down_cast<ASR::Logical_t>(t2);
                     n_dims = x_type_ref->n_dims;
                     m_dims = x_type_ref->m_dims;
                     break;
                 }
                 case ASR::ttypeType::Character: {
-                    ASR::Character_t* x_type_ref = ASR::down_cast<ASR::Character_t>(x_type);
-                    n_dims = x_type_ref->n_dims;
-                    m_dims = x_type_ref->m_dims;
-                    break;
-                }
-                case ASR::ttypeType::CharacterPointer: {
-                    ASR::CharacterPointer_t* x_type_ref = ASR::down_cast<ASR::CharacterPointer_t>(x_type);
+                    ASR::Character_t* x_type_ref = ASR::down_cast<ASR::Character_t>(t2);
                     n_dims = x_type_ref->n_dims;
                     m_dims = x_type_ref->m_dims;
                     break;
@@ -91,9 +56,10 @@ namespace LFortran {
         ASR::ttype_t* set_dim_rank(ASR::ttype_t* x_type, ASR::dimension_t*& m_dims, int& n_dims,
                                     bool create_new, Allocator* al) {
             ASR::ttype_t* new_type = nullptr;
-            switch( x_type->type ) {
+            ASR::ttype_t* t2 = ASRUtils::type_get_past_pointer(x_type);
+            switch( t2->type ) {
                 case ASR::ttypeType::Integer: {
-                    ASR::Integer_t* x_type_ref = ASR::down_cast<ASR::Integer_t>(x_type);
+                    ASR::Integer_t* x_type_ref = ASR::down_cast<ASR::Integer_t>(t2);
                     if( create_new ) {
                         new_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(*al, x_type->base.loc, x_type_ref->m_kind,
                                                             m_dims, n_dims));
@@ -103,19 +69,8 @@ namespace LFortran {
                     }
                     break;
                 }
-                case ASR::ttypeType::IntegerPointer: {
-                    ASR::IntegerPointer_t* x_type_ref = ASR::down_cast<ASR::IntegerPointer_t>(x_type);
-                    if( create_new ) {
-                        new_type = LFortran::ASRUtils::TYPE(ASR::make_IntegerPointer_t(*al, x_type->base.loc, x_type_ref->m_kind,
-                                                            m_dims, n_dims));
-                    } else {
-                        x_type_ref->n_dims = n_dims;
-                        x_type_ref->m_dims = m_dims;
-                    }
-                    break;
-                }
                 case ASR::ttypeType::Real: {
-                    ASR::Real_t* x_type_ref = ASR::down_cast<ASR::Real_t>(x_type);
+                    ASR::Real_t* x_type_ref = ASR::down_cast<ASR::Real_t>(t2);
                     if( create_new ) {
                         new_type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(*al, x_type->base.loc, x_type_ref->m_kind,
                                                             m_dims, n_dims));
@@ -125,19 +80,8 @@ namespace LFortran {
                     }
                     break;
                 }
-                case ASR::ttypeType::RealPointer: {
-                    ASR::RealPointer_t* x_type_ref = ASR::down_cast<ASR::RealPointer_t>(x_type);
-                    if( create_new ) {
-                        new_type = LFortran::ASRUtils::TYPE(ASR::make_RealPointer_t(*al, x_type->base.loc, x_type_ref->m_kind,
-                                                            m_dims, n_dims));
-                    } else {
-                        x_type_ref->n_dims = n_dims;
-                        x_type_ref->m_dims = m_dims;
-                    }
-                    break;
-                }
                 case ASR::ttypeType::Complex: {
-                    ASR::Complex_t* x_type_ref = ASR::down_cast<ASR::Complex_t>(x_type);
+                    ASR::Complex_t* x_type_ref = ASR::down_cast<ASR::Complex_t>(t2);
                     if( create_new ) {
                         new_type = LFortran::ASRUtils::TYPE(ASR::make_Complex_t(*al, x_type->base.loc, x_type_ref->m_kind,
                                                             m_dims, n_dims));
@@ -147,19 +91,8 @@ namespace LFortran {
                     }
                     break;
                 }
-                case ASR::ttypeType::ComplexPointer: {
-                    ASR::ComplexPointer_t* x_type_ref = ASR::down_cast<ASR::ComplexPointer_t>(x_type);
-                    if( create_new ) {
-                        new_type = LFortran::ASRUtils::TYPE(ASR::make_ComplexPointer_t(*al, x_type->base.loc, x_type_ref->m_kind,
-                                                            m_dims, n_dims));
-                    } else {
-                        x_type_ref->n_dims = n_dims;
-                        x_type_ref->m_dims = m_dims;
-                    }
-                    break;
-                }
                 case ASR::ttypeType::Derived: {
-                    ASR::Derived_t* x_type_ref = ASR::down_cast<ASR::Derived_t>(x_type);
+                    ASR::Derived_t* x_type_ref = ASR::down_cast<ASR::Derived_t>(t2);
                     if( create_new ) {
                         new_type = LFortran::ASRUtils::TYPE(ASR::make_Derived_t(*al, x_type->base.loc, x_type_ref->m_derived_type,
                                                             m_dims, n_dims));
@@ -169,19 +102,8 @@ namespace LFortran {
                     }
                     break;
                 }
-                case ASR::ttypeType::DerivedPointer: {
-                    ASR::DerivedPointer_t* x_type_ref = ASR::down_cast<ASR::DerivedPointer_t>(x_type);
-                    if( create_new ) {
-                        new_type = LFortran::ASRUtils::TYPE(ASR::make_DerivedPointer_t(*al, x_type->base.loc, x_type_ref->m_derived_type,
-                                                                    m_dims, n_dims));
-                    } else {
-                        x_type_ref->n_dims = n_dims;
-                        x_type_ref->m_dims = m_dims;
-                    }
-                    break;
-                }
                 case ASR::ttypeType::Logical: {
-                    ASR::Logical_t* x_type_ref = ASR::down_cast<ASR::Logical_t>(x_type);
+                    ASR::Logical_t* x_type_ref = ASR::down_cast<ASR::Logical_t>(t2);
                     if( create_new ) {
                         new_type = LFortran::ASRUtils::TYPE(ASR::make_Logical_t(*al, x_type->base.loc, x_type_ref->m_kind,
                                                             m_dims, n_dims));
@@ -191,19 +113,8 @@ namespace LFortran {
                     }
                     break;
                 }
-                case ASR::ttypeType::LogicalPointer: {
-                    ASR::LogicalPointer_t* x_type_ref = ASR::down_cast<ASR::LogicalPointer_t>(x_type);
-                    if( create_new ) {
-                        new_type = LFortran::ASRUtils::TYPE(ASR::make_LogicalPointer_t(*al, x_type->base.loc, x_type_ref->m_kind,
-                                                            m_dims, n_dims));
-                    } else {
-                        x_type_ref->n_dims = n_dims;
-                        x_type_ref->m_dims = m_dims;
-                    }
-                    break;
-                }
                 case ASR::ttypeType::Character: {
-                    ASR::Character_t* x_type_ref = ASR::down_cast<ASR::Character_t>(x_type);
+                    ASR::Character_t* x_type_ref = ASR::down_cast<ASR::Character_t>(t2);
                     if( create_new ) {
                         new_type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(*al, x_type->base.loc, x_type_ref->m_kind,
                             x_type_ref->m_len, nullptr,
@@ -214,20 +125,14 @@ namespace LFortran {
                     }
                     break;
                 }
-                case ASR::ttypeType::CharacterPointer: {
-                    ASR::CharacterPointer_t* x_type_ref = ASR::down_cast<ASR::CharacterPointer_t>(x_type);
-                    if( create_new ) {
-                        new_type = LFortran::ASRUtils::TYPE(ASR::make_CharacterPointer_t(*al, x_type->base.loc, x_type_ref->m_kind,
-                                                            m_dims, n_dims));
-                    } else {
-                        x_type_ref->n_dims = n_dims;
-                        x_type_ref->m_dims = m_dims;
-                    }
-                    break;
-                }
                 default:
                     break;
             }
+
+            if (ASR::is_a<ASR::Pointer_t>(*x_type)) {
+                new_type = ASRUtils::TYPE(ASR::make_Pointer_t(*al, x_type->base.loc, new_type));
+            }
+
             return new_type;
         }
 

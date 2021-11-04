@@ -764,38 +764,40 @@ public:
                     a_kind = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
                 }
                 if (sym_type->m_type == AST::decl_typeType::TypeReal) {
+                    type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                        a_kind, dims.p, dims.size()));
                     if (is_pointer) {
-                        type = LFortran::ASRUtils::TYPE(ASR::make_RealPointer_t(al, x.base.base.loc,
-                            a_kind, dims.p, dims.size()));
-                    } else {
-                        type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
-                            a_kind, dims.p, dims.size()));
+                        type = LFortran::ASRUtils::TYPE(ASR::make_Pointer_t(al, x.base.base.loc,
+                            type));
                     }
                 } else if (sym_type->m_type == AST::decl_typeType::TypeDoublePrecision) {
                     a_kind = 8;
+                    type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                        a_kind, dims.p, dims.size()));
                     if (is_pointer) {
-                        type = LFortran::ASRUtils::TYPE(ASR::make_RealPointer_t(al, x.base.base.loc,
-                            a_kind, dims.p, dims.size()));
-                    } else {
-                        type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
-                            a_kind, dims.p, dims.size()));
+                        type = LFortran::ASRUtils::TYPE(ASR::make_Pointer_t(al, x.base.base.loc,
+                            type));
                     }
                 } else if (sym_type->m_type == AST::decl_typeType::TypeInteger) {
+                    type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                        a_kind, dims.p, dims.size()));
                     if (is_pointer) {
-                        type = LFortran::ASRUtils::TYPE(ASR::make_IntegerPointer_t(al, x.base.base.loc, a_kind, dims.p, dims.size()));
-                    } else {
-                        type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, a_kind, dims.p, dims.size()));
+                        type = LFortran::ASRUtils::TYPE(ASR::make_Pointer_t(al, x.base.base.loc,
+                            type));
                     }
                 } else if (sym_type->m_type == AST::decl_typeType::TypeLogical) {
                     type = LFortran::ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc, 4,
                         dims.p, dims.size()));
+                    if (is_pointer) {
+                        type = LFortran::ASRUtils::TYPE(ASR::make_Pointer_t(al, x.base.base.loc,
+                            type));
+                    }
                 } else if (sym_type->m_type == AST::decl_typeType::TypeComplex) {
-                    if( is_pointer ) {
-                        type = LFortran::ASRUtils::TYPE(ASR::make_ComplexPointer_t(al, x.base.base.loc, a_kind,
-                                    dims.p, dims.size()));
-                    } else {
-                        type = LFortran::ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc, a_kind,
-                                    dims.p, dims.size()));
+                    type = LFortran::ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
+                        a_kind, dims.p, dims.size()));
+                    if (is_pointer) {
+                        type = LFortran::ASRUtils::TYPE(ASR::make_Pointer_t(al, x.base.base.loc,
+                            type));
                     }
                 } else if (sym_type->m_type == AST::decl_typeType::TypeCharacter) {
                     int a_len = -10;
