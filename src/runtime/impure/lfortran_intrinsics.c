@@ -616,7 +616,7 @@ LFORTRAN_API int64_t _lfortran_ishft64(int64_t i, int64_t shift) {
     if(shift > 0) {
         return i << shift;
     } else if(shift < 0) {
-        return i >> abs(shift);
+        return i >> llabs(shift);
     } else {
         return i;
     }
