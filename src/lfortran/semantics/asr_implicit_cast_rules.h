@@ -143,8 +143,7 @@ public:
             }
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::IntegerToReal) {
             if (ASRUtils::expr_value(*convert_can)) {
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*dest_type)
-                 || ASR::is_a<ASR::RealPointer_t>(*dest_type))
+                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::type_get_past_pointer(dest_type)))
                 LFORTRAN_ASSERT(ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 if (ASR::is_a<ASR::ConstantInteger_t>(*value)) {
@@ -161,8 +160,7 @@ public:
 
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::RealToReal) {
             if (ASRUtils::expr_value(*convert_can)) {
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*dest_type)
-                 || ASR::is_a<ASR::RealPointer_t>(*dest_type))
+                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::type_get_past_pointer(dest_type)))
                 LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*value))
@@ -173,8 +171,7 @@ public:
             }
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::RealToComplex) {
             if (ASRUtils::expr_value(*convert_can)) {
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Complex_t>(*dest_type)
-                 || ASR::is_a<ASR::ComplexPointer_t>(*dest_type))
+                LFORTRAN_ASSERT(ASR::is_a<ASR::Complex_t>(*ASRUtils::type_get_past_pointer(dest_type)))
                 LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*value))
@@ -185,8 +182,7 @@ public:
             }
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::ComplexToReal) {
             if (ASRUtils::expr_value(*convert_can)) {
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*dest_type)
-                 || ASR::is_a<ASR::RealPointer_t>(*dest_type))
+                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::type_get_past_pointer(dest_type)))
                 LFORTRAN_ASSERT(ASR::is_a<ASR::Complex_t>(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantComplex_t>(*value))
