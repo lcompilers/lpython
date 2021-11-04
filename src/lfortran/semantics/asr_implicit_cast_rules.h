@@ -4,7 +4,7 @@
 #include <lfortran/asr.h>
 #include <lfortran/ast.h>
 
-#define num_types 12
+#define num_types 6
 
 namespace LFortran {
 class ImplicitCastRules {
@@ -29,13 +29,8 @@ private:
       {"Complex", "Integer, Real or Complex or Complex Pointer"},
       {"Character", "Character Pointer"},
       {"Logical", "Integer or Logical Pointer"},
-      {"Derived", "Derived Pointer"},
-      {"Integer Pointer", "Integer"},
-      {"Real Pointer", "Integer"},
-      {"Complex Pointer", "Integer"},
-      {"Character Pointer", "Integer"},
-      {"Logical Pointer", "Integer"},
-      {"Derived Pointer", "Integer"}};
+      {"Derived", "Derived Pointer"}
+  };
 
   /*
    * Rule map for performing implicit cast represented by a 2D integer array.
@@ -43,50 +38,44 @@ private:
    * Key is the pair of indices with row index denoting the source type
    * and column index denoting the destination type.
    */
-  static constexpr const int rule_map[num_types / 2][num_types] = {
+  static constexpr const int rule_map[num_types][num_types] = {
 
       // Integer
       {integer_to_integer, integer_to_real, integer_to_complex, error_case,
-       integer_to_logical, error_case, integer_to_integer, integer_to_real,
-       integer_to_complex, error_case, integer_to_logical, error_case},
+       integer_to_logical, error_case},
 
       // Real
       {real_to_integer, real_to_real, real_to_complex, default_case,
-       default_case, default_case, real_to_integer, real_to_real,
-       real_to_complex, default_case, default_case, default_case},
+       default_case, default_case},
 
       // Complex
       {default_case, complex_to_real, complex_to_complex, default_case,
-       default_case, default_case, default_case, default_case,
-       complex_to_complex, default_case, default_case, default_case},
+       default_case, default_case},
 
       // Character
       {default_case, default_case, default_case, default_case, default_case,
-       default_case, default_case, default_case, default_case, default_case,
-       default_case, default_case},
+       default_case},
 
       // Logical
       {default_case, default_case, default_case, default_case, default_case,
-       default_case, default_case, default_case, default_case, default_case,
-       default_case, default_case},
+       default_case},
 
       // Derived
       {default_case, default_case, default_case, default_case, default_case,
-       default_case, default_case, default_case, default_case, default_case,
-       default_case, default_case}
+       default_case},
   };
 
   /*
    * Priority of different types to be used in conversion
    * when source and destination are directly not deducible.
    */
-  static constexpr const int type_priority[num_types / 2] = {
-      4,  // Integer or IntegerPointer
-      5,  // Real or RealPointer
-      6,  // Complex or ComplexPointer
-      -1, // Character or CharacterPointer
-      -1, // Logical or LogicalPointer
-      -1  // Derived or DerivedPointer
+  static constexpr const int type_priority[num_types] = {
+      4,  // Integer
+      5,  // Real
+      6,  // Complex
+      -1, // Character
+      -1, // Logical
+      -1  // Derived
   };
 
 public:
@@ -120,11 +109,14 @@ public:
         return;
       }
     }
-    int cast_kind =
-        rule_map[source_type->type % (num_types / 2)][dest_type->type];
+    ASR::ttype_t *source_type2 = ASRUtils::type_get_past_pointer(source_type);
+    ASR::ttype_t *dest_type2 = ASRUtils::type_get_past_pointer(dest_type);
+    LFORTRAN_ASSERT(source_type2->type < num_types);
+    LFORTRAN_ASSERT(dest_type2->type < num_types);
+    int cast_kind = rule_map[source_type2->type][dest_type2->type];
     if (cast_kind == error_case) {
-      std::string allowed_types_str = type_names[dest_type->type][1];
-      std::string dest_type_str = type_names[dest_type->type][0];
+      std::string allowed_types_str = type_names[dest_type2->type][1];
+      std::string dest_type_str = type_names[dest_type2->type][0];
       std::string error_msg =
           "Only " + allowed_types_str + " can be assigned to " + dest_type_str;
       throw SemanticError(error_msg, a_loc);
@@ -132,26 +124,25 @@ public:
         ASR::expr_t *value=nullptr;
         if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::RealToInteger) {
             if (ASRUtils::expr_value(*convert_can)) {
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Integer_t>(*dest_type))
+                LFORTRAN_ASSERT(ASR::is_a<ASR::Integer_t>(*dest_type2))
                 LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*value))
                 ASR::ConstantReal_t *r = ASR::down_cast<ASR::ConstantReal_t>(value);
                 int64_t i = r->m_r;
                 value = (ASR::expr_t *)ASR::make_ConstantInteger_t(al, a_loc,
-                    i, dest_type);
+                    i, dest_type2);
             }
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::IntegerToReal) {
             if (ASRUtils::expr_value(*convert_can)) {
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*dest_type)
-                 || ASR::is_a<ASR::RealPointer_t>(*dest_type))
+                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::type_get_past_pointer(dest_type)))
                 LFORTRAN_ASSERT(ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 if (ASR::is_a<ASR::ConstantInteger_t>(*value)) {
                   ASR::ConstantInteger_t *i = ASR::down_cast<ASR::ConstantInteger_t>(value);
                   double rval = static_cast<double>(i->m_n);
                   value = (ASR::expr_t *)ASR::make_ConstantReal_t(al, a_loc,
-                                                                 rval, dest_type);
+                                                                 rval, dest_type2);
                 } else {
                   // TODO: Handle cases where this is say, a constant Array
                   // See https://gitlab.com/lfortran/lfortran/-/merge_requests/1162#note_647992506
@@ -161,50 +152,47 @@ public:
 
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::RealToReal) {
             if (ASRUtils::expr_value(*convert_can)) {
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*dest_type)
-                 || ASR::is_a<ASR::RealPointer_t>(*dest_type))
+                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::type_get_past_pointer(dest_type)))
                 LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*value))
                 ASR::ConstantReal_t *r = ASR::down_cast<ASR::ConstantReal_t>(value);
                 double rval = r->m_r;
                 value = (ASR::expr_t *)ASR::make_ConstantReal_t(al, a_loc,
-                    rval, dest_type);
+                    rval, dest_type2);
             }
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::RealToComplex) {
             if (ASRUtils::expr_value(*convert_can)) {
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Complex_t>(*dest_type)
-                 || ASR::is_a<ASR::ComplexPointer_t>(*dest_type))
+                LFORTRAN_ASSERT(ASR::is_a<ASR::Complex_t>(*ASRUtils::type_get_past_pointer(dest_type)))
                 LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*value))
                 ASR::ConstantReal_t *r = ASR::down_cast<ASR::ConstantReal_t>(value);
                 double rval = r->m_r;
                 value = (ASR::expr_t *)ASR::make_ConstantComplex_t(al, a_loc,
-                    rval, 0, dest_type);
+                    rval, 0, dest_type2);
             }
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::ComplexToReal) {
             if (ASRUtils::expr_value(*convert_can)) {
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*dest_type)
-                 || ASR::is_a<ASR::RealPointer_t>(*dest_type))
+                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::type_get_past_pointer(dest_type)))
                 LFORTRAN_ASSERT(ASR::is_a<ASR::Complex_t>(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantComplex_t>(*value))
                 ASR::ConstantComplex_t *r = ASR::down_cast<ASR::ConstantComplex_t>(value);
                 double rval = r->m_re;
                 value = (ASR::expr_t *)ASR::make_ConstantReal_t(al, a_loc,
-                    rval, dest_type);
+                    rval, dest_type2);
             }
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::IntegerToInteger) {
             if (ASRUtils::expr_value(*convert_can)) {
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Integer_t>(*dest_type))
+                LFORTRAN_ASSERT(ASR::is_a<ASR::Integer_t>(*dest_type2))
                 LFORTRAN_ASSERT(ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantInteger_t>(*value))
                 ASR::ConstantInteger_t *i = ASR::down_cast<ASR::ConstantInteger_t>(value);
                 int64_t ival = i->m_n;
                 value = (ASR::expr_t *)ASR::make_ConstantInteger_t(al, a_loc,
-                    ival, dest_type);
+                    ival, dest_type2);
             }
 
         }
@@ -249,8 +237,12 @@ public:
                                         ASR::ttype_t **source_type,
                                         ASR::ttype_t **dest_type) {
 
-    int left_type_p = type_priority[left_type->type % (num_types / 2)];
-    int right_type_p = type_priority[right_type->type % (num_types / 2)];
+    ASR::ttype_t *left_type2 = ASRUtils::type_get_past_pointer(left_type);
+    ASR::ttype_t *right_type2 = ASRUtils::type_get_past_pointer(right_type);
+    LFORTRAN_ASSERT(left_type2->type < num_types);
+    LFORTRAN_ASSERT(right_type2->type < num_types);
+    int left_type_p = type_priority[left_type2->type];
+    int right_type_p = type_priority[right_type2->type];
     if (left_type_p >= right_type_p) {
       conversion_cand = right;
       *source_type = right_type;

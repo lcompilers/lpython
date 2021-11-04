@@ -848,15 +848,12 @@ public:
             throw SemanticError("Variable '" + dt_name + "' not declared", loc);
         }
         ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v);
-        if (ASR::is_a<ASR::Derived_t>(*v_variable->m_type) ||
-                ASR::is_a<ASR::DerivedPointer_t>(*v_variable->m_type) ||
+        if (ASR::is_a<ASR::Derived_t>(*ASRUtils::type_get_past_pointer(v_variable->m_type)) ||
                 ASR::is_a<ASR::Class_t>(*v_variable->m_type)) {
-            ASR::ttype_t* v_type = v_variable->m_type;
+            ASR::ttype_t* v_type = ASRUtils::type_get_past_pointer(v_variable->m_type);
             ASR::symbol_t *derived_type = nullptr;
             if (ASR::is_a<ASR::Derived_t>(*v_type)) {
                 derived_type = ASR::down_cast<ASR::Derived_t>(v_type)->m_derived_type;
-            } else if (ASR::is_a<ASR::DerivedPointer_t>(*v_type)) {
-                derived_type = ASR::down_cast<ASR::DerivedPointer_t>(v_type)->m_derived_type;
             } else if (ASR::is_a<ASR::Class_t>(*v_type)) {
                 derived_type = ASR::down_cast<ASR::Class_t>(v_type)->m_class_type;
             }
@@ -921,11 +918,9 @@ public:
         if (!v) {
             throw SemanticError("Variable '" + dt_name + "' not declared", loc);
         }
-        ASR::Variable_t* v_variable = ((ASR::Variable_t*)(&(v->base)));
-        if ( v_variable->m_type->type == ASR::ttypeType::Derived ||
-             v_variable->m_type->type == ASR::ttypeType::DerivedPointer ||
-             v_variable->m_type->type == ASR::ttypeType::Class ) {
-            ASR::ttype_t* v_type = v_variable->m_type;
+        ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v);
+        ASR::ttype_t* v_type = ASRUtils::type_get_past_pointer(v_variable->m_type);
+        if ( ASR::is_a<ASR::Derived_t>(*v_type) || ASR::is_a<ASR::Class_t>(*v_type)) {
             ASR::Derived_t* der = (ASR::Derived_t*)(&(v_type->base));
             ASR::DerivedType_t* der_type;
             if( der->m_derived_type->type == ASR::symbolType::ExternalSymbol ) {
@@ -1059,19 +1054,11 @@ public:
     }
 
     bool is_integer(ASR::ttype_t &t) {
-        if (ASR::is_a<ASR::Integer_t>(t) ||
-                ASR::is_a<ASR::IntegerPointer_t>(t)) {
-            return true;
-        }
-        return false;
+        return ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_pointer(&t));
     }
 
     bool is_real(ASR::ttype_t &t) {
-        if (ASR::is_a<ASR::Real_t>(t) ||
-                ASR::is_a<ASR::RealPointer_t>(t)) {
-            return true;
-        }
-        return false;
+        return ASR::is_a<ASR::Real_t>(*ASRUtils::type_get_past_pointer(&t));
     }
 
     bool assignment_types_agree(ASR::ttype_t *target, ASR::ttype_t *value) {

@@ -227,13 +227,8 @@ ttype
     | Character(int kind, int len, expr? len_expr, dimension* dims)
     | Logical(int kind, dimension* dims)
     | Derived(symbol derived_type, dimension* dims)
-    | IntegerPointer(int kind, dimension* dims)
-    | RealPointer(int kind, dimension* dims)
-    | ComplexPointer(int kind, dimension* dims)
-    | CharacterPointer(int kind, dimension* dims)
-    | LogicalPointer(int kind, dimension* dims)
-    | DerivedPointer(symbol derived_type, dimension* dims)
     | Class(symbol class_type, dimension* dims)
+    | Pointer(ttype type)
 
 boolop = And | Or | NEqv | Eqv
 

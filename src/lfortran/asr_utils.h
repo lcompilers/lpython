@@ -56,6 +56,17 @@ static inline const ASR::symbol_t *symbol_get_past_external(const ASR::symbol_t 
     }
 }
 
+static inline ASR::ttype_t *type_get_past_pointer(ASR::ttype_t *f)
+{
+    if (ASR::is_a<ASR::Pointer_t>(*f)) {
+        ASR::Pointer_t *e = ASR::down_cast<ASR::Pointer_t>(f);
+        LFORTRAN_ASSERT(!ASR::is_a<ASR::Pointer_t>(*e->m_type));
+        return e->m_type;
+    } else {
+        return f;
+    }
+}
+
 static inline ASR::Variable_t* EXPR2VAR(const ASR::expr_t *f)
 {
     return ASR::down_cast<ASR::Variable_t>(symbol_get_past_external(
@@ -478,126 +489,94 @@ bool use_overloaded_assignment(ASR::expr_t* target, ASR::expr_t* value,
 
 void set_intrinsic(ASR::symbol_t* sym);
 
-static inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
-                if( curr_type == nullptr ) {
-                    return -1;
-                }
-                switch (curr_type->type) {
-                    case ASR::ttypeType::Real : {
-                        return ((ASR::Real_t*)(&(curr_type->base)))->m_kind;
-                    }
-                    case ASR::ttypeType::RealPointer : {
-                        return ((ASR::RealPointer_t*)(&(curr_type->base)))->m_kind;
-                    }
-                    case ASR::ttypeType::Integer : {
-                        return ((ASR::Integer_t*)(&(curr_type->base)))->m_kind;
-                    }
-                    case ASR::ttypeType::IntegerPointer : {
-                        return ((ASR::IntegerPointer_t*)(&(curr_type->base)))->m_kind;
-                    }
-                    case ASR::ttypeType::Complex: {
-                        return ((ASR::Complex_t*)(&(curr_type->base)))->m_kind;
-                    }
-                    case ASR::ttypeType::ComplexPointer: {
-                        return ((ASR::ComplexPointer_t*)(&(curr_type->base)))->m_kind;
-                    }
-                    default : {
-                        return -1;
-                    }
-                }
-            }
+static inline int extract_kind_from_ttype_t(const ASR::ttype_t* type) {
+    if (type == nullptr) {
+        return -1;
+    }
+    switch (type->type) {
+        case ASR::ttypeType::Integer : {
+            return ASR::down_cast<ASR::Integer_t>(type)->m_kind;
+        }
+        case ASR::ttypeType::Real : {
+            return ASR::down_cast<ASR::Real_t>(type)->m_kind;
+        }
+        case ASR::ttypeType::Complex: {
+            return ASR::down_cast<ASR::Complex_t>(type)->m_kind;
+        }
+        case ASR::ttypeType::Character: {
+            return ASR::down_cast<ASR::Character_t>(type)->m_kind;
+        }
+        case ASR::ttypeType::Logical: {
+            return ASR::down_cast<ASR::Logical_t>(type)->m_kind;
+        }
+        case ASR::ttypeType::Pointer: {
+            return extract_kind_from_ttype_t(ASR::down_cast<ASR::Pointer_t>(type)->m_type);
+        }
+        default : {
+            return -1;
+        }
+    }
+}
 
-       static inline bool is_pointer(ASR::ttype_t* x) {
-                switch( x->type ) {
-                    case ASR::ttypeType::IntegerPointer:
-                    case ASR::ttypeType::RealPointer:
-                    case ASR::ttypeType::ComplexPointer:
-                    case ASR::ttypeType::CharacterPointer:
-                    case ASR::ttypeType::LogicalPointer:
-                    case ASR::ttypeType::DerivedPointer:
-                        return true;
-                        break;
-                    default:
-                        break;
-                }
-                return false;
-            }
+static inline bool is_pointer(ASR::ttype_t *x) {
+    return ASR::is_a<ASR::Pointer_t>(*x);
+}
 
-            inline bool is_array(ASR::ttype_t* x) {
-                int n_dims = 0;
-                switch( x->type ) {
-                    case ASR::ttypeType::IntegerPointer: {
-                        ASR::IntegerPointer_t* _type = (ASR::IntegerPointer_t*)(&(x->base));
-                        n_dims = _type->n_dims;
-                        break;
-                    }
-                    case ASR::ttypeType::Integer: {
-                        ASR::Integer_t* _type = (ASR::Integer_t*)(&(x->base));
-                        n_dims = _type->n_dims;
-                        break;
-                    }
-                    case ASR::ttypeType::Real: {
-                        ASR::Real_t* _type = (ASR::Real_t*)(&(x->base));
-                        n_dims = _type->n_dims > 0;
-                        break;
-                    }
-                    case ASR::ttypeType::RealPointer: {
-                        ASR::RealPointer_t* _type = (ASR::RealPointer_t*)(&(x->base));
-                        n_dims = _type->n_dims;
-                        break;
-                    }
-                    case ASR::ttypeType::Complex: {
-                        ASR::Complex_t* _type = (ASR::Complex_t*)(&(x->base));
-                        n_dims = _type->n_dims > 0;
-                        break;
-                    }
-                    case ASR::ttypeType::Logical: {
-                        ASR::Logical_t* _type = (ASR::Logical_t*)(&(x->base));
-                        n_dims = _type->n_dims > 0;
-                        break;
-                    }
-                    default:
-                        break;
-                }
-                return n_dims > 0;
-            }
+inline bool is_array(ASR::ttype_t *x) {
+    int n_dims = 0;
+    switch (x->type) {
+        case ASR::ttypeType::Integer: {
+            n_dims = ASR::down_cast<ASR::Integer_t>(x)->n_dims;
+            break;
+        }
+        case ASR::ttypeType::Real: {
+            n_dims = ASR::down_cast<ASR::Real_t>(x)->n_dims;
+            break;
+        }
+        case ASR::ttypeType::Complex: {
+            n_dims = ASR::down_cast<ASR::Complex_t>(x)->n_dims;
+            break;
+        }
+        case ASR::ttypeType::Character: {
+            n_dims = ASR::down_cast<ASR::Character_t>(x)->n_dims;
+            break;
+        }
+        case ASR::ttypeType::Logical: {
+            n_dims = ASR::down_cast<ASR::Logical_t>(x)->n_dims;
+            break;
+        }
+        case ASR::ttypeType::Derived: {
+            n_dims = ASR::down_cast<ASR::Derived_t>(x)->n_dims;
+            break;
+        }
+        case ASR::ttypeType::Class: {
+            n_dims = ASR::down_cast<ASR::Class_t>(x)->n_dims;
+            break;
+        }
+        case ASR::ttypeType::Pointer: {
+            return is_array(ASR::down_cast<ASR::Pointer_t>(x)->m_type);
+            break;
+        }
+        default:
+            throw LFortranException("Not implemented.");
+    }
+    return n_dims > 0;
+}
 
-            inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
-                bool is_source_pointer = is_pointer(source), is_dest_pointer = is_pointer(dest);
-                if( (!is_source_pointer && !is_dest_pointer) ||
-                    (is_source_pointer && is_dest_pointer) ) {
-                    return false;
-                }
-                if( is_source_pointer && !is_dest_pointer ) {
-                    ASR::ttype_t* temp = source;
-                    source = dest;
-                    dest = temp;
-                }
-                bool res = false;
-                switch( dest->type ) {
-                    case ASR::ttypeType::IntegerPointer:
-                        res = source->type == ASR::ttypeType::Integer;
-                        break;
-                    case ASR::ttypeType::RealPointer:
-                        res = source->type == ASR::ttypeType::Real;
-                        break;
-                    case ASR::ttypeType::ComplexPointer:
-                        res = source->type == ASR::ttypeType::Complex;
-                        break;
-                    case ASR::ttypeType::CharacterPointer:
-                        res = source->type == ASR::ttypeType::Character;
-                        break;
-                    case ASR::ttypeType::LogicalPointer:
-                        return source->type == ASR::ttypeType::Logical;
-                        break;
-                    case ASR::ttypeType::DerivedPointer:
-                        res = source->type == ASR::ttypeType::Derived;
-                        break;
-                    default:
-                        break;
-                }
-                return res;
-            }
+inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
+    bool is_source_pointer = is_pointer(source), is_dest_pointer = is_pointer(dest);
+    if( (!is_source_pointer && !is_dest_pointer) ||
+        (is_source_pointer && is_dest_pointer) ) {
+        return false;
+    }
+    if( is_source_pointer && !is_dest_pointer ) {
+        ASR::ttype_t* temp = source;
+        source = dest;
+        dest = temp;
+    }
+    bool res = source->type == ASR::down_cast<ASR::Pointer_t>(dest)->m_type->type;
+    return res;
+}
 
             inline int extract_kind_str(char* m_n, char *&kind_str) {
                 char *p = m_n;
