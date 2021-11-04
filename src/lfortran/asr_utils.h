@@ -478,34 +478,34 @@ bool use_overloaded_assignment(ASR::expr_t* target, ASR::expr_t* value,
 
 void set_intrinsic(ASR::symbol_t* sym);
 
-static inline int extract_kind_from_ttype_t(const ASR::ttype_t* curr_type) {
-                if( curr_type == nullptr ) {
-                    return -1;
-                }
-                switch (curr_type->type) {
-                    case ASR::ttypeType::Real : {
-                        return ((ASR::Real_t*)(&(curr_type->base)))->m_kind;
-                    }
-                    case ASR::ttypeType::RealPointer : {
-                        return ((ASR::RealPointer_t*)(&(curr_type->base)))->m_kind;
-                    }
-                    case ASR::ttypeType::Integer : {
-                        return ((ASR::Integer_t*)(&(curr_type->base)))->m_kind;
-                    }
-                    case ASR::ttypeType::IntegerPointer : {
-                        return ((ASR::IntegerPointer_t*)(&(curr_type->base)))->m_kind;
-                    }
-                    case ASR::ttypeType::Complex: {
-                        return ((ASR::Complex_t*)(&(curr_type->base)))->m_kind;
-                    }
-                    case ASR::ttypeType::ComplexPointer: {
-                        return ((ASR::ComplexPointer_t*)(&(curr_type->base)))->m_kind;
-                    }
-                    default : {
-                        return -1;
-                    }
-                }
-            }
+static inline int extract_kind_from_ttype_t(const ASR::ttype_t* type) {
+    if (type == nullptr) {
+        return -1;
+    }
+    switch (type->type) {
+        case ASR::ttypeType::Integer : {
+            return ASR::down_cast<ASR::Integer_t>(type)->m_kind;
+        }
+        case ASR::ttypeType::Real : {
+            return ASR::down_cast<ASR::Real_t>(type)->m_kind;
+        }
+        case ASR::ttypeType::Complex: {
+            return ASR::down_cast<ASR::Complex_t>(type)->m_kind;
+        }
+        case ASR::ttypeType::Character: {
+            return ASR::down_cast<ASR::Character_t>(type)->m_kind;
+        }
+        case ASR::ttypeType::Logical: {
+            return ASR::down_cast<ASR::Logical_t>(type)->m_kind;
+        }
+        case ASR::ttypeType::Pointer: {
+            return extract_kind_from_ttype_t(ASR::down_cast<ASR::Pointer_t>(type)->m_type);
+        }
+        default : {
+            return -1;
+        }
+    }
+}
 
        static inline bool is_pointer(ASR::ttype_t* x) {
                 switch( x->type ) {
