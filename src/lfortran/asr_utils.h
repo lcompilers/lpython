@@ -552,42 +552,20 @@ inline bool is_array(ASR::ttype_t *x) {
     return n_dims > 0;
 }
 
-            inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
-                bool is_source_pointer = is_pointer(source), is_dest_pointer = is_pointer(dest);
-                if( (!is_source_pointer && !is_dest_pointer) ||
-                    (is_source_pointer && is_dest_pointer) ) {
-                    return false;
-                }
-                if( is_source_pointer && !is_dest_pointer ) {
-                    ASR::ttype_t* temp = source;
-                    source = dest;
-                    dest = temp;
-                }
-                bool res = false;
-                switch( dest->type ) {
-                    case ASR::ttypeType::IntegerPointer:
-                        res = source->type == ASR::ttypeType::Integer;
-                        break;
-                    case ASR::ttypeType::RealPointer:
-                        res = source->type == ASR::ttypeType::Real;
-                        break;
-                    case ASR::ttypeType::ComplexPointer:
-                        res = source->type == ASR::ttypeType::Complex;
-                        break;
-                    case ASR::ttypeType::CharacterPointer:
-                        res = source->type == ASR::ttypeType::Character;
-                        break;
-                    case ASR::ttypeType::LogicalPointer:
-                        return source->type == ASR::ttypeType::Logical;
-                        break;
-                    case ASR::ttypeType::DerivedPointer:
-                        res = source->type == ASR::ttypeType::Derived;
-                        break;
-                    default:
-                        break;
-                }
-                return res;
-            }
+inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
+    bool is_source_pointer = is_pointer(source), is_dest_pointer = is_pointer(dest);
+    if( (!is_source_pointer && !is_dest_pointer) ||
+        (is_source_pointer && is_dest_pointer) ) {
+        return false;
+    }
+    if( is_source_pointer && !is_dest_pointer ) {
+        ASR::ttype_t* temp = source;
+        source = dest;
+        dest = temp;
+    }
+    bool res = source->type == ASR::down_cast<ASR::Pointer_t>(dest)->m_type->type;
+    return res;
+}
 
             inline int extract_kind_str(char* m_n, char *&kind_str) {
                 char *p = m_n;
