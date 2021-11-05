@@ -357,9 +357,8 @@ def main(argv):
     elif len(argv) == 1:
         print("Assuming default values of AST.asdl and ast.py")
         here = os.path.dirname(__file__)
-        def_file = os.path.join(here, "AST.asdl")
-        #out_file = os.path.join(here, "..", "lfortran", "ast", "ast.py")
-        out_file = os.path.join(here, "..", "ast.py")
+        def_file = os.path.join(here, "Python.asdl")
+        out_file = os.path.join(here, "..", "python_ast.py")
         util_import_part = ".utils"
     else:
         print("invalid arguments")
