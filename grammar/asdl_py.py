@@ -266,51 +266,6 @@ class GenericASTVisitorVisitor(ASDLVisitor):
         return False
 
 
-class NodeTransformerVisitor(ASDLVisitor):
-
-    def visitModule(self, mod):
-        self.emit("class NodeTransformerBase(ASTVisitor):")
-        self.emit("")
-        super(NodeTransformerVisitor, self).visitModule(mod)
-        self.emit("")
-
-    def visitType(self, tp):
-        if not (isinstance(tp.value, asdl.Sum) and
-                is_simple_sum(tp.value)):
-            super(NodeTransformerVisitor, self).visitType(tp, tp.name)
-
-    def visitProduct(self, prod, name):
-        self.make_visitor(name, prod.fields)
-
-    def visitConstructor(self, cons, _):
-        self.make_visitor(cons.name, cons.fields)
-
-    def make_visitor(self, name, fields):
-        self.emit("def visit_%s(self, node):" % (name,), 1)
-        parts = []
-        for field in fields:
-            self.visitField(field)
-            parts.append("%s=%s" % (field.name, field.name))
-        self.emit("return %s(%s)" % (name, ", ".join(parts)), 2)
-        self.emit("")
-
-    def visitField(self, field):
-        if (field.type not in asdl.builtin_types and
-            field.type not in self.data.simple_types):
-            level = 2
-            template = "%s = self.visit(node.%s)"
-            if field.seq:
-                template = "%s = self.visit_sequence(node.%s)"
-            elif field.opt:
-                self.emit("if node.%s:" % (field.name,), 2)
-                level = 3
-            self.emit(template % (field.name, field.name), level)
-            if field.opt:
-                self.emit("else:", 2)
-                self.emit(    "%s = None" % field.name, 3)
-        else:
-            self.emit(    "%s = self.visit_object(node.%s)" % \
-                (field.name, field.name), 2)
 
 
 class ASDLData(object):
@@ -393,8 +348,7 @@ def checkinstance(a, b, opt=False):
 
 """
 
-visitors = [ASTNodeVisitor, ASTVisitorVisitor, GenericASTVisitorVisitor,
-    NodeTransformerVisitor]
+visitors = [ASTNodeVisitor, ASTVisitorVisitor, GenericASTVisitorVisitor]
 
 
 def main(argv):
