@@ -457,7 +457,34 @@ static ASR::asr_t* comptime_intrinsic_real(ASR::expr_t *A,
                 kind_int, nullptr, 0));
     ASR::ttype_t *source_type = LFortran::ASRUtils::expr_type(A);
 
-    // TODO: this is explicit cast, use ExplicitCast
+    // TODO: this is implicit cast, use ExplicitCast
+    ImplicitCastRules::set_converted_value(al, loc, &result,
+                                           source_type, dest_type);
+    return (ASR::asr_t*)result;
+}
+
+static ASR::asr_t* comptime_intrinsic_int(ASR::expr_t *A,
+        ASR::expr_t * kind,
+        Allocator &al, const Location &loc) {
+    int kind_int = 4;
+    if (kind) {
+        ASR::expr_t* kind_value = LFortran::ASRUtils::expr_value(kind);
+        if (kind_value) {
+            if (ASR::is_a<ASR::ConstantInteger_t>(*kind_value)) {
+                kind_int = ASR::down_cast<ASR::ConstantInteger_t>(kind_value)->m_n;
+            } else {
+                throw SemanticError("kind argument to int(a, kind) is not a constant integer", loc);
+            }
+        } else {
+            throw SemanticError("kind argument to int(a, kind) is not constant", loc);
+        }
+    }
+    ASR::expr_t *result = A;
+    ASR::ttype_t *dest_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                kind_int, nullptr, 0));
+    ASR::ttype_t *source_type = LFortran::ASRUtils::expr_type(A);
+
+    // TODO: this is implicit cast, use ExplicitCast
     ImplicitCastRules::set_converted_value(al, loc, &result,
                                            source_type, dest_type);
     return (ASR::asr_t*)result;
@@ -1541,10 +1568,9 @@ public:
     // real/int (result in `tmp`), false otherwise (`tmp` unchanged)
     ASR::asr_t* intrinsic_function_transformation(Allocator &al, const Location &loc,
             const std::string &fn_name, Vec<ASR::expr_t*> &args) {
+        // real(), int() are represented using ExplicitCast (for now we use
+        // ImplicitCast) in ASR, so we save them to tmp and exit:
         if (fn_name == "real") {
-            // real(), int() are represented using ExplicitCast
-            // (for now we use ImplicitCast) in ASR, so we save them
-            // to tmp and exit:
             ASR::expr_t *arg1;
             if (args.size() == 1) {
                 arg1 = nullptr;
@@ -1554,6 +1580,22 @@ public:
                 throw SemanticError("real(...) must have 1 or 2 arguments", loc);
             }
             return CommonVisitorMethods::comptime_intrinsic_real(args[0], arg1, al, loc);
+        } else if (fn_name == "int") {
+            ASR::expr_t *arg1;
+            if (args.size() == 1) {
+                arg1 = nullptr;
+            } else if (args.size() == 2) {
+                arg1 = args[1];
+            } else {
+                throw SemanticError("int(...) must have 1 or 2 arguments", loc);
+            }
+            if (ASR::is_a<ASR::BOZ_t>(*args[0])) {
+                // Things like `int(b'01011101')` are skipped for now
+                // They are converted in comptime_eval. We should probably
+                // just convert them here instead.
+                return nullptr;
+            }
+            return CommonVisitorMethods::comptime_intrinsic_int(args[0], arg1, al, loc);
         } else {
             return nullptr;
         }

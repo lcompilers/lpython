@@ -41,8 +41,11 @@ struct IntrinsicProcedures {
             // Arguments can be evaluated or not
             {"kind", {m_kind, &eval_kind, false}},
             {"tiny", {m_builtin, &eval_tiny, false}},
+            // real and int get transformed into ExplicitCast
+            // in intrinsic_function_transformation()
+            // So we shouldn't even encounter them here
             {"int", {m_builtin, &eval_int, false}},
-            {"real", {m_builtin, &not_implemented, false}}, // Implemented separately
+            {"real", {m_builtin, &not_implemented, false}},
 
             // Require evaluated arguments
             {"aimag", {m_math, &eval_aimag, true}},
