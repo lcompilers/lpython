@@ -332,17 +332,22 @@ public:
                 }
             }
         }
+        /*
         if (!unit_specified_as_star) {
             if( a_unit == nullptr && n_args < 1 ) {
                 throw SemanticError("`unit` must be specified either in arguments or keyword arguments.",
                                     loc);
             }
         }
-        if( a_fmt == nullptr && n_args < 2 ) {
-            throw SemanticError("`fmt` must be specified either in arguments or keyword arguments.",
-                                loc);
+        */
+        /*
+        if (!fmt_specified_as_star) {
+            if( a_fmt == nullptr && n_args < 2 ) {
+                throw SemanticError("`fmt` must be specified either in arguments or keyword arguments.",
+                                    loc);
+            }
         }
-
+        */
         for( std::uint32_t i = 0; i < n_values; i++ ) {
             this->visit_expr(*m_values[i]);
             a_values_vec.push_back(al, LFortran::ASRUtils::EXPR(tmp));
