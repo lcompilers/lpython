@@ -242,8 +242,6 @@ public:
 
         ASR::expr_t *a_unit, *a_fmt, *a_iomsg, *a_iostat, *a_id;
         a_unit = a_fmt = a_iomsg = a_iostat = a_id = nullptr;
-        bool unit_specified_as_star = false;
-        bool fmt_specified_as_star = false;
         Vec<ASR::expr_t*> a_values_vec;
         a_values_vec.reserve(al, n_values);
 
@@ -266,9 +264,7 @@ public:
                     throw SemanticError(R"""(Duplicate value of `unit` found, `unit` has already been specified via argument or keyword arguments)""",
                                         loc);
                 }
-                if (kwarg.m_value == nullptr) {
-                    unit_specified_as_star = true;
-                } else {
+                if (kwarg.m_value != nullptr) {
                     this->visit_expr(*kwarg.m_value);
                     a_unit = LFortran::ASRUtils::EXPR(tmp);
                     ASR::ttype_t* a_unit_type = LFortran::ASRUtils::expr_type(a_unit);
@@ -316,9 +312,7 @@ public:
                     throw SemanticError(R"""(Duplicate value of `fmt` found, it has already been specified via arguments or keyword arguments)""",
                                         loc);
                 }
-                if (kwarg.m_value == nullptr) {
-                    fmt_specified_as_star = true;
-                } else {
+                if (kwarg.m_value != nullptr) {
                     tmp = nullptr;
                     this->visit_expr(*kwarg.m_value);
                     if (tmp == nullptr) {
@@ -332,22 +326,6 @@ public:
                 }
             }
         }
-        /*
-        if (!unit_specified_as_star) {
-            if( a_unit == nullptr && n_args < 1 ) {
-                throw SemanticError("`unit` must be specified either in arguments or keyword arguments.",
-                                    loc);
-            }
-        }
-        */
-        /*
-        if (!fmt_specified_as_star) {
-            if( a_fmt == nullptr && n_args < 2 ) {
-                throw SemanticError("`fmt` must be specified either in arguments or keyword arguments.",
-                                    loc);
-            }
-        }
-        */
         for( std::uint32_t i = 0; i < n_values; i++ ) {
             this->visit_expr(*m_values[i]);
             a_values_vec.push_back(al, LFortran::ASRUtils::EXPR(tmp));
