@@ -88,6 +88,7 @@ static inline ASR::Subroutine_t* EXPR2SUB(const ASR::expr_t *f)
 
 static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
 {
+    LFORTRAN_ASSERT(f != nullptr);
     switch (f->type) {
         case ASR::exprType::BoolOp: { return ((ASR::BoolOp_t*)f)->m_type; }
         case ASR::exprType::BinOp: { return ((ASR::BinOp_t*)f)->m_type; }
