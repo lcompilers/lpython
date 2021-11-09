@@ -243,6 +243,7 @@ public:
         ASR::expr_t *a_unit, *a_fmt, *a_iomsg, *a_iostat, *a_id;
         a_unit = a_fmt = a_iomsg = a_iostat = a_id = nullptr;
         bool unit_specified_as_star = false;
+        bool fmt_specified_as_star = false;
         Vec<ASR::expr_t*> a_values_vec;
         a_values_vec.reserve(al, n_values);
 
@@ -308,7 +309,26 @@ public:
                 a_id = LFortran::ASRUtils::EXPR(tmp);
                 ASR::ttype_t* a_status_type = LFortran::ASRUtils::expr_type(a_id);
                 if (!ASR::is_a<ASR::Character_t>(*ASRUtils::type_get_past_pointer(a_status_type))) {
-                        throw SemanticError("`status` must be of type, Character or CharacterPointer", loc);
+                        throw SemanticError("`status` must be of type Character", loc);
+                }
+            } else if( m_arg_str == std::string("fmt") ) {
+                if( a_fmt != nullptr ) {
+                    throw SemanticError(R"""(Duplicate value of `fmt` found, it has already been specified via arguments or keyword arguments)""",
+                                        loc);
+                }
+                if (kwarg.m_value == nullptr) {
+                    fmt_specified_as_star = true;
+                } else {
+                    tmp = nullptr;
+                    this->visit_expr(*kwarg.m_value);
+                    if (tmp == nullptr) {
+                        throw SemanticError("?", loc);
+                    }
+                    a_fmt = LFortran::ASRUtils::EXPR(tmp);
+                    ASR::ttype_t* a_fmt_type = LFortran::ASRUtils::expr_type(a_fmt);
+                    if (!ASR::is_a<ASR::Character_t>(*ASRUtils::type_get_past_pointer(a_fmt_type))) {
+                            throw SemanticError("`fmt` must be of type Character", loc);
+                    }
                 }
             }
         }
