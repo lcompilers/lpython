@@ -242,6 +242,7 @@ public:
 
         ASR::expr_t *a_unit, *a_fmt, *a_iomsg, *a_iostat, *a_id;
         a_unit = a_fmt = a_iomsg = a_iostat = a_id = nullptr;
+        bool unit_specified_as_star = false;
         Vec<ASR::expr_t*> a_values_vec;
         a_values_vec.reserve(al, n_values);
 
@@ -264,11 +265,15 @@ public:
                     throw SemanticError(R"""(Duplicate value of `unit` found, `unit` has already been specified via argument or keyword arguments)""",
                                         loc);
                 }
-                this->visit_expr(*kwarg.m_value);
-                a_unit = LFortran::ASRUtils::EXPR(tmp);
-                ASR::ttype_t* a_unit_type = LFortran::ASRUtils::expr_type(a_unit);
-                if  (!ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_pointer(a_unit_type))) {
-                        throw SemanticError("`unit` must be of type, Integer or IntegerPointer", loc);
+                if (kwarg.m_value == nullptr) {
+                    unit_specified_as_star = true;
+                } else {
+                    this->visit_expr(*kwarg.m_value);
+                    a_unit = LFortran::ASRUtils::EXPR(tmp);
+                    ASR::ttype_t* a_unit_type = LFortran::ASRUtils::expr_type(a_unit);
+                    if  (!ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_pointer(a_unit_type))) {
+                            throw SemanticError("`unit` must be of type, Integer or IntegerPointer", loc);
+                    }
                 }
             } else if( m_arg_str == std::string("iostat") ) {
                 if( a_iostat != nullptr ) {
@@ -307,9 +312,11 @@ public:
                 }
             }
         }
-        if( a_unit == nullptr && n_args < 1 ) {
-            throw SemanticError("`unit` must be specified either in arguments or keyword arguments.",
-                                loc);
+        if (!unit_specified_as_star) {
+            if( a_unit == nullptr && n_args < 1 ) {
+                throw SemanticError("`unit` must be specified either in arguments or keyword arguments.",
+                                    loc);
+            }
         }
         if( a_fmt == nullptr && n_args < 2 ) {
             throw SemanticError("`fmt` must be specified either in arguments or keyword arguments.",
