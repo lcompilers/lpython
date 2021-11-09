@@ -101,6 +101,7 @@ struct IntrinsicProcedures {
             // left unevaluated in body visitor
             {"trim", {m_string, &not_implemented, false}},
             {"len_trim", {m_string, &not_implemented, false}},
+            {"repeat", {m_string, &not_implemented, false}},
 
             // Subroutines
             {"cpu_time", {m_math, &not_implemented, false}},

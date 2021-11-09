@@ -54,4 +54,20 @@ do while (i < len(string_) .and. found)
 end do
 end function
 
+integer elemental function len_repeat(n) result(r)
+integer, intent(in) :: n
+r = n
+end function
+
+function repeat(s, n) result(r)
+character(len=1), intent(in) :: s
+integer, intent(in) :: n
+character(len=len_repeat(n)) :: r
+integer :: i, i1
+i1 = 1
+do i = 1, n
+    r(i:i) = s(i1:i1)
+end do
+end function
+
 end module
