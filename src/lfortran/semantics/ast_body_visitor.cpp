@@ -264,11 +264,13 @@ public:
                     throw SemanticError(R"""(Duplicate value of `unit` found, `unit` has already been specified via argument or keyword arguments)""",
                                         loc);
                 }
-                this->visit_expr(*kwarg.m_value);
-                a_unit = LFortran::ASRUtils::EXPR(tmp);
-                ASR::ttype_t* a_unit_type = LFortran::ASRUtils::expr_type(a_unit);
-                if  (!ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_pointer(a_unit_type))) {
-                        throw SemanticError("`unit` must be of type, Integer or IntegerPointer", loc);
+                if (kwarg.m_value != nullptr) {
+                    this->visit_expr(*kwarg.m_value);
+                    a_unit = LFortran::ASRUtils::EXPR(tmp);
+                    ASR::ttype_t* a_unit_type = LFortran::ASRUtils::expr_type(a_unit);
+                    if  (!ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_pointer(a_unit_type))) {
+                            throw SemanticError("`unit` must be of type, Integer", loc);
+                    }
                 }
             } else if( m_arg_str == std::string("iostat") ) {
                 if( a_iostat != nullptr ) {
@@ -280,11 +282,11 @@ public:
                 ASR::ttype_t* a_iostat_type = LFortran::ASRUtils::expr_type(a_iostat);
                 if( a_iostat->type != ASR::exprType::Var ||
                     (!ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_pointer(a_iostat_type))) ) {
-                        throw SemanticError("`iostat` must be of type, Integer or IntegerPointer", loc);
+                        throw SemanticError("`iostat` must be of type, Integer", loc);
                 }
             } else if( m_arg_str == std::string("iomsg") ) {
                 if( a_iomsg != nullptr ) {
-                    throw SemanticError(R"""(Duplicate value of `iomsg` found, unit has already been specified via arguments or keyword arguments)""",
+                    throw SemanticError(R"""(Duplicate value of `iomsg` found, it has already been specified via arguments or keyword arguments)""",
                                         loc);
                 }
                 this->visit_expr(*kwarg.m_value);
@@ -292,30 +294,38 @@ public:
                 ASR::ttype_t* a_iomsg_type = LFortran::ASRUtils::expr_type(a_iomsg);
                 if( a_iomsg->type != ASR::exprType::Var ||
                    (!ASR::is_a<ASR::Character_t>(*ASRUtils::type_get_past_pointer(a_iomsg_type))) ) {
-                        throw SemanticError("`iomsg` must be of type, Character or CharacterPointer", loc);
+                        throw SemanticError("`iomsg` must be of type, Character", loc);
                     }
             } else if( m_arg_str == std::string("id") ) {
                 if( a_id != nullptr ) {
-                    throw SemanticError(R"""(Duplicate value of `id` found, unit has already been specified via arguments or keyword arguments)""",
+                    throw SemanticError(R"""(Duplicate value of `id` found, it has already been specified via arguments or keyword arguments)""",
                                         loc);
                 }
                 this->visit_expr(*kwarg.m_value);
                 a_id = LFortran::ASRUtils::EXPR(tmp);
                 ASR::ttype_t* a_status_type = LFortran::ASRUtils::expr_type(a_id);
                 if (!ASR::is_a<ASR::Character_t>(*ASRUtils::type_get_past_pointer(a_status_type))) {
-                        throw SemanticError("`status` must be of type, Character or CharacterPointer", loc);
+                        throw SemanticError("`status` must be of type Character", loc);
+                }
+            } else if( m_arg_str == std::string("fmt") ) {
+                if( a_fmt != nullptr ) {
+                    throw SemanticError(R"""(Duplicate value of `fmt` found, it has already been specified via arguments or keyword arguments)""",
+                                        loc);
+                }
+                if (kwarg.m_value != nullptr) {
+                    tmp = nullptr;
+                    this->visit_expr(*kwarg.m_value);
+                    if (tmp == nullptr) {
+                        throw SemanticError("?", loc);
+                    }
+                    a_fmt = LFortran::ASRUtils::EXPR(tmp);
+                    ASR::ttype_t* a_fmt_type = LFortran::ASRUtils::expr_type(a_fmt);
+                    if (!ASR::is_a<ASR::Character_t>(*ASRUtils::type_get_past_pointer(a_fmt_type))) {
+                            throw SemanticError("`fmt` must be of type Character", loc);
+                    }
                 }
             }
         }
-        if( a_unit == nullptr && n_args < 1 ) {
-            throw SemanticError("`unit` must be specified either in arguments or keyword arguments.",
-                                loc);
-        }
-        if( a_fmt == nullptr && n_args < 2 ) {
-            throw SemanticError("`fmt` must be specified either in arguments or keyword arguments.",
-                                loc);
-        }
-
         for( std::uint32_t i = 0; i < n_values; i++ ) {
             this->visit_expr(*m_values[i]);
             a_values_vec.push_back(al, LFortran::ASRUtils::EXPR(tmp));

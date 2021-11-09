@@ -849,6 +849,10 @@ ast = true
 ast_f90 = true
 
 [[test]]
+filename = "write2.f90"
+asr = true
+
+[[test]]
 filename = "read1.f90"
 ast = true
 ast_f90 = true
