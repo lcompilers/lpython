@@ -273,7 +273,7 @@ public:
                     a_unit = LFortran::ASRUtils::EXPR(tmp);
                     ASR::ttype_t* a_unit_type = LFortran::ASRUtils::expr_type(a_unit);
                     if  (!ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_pointer(a_unit_type))) {
-                            throw SemanticError("`unit` must be of type, Integer or IntegerPointer", loc);
+                            throw SemanticError("`unit` must be of type, Integer", loc);
                     }
                 }
             } else if( m_arg_str == std::string("iostat") ) {
@@ -286,11 +286,11 @@ public:
                 ASR::ttype_t* a_iostat_type = LFortran::ASRUtils::expr_type(a_iostat);
                 if( a_iostat->type != ASR::exprType::Var ||
                     (!ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_pointer(a_iostat_type))) ) {
-                        throw SemanticError("`iostat` must be of type, Integer or IntegerPointer", loc);
+                        throw SemanticError("`iostat` must be of type, Integer", loc);
                 }
             } else if( m_arg_str == std::string("iomsg") ) {
                 if( a_iomsg != nullptr ) {
-                    throw SemanticError(R"""(Duplicate value of `iomsg` found, unit has already been specified via arguments or keyword arguments)""",
+                    throw SemanticError(R"""(Duplicate value of `iomsg` found, it has already been specified via arguments or keyword arguments)""",
                                         loc);
                 }
                 this->visit_expr(*kwarg.m_value);
@@ -298,11 +298,11 @@ public:
                 ASR::ttype_t* a_iomsg_type = LFortran::ASRUtils::expr_type(a_iomsg);
                 if( a_iomsg->type != ASR::exprType::Var ||
                    (!ASR::is_a<ASR::Character_t>(*ASRUtils::type_get_past_pointer(a_iomsg_type))) ) {
-                        throw SemanticError("`iomsg` must be of type, Character or CharacterPointer", loc);
+                        throw SemanticError("`iomsg` must be of type, Character", loc);
                     }
             } else if( m_arg_str == std::string("id") ) {
                 if( a_id != nullptr ) {
-                    throw SemanticError(R"""(Duplicate value of `id` found, unit has already been specified via arguments or keyword arguments)""",
+                    throw SemanticError(R"""(Duplicate value of `id` found, it has already been specified via arguments or keyword arguments)""",
                                         loc);
                 }
                 this->visit_expr(*kwarg.m_value);
