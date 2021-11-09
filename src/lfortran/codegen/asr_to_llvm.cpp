@@ -3306,6 +3306,21 @@ public:
         }
     }
 
+    void visit_Read(const ASR::Read_t &x) {
+        if (x.m_fmt != nullptr) {
+            diag.codegen_warning_label("format string in read() is not implemented yet and it is currently treated as '*'",
+                {x.m_fmt->base.loc}, "treated as '*'");
+        }
+        if (x.m_unit != nullptr) {
+            diag.codegen_error_label("unit in read() is not implemented yet",
+                {x.m_unit->base.loc}, "not implemented");
+            throw CodeGenAbort();
+        }
+        diag.codegen_error_label("The intrinsic function read() is not implemented yet in the LLVM backend",
+            {x.base.base.loc}, "not implemented");
+        throw CodeGenAbort();
+    }
+
     void visit_Print(const ASR::Print_t &x) {
         if (x.m_fmt != nullptr) {
             diag.codegen_warning_label("format string in `print` is not implemented yet and it is currently treated as '*'",
