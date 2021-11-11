@@ -96,6 +96,7 @@ class ASTNodeVisitor(ASDLVisitor):
             self.emit("")
             for i, cons in enumerate(sum.types):
                 self.emit("class %s(%s): # Type" % (cons.name, base))
+                self.emit(    "ntype = 99", 1)
                 self.emit(    "pass", 1)
                 self.emit("")
                 self.emit("")
@@ -309,7 +310,7 @@ class SerializationVisitorVisitor(ASDLVisitor):
 
     def make_simple_sum_visitor(self, name, types):
         self.emit("def visit_%s(self, x: %s):" % (name, name), 1)
-        self.emit(    'self.write_int8(x)', 2)
+        self.emit(    'self.write_int8(x.ntype)', 2)
 
     def visitField(self, field, cons, cons_name):
         if (field.type not in asdl.builtin_types and
