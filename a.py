@@ -7,12 +7,13 @@ print(ast.unparse(a))
 print()
 print(ast.dump(a))
 
+# Transform ast.AST to python_ast.AST:
+
 class Transform(ast.NodeVisitor):
 
     def generic_visit(self, node):
         d = {}
         for field, value in ast.iter_fields(node):
-            print(field, value)
             if isinstance(value, list):
                 new_list = []
                 for item in value:
@@ -29,17 +30,21 @@ class Transform(ast.NodeVisitor):
                 print(type(value))
                 raise Exception("Unsupported type")
         class_name = node.__class__.__name__
-        print("V:", class_name)
+        #print("V:", class_name)
         new_ast = getattr(python_ast, class_name)
-        print(ast.dump(node))
-        print(d)
+        #print(ast.dump(node))
+        #print(d)
         new_node = new_ast(**d)
         return new_node
 
 
-#v = GenericASTVisitor()
-#v.visit(a)
-
 print()
 v = Transform()
-v.visit(a)
+a2 = v.visit(a)
+print(a2)
+
+
+# Visit python_ast.AST
+
+v = python_ast.GenericASTVisitor()
+v.visit(a2)
