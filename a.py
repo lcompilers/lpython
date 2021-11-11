@@ -56,7 +56,19 @@ a2 = v.visit(a)
 print(a2)
 
 
-# Visit python_ast.AST
-
+# Test the visitor python_ast.AST
 v = python_ast.GenericASTVisitor()
+v.visit(a2)
+
+
+# Serialize
+class Serialization(python_ast.SerializationBaseVisitor):
+
+    def write_int8(self, i):
+        print(i)
+
+    def write_int64(self, i):
+        print(i)
+
+v = Serialization()
 v.visit(a2)
