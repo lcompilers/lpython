@@ -11,6 +11,20 @@ print(ast.dump(a))
 
 class Transform(ast.NodeVisitor):
 
+    # Transform Constant to specific Constant* types
+    def visit_Constant(self, node):
+        if isinstance(node.value, str):
+            return python_ast.ConstantStr(node.value, node.kind)
+        elif isinstance(node.value, int):
+            return python_ast.ConstantInt(node.value, node.kind)
+        elif isinstance(node.value, float):
+            return python_ast.ConstantFloat(node.value, node.kind)
+        elif isinstance(node.value, bool):
+            return python_ast.ConstantBool(node.value, node.kind)
+        else:
+            print(type(node.value))
+            raise Exception("Unsupported Constant type")
+
     def generic_visit(self, node):
         d = {}
         for field, value in ast.iter_fields(node):
