@@ -102,6 +102,7 @@ class ASTNodeVisitor(ASDLVisitor):
                 self.emit("")
         else:
             self.emit("class %s(AST): # Sum" % (base,))
+            self.emit("ntype = 88", 1)
             if sum.attributes:
                 self.emit("")
                 self.emit("def __init__(self, %s):" \
@@ -154,7 +155,6 @@ class ASTNodeVisitor(ASDLVisitor):
         if len(self._fields) == 1: s = s + ","
         self.emit("self._fields = (%s)" % s, 2)
         self.emit("self._type = None", 2)
-        self.emit("self.ntype = 88", 2)
         self.emit("")
         self.emit("def walkabout(self, visitor):", 1)
         self.emit("return visitor.visit_%s(self)" % (cons.name,), 2)
