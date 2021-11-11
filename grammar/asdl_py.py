@@ -274,7 +274,7 @@ class SerializationVisitorVisitor(ASDLVisitor):
         self.emit("#" + "*"*79)
         self.emit("## Serialization Visitor base class")
         self.emit("")
-        self.emit("class SerializationBaseVisitor(BaseVisitor):")
+        self.emit("class SerializationBaseVisitor(ASTVisitor):")
         self.mod = mod
         super(SerializationVisitorVisitor, self).visitModule(mod)
 
@@ -284,7 +284,7 @@ class SerializationVisitorVisitor(ASDLVisitor):
     def visitSum(self, sum, *args):
         assert isinstance(sum, asdl.Sum)
         if is_simple_sum(sum):
-            name = args[0] + "Type"
+            name = args[0]
             self.make_simple_sum_visitor(name, sum.types)
         else:
             for tp in sum.types:
@@ -326,6 +326,8 @@ class SerializationVisitorVisitor(ASDLVisitor):
                 self.emit('self.write_int64(len(x.%s))' % field.name, level)
                 self.emit("for i in range(len(x.%s)):" % field.name, level)
                 if field.type in sums:
+                    self.emit("self.visit_%s(x.%s[i])" % (field.type, field.name), level+1)
+                else:
                     self.emit("self.visit_%s(x.%s[i])" % (field.type, field.name), level+1)
             elif field.opt:
                 self.emit("if x.%s:" % field.name, 2)
@@ -381,7 +383,7 @@ class SerializationVisitorVisitor(ASDLVisitor):
                 if field.opt:
                     raise Exception("Unimplemented opt for field type: " + field.type);
                 else:
-                    self.emit('visit_%sType(x.%s);' \
+                    self.emit('visit_%s(x.%s);' \
                             % (field.type, field.name), 2)
             else:
                 raise Exception("Unimplemented field type: " + field.type);
