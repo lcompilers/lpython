@@ -65,16 +65,16 @@ v.visit(a2)
 class Serialization(python_ast.SerializationBaseVisitor):
 
     def write_int8(self, i):
-        print(i)
+        print("int8:", i)
 
     def write_int64(self, i):
-        print(i)
+        print("int64:", i)
 
     def write_string(self, s):
-        print(s)
+        print("string:", s)
 
     def write_bool(self, b):
-        print(b)
+        print("bool:", b)
 
 v = Serialization()
 v.visit(a2)

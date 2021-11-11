@@ -153,7 +153,7 @@ class ASTNodeVisitor(ASDLVisitor):
         if len(self._fields) == 1: s = s + ","
         self.emit("self._fields = (%s)" % s, 2)
         self.emit("self._type = None", 2)
-        self.emit(    "self.type = 8", 2)
+        self.emit("self.ntype = 88", 2)
         self.emit("")
         self.emit("def walkabout(self, visitor):", 1)
         self.emit("return visitor.visit_%s(self)" % (cons.name,), 2)
@@ -300,7 +300,7 @@ class SerializationVisitorVisitor(ASDLVisitor):
     def make_visitor(self, name, fields, cons):
         self.emit("def visit_%s(self, x: %s):" % (name, name), 1)
         if cons:
-            self.emit(    'self.write_int8(x.type)', 2)
+            self.emit(    'self.write_int8(x.ntype)', 2)
         self.used = False
         for n, field in enumerate(fields):
             self.visitField(field, cons, name)
