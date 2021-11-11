@@ -70,5 +70,11 @@ class Serialization(python_ast.SerializationBaseVisitor):
     def write_int64(self, i):
         print(i)
 
+    def write_string(self, s):
+        print(s)
+
+    def write_bool(self, b):
+        print(b)
+
 v = Serialization()
 v.visit(a2)

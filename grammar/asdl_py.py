@@ -322,14 +322,14 @@ class SerializationVisitorVisitor(ASDLVisitor):
                 else:
                     template = "self.visit_%s(x.%s)" % (field.type, field.name)
             else:
-                template = "self.visit_%s(x.%s)" % (field.type, field.name)
+                template = "self.visit(x.%s)" % (field.name)
             if field.seq:
                 self.emit('self.write_int64(len(x.%s))' % field.name, level)
                 self.emit("for i in range(len(x.%s)):" % field.name, level)
                 if field.type in sums:
-                    self.emit("self.visit_%s(x.%s[i])" % (field.type, field.name), level+1)
+                    self.emit("self.visit(x.%s[i])" % (field.name), level+1)
                 else:
-                    self.emit("self.visit_%s(x.%s[i])" % (field.type, field.name), level+1)
+                    self.emit("self.visit(x.%s[i])" % (field.name), level+1)
             elif field.opt:
                 self.emit("if x.%s:" % field.name, 2)
                 self.emit(    'self.write_bool(True)', 3)
@@ -357,7 +357,7 @@ class SerializationVisitorVisitor(ASDLVisitor):
                         self.emit('self.write_string(x.%s)' % field.name, 2)
             elif field.type == "string" and not field.seq:
                 if field.opt:
-                    self.emit("if x.m_%s:" % field.name, 2)
+                    self.emit("if x.%s:" % field.name, 2)
                     self.emit(    'self.write_bool(True);', 3)
                     self.emit(    'self.write_string(x.%s);' % field.name, 3)
                     self.emit("else:", 2)
@@ -384,7 +384,7 @@ class SerializationVisitorVisitor(ASDLVisitor):
                 if field.opt:
                     raise Exception("Unimplemented opt for field type: " + field.type);
                 else:
-                    self.emit('visit_%s(x.%s);' \
+                    self.emit('self.visit_%s(x.%s);' \
                             % (field.type, field.name), 2)
             else:
                 raise Exception("Unimplemented field type: " + field.type);
