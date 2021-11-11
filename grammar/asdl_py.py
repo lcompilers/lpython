@@ -337,10 +337,9 @@ class NodeVisitorNotImplemented(Exception):
 def checkinstance(a, b, opt=False):
     if opt and a is None:
         return
-    from {} import dump
     if not isinstance(a, b):
         if isinstance(a, AST):
-            a_dump = dump(a)
+            a_dump = a
         else:
             a_dump = a
         print("Wrong instance: %s, types: a=%s; b=%s" % (a_dump, type(a), b))
