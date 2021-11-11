@@ -6,6 +6,8 @@ import sys
 import os
 import asdl
 
+products = []
+sums = []
 
 class ASDLVisitor(asdl.VisitorBase):
 
@@ -266,6 +268,136 @@ class GenericASTVisitorVisitor(ASDLVisitor):
         return False
 
 
+class SerializationVisitorVisitor(ASDLVisitor):
+
+    def visitModule(self, mod):
+        self.emit("#" + "*"*79)
+        self.emit("## Serialization Visitor base class")
+        self.emit("")
+        self.emit("class SerializationBaseVisitor(BaseVisitor):")
+        self.mod = mod
+        super(SerializationVisitorVisitor, self).visitModule(mod)
+
+    def visitType(self, tp):
+        super(SerializationVisitorVisitor, self).visitType(tp, tp.name)
+
+    def visitSum(self, sum, *args):
+        assert isinstance(sum, asdl.Sum)
+        if is_simple_sum(sum):
+            name = args[0] + "Type"
+            self.make_simple_sum_visitor(name, sum.types)
+        else:
+            for tp in sum.types:
+                self.visit(tp, *args)
+
+    def visitProduct(self, prod, name):
+        self.make_visitor(name, prod.fields, False)
+
+    def visitConstructor(self, cons, _):
+        self.make_visitor(cons.name, cons.fields, True)
+
+    def make_visitor(self, name, fields, cons):
+        self.emit("def visit_%s(self, x: %s):" % (name, name), 1)
+        if cons:
+            self.emit(    'self.write_int8(x.base.type)', 2)
+        self.used = False
+        for n, field in enumerate(fields):
+            self.visitField(field, cons, name)
+        if not self.used:
+            pass
+
+    def make_simple_sum_visitor(self, name, types):
+        self.emit("def visit_%s(self, x: %s):" % (name, name), 1)
+        self.emit(    'self.write_int8(x)', 2)
+
+    def visitField(self, field, cons, cons_name):
+        if (field.type not in asdl.builtin_types and
+            field.type not in self.data.simple_types):
+            self.used = True
+            level = 2
+            if field.type in products:
+                if field.opt:
+                    template = "self.visit_%s(x.%s)" % (field.type, field.name)
+                else:
+                    template = "self.visit_%s(x.%s)" % (field.type, field.name)
+            else:
+                template = "self.visit_%s(x.%s)" % (field.type, field.name)
+            if field.seq:
+                self.emit('self.write_int64(len(x.%s))' % field.name, level)
+                self.emit("for i in range(len(x.%s)):" % field.name, level)
+                if field.type in sums:
+                    self.emit("self.visit_%s(x.%s[i])" % (field.type, field.name), level+1)
+            elif field.opt:
+                self.emit("if x.%s:" % field.name, 2)
+                self.emit(    'self.write_bool(True)', 3)
+                self.emit(template, 3)
+                self.emit("else:", 2)
+                self.emit(    'self.write_bool(False)', 3)
+            else:
+                self.emit(template, level)
+        else:
+            if field.type == "identifier":
+                if field.seq:
+                    assert not field.opt
+                    level = 2
+                    self.emit('self.write_int64(len(x.%s))' % field.name, level)
+                    self.emit("for i in range(len(x.%s)):" % field.name, level)
+                    self.emit("self.write_string(x.%s[i])" % (field.name), level+1)
+                else:
+                    if field.opt:
+                        self.emit("if x.%s:" % field.name, 2)
+                        self.emit(    'self.write_bool(True)', 3)
+                        self.emit(    'self.write_string(x.%s)' % field.name, 3)
+                        self.emit("else:", 2)
+                        self.emit(    'self.write_bool(False)', 3)
+                    else:
+                        self.emit('self.write_string(x.%s)' % field.name, 2)
+            elif field.type == "string" and not field.seq:
+                if field.opt:
+                    self.emit("if x.m_%s:" % field.name, 2)
+                    self.emit(    'self.write_bool(True);', 3)
+                    self.emit(    'self.write_string(x.%s);' % field.name, 3)
+                    self.emit("else:", 2)
+                    self.emit(    'self.write_bool(False);', 3)
+                else:
+                    self.emit('self.write_string(x.%s);' % field.name, 2)
+            elif field.type == "int" and not field.seq:
+                if field.opt:
+                    self.emit("if x.%s:" % field.name, 2)
+                    self.emit(    'self.write_bool(True);', 3)
+                    self.emit(    'self.write_int64(x.%s);' % field.name, 3)
+                    self.emit("else:", 2)
+                    self.emit(    'self.write_bool(False);', 3)
+                else:
+                    self.emit('self.write_int64(x.%s);' % field.name, 2)
+            elif field.type == "bool" and not field.seq and not field.opt:
+                self.emit("if x.%s:" % field.name, 2)
+                self.emit(    'self.write_bool(True);', 3)
+                self.emit("else:", 2)
+                self.emit(    'self.write_bool(False);', 3)
+            elif field.type == "float" and not field.seq and not field.opt:
+                self.emit('self.write_float64(x.%s);' % field.name, 2)
+            elif field.type in self.data.simple_types:
+                if field.opt:
+                    raise Exception("Unimplemented opt for field type: " + field.type);
+                else:
+                    self.emit('visit_%sType(x.%s);' \
+                            % (field.type, field.name), 2)
+            else:
+                raise Exception("Unimplemented field type: " + field.type);
+
+class CollectVisitor(ASDLVisitor):
+
+    def visitType(self, tp):
+        self.visit(tp.value, tp.name)
+
+    def visitSum(self, sum, base):
+        if not is_simple_sum(sum):
+            sums.append(base);
+
+    def visitProduct(self, product, name):
+        products.append(name)
+
 
 
 class ASDLData(object):
@@ -347,7 +479,8 @@ def checkinstance(a, b, opt=False):
 
 """
 
-visitors = [ASTNodeVisitor, ASTVisitorVisitor, GenericASTVisitorVisitor]
+visitors = [CollectVisitor, ASTNodeVisitor, ASTVisitorVisitor,
+    GenericASTVisitorVisitor, SerializationVisitorVisitor]
 
 
 def main(argv):
