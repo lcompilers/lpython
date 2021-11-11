@@ -76,7 +76,12 @@ module Python
          | Call(expr func, expr* args, keyword* keywords)
          | FormattedValue(expr value, int? conversion, expr? format_spec)
          | JoinedStr(expr* values)
-         | Constant(constant value, string? kind)
+         -- | Constant(constant value, string? kind)
+         -- Our specific nodes that are used instead of Constant:
+         | ConstantStr(string value, string? kind)
+         | ConstantInt(int value, string? kind)
+         | ConstantBool(bool value, string? kind)
+         | ConstantFloat(float value, string? kind)
 
          -- the following expression can appear in assignment context
          | Attribute(expr value, identifier attr, expr_context ctx)
