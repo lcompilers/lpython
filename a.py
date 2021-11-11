@@ -27,6 +27,7 @@ class Transform(ast.NodeVisitor):
 
     def generic_visit(self, node):
         d = {}
+        class_name = node.__class__.__name__
         for field, value in ast.iter_fields(node):
             if isinstance(value, list):
                 new_list = []
@@ -41,13 +42,10 @@ class Transform(ast.NodeVisitor):
             elif value is None:
                 d[field] = value
             else:
-                print(type(value))
-                raise Exception("Unsupported type")
-        class_name = node.__class__.__name__
-        #print("V:", class_name)
+                print("Node type:", class_name)
+                print("Value type:", type(value))
+                raise Exception("Unsupported value type")
         new_ast = getattr(python_ast, class_name)
-        #print(ast.dump(node))
-        #print(d)
         new_node = new_ast(**d)
         return new_node
 
