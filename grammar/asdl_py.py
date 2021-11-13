@@ -113,7 +113,8 @@ class ASTNodeVisitor(ASDLVisitor):
                 self.emit("pass", 1)
             self.emit("")
             self.emit("")
-            for cons in sum.types:
+            for i, cons in enumerate(sum.types):
+                self.cons_i = i
                 self.visit(cons, base, sum.attributes)
                 self.emit("")
 
@@ -147,7 +148,7 @@ class ASTNodeVisitor(ASDLVisitor):
 
     def visitConstructor(self, cons, base, extra_attributes):
         self.emit("class %s(%s): # Constructor" % (cons.name, base))
-        self.emit(    "ntype = 88", 1)
+        self.emit(    "ntype = %d # 88" % self.cons_i, 1)
         self.emit("")
         self._fields = []
         self.make_constructor(cons.fields, cons, extra_attributes, base)
