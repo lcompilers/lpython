@@ -96,13 +96,12 @@ class ASTNodeVisitor(ASDLVisitor):
             self.emit("")
             for i, cons in enumerate(sum.types):
                 self.emit("class %s(%s): # Type" % (cons.name, base))
-                self.emit(    "ntype = 99", 1)
+                self.emit(    "ntype = %d # Corresponds to Enum in C++" % i, 1)
                 self.emit(    "pass", 1)
                 self.emit("")
                 self.emit("")
         else:
             self.emit("class %s(AST): # Sum" % (base,))
-            self.emit("ntype = 88", 1)
             if sum.attributes:
                 self.emit("")
                 self.emit("def __init__(self, %s):" \
@@ -148,6 +147,7 @@ class ASTNodeVisitor(ASDLVisitor):
 
     def visitConstructor(self, cons, base, extra_attributes):
         self.emit("class %s(%s): # Constructor" % (cons.name, base))
+        self.emit(    "ntype = 88", 1)
         self.emit("")
         self._fields = []
         self.make_constructor(cons.fields, cons, extra_attributes, base)
