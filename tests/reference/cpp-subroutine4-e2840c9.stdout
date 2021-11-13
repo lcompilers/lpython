@@ -74,6 +74,12 @@ float real(const Kokkos::View<const int*> &x, int kind)
     return real;
 }
 
+int shape(const Kokkos::View<const int*> &x)
+{
+    int shape;
+    return shape;
+}
+
 int sum(const Kokkos::View<const int*> &x)
 {
     int sum;
