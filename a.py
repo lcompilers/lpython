@@ -67,17 +67,26 @@ v.visit(a2)
 # Serialize
 class Serialization(python_ast.SerializationBaseVisitor):
 
+    def __init__(self):
+        self.s = ""
+
     def write_int8(self, i):
-        print("int8:", i)
+        self.s += str(i) + " "
 
     def write_int64(self, i):
-        print("int64:", i)
+        self.s += str(i) + " "
 
     def write_string(self, s):
-        print("string:", s)
+        self.write_int64(len(s))
+        self.s += str(s) + " "
 
     def write_bool(self, b):
-        print("bool:", b)
+        if b:
+            self.s += "true" + " "
+        else:
+            self.s += "false" + " "
 
 v = Serialization()
 v.visit(a2)
+print()
+print(v.s)
