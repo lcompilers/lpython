@@ -87,6 +87,7 @@ public:
     std::map<SymbolTable*, std::map<AST::decl_attribute_t*, AST::simple_attributeType>> overloaded_ops;
     std::map<SymbolTable*, ASR::accessType> assgn;
     ASR::symbol_t *current_module_sym;
+    std::vector<std::string> excluded_from_symtab;
 
     std::map<AST::intrinsicopType, std::string> intrinsic2str = {
         {AST::intrinsicopType::STAR, "~mul"},
@@ -639,6 +640,9 @@ public:
                             } else if (sa->m_attr == AST::simple_attributeType
                                     ::AttrOptional) {
                                 assgnd_presence[sym] = ASR::presenceType::Optional;
+                            } else if(sa->m_attr == AST::simple_attributeType
+                                    ::AttrIntrinsic) {
+                                // Ignore Intrinsic attribute
                             } else {
                                 throw SemanticError("Attribute declaration not "
                                         "supported", x.base.base.loc);
@@ -729,6 +733,9 @@ public:
                             } else if (sa->m_attr == AST::simple_attributeType
                                     ::AttrValue) {
                                 value_attr = true;
+                            } else if(sa->m_attr == AST::simple_attributeType
+                                    ::AttrIntrinsic) {
+                                excluded_from_symtab.push_back(sym);
                             } else {
                                 throw SemanticError("Attribute type not implemented yet",
                                         x.base.base.loc);
@@ -934,13 +941,15 @@ public:
                         }
                     }
                 }
-                ASR::asr_t *v = ASR::make_Variable_t(al, s.loc, current_scope,
-                        s2c(al, to_lower(s.m_name)), s_intent, init_expr, value, storage_type, type,
-                        current_procedure_abi_type, s_access, s_presence,
-                        value_attr);
-                current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
-                if( is_derived_type ) {
-                    data_member_names.push_back(al, s2c(al, to_lower(s.m_name)));
+                if( std::find(excluded_from_symtab.begin(), excluded_from_symtab.end(), sym) == excluded_from_symtab.end() ) {
+                    ASR::asr_t *v = ASR::make_Variable_t(al, s.loc, current_scope,
+                            s2c(al, to_lower(s.m_name)), s_intent, init_expr, value, storage_type, type,
+                            current_procedure_abi_type, s_access, s_presence,
+                            value_attr);
+                    current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(v);
+                    if( is_derived_type ) {
+                        data_member_names.push_back(al, s2c(al, to_lower(s.m_name)));
+                    }
                 }
             } // for m_syms
         }
