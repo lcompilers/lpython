@@ -90,3 +90,5 @@ v = Serialization()
 v.visit(a2)
 print()
 print(v.s)
+
+open("ser.txt", "w").write(v.s)
