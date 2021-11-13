@@ -1,7 +1,10 @@
 import python_ast
 import ast
 
-input = open("doconcurrentloop_01.py").read()
+#filename = "doconcurrentloop_01.py"
+filename = "expr2.py"
+
+input = open(filename).read()
 a = ast.parse(input, type_comments=True)
 print(ast.unparse(a))
 print()
