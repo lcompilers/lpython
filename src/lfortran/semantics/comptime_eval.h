@@ -361,10 +361,10 @@ struct IntrinsicProcedures {
     static ASR::expr_t *eval_2args_ri(Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args,
             eval2_callback_double eval2_double,
-            eval2_callback_int eval2_int
-            ) {
+            eval2_callback_int eval2_int,
+            bool is_variadic=false) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        if (args.size() != 2) {
+        if (args.size() != 2 && !is_variadic) {
             throw SemanticError("This intrinsic function accepts exactly 2 arguments", loc);
         }
         ASR::expr_t* trig_arg1 = args[0];
@@ -482,7 +482,8 @@ TRIG(sqrt)
     static ASR::expr_t *eval_min(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         return eval_2args_ri(al, loc, args,
             &IntrinsicProcedures::lfortran_min,
-            &IntrinsicProcedures::lfortran_min_i);
+            &IntrinsicProcedures::lfortran_min_i,
+        true);
     }
 
     static double lfortran_max(double x, double y) {
@@ -496,7 +497,8 @@ TRIG(sqrt)
     static ASR::expr_t *eval_max(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         return eval_2args_ri(al, loc, args,
             &IntrinsicProcedures::lfortran_max,
-            &IntrinsicProcedures::lfortran_max_i);
+            &IntrinsicProcedures::lfortran_max_i,
+            true);
     }
 
     static ASR::expr_t *eval_abs(Allocator &al, const Location &loc,

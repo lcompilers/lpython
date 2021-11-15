@@ -32,11 +32,11 @@ interface mod
 end interface
 
 interface min
-    module procedure imin, smin, dmin
+    module procedure imin, smin, dmin, imin_6args
 end interface
 
 interface max
-    module procedure imax, smax, dmax
+    module procedure imax, smax, dmax, imax_6args
 end interface
 
 interface huge
@@ -234,6 +234,23 @@ else
 end if
 end function
 
+elemental integer function imin_6args(a, b, c, d, e, f) result(r)
+integer, intent(in) :: a, b, c, d, e, f
+integer :: args(6)
+integer :: itr, curr_value
+args(1) = a
+args(2) = b
+args(3) = c
+args(4) = d
+args(5) = e
+args(6) = f
+r = a
+do itr = 1, 6
+    curr_value = args(itr)
+    r = min(curr_value, r)
+end do
+end function
+
 ! max --------------------------------------------------------------------------
 
 elemental integer function imax(x, y) result(r)
@@ -243,6 +260,23 @@ if (x > y) then
 else
     r = y
 end if
+end function
+
+elemental integer function imax_6args(a, b, c, d, e, f) result(r)
+integer, intent(in) :: a, b, c, d, e, f
+integer :: args(6)
+integer :: itr, curr_value
+args(1) = a
+args(2) = b
+args(3) = c
+args(4) = d
+args(5) = e
+args(6) = f
+r = a
+do itr = 1, 6
+    curr_value = args(itr)
+    r = imax(curr_value, r)
+end do
 end function
 
 elemental real(sp) function smax(x, y) result(r)
