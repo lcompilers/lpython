@@ -6,6 +6,10 @@ interface
     integer, intent(in) :: x(:)
     end function
 
+    integer function shape(x)
+    integer, intent(in) :: x(:)
+    end function
+
     integer function lbound(x, dim)
     integer, intent(in) :: x(:)
     integer, intent(in) :: dim
