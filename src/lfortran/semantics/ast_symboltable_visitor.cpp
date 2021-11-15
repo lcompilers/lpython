@@ -1340,7 +1340,12 @@ public:
                     es0->m_original_name,
                     dflt_access
                     );
-                std::string sym = to_lower(es0->m_original_name);
+                std::string sym;
+                if( in_submodule ) {
+                    sym = item.first;
+                } else {
+                    sym = to_lower(es0->m_original_name);
+                }
                 current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(es);
             } else if( ASR::is_a<ASR::DerivedType_t>(*item.second) ) {
                 ASR::DerivedType_t *mv = ASR::down_cast<ASR::DerivedType_t>(item.second);
