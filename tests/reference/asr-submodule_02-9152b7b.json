@@ -2,11 +2,11 @@
     "basename": "asr-submodule_02-9152b7b",
     "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/submodule_02.f90",
-    "infile_hash": "fed6aace7252f183fcc92bfab876a41bedfedb4d19832df32fb42949",
+    "infile_hash": "eb5651198a139f1a3e4bda3dd45dc20f0f6ceb8f961eff3d2cff2342",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-submodule_02-9152b7b.stdout",
-    "stdout_hash": "10da7534b424d09731cb0c2a329a3de5560c4116cb51759835b12c63",
+    "stdout_hash": "50d186400dd9a0e7309948ce5fe4b728f5d438edc092491e1e847a90",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
