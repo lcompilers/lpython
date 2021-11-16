@@ -15,20 +15,33 @@ module points
   end type point
 
   interface
-     module function point_dist(a, b) result(distance)
+     module function point_dist_func(a, b) result(distance)
        type(point), intent(in) :: a, b
-       integer(rkind) :: distance
-     end function point_dist
+       real(rkind) :: distance
+     end function point_dist_func
+  end interface
+
+  interface
+     module subroutine point_dist_subrout(a, b, distance)
+       type(point), intent(in) :: a, b
+       real(rkind), intent(out) :: distance
+     end subroutine point_dist_subrout
   end interface
 end module points
 
 submodule (points) points_a
 contains
-  module function point_dist(a, b) result(distance)
+  module function point_dist_func(a, b) result(distance)
     type(point), intent(in) :: a, b
-    integer(rkind) :: distance
+    real(rkind) :: distance
     distance = sqrt((a%x - b%x)**2 + (a%y - b%y)**2)
-  end function point_dist
+  end function point_dist_func
+
+  module subroutine point_dist_subrout(a, b, distance)
+    type(point), intent(in) :: a, b
+    real(rkind), intent(out) :: distance
+    distance = sqrt((a%x - b%x)**2 + (a%y - b%y)**2)
+  end subroutine point_dist_subrout
 end submodule points_a
 
 program submodules_02

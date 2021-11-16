@@ -287,9 +287,14 @@ public:
         }
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             ASR::symbol_t *f1 = parent_scope->scope[sym_name];
-            ASR::Subroutine_t *f2 = ASR::down_cast<ASR::Subroutine_t>(f1);
-            if (f2->m_abi == ASR::abiType::Interactive || f2->m_deftype == ASR::deftypeType::Interface) {
+            ASR::Subroutine_t *f2 = nullptr;
+            if( f1->type == ASR::symbolType::Subroutine ) {
+                f2 = ASR::down_cast<ASR::Subroutine_t>(f1);
+            }
+            if ((f1->type == ASR::symbolType::ExternalSymbol && in_submodule) ||
+                f2->m_abi == ASR::abiType::Interactive) {
                 // Previous declaration will be shadowed
+                parent_scope->scope.erase(sym_name);
             } else {
                 throw SemanticError("Subroutine already defined", tmp->loc);
             }
