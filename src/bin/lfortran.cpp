@@ -34,6 +34,7 @@
 #include <lfortran/fortran_kernel.h>
 #include <lfortran/string_utils.h>
 #include <lfortran/utils.h>
+#include <lfortran/python_serialization.h>
 #include <lfortran/parser/parser.tab.hh>
 
 #include <cpp-terminal/terminal.h>
@@ -591,8 +592,12 @@ int emit_asr(const std::string &infile,
 int emit_python_asr(const std::string &infile,
     bool with_intrinsic_modules, CompilerOptions &compiler_options)
 {
-    std::string input = read_file(infile);
+std::string input = read_file(infile);
+Allocator al(4*1024);
+LFortran::Python::AST::ast_t* LFortran::Python::deserialize_ast(al, input);
 
+
+    /*
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
     lm.in_filename = infile;
@@ -608,6 +613,7 @@ int emit_python_asr(const std::string &infile,
 
     std::cout << LFortran::pickle(*asr, compiler_options.use_colors, compiler_options.indent,
             with_intrinsic_modules) << std::endl;
+            */
     return 0;
 }
 
