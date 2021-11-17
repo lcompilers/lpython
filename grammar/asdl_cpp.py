@@ -972,6 +972,8 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                         rhs = "self().read_cstring()"
                     elif field.type == "string":
                         rhs = "self().read_cstring()"
+                    elif field.type == "int":
+                        rhs = "self().read_int64()"
                     else:
                         print(field.type)
                         assert False
