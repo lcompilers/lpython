@@ -1,9 +1,7 @@
 #include <string>
 
 #include <lfortran/config.h>
-#include <lfortran/serialization.h>
-#include <lfortran/parser/parser.h>
-#include <lfortran/parser/parser.tab.hh>
+#include <lfortran/python_serialization.h>
 #include <lfortran/bwriter.h>
 #include <lfortran/string_utils.h>
 
