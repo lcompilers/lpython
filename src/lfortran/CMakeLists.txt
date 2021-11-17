@@ -9,6 +9,7 @@ set(SRC
     semantics/ast_symboltable_visitor.cpp
     semantics/ast_body_visitor.cpp
     semantics/ast_to_asr.cpp
+    semantics/python_ast_to_asr.cpp
     semantics/asr_scopes.cpp
 
     codegen/fortran_evaluator.cpp
