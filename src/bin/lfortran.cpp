@@ -588,6 +588,29 @@ int emit_asr(const std::string &infile,
     return 0;
 }
 
+int emit_python_asr(const std::string &infile,
+    bool with_intrinsic_modules, CompilerOptions &compiler_options)
+{
+    std::string input = read_file(infile);
+
+    LFortran::FortranEvaluator fe(compiler_options);
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::Result<LFortran::ASR::TranslationUnit_t*>
+        r = fe.get_asr2(input, lm, diagnostics);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        return 2;
+    }
+    LFortran::ASR::TranslationUnit_t* asr = r.result;
+
+    std::cout << LFortran::pickle(*asr, compiler_options.use_colors, compiler_options.indent,
+            with_intrinsic_modules) << std::endl;
+    return 0;
+}
+
 int emit_cpp(const std::string &infile, CompilerOptions &compiler_options)
 {
     std::string input = read_file(infile);
@@ -1167,6 +1190,7 @@ int main(int argc, char *argv[])
         bool show_tokens = false;
         bool show_ast = false;
         bool show_asr = false;
+        bool show_python_asr = false;
         bool with_intrinsic_modules = false;
         bool show_ast_f90 = false;
         std::string arg_pass;
@@ -1219,6 +1243,7 @@ int main(int argc, char *argv[])
         app.add_flag("--show-tokens", show_tokens, "Show tokens for the given file and exit");
         app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
         app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
+        app.add_flag("--show-python-asr", show_python_asr, "Show ASR from a Python AST file and exit");
         app.add_flag("--with-intrinsic-mods", with_intrinsic_modules, "Show intrinsic modules in ASR");
         app.add_flag("--show-ast-f90", show_ast_f90, "Show Fortran from AST for the given file and exit");
         app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
@@ -1421,6 +1446,10 @@ int main(int argc, char *argv[])
         }
         if (show_asr) {
             return emit_asr(arg_file, passes,
+                    with_intrinsic_modules, compiler_options);
+        }
+        if (show_python_asr) {
+            return emit_python_asr(arg_file,
                     with_intrinsic_modules, compiler_options);
         }
         if (show_llvm) {
