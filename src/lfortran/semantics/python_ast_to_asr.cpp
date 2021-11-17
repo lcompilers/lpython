@@ -17,17 +17,33 @@
 namespace LFortran::Python {
 
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
-    Python::AST::ast_t &ast, diag::Diagnostics &diagnostics,
-    bool symtab_only)
+    Python::AST::ast_t &ast, diag::Diagnostics &diagnostics)
 {
-    ASR::TranslationUnit_t *tu = nullptr;
-    //return tu;
-
     Error error;
     diagnostics.diagnostics.push_back(
             diag::Diagnostic("start", diag::Level::Error, diag::Stage::Semantic, {})
     );
     return error;
+
+    ASR::asr_t *unit;
+    auto res = symbol_table_visitor(al, ast, diagnostics);
+    if (res.ok) {
+        unit = res.result;
+    } else {
+        return res.error;
+    }
+    ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
+    LFORTRAN_ASSERT(asr_verify(*tu));
+
+    auto res2 = body_visitor(al, ast, diagnostics, unit);
+    if (res2.ok) {
+        tu = res2.result;
+    } else {
+        return res2.error;
+    }
+    LFORTRAN_ASSERT(asr_verify(*tu));
+
+    return tu;
 }
 
 } // namespace LFortran

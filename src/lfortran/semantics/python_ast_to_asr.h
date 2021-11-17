@@ -7,8 +7,7 @@
 namespace LFortran::Python {
 
     Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
-        Python::AST::ast_t &ast, diag::Diagnostics &diagnostics,
-        bool symtab_only=false);
+        Python::AST::ast_t &ast, diag::Diagnostics &diagnostics);
 
 } // namespace LFortran
 
