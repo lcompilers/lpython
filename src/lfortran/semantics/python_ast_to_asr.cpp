@@ -21,7 +21,13 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     bool symtab_only)
 {
     ASR::TranslationUnit_t *tu = nullptr;
-    return tu;
+    //return tu;
+
+    Error error;
+    diagnostics.diagnostics.push_back(
+            diag::Diagnostic("start", diag::Level::Error, diag::Stage::Semantic, {})
+    );
+    return error;
 }
 
 } // namespace LFortran

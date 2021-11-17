@@ -597,17 +597,11 @@ int emit_python_asr(const std::string &infile,
     Allocator al(4*1024);
     LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
 
-    LFortran::diag::Diagnostics diagnostics;
-    auto res = LFortran::Python::python_ast_to_asr(al,
-        *ast, diagnostics, false);
-
-    /*
-    LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
     lm.in_filename = infile;
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r = fe.get_asr2(input, lm, diagnostics);
+        r = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -617,7 +611,6 @@ int emit_python_asr(const std::string &infile,
 
     std::cout << LFortran::pickle(*asr, compiler_options.use_colors, compiler_options.indent,
             with_intrinsic_modules) << std::endl;
-            */
     return 0;
 }
 
