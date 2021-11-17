@@ -10,6 +10,7 @@
 #include <lfortran/parser/preprocessor.h>
 #include <lfortran/pickle.h>
 #include <lfortran/semantics/ast_to_asr.h>
+#include <lfortran/semantics/python_ast_to_asr.h>
 #include <lfortran/mod_to_asr.h>
 #include <lfortran/codegen/asr_to_llvm.h>
 #include <lfortran/codegen/asr_to_cpp.h>
@@ -596,6 +597,9 @@ int emit_python_asr(const std::string &infile,
     Allocator al(4*1024);
     LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
 
+    LFortran::diag::Diagnostics diagnostics;
+    auto res = LFortran::Python::python_ast_to_asr(al,
+        *ast, diagnostics, false);
 
     /*
     LFortran::FortranEvaluator fe(compiler_options);
