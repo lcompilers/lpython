@@ -36,6 +36,7 @@ set(SRC
     modfile.cpp
     pickle.cpp
     serialization.cpp
+    python_serialization.cpp
     cwrapper.cpp
 
     diagnostics.cpp
