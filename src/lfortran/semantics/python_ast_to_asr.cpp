@@ -20,7 +20,7 @@
 namespace LFortran {
 
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
-    AST::TranslationUnit_t &ast, diag::Diagnostics &diagnostics,
+    Python::AST::Module_t &ast, diag::Diagnostics &diagnostics,
     SymbolTable *symbol_table, bool symtab_only)
 {
     ASR::TranslationUnit_t *tu = nullptr;
