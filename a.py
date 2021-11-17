@@ -38,6 +38,11 @@ class Transform(ast.NodeVisitor):
                     if isinstance(item, ast.AST):
                         new_list.append(self.visit(item))
                 d[field] = new_list
+            elif field in ["vararg", "kwarg"]:
+                if value is None:
+                    d[field] = []
+                else:
+                    d[field] = [self.visit(value)]
             elif isinstance(value, ast.AST):
                 d[field] = self.visit(value)
             elif isinstance(value, (str, int)):
