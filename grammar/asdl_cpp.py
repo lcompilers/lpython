@@ -898,11 +898,11 @@ class DeserializationVisitorVisitor(ASDLVisitor):
             self.emit("%s_t* deserialize_%s() {" % (subs["mod"], args[0]), 1)
             self.emit(  'uint8_t t = self().read_int8();', 2)
             self.emit(  '%s::%sType ty = static_cast<%s::%sType>(t);' % (subs["MOD"], args[0],
-                subs["mod"].upper(), args[0]), 2)
+                subs["MOD"], args[0]), 2)
             self.emit(  'switch (ty) {', 2)
             for tp in sum.types:
                 self.emit(    'case (%s::%sType::%s) : return self().deserialize_%s();' \
-                    % (subs["mod"].upper(), args[0], tp.name, tp.name), 3)
+                    % (subs["MOD"], args[0], tp.name, tp.name), 3)
             self.emit(    'default : throw LFortranException("Unknown type in deserialize_%s()");' % args[0], 3)
             self.emit(  '}', 2)
             self.emit(  'throw LFortranException("Switch statement above was not exhaustive.");', 2)
@@ -913,12 +913,12 @@ class DeserializationVisitorVisitor(ASDLVisitor):
         name = "node"
         self.emit("%s_t* deserialize_%s() {" % (subs["mod"], name), 1)
         self.emit(  'uint8_t t = self().read_int8();', 2)
-        self.emit(  '%s::%sType ty = static_cast<%s::%sType>(t);' % (subs["mod"].upper(), subs["mod"],
-            subs["mod"].upper(), subs["mod"]), 2)
+        self.emit(  '%s::%sType ty = static_cast<%s::%sType>(t);' % (subs["MOD"], subs["mod"],
+            subs["MOD"], subs["mod"]), 2)
         self.emit(  'switch (ty) {', 2)
         for tp in sums:
             self.emit(    'case (%s::%sType::%s) : return self().deserialize_%s();' \
-                % (subs["mod"].upper(), subs["mod"], tp, tp), 3)
+                % (subs["MOD"], subs["mod"], tp, tp), 3)
         self.emit(    'default : throw LFortranException("Unknown type in deserialize_%s()");' % name, 3)
         self.emit(  '}', 2)
         self.emit(  'throw LFortranException("Switch statement above was not exhaustive.");', 2)
@@ -1026,7 +1026,7 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                             lines.append("    v_%s.push_back(al, self().read_symbol());" % (f.name))
                         else:
                             lines.append("    v_%s.push_back(al, %s::down_cast<%s::%s_t>(self().deserialize_%s()));" % (f.name,
-                                subs["mod"].upper(), subs["mod"].upper(), f.type, f.type))
+                                subs["MOD"], subs["MOD"], f.type, f.type))
                     lines.append("}")
                 else:
                     if f.type == "node":
@@ -1120,14 +1120,14 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                 else:
                     if f.type in products:
                         assert not f.opt
-                        lines.append("%s::%s_t m_%s = self().deserialize_%s();" % (subs["mod"].upper(), f.type, f.name, f.type))
+                        lines.append("%s::%s_t m_%s = self().deserialize_%s();" % (subs["MOD"], f.type, f.name, f.type))
                     else:
                         if f.type in simple_sums:
                             assert not f.opt
-                            lines.append("%s::%sType m_%s = self().deserialize_%s();" % (subs["mod"].upper(),
+                            lines.append("%s::%sType m_%s = self().deserialize_%s();" % (subs["MOD"],
                                 f.type, f.name, f.type))
                         else:
-                            lines.append("%s::%s_t *m_%s;" % (subs["mod"].upper(),
+                            lines.append("%s::%s_t *m_%s;" % (subs["MOD"],
                                 f.type, f.name))
                             if f.opt:
                                 lines.append("if (self().read_bool()) {")
@@ -1139,7 +1139,7 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                                     lines.append("m_%s = self().read_symbol();" % (f.name))
                             else:
                                 lines.append("m_%s = %s::down_cast<%s::%s_t>(self().deserialize_%s());" % (
-                                    f.name, subs["mod"].upper(), subs["mod"].upper(), f.type, f.type))
+                                    f.name, subs["MOD"], subs["MOD"], f.type, f.type))
                             if f.opt:
                                 lines.append("} else {")
                                 lines.append("m_%s = nullptr;" % f.name)
@@ -1151,7 +1151,7 @@ class DeserializationVisitorVisitor(ASDLVisitor):
         self.emit(    'Location loc;', 2)
         self.emit(    '// FIXME: read loc from the stream', 2)
         self.emit(    'loc.first=0; loc.last=0;', 2)
-        self.emit(    'return %s::make_%s_t(%s);' % (subs["mod"].upper(), name, ", ".join(args)), 2)
+        self.emit(    'return %s::make_%s_t(%s);' % (subs["MOD"], name, ", ".join(args)), 2)
         self.emit("}", 1)
 
 
@@ -1293,6 +1293,7 @@ def main(argv):
     }
     if subs["MOD"] == "PYTHON":
         subs["MOD"] = "Python::AST"
+        subs["mod"] = "ast"
     fp = open(out_file, "w")
     try:
         fp.write(HEAD % subs)
