@@ -73,7 +73,8 @@ v.visit(a2)
 class Serialization(python_ast.SerializationBaseVisitor):
 
     def __init__(self):
-        self.s = ""
+        # Start with a "mod" class
+        self.s = "0 "
 
     def write_int8(self, i):
         self.s += str(i) + " "
@@ -87,9 +88,9 @@ class Serialization(python_ast.SerializationBaseVisitor):
 
     def write_bool(self, b):
         if b:
-            self.s += "true" + " "
+            self.write_int8(1)
         else:
-            self.s += "false" + " "
+            self.write_int8(0)
 
 v = Serialization()
 v.visit(a2)
