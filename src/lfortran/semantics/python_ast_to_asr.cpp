@@ -376,6 +376,36 @@ public:
         LFortran::ASRUtils::EXPR(tmp);
         tmp = nullptr;
     }
+
+    void visit_Call(const AST::Call_t &x) {
+        std::string call_name;
+        if (AST::is_a<AST::Name_t>(*x.m_func)) {
+            AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
+            call_name = n->m_id;
+        } else {
+            throw SemanticError("Only Name supported in Call",
+                x.base.base.loc);
+        }
+        if (call_name == "size") {
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, x.n_args);
+            for (size_t i=0; i<x.n_args; i++) {
+                visit_expr(*x.m_args[i]);
+                ASR::expr_t *expr = LFortran::ASRUtils::EXPR(tmp);
+                args.push_back(al, expr);
+            }
+            ASR::ttype_t *a_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                4, nullptr, 0));
+            ASR::symbol_t *a_name = nullptr;
+            throw SemanticError("TODO: add the size() function and look it up",
+                x.base.base.loc);
+            tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, a_name,
+                nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
+            return;
+        }
+        throw SemanticError("Function call to '" + call_name
+            + "' not implemented", x.base.base.loc);
+    }
 };
 
 Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al,
