@@ -348,6 +348,32 @@ public:
     }
 
     void visit_Expr(const AST::Expr_t &x) {
+        if (AST::is_a<AST::Call_t>(*x.m_value)) {
+            AST::Call_t *c = AST::down_cast<AST::Call_t>(x.m_value);
+            std::string call_name;
+            if (AST::is_a<AST::Name_t>(*c->m_func)) {
+                AST::Name_t *n = AST::down_cast<AST::Name_t>(c->m_func);
+                call_name = n->m_id;
+            } else {
+                throw SemanticError("Only Name supported in Call",
+                    x.base.base.loc);
+            }
+            if (call_name == "print") {
+                Vec<ASR::expr_t*> args;
+                args.reserve(al, c->n_args);
+                for (size_t i=0; i<c->n_args; i++) {
+                    visit_expr(*c->m_args[i]);
+                    ASR::expr_t *expr = LFortran::ASRUtils::EXPR(tmp);
+                    args.push_back(al, expr);
+                }
+                ASR::expr_t *fmt=nullptr;
+                tmp = ASR::make_Print_t(al, x.base.base.loc, fmt,
+                    args.p, args.size());
+                return;
+            }
+        }
+        this->visit_expr(*x.m_value);
+        LFortran::ASRUtils::EXPR(tmp);
         tmp = nullptr;
     }
 };
