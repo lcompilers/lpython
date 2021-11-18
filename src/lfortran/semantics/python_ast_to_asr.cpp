@@ -290,7 +290,29 @@ public:
     }
 
     void visit_Assign(const AST::Assign_t &x) {
+        ASR::expr_t *target;
+        if (x.n_targets == 1) {
+            this->visit_expr(*x.m_targets[0]);
+            target = LFortran::ASRUtils::EXPR(tmp);
+        } else {
+            throw SemanticError("Assignment to multiple targets not supported",
+                x.base.base.loc);
+        }
+        this->visit_expr(*x.m_value);
+        ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
+
         tmp = nullptr;
+    }
+
+    void visit_Name(const AST::Name_t &x) {
+        std::string name = x.m_id;
+        ASR::symbol_t *s = current_scope->resolve_symbol(name);
+        if (s) {
+            tmp = ASR::make_Var_t(al, x.base.base.loc, s);
+        } else {
+            throw SemanticError("Variable '" + name + "' not declared",
+                x.base.base.loc);
+        }
     }
 
     void visit_Expr(const AST::Expr_t &x) {
