@@ -104,16 +104,44 @@ public:
         ASR::asr_t *tmp0 = ASR::make_TranslationUnit_t(al, x.base.base.loc,
             current_scope, nullptr, 0);
 
-        /*
-        for (size_t i=0; i<x.n_items; i++) {
-            AST::astType t = x.m_items[i]->type;
-            if (t != AST::astType::expr && t != AST::astType::stmt) {
-                visit_ast(*x.m_items[i]);
-            }
+        for (size_t i=0; i<x.n_body; i++) {
+            visit_stmt(*x.m_body[i]);
         }
-        */
+
         global_scope = nullptr;
         tmp = tmp0;
+    }
+
+    void visit_FunctionDef(const AST::FunctionDef_t &x) {
+        SymbolTable *parent_scope = current_scope;
+        current_scope = al.make_new<SymbolTable>(parent_scope);
+        /*
+        for (size_t i=0; i<x.n_args; i++) {
+            char *arg=x.m_args[i].m_arg;
+            current_procedure_args.push_back(to_lower(arg));
+        }
+        */
+        std::string sym_name = x.m_name;
+        if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
+            throw SemanticError("Subroutine already defined", tmp->loc);
+        }
+        bool is_pure = false, is_module = false;
+        ASR::accessType s_access = ASR::accessType::Public;
+        ASR::deftypeType deftype = ASR::deftypeType::Implementation;
+        char *bindc_name=nullptr;
+        tmp = ASR::make_Subroutine_t(
+            al, x.base.base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ s2c(al, sym_name),
+            /* a_args */ nullptr,
+            /* n_args */ 0,
+            /* a_body */ nullptr,
+            /* n_body */ 0,
+            current_procedure_abi_type,
+            s_access, deftype, bindc_name,
+            is_pure, is_module);
+        parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(tmp);
+        current_scope = parent_scope;
     }
 };
 
