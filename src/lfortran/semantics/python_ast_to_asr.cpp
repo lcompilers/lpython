@@ -220,15 +220,48 @@ public:
 
     void visit_AnnAssign(const AST::AnnAssign_t &x) {
         // We treat this as a declaration
+        std::string var_name;
         if (AST::is_a<AST::Name_t>(*x.m_target)) {
             AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_target);
-            std::string var_name = n->m_id;
+            var_name = n->m_id;
         } else {
             throw SemanticError("Only Name supported for now as LHS of annotated assignment.",
                 x.base.base.loc);
         }
-        //this->visit_expr(*x.m_value);
-        //ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
+
+        if (current_scope->scope.find(var_name) !=
+                current_scope->scope.end()) {
+            if (current_scope->parent != nullptr) {
+                // Re-declaring a global scope variable is allowed,
+                // otherwise raise an error
+                ASR::symbol_t *orig_decl = current_scope->scope[var_name];
+                throw SemanticError(diag::Diagnostic(
+                    "Symbol is already declared in the same scope",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("redeclaration", {x.base.base.loc}),
+                        diag::Label("original declaration", {orig_decl->base.loc}, false),
+                    }));
+            }
+        }
+
+        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
+            4, nullptr, 0));
+
+        ASR::expr_t *value = nullptr;
+        ASR::expr_t *init_expr = nullptr;
+        ASR::intentType s_intent = LFortran::ASRUtils::intent_local;
+        ASR::storage_typeType storage_type =
+                ASR::storage_typeType::Default;
+        ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
+        ASR::accessType s_access = ASR::accessType::Public;
+        ASR::presenceType s_presence = ASR::presenceType::Required;
+        bool value_attr = false;
+        ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
+                s2c(al, var_name), s_intent, init_expr, value, storage_type, type,
+                current_procedure_abi_type, s_access, s_presence,
+                value_attr);
+        current_scope->scope[var_name] = ASR::down_cast<ASR::symbol_t>(v);
+
         tmp = nullptr;
     }
 
