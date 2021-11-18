@@ -163,6 +163,68 @@ Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, AST::Module_t &ast,
     return unit;
 }
 
+class BodyVisitor : public CommonVisitor<BodyVisitor> {
+private:
+
+public:
+    ASR::asr_t *asr;
+    Vec<ASR::stmt_t*> *current_body;
+
+    BodyVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics)
+         : CommonVisitor(al, nullptr, diagnostics), asr{unit} {}
+
+    // Transforms statements to a list of ASR statements
+    // In addition, it also inserts the following nodes if needed:
+    //   * ImplicitDeallocate
+    //   * GoToTarget
+    // The `body` Vec must already be reserved
+    void transform_stmts(Vec<ASR::stmt_t*> &body, size_t n_body, AST::stmt_t **m_body) {
+        tmp = nullptr;
+        for (size_t i=0; i<n_body; i++) {
+            // Visit the statement
+            this->visit_stmt(*m_body[i]);
+            if (tmp != nullptr) {
+                ASR::stmt_t* tmp_stmt = LFortran::ASRUtils::STMT(tmp);
+                body.push_back(al, tmp_stmt);
+            }
+            // To avoid last statement to be entered twice once we exit this node
+            tmp = nullptr;
+        }
+    }
+
+    void visit_Module(const AST::Module_t &x) {
+        ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
+        current_scope = unit->m_global_scope;
+        LFORTRAN_ASSERT(current_scope != nullptr);
+
+        for (size_t i=0; i<x.n_body; i++) {
+            visit_stmt(*x.m_body[i]);
+        }
+
+        tmp = asr;
+    }
+};
+
+Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al,
+        AST::Module_t &ast,
+        diag::Diagnostics &diagnostics,
+        ASR::asr_t *unit)
+{
+    BodyVisitor b(al, unit, diagnostics);
+    try {
+        b.visit_Module(ast);
+    } catch (const SemanticError &e) {
+        Error error;
+        diagnostics.diagnostics.push_back(e.d);
+        return error;
+    } catch (const SemanticAbort &) {
+        Error error;
+        return error;
+    }
+    ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
+    return tu;
+}
+
 class PickleVisitor : public AST::PickleBaseVisitor<PickleVisitor>
 {
 public:
@@ -194,16 +256,13 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
     LFORTRAN_ASSERT(asr_verify(*tu));
 
-    /*
-    auto res2 = body_visitor(al, ast, diagnostics, unit);
+    auto res2 = body_visitor(al, *ast_m, diagnostics, unit);
     if (res2.ok) {
         tu = res2.result;
     } else {
         return res2.error;
     }
     LFORTRAN_ASSERT(asr_verify(*tu));
-    */
-
 
     return tu;
 }
