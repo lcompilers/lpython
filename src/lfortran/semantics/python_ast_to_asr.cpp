@@ -135,6 +135,22 @@ Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, AST::Module_t &ast,
     return unit;
 }
 
+class PickleVisitor : public AST::PickleBaseVisitor<PickleVisitor>
+{
+public:
+    std::string get_str() {
+        return s;
+    }
+};
+
+std::string pickle_python(AST::ast_t &ast, bool colors, bool indent) {
+    PickleVisitor v;
+    v.use_colors = colors;
+    v.indent = indent;
+    v.visit_ast(ast);
+    return v.get_str();
+}
+
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     AST::ast_t &ast, diag::Diagnostics &diagnostics)
 {

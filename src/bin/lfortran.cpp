@@ -590,6 +590,18 @@ int emit_asr(const std::string &infile,
     return 0;
 }
 
+int emit_python_ast(const std::string &infile,
+    CompilerOptions &compiler_options)
+{
+    std::string input = read_file(infile);
+    Allocator al(4*1024);
+    LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
+
+    std::cout << LFortran::Python::pickle_python(*ast,
+        compiler_options.use_colors, compiler_options.indent) << std::endl;
+    return 0;
+}
+
 int emit_python_asr(const std::string &infile,
     bool with_intrinsic_modules, CompilerOptions &compiler_options)
 {
@@ -1193,6 +1205,7 @@ int main(int argc, char *argv[])
         bool show_tokens = false;
         bool show_ast = false;
         bool show_asr = false;
+        bool show_python_ast = false;
         bool show_python_asr = false;
         bool with_intrinsic_modules = false;
         bool show_ast_f90 = false;
@@ -1246,6 +1259,7 @@ int main(int argc, char *argv[])
         app.add_flag("--show-tokens", show_tokens, "Show tokens for the given file and exit");
         app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
         app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
+        app.add_flag("--show-python-ast", show_python_ast, "Show AST from a Python AST file and exit");
         app.add_flag("--show-python-asr", show_python_asr, "Show ASR from a Python AST file and exit");
         app.add_flag("--with-intrinsic-mods", with_intrinsic_modules, "Show intrinsic modules in ASR");
         app.add_flag("--show-ast-f90", show_ast_f90, "Show Fortran from AST for the given file and exit");
@@ -1450,6 +1464,9 @@ int main(int argc, char *argv[])
         if (show_asr) {
             return emit_asr(arg_file, passes,
                     with_intrinsic_modules, compiler_options);
+        }
+        if (show_python_ast) {
+            return emit_python_ast(arg_file, compiler_options);
         }
         if (show_python_asr) {
             return emit_python_asr(arg_file,
