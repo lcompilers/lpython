@@ -300,8 +300,9 @@ public:
         }
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
-
-        tmp = nullptr;
+        ASR::stmt_t *overloaded=nullptr;
+        tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
+                                overloaded);
     }
 
     void visit_Name(const AST::Name_t &x) {
@@ -313,6 +314,30 @@ public:
             throw SemanticError("Variable '" + name + "' not declared",
                 x.base.base.loc);
         }
+    }
+
+    void visit_BinOp(const AST::BinOp_t &x) {
+        this->visit_expr(*x.m_left);
+        ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
+        this->visit_expr(*x.m_right);
+        ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
+        ASR::binopType op;
+        switch (x.m_op) {
+            case (AST::operatorType::Add) : { op = ASR::binopType::Add; break; }
+            case (AST::operatorType::Sub) : { op = ASR::binopType::Sub; break; }
+            case (AST::operatorType::Mult) : { op = ASR::binopType::Mul; break; }
+            case (AST::operatorType::Div) : { op = ASR::binopType::Div; break; }
+            case (AST::operatorType::Pow) : { op = ASR::binopType::Pow; break; }
+            default : {
+                throw SemanticError("Binary operator type not supported",
+                    x.base.base.loc);
+            }
+        }
+        ASR::ttype_t *dest_type = ASRUtils::expr_type(left);
+        ASR::expr_t *value = nullptr;
+        ASR::expr_t *overloaded = nullptr;
+        tmp = ASR::make_BinOp_t(al, x.base.base.loc, left, op, right, dest_type,
+                                value, overloaded);
     }
 
     void visit_Expr(const AST::Expr_t &x) {
