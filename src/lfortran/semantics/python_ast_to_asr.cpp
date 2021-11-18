@@ -254,16 +254,16 @@ public:
         }
 
         ASR::ttype_t *type;
-        if (var_annotation == "int32") {
+        if (var_annotation == "i32") {
             type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 4, nullptr, 0));
-        } else if (var_annotation == "int64") {
+        } else if (var_annotation == "i64") {
             type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 8, nullptr, 0));
-        } else if (var_annotation == "float32") {
+        } else if (var_annotation == "f32") {
             type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
                 4, nullptr, 0));
-        } else if (var_annotation == "float64") {
+        } else if (var_annotation == "f64") {
             type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
                 8, nullptr, 0));
         } else {
