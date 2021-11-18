@@ -203,6 +203,42 @@ public:
 
         tmp = asr;
     }
+
+    void visit_FunctionDef(const AST::FunctionDef_t &x) {
+        SymbolTable *old_scope = current_scope;
+        ASR::symbol_t *t = current_scope->scope[x.m_name];
+        ASR::Subroutine_t *v = ASR::down_cast<ASR::Subroutine_t>(t);
+        current_scope = v->m_symtab;
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, x.n_body);
+        transform_stmts(body, x.n_body, x.m_body);
+        v->m_body = body.p;
+        v->n_body = body.size();
+        current_scope = old_scope;
+        tmp = nullptr;
+    }
+
+    void visit_AnnAssign(const AST::AnnAssign_t &x) {
+        // We treat this as a declaration
+        if (AST::is_a<AST::Name_t>(*x.m_target)) {
+            AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_target);
+            std::string var_name = n->m_id;
+        } else {
+            throw SemanticError("Only Name supported for now as LHS of annotated assignment.",
+                x.base.base.loc);
+        }
+        //this->visit_expr(*x.m_value);
+        //ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
+        tmp = nullptr;
+    }
+
+    void visit_Assign(const AST::Assign_t &x) {
+        tmp = nullptr;
+    }
+
+    void visit_Expr(const AST::Expr_t &x) {
+        tmp = nullptr;
+    }
 };
 
 Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al,
