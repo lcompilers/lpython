@@ -316,6 +316,13 @@ public:
         }
     }
 
+    void visit_ConstantInt(const AST::ConstantInt_t &x) {
+        int64_t i = x.m_value;
+        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                4, nullptr, 0));
+        tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, i, type);
+    }
+
     void visit_BinOp(const AST::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
