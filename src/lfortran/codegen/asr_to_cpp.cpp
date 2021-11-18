@@ -129,11 +129,15 @@ public:
             if (is_a<ASR::Integer_t>(*v.m_type)) {
                 ASR::Integer_t *t = down_cast<ASR::Integer_t>(v.m_type);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
-                sub = format_type(dims, "int", v.m_name, use_ref, dummy);
+                std::string type_name = "int";
+                if (t->m_kind == 8) type_name = "long long";
+                sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
             } else if (is_a<ASR::Real_t>(*v.m_type)) {
                 ASR::Real_t *t = down_cast<ASR::Real_t>(v.m_type);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
-                sub = format_type(dims, "float", v.m_name, use_ref, dummy);
+                std::string type_name = "float";
+                if (t->m_kind == 8) type_name = "double";
+                sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
             } else if (is_a<ASR::Complex_t>(*v.m_type)) {
                 ASR::Complex_t *t = down_cast<ASR::Complex_t>(v.m_type);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
