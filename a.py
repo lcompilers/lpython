@@ -32,7 +32,11 @@ class Transform(ast.NodeVisitor):
         d = {}
         class_name = node.__class__.__name__
         for field, value in ast.iter_fields(node):
-            if isinstance(value, list):
+            if field == "ops": # For Compare()
+                # We only represent one comparison operator
+                assert len(value) == 1
+                d[field] = self.visit(value[0])
+            elif isinstance(value, list):
                 new_list = []
                 for item in value:
                     if isinstance(item, ast.AST):
