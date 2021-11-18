@@ -221,11 +221,20 @@ public:
     void visit_AnnAssign(const AST::AnnAssign_t &x) {
         // We treat this as a declaration
         std::string var_name;
+        std::string var_annotation;
         if (AST::is_a<AST::Name_t>(*x.m_target)) {
             AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_target);
             var_name = n->m_id;
         } else {
             throw SemanticError("Only Name supported for now as LHS of annotated assignment.",
+                x.base.base.loc);
+        }
+
+        if (AST::is_a<AST::Name_t>(*x.m_annotation)) {
+            AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_annotation);
+            var_annotation = n->m_id;
+        } else {
+            throw SemanticError("Only Name supported for now in annotation of annotated assignment.",
                 x.base.base.loc);
         }
 
@@ -244,8 +253,23 @@ public:
             }
         }
 
-        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
-            4, nullptr, 0));
+        ASR::ttype_t *type;
+        if (var_annotation == "int32") {
+            type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                4, nullptr, 0));
+        } else if (var_annotation == "int64") {
+            type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                8, nullptr, 0));
+        } else if (var_annotation == "float32") {
+            type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                4, nullptr, 0));
+        } else if (var_annotation == "float64") {
+            type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                8, nullptr, 0));
+        } else {
+            throw SemanticError("Annotation type not supported",
+                x.base.base.loc);
+        }
 
         ASR::expr_t *value = nullptr;
         ASR::expr_t *init_expr = nullptr;
