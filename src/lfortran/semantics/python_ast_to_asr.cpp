@@ -323,6 +323,14 @@ public:
         tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, i, type);
     }
 
+    void visit_ConstantStr(const AST::ConstantStr_t &x) {
+        char *s = x.m_value;
+        size_t s_size = std::string(s).size();
+        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
+                1, s_size, nullptr, nullptr, 0));
+        tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s, type);
+    }
+
     void visit_BinOp(const AST::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
