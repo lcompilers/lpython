@@ -1,7 +1,7 @@
 def main():
-    x: int32
-    x2: int64
-    y: float32
-    y2: float64
+    x: i32
+    x2: i64
+    y: f32
+    y2: f64
     x = (2+3)*5
     print(x)
