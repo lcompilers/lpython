@@ -259,7 +259,9 @@ public:
 
             ASR::dimension_t dim;
             dim.loc = x.base.base.loc;
-            dim.m_start = nullptr;
+            ASR::ttype_t *itype = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                    4, nullptr, 0));
+            dim.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, 1, itype));
             dim.m_end = value;
             dims.push_back(al, dim);
         } else {
