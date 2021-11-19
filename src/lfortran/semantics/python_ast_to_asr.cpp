@@ -415,8 +415,19 @@ public:
         head.m_end = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, 10, a_type));
         head.m_increment = nullptr;
         head.loc = head.m_v->base.loc;
-        tmp = ASR::make_DoLoop_t(al, x.base.base.loc, head,
-            body.p, body.size());
+        bool parallel = false;
+        if (x.m_type_comment) {
+            if (std::string(x.m_type_comment) == "parallel") {
+                parallel = true;
+            }
+        }
+        if (parallel) {
+            tmp = ASR::make_DoConcurrentLoop_t(al, x.base.base.loc, head,
+                body.p, body.size());
+        } else {
+            tmp = ASR::make_DoLoop_t(al, x.base.base.loc, head,
+                body.p, body.size());
+        }
     }
 
     void visit_Name(const AST::Name_t &x) {
