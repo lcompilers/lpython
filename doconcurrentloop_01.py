@@ -1,7 +1,7 @@
 def triad(a: f32[:], b: f32[:], scalar: f32, c: f32[:]):
     N: i32
     i: i32
-#    N = size(a)
+    N = size(a)
 #    for i in range(N): # type: parallel
 #        c[i] = a[i] + scalar * b[i]
 
@@ -13,7 +13,7 @@ def main():
     i: i32
     nsize: i32
     scalar = 10
-#    nsize = size(a)
+    nsize = size(a)
 #    for i in range(nsize): # type: parallel
 #        a[i] = 5
 #        b[i] = 5
