@@ -366,19 +366,27 @@ public:
                 throw SemanticError("Only Name supported in Call",
                     x.base.base.loc);
             }
+            Vec<ASR::expr_t*> args;
+            args.reserve(al, c->n_args);
+            for (size_t i=0; i<c->n_args; i++) {
+                visit_expr(*c->m_args[i]);
+                ASR::expr_t *expr = LFortran::ASRUtils::EXPR(tmp);
+                args.push_back(al, expr);
+            }
             if (call_name == "print") {
-                Vec<ASR::expr_t*> args;
-                args.reserve(al, c->n_args);
-                for (size_t i=0; i<c->n_args; i++) {
-                    visit_expr(*c->m_args[i]);
-                    ASR::expr_t *expr = LFortran::ASRUtils::EXPR(tmp);
-                    args.push_back(al, expr);
-                }
                 ASR::expr_t *fmt=nullptr;
                 tmp = ASR::make_Print_t(al, x.base.base.loc, fmt,
                     args.p, args.size());
                 return;
             }
+            ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
+            if (!s) {
+                throw SemanticError("Function '" + call_name + "' is not declared",
+                    x.base.base.loc);
+            }
+            tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, s,
+                nullptr, args.p, args.size(), nullptr);
+            return;
         }
         this->visit_expr(*x.m_value);
         LFortran::ASRUtils::EXPR(tmp);
@@ -394,14 +402,16 @@ public:
             throw SemanticError("Only Name supported in Call",
                 x.base.base.loc);
         }
+        Vec<ASR::expr_t*> args;
+        args.reserve(al, x.n_args);
+        for (size_t i=0; i<x.n_args; i++) {
+            visit_expr(*x.m_args[i]);
+            ASR::expr_t *expr = LFortran::ASRUtils::EXPR(tmp);
+            args.push_back(al, expr);
+        }
+
+        // Intrinsic functions
         if (call_name == "size") {
-            Vec<ASR::expr_t*> args;
-            args.reserve(al, x.n_args);
-            for (size_t i=0; i<x.n_args; i++) {
-                visit_expr(*x.m_args[i]);
-                ASR::expr_t *expr = LFortran::ASRUtils::EXPR(tmp);
-                args.push_back(al, expr);
-            }
             ASR::ttype_t *a_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 4, nullptr, 0));
             ASR::symbol_t *a_name = nullptr;
@@ -411,8 +421,17 @@ public:
                 nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
             return;
         }
-        throw SemanticError("Function call to '" + call_name
-            + "' not implemented", x.base.base.loc);
+
+        // Other functions
+        ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
+        if (!s) {
+            throw SemanticError("Function '" + call_name + "' is not declared",
+                x.base.base.loc);
+        }
+        ASR::ttype_t *a_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+            4, nullptr, 0));
+        tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, s,
+            nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
     }
 };
 
