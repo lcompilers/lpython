@@ -400,6 +400,25 @@ public:
             args.size(), type, nullptr);
     }
 
+    void visit_For(const AST::For_t &x) {
+        this->visit_expr(*x.m_target);
+        ASR::expr_t *target=ASRUtils::EXPR(tmp);
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, x.n_body);
+        transform_stmts(body, x.n_body, x.m_body);
+
+        ASR::ttype_t *a_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+            4, nullptr, 0));
+        ASR::do_loop_head_t head;
+        head.m_v = target;
+        head.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, 1, a_type));
+        head.m_end = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, 10, a_type));
+        head.m_increment = nullptr;
+        head.loc = head.m_v->base.loc;
+        tmp = ASR::make_DoLoop_t(al, x.base.base.loc, head,
+            body.p, body.size());
+    }
+
     void visit_Name(const AST::Name_t &x) {
         std::string name = x.m_id;
         ASR::symbol_t *s = current_scope->resolve_symbol(name);
