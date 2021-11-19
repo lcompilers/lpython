@@ -115,13 +115,45 @@ public:
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
+
+        Vec<ASR::expr_t*> args;
+        args.reserve(al, x.m_args.n_args);
         for (size_t i=0; i<x.m_args.n_args; i++) {
             char *arg=x.m_args.m_args[i].m_arg;
+            Location loc = x.m_args.m_args[i].loc;
             if (x.m_args.m_args[i].m_annotation == nullptr) {
-                throw SemanticError("Argument does not have a type",
-                    x.m_args.m_args[i].loc);
+                throw SemanticError("Argument does not have a type", loc);
             }
+            ASR::ttype_t *arg_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                    4, nullptr, 0));
+            // TODO: create ast_expr_to_asr_type() function
+            //this->visit_expr(*x.m_args.m_args[i].m_annotation);
+            //ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
             //current_procedure_args.push_back(to_lower(arg));
+
+            std::string arg_s = arg;
+
+            ASR::expr_t *value = nullptr;
+            ASR::expr_t *init_expr = nullptr;
+            ASR::intentType s_intent = LFortran::ASRUtils::intent_in;
+            if (ASRUtils::is_array(arg_type)) {
+                s_intent = LFortran::ASRUtils::intent_inout;
+            }
+            ASR::storage_typeType storage_type =
+                    ASR::storage_typeType::Default;
+            ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
+            ASR::accessType s_access = ASR::accessType::Public;
+            ASR::presenceType s_presence = ASR::presenceType::Required;
+            bool value_attr = false;
+            ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
+                    s2c(al, arg_s), s_intent, init_expr, value, storage_type, arg_type,
+                    current_procedure_abi_type, s_access, s_presence,
+                    value_attr);
+            current_scope->scope[arg_s] = ASR::down_cast<ASR::symbol_t>(v);
+
+            ASR::symbol_t *var = current_scope->scope[arg_s];
+            args.push_back(al, LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc,
+                var)));
         }
         std::string sym_name = x.m_name;
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
@@ -135,8 +167,8 @@ public:
             al, x.base.base.loc,
             /* a_symtab */ current_scope,
             /* a_name */ s2c(al, sym_name),
-            /* a_args */ nullptr,
-            /* n_args */ 0,
+            /* a_args */ args.p,
+            /* n_args */ args.size(),
             /* a_body */ nullptr,
             /* n_body */ 0,
             current_procedure_abi_type,
