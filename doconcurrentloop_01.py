@@ -6,9 +6,9 @@ def triad(a: f32[:], b: f32[:], scalar: f32, c: f32[:]):
 #        c[i] = a[i] + scalar * b[i]
 
 def main():
-#    a: f32[10000]
-#    b: f32[10000]
-#    c: f32[10000]
+    a: f32[10000]
+    b: f32[10000]
+    c: f32[10000]
     scalar: f32
     i: i32
     nsize: i32
@@ -17,6 +17,5 @@ def main():
 #    for i in range(nsize): # type: parallel
 #        a[i] = 5
 #        b[i] = 5
-#    triad(a, b, scalar, c)
-    triad(scalar)
+    triad(a, b, scalar, c)
     print("End Stream Triad")

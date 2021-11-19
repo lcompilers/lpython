@@ -226,15 +226,24 @@ public:
             AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_target);
             var_name = n->m_id;
         } else {
-            throw SemanticError("Only Name supported for now as LHS of annotated assignment.",
+            throw SemanticError("Only Name supported for now as LHS of annotated assignment",
                 x.base.base.loc);
         }
 
         if (AST::is_a<AST::Name_t>(*x.m_annotation)) {
             AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_annotation);
             var_annotation = n->m_id;
+        } else if (AST::is_a<AST::Subscript_t>(*x.m_annotation)) {
+            AST::Subscript_t *s = AST::down_cast<AST::Subscript_t>(x.m_annotation);
+            if (AST::is_a<AST::Name_t>(*s->m_value)) {
+                AST::Name_t *n = AST::down_cast<AST::Name_t>(s->m_value);
+                var_annotation = n->m_id;
+            } else {
+                throw SemanticError("Only Name in Subscript supported for now in annotation of annotated assignment",
+                    x.base.base.loc);
+            }
         } else {
-            throw SemanticError("Only Name supported for now in annotation of annotated assignment.",
+            throw SemanticError("Only Name or Subscript supported for now in annotation of annotated assignment.",
                 x.base.base.loc);
         }
 
