@@ -230,6 +230,9 @@ public:
                 x.base.base.loc);
         }
 
+        Vec<ASR::dimension_t> dims;
+        dims.reserve(al, 4);
+
         if (AST::is_a<AST::Name_t>(*x.m_annotation)) {
             AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_annotation);
             var_annotation = n->m_id;
@@ -253,6 +256,12 @@ public:
                 throw SemanticError("Only Integer in [] in Subscript supported for now in annotation of annotated assignment",
                     x.base.base.loc);
             }
+
+            ASR::dimension_t dim;
+            dim.loc = x.base.base.loc;
+            dim.m_start = nullptr;
+            dim.m_end = value;
+            dims.push_back(al, dim);
         } else {
             throw SemanticError("Only Name or Subscript supported for now in annotation of annotated assignment.",
                 x.base.base.loc);
@@ -276,16 +285,16 @@ public:
         ASR::ttype_t *type;
         if (var_annotation == "i32") {
             type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                4, nullptr, 0));
+                4, dims.p, dims.size()));
         } else if (var_annotation == "i64") {
             type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                8, nullptr, 0));
+                8, dims.p, dims.size()));
         } else if (var_annotation == "f32") {
             type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
-                4, nullptr, 0));
+                4, dims.p, dims.size()));
         } else if (var_annotation == "f64") {
             type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
-                8, nullptr, 0));
+                8, dims.p, dims.size()));
         } else {
             throw SemanticError("Annotation type not supported",
                 x.base.base.loc);
