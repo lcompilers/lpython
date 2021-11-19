@@ -486,6 +486,10 @@ public:
 
         // Intrinsic functions
         if (call_name == "size") {
+            // TODO: size should be part of ASR. That way
+            // ASR itself does not need a runtime library
+            // a runtime library thus becomes optional --- can either be
+            // implemented using ASR, or the backend can link it at runtime
             ASR::ttype_t *a_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 4, nullptr, 0));
             /*
