@@ -379,6 +379,13 @@ public:
                                 overloaded);
     }
 
+    void visit_Subscript(const AST::Subscript_t &x) {
+        this->visit_expr(*x.m_value);
+        ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
+        // TODO: extract m_slice into indices
+        tmp = (ASR::asr_t*)value;
+    }
+
     void visit_Name(const AST::Name_t &x) {
         std::string name = x.m_id;
         ASR::symbol_t *s = current_scope->resolve_symbol(name);
