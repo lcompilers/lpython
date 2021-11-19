@@ -242,6 +242,17 @@ public:
                 throw SemanticError("Only Name in Subscript supported for now in annotation of annotated assignment",
                     x.base.base.loc);
             }
+
+            this->visit_expr(*s->m_slice);
+            ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
+            int64_t array_size;
+            if (ASR::is_a<ASR::ConstantInteger_t>(*value)) {
+                ASR::ConstantInteger_t *ci = ASR::down_cast<ASR::ConstantInteger_t>(value);
+                array_size = ci->m_n;
+            } else {
+                throw SemanticError("Only Integer in [] in Subscript supported for now in annotation of annotated assignment",
+                    x.base.base.loc);
+            }
         } else {
             throw SemanticError("Only Name or Subscript supported for now in annotation of annotated assignment.",
                 x.base.base.loc);
