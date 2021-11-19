@@ -112,6 +112,70 @@ public:
         tmp = tmp0;
     }
 
+    ASR::ttype_t * ast_expr_to_asr_type(const Location &loc, const AST::expr_t &annotation) {
+        Vec<ASR::dimension_t> dims;
+        dims.reserve(al, 4);
+
+        std::string var_annotation;
+        if (AST::is_a<AST::Name_t>(annotation)) {
+            AST::Name_t *n = AST::down_cast<AST::Name_t>(&annotation);
+            var_annotation = n->m_id;
+        } else if (AST::is_a<AST::Subscript_t>(annotation)) {
+            AST::Subscript_t *s = AST::down_cast<AST::Subscript_t>(&annotation);
+            if (AST::is_a<AST::Name_t>(*s->m_value)) {
+                AST::Name_t *n = AST::down_cast<AST::Name_t>(s->m_value);
+                var_annotation = n->m_id;
+            } else {
+                throw SemanticError("Only Name in Subscript supported for now in annotation",
+                    loc);
+            }
+
+            ASR::ttype_t *itype = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                    4, nullptr, 0));
+            int64_t array_size;
+            array_size = 100;
+            ASR::expr_t *value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, array_size, itype));
+            /*
+            this->visit_expr(*s->m_slice);
+            ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
+            if (ASR::is_a<ASR::ConstantInteger_t>(*value)) {
+                ASR::ConstantInteger_t *ci = ASR::down_cast<ASR::ConstantInteger_t>(value);
+                array_size = ci->m_n;
+            } else {
+                throw SemanticError("Only Integer in [] in Subscript supported for now in annotation",
+                    loc);
+            }
+            */
+
+            ASR::dimension_t dim;
+            dim.loc = loc;
+            dim.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, 1, itype));
+            dim.m_end = value;
+            dims.push_back(al, dim);
+        } else {
+            throw SemanticError("Only Name or Subscript supported for now in annotation of annotated assignment.",
+                loc);
+        }
+
+        ASR::ttype_t *type;
+        if (var_annotation == "i32") {
+            type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                4, dims.p, dims.size()));
+        } else if (var_annotation == "i64") {
+            type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                8, dims.p, dims.size()));
+        } else if (var_annotation == "f32") {
+            type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, loc,
+                4, dims.p, dims.size()));
+        } else if (var_annotation == "f64") {
+            type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, loc,
+                8, dims.p, dims.size()));
+        } else {
+            throw SemanticError("Annotation type not supported", loc);
+        }
+        return type;
+    }
+
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
@@ -124,12 +188,7 @@ public:
             if (x.m_args.m_args[i].m_annotation == nullptr) {
                 throw SemanticError("Argument does not have a type", loc);
             }
-            ASR::ttype_t *arg_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                    4, nullptr, 0));
-            // TODO: create ast_expr_to_asr_type() function
-            //this->visit_expr(*x.m_args.m_args[i].m_annotation);
-            //ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
-            //current_procedure_args.push_back(to_lower(arg));
+            ASR::ttype_t *arg_type = ast_expr_to_asr_type(x.base.base.loc, *x.m_args.m_args[i].m_annotation);
 
             std::string arg_s = arg;
 
