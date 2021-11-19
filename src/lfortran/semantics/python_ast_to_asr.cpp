@@ -115,12 +115,14 @@ public:
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
-        /*
-        for (size_t i=0; i<x.n_args; i++) {
-            char *arg=x.m_args[i].m_arg;
-            current_procedure_args.push_back(to_lower(arg));
+        for (size_t i=0; i<x.m_args.n_args; i++) {
+            char *arg=x.m_args.m_args[i].m_arg;
+            if (x.m_args.m_args[i].m_annotation == nullptr) {
+                throw SemanticError("Argument does not have a type",
+                    x.m_args.m_args[i].loc);
+            }
+            //current_procedure_args.push_back(to_lower(arg));
         }
-        */
         std::string sym_name = x.m_name;
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Subroutine already defined", tmp->loc);
