@@ -382,8 +382,22 @@ public:
     void visit_Subscript(const AST::Subscript_t &x) {
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
-        // TODO: extract m_slice into indices
-        tmp = (ASR::asr_t*)value;
+        this->visit_expr(*x.m_slice);
+        ASR::expr_t *index = LFortran::ASRUtils::EXPR(tmp);
+        Vec<ASR::array_index_t> args;
+        args.reserve(al, 1);
+        ASR::array_index_t ai;
+        ai.loc = x.base.base.loc;
+        ai.m_left = nullptr;
+        ai.m_right = index;
+        ai.m_step = nullptr;
+        args.push_back(al, ai);
+
+        ASR::symbol_t *s = ASR::down_cast<ASR::Var_t>(value)->m_v;
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+        ASR::ttype_t *type = v->m_type;
+        tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, s, args.p,
+            args.size(), type, nullptr);
     }
 
     void visit_Name(const AST::Name_t &x) {
