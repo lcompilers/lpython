@@ -500,7 +500,7 @@ public:
                 nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
             */
 
-            tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, 1, a_type);
+            tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, 1234, a_type);
             return;
         }
 
