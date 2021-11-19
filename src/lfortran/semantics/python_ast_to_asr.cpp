@@ -53,6 +53,10 @@ public:
         return ASR::make_Var_t(al, loc, v);
     }
 
+    // Convert Python AST type annotation to an ASR type
+    // Examples:
+    // i32, i64, f32, f64
+    // f64[256], i32[:]
     ASR::ttype_t * ast_expr_to_asr_type(const Location &loc, const AST::expr_t &annotation) {
         Vec<ASR::dimension_t> dims;
         dims.reserve(al, 4);
