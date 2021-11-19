@@ -75,27 +75,28 @@ public:
                     loc);
             }
 
-            ASR::ttype_t *itype = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                    4, nullptr, 0));
-            int64_t array_size;
-            array_size = 100;
-            ASR::expr_t *value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, array_size, itype));
-            /*
-            this->visit_expr(*s->m_slice);
-            ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
-            if (ASR::is_a<ASR::ConstantInteger_t>(*value)) {
-                ASR::ConstantInteger_t *ci = ASR::down_cast<ASR::ConstantInteger_t>(value);
-                array_size = ci->m_n;
-            } else {
-                throw SemanticError("Only Integer in [] in Subscript supported for now in annotation",
-                    loc);
-            }
-            */
-
             ASR::dimension_t dim;
             dim.loc = loc;
-            dim.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, 1, itype));
-            dim.m_end = value;
+            if (AST::is_a<AST::Slice_t>(*s->m_slice)) {
+                dim.m_start = nullptr;
+                dim.m_end = nullptr;
+            } else {
+                this->visit_expr(*s->m_slice);
+                ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
+                int64_t array_size;
+                if (ASR::is_a<ASR::ConstantInteger_t>(*value)) {
+                    ASR::ConstantInteger_t *ci = ASR::down_cast<ASR::ConstantInteger_t>(value);
+                    array_size = ci->m_n;
+                } else {
+                    throw SemanticError("Only Integer in [] in Subscript supported for now in annotation",
+                        loc);
+                }
+                ASR::ttype_t *itype = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                        4, nullptr, 0));
+                dim.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, 1, itype));
+                dim.m_end = value;
+            }
+
             dims.push_back(al, dim);
         } else {
             throw SemanticError("Only Name or Subscript supported for now in annotation of annotated assignment.",
