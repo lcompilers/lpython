@@ -21,6 +21,17 @@ return:                                           ; preds = %.entry
 
 declare void @_lfortran_cpu_time(double*)
 
+define void @__module_lfortran_intrinsic_math_dp_rand_num(double* %harvest) {
+.entry:
+  call void @_lfortran_dp_rand_num(double* %harvest)
+  br label %return
+
+return:                                           ; preds = %.entry
+  ret void
+}
+
+declare void @_lfortran_dp_rand_num(double*)
+
 define double @__module_lfortran_intrinsic_math_dsin(double* %x) {
 .entry:
   %r = alloca double, align 8
@@ -57,6 +68,17 @@ return:                                           ; preds = %.entry
 }
 
 declare void @_lfortran_i64sys_clock(i64*, i64*, i64*)
+
+define void @__module_lfortran_intrinsic_math_sp_rand_num(float* %harvest) {
+.entry:
+  call void @_lfortran_sp_rand_num(float* %harvest)
+  br label %return
+
+return:                                           ; preds = %.entry
+  ret void
+}
+
+declare void @_lfortran_sp_rand_num(float*)
 
 define i32 @main() {
 .entry:
