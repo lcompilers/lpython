@@ -44,7 +44,7 @@ std::string get_runtime_library_dir()
         // Development version
         return dirname + "/../runtime";
     } else if (endswith(dirname, "src/lfortran/tests") ||
-               endswith(dirname, "src\\lfortran\\tests")) {
+               endswith(to_lower(dirname), "src\\lfortran\\tests")) {
         // CTest Tests
         return dirname + "/../../runtime";
     } else {
