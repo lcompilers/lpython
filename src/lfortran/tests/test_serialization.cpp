@@ -191,7 +191,7 @@ end program
 
 }
 
-TEST_CASE("ASR Tests") {
+TEST_CASE("ASR Tests 1") {
     asr_ser(R"""(
 program expr2
 implicit none
@@ -200,14 +200,19 @@ x = (2+3)*5
 print *, x
 end program
 )""");
+}
 
+TEST_CASE("ASR Tests 2") {
     asr_ser(R"""(
 integer function f(a, b) result(r)
 integer, intent(in) :: a, b
 r = a + b
 end function
 )""");
+}
 
+#ifndef _WIN32
+TEST_CASE("ASR Tests 3") {
     asr_ser(R"""(
 program doconcurrentloop_01
 implicit none
@@ -237,7 +242,10 @@ contains
 
 end program
 )""");
+}
+#endif
 
+TEST_CASE("ASR Tests 4") {
     asr_ser(R"""(
 module a
 implicit none
@@ -258,7 +266,9 @@ call b()
 
 end
 )""");
+}
 
+TEST_CASE("ASR Tests 5") {
     asr_ser(R"""(
 program derived_types_03
 implicit none

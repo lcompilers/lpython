@@ -53,7 +53,7 @@ cd test-bld
 BUILD_TYPE = "Release"
 cmake -G $LFORTRAN_CMAKE_GENERATOR -DCMAKE_VERBOSE_MAKEFILE=ON -DWITH_LLVM=yes -DWITH_XEUS=yes -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=@(BUILD_TYPE) ..
 cmake --build . --target install
-./src/lfortran/tests/test_lfortran
+./src/lfortran/tests/test_lfortran -s
 ./src/bin/lfortran < ../src/bin/example_input.txt
 ctest --output-on-failure
 cpack -V
