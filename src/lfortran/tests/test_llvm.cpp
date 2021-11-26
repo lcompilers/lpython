@@ -958,6 +958,7 @@ end function
     CHECK(r.result.i32 == 2);
 }
 
+#ifndef _WIN32
 TEST_CASE("FortranEvaluator 10 trig functions") {
     CompilerOptions cu;
     FortranEvaluator e(cu);
@@ -979,3 +980,4 @@ TEST_CASE("FortranEvaluator 10 trig functions") {
     CHECK(r.result.type == FortranEvaluator::EvalResult::real8);
     CHECK(std::abs(r.result.f64 - 0.5403023058681398) < 1e-14);
 }
+#endif
