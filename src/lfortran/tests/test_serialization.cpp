@@ -211,6 +211,7 @@ end function
 )""");
 }
 
+#ifndef _WIN32
 TEST_CASE("ASR Tests 3") {
     asr_ser(R"""(
 program doconcurrentloop_01
@@ -242,6 +243,7 @@ contains
 end program
 )""");
 }
+#endif
 
 TEST_CASE("ASR Tests 4") {
     asr_ser(R"""(
