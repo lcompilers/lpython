@@ -40,6 +40,7 @@ set(SRC
     ../pure/lfortran_intrinsic_kind.f90
     ../builtin/lfortran_intrinsic_builtin.f90
     ../pure/lfortran_intrinsic_iso_fortran_env.f90
+    ../pure/lfortran_intrinsic_ieee_arithmetic.f90
     ../pure/lfortran_intrinsic_iso_c_binding.f90
 )
 add_library(lfortran_runtime SHARED ${SRC})

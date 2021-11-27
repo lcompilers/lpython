@@ -20,6 +20,7 @@ struct IntrinsicProcedures {
     const std::string m_math2 = "lfortran_intrinsic_math2";
     const std::string m_string = "lfortran_intrinsic_string";
     const std::string m_bit = "lfortran_intrinsic_bit";
+    const std::string m_ieee_arithmetic = "lfortran_intrinsic_ieee_arithmetic";
 
     /*
         The last parameter is true if the callback accepts evaluated arguments.
