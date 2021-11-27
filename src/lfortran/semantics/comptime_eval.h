@@ -507,7 +507,7 @@ TRIG(sqrt)
             ) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         if (args.size() != 1) {
-            throw SemanticError("Intrinsic trig function accepts exactly 1 argument", loc);
+            throw SemanticError("Intrinsic abs function accepts exactly 1 argument", loc);
         }
         ASR::expr_t* trig_arg = args[0];
         ASR::ttype_t* t = LFortran::ASRUtils::expr_type(args[0]);
