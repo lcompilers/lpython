@@ -596,6 +596,9 @@ public:
                             throw SemanticError("Save Attribute not "
                                     "supported yet", x.base.base.loc);
                         }
+                    } else if (sa->m_attr == AST::simple_attributeType
+                            ::AttrSequence) {
+                        // TODO: Implement it for CPP backend
                     } else {
                         throw SemanticError("Attribute declaration not "
                                 "supported yet", x.base.base.loc);
@@ -1101,6 +1104,16 @@ public:
             defined_op_procs[op_name] = proc_names;
         }  else if (AST::is_a<AST::InterfaceHeaderAssignment_t>(*x.m_header)) {
             fill_interface_proc_names(x, assgn_proc_names);
+        }  else if (AST::is_a<AST::InterfaceHeaderWrite_t>(*x.m_header)) {
+            std::string op_name = to_lower(AST::down_cast<AST::InterfaceHeaderWrite_t>(x.m_header)->m_id);
+            std::vector<std::string> proc_names;
+            fill_interface_proc_names(x, proc_names);
+            defined_op_procs[op_name] = proc_names;
+        }  else if (AST::is_a<AST::InterfaceHeaderRead_t>(*x.m_header)) {
+            std::string op_name = to_lower(AST::down_cast<AST::InterfaceHeaderRead_t>(x.m_header)->m_id);
+            std::vector<std::string> proc_names;
+            fill_interface_proc_names(x, proc_names);
+            defined_op_procs[op_name] = proc_names;
         }  else {
             throw SemanticError("Interface type not imlemented yet", x.base.base.loc);
         }

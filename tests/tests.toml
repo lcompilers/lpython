@@ -1358,6 +1358,10 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/string_14.f90"
+asr = true
+
+[[test]]
 filename = "../integration_tests/string_12.f90"
 asr = true
 
