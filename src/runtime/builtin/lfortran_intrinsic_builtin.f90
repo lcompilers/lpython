@@ -70,7 +70,7 @@ interface
 
     integer function len(x, kind)
     character(len=*), intent(in) :: x
-    integer, optional :: kind
+    integer, optional, intent(in) :: kind
     end function
 
     logical function present(x)
