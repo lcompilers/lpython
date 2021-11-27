@@ -19,6 +19,10 @@ interface floor
     module procedure sfloor, dfloor
 end interface
 
+interface ceiling
+    module procedure sceiling, dceiling
+end interface
+
 interface nint
     module procedure snint, dnint
 end interface
@@ -139,6 +143,24 @@ if (x >= 0) then
     r = x
 else
     r = x-1
+end if
+end function
+
+! ceiling ------------------------------------------------------------------------
+
+elemental integer function sceiling(x) result(r)
+real(sp), intent(in) :: x
+r = sfloor(x)
+if (r - x /= 0.0) then
+    r = r + 1
+end if
+end function
+
+elemental integer function dceiling(x) result(r)
+real(dp), intent(in) :: x
+r = dfloor(x)
+if (r - x /= 0.0) then
+    r = r + 1
 end if
 end function
 
