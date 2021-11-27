@@ -687,6 +687,10 @@ filename = "../integration_tests/derived_types_04.f90"
 asr = true
 
 [[test]]
+filename = "../integration_tests/derived_types_05.f90"
+asr = true
+
+[[test]]
 filename = "../integration_tests/derived_types_01.f90"
 ast = true
 ast_f90 = true
