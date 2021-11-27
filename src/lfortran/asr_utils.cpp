@@ -113,7 +113,8 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     if (mod1 == nullptr && !intrinsic) {
         // Module not found as a regular module. Try intrinsic module
         if (module_name == "iso_c_binding"
-            ||module_name == "iso_fortran_env") {
+            ||module_name == "iso_fortran_env"
+            ||module_name == "ieee_arithmetic") {
             mod1 = find_and_load_module(al, "lfortran_intrinsic_" + module_name,
                 *symtab, true);
         }
