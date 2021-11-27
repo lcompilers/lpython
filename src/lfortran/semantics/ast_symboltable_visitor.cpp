@@ -1189,9 +1189,6 @@ public:
             Location loc;
             loc.first = 1;
             loc.last = 1;
-            Str s;
-            s.from_str_view(proc.first);
-            char *generic_name = s.c_str(al);
             Vec<ASR::symbol_t*> symbols;
             symbols.reserve(al, proc.second.size());
             for (auto &pname : proc.second) {
@@ -1202,10 +1199,20 @@ public:
                 x = resolve_symbol(loc, name);
                 symbols.push_back(al, x);
             }
+            std::string sym_name_str = proc.first;
+            if( current_scope->scope.find(proc.first) != current_scope->scope.end() ) {
+                ASR::symbol_t* der_type_name = current_scope->scope[proc.first];
+                if( der_type_name->type == ASR::symbolType::DerivedType ) {
+                    sym_name_str = "~" + proc.first;
+                }
+            }
+            Str s;
+            s.from_str_view(sym_name_str);
+            char *generic_name = s.c_str(al);
             ASR::asr_t *v = ASR::make_GenericProcedure_t(al, loc,
                 current_scope,
                 generic_name, symbols.p, symbols.size(), ASR::Public);
-            current_scope->scope[proc.first] = ASR::down_cast<ASR::symbol_t>(v);
+            current_scope->scope[sym_name_str] = ASR::down_cast<ASR::symbol_t>(v);
         }
     }
 
