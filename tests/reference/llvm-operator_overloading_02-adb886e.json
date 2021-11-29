@@ -2,7 +2,7 @@
     "basename": "llvm-operator_overloading_02-adb886e",
     "cmd": "lfortran --no-color --show-llvm {infile} -o {outfile}",
     "infile": "tests/../integration_tests/operator_overloading_02.f90",
-    "infile_hash": "1eb148dc75d3a1673363796a558b9120512b7584cb1723837e7b6f54",
+    "infile_hash": "5426b5c4b2fc892bf8d276eb858d5dbece229d88abb07598673d55fe",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-operator_overloading_02-adb886e.stdout",
