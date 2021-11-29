@@ -70,4 +70,10 @@ do i = 1, n
 end do
 end function
 
+function new_line(c) result(r)
+    character(len=1), intent(in) :: c
+    character(len=1) :: r
+    r = '\n'
+end function
+
 end module

@@ -1,0 +1,4 @@
+(TranslationUnit (SymbolTable 1 {intrinsics_29: (Program (SymbolTable 2 {new_line: (ExternalSymbol 2 new_line 4 new_line lfortran_intrinsic_string [] new_line Private)}) intrinsics_29 [] [(Print () [(StrOp (StrOp (ConstantString "This is record 1." (Character 1 17 () [])) Concat (FunctionCall 2 new_line () [(ConstantString "A" (Character 1 1 () []))] [] (Character 1 1 () []) (ConstantString "
+" (Character 1 1 () [])) ()) (Character 1 18 () []) (ConstantString "This is record 1.
+" (Character 1 18 () []))) Concat (ConstantString "This is record 2." (Character 1 17 () [])) (Character 1 35 () []) (ConstantString "This is record 1.
+This is record 2." (Character 1 35 () [])))])]), lfortran_intrinsic_builtin: (IntrinsicModule lfortran_intrinsic_builtin), lfortran_intrinsic_string: (IntrinsicModule lfortran_intrinsic_string)}) [])

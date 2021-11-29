@@ -674,6 +674,10 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                         a_len = -3;
                         break;
                     }
+                    case ASR::exprType::BinOp: {
+                        a_len = -3;
+                        break;
+                    }
                     default: {
                         throw SemanticError("Only Integers or variables implemented so far for `len` expressions",
                                             loc);
