@@ -654,6 +654,27 @@ public:
             v, args.p, args.size(), type, arr_ref_val);
     }
 
+    void visit_ArrayInitializer(const AST::ArrayInitializer_t &x) {
+        Vec<ASR::expr_t*> body;
+        body.reserve(al, x.n_args);
+        ASR::ttype_t *type = nullptr;
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_expr(*x.m_args[i]);
+            ASR::expr_t *expr = LFortran::ASRUtils::EXPR(tmp);
+            if (type == nullptr) {
+                type = LFortran::ASRUtils::expr_type(expr);
+            } else {
+                if (LFortran::ASRUtils::expr_type(expr)->type != type->type) {
+                    throw SemanticError("Type mismatch in array initializer",
+                        x.base.base.loc);
+                }
+            }
+            body.push_back(al, expr);
+        }
+        tmp = ASR::make_ConstantArray_t(al, x.base.base.loc, body.p,
+            body.size(), type);
+    }
+
     ASR::ttype_t* handle_character_return(ASR::ttype_t *return_type, const Location &loc) {
         // Rebuild the return type if needed and make FunctionCalls use ExternalSymbol
         ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(return_type);
