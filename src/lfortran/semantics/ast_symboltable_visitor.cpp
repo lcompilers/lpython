@@ -887,12 +887,26 @@ public:
                     type = LFortran::ASRUtils::TYPE(ASR::make_Derived_t(al, x.base.base.loc, v,
                         dims.p, dims.size()));
                 } else if (sym_type->m_type == AST::decl_typeType::TypeClass) {
-                    LFORTRAN_ASSERT(sym_type->m_name);
-                    std::string derived_type_name = to_lower(sym_type->m_name);
+                    std::string derived_type_name;
+                    if( !sym_type->m_name ) {
+                        derived_type_name = "~abstract_type";
+                    } else {
+                        derived_type_name = to_lower(sym_type->m_name);
+                    }
                     ASR::symbol_t *v = current_scope->resolve_symbol(derived_type_name);
-                    if (!v) {
-                        throw SemanticError("Derived type '"
-                            + derived_type_name + "' not declared", x.base.base.loc);
+                    if( !v ) {
+                        if( derived_type_name != "~abstract_type" ) {
+                            throw SemanticError("Derived type '" + derived_type_name
+                                                + "' not declared", x.base.base.loc);
+                        }
+                        SymbolTable *parent_scope = current_scope;
+                        current_scope = al.make_new<SymbolTable>(parent_scope);
+                        ASR::asr_t* dtype = ASR::make_DerivedType_t(al, x.base.base.loc, current_scope,
+                                                        s2c(al, to_lower(derived_type_name)), nullptr, 0,
+                                                        ASR::abiType::Source, dflt_access, nullptr);
+                        v = ASR::down_cast<ASR::symbol_t>(dtype);
+                        parent_scope->scope[derived_type_name] = v;
+                        current_scope = parent_scope;
                     }
                     type = LFortran::ASRUtils::TYPE(ASR::make_Class_t(al,
                         x.base.base.loc, v, dims.p, dims.size()));
