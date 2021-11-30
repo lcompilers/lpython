@@ -1435,9 +1435,28 @@ public:
             // Only import individual symbols from the module, e.g.:
             //     use a, only: x, y, z
             for (size_t i = 0; i < x.n_symbols; i++) {
-                std::string remote_sym = to_lower(AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_remote_sym);
+                std::string remote_sym;
+                switch (x.m_symbols[i]->type)
+                {
+                    case AST::use_symbolType::UseSymbol: {
+                        remote_sym = to_lower(AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_remote_sym);
+                        break;
+                    }
+                    case AST::use_symbolType::UseAssignment: {
+                        remote_sym = "~assign";
+                        break;
+                    }
+                    case AST::use_symbolType::IntrinsicOperator: {
+                        AST::intrinsicopType op_type = AST::down_cast<AST::IntrinsicOperator_t>(x.m_symbols[i])->m_op;
+                        remote_sym = intrinsic2str[op_type];
+                        break;
+                    }
+                    default:
+                        throw SemanticError("Symbol with use not supported yet", x.base.base.loc);
+                }
                 std::string local_sym;
-                if (AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_local_rename) {
+                if (AST::is_a<AST::UseSymbol_t>(*x.m_symbols[i]) && 
+                    AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_local_rename) {
                     local_sym = to_lower(AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_local_rename);
                 } else {
                     local_sym = remote_sym;
@@ -1473,6 +1492,24 @@ public:
                             x.base.base.loc);
                     }
                     ASR::GenericProcedure_t *gp = ASR::down_cast<ASR::GenericProcedure_t>(t);
+                    Str name;
+                    name.from_str(al, local_sym);
+                    char *cname = name.c_str(al);
+                    ASR::asr_t *ep = ASR::make_ExternalSymbol_t(
+                        al, t->base.loc,
+                        current_scope,
+                        /* a_name */ cname,
+                        t,
+                        m->m_name, nullptr, 0, gp->m_name,
+                        dflt_access
+                        );
+                    current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(ep);
+                } else if (ASR::is_a<ASR::CustomOperator_t>(*t)) {
+                    if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                        throw SemanticError("Symbol already defined",
+                            x.base.base.loc);
+                    }
+                    ASR::CustomOperator_t *gp = ASR::down_cast<ASR::CustomOperator_t>(t);
                     Str name;
                     name.from_str(al, local_sym);
                     char *cname = name.c_str(al);

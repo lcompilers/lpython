@@ -420,7 +420,21 @@ bool use_overloaded_assignment(ASR::expr_t* target, ASR::expr_t* value,
                     a_args.reserve(al, 2);
                     a_args.push_back(al, target);
                     a_args.push_back(al, value);
-                    asr = ASR::make_SubroutineCall_t(al, loc, curr_scope->scope[std::string(subrout->m_name)], orig_sym,
+                    std::string subrout_name = to_lower(subrout->m_name);
+                    std::string mangled_name = subrout_name + "@~assign"; 
+                    ASR::symbol_t* imported_subrout = nullptr;
+                    if( sym->type == ASR::symbolType::ExternalSymbol  && 
+                        curr_scope->scope.find(mangled_name) == curr_scope->scope.end()) {
+                        ASR::ExternalSymbol_t* ext_sym = ASR::down_cast<ASR::ExternalSymbol_t>(sym);
+                        imported_subrout = ASR::down_cast<ASR::symbol_t>(
+                                                            ASR::make_ExternalSymbol_t(al,
+                                                            loc, curr_scope,
+                                                            s2c(al, mangled_name), proc,
+                                                            ext_sym->m_module_name, nullptr, 0,
+                                                            subrout->m_name, ASR::accessType::Private));
+                        curr_scope->scope[mangled_name] = imported_subrout;
+                    }
+                    asr = ASR::make_SubroutineCall_t(al, loc, curr_scope->scope[mangled_name], orig_sym,
                                                         a_args.p, 2, nullptr);
                 }
             }
