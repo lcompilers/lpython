@@ -1661,8 +1661,10 @@ public:
     }
 
     bool types_equal(const ASR::ttype_t &a, const ASR::ttype_t &b) {
-        if ((a.type == ASR::ttypeType::Derived || a.type == ASR::ttypeType::Class) &&
-            (b.type == ASR::ttypeType::Derived || b.type == ASR::ttypeType::Class)) {
+        // TODO: If anyone of the input or argument is derived type then
+        // add support for checking member wise types and do not compare
+        // directly. From stdlib_string len(pattern) error.
+        if (b.type == ASR::ttypeType::Derived || b.type == ASR::ttypeType::Class) {
             return true;
         }
         if (a.type == b.type) {
