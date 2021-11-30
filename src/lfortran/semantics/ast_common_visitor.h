@@ -1645,12 +1645,19 @@ public:
     template <typename T>
     bool argument_types_match(const Vec<ASR::expr_t*> &args,
             const T &sub) {
-        if (args.size() == sub.n_args) {
-            for (size_t i=0; i < args.size(); i++) {
+       if (args.size() <= sub.n_args) {
+            size_t i;
+            for (i = 0; i < args.size(); i++) {
                 ASR::Variable_t *v = LFortran::ASRUtils::EXPR2VAR(sub.m_args[i]);
                 ASR::ttype_t *arg1 = LFortran::ASRUtils::expr_type(args[i]);
                 ASR::ttype_t *arg2 = v->m_type;
                 if (!types_equal(*arg1, *arg2)) {
+                    return false;
+                }
+            }
+            for( ; i < sub.n_args; i++ ) {
+                ASR::Variable_t *v = LFortran::ASRUtils::EXPR2VAR(sub.m_args[i]);
+                if( v->m_presence != ASR::presenceType::Optional ) {
                     return false;
                 }
             }

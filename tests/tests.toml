@@ -389,6 +389,10 @@ filename = "../integration_tests/subroutines_06.f90"
 asr = true
 
 [[test]]
+filename = "../integration_tests/subroutines_07.f90"
+asr = true
+
+[[test]]
 filename = "scopes1.f90"
 asr = true
 
