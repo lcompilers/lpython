@@ -1330,6 +1330,11 @@ asr = true
 filename = "../integration_tests/int_02.f90"
 asr = true
 
+# int (large integer)
+[[test]]
+filename = "../integration_tests/int_03.f90"
+asr = true
+
 
 [[test]]
 filename = "../integration_tests/intrinsics_open_close_read_write.f90"

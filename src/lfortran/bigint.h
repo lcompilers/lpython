@@ -99,6 +99,22 @@ inline static std::string int_to_str(int64_t i) {
     }
 }
 
+inline static bool is_int64(std::string str_repr) {
+    std::string str_int64 = "9223372036854775807";
+    if( str_repr.size() > str_int64.size() ) {
+        return false;
+    }
+    
+    if( str_repr.size() < str_int64.size() ) {
+        return true;
+    }
+
+    size_t i;
+    for( i = 0; i < str_repr.size() - 1 && str_repr[i] == str_int64[i]; i++  ) {
+    }
+    return i == str_repr.size() - 1 || str_repr[i] < str_int64[i];
+}
+
 /* BigInt is a thin wrapper over the functionality exposed in the functions
  * above.  The idea is that one can use the int64_t type directly and just use
  * the function above to handle the large integer aspects, and if it is a small
