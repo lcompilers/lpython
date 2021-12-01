@@ -100,7 +100,7 @@ inline static std::string int_to_str(int64_t i) {
 }
 
 inline static bool is_int64(std::string str_repr) {
-    std::string str_int64 = std::to_string(INT64_MAX);
+    std::string str_int64 = "9223372036854775807";
     if( str_repr.size() > str_int64.size() ) {
         return false;
     }

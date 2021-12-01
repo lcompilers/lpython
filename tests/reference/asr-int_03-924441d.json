@@ -2,11 +2,11 @@
     "basename": "asr-int_03-924441d",
     "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/int_03.f90",
-    "infile_hash": "8f05bdd96e7208315d9e7c21d146d8a8cfc10e007f534db1d95598a5",
+    "infile_hash": "e8b652fe103338a6d8caf4e51635132f343995c89c0bcdaf633f925e",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-int_03-924441d.stdout",
-    "stdout_hash": "873f486c56ccd1985846b06b2a7f85003e00d16bd8507e0cb3362296",
+    "stdout_hash": "4969fcb324cf764cc671683eab9fb2872f81c456b9ebc8e9ed164655",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
