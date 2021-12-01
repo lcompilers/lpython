@@ -719,6 +719,10 @@ ast_f90 = true
 filename = "../integration_tests/derived_types_06.f90"
 asr = true
 
+[[test]]
+filename = "../integration_tests/derived_types_07.f90"
+asr = true
+
 
 [[test]]
 filename = "fn2.f90"
