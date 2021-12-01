@@ -137,6 +137,18 @@ public:
         tmp = tmp0;
     }
 
+    void visit_Procedure(const AST::Procedure_t&) {
+        // To Be Implemented
+    }
+
+    void visit_Private(const AST::Private_t&) {
+        // To Be Implemented
+    }
+
+    void visit_FinalName(const AST::FinalName_t&) {
+        // To Be Implemented
+    }
+
     template <typename T, typename R>
     void visit_ModuleSubmoduleCommon(const T &x, std::string parent_name="") {
         SymbolTable *parent_scope = current_scope;
