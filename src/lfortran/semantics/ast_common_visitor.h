@@ -1411,13 +1411,11 @@ public:
                 x.base.base.loc, ikind, nullptr, 0));
         if (BigInt::is_int_ptr(x.m_n)) {
             std::string str_repr = BigInt::largeint_to_string(x.m_n);
-            Str lstr;
-            lstr.from_str(al, str_repr);
-            int64_t m_n = BigInt::string_to_largeint(al, lstr);
-            if( !m_n ) {
+            if( !BigInt::is_int64(str_repr) ) {
                 throw SemanticError("Integer constants larger than 2^62-1 are not implemented yet",
                                     x.base.base.loc);
             }
+            int64_t m_n = std::stoll(str_repr);
             tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
                                                 m_n, type);
         } else {
