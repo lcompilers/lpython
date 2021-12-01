@@ -1412,7 +1412,7 @@ public:
         if (BigInt::is_int_ptr(x.m_n)) {
             std::string str_repr = BigInt::largeint_to_string(x.m_n);
             if( !BigInt::is_int64(str_repr) ) {
-                throw SemanticError("Integer constants larger than 2^62-1 are not implemented yet",
+                throw SemanticError("Integer constants larger than 2^64-1 are not implemented yet",
                                     x.base.base.loc);
             }
             int64_t m_n = std::stoll(str_repr);
