@@ -187,6 +187,7 @@ RUN(NAME modulo_01 LABELS gfortran llvm)
 
 RUN(NAME int_01 LABELS gfortran llvm) # int body
 RUN(NAME int_02 LABELS gfortran) # int symboltable
+RUN(NAME int_03 LABELS gfortran llvm) # large int
 
 RUN(NAME intrinsics_01 LABELS gfortran) # sqrt, abs, log
 RUN(NAME intrinsics_02 LABELS gfortran llvm) # sin
