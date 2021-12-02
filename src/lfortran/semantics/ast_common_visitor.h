@@ -257,6 +257,9 @@ public:
     case (AST::Or):
       op = ASR::Or;
       break;
+    case (AST::Xor):
+      op = ASR::Xor;
+      break;
     case (AST::NEqv):
       op = ASR::NEqv;
       break;
@@ -264,7 +267,7 @@ public:
       op = ASR::Eqv;
       break;
     default:
-      throw SemanticError(R"""(Only .and., .or., .neqv., .eqv.
+      throw SemanticError(R"""(Only .and., .or., .xor., .neqv., .eqv.
                                     implemented for logical type operands.)""",
                           x.base.base.loc);
     }

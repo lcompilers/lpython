@@ -230,7 +230,7 @@ ttype
     | Class(symbol class_type, dimension* dims)
     | Pointer(ttype type)
 
-boolop = And | Or | NEqv | Eqv
+boolop = And | Or | Xor | NEqv | Eqv
 
 binop = Add | Sub | Mul | Div | Pow
 
