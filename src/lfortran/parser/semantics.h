@@ -673,6 +673,7 @@ ast_t* parenthesis(Allocator &al, Location &loc, expr_t *op) {
 #define NOT(x, l) make_UnaryOp_t(p.m_a, l, unaryopType::Not, EXPR(x))
 #define AND(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::And, EXPR(y))
 #define OR(x, y, l)  make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::Or,  EXPR(y))
+#define XOR(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::Xor, EXPR(y))
 #define EQV(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::Eqv, EXPR(y))
 #define NEQV(x, y, l) make_BoolOp_t(p.m_a, l, EXPR(x), boolopType::NEqv, EXPR(y))
 #define DEFOP(x, op, y, l) make_DefBinOp_t(p.m_a, l, EXPR(x), \
