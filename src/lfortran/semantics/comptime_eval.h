@@ -115,7 +115,7 @@ struct IntrinsicProcedures {
             {"not", {m_builtin, &eval_not, false}},
             {"iachar",  {m_builtin, &eval_iachar, false}},
             {"achar", {m_builtin, &eval_achar, false}},
-            {"len", {m_builtin, &not_implemented, false}},
+            {"len", {m_builtin, &eval_len, false}},
             {"size", {m_builtin, &not_implemented, false}},
             {"shape", {m_builtin, &not_implemented, false}},
             {"present", {m_builtin, &not_implemented, false}},
