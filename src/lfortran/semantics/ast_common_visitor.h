@@ -248,7 +248,7 @@ public:
 
   inline static void visit_BoolOp(Allocator &al, const AST::BoolOp_t &x,
                                   ASR::expr_t *&left, ASR::expr_t *&right,
-                                  ASR::asr_t *&asr) {
+                                  ASR::asr_t *&asr, diag::Diagnostics &diag) {
     ASR::boolopType op;
     switch (x.m_op) {
     case (AST::And):
@@ -259,6 +259,11 @@ public:
       break;
     case (AST::Xor):
       op = ASR::Xor;
+        diag.semantic_warning_label(
+            ".xor. is an LFortran extension",
+            {x.base.base.loc},
+            "please help us: what is the Fortran way to specify xor?"
+        );
       break;
     case (AST::NEqv):
       op = ASR::NEqv;
@@ -1310,7 +1315,7 @@ public:
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
-        CommonVisitorMethods::visit_BoolOp(al, x, left, right, tmp);
+        CommonVisitorMethods::visit_BoolOp(al, x, left, right, tmp, diag);
     }
 
     void visit_StrOp(const AST::StrOp_t &x) {
