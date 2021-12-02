@@ -33,6 +33,7 @@ namespace {
         switch (type) {
             case (AST::boolopType::And) : return " .and. ";
             case (AST::boolopType::Or) : return " .or. ";
+            case (AST::boolopType::Xor) : return " .xor. ";
             case (AST::boolopType::Eqv) : return " .eqv. ";
             case (AST::boolopType::NEqv) : return " .neqv. ";
         }
@@ -65,6 +66,7 @@ namespace {
         switch (type) {
             case (AST::intrinsicopType::AND) : return ".and.";
             case (AST::intrinsicopType::OR) : return ".or.";
+            case (AST::intrinsicopType::XOR) : return ".xor.";
             case (AST::intrinsicopType::EQV) : return ".eqv.";
             case (AST::intrinsicopType::NEQV) : return ".neqv.";
             case (AST::intrinsicopType::PLUS) : return "+";
@@ -3350,6 +3352,10 @@ public:
                 break;
             }
             case (AST::boolopType::Or) : {
+                last_expr_precedence = 3;
+                break;
+            }
+            case (AST::boolopType::Xor) : {
                 last_expr_precedence = 3;
                 break;
             }
