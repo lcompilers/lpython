@@ -2714,6 +2714,10 @@ public:
                     tmp = builder->CreateOr(left_val, right_val);
                     break;
                 };
+                case ASR::boolopType::Xor: {
+                    tmp = builder->CreateXor(left_val, right_val);
+                    break;
+                };
                 case ASR::boolopType::NEqv: {
                     tmp = builder->CreateXor(left_val, right_val);
                     break;

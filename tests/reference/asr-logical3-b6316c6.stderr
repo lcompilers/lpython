@@ -1,0 +1,11 @@
+warning: .xor. is an LFortran extension
+  --> tests/../integration_tests/logical3.f90:24:5
+   |
+24 | if (a .xor. b) then
+   |     ^^^^^^^^^ please help us: what is the Fortran way to specify xor?
+
+warning: .xor. is an LFortran extension
+  --> tests/../integration_tests/logical3.f90:74:5
+   |
+74 | if (a .xor. b) then
+   |     ^^^^^^^^^ please help us: what is the Fortran way to specify xor?

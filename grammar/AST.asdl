@@ -231,7 +231,7 @@ trivia_node
     | EndOfLine()
     | Semicolon()
 
-boolop = And | Or | Eqv | NEqv
+boolop = And | Or | Xor | Eqv | NEqv
 
 operator = Add | Sub | Mul | Div | Pow
 
@@ -242,7 +242,7 @@ unaryop = Invert | Not | UAdd | USub
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
 intrinsicop
-    = AND | OR | EQV | NEQV
+    = AND | OR | XOR | EQV | NEQV
     | PLUS | MINUS | STAR | DIV | POW
     | NOT
     | EQ | NOTEQ | LT | LTE | GT | GTE
