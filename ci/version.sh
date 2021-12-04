@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This script extracts the project's current version from git using
 # `git describe`, which determines the version based on the latest tag, such as:

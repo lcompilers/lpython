@@ -911,8 +911,15 @@ int compile_to_object_file_cpp(const std::string &infile,
                 out.open(outfile_empty);
                 out << " ";
             }
+	    std::string CC;
+            if (compiler_options.platform == LFortran::Platform::macOS_Intel
+                || compiler_options.platform == LFortran::Platform::macOS_ARM
+                || compiler_options.platform == LFortran::Platform::FreeBSD) {
+                CC = "clang";
+            } else {
+                CC = "gcc";
+            }
             char *env_CC = std::getenv("LFORTRAN_CC");
-            std::string CC="gcc";
             if (env_CC) CC = env_CC;
             std::string cmd = CC + " -c " + outfile_empty + " -o " + outfile;
             int err = system(cmd.c_str());
@@ -1053,7 +1060,8 @@ int link_executable(const std::vector<std::string> &infiles,
         } else {
             std::string CC;
             if (compiler_options.platform == LFortran::Platform::macOS_Intel
-                || compiler_options.platform == LFortran::Platform::macOS_ARM) {
+                || compiler_options.platform == LFortran::Platform::macOS_ARM
+                || compiler_options.platform == LFortran::Platform::FreeBSD) {
                 CC = "clang";
             } else {
                 CC = "gcc";
@@ -1281,6 +1289,7 @@ int main(int argc, char *argv[])
                 case (LFortran::Platform::macOS_Intel) : std::cout << "macOS Intel"; break;
                 case (LFortran::Platform::macOS_ARM) : std::cout << "macOS ARM"; break;
                 case (LFortran::Platform::Windows) : std::cout << "Windows"; break;
+                case (LFortran::Platform::FreeBSD) : std::cout << "FreeBSD"; break;
             }
             std::cout << std::endl;
 #ifdef HAVE_LFORTRAN_LLVM

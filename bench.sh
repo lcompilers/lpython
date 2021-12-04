@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Compile the latest master and a given MR in Release mode from scratch.
 #

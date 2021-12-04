@@ -10,7 +10,8 @@ enum Platform {
     Linux,
     macOS_Intel,
     macOS_ARM,
-    Windows
+    Windows,
+    FreeBSD
 };
 
 Platform get_platform();
