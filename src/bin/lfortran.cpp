@@ -911,14 +911,7 @@ int compile_to_object_file_cpp(const std::string &infile,
                 out.open(outfile_empty);
                 out << " ";
             }
-	    std::string CC;
-            if (compiler_options.platform == LFortran::Platform::macOS_Intel
-                || compiler_options.platform == LFortran::Platform::macOS_ARM
-                || compiler_options.platform == LFortran::Platform::FreeBSD) {
-                CC = "clang";
-            } else {
-                CC = "gcc";
-            }
+	    std::string CC = "cc";
             char *env_CC = std::getenv("LFORTRAN_CC");
             if (env_CC) CC = env_CC;
             std::string cmd = CC + " -c " + outfile_empty + " -o " + outfile;
@@ -1058,14 +1051,7 @@ int link_executable(const std::vector<std::string> &infiles,
                 return 10;
             }
         } else {
-            std::string CC;
-            if (compiler_options.platform == LFortran::Platform::macOS_Intel
-                || compiler_options.platform == LFortran::Platform::macOS_ARM
-                || compiler_options.platform == LFortran::Platform::FreeBSD) {
-                CC = "clang";
-            } else {
-                CC = "gcc";
-            }
+            std::string CC = "cc";
             char *env_CC = std::getenv("LFORTRAN_CC");
             if (env_CC) CC = env_CC;
             std::string base_path = "\"" + runtime_library_dir + "\"";
