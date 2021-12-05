@@ -99,7 +99,11 @@ Platform get_platform()
     return Platform::macOS_Intel;
 #        endif
 #    else
+#        ifdef __FreeBSD__
+    return Platform::FreeBSD;
+#        else
     return Platform::Linux;
+#        endif
 #    endif
 #endif
 }
