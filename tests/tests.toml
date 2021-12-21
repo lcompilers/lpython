@@ -928,6 +928,10 @@ filename = "../integration_tests/interface_08.f90"
 asr = true
 
 [[test]]
+filename = "../integration_tests/interface_10.f90"
+asr = true
+
+[[test]]
 filename = "../integration_tests/if_04.f90"
 ast = true
 

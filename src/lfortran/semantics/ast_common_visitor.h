@@ -1753,6 +1753,16 @@ public:
                     }
                     break;
                 }
+                case (ASR::ttypeType::Character) : {
+                    ASR::Character_t *a2 = ASR::down_cast<ASR::Character_t>(&a);
+                    ASR::Character_t *b2 = ASR::down_cast<ASR::Character_t>(&b);
+                    if (a2->m_kind == b2->m_kind) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                    break;
+                }
                 default : return false;
             }
         }
