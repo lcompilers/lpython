@@ -13,6 +13,7 @@ contains
 end module
 
 program interface_10
+    use interface_10_m
     character :: x, y
     x = 'A'
     call chars(x, y)
