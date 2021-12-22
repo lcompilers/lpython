@@ -229,7 +229,7 @@ public:
             tmp += s[pos];
             pos++;
             if (pos >= s.size()) {
-                throw LFortranException("read_int64: String is too short for deserialization.");
+                throw LFortranException("read_float64: String is too short for deserialization.");
             }
         }
         pos++;
