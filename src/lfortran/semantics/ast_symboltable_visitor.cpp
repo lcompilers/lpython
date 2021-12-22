@@ -1112,7 +1112,7 @@ public:
             fill_interface_proc_names(x, proc_names);
             generic_procedures[std::string(generic_name)] = proc_names;
             interface_name.clear();
-        } else if (AST::is_a<AST::InterfaceHeader_t>(*x.m_header) || 
+        } else if (AST::is_a<AST::InterfaceHeader_t>(*x.m_header) ||
                    AST::is_a<AST::AbstractInterfaceHeader_t>(*x.m_header)) {
             std::vector<std::string> proc_names;
             for (size_t i = 0; i < x.n_items; i++) {
@@ -1312,7 +1312,8 @@ public:
         // Import all symbols from the module, e.g.:
         //     use a
         for (auto &item : m->m_symtab->scope) {
-            if( current_scope->scope.find(item.first) != current_scope->scope.end() ) {
+            if( current_scope->scope.find(item.first) != current_scope->scope.end() &&
+                !in_submodule ) {
                 continue;
             }
             // TODO: only import "public" symbols from the module
@@ -1382,21 +1383,21 @@ public:
                 // We have to "repack" the ExternalSymbol so that it lives in the
                 // local symbol table
                 ASR::ExternalSymbol_t *es0 = ASR::down_cast<ASR::ExternalSymbol_t>(item.second);
-                ASR::asr_t *es = ASR::make_ExternalSymbol_t(
-                    al, es0->base.base.loc,
-                    /* a_symtab */ current_scope,
-                    /* a_name */ es0->m_name,
-                    es0->m_external,
-                    es0->m_module_name, nullptr, 0,
-                    es0->m_original_name,
-                    dflt_access
-                    );
                 std::string sym;
                 if( in_submodule ) {
                     sym = item.first;
                 } else {
                     sym = to_lower(es0->m_original_name);
                 }
+                ASR::asr_t *es = ASR::make_ExternalSymbol_t(
+                    al, es0->base.base.loc,
+                    /* a_symtab */ current_scope,
+                    /* a_name */ s2c(al, sym),
+                    es0->m_external,
+                    es0->m_module_name, nullptr, 0,
+                    es0->m_original_name,
+                    dflt_access
+                    );
                 current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(es);
             } else if( ASR::is_a<ASR::DerivedType_t>(*item.second) ) {
                 ASR::DerivedType_t *mv = ASR::down_cast<ASR::DerivedType_t>(item.second);
@@ -1467,7 +1468,7 @@ public:
                         throw SemanticError("Symbol with use not supported yet", x.base.base.loc);
                 }
                 std::string local_sym;
-                if (AST::is_a<AST::UseSymbol_t>(*x.m_symbols[i]) && 
+                if (AST::is_a<AST::UseSymbol_t>(*x.m_symbols[i]) &&
                     AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_local_rename) {
                     local_sym = to_lower(AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_local_rename);
                 } else {
