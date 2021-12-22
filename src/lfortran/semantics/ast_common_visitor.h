@@ -1359,7 +1359,7 @@ public:
     }
 
     void visit_BOZ(const AST::BOZ_t& x) {
-        std::string s = std::string(x.m_s); 
+        std::string s = std::string(x.m_s);
         int base = -1;
         ASR::bozType boz_type;
         if( s[0] == 'b' || s[0] == 'B' ) {
@@ -1372,9 +1372,9 @@ public:
             boz_type = ASR::bozType::Octal;
             base = 8;
         } else {
-            throw SemanticError(R"""(Only 'b', 'o' and 'z' 
-                                are accepted as prefixes of 
-                                BOZ literal constants.)""", 
+            throw SemanticError(R"""(Only 'b', 'o' and 'z'
+                                are accepted as prefixes of
+                                BOZ literal constants.)""",
                                 x.base.base.loc);
         }
         std::string boz_str = s.substr(2, s.size() - 2);
@@ -1531,7 +1531,7 @@ public:
     void visit_kwargs(Vec<ASR::expr_t*> &args, AST::keyword_t *kwargs, size_t n,
                 ASR::expr_t **fn_args, size_t fn_n_args, const Location &loc) {
         size_t n_args = args.size();
-        if (args.size() + n != fn_n_args) {
+        if (n_args + n != fn_n_args) {
             throw SemanticError(
                 "Procedure accepts " + std::to_string(fn_n_args)
                 + " arguments, but " + std::to_string(args.size() + n)
@@ -1662,7 +1662,7 @@ public:
             const ASR::GenericProcedure_t &p, Location loc) {
         for (size_t i=0; i < p.n_procs; i++) {
             if( ASR::is_a<ASR::ClassProcedure_t>(*p.m_procs[i]) ) {
-                ASR::ClassProcedure_t *clss_fn 
+                ASR::ClassProcedure_t *clss_fn
                     = ASR::down_cast<ASR::ClassProcedure_t>(p.m_procs[i]);
                 const ASR::symbol_t *proc = ASRUtils::symbol_get_past_external(clss_fn->m_proc);
                 if( select_func_subrout(proc, args, loc) ) {
