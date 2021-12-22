@@ -479,6 +479,13 @@ public:
         tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, i, type);
     }
 
+    void visit_ConstantFloat(const AST::ConstantFloat_t &x) {
+        double f = x.m_value;
+        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                8, nullptr, 0));
+        tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, f, type);
+    }
+
     void visit_ConstantStr(const AST::ConstantStr_t &x) {
         char *s = x.m_value;
         size_t s_size = std::string(s).size();

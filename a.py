@@ -86,6 +86,9 @@ class Serialization(python_ast.SerializationBaseVisitor):
     def write_int64(self, i):
         self.s += str(i) + " "
 
+    def write_float64(self, f):
+        self.s += str(f) + " "
+
     def write_string(self, s):
         self.write_int64(len(s))
         self.s += str(s) + " "
