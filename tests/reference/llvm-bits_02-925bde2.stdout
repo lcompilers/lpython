@@ -5,9 +5,56 @@ source_filename = "LFortran"
 @1 = private unnamed_addr constant [6 x i8] c"%lld\0A\00", align 1
 @2 = private unnamed_addr constant [6 x i8] c"%lld\0A\00", align 1
 
-declare i32 @__module_lfortran_intrinsic_builtin_bit_size(i32*)
+define void @__module_lfortran_intrinsic_bit_mvbits32(i32* %from, i32* %frompos, i32* %len, i32* %to, i32* %topos) {
+.entry:
+  %0 = load i32, i32* %from, align 4
+  %1 = load i32, i32* %frompos, align 4
+  %2 = load i32, i32* %len, align 4
+  %3 = load i32, i32* %to, align 4
+  %4 = load i32, i32* %topos, align 4
+  %5 = call i32 @_lfortran_mvbits32(i32 %0, i32 %1, i32 %2, i32 %3, i32 %4)
+  store i32 %5, i32* %to, align 4
+  br label %return
 
-declare i32 @__module_lfortran_intrinsic_builtin_not(i32*)
+return:                                           ; preds = %.entry
+  ret void
+}
+
+declare i32 @_lfortran_mvbits32(i32, i32, i32, i32, i32)
+
+define void @__module_lfortran_intrinsic_bit_mvbits64(i64* %from, i32* %frompos, i32* %len, i64* %to, i32* %topos) {
+.entry:
+  %0 = load i64, i64* %from, align 4
+  %1 = load i32, i32* %frompos, align 4
+  %2 = load i32, i32* %len, align 4
+  %3 = load i64, i64* %to, align 4
+  %4 = load i32, i32* %topos, align 4
+  %5 = call i64 @_lfortran_mvbits64(i64 %0, i32 %1, i32 %2, i64 %3, i32 %4)
+  store i64 %5, i64* %to, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
+  ret void
+}
+
+declare i64 @_lfortran_mvbits64(i64, i32, i32, i64, i32)
+
+define i64 @__module_lfortran_intrinsic_bit_not64(i64* %x) {
+.entry:
+  %r = alloca i64, align 8
+  %0 = load i64, i64* %x, align 4
+  %1 = call i64 @_lfortran_not64(i64 %0)
+  store i64 %1, i64* %r, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
+  %2 = load i64, i64* %r, align 4
+  ret i64 %2
+}
+
+declare i64 @_lfortran_not64(i64)
+
+declare i32 @__module_lfortran_intrinsic_builtin_bit_size(i32*)
 
 define i32 @main() {
 .entry:

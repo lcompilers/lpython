@@ -81,10 +81,6 @@ interface
     integer, intent(in) :: x
     end function
 
-    integer function not(x)
-    integer, intent(in) :: x
-    end function
-
     integer function iachar(c, kind)
     character(len=1), intent(in) :: c
     integer, optional :: kind
