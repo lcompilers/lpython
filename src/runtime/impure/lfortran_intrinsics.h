@@ -122,6 +122,8 @@ LFORTRAN_API void _lfortran_free(char* ptr);
 LFORTRAN_API void _lfortran_string_init(int size_plus_one, char *s);
 LFORTRAN_API int32_t _lfortran_iand32(int32_t x, int32_t y);
 LFORTRAN_API int64_t _lfortran_iand64(int64_t x, int64_t y);
+LFORTRAN_API int32_t _lfortran_not32(int32_t x);
+LFORTRAN_API int64_t _lfortran_not64(int64_t x);
 LFORTRAN_API int32_t _lfortran_ior32(int32_t x, int32_t y);
 LFORTRAN_API int64_t _lfortran_ior64(int64_t x, int64_t y);
 LFORTRAN_API int32_t _lfortran_ieor32(int32_t x, int32_t y);
@@ -134,6 +136,20 @@ LFORTRAN_API int32_t _lfortran_btest32(int32_t i, int pos);
 LFORTRAN_API int64_t _lfortran_btest64(int64_t i, int pos);
 LFORTRAN_API int32_t _lfortran_ishft32(int32_t i, int32_t shift);
 LFORTRAN_API int64_t _lfortran_ishft64(int64_t i, int64_t shift);
+LFORTRAN_API int32_t _lfortran_mvbits32(int32_t from, int32_t frompos,
+                                        int32_t len, int32_t to, int32_t topos);
+LFORTRAN_API int64_t _lfortran_mvbits64(int64_t from, int32_t frompos,
+                                        int32_t len, int64_t to, int32_t topos);
+LFORTRAN_API int32_t _lfortran_bgt32(int32_t i, int32_t j);
+LFORTRAN_API int32_t _lfortran_bgt64(int64_t i, int64_t j);
+LFORTRAN_API int32_t _lfortran_bge32(int32_t i, int32_t j);
+LFORTRAN_API int32_t _lfortran_bge64(int64_t i, int64_t j);
+LFORTRAN_API int32_t _lfortran_ble32(int32_t i, int32_t j);
+LFORTRAN_API int32_t _lfortran_ble64(int64_t i, int64_t j);
+LFORTRAN_API int32_t _lfortran_blt32(int32_t i, int32_t j);
+LFORTRAN_API int32_t _lfortran_blt64(int64_t i, int64_t j);
+LFORTRAN_API int32_t _lfortran_ibits32(int32_t i, int32_t pos, int32_t len);
+LFORTRAN_API int64_t _lfortran_ibits64(int64_t i, int32_t pos, int32_t len);
 LFORTRAN_API void _lfortran_cpu_time(double *t);
 LFORTRAN_API void _lfortran_i32sys_clock(
         int32_t *count, int32_t *rate, int32_t *max);
