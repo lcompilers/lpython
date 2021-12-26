@@ -73,6 +73,29 @@ cxx:
     - ctest --output-on-failure
     - ./src/bin/parse
 
+# Test the C++ version
+libasr:
+  stage: build
+  image: registry.gitlab.com/lfortran/ci-images:full-1.7.0
+  script:
+    - export PATH="$HOME/conda_root/bin:$PATH"
+    - conda install -c conda-forge rapidjson
+    - tar xzf dist/lfortran-*.tar.gz
+    - cd lfortran-*
+    - CXXFLAGS="-Werror" cmake
+         -DCMAKE_PREFIX_PATH=$HOME/conda_root
+         -DCMAKE_INSTALL_PREFIX=`pwd`
+         -DCMAKE_BUILD_TYPE=Debug
+         -DWITH_JSON=yes
+         .
+    - cd src/libasr
+    - CXXFLAGS="-Werror" cmake
+         -DCMAKE_PREFIX_PATH=$HOME/conda_root
+         -DCMAKE_INSTALL_PREFIX=`pwd`
+         -DCMAKE_BUILD_TYPE=Debug
+         .
+    - cmake --build .
+
 # Create a binary tarball with the C++ based LFortran
 cxx_binary:
   stage: build
