@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_PASS_ARRAY_OP_H
 #define LFORTRAN_PASS_ARRAY_OP_H
 
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 
 namespace LFortran {
 

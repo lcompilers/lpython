@@ -38,26 +38,26 @@
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Path.h>
 
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 #include <lfortran/containers.h>
-#include <lfortran/codegen/asr_to_llvm.h>
-#include <lfortran/pass/do_loops.h>
-#include <lfortran/pass/for_all.h>
-#include <lfortran/pass/implied_do_loops.h>
-#include <lfortran/pass/array_op.h>
-#include <lfortran/pass/select_case.h>
-#include <lfortran/pass/global_stmts.h>
-#include <lfortran/pass/param_to_const.h>
-#include <lfortran/pass/nested_vars.h>
-#include <lfortran/pass/print_arr.h>
-#include <lfortran/pass/arr_slice.h>
-#include <lfortran/pass/class_constructor.h>
-#include <lfortran/pass/unused_functions.h>
+#include <libasr/codegen/asr_to_llvm.h>
+#include <libasr/pass/do_loops.h>
+#include <libasr/pass/for_all.h>
+#include <libasr/pass/implied_do_loops.h>
+#include <libasr/pass/array_op.h>
+#include <libasr/pass/select_case.h>
+#include <libasr/pass/global_stmts.h>
+#include <libasr/pass/param_to_const.h>
+#include <libasr/pass/nested_vars.h>
+#include <libasr/pass/print_arr.h>
+#include <libasr/pass/arr_slice.h>
+#include <libasr/pass/class_constructor.h>
+#include <libasr/pass/unused_functions.h>
 #include <lfortran/exception.h>
-#include <lfortran/asr_utils.h>
+#include <libasr/asr_utils.h>
 #include <lfortran/pickle.h>
-#include <lfortran/codegen/llvm_utils.h>
-#include <lfortran/codegen/llvm_array_utils.h>
+#include <libasr/codegen/llvm_utils.h>
+#include <libasr/codegen/llvm_array_utils.h>
 
 
 namespace LFortran {

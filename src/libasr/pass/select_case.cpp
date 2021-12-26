@@ -1,9 +1,9 @@
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 #include <lfortran/containers.h>
 #include <lfortran/exception.h>
-#include <lfortran/asr_utils.h>
-#include <lfortran/asr_verify.h>
-#include <lfortran/pass/select_case.h>
+#include <libasr/asr_utils.h>
+#include <libasr/asr_verify.h>
+#include <libasr/pass/select_case.h>
 
 
 namespace LFortran {

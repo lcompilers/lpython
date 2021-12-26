@@ -2,14 +2,14 @@
 #include <memory>
 #include <chrono>
 
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 #include <lfortran/containers.h>
-#include <lfortran/codegen/asr_to_x86.h>
-#include <lfortran/codegen/x86_assembler.h>
-#include <lfortran/pass/do_loops.h>
-#include <lfortran/pass/global_stmts.h>
+#include <libasr/codegen/asr_to_x86.h>
+#include <libasr/codegen/x86_assembler.h>
+#include <libasr/pass/do_loops.h>
+#include <libasr/pass/global_stmts.h>
 #include <lfortran/exception.h>
-#include <lfortran/asr_utils.h>
+#include <libasr/asr_utils.h>
 
 
 namespace LFortran {

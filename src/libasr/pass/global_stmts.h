@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_PASS_GLOBAL_STMTS_H
 #define LFORTRAN_PASS_GLOBAL_STMTS_H
 
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 
 namespace LFortran {
 

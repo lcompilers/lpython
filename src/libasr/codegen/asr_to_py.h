@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_ASR_TO_PY_H
 #define LFORTRAN_ASR_TO_PY_H
 
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 #include <tuple>
 
 namespace LFortran {

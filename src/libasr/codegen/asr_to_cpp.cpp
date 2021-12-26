@@ -1,13 +1,13 @@
 #include <iostream>
 #include <memory>
 
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 #include <lfortran/containers.h>
-#include <lfortran/codegen/asr_to_cpp.h>
+#include <libasr/codegen/asr_to_cpp.h>
 #include <lfortran/exception.h>
-#include <lfortran/asr_utils.h>
+#include <libasr/asr_utils.h>
 #include <lfortran/string_utils.h>
-#include <lfortran/pass/unused_functions.h>
+#include <libasr/pass/unused_functions.h>
 
 
 namespace LFortran {

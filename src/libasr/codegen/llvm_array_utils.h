@@ -12,8 +12,8 @@
 #include <llvm/IR/IRBuilder.h>
 
 #include <lfortran/parser/alloc.h>
-#include <lfortran/asr.h>
-#include <lfortran/codegen/llvm_utils.h>
+#include <libasr/asr.h>
+#include <libasr/codegen/llvm_utils.h>
 
 namespace LFortran {
 

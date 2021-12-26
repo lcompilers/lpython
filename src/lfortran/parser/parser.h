@@ -6,7 +6,7 @@
 #include <memory>
 
 #include <lfortran/containers.h>
-#include <lfortran/diagnostics.h>
+#include <libasr/diagnostics.h>
 #include <lfortran/parser/tokenizer.h>
 
 namespace LFortran

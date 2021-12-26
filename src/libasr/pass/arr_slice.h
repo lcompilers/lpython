@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_PASS_ARR_SLICE_H
 #define LFORTRAN_PASS_ARR_SLICE_H
 
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 
 namespace LFortran {
 

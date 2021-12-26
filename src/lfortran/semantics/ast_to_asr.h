@@ -2,7 +2,7 @@
 #define LFORTRAN_AST_TO_ASR_H
 
 #include <lfortran/ast.h>
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 
 namespace LFortran {
 

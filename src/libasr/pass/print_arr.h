@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_PASS_PRINT_ARR_H
 #define LFORTRAN_PASS_PRINT_ARR_H
 
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 
 namespace LFortran {
 

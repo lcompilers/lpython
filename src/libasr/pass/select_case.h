@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_PASS_SELECT_CASE_H
 #define LFORTRAN_PASS_SELECT_CASE_H
 
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 
 namespace LFortran {
 

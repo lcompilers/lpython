@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_PASS_CLASS_CONSTRUCTOR_H
 #define LFORTRAN_PASS_CLASS_CONSTRUCTOR_H
 
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 
 namespace LFortran {
 

@@ -26,7 +26,7 @@ typedef enum {
 #include <lfortran/parser/location.h>
 #include <lfortran/config.h>
 #include <lfortran/stacktrace.h>
-#include <lfortran/diagnostics.h>
+#include <libasr/diagnostics.h>
 
 namespace LFortran
 {

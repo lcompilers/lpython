@@ -7,8 +7,8 @@
 #include <lfortran/pickle.h>
 #include <lfortran/parser/parser.h>
 #include <lfortran/semantics/ast_to_asr.h>
-#include <lfortran/asr_utils.h>
-#include <lfortran/asr_verify.h>
+#include <libasr/asr_utils.h>
+#include <libasr/asr_verify.h>
 
 using LFortran::TRY;
 using LFortran::string_to_uint64;

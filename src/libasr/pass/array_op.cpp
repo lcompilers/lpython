@@ -1,10 +1,10 @@
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 #include <lfortran/containers.h>
 #include <lfortran/exception.h>
-#include <lfortran/asr_utils.h>
-#include <lfortran/asr_verify.h>
-#include <lfortran/pass/array_op.h>
-#include <lfortran/pass/pass_utils.h>
+#include <libasr/asr_utils.h>
+#include <libasr/asr_verify.h>
+#include <libasr/pass/array_op.h>
+#include <libasr/pass/pass_utils.h>
 
 #include <vector>
 #include <utility>

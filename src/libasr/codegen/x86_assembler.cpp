@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 #endif
 
-#include <lfortran/codegen/x86_assembler.h>
+#include <libasr/codegen/x86_assembler.h>
 
 namespace LFortran {
 

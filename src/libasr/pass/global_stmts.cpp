@@ -1,9 +1,9 @@
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 #include <lfortran/containers.h>
 #include <lfortran/exception.h>
-#include <lfortran/asr_utils.h>
-#include <lfortran/asr_verify.h>
-#include <lfortran/pass/global_stmts.h>
+#include <libasr/asr_utils.h>
+#include <libasr/asr_verify.h>
+#include <libasr/pass/global_stmts.h>
 
 
 namespace LFortran {

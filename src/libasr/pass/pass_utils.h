@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_PASS_UTILS_H
 #define LFORTRAN_PASS_UTILS_H
 
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 #include <lfortran/containers.h>
 
 namespace LFortran {

@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_PASS_IMPLIED_DO_LOOPS_H
 #define LFORTRAN_PASS_IMPLIED_DO_LOOPS_H
 
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 
 namespace LFortran {
 

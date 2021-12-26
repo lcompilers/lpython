@@ -8,10 +8,10 @@
 #include <lfortran/parser/parser.h>
 #include <lfortran/semantics/asr_scopes.h>
 #include <lfortran/ast.h>
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 #include <lfortran/utils.h>
 #include <lfortran/config.h>
-#include <lfortran/diagnostics.h>
+#include <libasr/diagnostics.h>
 
 namespace LFortran {
 

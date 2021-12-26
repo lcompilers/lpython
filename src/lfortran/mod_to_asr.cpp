@@ -7,9 +7,9 @@
 
 #include <zlib.h>
 
-#include <lfortran/asr.h>
-#include <lfortran/asr_utils.h>
-#include <lfortran/asr_verify.h>
+#include <libasr/asr.h>
+#include <libasr/asr_utils.h>
+#include <libasr/asr_verify.h>
 #include <lfortran/mod_to_asr.h>
 #include <lfortran/string_utils.h>
 #include <lfortran/containers.h>

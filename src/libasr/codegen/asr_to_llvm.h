@@ -1,9 +1,9 @@
 #ifndef LFORTRAN_ASR_TO_LLVM_H
 #define LFORTRAN_ASR_TO_LLVM_H
 
-#include <lfortran/asr.h>
-#include <lfortran/codegen/evaluator.h>
-#include <lfortran/codegen/fortran_evaluator.h>
+#include <libasr/asr.h>
+#include <libasr/codegen/evaluator.h>
+#include <libasr/codegen/fortran_evaluator.h>
 
 namespace LFortran {
 

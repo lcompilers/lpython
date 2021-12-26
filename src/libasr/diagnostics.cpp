@@ -1,10 +1,10 @@
 #include <iomanip>
 #include <sstream>
 
-#include <lfortran/diagnostics.h>
+#include <libasr/diagnostics.h>
 #include <lfortran/assert.h>
 #include <lfortran/exception.h>
-#include <lfortran/codegen/fortran_evaluator.h>
+#include <libasr/codegen/fortran_evaluator.h>
 #include <lfortran/parser/parser.h>
 
 namespace LFortran::diag {

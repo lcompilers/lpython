@@ -1,8 +1,8 @@
 #ifndef LFORTRAN_ASR_TO_X86_H
 #define LFORTRAN_ASR_TO_X86_H
 
-#include <lfortran/asr.h>
-#include <lfortran/codegen/fortran_evaluator.h>
+#include <libasr/asr.h>
+#include <libasr/codegen/fortran_evaluator.h>
 
 namespace LFortran {
 

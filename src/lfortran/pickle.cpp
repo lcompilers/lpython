@@ -4,7 +4,7 @@
 #include <lfortran/pickle.h>
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/parser.tab.hh>
-#include <lfortran/asr_utils.h>
+#include <libasr/asr_utils.h>
 #include <lfortran/string_utils.h>
 
 using LFortran::AST::ast_t;

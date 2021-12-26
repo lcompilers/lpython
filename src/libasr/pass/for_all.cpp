@@ -1,10 +1,10 @@
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 #include <lfortran/containers.h>
 #include <lfortran/exception.h>
-#include <lfortran/asr_utils.h>
-#include <lfortran/asr_verify.h>
-#include <lfortran/pass/for_all.h>
-#include <lfortran/pass/stmt_walk_visitor.h>
+#include <libasr/asr_utils.h>
+#include <libasr/asr_verify.h>
+#include <libasr/pass/for_all.h>
+#include <libasr/pass/stmt_walk_visitor.h>
 
 namespace LFortran {
 

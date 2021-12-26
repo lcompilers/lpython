@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_PASS_FOR_ALL
 #define LFORTRAN_PASS_FOR_ALL
 
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 
 namespace LFortran {
 

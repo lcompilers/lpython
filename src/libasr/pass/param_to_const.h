@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_PASS_PARAM_TO_CONST_H
 #define LFORTRAN_PASS_PARAM_TO_CONST_H
 
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 
 namespace LFortran {
 

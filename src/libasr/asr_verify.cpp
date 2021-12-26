@@ -1,7 +1,7 @@
 #include <lfortran/containers.h>
 #include <lfortran/exception.h>
-#include <lfortran/asr_utils.h>
-#include <lfortran/asr_verify.h>
+#include <libasr/asr_utils.h>
+#include <libasr/asr_verify.h>
 
 
 namespace LFortran {

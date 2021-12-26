@@ -4,8 +4,8 @@
 #include <lfortran/serialization.h>
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/parser.tab.hh>
-#include <lfortran/asr_utils.h>
-#include <lfortran/asr_verify.h>
+#include <libasr/asr_utils.h>
+#include <libasr/asr_verify.h>
 #include <lfortran/bwriter.h>
 #include <lfortran/string_utils.h>
 
