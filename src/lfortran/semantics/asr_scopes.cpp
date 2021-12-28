@@ -3,7 +3,7 @@
 
 #include <lfortran/semantics/asr_scopes.h>
 #include <lfortran/pickle.h>
-#include <lfortran/asr_utils.h>
+#include <libasr/asr_utils.h>
 
 namespace LFortran  {
 

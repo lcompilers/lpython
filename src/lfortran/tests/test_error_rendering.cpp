@@ -3,7 +3,7 @@
 #include <iostream>
 #include <sstream>
 
-#include <lfortran/diagnostics.h>
+#include <libasr/diagnostics.h>
 #include <lfortran/parser/parser.h>
 
 namespace {

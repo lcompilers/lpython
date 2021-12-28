@@ -4,7 +4,7 @@
 
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/parser.tab.hh>
-#include <lfortran/diagnostics.h>
+#include <libasr/diagnostics.h>
 #include <lfortran/parser/parser_exception.h>
 
 namespace LFortran

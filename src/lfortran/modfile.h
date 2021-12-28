@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_MODFILE_H
 #define LFORTRAN_MODFILE_H
 
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 
 namespace LFortran {
 

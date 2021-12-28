@@ -3,7 +3,7 @@
 
 #include <lfortran/parser/parser_stype.h>
 #include <lfortran/ast.h>
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 
 namespace LFortran {
 

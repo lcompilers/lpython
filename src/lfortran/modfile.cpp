@@ -1,8 +1,8 @@
 #include <string>
 
 #include <lfortran/config.h>
-#include <lfortran/asr_utils.h>
-#include <lfortran/asr_verify.h>
+#include <libasr/asr_utils.h>
+#include <libasr/asr_verify.h>
 #include <lfortran/modfile.h>
 #include <lfortran/serialization.h>
 #include <lfortran/bwriter.h>

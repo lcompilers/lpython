@@ -11,33 +11,33 @@ set(SRC
     semantics/ast_to_asr.cpp
     semantics/asr_scopes.cpp
 
-    codegen/fortran_evaluator.cpp
-    codegen/asr_to_cpp.cpp
-    codegen/asr_to_py.cpp
-    codegen/x86_assembler.cpp
-    codegen/asr_to_x86.cpp
+    ../libasr/codegen/fortran_evaluator.cpp
+    ../libasr/codegen/asr_to_cpp.cpp
+    ../libasr/codegen/asr_to_py.cpp
+    ../libasr/codegen/x86_assembler.cpp
+    ../libasr/codegen/asr_to_x86.cpp
 
-    pass/param_to_const.cpp
-    pass/do_loops.cpp
-    pass/for_all.cpp
-    pass/global_stmts.cpp
-    pass/select_case.cpp
-    pass/implied_do_loops.cpp
-    pass/array_op.cpp
-    pass/class_constructor.cpp
-    pass/arr_slice.cpp
-    pass/print_arr.cpp
-    pass/pass_utils.cpp
-    pass/unused_functions.cpp
+    ../libasr/pass/param_to_const.cpp
+    ../libasr/pass/do_loops.cpp
+    ../libasr/pass/for_all.cpp
+    ../libasr/pass/global_stmts.cpp
+    ../libasr/pass/select_case.cpp
+    ../libasr/pass/implied_do_loops.cpp
+    ../libasr/pass/array_op.cpp
+    ../libasr/pass/class_constructor.cpp
+    ../libasr/pass/arr_slice.cpp
+    ../libasr/pass/print_arr.cpp
+    ../libasr/pass/pass_utils.cpp
+    ../libasr/pass/unused_functions.cpp
 
-    asr_verify.cpp
-    asr_utils.cpp
+    ../libasr/asr_verify.cpp
+    ../libasr/asr_utils.cpp
     modfile.cpp
     pickle.cpp
     serialization.cpp
     cwrapper.cpp
 
-    diagnostics.cpp
+    ../libasr/diagnostics.cpp
 
     ast_to_src.cpp
     ast_to_openmp.cpp
@@ -63,21 +63,21 @@ if (WITH_JSON)
 endif()
 if (WITH_LLVM)
     set(SRC ${SRC}
-        codegen/evaluator.cpp
-        codegen/asr_to_llvm.cpp
-        codegen/llvm_array_utils.cpp
-        codegen/llvm_utils.cpp
-        pass/nested_vars.cpp
+        ../libasr/codegen/evaluator.cpp
+        ../libasr/codegen/asr_to_llvm.cpp
+        ../libasr/codegen/llvm_array_utils.cpp
+        ../libasr/codegen/llvm_utils.cpp
+        ../libasr/pass/nested_vars.cpp
     )
     # We use deprecated API in LLVM, so we disable the warning until we upgrade
     if (NOT MSVC)
-        set_source_files_properties(codegen/evaluator.cpp PROPERTIES
+        set_source_files_properties(../libasr/codegen/evaluator.cpp PROPERTIES
             COMPILE_FLAGS -Wno-deprecated-declarations)
-        set_source_files_properties(codegen/asr_to_llvm.cpp PROPERTIES
+        set_source_files_properties(../libasr/codegen/asr_to_llvm.cpp PROPERTIES
             COMPILE_FLAGS -Wno-deprecated-declarations)
-        set_source_files_properties(codegen/llvm_array_utils.cpp PROPERTIES
+        set_source_files_properties(../libasr/codegen/llvm_array_utils.cpp PROPERTIES
             COMPILE_FLAGS -Wno-deprecated-declarations)
-        set_source_files_properties(codegen/llvm_utils.cpp PROPERTIES
+        set_source_files_properties(../libasr/codegen/llvm_utils.cpp PROPERTIES
             COMPILE_FLAGS -Wno-deprecated-declarations)
     endif()
 endif()
