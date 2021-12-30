@@ -518,6 +518,19 @@ public:
                                 value, overloaded);
     }
 
+    void visit_If(const AST::If_t &x) {
+        visit_expr(*x.m_test);
+        ASR::expr_t *test = LFortran::ASRUtils::EXPR(tmp);
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, x.n_body);
+        transform_stmts(body, x.n_body, x.m_body);
+        Vec<ASR::stmt_t*> orelse;
+        orelse.reserve(al, x.n_orelse);
+        transform_stmts(orelse, x.n_orelse, x.m_orelse);
+        tmp = ASR::make_If_t(al, x.base.base.loc, test, body.p,
+                body.size(), orelse.p, orelse.size());
+    }
+
     void visit_Expr(const AST::Expr_t &x) {
         if (AST::is_a<AST::Call_t>(*x.m_value)) {
             AST::Call_t *c = AST::down_cast<AST::Call_t>(x.m_value);
