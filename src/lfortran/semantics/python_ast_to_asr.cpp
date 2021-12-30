@@ -494,6 +494,13 @@ public:
         tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s, type);
     }
 
+    void visit_ConstantBool(const AST::ConstantBool_t &x) {
+        bool b = x.m_value;
+        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
+                1, nullptr, 0));
+        tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, b, type);
+    }
+
     void visit_BinOp(const AST::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
