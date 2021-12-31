@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <cmath>
+#include <vector>
 
 #include <lfortran/python_ast.h>
 #include <lfortran/asr.h>
@@ -83,10 +84,8 @@ public:
             } else {
                 this->visit_expr(*s->m_slice);
                 ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
-                int64_t array_size;
                 if (ASR::is_a<ASR::ConstantInteger_t>(*value)) {
                     ASR::ConstantInteger_t *ci = ASR::down_cast<ASR::ConstantInteger_t>(value);
-                    array_size = ci->m_n;
                 } else {
                     throw SemanticError("Only Integer in [] in Subscript supported for now in annotation",
                         loc);
@@ -668,4 +667,4 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     return tu;
 }
 
-} // namespace LFortran
+} // namespace LFortran::Python
