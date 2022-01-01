@@ -472,6 +472,10 @@ public:
         }
     }
 
+    void visit_Parenthesis(const AST::Parenthesis_t &x) {
+        this->visit_expr(*x.m_operand);
+    }
+
     void visit_ConstantInt(const AST::ConstantInt_t &x) {
         int64_t i = x.m_value;
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
