@@ -501,6 +501,27 @@ public:
         tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, b, type);
     }
 
+    void visit_BoolOp(const AST::BoolOp_t &x) {
+        this->visit_expr(*x.m_left);
+        ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
+        this->visit_expr(*x.m_right);
+        ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
+        ASR::boolopType op;
+        switch (x.m_op) {
+            case (AST::operatorType::And) : { op = ASR::boolopType::And; break; }
+            case (AST::operatorType::Or) : { op = ASR::boolopType::Or; break; }
+            default : {
+                throw SemanticError("Boolean operator type not supported",
+                    x.base.base.loc);
+            }
+        }
+
+        ASR::ttype_t *dest_type = ASRUtils::expr_type(left);
+        ASR::expr_t *value = nullptr;
+        tmp = ASR::make_BoolOp_t(al, x.base.base.loc, left, op, right, dest_type,
+                                 value);
+    }
+
     void visit_BinOp(const AST::BinOp_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
