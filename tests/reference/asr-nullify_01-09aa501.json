@@ -1,0 +1,13 @@
+{
+    "basename": "asr-nullify_01-09aa501",
+    "cmd": "lfortran --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/nullify_01.f90",
+    "infile_hash": "5869e698f080612903a66a6001fa03b7b3390371a5a9eef3ca48a545",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-nullify_01-09aa501.stdout",
+    "stdout_hash": "4cf7b13ba6cf51c300539d58843aa752f0eb5185e9712690b11bc9d8",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
