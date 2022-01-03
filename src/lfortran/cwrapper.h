@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <lfortran/config.h>
+#include <libasr/config.h>
 #include <libasr/exception.h>
 
 #ifdef __cplusplus

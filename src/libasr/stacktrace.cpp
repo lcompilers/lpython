@@ -1,5 +1,5 @@
 #include <libasr/stacktrace.h>
-#include <lfortran/config.h>
+#include <libasr/config.h>
 #include <libasr/colors.h>
 
 #include <fstream>

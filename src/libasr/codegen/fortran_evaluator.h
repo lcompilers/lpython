@@ -10,7 +10,7 @@
 #include <lfortran/ast.h>
 #include <libasr/asr.h>
 #include <lfortran/utils.h>
-#include <lfortran/config.h>
+#include <libasr/config.h>
 #include <libasr/diagnostics.h>
 
 namespace LFortran {

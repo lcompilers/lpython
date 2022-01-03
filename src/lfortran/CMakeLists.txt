@@ -1,4 +1,4 @@
-configure_file(config.h.in config.h)
+configure_file(../libasr/config.h.in ../libasr/config.h)
 
 set(SRC
     parser/preprocessor.cpp

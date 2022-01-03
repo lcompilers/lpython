@@ -7,6 +7,8 @@ if (NOT CMAKE_CXX_STANDARD)
         CACHE STRING "C++ standard" FORCE)
 endif ()
 
+configure_file(config.h.in config.h)
+
 set(SRC
     codegen/fortran_evaluator.cpp
     codegen/asr_to_cpp.cpp

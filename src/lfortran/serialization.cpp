@@ -1,6 +1,6 @@
 #include <string>
 
-#include <lfortran/config.h>
+#include <libasr/config.h>
 #include <lfortran/serialization.h>
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/parser.tab.hh>

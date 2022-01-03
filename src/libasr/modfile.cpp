@@ -1,6 +1,6 @@
 #include <string>
 
-#include <lfortran/config.h>
+#include <libasr/config.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/modfile.h>
