@@ -1,6 +1,6 @@
 #include <libasr/asr.h>
 #include <libasr/containers.h>
-#include <lfortran/exception.h>
+#include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/pass/for_all.h>

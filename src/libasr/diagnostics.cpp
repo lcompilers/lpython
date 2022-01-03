@@ -3,7 +3,7 @@
 
 #include <libasr/diagnostics.h>
 #include <libasr/assert.h>
-#include <lfortran/exception.h>
+#include <libasr/exception.h>
 #include <libasr/codegen/fortran_evaluator.h>
 #include <lfortran/parser/parser.h>
 

@@ -4,7 +4,7 @@
 #include <libasr/codegen/fortran_evaluator.h>
 #include <libasr/codegen/asr_to_cpp.h>
 #include <lfortran/ast_to_src.h>
-#include <lfortran/exception.h>
+#include <libasr/exception.h>
 #include <lfortran/ast.h>
 #include <libasr/asr.h>
 #include <lfortran/semantics/ast_to_asr.h>
