@@ -4,7 +4,7 @@
 #include <lfortran/parser/preprocessor.h>
 #include <libasr/assert.h>
 #include <lfortran/utils.h>
-#include <lfortran/string_utils.h>
+#include <libasr/string_utils.h>
 
 namespace LFortran
 {

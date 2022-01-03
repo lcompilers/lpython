@@ -32,7 +32,7 @@
 #include <lfortran/modfile.h>
 #include <lfortran/config.h>
 #include <lfortran/fortran_kernel.h>
-#include <lfortran/string_utils.h>
+#include <libasr/string_utils.h>
 #include <lfortran/utils.h>
 #include <lfortran/parser/parser.tab.hh>
 

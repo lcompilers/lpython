@@ -5,7 +5,7 @@
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/parser.tab.hh>
 #include <libasr/asr_utils.h>
-#include <lfortran/string_utils.h>
+#include <libasr/string_utils.h>
 
 using LFortran::AST::ast_t;
 using LFortran::AST::Declaration_t;

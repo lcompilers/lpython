@@ -6,7 +6,7 @@
 #include <libasr/asr.h>
 #include <lfortran/ast.h>
 #include <lfortran/bigint.h>
-#include <lfortran/string_utils.h>
+#include <libasr/string_utils.h>
 #include <lfortran/utils.h>
 
 namespace LFortran {

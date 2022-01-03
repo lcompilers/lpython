@@ -1,6 +1,6 @@
 #include <cctype>
 #include <lfortran/ast_to_src.h>
-#include <lfortran/string_utils.h>
+#include <libasr/string_utils.h>
 #include <lfortran/bigint.h>
 
 using LFortran::AST::expr_t;

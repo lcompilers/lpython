@@ -1,7 +1,7 @@
 #include <cctype>
 #include <regex>
 
-#include <lfortran/string_utils.h>
+#include <libasr/string_utils.h>
 #include <libasr/containers.h>
 
 namespace LFortran

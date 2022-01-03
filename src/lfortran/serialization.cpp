@@ -7,7 +7,7 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <lfortran/bwriter.h>
-#include <lfortran/string_utils.h>
+#include <libasr/string_utils.h>
 
 using LFortran::ASRUtils::symbol_parent_symtab;
 using LFortran::ASRUtils::symbol_name;

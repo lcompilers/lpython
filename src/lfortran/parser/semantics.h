@@ -13,7 +13,7 @@
 #include <cstring>
 
 #include <lfortran/ast.h>
-#include <lfortran/string_utils.h>
+#include <libasr/string_utils.h>
 #include <lfortran/parser/parser_exception.h>
 
 // This is only used in parser.tab.cc, nowhere else, so we simply include

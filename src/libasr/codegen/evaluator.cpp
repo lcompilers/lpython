@@ -62,7 +62,7 @@
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/parser/parser.h>
 #include <lfortran/pickle.h>
-#include <lfortran/string_utils.h>
+#include <libasr/string_utils.h>
 
 
 namespace LFortran {
