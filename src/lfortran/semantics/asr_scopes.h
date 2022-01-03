@@ -3,7 +3,7 @@
 
 #include <map>
 
-#include <lfortran/parser/alloc.h>
+#include <libasr/alloc.h>
 
 namespace LFortran  {
 

@@ -29,8 +29,8 @@ https://www.systutorials.com/go/intel-x86-64-reference-manual/
 #include <fstream>
 #include <map>
 
-#include <lfortran/parser/alloc.h>
-#include <lfortran/containers.h>
+#include <libasr/alloc.h>
+#include <libasr/containers.h>
 
 // Define to allow the Assembler print the asm instructions
 #define LFORTRAN_ASM_PRINT

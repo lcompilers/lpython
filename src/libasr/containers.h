@@ -2,7 +2,7 @@
 #define LFORTRAN_CONTAINERS_H
 
 #include <cstring>
-#include <lfortran/parser/alloc.h>
+#include <libasr/alloc.h>
 
 namespace LFortran
 {

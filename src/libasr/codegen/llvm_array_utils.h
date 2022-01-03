@@ -11,7 +11,7 @@
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/IRBuilder.h>
 
-#include <lfortran/parser/alloc.h>
+#include <libasr/alloc.h>
 #include <libasr/asr.h>
 #include <libasr/codegen/llvm_utils.h>
 

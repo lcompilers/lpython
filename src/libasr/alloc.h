@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include <lfortran/assert.h>
+#include <libasr/assert.h>
 
 #define ALIGNMENT 8
 

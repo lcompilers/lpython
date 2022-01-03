@@ -2,7 +2,7 @@
 #define LFORTRAN_UTILS_H
 
 #include <string>
-#include <lfortran/containers.h>
+#include <libasr/containers.h>
 
 namespace LFortran {
 

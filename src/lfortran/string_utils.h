@@ -5,7 +5,7 @@
 #include <vector>
 #include <cctype>
 
-#include <lfortran/parser/alloc.h>
+#include <libasr/alloc.h>
 
 namespace LFortran
 {

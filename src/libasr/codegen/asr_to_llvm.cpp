@@ -39,7 +39,7 @@
 #include <llvm/Support/Path.h>
 
 #include <libasr/asr.h>
-#include <lfortran/containers.h>
+#include <libasr/containers.h>
 #include <libasr/codegen/asr_to_llvm.h>
 #include <libasr/pass/do_loops.h>
 #include <libasr/pass/for_all.h>
