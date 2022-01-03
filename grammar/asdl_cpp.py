@@ -1210,7 +1210,7 @@ HEAD = r"""#ifndef LFORTRAN_%(MOD)s_H
 #include <libasr/colors.h>
 #include <libasr/containers.h>
 #include <libasr/exception.h>
-#include <lfortran/semantics/asr_scopes.h>
+#include <libasr/asr_scopes.h>
 
 
 namespace LFortran::%(MOD)s {

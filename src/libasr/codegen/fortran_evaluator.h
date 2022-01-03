@@ -6,7 +6,7 @@
 
 #include <libasr/alloc.h>
 #include <lfortran/parser/parser.h>
-#include <lfortran/semantics/asr_scopes.h>
+#include <libasr/asr_scopes.h>
 #include <lfortran/ast.h>
 #include <libasr/asr.h>
 #include <lfortran/utils.h>
