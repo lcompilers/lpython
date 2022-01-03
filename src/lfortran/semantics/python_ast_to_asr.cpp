@@ -471,6 +471,10 @@ public:
         }
     }
 
+    void visit_Parenthesis(const AST::Parenthesis_t &x) {
+        this->visit_expr(*x.m_operand);
+    }
+
     void visit_ConstantInt(const AST::ConstantInt_t &x) {
         int64_t i = x.m_value;
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
@@ -515,6 +519,29 @@ public:
         ASR::expr_t *overloaded = nullptr;
         tmp = ASR::make_BinOp_t(al, x.base.base.loc, left, op, right, dest_type,
                                 value, overloaded);
+    }
+
+    void visit_If(const AST::If_t &x) {
+        visit_expr(*x.m_test);
+        ASR::expr_t *test = LFortran::ASRUtils::EXPR(tmp);
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, x.n_body);
+        transform_stmts(body, x.n_body, x.m_body);
+        Vec<ASR::stmt_t*> orelse;
+        orelse.reserve(al, x.n_orelse);
+        transform_stmts(orelse, x.n_orelse, x.m_orelse);
+        tmp = ASR::make_If_t(al, x.base.base.loc, test, body.p,
+                body.size(), orelse.p, orelse.size());
+    }
+
+    void visit_While(const AST::While_t &x) {
+        visit_expr(*x.m_test);
+        ASR::expr_t *test = LFortran::ASRUtils::EXPR(tmp);
+        Vec<ASR::stmt_t*> body;
+        body.reserve(al, x.n_body);
+        transform_stmts(body, x.n_body, x.m_body);
+        tmp = ASR::make_While_t(al, x.base.base.loc, test, body.p,
+                body.size());
     }
 
     void visit_Expr(const AST::Expr_t &x) {
