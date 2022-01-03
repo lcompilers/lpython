@@ -2,7 +2,7 @@
 #define LFORTRAN_PASS_UTILS_H
 
 #include <libasr/asr.h>
-#include <lfortran/containers.h>
+#include <libasr/containers.h>
 
 namespace LFortran {
 

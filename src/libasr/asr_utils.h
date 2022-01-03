@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_ASR_UTILS_H
 #define LFORTRAN_ASR_UTILS_H
 
-#include <lfortran/assert.h>
+#include <libasr/assert.h>
 #include <libasr/asr.h>
 #include <lfortran/string_utils.h>
 #include <lfortran/semantics/semantic_exception.h>

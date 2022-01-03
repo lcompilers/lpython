@@ -2,7 +2,7 @@
 #include <map>
 
 #include <lfortran/parser/preprocessor.h>
-#include <lfortran/assert.h>
+#include <libasr/assert.h>
 #include <lfortran/utils.h>
 #include <lfortran/string_utils.h>
 

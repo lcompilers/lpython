@@ -12,7 +12,7 @@
 #include <libasr/asr_verify.h>
 #include <lfortran/mod_to_asr.h>
 #include <lfortran/string_utils.h>
-#include <lfortran/containers.h>
+#include <libasr/containers.h>
 
 
 namespace LFortran {

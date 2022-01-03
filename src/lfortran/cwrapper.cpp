@@ -3,7 +3,7 @@
 
 #include <lfortran/cwrapper.h>
 #include <lfortran/ast.h>
-#include <lfortran/parser/alloc.h>
+#include <libasr/alloc.h>
 #include <lfortran/parser/parser.h>
 #include <lfortran/pickle.h>
 

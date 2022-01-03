@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include <lfortran/parser/alloc.h>
+#include <libasr/alloc.h>
 #include <lfortran/ast.h>
 #include <libasr/asr.h>
 #include <lfortran/parser/parser.h>
