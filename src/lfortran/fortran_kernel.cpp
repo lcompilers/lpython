@@ -25,7 +25,7 @@
 #include <libasr/codegen/asr_to_llvm.h>
 #include <libasr/codegen/fortran_evaluator.h>
 #include <libasr/asr_utils.h>
-#include <lfortran/string_utils.h>
+#include <libasr/string_utils.h>
 
 namespace nl = nlohmann;
 

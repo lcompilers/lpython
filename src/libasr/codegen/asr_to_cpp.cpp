@@ -6,7 +6,7 @@
 #include <libasr/codegen/asr_to_cpp.h>
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
-#include <lfortran/string_utils.h>
+#include <libasr/string_utils.h>
 #include <libasr/pass/unused_functions.h>
 
 
