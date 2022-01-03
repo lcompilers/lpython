@@ -3,7 +3,7 @@
 
 #include <lfortran/bwriter.h>
 #include <lfortran/serialization.h>
-#include <lfortran/modfile.h>
+#include <libasr/modfile.h>
 #include <lfortran/pickle.h>
 #include <lfortran/parser/parser.h>
 #include <lfortran/semantics/ast_to_asr.h>

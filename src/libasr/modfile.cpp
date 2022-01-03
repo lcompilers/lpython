@@ -3,7 +3,7 @@
 #include <lfortran/config.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <lfortran/modfile.h>
+#include <libasr/modfile.h>
 #include <lfortran/serialization.h>
 #include <lfortran/bwriter.h>
 
