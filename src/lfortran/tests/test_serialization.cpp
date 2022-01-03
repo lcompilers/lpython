@@ -1,7 +1,7 @@
 #include <tests/doctest.h>
 #include <iostream>
 
-#include <lfortran/bwriter.h>
+#include <libasr/bwriter.h>
 #include <lfortran/serialization.h>
 #include <libasr/modfile.h>
 #include <lfortran/pickle.h>

@@ -5,7 +5,7 @@
 #include <libasr/asr_verify.h>
 #include <libasr/modfile.h>
 #include <lfortran/serialization.h>
-#include <lfortran/bwriter.h>
+#include <libasr/bwriter.h>
 
 
 namespace LFortran {
