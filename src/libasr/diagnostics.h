@@ -2,7 +2,7 @@
 #define LFORTRAN_DIAGNOSTICS_H
 
 #include <libasr/location.h>
-#include <lfortran/stacktrace.h>
+#include <libasr/stacktrace.h>
 
 namespace LFortran {
 
