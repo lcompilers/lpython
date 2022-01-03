@@ -115,6 +115,9 @@ public:
         } else if (var_annotation == "f64") {
             type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, loc,
                 8, dims.p, dims.size()));
+        } else if (var_annotation == "str") {
+            type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                1, -2, nullptr, dims.p, dims.size()));
         } else {
             throw SemanticError("Annotation type not supported", loc);
         }
