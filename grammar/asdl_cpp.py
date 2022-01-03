@@ -1207,7 +1207,7 @@ HEAD = r"""#ifndef LFORTRAN_%(MOD)s_H
 
 #include <libasr/alloc.h>
 #include <libasr/location.h>
-#include <lfortran/colors.h>
+#include <libasr/colors.h>
 #include <libasr/containers.h>
 #include <libasr/exception.h>
 #include <lfortran/semantics/asr_scopes.h>
