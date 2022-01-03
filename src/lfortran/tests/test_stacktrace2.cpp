@@ -1,7 +1,7 @@
 #include <tests/doctest.h>
 #include <iostream>
 
-#include <lfortran/stacktrace.h>
+#include <libasr/stacktrace.h>
 #include <lfortran/pickle.h>
 #include <lfortran/ast_to_src.h>
 #include <lfortran/parser/parser.h>

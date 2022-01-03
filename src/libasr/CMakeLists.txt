@@ -30,6 +30,8 @@ set(SRC
     asr_verify.cpp
     asr_utils.cpp
     diagnostics.cpp
+    stacktrace.cpp
+    string_utils.cpp
 )
 if (WITH_LLVM)
     set(SRC ${SRC}

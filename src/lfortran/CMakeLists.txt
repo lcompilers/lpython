@@ -47,7 +47,7 @@ set(SRC
     ../libasr/string_utils.cpp
     utils.cpp
 
-    stacktrace.cpp
+    ../libasr/stacktrace.cpp
 
     ../bin/tpl/whereami/whereami.cpp
 )
