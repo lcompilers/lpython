@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_SRC_PARSER_TOKENIZER_H
 #define LFORTRAN_SRC_PARSER_TOKENIZER_H
 
-#include <lfortran/exception.h>
+#include <libasr/exception.h>
 #include <lfortran/parser/parser_stype.h>
 
 namespace LFortran

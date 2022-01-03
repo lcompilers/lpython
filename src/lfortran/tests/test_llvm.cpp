@@ -4,7 +4,7 @@
 
 #include <libasr/codegen/fortran_evaluator.h>
 #include <libasr/codegen/evaluator.h>
-#include <lfortran/exception.h>
+#include <libasr/exception.h>
 #include <lfortran/ast.h>
 #include <libasr/asr.h>
 #include <lfortran/parser/parser.h>

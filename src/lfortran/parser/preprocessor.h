@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_SRC_PARSER_PREPROCESSOR_H
 #define LFORTRAN_SRC_PARSER_PREPROCESSOR_H
 
-#include <lfortran/exception.h>
+#include <libasr/exception.h>
 #include <lfortran/utils.h>
 #include <lfortran/parser/parser.h>
 

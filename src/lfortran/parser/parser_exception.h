@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_PARSER_PARSER_EXCEPTION_H
 #define LFORTRAN_PARSER_PARSER_EXCEPTION_H
 
-#include <lfortran/exception.h>
+#include <libasr/exception.h>
 
 namespace LFortran {
 

@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_SEMANTICS_SEMANTIC_EXCEPTION_H
 #define LFORTRAN_SEMANTICS_SEMANTIC_EXCEPTION_H
 
-#include <lfortran/exception.h>
+#include <libasr/exception.h>
 
 namespace LFortran {
 

@@ -53,7 +53,7 @@
 #include <libasr/pass/arr_slice.h>
 #include <libasr/pass/class_constructor.h>
 #include <libasr/pass/unused_functions.h>
-#include <lfortran/exception.h>
+#include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <lfortran/pickle.h>
 #include <libasr/codegen/llvm_utils.h>
