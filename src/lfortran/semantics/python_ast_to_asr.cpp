@@ -408,7 +408,7 @@ public:
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
         transform_stmts(body, x.n_body, x.m_body);
-        ASR::expr_t *loop_end;
+        ASR::expr_t *loop_end = nullptr, *loop_start = nullptr, *inc = nullptr;
         if (AST::is_a<AST::Call_t>(*x.m_iter)) {
             AST::Call_t *c = AST::down_cast<AST::Call_t>(x.m_iter);
             std::string call_name;
@@ -430,11 +430,21 @@ public:
                 ASR::expr_t *expr = LFortran::ASRUtils::EXPR(tmp);
                 args.push_back(al, expr);
             }
-            if (args.size() != 1) {
-                throw SemanticError("Only range(X) of one argument X supported as for loop iteration for now",
+
+            if (args.size() == 1) {
+                loop_end = args[0];
+            } else if (args.size() == 2) {
+                loop_start = args[0];
+                loop_end = args[1];
+            } else if (args.size() == 3) {
+                loop_start = args[0];
+                loop_end = args[1];
+                inc = args[2];
+            } else {
+                throw SemanticError("Only range(a, b, c) is supported as for loop iteration for now",
                     x.base.base.loc);
             }
-            loop_end = args[0];
+
         } else {
             throw SemanticError("Only function call `range(..)` supported as for loop iteration for now",
                 x.base.base.loc);
@@ -444,9 +454,17 @@ public:
             4, nullptr, 0));
         ASR::do_loop_head_t head;
         head.m_v = target;
-        head.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, 1, a_type));
+        if (loop_start) {
+            head.m_start = loop_start;
+        } else {
+            head.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, 0, a_type));
+        }
         head.m_end = loop_end;
-        head.m_increment = nullptr;
+        if (inc) {
+            head.m_increment = inc;
+        } else {
+            head.m_increment = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, x.base.base.loc, 1, a_type));
+        }
         head.loc = head.m_v->base.loc;
         bool parallel = false;
         if (x.m_type_comment) {
