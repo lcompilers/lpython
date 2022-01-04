@@ -26,7 +26,6 @@ struct SymbolTable {
 
     // Determines a stable hash based on the content of the symbol table
     uint32_t get_hash_uint32(); // Returns the hash as an integer
-    std::string get_hash();     // Returns the hash as a hex string
     std::string get_counter() {  // Returns a unique ID as a string
         return std::to_string(counter);
     }
