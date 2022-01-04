@@ -609,6 +609,43 @@ public:
                 body.size());
     }
 
+    void visit_Compare(const AST::Compare_t &x) {
+        this->visit_expr(*x.m_left);
+        ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
+        if (x.n_comparators > 1) {
+            diag.add(diag::Diagnostic(
+                "Only one comparison operator is supported for now",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("multiple comparison operators",
+                            {x.m_comparators[0]->base.loc})
+                })
+            );
+            throw SemanticAbort();
+        }
+        this->visit_expr(*x.m_comparators[0]);
+        ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
+
+        ASR::cmpopType asr_op;
+        switch (x.m_ops) {
+            case (AST::cmpopType::Eq): { asr_op = ASR::cmpopType::Eq; break; }
+            case (AST::cmpopType::Gt): { asr_op = ASR::cmpopType::Gt; break; }
+            case (AST::cmpopType::GtE): { asr_op = ASR::cmpopType::GtE; break; }
+            case (AST::cmpopType::Lt): { asr_op = ASR::cmpopType::Lt; break; }
+            case (AST::cmpopType::LtE): { asr_op = ASR::cmpopType::LtE; break; }
+            case (AST::cmpopType::NotEq): { asr_op = ASR::cmpopType::NotEq; break; }
+            default: {
+                throw SemanticError("Comparison operator not implemented",
+                                    x.base.base.loc);
+            }
+        }
+
+        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(
+            ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
+        ASR::expr_t *overloaded = nullptr;
+        tmp = ASR::make_Compare_t(al, x.base.base.loc, left, asr_op, right,
+                                  type, nullptr, overloaded);
+    }
+
     void visit_Expr(const AST::Expr_t &x) {
         if (AST::is_a<AST::Call_t>(*x.m_value)) {
             AST::Call_t *c = AST::down_cast<AST::Call_t>(x.m_value);
