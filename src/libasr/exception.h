@@ -24,7 +24,7 @@ typedef enum {
 #include <exception>
 #include <string>
 #include <libasr/location.h>
-#include <lfortran/config.h>
+#include <libasr/config.h>
 #include <libasr/stacktrace.h>
 #include <libasr/diagnostics.h>
 

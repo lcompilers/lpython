@@ -9,7 +9,7 @@
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/ast_to_src.h>
 #include <lfortran/ast_to_openmp.h>
-#include <lfortran/config.h>
+#include <libasr/config.h>
 
 std::string read_file(const std::string &filename)
 {

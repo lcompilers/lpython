@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_FORTRAN_KERNEL_H
 #define LFORTRAN_FORTRAN_KERNEL_H
 
-#include <lfortran/config.h>
+#include <libasr/config.h>
 
 namespace LFortran {
 
