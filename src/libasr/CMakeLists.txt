@@ -41,6 +41,7 @@ set(SRC
     string_utils.cpp
     asr_scopes.cpp
     modfile.cpp
+    serialization.cpp
 )
 if (WITH_LLVM)
     set(SRC ${SRC}

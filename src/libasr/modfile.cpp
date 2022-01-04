@@ -4,7 +4,7 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/modfile.h>
-#include <lfortran/serialization.h>
+#include <libasr/serialization.h>
 #include <libasr/bwriter.h>
 
 

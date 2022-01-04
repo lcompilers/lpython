@@ -34,7 +34,8 @@ set(SRC
     ../libasr/asr_utils.cpp
     ../libasr/modfile.cpp
     pickle.cpp
-    serialization.cpp
+    ast_serialization.cpp
+    ../libasr/serialization.cpp
     cwrapper.cpp
 
     ../libasr/diagnostics.cpp
