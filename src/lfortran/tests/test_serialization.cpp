@@ -2,7 +2,8 @@
 #include <iostream>
 
 #include <libasr/bwriter.h>
-#include <lfortran/serialization.h>
+#include <libasr/serialization.h>
+#include <lfortran/ast_serialization.h>
 #include <libasr/modfile.h>
 #include <lfortran/pickle.h>
 #include <lfortran/parser/parser.h>

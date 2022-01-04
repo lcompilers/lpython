@@ -1,6 +1,6 @@
 #include <libasr/asr_utils.h>
 #include <libasr/string_utils.h>
-#include <lfortran/serialization.h>
+#include <libasr/serialization.h>
 #include <libasr/assert.h>
 #include <libasr/asr_verify.h>
 #include <lfortran/utils.h>
