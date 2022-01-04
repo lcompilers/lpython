@@ -593,13 +593,18 @@ public:
     void visit_Compare(const AST::Compare_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
-        Vec<ASR::expr_t*> comparators;
-        comparators.reserve(al, x.n_comparators);
-        for (size_t i=0; i<x.n_comparators; i++) {
-            visit_expr(*x.m_comparators[i]);
-            ASR::expr_t *expr = LFortran::ASRUtils::EXPR(tmp);
-            comparators.push_back(al, expr);
+        if (x.n_comparators > 1) {
+            diag.add(diag::Diagnostic(
+                "Only one comparison operator is supported for now",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("multiple comparison operators",
+                            {x.m_comparators[0]->base.loc})
+                })
+            );
+            throw SemanticAbort();
         }
+        this->visit_expr(*x.m_comparators[0]);
+        ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
 
         ASR::cmpopType asr_op;
         switch (x.m_ops) {
@@ -615,14 +620,11 @@ public:
             }
         }
 
-        // LFORTRAN_ASSERT(
-        //     ASRUtils::check_equal_type(LFortran::ASRUtils::expr_type(left),
-        //                                LFortran::ASRUtils::expr_type(right)));
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(
             ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
         ASR::expr_t *overloaded = nullptr;
-        tmp = ASR::make_Compare_t(al, x.base.base.loc, left, asr_op, comparators.p,
-                                  comparators.size(), type, overloaded);
+        tmp = ASR::make_Compare_t(al, x.base.base.loc, left, asr_op, right,
+                                  type, nullptr, overloaded);
     }
 
     void visit_Expr(const AST::Expr_t &x) {
