@@ -922,6 +922,17 @@ public:
         }
     }
 
+    void visit_Nullify(const ASR::Nullify_t& x) {
+        for( size_t i = 0; i < x.n_vars; i++ ) {
+            std::uint32_t h = get_hash((ASR::asr_t*)x.m_vars[i]);
+            llvm::Value *target = llvm_symtab[h];
+            llvm::Type* tp = target->getType()->getContainedType(0);
+            llvm::Value* np = builder->CreateIntToPtr(
+                llvm::ConstantInt::get(context, llvm::APInt(32, 0)), tp);
+            builder->CreateStore(np, target);
+        }
+    }
+
     inline void call_lfortran_free(llvm::Function* fn) {
         llvm::Value* arr = builder->CreateLoad(arr_descr->get_pointer_to_data(tmp));
         llvm::AllocaInst *arg_arr = builder->CreateAlloca(character_type, nullptr);

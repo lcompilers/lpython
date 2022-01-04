@@ -1178,6 +1178,39 @@ public:
         tmp = ASR::make_ErrorStop_t(al, x.base.base.loc, code);
     }
 
+    void visit_Nullify(const AST::Nullify_t &x) {
+        Vec<ASR::symbol_t*> arg_vec;
+        arg_vec.reserve(al, x.n_args);
+        for( size_t i = 0; i < x.n_args; i++ ) {
+            this->visit_expr(*(x.m_args[i]));
+            ASR::expr_t* tmp_expr = LFortran::ASRUtils::EXPR(tmp);
+            if( tmp_expr->type != ASR::exprType::Var ) {
+                throw SemanticError("Only a pointer variable symbol "
+                                    "can be nullified.",
+                                    tmp_expr->base.loc);
+            } else {
+                const ASR::Var_t* tmp_var = ASR::down_cast<ASR::Var_t>(tmp_expr);
+                ASR::symbol_t* tmp_sym = tmp_var->m_v;
+                if( LFortran::ASRUtils::symbol_get_past_external(tmp_sym)->type 
+                    != ASR::symbolType::Variable ) {
+                    throw SemanticError("Only a pointer variable symbol "
+                                        "can be nullified.",
+                                        tmp_expr->base.loc);
+                } else {
+                    ASR::Variable_t* tmp_v = ASR::down_cast<ASR::Variable_t>(tmp_sym);
+                    if (ASR::is_a<ASR::Pointer_t>(*tmp_v->m_type)) {
+                        arg_vec.push_back(al, tmp_sym);
+                    } else {
+                        throw SemanticError("Only a pointer variable symbol "
+                                            "can be nullified.",
+                                            tmp_expr->base.loc);
+                    }
+                }
+            }
+        }
+        tmp = ASR::make_Nullify_t(al, x.base.base.loc, arg_vec.p, arg_vec.size());
+    }
+
 };
 
 Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al,

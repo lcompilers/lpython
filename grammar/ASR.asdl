@@ -186,6 +186,7 @@ stmt
     | SubroutineCall(symbol name, symbol? original_name, expr* args, expr? dt)
     | Where(expr test, stmt* body, stmt* orelse)
     | WhileLoop(expr test, stmt* body)
+    | Nullify(symbol* vars)
 
 
 expr
