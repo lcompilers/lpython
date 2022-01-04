@@ -83,10 +83,8 @@ public:
                 dim.m_end = nullptr;
             } else {
                 this->visit_expr(*s->m_slice);
-                ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
-                if (ASR::is_a<ASR::ConstantInteger_t>(*value)) {
-                    // ASR::ConstantInteger_t *ci = ASR::down_cast<ASR::ConstantInteger_t>(value);
-                } else {
+                ASR::expr_t *value = ASRUtils::EXPR(tmp);
+                if (!ASR::is_a<ASR::ConstantInteger_t>(*value)) {
                     throw SemanticError("Only Integer in [] in Subscript supported for now in annotation",
                         loc);
                 }
