@@ -85,7 +85,7 @@ public:
                 this->visit_expr(*s->m_slice);
                 ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
                 if (ASR::is_a<ASR::ConstantInteger_t>(*value)) {
-                    ASR::ConstantInteger_t *ci = ASR::down_cast<ASR::ConstantInteger_t>(value);
+                    // ASR::ConstantInteger_t *ci = ASR::down_cast<ASR::ConstantInteger_t>(value);
                 } else {
                     throw SemanticError("Only Integer in [] in Subscript supported for now in annotation",
                         loc);
@@ -474,10 +474,6 @@ public:
         }
     }
 
-    void visit_Parenthesis(const AST::Parenthesis_t &x) {
-        this->visit_expr(*x.m_operand);
-    }
-
     void visit_ConstantInt(const AST::ConstantInt_t &x) {
         int64_t i = x.m_value;
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
@@ -543,7 +539,7 @@ public:
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
         transform_stmts(body, x.n_body, x.m_body);
-        tmp = ASR::make_While_t(al, x.base.base.loc, test, body.p,
+        tmp = ASR::make_WhileLoop_t(al, x.base.base.loc, test, body.p,
                 body.size());
     }
 
