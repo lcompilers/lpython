@@ -32,7 +32,7 @@ set(SRC
 
     ../libasr/asr_verify.cpp
     ../libasr/asr_utils.cpp
-    modfile.cpp
+    ../libasr/modfile.cpp
     pickle.cpp
     serialization.cpp
     cwrapper.cpp

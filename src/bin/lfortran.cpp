@@ -29,7 +29,7 @@
 #include <libasr/pass/unused_functions.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <lfortran/modfile.h>
+#include <libasr/modfile.h>
 #include <lfortran/config.h>
 #include <lfortran/fortran_kernel.h>
 #include <libasr/string_utils.h>

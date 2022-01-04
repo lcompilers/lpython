@@ -6,7 +6,7 @@
 #include <lfortran/parser/parser.tab.hh>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <lfortran/bwriter.h>
+#include <libasr/bwriter.h>
 #include <libasr/string_utils.h>
 
 using LFortran::ASRUtils::symbol_parent_symtab;

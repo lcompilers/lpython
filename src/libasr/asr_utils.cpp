@@ -4,7 +4,7 @@
 #include <libasr/assert.h>
 #include <libasr/asr_verify.h>
 #include <lfortran/utils.h>
-#include <lfortran/modfile.h>
+#include <libasr/modfile.h>
 
 namespace LFortran {
 
