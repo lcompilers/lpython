@@ -116,8 +116,11 @@ public:
         } else if (var_annotation == "str") {
             type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, loc,
                 1, -2, nullptr, dims.p, dims.size()));
+        } else if (var_annotation == "bool") {
+            type = LFortran::ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
+                1, dims.p, dims.size()));
         } else {
-            throw SemanticError("Annotation type not supported", loc);
+            throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
         }
         return type;
     }
