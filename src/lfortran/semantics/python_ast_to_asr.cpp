@@ -707,8 +707,12 @@ public:
             throw SemanticAbort();
         }
         ASR::expr_t *overloaded = nullptr;
+        ASR::stmt_t* a_overloaded = nullptr;
         tmp = ASR::make_BinOp_t(al, x.base.base.loc, left, op, right, dest_type,
-                                value, overloaded);
+                         value, overloaded);
+        ASR::expr_t *tmp2 = ASR::down_cast<ASR::expr_t>(tmp);
+        tmp = ASR::make_Assignment_t(al, x.base.base.loc, left, tmp2, a_overloaded);
+
     }
     
     void visit_If(const AST::If_t &x) {
