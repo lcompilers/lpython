@@ -586,6 +586,60 @@ public:
                                 value, overloaded);
     }
 
+    void visit_UnaryOp(const AST::UnaryOp_t &x) {
+        this->visit_expr(*x.m_operand);
+        ASR::expr_t *operand = LFortran::ASRUtils::EXPR(tmp);
+        ASR::unaryopType op;
+        switch (x.m_op) {
+            case (AST::unaryopType::Invert) : { op = ASR::unaryopType::Invert; break; }
+            case (AST::unaryopType::Not) : { op = ASR::unaryopType::Not; break; }
+            case (AST::unaryopType::UAdd) : { op = ASR::unaryopType::UAdd; break; }
+            case (AST::unaryopType::USub) : { op = ASR::unaryopType::USub; break; }
+            default : {
+                throw SemanticError("Unary operator type not supported",
+                    x.base.base.loc);
+            }
+        }
+        ASR::ttype_t *operand_type = LFortran::ASRUtils::expr_type(operand);
+        ASR::expr_t *value = nullptr;
+
+        if (LFortran::ASRUtils::expr_value(operand) != nullptr) {
+            if (ASR::is_a<LFortran::ASR::Integer_t>(*operand_type)) {
+                int64_t op_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                        LFortran::ASRUtils::expr_value(operand))
+                                        ->m_n;
+                int64_t result;
+                switch (op) {
+                    case (ASR::unaryopType::UAdd): { result = op_value; break; }
+                    case (ASR::unaryopType::USub): { result = -op_value; break; }
+                    default: {
+                        throw SemanticError("Unary operator not implemented yet for compile time evaluation",
+                            x.base.base.loc);
+                    }
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
+                            al, x.base.base.loc, result, operand_type));
+            } else if (ASR::is_a<LFortran::ASR::Real_t>(*operand_type)) {
+                double op_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                        LFortran::ASRUtils::expr_value(operand))
+                                        ->m_r;
+                double result;
+                switch (op) {
+                    case (ASR::unaryopType::UAdd): { result = op_value; break; }
+                    case (ASR::unaryopType::USub): { result = -op_value; break; }
+                    default: {
+                        throw SemanticError("Unary operator not implemented yet for compile time evaluation",
+                            x.base.base.loc);
+                    }
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(
+                            al, x.base.base.loc, result, operand_type));
+            }
+        }
+        tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
+                              value);
+    }
+
     void visit_If(const AST::If_t &x) {
         visit_expr(*x.m_test);
         ASR::expr_t *test = LFortran::ASRUtils::EXPR(tmp);
