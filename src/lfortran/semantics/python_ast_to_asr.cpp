@@ -646,6 +646,14 @@ public:
                                   type, nullptr, overloaded);
     }
 
+    void visit_Return(const AST::Return_t &x) {
+        tmp = ASR::make_Return_t(al, x.base.base.loc);
+    }
+
+    void visit_Continue(const AST::Continue_t &x) {
+        tmp = ASR::make_Cycle_t(al, x.base.base.loc);
+    }
+
     void visit_Expr(const AST::Expr_t &x) {
         if (AST::is_a<AST::Call_t>(*x.m_value)) {
             AST::Call_t *c = AST::down_cast<AST::Call_t>(x.m_value);
