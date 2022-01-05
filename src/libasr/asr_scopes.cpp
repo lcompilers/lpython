@@ -75,66 +75,6 @@ void SymbolTable::reset_global_counter() {
     symbol_table_counter = 0;
 }
 
-// TODO: Calculate the hash more robustly and using all the fields and for
-// any ASR node:
-// https://gitlab.com/lfortran/lfortran/-/issues/189
-// For now we hash a few fields to make the hash unique enough.
-uint32_t SymbolTable::get_hash_uint32() {
-    std::string str;
-    uint32_t hash = 3;
-    for (auto &a : scope) {
-        hash = murmur_hash(&a.first[0], a.first.length(), hash);
-        hash = murmur_hash_int(a.second->type+1, hash);
-        switch (a.second->type) {
-            case (ASR::symbolType::Variable) : {
-                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(a.second);
-                hash = murmur_hash_str(v->m_name, hash);
-                hash = murmur_hash_int(v->m_intent, hash);
-                hash = murmur_hash_int(v->m_type->type, hash);
-                break;
-            }
-            case (ASR::symbolType::Module) : {
-                break;
-            }
-            case (ASR::symbolType::Program) : {
-                ASR::Program_t *v = ASR::down_cast<ASR::Program_t>(a.second);
-                hash = murmur_hash_str(v->m_name, hash);
-                hash = murmur_hash_int(v->m_symtab->get_hash_uint32(), hash);
-                break;
-            }
-            case (ASR::symbolType::Subroutine) : {
-                ASR::Subroutine_t *v = ASR::down_cast<ASR::Subroutine_t>(a.second);
-                hash = murmur_hash_str(v->m_name, hash);
-                hash = murmur_hash_int(v->m_symtab->get_hash_uint32(), hash);
-                break;
-            }
-            case (ASR::symbolType::Function) : {
-                ASR::Function_t *v = ASR::down_cast<ASR::Function_t>(a.second);
-                hash = murmur_hash_str(v->m_name, hash);
-                hash = murmur_hash_int(v->m_symtab->get_hash_uint32(), hash);
-                break;
-            }
-            case (ASR::symbolType::GenericProcedure) : {
-                ASR::GenericProcedure_t *v = ASR::down_cast<ASR::GenericProcedure_t>(a.second);
-                hash = murmur_hash_str(v->m_name, hash);
-                break;
-            }
-            case (ASR::symbolType::ExternalSymbol) : {
-                ASR::ExternalSymbol_t *v = ASR::down_cast<ASR::ExternalSymbol_t>(a.second);
-                hash = murmur_hash_str(v->m_name, hash);
-                break;
-            }
-            default : throw LFortranException("Type not supported in SymbolTable");
-        }
-    }
-    return hash;
-}
-
-std::string SymbolTable::get_hash() {
-    uint32_t hash = get_hash_uint32();
-    return hexify(hash);
-}
-
 void SymbolTable::mark_all_variables_external(Allocator &/*al*/) {
     for (auto &a : scope) {
         switch (a.second->type) {
