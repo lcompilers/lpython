@@ -342,16 +342,6 @@ std::string fix_continuation(const std::string &s, LocationManager &lm,
 
 
 
-std::string get_line(std::string str, int n)
-{
-    std::string line;
-    std::stringstream s(str);
-    for (int i=0; i < n; i++) {
-        std::getline(s, line);
-    }
-    return line;
-}
-
 #define T(tk, name) case (yytokentype::tk) : return name;
 
 std::string token2text(const int token)
@@ -639,29 +629,6 @@ void Parser::handle_yyerror(const Location &loc, const std::string &msg)
         message = "Internal Compiler Error: parser returned unknown error";
     }
     throw parser_local::ParserError(message, loc);
-}
-
-void populate_span(diag::Span &s, const LocationManager &lm,
-        const std::string &input) {
-    lm.pos_to_linecol(lm.output_to_input_pos(s.loc.first, false),
-        s.first_line, s.first_column);
-    lm.pos_to_linecol(lm.output_to_input_pos(s.loc.last, true),
-        s.last_line, s.last_column);
-    s.filename = lm.in_filename;
-    for (uint32_t i = s.first_line; i <= s.last_line; i++) {
-        s.source_code.push_back(get_line(input, i));
-    }
-    LFORTRAN_ASSERT(s.source_code.size() > 0)
-}
-
-// Loop over all labels and their spans, populate all of them
-void populate_spans(diag::Diagnostic &d, const LocationManager &lm,
-        const std::string &input) {
-    for (auto &l : d.labels) {
-        for (auto &s : l.spans) {
-            populate_span(s, lm, input);
-        }
-    }
 }
 
 }
