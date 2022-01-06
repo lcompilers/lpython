@@ -794,6 +794,10 @@ public:
                                   type, nullptr, overloaded);
     }
 
+    void visit_Pass(const AST::Pass_t &x) {
+        tmp = ASR::make_Exit_t(al, x.base.base.loc);
+    }
+
     void visit_Return(const AST::Return_t &x) {
         tmp = ASR::make_Return_t(al, x.base.base.loc);
     }
