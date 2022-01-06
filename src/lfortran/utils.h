@@ -2,46 +2,13 @@
 #define LFORTRAN_UTILS_H
 
 #include <string>
-#include <libasr/containers.h>
+#include <libasr/utils.h>
 
 namespace LFortran {
-
-enum Platform {
-    Linux,
-    macOS_Intel,
-    macOS_ARM,
-    Windows,
-    FreeBSD
-};
-
-Platform get_platform();
-
-struct CompilerOptions {
-    bool fixed_form = false;
-    bool c_preprocessor = false;
-    std::vector<std::string> c_preprocessor_defines;
-    bool prescan = true;
-    bool symtab_only = false;
-    bool show_stacktrace = false;
-    bool use_colors = true;
-    bool indent = false;
-    bool fast = false;
-    bool openmp = false;
-    bool no_warnings = false;
-    bool no_error_banner = false;
-    std::string target = "";
-    Platform platform;
-
-    CompilerOptions () : platform{get_platform()} {};
-};
-
 
 void get_executable_path(std::string &executable_path, int &dirname_length);
 std::string get_runtime_library_dir();
 std::string get_runtime_library_header_dir();
-bool read_file(const std::string &filename, std::string &text);
-bool present(Vec<char*> &v, const char* name);
-int initialize();
 
 } // LFortran
 

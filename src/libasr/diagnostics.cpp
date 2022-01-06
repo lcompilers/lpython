@@ -4,7 +4,7 @@
 #include <libasr/diagnostics.h>
 #include <libasr/assert.h>
 #include <libasr/exception.h>
-#include <lfortran/utils.h>
+#include <libasr/utils.h>
 
 namespace LFortran::diag {
 
