@@ -4,7 +4,8 @@
 #include <libasr/diagnostics.h>
 #include <libasr/assert.h>
 #include <libasr/exception.h>
-#include <libasr/codegen/fortran_evaluator.h>
+#include <lfortran/utils.h>
+#include <lfortran/parser/parser.h>
 
 namespace LFortran::diag {
 
@@ -95,7 +96,7 @@ std::string render_diagnostic(Diagnostic &d, const std::string &input,
         const LocationManager &lm, bool use_colors, bool show_stacktrace) {
     std::string out;
     if (show_stacktrace) {
-        out += FortranEvaluator::error_stacktrace(d.stacktrace);
+        out += error_stacktrace(d.stacktrace);
     }
     // Convert to line numbers and get source code strings
     populate_spans(d, lm, input);

@@ -16,7 +16,7 @@
 #include <libasr/codegen/asr_to_py.h>
 #include <libasr/codegen/asr_to_x86.h>
 #include <lfortran/ast_to_src.h>
-#include <libasr/codegen/fortran_evaluator.h>
+#include <lfortran/fortran_evaluator.h>
 #include <libasr/codegen/evaluator.h>
 #include <libasr/pass/do_loops.h>
 #include <libasr/pass/for_all.h>

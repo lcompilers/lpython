@@ -1,6 +1,7 @@
 #include <libasr/stacktrace.h>
 #include <libasr/config.h>
 #include <libasr/colors.h>
+#include <libasr/exception.h>
 
 #include <fstream>
 #include <iostream>
@@ -636,6 +637,14 @@ void get_local_info(std::vector<StacktraceItem> &d)
 #  endif
   }
 #endif
+}
+
+std::string error_stacktrace(const std::vector<StacktraceItem> &stacktrace)
+{
+    std::vector<StacktraceItem> d = stacktrace;
+    get_local_addresses(d);
+    get_local_info(d);
+    return stacktrace2str(d, stacktrace_depth-1);
 }
 
 } // namespace LFortran

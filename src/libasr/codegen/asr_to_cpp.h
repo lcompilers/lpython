@@ -2,7 +2,6 @@
 #define LFORTRAN_ASR_TO_CPP_H
 
 #include <libasr/asr.h>
-#include <libasr/codegen/fortran_evaluator.h>
 
 namespace LFortran {
 

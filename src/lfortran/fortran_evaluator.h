@@ -83,8 +83,6 @@ public:
     Result<std::string> get_fmt(const std::string &code, LocationManager &lm,
         diag::Diagnostics &diagnostics);
 
-    static std::string error_stacktrace(const std::vector<StacktraceItem> &stacktrace);
-
 private:
     Allocator al;
 #ifdef HAVE_LFORTRAN_LLVM
