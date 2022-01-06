@@ -554,11 +554,19 @@ public:
             right = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
                 al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type,
                 value));
+        } else if (ASR::is_a<ASR::Character_t>(*left_type) && ASR::is_a<ASR::Character_t>(*right_type)
+                            && op == ASR::binopType::Add) {
+            // string concat
+            dest_type = left_type;
+            ASR::stropType ops = ASR::stropType::Concat;
+            tmp = ASR::make_StrOp_t(al, x.base.base.loc, left, ops, right, dest_type,
+                                    value);
         } else {
             std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
             diag.add(diag::Diagnostic(
-                "Not Implemented: type mismatch in binary operator, only Integer/Real combinations implemented for now",
+                "Not Implemented: type mismatch in binary operator, only Integer/Real combinations "
+                "and string concatenation is implemented for now",
                 diag::Level::Error, diag::Stage::Semantic, {
                     diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
                             {left->base.loc, right->base.loc})
