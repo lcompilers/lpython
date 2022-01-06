@@ -802,6 +802,10 @@ public:
         tmp = ASR::make_Cycle_t(al, x.base.base.loc);
     }
 
+    void visit_Break(const AST::Break_t &x) {
+        tmp = ASR::make_Exit_t(al, x.base.base.loc);
+    }
+
     void visit_Expr(const AST::Expr_t &x) {
         if (AST::is_a<AST::Call_t>(*x.m_value)) {
             AST::Call_t *c = AST::down_cast<AST::Call_t>(x.m_value);
