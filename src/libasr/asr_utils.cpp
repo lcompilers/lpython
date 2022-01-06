@@ -96,15 +96,15 @@ ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m) {
 
 ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const std::string &module_name,
-                            const Location &loc, bool intrinsic) {
+                            const Location &loc, bool intrinsic,
+                            const std::function<void (const std::string &, const Location &)> err) {
     LFORTRAN_ASSERT(symtab);
     if (symtab->scope.find(module_name) != symtab->scope.end()) {
         ASR::symbol_t *m = symtab->scope[module_name];
         if (ASR::is_a<ASR::Module_t>(*m)) {
             return ASR::down_cast<ASR::Module_t>(m);
         } else {
-            throw SemanticError("The symbol '" + module_name
-                + "' is not a module", loc);
+            err("The symbol '" + module_name + "' is not a module", loc);
         }
     }
     LFORTRAN_ASSERT(symtab->parent == nullptr);
@@ -120,7 +120,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         }
     }
     if (mod1 == nullptr) {
-        throw SemanticError("Module '" + module_name + "' not declared in the current source and the modfile was not found",
+        err("Module '" + module_name + "' not declared in the current source and the modfile was not found",
             loc);
     }
     ASR::Module_t *mod2 = extract_module(*mod1);
@@ -164,8 +164,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                 }
 
                 if (mod1 == nullptr) {
-                    throw SemanticError("Module '" + item + "' modfile was not found",
-                        loc);
+                    err("Module '" + item + "' modfile was not found", loc);
                 }
                 ASR::Module_t *mod2 = extract_module(*mod1);
                 symtab->scope[item] = (ASR::symbol_t*)mod2;
@@ -181,8 +180,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         = determine_module_dependencies(*tu);
     for (auto &item : modules_list) {
         if (symtab->scope.find(item) == symtab->scope.end()) {
-            throw SemanticError("ICE: Module '" + item + "' modfile was not found, but should have",
-                loc);
+            err("ICE: Module '" + item + "' modfile was not found, but should have", loc);
         }
     }
 
@@ -315,7 +313,8 @@ ASR::asr_t* getDerivedRef_t(Allocator& al, const Location& loc,
 bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                     ASR::binopType op, std::string& intrinsic_op_name,
                     SymbolTable* curr_scope, ASR::asr_t*& asr,
-                    Allocator &al, const Location& loc) {
+                    Allocator &al, const Location& loc,
+                    const std::function<void (const std::string &, const Location &)> err) {
     ASR::ttype_t *left_type = LFortran::ASRUtils::expr_type(left);
     ASR::ttype_t *right_type = LFortran::ASRUtils::expr_type(right);
     bool found = false;
@@ -347,7 +346,7 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                     break;
                 }
                 default: {
-                    throw SemanticError("While overloading binary operators only functions can be used",
+                    err("While overloading binary operators only functions can be used",
                                         proc->base.loc);
                 }
             }
@@ -446,7 +445,8 @@ bool use_overloaded_assignment(ASR::expr_t* target, ASR::expr_t* value,
 bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                     ASR::cmpopType op, std::string& intrinsic_op_name,
                     SymbolTable* curr_scope, ASR::asr_t*& asr,
-                    Allocator &al, const Location& loc) {
+                    Allocator &al, const Location& loc,
+                    const std::function<void (const std::string &, const Location &)> err) {
     ASR::ttype_t *left_type = LFortran::ASRUtils::expr_type(left);
     ASR::ttype_t *right_type = LFortran::ASRUtils::expr_type(right);
     bool found = false;
@@ -478,7 +478,7 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                     break;
                 }
                 default: {
-                    throw SemanticError("While overloading binary operators only functions can be used",
+                    err("While overloading binary operators only functions can be used",
                                         proc->base.loc);
                 }
             }

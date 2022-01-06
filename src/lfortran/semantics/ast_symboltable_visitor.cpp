@@ -163,8 +163,10 @@ public:
                                             false);
         current_module_sym = ASR::down_cast<ASR::symbol_t>(tmp0);
         if( x.class_type == AST::modType::Submodule ) {
-            ASR::symbol_t* submod_parent = (ASR::symbol_t*)LFortran::ASRUtils::load_module(al, global_scope,
-                                                parent_name, x.base.base.loc, false);
+            ASR::symbol_t* submod_parent = (ASR::symbol_t*)(ASRUtils::load_module(al, global_scope,
+                                                parent_name, x.base.base.loc, false,
+                                                [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
+                                                ));
             ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(submod_parent);
             std::string unsupported_sym_name = import_all(m);
             if( !unsupported_sym_name.empty() ) {
@@ -1431,8 +1433,10 @@ public:
         }
         ASR::symbol_t *t = current_scope->parent->resolve_symbol(msym);
         if (!t) {
-            t = (ASR::symbol_t*)LFortran::ASRUtils::load_module(al, current_scope->parent,
-                msym, x.base.base.loc, false);
+            t = (ASR::symbol_t*)(ASRUtils::load_module(al, current_scope->parent,
+                msym, x.base.base.loc, false,
+                [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
+                ));
         }
         if (!ASR::is_a<ASR::Module_t>(*t)) {
             throw SemanticError("The symbol '" + msym + "' must be a module",
