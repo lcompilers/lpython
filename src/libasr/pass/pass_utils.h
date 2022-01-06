@@ -27,6 +27,7 @@ namespace LFortran {
         
         ASR::expr_t* get_bound(ASR::expr_t* arr_expr, int dim, std::string bound,
                                 Allocator& al, ASR::TranslationUnit_t& unit, 
+                                const std::string &rl_path,
                                 SymbolTable*& current_scope);
 
         ASR::expr_t* to_int32(ASR::expr_t* x, ASR::ttype_t* int32type, Allocator& al);

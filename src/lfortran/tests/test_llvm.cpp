@@ -372,7 +372,7 @@ end function)";
     LFortran::LLVMEvaluator e;
     LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
         res = LFortran::asr_to_llvm(*asr, diagnostics, e.get_context(), al,
-            LFortran::get_platform());
+            LFortran::get_platform(), LFortran::get_runtime_library_dir(), "f");
     REQUIRE(res.ok);
     std::unique_ptr<LFortran::LLVMModule> m = std::move(res.result);
     //std::cout << "Module:" << std::endl;
@@ -405,7 +405,7 @@ end function)";
     LFortran::LLVMEvaluator e;
     LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
         res = LFortran::asr_to_llvm(*asr, diagnostics, e.get_context(), al,
-            LFortran::get_platform());
+            LFortran::get_platform(), LFortran::get_runtime_library_dir(), "f");
     REQUIRE(res.ok);
     std::unique_ptr<LFortran::LLVMModule> m = std::move(res.result);
     //std::cout << "Module:" << std::endl;

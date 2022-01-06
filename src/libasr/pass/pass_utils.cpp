@@ -207,6 +207,7 @@ namespace LFortran {
 
         ASR::expr_t* get_bound(ASR::expr_t* arr_expr, int dim, std::string bound,
                                 Allocator& al, ASR::TranslationUnit_t& unit, 
+                                const std::string &rl_path,
                                 SymbolTable*& current_scope) {
             ASR::symbol_t *v;
             std::string remote_sym = bound;
@@ -215,6 +216,7 @@ namespace LFortran {
             current_scope = unit.m_global_scope;
             ASR::Module_t *m = LFortran::ASRUtils::load_module(al, current_scope,
                                             module_name, arr_expr->base.loc, true,
+                                            rl_path,
                                             [&](const std::string &msg, const Location &) { throw LFortranException(msg); }
                                             );
 

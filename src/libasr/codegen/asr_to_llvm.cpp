@@ -3971,7 +3971,8 @@ public:
 Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
         diag::Diagnostics &diagnostics,
         llvm::LLVMContext &context, Allocator &al, Platform platform,
-        std::string run_fn)
+        const std::string &rl_path,
+        const std::string &run_fn)
 {
     ASRToLLVMVisitor v(al, context, platform, diagnostics);
     pass_wrap_global_stmts_into_function(al, asr, run_fn);
@@ -3979,10 +3980,10 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
     // Uncomment for debugging the ASR after the transformation
     // std::cout << pickle(asr) << std::endl;
     pass_replace_class_constructor(al, asr);
-    pass_replace_implied_do_loops(al, asr);
-    pass_replace_arr_slice(al, asr);
-    pass_replace_array_op(al, asr);
-    pass_replace_print_arr(al, asr);
+    pass_replace_implied_do_loops(al, asr, rl_path);
+    pass_replace_arr_slice(al, asr, rl_path);
+    pass_replace_array_op(al, asr, rl_path);
+    pass_replace_print_arr(al, asr, rl_path);
     pass_replace_do_loops(al, asr);
     pass_replace_forall(al, asr);
     pass_replace_select_case(al, asr);

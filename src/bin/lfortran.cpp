@@ -557,11 +557,11 @@ int emit_asr(const std::string &infile,
                 break;
             }
             case (ASRPass::implied_do_loops) : {
-                LFortran::pass_replace_implied_do_loops(al, *asr);
+                LFortran::pass_replace_implied_do_loops(al, *asr, LFortran::get_runtime_library_dir());
                 break;
             }
             case (ASRPass::array_op) : {
-                LFortran::pass_replace_array_op(al, *asr);
+                LFortran::pass_replace_array_op(al, *asr, LFortran::get_runtime_library_dir());
                 break;
             }
             case (ASRPass::class_constructor) : {
@@ -569,11 +569,11 @@ int emit_asr(const std::string &infile,
                 break;
             }
             case (ASRPass::arr_slice) : {
-                LFortran::pass_replace_arr_slice(al, *asr);
+                LFortran::pass_replace_arr_slice(al, *asr, LFortran::get_runtime_library_dir());
                 break;
             }
             case (ASRPass::print_arr) : {
-                LFortran::pass_replace_print_arr(al, *asr);
+                LFortran::pass_replace_print_arr(al, *asr, LFortran::get_runtime_library_dir());
                 break;
             }
             case (ASRPass::unused_functions) : {
