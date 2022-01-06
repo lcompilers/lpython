@@ -47,6 +47,7 @@ set(SRC
 
     ../libasr/string_utils.cpp
     utils.cpp
+    ../libasr/utils2.cpp
 
     ../libasr/stacktrace.cpp
 
