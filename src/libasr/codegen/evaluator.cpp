@@ -55,13 +55,8 @@
 #include <libasr/codegen/evaluator.h>
 #include <libasr/codegen/asr_to_llvm.h>
 #include <libasr/codegen/asr_to_cpp.h>
-#include <lfortran/ast_to_src.h>
 #include <libasr/exception.h>
-#include <lfortran/ast.h>
 #include <libasr/asr.h>
-#include <lfortran/semantics/ast_to_asr.h>
-#include <lfortran/parser/parser.h>
-#include <lfortran/pickle.h>
 #include <libasr/string_utils.h>
 
 
