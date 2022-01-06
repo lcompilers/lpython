@@ -3,7 +3,6 @@
 
 #include <libasr/asr.h>
 #include <libasr/codegen/evaluator.h>
-#include <libasr/codegen/fortran_evaluator.h>
 
 namespace LFortran {
 

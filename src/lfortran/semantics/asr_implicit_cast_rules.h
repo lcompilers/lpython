@@ -3,6 +3,8 @@
 
 #include <libasr/asr.h>
 #include <lfortran/ast.h>
+#include <lfortran/semantics/semantic_exception.h>
+
 
 #define num_types 6
 

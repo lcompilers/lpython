@@ -61,6 +61,8 @@ void address_to_line_number(const std::vector<std::string> &filenames,
           std::string &filename,
           int &line_number);
 
+std::string error_stacktrace(const std::vector<StacktraceItem> &stacktrace);
+
 } // namespace LFortran
 
 #endif // LFORTRAN_STACKTRACE_H

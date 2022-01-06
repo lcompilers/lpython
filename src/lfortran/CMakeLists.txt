@@ -11,7 +11,7 @@ set(SRC
     semantics/ast_to_asr.cpp
     ../libasr/asr_scopes.cpp
 
-    ../libasr/codegen/fortran_evaluator.cpp
+    fortran_evaluator.cpp
     ../libasr/codegen/asr_to_cpp.cpp
     ../libasr/codegen/asr_to_py.cpp
     ../libasr/codegen/x86_assembler.cpp

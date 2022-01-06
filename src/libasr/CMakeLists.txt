@@ -15,7 +15,6 @@ endif ()
 configure_file(config.h.in config.h)
 
 set(SRC
-    codegen/fortran_evaluator.cpp
     codegen/asr_to_cpp.cpp
     codegen/asr_to_py.cpp
     codegen/x86_assembler.cpp

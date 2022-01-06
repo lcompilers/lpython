@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 
-#include <libasr/codegen/fortran_evaluator.h>
+#include <lfortran/fortran_evaluator.h>
 #include <libasr/codegen/asr_to_cpp.h>
 #include <lfortran/ast_to_src.h>
 #include <libasr/exception.h>
@@ -380,14 +380,6 @@ Result<std::string> FortranEvaluator::get_fmt(const std::string &code,
         LFORTRAN_ASSERT(diagnostics.has_error())
         return ast.error;
     }
-}
-
-std::string FortranEvaluator::error_stacktrace(const std::vector<StacktraceItem> &stacktrace)
-{
-    std::vector<StacktraceItem> d = stacktrace;
-    get_local_addresses(d);
-    get_local_info(d);
-    return stacktrace2str(d, stacktrace_depth-1);
 }
 
 } // namespace LFortran
