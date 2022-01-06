@@ -3,7 +3,7 @@
 #include <libasr/serialization.h>
 #include <libasr/assert.h>
 #include <libasr/asr_verify.h>
-#include <lfortran/utils.h>
+#include <libasr/utils.h>
 #include <libasr/modfile.h>
 
 namespace LFortran {
@@ -97,6 +97,7 @@ ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m) {
 ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const std::string &module_name,
                             const Location &loc, bool intrinsic,
+                            const std::string &rl_path,
                             const std::function<void (const std::string &, const Location &)> err) {
     LFORTRAN_ASSERT(symtab);
     if (symtab->scope.find(module_name) != symtab->scope.end()) {
@@ -109,14 +110,14 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     }
     LFORTRAN_ASSERT(symtab->parent == nullptr);
     ASR::TranslationUnit_t *mod1 = find_and_load_module(al, module_name,
-            *symtab, intrinsic);
+            *symtab, intrinsic, rl_path);
     if (mod1 == nullptr && !intrinsic) {
         // Module not found as a regular module. Try intrinsic module
         if (module_name == "iso_c_binding"
             ||module_name == "iso_fortran_env"
             ||module_name == "ieee_arithmetic") {
             mod1 = find_and_load_module(al, "lfortran_intrinsic_" + module_name,
-                *symtab, true);
+                *symtab, true, rl_path);
         }
     }
     if (mod1 == nullptr) {
@@ -153,13 +154,13 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                 bool is_intrinsic = startswith(item, "lfortran_intrinsic");
                 ASR::TranslationUnit_t *mod1 = find_and_load_module(al,
                         item,
-                        *symtab, is_intrinsic);
+                        *symtab, is_intrinsic, rl_path);
                 if (mod1 == nullptr && !is_intrinsic) {
                     // Module not found as a regular module. Try intrinsic module
                     if (item == "iso_c_binding"
                         ||item == "iso_fortran_env") {
                         mod1 = find_and_load_module(al, "lfortran_intrinsic_" + item,
-                            *symtab, true);
+                            *symtab, true, rl_path);
                     }
                 }
 
@@ -234,10 +235,10 @@ void set_intrinsic(ASR::TranslationUnit_t* trans_unit) {
 }
 
 ASR::TranslationUnit_t* find_and_load_module(Allocator &al, const std::string &msym,
-                                                SymbolTable &symtab, bool intrinsic) {
+                                                SymbolTable &symtab, bool intrinsic,
+                                                const std::string &rl_path) {
     std::string modfilename = msym + ".mod";
     if (intrinsic) {
-        std::string rl_path = get_runtime_library_dir();
         modfilename = rl_path + "/" + modfilename;
     }
 

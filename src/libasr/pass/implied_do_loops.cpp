@@ -35,9 +35,11 @@ private:
     Vec<ASR::stmt_t*> implied_do_loop_result;
     bool contains_array;
     SymbolTable* current_scope;
+    std::string rl_path;
 public:
-    ImpliedDoLoopVisitor(Allocator &al, ASR::TranslationUnit_t& unit) : al{al}, unit{unit}, 
-    contains_array{false}, current_scope{nullptr} {
+    ImpliedDoLoopVisitor(Allocator &al, ASR::TranslationUnit_t& unit,
+        const std::string &rl_path) : al{al}, unit{unit}, 
+    contains_array{false}, current_scope{nullptr}, rl_path{rl_path} {
         implied_do_loop_result.reserve(al, 1);
 
     }
@@ -259,8 +261,8 @@ public:
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 ASR::do_loop_head_t head;
                 head.m_v = idx_vars[i];
-                head.m_start = PassUtils::get_bound(x.m_target, n_dims, "lbound", al, unit, current_scope); 
-                head.m_end = PassUtils::get_bound(x.m_target, n_dims, "ubound", al, unit, current_scope);
+                head.m_start = PassUtils::get_bound(x.m_target, n_dims, "lbound", al, unit, rl_path, current_scope); 
+                head.m_end = PassUtils::get_bound(x.m_target, n_dims, "ubound", al, unit, rl_path, current_scope);
                 head.m_increment = nullptr;
                 head.loc = head.m_v->base.loc;
                 Vec<ASR::stmt_t*> doloop_body;
@@ -279,8 +281,9 @@ public:
     }
 };
 
-void pass_replace_implied_do_loops(Allocator &al, ASR::TranslationUnit_t &unit) {
-    ImpliedDoLoopVisitor v(al, unit);
+void pass_replace_implied_do_loops(Allocator &al, ASR::TranslationUnit_t &unit,
+        const std::string &rl_path) {
+    ImpliedDoLoopVisitor v(al, unit, rl_path);
     v.visit_TranslationUnit(unit);
     LFORTRAN_ASSERT(asr_verify(unit));
 }

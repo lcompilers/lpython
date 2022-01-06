@@ -34,9 +34,11 @@ private:
     ASR::TranslationUnit_t &unit;
     Vec<ASR::stmt_t*> print_arr_result;
     SymbolTable* current_scope;
+    std::string rl_path;
 public:
-    PrintArrVisitor(Allocator &al, ASR::TranslationUnit_t &unit) : al{al}, unit{unit},
-    current_scope{nullptr} {
+    PrintArrVisitor(Allocator &al, ASR::TranslationUnit_t &unit,
+        const std::string &rl_path) : al{al}, unit{unit},
+    current_scope{nullptr}, rl_path{rl_path} {
         print_arr_result.reserve(al, 1);
 
     }
@@ -113,8 +115,8 @@ public:
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 ASR::do_loop_head_t head;
                 head.m_v = idx_vars[i];
-                head.m_start = PassUtils::get_bound(arr_expr, i + 1, "lbound", al, unit, current_scope);
-                head.m_end = PassUtils::get_bound(arr_expr, i + 1, "ubound", al, unit, current_scope);
+                head.m_start = PassUtils::get_bound(arr_expr, i + 1, "lbound", al, unit, rl_path, current_scope);
+                head.m_end = PassUtils::get_bound(arr_expr, i + 1, "ubound", al, unit, rl_path, current_scope);
                 head.m_increment = nullptr;
                 head.loc = head.m_v->base.loc;
                 Vec<ASR::stmt_t*> doloop_body;
@@ -140,8 +142,9 @@ public:
 
 };
 
-void pass_replace_print_arr(Allocator &al, ASR::TranslationUnit_t &unit) {
-    PrintArrVisitor v(al, unit);
+void pass_replace_print_arr(Allocator &al, ASR::TranslationUnit_t &unit,
+        const std::string &rl_path) {
+    PrintArrVisitor v(al, unit, rl_path);
     v.visit_TranslationUnit(unit);
     LFORTRAN_ASSERT(asr_verify(unit));
 }
