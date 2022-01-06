@@ -425,9 +425,9 @@ public:
                     visit_expr(*return_type->m_kind->m_value);
                     ASR::expr_t* kind_expr = LFortran::ASRUtils::EXPR(tmp);
                     if (return_type->m_type == AST::decl_typeType::TypeCharacter) {
-                        a_len = ASRUtils::extract_len(kind_expr, x.base.base.loc);
+                        a_len = ASRUtils::extract_len<SemanticError>(kind_expr, x.base.base.loc);
                     } else {
-                        a_kind = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
+                        a_kind = ASRUtils::extract_kind<SemanticError>(kind_expr, x.base.base.loc);
                     }
                 } else {
                     throw SemanticError("Only one kind item supported for now", x.base.base.loc);
@@ -816,7 +816,7 @@ public:
                     sym_type->m_kind->m_value != nullptr) {
                     visit_expr(*sym_type->m_kind->m_value);
                     ASR::expr_t* kind_expr = LFortran::ASRUtils::EXPR(tmp);
-                    a_kind = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
+                    a_kind = ASRUtils::extract_kind<SemanticError>(kind_expr, x.base.base.loc);
                 }
                 if (sym_type->m_type == AST::decl_typeType::TypeReal) {
                     type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
@@ -864,7 +864,7 @@ public:
                                 LFORTRAN_ASSERT(sym_type->m_kind->m_value != nullptr);
                                 visit_expr(*sym_type->m_kind->m_value);
                                 ASR::expr_t* len_expr0 = LFortran::ASRUtils::EXPR(tmp);
-                                a_len = ASRUtils::extract_len(len_expr0, x.base.base.loc);
+                                a_len = ASRUtils::extract_len<SemanticError>(len_expr0, x.base.base.loc);
                                 if (a_len == -3) {
                                     len_expr = len_expr0;
                                 }

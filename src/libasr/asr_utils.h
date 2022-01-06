@@ -4,7 +4,6 @@
 #include <libasr/assert.h>
 #include <libasr/asr.h>
 #include <libasr/string_utils.h>
-#include <lfortran/semantics/semantic_exception.h>
 
 namespace LFortran  {
 
@@ -603,6 +602,7 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                 return 4;
             }
 
+            template <typename SemanticError>
             inline int extract_kind(ASR::expr_t* kind_expr, const Location& loc) {
                 int a_kind = 4;
                 switch( kind_expr->type ) {
@@ -641,6 +641,7 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                 return a_kind;
             }
 
+            template <typename SemanticError>
             inline int extract_len(ASR::expr_t* len_expr, const Location& loc) {
                 int a_len = -10;
                 switch( len_expr->type ) {
