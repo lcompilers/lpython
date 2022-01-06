@@ -1,6 +1,8 @@
 #ifndef LFORTRAN_ASR_UTILS_H
 #define LFORTRAN_ASR_UTILS_H
 
+#include <functional>
+
 #include <libasr/assert.h>
 #include <libasr/asr.h>
 #include <libasr/string_utils.h>
