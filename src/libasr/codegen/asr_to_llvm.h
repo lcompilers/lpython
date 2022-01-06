@@ -10,7 +10,7 @@ namespace LFortran {
             diag::Diagnostics &diagnostics,
             llvm::LLVMContext &context, Allocator &al, Platform platform,
             const std::string &rl_path,
-            std::string run_fn="f");
+            const std::string &run_fn);
 
 } // namespace LFortran
 
