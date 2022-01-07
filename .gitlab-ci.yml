@@ -82,7 +82,10 @@ libasr:
     - conda install -c conda-forge rapidjson
     - tar xzf dist/lfortran-*.tar.gz
     - cd lfortran-*
-    - cd src/libasr
+    - mkdir build
+    - cd build
+    - mv ../src/libasr .
+    - cd libasr
     - CXXFLAGS="-Werror" cmake
          -DCMAKE_PREFIX_PATH=$HOME/conda_root
          -DCMAKE_INSTALL_PREFIX=`pwd`
