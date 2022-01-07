@@ -82,6 +82,7 @@ module Python
          | ConstantInt(int value, string? kind)
          | ConstantBool(bool value, string? kind)
          | ConstantFloat(float value, string? kind)
+         | ConstantComplex(float re, float im, string? kind)
 
          -- the following expression can appear in assignment context
          | Attribute(expr value, identifier attr, expr_context ctx)
