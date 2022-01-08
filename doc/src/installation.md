@@ -99,6 +99,38 @@ Run an interactive prompt:
 ./src/bin/lfortran
 ```
 
+## Build on Windows with Visual Studio
+
+Install Conda for example by installing the Miniconda installation by following instructions there for your platform. If not already done, activate the Conda-Installation (cf. Conda installation instructions).
+
+First, clone the repo to a local folder.
+
+Launch a Conda command interpreter and run the following commands:
+```bash
+conda update -q conda
+conda install -c conda-forge python=3.7 re2c m2-bison xonsh llvmdev=11.1.0 jupyter xeus=1.0.1 xtl nlohmann_json cppzmq jupyter_kernel_test pytest
+```
+Next, from the Conda prompt, launch an `xonsh`-shell:
+```bash
+xonsh
+```
+and `cd`` to the root of the repository and run
+```bash
+bash ci/version.sh
+python grammar/asdl_cpp.py
+python grammar/asdl_cpp.py grammar/ASR.asdl src/libasr/asr.h
+pushd src/lfortran/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd
+pushd src/lfortran/parser && re2c -W -b preprocessor.re -o preprocessor.cpp && popd
+pushd src/lfortran/parser && bison -Wall -d -r all parser.yy && popd
+```
+
+Now, you can launch Visual Studio and open the LFortran folder.
+Before the first build you have to set up the `ZLib`-pathes: Go to the CMake-Settings (Project -> CMake Setttings for lfortran) and check `Show advanced variables`. Scroll to the `ZLIB_...` variables and set:
+- `ZLIB_INCLUDE_DIR` = \<Conda-Installation-Path\>\Library\include
+- `ZLIB_LIBRARY_[DEBUG|RELEASE]` = \<Conda-Installation-Path\>\Library\lib\zlib.lib
+
+Then you can generate the CMake-Cache and build the project.
+
 ## Enabling the Jupyter Kernel
 
 To install the Jupyter kernel, install the following Conda packages also:
