@@ -366,6 +366,34 @@ public:
         tmp = nullptr;
     }
 
+    void visit_Delete(const AST::Delete_t &x) {
+        if (x.n_targets == 0) {
+            throw SemanticError("Delete statement must be operated on at least one target",
+                    x.base.base.loc);
+        }
+        Vec<ASR::symbol_t*> targets;
+        targets.reserve(al, x.n_targets);
+        for (size_t i=0; i<x.n_targets; i++) {
+            AST::expr_t *target = x.m_targets[i];
+            if (AST::is_a<AST::Name_t>(*target)) {
+                AST::Name_t *n = AST::down_cast<AST::Name_t>(target);
+                std::string var_name = n->m_id;
+                if (current_scope->scope.find(var_name) ==
+                        current_scope->scope.end()) {
+                    throw SemanticError("Symbol is not declared",
+                            x.base.base.loc);
+                }
+                ASR::symbol_t *s = current_scope->scope[var_name];
+                targets.push_back(al, s);
+            } else {
+                throw SemanticError("Only Name supported for now as target of Delete",
+                        x.base.base.loc);
+            }
+        }
+        tmp = ASR::make_ExplicitDeallocate_t(al, x.base.base.loc, targets.p,
+                targets.size());
+    }
+
     void visit_Assign(const AST::Assign_t &x) {
         ASR::expr_t *target;
         if (x.n_targets == 1) {
