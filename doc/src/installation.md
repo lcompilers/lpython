@@ -110,18 +110,9 @@ Launch a Conda command interpreter and run the following commands:
 conda update -q conda
 conda install -c conda-forge python=3.7 re2c m2-bison xonsh llvmdev=11.1.0 jupyter xeus=1.0.1 xtl nlohmann_json cppzmq jupyter_kernel_test pytest
 ```
-Next, from the Conda prompt, launch an `xonsh`-shell:
+Next, `cd` to the root of the repository and run
 ```bash
-xonsh
-```
-and `cd`` to the root of the repository and run
-```bash
-bash ci/version.sh
-python grammar/asdl_cpp.py
-python grammar/asdl_cpp.py grammar/ASR.asdl src/libasr/asr.h
-pushd src/lfortran/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd
-pushd src/lfortran/parser && re2c -W -b preprocessor.re -o preprocessor.cpp && popd
-pushd src/lfortran/parser && bison -Wall -d -r all parser.yy && popd
+.\build0.bat
 ```
 
 Now, you can launch Visual Studio and open the LFortran folder.
