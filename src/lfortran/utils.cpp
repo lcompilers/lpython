@@ -1,3 +1,10 @@
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif // NOMINMAX
+#include <windows.h>
+#endif
+
 #include <fstream>
 
 #include <bin/tpl/whereami/whereami.h>

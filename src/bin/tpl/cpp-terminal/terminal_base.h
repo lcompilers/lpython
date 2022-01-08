@@ -12,6 +12,9 @@
 #include <stdexcept>
 
 #ifdef _WIN32
+#    ifndef NOMINMAX
+#    define NOMINMAX
+#    endif // NOMINMAX
 #    include <conio.h>
 #    define _WINSOCKAPI_
 #    include <windows.h>
