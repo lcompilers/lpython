@@ -382,6 +382,17 @@ public:
                                 overloaded);
     }
 
+    void visit_Assert(const AST::Assert_t &x) {
+        this->visit_expr(*x.m_test);
+        ASR::expr_t *test = LFortran::ASRUtils::EXPR(tmp);
+        ASR::expr_t *msg = nullptr;
+        if (x.m_msg != nullptr) {
+            this->visit_expr(*x.m_msg);
+            msg = LFortran::ASRUtils::EXPR(tmp);
+        }
+        tmp = ASR::make_Assert_t(al, x.base.base.loc, test, msg);
+    }
+
     void visit_Subscript(const AST::Subscript_t &x) {
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
