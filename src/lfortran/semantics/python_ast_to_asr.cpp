@@ -382,7 +382,7 @@ public:
                     throw SemanticError("Symbol is not declared",
                             x.base.base.loc);
                 }
-                ASR::symbol_t *s = current_scope->scope[var_name];
+                ASR::symbol_t *s = current_scope->resolve_symbol(var_name);
                 targets.push_back(al, s);
             } else {
                 throw SemanticError("Only Name supported for now as target of Delete",
