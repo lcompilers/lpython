@@ -113,7 +113,7 @@ public:
         } else if (var_annotation == "f64") {
             type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, loc,
                 8, dims.p, dims.size()));
-        } else if (var_annotation == "complex") {
+        } else if (var_annotation == "c128") {
             type = LFortran::ASRUtils::TYPE(ASR::make_Complex_t(al, loc,
                 8, dims.p, dims.size()));
         } else if (var_annotation == "str") {
