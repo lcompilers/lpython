@@ -42,6 +42,7 @@ Testing/Temporary
 CPackConfig.cmake
 CPackSourceConfig.cmake
 _CPack_Packages
+/CMakeSettings.json
 
 ## libraries
 *.a
@@ -68,6 +69,7 @@ src/lfortran/parser/tokenizer.cpp
 src/lfortran/parser/preprocessor.cpp
 src/lfortran/ast.h
 src/lfortran/asr.h
+src/libasr/asr.h
 src/lfortran/config.h
 share/jupyter/kernels/fortran/kernel.json
 src/runtime/*.o.empty.c 
@@ -141,6 +143,7 @@ MANIFEST
 
 ## Editor Files
 .vscode/
+.vs/
 
 ## Build Files
 */bin/lfortran

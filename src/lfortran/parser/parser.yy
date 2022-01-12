@@ -120,6 +120,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_NOT ".not."
 %token TK_AND ".and."
 %token TK_OR ".or."
+%token TK_XOR ".xor."
 %token TK_EQV ".eqv."
 %token TK_NEQV ".neqv."
 
@@ -531,7 +532,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 %left TK_DEF_OP
 %left ".eqv." ".neqv."
-%left ".or."
+%left ".or." ".xor."
 %left ".and."
 %precedence ".not."
 %left "==" "/=" "<" "<=" ">" ">="
@@ -751,6 +752,7 @@ operator_type
     | ".not."  { $$ = OPERATOR(NOT, @$); }
     | ".and."  { $$ = OPERATOR(AND, @$); }
     | ".or."   { $$ = OPERATOR(OR, @$); }
+    | ".xor."  { $$ = OPERATOR(XOR, @$); }
     | ".eqv."  { $$ = OPERATOR(EQV, @$); }
     | ".neqv." { $$ = OPERATOR(NEQV, @$); }
     ;
@@ -2169,6 +2171,7 @@ expr
     | ".not." expr { $$ = NOT($2, @$); }
     | expr ".and." expr { $$ = AND($1, $3, @$); }
     | expr ".or." expr { $$ = OR($1, $3, @$); }
+    | expr ".xor." expr { $$ = XOR($1, $3, @$); }
     | expr ".eqv." expr { $$ = EQV($1, $3, @$); }
     | expr ".neqv." expr { $$ = NEQV($1, $3, @$); }
     | expr TK_DEF_OP expr { $$ = DEFOP($1, $2, $3, @$); }

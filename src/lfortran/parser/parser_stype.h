@@ -3,8 +3,8 @@
 
 #include <cstring>
 #include <lfortran/ast.h>
-#include <lfortran/parser/location.h>
-#include <lfortran/containers.h>
+#include <libasr/location.h>
+#include <libasr/containers.h>
 #include <lfortran/bigint.h>
 
 namespace LFortran

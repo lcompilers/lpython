@@ -53,6 +53,9 @@ if (WITH_RUNTIME_LIBRARY)
     LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_builtin builtin)
     LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_kind pure)
     LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_iso_fortran_env pure)
+    LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_ieee_arithmetic pure
+      ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
+    )
     LFORTRAN_COMPILE_RUNTIME(lfortran_intrinsic_iso_c_binding pure
       ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_builtin.mod
     )
@@ -88,6 +91,7 @@ if (WITH_RUNTIME_LIBRARY)
             ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_builtin.mod
             ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_kind.mod
             ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
+            ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_ieee_arithmetic.mod
             ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_c_binding.mod
             ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_math2.mod
             ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_math.mod
@@ -101,6 +105,7 @@ if (WITH_RUNTIME_LIBRARY)
         FILES ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_builtin.mod
               ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_kind.mod
               ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_fortran_env.mod
+              ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_ieee_arithmetic.mod
               ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_iso_c_binding.mod
               ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_math2.mod
               ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_math.mod

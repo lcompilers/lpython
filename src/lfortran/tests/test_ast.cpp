@@ -2,12 +2,12 @@
 
 #include <iostream>
 
-#include <lfortran/parser/alloc.h>
+#include <libasr/alloc.h>
 #include <lfortran/ast.h>
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 #include <lfortran/parser/parser.h>
 #include <lfortran/semantics/ast_to_asr.h>
-#include <lfortran/asr_verify.h>
+#include <libasr/asr_verify.h>
 
 namespace LFortran {
 

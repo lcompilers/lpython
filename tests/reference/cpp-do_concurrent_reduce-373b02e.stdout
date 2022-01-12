@@ -56,6 +56,12 @@ int maxval(const Kokkos::View<const int*> &x)
     return maxval;
 }
 
+int merge(const Kokkos::View<const int*> &tsource, const Kokkos::View<const int*> &fsource, bool mask)
+{
+    int merge;
+    return merge;
+}
+
 int min(int a, int b)
 {
     int min;

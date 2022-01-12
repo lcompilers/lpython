@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include <lfortran/config.h>
-#include <lfortran/stacktrace.h>
+#include <libasr/config.h>
+#include <libasr/stacktrace.h>
 
 int h()
 {

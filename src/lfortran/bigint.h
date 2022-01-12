@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-#include <lfortran/containers.h>
+#include <libasr/containers.h>
 
 namespace LFortran {
 
@@ -97,6 +97,22 @@ inline static std::string int_to_str(int64_t i) {
     } else {
         return std::to_string(i);
     }
+}
+
+inline static bool is_int64(std::string str_repr) {
+    std::string str_int64 = "9223372036854775807";
+    if( str_repr.size() > str_int64.size() ) {
+        return false;
+    }
+    
+    if( str_repr.size() < str_int64.size() ) {
+        return true;
+    }
+
+    size_t i;
+    for( i = 0; i < str_repr.size() - 1 && str_repr[i] == str_int64[i]; i++  ) {
+    }
+    return i == str_repr.size() - 1 || str_repr[i] < str_int64[i];
 }
 
 /* BigInt is a thin wrapper over the functionality exposed in the functions

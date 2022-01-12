@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-nullify_01-810c9d3",
+    "cmd": "lfortran --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/nullify_01.f90",
+    "infile_hash": "5869e698f080612903a66a6001fa03b7b3390371a5a9eef3ca48a545",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-nullify_01-810c9d3.stdout",
+    "stdout_hash": "7ff2dae193a77a7dcc5945817fd0be794570e0641e5fa252c92d9653",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

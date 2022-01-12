@@ -99,6 +99,29 @@ Run an interactive prompt:
 ./src/bin/lfortran
 ```
 
+## Build on Windows with Visual Studio
+
+Install Conda for example by installing the Miniconda installation by following instructions there for your platform. If not already done, activate the Conda-Installation (cf. Conda installation instructions).
+
+First, clone the repo to a local folder.
+
+Launch a Conda command interpreter and run the following commands:
+```bash
+conda update -q conda
+conda install -c conda-forge python=3.7 re2c m2-bison xonsh llvmdev=11.1.0 jupyter xeus=1.0.1 xtl nlohmann_json cppzmq jupyter_kernel_test pytest
+```
+Next, `cd` to the root of the repository and run
+```bash
+.\build0.bat
+```
+
+Now, you can launch Visual Studio and open the LFortran folder.
+Before the first build you have to set up the `ZLib`-pathes: Go to the CMake-Settings (Project -> CMake Setttings for lfortran) and check `Show advanced variables`. Scroll to the `ZLIB_...` variables and set:
+- `ZLIB_INCLUDE_DIR` = \<Conda-Installation-Path\>\Library\include
+- `ZLIB_LIBRARY_[DEBUG|RELEASE]` = \<Conda-Installation-Path\>\Library\lib\zlib.lib
+
+Then you can generate the CMake-Cache and build the project.
+
 ## Enabling the Jupyter Kernel
 
 To install the Jupyter kernel, install the following Conda packages also:

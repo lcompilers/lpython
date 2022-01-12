@@ -568,6 +568,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             '.not.'  { RET(TK_NOT) }
             '.and.'  { RET(TK_AND) }
             '.or.'   { RET(TK_OR) }
+            '.xor.'  { RET(TK_XOR) }
             '.eqv.'  { RET(TK_EQV) }
             '.neqv.' { RET(TK_NEQV) }
 

@@ -187,6 +187,7 @@ stmt
     | SubroutineCall(symbol name, symbol? original_name, expr* args, expr? dt)
     | Where(expr test, stmt* body, stmt* orelse)
     | WhileLoop(expr test, stmt* body)
+    | Nullify(symbol* vars)
 
 
 expr
@@ -231,7 +232,7 @@ ttype
     | Class(symbol class_type, dimension* dims)
     | Pointer(ttype type)
 
-boolop = And | Or | NEqv | Eqv
+boolop = And | Or | Xor | NEqv | Eqv
 
 binop = Add | Sub | Mul | Div | Pow
 

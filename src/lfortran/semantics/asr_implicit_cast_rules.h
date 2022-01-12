@@ -1,8 +1,10 @@
 #ifndef LFORTRAN_SEMANTICS_ASR_IMPLICIT_CAST_RULES_H
 #define LFORTRAN_SEMANTICS_ASR_IMPLICIT_CAST_RULES_H
 
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 #include <lfortran/ast.h>
+#include <lfortran/semantics/semantic_exception.h>
+
 
 #define num_types 6
 

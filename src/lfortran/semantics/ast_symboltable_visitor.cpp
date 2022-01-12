@@ -7,15 +7,15 @@
 #include <limits>
 
 #include <lfortran/ast.h>
-#include <lfortran/asr.h>
-#include <lfortran/asr_utils.h>
-#include <lfortran/asr_verify.h>
-#include <lfortran/exception.h>
+#include <libasr/asr.h>
+#include <libasr/asr_utils.h>
+#include <libasr/asr_verify.h>
+#include <libasr/exception.h>
 #include <lfortran/semantics/asr_implicit_cast_rules.h>
 #include <lfortran/semantics/ast_common_visitor.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/parser/parser_stype.h>
-#include <lfortran/string_utils.h>
+#include <libasr/string_utils.h>
 #include <lfortran/utils.h>
 
 namespace LFortran {
@@ -137,6 +137,18 @@ public:
         tmp = tmp0;
     }
 
+    void visit_Procedure(const AST::Procedure_t&) {
+        // To Be Implemented
+    }
+
+    void visit_Private(const AST::Private_t&) {
+        // To Be Implemented
+    }
+
+    void visit_FinalName(const AST::FinalName_t&) {
+        // To Be Implemented
+    }
+
     template <typename T, typename R>
     void visit_ModuleSubmoduleCommon(const T &x, std::string parent_name="") {
         SymbolTable *parent_scope = current_scope;
@@ -151,8 +163,12 @@ public:
                                             false);
         current_module_sym = ASR::down_cast<ASR::symbol_t>(tmp0);
         if( x.class_type == AST::modType::Submodule ) {
-            ASR::symbol_t* submod_parent = (ASR::symbol_t*)LFortran::ASRUtils::load_module(al, global_scope,
-                                                parent_name, x.base.base.loc, false);
+            std::string rl_path = get_runtime_library_dir();
+            ASR::symbol_t* submod_parent = (ASR::symbol_t*)(ASRUtils::load_module(al, global_scope,
+                                                parent_name, x.base.base.loc, false,
+                                                rl_path,
+                                                [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
+                                                ));
             ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(submod_parent);
             std::string unsupported_sym_name = import_all(m);
             if( !unsupported_sym_name.empty() ) {
@@ -413,9 +429,9 @@ public:
                     visit_expr(*return_type->m_kind->m_value);
                     ASR::expr_t* kind_expr = LFortran::ASRUtils::EXPR(tmp);
                     if (return_type->m_type == AST::decl_typeType::TypeCharacter) {
-                        a_len = ASRUtils::extract_len(kind_expr, x.base.base.loc);
+                        a_len = ASRUtils::extract_len<SemanticError>(kind_expr, x.base.base.loc);
                     } else {
-                        a_kind = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
+                        a_kind = ASRUtils::extract_kind<SemanticError>(kind_expr, x.base.base.loc);
                     }
                 } else {
                     throw SemanticError("Only one kind item supported for now", x.base.base.loc);
@@ -596,6 +612,9 @@ public:
                             throw SemanticError("Save Attribute not "
                                     "supported yet", x.base.base.loc);
                         }
+                    } else if (sa->m_attr == AST::simple_attributeType
+                            ::AttrSequence) {
+                        // TODO: Implement it for CPP backend
                     } else {
                         throw SemanticError("Attribute declaration not "
                                 "supported yet", x.base.base.loc);
@@ -801,7 +820,7 @@ public:
                     sym_type->m_kind->m_value != nullptr) {
                     visit_expr(*sym_type->m_kind->m_value);
                     ASR::expr_t* kind_expr = LFortran::ASRUtils::EXPR(tmp);
-                    a_kind = ASRUtils::extract_kind(kind_expr, x.base.base.loc);
+                    a_kind = ASRUtils::extract_kind<SemanticError>(kind_expr, x.base.base.loc);
                 }
                 if (sym_type->m_type == AST::decl_typeType::TypeReal) {
                     type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
@@ -849,7 +868,7 @@ public:
                                 LFORTRAN_ASSERT(sym_type->m_kind->m_value != nullptr);
                                 visit_expr(*sym_type->m_kind->m_value);
                                 ASR::expr_t* len_expr0 = LFortran::ASRUtils::EXPR(tmp);
-                                a_len = ASRUtils::extract_len(len_expr0, x.base.base.loc);
+                                a_len = ASRUtils::extract_len<SemanticError>(len_expr0, x.base.base.loc);
                                 if (a_len == -3) {
                                     len_expr = len_expr0;
                                 }
@@ -884,12 +903,26 @@ public:
                     type = LFortran::ASRUtils::TYPE(ASR::make_Derived_t(al, x.base.base.loc, v,
                         dims.p, dims.size()));
                 } else if (sym_type->m_type == AST::decl_typeType::TypeClass) {
-                    LFORTRAN_ASSERT(sym_type->m_name);
-                    std::string derived_type_name = to_lower(sym_type->m_name);
+                    std::string derived_type_name;
+                    if( !sym_type->m_name ) {
+                        derived_type_name = "~abstract_type";
+                    } else {
+                        derived_type_name = to_lower(sym_type->m_name);
+                    }
                     ASR::symbol_t *v = current_scope->resolve_symbol(derived_type_name);
-                    if (!v) {
-                        throw SemanticError("Derived type '"
-                            + derived_type_name + "' not declared", x.base.base.loc);
+                    if( !v ) {
+                        if( derived_type_name != "~abstract_type" ) {
+                            throw SemanticError("Derived type '" + derived_type_name
+                                                + "' not declared", x.base.base.loc);
+                        }
+                        SymbolTable *parent_scope = current_scope;
+                        current_scope = al.make_new<SymbolTable>(parent_scope);
+                        ASR::asr_t* dtype = ASR::make_DerivedType_t(al, x.base.base.loc, current_scope,
+                                                        s2c(al, to_lower(derived_type_name)), nullptr, 0,
+                                                        ASR::abiType::Source, dflt_access, nullptr);
+                        v = ASR::down_cast<ASR::symbol_t>(dtype);
+                        parent_scope->scope[derived_type_name] = v;
+                        current_scope = parent_scope;
                     }
                     type = LFortran::ASRUtils::TYPE(ASR::make_Class_t(al,
                         x.base.base.loc, v, dims.p, dims.size()));
@@ -1083,7 +1116,7 @@ public:
             fill_interface_proc_names(x, proc_names);
             generic_procedures[std::string(generic_name)] = proc_names;
             interface_name.clear();
-        } else if (AST::is_a<AST::InterfaceHeader_t>(*x.m_header) || 
+        } else if (AST::is_a<AST::InterfaceHeader_t>(*x.m_header) ||
                    AST::is_a<AST::AbstractInterfaceHeader_t>(*x.m_header)) {
             std::vector<std::string> proc_names;
             for (size_t i = 0; i < x.n_items; i++) {
@@ -1101,6 +1134,16 @@ public:
             defined_op_procs[op_name] = proc_names;
         }  else if (AST::is_a<AST::InterfaceHeaderAssignment_t>(*x.m_header)) {
             fill_interface_proc_names(x, assgn_proc_names);
+        }  else if (AST::is_a<AST::InterfaceHeaderWrite_t>(*x.m_header)) {
+            std::string op_name = to_lower(AST::down_cast<AST::InterfaceHeaderWrite_t>(x.m_header)->m_id);
+            std::vector<std::string> proc_names;
+            fill_interface_proc_names(x, proc_names);
+            defined_op_procs[op_name] = proc_names;
+        }  else if (AST::is_a<AST::InterfaceHeaderRead_t>(*x.m_header)) {
+            std::string op_name = to_lower(AST::down_cast<AST::InterfaceHeaderRead_t>(x.m_header)->m_id);
+            std::vector<std::string> proc_names;
+            fill_interface_proc_names(x, proc_names);
+            defined_op_procs[op_name] = proc_names;
         }  else {
             throw SemanticError("Interface type not imlemented yet", x.base.base.loc);
         }
@@ -1189,9 +1232,6 @@ public:
             Location loc;
             loc.first = 1;
             loc.last = 1;
-            Str s;
-            s.from_str_view(proc.first);
-            char *generic_name = s.c_str(al);
             Vec<ASR::symbol_t*> symbols;
             symbols.reserve(al, proc.second.size());
             for (auto &pname : proc.second) {
@@ -1202,10 +1242,20 @@ public:
                 x = resolve_symbol(loc, name);
                 symbols.push_back(al, x);
             }
+            std::string sym_name_str = proc.first;
+            if( current_scope->scope.find(proc.first) != current_scope->scope.end() ) {
+                ASR::symbol_t* der_type_name = current_scope->scope[proc.first];
+                if( der_type_name->type == ASR::symbolType::DerivedType ) {
+                    sym_name_str = "~" + proc.first;
+                }
+            }
+            Str s;
+            s.from_str_view(sym_name_str);
+            char *generic_name = s.c_str(al);
             ASR::asr_t *v = ASR::make_GenericProcedure_t(al, loc,
                 current_scope,
                 generic_name, symbols.p, symbols.size(), ASR::Public);
-            current_scope->scope[proc.first] = ASR::down_cast<ASR::symbol_t>(v);
+            current_scope->scope[sym_name_str] = ASR::down_cast<ASR::symbol_t>(v);
         }
     }
 
@@ -1266,7 +1316,8 @@ public:
         // Import all symbols from the module, e.g.:
         //     use a
         for (auto &item : m->m_symtab->scope) {
-            if( current_scope->scope.find(item.first) != current_scope->scope.end() ) {
+            if( current_scope->scope.find(item.first) != current_scope->scope.end() &&
+                !in_submodule ) {
                 continue;
             }
             // TODO: only import "public" symbols from the module
@@ -1336,21 +1387,21 @@ public:
                 // We have to "repack" the ExternalSymbol so that it lives in the
                 // local symbol table
                 ASR::ExternalSymbol_t *es0 = ASR::down_cast<ASR::ExternalSymbol_t>(item.second);
-                ASR::asr_t *es = ASR::make_ExternalSymbol_t(
-                    al, es0->base.base.loc,
-                    /* a_symtab */ current_scope,
-                    /* a_name */ es0->m_name,
-                    es0->m_external,
-                    es0->m_module_name, nullptr, 0,
-                    es0->m_original_name,
-                    dflt_access
-                    );
                 std::string sym;
                 if( in_submodule ) {
                     sym = item.first;
                 } else {
                     sym = to_lower(es0->m_original_name);
                 }
+                ASR::asr_t *es = ASR::make_ExternalSymbol_t(
+                    al, es0->base.base.loc,
+                    /* a_symtab */ current_scope,
+                    /* a_name */ s2c(al, sym),
+                    es0->m_external,
+                    es0->m_module_name, nullptr, 0,
+                    es0->m_original_name,
+                    dflt_access
+                    );
                 current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(es);
             } else if( ASR::is_a<ASR::DerivedType_t>(*item.second) ) {
                 ASR::DerivedType_t *mv = ASR::down_cast<ASR::DerivedType_t>(item.second);
@@ -1384,8 +1435,11 @@ public:
         }
         ASR::symbol_t *t = current_scope->parent->resolve_symbol(msym);
         if (!t) {
-            t = (ASR::symbol_t*)LFortran::ASRUtils::load_module(al, current_scope->parent,
-                msym, x.base.base.loc, false);
+            std::string rl_path = get_runtime_library_dir();
+            t = (ASR::symbol_t*)(ASRUtils::load_module(al, current_scope->parent,
+                msym, x.base.base.loc, false, rl_path,
+                [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
+                ));
         }
         if (!ASR::is_a<ASR::Module_t>(*t)) {
             throw SemanticError("The symbol '" + msym + "' must be a module",
@@ -1401,9 +1455,28 @@ public:
             // Only import individual symbols from the module, e.g.:
             //     use a, only: x, y, z
             for (size_t i = 0; i < x.n_symbols; i++) {
-                std::string remote_sym = to_lower(AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_remote_sym);
+                std::string remote_sym;
+                switch (x.m_symbols[i]->type)
+                {
+                    case AST::use_symbolType::UseSymbol: {
+                        remote_sym = to_lower(AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_remote_sym);
+                        break;
+                    }
+                    case AST::use_symbolType::UseAssignment: {
+                        remote_sym = "~assign";
+                        break;
+                    }
+                    case AST::use_symbolType::IntrinsicOperator: {
+                        AST::intrinsicopType op_type = AST::down_cast<AST::IntrinsicOperator_t>(x.m_symbols[i])->m_op;
+                        remote_sym = intrinsic2str[op_type];
+                        break;
+                    }
+                    default:
+                        throw SemanticError("Symbol with use not supported yet", x.base.base.loc);
+                }
                 std::string local_sym;
-                if (AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_local_rename) {
+                if (AST::is_a<AST::UseSymbol_t>(*x.m_symbols[i]) &&
+                    AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_local_rename) {
                     local_sym = to_lower(AST::down_cast<AST::UseSymbol_t>(x.m_symbols[i])->m_local_rename);
                 } else {
                     local_sym = remote_sym;
@@ -1439,6 +1512,24 @@ public:
                             x.base.base.loc);
                     }
                     ASR::GenericProcedure_t *gp = ASR::down_cast<ASR::GenericProcedure_t>(t);
+                    Str name;
+                    name.from_str(al, local_sym);
+                    char *cname = name.c_str(al);
+                    ASR::asr_t *ep = ASR::make_ExternalSymbol_t(
+                        al, t->base.loc,
+                        current_scope,
+                        /* a_name */ cname,
+                        t,
+                        m->m_name, nullptr, 0, gp->m_name,
+                        dflt_access
+                        );
+                    current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(ep);
+                } else if (ASR::is_a<ASR::CustomOperator_t>(*t)) {
+                    if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                        throw SemanticError("Symbol already defined",
+                            x.base.base.loc);
+                    }
+                    ASR::CustomOperator_t *gp = ASR::down_cast<ASR::CustomOperator_t>(t);
                     Str name;
                     name.from_str(al, local_sym);
                     char *cname = name.c_str(al);

@@ -125,6 +125,7 @@ RUN(NAME subroutines_01 LABELS gfortran llvm cpp x86)
 RUN(NAME subroutines_02 LABELS gfortran llvm cpp x86)
 RUN(NAME subroutines_04 LABELS gfortran llvm)
 RUN(NAME subroutines_06 LABELS gfortran)
+RUN(NAME subroutines_07 LABELS gfortran)
 
 RUN(NAME functions_01 LABELS gfortran llvm cpp x86)
 RUN(NAME functions_02 LABELS gfortran llvm)
@@ -186,6 +187,7 @@ RUN(NAME modulo_01 LABELS gfortran llvm)
 
 RUN(NAME int_01 LABELS gfortran llvm) # int body
 RUN(NAME int_02 LABELS gfortran) # int symboltable
+RUN(NAME int_03 LABELS gfortran llvm) # large int
 
 RUN(NAME intrinsics_01 LABELS gfortran) # sqrt, abs, log
 RUN(NAME intrinsics_02 LABELS gfortran llvm) # sin
@@ -218,6 +220,12 @@ RUN(NAME intrinsics_25 LABELS gfortran llvm) # ishft
 RUN(NAME intrinsics_26 LABELS gfortran llvm)
 RUN(NAME intrinsics_27 LABELS gfortran)
 RUN(NAME intrinsics_28 LABELS gfortran llvm)
+RUN(NAME intrinsics_29 LABELS gfortran llvm) # random_number
+RUN(NAME intrinsics_30 LABELS gfortran llvm)
+RUN(NAME intrinsics_31 LABELS gfortran llvm)
+RUN(NAME intrinsics_32 LABELS gfortran)
+RUN(NAME intrinsics_33 LABELS gfortran llvm)
+RUN(NAME intrinsics_34 LABELS gfortran llvm)
 RUN(NAME intrinsics_open_close_read_write LABELS gfortran)
 
 RUN(NAME parameter_01 LABELS gfortran)
@@ -284,6 +292,7 @@ RUN(NAME interface_05 LABELS gfortran llvm)
 RUN(NAME interface_06 LABELS gfortran)
 RUN(NAME interface_07 LABELS gfortran llvm)
 RUN(NAME interface_09 LABELS gfortran)
+RUN(NAME interface_10 LABELS gfortran llvm)
 
 RUN(NAME generic_name_01 LABELS gfortran llvm)
 
@@ -323,6 +332,9 @@ RUN(NAME derived_types_01 LABELS gfortran llvm)
 RUN(NAME derived_types_02 LABELS gfortran)
 RUN(NAME derived_types_03 LABELS gfortran)
 RUN(NAME derived_types_04 LABELS gfortran)
+RUN(NAME derived_types_06 LABELS gfortran llvm)
+RUN(NAME derived_types_05 LABELS gfortran)
+RUN(NAME derived_types_07 LABELS gfortran)
 
 RUN(NAME line_continuation_01 LABELS gfortran llvm)
 RUN(NAME line_continuation_02 LABELS gfortran llvm)
@@ -368,6 +380,7 @@ RUN(NAME string_10 LABELS gfortran llvm)
 RUN(NAME string_11 LABELS gfortran llvm)
 RUN(NAME string_12 LABELS gfortran)
 RUN(NAME string_13 LABELS gfortran llvm)
+RUN(NAME string_14 LABELS gfortran)
 
 RUN(NAME nested_01 LABELS gfortran llvm)
 RUN(NAME nested_02 LABELS gfortran llvm)
@@ -414,5 +427,8 @@ RUN(NAME sin_03 LABELS gfortran llvm)
 RUN(NAME sin_04 LABELS gfortran llvm)
 RUN(NAME bits_01 LABELS gfortran llvm)
 RUN(NAME bits_02 LABELS gfortran llvm)
+RUN(NAME bits_03 LABELS gfortran llvm)
+RUN(NAME bits_04 LABELS gfortran llvm)
+RUN(NAME bits_05 LABELS gfortran llvm)
 RUN(NAME cpu_time_01 LABELS gfortran llvm)
 RUN(NAME boz_01 LABELS gfortran llvm)

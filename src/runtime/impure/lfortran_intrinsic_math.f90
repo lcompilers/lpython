@@ -1,5 +1,5 @@
 module lfortran_intrinsic_math
-use, intrinsic :: iso_fortran_env, only: sp => real32, dp => real64
+use, intrinsic :: iso_fortran_env, only: i8 => int8, i16 => int16, sp => real32, dp => real64
 use, intrinsic :: iso_c_binding, only: c_float, c_double
 implicit none
 
@@ -95,8 +95,22 @@ interface atanh
     module procedure satanh, datanh, catanh, zatanh
 end interface
 
+interface range
+    module procedure srange, drange
+    module procedure crange, zrange
+    module procedure int8range, int16range, i32range, i64range
+end interface
+
+interface epsilon
+    module procedure sepsilon, depsilon
+end interface
+
 interface system_clock
     module procedure i32sys_clock, i64sys_clock
+end interface
+
+interface random_number
+    module procedure sp_rand_num, dp_rand_num
 end interface
 
 contains
@@ -994,6 +1008,60 @@ end interface
 r = c_zatanh(x)
 end function
 
+! epsilon ---------------------------------------------------------------------
+
+elemental real(sp) function sepsilon(x) result(r)
+real(sp), intent(in) :: x
+r = 1.19209290E-07
+end function
+
+elemental real(dp) function depsilon(x) result(r)
+real(dp), intent(in) :: x
+r = 2.2204460492503131E-016
+end function
+
+! range ---------------------------------------------------------------------
+
+elemental integer function int8range(x) result(r)
+integer(i8), intent(in) :: x
+r = 2
+end function
+
+elemental integer function int16range(x) result(r)
+integer(i16), intent(in) :: x
+r = 4
+end function
+
+elemental integer function i32range(x) result(r)
+integer(4), intent(in) :: x
+r = 9
+end function
+
+elemental integer function i64range(x) result(r)
+integer(8), intent(in) :: x
+r = 18
+end function
+
+elemental integer function srange(x) result(r)
+real(4), intent(in) :: x
+r = 37
+end function
+
+elemental integer function drange(x) result(r)
+real(8), intent(in) :: x
+r = 307
+end function
+
+elemental integer function crange(x) result(r)
+complex(4), intent(in) :: x
+r = 37
+end function
+
+elemental integer function zrange(x) result(r)
+complex(8), intent(in) :: x
+r = 307
+end function
+
 ! cpu_time ---------------------------------------------------------------------
 
 pure subroutine cpu_time(t)
@@ -1029,6 +1097,31 @@ interface
     end subroutine
 end interface
 call c_i64sys_clock(count, count_rate, count_max)
+end subroutine
+
+! random_number ----------------------------------------------------------------
+pure subroutine sp_rand_num(harvest)
+real(sp), intent(out) :: harvest
+interface
+    pure subroutine c_sp_rand_num(harvest) &
+        bind(c, name="_lfortran_sp_rand_num")
+        import :: c_float
+        real(c_float), intent(out) :: harvest
+    end subroutine
+end interface
+call c_sp_rand_num(harvest)
+end subroutine
+
+pure subroutine dp_rand_num(harvest)
+real(dp), intent(out) :: harvest
+interface
+    pure subroutine c_dp_rand_num(harvest) &
+        bind(c, name="_lfortran_dp_rand_num")
+        import :: c_double
+        real(c_double), intent(out) :: harvest
+    end subroutine
+end interface
+call c_dp_rand_num(harvest)
 end subroutine
 
 end module

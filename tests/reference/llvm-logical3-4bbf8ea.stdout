@@ -3,24 +3,49 @@ source_filename = "LFortran"
 
 @0 = private unnamed_addr constant [27 x i8] c"Line 1 - Condition is true\00", align 1
 @1 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@2 = private unnamed_addr constant [28 x i8] c"Line 1 - Condition is false\00", align 1
-@3 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@4 = private unnamed_addr constant [27 x i8] c"Line 2 - Condition is true\00", align 1
-@5 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@6 = private unnamed_addr constant [28 x i8] c"Line 2 - Condition is false\00", align 1
-@7 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@8 = private unnamed_addr constant [27 x i8] c"Line 3 - Condition is true\00", align 1
-@9 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@10 = private unnamed_addr constant [28 x i8] c"Line 3 - Condition is false\00", align 1
+@2 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
+@3 = private unnamed_addr constant [28 x i8] c"Line 1 - Condition is false\00", align 1
+@4 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@5 = private unnamed_addr constant [27 x i8] c"Line 2 - Condition is true\00", align 1
+@6 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@7 = private unnamed_addr constant [28 x i8] c"Line 2 - Condition is false\00", align 1
+@8 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@9 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
+@10 = private unnamed_addr constant [29 x i8] c"Line xor - Condition is true\00", align 1
 @11 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@12 = private unnamed_addr constant [27 x i8] c"Line 4 - Condition is true\00", align 1
+@12 = private unnamed_addr constant [30 x i8] c"Line xor - Condition is false\00", align 1
 @13 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@14 = private unnamed_addr constant [28 x i8] c"Line 4 - Condition is false\00", align 1
-@15 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@16 = private unnamed_addr constant [27 x i8] c"Line 5 - Condition is true\00", align 1
-@17 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
-@18 = private unnamed_addr constant [28 x i8] c"Line 5 - Condition is false\00", align 1
-@19 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@14 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
+@15 = private unnamed_addr constant [27 x i8] c"Line 3 - Condition is true\00", align 1
+@16 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@17 = private unnamed_addr constant [28 x i8] c"Line 3 - Condition is false\00", align 1
+@18 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@19 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
+@20 = private unnamed_addr constant [27 x i8] c"Line 4 - Condition is true\00", align 1
+@21 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@22 = private unnamed_addr constant [28 x i8] c"Line 4 - Condition is false\00", align 1
+@23 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@24 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
+@25 = private unnamed_addr constant [27 x i8] c"Line 5 - Condition is true\00", align 1
+@26 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@27 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
+@28 = private unnamed_addr constant [28 x i8] c"Line 5 - Condition is false\00", align 1
+@29 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@30 = private unnamed_addr constant [27 x i8] c"Line 6 - Condition is true\00", align 1
+@31 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@32 = private unnamed_addr constant [28 x i8] c"Line 6 - Condition is false\00", align 1
+@33 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@34 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
+@35 = private unnamed_addr constant [27 x i8] c"Line 7 - Condition is true\00", align 1
+@36 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@37 = private unnamed_addr constant [28 x i8] c"Line 7 - Condition is false\00", align 1
+@38 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@39 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
+@40 = private unnamed_addr constant [31 x i8] c"Line 8 xor - Condition is true\00", align 1
+@41 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
+@42 = private unnamed_addr constant [12 x i8] c"ERROR STOP\0A\00", align 1
+@43 = private unnamed_addr constant [32 x i8] c"Line 8 xor - Condition is false\00", align 1
+@44 = private unnamed_addr constant [4 x i8] c"%s\0A\00", align 1
 
 define i32 @main() {
 .entry:
@@ -35,10 +60,12 @@ define i32 @main() {
 
 then:                                             ; preds = %.entry
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @1, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @0, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @2, i32 0, i32 0))
+  call void @exit(i32 1)
   br label %ifcont
 
 else:                                             ; preds = %.entry
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @3, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @2, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @4, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @3, i32 0, i32 0))
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then
@@ -48,61 +75,137 @@ ifcont:                                           ; preds = %else, %then
   br i1 %5, label %then1, label %else2
 
 then1:                                            ; preds = %ifcont
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @5, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @4, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @6, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @5, i32 0, i32 0))
   br label %ifcont3
 
 else2:                                            ; preds = %ifcont
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @7, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @6, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @8, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @7, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @9, i32 0, i32 0))
+  call void @exit(i32 1)
   br label %ifcont3
 
 ifcont3:                                          ; preds = %else2, %then1
-  store i1 false, i1* %a, align 1
-  store i1 true, i1* %b, align 1
   %6 = load i1, i1* %a, align 1
   %7 = load i1, i1* %b, align 1
-  %8 = and i1 %6, %7
-  %9 = xor i1 %8, true
-  br i1 %9, label %then4, label %else5
+  %8 = xor i1 %6, %7
+  br i1 %8, label %then4, label %else5
 
 then4:                                            ; preds = %ifcont3
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @9, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @8, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @11, i32 0, i32 0), i8* getelementptr inbounds ([29 x i8], [29 x i8]* @10, i32 0, i32 0))
   br label %ifcont6
 
 else5:                                            ; preds = %ifcont3
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @11, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @10, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @13, i32 0, i32 0), i8* getelementptr inbounds ([30 x i8], [30 x i8]* @12, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @14, i32 0, i32 0))
+  call void @exit(i32 1)
   br label %ifcont6
 
 ifcont6:                                          ; preds = %else5, %then4
+  store i1 false, i1* %a, align 1
+  store i1 true, i1* %b, align 1
+  %9 = load i1, i1* %a, align 1
   %10 = load i1, i1* %b, align 1
-  %11 = load i1, i1* %a, align 1
-  %12 = xor i1 %10, %11
+  %11 = and i1 %9, %10
+  %12 = xor i1 %11, true
   br i1 %12, label %then7, label %else8
 
 then7:                                            ; preds = %ifcont6
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @13, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @12, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @16, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @15, i32 0, i32 0))
   br label %ifcont9
 
 else8:                                            ; preds = %ifcont6
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @15, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @14, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @18, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @17, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @19, i32 0, i32 0))
+  call void @exit(i32 1)
   br label %ifcont9
 
 ifcont9:                                          ; preds = %else8, %then7
   %13 = load i1, i1* %b, align 1
   %14 = load i1, i1* %a, align 1
   %15 = xor i1 %13, %14
-  %16 = xor i1 %15, true
-  br i1 %16, label %then10, label %else11
+  br i1 %15, label %then10, label %else11
 
 then10:                                           ; preds = %ifcont9
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @17, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @16, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @21, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @20, i32 0, i32 0))
   br label %ifcont12
 
 else11:                                           ; preds = %ifcont9
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @19, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @18, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @23, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @22, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @24, i32 0, i32 0))
+  call void @exit(i32 1)
   br label %ifcont12
 
 ifcont12:                                         ; preds = %else11, %then10
+  %16 = load i1, i1* %b, align 1
+  %17 = load i1, i1* %a, align 1
+  %18 = xor i1 %16, %17
+  %19 = xor i1 %18, true
+  br i1 %19, label %then13, label %else14
+
+then13:                                           ; preds = %ifcont12
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @26, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @25, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @27, i32 0, i32 0))
+  call void @exit(i32 1)
+  br label %ifcont15
+
+else14:                                           ; preds = %ifcont12
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @29, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @28, i32 0, i32 0))
+  br label %ifcont15
+
+ifcont15:                                         ; preds = %else14, %then13
+  store i1 true, i1* %a, align 1
+  store i1 true, i1* %b, align 1
+  %20 = load i1, i1* %a, align 1
+  %21 = load i1, i1* %b, align 1
+  %22 = and i1 %20, %21
+  br i1 %22, label %then16, label %else17
+
+then16:                                           ; preds = %ifcont15
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @31, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @30, i32 0, i32 0))
+  br label %ifcont18
+
+else17:                                           ; preds = %ifcont15
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @33, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @32, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @34, i32 0, i32 0))
+  call void @exit(i32 1)
+  br label %ifcont18
+
+ifcont18:                                         ; preds = %else17, %then16
+  %23 = load i1, i1* %a, align 1
+  %24 = load i1, i1* %b, align 1
+  %25 = or i1 %23, %24
+  br i1 %25, label %then19, label %else20
+
+then19:                                           ; preds = %ifcont18
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @36, i32 0, i32 0), i8* getelementptr inbounds ([27 x i8], [27 x i8]* @35, i32 0, i32 0))
+  br label %ifcont21
+
+else20:                                           ; preds = %ifcont18
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @38, i32 0, i32 0), i8* getelementptr inbounds ([28 x i8], [28 x i8]* @37, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @39, i32 0, i32 0))
+  call void @exit(i32 1)
+  br label %ifcont21
+
+ifcont21:                                         ; preds = %else20, %then19
+  %26 = load i1, i1* %a, align 1
+  %27 = load i1, i1* %b, align 1
+  %28 = xor i1 %26, %27
+  br i1 %28, label %then22, label %else23
+
+then22:                                           ; preds = %ifcont21
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @41, i32 0, i32 0), i8* getelementptr inbounds ([31 x i8], [31 x i8]* @40, i32 0, i32 0))
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @42, i32 0, i32 0))
+  call void @exit(i32 1)
+  br label %ifcont24
+
+else23:                                           ; preds = %ifcont21
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @44, i32 0, i32 0), i8* getelementptr inbounds ([32 x i8], [32 x i8]* @43, i32 0, i32 0))
+  br label %ifcont24
+
+ifcont24:                                         ; preds = %else23, %then22
   ret i32 0
 }
 
 declare void @_lfortran_printf(i8*, ...)
+
+declare void @exit(i32)

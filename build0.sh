@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 set -x
@@ -13,7 +13,7 @@ python grammar/asdl_py.py
 # Generate a Python AST from Python.asdl (C++)
 python grammar/asdl_cpp.py grammar/Python.asdl src/lfortran/python_ast.h
 # Generate a Fortran ASR from ASR.asdl (C++)
-python grammar/asdl_cpp.py grammar/ASR.asdl src/lfortran/asr.h
+python grammar/asdl_cpp.py grammar/ASR.asdl src/libasr/asr.h
 
 # Generate the tokenizer and parser
 (cd src/lfortran/parser && re2c -W -b tokenizer.re -o tokenizer.cpp)

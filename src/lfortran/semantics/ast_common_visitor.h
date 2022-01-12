@@ -1,10 +1,10 @@
 #ifndef LFORTRAN_SEMANTICS_AST_COMMON_VISITOR_H
 #define LFORTRAN_SEMANTICS_AST_COMMON_VISITOR_H
 
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 #include <lfortran/ast.h>
 #include <lfortran/bigint.h>
-#include <lfortran/string_utils.h>
+#include <libasr/string_utils.h>
 #include <lfortran/utils.h>
 #include <lfortran/semantics/comptime_eval.h>
 
@@ -117,9 +117,9 @@ public:
     ASR::ttype_t *right_type = LFortran::ASRUtils::expr_type(right);
 
     ASR::expr_t *overloaded = nullptr;
-    if( LFortran::ASRUtils::use_overloaded(left, right, asr_op,
+    if ( ASRUtils::use_overloaded(left, right, asr_op,
         intrinsic_op_name, curr_scope, asr, al,
-        x.base.base.loc) ) {
+        x.base.base.loc, [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }) ) {
         overloaded = LFortran::ASRUtils::EXPR(asr);
     }
 
@@ -248,7 +248,7 @@ public:
 
   inline static void visit_BoolOp(Allocator &al, const AST::BoolOp_t &x,
                                   ASR::expr_t *&left, ASR::expr_t *&right,
-                                  ASR::asr_t *&asr) {
+                                  ASR::asr_t *&asr, diag::Diagnostics &diag) {
     ASR::boolopType op;
     switch (x.m_op) {
     case (AST::And):
@@ -257,6 +257,14 @@ public:
     case (AST::Or):
       op = ASR::Or;
       break;
+    case (AST::Xor):
+      op = ASR::Xor;
+        diag.semantic_warning_label(
+            ".xor. is an LFortran extension",
+            {x.base.base.loc},
+            "please help us: what is the Fortran way to specify xor?"
+        );
+      break;
     case (AST::NEqv):
       op = ASR::NEqv;
       break;
@@ -264,7 +272,7 @@ public:
       op = ASR::Eqv;
       break;
     default:
-      throw SemanticError(R"""(Only .and., .or., .neqv., .eqv.
+      throw SemanticError(R"""(Only .and., .or., .xor., .neqv., .eqv.
                                     implemented for logical type operands.)""",
                           x.base.base.loc);
     }
@@ -654,6 +662,27 @@ public:
             v, args.p, args.size(), type, arr_ref_val);
     }
 
+    void visit_ArrayInitializer(const AST::ArrayInitializer_t &x) {
+        Vec<ASR::expr_t*> body;
+        body.reserve(al, x.n_args);
+        ASR::ttype_t *type = nullptr;
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_expr(*x.m_args[i]);
+            ASR::expr_t *expr = LFortran::ASRUtils::EXPR(tmp);
+            if (type == nullptr) {
+                type = LFortran::ASRUtils::expr_type(expr);
+            } else {
+                if (LFortran::ASRUtils::expr_type(expr)->type != type->type) {
+                    throw SemanticError("Type mismatch in array initializer",
+                        x.base.base.loc);
+                }
+            }
+            body.push_back(al, expr);
+        }
+        tmp = ASR::make_ConstantArray_t(al, x.base.base.loc, body.p,
+            body.size(), type);
+    }
+
     ASR::ttype_t* handle_character_return(ASR::ttype_t *return_type, const Location &loc) {
         // Rebuild the return type if needed and make FunctionCalls use ExternalSymbol
         ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(return_type);
@@ -1030,8 +1059,11 @@ public:
         std::string module_name = intrinsic_procedures.get_module(remote_sym, loc);
 
         SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
+        std::string rl_path = get_runtime_library_dir();
         ASR::Module_t *m = ASRUtils::load_module(al, tu_symtab, module_name,
-                loc, true);
+                loc, true, rl_path,
+                [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
+                );
 
         ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
         if (!t) {
@@ -1134,9 +1166,9 @@ public:
         ASR::ttype_t *left_type = LFortran::ASRUtils::expr_type(left);
         ASR::ttype_t *right_type = LFortran::ASRUtils::expr_type(right);
         ASR::expr_t *overloaded = nullptr;
-        if( LFortran::ASRUtils::use_overloaded(left, right, op,
+        if ( ASRUtils::use_overloaded(left, right, op,
             intrinsic_op_name, curr_scope, asr, al,
-            x.base.base.loc) ) {
+            x.base.base.loc, [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }) ) {
             overloaded = LFortran::ASRUtils::EXPR(asr);
         }
 
@@ -1286,7 +1318,7 @@ public:
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
-        CommonVisitorMethods::visit_BoolOp(al, x, left, right, tmp);
+        CommonVisitorMethods::visit_BoolOp(al, x, left, right, tmp, diag);
     }
 
     void visit_StrOp(const AST::StrOp_t &x) {
@@ -1330,7 +1362,7 @@ public:
     }
 
     void visit_BOZ(const AST::BOZ_t& x) {
-        std::string s = std::string(x.m_s); 
+        std::string s = std::string(x.m_s);
         int base = -1;
         ASR::bozType boz_type;
         if( s[0] == 'b' || s[0] == 'B' ) {
@@ -1343,9 +1375,9 @@ public:
             boz_type = ASR::bozType::Octal;
             base = 8;
         } else {
-            throw SemanticError(R"""(Only 'b', 'o' and 'z' 
-                                are accepted as prefixes of 
-                                BOZ literal constants.)""", 
+            throw SemanticError(R"""(Only 'b', 'o' and 'z'
+                                are accepted as prefixes of
+                                BOZ literal constants.)""",
                                 x.base.base.loc);
         }
         std::string boz_str = s.substr(2, s.size() - 2);
@@ -1389,9 +1421,15 @@ public:
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al,
                 x.base.base.loc, ikind, nullptr, 0));
         if (BigInt::is_int_ptr(x.m_n)) {
-            throw SemanticError("Integer constants larger than 2^62-1 are not implemented yet", x.base.base.loc);
+            std::string str_repr = BigInt::largeint_to_string(x.m_n);
+            if( !BigInt::is_int64(str_repr) ) {
+                throw SemanticError("Integer constants larger than 2^64-1 are not implemented yet",
+                                    x.base.base.loc);
+            }
+            int64_t m_n = std::stoll(str_repr);
+            tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
+                                                m_n, type);
         } else {
-            LFORTRAN_ASSERT(!BigInt::is_int_ptr(x.m_n));
             tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, x.m_n, type);
         }
     }
@@ -1496,7 +1534,7 @@ public:
     void visit_kwargs(Vec<ASR::expr_t*> &args, AST::keyword_t *kwargs, size_t n,
                 ASR::expr_t **fn_args, size_t fn_n_args, const Location &loc) {
         size_t n_args = args.size();
-        if (args.size() + n != fn_n_args) {
+        if (n_args + n != fn_n_args) {
             throw SemanticError(
                 "Procedure accepts " + std::to_string(fn_n_args)
                 + " arguments, but " + std::to_string(args.size() + n)
@@ -1627,7 +1665,7 @@ public:
             const ASR::GenericProcedure_t &p, Location loc) {
         for (size_t i=0; i < p.n_procs; i++) {
             if( ASR::is_a<ASR::ClassProcedure_t>(*p.m_procs[i]) ) {
-                ASR::ClassProcedure_t *clss_fn 
+                ASR::ClassProcedure_t *clss_fn
                     = ASR::down_cast<ASR::ClassProcedure_t>(p.m_procs[i]);
                 const ASR::symbol_t *proc = ASRUtils::symbol_get_past_external(clss_fn->m_proc);
                 if( select_func_subrout(proc, args, loc) ) {
@@ -1645,12 +1683,19 @@ public:
     template <typename T>
     bool argument_types_match(const Vec<ASR::expr_t*> &args,
             const T &sub) {
-        if (args.size() == sub.n_args) {
-            for (size_t i=0; i < args.size(); i++) {
+       if (args.size() <= sub.n_args) {
+            size_t i;
+            for (i = 0; i < args.size(); i++) {
                 ASR::Variable_t *v = LFortran::ASRUtils::EXPR2VAR(sub.m_args[i]);
                 ASR::ttype_t *arg1 = LFortran::ASRUtils::expr_type(args[i]);
                 ASR::ttype_t *arg2 = v->m_type;
                 if (!types_equal(*arg1, *arg2)) {
+                    return false;
+                }
+            }
+            for( ; i < sub.n_args; i++ ) {
+                ASR::Variable_t *v = LFortran::ASRUtils::EXPR2VAR(sub.m_args[i]);
+                if( v->m_presence != ASR::presenceType::Optional ) {
                     return false;
                 }
             }
@@ -1661,8 +1706,10 @@ public:
     }
 
     bool types_equal(const ASR::ttype_t &a, const ASR::ttype_t &b) {
-        if ((a.type == ASR::ttypeType::Derived || a.type == ASR::ttypeType::Class) &&
-            (b.type == ASR::ttypeType::Derived || b.type == ASR::ttypeType::Class)) {
+        // TODO: If anyone of the input or argument is derived type then
+        // add support for checking member wise types and do not compare
+        // directly. From stdlib_string len(pattern) error.
+        if (b.type == ASR::ttypeType::Derived || b.type == ASR::ttypeType::Class) {
             return true;
         }
         if (a.type == b.type) {
@@ -1702,6 +1749,16 @@ public:
                 case (ASR::ttypeType::Logical) : {
                     ASR::Logical_t *a2 = ASR::down_cast<ASR::Logical_t>(&a);
                     ASR::Logical_t *b2 = ASR::down_cast<ASR::Logical_t>(&b);
+                    if (a2->m_kind == b2->m_kind) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                    break;
+                }
+                case (ASR::ttypeType::Character) : {
+                    ASR::Character_t *a2 = ASR::down_cast<ASR::Character_t>(&a);
+                    ASR::Character_t *b2 = ASR::down_cast<ASR::Character_t>(&b);
                     if (a2->m_kind == b2->m_kind) {
                         return true;
                     } else {

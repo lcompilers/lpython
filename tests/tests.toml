@@ -389,6 +389,10 @@ filename = "../integration_tests/subroutines_06.f90"
 asr = true
 
 [[test]]
+filename = "../integration_tests/subroutines_07.f90"
+asr = true
+
+[[test]]
 filename = "scopes1.f90"
 asr = true
 
@@ -510,6 +514,10 @@ filename = "../integration_tests/arrays_01.f90"
 cpp = true
 asr = true
 llvm = true
+
+[[test]]
+filename = "../integration_tests/arrays_05.f90"
+asr = true
 
 [[test]]
 filename = "../integration_tests/arrays_01_size.f90"
@@ -687,6 +695,10 @@ filename = "../integration_tests/derived_types_04.f90"
 asr = true
 
 [[test]]
+filename = "../integration_tests/derived_types_05.f90"
+asr = true
+
+[[test]]
 filename = "../integration_tests/derived_types_01.f90"
 ast = true
 ast_f90 = true
@@ -702,6 +714,14 @@ filename = "../integration_tests/derived_types_03.f90"
 ast = true
 asr = true
 ast_f90 = true
+
+[[test]]
+filename = "../integration_tests/derived_types_06.f90"
+asr = true
+
+[[test]]
+filename = "../integration_tests/derived_types_07.f90"
+asr = true
 
 
 [[test]]
@@ -905,6 +925,10 @@ asr = true
 
 [[test]]
 filename = "../integration_tests/interface_08.f90"
+asr = true
+
+[[test]]
+filename = "../integration_tests/interface_10.f90"
 asr = true
 
 [[test]]
@@ -1266,6 +1290,30 @@ asr = true
 filename = "../integration_tests/intrinsics_28.f90"
 asr = true
 
+[[test]]
+filename = "../integration_tests/intrinsics_29.f90"
+asr = true
+
+[[test]]
+filename = "../integration_tests/intrinsics_30.f90"
+asr = true
+
+[[test]]
+filename = "../integration_tests/intrinsics_31.f90"
+asr = true
+
+[[test]]
+filename = "../integration_tests/intrinsics_32.f90"
+asr = true
+
+[[test]]
+filename = "../integration_tests/intrinsics_33.f90"
+asr = true
+
+[[test]]
+filename = "../integration_tests/intrinsics_34.f90"
+asr = true
+
 # floor (body)
 [[test]]
 filename = "../integration_tests/floor_01.f90"
@@ -1284,6 +1332,11 @@ asr = true
 # int (symboltable)
 [[test]]
 filename = "../integration_tests/int_02.f90"
+asr = true
+
+# int (large integer)
+[[test]]
+filename = "../integration_tests/int_03.f90"
 asr = true
 
 
@@ -1356,6 +1409,10 @@ llvm = true
 filename = "../integration_tests/string_13.f90"
 asr = true
 llvm = true
+
+[[test]]
+filename = "../integration_tests/string_14.f90"
+asr = true
 
 [[test]]
 filename = "../integration_tests/string_12.f90"
@@ -1708,6 +1765,18 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/bits_03.f90"
+asr = true
+
+[[test]]
+filename = "../integration_tests/bits_04.f90"
+asr = true
+
+[[test]]
+filename = "../integration_tests/bits_05.f90"
+asr = true
+
+[[test]]
 filename = "../integration_tests/boz_01.f90"
 asr = true
 llvm = true
@@ -1720,3 +1789,15 @@ ast_f90 = true
 [[test]]
 filename = "../integration_tests/forall_01.f90"
 asr = true
+
+[[test]]
+filename = "../integration_tests/nullify_01.f90"
+ast = true
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/nullify_02.f90"
+ast = true
+asr = true
+llvm = true

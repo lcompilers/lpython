@@ -16,7 +16,7 @@ contains
 end module
 
 program main
-    use overload_assignment_m
+    use overload_assignment_m, only: assignment(=)
     implicit none
     logical :: tf
 

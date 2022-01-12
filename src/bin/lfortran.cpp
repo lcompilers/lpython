@@ -5,35 +5,35 @@
 #define CLI11_HAS_FILESYSTEM 0
 #include <bin/CLI11.hpp>
 
-#include <lfortran/stacktrace.h>
+#include <libasr/stacktrace.h>
 #include <lfortran/parser/parser.h>
 #include <lfortran/parser/preprocessor.h>
 #include <lfortran/pickle.h>
 #include <lfortran/semantics/ast_to_asr.h>
 #include <lfortran/semantics/python_ast_to_asr.h>
 #include <lfortran/mod_to_asr.h>
-#include <lfortran/codegen/asr_to_llvm.h>
-#include <lfortran/codegen/asr_to_cpp.h>
-#include <lfortran/codegen/asr_to_py.h>
-#include <lfortran/codegen/asr_to_x86.h>
+#include <libasr/codegen/asr_to_llvm.h>
+#include <libasr/codegen/asr_to_cpp.h>
+#include <libasr/codegen/asr_to_py.h>
+#include <libasr/codegen/asr_to_x86.h>
 #include <lfortran/ast_to_src.h>
-#include <lfortran/codegen/fortran_evaluator.h>
-#include <lfortran/codegen/evaluator.h>
-#include <lfortran/pass/do_loops.h>
-#include <lfortran/pass/for_all.h>
-#include <lfortran/pass/global_stmts.h>
-#include <lfortran/pass/implied_do_loops.h>
-#include <lfortran/pass/array_op.h>
-#include <lfortran/pass/class_constructor.h>
-#include <lfortran/pass/arr_slice.h>
-#include <lfortran/pass/print_arr.h>
-#include <lfortran/pass/unused_functions.h>
-#include <lfortran/asr_utils.h>
-#include <lfortran/asr_verify.h>
-#include <lfortran/modfile.h>
-#include <lfortran/config.h>
+#include <lfortran/fortran_evaluator.h>
+#include <libasr/codegen/evaluator.h>
+#include <libasr/pass/do_loops.h>
+#include <libasr/pass/for_all.h>
+#include <libasr/pass/global_stmts.h>
+#include <libasr/pass/implied_do_loops.h>
+#include <libasr/pass/array_op.h>
+#include <libasr/pass/class_constructor.h>
+#include <libasr/pass/arr_slice.h>
+#include <libasr/pass/print_arr.h>
+#include <libasr/pass/unused_functions.h>
+#include <libasr/asr_utils.h>
+#include <libasr/asr_verify.h>
+#include <libasr/modfile.h>
+#include <libasr/config.h>
 #include <lfortran/fortran_kernel.h>
-#include <lfortran/string_utils.h>
+#include <libasr/string_utils.h>
 #include <lfortran/utils.h>
 #include <lfortran/python_serialization.h>
 #include <lfortran/parser/parser.tab.hh>
@@ -559,11 +559,11 @@ int emit_asr(const std::string &infile,
                 break;
             }
             case (ASRPass::implied_do_loops) : {
-                LFortran::pass_replace_implied_do_loops(al, *asr);
+                LFortran::pass_replace_implied_do_loops(al, *asr, LFortran::get_runtime_library_dir());
                 break;
             }
             case (ASRPass::array_op) : {
-                LFortran::pass_replace_array_op(al, *asr);
+                LFortran::pass_replace_array_op(al, *asr, LFortran::get_runtime_library_dir());
                 break;
             }
             case (ASRPass::class_constructor) : {
@@ -571,11 +571,11 @@ int emit_asr(const std::string &infile,
                 break;
             }
             case (ASRPass::arr_slice) : {
-                LFortran::pass_replace_arr_slice(al, *asr);
+                LFortran::pass_replace_arr_slice(al, *asr, LFortran::get_runtime_library_dir());
                 break;
             }
             case (ASRPass::print_arr) : {
-                LFortran::pass_replace_print_arr(al, *asr);
+                LFortran::pass_replace_print_arr(al, *asr, LFortran::get_runtime_library_dir());
                 break;
             }
             case (ASRPass::unused_functions) : {
@@ -978,8 +978,8 @@ int compile_to_object_file_cpp(const std::string &infile,
                 out.open(outfile_empty);
                 out << " ";
             }
+	    std::string CC = "cc";
             char *env_CC = std::getenv("LFORTRAN_CC");
-            std::string CC="gcc";
             if (env_CC) CC = env_CC;
             std::string cmd = CC + " -c " + outfile_empty + " -o " + outfile;
             int err = system(cmd.c_str());
@@ -1118,13 +1118,7 @@ int link_executable(const std::vector<std::string> &infiles,
                 return 10;
             }
         } else {
-            std::string CC;
-            if (compiler_options.platform == LFortran::Platform::macOS_Intel
-                || compiler_options.platform == LFortran::Platform::macOS_ARM) {
-                CC = "clang";
-            } else {
-                CC = "gcc";
-            }
+            std::string CC = "cc";
             char *env_CC = std::getenv("LFORTRAN_CC");
             if (env_CC) CC = env_CC;
             std::string base_path = "\"" + runtime_library_dir + "\"";
@@ -1354,6 +1348,7 @@ int main(int argc, char *argv[])
                 case (LFortran::Platform::macOS_Intel) : std::cout << "macOS Intel"; break;
                 case (LFortran::Platform::macOS_ARM) : std::cout << "macOS ARM"; break;
                 case (LFortran::Platform::Windows) : std::cout << "Windows"; break;
+                case (LFortran::Platform::FreeBSD) : std::cout << "FreeBSD"; break;
             }
             std::cout << std::endl;
 #ifdef HAVE_LFORTRAN_LLVM

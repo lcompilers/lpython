@@ -1,0 +1,16 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+define i32 @main() {
+.entry:
+  %p1 = alloca i32*, align 8
+  %p2 = alloca i32*, align 8
+  %t1 = alloca i32, align 4
+  store i32* %t1, i32** %p1, align 8
+  store i32* %t1, i32** %p2, align 8
+  %0 = load i32*, i32** %p1, align 8
+  store i32 1, i32* %0, align 4
+  store i32* null, i32** %p1, align 8
+  store i32* null, i32** %p2, align 8
+  ret i32 0
+}

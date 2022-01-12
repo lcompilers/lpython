@@ -1,5 +1,3 @@
-configure_file(config.h.in config.h)
-
 set(SRC
     parser/preprocessor.cpp
     parser/tokenizer.cpp
@@ -10,46 +8,20 @@ set(SRC
     semantics/ast_body_visitor.cpp
     semantics/ast_to_asr.cpp
     semantics/python_ast_to_asr.cpp
-    semantics/asr_scopes.cpp
 
-    codegen/fortran_evaluator.cpp
-    codegen/asr_to_cpp.cpp
-    codegen/asr_to_py.cpp
-    codegen/x86_assembler.cpp
-    codegen/asr_to_x86.cpp
+    fortran_evaluator.cpp
 
-    pass/param_to_const.cpp
-    pass/do_loops.cpp
-    pass/for_all.cpp
-    pass/global_stmts.cpp
-    pass/select_case.cpp
-    pass/implied_do_loops.cpp
-    pass/array_op.cpp
-    pass/class_constructor.cpp
-    pass/arr_slice.cpp
-    pass/print_arr.cpp
-    pass/pass_utils.cpp
-    pass/unused_functions.cpp
-
-    asr_verify.cpp
-    asr_utils.cpp
-    modfile.cpp
     pickle.cpp
-    serialization.cpp
     python_serialization.cpp
+    ast_serialization.cpp
     cwrapper.cpp
-
-    diagnostics.cpp
 
     ast_to_src.cpp
     ast_to_openmp.cpp
 
     mod_to_asr.cpp
 
-    string_utils.cpp
     utils.cpp
-
-    stacktrace.cpp
 
     ../bin/tpl/whereami/whereami.cpp
 )
@@ -63,28 +35,8 @@ if (WITH_JSON)
         ast_to_json.cpp
     )
 endif()
-if (WITH_LLVM)
-    set(SRC ${SRC}
-        codegen/evaluator.cpp
-        codegen/asr_to_llvm.cpp
-        codegen/llvm_array_utils.cpp
-        codegen/llvm_utils.cpp
-        pass/nested_vars.cpp
-    )
-    # We use deprecated API in LLVM, so we disable the warning until we upgrade
-    if (NOT MSVC)
-        set_source_files_properties(codegen/evaluator.cpp PROPERTIES
-            COMPILE_FLAGS -Wno-deprecated-declarations)
-        set_source_files_properties(codegen/asr_to_llvm.cpp PROPERTIES
-            COMPILE_FLAGS -Wno-deprecated-declarations)
-        set_source_files_properties(codegen/llvm_array_utils.cpp PROPERTIES
-            COMPILE_FLAGS -Wno-deprecated-declarations)
-        set_source_files_properties(codegen/llvm_utils.cpp PROPERTIES
-            COMPILE_FLAGS -Wno-deprecated-declarations)
-    endif()
-endif()
 add_library(lfortran_lib ${SRC})
-target_link_libraries(lfortran_lib lfortran_runtime_static ZLIB::ZLIB)
+target_link_libraries(lfortran_lib asr lfortran_runtime_static ZLIB::ZLIB)
 target_include_directories(lfortran_lib BEFORE PUBLIC ${lfortran_SOURCE_DIR}/src)
 target_include_directories(lfortran_lib BEFORE PUBLIC ${lfortran_BINARY_DIR}/src)
 if (WITH_XEUS)
