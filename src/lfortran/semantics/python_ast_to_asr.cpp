@@ -1065,6 +1065,21 @@ public:
 
             tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, 1234, a_type);
             return;
+        } else if (call_name == "ord") {
+            LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+            ASR::expr_t* char_expr = args[0];
+            ASR::ttype_t* char_type = LFortran::ASRUtils::expr_type(char_expr);
+            if (ASR::is_a<ASR::Character_t>(*char_type)) {
+                char* c = ASR::down_cast<ASR::ConstantString_t>(LFortran::ASRUtils::expr_value(char_expr))->m_s;
+                ASR::ttype_t* int_type =
+                    LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al,
+                    x.base.base.loc, 4, nullptr, 0));
+                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
+                    c[0], int_type);
+                return;
+            } else {
+                throw SemanticError("ord() must have one character argument", x.base.base.loc);
+            }
         }
 
         // Other functions
