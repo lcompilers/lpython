@@ -571,6 +571,9 @@ public:
     }
 
     void visit_BoolOp(const AST::BoolOp_t &x) {
+        throw SemanticError("Boolean binary operator is not implemented yet",
+            x.base.base.loc);
+        /*
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_right);
@@ -589,6 +592,7 @@ public:
         ASR::expr_t *value = nullptr;
         tmp = ASR::make_BoolOp_t(al, x.base.base.loc, left, op, right, dest_type,
                                  value);
+                                 */
     }
 
     void visit_BinOp(const AST::BinOp_t &x) {
@@ -1024,7 +1028,7 @@ public:
                                   type, value, overloaded);
     }
 
-    void visit_Pass(const AST::Pass_t &x) {
+    void visit_Pass(const AST::Pass_t &/*x*/) {
         tmp = nullptr;
     }
 
