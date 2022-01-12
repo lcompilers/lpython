@@ -378,8 +378,7 @@ public:
             if (AST::is_a<AST::Name_t>(*target)) {
                 AST::Name_t *n = AST::down_cast<AST::Name_t>(target);
                 std::string var_name = n->m_id;
-                if (current_scope->scope.find(var_name) ==
-                        current_scope->scope.end()) {
+                if (!current_scope->resolve_symbol(var_name)) {
                     throw SemanticError("Symbol is not declared",
                             x.base.base.loc);
                 }
