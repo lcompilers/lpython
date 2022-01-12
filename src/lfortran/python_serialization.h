@@ -2,7 +2,7 @@
 #define LFORTRAN_PYTHON_SERIALIZATION_H
 
 #include <lfortran/python_ast.h>
-#include <lfortran/asr.h>
+#include <libasr/asr.h>
 
 namespace LFortran::Python {
 

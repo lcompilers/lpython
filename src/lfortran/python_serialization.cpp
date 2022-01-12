@@ -1,9 +1,9 @@
 #include <string>
 
-#include <lfortran/config.h>
+#include <libasr/config.h>
 #include <lfortran/python_serialization.h>
-#include <lfortran/bwriter.h>
-#include <lfortran/string_utils.h>
+#include <libasr/bwriter.h>
+#include <libasr/string_utils.h>
 
 
 namespace LFortran::Python {

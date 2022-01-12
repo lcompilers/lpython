@@ -7,12 +7,13 @@
 #include <vector>
 
 #include <lfortran/python_ast.h>
-#include <lfortran/asr.h>
-#include <lfortran/asr_utils.h>
-#include <lfortran/asr_verify.h>
+#include <libasr/asr.h>
+#include <libasr/asr_utils.h>
+#include <libasr/asr_verify.h>
 #include <lfortran/semantics/python_ast_to_asr.h>
-#include <lfortran/string_utils.h>
+#include <libasr/string_utils.h>
 #include <lfortran/utils.h>
+#include <lfortran/semantics/semantic_exception.h>
 
 
 namespace LFortran::Python {
