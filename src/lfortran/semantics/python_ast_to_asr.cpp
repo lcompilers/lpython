@@ -113,6 +113,9 @@ public:
         } else if (var_annotation == "f64") {
             type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, loc,
                 8, dims.p, dims.size()));
+        } else if (var_annotation == "c128") {
+            type = LFortran::ASRUtils::TYPE(ASR::make_Complex_t(al, loc,
+                8, dims.p, dims.size()));
         } else if (var_annotation == "str") {
             type = LFortran::ASRUtils::TYPE(ASR::make_Character_t(al, loc,
                 1, -2, nullptr, dims.p, dims.size()));
@@ -505,6 +508,13 @@ public:
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
                 8, nullptr, 0));
         tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, f, type);
+    }
+
+    void visit_ConstantComplex(const AST::ConstantComplex_t &x) {
+        double re = x.m_re, im = x.m_im;
+        ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
+                8, nullptr, 0));
+        tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc, re, im, type);
     }
 
     void visit_ConstantStr(const AST::ConstantStr_t &x) {
