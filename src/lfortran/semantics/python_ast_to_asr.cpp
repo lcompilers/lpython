@@ -554,6 +554,7 @@ public:
             case (AST::operatorType::Sub) : { op = ASR::binopType::Sub; break; }
             case (AST::operatorType::Mult) : { op = ASR::binopType::Mul; break; }
             case (AST::operatorType::Div) : { op = ASR::binopType::Div; break; }
+            case (AST::operatorType::FloorDiv) : {op = ASR::binopType::Div; break;}
             case (AST::operatorType::Pow) : { op = ASR::binopType::Pow; break; }
             default : {
                 throw SemanticError("Binary operator type not supported",
@@ -565,8 +566,56 @@ public:
         ASR::ttype_t *dest_type = nullptr;
         ASR::expr_t *value = nullptr;
 
-        // Cast LHS or RHS if necessary
-        if (ASR::is_a<ASR::Integer_t>(*left_type) && ASR::is_a<ASR::Integer_t>(*right_type)) {
+        // Handle normal division in python with reals
+        if (op == ASR::binopType::Div) {
+            if (ASR::is_a<ASR::Character_t>(*left_type) ||
+                        ASR::is_a<ASR::Character_t>(*right_type)) {
+                diag.add(diag::Diagnostic(
+                    "Division is not supported for string type",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("string not supported in division" ,
+                                {left->base.loc, right->base.loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+            // Floor div operation in python using (`//`)
+            if (x.m_op == AST::operatorType::FloorDiv) {
+                bool both_int = (ASR::is_a<ASR::Integer_t>(*left_type) &&
+                                        ASR::is_a<ASR::Integer_t>(*right_type));
+                if (both_int) {
+                    dest_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al,
+                        x.base.base.loc, 4, nullptr, 0));
+                } else {
+                    dest_type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al,
+                        x.base.base.loc, 8, nullptr, 0));
+                }
+                if (ASR::is_a<ASR::Real_t>(*left_type)) {
+                    left = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                        al, left->base.loc, left, ASR::cast_kindType::RealToInteger, dest_type,
+                        value));
+                }
+                if (ASR::is_a<ASR::Real_t>(*right_type)) {
+                    right = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                        al, right->base.loc, right, ASR::cast_kindType::RealToInteger, dest_type,
+                        value));
+                }
+
+            } else { // real divison in python using (`/`)
+                dest_type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                    8, nullptr, 0));
+                if (ASR::is_a<ASR::Integer_t>(*left_type)) {
+                    left = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                        al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type,
+                        value));
+                }
+                if (ASR::is_a<ASR::Integer_t>(*right_type)) {
+                    right = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                        al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type,
+                        value));
+                }
+            }
+        } else if (ASR::is_a<ASR::Integer_t>(*left_type) && ASR::is_a<ASR::Integer_t>(*right_type)) {
             dest_type = left_type;
         } else if (ASR::is_a<ASR::Real_t>(*left_type) && ASR::is_a<ASR::Real_t>(*right_type)) {
             dest_type = left_type;
@@ -699,8 +748,33 @@ public:
         ASR::ttype_t *dest_type = nullptr;
         ASR::expr_t *value = nullptr;
 
-        // Cast LHS or RHS if necessary
-        if (ASR::is_a<ASR::Integer_t>(*left_type) && ASR::is_a<ASR::Integer_t>(*right_type)) {
+        // Handle normal division in python with reals
+        if (op == ASR::binopType::Div) {
+            if (ASR::is_a<ASR::Character_t>(*left_type) ||
+                        ASR::is_a<ASR::Character_t>(*right_type)) {
+                diag.add(diag::Diagnostic(
+                    "Division is not supported for string type",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("string not supported in division" ,
+                                {left->base.loc, right->base.loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+
+            dest_type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                8, nullptr, 0));
+            if (ASR::is_a<ASR::Integer_t>(*left_type)) {
+                left = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                    al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type,
+                    value));
+            }
+            if (ASR::is_a<ASR::Integer_t>(*right_type)) {
+                right = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                    al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type,
+                    value));
+            }
+        } else if (ASR::is_a<ASR::Integer_t>(*left_type) && ASR::is_a<ASR::Integer_t>(*right_type)) {
             dest_type = left_type;
         } else if (ASR::is_a<ASR::Real_t>(*left_type) && ASR::is_a<ASR::Real_t>(*right_type)) {
             dest_type = left_type;
