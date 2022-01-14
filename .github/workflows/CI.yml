@@ -12,11 +12,14 @@ jobs:
         os: ["ubuntu-latest", "macos-latest", "windows-latest"]
         python-version: ["3.10"]
     steps:
+      - uses: actions/checkout@v2
+
       - uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
           environment-file: ci/environment.yml
           python-version: ${{ matrix.python-version }}
+          auto-activate-base: false
 
       - name: Install Windows Conda Packages
         if: contains(matrix.os, 'windows')
