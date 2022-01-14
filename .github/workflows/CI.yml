@@ -12,15 +12,33 @@ jobs:
         os: ["ubuntu-latest", "macos-latest", "windows-latest"]
         python-version: ["3.10"]
     steps:
+      - uses: actions/checkout@v2
+
       - uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
+          environment-file: ci/environment.yml
           python-version: ${{ matrix.python-version }}
+          auto-activate-base: false
+
+      - name: Install Windows Conda Packages
+        if: contains(matrix.os, 'windows')
+        shell: bash -l {0}
+        run: conda install m2-bison=3.0.4
+
+      - name: Install Linux / macOS Conda Packages
+        if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
+        shell: bash -l {0}
+        run: conda install bison=3.4
+
       - name: Conda info
         shell: bash -l {0}
-        run: conda info
-      - name: Conda list
-        shell: pwsh
-        run: conda list
+        run: |
+            conda info
+            conda list
+
       - name: Build and test
-        run: xonsh ci/build.xsh
+        shell: bash -l {0}
+        run: |
+            echo $CONDA_PREFIX
+            xonsh ci/build.xsh
