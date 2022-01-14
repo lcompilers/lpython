@@ -26,7 +26,7 @@ jobs:
       - name: Install Windows Conda Packages
         if: contains(matrix.os, 'windows')
         shell: bash -l {0}
-        run: conda install m2-bison=3.0.4
+        run: conda install m2-bison=3.0.4 ninja
 
       - name: Install Linux / macOS Conda Packages
         if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
