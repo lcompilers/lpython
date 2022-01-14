@@ -13,6 +13,8 @@ jobs:
         python-version: ["3.10"]
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - uses: conda-incubator/setup-miniconda@v2
         with:
@@ -24,7 +26,7 @@ jobs:
       - name: Install Windows Conda Packages
         if: contains(matrix.os, 'windows')
         shell: bash -l {0}
-        run: conda install m2-bison=3.0.4
+        run: conda install m2-bison=3.0.4 ninja
 
       - name: Install Linux / macOS Conda Packages
         if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
@@ -36,6 +38,30 @@ jobs:
         run: |
             conda info
             conda list
+
+      - name: Setup Platform (Linux)
+        if: contains(matrix.os, 'ubuntu')
+        shell: bash -l {0}
+        run: |
+            echo "LFORTRAN_CMAKE_GENERATOR=Unix Makefiles" >> $GITHUB_ENV
+            echo "WIN=0" >> $GITHUB_ENV
+            echo "MACOS=0" >> $GITHUB_ENV
+
+      - name: Setup Platform (macOS)
+        if: contains(matrix.os, 'macos')
+        shell: bash -l {0}
+        run: |
+            echo "LFORTRAN_CMAKE_GENERATOR=Unix Makefiles" >> $GITHUB_ENV
+            echo "WIN=0" >> $GITHUB_ENV
+            echo "MACOS=1" >> $GITHUB_ENV
+
+      - name: Setup Platform (Windows)
+        if: contains(matrix.os, 'windows')
+        shell: bash -l {0}
+        run: |
+            echo "LFORTRAN_CMAKE_GENERATOR=Ninja" >> $GITHUB_ENV
+            echo "WIN=1" >> $GITHUB_ENV
+            echo "MACOS=0" >> $GITHUB_ENV
 
       - name: Build and test
         shell: bash -l {0}
