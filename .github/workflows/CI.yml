@@ -62,7 +62,7 @@ jobs:
             $env:LFORTRAN_CMAKE_GENERATOR='NMake Makefiles'
             $env:WIN='1'
             $env:MACOS='0'
-            "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+            Invoke-Environment '"C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"'
             xonsh ci\build.xsh
 
       - name: Build and test
