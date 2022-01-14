@@ -43,7 +43,7 @@ jobs:
         if: contains(matrix.os, 'ubuntu')
         shell: bash -l {0}
         run: |
-            echo "LFORTRAN_CMAKE_GENERATOR=\"Unix Makefiles\"" >> $GITHUB_ENV
+            echo "LFORTRAN_CMAKE_GENERATOR=Unix Makefiles" >> $GITHUB_ENV
             echo "WIN=0" >> $GITHUB_ENV
             echo "MACOS=0" >> $GITHUB_ENV
 
@@ -51,7 +51,7 @@ jobs:
         if: contains(matrix.os, 'macos')
         shell: bash -l {0}
         run: |
-            echo "LFORTRAN_CMAKE_GENERATOR=\"Unix Makefiles\"" >> $GITHUB_ENV
+            echo "LFORTRAN_CMAKE_GENERATOR=Unix Makefiles" >> $GITHUB_ENV
             echo "WIN=0" >> $GITHUB_ENV
             echo "MACOS=1" >> $GITHUB_ENV
 
@@ -59,7 +59,7 @@ jobs:
         if: contains(matrix.os, 'windows')
         shell: bash -l {0}
         run: |
-            echo "LFORTRAN_CMAKE_GENERATOR=\"Ninja\"" >> $GITHUB_ENV
+            echo "LFORTRAN_CMAKE_GENERATOR=Ninja" >> $GITHUB_ENV
             echo "WIN=1" >> $GITHUB_ENV
             echo "MACOS=0" >> $GITHUB_ENV
 
