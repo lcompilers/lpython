@@ -55,7 +55,13 @@ jobs:
             echo "WIN=0" >> $GITHUB_ENV
             echo "MACOS=1" >> $GITHUB_ENV
 
-      - name: Setup Platform (Windows)
+      - name: Build and test (Linux / macOS)
+        shell: bash -l {0}
+        if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
+        run: |
+            xonsh ci/build.xsh
+
+      - name: Build and test (Windows)
         if: contains(matrix.os, 'windows')
         shell: cmd
         run: |
@@ -67,9 +73,3 @@ jobs:
             set MACOS=0
             call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
             xonsh ci\build.xsh
-
-      - name: Build and test
-        shell: bash -l {0}
-        if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
-        run: |
-            xonsh ci/build.xsh
