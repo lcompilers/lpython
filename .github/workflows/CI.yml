@@ -57,12 +57,12 @@ jobs:
 
       - name: Setup Platform (Windows)
         if: contains(matrix.os, 'windows')
-        shell: pwsh
+        shell: cmd
         run: |
-            $env:LFORTRAN_CMAKE_GENERATOR='NMake Makefiles'
-            $env:WIN='1'
-            $env:MACOS='0'
-            Invoke-Environment '"C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"'
+            set LFORTRAN_CMAKE_GENERATOR="NMake Makefiles"
+            set WIN=1
+            set MACOS=0
+            call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
             xonsh ci\build.xsh
 
       - name: Build and test
