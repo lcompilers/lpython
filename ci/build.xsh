@@ -24,6 +24,7 @@ $RAISE_SUBPROC_ERROR = True
 trace on
 
 echo "CONDA_PREFIX=$CONDA_PREFIX"
+echo "PATH=$PATH"
 llvm-config --components
 
 # Generate the `version` file
