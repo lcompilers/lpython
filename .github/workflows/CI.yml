@@ -38,4 +38,7 @@ jobs:
         run: conda list
 
       - name: Build and test
-        run: xonsh ci/build.xsh
+        shell: bash -l {0}
+        run: |
+            echo $CONDA_PREFIX
+            xonsh ci/build.xsh
