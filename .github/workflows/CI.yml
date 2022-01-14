@@ -37,6 +37,30 @@ jobs:
             conda info
             conda list
 
+      - name: Setup Platform (Linux)
+        if: contains(matrix.os, 'ubuntu')
+        shell: bash -l {0}
+        run: |
+            export LFORTRAN_CMAKE_GENERATOR="Unix Makefiles"
+            export WIN=0
+            export MACOS=0
+
+      - name: Setup Platform (macOS)
+        if: contains(matrix.os, 'macos')
+        shell: bash -l {0}
+        run: |
+            export LFORTRAN_CMAKE_GENERATOR="Unix Makefiles"
+            export WIN=0
+            export MACOS=1
+
+      - name: Setup Platform (Windows)
+        if: contains(matrix.os, 'windows')
+        shell: bash -l {0}
+        run: |
+            export LFORTRAN_CMAKE_GENERATOR="Ninja"
+            export WIN=1
+            export MACOS=0
+
       - name: Build and test
         shell: bash -l {0}
         run: |
