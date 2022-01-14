@@ -17,11 +17,22 @@ jobs:
           auto-update-conda: true
           environment-file: ci/environment.yml
           python-version: ${{ matrix.python-version }}
+
+      - name: Install Windows Conda Packages
+        if: contains(matrix.os, 'windows')
+        run: conda install m2-bison=3.4
+
+      - name: Install Linux / macOS Conda Packages
+        if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
+        run: conda install bison=3.4
+
       - name: Conda info
         shell: bash -l {0}
         run: conda info
+
       - name: Conda list
         shell: pwsh
         run: conda list
+
       - name: Build and test
         run: xonsh ci/build.xsh
