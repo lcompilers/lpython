@@ -33,6 +33,8 @@ bash ci/version.sh
 python grammar/asdl_cpp.py
 # Generate a Fortran ASR from ASR.asdl (C++)
 python grammar/asdl_cpp.py grammar/ASR.asdl src/libasr/asr.h
+# Generate a Python AST from Python.asdl (C++)
+python grammar/asdl_cpp.py grammar/Python.asdl src/lfortran/python_ast.h
 
 # Generate the tokenizer and parser
 pushd src/lfortran/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd
