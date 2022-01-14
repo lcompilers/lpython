@@ -59,9 +59,9 @@ jobs:
         if: contains(matrix.os, 'windows')
         shell: pwsh
         run: |
-            set LFORTRAN_CMAKE_GENERATOR=Ninja
-            set WIN=1
-            set MACOS=0
+            $env:LFORTRAN_CMAKE_GENERATOR='Ninja'
+            $env:WIN='1'
+            $env:MACOS='0'
             "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
             xonsh ci\build.xsh
 
