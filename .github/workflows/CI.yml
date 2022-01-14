@@ -67,4 +67,7 @@ jobs:
         shell: bash -l {0}
         run: |
             echo $CONDA_PREFIX
+            if [[ $WIN == "1" ]]; then
+               "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+            fi
             xonsh ci/build.xsh
