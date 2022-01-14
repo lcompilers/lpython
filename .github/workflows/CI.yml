@@ -57,19 +57,16 @@ jobs:
 
       - name: Setup Platform (Windows)
         if: contains(matrix.os, 'windows')
-        shell: bash -l {0}
+        shell: pwsh
         run: |
-            echo "LFORTRAN_CMAKE_GENERATOR=NMake Makefiles" >> $GITHUB_ENV
-            echo "WIN=1" >> $GITHUB_ENV
-            echo "MACOS=0" >> $GITHUB_ENV
+            set LFORTRAN_CMAKE_GENERATOR=Ninja
+            set WIN=1
+            set MACOS=0
+            call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+            xonsh ci\build.xsh
 
       - name: Build and test
         shell: bash -l {0}
+        if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
         run: |
-            echo $CONDA_PREFIX
-            echo $PATH
-            if [[ $WIN == "1" ]]; then
-               "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
-            fi
-            echo $PATH
             xonsh ci/build.xsh
