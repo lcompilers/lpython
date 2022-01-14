@@ -59,7 +59,7 @@ jobs:
         if: contains(matrix.os, 'windows')
         shell: bash -l {0}
         run: |
-            echo "LFORTRAN_CMAKE_GENERATOR=Ninja" >> $GITHUB_ENV
+            echo "LFORTRAN_CMAKE_GENERATOR=NMake Makefiles" >> $GITHUB_ENV
             echo "WIN=1" >> $GITHUB_ENV
             echo "MACOS=0" >> $GITHUB_ENV
 
