@@ -1144,6 +1144,31 @@ public:
             } else {
                 throw SemanticError("ord() must have one character argument", x.base.base.loc);
             }
+        } else if (call_name == "chr") {
+            LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+            ASR::expr_t* real_expr = args[0];
+            ASR::ttype_t* real_type = LFortran::ASRUtils::expr_type(real_expr);
+            if (ASR::is_a<ASR::Integer_t>(*real_type)) {
+                int64_t c = ASR::down_cast<ASR::ConstantInteger_t>(real_expr)->m_n;
+                ASR::ttype_t* str_type =
+                    LFortran::ASRUtils::TYPE(ASR::make_Character_t(al,
+                    x.base.base.loc, 1, 1, nullptr, nullptr, 0));
+                if (! (c >= 0 && c <= 127) ) {
+                    throw SemanticError("The argument 'x' in chr(x) must be in the range 0 <= x <= 127.",
+                                        x.base.base.loc);
+                }
+                char cc = c;
+                std::string svalue;
+                svalue += cc;
+                Str s;
+                s.from_str_view(svalue);
+                char *str_val = s.c_str(al);
+                tmp = ASR::make_ConstantString_t(al, x.base.base.loc,
+                    str_val, str_type);
+                return;
+            } else {
+                throw SemanticError("chr() must have one integer argument", x.base.base.loc);
+            }
         }
 
         // Other functions
