@@ -1045,6 +1045,17 @@ public:
         tmp = ASR::make_Exit_t(al, x.base.base.loc);
     }
 
+    void visit_Raise(const AST::Raise_t &x) {
+        ASR::expr_t *code;
+        if (x.m_cause) {
+            visit_expr(*x.m_cause);
+            code = LFortran::ASRUtils::EXPR(tmp);
+        } else {
+            code = nullptr;
+        }
+        tmp = ASR::make_ErrorStop_t(al, x.base.base.loc, code);
+    }
+
     void visit_Expr(const AST::Expr_t &x) {
         if (AST::is_a<AST::Call_t>(*x.m_value)) {
             AST::Call_t *c = AST::down_cast<AST::Call_t>(x.m_value);
