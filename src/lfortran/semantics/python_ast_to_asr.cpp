@@ -616,24 +616,8 @@ public:
         tmp = ASR::make_BoolOp_t(al, x.base.base.loc, lhs, op, rhs, dest_type, value);
     }
 
-    void visit_BinOp(const AST::BinOp_t &x) {
-        this->visit_expr(*x.m_left);
-        ASR::expr_t *left = ASRUtils::EXPR(tmp);
-        this->visit_expr(*x.m_right);
-        ASR::expr_t *right = ASRUtils::EXPR(tmp);
-        ASR::binopType op;
-        switch (x.m_op) {
-            case (AST::operatorType::Add) : { op = ASR::binopType::Add; break; }
-            case (AST::operatorType::Sub) : { op = ASR::binopType::Sub; break; }
-            case (AST::operatorType::Mult) : { op = ASR::binopType::Mul; break; }
-            case (AST::operatorType::Div) : { op = ASR::binopType::Div; break; }
-            case (AST::operatorType::FloorDiv) : {op = ASR::binopType::Div; break;}
-            case (AST::operatorType::Pow) : { op = ASR::binopType::Pow; break; }
-            default : {
-                throw SemanticError("Binary operator type not supported",
-                    x.base.base.loc);
-            }
-        }
+    void make_BinOp_helper(ASR::expr_t *left, ASR::expr_t *right,
+                            ASR::binopType op, const Location &loc, bool floordiv) {
         ASR::ttype_t *left_type = ASRUtils::expr_type(left);
         ASR::ttype_t *right_type = ASRUtils::expr_type(right);
         ASR::ttype_t *dest_type = nullptr;
@@ -656,15 +640,15 @@ public:
                 throw SemanticAbort();
             }
             // Floor div operation in python using (`//`)
-            if (x.m_op == AST::operatorType::FloorDiv) {
+            if (floordiv) {
                 bool both_int = (ASR::is_a<ASR::Integer_t>(*left_type) &&
                                         ASR::is_a<ASR::Integer_t>(*right_type));
                 if (both_int) {
-                    dest_type = ASRUtils::TYPE(ASR::make_Integer_t(al,
-                        x.base.base.loc, 4, nullptr, 0));
+                    dest_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al,
+                        loc, 4, nullptr, 0));
                 } else {
-                    dest_type = ASRUtils::TYPE(ASR::make_Real_t(al,
-                        x.base.base.loc, 8, nullptr, 0));
+                    dest_type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al,
+                        loc, 8, nullptr, 0));
                 }
                 if (ASR::is_a<ASR::Real_t>(*left_type)) {
                     left = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
@@ -678,7 +662,7 @@ public:
                 }
 
             } else { // real divison in python using (`/`)
-                dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
                     8, nullptr, 0));
                 if (ASR::is_a<ASR::Integer_t>(*left_type)) {
                     left = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
@@ -712,7 +696,7 @@ public:
             // string concat
             dest_type = left_type;
             ASR::stropType ops = ASR::stropType::Concat;
-            tmp = ASR::make_StrOp_t(al, x.base.base.loc, left, ops, right, dest_type,
+            tmp = ASR::make_StrOp_t(al, loc, left, ops, right, dest_type,
                                     value);
             return;
         } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
@@ -751,8 +735,30 @@ public:
             throw SemanticAbort();
         }
         ASR::expr_t *overloaded = nullptr;
-        tmp = ASR::make_BinOp_t(al, x.base.base.loc, left, op, right, dest_type,
+        tmp = ASR::make_BinOp_t(al, loc, left, op, right, dest_type,
                                 value, overloaded);
+    }
+
+    void visit_BinOp(const AST::BinOp_t &x) {
+        this->visit_expr(*x.m_left);
+        ASR::expr_t *left = LFortran::ASRUtils::EXPR(tmp);
+        this->visit_expr(*x.m_right);
+        ASR::expr_t *right = LFortran::ASRUtils::EXPR(tmp);
+        ASR::binopType op;
+        switch (x.m_op) {
+            case (AST::operatorType::Add) : { op = ASR::binopType::Add; break; }
+            case (AST::operatorType::Sub) : { op = ASR::binopType::Sub; break; }
+            case (AST::operatorType::Mult) : { op = ASR::binopType::Mul; break; }
+            case (AST::operatorType::Div) : { op = ASR::binopType::Div; break; }
+            case (AST::operatorType::FloorDiv) : {op = ASR::binopType::Div; break;}
+            case (AST::operatorType::Pow) : { op = ASR::binopType::Pow; break; }
+            default : {
+                throw SemanticError("Binary operator type not supported",
+                    x.base.base.loc);
+            }
+        }
+        bool floordiv = (x.m_op == AST::operatorType::FloorDiv);
+        make_BinOp_helper(left, right, op, x.base.base.loc, floordiv);
     }
 
     void visit_UnaryOp(const AST::UnaryOp_t &x) {
@@ -826,94 +832,9 @@ public:
                     x.base.base.loc);
             }
         }
-        ASR::ttype_t *left_type = ASRUtils::expr_type(left);
-        ASR::ttype_t *right_type = ASRUtils::expr_type(right);
-        ASR::ttype_t *dest_type = nullptr;
-        ASR::expr_t *value = nullptr;
 
-        // Handle normal division in python with reals
-        if (op == ASR::binopType::Div) {
-            if (ASR::is_a<ASR::Character_t>(*left_type) ||
-                        ASR::is_a<ASR::Character_t>(*right_type)) {
-                diag.add(diag::Diagnostic(
-                    "Division is not supported for string type",
-                    diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("string not supported in division" ,
-                                {left->base.loc, right->base.loc})
-                    })
-                );
-                throw SemanticAbort();
-            }
-
-            dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
-                8, nullptr, 0));
-            if (ASR::is_a<ASR::Integer_t>(*left_type)) {
-                left = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
-                    al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type,
-                    value));
-            }
-            if (ASR::is_a<ASR::Integer_t>(*right_type)) {
-                right = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
-                    al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type,
-                    value));
-            }
-        } else if (ASR::is_a<ASR::Integer_t>(*left_type) && ASR::is_a<ASR::Integer_t>(*right_type)) {
-            dest_type = left_type;
-        } else if (ASR::is_a<ASR::Real_t>(*left_type) && ASR::is_a<ASR::Real_t>(*right_type)) {
-            dest_type = left_type;
-        } else if (ASR::is_a<ASR::Integer_t>(*left_type) && ASR::is_a<ASR::Real_t>(*right_type)) {
-            // Cast LHS Integer->Real
-            dest_type = right_type;
-            left = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
-                al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type,
-                value));
-        } else if (ASR::is_a<ASR::Real_t>(*left_type) && ASR::is_a<ASR::Integer_t>(*right_type)) {
-            // Cast RHS Integer->Real
-            dest_type = left_type;
-            right = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
-                al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type,
-                value));
-        } else if (ASR::is_a<ASR::Character_t>(*left_type) && ASR::is_a<ASR::Character_t>(*right_type)
-                            && op == ASR::binopType::Add) {
-            // string concat
-            dest_type = left_type;
-            ASR::stropType ops = ASR::stropType::Concat;
-            tmp = ASR::make_StrOp_t(al, x.base.base.loc, left, ops, right, dest_type,
-                                    value);
-            ASR::expr_t *tmp2 = ASR::down_cast<ASR::expr_t>(tmp);
-            tmp = ASR::make_Assignment_t(al, x.base.base.loc, left, tmp2, nullptr);
-            return;
-        } else {
-            std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
-            std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
-            diag.add(diag::Diagnostic(
-                "Not Implemented: type mismatch in binary operator, only Integer/Real combinations implemented for now",
-                diag::Level::Error, diag::Stage::Semantic, {
-                    diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
-                            {left->base.loc, right->base.loc})
-                })
-            );
-            throw SemanticAbort();
-        }
-
-        // Check that the types are now the same
-        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(left),
-                                    ASRUtils::expr_type(right))) {
-            std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
-            std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
-            diag.add(diag::Diagnostic(
-                "Type mismatch in binary operator, the types must be compatible",
-                diag::Level::Error, diag::Stage::Semantic, {
-                    diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
-                            {left->base.loc, right->base.loc})
-                })
-            );
-            throw SemanticAbort();
-        }
-        ASR::expr_t *overloaded = nullptr;
+        make_BinOp_helper(left, right, op, x.base.base.loc, false);
         ASR::stmt_t* a_overloaded = nullptr;
-        tmp = ASR::make_BinOp_t(al, x.base.base.loc, left, op, right, dest_type,
-                         value, overloaded);
         ASR::expr_t *tmp2 = ASR::down_cast<ASR::expr_t>(tmp);
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, left, tmp2, a_overloaded);
 
@@ -1212,6 +1133,16 @@ public:
             } else {
                 throw SemanticError("chr() must have one integer argument", x.base.base.loc);
             }
+        } else if (call_name == "pow") {
+            if (args.size() != 2) {
+                throw SemanticError("Two arguments are expected in pow",
+                    x.base.base.loc);
+            }
+            ASR::expr_t *left = args[0];
+            ASR::expr_t *right = args[1];
+            ASR::binopType op = ASR::binopType::Pow;
+            make_BinOp_helper(left, right, op, x.base.base.loc, false);
+            return;
         }
 
         // Other functions
