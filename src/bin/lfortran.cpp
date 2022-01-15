@@ -399,25 +399,6 @@ int emit_tokens(const std::string &infile, bool line_numbers, const CompilerOpti
     return 0;
 }
 
-int emit_ast(const std::string &infile, CompilerOptions &compiler_options)
-{
-    std::string input = read_file(infile);
-
-    LFortran::FortranEvaluator fe(compiler_options);
-    LFortran::LocationManager lm;
-    LFortran::diag::Diagnostics diagnostics;
-    lm.in_filename = infile;
-    LFortran::Result<std::string> r = fe.get_ast(input, lm, diagnostics);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
-    if (r.ok) {
-        std::cout << r.result << std::endl;
-        return 0;
-    } else {
-        LFORTRAN_ASSERT(diagnostics.has_error())
-        return 2;
-    }
-}
-
 int emit_ast_f90(const std::string &infile, CompilerOptions &compiler_options)
 {
     std::string input = read_file(infile);
@@ -528,69 +509,7 @@ int python_wrapper(const std::string &infile, std::string array_order,
     return 0;
 }
 
-int emit_asr(const std::string &infile,
-    const std::vector<ASRPass> &passes,
-    bool with_intrinsic_modules, CompilerOptions &compiler_options)
-{
-    std::string input = read_file(infile);
-
-    LFortran::FortranEvaluator fe(compiler_options);
-    LFortran::LocationManager lm;
-    lm.in_filename = infile;
-    LFortran::diag::Diagnostics diagnostics;
-    LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r = fe.get_asr2(input, lm, diagnostics);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
-    if (!r.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
-        return 2;
-    }
-    LFortran::ASR::TranslationUnit_t* asr = r.result;
-
-    Allocator al(64*1024*1024);
-    for (size_t i=0; i < passes.size(); i++) {
-        switch (passes[i]) {
-            case (ASRPass::do_loops) : {
-                LFortran::pass_replace_do_loops(al, *asr);
-                break;
-            }
-            case (ASRPass::global_stmts) : {
-                LFortran::pass_wrap_global_stmts_into_function(al, *asr, "f");
-                break;
-            }
-            case (ASRPass::implied_do_loops) : {
-                LFortran::pass_replace_implied_do_loops(al, *asr, LFortran::get_runtime_library_dir());
-                break;
-            }
-            case (ASRPass::array_op) : {
-                LFortran::pass_replace_array_op(al, *asr, LFortran::get_runtime_library_dir());
-                break;
-            }
-            case (ASRPass::class_constructor) : {
-                LFortran::pass_replace_class_constructor(al, *asr);
-                break;
-            }
-            case (ASRPass::arr_slice) : {
-                LFortran::pass_replace_arr_slice(al, *asr, LFortran::get_runtime_library_dir());
-                break;
-            }
-            case (ASRPass::print_arr) : {
-                LFortran::pass_replace_print_arr(al, *asr, LFortran::get_runtime_library_dir());
-                break;
-            }
-            case (ASRPass::unused_functions) : {
-                LFortran::pass_unused_functions(al, *asr);
-                break;
-            }
-            default : throw LFortran::LFortranException("Pass not implemened");
-        }
-    }
-    std::cout << LFortran::pickle(*asr, compiler_options.use_colors, compiler_options.indent,
-            with_intrinsic_modules) << std::endl;
-    return 0;
-}
-
-int emit_python_ast(const std::string &infile,
+int emit_ast(const std::string &infile,
     CompilerOptions &compiler_options)
 {
     std::string input = read_file(infile);
@@ -602,7 +521,7 @@ int emit_python_ast(const std::string &infile,
     return 0;
 }
 
-int emit_python_asr(const std::string &infile,
+int emit_asr(const std::string &infile,
     bool with_intrinsic_modules, CompilerOptions &compiler_options)
 {
     std::string input = read_file(infile);
@@ -626,7 +545,7 @@ int emit_python_asr(const std::string &infile,
     return 0;
 }
 
-int emit_python_cpp(const std::string &infile, CompilerOptions &compiler_options)
+int emit_cpp(const std::string &infile, CompilerOptions &compiler_options)
 {
     std::string input = read_file(infile);
     Allocator al(4*1024);
@@ -654,26 +573,6 @@ int emit_python_cpp(const std::string &infile, CompilerOptions &compiler_options
     std::cout << res.result;
     return 0;
 }
-
-int emit_cpp(const std::string &infile, CompilerOptions &compiler_options)
-{
-    std::string input = read_file(infile);
-
-    LFortran::FortranEvaluator fe(compiler_options);
-    LFortran::LocationManager lm;
-    LFortran::diag::Diagnostics diagnostics;
-    lm.in_filename = infile;
-    LFortran::Result<std::string> cpp = fe.get_cpp(input, lm, diagnostics);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
-    if (cpp.ok) {
-        std::cout << cpp.result;
-        return 0;
-    } else {
-        LFORTRAN_ASSERT(diagnostics.has_error())
-        return 1;
-    }
-}
-
 
 int save_mod_files(const LFortran::ASR::TranslationUnit_t &u)
 {
@@ -1228,15 +1127,12 @@ int main(int argc, char *argv[])
         bool show_tokens = false;
         bool show_ast = false;
         bool show_asr = false;
-        bool show_python_ast = false;
-        bool show_python_asr = false;
-        bool show_python_cpp = false;
+        bool show_cpp = false;
         bool with_intrinsic_modules = false;
         bool show_ast_f90 = false;
         std::string arg_pass;
         bool arg_no_color = false;
         bool show_llvm = false;
-        bool show_cpp = false;
         bool show_asm = false;
         bool time_report = false;
         bool static_link = false;
@@ -1281,20 +1177,17 @@ int main(int argc, char *argv[])
         app.add_flag("--fixed-form", compiler_options.fixed_form, "Use fixed form Fortran source parsing");
         app.add_flag("--show-prescan", show_prescan, "Show tokens for the given file and exit");
         app.add_flag("--show-tokens", show_tokens, "Show tokens for the given file and exit");
-        app.add_flag("--show-ast", show_ast, "Show AST for the given file and exit");
-        app.add_flag("--show-asr", show_asr, "Show ASR for the given file and exit");
-        app.add_flag("--show-python-ast", show_python_ast, "Show AST from a Python AST file and exit");
-        app.add_flag("--show-python-asr", show_python_asr, "Show ASR from a Python AST file and exit");
-        app.add_flag("--show-python-cpp", show_python_cpp, "Show C++ from a Python AST file and exit");
-        app.add_flag("--with-intrinsic-mods", with_intrinsic_modules, "Show intrinsic modules in ASR");
+        app.add_flag("--show-ast", show_ast, "Show AST for the given python file and exit");
+        app.add_flag("--show-asr", show_asr, "Show ASR for the given python file and exit");
         app.add_flag("--show-ast-f90", show_ast_f90, "Show Fortran from AST for the given file and exit");
+        app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
+        app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given python file and exit");
+        app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
+        app.add_flag("--show-stacktrace", compiler_options.show_stacktrace, "Show internal stacktrace on compiler errors");
+        app.add_flag("--with-intrinsic-mods", with_intrinsic_modules, "Show intrinsic modules in ASR");
         app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
         app.add_flag("--indent", compiler_options.indent, "Indented print ASR/AST");
         app.add_option("--pass", arg_pass, "Apply the ASR pass and show ASR (implies --show-asr)");
-        app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
-        app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given file and exit");
-        app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
-        app.add_flag("--show-stacktrace", compiler_options.show_stacktrace, "Show internal stacktrace on compiler errors");
         app.add_flag("--symtab-only", compiler_options.symtab_only, "Only create symbol tables in ASR (skip executable stmt)");
         app.add_flag("--time-report", time_report, "Show compilation time report");
         app.add_flag("--static", static_link, "Create a static executable");
@@ -1457,9 +1350,6 @@ int main(int argc, char *argv[])
         if (show_tokens) {
             return emit_tokens(arg_file, false, compiler_options);
         }
-        if (show_ast) {
-            return emit_ast(arg_file, compiler_options);
-        }
         if (show_ast_f90) {
             return emit_ast_f90(arg_file, compiler_options);
         }
@@ -1487,19 +1377,15 @@ int main(int argc, char *argv[])
             }
             show_asr = true;
         }
+        if (show_ast) {
+            return emit_ast(arg_file, compiler_options);
+        }
         if (show_asr) {
-            return emit_asr(arg_file, passes,
+            return emit_asr(arg_file,
                     with_intrinsic_modules, compiler_options);
         }
-        if (show_python_ast) {
-            return emit_python_ast(arg_file, compiler_options);
-        }
-        if (show_python_asr) {
-            return emit_python_asr(arg_file,
-                    with_intrinsic_modules, compiler_options);
-        }
-        if (show_python_cpp) {
-            return emit_python_cpp(arg_file, compiler_options);
+        if (show_cpp) {
+            return emit_cpp(arg_file, compiler_options);
         }
         if (show_llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
@@ -1516,9 +1402,6 @@ int main(int argc, char *argv[])
             std::cerr << "The --show-asm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
             return 1;
 #endif
-        }
-        if (show_cpp) {
-            return emit_cpp(arg_file, compiler_options);
         }
         if (arg_S) {
             if (backend == Backend::llvm) {
