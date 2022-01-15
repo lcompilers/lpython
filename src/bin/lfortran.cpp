@@ -1155,7 +1155,7 @@ int main(int argc, char *argv[])
 
         CompilerOptions compiler_options;
 
-        CLI::App app{"LFortran: modern interactive LLVM-based Fortran compiler"};
+        CLI::App app{"LPython: modern interactive LLVM-based Python compiler"};
         // Standard options compatible with gfortran, gcc or clang
         // We follow the established conventions
         app.add_option("files", arg_files, "Source files");
