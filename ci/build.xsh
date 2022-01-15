@@ -36,6 +36,8 @@ python grammar/asdl_cpp.py
 python grammar/asdl_cpp.py grammar/ASR.asdl src/libasr/asr.h
 # Generate a Python AST from Python.asdl (C++)
 python grammar/asdl_cpp.py grammar/Python.asdl src/lfortran/python_ast.h
+# Generate a Python AST from Python.asdl (Python)
+python grammar/asdl_py.py
 
 # Generate the tokenizer and parser
 pushd src/lfortran/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd
