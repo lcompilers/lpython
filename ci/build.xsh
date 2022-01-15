@@ -89,6 +89,12 @@ src/bin/lfortran -c examples/expr2.f90 -o expr2.o
 src/bin/lfortran -o expr2 expr2.o
 ./expr2
 
+# Test the new Python frontend, manually for now:
+python a.py
+src/bin/lfortran --show-python-ast ser.txt
+src/bin/lfortran --show-python-asr ser.txt
+src/bin/lfortran --show-python-cpp ser.txt
+
 # Compile C and Fortran
 src/bin/lfortran -c integration_tests/modules_15b.f90 -o modules_15b.o
 src/bin/lfortran -c integration_tests/modules_15.f90 -o modules_15.o
