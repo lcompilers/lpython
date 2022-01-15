@@ -1,5 +1,0 @@
-semantic error: Variable 'yy' is not declared
- --> tests/errors/cpp2.f90:7:19
-  |
-7 | print *, x, X123, yy
-  |                   ^^ 'yy' is undeclared

@@ -1,5 +1,0 @@
-program nullify1
-! Tests for syntax (AST) only:
-nullify(a)
-nullify(a, b, c, d)
-end program nullify1

@@ -1,1 +1,0 @@
-(TranslationUnit [(Program program1 () [] [(ImplicitNone [] ())] [(Declaration (AttrType TypeInteger [] () None) [] [(i [] [] () None ())] ())] [(= 0 i 5 ()) (Print 0 () [i] ()) (Print 0 () [(+ i 1)] ())] [])])

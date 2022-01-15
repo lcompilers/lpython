@@ -1,1 +1,0 @@
-(TranslationUnit [(Program do3 () [] [(ImplicitNone [] ())] [(Declaration (AttrType TypeInteger [] () None) [] [(i [] [] () None ()) (j [] [] () None ())] ())] [(= 0 j 0 ()) (DoLoop 0 () 15 i 1 5 () [(= 0 j (+ j i) ()) (Continue 15 ())] () (TriviaNode [] [(EndOfLine) (EndOfLine)])) (= 0 j 0 ()) (DoLoop 0 () 20 i 1 6 2 [(= 0 j (+ j i) ()) (Continue 20 ())] () ())] [])])

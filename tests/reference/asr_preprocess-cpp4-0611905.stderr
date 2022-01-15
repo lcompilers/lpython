@@ -1,5 +1,0 @@
-semantic error: Variable 'z12345678' is not declared
-  --> tests/errors/cpp4.f90:11:13
-   |
-11 | print *, x, C123, y
-   |             ^^^^ 'z12345678' is undeclared

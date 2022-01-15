@@ -1,1 +1,0 @@
-(TranslationUnit [(SubroutineCall 0 trigger [(ERROR_HANDLER [])] [] [(errors (DefUnaryOp "errors" rslt))] ()) (DefUnaryOp "INVERSE" B) (DefUnaryOp "INVERSE" (+ A B)) (DefUnaryOp "anotherunary" 1) (DefUnaryOp "anotherunary" (+ 1 2)) (DefUnaryOp "anotherunary" C) (DefUnaryOp "anotherunary" (+ c d))])

@@ -1,1 +1,0 @@
-(TranslationUnit [(Program format_02 () [] [(ImplicitNone [] ())] [(Declaration (AttrType TypeInteger [] () None) [] [(i6 [] [] () None ()) (format [(1 3 DimensionExpr)] [] () None ())] ())] [(= 0 i6 2 ()) (= 0 (FuncCallOrArray format [] [(() i6 ())] [] []) 3 ()) (Format 1 "i6" ())] [])])

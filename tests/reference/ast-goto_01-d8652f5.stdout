@@ -1,1 +1,0 @@
-(TranslationUnit [(Program goto_01 () [] [(ImplicitNone [] ())] [(Declaration (AttrType TypeInteger [] () None) [] [(a [] [] () None ())] ())] [(= 0 a 5 ()) (GoTo 0 () 1 [] ()) (Print 1 () [a] ())] [])])
