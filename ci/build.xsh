@@ -36,6 +36,8 @@ python grammar/asdl_cpp.py
 python grammar/asdl_cpp.py grammar/ASR.asdl src/libasr/asr.h
 # Generate a Python AST from Python.asdl (C++)
 python grammar/asdl_cpp.py grammar/Python.asdl src/lfortran/python_ast.h
+# Generate a Python AST from Python.asdl (Python)
+python grammar/asdl_py.py
 
 # Generate the tokenizer and parser
 pushd src/lfortran/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd
@@ -54,7 +56,7 @@ cd test-bld
 # compiled in Release mode and we get link failures if we mix and match build
 # modes:
 BUILD_TYPE = "Release"
-cmake -G $LFORTRAN_CMAKE_GENERATOR -DCMAKE_VERBOSE_MAKEFILE=ON -DWITH_LLVM=yes -DWITH_XEUS=yes -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=@(BUILD_TYPE) ..
+cmake -G $LFORTRAN_CMAKE_GENERATOR -DCMAKE_VERBOSE_MAKEFILE=ON -DWITH_LLVM=yes -DWITH_XEUS=yes -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DWITH_LFORTRAN_BINARY_MODFILES=no -DCMAKE_BUILD_TYPE=@(BUILD_TYPE) ..
 cmake --build . --target install
 ./src/lfortran/tests/test_lfortran
 ./src/bin/lfortran < ../src/bin/example_input.txt
@@ -88,6 +90,12 @@ src/bin/lfortran --version
 src/bin/lfortran -c examples/expr2.f90 -o expr2.o
 src/bin/lfortran -o expr2 expr2.o
 ./expr2
+
+# Test the new Python frontend, manually for now:
+python a.py
+src/bin/lfortran --show-python-ast ser.txt
+src/bin/lfortran --show-python-asr ser.txt
+src/bin/lfortran --show-python-cpp ser.txt
 
 # Compile C and Fortran
 src/bin/lfortran -c integration_tests/modules_15b.f90 -o modules_15b.o
