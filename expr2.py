@@ -1,7 +1,9 @@
 def main():
-    x: i32
-    x2: i64
-    y: f32
-    y2: f64
-    x = (2+3)*5
-    print(x)
+    a: bool
+    a = 5 == 5 and 5 != 5
+    a = 5 < 3 and 5 != 5
+    a = 5 == 5 or 5 != 5
+
+    b: i32
+    b = 4
+    b = 2 if b == 4 else 6
