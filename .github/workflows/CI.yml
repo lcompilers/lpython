@@ -1,10 +1,17 @@
-name: CI
+name: LPython CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
 
 jobs:
   Build:
-    name: Ex1 (${{ matrix.python-version }}, ${{ matrix.os }})
+    name: LPython CI (${{ matrix.python-version }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
