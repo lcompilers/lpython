@@ -419,39 +419,39 @@ int emit_ast_f90(const std::string &infile, CompilerOptions &compiler_options)
     }
 }
 
-int format(const std::string &infile, bool inplace, bool color, int indent,
-    bool indent_unit, CompilerOptions &compiler_options)
-{
-    std::string input = read_file(infile);
-
-    LFortran::FortranEvaluator fe(compiler_options);
-    LFortran::LocationManager lm;
-    LFortran::diag::Diagnostics diagnostics;
-    lm.in_filename = infile;
-    LFortran::Result<LFortran::AST::TranslationUnit_t*>
-        r = fe.get_ast2(input, lm, diagnostics);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
-    if (!r.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
-        return 2;
-    }
-    LFortran::AST::TranslationUnit_t* ast = r.result;
-
-    // AST -> Source
-    if (inplace) color = false;
-    std::string source = LFortran::ast_to_src(*ast, color,
-        indent, indent_unit);
-
-    if (inplace) {
-        std::ofstream out;
-        out.open(infile);
-        out << source;
-    } else {
-        std::cout << source;
-    }
-
-    return 0;
-}
+// int format(const std::string &infile, bool inplace, bool color, int indent,
+//     bool indent_unit, CompilerOptions &compiler_options)
+// {
+//     std::string input = read_file(infile);
+//
+//     LFortran::FortranEvaluator fe(compiler_options);
+//     LFortran::LocationManager lm;
+//     LFortran::diag::Diagnostics diagnostics;
+//     lm.in_filename = infile;
+//     LFortran::Result<LFortran::AST::TranslationUnit_t*>
+//         r = fe.get_ast2(input, lm, diagnostics);
+//     std::cerr << diagnostics.render(input, lm, compiler_options);
+//     if (!r.ok) {
+//         LFORTRAN_ASSERT(diagnostics.has_error())
+//         return 2;
+//     }
+//     LFortran::AST::TranslationUnit_t* ast = r.result;
+//
+//     // AST -> Source
+//     if (inplace) color = false;
+//     std::string source = LFortran::ast_to_src(*ast, color,
+//         indent, indent_unit);
+//
+//     if (inplace) {
+//         std::ofstream out;
+//         out.open(infile);
+//         out << source;
+//     } else {
+//         std::cout << source;
+//     }
+//
+//     return 0;
+// }
 
 int python_wrapper(const std::string &infile, std::string array_order,
     CompilerOptions &compiler_options)
@@ -1083,17 +1083,17 @@ int link_executable(const std::vector<std::string> &infiles,
     }
 }
 
-int emit_c_preprocessor(const std::string &infile, CompilerOptions &compiler_options)
-{
-    std::string input = read_file(infile);
-
-    LFortran::CPreprocessor cpp(compiler_options);
-    LFortran::LocationManager lm;
-    lm.in_filename = infile;
-    std::string s = cpp.run(input, lm, cpp.macro_definitions);
-    std::cout << s;
-    return 0;
-}
+// int emit_c_preprocessor(const std::string &infile, CompilerOptions &compiler_options)
+// {
+//     std::string input = read_file(infile);
+//
+//     LFortran::CPreprocessor cpp(compiler_options);
+//     LFortran::LocationManager lm;
+//     lm.in_filename = infile;
+//     std::string s = cpp.run(input, lm, cpp.macro_definitions);
+//     std::cout << s;
+//     return 0;
+// }
 
 } // anonymous namespace
 
@@ -1114,12 +1114,12 @@ int main(int argc, char *argv[])
         bool arg_S = false;
         bool arg_c = false;
         bool arg_v = false;
-        bool arg_E = false;
-        bool arg_g = false;
-        std::string arg_J;
-        std::vector<std::string> arg_I;
-        std::vector<std::string> arg_l;
-        std::vector<std::string> arg_L;
+        // bool arg_E = false;
+        // bool arg_g = false;
+        // std::string arg_J;
+        // std::vector<std::string> arg_I;
+        // std::vector<std::string> arg_l;
+        // std::vector<std::string> arg_L;
         std::string arg_o;
         std::vector<std::string> arg_files;
         bool arg_version = false;
@@ -1141,14 +1141,14 @@ int main(int argc, char *argv[])
         bool print_targets = false;
 
         std::string arg_fmt_file;
-        int arg_fmt_indent = 4;
-        bool arg_fmt_indent_unit = false;
-        bool arg_fmt_inplace = false;
-        bool arg_fmt_no_color = false;
+        // int arg_fmt_indent = 4;
+        // bool arg_fmt_indent_unit = false;
+        // bool arg_fmt_inplace = false;
+        // bool arg_fmt_no_color = false;
 
         std::string arg_mod_file;
-        bool arg_mod_show_asr = false;
-        bool arg_mod_no_color = false;
+        // bool arg_mod_show_asr = false;
+        // bool arg_mod_no_color = false;
 
         std::string arg_pywrap_file;
         std::string arg_pywrap_array_order="f";
@@ -1159,22 +1159,23 @@ int main(int argc, char *argv[])
         // Standard options compatible with gfortran, gcc or clang
         // We follow the established conventions
         app.add_option("files", arg_files, "Source files");
+        // Should the following Options required for LPython??
+        // Instead we need support all the options from Python 3
         app.add_flag("-S", arg_S, "Emit assembly, do not assemble or link");
         app.add_flag("-c", arg_c, "Compile and assemble, do not link");
         app.add_option("-o", arg_o, "Specify the file to place the output into");
         app.add_flag("-v", arg_v, "Be more verbose");
-        app.add_flag("-E", arg_E, "Preprocess only; do not compile, assemble or link");
-        app.add_option("-l", arg_l, "Link library option");
-        app.add_option("-L", arg_L, "Library path option");
-        app.add_option("-I", arg_I, "Include path")->allow_extra_args(false);
-        app.add_option("-J", arg_J, "Where to save mod files");
-        app.add_flag("-g", arg_g, "Compile with debugging information");
-        app.add_option("-D", compiler_options.c_preprocessor_defines, "Define <macro>=<value> (or 1 if <value> omitted)")->allow_extra_args(false);
+        // app.add_flag("-E", arg_E, "Preprocess only; do not compile, assemble or link");
+        // app.add_option("-l", arg_l, "Link library option");
+        // app.add_option("-L", arg_L, "Library path option");
+        // app.add_option("-I", arg_I, "Include path")->allow_extra_args(false);
+        // app.add_option("-J", arg_J, "Where to save mod files");
+        // app.add_flag("-g", arg_g, "Compile with debugging information");
+        // app.add_option("-D", compiler_options.c_preprocessor_defines, "Define <macro>=<value> (or 1 if <value> omitted)")->allow_extra_args(false);
         app.add_flag("--version", arg_version, "Display compiler version information");
 
-        // LFortran specific options
+        // LPython specific options
         app.add_flag("--cpp", compiler_options.c_preprocessor, "Enable C preprocessing");
-        app.add_flag("--fixed-form", compiler_options.fixed_form, "Use fixed form Fortran source parsing");
         app.add_flag("--show-prescan", show_prescan, "Show tokens for the given file and exit");
         app.add_flag("--show-tokens", show_tokens, "Show tokens for the given file and exit");
         app.add_flag("--show-ast", show_ast, "Show AST for the given python file and exit");
@@ -1203,23 +1204,23 @@ int main(int argc, char *argv[])
         * Subcommands:
         */
 
-        // fmt
-        CLI::App &fmt = *app.add_subcommand("fmt", "Format Fortran source files.");
-        fmt.add_option("file", arg_fmt_file, "Fortran source file to format")->required();
-        fmt.add_flag("-i", arg_fmt_inplace, "Modify <file> in-place (instead of writing to stdout)");
-        fmt.add_option("--spaces", arg_fmt_indent, "Number of spaces to use for indentation")->capture_default_str();
-        fmt.add_flag("--indent-unit", arg_fmt_indent_unit, "Indent contents of sub / fn / prog / mod");
-        fmt.add_flag("--no-color", arg_fmt_no_color, "Turn off color when writing to stdout");
+        // fmt: Should LPython support `fmt` subcommand??
+        // CLI::App &fmt = *app.add_subcommand("fmt", "Format Fortran source files.");
+        // fmt.add_option("file", arg_fmt_file, "Fortran source file to format")->required();
+        // fmt.add_flag("-i", arg_fmt_inplace, "Modify <file> in-place (instead of writing to stdout)");
+        // fmt.add_option("--spaces", arg_fmt_indent, "Number of spaces to use for indentation")->capture_default_str();
+        // fmt.add_flag("--indent-unit", arg_fmt_indent_unit, "Indent contents of sub / fn / prog / mod");
+        // fmt.add_flag("--no-color", arg_fmt_no_color, "Turn off color when writing to stdout");
 
         // kernel
         CLI::App &kernel = *app.add_subcommand("kernel", "Run in Jupyter kernel mode.");
         kernel.add_option("-f", arg_kernel_f, "The kernel connection file")->required();
 
         // mod
-        CLI::App &mod = *app.add_subcommand("mod", "Fortran mod file utilities.");
-        mod.add_option("file", arg_mod_file, "Mod file (*.mod)")->required();
-        mod.add_flag("--show-asr", arg_mod_show_asr, "Show ASR for the module");
-        mod.add_flag("--no-color", arg_mod_no_color, "Turn off colored ASR");
+        // CLI::App &mod = *app.add_subcommand("mod", "Fortran mod file utilities.");
+        // mod.add_option("file", arg_mod_file, "Mod file (*.mod)")->required();
+        // mod.add_flag("--show-asr", arg_mod_show_asr, "Show ASR for the module");
+        // mod.add_flag("--no-color", arg_mod_no_color, "Turn off colored ASR");
 
         // pywrap
         CLI::App &pywrap = *app.add_subcommand("pywrap", "Python wrapper generator");
@@ -1262,10 +1263,10 @@ int main(int argc, char *argv[])
 
         compiler_options.use_colors = !arg_no_color;
 
-        if (fmt) {
-            return format(arg_fmt_file, arg_fmt_inplace, !arg_fmt_no_color,
-                arg_fmt_indent, arg_fmt_indent_unit, compiler_options);
-        }
+        // if (fmt) {
+        //     return format(arg_fmt_file, arg_fmt_inplace, !arg_fmt_no_color,
+        //         arg_fmt_indent, arg_fmt_indent_unit, compiler_options);
+        // }
 
         if (kernel) {
 #ifdef HAVE_LFORTRAN_XEUS
@@ -1276,16 +1277,16 @@ int main(int argc, char *argv[])
 #endif
         }
 
-        if (mod) {
-            if (arg_mod_show_asr) {
-                Allocator al(1024*1024);
-                LFortran::ASR::TranslationUnit_t *asr;
-                asr = LFortran::mod_to_asr(al, arg_mod_file);
-                std::cout << LFortran::pickle(*asr, !arg_mod_no_color) << std::endl;
-                return 0;
-            }
-            return 0;
-        }
+        // if (mod) {
+        //     if (arg_mod_show_asr) {
+        //         Allocator al(1024*1024);
+        //         LFortran::ASR::TranslationUnit_t *asr;
+        //         asr = LFortran::mod_to_asr(al, arg_mod_file);
+        //         std::cout << LFortran::pickle(*asr, !arg_mod_no_color) << std::endl;
+        //         return 0;
+        //     }
+        //     return 0;
+        // }
 
         if (pywrap) {
             return python_wrapper(arg_pywrap_file, arg_pywrap_array_order,
@@ -1340,9 +1341,9 @@ int main(int argc, char *argv[])
             outfile = "a.out";
         }
 
-        if (arg_E) {
-            return emit_c_preprocessor(arg_file, compiler_options);
-        }
+        // if (arg_E) {
+        //     return emit_c_preprocessor(arg_file, compiler_options);
+        // }
 
         if (show_prescan) {
             return emit_prescan(arg_file, compiler_options);
