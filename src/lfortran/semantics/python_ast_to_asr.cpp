@@ -619,6 +619,9 @@ public:
         ASR::ttype_t *dest_type = nullptr;
         ASR::expr_t *value = nullptr;
 
+        bool right_is_int = ASR::is_a<ASR::Character_t>(*left_type) && ASR::is_a<ASR::Integer_t>(*right_type);
+        bool left_is_int = ASR::is_a<ASR::Integer_t>(*left_type) && ASR::is_a<ASR::Character_t>(*right_type);
+
         // Handle normal division in python with reals
         if (op == ASR::binopType::Div) {
             if (ASR::is_a<ASR::Character_t>(*left_type) ||
@@ -692,12 +695,19 @@ public:
             tmp = ASR::make_StrOp_t(al, x.base.base.loc, left, ops, right, dest_type,
                                     value);
             return;
+        } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
+            // string repeat
+            dest_type = right_is_int ? left_type : right_type;
+            ASR::stropType ops = ASR::stropType::Repeat;
+            tmp = ASR::make_StrOp_t(al, x.base.base.loc, left, ops, right, dest_type,
+                                    value);
+            return;
         } else {
             std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
             diag.add(diag::Diagnostic(
-                "Not Implemented: type mismatch in binary operator, only Integer/Real combinations "
-                "and string concatenation is implemented for now",
+                "Not Implemented: type mismatch in binary operator; only Integer/Real combinations "
+                "and string concatenation/repetition are implemented for now",
                 diag::Level::Error, diag::Stage::Semantic, {
                     diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
                             {left->base.loc, right->base.loc})
