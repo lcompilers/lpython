@@ -2,7 +2,10 @@ def test_complex():
     c: c128
     c = complex()
     c = complex(3.4)
-    c = complex(5., -4.3)
+    c = complex(5., 4.3)
+    c = complex(1)
+    c = complex(3, 4)
+    c = complex(2, 4.5)
 
 def triad(a: f32[:], b: f32[:], scalar: f32, c: f32[:]):
     N: i32
