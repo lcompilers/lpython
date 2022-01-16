@@ -5,6 +5,7 @@
 #include <string>
 #include <cmath>
 #include <vector>
+#include <complex>
 
 #include <lfortran/python_ast.h>
 #include <libasr/asr.h>
@@ -913,11 +914,15 @@ public:
             left_type->type != ASR::ttypeType::Integer) &&
             (right_type->type != ASR::ttypeType::Real &&
             right_type->type != ASR::ttypeType::Integer) &&
+            ((left_type->type != ASR::ttypeType::Complex ||
+            right_type->type != ASR::ttypeType::Complex) &&
+            x.m_ops != AST::cmpopType::Eq && x.m_ops != AST::cmpopType::NotEq) &&
             (left_type->type != ASR::ttypeType::Character ||
             right_type->type != ASR::ttypeType::Character))
             && overloaded == nullptr) {
         throw SemanticError(
-            "Compare: only Integer or Real can be on the LHS and RHS.",
+            "Compare: only Integer or Real can be on the LHS and RHS."
+            "If operator is Eq or NotEq then Complex type is also acceptable",
             x.base.base.loc);
         }
 
@@ -980,6 +985,32 @@ public:
                     case (ASR::cmpopType::Lt): { result = left_value < right_value; break; }
                     case (ASR::cmpopType::LtE): { result = left_value <= right_value; break; }
                     case (ASR::cmpopType::NotEq): { result = left_value != right_value; break; }
+                    default: {
+                        throw SemanticError("Comparison operator not implemented",
+                                            x.base.base.loc);
+                    }
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                    al, x.base.base.loc, result, source_type));
+            } else if (ASR::is_a<ASR::Complex_t>(*source_type)) {
+                ASR::ConstantComplex_t *left0
+                    = ASR::down_cast<ASR::ConstantComplex_t>(ASRUtils::expr_value(left));
+                ASR::ConstantComplex_t *right0
+                    = ASR::down_cast<ASR::ConstantComplex_t>(ASRUtils::expr_value(right));
+                std::complex<double> left_value(left0->m_re, left0->m_im);
+                std::complex<double> right_value(right0->m_re, right0->m_im);
+                bool result;
+                switch (asr_op) {
+                    case (ASR::cmpopType::Eq) : {
+                        result = left_value.real() == right_value.real() &&
+                                left_value.imag() == right_value.imag();
+                        break;
+                    }
+                    case (ASR::cmpopType::NotEq) : {
+                        result = left_value.real() != right_value.real() ||
+                                left_value.imag() != right_value.imag();
+                        break;
+                    }
                     default: {
                         throw SemanticError("Comparison operator not implemented",
                                             x.base.base.loc);
