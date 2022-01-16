@@ -703,7 +703,7 @@ public:
             // string repeat
             dest_type = right_is_int ? left_type : right_type;
             ASR::stropType ops = ASR::stropType::Repeat;
-            tmp = ASR::make_StrOp_t(al, x.base.base.loc, left, ops, right, dest_type,
+            tmp = ASR::make_StrOp_t(al, loc, left, ops, right, dest_type,
                                     value);
             return;
         } else {
