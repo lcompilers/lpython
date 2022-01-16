@@ -1138,24 +1138,18 @@ public:
             int16_t n_args = args.size();
             ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
                 8, nullptr, 0));
-            if (n_args == 0) {
-                tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc, 0.0, 0.0, type);
-                return;
-            } else if (n_args == 1) {
-                ASR::expr_t* expr = args[0];
-                double c = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(expr))->m_r;
-                tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc, c, 0.0, type);
-                return;
-            } else if (n_args == 2) {
-                ASR::expr_t* expr1 = args[0];
-                ASR::expr_t* expr2 = args[1];
-                double c1 = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(expr1))->m_r;
-                double c2 = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(expr2))->m_r;
-                tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc, c1, c2, type);
-                return;
-            } else {
+            if( n_args > 2 || n_args < 0 ) { // n_args shouldn't be less than 0 but added this check for safety
                 throw SemanticError("complex() must have at most two real arguments", x.base.base.loc);
             }
+            double c1 = 0.0, c2 = 0.0; // Default if n_args = 0
+            if (n_args >= 1) { // Handles both n_args = 1 and n_args = 2
+                c1 = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(args[0]))->m_r;
+            }
+            if (n_args == 2) { // Extracts imaginary component if n_args = 2
+                c2 = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(args[1]))->m_r;
+            }
+            tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc, c1, c2, type);
+            return;
         } else if (call_name == "pow") {
             if (args.size() != 2) {
                 throw SemanticError("Two arguments are expected in pow",
