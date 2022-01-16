@@ -9,7 +9,7 @@ endif()
 
 file(STRINGS "version" LFORTRAN_VERSION)
 
-project(lfortran LANGUAGES C CXX)
+project(lpython LANGUAGES C CXX)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
@@ -45,10 +45,10 @@ include(GNUInstallDirs)
 include(InstallRequiredSystemLibraries)
 set(CPACK_GENERATOR "TBZ2")
 set(CPACK_STRIP_FILES YES)
-set(CPACK_PACKAGE_FILE_NAME lfortran-${LFORTRAN_VERSION}-${CMAKE_SYSTEM_NAME})
+set(CPACK_PACKAGE_FILE_NAME lpython-${LFORTRAN_VERSION}-${CMAKE_SYSTEM_NAME})
 include(CPack)
 # So that CPACK_PACKAGE_FILE_NAME prints the correct value below
-set(CPACK_PACKAGE_FILE_NAME lfortran-${LFORTRAN_VERSION}-${CMAKE_SYSTEM_NAME})
+set(CPACK_PACKAGE_FILE_NAME lpython-${LFORTRAN_VERSION}-${CMAKE_SYSTEM_NAME})
 
 
 if (NOT CMAKE_CXX_STANDARD)
