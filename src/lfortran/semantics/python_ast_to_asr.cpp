@@ -1156,6 +1156,16 @@ public:
             } else {
                 throw SemanticError("complex() must have at most two real arguments", x.base.base.loc);
             }
+        } else if (call_name == "pow") {
+            if (args.size() != 2) {
+                throw SemanticError("Two arguments are expected in pow",
+                    x.base.base.loc);
+            }
+            ASR::expr_t *left = args[0];
+            ASR::expr_t *right = args[1];
+            ASR::binopType op = ASR::binopType::Pow;
+            make_BinOp_helper(left, right, op, x.base.base.loc, false);
+            return;
         }
 
         // Other functions
