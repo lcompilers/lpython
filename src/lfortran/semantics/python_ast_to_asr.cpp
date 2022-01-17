@@ -5,6 +5,7 @@
 #include <string>
 #include <cmath>
 #include <vector>
+#include <complex>
 
 #include <lfortran/python_ast.h>
 #include <libasr/asr.h>
@@ -924,11 +925,15 @@ public:
             left_type->type != ASR::ttypeType::Integer) &&
             (right_type->type != ASR::ttypeType::Real &&
             right_type->type != ASR::ttypeType::Integer) &&
+            ((left_type->type != ASR::ttypeType::Complex ||
+            right_type->type != ASR::ttypeType::Complex) &&
+            x.m_ops != AST::cmpopType::Eq && x.m_ops != AST::cmpopType::NotEq) &&
             (left_type->type != ASR::ttypeType::Character ||
             right_type->type != ASR::ttypeType::Character))
             && overloaded == nullptr) {
         throw SemanticError(
-            "Compare: only Integer or Real can be on the LHS and RHS.",
+            "Compare: only Integer or Real can be on the LHS and RHS."
+            "If operator is Eq or NotEq then Complex type is also acceptable",
             x.base.base.loc);
         }
 
@@ -991,6 +996,32 @@ public:
                     case (ASR::cmpopType::Lt): { result = left_value < right_value; break; }
                     case (ASR::cmpopType::LtE): { result = left_value <= right_value; break; }
                     case (ASR::cmpopType::NotEq): { result = left_value != right_value; break; }
+                    default: {
+                        throw SemanticError("Comparison operator not implemented",
+                                            x.base.base.loc);
+                    }
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                    al, x.base.base.loc, result, source_type));
+            } else if (ASR::is_a<ASR::Complex_t>(*source_type)) {
+                ASR::ConstantComplex_t *left0
+                    = ASR::down_cast<ASR::ConstantComplex_t>(ASRUtils::expr_value(left));
+                ASR::ConstantComplex_t *right0
+                    = ASR::down_cast<ASR::ConstantComplex_t>(ASRUtils::expr_value(right));
+                std::complex<double> left_value(left0->m_re, left0->m_im);
+                std::complex<double> right_value(right0->m_re, right0->m_im);
+                bool result;
+                switch (asr_op) {
+                    case (ASR::cmpopType::Eq) : {
+                        result = left_value.real() == right_value.real() &&
+                                left_value.imag() == right_value.imag();
+                        break;
+                    }
+                    case (ASR::cmpopType::NotEq) : {
+                        result = left_value.real() != right_value.real() ||
+                                left_value.imag() != right_value.imag();
+                        break;
+                    }
                     default: {
                         throw SemanticError("Comparison operator not implemented",
                                             x.base.base.loc);
@@ -1144,6 +1175,31 @@ public:
             } else {
                 throw SemanticError("chr() must have one integer argument", x.base.base.loc);
             }
+        } else if (call_name == "complex") {
+            int16_t n_args = args.size();
+            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
+                8, nullptr, 0));
+            if( n_args > 2 || n_args < 0 ) { // n_args shouldn't be less than 0 but added this check for safety
+                throw SemanticError("Only constant integer or real values are supported as "
+                    "the (at most two) arguments of complex()", x.base.base.loc);
+            }
+            double c1 = 0.0, c2 = 0.0; // Default if n_args = 0
+            if (n_args >= 1) { // Handles both n_args = 1 and n_args = 2
+                if (ASR::is_a<ASR::ConstantInteger_t>(*args[0])) {
+                    c1 = ASR::down_cast<ASR::ConstantInteger_t>(args[0])->m_n;
+                } else if (ASR::is_a<ASR::ConstantReal_t>(*args[0])) {
+                    c1 = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(args[0]))->m_r;
+                }
+            }
+            if (n_args == 2) { // Extracts imaginary component if n_args = 2
+                if (ASR::is_a<ASR::ConstantInteger_t>(*args[1])) {
+                    c2 = ASR::down_cast<ASR::ConstantInteger_t>(args[1])->m_n;
+                } else if (ASR::is_a<ASR::ConstantReal_t>(*args[1])) {
+                    c2 = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(args[1]))->m_r;
+                }
+            }
+            tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc, c1, c2, type);
+            return;
         } else if (call_name == "pow") {
             if (args.size() != 2) {
                 throw SemanticError("Two arguments are expected in pow",
