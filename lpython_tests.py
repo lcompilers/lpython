@@ -1,3 +1,8 @@
+def test_bin():
+    b: str
+    b = bin(5)
+    b = bin(64)
+
 def test_complex():
     c: c128
     c1: c128
