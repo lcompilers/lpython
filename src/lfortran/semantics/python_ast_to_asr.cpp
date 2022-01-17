@@ -878,10 +878,10 @@ public:
 
     void visit_NamedExpr(const AST::NamedExpr_t &x) {
         this->visit_expr(*x.m_target);
-        ASR::expr_t *target = LFortran::ASRUtils::EXPR(tmp);
+        ASR::expr_t *target = ASRUtils::EXPR(tmp);
         ASR::ttype_t *target_type = ASRUtils::expr_type(target);
         this->visit_expr(*x.m_value);
-        ASR::expr_t *value = LFortran::ASRUtils::EXPR(tmp);
+        ASR::expr_t *value = ASRUtils::EXPR(tmp);
         ASR::ttype_t *value_type = ASRUtils::expr_type(value);
         LFORTRAN_ASSERT(ASRUtils::check_equal_type(target_type, value_type));
         tmp = ASR::make_NamedExpr_t(al, x.base.base.loc, target, value, value_type);
