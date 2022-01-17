@@ -1,4 +1,4 @@
-name: macos tests
+name: Windows tests
 
 on:
   push:
@@ -17,8 +17,8 @@ env:
 jobs:
   Build:
 
-    name: LPython macOS CI (3.10)
-    runs-on: "macos-latest"
+    name: LPython Windows CI (3.10)
+    runs-on: "windows-latest"
     steps:
       - uses: actions/checkout@v2
         with:
@@ -37,15 +37,15 @@ jobs:
 
       - uses: actions/cache@v2
         with:
-          path: /usr/local/miniconda/envs/test
-          key: macos-64-conda-${{ hashFiles('ci/environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+          path: C:\Miniconda\envs\test
+          key: windows-64-conda-${{ hashFiles('ci/environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
         id: cache
 
       - name: Update environment
         run: conda env update -n test -f ci/environment.yml
 
-      - name: Install Mac Conda Packages
-        run: conda install -n test -c conda-forge bison=3.4 xeus=1.0.1
+      - name: Install Windows Conda Packages
+        run: conda install -n test -c conda-forge m2-bison=3.0.4 ninja xeus=1.0.1
 
       - name: Conda info
         shell: bash -l {0}
@@ -53,16 +53,14 @@ jobs:
             conda info
             conda list
 
-      - name: Setup Platform
-        shell: bash -l {0}
-        run: |
-            echo "LFORTRAN_CMAKE_GENERATOR=Unix Makefiles" >> $GITHUB_ENV
-            echo "WIN=0" >> $GITHUB_ENV
-            echo "MACOS=1" >> $GITHUB_ENV
-
       - name: Build and test
-        shell: bash -l {0}
+        shell: cmd
         run: |
-          conda activate test
-          echo $CONDA_PREFIX
-          xonsh ci/build.xsh
+            set CONDA_INSTALL_LOCN=C:\\Miniconda
+            call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
+            call conda activate test
+            set LFORTRAN_CMAKE_GENERATOR=Ninja
+            set WIN=1
+            set MACOS=0
+            call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+            xonsh ci\build.xsh
