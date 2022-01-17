@@ -88,10 +88,14 @@ src/bin/lfortran -o expr2 expr2.o
 ./expr2
 
 # Test the new Python frontend, manually for now:
-python a.py
+python a.py doconcurrentloop_01.py
 src/bin/lfortran --show-python-ast ser.txt
 src/bin/lfortran --show-python-asr ser.txt
 src/bin/lfortran --show-python-cpp ser.txt
+
+python a.py lpython_tests.py
+src/bin/lfortran --show-python-ast ser.txt
+src/bin/lfortran --show-python-asr ser.txt
 
 # Compile C and Fortran
 src/bin/lfortran -c integration_tests/modules_15b.f90 -o modules_15b.o
