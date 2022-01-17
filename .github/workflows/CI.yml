@@ -59,17 +59,14 @@ jobs:
         id: cache
 
       - name: Update environment
-        if: steps.cache.outputs.cache-hit != 'true'
         run: conda env update -n test -f ci/environment.yml
 
       - name: Install Windows Conda Packages
         if: contains(matrix.os, 'windows')
-        shell: bash -l {0}
         run: conda install m2-bison=3.0.4 ninja
 
       - name: Install Linux / macOS Conda Packages
         if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
-        shell: bash -l {0}
         run: conda install bison=3.4
 
       - name: Conda info
