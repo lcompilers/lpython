@@ -1165,7 +1165,6 @@ public:
                 throw SemanticError("chr() must have one integer argument", x.base.base.loc);
             }
         } else if (call_name == "complex") {
-            LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
             int16_t n_args = args.size();
             ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
                 8, nullptr, 0));
