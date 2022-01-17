@@ -42,11 +42,10 @@ jobs:
         id: cache
 
       - name: Update environment
-        if: steps.cache.outputs.cache-hit != 'true'
         run: conda env update -n test -f ci/environment.yml
 
       - name: Install Mac Conda Packages
-        run: conda install -n test bison=3.4
+        run: conda install -n test bison=3.4 xeus=1.0.1
 
       - name: Conda info
         shell: bash -l {0}
