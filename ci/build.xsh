@@ -15,10 +15,6 @@
 # * This script is too slow (due to https://github.com/xonsh/xonsh/issues/3064)
 #   to be suitable for day to day development, but on the CI the few extra
 #   seconds do not matter much
-#
-# * One must be careful to ensure this Xonsh script is in the path. If Xonsh
-#   cannot find the script, it will return success, making the CI tests
-#   "succeed" (https://github.com/xonsh/xonsh/issues/3292)
 
 $RAISE_SUBPROC_ERROR = True
 trace on
