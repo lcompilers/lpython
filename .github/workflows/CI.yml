@@ -11,7 +11,7 @@ on:
 
 env:
   # Increase this value to reset cache if ci/environment.yml has not changed
-  CACHE_NUMBER: 0
+  CACHE_NUMBER: 1
 
 
 jobs:
