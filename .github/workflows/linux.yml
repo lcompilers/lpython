@@ -16,11 +16,8 @@ env:
 
 jobs:
   Build:
-    strategy:
-      matrix:
-        python-version: "3.10"
 
-    name: LPython CI (${{ matrix.python-version }})
+    name: LPython CI (3.10)
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v2
@@ -31,7 +28,7 @@ jobs:
         uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.10"
           auto-activate-base: false
 
       - name: Set cache date
@@ -39,8 +36,8 @@ jobs:
 
       - uses: actions/cache@v2
         with:
-          path: ${{ matrix.prefix }}
-          key: ${{ matrix.label }}-conda-${{ hashFiles('ci/environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+          path: /usr/share/miniconda/envs/test
+          key: linux-64-conda-${{ hashFiles('ci/environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
         id: cache
 
       - name: Update environment
