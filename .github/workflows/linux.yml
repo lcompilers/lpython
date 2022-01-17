@@ -61,6 +61,7 @@ jobs:
             echo "MACOS=0" >> $GITHUB_ENV
 
       - name: Build and test
+        shell: bash -l {0}
         run: |
           conda activate test
           echo $CONDA_PREFIX
