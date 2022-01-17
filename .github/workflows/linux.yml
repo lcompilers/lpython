@@ -45,7 +45,7 @@ jobs:
         run: conda env update -n test -f ci/environment.yml
 
       - name: Install Linux Conda Packages
-        run: conda install -n test bison=3.4 xeus=1.0.1
+        run: conda install -n test -c conda-forge bison=3.4 xeus=1.0.1
 
       - name: Conda info
         shell: bash -l {0}
