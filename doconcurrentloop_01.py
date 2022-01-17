@@ -1,3 +1,8 @@
+def test_bin():
+    b: str
+    b = bin(5)
+    b = bin(64)
+
 def triad(a: f32[:], b: f32[:], scalar: f32, c: f32[:]):
     N: i32
     i: i32
