@@ -1,0 +1,68 @@
+name: macos tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+
+env:
+  # Increase this value to reset cache if ci/environment.yml has not changed
+  CACHE_NUMBER: 0
+
+
+jobs:
+  Build:
+
+    name: LPython CI (3.10)
+    runs-on: "macos-latest"
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          python-version: "3.10"
+          auto-activate-base: false
+
+      - name: Set cache date
+        run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+
+      - uses: actions/cache@v2
+        with:
+          path: /usr/share/miniconda/envs/test
+          key: macos-64-conda-${{ hashFiles('ci/environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+        id: cache
+
+      - name: Update environment
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: conda env update -n test -f ci/environment.yml
+
+      - name: Install Linux Conda Packages
+        run: conda install -n test bison=3.4
+
+      - name: Conda info
+        shell: bash -l {0}
+        run: |
+            conda info
+            conda list
+
+      - name: Setup Platform
+        shell: bash -l {0}
+        run: |
+            echo "LFORTRAN_CMAKE_GENERATOR=Unix Makefiles" >> $GITHUB_ENV
+            echo "WIN=0" >> $GITHUB_ENV
+            echo "MACOS=1" >> $GITHUB_ENV
+
+      - name: Build and test
+        shell: bash -l {0}
+        run: |
+          conda activate test
+          echo $CONDA_PREFIX
+          xonsh ci/build.xsh
