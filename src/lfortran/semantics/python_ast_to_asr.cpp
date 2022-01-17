@@ -5,6 +5,7 @@
 #include <string>
 #include <cmath>
 #include <vector>
+#include <bitset>
 
 #include <lfortran/python_ast.h>
 #include <libasr/asr.h>
