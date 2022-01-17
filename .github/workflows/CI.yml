@@ -8,12 +8,6 @@ on:
     branches:
       - main
 
-
-env:
-  # Increase this value to reset cache if ci/environment.yml has not changed
-  CACHE_NUMBER: 0
-
-
 jobs:
   Build:
 
@@ -32,7 +26,7 @@ jobs:
 
           - os: windows-latest
             label: win-64
-            prefix: C:\Miniconda3\envs\test
+            prefix: C:\Miniconda\envs\test
             python-version: "3.10"
 
     name: LPython CI (${{ matrix.python-version }}, ${{ matrix.os }})
@@ -42,25 +36,27 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Conda
+      - name: Setup Mambaforge
         uses: conda-incubator/setup-miniconda@v2
         with:
-          auto-update-conda: true
-          python-version: ${{ matrix.python-version }}
-          auto-activate-base: false
+            miniforge-variant: Mambaforge
+            miniforge-version: latest
+            activate-environment: test
+            use-mamba: true
 
       - name: Set cache date
         run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
       - uses: actions/cache@v2
+        env:
+          CACHE_NUMBER: 0
         with:
           path: ${{ matrix.prefix }}
           key: ${{ matrix.label }}-conda-${{ hashFiles('ci/environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
         id: cache
 
       - name: Update environment
-        run: conda env update -n test -f ci/environment.yml
-        if: steps.cache.outputs.cache-hit != 'true'
+        run: mamba env update -n test -f ci/environment.yml
 
       - name: Install Windows Conda Packages
         if: contains(matrix.os, 'windows')
@@ -70,7 +66,7 @@ jobs:
       - name: Install Linux / macOS Conda Packages
         if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
         shell: bash -l {0}
-        run: conda install bison=3.4
+        run: mamba install bison=3.4
 
       - name: Conda info
         shell: bash -l {0}
