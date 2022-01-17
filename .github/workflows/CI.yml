@@ -26,7 +26,7 @@ jobs:
 
           - os: windows-latest
             label: win-64
-            prefix: C:\Miniconda\envs\test
+            prefix: C:\Miniconda3\envs\test
             python-version: "3.10"
 
     name: LPython CI (${{ matrix.python-version }}, ${{ matrix.os }})
@@ -100,7 +100,7 @@ jobs:
         if: contains(matrix.os, 'windows')
         shell: cmd
         run: |
-            set CONDA_INSTALL_LOCN=C:\\Miniconda
+            set CONDA_INSTALL_LOCN=C:\\Miniconda3
             call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
             call conda activate test
             set LFORTRAN_CMAKE_GENERATOR=Ninja

@@ -93,9 +93,9 @@ src/bin/lpython -o expr2 expr2.o
 
 # Test the new Python frontend, manually for now:
 python a.py
-src/bin/lfortran --show-python-ast ser.txt
-src/bin/lfortran --show-python-asr ser.txt
-src/bin/lfortran --show-python-cpp ser.txt
+src/bin/lpython --show-ast ser.txt
+src/bin/lpython --show-asr ser.txt
+src/bin/lpython --show-cpp ser.txt
 
 # Compile C and Fortran
 src/bin/lpython -c integration_tests/modules_15b.f90 -o modules_15b.o
@@ -119,15 +119,15 @@ src/bin/lpython integration_tests/intrinsics_04.f90 -o intrinsics_04
 
 
 # Run all tests (does not work on Windows yet):
-cmake --version
-if $WIN != "1":
-    ./run_tests.py
+# cmake --version
+# if $WIN != "1":
+    # ./run_tests.py
 
-    cd integration_tests
-    mkdir build-lpython-llvm
-    cd build-lpython-llvm
-    $FC="../../src/bin/lpython"
-    cmake -DLFORTRAN_BACKEND=llvm ..
-    make
-    ctest -L llvm
-    cd ../..
+    # cd integration_tests
+    # mkdir build-lpython-llvm
+    # cd build-lpython-llvm
+    # $FC="../../src/bin/lpython"
+    # cmake -DLFORTRAN_BACKEND=llvm ..
+    # make
+    # ctest -L llvm
+    # cd ../..
