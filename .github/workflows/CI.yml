@@ -1,27 +1,66 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+
+env:
+  # Increase this value to reset cache if ci/environment.yml has not changed
+  CACHE_NUMBER: 0
+
 
 jobs:
   Build:
-    name: Ex1 (${{ matrix.python-version }}, ${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
+
     strategy:
-      fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
-        python-version: ["3.10"]
+        include:
+          - os: ubuntu-latest
+            label: linux-64
+            prefix: /usr/share/miniconda/envs/test
+            python-version: "3.10"
+
+          - os: macos-latest
+            label: osx-64
+            prefix: /usr/local/miniconda/envs/test
+            python-version: "3.10"
+
+          - os: windows-latest
+            label: win-64
+            prefix: C:\Miniconda3\envs\test
+            python-version: "3.10"
+
+    name: LPython CI (${{ matrix.python-version }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
-      - uses: conda-incubator/setup-miniconda@v2
+      - name: Setup Conda
+        uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
-          environment-file: ci/environment.yml
           python-version: ${{ matrix.python-version }}
           auto-activate-base: false
+
+      - name: Set cache date
+        run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+
+      - uses: actions/cache@v2
+        with:
+          path: ${{ matrix.prefix }}
+          key: ${{ matrix.label }}-conda-${{ hashFiles('ci/environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+        id: cache
+
+      - name: Update environment
+        run: conda env update -n test -f ci/environment.yml
+        if: steps.cache.outputs.cache-hit != 'true'
 
       - name: Install Windows Conda Packages
         if: contains(matrix.os, 'windows')

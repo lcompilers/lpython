@@ -198,6 +198,7 @@ expr
         -- Such as: (x, y+z), (3.0, 2.0) generally not known at compile time
     | ComplexConstructor(expr re, expr im, ttype type, expr? value)
     | Compare(expr left, cmpop op, expr right, ttype type, expr? value, expr? overloaded)
+    | IfExp(expr test, expr body, expr orelse, ttype type)
     | FunctionCall(symbol name, symbol? original_name, expr* args,
             keyword* keywords, ttype type, expr? value, expr? dt)
     | DerivedTypeConstructor(symbol dt_sym, expr* args, ttype type)
@@ -238,7 +239,7 @@ binop = Add | Sub | Mul | Div | Pow
 
 unaryop = Invert | Not | UAdd | USub
 
-strop = Concat
+strop = Concat | Repeat
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
