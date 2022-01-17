@@ -7,6 +7,7 @@
 #include <vector>
 #include <bitset>
 #include <complex>
+#include <sstream>
 
 #include <lfortran/python_ast.h>
 #include <libasr/asr.h>
