@@ -18,14 +18,10 @@ jobs:
   Build:
     strategy:
       matrix:
-        include:
-          - os: ubuntu-latest
-            label: linux-64
-            prefix: /usr/share/miniconda/envs/test
-            python-version: "3.10"
+        python-version: "3.10"
 
-    name: LPython CI (${{ matrix.python-version }}, ${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
+    name: LPython CI (${{ matrix.python-version }})
+    runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v2
         with:
@@ -52,7 +48,7 @@ jobs:
         run: conda env update -n test -f ci/environment.yml
 
       - name: Install Linux Conda Packages
-        run: conda install bison=3.4
+        run: conda install -n test bison=3.4
 
       - name: Conda info
         shell: bash -l {0}
@@ -68,4 +64,7 @@ jobs:
             echo "MACOS=0" >> $GITHUB_ENV
 
       - name: Build and test
-        run: xonsh ci/build.xsh
+        run: |
+          conda activate test
+          echo $CONDA_PREFIX
+          xonsh ci/build.xsh
