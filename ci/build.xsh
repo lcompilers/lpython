@@ -88,14 +88,12 @@ src/bin/lpython -o expr2 expr2.o
 ./expr2
 
 # Test the new Python frontend, manually for now:
-python a.py doconcurrentloop_01.py
-src/bin/lpython --show-ast ser.txt
-src/bin/lpython --show-asr ser.txt
-src/bin/lpython --show-cpp ser.txt
+src/bin/lpython --show-ast doconcurrentloop_01.py
+src/bin/lpython --show-asr doconcurrentloop_01.py
+src/bin/lpython --show-cpp doconcurrentloop_01.py
 
-python a.py lpython_tests.py
-src/bin/lpython --show-ast ser.txt
-src/bin/lpython --show-asr ser.txt
+src/bin/lpython --show-ast lpython_tests.py
+src/bin/lpython --show-asr lpython_tests.py
 
 # Compile C and Fortran
 src/bin/lpython -c integration_tests/modules_15b.f90 -o modules_15b.o
@@ -117,6 +115,8 @@ src/bin/lpython integration_tests/intrinsics_04s.f90 -o intrinsics_04s
 src/bin/lpython integration_tests/intrinsics_04.f90 -o intrinsics_04
 ./intrinsics_04
 
+if $WIN != "1":
+    python run_tests.py
 
 # Run all tests (does not work on Windows yet):
 # cmake --version

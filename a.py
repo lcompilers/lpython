@@ -8,9 +8,9 @@ filename = sys.argv[1]
 
 input = open(filename).read()
 a = ast.parse(input, type_comments=True)
-print(ast.unparse(a))
-print()
-print(ast.dump(a))
+#print(ast.unparse(a))
+#print()
+#print(ast.dump(a))
 
 # Transform ast.AST to python_ast.AST:
 
@@ -67,10 +67,10 @@ class Transform(ast.NodeVisitor):
         return new_node
 
 
-print()
+#print()
 v = Transform()
 a2 = v.visit(a)
-print(a2)
+#print(a2)
 
 
 # Test the visitor python_ast.AST
@@ -106,7 +106,7 @@ class Serialization(python_ast.SerializationBaseVisitor):
 
 v = Serialization()
 v.visit(a2)
-print()
-print(v.s)
+#print()
+#print(v.s)
 
 open("ser.txt", "w").write(v.s)

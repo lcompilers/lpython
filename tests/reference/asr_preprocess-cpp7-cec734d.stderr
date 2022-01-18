@@ -1,5 +1,0 @@
-semantic error: Variable 'z12' is not declared
-   --> tests/errors/cpp7.f90:116:21
-    |
-116 |     print *, "1aa", z12, 5
-    |                     ^^^ 'z12' is undeclared

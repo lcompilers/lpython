@@ -1,1 +1,0 @@
-(TranslationUnit [(Subroutine add [(a) (b) (c)] [] () () [] [] [] [(Declaration (AttrType TypeReal [] () None) [(AttrIntent In)] [(a [] [] () None ()) (b [] [] () None ())] ()) (Declaration (AttrType TypeReal [] () None) [(AttrIntent Out)] [(c [] [] () None ())] ())] [(= 0 c (+ a b) ())] [])])

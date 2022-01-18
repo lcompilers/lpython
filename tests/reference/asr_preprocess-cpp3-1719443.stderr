@@ -1,5 +1,0 @@
-semantic error: Variable 'xx' is not declared
- --> tests/errors/cpp3.f90:7:10
-  |
-7 | print *, xx, X123, y
-  |          ^^ 'xx' is undeclared

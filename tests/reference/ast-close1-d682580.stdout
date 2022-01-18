@@ -1,1 +1,0 @@
-(TranslationUnit [(Program close1 (TriviaNode [(EndOfLine) (Comment "! Tests for syntax (AST) only:")] []) [] [] [] [(Close 0 [u] [] ()) (Close 0 [] [(unit gmv_lun)] ()) (Close 0 [] [(unit dunit) (status (String "delete"))] ()) (Close 0 [] [(UNIT funit) (IOSTAT ierr)] ())] [])])

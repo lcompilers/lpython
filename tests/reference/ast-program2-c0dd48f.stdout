@@ -1,1 +1,0 @@
-(TranslationUnit [(Program program2 () [] [(ImplicitNone [] ())] [] [(SubroutineCall 0 b [] [] [] ()) (SubroutineCall 0 b [] [] [] (TriviaNode [] [(EndOfLine) (EndOfLine)]))] [(Subroutine b [] [] () (TriviaNode [] [(EndOfLine) (EndOfLine)]) [] [] [] [] [(Print 0 () [(String "b")] ())] [])])])

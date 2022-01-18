@@ -1,1 +1,0 @@
-(TranslationUnit [(Program array8 () [] [(ImplicitNone [] ())] [(Declaration (AttrType TypeCharacter [(() 255 Value)] () None) [] [(a [(1 4 DimensionExpr)] [] () None ())] ()) (Declaration (AttrType TypeCharacter [] () None) [] [(b [(1 4 DimensionExpr)] [] 255 Asterisk ()) (c [(1 4 DimensionExpr)] [] 255 Asterisk ())] ())] [] [])])
