@@ -1507,11 +1507,11 @@ int main(int argc, char *argv[])
                 LFORTRAN_ASSERT(false);
             }
         }
+
         if (arg_c) {
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-                return compile_to_object_file(arg_file, outfile, false,
-                    compiler_options);
+                return compile_python_to_object_file(arg_file, outfile, compiler_options);
 #else
                 std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
@@ -1537,9 +1537,14 @@ int main(int argc, char *argv[])
                 std::cerr << "Compiling Python files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
 #endif
+            } else {
+                throw LFortran::LFortranException("Unsupported backend.");
             }
             if (err) return err;
             return link_executable({tmp_o}, outfile, runtime_library_dir,
+                    backend, static_link, true, compiler_options);
+        } else {
+            return link_executable(arg_files, outfile, runtime_library_dir,
                     backend, static_link, true, compiler_options);
         }
     } catch(const LFortran::LFortranException &e) {

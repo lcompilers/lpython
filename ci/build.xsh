@@ -83,7 +83,7 @@ cp lpython-$lpython_version/test-bld/src/runtime/*.mod src/runtime/
 # Run some simple compilation tests, works everywhere:
 src/bin/lpython --version
 # Compile and link separately
-src/bin/lpython -c examples/expr2.f90 -o expr2.o
+src/bin/lpython -c examples/expr2.py -o expr2.o
 src/bin/lpython -o expr2 expr2.o
 ./expr2
 
