@@ -5,6 +5,9 @@
 #include <string>
 #include <cmath>
 #include <vector>
+#include <bitset>
+#include <complex>
+#include <sstream>
 
 #include <lfortran/python_ast.h>
 #include <libasr/asr.h>
@@ -876,6 +879,17 @@ public:
                 body.size());
     }
 
+    void visit_NamedExpr(const AST::NamedExpr_t &x) {
+        this->visit_expr(*x.m_target);
+        ASR::expr_t *target = ASRUtils::EXPR(tmp);
+        ASR::ttype_t *target_type = ASRUtils::expr_type(target);
+        this->visit_expr(*x.m_value);
+        ASR::expr_t *value = ASRUtils::EXPR(tmp);
+        ASR::ttype_t *value_type = ASRUtils::expr_type(value);
+        LFORTRAN_ASSERT(ASRUtils::check_equal_type(target_type, value_type));
+        tmp = ASR::make_NamedExpr_t(al, x.base.base.loc, target, value, value_type);
+    }
+
     void visit_Compare(const AST::Compare_t &x) {
         this->visit_expr(*x.m_left);
         ASR::expr_t *left = ASRUtils::EXPR(tmp);
@@ -913,11 +927,15 @@ public:
             left_type->type != ASR::ttypeType::Integer) &&
             (right_type->type != ASR::ttypeType::Real &&
             right_type->type != ASR::ttypeType::Integer) &&
+            ((left_type->type != ASR::ttypeType::Complex ||
+            right_type->type != ASR::ttypeType::Complex) &&
+            x.m_ops != AST::cmpopType::Eq && x.m_ops != AST::cmpopType::NotEq) &&
             (left_type->type != ASR::ttypeType::Character ||
             right_type->type != ASR::ttypeType::Character))
             && overloaded == nullptr) {
         throw SemanticError(
-            "Compare: only Integer or Real can be on the LHS and RHS.",
+            "Compare: only Integer or Real can be on the LHS and RHS."
+            "If operator is Eq or NotEq then Complex type is also acceptable",
             x.base.base.loc);
         }
 
@@ -980,6 +998,32 @@ public:
                     case (ASR::cmpopType::Lt): { result = left_value < right_value; break; }
                     case (ASR::cmpopType::LtE): { result = left_value <= right_value; break; }
                     case (ASR::cmpopType::NotEq): { result = left_value != right_value; break; }
+                    default: {
+                        throw SemanticError("Comparison operator not implemented",
+                                            x.base.base.loc);
+                    }
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                    al, x.base.base.loc, result, source_type));
+            } else if (ASR::is_a<ASR::Complex_t>(*source_type)) {
+                ASR::ConstantComplex_t *left0
+                    = ASR::down_cast<ASR::ConstantComplex_t>(ASRUtils::expr_value(left));
+                ASR::ConstantComplex_t *right0
+                    = ASR::down_cast<ASR::ConstantComplex_t>(ASRUtils::expr_value(right));
+                std::complex<double> left_value(left0->m_re, left0->m_im);
+                std::complex<double> right_value(right0->m_re, right0->m_im);
+                bool result;
+                switch (asr_op) {
+                    case (ASR::cmpopType::Eq) : {
+                        result = left_value.real() == right_value.real() &&
+                                left_value.imag() == right_value.imag();
+                        break;
+                    }
+                    case (ASR::cmpopType::NotEq) : {
+                        result = left_value.real() != right_value.real() ||
+                                left_value.imag() != right_value.imag();
+                        break;
+                    }
                     default: {
                         throw SemanticError("Comparison operator not implemented",
                                             x.base.base.loc);
@@ -1133,6 +1177,31 @@ public:
             } else {
                 throw SemanticError("chr() must have one integer argument", x.base.base.loc);
             }
+        } else if (call_name == "complex") {
+            int16_t n_args = args.size();
+            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
+                8, nullptr, 0));
+            if( n_args > 2 || n_args < 0 ) { // n_args shouldn't be less than 0 but added this check for safety
+                throw SemanticError("Only constant integer or real values are supported as "
+                    "the (at most two) arguments of complex()", x.base.base.loc);
+            }
+            double c1 = 0.0, c2 = 0.0; // Default if n_args = 0
+            if (n_args >= 1) { // Handles both n_args = 1 and n_args = 2
+                if (ASR::is_a<ASR::ConstantInteger_t>(*args[0])) {
+                    c1 = ASR::down_cast<ASR::ConstantInteger_t>(args[0])->m_n;
+                } else if (ASR::is_a<ASR::ConstantReal_t>(*args[0])) {
+                    c1 = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(args[0]))->m_r;
+                }
+            }
+            if (n_args == 2) { // Extracts imaginary component if n_args = 2
+                if (ASR::is_a<ASR::ConstantInteger_t>(*args[1])) {
+                    c2 = ASR::down_cast<ASR::ConstantInteger_t>(args[1])->m_n;
+                } else if (ASR::is_a<ASR::ConstantReal_t>(*args[1])) {
+                    c2 = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(args[1]))->m_r;
+                }
+            }
+            tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc, c1, c2, type);
+            return;
         } else if (call_name == "pow") {
             if (args.size() != 2) {
                 throw SemanticError("Two arguments are expected in pow",
@@ -1143,6 +1212,42 @@ public:
             ASR::binopType op = ASR::binopType::Pow;
             make_BinOp_helper(left, right, op, x.base.base.loc, false);
             return;
+        } else if (call_name == "bin" || "oct" || "hex") {
+            if (args.size() != 1) {
+                throw SemanticError(call_name + "() takes exactly one argument (" +
+                    std::to_string(args.size()) + " given)", x.base.base.loc);
+            }
+            ASR::expr_t* expr = args[0];
+            ASR::ttype_t* type = ASRUtils::expr_type(expr);
+            if (ASR::is_a<ASR::Integer_t>(*type)) {
+                int64_t n = ASR::down_cast<ASR::ConstantInteger_t>(expr)->m_n;
+                ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
+                    x.base.base.loc, 1, 1, nullptr, nullptr, 0));
+                std::string s;
+                if (call_name == "oct") {
+                    std::stringstream ss;
+                    ss << std::oct << n;
+                    s += ss.str();
+                    s.insert(0, "0o");
+                } else if (call_name == "bin") {
+                    s += std::bitset<64>(n).to_string();
+                    s.erase(0, s.find_first_not_of('0'));
+                    s.insert(0, "0b");
+                } else {
+                    std::stringstream ss;
+                    ss << std::hex << n;
+                    s += ss.str();
+                    s.insert(0, "0x");
+                }
+                Str s2;
+                s2.from_str_view(s);
+                char *str_val = s2.c_str(al);
+                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, str_val, str_type);
+                return;
+            } else {
+                throw SemanticError(call_name + "() must have one integer argument",
+                    x.base.base.loc);
+            }
         }
 
         // Other functions
