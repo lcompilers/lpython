@@ -13,6 +13,7 @@ asr = true
 filename = "constants1.py"
 ast = true
 asr = true
+cpp = true
 
 [[test]]
 filename = "expr1.py"

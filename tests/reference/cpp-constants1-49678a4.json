@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-constants1-49678a4",
+    "cmd": "lpython --no-color --show-cpp {infile}",
+    "infile": "tests/constants1.py",
+    "infile_hash": "673145c1bcbf90af453feda6f0abfeaaae3c2f04a191b32500fa0217",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-constants1-49678a4.stdout",
+    "stdout_hash": "b61f5187bd0cc8d3eb0819922125e63490e7bde88b1353a787ccf855",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
