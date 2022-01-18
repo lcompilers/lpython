@@ -642,11 +642,19 @@ int save_mod_files(const LFortran::ASR::TranslationUnit_t &u)
 
 int emit_llvm(const std::string &infile, CompilerOptions &compiler_options)
 {
-    std::string input = read_file(infile);
+    std::string pycmd = "python a.py " + infile;
+    int err = std::system(pycmd.c_str());
+    if (err != 0) {
+        std::cerr << "The command '" << pycmd << "' failed." << std::endl;
+        return 1;
+    }
+    std::string infile_ser = "ser.txt";
+    std::string input = read_file(infile_ser);
     Allocator al(4*1024);
-    LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
-
     LFortran::LocationManager lm;
+
+    // Src -> AST -> ASR
+    LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
     lm.in_filename = infile;
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
@@ -657,10 +665,12 @@ int emit_llvm(const std::string &infile, CompilerOptions &compiler_options)
         return 2;
     }
     LFortran::ASR::TranslationUnit_t* asr = r.result;
-
     diagnostics.diagnostics.clear();
+
+    // ASR -> LLVM
     LFortran::FortranEvaluator fe(compiler_options);
-    auto res = fe.get_llvm3(*asr, diagnostics);
+    LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
+        res = fe.get_llvm3(*asr, diagnostics);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -689,15 +699,24 @@ int emit_asm(const std::string &infile, CompilerOptions &compiler_options)
     }
 }
 
-int compile_python_to_object_file(const std::string &infile,
+int compile_python_to_object_file(
+        const std::string &infile,
         const std::string &outfile,
         CompilerOptions &compiler_options)
 {
-    std::string input = read_file(infile);
+    std::string pycmd = "python a.py " + infile;
+    int err = std::system(pycmd.c_str());
+    if (err != 0) {
+        std::cerr << "The command '" << pycmd << "' failed." << std::endl;
+        return 1;
+    }
+    std::string infile_ser = "ser.txt";
+    std::string input = read_file(infile_ser);
     Allocator al(4*1024);
-    LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
-
     LFortran::LocationManager lm;
+
+    // Src -> AST -> ASR
+    LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
     lm.in_filename = infile;
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
@@ -708,23 +727,20 @@ int compile_python_to_object_file(const std::string &infile,
         return 2;
     }
     LFortran::ASR::TranslationUnit_t* asr = r.result;
-
     diagnostics.diagnostics.clear();
 
+    // ASR -> LLVM
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LLVMEvaluator e(compiler_options.target);
     std::unique_ptr<LFortran::LLVMModule> m;
-    diagnostics.diagnostics.clear();
     LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
         res = fe.get_llvm3(*asr, diagnostics);
     std::cerr << diagnostics.render(input, lm, compiler_options);
-    if (res.ok) {
-        m = std::move(res.result);
-    } else {
+    if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 3;
     }
-
+    m = std::move(res.result);
     e.save_object_file(*(m->m_m), outfile);
     return 0;
 }
@@ -1509,7 +1525,8 @@ int main(int argc, char *argv[])
                 throw LFortran::LFortranException("Unsupported backend.");
             }
         }
-        if (endswith(arg_file, ".txt")) 
+
+        if (endswith(arg_file, ".py"))
         {
             std::string tmp_o = outfile + ".tmp.o";
             int err;
@@ -1517,40 +1534,12 @@ int main(int argc, char *argv[])
 #ifdef HAVE_LFORTRAN_LLVM
                 err = compile_python_to_object_file(arg_file, tmp_o, compiler_options);
 #else
-                std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
+                std::cerr << "Compiling Python files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
 #endif
             }
             if (err) return err;
             return link_executable({tmp_o}, outfile, runtime_library_dir,
-                    backend, static_link, true, compiler_options);
-        }
-        if (endswith(arg_file, ".f90")) {
-            if (backend == Backend::x86) {
-                return compile_to_binary_x86(arg_file, outfile,
-                        time_report, compiler_options);
-            }
-            std::string tmp_o = outfile + ".tmp.o";
-            int err;
-            if (backend == Backend::llvm) {
-#ifdef HAVE_LFORTRAN_LLVM
-                err = compile_to_object_file(arg_file, tmp_o, false,
-                    compiler_options);
-#else
-                std::cerr << "Compiling Fortran files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
-                return 1;
-#endif
-            } else if (backend == Backend::cpp) {
-                err = compile_to_object_file_cpp(arg_file, tmp_o, false,
-                        true, rtlib_header_dir, compiler_options);
-            } else {
-                throw LFortran::LFortranException("Backend not supported");
-            }
-            if (err) return err;
-            return link_executable({tmp_o}, outfile, runtime_library_dir,
-                    backend, static_link, true, compiler_options);
-        } else {
-            return link_executable(arg_files, outfile, runtime_library_dir,
                     backend, static_link, true, compiler_options);
         }
     } catch(const LFortran::LFortranException &e) {
