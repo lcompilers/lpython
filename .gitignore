@@ -1,6 +1,6 @@
 # LFortran
 
-src/bin/lfortran
+src/bin/lpython
 src/bin/cpptranslate
 src/bin/parse
 src/bin/parse2
@@ -70,9 +70,9 @@ src/lfortran/parser/preprocessor.cpp
 src/lfortran/ast.h
 src/lfortran/asr.h
 src/libasr/asr.h
-src/lfortran/config.h
+src/libasr/config.h
 share/jupyter/kernels/fortran/kernel.json
-src/runtime/*.o.empty.c 
+src/runtime/*.o.empty.c
 
 ### https://raw.github.com/github/gitignore/218a941be92679ce67d0484547e3e142b2f5f6f0/Global/macOS.gitignore
 
@@ -146,7 +146,7 @@ MANIFEST
 .vs/
 
 ## Build Files
-*/bin/lfortran
+*/bin/lpython
 output
 *.o
 *.out
