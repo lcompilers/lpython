@@ -527,7 +527,9 @@ int emit_ast(const std::string &infile,
 int emit_asr(const std::string &infile,
     bool with_intrinsic_modules, CompilerOptions &compiler_options)
 {
-    std::string input = read_file(infile);
+    std::system(("python a.py " + infile).c_str());
+    std::string infile_ser = "ser.txt";
+    std::string input = read_file(infile_ser);
     Allocator al(4*1024);
     LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
 
