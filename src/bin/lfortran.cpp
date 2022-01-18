@@ -1,6 +1,7 @@
 #include <chrono>
 #include <iostream>
 #include <stdlib.h>
+#include <cstdlib>
 
 #define CLI11_HAS_FILESYSTEM 0
 #include <bin/CLI11.hpp>
@@ -512,7 +513,9 @@ int python_wrapper(const std::string &infile, std::string array_order,
 int emit_ast(const std::string &infile,
     CompilerOptions &compiler_options)
 {
-    std::string input = read_file(infile);
+    std::system(("python a.py " + infile).c_str());
+    std::string infile_ser = "ser.txt";
+    std::string input = read_file(infile_ser);
     Allocator al(4*1024);
     LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
 
