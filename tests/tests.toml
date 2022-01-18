@@ -13,3 +13,8 @@ asr = true
 filename = "constants1.py"
 ast = true
 asr = true
+
+[[test]]
+filename = "expr1.py"
+ast = true
+asr = true
