@@ -1,1 +1,0 @@
-(TranslationUnit [(Program TESTFortran90 () [] [] [(Declaration (AttrType TypeInteger [] () None) [] [(stop [] [] () None ())] (TriviaNode [] [(Semicolon)]))] [(= 0 stop 1 (TriviaNode [] [(Semicolon)])) (WhileLoop 0 () (== stop 0) [] (TriviaNode [] [(Semicolon)]) ())] [])])

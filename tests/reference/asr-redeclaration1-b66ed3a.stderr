@@ -1,8 +1,0 @@
-semantic error: Symbol is already declared in the same scope
- --> tests/errors/redeclaration1.f90:4:12
-  |
-4 | real :: j, idx1
-  |            ^^^^ redeclaration
-  |
-3 | integer :: idx1
-  |            ~~~~ original declaration

@@ -1,5 +1,0 @@
-style suggestion: Use 'end if' instead of 'endif'
-  --> tests/../integration_tests/parsing_02.f90:49:7
-   |
-49 |       endif endif
-   |       ^^^^^ help: write this as 'end if'

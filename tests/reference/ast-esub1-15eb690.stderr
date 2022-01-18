@@ -1,5 +1,0 @@
-syntax error: Token 'r' (of type 'identifier') is unexpected here
- --> tests/errors/esub1.f90:1:16
-  |
-1 | subroutine g() r
-  |                ^ 

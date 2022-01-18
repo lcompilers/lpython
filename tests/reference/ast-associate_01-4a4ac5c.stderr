@@ -1,5 +1,0 @@
-style suggestion: Use '==' instead of '.eq.'
-  --> tests/../integration_tests/associate_01.f90:16:8
-   |
-16 | if(a(1).EQ.5) GO TO 1
-   |        ^^^^ help: write this as '=='

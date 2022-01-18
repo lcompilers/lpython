@@ -1,5 +1,0 @@
-semantic error: Variable 'd' is not declared
- --> tests/errors/subroutine5.f90:4:9
-  |
-4 | c = a + d
-  |         ^ 'd' is undeclared

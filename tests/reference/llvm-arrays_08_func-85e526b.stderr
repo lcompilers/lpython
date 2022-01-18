@@ -1,5 +1,0 @@
-style suggestion: Use '==' instead of '.eq.'
-  --> tests/../integration_tests/arrays_08_func.f90:29:27
-   |
-29 |         r = r .and. (a(i) .eq. b(i))
-   |                           ^^^^ help: write this as '=='
