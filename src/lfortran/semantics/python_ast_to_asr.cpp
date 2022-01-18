@@ -7,6 +7,7 @@
 #include <vector>
 #include <bitset>
 #include <complex>
+#include <sstream>
 
 #include <lfortran/python_ast.h>
 #include <libasr/asr.h>
@@ -1211,9 +1212,9 @@ public:
             ASR::binopType op = ASR::binopType::Pow;
             make_BinOp_helper(left, right, op, x.base.base.loc, false);
             return;
-        } else if (call_name == "bin") {
+        } else if (call_name == "bin" || "oct" || "hex") {
             if (args.size() != 1) {
-                throw SemanticError("bin() takes exactly one argument (" +
+                throw SemanticError(call_name + "() takes exactly one argument (" +
                     std::to_string(args.size()) + " given)", x.base.base.loc);
             }
             ASR::expr_t* expr = args[0];
@@ -1223,16 +1224,28 @@ public:
                 ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
                     x.base.base.loc, 1, 1, nullptr, nullptr, 0));
                 std::string s;
-                s += std::bitset<64>(n).to_string();
-                s.erase(0, s.find_first_not_of('0'));
-                s.insert(0, "0b");
+                if (call_name == "oct") {
+                    std::stringstream ss;
+                    ss << std::oct << n;
+                    s += ss.str();
+                    s.insert(0, "0o");
+                } else if (call_name == "bin") {
+                    s += std::bitset<64>(n).to_string();
+                    s.erase(0, s.find_first_not_of('0'));
+                    s.insert(0, "0b");
+                } else {
+                    std::stringstream ss;
+                    ss << std::hex << n;
+                    s += ss.str();
+                    s.insert(0, "0x");
+                }
                 Str s2;
                 s2.from_str_view(s);
                 char *str_val = s2.c_str(al);
                 tmp = ASR::make_ConstantString_t(al, x.base.base.loc, str_val, str_type);
                 return;
             } else {
-                throw SemanticError("bin() must have one integer argument",
+                throw SemanticError(call_name + "() must have one integer argument",
                     x.base.base.loc);
             }
         }
