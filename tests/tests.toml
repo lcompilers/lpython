@@ -1,7 +1,9 @@
 [[test]]
 filename = "doconcurrentloop_01.py"
 ast = true
+asr = true
 
 [[test]]
 filename = "complex1.py"
 ast = true
+asr = true
