@@ -645,10 +645,10 @@ public:
             if (floordiv) {
                 bool both_int = (is_integer(*left_type) && is_integer(*right_type));
                 if (both_int) {
-                    dest_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al,
+                    dest_type = ASRUtils::TYPE(ASR::make_Integer_t(al,
                         loc, 4, nullptr, 0));
                 } else {
-                    dest_type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al,
+                    dest_type = ASRUtils::TYPE(ASR::make_Real_t(al,
                         loc, 8, nullptr, 0));
                 }
                 if (is_real(*left_type)) {
@@ -1054,7 +1054,7 @@ public:
         ASR::expr_t *code;
         if (x.m_cause) {
             visit_expr(*x.m_cause);
-            code = LFortran::ASRUtils::EXPR(tmp);
+            code = ASRUtils::EXPR(tmp);
         } else {
             code = nullptr;
         }
@@ -1164,11 +1164,10 @@ public:
         } else if (call_name == "chr") {
             LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
             ASR::expr_t* real_expr = args[0];
-            ASR::ttype_t* real_type = LFortran::ASRUtils::expr_type(real_expr);
+            ASR::ttype_t* real_type = ASRUtils::expr_type(real_expr);
             if (is_integer(*real_type)) {
                 int64_t c = ASR::down_cast<ASR::ConstantInteger_t>(real_expr)->m_n;
-                ASR::ttype_t* str_type =
-                    LFortran::ASRUtils::TYPE(ASR::make_Character_t(al,
+                ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
                     x.base.base.loc, 1, 1, nullptr, nullptr, 0));
                 if (! (c >= 0 && c <= 127) ) {
                     throw SemanticError("The argument 'x' in chr(x) must be in the range 0 <= x <= 127.",
