@@ -117,6 +117,7 @@ src/bin/lpython integration_tests/intrinsics_04s.f90 -o intrinsics_04s
 src/bin/lpython integration_tests/intrinsics_04.f90 -o intrinsics_04
 ./intrinsics_04
 
+./run_tests.py
 
 # Run all tests (does not work on Windows yet):
 # cmake --version
