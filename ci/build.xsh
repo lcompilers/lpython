@@ -15,10 +15,6 @@
 # * This script is too slow (due to https://github.com/xonsh/xonsh/issues/3064)
 #   to be suitable for day to day development, but on the CI the few extra
 #   seconds do not matter much
-#
-# * One must be careful to ensure this Xonsh script is in the path. If Xonsh
-#   cannot find the script, it will return success, making the CI tests
-#   "succeed" (https://github.com/xonsh/xonsh/issues/3292)
 
 $RAISE_SUBPROC_ERROR = True
 trace on
@@ -36,17 +32,19 @@ python grammar/asdl_cpp.py
 python grammar/asdl_cpp.py grammar/ASR.asdl src/libasr/asr.h
 # Generate a Python AST from Python.asdl (C++)
 python grammar/asdl_cpp.py grammar/Python.asdl src/lfortran/python_ast.h
+# Generate a Python AST from Python.asdl (Python)
+python grammar/asdl_py.py
 
 # Generate the tokenizer and parser
 pushd src/lfortran/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd
 pushd src/lfortran/parser && re2c -W -b preprocessor.re -o preprocessor.cpp && popd
 pushd src/lfortran/parser && bison -Wall -d -r all parser.yy && popd
 
-$lfortran_version=$(cat version).strip()
-$dest="lfortran-" + $lfortran_version
+$lpython_version=$(cat version).strip()
+$dest="lpython-" + $lpython_version
 bash ci/create_source_tarball0.sh
-tar xzf dist/lfortran-$lfortran_version.tar.gz
-cd lfortran-$lfortran_version
+tar xzf dist/lpython-$lpython_version.tar.gz
+cd lpython-$lpython_version
 
 mkdir test-bld
 cd test-bld
@@ -54,10 +52,10 @@ cd test-bld
 # compiled in Release mode and we get link failures if we mix and match build
 # modes:
 BUILD_TYPE = "Release"
-cmake -G $LFORTRAN_CMAKE_GENERATOR -DCMAKE_VERBOSE_MAKEFILE=ON -DWITH_LLVM=yes -DWITH_XEUS=yes -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DCMAKE_BUILD_TYPE=@(BUILD_TYPE) ..
+cmake -G $LFORTRAN_CMAKE_GENERATOR -DCMAKE_VERBOSE_MAKEFILE=ON -DWITH_LLVM=yes -DWITH_XEUS=yes -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DWITH_LFORTRAN_BINARY_MODFILES=no -DCMAKE_BUILD_TYPE=@(BUILD_TYPE) ..
 cmake --build . --target install
 ./src/lfortran/tests/test_lfortran
-./src/bin/lfortran < ../src/bin/example_input.txt
+./src/bin/lpython < ../src/bin/example_input.txt
 ctest --output-on-failure
 cpack -V
 cd ../..
@@ -74,52 +72,62 @@ jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --out
 jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output Variables_out.ipynb Variables.ipynb
 cd ../../..
 
-cp lfortran-$lfortran_version/test-bld/src/bin/lfortran src/bin
-cp lfortran-$lfortran_version/test-bld/src/bin/cpptranslate src/bin
+cp lpython-$lpython_version/test-bld/src/bin/lpython src/bin
+cp lpython-$lpython_version/test-bld/src/bin/cpptranslate src/bin
 if $WIN == "1":
-    cp lfortran-$lfortran_version/test-bld/src/runtime/legacy/lfortran_runtime* src/runtime/
+    cp lpython-$lpython_version/test-bld/src/runtime/legacy/lfortran_runtime* src/runtime/
 else:
-    cp lfortran-$lfortran_version/test-bld/src/runtime/liblfortran_runtime* src/runtime/
-cp lfortran-$lfortran_version/test-bld/src/runtime/*.mod src/runtime/
+    cp lpython-$lpython_version/test-bld/src/runtime/liblfortran_runtime* src/runtime/
+cp lpython-$lpython_version/test-bld/src/runtime/*.mod src/runtime/
 
 # Run some simple compilation tests, works everywhere:
-src/bin/lfortran --version
+src/bin/lpython --version
 # Compile and link separately
-src/bin/lfortran -c examples/expr2.f90 -o expr2.o
-src/bin/lfortran -o expr2 expr2.o
+src/bin/lpython -c examples/expr2.f90 -o expr2.o
+src/bin/lpython -o expr2 expr2.o
 ./expr2
 
+# Test the new Python frontend, manually for now:
+src/bin/lpython --show-ast doconcurrentloop_01.py
+src/bin/lpython --show-asr doconcurrentloop_01.py
+src/bin/lpython --show-cpp doconcurrentloop_01.py
+
+src/bin/lpython --show-ast lpython_tests.py
+src/bin/lpython --show-asr lpython_tests.py
+
 # Compile C and Fortran
-src/bin/lfortran -c integration_tests/modules_15b.f90 -o modules_15b.o
-src/bin/lfortran -c integration_tests/modules_15.f90 -o modules_15.o
+src/bin/lpython -c integration_tests/modules_15b.f90 -o modules_15b.o
+src/bin/lpython -c integration_tests/modules_15.f90 -o modules_15.o
 if $WIN == "1": # Windows
     cl /MD /c integration_tests/modules_15c.c /Fomodules_15c.o
 elif $MACOS == "1": # macOS
     clang -c integration_tests/modules_15c.c -o modules_15c.o
 else: # Linux
     gcc -c integration_tests/modules_15c.c -o modules_15c.o
-src/bin/lfortran modules_15.o modules_15b.o modules_15c.o -o modules_15
+src/bin/lpython modules_15.o modules_15b.o modules_15c.o -o modules_15
 ./modules_15
 
 
 # Compile and link in one step
-src/bin/lfortran integration_tests/intrinsics_04s.f90 -o intrinsics_04s
+src/bin/lpython integration_tests/intrinsics_04s.f90 -o intrinsics_04s
 ./intrinsics_04s
 
-src/bin/lfortran integration_tests/intrinsics_04.f90 -o intrinsics_04
+src/bin/lpython integration_tests/intrinsics_04.f90 -o intrinsics_04
 ./intrinsics_04
 
+if $WIN != "1":
+    python run_tests.py
 
 # Run all tests (does not work on Windows yet):
-cmake --version
-if $WIN != "1":
-    ./run_tests.py
+# cmake --version
+# if $WIN != "1":
+    # ./run_tests.py
 
-    cd integration_tests
-    mkdir build-lfortran-llvm
-    cd build-lfortran-llvm
-    $FC="../../src/bin/lfortran"
-    cmake -DLFORTRAN_BACKEND=llvm ..
-    make
-    ctest -L llvm
-    cd ../..
+    # cd integration_tests
+    # mkdir build-lpython-llvm
+    # cd build-lpython-llvm
+    # $FC="../../src/bin/lpython"
+    # cmake -DLFORTRAN_BACKEND=llvm ..
+    # make
+    # ctest -L llvm
+    # cd ../..

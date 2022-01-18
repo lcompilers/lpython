@@ -1,1 +1,0 @@
-(TranslationUnit [(Program comments1 (TriviaNode [(EndOfLine) (EndOfLine) (Comment "! Next line comment 0")] []) [] [] [] [(Print 0 () [(String "1")] (TriviaNode [] [(EOLComment "! end of line comment 1") (Comment "! Next line comment 1")])) (Print 0 () [(String "2")] (TriviaNode [] [(EOLComment "! end of line comment 2") (Comment "! Next line comment 2") (EndOfLine)]))] [])])

@@ -1,5 +1,0 @@
-semantic error: Type mismatch in assignment, the types must be compatible
- --> tests/errors/type_mismatch1.f90:4:1
-  |
-4 | x = "x"
-  | ^   ^^^ type mismatch (integer and character)

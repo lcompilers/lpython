@@ -1,1 +1,0 @@
-(TranslationUnit [(Program arrays_09 () [] [(ImplicitNone [] ())] [(Declaration (AttrType TypeCharacter [(() 10 Value)] () None) [] [(a [(1 1 DimensionExpr)] [] () None ())] ())] [(= 0 (FuncCallOrArray a [] [(() 1 ())] [] []) (String "Substring") ()) (If 0 () (/= (FuncCallOrArray a [] [(() 1 ())] [] [(4 9 1)]) (String "string")) [(ErrorStop 0 () () ())] [] () () ())] [])])

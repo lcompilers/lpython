@@ -1,1 +1,0 @@
-(TranslationUnit [(Program print_01 () [] [(ImplicitNone [] (TriviaNode [] [(EndOfLine) (EndOfLine)]))] [(Declaration (AttrType TypeCharacter [(len 7 Value)] () None) [] [(my_name [] [] (String "Dominic") Equal ())] (TriviaNode [] [(EndOfLine) (EndOfLine)]))] [(Print 0 () [(String "My name is ") my_name] (TriviaNode [] [(EndOfLine) (EndOfLine)]))] [])])

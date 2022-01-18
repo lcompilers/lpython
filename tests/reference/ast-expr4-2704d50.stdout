@@ -1,1 +1,0 @@
-(TranslationUnit [(Real "5.") (+ (Real "5.") (Real "3.")) (* (+ (Real "5.") (Real "3.")) (Real "2.")) (+ (Real "5.") (* (Real "3.") (Real "2."))) (- (Real "5.") (Real "3.")) (** (Real "4.") (Real "3."))])

@@ -1,9 +1,0 @@
-program assign
-integer :: x
-real :: y
-10 format('(i3)')
-assign 10 to x
-20 assign 10 to x
-assign 10 to x
-30 assign 10 to y ! An integer variable is required in this context.
-end program assign

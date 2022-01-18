@@ -1,6 +1,0 @@
-program array7
-implicit double precision (A-H,O-Z)
-implicit integer (I-N)
-integer, parameter :: n = 10
-dimension :: SJ(0:N), DJ(0:N)
-end program array7
