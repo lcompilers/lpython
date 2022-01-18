@@ -1,0 +1,42 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <Kokkos_Core.hpp>
+#include <lfortran_intrinsics.h>
+
+template <typename T>
+Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
+{
+    Kokkos::View<T*> r("r", v.size());
+    for (size_t i=0; i < v.size(); i++) {
+        r(i) = v[i];
+    }
+    return r;
+}
+
+void main()
+{
+    Kokkos::View<float[10000]> a("a");
+    Kokkos::View<float[10000]> b("b");
+    Kokkos::View<float[10000]> c("c");
+    int nsize;
+    float scalar;
+    scalar = 10;
+    nsize = 1234;
+    Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(1, nsize+1), KOKKOS_LAMBDA(const long i) {
+        a[i-1] = 5;
+        b[i-1] = 5;
+    });
+    triad(a, b, scalar, c);
+    std::cout << "End Stream Triad" << std::endl;
+}
+
+void triad(const Kokkos::View<float*> &a, const Kokkos::View<float*> &b, float scalar, const Kokkos::View<float*> &c)
+{
+    int N;
+    N = 1234;
+    Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(1, N+1), KOKKOS_LAMBDA(const long i) {
+        c[i-1] = a[i-1] + scalar*b[i-1];
+    });
+}
+
