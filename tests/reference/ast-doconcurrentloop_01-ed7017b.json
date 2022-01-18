@@ -1,0 +1,13 @@
+{
+    "basename": "ast-doconcurrentloop_01-ed7017b",
+    "cmd": "lpython --show-ast --no-color {infile} -o {outfile}",
+    "infile": "tests/doconcurrentloop_01.py",
+    "infile_hash": "c3efb3a1f583c1cc5f973f560369378d784bf5df6fcace9962624266",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast-doconcurrentloop_01-ed7017b.stdout",
+    "stdout_hash": "c13b7d1e89b1f88facf2326435b8d77a42955ac7a3f1e9870362e133",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
