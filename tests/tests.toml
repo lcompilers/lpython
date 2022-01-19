@@ -1,3 +1,8 @@
+# Possible tests:
+# ast ... run the Parser and output AST, compare against reference version
+# asr ... run the Semantics and output ASR, compare against reference version
+#llvm ... run the Semantics and output LLVM, compare against reference version
+
 [[test]]
 filename = "doconcurrentloop_01.py"
 ast = true
@@ -18,3 +23,10 @@ asr = true
 filename = "expr1.py"
 ast = true
 asr = true
+
+[[test]]
+
+filename = "expr_01.py"
+ast = true
+asr = true
+llvm = true
