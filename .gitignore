@@ -11,8 +11,8 @@ src/lpython/tests/test_ast
 src/lpython/tests/test_llvm
 src/lpython/tests/test_parse
 src/lpython/tests/test_pickle
-src/lpython/tests/test_stacktrace
-src/lpython/tests/test_serialization
+src/lpython/tests/test_stacktrace*
+src/lpython/tests/test_serialization*
 src/lpython/tests/test_cwrapper
 src/lpython/tests/test_serialization
 src/lpython/tests/test_lfortran
