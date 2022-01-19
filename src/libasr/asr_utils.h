@@ -363,7 +363,6 @@ static inline bool all_args_evaluated(const Vec<ASR::expr_t*> &args) {
 static inline bool all_args_evaluated(const Vec<ASR::array_index_t> &args) {
     for (auto &a : args) {
         bool is_m_left_const, is_m_right_const, is_m_step_const;
-        is_m_left_const = is_m_right_const = is_m_step_const = false;
         if( a.m_left != nullptr ) {
             ASR::expr_t *m_left_value = ASRUtils::expr_value(a.m_left);
             is_m_left_const = is_value_constant(m_left_value);
@@ -527,6 +526,18 @@ static inline int extract_kind_from_ttype_t(const ASR::ttype_t* type) {
 
 static inline bool is_pointer(ASR::ttype_t *x) {
     return ASR::is_a<ASR::Pointer_t>(*x);
+}
+
+static inline bool is_integer(ASR::ttype_t &x) {
+    return ASR::is_a<ASR::Integer_t>(*type_get_past_pointer(&x));
+}
+
+static inline bool is_real(ASR::ttype_t &x) {
+    return ASR::is_a<ASR::Real_t>(*type_get_past_pointer(&x));
+}
+
+static inline bool is_character(ASR::ttype_t &x) {
+    return ASR::is_a<ASR::Character_t>(*type_get_past_pointer(&x));
 }
 
 inline bool is_array(ASR::ttype_t *x) {
