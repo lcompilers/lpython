@@ -1,4 +1,4 @@
-add_executable(lpython lfortran.cpp)
+add_executable(lpython lpython.cpp)
 target_include_directories(lpython PRIVATE "tpl")
 target_link_libraries(lpython lfortran_lib)
 if (LFORTRAN_STATIC_BIN)
