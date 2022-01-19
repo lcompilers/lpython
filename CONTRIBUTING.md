@@ -5,9 +5,9 @@ might sound daunting to contribute to a compiler at first, but please do, it is
 not complicated. We will help you with any technical issues and help improve
 your contribution so that it can be merged.
 
-To contribute, submit a Merge Request (MR) against our repository at:
+To contribute, submit a Pull Request (PR) against our repository at:
 
-https://gitlab.com/lfortran/lfortran
+https://github.com/lcompilers/lpython
 
 If you have any questions or need help, please ask as at our
 [mailinglist](https://groups.io/g/lfortran) or a
