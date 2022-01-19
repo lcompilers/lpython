@@ -1,0 +1,13 @@
+{
+    "basename": "asr-loop1-10d3109",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/loop1.py",
+    "infile_hash": "74a4bee448a718086f59e717b68c1cd7bbcb50e5de72ec0b86e25c51",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-loop1-10d3109.stdout",
+    "stdout_hash": "d5aba71aced70a3037cab7b7ca2b52af2354e6af1e2a1f8e139b598c",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

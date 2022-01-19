@@ -1,0 +1,13 @@
+{
+    "basename": "ast-expr6-0b12a67",
+    "cmd": "lpython --show-ast --no-color {infile} -o {outfile}",
+    "infile": "tests/expr6.py",
+    "infile_hash": "ccd80815d3d381662236e18e3e512367820c95ff3968061cbbab5cd9",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast-expr6-0b12a67.stdout",
+    "stdout_hash": "8cc5bc1c128930ce95f37e9918027598ba92845ad3f949ac4a9ab760",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
