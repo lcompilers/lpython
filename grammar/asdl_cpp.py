@@ -1276,7 +1276,7 @@ def main(argv):
         print("Assuming default values of AST.asdl and ast.h")
         here = os.path.dirname(__file__)
         def_file = os.path.join(here, "AST.asdl")
-        out_file = os.path.join(here, "..", "src", "lfortran", "ast.h")
+        out_file = os.path.join(here, "..", "src", "lpython", "ast.h")
     else:
         print("invalid arguments")
         return 2

@@ -7,18 +7,18 @@
 #include <bin/CLI11.hpp>
 
 #include <libasr/stacktrace.h>
-#include <lfortran/parser/parser.h>
-#include <lfortran/parser/preprocessor.h>
-#include <lfortran/pickle.h>
-#include <lfortran/semantics/ast_to_asr.h>
-#include <lfortran/semantics/python_ast_to_asr.h>
-#include <lfortran/mod_to_asr.h>
+#include <lpython/parser/parser.h>
+#include <lpython/parser/preprocessor.h>
+#include <lpython/pickle.h>
+#include <lpython/semantics/ast_to_asr.h>
+#include <lpython/semantics/python_ast_to_asr.h>
+#include <lpython/mod_to_asr.h>
 #include <libasr/codegen/asr_to_llvm.h>
 #include <libasr/codegen/asr_to_cpp.h>
 #include <libasr/codegen/asr_to_py.h>
 #include <libasr/codegen/asr_to_x86.h>
-#include <lfortran/ast_to_src.h>
-#include <lfortran/fortran_evaluator.h>
+#include <lpython/ast_to_src.h>
+#include <lpython/fortran_evaluator.h>
 #include <libasr/codegen/evaluator.h>
 #include <libasr/pass/do_loops.h>
 #include <libasr/pass/for_all.h>
@@ -33,11 +33,11 @@
 #include <libasr/asr_verify.h>
 #include <libasr/modfile.h>
 #include <libasr/config.h>
-#include <lfortran/fortran_kernel.h>
+#include <lpython/fortran_kernel.h>
 #include <libasr/string_utils.h>
-#include <lfortran/utils.h>
-#include <lfortran/python_serialization.h>
-#include <lfortran/parser/parser.tab.hh>
+#include <lpython/utils.h>
+#include <lpython/python_serialization.h>
+#include <lpython/parser/parser.tab.hh>
 
 #include <cpp-terminal/terminal.h>
 #include <cpp-terminal/prompt0.h>

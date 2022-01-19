@@ -113,7 +113,7 @@ if (WITH_RUNTIME_LIBRARY)
               ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_sin.mod
               ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_string.mod
               ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lfortran_intrinsic_bit.mod
-        DESTINATION share/lfortran/lib
+        DESTINATION share/lpython/lib
     )
 endif()
 
@@ -127,8 +127,8 @@ set_target_properties(lpython PROPERTIES
 
 install(TARGETS lpython
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    ARCHIVE DESTINATION share/lfortran/lib
-    LIBRARY DESTINATION share/lfortran/lib
+    ARCHIVE DESTINATION share/lpython/lib
+    LIBRARY DESTINATION share/lpython/lib
 )
 
 
