@@ -9,6 +9,6 @@ set_target_properties(lfortran_runtime_static PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ..)
 install(TARGETS lfortran_runtime lfortran_runtime_static
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    ARCHIVE DESTINATION share/lfortran/lib
-    LIBRARY DESTINATION share/lfortran/lib
+    ARCHIVE DESTINATION share/lpython/lib
+    LIBRARY DESTINATION share/lpython/lib
 )
