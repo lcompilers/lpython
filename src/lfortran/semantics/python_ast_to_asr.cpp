@@ -347,8 +347,8 @@ public:
                 throw SemanticError(diag::Diagnostic(
                     "Symbol is already declared in the same scope",
                     diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("redeclaration", {x.base.base.loc}),
                         diag::Label("original declaration", {orig_decl->base.loc}, false),
+                        diag::Label("redeclaration", {x.base.base.loc}),
                     }));
             }
         }
