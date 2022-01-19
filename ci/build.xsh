@@ -83,7 +83,7 @@ cp lpython-$lpython_version/test-bld/src/runtime/*.mod src/runtime/
 # Run some simple compilation tests, works everywhere:
 src/bin/lpython --version
 # Compile and link separately
-src/bin/lpython -c examples/expr2.f90 -o expr2.o
+src/bin/lpython -c examples/expr2.py -o expr2.o
 src/bin/lpython -o expr2 expr2.o
 ./expr2
 
@@ -92,39 +92,5 @@ src/bin/lpython --show-ast doconcurrentloop_01.py
 src/bin/lpython --show-asr doconcurrentloop_01.py
 src/bin/lpython --show-cpp doconcurrentloop_01.py
 
-# Compile C and Fortran
-src/bin/lpython -c integration_tests/modules_15b.f90 -o modules_15b.o
-src/bin/lpython -c integration_tests/modules_15.f90 -o modules_15.o
-if $WIN == "1": # Windows
-    cl /MD /c integration_tests/modules_15c.c /Fomodules_15c.o
-elif $MACOS == "1": # macOS
-    clang -c integration_tests/modules_15c.c -o modules_15c.o
-else: # Linux
-    gcc -c integration_tests/modules_15c.c -o modules_15c.o
-src/bin/lpython modules_15.o modules_15b.o modules_15c.o -o modules_15
-./modules_15
-
-
-# Compile and link in one step
-src/bin/lpython integration_tests/intrinsics_04s.f90 -o intrinsics_04s
-./intrinsics_04s
-
-src/bin/lpython integration_tests/intrinsics_04.f90 -o intrinsics_04
-./intrinsics_04
-
 if $WIN != "1":
     python run_tests.py
-
-# Run all tests (does not work on Windows yet):
-# cmake --version
-# if $WIN != "1":
-    # ./run_tests.py
-
-    # cd integration_tests
-    # mkdir build-lpython-llvm
-    # cd build-lpython-llvm
-    # $FC="../../src/bin/lpython"
-    # cmake -DLFORTRAN_BACKEND=llvm ..
-    # make
-    # ctest -L llvm
-    # cd ../..

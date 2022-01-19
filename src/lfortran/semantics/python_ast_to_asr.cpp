@@ -237,17 +237,45 @@ public:
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::deftypeType deftype = ASR::deftypeType::Implementation;
         char *bindc_name=nullptr;
-        tmp = ASR::make_Subroutine_t(
-            al, x.base.base.loc,
-            /* a_symtab */ current_scope,
-            /* a_name */ s2c(al, sym_name),
-            /* a_args */ args.p,
-            /* n_args */ args.size(),
-            /* a_body */ nullptr,
-            /* n_body */ 0,
-            current_procedure_abi_type,
-            s_access, deftype, bindc_name,
-            is_pure, is_module);
+        if (sym_name == "main") {
+            // Temporary solution for the main() function
+            std::string return_var_name = "main_return_var";
+            ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8, nullptr, 0));
+            ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
+                current_scope, s2c(al, return_var_name), ASRUtils::intent_return_var, nullptr, nullptr,
+                ASR::storage_typeType::Default, type,
+                current_procedure_abi_type, ASR::Public, ASR::presenceType::Required,
+                false);
+            LFORTRAN_ASSERT(current_scope->scope.find(return_var_name) == current_scope->scope.end())
+            current_scope->scope[return_var_name]
+                = ASR::down_cast<ASR::symbol_t>(return_var);
+            ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
+                ASR::down_cast<ASR::symbol_t>(return_var));
+
+            tmp = ASR::make_Function_t(
+                al, x.base.base.loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ s2c(al, sym_name),
+                /* a_args */ args.p,
+                /* n_args */ args.size(),
+                /* a_body */ nullptr,
+                /* n_body */ 0,
+                /* a_return_var */ ASRUtils::EXPR(return_var_ref),
+                current_procedure_abi_type,
+                s_access, deftype, bindc_name);
+        } else {
+            tmp = ASR::make_Subroutine_t(
+                al, x.base.base.loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ s2c(al, sym_name),
+                /* a_args */ args.p,
+                /* n_args */ args.size(),
+                /* a_body */ nullptr,
+                /* n_body */ 0,
+                current_procedure_abi_type,
+                s_access, deftype, bindc_name,
+                is_pure, is_module);
+        }
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(tmp);
         current_scope = parent_scope;
     }
@@ -312,16 +340,48 @@ public:
         tmp = asr;
     }
 
-    void visit_FunctionDef(const AST::FunctionDef_t &x) {
-        SymbolTable *old_scope = current_scope;
-        ASR::symbol_t *t = current_scope->scope[x.m_name];
-        ASR::Subroutine_t *v = ASR::down_cast<ASR::Subroutine_t>(t);
-        current_scope = v->m_symtab;
+    template <typename Procedure>
+    void handle_fn(const AST::FunctionDef_t &x, Procedure &v) {
+        current_scope = v.m_symtab;
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
         transform_stmts(body, x.n_body, x.m_body);
-        v->m_body = body.p;
-        v->n_body = body.size();
+        v.m_body = body.p;
+        v.n_body = body.size();
+    }
+
+    void visit_FunctionDef(const AST::FunctionDef_t &x) {
+        SymbolTable *old_scope = current_scope;
+        ASR::symbol_t *t = current_scope->scope[x.m_name];
+        if (ASR::is_a<ASR::Subroutine_t>(*t)) {
+            handle_fn(x, *ASR::down_cast<ASR::Subroutine_t>(t));
+        } else if (ASR::is_a<ASR::Function_t>(*t)) {
+            ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(t);
+            handle_fn(x, *f);
+            if (std::string(f->m_name) == "main") {
+                // Temporary solution for the main() function
+                // We return 0 by assigning to "main_return_var"
+                std::string return_var_name = "main_return_var";
+                LFORTRAN_ASSERT(current_scope->scope.find(return_var_name) != current_scope->scope.end())
+                ASR::symbol_t *return_var = current_scope->scope[return_var_name];
+
+                ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc, return_var);
+                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                        8, nullptr, 0));
+                ASR::expr_t *target = ASRUtils::EXPR(return_var_ref);
+                ASR::expr_t *value = ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, 0, type));
+                ASR::stmt_t *overloaded=nullptr;
+                ASR::asr_t *assignment = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
+                                        overloaded);
+                Vec<ASR::stmt_t*> body;
+                body.from_pointer_n(f->m_body, f->n_body);
+                body.push_back(al, ASR::down_cast<ASR::stmt_t>(assignment));
+                f->m_body = body.p;
+                f->n_body = body.size();
+            }
+        } else {
+            LFORTRAN_ASSERT(false);
+        }
         current_scope = old_scope;
         tmp = nullptr;
     }

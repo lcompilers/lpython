@@ -1,0 +1,13 @@
+{
+    "basename": "ast-assign1-2a4c9ed",
+    "cmd": "lpython --show-ast --no-color {infile} -o {outfile}",
+    "infile": "tests/assign1.py",
+    "infile_hash": "3b82a73e457bd65e85828b72d56596ca927e7c661e333691f154912b",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast-assign1-2a4c9ed.stdout",
+    "stdout_hash": "19d9109b08fcd6ce10cf3f4290371653b686d1d70c702195c3337fad",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

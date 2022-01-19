@@ -14,11 +14,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
-void main()
+int main()
 {
     Kokkos::View<float[10000]> a("a");
     Kokkos::View<float[10000]> b("b");
     Kokkos::View<float[10000]> c("c");
+    int i;
+    long long main_return_var;
     int nsize;
     float scalar;
     scalar = 10;
@@ -29,6 +31,8 @@ void main()
     });
     triad(a, b, scalar, c);
     std::cout << "End Stream Triad" << std::endl;
+    main_return_var = 0;
+    return main_return_var;
 }
 
 void triad(const Kokkos::View<float*> &a, const Kokkos::View<float*> &b, float scalar, const Kokkos::View<float*> &c)

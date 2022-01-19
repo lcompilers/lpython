@@ -1,3 +1,8 @@
+# Possible tests:
+# ast ... run the Parser and output AST, compare against reference version
+# asr ... run the Semantics and output ASR, compare against reference version
+#llvm ... run the Semantics and output LLVM, compare against reference version
+
 [[test]]
 filename = "doconcurrentloop_01.py"
 ast = true
@@ -17,5 +22,69 @@ cpp = true
 
 [[test]]
 filename = "expr1.py"
+ast = true
+asr = true
+
+[[test]]
+filename = "expr2.py"
+ast = true
+asr = true
+cpp = true
+
+[[test]]
+filename = "expr3.py"
+ast = true
+asr = true
+
+[[test]]
+filename = "expr4.py"
+ast = true
+asr = true
+
+[[test]]
+filename = "expr5.py"
+ast = true
+asr = true
+
+[[test]]
+filename = "expr6.py"
+ast = true
+asr = true
+
+[[test]]
+filename = "expr7.py"
+ast = true
+asr = true
+cpp = true
+
+[[test]]
+filename = "expr_01.py"
+ast = true
+asr = true
+llvm = true
+
+[[test]]
+filename = "loop1.py"
+ast = true
+asr = true
+cpp = true
+
+[[test]]
+filename = "loop2.py"
+ast = true
+asr = true
+
+[[test]]
+filename = "loop3.py"
+ast = true
+asr = true
+
+[[test]]
+filename = "assert1.py"
+ast = true
+asr = true
+
+[[test]]
+filename = "assign1.py"
 ast = true
 asr = true

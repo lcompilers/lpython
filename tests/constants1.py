@@ -6,3 +6,10 @@ def test_boz():
     b = oct(56)
     b = hex(42)
     b = hex(12648430)
+
+
+def test_ord_chr():
+    s: str
+    a: i32
+    a = ord('5')
+    s = chr(43)

@@ -1,0 +1,13 @@
+{
+    "basename": "asr-assert1-1ce92ea",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/assert1.py",
+    "infile_hash": "f147a7c915580ec3722bd549a70fb9deda56527fe564c5c6f7228066",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-assert1-1ce92ea.stdout",
+    "stdout_hash": "ae1fa2a97a4a04a32a6b23b4ac4af4e984cbb1f283727212085e8f22",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
