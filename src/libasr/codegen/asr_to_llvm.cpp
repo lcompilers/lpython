@@ -1415,7 +1415,6 @@ public:
                                 }
                                 case (ASR::ttypeType::Derived) : {
                                     throw CodeGenError("Pointers for Derived type not implemented yet in conversion");
-                                    break;
                                 }
                                 case (ASR::ttypeType::Logical) : {
                                     type = llvm::Type::getInt1Ty(context);
@@ -2756,6 +2755,10 @@ public:
                 tmp = lfortran_strop(left_val, right_val, "_lfortran_strcat");
                 break;
             };
+            case ASR::stropType::Repeat: {
+                tmp = lfortran_strop(left_val, right_val, "_lfortran_strrepeat");
+                break;
+            };
         }
     }
 
@@ -2772,7 +2775,7 @@ public:
         llvm::Value *left_val = tmp;
         this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
-        if (ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_pointer(x.m_type))) {
+        if (ASRUtils::is_integer(*x.m_type)) {
             switch (x.m_op) {
                 case ASR::binopType::Add: {
                     tmp = builder->CreateAdd(left_val, right_val);
@@ -2814,7 +2817,7 @@ public:
                     break;
                 };
             }
-        } else if (ASR::is_a<ASR::Real_t>(*ASRUtils::type_get_past_pointer(x.m_type))) {
+        } else if (ASRUtils::is_real(*x.m_type)) {
             switch (x.m_op) {
                 case ASR::binopType::Add: {
                     tmp = builder->CreateFAdd(left_val, right_val);
@@ -3377,8 +3380,8 @@ public:
             ASR::expr_t *v = x.m_values[i];
             ASR::ttype_t *t = expr_type(v);
             int a_kind = ASRUtils::extract_kind_from_ttype_t(t);
-            if (ASR::is_a<ASR::Integer_t>(*ASRUtils::type_get_past_pointer(t)) ||
-                ASR::is_a<ASR::Logical_t>(*ASRUtils::type_get_past_pointer(t)) ) {
+            if (ASRUtils::is_integer(*t) ||
+                ASR::is_a<ASR::Logical_t>(*ASRUtils::type_get_past_pointer(t))) {
                 switch( a_kind ) {
                     case 4 : {
                         fmt.push_back("%d");
@@ -3395,7 +3398,7 @@ public:
                     }
                 }
                 args.push_back(tmp);
-            } else if (ASR::is_a<ASR::Real_t>(*ASRUtils::type_get_past_pointer(t))) {
+            } else if (ASRUtils::is_real(*t)) {
                 llvm::Value *d;
                 switch( a_kind ) {
                     case 4 : {

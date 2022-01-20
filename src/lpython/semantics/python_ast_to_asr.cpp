@@ -281,7 +281,7 @@ public:
     }
 };
 
-Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, AST::Module_t &ast,
+Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, const AST::Module_t &ast,
         diag::Diagnostics &diagnostics)
 {
     SymbolTableVisitor v(al, nullptr, diagnostics);
@@ -407,8 +407,8 @@ public:
                 throw SemanticError(diag::Diagnostic(
                     "Symbol is already declared in the same scope",
                     diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("redeclaration", {x.base.base.loc}),
                         diag::Label("original declaration", {orig_decl->base.loc}, false),
+                        diag::Label("redeclaration", {x.base.base.loc}),
                     }));
             }
         }
@@ -686,13 +686,12 @@ public:
         ASR::ttype_t *dest_type = nullptr;
         ASR::expr_t *value = nullptr;
 
-        bool right_is_int = ASR::is_a<ASR::Character_t>(*left_type) && ASR::is_a<ASR::Integer_t>(*right_type);
-        bool left_is_int = ASR::is_a<ASR::Integer_t>(*left_type) && ASR::is_a<ASR::Character_t>(*right_type);
+        bool right_is_int = ASRUtils::is_character(*left_type) && ASRUtils::is_integer(*right_type);
+        bool left_is_int = ASRUtils::is_integer(*left_type) && ASRUtils::is_character(*right_type);
 
         // Handle normal division in python with reals
         if (op == ASR::binopType::Div) {
-            if (ASR::is_a<ASR::Character_t>(*left_type) ||
-                        ASR::is_a<ASR::Character_t>(*right_type)) {
+            if (ASRUtils::is_character(*left_type) || ASRUtils::is_character(*right_type)) {
                 diag.add(diag::Diagnostic(
                     "Division is not supported for string type",
                     diag::Level::Error, diag::Stage::Semantic, {
@@ -704,21 +703,20 @@ public:
             }
             // Floor div operation in python using (`//`)
             if (floordiv) {
-                bool both_int = (ASR::is_a<ASR::Integer_t>(*left_type) &&
-                                        ASR::is_a<ASR::Integer_t>(*right_type));
+                bool both_int = (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type));
                 if (both_int) {
-                    dest_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al,
+                    dest_type = ASRUtils::TYPE(ASR::make_Integer_t(al,
                         loc, 4, nullptr, 0));
                 } else {
-                    dest_type = LFortran::ASRUtils::TYPE(ASR::make_Real_t(al,
+                    dest_type = ASRUtils::TYPE(ASR::make_Real_t(al,
                         loc, 8, nullptr, 0));
                 }
-                if (ASR::is_a<ASR::Real_t>(*left_type)) {
+                if (ASRUtils::is_real(*left_type)) {
                     left = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
                         al, left->base.loc, left, ASR::cast_kindType::RealToInteger, dest_type,
                         value));
                 }
-                if (ASR::is_a<ASR::Real_t>(*right_type)) {
+                if (ASRUtils::is_real(*right_type)) {
                     right = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
                         al, right->base.loc, right, ASR::cast_kindType::RealToInteger, dest_type,
                         value));
@@ -727,34 +725,34 @@ public:
             } else { // real divison in python using (`/`)
                 dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
                     8, nullptr, 0));
-                if (ASR::is_a<ASR::Integer_t>(*left_type)) {
+                if (ASRUtils::is_integer(*left_type)) {
                     left = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
                         al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type,
                         value));
                 }
-                if (ASR::is_a<ASR::Integer_t>(*right_type)) {
+                if (ASRUtils::is_integer(*right_type)) {
                     right = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
                         al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type,
                         value));
                 }
             }
-        } else if (ASR::is_a<ASR::Integer_t>(*left_type) && ASR::is_a<ASR::Integer_t>(*right_type)) {
+        } else if (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) {
             dest_type = left_type;
-        } else if (ASR::is_a<ASR::Real_t>(*left_type) && ASR::is_a<ASR::Real_t>(*right_type)) {
+        } else if (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type)) {
             dest_type = left_type;
-        } else if (ASR::is_a<ASR::Integer_t>(*left_type) && ASR::is_a<ASR::Real_t>(*right_type)) {
+        } else if (ASRUtils::is_integer(*left_type) && ASRUtils::is_real(*right_type)) {
             // Cast LHS Integer->Real
             dest_type = right_type;
             left = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
                 al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type,
                 value));
-        } else if (ASR::is_a<ASR::Real_t>(*left_type) && ASR::is_a<ASR::Integer_t>(*right_type)) {
+        } else if (ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type)) {
             // Cast RHS Integer->Real
             dest_type = left_type;
             right = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
                 al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type,
                 value));
-        } else if (ASR::is_a<ASR::Character_t>(*left_type) && ASR::is_a<ASR::Character_t>(*right_type)
+        } else if (ASRUtils::is_character(*left_type) && ASRUtils::is_character(*right_type)
                             && op == ASR::binopType::Add) {
             // string concat
             dest_type = left_type;
@@ -842,7 +840,7 @@ public:
         ASR::expr_t *value = nullptr;
 
         if (ASRUtils::expr_value(operand) != nullptr) {
-            if (ASR::is_a<ASR::Integer_t>(*operand_type)) {
+            if (ASRUtils::is_integer(*operand_type)) {
                 int64_t op_value = ASR::down_cast<ASR::ConstantInteger_t>(
                                         ASRUtils::expr_value(operand))
                                         ->m_n;
@@ -857,7 +855,7 @@ public:
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
                             al, x.base.base.loc, result, operand_type));
-            } else if (ASR::is_a<ASR::Real_t>(*operand_type)) {
+            } else if (ASRUtils::is_real(*operand_type)) {
                 double op_value = ASR::down_cast<ASR::ConstantReal_t>(
                                         ASRUtils::expr_value(operand))
                                         ->m_r;
@@ -991,8 +989,7 @@ public:
             right_type->type != ASR::ttypeType::Complex) &&
             x.m_ops != AST::cmpopType::Eq && x.m_ops != AST::cmpopType::NotEq) &&
             (left_type->type != ASR::ttypeType::Character ||
-            right_type->type != ASR::ttypeType::Character))
-            && overloaded == nullptr) {
+            right_type->type != ASR::ttypeType::Character))) {
         throw SemanticError(
             "Compare: only Integer or Real can be on the LHS and RHS."
             "If operator is Eq or NotEq then Complex type is also acceptable",
@@ -1021,7 +1018,7 @@ public:
         // Now, compute the result
         if (ASRUtils::expr_value(left) != nullptr &&
             ASRUtils::expr_value(right) != nullptr) {
-            if (ASR::is_a<ASR::Integer_t>(*source_type)) {
+            if (ASRUtils::is_integer(*source_type)) {
                 int64_t left_value = ASR::down_cast<ASR::ConstantInteger_t>(
                                         ASRUtils::expr_value(left))
                                         ->m_n;
@@ -1043,7 +1040,7 @@ public:
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
                     al, x.base.base.loc, result, source_type));
-            } else if (ASR::is_a<ASR::Real_t>(*source_type)) {
+            } else if (ASRUtils::is_real(*source_type)) {
                 double left_value = ASR::down_cast<ASR::ConstantReal_t>(
                                         ASRUtils::expr_value(left))
                                         ->m_r;
@@ -1117,7 +1114,7 @@ public:
         ASR::expr_t *code;
         if (x.m_cause) {
             visit_expr(*x.m_cause);
-            code = LFortran::ASRUtils::EXPR(tmp);
+            code = ASRUtils::EXPR(tmp);
         } else {
             code = nullptr;
         }
@@ -1201,7 +1198,7 @@ public:
             LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
             ASR::expr_t* char_expr = args[0];
             ASR::ttype_t* char_type = ASRUtils::expr_type(char_expr);
-            if (ASR::is_a<ASR::Character_t>(*char_type)) {
+            if (ASRUtils::is_character(*char_type)) {
                 char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(char_expr))->m_s;
                 ASR::ttype_t* int_type =
                     ASRUtils::TYPE(ASR::make_Integer_t(al,
@@ -1215,11 +1212,10 @@ public:
         } else if (call_name == "chr") {
             LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
             ASR::expr_t* real_expr = args[0];
-            ASR::ttype_t* real_type = LFortran::ASRUtils::expr_type(real_expr);
-            if (ASR::is_a<ASR::Integer_t>(*real_type)) {
+            ASR::ttype_t* real_type = ASRUtils::expr_type(real_expr);
+            if (ASRUtils::is_integer(*real_type)) {
                 int64_t c = ASR::down_cast<ASR::ConstantInteger_t>(real_expr)->m_n;
-                ASR::ttype_t* str_type =
-                    LFortran::ASRUtils::TYPE(ASR::make_Character_t(al,
+                ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
                     x.base.base.loc, 1, 1, nullptr, nullptr, 0));
                 if (! (c >= 0 && c <= 127) ) {
                     throw SemanticError("The argument 'x' in chr(x) must be in the range 0 <= x <= 127.",
@@ -1272,14 +1268,14 @@ public:
             ASR::binopType op = ASR::binopType::Pow;
             make_BinOp_helper(left, right, op, x.base.base.loc, false);
             return;
-        } else if (call_name == "bin" || "oct" || "hex") {
+        } else if (call_name == "bin" || call_name == "oct" || call_name == "hex") {
             if (args.size() != 1) {
                 throw SemanticError(call_name + "() takes exactly one argument (" +
                     std::to_string(args.size()) + " given)", x.base.base.loc);
             }
             ASR::expr_t* expr = args[0];
             ASR::ttype_t* type = ASRUtils::expr_type(expr);
-            if (ASR::is_a<ASR::Integer_t>(*type)) {
+            if (ASRUtils::is_integer(*type)) {
                 int64_t n = ASR::down_cast<ASR::ConstantInteger_t>(expr)->m_n;
                 ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
                     x.base.base.loc, 1, 1, nullptr, nullptr, 0));
@@ -1324,7 +1320,7 @@ public:
 };
 
 Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al,
-        AST::Module_t &ast,
+        const AST::Module_t &ast,
         diag::Diagnostics &diagnostics,
         ASR::asr_t *unit)
 {

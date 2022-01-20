@@ -126,8 +126,8 @@ public:
         ASR::expr_t *value=nullptr;
         if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::RealToInteger) {
             if (ASRUtils::expr_value(*convert_can)) {
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Integer_t>(*dest_type2))
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::expr_type(*convert_can)))
+                LFORTRAN_ASSERT(ASRUtils::is_integer(*dest_type2))
+                LFORTRAN_ASSERT(ASRUtils::is_real(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*value))
                 ASR::ConstantReal_t *r = ASR::down_cast<ASR::ConstantReal_t>(value);
@@ -137,8 +137,8 @@ public:
             }
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::IntegerToReal) {
             if (ASRUtils::expr_value(*convert_can)) {
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::type_get_past_pointer(dest_type)))
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(*convert_can)))
+                LFORTRAN_ASSERT(ASRUtils::is_real(*dest_type))
+                LFORTRAN_ASSERT(ASRUtils::is_integer(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 if (ASR::is_a<ASR::ConstantInteger_t>(*value)) {
                   ASR::ConstantInteger_t *i = ASR::down_cast<ASR::ConstantInteger_t>(value);
@@ -154,8 +154,8 @@ public:
 
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::RealToReal) {
             if (ASRUtils::expr_value(*convert_can)) {
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::type_get_past_pointer(dest_type)))
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::expr_type(*convert_can)))
+                LFORTRAN_ASSERT(ASRUtils::is_real(*dest_type))
+                LFORTRAN_ASSERT(ASRUtils::is_real(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*value))
                 ASR::ConstantReal_t *r = ASR::down_cast<ASR::ConstantReal_t>(value);
@@ -166,7 +166,7 @@ public:
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::RealToComplex) {
             if (ASRUtils::expr_value(*convert_can)) {
                 LFORTRAN_ASSERT(ASR::is_a<ASR::Complex_t>(*ASRUtils::type_get_past_pointer(dest_type)))
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::expr_type(*convert_can)))
+                LFORTRAN_ASSERT(ASRUtils::is_real(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*value))
                 ASR::ConstantReal_t *r = ASR::down_cast<ASR::ConstantReal_t>(value);
@@ -176,7 +176,7 @@ public:
             }
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::ComplexToReal) {
             if (ASRUtils::expr_value(*convert_can)) {
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Real_t>(*ASRUtils::type_get_past_pointer(dest_type)))
+                LFORTRAN_ASSERT(ASRUtils::is_real(*dest_type))
                 LFORTRAN_ASSERT(ASR::is_a<ASR::Complex_t>(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantComplex_t>(*value))
@@ -187,8 +187,8 @@ public:
             }
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::IntegerToInteger) {
             if (ASRUtils::expr_value(*convert_can)) {
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Integer_t>(*dest_type2))
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(*convert_can)))
+                LFORTRAN_ASSERT(ASRUtils::is_integer(*dest_type2))
+                LFORTRAN_ASSERT(ASRUtils::is_integer(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantInteger_t>(*value))
                 ASR::ConstantInteger_t *i = ASR::down_cast<ASR::ConstantInteger_t>(value);

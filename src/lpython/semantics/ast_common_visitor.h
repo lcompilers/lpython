@@ -413,8 +413,8 @@ public:
     }
     ASR::ttype_t *left_type = LFortran::ASRUtils::expr_type(left);
     ASR::ttype_t *right_type = LFortran::ASRUtils::expr_type(right);
-    LFORTRAN_ASSERT(ASR::is_a<ASR::Character_t>(*left_type))
-    LFORTRAN_ASSERT(ASR::is_a<ASR::Character_t>(*right_type))
+    LFORTRAN_ASSERT(ASRUtils::is_character(*left_type))
+    LFORTRAN_ASSERT(ASRUtils::is_character(*right_type))
     ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
     ASR::Character_t *right_type2 = ASR::down_cast<ASR::Character_t>(right_type);
     LFORTRAN_ASSERT(left_type2->n_dims == 0);
@@ -857,7 +857,7 @@ public:
         ASR::ttype_t *return_type = ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(f2)->m_return_var)->m_type;
         ASR::expr_t* value = nullptr;
         if (ASR::is_a<ASR::ExternalSymbol_t>(*v)) {
-            if (ASR::is_a<ASR::Character_t>(*return_type)) {
+            if (ASRUtils::is_character(*return_type)) {
                 return_type = handle_character_return(return_type, loc);
             }
 
