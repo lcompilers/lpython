@@ -4,8 +4,8 @@
 
 #include <fmt/core.h>
 
-#include <lfortran/parser/parser.h>
-#include <lfortran/pickle.h>
+#include <lpython/parser/parser.h>
+#include <lpython/pickle.h>
 
 std::string construct_fortran(size_t N) {
     std::string sub_template = R"(

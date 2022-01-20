@@ -1,5 +1,5 @@
 add_subdirectory(libasr)
 add_subdirectory(tests)
-add_subdirectory(lfortran)
+add_subdirectory(lpython)
 add_subdirectory(bin)
 add_subdirectory(runtime/legacy)

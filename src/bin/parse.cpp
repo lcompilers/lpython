@@ -1,6 +1,6 @@
 #include <iostream>
 #include <chrono>
-#include <lfortran/parser/parser.h>
+#include <lpython/parser/parser.h>
 
 using LFortran::parse;
 using LFortran::AST::ast_t;

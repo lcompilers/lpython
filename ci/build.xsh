@@ -31,14 +31,14 @@ python grammar/asdl_cpp.py
 # Generate a Fortran ASR from ASR.asdl (C++)
 python grammar/asdl_cpp.py grammar/ASR.asdl src/libasr/asr.h
 # Generate a Python AST from Python.asdl (C++)
-python grammar/asdl_cpp.py grammar/Python.asdl src/lfortran/python_ast.h
+python grammar/asdl_cpp.py grammar/Python.asdl src/lpython/python_ast.h
 # Generate a Python AST from Python.asdl (Python)
 python grammar/asdl_py.py
 
 # Generate the tokenizer and parser
-pushd src/lfortran/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd
-pushd src/lfortran/parser && re2c -W -b preprocessor.re -o preprocessor.cpp && popd
-pushd src/lfortran/parser && bison -Wall -d -r all parser.yy && popd
+pushd src/lpython/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd
+pushd src/lpython/parser && re2c -W -b preprocessor.re -o preprocessor.cpp && popd
+pushd src/lpython/parser && bison -Wall -d -r all parser.yy && popd
 
 $lpython_version=$(cat version).strip()
 $dest="lpython-" + $lpython_version
@@ -54,7 +54,7 @@ cd test-bld
 BUILD_TYPE = "Release"
 cmake -G $LFORTRAN_CMAKE_GENERATOR -DCMAKE_VERBOSE_MAKEFILE=ON -DWITH_LLVM=yes -DWITH_XEUS=yes -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DWITH_LFORTRAN_BINARY_MODFILES=no -DCMAKE_BUILD_TYPE=@(BUILD_TYPE) ..
 cmake --build . --target install
-./src/lfortran/tests/test_lfortran
+./src/lpython/tests/test_lfortran
 ./src/bin/lpython < ../src/bin/example_input.txt
 ctest --output-on-failure
 cpack -V
@@ -63,7 +63,7 @@ cd ../..
 jupyter kernelspec list --json
 #python ci/test_fortran_kernel.py -v
 #
-cd share/lfortran/nb
+cd share/lpython/nb
 jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output Demo1_out.ipynb Demo1.ipynb
 jupyter nbconvert --to notebook --execute --ExecutePreprocessor.timeout=60 --output Demo2_out.ipynb Demo2.ipynb
 cat Demo1_out.ipynb
@@ -94,3 +94,4 @@ src/bin/lpython --show-cpp doconcurrentloop_01.py
 
 if $WIN != "1":
     python run_tests.py
+    python integration_tests/run_tests.py

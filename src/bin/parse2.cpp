@@ -1,8 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
-#include <lfortran/parser/parser.h>
-#include <lfortran/pickle.h>
+#include <lpython/parser/parser.h>
+#include <lpython/pickle.h>
 
 int main()
 {

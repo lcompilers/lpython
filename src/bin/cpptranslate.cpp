@@ -4,11 +4,11 @@
 #define CLI11_HAS_FILESYSTEM 0
 #include <bin/CLI11.hpp>
 
-#include <lfortran/parser/parser.h>
-#include <lfortran/pickle.h>
-#include <lfortran/semantics/ast_to_asr.h>
-#include <lfortran/ast_to_src.h>
-#include <lfortran/ast_to_openmp.h>
+#include <lpython/parser/parser.h>
+#include <lpython/pickle.h>
+#include <lpython/semantics/ast_to_asr.h>
+#include <lpython/ast_to_src.h>
+#include <lpython/ast_to_openmp.h>
 #include <libasr/config.h>
 
 std::string read_file(const std::string &filename)
