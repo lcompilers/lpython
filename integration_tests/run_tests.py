@@ -12,7 +12,7 @@ def main():
     print("Compiling...")
     for pyfile in tests:
         basename = os.path.splitext(pyfile)[0]
-        cmd = "lpython integration_tests/%s -o integration_tests/%s" % (pyfile, basename)
+        cmd = "src/bin/lpython integration_tests/%s -o integration_tests/%s" % (pyfile, basename)
         print("+ " + cmd)
         r = os.system(cmd)
         if r != 0:
