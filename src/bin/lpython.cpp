@@ -510,19 +510,32 @@ int python_wrapper(const std::string &infile, std::string array_order,
     return 0;
 }
 
-int emit_ast(const std::string &infile,
-    CompilerOptions &compiler_options)
-{
-    std::string pycmd = "python a.py " + infile;
+LFortran::Result<LFortran::Python::AST::ast_t*> parse_python_file(Allocator &al,
+        const std::string &runtime_library_dir,
+        const std::string &infile) {
+    std::string pycmd = "python " + runtime_library_dir + "/lpython_parser.py " + infile;
     int err = std::system(pycmd.c_str());
     if (err != 0) {
         std::cerr << "The command '" << pycmd << "' failed." << std::endl;
-        return 1;
+        return LFortran::Error();
     }
     std::string infile_ser = "ser.txt";
     std::string input = read_file(infile_ser);
-    Allocator al(4*1024);
     LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
+    return ast;
+}
+
+int emit_ast(const std::string &infile,
+    const std::string &runtime_library_dir,
+    CompilerOptions &compiler_options)
+{
+    Allocator al(4*1024);
+    LFortran::Result<LFortran::Python::AST::ast_t*> r = parse_python_file(
+        al, runtime_library_dir, infile);
+    if (!r.ok) {
+        return 1;
+    }
+    LFortran::Python::AST::ast_t* ast = r.result;
 
     std::cout << LFortran::Python::pickle_python(*ast,
         compiler_options.use_colors, compiler_options.indent) << std::endl;
@@ -530,24 +543,23 @@ int emit_ast(const std::string &infile,
 }
 
 int emit_asr(const std::string &infile,
+    const std::string &runtime_library_dir,
     bool with_intrinsic_modules, CompilerOptions &compiler_options)
 {
-    std::string pycmd = "python a.py " + infile;
-    int err = std::system(pycmd.c_str());
-    if (err != 0) {
-        std::cerr << "The command '" << pycmd << "' failed." << std::endl;
+    Allocator al(4*1024);
+    LFortran::Result<LFortran::Python::AST::ast_t*> r1 = parse_python_file(
+        al, runtime_library_dir, infile);
+    if (!r1.ok) {
         return 1;
     }
-    std::string infile_ser = "ser.txt";
-    std::string input = read_file(infile_ser);
-    Allocator al(4*1024);
-    LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
+    LFortran::Python::AST::ast_t* ast = r1.result;
 
     LFortran::LocationManager lm;
     lm.in_filename = infile;
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics);
+    std::string input = read_file(infile);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -560,30 +572,30 @@ int emit_asr(const std::string &infile,
     return 0;
 }
 
-int emit_cpp(const std::string &infile, CompilerOptions &compiler_options)
+int emit_cpp(const std::string &infile,
+    const std::string &runtime_library_dir,
+    CompilerOptions &compiler_options)
 {
-    std::string pycmd = "python a.py " + infile;
-    int err = std::system(pycmd.c_str());
-    if (err != 0) {
-        std::cerr << "The command '" << pycmd << "' failed." << std::endl;
+    Allocator al(4*1024);
+    LFortran::Result<LFortran::Python::AST::ast_t*> r = parse_python_file(
+        al, runtime_library_dir, infile);
+    if (!r.ok) {
         return 1;
     }
-    std::string infile_ser = "ser.txt";
-    std::string input = read_file(infile_ser);
-    Allocator al(4*1024);
-    LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
+    LFortran::Python::AST::ast_t* ast = r.result;
 
     LFortran::LocationManager lm;
     lm.in_filename = infile;
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics);
+        r1 = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics);
+    std::string input = read_file(infile);
     std::cerr << diagnostics.render(input, lm, compiler_options);
-    if (!r.ok) {
+    if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 2;
     }
-    LFortran::ASR::TranslationUnit_t* asr = r.result;
+    LFortran::ASR::TranslationUnit_t* asr = r1.result;
 
     diagnostics.diagnostics.clear();
     auto res = LFortran::asr_to_cpp(al, *asr, diagnostics);
@@ -640,31 +652,31 @@ int save_mod_files(const LFortran::ASR::TranslationUnit_t &u)
 
 #ifdef HAVE_LFORTRAN_LLVM
 
-int emit_llvm(const std::string &infile, CompilerOptions &compiler_options)
+int emit_llvm(const std::string &infile,
+    const std::string &runtime_library_dir,
+    CompilerOptions &compiler_options)
 {
-    std::string pycmd = "python a.py " + infile;
-    int err = std::system(pycmd.c_str());
-    if (err != 0) {
-        std::cerr << "The command '" << pycmd << "' failed." << std::endl;
+    Allocator al(4*1024);
+    LFortran::Result<LFortran::Python::AST::ast_t*> r = parse_python_file(
+        al, runtime_library_dir, infile);
+    if (!r.ok) {
         return 1;
     }
-    std::string infile_ser = "ser.txt";
-    std::string input = read_file(infile_ser);
-    Allocator al(4*1024);
     LFortran::LocationManager lm;
 
     // Src -> AST -> ASR
-    LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
+    LFortran::Python::AST::ast_t* ast = r.result;
     lm.in_filename = infile;
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics);
+        r1 = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics);
+    std::string input = read_file(infile);
     std::cerr << diagnostics.render(input, lm, compiler_options);
-    if (!r.ok) {
+    if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 2;
     }
-    LFortran::ASR::TranslationUnit_t* asr = r.result;
+    LFortran::ASR::TranslationUnit_t* asr = r1.result;
     diagnostics.diagnostics.clear();
 
     // ASR -> LLVM
@@ -702,31 +714,30 @@ int emit_asm(const std::string &infile, CompilerOptions &compiler_options)
 int compile_python_to_object_file(
         const std::string &infile,
         const std::string &outfile,
+        const std::string &runtime_library_dir,
         CompilerOptions &compiler_options)
 {
-    std::string pycmd = "python a.py " + infile;
-    int err = std::system(pycmd.c_str());
-    if (err != 0) {
-        std::cerr << "The command '" << pycmd << "' failed." << std::endl;
+    Allocator al(4*1024);
+    LFortran::Result<LFortran::Python::AST::ast_t*> r = parse_python_file(
+        al, runtime_library_dir, infile);
+    if (!r.ok) {
         return 1;
     }
-    std::string infile_ser = "ser.txt";
-    std::string input = read_file(infile_ser);
-    Allocator al(4*1024);
     LFortran::LocationManager lm;
 
     // Src -> AST -> ASR
-    LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
+    LFortran::Python::AST::ast_t* ast = r.result;
     lm.in_filename = infile;
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics);
+        r1 = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics);
+    std::string input = read_file(infile);
     std::cerr << diagnostics.render(input, lm, compiler_options);
-    if (!r.ok) {
+    if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 2;
     }
-    LFortran::ASR::TranslationUnit_t* asr = r.result;
+    LFortran::ASR::TranslationUnit_t* asr = r1.result;
     diagnostics.diagnostics.clear();
 
     // ASR -> LLVM
@@ -1467,18 +1478,18 @@ int main(int argc, char *argv[])
             show_asr = true;
         }
         if (show_ast) {
-            return emit_ast(arg_file, compiler_options);
+            return emit_ast(arg_file, runtime_library_dir, compiler_options);
         }
         if (show_asr) {
-            return emit_asr(arg_file,
+            return emit_asr(arg_file, runtime_library_dir,
                     with_intrinsic_modules, compiler_options);
         }
         if (show_cpp) {
-            return emit_cpp(arg_file, compiler_options);
+            return emit_cpp(arg_file, runtime_library_dir, compiler_options);
         }
         if (show_llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-            return emit_llvm(arg_file, compiler_options);
+            return emit_llvm(arg_file, runtime_library_dir, compiler_options);
 #else
             std::cerr << "The --show-llvm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
             return 1;
@@ -1511,7 +1522,7 @@ int main(int argc, char *argv[])
         if (arg_c) {
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-                return compile_python_to_object_file(arg_file, outfile, compiler_options);
+                return compile_python_to_object_file(arg_file, outfile, runtime_library_dir, compiler_options);
 #else
                 std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
@@ -1532,7 +1543,7 @@ int main(int argc, char *argv[])
             int err;
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-                err = compile_python_to_object_file(arg_file, tmp_o, compiler_options);
+                err = compile_python_to_object_file(arg_file, tmp_o, runtime_library_dir, compiler_options);
 #else
                 std::cerr << "Compiling Python files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;

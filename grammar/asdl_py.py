@@ -495,7 +495,7 @@ def main(argv):
         print("Assuming default values of Python.asdl and python_ast.py")
         here = os.path.dirname(__file__)
         def_file = os.path.join(here, "Python.asdl")
-        out_file = os.path.join(here, "..", "python_ast.py")
+        out_file = os.path.join(here, "..", "src", "runtime", "python_ast.py")
         util_import_part = ".utils"
     else:
         print("invalid arguments")
