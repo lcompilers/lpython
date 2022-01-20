@@ -94,5 +94,4 @@ src/bin/lpython --show-cpp doconcurrentloop_01.py
 
 if $WIN != "1":
     python run_tests.py
-
-python integration_tests/run_tests.py
+    python integration_tests/run_tests.py
