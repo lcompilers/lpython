@@ -279,6 +279,13 @@ public:
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(tmp);
         current_scope = parent_scope;
     }
+
+    void visit_AnnAssign(const AST::AnnAssign_t &/*x*/) {
+        // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
+    }
+    void visit_Assign(const AST::Assign_t &/*x*/) {
+        // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
+    }
 };
 
 Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, const AST::Module_t &ast,
@@ -333,9 +340,17 @@ public:
         current_scope = unit->m_global_scope;
         LFORTRAN_ASSERT(current_scope != nullptr);
 
+        Vec<ASR::asr_t*> items;
+        items.reserve(al, 4);
         for (size_t i=0; i<x.n_body; i++) {
+            tmp = nullptr;
             visit_stmt(*x.m_body[i]);
+            if (tmp) {
+                items.push_back(al, tmp);
+            }
         }
+        unit->m_items = items.p;
+        unit->n_items = items.size();
 
         tmp = asr;
     }
