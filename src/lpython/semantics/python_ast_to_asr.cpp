@@ -21,6 +21,25 @@
 
 namespace LFortran::Python {
 
+ASR::Module_t* load_module(Allocator &/*al*/, SymbolTable *symtab,
+                            const std::string &module_name,
+                            const Location &loc, bool /*intrinsic*/,
+                            const std::string &/*rl_path*/,
+                            const std::function<void (const std::string &, const Location &)> err) {
+    LFORTRAN_ASSERT(symtab);
+    if (symtab->scope.find(module_name) != symtab->scope.end()) {
+        ASR::symbol_t *m = symtab->scope[module_name];
+        if (ASR::is_a<ASR::Module_t>(*m)) {
+            return ASR::down_cast<ASR::Module_t>(m);
+        } else {
+            err("The symbol '" + module_name + "' is not a module", loc);
+        }
+    }
+    LFORTRAN_ASSERT(symtab->parent == nullptr);
+    // TODO: load the module `module_name`.py, insert into `symtab` and return it
+    return nullptr;
+}
+
 template <class Derived>
 class CommonVisitor : public AST::BaseVisitor<Derived> {
 public:
@@ -278,6 +297,30 @@ public:
         }
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(tmp);
         current_scope = parent_scope;
+    }
+
+    void visit_ImportFrom(const AST::ImportFrom_t &x) {
+        if (!x.m_module) {
+            throw SemanticError("Not implemented: The import statement must currently specify the module name", x.base.base.loc);
+        }
+        std::string msym = x.m_module; // Module name
+        std::vector<std::string> mod_symbols;
+        for (size_t i=0; i<x.n_names; i++) {
+            mod_symbols.push_back(x.m_names[i].m_name);
+        }
+
+        // Get the module, for now assuming it is not loaded, so we load it:
+        ASR::symbol_t *t = nullptr; // current_scope->parent->resolve_symbol(msym);
+        if (!t) {
+            std::string rl_path = get_runtime_library_dir();
+            t = (ASR::symbol_t*)(load_module(al, current_scope,
+                msym, x.base.base.loc, false, rl_path,
+                [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
+                ));
+        }
+//        ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
+
+        tmp = nullptr;
     }
 
     void visit_AnnAssign(const AST::AnnAssign_t &/*x*/) {
@@ -1331,6 +1374,11 @@ public:
             4, nullptr, 0));
         tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, s,
             nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
+    }
+
+    void visit_ImportFrom(const AST::ImportFrom_t &/*x*/) {
+        // Handled by SymbolTableVisitor already
+        tmp = nullptr;
     }
 };
 
