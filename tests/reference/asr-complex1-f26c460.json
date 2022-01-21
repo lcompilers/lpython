@@ -2,7 +2,7 @@
     "basename": "asr-complex1-f26c460",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/complex1.py",
-    "infile_hash": "f3581784b6474111c8f2a02dfe068a999a56240732050206a1a851a1",
+    "infile_hash": "b2b03679b58cb7cf9e898a95fcc922a0f1aacdef4830a80a38f8789a",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-complex1-f26c460.stdout",
