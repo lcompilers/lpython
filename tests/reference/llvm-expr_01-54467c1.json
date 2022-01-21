@@ -2,12 +2,12 @@
     "basename": "llvm-expr_01-54467c1",
     "cmd": "lpython --no-color --show-llvm {infile} -o {outfile}",
     "infile": "tests/expr_01.py",
-    "infile_hash": "822d00d3d312243c6aaa90bba3e7b2e31eb41ef7bf9579e3794e4f3f",
+    "infile_hash": "4998ff229ad08556d7d216d3ad94d7eb069c14dc45d930a839c4ffc8",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-expr_01-54467c1.stdout",
-    "stdout_hash": "cedd6bf3b0932220945df1b9405f9f7263ed61f134621c73bc08c124",
-    "stderr": null,
-    "stderr_hash": null,
-    "returncode": 0
+    "stdout_hash": "b8199ba2afc838ae6571fb8d46fe9ebbec96c8e58e3f057b67364ca7",
+    "stderr": "llvm-expr_01-54467c1.stderr",
+    "stderr_hash": "347f1bde6e1f1bc4308747ce8f6d07d8c69e9ee0e23f4127d82d7fc4",
+    "returncode": 3
 }

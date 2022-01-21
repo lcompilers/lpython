@@ -810,6 +810,43 @@ public:
             );
             throw SemanticAbort();
         }
+        // Now, compute the result of the binary operations
+        if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
+            if (ASRUtils::is_integer(*dest_type)) {
+                int64_t left_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                                    ASRUtils::expr_value(left))->m_n;
+                int64_t right_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                                    ASRUtils::expr_value(right))->m_n;
+                int64_t result;
+                switch (op) {
+                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
+                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
+                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
+                    case (ASR::binopType::Div): { result = left_value / right_value; break; }
+                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
+                    default: { LFORTRAN_ASSERT(false); } // should never happen
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
+                    al, loc, result, dest_type));
+            }
+            else if (ASRUtils::is_real(*dest_type)) {
+                double left_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                                    ASRUtils::expr_value(left))->m_r;
+                double right_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                                    ASRUtils::expr_value(right))->m_r;
+                double result;
+                switch (op) {
+                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
+                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
+                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
+                    case (ASR::binopType::Div): { result = left_value / right_value; break; }
+                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
+                    default: { LFORTRAN_ASSERT(false); }
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(
+                    al, loc, result, dest_type));
+            }
+        }
         ASR::expr_t *overloaded = nullptr;
         tmp = ASR::make_BinOp_t(al, loc, left, op, right, dest_type,
                                 value, overloaded);
