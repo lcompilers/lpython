@@ -2,7 +2,6 @@
 source_filename = "LFortran"
 
 @0 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
-@1 = private unnamed_addr constant [6 x i8] c"%lld\0A\00", align 1
 
 define i64 @main() {
 .entry:
@@ -12,20 +11,14 @@ define i64 @main() {
   %y = alloca float, align 4
   %y2 = alloca double, align 8
   store i32 25, i32* %x, align 4
-  store i32 8, i32* %x, align 4
-  store i32 -46, i32* %x, align 4
-  store double 0xC06C6C083126E978, i64* %x2, align 8
-  store double 0x40D203698D4FDF3B, i64* %x2, align 8
   %0 = load i32, i32* %x, align 4
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @0, i32 0, i32 0), i32 %0)
-  %1 = load i64, i64* %x2, align 4
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @1, i32 0, i32 0), i64 %1)
   store i64 0, i64* %main_return_var, align 4
   br label %return
 
 return:                                           ; preds = %.entry
-  %2 = load i64, i64* %main_return_var, align 4
-  ret i64 %2
+  %1 = load i64, i64* %main_return_var, align 4
+  ret i64 %1
 }
 
 declare void @_lfortran_printf(i8*, ...)
