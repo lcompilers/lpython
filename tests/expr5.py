@@ -5,3 +5,4 @@ def test_strOP():
     s = 3 * 'a' * 3
     s = '3' + '4'
     s += 'test'
+    s = 'test' + 'test' + 'test'

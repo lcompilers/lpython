@@ -116,6 +116,7 @@ struct LocationManager {
     // Every character in the output code has a corresponding location in the
     // original code, so this function always succeeds
     uint32_t output_to_input_pos(uint32_t out_pos, bool show_last) const {
+        if (out_start.size() == 0) return 0;
         uint32_t interval = bisection(out_start, out_pos)-1;
         uint32_t rel_pos = out_pos - out_start[interval];
         uint32_t in_pos = in_start[interval] + rel_pos;

@@ -944,7 +944,7 @@ public:
             } else {
                 throw SemanticError("Variable '" + dt_name + "' doesn't have any member named, '" + var_name + "'.", loc);
             }
-        } else if (ASR::is_a<ASR::Complex_t>(*v_variable->m_type)) {
+        } else if (ASRUtils::is_complex(*v_variable->m_type)) {
             if (var_name == "re") {
                 ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, v));
                 int kind = ASRUtils::extract_kind_from_ttype_t(v_variable->m_type);

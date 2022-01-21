@@ -770,8 +770,28 @@ public:
         } else if (ASRUtils::is_character(*left_type) && ASRUtils::is_character(*right_type)
                             && op == ASR::binopType::Add) {
             // string concat
-            dest_type = left_type;
             ASR::stropType ops = ASR::stropType::Concat;
+            ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
+            ASR::Character_t *right_type2 = ASR::down_cast<ASR::Character_t>(right_type);
+            LFORTRAN_ASSERT(left_type2->n_dims == 0);
+            LFORTRAN_ASSERT(right_type2->n_dims == 0);
+            dest_type = ASR::down_cast<ASR::ttype_t>(
+                    ASR::make_Character_t(al, loc, left_type2->m_kind,
+                    left_type2->m_len + right_type2->m_len, nullptr, nullptr, 0));
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
+                char* left_value = ASR::down_cast<ASR::ConstantString_t>(
+                                        ASRUtils::expr_value(left))->m_s;
+                char* right_value = ASR::down_cast<ASR::ConstantString_t>(
+                                        ASRUtils::expr_value(right))->m_s;
+                char* result;
+                std::string result_s = std::string(left_value) + std::string(right_value);
+                Str s;
+                s.from_str_view(result_s);
+                result = s.c_str(al);
+                LFORTRAN_ASSERT((int64_t)strlen(result) == ASR::down_cast<ASR::Character_t>(dest_type)->m_len)
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(
+                    al, loc, result, dest_type));
+            }
             tmp = ASR::make_StrOp_t(al, loc, left, ops, right, dest_type,
                                     value);
             return;
@@ -782,6 +802,8 @@ public:
             tmp = ASR::make_StrOp_t(al, loc, left, ops, right, dest_type,
                                     value);
             return;
+        } else if (ASRUtils::is_complex(*left_type) && ASRUtils::is_complex(*right_type)) {
+            dest_type = left_type;
         } else {
             std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
@@ -809,6 +831,62 @@ public:
                 })
             );
             throw SemanticAbort();
+        }
+        // Now, compute the result of the binary operations
+        if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
+            if (ASRUtils::is_integer(*dest_type)) {
+                int64_t left_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                                    ASRUtils::expr_value(left))->m_n;
+                int64_t right_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                                    ASRUtils::expr_value(right))->m_n;
+                int64_t result;
+                switch (op) {
+                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
+                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
+                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
+                    case (ASR::binopType::Div): { result = left_value / right_value; break; }
+                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
+                    default: { LFORTRAN_ASSERT(false); } // should never happen
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
+                    al, loc, result, dest_type));
+            }
+            else if (ASRUtils::is_real(*dest_type)) {
+                double left_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                                    ASRUtils::expr_value(left))->m_r;
+                double right_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                                    ASRUtils::expr_value(right))->m_r;
+                double result;
+                switch (op) {
+                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
+                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
+                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
+                    case (ASR::binopType::Div): { result = left_value / right_value; break; }
+                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
+                    default: { LFORTRAN_ASSERT(false); }
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(
+                    al, loc, result, dest_type));
+            }
+            else if (ASRUtils::is_complex(*dest_type)) {
+                ASR::ConstantComplex_t *left0 = ASR::down_cast<ASR::ConstantComplex_t>(
+                                                                ASRUtils::expr_value(left));
+                ASR::ConstantComplex_t *right0 = ASR::down_cast<ASR::ConstantComplex_t>(
+                                                                ASRUtils::expr_value(right));
+                std::complex<double> left_value(left0->m_re, left0->m_im);
+                std::complex<double> right_value(right0->m_re, right0->m_im);
+                std::complex<double> result;
+                switch (op) {
+                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
+                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
+                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
+                    case (ASR::binopType::Div): { result = left_value / right_value; break; }
+                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
+                    default: { LFORTRAN_ASSERT(false); }
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantComplex_t(al, loc,
+                        std::real(result), std::imag(result), dest_type));
+            }
         }
         ASR::expr_t *overloaded = nullptr;
         tmp = ASR::make_BinOp_t(al, loc, left, op, right, dest_type,
