@@ -165,7 +165,7 @@ public:
             }
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::RealToComplex) {
             if (ASRUtils::expr_value(*convert_can)) {
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Complex_t>(*ASRUtils::type_get_past_pointer(dest_type)))
+                LFORTRAN_ASSERT(ASRUtils::is_complex(*dest_type))
                 LFORTRAN_ASSERT(ASRUtils::is_real(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantReal_t>(*value))
@@ -177,7 +177,7 @@ public:
         } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::ComplexToReal) {
             if (ASRUtils::expr_value(*convert_can)) {
                 LFORTRAN_ASSERT(ASRUtils::is_real(*dest_type))
-                LFORTRAN_ASSERT(ASR::is_a<ASR::Complex_t>(*ASRUtils::expr_type(*convert_can)))
+                LFORTRAN_ASSERT(ASRUtils::is_complex(*ASRUtils::expr_type(*convert_can)))
                 value = ASRUtils::expr_value(*convert_can);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantComplex_t>(*value))
                 ASR::ConstantComplex_t *r = ASR::down_cast<ASR::ConstantComplex_t>(value);

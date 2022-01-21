@@ -2853,7 +2853,7 @@ public:
                     break;
                 };
             }
-        } else if (ASR::is_a<ASR::Complex_t>(*ASRUtils::type_get_past_pointer(x.m_type))) {
+        } else if (ASRUtils::is_complex(*x.m_type)) {
             llvm::Type *type;
             int a_kind;
             a_kind = down_cast<ASR::Complex_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
@@ -3426,7 +3426,7 @@ public:
             } else if (t->type == ASR::ttypeType::Character) {
                 fmt.push_back("%s");
                 args.push_back(tmp);
-            } else if (ASR::is_a<ASR::Complex_t>(*ASRUtils::type_get_past_pointer(t))) {
+            } else if (ASRUtils::is_complex(*t)) {
                 llvm::Type *type, *complex_type;
                 switch( a_kind ) {
                     case 4 : {
