@@ -15,3 +15,8 @@ def test_complex():
     c3 = complex(3., 4.)
     b = c1 != c2
     b = c1 == c3
+
+    # binary ops
+    c = c1 + c2
+    c = c2 - c1
+    c = c1 * c2
