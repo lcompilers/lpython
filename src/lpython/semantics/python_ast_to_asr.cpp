@@ -848,10 +848,11 @@ public:
         } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
             // string repeat
             ASR::stropType ops = ASR::stropType::Repeat;
+            int64_t left_int = 0, right_int = 0;
             if (right_is_int) {
                 ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
                 LFORTRAN_ASSERT(left_type2->n_dims == 0);
-                int64_t right_int = ASR::down_cast<ASR::ConstantInteger_t>(
+                right_int = ASR::down_cast<ASR::ConstantInteger_t>(
                                                    ASRUtils::expr_value(right))->m_n;
                 dest_type = ASR::down_cast<ASR::ttype_t>(
                         ASR::make_Character_t(al, loc, left_type2->m_kind,
@@ -859,7 +860,7 @@ public:
             } else if (left_is_int) {
                 ASR::Character_t *right_type2 = ASR::down_cast<ASR::Character_t>(right_type);
                 LFORTRAN_ASSERT(right_type2->n_dims == 0);
-                int64_t left_int = ASR::down_cast<ASR::ConstantInteger_t>(
+                left_int = ASR::down_cast<ASR::ConstantInteger_t>(
                                                    ASRUtils::expr_value(left))->m_n;
                 dest_type = ASR::down_cast<ASR::ttype_t>(
                         ASR::make_Character_t(al, loc, right_type2->m_kind,
@@ -871,10 +872,7 @@ public:
                                                 ASRUtils::expr_value(left))->m_s :
                                                 ASR::down_cast<ASR::ConstantString_t>(
                                                 ASRUtils::expr_value(right))->m_s;
-                int64_t repeat = right_is_int ? ASR::down_cast<ASR::ConstantInteger_t>(
-                                                    ASRUtils::expr_value(right))->m_n :
-                                                    ASR::down_cast<ASR::ConstantInteger_t>(
-                                                    ASRUtils::expr_value(left))->m_n;
+                int64_t repeat = right_is_int ? right_int : left_int;
                 char* result;
                 std::ostringstream os;
                 std::fill_n(std::ostream_iterator<std::string>(os), repeat, std::string(str));
