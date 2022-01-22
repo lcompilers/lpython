@@ -843,13 +843,51 @@ public:
             tmp = ASR::make_StrOp_t(al, loc, left, ops, right, dest_type,
                                     value);
             return;
+
         } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
             // string repeat
-            dest_type = right_is_int ? left_type : right_type;
             ASR::stropType ops = ASR::stropType::Repeat;
-            tmp = ASR::make_StrOp_t(al, loc, left, ops, right, dest_type,
-                                    value);
+            if (right_is_int) {
+                ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
+                LFORTRAN_ASSERT(left_type2->n_dims == 0);
+                int64_t right_int = ASR::down_cast<ASR::ConstantInteger_t>(
+                                                   ASRUtils::expr_value(right))->m_n;
+                dest_type = ASR::down_cast<ASR::ttype_t>(
+                        ASR::make_Character_t(al, loc, left_type2->m_kind,
+                        left_type2->m_len * right_int, nullptr, nullptr, 0));
+            } else if (left_is_int) {
+                ASR::Character_t *right_type2 = ASR::down_cast<ASR::Character_t>(right_type);
+                LFORTRAN_ASSERT(right_type2->n_dims == 0);
+                int64_t left_int = ASR::down_cast<ASR::ConstantInteger_t>(
+                                                   ASRUtils::expr_value(left))->m_n;
+                dest_type = ASR::down_cast<ASR::ttype_t>(
+                        ASR::make_Character_t(al, loc, right_type2->m_kind,
+                        right_type2->m_len * left_int, nullptr, nullptr, 0));
+            }
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
+                char* str = right_is_int ? ASR::down_cast<ASR::ConstantString_t>(
+                                                ASRUtils::expr_value(left))->m_s :
+                                                ASR::down_cast<ASR::ConstantString_t>(
+                                                ASRUtils::expr_value(right))->m_s;
+                int64_t repeat = right_is_int ? ASR::down_cast<ASR::ConstantInteger_t>(
+                                                    ASRUtils::expr_value(right))->m_n :
+                                                    ASR::down_cast<ASR::ConstantInteger_t>(
+                                                    ASRUtils::expr_value(left))->m_n;
+                char* result;
+                std::ostringstream os;
+                std::fill_n(std::ostream_iterator<std::string>(os), repeat, std::string(str));
+                std::string result_s = os.str();
+                Str s;
+                s.from_str_view(result_s);
+                result = s.c_str(al);
+                LFORTRAN_ASSERT((int64_t)strlen(result) == ASR::down_cast<ASR::Character_t>(dest_type)->m_len)
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(
+                    al, loc, result, dest_type));
+            }
+            tmp = ASR::make_StrOp_t(al, loc, left, ops, right, dest_type, value);
             return;
+
         } else if (ASRUtils::is_complex(*left_type) && ASRUtils::is_complex(*right_type)) {
             dest_type = left_type;
         } else {

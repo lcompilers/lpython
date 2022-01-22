@@ -2,11 +2,11 @@
     "basename": "ast-expr5-bbc6e71",
     "cmd": "lpython --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/expr5.py",
-    "infile_hash": "cdcbd274cd2d736afa60bebc7a966987f6972e2193ff66fc250f214d",
+    "infile_hash": "a2e127db2fddee867a903ccef86101d9eb9c78e30bd753de72be0ce4",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-expr5-bbc6e71.stdout",
-    "stdout_hash": "b9129bde458b2d81f5ae4b891369dfba8387254f8511f22393e7b9f7",
+    "stdout_hash": "bdbb99cd0ac95f11230b5eb81bab733705c858ff50911012b748c148",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
