@@ -253,7 +253,6 @@ public:
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Subroutine already defined", tmp->loc);
         }
-        bool is_pure = false, is_module = false;
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::deftypeType deftype = ASR::deftypeType::Implementation;
         char *bindc_name=nullptr;
@@ -284,6 +283,7 @@ public:
                 current_procedure_abi_type,
                 s_access, deftype, bindc_name);
         } else {
+            bool is_pure = false, is_module = false;
             tmp = ASR::make_Subroutine_t(
                 al, x.base.base.loc,
                 /* a_symtab */ current_scope,
