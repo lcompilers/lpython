@@ -33,7 +33,7 @@ void test_factorial_2(int x)
     int i;
     int result;
     result = 1;
-    for (i=1; i<=x + 1; i++) {
+    for (i=1; i<=x + 1 - 1; i++) {
         result = result*i;
     };
     return;
