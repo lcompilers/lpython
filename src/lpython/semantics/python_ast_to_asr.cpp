@@ -616,6 +616,11 @@ public:
 
         ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
             4, nullptr, 0));
+        ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
+                                            al, x.base.base.loc, 1, a_type));
+        make_BinOp_helper(loop_end, constant_one, ASR::binopType::Sub,
+                            x.base.base.loc, false);
+        loop_end = ASRUtils::EXPR(tmp);
         ASR::do_loop_head_t head;
         head.m_v = target;
         if (loop_start) {
