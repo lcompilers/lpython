@@ -8,6 +8,7 @@
 #include <bitset>
 #include <complex>
 #include <sstream>
+#include <iterator>
 
 #include <lpython/python_ast.h>
 #include <libasr/asr.h>
