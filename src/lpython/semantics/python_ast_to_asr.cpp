@@ -9,6 +9,7 @@
 #include <complex>
 #include <sstream>
 #include <iterator>
+#include <algorithm>
 
 #include <lpython/python_ast.h>
 #include <libasr/asr.h>
@@ -848,23 +849,27 @@ public:
         } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
             // string repeat
             ASR::stropType ops = ASR::stropType::Repeat;
-            int64_t left_int = 0, right_int = 0;
+            int64_t left_int = 0, right_int = 0, dest_len = 0;
             if (right_is_int) {
                 ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
                 LFORTRAN_ASSERT(left_type2->n_dims == 0);
                 right_int = ASR::down_cast<ASR::ConstantInteger_t>(
                                                    ASRUtils::expr_value(right))->m_n;
+                dest_len = left_type2->m_len * right_int;
+                if (dest_len < 0) dest_len = 0;
                 dest_type = ASR::down_cast<ASR::ttype_t>(
                         ASR::make_Character_t(al, loc, left_type2->m_kind,
-                        left_type2->m_len * right_int, nullptr, nullptr, 0));
+                        dest_len, nullptr, nullptr, 0));
             } else if (left_is_int) {
                 ASR::Character_t *right_type2 = ASR::down_cast<ASR::Character_t>(right_type);
                 LFORTRAN_ASSERT(right_type2->n_dims == 0);
                 left_int = ASR::down_cast<ASR::ConstantInteger_t>(
                                                    ASRUtils::expr_value(left))->m_n;
+                dest_len = right_type2->m_len * left_int;
+                if (dest_len < 0) dest_len = 0;
                 dest_type = ASR::down_cast<ASR::ttype_t>(
                         ASR::make_Character_t(al, loc, right_type2->m_kind,
-                        right_type2->m_len * left_int, nullptr, nullptr, 0));
+                        dest_len, nullptr, nullptr, 0));
             }
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
@@ -880,7 +885,7 @@ public:
                 Str s;
                 s.from_str_view(result_s);
                 result = s.c_str(al);
-                LFORTRAN_ASSERT((int64_t)strlen(result) == ASR::down_cast<ASR::Character_t>(dest_type)->m_len)
+                LFORTRAN_ASSERT((int64_t)strlen(result) == dest_len)
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(
                     al, loc, result, dest_type));
             }
@@ -1031,8 +1036,9 @@ public:
                             x.base.base.loc);
                     }
                 }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
-                            al, x.base.base.loc, result, operand_type));
+                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, result, operand_type);
+                return;
+
             } else if (ASRUtils::is_real(*operand_type)) {
                 double op_value = ASR::down_cast<ASR::ConstantReal_t>(
                                         ASRUtils::expr_value(operand))
@@ -1046,8 +1052,8 @@ public:
                             x.base.base.loc);
                     }
                 }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(
-                            al, x.base.base.loc, result, operand_type));
+                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, result, operand_type);
+                return;
             }
         }
         tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
