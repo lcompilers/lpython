@@ -13,6 +13,7 @@ def test_complex():
     c1 = complex(3, 4)
     c2 = complex(2, 4.5)
     c3 = complex(3., 4.)
+    c3 = complex(-3., 4.)
     b = c1 != c2
     b = c1 == c3
 
