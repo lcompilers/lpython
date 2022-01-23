@@ -8,6 +8,7 @@
 #include <bitset>
 #include <complex>
 #include <sstream>
+#include <iterator>
 
 #include <lpython/python_ast.h>
 #include <libasr/asr.h>
@@ -252,7 +253,6 @@ public:
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Subroutine already defined", tmp->loc);
         }
-        bool is_pure = false, is_module = false;
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::deftypeType deftype = ASR::deftypeType::Implementation;
         char *bindc_name=nullptr;
@@ -283,6 +283,7 @@ public:
                 current_procedure_abi_type,
                 s_access, deftype, bindc_name);
         } else {
+            bool is_pure = false, is_module = false;
             tmp = ASR::make_Subroutine_t(
                 al, x.base.base.loc,
                 /* a_symtab */ current_scope,
@@ -843,13 +844,53 @@ public:
             tmp = ASR::make_StrOp_t(al, loc, left, ops, right, dest_type,
                                     value);
             return;
+
         } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
             // string repeat
-            dest_type = right_is_int ? left_type : right_type;
             ASR::stropType ops = ASR::stropType::Repeat;
-            tmp = ASR::make_StrOp_t(al, loc, left, ops, right, dest_type,
-                                    value);
+            int64_t left_int = 0, right_int = 0, dest_len = 0;
+            if (right_is_int) {
+                ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
+                LFORTRAN_ASSERT(left_type2->n_dims == 0);
+                right_int = ASR::down_cast<ASR::ConstantInteger_t>(
+                                                   ASRUtils::expr_value(right))->m_n;
+                dest_len = left_type2->m_len * right_int;
+                if (dest_len < 0) dest_len = 0;
+                dest_type = ASR::down_cast<ASR::ttype_t>(
+                        ASR::make_Character_t(al, loc, left_type2->m_kind,
+                        dest_len, nullptr, nullptr, 0));
+            } else if (left_is_int) {
+                ASR::Character_t *right_type2 = ASR::down_cast<ASR::Character_t>(right_type);
+                LFORTRAN_ASSERT(right_type2->n_dims == 0);
+                left_int = ASR::down_cast<ASR::ConstantInteger_t>(
+                                                   ASRUtils::expr_value(left))->m_n;
+                dest_len = right_type2->m_len * left_int;
+                if (dest_len < 0) dest_len = 0;
+                dest_type = ASR::down_cast<ASR::ttype_t>(
+                        ASR::make_Character_t(al, loc, right_type2->m_kind,
+                        dest_len, nullptr, nullptr, 0));
+            }
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
+                char* str = right_is_int ? ASR::down_cast<ASR::ConstantString_t>(
+                                                ASRUtils::expr_value(left))->m_s :
+                                                ASR::down_cast<ASR::ConstantString_t>(
+                                                ASRUtils::expr_value(right))->m_s;
+                int64_t repeat = right_is_int ? right_int : left_int;
+                char* result;
+                std::ostringstream os;
+                std::fill_n(std::ostream_iterator<std::string>(os), repeat, std::string(str));
+                std::string result_s = os.str();
+                Str s;
+                s.from_str_view(result_s);
+                result = s.c_str(al);
+                LFORTRAN_ASSERT((int64_t)strlen(result) == dest_len)
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(
+                    al, loc, result, dest_type));
+            }
+            tmp = ASR::make_StrOp_t(al, loc, left, ops, right, dest_type, value);
             return;
+
         } else if (ASRUtils::is_complex(*left_type) && ASRUtils::is_complex(*right_type)) {
             dest_type = left_type;
         } else {
