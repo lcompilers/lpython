@@ -9,7 +9,6 @@
 #include <complex>
 #include <sstream>
 #include <iterator>
-#include <algorithm>
 
 #include <lpython/python_ast.h>
 #include <libasr/asr.h>
