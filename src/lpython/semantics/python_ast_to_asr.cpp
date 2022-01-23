@@ -994,8 +994,9 @@ public:
                             x.base.base.loc);
                     }
                 }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
-                            al, x.base.base.loc, result, operand_type));
+                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, result, operand_type);
+                return;
+
             } else if (ASRUtils::is_real(*operand_type)) {
                 double op_value = ASR::down_cast<ASR::ConstantReal_t>(
                                         ASRUtils::expr_value(operand))
@@ -1009,8 +1010,8 @@ public:
                             x.base.base.loc);
                     }
                 }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(
-                            al, x.base.base.loc, result, operand_type));
+                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, result, operand_type);
+                return;
             }
         }
         tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
