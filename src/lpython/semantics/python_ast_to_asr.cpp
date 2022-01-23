@@ -994,8 +994,9 @@ public:
                             x.base.base.loc);
                     }
                 }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
-                            al, x.base.base.loc, result, operand_type));
+                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, result, operand_type);
+                return;
+
             } else if (ASRUtils::is_real(*operand_type)) {
                 double op_value = ASR::down_cast<ASR::ConstantReal_t>(
                                         ASRUtils::expr_value(operand))
@@ -1009,8 +1010,8 @@ public:
                             x.base.base.loc);
                     }
                 }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(
-                            al, x.base.base.loc, result, operand_type));
+                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, result, operand_type);
+                return;
             }
         }
         tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
@@ -1445,6 +1446,36 @@ public:
                 throw SemanticError(call_name + "() must have one integer argument",
                     x.base.base.loc);
             }
+        } else if (call_name == "abs") {
+            if (args.size() != 1) {
+                throw SemanticError(call_name + "() takes exactly one argument (" +
+                    std::to_string(args.size()) + " given)", x.base.base.loc);
+            }
+            ASR::expr_t* arg = args[0];
+            ASR::ttype_t* t = ASRUtils::expr_type(args[0]);
+            if (ASRUtils::is_real(*t)) {
+                double rv = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
+                double val = std::abs(rv);
+                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, val, t);
+            } else if (ASRUtils::is_integer(*t)) {
+                int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
+                int64_t val = std::abs(rv);
+                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, val, t);
+            } else if (ASRUtils::is_complex(*t)) {
+                double re = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_re;
+                double im = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_im;
+                std::complex<double> c(re, im);
+                double result = std::abs(c);
+                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, result, t);
+            } else if (ASRUtils::is_logical(*t)) {
+                bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
+                int8_t val = rv ? 1 : 0;
+                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, val, t);
+            } else {
+                throw SemanticError(call_name + "() must have one real, integer, complex, or logical argument",
+                    x.base.base.loc);
+            }
+            return;
         }
 
         // Other functions

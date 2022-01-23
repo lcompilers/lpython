@@ -544,6 +544,10 @@ static inline bool is_complex(ASR::ttype_t &x) {
     return ASR::is_a<ASR::Complex_t>(*type_get_past_pointer(&x));
 }
 
+static inline bool is_logical(ASR::ttype_t &x) {
+    return ASR::is_a<ASR::Logical_t>(*type_get_past_pointer(&x));
+}
+
 inline bool is_array(ASR::ttype_t *x) {
     int n_dims = 0;
     switch (x->type) {
