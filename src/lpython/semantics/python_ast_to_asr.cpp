@@ -1068,6 +1068,24 @@ public:
                                 ASRUtils::expr_type(body));
     }
 
+    void visit_Dict(const AST::Dict_t &x) {
+        Vec<ASR::expr_t*> keys;
+        keys.reserve(al, x.n_keys);
+        ASR::ttype_t *type = nullptr;
+        for (size_t i = 0; i < x.n_keys; ++i) {
+            visit_expr(*x.m_keys[i]);
+            keys.push_back(al, ASRUtils::EXPR(tmp));
+        }
+        Vec<ASR::expr_t*> values;
+        values.reserve(al, x.n_values);
+        for (size_t i = 0; i < x.n_values; ++i) {
+            visit_expr(*x.m_values[i]);
+            values.push_back(al, ASRUtils::EXPR(tmp));
+        }
+        tmp = ASR::make_Dict_t(al, x.base.base.loc, keys.p, keys.size(),
+                               values.p, values.size(), type);
+    }
+
     void visit_While(const AST::While_t &x) {
         visit_expr(*x.m_test);
         ASR::expr_t *test = ASRUtils::EXPR(tmp);

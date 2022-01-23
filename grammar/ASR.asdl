@@ -200,6 +200,7 @@ expr
     | NamedExpr(expr target, expr value, ttype type)
     | Compare(expr left, cmpop op, expr right, ttype type, expr? value, expr? overloaded)
     | IfExp(expr test, expr body, expr orelse, ttype type)
+    | Dict(expr* keys, expr* values, ttype type)
     | FunctionCall(symbol name, symbol? original_name, expr* args,
             keyword* keywords, ttype type, expr? value, expr? dt)
     | DerivedTypeConstructor(symbol dt_sym, expr* args, ttype type)
