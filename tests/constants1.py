@@ -24,3 +24,9 @@ def test_abs():
     b = abs(3.45)
     b = abs(-3.45)
     b = abs(complex(3.45, 5.6))
+
+
+def test_len():
+    a: i32
+    a = len('test')
+    a = len("this is a test")

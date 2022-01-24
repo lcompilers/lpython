@@ -1377,6 +1377,22 @@ public:
 
             tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, 1234, a_type);
             return;
+
+        } else if (call_name == "len") {
+            // TODO(namannimmo10): make len work for lists, sets, tuples, etc. as well, once
+            // they are supported.  For now, we just support len for strings.
+            LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+            LFORTRAN_ASSERT(args.size() == 1 || args.size() == 2)
+            ASR::expr_t *arg = ASRUtils::expr_value(args[0]);
+            LFORTRAN_ASSERT(arg->type == ASR::exprType::ConstantString);
+            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al,
+                                                          x.base.base.loc, 4, nullptr, 0));
+            char* str_value = ASR::down_cast<ASR::ConstantString_t>(arg)->m_s;
+            Str s;
+            s.from_str_view(std::string(str_value));
+            tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, (int64_t)strlen(s.c_str(al)), type);
+            return;
+
         } else if (call_name == "ord") {
             LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
             ASR::expr_t* char_expr = args[0];
@@ -1386,7 +1402,7 @@ public:
                 ASR::ttype_t* int_type =
                     ASRUtils::TYPE(ASR::make_Integer_t(al,
                     x.base.base.loc, 4, nullptr, 0));
-                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
+                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
                     c[0], int_type);
                 return;
             } else {
