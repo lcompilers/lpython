@@ -1,10 +1,13 @@
 def test_boz():
     b: str
     b = bin(5)
+    b = bin(-10)
     b = bin(64)
     b = oct(8)
     b = oct(56)
+    b = oct(-56)
     b = hex(42)
+    b = hex(-42)
     b = hex(12648430)
 
 
@@ -30,6 +33,7 @@ def test_len():
     a: i32
     a = len('test')
     a = len("this is a test")
+
 
 def test_bool():
     a: bool
