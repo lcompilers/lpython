@@ -1382,7 +1382,10 @@ public:
             // TODO(namannimmo10): make len work for lists, sets, tuples, etc. as well, once
             // they are supported.  For now, we just support len for strings.
             LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-            LFORTRAN_ASSERT(args.size() == 1 || args.size() == 2)
+            if (args.size() != 1) {
+                throw SemanticError(call_name + "() takes exactly one argument (" +
+                    std::to_string(args.size()) + " given)", x.base.base.loc);
+            }
             ASR::expr_t *arg = ASRUtils::expr_value(args[0]);
             LFORTRAN_ASSERT(arg->type == ASR::exprType::ConstantString);
             ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al,
