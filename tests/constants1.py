@@ -30,3 +30,13 @@ def test_len():
     a: i32
     a = len('test')
     a = len("this is a test")
+
+def test_bool():
+    a: bool
+    a = bool(0)
+    a = bool('')
+    a = bool(complex(0, 0))
+    assert a == False
+    a = bool('t')
+    a = bool(2.3)
+    assert a == True
