@@ -34,6 +34,7 @@ def test_len():
     a = len('test')
     a = len("this is a test")
 
+
 def test_bool():
     a: bool
     a = bool(0)
