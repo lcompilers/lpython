@@ -4,6 +4,7 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/pass/nested_vars.h>
+#include <libasr/pass/pass_utils.h>
 #include <llvm/IR/Verifier.h>
 #include <unordered_map>
 
@@ -15,7 +16,7 @@ using ASR::down_cast;
 
 This ASR pass is solely an analysis pass to determine if nested procedures
 need access to variables from an outer scope. Such variables get hashed
-and later compared to variable declarations while emitting IR. If we get a 
+and later compared to variable declarations while emitting IR. If we get a
 hash match, that variable is placed in a global struct where it can be accessed
 from the inner scope
 
@@ -26,7 +27,7 @@ uint64_t static get_hash(ASR::asr_t *node)
     return (uint64_t)node;
 }
 
-class NestedVarVisitor : public ASR::BaseWalkVisitor<NestedVarVisitor>
+class NestedVarVisitor : public PassUtils::PassVisitor<NestedVarVisitor>
 {
 private:
     size_t nesting_depth = 0;
@@ -39,10 +40,10 @@ private:
 public:
 
     NestedVarVisitor(llvm::LLVMContext &context, std::vector<uint64_t>
-        &needed_globals, std::vector<uint64_t> &nested_call_out, 
-        std::map<uint64_t, std::vector<uint64_t>>&nesting_map) : 
-        context{context}, 
-        needed_globals{needed_globals}, 
+        &needed_globals, std::vector<uint64_t> &nested_call_out,
+        std::map<uint64_t, std::vector<uint64_t>>&nesting_map) :
+        context{context},
+        needed_globals{needed_globals},
         nested_call_out{nested_call_out}, nesting_map{nesting_map} { };
     // Basically want to store a hash for each procedure and a hash for the
     // needed global types
@@ -144,15 +145,15 @@ public:
             nested_func_types.insert({cur_func_hash, proc_types_i});
             current_scope = x.m_symtab;
             if (calls_out && x.m_deftype == LFortran::ASR::Implementation){
-                if (std::find(calls_to.begin(), calls_to.end(), cur_func_hash) 
+                if (std::find(calls_to.begin(), calls_to.end(), cur_func_hash)
                     == calls_to.end() && calls_to.size() >= 1){
                     /* Parent function does not call the nested function - if
                        the function makes any external calls, we must save the
                        context  */
                     nested_call_out.push_back(par_func_hash);
-                } else if (std::find(calls_to.begin(), calls_to.end(), 
+                } else if (std::find(calls_to.begin(), calls_to.end(),
                     cur_func_hash) != calls_to.end() && calls_to.size() >= 2 ){
-                    /* Parent function does call the nested function - if the 
+                    /* Parent function does call the nested function - if the
                        function makes any other external calls, we must save the
                        context  */
                     nested_call_out.push_back(par_func_hash);
@@ -199,15 +200,15 @@ public:
             nested_func_types.insert({cur_func_hash, proc_types_i});
             current_scope = x.m_symtab;
             if (calls_out){
-                if (std::find(calls_to.begin(), calls_to.end(), cur_func_hash) 
+                if (std::find(calls_to.begin(), calls_to.end(), cur_func_hash)
                     == calls_to.end() && calls_to.size() >= 1){
                     /* Parent function does not call the nested function - if
                        the function makes any external calls, we must save the
                        context  */
                     nested_call_out.push_back(par_func_hash);
-                } else if (std::find(calls_to.begin(), calls_to.end(), 
+                } else if (std::find(calls_to.begin(), calls_to.end(),
                     cur_func_hash) != calls_to.end() && calls_to.size() >= 2 ){
-                    /* Parent function does call the nested function - if the 
+                    /* Parent function does call the nested function - if the
                        function makes any other external calls, we must save the
                        context  */
                     nested_call_out.push_back(par_func_hash);
@@ -247,7 +248,7 @@ public:
             ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
                 LFortran::ASRUtils::symbol_get_past_external(x.m_name));
             uint32_t call_hash = get_hash((ASR::asr_t*)s);
-            if (std::find(calls_to.begin(), calls_to.end(), call_hash) == 
+            if (std::find(calls_to.begin(), calls_to.end(), call_hash) ==
                 calls_to.end()){
                 calls_to.push_back(call_hash);
             }
@@ -260,7 +261,7 @@ public:
             ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
                 LFortran::ASRUtils::symbol_get_past_external(x.m_name));
             uint32_t call_hash = get_hash((ASR::asr_t*)s);
-            if (std::find(calls_to.begin(), calls_to.end(), call_hash) == 
+            if (std::find(calls_to.begin(), calls_to.end(), call_hash) ==
                 calls_to.end()){
                 calls_to.push_back(call_hash);
             }
@@ -280,7 +281,7 @@ public:
                         current_scope->scope.end()) {
                 uint32_t h = get_hash((ASR::asr_t*)v);
                 llvm::Type* rel_type;
-                auto finder = std::find(needed_globals.begin(), 
+                auto finder = std::find(needed_globals.begin(),
                         needed_globals.end(), h);
 
                 if (finder == needed_globals.end()) {
@@ -316,7 +317,7 @@ public:
 
 std::map<uint64_t, std::vector<llvm::Type*>> pass_find_nested_vars(
         ASR::TranslationUnit_t &unit, llvm::LLVMContext &context,
-        std::vector<uint64_t> &needed_globals, 
+        std::vector<uint64_t> &needed_globals,
         std::vector<uint64_t> &nested_call_out,
         std::map<uint64_t, std::vector<uint64_t>> &nesting_map) {
     NestedVarVisitor v(context, needed_globals, nested_call_out, nesting_map);

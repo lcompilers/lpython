@@ -32,6 +32,7 @@ set(SRC
     pass/print_arr.cpp
     pass/pass_utils.cpp
     pass/unused_functions.cpp
+    pass/flip_sign.cpp
 
     asr_verify.cpp
     asr_utils.cpp
