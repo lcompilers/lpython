@@ -14,32 +14,29 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
-int test_factorial_1(int x)
+int test_return_1(int a)
 {
     int _lpython_return_variable;
-    int result;
-    if (x < 0) {
-        _lpython_return_variable = 0;
-    };
-    result = 1;
-    while (x > 0) {
-        result = result*x;
-        x = x - 1;
-    };
-    _lpython_return_variable = result;
+    int x;
+    x = 5;
+    _lpython_return_variable = x;
     return _lpython_return_variable;
 }
 
-int test_factorial_2(int x)
+std::string test_return_2(int a)
+{
+    std::string _lpython_return_variable;
+    std::string x;
+    x = "test";
+    _lpython_return_variable = x;
+    return _lpython_return_variable;
+}
+
+int test_return_3(int a)
 {
     int _lpython_return_variable;
-    int i;
-    int result;
-    result = 1;
-    for (i=1; i<=x + 1 - 1; i++) {
-        result = result*i;
-    };
-    _lpython_return_variable = result;
+    a = 3;
+    _lpython_return_variable = a;
     return _lpython_return_variable;
 }
 
