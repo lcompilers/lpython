@@ -661,7 +661,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 last_binary_plus = false;
                 return;
             } else {
-                throw CodeGenError("Unary type not implemented yet");
+                throw CodeGenError("Unary type not implemented yet for Integer");
             }
         } else if (x.m_type->type == ASR::ttypeType::Real) {
             if (x.m_op == ASR::unaryopType::UAdd) {
@@ -674,7 +674,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 last_binary_plus = false;
                 return;
             } else {
-                throw CodeGenError("Unary type not implemented yet");
+                throw CodeGenError("Unary type not implemented yet for Real");
             }
         } else if (x.m_type->type == ASR::ttypeType::Logical) {
             if (x.m_op == ASR::unaryopType::Not) {
@@ -683,7 +683,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 last_binary_plus = false;
                 return;
             } else {
-                throw CodeGenError("Unary type not implemented yet in Logical");
+                throw CodeGenError("Unary type not implemented yet for Logical");
             }
         } else {
             throw CodeGenError("UnaryOp: type not supported yet");

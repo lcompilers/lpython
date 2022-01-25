@@ -1009,8 +1009,7 @@ public:
         if (ASRUtils::expr_value(operand) != nullptr) {
             if (ASRUtils::is_integer(*operand_type)) {
                 int64_t op_value = ASR::down_cast<ASR::ConstantInteger_t>(
-                                        ASRUtils::expr_value(operand))
-                                        ->m_n;
+                                        ASRUtils::expr_value(operand))->m_n;
                 int64_t result;
                 switch (op) {
                     case (ASR::unaryopType::UAdd): { result = op_value; break; }
@@ -1025,8 +1024,7 @@ public:
 
             } else if (ASRUtils::is_real(*operand_type)) {
                 double op_value = ASR::down_cast<ASR::ConstantReal_t>(
-                                        ASRUtils::expr_value(operand))
-                                        ->m_r;
+                                        ASRUtils::expr_value(operand))->m_r;
                 double result;
                 switch (op) {
                     case (ASR::unaryopType::UAdd): { result = op_value; break; }
@@ -1038,6 +1036,18 @@ public:
                 }
                 tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, result, operand_type);
                 return;
+            } else if (ASRUtils::is_logical(*operand_type)) {
+                bool op_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                                        ASRUtils::expr_value(operand))->m_value;
+                bool result;
+                if (op == ASR::unaryopType::Not) {
+                    result = !op_value;
+                } else {
+                    throw SemanticError("Unary operator not implemented yet for compile time evaluation",
+                        x.base.base.loc);
+                }
+                value = ASR::down_cast<ASR::expr_t>(
+                    ASR::make_ConstantLogical_t(al, x.base.base.loc, result, operand_type));
             }
         }
         tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
