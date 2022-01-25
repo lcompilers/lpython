@@ -3,6 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
+#include <libasr/pass/pass_utils.h>
 #include <libasr/pass/select_case.h>
 
 
@@ -19,29 +20,29 @@ This ASR pass replaces select-case construct with if-then-else-if statements. Th
 Converts:
 
     select case (a)
-    
-       case (b:c) 
+
+       case (b:c)
           ...
- 
+
        case (d:e)
           ...
       case (f)
           ...
-       
+
        case default
           ...
-          
+
     end select
 
 to:
 
-    if ( b <= a && a <= c ) then 
+    if ( b <= a && a <= c ) then
         ...
-    else if ( d <= a && a <= e ) then       
-        ...  
+    else if ( d <= a && a <= e ) then
+        ...
     else if (f) then
         ...
-    else       
+    else
         ...
     end if
 
@@ -145,7 +146,7 @@ Vec<ASR::stmt_t*> replace_selectcase(Allocator &al, const ASR::Select_t &select_
     return body;
 }
 
-class SelectCaseVisitor : public ASR::BaseWalkVisitor<SelectCaseVisitor>
+class SelectCaseVisitor : public PassUtils::PassVisitor<SelectCaseVisitor>
 {
 private:
     Allocator &al;
@@ -156,27 +157,6 @@ public:
 
     }
 
-    void transform_stmts(ASR::stmt_t **&m_body, size_t &n_body) {
-        Vec<ASR::stmt_t*> body;
-        body.reserve(al, n_body);
-        for (size_t i=0; i<n_body; i++) {
-            // Not necessary after we check it after each visit_stmt in every
-            // visitor method:
-            select_case_result.n = 0;
-            visit_stmt(*m_body[i]);
-            if (select_case_result.size() > 0) {
-                for (size_t j=0; j<select_case_result.size(); j++) {
-                    body.push_back(al, select_case_result[j]);
-                }
-                select_case_result.n = 0;
-            } else {
-                body.push_back(al, m_body[i]);
-            }
-        }
-        m_body = body.p;
-        n_body = body.size();
-    }
-
     // TODO: Only Program and While is processed, we need to process all calls
     // to visit_stmt().
 
@@ -184,7 +164,7 @@ public:
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
-        transform_stmts(xx.m_body, xx.n_body);
+        transform_stmts(xx.m_body, xx.n_body, al, select_case_result);
 
         // Transform nested functions and subroutines
         for (auto &item : x.m_symtab->scope) {
@@ -203,21 +183,21 @@ public:
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Subroutine_t &xx = const_cast<ASR::Subroutine_t&>(x);
-        transform_stmts(xx.m_body, xx.n_body);
+        transform_stmts(xx.m_body, xx.n_body, al, select_case_result);
     }
 
     void visit_Function(const ASR::Function_t &x) {
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
-        transform_stmts(xx.m_body, xx.n_body);
+        transform_stmts(xx.m_body, xx.n_body, al, select_case_result);
     }
 
     void visit_WhileLoop(const ASR::WhileLoop_t &x) {
         // FIXME: this is a hack, we need to pass in a non-const `x`,
         // which requires to generate a TransformVisitor.
         ASR::WhileLoop_t &xx = const_cast<ASR::WhileLoop_t&>(x);
-        transform_stmts(xx.m_body, xx.n_body);
+        transform_stmts(xx.m_body, xx.n_body, al, select_case_result);
     }
 
     void visit_Select(const ASR::Select_t &x) {

@@ -13,7 +13,7 @@ using ASR::down_cast;
 using ASR::is_a;
 
 /*
-This ASR pass replaces array slice with do loops and array expression assignments. 
+This ASR pass replaces array slice with do loops and array expression assignments.
 The function `pass_replace_print_arr` transforms the ASR tree in-place.
 
 Converts:
@@ -27,7 +27,7 @@ to:
     end do
 */
 
-class PrintArrVisitor : public ASR::BaseWalkVisitor<PrintArrVisitor>
+class PrintArrVisitor : public PassUtils::PassVisitor<PrintArrVisitor>
 {
 private:
     Allocator &al;
@@ -43,27 +43,6 @@ public:
 
     }
 
-    void transform_stmts(ASR::stmt_t **&m_body, size_t &n_body) {
-        Vec<ASR::stmt_t*> body;
-        body.reserve(al, n_body);
-        for (size_t i=0; i<n_body; i++) {
-            // Not necessary after we check it after each visit_stmt in every
-            // visitor method:
-            print_arr_result.n = 0;
-            visit_stmt(*m_body[i]);
-            if (print_arr_result.size() > 0) {
-                for (size_t j=0; j<print_arr_result.size(); j++) {
-                    body.push_back(al, print_arr_result[j]);
-                }
-                print_arr_result.n = 0;
-            } else {
-                body.push_back(al, m_body[i]);
-            }
-        }
-        m_body = body.p;
-        n_body = body.size();
-    }
-
     // TODO: Only Program and While is processed, we need to process all calls
     // to visit_stmt().
 
@@ -72,7 +51,7 @@ public:
         // which requires to generate a TransformVisitor.
         ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
         current_scope = xx.m_symtab;
-        transform_stmts(xx.m_body, xx.n_body);
+        transform_stmts(xx.m_body, xx.n_body, al, print_arr_result);
 
         // Transform nested functions and subroutines
         for (auto &item : x.m_symtab->scope) {
@@ -92,7 +71,7 @@ public:
         // which requires to generate a TransformVisitor.
         ASR::Subroutine_t &xx = const_cast<ASR::Subroutine_t&>(x);
         current_scope = xx.m_symtab;
-        transform_stmts(xx.m_body, xx.n_body);
+        transform_stmts(xx.m_body, xx.n_body, al, print_arr_result);
     }
 
     void visit_Function(const ASR::Function_t &x) {
@@ -100,7 +79,7 @@ public:
         // which requires to generate a TransformVisitor.
         ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
         current_scope = xx.m_symtab;
-        transform_stmts(xx.m_body, xx.n_body);
+        transform_stmts(xx.m_body, xx.n_body, al, print_arr_result);
     }
 
     void visit_Print(const ASR::Print_t& x) {

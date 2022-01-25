@@ -363,6 +363,7 @@ static inline bool all_args_evaluated(const Vec<ASR::expr_t*> &args) {
 static inline bool all_args_evaluated(const Vec<ASR::array_index_t> &args) {
     for (auto &a : args) {
         bool is_m_left_const, is_m_right_const, is_m_step_const;
+        is_m_left_const = is_m_right_const = is_m_step_const = false;
         if( a.m_left != nullptr ) {
             ASR::expr_t *m_left_value = ASRUtils::expr_value(a.m_left);
             is_m_left_const = is_value_constant(m_left_value);
@@ -721,6 +722,17 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
 
                 return ASRUtils::is_same_type_pointer(x, y);
             }
+
+int select_generic_procedure(const Vec<ASR::expr_t*> &args,
+        const ASR::GenericProcedure_t &p, Location loc,
+        const std::function<void (const std::string &, const Location &)> err);
+
+ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
+            const Location &loc,
+            ASR::symbol_t *v, Vec<ASR::expr_t*> args,
+            SymbolTable* current_scope, Allocator& al,
+            const std::function<void (const std::string &, const Location &)> err);
+
 } // namespace ASRUtils
 
 } // namespace LFortran

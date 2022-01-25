@@ -3,6 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
+#include <libasr/pass/pass_utils.h>
 #include <libasr/pass/class_constructor.h>
 
 #include <cstring>
@@ -13,7 +14,7 @@ namespace LFortran {
 using ASR::down_cast;
 using ASR::is_a;
 
-class ClassConstructorVisitor : public ASR::BaseWalkVisitor<ClassConstructorVisitor>
+class ClassConstructorVisitor : public PassUtils::PassVisitor<ClassConstructorVisitor>
 {
 private:
     Allocator &al;
@@ -30,28 +31,6 @@ public:
         class_constructor_result.reserve(al, 0);
     }
 
-    void transform_stmts(ASR::stmt_t **&m_body, size_t &n_body) {
-        Vec<ASR::stmt_t*> body;
-        body.reserve(al, n_body);
-        for (size_t i=0; i<n_body; i++) {
-            // Not necessary after we check it after each visit_stmt in every
-            // visitor method:
-            class_constructor_result.n = 0;
-            visit_stmt(*m_body[i]);
-            if (class_constructor_result.size() > 0) {
-                is_constructor_present = true;
-                for (size_t j=0; j<class_constructor_result.size(); j++) {
-                    body.push_back(al, class_constructor_result[j]);
-                }
-                class_constructor_result.n = 0;
-            } else {
-                body.push_back(al, m_body[i]);
-            }
-        }
-        m_body = body.p;
-        n_body = body.size();
-    }
-
     // TODO: Only Program and While is processed, we need to process all calls
     // to visit_stmt().
 
@@ -60,7 +39,7 @@ public:
         // which requires to generate a TransformVisitor.
         ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
         current_scope = xx.m_symtab;
-        transform_stmts(xx.m_body, xx.n_body);
+        transform_stmts(xx.m_body, xx.n_body, al, class_constructor_result);
 
         // Transform nested functions and subroutines
         for (auto &item : x.m_symtab->scope) {
@@ -80,7 +59,7 @@ public:
         // which requires to generate a TransformVisitor.
         ASR::Subroutine_t &xx = const_cast<ASR::Subroutine_t&>(x);
         current_scope = xx.m_symtab;
-        transform_stmts(xx.m_body, xx.n_body);
+        transform_stmts(xx.m_body, xx.n_body, al, class_constructor_result);
     }
 
     void visit_Function(const ASR::Function_t &x) {
@@ -88,7 +67,7 @@ public:
         // which requires to generate a TransformVisitor.
         ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
         current_scope = xx.m_symtab;
-        transform_stmts(xx.m_body, xx.n_body);
+        transform_stmts(xx.m_body, xx.n_body, al, class_constructor_result);
     }
 
     void visit_Assignment(const ASR::Assignment_t& x) {
