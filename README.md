@@ -67,3 +67,22 @@ You can run the following examples by hand in a terminal:
     ./src/bin/lpython --show-asr examples/expr2.py
     ./src/bin/lpython --show-cpp examples/expr2.py
     ./src/bin/lpython --show-llvm examples/expr2.py
+
+## Contributing
+
+We welcome contributions from anyone, even if you are new to open source. It
+might sound daunting to contribute to a compiler at first, but please do, it is
+not complicated. We will help you with any technical issues and help improve
+your contribution so that it can be merged.
+
+To contribute, submit a Pull Request (PR) against our repository at:
+
+https://github.com/lcompilers/lpython
+
+Please report any bugs you may find at our issue tracker: https://github.com/lcompilers/lpython/issues.
+Or, even better, fork the repository on GitHub and create a PR. We welcome all changes, big or small, and we will help you make a PR if you are new to git.
+
+If you have any questions or need help, please ask us at Zulip ([![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://lfortran.zulipchat.com/)) or our
+[mailinglist](https://groups.io/g/lfortran).
+
+See the [CONTRIBUTING](CONTRIBUTING.md) document for more information.
