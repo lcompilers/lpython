@@ -373,7 +373,9 @@ public:
         tmp = nullptr;
         for (size_t i=0; i<n_body; i++) {
             // Visit the statement
+            current_body = &body;
             this->visit_stmt(*m_body[i]);
+            current_body = nullptr;
             if (tmp != nullptr) {
                 ASR::stmt_t* tmp_stmt = ASRUtils::STMT(tmp);
                 body.push_back(al, tmp_stmt);
@@ -1284,6 +1286,13 @@ public:
         ASR::stmt_t *overloaded=nullptr;
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
                                 overloaded);
+
+        // We can only return one statement in `tmp`, so we insert the current
+        // `tmp` into the body of the function directly
+        current_body->push_back(al, ASR::down_cast<ASR::stmt_t>(tmp));
+
+        // Now we assign Return into `tmp`
+        tmp = ASR::make_Return_t(al, x.base.base.loc);
     }
 
     void visit_Continue(const AST::Continue_t &x) {
