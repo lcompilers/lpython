@@ -105,6 +105,7 @@ public:
     bool last_unary_plus;
     bool last_binary_plus;
     bool intrinsic_module = false;
+    const ASR::Function_t *current_function = nullptr;
 
     ASRToCPPVisitor(diag::Diagnostics &diag) : diag{diag} {}
 
@@ -438,11 +439,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             }
         }
 
+        current_function = &x;
         std::string body;
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             body += src;
         }
+        current_function = nullptr;
 
         body += indent + "return "
             + LFortran::ASRUtils::EXPR2VAR(x.m_return_var)->m_name
@@ -890,7 +893,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_Return(const ASR::Return_t & /* x */) {
         std::string indent(indentation_level*indentation_spaces, ' ');
-        src = indent + "return;\n";
+        if (current_function) {
+            src = indent + "return "
+                + LFortran::ASRUtils::EXPR2VAR(current_function->m_return_var)->m_name
+                + ";\n";
+        } else {
+            src = indent + "return;\n";
+        }
     }
 
     void visit_GoToTarget(const ASR::GoToTarget_t & /* x */) {
