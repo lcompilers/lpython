@@ -32,6 +32,7 @@ int main()
     triad(a, b, scalar, c);
     std::cout << "End Stream Triad" << std::endl;
     _lpython_return_variable = 0;
+    return;
     return _lpython_return_variable;
 }
 

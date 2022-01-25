@@ -16,7 +16,10 @@ define i32 @main() {
   store i32 0, i32* %_lpython_return_variable, align 4
   br label %return
 
-return:                                           ; preds = %.entry
+unreachable_after_return:                         ; No predecessors!
+  br label %return
+
+return:                                           ; preds = %unreachable_after_return, %.entry
   %1 = load i32, i32* %_lpython_return_variable, align 4
   ret i32 %1
 }

@@ -26,6 +26,7 @@ int test_pow_1(int a, int b)
     int res;
     res = std::pow(a, b);
     _lpython_return_variable = res;
+    return;
     return _lpython_return_variable;
 }
 

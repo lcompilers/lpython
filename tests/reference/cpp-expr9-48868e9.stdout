@@ -20,6 +20,7 @@ int test_return_1(int a)
     int x;
     x = 5;
     _lpython_return_variable = x;
+    return;
     return _lpython_return_variable;
 }
 
@@ -29,6 +30,7 @@ std::string test_return_2(int a)
     std::string x;
     x = "test";
     _lpython_return_variable = x;
+    return;
     return _lpython_return_variable;
 }
 
@@ -37,6 +39,7 @@ int test_return_3(int a)
     int _lpython_return_variable;
     a = 3;
     _lpython_return_variable = a;
+    return;
     return _lpython_return_variable;
 }
 
