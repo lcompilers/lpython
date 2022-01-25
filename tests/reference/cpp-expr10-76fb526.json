@@ -2,11 +2,11 @@
     "basename": "cpp-expr10-76fb526",
     "cmd": "lpython --no-color --show-cpp {infile}",
     "infile": "tests/expr10.py",
-    "infile_hash": "f255430e3c0729835b5406c7341c20d3a826777f0e21bcdd1245445b",
+    "infile_hash": "0921165910f4963dc3403b0877dd46467712ad6fb7756b2c05b92ff3",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "cpp-expr10-76fb526.stdout",
-    "stdout_hash": "3d6bf0a13313460664bd2ce32c48416ad7034742d12adf67698d6c22",
+    "stdout_hash": "3bc7ef123c0bd3fb4af96685dbabde4db5a194b5030f1f850e87b49d",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

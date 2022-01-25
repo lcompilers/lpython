@@ -9,5 +9,7 @@ def test_UnaryOp():
 
     b1: bool
     b2: bool
+    b3: bool
     b1 = True
     b2 = not False
+    b3 = not b2

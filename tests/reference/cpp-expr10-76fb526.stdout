@@ -19,6 +19,7 @@ void test_UnaryOp()
     int a;
     bool b1;
     bool b2;
+    bool b3;
     float f;
     a = 4;
     a = -500;
@@ -26,5 +27,6 @@ void test_UnaryOp()
     f = -183745.534000;
     b1 = true;
     b2 = !false;
+    b3 = !b2;
 }
 
