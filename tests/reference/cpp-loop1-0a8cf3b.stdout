@@ -20,7 +20,7 @@ int test_factorial_1(int x)
     int result;
     if (x < 0) {
         _lpython_return_variable = 0;
-        return;
+        return _lpython_return_variable;
     };
     result = 1;
     while (x > 0) {
@@ -28,7 +28,7 @@ int test_factorial_1(int x)
         x = x - 1;
     };
     _lpython_return_variable = result;
-    return;
+    return _lpython_return_variable;
     return _lpython_return_variable;
 }
 
@@ -42,7 +42,7 @@ int test_factorial_2(int x)
         result = result*i;
     };
     _lpython_return_variable = result;
-    return;
+    return _lpython_return_variable;
     return _lpython_return_variable;
 }
 
