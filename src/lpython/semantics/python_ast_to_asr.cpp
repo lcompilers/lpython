@@ -256,32 +256,36 @@ public:
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::deftypeType deftype = ASR::deftypeType::Implementation;
         char *bindc_name=nullptr;
-        if (sym_name == "main") {
-            // Temporary solution for the main() function
-            std::string return_var_name = "main_return_var";
-            ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8, nullptr, 0));
-            ASR::asr_t *return_var = ASR::make_Variable_t(al, x.base.base.loc,
-                current_scope, s2c(al, return_var_name), ASRUtils::intent_return_var, nullptr, nullptr,
-                ASR::storage_typeType::Default, type,
-                current_procedure_abi_type, ASR::Public, ASR::presenceType::Required,
-                false);
-            LFORTRAN_ASSERT(current_scope->scope.find(return_var_name) == current_scope->scope.end())
-            current_scope->scope[return_var_name]
-                = ASR::down_cast<ASR::symbol_t>(return_var);
-            ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
-                ASR::down_cast<ASR::symbol_t>(return_var));
+        if (x.m_returns) {
+            if (AST::is_a<AST::Name_t>(*x.m_returns)) {
+                std::string return_var_name = "_lpython_return_variable";
+                ASR::ttype_t *type = ast_expr_to_asr_type(x.m_returns->base.loc, *x.m_returns);
+                ASR::asr_t *return_var = ASR::make_Variable_t(al, x.m_returns->base.loc,
+                    current_scope, s2c(al, return_var_name), ASRUtils::intent_return_var, nullptr, nullptr,
+                    ASR::storage_typeType::Default, type,
+                    current_procedure_abi_type, ASR::Public, ASR::presenceType::Required,
+                    false);
+                LFORTRAN_ASSERT(current_scope->scope.find(return_var_name) == current_scope->scope.end())
+                current_scope->scope[return_var_name]
+                         = ASR::down_cast<ASR::symbol_t>(return_var);
+                ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
+                    current_scope->scope[return_var_name]);
+                tmp = ASR::make_Function_t(
+                    al, x.base.base.loc,
+                    /* a_symtab */ current_scope,
+                    /* a_name */ s2c(al, sym_name),
+                    /* a_args */ args.p,
+                    /* n_args */ args.size(),
+                    /* a_body */ nullptr,
+                    /* n_body */ 0,
+                    /* a_return_var */ ASRUtils::EXPR(return_var_ref),
+                    current_procedure_abi_type,
+                    s_access, deftype, bindc_name);
 
-            tmp = ASR::make_Function_t(
-                al, x.base.base.loc,
-                /* a_symtab */ current_scope,
-                /* a_name */ s2c(al, sym_name),
-                /* a_args */ args.p,
-                /* n_args */ args.size(),
-                /* a_body */ nullptr,
-                /* n_body */ 0,
-                /* a_return_var */ ASRUtils::EXPR(return_var_ref),
-                current_procedure_abi_type,
-                s_access, deftype, bindc_name);
+            } else {
+                throw SemanticError("Return variable must be an identifier",
+                    x.m_returns->base.loc);
+            }
         } else {
             bool is_pure = false, is_module = false;
             tmp = ASR::make_Subroutine_t(
@@ -369,7 +373,9 @@ public:
         tmp = nullptr;
         for (size_t i=0; i<n_body; i++) {
             // Visit the statement
+            current_body = &body;
             this->visit_stmt(*m_body[i]);
+            current_body = nullptr;
             if (tmp != nullptr) {
                 ASR::stmt_t* tmp_stmt = ASRUtils::STMT(tmp);
                 body.push_back(al, tmp_stmt);
@@ -417,27 +423,6 @@ public:
         } else if (ASR::is_a<ASR::Function_t>(*t)) {
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(t);
             handle_fn(x, *f);
-            if (std::string(f->m_name) == "main") {
-                // Temporary solution for the main() function
-                // We return 0 by assigning to "main_return_var"
-                std::string return_var_name = "main_return_var";
-                LFORTRAN_ASSERT(current_scope->scope.find(return_var_name) != current_scope->scope.end())
-                ASR::symbol_t *return_var = current_scope->scope[return_var_name];
-
-                ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc, return_var);
-                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                        8, nullptr, 0));
-                ASR::expr_t *target = ASRUtils::EXPR(return_var_ref);
-                ASR::expr_t *value = ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, x.base.base.loc, 0, type));
-                ASR::stmt_t *overloaded=nullptr;
-                ASR::asr_t *assignment = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
-                                        overloaded);
-                Vec<ASR::stmt_t*> body;
-                body.from_pointer_n(f->m_body, f->n_body);
-                body.push_back(al, ASR::down_cast<ASR::stmt_t>(assignment));
-                f->m_body = body.p;
-                f->n_body = body.size();
-            }
         } else {
             LFORTRAN_ASSERT(false);
         }
@@ -1282,6 +1267,31 @@ public:
     }
 
     void visit_Return(const AST::Return_t &x) {
+        std::string return_var_name = "_lpython_return_variable";
+        LFORTRAN_ASSERT(current_scope->scope.find(return_var_name) != current_scope->scope.end())
+        this->visit_expr(*x.m_value);
+        ASR::expr_t *value = ASRUtils::EXPR(tmp);
+        ASR::symbol_t *return_var = current_scope->scope[return_var_name];
+        ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc, return_var);
+        ASR::expr_t *target = ASRUtils::EXPR(return_var_ref);
+        ASR::ttype_t *target_type = ASRUtils::expr_type(target);
+        ASR::ttype_t *value_type = ASRUtils::expr_type(value);
+        if (!ASRUtils::check_equal_type(target_type, value_type)) {
+            std::string ltype = ASRUtils::type_to_str(target_type);
+            std::string rtype = ASRUtils::type_to_str(value_type);
+            throw SemanticError("Type Mismatch in return, found (" +
+                    ltype + " and " + rtype + ")", x.base.base.loc);
+        }
+
+        ASR::stmt_t *overloaded=nullptr;
+        tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
+                                overloaded);
+
+        // We can only return one statement in `tmp`, so we insert the current
+        // `tmp` into the body of the function directly
+        current_body->push_back(al, ASR::down_cast<ASR::stmt_t>(tmp));
+
+        // Now we assign Return into `tmp`
         tmp = ASR::make_Return_t(al, x.base.base.loc);
     }
 

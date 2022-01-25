@@ -20,10 +20,13 @@ void test_pow()
     a = std::pow(2, 2);
 }
 
-void test_pow_1(int a, int b)
+int test_pow_1(int a, int b)
 {
+    int _lpython_return_variable;
     int res;
     res = std::pow(a, b);
-    return;
+    _lpython_return_variable = res;
+    return _lpython_return_variable;
+    return _lpython_return_variable;
 }
 

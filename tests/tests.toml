@@ -62,6 +62,12 @@ ast = true
 asr = true
 
 [[test]]
+filename = "expr9.py"
+ast = true
+asr = true
+cpp = true
+
+[[test]]
 filename = "expr_01.py"
 ast = true
 asr = true
