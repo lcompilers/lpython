@@ -188,6 +188,7 @@ public:
 R"(#include <iostream>
 #include <string>
 #include <vector>
+#include <cassert>
 #include <Kokkos_Core.hpp>
 #include <lfortran_intrinsics.h>
 
