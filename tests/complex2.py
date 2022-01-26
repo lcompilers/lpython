@@ -1,0 +1,4 @@
+def test_complex_cpp():
+    c: c128
+    c = complex(423., -23423.54)
+    c = complex(1, 2)

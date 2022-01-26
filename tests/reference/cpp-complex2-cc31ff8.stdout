@@ -1,0 +1,23 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <Kokkos_Core.hpp>
+#include <lfortran_intrinsics.h>
+
+template <typename T>
+Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
+{
+    Kokkos::View<T*> r("r", v.size());
+    for (size_t i=0; i < v.size(); i++) {
+        r(i) = v[i];
+    }
+    return r;
+}
+
+void test_complex_cpp()
+{
+    std::complex<float> c;
+    c = {423.000000, -23423.540000};
+    c = {1.000000, 2.000000};
+}
+
