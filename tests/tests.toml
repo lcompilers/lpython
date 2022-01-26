@@ -15,6 +15,10 @@ ast = true
 asr = true
 
 [[test]]
+filename = "complex2.py"
+cpp = true
+
+[[test]]
 filename = "constants1.py"
 ast = true
 asr = true
