@@ -1024,6 +1024,19 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         src = out;
     }
 
+    void visit_IfExp(const ASR::IfExp_t &x) {
+        // IfExp is like a ternary operator in c++
+        // test ? body : orelse;
+        std::string out = "(";
+        visit_expr(*x.m_test);
+        out += src + ") ? (";
+        visit_expr(*x.m_body);
+        out += src + ") : (";
+        visit_expr(*x.m_orelse);
+        out += src + ")";
+        src = out;
+    }
+
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
