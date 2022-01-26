@@ -825,6 +825,23 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         src = out;
     }
 
+    void visit_Assert(const ASR::Assert_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent;
+        if (x.m_msg) {
+            out += "assert ((";
+            visit_expr(*x.m_msg);
+            out += src + ", ";
+            visit_expr(*x.m_test);
+            out += src + "));\n";
+        } else {
+            out += "assert (";
+            visit_expr(*x.m_test);
+            out += src + ");\n";
+        }
+        src = out;
+    }
+
     void visit_ExplicitDeallocate(const ASR::ExplicitDeallocate_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "// FIXME: deallocate(";
