@@ -591,8 +591,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         visit_expr(*x.m_arg);
         switch (x.m_kind) {
             case (ASR::cast_kindType::IntegerToReal) : {
-                // In C++, we do not need to cast int to float explicitly:
-                // src = src;
+                src = "(float)(" + src + ")";
                 break;
             }
             case (ASR::cast_kindType::RealToInteger) : {
