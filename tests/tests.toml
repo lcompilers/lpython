@@ -105,6 +105,7 @@ asr = true
 filename = "assert1.py"
 ast = true
 asr = true
+cpp = true
 
 [[test]]
 filename = "assign1.py"

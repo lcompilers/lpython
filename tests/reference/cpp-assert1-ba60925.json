@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-assert1-ba60925",
+    "cmd": "lpython --no-color --show-cpp {infile}",
+    "infile": "tests/assert1.py",
+    "infile_hash": "0ff84ea5ccd3d0815cbb66e1c3d3acd61dee7257c98aa1a27ceeef3b",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-assert1-ba60925.stdout",
+    "stdout_hash": "18bbf98b302dce8862efc93f08443f05b7cc52a80dcfe42aeb0ccfa8",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
