@@ -447,10 +447,6 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
         current_function = nullptr;
 
-        body += indent + "return "
-            + LFortran::ASRUtils::EXPR2VAR(x.m_return_var)->m_name
-            + ";\n";
-
         if (decl.size() > 0 || body.size() > 0) {
             sub += "{\n" + decl + body + "}\n";
         } else {
