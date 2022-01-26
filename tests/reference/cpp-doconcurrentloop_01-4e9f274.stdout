@@ -33,7 +33,6 @@ int main()
     std::cout << "End Stream Triad" << std::endl;
     _lpython_return_variable = 0;
     return _lpython_return_variable;
-    return _lpython_return_variable;
 }
 
 void triad(const Kokkos::View<float*> &a, const Kokkos::View<float*> &b, float scalar, const Kokkos::View<float*> &c)

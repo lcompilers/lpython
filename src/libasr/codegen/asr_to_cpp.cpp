@@ -441,15 +441,23 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
         current_function = &x;
         std::string body;
+
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
             body += src;
         }
         current_function = nullptr;
+        bool visited_return = false;
+        
+        if (x.n_body > 0 && is_a<ASR::Return_t>(*x.m_body[x.n_body-1])) {
+            visited_return = true;
+        }
 
-        body += indent + "return "
-            + LFortran::ASRUtils::EXPR2VAR(x.m_return_var)->m_name
-            + ";\n";
+        if(!visited_return) {
+            body += indent + "return "
+                + LFortran::ASRUtils::EXPR2VAR(x.m_return_var)->m_name
+                + ";\n";
+        }
 
         if (decl.size() > 0 || body.size() > 0) {
             sub += "{\n" + decl + body + "}\n";

@@ -29,7 +29,6 @@ int test_factorial_1(int x)
     };
     _lpython_return_variable = result;
     return _lpython_return_variable;
-    return _lpython_return_variable;
 }
 
 int test_factorial_2(int x)
@@ -42,7 +41,6 @@ int test_factorial_2(int x)
         result = result*i;
     };
     _lpython_return_variable = result;
-    return _lpython_return_variable;
     return _lpython_return_variable;
 }
 
