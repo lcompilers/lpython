@@ -1014,8 +1014,9 @@ public:
                 switch (op) {
                     case (ASR::unaryopType::UAdd): { result = op_value; break; }
                     case (ASR::unaryopType::USub): { result = -op_value; break; }
+                    case (ASR::unaryopType::Invert): { result = ~op_value; break; }
                     default: {
-                        throw SemanticError("Unary operator not implemented yet for compile time evaluation",
+                        throw SemanticError("Bad operand type for unary operation",
                             x.base.base.loc);
                     }
                 }
@@ -1030,7 +1031,7 @@ public:
                     case (ASR::unaryopType::UAdd): { result = op_value; break; }
                     case (ASR::unaryopType::USub): { result = -op_value; break; }
                     default: {
-                        throw SemanticError("Unary operator not implemented yet for compile time evaluation",
+                        throw SemanticError("Bad operand type for unary operation",
                             x.base.base.loc);
                     }
                 }
@@ -1043,11 +1044,28 @@ public:
                 if (op == ASR::unaryopType::Not) {
                     result = !op_value;
                 } else {
-                    throw SemanticError("Unary operator not implemented yet for compile time evaluation",
+                    throw SemanticError("Bad operand type for unary operation",
                         x.base.base.loc);
                 }
                 value = ASR::down_cast<ASR::expr_t>(
                     ASR::make_ConstantLogical_t(al, x.base.base.loc, result, operand_type));
+
+            } else if (ASRUtils::is_complex(*operand_type)) {
+                ASR::ConstantComplex_t *c = ASR::down_cast<ASR::ConstantComplex_t>(
+                                        ASRUtils::expr_value(operand));
+                std::complex<double> op_value(c->m_re, c->m_im);
+                std::complex<double> result;
+                switch (op) {
+                    case (ASR::unaryopType::UAdd): { result = op_value; break; }
+                    case (ASR::unaryopType::USub): { result = -op_value; break; }
+                    default: {
+                        throw SemanticError("Bad operand type for unary operation",
+                            x.base.base.loc);
+                    }
+                }
+                value = ASR::down_cast<ASR::expr_t>(
+                    ASR::make_ConstantComplex_t(al, x.base.base.loc,
+                        std::real(result), std::imag(result), operand_type));
             }
         }
         tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
