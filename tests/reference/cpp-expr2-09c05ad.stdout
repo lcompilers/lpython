@@ -22,8 +22,8 @@ void test_boolOp()
     bool b;
     a = false;
     b = true;
-    a = a && b;
-    b = a || true;
-    a = a || b;
+    a = (a) && (b);
+    b = (a) || (true);
+    a = (a) || (b);
 }
 
