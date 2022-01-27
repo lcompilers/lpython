@@ -188,6 +188,7 @@ public:
 R"(#include <iostream>
 #include <string>
 #include <vector>
+#include <cassert>
 #include <Kokkos_Core.hpp>
 #include <lfortran_intrinsics.h>
 
@@ -822,6 +823,23 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             out += std::string(ASRUtils::symbol_name(a)) + ", ";
         }
         out += ");\n";
+        src = out;
+    }
+
+    void visit_Assert(const ASR::Assert_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent;
+        if (x.m_msg) {
+            out += "assert ((";
+            visit_expr(*x.m_msg);
+            out += src + ", ";
+            visit_expr(*x.m_test);
+            out += src + "));\n";
+        } else {
+            out += "assert (";
+            visit_expr(*x.m_test);
+            out += src + ");\n";
+        }
         src = out;
     }
 
