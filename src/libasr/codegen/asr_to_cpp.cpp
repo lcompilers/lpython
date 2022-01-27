@@ -901,7 +901,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             this->visit_stmt(*x.m_body[i]);
             out += src;
         }
-        out += indent + "};\n";
+        out += indent + "}\n";
         indentation_level -= 1;
         src = out;
     }
@@ -993,7 +993,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             this->visit_stmt(*x.m_body[i]);
             out += src;
         }
-        out += indent + "};\n";
+        out += indent + "}\n";
         indentation_level -= 1;
         src = out;
     }
@@ -1036,14 +1036,14 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
         out += indent + "}";
         if (x.n_orelse == 0) {
-            out += ";\n";
+            out += "\n";
         } else {
             out += " else {\n";
             for (size_t i=0; i<x.n_orelse; i++) {
                 this->visit_stmt(*x.m_orelse[i]);
                 out += src;
             }
-            out += indent + "};\n";
+            out += indent + "}\n";
         }
         indentation_level -= 1;
         src = out;
