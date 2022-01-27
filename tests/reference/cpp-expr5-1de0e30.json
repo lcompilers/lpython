@@ -1,12 +1,12 @@
 {
-    "basename": "asr-expr5-645ffcc",
-    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "basename": "cpp-expr5-1de0e30",
+    "cmd": "lpython --no-color --show-cpp {infile}",
     "infile": "tests/expr5.py",
     "infile_hash": "7bbb5f9dacb13556f99de8f2969f9089235fea372fc2f43fc9c4bb18",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "asr-expr5-645ffcc.stdout",
-    "stdout_hash": "d25fe4db5296d2a3986b841b95c1449310dc897303b7845d51e42db9",
+    "stdout": "cpp-expr5-1de0e30.stdout",
+    "stdout_hash": "cc54064014d3903ff7defc77b2c94045c64548df3ce362d23be9afe4",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

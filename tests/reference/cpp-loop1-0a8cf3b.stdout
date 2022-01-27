@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <cassert>
+#include <cmath>
 #include <Kokkos_Core.hpp>
 #include <lfortran_intrinsics.h>
 
@@ -22,12 +23,12 @@ int test_factorial_1(int x)
     if (x < 0) {
         _lpython_return_variable = 0;
         return _lpython_return_variable;
-    };
+    }
     result = 1;
     while (x > 0) {
         result = result*x;
         x = x - 1;
-    };
+    }
     _lpython_return_variable = result;
     return _lpython_return_variable;
 }
@@ -40,7 +41,7 @@ int test_factorial_2(int x)
     result = 1;
     for (i=1; i<=x + 1 - 1; i++) {
         result = result*i;
-    };
+    }
     _lpython_return_variable = result;
     return _lpython_return_variable;
 }

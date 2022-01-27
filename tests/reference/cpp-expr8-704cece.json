@@ -1,12 +1,12 @@
 {
-    "basename": "asr-expr8-6beda60",
-    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "basename": "cpp-expr8-704cece",
+    "cmd": "lpython --no-color --show-cpp {infile}",
     "infile": "tests/expr8.py",
     "infile_hash": "0f4367558a71b1158f1d6e8d0bf2def526e88901fc9a48fd8c959680",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "asr-expr8-6beda60.stdout",
-    "stdout_hash": "85f2f9b46c129453359ed90dbc7efff06a1b2445599e69804db05e4b",
+    "stdout": "cpp-expr8-704cece.stdout",
+    "stdout_hash": "dc0292c703db8937d8ebdc101cfdcad060115c9ee31f1efc3de61c16",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

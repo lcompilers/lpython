@@ -49,6 +49,7 @@ asr = true
 filename = "expr5.py"
 ast = true
 asr = true
+cpp = true
 
 [[test]]
 filename = "expr6.py"
@@ -66,6 +67,7 @@ cpp = true
 filename = "expr8.py"
 ast = true
 asr = true
+cpp = true
 
 [[test]]
 filename = "expr9.py"
@@ -78,6 +80,11 @@ filename = "expr10.py"
 ast = true
 asr = true
 cpp = true
+
+[[test]]
+filename = "expr11.py"
+ast = true
+asr = true
 
 [[test]]
 filename = "expr_01.py"
@@ -95,11 +102,13 @@ cpp = true
 filename = "loop2.py"
 ast = true
 asr = true
+cpp = true
 
 [[test]]
 filename = "loop3.py"
 ast = true
 asr = true
+cpp = true
 
 [[test]]
 filename = "assert1.py"

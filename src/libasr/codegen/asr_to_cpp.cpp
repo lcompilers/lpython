@@ -189,6 +189,7 @@ R"(#include <iostream>
 #include <string>
 #include <vector>
 #include <cassert>
+#include <cmath>
 #include <Kokkos_Core.hpp>
 #include <lfortran_intrinsics.h>
 
@@ -759,7 +760,15 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string left_val = src;
         this->visit_expr(*x.m_right);
         std::string right_val = src;
-        src = "(" + left_val + ") + (" + right_val + ")";
+        switch (x.m_op) {
+            case (ASR::stropType::Concat): {
+                src = "std::string(" + left_val + ") + std::string(" + right_val + ")";
+                break;
+            }
+            case (ASR::stropType::Repeat): {
+                // TODO: implement
+            }
+        }
         last_unary_plus = false;
     }
 
@@ -901,7 +910,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             this->visit_stmt(*x.m_body[i]);
             out += src;
         }
-        out += indent + "};\n";
+        out += indent + "}\n";
         indentation_level -= 1;
         src = out;
     }
@@ -993,7 +1002,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             this->visit_stmt(*x.m_body[i]);
             out += src;
         }
-        out += indent + "};\n";
+        out += indent + "}\n";
         indentation_level -= 1;
         src = out;
     }
@@ -1036,14 +1045,14 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
         out += indent + "}";
         if (x.n_orelse == 0) {
-            out += ";\n";
+            out += "\n";
         } else {
             out += " else {\n";
             for (size_t i=0; i<x.n_orelse; i++) {
                 this->visit_stmt(*x.m_orelse[i]);
                 out += src;
             }
-            out += indent + "};\n";
+            out += indent + "}\n";
         }
         indentation_level -= 1;
         src = out;

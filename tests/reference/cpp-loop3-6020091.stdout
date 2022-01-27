@@ -16,18 +16,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
-void test_pow()
+void test_pass()
 {
     int a;
-    a = std::pow(2, 2);
-}
-
-int test_pow_1(int a, int b)
-{
-    int _lpython_return_variable;
-    int res;
-    res = std::pow(a, b);
-    _lpython_return_variable = res;
-    return _lpython_return_variable;
+    a = 1;
+    while (a > 0) {
+    }
 }
 
