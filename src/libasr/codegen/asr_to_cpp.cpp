@@ -760,7 +760,15 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string left_val = src;
         this->visit_expr(*x.m_right);
         std::string right_val = src;
-        src = "std::string(" + left_val + ") + std::string(" + right_val + ")";
+        switch (x.m_op) {
+            case (ASR::stropType::Concat): {
+                src = "std::string(" + left_val + ") + std::string(" + right_val + ")";
+                break;
+            }
+            case (ASR::stropType::Repeat): {
+                // TODO: implement
+            }
+        }
         last_unary_plus = false;
     }
 
