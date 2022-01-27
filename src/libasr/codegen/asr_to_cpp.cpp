@@ -760,7 +760,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string left_val = src;
         this->visit_expr(*x.m_right);
         std::string right_val = src;
-        src = "(" + left_val + ") + (" + right_val + ")";
+        src = "std::string(" + left_val + ") + std::string(" + right_val + ")";
         last_unary_plus = false;
     }
 
