@@ -766,9 +766,9 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_BoolOp(const ASR::BoolOp_t &x) {
         this->visit_expr(*x.m_left);
-        std::string left_val = "(" + src + ")";
+        std::string left_val = src;
         this->visit_expr(*x.m_right);
-        std::string right_val = "(" + src + ")";
+        std::string right_val = src;
         switch (x.m_op) {
             case ASR::boolopType::And: {
                 src = left_val + " && " + right_val;
