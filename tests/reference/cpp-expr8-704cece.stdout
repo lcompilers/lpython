@@ -16,18 +16,15 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
-void test_pow()
+void test_binop()
 {
-    int a;
-    a = std::pow(2, 2);
-}
-
-int test_pow_1(int a, int b)
-{
-    int _lpython_return_variable;
-    int res;
-    res = std::pow(a, b);
-    _lpython_return_variable = res;
-    return _lpython_return_variable;
+    int x;
+    float x2;
+    x = std::pow(2, 3);
+    x = std::pow((float)(2), 3.500000);
+    x = 54 - 100;
+    x2 = 3.454000 - 765.430000 + 534.600000;
+    x2 = 5346.565000*3.450000;
+    x2 = std::pow(5346.565000, 3.450000);
 }
 
