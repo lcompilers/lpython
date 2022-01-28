@@ -1315,7 +1315,10 @@ public:
 
     void visit_Return(const AST::Return_t &x) {
         std::string return_var_name = "_lpython_return_variable";
-        LFORTRAN_ASSERT(current_scope->scope.find(return_var_name) != current_scope->scope.end())
+        if(current_scope->scope.find(return_var_name) == current_scope->scope.end()) {
+            throw SemanticError("Return type of function is not defined",
+                                x.base.base.loc);
+        }
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
         ASR::symbol_t *return_var = current_scope->scope[return_var_name];
