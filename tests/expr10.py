@@ -2,6 +2,10 @@ def test_UnaryOp():
     a: i32
     a = +4
     a = -500
+    a = ~5
+    a = not 5
+    a = not -1
+    a = not 0
 
     f: f32
     f = +1.0

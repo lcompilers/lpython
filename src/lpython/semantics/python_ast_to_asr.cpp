@@ -1008,35 +1008,49 @@ public:
 
         if (ASRUtils::expr_value(operand) != nullptr) {
             if (ASRUtils::is_integer(*operand_type)) {
+
                 int64_t op_value = ASR::down_cast<ASR::ConstantInteger_t>(
                                         ASRUtils::expr_value(operand))->m_n;
-                int64_t result;
-                switch (op) {
-                    case (ASR::unaryopType::UAdd): { result = op_value; break; }
-                    case (ASR::unaryopType::USub): { result = -op_value; break; }
-                    case (ASR::unaryopType::Invert): { result = ~op_value; break; }
-                    default: {
-                        throw SemanticError("Bad operand type for unary operation",
-                            x.base.base.loc);
+                if (op == ASR::unaryopType::Not) {
+                    bool b = (op_value == 0) ? true : false;
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                        al, x.base.base.loc, b, operand_type));
+                } else {
+                    int64_t result;
+                    switch (op) {
+                        case (ASR::unaryopType::UAdd): { result = op_value; break; }
+                        case (ASR::unaryopType::USub): { result = -op_value; break; }
+                        case (ASR::unaryopType::Invert): { result = ~op_value; break; }
+                        default: {
+                            throw SemanticError("Bad operand type for unary operation",
+                                x.base.base.loc);
+                        }
                     }
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
+                                al, x.base.base.loc, result, operand_type));
                 }
-                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, result, operand_type);
-                return;
 
             } else if (ASRUtils::is_real(*operand_type)) {
                 double op_value = ASR::down_cast<ASR::ConstantReal_t>(
                                         ASRUtils::expr_value(operand))->m_r;
-                double result;
-                switch (op) {
-                    case (ASR::unaryopType::UAdd): { result = op_value; break; }
-                    case (ASR::unaryopType::USub): { result = -op_value; break; }
-                    default: {
-                        throw SemanticError("Bad operand type for unary operation",
-                            x.base.base.loc);
+                if (op == ASR::unaryopType::Not) {
+                    bool b = (op_value == 0.0) ? true : false;
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                        al, x.base.base.loc, b, operand_type));
+                } else {
+                    double result;
+                    switch (op) {
+                        case (ASR::unaryopType::UAdd): { result = op_value; break; }
+                        case (ASR::unaryopType::USub): { result = -op_value; break; }
+                        default: {
+                            throw SemanticError("Bad operand type for unary operation",
+                                x.base.base.loc);
+                        }
                     }
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(
+                        al, x.base.base.loc, result, operand_type));
                 }
-                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, result, operand_type);
-                return;
+
             } else if (ASRUtils::is_logical(*operand_type)) {
                 bool op_value = ASR::down_cast<ASR::ConstantLogical_t>(
                                         ASRUtils::expr_value(operand))->m_value;
@@ -1522,16 +1536,16 @@ public:
                 std::string s, prefix;
                 std::stringstream ss;
                 if (call_name == "oct") {
-                    prefix = n > 0 ? "0o" : "-0o";
-                    ss << std::oct << std::abs(n);
+                    prefix = "0o";
+                    ss << std::oct << n;
                     s += ss.str();
                 } else if (call_name == "bin") {
-                    prefix = n > 0 ? "0b" : "-0b";
-                    s += std::bitset<64>(std::abs(n)).to_string();
+                    prefix = "0b";
+                    s += std::bitset<64>(n).to_string();
                     s.erase(0, s.find_first_not_of('0'));
                 } else {
-                    prefix = n > 0 ? "0x" : "-0x";
-                    ss << std::hex << std::abs(n);
+                    prefix = "0x";
+                    ss << std::hex << n;
                     s += ss.str();
                 }
                 s.insert(0, prefix);

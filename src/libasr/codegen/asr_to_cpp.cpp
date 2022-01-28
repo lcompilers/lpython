@@ -668,23 +668,34 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 src = "-" + src;
                 last_unary_plus = true;
                 last_binary_plus = false;
-                return;
+            } else if (x.m_op == ASR::unaryopType::Invert) {
+                src = "~" + src;
+                last_unary_plus = false;
+                last_binary_plus = false;
+            } else if (x.m_op == ASR::unaryopType::Not) {
+                src = "!" + src;
+                last_unary_plus = false;
+                last_binary_plus = false;
             } else {
                 throw CodeGenError("Unary type not implemented yet for Integer");
             }
+            return;
         } else if (x.m_type->type == ASR::ttypeType::Real) {
             if (x.m_op == ASR::unaryopType::UAdd) {
                 // src = src;
                 last_unary_plus = false;
-                return;
             } else if (x.m_op == ASR::unaryopType::USub) {
                 src = "-" + src;
                 last_unary_plus = true;
                 last_binary_plus = false;
-                return;
+            } else if (x.m_op == ASR::unaryopType::Not) {
+                src = "!" + src;
+                last_unary_plus = false;
+                last_binary_plus = false;
             } else {
                 throw CodeGenError("Unary type not implemented yet for Real");
             }
+            return;
         } else if (x.m_type->type == ASR::ttypeType::Logical) {
             if (x.m_op == ASR::unaryopType::Not) {
                 src = "!" + src;
