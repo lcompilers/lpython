@@ -19,7 +19,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 void test_complex_cpp()
 {
     std::complex<float> c;
-    c = {423.000000, -23423.540000};
+    c = {423.000000, 23423.540000};
     c = {1.000000, 2.000000};
 }
 

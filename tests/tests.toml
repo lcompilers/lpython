@@ -79,7 +79,6 @@ cpp = true
 filename = "expr10.py"
 ast = true
 asr = true
-cpp = true
 
 [[test]]
 filename = "expr11.py"

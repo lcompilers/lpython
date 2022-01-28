@@ -138,6 +138,28 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
     }
 }
 
+static inline std::string unop_to_str(const ASR::unaryopType t) {
+    switch (t) {
+        case (ASR::unaryopType::Not): { return "!"; }
+        case (ASR::unaryopType::USub): { return "-"; }
+        case (ASR::unaryopType::UAdd): { return "+"; }
+        case (ASR::unaryopType::Invert): {return "~"; }
+        default : throw LFortranException("Not implemented");
+    }
+}
+
+static inline std::string cmpop_to_str(const ASR::cmpopType t) {
+    switch (t) {
+        case (ASR::cmpopType::Eq): { return "=="; }
+        case (ASR::cmpopType::NotEq): { return "!="; }
+        case (ASR::cmpopType::Lt): { return "<"; }
+        case (ASR::cmpopType::LtE): { return "<="; }
+        case (ASR::cmpopType::Gt): { return ">"; }
+        case (ASR::cmpopType::GtE): { return ">="; }
+        default : throw LFortranException("Not implemented");
+    }
+}
+
 static inline ASR::expr_t* expr_value(ASR::expr_t *f)
 {
     switch (f->type) {

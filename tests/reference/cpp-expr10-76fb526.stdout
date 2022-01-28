@@ -25,6 +25,10 @@ void test_UnaryOp()
     float f;
     a = 4;
     a = -500;
+    a = ~5;
+    a = !5;
+    a = !-1;
+    a = !0;
     f = 1.000000;
     f = -183745.534000;
     b1 = true;

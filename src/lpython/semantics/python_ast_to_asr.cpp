@@ -819,9 +819,7 @@ public:
                                         ASRUtils::expr_value(right))->m_s;
                 char* result;
                 std::string result_s = std::string(left_value) + std::string(right_value);
-                Str s;
-                s.from_str_view(result_s);
-                result = s.c_str(al);
+                result = s2c(al, result_s);
                 LFORTRAN_ASSERT((int64_t)strlen(result) == ASR::down_cast<ASR::Character_t>(dest_type)->m_len)
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(
                     al, loc, result, dest_type));
@@ -865,10 +863,7 @@ public:
                 char* result;
                 std::ostringstream os;
                 std::fill_n(std::ostream_iterator<std::string>(os), repeat, std::string(str));
-                std::string result_s = os.str();
-                Str s;
-                s.from_str_view(result_s);
-                result = s.c_str(al);
+                result = s2c(al, os.str());
                 LFORTRAN_ASSERT((int64_t)strlen(result) == dest_len)
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(
                     al, loc, result, dest_type));
@@ -1008,46 +1003,88 @@ public:
 
         if (ASRUtils::expr_value(operand) != nullptr) {
             if (ASRUtils::is_integer(*operand_type)) {
+
                 int64_t op_value = ASR::down_cast<ASR::ConstantInteger_t>(
                                         ASRUtils::expr_value(operand))->m_n;
-                int64_t result;
-                switch (op) {
-                    case (ASR::unaryopType::UAdd): { result = op_value; break; }
-                    case (ASR::unaryopType::USub): { result = -op_value; break; }
-                    default: {
-                        throw SemanticError("Unary operator not implemented yet for compile time evaluation",
-                            x.base.base.loc);
+                if (op == ASR::unaryopType::Not) {
+                    bool b = (op_value == 0) ? true : false;
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                        al, x.base.base.loc, b, operand_type));
+                } else {
+                    int64_t result = 0;
+                    switch (op) {
+                        case (ASR::unaryopType::UAdd): { result = op_value; break; }
+                        case (ASR::unaryopType::USub): { result = -op_value; break; }
+                        case (ASR::unaryopType::Invert): { result = ~op_value; break; }
+                        default: LFORTRAN_ASSERT(false); // should never happen
                     }
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
+                                al, x.base.base.loc, result, operand_type));
                 }
-                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, result, operand_type);
-                return;
 
             } else if (ASRUtils::is_real(*operand_type)) {
                 double op_value = ASR::down_cast<ASR::ConstantReal_t>(
                                         ASRUtils::expr_value(operand))->m_r;
-                double result;
-                switch (op) {
-                    case (ASR::unaryopType::UAdd): { result = op_value; break; }
-                    case (ASR::unaryopType::USub): { result = -op_value; break; }
-                    default: {
-                        throw SemanticError("Unary operator not implemented yet for compile time evaluation",
-                            x.base.base.loc);
+                if (op == ASR::unaryopType::Not) {
+                    bool b = (op_value == 0.0) ? true : false;
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                        al, x.base.base.loc, b, operand_type));
+                } else {
+                    double result = 0.0;
+                    switch (op) {
+                        case (ASR::unaryopType::UAdd): { result = op_value; break; }
+                        case (ASR::unaryopType::USub): { result = -op_value; break; }
+                        default: {
+                            throw SemanticError("Bad operand type for unary " +
+                                ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str(operand_type),
+                                x.base.base.loc);
+                        }
                     }
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(
+                        al, x.base.base.loc, result, operand_type));
                 }
-                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, result, operand_type);
-                return;
+
             } else if (ASRUtils::is_logical(*operand_type)) {
                 bool op_value = ASR::down_cast<ASR::ConstantLogical_t>(
-                                        ASRUtils::expr_value(operand))->m_value;
-                bool result;
+                                               ASRUtils::expr_value(operand))->m_value;
                 if (op == ASR::unaryopType::Not) {
-                    result = !op_value;
+                    value = ASR::down_cast<ASR::expr_t>(
+                        ASR::make_ConstantLogical_t(al, x.base.base.loc, !op_value, operand_type));
                 } else {
-                    throw SemanticError("Unary operator not implemented yet for compile time evaluation",
-                        x.base.base.loc);
+                    int8_t result = 0;
+                    switch (op) {
+                        case (ASR::unaryopType::UAdd): { result = +op_value; break; }
+                        case (ASR::unaryopType::USub): { result = -op_value; break; }
+                        case (ASR::unaryopType::Invert): { result = op_value ? -2 : -1; break; }
+                        default : LFORTRAN_ASSERT(false); // should never happen
+                    }
+                    value = ASR::down_cast<ASR::expr_t>(
+                        ASR::make_ConstantInteger_t(al, x.base.base.loc, result, operand_type));
                 }
-                value = ASR::down_cast<ASR::expr_t>(
-                    ASR::make_ConstantLogical_t(al, x.base.base.loc, result, operand_type));
+
+            } else if (ASRUtils::is_complex(*operand_type)) {
+                ASR::ConstantComplex_t *c = ASR::down_cast<ASR::ConstantComplex_t>(
+                                        ASRUtils::expr_value(operand));
+                std::complex<double> op_value(c->m_re, c->m_im);
+                std::complex<double> result;
+                if (op == ASR::unaryopType::Not) {
+                    bool b = (op_value.real() == 0.0 && op_value.imag() == 0.0) ? true : false;
+                    value = ASR::down_cast<ASR::expr_t>(
+                        ASR::make_ConstantLogical_t(al, x.base.base.loc, b, operand_type));
+                } else {
+                    switch (op) {
+                        case (ASR::unaryopType::UAdd): { result = op_value; break; }
+                        case (ASR::unaryopType::USub): { result = -op_value; break; }
+                        default: {
+                            throw SemanticError("Bad operand type for unary " +
+                                ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str(operand_type),
+                                x.base.base.loc);
+                        }
+                    }
+                    value = ASR::down_cast<ASR::expr_t>(
+                        ASR::make_ConstantComplex_t(al, x.base.base.loc,
+                        std::real(result), std::imag(result), operand_type));
+                }
             }
         }
         tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
@@ -1260,7 +1297,8 @@ public:
                         break;
                     }
                     default: {
-                        throw SemanticError("Comparison operator not implemented",
+                        throw SemanticError("'" + ASRUtils::cmpop_to_str(asr_op) +
+                                            "' comparison is not supported between complex numbers",
                                             x.base.base.loc);
                     }
                 }
@@ -1414,9 +1452,8 @@ public:
             ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al,
                                                           x.base.base.loc, 4, nullptr, 0));
             char* str_value = ASR::down_cast<ASR::ConstantString_t>(arg)->m_s;
-            Str s;
-            s.from_str_view(std::string(str_value));
-            tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, (int64_t)strlen(s.c_str(al)), type);
+            tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
+                (int64_t)strlen(s2c(al, std::string(str_value))), type);
             return;
 
         } else if (call_name == "ord") {
@@ -1449,11 +1486,7 @@ public:
                 char cc = c;
                 std::string svalue;
                 svalue += cc;
-                Str s;
-                s.from_str_view(svalue);
-                char *str_val = s.c_str(al);
-                tmp = ASR::make_ConstantString_t(al, x.base.base.loc,
-                    str_val, str_type);
+                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, svalue), str_type);
                 return;
             } else {
                 throw SemanticError("chr() must have one integer argument", x.base.base.loc);
@@ -1507,22 +1540,20 @@ public:
                 std::string s, prefix;
                 std::stringstream ss;
                 if (call_name == "oct") {
-                    prefix = n > 0 ? "0o" : "-0o";
-                    ss << std::oct << std::abs(n);
+                    prefix = "0o";
+                    ss << std::oct << n;
                     s += ss.str();
                 } else if (call_name == "bin") {
-                    prefix = n > 0 ? "0b" : "-0b";
-                    s += std::bitset<64>(std::abs(n)).to_string();
+                    prefix = "0b";
+                    s += std::bitset<64>(n).to_string();
                     s.erase(0, s.find_first_not_of('0'));
                 } else {
-                    prefix = n > 0 ? "0x" : "-0x";
-                    ss << std::hex << std::abs(n);
+                    prefix = "0x";
+                    ss << std::hex << n;
                     s += ss.str();
                 }
                 s.insert(0, prefix);
-                Str s2;  s2.from_str_view(s);
-                char *str_val = s2.c_str(al);
-                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, str_val, str_type);
+                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
                 return;
             } else {
                 throw SemanticError(call_name + "() must have one integer argument",
@@ -1584,9 +1615,7 @@ public:
                 result = rv;
             } else if (ASRUtils::is_character(*t)) {
                 char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(arg))->m_s;
-                Str s;
-                s.from_str_view(std::string(c));
-                result = strlen(s.c_str(al)) ? true : false;
+                result = strlen(s2c(al, std::string(c))) ? true : false;
             } else {
                 throw SemanticError(call_name + "() must have one real, integer, character,"
                         " complex, or logical argument", x.base.base.loc);
