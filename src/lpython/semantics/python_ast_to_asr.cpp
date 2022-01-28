@@ -1297,7 +1297,8 @@ public:
                         break;
                     }
                     default: {
-                        throw SemanticError("Comparison operator not implemented",
+                        throw SemanticError("'" + ASRUtils::cmpop_to_str(asr_op) +
+                                            "' comparison is not supported between complex numbers",
                                             x.base.base.loc);
                     }
                 }
