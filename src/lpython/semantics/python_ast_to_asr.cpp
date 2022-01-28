@@ -819,9 +819,7 @@ public:
                                         ASRUtils::expr_value(right))->m_s;
                 char* result;
                 std::string result_s = std::string(left_value) + std::string(right_value);
-                Str s;
-                s.from_str_view(result_s);
-                result = s.c_str(al);
+                result = s2c(al, result_s);
                 LFORTRAN_ASSERT((int64_t)strlen(result) == ASR::down_cast<ASR::Character_t>(dest_type)->m_len)
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(
                     al, loc, result, dest_type));
@@ -865,10 +863,7 @@ public:
                 char* result;
                 std::ostringstream os;
                 std::fill_n(std::ostream_iterator<std::string>(os), repeat, std::string(str));
-                std::string result_s = os.str();
-                Str s;
-                s.from_str_view(result_s);
-                result = s.c_str(al);
+                result = s2c(al, os.str());
                 LFORTRAN_ASSERT((int64_t)strlen(result) == dest_len)
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(
                     al, loc, result, dest_type));
@@ -1443,9 +1438,8 @@ public:
             ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al,
                                                           x.base.base.loc, 4, nullptr, 0));
             char* str_value = ASR::down_cast<ASR::ConstantString_t>(arg)->m_s;
-            Str s;
-            s.from_str_view(std::string(str_value));
-            tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, (int64_t)strlen(s.c_str(al)), type);
+            tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
+                (int64_t)strlen(s2c(al, std::string(str_value))), type);
             return;
 
         } else if (call_name == "ord") {
@@ -1478,11 +1472,7 @@ public:
                 char cc = c;
                 std::string svalue;
                 svalue += cc;
-                Str s;
-                s.from_str_view(svalue);
-                char *str_val = s.c_str(al);
-                tmp = ASR::make_ConstantString_t(al, x.base.base.loc,
-                    str_val, str_type);
+                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, svalue), str_type);
                 return;
             } else {
                 throw SemanticError("chr() must have one integer argument", x.base.base.loc);
@@ -1549,9 +1539,7 @@ public:
                     s += ss.str();
                 }
                 s.insert(0, prefix);
-                Str s2;  s2.from_str_view(s);
-                char *str_val = s2.c_str(al);
-                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, str_val, str_type);
+                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
                 return;
             } else {
                 throw SemanticError(call_name + "() must have one integer argument",
@@ -1613,9 +1601,7 @@ public:
                 result = rv;
             } else if (ASRUtils::is_character(*t)) {
                 char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(arg))->m_s;
-                Str s;
-                s.from_str_view(std::string(c));
-                result = strlen(s.c_str(al)) ? true : false;
+                result = strlen(s2c(al, std::string(c))) ? true : false;
             } else {
                 throw SemanticError(call_name + "() must have one real, integer, character,"
                         " complex, or logical argument", x.base.base.loc);
