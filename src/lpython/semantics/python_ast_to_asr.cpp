@@ -1016,10 +1016,7 @@ public:
                         case (ASR::unaryopType::UAdd): { result = op_value; break; }
                         case (ASR::unaryopType::USub): { result = -op_value; break; }
                         case (ASR::unaryopType::Invert): { result = ~op_value; break; }
-                        default: {
-                            throw SemanticError("Bad operand type for unary operation",
-                                x.base.base.loc);
-                        }
+                        default: LFORTRAN_ASSERT(false); // should never happen
                     }
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
                                 al, x.base.base.loc, result, operand_type));
@@ -1038,7 +1035,8 @@ public:
                         case (ASR::unaryopType::UAdd): { result = op_value; break; }
                         case (ASR::unaryopType::USub): { result = -op_value; break; }
                         default: {
-                            throw SemanticError("Bad operand type for unary operation",
+                            throw SemanticError("Bad operand type for unary " +
+                                ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str(operand_type),
                                 x.base.base.loc);
                         }
                     }
@@ -1048,33 +1046,45 @@ public:
 
             } else if (ASRUtils::is_logical(*operand_type)) {
                 bool op_value = ASR::down_cast<ASR::ConstantLogical_t>(
-                                        ASRUtils::expr_value(operand))->m_value;
-                bool result;
+                                               ASRUtils::expr_value(operand))->m_value;
                 if (op == ASR::unaryopType::Not) {
-                    result = !op_value;
+                    value = ASR::down_cast<ASR::expr_t>(
+                        ASR::make_ConstantLogical_t(al, x.base.base.loc, !op_value, operand_type));
                 } else {
-                    throw SemanticError("Bad operand type for unary operation",
-                        x.base.base.loc);
+                    int8_t result;
+                    switch (op) {
+                        case (ASR::unaryopType::UAdd): { result = +op_value; break; }
+                        case (ASR::unaryopType::USub): { result = -op_value; break; }
+                        case (ASR::unaryopType::Invert): { result = op_value ? -2 : -1; break; }
+                        default : LFORTRAN_ASSERT(false); // should never happen
+                    }
+                    value = ASR::down_cast<ASR::expr_t>(
+                        ASR::make_ConstantInteger_t(al, x.base.base.loc, result, operand_type));
                 }
-                value = ASR::down_cast<ASR::expr_t>(
-                    ASR::make_ConstantLogical_t(al, x.base.base.loc, result, operand_type));
 
             } else if (ASRUtils::is_complex(*operand_type)) {
                 ASR::ConstantComplex_t *c = ASR::down_cast<ASR::ConstantComplex_t>(
                                         ASRUtils::expr_value(operand));
                 std::complex<double> op_value(c->m_re, c->m_im);
                 std::complex<double> result;
-                switch (op) {
-                    case (ASR::unaryopType::UAdd): { result = op_value; break; }
-                    case (ASR::unaryopType::USub): { result = -op_value; break; }
-                    default: {
-                        throw SemanticError("Bad operand type for unary operation",
-                            x.base.base.loc);
+                if (op == ASR::unaryopType::Not) {
+                    bool b = (op_value.real() == 0.0 && op_value.imag() == 0.0) ? true : false;
+                    value = ASR::down_cast<ASR::expr_t>(
+                        ASR::make_ConstantLogical_t(al, x.base.base.loc, b, operand_type));
+                } else {
+                    switch (op) {
+                        case (ASR::unaryopType::UAdd): { result = op_value; break; }
+                        case (ASR::unaryopType::USub): { result = -op_value; break; }
+                        default: {
+                            throw SemanticError("Bad operand type for unary " +
+                                ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str(operand_type),
+                                x.base.base.loc);
+                        }
                     }
-                }
-                value = ASR::down_cast<ASR::expr_t>(
-                    ASR::make_ConstantComplex_t(al, x.base.base.loc,
+                    value = ASR::down_cast<ASR::expr_t>(
+                        ASR::make_ConstantComplex_t(al, x.base.base.loc,
                         std::real(result), std::imag(result), operand_type));
+                }
             }
         }
         tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
