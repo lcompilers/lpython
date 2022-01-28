@@ -1011,7 +1011,7 @@ public:
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
                         al, x.base.base.loc, b, operand_type));
                 } else {
-                    int64_t result;
+                    int64_t result = 0;
                     switch (op) {
                         case (ASR::unaryopType::UAdd): { result = op_value; break; }
                         case (ASR::unaryopType::USub): { result = -op_value; break; }
@@ -1030,7 +1030,7 @@ public:
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
                         al, x.base.base.loc, b, operand_type));
                 } else {
-                    double result;
+                    double result = 0.0;
                     switch (op) {
                         case (ASR::unaryopType::UAdd): { result = op_value; break; }
                         case (ASR::unaryopType::USub): { result = -op_value; break; }
@@ -1051,7 +1051,7 @@ public:
                     value = ASR::down_cast<ASR::expr_t>(
                         ASR::make_ConstantLogical_t(al, x.base.base.loc, !op_value, operand_type));
                 } else {
-                    int8_t result;
+                    int8_t result = 0;
                     switch (op) {
                         case (ASR::unaryopType::UAdd): { result = +op_value; break; }
                         case (ASR::unaryopType::USub): { result = -op_value; break; }
