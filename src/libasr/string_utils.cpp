@@ -1,5 +1,7 @@
 #include <cctype>
 #include <regex>
+#include <algorithm>
+#include <string>
 
 #include <libasr/string_utils.h>
 #include <libasr/containers.h>
@@ -21,8 +23,9 @@ bool endswith(const std::string &s, const std::string &e)
 }
 
 std::string to_lower(const std::string &s) {
-    std::string res;
-    for(auto x: s) res.push_back(std::tolower(x));
+    std::string res = s;
+    std::transform(res.begin(), res.end(), res.begin(),
+        [](unsigned char c){ return std::tolower(c); });
     return res;
 }
 
