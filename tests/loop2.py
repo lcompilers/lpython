@@ -5,3 +5,6 @@ def test_for():
             continue
         if i > 5:
             break
+        if i == 3:
+            quit()
+    exit()
