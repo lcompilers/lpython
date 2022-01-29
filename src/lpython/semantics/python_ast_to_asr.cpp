@@ -1622,6 +1622,22 @@ public:
             }
             tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, result, type);
             return;
+        } else if (call_name == "callable") {
+            if (args.size() != 1) {
+                throw SemanticError(call_name + "() takes exactly one argument (" +
+                    std::to_string(args.size()) + " given)", x.base.base.loc);
+            }
+            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
+                                  1, nullptr, 0));
+            ASR::expr_t *arg = args[0];
+            bool result = false;
+            if (ASR::is_a<ASR::Var_t>(*arg)) {
+                ASR::symbol_t *t = ASR::down_cast<ASR::Var_t>(arg)->m_v;
+                result = (ASR::is_a<ASR::Function_t>(*t) ||
+                            ASR::is_a<ASR::Subroutine_t>(*t));
+            }
+            tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, result, type);
+            return;
         }
 
         // Other functions
