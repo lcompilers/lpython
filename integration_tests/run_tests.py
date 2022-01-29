@@ -6,6 +6,8 @@ import sys
 tests = [
     "expr_01.py",
     "expr_02.py",
+    "expr_03.py",
+    "expr_04.py"
 ]
 
 def main():
