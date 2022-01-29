@@ -1388,6 +1388,11 @@ public:
                 tmp = ASR::make_Print_t(al, x.base.base.loc, fmt,
                     args.p, args.size());
                 return;
+
+            } else if (call_name == "exit" || call_name == "quit") {
+                ASR::expr_t *code = nullptr;
+                tmp = ASR::make_Stop_t(al, x.base.base.loc, code);
+                return;
             }
             ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
             if (!s) {
