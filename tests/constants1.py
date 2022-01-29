@@ -39,3 +39,15 @@ def test_bool():
     a = bool('t')
     a = bool(2.3)
     assert a == True
+
+
+def test_callable():
+    a: bool
+    b: i32
+    b = 2
+    a = callable(test_len)
+    assert a == True
+    a = callable(b)
+    assert a == False
+    a = callable('c')
+    assert a == False
