@@ -1,0 +1,13 @@
+{
+    "basename": "asr-dictionary1-a105a36",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/dictionary1.py",
+    "infile_hash": "3f4c855c0841b6569aa7ab8d644abd49de1d659d1c31fb6064f5551a",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-dictionary1-a105a36.stdout",
+    "stdout_hash": "4f84eadcc7be39dc51dab4396c0a986a84c3697b88ffa91e52338756",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
