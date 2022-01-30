@@ -1145,19 +1145,40 @@ public:
     void visit_Dict(const AST::Dict_t &x) {
         Vec<ASR::expr_t*> keys;
         keys.reserve(al, x.n_keys);
-        ASR::ttype_t *type = nullptr;
+        ASR::ttype_t* key_type = nullptr;
         for (size_t i = 0; i < x.n_keys; ++i) {
             visit_expr(*x.m_keys[i]);
+            if (key_type == nullptr) {
+                key_type = ASRUtils::expr_type(ASRUtils::EXPR(tmp));
+            } else {
+                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(ASRUtils::EXPR(tmp)),
+                                                key_type)) {
+                    throw SemanticError("All dictionary keys must be of the same type",
+                                        x.base.base.loc);
+                }
+            }
             keys.push_back(al, ASRUtils::EXPR(tmp));
         }
         Vec<ASR::expr_t*> values;
         values.reserve(al, x.n_values);
+        ASR::ttype_t* value_type = nullptr;
         for (size_t i = 0; i < x.n_values; ++i) {
             visit_expr(*x.m_values[i]);
+            if (value_type == nullptr) {
+                value_type = ASRUtils::expr_type(ASRUtils::EXPR(tmp));
+            } else {
+                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(ASRUtils::EXPR(tmp)),
+                                                value_type)) {
+                    throw SemanticError("All dictionary values must be of the same type",
+                                        x.base.base.loc);
+                }
+            }
             values.push_back(al, ASRUtils::EXPR(tmp));
         }
-        tmp = ASR::make_Dict_t(al, x.base.base.loc, keys.p, keys.size(),
-                               values.p, values.size(), type);
+
+        tmp = ASR::make_ConstantDictionary_t(al, x.base.base.loc, keys.p,
+                                             keys.size(), values.p, values.size(),
+                                             key_type, value_type);
     }
 
     void visit_While(const AST::While_t &x) {

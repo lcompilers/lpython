@@ -200,7 +200,6 @@ expr
     | NamedExpr(expr target, expr value, ttype type)
     | Compare(expr left, cmpop op, expr right, ttype type, expr? value, expr? overloaded)
     | IfExp(expr test, expr body, expr orelse, ttype type)
-    | Dict(expr* keys, expr* values, ttype type)
     | FunctionCall(symbol name, symbol? original_name, expr* args,
             keyword* keywords, ttype type, expr? value, expr? dt)
     | DerivedTypeConstructor(symbol dt_sym, expr* args, ttype type)
@@ -212,6 +211,7 @@ expr
     | ConstantComplex(float re, float im, ttype type)
     | ConstantLogical(bool value, ttype type)
     | ConstantString(string s, ttype type)
+    | ConstantDictionary(expr* keys, expr* values, ttype key_type, ttype value_type)
     | BOZ(int v, boz boz_type, ttype? type)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type, expr? value)
