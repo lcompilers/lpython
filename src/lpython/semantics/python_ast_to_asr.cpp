@@ -1143,37 +1143,38 @@ public:
     }
 
     void visit_Dict(const AST::Dict_t &x) {
+        LFORTRAN_ASSERT(x.n_keys == x.n_values);
         Vec<ASR::expr_t*> keys;
         keys.reserve(al, x.n_keys);
         ASR::ttype_t* key_type = nullptr;
         for (size_t i = 0; i < x.n_keys; ++i) {
             visit_expr(*x.m_keys[i]);
+            ASR::expr_t *key = ASRUtils::EXPR(tmp);
             if (key_type == nullptr) {
-                key_type = ASRUtils::expr_type(ASRUtils::EXPR(tmp));
+                key_type = ASRUtils::expr_type(key);
             } else {
-                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(ASRUtils::EXPR(tmp)),
-                                                key_type)) {
+                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type)) {
                     throw SemanticError("All dictionary keys must be of the same type",
                                         x.base.base.loc);
                 }
             }
-            keys.push_back(al, ASRUtils::EXPR(tmp));
+            keys.push_back(al, key);
         }
         Vec<ASR::expr_t*> values;
         values.reserve(al, x.n_values);
         ASR::ttype_t* value_type = nullptr;
         for (size_t i = 0; i < x.n_values; ++i) {
             visit_expr(*x.m_values[i]);
+            ASR::expr_t *value = ASRUtils::EXPR(tmp);
             if (value_type == nullptr) {
-                value_type = ASRUtils::expr_type(ASRUtils::EXPR(tmp));
+                value_type = ASRUtils::expr_type(value);
             } else {
-                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(ASRUtils::EXPR(tmp)),
-                                                value_type)) {
+                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(value), value_type)) {
                     throw SemanticError("All dictionary values must be of the same type",
                                         x.base.base.loc);
                 }
             }
-            values.push_back(al, ASRUtils::EXPR(tmp));
+            values.push_back(al, value);
         }
 
         tmp = ASR::make_ConstantDictionary_t(al, x.base.base.loc, keys.p,
