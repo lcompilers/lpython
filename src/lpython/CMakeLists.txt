@@ -62,5 +62,3 @@ endif()
 #    ARCHIVE DESTINATION lib
 #    LIBRARY DESTINATION lib
 #)
-
-add_subdirectory(tests)
