@@ -1383,8 +1383,8 @@ public:
             }
             elements.push_back(al, value);
         }
-
-        tmp = ASR::make_ConstantSet_t(al, x.base.base.loc, elements.p, elements.size(), type);
+        ASR::ttype_t* set_type = ASRUtils::TYPE(ASR::make_Set_t(al, x.base.base.loc, type));
+        tmp = ASR::make_ConstantSet_t(al, x.base.base.loc, elements.p, elements.size(), set_type);
     }
 
     void visit_Expr(const AST::Expr_t &x) {
