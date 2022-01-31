@@ -209,6 +209,7 @@ expr
     | ConstantInteger(int n, ttype type)
     | ConstantReal(float r, ttype type)
     | ConstantComplex(float re, float im, ttype type)
+    | ConstantSet(expr* elts, ttype type)
     | ConstantLogical(bool value, ttype type)
     | ConstantString(string s, ttype type)
     | BOZ(int v, boz boz_type, ttype? type)
