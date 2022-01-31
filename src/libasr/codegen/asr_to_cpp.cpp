@@ -114,9 +114,9 @@ public:
         std::string sub;
         bool use_ref = (v.m_intent == LFortran::ASRUtils::intent_out || v.m_intent == LFortran::ASRUtils::intent_inout);
         bool dummy = LFortran::ASRUtils::is_arg_dummy(v.m_intent);
-        if (is_a<ASR::Pointer_t>(*v.m_type)) {
+        if (ASRUtils::is_pointer(v.m_type)) {
             ASR::ttype_t *t2 = ASR::down_cast<ASR::Pointer_t>(v.m_type)->m_type;
-            if (is_a<ASR::Integer_t>(*t2)) {
+            if (ASRUtils::is_integer(*t2)) {
                 ASR::Integer_t *t = down_cast<ASR::Integer_t>(t2);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
                 sub = format_type(dims, "int *", v.m_name, use_ref, dummy);
@@ -127,27 +127,27 @@ public:
                 throw Abort();
             }
         } else {
-            if (is_a<ASR::Integer_t>(*v.m_type)) {
+            if (ASRUtils::is_integer(*v.m_type)) {
                 ASR::Integer_t *t = down_cast<ASR::Integer_t>(v.m_type);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
                 std::string type_name = "int";
                 if (t->m_kind == 8) type_name = "long long";
                 sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
-            } else if (is_a<ASR::Real_t>(*v.m_type)) {
+            } else if (ASRUtils::is_real(*v.m_type)) {
                 ASR::Real_t *t = down_cast<ASR::Real_t>(v.m_type);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
                 std::string type_name = "float";
                 if (t->m_kind == 8) type_name = "double";
                 sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
-            } else if (is_a<ASR::Complex_t>(*v.m_type)) {
+            } else if (ASRUtils::is_complex(*v.m_type)) {
                 ASR::Complex_t *t = down_cast<ASR::Complex_t>(v.m_type);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
                 sub = format_type(dims, "std::complex<float>", v.m_name, use_ref, dummy);
-            } else if (is_a<ASR::Logical_t>(*v.m_type)) {
+            } else if (ASRUtils::is_logical(*v.m_type)) {
                 ASR::Logical_t *t = down_cast<ASR::Logical_t>(v.m_type);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
                 sub = format_type(dims, "bool", v.m_name, use_ref, dummy);
-            } else if (is_a<ASR::Character_t>(*v.m_type)) {
+            } else if (ASRUtils::is_character(*v.m_type)) {
                 ASR::Character_t *t = down_cast<ASR::Character_t>(v.m_type);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
                 sub = format_type(dims, "std::string", v.m_name, use_ref, dummy);
@@ -407,15 +407,15 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
         std::string sub;
         ASR::Variable_t *return_var = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
-        if (is_a<ASR::Integer_t>(*return_var->m_type)) {
+        if (ASRUtils::is_integer(*return_var->m_type)) {
             sub = "int ";
-        } else if (is_a<ASR::Real_t>(*return_var->m_type)) {
+        } else if (ASRUtils::is_real(*return_var->m_type)) {
             sub = "float ";
-        } else if (is_a<ASR::Logical_t>(*return_var->m_type)) {
+        } else if (ASRUtils::is_logical(*return_var->m_type)) {
             sub = "bool ";
-        } else if (is_a<ASR::Character_t>(*return_var->m_type)) {
+        } else if (ASRUtils::is_character(*return_var->m_type)) {
             sub = "std::string ";
-        } else if (is_a<ASR::Complex_t>(*return_var->m_type)) {
+        } else if (ASRUtils::is_complex(*return_var->m_type)) {
             sub = "std::complex<float> ";
         } else {
             throw CodeGenError("Return type not supported");
@@ -450,7 +450,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
         current_function = nullptr;
         bool visited_return = false;
-        
+
         if (x.n_body > 0 && is_a<ASR::Return_t>(*x.m_body[x.n_body-1])) {
             visited_return = true;
         }
