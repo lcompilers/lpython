@@ -30,10 +30,6 @@ namespace {
 
 }
 
-using ASR::is_a;
-using ASR::down_cast;
-using ASR::down_cast2;
-
 // Platform dependent fast unique hash:
 uint64_t get_hash(ASR::asr_t *node)
 {
@@ -55,9 +51,9 @@ std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
         if (!start && !end) {
             dims += "*";
         } else if (start && end) {
-            if (is_a<ASR::ConstantInteger_t>(*start) && is_a<ASR::ConstantInteger_t>(*end)) {
-                ASR::ConstantInteger_t *s = down_cast<ASR::ConstantInteger_t>(start);
-                ASR::ConstantInteger_t *e = down_cast<ASR::ConstantInteger_t>(end);
+            if (ASR::is_a<ASR::ConstantInteger_t>(*start) && ASR::is_a<ASR::ConstantInteger_t>(*end)) {
+                ASR::ConstantInteger_t *s = ASR::down_cast<ASR::ConstantInteger_t>(start);
+                ASR::ConstantInteger_t *e = ASR::down_cast<ASR::ConstantInteger_t>(end);
                 if (s->m_n == 1) {
                     dims += "[" + std::to_string(e->m_n) + "]";
                 } else {
@@ -117,7 +113,7 @@ public:
         if (ASRUtils::is_pointer(v.m_type)) {
             ASR::ttype_t *t2 = ASR::down_cast<ASR::Pointer_t>(v.m_type)->m_type;
             if (ASRUtils::is_integer(*t2)) {
-                ASR::Integer_t *t = down_cast<ASR::Integer_t>(t2);
+                ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(t2);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
                 sub = format_type(dims, "int *", v.m_name, use_ref, dummy);
             } else {
@@ -128,27 +124,27 @@ public:
             }
         } else {
             if (ASRUtils::is_integer(*v.m_type)) {
-                ASR::Integer_t *t = down_cast<ASR::Integer_t>(v.m_type);
+                ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(v.m_type);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
                 std::string type_name = "int";
                 if (t->m_kind == 8) type_name = "long long";
                 sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_real(*v.m_type)) {
-                ASR::Real_t *t = down_cast<ASR::Real_t>(v.m_type);
+                ASR::Real_t *t = ASR::down_cast<ASR::Real_t>(v.m_type);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
                 std::string type_name = "float";
                 if (t->m_kind == 8) type_name = "double";
                 sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_complex(*v.m_type)) {
-                ASR::Complex_t *t = down_cast<ASR::Complex_t>(v.m_type);
+                ASR::Complex_t *t = ASR::down_cast<ASR::Complex_t>(v.m_type);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
                 sub = format_type(dims, "std::complex<float>", v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_logical(*v.m_type)) {
-                ASR::Logical_t *t = down_cast<ASR::Logical_t>(v.m_type);
+                ASR::Logical_t *t = ASR::down_cast<ASR::Logical_t>(v.m_type);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
                 sub = format_type(dims, "bool", v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_character(*v.m_type)) {
-                ASR::Character_t *t = down_cast<ASR::Character_t>(v.m_type);
+                ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(v.m_type);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
                 sub = format_type(dims, "std::string", v.m_name, use_ref, dummy);
                 if (v.m_symbolic_value) {
@@ -156,8 +152,8 @@ public:
                     std::string init = src;
                     sub += "=" + init;
                 }
-            } else if (is_a<ASR::Derived_t>(*v.m_type)) {
-                ASR::Derived_t *t = down_cast<ASR::Derived_t>(v.m_type);
+            } else if (ASR::is_a<ASR::Derived_t>(*v.m_type)) {
+                ASR::Derived_t *t = ASR::down_cast<ASR::Derived_t>(v.m_type);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
                 sub = format_type(dims, "struct", v.m_name, use_ref, dummy);
                 if (v.m_symbolic_value) {
@@ -227,8 +223,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
         // Process procedures first:
         for (auto &item : x.m_global_scope->scope) {
-            if (is_a<ASR::Function_t>(*item.second)
-                || is_a<ASR::Subroutine_t>(*item.second)) {
+            if (ASR::is_a<ASR::Function_t>(*item.second)
+                || ASR::is_a<ASR::Subroutine_t>(*item.second)) {
                 visit_symbol(*item.second);
                 unit_src += src;
             }
@@ -249,7 +245,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
         // Then the main program:
         for (auto &item : x.m_global_scope->scope) {
-            if (is_a<ASR::Program_t>(*item.second)) {
+            if (ASR::is_a<ASR::Program_t>(*item.second)) {
                 visit_symbol(*item.second);
                 unit_src += src;
             }
@@ -267,12 +263,12 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         // Generate code for nested subroutines and functions first:
         std::string contains;
         for (auto &item : x.m_symtab->scope) {
-            if (is_a<ASR::Subroutine_t>(*item.second)) {
+            if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
                 ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
                 contains += src;
             }
-            if (is_a<ASR::Function_t>(*item.second)) {
+            if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
                 contains += src;
@@ -286,12 +282,12 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         // Generate code for nested subroutines and functions first:
         std::string contains;
         for (auto &item : x.m_symtab->scope) {
-            if (is_a<ASR::Subroutine_t>(*item.second)) {
+            if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
                 ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
                 contains += src;
             }
-            if (is_a<ASR::Function_t>(*item.second)) {
+            if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
                 contains += src;
@@ -305,8 +301,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string decl;
         for (auto &item : x.m_symtab->scope) {
-            if (is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
+            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
                 decl += indent;
                 decl += convert_variable_decl(*v) + ";\n";
             }
@@ -344,8 +340,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         sub += ")\n";
 
         for (auto &item : x.m_symtab->scope) {
-            if (is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
+            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
                 if (v->m_intent == LFortran::ASRUtils::intent_local) {
                     SymbolInfo s;
                     s.needs_declaration = true;
@@ -362,8 +358,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
         std::string decl;
         for (auto &item : x.m_symtab->scope) {
-            if (is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
+            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
                 if (v->m_intent == LFortran::ASRUtils::intent_local) {
                     if (sym_info[get_hash((ASR::asr_t*) v)].needs_declaration) {
                         std::string indent(indentation_level*indentation_spaces, ' ');
@@ -433,8 +429,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string decl;
         for (auto &item : x.m_symtab->scope) {
-            if (is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
+            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
                 if (v->m_intent == LFortran::ASRUtils::intent_local || v->m_intent == LFortran::ASRUtils::intent_return_var) {
                    decl += indent + convert_variable_decl(*v) + ";\n";
                 }
@@ -451,7 +447,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         current_function = nullptr;
         bool visited_return = false;
 
-        if (x.n_body > 0 && is_a<ASR::Return_t>(*x.m_body[x.n_body-1])) {
+        if (x.n_body > 0 && ASR::is_a<ASR::Return_t>(*x.m_body[x.n_body-1])) {
             visited_return = true;
         }
 
@@ -523,10 +519,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_Assignment(const ASR::Assignment_t &x) {
         std::string target;
-        if (is_a<ASR::Var_t>(*x.m_target)) {
+        if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
             target = LFortran::ASRUtils::EXPR2VAR(x.m_target)->m_name;
-        } else if (is_a<ASR::ArrayRef_t>(*x.m_target)) {
-            visit_ArrayRef(*down_cast<ASR::ArrayRef_t>(x.m_target));
+        } else if (ASR::is_a<ASR::ArrayRef_t>(*x.m_target)) {
+            visit_ArrayRef(*ASR::down_cast<ASR::ArrayRef_t>(x.m_target));
             target = src;
         } else {
             LFORTRAN_ASSERT(false)
@@ -978,12 +974,12 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             increment = 1;
         } else {
             if (c->type == ASR::exprType::ConstantInteger) {
-                increment = down_cast<ASR::ConstantInteger_t>(c)->m_n;
+                increment = ASR::down_cast<ASR::ConstantInteger_t>(c)->m_n;
             } else if (c->type == ASR::exprType::UnaryOp) {
-                ASR::UnaryOp_t *u = down_cast<ASR::UnaryOp_t>(c);
+                ASR::UnaryOp_t *u = ASR::down_cast<ASR::UnaryOp_t>(c);
                 LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
                 LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::ConstantInteger);
-                increment = - down_cast<ASR::ConstantInteger_t>(u->m_operand)->m_n;
+                increment = - ASR::down_cast<ASR::ConstantInteger_t>(u->m_operand)->m_n;
             } else {
                 throw CodeGenError("Do loop increment type not supported");
             }
