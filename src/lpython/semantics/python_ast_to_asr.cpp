@@ -1366,7 +1366,7 @@ public:
     }
 
     void visit_Set(const AST::Set_t &x) {
-        LFORTRAN_ASSERT(x.n_elts > 1); // type({}) is 'dict'
+        LFORTRAN_ASSERT(x.n_elts > 0); // type({}) is 'dict'
         Vec<ASR::expr_t*> elts;
         elts.reserve(al, x.n_elts);
         ASR::ttype_t* type = nullptr;
