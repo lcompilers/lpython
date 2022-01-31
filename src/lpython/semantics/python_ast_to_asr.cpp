@@ -1367,8 +1367,8 @@ public:
 
     void visit_Set(const AST::Set_t &x) {
         LFORTRAN_ASSERT(x.n_elts > 0); // type({}) is 'dict'
-        Vec<ASR::expr_t*> elts;
-        elts.reserve(al, x.n_elts);
+        Vec<ASR::expr_t*> elements;
+        elements.reserve(al, x.n_elts);
         ASR::ttype_t* type = nullptr;
         for (size_t i = 0; i < x.n_elts; ++i) {
             visit_expr(*x.m_elts[i]);
@@ -1381,10 +1381,10 @@ public:
                                         x.base.base.loc);
                 }
             }
-            elts.push_back(al, value);
+            elements.push_back(al, value);
         }
 
-        tmp = ASR::make_ConstantSet_t(al, x.base.base.loc, elts.p, elts.size(), type);
+        tmp = ASR::make_ConstantSet_t(al, x.base.base.loc, elements.p, elements.size(), type);
     }
 
     void visit_Expr(const AST::Expr_t &x) {
