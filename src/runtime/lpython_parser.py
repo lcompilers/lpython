@@ -28,9 +28,13 @@ class Transform(ast.NodeVisitor):
             return python_ast.ConstantInt(node.value, node.kind)
         elif isinstance(node.value, float):
             return python_ast.ConstantFloat(node.value, node.kind)
+        elif isinstance(node.value, set):
+            return python_ast.Set(node.elts)
         elif isinstance(node.value, complex):
             return python_ast.ConstantComplex(node.value.real,
                         node.value.imag, node.kind)
+        elif isinstance(node.value, dict):
+            return python_ast.Dict(node.keys, node.values)
         else:
             print(type(node.value))
             raise Exception("Unsupported Constant type")

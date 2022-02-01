@@ -209,8 +209,10 @@ expr
     | ConstantInteger(int n, ttype type)
     | ConstantReal(float r, ttype type)
     | ConstantComplex(float re, float im, ttype type)
+    | ConstantSet(expr* elements, ttype type)
     | ConstantLogical(bool value, ttype type)
     | ConstantString(string s, ttype type)
+    | ConstantDictionary(expr* keys, expr* values, ttype type)
     | BOZ(int v, boz boz_type, ttype? type)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type, expr? value)
@@ -230,8 +232,10 @@ ttype
     | Complex(int kind, dimension* dims)
     | Character(int kind, int len, expr? len_expr, dimension* dims)
     | Logical(int kind, dimension* dims)
+    | Set(ttype type)
     | Derived(symbol derived_type, dimension* dims)
     | Class(symbol class_type, dimension* dims)
+    | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
 
 boolop = And | Or | Xor | NEqv | Eqv

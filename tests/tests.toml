@@ -29,6 +29,11 @@ ast = true
 asr = true
 
 [[test]]
+filename = "dictionary1.py"
+ast = true
+asr = true
+
+[[test]]
 filename = "expr1.py"
 ast = true
 asr = true
@@ -128,6 +133,11 @@ cpp = true
 
 [[test]]
 filename = "assign1.py"
+ast = true
+asr = true
+
+[[test]]
+filename = "set1.py"
 ast = true
 asr = true
 
