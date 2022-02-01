@@ -1176,10 +1176,10 @@ public:
             }
             values.push_back(al, value);
         }
-
-        tmp = ASR::make_ConstantDictionary_t(al, x.base.base.loc, keys.p,
-                                             keys.size(), values.p, values.size(),
-                                             key_type, value_type);
+        ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_Dict_t(al, x.base.base.loc,
+                                             key_type, value_type));
+        tmp = ASR::make_ConstantDictionary_t(al, x.base.base.loc, keys.p, keys.size(),
+                                             values.p, values.size(), type);
     }
 
     void visit_While(const AST::While_t &x) {
