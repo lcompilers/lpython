@@ -42,3 +42,9 @@ int test_return_3(int a)
     return _lpython_return_variable;
 }
 
+void test_return_4(int a)
+{
+    a = 1;
+    return;
+}
+
