@@ -132,6 +132,11 @@ ast = true
 asr = true
 
 [[test]]
+filename = "set1.py"
+ast = true
+asr = true
+
+[[test]]
 filename = "global_scope1.py"
 ast = true
 asr = true

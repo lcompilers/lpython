@@ -1405,6 +1405,28 @@ public:
         tmp = ASR::make_ErrorStop_t(al, x.base.base.loc, code);
     }
 
+    void visit_Set(const AST::Set_t &x) {
+        LFORTRAN_ASSERT(x.n_elts > 0); // type({}) is 'dict'
+        Vec<ASR::expr_t*> elements;
+        elements.reserve(al, x.n_elts);
+        ASR::ttype_t* type = nullptr;
+        for (size_t i = 0; i < x.n_elts; ++i) {
+            visit_expr(*x.m_elts[i]);
+            ASR::expr_t *value = ASRUtils::EXPR(tmp);
+            if (type == nullptr) {
+                type = ASRUtils::expr_type(value);
+            } else {
+                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(value), type)) {
+                    throw SemanticError("All Set values must be of the same type for now",
+                                        x.base.base.loc);
+                }
+            }
+            elements.push_back(al, value);
+        }
+        ASR::ttype_t* set_type = ASRUtils::TYPE(ASR::make_Set_t(al, x.base.base.loc, type));
+        tmp = ASR::make_ConstantSet_t(al, x.base.base.loc, elements.p, elements.size(), set_type);
+    }
+
     void visit_Expr(const AST::Expr_t &x) {
         if (AST::is_a<AST::Call_t>(*x.m_value)) {
             AST::Call_t *c = AST::down_cast<AST::Call_t>(x.m_value);
