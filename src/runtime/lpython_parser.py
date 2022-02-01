@@ -20,6 +20,8 @@ class Transform(ast.NodeVisitor):
     def visit_Constant(self, node):
         if isinstance(node.value, str):
             return python_ast.ConstantStr(node.value, node.kind)
+        elif isinstance(node.value, list):
+            return python_ast.List(node.elts)
         elif isinstance(node.value, bool):
             return python_ast.ConstantBool(node.value, node.kind)
         elif isinstance(node.value, int):
