@@ -35,6 +35,8 @@ class Transform(ast.NodeVisitor):
                         node.value.imag, node.kind)
         elif isinstance(node.value, dict):
             return python_ast.Dict(node.keys, node.values)
+        elif isinstance(node.value, tuple):
+            return python_ast.Tuple(node.elts)
         else:
             print(type(node.value))
             raise Exception("Unsupported Constant type")

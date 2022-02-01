@@ -29,6 +29,11 @@ ast = true
 asr = true
 
 [[test]]
+filename = "tuple1.py"
+ast = true
+asr = true
+
+[[test]]
 filename = "dictionary1.py"
 ast = true
 asr = true
