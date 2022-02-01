@@ -10,17 +10,40 @@
 #include <sstream>
 #include <iterator>
 
-#include <lpython/python_ast.h>
 #include <libasr/asr.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <lpython/semantics/python_ast_to_asr.h>
 #include <libasr/string_utils.h>
+#include <libasr/utils.h>
+
+#include <lpython/python_ast.h>
+#include <lpython/semantics/python_ast_to_asr.h>
 #include <lpython/utils.h>
 #include <lpython/semantics/semantic_exception.h>
+#include <lpython/python_serialization.h>
 
 
 namespace LFortran::Python {
+
+LFortran::Result<LFortran::Python::AST::ast_t*> parse_python_file(Allocator &al,
+        const std::string &runtime_library_dir,
+        const std::string &infile) {
+    std::string pycmd = "python " + runtime_library_dir + "/lpython_parser.py " + infile;
+    int err = std::system(pycmd.c_str());
+    if (err != 0) {
+        std::cerr << "The command '" << pycmd << "' failed." << std::endl;
+        return LFortran::Error();
+    }
+    std::string infile_ser = "ser.txt";
+    std::string input;
+    bool status = read_file(infile_ser, input);
+    if (!status) {
+        std::cerr << "The file '" << infile_ser << "' cannot be read." << std::endl;
+        return LFortran::Error();
+    }
+    LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
+    return ast;
+}
 
 ASR::Module_t* load_module(Allocator &/*al*/, SymbolTable *symtab,
                             const std::string &module_name,

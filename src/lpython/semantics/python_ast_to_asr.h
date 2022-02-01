@@ -9,6 +9,9 @@ namespace LFortran::Python {
     std::string pickle_python(AST::ast_t &ast, bool colors=false, bool indent=false);
     Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
         Python::AST::ast_t &ast, diag::Diagnostics &diagnostics);
+    Result<AST::ast_t*> parse_python_file(Allocator &al,
+            const std::string &runtime_library_dir,
+            const std::string &infile);
 
 } // namespace LFortran
 

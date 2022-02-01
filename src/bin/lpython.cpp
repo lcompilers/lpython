@@ -46,6 +46,7 @@ namespace {
 
 using LFortran::endswith;
 using LFortran::CompilerOptions;
+using LFortran::Python::parse_python_file;
 
 enum Backend {
     llvm, cpp, x86
@@ -508,21 +509,6 @@ int python_wrapper(const std::string &infile, std::string array_order,
     std::ofstream(pyx_fname)  << pyx;
 
     return 0;
-}
-
-LFortran::Result<LFortran::Python::AST::ast_t*> parse_python_file(Allocator &al,
-        const std::string &runtime_library_dir,
-        const std::string &infile) {
-    std::string pycmd = "python " + runtime_library_dir + "/lpython_parser.py " + infile;
-    int err = std::system(pycmd.c_str());
-    if (err != 0) {
-        std::cerr << "The command '" << pycmd << "' failed." << std::endl;
-        return LFortran::Error();
-    }
-    std::string infile_ser = "ser.txt";
-    std::string input = read_file(infile_ser);
-    LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
-    return ast;
 }
 
 int emit_ast(const std::string &infile,
