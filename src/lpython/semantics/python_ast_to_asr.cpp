@@ -558,11 +558,11 @@ public:
         ASR::ttype_t *type = nullptr;
         for (size_t i=0; i<x.n_elts; i++) {
             this->visit_expr(*x.m_elts[i]);
-            ASR::expr_t *expr = LFortran::ASRUtils::EXPR(tmp);
+            ASR::expr_t *expr = ASRUtils::EXPR(tmp);
             if (type == nullptr) {
-                type = LFortran::ASRUtils::expr_type(expr);
+                type = ASRUtils::expr_type(expr);
             } else {
-                if (LFortran::ASRUtils::expr_type(expr)->type != type->type) {
+                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(expr), type)) {
                     throw SemanticError("All List elements must be of the same type for now",
                         x.base.base.loc);
                 }
