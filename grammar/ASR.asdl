@@ -211,7 +211,7 @@ expr
     | ConstantComplex(float re, float im, ttype type)
     | ConstantLogical(bool value, ttype type)
     | ConstantString(string s, ttype type)
-    | ConstantDictionary(expr* keys, expr* values, ttype key_type, ttype value_type)
+    | ConstantDictionary(expr* keys, expr* values, ttype type)
     | BOZ(int v, boz boz_type, ttype? type)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type, expr? value)
@@ -233,6 +233,7 @@ ttype
     | Logical(int kind, dimension* dims)
     | Derived(symbol derived_type, dimension* dims)
     | Class(symbol class_type, dimension* dims)
+    | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
 
 boolop = And | Or | Xor | NEqv | Eqv
