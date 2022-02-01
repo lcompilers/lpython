@@ -45,10 +45,10 @@ LFortran::Result<LFortran::Python::AST::ast_t*> parse_python_file(Allocator &al,
     return ast;
 }
 
-ASR::Module_t* load_module(Allocator &/*al*/, SymbolTable *symtab,
+ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const std::string &module_name,
                             const Location &loc, bool /*intrinsic*/,
-                            const std::string &/*rl_path*/,
+                            const std::string &rl_path,
                             const std::function<void (const std::string &, const Location &)> err) {
     LFORTRAN_ASSERT(symtab);
     if (symtab->scope.find(module_name) != symtab->scope.end()) {
@@ -60,7 +60,20 @@ ASR::Module_t* load_module(Allocator &/*al*/, SymbolTable *symtab,
         }
     }
     LFORTRAN_ASSERT(symtab->parent == nullptr);
-    // TODO: load the module `module_name`.py, insert into `symtab` and return it
+
+    // Parse the module `module_name`.py to AST
+    std::string infile = module_name + ".py";
+    Result<AST::ast_t*> r = parse_python_file(al, rl_path, infile);
+    if (!r.ok) {
+        err("The file '" + infile + "' failed to parse", loc);
+    }
+    LFortran::Python::AST::ast_t* ast = r.result;
+
+    // Convert the module from AST to ASR
+
+    // insert into `symtab`
+
+    // and return it
     return nullptr;
 }
 
