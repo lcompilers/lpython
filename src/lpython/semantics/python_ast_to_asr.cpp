@@ -70,6 +70,19 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     LFortran::Python::AST::ast_t* ast = r.result;
 
     // Convert the module from AST to ASR
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    diag::Diagnostics diagnostics;
+    Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast, diagnostics);
+    std::string input;
+    read_file(infile, input);
+    CompilerOptions compiler_options;
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r2.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        return nullptr; // Error
+    }
+    ASR::TranslationUnit_t* asr = r2.result;
 
     // insert into `symtab`
 
