@@ -82,7 +82,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         LFORTRAN_ASSERT(diagnostics.has_error())
         return nullptr; // Error
     }
-    ASR::TranslationUnit_t* asr = r2.result;
+    //ASR::TranslationUnit_t* asr = r2.result;
 
     // insert into `symtab`
 
