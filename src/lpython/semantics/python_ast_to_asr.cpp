@@ -552,6 +552,27 @@ public:
             args.size(), type, nullptr);
     }
 
+    void visit_List(const AST::List_t &x) {
+        Vec<ASR::expr_t*> list;
+        list.reserve(al, x.n_elts);
+        ASR::ttype_t *type = nullptr;
+        for (size_t i=0; i<x.n_elts; i++) {
+            this->visit_expr(*x.m_elts[i]);
+            ASR::expr_t *expr = ASRUtils::EXPR(tmp);
+            if (type == nullptr) {
+                type = ASRUtils::expr_type(expr);
+            } else {
+                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(expr), type)) {
+                    throw SemanticError("All List elements must be of the same type for now",
+                        x.base.base.loc);
+                }
+            }
+            list.push_back(al, expr);
+        }
+        tmp = ASR::make_ConstantArray_t(al, x.base.base.loc, list.p,
+            list.size(), type);
+    }
+
     void visit_For(const AST::For_t &x) {
         this->visit_expr(*x.m_target);
         ASR::expr_t *target=ASRUtils::EXPR(tmp);
