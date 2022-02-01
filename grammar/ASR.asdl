@@ -234,7 +234,7 @@ ttype
     | Character(int kind, int len, expr? len_expr, dimension* dims)
     | Logical(int kind, dimension* dims)
     | Set(ttype type)
-    | Tuple(ttype type)
+    | Tuple(ttype* type)
     | Derived(symbol derived_type, dimension* dims)
     | Class(symbol class_type, dimension* dims)
     | Dict(ttype key_type, ttype value_type)

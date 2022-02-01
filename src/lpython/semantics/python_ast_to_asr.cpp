@@ -574,24 +574,20 @@ public:
     }
 
     void visit_Tuple(const AST::Tuple_t &x) {
-        Vec<ASR::expr_t*> tuple;
-        tuple.reserve(al, x.n_elts);
-        ASR::ttype_t *type = nullptr;
+        Vec<ASR::expr_t*> elements;
+        elements.reserve(al, x.n_elts);
+        Vec<ASR::ttype_t*> tuple_type_vec;
+        tuple_type_vec.reserve(al, x.n_elts);
         for (size_t i=0; i<x.n_elts; i++) {
             this->visit_expr(*x.m_elts[i]);
             ASR::expr_t *expr = ASRUtils::EXPR(tmp);
-            if (type == nullptr) {
-                type = ASRUtils::expr_type(expr);
-            } else {
-                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(expr), type)) {
-                    throw SemanticError("All Tuple elements must be of the same type for now",
-                        x.base.base.loc);
-                }
-            }
-            tuple.push_back(al, expr);
+            elements.push_back(al, expr);
+            tuple_type_vec.push_back(al, ASRUtils::expr_type(expr));
         }
-        ASR::ttype_t *tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, x.base.base.loc, type));
-        tmp = ASR::make_ConstantTuple_t(al, x.base.base.loc, tuple.p, tuple.size(), tuple_type);
+        ASR::ttype_t *tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, x.base.base.loc,
+                                    tuple_type_vec.p, tuple_type_vec.n));
+        tmp = ASR::make_ConstantTuple_t(al, x.base.base.loc,
+                                    elements.p, elements.size(), tuple_type);
     }
 
     void visit_For(const AST::For_t &x) {

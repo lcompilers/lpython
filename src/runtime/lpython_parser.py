@@ -21,7 +21,7 @@ class Transform(ast.NodeVisitor):
         if isinstance(node.value, str):
             return python_ast.ConstantStr(node.value, node.kind)
         elif isinstance(node.value, list):
-            return python_ast.List(node.elts)
+            return python_ast.List(node.elts, node.ctx)
         elif isinstance(node.value, bool):
             return python_ast.ConstantBool(node.value, node.kind)
         elif isinstance(node.value, int):
@@ -36,7 +36,7 @@ class Transform(ast.NodeVisitor):
         elif isinstance(node.value, dict):
             return python_ast.Dict(node.keys, node.values)
         elif isinstance(node.value, tuple):
-            return python_ast.Tuple(node.elts)
+            return python_ast.Tuple(node.elts, node.ctx)
         else:
             print(type(node.value))
             raise Exception("Unsupported Constant type")
