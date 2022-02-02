@@ -2,11 +2,11 @@
     "basename": "asr-list1-770ba33",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/list1.py",
-    "infile_hash": "855058c5f903ce70938cdec3e42b2ecade4dbbd2ca299082bf3c1c0d",
+    "infile_hash": "e4a547f4739f9fd4684fdfa754c45c8b46dedfb724de4d4a91a06eb3",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-list1-770ba33.stdout",
-    "stdout_hash": "72b3cba34e263ffd02579b4a848cd214d8734ee8116ff42e7da023eb",
+    "stdout_hash": "c226a66da11f7cb053f91dc8f8d51ed466cae328e501e112bbd31fcf",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
