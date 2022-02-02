@@ -1378,8 +1378,13 @@ public:
     void visit_Return(const AST::Return_t &x) {
         std::string return_var_name = "_lpython_return_variable";
         if(current_scope->scope.find(return_var_name) == current_scope->scope.end()) {
-            throw SemanticError("Return type of function is not defined",
+            if (x.m_value) {
+                throw SemanticError("Return type of function is not defined",
                                 x.base.base.loc);
+            }
+            // this may be a case with void return type (like subroutine)
+            tmp = ASR::make_Return_t(al, x.base.base.loc);
+            return;
         }
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
