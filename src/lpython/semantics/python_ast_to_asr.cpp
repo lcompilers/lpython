@@ -82,12 +82,15 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         LFORTRAN_ASSERT(diagnostics.has_error())
         return nullptr; // Error
     }
-    //ASR::TranslationUnit_t* asr = r2.result;
+    ASR::TranslationUnit_t* mod1 = r2.result;
 
     // insert into `symtab`
+    ASR::Module_t *mod2 = ASRUtils::extract_module(*mod1);
+    symtab->scope[module_name] = (ASR::symbol_t*)mod2;
+    mod2->m_symtab->parent = symtab;
 
     // and return it
-    return nullptr;
+    return mod2;
 }
 
 template <class Derived>
