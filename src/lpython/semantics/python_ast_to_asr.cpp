@@ -255,6 +255,23 @@ public:
         ASR::asr_t *tmp0 = ASR::make_TranslationUnit_t(al, x.base.base.loc,
             current_scope, nullptr, 0);
 
+        SymbolTable *parent_scope = current_scope;
+        current_scope = al.make_new<SymbolTable>(parent_scope);
+
+
+        std::string mod_name = "__main__";
+        ASR::asr_t *tmp1 = ASR::make_Module_t(al, x.base.base.loc,
+                                    /* a_symtab */ current_scope,
+                                    /* a_name */ s2c(al, mod_name),
+                                    nullptr,
+                                    0,
+                                    false);
+
+        if (parent_scope->scope.find(mod_name) != parent_scope->scope.end()) {
+            throw SemanticError("Module '" + mod_name + "' already defined", tmp1->loc);
+        }
+        parent_scope->scope[mod_name] = ASR::down_cast<ASR::symbol_t>(tmp1);
+
         for (size_t i=0; i<x.n_body; i++) {
             visit_stmt(*x.m_body[i]);
         }
@@ -370,12 +387,12 @@ public:
         ASR::symbol_t *t = nullptr; // current_scope->parent->resolve_symbol(msym);
         if (!t) {
             std::string rl_path = get_runtime_library_dir();
-            t = (ASR::symbol_t*)(load_module(al, current_scope,
+            t = (ASR::symbol_t*)(load_module(al, current_scope->parent,
                 msym, x.base.base.loc, false, rl_path,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
                 ));
         }
-//        ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
+        ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
 
         tmp = nullptr;
     }
@@ -441,6 +458,9 @@ public:
         ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
         current_scope = unit->m_global_scope;
         LFORTRAN_ASSERT(current_scope != nullptr);
+        ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(current_scope->scope["__main__"]);
+        current_scope = mod->m_symtab;
+        LFORTRAN_ASSERT(current_scope != nullptr);
 
         Vec<ASR::asr_t*> items;
         items.reserve(al, 4);
@@ -451,6 +471,8 @@ public:
                 items.push_back(al, tmp);
             }
         }
+        // These global statements are added to the translation unit for now,
+        // but they should be adding to a module initialization function
         unit->m_items = items.p;
         unit->n_items = items.size();
 
