@@ -567,6 +567,18 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         last_binary_plus = false;
     }
 
+    void visit_ConstantSet(const ASR::ConstantSet_t &x) {
+        std::string out = "{";
+        for (size_t i=0; i<x.n_elements; i++) {
+            visit_expr(*x.m_elements[i]);
+            out += src;
+            if (i != x.n_elements - 1)
+                out += ", ";
+        }
+        out += "};\n";
+        src = out;
+    }
+
     void visit_Var(const ASR::Var_t &x) {
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
         src = ASR::down_cast<ASR::Variable_t>(s)->m_name;
