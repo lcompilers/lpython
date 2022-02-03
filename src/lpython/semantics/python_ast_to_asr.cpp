@@ -1936,8 +1936,13 @@ public:
                     int64_t ival = static_cast<int64_t>(rv);
                     tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type);
                 }
+            } else if (ASRUtils::is_logical(*int_type)) {
+                bool rv = ASR::down_cast<ASR::ConstantLogical_t>(int_expr)->m_value;
+                int8_t val = rv ? 1 : 0;
+                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, val, int_type);
             } else {
-                throw SemanticError("int() must have one real or integer argument", x.base.base.loc);
+                throw SemanticError("int() must have one real, integer, or logical argument, not '" +
+                    ASRUtils::type_to_str(int_type) + "'", x.base.base.loc);
             }
             return;
         }

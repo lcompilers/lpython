@@ -51,3 +51,12 @@ def test_callable():
     assert a == False
     a = callable('c')
     assert a == False
+
+
+def test_int():
+    a: i64
+    a = int(4.56)
+    a = int(5)
+    a = int(True)
+    a = int(False)
+    # a = int(complex(3.45, 5.6)) -> semantic error
