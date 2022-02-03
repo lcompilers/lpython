@@ -86,6 +86,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
 
     // insert into `symtab`
     ASR::Module_t *mod2 = ASRUtils::extract_module(*mod1);
+    mod2->m_name = s2c(al, module_name);
     symtab->scope[module_name] = (ASR::symbol_t*)mod2;
     mod2->m_symtab->parent = symtab;
 
