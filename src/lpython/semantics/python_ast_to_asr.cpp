@@ -10,22 +10,45 @@
 #include <sstream>
 #include <iterator>
 
-#include <lpython/python_ast.h>
 #include <libasr/asr.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <lpython/semantics/python_ast_to_asr.h>
 #include <libasr/string_utils.h>
+#include <libasr/utils.h>
+
+#include <lpython/python_ast.h>
+#include <lpython/semantics/python_ast_to_asr.h>
 #include <lpython/utils.h>
 #include <lpython/semantics/semantic_exception.h>
+#include <lpython/python_serialization.h>
 
 
 namespace LFortran::Python {
 
-ASR::Module_t* load_module(Allocator &/*al*/, SymbolTable *symtab,
+LFortran::Result<LFortran::Python::AST::ast_t*> parse_python_file(Allocator &al,
+        const std::string &runtime_library_dir,
+        const std::string &infile) {
+    std::string pycmd = "python " + runtime_library_dir + "/lpython_parser.py " + infile;
+    int err = std::system(pycmd.c_str());
+    if (err != 0) {
+        std::cerr << "The command '" << pycmd << "' failed." << std::endl;
+        return LFortran::Error();
+    }
+    std::string infile_ser = "ser.txt";
+    std::string input;
+    bool status = read_file(infile_ser, input);
+    if (!status) {
+        std::cerr << "The file '" << infile_ser << "' cannot be read." << std::endl;
+        return LFortran::Error();
+    }
+    LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
+    return ast;
+}
+
+ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const std::string &module_name,
                             const Location &loc, bool /*intrinsic*/,
-                            const std::string &/*rl_path*/,
+                            const std::string &rl_path,
                             const std::function<void (const std::string &, const Location &)> err) {
     LFORTRAN_ASSERT(symtab);
     if (symtab->scope.find(module_name) != symtab->scope.end()) {
@@ -37,8 +60,38 @@ ASR::Module_t* load_module(Allocator &/*al*/, SymbolTable *symtab,
         }
     }
     LFORTRAN_ASSERT(symtab->parent == nullptr);
-    // TODO: load the module `module_name`.py, insert into `symtab` and return it
-    return nullptr;
+
+    // Parse the module `module_name`.py to AST
+    std::string infile = module_name + ".py";
+    Result<AST::ast_t*> r = parse_python_file(al, rl_path, infile);
+    if (!r.ok) {
+        err("The file '" + infile + "' failed to parse", loc);
+    }
+    LFortran::Python::AST::ast_t* ast = r.result;
+
+    // Convert the module from AST to ASR
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    diag::Diagnostics diagnostics;
+    Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast, diagnostics, false);
+    std::string input;
+    read_file(infile, input);
+    CompilerOptions compiler_options;
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r2.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        return nullptr; // Error
+    }
+    ASR::TranslationUnit_t* mod1 = r2.result;
+
+    // insert into `symtab`
+    ASR::Module_t *mod2 = ASRUtils::extract_module(*mod1);
+    mod2->m_name = s2c(al, module_name);
+    symtab->scope[module_name] = (ASR::symbol_t*)mod2;
+    mod2->m_symtab->parent = symtab;
+
+    // and return it
+    return mod2;
 }
 
 template <class Derived>
@@ -52,10 +105,13 @@ public:
     SymbolTable *current_scope;
     ASR::Module_t *current_module = nullptr;
     Vec<char *> current_module_dependencies;
+    // True for the main module, false for every other one
+    // The main module is stored directly in TranslationUnit, other modules are Modules
+    bool main_module;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
-            diag::Diagnostics &diagnostics)
-        : diag{diagnostics}, al{al}, current_scope{symbol_table} {
+            diag::Diagnostics &diagnostics, bool main_module)
+        : diag{diagnostics}, al{al}, current_scope{symbol_table}, main_module{main_module} {
         current_module_dependencies.reserve(al, 4);
     }
 
@@ -177,8 +233,8 @@ public:
 
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table,
-        diag::Diagnostics &diagnostics)
-      : CommonVisitor(al, symbol_table, diagnostics), is_derived_type{false} {}
+        diag::Diagnostics &diagnostics, bool main_module)
+      : CommonVisitor(al, symbol_table, diagnostics, main_module), is_derived_type{false} {}
 
 
     ASR::symbol_t* resolve_symbol(const Location &loc, const std::string &sub_name) {
@@ -202,6 +258,27 @@ public:
         // for asr_owner.
         ASR::asr_t *tmp0 = ASR::make_TranslationUnit_t(al, x.base.base.loc,
             current_scope, nullptr, 0);
+
+        if (!main_module) {
+            // Main module goes directly to TranslationUnit.
+            // Every other module goes into a Module.
+            SymbolTable *parent_scope = current_scope;
+            current_scope = al.make_new<SymbolTable>(parent_scope);
+
+
+            std::string mod_name = "__main__";
+            ASR::asr_t *tmp1 = ASR::make_Module_t(al, x.base.base.loc,
+                                        /* a_symtab */ current_scope,
+                                        /* a_name */ s2c(al, mod_name),
+                                        nullptr,
+                                        0,
+                                        false);
+
+            if (parent_scope->scope.find(mod_name) != parent_scope->scope.end()) {
+                throw SemanticError("Module '" + mod_name + "' already defined", tmp1->loc);
+            }
+            parent_scope->scope[mod_name] = ASR::down_cast<ASR::symbol_t>(tmp1);
+        }
 
         for (size_t i=0; i<x.n_body; i++) {
             visit_stmt(*x.m_body[i]);
@@ -318,12 +395,91 @@ public:
         ASR::symbol_t *t = nullptr; // current_scope->parent->resolve_symbol(msym);
         if (!t) {
             std::string rl_path = get_runtime_library_dir();
-            t = (ASR::symbol_t*)(load_module(al, current_scope,
+            SymbolTable *st = current_scope;
+            if (!main_module) {
+                st = st->parent;
+            }
+            t = (ASR::symbol_t*)(load_module(al, st,
                 msym, x.base.base.loc, false, rl_path,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
                 ));
         }
-//        ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
+
+        ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
+        for (auto &remote_sym : mod_symbols) {
+            std::string local_sym = remote_sym;
+            ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
+            if (!t) {
+                throw SemanticError("The symbol '" + remote_sym + "' not found in the module '" + msym + "'",
+                        x.base.base.loc);
+            }
+            if (ASR::is_a<ASR::Subroutine_t>(*t)) {
+                if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                    throw SemanticError("Subroutine already defined",
+                        x.base.base.loc);
+                }
+                ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(t);
+                // `msub` is the Subroutine in a module. Now we construct
+                // an ExternalSymbol that points to
+                // `msub` via the `external` field.
+                Str name;
+                name.from_str(al, local_sym);
+                ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
+                    al, msub->base.base.loc,
+                    /* a_symtab */ current_scope,
+                    /* a_name */ name.c_str(al),
+                    (ASR::symbol_t*)msub,
+                    m->m_name, nullptr, 0, msub->m_name,
+                    ASR::accessType::Public
+                    );
+                current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(sub);
+            } else if (ASR::is_a<ASR::Function_t>(*t)) {
+                if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                    throw SemanticError("Function already defined",
+                        x.base.base.loc);
+                }
+                ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
+                // `mfn` is the Function in a module. Now we construct
+                // an ExternalSymbol that points to it.
+                Str name;
+                name.from_str(al, local_sym);
+                char *cname = name.c_str(al);
+                ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+                    al, mfn->base.base.loc,
+                    /* a_symtab */ current_scope,
+                    /* a_name */ cname,
+                    (ASR::symbol_t*)mfn,
+                    m->m_name, nullptr, 0, mfn->m_name,
+                    ASR::accessType::Public
+                    );
+                current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
+            } else if (ASR::is_a<ASR::Variable_t>(*t)) {
+                if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                    throw SemanticError("Variable already defined",
+                        x.base.base.loc);
+                }
+                ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
+                // `mv` is the Variable in a module. Now we construct
+                // an ExternalSymbol that points to it.
+                Str name;
+                name.from_str(al, local_sym);
+                char *cname = name.c_str(al);
+                ASR::asr_t *v = ASR::make_ExternalSymbol_t(
+                    al, mv->base.base.loc,
+                    /* a_symtab */ current_scope,
+                    /* a_name */ cname,
+                    (ASR::symbol_t*)mv,
+                    m->m_name, nullptr, 0, mv->m_name,
+                    ASR::accessType::Public
+                    );
+                current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(v);
+            } else {
+                throw SemanticError("Only Subroutines, Functions and Variables are currently supported in 'import'",
+                    x.base.base.loc);
+            }
+
+
+        }
 
         tmp = nullptr;
     }
@@ -334,12 +490,15 @@ public:
     void visit_Assign(const AST::Assign_t &/*x*/) {
         // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
     }
+    void visit_Expr(const AST::Expr_t &/*x*/) {
+        // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
+    }
 };
 
 Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, const AST::Module_t &ast,
-        diag::Diagnostics &diagnostics)
+        diag::Diagnostics &diagnostics, bool main_module)
 {
-    SymbolTableVisitor v(al, nullptr, diagnostics);
+    SymbolTableVisitor v(al, nullptr, diagnostics, main_module);
     try {
         v.visit_Module(ast);
     } catch (const SemanticError &e) {
@@ -361,8 +520,8 @@ public:
     ASR::asr_t *asr;
     Vec<ASR::stmt_t*> *current_body;
 
-    BodyVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics)
-         : CommonVisitor(al, nullptr, diagnostics), asr{unit} {}
+    BodyVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics, bool main_module)
+         : CommonVisitor(al, nullptr, diagnostics, main_module), asr{unit} {}
 
     // Transforms statements to a list of ASR statements
     // In addition, it also inserts the following nodes if needed:
@@ -389,6 +548,11 @@ public:
         ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
         current_scope = unit->m_global_scope;
         LFORTRAN_ASSERT(current_scope != nullptr);
+        if (!main_module) {
+            ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(current_scope->scope["__main__"]);
+            current_scope = mod->m_symtab;
+            LFORTRAN_ASSERT(current_scope != nullptr);
+        }
 
         Vec<ASR::asr_t*> items;
         items.reserve(al, 4);
@@ -399,6 +563,8 @@ public:
                 items.push_back(al, tmp);
             }
         }
+        // These global statements are added to the translation unit for now,
+        // but they should be adding to a module initialization function
         unit->m_items = items.p;
         unit->n_items = items.size();
 
@@ -1771,9 +1937,9 @@ public:
 Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al,
         const AST::Module_t &ast,
         diag::Diagnostics &diagnostics,
-        ASR::asr_t *unit)
+        ASR::asr_t *unit, bool main_module)
 {
-    BodyVisitor b(al, unit, diagnostics);
+    BodyVisitor b(al, unit, diagnostics, main_module);
     try {
         b.visit_Module(ast);
     } catch (const SemanticError &e) {
@@ -1805,12 +1971,12 @@ std::string pickle_python(AST::ast_t &ast, bool colors, bool indent) {
 }
 
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
-    AST::ast_t &ast, diag::Diagnostics &diagnostics)
+    AST::ast_t &ast, diag::Diagnostics &diagnostics, bool main_module)
 {
     AST::Module_t *ast_m = AST::down_cast2<AST::Module_t>(&ast);
 
     ASR::asr_t *unit;
-    auto res = symbol_table_visitor(al, *ast_m, diagnostics);
+    auto res = symbol_table_visitor(al, *ast_m, diagnostics, main_module);
     if (res.ok) {
         unit = res.result;
     } else {
@@ -1819,7 +1985,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
     LFORTRAN_ASSERT(asr_verify(*tu));
 
-    auto res2 = body_visitor(al, *ast_m, diagnostics, unit);
+    auto res2 = body_visitor(al, *ast_m, diagnostics, unit, main_module);
     if (res2.ok) {
         tu = res2.result;
     } else {

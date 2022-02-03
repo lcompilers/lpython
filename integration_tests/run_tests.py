@@ -9,15 +9,19 @@ tests = [
     "expr_03.py",
     "expr_04.py",
     "expr_05.py",
+    "modules_01.py",
+    #"modules_02.py",
 ]
 
 def main():
     print("Compiling...")
     for pyfile in tests:
         basename = os.path.splitext(pyfile)[0]
-        cmd = os.path.join("src", "bin", "lpython") + " integration_tests/%s -o integration_tests/%s" % (pyfile, basename)
+        cmd = os.path.join("..", "src", "bin", "lpython") + " %s -o %s" % (pyfile, basename)
         print("+ " + cmd)
+        os.chdir("integration_tests")
         r = os.system(cmd)
+        os.chdir("..")
         if r != 0:
             print("Command '%s' failed." % cmd)
             sys.exit(1)

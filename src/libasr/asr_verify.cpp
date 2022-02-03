@@ -114,6 +114,11 @@ public:
             asr_t *item = x.m_items[i];
             require(is_a<stmt_t>(*item) || is_a<expr_t>(*item),
                 "TranslationUnit::m_items must be either stmt or expr");
+            if (is_a<stmt_t>(*item)) {
+                this->visit_stmt(*down_cast<stmt_t>(item));
+            } else {
+                this->visit_expr(*down_cast<expr_t>(item));
+            }
         }
         current_symtab = nullptr;
     }
