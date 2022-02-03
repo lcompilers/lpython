@@ -405,8 +405,41 @@ public:
                 ));
         }
 
-        // TODO: go over `m` and extract `mod_symbols` as ExternalSymbol into current_scope
-        //ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
+        ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
+        for (auto &remote_sym : mod_symbols) {
+            std::string local_sym = remote_sym;
+            ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
+            if (!t) {
+                throw SemanticError("The symbol '" + remote_sym + "' not found in the module '" + msym + "'",
+                        x.base.base.loc);
+            }
+            if (ASR::is_a<ASR::Subroutine_t>(*t)) {
+                if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                    throw SemanticError("Subroutine already defined",
+                        x.base.base.loc);
+                }
+                ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(t);
+                // `msub` is the Subroutine in a module. Now we construct
+                // an ExternalSymbol that points to
+                // `msub` via the `external` field.
+                Str name;
+                name.from_str(al, local_sym);
+                ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
+                    al, msub->base.base.loc,
+                    /* a_symtab */ current_scope,
+                    /* a_name */ name.c_str(al),
+                    (ASR::symbol_t*)msub,
+                    m->m_name, nullptr, 0, msub->m_name,
+                    ASR::accessType::Public
+                    );
+                current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(sub);
+            } else {
+                throw SemanticError("Only Subroutines are currently supported in 'import'",
+                    x.base.base.loc);
+            }
+
+
+        }
 
         tmp = nullptr;
     }
