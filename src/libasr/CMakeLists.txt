@@ -24,6 +24,7 @@ set(SRC
     pass/do_loops.cpp
     pass/for_all.cpp
     pass/global_stmts.cpp
+    pass/global_stmts_program.cpp
     pass/select_case.cpp
     pass/implied_do_loops.cpp
     pass/array_op.cpp
