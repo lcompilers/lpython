@@ -59,4 +59,5 @@ def test_int():
     a = int(5)
     a = int(True)
     a = int(False)
+    a = int("5346")
     # a = int(complex(3.45, 5.6)) -> semantic error

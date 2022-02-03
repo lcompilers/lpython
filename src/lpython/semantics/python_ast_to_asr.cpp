@@ -1926,6 +1926,13 @@ public:
                 int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(int_expr))->m_n;
                 tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type);
 
+            } else if (ASRUtils::is_character(*int_type)) {
+                // convert a string to an int
+                char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(int_expr))->m_s;
+                std::string s = std::string(c);
+                int64_t ival = std::stoll(s);
+                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type);
+
             } else if (ASRUtils::is_real(*int_type)) {
                 if (int_kind == 4) {
                     float rv = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(int_expr))->m_r;
@@ -1941,7 +1948,7 @@ public:
                 int8_t val = rv ? 1 : 0;
                 tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, val, int_type);
             } else {
-                throw SemanticError("int() must have one real, integer, or logical argument, not '" +
+                throw SemanticError("int() argument must be real, integer, logical, or a string, not '" +
                     ASRUtils::type_to_str(int_type) + "'", x.base.base.loc);
             }
             return;
