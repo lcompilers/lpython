@@ -6,4 +6,3 @@ def test_Set():
     a = {2, 3, 4, 5, 5}
     a = {"a", "b", "c"}
     # a = {-1, -2, "c"} -> semantic error for now
-    b = a[0]
