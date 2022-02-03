@@ -101,8 +101,6 @@ public:
     // The precedence of the last expression, using the table:
     // https://en.cppreference.com/w/cpp/language/operator_precedence
     int last_expr_precedence;
-    bool last_unary_plus;
-    bool last_binary_plus;
     bool intrinsic_module = false;
     const ASR::Function_t *current_function = nullptr;
 
@@ -638,20 +636,12 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         if (x.m_type->type == ASR::ttypeType::Integer) {
             if (x.m_op == ASR::unaryopType::UAdd) {
                 // src = src;
-                last_unary_plus = false;
-                return;
             } else if (x.m_op == ASR::unaryopType::USub) {
                 src = "-" + src;
-                last_unary_plus = true;
-                last_binary_plus = false;
             } else if (x.m_op == ASR::unaryopType::Invert) {
                 src = "~" + src;
-                last_unary_plus = false;
-                last_binary_plus = false;
             } else if (x.m_op == ASR::unaryopType::Not) {
                 src = "!" + src;
-                last_unary_plus = false;
-                last_binary_plus = false;
             } else {
                 throw CodeGenError("Unary type not implemented yet for Integer");
             }
@@ -659,15 +649,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         } else if (x.m_type->type == ASR::ttypeType::Real) {
             if (x.m_op == ASR::unaryopType::UAdd) {
                 // src = src;
-                last_unary_plus = false;
             } else if (x.m_op == ASR::unaryopType::USub) {
                 src = "-" + src;
-                last_unary_plus = true;
-                last_binary_plus = false;
             } else if (x.m_op == ASR::unaryopType::Not) {
                 src = "!" + src;
-                last_unary_plus = false;
-                last_binary_plus = false;
             } else {
                 throw CodeGenError("Unary type not implemented yet for Real");
             }
@@ -675,8 +660,6 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         } else if (x.m_type->type == ASR::ttypeType::Logical) {
             if (x.m_op == ASR::unaryopType::Not) {
                 src = "!" + src;
-                last_unary_plus = false;
-                last_binary_plus = false;
                 return;
             } else {
                 throw CodeGenError("Unary type not implemented yet for Logical");
@@ -746,7 +729,6 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 // TODO: implement
             }
         }
-        last_unary_plus = false;
     }
 
     void visit_BoolOp(const ASR::BoolOp_t &x) {
