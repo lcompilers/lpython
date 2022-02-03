@@ -10,6 +10,7 @@ tests = [
     "expr_04.py",
     "expr_05.py",
     "modules_01.py",
+    #"modules_02.py",
 ]
 
 def main():
