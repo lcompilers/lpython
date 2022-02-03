@@ -73,7 +73,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     LFortran::LocationManager lm;
     lm.in_filename = infile;
     diag::Diagnostics diagnostics;
-    Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast, diagnostics);
+    Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast, diagnostics, false);
     std::string input;
     read_file(infile, input);
     CompilerOptions compiler_options;
@@ -105,10 +105,13 @@ public:
     SymbolTable *current_scope;
     ASR::Module_t *current_module = nullptr;
     Vec<char *> current_module_dependencies;
+    // True for the main module, false for every other one
+    // The main module is stored directly in TranslationUnit, other modules are Modules
+    bool main_module;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
-            diag::Diagnostics &diagnostics)
-        : diag{diagnostics}, al{al}, current_scope{symbol_table} {
+            diag::Diagnostics &diagnostics, bool main_module)
+        : diag{diagnostics}, al{al}, current_scope{symbol_table}, main_module{main_module} {
         current_module_dependencies.reserve(al, 4);
     }
 
@@ -230,8 +233,8 @@ public:
 
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table,
-        diag::Diagnostics &diagnostics)
-      : CommonVisitor(al, symbol_table, diagnostics), is_derived_type{false} {}
+        diag::Diagnostics &diagnostics, bool main_module)
+      : CommonVisitor(al, symbol_table, diagnostics, main_module), is_derived_type{false} {}
 
 
     ASR::symbol_t* resolve_symbol(const Location &loc, const std::string &sub_name) {
@@ -412,9 +415,9 @@ public:
 };
 
 Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, const AST::Module_t &ast,
-        diag::Diagnostics &diagnostics)
+        diag::Diagnostics &diagnostics, bool main_module)
 {
-    SymbolTableVisitor v(al, nullptr, diagnostics);
+    SymbolTableVisitor v(al, nullptr, diagnostics, main_module);
     try {
         v.visit_Module(ast);
     } catch (const SemanticError &e) {
@@ -436,8 +439,8 @@ public:
     ASR::asr_t *asr;
     Vec<ASR::stmt_t*> *current_body;
 
-    BodyVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics)
-         : CommonVisitor(al, nullptr, diagnostics), asr{unit} {}
+    BodyVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics, bool main_module)
+         : CommonVisitor(al, nullptr, diagnostics, main_module), asr{unit} {}
 
     // Transforms statements to a list of ASR statements
     // In addition, it also inserts the following nodes if needed:
@@ -1851,9 +1854,9 @@ public:
 Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al,
         const AST::Module_t &ast,
         diag::Diagnostics &diagnostics,
-        ASR::asr_t *unit)
+        ASR::asr_t *unit, bool main_module)
 {
-    BodyVisitor b(al, unit, diagnostics);
+    BodyVisitor b(al, unit, diagnostics, main_module);
     try {
         b.visit_Module(ast);
     } catch (const SemanticError &e) {
@@ -1885,12 +1888,12 @@ std::string pickle_python(AST::ast_t &ast, bool colors, bool indent) {
 }
 
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
-    AST::ast_t &ast, diag::Diagnostics &diagnostics)
+    AST::ast_t &ast, diag::Diagnostics &diagnostics, bool main_module)
 {
     AST::Module_t *ast_m = AST::down_cast2<AST::Module_t>(&ast);
 
     ASR::asr_t *unit;
-    auto res = symbol_table_visitor(al, *ast_m, diagnostics);
+    auto res = symbol_table_visitor(al, *ast_m, diagnostics, main_module);
     if (res.ok) {
         unit = res.result;
     } else {
@@ -1899,7 +1902,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
     LFORTRAN_ASSERT(asr_verify(*tu));
 
-    auto res2 = body_visitor(al, *ast_m, diagnostics, unit);
+    auto res2 = body_visitor(al, *ast_m, diagnostics, unit, main_module);
     if (res2.ok) {
         tu = res2.result;
     } else {
