@@ -1914,6 +1914,32 @@ public:
             }
             tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, result, type);
             return;
+        } else if (call_name == "int") {
+            if (args.size() != 1) {
+                throw SemanticError(call_name + "() takes exactly one argument (" +
+                    std::to_string(args.size()) + " given)", x.base.base.loc);
+            }
+            ASR::expr_t* int_expr = args[0];
+            ASR::ttype_t* int_type = ASRUtils::expr_type(int_expr);
+            int int_kind = ASRUtils::extract_kind_from_ttype_t(int_type);
+            if (ASRUtils::is_integer(*int_type)) {
+                int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(int_expr))->m_n;
+                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type);
+
+            } else if (ASRUtils::is_real(*int_type)) {
+                if (int_kind == 4) {
+                    float rv = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(int_expr))->m_r;
+                    int64_t ival = static_cast<int64_t>(rv);
+                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type);
+                } else {
+                    double rv = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(int_expr))->m_r;
+                    int64_t ival = static_cast<int64_t>(rv);
+                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type);
+                }
+            } else {
+                throw SemanticError("int() must have one real or integer argument", x.base.base.loc);
+            }
+            return;
         }
 
         // Other functions
