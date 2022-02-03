@@ -15,6 +15,7 @@
 #include <libasr/asr_verify.h>
 #include <libasr/string_utils.h>
 #include <libasr/utils.h>
+#include <libasr/pass/global_stmts_program.h>
 
 #include <lpython/python_ast.h>
 #include <lpython/semantics/python_ast_to_asr.h>
@@ -2061,6 +2062,13 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
         return res2.error;
     }
     LFORTRAN_ASSERT(asr_verify(*tu));
+
+    if (main_module) {
+        // If it is a main module, turn it into a program.
+        // Note: we can modify this behavior for interactive mode later
+        pass_wrap_global_stmts_into_program(al, *tu);
+        LFORTRAN_ASSERT(asr_verify(*tu));
+    }
 
     return tu;
 }
