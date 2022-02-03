@@ -149,6 +149,16 @@ static inline std::string unop_to_str(const ASR::unaryopType t) {
     }
 }
 
+static inline std::string binop_to_str(const ASR::binopType t) {
+    switch (t) {
+        case (ASR::binopType::Add): { return " + "; }
+        case (ASR::binopType::Sub): { return " - "; }
+        case (ASR::binopType::Mul): { return " * "; }
+        case (ASR::binopType::Div): { return " / "; }
+        default : throw LFortranException("Not implemented");
+    }
+}
+
 static inline std::string cmpop_to_str(const ASR::cmpopType t) {
     switch (t) {
         case (ASR::cmpopType::Eq): { return " == "; }

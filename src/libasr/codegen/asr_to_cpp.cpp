@@ -516,8 +516,6 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             }
             src = fn_name + "(" + args + ")";
         }
-        last_unary_plus = false;
-        last_binary_plus = false;
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
@@ -538,26 +536,18 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_ConstantInteger(const ASR::ConstantInteger_t &x) {
         src = std::to_string(x.m_n);
-        last_unary_plus = false;
-        last_binary_plus = false;
     }
 
     void visit_ConstantReal(const ASR::ConstantReal_t &x) {
         src = std::to_string(x.m_r);
-        last_unary_plus = false;
-        last_binary_plus = false;
     }
 
     void visit_ConstantString(const ASR::ConstantString_t &x) {
         src = "\"" + std::string(x.m_s) + "\"";
-        last_unary_plus = false;
-        last_binary_plus = false;
     }
 
     void visit_ConstantComplex(const ASR::ConstantComplex_t &x) {
         src = "{" + std::to_string(x.m_re) + ", " + std::to_string(x.m_im) + "}";
-        last_unary_plus = false;
-        last_binary_plus = false;
     }
 
     void visit_ConstantLogical(const ASR::ConstantLogical_t &x) {
@@ -566,15 +556,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         } else {
             src = "false";
         }
-        last_unary_plus = false;
-        last_binary_plus = false;
     }
 
     void visit_Var(const ASR::Var_t &x) {
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
         src = ASR::down_cast<ASR::Variable_t>(s)->m_name;
-        last_unary_plus = false;
-        last_binary_plus = false;
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t &x) {
@@ -592,8 +578,6 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
         out += "-1]";
         src = out;
-        last_unary_plus = false;
-        last_binary_plus = false;
     }
 
     void visit_ImplicitCast(const ASR::ImplicitCast_t &x) {
@@ -704,58 +688,48 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_BinOp(const ASR::BinOp_t &x) {
         this->visit_expr(*x.m_left);
-        std::string left_val = src;
-        if ((last_binary_plus || last_unary_plus)
-                    && (x.m_op == ASR::binopType::Mul
-                     || x.m_op == ASR::binopType::Div)) {
-            left_val = "(" + left_val + ")";
-        }
-        if (last_unary_plus
-                    && (x.m_op == ASR::binopType::Add
-                     || x.m_op == ASR::binopType::Sub)) {
-            left_val = "(" + left_val + ")";
-        }
+        std::string left = std::move(src);
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
-        std::string right_val = src;
-        if ((last_binary_plus || last_unary_plus)
-                    && (x.m_op == ASR::binopType::Mul
-                     || x.m_op == ASR::binopType::Div)) {
-            right_val = "(" + right_val + ")";
-        }
-        if (last_unary_plus
-                    && (x.m_op == ASR::binopType::Add
-                     || x.m_op == ASR::binopType::Sub)) {
-            right_val = "(" + right_val + ")";
-        }
+        std::string right = std::move(src);
+        int right_precedence = last_expr_precedence;
         switch (x.m_op) {
-            case ASR::binopType::Add: {
-                src = left_val + " + " + right_val;
-                last_binary_plus = true;
-                break;
+            case (ASR::binopType::Add) : { last_expr_precedence = 6; break; }
+            case (ASR::binopType::Sub) : { last_expr_precedence = 6; break; }
+            case (ASR::binopType::Mul) : { last_expr_precedence = 5; break; }
+            case (ASR::binopType::Div) : { last_expr_precedence = 5; break; }
+            case (ASR::binopType::Pow) : {
+                src = "std::pow(" + left + ", " + right + ")";
+                return;
             }
-            case ASR::binopType::Sub: {
-                src = left_val + " - " + right_val;
-                last_binary_plus = true;
-                break;
-            }
-            case ASR::binopType::Mul: {
-                src = left_val + "*" + right_val;
-                last_binary_plus = false;
-                break;
-            }
-            case ASR::binopType::Div: {
-                src = left_val + "/" + right_val;
-                last_binary_plus = false;
-                break;
-            }
-            case ASR::binopType::Pow: {
-                src = "std::pow(" + left_val + ", " + right_val + ")";
-                last_binary_plus = false;
-                break;
-            }
-            default : throw CodeGenError("Unhandled switch case");
+            default: throw CodeGenError("BinOp: operator not implemented yet");
         }
-        last_unary_plus = false;
+        src = "";
+        if (left_precedence == 3) {
+            src += "(" + left + ")";
+        } else {
+            if (left_precedence <= last_expr_precedence) {
+                src += left;
+            } else {
+                src += "(" + left + ")";
+            }
+        }
+        src += ASRUtils::binop_to_str(x.m_op);
+        if (right_precedence == 3) {
+            src += "(" + right + ")";
+        } else if (x.m_op == ASR::binopType::Sub) {
+            if (right_precedence < last_expr_precedence) {
+                src += right;
+            } else {
+                src += "(" + right + ")";
+            }
+        } else {
+            if (right_precedence <= last_expr_precedence) {
+                src += right;
+            } else {
+                src += "(" + right + ")";
+            }
+        }
     }
 
     void visit_StrOp(const ASR::StrOp_t &x) {
