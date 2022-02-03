@@ -22,7 +22,7 @@ void test_ifexp()
     int b;
     bool c;
     a = 2;
-    b = (a == 2) ? (6) : (8);
-    c = (b > 5) ? (true) : (false);
+    b = ((a) == (2)) ? (6) : (8);
+    c = ((b) > (5)) ? (true) : (false);
 }
 

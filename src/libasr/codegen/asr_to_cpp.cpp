@@ -622,37 +622,30 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_Compare(const ASR::Compare_t &x) {
         this->visit_expr(*x.m_left);
-        std::string left = src;
+        std::string left = std::move(src);
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
-        std::string right = src;
+        std::string right = std::move(src);
+        int right_precedence = last_expr_precedence;
         switch (x.m_op) {
-            case (ASR::cmpopType::Eq) : {
-                src = left + " == " + right;
-                break;
-            }
-            case (ASR::cmpopType::Gt) : {
-                src = left + " > " + right;
-                break;
-            }
-            case (ASR::cmpopType::GtE) : {
-                src = left + " >= " + right;
-                break;
-            }
-            case (ASR::cmpopType::Lt) : {
-                src = left + " < " + right;
-                break;
-            }
-            case (ASR::cmpopType::LtE) : {
-                src = left + " <= " + right;
-                break;
-            }
-            case (ASR::cmpopType::NotEq) : {
-                src = left + " != " + right;
-                break;
-            }
-            default : {
-                throw CodeGenError("Comparison operator not implemented");
-            }
+            case (ASR::cmpopType::Eq) : { last_expr_precedence = 10; break; }
+            case (ASR::cmpopType::Gt) : { last_expr_precedence = 9;  break; }
+            case (ASR::cmpopType::GtE) : { last_expr_precedence = 9; break; }
+            case (ASR::cmpopType::Lt) : { last_expr_precedence = 9;  break; }
+            case (ASR::cmpopType::LtE) : { last_expr_precedence = 9; break; }
+            case (ASR::cmpopType::NotEq): { last_expr_precedence = 10; break; }
+            default : LFORTRAN_ASSERT(false); // should never happen
+        }
+        if (left_precedence <= last_expr_precedence) {
+            src += left;
+        } else {
+            src += "(" + left + ")";
+        }
+        src += ASRUtils::cmpop_to_str(x.m_op);
+        if (right_precedence <= last_expr_precedence) {
+            src += right;
+        } else {
+            src += "(" + right + ")";
         }
     }
 
@@ -814,7 +807,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         } else {
             src += "(" + left + ")";
         }
-        src +=  ASRUtils::boolop_to_str(x.m_op);
+        src += ASRUtils::boolop_to_str(x.m_op);
         if (right_precedence <= last_expr_precedence) {
             src += right;
         } else {
