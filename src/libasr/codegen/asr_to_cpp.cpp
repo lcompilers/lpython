@@ -575,7 +575,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             if (i != x.n_elements - 1)
                 out += ", ";
         }
-        out += "};\n";
+        out += "}";
         src = out;
     }
 
@@ -597,9 +597,9 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 src = "/* FIXME right index */";
             }
             out += src;
-            if (i < x.n_args-1) out += ",";
+            if (i < x.n_args-1) out += ", ";
         }
-        out += "-1]";
+        out += " - 1]";
         src = out;
         last_unary_plus = false;
         last_binary_plus = false;
