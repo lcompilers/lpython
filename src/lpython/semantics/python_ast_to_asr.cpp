@@ -392,7 +392,9 @@ public:
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
                 ));
         }
-        ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
+
+        // TODO: go over `m` and extract `mod_symbols` as ExternalSymbol into current_scope
+        //ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
 
         tmp = nullptr;
     }
