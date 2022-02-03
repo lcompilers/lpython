@@ -599,7 +599,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             out += src;
             if (i < x.n_args-1) out += ", ";
         }
-        out += " - 1]";
+        out += "-1]";
         src = out;
         last_unary_plus = false;
         last_binary_plus = false;
