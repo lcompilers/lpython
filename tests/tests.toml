@@ -145,6 +145,7 @@ asr = true
 filename = "set1.py"
 ast = true
 asr = true
+cpp = true
 
 [[test]]
 filename = "global_scope1.py"

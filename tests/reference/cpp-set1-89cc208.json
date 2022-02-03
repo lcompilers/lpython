@@ -1,12 +1,12 @@
 {
-    "basename": "ast-set1-ebd6ee0",
-    "cmd": "lpython --show-ast --no-color {infile} -o {outfile}",
+    "basename": "cpp-set1-89cc208",
+    "cmd": "lpython --no-color --show-cpp {infile}",
     "infile": "tests/set1.py",
     "infile_hash": "5421dd84e3545a10b5079f5a4d9784b1b54bb2ac60bf9fe8268fa76b",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "ast-set1-ebd6ee0.stdout",
-    "stdout_hash": "25cc3a02346d03215316b255c9afbc33bf9bb0dd495bfc4320dc81e1",
+    "stdout": "cpp-set1-89cc208.stdout",
+    "stdout_hash": "84644f97ff1910af7ee3e7c9baad37e9712a51547ef1e13f8b7a833e",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
