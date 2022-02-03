@@ -98,6 +98,9 @@ public:
     std::string src;
     int indentation_level;
     int indentation_spaces;
+    // The precedence of the last expression, using the table:
+    // https://en.cppreference.com/w/cpp/language/operator_precedence
+    int last_expr_precedence;
     bool last_unary_plus;
     bool last_binary_plus;
     bool intrinsic_module = false;
@@ -781,30 +784,42 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_BoolOp(const ASR::BoolOp_t &x) {
         this->visit_expr(*x.m_left);
-        std::string left_val = "(" + src + ")";
+        std::string left = std::move(src);
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
-        std::string right_val = "(" + src + ")";
+        std::string right = std::move(src);
+        int right_precedence = last_expr_precedence;
         switch (x.m_op) {
-            case ASR::boolopType::And: {
-                src = left_val + " && " + right_val;
+            case (ASR::boolopType::And): {
+                last_expr_precedence = 14;
                 break;
             }
-            case ASR::boolopType::Or: {
-                src = left_val + " || " + right_val;
+            case (ASR::boolopType::Or): {
+                last_expr_precedence = 15;
                 break;
             }
-            case ASR::boolopType::NEqv: {
-                src = left_val + " != " + right_val;
+            case (ASR::boolopType::NEqv): {
+                last_expr_precedence = 10;
                 break;
             }
-            case ASR::boolopType::Eqv: {
-                src = left_val + " == " + right_val;
+            case (ASR::boolopType::Eqv): {
+                last_expr_precedence = 10;
                 break;
             }
             default : throw CodeGenError("Unhandled switch case");
         }
-        last_binary_plus = false;
-        last_unary_plus = false;
+
+        if (left_precedence >= last_expr_precedence) {
+            src += left;
+        } else {
+            src += "(" + left + ")";
+        }
+        src +=  ASRUtils::boolop_to_str(x.m_op);
+        if (right_precedence >= last_expr_precedence) {
+            src += right;
+        } else {
+            src += "(" + right + ")";
+        }
     }
 
     void visit_ConstantArray(const ASR::ConstantArray_t &x) {

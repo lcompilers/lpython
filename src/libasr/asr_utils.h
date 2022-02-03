@@ -161,6 +161,16 @@ static inline std::string cmpop_to_str(const ASR::cmpopType t) {
     }
 }
 
+static inline std::string boolop_to_str(const ASR::boolopType t) {
+    switch (t) {
+        case (ASR::boolopType::And): { return " && "; }
+        case (ASR::boolopType::Or): { return " || "; }
+        case (ASR::boolopType::Eqv): { return " == "; }
+        case (ASR::boolopType::NEqv): { return " != "; }
+        default : throw LFortranException("Not implemented");
+    }
+}
+
 static inline ASR::expr_t* expr_value(ASR::expr_t *f)
 {
     switch (f->type) {
