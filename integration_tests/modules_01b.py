@@ -1,0 +1,2 @@
+def f():
+    print("OK")
