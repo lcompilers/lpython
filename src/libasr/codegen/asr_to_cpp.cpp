@@ -809,13 +809,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             default : throw CodeGenError("Unhandled switch case");
         }
 
-        if (left_precedence >= last_expr_precedence) {
+        if (left_precedence <= last_expr_precedence) {
             src += left;
         } else {
             src += "(" + left + ")";
         }
         src +=  ASRUtils::boolop_to_str(x.m_op);
-        if (right_precedence >= last_expr_precedence) {
+        if (right_precedence <= last_expr_precedence) {
             src += right;
         } else {
             src += "(" + right + ")";
