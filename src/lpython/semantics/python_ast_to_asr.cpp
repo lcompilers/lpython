@@ -433,8 +433,48 @@ public:
                     ASR::accessType::Public
                     );
                 current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(sub);
+            } else if (ASR::is_a<ASR::Function_t>(*t)) {
+                if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                    throw SemanticError("Function already defined",
+                        x.base.base.loc);
+                }
+                ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
+                // `mfn` is the Function in a module. Now we construct
+                // an ExternalSymbol that points to it.
+                Str name;
+                name.from_str(al, local_sym);
+                char *cname = name.c_str(al);
+                ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+                    al, mfn->base.base.loc,
+                    /* a_symtab */ current_scope,
+                    /* a_name */ cname,
+                    (ASR::symbol_t*)mfn,
+                    m->m_name, nullptr, 0, mfn->m_name,
+                    ASR::accessType::Public
+                    );
+                current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
+            } else if (ASR::is_a<ASR::Variable_t>(*t)) {
+                if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                    throw SemanticError("Variable already defined",
+                        x.base.base.loc);
+                }
+                ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
+                // `mv` is the Variable in a module. Now we construct
+                // an ExternalSymbol that points to it.
+                Str name;
+                name.from_str(al, local_sym);
+                char *cname = name.c_str(al);
+                ASR::asr_t *v = ASR::make_ExternalSymbol_t(
+                    al, mv->base.base.loc,
+                    /* a_symtab */ current_scope,
+                    /* a_name */ cname,
+                    (ASR::symbol_t*)mv,
+                    m->m_name, nullptr, 0, mv->m_name,
+                    ASR::accessType::Public
+                    );
+                current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(v);
             } else {
-                throw SemanticError("Only Subroutines are currently supported in 'import'",
+                throw SemanticError("Only Subroutines, Functions and Variables are currently supported in 'import'",
                     x.base.base.loc);
             }
 
