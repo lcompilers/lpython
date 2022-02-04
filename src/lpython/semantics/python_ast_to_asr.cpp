@@ -1921,6 +1921,10 @@ public:
             }
             ASR::expr_t* int_expr = args[0];
             ASR::ttype_t* int_type = ASRUtils::expr_type(int_expr);
+            if (ASRUtils::expr_value(int_expr) == nullptr) {
+                throw SemanticError("runtime int(x) is not supported, only compile time for now",
+                    x.base.base.loc);
+            }
             if (ASRUtils::is_integer(*int_type)) {
                 int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(int_expr))->m_n;
                 tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type);
@@ -1951,6 +1955,10 @@ public:
             }
             ASR::expr_t* float_expr = args[0];
             ASR::ttype_t* float_type = ASRUtils::expr_type(float_expr);
+            if (ASRUtils::expr_value(float_expr) == nullptr) {
+                throw SemanticError("runtime float(x) is not supported, only compile time for now",
+                    x.base.base.loc);
+            }
             if (ASRUtils::is_real(*float_type)) {
                 float rv = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(float_expr))->m_r;
                 tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, rv, float_type);
