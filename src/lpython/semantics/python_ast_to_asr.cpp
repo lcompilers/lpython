@@ -1915,9 +1915,10 @@ public:
             tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, result, type);
             return;
         } else if (call_name == "int") {
-            if (args.size() != 1) {
-                throw SemanticError(call_name + "() takes exactly one argument (" +
-                    std::to_string(args.size()) + " given)", x.base.base.loc);
+            if (args.size() == 0) {
+                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, 0,
+                    ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0)));
+                return;
             }
             ASR::expr_t* int_expr = args[0];
             ASR::ttype_t* int_type = ASRUtils::expr_type(int_expr);
@@ -1949,9 +1950,10 @@ public:
             }
             return;
         } else if (call_name == "float") {
-            if (args.size() != 1) {
-                throw SemanticError(call_name + "() takes exactly one argument (" +
-                    std::to_string(args.size()) + " given)", x.base.base.loc);
+            if (args.size() == 0) {
+                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, 0.0,
+                    ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc, 8, nullptr, 0)));
+                return;
             }
             ASR::expr_t* float_expr = args[0];
             ASR::ttype_t* float_type = ASRUtils::expr_type(float_expr);

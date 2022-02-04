@@ -55,6 +55,7 @@ def test_callable():
 
 def test_int():
     a: i64
+    a = int()
     a = int(4.56)
     a = int(5)
     a = int(True)
@@ -65,6 +66,7 @@ def test_int():
 
 def test_float():
     a: f64
+    a = float()
     a = float(4.56)
     a = float(5)
     a = float(True)
