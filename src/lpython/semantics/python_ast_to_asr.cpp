@@ -1952,6 +1952,33 @@ public:
                     ASRUtils::type_to_str(int_type) + "'", x.base.base.loc);
             }
             return;
+        } else if (call_name == "float") {
+            if (args.size() != 1) {
+                throw SemanticError(call_name + "() takes exactly one argument (" +
+                    std::to_string(args.size()) + " given)", x.base.base.loc);
+            }
+            ASR::expr_t* float_expr = args[0];
+            ASR::ttype_t* float_type = ASRUtils::expr_type(float_expr);
+            if (ASRUtils::is_real(*float_type)) {
+                float rv = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(float_expr))->m_r;
+                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, rv, float_type);
+            } else if (ASRUtils::is_integer(*float_type)) {
+                // convert an int to a float
+            } else if (ASRUtils::is_logical(*float_type)) {
+                bool rv = ASR::down_cast<ASR::ConstantLogical_t>(float_expr)->m_value;
+                float val = rv ? 1.0 : 0.0;
+                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, val, float_type);
+            } else if (ASRUtils::is_character(*float_type)) {
+                // convert a string to a float
+                char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(float_expr))->m_s;
+                std::string s = std::string(c);
+                float rv = std::stof(s);
+                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, rv, float_type);
+            } else {
+                throw SemanticError("float() argument must be real, integer, logical, or a string, not '" +
+                    ASRUtils::type_to_str(float_type) + "'", x.base.base.loc);
+            }
+            return;
         }
 
         // Other functions
