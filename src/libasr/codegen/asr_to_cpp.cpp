@@ -605,6 +605,21 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         last_binary_plus = false;
     }
 
+    void visit_ConstantDictionary(const ASR::ConstantDictionary_t &x) {
+        LFORTRAN_ASSERT(x.n_keys == x.n_values);
+        std::string out = "{";
+        for(size_t i=0; i<x.n_keys; i++) {
+            out += "{";
+            visit_expr(*x.m_keys[i]);
+            out += src + ", ";
+            visit_expr(*x.m_values[i]);
+            out += src + "}";
+            if (i!=x.n_keys-1) out += ", ";
+        }
+        out += "}";
+        src = out;
+    }
+
     void visit_ImplicitCast(const ASR::ImplicitCast_t &x) {
         visit_expr(*x.m_arg);
         switch (x.m_kind) {

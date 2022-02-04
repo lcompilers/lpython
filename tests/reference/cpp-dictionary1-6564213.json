@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-dictionary1-6564213",
+    "cmd": "lpython --no-color --show-cpp {infile}",
+    "infile": "tests/dictionary1.py",
+    "infile_hash": "3f4c855c0841b6569aa7ab8d644abd49de1d659d1c31fb6064f5551a",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-dictionary1-6564213.stdout",
+    "stdout_hash": "6b210e2daa43fddd490c10d8a2d8ffc42e305e8646a3b1cbdf2eca29",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
