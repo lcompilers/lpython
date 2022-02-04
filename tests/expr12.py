@@ -5,3 +5,9 @@ def check() -> i32:
     a: i32
     a = test(2, 2)
     return a
+
+def main0():
+    x: i32
+    x = check()
+
+main0()

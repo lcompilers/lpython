@@ -16,6 +16,18 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+void _lfortran_main_program()
+{
+    main0();
+}
+
+void main0()
+{
+    int c;
+    test_pow();
+    c = test_pow_1(1, 2);
+}
+
 void test_pow()
 {
     int a;
@@ -31,3 +43,17 @@ int test_pow_1(int a, int b)
     return _lpython_return_variable;
 }
 
+namespace {
+
+void main2() {
+        _lfortran_main_program();
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
+    Kokkos::finalize();
+    return 0;
+}
