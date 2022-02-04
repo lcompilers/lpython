@@ -30,3 +30,16 @@ void test_cast()
     b = (float)(3)/(float)(4);
 }
 
+namespace {
+
+void main2() {
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
+    Kokkos::finalize();
+    return 0;
+}
