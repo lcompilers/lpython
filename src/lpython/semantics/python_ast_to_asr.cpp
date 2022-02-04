@@ -1921,7 +1921,6 @@ public:
             }
             ASR::expr_t* int_expr = args[0];
             ASR::ttype_t* int_type = ASRUtils::expr_type(int_expr);
-            int int_kind = ASRUtils::extract_kind_from_ttype_t(int_type);
             if (ASRUtils::is_integer(*int_type)) {
                 int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(int_expr))->m_n;
                 tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type);
@@ -1934,15 +1933,8 @@ public:
                 tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type);
 
             } else if (ASRUtils::is_real(*int_type)) {
-                if (int_kind == 4) {
-                    float rv = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(int_expr))->m_r;
-                    int64_t ival = static_cast<int64_t>(rv);
-                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type);
-                } else {
-                    double rv = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(int_expr))->m_r;
-                    int64_t ival = static_cast<int64_t>(rv);
-                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type);
-                }
+                int64_t ival = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(int_expr))->m_r;
+                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, int_type);
             } else if (ASRUtils::is_logical(*int_type)) {
                 bool rv = ASR::down_cast<ASR::ConstantLogical_t>(int_expr)->m_value;
                 int8_t val = rv ? 1 : 0;
@@ -1963,7 +1955,9 @@ public:
                 float rv = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(float_expr))->m_r;
                 tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, rv, float_type);
             } else if (ASRUtils::is_integer(*float_type)) {
-                // convert an int to a float
+                // convert an int to a float using implicit cast
+                double rv = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(float_expr))->m_n;
+                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, rv, float_type);
             } else if (ASRUtils::is_logical(*float_type)) {
                 bool rv = ASR::down_cast<ASR::ConstantLogical_t>(float_expr)->m_value;
                 float val = rv ? 1.0 : 0.0;
