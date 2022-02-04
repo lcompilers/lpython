@@ -1,4 +1,4 @@
-def main() -> i32:
+def main0():
     i: i32
     sum: i32
     for i in range(0, 10):
@@ -8,4 +8,5 @@ def main() -> i32:
         if i > 5:
             break
     print(sum)
-    return 0
+
+main0()
