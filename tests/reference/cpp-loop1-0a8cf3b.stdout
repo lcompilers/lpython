@@ -16,6 +16,18 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+void _lfortran_main_program()
+{
+    main0();
+}
+
+void main0()
+{
+    int i;
+    i = test_factorial_1(4);
+    i = test_factorial_2(4);
+}
+
 int test_factorial_1(int x)
 {
     int _lpython_return_variable;
@@ -62,4 +74,3 @@ int test_factorial_3(int x)
     _lpython_return_variable = result;
     return _lpython_return_variable;
 }
-
