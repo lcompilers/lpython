@@ -28,6 +28,8 @@ def test_len():
     a: i32
     a = len('test')
     a = len("this is a test")
+    a = len((1, 2, 3))
+    a = len((("a", "b", 3.4), ("c", 3, 5.6)))
 
 
 def test_bool():

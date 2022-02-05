@@ -1717,20 +1717,25 @@ public:
             return;
 
         } else if (call_name == "len") {
-            // TODO(namannimmo10): make len work for lists, sets, tuples, etc. as well, once
-            // they are supported.  For now, we just support len for strings.
+            // TODO(namannimmo10): make len work for lists, sets, dicts etc. as well.
             LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
             if (args.size() != 1) {
                 throw SemanticError(call_name + "() takes exactly one argument (" +
                     std::to_string(args.size()) + " given)", x.base.base.loc);
             }
             ASR::expr_t *arg = ASRUtils::expr_value(args[0]);
-            LFORTRAN_ASSERT(arg->type == ASR::exprType::ConstantString);
+            LFORTRAN_ASSERT(arg->type == ASR::exprType::ConstantString ||
+                            arg->type == ASR::exprType::ConstantTuple);
             ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al,
                                                           x.base.base.loc, 4, nullptr, 0));
-            char* str_value = ASR::down_cast<ASR::ConstantString_t>(arg)->m_s;
-            tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
-                (int64_t)strlen(s2c(al, std::string(str_value))), type);
+            if (arg->type == ASR::exprType::ConstantString) {
+                char* str_value = ASR::down_cast<ASR::ConstantString_t>(arg)->m_s;
+                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
+                    (int64_t)strlen(s2c(al, std::string(str_value))), type);
+            } else if (arg->type == ASR::exprType::ConstantTuple) {
+                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
+                    (int64_t)ASR::down_cast<ASR::ConstantTuple_t>(arg)->n_elements, type);
+            }
             return;
 
         } else if (call_name == "ord") {
