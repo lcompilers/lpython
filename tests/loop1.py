@@ -16,3 +16,15 @@ def test_factorial_2(x: i32) -> i32:
     for i in range(1, x + 1):
         result = result * i
     return result
+
+
+def test_factorial_3(x: i32) -> i64:
+    # test for int to int cast
+    if x < 0:
+        return 0
+    result: i64
+    result = 1
+    while x > 0:
+        result = result * x
+        x -= 1
+    return result
