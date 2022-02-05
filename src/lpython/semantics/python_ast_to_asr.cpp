@@ -1741,7 +1741,7 @@ public:
                 tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
                     (int64_t)ASR::down_cast<ASR::ConstantSet_t>(arg)->n_elements, type);
             } else {
-                throw SemanticError("len() only works on strings, arrays, tuples, dictionaries and sets",
+                throw SemanticError("len() only works on strings, lists, tuples, dictionaries and sets",
                     x.base.base.loc);
             }
             return;
