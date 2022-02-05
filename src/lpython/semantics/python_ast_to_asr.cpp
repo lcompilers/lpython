@@ -990,7 +990,23 @@ public:
                 }
             }
         } else if (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) {
-            dest_type = left_type;
+            int is_l64 = ASR::down_cast<ASR::Integer_t>(left_type)->m_kind == 8;
+            int is_r64 = ASR::down_cast<ASR::Integer_t>(right_type)->m_kind == 8;
+            if (is_l64 ^ is_r64) { // one is i64 and one is i32
+                if (is_l64) {
+                    dest_type = left_type;
+                    right = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                        al, right->base.loc, right, ASR::cast_kindType::IntegerToInteger, dest_type,
+                        value));
+                } else {
+                    dest_type = right_type;
+                    left = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                        al, right->base.loc, left, ASR::cast_kindType::IntegerToInteger, dest_type,
+                        value));
+                }
+            } else {
+                dest_type = left_type;
+            }
         } else if (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type)) {
             dest_type = left_type;
         } else if (ASRUtils::is_integer(*left_type) && ASRUtils::is_real(*right_type)) {
