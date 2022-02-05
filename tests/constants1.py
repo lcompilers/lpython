@@ -30,6 +30,10 @@ def test_len():
     a = len("this is a test")
     a = len((1, 2, 3))
     a = len((("a", "b", 3.4), ("c", 3, 5.6)))
+    a = len([1, 2, 3])
+    a = len([[-4, -5, -6], [-1, -2, -3]])
+    a = len({1, 2, 3})
+    a = len({1: "a", 2: "b", 3: "c"})
 
 
 def test_bool():

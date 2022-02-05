@@ -183,6 +183,8 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::ConstantComplex: // Drop through
         case ASR::exprType::ConstantLogical: // Drop through
         case ASR::exprType::ConstantTuple: // Drop through
+        case ASR::exprType::ConstantDictionary: // Drop through
+        case ASR::exprType::ConstantSet: // Drop through
         case ASR::exprType::ConstantString:{ // For all Constants
             return f;
         }
