@@ -24,8 +24,10 @@ void _lfortran_main_program()
 void main0()
 {
     int i;
+    long long j;
     i = test_factorial_1(4);
     i = test_factorial_2(4);
+    j = test_factorial_3(5);
 }
 
 int test_factorial_1(int x)
@@ -73,4 +75,19 @@ int test_factorial_3(int x)
     }
     _lpython_return_variable = result;
     return _lpython_return_variable;
+}
+
+namespace {
+
+void main2() {
+        _lfortran_main_program();
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
+    Kokkos::finalize();
+    return 0;
 }
