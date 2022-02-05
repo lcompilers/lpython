@@ -640,6 +640,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 src = "std::real(" + src + ")";
                 break;
             }
+            case (ASR::cast_kindType::IntegerToInteger) : {
+                // src = src;
+                break;
+            }
             default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented");
         }
     }
