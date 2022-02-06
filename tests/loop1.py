@@ -16,3 +16,10 @@ def test_factorial_2(x: i32) -> i32:
     for i in range(1, x + 1):
         result = result * i
     return result
+
+def main0():
+    i: i32
+    i = test_factorial_1(4)
+    i = test_factorial_2(4)
+
+main0()

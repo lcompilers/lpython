@@ -23,3 +23,16 @@ void test_complex_cpp()
     c = {1.000000, 2.000000};
 }
 
+namespace {
+
+void main2() {
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
+    Kokkos::finalize();
+    return 0;
+}

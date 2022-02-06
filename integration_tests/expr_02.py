@@ -1,4 +1,4 @@
-def main()->i32:
+def main0():
     a: bool
     b: bool
     a = False
@@ -6,8 +6,8 @@ def main()->i32:
     a = a and b
     b = a or True
     a = a or b
-    return 0
 
+main0()
 # Not implemented yet in LPython:
 #if __name__ == "__main__":
 #    main()
