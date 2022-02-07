@@ -55,6 +55,17 @@ def test_bool():
     assert a == True
 
 
+def test_str():
+    s: str
+    s = str()
+    s = str(5)
+    s = str(-4)
+    s = str(5.6)
+    s = str(True)
+    s = str(False)
+    s = str("5346")
+
+
 def test_callable():
     a: bool
     b: i32
