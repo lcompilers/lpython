@@ -2,10 +2,13 @@ def test_boz():
     b: str
     b = bin(5)
     b = bin(64)
+    b = bin(-534)
     b = oct(8)
     b = oct(56)
+    b = oct(-534)
     b = hex(42)
     b = hex(12648430)
+    b = hex(-534)
 
 
 def test_ord_chr():
@@ -17,15 +20,19 @@ def test_ord_chr():
 
 def test_abs():
     a: i32
+    a = abs(5)
+    a = abs(-500)
     a = abs(False)
     a = abs(True)
     b: f32
     b = abs(3.45)
+    b = abs(-5346.34)
     b = abs(complex(3.45, 5.6))
 
 
 def test_len():
     a: i32
+    a = len('')
     a = len('test')
     a = len("this is a test")
     a = len((1, 2, 3))
@@ -39,6 +46,7 @@ def test_len():
 def test_bool():
     a: bool
     a = bool(0)
+    a = bool(-1)
     a = bool('')
     a = bool(complex(0, 0))
     assert a == False

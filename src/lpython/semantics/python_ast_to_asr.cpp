@@ -1821,7 +1821,7 @@ public:
                 throw SemanticError(call_name + "() takes exactly one argument (" +
                     std::to_string(args.size()) + " given)", x.base.base.loc);
             }
-            ASR::expr_t* expr = args[0];
+            ASR::expr_t* expr = ASRUtils::expr_value(args[0]);
             ASR::ttype_t* type = ASRUtils::expr_type(expr);
             if (ASRUtils::is_integer(*type)) {
                 int64_t n = ASR::down_cast<ASR::ConstantInteger_t>(expr)->m_n;
@@ -1830,16 +1830,16 @@ public:
                 std::string s, prefix;
                 std::stringstream ss;
                 if (call_name == "oct") {
-                    prefix = "0o";
-                    ss << std::oct << n;
+                    prefix = n > 0 ? "0o" : "-0o";
+                    ss << std::oct << std::abs(n);
                     s += ss.str();
                 } else if (call_name == "bin") {
-                    prefix = "0b";
-                    s += std::bitset<64>(n).to_string();
+                    prefix = n > 0 ? "0b" : "-0b";
+                    s += std::bitset<64>(std::abs(n)).to_string();
                     s.erase(0, s.find_first_not_of('0'));
                 } else {
-                    prefix = "0x";
-                    ss << std::hex << n;
+                    prefix = n > 0 ? "0x" : "-0x";
+                    ss << std::hex << std::abs(n);
                     s += ss.str();
                 }
                 s.insert(0, prefix);
@@ -1854,7 +1854,7 @@ public:
                 throw SemanticError(call_name + "() takes exactly one argument (" +
                     std::to_string(args.size()) + " given)", x.base.base.loc);
             }
-            ASR::expr_t* arg = args[0];
+            ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
             ASR::ttype_t* t = ASRUtils::expr_type(arg);
             if (ASRUtils::is_real(*t)) {
                 double rv = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
@@ -1886,7 +1886,7 @@ public:
             }
             ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
                                   1, nullptr, 0));
-            ASR::expr_t* arg = args[0];
+            ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
             ASR::ttype_t* t = ASRUtils::expr_type(arg);
             bool result;
             if (ASRUtils::is_real(*t)) {
