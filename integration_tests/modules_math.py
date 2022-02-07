@@ -1,7 +1,7 @@
-def factorial(x: i32) -> i32:
+def factorial(x: i32) -> i64:
     if x < 0:
         return 0
-    result: i32
+    result: i64
     result = 1
     while x > 0:
         result = result * x
