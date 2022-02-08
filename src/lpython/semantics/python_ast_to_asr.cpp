@@ -1997,6 +1997,40 @@ public:
                     ASRUtils::type_to_str(float_type) + "'", x.base.base.loc);
             }
             return;
+        } else if (call_name == "str") {
+            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
+                x.base.base.loc, 1, 1, nullptr, nullptr, 0));
+            if (args.size() == 0) { // create an empty string
+                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, ""), str_type);
+                return;
+            }
+            ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
+            ASR::ttype_t* arg_type = ASRUtils::expr_type(arg);
+            if (arg == nullptr) {
+                throw SemanticError("runtime str(x) is not supported, only compile time for now",
+                    x.base.base.loc);
+            }
+            if (ASRUtils::is_integer(*arg_type)) {
+                int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
+                std::string s = std::to_string(ival);
+                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
+            } else if (ASRUtils::is_real(*arg_type)) {
+                double rval = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
+                std::string s = std::to_string(rval);
+                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
+            } else if (ASRUtils::is_logical(*arg_type)) {
+                bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
+                std::string s = rv ? "True" : "False";
+                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
+            } else if (ASRUtils::is_character(*arg_type)) {
+                char* c = ASR::down_cast<ASR::ConstantString_t>(arg)->m_s;
+                std::string s = std::string(c);
+                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
+            } else {
+                throw SemanticError("str() argument must be real, integer, logical, or a string, not '" +
+                    ASRUtils::type_to_str(arg_type) + "'", x.base.base.loc);
+            }
+            return;
         }
 
         // Other functions
