@@ -46,6 +46,23 @@ LFortran::Result<LFortran::Python::AST::ast_t*> parse_python_file(Allocator &al,
     return ast;
 }
 
+LFortran::Result<std::string> get_full_path(const std::string &filename,
+        const std::string &runtime_library_dir) {
+    std::string input;
+    bool status = read_file(filename, input);
+    if (status) {
+        return filename;
+    } else {
+        std::string filename_intrinsic = runtime_library_dir + "/" + filename;
+        bool status = read_file(filename_intrinsic, input);
+        if (status) {
+            return filename_intrinsic;
+        } else {
+            return LFortran::Error();
+        }
+    }
+}
+
 ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const std::string &module_name,
                             const Location &loc, bool /*intrinsic*/,
@@ -63,7 +80,12 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     LFORTRAN_ASSERT(symtab->parent == nullptr);
 
     // Parse the module `module_name`.py to AST
-    std::string infile = module_name + ".py";
+    std::string infile0 = module_name + ".py";
+    Result<std::string> rinfile = get_full_path(infile0, rl_path);
+    if (!rinfile.ok) {
+        err("Could not find the module '" + infile0 + "'", loc);
+    }
+    std::string infile = rinfile.result;
     Result<AST::ast_t*> r = parse_python_file(al, rl_path, infile);
     if (!r.ok) {
         err("The file '" + infile + "' failed to parse", loc);
