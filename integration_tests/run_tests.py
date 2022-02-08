@@ -11,6 +11,7 @@ tests = [
     "expr_05.py",
     "modules_01.py",
     #"modules_02.py",
+    "test_math.py",
 ]
 
 def main():
