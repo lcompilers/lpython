@@ -2068,6 +2068,10 @@ public:
                     tmp = ASR::make_ConstantTuple_t(al, x.base.base.loc, tuple.p, tuple.size(), tuple_type);
                     return;
                 }
+            } else {
+                throw SemanticError("Both arguments of divmod() must be integers, not '" +
+                    ASRUtils::type_to_str(arg1_type) + "' and '" + ASRUtils::type_to_str(arg2_type) + "'",
+                    x.base.base.loc);
             }
         }
 
