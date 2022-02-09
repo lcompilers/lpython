@@ -33,6 +33,11 @@ void test_for()
     exit(0);
 }
 
+void exit(int error_code)
+{
+    exit(0);
+}
+
 namespace {
 
 void main2() {
