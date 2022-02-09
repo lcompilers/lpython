@@ -46,6 +46,9 @@ LFortran::Result<LFortran::Python::AST::ast_t*> parse_python_file(Allocator &al,
     return ast;
 }
 
+// Does a CPython style lookup for a module:
+// * First the current directory (this is incorrect, we need to do it relative to the current file)
+// * Then the LPython runtime directory
 LFortran::Result<std::string> get_full_path(const std::string &filename,
         const std::string &runtime_library_dir) {
     std::string input;
@@ -58,7 +61,18 @@ LFortran::Result<std::string> get_full_path(const std::string &filename,
         if (status) {
             return filename_intrinsic;
         } else {
-            return LFortran::Error();
+            // If this is `ltypes`, do a special lookup
+            if (filename == "ltypes.py") {
+                std::string filename_intrinsic = runtime_library_dir + "/ltypes/" + filename;
+                bool status = read_file(filename_intrinsic, input);
+                if (status) {
+                    return filename_intrinsic;
+                } else {
+                    return LFortran::Error();
+                }
+            } else {
+                return LFortran::Error();
+            }
         }
     }
 }
