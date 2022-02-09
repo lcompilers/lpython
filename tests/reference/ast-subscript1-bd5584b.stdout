@@ -1,0 +1,1 @@
+(Module [(FunctionDef test_subscript ([] [] [] [] [] [] []) [(AnnAssign (Name s Store) (Name str Load) () 1) (Assign [(Name s Store)] (ConstantStr "abc" ()) ()) (Assign [(Name s Store)] (Subscript (Name s Load) (ConstantInt 0 ()) Load) ()) (Assign [(Name s Store)] (Subscript (Name s Load) (Slice (ConstantInt 1 ()) (ConstantInt 2 ()) ()) Load) ())] [] () ())] [])

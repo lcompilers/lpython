@@ -24,6 +24,11 @@ ast = true
 asr = true
 
 [[test]]
+filename = "subscript1.py"
+ast = true
+asr = true
+
+[[test]]
 filename = "list1.py"
 ast = true
 asr = true
