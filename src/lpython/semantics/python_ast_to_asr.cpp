@@ -823,17 +823,33 @@ public:
     void visit_Subscript(const AST::Subscript_t &x) {
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
-        this->visit_expr(*x.m_slice);
-        ASR::expr_t *index = ASRUtils::EXPR(tmp);
         Vec<ASR::array_index_t> args;
         args.reserve(al, 1);
         ASR::array_index_t ai;
         ai.loc = x.base.base.loc;
         ai.m_left = nullptr;
-        ai.m_right = index;
+        ai.m_right = nullptr;
         ai.m_step = nullptr;
+        if (AST::is_a<AST::Slice_t>(*x.m_slice)) {
+            AST::Slice_t *s = AST::down_cast<AST::Slice_t>(x.m_slice);
+            if (s->m_lower != nullptr) {
+                this->visit_expr(*s->m_lower);
+                ai.m_left = ASRUtils::EXPR(tmp);
+            }
+            if (s->m_upper != nullptr) {
+                this->visit_expr(*s->m_upper);
+                ai.m_right = ASRUtils::EXPR(tmp);
+            }
+            if (s->m_step != nullptr) {
+                this->visit_expr(*s->m_step);
+                ai.m_step = ASRUtils::EXPR(tmp);
+            }
+        } else {
+            this->visit_expr(*x.m_slice);
+            ASR::expr_t *index = ASRUtils::EXPR(tmp);
+            ai.m_right = index;
+        }
         args.push_back(al, ai);
-
         ASR::symbol_t *s = ASR::down_cast<ASR::Var_t>(value)->m_v;
         ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
         ASR::ttype_t *type = v->m_type;
