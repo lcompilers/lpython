@@ -749,6 +749,19 @@ public:
         }
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
+        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(target),
+                                    ASRUtils::expr_type(value))) {
+            std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(target));
+            std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(value));
+            diag.add(diag::Diagnostic(
+                "Type mismatch in assignment, the types must be compatible",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
+                            {target->base.loc, value->base.loc})
+                })
+            );
+            throw SemanticAbort();
+        }
         value = implicitcast_assign_helper(target, value);
         ASR::stmt_t *overloaded=nullptr;
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
