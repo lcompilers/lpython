@@ -46,8 +46,12 @@ LFortran::Result<LFortran::Python::AST::ast_t*> parse_python_file(Allocator &al,
     return ast;
 }
 
+// Does a CPython style lookup for a module:
+// * First the current directory (this is incorrect, we need to do it relative to the current file)
+// * Then the LPython runtime directory
 LFortran::Result<std::string> get_full_path(const std::string &filename,
-        const std::string &runtime_library_dir) {
+        const std::string &runtime_library_dir, bool &ltypes) {
+    ltypes = false;
     std::string input;
     bool status = read_file(filename, input);
     if (status) {
@@ -58,7 +62,19 @@ LFortran::Result<std::string> get_full_path(const std::string &filename,
         if (status) {
             return filename_intrinsic;
         } else {
-            return LFortran::Error();
+            // If this is `ltypes`, do a special lookup
+            if (filename == "ltypes.py") {
+                std::string filename_intrinsic = runtime_library_dir + "/ltypes/" + filename;
+                bool status = read_file(filename_intrinsic, input);
+                if (status) {
+                    ltypes = true;
+                    return filename_intrinsic;
+                } else {
+                    return LFortran::Error();
+                }
+            } else {
+                return LFortran::Error();
+            }
         }
     }
 }
@@ -67,7 +83,9 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const std::string &module_name,
                             const Location &loc, bool /*intrinsic*/,
                             const std::string &rl_path,
+                            bool &ltypes,
                             const std::function<void (const std::string &, const Location &)> err) {
+    ltypes = false;
     LFORTRAN_ASSERT(symtab);
     if (symtab->scope.find(module_name) != symtab->scope.end()) {
         ASR::symbol_t *m = symtab->scope[module_name];
@@ -81,10 +99,11 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
 
     // Parse the module `module_name`.py to AST
     std::string infile0 = module_name + ".py";
-    Result<std::string> rinfile = get_full_path(infile0, rl_path);
+    Result<std::string> rinfile = get_full_path(infile0, rl_path, ltypes);
     if (!rinfile.ok) {
         err("Could not find the module '" + infile0 + "'", loc);
     }
+    if (ltypes) return nullptr;
     std::string infile = rinfile.result;
     Result<AST::ast_t*> r = parse_python_file(al, rl_path, infile);
     if (!r.ok) {
@@ -95,6 +114,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     // Convert the module from AST to ASR
     LFortran::LocationManager lm;
     lm.in_filename = infile;
+    // TODO: diagnostic should be an argument to this function
     diag::Diagnostics diagnostics;
     Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast, diagnostics, false);
     std::string input;
@@ -463,10 +483,22 @@ public:
             if (!main_module) {
                 st = st->parent;
             }
+            bool ltypes;
             t = (ASR::symbol_t*)(load_module(al, st,
-                msym, x.base.base.loc, false, rl_path,
+                msym, x.base.base.loc, false, rl_path, ltypes,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
                 ));
+            if (ltypes) {
+                // TODO: For now we skip ltypes import completely. Later on we should note what symbols
+                // got imported from it, and give an error message if an annotation is used without
+                // importing it.
+                tmp = nullptr;
+                return;
+            }
+            if (!t) {
+                throw SemanticError("The module '" + msym + "' cannot be loaded",
+                        x.base.base.loc);
+            }
         }
 
         ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);

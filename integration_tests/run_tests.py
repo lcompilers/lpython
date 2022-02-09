@@ -35,16 +35,9 @@ def main():
         if r != 0:
             print("Command '%s' failed." % cmd)
             sys.exit(1)
-        pysrc = open("integration_tests/%s" % pyfile).read()
-        pysrc = """\
-i32 = None
-i64 = None
-f32 = None
-f64 = None
-""" + pysrc
-        open("integration_tests/py_%s" % pyfile, "w").write(pysrc)
-
-        cmd = "python integration_tests/py_%s" % (pyfile)
+        python_path="src/runtime/ltypes"
+        cmd = "PYTHONPATH=%s python integration_tests/%s" % (python_path,
+                    pyfile)
         print("+ " + cmd)
         r = os.system(cmd)
         if r != 0:
