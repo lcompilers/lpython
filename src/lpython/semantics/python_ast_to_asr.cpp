@@ -179,25 +179,44 @@ public:
                     loc);
             }
 
-            ASR::dimension_t dim;
-            dim.loc = loc;
-            if (AST::is_a<AST::Slice_t>(*s->m_slice)) {
-                dim.m_start = nullptr;
-                dim.m_end = nullptr;
-            } else {
-                this->visit_expr(*s->m_slice);
-                ASR::expr_t *value = ASRUtils::EXPR(tmp);
-                if (!ASR::is_a<ASR::ConstantInteger_t>(*value)) {
-                    throw SemanticError("Only Integer in [] in Subscript supported for now in annotation",
+            if (var_annotation == "tuple") {
+                Vec<ASR::ttype_t*> types;
+                types.reserve(al, 4);
+                if (AST::is_a<AST::Name_t>(*s->m_slice)) {
+                    types.push_back(al, ast_expr_to_asr_type(loc, *s->m_slice));
+                } else if (AST::is_a<AST::Tuple_t>(*s->m_slice)) {
+                    AST::Tuple_t *t = AST::down_cast<AST::Tuple_t>(s->m_slice);
+                    for (size_t i=0; i<t->n_elts; i++) {
+                        types.push_back(al, ast_expr_to_asr_type(loc, *t->m_elts[i]));
+                    }
+                } else {
+                    throw SemanticError("Only Name or Tuple in Subscript supported for now in `tuple` annotation",
                         loc);
                 }
-                ASR::ttype_t *itype = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                        4, nullptr, 0));
-                dim.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, 1, itype));
-                dim.m_end = value;
-            }
+                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Tuple_t(al, loc,
+                    types.p, types.size()));
+                return type;
+            } else {
+                ASR::dimension_t dim;
+                dim.loc = loc;
+                if (AST::is_a<AST::Slice_t>(*s->m_slice)) {
+                    dim.m_start = nullptr;
+                    dim.m_end = nullptr;
+                } else {
+                    this->visit_expr(*s->m_slice);
+                    ASR::expr_t *value = ASRUtils::EXPR(tmp);
+                    if (!ASR::is_a<ASR::ConstantInteger_t>(*value)) {
+                        throw SemanticError("Only Integer in [] in Subscript supported for now in annotation",
+                            loc);
+                    }
+                    ASR::ttype_t *itype = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                            4, nullptr, 0));
+                    dim.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, 1, itype));
+                    dim.m_end = value;
+                }
 
-            dims.push_back(al, dim);
+                dims.push_back(al, dim);
+            }
         } else {
             throw SemanticError("Only Name or Subscript supported for now in annotation of annotated assignment.",
                 loc);
