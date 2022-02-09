@@ -692,6 +692,32 @@ public:
         tmp = ASR::make_ExplicitDeallocate_t(al, x.base.base.loc, targets.p,
                 targets.size());
     }
+    // Casts `right` from 32bit to 64bit if needed (to be used during assignment and BinOp)
+    ASR::expr_t* implicitcast_assign_helper(ASR::expr_t *left, ASR::expr_t *right) {
+        ASR::ttype_t *left_type = ASRUtils::expr_type(left), *right_type = nullptr;
+        right_type = ASRUtils::expr_type(right);
+        ASR::ttype_t *dest_type = nullptr;
+        if (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) {
+            bool is_l64 = ASR::down_cast<ASR::Integer_t>(left_type)->m_kind == 8;
+            bool is_r64 = ASR::down_cast<ASR::Integer_t>(right_type)->m_kind == 8;
+            if (is_l64 && !is_r64) {
+                dest_type = left_type;
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                    al, right->base.loc, right, ASR::cast_kindType::IntegerToInteger, dest_type,
+                    nullptr));
+            }
+        } else if (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type)) {
+            bool is_l64 = ASR::down_cast<ASR::Real_t>(left_type)->m_kind == 8;
+            bool is_r64 = ASR::down_cast<ASR::Real_t>(right_type)->m_kind == 8;
+            if (is_l64 && !is_r64) {
+                dest_type = left_type;
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                    al, right->base.loc, right, ASR::cast_kindType::RealToReal, dest_type,
+                    nullptr));
+            }
+        }
+        return right;
+    }
 
     void visit_Assign(const AST::Assign_t &x) {
         ASR::expr_t *target;
@@ -704,6 +730,7 @@ public:
         }
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
+        value = implicitcast_assign_helper(target, value);
         ASR::stmt_t *overloaded=nullptr;
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
                                 overloaded);
@@ -1013,7 +1040,9 @@ public:
                 }
             }
         } else if (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) {
-            dest_type = left_type;
+            left = implicitcast_assign_helper(right, left);
+            right = implicitcast_assign_helper(left, right);
+            dest_type = ASRUtils::expr_type(left);
         } else if (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type)) {
             dest_type = left_type;
         } else if (ASRUtils::is_integer(*left_type) && ASRUtils::is_real(*right_type)) {
@@ -1605,7 +1634,7 @@ public:
             throw SemanticError("Type Mismatch in return, found (" +
                     ltype + " and " + rtype + ")", x.base.base.loc);
         }
-
+        value = implicitcast_assign_helper(target, value);
         ASR::stmt_t *overloaded=nullptr;
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
                                 overloaded);
