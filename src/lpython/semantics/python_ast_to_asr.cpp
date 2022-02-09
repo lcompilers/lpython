@@ -1763,8 +1763,16 @@ public:
                     args.p, args.size());
                 return;
 
-            } else if (call_name == "exit" || call_name == "quit") {
-                ASR::expr_t *code = nullptr;
+            } else if (call_name == "quit") {
+                ASR::expr_t *code;
+                if (args.size() == 0) {
+                    code = nullptr;
+                } else if (args.size() == 1) {
+                    code = args[0];
+                } else {
+                    throw SemanticError("The function quit() requires 0 or 1 arguments",
+                        x.base.base.loc);
+                }
                 tmp = ASR::make_Stop_t(al, x.base.base.loc, code);
                 return;
             }
