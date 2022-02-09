@@ -636,6 +636,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 // src = src;
                 break;
             }
+            case (ASR::cast_kindType::IntegerToInteger) : {
+                // In C++, we do not need to cast int <-> long long explicitly:
+                // src = src;
+                break;
+            }
             case (ASR::cast_kindType::ComplexToReal) : {
                 src = "std::real(" + src + ")";
                 break;
