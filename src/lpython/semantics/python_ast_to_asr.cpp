@@ -692,7 +692,7 @@ public:
         tmp = ASR::make_ExplicitDeallocate_t(al, x.base.base.loc, targets.p,
                 targets.size());
     }
-
+    // Casts `right` from 32bit to 64bit if needed (to be used during assignment and BinOp)
     ASR::expr_t* implicitcast_assign_helper(ASR::expr_t *left, ASR::expr_t *right) {
         ASR::ttype_t *left_type = ASRUtils::expr_type(left), *right_type = nullptr;
         right_type = ASRUtils::expr_type(right);
