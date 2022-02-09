@@ -196,6 +196,14 @@ public:
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Tuple_t(al, loc,
                     types.p, types.size()));
                 return type;
+            } else if (var_annotation == "set") {
+                if (AST::is_a<AST::Name_t>(*s->m_slice)) {
+                    ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice);
+                    return ASRUtils::TYPE(ASR::make_Set_t(al, loc, type));
+                } else {
+                    throw SemanticError("Only Name in Subscript supported for now in `set`"
+                        " annotation", loc);
+                }
             } else {
                 ASR::dimension_t dim;
                 dim.loc = loc;
