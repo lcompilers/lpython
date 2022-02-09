@@ -101,3 +101,12 @@ def test_float():
     a = float("5346")
     a = float("423.534")
     # a = float(complex(3.45, 5.6)) -> semantic error
+
+
+def test_divmod():
+    a: i32
+    a = divmod(9, 3)
+    a = divmod(9, -3)
+    a = divmod(3, 3)
+    a = divmod(4, 5)
+    a = divmod(0, 5)

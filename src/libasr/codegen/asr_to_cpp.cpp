@@ -404,7 +404,12 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string sub;
         ASR::Variable_t *return_var = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
         if (ASRUtils::is_integer(*return_var->m_type)) {
-            sub = "int ";
+            bool is_int = ASR::down_cast<ASR::Integer_t>(return_var->m_type)->m_kind == 4;
+            if (is_int) {
+                sub = "int ";
+            } else {
+                sub = "long long ";
+            }
         } else if (ASRUtils::is_real(*return_var->m_type)) {
             sub = "float ";
         } else if (ASRUtils::is_logical(*return_var->m_type)) {
