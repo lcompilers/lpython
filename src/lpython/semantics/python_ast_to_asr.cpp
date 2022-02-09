@@ -426,6 +426,10 @@ public:
                 msym, x.base.base.loc, false, rl_path,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
                 ));
+            if (!t) {
+                throw SemanticError("The module '" + msym + "' cannot be loaded",
+                        x.base.base.loc);
+            }
         }
 
         ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
