@@ -694,8 +694,13 @@ public:
     }
 
     ASR::expr_t* implicitcast_assign_helper(ASR::expr_t *left, ASR::expr_t *right) {
-        ASR::ttype_t *left_type = ASRUtils::expr_type(left);
-        ASR::ttype_t *right_type = ASRUtils::expr_type(right);
+        ASR::ttype_t *left_type = ASRUtils::expr_type(left), *right_type = nullptr;
+        try {
+            right_type = ASRUtils::expr_type(right);
+        } catch (const LFortranException &e) {
+            // if unable to find the type then return right as it is
+            return right;
+        }
         ASR::ttype_t *dest_type = nullptr;
         if (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) {
             bool is_l64 = ASR::down_cast<ASR::Integer_t>(left_type)->m_kind == 8;
