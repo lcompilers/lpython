@@ -35,7 +35,9 @@ def main():
         if r != 0:
             print("Command '%s' failed." % cmd)
             sys.exit(1)
-        cmd = "python integration_tests/%s" % (pyfile)
+        python_path="src/runtime/ltypes"
+        cmd = "PYTHONPATH=%s python integration_tests/%s" % (python_path,
+                    pyfile)
         print("+ " + cmd)
         r = os.system(cmd)
         if r != 0:
