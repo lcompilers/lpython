@@ -3472,12 +3472,11 @@ public:
         printf(context, *module, *builder, printf_args);
     }
 
-    void visit_Stop(const ASR::Stop_t & /* x */) {
+    void visit_Stop(const ASR::Stop_t &x) {
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("STOP\n");
         printf(context, *module, *builder, {fmt_ptr});
-        int exit_code_int = 0;
-        llvm::Value *exit_code = llvm::ConstantInt::get(context,
-                llvm::APInt(32, exit_code_int));
+        this->visit_expr(*x.m_code);
+        llvm::Value *exit_code = tmp;
         exit(context, *module, *builder, exit_code);
     }
 
