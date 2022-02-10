@@ -1,5 +1,5 @@
-from math import factorial, isqrt, perm, comb
-from ltypes import i32
+from math import factorial, isqrt, perm, comb, degrees, radians
+from ltypes import i32, f64
 
 def test_factorial_1():
     i: i32
@@ -24,7 +24,21 @@ def test_isqrt():
     print(i)
 
 
+def test_degrees():
+    i: f64
+    i = degrees(32.2)
+    print(i)
+
+
+def test_radians():
+    i: f64
+    i = degrees(100.1)
+    print(i)
+
+
 test_factorial_1()
 test_comb()
 test_isqrt()
 test_perm()
+test_degrees()
+test_radians()
