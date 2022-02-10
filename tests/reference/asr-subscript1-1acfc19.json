@@ -2,11 +2,11 @@
     "basename": "asr-subscript1-1acfc19",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/subscript1.py",
-    "infile_hash": "2046e24d81cbd28eb23052804f256dc73c52bf0b1677d787078607b1",
+    "infile_hash": "24efc3980ad13e8772a093253b380c91ce3b38071d69200e5af33d36",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-subscript1-1acfc19.stdout",
-    "stdout_hash": "330bce95c399e53617ba71cb6e097b05ec47b7991b3ac7e59ea9e469",
+    "stdout_hash": "f7bf6b29c18149b3c536af48eb59a1133156ac03fba83603a083d0fb",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

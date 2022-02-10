@@ -857,22 +857,6 @@ public:
             args.size(), type, nullptr);
     }
 
-    void visit_Slice(const AST::Slice_t &x) {
-        if (x.m_lower != nullptr) {
-            this->visit_expr(*x.m_lower);
-            ASRUtils::EXPR(tmp);
-        }
-        if (x.m_upper != nullptr) {
-            this->visit_expr(*x.m_upper);
-            ASRUtils::EXPR(tmp);
-        }
-        if (x.m_step != nullptr) {
-            this->visit_expr(*x.m_step);
-            ASRUtils::EXPR(tmp);
-        }
-        tmp = nullptr;
-    }
-
     void visit_List(const AST::List_t &x) {
         Vec<ASR::expr_t*> list;
         list.reserve(al, x.n_elts);
