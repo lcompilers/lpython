@@ -42,8 +42,7 @@ def isqrt(n: i32) -> i32:
     Computes the integer square root of the nonnegative integer `n`.
     """
     if n < 0:
-        # TODO: raise error
-        return -1
+        raise ValueError('`n` should be nonnegative')
     low: i32
     mid: i32
     high: i32
