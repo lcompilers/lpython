@@ -1,4 +1,7 @@
-from ltypes import i32
+from ltypes import i32, f64
+
+def pi() -> f64:
+    return 3.141592653589793238462643383279502884197
 
 def factorial(x: i32) -> i32:
     """
@@ -55,3 +58,17 @@ def isqrt(n: i32) -> i32:
         else:
             high = mid
     return low
+
+
+def degrees(x: f64) -> f64:
+    """
+    Convert angle `x` from radians to degrees.
+    """
+    return x * 180.0 / pi()
+
+
+def radians(x: f64) -> f64:
+    """
+    Convert angle `x` from degrees to radians.
+    """
+    return x * pi() / 180.0
