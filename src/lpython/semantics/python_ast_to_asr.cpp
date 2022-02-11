@@ -58,14 +58,14 @@ LFortran::Result<std::string> get_full_path(const std::string &filename,
         return filename;
     } else {
         std::string filename_intrinsic = runtime_library_dir + "/" + filename;
-        bool status = read_file(filename_intrinsic, input);
+        status = read_file(filename_intrinsic, input);
         if (status) {
             return filename_intrinsic;
         } else {
             // If this is `ltypes`, do a special lookup
             if (filename == "ltypes.py") {
-                std::string filename_intrinsic = runtime_library_dir + "/ltypes/" + filename;
-                bool status = read_file(filename_intrinsic, input);
+                filename_intrinsic = runtime_library_dir + "/ltypes/" + filename;
+                status = read_file(filename_intrinsic, input);
                 if (status) {
                     ltypes = true;
                     return filename_intrinsic;
