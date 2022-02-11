@@ -1600,7 +1600,8 @@ public:
             "If operator is Eq or NotEq then Complex type is also acceptable",
             x.base.base.loc);
         }
-
+        left = implicitcast_helper(right, left);
+        right = implicitcast_helper(left, right);
         // Check that the types are now the same
         if (!ASRUtils::check_equal_type(ASRUtils::expr_type(left),
                                     ASRUtils::expr_type(right))) {
