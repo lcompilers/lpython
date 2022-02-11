@@ -196,7 +196,17 @@ public:
                 value = (ASR::expr_t *)ASR::make_ConstantInteger_t(al, a_loc,
                     ival, dest_type2);
             }
-
+        } else if ((ASR::cast_kindType)cast_kind == ASR::cast_kindType::IntegerToComplex) {
+            if (ASRUtils::expr_value(*convert_can)) {
+                LFORTRAN_ASSERT(ASRUtils::is_complex(*dest_type))
+                LFORTRAN_ASSERT(ASRUtils::is_integer(*ASRUtils::expr_type(*convert_can)))
+                value = ASRUtils::expr_value(*convert_can);
+                LFORTRAN_ASSERT(ASR::is_a<ASR::ConstantInteger_t>(*value))
+                ASR::ConstantInteger_t *i = ASR::down_cast<ASR::ConstantInteger_t>(value);
+                double rval = static_cast<double>(i->m_n);
+                value = (ASR::expr_t *)ASR::make_ConstantComplex_t(al, a_loc,
+                    rval, 0, dest_type2);
+            }
         }
 
       *convert_can = (ASR::expr_t *)ASR::make_ImplicitCast_t(
