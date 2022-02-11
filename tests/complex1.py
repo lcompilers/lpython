@@ -1,8 +1,8 @@
 def test_complex():
-    c: c128
-    c1: c128
-    c2: c128
-    c3: c128
+    c: c32
+    c1: c32
+    c2: c32
+    c3: c64
     b: bool
 
     # constant real or int as args

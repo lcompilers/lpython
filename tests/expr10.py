@@ -21,7 +21,7 @@ def test_UnaryOp():
     a = -False
     a = ~True
 
-    c: c128
+    c: c32
     c = +complex(1, 2)
     c = -complex(3, 65.0)
     b1 = not complex(3, 4)
