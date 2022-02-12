@@ -783,7 +783,8 @@ public:
 
     // Casts `right` if needed to the type of `left`
     // (to be used during assignment, BinOp, or compare)
-    ASR::expr_t* implicitcast_helper(ASR::expr_t *left, ASR::expr_t *right) {
+    ASR::expr_t* implicitcast_helper(ASR::expr_t *left, ASR::expr_t *right,
+                                        bool is_assign=false) {
         ASR::ttype_t *left_type = ASRUtils::expr_type(left);
         ASR::ttype_t *right_type = ASRUtils::expr_type(right);
         if (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) {
@@ -802,10 +803,13 @@ public:
                     al, right->base.loc, right, ASR::cast_kindType::RealToReal,
                     left_type, nullptr));
             }
-        } else if (ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type)) {
+        } else if (!is_assign && ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type)) {
             return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
                 al, right->base.loc, right, ASR::cast_kindType::IntegerToReal,
                 left_type, nullptr));
+        } else if (is_assign && ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type)) {
+            throw SemanticError("Assigning integer to float is not supported",
+                    right->base.loc);
         }
         return right;
     }
@@ -821,7 +825,7 @@ public:
         }
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
-        value = implicitcast_helper(target, value);
+        value = implicitcast_helper(target, value, true);
         ASR::stmt_t *overloaded=nullptr;
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
                                 overloaded);
@@ -1729,7 +1733,7 @@ public:
             throw SemanticError("Type Mismatch in return, found (" +
                     ltype + " and " + rtype + ")", x.base.base.loc);
         }
-        value = implicitcast_helper(target, value);
+        value = implicitcast_helper(target, value, true);
         ASR::stmt_t *overloaded=nullptr;
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
                                 overloaded);
