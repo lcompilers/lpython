@@ -26,7 +26,7 @@
 
 namespace LFortran::Python {
 
-LFortran::Result<LFortran::Python::AST::ast_t*> parse_python_file(Allocator &al,
+LFortran::Result<LFortran::Python::AST::ast_t*> parse_python(Allocator &al,
         const std::string &runtime_library_dir,
         const std::string &infile) {
     std::string pycmd = "python " + runtime_library_dir + "/lpython_parser.py " + infile;
@@ -105,7 +105,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     }
     if (ltypes) return nullptr;
     std::string infile = rinfile.result;
-    Result<AST::ast_t*> r = parse_python_file(al, rl_path, infile);
+    Result<AST::ast_t*> r = parse_python(al, rl_path, infile);
     if (!r.ok) {
         err("The file '" + infile + "' failed to parse", loc);
     }

@@ -46,7 +46,7 @@ namespace {
 
 using LFortran::endswith;
 using LFortran::CompilerOptions;
-using LFortran::Python::parse_python_file;
+using LFortran::Python::parse_python;
 
 enum Backend {
     llvm, cpp, x86
@@ -516,7 +516,7 @@ int emit_ast(const std::string &infile,
     CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
-    LFortran::Result<LFortran::Python::AST::ast_t*> r = parse_python_file(
+    LFortran::Result<LFortran::Python::AST::ast_t*> r = parse_python(
         al, runtime_library_dir, infile);
     if (!r.ok) {
         return 1;
@@ -533,7 +533,7 @@ int emit_asr(const std::string &infile,
     bool with_intrinsic_modules, CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
-    LFortran::Result<LFortran::Python::AST::ast_t*> r1 = parse_python_file(
+    LFortran::Result<LFortran::Python::AST::ast_t*> r1 = parse_python(
         al, runtime_library_dir, infile);
     if (!r1.ok) {
         return 1;
@@ -563,7 +563,7 @@ int emit_cpp(const std::string &infile,
     CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
-    LFortran::Result<LFortran::Python::AST::ast_t*> r = parse_python_file(
+    LFortran::Result<LFortran::Python::AST::ast_t*> r = parse_python(
         al, runtime_library_dir, infile);
     if (!r.ok) {
         return 1;
@@ -643,7 +643,7 @@ int emit_llvm(const std::string &infile,
     CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
-    LFortran::Result<LFortran::Python::AST::ast_t*> r = parse_python_file(
+    LFortran::Result<LFortran::Python::AST::ast_t*> r = parse_python(
         al, runtime_library_dir, infile);
     if (!r.ok) {
         return 1;
@@ -704,7 +704,7 @@ int compile_python_to_object_file(
         CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
-    LFortran::Result<LFortran::Python::AST::ast_t*> r = parse_python_file(
+    LFortran::Result<LFortran::Python::AST::ast_t*> r = parse_python(
         al, runtime_library_dir, infile);
     if (!r.ok) {
         return 1;
