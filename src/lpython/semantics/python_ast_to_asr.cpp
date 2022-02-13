@@ -224,6 +224,14 @@ public:
                     throw SemanticError("Only Name in Subscript supported for now in `set`"
                         " annotation", loc);
                 }
+            } else if (var_annotation == "list") {
+                if (AST::is_a<AST::Name_t>(*s->m_slice)) {
+                    ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice);
+                    return type;
+                } else {
+                    throw SemanticError("Only Name in Subscript supported for now in `list`"
+                        " annotation", loc);
+                }
             } else if (var_annotation == "dict") {
                 if (AST::is_a<AST::Tuple_t>(*s->m_slice)) {
                     AST::Tuple_t *t = AST::down_cast<AST::Tuple_t>(s->m_slice);
