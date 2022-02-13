@@ -2243,10 +2243,16 @@ public:
             throw SemanticError("Function '" + call_name + "' is not declared",
                 x.base.base.loc);
         }
-        ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-            4, nullptr, 0));
-        tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, s,
-            nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
+
+        if(ASR::is_a<ASR::Function_t>(*s)) {
+            ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
+            ASR::ttype_t *a_type = ASRUtils::expr_type(func->m_return_var);
+            tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, s,
+                nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
+        } else {
+            tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, s,
+                nullptr, args.p, args.size(), nullptr);
+        }
     }
 
     void visit_ImportFrom(const AST::ImportFrom_t &/*x*/) {
