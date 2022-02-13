@@ -1,10 +1,12 @@
 def test_Dict():
-    x: i32
-    y: i32
-
-    # x = {1: "2", "3": 4} -> sematic error
+    x: dict[i32, i32]
     x = {1: 2, 3: 4}
-    x = {"a": -1, "b": -2}
+    # x = {1: "2", "3": 4} -> sematic error
 
-    y = x["a"]
-    y = x["b"]
+    y: dict[str, i32]
+    y = {"a": -1, "b": -2}
+
+    z: i32
+    # this assignment should eventually work
+    z = x["a"]
+    z = x["b"]
