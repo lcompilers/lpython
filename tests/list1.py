@@ -2,11 +2,13 @@ def test_List():
     a: list[i32]
     a = [1, 2, 3]
     a = [-3, -2, -1]
+    # a = [-2, -1, 0.45] -> semantic error
 
     b: list[str]
     b = ["a", "b", "c"]
 
-    c: i32
+    c: list[list[i32], list[i32]]
     c = [[1, 2, 3], [4, 5, 6]]
-    # a = [-2, -1, 0.45] -> semantic error
-    c = a[2]
+
+    d: i32
+    d = a[2]
