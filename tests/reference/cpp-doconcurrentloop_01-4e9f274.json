@@ -2,11 +2,11 @@
     "basename": "cpp-doconcurrentloop_01-4e9f274",
     "cmd": "lpython --no-color --show-cpp {infile}",
     "infile": "tests/doconcurrentloop_01.py",
-    "infile_hash": "7dda1e35c070d847748c6a9dd4bc5bde642d53f03782ad0926253e69",
+    "infile_hash": "cbb1e60c50c639cdbd0e94f5aa6f6c4a8532438c52d77257ac9ccd1e",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "cpp-doconcurrentloop_01-4e9f274.stdout",
-    "stdout_hash": "b9af32565fdb9483b3f4d40ffaa0b4c5040d8379cbd828e6549c6442",
+    "stdout_hash": "ebbc468b9812b751d5770f98b4f9ea7772a30af7a9b2d30852c302ff",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
