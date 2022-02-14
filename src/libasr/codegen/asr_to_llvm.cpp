@@ -2983,6 +2983,12 @@ public:
 
     }
 
+    void visit_Assert(const ASR::Assert_t &x) {
+        this->visit_expr_wrapper(x.m_test, true);
+        llvm::Value *test = tmp;
+        assert(test && "assertion failed");
+    }
+
     void visit_ComplexConstructor(const ASR::ComplexConstructor_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
