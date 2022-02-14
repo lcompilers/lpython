@@ -18,6 +18,7 @@ def test_comb():
 def test_perm():
     i: i32
     i = perm(5, 2)
+    assert i == 20
 
 
 def test_isqrt():
