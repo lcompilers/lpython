@@ -35,8 +35,8 @@ def test_degrees():
 
 def test_radians():
     i: f64
-    i = degrees(100.1)
-    assert i == 5735.30752925954
+    i = radians(100.1)
+    assert i == 1.7470745812463238
 
 
 def test_exp():
