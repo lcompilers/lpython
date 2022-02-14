@@ -6,6 +6,6 @@ def main0():
     while x > 0:
         result = result * x
         x -= 1
-    print(result)
+    assert result == 120
 
 main0()

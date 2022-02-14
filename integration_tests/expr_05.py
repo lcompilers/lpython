@@ -8,6 +8,6 @@ def main0():
     b: i32
     a = 10
     b = -5
-    print(test_multiply(a, b))
+    assert test_multiply(a, b) == -50
 
 main0()
