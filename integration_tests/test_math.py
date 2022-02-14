@@ -6,13 +6,13 @@ from ltypes import i32, f64
 def test_factorial_1():
     i: i32
     i = factorial(10)
-    print(i)
+    assert i == 3628800
 
 
 def test_comb():
     i: i32
     i = comb(10, 2)
-    print(i)
+    assert i == 45
 
 
 def test_perm():
@@ -24,37 +24,37 @@ def test_perm():
 def test_isqrt():
     i: i32
     i = isqrt(15)
-    print(i)
+    assert i == 3
 
 
 def test_degrees():
     i: f64
     i = degrees(32.2)
-    print(i)
+    assert i == 1844.924100321251
 
 
 def test_radians():
     i: f64
     i = degrees(100.1)
-    print(i)
+    assert i == 5735.30752925954
 
 
 def test_exp():
     i: f64
     i = exp(2.34)
-    print(i)
+    assert i == 10.381236562731843
 
 
 def test_pow():
     i: f64
     i = pow(2.4, 4.3)
-    print(i)
+    assert i == 43.14280115650323
 
 
 def test_ldexp():
     i: f64
     i = ldexp(23.3, 2)
-    print(i)
+    assert i == 93.2
 
 
 def test_fabs():
