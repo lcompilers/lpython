@@ -2238,7 +2238,9 @@ public:
         }
 
         // Other functions
-        ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
+        ASR::symbol_t *stemp = current_scope->resolve_symbol(call_name);
+        // handling ExternalSymbol
+        ASR::symbol_t *s = ASRUtils::symbol_get_past_external(stemp);
         if (!s) {
             throw SemanticError("Function '" + call_name + "' is not declared",
                 x.base.base.loc);
@@ -2247,11 +2249,14 @@ public:
         if(ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
             ASR::ttype_t *a_type = ASRUtils::expr_type(func->m_return_var);
-            tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, s,
+            tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, stemp,
                 nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
-        } else {
-            tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, s,
+        } else if(ASR::is_a<ASR::Subroutine_t>(*s)) {
+            tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, stemp,
                 nullptr, args.p, args.size(), nullptr);
+        } else {
+            throw SemanticError("Unsupported call type for " + call_name,
+                x.base.base.loc);
         }
     }
 
