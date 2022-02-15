@@ -2036,7 +2036,9 @@ public:
             } else if (ASRUtils::is_logical(*t)) {
                 bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
                 int8_t val = rv ? 1 : 0;
-                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, val, t);
+                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al,
+                                        x.base.base.loc, 4, nullptr, 0));
+                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, val, type);
             } else {
                 throw SemanticError(call_name + "() must have one real, integer, complex, or logical argument",
                     x.base.base.loc);
