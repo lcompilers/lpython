@@ -187,6 +187,9 @@ if (WITH_FMT)
     find_package(fmt)
 endif()
 
+# Fix Windows failure
+add_definitions(-D__STDC_FORMAT_MACROS)
+
 # Stacktrace
 set(WITH_UNWIND no
     CACHE BOOL "Build with unwind support")
