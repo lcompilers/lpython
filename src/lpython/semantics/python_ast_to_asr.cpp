@@ -1658,7 +1658,7 @@ public:
                     }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
-                    al, x.base.base.loc, result, source_type));
+                    al, x.base.base.loc, result, type));
             } else if (ASRUtils::is_real(*source_type)) {
                 double left_value = ASR::down_cast<ASR::ConstantReal_t>(
                                         ASRUtils::expr_value(left))
@@ -1680,7 +1680,7 @@ public:
                     }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
-                    al, x.base.base.loc, result, source_type));
+                    al, x.base.base.loc, result, type));
             } else if (ASR::is_a<ASR::Complex_t>(*source_type)) {
                 ASR::ConstantComplex_t *left0
                     = ASR::down_cast<ASR::ConstantComplex_t>(ASRUtils::expr_value(left));
@@ -1707,7 +1707,7 @@ public:
                     }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
-                    al, x.base.base.loc, result, source_type));
+                    al, x.base.base.loc, result, type));
             }
         }
         tmp = ASR::make_Compare_t(al, x.base.base.loc, left, asr_op, right,
