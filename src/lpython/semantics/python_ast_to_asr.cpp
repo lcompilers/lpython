@@ -2023,6 +2023,8 @@ public:
             }
             ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
             ASR::ttype_t* t = ASRUtils::expr_type(arg);
+            ASR::ttype_t* real_type = ASRUtils::TYPE(ASR::make_Real_t(al,
+                                    x.base.base.loc, 8, nullptr, 0));
             if (ASRUtils::is_real(*t)) {
                 double rv = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
                 double val = std::abs(rv);
@@ -2036,7 +2038,7 @@ public:
                 double im = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_im;
                 std::complex<double> c(re, im);
                 double result = std::abs(c);
-                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, result, t);
+                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, result, real_type);
             } else if (ASRUtils::is_logical(*t)) {
                 bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
                 int8_t val = rv ? 1 : 0;
