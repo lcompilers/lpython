@@ -1,5 +1,5 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
-                  ldexp, fabs)
+                  ldexp, fabs, gcd, lcm)
 from ltypes import i32, f64
 
 
@@ -65,6 +65,21 @@ def test_fabs():
     print(i, j)
 
 
+def test_gcd():
+    i: i32
+    i = gcd(10, 4)
+    assert i == 2
+    i = gcd(21, 14)
+    assert i == 7
+
+def test_lcm():
+    i: i32
+    i = lcm(10, 4)
+    assert i == 20
+    i = lcm(21, 14)
+    assert i == 42
+
+
 test_factorial_1()
 test_comb()
 test_isqrt()
@@ -75,3 +90,5 @@ test_exp()
 test_pow()
 test_fabs()
 test_ldexp()
+test_gcd()
+test_lcm()
