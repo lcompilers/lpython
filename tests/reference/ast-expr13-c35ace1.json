@@ -2,11 +2,11 @@
     "basename": "ast-expr13-c35ace1",
     "cmd": "lpython --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/expr13.py",
-    "infile_hash": "56a0c42089555c236b20fd1c1435908875178987c5f7f4c10ef9179a",
+    "infile_hash": "1e4796f83f033a02aa6adef9a0cced2be0366e753c85ad2cfd3767c8",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-expr13-c35ace1.stdout",
-    "stdout_hash": "d3c77a603d55d96c78e421989abdb49b3ed2b8f52e660496bf76ca22",
+    "stdout_hash": "a6eec7dd7c81accae96097cad772d5afdc91a68275f04bbefdc05ccf",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
