@@ -1359,6 +1359,10 @@ public:
             }
         }
         ASR::ttype_t *operand_type = ASRUtils::expr_type(operand);
+        ASR::ttype_t *logical_type = ASRUtils::TYPE(
+            ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
+        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                4, nullptr, 0));
         ASR::expr_t *value = nullptr;
 
         if (ASRUtils::expr_value(operand) != nullptr) {
@@ -1369,7 +1373,7 @@ public:
                 if (op == ASR::unaryopType::Not) {
                     bool b = (op_value == 0) ? true : false;
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
-                        al, x.base.base.loc, b, operand_type));
+                        al, x.base.base.loc, b, logical_type));
                 } else {
                     int64_t result = 0;
                     switch (op) {
@@ -1388,7 +1392,7 @@ public:
                 if (op == ASR::unaryopType::Not) {
                     bool b = (op_value == 0.0) ? true : false;
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
-                        al, x.base.base.loc, b, operand_type));
+                        al, x.base.base.loc, b, logical_type));
                 } else {
                     double result = 0.0;
                     switch (op) {
@@ -1409,7 +1413,7 @@ public:
                                                ASRUtils::expr_value(operand))->m_value;
                 if (op == ASR::unaryopType::Not) {
                     value = ASR::down_cast<ASR::expr_t>(
-                        ASR::make_ConstantLogical_t(al, x.base.base.loc, !op_value, operand_type));
+                        ASR::make_ConstantLogical_t(al, x.base.base.loc, !op_value, logical_type));
                 } else {
                     int8_t result = 0;
                     switch (op) {
@@ -1419,7 +1423,7 @@ public:
                         default : LFORTRAN_ASSERT(false); // should never happen
                     }
                     value = ASR::down_cast<ASR::expr_t>(
-                        ASR::make_ConstantInteger_t(al, x.base.base.loc, result, operand_type));
+                        ASR::make_ConstantInteger_t(al, x.base.base.loc, result, int_type));
                 }
 
             } else if (ASRUtils::is_complex(*operand_type)) {
@@ -1430,7 +1434,7 @@ public:
                 if (op == ASR::unaryopType::Not) {
                     bool b = (op_value.real() == 0.0 && op_value.imag() == 0.0) ? true : false;
                     value = ASR::down_cast<ASR::expr_t>(
-                        ASR::make_ConstantLogical_t(al, x.base.base.loc, b, operand_type));
+                        ASR::make_ConstantLogical_t(al, x.base.base.loc, b, logical_type));
                 } else {
                     switch (op) {
                         case (ASR::unaryopType::UAdd): { result = op_value; break; }
