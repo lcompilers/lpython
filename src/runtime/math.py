@@ -109,3 +109,30 @@ def pow(x: f64, y: f64) -> f64:
     Return `x` raised to the power `y`.
     """
     return x**y
+
+
+def mod(a: i32, b: i32) -> i32:
+    """
+    Returns a%b
+    """
+    return a - (a//b)*b
+
+
+def gcd(a: i32, b: i32) -> i32:
+    """
+    Returns greatest common divisor of `a` and `b`
+    """
+    temp: i32
+    while b != 0:
+        a = mod(a, b)
+        temp = a
+        a = b
+        b = temp
+    return a
+
+
+def lcm(a: i32, b: i32) -> i32:
+    """
+    Returns least common multiple of `a` and `b`
+    """
+    return (a*b)//gcd(a, b)
