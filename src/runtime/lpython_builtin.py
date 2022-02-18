@@ -1,5 +1,5 @@
 from ltypes import i32
-from sys import exit
+#from sys import exit
 
 
 def ord(s: str) -> i32:
@@ -11,8 +11,8 @@ def ord(s: str) -> i32:
         return 48
     elif s == '1':
         return 49
-    else:
-        exit(1)
+#    else:
+#        exit(1)
 
 
 def chr(i: i32) -> str:
@@ -24,5 +24,5 @@ def chr(i: i32) -> str:
         return '0'
     elif i == 49:
         return '1'
-    else:
-        exit(1)
+#    else:
+#        exit(1)

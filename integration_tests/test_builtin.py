@@ -8,13 +8,13 @@ def test_ord():
     print(i)
 
 
-def test_chr():
-    i: i32
-    i = 48
-    s: str
-    s = chr(i)
-    print(s)
+#def test_chr():
+#    i: i32
+#    i = 48
+#    s: str
+#    s = chr(i)
+#    print(s)
 
 
 test_ord()
-test_chr()
+#test_chr()
