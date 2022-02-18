@@ -71,6 +71,8 @@ def test_gcd():
     assert i == 2
     i = gcd(21, 14)
     assert i == 7
+    i = gcd(21, -12)
+    assert i == 3
 
 def test_lcm():
     i: i32
@@ -78,6 +80,8 @@ def test_lcm():
     assert i == 20
     i = lcm(21, 14)
     assert i == 42
+    i = lcm(21, -12)
+    assert i == 84
 
 
 test_factorial_1()

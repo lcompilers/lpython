@@ -123,6 +123,10 @@ def gcd(a: i32, b: i32) -> i32:
     Returns greatest common divisor of `a` and `b`
     """
     temp: i32
+    if a < 0:
+        a = -a
+    if b < 0:
+        b = -b
     while b != 0:
         a = mod(a, b)
         temp = a
@@ -135,4 +139,10 @@ def lcm(a: i32, b: i32) -> i32:
     """
     Returns least common multiple of `a` and `b`
     """
+    if a < 0:
+        a = -a
+    if b < 0:
+        b = -b
+    if a*b == 0:
+        return 0
     return (a*b)//gcd(a, b)
