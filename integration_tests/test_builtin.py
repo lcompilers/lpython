@@ -1,6 +1,4 @@
 from ltypes import i32
-from lpython_builtin import chr, ord
-
 
 def test_ord():
     i: i32
