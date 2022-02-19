@@ -28,6 +28,9 @@ void test_cast()
     a = (float)(a) - 3.900000;
     a = (float)(a)/b;
     b = (float)(3)/(float)(4);
+    if ((float)(a) < b) {
+        std::cout << "a < b" << std::endl;
+    }
 }
 
 namespace {
