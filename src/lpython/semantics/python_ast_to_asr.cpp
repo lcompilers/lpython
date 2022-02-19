@@ -1604,7 +1604,7 @@ public:
             (left_type->type != ASR::ttypeType::Character ||
             right_type->type != ASR::ttypeType::Character))) {
         throw SemanticError(
-            "Compare: only Integer or Real can be on the LHS and RHS."
+            "Compare: only Integer, Real, or String can be on the LHS and RHS."
             "If operator is Eq or NotEq then Complex type is also acceptable",
             x.base.base.loc);
         }
@@ -1700,6 +1700,45 @@ public:
                                             "' comparison is not supported between complex numbers",
                                             x.base.base.loc);
                     }
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                    al, x.base.base.loc, result, type));
+
+            } else if (ASRUtils::is_character(*source_type)) {
+                char* left_value = ASR::down_cast<ASR::ConstantString_t>(
+                                        ASRUtils::expr_value(left))->m_s;
+                char* right_value = ASR::down_cast<ASR::ConstantString_t>(
+                                        ASRUtils::expr_value(right))->m_s;
+                std::string left_str = std::string(left_value);
+                std::string right_str = std::string(right_value);
+                int8_t strcmp = left_str.compare(right_str);
+                bool result;
+                switch (asr_op) {
+                    case (ASR::cmpopType::Eq) : {
+                        result = (strcmp == 0);
+                        break;
+                    }
+                    case (ASR::cmpopType::NotEq) : {
+                        result = (strcmp != 0);
+                        break;
+                    }
+                    case (ASR::cmpopType::Gt) : {
+                        result = (strcmp > 0);
+                        break;
+                    }
+                    case (ASR::cmpopType::GtE) : {
+                        result = (strcmp > 0 || strcmp == 0);
+                        break;
+                    }
+                    case (ASR::cmpopType::Lt) : {
+                        result = (strcmp < 0);
+                        break;
+                    }
+                    case (ASR::cmpopType::LtE) : {
+                        result = (strcmp < 0 || strcmp == 0);
+                        break;
+                    }
+                    default: LFORTRAN_ASSERT(false); // should never happen
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
                     al, x.base.base.loc, result, type));
