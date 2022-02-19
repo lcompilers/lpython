@@ -81,7 +81,7 @@ LFortran::Result<std::string> get_full_path(const std::string &filename,
 
 ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const std::string &module_name,
-                            const Location &loc, bool /*intrinsic*/,
+                            const Location &loc, bool intrinsic,
                             const std::string &rl_path,
                             bool &ltypes,
                             const std::function<void (const std::string &, const Location &)> err) {
@@ -132,6 +132,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     mod2->m_name = s2c(al, module_name);
     symtab->scope[module_name] = (ASR::symbol_t*)mod2;
     mod2->m_symtab->parent = symtab;
+    mod2->m_intrinsic = intrinsic;
 
     // and return it
     return mod2;
@@ -1960,7 +1961,7 @@ public:
                 bool ltypes;
                 std::string msym = "lpython_builtin";
                 ASR::symbol_t *t = (ASR::symbol_t*)(load_module(al, st,
-                    msym, x.base.base.loc, false, rl_path, ltypes,
+                    msym, x.base.base.loc, true, rl_path, ltypes,
                     [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
                     ));
                 LFORTRAN_ASSERT(!ltypes)
