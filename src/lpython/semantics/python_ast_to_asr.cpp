@@ -1898,13 +1898,7 @@ public:
             args.push_back(al, expr);
         }
 
-        ASR::symbol_t *stemp = current_scope->resolve_symbol(call_name);
-        // handling ExternalSymbol
-        ASR::symbol_t *s = ASRUtils::symbol_get_past_external(stemp);
-        if (!s) {
-            throw SemanticError("Function '" + call_name + "' is not declared",
-                x.base.base.loc);
-        }
+        ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
 
 
         if (!s) {
@@ -2381,6 +2375,14 @@ public:
                     x.base.base.loc);
             }
         }
+
+        if (!s) {
+            throw SemanticError("Function '" + call_name + "' is not declared",
+                x.base.base.loc);
+        }
+        // handling ExternalSymbol
+        ASR::symbol_t *stemp = s;
+        s = ASRUtils::symbol_get_past_external(s);
 
         if(ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
