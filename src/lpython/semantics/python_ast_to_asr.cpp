@@ -2116,6 +2116,62 @@ public:
                     throw SemanticError(call_name + "() takes exactly one argument (" +
                         std::to_string(args.size()) + " given)", x.base.base.loc);
                 }
+                std::string rl_path = get_runtime_library_dir();
+                SymbolTable *st = current_scope;
+                while (st->parent != nullptr) {
+                    st = st->parent;
+                }
+                bool ltypes;
+                std::string msym = "lpython_builtin";
+                ASR::symbol_t *t = (ASR::symbol_t*)(load_module(al, st,
+                    msym, x.base.base.loc, true, rl_path, ltypes,
+                    [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
+                    ));
+                LFORTRAN_ASSERT(!ltypes)
+                if (!t) {
+                    throw SemanticError("The module '" + msym + "' cannot be loaded",
+                            x.base.base.loc);
+                }
+
+                ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
+
+                std::string local_sym = "abs";
+                t = m->m_symtab->resolve_symbol(local_sym);
+                if (!t) {
+                    throw SemanticError("ICE: The symbol '" + local_sym + "' not found in the module '" + msym + "'",
+                            x.base.base.loc);
+                }
+                if (ASR::is_a<ASR::Function_t>(*t)) {
+                    if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                        throw SemanticError("Function already defined",
+                            x.base.base.loc);
+                    }
+                    ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
+                    // `mfn` is the Function in a module. Now we construct
+                    // an ExternalSymbol that points to it.
+                    Str name;
+                    name.from_str(al, local_sym);
+                    char *cname = name.c_str(al);
+                    ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+                        al, mfn->base.base.loc,
+                        /* a_symtab */ current_scope,
+                        /* a_name */ cname,
+                        (ASR::symbol_t*)mfn,
+                        m->m_name, nullptr, 0, mfn->m_name,
+                        ASR::accessType::Public
+                        );
+                    current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
+
+                    ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                        4, nullptr, 0));
+                    tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(fn),
+                        nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
+                    return;
+                } else {
+                    throw SemanticError("ICE: Ord expected to be a function", x.base.base.loc);
+                }
+                // Compile time value implementation:
+                /*
                 ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
                 ASR::ttype_t* t = ASRUtils::expr_type(arg);
                 ASR::ttype_t* real_type = ASRUtils::TYPE(ASR::make_Real_t(al,
@@ -2145,6 +2201,7 @@ public:
                         x.base.base.loc);
                 }
                 return;
+                */
             } else if (call_name == "bool") {
                 if (args.size() != 1) {
                     throw SemanticError(call_name + "() takes exactly one argument (" +
