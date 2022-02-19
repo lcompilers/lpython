@@ -26,3 +26,15 @@ def chr(i: i32) -> str:
         return '1'
 #    else:
 #        exit(1)
+
+
+# This is an implementation for f64.
+# TODO: implement abs() as a generic procedure, and implement for all types
+def abs(x: f64) -> f64:
+    """
+    Return the absolute value of `x`.
+    """
+    if x >= 0.0:
+        return x
+    else:
+        return -x
