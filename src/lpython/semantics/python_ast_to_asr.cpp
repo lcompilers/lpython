@@ -372,7 +372,7 @@ public:
                                         /* a_name */ s2c(al, mod_name),
                                         nullptr,
                                         0,
-                                        false);
+                                        false, false);
 
             if (parent_scope->scope.find(mod_name) != parent_scope->scope.end()) {
                 throw SemanticError("Module '" + mod_name + "' already defined", tmp1->loc);

@@ -160,7 +160,7 @@ public:
                                             /* a_name */ s2c(al, to_lower(x.m_name)),
                                             nullptr,
                                             0,
-                                            false);
+                                            false, false);
         current_module_sym = ASR::down_cast<ASR::symbol_t>(tmp0);
         if( x.class_type == AST::modType::Submodule ) {
             std::string rl_path = get_runtime_library_dir();
