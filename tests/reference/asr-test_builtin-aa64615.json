@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_builtin-aa64615",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_builtin.py",
+    "infile_hash": "edd7f1dba3727bb7bfca6f71c13c89ac86e3615a98a749c47067ed53",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-test_builtin-aa64615.stdout",
+    "stdout_hash": "c07b5911c6e0fc34f6c864d8da174619a6b8351082de9d56c0fa0d0a",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
