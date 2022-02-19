@@ -12,11 +12,11 @@ def main0():
     scalar: f32
     i: i32
     nsize: i32
-    scalar = 10
+    scalar = 10.0
     nsize = size(a)
     for i in range(nsize): # type: parallel
-        a[i] = 5
-        b[i] = 5
+        a[i] = 5.0
+        b[i] = 5.0
     triad(a, b, scalar, c)
     print("End Stream Triad")
 
