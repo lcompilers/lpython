@@ -9,3 +9,5 @@ def test_cast():
     a -= 3.9
     a /= b
     b = 3/4
+    if a < b:
+        print("a < b")
