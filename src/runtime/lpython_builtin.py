@@ -38,3 +38,30 @@ def abs(x: f64) -> f64:
         return x
     else:
         return -x
+
+
+def str_int(x: i32) -> str:
+    """
+    Return the string representation of an integer `x`.
+    """
+    if x == 0:
+        return '0'
+    result: str
+    result = ''
+    if x < 0:
+        result += '-'
+        x = -x
+    rev_result: str
+    rev_result = ''
+    rev_result_len: i32
+    rev_result_len = 0
+    pos_to_str: list[str]
+    pos_to_str = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+    while x > 0:
+        rev_result += pos_to_str[x - (x//10)*10]
+        rev_result_len += 1
+        x = x//10
+    pos: i32
+    for pos in range(rev_result_len - 1, -1, -1):
+        result += rev_result[pos]
+    return result
