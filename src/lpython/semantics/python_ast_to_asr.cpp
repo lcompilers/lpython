@@ -2162,8 +2162,8 @@ public:
                         );
                     current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
 
-                    ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                        4, nullptr, 0));
+                    ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Real_t(al,
+                        x.base.base.loc, 8, nullptr, 0));
                     tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(fn),
                         nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
                     return;
