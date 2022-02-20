@@ -160,3 +160,11 @@ asr = true
 filename = "global_scope1.py"
 ast = true
 asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin_abs.py"
+asr = true

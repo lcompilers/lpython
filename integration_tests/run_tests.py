@@ -13,6 +13,8 @@ tests = [
     "modules_01.py",
     #"modules_02.py",
     "test_math.py",
+    #"test_builtin.py",
+    "test_builtin_abs.py",
 ]
 
 def main():

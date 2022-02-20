@@ -58,14 +58,14 @@ LFortran::Result<std::string> get_full_path(const std::string &filename,
         return filename;
     } else {
         std::string filename_intrinsic = runtime_library_dir + "/" + filename;
-        bool status = read_file(filename_intrinsic, input);
+        status = read_file(filename_intrinsic, input);
         if (status) {
             return filename_intrinsic;
         } else {
             // If this is `ltypes`, do a special lookup
             if (filename == "ltypes.py") {
-                std::string filename_intrinsic = runtime_library_dir + "/ltypes/" + filename;
-                bool status = read_file(filename_intrinsic, input);
+                filename_intrinsic = runtime_library_dir + "/ltypes/" + filename;
+                status = read_file(filename_intrinsic, input);
                 if (status) {
                     ltypes = true;
                     return filename_intrinsic;
@@ -81,7 +81,7 @@ LFortran::Result<std::string> get_full_path(const std::string &filename,
 
 ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const std::string &module_name,
-                            const Location &loc, bool /*intrinsic*/,
+                            const Location &loc, bool intrinsic,
                             const std::string &rl_path,
                             bool &ltypes,
                             const std::function<void (const std::string &, const Location &)> err) {
@@ -132,6 +132,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     mod2->m_name = s2c(al, module_name);
     symtab->scope[module_name] = (ASR::symbol_t*)mod2;
     mod2->m_symtab->parent = symtab;
+    mod2->m_intrinsic = intrinsic;
 
     // and return it
     return mod2;
@@ -371,7 +372,7 @@ public:
                                         /* a_name */ s2c(al, mod_name),
                                         nullptr,
                                         0,
-                                        false);
+                                        false, false);
 
             if (parent_scope->scope.find(mod_name) != parent_scope->scope.end()) {
                 throw SemanticError("Module '" + mod_name + "' already defined", tmp1->loc);
@@ -1898,398 +1899,519 @@ public:
             args.push_back(al, expr);
         }
 
-        // Intrinsic functions
-        if (call_name == "size") {
-            // TODO: size should be part of ASR. That way
-            // ASR itself does not need a runtime library
-            // a runtime library thus becomes optional --- can either be
-            // implemented using ASR, or the backend can link it at runtime
-            ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                4, nullptr, 0));
-            /*
-            ASR::symbol_t *a_name = nullptr;
-            throw SemanticError("TODO: add the size() function and look it up",
-                x.base.base.loc);
-            tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, a_name,
-                nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
-            */
+        ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
 
-            tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, 1234, a_type);
-            return;
 
-        } else if (call_name == "len") {
-            if (args.size() != 1) {
-                throw SemanticError(call_name + "() takes exactly one argument (" +
-                    std::to_string(args.size()) + " given)", x.base.base.loc);
-            }
-            ASR::expr_t *arg = ASRUtils::expr_value(args[0]);
-            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al,
-                                                          x.base.base.loc, 4, nullptr, 0));
-            if (arg->type == ASR::exprType::ConstantString) {
-                char* str_value = ASR::down_cast<ASR::ConstantString_t>(arg)->m_s;
-                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
-                    (int64_t)strlen(s2c(al, std::string(str_value))), type);
-            } else if (arg->type == ASR::exprType::ConstantArray) {
-                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
-                    (int64_t)ASR::down_cast<ASR::ConstantArray_t>(arg)->n_args, type);
-            } else if (arg->type == ASR::exprType::ConstantTuple) {
-                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
-                    (int64_t)ASR::down_cast<ASR::ConstantTuple_t>(arg)->n_elements, type);
-            } else if (arg->type == ASR::exprType::ConstantDictionary) {
-                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
-                    (int64_t)ASR::down_cast<ASR::ConstantDictionary_t>(arg)->n_keys, type);
-            } else if (arg->type == ASR::exprType::ConstantSet) {
-                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
-                    (int64_t)ASR::down_cast<ASR::ConstantSet_t>(arg)->n_elements, type);
-            } else {
-                throw SemanticError("len() only works on strings, lists, tuples, dictionaries and sets",
+        if (!s) {
+            // Intrinsic functions
+            if (call_name == "size") {
+                // TODO: size should be part of ASR. That way
+                // ASR itself does not need a runtime library
+                // a runtime library thus becomes optional --- can either be
+                // implemented using ASR, or the backend can link it at runtime
+                ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                    4, nullptr, 0));
+                /*
+                ASR::symbol_t *a_name = nullptr;
+                throw SemanticError("TODO: add the size() function and look it up",
                     x.base.base.loc);
-            }
-            return;
+                tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, a_name,
+                    nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
+                */
 
-        } else if (call_name == "ord") {
-            LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-            ASR::expr_t* char_expr = args[0];
-            ASR::ttype_t* char_type = ASRUtils::expr_type(char_expr);
-            if (ASRUtils::is_character(*char_type)) {
-                char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(char_expr))->m_s;
-                ASR::ttype_t* int_type =
-                    ASRUtils::TYPE(ASR::make_Integer_t(al,
-                    x.base.base.loc, 4, nullptr, 0));
-                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
-                    c[0], int_type);
+                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, 1234, a_type);
                 return;
-            } else {
-                throw SemanticError("ord() must have one character argument", x.base.base.loc);
-            }
-        } else if (call_name == "chr") {
-            LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-            ASR::expr_t* real_expr = args[0];
-            ASR::ttype_t* real_type = ASRUtils::expr_type(real_expr);
-            if (ASRUtils::is_integer(*real_type)) {
-                int64_t c = ASR::down_cast<ASR::ConstantInteger_t>(real_expr)->m_n;
-                ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
-                    x.base.base.loc, 1, 1, nullptr, nullptr, 0));
-                if (! (c >= 0 && c <= 127) ) {
-                    throw SemanticError("The argument 'x' in chr(x) must be in the range 0 <= x <= 127.",
-                                        x.base.base.loc);
+
+            } else if (call_name == "len") {
+                if (args.size() != 1) {
+                    throw SemanticError(call_name + "() takes exactly one argument (" +
+                        std::to_string(args.size()) + " given)", x.base.base.loc);
                 }
-                char cc = c;
-                std::string svalue;
-                svalue += cc;
-                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, svalue), str_type);
-                return;
-            } else {
-                throw SemanticError("chr() must have one integer argument", x.base.base.loc);
-            }
-        } else if (call_name == "complex") {
-            int16_t n_args = args.size();
-            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
-                8, nullptr, 0));
-            if( n_args > 2 || n_args < 0 ) { // n_args shouldn't be less than 0 but added this check for safety
-                throw SemanticError("Only constant integer or real values are supported as "
-                    "the (at most two) arguments of complex()", x.base.base.loc);
-            }
-            double c1 = 0.0, c2 = 0.0; // Default if n_args = 0
-            if (n_args >= 1) { // Handles both n_args = 1 and n_args = 2
-                if (ASR::is_a<ASR::ConstantInteger_t>(*args[0])) {
-                    c1 = ASR::down_cast<ASR::ConstantInteger_t>(args[0])->m_n;
-                } else if (ASR::is_a<ASR::ConstantReal_t>(*args[0])) {
-                    c1 = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(args[0]))->m_r;
-                }
-            }
-            if (n_args == 2) { // Extracts imaginary component if n_args = 2
-                if (ASR::is_a<ASR::ConstantInteger_t>(*args[1])) {
-                    c2 = ASR::down_cast<ASR::ConstantInteger_t>(args[1])->m_n;
-                } else if (ASR::is_a<ASR::ConstantReal_t>(*args[1])) {
-                    c2 = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(args[1]))->m_r;
-                }
-            }
-            tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc, c1, c2, type);
-            return;
-        } else if (call_name == "pow") {
-            if (args.size() != 2) {
-                throw SemanticError("Two arguments are expected in pow",
-                    x.base.base.loc);
-            }
-            ASR::expr_t *left = args[0];
-            ASR::expr_t *right = args[1];
-            ASR::binopType op = ASR::binopType::Pow;
-            make_BinOp_helper(left, right, op, x.base.base.loc, false);
-            return;
-        } else if (call_name == "bin" || call_name == "oct" || call_name == "hex") {
-            if (args.size() != 1) {
-                throw SemanticError(call_name + "() takes exactly one argument (" +
-                    std::to_string(args.size()) + " given)", x.base.base.loc);
-            }
-            ASR::expr_t* expr = ASRUtils::expr_value(args[0]);
-            ASR::ttype_t* type = ASRUtils::expr_type(expr);
-            if (ASRUtils::is_integer(*type)) {
-                int64_t n = ASR::down_cast<ASR::ConstantInteger_t>(expr)->m_n;
-                ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
-                    x.base.base.loc, 1, 1, nullptr, nullptr, 0));
-                std::string s, prefix;
-                std::stringstream ss;
-                if (call_name == "oct") {
-                    prefix = n > 0 ? "0o" : "-0o";
-                    ss << std::oct << std::abs(n);
-                    s += ss.str();
-                } else if (call_name == "bin") {
-                    prefix = n > 0 ? "0b" : "-0b";
-                    s += std::bitset<64>(std::abs(n)).to_string();
-                    s.erase(0, s.find_first_not_of('0'));
+                ASR::expr_t *arg = ASRUtils::expr_value(args[0]);
+                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al,
+                                                            x.base.base.loc, 4, nullptr, 0));
+                if (arg->type == ASR::exprType::ConstantString) {
+                    char* str_value = ASR::down_cast<ASR::ConstantString_t>(arg)->m_s;
+                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
+                        (int64_t)strlen(s2c(al, std::string(str_value))), type);
+                } else if (arg->type == ASR::exprType::ConstantArray) {
+                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
+                        (int64_t)ASR::down_cast<ASR::ConstantArray_t>(arg)->n_args, type);
+                } else if (arg->type == ASR::exprType::ConstantTuple) {
+                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
+                        (int64_t)ASR::down_cast<ASR::ConstantTuple_t>(arg)->n_elements, type);
+                } else if (arg->type == ASR::exprType::ConstantDictionary) {
+                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
+                        (int64_t)ASR::down_cast<ASR::ConstantDictionary_t>(arg)->n_keys, type);
+                } else if (arg->type == ASR::exprType::ConstantSet) {
+                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
+                        (int64_t)ASR::down_cast<ASR::ConstantSet_t>(arg)->n_elements, type);
                 } else {
-                    prefix = n > 0 ? "0x" : "-0x";
-                    ss << std::hex << std::abs(n);
-                    s += ss.str();
+                    throw SemanticError("len() only works on strings, lists, tuples, dictionaries and sets",
+                        x.base.base.loc);
                 }
-                s.insert(0, prefix);
-                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
                 return;
-            } else {
-                throw SemanticError(call_name + "() must have one integer argument",
-                    x.base.base.loc);
-            }
-        } else if (call_name == "abs") {
-            if (args.size() != 1) {
-                throw SemanticError(call_name + "() takes exactly one argument (" +
-                    std::to_string(args.size()) + " given)", x.base.base.loc);
-            }
-            ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
-            ASR::ttype_t* t = ASRUtils::expr_type(arg);
-            ASR::ttype_t* real_type = ASRUtils::TYPE(ASR::make_Real_t(al,
-                                    x.base.base.loc, 8, nullptr, 0));
-            if (ASRUtils::is_real(*t)) {
-                double rv = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
-                double val = std::abs(rv);
-                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, val, t);
-            } else if (ASRUtils::is_integer(*t)) {
-                int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
-                int64_t val = std::abs(rv);
-                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, val, t);
-            } else if (ASRUtils::is_complex(*t)) {
-                double re = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_re;
-                double im = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_im;
-                std::complex<double> c(re, im);
-                double result = std::abs(c);
-                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, result, real_type);
-            } else if (ASRUtils::is_logical(*t)) {
-                bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
-                int8_t val = rv ? 1 : 0;
+
+            } else if (call_name == "ord") {
+                std::string rl_path = get_runtime_library_dir();
+                SymbolTable *st = current_scope;
+                while (st->parent != nullptr) {
+                    st = st->parent;
+                }
+                bool ltypes;
+                std::string msym = "lpython_builtin";
+                ASR::symbol_t *t = (ASR::symbol_t*)(load_module(al, st,
+                    msym, x.base.base.loc, true, rl_path, ltypes,
+                    [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
+                    ));
+                LFORTRAN_ASSERT(!ltypes)
+                if (!t) {
+                    throw SemanticError("The module '" + msym + "' cannot be loaded",
+                            x.base.base.loc);
+                }
+
+                ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
+
+                std::string local_sym = "ord";
+                t = m->m_symtab->resolve_symbol(local_sym);
+                if (!t) {
+                    throw SemanticError("ICE: The symbol '" + local_sym + "' not found in the module '" + msym + "'",
+                            x.base.base.loc);
+                }
+                if (ASR::is_a<ASR::Function_t>(*t)) {
+                    if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                        throw SemanticError("Function already defined",
+                            x.base.base.loc);
+                    }
+                    ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
+                    // `mfn` is the Function in a module. Now we construct
+                    // an ExternalSymbol that points to it.
+                    Str name;
+                    name.from_str(al, local_sym);
+                    char *cname = name.c_str(al);
+                    ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+                        al, mfn->base.base.loc,
+                        /* a_symtab */ current_scope,
+                        /* a_name */ cname,
+                        (ASR::symbol_t*)mfn,
+                        m->m_name, nullptr, 0, mfn->m_name,
+                        ASR::accessType::Public
+                        );
+                    current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
+
+                    ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                        4, nullptr, 0));
+                    tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(fn),
+                        nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
+                    return;
+                } else {
+                    throw SemanticError("ICE: Ord expected to be a function", x.base.base.loc);
+                }
+                /*
+                LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+                ASR::expr_t* char_expr = args[0];
+                ASR::ttype_t* char_type = ASRUtils::expr_type(char_expr);
+                if (ASRUtils::is_character(*char_type)) {
+                    char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(char_expr))->m_s;
+                    ASR::ttype_t* int_type =
+                        ASRUtils::TYPE(ASR::make_Integer_t(al,
+                        x.base.base.loc, 4, nullptr, 0));
+                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
+                        c[0], int_type);
+                    return;
+                } else {
+                    throw SemanticError("ord() must have one character argument", x.base.base.loc);
+                }
+                */
+            } else if (call_name == "chr") {
+                LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+                ASR::expr_t* real_expr = args[0];
+                ASR::ttype_t* real_type = ASRUtils::expr_type(real_expr);
+                if (ASRUtils::is_integer(*real_type)) {
+                    int64_t c = ASR::down_cast<ASR::ConstantInteger_t>(real_expr)->m_n;
+                    ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
+                        x.base.base.loc, 1, 1, nullptr, nullptr, 0));
+                    if (! (c >= 0 && c <= 127) ) {
+                        throw SemanticError("The argument 'x' in chr(x) must be in the range 0 <= x <= 127.",
+                                            x.base.base.loc);
+                    }
+                    char cc = c;
+                    std::string svalue;
+                    svalue += cc;
+                    tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, svalue), str_type);
+                    return;
+                } else {
+                    throw SemanticError("chr() must have one integer argument", x.base.base.loc);
+                }
+            } else if (call_name == "complex") {
+                int16_t n_args = args.size();
+                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
+                    8, nullptr, 0));
+                if( n_args > 2 || n_args < 0 ) { // n_args shouldn't be less than 0 but added this check for safety
+                    throw SemanticError("Only constant integer or real values are supported as "
+                        "the (at most two) arguments of complex()", x.base.base.loc);
+                }
+                double c1 = 0.0, c2 = 0.0; // Default if n_args = 0
+                if (n_args >= 1) { // Handles both n_args = 1 and n_args = 2
+                    if (ASR::is_a<ASR::ConstantInteger_t>(*args[0])) {
+                        c1 = ASR::down_cast<ASR::ConstantInteger_t>(args[0])->m_n;
+                    } else if (ASR::is_a<ASR::ConstantReal_t>(*args[0])) {
+                        c1 = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(args[0]))->m_r;
+                    }
+                }
+                if (n_args == 2) { // Extracts imaginary component if n_args = 2
+                    if (ASR::is_a<ASR::ConstantInteger_t>(*args[1])) {
+                        c2 = ASR::down_cast<ASR::ConstantInteger_t>(args[1])->m_n;
+                    } else if (ASR::is_a<ASR::ConstantReal_t>(*args[1])) {
+                        c2 = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(args[1]))->m_r;
+                    }
+                }
+                tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc, c1, c2, type);
+                return;
+            } else if (call_name == "pow") {
+                if (args.size() != 2) {
+                    throw SemanticError("Two arguments are expected in pow",
+                        x.base.base.loc);
+                }
+                ASR::expr_t *left = args[0];
+                ASR::expr_t *right = args[1];
+                ASR::binopType op = ASR::binopType::Pow;
+                make_BinOp_helper(left, right, op, x.base.base.loc, false);
+                return;
+            } else if (call_name == "bin" || call_name == "oct" || call_name == "hex") {
+                if (args.size() != 1) {
+                    throw SemanticError(call_name + "() takes exactly one argument (" +
+                        std::to_string(args.size()) + " given)", x.base.base.loc);
+                }
+                ASR::expr_t* expr = ASRUtils::expr_value(args[0]);
+                ASR::ttype_t* type = ASRUtils::expr_type(expr);
+                if (ASRUtils::is_integer(*type)) {
+                    int64_t n = ASR::down_cast<ASR::ConstantInteger_t>(expr)->m_n;
+                    ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
+                        x.base.base.loc, 1, 1, nullptr, nullptr, 0));
+                    std::string str, prefix;
+                    std::stringstream ss;
+                    if (call_name == "oct") {
+                        prefix = n > 0 ? "0o" : "-0o";
+                        ss << std::oct << std::abs(n);
+                        str += ss.str();
+                    } else if (call_name == "bin") {
+                        prefix = n > 0 ? "0b" : "-0b";
+                        str += std::bitset<64>(std::abs(n)).to_string();
+                        str.erase(0, str.find_first_not_of('0'));
+                    } else {
+                        prefix = n > 0 ? "0x" : "-0x";
+                        ss << std::hex << std::abs(n);
+                        str += ss.str();
+                    }
+                    str.insert(0, prefix);
+                    tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, str), str_type);
+                    return;
+                } else {
+                    throw SemanticError(call_name + "() must have one integer argument",
+                        x.base.base.loc);
+                }
+            } else if (call_name == "abs") {
+                if (args.size() != 1) {
+                    throw SemanticError(call_name + "() takes exactly one argument (" +
+                        std::to_string(args.size()) + " given)", x.base.base.loc);
+                }
+                std::string rl_path = get_runtime_library_dir();
+                SymbolTable *st = current_scope;
+                while (st->parent != nullptr) {
+                    st = st->parent;
+                }
+                bool ltypes;
+                std::string msym = "lpython_builtin";
+                ASR::symbol_t *t = (ASR::symbol_t*)(load_module(al, st,
+                    msym, x.base.base.loc, true, rl_path, ltypes,
+                    [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
+                    ));
+                LFORTRAN_ASSERT(!ltypes)
+                if (!t) {
+                    throw SemanticError("The module '" + msym + "' cannot be loaded",
+                            x.base.base.loc);
+                }
+
+                ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
+
+                std::string local_sym = "abs";
+                t = m->m_symtab->resolve_symbol(local_sym);
+                if (!t) {
+                    throw SemanticError("ICE: The symbol '" + local_sym + "' not found in the module '" + msym + "'",
+                            x.base.base.loc);
+                }
+                if (ASR::is_a<ASR::Function_t>(*t)) {
+                    if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
+                        throw SemanticError("Function already defined",
+                            x.base.base.loc);
+                    }
+                    ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
+                    // `mfn` is the Function in a module. Now we construct
+                    // an ExternalSymbol that points to it.
+                    Str name;
+                    name.from_str(al, local_sym);
+                    char *cname = name.c_str(al);
+                    ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+                        al, mfn->base.base.loc,
+                        /* a_symtab */ current_scope,
+                        /* a_name */ cname,
+                        (ASR::symbol_t*)mfn,
+                        m->m_name, nullptr, 0, mfn->m_name,
+                        ASR::accessType::Public
+                        );
+                    current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
+
+                    ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Real_t(al,
+                        x.base.base.loc, 8, nullptr, 0));
+                    tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(fn),
+                        nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
+                    return;
+                } else {
+                    throw SemanticError("ICE: Abs expected to be a function", x.base.base.loc);
+                }
+                // Compile time value implementation:
+                /*
+                ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
+                ASR::ttype_t* t = ASRUtils::expr_type(arg);
+                ASR::ttype_t* real_type = ASRUtils::TYPE(ASR::make_Real_t(al,
+                                        x.base.base.loc, 8, nullptr, 0));
+                ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al,
+                                        x.base.base.loc, 4, nullptr, 0));
+                if (ASRUtils::is_real(*t)) {
+                    double rv = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
+                    double val = std::abs(rv);
+                    tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, val, t);
+                } else if (ASRUtils::is_integer(*t)) {
+                    int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
+                    int64_t val = std::abs(rv);
+                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, val, t);
+                } else if (ASRUtils::is_complex(*t)) {
+                    double re = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_re;
+                    double im = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_im;
+                    std::complex<double> c(re, im);
+                    double result = std::abs(c);
+                    tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, result, real_type);
+                } else if (ASRUtils::is_logical(*t)) {
+                    bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
+                    int8_t val = rv ? 1 : 0;
+                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, val, int_type);
+                } else {
+                    throw SemanticError(call_name + "() must have one real, integer, complex, or logical argument",
+                        x.base.base.loc);
+                }
+                return;
+                */
+            } else if (call_name == "bool") {
+                if (args.size() != 1) {
+                    throw SemanticError(call_name + "() takes exactly one argument (" +
+                        std::to_string(args.size()) + " given)", x.base.base.loc);
+                }
+                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
+                                    1, nullptr, 0));
+                ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
+                ASR::ttype_t* t = ASRUtils::expr_type(arg);
+                bool result;
+                if (ASRUtils::is_real(*t)) {
+                    double rv = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
+                    result = rv ? true : false;
+                } else if (ASRUtils::is_integer(*t)) {
+                    int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
+                    result = rv ? true : false;
+                } else if (ASRUtils::is_complex(*t)) {
+                    double re = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_re;
+                    double im = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_im;
+                    std::complex<double> c(re, im);
+                    result = (re || im) ? true : false;
+                } else if (ASRUtils::is_logical(*t)) {
+                    bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
+                    result = rv;
+                } else if (ASRUtils::is_character(*t)) {
+                    char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(arg))->m_s;
+                    result = strlen(s2c(al, std::string(c))) ? true : false;
+                } else {
+                    throw SemanticError(call_name + "() must have one real, integer, character,"
+                            " complex, or logical argument", x.base.base.loc);
+                }
+                tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, result, type);
+                return;
+            } else if (call_name == "callable") {
+                if (args.size() != 1) {
+                    throw SemanticError(call_name + "() takes exactly one argument (" +
+                        std::to_string(args.size()) + " given)", x.base.base.loc);
+                }
+                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
+                                    1, nullptr, 0));
+                ASR::expr_t *arg = args[0];
+                bool result = false;
+                if (ASR::is_a<ASR::Var_t>(*arg)) {
+                    ASR::symbol_t *t = ASR::down_cast<ASR::Var_t>(arg)->m_v;
+                    result = (ASR::is_a<ASR::Function_t>(*t) ||
+                                ASR::is_a<ASR::Subroutine_t>(*t));
+                }
+                tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, result, type);
+                return;
+            } else if (call_name == "int") {
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al,
                                         x.base.base.loc, 4, nullptr, 0));
-                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, val, type);
-            } else {
-                throw SemanticError(call_name + "() must have one real, integer, complex, or logical argument",
-                    x.base.base.loc);
-            }
-            return;
-        } else if (call_name == "bool") {
-            if (args.size() != 1) {
-                throw SemanticError(call_name + "() takes exactly one argument (" +
-                    std::to_string(args.size()) + " given)", x.base.base.loc);
-            }
-            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
-                                  1, nullptr, 0));
-            ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
-            ASR::ttype_t* t = ASRUtils::expr_type(arg);
-            bool result;
-            if (ASRUtils::is_real(*t)) {
-                double rv = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
-                result = rv ? true : false;
-            } else if (ASRUtils::is_integer(*t)) {
-                int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
-                result = rv ? true : false;
-            } else if (ASRUtils::is_complex(*t)) {
-                double re = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_re;
-                double im = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_im;
-                std::complex<double> c(re, im);
-                result = (re || im) ? true : false;
-            } else if (ASRUtils::is_logical(*t)) {
-                bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
-                result = rv;
-            } else if (ASRUtils::is_character(*t)) {
-                char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(arg))->m_s;
-                result = strlen(s2c(al, std::string(c))) ? true : false;
-            } else {
-                throw SemanticError(call_name + "() must have one real, integer, character,"
-                        " complex, or logical argument", x.base.base.loc);
-            }
-            tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, result, type);
-            return;
-        } else if (call_name == "callable") {
-            if (args.size() != 1) {
-                throw SemanticError(call_name + "() takes exactly one argument (" +
-                    std::to_string(args.size()) + " given)", x.base.base.loc);
-            }
-            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
-                                  1, nullptr, 0));
-            ASR::expr_t *arg = args[0];
-            bool result = false;
-            if (ASR::is_a<ASR::Var_t>(*arg)) {
-                ASR::symbol_t *t = ASR::down_cast<ASR::Var_t>(arg)->m_v;
-                result = (ASR::is_a<ASR::Function_t>(*t) ||
-                            ASR::is_a<ASR::Subroutine_t>(*t));
-            }
-            tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, result, type);
-            return;
-        } else if (call_name == "int") {
-            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al,
-                                    x.base.base.loc, 4, nullptr, 0));
-            if (args.size() == 0) {
-                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, 0, type);
-                return;
-            }
-            ASR::expr_t* int_expr = args[0];
-            ASR::ttype_t* int_type = ASRUtils::expr_type(int_expr);
-            if (ASRUtils::expr_value(int_expr) == nullptr) {
-                throw SemanticError("runtime int(x) is not supported, only compile time for now",
-                    x.base.base.loc);
-            }
-            if (ASRUtils::is_integer(*int_type)) {
-                int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(int_expr))->m_n;
-                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, type);
-
-            } else if (ASRUtils::is_character(*int_type)) {
-                // convert a string to an int
-                char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(int_expr))->m_s;
-                std::string s = std::string(c);
-                int64_t ival = std::stoll(s);
-                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, type);
-
-            } else if (ASRUtils::is_real(*int_type)) {
-                int64_t ival = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(int_expr))->m_r;
-                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, type);
-            } else if (ASRUtils::is_logical(*int_type)) {
-                bool rv = ASR::down_cast<ASR::ConstantLogical_t>(int_expr)->m_value;
-                int8_t val = rv ? 1 : 0;
-                tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, val, type);
-            } else {
-                throw SemanticError("int() argument must be real, integer, logical, or a string, not '" +
-                    ASRUtils::type_to_str(int_type) + "'", x.base.base.loc);
-            }
-            return;
-        } else if (call_name == "float") {
-            ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_Real_t(al,
-                                    x.base.base.loc, 8, nullptr, 0));
-            if (args.size() == 0) {
-                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, 0.0, type);
-                return;
-            }
-            ASR::expr_t* float_expr = args[0];
-            ASR::ttype_t* float_type = ASRUtils::expr_type(float_expr);
-            if (ASRUtils::expr_value(float_expr) == nullptr) {
-                throw SemanticError("runtime float(x) is not supported, only compile time for now",
-                    x.base.base.loc);
-            }
-            if (ASRUtils::is_real(*float_type)) {
-                float rv = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(float_expr))->m_r;
-                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, rv, type);
-            } else if (ASRUtils::is_integer(*float_type)) {
-                // convert an int to a float using implicit cast
-                double rv = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(float_expr))->m_n;
-                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, rv, type);
-            } else if (ASRUtils::is_logical(*float_type)) {
-                bool rv = ASR::down_cast<ASR::ConstantLogical_t>(float_expr)->m_value;
-                float val = rv ? 1.0 : 0.0;
-                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, val, type);
-            } else if (ASRUtils::is_character(*float_type)) {
-                // convert a string to a float
-                char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(float_expr))->m_s;
-                std::string s = std::string(c);
-                float rv = std::stof(s);
-                tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, rv, type);
-            } else {
-                throw SemanticError("float() argument must be real, integer, logical, or a string, not '" +
-                    ASRUtils::type_to_str(float_type) + "'", x.base.base.loc);
-            }
-            return;
-        } else if (call_name == "str") {
-            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
-                x.base.base.loc, 1, 1, nullptr, nullptr, 0));
-            if (args.size() == 0) { // create an empty string
-                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, ""), str_type);
-                return;
-            }
-            ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
-            ASR::ttype_t* arg_type = ASRUtils::expr_type(arg);
-            if (arg == nullptr) {
-                throw SemanticError("runtime str(x) is not supported, only compile time for now",
-                    x.base.base.loc);
-            }
-            if (ASRUtils::is_integer(*arg_type)) {
-                int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
-                std::string s = std::to_string(ival);
-                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
-            } else if (ASRUtils::is_real(*arg_type)) {
-                double rval = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
-                std::string s = std::to_string(rval);
-                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
-            } else if (ASRUtils::is_logical(*arg_type)) {
-                bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
-                std::string s = rv ? "True" : "False";
-                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
-            } else if (ASRUtils::is_character(*arg_type)) {
-                char* c = ASR::down_cast<ASR::ConstantString_t>(arg)->m_s;
-                std::string s = std::string(c);
-                tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
-            } else {
-                throw SemanticError("str() argument must be real, integer, logical, or a string, not '" +
-                    ASRUtils::type_to_str(arg_type) + "'", x.base.base.loc);
-            }
-            return;
-        } else if (call_name == "divmod") {
-            if (args.size() != 2) {
-                throw SemanticError(call_name + "() takes exactly two arguments (" +
-                    std::to_string(args.size()) + " given)", x.base.base.loc);
-            }
-            ASR::expr_t* arg1 = ASRUtils::expr_value(args[0]);
-            ASR::expr_t* arg2 = ASRUtils::expr_value(args[1]);
-            ASR::ttype_t* arg1_type = ASRUtils::expr_type(arg1);
-            ASR::ttype_t* arg2_type = ASRUtils::expr_type(arg2);
-            Vec<ASR::expr_t*> tuple; // pair consisting of quotient and remainder
-            tuple.reserve(al, 2);
-            Vec<ASR::ttype_t*> tuple_type_vec;
-            tuple_type_vec.reserve(al, 2);
-            if (arg1 == nullptr || arg2 == nullptr) {
-                throw SemanticError("runtime divmod(x, y) is not supported, only compile time for now",
-                    x.base.base.loc);
-            }
-            if (ASRUtils::is_integer(*arg1_type) && ASRUtils::is_integer(*arg2_type)) {
-                int64_t ival1 = ASR::down_cast<ASR::ConstantInteger_t>(arg1)->m_n;
-                int64_t ival2 = ASR::down_cast<ASR::ConstantInteger_t>(arg2)->m_n;
-                if (ival2 == 0) {
-                    throw SemanticError("Integer division or modulo by zero not possible",
-                        x.base.base.loc);
-                } else {
-                    int64_t div = ival1 / ival2;
-                    int64_t mod = ival1 % ival2;
-                    tuple.push_back(al, ASRUtils::EXPR(
-                        ASR::make_ConstantInteger_t(al, x.base.base.loc, div, arg1_type)));
-                    tuple.push_back(al, ASRUtils::EXPR(
-                        ASR::make_ConstantInteger_t(al, x.base.base.loc, mod, arg1_type)));
-                    tuple_type_vec.push_back(al, arg1_type);
-                    tuple_type_vec.push_back(al, arg2_type);
-                    ASR::ttype_t *tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, x.base.base.loc,
-                                                tuple_type_vec.p, tuple_type_vec.n));
-                    tmp = ASR::make_ConstantTuple_t(al, x.base.base.loc, tuple.p, tuple.size(), tuple_type);
+                if (args.size() == 0) {
+                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, 0, type);
                     return;
                 }
+                ASR::expr_t* int_expr = args[0];
+                ASR::ttype_t* int_type = ASRUtils::expr_type(int_expr);
+                if (ASRUtils::expr_value(int_expr) == nullptr) {
+                    throw SemanticError("runtime int(x) is not supported, only compile time for now",
+                        x.base.base.loc);
+                }
+                if (ASRUtils::is_integer(*int_type)) {
+                    int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(int_expr))->m_n;
+                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, type);
+
+                } else if (ASRUtils::is_character(*int_type)) {
+                    // convert a string to an int
+                    char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(int_expr))->m_s;
+                    std::string s = std::string(c);
+                    int64_t ival = std::stoll(s);
+                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, type);
+
+                } else if (ASRUtils::is_real(*int_type)) {
+                    int64_t ival = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(int_expr))->m_r;
+                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, type);
+                } else if (ASRUtils::is_logical(*int_type)) {
+                    bool rv = ASR::down_cast<ASR::ConstantLogical_t>(int_expr)->m_value;
+                    int8_t val = rv ? 1 : 0;
+                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, val, type);
+                } else {
+                    throw SemanticError("int() argument must be real, integer, logical, or a string, not '" +
+                        ASRUtils::type_to_str(int_type) + "'", x.base.base.loc);
+                }
+                return;
+            } else if (call_name == "float") {
+                ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_Real_t(al,
+                                        x.base.base.loc, 8, nullptr, 0));
+                if (args.size() == 0) {
+                    tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, 0.0, type);
+                    return;
+                }
+                ASR::expr_t* float_expr = args[0];
+                ASR::ttype_t* float_type = ASRUtils::expr_type(float_expr);
+                if (ASRUtils::expr_value(float_expr) == nullptr) {
+                    throw SemanticError("runtime float(x) is not supported, only compile time for now",
+                        x.base.base.loc);
+                }
+                if (ASRUtils::is_real(*float_type)) {
+                    float rv = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(float_expr))->m_r;
+                    tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, rv, type);
+                } else if (ASRUtils::is_integer(*float_type)) {
+                    // convert an int to a float using implicit cast
+                    double rv = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(float_expr))->m_n;
+                    tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, rv, type);
+                } else if (ASRUtils::is_logical(*float_type)) {
+                    bool rv = ASR::down_cast<ASR::ConstantLogical_t>(float_expr)->m_value;
+                    float val = rv ? 1.0 : 0.0;
+                    tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, val, type);
+                } else if (ASRUtils::is_character(*float_type)) {
+                    // convert a string to a float
+                    char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(float_expr))->m_s;
+                    std::string s = std::string(c);
+                    float rv = std::stof(s);
+                    tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, rv, type);
+                } else {
+                    throw SemanticError("float() argument must be real, integer, logical, or a string, not '" +
+                        ASRUtils::type_to_str(float_type) + "'", x.base.base.loc);
+                }
+                return;
+            } else if (call_name == "str") {
+                ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
+                    x.base.base.loc, 1, 1, nullptr, nullptr, 0));
+                if (args.size() == 0) { // create an empty string
+                    tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, ""), str_type);
+                    return;
+                }
+                ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
+                ASR::ttype_t* arg_type = ASRUtils::expr_type(arg);
+                if (arg == nullptr) {
+                    throw SemanticError("runtime str(x) is not supported, only compile time for now",
+                        x.base.base.loc);
+                }
+                if (ASRUtils::is_integer(*arg_type)) {
+                    int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
+                    std::string s = std::to_string(ival);
+                    tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
+                } else if (ASRUtils::is_real(*arg_type)) {
+                    double rval = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
+                    std::string s = std::to_string(rval);
+                    tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
+                } else if (ASRUtils::is_logical(*arg_type)) {
+                    bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
+                    std::string s = rv ? "True" : "False";
+                    tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
+                } else if (ASRUtils::is_character(*arg_type)) {
+                    char* c = ASR::down_cast<ASR::ConstantString_t>(arg)->m_s;
+                    std::string s = std::string(c);
+                    tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
+                } else {
+                    throw SemanticError("str() argument must be real, integer, logical, or a string, not '" +
+                        ASRUtils::type_to_str(arg_type) + "'", x.base.base.loc);
+                }
+                return;
+            } else if (call_name == "divmod") {
+                if (args.size() != 2) {
+                    throw SemanticError(call_name + "() takes exactly two arguments (" +
+                        std::to_string(args.size()) + " given)", x.base.base.loc);
+                }
+                ASR::expr_t* arg1 = ASRUtils::expr_value(args[0]);
+                ASR::expr_t* arg2 = ASRUtils::expr_value(args[1]);
+                ASR::ttype_t* arg1_type = ASRUtils::expr_type(arg1);
+                ASR::ttype_t* arg2_type = ASRUtils::expr_type(arg2);
+                Vec<ASR::expr_t*> tuple; // pair consisting of quotient and remainder
+                tuple.reserve(al, 2);
+                Vec<ASR::ttype_t*> tuple_type_vec;
+                tuple_type_vec.reserve(al, 2);
+                if (arg1 == nullptr || arg2 == nullptr) {
+                    throw SemanticError("runtime divmod(x, y) is not supported, only compile time for now",
+                        x.base.base.loc);
+                }
+                if (ASRUtils::is_integer(*arg1_type) && ASRUtils::is_integer(*arg2_type)) {
+                    int64_t ival1 = ASR::down_cast<ASR::ConstantInteger_t>(arg1)->m_n;
+                    int64_t ival2 = ASR::down_cast<ASR::ConstantInteger_t>(arg2)->m_n;
+                    if (ival2 == 0) {
+                        throw SemanticError("Integer division or modulo by zero not possible",
+                            x.base.base.loc);
+                    } else {
+                        int64_t div = ival1 / ival2;
+                        int64_t mod = ival1 % ival2;
+                        tuple.push_back(al, ASRUtils::EXPR(
+                            ASR::make_ConstantInteger_t(al, x.base.base.loc, div, arg1_type)));
+                        tuple.push_back(al, ASRUtils::EXPR(
+                            ASR::make_ConstantInteger_t(al, x.base.base.loc, mod, arg1_type)));
+                        tuple_type_vec.push_back(al, arg1_type);
+                        tuple_type_vec.push_back(al, arg2_type);
+                        ASR::ttype_t *tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, x.base.base.loc,
+                                                    tuple_type_vec.p, tuple_type_vec.n));
+                        tmp = ASR::make_ConstantTuple_t(al, x.base.base.loc, tuple.p, tuple.size(), tuple_type);
+                        return;
+                    }
+                } else {
+                    throw SemanticError("Both arguments of divmod() must be integers, not '" +
+                        ASRUtils::type_to_str(arg1_type) + "' and '" + ASRUtils::type_to_str(arg2_type) + "'",
+                        x.base.base.loc);
+                }
             } else {
-                throw SemanticError("Both arguments of divmod() must be integers, not '" +
-                    ASRUtils::type_to_str(arg1_type) + "' and '" + ASRUtils::type_to_str(arg2_type) + "'",
+                // The function was not found and it is not intrinsic
+                throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
                     x.base.base.loc);
             }
         }
 
-        // Other functions
-        ASR::symbol_t *stemp = current_scope->resolve_symbol(call_name);
-        // handling ExternalSymbol
-        ASR::symbol_t *s = ASRUtils::symbol_get_past_external(stemp);
         if (!s) {
             throw SemanticError("Function '" + call_name + "' is not declared",
                 x.base.base.loc);
         }
+        // handling ExternalSymbol
+        ASR::symbol_t *stemp = s;
+        s = ASRUtils::symbol_get_past_external(s);
 
         if(ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
