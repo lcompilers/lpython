@@ -5,7 +5,7 @@ def test_ord():
     s: str
     s = "1"
     i = ord(s)
-    print(i)
+    assert i == 49
 
 
 #def test_chr():
@@ -13,7 +13,7 @@ def test_ord():
 #    i = 48
 #    s: str
 #    s = chr(i)
-#    print(s)
+#    assert s == "0"
 
 
 test_ord()
