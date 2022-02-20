@@ -2089,23 +2089,23 @@ public:
                     int64_t n = ASR::down_cast<ASR::ConstantInteger_t>(expr)->m_n;
                     ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
                         x.base.base.loc, 1, 1, nullptr, nullptr, 0));
-                    std::string s, prefix;
+                    std::string str, prefix;
                     std::stringstream ss;
                     if (call_name == "oct") {
                         prefix = n > 0 ? "0o" : "-0o";
                         ss << std::oct << std::abs(n);
-                        s += ss.str();
+                        str += ss.str();
                     } else if (call_name == "bin") {
                         prefix = n > 0 ? "0b" : "-0b";
-                        s += std::bitset<64>(std::abs(n)).to_string();
-                        s.erase(0, s.find_first_not_of('0'));
+                        str += std::bitset<64>(std::abs(n)).to_string();
+                        str.erase(0, str.find_first_not_of('0'));
                     } else {
                         prefix = n > 0 ? "0x" : "-0x";
                         ss << std::hex << std::abs(n);
-                        s += ss.str();
+                        str += ss.str();
                     }
-                    s.insert(0, prefix);
-                    tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
+                    str.insert(0, prefix);
+                    tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, str), str_type);
                     return;
                 } else {
                     throw SemanticError(call_name + "() must have one integer argument",
@@ -2168,7 +2168,7 @@ public:
                         nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
                     return;
                 } else {
-                    throw SemanticError("ICE: Ord expected to be a function", x.base.base.loc);
+                    throw SemanticError("ICE: Abs expected to be a function", x.base.base.loc);
                 }
                 // Compile time value implementation:
                 /*
