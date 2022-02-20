@@ -1,5 +1,3 @@
-from lpython_builtin import str_int
-
 def test_str_int():
     s: str
     s = str_int(356)
