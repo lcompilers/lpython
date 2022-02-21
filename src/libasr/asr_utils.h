@@ -157,8 +157,8 @@ static inline std::string binop_to_str(const ASR::binopType t) {
     switch (t) {
         case (ASR::binopType::Add): { return " + "; }
         case (ASR::binopType::Sub): { return " - "; }
-        case (ASR::binopType::Mul): { return " * "; }
-        case (ASR::binopType::Div): { return " / "; }
+        case (ASR::binopType::Mul): { return "*"; }
+        case (ASR::binopType::Div): { return "/"; }
         default : throw LFortranException("Not implemented");
     }
 }

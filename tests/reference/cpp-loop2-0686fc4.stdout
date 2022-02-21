@@ -19,11 +19,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 void test_for()
 {
     int i;
-    for (i=0; i<=10 - 1; i++) {
+    for (i=0; i<=(10) - (1); i++) {
         if (i == 0) {
             continue;
         }
-        if (i > 5) {
+        if ((i) > (5)) {
             break;
         }
         if (i == 3) {

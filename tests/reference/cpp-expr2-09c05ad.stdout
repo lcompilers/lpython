@@ -23,11 +23,11 @@ void test_boolOp()
     a = false;
     b = true;
     a = (a) && (b);
-    b = (a) || (true);
-    a = (a) || (b);
-    a = (a) && (b == b);
-    a = (a) && (b != b);
-    a = (b) || (b);
+    b = a || true;
+    a = a || b;
+    a = (a) && (b) == (b);
+    a = a && (b) != (b);
+    a = b || b;
 }
 
 namespace {
