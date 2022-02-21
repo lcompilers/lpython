@@ -1934,11 +1934,13 @@ public:
             if (AST::is_a<AST::Name_t>(*at->m_value)) {
                 AST::Name_t *n = AST::down_cast<AST::Name_t>(at->m_value);
                 std::string mod_name = n->m_id;
-                if (current_scope->scope.find(mod_name) == current_scope->scope.end()) {
-                    throw SemanticError("module ''" + mod_name + "' is not imported",
+                SymbolTable *symtab = current_scope;
+                while (symtab->parent != nullptr) symtab = symtab->parent;
+                if (symtab->scope.find(mod_name) == symtab->scope.end()) {
+                    throw SemanticError("module '" + mod_name + "' is not imported",
                         x.base.base.loc);
                 }
-                ASR::symbol_t *mt = current_scope->scope[call_name];
+                ASR::symbol_t *mt = symtab->scope[mod_name];
                 ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(mt);
                 call_name = at->m_attr;
                 ASR::symbol_t *t = m->m_symtab->resolve_symbol(call_name);
