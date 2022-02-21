@@ -596,6 +596,37 @@ public:
         tmp = nullptr;
     }
 
+    void visit_Import(const AST::Import_t &x) {
+        ASR::symbol_t *t = nullptr;
+        std::string rl_path = get_runtime_library_dir();
+        SymbolTable *st = current_scope;
+        std::vector<std::string> mods;
+        for (size_t i=0; i<x.n_names; i++) {
+            mods.push_back(x.m_names[i].m_name);
+        }
+        if (!main_module) {
+            st = st->parent;
+        }
+        for (auto &mod_sym : mods) {
+            bool ltypes;
+            t = (ASR::symbol_t*)(load_module(al, st,
+                mod_sym, x.base.base.loc, false, rl_path, ltypes,
+                [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
+                ));
+            if (ltypes) {
+                // TODO: For now we skip ltypes import completely. Later on we should note what symbols
+                // got imported from it, and give an error message if an annotation is used without
+                // importing it.
+                tmp = nullptr;
+                continue;
+            }
+            if (!t) {
+                throw SemanticError("The module '" + mod_sym + "' cannot be loaded",
+                        x.base.base.loc);
+            }
+        }
+    }
+
     void visit_AnnAssign(const AST::AnnAssign_t &/*x*/) {
         // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
     }
@@ -706,6 +737,10 @@ public:
         }
         current_scope = old_scope;
         tmp = nullptr;
+    }
+
+    void visit_Import(const AST::Import_t &/*x*/) {
+        // visited in symbol visitor
     }
 
     void visit_AnnAssign(const AST::AnnAssign_t &x) {
@@ -1884,19 +1919,85 @@ public:
 
     void visit_Call(const AST::Call_t &x) {
         std::string call_name;
-        if (AST::is_a<AST::Name_t>(*x.m_func)) {
-            AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
-            call_name = n->m_id;
-        } else {
-            throw SemanticError("Only Name supported in Call",
-                x.base.base.loc);
-        }
         Vec<ASR::expr_t*> args;
         args.reserve(al, x.n_args);
         for (size_t i=0; i<x.n_args; i++) {
             visit_expr(*x.m_args[i]);
             ASR::expr_t *expr = ASRUtils::EXPR(tmp);
             args.push_back(al, expr);
+        }
+        if (AST::is_a<AST::Name_t>(*x.m_func)) {
+            AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
+            call_name = n->m_id;
+        } else if (AST::is_a<AST::Attribute_t>(*x.m_func)) {
+            AST::Attribute_t *at = AST::down_cast<AST::Attribute_t>(x.m_func);
+            if (AST::is_a<AST::Name_t>(*at->m_value)) {
+                AST::Name_t *n = AST::down_cast<AST::Name_t>(at->m_value);
+                std::string mod_name = n->m_id;
+                SymbolTable *symtab = current_scope;
+                while (symtab->parent != nullptr) symtab = symtab->parent;
+                if (symtab->scope.find(mod_name) == symtab->scope.end()) {
+                    throw SemanticError("module '" + mod_name + "' is not imported",
+                        x.base.base.loc);
+                }
+                ASR::symbol_t *mt = symtab->scope[mod_name];
+                ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(mt);
+                call_name = at->m_attr;
+                ASR::symbol_t *t = m->m_symtab->resolve_symbol(call_name);
+                if (!t) {
+                    throw SemanticError("The symbol '" + call_name + "' not found in the module '" + \
+                        mod_name + "'", x.base.base.loc);
+                }
+                call_name = "__" + mod_name + "_" + call_name;
+                if (ASR::is_a<ASR::Subroutine_t>(*t)) {
+                    ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(t);
+                    Str name;
+                    name.from_str(al, call_name);
+                    ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
+                        al, msub->base.base.loc,
+                        /* a_symtab */ current_scope,
+                        /* a_name */ name.c_str(al),
+                        (ASR::symbol_t*)msub,
+                        m->m_name, nullptr, 0, msub->m_name,
+                        ASR::accessType::Public
+                        );
+                    ASR::symbol_t *st = ASR::down_cast<ASR::symbol_t>(sub);
+                    current_scope->scope[call_name] = st;
+                    tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, st,
+                        nullptr, args.p, args.size(), nullptr);
+                    return;
+                } else if (ASR::is_a<ASR::Function_t>(*t)) {
+                    ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
+                    Str name;
+                    name.from_str(al, call_name);
+                    char *cname = name.c_str(al);
+                    ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+                        al, mfn->base.base.loc,
+                        /* a_symtab */ current_scope,
+                        /* a_name */ cname,
+                        (ASR::symbol_t*)mfn,
+                        m->m_name, nullptr, 0, mfn->m_name,
+                        ASR::accessType::Public
+                        );
+                    ASR::symbol_t *st = ASR::down_cast<ASR::symbol_t>(fn);
+                    current_scope->scope[call_name] = st;
+                    ASR::ttype_t *a_type = ASRUtils::expr_type(mfn->m_return_var);
+                    tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, st,
+                        nullptr, args.p, args.size(), nullptr, 0, a_type,
+                        nullptr, nullptr);
+                    return;
+                } else {
+                    throw SemanticError("Only Subroutines and Functions are currently supported in 'import'",
+                        x.base.base.loc);
+                }
+
+            } else {
+                throw SemanticError("Only Name type supported in Call",
+                    x.base.base.loc);
+            }
+        } else {
+            throw SemanticError("Only Name or Attribute type supported in Call",
+                x.base.base.loc);
         }
 
         ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
