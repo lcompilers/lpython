@@ -24,6 +24,11 @@ ast = true
 asr = true
 
 [[test]]
+filename = "subscript1.py"
+ast = true
+asr = true
+
+[[test]]
 filename = "list1.py"
 ast = true
 asr = true
@@ -107,6 +112,11 @@ asr = true
 cpp = true
 
 [[test]]
+filename = "expr13.py"
+ast = true
+asr = true
+
+[[test]]
 filename = "expr_01.py"
 ast = true
 asr = true
@@ -149,4 +159,12 @@ asr = true
 [[test]]
 filename = "global_scope1.py"
 ast = true
+asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin_abs.py"
 asr = true

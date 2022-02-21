@@ -83,7 +83,7 @@ symbol
     = Program(symbol_table symtab, identifier name, identifier* dependencies,
         stmt* body)
     | Module(symbol_table symtab, identifier name, identifier* dependencies,
-        bool loaded_from_mod)
+        bool loaded_from_mod, bool intrinsic)
     | Subroutine(symbol_table symtab, identifier name, expr* args, stmt* body,
         abi abi, access access, deftype deftype, string? bindc_name, bool pure,
         bool module)

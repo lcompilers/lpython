@@ -1,3 +1,5 @@
+from sys import exit
+
 def test_for():
     i: i32
     for i in range(0, 10):
@@ -7,4 +9,4 @@ def test_for():
             break
         if i == 3:
             quit()
-    exit()
+    exit(0)

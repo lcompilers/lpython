@@ -1,4 +1,4 @@
-def main() -> i32:
+def main0():
     x: i32
     x = 5
     result: i32
@@ -6,5 +6,6 @@ def main() -> i32:
     while x > 0:
         result = result * x
         x -= 1
-    print(result)
-    return 0
+    assert result == 120
+
+main0()

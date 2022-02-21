@@ -28,3 +28,16 @@ void test_binop()
     x2 = std::pow(5346.565000, 3.450000);
 }
 
+namespace {
+
+void main2() {
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
+    Kokkos::finalize();
+    return 0;
+}

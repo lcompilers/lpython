@@ -93,26 +93,30 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
     switch (f->type) {
         case ASR::exprType::BoolOp: { return ((ASR::BoolOp_t*)f)->m_type; }
         case ASR::exprType::BinOp: { return ((ASR::BinOp_t*)f)->m_type; }
+        case ASR::exprType::StrOp: { return ((ASR::StrOp_t*)f)->m_type; }
         case ASR::exprType::UnaryOp: { return ((ASR::UnaryOp_t*)f)->m_type; }
         case ASR::exprType::ComplexConstructor: { return ((ASR::ComplexConstructor_t*)f)->m_type; }
+        case ASR::exprType::NamedExpr: { return ((ASR::NamedExpr_t*)f)->m_type; }
         case ASR::exprType::Compare: { return ((ASR::Compare_t*)f)->m_type; }
+        case ASR::exprType::IfExp: { return ((ASR::IfExp_t*)f)->m_type; }
         case ASR::exprType::FunctionCall: { return ((ASR::FunctionCall_t*)f)->m_type; }
-        case ASR::exprType::ArrayRef: { return ((ASR::ArrayRef_t*)f)->m_type; }
-        case ASR::exprType::DerivedRef: { return ((ASR::DerivedRef_t*)f)->m_type; }
+        case ASR::exprType::DerivedTypeConstructor: { return ((ASR::DerivedTypeConstructor_t*)f)->m_type; }
         case ASR::exprType::ConstantArray: { return ((ASR::ConstantArray_t*)f)->m_type; }
+        case ASR::exprType::ImpliedDoLoop: { return ((ASR::ImpliedDoLoop_t*)f)->m_type; }
         case ASR::exprType::ConstantInteger: { return ((ASR::ConstantInteger_t*)f)->m_type; }
         case ASR::exprType::ConstantReal: { return ((ASR::ConstantReal_t*)f)->m_type; }
         case ASR::exprType::ConstantComplex: { return ((ASR::ConstantComplex_t*)f)->m_type; }
-        case ASR::exprType::ConstantString: { return ((ASR::ConstantString_t*)f)->m_type; }
+        case ASR::exprType::ConstantSet: { return ((ASR::ConstantSet_t*)f)->m_type; }
         case ASR::exprType::ConstantTuple: { return ((ASR::ConstantTuple_t*)f)->m_type; }
+        case ASR::exprType::ConstantLogical: { return ((ASR::ConstantLogical_t*)f)->m_type; }
+        case ASR::exprType::ConstantString: { return ((ASR::ConstantString_t*)f)->m_type; }
+        case ASR::exprType::ConstantDictionary: { return ((ASR::ConstantDictionary_t*)f)->m_type; }
+        case ASR::exprType::BOZ: { return ((ASR::BOZ_t*)f)->m_type; }
+        case ASR::exprType::Var: { return EXPR2VAR(f)->m_type; }
+        case ASR::exprType::ArrayRef: { return ((ASR::ArrayRef_t*)f)->m_type; }
+        case ASR::exprType::DerivedRef: { return ((ASR::DerivedRef_t*)f)->m_type; }
         case ASR::exprType::ImplicitCast: { return ((ASR::ImplicitCast_t*)f)->m_type; }
         case ASR::exprType::ExplicitCast: { return ((ASR::ExplicitCast_t*)f)->m_type; }
-        case ASR::exprType::Var: { return EXPR2VAR(f)->m_type; }
-        case ASR::exprType::ConstantLogical: { return ((ASR::ConstantLogical_t*)f)->m_type; }
-        case ASR::exprType::StrOp: { return ((ASR::StrOp_t*)f)->m_type; }
-        case ASR::exprType::ImpliedDoLoop: { return ((ASR::ImpliedDoLoop_t*)f)->m_type; }
-        case ASR::exprType::DerivedTypeConstructor: { return ((ASR::DerivedTypeConstructor_t*)f)->m_type; }
-        case ASR::exprType::BOZ: { return ((ASR::BOZ_t*)f)->m_type; }
         default : throw LFortranException("Not implemented");
     }
 }
@@ -202,6 +206,9 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::ConstantReal: // Drop through
         case ASR::exprType::ConstantComplex: // Drop through
         case ASR::exprType::ConstantLogical: // Drop through
+        case ASR::exprType::ConstantTuple: // Drop through
+        case ASR::exprType::ConstantDictionary: // Drop through
+        case ASR::exprType::ConstantSet: // Drop through
         case ASR::exprType::ConstantString:{ // For all Constants
             return f;
         }

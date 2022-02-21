@@ -2,11 +2,11 @@
     "basename": "cpp-complex2-cc31ff8",
     "cmd": "lpython --no-color --show-cpp {infile}",
     "infile": "tests/complex2.py",
-    "infile_hash": "0e5fa4bab667f45d4ed991d97795854fb177a06066b9c0e9103e2c18",
+    "infile_hash": "eafd3264894faa12d78cd65ad0daf758c5fc39c6dbbb174bad0675e9",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "cpp-complex2-cc31ff8.stdout",
-    "stdout_hash": "81a91652adac7d51bbcd3f5166ab2afac85c7f3fe41221afffbcb7f3",
+    "stdout_hash": "eb06ce450bb9d5f4944042e0f37b18f2eb1f8229cf047cb4e7ab1416",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

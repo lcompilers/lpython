@@ -16,16 +16,19 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
-int main()
+void _lfortran_main_program()
 {
-    int _lpython_return_variable;
+    main0();
+}
+
+void main0()
+{
     Kokkos::View<float[10000]> a("a");
     Kokkos::View<float[10000]> b("b");
     Kokkos::View<float[10000]> c("c");
-    int i;
     int nsize;
     float scalar;
-    scalar = 10;
+    scalar = 10.000000;
     nsize = 1234;
     Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(1, (nsize) - (1)+1), KOKKOS_LAMBDA(const long i) {
         a[i-1] = 5;
@@ -33,8 +36,6 @@ int main()
     });
     triad(a, b, scalar, c);
     std::cout << "End Stream Triad" << std::endl;
-    _lpython_return_variable = 0;
-    return _lpython_return_variable;
 }
 
 void triad(const Kokkos::View<float*> &a, const Kokkos::View<float*> &b, float scalar, const Kokkos::View<float*> &c)
@@ -46,3 +47,17 @@ void triad(const Kokkos::View<float*> &a, const Kokkos::View<float*> &b, float s
     });
 }
 
+namespace {
+
+void main2() {
+        _lfortran_main_program();
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
+    Kokkos::finalize();
+    return 0;
+}

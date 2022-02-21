@@ -33,3 +33,21 @@ void test_for()
     exit(0);
 }
 
+void exit(int error_code)
+{
+    exit(0);
+}
+
+namespace {
+
+void main2() {
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
+    Kokkos::finalize();
+    return 0;
+}

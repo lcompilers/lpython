@@ -2983,6 +2983,32 @@ public:
 
     }
 
+    void visit_Assert(const ASR::Assert_t &x) {
+        this->visit_expr_wrapper(x.m_test, true);
+        llvm::Value *cond = tmp;
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+        builder->CreateCondBr(cond, thenBB, elseBB);
+        builder->SetInsertPoint(thenBB);
+
+        builder->CreateBr(mergeBB);
+
+        start_new_block(elseBB);
+
+        {
+            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("Assertion failed\n");
+            printf(context, *module, *builder, {fmt_ptr});
+            int exit_code_int = 1;
+            llvm::Value *exit_code = llvm::ConstantInt::get(context,
+                    llvm::APInt(32, exit_code_int));
+            exit(context, *module, *builder, exit_code);
+        }
+
+        start_new_block(mergeBB);
+    }
+
     void visit_ComplexConstructor(const ASR::ComplexConstructor_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
@@ -3472,12 +3498,11 @@ public:
         printf(context, *module, *builder, printf_args);
     }
 
-    void visit_Stop(const ASR::Stop_t & /* x */) {
+    void visit_Stop(const ASR::Stop_t &x) {
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("STOP\n");
         printf(context, *module, *builder, {fmt_ptr});
-        int exit_code_int = 0;
-        llvm::Value *exit_code = llvm::ConstantInt::get(context,
-                llvm::APInt(32, exit_code_int));
+        this->visit_expr(*x.m_code);
+        llvm::Value *exit_code = tmp;
         exit(context, *module, *builder, exit_code);
     }
 

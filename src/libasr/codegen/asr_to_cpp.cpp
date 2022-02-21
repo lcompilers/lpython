@@ -405,7 +405,12 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string sub;
         ASR::Variable_t *return_var = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
         if (ASRUtils::is_integer(*return_var->m_type)) {
-            sub = "int ";
+            bool is_int = ASR::down_cast<ASR::Integer_t>(return_var->m_type)->m_kind == 4;
+            if (is_int) {
+                sub = "int ";
+            } else {
+                sub = "long long ";
+            }
         } else if (ASRUtils::is_real(*return_var->m_type)) {
             sub = "float ";
         } else if (ASRUtils::is_logical(*return_var->m_type)) {
@@ -556,6 +561,18 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
     }
 
+    void visit_ConstantSet(const ASR::ConstantSet_t &x) {
+        std::string out = "{";
+        for (size_t i=0; i<x.n_elements; i++) {
+            visit_expr(*x.m_elements[i]);
+            out += src;
+            if (i != x.n_elements - 1)
+                out += ", ";
+        }
+        out += "}";
+        src = out;
+    }
+
     void visit_Var(const ASR::Var_t &x) {
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
         src = ASR::down_cast<ASR::Variable_t>(s)->m_name;
@@ -572,9 +589,24 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 src = "/* FIXME right index */";
             }
             out += src;
-            if (i < x.n_args-1) out += ",";
+            if (i < x.n_args-1) out += ", ";
         }
         out += "-1]";
+        src = out;
+    }
+
+    void visit_ConstantDictionary(const ASR::ConstantDictionary_t &x) {
+        LFORTRAN_ASSERT(x.n_keys == x.n_values);
+        std::string out = "{";
+        for(size_t i=0; i<x.n_keys; i++) {
+            out += "{";
+            visit_expr(*x.m_keys[i]);
+            out += src + ", ";
+            visit_expr(*x.m_values[i]);
+            out += src + "}";
+            if (i!=x.n_keys-1) out += ", ";
+        }
+        out += "}";
         src = out;
     }
 
@@ -591,6 +623,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             }
             case (ASR::cast_kindType::RealToReal) : {
                 // In C++, we do not need to cast float to float explicitly:
+                // src = src;
+                break;
+            }
+            case (ASR::cast_kindType::IntegerToInteger) : {
+                // In C++, we do not need to cast int <-> long long explicitly:
                 // src = src;
                 break;
             }

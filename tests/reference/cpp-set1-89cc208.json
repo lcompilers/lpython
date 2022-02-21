@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-set1-89cc208",
+    "cmd": "lpython --no-color --show-cpp {infile}",
+    "infile": "tests/set1.py",
+    "infile_hash": "5421dd84e3545a10b5079f5a4d9784b1b54bb2ac60bf9fe8268fa76b",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-set1-89cc208.stdout",
+    "stdout_hash": "7603594b2169ecad48b5de33ea8e1b346c86248ba72fbe5809211c8a",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

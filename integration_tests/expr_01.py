@@ -1,8 +1,9 @@
-def main()->i32:
+def main0():
     x: i32
     x = (2+3)*5
-    print(x)
-    return 0
+    assert x == 25
+
+main0()
 
 # Not implemented yet in LPython:
 #if __name__ == "__main__":
