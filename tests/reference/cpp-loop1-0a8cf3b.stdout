@@ -34,13 +34,13 @@ int test_factorial_1(int x)
 {
     int _lpython_return_variable;
     int result;
-    if ((x) < (0)) {
+    if (x < 0) {
         _lpython_return_variable = 0;
         return _lpython_return_variable;
     }
     result = 1;
     while (x > 0) {
-        result = (result)*(x);
+        result = result*x;
         x = x - 1;
     }
     _lpython_return_variable = result;
@@ -53,8 +53,8 @@ int test_factorial_2(int x)
     int i;
     int result;
     result = 1;
-    for (i=1; i<=x + 1 - (1); i++) {
-        result = (result)*(i);
+    for (i=1; i<=x + 1 - 1; i++) {
+        result = result*i;
     }
     _lpython_return_variable = result;
     return _lpython_return_variable;
@@ -70,7 +70,7 @@ long long test_factorial_3(int x)
     }
     result = 1;
     while (x > 0) {
-        result = (result)*(x);
+        result = result*x;
         x = x - 1;
     }
     _lpython_return_variable = result;

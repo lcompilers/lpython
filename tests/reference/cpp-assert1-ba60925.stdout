@@ -20,7 +20,7 @@ void test_assert()
 {
     int a;
     a = 5;
-    assert (("a is not 5", (a) == (5)));
+    assert (("a is not 5", a == 5));
     assert (a != 10);
 }
 

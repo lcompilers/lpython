@@ -519,6 +519,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             }
             src = fn_name + "(" + args + ")";
         }
+        last_expr_precedence = 2;
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
@@ -539,18 +540,22 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_ConstantInteger(const ASR::ConstantInteger_t &x) {
         src = std::to_string(x.m_n);
+        last_expr_precedence = 2;
     }
 
     void visit_ConstantReal(const ASR::ConstantReal_t &x) {
         src = std::to_string(x.m_r);
+        last_expr_precedence = 2;
     }
 
     void visit_ConstantString(const ASR::ConstantString_t &x) {
         src = "\"" + std::string(x.m_s) + "\"";
+        last_expr_precedence = 2;
     }
 
     void visit_ConstantComplex(const ASR::ConstantComplex_t &x) {
         src = "{" + std::to_string(x.m_re) + ", " + std::to_string(x.m_im) + "}";
+        last_expr_precedence = 2;
     }
 
     void visit_ConstantLogical(const ASR::ConstantLogical_t &x) {
@@ -559,6 +564,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         } else {
             src = "false";
         }
+        last_expr_precedence = 2;
     }
 
     void visit_ConstantSet(const ASR::ConstantSet_t &x) {
@@ -571,11 +577,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
         out += "}";
         src = out;
+        last_expr_precedence = 2;
     }
 
     void visit_Var(const ASR::Var_t &x) {
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
         src = ASR::down_cast<ASR::Variable_t>(s)->m_name;
+        last_expr_precedence = 2;
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t &x) {
@@ -592,6 +600,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             if (i < x.n_args-1) out += ", ";
         }
         out += "-1]";
+        last_expr_precedence = 2;
         src = out;
     }
 
@@ -608,6 +617,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
         out += "}";
         src = out;
+        last_expr_precedence = 2;
     }
 
     void visit_ImplicitCast(const ASR::ImplicitCast_t &x) {
@@ -637,6 +647,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             }
             default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented");
         }
+        last_expr_precedence = 2;
     }
 
     void visit_Compare(const ASR::Compare_t &x) {
@@ -670,15 +681,33 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_UnaryOp(const ASR::UnaryOp_t &x) {
         this->visit_expr(*x.m_operand);
+        int expr_precedence = last_expr_precedence;
         if (x.m_type->type == ASR::ttypeType::Integer) {
             if (x.m_op == ASR::unaryopType::UAdd) {
                 // src = src;
+                // Skip unary plus, keep the previous precedence
             } else if (x.m_op == ASR::unaryopType::USub) {
-                src = "-" + src;
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "-" + src;
+                } else {
+                    src = "-(" + src + ")";
+                }
             } else if (x.m_op == ASR::unaryopType::Invert) {
-                src = "~" + src;
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "~" + src;
+                } else {
+                    src = "~(" + src + ")";
+                }
+
             } else if (x.m_op == ASR::unaryopType::Not) {
-                src = "!" + src;
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "!" + src;
+                } else {
+                    src = "!(" + src + ")";
+                }
             } else {
                 throw CodeGenError("Unary type not implemented yet for Integer");
             }
@@ -686,17 +715,33 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         } else if (x.m_type->type == ASR::ttypeType::Real) {
             if (x.m_op == ASR::unaryopType::UAdd) {
                 // src = src;
+                // Skip unary plus, keep the previous precedence
             } else if (x.m_op == ASR::unaryopType::USub) {
-                src = "-" + src;
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "-" + src;
+                } else {
+                    src = "-(" + src + ")";
+                }
             } else if (x.m_op == ASR::unaryopType::Not) {
-                src = "!" + src;
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "!" + src;
+                } else {
+                    src = "!(" + src + ")";
+                }
             } else {
                 throw CodeGenError("Unary type not implemented yet for Real");
             }
             return;
         } else if (x.m_type->type == ASR::ttypeType::Logical) {
             if (x.m_op == ASR::unaryopType::Not) {
-                src = "!" + src;
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "!" + src;
+                } else {
+                    src = "!(" + src + ")";
+                }
                 return;
             } else {
                 throw CodeGenError("Unary type not implemented yet for Logical");
@@ -817,6 +862,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
         out += "})";
         src = out;
+        last_expr_precedence = 2;
     }
 
     void visit_Print(const ASR::Print_t &x) {
@@ -958,6 +1004,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + " /* FIXME: implied do loop */ ";
         src = out;
+        last_expr_precedence = 2;
     }
 
     void visit_DoLoop(const ASR::DoLoop_t &x) {
@@ -1077,6 +1124,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         visit_expr(*x.m_orelse);
         out += src + ")";
         src = out;
+        last_expr_precedence = 16;
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {

@@ -159,7 +159,7 @@ static inline std::string binop_to_str(const ASR::binopType t) {
         case (ASR::binopType::Sub): { return " - "; }
         case (ASR::binopType::Mul): { return "*"; }
         case (ASR::binopType::Div): { return "/"; }
-        default : throw LFortranException("Not implemented");
+        default : throw LFortranException("Cannot represent the binary operator as a string");
     }
 }
 
@@ -171,7 +171,7 @@ static inline std::string cmpop_to_str(const ASR::cmpopType t) {
         case (ASR::cmpopType::LtE): { return " <= "; }
         case (ASR::cmpopType::Gt): { return " > "; }
         case (ASR::cmpopType::GtE): { return " >= "; }
-        default : throw LFortranException("Not implemented");
+        default : throw LFortranException("Cannot represent the comparison as a string");
     }
 }
 
@@ -181,7 +181,7 @@ static inline std::string boolop_to_str(const ASR::boolopType t) {
         case (ASR::boolopType::Or): { return " || "; }
         case (ASR::boolopType::Eqv): { return " == "; }
         case (ASR::boolopType::NEqv): { return " != "; }
-        default : throw LFortranException("Not implemented");
+        default : throw LFortranException("Cannot represent the boolean operator as a string");
     }
 }
 
