@@ -799,17 +799,22 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_StrOp(const ASR::StrOp_t &x) {
         this->visit_expr(*x.m_left);
-        std::string left_val = src;
+        std::string left = std::move(src);
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
-        std::string right_val = src;
-        switch (x.m_op) {
-            case (ASR::stropType::Concat): {
-                src = "std::string(" + left_val + ") + std::string(" + right_val + ")";
-                break;
-            }
-            case (ASR::stropType::Repeat): {
-                // TODO: implement
-            }
+        std::string right = std::move(src);
+        int right_precedence = last_expr_precedence;
+        last_expr_precedence = 6;
+        if (left_precedence <= last_expr_precedence) {
+            src += "std::string(" + left + ")";
+        } else {
+            src += left;
+        }
+        src += " + "; // handle only concatenation for now
+        if (right_precedence <= last_expr_precedence) {
+            src += "std::string(" + right + ")";
+        } else {
+            src += right;
         }
     }
 
