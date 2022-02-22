@@ -42,6 +42,11 @@ add_executable(test_lfortran ${SRC})
 target_link_libraries(test_lfortran lfortran_lib p::doctest)
 add_test(test_lfortran ${PROJECT_BINARY_DIR}/test_lfortran)
 
+set_target_properties(test_lfortran PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<0:>
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<0:>
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<0:>)
+
 if (WITH_LLVM)
     if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
         target_link_options(test_lfortran PRIVATE "LINKER:--export-dynamic")
