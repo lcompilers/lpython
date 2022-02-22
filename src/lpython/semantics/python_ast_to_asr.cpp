@@ -1934,6 +1934,7 @@ public:
             if (AST::is_a<AST::Name_t>(*at->m_value)) {
                 AST::Name_t *n = AST::down_cast<AST::Name_t>(at->m_value);
                 std::string mod_name = n->m_id;
+                call_name = at->m_attr;
                 std::string call_name_store = "__" + mod_name + "_" + call_name;
                 ASR::symbol_t *st = nullptr;
                 if (current_scope->scope.find(call_name_store) != current_scope->scope.end()) {
@@ -1951,17 +1952,19 @@ public:
                                         call_name, call_name_store, x.base.base.loc);
                     current_scope->scope[call_name_store] = st;
                 }
-                if (ASR::is_a<ASR::Subroutine_t>(*st)) {
-                    tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, st,
+                ASR::symbol_t *stemp = st;
+                st = ASRUtils::symbol_get_past_external(st);
+
+                if(ASR::is_a<ASR::Function_t>(*st)) {
+                    ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(st);
+                    ASR::ttype_t *a_type = ASRUtils::expr_type(func->m_return_var);
+                    tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, stemp,
+                        nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
+                } else if(ASR::is_a<ASR::Subroutine_t>(*st)) {
+                    tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, stemp,
                         nullptr, args.p, args.size(), nullptr);
-                } else if (ASR::is_a<ASR::Function_t>(*st)) {
-                    ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(st);
-                    ASR::ttype_t *a_type = ASRUtils::expr_type(mfn->m_return_var);
-                    tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, st,
-                        nullptr, args.p, args.size(), nullptr, 0, a_type,
-                        nullptr, nullptr);
                 } else {
-                    throw SemanticError("Only Subroutines and Functions are currently supported",
+                    throw SemanticError("Unsupported call type for " + call_name,
                         x.base.base.loc);
                 }
                 return;
