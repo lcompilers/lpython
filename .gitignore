@@ -1,7 +1,6 @@
 # LFortran
 
 src/bin/lpython
-src/bin/cpptranslate
 src/bin/parse
 src/bin/parse2
 src/lpython/parser/parser.output

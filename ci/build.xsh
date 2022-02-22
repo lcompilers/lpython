@@ -63,7 +63,6 @@ cd ../..
 jupyter kernelspec list --json
 
 cp lpython-$lpython_version/test-bld/src/bin/lpython src/bin
-cp lpython-$lpython_version/test-bld/src/bin/cpptranslate src/bin
 if $WIN == "1":
     cp lpython-$lpython_version/test-bld/src/runtime/legacy/lfortran_runtime* src/runtime/
 else:

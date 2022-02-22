@@ -130,7 +130,3 @@ install(TARGETS lpython
     ARCHIVE DESTINATION share/lpython/lib
     LIBRARY DESTINATION share/lpython/lib
 )
-
-
-add_executable(cpptranslate cpptranslate.cpp)
-target_link_libraries(cpptranslate lfortran_lib)
