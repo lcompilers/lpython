@@ -310,6 +310,75 @@ public:
 
 };
 
+ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *current_scope,
+                std::string mname, std::string cur_sym_name, std::string new_sym_name,
+                const Location &loc) {
+
+    ASR::symbol_t *t = m->m_symtab->resolve_symbol(cur_sym_name);
+    if (!t) {
+        throw SemanticError("The symbol '" + cur_sym_name + "' not found in the module '" + mname + "'",
+                loc);
+    }
+    if (current_scope->scope.find(cur_sym_name) != current_scope->scope.end()) {
+        throw SemanticError(cur_sym_name + " already defined", loc);
+    }
+    if (ASR::is_a<ASR::Subroutine_t>(*t)) {
+
+        ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(t);
+        // `msub` is the Subroutine in a module. Now we construct
+        // an ExternalSymbol that points to
+        // `msub` via the `external` field.
+        Str name;
+        name.from_str(al, new_sym_name);
+        ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
+            al, msub->base.base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ name.c_str(al),
+            (ASR::symbol_t*)msub,
+            m->m_name, nullptr, 0, msub->m_name,
+            ASR::accessType::Public
+            );
+        return ASR::down_cast<ASR::symbol_t>(sub);
+    } else if (ASR::is_a<ASR::Function_t>(*t)) {
+        ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
+        // `mfn` is the Function in a module. Now we construct
+        // an ExternalSymbol that points to it.
+        Str name;
+        name.from_str(al, new_sym_name);
+        char *cname = name.c_str(al);
+        ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+            al, mfn->base.base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ cname,
+            (ASR::symbol_t*)mfn,
+            m->m_name, nullptr, 0, mfn->m_name,
+            ASR::accessType::Public
+            );
+        return ASR::down_cast<ASR::symbol_t>(fn);
+    } else if (ASR::is_a<ASR::Variable_t>(*t)) {
+        ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
+        // `mv` is the Variable in a module. Now we construct
+        // an ExternalSymbol that points to it.
+        Str name;
+        name.from_str(al, new_sym_name);
+        char *cname = name.c_str(al);
+        ASR::asr_t *v = ASR::make_ExternalSymbol_t(
+            al, mv->base.base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ cname,
+            (ASR::symbol_t*)mv,
+            m->m_name, nullptr, 0, mv->m_name,
+            ASR::accessType::Public
+            );
+        return ASR::down_cast<ASR::symbol_t>(v);
+    } else {
+        throw SemanticError("Only Subroutines, Functions and Variables are currently supported in 'import'",
+            loc);
+    }
+    // should not reach here
+    return nullptr;
+}
+
 class SymbolTableVisitor : public CommonVisitor<SymbolTableVisitor> {
 public:
     SymbolTable *global_scope;
@@ -519,78 +588,9 @@ public:
 
         ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
         for (auto &remote_sym : mod_symbols) {
-            std::string local_sym = remote_sym;
-            ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
-            if (!t) {
-                throw SemanticError("The symbol '" + remote_sym + "' not found in the module '" + msym + "'",
-                        x.base.base.loc);
-            }
-            if (ASR::is_a<ASR::Subroutine_t>(*t)) {
-                if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
-                    throw SemanticError("Subroutine already defined",
-                        x.base.base.loc);
-                }
-                ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(t);
-                // `msub` is the Subroutine in a module. Now we construct
-                // an ExternalSymbol that points to
-                // `msub` via the `external` field.
-                Str name;
-                name.from_str(al, local_sym);
-                ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
-                    al, msub->base.base.loc,
-                    /* a_symtab */ current_scope,
-                    /* a_name */ name.c_str(al),
-                    (ASR::symbol_t*)msub,
-                    m->m_name, nullptr, 0, msub->m_name,
-                    ASR::accessType::Public
-                    );
-                current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(sub);
-            } else if (ASR::is_a<ASR::Function_t>(*t)) {
-                if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
-                    throw SemanticError("Function already defined",
-                        x.base.base.loc);
-                }
-                ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
-                // `mfn` is the Function in a module. Now we construct
-                // an ExternalSymbol that points to it.
-                Str name;
-                name.from_str(al, local_sym);
-                char *cname = name.c_str(al);
-                ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
-                    al, mfn->base.base.loc,
-                    /* a_symtab */ current_scope,
-                    /* a_name */ cname,
-                    (ASR::symbol_t*)mfn,
-                    m->m_name, nullptr, 0, mfn->m_name,
-                    ASR::accessType::Public
-                    );
-                current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
-            } else if (ASR::is_a<ASR::Variable_t>(*t)) {
-                if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
-                    throw SemanticError("Variable already defined",
-                        x.base.base.loc);
-                }
-                ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
-                // `mv` is the Variable in a module. Now we construct
-                // an ExternalSymbol that points to it.
-                Str name;
-                name.from_str(al, local_sym);
-                char *cname = name.c_str(al);
-                ASR::asr_t *v = ASR::make_ExternalSymbol_t(
-                    al, mv->base.base.loc,
-                    /* a_symtab */ current_scope,
-                    /* a_name */ cname,
-                    (ASR::symbol_t*)mv,
-                    m->m_name, nullptr, 0, mv->m_name,
-                    ASR::accessType::Public
-                    );
-                current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(v);
-            } else {
-                throw SemanticError("Only Subroutines, Functions and Variables are currently supported in 'import'",
-                    x.base.base.loc);
-            }
-
-
+            ASR::symbol_t *t = import_from_module(al, m, current_scope, msym,
+                                remote_sym, remote_sym, x.base.base.loc);
+            current_scope->scope[remote_sym] = t;
         }
 
         tmp = nullptr;
@@ -1934,63 +1934,40 @@ public:
             if (AST::is_a<AST::Name_t>(*at->m_value)) {
                 AST::Name_t *n = AST::down_cast<AST::Name_t>(at->m_value);
                 std::string mod_name = n->m_id;
-                SymbolTable *symtab = current_scope;
-                while (symtab->parent != nullptr) symtab = symtab->parent;
-                if (symtab->scope.find(mod_name) == symtab->scope.end()) {
-                    throw SemanticError("module '" + mod_name + "' is not imported",
-                        x.base.base.loc);
-                }
-                ASR::symbol_t *mt = symtab->scope[mod_name];
-                ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(mt);
                 call_name = at->m_attr;
-                ASR::symbol_t *t = m->m_symtab->resolve_symbol(call_name);
-                if (!t) {
-                    throw SemanticError("The symbol '" + call_name + "' not found in the module '" + \
-                        mod_name + "'", x.base.base.loc);
-                }
-                call_name = "__" + mod_name + "_" + call_name;
-                if (ASR::is_a<ASR::Subroutine_t>(*t)) {
-                    ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(t);
-                    Str name;
-                    name.from_str(al, call_name);
-                    ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
-                        al, msub->base.base.loc,
-                        /* a_symtab */ current_scope,
-                        /* a_name */ name.c_str(al),
-                        (ASR::symbol_t*)msub,
-                        m->m_name, nullptr, 0, msub->m_name,
-                        ASR::accessType::Public
-                        );
-                    ASR::symbol_t *st = ASR::down_cast<ASR::symbol_t>(sub);
-                    current_scope->scope[call_name] = st;
-                    tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, st,
-                        nullptr, args.p, args.size(), nullptr);
-                    return;
-                } else if (ASR::is_a<ASR::Function_t>(*t)) {
-                    ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
-                    Str name;
-                    name.from_str(al, call_name);
-                    char *cname = name.c_str(al);
-                    ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
-                        al, mfn->base.base.loc,
-                        /* a_symtab */ current_scope,
-                        /* a_name */ cname,
-                        (ASR::symbol_t*)mfn,
-                        m->m_name, nullptr, 0, mfn->m_name,
-                        ASR::accessType::Public
-                        );
-                    ASR::symbol_t *st = ASR::down_cast<ASR::symbol_t>(fn);
-                    current_scope->scope[call_name] = st;
-                    ASR::ttype_t *a_type = ASRUtils::expr_type(mfn->m_return_var);
-                    tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, st,
-                        nullptr, args.p, args.size(), nullptr, 0, a_type,
-                        nullptr, nullptr);
-                    return;
+                std::string call_name_store = "__" + mod_name + "_" + call_name;
+                ASR::symbol_t *st = nullptr;
+                if (current_scope->scope.find(call_name_store) != current_scope->scope.end()) {
+                    st = current_scope->scope[call_name_store];
                 } else {
-                    throw SemanticError("Only Subroutines and Functions are currently supported in 'import'",
+                    SymbolTable *symtab = current_scope;
+                    while (symtab->parent != nullptr) symtab = symtab->parent;
+                    if (symtab->scope.find(mod_name) == symtab->scope.end()) {
+                        throw SemanticError("module '" + mod_name + "' is not imported",
+                            x.base.base.loc);
+                    }
+                    ASR::symbol_t *mt = symtab->scope[mod_name];
+                    ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(mt);
+                    st = import_from_module(al, m, current_scope, mod_name,
+                                        call_name, call_name_store, x.base.base.loc);
+                    current_scope->scope[call_name_store] = st;
+                }
+                ASR::symbol_t *stemp = st;
+                st = ASRUtils::symbol_get_past_external(st);
+
+                if(ASR::is_a<ASR::Function_t>(*st)) {
+                    ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(st);
+                    ASR::ttype_t *a_type = ASRUtils::expr_type(func->m_return_var);
+                    tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, stemp,
+                        nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
+                } else if(ASR::is_a<ASR::Subroutine_t>(*st)) {
+                    tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, stemp,
+                        nullptr, args.p, args.size(), nullptr);
+                } else {
+                    throw SemanticError("Unsupported call type for " + call_name,
                         x.base.base.loc);
                 }
-
+                return;
             } else {
                 throw SemanticError("Only Name type supported in Call",
                     x.base.base.loc);
