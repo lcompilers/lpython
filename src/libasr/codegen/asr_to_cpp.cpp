@@ -98,8 +98,9 @@ public:
     std::string src;
     int indentation_level;
     int indentation_spaces;
-    bool last_unary_plus;
-    bool last_binary_plus;
+    // The precedence of the last expression, using the table:
+    // https://en.cppreference.com/w/cpp/language/operator_precedence
+    int last_expr_precedence;
     bool intrinsic_module = false;
     const ASR::Function_t *current_function = nullptr;
 
@@ -518,8 +519,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             }
             src = fn_name + "(" + args + ")";
         }
-        last_unary_plus = false;
-        last_binary_plus = false;
+        last_expr_precedence = 2;
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
@@ -540,26 +540,22 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_ConstantInteger(const ASR::ConstantInteger_t &x) {
         src = std::to_string(x.m_n);
-        last_unary_plus = false;
-        last_binary_plus = false;
+        last_expr_precedence = 2;
     }
 
     void visit_ConstantReal(const ASR::ConstantReal_t &x) {
         src = std::to_string(x.m_r);
-        last_unary_plus = false;
-        last_binary_plus = false;
+        last_expr_precedence = 2;
     }
 
     void visit_ConstantString(const ASR::ConstantString_t &x) {
         src = "\"" + std::string(x.m_s) + "\"";
-        last_unary_plus = false;
-        last_binary_plus = false;
+        last_expr_precedence = 2;
     }
 
     void visit_ConstantComplex(const ASR::ConstantComplex_t &x) {
         src = "{" + std::to_string(x.m_re) + ", " + std::to_string(x.m_im) + "}";
-        last_unary_plus = false;
-        last_binary_plus = false;
+        last_expr_precedence = 2;
     }
 
     void visit_ConstantLogical(const ASR::ConstantLogical_t &x) {
@@ -568,8 +564,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         } else {
             src = "false";
         }
-        last_unary_plus = false;
-        last_binary_plus = false;
+        last_expr_precedence = 2;
     }
 
     void visit_ConstantSet(const ASR::ConstantSet_t &x) {
@@ -582,13 +577,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
         out += "}";
         src = out;
+        last_expr_precedence = 2;
     }
 
     void visit_Var(const ASR::Var_t &x) {
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
         src = ASR::down_cast<ASR::Variable_t>(s)->m_name;
-        last_unary_plus = false;
-        last_binary_plus = false;
+        last_expr_precedence = 2;
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t &x) {
@@ -605,9 +600,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             if (i < x.n_args-1) out += ", ";
         }
         out += "-1]";
+        last_expr_precedence = 2;
         src = out;
-        last_unary_plus = false;
-        last_binary_plus = false;
     }
 
     void visit_ConstantDictionary(const ASR::ConstantDictionary_t &x) {
@@ -623,6 +617,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
         out += "}";
         src = out;
+        last_expr_precedence = 2;
     }
 
     void visit_ImplicitCast(const ASR::ImplicitCast_t &x) {
@@ -652,63 +647,67 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             }
             default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented");
         }
+        last_expr_precedence = 2;
     }
 
     void visit_Compare(const ASR::Compare_t &x) {
         this->visit_expr(*x.m_left);
-        std::string left = src;
+        std::string left = std::move(src);
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
-        std::string right = src;
+        std::string right = std::move(src);
+        int right_precedence = last_expr_precedence;
         switch (x.m_op) {
-            case (ASR::cmpopType::Eq) : {
-                src = left + " == " + right;
-                break;
-            }
-            case (ASR::cmpopType::Gt) : {
-                src = left + " > " + right;
-                break;
-            }
-            case (ASR::cmpopType::GtE) : {
-                src = left + " >= " + right;
-                break;
-            }
-            case (ASR::cmpopType::Lt) : {
-                src = left + " < " + right;
-                break;
-            }
-            case (ASR::cmpopType::LtE) : {
-                src = left + " <= " + right;
-                break;
-            }
-            case (ASR::cmpopType::NotEq) : {
-                src = left + " != " + right;
-                break;
-            }
-            default : {
-                throw CodeGenError("Comparison operator not implemented");
-            }
+            case (ASR::cmpopType::Eq) : { last_expr_precedence = 10; break; }
+            case (ASR::cmpopType::Gt) : { last_expr_precedence = 9;  break; }
+            case (ASR::cmpopType::GtE) : { last_expr_precedence = 9; break; }
+            case (ASR::cmpopType::Lt) : { last_expr_precedence = 9;  break; }
+            case (ASR::cmpopType::LtE) : { last_expr_precedence = 9; break; }
+            case (ASR::cmpopType::NotEq): { last_expr_precedence = 10; break; }
+            default : LFORTRAN_ASSERT(false); // should never happen
+        }
+        if (left_precedence <= last_expr_precedence) {
+            src += left;
+        } else {
+            src += "(" + left + ")";
+        }
+        src += ASRUtils::cmpop_to_str(x.m_op);
+        if (right_precedence <= last_expr_precedence) {
+            src += right;
+        } else {
+            src += "(" + right + ")";
         }
     }
 
     void visit_UnaryOp(const ASR::UnaryOp_t &x) {
         this->visit_expr(*x.m_operand);
+        int expr_precedence = last_expr_precedence;
         if (x.m_type->type == ASR::ttypeType::Integer) {
             if (x.m_op == ASR::unaryopType::UAdd) {
                 // src = src;
-                last_unary_plus = false;
-                return;
+                // Skip unary plus, keep the previous precedence
             } else if (x.m_op == ASR::unaryopType::USub) {
-                src = "-" + src;
-                last_unary_plus = true;
-                last_binary_plus = false;
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "-" + src;
+                } else {
+                    src = "-(" + src + ")";
+                }
             } else if (x.m_op == ASR::unaryopType::Invert) {
-                src = "~" + src;
-                last_unary_plus = false;
-                last_binary_plus = false;
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "~" + src;
+                } else {
+                    src = "~(" + src + ")";
+                }
+
             } else if (x.m_op == ASR::unaryopType::Not) {
-                src = "!" + src;
-                last_unary_plus = false;
-                last_binary_plus = false;
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "!" + src;
+                } else {
+                    src = "!(" + src + ")";
+                }
             } else {
                 throw CodeGenError("Unary type not implemented yet for Integer");
             }
@@ -716,24 +715,33 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         } else if (x.m_type->type == ASR::ttypeType::Real) {
             if (x.m_op == ASR::unaryopType::UAdd) {
                 // src = src;
-                last_unary_plus = false;
+                // Skip unary plus, keep the previous precedence
             } else if (x.m_op == ASR::unaryopType::USub) {
-                src = "-" + src;
-                last_unary_plus = true;
-                last_binary_plus = false;
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "-" + src;
+                } else {
+                    src = "-(" + src + ")";
+                }
             } else if (x.m_op == ASR::unaryopType::Not) {
-                src = "!" + src;
-                last_unary_plus = false;
-                last_binary_plus = false;
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "!" + src;
+                } else {
+                    src = "!(" + src + ")";
+                }
             } else {
                 throw CodeGenError("Unary type not implemented yet for Real");
             }
             return;
         } else if (x.m_type->type == ASR::ttypeType::Logical) {
             if (x.m_op == ASR::unaryopType::Not) {
-                src = "!" + src;
-                last_unary_plus = false;
-                last_binary_plus = false;
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "!" + src;
+                } else {
+                    src = "!(" + src + ")";
+                }
                 return;
             } else {
                 throw CodeGenError("Unary type not implemented yet for Logical");
@@ -745,103 +753,109 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_BinOp(const ASR::BinOp_t &x) {
         this->visit_expr(*x.m_left);
-        std::string left_val = src;
-        if ((last_binary_plus || last_unary_plus)
-                    && (x.m_op == ASR::binopType::Mul
-                     || x.m_op == ASR::binopType::Div)) {
-            left_val = "(" + left_val + ")";
-        }
-        if (last_unary_plus
-                    && (x.m_op == ASR::binopType::Add
-                     || x.m_op == ASR::binopType::Sub)) {
-            left_val = "(" + left_val + ")";
-        }
+        std::string left = std::move(src);
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
-        std::string right_val = src;
-        if ((last_binary_plus || last_unary_plus)
-                    && (x.m_op == ASR::binopType::Mul
-                     || x.m_op == ASR::binopType::Div)) {
-            right_val = "(" + right_val + ")";
-        }
-        if (last_unary_plus
-                    && (x.m_op == ASR::binopType::Add
-                     || x.m_op == ASR::binopType::Sub)) {
-            right_val = "(" + right_val + ")";
-        }
+        std::string right = std::move(src);
+        int right_precedence = last_expr_precedence;
         switch (x.m_op) {
-            case ASR::binopType::Add: {
-                src = left_val + " + " + right_val;
-                last_binary_plus = true;
-                break;
+            case (ASR::binopType::Add) : { last_expr_precedence = 6; break; }
+            case (ASR::binopType::Sub) : { last_expr_precedence = 6; break; }
+            case (ASR::binopType::Mul) : { last_expr_precedence = 5; break; }
+            case (ASR::binopType::Div) : { last_expr_precedence = 5; break; }
+            case (ASR::binopType::Pow) : {
+                src = "std::pow(" + left + ", " + right + ")";
+                return;
             }
-            case ASR::binopType::Sub: {
-                src = left_val + " - " + right_val;
-                last_binary_plus = true;
-                break;
-            }
-            case ASR::binopType::Mul: {
-                src = left_val + "*" + right_val;
-                last_binary_plus = false;
-                break;
-            }
-            case ASR::binopType::Div: {
-                src = left_val + "/" + right_val;
-                last_binary_plus = false;
-                break;
-            }
-            case ASR::binopType::Pow: {
-                src = "std::pow(" + left_val + ", " + right_val + ")";
-                last_binary_plus = false;
-                break;
-            }
-            default : throw CodeGenError("Unhandled switch case");
+            default: throw CodeGenError("BinOp: operator not implemented yet");
         }
-        last_unary_plus = false;
+        src = "";
+        if (left_precedence == 3) {
+            src += "(" + left + ")";
+        } else {
+            if (left_precedence <= last_expr_precedence) {
+                src += left;
+            } else {
+                src += "(" + left + ")";
+            }
+        }
+        src += ASRUtils::binop_to_str(x.m_op);
+        if (right_precedence == 3) {
+            src += "(" + right + ")";
+        } else if (x.m_op == ASR::binopType::Sub) {
+            if (right_precedence < last_expr_precedence) {
+                src += right;
+            } else {
+                src += "(" + right + ")";
+            }
+        } else {
+            if (right_precedence <= last_expr_precedence) {
+                src += right;
+            } else {
+                src += "(" + right + ")";
+            }
+        }
     }
 
     void visit_StrOp(const ASR::StrOp_t &x) {
         this->visit_expr(*x.m_left);
-        std::string left_val = src;
+        std::string left = std::move(src);
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
-        std::string right_val = src;
-        switch (x.m_op) {
-            case (ASR::stropType::Concat): {
-                src = "std::string(" + left_val + ") + std::string(" + right_val + ")";
-                break;
-            }
-            case (ASR::stropType::Repeat): {
-                // TODO: implement
-            }
+        std::string right = std::move(src);
+        int right_precedence = last_expr_precedence;
+        last_expr_precedence = 6;
+        if (left_precedence <= last_expr_precedence) {
+            src += "std::string(" + left + ")";
+        } else {
+            src += left;
         }
-        last_unary_plus = false;
+        src += " + "; // handle only concatenation for now
+        if (right_precedence <= last_expr_precedence) {
+            src += "std::string(" + right + ")";
+        } else {
+            src += right;
+        }
     }
 
     void visit_BoolOp(const ASR::BoolOp_t &x) {
         this->visit_expr(*x.m_left);
-        std::string left_val = "(" + src + ")";
+        std::string left = std::move(src);
+        int left_precedence = last_expr_precedence;
         this->visit_expr(*x.m_right);
-        std::string right_val = "(" + src + ")";
+        std::string right = std::move(src);
+        int right_precedence = last_expr_precedence;
         switch (x.m_op) {
-            case ASR::boolopType::And: {
-                src = left_val + " && " + right_val;
+            case (ASR::boolopType::And): {
+                last_expr_precedence = 14;
                 break;
             }
-            case ASR::boolopType::Or: {
-                src = left_val + " || " + right_val;
+            case (ASR::boolopType::Or): {
+                last_expr_precedence = 15;
                 break;
             }
-            case ASR::boolopType::NEqv: {
-                src = left_val + " != " + right_val;
+            case (ASR::boolopType::NEqv): {
+                last_expr_precedence = 10;
                 break;
             }
-            case ASR::boolopType::Eqv: {
-                src = left_val + " == " + right_val;
+            case (ASR::boolopType::Eqv): {
+                last_expr_precedence = 10;
                 break;
             }
             default : throw CodeGenError("Unhandled switch case");
         }
-        last_binary_plus = false;
-        last_unary_plus = false;
+
+        if (left_precedence <= last_expr_precedence) {
+            src += left;
+        } else {
+            src += "(" + left + ")";
+        }
+        src += ASRUtils::boolop_to_str(x.m_op);
+        if (right_precedence <= last_expr_precedence) {
+            src += right;
+        } else {
+            src += "(" + right + ")";
+        }
     }
 
     void visit_ConstantArray(const ASR::ConstantArray_t &x) {
@@ -853,6 +867,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
         out += "})";
         src = out;
+        last_expr_precedence = 2;
     }
 
     void visit_Print(const ASR::Print_t &x) {
@@ -994,6 +1009,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + " /* FIXME: implied do loop */ ";
         src = out;
+        last_expr_precedence = 2;
     }
 
     void visit_DoLoop(const ASR::DoLoop_t &x) {
@@ -1113,6 +1129,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         visit_expr(*x.m_orelse);
         out += src + ")";
         src = out;
+        last_expr_precedence = 16;
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
