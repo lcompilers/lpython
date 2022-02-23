@@ -2054,10 +2054,14 @@ public:
             if (intrinsic_procedures.is_intrinsic(call_name)) {
                 s = resolve_intrinsic_function(x.base.base.loc, call_name);
             } else {
+                // TODO: We need to port all functions below to the intrinsic functions file
+                // Then we can uncomment this error message:
+                /*
                 throw SemanticError("The function '" + call_name + "' is not declared and not intrinsic",
                     x.base.base.loc);
             }
             if (false) {
+                */
                 // This will all be removed once we port it to intrinsic functions
             // Intrinsic functions
             if (call_name == "size") {
