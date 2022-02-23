@@ -188,10 +188,13 @@ public:
 
         SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
         std::string rl_path = get_runtime_library_dir();
-        ASR::Module_t *m = ASRUtils::load_module(al, tu_symtab, module_name,
+        bool ltypes;
+        ASR::Module_t *m = load_module(al, tu_symtab, module_name,
                 loc, true, rl_path,
+                ltypes,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
                 );
+        LFORTRAN_ASSERT(!ltypes)
 
         ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
         if (!t) {
