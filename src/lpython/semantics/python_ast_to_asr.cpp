@@ -22,6 +22,7 @@
 #include <lpython/utils.h>
 #include <lpython/semantics/semantic_exception.h>
 #include <lpython/python_serialization.h>
+#include <lpython/semantics/python_comptime_eval.h>
 
 
 namespace LFortran::Python {
@@ -147,11 +148,14 @@ public:
     ASR::asr_t *tmp;
     Allocator &al;
     SymbolTable *current_scope;
+    // The current_module contains the current module that is being visited;
+    // this is used to append to the module dependencies if needed
     ASR::Module_t *current_module = nullptr;
     Vec<char *> current_module_dependencies;
     // True for the main module, false for every other one
     // The main module is stored directly in TranslationUnit, other modules are Modules
     bool main_module;
+    PythonIntrinsicProcedures intrinsic_procedures;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module)
@@ -176,6 +180,72 @@ public:
             }
         }
         return ASR::make_Var_t(al, loc, v);
+    }
+
+    ASR::symbol_t* resolve_intrinsic_function(const Location &loc, const std::string &remote_sym) {
+        LFORTRAN_ASSERT(intrinsic_procedures.is_intrinsic(remote_sym))
+        std::string module_name = intrinsic_procedures.get_module(remote_sym, loc);
+
+        SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
+        std::string rl_path = get_runtime_library_dir();
+        bool ltypes;
+        ASR::Module_t *m = load_module(al, tu_symtab, module_name,
+                loc, true, rl_path,
+                ltypes,
+                [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
+                );
+        LFORTRAN_ASSERT(!ltypes)
+
+        ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
+        if (!t) {
+            throw SemanticError("The symbol '" + remote_sym
+                + "' not found in the module '" + module_name + "'",
+                loc);
+        } else if (! (ASR::is_a<ASR::GenericProcedure_t>(*t)
+                    || ASR::is_a<ASR::Function_t>(*t)
+                    || ASR::is_a<ASR::Subroutine_t>(*t))) {
+            throw SemanticError("The symbol '" + remote_sym
+                + "' found in the module '" + module_name + "', "
+                + "but it is not a function, subroutine or a generic procedure.",
+                loc);
+        }
+        char *fn_name = ASRUtils::symbol_name(t);
+        ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+            al, t->base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ fn_name,
+            t,
+            m->m_name, nullptr, 0, fn_name,
+            ASR::accessType::Private
+            );
+        std::string sym = fn_name;
+
+        current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
+        ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(fn);
+
+        // Now we need to add the module `m` with the intrinsic function
+        // into the current module dependencies
+        if (current_module) {
+            // We are in body visitor, the module is already constructed
+            // and available as current_module.
+            // Add the module `m` to current module dependencies
+            Vec<char*> vec;
+            vec.from_pointer_n_copy(al, current_module->m_dependencies,
+                        current_module->n_dependencies);
+            if (!present(vec, m->m_name)) {
+                vec.push_back(al, m->m_name);
+                current_module->m_dependencies = vec.p;
+                current_module->n_dependencies = vec.size();
+            }
+        } else {
+            // We are in the symtab visitor or body visitor and we are
+            // constructing a module, so current_module is not available yet
+            // (the current_module_dependencies is not used in body visitor)
+            if (!present(current_module_dependencies, m->m_name)) {
+                current_module_dependencies.push_back(al, m->m_name);
+            }
+        }
+        return v;
     }
 
     // Convert Python AST type annotation to an ASR type
@@ -1981,6 +2051,18 @@ public:
 
 
         if (!s) {
+            if (intrinsic_procedures.is_intrinsic(call_name)) {
+                s = resolve_intrinsic_function(x.base.base.loc, call_name);
+            } else {
+                // TODO: We need to port all functions below to the intrinsic functions file
+                // Then we can uncomment this error message:
+                /*
+                throw SemanticError("The function '" + call_name + "' is not declared and not intrinsic",
+                    x.base.base.loc);
+            }
+            if (false) {
+                */
+                // This will all be removed once we port it to intrinsic functions
             // Intrinsic functions
             if (call_name == "size") {
                 // TODO: size should be part of ASR. That way
@@ -2481,12 +2563,9 @@ public:
                 throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
                     x.base.base.loc);
             }
+            } // end of "comment"
         }
 
-        if (!s) {
-            throw SemanticError("Function '" + call_name + "' is not declared",
-                x.base.base.loc);
-        }
         // handling ExternalSymbol
         ASR::symbol_t *stemp = s;
         s = ASRUtils::symbol_get_past_external(s);
@@ -2494,8 +2573,12 @@ public:
         if(ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
             ASR::ttype_t *a_type = ASRUtils::expr_type(func->m_return_var);
+            ASR::expr_t *value = nullptr;
+            if (ASRUtils::is_intrinsic_function2(func)) {
+                value = intrinsic_procedures.comptime_eval(call_name, al, x.base.base.loc, args);
+            }
             tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, stemp,
-                nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
+                nullptr, args.p, args.size(), nullptr, 0, a_type, value, nullptr);
         } else if(ASR::is_a<ASR::Subroutine_t>(*s)) {
             tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, stemp,
                 nullptr, args.p, args.size(), nullptr);
