@@ -148,6 +148,8 @@ public:
     ASR::asr_t *tmp;
     Allocator &al;
     SymbolTable *current_scope;
+    // The current_module contains the current module that is being visited;
+    // this is used to append to the module dependencies if needed
     ASR::Module_t *current_module = nullptr;
     Vec<char *> current_module_dependencies;
     // True for the main module, false for every other one
