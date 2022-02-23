@@ -60,9 +60,8 @@ struct PythonIntrinsicProcedures {
             comptime_eval_callback cb = std::get<1>(search->second);
             Vec<ASR::expr_t*> arg_values = ASRUtils::get_arg_values(al, args);
             if (arg_values.size() != args.size()) {
-                throw SemanticError("Intrinsic function '" + name
-                    + "' compile time evaluation expects different number of arguments",
-                    loc);
+                // Not all arguments have compile time values; we do not call the callback
+                return nullptr;
             }
             return cb(al, loc, arg_values);
         } else {

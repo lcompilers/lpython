@@ -2569,8 +2569,12 @@ public:
         if(ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
             ASR::ttype_t *a_type = ASRUtils::expr_type(func->m_return_var);
+            ASR::expr_t *value = nullptr;
+            if (ASRUtils::is_intrinsic_function2(func)) {
+                value = intrinsic_procedures.comptime_eval(call_name, al, x.base.base.loc, args);
+            }
             tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, stemp,
-                nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
+                nullptr, args.p, args.size(), nullptr, 0, a_type, value, nullptr);
         } else if(ASR::is_a<ASR::Subroutine_t>(*s)) {
             tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, stemp,
                 nullptr, args.p, args.size(), nullptr);
