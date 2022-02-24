@@ -1708,9 +1708,11 @@ public:
             right_type->type != ASR::ttypeType::Complex) &&
             x.m_ops != AST::cmpopType::Eq && x.m_ops != AST::cmpopType::NotEq) &&
             (left_type->type != ASR::ttypeType::Character ||
-            right_type->type != ASR::ttypeType::Character))) {
+            right_type->type != ASR::ttypeType::Character)) &&
+            (left_type->type != ASR::ttypeType::Logical ||
+            right_type->type != ASR::ttypeType::Logical)) {
         throw SemanticError(
-            "Compare: only Integer, Real, or String can be on the LHS and RHS."
+            "Compare: only Integer, Real, Logical, or String can be on the LHS and RHS."
             "If operator is Eq or NotEq then Complex type is also acceptable",
             x.base.base.loc);
         }
@@ -1804,6 +1806,27 @@ public:
                     default: {
                         throw SemanticError("'" + ASRUtils::cmpop_to_str(asr_op) +
                                             "' comparison is not supported between complex numbers",
+                                            x.base.base.loc);
+                    }
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                    al, x.base.base.loc, result, type));
+
+            } else if (ASRUtils::is_logical(*source_type)) {
+                bool left_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                                        ASRUtils::expr_value(left))->m_value;
+                bool right_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                                        ASRUtils::expr_value(right))->m_value;
+                bool result;
+                switch (asr_op) {
+                    case (ASR::cmpopType::Eq):  { result = left_value == right_value; break; }
+                    case (ASR::cmpopType::Gt): { result = left_value > right_value; break; }
+                    case (ASR::cmpopType::GtE): { result = left_value >= right_value; break; }
+                    case (ASR::cmpopType::Lt): { result = left_value < right_value; break; }
+                    case (ASR::cmpopType::LtE): { result = left_value <= right_value; break; }
+                    case (ASR::cmpopType::NotEq): { result = left_value != right_value; break; }
+                    default: {
+                        throw SemanticError("Comparison operator not implemented",
                                             x.base.base.loc);
                     }
                 }
@@ -2271,130 +2294,6 @@ public:
                     throw SemanticError(call_name + "() must have one integer argument",
                         x.base.base.loc);
                 }
-            } else if (call_name == "abs") {
-                if (args.size() != 1) {
-                    throw SemanticError(call_name + "() takes exactly one argument (" +
-                        std::to_string(args.size()) + " given)", x.base.base.loc);
-                }
-                std::string rl_path = get_runtime_library_dir();
-                SymbolTable *st = current_scope;
-                while (st->parent != nullptr) {
-                    st = st->parent;
-                }
-                bool ltypes;
-                std::string msym = "lpython_builtin";
-                ASR::symbol_t *t = (ASR::symbol_t*)(load_module(al, st,
-                    msym, x.base.base.loc, true, rl_path, ltypes,
-                    [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
-                    ));
-                LFORTRAN_ASSERT(!ltypes)
-                if (!t) {
-                    throw SemanticError("The module '" + msym + "' cannot be loaded",
-                            x.base.base.loc);
-                }
-
-                ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
-
-                std::string local_sym = "abs";
-                t = m->m_symtab->resolve_symbol(local_sym);
-                if (!t) {
-                    throw SemanticError("ICE: The symbol '" + local_sym + "' not found in the module '" + msym + "'",
-                            x.base.base.loc);
-                }
-                if (ASR::is_a<ASR::Function_t>(*t)) {
-                    if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
-                        throw SemanticError("Function already defined",
-                            x.base.base.loc);
-                    }
-                    ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
-                    // `mfn` is the Function in a module. Now we construct
-                    // an ExternalSymbol that points to it.
-                    Str name;
-                    name.from_str(al, local_sym);
-                    char *cname = name.c_str(al);
-                    ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
-                        al, mfn->base.base.loc,
-                        /* a_symtab */ current_scope,
-                        /* a_name */ cname,
-                        (ASR::symbol_t*)mfn,
-                        m->m_name, nullptr, 0, mfn->m_name,
-                        ASR::accessType::Public
-                        );
-                    current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
-
-                    ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Real_t(al,
-                        x.base.base.loc, 8, nullptr, 0));
-                    tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(fn),
-                        nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
-                    return;
-                } else {
-                    throw SemanticError("ICE: Abs expected to be a function", x.base.base.loc);
-                }
-                // Compile time value implementation:
-                /*
-                ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
-                ASR::ttype_t* t = ASRUtils::expr_type(arg);
-                ASR::ttype_t* real_type = ASRUtils::TYPE(ASR::make_Real_t(al,
-                                        x.base.base.loc, 8, nullptr, 0));
-                ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al,
-                                        x.base.base.loc, 4, nullptr, 0));
-                if (ASRUtils::is_real(*t)) {
-                    double rv = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
-                    double val = std::abs(rv);
-                    tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, val, t);
-                } else if (ASRUtils::is_integer(*t)) {
-                    int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
-                    int64_t val = std::abs(rv);
-                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, val, t);
-                } else if (ASRUtils::is_complex(*t)) {
-                    double re = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_re;
-                    double im = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_im;
-                    std::complex<double> c(re, im);
-                    double result = std::abs(c);
-                    tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, result, real_type);
-                } else if (ASRUtils::is_logical(*t)) {
-                    bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
-                    int8_t val = rv ? 1 : 0;
-                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, val, int_type);
-                } else {
-                    throw SemanticError(call_name + "() must have one real, integer, complex, or logical argument",
-                        x.base.base.loc);
-                }
-                return;
-                */
-            } else if (call_name == "bool") {
-                if (args.size() != 1) {
-                    throw SemanticError(call_name + "() takes exactly one argument (" +
-                        std::to_string(args.size()) + " given)", x.base.base.loc);
-                }
-                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
-                                    1, nullptr, 0));
-                ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
-                ASR::ttype_t* t = ASRUtils::expr_type(arg);
-                bool result;
-                if (ASRUtils::is_real(*t)) {
-                    double rv = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
-                    result = rv ? true : false;
-                } else if (ASRUtils::is_integer(*t)) {
-                    int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
-                    result = rv ? true : false;
-                } else if (ASRUtils::is_complex(*t)) {
-                    double re = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_re;
-                    double im = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_im;
-                    std::complex<double> c(re, im);
-                    result = (re || im) ? true : false;
-                } else if (ASRUtils::is_logical(*t)) {
-                    bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
-                    result = rv;
-                } else if (ASRUtils::is_character(*t)) {
-                    char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(arg))->m_s;
-                    result = strlen(s2c(al, std::string(c))) ? true : false;
-                } else {
-                    throw SemanticError(call_name + "() must have one real, integer, character,"
-                            " complex, or logical argument", x.base.base.loc);
-                }
-                tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, result, type);
-                return;
             } else if (call_name == "callable") {
                 if (args.size() != 1) {
                     throw SemanticError(call_name + "() takes exactly one argument (" +
@@ -2480,40 +2379,6 @@ public:
                 } else {
                     throw SemanticError("float() argument must be real, integer, logical, or a string, not '" +
                         ASRUtils::type_to_str(float_type) + "'", x.base.base.loc);
-                }
-                return;
-            } else if (call_name == "str") {
-                ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
-                    x.base.base.loc, 1, 1, nullptr, nullptr, 0));
-                if (args.size() == 0) { // create an empty string
-                    tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, ""), str_type);
-                    return;
-                }
-                ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
-                ASR::ttype_t* arg_type = ASRUtils::expr_type(arg);
-                if (arg == nullptr) {
-                    throw SemanticError("runtime str(x) is not supported, only compile time for now",
-                        x.base.base.loc);
-                }
-                if (ASRUtils::is_integer(*arg_type)) {
-                    int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
-                    std::string s = std::to_string(ival);
-                    tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
-                } else if (ASRUtils::is_real(*arg_type)) {
-                    double rval = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
-                    std::string s = std::to_string(rval);
-                    tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
-                } else if (ASRUtils::is_logical(*arg_type)) {
-                    bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
-                    std::string s = rv ? "True" : "False";
-                    tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
-                } else if (ASRUtils::is_character(*arg_type)) {
-                    char* c = ASR::down_cast<ASR::ConstantString_t>(arg)->m_s;
-                    std::string s = std::string(c);
-                    tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, s), str_type);
-                } else {
-                    throw SemanticError("str() argument must be real, integer, logical, or a string, not '" +
-                        ASRUtils::type_to_str(arg_type) + "'", x.base.base.loc);
                 }
                 return;
             } else if (call_name == "divmod") {

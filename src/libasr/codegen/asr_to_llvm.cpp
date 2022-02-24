@@ -2613,8 +2613,24 @@ public:
                             x.base.base.loc);
                 }
             }
+        } else if (optype == ASR::ttypeType::Logical) {
+            switch (x.m_op) {
+                case (ASR::cmpopType::Eq) : {
+                    tmp = builder->CreateICmpEQ(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::NotEq) : {
+                    tmp = builder->CreateICmpNE(left, right);
+                    break;
+                }
+                default : {
+                    throw CodeGenError("Comparison operator not implemented.",
+                            x.base.base.loc);
+                }
+            }
         } else {
-            throw CodeGenError("Only Integer, Real, Complex, Character implemented in Compare");
+            throw CodeGenError("Only Integer, Real, Complex, Character, and Logical"
+                    " types are supported for comparison.", x.base.base.loc);
         }
     }
 

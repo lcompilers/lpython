@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_builtin_bool-330223a",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_builtin_bool.py",
+    "infile_hash": "535d49e7c5f7b59129a0fcd9cea09d45cfb9d9ba4aad469bb6a61e4f",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-test_builtin_bool-330223a.stdout",
+    "stdout_hash": "cfb37973fcbe3697a8b657efdf5254acf7bbbe0fce500158808cbfe5",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

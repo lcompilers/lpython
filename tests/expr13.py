@@ -16,3 +16,8 @@ def test_Compare():
     a = "abc" == "abc"
     a = "abc" != "abd"
     a = "" == "+"
+
+    a = True > False
+    a = True == True
+    a = False != True
+    a = False >= True
