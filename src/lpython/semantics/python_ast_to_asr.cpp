@@ -2294,39 +2294,6 @@ public:
                     throw SemanticError(call_name + "() must have one integer argument",
                         x.base.base.loc);
                 }
-            } else if (call_name == "bool") {
-                if (args.size() != 1) {
-                    throw SemanticError(call_name + "() takes exactly one argument (" +
-                        std::to_string(args.size()) + " given)", x.base.base.loc);
-                }
-                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
-                                    1, nullptr, 0));
-                ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
-                ASR::ttype_t* t = ASRUtils::expr_type(arg);
-                bool result;
-                if (ASRUtils::is_real(*t)) {
-                    double rv = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
-                    result = rv ? true : false;
-                } else if (ASRUtils::is_integer(*t)) {
-                    int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
-                    result = rv ? true : false;
-                } else if (ASRUtils::is_complex(*t)) {
-                    double re = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_re;
-                    double im = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_im;
-                    std::complex<double> c(re, im);
-                    result = (re || im) ? true : false;
-                } else if (ASRUtils::is_logical(*t)) {
-                    bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
-                    result = rv;
-                } else if (ASRUtils::is_character(*t)) {
-                    char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(arg))->m_s;
-                    result = strlen(s2c(al, std::string(c))) ? true : false;
-                } else {
-                    throw SemanticError(call_name + "() must have one real, integer, character,"
-                            " complex, or logical argument", x.base.base.loc);
-                }
-                tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, result, type);
-                return;
             } else if (call_name == "callable") {
                 if (args.size() != 1) {
                     throw SemanticError(call_name + "() takes exactly one argument (" +
