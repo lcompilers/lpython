@@ -65,3 +65,13 @@ def str(x: i32) -> str:
     for pos in range(rev_result_len - 1, -1, -1):
         result += rev_result[pos]
     return result
+
+
+def bool(x: i32) -> bool:
+    """
+    Return False when the argument `x` is 0, True otherwise.
+    """
+    if x == 0:
+        return False
+    else:
+        return True
