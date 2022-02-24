@@ -30,6 +30,7 @@ struct PythonIntrinsicProcedures {
             {"abs", {m_builtin, &eval_abs}},
             {"str", {m_builtin, &eval_str}},
             {"bool", {m_builtin, &eval_bool}},
+            {"chr", {m_builtin, &eval_chr}},
         };
     }
 
@@ -166,6 +167,28 @@ struct PythonIntrinsicProcedures {
                 " complex, or logical argument, not '" + ASRUtils::type_to_str(t) + "'", loc);
         }
         return ASR::down_cast<ASR::expr_t>(make_ConstantLogical_t(al, loc, result, type));
+    }
+
+    static ASR::expr_t *eval_chr(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        ASR::expr_t* arg = args[0];
+        ASR::ttype_t* type = ASRUtils::expr_type(arg);
+        if (ASR::is_a<ASR::Integer_t>(*type)) {
+            int64_t c = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
+            ASR::ttype_t* str_type =
+                LFortran::ASRUtils::TYPE(ASR::make_Character_t(al,
+                loc, 1, 1, nullptr, nullptr, 0));
+            if (! (c >= 0 && c <= 127) ) {
+                throw SemanticError("The argument 'x' in chr(x) must be in the range 0 <= x <= 127.", loc);
+            }
+            char cc = c;
+            std::string svalue;
+            svalue += cc;
+            return ASR::down_cast<ASR::expr_t>(
+                ASR::make_ConstantString_t(al, loc, s2c(al, svalue), str_type));
+        } else {
+            throw SemanticError("chr() must have one integer argument.", loc);
+        }
     }
 
 }; // ComptimeEval
