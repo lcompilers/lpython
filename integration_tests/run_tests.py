@@ -18,6 +18,12 @@ tests = [
     "test_math1.py"
 ]
 
+# At present we run these tests on cpython, later we should also move to lpython
+test_cpython = [
+    "test_generics_01.py"
+]
+
+
 def main():
     print("Compiling...")
     for pyfile in tests:
@@ -30,7 +36,9 @@ def main():
         if r != 0:
             print("Command '%s' failed." % cmd)
             sys.exit(1)
+
     print("Running...")
+    python_path="src/runtime/ltypes"
     for pyfile in tests:
         basename = os.path.splitext(pyfile)[0]
         cmd = "integration_tests/%s" % (basename)
@@ -39,7 +47,16 @@ def main():
         if r != 0:
             print("Command '%s' failed." % cmd)
             sys.exit(1)
-        python_path="src/runtime/ltypes"
+        cmd = "PYTHONPATH=%s python integration_tests/%s" % (python_path,
+                    pyfile)
+        print("+ " + cmd)
+        r = os.system(cmd)
+        if r != 0:
+            print("Command '%s' failed." % cmd)
+            sys.exit(1)
+
+    print("Running cpython tests...")
+    for pyfile in test_cpython:
         cmd = "PYTHONPATH=%s python integration_tests/%s" % (python_path,
                     pyfile)
         print("+ " + cmd)
