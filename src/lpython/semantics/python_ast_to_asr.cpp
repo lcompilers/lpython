@@ -22,6 +22,7 @@
 #include <lpython/utils.h>
 #include <lpython/semantics/semantic_exception.h>
 #include <lpython/python_serialization.h>
+#include <lpython/semantics/python_comptime_eval.h>
 
 
 namespace LFortran::Python {
@@ -147,11 +148,14 @@ public:
     ASR::asr_t *tmp;
     Allocator &al;
     SymbolTable *current_scope;
+    // The current_module contains the current module that is being visited;
+    // this is used to append to the module dependencies if needed
     ASR::Module_t *current_module = nullptr;
     Vec<char *> current_module_dependencies;
     // True for the main module, false for every other one
     // The main module is stored directly in TranslationUnit, other modules are Modules
     bool main_module;
+    PythonIntrinsicProcedures intrinsic_procedures;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module)
@@ -176,6 +180,72 @@ public:
             }
         }
         return ASR::make_Var_t(al, loc, v);
+    }
+
+    ASR::symbol_t* resolve_intrinsic_function(const Location &loc, const std::string &remote_sym) {
+        LFORTRAN_ASSERT(intrinsic_procedures.is_intrinsic(remote_sym))
+        std::string module_name = intrinsic_procedures.get_module(remote_sym, loc);
+
+        SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
+        std::string rl_path = get_runtime_library_dir();
+        bool ltypes;
+        ASR::Module_t *m = load_module(al, tu_symtab, module_name,
+                loc, true, rl_path,
+                ltypes,
+                [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
+                );
+        LFORTRAN_ASSERT(!ltypes)
+
+        ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
+        if (!t) {
+            throw SemanticError("The symbol '" + remote_sym
+                + "' not found in the module '" + module_name + "'",
+                loc);
+        } else if (! (ASR::is_a<ASR::GenericProcedure_t>(*t)
+                    || ASR::is_a<ASR::Function_t>(*t)
+                    || ASR::is_a<ASR::Subroutine_t>(*t))) {
+            throw SemanticError("The symbol '" + remote_sym
+                + "' found in the module '" + module_name + "', "
+                + "but it is not a function, subroutine or a generic procedure.",
+                loc);
+        }
+        char *fn_name = ASRUtils::symbol_name(t);
+        ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+            al, t->base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ fn_name,
+            t,
+            m->m_name, nullptr, 0, fn_name,
+            ASR::accessType::Private
+            );
+        std::string sym = fn_name;
+
+        current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
+        ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(fn);
+
+        // Now we need to add the module `m` with the intrinsic function
+        // into the current module dependencies
+        if (current_module) {
+            // We are in body visitor, the module is already constructed
+            // and available as current_module.
+            // Add the module `m` to current module dependencies
+            Vec<char*> vec;
+            vec.from_pointer_n_copy(al, current_module->m_dependencies,
+                        current_module->n_dependencies);
+            if (!present(vec, m->m_name)) {
+                vec.push_back(al, m->m_name);
+                current_module->m_dependencies = vec.p;
+                current_module->n_dependencies = vec.size();
+            }
+        } else {
+            // We are in the symtab visitor or body visitor and we are
+            // constructing a module, so current_module is not available yet
+            // (the current_module_dependencies is not used in body visitor)
+            if (!present(current_module_dependencies, m->m_name)) {
+                current_module_dependencies.push_back(al, m->m_name);
+            }
+        }
+        return v;
     }
 
     // Convert Python AST type annotation to an ASR type
@@ -309,6 +379,75 @@ public:
     }
 
 };
+
+ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *current_scope,
+                std::string mname, std::string cur_sym_name, std::string new_sym_name,
+                const Location &loc) {
+
+    ASR::symbol_t *t = m->m_symtab->resolve_symbol(cur_sym_name);
+    if (!t) {
+        throw SemanticError("The symbol '" + cur_sym_name + "' not found in the module '" + mname + "'",
+                loc);
+    }
+    if (current_scope->scope.find(cur_sym_name) != current_scope->scope.end()) {
+        throw SemanticError(cur_sym_name + " already defined", loc);
+    }
+    if (ASR::is_a<ASR::Subroutine_t>(*t)) {
+
+        ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(t);
+        // `msub` is the Subroutine in a module. Now we construct
+        // an ExternalSymbol that points to
+        // `msub` via the `external` field.
+        Str name;
+        name.from_str(al, new_sym_name);
+        ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
+            al, msub->base.base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ name.c_str(al),
+            (ASR::symbol_t*)msub,
+            m->m_name, nullptr, 0, msub->m_name,
+            ASR::accessType::Public
+            );
+        return ASR::down_cast<ASR::symbol_t>(sub);
+    } else if (ASR::is_a<ASR::Function_t>(*t)) {
+        ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
+        // `mfn` is the Function in a module. Now we construct
+        // an ExternalSymbol that points to it.
+        Str name;
+        name.from_str(al, new_sym_name);
+        char *cname = name.c_str(al);
+        ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+            al, mfn->base.base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ cname,
+            (ASR::symbol_t*)mfn,
+            m->m_name, nullptr, 0, mfn->m_name,
+            ASR::accessType::Public
+            );
+        return ASR::down_cast<ASR::symbol_t>(fn);
+    } else if (ASR::is_a<ASR::Variable_t>(*t)) {
+        ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
+        // `mv` is the Variable in a module. Now we construct
+        // an ExternalSymbol that points to it.
+        Str name;
+        name.from_str(al, new_sym_name);
+        char *cname = name.c_str(al);
+        ASR::asr_t *v = ASR::make_ExternalSymbol_t(
+            al, mv->base.base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ cname,
+            (ASR::symbol_t*)mv,
+            m->m_name, nullptr, 0, mv->m_name,
+            ASR::accessType::Public
+            );
+        return ASR::down_cast<ASR::symbol_t>(v);
+    } else {
+        throw SemanticError("Only Subroutines, Functions and Variables are currently supported in 'import'",
+            loc);
+    }
+    // should not reach here
+    return nullptr;
+}
 
 class SymbolTableVisitor : public CommonVisitor<SymbolTableVisitor> {
 public:
@@ -519,81 +658,43 @@ public:
 
         ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
         for (auto &remote_sym : mod_symbols) {
-            std::string local_sym = remote_sym;
-            ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
-            if (!t) {
-                throw SemanticError("The symbol '" + remote_sym + "' not found in the module '" + msym + "'",
-                        x.base.base.loc);
-            }
-            if (ASR::is_a<ASR::Subroutine_t>(*t)) {
-                if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
-                    throw SemanticError("Subroutine already defined",
-                        x.base.base.loc);
-                }
-                ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(t);
-                // `msub` is the Subroutine in a module. Now we construct
-                // an ExternalSymbol that points to
-                // `msub` via the `external` field.
-                Str name;
-                name.from_str(al, local_sym);
-                ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
-                    al, msub->base.base.loc,
-                    /* a_symtab */ current_scope,
-                    /* a_name */ name.c_str(al),
-                    (ASR::symbol_t*)msub,
-                    m->m_name, nullptr, 0, msub->m_name,
-                    ASR::accessType::Public
-                    );
-                current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(sub);
-            } else if (ASR::is_a<ASR::Function_t>(*t)) {
-                if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
-                    throw SemanticError("Function already defined",
-                        x.base.base.loc);
-                }
-                ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
-                // `mfn` is the Function in a module. Now we construct
-                // an ExternalSymbol that points to it.
-                Str name;
-                name.from_str(al, local_sym);
-                char *cname = name.c_str(al);
-                ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
-                    al, mfn->base.base.loc,
-                    /* a_symtab */ current_scope,
-                    /* a_name */ cname,
-                    (ASR::symbol_t*)mfn,
-                    m->m_name, nullptr, 0, mfn->m_name,
-                    ASR::accessType::Public
-                    );
-                current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(fn);
-            } else if (ASR::is_a<ASR::Variable_t>(*t)) {
-                if (current_scope->scope.find(local_sym) != current_scope->scope.end()) {
-                    throw SemanticError("Variable already defined",
-                        x.base.base.loc);
-                }
-                ASR::Variable_t *mv = ASR::down_cast<ASR::Variable_t>(t);
-                // `mv` is the Variable in a module. Now we construct
-                // an ExternalSymbol that points to it.
-                Str name;
-                name.from_str(al, local_sym);
-                char *cname = name.c_str(al);
-                ASR::asr_t *v = ASR::make_ExternalSymbol_t(
-                    al, mv->base.base.loc,
-                    /* a_symtab */ current_scope,
-                    /* a_name */ cname,
-                    (ASR::symbol_t*)mv,
-                    m->m_name, nullptr, 0, mv->m_name,
-                    ASR::accessType::Public
-                    );
-                current_scope->scope[local_sym] = ASR::down_cast<ASR::symbol_t>(v);
-            } else {
-                throw SemanticError("Only Subroutines, Functions and Variables are currently supported in 'import'",
-                    x.base.base.loc);
-            }
-
-
+            ASR::symbol_t *t = import_from_module(al, m, current_scope, msym,
+                                remote_sym, remote_sym, x.base.base.loc);
+            current_scope->scope[remote_sym] = t;
         }
 
         tmp = nullptr;
+    }
+
+    void visit_Import(const AST::Import_t &x) {
+        ASR::symbol_t *t = nullptr;
+        std::string rl_path = get_runtime_library_dir();
+        SymbolTable *st = current_scope;
+        std::vector<std::string> mods;
+        for (size_t i=0; i<x.n_names; i++) {
+            mods.push_back(x.m_names[i].m_name);
+        }
+        if (!main_module) {
+            st = st->parent;
+        }
+        for (auto &mod_sym : mods) {
+            bool ltypes;
+            t = (ASR::symbol_t*)(load_module(al, st,
+                mod_sym, x.base.base.loc, false, rl_path, ltypes,
+                [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
+                ));
+            if (ltypes) {
+                // TODO: For now we skip ltypes import completely. Later on we should note what symbols
+                // got imported from it, and give an error message if an annotation is used without
+                // importing it.
+                tmp = nullptr;
+                continue;
+            }
+            if (!t) {
+                throw SemanticError("The module '" + mod_sym + "' cannot be loaded",
+                        x.base.base.loc);
+            }
+        }
     }
 
     void visit_AnnAssign(const AST::AnnAssign_t &/*x*/) {
@@ -706,6 +807,10 @@ public:
         }
         current_scope = old_scope;
         tmp = nullptr;
+    }
+
+    void visit_Import(const AST::Import_t &/*x*/) {
+        // visited in symbol visitor
     }
 
     void visit_AnnAssign(const AST::AnnAssign_t &x) {
@@ -1884,13 +1989,6 @@ public:
 
     void visit_Call(const AST::Call_t &x) {
         std::string call_name;
-        if (AST::is_a<AST::Name_t>(*x.m_func)) {
-            AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
-            call_name = n->m_id;
-        } else {
-            throw SemanticError("Only Name supported in Call",
-                x.base.base.loc);
-        }
         Vec<ASR::expr_t*> args;
         args.reserve(al, x.n_args);
         for (size_t i=0; i<x.n_args; i++) {
@@ -1898,11 +1996,73 @@ public:
             ASR::expr_t *expr = ASRUtils::EXPR(tmp);
             args.push_back(al, expr);
         }
+        if (AST::is_a<AST::Name_t>(*x.m_func)) {
+            AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
+            call_name = n->m_id;
+        } else if (AST::is_a<AST::Attribute_t>(*x.m_func)) {
+            AST::Attribute_t *at = AST::down_cast<AST::Attribute_t>(x.m_func);
+            if (AST::is_a<AST::Name_t>(*at->m_value)) {
+                AST::Name_t *n = AST::down_cast<AST::Name_t>(at->m_value);
+                std::string mod_name = n->m_id;
+                call_name = at->m_attr;
+                std::string call_name_store = "__" + mod_name + "_" + call_name;
+                ASR::symbol_t *st = nullptr;
+                if (current_scope->scope.find(call_name_store) != current_scope->scope.end()) {
+                    st = current_scope->scope[call_name_store];
+                } else {
+                    SymbolTable *symtab = current_scope;
+                    while (symtab->parent != nullptr) symtab = symtab->parent;
+                    if (symtab->scope.find(mod_name) == symtab->scope.end()) {
+                        throw SemanticError("module '" + mod_name + "' is not imported",
+                            x.base.base.loc);
+                    }
+                    ASR::symbol_t *mt = symtab->scope[mod_name];
+                    ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(mt);
+                    st = import_from_module(al, m, current_scope, mod_name,
+                                        call_name, call_name_store, x.base.base.loc);
+                    current_scope->scope[call_name_store] = st;
+                }
+                ASR::symbol_t *stemp = st;
+                st = ASRUtils::symbol_get_past_external(st);
+
+                if(ASR::is_a<ASR::Function_t>(*st)) {
+                    ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(st);
+                    ASR::ttype_t *a_type = ASRUtils::expr_type(func->m_return_var);
+                    tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, stemp,
+                        nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
+                } else if(ASR::is_a<ASR::Subroutine_t>(*st)) {
+                    tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, stemp,
+                        nullptr, args.p, args.size(), nullptr);
+                } else {
+                    throw SemanticError("Unsupported call type for " + call_name,
+                        x.base.base.loc);
+                }
+                return;
+            } else {
+                throw SemanticError("Only Name type supported in Call",
+                    x.base.base.loc);
+            }
+        } else {
+            throw SemanticError("Only Name or Attribute type supported in Call",
+                x.base.base.loc);
+        }
 
         ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
 
 
         if (!s) {
+            if (intrinsic_procedures.is_intrinsic(call_name)) {
+                s = resolve_intrinsic_function(x.base.base.loc, call_name);
+            } else {
+                // TODO: We need to port all functions below to the intrinsic functions file
+                // Then we can uncomment this error message:
+                /*
+                throw SemanticError("The function '" + call_name + "' is not declared and not intrinsic",
+                    x.base.base.loc);
+            }
+            if (false) {
+                */
+                // This will all be removed once we port it to intrinsic functions
             // Intrinsic functions
             if (call_name == "size") {
                 // TODO: size should be part of ASR. That way
@@ -2459,12 +2619,9 @@ public:
                 throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
                     x.base.base.loc);
             }
+            } // end of "comment"
         }
 
-        if (!s) {
-            throw SemanticError("Function '" + call_name + "' is not declared",
-                x.base.base.loc);
-        }
         // handling ExternalSymbol
         ASR::symbol_t *stemp = s;
         s = ASRUtils::symbol_get_past_external(s);
@@ -2472,8 +2629,12 @@ public:
         if(ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
             ASR::ttype_t *a_type = ASRUtils::expr_type(func->m_return_var);
+            ASR::expr_t *value = nullptr;
+            if (ASRUtils::is_intrinsic_function2(func)) {
+                value = intrinsic_procedures.comptime_eval(call_name, al, x.base.base.loc, args);
+            }
             tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, stemp,
-                nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
+                nullptr, args.p, args.size(), nullptr, 0, a_type, value, nullptr);
         } else if(ASR::is_a<ASR::Subroutine_t>(*s)) {
             tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, stemp,
                 nullptr, args.p, args.size(), nullptr);
