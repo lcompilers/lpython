@@ -31,6 +31,7 @@ struct PythonIntrinsicProcedures {
             {"str", {m_builtin, &eval_str}},
             {"bool", {m_builtin, &eval_bool}},
             {"chr", {m_builtin, &eval_chr}},
+            {"ord", {m_builtin, &eval_ord}},
         };
     }
 
@@ -188,6 +189,21 @@ struct PythonIntrinsicProcedures {
                 ASR::make_ConstantString_t(al, loc, s2c(al, svalue), str_type));
         } else {
             throw SemanticError("chr() must have one integer argument.", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_ord(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        ASR::expr_t* char_expr = args[0];
+        ASR::ttype_t* char_type = ASRUtils::expr_type(char_expr);
+        if (ASRUtils::is_character(*char_type)) {
+            char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(char_expr))->m_s;
+            ASR::ttype_t* int_type =
+                ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+            return ASR::down_cast<ASR::expr_t>(
+                ASR::make_ConstantInteger_t(al, loc, c[0], int_type));
+        } else {
+            throw SemanticError("ord() must have one character argument", loc);
         }
     }
 
