@@ -10,7 +10,7 @@ f64 = types.new_class("f64")
 c32 = types.new_class("c32")
 c64 = types.new_class("c64")
 
-# overloading support
+# Overloading support
 
 def ltype(x):
     """
@@ -70,3 +70,31 @@ class OverloadedFunction:
 def overload(f):
     overloaded_f = OverloadedFunction(f)
     return overloaded_f
+
+
+
+# C interoperation support
+
+class CTypes:
+    """
+    A wrapper class for interfacing C via ctypes.
+    """
+
+    def __init__(self, f):
+        self.name = f.__name__
+        self.args = f.__code__.co_varnames
+        self.annotations = f.__annotations__
+        lib = "/Users/ondrej/repos/lpython/src/runtime/liblfortran_runtime.dylib"
+        import ctypes
+        self.library = ctypes.CDLL(lib)
+        self.cf = self.library[self.name]
+
+    def __call__(self, *args, **kwargs):
+        if len(kwargs) > 0:
+            raise Exception("kwargs are not supported")
+        self.cf(*args)
+
+
+def ctypes(f):
+    wrapped_f = CTypes(f)
+    return wrapped_f
