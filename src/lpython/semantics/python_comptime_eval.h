@@ -177,7 +177,7 @@ struct PythonIntrinsicProcedures {
         if (ASR::is_a<ASR::Integer_t>(*type)) {
             int64_t c = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
             ASR::ttype_t* str_type =
-                LFortran::ASRUtils::TYPE(ASR::make_Character_t(al,
+                ASRUtils::TYPE(ASR::make_Character_t(al,
                 loc, 1, 1, nullptr, nullptr, 0));
             if (! (c >= 0 && c <= 127) ) {
                 throw SemanticError("The argument 'x' in chr(x) must be in the range 0 <= x <= 127.", loc);
