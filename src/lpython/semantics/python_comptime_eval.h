@@ -163,7 +163,7 @@ struct PythonIntrinsicProcedures {
             result = strlen(s2c(al, std::string(c))) ? true : false;
         } else {
             throw SemanticError("bool() must have one real, integer, character,"
-                " complex, or logical argument", loc);
+                " complex, or logical argument, not '" + ASRUtils::type_to_str(t) + "'", loc);
         }
         return ASR::down_cast<ASR::expr_t>(make_ConstantLogical_t(al, loc, result, type));
     }

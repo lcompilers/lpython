@@ -1708,9 +1708,11 @@ public:
             right_type->type != ASR::ttypeType::Complex) &&
             x.m_ops != AST::cmpopType::Eq && x.m_ops != AST::cmpopType::NotEq) &&
             (left_type->type != ASR::ttypeType::Character ||
-            right_type->type != ASR::ttypeType::Character))) {
+            right_type->type != ASR::ttypeType::Character)) &&
+            (left_type->type != ASR::ttypeType::Logical ||
+            right_type->type != ASR::ttypeType::Logical)) {
         throw SemanticError(
-            "Compare: only Integer, Real, or String can be on the LHS and RHS."
+            "Compare: only Integer, Real, Logical, or String can be on the LHS and RHS."
             "If operator is Eq or NotEq then Complex type is also acceptable",
             x.base.base.loc);
         }
@@ -1804,6 +1806,27 @@ public:
                     default: {
                         throw SemanticError("'" + ASRUtils::cmpop_to_str(asr_op) +
                                             "' comparison is not supported between complex numbers",
+                                            x.base.base.loc);
+                    }
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                    al, x.base.base.loc, result, type));
+
+            } else if (ASRUtils::is_logical(*source_type)) {
+                bool left_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                                        ASRUtils::expr_value(left))->m_value;
+                bool right_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                                        ASRUtils::expr_value(right))->m_value;
+                bool result;
+                switch (asr_op) {
+                    case (ASR::cmpopType::Eq):  { result = left_value == right_value; break; }
+                    case (ASR::cmpopType::Gt): { result = left_value > right_value; break; }
+                    case (ASR::cmpopType::GtE): { result = left_value >= right_value; break; }
+                    case (ASR::cmpopType::Lt): { result = left_value < right_value; break; }
+                    case (ASR::cmpopType::LtE): { result = left_value <= right_value; break; }
+                    case (ASR::cmpopType::NotEq): { result = left_value != right_value; break; }
+                    default: {
+                        throw SemanticError("Comparison operator not implemented",
                                             x.base.base.loc);
                     }
                 }

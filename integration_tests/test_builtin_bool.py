@@ -4,5 +4,5 @@ def test_bool():
     assert bool(a) == True
     a = 0
     assert bool(a) == False
-    # assert bool(-1)
-    # assert bool(0) == False
+    assert bool(-1) == True
+    assert bool(0) == False

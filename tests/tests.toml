@@ -172,3 +172,7 @@ asr = true
 [[test]]
 filename = "../integration_tests/test_builtin_str.py"
 asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin_bool.py"
+asr = true
