@@ -40,7 +40,7 @@ def abs(x: f64) -> f64:
         return -x
 
 
-def str_int(x: i32) -> str:
+def str(x: i32) -> str:
     """
     Return the string representation of an integer `x`.
     """
