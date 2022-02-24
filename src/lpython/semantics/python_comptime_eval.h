@@ -26,6 +26,7 @@ struct PythonIntrinsicProcedures {
     PythonIntrinsicProcedures() {
         comptime_eval_map = {
             {"abs", {m_builtin, &eval_abs}},
+            {"str", {m_builtin, &eval_str}},
         };
     }
 
@@ -97,6 +98,36 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, result, t));
         } else {
             throw SemanticError("Argument of the abs function must be Integer, Real or Complex", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_str(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
+            loc, 1, 1, nullptr, nullptr, 0));
+        if (args.size() == 0) { // create an empty string
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(al, loc, s2c(al, ""), str_type));
+        }
+        ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
+        ASR::ttype_t* arg_type = ASRUtils::expr_type(arg);
+        if (ASRUtils::is_integer(*arg_type)) {
+            int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
+            std::string s = std::to_string(ival);
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(al, loc, s2c(al, s), str_type));
+        } else if (ASRUtils::is_real(*arg_type)) {
+            double rval = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
+            std::string s = std::to_string(rval);
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(al, loc, s2c(al, s), str_type));
+        } else if (ASRUtils::is_logical(*arg_type)) {
+            bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
+            std::string s = rv ? "True" : "False";
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(al, loc, s2c(al, s), str_type));
+        } else if (ASRUtils::is_character(*arg_type)) {
+            char* c = ASR::down_cast<ASR::ConstantString_t>(arg)->m_s;
+            std::string s = std::string(c);
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(al, loc, s2c(al, s), str_type));
+        } else {
+            throw SemanticError("str() argument must be real, integer, logical, or a string, not '" +
+                ASRUtils::type_to_str(arg_type) + "'", loc);
         }
     }
 
