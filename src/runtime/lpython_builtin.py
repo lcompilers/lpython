@@ -85,6 +85,8 @@ def len(s: str) -> i32:
         return 0
     count: i32
     count = 0
-    while s[count:-1] != '':
+    end: i32
+    end = -1
+    while s[count:end] != '':
         count += 1
     return count + 1
