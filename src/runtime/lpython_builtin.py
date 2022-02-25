@@ -81,15 +81,7 @@ def len(s: str) -> i32:
     """
     Return the length of the string `s`.
     """
-    if s == '':
-        return 0
-    count: i32
-    count = 0
-    end: i32
-    end = -1
-    while s[count:end] != '':
-        count += 1
-    return count + 1
+    pass
 
 
 def pow(x: i32, y: i32) -> i32:
