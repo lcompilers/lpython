@@ -90,3 +90,10 @@ def len(s: str) -> i32:
     while s[count:end] != '':
         count += 1
     return count + 1
+
+
+def pow(x: i32, y: i32):
+    """
+    Returns x**y.
+    """
+    return (x)**(y)
