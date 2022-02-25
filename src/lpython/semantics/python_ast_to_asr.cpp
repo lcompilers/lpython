@@ -2130,16 +2130,6 @@ public:
                 }
                 tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc, c1, c2, type);
                 return;
-            } else if (call_name == "pow") {
-                if (args.size() != 2) {
-                    throw SemanticError("Two arguments are expected in pow",
-                        x.base.base.loc);
-                }
-                ASR::expr_t *left = args[0];
-                ASR::expr_t *right = args[1];
-                ASR::binopType op = ASR::binopType::Pow;
-                make_BinOp_helper(left, right, op, x.base.base.loc, false);
-                return;
             } else if (call_name == "bin" || call_name == "oct" || call_name == "hex") {
                 if (args.size() != 1) {
                     throw SemanticError(call_name + "() takes exactly one argument (" +
