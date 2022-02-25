@@ -30,6 +30,8 @@ struct PythonIntrinsicProcedures {
             {"abs", {m_builtin, &eval_abs}},
             {"str", {m_builtin, &eval_str}},
             {"bool", {m_builtin, &eval_bool}},
+            {"chr", {m_builtin, &eval_chr}},
+            {"ord", {m_builtin, &eval_ord}},
         };
     }
 
@@ -166,6 +168,43 @@ struct PythonIntrinsicProcedures {
                 " complex, or logical argument, not '" + ASRUtils::type_to_str(t) + "'", loc);
         }
         return ASR::down_cast<ASR::expr_t>(make_ConstantLogical_t(al, loc, result, type));
+    }
+
+    static ASR::expr_t *eval_chr(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        ASR::expr_t* arg = args[0];
+        ASR::ttype_t* type = ASRUtils::expr_type(arg);
+        if (ASR::is_a<ASR::Integer_t>(*type)) {
+            int64_t c = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
+            ASR::ttype_t* str_type =
+                ASRUtils::TYPE(ASR::make_Character_t(al,
+                loc, 1, 1, nullptr, nullptr, 0));
+            if (! (c >= 0 && c <= 127) ) {
+                throw SemanticError("The argument 'x' in chr(x) must be in the range 0 <= x <= 127.", loc);
+            }
+            char cc = c;
+            std::string svalue;
+            svalue += cc;
+            return ASR::down_cast<ASR::expr_t>(
+                ASR::make_ConstantString_t(al, loc, s2c(al, svalue), str_type));
+        } else {
+            throw SemanticError("chr() must have one integer argument.", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_ord(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        ASR::expr_t* char_expr = args[0];
+        ASR::ttype_t* char_type = ASRUtils::expr_type(char_expr);
+        if (ASRUtils::is_character(*char_type)) {
+            char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(char_expr))->m_s;
+            ASR::ttype_t* int_type =
+                ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+            return ASR::down_cast<ASR::expr_t>(
+                ASR::make_ConstantInteger_t(al, loc, c[0], int_type));
+        } else {
+            throw SemanticError("ord() must have one character argument", loc);
+        }
     }
 
 }; // ComptimeEval

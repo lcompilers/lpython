@@ -1500,10 +1500,7 @@ public:
                             if (strlen >= 0) {
                                 // Compile time length
                                 std::string empty(strlen, ' ');
-                                Str str;
-                                str.from_str_view(empty);
-                                char *s = str.c_str(al);
-                                llvm::Value *init_value = builder->CreateGlobalStringPtr(s);
+                                llvm::Value *init_value = builder->CreateGlobalStringPtr(s2c(al, empty));
                                 builder->CreateStore(init_value, target_var);
                             } else if (strlen == -3) {
                                 LFORTRAN_ASSERT(t->m_len_expr)
