@@ -1,11 +1,11 @@
-from ltypes import overload
+from ltypes import overload, i32
 
 @overload
-def foo(a: int, b: int) -> int:
+def foo(a: i32, b: i32) -> i32:
     return a*b
 
 @overload
-def foo(a: int) -> int:
+def foo(a: i32) -> i32:
     return a**2
 
 @overload
@@ -13,11 +13,11 @@ def foo(a: str) -> str:
     return "lpython-" + a
 
 @overload
-def test(a: int) -> int:
+def test(a: i32) -> i32:
     return a + 10
 
 @overload
-def test(a: bool) -> int:
+def test(a: bool) -> i32:
     if a:
         return 10
     return -10

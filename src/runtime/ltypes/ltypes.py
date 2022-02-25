@@ -1,15 +1,33 @@
 from inspect import getfullargspec, getcallargs
+from typing import types
 
 # data-types
 
-i32 = []
-i64 = []
-f32 = []
-f64 = []
-c32 = []
-c64 = []
+i32 = types.new_class("i32")
+i64 = types.new_class("i64")
+f32 = types.new_class("f32")
+f64 = types.new_class("f64")
+c32 = types.new_class("c32")
+c64 = types.new_class("c64")
 
 # overloading support
+
+def ltype(x):
+    """
+    Converts CPython types to LPython types
+    """
+    if type(x) == int:
+        return i32, i64
+    elif type(x) == float:
+        return f32, f64
+    elif type(x) == complex:
+        return c32, c64
+    elif type(x) == str:
+        return (str, )
+    elif type(x) == bool:
+        return (bool, )
+    raise Exception("Unsupported Type: %s" % str(type(x)))
+
 
 class OverloadedFunction:
     """
@@ -26,7 +44,7 @@ class OverloadedFunction:
     def __call__(self, *args, **kwargs):
         func_map_list = self.global_map.get(self.func_name, False)
         if not func_map_list:
-            raise Exception("Function not defined")
+            raise Exception("Function: %s is not defined" % self.func_name)
         for item in func_map_list:
             func, key = item
             try:
@@ -40,12 +58,13 @@ class OverloadedFunction:
                     flag = False
                     break
                 else:
-                    if type(v) != key.annotations.get(k):
+                    if not (key.annotations.get(k) in ltype(v)):
                         flag = False
                         break
             if flag:
                 return func(*args, **kwargs)
-        raise Exception("Function not found with matching signature")
+        raise Exception(f"Function: {self.func_name} not found with matching "
+                        "signature")
 
 
 def overload(f):
