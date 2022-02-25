@@ -1,3 +1,5 @@
+from ltypes import i32
+
 def test_ord():
     i: i32
     s: str
