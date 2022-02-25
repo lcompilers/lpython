@@ -32,6 +32,7 @@ struct PythonIntrinsicProcedures {
             {"bool", {m_builtin, &eval_bool}},
             {"chr", {m_builtin, &eval_chr}},
             {"ord", {m_builtin, &eval_ord}},
+            {"len", {m_builtin, &eval_len}},
         };
     }
 
@@ -206,6 +207,36 @@ struct PythonIntrinsicProcedures {
             throw SemanticError("ord() must have one character argument", loc);
         }
     }
+
+    static ASR::expr_t *eval_len(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        if (args.size() != 1) {
+            throw SemanticError("len() takes exactly one argument (" +
+                std::to_string(args.size()) + " given)", loc);
+        }
+        ASR::expr_t *arg = ASRUtils::expr_value(args[0]);
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        if (arg->type == ASR::exprType::ConstantString) {
+            char* str_value = ASR::down_cast<ASR::ConstantString_t>(arg)->m_s;
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc,
+                (int64_t)strlen(s2c(al, std::string(str_value))), type));
+        } else if (arg->type == ASR::exprType::ConstantArray) {
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc,
+                (int64_t)ASR::down_cast<ASR::ConstantArray_t>(arg)->n_args, type));
+        } else if (arg->type == ASR::exprType::ConstantTuple) {
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc,
+                (int64_t)ASR::down_cast<ASR::ConstantTuple_t>(arg)->n_elements, type));
+        } else if (arg->type == ASR::exprType::ConstantDictionary) {
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc,
+                (int64_t)ASR::down_cast<ASR::ConstantDictionary_t>(arg)->n_keys, type));
+        } else if (arg->type == ASR::exprType::ConstantSet) {
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc,
+                (int64_t)ASR::down_cast<ASR::ConstantSet_t>(arg)->n_elements, type));
+        } else {
+            throw SemanticError("len() only works on strings, lists, tuples, dictionaries and sets",
+                loc);
+        }
+    }
+
 
 }; // ComptimeEval
 
