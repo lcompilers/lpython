@@ -2105,36 +2105,6 @@ public:
                 tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, 1234, a_type);
                 return;
 
-            } else if (call_name == "len") {
-                if (args.size() != 1) {
-                    throw SemanticError(call_name + "() takes exactly one argument (" +
-                        std::to_string(args.size()) + " given)", x.base.base.loc);
-                }
-                ASR::expr_t *arg = ASRUtils::expr_value(args[0]);
-                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al,
-                                                            x.base.base.loc, 4, nullptr, 0));
-                if (arg->type == ASR::exprType::ConstantString) {
-                    char* str_value = ASR::down_cast<ASR::ConstantString_t>(arg)->m_s;
-                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
-                        (int64_t)strlen(s2c(al, std::string(str_value))), type);
-                } else if (arg->type == ASR::exprType::ConstantArray) {
-                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
-                        (int64_t)ASR::down_cast<ASR::ConstantArray_t>(arg)->n_args, type);
-                } else if (arg->type == ASR::exprType::ConstantTuple) {
-                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
-                        (int64_t)ASR::down_cast<ASR::ConstantTuple_t>(arg)->n_elements, type);
-                } else if (arg->type == ASR::exprType::ConstantDictionary) {
-                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
-                        (int64_t)ASR::down_cast<ASR::ConstantDictionary_t>(arg)->n_keys, type);
-                } else if (arg->type == ASR::exprType::ConstantSet) {
-                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc,
-                        (int64_t)ASR::down_cast<ASR::ConstantSet_t>(arg)->n_elements, type);
-                } else {
-                    throw SemanticError("len() only works on strings, lists, tuples, dictionaries and sets",
-                        x.base.base.loc);
-                }
-                return;
-
             } else if (call_name == "complex") {
                 int16_t n_args = args.size();
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
@@ -2159,16 +2129,6 @@ public:
                     }
                 }
                 tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc, c1, c2, type);
-                return;
-            } else if (call_name == "pow") {
-                if (args.size() != 2) {
-                    throw SemanticError("Two arguments are expected in pow",
-                        x.base.base.loc);
-                }
-                ASR::expr_t *left = args[0];
-                ASR::expr_t *right = args[1];
-                ASR::binopType op = ASR::binopType::Pow;
-                make_BinOp_helper(left, right, op, x.base.base.loc, false);
                 return;
             } else if (call_name == "bin" || call_name == "oct" || call_name == "hex") {
                 if (args.size() != 1) {

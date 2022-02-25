@@ -75,3 +75,17 @@ def bool(x: i32) -> bool:
         return False
     else:
         return True
+
+
+def len(s: str) -> i32:
+    """
+    Return the length of the string `s`.
+    """
+    pass
+
+
+def pow(x: i32, y: i32) -> i32:
+    """
+    Returns x**y.
+    """
+    return x**y

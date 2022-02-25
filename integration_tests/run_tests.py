@@ -16,6 +16,7 @@ tests = [
     #"test_builtin.py",
     "test_builtin_abs.py",
     "test_builtin_bool.py",
+    "test_builtin_pow.py",
     "test_math1.py"
 ]
 

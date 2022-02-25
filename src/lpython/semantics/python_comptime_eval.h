@@ -4,6 +4,7 @@
 #include <complex>
 #include <string>
 #include <cstring>
+#include <cmath>
 
 #include <libasr/asr.h>
 #include <lpython/ast.h>
@@ -32,6 +33,8 @@ struct PythonIntrinsicProcedures {
             {"bool", {m_builtin, &eval_bool}},
             {"chr", {m_builtin, &eval_chr}},
             {"ord", {m_builtin, &eval_ord}},
+            {"len", {m_builtin, &eval_len}},
+            {"pow", {m_builtin, &eval_pow}},
         };
     }
 
@@ -204,6 +207,64 @@ struct PythonIntrinsicProcedures {
                 ASR::make_ConstantInteger_t(al, loc, c[0], int_type));
         } else {
             throw SemanticError("ord() must have one character argument", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_len(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        if (args.size() != 1) {
+            throw SemanticError("len() takes exactly one argument (" +
+                std::to_string(args.size()) + " given)", loc);
+        }
+        ASR::expr_t *arg = ASRUtils::expr_value(args[0]);
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        if (arg->type == ASR::exprType::ConstantString) {
+            char* str_value = ASR::down_cast<ASR::ConstantString_t>(arg)->m_s;
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc,
+                (int64_t)strlen(s2c(al, std::string(str_value))), type));
+        } else if (arg->type == ASR::exprType::ConstantArray) {
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc,
+                (int64_t)ASR::down_cast<ASR::ConstantArray_t>(arg)->n_args, type));
+        } else if (arg->type == ASR::exprType::ConstantTuple) {
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc,
+                (int64_t)ASR::down_cast<ASR::ConstantTuple_t>(arg)->n_elements, type));
+        } else if (arg->type == ASR::exprType::ConstantDictionary) {
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc,
+                (int64_t)ASR::down_cast<ASR::ConstantDictionary_t>(arg)->n_keys, type));
+        } else if (arg->type == ASR::exprType::ConstantSet) {
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc,
+                (int64_t)ASR::down_cast<ASR::ConstantSet_t>(arg)->n_elements, type));
+        } else {
+            throw SemanticError("len() only works on strings, lists, tuples, dictionaries and sets",
+                loc);
+        }
+    }
+
+    static ASR::expr_t *eval_pow(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        ASR::expr_t* arg1 = ASRUtils::expr_value(args[0]);
+        ASR::expr_t* arg2 = ASRUtils::expr_value(args[1]);
+        ASR::ttype_t* arg1_type = ASRUtils::expr_type(arg1);
+        ASR::ttype_t* arg2_type = ASRUtils::expr_type(arg2);
+        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        ASR::ttype_t *real_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
+        if (!ASRUtils::check_equal_type(arg1_type, arg2_type)) {
+            throw SemanticError("The arguments to pow() must have the same type.", loc);
+        }
+        if (ASRUtils::is_integer(*arg1_type) && ASRUtils::is_integer(*arg2_type)) {
+            int64_t a = ASR::down_cast<ASR::ConstantInteger_t>(arg1)->m_n;
+            int64_t b = ASR::down_cast<ASR::ConstantInteger_t>(arg2)->m_n;
+            if (a == 0 && b < 0) { // Zero Division
+                throw SemanticError("0.0 cannot be raised to a negative power.", loc);
+            }
+            if (b < 0) // Negative power
+                return ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al, loc,
+                    pow(a, b), real_type));
+            else // Positive power
+                return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc,
+                    (int64_t)pow(a, b), int_type));
+
+        } else {
+            throw SemanticError("The arguments to pow() must be of type integers for now.", loc);
         }
     }
 
