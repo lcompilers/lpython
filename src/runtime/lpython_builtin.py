@@ -75,3 +75,16 @@ def bool(x: i32) -> bool:
         return False
     else:
         return True
+
+
+def len(s: str) -> i32:
+    """
+    Return the length of the string `s`.
+    """
+    if s == '':
+        return 0
+    count: i32
+    count = 0
+    while s[count:-1] != '':
+        count += 1
+    return count + 1
