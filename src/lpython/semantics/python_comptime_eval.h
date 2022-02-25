@@ -250,7 +250,7 @@ struct PythonIntrinsicProcedures {
         if (!ASRUtils::check_equal_type(arg1_type, arg2_type)) {
             throw SemanticError("The arguments to pow() must have the same type.", loc);
         }
-        if (ASRUtils::is_integer(*arg1_type) || ASRUtils::is_integer(*arg1_type)) {
+        if (ASRUtils::is_integer(*arg1_type) && ASRUtils::is_integer(*arg2_type)) {
             int64_t a = ASR::down_cast<ASR::ConstantInteger_t>(arg1)->m_n;
             int64_t b = ASR::down_cast<ASR::ConstantInteger_t>(arg2)->m_n;
             if (a == 0 && b < 0) { // Zero Division
