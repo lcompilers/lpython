@@ -92,7 +92,7 @@ def len(s: str) -> i32:
     return count + 1
 
 
-def pow(x: i32, y: i32):
+def pow(x: i32, y: i32) -> i32:
     """
     Returns x**y.
     """

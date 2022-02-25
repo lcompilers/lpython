@@ -241,8 +241,8 @@ struct PythonIntrinsicProcedures {
 
     static ASR::expr_t *eval_pow(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        ASR::expr_t* arg1 = args[0];
-        ASR::expr_t* arg2 = args[1];
+        ASR::expr_t* arg1 = ASRUtils::expr_value(args[0]);
+        ASR::expr_t* arg2 = ASRUtils::expr_value(args[1]);
         ASR::ttype_t* arg1_type = ASRUtils::expr_type(arg1);
         ASR::ttype_t* arg2_type = ASRUtils::expr_type(arg2);
         ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));

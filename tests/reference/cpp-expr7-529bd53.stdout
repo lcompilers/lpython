@@ -31,15 +31,22 @@ void main0()
 void test_pow()
 {
     int a;
-    a = std::pow(2, 2);
+    a = pow(2, 2);
 }
 
 int test_pow_1(int a, int b)
 {
     int _lpython_return_variable;
     int res;
-    res = std::pow(a, b);
+    res = pow(a, b);
     _lpython_return_variable = res;
+    return _lpython_return_variable;
+}
+
+int pow(int x, int y)
+{
+    int _lpython_return_variable;
+    _lpython_return_variable = std::pow(x, y);
     return _lpython_return_variable;
 }
 
