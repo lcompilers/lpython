@@ -96,4 +96,4 @@ def pow(x: i32, y: i32) -> i32:
     """
     Returns x**y.
     """
-    return (x)**(y)
+    return x**y
