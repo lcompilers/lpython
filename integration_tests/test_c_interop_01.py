@@ -1,7 +1,7 @@
-from ltypes import ctypes, f64
+from ltypes import ccall, f64
 from math import pi
 
-@ctypes
+@ccall
 def _lfortran_dsin(x: f64) -> f64:
     pass
 

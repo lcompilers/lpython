@@ -1,5 +1,6 @@
 from inspect import getfullargspec, getcallargs
 from typing import types
+import ctypes
 
 # data-types
 
@@ -85,7 +86,6 @@ class CTypes:
         self.args = f.__code__.co_varnames
         self.annotations = f.__annotations__
         lib = "/Users/ondrej/repos/lpython/src/runtime/liblfortran_runtime.dylib"
-        import ctypes
         self.library = ctypes.CDLL(lib)
         self.cf = self.library[self.name]
 
@@ -95,6 +95,6 @@ class CTypes:
         self.cf(*args)
 
 
-def ctypes(f):
+def ccall(f):
     wrapped_f = CTypes(f)
     return wrapped_f
