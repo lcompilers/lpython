@@ -2,14 +2,8 @@ from ltypes import i32, f64
 
 
 pi: f64 = 3.141592653589793238462643383279502884197
-
-
-def e() -> f64:
-    return 2.718281828459045235360287471352662497757
-
-
-def tau() -> f64:
-    return 6.283185307179586
+e: f64 = 2.718281828459045235360287471352662497757
+tau: f64 = 6.283185307179586
 
 
 def factorial(x: i32) -> i32:
@@ -100,7 +94,7 @@ def exp(x: f64) -> f64:
     """
     Return `e` raised to the power `x`.
     """
-    return e()**x
+    return e**x
 
 
 def pow(x: f64, y: f64) -> f64:
