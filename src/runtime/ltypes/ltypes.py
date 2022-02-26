@@ -85,6 +85,8 @@ class CTypes:
         def convert_type_to_ctype(arg):
             if arg == f64:
                 return ctypes.c_double
+            elif arg == f32:
+                return ctypes.c_float
             else:
                 raise NotImplementedError("Type not implemented")
         self.name = f.__name__
