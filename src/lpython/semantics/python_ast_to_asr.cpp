@@ -2179,42 +2179,6 @@ public:
                 }
                 tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, result, type);
                 return;
-            } else if (call_name == "int") {
-                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al,
-                                        x.base.base.loc, 4, nullptr, 0));
-                if (args.size() == 0) {
-                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, 0, type);
-                    return;
-                }
-                ASR::expr_t* int_expr = args[0];
-                ASR::ttype_t* int_type = ASRUtils::expr_type(int_expr);
-                if (ASRUtils::expr_value(int_expr) == nullptr) {
-                    throw SemanticError("runtime int(x) is not supported, only compile time for now",
-                        x.base.base.loc);
-                }
-                if (ASRUtils::is_integer(*int_type)) {
-                    int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(int_expr))->m_n;
-                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, type);
-
-                } else if (ASRUtils::is_character(*int_type)) {
-                    // convert a string to an int
-                    char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(int_expr))->m_s;
-                    std::string s = std::string(c);
-                    int64_t ival = std::stoll(s);
-                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, type);
-
-                } else if (ASRUtils::is_real(*int_type)) {
-                    int64_t ival = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(int_expr))->m_r;
-                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, ival, type);
-                } else if (ASRUtils::is_logical(*int_type)) {
-                    bool rv = ASR::down_cast<ASR::ConstantLogical_t>(int_expr)->m_value;
-                    int8_t val = rv ? 1 : 0;
-                    tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, val, type);
-                } else {
-                    throw SemanticError("int() argument must be real, integer, logical, or a string, not '" +
-                        ASRUtils::type_to_str(int_type) + "'", x.base.base.loc);
-                }
-                return;
             } else if (call_name == "float") {
                 ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_Real_t(al,
                                         x.base.base.loc, 8, nullptr, 0));
@@ -2242,8 +2206,8 @@ public:
                 } else if (ASRUtils::is_character(*float_type)) {
                     // convert a string to a float
                     char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(float_expr))->m_s;
-                    std::string s = std::string(c);
-                    float rv = std::stof(s);
+                    std::string str = std::string(c);
+                    float rv = std::stof(str);
                     tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, rv, type);
                 } else {
                     throw SemanticError("float() argument must be real, integer, logical, or a string, not '" +
