@@ -152,6 +152,10 @@ ast = true
 asr = true
 
 [[test]]
+filename = "assign2.py"
+asr = true
+
+[[test]]
 filename = "set1.py"
 ast = true
 asr = true

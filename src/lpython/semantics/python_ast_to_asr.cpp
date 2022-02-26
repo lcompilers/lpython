@@ -843,6 +843,11 @@ public:
         ASR::ttype_t *type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation);
 
         ASR::expr_t *value = nullptr;
+        if (x.m_value) {
+            this->visit_expr(*x.m_value);
+            value = ASRUtils::EXPR(tmp);
+            value = implicitcast_helper(type, value, true);
+        }
         ASR::expr_t *init_expr = nullptr;
         ASR::intentType s_intent = ASRUtils::intent_local;
         ASR::storage_typeType storage_type =
@@ -889,14 +894,13 @@ public:
 
     // Casts `right` if needed to the type of `left`
     // (to be used during assignment, BinOp, or compare)
-    ASR::expr_t* implicitcast_helper(ASR::expr_t *left, ASR::expr_t *right,
+    ASR::expr_t* implicitcast_helper(ASR::ttype_t *left_type, ASR::expr_t *right,
                                         bool is_assign=false) {
-        ASR::ttype_t *left_type = ASRUtils::expr_type(left);
         ASR::ttype_t *right_type = ASRUtils::expr_type(right);
         if (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) {
             bool is_l64 = ASR::down_cast<ASR::Integer_t>(left_type)->m_kind == 8;
             bool is_r64 = ASR::down_cast<ASR::Integer_t>(right_type)->m_kind == 8;
-            if (is_l64 && !is_r64) {
+            if (is_l64 != is_r64) {
                 return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
                     al, right->base.loc, right, ASR::cast_kindType::IntegerToInteger,
                     left_type, nullptr));
@@ -904,7 +908,7 @@ public:
         } else if (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type)) {
             bool is_l64 = ASR::down_cast<ASR::Real_t>(left_type)->m_kind == 8;
             bool is_r64 = ASR::down_cast<ASR::Real_t>(right_type)->m_kind == 8;
-            if (is_l64 && !is_r64) {
+            if (is_l64 != is_r64) {
                 return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
                     al, right->base.loc, right, ASR::cast_kindType::RealToReal,
                     left_type, nullptr));
@@ -931,7 +935,7 @@ public:
         }
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
-        value = implicitcast_helper(target, value, true);
+        value = implicitcast_helper(ASRUtils::expr_type(target), value, true);
         ASR::stmt_t *overloaded=nullptr;
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
                                 overloaded);
@@ -1258,8 +1262,8 @@ public:
             }
         } else if((ASRUtils::is_integer(*left_type) || ASRUtils::is_real(*left_type)) &&
                     (ASRUtils::is_integer(*right_type) || ASRUtils::is_real(*right_type)) ){
-            left = implicitcast_helper(right, left);
-            right = implicitcast_helper(left, right);
+            left = implicitcast_helper(ASRUtils::expr_type(right), left);
+            right = implicitcast_helper(ASRUtils::expr_type(left), right);
             dest_type = ASRUtils::expr_type(left);
         } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
             // string repeat
@@ -1716,8 +1720,8 @@ public:
             "If operator is Eq or NotEq then Complex type is also acceptable",
             x.base.base.loc);
         }
-        left = implicitcast_helper(right, left);
-        right = implicitcast_helper(left, right);
+        left = implicitcast_helper(ASRUtils::expr_type(right), left);
+        right = implicitcast_helper(ASRUtils::expr_type(left), right);
         // Check that the types are now the same
         if (!ASRUtils::check_equal_type(ASRUtils::expr_type(left),
                                     ASRUtils::expr_type(right))) {
@@ -1905,7 +1909,7 @@ public:
             throw SemanticError("Type Mismatch in return, found (" +
                     ltype + " and " + rtype + ")", x.base.base.loc);
         }
-        value = implicitcast_helper(target, value, true);
+        value = implicitcast_helper(ASRUtils::expr_type(target), value, true);
         ASR::stmt_t *overloaded=nullptr;
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
                                 overloaded);
