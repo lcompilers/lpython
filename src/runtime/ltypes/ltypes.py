@@ -121,8 +121,10 @@ class CTypes:
             arg_ctype = convert_type_to_ctype(arg_type)
             argtypes.append(arg_ctype)
         self.cf.argtypes = argtypes
-        res_type = self.annotations["return"]
-        self.cf.restype = convert_type_to_ctype(res_type)
+        if "return" in self.annotations:
+            res_type = self.annotations["return"]
+            if res_type is not None:
+                self.cf.restype = convert_type_to_ctype(res_type)
 
     def __call__(self, *args, **kwargs):
         if len(kwargs) > 0:
