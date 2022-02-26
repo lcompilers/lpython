@@ -52,8 +52,12 @@ cd test-bld
 # compiled in Release mode and we get link failures if we mix and match build
 # modes:
 BUILD_TYPE = "Release"
+cmake --version
 cmake -G $LFORTRAN_CMAKE_GENERATOR -DCMAKE_VERBOSE_MAKEFILE=ON -DWITH_LLVM=yes -DWITH_XEUS=yes -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DWITH_LFORTRAN_BINARY_MODFILES=no -DCMAKE_BUILD_TYPE=@(BUILD_TYPE) ..
-cmake --build . --target install
+if $WIN == "1":
+    cmake --build . --target install --config @(BUILD_TYPE)
+else:
+    cmake --build . --target install
 ./src/lpython/tests/test_lfortran
 ./src/bin/lpython < ../src/bin/example_input.txt
 ctest --output-on-failure
