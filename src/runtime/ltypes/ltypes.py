@@ -88,11 +88,13 @@ class CTypes:
         lib = "/Users/ondrej/repos/lpython/src/runtime/liblfortran_runtime.dylib"
         self.library = ctypes.CDLL(lib)
         self.cf = self.library[self.name]
+        self.cf.argtypes = [ctypes.c_double]
+        self.cf.restype = ctypes.c_double
 
     def __call__(self, *args, **kwargs):
         if len(kwargs) > 0:
             raise Exception("kwargs are not supported")
-        self.cf(*args)
+        return self.cf(*args)
 
 
 def ccall(f):
