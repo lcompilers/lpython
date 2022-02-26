@@ -1,17 +1,28 @@
 from inspect import getfullargspec, getcallargs
-from typing import types
 import os
 import ctypes
 import platform
 
 # data-types
 
-i32 = types.new_class("i32")
-i64 = types.new_class("i64")
-f32 = types.new_class("f32")
-f64 = types.new_class("f64")
-c32 = types.new_class("c32")
-c64 = types.new_class("c64")
+class Type:
+    def __init__(self, name):
+        self._name = name
+
+    def __getitem__(self, params):
+        return Array(self, params)
+
+class Array:
+    def __init__(self, type, dims):
+        self._type = type
+        self._dims = dims
+
+i32 = Type("i32")
+i64 = Type("i64")
+f32 = Type("f32")
+f64 = Type("f64")
+c32 = Type("c32")
+c64 = Type("c64")
 
 # Overloading support
 
@@ -93,6 +104,11 @@ class CTypes:
                 return ctypes.c_int64
             elif arg == i32:
                 return ctypes.c_int32
+            elif arg is None:
+                raise NotImplementedError("Type cannot be None")
+            elif isinstance(arg, Array):
+                type = convert_type_to_ctype(arg._type)
+                return ctypes.POINTER(type)
             else:
                 raise NotImplementedError("Type not implemented")
         def get_rtlib_dir():
@@ -121,8 +137,10 @@ class CTypes:
             arg_ctype = convert_type_to_ctype(arg_type)
             argtypes.append(arg_ctype)
         self.cf.argtypes = argtypes
-        res_type = self.annotations["return"]
-        self.cf.restype = convert_type_to_ctype(res_type)
+        if "return" in self.annotations:
+            res_type = self.annotations["return"]
+            if res_type is not None:
+                self.cf.restype = convert_type_to_ctype(res_type)
 
     def __call__(self, *args, **kwargs):
         if len(kwargs) > 0:
