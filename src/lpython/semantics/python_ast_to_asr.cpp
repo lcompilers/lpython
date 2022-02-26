@@ -843,6 +843,11 @@ public:
         ASR::ttype_t *type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation);
 
         ASR::expr_t *value = nullptr;
+        if (x.m_value) {
+            this->visit_expr(*x.m_value);
+            value = ASRUtils::EXPR(tmp);
+            value = implicitcast_helper(type, value, true);
+        }
         ASR::expr_t *init_expr = nullptr;
         ASR::intentType s_intent = ASRUtils::intent_local;
         ASR::storage_typeType storage_type =
