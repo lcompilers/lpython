@@ -3,6 +3,7 @@
 import os
 import sys
 
+# LPython and CPython tests
 tests = [
     "exit_01.py",
     "expr_01.py",
@@ -20,14 +21,15 @@ tests = [
     "test_math1.py"
 ]
 
-# At present we run these tests on cpython, later we should also move to lpython
+# CPython tests only
 test_cpython = [
-    "test_generics_01.py"
+    "test_generics_01.py",
+    "test_c_interop_01.py"
 ]
 
 
 def main():
-    print("Compiling...")
+    print("Compiling LPython tests...")
     for pyfile in tests:
         basename = os.path.splitext(pyfile)[0]
         cmd = os.path.join("..", "src", "bin", "lpython") + " %s -o %s" % (pyfile, basename)
@@ -39,7 +41,7 @@ def main():
             print("Command '%s' failed." % cmd)
             sys.exit(1)
 
-    print("Running...")
+    print("Running LPython and CPython tests...")
     python_path="src/runtime/ltypes"
     for pyfile in tests:
         basename = os.path.splitext(pyfile)[0]
@@ -57,7 +59,7 @@ def main():
             print("Command '%s' failed." % cmd)
             sys.exit(1)
 
-    print("Running cpython tests...")
+    print("Running CPython tests...")
     for pyfile in test_cpython:
         cmd = "PYTHONPATH=%s python integration_tests/%s" % (python_path,
                     pyfile)

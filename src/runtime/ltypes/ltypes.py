@@ -1,5 +1,8 @@
 from inspect import getfullargspec, getcallargs
 from typing import types
+import os
+import ctypes
+import platform
 
 # data-types
 
@@ -10,7 +13,7 @@ f64 = types.new_class("f64")
 c32 = types.new_class("c32")
 c64 = types.new_class("c64")
 
-# overloading support
+# Overloading support
 
 def ltype(x):
     """
@@ -70,3 +73,59 @@ class OverloadedFunction:
 def overload(f):
     overloaded_f = OverloadedFunction(f)
     return overloaded_f
+
+
+
+# C interoperation support
+
+class CTypes:
+    """
+    A wrapper class for interfacing C via ctypes.
+    """
+
+    def __init__(self, f):
+        def convert_type_to_ctype(arg):
+            if arg == f64:
+                return ctypes.c_double
+            elif arg == f32:
+                return ctypes.c_float
+            else:
+                raise NotImplementedError("Type not implemented")
+        def get_rtlib_dir():
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            return os.path.join(current_dir, "..")
+        def get_crtlib_name():
+            if platform.system() == "Linux":
+                return "liblfortran_runtime.so"
+            elif platform.system() == "Darwin":
+                return "liblfortran_runtime.dylib"
+            elif platform.system() == "Windows":
+                return "lfortran_runtime.dll"
+            else:
+                raise NotImplementedError("Platform not implemented")
+        def get_crtlib_path():
+            return os.path.join(get_rtlib_dir(), get_crtlib_name())
+        self.name = f.__name__
+        self.args = f.__code__.co_varnames
+        self.annotations = f.__annotations__
+        crtlib = get_crtlib_path()
+        self.library = ctypes.CDLL(crtlib)
+        self.cf = self.library[self.name]
+        argtypes = []
+        for arg in self.args:
+            arg_type = self.annotations[arg]
+            arg_ctype = convert_type_to_ctype(arg_type)
+            argtypes.append(arg_ctype)
+        self.cf.argtypes = argtypes
+        res_type = self.annotations["return"]
+        self.cf.restype = convert_type_to_ctype(res_type)
+
+    def __call__(self, *args, **kwargs):
+        if len(kwargs) > 0:
+            raise Exception("kwargs are not supported")
+        return self.cf(*args)
+
+
+def ccall(f):
+    wrapped_f = CTypes(f)
+    return wrapped_f
