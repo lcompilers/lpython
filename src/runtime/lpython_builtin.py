@@ -1,4 +1,4 @@
-from ltypes import i32
+from ltypes import i32, f64
 #from sys import exit
 
 
@@ -89,3 +89,10 @@ def pow(x: i32, y: i32) -> i32:
     Returns x**y.
     """
     return x**y
+
+
+def int(f: f64) -> i32:
+    """
+    Converts a floating point number to an integer.
+    """
+    pass # handled by LLVM

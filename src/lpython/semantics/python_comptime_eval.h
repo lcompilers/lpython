@@ -35,6 +35,7 @@ struct PythonIntrinsicProcedures {
             {"ord", {m_builtin, &eval_ord}},
             {"len", {m_builtin, &eval_len}},
             {"pow", {m_builtin, &eval_pow}},
+            {"int", {m_builtin, &eval_int}},
         };
     }
 
@@ -265,6 +266,39 @@ struct PythonIntrinsicProcedures {
 
         } else {
             throw SemanticError("The arguments to pow() must be of type integers for now.", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_int(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        if (args.size() == 0) {
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc, 0, type));
+        }
+        ASR::expr_t* int_expr = ASRUtils::expr_value(args[0]);
+        ASR::ttype_t* int_type = ASRUtils::expr_type(int_expr);
+        if (ASRUtils::is_integer(*int_type)) {
+            int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(int_expr)->m_n;
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc, ival, type));
+
+        } else if (ASRUtils::is_character(*int_type)) {
+            // convert a string to an int
+            char* c = ASR::down_cast<ASR::ConstantString_t>(int_expr)->m_s;
+            std::string str = std::string(c);
+            int64_t ival = std::stoll(str);
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc, ival, type));
+
+        } else if (ASRUtils::is_real(*int_type)) {
+            int64_t ival = ASR::down_cast<ASR::ConstantReal_t>(int_expr)->m_r;
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc, ival, type));
+
+        } else if (ASRUtils::is_logical(*int_type)) {
+            bool rv = ASR::down_cast<ASR::ConstantLogical_t>(int_expr)->m_value;
+            int8_t val = rv ? 1 : 0;
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc, val, type));
+
+        } else {
+            throw SemanticError("int() argument must be real, integer, logical, or a string, not '" +
+                ASRUtils::type_to_str(int_type) + "'", loc);
         }
     }
 
