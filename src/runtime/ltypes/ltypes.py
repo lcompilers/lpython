@@ -1,6 +1,8 @@
 from inspect import getfullargspec, getcallargs
 from typing import types
+import os
 import ctypes
+import platform
 
 # data-types
 
@@ -89,11 +91,25 @@ class CTypes:
                 return ctypes.c_float
             else:
                 raise NotImplementedError("Type not implemented")
+        def get_rtlib_dir():
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            return os.path.join(current_dir, "..")
+        def get_crtlib_name():
+            if platform.system() == "Linux":
+                return "liblfortran_runtime.so"
+            elif platform.system() == "Darwin":
+                return "liblfortran_runtime.dylib"
+            elif platform.system() == "Windows":
+                return "lfortran_runtime.dll"
+            else:
+                raise NotImplementedError("Platform not implemented")
+        def get_crtlib_path():
+            return os.path.join(get_rtlib_dir(), get_crtlib_name())
         self.name = f.__name__
         self.args = f.__code__.co_varnames
         self.annotations = f.__annotations__
-        lib = "/Users/ondrej/repos/lpython/src/runtime/liblfortran_runtime.dylib"
-        self.library = ctypes.CDLL(lib)
+        crtlib = get_crtlib_path()
+        self.library = ctypes.CDLL(crtlib)
         self.cf = self.library[self.name]
         argtypes = []
         for arg in self.args:
