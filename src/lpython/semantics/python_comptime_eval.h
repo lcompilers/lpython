@@ -36,6 +36,7 @@ struct PythonIntrinsicProcedures {
             {"len", {m_builtin, &eval_len}},
             {"pow", {m_builtin, &eval_pow}},
             {"int", {m_builtin, &eval_int}},
+            {"float", {m_builtin, &eval_float}},
         };
     }
 
@@ -299,6 +300,35 @@ struct PythonIntrinsicProcedures {
         } else {
             throw SemanticError("int() argument must be real, integer, logical, or a string, not '" +
                 ASRUtils::type_to_str(int_type) + "'", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_float(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
+        if (args.size() == 0) {
+            return ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al, loc, 0.0, type));
+        }
+        ASR::expr_t* expr = ASRUtils::expr_value(args[0]);
+        ASR::ttype_t* float_type = ASRUtils::expr_type(expr);
+        if (ASRUtils::is_real(*float_type)) {
+            float rv = ASR::down_cast<ASR::ConstantReal_t>(expr)->m_r;
+            return ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al, loc, rv, type));
+        } else if (ASRUtils::is_integer(*float_type)) {
+            double rv = ASR::down_cast<ASR::ConstantInteger_t>(expr)->m_n;
+            return ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al, loc, rv, type));
+        } else if (ASRUtils::is_logical(*float_type)) {
+            bool rv = ASR::down_cast<ASR::ConstantLogical_t>(expr)->m_value;
+            float val = rv ? 1.0 : 0.0;
+            return ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al, loc, val, type));
+        } else if (ASRUtils::is_character(*float_type)) {
+            // convert a string to a float
+            char* c = ASR::down_cast<ASR::ConstantString_t>(expr)->m_s;
+            std::string str = std::string(c);
+            float rv = std::stof(str);
+            return ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al, loc, rv, type));
+        } else {
+            throw SemanticError("float() argument must be real, integer, logical, or a string, not '" +
+                ASRUtils::type_to_str(float_type) + "'", loc);
         }
     }
 
