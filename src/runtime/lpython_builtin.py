@@ -96,3 +96,10 @@ def int(f: f64) -> i32:
     Converts a floating point number to an integer.
     """
     pass # handled by LLVM
+
+
+def float(i: i32) -> f64:
+    """
+    Converts an integer to a floating point number.
+    """
+    pass # handled by LLVM
