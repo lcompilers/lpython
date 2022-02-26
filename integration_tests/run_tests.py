@@ -19,6 +19,7 @@ tests = [
     "test_builtin_bool.py",
     "test_builtin_pow.py",
     "test_builtin_int.py",
+    "test_builtin_float.py",
     "test_math1.py"
 ]
 
