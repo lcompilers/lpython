@@ -89,6 +89,10 @@ class CTypes:
                 return ctypes.c_double
             elif arg == f32:
                 return ctypes.c_float
+            elif arg == i64:
+                return ctypes.c_int64
+            elif arg == i32:
+                return ctypes.c_int32
             else:
                 raise NotImplementedError("Type not implemented")
         def get_rtlib_dir():
