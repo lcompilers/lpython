@@ -82,14 +82,25 @@ class CTypes:
     """
 
     def __init__(self, f):
+        def convert_type_to_ctype(arg):
+            if arg == f64:
+                return ctypes.c_double
+            else:
+                raise NotImplementedError("Type not implemented")
         self.name = f.__name__
         self.args = f.__code__.co_varnames
         self.annotations = f.__annotations__
         lib = "/Users/ondrej/repos/lpython/src/runtime/liblfortran_runtime.dylib"
         self.library = ctypes.CDLL(lib)
         self.cf = self.library[self.name]
-        self.cf.argtypes = [ctypes.c_double]
-        self.cf.restype = ctypes.c_double
+        argtypes = []
+        for arg in self.args:
+            arg_type = self.annotations[arg]
+            arg_ctype = convert_type_to_ctype(arg_type)
+            argtypes.append(arg_ctype)
+        self.cf.argtypes = argtypes
+        res_type = self.annotations["return"]
+        self.cf.restype = convert_type_to_ctype(res_type)
 
     def __call__(self, *args, **kwargs):
         if len(kwargs) > 0:
