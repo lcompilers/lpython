@@ -21,12 +21,15 @@ def _lfortran_bgt64(i: i64, j: i64) -> i64:
 def _lfortran_random_number(n: i64, v: f64[:]):
     pass
 
-assert abs(_lfortran_dsin(pi) - 0) < 1e-12
-assert abs(_lfortran_dsin(pi/2) - 1) < 1e-12
-assert abs(_lfortran_ssin(pi) - 0) < 1e-6
-assert abs(_lfortran_ssin(pi/2) - 1) < 1e-6
+def test_c_callbacks():
+    assert abs(_lfortran_dsin(pi) - 0) < 1e-12
+    assert abs(_lfortran_dsin(pi/2) - 1) < 1e-12
+    assert abs(_lfortran_ssin(pi) - 0) < 1e-6
+    assert abs(_lfortran_ssin(pi/2) - 1) < 1e-6
 
-assert _lfortran_bgt32(3, 4) == 0
-assert _lfortran_bgt32(4, 3) == 1
-assert _lfortran_bgt64(3, 4) == 0
-assert _lfortran_bgt64(4, 3) == 1
+    assert _lfortran_bgt32(3, 4) == 0
+    assert _lfortran_bgt32(4, 3) == 1
+    assert _lfortran_bgt64(3, 4) == 0
+    assert _lfortran_bgt64(4, 3) == 1
+
+test_c_callbacks()
