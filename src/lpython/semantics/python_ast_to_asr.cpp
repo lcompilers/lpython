@@ -533,6 +533,16 @@ public:
 
         Vec<ASR::expr_t*> args;
         args.reserve(al, x.m_args.n_args);
+        current_procedure_abi_type = ASR::abiType::Source;
+        if (x.n_decorator_list == 1) {
+            AST::expr_t *dec = x.m_decorator_list[0];
+            if (AST::is_a<AST::Name_t>(*dec)) {
+                std::string name = AST::down_cast<AST::Name_t>(dec)->m_id;
+                if (name == "ccall") {
+                    current_procedure_abi_type = ASR::abiType::BindC;
+                }
+            }
+        }
         for (size_t i=0; i<x.m_args.n_args; i++) {
             char *arg=x.m_args.m_args[i].m_arg;
             Location loc = x.m_args.m_args[i].loc;
@@ -551,10 +561,12 @@ public:
             }
             ASR::storage_typeType storage_type =
                     ASR::storage_typeType::Default;
-            ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
             ASR::accessType s_access = ASR::accessType::Public;
             ASR::presenceType s_presence = ASR::presenceType::Required;
             bool value_attr = false;
+            if (current_procedure_abi_type == ASR::abiType::BindC) {
+                value_attr = true;
+            }
             ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
                     s2c(al, arg_s), s_intent, init_expr, value, storage_type, arg_type,
                     current_procedure_abi_type, s_access, s_presence,
@@ -571,6 +583,9 @@ public:
         }
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::deftypeType deftype = ASR::deftypeType::Implementation;
+        if (current_procedure_abi_type == ASR::abiType::BindC) {
+            deftype = ASR::deftypeType::Interface;
+        }
         char *bindc_name=nullptr;
         if (x.m_returns) {
             if (AST::is_a<AST::Name_t>(*x.m_returns)) {
