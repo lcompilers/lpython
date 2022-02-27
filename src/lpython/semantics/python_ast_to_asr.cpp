@@ -535,7 +535,7 @@ public:
         args.reserve(al, x.m_args.n_args);
         current_procedure_abi_type = ASR::abiType::Source;
         if (x.n_decorator_list == 1) {
-            AST::expr_t *dec = x.m_decokrator_list[0];
+            AST::expr_t *dec = x.m_decorator_list[0];
             if (AST::is_a<AST::Name_t>(*dec)) {
                 std::string name = AST::down_cast<AST::Name_t>(dec)->m_id;
                 if (name == "ccall") {
