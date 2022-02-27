@@ -726,6 +726,8 @@ class SerializationVisitorVisitor(ASDLVisitor):
         self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
         if cons:
             self.emit(    'self().write_int8(x.base.type);', 2)
+            self.emit(    'self().write_int64(x.base.base.loc.first);', 2)
+            self.emit(    'self().write_int64(x.base.base.loc.last);', 2)
         self.used = False
         for n, field in enumerate(fields):
             self.visitField(field, cons, name)
@@ -1145,12 +1147,12 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                                 lines.append("m_%s = nullptr;" % f.name)
                                 lines.append("}")
                     args.append("m_%s" % (f.name))
-        for line in lines:
-            self.emit(line, 2)
 
         self.emit(    'Location loc;', 2)
-        self.emit(    '// FIXME: read loc from the stream', 2)
-        self.emit(    'loc.first=0; loc.last=0;', 2)
+        self.emit(    'loc.first = self().read_int64();', 2)
+        self.emit(    'loc.last = self().read_int64();', 2)
+        for line in lines:
+            self.emit(line, 2)
         self.emit(    'return %s::make_%s_t(%s);' % (subs["MOD"], name, ", ".join(args)), 2)
         self.emit("}", 1)
 

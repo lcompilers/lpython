@@ -303,6 +303,8 @@ class SerializationVisitorVisitor(ASDLVisitor):
         self.emit("def visit_%s(self, x: %s):" % (name, name), 1)
         if cons:
             self.emit(    'self.write_int8(x.ntype)', 2)
+            self.emit(    'self.write_int64(x.first)', 2)
+            self.emit(    'self.write_int64(x.last)', 2)
         self.used = False
         for n, field in enumerate(fields):
             self.visitField(field, cons, name)
