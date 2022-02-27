@@ -5,6 +5,9 @@
 #include <string>
 #include <cstring>
 #include <cmath>
+#include <sstream>
+#include <algorithm>
+#include <iterator>
 
 #include <libasr/asr.h>
 #include <lpython/ast.h>
@@ -37,6 +40,7 @@ struct PythonIntrinsicProcedures {
             {"pow", {m_builtin, &eval_pow}},
             {"int", {m_builtin, &eval_int}},
             {"float", {m_builtin, &eval_float}},
+            {"bin", {m_builtin, &eval_bin}},
         };
     }
 
@@ -329,6 +333,29 @@ struct PythonIntrinsicProcedures {
         } else {
             throw SemanticError("float() argument must be real, integer, logical, or a string, not '" +
                 ASRUtils::type_to_str(float_type) + "'", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_bin(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        if (args.size() != 1) {
+            throw SemanticError("bin() takes exactly one argument (" +
+                std::to_string(args.size()) + " given)", loc);
+        }
+        ASR::expr_t* expr = ASRUtils::expr_value(args[0]);
+        ASR::ttype_t* type = ASRUtils::expr_type(expr);
+        if (ASRUtils::is_integer(*type)) {
+            int64_t n = ASR::down_cast<ASR::ConstantInteger_t>(expr)->m_n;
+            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
+                loc, 1, 1, nullptr, nullptr, 0));
+            std::string str, prefix;
+            prefix = n > 0 ? "0b" : "-0b";
+            str += std::bitset<64>(std::abs(n)).to_string();
+            str.erase(0, str.find_first_not_of('0'));
+            str.insert(0, prefix);
+            return ASR::down_cast<ASR::expr_t>(make_ConstantString_t(al, loc, s2c(al, str), str_type));
+        } else {
+            throw SemanticError("bin() argument must be an integer, not '" +
+                ASRUtils::type_to_str(type) + "'", loc);
         }
     }
 
