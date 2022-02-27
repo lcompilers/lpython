@@ -118,8 +118,8 @@ def bin(n: i32) -> str:
         prep = '-0b'
     res: str
     res = ''
-    res += '0' if n % 2 == 0 else '1'
+    res += '0' if (n - (n//2)*2) == 0 else '1'
     while n > 1:
         n = n//2
-        res += '0' if n % 2 == 0 else '1'
+        res += '0' if (n - (n//2)*2) == 0 else '1'
     return prep + res[::-1]

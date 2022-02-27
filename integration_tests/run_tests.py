@@ -26,7 +26,8 @@ tests = [
 # CPython tests only
 test_cpython = [
     "test_generics_01.py",
-    "test_c_interop_01.py"
+    "test_c_interop_01.py",
+    "test_builtin_bin.py"
 ]
 
 
