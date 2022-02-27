@@ -564,6 +564,9 @@ public:
             ASR::accessType s_access = ASR::accessType::Public;
             ASR::presenceType s_presence = ASR::presenceType::Required;
             bool value_attr = false;
+            if (current_procedure_abi_type == ASR::abiType::BindC) {
+                value_attr = true;
+            }
             ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
                     s2c(al, arg_s), s_intent, init_expr, value, storage_type, arg_type,
                     current_procedure_abi_type, s_access, s_presence,
