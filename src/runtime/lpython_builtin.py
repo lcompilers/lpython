@@ -103,3 +103,23 @@ def float(i: i32) -> f64:
     Converts an integer to a floating point number.
     """
     pass # handled by LLVM
+
+
+def bin(n: i32) -> str:
+    """
+    Returns the binary representation of an integer `i`.
+    """
+    if n == 0:
+        return '0b0'
+    prep: str
+    prep = '0b'
+    if n < 0:
+        n = -n
+        prep = '-0b'
+    res: str
+    res = ''
+    res += '0' if n % 2 == 0 else '1'
+    while n > 1:
+        n = n//2
+        res += '0' if n % 2 == 0 else '1'
+    return prep + res[::-1]
