@@ -580,6 +580,9 @@ public:
         }
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::deftypeType deftype = ASR::deftypeType::Implementation;
+        if (current_procedure_abi_type == ASR::abiType::BindC) {
+            deftype = ASR::deftypeType::Interface;
+        }
         char *bindc_name=nullptr;
         if (x.m_returns) {
             if (AST::is_a<AST::Name_t>(*x.m_returns)) {
