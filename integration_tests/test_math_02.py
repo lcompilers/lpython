@@ -17,3 +17,4 @@ def test_sqrt():
     assert abs(sqrt(9.0) - 3) < eps
 
 test_trig()
+test_sqrt()
