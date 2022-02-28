@@ -1,4 +1,4 @@
-from ltypes import i32, f64
+from ltypes import i32, f64, ccall
 
 
 pi: f64 = 3.141592653589793238462643383279502884197
@@ -139,3 +139,27 @@ def lcm(a: i32, b: i32) -> i32:
     if a*b == 0:
         return 0
     return (a*b)//gcd(a, b)
+
+def sqrt(x: f64) -> f64:
+    return x**(1/2)
+
+@ccall
+def _lfortran_dsin(x: f64) -> f64:
+    pass
+
+def sin(x: f64) -> f64:
+    return _lfortran_dsin(x)
+
+@ccall
+def _lfortran_dcos(x: f64) -> f64:
+    pass
+
+def cos(x: f64) -> f64:
+    return _lfortran_dcos(x)
+
+@ccall
+def _lfortran_dtan(x: f64) -> f64:
+    pass
+
+def tan(x: f64) -> f64:
+    return _lfortran_dtan(x)

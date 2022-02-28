@@ -21,6 +21,7 @@ tests = [
     "test_builtin_int.py",
     "test_builtin_float.py",
     "test_math1.py",
+    "test_math_02.py",
     "test_c_interop_01.py",
 ]
 
