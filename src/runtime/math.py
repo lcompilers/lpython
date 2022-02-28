@@ -163,3 +163,20 @@ def _lfortran_dtan(x: f64) -> f64:
 
 def tan(x: f64) -> f64:
     return _lfortran_dtan(x)
+
+@ccall
+def _lfortran_dlog(x: f64) -> f64:
+    pass
+
+def log(x: f64) -> f64:
+    return _lfortran_dlog(x)
+
+@ccall
+def _lfortran_dlog10(x: f64) -> f64:
+    pass
+
+def log10(x: f64) -> f64:
+    return _lfortran_dlog10(x)
+
+def log2(x: f64) -> f64:
+    return _lfortran_dlog(x)/_lfortran_dlog(2.0)
