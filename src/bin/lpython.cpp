@@ -276,6 +276,7 @@ int prompt(bool verbose)
         try {
             LFortran::LocationManager lm;
             lm.in_filename = "input";
+            lm.init_simple(input);
             LFortran::Result<LFortran::FortranEvaluator::EvalResult>
             res = e.evaluate(input, verbose, lm, diagnostics);
             std::cerr << diagnostics.render(input, lm, cu);
@@ -364,6 +365,7 @@ int emit_prescan(const std::string &infile, CompilerOptions &compiler_options)
     std::string input = read_file(infile);
     LFortran::LocationManager lm;
     lm.in_filename = infile;
+    lm.init_simple(input);
     std::string prescan = LFortran::fix_continuation(input, lm,
         compiler_options.fixed_form);
     std::cout << prescan << std::endl;
@@ -406,8 +408,9 @@ int emit_ast_f90(const std::string &infile, CompilerOptions &compiler_options)
     std::string input = read_file(infile);
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
-    LFortran::diag::Diagnostics diagnostics;
     lm.in_filename = infile;
+    lm.init_simple(input);
+    LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::AST::TranslationUnit_t*> r
             = fe.get_ast2(input, lm, diagnostics);
     std::cerr << diagnostics.render(input, lm, compiler_options);
@@ -469,6 +472,7 @@ int python_wrapper(const std::string &infile, std::string array_order,
     // Src -> AST -> ASR
     LFortran::LocationManager lm;
     lm.in_filename = infile;
+    lm.init_simple(input);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         result = fe.get_asr2(input, lm, diagnostics);
@@ -573,10 +577,11 @@ int emit_cpp(const std::string &infile,
 
     LFortran::LocationManager lm;
     lm.in_filename = infile;
+    std::string input = read_file(infile);
+    lm.init_simple(input);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics, true);
-    std::string input = read_file(infile);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -654,10 +659,11 @@ int emit_llvm(const std::string &infile,
     // Src -> AST -> ASR
     LFortran::Python::AST::ast_t* ast = r.result;
     lm.in_filename = infile;
+    std::string input = read_file(infile);
+    lm.init_simple(input);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics, true);
-    std::string input = read_file(infile);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -681,12 +687,12 @@ int emit_llvm(const std::string &infile,
 
 int emit_asm(const std::string &infile, CompilerOptions &compiler_options)
 {
-    std::string input = read_file(infile);
-
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::LocationManager lm;
     LFortran::diag::Diagnostics diagnostics;
     lm.in_filename = infile;
+    std::string input = read_file(infile);
+    lm.init_simple(input);
     LFortran::Result<std::string> r = fe.get_asm(input, lm, diagnostics);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (r.ok) {
@@ -715,10 +721,11 @@ int compile_python_to_object_file(
     // Src -> AST -> ASR
     LFortran::Python::AST::ast_t* ast = r.result;
     lm.in_filename = infile;
+    std::string input = read_file(infile);
+    lm.init_simple(input);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics, true);
-    std::string input = read_file(infile);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -748,8 +755,6 @@ int compile_to_object_file(const std::string &infile,
         bool assembly,
         CompilerOptions &compiler_options)
 {
-    std::string input = read_file(infile);
-
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::ASR::TranslationUnit_t* asr;
 
@@ -757,6 +762,8 @@ int compile_to_object_file(const std::string &infile,
     // Src -> AST -> ASR
     LFortran::LocationManager lm;
     lm.in_filename = infile;
+    std::string input = read_file(infile);
+    lm.init_simple(input);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         result = fe.get_asr2(input, lm, diagnostics);
@@ -846,6 +853,7 @@ int compile_to_binary_x86(const std::string &infile, const std::string &outfile,
     // Src -> AST
     LFortran::LocationManager lm;
     lm.in_filename = infile;
+    lm.init_simple(input);
     {
         auto t1 = std::chrono::high_resolution_clock::now();
         LFortran::Result<LFortran::AST::TranslationUnit_t*>
@@ -922,14 +930,13 @@ int compile_to_object_file_cpp(const std::string &infile,
         bool assembly, bool kokkos, const std::string &rtlib_header_dir,
         CompilerOptions &compiler_options)
 {
-    std::string input = read_file(infile);
-
     LFortran::FortranEvaluator fe(compiler_options);
     LFortran::ASR::TranslationUnit_t* asr;
 
     // Src -> AST -> ASR
     LFortran::LocationManager lm;
     lm.in_filename = infile;
+    std::string input = read_file(infile);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         result = fe.get_asr2(input, lm, diagnostics);
