@@ -1,5 +1,6 @@
 from math import (sin, cos, tan, pi, sqrt, log, log10, log2, erf, erfc, gamma,
-                  lgamma, asin, acos, atan, atan2)
+                  lgamma, asin, acos, atan, atan2, asinh, acosh, atanh,
+                  tanh, sinh, cosh)
 
 def test_trig():
     # TODO: importing from `math` doesn't work here yet:
@@ -36,6 +37,14 @@ def test_special():
     assert abs(gamma(5.0) - 24) < eps
     assert abs(lgamma(5.0) - log(gamma(5.0))) < eps
 
+def test_hyperbolic():
+    eps: f64 = 1e-12
+    assert abs(sinh(1.0) - 1.1752011936438014) < eps
+    assert abs(cosh(1.0) - 1.5430806348152437) < eps
+    assert abs(tanh(1.0) - 0.7615941559557649) < eps
+    assert abs(asinh(1.0) - 0.881373587019543) < eps
+    assert abs(cosh(1.0) - 0) < eps
+    assert abs(tanh(0.0) - 0) < eps
 
 test_trig()
 test_sqrt()
