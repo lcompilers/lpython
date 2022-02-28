@@ -148,3 +148,28 @@ def hex(n: i32) -> str:
         n = n//16
         res += hex_values[remainder]
     return prep + res[::-1]
+
+
+def oct(n: i32) -> str:
+    """
+    Returns the octal representation of an integer `n`.
+    """
+    _values: list[str]
+    _values = ['0', '1', '2', '3', '4', '5', '6', '7',
+               '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
+    if n == 0:
+        return '0o0'
+    prep: str
+    prep = '0o'
+    if n < 0:
+        prep = '-0o'
+        n = -n
+    res: str
+    res = ""
+    remainder: i32
+    while n > 0:
+        remainder = n - (n//8)*8
+        n -= remainder
+        n = n//8
+        res += _values[remainder]
+    return prep + res[::-1]
