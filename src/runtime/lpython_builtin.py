@@ -125,14 +125,13 @@ def bin(n: i32) -> str:
     return prep + res[::-1]
 
 
-hex_values = ['0', '1', '2', '3', '4', '5', '6', '7',
-          '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
-
-
 def hex(n: i32) -> str:
     """
     Returns the hexadecimal representation of an integer `n`.
     """
+    hex_values: list[str]
+    hex_values = ['0', '1', '2', '3', '4', '5', '6', '7',
+                  '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
     if n == 0:
         return '0x0'
     prep: str
