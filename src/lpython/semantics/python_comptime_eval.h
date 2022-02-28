@@ -96,24 +96,30 @@ struct PythonIntrinsicProcedures {
         if (args.size() != 1) {
             throw SemanticError("Intrinsic abs function accepts exactly 1 argument", loc);
         }
-        ASR::expr_t* trig_arg = args[0];
+        ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
         ASR::ttype_t* t = ASRUtils::expr_type(args[0]);
-        if (ASR::is_a<ASR::Real_t>(*t)) {
-            double rv = ASR::down_cast<ASR::ConstantReal_t>(trig_arg)->m_r;
+        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        ASR::ttype_t *real_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
+        if (ASRUtils::is_real(*t)) {
+            double rv = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
             double val = std::abs(rv);
-            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
-        } else if (ASR::is_a<ASR::Integer_t>(*t)) {
-            int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(trig_arg)->m_n;
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, real_type));
+        } else if (ASRUtils::is_integer(*t)) {
+            int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
             int64_t val = std::abs(rv);
-            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, val, t));
-        } else if (ASR::is_a<ASR::Complex_t>(*t)) {
-            double re = ASR::down_cast<ASR::ConstantComplex_t>(trig_arg)->m_re;
-            double im = ASR::down_cast<ASR::ConstantComplex_t>(trig_arg)->m_im;
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, val, int_type));
+        } else if (ASRUtils::is_logical(*t)) {
+            bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
+            int8_t val = rv ? 1 : 0;
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, val, int_type));
+        } else if (ASRUtils::is_complex(*t)) {
+            double re = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_re;
+            double im = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_im;
             std::complex<double> x(re, im);
             double result = std::abs(x);
-            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, result, t));
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, result, real_type));
         } else {
-            throw SemanticError("Argument of the abs function must be Integer, Real or Complex", loc);
+            throw SemanticError("Argument of the abs function must be Integer, Real, Logical, or Complex.", loc);
         }
     }
 

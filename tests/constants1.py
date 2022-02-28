@@ -19,15 +19,15 @@ def test_ord_chr():
 
 
 def test_abs():
-    # a: i32
-    # a = abs(5)
-    # a = abs(-500)
-    # a = abs(False)
-    # a = abs(True)
+    a: i32
+    a = abs(5)
+    a = abs(-500)
+    a = abs(False)
+    a = abs(True)
     b: f32
     b = abs(3.45)
     b = abs(-5346.34)
-    # b = abs(complex(3.45, 5.6))
+    b = abs(complex(3.45, 5.6))
 
 
 def test_len():
