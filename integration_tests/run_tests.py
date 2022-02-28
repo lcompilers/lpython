@@ -29,7 +29,8 @@ tests = [
 test_cpython = [
     "test_generics_01.py",
     "test_builtin_bin.py",
-    "test_builtin_hex.py"
+    "test_builtin_hex.py",
+    "test_builtin_oct.py"
 ]
 
 
