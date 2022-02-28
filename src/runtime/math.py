@@ -236,3 +236,45 @@ def _lfortran_datan2(y: f64, x: f64) -> f64:
 
 def atan2(y: f64, x: f64) -> f64:
     return _lfortran_datan2(y, x)
+
+@ccall
+def _lfortran_dsinh(x: f64) -> f64:
+    pass
+
+def sinh(x: f64) -> f64:
+    return _lfortran_dsinh(x)
+
+@ccall
+def _lfortran_dcosh(x: f64) -> f64:
+    pass
+
+def cosh(x: f64) -> f64:
+    return _lfortran_dcosh(x)
+
+@ccall
+def _lfortran_dtanh(x: f64) -> f64:
+    pass
+
+def tanh(x: f64) -> f64:
+    return _lfortran_dtanh(x)
+
+@ccall
+def _lfortran_dasinh(x: f64) -> f64:
+    pass
+
+def asinh(x: f64) -> f64:
+    return _lfortran_dasinh(x)
+
+@ccall
+def _lfortran_dacosh(x: f64) -> f64:
+    pass
+
+def acosh(x: f64) -> f64:
+    return _lfortran_dacosh(x)
+
+@ccall
+def _lfortran_datanh(x: f64) -> f64:
+    pass
+
+def atanh(x: f64) -> f64:
+    return _lfortran_datanh(x)
