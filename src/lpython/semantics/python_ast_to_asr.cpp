@@ -2149,39 +2149,6 @@ public:
                 }
                 tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc, c1, c2, type);
                 return;
-            } else if (call_name == "bin" || call_name == "oct" || call_name == "hex") {
-                if (args.size() != 1) {
-                    throw SemanticError(call_name + "() takes exactly one argument (" +
-                        std::to_string(args.size()) + " given)", x.base.base.loc);
-                }
-                ASR::expr_t* expr = ASRUtils::expr_value(args[0]);
-                ASR::ttype_t* type = ASRUtils::expr_type(expr);
-                if (ASRUtils::is_integer(*type)) {
-                    int64_t n = ASR::down_cast<ASR::ConstantInteger_t>(expr)->m_n;
-                    ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
-                        x.base.base.loc, 1, 1, nullptr, nullptr, 0));
-                    std::string str, prefix;
-                    std::stringstream ss;
-                    if (call_name == "oct") {
-                        prefix = n > 0 ? "0o" : "-0o";
-                        ss << std::oct << std::abs(n);
-                        str += ss.str();
-                    } else if (call_name == "bin") {
-                        prefix = n > 0 ? "0b" : "-0b";
-                        str += std::bitset<64>(std::abs(n)).to_string();
-                        str.erase(0, str.find_first_not_of('0'));
-                    } else {
-                        prefix = n > 0 ? "0x" : "-0x";
-                        ss << std::hex << std::abs(n);
-                        str += ss.str();
-                    }
-                    str.insert(0, prefix);
-                    tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s2c(al, str), str_type);
-                    return;
-                } else {
-                    throw SemanticError(call_name + "() must have one integer argument",
-                        x.base.base.loc);
-                }
             } else if (call_name == "callable") {
                 if (args.size() != 1) {
                     throw SemanticError(call_name + "() takes exactly one argument (" +

@@ -107,7 +107,7 @@ def float(i: i32) -> f64:
 
 def bin(n: i32) -> str:
     """
-    Returns the binary representation of an integer `i`.
+    Returns the binary representation of an integer `n`.
     """
     if n == 0:
         return '0b0'
@@ -122,4 +122,54 @@ def bin(n: i32) -> str:
     while n > 1:
         n = n//2
         res += '0' if (n - (n//2)*2) == 0 else '1'
+    return prep + res[::-1]
+
+
+def hex(n: i32) -> str:
+    """
+    Returns the hexadecimal representation of an integer `n`.
+    """
+    hex_values: list[str]
+    hex_values = ['0', '1', '2', '3', '4', '5', '6', '7',
+                  '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
+    if n == 0:
+        return '0x0'
+    prep: str
+    prep = '0x'
+    if n < 0:
+        prep = '-0x'
+        n = -n
+    res: str
+    res = ""
+    remainder: i32
+    while n > 0:
+        remainder = n - (n//16)*16
+        n -= remainder
+        n = n//16
+        res += hex_values[remainder]
+    return prep + res[::-1]
+
+
+def oct(n: i32) -> str:
+    """
+    Returns the octal representation of an integer `n`.
+    """
+    _values: list[str]
+    _values = ['0', '1', '2', '3', '4', '5', '6', '7',
+               '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
+    if n == 0:
+        return '0o0'
+    prep: str
+    prep = '0o'
+    if n < 0:
+        prep = '-0o'
+        n = -n
+    res: str
+    res = ""
+    remainder: i32
+    while n > 0:
+        remainder = n - (n//8)*8
+        n -= remainder
+        n = n//8
+        res += _values[remainder]
     return prep + res[::-1]

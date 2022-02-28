@@ -200,3 +200,11 @@ asr = true
 [[test]]
 filename = "../integration_tests/test_builtin_bin.py"
 asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin_hex.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin_oct.py"
+asr = true

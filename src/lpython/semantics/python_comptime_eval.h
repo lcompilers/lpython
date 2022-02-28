@@ -41,6 +41,8 @@ struct PythonIntrinsicProcedures {
             {"int", {m_builtin, &eval_int}},
             {"float", {m_builtin, &eval_float}},
             {"bin", {m_builtin, &eval_bin}},
+            {"hex", {m_builtin, &eval_hex}},
+            {"oct", {m_builtin, &eval_oct}},
         };
     }
 
@@ -355,6 +357,54 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(make_ConstantString_t(al, loc, s2c(al, str), str_type));
         } else {
             throw SemanticError("bin() argument must be an integer, not '" +
+                ASRUtils::type_to_str(type) + "'", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_hex(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        if (args.size() != 1) {
+            throw SemanticError("hex() takes exactly one argument (" +
+                std::to_string(args.size()) + " given)", loc);
+        }
+        ASR::expr_t* expr = ASRUtils::expr_value(args[0]);
+        ASR::ttype_t* type = ASRUtils::expr_type(expr);
+        if (ASRUtils::is_integer(*type)) {
+            int64_t n = ASR::down_cast<ASR::ConstantInteger_t>(expr)->m_n;
+            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
+                loc, 1, 1, nullptr, nullptr, 0));
+            std::string str, prefix;
+            std::stringstream ss;
+            prefix = n > 0 ? "0x" : "-0x";
+            ss << std::hex << std::abs(n);
+            str += ss.str();
+            str.insert(0, prefix);
+            return ASR::down_cast<ASR::expr_t>(make_ConstantString_t(al, loc, s2c(al, str), str_type));
+        } else {
+            throw SemanticError("hex() argument must be an integer, not '" +
+                ASRUtils::type_to_str(type) + "'", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_oct(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        if (args.size() != 1) {
+            throw SemanticError("oct() takes exactly one argument (" +
+                std::to_string(args.size()) + " given)", loc);
+        }
+        ASR::expr_t* expr = ASRUtils::expr_value(args[0]);
+        ASR::ttype_t* type = ASRUtils::expr_type(expr);
+        if (ASRUtils::is_integer(*type)) {
+            int64_t n = ASR::down_cast<ASR::ConstantInteger_t>(expr)->m_n;
+            ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
+                loc, 1, 1, nullptr, nullptr, 0));
+            std::string str, prefix;
+            std::stringstream ss;
+            prefix = n > 0 ? "0o" : "-0o";
+            ss << std::oct << std::abs(n);
+            str += ss.str();
+            str.insert(0, prefix);
+            return ASR::down_cast<ASR::expr_t>(make_ConstantString_t(al, loc, s2c(al, str), str_type));
+        } else {
+            throw SemanticError("oct() argument must be an integer, not '" +
                 ASRUtils::type_to_str(type) + "'", loc);
         }
     }
