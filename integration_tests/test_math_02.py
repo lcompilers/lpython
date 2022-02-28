@@ -1,4 +1,5 @@
-from math import sin, cos, tan, pi, sqrt, log, log10, log2
+from math import (sin, cos, tan, pi, sqrt, log, log10, log2, erf, erfc, gamma,
+                  lgamma)
 
 def test_trig():
     # TODO: importing from `math` doesn't work here yet:
@@ -23,6 +24,16 @@ def test_log():
     assert abs(log2(2.0) - 1) < eps
     assert abs(log10(10.0) - 1) < eps
 
+def test_special():
+    eps: f64 = 1e-12
+    assert abs(erf(2.0) - 0.9953222650189527) < eps
+    assert abs(erfc(2.0) - 0.0046777349810472645) < eps
+    assert abs(erf(2.0) + erfc(2.0) - 1) < eps
+    assert abs(gamma(5.0) - 24) < eps
+    assert abs(lgamma(5.0) - log(gamma(5.0))) < eps
+
+
 test_trig()
 test_sqrt()
 test_log()
+test_special()
