@@ -542,10 +542,11 @@ int emit_asr(const std::string &infile,
 
     LFortran::LocationManager lm;
     lm.in_filename = infile;
+    std::string input = read_file(infile);
+    lm.init_simple(input);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics, true);
-    std::string input = read_file(infile);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())

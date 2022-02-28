@@ -14,6 +14,27 @@ a = ast.parse(input, type_comments=True)
 
 # Transform ast.AST to python_ast.AST:
 
+def get_newlines(s):
+    newlines = []
+    for pos in range(len(s)):
+        if s[pos] == "\n":
+            newlines.append(pos)
+    return newlines
+
+newlines = get_newlines(input)
+
+# line and col starts from 1
+# It returns a linear position, which starts from 0
+def linecol_to_pos(line, col, newlines):
+    if line <= 0:
+        return 0
+    elif line == 1:
+        return col - 1
+    elif line-1 >= len(newlines):
+        return newlines[-1] + 1 + col - 1
+    else:
+        return newlines[line-2] + 1 + col - 1
+
 class Transform(ast.NodeVisitor):
 
     # Transform Constant to specific Constant* types
@@ -32,8 +53,8 @@ class Transform(ast.NodeVisitor):
         else:
             print(type(node.value))
             raise Exception("Unsupported Constant type")
-        new_node.first = 1
-        new_node.last = 1
+        new_node.first = linecol_to_pos(node.lineno, node.col_offset+1, newlines)
+        new_node.last = linecol_to_pos(node.end_lineno, node.end_col_offset, newlines)
         return new_node
 
     def generic_visit(self, node):
@@ -67,8 +88,12 @@ class Transform(ast.NodeVisitor):
                 raise Exception("Unsupported value type")
         new_ast = getattr(python_ast, class_name)
         new_node = new_ast(**d)
-        new_node.first = 1
-        new_node.last = 1
+        if hasattr(node, "lineno"):
+            new_node.first = linecol_to_pos(node.lineno, node.col_offset+1, newlines)
+            new_node.last = linecol_to_pos(node.end_lineno, node.end_col_offset, newlines)
+        else:
+            new_node.first = 1
+            new_node.last = 1
         return new_node
 
 
