@@ -140,6 +140,8 @@ def lcm(a: i32, b: i32) -> i32:
         return 0
     return (a*b)//gcd(a, b)
 
+def sqrt(x: f64) -> f64:
+    return x**(1/2)
 
 @ccall
 def _lfortran_dsin(x: f64) -> f64:
@@ -147,3 +149,17 @@ def _lfortran_dsin(x: f64) -> f64:
 
 def sin(x: f64) -> f64:
     return _lfortran_dsin(x)
+
+@ccall
+def _lfortran_dcos(x: f64) -> f64:
+    pass
+
+def cos(x: f64) -> f64:
+    return _lfortran_dcos(x)
+
+@ccall
+def _lfortran_dtan(x: f64) -> f64:
+    pass
+
+def tan(x: f64) -> f64:
+    return _lfortran_dtan(x)
