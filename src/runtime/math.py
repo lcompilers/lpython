@@ -208,3 +208,31 @@ def _lfortran_dlog_gamma(x: f64) -> f64:
 
 def lgamma(x: f64) -> f64:
     return _lfortran_dlog_gamma(x)
+
+@ccall
+def _lfortran_dasin(x: f64) -> f64:
+    pass
+
+def asin(x: f64) -> f64:
+    return _lfortran_dasin(x)
+
+@ccall
+def _lfortran_dacos(x: f64) -> f64:
+    pass
+
+def acos(x: f64) -> f64:
+    return _lfortran_dacos(x)
+
+@ccall
+def _lfortran_datan(x: f64) -> f64:
+    pass
+
+def atan(x: f64) -> f64:
+    return _lfortran_datan(x)
+
+@ccall
+def _lfortran_datan2(y: f64, x: f64) -> f64:
+    pass
+
+def atan2(y: f64, x: f64) -> f64:
+    return _lfortran_datan2(y, x)
