@@ -1,5 +1,5 @@
 from math import (sin, cos, tan, pi, sqrt, log, log10, log2, erf, erfc, gamma,
-                  lgamma)
+                  lgamma, asin, acos, atan, atan2)
 
 def test_trig():
     # TODO: importing from `math` doesn't work here yet:
@@ -11,6 +11,10 @@ def test_trig():
     assert abs(cos(pi/2)-0) < eps
     assert abs(tan(0.0)-0) < eps
     assert abs(tan(pi/4)-1) < eps
+    assert abs(asin(1.0) - pi/2) < eps
+    assert abs(acos(1.0) - 0) < eps
+    assert abs(atan(1.0) - pi/4) < eps
+    assert abs(atan2(1.0, 1.0) - pi/4) < eps
 
 def test_sqrt():
     eps: f64 = 1e-12
