@@ -163,3 +163,118 @@ def _lfortran_dtan(x: f64) -> f64:
 
 def tan(x: f64) -> f64:
     return _lfortran_dtan(x)
+
+@ccall
+def _lfortran_dlog(x: f64) -> f64:
+    pass
+
+def log(x: f64) -> f64:
+    return _lfortran_dlog(x)
+
+@ccall
+def _lfortran_dlog10(x: f64) -> f64:
+    pass
+
+def log10(x: f64) -> f64:
+    return _lfortran_dlog10(x)
+
+def log2(x: f64) -> f64:
+    return _lfortran_dlog(x)/_lfortran_dlog(2.0)
+
+@ccall
+def _lfortran_derf(x: f64) -> f64:
+    pass
+
+def erf(x: f64) -> f64:
+    return _lfortran_derf(x)
+
+@ccall
+def _lfortran_derfc(x: f64) -> f64:
+    pass
+
+def erfc(x: f64) -> f64:
+    return _lfortran_derfc(x)
+
+@ccall
+def _lfortran_dgamma(x: f64) -> f64:
+    pass
+
+def gamma(x: f64) -> f64:
+    return _lfortran_dgamma(x)
+
+@ccall
+def _lfortran_dlog_gamma(x: f64) -> f64:
+    pass
+
+def lgamma(x: f64) -> f64:
+    return _lfortran_dlog_gamma(x)
+
+@ccall
+def _lfortran_dasin(x: f64) -> f64:
+    pass
+
+def asin(x: f64) -> f64:
+    return _lfortran_dasin(x)
+
+@ccall
+def _lfortran_dacos(x: f64) -> f64:
+    pass
+
+def acos(x: f64) -> f64:
+    return _lfortran_dacos(x)
+
+@ccall
+def _lfortran_datan(x: f64) -> f64:
+    pass
+
+def atan(x: f64) -> f64:
+    return _lfortran_datan(x)
+
+@ccall
+def _lfortran_datan2(y: f64, x: f64) -> f64:
+    pass
+
+def atan2(y: f64, x: f64) -> f64:
+    return _lfortran_datan2(y, x)
+
+@ccall
+def _lfortran_dsinh(x: f64) -> f64:
+    pass
+
+def sinh(x: f64) -> f64:
+    return _lfortran_dsinh(x)
+
+@ccall
+def _lfortran_dcosh(x: f64) -> f64:
+    pass
+
+def cosh(x: f64) -> f64:
+    return _lfortran_dcosh(x)
+
+@ccall
+def _lfortran_dtanh(x: f64) -> f64:
+    pass
+
+def tanh(x: f64) -> f64:
+    return _lfortran_dtanh(x)
+
+@ccall
+def _lfortran_dasinh(x: f64) -> f64:
+    pass
+
+def asinh(x: f64) -> f64:
+    return _lfortran_dasinh(x)
+
+@ccall
+def _lfortran_dacosh(x: f64) -> f64:
+    pass
+
+def acosh(x: f64) -> f64:
+    return _lfortran_dacosh(x)
+
+@ccall
+def _lfortran_datanh(x: f64) -> f64:
+    pass
+
+def atanh(x: f64) -> f64:
+    return _lfortran_datanh(x)
