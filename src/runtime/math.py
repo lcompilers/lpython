@@ -180,3 +180,31 @@ def log10(x: f64) -> f64:
 
 def log2(x: f64) -> f64:
     return _lfortran_dlog(x)/_lfortran_dlog(2.0)
+
+@ccall
+def _lfortran_derf(x: f64) -> f64:
+    pass
+
+def erf(x: f64) -> f64:
+    return _lfortran_derf(x)
+
+@ccall
+def _lfortran_derfc(x: f64) -> f64:
+    pass
+
+def erfc(x: f64) -> f64:
+    return _lfortran_derfc(x)
+
+@ccall
+def _lfortran_dgamma(x: f64) -> f64:
+    pass
+
+def gamma(x: f64) -> f64:
+    return _lfortran_dgamma(x)
+
+@ccall
+def _lfortran_dlog_gamma(x: f64) -> f64:
+    pass
+
+def lgamma(x: f64) -> f64:
+    return _lfortran_dlog_gamma(x)
