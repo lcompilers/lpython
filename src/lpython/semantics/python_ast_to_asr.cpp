@@ -445,14 +445,14 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
         throw SemanticError("Only Subroutines, Functions and Variables are currently supported in 'import'",
             loc);
     }
-    // should not reach here
+    LFORTRAN_ASSERT(false);
     return nullptr;
 }
 
 class SymbolTableVisitor : public CommonVisitor<SymbolTableVisitor> {
 public:
     SymbolTable *global_scope;
-    std::map<std::string, std::vector<std::string>> generic_procedures;
+    std::map<std::string, std::vector<std::string>> generic_procedures, overload_defs;
     std::map<std::string, std::map<std::string, std::vector<std::string>>> generic_class_procedures;
     std::map<std::string, std::vector<std::string>> defined_op_procs;
     std::map<std::string, std::map<std::string, std::string>> class_procedures;
@@ -534,12 +534,23 @@ public:
         Vec<ASR::expr_t*> args;
         args.reserve(al, x.m_args.n_args);
         current_procedure_abi_type = ASR::abiType::Source;
-        if (x.n_decorator_list == 1) {
-            AST::expr_t *dec = x.m_decorator_list[0];
-            if (AST::is_a<AST::Name_t>(*dec)) {
-                std::string name = AST::down_cast<AST::Name_t>(dec)->m_id;
-                if (name == "ccall") {
-                    current_procedure_abi_type = ASR::abiType::BindC;
+        bool overload = false;
+        if (x.n_decorator_list > 0) {
+            for(size_t i=0; i<x.n_decorator_list; i++) {
+                AST::expr_t *dec = x.m_decorator_list[i];
+                if (AST::is_a<AST::Name_t>(*dec)) {
+                    std::string name = AST::down_cast<AST::Name_t>(dec)->m_id;
+                    if (name == "ccall") {
+                        current_procedure_abi_type = ASR::abiType::BindC;
+                    } else if (name == "overload") {
+                        overload = true;
+                    } else {
+                        throw SemanticError("Decorator: " + name + " is not supported",
+                            x.base.base.loc);
+                    }
+                } else {
+                    throw SemanticError("Unsupported Decorator type",
+                        x.base.base.loc);
                 }
             }
         }
@@ -578,6 +589,15 @@ public:
                 var)));
         }
         std::string sym_name = x.m_name;
+        if (overload) {
+            std::string overload_number;
+            if (overload_defs.find(sym_name) == overload_defs.end()){
+                overload_number = "0";
+            } else {
+                overload_number = std::to_string(overload_defs[sym_name].size());
+            }
+            sym_name = "__lpython_overloaded_" + overload_number + "__" + sym_name;
+        }
         if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
             throw SemanticError("Subroutine already defined", tmp->loc);
         }
@@ -633,6 +653,9 @@ public:
         }
         parent_scope->scope[sym_name] = ASR::down_cast<ASR::symbol_t>(tmp);
         current_scope = parent_scope;
+        if (overload) {
+            overload_defs[x.m_name].push_back(sym_name);
+        }
     }
 
     void visit_ImportFrom(const AST::ImportFrom_t &x) {
@@ -809,9 +832,33 @@ public:
         v.n_body = body.size();
     }
 
+    ASR::symbol_t* overloaddef_find_helper(std::string func_name, Vec<ASR::ttype_t*> args,
+                const Location &loc) {
+        for(auto &t: overload_defs[func_name]) {
+            bool ok = ASRUtils::select_func_subrout(t, args, loc,
+            [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); });
+            if (ok) {
+                return t;
+            }
+        }
+        return nullptr;
+    }
+
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         SymbolTable *old_scope = current_scope;
-        ASR::symbol_t *t = current_scope->scope[x.m_name];
+        ASR::symbol_t *t = nullptr;
+        if (overload_defs.find(x.m_name) != overload_defs.end()) {
+            Vec<ASR::ttype_t *> args;
+            args.reserve(al, x.m_args.n_args);
+            for (size_t i=0; i<x.m_args.n_args; i++) {
+                ASR::ttype_t *arg_type = ast_expr_to_asr_type(x.base.base.loc,
+                                    *x.m_args.m_args[i].m_annotation);
+                args.push_back(al, arg_type);
+            }
+            t = overloaddef_find_helper(x.m_name, args, x.base.base.loc);
+        } else {
+            t = current_scope->scope[x.m_name];
+        }
         if (ASR::is_a<ASR::Subroutine_t>(*t)) {
             handle_fn(x, *ASR::down_cast<ASR::Subroutine_t>(t));
         } else if (ASR::is_a<ASR::Function_t>(*t)) {
