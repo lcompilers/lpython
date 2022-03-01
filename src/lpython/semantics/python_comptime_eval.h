@@ -96,7 +96,7 @@ struct PythonIntrinsicProcedures {
         if (args.size() != 1) {
             throw SemanticError("Intrinsic abs function accepts exactly 1 argument", loc);
         }
-        ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
+        ASR::expr_t* arg = args[0];
         ASR::ttype_t* t = ASRUtils::expr_type(args[0]);
         ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         ASR::ttype_t *real_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
