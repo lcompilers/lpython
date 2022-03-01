@@ -139,6 +139,121 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     return mod2;
 }
 
+bool types_equal(const ASR::ttype_t &a, const ASR::ttype_t &b) {
+    // TODO: If anyone of the input or argument is derived type then
+    // add support for checking member wise types and do not compare
+    // directly. From stdlib_string len(pattern) error.
+    if (b.type == ASR::ttypeType::Derived || b.type == ASR::ttypeType::Class) {
+        return true;
+    }
+    if (a.type == b.type) {
+        // TODO: check dims
+        // TODO: check all types
+        switch (a.type) {
+            case (ASR::ttypeType::Integer) : {
+                ASR::Integer_t *a2 = ASR::down_cast<ASR::Integer_t>(&a);
+                ASR::Integer_t *b2 = ASR::down_cast<ASR::Integer_t>(&b);
+                if (a2->m_kind == b2->m_kind) {
+                    return true;
+                } else {
+                    return false;
+                }
+                break;
+            }
+            case (ASR::ttypeType::Real) : {
+                ASR::Real_t *a2 = ASR::down_cast<ASR::Real_t>(&a);
+                ASR::Real_t *b2 = ASR::down_cast<ASR::Real_t>(&b);
+                if (a2->m_kind == b2->m_kind) {
+                    return true;
+                } else {
+                    return false;
+                }
+                break;
+            }
+            case (ASR::ttypeType::Complex) : {
+                ASR::Complex_t *a2 = ASR::down_cast<ASR::Complex_t>(&a);
+                ASR::Complex_t *b2 = ASR::down_cast<ASR::Complex_t>(&b);
+                if (a2->m_kind == b2->m_kind) {
+                    return true;
+                } else {
+                    return false;
+                }
+                break;
+            }
+            case (ASR::ttypeType::Logical) : {
+                ASR::Logical_t *a2 = ASR::down_cast<ASR::Logical_t>(&a);
+                ASR::Logical_t *b2 = ASR::down_cast<ASR::Logical_t>(&b);
+                if (a2->m_kind == b2->m_kind) {
+                    return true;
+                } else {
+                    return false;
+                }
+                break;
+            }
+            case (ASR::ttypeType::Character) : {
+                ASR::Character_t *a2 = ASR::down_cast<ASR::Character_t>(&a);
+                ASR::Character_t *b2 = ASR::down_cast<ASR::Character_t>(&b);
+                if (a2->m_kind == b2->m_kind) {
+                    return true;
+                } else {
+                    return false;
+                }
+                break;
+            }
+            default : return false;
+        }
+    }
+    return false;
+}
+
+template <typename T>
+bool argument_types_match(const Vec<ASR::ttype_t*> &args,
+        const T &sub) {
+    if (args.size() <= sub.n_args) {
+        size_t i;
+        for (i = 0; i < args.size(); i++) {
+            ASR::Variable_t *v = LFortran::ASRUtils::EXPR2VAR(sub.m_args[i]);
+            ASR::ttype_t *arg1 = args[i];
+            ASR::ttype_t *arg2 = v->m_type;
+            if (!types_equal(*arg1, *arg2)) {
+                return false;
+            }
+        }
+        for( ; i < sub.n_args; i++ ) {
+            ASR::Variable_t *v = LFortran::ASRUtils::EXPR2VAR(sub.m_args[i]);
+            if( v->m_presence != ASR::presenceType::Optional ) {
+                return false;
+            }
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool select_func_subrout(const ASR::symbol_t* proc, const Vec<ASR::ttype_t*> &args,
+                         const Location& loc, const std::function<void (const std::string &, const Location &)> err) {
+    bool result = false;
+    if (ASR::is_a<ASR::Subroutine_t>(*proc)) {
+        ASR::Subroutine_t *sub
+            = ASR::down_cast<ASR::Subroutine_t>(proc);
+        if (argument_types_match(args, *sub)) {
+            result = true;
+        }
+    } else if (ASR::is_a<ASR::Function_t>(*proc)) {
+        ASR::Function_t *fn
+            = ASR::down_cast<ASR::Function_t>(proc);
+        if (argument_types_match(args, *fn)) {
+            result = true;
+        }
+    } else {
+        err("Only Subroutine and Function supported in generic procedure", loc);
+    }
+    return result;
+}
+
+std::map<std::string, std::vector<std::string>> overload_definitons;
+
 template <class Derived>
 class CommonVisitor : public AST::BaseVisitor<Derived> {
 public:
@@ -156,6 +271,7 @@ public:
     // The main module is stored directly in TranslationUnit, other modules are Modules
     bool main_module;
     PythonIntrinsicProcedures intrinsic_procedures;
+    std::map<std::string, std::vector<std::string>> overload_defs;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module)
@@ -452,7 +568,7 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
 class SymbolTableVisitor : public CommonVisitor<SymbolTableVisitor> {
 public:
     SymbolTable *global_scope;
-    std::map<std::string, std::vector<std::string>> generic_procedures, overload_defs;
+    std::map<std::string, std::vector<std::string>> generic_procedures;
     std::map<std::string, std::map<std::string, std::vector<std::string>>> generic_class_procedures;
     std::map<std::string, std::vector<std::string>> defined_op_procs;
     std::map<std::string, std::map<std::string, std::string>> class_procedures;
@@ -752,6 +868,7 @@ Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, const AST::Module_t &ast
     SymbolTableVisitor v(al, nullptr, diagnostics, main_module);
     try {
         v.visit_Module(ast);
+        overload_definitons = v.overload_defs;
     } catch (const SemanticError &e) {
         Error error;
         diagnostics.diagnostics.push_back(e.d);
@@ -835,10 +952,11 @@ public:
     ASR::symbol_t* overloaddef_find_helper(std::string func_name, Vec<ASR::ttype_t*> args,
                 const Location &loc) {
         for(auto &t: overload_defs[func_name]) {
-            bool ok = ASRUtils::select_func_subrout(t, args, loc,
-            [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); });
+            ASR::symbol_t *st = current_scope->scope[t];
+            bool ok = select_func_subrout(st, args, loc,
+            [&](const std::string &msg, const Location &l) { throw SemanticError(msg, l); });
             if (ok) {
-                return t;
+                return st;
             }
         }
         return nullptr;
@@ -2316,6 +2434,7 @@ Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al,
 {
     BodyVisitor b(al, unit, diagnostics, main_module);
     try {
+        b.overload_defs = overload_definitons;
         b.visit_Module(ast);
     } catch (const SemanticError &e) {
         Error error;
