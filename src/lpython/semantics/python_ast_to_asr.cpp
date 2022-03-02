@@ -139,73 +139,6 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     return mod2;
 }
 
-bool types_equal(const ASR::ttype_t &a, const ASR::ttype_t &b) {
-    // TODO: If anyone of the input or argument is derived type then
-    // add support for checking member wise types and do not compare
-    // directly. From stdlib_string len(pattern) error.
-    if (b.type == ASR::ttypeType::Derived || b.type == ASR::ttypeType::Class) {
-        return true;
-    }
-    if (a.type == b.type) {
-        // TODO: check dims
-        // TODO: check all types
-        switch (a.type) {
-            case (ASR::ttypeType::Integer) : {
-                ASR::Integer_t *a2 = ASR::down_cast<ASR::Integer_t>(&a);
-                ASR::Integer_t *b2 = ASR::down_cast<ASR::Integer_t>(&b);
-                if (a2->m_kind == b2->m_kind) {
-                    return true;
-                } else {
-                    return false;
-                }
-                break;
-            }
-            case (ASR::ttypeType::Real) : {
-                ASR::Real_t *a2 = ASR::down_cast<ASR::Real_t>(&a);
-                ASR::Real_t *b2 = ASR::down_cast<ASR::Real_t>(&b);
-                if (a2->m_kind == b2->m_kind) {
-                    return true;
-                } else {
-                    return false;
-                }
-                break;
-            }
-            case (ASR::ttypeType::Complex) : {
-                ASR::Complex_t *a2 = ASR::down_cast<ASR::Complex_t>(&a);
-                ASR::Complex_t *b2 = ASR::down_cast<ASR::Complex_t>(&b);
-                if (a2->m_kind == b2->m_kind) {
-                    return true;
-                } else {
-                    return false;
-                }
-                break;
-            }
-            case (ASR::ttypeType::Logical) : {
-                ASR::Logical_t *a2 = ASR::down_cast<ASR::Logical_t>(&a);
-                ASR::Logical_t *b2 = ASR::down_cast<ASR::Logical_t>(&b);
-                if (a2->m_kind == b2->m_kind) {
-                    return true;
-                } else {
-                    return false;
-                }
-                break;
-            }
-            case (ASR::ttypeType::Character) : {
-                ASR::Character_t *a2 = ASR::down_cast<ASR::Character_t>(&a);
-                ASR::Character_t *b2 = ASR::down_cast<ASR::Character_t>(&b);
-                if (a2->m_kind == b2->m_kind) {
-                    return true;
-                } else {
-                    return false;
-                }
-                break;
-            }
-            default : return false;
-        }
-    }
-    return false;
-}
-
 template <typename T>
 bool argument_types_match(const Vec<ASR::ttype_t*> &args,
         const T &sub) {
@@ -215,7 +148,7 @@ bool argument_types_match(const Vec<ASR::ttype_t*> &args,
             ASR::Variable_t *v = LFortran::ASRUtils::EXPR2VAR(sub.m_args[i]);
             ASR::ttype_t *arg1 = args[i];
             ASR::ttype_t *arg2 = v->m_type;
-            if (!types_equal(*arg1, *arg2)) {
+            if (!ASRUtils::check_equal_type(arg1, arg2)) {
                 return false;
             }
         }
