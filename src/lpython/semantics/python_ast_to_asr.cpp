@@ -950,10 +950,19 @@ public:
         }
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
-        value = implicitcast_helper(ASRUtils::expr_type(target), value, true);
+        ASR::ttype_t *target_type = ASRUtils::expr_type(target);
+        value = implicitcast_helper(target_type, value, true);
         ASR::stmt_t *overloaded=nullptr;
+        bool realloc_lhs = false;
+        if (ASR::is_a<ASR::Character_t>(*target_type)) {
+            ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(target_type);
+            if (t->m_len == -2) {
+                // Reallocate LHS for allocatable strings
+                realloc_lhs = true;
+            }
+        }
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
-                                overloaded, false);
+                                overloaded, realloc_lhs);
     }
 
     void visit_Assert(const AST::Assert_t &x) {
