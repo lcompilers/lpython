@@ -2440,12 +2440,18 @@ public:
                 target = builder->CreateLoad(llvm_utils->create_gep(ptr, idx));
             }
             if( arr_descr->is_array(target) ) {
-                if( asr_target->m_type->type ==
-                    ASR::ttypeType::Character ) {
+                if( asr_target->m_type->type == ASR::ttypeType::Character ) {
+                    if (x.m_realloc_lhs) {
+                        // TODO: it seems here we have to reallocate
+                        // target to the size of the string
+                    }
                     target = arr_descr->get_pointer_to_data(target);
                 }
             }
         }
+        // TODO: possibly this needs to be done first, so that
+        // we can check the length of the actual string in `value`, and
+        // then reallocate the `target` accordingly
         this->visit_expr_wrapper(x.m_value, true);
         value = tmp;
         if ( is_a<ASR::Character_t>(*expr_type(x.m_value)) ) {
