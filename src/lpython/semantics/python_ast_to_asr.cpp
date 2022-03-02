@@ -952,7 +952,12 @@ public:
     ASR::symbol_t* overloaddef_find_helper(std::string func_name, Vec<ASR::ttype_t*> args,
                 const Location &loc) {
         for(auto &t: overload_defs[func_name]) {
-            ASR::symbol_t *st = current_scope->scope[t];
+            SymbolTable *symtab = current_scope;
+            while (symtab!= nullptr && symtab->scope.find(t) == symtab->scope.end()) {
+                symtab = symtab->parent;
+            }
+            LFORTRAN_ASSERT(symtab != nullptr);
+            ASR::symbol_t *st = symtab->scope[t];
             bool ok = select_func_subrout(st, args, loc,
             [&](const std::string &msg, const Location &l) { throw SemanticError(msg, l); });
             if (ok) {
@@ -2275,6 +2280,14 @@ public:
 
         ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
 
+        if (!s && overload_defs.find(call_name)!=overload_defs.end()) {
+            Vec<ASR::ttype_t*> args_type;
+            args_type.reserve(al, x.n_args);
+            for(size_t i=0; i<x.n_args; i++) {
+                args_type.push_back(al, ASRUtils::expr_type(args[i]));
+            }
+            s = overloaddef_find_helper(call_name, args_type, x.base.base.loc);
+        }
 
         if (!s) {
             if (intrinsic_procedures.is_intrinsic(call_name)) {
