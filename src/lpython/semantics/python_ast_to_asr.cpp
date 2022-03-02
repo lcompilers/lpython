@@ -2207,7 +2207,7 @@ public:
         }
 
         ASR::symbol_t *s = current_scope->resolve_symbol(call_name), *s_generic = nullptr;
-        if (s->type == ASR::symbolType::GenericProcedure){
+        if (s!=nullptr && s->type == ASR::symbolType::GenericProcedure) {
             ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(s);
             int idx = select_generic_procedure(args, *p, x.base.base.loc);
             // Create ExternalSymbol for procedures in different modules.
@@ -2350,10 +2350,10 @@ public:
                 value = intrinsic_procedures.comptime_eval(call_name, al, x.base.base.loc, args);
             }
             tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, stemp,
-                nullptr, args.p, args.size(), nullptr, 0, a_type, value, nullptr);
+                s_generic, args.p, args.size(), nullptr, 0, a_type, value, nullptr);
         } else if(ASR::is_a<ASR::Subroutine_t>(*s)) {
             tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, stemp,
-                nullptr, args.p, args.size(), nullptr);
+                s_generic, args.p, args.size(), nullptr);
         } else {
             throw SemanticError("Unsupported call type for " + call_name,
                 x.base.base.loc);
