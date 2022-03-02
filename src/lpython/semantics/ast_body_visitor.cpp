@@ -794,7 +794,7 @@ public:
             throw SemanticAbort();
         }
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
-                                     overloaded_stmt);
+                                     overloaded_stmt, false);
     }
 
     void visit_SubroutineCall(const AST::SubroutineCall_t &x) {
