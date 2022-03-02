@@ -29,11 +29,11 @@ tests = [
     "test_math1.py",
     "test_math_02.py",
     "test_c_interop_01.py",
+    "test_generics_01.py",
 ]
 
 # CPython tests only
 test_cpython = [
-    "test_generics_01.py",
     "test_builtin_bin.py",
     "test_builtin_hex.py",
     "test_builtin_oct.py"
