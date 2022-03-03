@@ -1502,6 +1502,10 @@ public:
                                 std::string empty(strlen, ' ');
                                 llvm::Value *init_value = builder->CreateGlobalStringPtr(s2c(al, empty));
                                 builder->CreateStore(init_value, target_var);
+                            } else if (strlen == -2) {
+                                // Allocatable string. Initialize to `nullptr` (unallocated)
+                                llvm::Value *init_value = llvm::Constant::getNullValue(type);
+                                builder->CreateStore(init_value, target_var);
                             } else if (strlen == -3) {
                                 LFORTRAN_ASSERT(t->m_len_expr)
                                 this->visit_expr(*t->m_len_expr);
