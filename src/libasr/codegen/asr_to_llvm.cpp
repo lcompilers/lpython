@@ -2441,17 +2441,12 @@ public:
             }
             if( arr_descr->is_array(target) ) {
                 if( asr_target->m_type->type == ASR::ttypeType::Character ) {
-                    if (x.m_realloc_lhs) {
-                        // TODO: it seems here we have to reallocate
-                        // target to the size of the string
-                    }
                     target = arr_descr->get_pointer_to_data(target);
                 }
             }
         }
-        // TODO: possibly this needs to be done first, so that
-        // we can check the length of the actual string in `value`, and
-        // then reallocate the `target` accordingly
+
+        // Evaluate the RHS and save into `value`
         this->visit_expr_wrapper(x.m_value, true);
         value = tmp;
         if ( is_a<ASR::Character_t>(*expr_type(x.m_value)) ) {
@@ -2462,7 +2457,36 @@ public:
                 }
             }
         }
-        builder->CreateStore(value, target);
+
+        bool allocatable_string = false;
+        if( x.m_target->type == ASR::exprType::ArrayRef ||
+            x.m_target->type == ASR::exprType::DerivedRef ) {
+                // pass
+        } else {
+            ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
+            if (!arr_descr->is_array(target)) {
+                if (ASR::is_a<ASR::Character_t>(*asr_target->m_type)) {
+                    if (x.m_realloc_lhs) {
+                        // This is an allocatable string
+                        LFORTRAN_ASSERT(ASR::down_cast<ASR::Character_t>(asr_target->m_type)->m_len == -2)
+                        allocatable_string = true;
+                    }
+                }
+            }
+        }
+        if (allocatable_string) {
+            // RHS is an allocatable string
+
+            // TODO: We need to free the previously allocated memory (if not null)
+
+            // If the RHS contains a temporarily created string, we simply
+            // copy the pointer to it (now LHS owns it):
+            builder->CreateStore(value, target);
+            // TODO: otherwise we allocate the LHS to the right size
+            // and copy the string
+        } else {
+            builder->CreateStore(value, target);
+        }
         auto finder = std::find(nested_globals.begin(),
                 nested_globals.end(), h);
         if (finder != nested_globals.end()) {
