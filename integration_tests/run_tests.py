@@ -33,12 +33,15 @@ test_cpython = [
     "test_builtin_oct.py"
 ]
 
+CUR_DIR = ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
 def main():
+    if not os.path.exists(os.path.join(CUR_DIR, 'tmp')):
+        os.makedirs(os.path.join(CUR_DIR, 'tmp'))
     print("Compiling LPython tests...")
     for pyfile in tests:
         basename = os.path.splitext(pyfile)[0]
-        cmd = os.path.join("..", "src", "bin", "lpython") + " %s -o %s" % (pyfile, basename)
+        cmd = os.path.join("..", "src", "bin", "lpython") + " %s -o tmp/%s" % (pyfile, basename)
         print("+ " + cmd)
         os.chdir("integration_tests")
         r = os.system(cmd)
@@ -51,7 +54,7 @@ def main():
     python_path="src/runtime/ltypes"
     for pyfile in tests:
         basename = os.path.splitext(pyfile)[0]
-        cmd = "integration_tests/%s" % (basename)
+        cmd = "integration_tests/tmp/%s" % (basename)
         print("+ " + cmd)
         r = os.system(cmd)
         if r != 0:
