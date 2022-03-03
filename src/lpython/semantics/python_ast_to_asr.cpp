@@ -203,7 +203,6 @@ public:
     // The main module is stored directly in TranslationUnit, other modules are Modules
     bool main_module;
     PythonIntrinsicProcedures intrinsic_procedures;
-    std::map<std::string, Vec<ASR::symbol_t* >> overload_defs;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module)
@@ -517,6 +516,7 @@ public:
     std::map<SymbolTable*, ASR::accessType> assgn;
     ASR::symbol_t *current_module_sym;
     std::vector<std::string> excluded_from_symtab;
+    std::map<std::string, Vec<ASR::symbol_t* >> overload_defs;
 
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table,
