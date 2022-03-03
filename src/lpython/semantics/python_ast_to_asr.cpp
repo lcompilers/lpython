@@ -139,53 +139,8 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     return mod2;
 }
 
-template <typename T>
-bool argument_types_match(const Vec<ASR::expr_t*> &args,
-        const T &sub) {
-    if (args.size() <= sub.n_args) {
-        size_t i;
-        for (i = 0; i < args.size(); i++) {
-            ASR::Variable_t *v = LFortran::ASRUtils::EXPR2VAR(sub.m_args[i]);
-            ASR::ttype_t *arg1 = ASRUtils::expr_type(args[i]);
-            ASR::ttype_t *arg2 = v->m_type;
-            if (!ASRUtils::check_equal_type(arg1, arg2)) {
-                return false;
-            }
-        }
-        for( ; i < sub.n_args; i++ ) {
-            ASR::Variable_t *v = LFortran::ASRUtils::EXPR2VAR(sub.m_args[i]);
-            if( v->m_presence != ASR::presenceType::Optional ) {
-                return false;
-            }
-        }
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool select_func_subrout(const ASR::symbol_t* proc, const Vec<ASR::expr_t*> &args,
-                         const Location& loc, const std::function<void (const std::string &, const Location &)> err) {
-    bool result = false;
-    if (ASR::is_a<ASR::Subroutine_t>(*proc)) {
-        ASR::Subroutine_t *sub
-            = ASR::down_cast<ASR::Subroutine_t>(proc);
-        if (argument_types_match(args, *sub)) {
-            result = true;
-        }
-    } else if (ASR::is_a<ASR::Function_t>(*proc)) {
-        ASR::Function_t *fn
-            = ASR::down_cast<ASR::Function_t>(proc);
-        if (argument_types_match(args, *fn)) {
-            result = true;
-        }
-    } else {
-        err("Only Subroutine and Function supported in generic procedure", loc);
-    }
-    return result;
-}
-
 std::map<int, ASR::symbol_t*> ast_overload;
+
 template <class Derived>
 class CommonVisitor : public AST::BaseVisitor<Derived> {
 public:
@@ -2209,7 +2164,8 @@ public:
         ASR::symbol_t *s = current_scope->resolve_symbol(call_name), *s_generic = nullptr;
         if (s!=nullptr && s->type == ASR::symbolType::GenericProcedure) {
             ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(s);
-            int idx = select_generic_procedure(args, *p, x.base.base.loc);
+            int idx = ASRUtils::select_generic_procedure(args, *p, x.base.base.loc,
+            [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); });
             // Create ExternalSymbol for procedures in different modules.
             s_generic = s;
             s = p->m_procs[idx];
@@ -2358,27 +2314,6 @@ public:
             throw SemanticError("Unsupported call type for " + call_name,
                 x.base.base.loc);
         }
-    }
-    int select_generic_procedure(const Vec<ASR::expr_t*> &args,
-            const ASR::GenericProcedure_t &p, Location loc) {
-        for (size_t i=0; i < p.n_procs; i++) {
-
-            if( ASR::is_a<ASR::ClassProcedure_t>(*p.m_procs[i]) ) {
-                ASR::ClassProcedure_t *clss_fn
-                    = ASR::down_cast<ASR::ClassProcedure_t>(p.m_procs[i]);
-                const ASR::symbol_t *proc = ASRUtils::symbol_get_past_external(clss_fn->m_proc);
-                if( select_func_subrout(proc, args, loc,
-                    [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); })
-                ){
-                    return i;
-                }
-            } else {
-                if( select_func_subrout(p.m_procs[i], args, loc, [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }) ) {
-                    return i;
-                }
-            }
-        }
-        throw SemanticError("Arguments do not match for any generic procedure", loc);
     }
 
     void visit_ImportFrom(const AST::ImportFrom_t &/*x*/) {
