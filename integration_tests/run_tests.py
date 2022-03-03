@@ -39,7 +39,7 @@ test_cpython = [
     "test_builtin_oct.py"
 ]
 
-CUR_DIR = ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+CUR_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
 def main():
     if not os.path.exists(os.path.join(CUR_DIR, 'tmp')):

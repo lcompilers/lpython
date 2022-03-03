@@ -854,7 +854,7 @@ public:
 
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         SymbolTable *old_scope = current_scope;
-        ASR::symbol_t *t = t = current_scope->scope[x.m_name];
+        ASR::symbol_t *t = current_scope->scope[x.m_name];
         if (ASR::is_a<ASR::Subroutine_t>(*t)) {
             handle_fn(x, *ASR::down_cast<ASR::Subroutine_t>(t));
         } else if (ASR::is_a<ASR::Function_t>(*t)) {
