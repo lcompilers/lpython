@@ -3903,27 +3903,27 @@ public:
         } else if (parent_subroutine){
             push_nested_stack(parent_subroutine);
         }
+        bool intrinsic_function = ASRUtils::is_intrinsic_function2(s);
         uint32_t h;
-        if (s->m_abi == ASR::abiType::Source) {
+        if (s->m_abi == ASR::abiType::Source && !intrinsic_function) {
             h = get_hash((ASR::asr_t*)s);
         } else if (s->m_abi == ASR::abiType::LFortranModule) {
             throw CodeGenError("Function LFortran interfaces not implemented yet");
         } else if (s->m_abi == ASR::abiType::Interactive) {
             h = get_hash((ASR::asr_t*)s);
-        } else if (s->m_abi == ASR::abiType::Intrinsic) {
+        } else if (s->m_abi == ASR::abiType::Intrinsic || intrinsic_function) {
             std::string func_name = s->m_name;
             if( fname2arg_type.find(func_name) != fname2arg_type.end() ) {
                 h = get_hash((ASR::asr_t*)s);
             } else {
+                if (func_name == "len") {
+                    std::vector<llvm::Value *> args = convert_call_args(x, "len");
+                    LFORTRAN_ASSERT(args.size() == 1)
+                    tmp = lfortran_str_len(args[0]);
+                    return;
+                }
                 if( s->m_deftype == ASR::deftypeType::Interface ) {
-                    if (func_name == "len") {
-                        std::vector<llvm::Value *> args = convert_call_args(x, "len");
-                        LFORTRAN_ASSERT(args.size() == 1)
-                        tmp = lfortran_str_len(args[0]);
-                        return;
-                    } else {
-                        throw CodeGenError("Intrinsic '" + func_name + "' not implemented yet and compile time value is not available.");
-                    }
+                    throw CodeGenError("Intrinsic '" + func_name + "' not implemented yet and compile time value is not available.");
                 } else {
                     h = get_hash((ASR::asr_t*)s);
                 }
