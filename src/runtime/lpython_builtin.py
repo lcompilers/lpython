@@ -173,3 +173,13 @@ def oct(n: i32) -> str:
         n = n//8
         res += _values[remainder]
     return prep + res[::-1]
+
+
+def round(value: f64) -> i32:
+    """
+    Rounds a floating point number to the nearest integer.
+    """
+    if abs(value - int(value)) <= 0.5:
+        return int(value)
+    else:
+        return int(value) + 1
