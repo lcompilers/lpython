@@ -996,10 +996,16 @@ public:
             ASR::expr_t *index = ASRUtils::EXPR(tmp);
             ai.m_right = index;
         }
-        args.push_back(al, ai);
         ASR::symbol_t *s = ASR::down_cast<ASR::Var_t>(value)->m_v;
         ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
         ASR::ttype_t *type = v->m_type;
+        if (ASR::is_a<ASR::Character_t>(*type)) {
+            if (!ai.m_left && ai.m_right) {
+                // String indexing is done using "a(3:3)" style
+                ai.m_left = ai.m_right;
+            }
+        }
+        args.push_back(al, ai);
         tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, s, args.p,
             args.size(), type, nullptr);
     }
