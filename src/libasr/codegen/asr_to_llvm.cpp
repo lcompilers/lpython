@@ -1024,7 +1024,20 @@ public:
                         throw CodeGenError("Only string(a:b) for a==b supported for now.", x.base.base.loc);
                     }
                 } else {
-                    throw CodeGenError("Only string(a:b) for a,b variables for now.", x.base.base.loc);
+                    //throw CodeGenError("Only string(a:b) for a,b variables for now.", x.base.base.loc);
+                    // Use the "right" index for now
+                    this->visit_expr_wrapper(x.m_args[0].m_right, true);
+                    llvm::Value *idx = tmp;
+                    idx = builder->CreateSub(idx, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                    //std::vector<llvm::Value*> idx_vec = {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), idx};
+                    std::vector<llvm::Value*> idx_vec = {idx};
+                    llvm::Value *str = builder->CreateLoad(array);
+                    llvm::Value *p = builder->CreateGEP(str, idx_vec);
+                    // TODO: Currently the string starts at the right location, but goes to the end of the original string.
+                    // We have to allocate a new string, copy it and add null termination.
+
+                    tmp = builder->CreateAlloca(character_type, nullptr);
+                    builder->CreateStore(p, tmp);
                 }
             } else {
                 throw CodeGenError("Only string(a:b) supported for now.", x.base.base.loc);
