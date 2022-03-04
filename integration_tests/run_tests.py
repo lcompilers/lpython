@@ -12,6 +12,7 @@ tests = [
     "expr_04.py",
     "expr_05.py",
     "test_str_01.py",
+    "test_str_02.py",
     "modules_01.py",
     #"modules_02.py",
     "test_math.py",
