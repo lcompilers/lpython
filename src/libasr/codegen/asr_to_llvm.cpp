@@ -999,6 +999,8 @@ public:
              && ASR::down_cast<ASR::Character_t>(x.m_type)->n_dims == 0) {
             // String indexing:
             if (x.n_args == 1) {
+                LFORTRAN_ASSERT(x.m_args[0].m_left)
+                LFORTRAN_ASSERT(x.m_args[0].m_right)
                 if (ASR::is_a<ASR::Var_t>(*x.m_args[0].m_left)
                   &&ASR::is_a<ASR::Var_t>(*x.m_args[0].m_right)) {
                     ASR::Variable_t *l = EXPR2VAR(x.m_args[0].m_left);
