@@ -950,10 +950,19 @@ public:
         }
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
-        value = implicitcast_helper(ASRUtils::expr_type(target), value, true);
+        ASR::ttype_t *target_type = ASRUtils::expr_type(target);
+        value = implicitcast_helper(target_type, value, true);
         ASR::stmt_t *overloaded=nullptr;
+        bool realloc_lhs = false;
+        if (ASR::is_a<ASR::Character_t>(*target_type)) {
+            ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(target_type);
+            if (t->m_len == -2) {
+                // Reallocate LHS for allocatable strings
+                realloc_lhs = true;
+            }
+        }
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
-                                overloaded);
+                                overloaded, realloc_lhs);
     }
 
     void visit_Assert(const AST::Assert_t &x) {
@@ -1595,7 +1604,7 @@ public:
         make_BinOp_helper(left, right, op, x.base.base.loc, false);
         ASR::stmt_t* a_overloaded = nullptr;
         ASR::expr_t *tmp2 = ASR::down_cast<ASR::expr_t>(tmp);
-        tmp = ASR::make_Assignment_t(al, x.base.base.loc, left, tmp2, a_overloaded);
+        tmp = ASR::make_Assignment_t(al, x.base.base.loc, left, tmp2, a_overloaded, false);
 
     }
 
@@ -1927,7 +1936,7 @@ public:
         value = implicitcast_helper(ASRUtils::expr_type(target), value, true);
         ASR::stmt_t *overloaded=nullptr;
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
-                                overloaded);
+                                overloaded, false);
 
         // We can only return one statement in `tmp`, so we insert the current
         // `tmp` into the body of the function directly
