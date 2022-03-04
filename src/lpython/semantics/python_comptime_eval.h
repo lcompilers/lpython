@@ -40,6 +40,7 @@ struct PythonIntrinsicProcedures {
             {"pow", {m_builtin, &eval_pow}},
             {"int", {m_builtin, &eval_int}},
             {"float", {m_builtin, &eval_float}},
+            {"round", {m_builtin, &eval_round}},
             {"bin", {m_builtin, &eval_bin}},
             {"hex", {m_builtin, &eval_hex}},
             {"oct", {m_builtin, &eval_oct}},
@@ -406,6 +407,24 @@ struct PythonIntrinsicProcedures {
         } else {
             throw SemanticError("oct() argument must be an integer, not '" +
                 ASRUtils::type_to_str(type) + "'", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_round(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        if (args.size() != 1) {
+            throw SemanticError("round() missing required argument 'number' (pos 1)", loc);
+        }
+        ASR::expr_t* expr = args[0];
+        ASR::ttype_t* t = ASRUtils::expr_type(expr);
+        if (ASRUtils::is_real(*t)) {
+            double rv = ASR::down_cast<ASR::ConstantReal_t>(expr)->m_r;
+            int64_t ival = round(rv);
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc, ival, type));
+        } else {
+            throw SemanticError("round() argument must be float for now, not '" +
+                ASRUtils::type_to_str(t) + "'", loc);
         }
     }
 
