@@ -6,3 +6,5 @@ def test_len():
     assert len(s) == 0
     assert len("abcd") == 4
     assert len("") == 0
+
+test_len()
