@@ -769,6 +769,7 @@ public:
 Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, const AST::Module_t &ast,
         diag::Diagnostics &diagnostics, bool main_module)
 {
+    ast_overload.clear();
     SymbolTableVisitor v(al, nullptr, diagnostics, main_module);
     try {
         v.visit_Module(ast);
