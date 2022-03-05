@@ -151,6 +151,13 @@ def copysign(x: f64, y: f64) -> f64:
         return -fabs(x)
 
 
+def hypot(x: i32, y: i32) -> f64:
+    """
+    Returns the hypotenuse of the right triangle with sides `x` and `y`.
+    """
+    return sqrt(1.0*(x**2 + y**2))
+
+
 def sqrt(x: f64) -> f64:
     return x**(1/2)
 
