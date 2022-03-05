@@ -16,6 +16,11 @@ def test_round():
     print(round(f))
     assert round(13.001) == 13
     assert round(-40.49999) == -40
+    assert round(0.5) == 0
+    assert round(-0.5) == 0
+    assert round(1.5) == 2
+    assert round(50.5) == 50
+    assert round(56.78) == 57
 
 
 test_round()

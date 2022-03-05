@@ -420,8 +420,10 @@ struct PythonIntrinsicProcedures {
         ASR::ttype_t* t = ASRUtils::expr_type(expr);
         if (ASRUtils::is_real(*t)) {
             double rv = ASR::down_cast<ASR::ConstantReal_t>(expr)->m_r;
-            int64_t ival = round(rv);
-            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc, ival, type));
+            int64_t rounded = round(rv);
+            if (fabs(rv-rounded) == 0.5)
+                rounded = 2.0*round(rv/2.0);
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc, rounded, type));
         } else {
             throw SemanticError("round() argument must be float for now, not '" +
                 ASRUtils::type_to_str(t) + "'", loc);
