@@ -6,3 +6,6 @@ def test_boolOp():
     a = a and b
     b = a or True
     a = a or b
+    a = a and b == b
+    a = a and b != b
+    a = b or b

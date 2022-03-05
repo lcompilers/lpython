@@ -1,0 +1,13 @@
+{
+    "basename": "asr-subscript1-1acfc19",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/subscript1.py",
+    "infile_hash": "5d229893d3e13ea4463e8ed47eb3798be0b8c28f5ef6b6c773e87b80",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-subscript1-1acfc19.stdout",
+    "stdout_hash": "3fc28a6505282d18209a17351a382d83d4d68eaa65659752ac1976cd",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

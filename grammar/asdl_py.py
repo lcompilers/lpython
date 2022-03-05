@@ -303,6 +303,8 @@ class SerializationVisitorVisitor(ASDLVisitor):
         self.emit("def visit_%s(self, x: %s):" % (name, name), 1)
         if cons:
             self.emit(    'self.write_int8(x.ntype)', 2)
+            self.emit(    'self.write_int64(x.first)', 2)
+            self.emit(    'self.write_int64(x.last)', 2)
         self.used = False
         for n, field in enumerate(fields):
             self.visitField(field, cons, name)
@@ -360,33 +362,33 @@ class SerializationVisitorVisitor(ASDLVisitor):
             elif field.type == "string" and not field.seq:
                 if field.opt:
                     self.emit("if x.%s:" % field.name, 2)
-                    self.emit(    'self.write_bool(True);', 3)
-                    self.emit(    'self.write_string(x.%s);' % field.name, 3)
+                    self.emit(    'self.write_bool(True)', 3)
+                    self.emit(    'self.write_string(x.%s)' % field.name, 3)
                     self.emit("else:", 2)
-                    self.emit(    'self.write_bool(False);', 3)
+                    self.emit(    'self.write_bool(False)', 3)
                 else:
                     self.emit('self.write_string(x.%s);' % field.name, 2)
             elif field.type == "int" and not field.seq:
                 if field.opt:
                     self.emit("if x.%s:" % field.name, 2)
-                    self.emit(    'self.write_bool(True);', 3)
-                    self.emit(    'self.write_int64(x.%s);' % field.name, 3)
+                    self.emit(    'self.write_bool(True)', 3)
+                    self.emit(    'self.write_int64(x.%s)' % field.name, 3)
                     self.emit("else:", 2)
-                    self.emit(    'self.write_bool(False);', 3)
+                    self.emit(    'self.write_bool(False)', 3)
                 else:
-                    self.emit('self.write_int64(x.%s);' % field.name, 2)
+                    self.emit('self.write_int64(x.%s)' % field.name, 2)
             elif field.type == "bool" and not field.seq and not field.opt:
                 self.emit("if x.%s:" % field.name, 2)
-                self.emit(    'self.write_bool(True);', 3)
+                self.emit(    'self.write_bool(True)', 3)
                 self.emit("else:", 2)
-                self.emit(    'self.write_bool(False);', 3)
+                self.emit(    'self.write_bool(False)', 3)
             elif field.type == "float" and not field.seq and not field.opt:
-                self.emit('self.write_float64(x.%s);' % field.name, 2)
+                self.emit('self.write_float64(x.%s)' % field.name, 2)
             elif field.type in self.data.simple_types:
                 if field.opt:
                     raise Exception("Unimplemented opt for field type: " + field.type);
                 else:
-                    self.emit('self.visit_%s(x.%s);' \
+                    self.emit('self.visit_%s(x.%s)' \
                             % (field.type, field.name), 2)
             else:
                 raise Exception("Unimplemented field type: " + field.type);

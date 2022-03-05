@@ -24,6 +24,11 @@ ast = true
 asr = true
 
 [[test]]
+filename = "subscript1.py"
+ast = true
+asr = true
+
+[[test]]
 filename = "list1.py"
 ast = true
 asr = true
@@ -37,7 +42,6 @@ asr = true
 filename = "dictionary1.py"
 ast = true
 asr = true
-cpp = true
 
 [[test]]
 filename = "expr1.py"
@@ -148,12 +152,59 @@ ast = true
 asr = true
 
 [[test]]
+filename = "assign2.py"
+asr = true
+
+[[test]]
 filename = "set1.py"
 ast = true
 asr = true
-cpp = true
 
 [[test]]
 filename = "global_scope1.py"
 ast = true
+asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin_abs.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin_str.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin_bool.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin_len.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin_pow.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin_int.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin_float.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin_bin.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin_hex.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/test_builtin_oct.py"
 asr = true

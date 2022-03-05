@@ -14,24 +14,48 @@ a = ast.parse(input, type_comments=True)
 
 # Transform ast.AST to python_ast.AST:
 
+def get_newlines(s):
+    newlines = []
+    for pos in range(len(s)):
+        if s[pos] == "\n":
+            newlines.append(pos)
+    return newlines
+
+newlines = get_newlines(input)
+
+# line and col starts from 1
+# It returns a linear position, which starts from 0
+def linecol_to_pos(line, col, newlines):
+    if line <= 0:
+        return 0
+    elif line == 1:
+        return col - 1
+    elif line-1 >= len(newlines):
+        return newlines[-1] + 1 + col - 1
+    else:
+        return newlines[line-2] + 1 + col - 1
+
 class Transform(ast.NodeVisitor):
 
     # Transform Constant to specific Constant* types
     def visit_Constant(self, node):
         if isinstance(node.value, str):
-            return python_ast.ConstantStr(node.value, node.kind)
+            new_node = python_ast.ConstantStr(node.value, node.kind)
         elif isinstance(node.value, bool):
-            return python_ast.ConstantBool(node.value, node.kind)
+            new_node = python_ast.ConstantBool(node.value, node.kind)
         elif isinstance(node.value, int):
-            return python_ast.ConstantInt(node.value, node.kind)
+            new_node = python_ast.ConstantInt(node.value, node.kind)
         elif isinstance(node.value, float):
-            return python_ast.ConstantFloat(node.value, node.kind)
+            new_node = python_ast.ConstantFloat(node.value, node.kind)
         elif isinstance(node.value, complex):
-            return python_ast.ConstantComplex(node.value.real,
+            new_node = python_ast.ConstantComplex(node.value.real,
                         node.value.imag, node.kind)
         else:
             print(type(node.value))
             raise Exception("Unsupported Constant type")
+        new_node.first = linecol_to_pos(node.lineno, node.col_offset+1, newlines)
+        new_node.last = linecol_to_pos(node.end_lineno, node.end_col_offset, newlines)
+        return new_node
 
     def generic_visit(self, node):
         d = {}
@@ -64,6 +88,12 @@ class Transform(ast.NodeVisitor):
                 raise Exception("Unsupported value type")
         new_ast = getattr(python_ast, class_name)
         new_node = new_ast(**d)
+        if hasattr(node, "lineno"):
+            new_node.first = linecol_to_pos(node.lineno, node.col_offset+1, newlines)
+            new_node.last = linecol_to_pos(node.end_lineno, node.end_col_offset, newlines)
+        else:
+            new_node.first = 1
+            new_node.last = 1
         return new_node
 
 

@@ -236,7 +236,7 @@ public:
     }
     void visit_Module(const ASR::Module_t &x) {
         if (!show_intrinsic_modules &&
-                    startswith(x.m_name, "lfortran_intrinsic_")) {
+                    (x.m_intrinsic || startswith(x.m_name, "lfortran_intrinsic_"))) {
             s.append("(");
             if (use_colors) {
                 s.append(color(style::bold));

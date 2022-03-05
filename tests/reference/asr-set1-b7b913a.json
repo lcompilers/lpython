@@ -2,11 +2,11 @@
     "basename": "asr-set1-b7b913a",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/set1.py",
-    "infile_hash": "5421dd84e3545a10b5079f5a4d9784b1b54bb2ac60bf9fe8268fa76b",
+    "infile_hash": "8597083fb19e73c8b35ac8f94f68dc7f71cc1ab5cea9f86350ce3ac9",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-set1-b7b913a.stdout",
-    "stdout_hash": "b30f4d10d7d8052243c90e7ab19edbd29cd2e9dd3ff80d757cc1d7d0",
+    "stdout_hash": "5433f9fb4d9340e21b495cf9bc901d8138d67dee4d0378302cba25c4",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

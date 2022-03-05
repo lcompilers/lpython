@@ -57,6 +57,10 @@ Run tests:
     ctest
     ./run_tests.py
 
+Also, run the integration tests:
+
+    ./integration_tests/run_tests.py
+
 ## Examples
 
 You can run the following examples by hand in a terminal:

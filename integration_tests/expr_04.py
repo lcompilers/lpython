@@ -8,6 +8,6 @@ def main0():
         sum += i
         if i > 5:
             break
-    print(sum)
+    assert sum == 21
 
 main0()

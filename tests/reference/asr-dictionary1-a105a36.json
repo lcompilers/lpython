@@ -2,11 +2,11 @@
     "basename": "asr-dictionary1-a105a36",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/dictionary1.py",
-    "infile_hash": "3f4c855c0841b6569aa7ab8d644abd49de1d659d1c31fb6064f5551a",
+    "infile_hash": "0193140223269d4060d60fc088242809fd5942d391157c54dd0e2e0f",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-dictionary1-a105a36.stdout",
-    "stdout_hash": "3005b58c0585dd307bf1209e6fae579f0284b5e2fbf7c453ef1df23b",
+    "stdout_hash": "a1b435f14f711aab8b1ac266fdda7fa5379c00680f64506f88359dde",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

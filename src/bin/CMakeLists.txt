@@ -131,6 +131,7 @@ install(TARGETS lpython
     LIBRARY DESTINATION share/lpython/lib
 )
 
-
-add_executable(cpptranslate cpptranslate.cpp)
-target_link_libraries(cpptranslate lfortran_lib)
+set_target_properties(lpython PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<0:>
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<0:>
+    ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<0:>)
