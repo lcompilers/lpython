@@ -1,5 +1,5 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
-                  ldexp, fabs, gcd, lcm)
+                  ldexp, fabs, gcd, lcm, copysign)
 from ltypes import i32, f64
 
 
@@ -86,13 +86,9 @@ def test_lcm():
 
 def test_copysign():
     f: f64
-    f = copysign(4, -1)
-    assert f == -4.0
-    f = copysign(-8, 97.21)
-    assert f == 8.0
-    f = copysign(0, -1)
-    assert f == -0.0
-    f = copysign(-43, -76)
+    f = copysign(-8.56, 97.21)
+    assert f == 8.56
+    f = copysign(-43.0, -76.67)
     assert f == -43.0
 
 
