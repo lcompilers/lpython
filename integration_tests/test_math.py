@@ -1,5 +1,5 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
-                  ldexp, fabs, gcd, lcm, copysign)
+                  ldexp, fabs, gcd, lcm, copysign, hypot)
 from ltypes import i32, f64
 
 
@@ -92,6 +92,16 @@ def test_copysign():
     assert f == -43.0
 
 
+def test_hypot():
+    f: f64
+    f = hypot(3, 4)
+    assert f == 5.0
+    f = hypot(-3, 4)
+    assert f == 5.0
+    f = hypot(6, 6)
+    assert f == 8.485281374238571
+
+
 test_factorial_1()
 test_comb()
 test_isqrt()
@@ -105,3 +115,4 @@ test_ldexp()
 test_gcd()
 test_lcm()
 test_copysign()
+test_hypot()
