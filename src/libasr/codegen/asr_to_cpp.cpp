@@ -1070,7 +1070,9 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     void visit_DoConcurrentLoop(const ASR::DoConcurrentLoop_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "Kokkos::parallel_for(";
-        out += "Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(1, ";
+        out += "Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(";
+        visit_expr(*x.m_head.m_start);
+        out += src + ", ";
         visit_expr(*x.m_head.m_end);
         out += src + "+1)";
         ASR::Variable_t *loop_var = LFortran::ASRUtils::EXPR2VAR(x.m_head.m_v);

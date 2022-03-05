@@ -999,6 +999,8 @@ public:
              && ASR::down_cast<ASR::Character_t>(x.m_type)->n_dims == 0) {
             // String indexing:
             if (x.n_args == 1) {
+                LFORTRAN_ASSERT(x.m_args[0].m_left)
+                LFORTRAN_ASSERT(x.m_args[0].m_right)
                 if (ASR::is_a<ASR::Var_t>(*x.m_args[0].m_left)
                   &&ASR::is_a<ASR::Var_t>(*x.m_args[0].m_right)) {
                     ASR::Variable_t *l = EXPR2VAR(x.m_args[0].m_left);
@@ -1022,7 +1024,20 @@ public:
                         throw CodeGenError("Only string(a:b) for a==b supported for now.", x.base.base.loc);
                     }
                 } else {
-                    throw CodeGenError("Only string(a:b) for a,b variables for now.", x.base.base.loc);
+                    //throw CodeGenError("Only string(a:b) for a,b variables for now.", x.base.base.loc);
+                    // Use the "right" index for now
+                    this->visit_expr_wrapper(x.m_args[0].m_right, true);
+                    llvm::Value *idx = tmp;
+                    idx = builder->CreateSub(idx, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                    //std::vector<llvm::Value*> idx_vec = {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), idx};
+                    std::vector<llvm::Value*> idx_vec = {idx};
+                    llvm::Value *str = builder->CreateLoad(array);
+                    llvm::Value *p = builder->CreateGEP(str, idx_vec);
+                    // TODO: Currently the string starts at the right location, but goes to the end of the original string.
+                    // We have to allocate a new string, copy it and add null termination.
+
+                    tmp = builder->CreateAlloca(character_type, nullptr);
+                    builder->CreateStore(p, tmp);
                 }
             } else {
                 throw CodeGenError("Only string(a:b) supported for now.", x.base.base.loc);
@@ -3901,27 +3916,27 @@ public:
         } else if (parent_subroutine){
             push_nested_stack(parent_subroutine);
         }
+        bool intrinsic_function = ASRUtils::is_intrinsic_function2(s);
         uint32_t h;
-        if (s->m_abi == ASR::abiType::Source) {
+        if (s->m_abi == ASR::abiType::Source && !intrinsic_function) {
             h = get_hash((ASR::asr_t*)s);
         } else if (s->m_abi == ASR::abiType::LFortranModule) {
             throw CodeGenError("Function LFortran interfaces not implemented yet");
         } else if (s->m_abi == ASR::abiType::Interactive) {
             h = get_hash((ASR::asr_t*)s);
-        } else if (s->m_abi == ASR::abiType::Intrinsic) {
+        } else if (s->m_abi == ASR::abiType::Intrinsic || intrinsic_function) {
             std::string func_name = s->m_name;
             if( fname2arg_type.find(func_name) != fname2arg_type.end() ) {
                 h = get_hash((ASR::asr_t*)s);
             } else {
+                if (func_name == "len") {
+                    std::vector<llvm::Value *> args = convert_call_args(x, "len");
+                    LFORTRAN_ASSERT(args.size() == 1)
+                    tmp = lfortran_str_len(args[0]);
+                    return;
+                }
                 if( s->m_deftype == ASR::deftypeType::Interface ) {
-                    if (func_name == "len") {
-                        std::vector<llvm::Value *> args = convert_call_args(x, "len");
-                        LFORTRAN_ASSERT(args.size() == 1)
-                        tmp = lfortran_str_len(args[0]);
-                        return;
-                    } else {
-                        throw CodeGenError("Intrinsic '" + func_name + "' not implemented yet and compile time value is not available.");
-                    }
+                    throw CodeGenError("Intrinsic '" + func_name + "' not implemented yet and compile time value is not available.");
                 } else {
                     h = get_hash((ASR::asr_t*)s);
                 }

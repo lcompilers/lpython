@@ -967,6 +967,19 @@ public:
         tmp = ASR::make_Assert_t(al, x.base.base.loc, test, msg);
     }
 
+    ASR::expr_t *index_add_one(const Location &loc, ASR::expr_t *idx) {
+        // Add 1 to the index `idx`, assumes `idx` is of type Integer 4
+        ASR::expr_t *overloaded = nullptr;
+        ASR::expr_t *comptime_value = nullptr;
+        ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+            4, nullptr, 0));
+        ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
+                                            al, loc, 1, a_type));
+        return ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, idx,
+            ASR::binopType::Add, constant_one, a_type,
+            comptime_value, overloaded));
+    }
+
     void visit_Subscript(const AST::Subscript_t &x) {
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
@@ -981,25 +994,31 @@ public:
             AST::Slice_t *s = AST::down_cast<AST::Slice_t>(x.m_slice);
             if (s->m_lower != nullptr) {
                 this->visit_expr(*s->m_lower);
-                ai.m_left = ASRUtils::EXPR(tmp);
+                ai.m_left = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
             }
             if (s->m_upper != nullptr) {
                 this->visit_expr(*s->m_upper);
-                ai.m_right = ASRUtils::EXPR(tmp);
+                ai.m_right = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
             }
             if (s->m_step != nullptr) {
                 this->visit_expr(*s->m_step);
-                ai.m_step = ASRUtils::EXPR(tmp);
+                ai.m_step = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
             }
         } else {
             this->visit_expr(*x.m_slice);
-            ASR::expr_t *index = ASRUtils::EXPR(tmp);
+            ASR::expr_t *index = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
             ai.m_right = index;
         }
-        args.push_back(al, ai);
         ASR::symbol_t *s = ASR::down_cast<ASR::Var_t>(value)->m_v;
         ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
         ASR::ttype_t *type = v->m_type;
+        if (ASR::is_a<ASR::Character_t>(*type)) {
+            if (!ai.m_left && ai.m_right) {
+                // String indexing is done using "a(3:3)" style
+                ai.m_left = ai.m_right;
+            }
+        }
+        args.push_back(al, ai);
         tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, s, args.p,
             args.size(), type, nullptr);
     }
