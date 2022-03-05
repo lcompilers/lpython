@@ -84,6 +84,18 @@ def test_lcm():
     assert i == 84
 
 
+def test_copysign():
+    f: f64
+    f = copysign(4, -1)
+    assert f == -4.0
+    f = copysign(-8, 97.21)
+    assert f == 8.0
+    f = copysign(0, -1)
+    assert f == -0.0
+    f = copysign(-43, -76)
+    assert f == -43.0
+
+
 test_factorial_1()
 test_comb()
 test_isqrt()
@@ -96,3 +108,4 @@ test_fabs()
 test_ldexp()
 test_gcd()
 test_lcm()
+test_copysign()
