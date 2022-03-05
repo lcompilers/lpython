@@ -139,6 +139,15 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
         case ASR::ttypeType::Character: {
             return "character";
         }
+        case ASR::ttypeType::Tuple: {
+            return "tuple";
+        }
+        case ASR::ttypeType::Set: {
+            return "set";
+        }
+        case ASR::ttypeType::Dict: {
+            return "dict";
+        }
         default : throw LFortranException("Not implemented");
     }
 }

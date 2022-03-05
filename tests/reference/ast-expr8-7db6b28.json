@@ -2,11 +2,11 @@
     "basename": "ast-expr8-7db6b28",
     "cmd": "lpython --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/expr8.py",
-    "infile_hash": "0f4367558a71b1158f1d6e8d0bf2def526e88901fc9a48fd8c959680",
+    "infile_hash": "ae545a93dbe13ae732ffb49c1c8acd8bcd03ba15e7d6b9cc2b420dec",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-expr8-7db6b28.stdout",
-    "stdout_hash": "d9168da009f2445c18f39dd18a687d993a2bde3dc39ce62f6515bdd0",
+    "stdout_hash": "130ad60e40a60b4ab50843f768279b14ef54ff39be059b712a4c6eda",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

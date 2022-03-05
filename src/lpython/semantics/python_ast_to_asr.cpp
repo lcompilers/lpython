@@ -1544,6 +1544,7 @@ public:
                     bool b = (op_value == 0.0) ? true : false;
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
                         al, x.base.base.loc, b, logical_type));
+                    operand_type = logical_type;
                 } else {
                     double result = 0.0;
                     switch (op) {
@@ -1575,6 +1576,7 @@ public:
                     }
                     value = ASR::down_cast<ASR::expr_t>(
                         ASR::make_ConstantInteger_t(al, x.base.base.loc, result, int_type));
+                    operand_type = int_type;
                 }
 
             } else if (ASRUtils::is_complex(*operand_type)) {
@@ -1586,6 +1588,7 @@ public:
                     bool b = (op_value.real() == 0.0 && op_value.imag() == 0.0) ? true : false;
                     value = ASR::down_cast<ASR::expr_t>(
                         ASR::make_ConstantLogical_t(al, x.base.base.loc, b, logical_type));
+                    operand_type = logical_type;
                 } else {
                     switch (op) {
                         case (ASR::unaryopType::UAdd): { result = op_value; break; }
