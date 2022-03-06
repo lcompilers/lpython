@@ -11,6 +11,15 @@ def test_random():
     print(r)
     assert r >= 0.0 and r < 1.0
 
+def test_randrange():
+    r: i32
+    r = random.randrange(0, 10) # [0, 10)
+    print(r)
+    assert r >= 0 and r < 10
+    r = random.randrange(-50, 76) # [-50, 76)
+    print(r)
+    assert r >= -50 and r < 76
+
 def test_randint():
     ri1: i32
     ri2: i32
@@ -29,5 +38,6 @@ def test_paretovariate():
     print(r)
 
 test_random()
+test_randrange()
 test_randint()
 test_paretovariate()
