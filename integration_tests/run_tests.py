@@ -16,6 +16,7 @@ tests = [
     "modules_01.py",
     #"modules_02.py",
     "test_math.py",
+    "test_random.py",
     "test_builtin.py",
     "test_builtin_abs.py",
     "test_builtin_bool.py",
