@@ -35,6 +35,12 @@ LFORTRAN_API float _lfortran_random_float()
     return ((float) rand() / (float) RAND_MAX);
 }
 
+LFORTRAN_API int _lfortran_random_int(int lower, int upper)
+{
+    int randint = lower + (rand() % (upper - lower + 1));
+    return randint;
+}
+
 LFORTRAN_API void _lfortran_printf(const char* format, ...)
 {
     va_list args;
