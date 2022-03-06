@@ -140,6 +140,24 @@ def lcm(a: i32, b: i32) -> i32:
         return 0
     return (a*b)//gcd(a, b)
 
+
+def copysign(x: f64, y: f64) -> f64:
+    """
+    Return `x` with the sign of `y`.
+    """
+    if y > 0.0 or (y == 0.0 and atan2(y, -1.0) > 0.0):
+        return fabs(x)
+    else:
+        return -fabs(x)
+
+
+def hypot(x: i32, y: i32) -> f64:
+    """
+    Returns the hypotenuse of the right triangle with sides `x` and `y`.
+    """
+    return sqrt(1.0*(x**2 + y**2))
+
+
 def sqrt(x: f64) -> f64:
     return x**(1/2)
 
