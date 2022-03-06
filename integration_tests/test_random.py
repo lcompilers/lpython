@@ -21,5 +21,13 @@ def test_randint():
     print(ri2)
     assert ri2 >= -50 and ri2 <= 76
 
+def test_paretovariate():
+    r: f64
+    r = random.paretovariate(2.0)
+    print(r)
+    r = random.paretovariate(-5.6)
+    print(r)
+
 test_random()
 test_randint()
+test_paretovariate()
