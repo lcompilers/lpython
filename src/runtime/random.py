@@ -11,6 +11,16 @@ def random() -> f64:
 def _lfortran_random_float() -> f64:
     pass
 
+def randrange(lower: i32, upper: i32) -> i32:
+    """
+    Return a random integer N such that `lower <= N < upper`.
+    """
+    return _lfortran_randrange(lower, upper)
+
+@ccall
+def _lfortran_randrange(lower: i32, upper: i32) -> i32:
+    pass
+
 def randint(lower: i32, upper: i32) -> i32:
     """
     Return a random integer N such that `lower <= N <= upper`.

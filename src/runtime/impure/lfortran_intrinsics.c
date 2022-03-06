@@ -35,6 +35,12 @@ LFORTRAN_API float _lfortran_random_float()
     return ((float) rand() / (float) RAND_MAX);
 }
 
+LFORTRAN_API int _lfortran_randrange(int lower, int upper)
+{
+    int rr = lower + (rand() % (upper - lower));
+    return rr;
+}
+
 LFORTRAN_API int _lfortran_random_int(int lower, int upper)
 {
     int randint = lower + (rand() % (upper - lower + 1));

@@ -32,6 +32,7 @@ typedef double _Complex double_complex_t;
 LFORTRAN_API double _lfortran_sum(int n, double *v);
 LFORTRAN_API void _lfortran_random_number(int n, double *v);
 LFORTRAN_API float _lfortran_random_float();
+LFORTRAN_API int _lfortran_randrange(int lower, int upper);
 LFORTRAN_API int _lfortran_random_int(int lower, int upper);
 LFORTRAN_API void _lfortran_printf(const char* format, ...);
 LFORTRAN_API void _lfortran_complex_add(struct _lfortran_complex* a,
