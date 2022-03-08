@@ -19,6 +19,9 @@ def _lpython_strcmp_lt(a: str, b: str) -> bool:
             return False
     return True
 
+def _lpython_strcmp_lteq(a: str, b: str) -> bool:
+    return _lpython_strcmp_eq(a, b) or _lpython_strcmp_lt(a, b)
+
 def f():
     assert _lpython_strcmp_eq("a", "a")
     assert not _lpython_strcmp_eq("a2", "a")
@@ -38,5 +41,10 @@ def f():
     assert _lpython_strcmp_lt("a", "a123")
     assert _lpython_strcmp_lt("a23", "a24")
     assert not _lpython_strcmp_lt("abcdefg", "abcdef3")
+
+    assert _lpython_strcmp_lteq("a", "a2")
+    assert _lpython_strcmp_lteq("a123", "a123")
+    assert _lpython_strcmp_lteq("a23", "a24")
+    assert not _lpython_strcmp_lteq("abcdefg", "abcdef3")
 
 f()
