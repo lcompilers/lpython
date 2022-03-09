@@ -29,17 +29,17 @@ tests = [
     "test_math1.py",
     "test_math_02.py",
     "test_c_interop_01.py",
+    "test_generics_01.py",
 ]
 
 # CPython tests only
 test_cpython = [
-    "test_generics_01.py",
     "test_builtin_bin.py",
     "test_builtin_hex.py",
     "test_builtin_oct.py"
 ]
 
-CUR_DIR = ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+CUR_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 
 def main():
     if not os.path.exists(os.path.join(CUR_DIR, 'tmp')):
