@@ -139,7 +139,6 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     return mod2;
 }
 
-std::map<int, ASR::symbol_t*> ast_overload;
 
 template <class Derived>
 class CommonVisitor : public AST::BaseVisitor<Derived> {
@@ -158,10 +157,13 @@ public:
     // The main module is stored directly in TranslationUnit, other modules are Modules
     bool main_module;
     PythonIntrinsicProcedures intrinsic_procedures;
+    std::map<int, ASR::symbol_t*> &ast_overload;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
-            diag::Diagnostics &diagnostics, bool main_module)
-        : diag{diagnostics}, al{al}, current_scope{symbol_table}, main_module{main_module} {
+            diag::Diagnostics &diagnostics, bool main_module,
+            std::map<int, ASR::symbol_t*> &ast_overload)
+        : diag{diagnostics}, al{al}, current_scope{symbol_table}, main_module{main_module},
+            ast_overload{ast_overload} {
         current_module_dependencies.reserve(al, 4);
     }
 
@@ -475,8 +477,9 @@ public:
 
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table,
-        diag::Diagnostics &diagnostics, bool main_module)
-      : CommonVisitor(al, symbol_table, diagnostics, main_module), is_derived_type{false} {}
+        diag::Diagnostics &diagnostics, bool main_module,
+        std::map<int, ASR::symbol_t*> &ast_overload)
+      : CommonVisitor(al, symbol_table, diagnostics, main_module, ast_overload), is_derived_type{false} {}
 
 
     ASR::symbol_t* resolve_symbol(const Location &loc, const std::string &sub_name) {
@@ -767,10 +770,10 @@ public:
 };
 
 Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, const AST::Module_t &ast,
-        diag::Diagnostics &diagnostics, bool main_module)
+        diag::Diagnostics &diagnostics, bool main_module,
+        std::map<int, ASR::symbol_t*> &ast_overload)
 {
-    ast_overload.clear();
-    SymbolTableVisitor v(al, nullptr, diagnostics, main_module);
+    SymbolTableVisitor v(al, nullptr, diagnostics, main_module, ast_overload);
     try {
         v.visit_Module(ast);
     } catch (const SemanticError &e) {
@@ -792,8 +795,9 @@ public:
     ASR::asr_t *asr;
     Vec<ASR::stmt_t*> *current_body;
 
-    BodyVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics, bool main_module)
-         : CommonVisitor(al, nullptr, diagnostics, main_module), asr{unit} {}
+    BodyVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
+         bool main_module, std::map<int, ASR::symbol_t*> &ast_overload)
+         : CommonVisitor(al, nullptr, diagnostics, main_module, ast_overload), asr{unit} {}
 
     // Transforms statements to a list of ASR statements
     // In addition, it also inserts the following nodes if needed:
@@ -2326,9 +2330,10 @@ public:
 Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al,
         const AST::Module_t &ast,
         diag::Diagnostics &diagnostics,
-        ASR::asr_t *unit, bool main_module)
+        ASR::asr_t *unit, bool main_module,
+        std::map<int, ASR::symbol_t*> &ast_overload)
 {
-    BodyVisitor b(al, unit, diagnostics, main_module);
+    BodyVisitor b(al, unit, diagnostics, main_module, ast_overload);
     try {
         b.visit_Module(ast);
     } catch (const SemanticError &e) {
@@ -2362,10 +2367,13 @@ std::string pickle_python(AST::ast_t &ast, bool colors, bool indent) {
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     AST::ast_t &ast, diag::Diagnostics &diagnostics, bool main_module)
 {
+    std::map<int, ASR::symbol_t*> ast_overload;
+
     AST::Module_t *ast_m = AST::down_cast2<AST::Module_t>(&ast);
 
     ASR::asr_t *unit;
-    auto res = symbol_table_visitor(al, *ast_m, diagnostics, main_module);
+    auto res = symbol_table_visitor(al, *ast_m, diagnostics, main_module,
+        ast_overload);
     if (res.ok) {
         unit = res.result;
     } else {
@@ -2374,7 +2382,8 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
     LFORTRAN_ASSERT(asr_verify(*tu));
 
-    auto res2 = body_visitor(al, *ast_m, diagnostics, unit, main_module);
+    auto res2 = body_visitor(al, *ast_m, diagnostics, unit, main_module,
+        ast_overload);
     if (res2.ok) {
         tu = res2.result;
     } else {
