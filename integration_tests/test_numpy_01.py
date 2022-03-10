@@ -1,5 +1,7 @@
+# This test handles various aspects of local arrays using the `numpy.empty()`
+# function
 from ltypes import f32
-from numpy import empty, float32
+from numpy import empty
 
 def test_local_arrays():
     a: f32[16]
