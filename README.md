@@ -35,6 +35,10 @@ Create a Conda environment:
     conda create -n lp llvmdev=11.0.1 bison=3.4 re2c python cmake make toml
     conda activate lp
 
+Install required packages (Linux - 64 bit):
+
+    sudo apt install binutils-dev zlib1g-dev
+
 Clone LPython
 
     git clone https://github.com/lcompilers/lpython.git
