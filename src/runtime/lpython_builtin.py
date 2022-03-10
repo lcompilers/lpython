@@ -84,11 +84,11 @@ def len(s: str) -> i32:
     pass
 
 
-def pow(x: i32, y: i32) -> i32:
+def pow(x: i32, y: i32) -> f64:
     """
     Returns x**y.
     """
-    return x**y
+    return 1.0*x**y
 
 
 def int(f: f64) -> i32:

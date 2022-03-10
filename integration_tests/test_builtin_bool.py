@@ -1,3 +1,5 @@
+from ltypes import i32
+
 def test_bool():
     a: i32
     a = 34
@@ -6,3 +8,5 @@ def test_bool():
     assert bool(a) == False
     assert bool(-1) == True
     assert bool(0) == False
+
+test_bool()

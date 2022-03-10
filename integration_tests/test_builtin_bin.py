@@ -10,3 +10,5 @@ def test_bin():
     assert bin(i) == "-0b1000010110"
     assert bin(64) == "0b1000000"
     assert bin(-534) == "-0b1000010110"
+
+test_bin()
