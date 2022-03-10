@@ -8,7 +8,6 @@ def test_float():
     # assert float(i) == 34.0
     i = -4235
     assert float(-4235) == -4235.0
-    # assert float(-4235) == -4235.0
     assert float(34) == 34.0
     assert float(-4235) == -4235.0
 
