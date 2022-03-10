@@ -14,5 +14,6 @@ dependencies:
   - jupyter_kernel_test
   - xonsh
   - re2c
+  - numpy
 #  - bison=3.4  [not win]
 #  - m2-bison=3.4  [win]
