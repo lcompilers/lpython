@@ -1021,11 +1021,21 @@ public:
                 x.base.base.loc);
         }
         this->visit_expr(*x.m_value);
-        ASR::expr_t *value = ASRUtils::EXPR(tmp);
-        value = implicitcast_helper(ASRUtils::expr_type(target), value, true);
-        ASR::stmt_t *overloaded=nullptr;
-        tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
-                                overloaded);
+        if (tmp == nullptr) {
+            // This happens if `m.m_value` is `empty`, such as in:
+            // a = empty(16)
+            // We skip this statement for now, the array is declared
+            // by the annotation.
+            // TODO: enforce that empty(), ones(), zeros() is called
+            // for every declaration.
+            tmp = nullptr;
+        } else {
+            ASR::expr_t *value = ASRUtils::EXPR(tmp);
+            value = implicitcast_helper(ASRUtils::expr_type(target), value, true);
+            ASR::stmt_t *overloaded=nullptr;
+            tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
+                                    overloaded);
+        }
     }
 
     void visit_Assert(const AST::Assert_t &x) {
@@ -2221,7 +2231,11 @@ public:
 
                 tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, 1234, a_type);
                 return;
-
+            } else if (call_name == "empty") {
+                // TODO: check that the `empty` arguments are compatible
+                // with the type
+                tmp = nullptr;
+                return;
             } else if (call_name == "complex") {
                 int16_t n_args = args.size();
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
