@@ -1,10 +1,22 @@
 # This test handles actual LPython implementations of functions from the numpy
 # module.
-from ltypes import f32
-from numpy import zeros
+from ltypes import i32, f64
+from numpy import empty
+from typing import TypeVar
+
+n = TypeVar("n")
+def zeros(n: i32) -> f64[n]:
+    A: f64[n]
+    A = empty(n)
+    i: i32
+    for i in range(n):
+        A[i] = 0.0
+    return A
+
+
 
 def test_zeros():
-    a: f32[4]
+    a: f64[4]
     a = zeros(4)
     eps: f64
     eps = 1e-12
