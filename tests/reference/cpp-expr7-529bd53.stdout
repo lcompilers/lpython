@@ -23,30 +23,30 @@ void _lfortran_main_program()
 
 void main0()
 {
-    int c;
+    double c;
     test_pow();
     c = test_pow_1(1, 2);
 }
 
 void test_pow()
 {
-    int a;
+    double a;
     a = pow(2, 2);
 }
 
-int test_pow_1(int a, int b)
+float test_pow_1(int a, int b)
 {
-    int _lpython_return_variable;
-    int res;
+    double _lpython_return_variable;
+    double res;
     res = pow(a, b);
     _lpython_return_variable = res;
     return _lpython_return_variable;
 }
 
-int pow(int x, int y)
+float pow(int x, int y)
 {
-    int _lpython_return_variable;
-    _lpython_return_variable = std::pow(x, y);
+    double _lpython_return_variable;
+    _lpython_return_variable = 1.000000*(float)(std::pow(x, y));
     return _lpython_return_variable;
 }
 
