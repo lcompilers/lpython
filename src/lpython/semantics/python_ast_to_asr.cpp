@@ -2422,7 +2422,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     if (main_module) {
         // If it is a main module, turn it into a program.
         // Note: we can modify this behavior for interactive mode later
-        pass_wrap_global_stmts_into_program(al, *tu);
+        pass_wrap_global_stmts_into_program(al, *tu, "_lpython_main_program");
         LFORTRAN_ASSERT(asr_verify(*tu));
     }
 
