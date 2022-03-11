@@ -19,7 +19,7 @@ using LFortran::ASRUtils::EXPR;
  */
 void pass_wrap_global_stmts_into_program(Allocator &al,
             ASR::TranslationUnit_t &unit) {
-    std::string fn_name_s = "_lfortran_main_program";
+    std::string fn_name_s = "_lpython_main_program";
     SymbolTable *current_scope = al.make_new<SymbolTable>(unit.m_global_scope);
     std::string prog_name = "main_program";
     Vec<ASR::stmt_t*> prog_body;

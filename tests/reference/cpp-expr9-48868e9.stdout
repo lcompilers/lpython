@@ -16,7 +16,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
-void _lfortran_main_program()
+void _lpython_main_program()
 {
     main0();
 }
@@ -66,7 +66,7 @@ void test_return_4(int a)
 namespace {
 
 void main2() {
-        _lfortran_main_program();
+        _lpython_main_program();
 }
 
 }

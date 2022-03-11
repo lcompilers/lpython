@@ -3,7 +3,7 @@ source_filename = "LFortran"
 
 @0 = private unnamed_addr constant [4 x i8] c"%d\0A\00", align 1
 
-define void @_lfortran_main_program() {
+define void @_lpython_main_program() {
 .entry:
   call void @main0()
   br label %return
@@ -31,6 +31,6 @@ declare void @_lfortran_printf(i8*, ...)
 
 define i32 @main() {
 .entry:
-  call void @_lfortran_main_program()
+  call void @_lpython_main_program()
   ret i32 0
 }
