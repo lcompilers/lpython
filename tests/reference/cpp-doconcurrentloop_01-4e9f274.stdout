@@ -16,7 +16,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
-void _lfortran_main_program()
+void _lpython_main_program()
 {
     main0();
 }
@@ -50,7 +50,7 @@ void triad(const Kokkos::View<float*> &a, const Kokkos::View<float*> &b, float s
 namespace {
 
 void main2() {
-        _lfortran_main_program();
+        _lpython_main_program();
 }
 
 }

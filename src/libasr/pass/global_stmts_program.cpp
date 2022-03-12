@@ -18,15 +18,14 @@ using LFortran::ASRUtils::EXPR;
  *
  */
 void pass_wrap_global_stmts_into_program(Allocator &al,
-            ASR::TranslationUnit_t &unit) {
-    std::string fn_name_s = "_lfortran_main_program";
+            ASR::TranslationUnit_t &unit, const std::string &program_fn_name) {
     SymbolTable *current_scope = al.make_new<SymbolTable>(unit.m_global_scope);
     std::string prog_name = "main_program";
     Vec<ASR::stmt_t*> prog_body;
     prog_body.reserve(al, 1);
     if (unit.n_items > 0) {
-        pass_wrap_global_stmts_into_function(al, unit, fn_name_s);
-        ASR::symbol_t *fn = unit.m_global_scope->scope[fn_name_s];
+        pass_wrap_global_stmts_into_function(al, unit, program_fn_name);
+        ASR::symbol_t *fn = unit.m_global_scope->scope[program_fn_name];
         if (ASR::is_a<ASR::Subroutine_t>(*fn)) {
             ASR::asr_t *stmt = ASR::make_SubroutineCall_t(
                     al, unit.base.base.loc,

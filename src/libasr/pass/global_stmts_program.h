@@ -6,7 +6,7 @@
 namespace LFortran {
 
     void pass_wrap_global_stmts_into_program(Allocator &al,
-                ASR::TranslationUnit_t &unit);
+                ASR::TranslationUnit_t &unit, const std::string &program_fn_name);
 
 } // namespace LFortran
 
