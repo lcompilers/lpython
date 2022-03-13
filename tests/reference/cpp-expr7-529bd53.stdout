@@ -46,7 +46,7 @@ float test_pow_1(int a, int b)
 float pow(int x, int y)
 {
     double _lpython_return_variable;
-    _lpython_return_variable = 1.000000*(float)(std::pow(x, y));
+    _lpython_return_variable = 1.000000*(float)(pow(x, y));
     return _lpython_return_variable;
 }
 
