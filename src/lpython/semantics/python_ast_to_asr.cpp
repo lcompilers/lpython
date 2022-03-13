@@ -130,7 +130,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     lm.in_filename = infile;
     // TODO: diagnostic should be an argument to this function
     diag::Diagnostics diagnostics;
-    Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast, diagnostics, false);
+    Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast, diagnostics, false, false);
     std::string input;
     read_file(infile, input);
     CompilerOptions compiler_options;
@@ -354,7 +354,10 @@ public:
                         dim.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, 1, itype));
                         dim.m_end = value;
                     } else if (ASR::is_a<ASR::Var_t>(*value)) {
-                        throw SemanticError("Name!!", loc);
+                        ASR::ttype_t *itype = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                                4, nullptr, 0));
+                        dim.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, 1, itype));
+                        dim.m_end = value;
                     } else {
                         throw SemanticError("Only Integer, `:` or identifier in [] in Subscript supported for now in annotation",
                             loc);
@@ -2398,7 +2401,8 @@ std::string pickle_python(AST::ast_t &ast, bool colors, bool indent) {
 }
 
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
-    AST::ast_t &ast, diag::Diagnostics &diagnostics, bool main_module)
+    AST::ast_t &ast, diag::Diagnostics &diagnostics, bool main_module,
+    bool symtab_only)
 {
     std::map<int, ASR::symbol_t*> ast_overload;
 
@@ -2415,14 +2419,16 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
     LFORTRAN_ASSERT(asr_verify(*tu));
 
-    auto res2 = body_visitor(al, *ast_m, diagnostics, unit, main_module,
-        ast_overload);
-    if (res2.ok) {
-        tu = res2.result;
-    } else {
-        return res2.error;
+    if (!symtab_only) {
+        auto res2 = body_visitor(al, *ast_m, diagnostics, unit, main_module,
+            ast_overload);
+        if (res2.ok) {
+            tu = res2.result;
+        } else {
+            return res2.error;
+        }
+        LFORTRAN_ASSERT(asr_verify(*tu));
     }
-    LFORTRAN_ASSERT(asr_verify(*tu));
 
     if (main_module) {
         // If it is a main module, turn it into a program.
