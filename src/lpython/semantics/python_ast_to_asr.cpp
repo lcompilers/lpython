@@ -2244,6 +2244,10 @@ public:
                 // with the type
                 tmp = nullptr;
                 return;
+            } else if (call_name == "TypeVar") {
+                // Ignore TypeVar for now, we handle it based on the identifier itself
+                tmp = nullptr;
+                return;
             } else if (call_name == "complex") {
                 int16_t n_args = args.size();
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
