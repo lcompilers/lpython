@@ -120,6 +120,60 @@ public:
 
     // TODO: Only Program and While is processed, we need to process all calls
     // to visit_stmt().
+    // TODO: Only TranslationUnit's and Program's symbol table is processed
+    // for transforming function->subroutine if they return arrays
+
+    void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
+        std::vector<std::pair<std::string, ASR::symbol_t*>> replace_vec;
+        for (auto &item : x.m_global_scope->scope) {
+            if (is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *s = down_cast<ASR::Function_t>(item.second);
+                visit_Function(*s);
+                /*
+                * A function which returns an array will be converted
+                * to a subroutine with the destination array as the last
+                * argument. This helps in avoiding deep copies and the
+                * destination memory directly gets filled inside the subroutine.
+                */
+                if( PassUtils::is_array(s->m_return_var) ) {
+                    for( auto& s_item: s->m_symtab->scope ) {
+                        ASR::symbol_t* curr_sym = s_item.second;
+                        if( curr_sym->type == ASR::symbolType::Variable ) {
+                            ASR::Variable_t* var = down_cast<ASR::Variable_t>(curr_sym);
+                            if( var->m_intent == ASR::intentType::Unspecified ) {
+                                var->m_intent = ASR::intentType::In;
+                            } else if( var->m_intent == ASR::intentType::ReturnVar ) {
+                                var->m_intent = ASR::intentType::Out;
+                            }
+                        }
+                    }
+                    Vec<ASR::expr_t*> a_args;
+                    a_args.reserve(al, s->n_args + 1);
+                    for( size_t i = 0; i < s->n_args; i++ ) {
+                        a_args.push_back(al, s->m_args[i]);
+                    }
+                    a_args.push_back(al, s->m_return_var);
+                    ASR::asr_t* s_sub_asr = ASR::make_Subroutine_t(al, s->base.base.loc, s->m_symtab,
+                                                    s->m_name, a_args.p, a_args.size(), s->m_body, s->n_body,
+                                                    s->m_abi, s->m_access, s->m_deftype, nullptr, false, false);
+                    ASR::symbol_t* s_sub = ASR::down_cast<ASR::symbol_t>(s_sub_asr);
+                    replace_vec.push_back(std::make_pair(item.first, s_sub));
+                }
+            } else {
+                this->visit_symbol(*item.second);
+            }
+        }
+
+        // FIXME: this is a hack, we need to pass in a non-const `x`,
+        // which requires to generate a TransformVisitor.
+        ASR::TranslationUnit_t &xx = const_cast<ASR::TranslationUnit_t&>(x);
+        // Updating the symbol table so that now the name
+        // of the function (which returned array) now points
+        // to the newly created subroutine.
+        for( auto& item: replace_vec ) {
+            xx.m_global_scope->scope[item.first] = item.second;
+        }
+    }
 
     void visit_Program(const ASR::Program_t &x) {
         std::vector<std::pair<std::string, ASR::symbol_t*>> replace_vec;
