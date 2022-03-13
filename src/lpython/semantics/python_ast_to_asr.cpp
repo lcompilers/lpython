@@ -1459,8 +1459,8 @@ public:
             std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
             diag.add(diag::Diagnostic(
-                "Not Implemented: type mismatch in binary operator; only Integer/Real combinations "
-                "and string concatenation/repetition are implemented for now",
+                "Not Implemented: type mismatch in binary operator; only Integer, Real, Complex,"
+                " Logical combinations and string concatenation/repetition are implemented for now.",
                 diag::Level::Error, diag::Stage::Semantic, {
                     diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
                             {left->base.loc, right->base.loc})
@@ -1483,6 +1483,7 @@ public:
             );
             throw SemanticAbort();
         }
+        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         // Now, compute the result of the binary operations
         if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
             if (ASRUtils::is_integer(*dest_type)) {
@@ -1537,6 +1538,24 @@ public:
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantComplex_t(al, loc,
                         std::real(result), std::imag(result), dest_type));
+            }
+            else if (ASRUtils::is_logical(*dest_type)) {
+                int8_t left_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                                                    ASRUtils::expr_value(left))->m_value;
+                int8_t right_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                                                    ASRUtils::expr_value(right))->m_value;
+                int8_t result;
+                switch (op) {
+                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
+                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
+                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
+                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
+                    case (ASR::binopType::Div): { } // TODO: Handle division of logicals
+                    default: { LFORTRAN_ASSERT(false); } // should never happen
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
+                    al, loc, result, int_type));
+                dest_type = int_type;
             }
         }
         ASR::expr_t *overloaded = nullptr;
