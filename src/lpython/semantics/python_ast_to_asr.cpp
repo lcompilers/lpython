@@ -1453,6 +1453,8 @@ public:
 
         } else if (ASRUtils::is_complex(*left_type) && ASRUtils::is_complex(*right_type)) {
             dest_type = left_type;
+        } else if (ASRUtils::is_logical(*left_type) && ASRUtils::is_logical(*right_type)) {
+            dest_type = left_type;
         } else {
             std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
