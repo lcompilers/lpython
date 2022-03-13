@@ -2,6 +2,10 @@ from inspect import getfullargspec, getcallargs
 import os
 import ctypes
 import platform
+from typing import TypeVar
+
+__slots__ = ["i32", "i64", "f32", "f64", "c32", "c64",
+        "overload", "ccall", "TypeVar"]
 
 # data-types
 

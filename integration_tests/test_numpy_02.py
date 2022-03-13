@@ -1,8 +1,7 @@
 # This test handles actual LPython implementations of functions from the numpy
 # module.
-from ltypes import i32, f64
+from ltypes import i32, f64, TypeVar
 from numpy import empty
-from typing import TypeVar
 
 n = TypeVar("n")
 def zeros(n: i32) -> f64[n]:
