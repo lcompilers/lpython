@@ -31,8 +31,8 @@ to:
 
 The code below might seem intriguing because of minor but crucial
 details. Generally for any node, first, its children are visited.
-If any child contains operations over arrays then, the a do loop
-pass is added for performing the operation element wise. For stroing
+If any child contains operations over arrays then, the do loop
+pass is added for performing the operation element wise. For storing
 the result, either a new variable is created or a result variable
 available from the parent node is used. Once done, this result variable
 is used by the parent node in place of the child node from which it was
@@ -169,7 +169,7 @@ public:
         // which requires to generate a TransformVisitor.
         ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
         current_scope = xx.m_symtab;
-        // Updating the symbol table so that the now the name
+        // Updating the symbol table so that now the name
         // of the function (which returned array) now points
         // to the newly created subroutine.
         for( auto& item: replace_vec ) {
