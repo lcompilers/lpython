@@ -348,14 +348,17 @@ public:
                 } else {
                     this->visit_expr(*s->m_slice);
                     ASR::expr_t *value = ASRUtils::EXPR(tmp);
-                    if (!ASR::is_a<ASR::ConstantInteger_t>(*value)) {
-                        throw SemanticError("Only Integer in [] in Subscript supported for now in annotation",
+                    if (ASR::is_a<ASR::ConstantInteger_t>(*value)) {
+                        ASR::ttype_t *itype = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                                4, nullptr, 0));
+                        dim.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, 1, itype));
+                        dim.m_end = value;
+                    } else if (ASR::is_a<ASR::Var_t>(*value)) {
+                        throw SemanticError("Name!!", loc);
+                    } else {
+                        throw SemanticError("Only Integer, `:` or identifier in [] in Subscript supported for now in annotation",
                             loc);
                     }
-                    ASR::ttype_t *itype = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                            4, nullptr, 0));
-                    dim.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, 1, itype));
-                    dim.m_end = value;
                 }
 
                 dims.push_back(al, dim);
@@ -395,6 +398,19 @@ public:
         }
         return type;
     }
+
+
+    void visit_Name(const AST::Name_t &x) {
+        std::string name = x.m_id;
+        ASR::symbol_t *s = current_scope->resolve_symbol(name);
+        if (s) {
+            tmp = ASR::make_Var_t(al, x.base.base.loc, s);
+        } else {
+            throw SemanticError("Variable '" + name + "' not declared",
+                x.base.base.loc);
+        }
+    }
+
 
 };
 
@@ -1224,17 +1240,6 @@ public:
         } else {
             tmp = ASR::make_DoLoop_t(al, x.base.base.loc, head,
                 body.p, body.size());
-        }
-    }
-
-    void visit_Name(const AST::Name_t &x) {
-        std::string name = x.m_id;
-        ASR::symbol_t *s = current_scope->resolve_symbol(name);
-        if (s) {
-            tmp = ASR::make_Var_t(al, x.base.base.loc, s);
-        } else {
-            throw SemanticError("Variable '" + name + "' not declared",
-                x.base.base.loc);
         }
     }
 
