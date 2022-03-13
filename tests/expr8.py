@@ -7,3 +7,9 @@ def test_binop():
     x2 = (3.454 - 765.43) + 534.6
     x2 = 5346.565 * 3.45
     x2 = 5346.565 ** 3.45
+
+    # binop on logical type
+    x = True + True
+    x = True - False
+    x = True * False
+    x = False ** False
