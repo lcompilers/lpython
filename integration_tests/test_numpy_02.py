@@ -3,6 +3,7 @@
 from ltypes import i32, f64, TypeVar
 from numpy import empty
 
+n: i32
 n = TypeVar("n")
 def zeros(n: i32) -> f64[n]:
     A: f64[n]
