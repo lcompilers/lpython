@@ -20,16 +20,16 @@ void test_binop()
 {
     int x;
     float x2;
-    x = pow(2, 3);
-    x = pow((float)(2), 3.500000);
+    x = std::pow(2, 3);
+    x = std::pow((float)(2), 3.500000);
     x = 54 - 100;
     x2 = 3.454000 - 765.430000 + 534.600000;
     x2 = 5346.565000*3.450000;
-    x2 = pow(5346.565000, 3.450000);
+    x2 = std::pow(5346.565000, 3.450000);
     x = true + true;
     x = true - false;
     x = true*false;
-    x = pow(false, false);
+    x = std::pow(false, false);
 }
 
 namespace {

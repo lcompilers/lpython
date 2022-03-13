@@ -764,7 +764,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             case (ASR::binopType::Mul) : { last_expr_precedence = 5; break; }
             case (ASR::binopType::Div) : { last_expr_precedence = 5; break; }
             case (ASR::binopType::Pow) : {
-                src = "pow(" + left + ", " + right + ")";
+                src = "std::pow(" + left + ", " + right + ")";
                 return;
             }
             default: throw CodeGenError("BinOp: operator not implemented yet");

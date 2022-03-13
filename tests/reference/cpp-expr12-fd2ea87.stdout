@@ -39,7 +39,7 @@ void main0()
 int test(int a, int b)
 {
     int _lpython_return_variable;
-    _lpython_return_variable = pow(a, b);
+    _lpython_return_variable = std::pow(a, b);
     return _lpython_return_variable;
 }
 
