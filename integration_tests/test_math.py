@@ -90,8 +90,10 @@ def test_log1p():
 
 def test_expm1():
     i: f64
+    eps: f64
+    eps = 1e-12
     i = 2.0
-    assert expm1(i) == exp(i) - 1
+    assert abs(expm1(i) - exp(i) + 1) < eps
 
 def test_floor():
     assert floor(2.0) == 2.0

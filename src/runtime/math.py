@@ -322,7 +322,8 @@ def fmod(x: f64, y: f64) -> f64:
         raise ValueError('math domain error')
     return x - (x//y)*y
 
-def remainder(x: f64, y: f64):
+def remainder(x: f64, y: f64) -> f64:
+    mod: f64
     mod = fmod(x, y)
     if fabs(mod) > fabs(mod - y):
         return mod - y
