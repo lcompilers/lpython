@@ -38,6 +38,11 @@ def sqrt(n: i32) -> f64:
 def exp(n: i32) -> f64:
     return e**n
 
+def fabs(f: f64) -> f64:
+    if f < 0.0:
+        return -f
+    return f
+
 num: i32
 num = TypeVar("num")
 def linspace(start: f64, stop: f64, num: i32) -> f64[num]:
@@ -90,6 +95,13 @@ def test_exp():
     eps = 1e-12
     assert abs(a - 403.4287934927351) < eps
 
+def test_fabs():
+    a: f64
+    a = fabs(-3.7)
+    eps: f64
+    eps = 1e-12
+    assert abs(a - 3.7) < eps
+
 def test_linspace():
     a: f64[4]
     a = linspace(1., 7., 4)
@@ -106,6 +118,7 @@ def check():
     test_arange()
     test_sqrt()
     test_exp()
+    test_fabs()
     test_linspace()
 
 check()
