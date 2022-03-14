@@ -1,7 +1,7 @@
 # This test handles actual LPython implementations of functions from the numpy
 # module.
-from ltypes import i32, f64, TypeVar
-from numpy import empty
+from ltypes import i32, i64, f64, TypeVar
+from numpy import empty, int64
 
 n: i32
 n = TypeVar("n")
@@ -22,12 +22,12 @@ def ones(n: i32) -> f64[n]:
         A[i] = 1.0
     return A
 
-def arange(n: i32) -> f64[n]:
-    A: f64[n]
-    A = empty(n)
+def arange(n: i32) -> i64[n]:
+    A: i64[n]
+    A = empty(n, dtype=int64)
     i: i32
     for i in range(n):
-        A[i] = 1.0 * i
+        A[i] = i
     return A
 
 def test_zeros():
@@ -51,14 +51,12 @@ def test_ones():
     assert abs(a[3] - 1.0) < eps
 
 def test_arange():
-    a: f64[4]
+    a: i64[4]
     a = arange(4)
-    eps: f64
-    eps = 1e-12
-    assert abs(a[0] - 0.0) < eps
-    assert abs(a[1] - 1.0) < eps
-    assert abs(a[2] - 2.0) < eps
-    assert abs(a[3] - 3.0) < eps
+    assert a[0] == 0
+    assert a[1] == 1
+    assert a[2] == 2
+    assert a[3] == 3
 
 def check():
     test_zeros()
