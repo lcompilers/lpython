@@ -75,3 +75,51 @@ def _lfortran_ztan(x: c64) -> c64:
 
 def tan(x: c64) -> c64:
     return _lfortran_ztan(x)
+
+
+@ccall
+def _lfortran_zacosh(x: c64) -> c64:
+    pass
+
+def acosh(x: c64) -> c64:
+    return _lfortran_zacosh(x)
+
+
+@ccall
+def _lfortran_zasinh(x: c64) -> c64:
+    pass
+
+def asinh(x: c64) -> c64:
+    return _lfortran_zasinh(x)
+
+
+@ccall
+def _lfortran_zatanh(x: c64) -> c64:
+    pass
+
+def atanh(x: c64) -> c64:
+    return _lfortran_zatanh(x)
+
+
+@ccall
+def _lfortran_zcosh(x: c64) -> c64:
+    pass
+
+def cosh(x: c64) -> c64:
+    return _lfortran_zcosh(x)
+
+
+@ccall
+def _lfortran_zsinh(x: c64) -> c64:
+    pass
+
+def sinh(x: c64) -> c64:
+    return _lfortran_zsinh(x)
+
+
+@ccall
+def _lfortran_ztanh(x: c64) -> c64:
+    pass
+
+def tanh(x: c64) -> c64:
+    return _lfortran_ztanh(x)
