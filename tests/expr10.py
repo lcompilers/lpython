@@ -3,9 +3,10 @@ def test_UnaryOp():
     a = +4
     a = -500
     a = ~5
-    a = not 5
-    a = not -1
-    a = not 0
+    b: bool
+    b = not 5
+    b = not -1
+    b = not 0
 
     f: f32
     f = +1.0

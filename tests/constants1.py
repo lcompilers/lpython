@@ -104,7 +104,7 @@ def test_float():
 
 
 def test_divmod():
-    a: i32
+    a: tuple[i32, i32]
     a = divmod(9, 3)
     a = divmod(9, -3)
     a = divmod(3, 3)

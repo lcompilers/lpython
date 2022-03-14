@@ -1628,9 +1628,10 @@ public:
                 int64_t op_value = ASR::down_cast<ASR::ConstantInteger_t>(
                                         ASRUtils::expr_value(operand))->m_n;
                 if (op == ASR::unaryopType::Not) {
-                    bool b = (op_value == 0) ? true : false;
+                    bool b = (op_value == 0);
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
                         al, x.base.base.loc, b, logical_type));
+                    operand_type = logical_type;
                 } else {
                     int64_t result = 0;
                     switch (op) {
@@ -1647,9 +1648,10 @@ public:
                 double op_value = ASR::down_cast<ASR::ConstantReal_t>(
                                         ASRUtils::expr_value(operand))->m_r;
                 if (op == ASR::unaryopType::Not) {
-                    bool b = (op_value == 0.0) ? true : false;
+                    bool b = (op_value == 0.0);
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
                         al, x.base.base.loc, b, logical_type));
+                    operand_type = logical_type;
                 } else {
                     double result = 0.0;
                     switch (op) {
@@ -1681,6 +1683,7 @@ public:
                     }
                     value = ASR::down_cast<ASR::expr_t>(
                         ASR::make_ConstantInteger_t(al, x.base.base.loc, result, int_type));
+                    operand_type = int_type;
                 }
 
             } else if (ASRUtils::is_complex(*operand_type)) {
@@ -1689,9 +1692,10 @@ public:
                 std::complex<double> op_value(c->m_re, c->m_im);
                 std::complex<double> result;
                 if (op == ASR::unaryopType::Not) {
-                    bool b = (op_value.real() == 0.0 && op_value.imag() == 0.0) ? true : false;
+                    bool b = (op_value.real() == 0.0 && op_value.imag() == 0.0);
                     value = ASR::down_cast<ASR::expr_t>(
                         ASR::make_ConstantLogical_t(al, x.base.base.loc, b, logical_type));
+                    operand_type = logical_type;
                 } else {
                     switch (op) {
                         case (ASR::unaryopType::UAdd): { result = op_value; break; }
