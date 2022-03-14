@@ -3,6 +3,8 @@
 from ltypes import i32, i64, f64, TypeVar
 from numpy import empty, int64
 
+e: f64 = 2.718281828459045
+
 n: i32
 n = TypeVar("n")
 
@@ -32,6 +34,9 @@ def arange(n: i32) -> i64[n]:
 
 def sqrt(n: i32) -> f64:
     return n**(1/2)
+
+def exp(n: i32) -> f64:
+    return e**n
 
 num: i32
 num = TypeVar("num")
@@ -78,6 +83,13 @@ def test_sqrt():
     eps = 1e-12
     assert abs(a - 1.4142135623730951) < eps
 
+def test_exp():
+    a: f64
+    a = exp(6)
+    eps: f64
+    eps = 1e-12
+    assert abs(a - 403.4287934927351) < eps
+
 def test_linspace():
     a: f64[4]
     a = linspace(1., 7., 4)
@@ -93,6 +105,7 @@ def check():
     test_ones()
     test_arange()
     test_sqrt()
+    test_exp()
     test_linspace()
 
 check()
