@@ -40,8 +40,13 @@ def sqrt(n: i32) -> f64:
 def sqrt(f: f64) -> f64:
     return f**(1/2)
 
+@overload
 def exp(n: i32) -> f64:
     return e**n
+
+@overload
+def exp(f: f64) -> f64:
+    return e**f
 
 def fabs(f: f64) -> f64:
     if f < 0.0:
@@ -99,9 +104,12 @@ def test_sqrt():
 def test_exp():
     a: f64
     a = exp(6)
+    a2: f64
+    a2 = exp(5.6)
     eps: f64
     eps = 1e-12
     assert abs(a - 403.4287934927351) < eps
+    assert abs(a2 - 270.42640742615254) < eps
 
 def test_fabs():
     a: f64
