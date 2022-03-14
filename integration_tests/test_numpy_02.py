@@ -48,10 +48,17 @@ def exp(n: i32) -> f64:
 def exp(f: f64) -> f64:
     return e**f
 
+@overload
 def fabs(f: f64) -> f64:
     if f < 0.0:
         return -f
     return f
+
+@overload
+def fabs(n: i32) -> f64:
+    if n < 0:
+        return -1.0*n
+    return 1.0*n
 
 num: i32
 num = TypeVar("num")
@@ -114,9 +121,12 @@ def test_exp():
 def test_fabs():
     a: f64
     a = fabs(-3.7)
+    a2: f64
+    a2 = fabs(-3)
     eps: f64
     eps = 1e-12
     assert abs(a - 3.7) < eps
+    assert abs(a2 - 3.0) < eps
 
 def test_linspace():
     a: f64[4]
