@@ -550,7 +550,8 @@ int emit_asr(const std::string &infile,
     lm.init_simple(input);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics, true);
+        r = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics, true,
+            compiler_options.symtab_only);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -581,7 +582,8 @@ int emit_cpp(const std::string &infile,
     lm.init_simple(input);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics, true);
+        r1 = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics, true,
+            compiler_options.symtab_only);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -663,7 +665,8 @@ int emit_llvm(const std::string &infile,
     lm.init_simple(input);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics, true);
+        r1 = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics, true,
+            compiler_options.symtab_only);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -725,7 +728,8 @@ int compile_python_to_object_file(
     lm.init_simple(input);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics, true);
+        r1 = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics, true,
+            compiler_options.symtab_only);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())

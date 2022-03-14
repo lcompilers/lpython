@@ -98,6 +98,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const std::string &module_name,
                             const Location &loc, bool intrinsic,
                             const std::string &rl_path,
+                            bool run_verify,
                             const std::function<void (const std::string &, const Location &)> err) {
     LFORTRAN_ASSERT(symtab);
     if (symtab->scope.find(module_name) != symtab->scope.end()) {
@@ -187,7 +188,9 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
 
     // Fix all external symbols
     fix_external_symbols(*tu, *symtab);
-    LFORTRAN_ASSERT(asr_verify(*tu));
+    if (run_verify) {
+        LFORTRAN_ASSERT(asr_verify(*tu));
+    }
     symtab->asr_owner = orig_asr_owner;
 
     return mod2;

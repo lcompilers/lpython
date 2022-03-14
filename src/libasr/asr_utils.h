@@ -522,6 +522,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const std::string &module_name,
                             const Location &loc, bool intrinsic,
                             const std::string &rl_path,
+                            bool run_verify,
                             const std::function<void (const std::string &, const Location &)> err);
 
 ASR::TranslationUnit_t* find_and_load_module(Allocator &al, const std::string &msym,
