@@ -30,6 +30,9 @@ def arange(n: i32) -> i64[n]:
         A[i] = i
     return A
 
+def sqrt(n: i32) -> f64:
+    return n**(1/2)
+
 num: i32
 num = TypeVar("num")
 def linspace(start: f64, stop: f64, num: i32) -> f64[num]:
@@ -68,6 +71,13 @@ def test_arange():
     assert a[2] == 2
     assert a[3] == 3
 
+def test_sqrt():
+    a: f64
+    a = sqrt(2)
+    eps: f64
+    eps = 1e-12
+    assert abs(a - 1.4142135623730951) < eps
+
 def test_linspace():
     a: f64[4]
     a = linspace(1., 7., 4)
@@ -82,6 +92,7 @@ def check():
     test_zeros()
     test_ones()
     test_arange()
+    test_sqrt()
     test_linspace()
 
 check()
