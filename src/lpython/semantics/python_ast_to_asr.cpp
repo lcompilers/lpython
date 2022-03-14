@@ -348,12 +348,7 @@ public:
                 } else {
                     this->visit_expr(*s->m_slice);
                     ASR::expr_t *value = ASRUtils::EXPR(tmp);
-                    if (ASR::is_a<ASR::ConstantInteger_t>(*value)) {
-                        ASR::ttype_t *itype = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                4, nullptr, 0));
-                        dim.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, 1, itype));
-                        dim.m_end = value;
-                    } else if (ASR::is_a<ASR::Var_t>(*value)) {
+                    if (ASR::is_a<ASR::ConstantInteger_t>(*value) || ASR::is_a<ASR::Var_t>(*value)) {
                         ASR::ttype_t *itype = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
                                 4, nullptr, 0));
                         dim.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, 1, itype));
