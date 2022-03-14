@@ -38,6 +38,7 @@ def variance(data: list[f64]) -> f64:
     xbar = mean(data)
     num: f64
     num = 0.0
+    i: i32
     for i in range(n):
         num += (data[i]-xbar)**2
     return num/(n-1)
