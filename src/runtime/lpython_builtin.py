@@ -183,3 +183,43 @@ def round(value: f64) -> i32:
         return int(value)
     else:
         return int(value) + 1
+
+
+def _partition(array: list[f64], start: i32, end: i32) -> i32:
+    pivot: f64
+    pivot = array[start]
+    low: i32
+    low = start + 1
+    high: i32
+    high = end
+    tmp: f64
+
+    while True:
+        while low <= high and array[high] >= pivot:
+            high = high - 1
+        while low <= high and array[low] <= pivot:
+            low = low + 1
+        if low <= high:
+            tmp = array[low]
+            array[low] = array[high]
+            array[high] = tmp
+        else:
+            break
+    tmp = array[start]
+    array[start] = array[high]
+    array[high] = tmp
+
+    return high
+
+
+def quick_sort(array: list[f64], start: i32, end: i32):
+    if start >= end:
+        return
+    p: i32
+    p = _partition(array, start, end)
+    quick_sort(array, start, p-1)
+    quick_sort(array, p+1, end)
+
+
+def sorted(array: list[f64]):
+    quick_sort(array, 0, len(array)-1)
