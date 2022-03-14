@@ -1,7 +1,9 @@
 # This test handles actual LPython implementations of functions from the numpy
 # module.
-from ltypes import i32, i64, f64, TypeVar
+from ltypes import i32, i64, f64, TypeVar, overload
 from numpy import empty, int64
+
+e: f64 = 2.718281828459045
 
 n: i32
 n = TypeVar("n")
@@ -29,6 +31,34 @@ def arange(n: i32) -> i64[n]:
     for i in range(n):
         A[i] = i
     return A
+
+@overload
+def sqrt(n: i32) -> f64:
+    return n**(1/2)
+
+@overload
+def sqrt(f: f64) -> f64:
+    return f**(1/2)
+
+@overload
+def exp(n: i32) -> f64:
+    return e**n
+
+@overload
+def exp(f: f64) -> f64:
+    return e**f
+
+@overload
+def fabs(f: f64) -> f64:
+    if f < 0.0:
+        return -f
+    return f
+
+@overload
+def fabs(n: i32) -> f64:
+    if n < 0:
+        return -1.0*n
+    return 1.0*n
 
 num: i32
 num = TypeVar("num")
@@ -68,6 +98,36 @@ def test_arange():
     assert a[2] == 2
     assert a[3] == 3
 
+def test_sqrt():
+    a: f64
+    a2: f64
+    a = sqrt(2)
+    a2 = sqrt(5.6)
+    eps: f64
+    eps = 1e-12
+    assert abs(a - 1.4142135623730951) < eps
+    assert abs(a2 - 2.3664319132398464) < eps
+
+def test_exp():
+    a: f64
+    a = exp(6)
+    a2: f64
+    a2 = exp(5.6)
+    eps: f64
+    eps = 1e-12
+    assert abs(a - 403.4287934927351) < eps
+    assert abs(a2 - 270.42640742615254) < eps
+
+def test_fabs():
+    a: f64
+    a = fabs(-3.7)
+    a2: f64
+    a2 = fabs(-3)
+    eps: f64
+    eps = 1e-12
+    assert abs(a - 3.7) < eps
+    assert abs(a2 - 3.0) < eps
+
 def test_linspace():
     a: f64[4]
     a = linspace(1., 7., 4)
@@ -82,6 +142,9 @@ def check():
     test_zeros()
     test_ones()
     test_arange()
+    test_sqrt()
+    test_exp()
+    test_fabs()
     test_linspace()
 
 check()
