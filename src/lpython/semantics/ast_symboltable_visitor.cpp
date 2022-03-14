@@ -166,7 +166,7 @@ public:
             std::string rl_path = get_runtime_library_dir();
             ASR::symbol_t* submod_parent = (ASR::symbol_t*)(ASRUtils::load_module(al, global_scope,
                                                 parent_name, x.base.base.loc, false,
-                                                rl_path,
+                                                rl_path, true,
                                                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
                                                 ));
             ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(submod_parent);
@@ -1437,7 +1437,7 @@ public:
         if (!t) {
             std::string rl_path = get_runtime_library_dir();
             t = (ASR::symbol_t*)(ASRUtils::load_module(al, current_scope->parent,
-                msym, x.base.base.loc, false, rl_path,
+                msym, x.base.base.loc, false, rl_path, true,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
                 ));
         }

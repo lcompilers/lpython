@@ -213,9 +213,12 @@ namespace LFortran {
             std::string remote_sym = func_name;
             SymbolTable* current_scope_copy = current_scope;
             current_scope = unit.m_global_scope;
+            // We tell `load_module` not to run verify, since the ASR might
+            // not be in valid state. We run verify at the end of this pass
+            // anyway, so verify will be run no matter what.
             ASR::Module_t *m = LFortran::ASRUtils::load_module(al, current_scope,
                                             module_name, loc, true,
-                                            rl_path,
+                                            rl_path, false,
                                             [&](const std::string &msg, const Location &) { throw LFortranException(msg); }
                                             );
 
@@ -243,9 +246,12 @@ namespace LFortran {
             std::string remote_sym = func_name;
             SymbolTable* current_scope_copy = current_scope;
             current_scope = unit.m_global_scope;
+            // We tell `load_module` not to run verify, since the ASR might
+            // not be in valid state. We run verify at the end of this pass
+            // anyway, so verify will be run no matter what.
             ASR::Module_t *m = LFortran::ASRUtils::load_module(al, current_scope,
                                             module_name, loc, true,
-                                            rl_path,
+                                            rl_path, false,
                                             [&](const std::string &msg, const Location &) { throw LFortranException(msg); });
 
             ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
