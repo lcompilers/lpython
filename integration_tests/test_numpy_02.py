@@ -5,12 +5,21 @@ from numpy import empty
 
 n: i32
 n = TypeVar("n")
+
 def zeros(n: i32) -> f64[n]:
     A: f64[n]
     A = empty(n)
     i: i32
     for i in range(n):
         A[i] = 0.0
+    return A
+
+def ones(n: i32) -> f64[n]:
+    A: f64[n]
+    A = empty(n)
+    i: i32
+    for i in range(n):
+        A[i] = 1.0
     return A
 
 def arange(n: i32) -> f64[n]:
@@ -31,6 +40,16 @@ def test_zeros():
     assert abs(a[2] - 0.0) < eps
     assert abs(a[3] - 0.0) < eps
 
+def test_ones():
+    a: f64[4]
+    a = ones(4)
+    eps: f64
+    eps = 1e-12
+    assert abs(a[0] - 1.0) < eps
+    assert abs(a[1] - 1.0) < eps
+    assert abs(a[2] - 1.0) < eps
+    assert abs(a[3] - 1.0) < eps
+
 def test_arange():
     a: f64[4]
     a = arange(4)
@@ -43,6 +62,7 @@ def test_arange():
 
 def check():
     test_zeros()
+    test_ones()
     test_arange()
 
 check()
