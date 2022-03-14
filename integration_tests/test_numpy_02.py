@@ -30,6 +30,16 @@ def arange(n: i32) -> i64[n]:
         A[i] = i
     return A
 
+num: i32
+num = TypeVar("num")
+def linspace(start: f64, stop: f64, num: i32) -> f64[num]:
+    A: f64[num]
+    A = empty(num)
+    i: i32
+    for i in range(num):
+        A[i] = start + (stop-start)*i/(num-1)
+    return A
+
 def test_zeros():
     a: f64[4]
     a = zeros(4)
@@ -58,9 +68,20 @@ def test_arange():
     assert a[2] == 2
     assert a[3] == 3
 
+def test_linspace():
+    a: f64[4]
+    a = linspace(1., 7., 4)
+    eps: f64
+    eps = 1e-12
+    assert abs(a[0] - 1.0) < eps
+    assert abs(a[1] - 3.0) < eps
+    assert abs(a[2] - 5.0) < eps
+    assert abs(a[3] - 7.0) < eps
+
 def check():
     test_zeros()
     test_ones()
     test_arange()
+    test_linspace()
 
 check()
