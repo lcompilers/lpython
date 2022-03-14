@@ -27,3 +27,51 @@ def _lfortran_zsqrt(x: c64) -> c64:
 
 def sqrt(x: c64) -> c64:
     return _lfortran_zsqrt(x)
+
+
+@ccall
+def _lfortran_zacos(x: c64) -> c64:
+    pass
+
+def acos(x: c64) -> c64:
+    return _lfortran_zacos(x)
+
+
+@ccall
+def _lfortran_zasin(x: c64) -> c64:
+    pass
+
+def asin(x: c64) -> c64:
+    return _lfortran_zasin(x)
+
+
+@ccall
+def _lfortran_zatan(x: c64) -> c64:
+    pass
+
+def atan(x: c64) -> c64:
+    return _lfortran_zatan(x)
+
+
+@ccall
+def _lfortran_zcos(x: c64) -> c64:
+    pass
+
+def cos(x: c64) -> c64:
+    return _lfortran_zcos(x)
+
+
+@ccall
+def _lfortran_zsin(x: c64) -> c64:
+    pass
+
+def sin(x: c64) -> c64:
+    return _lfortran_zsin(x)
+
+
+@ccall
+def _lfortran_ztan(x: c64) -> c64:
+    pass
+
+def tan(x: c64) -> c64:
+    return _lfortran_ztan(x)
