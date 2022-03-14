@@ -125,10 +125,10 @@ public:
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         std::vector<std::pair<std::string, ASR::symbol_t*>> replace_vec;
+        // Transform functions returning arrays to subroutines
         for (auto &item : x.m_global_scope->scope) {
             if (is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = down_cast<ASR::Function_t>(item.second);
-                visit_Function(*s);
                 /*
                 * A function which returns an array will be converted
                 * to a subroutine with the destination array as the last
@@ -159,8 +159,6 @@ public:
                     ASR::symbol_t* s_sub = ASR::down_cast<ASR::symbol_t>(s_sub_asr);
                     replace_vec.push_back(std::make_pair(item.first, s_sub));
                 }
-            } else {
-                this->visit_symbol(*item.second);
             }
         }
 
@@ -172,6 +170,11 @@ public:
         // to the newly created subroutine.
         for( auto& item: replace_vec ) {
             xx.m_global_scope->scope[item.first] = item.second;
+        }
+
+        // Now visit everything else
+        for (auto &item : x.m_global_scope->scope) {
+            this->visit_symbol(*item.second);
         }
     }
 
@@ -697,24 +700,25 @@ public:
         // So the current function call will be converted to a subroutine
         // call. In short, this check acts as a signal whether to convert
         // a function call to a subroutine call.
-        if( current_scope != nullptr &&
-            current_scope->scope.find(x_name) != current_scope->scope.end() &&
-            current_scope->scope[x_name]->type == ASR::symbolType::Subroutine ) {
-            if( result_var == nullptr ) {
-                result_var = create_var(result_var_num, "_func_call_res", x.base.base.loc, x.m_args[x.n_args - 1]);
-                result_var_num += 1;
+        if (current_scope != nullptr) {
+            ASR::symbol_t *sub = current_scope->resolve_symbol(x_name);
+            if (sub && ASR::is_a<ASR::Subroutine_t>(*sub)) {
+                if( result_var == nullptr ) {
+                    result_var = create_var(result_var_num, "_func_call_res", x.base.base.loc, x.m_args[x.n_args - 1]);
+                    result_var_num += 1;
+                }
+                Vec<ASR::expr_t*> s_args;
+                s_args.reserve(al, x.n_args + 1);
+                for( size_t i = 0; i < x.n_args; i++ ) {
+                    s_args.push_back(al, x.m_args[i]);
+                }
+                s_args.push_back(al, result_var);
+                tmp_val = result_var;
+                ASR::stmt_t* subrout_call = LFortran::ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc,
+                                                    sub, nullptr,
+                                                    s_args.p, s_args.size(), nullptr));
+                array_op_result.push_back(al, subrout_call);
             }
-            Vec<ASR::expr_t*> s_args;
-            s_args.reserve(al, x.n_args + 1);
-            for( size_t i = 0; i < x.n_args; i++ ) {
-                s_args.push_back(al, x.m_args[i]);
-            }
-            s_args.push_back(al, result_var);
-            tmp_val = result_var;
-            ASR::stmt_t* subrout_call = LFortran::ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc,
-                                                current_scope->scope[x_name], nullptr,
-                                                s_args.p, s_args.size(), nullptr));
-            array_op_result.push_back(al, subrout_call);
         }
         result_var = nullptr;
     }
