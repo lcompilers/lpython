@@ -31,6 +31,12 @@ def randint(lower: i32, upper: i32) -> i32:
 def _lfortran_random_int(lower: i32, upper: i32) -> i32:
     pass
 
+def uniform(a: f64, b: f64) -> f64:
+    """
+    Get a random number in the range [a, b) or [a, b] depending on rounding.
+    """
+    return a + (b - a) * random()
+
 def paretovariate(alpha: f64) -> f64:
     """
     Return a random number from a Pareto distribution with parameter `alpha`.
