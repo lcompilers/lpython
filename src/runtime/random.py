@@ -66,3 +66,10 @@ def expovariate(l: f64) -> f64:
     `l` (lambda).
     """
     return -_log(1.0 - random()) / l
+
+def weibullvariate(alpha: f64, beta: f64) -> f64:
+    """
+    Return a random number from a Weibull distribution with parameters `alpha`
+    and `beta`.
+    """
+    return alpha * (-_log(1.0 - random())) ** (1.0 / beta)

@@ -53,6 +53,13 @@ def test_expovariate():
     r = random.expovariate(-5.6)
     print(r)
 
+def test_weibullvariate():
+    r: f64
+    r = random.weibullvariate(2.0, 3.0)
+    print(r)
+    r = random.weibullvariate(-5.6, 1.2)
+    print(r)
+
 def check():
     test_random()
     test_randrange()
@@ -60,5 +67,6 @@ def check():
     test_uniform()
     test_paretovariate()
     test_expovariate()
+    test_weibullvariate()
 
 check()
