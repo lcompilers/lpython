@@ -50,6 +50,7 @@ def uniform(a: f64, b: f64) -> f64:
     """
     Get a random number in the range [a, b) or [a, b] depending on rounding.
     """
+    assert b >= a
     return a + (b - a) * random()
 
 def paretovariate(alpha: f64) -> f64:
@@ -65,6 +66,7 @@ def expovariate(l: f64) -> f64:
     Return a random number from an exponential distribution with parameter
     `l` (lambda).
     """
+    assert l != 0.0
     return -_log(1.0 - random()) / l
 
 def weibullvariate(alpha: f64, beta: f64) -> f64:
@@ -72,4 +74,5 @@ def weibullvariate(alpha: f64, beta: f64) -> f64:
     Return a random number from a Weibull distribution with parameters `alpha`
     and `beta`.
     """
+    assert beta != 0.0
     return alpha * (-_log(1.0 - random())) ** (1.0 / beta)
