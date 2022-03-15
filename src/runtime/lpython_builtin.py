@@ -1,4 +1,4 @@
-from ltypes import i32, f64
+from ltypes import i32, f64, c64
 #from sys import exit
 
 
@@ -71,10 +71,7 @@ def bool(x: i32) -> bool:
     """
     Return False when the argument `x` is 0, True otherwise.
     """
-    if x == 0:
-        return False
-    else:
-        return True
+    return x != 0
 
 
 def len(s: str) -> i32:
@@ -183,3 +180,6 @@ def round(value: f64) -> i32:
         return int(value)
     else:
         return int(value) + 1
+
+def complex(x: f64, y: f64) -> c64:
+    pass

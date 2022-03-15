@@ -16,7 +16,7 @@ asr = true
 
 [[test]]
 filename = "complex2.py"
-cpp = true
+# cpp = true
 
 [[test]]
 filename = "constants1.py"
