@@ -1094,6 +1094,49 @@ public:
         }
     }
 
+    void visit_Attribute(const AST::Attribute_t &x) {
+        if (AST::is_a<AST::Name_t>(*x.m_value)) {
+            std::string value = AST::down_cast<AST::Name_t>(x.m_value)->m_id;
+            ASR::symbol_t *t = current_scope->scope[value];
+            if (!t) {
+                throw SemanticError("'" + value + "' is not defined in the scope",
+                    x.base.base.loc);
+            }
+            if (ASR::is_a<ASR::Variable_t>(*t)) {
+                ASR::Variable_t *var = ASR::down_cast<ASR::Variable_t>(t);
+                LFORTRAN_ASSERT(var->m_value);
+                if (ASR::is_a<ASR::ConstantComplex_t>(*var->m_value)) {
+                    std::string attr = x.m_attr;
+                    if (attr == "imag") {
+                        double val = ASR::down_cast<ASR::ConstantComplex_t>(var->m_value)->m_im;
+                        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                                8, nullptr, 0));
+                        tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, val, type);
+                    } else if (attr == "real") {
+                        double val = ASR::down_cast<ASR::ConstantComplex_t>(var->m_value)->m_im;
+                        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                                8, nullptr, 0));
+                        tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, val, type);
+                    } else {
+                        throw SemanticError("'" + attr + "' is not implemented for Complex type",
+                            x.base.base.loc);
+                    }
+
+                } else {
+                    throw SemanticError("Only Complex type supported for now in Attribute",
+                        x.base.base.loc);
+                }
+            } else {
+                throw SemanticError("Only Variable type is supported for now in Attribute",
+                    x.base.base.loc);
+            }
+
+        } else {
+            throw SemanticError("Only Name is supported for now in Attribute",
+                x.base.base.loc);
+        }
+    }
+
     void visit_Assert(const AST::Assert_t &x) {
         this->visit_expr(*x.m_test);
         ASR::expr_t *test = ASRUtils::EXPR(tmp);
