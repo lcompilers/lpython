@@ -62,13 +62,13 @@ jobs:
             echo "WIN=0" >> $GITHUB_ENV
             echo "MACOS=1" >> $GITHUB_ENV
 
-      - name: Build and test (Linux / macOS)
+      - name: Build (Linux / macOS)
         shell: bash -l {0}
         if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
         run: |
             xonsh ci/build.xsh
 
-      - name: Build and test (Windows)
+      - name: Build (Windows)
         if: contains(matrix.os, 'windows')
         shell: cmd
         run: |
@@ -80,3 +80,22 @@ jobs:
             set MACOS=0
             call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
             xonsh ci\build.xsh
+
+      - name: Test (Linux / macOS)
+        shell: bash -l {0}
+        if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
+        run: |
+            xonsh ci/test.xsh
+
+      - name: Test (Windows)
+        if: contains(matrix.os, 'windows')
+        shell: cmd
+        run: |
+            set CONDA_INSTALL_LOCN=C:\\Miniconda
+            call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
+            call conda activate test
+            set LFORTRAN_CMAKE_GENERATOR=Ninja
+            set WIN=1
+            set MACOS=0
+            call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+            xonsh ci\test.xsh
