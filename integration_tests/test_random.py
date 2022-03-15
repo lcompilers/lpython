@@ -46,6 +46,12 @@ def test_paretovariate():
     r = random.paretovariate(-5.6)
     print(r)
 
+def test_expovariate():
+    r: f64
+    r = random.expovariate(2.0)
+    print(r)
+    r = random.expovariate(-5.6)
+    print(r)
 
 def check():
     test_random()
@@ -53,5 +59,6 @@ def check():
     test_randint()
     test_uniform()
     test_paretovariate()
+    test_expovariate()
 
 check()

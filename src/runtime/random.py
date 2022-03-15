@@ -1,5 +1,20 @@
 from ltypes import i32, f64, ccall
 
+e: f64 = 2.718281828459045235360287471352662497757
+
+#: TODO: Call `log` from C directly until we fix the multiple import issue
+def _log(x: f64) -> f64:
+    return _lfortran_dlog(x)
+
+@ccall
+def _lfortran_dlog(x: f64) -> f64:
+    pass
+
+def _exp(x: f64) -> f64:
+    return e**x
+
+def _sqrt(x: f64) -> f64:
+    return x**(1/2)
 
 def random() -> f64:
     """
@@ -44,3 +59,10 @@ def paretovariate(alpha: f64) -> f64:
     u: f64
     u = 1.0 - random()
     return u ** (-1.0 / alpha)
+
+def expovariate(l: f64) -> f64:
+    """
+    Return a random number from an exponential distribution with parameter
+    `l` (lambda).
+    """
+    return -_log(1.0 - random()) / l
