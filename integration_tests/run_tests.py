@@ -46,45 +46,61 @@ CUR_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 def main():
     if not os.path.exists(os.path.join(CUR_DIR, 'tmp')):
         os.makedirs(os.path.join(CUR_DIR, 'tmp'))
-    print("Compiling LPython tests...")
+    _print_msg("Compiling LPython tests...", 30)
     for pyfile in tests:
         basename = os.path.splitext(pyfile)[0]
         cmd = os.path.join("..", "src", "bin", "lpython") + " %s -o tmp/%s" % (pyfile, basename)
-        print("+ " + cmd)
+        msg = "Running: %s" % cmd
+        _print_msg(msg, 33)
         os.chdir("integration_tests")
         r = os.system(cmd)
         os.chdir("..")
         if r != 0:
-            print("Command '%s' failed." % cmd)
+            msg = "Command '%s' failed." % cmd
+            _print_msg(msg, 31)
             sys.exit(1)
 
-    print("Running LPython and CPython tests...")
+    _print_msg("Running LPython and CPython tests...", 30)
     python_path="src/runtime/ltypes"
     for pyfile in tests:
         basename = os.path.splitext(pyfile)[0]
         cmd = "integration_tests/tmp/%s" % (basename)
-        print("+ " + cmd)
+        msg = "Running: %s" % cmd
+        _print_msg(msg, 33)
         r = os.system(cmd)
         if r != 0:
-            print("Command '%s' failed." % cmd)
+            msg = "Command '%s' failed." % cmd
+            _print_msg(msg, 31)
             sys.exit(1)
         cmd = "PYTHONPATH=%s python integration_tests/%s" % (python_path,
                     pyfile)
-        print("+ " + cmd)
+        msg = "Running: %s" % cmd
+        _print_msg(msg, 33)
         r = os.system(cmd)
         if r != 0:
-            print("Command '%s' failed." % cmd)
+            msg = "Command '%s' failed." % cmd
+            _print_msg(msg, 31)
             sys.exit(1)
 
-    print("Running CPython tests...")
+    _print_msg("Running CPython tests...", 30)
     for pyfile in test_cpython:
         cmd = "PYTHONPATH=%s python integration_tests/%s" % (python_path,
                     pyfile)
-        print("+ " + cmd)
+        msg = "Running: %s" % cmd
+        _print_msg(msg, 33)
         r = os.system(cmd)
         if r != 0:
-            print("Command '%s' failed." % cmd)
+            msg = "Command '%s' failed." % cmd
+            _print_msg(msg, 31)
             sys.exit(1)
+    _print_msg("ALL TESTS PASSED", 32)
+
+
+def _color(value):
+    return "\033[" + str(int(value)) + "m"
+
+def _print_msg(string, color_int):
+    print("%s%s%s" % (_color(color_int) + _color(1), string, _color(39) + _color(0)))
 
 if __name__ == "__main__":
     main()
