@@ -45,6 +45,7 @@ struct PythonIntrinsicProcedures {
             {"hex", {m_builtin, &eval_hex}},
             {"oct", {m_builtin, &eval_oct}},
             {"complex", {m_builtin, &eval_complex}},
+            {"divmod", {m_builtin, &eval_divmod}},
         };
     }
 
@@ -454,6 +455,44 @@ struct PythonIntrinsicProcedures {
             }
         }
         return ASR::down_cast<ASR::expr_t>(make_ConstantComplex_t(al, loc, c1, c2, type));
+    }
+
+    static ASR::expr_t *eval_divmod(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        if (args.size() != 2) {
+            throw SemanticError("divmod() takes exactly two arguments (" +
+                std::to_string(args.size()) + " given)", loc);
+        }
+        ASR::expr_t *arg1 = args[0];
+        ASR::expr_t *arg2 = args[1];
+        ASR::ttype_t *arg1_type = ASRUtils::expr_type(arg1);
+        ASR::ttype_t *arg2_type = ASRUtils::expr_type(arg2);
+        Vec<ASR::expr_t *> tuple; // pair consisting of quotient and remainder
+        tuple.reserve(al, 2);
+        Vec<ASR::ttype_t *> tuple_type_vec;
+        tuple_type_vec.reserve(al, 2);
+        if (ASRUtils::is_integer(*arg1_type) && ASRUtils::is_integer(*arg2_type)) {
+            int64_t ival1 = ASR::down_cast<ASR::ConstantInteger_t>(arg1)->m_n;
+            int64_t ival2 = ASR::down_cast<ASR::ConstantInteger_t>(arg2)->m_n;
+            if (ival2 == 0) {
+                throw SemanticError("Integer division or modulo by zero not possible", loc);
+            } else {
+                int64_t div = ival1 / ival2;
+                int64_t mod = ival1 % ival2;
+                tuple.push_back(al, ASRUtils::EXPR(
+                                ASR::make_ConstantInteger_t(al, loc, div, arg1_type)));
+                tuple.push_back(al, ASRUtils::EXPR(
+                                ASR::make_ConstantInteger_t(al, loc, mod, arg1_type)));
+                tuple_type_vec.push_back(al, arg1_type);
+                tuple_type_vec.push_back(al, arg2_type);
+                ASR::ttype_t *tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, loc,
+                                                          tuple_type_vec.p, tuple_type_vec.n));
+                return ASR::down_cast<ASR::expr_t>(make_ConstantTuple_t(al, loc, tuple.p, tuple.size(), tuple_type));
+            }
+        } else {
+            throw SemanticError("Both arguments of divmod() must be integers for now, not '" +
+                ASRUtils::type_to_str(arg1_type) + "' and '" + ASRUtils::type_to_str(arg2_type) + "'", loc);
+        }
     }
 
 }; // ComptimeEval
