@@ -2281,31 +2281,6 @@ public:
                 // Ignore TypeVar for now, we handle it based on the identifier itself
                 tmp = nullptr;
                 return;
-            } else if (call_name == "complex") {
-                int16_t n_args = args.size();
-                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
-                    8, nullptr, 0));
-                if( n_args > 2 || n_args < 0 ) { // n_args shouldn't be less than 0 but added this check for safety
-                    throw SemanticError("Only constant integer or real values are supported as "
-                        "the (at most two) arguments of complex()", x.base.base.loc);
-                }
-                double c1 = 0.0, c2 = 0.0; // Default if n_args = 0
-                if (n_args >= 1) { // Handles both n_args = 1 and n_args = 2
-                    if (ASR::is_a<ASR::ConstantInteger_t>(*args[0])) {
-                        c1 = ASR::down_cast<ASR::ConstantInteger_t>(args[0])->m_n;
-                    } else if (ASR::is_a<ASR::ConstantReal_t>(*args[0])) {
-                        c1 = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(args[0]))->m_r;
-                    }
-                }
-                if (n_args == 2) { // Extracts imaginary component if n_args = 2
-                    if (ASR::is_a<ASR::ConstantInteger_t>(*args[1])) {
-                        c2 = ASR::down_cast<ASR::ConstantInteger_t>(args[1])->m_n;
-                    } else if (ASR::is_a<ASR::ConstantReal_t>(*args[1])) {
-                        c2 = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(args[1]))->m_r;
-                    }
-                }
-                tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc, c1, c2, type);
-                return;
             } else if (call_name == "callable") {
                 if (args.size() != 1) {
                     throw SemanticError(call_name + "() takes exactly one argument (" +
