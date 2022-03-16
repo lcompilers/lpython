@@ -1001,7 +1001,7 @@ public:
         if (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) {
             bool is_l64 = ASR::down_cast<ASR::Integer_t>(left_type)->m_kind == 8;
             bool is_r64 = ASR::down_cast<ASR::Integer_t>(right_type)->m_kind == 8;
-            if (is_l64 != is_r64) {
+            if ((is_assign && (is_l64 != is_r64)) || (is_l64 && !is_r64)) {
                 return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
                     al, right->base.loc, right, ASR::cast_kindType::IntegerToInteger,
                     left_type, nullptr));
@@ -1009,7 +1009,7 @@ public:
         } else if (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type)) {
             bool is_l64 = ASR::down_cast<ASR::Real_t>(left_type)->m_kind == 8;
             bool is_r64 = ASR::down_cast<ASR::Real_t>(right_type)->m_kind == 8;
-            if (is_l64 != is_r64) {
+            if ((is_assign && (is_l64 != is_r64)) || (is_l64 && !is_r64)) {
                 return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
                     al, right->base.loc, right, ASR::cast_kindType::RealToReal,
                     left_type, nullptr));
