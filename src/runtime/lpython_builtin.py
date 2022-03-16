@@ -183,3 +183,7 @@ def round(value: f64) -> i32:
 
 def complex(x: f64, y: f64) -> c64:
     pass
+
+def divmod(x: i32, y: i32) -> tuple[i32, i32]:
+    #: TODO: Implement once we have tuple support in the LLVM backend
+    pass
