@@ -473,6 +473,20 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
             ASR::accessType::Public
             );
         return ASR::down_cast<ASR::symbol_t>(v);
+    } else if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
+        ASR::GenericProcedure_t *gt = ASR::down_cast<ASR::GenericProcedure_t>(t);
+        Str name;
+        name.from_str(al, new_sym_name);
+        char *cname = name.c_str(al);
+        ASR::asr_t *v = ASR::make_ExternalSymbol_t(
+            al, gt->base.base.loc,
+            /* a_symtab */ current_scope,
+            /* a_name */ cname,
+            (ASR::symbol_t*)gt,
+            m->m_name, nullptr, 0, gt->m_name,
+            ASR::accessType::Public
+            );
+        return ASR::down_cast<ASR::symbol_t>(v);
     } else {
         throw SemanticError("Only Subroutines, Functions and Variables are currently supported in 'import'",
             loc);
@@ -2232,14 +2246,6 @@ public:
         }
 
         ASR::symbol_t *s = current_scope->resolve_symbol(call_name), *s_generic = nullptr;
-        if (s!=nullptr && s->type == ASR::symbolType::GenericProcedure) {
-            ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(s);
-            int idx = ASRUtils::select_generic_procedure(args, *p, x.base.base.loc,
-            [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); });
-            // Create ExternalSymbol for procedures in different modules.
-            s_generic = s;
-            s = p->m_procs[idx];
-        }
 
         if (!s) {
             if (intrinsic_procedures.is_intrinsic(call_name)) {
@@ -2308,8 +2314,16 @@ public:
         // handling ExternalSymbol
         ASR::symbol_t *stemp = s;
         s = ASRUtils::symbol_get_past_external(s);
-
-        if(ASR::is_a<ASR::Function_t>(*s)) {
+        if (s!=nullptr && s->type == ASR::symbolType::GenericProcedure) {
+            ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(s);
+            int idx = ASRUtils::select_generic_procedure(args, *p, x.base.base.loc,
+            [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); });
+            // Create ExternalSymbol for procedures in different modules.
+            LFORTRAN_ASSERT(idx >= 0 && idx < (int)p->n_procs);
+            s_generic = s;
+            s = p->m_procs[idx];
+        }
+        if (ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
             ASR::ttype_t *a_type = ASRUtils::expr_type(func->m_return_var);
             ASR::expr_t *value = nullptr;
@@ -2318,7 +2332,7 @@ public:
             }
             tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, stemp,
                 s_generic, args.p, args.size(), nullptr, 0, a_type, value, nullptr);
-        } else if(ASR::is_a<ASR::Subroutine_t>(*s)) {
+        } else if (ASR::is_a<ASR::Subroutine_t>(*s)) {
             tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, stemp,
                 s_generic, args.p, args.size(), nullptr);
         } else {
