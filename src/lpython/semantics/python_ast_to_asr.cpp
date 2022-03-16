@@ -2314,14 +2314,61 @@ public:
         // handling ExternalSymbol
         ASR::symbol_t *stemp = s;
         s = ASRUtils::symbol_get_past_external(s);
-        if (s!=nullptr && s->type == ASR::symbolType::GenericProcedure) {
+        // if (ASR::is_a<ASR::ExternalSymbol_t>(*s)) {
+        //     ASR::ExternalSymbol_t *p = ASR::down_cast<ASR::ExternalSymbol_t>(s);
+        //     mod_name = p->m_module_name;
+        //     s = p->m_external;
+        // }
+        if (ASR::is_a<ASR::GenericProcedure_t>(*s)) {
+            s_generic = s;
             ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(s);
             int idx = ASRUtils::select_generic_procedure(args, *p, x.base.base.loc,
             [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); });
-            // Create ExternalSymbol for procedures in different modules.
-            LFORTRAN_ASSERT(idx >= 0 && idx < (int)p->n_procs);
             s_generic = s;
             s = p->m_procs[idx];
+            std::string local_sym = ASRUtils::symbol_name(s);
+            SymbolTable *symtab = current_scope;
+            while (symtab->parent != nullptr && symtab->scope.find(local_sym) == symtab->scope.end()) {
+                symtab = symtab->parent;
+            }
+            if (symtab->scope.find(local_sym) == symtab->scope.end()) {
+                LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*stemp));
+                std::string mod_name = ASR::down_cast<ASR::ExternalSymbol_t>(stemp)->m_module_name;
+                if (ASR::is_a<ASR::Subroutine_t>(*s)) {
+                    ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(s);
+                    Str name;
+                    name.from_str(al, local_sym);
+                    ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
+                        al, msub->base.base.loc,
+                        /* a_symtab */ symtab,
+                        /* a_name */ name.c_str(al),
+                        (ASR::symbol_t*)msub,
+                        s2c(al, mod_name), nullptr, 0, msub->m_name,
+                        ASR::accessType::Public
+                        );
+                    s = ASR::down_cast<ASR::symbol_t>(sub);
+                } else if (ASR::is_a<ASR::Function_t>(*s)) {
+                    ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(s);
+                    Str name;
+                    name.from_str(al, local_sym);
+                    char *cname = name.c_str(al);
+                    ASR::asr_t *fn = ASR::make_ExternalSymbol_t(
+                        al, mfn->base.base.loc,
+                        /* a_symtab */ symtab,
+                        /* a_name */ cname,
+                        (ASR::symbol_t*)mfn,
+                        s2c(al, mod_name), nullptr, 0, mfn->m_name,
+                        ASR::accessType::Public
+                        );
+                    s = ASR::down_cast<ASR::symbol_t>(fn);
+                } else {
+                    LFORTRAN_ASSERT(false);
+                }
+                stemp = s;
+                s = ASRUtils::symbol_get_past_external(s);
+            } else {
+                s = symtab->scope[local_sym];
+            }
         }
         if (ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
