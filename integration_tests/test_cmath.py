@@ -9,6 +9,12 @@ def test_power_logarithmic():
     y = exp(x)
     y = log(x)
     y = sqrt(x)
+    a: c32
+    b: c32
+    a = complex(3, 3)
+    b = exp(a)
+    b = log(a)
+    b = sqrt(a)
 
 
 def test_trigonometric():

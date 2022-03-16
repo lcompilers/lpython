@@ -1,4 +1,4 @@
-from ltypes import c64, ccall, f64
+from ltypes import c64, ccall, f64, overload, c32
 
 pi: f64 = 3.141592653589793238462643383279502884197
 e: f64 = 2.718281828459045235360287471352662497757
@@ -9,24 +9,51 @@ tau: f64 = 6.283185307179586
 def _lfortran_zexp(x: c64) -> c64:
     pass
 
+@ccall
+def _lfortran_cexp(x: c32) -> c32:
+    pass
+
+@overload
 def exp(x: c64) -> c64:
     return _lfortran_zexp(x)
+
+@overload
+def exp(x: c32) -> c32:
+    return _lfortran_cexp(x)
 
 
 @ccall
 def _lfortran_zlog(x: c64) -> c64:
     pass
 
+@ccall
+def _lfortran_clog(x: c32) -> c32:
+    pass
+
+@overload
 def log(x: c64) -> c64:
     return _lfortran_zlog(x)
+
+@overload
+def log(x: c32) -> c32:
+    return _lfortran_clog(x)
 
 
 @ccall
 def _lfortran_zsqrt(x: c64) -> c64:
     pass
 
+@ccall
+def _lfortran_csqrt(x: c64) -> c64:
+    pass
+
+@overload
 def sqrt(x: c64) -> c64:
     return _lfortran_zsqrt(x)
+
+@overload
+def sqrt(x: c32) -> c32:
+    return _lfortran_csqrt(x)
 
 
 @ccall
