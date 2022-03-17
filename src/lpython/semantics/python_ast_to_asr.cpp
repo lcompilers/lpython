@@ -2321,7 +2321,12 @@ public:
             int idx = ASRUtils::select_generic_procedure(args, *p, x.base.base.loc,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); });
             s = p->m_procs[idx];
+            std::string remote_sym = ASRUtils::symbol_name(s);
             std::string local_sym = ASRUtils::symbol_name(s);
+            if (ASR::is_a<ASR::ExternalSymbol_t>(*stemp)) {
+                local_sym = std::string(p->m_name) + "@" + local_sym;
+            }
+            
             SymbolTable *symtab = current_scope;
             while (symtab->parent != nullptr && symtab->scope.find(local_sym) == symtab->scope.end()) {
                 symtab = symtab->parent;
@@ -2332,7 +2337,7 @@ public:
                 ASR::symbol_t *mt = symtab->scope[mod_name];
                 ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(mt);
                 stemp = import_from_module(al, m, symtab, mod_name,
-                                    local_sym, local_sym, x.base.base.loc);
+                                    remote_sym, local_sym, x.base.base.loc);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*stemp));
                 symtab->scope[local_sym] = stemp;
                 s = ASRUtils::symbol_get_past_external(stemp);
