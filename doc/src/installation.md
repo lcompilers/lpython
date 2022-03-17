@@ -71,7 +71,7 @@ export PATH="$HOME/conda_root/bin:$PATH"
 ```
 Then prepare the environment:
 ```bash
-conda create -n lf -c conda-forge llvmdev=11.0.1 bison=3.4 re2c python cmake make toml numpy
+conda create -n lp -c conda-forge llvmdev=11.0.1 bison=3.4 re2c python cmake make toml numpy
 conda activate lf
 ```
 Clone the LFortran git repository:
