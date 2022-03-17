@@ -2334,6 +2334,7 @@ public:
                 stemp = import_from_module(al, m, symtab, mod_name,
                                     local_sym, local_sym, x.base.base.loc);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*stemp));
+                symtab->scope[local_sym] = stemp;
                 s = ASRUtils::symbol_get_past_external(stemp);
             } else {
                 stemp = s;
