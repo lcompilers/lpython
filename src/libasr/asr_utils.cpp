@@ -1,3 +1,5 @@
+#include <unordered_set>
+#include <map>
 #include <libasr/asr_utils.h>
 #include <libasr/string_utils.h>
 #include <libasr/serialization.h>
@@ -10,60 +12,36 @@ namespace LFortran {
 
     namespace ASRUtils  {
 
-
-void visit(int a, std::map<int,std::vector<int>> &deps,
-        std::vector<bool> &visited, std::vector<int> &result) {
-    visited[a] = true;
-    for (auto n : deps[a]) {
-        if (!visited[n]) visit(n, deps, visited, result);
+// depth-first graph traversal
+void visit(
+    std::string const& a, 
+    std::map<std::string, std::vector<std::string>> const& deps,
+    std::unordered_set<std::string>& visited, 
+    std::vector<std::string>& result
+) {
+    visited.insert(a);
+    if (auto it = deps.find(a); it != deps.end()) {
+        for (auto n : it->second) {
+            if (!visited.count(n)) visit(n, deps, visited, result);
+        }
     }
     result.push_back(a);
 }
 
-std::vector<int> order_deps(std::map<int, std::vector<int>> &deps) {
-    std::vector<bool> visited(deps.size(), false);
-    std::vector<int> result;
-    for (auto d : deps) {
-        if (!visited[d.first]) visit(d.first, deps, visited, result);
-    }
-    return result;
-}
+std::vector<std::string> order_deps(std::map<std::string, std::vector<std::string>> const& deps) {
+    // Compute ordering: depth-first graph traversal, inserting nodes on way back
 
-std::vector<std::string> order_deps(std::map<std::string, std::vector<std::string>> &deps) {
-    // Create a mapping string <-> int
-    std::vector<std::string> int2string;
-    std::map<std::string, int> string2int;
-    for (auto d : deps) {
-        if (string2int.find(d.first) == string2int.end()) {
-            string2int[d.first] = int2string.size();
-            int2string.push_back(d.first);
-        }
-        for (auto n : d.second) {
-            if (string2int.find(n) == string2int.end()) {
-                string2int[n] = int2string.size();
-                int2string.push_back(n);
-            }
-        }
-    }
+    // set containing the visited nodes
+    std::unordered_set<std::string> visited;
 
-    // Transform dep -> dep_int
-    std::map<int, std::vector<int>> deps_int;
-    for (auto d : deps) {
-        deps_int[string2int[d.first]] = std::vector<int>();
-        for (auto n : d.second) {
-            deps_int[string2int[d.first]].push_back(string2int[n]);
-        }
-    }
-
-    // Compute ordering
-    std::vector<int> result_int = order_deps(deps_int);
-
-    // Transform result_int -> result
+    // vector containing result
     std::vector<std::string> result;
-    for (auto n : result_int) {
-        result.push_back(int2string[n]);
-    }
 
+    for (auto d : deps) {
+        if (!visited.count(d.first)) {
+            visit(d.first, deps, visited, result);
+        }
+    }
     return result;
 }
 
@@ -337,12 +315,15 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                         if( left_arg_type->type == left_type->type &&
                             right_arg_type->type == right_type->type ) {
                             found = true;
-                            Vec<ASR::expr_t*> a_args;
+                            Vec<ASR::call_arg_t> a_args;
                             a_args.reserve(al, 2);
-                            a_args.push_back(al, left);
-                            a_args.push_back(al, right);
+                            ASR::call_arg_t left_call_arg, right_call_arg;
+                            left_call_arg.loc = left->base.loc, left_call_arg.m_value = left;
+                            a_args.push_back(al, left_call_arg);
+                            right_call_arg.loc = right->base.loc, right_call_arg.m_value = right;
+                            a_args.push_back(al, right_call_arg);
                             asr = ASR::make_FunctionCall_t(al, loc, curr_scope->scope[std::string(func->m_name)], orig_sym,
-                                                            a_args.p, 2, nullptr, 0,
+                                                            a_args.p, 2,
                                                             ASRUtils::expr_type(func->m_return_var),
                                                             nullptr, nullptr);
                         }
@@ -419,10 +400,13 @@ bool use_overloaded_assignment(ASR::expr_t* target, ASR::expr_t* value,
                 if( target_arg_type->type == target_type->type &&
                     value_arg_type->type == value_type->type ) {
                     found = true;
-                    Vec<ASR::expr_t*> a_args;
+                    Vec<ASR::call_arg_t> a_args;
                     a_args.reserve(al, 2);
-                    a_args.push_back(al, target);
-                    a_args.push_back(al, value);
+                    ASR::call_arg_t target_arg, value_arg;
+                    target_arg.loc = target->base.loc, target_arg.m_value = target;
+                    a_args.push_back(al, target_arg);
+                    value_arg.loc = value->base.loc, value_arg.m_value = value;
+                    a_args.push_back(al, value_arg);
                     std::string subrout_name = to_lower(subrout->m_name);
                     std::string mangled_name = subrout_name + "@~assign";
                     ASR::symbol_t* imported_subrout = nullptr;
@@ -469,12 +453,15 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                         if( left_arg_type->type == left_type->type &&
                             right_arg_type->type == right_type->type ) {
                             found = true;
-                            Vec<ASR::expr_t*> a_args;
+                            Vec<ASR::call_arg_t> a_args;
                             a_args.reserve(al, 2);
-                            a_args.push_back(al, left);
-                            a_args.push_back(al, right);
+                            ASR::call_arg_t left_call_arg, right_call_arg;
+                            left_call_arg.loc = left->base.loc, left_call_arg.m_value = left;
+                            a_args.push_back(al, left_call_arg);
+                            right_call_arg.loc = right->base.loc, right_call_arg.m_value = right;
+                            a_args.push_back(al, right_call_arg);
                             asr = ASR::make_FunctionCall_t(al, loc, curr_scope->scope[std::string(func->m_name)], orig_sym,
-                                                            a_args.p, 2, nullptr, 0,
+                                                            a_args.p, 2,
                                                             ASRUtils::expr_type(func->m_return_var),
                                                             nullptr, nullptr);
                         }
@@ -606,13 +593,13 @@ bool types_equal(const ASR::ttype_t &a, const ASR::ttype_t &b) {
 }
 
 template <typename T>
-bool argument_types_match(const Vec<ASR::expr_t*> &args,
+bool argument_types_match(const Vec<ASR::call_arg_t>& args,
         const T &sub) {
     if (args.size() <= sub.n_args) {
         size_t i;
         for (i = 0; i < args.size(); i++) {
             ASR::Variable_t *v = LFortran::ASRUtils::EXPR2VAR(sub.m_args[i]);
-            ASR::ttype_t *arg1 = LFortran::ASRUtils::expr_type(args[i]);
+            ASR::ttype_t *arg1 = LFortran::ASRUtils::expr_type(args[i].m_value);
             ASR::ttype_t *arg2 = v->m_type;
             if (!types_equal(*arg1, *arg2)) {
                 return false;
@@ -630,7 +617,7 @@ bool argument_types_match(const Vec<ASR::expr_t*> &args,
     }
 }
 
-bool select_func_subrout(const ASR::symbol_t* proc, const Vec<ASR::expr_t*> &args,
+bool select_func_subrout(const ASR::symbol_t* proc, const Vec<ASR::call_arg_t>& args,
                          Location& loc, const std::function<void (const std::string &, const Location &)> err) {
     bool result = false;
     if (ASR::is_a<ASR::Subroutine_t>(*proc)) {
@@ -651,7 +638,7 @@ bool select_func_subrout(const ASR::symbol_t* proc, const Vec<ASR::expr_t*> &arg
     return result;
 }
 
-int select_generic_procedure(const Vec<ASR::expr_t*> &args,
+int select_generic_procedure(const Vec<ASR::call_arg_t>& args,
         const ASR::GenericProcedure_t &p, Location loc,
         const std::function<void (const std::string &, const Location &)> err) {
     for (size_t i=0; i < p.n_procs; i++) {
@@ -674,7 +661,7 @@ int select_generic_procedure(const Vec<ASR::expr_t*> &args,
 
 ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
             const Location &loc,
-            ASR::symbol_t *v, Vec<ASR::expr_t*> args,
+            ASR::symbol_t *v, Vec<ASR::call_arg_t>& args,
             SymbolTable* current_scope, Allocator& al,
             const std::function<void (const std::string &, const Location &)> err) {
     ASR::ExternalSymbol_t *p = ASR::down_cast<ASR::ExternalSymbol_t>(v);
@@ -721,7 +708,7 @@ ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
     } else {
         return ASR::make_FunctionCall_t(al, loc, final_sym,
                                         v, args.p, args.size(),
-                                        nullptr, 0, return_type,
+                                        return_type,
                                         nullptr, nullptr);
     }
 }

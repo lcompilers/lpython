@@ -3,7 +3,6 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/pass_utils.h>
 #include <libasr/pass/param_to_const.h>
 
 
@@ -29,7 +28,7 @@ to:
 
 */
 
-class VarVisitor : public PassUtils::PassVisitor<VarVisitor>
+class VarVisitor : public ASR::BaseWalkVisitor<VarVisitor>
 {
 private:
     ASR::expr_t* asr;

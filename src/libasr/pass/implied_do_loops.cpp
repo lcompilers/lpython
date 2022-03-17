@@ -30,57 +30,15 @@ to:
 class ImpliedDoLoopVisitor : public PassUtils::PassVisitor<ImpliedDoLoopVisitor>
 {
 private:
-    Allocator &al;
     ASR::TranslationUnit_t &unit;
-    Vec<ASR::stmt_t*> implied_do_loop_result;
     bool contains_array;
-    SymbolTable* current_scope;
     std::string rl_path;
 public:
     ImpliedDoLoopVisitor(Allocator &al, ASR::TranslationUnit_t& unit,
-        const std::string &rl_path) : al{al}, unit{unit},
-    contains_array{false}, current_scope{nullptr}, rl_path{rl_path} {
-        implied_do_loop_result.reserve(al, 1);
+        const std::string &rl_path) : PassVisitor(al, nullptr), unit{unit},
+    contains_array{false}, rl_path{rl_path} {
+        pass_result.reserve(al, 1);
 
-    }
-
-    // TODO: Only Program and While is processed, we need to process all calls
-    // to visit_stmt().
-
-    void visit_Program(const ASR::Program_t &x) {
-        // FIXME: this is a hack, we need to pass in a non-const `x`,
-        // which requires to generate a TransformVisitor.
-        ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
-        current_scope = xx.m_symtab;
-        transform_stmts(xx.m_body, xx.n_body, al, implied_do_loop_result);
-
-        // Transform nested functions and subroutines
-        for (auto &item : x.m_symtab->scope) {
-            if (is_a<ASR::Subroutine_t>(*item.second)) {
-                ASR::Subroutine_t *s = down_cast<ASR::Subroutine_t>(item.second);
-                visit_Subroutine(*s);
-            }
-            if (is_a<ASR::Function_t>(*item.second)) {
-                ASR::Function_t *s = down_cast<ASR::Function_t>(item.second);
-                visit_Function(*s);
-            }
-        }
-    }
-
-    void visit_Subroutine(const ASR::Subroutine_t &x) {
-        // FIXME: this is a hack, we need to pass in a non-const `x`,
-        // which requires to generate a TransformVisitor.
-        ASR::Subroutine_t &xx = const_cast<ASR::Subroutine_t&>(x);
-        current_scope = xx.m_symtab;
-        transform_stmts(xx.m_body, xx.n_body, al, implied_do_loop_result);
-    }
-
-    void visit_Function(const ASR::Function_t &x) {
-        // FIXME: this is a hack, we need to pass in a non-const `x`,
-        // which requires to generate a TransformVisitor.
-        ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
-        current_scope = xx.m_symtab;
-        transform_stmts(xx.m_body, xx.n_body, al, implied_do_loop_result);
     }
 
     void visit_Var(const ASR::Var_t& x) {
@@ -168,7 +126,7 @@ public:
             }
         }
         ASR::stmt_t* doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, arr_var->base.base.loc, head, doloop_body.p, doloop_body.size()));
-        implied_do_loop_result.push_back(al, doloop);
+        pass_result.push_back(al, doloop);
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
@@ -197,7 +155,7 @@ public:
                     ASR::symbol_t* idx_sym = unit.m_global_scope->scope[std::string(idx_var_name)];
                     idx_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, idx_sym));
                     ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, idx_var, const_1, nullptr));
-                    implied_do_loop_result.push_back(al, assign_stmt);
+                    pass_result.push_back(al, assign_stmt);
                 }
                 for( size_t k = 0; k < arr_init->n_args; k++ ) {
                     ASR::expr_t* curr_init = arr_init->m_args[k];
@@ -217,10 +175,10 @@ public:
                                                                             args.p, args.size(),
                                                                             LFortran::ASRUtils::expr_type(LFortran::ASRUtils::EXPR((ASR::asr_t*)arr_var)), nullptr));
                         ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, array_ref, arr_init->m_args[k], nullptr));
-                        implied_do_loop_result.push_back(al, assign_stmt);
+                        pass_result.push_back(al, assign_stmt);
                         ASR::expr_t* increment = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, idx_var, ASR::binopType::Add, const_1, LFortran::ASRUtils::expr_type(idx_var), nullptr, nullptr));
                         assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, idx_var, increment, nullptr));
-                        implied_do_loop_result.push_back(al, assign_stmt);
+                        pass_result.push_back(al, assign_stmt);
                     }
                 }
             }
@@ -255,7 +213,7 @@ public:
                 }
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
-            implied_do_loop_result.push_back(al, doloop);
+            pass_result.push_back(al, doloop);
         }
     }
 };
