@@ -32,6 +32,7 @@ tests = [
     "test_math_02.py",
     "test_c_interop_01.py",
     "test_generics_01.py",
+    "test_statistics.py"
 ]
 
 # CPython tests only
