@@ -10,8 +10,8 @@ Install Conda for example by installing the
 Then create a new environment (you can choose any name, here we chose `lf`) and
 activate it:
 ```bash
-conda create -n lf
-conda activate lf
+conda create -n lp
+conda activate lp
 ```
 Then install LFortran by:
 ```bash
@@ -42,7 +42,7 @@ conda create -n lf python cmake llvmdev
 conda activate lf
 ```
 Then download a tarball from 
-[https://lfortran.org/download/](https://lfortran.org/download/), 
+[https://lfortran.org/download/](https://lfortran.org/download/),
 e.g.:
 ```bash
 wget https://lfortran.github.io/tarballs/dev/lfortran-0.9.0.tar.gz
