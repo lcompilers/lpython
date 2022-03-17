@@ -2337,7 +2337,7 @@ public:
                 symtab->scope[local_sym] = stemp;
                 s = ASRUtils::symbol_get_past_external(stemp);
             } else {
-                stemp = s;
+                stemp = symtab->scope[local_sym];
             }
         }
         if (ASR::is_a<ASR::Function_t>(*s)) {
