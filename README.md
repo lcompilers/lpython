@@ -32,7 +32,7 @@ https://github.com/conda-forge/miniforge/#download
 
 Create a Conda environment:
 
-    conda create -n lp llvmdev=11.0.1 bison=3.4 re2c python cmake make toml
+    conda create -n lp llvmdev=11.0.1 bison=3.4 re2c python cmake make toml numpy
     conda activate lp
 
 Install required packages (Linux - 64 bit):
