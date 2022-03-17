@@ -1,4 +1,4 @@
-from ltypes import i32, f64, c64
+from ltypes import i32, i64, f32, f64, c32, c64, overload
 #from sys import exit
 
 
@@ -66,12 +66,47 @@ def str(x: i32) -> str:
         result += rev_result[pos]
     return result
 
-
+@overload
 def bool(x: i32) -> bool:
     """
     Return False when the argument `x` is 0, True otherwise.
     """
     return x != 0
+
+@overload
+def bool(x: i64) -> bool:
+    return x != 0
+
+@overload
+def bool(f: f32) -> bool:
+    return f != 0.0
+
+@overload
+def bool(f: f64) -> bool:
+    """
+    Return False when the argument `x` is 0.0, True otherwise.
+    """
+    return f != 0.0
+
+@overload
+def bool(s: str) -> bool:
+    """
+    Return False when the argument `s` is an empty string, True otherwise.
+    """
+    return len(s) > 0
+
+@overload
+def bool(b: bool) -> bool:
+    return b
+
+@overload
+def bool(c: c32) -> bool:
+    pass
+
+@overload
+def bool(c: c64) -> bool:
+    # TODO: implement once we can access `real` and `imag` attributes
+    pass
 
 
 def len(s: str) -> i32:
