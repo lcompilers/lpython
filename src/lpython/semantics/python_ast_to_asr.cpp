@@ -2319,8 +2319,7 @@ public:
             s_generic = stemp;
             ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(s);
             int idx = ASRUtils::select_generic_procedure(args, *p, x.base.base.loc,
-            [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); });
-            s_generic = s;
+                [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); });
             s = p->m_procs[idx];
             std::string local_sym = ASRUtils::symbol_name(s);
             SymbolTable *symtab = current_scope;
