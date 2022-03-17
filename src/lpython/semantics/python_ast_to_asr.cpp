@@ -2316,7 +2316,7 @@ public:
         s = ASRUtils::symbol_get_past_external(s);
 
         if (ASR::is_a<ASR::GenericProcedure_t>(*s)) {
-            s_generic = s;
+            s_generic = stemp;
             ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(s);
             int idx = ASRUtils::select_generic_procedure(args, *p, x.base.base.loc,
             [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); });
