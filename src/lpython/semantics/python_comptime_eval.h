@@ -161,22 +161,19 @@ struct PythonIntrinsicProcedures {
         ASR::ttype_t* t = ASRUtils::expr_type(arg);
         bool result;
         if (ASRUtils::is_real(*t)) {
-            double rv = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
-            result = rv ? true : false;
+            result = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
         } else if (ASRUtils::is_integer(*t)) {
-            int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
-            result = rv ? true : false;
+            result = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
         } else if (ASRUtils::is_complex(*t)) {
             double re = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_re;
             double im = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_im;
             std::complex<double> c(re, im);
-            result = (re || im) ? true : false;
+            result = (re || im);
         } else if (ASRUtils::is_logical(*t)) {
-            bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
-            result = rv;
+            result = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
         } else if (ASRUtils::is_character(*t)) {
             char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(arg))->m_s;
-            result = strlen(s2c(al, std::string(c))) ? true : false;
+            result = strlen(s2c(al, std::string(c)));
         } else {
             throw SemanticError("bool() must have one real, integer, character,"
                 " complex, or logical argument, not '" + ASRUtils::type_to_str(t) + "'", loc);
