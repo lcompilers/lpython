@@ -237,7 +237,10 @@ def oct(n: i32) -> str:
         res += _values[remainder]
     return prep + res[::-1]
 
-
+#: round() as a generic procedure.
+#: supported types for argument:
+#  i32, f64, bool
+@overload
 def round(value: f64) -> i32:
     """
     Rounds a floating point number to the nearest integer.
@@ -246,6 +249,14 @@ def round(value: f64) -> i32:
         return int(value)
     else:
         return int(value) + 1
+
+@overload
+def round(value: i32) -> i64:
+    return value
+
+@overload
+def round(b: bool) -> i32:
+    return abs(b)
 
 def complex(x: f64, y: f64) -> c64:
     pass

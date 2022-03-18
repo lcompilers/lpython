@@ -429,8 +429,14 @@ struct PythonIntrinsicProcedures {
             if (fabs(rv-rounded) == 0.5)
                 rounded = 2.0*round(rv/2.0);
             return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc, rounded, type));
+        } else if (ASRUtils::is_integer(*t)) {
+            int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(expr)->m_n;
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc, rv, type));
+        } else if (ASRUtils::is_logical(*t)) {
+            int64_t rv = ASR::down_cast<ASR::ConstantLogical_t>(expr)->m_value;
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc, rv, type));
         } else {
-            throw SemanticError("round() argument must be float for now, not '" +
+            throw SemanticError("round() argument must be float, integer, or logical for now, not '" +
                 ASRUtils::type_to_str(t) + "'", loc);
         }
     }
