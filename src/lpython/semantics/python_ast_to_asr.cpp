@@ -1028,6 +1028,14 @@ public:
                     al, right->base.loc, right, ASR::cast_kindType::RealToReal,
                     left_type, nullptr));
             }
+        } else if (ASRUtils::is_complex(*left_type) && ASRUtils::is_complex(*right_type)) {
+            bool is_l64 = ASR::down_cast<ASR::Complex_t>(left_type)->m_kind == 8;
+            bool is_r64 = ASR::down_cast<ASR::Complex_t>(right_type)->m_kind == 8;
+            if ((is_assign && (is_l64 != is_r64)) || (is_l64 && !is_r64)) {
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                    al, right->base.loc, right, ASR::cast_kindType::ComplexToComplex,
+                    left_type, nullptr));
+            }
         } else if (!is_assign && ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type)) {
             return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
                 al, right->base.loc, right, ASR::cast_kindType::IntegerToReal,
@@ -1035,6 +1043,23 @@ public:
         } else if (is_assign && ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type)) {
             throw SemanticError("Assigning integer to float is not supported",
                     right->base.loc);
+        } else if (is_assign && ASRUtils::is_complex(*left_type) && !ASRUtils::is_complex(*right_type)) {
+            throw SemanticError("Assigning non-complex to complex is not supported",
+                    right->base.loc);
+        } else if (!is_assign && ASRUtils::is_complex(*left_type) && !ASRUtils::is_complex(*right_type)) {
+            if (ASRUtils::is_real(*right_type)) {
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                    al, right->base.loc, right, ASR::cast_kindType::RealToComplex,
+                    left_type, nullptr));
+            } else if (ASRUtils::is_integer(*right_type)) {
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                    al, right->base.loc, right, ASR::cast_kindType::IntegerToComplex,
+                    left_type, nullptr));
+            } else {
+                std::string rtype = ASRUtils::type_to_str(right_type);
+                throw SemanticError("Casting " + rtype + " to complex is not Implemented",
+                        right->base.loc);
+            }
         }
         return right;
     }
@@ -1406,8 +1431,10 @@ public:
                         value));
                 }
             }
-        } else if((ASRUtils::is_integer(*left_type) || ASRUtils::is_real(*left_type)) &&
-                    (ASRUtils::is_integer(*right_type) || ASRUtils::is_real(*right_type)) ){
+        } else if((ASRUtils::is_integer(*left_type) || ASRUtils::is_real(*left_type) ||
+                        ASRUtils::is_complex(*left_type)) &&
+                (ASRUtils::is_integer(*right_type) || ASRUtils::is_real(*right_type) ||
+                        ASRUtils::is_complex(*right_type))) {
             left = implicitcast_helper(ASRUtils::expr_type(right), left);
             right = implicitcast_helper(ASRUtils::expr_type(left), right);
             dest_type = ASRUtils::expr_type(left);
@@ -2326,7 +2353,7 @@ public:
             if (ASR::is_a<ASR::ExternalSymbol_t>(*stemp)) {
                 local_sym = std::string(p->m_name) + "@" + local_sym;
             }
-            
+
             SymbolTable *symtab = current_scope;
             while (symtab->parent != nullptr && symtab->scope.find(local_sym) == symtab->scope.end()) {
                 symtab = symtab->parent;
