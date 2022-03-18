@@ -270,4 +270,28 @@ std::string pickle(LFortran::ASR::TranslationUnit_t &asr, bool colors, bool inde
     return pickle((ASR::asr_t &)asr, colors, indent, show_intrinsic_modules);
 }
 
+class ASRTreeVisitor :
+    public LFortran::ASR::TreeBaseVisitor<ASRTreeVisitor>
+{
+public:
+    bool show_intrinsic_modules;
+    
+    std::string get_str() {
+        return s;
+    }
+
+};
+
+std::string pickle_tree(LFortran::ASR::asr_t &asr, bool colors, bool show_intrinsic_modules) {
+    ASRTreeVisitor v;
+    v.use_colors = colors;
+    v.show_intrinsic_modules = show_intrinsic_modules;
+    v.visit_asr(asr);
+    return v.get_str();
+}
+
+std::string pickle_tree(LFortran::ASR::TranslationUnit_t &asr, bool colors, bool show_intrinsic_modules) {
+    return pickle_tree((ASR::asr_t &)asr, colors, show_intrinsic_modules);
+}
+
 }

@@ -527,8 +527,12 @@ int emit_ast(const std::string &infile,
     }
     LFortran::Python::AST::ast_t* ast = r.result;
 
-    std::cout << LFortran::Python::pickle_python(*ast,
-        compiler_options.use_colors, compiler_options.indent) << std::endl;
+    if (compiler_options.tree) {
+        std::cout << LFortran::Python::pickle_tree_python(*ast, compiler_options.use_colors) << std::endl;
+    } else {
+        std::cout << LFortran::Python::pickle_python(*ast,
+            compiler_options.use_colors, compiler_options.indent) << std::endl;
+    }
     return 0;
 }
 
@@ -559,8 +563,13 @@ int emit_asr(const std::string &infile,
     }
     LFortran::ASR::TranslationUnit_t* asr = r.result;
 
-    std::cout << LFortran::pickle(*asr, compiler_options.use_colors, compiler_options.indent,
+    if (compiler_options.tree) {
+        std::cout << LFortran::pickle_tree(*asr, compiler_options.use_colors,
             with_intrinsic_modules) << std::endl;
+    } else {
+        std::cout << LFortran::pickle(*asr, compiler_options.use_colors, compiler_options.indent,
+            with_intrinsic_modules) << std::endl;
+    }
     return 0;
 }
 
@@ -1285,6 +1294,7 @@ int main(int argc, char *argv[])
         app.add_flag("--with-intrinsic-mods", with_intrinsic_modules, "Show intrinsic modules in ASR");
         app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
         app.add_flag("--indent", compiler_options.indent, "Indented print ASR/AST");
+        app.add_flag("--tree", compiler_options.tree, "Tree structure print ASR/AST");
         app.add_option("--pass", arg_pass, "Apply the ASR pass and show ASR (implies --show-asr)");
         app.add_flag("--symtab-only", compiler_options.symtab_only, "Only create symbol tables in ASR (skip executable stmt)");
         app.add_flag("--time-report", time_report, "Show compilation time report");

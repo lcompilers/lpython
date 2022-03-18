@@ -405,6 +405,264 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
             self.emit(  "this->visit_symbol(*a.second);", 3)
             self.emit("}", 2)
 
+# This class generates a visitor that prints the tree structure of AST/ASR
+class TreeVisitorVisitor(ASDLVisitor):
+
+    def visitModule(self, mod):
+        self.emit("/" + "*"*78 + "/")
+        self.emit("// Tree Visitor base class")
+        self.emit("")
+        self.emit("template <class Derived>")
+        self.emit("class TreeBaseVisitor : public BaseVisitor<Derived>")
+        self.emit("{")
+        self.emit("private:")
+        self.emit(  "Derived& self() { return static_cast<Derived&>(*this); }", 1)
+        self.emit("public:")
+        self.emit(  "std::string s, indtd;", 1)
+        self.emit(  "bool use_colors;", 1)
+        self.emit(  "bool start_line = true;", 1)
+        self.emit(  'bool last, attached;', 1)
+        self.emit(  "int indent_level = 0, indent_spaces = 2, lvl = 0;", 1)
+        self.emit("public:")
+        self.emit(  "TreeBaseVisitor() : use_colors(false), last(true), attached(false) { s.reserve(100000); }", 1)
+        self.emit(  "void inc_indent() {", 1)
+        self.emit(      "indent_level++;", 2)
+        self.emit(      'indtd += "  ";', 2)
+        self.emit(  "}", 1)
+        self.emit(  "void inc_lindent() {", 1)
+        self.emit(      "indent_level++;", 2)
+        self.emit(      'indtd += "| ";', 2)
+        self.emit(  "}", 1)        
+        self.emit(  "void dec_indent() {", 1)
+        self.emit(      "indent_level--;", 2)
+        self.emit(      "LFORTRAN_ASSERT(indent_level >= 0);", 2)
+        self.emit(      "indtd = indtd.substr(0, indent_level*indent_spaces);",2)
+        self.emit(  "}", 1)
+        self.mod = mod
+        super(TreeVisitorVisitor, self).visitModule(mod)
+        self.emit("};")
+
+    def visitType(self, tp):
+        super(TreeVisitorVisitor, self).visitType(tp, tp.name)
+
+    def visitSum(self, sum, *args):
+        assert isinstance(sum, asdl.Sum)
+        if is_simple_sum(sum):
+            name = args[0] + "Type"
+            self.make_simple_sum_visitor(name, sum.types)
+        else:
+            for tp in sum.types:
+                self.visit(tp, *args)
+
+    def visitProduct(self, prod, name):
+        self.make_visitor(name, prod.fields, False)
+
+    def visitConstructor(self, cons, _):
+        self.make_visitor(cons.name, cons.fields, True)
+
+    def make_visitor(self, name, fields, cons):
+        self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
+        self.emit(          'if(!attached) {', 2)
+        self.emit(              'if(start_line) {', 3)
+        self.emit(                  'start_line = false;', 4)
+        self.emit(                  's.append(indtd);', 4)
+        self.emit(              '} else {', 3)
+        self.emit(                  's.append("\\n"+indtd);', 4)
+        self.emit(              '}', 3)
+        self.emit(              'last ? s.append("└-") : s.append("|-");', 3)
+        self.emit(          '}', 2)
+        self.emit(          'last ? inc_indent() : inc_lindent();', 2)
+        self.emit(          'attached, last = false;', 2)
+        if cons:
+            self.emit(    'if (use_colors) {', 2)
+            self.emit(        's.append(color(style::bold));', 3)
+            self.emit(        's.append(color(fg::magenta));', 3)
+            self.emit(    '}', 2)
+            self.emit(    's.append("%s");' % name, 2)
+            self.emit(    'if (use_colors) {', 2)
+            self.emit(        's.append(color(fg::reset));', 3)
+            self.emit(        's.append(color(style::reset));', 3)
+            self.emit(    '}', 2)
+        self.used = False
+        for n, field in enumerate(fields):
+            self.visitField(field, cons, n == len(fields)-1)
+        self.emit(    'dec_indent();', 2)
+        if not self.used:
+            # Note: a better solution would be to change `&x` to `& /* x */`
+            # above, but we would need to change emit to return a string.
+            self.emit("if ((bool&)x) { } // Suppress unused warning", 2)
+        self.emit("}", 1)
+
+    def make_simple_sum_visitor(self, name, types):
+        self.emit("void visit_%s(const %s &x) {" % (name, name), 1)
+        self.emit(    'if (use_colors) {', 2)
+        self.emit(        's.append(color(style::bold));', 3)
+        self.emit(        's.append(color(fg::green));', 3)
+        self.emit(    '}', 2)
+        self.emit(    'switch (x) {', 2)
+        for tp in types:
+            self.emit(    'case (%s::%s) : {' % (name, tp.name), 3)
+            self.emit(      's.append("%s");' % (tp.name), 4)
+            self.emit(     ' break; }',3)
+        self.emit(    '}', 2)
+        self.emit(    'if (use_colors) {', 2)
+        self.emit(        's.append(color(fg::reset));', 3)
+        self.emit(        's.append(color(style::reset));', 3)
+        self.emit(    '}', 2)
+        self.emit("}", 1)
+
+    def visitField(self, field, cons, last):
+        arr = '└-' if last else '|-'
+        if (field.type not in asdl.builtin_types and
+            field.type not in self.data.simple_types):
+            self.used = True
+            level = 2
+            if field.type in products:
+                if field.opt:
+                    template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
+                else:
+                    template = "self().visit_%s(x.m_%s);" % (field.type, field.name)
+            else:
+                template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
+            if field.seq:
+                self.emit('s.append("\\n" + indtd + "%s" + "%s=\u21a7");' % (arr, field.name), level)
+                self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
+                self.emit(  'inc_indent();' if last else 'inc_lindent();', level+1)
+                self.emit(  'last = i == x.n_%s-1;' % field.name, level+1)
+                self.emit(  'attached = false;', level+1)
+                if field.type in sums:
+                    self.emit("self().visit_%s(*x.m_%s[i]);" % (field.type, field.name), level+1)
+                else:
+                    self.emit("self().visit_%s(x.m_%s[i]);" % (field.type, field.name), level+1)
+                self.emit(  'dec_indent();', level+1)      
+                self.emit("}", level)
+            elif field.opt: 
+                self.emit('s.append("\\n" + indtd + "%s" + "%s=");' % (arr, field.name), 2)
+                if last:
+                    self.emit('last, attached = true;', 2)
+                else:
+                    self.emit('attached = true;', 2)
+                self.emit("if (x.m_%s) {" % field.name, 2)
+                self.emit(template, 3)
+                self.emit("} else {", 2)
+                self.emit(    's.append("()");', 3)
+                self.emit(    'last, attached = false;', 3)
+                self.emit("}", 2)
+            else:
+                self.emit('s.append("\\n" + indtd + "%s" + "%s=");' % (arr, field.name), level)
+                if last:
+                    self.emit('last = true;', level)
+                self.emit('attached = true;', level)
+                self.emit(template, level)
+        else:
+            if field.type == "identifier":
+                if field.seq:
+                    assert not field.opt
+                    level = 2
+                    self.emit('s.append("\\n" + indtd + "%s" + "%s=");' % (arr, field.name), level)
+                    self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
+                    self.emit(  "s.append(x.m_%s[i]);" % (field.name), level+1)
+                    self.emit(  'if (i < x.n_%s-1) s.append(" ");' % (field.name), level+1)            
+                    self.emit("}", level)
+                else:
+                    if field.opt:
+                        self.emit('s.append("\\n" + indtd + "%s" + "%s=");' % (arr, field.name), 2)
+                        self.emit("if (x.m_%s) {" % field.name, 2)
+                        self.emit(    's.append(x.m_%s);' % field.name, 3)
+                        self.emit("} else {", 2)
+                        self.emit(    's.append("()");', 3)
+                        self.emit("}", 2)
+                    else:
+                        self.emit('s.append("\\n" + indtd + "%s" + "%s=");' % (arr, field.name), 2)
+                        self.emit('s.append(x.m_%s);' % field.name, 2)
+            elif field.type == "node":
+                assert not field.opt
+                assert field.seq
+                level = 2
+                self.emit('s.append("\\n" + indtd + "%s" + "%s=\u21a7");' % (arr, field.name), level)
+                self.emit('attached = false;', level)
+                self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
+                mod_name = self.mod.name.lower()
+                self.emit(  'inc_indent();' if last else 'inc_lindent();', level+1)
+                self.emit(  'last = i == x.n_%s-1;' % field.name, level+1)
+                self.emit(  'attached = false;', level+1)
+                self.emit(  "self().visit_%s(*x.m_%s[i]);" % (mod_name, field.name), level+1)
+                self.emit(  'dec_indent();', level+1)   
+                self.emit("}", level)
+            elif field.type == "symbol_table":
+                assert not field.opt
+                assert not field.seq
+                if field.name == "parent_symtab":
+                    level = 2
+                    self.emit('s.append("\\n" + indtd + "%s" + "%s=");' % (arr, field.name), level)
+                    self.emit('s.append(x.m_%s->get_counter());' % field.name, level)
+                else:
+                    level = 2
+                    self.emit('s.append("\\n" + indtd + "%s");' % arr, level)
+                    self.emit('inc_lindent();', level)
+                    self.emit('if (use_colors) {', level)
+                    self.emit(    's.append(color(fg::yellow));', level+1)
+                    self.emit('}', level)
+                    self.emit('s.append("SymbolTable");', level)
+                    self.emit('if (use_colors) {', level)
+                    self.emit(    's.append(color(fg::reset));', level+1)
+                    self.emit('}', level)
+                    self.emit(      's.append("\\n" + indtd + "|-counter=");', level)
+                    self.emit(      's.append(x.m_%s->get_counter());' % field.name, level)
+                    self.emit('size_t i = 0;', level)
+                    self.emit('s.append("\\n" + indtd + "└-scope=\u21a7");', level)
+                    self.emit('for (auto &a : x.m_%s->scope) {' % field.name, level)
+                    self.emit(      'i++;', level+1)
+                    self.emit(      'inc_indent();', level+1)
+                    self.emit(      'last = i == x.m_%s->scope.size();' % field.name, level+1)
+                    self.emit(      's.append("\\n" + indtd + (last ? "└-" : "|-") + a.first + ": ");', level+1)
+                    self.emit(      'attached = true;', level+1)
+                    self.emit(      'this->visit_symbol(*a.second);', level+1)
+                    self.emit(      'dec_indent();', level+1)
+                    self.emit('}', level)
+                    self.emit('dec_indent();', level)
+            elif field.type == "string" and not field.seq:
+                if field.opt:
+                    self.emit('s.append("\\n" + indtd + "%s" + "%s=");' % (arr, field.name), 2)
+                    self.emit("if (x.m_%s) {" % field.name, 2)
+                    self.emit(    's.append("\\"" + std::string(x.m_%s) + "\\"");' % field.name, 3)
+                    self.emit("} else {", 2)
+                    self.emit(    's.append("()");', 3)
+                    self.emit("}", 2)
+                else:
+                    self.emit('s.append("\\n" + indtd + "%s" + "%s=");' % (arr, field.name), 2)
+                    self.emit('s.append("\\"" + std::string(x.m_%s) + "\\"");' % field.name, 2)
+            elif field.type == "int" and not field.seq:
+                if field.opt:
+                    self.emit('s.append("\\n" + indtd + "%s" + "%s=");' % (arr, field.name), 2)
+                    self.emit("if (x.m_%s) {" % field.name, 2)
+                    self.emit(    's.append(std::to_string(x.m_%s));' % field.name, 3)
+                    self.emit("} else {", 2)
+                    self.emit(    's.append("()");', 3)
+                    self.emit("}", 2)
+                else:
+                    self.emit('s.append("\\n" + indtd + "%s" + "%s=");' % (arr, field.name), 2)
+                    self.emit('s.append(std::to_string(x.m_%s));' % field.name, 2)
+            elif field.type == "float" and not field.seq and not field.opt:
+                self.emit('s.append("\\n" + indtd + "%s" + "%s=");' % (arr, field.name), 2)
+                self.emit('s.append(std::to_string(x.m_%s));' % field.name, 2)
+            elif field.type == "bool" and not field.seq and not field.opt:
+                self.emit('s.append("\\n" + indtd + "%s" + "%s=");' % (arr, field.name), 2)
+                self.emit("if (x.m_%s) {" % field.name, 2)
+                self.emit(    's.append(".true.");', 3)
+                self.emit("} else {", 2)
+                self.emit(    's.append(".false.");', 3)
+                self.emit("}", 2)
+            elif field.type in self.data.simple_types:
+                if field.opt:
+                    self.emit('s.append("Unimplementedopt");', 2)
+                else:
+                    self.emit('s.append("\\n" + indtd + "%s" + "%sType=");' % (arr, field.type), 2)
+                    self.emit('visit_%sType(x.m_%s);' \
+                            % (field.type, field.name), 2)
+            else:
+                self.emit('s.append("Unimplemented' + field.type + '");', 2)
+
 
 class PickleVisitorVisitor(ASDLVisitor):
 
@@ -1257,7 +1515,6 @@ static inline T* down_cast2(const %(mod)s_t *f)
     return down_cast<T>(t);
 }
 
-
 """
 
 FOOT = r"""} // namespace LFortran::%(MOD)s
@@ -1267,7 +1524,7 @@ FOOT = r"""} // namespace LFortran::%(MOD)s
 
 visitors = [ASTNodeVisitor0, ASTNodeVisitor1, ASTNodeVisitor,
         ASTVisitorVisitor1, ASTVisitorVisitor1b, ASTVisitorVisitor2,
-        ASTWalkVisitorVisitor, PickleVisitorVisitor,
+        ASTWalkVisitorVisitor, TreeVisitorVisitor, PickleVisitorVisitor,
         SerializationVisitorVisitor, DeserializationVisitorVisitor]
 
 
