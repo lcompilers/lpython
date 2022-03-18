@@ -270,12 +270,59 @@ namespace LFortran {
             return v;
         }
 
+        // Imports the function from an already loaded ASR module
+        ASR::symbol_t* import_function2(std::string func_name, std::string module_name,
+                                       Allocator& al, ASR::TranslationUnit_t& unit,
+                                       SymbolTable*& current_scope) {
+            ASR::symbol_t *v;
+            std::string remote_sym = func_name;
+            SymbolTable* current_scope_copy = current_scope;
+            current_scope = unit.m_global_scope;
+
+            ASR::Module_t *m;
+            if (current_scope->scope.find(module_name) != current_scope->scope.end()) {
+                ASR::symbol_t *sm = current_scope->scope[module_name];
+                if (ASR::is_a<ASR::Module_t>(*sm)) {
+                    m = ASR::down_cast<ASR::Module_t>(sm);
+                } else {
+                    // The symbol `module_name` is not a module
+                    return nullptr;
+                }
+            } else {
+                // The module `module_name` is not in ASR
+                return nullptr;
+            }
+            ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
+            if (!t) return nullptr;
+            ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
+            ASR::asr_t *fn = ASR::make_ExternalSymbol_t(al, mfn->base.base.loc, current_scope,
+                                                        mfn->m_name, (ASR::symbol_t*)mfn,
+                                                        m->m_name, nullptr, 0, mfn->m_name, ASR::accessType::Private);
+            std::string sym = mfn->m_name;
+            if( current_scope->scope.find(sym) != current_scope->scope.end() ) {
+                v = current_scope->scope[sym];
+            } else {
+                current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
+                v = ASR::down_cast<ASR::symbol_t>(fn);
+            }
+            current_scope = current_scope_copy;
+            return v;
+        }
+
+
         ASR::expr_t* get_bound(ASR::expr_t* arr_expr, int dim, std::string bound,
                                 Allocator& al, ASR::TranslationUnit_t& unit,
                                 const std::string& rl_path,
                                 SymbolTable*& current_scope) {
-            ASR::symbol_t *v = import_function(bound, "lfortran_intrinsic_builtin", al,
-                                               unit, rl_path, current_scope, arr_expr->base.loc);
+            // Loads ubound/lbound from the module already in ASR
+            ASR::symbol_t *v = import_function2(bound, "lpython_builtin", al,
+                                               unit, current_scope);
+            if (!v) {
+                // If it fails, try to load from the source until we fix
+                // LFortran to preload this module
+                v = import_function(bound, "lfortran_intrinsic_builtin", al,
+                        unit, rl_path, current_scope, arr_expr->base.loc);
+            }
             ASR::ExternalSymbol_t* v_ext = ASR::down_cast<ASR::ExternalSymbol_t>(v);
             ASR::Function_t* mfn = ASR::down_cast<ASR::Function_t>(v_ext->m_external);
             Vec<ASR::expr_t*> args;
