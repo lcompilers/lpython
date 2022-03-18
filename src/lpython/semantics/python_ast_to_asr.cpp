@@ -2220,21 +2220,7 @@ public:
                                         call_name, call_name_store, x.base.base.loc);
                     current_scope->scope[call_name_store] = st;
                 }
-                ASR::symbol_t *stemp = st;
-                st = ASRUtils::symbol_get_past_external(st);
-
-                if(ASR::is_a<ASR::Function_t>(*st)) {
-                    ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(st);
-                    ASR::ttype_t *a_type = ASRUtils::expr_type(func->m_return_var);
-                    tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, stemp,
-                        nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
-                } else if(ASR::is_a<ASR::Subroutine_t>(*st)) {
-                    tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, stemp,
-                        nullptr, args.p, args.size(), nullptr);
-                } else {
-                    throw SemanticError("Unsupported call type for " + call_name,
-                        x.base.base.loc);
-                }
+                make_call_helper(al, st, current_scope, args, call_name, x.base.base.loc);
                 return;
             } else {
                 throw SemanticError("Only Name type supported in Call",
