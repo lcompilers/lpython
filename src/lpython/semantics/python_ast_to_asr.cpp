@@ -147,6 +147,21 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     symtab->scope[module_name] = (ASR::symbol_t*)mod2;
     mod2->m_symtab->parent = symtab;
     mod2->m_intrinsic = intrinsic;
+    if (intrinsic) {
+        // TODO: I think we should just store intrinsic once, in the module
+        // itself
+        // Mark each function as intrinsic also
+        for (auto &item : mod2->m_symtab->scope) {
+            if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
+                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
+                s->m_abi = ASR::abiType::Intrinsic;
+            }
+            if (ASR::is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
+                s->m_abi = ASR::abiType::Intrinsic;
+            }
+        }
+    }
 
     // and return it
     return mod2;
