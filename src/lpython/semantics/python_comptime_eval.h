@@ -97,26 +97,32 @@ struct PythonIntrinsicProcedures {
             ) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         if (args.size() != 1) {
-            throw SemanticError("Intrinsic abs function accepts exactly 1 argument", loc);
+            throw SemanticError("abs() takes exactly one argument (" +
+                std::to_string(args.size()) + " given)", loc);
         }
-        ASR::expr_t* trig_arg = args[0];
+        ASR::expr_t* arg = args[0];
         ASR::ttype_t* t = ASRUtils::expr_type(args[0]);
-        if (ASR::is_a<ASR::Real_t>(*t)) {
-            double rv = ASR::down_cast<ASR::ConstantReal_t>(trig_arg)->m_r;
+        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        ASR::ttype_t *real_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
+        if (ASRUtils::is_real(*t)) {
+            double rv = ASR::down_cast<ASR::ConstantReal_t>(arg)->m_r;
             double val = std::abs(rv);
-            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, t));
-        } else if (ASR::is_a<ASR::Integer_t>(*t)) {
-            int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(trig_arg)->m_n;
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, val, real_type));
+        } else if (ASRUtils::is_integer(*t)) {
+            int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
             int64_t val = std::abs(rv);
-            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, val, t));
-        } else if (ASR::is_a<ASR::Complex_t>(*t)) {
-            double re = ASR::down_cast<ASR::ConstantComplex_t>(trig_arg)->m_re;
-            double im = ASR::down_cast<ASR::ConstantComplex_t>(trig_arg)->m_im;
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, val, int_type));
+        } else if (ASRUtils::is_logical(*t)) {
+            int8_t val = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, loc, val, int_type));
+        } else if (ASRUtils::is_complex(*t)) {
+            double re = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_re;
+            double im = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_im;
             std::complex<double> x(re, im);
             double result = std::abs(x);
-            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, result, t));
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, result, real_type));
         } else {
-            throw SemanticError("Argument of the abs function must be Integer, Real or Complex", loc);
+            throw SemanticError("Argument of the abs function must be Integer, Real, Logical or Complex", loc);
         }
     }
 
@@ -249,15 +255,12 @@ struct PythonIntrinsicProcedures {
 
     static ASR::expr_t *eval_pow(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        ASR::expr_t* arg1 = ASRUtils::expr_value(args[0]);
-        ASR::expr_t* arg2 = ASRUtils::expr_value(args[1]);
+        ASR::expr_t* arg1 = args[0];
+        ASR::expr_t* arg2 = args[1];
         ASR::ttype_t* arg1_type = ASRUtils::expr_type(arg1);
         ASR::ttype_t* arg2_type = ASRUtils::expr_type(arg2);
         ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         ASR::ttype_t *real_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
-        if (!ASRUtils::check_equal_type(arg1_type, arg2_type)) {
-            throw SemanticError("The arguments to pow() must have the same type.", loc);
-        }
         if (ASRUtils::is_integer(*arg1_type) && ASRUtils::is_integer(*arg2_type)) {
             int64_t a = ASR::down_cast<ASR::ConstantInteger_t>(arg1)->m_n;
             int64_t b = ASR::down_cast<ASR::ConstantInteger_t>(arg2)->m_n;
@@ -271,8 +274,35 @@ struct PythonIntrinsicProcedures {
                 return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc,
                     (int64_t)pow(a, b), int_type));
 
+        } else if (ASRUtils::is_real(*arg1_type) && ASRUtils::is_real(*arg2_type)) {
+            double a = ASR::down_cast<ASR::ConstantReal_t>(arg1)->m_r;
+            double b = ASR::down_cast<ASR::ConstantReal_t>(arg2)->m_r;
+            if (a == 0.0 && b < 0.0) { // Zero Division
+                throw SemanticError("0.0 cannot be raised to a negative power.", loc);
+            }
+            return ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al, loc,
+                pow(a, b), real_type));
+
+        } else if (ASRUtils::is_integer(*arg1_type) && ASRUtils::is_real(*arg2_type)) {
+            int64_t a = ASR::down_cast<ASR::ConstantInteger_t>(arg1)->m_n;
+            double b = ASR::down_cast<ASR::ConstantReal_t>(arg2)->m_r;
+            if (a == 0 && b < 0.0) { // Zero Division
+                throw SemanticError("0.0 cannot be raised to a negative power.", loc);
+            }
+            return ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al, loc,
+                pow(a, b), real_type));
+
+        } else if (ASRUtils::is_real(*arg1_type) && ASRUtils::is_integer(*arg2_type)) {
+            double a = ASR::down_cast<ASR::ConstantReal_t>(arg1)->m_r;
+            int64_t b = ASR::down_cast<ASR::ConstantInteger_t>(arg2)->m_n;
+            if (a == 0.0 && b < 0) { // Zero Division
+                throw SemanticError("0.0 cannot be raised to a negative power.", loc);
+            }
+            return ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al, loc,
+                pow(a, b), real_type));
+
         } else {
-            throw SemanticError("The arguments to pow() must be of type integers for now.", loc);
+            throw SemanticError("The two arguments to pow() must be of type integer or float.", loc);
         }
     }
 
@@ -423,8 +453,14 @@ struct PythonIntrinsicProcedures {
             if (fabs(rv-rounded) == 0.5)
                 rounded = 2.0*round(rv/2.0);
             return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc, rounded, type));
+        } else if (ASRUtils::is_integer(*t)) {
+            int64_t rv = ASR::down_cast<ASR::ConstantInteger_t>(expr)->m_n;
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc, rv, type));
+        } else if (ASRUtils::is_logical(*t)) {
+            int64_t rv = ASR::down_cast<ASR::ConstantLogical_t>(expr)->m_value;
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc, rv, type));
         } else {
-            throw SemanticError("round() argument must be float for now, not '" +
+            throw SemanticError("round() argument must be float, integer, or logical for now, not '" +
                 ASRUtils::type_to_str(t) + "'", loc);
         }
     }

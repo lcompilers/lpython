@@ -2,11 +2,11 @@
     "basename": "asr-test_builtin_round-7417a21",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/test_builtin_round.py",
-    "infile_hash": "48e36f1b357956530982b1f1a1d91bade8f408a2fcf6eed603e5f433",
+    "infile_hash": "00896643c6bbb49cdd96978636712e8e5d7e4ab15bd3937c98bdeafd",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-test_builtin_round-7417a21.stdout",
-    "stdout_hash": "5b08aaa3d977cdbce8d65e4374c2739e1b5f9060e0eedf219909e485",
+    "stdout_hash": "a32bfd80013efddbe637187b018a43b4eed11f791f71c1481ce8985c",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
