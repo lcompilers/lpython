@@ -49,7 +49,7 @@ def test_pow():
     assert abs(pow(3.4, 9) - 60716.99276646398) < eps
     assert abs(pow(0.0, 53) - 0.0) < eps
     assert pow(4, 2) == 16
-    # assert abs(pow(-4235.0, 52) - 3.948003805985264e+188) < eps
+    assert abs(pow(-4235.0, 52) - 3.948003805985264e+188) < eps
 
 
 test_pow()
