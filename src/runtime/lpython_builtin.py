@@ -28,8 +28,10 @@ def chr(i: i32) -> str:
 #        exit(1)
 
 
-# This is an implementation for f64.
-# TODO: implement abs() as a generic procedure, and implement for all types
+#: abs() as a generic procedure.
+#: supported types for argument:
+#  i32, f32, f64, bool, c32, c64
+@overload
 def abs(x: f64) -> f64:
     """
     Return the absolute value of `x`.
@@ -38,6 +40,35 @@ def abs(x: f64) -> f64:
         return x
     else:
         return -x
+
+@overload
+def abs(x: f32) -> f32:
+    if x >= 0.0:
+        return x
+    else:
+        return -x
+
+@overload
+def abs(x: i32) -> i64:
+    if x >= 0:
+        return x
+    else:
+        return -x
+
+@overload
+def abs(b: bool) -> i32:
+    if b:
+        return 1
+    else:
+        return 0
+
+@overload
+def abs(c: c32) -> f32:
+    pass
+
+@overload
+def abs(c: c64) -> f64:
+    pass
 
 
 def str(x: i32) -> str:
