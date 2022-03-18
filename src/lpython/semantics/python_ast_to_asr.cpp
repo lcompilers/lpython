@@ -2245,7 +2245,7 @@ public:
                 x.base.base.loc);
         }
 
-        ASR::symbol_t *s = current_scope->resolve_symbol(call_name), *s_generic = nullptr;
+        ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
 
         if (!s) {
             if (intrinsic_procedures.is_intrinsic(call_name)) {
@@ -2311,14 +2311,18 @@ public:
             } // end of "comment"
         }
 
-        // handling ExternalSymbol
-        ASR::symbol_t *stemp = s;
-        s = ASRUtils::symbol_get_past_external(s);
+        make_call_helper(al, s, current_scope, args, call_name, x.base.base.loc);
+    }
 
+    void make_call_helper(Allocator &al, ASR::symbol_t* s, SymbolTable *current_scope,
+                    Vec<ASR::expr_t*> args, std::string call_name, const Location &loc) {
+        ASR::symbol_t *s_generic = nullptr, *stemp = s;
+        // handling ExternalSymbol
+        s = ASRUtils::symbol_get_past_external(s);
         if (ASR::is_a<ASR::GenericProcedure_t>(*s)) {
             s_generic = stemp;
             ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(s);
-            int idx = ASRUtils::select_generic_procedure(args, *p, x.base.base.loc,
+            int idx = ASRUtils::select_generic_procedure(args, *p, loc,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); });
             s = p->m_procs[idx];
             std::string remote_sym = ASRUtils::symbol_name(s);
@@ -2326,7 +2330,7 @@ public:
             if (ASR::is_a<ASR::ExternalSymbol_t>(*stemp)) {
                 local_sym = std::string(p->m_name) + "@" + local_sym;
             }
-            
+
             SymbolTable *symtab = current_scope;
             while (symtab->parent != nullptr && symtab->scope.find(local_sym) == symtab->scope.end()) {
                 symtab = symtab->parent;
@@ -2337,7 +2341,7 @@ public:
                 ASR::symbol_t *mt = symtab->scope[mod_name];
                 ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(mt);
                 stemp = import_from_module(al, m, symtab, mod_name,
-                                    remote_sym, local_sym, x.base.base.loc);
+                                    remote_sym, local_sym, loc);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*stemp));
                 symtab->scope[local_sym] = stemp;
                 s = ASRUtils::symbol_get_past_external(stemp);
@@ -2350,16 +2354,15 @@ public:
             ASR::ttype_t *a_type = ASRUtils::expr_type(func->m_return_var);
             ASR::expr_t *value = nullptr;
             if (ASRUtils::is_intrinsic_function2(func)) {
-                value = intrinsic_procedures.comptime_eval(call_name, al, x.base.base.loc, args);
+                value = intrinsic_procedures.comptime_eval(call_name, al, loc, args);
             }
-            tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, stemp,
+            tmp = ASR::make_FunctionCall_t(al, loc, stemp,
                 s_generic, args.p, args.size(), nullptr, 0, a_type, value, nullptr);
         } else if (ASR::is_a<ASR::Subroutine_t>(*s)) {
-            tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, stemp,
+            tmp = ASR::make_SubroutineCall_t(al, loc, stemp,
                 s_generic, args.p, args.size(), nullptr);
         } else {
-            throw SemanticError("Unsupported call type for " + call_name,
-                x.base.base.loc);
+            throw SemanticError("Unsupported call type for " + call_name, loc);
         }
     }
 
