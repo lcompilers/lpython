@@ -2300,7 +2300,7 @@ public:
         make_call_helper(al, s, current_scope, args, call_name, x.base.base.loc);
     }
 
-    // Function to create appropriate call based on symbol type. If it external
+    // Function to create appropriate call based on symbol type. If it is external
     // generic symbol then it changes the name accordingly.
     void make_call_helper(Allocator &al, ASR::symbol_t* s, SymbolTable *current_scope,
                     Vec<ASR::expr_t*> args, std::string call_name, const Location &loc) {
