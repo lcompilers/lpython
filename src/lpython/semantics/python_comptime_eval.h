@@ -255,15 +255,12 @@ struct PythonIntrinsicProcedures {
 
     static ASR::expr_t *eval_pow(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        ASR::expr_t* arg1 = ASRUtils::expr_value(args[0]);
-        ASR::expr_t* arg2 = ASRUtils::expr_value(args[1]);
+        ASR::expr_t* arg1 = args[0];
+        ASR::expr_t* arg2 = args[1];
         ASR::ttype_t* arg1_type = ASRUtils::expr_type(arg1);
         ASR::ttype_t* arg2_type = ASRUtils::expr_type(arg2);
         ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         ASR::ttype_t *real_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
-        if (!ASRUtils::check_equal_type(arg1_type, arg2_type)) {
-            throw SemanticError("The arguments to pow() must have the same type.", loc);
-        }
         if (ASRUtils::is_integer(*arg1_type) && ASRUtils::is_integer(*arg2_type)) {
             int64_t a = ASR::down_cast<ASR::ConstantInteger_t>(arg1)->m_n;
             int64_t b = ASR::down_cast<ASR::ConstantInteger_t>(arg2)->m_n;
@@ -277,8 +274,35 @@ struct PythonIntrinsicProcedures {
                 return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc,
                     (int64_t)pow(a, b), int_type));
 
+        } else if (ASRUtils::is_real(*arg1_type) && ASRUtils::is_real(*arg2_type)) {
+            double a = ASR::down_cast<ASR::ConstantReal_t>(arg1)->m_r;
+            double b = ASR::down_cast<ASR::ConstantReal_t>(arg2)->m_r;
+            if (a == 0.0 && b < 0.0) { // Zero Division
+                throw SemanticError("0.0 cannot be raised to a negative power.", loc);
+            }
+            return ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al, loc,
+                pow(a, b), real_type));
+
+        } else if (ASRUtils::is_integer(*arg1_type) && ASRUtils::is_real(*arg2_type)) {
+            int64_t a = ASR::down_cast<ASR::ConstantInteger_t>(arg1)->m_n;
+            double b = ASR::down_cast<ASR::ConstantReal_t>(arg2)->m_r;
+            if (a == 0 && b < 0.0) { // Zero Division
+                throw SemanticError("0.0 cannot be raised to a negative power.", loc);
+            }
+            return ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al, loc,
+                pow(a, b), real_type));
+
+        } else if (ASRUtils::is_real(*arg1_type) && ASRUtils::is_integer(*arg2_type)) {
+            double a = ASR::down_cast<ASR::ConstantReal_t>(arg1)->m_r;
+            int64_t b = ASR::down_cast<ASR::ConstantInteger_t>(arg2)->m_n;
+            if (a == 0.0 && b < 0) { // Zero Division
+                throw SemanticError("0.0 cannot be raised to a negative power.", loc);
+            }
+            return ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al, loc,
+                pow(a, b), real_type));
+
         } else {
-            throw SemanticError("The arguments to pow() must be of type integers for now.", loc);
+            throw SemanticError("The two arguments to pow() must be of type integer or float.", loc);
         }
     }
 

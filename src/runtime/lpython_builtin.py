@@ -30,7 +30,7 @@ def chr(i: i32) -> str:
 
 #: abs() as a generic procedure.
 #: supported types for argument:
-#  i32, f32, f64, bool, c32, c64
+#: i32, f32, f64, bool, c32, c64
 @overload
 def abs(x: f64) -> f64:
     """
@@ -146,12 +146,30 @@ def len(s: str) -> i32:
     """
     pass
 
-
-def pow(x: i32, y: i32) -> f64:
+#: pow() as a generic procedure.
+#: supported types for arguments:
+#: (i32, i32), (f64, f64), (i32, f64), (f64, i32)
+@overload
+def pow(x: i32, y: i32) -> i32:
     """
     Returns x**y.
     """
-    return 1.0*x**y
+    return x**y
+
+@overload
+def pow(x: f64, y: f64) -> f64:
+    """
+    Returns x**y.
+    """
+    return x**y
+
+@overload
+def pow(x: i32, y: f64) -> f64:
+    return x**y
+
+@overload
+def pow(x: f64, y: i32) -> f64:
+    return x**y
 
 
 def int(f: f64) -> i32:
@@ -239,7 +257,7 @@ def oct(n: i32) -> str:
 
 #: round() as a generic procedure.
 #: supported types for argument:
-#  i32, f64, bool
+#: i32, f64, bool
 @overload
 def round(value: f64) -> i32:
     """
