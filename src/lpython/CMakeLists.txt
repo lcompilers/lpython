@@ -24,7 +24,7 @@ set(SRC
 )
 if (WITH_XEUS)
     set(SRC ${SRC}
-        fortran_kernel.cpp
+#        fortran_kernel.cpp
     )
 endif()
 if (WITH_JSON)
