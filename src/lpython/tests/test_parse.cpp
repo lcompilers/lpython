@@ -6,14 +6,9 @@
 #include <string>
 
 #include <lpython/bigint.h>
-#include <lpython/ast.h>
 
 using LFortran::TRY;
 using LFortran::Result;
-using LFortran::AST::ast_t;
-using LFortran::AST::expr_t;
-using LFortran::AST::Name_t;
-using LFortran::AST::BaseWalkVisitor;
 
 using LFortran::BigInt::is_int_ptr;
 using LFortran::BigInt::ptr_to_int;
@@ -49,23 +44,6 @@ namespace doctest {
     };
 }
 
-
-class CountVisitor : public BaseWalkVisitor<CountVisitor>
-{
-    int c_;
-public:
-    CountVisitor() : c_{0} {}
-    void visit_Name(const Name_t & /* x */) { c_ += 1; }
-    int get_count() {
-        return c_;
-    }
-};
-
-int count(const ast_t &b) {
-    CountVisitor v;
-    v.visit_ast(b);
-    return v.get_count();
-}
 
 class TokenizerError0 {
 };

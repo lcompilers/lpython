@@ -3,8 +3,6 @@
 
 #include <libasr/bwriter.h>
 #include <libasr/serialization.h>
-#include <lpython/ast_serialization.h>
-#include <libasr/modfile.h>
 #include <lpython/pickle.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>

@@ -5,7 +5,6 @@
 #include <lpython/fortran_evaluator.h>
 #include <libasr/codegen/evaluator.h>
 #include <libasr/exception.h>
-#include <lpython/ast.h>
 #include <libasr/asr.h>
 #include <libasr/codegen/asr_to_llvm.h>
 #include <lpython/pickle.h>

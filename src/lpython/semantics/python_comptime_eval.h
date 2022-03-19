@@ -10,7 +10,6 @@
 #include <iterator>
 
 #include <libasr/asr.h>
-#include <lpython/ast.h>
 #include <lpython/bigint.h>
 #include <libasr/string_utils.h>
 #include <lpython/utils.h>
