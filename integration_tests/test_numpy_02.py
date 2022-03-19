@@ -84,6 +84,27 @@ def exp(b: bool) -> f64:
     else:
         return 1.0
 
+#: fabs() as a generic procedure.
+#: supported types for argument:
+#: i32, i64, f32, f64, bool
+@overload
+def fabs(n: i32) -> f64:
+    if n < 0:
+        return -1.0*n
+    return 1.0*n
+
+@overload
+def fabs(n: i64) -> f64:
+    if n < 0:
+        return -1.0*n
+    return 1.0*n
+
+@overload
+def fabs(f: f32) -> f32:
+    if f < 0.0:
+        return -f
+    return f
+
 @overload
 def fabs(f: f64) -> f64:
     if f < 0.0:
@@ -91,10 +112,8 @@ def fabs(f: f64) -> f64:
     return f
 
 @overload
-def fabs(n: i32) -> f64:
-    if n < 0:
-        return -1.0*n
-    return 1.0*n
+def fabs(b: bool) -> f64:
+    return sqrt(b)
 
 num: i32
 num = TypeVar("num")
@@ -183,6 +202,16 @@ def test_fabs():
     eps = 1e-12
     assert abs(a - 3.7) < eps
     assert abs(a2 - 3.0) < eps
+    assert abs(fabs(True) - 1.0) < eps
+
+    i: i64
+    i = -4
+    a = fabs(i)
+    assert abs(a - 4.0) < eps
+
+    f: f32
+    f = -4.0
+    assert abs(fabs(f) - 4.0) < eps
 
 def test_linspace():
     a: f64[4]
