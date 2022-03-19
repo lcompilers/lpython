@@ -10,7 +10,6 @@
 #include <lpython/parser/parser.h>
 #include <lpython/parser/preprocessor.h>
 #include <lpython/pickle.h>
-#include <lpython/semantics/ast_to_asr.h>
 #include <lpython/semantics/python_ast_to_asr.h>
 #include <lpython/mod_to_asr.h>
 #include <libasr/codegen/asr_to_llvm.h>
@@ -33,7 +32,6 @@
 #include <libasr/asr_verify.h>
 #include <libasr/modfile.h>
 #include <libasr/config.h>
-#include <lpython/fortran_kernel.h>
 #include <libasr/string_utils.h>
 #include <lpython/utils.h>
 #include <lpython/python_serialization.h>
@@ -1366,12 +1364,8 @@ int main(int argc, char *argv[])
         // }
 
         if (kernel) {
-#ifdef HAVE_LFORTRAN_XEUS
-            return LFortran::run_kernel(arg_kernel_f);
-#else
-            std::cerr << "The kernel subcommand requires LFortran to be compiled with XEUS support. Recompile with `WITH_XEUS=yes`." << std::endl;
+            std::cerr << "The kernel subcommand is not implemented yet for LPython." << std::endl;
             return 1;
-#endif
         }
 
         // if (mod) {

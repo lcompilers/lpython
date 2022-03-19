@@ -4,9 +4,6 @@ set(SRC
     parser/parser.tab.cc
     parser/parser.cpp
 
-    semantics/ast_symboltable_visitor.cpp
-    semantics/ast_body_visitor.cpp
-    semantics/ast_to_asr.cpp
     semantics/python_ast_to_asr.cpp
 
     fortran_evaluator.cpp
@@ -27,7 +24,7 @@ set(SRC
 )
 if (WITH_XEUS)
     set(SRC ${SRC}
-        fortran_kernel.cpp
+#        fortran_kernel.cpp
     )
 endif()
 if (WITH_JSON)
