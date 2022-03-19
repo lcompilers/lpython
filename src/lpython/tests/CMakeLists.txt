@@ -12,7 +12,6 @@ macro(ADDTESTC name)
     add_test(${name} ${PROJECT_BINARY_DIR}/${name})
 endmacro(ADDTESTC)
 
-ADDTESTC(test_cwrapper)
 ADDTEST(test_stacktrace)
 
 set(SRC
