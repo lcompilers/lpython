@@ -9,12 +9,10 @@
 #include <libasr/stacktrace.h>
 #include <lpython/pickle.h>
 #include <lpython/semantics/python_ast_to_asr.h>
-#include <lpython/mod_to_asr.h>
 #include <libasr/codegen/asr_to_llvm.h>
 #include <libasr/codegen/asr_to_cpp.h>
 #include <libasr/codegen/asr_to_py.h>
 #include <libasr/codegen/asr_to_x86.h>
-#include <lpython/ast_to_src.h>
 #include <lpython/fortran_evaluator.h>
 #include <libasr/codegen/evaluator.h>
 #include <libasr/pass/do_loops.h>

@@ -5,12 +5,6 @@ set(SRC
 
     pickle.cpp
     python_serialization.cpp
-    ast_serialization.cpp
-
-    ast_to_src.cpp
-    ast_to_openmp.cpp
-
-    mod_to_asr.cpp
 
     utils.cpp
 

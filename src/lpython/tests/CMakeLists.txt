@@ -16,7 +16,6 @@ ADDTEST(test_stacktrace)
 
 set(SRC
     test_parse.cpp
-    test_ast.cpp
     test_stacktrace2.cpp
     test_asm.cpp
     test_serialization.cpp

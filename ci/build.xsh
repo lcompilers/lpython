@@ -26,8 +26,6 @@ llvm-config --components
 # Generate the `version` file
 bash ci/version.sh
 
-# Generate a Fortran AST from AST.asdl (C++)
-python grammar/asdl_cpp.py
 # Generate a Fortran ASR from ASR.asdl (C++)
 python grammar/asdl_cpp.py grammar/ASR.asdl src/libasr/asr.h
 # Generate a Python AST from Python.asdl (C++)
