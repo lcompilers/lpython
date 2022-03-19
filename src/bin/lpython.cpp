@@ -7,8 +7,6 @@
 #include <bin/CLI11.hpp>
 
 #include <libasr/stacktrace.h>
-#include <lpython/parser/parser.h>
-#include <lpython/parser/preprocessor.h>
 #include <lpython/pickle.h>
 #include <lpython/semantics/python_ast_to_asr.h>
 #include <lpython/mod_to_asr.h>
@@ -35,7 +33,6 @@
 #include <libasr/string_utils.h>
 #include <lpython/utils.h>
 #include <lpython/python_serialization.h>
-#include <lpython/parser/parser.tab.hh>
 
 #include <cpp-terminal/terminal.h>
 #include <cpp-terminal/prompt0.h>
@@ -96,49 +93,6 @@ std::string get_kokkos_dir()
 #ifdef HAVE_LFORTRAN_LLVM
 
 #endif
-
-int emit_prescan(const std::string &infile, CompilerOptions &compiler_options)
-{
-    std::string input = read_file(infile);
-    LFortran::LocationManager lm;
-    lm.in_filename = infile;
-    lm.init_simple(input);
-    std::string prescan = LFortran::fix_continuation(input, lm,
-        compiler_options.fixed_form);
-    std::cout << prescan << std::endl;
-    return 0;
-}
-
-int emit_tokens(const std::string &infile, bool line_numbers, const CompilerOptions &compiler_options)
-{
-    std::string input = read_file(infile);
-    // Src -> Tokens
-    Allocator al(64*1024*1024);
-    std::vector<int> toks;
-    std::vector<LFortran::YYSTYPE> stypes;
-    std::vector<LFortran::Location> locations;
-    LFortran::diag::Diagnostics diagnostics;
-    auto res = LFortran::tokens(al, input, diagnostics, &stypes, &locations);
-    LFortran::LocationManager lm;
-    lm.in_filename = infile;
-    lm.init_simple(input);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
-    if (res.ok) {
-        toks = res.result;
-    } else {
-        LFORTRAN_ASSERT(diagnostics.has_error())
-        return 1;
-    }
-
-    for (size_t i=0; i < toks.size(); i++) {
-        std::cout << LFortran::pickle(toks[i], stypes[i]);
-        if (line_numbers) {
-            std::cout << " " << locations[i].first << ":" << locations[i].last;
-        }
-        std::cout << std::endl;
-    }
-    return 0;
-}
 
 int emit_ast(const std::string &infile,
     const std::string &runtime_library_dir,
@@ -509,8 +463,6 @@ int main(int argc, char *argv[])
         std::string arg_o;
         std::vector<std::string> arg_files;
         bool arg_version = false;
-        bool show_prescan = false;
-        bool show_tokens = false;
         bool show_ast = false;
         bool show_asr = false;
         bool show_cpp = false;
@@ -561,8 +513,6 @@ int main(int argc, char *argv[])
 
         // LPython specific options
         app.add_flag("--cpp", compiler_options.c_preprocessor, "Enable C preprocessing");
-        app.add_flag("--show-prescan", show_prescan, "Show tokens for the given file and exit");
-        app.add_flag("--show-tokens", show_tokens, "Show tokens for the given file and exit");
         app.add_flag("--show-ast", show_ast, "Show AST for the given python file and exit");
         app.add_flag("--show-asr", show_asr, "Show ASR for the given python file and exit");
         app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
@@ -703,10 +653,6 @@ int main(int argc, char *argv[])
             outfile = basename + ".s";
         } else if (arg_c) {
             outfile = basename + ".o";
-        } else if (show_prescan) {
-            outfile = basename + ".prescan";
-        } else if (show_tokens) {
-            outfile = basename + ".tokens";
         } else if (show_ast) {
             outfile = basename + ".ast";
         } else if (show_asr) {
@@ -721,12 +667,6 @@ int main(int argc, char *argv[])
         //     return emit_c_preprocessor(arg_file, compiler_options);
         // }
 
-        if (show_prescan) {
-            return emit_prescan(arg_file, compiler_options);
-        }
-        if (show_tokens) {
-            return emit_tokens(arg_file, false, compiler_options);
-        }
         std::vector<ASRPass> passes;
         if (arg_pass != "") {
             if (arg_pass == "do_loops") {
