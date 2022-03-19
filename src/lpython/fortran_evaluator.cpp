@@ -7,7 +7,6 @@
 #include <libasr/exception.h>
 #include <lpython/ast.h>
 #include <libasr/asr.h>
-#include <lpython/semantics/ast_to_asr.h>
 #include <lpython/parser/parser.h>
 #include <lpython/parser/preprocessor.h>
 #include <lpython/pickle.h>
@@ -225,7 +224,7 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr2(
 }
 
 Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr3(
-            AST::TranslationUnit_t &ast, diag::Diagnostics &diagnostics)
+            AST::TranslationUnit_t &/*ast*/, diag::Diagnostics &/*diagnostics*/)
 {
     ASR::TranslationUnit_t* asr;
     // AST -> ASR
@@ -236,15 +235,6 @@ Result<ASR::TranslationUnit_t*> FortranEvaluator::get_asr3(
         }
         symbol_table->mark_all_variables_external(al);
     }
-    auto res = ast_to_asr(al, ast, diagnostics, symbol_table,
-        compiler_options.symtab_only);
-    if (res.ok) {
-        asr = res.result;
-    } else {
-        LFORTRAN_ASSERT(diagnostics.has_error())
-        return res.error;
-    }
-    if (!symbol_table) symbol_table = asr->m_global_scope;
 
     return asr;
 }

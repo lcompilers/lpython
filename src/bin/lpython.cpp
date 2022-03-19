@@ -10,7 +10,6 @@
 #include <lpython/parser/parser.h>
 #include <lpython/parser/preprocessor.h>
 #include <lpython/pickle.h>
-#include <lpython/semantics/ast_to_asr.h>
 #include <lpython/semantics/python_ast_to_asr.h>
 #include <lpython/mod_to_asr.h>
 #include <libasr/codegen/asr_to_llvm.h>
