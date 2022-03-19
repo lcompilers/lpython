@@ -48,6 +48,15 @@ def test_hyperbolic():
     y = cosh(x)
     y = sinh(x)
     y = tanh(x)
+    a: c32
+    b: c32
+    a = complex(3, 3)
+    b = acosh(a)
+    b = asinh(a)
+    b = atanh(a)
+    b = cosh(a)
+    b = sinh(a)
+    b = tanh(a)
 
 
 test_power_logarithmic()

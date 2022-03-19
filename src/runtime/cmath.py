@@ -157,45 +157,96 @@ def tan(x: c32) -> c32:
 def _lfortran_zacosh(x: c64) -> c64:
     pass
 
+@ccall
+def _lfortran_cacosh(x: c32) -> c32:
+    pass
+
+@overload
 def acosh(x: c64) -> c64:
     return _lfortran_zacosh(x)
 
+@overload
+def acosh(x: c32) -> c32:
+    return _lfortran_cacosh(x)
 
 @ccall
 def _lfortran_zasinh(x: c64) -> c64:
     pass
 
+@ccall
+def _lfortran_casinh(x: c32) -> c32:
+    pass
+
+@overload
 def asinh(x: c64) -> c64:
     return _lfortran_zasinh(x)
 
+@overload
+def asinh(x: c32) -> c32:
+    return _lfortran_casinh(x)
 
 @ccall
 def _lfortran_zatanh(x: c64) -> c64:
     pass
 
+@ccall
+def _lfortran_catanh(x: c32) -> c32:
+    pass
+
+@overload
 def atanh(x: c64) -> c64:
     return _lfortran_zatanh(x)
+
+@overload
+def atanh(x: c32) -> c32:
+    return _lfortran_catanh(x)
 
 
 @ccall
 def _lfortran_zcosh(x: c64) -> c64:
     pass
 
+@ccall
+def _lfortran_ccosh(x: c32) -> c32:
+    pass
+
+@overload
 def cosh(x: c64) -> c64:
     return _lfortran_zcosh(x)
 
+@overload
+def cosh(x: c32) -> c32:
+    return _lfortran_ccosh(x)
 
 @ccall
 def _lfortran_zsinh(x: c64) -> c64:
     pass
 
+@ccall
+def _lfortran_csinh(x: c32) -> c32:
+    pass
+
+@overload
 def sinh(x: c64) -> c64:
     return _lfortran_zsinh(x)
+
+@overload
+def sinh(x: c32) -> c32:
+    return _lfortran_csinh(x)
 
 
 @ccall
 def _lfortran_ztanh(x: c64) -> c64:
     pass
 
+@ccall
+def _lfortran_ctanh(x: c32) -> c32:
+    pass
+
+@overload
 def tanh(x: c64) -> c64:
     return _lfortran_ztanh(x)
+
+@overload
+def tanh(x: c32) -> c32:
+    return _lfortran_ctanh(x)
