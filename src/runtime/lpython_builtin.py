@@ -282,3 +282,9 @@ def complex(x: f64, y: f64) -> c64:
 def divmod(x: i32, y: i32) -> tuple[i32, i32]:
     #: TODO: Implement once we have tuple support in the LLVM backend
     pass
+
+def lbound(x: i32[:], dim: i32) -> i32:
+    pass
+
+def ubound(x: i32[:], dim: i32) -> i32:
+    pass
