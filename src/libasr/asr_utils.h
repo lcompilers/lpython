@@ -528,6 +528,19 @@ static inline Vec<ASR::call_arg_t> get_arg_values(Allocator &al, const Vec<ASR::
     return values;
 }
 
+// Converts a vector of call_arg to a vector of expr
+// It skips missing call_args
+static inline Vec<ASR::expr_t*> call_arg2expr(Allocator &al, const Vec<ASR::call_arg_t>& call_args) {
+    Vec<ASR::expr_t*> args;
+    args.reserve(al, call_args.size());
+    for (auto &a : call_args) {
+        if (a.m_value != nullptr) {
+            args.push_back(al, a.m_value);
+        }
+    }
+    return args;
+}
+
 // Returns the TranslationUnit_t's symbol table by going via parents
 static inline SymbolTable *get_tu_symtab(SymbolTable *symtab) {
     SymbolTable *s = symtab;

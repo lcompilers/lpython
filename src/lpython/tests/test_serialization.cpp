@@ -48,31 +48,6 @@ TEST_CASE("Integer conversion") {
     CHECK(string_to_uint64(uint64_to_string(i)) == i);
 }
 
-TEST_CASE("Topological sorting int") {
-    std::map<int, std::vector<int>> deps;
-    // 1 depends on 2
-    deps[1].push_back(2);
-    // 3 depends on 1, etc.
-    deps[3].push_back(1);
-    deps[2].push_back(4);
-    deps[3].push_back(4);
-    CHECK(LFortran::ASRUtils::order_deps(deps) == std::vector<int>({4, 2, 1, 3}));
-
-    deps.clear();
-    deps[1].push_back(2);
-    deps[1].push_back(3);
-    deps[2].push_back(4);
-    deps[3].push_back(4);
-    CHECK(LFortran::ASRUtils::order_deps(deps) == std::vector<int>({4, 2, 3, 1}));
-
-    deps.clear();
-    deps[1].push_back(2);
-    deps[3].push_back(1);
-    deps[3].push_back(4);
-    deps[4].push_back(1);
-    CHECK(LFortran::ASRUtils::order_deps(deps) == std::vector<int>({2, 1, 4, 3}));
-}
-
 TEST_CASE("Topological sorting string") {
     std::map<std::string, std::vector<std::string>> deps;
     // A depends on B
