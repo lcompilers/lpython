@@ -37,6 +37,10 @@ def sqrt(n: i32) -> f64:
     return n**(1/2)
 
 @overload
+def sqrt(n: i64) -> f64:
+    return n**(1/2)
+
+@overload
 def sqrt(f: f64) -> f64:
     return f**(1/2)
 
@@ -99,14 +103,19 @@ def test_arange():
     assert a[3] == 3
 
 def test_sqrt():
+    eps: f64
+    eps = 1e-12
     a: f64
     a2: f64
     a = sqrt(2)
     a2 = sqrt(5.6)
-    eps: f64
-    eps = 1e-12
     assert abs(a - 1.4142135623730951) < eps
     assert abs(a2 - 2.3664319132398464) < eps
+
+    i: i64
+    i = 4
+    a = sqrt(i)
+    assert abs(a - 2.0) < eps
 
 def test_exp():
     a: f64
