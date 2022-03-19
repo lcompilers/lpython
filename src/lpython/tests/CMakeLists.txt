@@ -20,7 +20,6 @@ set(SRC
     test_stacktrace2.cpp
     test_asm.cpp
     test_serialization.cpp
-    test_pickle.cpp
     test_error_rendering.cpp
 )
 

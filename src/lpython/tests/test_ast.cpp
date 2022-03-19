@@ -5,7 +5,6 @@
 #include <libasr/alloc.h>
 #include <lpython/ast.h>
 #include <libasr/asr.h>
-#include <lpython/parser/parser.h>
 #include <libasr/asr_verify.h>
 
 namespace LFortran {

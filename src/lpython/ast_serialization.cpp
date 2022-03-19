@@ -2,8 +2,6 @@
 
 #include <libasr/config.h>
 #include <lpython/ast_serialization.h>
-#include <lpython/parser/parser.h>
-#include <lpython/parser/parser.tab.hh>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/bwriter.h>

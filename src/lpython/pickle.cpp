@@ -2,8 +2,7 @@
 
 #include <lpython/pickle.h>
 #include <lpython/pickle.h>
-#include <lpython/parser/parser.h>
-#include <lpython/parser/parser.tab.hh>
+#include <lpython/bigint.h>
 #include <libasr/asr_utils.h>
 #include <libasr/string_utils.h>
 
@@ -37,43 +36,6 @@ using LFortran::AST::PickleBaseVisitor;
 
 
 namespace LFortran {
-
-std::string pickle(int token, const LFortran::YYSTYPE &yystype,
-        bool /* colors */)
-{
-    std::string t;
-    t += "(";
-    if (token >= yytokentype::TK_NAME && token <= TK_FALSE) {
-        t += "TOKEN";
-    } else if (token == yytokentype::TK_NEWLINE) {
-        t += "NEWLINE";
-        t += ")";
-        return t;
-    } else if (token == yytokentype::END_OF_FILE) {
-        t += "EOF";
-        t += ")";
-        return t;
-    } else {
-        t += "KEYWORD";
-    }
-    t += " \"";
-    t += token2text(token);
-    t += "\"";
-    if (token == yytokentype::TK_NAME) {
-        t += " " + yystype.string.str();
-    } else if (token == yytokentype::TK_INTEGER) {
-        t += " " + yystype.int_suffix.int_n.str();
-        if (yystype.int_suffix.int_kind.p) {
-            t += "_" + yystype.int_suffix.int_kind.str();
-        }
-    } else if (token == yytokentype::TK_STRING) {
-        t = t + " " + "\"" + yystype.string.str() + "\"";
-    } else if (token == yytokentype::TK_BOZ_CONSTANT) {
-        t += " " + yystype.string.str();
-    }
-    t += ")";
-    return t;
-}
 
 std::string op2str(const operatorType type)
 {
