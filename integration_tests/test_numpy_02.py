@@ -32,6 +32,9 @@ def arange(n: i32) -> i64[n]:
         A[i] = i
     return A
 
+#: sqrt() as a generic procedure.
+#: supported types for argument:
+#: i32, i64, f32, f64, bool
 @overload
 def sqrt(n: i32) -> f64:
     return n**(1/2)
@@ -55,13 +58,31 @@ def sqrt(b: bool) -> f64:
     else:
         return 0.0
 
+#: exp() as a generic procedure.
+#: supported types for argument:
+#: i32, i64, f32, f64, bool
 @overload
 def exp(n: i32) -> f64:
     return e**n
 
 @overload
+def exp(n: i64) -> f64:
+    return e**n
+
+@overload
+def exp(f: f32) -> f32:
+    return e**f
+
+@overload
 def exp(f: f64) -> f64:
     return e**f
+
+@overload
+def exp(b: bool) -> f64:
+    if b:
+        return 2.719
+    else:
+        return 1.0
 
 @overload
 def fabs(f: f64) -> f64:
@@ -142,6 +163,16 @@ def test_exp():
     eps = 1e-12
     assert abs(a - 403.4287934927351) < eps
     assert abs(a2 - 270.42640742615254) < eps
+    assert abs(exp(True) - 2.719) < eps
+
+    i: i64
+    i = 4
+    a = exp(i)
+    assert abs(a - 54.598150033144236) < eps
+
+    f: f32
+    f = -4.0
+    print(exp(f))
 
 def test_fabs():
     a: f64
