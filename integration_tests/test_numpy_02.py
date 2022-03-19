@@ -1,6 +1,6 @@
 # This test handles actual LPython implementations of functions from the numpy
 # module.
-from ltypes import i32, i64, f64, TypeVar, overload
+from ltypes import i32, i64, f32, f64, TypeVar, overload
 from numpy import empty, int64
 
 e: f64 = 2.718281828459045
@@ -41,8 +41,19 @@ def sqrt(n: i64) -> f64:
     return n**(1/2)
 
 @overload
+def sqrt(f: f32) -> f32:
+    return f**(1/2)
+
+@overload
 def sqrt(f: f64) -> f64:
     return f**(1/2)
+
+@overload
+def sqrt(b: bool) -> f64:
+    if b:
+        return 1.0
+    else:
+        return 0.0
 
 @overload
 def exp(n: i32) -> f64:
@@ -111,11 +122,16 @@ def test_sqrt():
     a2 = sqrt(5.6)
     assert abs(a - 1.4142135623730951) < eps
     assert abs(a2 - 2.3664319132398464) < eps
+    assert abs(sqrt(False) - 0.0) < eps
 
     i: i64
     i = 4
     a = sqrt(i)
     assert abs(a - 2.0) < eps
+
+    f: f32
+    f = 4.0
+    assert abs(sqrt(f) - 2.0) < eps
 
 def test_exp():
     a: f64
