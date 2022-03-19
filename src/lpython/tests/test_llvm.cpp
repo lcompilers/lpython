@@ -12,7 +12,7 @@
 #include <lpython/pickle.h>
 
 using LFortran::TRY;
-using LFortran::FortranEvaluator;
+using LFortran::PythonCompiler;
 using LFortran::CompilerOptions;
 
 
