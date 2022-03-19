@@ -44,7 +44,7 @@ def _lfortran_zsqrt(x: c64) -> c64:
     pass
 
 @ccall
-def _lfortran_csqrt(x: c64) -> c64:
+def _lfortran_csqrt(x: c32) -> c32:
     pass
 
 @overload
@@ -60,48 +60,97 @@ def sqrt(x: c32) -> c32:
 def _lfortran_zacos(x: c64) -> c64:
     pass
 
+@ccall
+def _lfortran_cacos(x: c32) -> c32:
+    pass
+
+@overload
 def acos(x: c64) -> c64:
     return _lfortran_zacos(x)
 
+@overload
+def acos(x: c32) -> c32:
+    return _lfortran_cacos(x)
 
 @ccall
 def _lfortran_zasin(x: c64) -> c64:
     pass
 
+@ccall
+def _lfortran_casin(x: c32) -> c32:
+    pass
+
+@overload
 def asin(x: c64) -> c64:
     return _lfortran_zasin(x)
 
+@overload
+def asin(x: c32) -> c32:
+    return _lfortran_casin(x)
 
 @ccall
 def _lfortran_zatan(x: c64) -> c64:
     pass
 
+@ccall
+def _lfortran_catan(x: c32) -> c32:
+    pass
+
+@overload
 def atan(x: c64) -> c64:
     return _lfortran_zatan(x)
 
+@overload
+def atan(x: c32) -> c32:
+    return _lfortran_catan(x)
 
 @ccall
 def _lfortran_zcos(x: c64) -> c64:
     pass
 
+@ccall
+def _lfortran_ccos(x: c32) -> c32:
+    pass
+
+@overload
 def cos(x: c64) -> c64:
     return _lfortran_zcos(x)
 
+@overload
+def cos(x: c32) -> c32:
+    return _lfortran_ccos(x)
 
 @ccall
 def _lfortran_zsin(x: c64) -> c64:
     pass
 
+@ccall
+def _lfortran_csin(x: c32) -> c32:
+    pass
+
+@overload
 def sin(x: c64) -> c64:
     return _lfortran_zsin(x)
 
+@overload
+def sin(x: c32) -> c32:
+    return _lfortran_csin(x)
 
 @ccall
 def _lfortran_ztan(x: c64) -> c64:
     pass
 
+@ccall
+def _lfortran_ctan(x: c32) -> c32:
+    pass
+
+@overload
 def tan(x: c64) -> c64:
     return _lfortran_ztan(x)
+
+@overload
+def tan(x: c32) -> c32:
+    return _lfortran_ctan(x)
 
 
 @ccall

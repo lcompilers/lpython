@@ -27,6 +27,15 @@ def test_trigonometric():
     y = cos(x)
     y = sin(x)
     y = tan(x)
+    a: c32
+    b: c32
+    a = complex(3, 3)
+    b = acos(a)
+    b = asin(a)
+    b = atan(a)
+    b = cos(a)
+    b = sin(a)
+    b = tan(a)
 
 
 def test_hyperbolic():
