@@ -24,11 +24,6 @@ set(SRC
     test_error_rendering.cpp
 )
 
-if (WITH_JSON)
-    set(SRC ${SRC}
-        test_ast_to_json.cpp
-    )
-endif()
 if (WITH_LLVM)
     set(SRC ${SRC}
         test_llvm.cpp
