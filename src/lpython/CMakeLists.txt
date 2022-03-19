@@ -1,9 +1,4 @@
 set(SRC
-    parser/preprocessor.cpp
-    parser/tokenizer.cpp
-    parser/parser.tab.cc
-    parser/parser.cpp
-
     semantics/python_ast_to_asr.cpp
 
     fortran_evaluator.cpp
