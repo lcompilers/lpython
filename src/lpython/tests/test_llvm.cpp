@@ -7,7 +7,6 @@
 #include <libasr/exception.h>
 #include <lpython/ast.h>
 #include <libasr/asr.h>
-#include <lpython/parser/parser.h>
 #include <libasr/codegen/asr_to_llvm.h>
 #include <lpython/pickle.h>
 

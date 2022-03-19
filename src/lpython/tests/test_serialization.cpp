@@ -6,7 +6,6 @@
 #include <lpython/ast_serialization.h>
 #include <libasr/modfile.h>
 #include <lpython/pickle.h>
-#include <lpython/parser/parser.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 
@@ -49,24 +48,6 @@ TEST_CASE("Integer conversion") {
     i = 18446744073709551615LLU;
     CHECK(string_to_uint32(uint32_to_string(i)) != i);
     CHECK(string_to_uint64(uint64_to_string(i)) == i);
-}
-
-void ast_ser(const std::string &src) {
-    Allocator al(4*1024);
-
-    LFortran::AST::TranslationUnit_t* result;
-    LFortran::diag::Diagnostics diagnostics;
-    result = TRY(LFortran::parse(al, src, diagnostics));
-    std::string ast_orig = LFortran::pickle(*result);
-    std::string binary = LFortran::serialize(*result);
-
-    LFortran::AST::ast_t *ast;
-    ast = LFortran::deserialize_ast(al, binary);
-    CHECK(LFortran::AST::is_a<LFortran::AST::unit_t>(*ast));
-
-    std::string ast_new = LFortran::pickle(*ast);
-
-    CHECK(ast_orig == ast_new);
 }
 
 TEST_CASE("Topological sorting int") {

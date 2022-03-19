@@ -12,7 +12,6 @@ macro(ADDTESTC name)
     add_test(${name} ${PROJECT_BINARY_DIR}/${name})
 endmacro(ADDTESTC)
 
-ADDTESTC(test_cwrapper)
 ADDTEST(test_stacktrace)
 
 set(SRC
@@ -21,15 +20,9 @@ set(SRC
     test_stacktrace2.cpp
     test_asm.cpp
     test_serialization.cpp
-    test_pickle.cpp
     test_error_rendering.cpp
 )
 
-if (WITH_JSON)
-    set(SRC ${SRC}
-        test_ast_to_json.cpp
-    )
-endif()
 if (WITH_LLVM)
     set(SRC ${SRC}
         test_llvm.cpp

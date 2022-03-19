@@ -1,9 +1,4 @@
 set(SRC
-    parser/preprocessor.cpp
-    parser/tokenizer.cpp
-    parser/parser.tab.cc
-    parser/parser.cpp
-
     semantics/python_ast_to_asr.cpp
 
     fortran_evaluator.cpp
@@ -11,7 +6,6 @@ set(SRC
     pickle.cpp
     python_serialization.cpp
     ast_serialization.cpp
-    cwrapper.cpp
 
     ast_to_src.cpp
     ast_to_openmp.cpp
@@ -27,20 +21,12 @@ if (WITH_XEUS)
 #        fortran_kernel.cpp
     )
 endif()
-if (WITH_JSON)
-    set(SRC ${SRC}
-        ast_to_json.cpp
-    )
-endif()
 add_library(lfortran_lib ${SRC})
 target_link_libraries(lfortran_lib asr lfortran_runtime_static ZLIB::ZLIB)
 target_include_directories(lfortran_lib BEFORE PUBLIC ${lfortran_SOURCE_DIR}/src)
 target_include_directories(lfortran_lib BEFORE PUBLIC ${lfortran_BINARY_DIR}/src)
 if (WITH_XEUS)
     target_link_libraries(lfortran_lib xeus)
-endif()
-if (WITH_JSON)
-    target_link_libraries(lfortran_lib p::rapidjson)
 endif()
 if (WITH_BFD)
     target_link_libraries(lfortran_lib p::bfd)

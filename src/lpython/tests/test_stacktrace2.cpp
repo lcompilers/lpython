@@ -4,7 +4,6 @@
 #include <libasr/stacktrace.h>
 #include <lpython/pickle.h>
 #include <lpython/ast_to_src.h>
-#include <lpython/parser/parser.h>
 
 
 TEST_CASE("Address to line number"){
