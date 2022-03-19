@@ -3,7 +3,6 @@
 src/bin/lpython
 src/bin/parse
 src/bin/parse2
-src/lpython/parser/parser.output
 tests/output
 src/lpython/tests/test_asm
 src/lpython/tests/test_ast
@@ -55,17 +54,6 @@ _CPack_Packages
 version
 lpython/ast/ast.py
 lpython/asr/asr.py
-lpython/parser/fortran.tokens
-lpython/parser/fortran.interp
-lpython/parser/fortranLexer.py
-lpython/parser/fortranLexer.tokens
-lpython/parser/fortranLexer.interp
-lpython/parser/fortranParser.py
-lpython/parser/fortranVisitor.py
-src/lpython/parser/parser.tab.cc
-src/lpython/parser/parser.tab.hh
-src/lpython/parser/tokenizer.cpp
-src/lpython/parser/preprocessor.cpp
 src/lpython/ast.h
 src/lpython/asr.h
 src/libasr/asr.h
