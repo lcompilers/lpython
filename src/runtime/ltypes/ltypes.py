@@ -4,7 +4,7 @@ import ctypes
 import platform
 from typing import TypeVar
 
-__slots__ = ["i32", "i64", "f32", "f64", "c32", "c64",
+__slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64",
         "overload", "ccall", "TypeVar"]
 
 # data-types
@@ -21,6 +21,8 @@ class Array:
         self._type = type
         self._dims = dims
 
+i8 = Type("i8")
+i16 = Type("i16")
 i32 = Type("i32")
 i64 = Type("i64")
 f32 = Type("f32")
