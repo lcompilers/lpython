@@ -1847,19 +1847,26 @@ public:
             }
             if (ASR::is_a<ASR::Variable_t>(*t)) {
                 ASR::Variable_t *var = ASR::down_cast<ASR::Variable_t>(t);
-                LFORTRAN_ASSERT(var->m_value);
-                if (ASR::is_a<ASR::ConstantComplex_t>(*var->m_value)) {
+                // LFORTRAN_ASSERT(var->m_value);
+                if (ASRUtils::is_complex(*var->m_type)) {
                     std::string attr = x.m_attr;
                     if (attr == "imag") {
-                        double val = ASR::down_cast<ASR::ConstantComplex_t>(var->m_value)->m_im;
-                        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
-                                8, nullptr, 0));
-                        tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, val, type);
+                        ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, x.base.base.loc, t));
+                        ASR::symbol_t *fn_imag = resolve_intrinsic_function(x.base.base.loc, "imag");
+                        Vec<ASR::expr_t*> args;
+                        args.reserve(al, 1);
+                        args.push_back(al, val);
+                        make_call_helper(al, fn_imag, current_scope, args, "imag", x.base.base.loc);
+                        return;
                     } else if (attr == "real") {
-                        double val = ASR::down_cast<ASR::ConstantComplex_t>(var->m_value)->m_re;
-                        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
-                                8, nullptr, 0));
-                        tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, val, type);
+                        ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, x.base.base.loc, t));
+                        int kind = ASRUtils::extract_kind_from_ttype_t(var->m_type);
+                        ASR::ttype_t *dest_type = ASR::down_cast<ASR::ttype_t>(ASR::make_Real_t(al, x.base.base.loc,
+                                                        kind, nullptr, 0));
+                        tmp = (ASR::asr_t*)ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                            al, val->base.loc, val, ASR::cast_kindType::ComplexToReal, dest_type,
+                            nullptr));
+                        return;
                     } else {
                         throw SemanticError("'" + attr + "' is not implemented for Complex type",
                             x.base.base.loc);
