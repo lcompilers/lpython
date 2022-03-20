@@ -11,6 +11,7 @@ tests = [
     "expr_03.py",
     "expr_04.py",
     "expr_05.py",
+    "test_types_01.py",
     "test_str_01.py",
     "test_str_02.py",
     "modules_01.py",
@@ -32,7 +33,7 @@ tests = [
     "test_math_02.py",
     "test_c_interop_01.py",
     "test_generics_01.py",
-    "test_cmath.py"
+    "test_cmath.py",
 ]
 
 # CPython tests only
@@ -40,7 +41,6 @@ test_cpython = [
     "test_builtin_bin.py",
     "test_builtin_hex.py",
     "test_builtin_oct.py",
-    "test_types_01.py",
 ]
 
 CUR_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
