@@ -49,7 +49,7 @@ namespace LFortran {
 
         /*
         * Abstract class which defines the interface
-        * to be followed by any subclass intending 
+        * to be followed by any subclass intending
         * to implement a specific array descriptor.
         */
         class Descriptor {
@@ -75,7 +75,7 @@ namespace LFortran {
 
                 /*
                 * Checks whether the given llvm::Value* is an
-                * array and follows the same structure as 
+                * array and follows the same structure as
                 * the current descriptor.
                 */
                 virtual
@@ -99,7 +99,7 @@ namespace LFortran {
                     std::uint32_t, std::string,
                     std::unordered_map
                     <std::uint32_t, std::unordered_map
-                                    <std::string, llvm::Type*>>& 
+                                    <std::string, llvm::Type*>>&
                                     arr_arg_type_cache) = 0;
 
                 /*
@@ -111,8 +111,7 @@ namespace LFortran {
                 virtual
                 llvm::Type* get_array_type(
                     ASR::ttype_t* m_type_, int a_kind,
-                    int rank, ASR::dimension_t* m_dims,
-                    llvm::Type* el_type,
+                    int rank, llvm::Type* el_type,
                     bool get_pointer=false) = 0;
 
                 /*
@@ -132,7 +131,7 @@ namespace LFortran {
                 * of a dimension's information.
                 */
                 virtual
-                llvm::ArrayType* create_dimension_descriptor_array_type(int rank) = 0;
+                llvm::Type* create_dimension_descriptor_array_type() = 0;
 
                 /*
                 * Fills the elements of the input array descriptor
@@ -140,7 +139,7 @@ namespace LFortran {
                 */
                 virtual
                 void fill_array_details(
-                    llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims, 
+                    llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims,
                     std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims) = 0;
 
                 /*
@@ -153,19 +152,16 @@ namespace LFortran {
                     std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims,
                     llvm::Module* module) = 0;
 
+                virtual
+                void fill_dimension_descriptor(
+                    llvm::Value* arr, int n_dims) = 0;
+
                 /*
                 * Returns the llvm::Type* associated with the
                 * dimension descriptor used by the current class.
                 */
                 virtual
                 llvm::Type* get_dimension_descriptor_type(bool get_pointer=false) = 0;
-
-                /*
-                * Checks if the input dimension descriptor is the 
-                * same as used by the current class.
-                */
-                virtual
-                bool is_matching_dimension_descriptor(llvm::ArrayType* des, int rank) = 0;
 
                 /*
                 * Returns pointer to data in the input
@@ -215,9 +211,12 @@ namespace LFortran {
                 virtual
                 llvm::Value* get_dimension_size(llvm::Value* dim_des_arr,
                     llvm::Value* dim) = 0;
-                
+
+                virtual
+                llvm::Value* get_rank(llvm::Value* arr, bool get_pointer=false) = 0;
+
                 /*
-                * Returns pointer to dimension descriptor array 
+                * Returns pointer to dimension descriptor array
                 * in the input array descriptor according to the rules
                 * implemented by current class.
                 */
@@ -225,23 +224,23 @@ namespace LFortran {
                 llvm::Value* get_pointer_to_dimension_descriptor_array(llvm::Value* arr) = 0;
 
                 /*
-                * Returns pointer to the dimension descriptor 
-                * in the input dimension descriptor array according 
+                * Returns pointer to the dimension descriptor
+                * in the input dimension descriptor array according
                 * to the rules implemented by current class.
                 */
                 virtual
-                llvm::Value* get_pointer_to_dimension_descriptor(llvm::Value* dim_des_arr, 
+                llvm::Value* get_pointer_to_dimension_descriptor(llvm::Value* dim_des_arr,
                     llvm::Value* dim) = 0;
 
                 /*
-                * Returns the indexed element 
-                * in the input dimension descriptor array according 
+                * Returns the indexed element
+                * in the input dimension descriptor array according
                 * to the rules implemented by current class.
                 */
                 virtual
                 llvm::Value* get_single_element(llvm::Value* array,
                     std::vector<llvm::Value*>& m_args, int n_args) = 0;
-                
+
                 virtual
                 llvm::Value* get_is_allocated_flag(llvm::Value* array) = 0;
 
@@ -259,14 +258,11 @@ namespace LFortran {
                 llvm::IRBuilder<>* builder;
 
                 llvm::StructType* dim_des;
-                std::map<int, llvm::ArrayType*> rank2desc;
 
-                std::map<std::pair<std::pair<int, int>, std::pair<int, int>>, llvm::StructType*> tkr2array;
-
-                std::map<std::pair<std::pair<int, int>, int>, llvm::StructType*> tkr2mallocarray;
+                std::map<std::pair<std::pair<int, int>, int>, llvm::StructType*> tkr2array;
 
                 llvm::Value* cmo_convertor_single_element(
-                    llvm::Value* arr, std::vector<llvm::Value*>& m_args, 
+                    llvm::Value* arr, std::vector<llvm::Value*>& m_args,
                     int n_args, bool check_for_bounds);
 
             public:
@@ -274,7 +270,7 @@ namespace LFortran {
                 SimpleCMODescriptor(llvm::LLVMContext& _context,
                     llvm::IRBuilder<>* _builder,
                     LLVMUtils* _llvm_utils);
-                
+
                 virtual
                 bool is_array(llvm::Value* tmp);
 
@@ -287,14 +283,13 @@ namespace LFortran {
                     std::uint32_t m_h, std::string arg_name,
                     std::unordered_map
                     <std::uint32_t, std::unordered_map
-                                    <std::string, llvm::Type*>>& 
+                                    <std::string, llvm::Type*>>&
                         arr_arg_type_cache);
 
                 virtual
                 llvm::Type* get_array_type(
                     ASR::ttype_t* m_type_, int a_kind,
-                    int rank, ASR::dimension_t* m_dims,
-                    llvm::Type* el_type,
+                    int rank, llvm::Type* el_type,
                     bool get_pointer=false);
 
                 virtual
@@ -304,11 +299,11 @@ namespace LFortran {
                     bool get_pointer=false);
 
                 virtual
-                llvm::ArrayType* create_dimension_descriptor_array_type(int rank);
+                llvm::Type* create_dimension_descriptor_array_type();
 
                 virtual
                 void fill_array_details(
-                    llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims, 
+                    llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims,
                     std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims);
 
                 virtual
@@ -318,13 +313,17 @@ namespace LFortran {
                     llvm::Module* module);
 
                 virtual
+                void fill_dimension_descriptor(
+                    llvm::Value* arr, int n_dims);
+
+                virtual
                 llvm::Type* get_dimension_descriptor_type(bool get_pointer=false);
 
                 virtual
-                bool is_matching_dimension_descriptor(llvm::ArrayType* des, int rank);
+                llvm::Value* get_pointer_to_data(llvm::Value* arr);
 
                 virtual
-                llvm::Value* get_pointer_to_data(llvm::Value* arr);
+                llvm::Value* get_rank(llvm::Value* arr, bool get_pointer=false);
 
                 virtual
                 llvm::Value* get_offset(llvm::Value* dim_des);
@@ -338,12 +337,12 @@ namespace LFortran {
                 virtual
                 llvm::Value* get_dimension_size(llvm::Value* dim_des_arr,
                     llvm::Value* dim);
-                
+
                 virtual
                 llvm::Value* get_pointer_to_dimension_descriptor_array(llvm::Value* arr);
 
                 virtual
-                llvm::Value* get_pointer_to_dimension_descriptor(llvm::Value* dim_des_arr, 
+                llvm::Value* get_pointer_to_dimension_descriptor(llvm::Value* dim_des_arr,
                     llvm::Value* dim);
 
                 virtual
@@ -352,7 +351,7 @@ namespace LFortran {
                 virtual
                 llvm::Value* get_single_element(llvm::Value* array,
                     std::vector<llvm::Value*>& m_args, int n_args);
-                
+
                 virtual
                 llvm::Value* get_is_allocated_flag(llvm::Value* array);
 
