@@ -3334,6 +3334,14 @@ public:
                         tmp = builder->CreateSExt(tmp, llvm::Type::getInt64Ty(context));
                     } else if( arg_kind == 8 && dest_kind == 4 ) {
                         tmp = builder->CreateTrunc(tmp, llvm::Type::getInt32Ty(context));
+                    } else if( arg_kind == 2 && dest_kind == 4 ) {
+                        tmp = builder->CreateSExt(tmp, llvm::Type::getInt32Ty(context));
+                    } else if( arg_kind == 4 && dest_kind == 2 ) {
+                        tmp = builder->CreateTrunc(tmp, llvm::Type::getInt16Ty(context));
+                    } else if( arg_kind == 1 && dest_kind == 4 ) {
+                        tmp = builder->CreateSExt(tmp, llvm::Type::getInt32Ty(context));
+                    } else if( arg_kind == 4 && dest_kind == 1 ) {
+                        tmp = builder->CreateTrunc(tmp, llvm::Type::getInt8Ty(context));
                     } else {
                         std::string msg = "Conversion from " + std::to_string(arg_kind) +
                                           " to " + std::to_string(dest_kind) + " not implemented yet.";
