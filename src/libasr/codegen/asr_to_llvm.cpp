@@ -1321,7 +1321,7 @@ public:
                                     is_malloc_array_type = true;
                                     type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type);
                                 } else {
-                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type);
+                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, el_type);
                                 }
                             } else {
                                 type = getIntType(a_kind);
@@ -1341,7 +1341,7 @@ public:
                                     is_malloc_array_type = true;
                                     type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type);
                                 } else {
-                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type);
+                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, el_type);
                                 }
                             } else {
                                 type = getFPType(a_kind);
@@ -1361,7 +1361,7 @@ public:
                                     is_malloc_array_type = true;
                                     type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type);
                                 } else {
-                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type);
+                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, el_type);
                                 }
                             } else {
                                 type = getComplexType(a_kind);
@@ -1381,7 +1381,7 @@ public:
                                     is_malloc_array_type = true;
                                     type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type);
                                 } else {
-                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type);
+                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, el_type);
                                 }
                             } else {
                                 type = character_type;
@@ -1401,7 +1401,7 @@ public:
                                     is_malloc_array_type = true;
                                     type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type);
                                 } else {
-                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type);
+                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, el_type);
                                 }
                             } else {
                                 type = llvm::Type::getInt1Ty(context);
@@ -1420,7 +1420,7 @@ public:
                                     is_malloc_array_type = true;
                                     type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type);
                                 } else {
-                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type);
+                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, el_type);
                                 }
                             } else {
                                 type = getDerivedType(m_type_, false);
@@ -1506,6 +1506,9 @@ public:
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(type, nullptr, v->m_name);
                     llvm_symtab[h] = ptr;
+                    if( is_malloc_array_type ) {
+                        arr_descr->fill_dimension_descriptor(ptr, n_dims);
+                    }
                     if( is_array_type && !is_malloc_array_type ) {
                         fill_array_details(ptr, m_dims, n_dims);
                     }
@@ -1574,14 +1577,12 @@ public:
                 llvm::Type *type;
                 ASR::ttype_t* m_type_;
                 int n_dims = 0, a_kind = 4;
-                ASR::dimension_t* m_dims = nullptr;
                 bool is_array_type = false;
                 ASR::Variable_t* v = arg;
                 switch (arg->m_type->type) {
                     case (ASR::ttypeType::Integer) : {
                         ASR::Integer_t* v_type = down_cast<ASR::Integer_t>(arg->m_type);
                         m_type_ = arg->m_type;
-                        m_dims = v_type->m_dims;
                         n_dims = v_type->n_dims;
                         a_kind = v_type->m_kind;
                         if( n_dims > 0 ) {
@@ -1594,7 +1595,7 @@ public:
                                 if( v->m_storage == ASR::storage_typeType::Allocatable ) {
                                     type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type, true);
                                 } else {
-                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type, true);
+                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, el_type, true);
                                 }
                             }
                         } else {
@@ -1613,7 +1614,6 @@ public:
                             case (ASR::ttypeType::Integer) : {
                                 ASR::Integer_t* v_type = down_cast<ASR::Integer_t>(t2);
                                 m_type_ = arg->m_type;
-                                m_dims = v_type->m_dims;
                                 n_dims = v_type->n_dims;
                                 a_kind = v_type->m_kind;
                                 type = getIntType(a_kind, true);
@@ -1627,7 +1627,6 @@ public:
                     case (ASR::ttypeType::Real) : {
                         ASR::Real_t* v_type = down_cast<ASR::Real_t>(arg->m_type);
                         m_type_ = arg->m_type;
-                        m_dims = v_type->m_dims;
                         n_dims = v_type->n_dims;
                         a_kind = v_type->m_kind;
                         if( n_dims > 0 ) {
@@ -1640,7 +1639,7 @@ public:
                                 if( v->m_storage == ASR::storage_typeType::Allocatable ) {
                                     type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type, true);
                                 } else {
-                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type, true);
+                                    type = arr_descr->get_array_type(m_type_, a_kind, n_dims, el_type, true);
                                 }
                             }
                         } else {
@@ -1656,7 +1655,6 @@ public:
                     case (ASR::ttypeType::Complex) : {
                         ASR::Complex_t* v_type = down_cast<ASR::Complex_t>(arg->m_type);
                         m_type_ = arg->m_type;
-                        m_dims = v_type->m_dims;
                         n_dims = v_type->n_dims;
                         a_kind = v_type->m_kind;
                         if( n_dims > 0 ) {
@@ -1665,7 +1663,7 @@ public:
                             if( v->m_storage == ASR::storage_typeType::Allocatable ) {
                                 type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type, true);
                             } else {
-                                type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type, true);
+                                type = arr_descr->get_array_type(m_type_, a_kind, n_dims, el_type, true);
                             }
                         } else {
                             if (arg->m_abi == ASR::abiType::BindC
@@ -1710,7 +1708,6 @@ public:
                     case (ASR::ttypeType::Logical) : {
                         ASR::Logical_t* v_type = down_cast<ASR::Logical_t>(arg->m_type);
                         m_type_ = arg->m_type;
-                        m_dims = v_type->m_dims;
                         n_dims = v_type->n_dims;
                         a_kind = v_type->m_kind;
                         if( n_dims > 0 ) {
@@ -1719,7 +1716,7 @@ public:
                             if( v->m_storage == ASR::storage_typeType::Allocatable ) {
                                 type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type, true);
                             } else {
-                                type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type, true);
+                                type = arr_descr->get_array_type(m_type_, a_kind, n_dims, el_type, true);
                             }
                         } else {
                             type = llvm::Type::getInt1PtrTy(context);
@@ -1729,7 +1726,6 @@ public:
                     case (ASR::ttypeType::Derived) : {
                         ASR::Derived_t* v_type = down_cast<ASR::Derived_t>(arg->m_type);
                         m_type_ = arg->m_type;
-                        m_dims = v_type->m_dims;
                         n_dims = v_type->n_dims;
                         if( n_dims > 0 ) {
                             is_array_type = true;
@@ -1737,7 +1733,7 @@ public:
                             if( v->m_storage == ASR::storage_typeType::Allocatable ) {
                                 type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type, true);
                             } else {
-                                type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type, true);
+                                type = arr_descr->get_array_type(m_type_, a_kind, n_dims, el_type, true);
                             }
                         } else {
                             type = getDerivedType(arg->m_type, true);
@@ -1747,7 +1743,6 @@ public:
                     case (ASR::ttypeType::Class) : {
                         ASR::Class_t* v_type = down_cast<ASR::Class_t>(arg->m_type);
                         m_type_ = arg->m_type;
-                        m_dims = v_type->m_dims;
                         n_dims = v_type->n_dims;
                         if( n_dims > 0 ) {
                             is_array_type = true;
@@ -1755,7 +1750,7 @@ public:
                             if( v->m_storage == ASR::storage_typeType::Allocatable ) {
                                 type = arr_descr->get_malloc_array_type(m_type_, a_kind, n_dims, el_type, true);
                             } else {
-                                type = arr_descr->get_array_type(m_type_, a_kind, n_dims, m_dims, el_type, true);
+                                type = arr_descr->get_array_type(m_type_, a_kind, n_dims, el_type, true);
                             }
                         } else {
                             type = getClassType(arg->m_type, true);
@@ -2478,7 +2473,7 @@ public:
             if( arr_descr->is_array(target) ) {
                 if( asr_target->m_type->type ==
                     ASR::ttypeType::Character ) {
-                    target = arr_descr->get_pointer_to_data(target);
+                    target = builder->CreateLoad(arr_descr->get_pointer_to_data(target));
                 }
             }
         }
@@ -3612,14 +3607,11 @@ public:
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 tmp = llvm_symtab[h];
                 llvm::Value* arg_struct = builder->CreateAlloca(fname2arg_type["size"].first, nullptr);
-                llvm::Value* first_ele_ptr = llvm_utils->create_gep(
-                    arr_descr->get_pointer_to_dimension_descriptor_array(tmp), 0);
+                llvm::Value* first_ele_ptr = arr_descr->get_pointer_to_dimension_descriptor_array(tmp);
                 llvm::Value* first_arg_ptr = llvm_utils->create_gep(arg_struct, 0);
                 builder->CreateStore(first_ele_ptr, first_arg_ptr);
                 llvm::Value* rank_ptr = llvm_utils->create_gep(arg_struct, 1);
-                llvm::StructType* tmp_type = (llvm::StructType*)(((llvm::PointerType*)(tmp->getType()))->getElementType());
-                int rank = ((llvm::ArrayType*)(tmp_type->getElementType(2)))->getNumElements();
-                builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, rank)), rank_ptr);
+                builder->CreateStore(arr_descr->get_rank(tmp), rank_ptr);
                 tmp = arg_struct;
                 args.push_back(tmp);
                 llvm::Value* dim = builder->CreateAlloca(getIntType(4));
@@ -3631,8 +3623,7 @@ public:
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 tmp = llvm_symtab[h];
                 llvm::Value* arg1 = builder->CreateAlloca(fname2arg_type[name].first, nullptr);
-                llvm::Value* first_ele_ptr = llvm_utils->create_gep(
-                    arr_descr->get_pointer_to_dimension_descriptor_array(tmp), 0);
+                llvm::Value* first_ele_ptr = arr_descr->get_pointer_to_dimension_descriptor_array(tmp);
                 llvm::Value* first_arg_ptr = arg1;
                 builder->CreateStore(first_ele_ptr, first_arg_ptr);
                 args.push_back(arg1);
@@ -3680,7 +3671,7 @@ public:
                                 tmp = arr_descr->convert_to_argument(tmp, new_arr_type);
                             } else if ( x_abi == ASR::abiType::BindC ) {
                                 if( arr_descr->is_array(tmp) ) {
-                                    tmp = arr_descr->get_pointer_to_data(tmp);
+                                    tmp = builder->CreateLoad(arr_descr->get_pointer_to_data(tmp));
                                     llvm::PointerType* tmp_type = static_cast<llvm::PointerType*>(tmp->getType());
                                     if( tmp_type->getElementType()->isArrayTy() ) {
                                         tmp = llvm_utils->create_gep(tmp, 0);
