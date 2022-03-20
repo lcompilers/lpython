@@ -472,7 +472,8 @@ class TreeVisitorVisitor(ASDLVisitor):
         self.emit(              'last ? s.append("└-") : s.append("|-");', 3)
         self.emit(          '}', 2)
         self.emit(          'last ? inc_indent() : inc_lindent();', 2)
-        self.emit(          'attached, last = false;', 2)
+        self.emit(          'attached = true;', 2)
+        self.emit(          'last = false;', 2)
         if cons:
             self.emit(    'if (use_colors) {', 2)
             self.emit(        's.append(color(style::bold));', 3)
@@ -539,14 +540,16 @@ class TreeVisitorVisitor(ASDLVisitor):
             elif field.opt: 
                 self.emit('s.append("\\n" + indtd + "%s" + "%s=");' % (arr, field.name), 2)
                 if last:
-                    self.emit('last, attached = true;', 2)
-                else:
-                    self.emit('attached = true;', 2)
+                    self.emit('last = true;', 2)
+                    #self.emit('attached = true;', 2)
+                #else:
+                    #self.emit('attached = true;', 2)
                 self.emit("if (x.m_%s) {" % field.name, 2)
                 self.emit(template, 3)
                 self.emit("} else {", 2)
                 self.emit(    's.append("()");', 3)
-                self.emit(    'last, attached = false;', 3)
+                self.emit(    'last = false;', 2)
+                self.emit(    'attached = false;', 2)
                 self.emit("}", 2)
             else:
                 self.emit('s.append("\\n" + indtd + "%s" + "%s=");' % (arr, field.name), level)
@@ -616,7 +619,7 @@ class TreeVisitorVisitor(ASDLVisitor):
                     self.emit(      'inc_indent();', level+1)
                     self.emit(      'last = i == x.m_%s->scope.size();' % field.name, level+1)
                     self.emit(      's.append("\\n" + indtd + (last ? "└-" : "|-") + a.first + ": ");', level+1)
-                    self.emit(      'attached = true;', level+1)
+                    # self.emit(      'attached = true;', level+1)
                     self.emit(      'this->visit_symbol(*a.second);', level+1)
                     self.emit(      'dec_indent();', level+1)
                     self.emit('}', level)
@@ -1553,7 +1556,7 @@ def main(argv):
     if subs["MOD"] == "PYTHON":
         subs["MOD"] = "Python::AST"
         subs["mod"] = "ast"
-    fp = open(out_file, "w")
+    fp = open(out_file, "w", encoding="utf-8")
     try:
         fp.write(HEAD % subs)
         for visitor in visitors:
