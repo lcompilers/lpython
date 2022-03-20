@@ -288,3 +288,11 @@ def lbound(x: i32[:], dim: i32) -> i32:
 
 def ubound(x: i32[:], dim: i32) -> i32:
     pass
+
+
+@overload
+def imag(x: c64) -> f64:
+    pass
+
+@overload
+def imag(x: c32) -> f32:
