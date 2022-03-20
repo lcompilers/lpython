@@ -394,7 +394,13 @@ public:
         }
 
         ASR::ttype_t *type;
-        if (var_annotation == "i32") {
+        if (var_annotation == "i8") {
+            type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                1, dims.p, dims.size()));
+        } else if (var_annotation == "i16") {
+            type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                2, dims.p, dims.size()));
+        } else if (var_annotation == "i32") {
             type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
                 4, dims.p, dims.size()));
         } else if (var_annotation == "i64") {
