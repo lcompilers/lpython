@@ -34,6 +34,10 @@ set(SRC
     pass/pass_utils.cpp
     pass/unused_functions.cpp
     pass/flip_sign.cpp
+    pass/div_to_mul.cpp
+    pass/fma.cpp
+    pass/sign_from_value.cpp
+    pass/inline_function_calls.cpp
 
     asr_verify.cpp
     asr_utils.cpp

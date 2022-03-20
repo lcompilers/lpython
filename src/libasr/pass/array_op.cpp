@@ -63,9 +63,7 @@ nodes are implemented and more are yet to be implemented with time.
 class ArrayOpVisitor : public PassUtils::PassVisitor<ArrayOpVisitor>
 {
 private:
-    Allocator &al;
     ASR::TranslationUnit_t &unit;
-    Vec<ASR::stmt_t*> array_op_result;
 
     /*
         This pointer stores the result of a node.
@@ -97,22 +95,15 @@ private:
     */
     int result_var_num;
 
-    /*
-        It stores the address of symbol table of current scope,
-        which can be program, function, subroutine or even
-        global scope.
-    */
-    SymbolTable* current_scope;
-
     std::string rl_path;
 
 public:
-    ArrayOpVisitor(Allocator &al, ASR::TranslationUnit_t &unit,
-        const std::string &rl_path) : al{al}, unit{unit},
-    tmp_val{nullptr}, result_var{nullptr}, use_custom_loop_params{false},
-    result_var_num{0}, current_scope{nullptr}, rl_path{rl_path}
+    ArrayOpVisitor(Allocator &al, ASR::TranslationUnit_t &unit_,
+        const std::string &rl_path) : PassVisitor(al, nullptr), unit(unit_),
+    tmp_val(nullptr), result_var(nullptr), use_custom_loop_params(false),
+    result_var_num(0), rl_path(rl_path)
     {
-        array_op_result.reserve(al, 1);
+        pass_result.reserve(al, 1);
         result_lbound.reserve(al, 1);
         result_ubound.reserve(al, 1);
         result_inc.reserve(al, 1);
@@ -179,15 +170,15 @@ public:
     }
 
     void visit_Program(const ASR::Program_t &x) {
-        std::vector<std::pair<std::string, ASR::symbol_t*>> replace_vec;
+        std::vector<std::pair<std::string, ASR::symbol_t*> > replace_vec;
         // Transform nested functions and subroutines
         for (auto &item : x.m_symtab->scope) {
             if (is_a<ASR::Subroutine_t>(*item.second)) {
-                ASR::Subroutine_t *s = down_cast<ASR::Subroutine_t>(item.second);
+                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
             }
             if (is_a<ASR::Function_t>(*item.second)) {
-                ASR::Function_t *s = down_cast<ASR::Function_t>(item.second);
+                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
                 /*
                 * A function which returns an array will be converted
@@ -199,7 +190,7 @@ public:
                     for( auto& s_item: s->m_symtab->scope ) {
                         ASR::symbol_t* curr_sym = s_item.second;
                         if( curr_sym->type == ASR::symbolType::Variable ) {
-                            ASR::Variable_t* var = down_cast<ASR::Variable_t>(curr_sym);
+                            ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(curr_sym);
                             if( var->m_intent == ASR::intentType::Unspecified ) {
                                 var->m_intent = ASR::intentType::In;
                             } else if( var->m_intent == ASR::intentType::ReturnVar ) {
@@ -213,6 +204,7 @@ public:
                         a_args.push_back(al, s->m_args[i]);
                     }
                     a_args.push_back(al, s->m_return_var);
+
                     ASR::asr_t* s_sub_asr = ASR::make_Subroutine_t(al, s->base.base.loc, s->m_symtab,
                                                     s->m_name, a_args.p, a_args.size(), s->m_body, s->n_body,
                                                     s->m_abi, s->m_access, s->m_deftype, nullptr, false, false);
@@ -232,24 +224,8 @@ public:
         for( auto& item: replace_vec ) {
             current_scope->scope[item.first] = item.second;
         }
-        transform_stmts(xx.m_body, xx.n_body, al, array_op_result);
+        transform_stmts(xx.m_body, xx.n_body);
 
-    }
-
-    void visit_Subroutine(const ASR::Subroutine_t &x) {
-        // FIXME: this is a hack, we need to pass in a non-const `x`,
-        // which requires to generate a TransformVisitor.
-        ASR::Subroutine_t &xx = const_cast<ASR::Subroutine_t&>(x);
-        current_scope = xx.m_symtab;
-        transform_stmts(xx.m_body, xx.n_body, al, array_op_result);
-    }
-
-    void visit_Function(const ASR::Function_t &x) {
-        // FIXME: this is a hack, we need to pass in a non-const `x`,
-        // which requires to generate a TransformVisitor.
-        ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
-        current_scope = xx.m_symtab;
-        transform_stmts(xx.m_body, xx.n_body, al, array_op_result);
     }
 
     void visit_Assignment(const ASR::Assignment_t& x) {
@@ -399,7 +375,7 @@ public:
                 }
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
-            array_op_result.push_back(al, doloop);
+            pass_result.push_back(al, doloop);
             tmp_val = result_var;
         } else {
             tmp_val = const_cast<ASR::expr_t*>(&(x.base));
@@ -439,7 +415,7 @@ public:
                 }
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
-            array_op_result.push_back(al, doloop);
+            pass_result.push_back(al, doloop);
             tmp_val = nullptr;
         }
     }
@@ -491,7 +467,7 @@ public:
                 }
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
-            array_op_result.push_back(al, doloop);
+            pass_result.push_back(al, doloop);
         }
     }
 
@@ -588,8 +564,8 @@ public:
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
             ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[0], const_1, nullptr));
-            array_op_result.push_back(al, set_to_one);
-            array_op_result.push_back(al, doloop);
+            pass_result.push_back(al, set_to_one);
+            pass_result.push_back(al, doloop);
         } else if( (rank_left == 0 && rank_right > 0) ||
                    (rank_right == 0 && rank_left > 0) ) {
             result_var = result_var_copy;
@@ -669,8 +645,8 @@ public:
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
             ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[0], const_1, nullptr));
-            array_op_result.push_back(al, set_to_one);
-            array_op_result.push_back(al, doloop);
+            pass_result.push_back(al, set_to_one);
+            pass_result.push_back(al, doloop);
         }
     }
 
@@ -704,20 +680,24 @@ public:
             ASR::symbol_t *sub = current_scope->resolve_symbol(x_name);
             if (sub && ASR::is_a<ASR::Subroutine_t>(*sub)) {
                 if( result_var == nullptr ) {
-                    result_var = create_var(result_var_num, "_func_call_res", x.base.base.loc, x.m_args[x.n_args - 1]);
+                    result_var = create_var(result_var_num, "_func_call_res",
+                        x.base.base.loc, x.m_args[x.n_args - 1].m_value);
                     result_var_num += 1;
                 }
-                Vec<ASR::expr_t*> s_args;
+                Vec<ASR::call_arg_t> s_args;
                 s_args.reserve(al, x.n_args + 1);
                 for( size_t i = 0; i < x.n_args; i++ ) {
                     s_args.push_back(al, x.m_args[i]);
                 }
-                s_args.push_back(al, result_var);
+                ASR::call_arg_t result_arg;
+                result_arg.loc = result_var->base.loc;
+                result_arg.m_value = result_var;
+                s_args.push_back(al, result_arg);
                 tmp_val = result_var;
                 ASR::stmt_t* subrout_call = LFortran::ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc,
                                                     sub, nullptr,
                                                     s_args.p, s_args.size(), nullptr));
-                array_op_result.push_back(al, subrout_call);
+                pass_result.push_back(al, subrout_call);
             }
         }
         result_var = nullptr;

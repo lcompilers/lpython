@@ -481,14 +481,14 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         if (sym_info[get_hash((ASR::asr_t*)fn)].intrinsic_function) {
             if (fn_name == "size") {
                 LFORTRAN_ASSERT(x.n_args > 0);
-                visit_expr(*x.m_args[0]);
+                visit_expr(*x.m_args[0].m_value);
                 std::string var_name = src;
                 std::string args;
                 if (x.n_args == 1) {
                     args = "0";
                 } else {
                     for (size_t i=1; i<x.n_args; i++) {
-                        visit_expr(*x.m_args[i]);
+                        visit_expr(*x.m_args[i].m_value);
                         args += src + "-1";
                         if (i < x.n_args-1) args += ", ";
                     }
@@ -496,15 +496,15 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 src = var_name + ".extent(" + args + ")";
             } else if (fn_name == "int") {
                 LFORTRAN_ASSERT(x.n_args > 0);
-                visit_expr(*x.m_args[0]);
+                visit_expr(*x.m_args[0].m_value);
                 src = "(int)" + src;
             } else if (fn_name == "not") {
                 LFORTRAN_ASSERT(x.n_args > 0);
-                visit_expr(*x.m_args[0]);
+                visit_expr(*x.m_args[0].m_value);
                 src = "!(" + src + ")";
             } else if (fn_name == "len") {
                 LFORTRAN_ASSERT(x.n_args > 0);
-                visit_expr(*x.m_args[0]);
+                visit_expr(*x.m_args[0].m_value);
                 src = "(" + src + ").size()";
             } else {
                 throw CodeGenError("Intrinsic function '" + fn_name
@@ -513,7 +513,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         } else {
             std::string args;
             for (size_t i=0; i<x.n_args; i++) {
-                visit_expr(*x.m_args[i]);
+                visit_expr(*x.m_args[i].m_value);
                 args += src;
                 if (i < x.n_args-1) args += ", ";
             }
@@ -1140,12 +1140,12 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             LFortran::ASRUtils::symbol_get_past_external(x.m_name));
         std::string out = indent + s->m_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
-            if (x.m_args[i]->type == ASR::exprType::Var) {
-                ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
+            if (ASR::is_a<ASR::Var_t>(*x.m_args[i].m_value)) {
+                ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i].m_value);
                 std::string arg_name = arg->m_name;
                 out += arg_name;
             } else {
-                this->visit_expr(*x.m_args[i]);
+                this->visit_expr(*x.m_args[i].m_value);
                 out += src;
             }
             if (i < x.n_args-1) out += ", ";

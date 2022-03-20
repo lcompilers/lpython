@@ -73,16 +73,21 @@ struct PythonIntrinsicProcedures {
     }
 
     // Evaluates the intrinsic function `name` at compile time
-    ASR::expr_t *comptime_eval(std::string name, Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) const {
+    ASR::expr_t *comptime_eval(std::string name, Allocator &al, const Location &loc, Vec<ASR::call_arg_t> &args) const {
         auto search = comptime_eval_map.find(name);
         if (search != comptime_eval_map.end()) {
             comptime_eval_callback cb = std::get<1>(search->second);
-            Vec<ASR::expr_t*> arg_values = ASRUtils::get_arg_values(al, args);
+            Vec<ASR::call_arg_t> arg_values = ASRUtils::get_arg_values(al, args);
             if (arg_values.size() != args.size()) {
                 // Not all arguments have compile time values; we do not call the callback
                 return nullptr;
             }
-            return cb(al, loc, arg_values);
+            Vec<ASR::expr_t*> expr_args;
+            expr_args.reserve(al, arg_values.size());
+            for( auto& a: arg_values ) {
+                expr_args.push_back(al, a.m_value);
+            }
+            return cb(al, loc, expr_args);
         } else {
             throw SemanticError("Intrinsic function '" + name
                 + "' compile time evaluation is not implemented yet",

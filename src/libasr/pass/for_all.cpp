@@ -39,7 +39,7 @@ public:
         Vec<ASR::stmt_t*> result;
         result.reserve(al, 1);
         result.push_back(al, stmt);
-        stmts = result;
+        pass_result = result;
     }
 };
 

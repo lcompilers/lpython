@@ -2199,17 +2199,21 @@ public:
                 throw SemanticError("Only Name supported in Call",
                     x.base.base.loc);
             }
-            Vec<ASR::expr_t*> args;
+            Vec<ASR::call_arg_t> args;
             args.reserve(al, c->n_args);
             for (size_t i=0; i<c->n_args; i++) {
                 visit_expr(*c->m_args[i]);
                 ASR::expr_t *expr = ASRUtils::EXPR(tmp);
-                args.push_back(al, expr);
+                ASR::call_arg_t arg;
+                arg.loc = c->m_args[i]->base.loc;
+                arg.m_value = expr;
+                args.push_back(al, arg);
             }
             if (call_name == "print") {
                 ASR::expr_t *fmt=nullptr;
+                Vec<ASR::expr_t*> args_expr = ASRUtils::call_arg2expr(al, args);
                 tmp = ASR::make_Print_t(al, x.base.base.loc, fmt,
-                    args.p, args.size());
+                    args_expr.p, args_expr.size());
                 return;
 
             } else if (call_name == "quit") {
@@ -2217,7 +2221,7 @@ public:
                 if (args.size() == 0) {
                     code = nullptr;
                 } else if (args.size() == 1) {
-                    code = args[0];
+                    code = args[0].m_value;
                 } else {
                     throw SemanticError("The function quit() requires 0 or 1 arguments",
                         x.base.base.loc);
@@ -2241,12 +2245,15 @@ public:
 
     void visit_Call(const AST::Call_t &x) {
         std::string call_name;
-        Vec<ASR::expr_t*> args;
+        Vec<ASR::call_arg_t> args;
         args.reserve(al, x.n_args);
         for (size_t i=0; i<x.n_args; i++) {
             visit_expr(*x.m_args[i]);
             ASR::expr_t *expr = ASRUtils::EXPR(tmp);
-            args.push_back(al, expr);
+            ASR::call_arg_t arg;
+            arg.loc = expr->base.loc;
+            arg.m_value = expr;
+            args.push_back(al, arg);
         }
         if (AST::is_a<AST::Name_t>(*x.m_func)) {
             AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
@@ -2334,7 +2341,7 @@ public:
                 }
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
                                     1, nullptr, 0));
-                ASR::expr_t *arg = args[0];
+                ASR::expr_t *arg = args[0].m_value;
                 bool result = false;
                 if (ASR::is_a<ASR::Var_t>(*arg)) {
                     ASR::symbol_t *t = ASR::down_cast<ASR::Var_t>(arg)->m_v;
@@ -2357,7 +2364,7 @@ public:
     // Function to create appropriate call based on symbol type. If it is external
     // generic symbol then it changes the name accordingly.
     void make_call_helper(Allocator &al, ASR::symbol_t* s, SymbolTable *current_scope,
-                    Vec<ASR::expr_t*> args, std::string call_name, const Location &loc) {
+                    Vec<ASR::call_arg_t> args, std::string call_name, const Location &loc) {
         ASR::symbol_t *s_generic = nullptr, *stemp = s;
         // handling ExternalSymbol
         s = ASRUtils::symbol_get_past_external(s);
@@ -2399,7 +2406,7 @@ public:
                 value = intrinsic_procedures.comptime_eval(call_name, al, loc, args);
             }
             tmp = ASR::make_FunctionCall_t(al, loc, stemp,
-                s_generic, args.p, args.size(), nullptr, 0, a_type, value, nullptr);
+                s_generic, args.p, args.size(), a_type, value, nullptr);
         } else if (ASR::is_a<ASR::Subroutine_t>(*s)) {
             tmp = ASR::make_SubroutineCall_t(al, loc, stemp,
                 s_generic, args.p, args.size(), nullptr);
