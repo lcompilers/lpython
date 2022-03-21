@@ -4,7 +4,6 @@
 #include <sstream>
 
 #include <libasr/diagnostics.h>
-#include <lpython/parser/parser.h>
 
 namespace {
 

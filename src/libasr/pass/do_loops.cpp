@@ -37,44 +37,56 @@ Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop) {
     ASR::expr_t *a=loop.m_head.m_start;
     ASR::expr_t *b=loop.m_head.m_end;
     ASR::expr_t *c=loop.m_head.m_increment;
-    LFORTRAN_ASSERT(a);
-    LFORTRAN_ASSERT(b);
-    if (!c) {
+    ASR::expr_t *cond = nullptr;
+    ASR::stmt_t *inc_stmt = nullptr;
+    ASR::stmt_t *stmt1 = nullptr;
+    if( !a && !b && !c ) {
+        ASR::ttype_t *cond_type = LFortran::ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0));
+        cond = LFortran::ASRUtils::EXPR(ASR::make_ConstantLogical_t(al, loc, true, cond_type));
+    } else {
+        LFORTRAN_ASSERT(a);
+        LFORTRAN_ASSERT(b);
+        if (!c) {
+            ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+            c = LFortran::ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, loc, 1, type));
+        }
+        LFORTRAN_ASSERT(c);
+        int increment;
+        if (c->type == ASR::exprType::ConstantInteger) {
+            increment = down_cast<ASR::ConstantInteger_t>(c)->m_n;
+        } else if (c->type == ASR::exprType::UnaryOp) {
+            ASR::UnaryOp_t *u = down_cast<ASR::UnaryOp_t>(c);
+            LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
+            LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::ConstantInteger);
+            increment = - down_cast<ASR::ConstantInteger_t>(u->m_operand)->m_n;
+        } else {
+            throw LFortranException("Do loop increment type not supported");
+        }
+        ASR::cmpopType cmp_op;
+        if (increment > 0) {
+            cmp_op = ASR::cmpopType::LtE;
+        } else {
+            cmp_op = ASR::cmpopType::GtE;
+        }
+        ASR::expr_t *target = loop.m_head.m_v;
         ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-        c = LFortran::ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, loc, 1, type));
-    }
-    LFORTRAN_ASSERT(c);
-    int increment;
-    if (c->type == ASR::exprType::ConstantInteger) {
-        increment = down_cast<ASR::ConstantInteger_t>(c)->m_n;
-    } else if (c->type == ASR::exprType::UnaryOp) {
-        ASR::UnaryOp_t *u = down_cast<ASR::UnaryOp_t>(c);
-        LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
-        LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::ConstantInteger);
-        increment = - down_cast<ASR::ConstantInteger_t>(u->m_operand)->m_n;
-    } else {
-        throw LFortranException("Do loop increment type not supported");
-    }
-    ASR::cmpopType cmp_op;
-    if (increment > 0) {
-        cmp_op = ASR::cmpopType::LtE;
-    } else {
-        cmp_op = ASR::cmpopType::GtE;
-    }
-    ASR::expr_t *target = loop.m_head.m_v;
-    ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-    ASR::stmt_t *stmt1 = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target,
-        LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, a, ASR::binopType::Sub, c, type, nullptr, nullptr)),
-        nullptr));
+        stmt1 = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target,
+            LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, a, ASR::binopType::Sub, c, type, nullptr, nullptr)),
+            nullptr));
 
-    ASR::expr_t *cond = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc,
-        LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, target, ASR::binopType::Add, c, type, nullptr, nullptr)),
-        cmp_op, b, type, nullptr, nullptr));
+        cond = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc,
+            LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, target, ASR::binopType::Add, c, type, nullptr, nullptr)),
+            cmp_op, b, type, nullptr, nullptr));
+
+        inc_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target,
+                    LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, target, ASR::binopType::Add, c, type, nullptr, nullptr)),
+                nullptr));
+    }
     Vec<ASR::stmt_t*> body;
-    body.reserve(al, loop.n_body+1);
-    body.push_back(al, LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target,
-        LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, target, ASR::binopType::Add, c, type, nullptr, nullptr)),
-    nullptr)));
+    body.reserve(al, loop.n_body + (inc_stmt != nullptr));
+    if( inc_stmt ) {
+        body.push_back(al, inc_stmt);
+    }
     for (size_t i=0; i<loop.n_body; i++) {
         body.push_back(al, loop.m_body[i]);
     }
@@ -82,7 +94,9 @@ Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop) {
         body.p, body.size()));
     Vec<ASR::stmt_t*> result;
     result.reserve(al, 2);
-    result.push_back(al, stmt1);
+    if( stmt1 ) {
+        result.push_back(al, stmt1);
+    }
     result.push_back(al, stmt2);
 
     /*
@@ -104,7 +118,7 @@ public:
     }
 
     void visit_DoLoop(const ASR::DoLoop_t &x) {
-        stmts = replace_doloop(al, x);
+        pass_result = replace_doloop(al, x);
     }
 };
 

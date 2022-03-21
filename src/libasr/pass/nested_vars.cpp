@@ -4,7 +4,6 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/pass/nested_vars.h>
-#include <libasr/pass/pass_utils.h>
 #include <llvm/IR/Verifier.h>
 #include <unordered_map>
 
@@ -27,7 +26,7 @@ uint64_t static get_hash(ASR::asr_t *node)
     return (uint64_t)node;
 }
 
-class NestedVarVisitor : public PassUtils::PassVisitor<NestedVarVisitor>
+class NestedVarVisitor : public ASR::BaseWalkVisitor<NestedVarVisitor>
 {
 private:
     size_t nesting_depth = 0;

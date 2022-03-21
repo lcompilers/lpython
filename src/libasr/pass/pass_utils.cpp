@@ -221,19 +221,24 @@ namespace LFortran {
                                             rl_path, false,
                                             [&](const std::string &msg, const Location &) { throw LFortranException(msg); }
                                             );
-
             ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
-            ASR::asr_t *fn = ASR::make_ExternalSymbol_t(al, t->base.loc, current_scope,
-                                                        s2c(al, remote_sym), t,
-                                                        s2c(al, module_name), nullptr, 0, s2c(al, remote_sym),
-                                                        ASR::accessType::Private);
-            std::string& sym = remote_sym;
+
+            std::string sym = remote_sym;
             if( current_scope->scope.find(sym) != current_scope->scope.end() ) {
                 v = current_scope->scope[sym];
-            } else {
-                current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
-                v = ASR::down_cast<ASR::symbol_t>(fn);
+                if( !ASRUtils::is_intrinsic_optimization<ASR::symbol_t>(v) ) {
+                    sym += "@IntrinsicOptimization";
+                } else {
+                    current_scope = current_scope_copy;
+                    return v;
+                }
             }
+            ASR::asr_t *fn = ASR::make_ExternalSymbol_t(al, t->base.loc, current_scope,
+                                                        s2c(al, sym), t,
+                                                        s2c(al, module_name), nullptr, 0, s2c(al, remote_sym),
+                                                        ASR::accessType::Private);
+            current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
+            v = ASR::down_cast<ASR::symbol_t>(fn);
             current_scope = current_scope_copy;
             return v;
         }
@@ -270,23 +275,73 @@ namespace LFortran {
             return v;
         }
 
+        // Imports the function from an already loaded ASR module
+        ASR::symbol_t* import_function2(std::string func_name, std::string module_name,
+                                       Allocator& al, ASR::TranslationUnit_t& unit,
+                                       SymbolTable*& current_scope) {
+            ASR::symbol_t *v;
+            std::string remote_sym = func_name;
+            SymbolTable* current_scope_copy = current_scope;
+            SymbolTable* current_scope2 = unit.m_global_scope;
+
+            ASR::Module_t *m;
+            if (current_scope2->scope.find(module_name) != current_scope2->scope.end()) {
+                ASR::symbol_t *sm = current_scope2->scope[module_name];
+                if (ASR::is_a<ASR::Module_t>(*sm)) {
+                    m = ASR::down_cast<ASR::Module_t>(sm);
+                } else {
+                    // The symbol `module_name` is not a module
+                    return nullptr;
+                }
+            } else {
+                // The module `module_name` is not in ASR
+                return nullptr;
+            }
+            ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
+            if (!t) return nullptr;
+            ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
+            ASR::asr_t *fn = ASR::make_ExternalSymbol_t(al, mfn->base.base.loc, current_scope2,
+                                                        mfn->m_name, (ASR::symbol_t*)mfn,
+                                                        m->m_name, nullptr, 0, mfn->m_name, ASR::accessType::Private);
+            std::string sym = mfn->m_name;
+            if( current_scope2->scope.find(sym) != current_scope2->scope.end() ) {
+                v = current_scope2->scope[sym];
+            } else {
+                current_scope2->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
+                v = ASR::down_cast<ASR::symbol_t>(fn);
+            }
+            current_scope2 = current_scope_copy;
+            return v;
+        }
+
+
         ASR::expr_t* get_bound(ASR::expr_t* arr_expr, int dim, std::string bound,
                                 Allocator& al, ASR::TranslationUnit_t& unit,
                                 const std::string& rl_path,
                                 SymbolTable*& current_scope) {
-            ASR::symbol_t *v = import_function(bound, "lfortran_intrinsic_builtin", al,
-                                               unit, rl_path, current_scope, arr_expr->base.loc);
+            // Loads ubound/lbound from the module already in ASR
+            ASR::symbol_t *v = import_function2(bound, "lpython_builtin", al,
+                                               unit, current_scope);
+            if (!v) {
+                // If it fails, try to load from the source until we fix
+                // LFortran to preload this module
+                v = import_function(bound, "lfortran_intrinsic_builtin", al,
+                        unit, rl_path, current_scope, arr_expr->base.loc);
+            }
             ASR::ExternalSymbol_t* v_ext = ASR::down_cast<ASR::ExternalSymbol_t>(v);
             ASR::Function_t* mfn = ASR::down_cast<ASR::Function_t>(v_ext->m_external);
-            Vec<ASR::expr_t*> args;
+            Vec<ASR::call_arg_t> args;
             args.reserve(al, 2);
-            args.push_back(al, arr_expr);
+            ASR::call_arg_t arg0, arg1;
+            arg0.loc = arr_expr->base.loc, arg0.m_value = arr_expr;
+            args.push_back(al, arg0);
             ASR::expr_t* const_1 = LFortran::ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, arr_expr->base.loc, dim, LFortran::ASRUtils::expr_type(mfn->m_args[1])));
-            args.push_back(al, const_1);
+            arg1.loc = const_1->base.loc, arg1.m_value = const_1;
+            args.push_back(al, arg1);
             ASR::ttype_t *type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(
                                         LFortran::ASRUtils::symbol_get_past_external(v))->m_return_var)->m_type;
             return LFortran::ASRUtils::EXPR(ASR::make_FunctionCall_t(al, arr_expr->base.loc, v, nullptr,
-                                                args.p, args.size(), nullptr, 0, type, nullptr, nullptr));
+                                                args.p, args.size(), type, nullptr, nullptr));
         }
 
 
@@ -297,10 +352,13 @@ namespace LFortran {
                               const std::function<void (const std::string &, const Location &)> err) {
             ASR::symbol_t *v = import_generic_procedure("flipsign", "lfortran_intrinsic_optimization",
                                                         al, unit, rl_path, current_scope, arg0->base.loc);
-            Vec<ASR::expr_t*> args;
+            Vec<ASR::call_arg_t> args;
             args.reserve(al, 2);
-            args.push_back(al, arg0);
-            args.push_back(al, arg1);
+            ASR::call_arg_t arg0_, arg1_;
+            arg0_.loc = arg0->base.loc, arg0_.m_value = arg0;
+            args.push_back(al, arg0_);
+            arg1_.loc = arg1->base.loc, arg1_.m_value = arg1;
+            args.push_back(al, arg1_);
             return ASRUtils::STMT(
                     ASRUtils::symbol_resolve_external_generic_procedure_without_eval(
                         arg0->base.loc, v, args, current_scope, al,
@@ -349,6 +407,75 @@ namespace LFortran {
             }
             ASR::ArrayRef_t* array_ref = ASR::down_cast<ASR::ArrayRef_t>(x);
             return is_slice_present(*array_ref);
+        }
+
+        ASR::expr_t* create_auxiliary_variable_for_expr(ASR::expr_t* expr, std::string& name,
+            Allocator& al, SymbolTable*& current_scope, ASR::stmt_t*& assign_stmt) {
+            ASR::asr_t* expr_sym = ASR::make_Variable_t(al, expr->base.loc, current_scope, s2c(al, name),
+                                                    ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
+                                                    ASRUtils::expr_type(expr), ASR::abiType::Source, ASR::accessType::Public,
+                                                    ASR::presenceType::Required, false);
+            if( current_scope->scope.find(name) == current_scope->scope.end() ) {
+                current_scope->scope[name] = ASR::down_cast<ASR::symbol_t>(expr_sym);
+            } else {
+                throw LFortranException("Symbol with " + name + " is already present in " + std::to_string(current_scope->counter));
+            }
+            ASR::expr_t* var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, expr->base.loc, ASR::down_cast<ASR::symbol_t>(expr_sym)));
+            assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, var->base.loc, var, expr, nullptr));
+            return var;
+        }
+
+        ASR::expr_t* create_auxiliary_variable(Location& loc, std::string& name,
+            Allocator& al, SymbolTable*& current_scope, ASR::ttype_t* var_type) {
+            ASR::asr_t* expr_sym = ASR::make_Variable_t(al, loc, current_scope, s2c(al, name),
+                                                    ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
+                                                    var_type, ASR::abiType::Source, ASR::accessType::Public,
+                                                    ASR::presenceType::Required, false);
+            if( current_scope->scope.find(name) == current_scope->scope.end() ) {
+                current_scope->scope[name] = ASR::down_cast<ASR::symbol_t>(expr_sym);
+            } else {
+                throw LFortranException("Symbol with " + name + " is already present in " + std::to_string(current_scope->counter));
+            }
+            ASR::expr_t* var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(expr_sym)));
+            return var;
+        }
+
+        ASR::expr_t* get_fma(ASR::expr_t* arg0, ASR::expr_t* arg1, ASR::expr_t* arg2,
+            Allocator& al, ASR::TranslationUnit_t& unit, std::string& rl_path,
+            SymbolTable*& current_scope, Location& loc,
+            const std::function<void (const std::string &, const Location &)> err) {
+            ASR::symbol_t *v = import_generic_procedure("fma", "lfortran_intrinsic_optimization",
+                                                        al, unit, rl_path, current_scope, arg0->base.loc);
+            Vec<ASR::call_arg_t> args;
+            args.reserve(al, 3);
+            ASR::call_arg_t arg0_, arg1_, arg2_;
+            arg0_.loc = arg0->base.loc, arg0_.m_value = arg0;
+            args.push_back(al, arg0_);
+            arg1_.loc = arg1->base.loc, arg1_.m_value = arg1;
+            args.push_back(al, arg1_);
+            arg2_.loc = arg2->base.loc, arg2_.m_value = arg2;
+            args.push_back(al, arg2_);
+            return ASRUtils::EXPR(
+                        ASRUtils::symbol_resolve_external_generic_procedure_without_eval(
+                        loc, v, args, current_scope, al, err));
+        }
+
+        ASR::expr_t* get_sign_from_value(ASR::expr_t* arg0, ASR::expr_t* arg1,
+            Allocator& al, ASR::TranslationUnit_t& unit, std::string& rl_path,
+            SymbolTable*& current_scope, Location& loc,
+            const std::function<void (const std::string &, const Location &)> err) {
+            ASR::symbol_t *v = import_generic_procedure("sign_from_value", "lfortran_intrinsic_optimization",
+                                                        al, unit, rl_path, current_scope, arg0->base.loc);
+            Vec<ASR::call_arg_t> args;
+            args.reserve(al, 2);
+            ASR::call_arg_t arg0_, arg1_;
+            arg0_.loc = arg0->base.loc, arg0_.m_value = arg0;
+            args.push_back(al, arg0_);
+            arg1_.loc = arg1->base.loc, arg1_.m_value = arg1;
+            args.push_back(al, arg1_);
+            return ASRUtils::EXPR(
+                        ASRUtils::symbol_resolve_external_generic_procedure_without_eval(
+                        loc, v, args, current_scope, al, err));
         }
 
     }

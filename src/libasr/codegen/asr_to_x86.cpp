@@ -528,8 +528,8 @@ public:
                 Sym &s = x86_symtab[h];
                 pass_as_pointer = s.pointer;
             }
-            if (x.m_args[i]->type == ASR::exprType::Var) {
-                ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
+            if (x.m_args[i].m_value->type == ASR::exprType::Var) {
+                ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i].m_value);
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
                 Sym s = x86_symtab[h];
@@ -565,7 +565,7 @@ public:
                 }
             } else {
                 LFORTRAN_ASSERT(!pass_as_pointer);
-                this->visit_expr(*x.m_args[i]);
+                this->visit_expr(*(x.m_args[i].m_value));
                 // The value of the argument is in eax, push it onto the stack
                 m_a.asm_push_r32(X86Reg::eax);
             }

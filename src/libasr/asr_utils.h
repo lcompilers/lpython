@@ -2,6 +2,7 @@
 #define LFORTRAN_ASR_UTILS_H
 
 #include <functional>
+#include <map>
 
 #include <libasr/assert.h>
 #include <libasr/asr.h>
@@ -389,6 +390,21 @@ static inline bool is_intrinsic_function2(const ASR::Function_t *fn) {
     return false;
 }
 
+// Returns true if the Function is intrinsic, otherwise false
+template <typename T>
+static inline bool is_intrinsic_optimization(const T *routine) {
+    ASR::symbol_t *sym = (ASR::symbol_t*)routine;
+    if( ASR::is_a<ASR::ExternalSymbol_t>(*sym) ) {
+        ASR::ExternalSymbol_t* ext_sym = ASR::down_cast<ASR::ExternalSymbol_t>(sym);
+        return (std::string(ext_sym->m_module_name).find("lfortran_intrinsic_optimization") != std::string::npos);
+    }
+    ASR::Module_t *m = get_sym_module0(sym);
+    if (m != nullptr) {
+        return (std::string(m->m_name).find("lfortran_intrinsic_optimization") != std::string::npos);
+    }
+    return false;
+}
+
 // Returns true if all arguments have a `value`
 static inline bool all_args_have_value(const Vec<ASR::expr_t*> &args) {
     for (auto &a : args) {
@@ -412,6 +428,26 @@ static inline bool is_value_constant(ASR::expr_t *a_value) {
         // OK
     } else if (ASR::is_a<ASR::ConstantString_t>(*a_value)) {
         // OK
+    } else {
+        return false;
+    }
+    return true;
+}
+
+template <typename T>
+static inline bool is_value_constant(ASR::expr_t *a_value, T& const_value) {
+    if( a_value == nullptr ) {
+        return false;
+    }
+    if (ASR::is_a<ASR::ConstantInteger_t>(*a_value)) {
+        ASR::ConstantInteger_t* const_int = ASR::down_cast<ASR::ConstantInteger_t>(a_value);
+        const_value = const_int->m_n;
+    } else if (ASR::is_a<ASR::ConstantReal_t>(*a_value)) {
+        ASR::ConstantReal_t* const_real = ASR::down_cast<ASR::ConstantReal_t>(a_value);
+        const_value = const_real->m_r;
+    } else if (ASR::is_a<ASR::ConstantLogical_t>(*a_value)) {
+        ASR::ConstantLogical_t* const_logical = ASR::down_cast<ASR::ConstantLogical_t>(a_value);
+        const_value = const_logical->m_value;
     } else {
         return false;
     }
@@ -460,16 +496,49 @@ static inline bool all_args_evaluated(const Vec<ASR::array_index_t> &args) {
     return true;
 }
 
+template <typename T>
+static inline bool extract_value(ASR::expr_t* value_expr, T& value) {
+    if( !is_value_constant(value_expr) ) {
+        return false;
+    }
+
+    switch( value_expr->type ) {
+        case ASR::exprType::ConstantReal: {
+            ASR::ConstantReal_t* const_real = ASR::down_cast<ASR::ConstantReal_t>(value_expr);
+            value = (T) const_real->m_r;
+            break;
+        }
+        default:
+            return false;
+    }
+    return true;
+}
+
 // Returns a list of values
-static inline Vec<ASR::expr_t*> get_arg_values(Allocator &al, const Vec<ASR::expr_t*> &args) {
-    Vec<ASR::expr_t*> values;
+static inline Vec<ASR::call_arg_t> get_arg_values(Allocator &al, const Vec<ASR::call_arg_t>& args) {
+    Vec<ASR::call_arg_t> values;
     values.reserve(al, args.size());
     for (auto &a : args) {
-        ASR::expr_t *v = expr_value(a);
+        ASR::expr_t *v = expr_value(a.m_value);
         if (v == nullptr) return values;
-        values.push_back(al, v);
+        ASR::call_arg_t v_arg;
+        v_arg.loc = v->base.loc, v_arg.m_value = v;
+        values.push_back(al, v_arg);
     }
     return values;
+}
+
+// Converts a vector of call_arg to a vector of expr
+// It skips missing call_args
+static inline Vec<ASR::expr_t*> call_arg2expr(Allocator &al, const Vec<ASR::call_arg_t>& call_args) {
+    Vec<ASR::expr_t*> args;
+    args.reserve(al, call_args.size());
+    for (auto &a : call_args) {
+        if (a.m_value != nullptr) {
+            args.push_back(al, a.m_value);
+        }
+    }
+    return args;
 }
 
 // Returns the TranslationUnit_t's symbol table by going via parents
@@ -518,9 +587,8 @@ static inline bool main_program_present(const ASR::TranslationUnit_t &unit)
 // Accepts dependencies in the form A -> [B, D, ...], B -> [C, D]
 // Returns a list of dependencies in the order that they should be built:
 // [D, C, B, A]
-std::vector<int> order_deps(std::map<int, std::vector<int>> &deps);
 std::vector<std::string> order_deps(std::map<std::string,
-        std::vector<std::string>> &deps);
+        std::vector<std::string>> const &deps);
 
 std::vector<std::string> determine_module_dependencies(
         const ASR::TranslationUnit_t &unit);
@@ -795,13 +863,13 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                 return ASRUtils::is_same_type_pointer(x, y);
             }
 
-int select_generic_procedure(const Vec<ASR::expr_t*> &args,
+int select_generic_procedure(const Vec<ASR::call_arg_t> &args,
         const ASR::GenericProcedure_t &p, Location loc,
         const std::function<void (const std::string &, const Location &)> err);
 
 ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
             const Location &loc,
-            ASR::symbol_t *v, Vec<ASR::expr_t*> args,
+            ASR::symbol_t *v, Vec<ASR::call_arg_t>& args,
             SymbolTable* current_scope, Allocator& al,
             const std::function<void (const std::string &, const Location &)> err);
 

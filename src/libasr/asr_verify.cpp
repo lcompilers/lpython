@@ -324,6 +324,13 @@ public:
     void visit_SubroutineCall(const SubroutineCall_t &x) {
         if (x.m_dt) {
             SymbolTable *symtab = get_dt_symtab(x.m_dt, x.base.base.loc);
+            bool result = symtab_in_scope(symtab, x.m_name);
+            ASR::symbol_t* parent = get_parent_type_dt(x.m_dt, x.base.base.loc);
+            while( !result && parent ) {
+                symtab = get_dt_symtab(parent, x.base.base.loc);
+                result = symtab_in_scope(symtab, x.m_name);
+                parent = get_parent_type_dt(parent, x.base.base.loc);
+            }
             require(symtab_in_scope(symtab, x.m_name),
                 "SubroutineCall::m_name cannot point outside of its symbol table",
                 x.base.base.loc);
@@ -333,8 +340,19 @@ public:
                 x.base.base.loc);
         }
         for (size_t i=0; i<x.n_args; i++) {
-            visit_expr(*x.m_args[i]);
+            if( x.m_args[i].m_value ) {
+                visit_expr(*(x.m_args[i].m_value));
+            }
         }
+    }
+
+    SymbolTable *get_dt_symtab(ASR::symbol_t *dt, const Location &loc) {
+        LFORTRAN_ASSERT(dt)
+        SymbolTable *symtab = ASRUtils::symbol_symtab(ASRUtils::symbol_get_past_external(dt));
+        require(symtab,
+            "m_dt::m_v::m_type::class/derived_type must point to a symbol with a symbol table",
+            loc);
+        return symtab;
     }
 
     SymbolTable *get_dt_symtab(ASR::expr_t *dt, const Location &loc) {
@@ -359,12 +377,58 @@ public:
                     "m_dt::m_v::m_type must point to a type with a symbol table (Derived or Class)",
                     loc);
         }
-        LFORTRAN_ASSERT(type_sym)
-        SymbolTable *symtab = ASRUtils::symbol_symtab(ASRUtils::symbol_get_past_external(type_sym));
-        require(symtab,
-            "m_dt::m_v::m_type::class/derived_type must point to a symbol with a symbol table",
+        return get_dt_symtab(type_sym, loc);
+    }
+
+    ASR::symbol_t *get_parent_type_dt(ASR::symbol_t *dt, const Location &loc) {
+        ASR::symbol_t *parent = nullptr;
+        switch (dt->type) {
+            case (ASR::symbolType::DerivedType): {
+                dt = ASRUtils::symbol_get_past_external(dt);
+                ASR::DerivedType_t* der_type = ASR::down_cast<ASR::DerivedType_t>(dt);
+                parent = der_type->m_parent;
+                break;
+            }
+            default :
+                require(false,
+                    "m_dt::m_v::m_type must point to a Derived type",
+                    loc);
+        }
+        return parent;
+    }
+
+    ASR::symbol_t *get_parent_type_dt(ASR::expr_t *dt, const Location &loc) {
+        require(ASR::is_a<ASR::Var_t>(*dt),
+            "m_dt must point to a Var",
             loc);
-        return symtab;
+        ASR::Var_t *var = ASR::down_cast<ASR::Var_t>(dt);
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var->m_v);
+        ASR::ttype_t *t2 = ASRUtils::type_get_past_pointer(v->m_type);
+        ASR::symbol_t *type_sym=nullptr;
+        ASR::symbol_t *parent = nullptr;
+        switch (t2->type) {
+            case (ASR::ttypeType::Derived): {
+                type_sym = ASR::down_cast<ASR::Derived_t>(t2)->m_derived_type;
+                type_sym = ASRUtils::symbol_get_past_external(type_sym);
+                ASR::DerivedType_t* der_type = ASR::down_cast<ASR::DerivedType_t>(type_sym);
+                parent = der_type->m_parent;
+                break;
+            }
+            case (ASR::ttypeType::Class): {
+                type_sym = ASR::down_cast<ASR::Class_t>(t2)->m_class_type;
+                type_sym = ASRUtils::symbol_get_past_external(type_sym);
+                if( type_sym->type == ASR::symbolType::DerivedType ) {
+                    ASR::DerivedType_t* der_type = ASR::down_cast<ASR::DerivedType_t>(type_sym);
+                    parent = der_type->m_parent;
+                }
+                break;
+            }
+            default :
+                require(false,
+                    "m_dt::m_v::m_type must point to a Derived type",
+                    loc);
+        }
+        return parent;
     }
 
     void visit_FunctionCall(const FunctionCall_t &x) {
@@ -392,10 +456,9 @@ public:
             }
         }
         for (size_t i=0; i<x.n_args; i++) {
-            visit_expr(*x.m_args[i]);
-        }
-        for (size_t i=0; i<x.n_keywords; i++) {
-            visit_keyword(x.m_keywords[i]);
+            if( x.m_args[i].m_value ) {
+                visit_expr(*(x.m_args[i].m_value));
+            }
         }
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = ASRUtils::symbol_symtab(x.m_name);

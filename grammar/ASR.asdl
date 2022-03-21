@@ -152,7 +152,7 @@ abi                   -- External     ABI
 
 
 stmt
-    = Allocate(alloc_arg* args, expr? stat)
+    = Allocate(alloc_arg* args, expr? stat, expr? errmsg)
     | Assign(int label, identifier variable)
     | Assignment(expr target, expr value, stmt? overloaded)
     | Associate(expr target, expr value)
@@ -179,15 +179,25 @@ stmt
     | Open(int label, expr? newunit, expr? filename, expr? status)
     | Close(int label, expr? unit, expr? iostat, expr? iomsg, expr? err, expr? status)
     | Read(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values)
+    | Rewind(int label, expr? unit, expr? iostat, expr? err)
+    | Inquire(int label, expr? unit, expr? file, expr? iostat, expr? err,
+              expr? exist, expr? opened, expr? number, expr? named,
+              expr? name, expr? access, expr? sequential, expr? direct,
+              expr? form, expr? formatted, expr? unformatted, expr? recl,
+              expr? nextrec, expr? blank, expr? position, expr? action,
+              expr? read, expr? write, expr? readwrite, expr? delim,
+              expr? pad, expr? flen, expr? blocksize, expr? convert,
+              expr? carriagecontrol, expr? iolength)
     | Write(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values)
     | Return()
     | Select(expr test, case_stmt* body, stmt* default)
     | Stop(expr? code)
     | Assert(expr test, expr? msg)
-    | SubroutineCall(symbol name, symbol? original_name, expr* args, expr? dt)
+    | SubroutineCall(symbol name, symbol? original_name, call_arg* args, expr? dt)
     | Where(expr test, stmt* body, stmt* orelse)
     | WhileLoop(expr test, stmt* body)
     | Nullify(symbol* vars)
+    | Flush(int label, expr unit, expr? err, expr? iomsg, expr? iostat)
 
 
 expr
@@ -200,8 +210,8 @@ expr
     | NamedExpr(expr target, expr value, ttype type)
     | Compare(expr left, cmpop op, expr right, ttype type, expr? value, expr? overloaded)
     | IfExp(expr test, expr body, expr orelse, ttype type)
-    | FunctionCall(symbol name, symbol? original_name, expr* args,
-            keyword* keywords, ttype type, expr? value, expr? dt)
+    | FunctionCall(symbol name, symbol? original_name,
+            call_arg* args, ttype type, expr? value, expr? dt)
     | DerivedTypeConstructor(symbol dt_sym, expr* args, ttype type)
     | ConstantArray(expr* args, ttype type)
     | ImpliedDoLoop(expr* values, expr var, expr start, expr end,
@@ -209,9 +219,9 @@ expr
     | ConstantInteger(int n, ttype type)
     | ConstantReal(float r, ttype type)
     | ConstantComplex(float re, float im, ttype type)
+    | ConstantLogical(bool value, ttype type)
     | ConstantSet(expr* elements, ttype type)
     | ConstantTuple(expr* elements, ttype type)
-    | ConstantLogical(bool value, ttype type)
     | ConstantString(string s, ttype type)
     | ConstantDictionary(expr* keys, expr* values, ttype type)
     | BOZ(int v, boz boz_type, ttype? type)
@@ -271,15 +281,13 @@ attribute = Attribute(identifier name, attribute_arg *args)
 
 attribute_arg = (identifier arg)
 
-arg = (identifier arg)
-
-keyword = (identifier? arg, expr value)
+call_arg = (expr? value)
 
 tbind = Bind(string lang, string name)
 
 array_index = (expr? left, expr? right, expr? step)
 
-do_loop_head = (expr v, expr start, expr end, expr? increment)
+do_loop_head = (expr? v, expr? start, expr? end, expr? increment)
 
 case_stmt = CaseStmt(expr* test, stmt* body) | CaseStmt_Range(expr? start, expr? end, stmt* body)
 

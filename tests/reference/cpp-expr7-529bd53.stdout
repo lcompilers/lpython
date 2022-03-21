@@ -23,30 +23,30 @@ void _lpython_main_program()
 
 void main0()
 {
-    double c;
+    int c;
     test_pow();
     c = test_pow_1(1, 2);
 }
 
 void test_pow()
 {
-    double a;
-    a = pow(2, 2);
+    int a;
+    a = __lpython_overloaded_0__pow(2, 2);
 }
 
-float test_pow_1(int a, int b)
+int test_pow_1(int a, int b)
 {
-    double _lpython_return_variable;
-    double res;
-    res = pow(a, b);
+    int _lpython_return_variable;
+    int res;
+    res = __lpython_overloaded_0__pow(a, b);
     _lpython_return_variable = res;
     return _lpython_return_variable;
 }
 
-float pow(int x, int y)
+int __lpython_overloaded_0__pow(int x, int y)
 {
-    double _lpython_return_variable;
-    _lpython_return_variable = 1.000000*(float)(std::pow(x, y));
+    int _lpython_return_variable;
+    _lpython_return_variable = std::pow(x, y);
     return _lpython_return_variable;
 }
 

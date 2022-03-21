@@ -147,6 +147,33 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     symtab->scope[module_name] = (ASR::symbol_t*)mod2;
     mod2->m_symtab->parent = symtab;
     mod2->m_intrinsic = intrinsic;
+    if (intrinsic) {
+        // TODO: I think we should just store intrinsic once, in the module
+        // itself
+        // Mark each function as intrinsic also
+        for (auto &item : mod2->m_symtab->scope) {
+            if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
+                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
+                s->m_abi = ASR::abiType::Intrinsic;
+                if (s->n_body == 0) {
+                    std::string name = s->m_name;
+                    if (name == "ubound" || name == "lbound") {
+                        s->m_deftype = ASR::deftypeType::Interface;
+                    }
+                }
+            }
+            if (ASR::is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
+                s->m_abi = ASR::abiType::Intrinsic;
+                if (s->n_body == 0) {
+                    std::string name = s->m_name;
+                    if (name == "ubound" || name == "lbound") {
+                        s->m_deftype = ASR::deftypeType::Interface;
+                    }
+                }
+            }
+        }
+    }
 
     // and return it
     return mod2;
@@ -367,7 +394,13 @@ public:
         }
 
         ASR::ttype_t *type;
-        if (var_annotation == "i32") {
+        if (var_annotation == "i8") {
+            type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                1, dims.p, dims.size()));
+        } else if (var_annotation == "i16") {
+            type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                2, dims.p, dims.size()));
+        } else if (var_annotation == "i32") {
             type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
                 4, dims.p, dims.size()));
         } else if (var_annotation == "i64") {
@@ -397,6 +430,321 @@ public:
         return type;
     }
 
+    ASR::expr_t *index_add_one(const Location &loc, ASR::expr_t *idx) {
+        // Add 1 to the index `idx`, assumes `idx` is of type Integer 4
+        ASR::expr_t *overloaded = nullptr;
+        ASR::expr_t *comptime_value = nullptr;
+        ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+            4, nullptr, 0));
+        ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
+                                            al, loc, 1, a_type));
+        return ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, idx,
+            ASR::binopType::Add, constant_one, a_type,
+            comptime_value, overloaded));
+    }
+
+    // Casts `right` if needed to the type of `left`
+    // (to be used during assignment, BinOp, or compare)
+    ASR::expr_t* implicitcast_helper(ASR::ttype_t *left_type, ASR::expr_t *right,
+                                        bool is_assign=false) {
+        ASR::ttype_t *right_type = ASRUtils::expr_type(right);
+        if (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) {
+            int lkind = ASR::down_cast<ASR::Integer_t>(left_type)->m_kind;
+            int rkind = ASR::down_cast<ASR::Integer_t>(right_type)->m_kind;
+            if ((is_assign && (lkind != rkind)) || (lkind > rkind)) {
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                    al, right->base.loc, right, ASR::cast_kindType::IntegerToInteger,
+                    left_type, nullptr));
+            }
+        } else if (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type)) {
+            bool is_l64 = ASR::down_cast<ASR::Real_t>(left_type)->m_kind == 8;
+            bool is_r64 = ASR::down_cast<ASR::Real_t>(right_type)->m_kind == 8;
+            if ((is_assign && (is_l64 != is_r64)) || (is_l64 && !is_r64)) {
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                    al, right->base.loc, right, ASR::cast_kindType::RealToReal,
+                    left_type, nullptr));
+            }
+        } else if (ASRUtils::is_complex(*left_type) && ASRUtils::is_complex(*right_type)) {
+            bool is_l64 = ASR::down_cast<ASR::Complex_t>(left_type)->m_kind == 8;
+            bool is_r64 = ASR::down_cast<ASR::Complex_t>(right_type)->m_kind == 8;
+            if ((is_assign && (is_l64 != is_r64)) || (is_l64 && !is_r64)) {
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                    al, right->base.loc, right, ASR::cast_kindType::ComplexToComplex,
+                    left_type, nullptr));
+            }
+        } else if (!is_assign && ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type)) {
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                al, right->base.loc, right, ASR::cast_kindType::IntegerToReal,
+                left_type, nullptr));
+        } else if (is_assign && ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type)) {
+            throw SemanticError("Assigning integer to float is not supported",
+                    right->base.loc);
+        } else if (is_assign && ASRUtils::is_complex(*left_type) && !ASRUtils::is_complex(*right_type)) {
+            throw SemanticError("Assigning non-complex to complex is not supported",
+                    right->base.loc);
+        } else if (!is_assign && ASRUtils::is_complex(*left_type) && !ASRUtils::is_complex(*right_type)) {
+            if (ASRUtils::is_real(*right_type)) {
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                    al, right->base.loc, right, ASR::cast_kindType::RealToComplex,
+                    left_type, nullptr));
+            } else if (ASRUtils::is_integer(*right_type)) {
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                    al, right->base.loc, right, ASR::cast_kindType::IntegerToComplex,
+                    left_type, nullptr));
+            } else {
+                std::string rtype = ASRUtils::type_to_str(right_type);
+                throw SemanticError("Casting " + rtype + " to complex is not Implemented",
+                        right->base.loc);
+            }
+        }
+        return right;
+    }
+
+    void make_BinOp_helper(ASR::expr_t *left, ASR::expr_t *right,
+                            ASR::binopType op, const Location &loc, bool floordiv) {
+        ASR::ttype_t *left_type = ASRUtils::expr_type(left);
+        ASR::ttype_t *right_type = ASRUtils::expr_type(right);
+        ASR::ttype_t *dest_type = nullptr;
+        ASR::expr_t *value = nullptr;
+
+        bool right_is_int = ASRUtils::is_character(*left_type) && ASRUtils::is_integer(*right_type);
+        bool left_is_int = ASRUtils::is_integer(*left_type) && ASRUtils::is_character(*right_type);
+
+        // Handle normal division in python with reals
+        if (op == ASR::binopType::Div) {
+            if (ASRUtils::is_character(*left_type) || ASRUtils::is_character(*right_type)) {
+                diag.add(diag::Diagnostic(
+                    "Division is not supported for string type",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("string not supported in division" ,
+                                {left->base.loc, right->base.loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+            // Floor div operation in python using (`//`)
+            if (floordiv) {
+                bool both_int = (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type));
+                if (both_int) {
+                    dest_type = ASRUtils::TYPE(ASR::make_Integer_t(al,
+                        loc, 4, nullptr, 0));
+                } else {
+                    dest_type = ASRUtils::TYPE(ASR::make_Real_t(al,
+                        loc, 8, nullptr, 0));
+                }
+                if (ASRUtils::is_real(*left_type)) {
+                    left = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                        al, left->base.loc, left, ASR::cast_kindType::RealToInteger, dest_type,
+                        value));
+                }
+                if (ASRUtils::is_real(*right_type)) {
+                    right = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                        al, right->base.loc, right, ASR::cast_kindType::RealToInteger, dest_type,
+                        value));
+                }
+
+            } else { // real divison in python using (`/`)
+                dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
+                    8, nullptr, 0));
+                if (ASRUtils::is_integer(*left_type)) {
+                    left = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                        al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type,
+                        value));
+                }
+                if (ASRUtils::is_integer(*right_type)) {
+                    right = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                        al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type,
+                        value));
+                }
+            }
+        } else if((ASRUtils::is_integer(*left_type) || ASRUtils::is_real(*left_type) ||
+                        ASRUtils::is_complex(*left_type)) &&
+                (ASRUtils::is_integer(*right_type) || ASRUtils::is_real(*right_type) ||
+                        ASRUtils::is_complex(*right_type))) {
+            left = implicitcast_helper(ASRUtils::expr_type(right), left);
+            right = implicitcast_helper(ASRUtils::expr_type(left), right);
+            dest_type = ASRUtils::expr_type(left);
+        } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
+            // string repeat
+            ASR::stropType ops = ASR::stropType::Repeat;
+            int64_t left_int = 0, right_int = 0, dest_len = 0;
+            if (right_is_int) {
+                ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
+                LFORTRAN_ASSERT(left_type2->n_dims == 0);
+                right_int = ASR::down_cast<ASR::ConstantInteger_t>(
+                                                   ASRUtils::expr_value(right))->m_n;
+                dest_len = left_type2->m_len * right_int;
+                if (dest_len < 0) dest_len = 0;
+                dest_type = ASR::down_cast<ASR::ttype_t>(
+                        ASR::make_Character_t(al, loc, left_type2->m_kind,
+                        dest_len, nullptr, nullptr, 0));
+            } else if (left_is_int) {
+                ASR::Character_t *right_type2 = ASR::down_cast<ASR::Character_t>(right_type);
+                LFORTRAN_ASSERT(right_type2->n_dims == 0);
+                left_int = ASR::down_cast<ASR::ConstantInteger_t>(
+                                                   ASRUtils::expr_value(left))->m_n;
+                dest_len = right_type2->m_len * left_int;
+                if (dest_len < 0) dest_len = 0;
+                dest_type = ASR::down_cast<ASR::ttype_t>(
+                        ASR::make_Character_t(al, loc, right_type2->m_kind,
+                        dest_len, nullptr, nullptr, 0));
+            }
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
+                char* str = right_is_int ? ASR::down_cast<ASR::ConstantString_t>(
+                                                ASRUtils::expr_value(left))->m_s :
+                                                ASR::down_cast<ASR::ConstantString_t>(
+                                                ASRUtils::expr_value(right))->m_s;
+                int64_t repeat = right_is_int ? right_int : left_int;
+                char* result;
+                std::ostringstream os;
+                std::fill_n(std::ostream_iterator<std::string>(os), repeat, std::string(str));
+                result = s2c(al, os.str());
+                LFORTRAN_ASSERT((int64_t)strlen(result) == dest_len)
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(
+                    al, loc, result, dest_type));
+            }
+            tmp = ASR::make_StrOp_t(al, loc, left, ops, right, dest_type, value);
+            return;
+
+        } else if (ASRUtils::is_character(*left_type) && ASRUtils::is_character(*right_type)
+                            && op == ASR::binopType::Add) {
+            // string concat
+            ASR::stropType ops = ASR::stropType::Concat;
+            ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
+            ASR::Character_t *right_type2 = ASR::down_cast<ASR::Character_t>(right_type);
+            LFORTRAN_ASSERT(left_type2->n_dims == 0);
+            LFORTRAN_ASSERT(right_type2->n_dims == 0);
+            dest_type = ASR::down_cast<ASR::ttype_t>(
+                    ASR::make_Character_t(al, loc, left_type2->m_kind,
+                    left_type2->m_len + right_type2->m_len, nullptr, nullptr, 0));
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
+                char* left_value = ASR::down_cast<ASR::ConstantString_t>(
+                                        ASRUtils::expr_value(left))->m_s;
+                char* right_value = ASR::down_cast<ASR::ConstantString_t>(
+                                        ASRUtils::expr_value(right))->m_s;
+                char* result;
+                std::string result_s = std::string(left_value) + std::string(right_value);
+                result = s2c(al, result_s);
+                LFORTRAN_ASSERT((int64_t)strlen(result) == ASR::down_cast<ASR::Character_t>(dest_type)->m_len)
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(
+                    al, loc, result, dest_type));
+            }
+            tmp = ASR::make_StrOp_t(al, loc, left, ops, right, dest_type,
+                                    value);
+            return;
+
+        } else if (ASRUtils::is_complex(*left_type) && ASRUtils::is_complex(*right_type)) {
+            dest_type = left_type;
+        } else if (ASRUtils::is_logical(*left_type) && ASRUtils::is_logical(*right_type)) {
+            dest_type = left_type;
+        } else {
+            std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
+            std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
+            diag.add(diag::Diagnostic(
+                "Not Implemented: type mismatch in binary operator; only Integer, Real, Complex,"
+                " Logical combinations and string concatenation/repetition are implemented for now.",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
+                            {left->base.loc, right->base.loc})
+                })
+            );
+            throw SemanticAbort();
+        }
+
+        // Check that the types are now the same
+        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(left),
+                                    ASRUtils::expr_type(right))) {
+            std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
+            std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
+            diag.add(diag::Diagnostic(
+                "Type mismatch in binary operator, the types must be compatible",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
+                            {left->base.loc, right->base.loc})
+                })
+            );
+            throw SemanticAbort();
+        }
+        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        // Now, compute the result of the binary operations
+        if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
+            if (ASRUtils::is_integer(*dest_type)) {
+                int64_t left_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                                    ASRUtils::expr_value(left))->m_n;
+                int64_t right_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                                    ASRUtils::expr_value(right))->m_n;
+                int64_t result;
+                switch (op) {
+                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
+                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
+                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
+                    case (ASR::binopType::Div): { result = left_value / right_value; break; }
+                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
+                    default: { LFORTRAN_ASSERT(false); } // should never happen
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
+                    al, loc, result, dest_type));
+            }
+            else if (ASRUtils::is_real(*dest_type)) {
+                double left_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                                    ASRUtils::expr_value(left))->m_r;
+                double right_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                                    ASRUtils::expr_value(right))->m_r;
+                double result;
+                switch (op) {
+                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
+                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
+                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
+                    case (ASR::binopType::Div): { result = left_value / right_value; break; }
+                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
+                    default: { LFORTRAN_ASSERT(false); }
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(
+                    al, loc, result, dest_type));
+            }
+            else if (ASRUtils::is_complex(*dest_type)) {
+                ASR::ConstantComplex_t *left0 = ASR::down_cast<ASR::ConstantComplex_t>(
+                                                                ASRUtils::expr_value(left));
+                ASR::ConstantComplex_t *right0 = ASR::down_cast<ASR::ConstantComplex_t>(
+                                                                ASRUtils::expr_value(right));
+                std::complex<double> left_value(left0->m_re, left0->m_im);
+                std::complex<double> right_value(right0->m_re, right0->m_im);
+                std::complex<double> result;
+                switch (op) {
+                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
+                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
+                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
+                    case (ASR::binopType::Div): { result = left_value / right_value; break; }
+                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
+                    default: { LFORTRAN_ASSERT(false); }
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantComplex_t(al, loc,
+                        std::real(result), std::imag(result), dest_type));
+            }
+            else if (ASRUtils::is_logical(*dest_type)) {
+                int8_t left_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                                                    ASRUtils::expr_value(left))->m_value;
+                int8_t right_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                                                    ASRUtils::expr_value(right))->m_value;
+                int8_t result;
+                switch (op) {
+                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
+                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
+                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
+                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
+                    case (ASR::binopType::Div): { } // TODO: Handle division of logicals
+                    default: { LFORTRAN_ASSERT(false); } // should never happen
+                }
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
+                    al, loc, result, int_type));
+                dest_type = int_type;
+            }
+        }
+        ASR::expr_t *overloaded = nullptr;
+        tmp = ASR::make_BinOp_t(al, loc, left, op, right, dest_type,
+                                value, overloaded);
+    }
 
     void visit_Name(const AST::Name_t &x) {
         std::string name = x.m_id;
@@ -409,6 +757,290 @@ public:
         }
     }
 
+    void visit_NamedExpr(const AST::NamedExpr_t &x) {
+        this->visit_expr(*x.m_target);
+        ASR::expr_t *target = ASRUtils::EXPR(tmp);
+        ASR::ttype_t *target_type = ASRUtils::expr_type(target);
+        this->visit_expr(*x.m_value);
+        ASR::expr_t *value = ASRUtils::EXPR(tmp);
+        ASR::ttype_t *value_type = ASRUtils::expr_type(value);
+        LFORTRAN_ASSERT(ASRUtils::check_equal_type(target_type, value_type));
+        tmp = ASR::make_NamedExpr_t(al, x.base.base.loc, target, value, value_type);
+    }
+
+    void visit_ConstantInt(const AST::ConstantInt_t &x) {
+        int64_t i = x.m_value;
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                4, nullptr, 0));
+        tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, i, type);
+    }
+
+    void visit_ConstantFloat(const AST::ConstantFloat_t &x) {
+        double f = x.m_value;
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
+                8, nullptr, 0));
+        tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, f, type);
+    }
+
+    void visit_ConstantComplex(const AST::ConstantComplex_t &x) {
+        double re = x.m_re, im = x.m_im;
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
+                8, nullptr, 0));
+        tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc, re, im, type);
+    }
+
+    void visit_ConstantStr(const AST::ConstantStr_t &x) {
+        char *s = x.m_value;
+        size_t s_size = std::string(s).size();
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
+                1, s_size, nullptr, nullptr, 0));
+        tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s, type);
+    }
+
+    void visit_ConstantBool(const AST::ConstantBool_t &x) {
+        bool b = x.m_value;
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
+                1, nullptr, 0));
+        tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, b, type);
+    }
+
+    void visit_BoolOp(const AST::BoolOp_t &x) {
+        ASR::boolopType op;
+        if (x.n_values > 2) {
+            throw SemanticError("Only two operands supported for boolean operations",
+                x.base.base.loc);
+        }
+        this->visit_expr(*x.m_values[0]);
+        ASR::expr_t *lhs = ASRUtils::EXPR(tmp);
+        this->visit_expr(*x.m_values[1]);
+        ASR::expr_t *rhs = ASRUtils::EXPR(tmp);
+        switch (x.m_op) {
+            case (AST::boolopType::And): { op = ASR::boolopType::And; break; }
+            case (AST::boolopType::Or): { op = ASR::boolopType::Or; break; }
+            default : {
+                throw SemanticError("Boolean operator type not supported",
+                    x.base.base.loc);
+            }
+        }
+        LFORTRAN_ASSERT(
+            ASRUtils::check_equal_type(ASRUtils::expr_type(lhs), ASRUtils::expr_type(rhs)));
+        ASR::expr_t *value = nullptr;
+        ASR::ttype_t *dest_type = ASRUtils::expr_type(lhs);
+
+        if (ASRUtils::expr_value(lhs) != nullptr && ASRUtils::expr_value(rhs) != nullptr) {
+
+            LFORTRAN_ASSERT(ASR::is_a<ASR::Logical_t>(*dest_type));
+            bool left_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                                    ASRUtils::expr_value(lhs))->m_value;
+            bool right_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                                    ASRUtils::expr_value(rhs))->m_value;
+            bool result;
+            switch (op) {
+                case (ASR::boolopType::And): { result = left_value && right_value; break; }
+                case (ASR::boolopType::Or): { result = left_value || right_value; break; }
+                default : {
+                    throw SemanticError("Boolean operator type not supported",
+                        x.base.base.loc);
+                }
+            }
+            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                al, x.base.base.loc, result, dest_type));
+        }
+        tmp = ASR::make_BoolOp_t(al, x.base.base.loc, lhs, op, rhs, dest_type, value);
+    }
+
+    void visit_BinOp(const AST::BinOp_t &x) {
+        this->visit_expr(*x.m_left);
+        ASR::expr_t *left = ASRUtils::EXPR(tmp);
+        this->visit_expr(*x.m_right);
+        ASR::expr_t *right = ASRUtils::EXPR(tmp);
+        ASR::binopType op;
+        switch (x.m_op) {
+            case (AST::operatorType::Add) : { op = ASR::binopType::Add; break; }
+            case (AST::operatorType::Sub) : { op = ASR::binopType::Sub; break; }
+            case (AST::operatorType::Mult) : { op = ASR::binopType::Mul; break; }
+            case (AST::operatorType::Div) : { op = ASR::binopType::Div; break; }
+            case (AST::operatorType::FloorDiv) : {op = ASR::binopType::Div; break;}
+            case (AST::operatorType::Pow) : { op = ASR::binopType::Pow; break; }
+            default : {
+                throw SemanticError("Binary operator type not supported",
+                    x.base.base.loc);
+            }
+        }
+        bool floordiv = (x.m_op == AST::operatorType::FloorDiv);
+        make_BinOp_helper(left, right, op, x.base.base.loc, floordiv);
+    }
+
+    void visit_UnaryOp(const AST::UnaryOp_t &x) {
+        this->visit_expr(*x.m_operand);
+        ASR::expr_t *operand = ASRUtils::EXPR(tmp);
+        ASR::unaryopType op;
+        switch (x.m_op) {
+            case (AST::unaryopType::Invert) : { op = ASR::unaryopType::Invert; break; }
+            case (AST::unaryopType::Not) : { op = ASR::unaryopType::Not; break; }
+            case (AST::unaryopType::UAdd) : { op = ASR::unaryopType::UAdd; break; }
+            case (AST::unaryopType::USub) : { op = ASR::unaryopType::USub; break; }
+            default : {
+                throw SemanticError("Unary operator type not supported",
+                    x.base.base.loc);
+            }
+        }
+        ASR::ttype_t *operand_type = ASRUtils::expr_type(operand);
+        ASR::ttype_t *logical_type = ASRUtils::TYPE(
+            ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
+        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                4, nullptr, 0));
+        ASR::expr_t *value = nullptr;
+
+        if (ASRUtils::expr_value(operand) != nullptr) {
+            if (ASRUtils::is_integer(*operand_type)) {
+
+                int64_t op_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                        ASRUtils::expr_value(operand))->m_n;
+                if (op == ASR::unaryopType::Not) {
+                    bool b = (op_value == 0);
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                        al, x.base.base.loc, b, logical_type));
+                    operand_type = logical_type;
+                } else {
+                    int64_t result = 0;
+                    switch (op) {
+                        case (ASR::unaryopType::UAdd): { result = op_value; break; }
+                        case (ASR::unaryopType::USub): { result = -op_value; break; }
+                        case (ASR::unaryopType::Invert): { result = ~op_value; break; }
+                        default: LFORTRAN_ASSERT(false); // should never happen
+                    }
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
+                                al, x.base.base.loc, result, operand_type));
+                }
+
+            } else if (ASRUtils::is_real(*operand_type)) {
+                double op_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                        ASRUtils::expr_value(operand))->m_r;
+                if (op == ASR::unaryopType::Not) {
+                    bool b = (op_value == 0.0);
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                        al, x.base.base.loc, b, logical_type));
+                    operand_type = logical_type;
+                } else {
+                    double result = 0.0;
+                    switch (op) {
+                        case (ASR::unaryopType::UAdd): { result = op_value; break; }
+                        case (ASR::unaryopType::USub): { result = -op_value; break; }
+                        default: {
+                            throw SemanticError("Bad operand type for unary " +
+                                ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str(operand_type),
+                                x.base.base.loc);
+                        }
+                    }
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(
+                        al, x.base.base.loc, result, operand_type));
+                }
+
+            } else if (ASRUtils::is_logical(*operand_type)) {
+                bool op_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                                               ASRUtils::expr_value(operand))->m_value;
+                if (op == ASR::unaryopType::Not) {
+                    value = ASR::down_cast<ASR::expr_t>(
+                        ASR::make_ConstantLogical_t(al, x.base.base.loc, !op_value, logical_type));
+                } else {
+                    int8_t result = 0;
+                    switch (op) {
+                        case (ASR::unaryopType::UAdd): { result = +op_value; break; }
+                        case (ASR::unaryopType::USub): { result = -op_value; break; }
+                        case (ASR::unaryopType::Invert): { result = op_value ? -2 : -1; break; }
+                        default : LFORTRAN_ASSERT(false); // should never happen
+                    }
+                    value = ASR::down_cast<ASR::expr_t>(
+                        ASR::make_ConstantInteger_t(al, x.base.base.loc, result, int_type));
+                    operand_type = int_type;
+                }
+
+            } else if (ASRUtils::is_complex(*operand_type)) {
+                ASR::ConstantComplex_t *c = ASR::down_cast<ASR::ConstantComplex_t>(
+                                        ASRUtils::expr_value(operand));
+                std::complex<double> op_value(c->m_re, c->m_im);
+                std::complex<double> result;
+                if (op == ASR::unaryopType::Not) {
+                    bool b = (op_value.real() == 0.0 && op_value.imag() == 0.0);
+                    value = ASR::down_cast<ASR::expr_t>(
+                        ASR::make_ConstantLogical_t(al, x.base.base.loc, b, logical_type));
+                    operand_type = logical_type;
+                } else {
+                    switch (op) {
+                        case (ASR::unaryopType::UAdd): { result = op_value; break; }
+                        case (ASR::unaryopType::USub): { result = -op_value; break; }
+                        default: {
+                            throw SemanticError("Bad operand type for unary " +
+                                ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str(operand_type),
+                                x.base.base.loc);
+                        }
+                    }
+                    value = ASR::down_cast<ASR::expr_t>(
+                        ASR::make_ConstantComplex_t(al, x.base.base.loc,
+                        std::real(result), std::imag(result), operand_type));
+                }
+            }
+        }
+        tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
+                              value);
+    }
+
+    void visit_IfExp(const AST::IfExp_t &x) {
+        this->visit_expr(*x.m_test);
+        ASR::expr_t *test = ASRUtils::EXPR(tmp);
+        this->visit_expr(*x.m_body);
+        ASR::expr_t *body = ASRUtils::EXPR(tmp);
+        this->visit_expr(*x.m_orelse);
+        ASR::expr_t *orelse = ASRUtils::EXPR(tmp);
+        LFORTRAN_ASSERT(ASRUtils::check_equal_type(ASRUtils::expr_type(body),
+                                                   ASRUtils::expr_type(orelse)));
+        tmp = ASR::make_IfExp_t(al, x.base.base.loc, test, body, orelse,
+                                ASRUtils::expr_type(body));
+    }
+
+    void visit_Subscript(const AST::Subscript_t &x) {
+        this->visit_expr(*x.m_value);
+        ASR::expr_t *value = ASRUtils::EXPR(tmp);
+        Vec<ASR::array_index_t> args;
+        args.reserve(al, 1);
+        ASR::array_index_t ai;
+        ai.loc = x.base.base.loc;
+        ai.m_left = nullptr;
+        ai.m_right = nullptr;
+        ai.m_step = nullptr;
+        if (AST::is_a<AST::Slice_t>(*x.m_slice)) {
+            AST::Slice_t *s = AST::down_cast<AST::Slice_t>(x.m_slice);
+            if (s->m_lower != nullptr) {
+                this->visit_expr(*s->m_lower);
+                ai.m_left = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
+            }
+            if (s->m_upper != nullptr) {
+                this->visit_expr(*s->m_upper);
+                ai.m_right = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
+            }
+            if (s->m_step != nullptr) {
+                this->visit_expr(*s->m_step);
+                ai.m_step = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
+            }
+        } else {
+            this->visit_expr(*x.m_slice);
+            ASR::expr_t *index = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
+            ai.m_right = index;
+        }
+        ASR::symbol_t *s = ASR::down_cast<ASR::Var_t>(value)->m_v;
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+        ASR::ttype_t *type = v->m_type;
+        if (ASR::is_a<ASR::Character_t>(*type)) {
+            if (!ai.m_left && ai.m_right) {
+                // String indexing is done using "a(3:3)" style
+                ai.m_left = ai.m_right;
+            }
+        }
+        args.push_back(al, ai);
+        tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, s, args.p,
+            args.size(), type, nullptr);
+    }
 
 };
 
@@ -1007,63 +1639,6 @@ public:
                 targets.size());
     }
 
-    // Casts `right` if needed to the type of `left`
-    // (to be used during assignment, BinOp, or compare)
-    ASR::expr_t* implicitcast_helper(ASR::ttype_t *left_type, ASR::expr_t *right,
-                                        bool is_assign=false) {
-        ASR::ttype_t *right_type = ASRUtils::expr_type(right);
-        if (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) {
-            bool is_l64 = ASR::down_cast<ASR::Integer_t>(left_type)->m_kind == 8;
-            bool is_r64 = ASR::down_cast<ASR::Integer_t>(right_type)->m_kind == 8;
-            if ((is_assign && (is_l64 != is_r64)) || (is_l64 && !is_r64)) {
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
-                    al, right->base.loc, right, ASR::cast_kindType::IntegerToInteger,
-                    left_type, nullptr));
-            }
-        } else if (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type)) {
-            bool is_l64 = ASR::down_cast<ASR::Real_t>(left_type)->m_kind == 8;
-            bool is_r64 = ASR::down_cast<ASR::Real_t>(right_type)->m_kind == 8;
-            if ((is_assign && (is_l64 != is_r64)) || (is_l64 && !is_r64)) {
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
-                    al, right->base.loc, right, ASR::cast_kindType::RealToReal,
-                    left_type, nullptr));
-            }
-        } else if (ASRUtils::is_complex(*left_type) && ASRUtils::is_complex(*right_type)) {
-            bool is_l64 = ASR::down_cast<ASR::Complex_t>(left_type)->m_kind == 8;
-            bool is_r64 = ASR::down_cast<ASR::Complex_t>(right_type)->m_kind == 8;
-            if ((is_assign && (is_l64 != is_r64)) || (is_l64 && !is_r64)) {
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
-                    al, right->base.loc, right, ASR::cast_kindType::ComplexToComplex,
-                    left_type, nullptr));
-            }
-        } else if (!is_assign && ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type)) {
-            return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
-                al, right->base.loc, right, ASR::cast_kindType::IntegerToReal,
-                left_type, nullptr));
-        } else if (is_assign && ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type)) {
-            throw SemanticError("Assigning integer to float is not supported",
-                    right->base.loc);
-        } else if (is_assign && ASRUtils::is_complex(*left_type) && !ASRUtils::is_complex(*right_type)) {
-            throw SemanticError("Assigning non-complex to complex is not supported",
-                    right->base.loc);
-        } else if (!is_assign && ASRUtils::is_complex(*left_type) && !ASRUtils::is_complex(*right_type)) {
-            if (ASRUtils::is_real(*right_type)) {
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
-                    al, right->base.loc, right, ASR::cast_kindType::RealToComplex,
-                    left_type, nullptr));
-            } else if (ASRUtils::is_integer(*right_type)) {
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
-                    al, right->base.loc, right, ASR::cast_kindType::IntegerToComplex,
-                    left_type, nullptr));
-            } else {
-                std::string rtype = ASRUtils::type_to_str(right_type);
-                throw SemanticError("Casting " + rtype + " to complex is not Implemented",
-                        right->base.loc);
-            }
-        }
-        return right;
-    }
-
     void visit_Assign(const AST::Assign_t &x) {
         ASR::expr_t *target;
         if (x.n_targets == 1) {
@@ -1113,62 +1688,6 @@ public:
             msg = ASRUtils::EXPR(tmp);
         }
         tmp = ASR::make_Assert_t(al, x.base.base.loc, test, msg);
-    }
-
-    ASR::expr_t *index_add_one(const Location &loc, ASR::expr_t *idx) {
-        // Add 1 to the index `idx`, assumes `idx` is of type Integer 4
-        ASR::expr_t *overloaded = nullptr;
-        ASR::expr_t *comptime_value = nullptr;
-        ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-            4, nullptr, 0));
-        ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
-                                            al, loc, 1, a_type));
-        return ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, idx,
-            ASR::binopType::Add, constant_one, a_type,
-            comptime_value, overloaded));
-    }
-
-    void visit_Subscript(const AST::Subscript_t &x) {
-        this->visit_expr(*x.m_value);
-        ASR::expr_t *value = ASRUtils::EXPR(tmp);
-        Vec<ASR::array_index_t> args;
-        args.reserve(al, 1);
-        ASR::array_index_t ai;
-        ai.loc = x.base.base.loc;
-        ai.m_left = nullptr;
-        ai.m_right = nullptr;
-        ai.m_step = nullptr;
-        if (AST::is_a<AST::Slice_t>(*x.m_slice)) {
-            AST::Slice_t *s = AST::down_cast<AST::Slice_t>(x.m_slice);
-            if (s->m_lower != nullptr) {
-                this->visit_expr(*s->m_lower);
-                ai.m_left = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
-            }
-            if (s->m_upper != nullptr) {
-                this->visit_expr(*s->m_upper);
-                ai.m_right = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
-            }
-            if (s->m_step != nullptr) {
-                this->visit_expr(*s->m_step);
-                ai.m_step = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
-            }
-        } else {
-            this->visit_expr(*x.m_slice);
-            ASR::expr_t *index = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
-            ai.m_right = index;
-        }
-        ASR::symbol_t *s = ASR::down_cast<ASR::Var_t>(value)->m_v;
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-        ASR::ttype_t *type = v->m_type;
-        if (ASR::is_a<ASR::Character_t>(*type)) {
-            if (!ai.m_left && ai.m_right) {
-                // String indexing is done using "a(3:3)" style
-                ai.m_left = ai.m_right;
-            }
-        }
-        args.push_back(al, ai);
-        tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, s, args.p,
-            args.size(), type, nullptr);
     }
 
     void visit_List(const AST::List_t &x) {
@@ -1293,470 +1812,6 @@ public:
         }
     }
 
-    void visit_ConstantInt(const AST::ConstantInt_t &x) {
-        int64_t i = x.m_value;
-        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                4, nullptr, 0));
-        tmp = ASR::make_ConstantInteger_t(al, x.base.base.loc, i, type);
-    }
-
-    void visit_ConstantFloat(const AST::ConstantFloat_t &x) {
-        double f = x.m_value;
-        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
-                8, nullptr, 0));
-        tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, f, type);
-    }
-
-    void visit_ConstantComplex(const AST::ConstantComplex_t &x) {
-        double re = x.m_re, im = x.m_im;
-        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
-                8, nullptr, 0));
-        tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc, re, im, type);
-    }
-
-    void visit_ConstantStr(const AST::ConstantStr_t &x) {
-        char *s = x.m_value;
-        size_t s_size = std::string(s).size();
-        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                1, s_size, nullptr, nullptr, 0));
-        tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s, type);
-    }
-
-    void visit_ConstantBool(const AST::ConstantBool_t &x) {
-        bool b = x.m_value;
-        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
-                1, nullptr, 0));
-        tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, b, type);
-    }
-
-    void visit_BoolOp(const AST::BoolOp_t &x) {
-        ASR::boolopType op;
-        if (x.n_values > 2) {
-            throw SemanticError("Only two operands supported for boolean operations",
-                x.base.base.loc);
-        }
-        this->visit_expr(*x.m_values[0]);
-        ASR::expr_t *lhs = ASRUtils::EXPR(tmp);
-        this->visit_expr(*x.m_values[1]);
-        ASR::expr_t *rhs = ASRUtils::EXPR(tmp);
-        switch (x.m_op) {
-            case (AST::boolopType::And): { op = ASR::boolopType::And; break; }
-            case (AST::boolopType::Or): { op = ASR::boolopType::Or; break; }
-            default : {
-                throw SemanticError("Boolean operator type not supported",
-                    x.base.base.loc);
-            }
-        }
-        LFORTRAN_ASSERT(
-            ASRUtils::check_equal_type(ASRUtils::expr_type(lhs), ASRUtils::expr_type(rhs)));
-        ASR::expr_t *value = nullptr;
-        ASR::ttype_t *dest_type = ASRUtils::expr_type(lhs);
-
-        if (ASRUtils::expr_value(lhs) != nullptr && ASRUtils::expr_value(rhs) != nullptr) {
-
-            LFORTRAN_ASSERT(ASR::is_a<ASR::Logical_t>(*dest_type));
-            bool left_value = ASR::down_cast<ASR::ConstantLogical_t>(
-                                    ASRUtils::expr_value(lhs))->m_value;
-            bool right_value = ASR::down_cast<ASR::ConstantLogical_t>(
-                                    ASRUtils::expr_value(rhs))->m_value;
-            bool result;
-            switch (op) {
-                case (ASR::boolopType::And): { result = left_value && right_value; break; }
-                case (ASR::boolopType::Or): { result = left_value || right_value; break; }
-                default : {
-                    throw SemanticError("Boolean operator type not supported",
-                        x.base.base.loc);
-                }
-            }
-            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
-                al, x.base.base.loc, result, dest_type));
-        }
-        tmp = ASR::make_BoolOp_t(al, x.base.base.loc, lhs, op, rhs, dest_type, value);
-    }
-
-    void make_BinOp_helper(ASR::expr_t *left, ASR::expr_t *right,
-                            ASR::binopType op, const Location &loc, bool floordiv) {
-        ASR::ttype_t *left_type = ASRUtils::expr_type(left);
-        ASR::ttype_t *right_type = ASRUtils::expr_type(right);
-        ASR::ttype_t *dest_type = nullptr;
-        ASR::expr_t *value = nullptr;
-
-        bool right_is_int = ASRUtils::is_character(*left_type) && ASRUtils::is_integer(*right_type);
-        bool left_is_int = ASRUtils::is_integer(*left_type) && ASRUtils::is_character(*right_type);
-
-        // Handle normal division in python with reals
-        if (op == ASR::binopType::Div) {
-            if (ASRUtils::is_character(*left_type) || ASRUtils::is_character(*right_type)) {
-                diag.add(diag::Diagnostic(
-                    "Division is not supported for string type",
-                    diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("string not supported in division" ,
-                                {left->base.loc, right->base.loc})
-                    })
-                );
-                throw SemanticAbort();
-            }
-            // Floor div operation in python using (`//`)
-            if (floordiv) {
-                bool both_int = (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type));
-                if (both_int) {
-                    dest_type = ASRUtils::TYPE(ASR::make_Integer_t(al,
-                        loc, 4, nullptr, 0));
-                } else {
-                    dest_type = ASRUtils::TYPE(ASR::make_Real_t(al,
-                        loc, 8, nullptr, 0));
-                }
-                if (ASRUtils::is_real(*left_type)) {
-                    left = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
-                        al, left->base.loc, left, ASR::cast_kindType::RealToInteger, dest_type,
-                        value));
-                }
-                if (ASRUtils::is_real(*right_type)) {
-                    right = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
-                        al, right->base.loc, right, ASR::cast_kindType::RealToInteger, dest_type,
-                        value));
-                }
-
-            } else { // real divison in python using (`/`)
-                dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
-                    8, nullptr, 0));
-                if (ASRUtils::is_integer(*left_type)) {
-                    left = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
-                        al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type,
-                        value));
-                }
-                if (ASRUtils::is_integer(*right_type)) {
-                    right = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
-                        al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type,
-                        value));
-                }
-            }
-        } else if((ASRUtils::is_integer(*left_type) || ASRUtils::is_real(*left_type) ||
-                        ASRUtils::is_complex(*left_type)) &&
-                (ASRUtils::is_integer(*right_type) || ASRUtils::is_real(*right_type) ||
-                        ASRUtils::is_complex(*right_type))) {
-            left = implicitcast_helper(ASRUtils::expr_type(right), left);
-            right = implicitcast_helper(ASRUtils::expr_type(left), right);
-            dest_type = ASRUtils::expr_type(left);
-        } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
-            // string repeat
-            ASR::stropType ops = ASR::stropType::Repeat;
-            int64_t left_int = 0, right_int = 0, dest_len = 0;
-            if (right_is_int) {
-                ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
-                LFORTRAN_ASSERT(left_type2->n_dims == 0);
-                right_int = ASR::down_cast<ASR::ConstantInteger_t>(
-                                                   ASRUtils::expr_value(right))->m_n;
-                dest_len = left_type2->m_len * right_int;
-                if (dest_len < 0) dest_len = 0;
-                dest_type = ASR::down_cast<ASR::ttype_t>(
-                        ASR::make_Character_t(al, loc, left_type2->m_kind,
-                        dest_len, nullptr, nullptr, 0));
-            } else if (left_is_int) {
-                ASR::Character_t *right_type2 = ASR::down_cast<ASR::Character_t>(right_type);
-                LFORTRAN_ASSERT(right_type2->n_dims == 0);
-                left_int = ASR::down_cast<ASR::ConstantInteger_t>(
-                                                   ASRUtils::expr_value(left))->m_n;
-                dest_len = right_type2->m_len * left_int;
-                if (dest_len < 0) dest_len = 0;
-                dest_type = ASR::down_cast<ASR::ttype_t>(
-                        ASR::make_Character_t(al, loc, right_type2->m_kind,
-                        dest_len, nullptr, nullptr, 0));
-            }
-
-            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
-                char* str = right_is_int ? ASR::down_cast<ASR::ConstantString_t>(
-                                                ASRUtils::expr_value(left))->m_s :
-                                                ASR::down_cast<ASR::ConstantString_t>(
-                                                ASRUtils::expr_value(right))->m_s;
-                int64_t repeat = right_is_int ? right_int : left_int;
-                char* result;
-                std::ostringstream os;
-                std::fill_n(std::ostream_iterator<std::string>(os), repeat, std::string(str));
-                result = s2c(al, os.str());
-                LFORTRAN_ASSERT((int64_t)strlen(result) == dest_len)
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(
-                    al, loc, result, dest_type));
-            }
-            tmp = ASR::make_StrOp_t(al, loc, left, ops, right, dest_type, value);
-            return;
-
-        } else if (ASRUtils::is_character(*left_type) && ASRUtils::is_character(*right_type)
-                            && op == ASR::binopType::Add) {
-            // string concat
-            ASR::stropType ops = ASR::stropType::Concat;
-            ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
-            ASR::Character_t *right_type2 = ASR::down_cast<ASR::Character_t>(right_type);
-            LFORTRAN_ASSERT(left_type2->n_dims == 0);
-            LFORTRAN_ASSERT(right_type2->n_dims == 0);
-            dest_type = ASR::down_cast<ASR::ttype_t>(
-                    ASR::make_Character_t(al, loc, left_type2->m_kind,
-                    left_type2->m_len + right_type2->m_len, nullptr, nullptr, 0));
-            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
-                char* left_value = ASR::down_cast<ASR::ConstantString_t>(
-                                        ASRUtils::expr_value(left))->m_s;
-                char* right_value = ASR::down_cast<ASR::ConstantString_t>(
-                                        ASRUtils::expr_value(right))->m_s;
-                char* result;
-                std::string result_s = std::string(left_value) + std::string(right_value);
-                result = s2c(al, result_s);
-                LFORTRAN_ASSERT((int64_t)strlen(result) == ASR::down_cast<ASR::Character_t>(dest_type)->m_len)
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(
-                    al, loc, result, dest_type));
-            }
-            tmp = ASR::make_StrOp_t(al, loc, left, ops, right, dest_type,
-                                    value);
-            return;
-
-        } else if (ASRUtils::is_complex(*left_type) && ASRUtils::is_complex(*right_type)) {
-            dest_type = left_type;
-        } else if (ASRUtils::is_logical(*left_type) && ASRUtils::is_logical(*right_type)) {
-            dest_type = left_type;
-        } else {
-            std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
-            std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
-            diag.add(diag::Diagnostic(
-                "Not Implemented: type mismatch in binary operator; only Integer, Real, Complex,"
-                " Logical combinations and string concatenation/repetition are implemented for now.",
-                diag::Level::Error, diag::Stage::Semantic, {
-                    diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
-                            {left->base.loc, right->base.loc})
-                })
-            );
-            throw SemanticAbort();
-        }
-
-        // Check that the types are now the same
-        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(left),
-                                    ASRUtils::expr_type(right))) {
-            std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
-            std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
-            diag.add(diag::Diagnostic(
-                "Type mismatch in binary operator, the types must be compatible",
-                diag::Level::Error, diag::Stage::Semantic, {
-                    diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
-                            {left->base.loc, right->base.loc})
-                })
-            );
-            throw SemanticAbort();
-        }
-        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-        // Now, compute the result of the binary operations
-        if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
-            if (ASRUtils::is_integer(*dest_type)) {
-                int64_t left_value = ASR::down_cast<ASR::ConstantInteger_t>(
-                                                    ASRUtils::expr_value(left))->m_n;
-                int64_t right_value = ASR::down_cast<ASR::ConstantInteger_t>(
-                                                    ASRUtils::expr_value(right))->m_n;
-                int64_t result;
-                switch (op) {
-                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
-                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
-                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
-                    case (ASR::binopType::Div): { result = left_value / right_value; break; }
-                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
-                    default: { LFORTRAN_ASSERT(false); } // should never happen
-                }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
-                    al, loc, result, dest_type));
-            }
-            else if (ASRUtils::is_real(*dest_type)) {
-                double left_value = ASR::down_cast<ASR::ConstantReal_t>(
-                                                    ASRUtils::expr_value(left))->m_r;
-                double right_value = ASR::down_cast<ASR::ConstantReal_t>(
-                                                    ASRUtils::expr_value(right))->m_r;
-                double result;
-                switch (op) {
-                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
-                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
-                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
-                    case (ASR::binopType::Div): { result = left_value / right_value; break; }
-                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
-                    default: { LFORTRAN_ASSERT(false); }
-                }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(
-                    al, loc, result, dest_type));
-            }
-            else if (ASRUtils::is_complex(*dest_type)) {
-                ASR::ConstantComplex_t *left0 = ASR::down_cast<ASR::ConstantComplex_t>(
-                                                                ASRUtils::expr_value(left));
-                ASR::ConstantComplex_t *right0 = ASR::down_cast<ASR::ConstantComplex_t>(
-                                                                ASRUtils::expr_value(right));
-                std::complex<double> left_value(left0->m_re, left0->m_im);
-                std::complex<double> right_value(right0->m_re, right0->m_im);
-                std::complex<double> result;
-                switch (op) {
-                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
-                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
-                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
-                    case (ASR::binopType::Div): { result = left_value / right_value; break; }
-                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
-                    default: { LFORTRAN_ASSERT(false); }
-                }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantComplex_t(al, loc,
-                        std::real(result), std::imag(result), dest_type));
-            }
-            else if (ASRUtils::is_logical(*dest_type)) {
-                int8_t left_value = ASR::down_cast<ASR::ConstantLogical_t>(
-                                                    ASRUtils::expr_value(left))->m_value;
-                int8_t right_value = ASR::down_cast<ASR::ConstantLogical_t>(
-                                                    ASRUtils::expr_value(right))->m_value;
-                int8_t result;
-                switch (op) {
-                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
-                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
-                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
-                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
-                    case (ASR::binopType::Div): { } // TODO: Handle division of logicals
-                    default: { LFORTRAN_ASSERT(false); } // should never happen
-                }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
-                    al, loc, result, int_type));
-                dest_type = int_type;
-            }
-        }
-        ASR::expr_t *overloaded = nullptr;
-        tmp = ASR::make_BinOp_t(al, loc, left, op, right, dest_type,
-                                value, overloaded);
-    }
-
-    void visit_BinOp(const AST::BinOp_t &x) {
-        this->visit_expr(*x.m_left);
-        ASR::expr_t *left = ASRUtils::EXPR(tmp);
-        this->visit_expr(*x.m_right);
-        ASR::expr_t *right = ASRUtils::EXPR(tmp);
-        ASR::binopType op;
-        switch (x.m_op) {
-            case (AST::operatorType::Add) : { op = ASR::binopType::Add; break; }
-            case (AST::operatorType::Sub) : { op = ASR::binopType::Sub; break; }
-            case (AST::operatorType::Mult) : { op = ASR::binopType::Mul; break; }
-            case (AST::operatorType::Div) : { op = ASR::binopType::Div; break; }
-            case (AST::operatorType::FloorDiv) : {op = ASR::binopType::Div; break;}
-            case (AST::operatorType::Pow) : { op = ASR::binopType::Pow; break; }
-            default : {
-                throw SemanticError("Binary operator type not supported",
-                    x.base.base.loc);
-            }
-        }
-        bool floordiv = (x.m_op == AST::operatorType::FloorDiv);
-        make_BinOp_helper(left, right, op, x.base.base.loc, floordiv);
-    }
-
-    void visit_UnaryOp(const AST::UnaryOp_t &x) {
-        this->visit_expr(*x.m_operand);
-        ASR::expr_t *operand = ASRUtils::EXPR(tmp);
-        ASR::unaryopType op;
-        switch (x.m_op) {
-            case (AST::unaryopType::Invert) : { op = ASR::unaryopType::Invert; break; }
-            case (AST::unaryopType::Not) : { op = ASR::unaryopType::Not; break; }
-            case (AST::unaryopType::UAdd) : { op = ASR::unaryopType::UAdd; break; }
-            case (AST::unaryopType::USub) : { op = ASR::unaryopType::USub; break; }
-            default : {
-                throw SemanticError("Unary operator type not supported",
-                    x.base.base.loc);
-            }
-        }
-        ASR::ttype_t *operand_type = ASRUtils::expr_type(operand);
-        ASR::ttype_t *logical_type = ASRUtils::TYPE(
-            ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
-        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                4, nullptr, 0));
-        ASR::expr_t *value = nullptr;
-
-        if (ASRUtils::expr_value(operand) != nullptr) {
-            if (ASRUtils::is_integer(*operand_type)) {
-
-                int64_t op_value = ASR::down_cast<ASR::ConstantInteger_t>(
-                                        ASRUtils::expr_value(operand))->m_n;
-                if (op == ASR::unaryopType::Not) {
-                    bool b = (op_value == 0);
-                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
-                        al, x.base.base.loc, b, logical_type));
-                    operand_type = logical_type;
-                } else {
-                    int64_t result = 0;
-                    switch (op) {
-                        case (ASR::unaryopType::UAdd): { result = op_value; break; }
-                        case (ASR::unaryopType::USub): { result = -op_value; break; }
-                        case (ASR::unaryopType::Invert): { result = ~op_value; break; }
-                        default: LFORTRAN_ASSERT(false); // should never happen
-                    }
-                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
-                                al, x.base.base.loc, result, operand_type));
-                }
-
-            } else if (ASRUtils::is_real(*operand_type)) {
-                double op_value = ASR::down_cast<ASR::ConstantReal_t>(
-                                        ASRUtils::expr_value(operand))->m_r;
-                if (op == ASR::unaryopType::Not) {
-                    bool b = (op_value == 0.0);
-                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
-                        al, x.base.base.loc, b, logical_type));
-                    operand_type = logical_type;
-                } else {
-                    double result = 0.0;
-                    switch (op) {
-                        case (ASR::unaryopType::UAdd): { result = op_value; break; }
-                        case (ASR::unaryopType::USub): { result = -op_value; break; }
-                        default: {
-                            throw SemanticError("Bad operand type for unary " +
-                                ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str(operand_type),
-                                x.base.base.loc);
-                        }
-                    }
-                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(
-                        al, x.base.base.loc, result, operand_type));
-                }
-
-            } else if (ASRUtils::is_logical(*operand_type)) {
-                bool op_value = ASR::down_cast<ASR::ConstantLogical_t>(
-                                               ASRUtils::expr_value(operand))->m_value;
-                if (op == ASR::unaryopType::Not) {
-                    value = ASR::down_cast<ASR::expr_t>(
-                        ASR::make_ConstantLogical_t(al, x.base.base.loc, !op_value, logical_type));
-                } else {
-                    int8_t result = 0;
-                    switch (op) {
-                        case (ASR::unaryopType::UAdd): { result = +op_value; break; }
-                        case (ASR::unaryopType::USub): { result = -op_value; break; }
-                        case (ASR::unaryopType::Invert): { result = op_value ? -2 : -1; break; }
-                        default : LFORTRAN_ASSERT(false); // should never happen
-                    }
-                    value = ASR::down_cast<ASR::expr_t>(
-                        ASR::make_ConstantInteger_t(al, x.base.base.loc, result, int_type));
-                    operand_type = int_type;
-                }
-
-            } else if (ASRUtils::is_complex(*operand_type)) {
-                ASR::ConstantComplex_t *c = ASR::down_cast<ASR::ConstantComplex_t>(
-                                        ASRUtils::expr_value(operand));
-                std::complex<double> op_value(c->m_re, c->m_im);
-                std::complex<double> result;
-                if (op == ASR::unaryopType::Not) {
-                    bool b = (op_value.real() == 0.0 && op_value.imag() == 0.0);
-                    value = ASR::down_cast<ASR::expr_t>(
-                        ASR::make_ConstantLogical_t(al, x.base.base.loc, b, logical_type));
-                    operand_type = logical_type;
-                } else {
-                    switch (op) {
-                        case (ASR::unaryopType::UAdd): { result = op_value; break; }
-                        case (ASR::unaryopType::USub): { result = -op_value; break; }
-                        default: {
-                            throw SemanticError("Bad operand type for unary " +
-                                ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str(operand_type),
-                                x.base.base.loc);
-                        }
-                    }
-                    value = ASR::down_cast<ASR::expr_t>(
-                        ASR::make_ConstantComplex_t(al, x.base.base.loc,
-                        std::real(result), std::imag(result), operand_type));
-                }
-            }
-        }
-        tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
-                              value);
-    }
-
     void visit_AugAssign(const AST::AugAssign_t &x) {
         this->visit_expr(*x.m_target);
         ASR::expr_t *left = ASRUtils::EXPR(tmp);
@@ -1793,19 +1848,6 @@ public:
         transform_stmts(orelse, x.n_orelse, x.m_orelse);
         tmp = ASR::make_If_t(al, x.base.base.loc, test, body.p,
                 body.size(), orelse.p, orelse.size());
-    }
-
-    void visit_IfExp(const AST::IfExp_t &x) {
-        visit_expr(*x.m_test);
-        ASR::expr_t *test = ASRUtils::EXPR(tmp);
-        visit_expr(*x.m_body);
-        ASR::expr_t *body = ASRUtils::EXPR(tmp);
-        visit_expr(*x.m_orelse);
-        ASR::expr_t *orelse = ASRUtils::EXPR(tmp);
-        LFORTRAN_ASSERT(ASRUtils::check_equal_type(ASRUtils::expr_type(body),
-                                                   ASRUtils::expr_type(orelse)));
-        tmp = ASR::make_IfExp_t(al, x.base.base.loc, test, body, orelse,
-                                ASRUtils::expr_type(body));
     }
 
     void visit_Dict(const AST::Dict_t &x) {
@@ -1856,17 +1898,6 @@ public:
         transform_stmts(body, x.n_body, x.m_body);
         tmp = ASR::make_WhileLoop_t(al, x.base.base.loc, test, body.p,
                 body.size());
-    }
-
-    void visit_NamedExpr(const AST::NamedExpr_t &x) {
-        this->visit_expr(*x.m_target);
-        ASR::expr_t *target = ASRUtils::EXPR(tmp);
-        ASR::ttype_t *target_type = ASRUtils::expr_type(target);
-        this->visit_expr(*x.m_value);
-        ASR::expr_t *value = ASRUtils::EXPR(tmp);
-        ASR::ttype_t *value_type = ASRUtils::expr_type(value);
-        LFORTRAN_ASSERT(ASRUtils::check_equal_type(target_type, value_type));
-        tmp = ASR::make_NamedExpr_t(al, x.base.base.loc, target, value, value_type);
     }
 
     void visit_Compare(const AST::Compare_t &x) {
@@ -2172,17 +2203,21 @@ public:
                 throw SemanticError("Only Name supported in Call",
                     x.base.base.loc);
             }
-            Vec<ASR::expr_t*> args;
+            Vec<ASR::call_arg_t> args;
             args.reserve(al, c->n_args);
             for (size_t i=0; i<c->n_args; i++) {
                 visit_expr(*c->m_args[i]);
                 ASR::expr_t *expr = ASRUtils::EXPR(tmp);
-                args.push_back(al, expr);
+                ASR::call_arg_t arg;
+                arg.loc = c->m_args[i]->base.loc;
+                arg.m_value = expr;
+                args.push_back(al, arg);
             }
             if (call_name == "print") {
                 ASR::expr_t *fmt=nullptr;
+                Vec<ASR::expr_t*> args_expr = ASRUtils::call_arg2expr(al, args);
                 tmp = ASR::make_Print_t(al, x.base.base.loc, fmt,
-                    args.p, args.size());
+                    args_expr.p, args_expr.size());
                 return;
 
             } else if (call_name == "quit") {
@@ -2190,7 +2225,7 @@ public:
                 if (args.size() == 0) {
                     code = nullptr;
                 } else if (args.size() == 1) {
-                    code = args[0];
+                    code = args[0].m_value;
                 } else {
                     throw SemanticError("The function quit() requires 0 or 1 arguments",
                         x.base.base.loc);
@@ -2214,12 +2249,15 @@ public:
 
     void visit_Call(const AST::Call_t &x) {
         std::string call_name;
-        Vec<ASR::expr_t*> args;
+        Vec<ASR::call_arg_t> args;
         args.reserve(al, x.n_args);
         for (size_t i=0; i<x.n_args; i++) {
             visit_expr(*x.m_args[i]);
             ASR::expr_t *expr = ASRUtils::EXPR(tmp);
-            args.push_back(al, expr);
+            ASR::call_arg_t arg;
+            arg.loc = expr->base.loc;
+            arg.m_value = expr;
+            args.push_back(al, arg);
         }
         if (AST::is_a<AST::Name_t>(*x.m_func)) {
             AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
@@ -2247,21 +2285,7 @@ public:
                                         call_name, call_name_store, x.base.base.loc);
                     current_scope->scope[call_name_store] = st;
                 }
-                ASR::symbol_t *stemp = st;
-                st = ASRUtils::symbol_get_past_external(st);
-
-                if(ASR::is_a<ASR::Function_t>(*st)) {
-                    ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(st);
-                    ASR::ttype_t *a_type = ASRUtils::expr_type(func->m_return_var);
-                    tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, stemp,
-                        nullptr, args.p, args.size(), nullptr, 0, a_type, nullptr, nullptr);
-                } else if(ASR::is_a<ASR::Subroutine_t>(*st)) {
-                    tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, stemp,
-                        nullptr, args.p, args.size(), nullptr);
-                } else {
-                    throw SemanticError("Unsupported call type for " + call_name,
-                        x.base.base.loc);
-                }
+                make_call_helper(al, st, current_scope, args, call_name, x.base.base.loc);
                 return;
             } else {
                 throw SemanticError("Only Name type supported in Call",
@@ -2272,7 +2296,7 @@ public:
                 x.base.base.loc);
         }
 
-        ASR::symbol_t *s = current_scope->resolve_symbol(call_name), *s_generic = nullptr;
+        ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
 
         if (!s) {
             if (intrinsic_procedures.is_intrinsic(call_name)) {
@@ -2321,7 +2345,7 @@ public:
                 }
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
                                     1, nullptr, 0));
-                ASR::expr_t *arg = args[0];
+                ASR::expr_t *arg = args[0].m_value;
                 bool result = false;
                 if (ASR::is_a<ASR::Var_t>(*arg)) {
                     ASR::symbol_t *t = ASR::down_cast<ASR::Var_t>(arg)->m_v;
@@ -2338,14 +2362,20 @@ public:
             } // end of "comment"
         }
 
-        // handling ExternalSymbol
-        ASR::symbol_t *stemp = s;
-        s = ASRUtils::symbol_get_past_external(s);
+        make_call_helper(al, s, current_scope, args, call_name, x.base.base.loc);
+    }
 
+    // Function to create appropriate call based on symbol type. If it is external
+    // generic symbol then it changes the name accordingly.
+    void make_call_helper(Allocator &al, ASR::symbol_t* s, SymbolTable *current_scope,
+                    Vec<ASR::call_arg_t> args, std::string call_name, const Location &loc) {
+        ASR::symbol_t *s_generic = nullptr, *stemp = s;
+        // handling ExternalSymbol
+        s = ASRUtils::symbol_get_past_external(s);
         if (ASR::is_a<ASR::GenericProcedure_t>(*s)) {
             s_generic = stemp;
             ASR::GenericProcedure_t *p = ASR::down_cast<ASR::GenericProcedure_t>(s);
-            int idx = ASRUtils::select_generic_procedure(args, *p, x.base.base.loc,
+            int idx = ASRUtils::select_generic_procedure(args, *p, loc,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); });
             s = p->m_procs[idx];
             std::string remote_sym = ASRUtils::symbol_name(s);
@@ -2364,7 +2394,7 @@ public:
                 ASR::symbol_t *mt = symtab->scope[mod_name];
                 ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(mt);
                 stemp = import_from_module(al, m, symtab, mod_name,
-                                    remote_sym, local_sym, x.base.base.loc);
+                                    remote_sym, local_sym, loc);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*stemp));
                 symtab->scope[local_sym] = stemp;
                 s = ASRUtils::symbol_get_past_external(stemp);
@@ -2377,16 +2407,15 @@ public:
             ASR::ttype_t *a_type = ASRUtils::expr_type(func->m_return_var);
             ASR::expr_t *value = nullptr;
             if (ASRUtils::is_intrinsic_function2(func)) {
-                value = intrinsic_procedures.comptime_eval(call_name, al, x.base.base.loc, args);
+                value = intrinsic_procedures.comptime_eval(call_name, al, loc, args);
             }
-            tmp = ASR::make_FunctionCall_t(al, x.base.base.loc, stemp,
-                s_generic, args.p, args.size(), nullptr, 0, a_type, value, nullptr);
+            tmp = ASR::make_FunctionCall_t(al, loc, stemp,
+                s_generic, args.p, args.size(), a_type, value, nullptr);
         } else if (ASR::is_a<ASR::Subroutine_t>(*s)) {
-            tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, stemp,
+            tmp = ASR::make_SubroutineCall_t(al, loc, stemp,
                 s_generic, args.p, args.size(), nullptr);
         } else {
-            throw SemanticError("Unsupported call type for " + call_name,
-                x.base.base.loc);
+            throw SemanticError("Unsupported call type for " + call_name, loc);
         }
     }
 

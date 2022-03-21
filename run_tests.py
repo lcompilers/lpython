@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 
 import argparse
-import hashlib
 import os
-import subprocess
 
 import toml
 
-from compiler_tester.tester import (RunException, run, run_test, color,
-    style, print_check, fg)
+from compiler_tester.tester import run_test, color, style, fg
 
 def main():
-    parser = argparse.ArgumentParser(description="LFortran Test Suite")
+    parser = argparse.ArgumentParser(description="LPython Test Suite")
     parser.add_argument("-u", "--update", action="store_true",
             help="update all reference results")
     parser.add_argument("-l", "--list", action="store_true",
@@ -29,7 +26,7 @@ def main():
     verbose = args.verbose
     no_llvm = args.no_llvm
 
-    # So that the tests find the `lfortran` executable
+    # So that the tests find the `lpython` executable
     os.environ["PATH"] = os.path.join(os.getcwd(), "src", "bin") \
             + os.pathsep + os.environ["PATH"]
 

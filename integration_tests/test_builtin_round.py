@@ -1,4 +1,4 @@
-from ltypes import f64
+from ltypes import i32, f32, f64
 
 def test_round():
     f: f64
@@ -22,5 +22,16 @@ def test_round():
     assert round(50.5) == 50
     assert round(56.78) == 57
 
+    i: i32
+    i = -5
+    assert round(i) == -5
+    assert round(4) == 4
+
+    b: bool
+    b = True
+    assert round(b) == 1
+    b = False
+    assert round(b) == 0
+    assert round(False) == 0
 
 test_round()

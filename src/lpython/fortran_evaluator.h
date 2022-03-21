@@ -5,9 +5,7 @@
 #include <memory>
 
 #include <libasr/alloc.h>
-#include <lpython/parser/parser.h>
 #include <libasr/asr_scopes.h>
-#include <lpython/ast.h>
 #include <libasr/asr.h>
 #include <lpython/utils.h>
 #include <libasr/config.h>
@@ -19,7 +17,7 @@ class LLVMModule;
 class LLVMEvaluator;
 
 /*
-   FortranEvaluator is the main class to access the Fortran compiler.
+   PythonCompiler is the main class to access the Python compiler.
 
    This class is used for both interactive (.evaluate()) and non-interactive
    (.get_llvm2()) compilation. The methods return diagnostic messages (errors,
@@ -29,11 +27,11 @@ class LLVMEvaluator;
    One can use get_asr2() to obtain the ASR and then hand it over to other
    backends by hand.
 */
-class FortranEvaluator
+class PythonCompiler
 {
 public:
-    FortranEvaluator(CompilerOptions compiler_options);
-    ~FortranEvaluator();
+    PythonCompiler(CompilerOptions compiler_options);
+    ~PythonCompiler();
 
     struct EvalResult {
         enum {
@@ -52,35 +50,7 @@ public:
         std::string llvm_ir;
     };
 
-    // Evaluates `code`.
-    // If `verbose=true`, it saves ast, asr and llvm_ir in Result.
-    Result<EvalResult> evaluate(const std::string &code, bool verbose,
-        LocationManager &lm, diag::Diagnostics &diagnostics);
-    Result<EvalResult> evaluate2(const std::string &code);
-
-    Result<std::string> get_ast(const std::string &code,
-        LocationManager &lm, diag::Diagnostics &diagnostics);
-    Result<AST::TranslationUnit_t*> get_ast2(const std::string &code,
-        LocationManager &lm, diag::Diagnostics &diagnostics);
-    Result<ASR::TranslationUnit_t*> get_asr3(AST::TranslationUnit_t &ast,
-        diag::Diagnostics &diagnostics);
-    Result<std::string> get_asr(const std::string &code,
-        LocationManager &lm, diag::Diagnostics &diagnostics);
-    Result<ASR::TranslationUnit_t*> get_asr2(const std::string &code,
-        LocationManager &lm, diag::Diagnostics &diagnostics);
-    Result<std::string> get_llvm(const std::string &code,
-        LocationManager &lm, diag::Diagnostics &diagnostics);
-    Result<std::unique_ptr<LLVMModule>> get_llvm2(const std::string &code,
-        LocationManager &lm, diag::Diagnostics &diagnostics);
     Result<std::unique_ptr<LLVMModule>> get_llvm3(ASR::TranslationUnit_t &asr,
-        diag::Diagnostics &diagnostics);
-    Result<std::string> get_asm(const std::string &code, LocationManager &lm,
-        diag::Diagnostics &diagnostics);
-    Result<std::string> get_cpp(const std::string &code, LocationManager &lm,
-        diag::Diagnostics &diagnostics);
-    Result<std::string> get_cpp2(ASR::TranslationUnit_t &asr,
-        diag::Diagnostics &diagnostics);
-    Result<std::string> get_fmt(const std::string &code, LocationManager &lm,
         diag::Diagnostics &diagnostics);
 
 private:
@@ -90,7 +60,7 @@ private:
     int eval_count;
 #endif
     CompilerOptions compiler_options;
-    SymbolTable *symbol_table;
+//    SymbolTable *symbol_table;
     std::string run_fn;
 };
 

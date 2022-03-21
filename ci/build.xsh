@@ -26,19 +26,12 @@ llvm-config --components
 # Generate the `version` file
 bash ci/version.sh
 
-# Generate a Fortran AST from AST.asdl (C++)
-python grammar/asdl_cpp.py
 # Generate a Fortran ASR from ASR.asdl (C++)
 python grammar/asdl_cpp.py grammar/ASR.asdl src/libasr/asr.h
 # Generate a Python AST from Python.asdl (C++)
 python grammar/asdl_cpp.py grammar/Python.asdl src/lpython/python_ast.h
 # Generate a Python AST from Python.asdl (Python)
 python grammar/asdl_py.py
-
-# Generate the tokenizer and parser
-pushd src/lpython/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd
-pushd src/lpython/parser && re2c -W -b preprocessor.re -o preprocessor.cpp && popd
-pushd src/lpython/parser && bison -Wall -d -r all parser.yy && popd
 
 $lpython_version=$(cat version).strip()
 $dest="lpython-" + $lpython_version
@@ -55,7 +48,7 @@ BUILD_TYPE = "Release"
 cmake -G $LFORTRAN_CMAKE_GENERATOR -DCMAKE_VERBOSE_MAKEFILE=ON -DWITH_LLVM=yes -DWITH_XEUS=yes -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DWITH_LFORTRAN_BINARY_MODFILES=no -DCMAKE_BUILD_TYPE=@(BUILD_TYPE) ..
 cmake --build . --target install
 ./src/lpython/tests/test_lfortran
-./src/bin/lpython < ../src/bin/example_input.txt
+#./src/bin/lpython < ../src/bin/example_input.txt
 ctest --output-on-failure
 cpack -V
 cd ../..
@@ -67,4 +60,3 @@ if $WIN == "1":
     cp lpython-$lpython_version/test-bld/src/runtime/lfortran_runtime* src/runtime/
 else:
     cp lpython-$lpython_version/test-bld/src/runtime/liblfortran_runtime* src/runtime/
-cp lpython-$lpython_version/test-bld/src/runtime/*.mod src/runtime/
