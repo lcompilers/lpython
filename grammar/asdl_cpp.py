@@ -1556,6 +1556,7 @@ def main(argv):
     if subs["MOD"] == "PYTHON":
         subs["MOD"] = "Python::AST"
         subs["mod"] = "ast"
+    is_asr = (mod.name.upper() == "ASR")
     fp = open(out_file, "w", encoding="utf-8")
     try:
         fp.write(HEAD % subs)
