@@ -541,9 +541,6 @@ class TreeVisitorVisitor(ASDLVisitor):
                 self.emit('s.append("\\n" + indtd + "%s" + "%s=");' % (arr, field.name), 2)
                 if last:
                     self.emit('last = true;', 2)
-                    #self.emit('attached = true;', 2)
-                #else:
-                    #self.emit('attached = true;', 2)
                 self.emit("if (x.m_%s) {" % field.name, 2)
                 self.emit(template, 3)
                 self.emit("} else {", 2)
