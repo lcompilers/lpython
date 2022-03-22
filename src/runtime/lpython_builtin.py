@@ -291,8 +291,9 @@ def ubound(x: i32[:], dim: i32) -> i32:
 
 
 @overload
-def imag(x: c64) -> f64:
+def _imag(x: c64) -> f64:
     pass
 
 @overload
-def imag(x: c32) -> f32:
+def _imag(x: c32) -> f32:
+    pass

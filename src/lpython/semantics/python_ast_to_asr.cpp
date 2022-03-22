@@ -1847,16 +1847,18 @@ public:
             }
             if (ASR::is_a<ASR::Variable_t>(*t)) {
                 ASR::Variable_t *var = ASR::down_cast<ASR::Variable_t>(t);
-                // LFORTRAN_ASSERT(var->m_value);
                 if (ASRUtils::is_complex(*var->m_type)) {
                     std::string attr = x.m_attr;
                     if (attr == "imag") {
                         ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, x.base.base.loc, t));
-                        ASR::symbol_t *fn_imag = resolve_intrinsic_function(x.base.base.loc, "imag");
-                        Vec<ASR::expr_t*> args;
+                        ASR::symbol_t *fn_imag = resolve_intrinsic_function(x.base.base.loc, "_imag");
+                        Vec<ASR::call_arg_t> args;
                         args.reserve(al, 1);
-                        args.push_back(al, val);
-                        make_call_helper(al, fn_imag, current_scope, args, "imag", x.base.base.loc);
+                        ASR::call_arg_t arg;
+                        arg.loc = val->base.loc;
+                        arg.m_value = val;
+                        args.push_back(al, arg);
+                        make_call_helper(al, fn_imag, current_scope, args, "_imag", x.base.base.loc);
                         return;
                     } else if (attr == "real") {
                         ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, x.base.base.loc, t));
