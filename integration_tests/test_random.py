@@ -34,10 +34,8 @@ def test_uniform():
     r: f64
     r = random.uniform(5., 76.)
     print(r)
-    assert r >= 5. and r < 76.
     r = random.uniform(-50., 76.)
     print(r)
-    assert r >= -50. and r < 76.
 
 def test_paretovariate():
     r: f64
