@@ -1842,7 +1842,7 @@ public:
             }
             list.push_back(al, expr);
         }
-        tmp = ASR::make_ConstantArray_t(al, x.base.base.loc, list.p,
+        tmp = ASR::make_ConstantList_t(al, x.base.base.loc, list.p,
             list.size(), type);
     }
 
