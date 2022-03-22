@@ -616,7 +616,6 @@ class TreeVisitorVisitor(ASDLVisitor):
                     self.emit(      'inc_indent();', level+1)
                     self.emit(      'last = i == x.m_%s->scope.size();' % field.name, level+1)
                     self.emit(      's.append("\\n" + indtd + (last ? "└-" : "|-") + a.first + ": ");', level+1)
-                    # self.emit(      'attached = true;', level+1)
                     self.emit(      'this->visit_symbol(*a.second);', level+1)
                     self.emit(      'dec_indent();', level+1)
                     self.emit('}', level)
