@@ -108,6 +108,7 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::ConstantReal: { return ((ASR::ConstantReal_t*)f)->m_type; }
         case ASR::exprType::ConstantComplex: { return ((ASR::ConstantComplex_t*)f)->m_type; }
         case ASR::exprType::ConstantSet: { return ((ASR::ConstantSet_t*)f)->m_type; }
+        case ASR::exprType::ConstantList: { return ((ASR::ConstantList_t*)f)->m_type; }
         case ASR::exprType::ConstantTuple: { return ((ASR::ConstantTuple_t*)f)->m_type; }
         case ASR::exprType::ConstantLogical: { return ((ASR::ConstantLogical_t*)f)->m_type; }
         case ASR::exprType::ConstantString: { return ((ASR::ConstantString_t*)f)->m_type; }
@@ -148,6 +149,9 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
         }
         case ASR::ttypeType::Dict: {
             return "dict";
+        }
+        case ASR::ttypeType::List: {
+            return "list";
         }
         default : throw LFortranException("Not implemented");
     }

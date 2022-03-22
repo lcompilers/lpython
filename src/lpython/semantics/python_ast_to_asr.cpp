@@ -1842,8 +1842,9 @@ public:
             }
             list.push_back(al, expr);
         }
+        ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, x.base.base.loc, type));
         tmp = ASR::make_ConstantList_t(al, x.base.base.loc, list.p,
-            list.size(), type);
+            list.size(), list_type);
     }
 
     void visit_Tuple(const AST::Tuple_t &x) {
