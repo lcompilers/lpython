@@ -50,7 +50,6 @@ def uniform(a: f64, b: f64) -> f64:
     """
     Get a random number in the range [a, b) or [a, b] depending on rounding.
     """
-    assert b >= a
     return a + (b - a) * random()
 
 def paretovariate(alpha: f64) -> f64:
