@@ -20,10 +20,10 @@ def random() -> f64:
     """
     Returns a random floating point number in the range [0.0, 1.0)
     """
-    return _lfortran_random_float()
+    return _lfortran_random()
 
 @ccall
-def _lfortran_random_float() -> f64:
+def _lfortran_random() -> f64:
     pass
 
 def randrange(lower: i32, upper: i32) -> i32:

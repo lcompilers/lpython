@@ -30,9 +30,9 @@ LFORTRAN_API void _lfortran_random_number(int n, double *v)
     }
 }
 
-LFORTRAN_API float _lfortran_random_float()
+LFORTRAN_API double _lfortran_random()
 {
-    return ((float) rand() / (float) RAND_MAX);
+    return (rand() / (double) RAND_MAX);
 }
 
 LFORTRAN_API int _lfortran_randrange(int lower, int upper)
