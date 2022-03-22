@@ -12,3 +12,7 @@ def test_List():
 
     d: i32
     d = a[2]
+
+    # ragged list
+    e: list[list[str], list[str]]
+    e = [['a', 'b', 'c'], ['d', 'e']]
