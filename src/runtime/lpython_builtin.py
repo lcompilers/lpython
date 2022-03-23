@@ -289,11 +289,19 @@ def lbound(x: i32[:], dim: i32) -> i32:
 def ubound(x: i32[:], dim: i32) -> i32:
     pass
 
+@ccall
+def _lfortran_caimag(x: c32) -> f32:
+    pass
 
+@ccall
+def _lfortran_zaimag(x: c64) -> f64:
+    pass
+
+# TODO: rename to _lpython_imag()
 @overload
 def _imag(x: c64) -> f64:
-    pass
+    return _lfortran_zaimag(x)
 
 @overload
 def _imag(x: c32) -> f32:
-    pass
+    return _lfortran_caimag(x)
