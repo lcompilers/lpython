@@ -1,6 +1,7 @@
 from ltypes import i32, f64, ccall
 
 e: f64 = 2.718281828459045235360287471352662497757
+eps: f64 = 1e-16
 
 #: TODO: Call `log` from C directly until we fix the multiple import issue
 def _log(x: f64) -> f64:
@@ -15,6 +16,11 @@ def _exp(x: f64) -> f64:
 
 def _sqrt(x: f64) -> f64:
     return x**(1/2)
+
+def _abs(x: f64) -> f64:
+    if x < 0.0:
+        return -x
+    return x
 
 def random() -> f64:
     """
@@ -65,7 +71,7 @@ def expovariate(l: f64) -> f64:
     Return a random number from an exponential distribution with parameter
     `l` (lambda).
     """
-    assert l != 0.0
+    assert _abs(l) > eps
     return -_log(1.0 - random()) / l
 
 def weibullvariate(alpha: f64, beta: f64) -> f64:
@@ -73,5 +79,5 @@ def weibullvariate(alpha: f64, beta: f64) -> f64:
     Return a random number from a Weibull distribution with parameters `alpha`
     and `beta`.
     """
-    assert beta != 0.0
+    assert _abs(beta) > eps
     return alpha * (-_log(1.0 - random())) ** (1.0 / beta)
