@@ -483,36 +483,13 @@ public:
                 }
             } else if (var_annotation == "list") {
                 ASR::ttype_t *type = nullptr;
-                if (AST::is_a<AST::Name_t>(*s->m_slice)) { // list[i32]
+                if (AST::is_a<AST::Name_t>(*s->m_slice) || AST::is_a<AST::Subscript_t>(*s->m_slice)) {
                     type = ast_expr_to_asr_type(loc, *s->m_slice);
                     return ASRUtils::TYPE(ASR::make_List_t(al, loc, type));
-                } else if (AST::is_a<AST::Subscript_t>(*s->m_slice)) {
-                    // list inside a list (ragged list)
-                    // list[list[i32]]
-                    AST::Subscript_t *ss = AST::down_cast<AST::Subscript_t>(s->m_slice);
-                    if (AST::is_a<AST::Name_t>(*ss->m_value)) {
-                        AST::Name_t *n = AST::down_cast<AST::Name_t>(ss->m_value);
-                        var_annotation = n->m_id;
-                        if (var_annotation == "list") { // list[list[xxx]]
-                            if (AST::is_a<AST::Name_t>(*ss->m_slice)) { // list[list[i32]]
-                                type = ast_expr_to_asr_type(loc, *ss->m_slice);
-                                return ASRUtils::TYPE(ASR::make_List_t(al, loc, type));
-                            } else {
-                                throw SemanticError("Only Name in Subscript supported for now in `list`"
-                                    " annotation", loc);
-                            }
-                        } else {
-                            throw SemanticError("Only list supported inside a list for now.", loc);
-                        }
-                    } else {
-                        throw SemanticError("Only Name in Subscript supported for now in `list`"
-                            " annotation", loc);
-                    }
                 } else {
                     throw SemanticError("Only Name or Subscript inside Subscript supported for now in `list`"
                         " annotation", loc);
                 }
-                return type;
             } else if (var_annotation == "dict") {
                 if (AST::is_a<AST::Tuple_t>(*s->m_slice)) {
                     AST::Tuple_t *t = AST::down_cast<AST::Tuple_t>(s->m_slice);
