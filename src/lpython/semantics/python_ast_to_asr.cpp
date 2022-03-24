@@ -1855,14 +1855,14 @@ public:
                     std::string attr = x.m_attr;
                     if (attr == "imag") {
                         ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, x.base.base.loc, t));
-                        ASR::symbol_t *fn_imag = resolve_intrinsic_function(x.base.base.loc, "_imag");
+                        ASR::symbol_t *fn_imag = resolve_intrinsic_function(x.base.base.loc, "_lpython_imag");
                         Vec<ASR::call_arg_t> args;
                         args.reserve(al, 1);
                         ASR::call_arg_t arg;
                         arg.loc = val->base.loc;
                         arg.m_value = val;
                         args.push_back(al, arg);
-                        make_call_helper(al, fn_imag, current_scope, args, "_imag", x.base.base.loc);
+                        make_call_helper(al, fn_imag, current_scope, args, "_lpython_imag", x.base.base.loc);
                         return;
                     } else if (attr == "real") {
                         ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, x.base.base.loc, t));

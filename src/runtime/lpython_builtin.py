@@ -297,11 +297,10 @@ def _lfortran_caimag(x: c32) -> f32:
 def _lfortran_zaimag(x: c64) -> f64:
     pass
 
-# TODO: rename to _lpython_imag()
 @overload
-def _imag(x: c64) -> f64:
+def _lpython_imag(x: c64) -> f64:
     return _lfortran_zaimag(x)
 
 @overload
-def _imag(x: c32) -> f32:
+def _lpython_imag(x: c32) -> f32:
     return _lfortran_caimag(x)
