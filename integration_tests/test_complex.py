@@ -40,8 +40,21 @@ def test_complex():
     print(x.real)
     print(x.imag)
 
+
+def test_complex_abs():
+    x: c32
+    x = complex(3, 4)
+    eps: f64
+    eps = 1e-12
+    assert abs(abs(x) - 5.0) < eps
+    y: c64
+    y = complex(6, 8)
+    assert abs(abs(y) - 10.0) < eps
+
+
 def check():
     test_real_imag()
     test_complex()
+    test_complex_abs()
 
 check()
