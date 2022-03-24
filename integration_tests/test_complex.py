@@ -33,6 +33,13 @@ def test_complex():
     assert abs(x.real - 5.6) < eps
     assert abs(x.imag - 0.0) < eps
 
+    a: f64
+    a = 534.6
+    x = complex(a, -a)
+    print(x)
+    print(x.real)
+    print(x.imag)
+
 def check():
     test_real_imag()
     test_complex()
