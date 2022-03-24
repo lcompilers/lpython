@@ -276,7 +276,23 @@ def round(value: i32) -> i64:
 def round(b: bool) -> i32:
     return abs(b)
 
+#: complex() as a generic procedure.
+#: supported types for arguments:
+#: (i32, i32), (f64, f64), (i32, f64), (f64, i32)
+@overload
 def complex(x: f64, y: f64) -> c64:
+    pass
+
+@overload
+def complex(x: i32, y: i32) -> c64:
+    pass
+
+@overload
+def complex(x: i32, y: f64) -> c64:
+    pass
+
+@overload
+def complex(x: f64, y: i32) -> c64:
     pass
 
 def divmod(x: i32, y: i32) -> tuple[i32, i32]:
