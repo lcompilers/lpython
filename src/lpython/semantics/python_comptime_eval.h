@@ -44,6 +44,7 @@ struct PythonIntrinsicProcedures {
             {"hex", {m_builtin, &eval_hex}},
             {"oct", {m_builtin, &eval_oct}},
             {"complex", {m_builtin, &eval_complex}},
+            {"_lpython_imag", {m_builtin, &eval__lpython_imag}},
             {"divmod", {m_builtin, &eval_divmod}},
         };
     }
@@ -501,6 +502,24 @@ struct PythonIntrinsicProcedures {
             }
         }
         return ASR::down_cast<ASR::expr_t>(make_ConstantComplex_t(al, loc, c1, c2, type));
+    }
+
+    static ASR::expr_t *eval__lpython_imag(Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args
+            ) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        if (args.size() != 1) {
+            throw SemanticError("Intrinsic _lpython_imag function accepts exactly 1 argument", loc);
+        }
+        ASR::expr_t* imag_arg = args[0];
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
+        if (ASR::is_a<ASR::Complex_t>(*ASRUtils::expr_type(imag_arg))) {
+            double im = ASR::down_cast<ASR::ConstantComplex_t>(imag_arg)->m_im;
+            double result = im;
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, result, type));
+        } else {
+            throw SemanticError("Argument of the _lpython_imag() function must be Complex", loc);
+        }
     }
 
     static ASR::expr_t *eval_divmod(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &args) {

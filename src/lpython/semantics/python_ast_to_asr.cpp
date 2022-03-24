@@ -154,7 +154,9 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         for (auto &item : mod2->m_symtab->scope) {
             if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
                 ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
-                s->m_abi = ASR::abiType::Intrinsic;
+                if (s->m_abi == ASR::abiType::Source) {
+                    s->m_abi = ASR::abiType::Intrinsic;
+                }
                 if (s->n_body == 0) {
                     std::string name = s->m_name;
                     if (name == "ubound" || name == "lbound") {
@@ -164,7 +166,9 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
             }
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
-                s->m_abi = ASR::abiType::Intrinsic;
+                if (s->m_abi == ASR::abiType::Source) {
+                    s->m_abi = ASR::abiType::Intrinsic;
+                }
                 if (s->n_body == 0) {
                     std::string name = s->m_name;
                     if (name == "ubound" || name == "lbound") {
@@ -1835,6 +1839,58 @@ public:
         ASR::expr_t *tmp2 = ASR::down_cast<ASR::expr_t>(tmp);
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, left, tmp2, a_overloaded);
 
+    }
+
+    void visit_Attribute(const AST::Attribute_t &x) {
+        if (AST::is_a<AST::Name_t>(*x.m_value)) {
+            std::string value = AST::down_cast<AST::Name_t>(x.m_value)->m_id;
+            ASR::symbol_t *t = current_scope->scope[value];
+            if (!t) {
+                throw SemanticError("'" + value + "' is not defined in the scope",
+                    x.base.base.loc);
+            }
+            if (ASR::is_a<ASR::Variable_t>(*t)) {
+                ASR::Variable_t *var = ASR::down_cast<ASR::Variable_t>(t);
+                if (ASRUtils::is_complex(*var->m_type)) {
+                    std::string attr = x.m_attr;
+                    if (attr == "imag") {
+                        ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, x.base.base.loc, t));
+                        ASR::symbol_t *fn_imag = resolve_intrinsic_function(x.base.base.loc, "_lpython_imag");
+                        Vec<ASR::call_arg_t> args;
+                        args.reserve(al, 1);
+                        ASR::call_arg_t arg;
+                        arg.loc = val->base.loc;
+                        arg.m_value = val;
+                        args.push_back(al, arg);
+                        make_call_helper(al, fn_imag, current_scope, args, "_lpython_imag", x.base.base.loc);
+                        return;
+                    } else if (attr == "real") {
+                        ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, x.base.base.loc, t));
+                        int kind = ASRUtils::extract_kind_from_ttype_t(var->m_type);
+                        ASR::ttype_t *dest_type = ASR::down_cast<ASR::ttype_t>(ASR::make_Real_t(al, x.base.base.loc,
+                                                        kind, nullptr, 0));
+                        tmp = (ASR::asr_t*)ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                            al, val->base.loc, val, ASR::cast_kindType::ComplexToReal, dest_type,
+                            nullptr));
+                        return;
+                    } else {
+                        throw SemanticError("'" + attr + "' is not implemented for Complex type",
+                            x.base.base.loc);
+                    }
+
+                } else {
+                    throw SemanticError("Only Complex type supported for now in Attribute",
+                        x.base.base.loc);
+                }
+            } else {
+                throw SemanticError("Only Variable type is supported for now in Attribute",
+                    x.base.base.loc);
+            }
+
+        } else {
+            throw SemanticError("Only Name is supported for now in Attribute",
+                x.base.base.loc);
+        }
     }
 
     void visit_If(const AST::If_t &x) {

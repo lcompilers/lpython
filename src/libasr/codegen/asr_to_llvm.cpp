@@ -4032,6 +4032,8 @@ public:
             throw CodeGenError("Function LFortran interfaces not implemented yet");
         } else if (s->m_abi == ASR::abiType::Interactive) {
             h = get_hash((ASR::asr_t*)s);
+        } else if (s->m_abi == ASR::abiType::BindC) {
+            h = get_hash((ASR::asr_t*)s);
         } else if (s->m_abi == ASR::abiType::Intrinsic || intrinsic_function) {
             std::string func_name = s->m_name;
             if( fname2arg_type.find(func_name) != fname2arg_type.end() ) {
@@ -4049,8 +4051,6 @@ public:
                     h = get_hash((ASR::asr_t*)s);
                 }
             }
-        } else if (s->m_abi == ASR::abiType::BindC) {
-            h = get_hash((ASR::asr_t*)s);
         } else {
             throw CodeGenError("ABI type not implemented yet.");
         }
