@@ -10,6 +10,9 @@ def test_int():
     assert int(f) == -183745
     assert int(5.5) == 5
     assert int(-5.5) == -5
+    assert int() == 0
+    assert int(True) == 1
+    assert int(5) == 5
 
 
 def test_issue254():
