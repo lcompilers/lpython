@@ -9,7 +9,10 @@
 #include <float.h>
 #include <limits.h>
 #include <fcntl.h>
+
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 #include "lfortran_intrinsics.h"
 
