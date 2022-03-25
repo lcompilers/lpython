@@ -64,11 +64,19 @@ def abs(b: bool) -> i32:
 
 @overload
 def abs(c: c32) -> f32:
-    pass
+    a: f32
+    b: f32
+    a = c.real
+    b = _lfortran_caimag(c)
+    return (a**2 + b**2)**(1/2)
 
 @overload
 def abs(c: c64) -> f64:
-    pass
+    a: f64
+    b: f64
+    a = c.real
+    b = _lfortran_zaimag(c)
+    return (a**2 + b**2)**(1/2)
 
 
 def str(x: i32) -> str:
