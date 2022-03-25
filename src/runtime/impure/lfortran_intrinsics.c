@@ -786,3 +786,9 @@ LFORTRAN_API void _lfortran_dp_rand_num(double *x) {
     srand(time(0));
     *x = rand() / (double) RAND_MAX;
 }
+
+// type conversions ------------------------------------------------------------
+
+LFORTRAN_API int32_t _lfortran_double2int(double x) {
+    return (int32_t)x;
+}
