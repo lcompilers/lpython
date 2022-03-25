@@ -1395,7 +1395,7 @@ public:
             } else { // real divison in python using (`/`)
                 dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
                     8, nullptr, 0));
-                if (ASRUtils::is_integer(*left_type)) {
+                if (ASRUtils::is_integer(*left_type)) {              
                     left = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
                         al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type,
                         value));
@@ -1481,8 +1481,54 @@ public:
                                     value);
             return;
 
-        } else if (ASRUtils::is_complex(*left_type) && ASRUtils::is_complex(*right_type)) {
-            dest_type = left_type;
+        } else if (ASRUtils::is_complex(*left_type) || ASRUtils::is_complex(*right_type)) {
+
+            // handle cases when complex values are initialized in the form (3 + 4j) or (3j + 4)
+
+            // case: (complex j + real or integer)
+            if(ASRUtils::is_complex(*left_type) && (ASRUtils::is_integer(*right_type) || ASRUtils::is_real(*right_type))){
+                dest_type = left_type;
+                double right_value;
+
+                // right operand is real
+                if(ASRUtils::is_real(*right_type)){
+                    right_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                                        ASRUtils::expr_value(right))->m_r;
+                }
+                // right operand is an integer
+                else if(ASRUtils::is_integer(*right_type)){
+                    right_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                                        ASRUtils::expr_value(right))->m_n;
+                }
+
+                // make a complex number from the right side
+                right = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantComplex_t(al, loc,
+                        std::real(right_value), std::imag(0), dest_type));
+
+            }
+            // case: (real or integer + complex j)
+            else if(ASRUtils::is_complex(*right_type) && (ASRUtils::is_integer(*left_type) || ASRUtils::is_real(*left_type))){
+                dest_type = right_type;
+                double left_value;
+
+                // left operand is real
+                if(ASRUtils::is_real(*left_type)){
+                    left_value = ASR::down_cast<ASR::ConstantReal_t>(
+                                                        ASRUtils::expr_value(left))->m_r;
+                }
+                // left operand is an integer
+                else if(ASRUtils::is_integer(*left_type)){
+                    left_value = ASR::down_cast<ASR::ConstantInteger_t>(
+                                                        ASRUtils::expr_value(left))->m_n;
+                }
+                // make a complex number from the left side
+                left = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantComplex_t(al, loc,
+                        std::real(left_value), std::imag(0), dest_type));
+            }
+            // 3j + 4j type
+            else if(ASRUtils::is_complex(*left_type) && ASRUtils::is_complex(*right_type)){
+                dest_type = left_type;
+            }       
         } else if (ASRUtils::is_logical(*left_type) && ASRUtils::is_logical(*right_type)) {
             dest_type = left_type;
         } else {
