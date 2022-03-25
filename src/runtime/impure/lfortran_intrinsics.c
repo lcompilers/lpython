@@ -789,9 +789,9 @@ LFORTRAN_API void _lfortran_dp_rand_num(double *x) {
     *x = rand() / (double) RAND_MAX;
 }
 
-LFORTRAN_API int64_t _lpython_open(char *path)
+LFORTRAN_API int64_t _lpython_open(char *path, int32_t flags)
 {
-    int64_t fd = open(path, O_RDONLY);
+    int64_t fd = open(path, flags);
     if (fd < 0) 
     {
         printf("Error in opening the file!\n");
