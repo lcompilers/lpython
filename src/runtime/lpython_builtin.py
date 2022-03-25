@@ -191,7 +191,9 @@ def float(i: i32) -> f64:
     """
     Converts an integer to a floating point number.
     """
-    pass # handled by LLVM
+    x: f64
+    x = i + 0.0
+    return x
 
 
 def bin(n: i32) -> str:
