@@ -2,11 +2,11 @@
     "basename": "asr-test_builtin_float-20601dd",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/test_builtin_float.py",
-    "infile_hash": "e23f02607ca52c3f4e4d5d6cb6ae83d198902c82c9a94c1c113d4903",
+    "infile_hash": "07e3128df4b77554af76fd83e9379428bda73e3fa9a8778504395ecb",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-test_builtin_float-20601dd.stdout",
-    "stdout_hash": "640979c5fb167e977ac91e50e8c39506ef8b8343731eb983f23ae3db",
+    "stdout_hash": "8e301185118dc02ddb05992d56e0b8e66ccce3a502a3f5354942a6f8",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
