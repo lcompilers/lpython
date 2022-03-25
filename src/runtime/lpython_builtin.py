@@ -180,13 +180,64 @@ def pow(x: f64, y: i32) -> f64:
     return x**y
 
 
+@ccall
+def _lfortran_double2int(f: f64) -> i32:
+    pass
+
+@overload
 def int(f: f64) -> i32:
     """
     Converts a floating point number to an integer.
     """
-    pass # handled by LLVM
+    return _lfortran_double2int(f)
+
+@overload
+def int(f: f32) -> i32:
+    """
+    Converts a floating point number to an integer.
+    """
+    x: f64
+    x = f
+    return _lfortran_double2int(x)
 
 
+@overload
+def int(x: bool) -> i32:
+    """
+    Converts a bool to an integer.
+    """
+    if x:
+        return 1
+    return 0
+
+
+@overload
+def int(x: i32) -> i32:
+    return x
+
+@overload
+def int(x: i64) -> i32:
+    f: i32
+    f = x
+    return f
+
+
+@overload
+def int() -> i32:
+    """
+    Converts a floating point number to an integer.
+    """
+    return 0
+
+
+@overload
+def float() -> f64:
+    """
+    Converts a floating point number to an integer.
+    """
+    return 0.0
+
+@overload
 def float(i: i32) -> f64:
     """
     Converts an integer to a floating point number.
@@ -195,6 +246,37 @@ def float(i: i32) -> f64:
     x = i + 0.0
     return x
 
+
+@overload
+def float(i: i64) -> f64:
+    """
+    Converts an integer to a floating point number.
+    """
+    x: f64
+    x = i + 0.0
+    return x
+
+
+@overload
+def float(x: bool) -> f64:
+    """
+    Converts a bool to an integer.
+    """
+    if x:
+        return 1.0
+    return 0.0
+
+
+@overload
+def float(x: f32) -> f64:
+    f: f64
+    f = x
+    return f
+
+
+@overload
+def float(x: f64) -> f64:
+    return x
 
 def bin(n: i32) -> str:
     """
