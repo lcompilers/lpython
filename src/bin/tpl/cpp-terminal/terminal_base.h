@@ -86,12 +86,14 @@ public:
             if (!GetConsoleMode(hout, &dwOriginalOutMode)) {
                 throw std::runtime_error("GetConsoleMode() failed");
             }
+#ifdef _MSC_VER
             DWORD flags = dwOriginalOutMode;
             flags |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
             flags |= DISABLE_NEWLINE_AUTO_RETURN;
             if (!SetConsoleMode(hout, flags)) {
                 throw std::runtime_error("SetConsoleMode() failed");
             }
+#endif
         }
 
         if (keyboard_enabled) {
@@ -105,12 +107,14 @@ public:
             if (!GetConsoleMode(hin, &dwOriginalInMode)) {
                 throw std::runtime_error("GetConsoleMode() failed");
             }
+#ifdef _MSC_VER
             DWORD flags = dwOriginalInMode;
             flags |= ENABLE_VIRTUAL_TERMINAL_INPUT;
             flags &= ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT);
             if (!SetConsoleMode(hin, flags)) {
                 throw std::runtime_error("SetConsoleMode() failed");
             }
+#endif
         }
 #else
     BaseTerminal(bool enable_keyboard=false, bool disable_ctrl_c=true)

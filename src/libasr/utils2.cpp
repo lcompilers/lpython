@@ -71,10 +71,11 @@ int initialize()
     DWORD mode;
     if (! GetConsoleMode(h_stdout, &mode))
         return -2;
-
+#ifdef _MSC_VER
     mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
     if (! SetConsoleMode(h_stdout, mode))
         return -3;
+#endif
 
     return 0;
 #else
