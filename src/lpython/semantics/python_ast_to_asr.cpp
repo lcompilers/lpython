@@ -2303,6 +2303,44 @@ public:
         tmp = nullptr;
     }
 
+    void make_type_conversions(Allocator &al, std::string call_name, Vec<ASR::call_arg_t> args,
+                                const Location &loc) {
+        if (args.size() != 1) {
+            throw SemanticError("Only 1 argument is expected in '" + call_name + "'",
+                loc);
+        }
+        ASR::expr_t *arg = args[0].m_value;
+        ASR::ttype_t *type = ASRUtils::expr_type(arg);
+
+        if (call_name == "int") {
+            ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                                        4, nullptr, 0));
+            if (ASRUtils::is_real(*type)) {
+                tmp = (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                al, loc, arg, ASR::cast_kindType::RealToInteger,
+                to_type, nullptr));
+            } else if (!ASRUtils::is_integer(*type)) {
+                std::string stype = ASRUtils::type_to_str(type);
+                throw SemanticError(
+                    "Conversion of '" + stype + "' to integer is not Implemented",
+                    loc);
+            }
+        } else if (call_name == "float") {
+            ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
+                                        8, nullptr, 0));
+            if (ASRUtils::is_integer(*type)) {
+                tmp = (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                al, loc, arg, ASR::cast_kindType::IntegerToReal,
+                to_type, nullptr));
+            } else if (!ASRUtils::is_real(*type)) {
+                std::string stype = ASRUtils::type_to_str(type);
+                throw SemanticError(
+                    "Conversion of '" + stype + "' to float is not Implemented",
+                    loc);
+            }
+        }
+    }
+
     void visit_Call(const AST::Call_t &x) {
         std::string call_name;
         Vec<ASR::call_arg_t> args;
@@ -2409,6 +2447,9 @@ public:
                                 ASR::is_a<ASR::Subroutine_t>(*t));
                 }
                 tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, result, type);
+                return;
+            } else if (call_name == "int" || call_name == "float") {
+                make_type_conversions(al, call_name, args, x.base.base.loc);
                 return;
             } else {
                 // The function was not found and it is not intrinsic

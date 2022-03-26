@@ -180,20 +180,6 @@ def pow(x: f64, y: i32) -> f64:
     return x**y
 
 
-def int(f: f64) -> i32:
-    """
-    Converts a floating point number to an integer.
-    """
-    pass # handled by LLVM
-
-
-def float(i: i32) -> f64:
-    """
-    Converts an integer to a floating point number.
-    """
-    pass # handled by LLVM
-
-
 def bin(n: i32) -> str:
     """
     Returns the binary representation of an integer `n`.
