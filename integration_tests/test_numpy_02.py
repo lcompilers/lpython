@@ -4,6 +4,10 @@ from ltypes import i32, i64, f32, f64, TypeVar, overload
 from numpy import empty, int64
 
 e: f64 = 2.718281828459045
+pi: f64 = 3.141592653589793
+euler_gamma: f64 = 0.5772156649015329
+PZERO: f64 = 0.0
+NZERO: f64 = -0.0
 
 n: i32
 n = TypeVar("n")
