@@ -2305,16 +2305,21 @@ public:
 
     void make_type_conversions(Allocator &al, std::string call_name, Vec<ASR::call_arg_t> args,
                                 const Location &loc) {
-        if (args.size() != 1) {
-            throw SemanticError("Only 1 argument is expected in '" + call_name + "'",
+        if (args.size() > 1) {
+            throw SemanticError("Either 0 or 1 argument is expected in '" + call_name + "'",
                 loc);
         }
-        ASR::expr_t *arg = args[0].m_value;
-        ASR::ttype_t *type = ASRUtils::expr_type(arg);
+
+        ASR::expr_t *arg = (args.size() > 0) ? args[0].m_value : nullptr;
+        ASR::ttype_t *type = arg ? ASRUtils::expr_type(arg) : nullptr;
 
         if (call_name == "int") {
             ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
                                         4, nullptr, 0));
+            if (!arg) {
+                tmp = ASR::make_ConstantInteger_t(al, loc, 0, to_type);
+                return;
+            }
             if (ASRUtils::is_real(*type)) {
                 tmp = (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
                 al, loc, arg, ASR::cast_kindType::RealToInteger,
@@ -2328,6 +2333,10 @@ public:
         } else if (call_name == "float") {
             ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
                                         8, nullptr, 0));
+            if (!arg) {
+                tmp = ASR::make_ConstantReal_t(al, loc, 0, to_type);
+                return;
+            }
             if (ASRUtils::is_integer(*type)) {
                 tmp = (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
                 al, loc, arg, ASR::cast_kindType::IntegerToReal,
