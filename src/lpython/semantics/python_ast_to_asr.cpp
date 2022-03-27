@@ -25,9 +25,9 @@
 #include <lpython/semantics/python_comptime_eval.h>
 
 
-namespace LFortran::Python {
+namespace LFortran::LPython {
 
-LFortran::Result<LFortran::Python::AST::ast_t*> parse_python_file(Allocator &al,
+LFortran::Result<LFortran::LPython::AST::ast_t*> parse_python_file(Allocator &al,
         const std::string &runtime_library_dir,
         const std::string &infile) {
     std::string pycmd = "python " + runtime_library_dir + "/lpython_parser.py " + infile;
@@ -43,7 +43,7 @@ LFortran::Result<LFortran::Python::AST::ast_t*> parse_python_file(Allocator &al,
         std::cerr << "The file '" << infile_ser << "' cannot be read." << std::endl;
         return LFortran::Error();
     }
-    LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
+    LFortran::LPython::AST::ast_t* ast = LFortran::LPython::deserialize_ast(al, input);
     return ast;
 }
 
@@ -123,7 +123,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     if (!r.ok) {
         err("The file '" + infile + "' failed to parse", loc);
     }
-    LFortran::Python::AST::ast_t* ast = r.result;
+    LFortran::LPython::AST::ast_t* ast = r.result;
 
     // Convert the module from AST to ASR
     LFortran::LocationManager lm;
