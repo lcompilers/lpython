@@ -577,7 +577,7 @@ int main(int argc, char *argv[])
 
         if (arg_version) {
             std::string version = LFORTRAN_VERSION;
-            std::cout << "LFortran version: " << version << std::endl;
+            std::cout << "LPython version: " << version << std::endl;
             std::cout << "Platform: ";
             switch (compiler_options.platform) {
                 case (LFortran::Platform::Linux) : std::cout << "Linux"; break;
