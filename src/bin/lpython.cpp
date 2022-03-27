@@ -13,7 +13,7 @@
 #include <libasr/codegen/asr_to_cpp.h>
 #include <libasr/codegen/asr_to_py.h>
 #include <libasr/codegen/asr_to_x86.h>
-#include <lpython/fortran_evaluator.h>
+#include <lpython/python_evaluator.h>
 #include <libasr/codegen/evaluator.h>
 #include <libasr/pass/do_loops.h>
 #include <libasr/pass/for_all.h>

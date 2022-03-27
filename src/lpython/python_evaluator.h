@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_FORTRAN_EVALUATOR_H
-#define LFORTRAN_FORTRAN_EVALUATOR_H
+#ifndef LFORTRAN_PYTHON_EVALUATOR_H
+#define LFORTRAN_PYTHON_EVALUATOR_H
 
 #include <iostream>
 #include <memory>
@@ -66,4 +66,4 @@ private:
 
 } // namespace LFortran
 
-#endif // LFORTRAN_FORTRAN_EVALUATOR_H
+#endif // LFORTRAN_PYTHON_EVALUATOR_H

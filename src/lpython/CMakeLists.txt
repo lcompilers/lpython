@@ -1,7 +1,7 @@
 set(SRC
     semantics/python_ast_to_asr.cpp
 
-    fortran_evaluator.cpp
+    python_evaluator.cpp
 
     pickle.cpp
     python_serialization.cpp
