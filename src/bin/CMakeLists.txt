@@ -1,6 +1,6 @@
 add_executable(lpython lpython.cpp)
 target_include_directories(lpython PRIVATE "tpl")
-target_link_libraries(lpython lfortran_lib)
+target_link_libraries(lpython lpython_lib)
 if (LPYTHON_STATIC_BIN)
     if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
         # Link statically on Linux with gcc or clang
