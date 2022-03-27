@@ -294,24 +294,24 @@ int link_executable(const std::vector<std::string> &infiles,
     The `gcc` line for dynamic linking that is constructed below:
 
     gcc -o $outfile $infile \
-        -Lsrc/runtime -Wl,-rpath=src/runtime -llfortran_runtime
+        -Lsrc/runtime -Wl,-rpath=src/runtime -llpython_runtime
 
     is equivalent to the following:
 
     ld -o $outfile $infile \
-        -Lsrc/runtime -rpath=src/runtime -llfortran_runtime \
+        -Lsrc/runtime -rpath=src/runtime -llpython_runtime \
         -dynamic-linker /lib64/ld-linux-x86-64.so.2  \
         /usr/lib/x86_64-linux-gnu/Scrt1.o /usr/lib/x86_64-linux-gnu/libc.so
 
     and this for static linking:
 
     gcc -static -o $outfile $infile \
-        -Lsrc/runtime -Wl,-rpath=src/runtime -llfortran_runtime_static
+        -Lsrc/runtime -Wl,-rpath=src/runtime -llpython_runtime_static
 
     is equivalent to:
 
     ld -o $outfile $infile \
-        -Lsrc/runtime -rpath=src/runtime -llfortran_runtime_static \
+        -Lsrc/runtime -rpath=src/runtime -llpython_runtime_static \
         /usr/lib/x86_64-linux-gnu/crt1.o /usr/lib/x86_64-linux-gnu/crti.o \
         /usr/lib/x86_64-linux-gnu/libc.a \
         /usr/lib/gcc/x86_64-linux-gnu/7/libgcc_eh.a \
@@ -357,7 +357,7 @@ int link_executable(const std::vector<std::string> &infiles,
             for (auto &s : infiles) {
                 cmd += s + " ";
             }
-            cmd += runtime_library_dir + "\\lfortran_runtime_static.lib";
+            cmd += runtime_library_dir + "\\lpython_runtime_static.lib";
             int err = system(cmd.c_str());
             if (err) {
                 std::cout << "The command '" + cmd + "' failed." << std::endl;
@@ -369,13 +369,13 @@ int link_executable(const std::vector<std::string> &infiles,
             if (env_CC) CC = env_CC;
             std::string base_path = "\"" + runtime_library_dir + "\"";
             std::string options;
-            std::string runtime_lib = "lfortran_runtime";
+            std::string runtime_lib = "lpython_runtime";
             if (static_executable) {
                 if (compiler_options.platform != LFortran::Platform::macOS_Intel
                 && compiler_options.platform != LFortran::Platform::macOS_ARM) {
                     options += " -static ";
                 }
-                runtime_lib = "lfortran_runtime_static";
+                runtime_lib = "lpython_runtime_static";
             }
             std::string cmd = CC + options + " -o " + outfile + " ";
             for (auto &s : infiles) {
