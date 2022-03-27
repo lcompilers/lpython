@@ -495,10 +495,54 @@ public:
                 return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
                     al, right->base.loc, right, ASR::cast_kindType::IntegerToComplex,
                     left_type, nullptr));
+            } else if (ASRUtils::is_logical(*right_type)) {
+                ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al,
+                    right->base.loc, 4, nullptr, 0));
+                right = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                    al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type,
+                    nullptr));
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                    al, right->base.loc, right, ASR::cast_kindType::IntegerToComplex, left_type,
+                    nullptr));
             } else {
                 std::string rtype = ASRUtils::type_to_str(right_type);
                 throw SemanticError("Casting " + rtype + " to complex is not Implemented",
                         right->base.loc);
+            }
+        }
+        if (!is_assign) { // This will only be used for BinOp
+            if (ASRUtils::is_logical(*left_type) && ASRUtils::is_logical(*right_type)) {
+                ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al,
+                    right->base.loc, 4, nullptr, 0));
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                    al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type,
+                    nullptr));
+            } else if (ASRUtils::is_logical(*right_type)) {
+                ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al,
+                    right->base.loc, 4, nullptr, 0));
+                if (ASRUtils::is_integer(*left_type)) {
+                    return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                        al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type,
+                        nullptr));
+                } else if (ASRUtils::is_real(*left_type)) {
+                    right = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                        al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type,
+                        nullptr));
+                    return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                        al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, left_type,
+                        nullptr));
+                } else if (ASRUtils::is_complex(*left_type)) {
+                    right = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                        al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type,
+                        nullptr));
+                    return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                        al, right->base.loc, right, ASR::cast_kindType::IntegerToComplex, left_type,
+                        nullptr));
+                } else {
+                    std::string ltype = ASRUtils::type_to_str(left_type);
+                    throw SemanticError("Binary Operation not implemented for bool and " + ltype,
+                            right->base.loc);
+                }
             }
         }
         return right;
@@ -562,9 +606,9 @@ public:
                 }
             }
         } else if((ASRUtils::is_integer(*left_type) || ASRUtils::is_real(*left_type) ||
-                        ASRUtils::is_complex(*left_type)) &&
+                    ASRUtils::is_complex(*left_type) || ASRUtils::is_logical(*left_type)) &&
                 (ASRUtils::is_integer(*right_type) || ASRUtils::is_real(*right_type) ||
-                        ASRUtils::is_complex(*right_type))) {
+                    ASRUtils::is_complex(*right_type) || ASRUtils::is_logical(*left_type))) {
             left = implicitcast_helper(ASRUtils::expr_type(right), left);
             right = implicitcast_helper(ASRUtils::expr_type(left), right);
             dest_type = ASRUtils::expr_type(left);
@@ -638,10 +682,6 @@ public:
                                     value);
             return;
 
-        } else if (ASRUtils::is_complex(*left_type) && ASRUtils::is_complex(*right_type)) {
-            dest_type = left_type;
-        } else if (ASRUtils::is_logical(*left_type) && ASRUtils::is_logical(*right_type)) {
-            dest_type = left_type;
         } else {
             std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
