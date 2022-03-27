@@ -13,7 +13,7 @@ src/lpython/tests/test_stacktrace*
 src/lpython/tests/test_serialization*
 src/lpython/tests/test_cwrapper
 src/lpython/tests/test_serialization
-src/lpython/tests/test_lfortran
+src/lpython/tests/test_lpython
 src/lpython/tests/write32
 src/lpython/tests/write32.asm
 src/lpython/tests/subroutines32
