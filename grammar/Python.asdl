@@ -1,7 +1,7 @@
 -- ASDL's 4 builtin types are:
 -- identifier, int, string, constant
 
-module Python
+module LPython
 {
     mod = Module(stmt* body, type_ignore* type_ignores)
         | Interactive(stmt* body)

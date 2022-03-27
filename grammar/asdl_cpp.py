@@ -1675,7 +1675,7 @@ static inline T* down_cast2(const %(mod)s_t *f)
 
 FOOT = r"""} // namespace LFortran::%(MOD)s
 
-#endif // LFORTRAN_%(MOD)s_H
+#endif // LFORTRAN_%(MOD2)s_H
 """
 
 visitors = [ASTNodeVisitor0, ASTNodeVisitor1, ASTNodeVisitor,
@@ -1706,8 +1706,8 @@ def main(argv):
         "mod": mod.name.lower(),
         "types": types_,
     }
-    if subs["MOD"] == "PYTHON":
-        subs["MOD"] = "Python::AST"
+    if subs["MOD"] == "LPYTHON":
+        subs["MOD"] = "LPython::AST"
         subs["mod"] = "ast"
     is_asr = (mod.name.upper() == "ASR")
     fp = open(out_file, "w", encoding="utf-8")
