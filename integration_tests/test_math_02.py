@@ -43,8 +43,6 @@ def test_hyperbolic():
     assert abs(cosh(1.0) - 1.5430806348152437) < eps
     assert abs(tanh(1.0) - 0.7615941559557649) < eps
     assert abs(asinh(1.0) - 0.881373587019543) < eps
-    assert abs(cosh(1.0) - 0) < eps
-    assert abs(tanh(0.0) - 0) < eps
 
 def test_copysign():
     eps: f64 = 1e-12
@@ -57,9 +55,13 @@ def test_hypot():
     assert abs(hypot(-3, 4) - 5.0) < eps
     assert abs(hypot(6, 6) - 8.48528137423857) < eps
 
-test_trig()
-test_sqrt()
-test_log()
-test_special()
-test_copysign()
-test_hypot()
+def check():
+    test_trig()
+    test_sqrt()
+    test_log()
+    test_special()
+    test_hyperbolic()
+    test_copysign()
+    test_hypot()
+
+check()
