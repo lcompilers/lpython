@@ -1,5 +1,6 @@
 #include <unordered_set>
 #include <map>
+#include <complex>
 #include <libasr/asr_utils.h>
 #include <libasr/string_utils.h>
 #include <libasr/serialization.h>
@@ -713,7 +714,38 @@ ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
     }
 }
 
-    } // namespace ASRUtils
+ASR::asr_t* make_ImplicitCast_t_value(Allocator &al, const Location &a_loc, ASR::expr_t* a_arg, ASR::cast_kindType a_kind, ASR::ttype_t* a_type) {
+    ASR::ImplicitCast_t *n = (ASR::ImplicitCast_t *)ASR::make_ImplicitCast_t(
+        al, a_loc, a_arg, a_kind, a_type, nullptr);
+    
+    if (ASRUtils::expr_value(a_arg) != nullptr){
+        // calculate value
+        if(a_kind == ASR::cast_kindType::RealToInteger){
+            int64_t value = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(a_arg))->m_r;
+            n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, a_loc, value, a_type));
+        }
+        else if(a_kind == ASR::cast_kindType::IntegerToReal){
+            double value = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(a_arg))->m_n;
+            n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, a_loc, value, a_type));
+        }
+        else if(a_kind == ASR::cast_kindType::IntegerToComplex){
+            int64_t int_value = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(a_arg))->m_n;
+            std::complex<double> value(int_value, 0);
+            n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantComplex_t(al, a_loc,
+                        std::real(value), std::imag(value), a_type));
+        }
+        else if(a_kind == ASR::cast_kindType::RealToComplex){
+            double double_value = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(a_arg))->m_r;
+            std::complex<double> value(double_value, 0);
+            n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantComplex_t(al, a_loc,
+                        std::real(value), std::imag(value), a_type));
+        }
+    }
+
+    return (ASR::asr_t*)n;
+}
+
+} // namespace ASRUtils
 
 
 } // namespace LFortran
