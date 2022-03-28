@@ -1,3 +1,4 @@
+#include <libasr/assert.h>
 #include <libasr/codegen/llvm_utils.h>
 
 namespace LFortran {
@@ -5,19 +6,25 @@ namespace LFortran {
     namespace LLVM {
 
         llvm::Value* CreateLoad(llvm::IRBuilder<> &builder, llvm::Value *x) {
-            // TODO: the type must be dereferenced:
-            return builder.CreateLoad(x->getType(), x);
+            llvm::Type *t = x->getType();
+            LFORTRAN_ASSERT(t->isPointerTy());
+            llvm::Type *t2 = t->getContainedType(0);
+            return builder.CreateLoad(t2, x);
         }
 
 
         llvm::Value* CreateGEP(llvm::IRBuilder<> &builder, llvm::Value *x, std::vector<llvm::Value *> &idx) {
-            // TODO: the type must be dereferenced:
-            return builder.CreateGEP(x->getType(), x, idx);
+            llvm::Type *t = x->getType();
+            LFORTRAN_ASSERT(t->isPointerTy());
+            llvm::Type *t2 = t->getContainedType(0);
+            return builder.CreateGEP(t2, x, idx);
         }
 
         llvm::Value* CreateInBoundsGEP(llvm::IRBuilder<> &builder, llvm::Value *x, std::vector<llvm::Value *> &idx) {
-            // TODO: the type must be dereferenced:
-            return builder.CreateInBoundsGEP(x->getType(), x, idx);
+            llvm::Type *t = x->getType();
+            LFORTRAN_ASSERT(t->isPointerTy());
+            llvm::Type *t2 = t->getContainedType(0);
+            return builder.CreateInBoundsGEP(t2, x, idx);
         }
     }
 
