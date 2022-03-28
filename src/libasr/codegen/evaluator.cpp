@@ -48,7 +48,11 @@
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Target/TargetOptions.h>
-#include <llvm/MC/TargetRegistry.h>
+#if LLVM_VERSION_MAJOR >= 14
+#    include <llvm/MC/TargetRegistry.h>
+#else
+#    include <llvm/Support/TargetRegistry.h>
+#endif
 #include <llvm/Support/Host.h>
 //#include <libasr/codegen/KaleidoscopeJIT.h>
 
