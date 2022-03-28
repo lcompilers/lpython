@@ -1690,7 +1690,7 @@ public:
                                         type = type_fx2;
                                     } else {
                                         // type_fx2 is <2 x float>
-                                        llvm::Type* type_fx2 = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2);
+                                        llvm::Type* type_fx2 = llvm::FixedVectorType::get(llvm::Type::getFloatTy(context), 2);
                                         type = type_fx2;
                                     }
                                 } else {
@@ -2144,7 +2144,7 @@ public:
                             return_type = getComplexType(a_kind);
                         } else {
                             // <2 x float>
-                            return_type = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2);
+                            return_type = llvm::FixedVectorType::get(llvm::Type::getFloatTy(context), 2);
                         }
                     } else {
                         return_type = getComplexType(a_kind);
@@ -2291,7 +2291,7 @@ public:
                     } else {
                         // tmp is {float, float}*
                         // type_fx2p is <2 x float>*
-                        llvm::Type* type_fx2p = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
+                        llvm::Type* type_fx2p = llvm::FixedVectorType::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
                         // Convert {float,float}* to <2 x float>* using bitcast
                         tmp = builder->CreateBitCast(tmp, type_fx2p);
                         // Then convert <2 x float>* -> <2 x float>
@@ -3721,7 +3721,7 @@ public:
                                                     } else {
                                                         // tmp is {float, float}*
                                                         // type_fx2p is <2 x float>*
-                                                        llvm::Type* type_fx2p = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
+                                                        llvm::Type* type_fx2p = llvm::FixedVectorType::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
                                                         // Convert {float,float}* to <2 x float>* using bitcast
                                                         tmp = builder->CreateBitCast(tmp, type_fx2p);
                                                         // Then convert <2 x float>* -> <2 x float>
@@ -4127,7 +4127,7 @@ public:
                         // tmp is <2 x float>, have to convert to {float, float}
 
                         // <2 x float>
-                        llvm::Type* type_fx2 = llvm::VectorType::get(llvm::Type::getFloatTy(context), 2);
+                        llvm::Type* type_fx2 = llvm::FixedVectorType::get(llvm::Type::getFloatTy(context), 2);
                         // Convert <2 x float> to <2 x float>*
                         llvm::AllocaInst *p_fx2 = builder->CreateAlloca(type_fx2, nullptr);
                         builder->CreateStore(tmp, p_fx2);
