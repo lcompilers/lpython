@@ -281,6 +281,12 @@ public:
         return builder->CreateLoad(x->getType(), x);
     }
 
+        
+    llvm::Value* CreateGEP(llvm::Value *x, std::vector<llvm::Value *> &idx) {
+        // TODO: the type must be dereferenced:
+        return builder->CreateGEP(x->getType(), x, idx);
+    }
+
     // Inserts a new block `bb` using the current builder
     // and terminates the previous block if it is not already terminated
     void start_new_block(llvm::BasicBlock *bb) {
@@ -760,7 +766,7 @@ public:
         std::vector<llvm::Value *> idx = {
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, 0))};
-        llvm::Value *pim = builder->CreateGEP(pc, idx);
+        llvm::Value *pim = CreateGEP(pc, idx);
         return CreateLoad(pim);
     }
 
@@ -773,7 +779,7 @@ public:
         std::vector<llvm::Value *> idx = {
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, 1))};
-        llvm::Value *pim = builder->CreateGEP(pc, idx);
+        llvm::Value *pim = CreateGEP(pc, idx);
         return CreateLoad(pim);
     }
 
@@ -789,8 +795,8 @@ public:
         std::vector<llvm::Value *> idx2 = {
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, 1))};
-        llvm::Value *pre = builder->CreateGEP(pres, idx1);
-        llvm::Value *pim = builder->CreateGEP(pres, idx2);
+        llvm::Value *pre = CreateGEP(pres, idx1);
+        llvm::Value *pim = CreateGEP(pres, idx2);
         builder->CreateStore(re, pre);
         builder->CreateStore(im, pim);
         return CreateLoad(pres);
@@ -799,7 +805,7 @@ public:
     llvm::Value *nested_struct_rd(std::vector<llvm::Value*> vals,
             llvm::StructType* rd) {
         llvm::AllocaInst *pres = builder->CreateAlloca(rd, nullptr);
-        llvm::Value *pim = builder->CreateGEP(pres, vals);
+        llvm::Value *pim = CreateGEP(pres, vals);
         return CreateLoad(pim);
     }
 
@@ -1038,7 +1044,7 @@ public:
                         //std::vector<llvm::Value*> idx_vec = {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), idx};
                         std::vector<llvm::Value*> idx_vec = {idx};
                         llvm::Value *str = CreateLoad(array);
-                        llvm::Value *p = builder->CreateGEP(str, idx_vec);
+                        llvm::Value *p = CreateGEP(str, idx_vec);
                         // TODO: Currently the string starts at the right location, but goes to the end of the original string.
                         // We have to allocate a new string, copy it and add null termination.
 
@@ -1058,7 +1064,7 @@ public:
                     //std::vector<llvm::Value*> idx_vec = {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), idx};
                     std::vector<llvm::Value*> idx_vec = {idx};
                     llvm::Value *str = CreateLoad(array);
-                    llvm::Value *p = builder->CreateGEP(str, idx_vec);
+                    llvm::Value *p = CreateGEP(str, idx_vec);
                     // TODO: Currently the string starts at the right location, but goes to the end of the original string.
                     // We have to allocate a new string, copy it and add null termination.
 
@@ -1102,7 +1108,7 @@ public:
         std::vector<llvm::Value*> idx_vec = {
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, member_idx))};
-        llvm::Value* tmp1 = builder->CreateGEP(tmp, idx_vec);
+        llvm::Value* tmp1 = CreateGEP(tmp, idx_vec);
         if( member->m_type->type == ASR::ttypeType::Derived ) {
             ASR::Derived_t* der = (ASR::Derived_t*)(&(member->m_type->base));
             ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
@@ -3147,7 +3153,7 @@ public:
             std::vector<llvm::Value*> idx_vec = {
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, idx))};
-            x_v = CreateLoad(builder->CreateGEP(ptr, idx_vec));
+            x_v = CreateLoad(CreateGEP(ptr, idx_vec));
         } else {
             x_v = llvm_symtab[x_h];
         }
