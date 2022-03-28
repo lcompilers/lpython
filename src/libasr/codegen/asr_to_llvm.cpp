@@ -276,6 +276,11 @@ public:
     {
     }
 
+    llvm::Value* CreateLoad(llvm::Value *x) {
+        // TODO: the type must be dereferenced:
+        return builder->CreateLoad(x->getType(), x);
+    }
+
     // Inserts a new block `bb` using the current builder
     // and terminates the previous block if it is not already terminated
     void start_new_block(llvm::BasicBlock *bb) {
@@ -693,7 +698,7 @@ public:
             nullptr);
         std::vector<llvm::Value*> args = {pleft_arg, pright_arg, presult};
         builder->CreateCall(fn, args);
-        return builder->CreateLoad(presult);
+        return CreateLoad(presult);
     }
 
 
@@ -721,7 +726,7 @@ public:
             nullptr);
         std::vector<llvm::Value*> args = {pleft_arg, pright_arg, presult};
         builder->CreateCall(fn, args);
-        return builder->CreateLoad(presult);
+        return CreateLoad(presult);
     }
 
     llvm::Value* lfortran_str_len(llvm::Value* str)
@@ -748,7 +753,7 @@ public:
             complex_type = complex_type_4;
         }
         if( c->getType()->isPointerTy() ) {
-            c = builder->CreateLoad(c);
+            c = CreateLoad(c);
         }
         llvm::AllocaInst *pc = builder->CreateAlloca(complex_type, nullptr);
         builder->CreateStore(c, pc);
@@ -756,7 +761,7 @@ public:
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, 0))};
         llvm::Value *pim = builder->CreateGEP(pc, idx);
-        return builder->CreateLoad(pim);
+        return CreateLoad(pim);
     }
 
     llvm::Value *complex_im(llvm::Value *c, llvm::Type* complex_type=nullptr) {
@@ -769,7 +774,7 @@ public:
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, 1))};
         llvm::Value *pim = builder->CreateGEP(pc, idx);
-        return builder->CreateLoad(pim);
+        return CreateLoad(pim);
     }
 
     llvm::Value *complex_from_floats(llvm::Value *re, llvm::Value *im,
@@ -788,14 +793,14 @@ public:
         llvm::Value *pim = builder->CreateGEP(pres, idx2);
         builder->CreateStore(re, pre);
         builder->CreateStore(im, pim);
-        return builder->CreateLoad(pres);
+        return CreateLoad(pres);
     }
 
     llvm::Value *nested_struct_rd(std::vector<llvm::Value*> vals,
             llvm::StructType* rd) {
         llvm::AllocaInst *pres = builder->CreateAlloca(rd, nullptr);
         llvm::Value *pim = builder->CreateGEP(pres, vals);
-        return builder->CreateLoad(pim);
+        return CreateLoad(pim);
     }
 
     /**
@@ -813,10 +818,10 @@ public:
     {
         llvm::Type *presult_type = getFPType(a_kind);
         llvm::AllocaInst *presult = builder->CreateAlloca(presult_type, nullptr);
-        llvm::Value *a = builder->CreateLoad(pa);
+        llvm::Value *a = CreateLoad(pa);
         std::vector<llvm::Value*> args = {a, presult};
         builder->CreateCall(fn, args);
-        return builder->CreateLoad(presult);
+        return CreateLoad(presult);
     }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
@@ -955,10 +960,10 @@ public:
     }
 
     inline void call_lfortran_free(llvm::Function* fn) {
-        llvm::Value* arr = builder->CreateLoad(arr_descr->get_pointer_to_data(tmp));
+        llvm::Value* arr = CreateLoad(arr_descr->get_pointer_to_data(tmp));
         llvm::AllocaInst *arg_arr = builder->CreateAlloca(character_type, nullptr);
         builder->CreateStore(builder->CreateBitCast(arr, character_type), arg_arr);
-        std::vector<llvm::Value*> args = {builder->CreateLoad(arg_arr)};
+        std::vector<llvm::Value*> args = {CreateLoad(arg_arr)};
         builder->CreateCall(fn, args);
         arr_descr->set_is_allocated_flag(tmp, 0);
     }
@@ -1032,7 +1037,7 @@ public:
                         idx = builder->CreateSub(idx, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
                         //std::vector<llvm::Value*> idx_vec = {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), idx};
                         std::vector<llvm::Value*> idx_vec = {idx};
-                        llvm::Value *str = builder->CreateLoad(array);
+                        llvm::Value *str = CreateLoad(array);
                         llvm::Value *p = builder->CreateGEP(str, idx_vec);
                         // TODO: Currently the string starts at the right location, but goes to the end of the original string.
                         // We have to allocate a new string, copy it and add null termination.
@@ -1052,7 +1057,7 @@ public:
                     idx = builder->CreateSub(idx, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
                     //std::vector<llvm::Value*> idx_vec = {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), idx};
                     std::vector<llvm::Value*> idx_vec = {idx};
-                    llvm::Value *str = builder->CreateLoad(array);
+                    llvm::Value *str = CreateLoad(array);
                     llvm::Value *p = builder->CreateGEP(str, idx_vec);
                     // TODO: Currently the string starts at the right location, but goes to the end of the original string.
                     // We have to allocate a new string, copy it and add null termination.
@@ -1819,7 +1824,7 @@ public:
             && !is_nested_call){
             llvm::Value *sp_loc = module->getOrInsertGlobal(
                 nested_sp_name, llvm::Type::getInt32Ty(context));
-            llvm::Value *sp_val = builder->CreateLoad(sp_loc);
+            llvm::Value *sp_val = CreateLoad(sp_loc);
             for (auto &item : x->m_symtab->scope) {
                 if (is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t *v = down_cast<ASR::Variable_t>(
@@ -1832,7 +1837,7 @@ public:
                             finder);
                         llvm::Value* glob_struct = module->getOrInsertGlobal(
                             nested_desc_name, nested_global_struct);
-                        llvm::Value* target = builder->CreateLoad(llvm_utils->create_gep(
+                        llvm::Value* target = CreateLoad(llvm_utils->create_gep(
                             glob_struct, idx));
                         llvm::Value* glob_stack = module->getOrInsertGlobal(
                             nested_stack_name, nested_global_stack);
@@ -1840,9 +1845,9 @@ public:
                             sp_val);
                         llvm::Value *glob_stack_elem = llvm_utils->create_gep(
                             glob_stack_gep, idx);
-                        builder->CreateStore(builder->CreateLoad(target),
+                        builder->CreateStore(CreateLoad(target),
                             glob_stack_elem);
-                        llvm::Value *glob_stack_val = builder->CreateLoad(
+                        llvm::Value *glob_stack_val = CreateLoad(
                             glob_stack_gep);
                         llvm::Value *glob_stack_sp = llvm_utils->create_gep(glob_stack,
                             sp_val);
@@ -1870,7 +1875,7 @@ public:
             && !is_nested_call){
             llvm::Value *sp_loc = module->getOrInsertGlobal(nested_sp_name,
                 llvm::Type::getInt32Ty(context));
-            llvm::Value *sp_val = builder->CreateLoad(sp_loc);
+            llvm::Value *sp_val = CreateLoad(sp_loc);
             llvm::BasicBlock *dec_sp = llvm::BasicBlock::Create(context,
                 "decrement_sp", lfn);
             llvm::BasicBlock *norm_cont = llvm::BasicBlock::Create(context,
@@ -1895,13 +1900,13 @@ public:
                             nested_stack_name, nested_global_stack);
                         llvm::Value *sp_loc = module->getOrInsertGlobal(
                             nested_sp_name, llvm::Type::getInt32Ty(context));
-                        llvm::Value *sp_val = builder->CreateLoad(sp_loc);
-                        llvm::Value *glob_stack_elem = builder->CreateLoad(
+                        llvm::Value *sp_val = CreateLoad(sp_loc);
+                        llvm::Value *glob_stack_elem = CreateLoad(
                             llvm_utils->create_gep(llvm_utils->create_gep(glob_stack, sp_val), idx));
                         llvm::Value *glob_struct_loc = module->
                             getOrInsertGlobal(nested_desc_name,
                             nested_global_struct);
-                        llvm::Value* target = builder->CreateLoad(
+                        llvm::Value* target = CreateLoad(
                             llvm_utils->create_gep(glob_struct_loc, idx));
                         builder->CreateStore(glob_stack_elem, target);
                         builder->CreateStore(target, llvm_utils->create_gep(
@@ -2258,7 +2263,7 @@ public:
         ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
         uint32_t h = get_hash((ASR::asr_t*)asr_retval);
         llvm::Value *ret_val = llvm_symtab[h];
-        llvm::Value *ret_val2 = builder->CreateLoad(ret_val);
+        llvm::Value *ret_val2 = CreateLoad(ret_val);
         // Handle Complex type return value for BindC:
         if (x.m_abi == ASR::abiType::BindC) {
             ASR::ttype_t* arg_type = asr_retval->m_type;
@@ -2273,10 +2278,10 @@ public:
                         // Convert {float,float}* to i64* using bitcast
                         tmp = builder->CreateBitCast(tmp, type_fx2p);
                         // Then convert i64* -> i64
-                        tmp = builder->CreateLoad(tmp);
+                        tmp = CreateLoad(tmp);
                     } else if (platform == Platform::macOS_ARM) {
                         // Pass by value
-                        tmp = builder->CreateLoad(tmp);
+                        tmp = CreateLoad(tmp);
                     } else {
                         // tmp is {float, float}*
                         // type_fx2p is <2 x float>*
@@ -2284,7 +2289,7 @@ public:
                         // Convert {float,float}* to <2 x float>* using bitcast
                         tmp = builder->CreateBitCast(tmp, type_fx2p);
                         // Then convert <2 x float>* -> <2 x float>
-                        tmp = builder->CreateLoad(tmp);
+                        tmp = CreateLoad(tmp);
                     }
                 } else {
                     LFORTRAN_ASSERT(c_kind == 8)
@@ -2292,7 +2297,7 @@ public:
                         // 128 bit aggregate type is passed by reference
                     } else {
                         // Pass by value
-                        tmp = builder->CreateLoad(tmp);
+                        tmp = CreateLoad(tmp);
                     }
                 }
             ret_val2 = tmp;
@@ -2336,8 +2341,8 @@ public:
                 ASR::Variable_t *ret = EXPR2VAR(x.m_return_var);
                 h = get_hash((ASR::asr_t*)ret);
                 llvm::Value* llvm_ret_ptr = llvm_symtab[h];
-                llvm::Value* dim_des_val = builder->CreateLoad(llvm_utils->create_gep(llvm_arg, 0));
-                llvm::Value* rank = builder->CreateLoad(llvm_utils->create_gep(llvm_arg, 1));
+                llvm::Value* dim_des_val = CreateLoad(llvm_utils->create_gep(llvm_arg, 0));
+                llvm::Value* rank = CreateLoad(llvm_utils->create_gep(llvm_arg, 1));
                 builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 1)), llvm_ret_ptr);
 
                 llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
@@ -2350,13 +2355,13 @@ public:
                 builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), r);
                 // head
                 start_new_block(loophead);
-                llvm::Value *cond = builder->CreateICmpSLT(builder->CreateLoad(r), rank);
+                llvm::Value *cond = builder->CreateICmpSLT(CreateLoad(r), rank);
                 builder->CreateCondBr(cond, loopbody, loopend);
 
                 // body
                 start_new_block(loopbody);
-                llvm::Value* r_val = builder->CreateLoad(r);
-                llvm::Value* ret_val = builder->CreateLoad(llvm_ret_ptr);
+                llvm::Value* r_val = CreateLoad(r);
+                llvm::Value* ret_val = CreateLoad(llvm_ret_ptr);
                 llvm::Value* dim_size = arr_descr->get_dimension_size(dim_des_val, r_val);
                 ret_val = builder->CreateMul(ret_val, dim_size);
                 builder->CreateStore(ret_val, llvm_ret_ptr);
@@ -2384,8 +2389,8 @@ public:
                 h = get_hash((ASR::asr_t*)ret);
                 llvm::Value* llvm_ret_ptr = llvm_symtab[h];
 
-                llvm::Value* dim_des_val = builder->CreateLoad(llvm_arg1);
-                llvm::Value* dim_val = builder->CreateLoad(llvm_arg2);
+                llvm::Value* dim_des_val = CreateLoad(llvm_arg1);
+                llvm::Value* dim_val = CreateLoad(llvm_arg2);
                 llvm::Value* const_1 = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
                 dim_val = builder->CreateSub(dim_val, const_1);
                 llvm::Value* dim_struct = arr_descr->get_pointer_to_dimension_descriptor(dim_des_val, dim_val);
@@ -2444,7 +2449,7 @@ public:
                     if ( is_a<ASR::Character_t>(*asr_target->m_type) ) {
                         ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(asr_target->m_type);
                         if (t->n_dims == 0) {
-                            target = builder->CreateLoad(target);
+                            target = CreateLoad(target);
                             lhs_is_string_arrayref = true;
                         }
                     }
@@ -2456,7 +2461,7 @@ public:
             if (llvm_symtab.find(h) != llvm_symtab.end()) {
                 target = llvm_symtab[h];
                 if (ASR::is_a<ASR::Pointer_t>(*asr_target->m_type)) {
-                    target = builder->CreateLoad(target);
+                    target = CreateLoad(target);
                 }
             } else {
                 /* Target for assignment not in the symbol table - must be
@@ -2468,12 +2473,12 @@ public:
                 llvm::Value* ptr = module->getOrInsertGlobal(nested_desc_name,
                     nested_global_struct);
                 int idx = std::distance(nested_globals.begin(), finder);
-                target = builder->CreateLoad(llvm_utils->create_gep(ptr, idx));
+                target = CreateLoad(llvm_utils->create_gep(ptr, idx));
             }
             if( arr_descr->is_array(target) ) {
                 if( asr_target->m_type->type ==
                     ASR::ttypeType::Character ) {
-                    target = builder->CreateLoad(arr_descr->get_pointer_to_data(target));
+                    target = CreateLoad(arr_descr->get_pointer_to_data(target));
                 }
             }
         }
@@ -2483,7 +2488,7 @@ public:
             ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(expr_type(x.m_value));
             if (t->n_dims == 0) {
                 if (lhs_is_string_arrayref) {
-                    value = builder->CreateLoad(value);
+                    value = CreateLoad(value);
                 }
             }
         }
@@ -2506,7 +2511,7 @@ public:
         if( x->type == ASR::exprType::ArrayRef ||
             x->type == ASR::exprType::DerivedRef ) {
             if( load_ref ) {
-                tmp = builder->CreateLoad(tmp);
+                tmp = CreateLoad(tmp);
             }
         }
     }
@@ -2613,8 +2618,8 @@ public:
             tmp = builder->CreateAnd(real_res, img_res);
         } else if (optype == ASR::ttypeType::Character) {
             // TODO: For now we only compare the first character of the strings
-            left = builder->CreateLoad(left);
-            right = builder->CreateLoad(right);
+            left = CreateLoad(left);
+            right = CreateLoad(right);
             switch (x.m_op) {
                 case (ASR::cmpopType::Eq) : {
                     tmp = builder->CreateICmpEQ(left, right);
@@ -2907,10 +2912,10 @@ public:
             a_kind = down_cast<ASR::Complex_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
             type = getComplexType(a_kind);
             if( left_val->getType()->isPointerTy() ) {
-                left_val = builder->CreateLoad(left_val);
+                left_val = CreateLoad(left_val);
             }
             if( right_val->getType()->isPointerTy() ) {
-                right_val = builder->CreateLoad(right_val);
+                right_val = CreateLoad(right_val);
             }
             switch (x.m_op) {
                 case ASR::binopType::Add: {
@@ -3121,8 +3126,8 @@ public:
         uint32_t x_h = get_hash((ASR::asr_t*)x);
         LFORTRAN_ASSERT(llvm_symtab.find(x_h) != llvm_symtab.end());
         llvm::Value* x_v = llvm_symtab[x_h];
-        tmp = builder->CreateLoad(x_v);
-        tmp = builder->CreateLoad(tmp);
+        tmp = CreateLoad(x_v);
+        tmp = CreateLoad(tmp);
     }
 
     inline void fetch_val(ASR::Variable_t* x) {
@@ -3142,11 +3147,11 @@ public:
             std::vector<llvm::Value*> idx_vec = {
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, idx))};
-            x_v = builder->CreateLoad(builder->CreateGEP(ptr, idx_vec));
+            x_v = CreateLoad(builder->CreateGEP(ptr, idx_vec));
         } else {
             x_v = llvm_symtab[x_h];
         }
-        tmp = builder->CreateLoad(x_v);
+        tmp = CreateLoad(x_v);
 
         if( arr_descr->is_array(x_v) ) {
             tmp = x_v;
@@ -3679,7 +3684,7 @@ public:
                                 tmp = arr_descr->convert_to_argument(tmp, new_arr_type);
                             } else if ( x_abi == ASR::abiType::BindC ) {
                                 if( arr_descr->is_array(tmp) ) {
-                                    tmp = builder->CreateLoad(arr_descr->get_pointer_to_data(tmp));
+                                    tmp = CreateLoad(arr_descr->get_pointer_to_data(tmp));
                                     llvm::PointerType* tmp_type = static_cast<llvm::PointerType*>(tmp->getType());
                                     if( tmp_type->getElementType()->isArrayTy() ) {
                                         tmp = llvm_utils->create_gep(tmp, 0);
@@ -3698,7 +3703,7 @@ public:
                                                         // Convert {float,float}* to i64* using bitcast
                                                         tmp = builder->CreateBitCast(tmp, type_fx2p);
                                                         // Then convert i64* -> i64
-                                                        tmp = builder->CreateLoad(tmp);
+                                                        tmp = CreateLoad(tmp);
                                                     } else if (platform == Platform::macOS_ARM) {
                                                         // tmp is {float, float}*
                                                         // type_fx2p is [2 x float]*
@@ -3706,7 +3711,7 @@ public:
                                                         // Convert {float,float}* to [2 x float]* using bitcast
                                                         tmp = builder->CreateBitCast(tmp, type_fx2p);
                                                         // Then convert [2 x float]* -> [2 x float]
-                                                        tmp = builder->CreateLoad(tmp);
+                                                        tmp = CreateLoad(tmp);
                                                     } else {
                                                         // tmp is {float, float}*
                                                         // type_fx2p is <2 x float>*
@@ -3714,7 +3719,7 @@ public:
                                                         // Convert {float,float}* to <2 x float>* using bitcast
                                                         tmp = builder->CreateBitCast(tmp, type_fx2p);
                                                         // Then convert <2 x float>* -> <2 x float>
-                                                        tmp = builder->CreateLoad(tmp);
+                                                        tmp = CreateLoad(tmp);
                                                     }
                                                 } else {
                                                     LFORTRAN_ASSERT(c_kind == 8)
@@ -3722,7 +3727,7 @@ public:
                                                         // 128 bit aggregate type is passed by reference
                                                     } else {
                                                         // Pass by value
-                                                        tmp = builder->CreateLoad(tmp);
+                                                        tmp = CreateLoad(tmp);
                                                     }
                                                 }
                                             } else {
@@ -3731,7 +3736,7 @@ public:
                                                 // E.g.:
                                                 // i32* -> i32
                                                 // {double,double}* -> {double,double}
-                                                tmp = builder->CreateLoad(tmp);
+                                                tmp = CreateLoad(tmp);
                                             }
                                         }
                                 }
@@ -3743,7 +3748,7 @@ public:
                             llvm::Value* ptr = module->getOrInsertGlobal(nested_desc_name,
                                 nested_global_struct);
                             int idx = std::distance(nested_globals.begin(), finder);
-                            tmp = builder->CreateLoad(llvm_utils->create_gep(ptr, idx));
+                            tmp = CreateLoad(llvm_utils->create_gep(ptr, idx));
                         }
                     } else if (is_a<ASR::Function_t>(*symbol_get_past_external(
                         ASR::down_cast<ASR::Var_t>(x.m_args[i].m_value)->m_v))) {
@@ -3876,7 +3881,7 @@ public:
         int signal_kind = ASRUtils::extract_kind_from_ttype_t(signal_type);
         llvm::Value* num_shifts = llvm::ConstantInt::get(context, llvm::APInt(32, signal_kind * 8 - 1));
         llvm::Value* shifted_signal = builder->CreateShl(signal, num_shifts);
-        llvm::Value* int_var = builder->CreateBitCast(builder->CreateLoad(variable), shifted_signal->getType());
+        llvm::Value* int_var = builder->CreateBitCast(CreateLoad(variable), shifted_signal->getType());
         tmp = builder->CreateXor(shifted_signal, int_var);
         llvm::PointerType* variable_type = static_cast<llvm::PointerType*>(variable->getType());
         builder->CreateStore(builder->CreateBitCast(tmp, variable_type->getElementType()), variable);
@@ -4079,7 +4084,7 @@ public:
                             args.insert(args.begin(), tmp);
                             builder->CreateCall(fn, args);
                             // Convert {double,double}* to {double,double}
-                            tmp = builder->CreateLoad(tmp);
+                            tmp = CreateLoad(tmp);
                         } else {
                             tmp = builder->CreateCall(fn, args);
                         }
@@ -4109,7 +4114,7 @@ public:
                         // Convert i64* to {float,float}* using bitcast
                         tmp = builder->CreateBitCast(p_fx2, complex_type_4->getPointerTo());
                         // Convert {float,float}* to {float,float}
-                        tmp = builder->CreateLoad(tmp);
+                        tmp = CreateLoad(tmp);
                     } else if (platform == Platform::macOS_ARM) {
                         // pass
                     } else {
@@ -4123,7 +4128,7 @@ public:
                         // Convert <2 x float>* to {float,float}* using bitcast
                         tmp = builder->CreateBitCast(p_fx2, complex_type_4->getPointerTo());
                         // Convert {float,float}* to {float,float}
-                        tmp = builder->CreateLoad(tmp);
+                        tmp = CreateLoad(tmp);
                     }
                 }
             }
