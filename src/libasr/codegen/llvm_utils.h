@@ -10,21 +10,9 @@ namespace LFortran {
 
     namespace LLVM {
 
-        llvm::Value* CreateLoad(llvm::IRBuilder<> &builder, llvm::Value *x) {
-            // TODO: the type must be dereferenced:
-            return builder.CreateLoad(x->getType(), x);
-        }
-
-
-        llvm::Value* CreateGEP(llvm::IRBuilder<> &builder, llvm::Value *x, std::vector<llvm::Value *> &idx) {
-            // TODO: the type must be dereferenced:
-            return builder.CreateGEP(x->getType(), x, idx);
-        }
-
-        llvm::Value* CreateInBoundsGEP(llvm::IRBuilder<> &builder, llvm::Value *x, std::vector<llvm::Value *> &idx) {
-            // TODO: the type must be dereferenced:
-            return builder.CreateInBoundsGEP(x->getType(), x, idx);
-        }
+        llvm::Value* CreateLoad(llvm::IRBuilder<> &builder, llvm::Value *x); 
+        llvm::Value* CreateGEP(llvm::IRBuilder<> &builder, llvm::Value *x, std::vector<llvm::Value *> &idx); 
+        llvm::Value* CreateInBoundsGEP(llvm::IRBuilder<> &builder, llvm::Value *x, std::vector<llvm::Value *> &idx); 
     }
 
     class LLVMUtils {
