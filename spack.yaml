@@ -10,6 +10,13 @@
 # The first time you need to build all the packages in it:
 #
 #     spack install
+#
+# Then build LPython as usual:
+#
+#     ./build0.sh
+#     ./build1.sh
+#
+# And everything should be automatically found.
 
 spack:
   # add package specs to the `specs` list
