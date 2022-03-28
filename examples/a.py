@@ -1,10 +1,6 @@
 def main0():
-    # a:f32
-    # a = 5.6 + 4
-    # print(a)
-
-    b:c32
-    b = 3.4 + 5j
-    print(b)
+    eps: f64
+    eps = 1e-12
+    print(pow(2, -2))
     
 main0()
