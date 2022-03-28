@@ -13,5 +13,5 @@
 
 spack:
   # add package specs to the `specs` list
-  specs: [python@3, cmake, llvm@14.0.0, py-toml@0.10.2]
+  specs: [python@3, cmake, llvm@14.0.0, py-toml@0.10.2, py-numpy@1.22.3~blas~lapack]
   view: true
