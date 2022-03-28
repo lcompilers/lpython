@@ -1,0 +1,24 @@
+# This is a Spack Environment file.
+#
+# It describes a set of packages to be installed, along with
+# configuration settings.
+#
+# Activate it with:
+#
+#     spack env activate .
+#
+# The first time you need to build all the packages in it:
+#
+#     spack install
+#
+# Then build LPython as usual:
+#
+#     ./build0.sh
+#     ./build1.sh
+#
+# And everything should be automatically found.
+
+spack:
+  # add package specs to the `specs` list
+  specs: [python@3, cmake, llvm@14.0.0, py-toml@0.10.2, py-numpy@1.22.3~blas~lapack]
+  view: true
