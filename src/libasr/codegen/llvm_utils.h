@@ -8,6 +8,20 @@
 
 namespace LFortran {
 
+    namespace LLVM {
+
+        llvm::Value* CreateLoad(llvm::IRBuilder<> &builder, llvm::Value *x) {
+            // TODO: the type must be dereferenced:
+            return builder.CreateLoad(x->getType(), x);
+        }
+
+
+        llvm::Value* CreateGEP(llvm::IRBuilder<> &builder, llvm::Value *x, std::vector<llvm::Value *> &idx) {
+            // TODO: the type must be dereferenced:
+            return builder.CreateGEP(x->getType(), x, idx);
+        }
+    }
+
     class LLVMUtils {
 
         private:

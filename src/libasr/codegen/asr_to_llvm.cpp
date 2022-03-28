@@ -277,14 +277,12 @@ public:
     }
 
     llvm::Value* CreateLoad(llvm::Value *x) {
-        // TODO: the type must be dereferenced:
-        return builder->CreateLoad(x->getType(), x);
+        return LFortran::LLVM::CreateLoad(*builder, x);
     }
 
-        
+
     llvm::Value* CreateGEP(llvm::Value *x, std::vector<llvm::Value *> &idx) {
-        // TODO: the type must be dereferenced:
-        return builder->CreateGEP(x->getType(), x, idx);
+        return LFortran::LLVM::CreateGEP(*builder, x, idx);
     }
 
     // Inserts a new block `bb` using the current builder
