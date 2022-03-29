@@ -736,8 +736,9 @@ ASR::asr_t* make_ImplicitCast_t_value(Allocator &al, const Location &a_loc, ASR:
         }
 
         else if(a_kind == ASR::cast_kindType::IntegerToReal){
-            int64_t value = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(a_arg))->m_n;
-            n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, a_loc, (double)value, a_type));
+            // TODO clashes with the pow functions
+            // int64_t value = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(a_arg))->m_n;
+            // n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, a_loc, (double)value, a_type));
         }
         else if(a_kind == ASR::cast_kindType::IntegerToComplex){
             int64_t int_value = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(a_arg))->m_n;
