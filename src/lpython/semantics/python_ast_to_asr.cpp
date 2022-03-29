@@ -561,13 +561,30 @@ public:
                         value));
                 }
             }
-        } else if((ASRUtils::is_integer(*left_type) || ASRUtils::is_real(*left_type) ||
+        } 
+        else if((ASRUtils::is_integer(*left_type) || ASRUtils::is_real(*left_type) ||
                         ASRUtils::is_complex(*left_type)) &&
                 (ASRUtils::is_integer(*right_type) || ASRUtils::is_real(*right_type) ||
                         ASRUtils::is_complex(*right_type))) {
-            left = implicitcast_helper(ASRUtils::expr_type(right), left);
-            right = implicitcast_helper(ASRUtils::expr_type(left), right);
-            dest_type = ASRUtils::expr_type(left);
+            std::cout << op << "\n";
+            if(op == ASR::binopType::Pow
+                && ASRUtils::is_integer(*left_type)
+                && ASRUtils::is_integer(*right_type)
+                // && ASRUtils::expr_value(right) != nullptr
+                // && ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(right))->m_n < 0
+                ){
+                
+                dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
+                left = implicitcast_helper(dest_type, left);
+                right = implicitcast_helper(dest_type, right);
+                std::cout << "converting to real \n";
+            }
+
+            else{
+                left = implicitcast_helper(ASRUtils::expr_type(right), left);
+                right = implicitcast_helper(ASRUtils::expr_type(left), right);
+                dest_type = ASRUtils::expr_type(left);
+            }
 
         } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
             // string repeat
@@ -675,23 +692,26 @@ public:
         // Now, compute the result of the binary operations
         if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
             if (ASRUtils::is_integer(*dest_type)) {
+                std::cout << "int\n";
                 int64_t left_value = ASR::down_cast<ASR::ConstantInteger_t>(
                                                     ASRUtils::expr_value(left))->m_n;
                 int64_t right_value = ASR::down_cast<ASR::ConstantInteger_t>(
                                                     ASRUtils::expr_value(right))->m_n;
                 int64_t result;
                 switch (op) {
-                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
-                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
-                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
-                    case (ASR::binopType::Div): { result = left_value / right_value; break; }
-                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
+                    case (ASR::binopType::Add): {std::cout << "here1\n"; result = left_value + right_value; break; }
+                    case (ASR::binopType::Sub): {std::cout << "here2\n"; result = left_value - right_value; break; }
+                    case (ASR::binopType::Mul): {std::cout << "here3\n"; result = left_value * right_value; break; }
+                    case (ASR::binopType::Div): {std::cout << "here4\n"; result = left_value / right_value; break; }
+                    case (ASR::binopType::Pow): {std::cout << "here5\n"; result = std::pow(left_value, right_value); break; }
                     default: { LFORTRAN_ASSERT(false); } // should never happen
                 }
+                std::cout << "result " << result << std::endl;
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
                     al, loc, result, dest_type));
             }
             else if (ASRUtils::is_real(*dest_type)) {
+                std::cout << "real\n";
                 double left_value = ASR::down_cast<ASR::ConstantReal_t>(
                                                     ASRUtils::expr_value(left))->m_r;
                 double right_value = ASR::down_cast<ASR::ConstantReal_t>(
@@ -699,10 +719,10 @@ public:
                 double result;
                 switch (op) {
                     case (ASR::binopType::Add): { result = left_value + right_value; break; }
-                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
+                    case (ASR::binopType::Sub): {std::cout << "here22\n"; result = left_value - right_value; break; }
                     case (ASR::binopType::Mul): { result = left_value * right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
-                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
+                    case (ASR::binopType::Pow): {std::cout << "here55\n"; result = std::pow(left_value, right_value); break; }
                     default: { LFORTRAN_ASSERT(false); }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(

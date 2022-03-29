@@ -1,6 +1,7 @@
 def main0():
     eps: f64
-    eps = 1e-12
-    print(pow(2, -2))
+    eps = pow(2, -1)
+    # print(abs(pow(2, -1) - 0.5))
+    
     
 main0()
