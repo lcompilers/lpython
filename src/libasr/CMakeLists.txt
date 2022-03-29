@@ -50,6 +50,9 @@ set(SRC
     serialization.cpp
     utils2.cpp
 )
+
+add_definitions("-D__STDC_FORMAT_MACROS")
+
 if (WITH_LLVM)
     set(SRC ${SRC}
         codegen/evaluator.cpp
