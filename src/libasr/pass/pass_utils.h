@@ -59,6 +59,8 @@ namespace LFortran {
                                          SymbolTable*& current_scope, Location& loc,
                                          const std::function<void (const std::string &, const Location &)> err);
 
+        Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop);
+
         template <class Derived>
         class PassVisitor: public ASR::BaseWalkVisitor<Derived> {
 
