@@ -51,18 +51,27 @@ private:
 
     std::string current_routine;
 
+    bool inline_external_symbol_calls;
+
+
     ASR::ExprStmtDuplicator node_duplicator;
 
 public:
 
     bool function_inlined;
 
-    InlineFunctionCallVisitor(Allocator &al_, const std::string& rl_path_) : PassVisitor(al_, nullptr),
+    InlineFunctionCallVisitor(Allocator &al_, const std::string& rl_path_, bool inline_external_symbol_calls_)
+    : PassVisitor(al_, nullptr),
     rl_path(rl_path_), function_result_var(nullptr),
     from_inline_function_call(false), inlining_function(false),
-    current_routine(""), node_duplicator(al_), function_inlined(false)
+    current_routine(""), inline_external_symbol_calls(inline_external_symbol_calls_),
+    node_duplicator(al_), function_inlined(false)
     {
         pass_result.reserve(al, 1);
+    }
+
+    void configure_node_duplicator(bool allow_procedure_calls_) {
+        node_duplicator.allow_procedure_calls = allow_procedure_calls_;
     }
 
     void visit_Function(const ASR::Function_t &x) {
@@ -88,6 +97,52 @@ public:
     }
 
     void visit_FunctionCall(const ASR::FunctionCall_t& x) {
+        // If this node is visited by any other visitor
+        // or it is being visited while inlining another function call
+        // then return. To ensure that only one function call is inlined
+        // at a time.
+        if( !from_inline_function_call || inlining_function ) {
+            if( !inlining_function ) {
+                return ;
+            }
+            // TODO: Handle type later
+            if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) ) {
+                ASR::ExternalSymbol_t* called_sym_ext = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
+                ASR::symbol_t* f_sym = ASRUtils::symbol_get_past_external(called_sym_ext->m_external);
+                ASR::Function_t* f = ASR::down_cast<ASR::Function_t>(f_sym);
+
+                // Never inline intrinsic functions
+                if( ASRUtils::is_intrinsic_function2(f) ) {
+                    return ;
+                }
+
+                ASR::symbol_t* called_sym = x.m_name;
+
+                // TODO: Hanlde later
+                // ASR::symbol_t* called_sym_original = x.m_original_name;
+
+                ASR::FunctionCall_t& xx = const_cast<ASR::FunctionCall_t&>(x);
+                std::string called_sym_name = std::string(called_sym_ext->m_name);
+                std::string new_sym_name_str = current_scope->get_unique_name(called_sym_name);
+                char* new_sym_name = s2c(al, new_sym_name_str);
+                if( current_scope->scope.find(new_sym_name_str) == current_scope->scope.end() ) {
+                    ASR::Module_t *m = ASR::down_cast2<ASR::Module_t>(f->m_symtab->parent->asr_owner);
+                    char *modname = m->m_name;
+                    ASR::symbol_t* new_sym = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(
+                                                al, called_sym->base.loc, current_scope, new_sym_name,
+                                                f_sym, modname, nullptr, 0,
+                                                f->m_name, ASR::accessType::Private));
+                    current_scope->scope[new_sym_name_str] = new_sym;
+                }
+                xx.m_name = current_scope->scope[new_sym_name_str];
+            }
+
+            for( size_t i = 0; i < x.n_args; i++ ) {
+                visit_expr(*x.m_args[i].m_value);
+            }
+            return ;
+        }
+
         // Clear up any local variables present in arg2value map
         // due to inlining other function calls
         arg2value.clear();
@@ -98,18 +153,15 @@ public:
         Vec<ASR::stmt_t*> pass_result_local;
         pass_result_local.reserve(al, 1);
 
-        // If this node is visited by any other visitor
-        // or it is being visited while inlining another function call
-        // then return. To ensure that only one function call is inlined
-        // at a time.
-        if( !from_inline_function_call || inlining_function ) {
-            return ;
-        }
-
         // Avoid external symbols for now.
         ASR::symbol_t* routine = x.m_name;
         if( !ASR::is_a<ASR::Function_t>(*routine) ) {
-            return ;
+            if( ASR::is_a<ASR::ExternalSymbol_t>(*routine) &&
+                inline_external_symbol_calls) {
+                routine = ASRUtils::symbol_get_past_external(x.m_name);
+            } else {
+                return ;
+            }
         }
 
         // Avoid inlining current function call if its a recursion.
@@ -294,13 +346,13 @@ public:
 };
 
 void pass_inline_function_calls(Allocator &al, ASR::TranslationUnit_t &unit,
-                                       const std::string& rl_path) {
-    InlineFunctionCallVisitor v(al, rl_path);
-    v.function_inlined = true;
-    while( v.function_inlined ) {
-        v.function_inlined = false;
-        v.visit_TranslationUnit(unit);
-    }
+                                const std::string& rl_path,
+                                bool inline_external_symbol_calls) {
+    InlineFunctionCallVisitor v(al, rl_path, inline_external_symbol_calls);
+    v.configure_node_duplicator(false);
+    v.visit_TranslationUnit(unit);
+    v.configure_node_duplicator(true);
+    v.visit_TranslationUnit(unit);
     LFORTRAN_ASSERT(asr_verify(unit));
 }
 

@@ -8,6 +8,13 @@
 
 namespace LFortran {
 
+    namespace LLVM {
+
+        llvm::Value* CreateLoad(llvm::IRBuilder<> &builder, llvm::Value *x); 
+        llvm::Value* CreateGEP(llvm::IRBuilder<> &builder, llvm::Value *x, std::vector<llvm::Value *> &idx); 
+        llvm::Value* CreateInBoundsGEP(llvm::IRBuilder<> &builder, llvm::Value *x, std::vector<llvm::Value *> &idx); 
+    }
+
     class LLVMUtils {
 
         private:

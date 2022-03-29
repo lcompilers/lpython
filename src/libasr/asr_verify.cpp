@@ -306,7 +306,7 @@ public:
             "Var_t::m_v cannot be nullptr");
         require(is_a<Variable_t>(*x.m_v) || is_a<ExternalSymbol_t>(*x.m_v)
                 || is_a<Function_t>(*x.m_v) || is_a<Subroutine_t>(*x.m_v),
-            "Var_t::m_v does not point to a Variable_t, ExternalSymbol_t," \
+            "Var_t::m_v " + std::string(ASRUtils::symbol_name(x.m_v)) + " does not point to a Variable_t, ExternalSymbol_t," \
             "Function_t, or Subroutine_t");
         require(symtab_in_scope(current_symtab, x.m_v),
             "Var::m_v `" + std::string(ASRUtils::symbol_name(x.m_v)) + "` cannot point outside of its symbol table");
