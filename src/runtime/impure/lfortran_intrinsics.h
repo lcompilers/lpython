@@ -160,6 +160,9 @@ LFORTRAN_API void _lfortran_i64sys_clock(
         uint64_t *count, int64_t *rate, int64_t *max);
 LFORTRAN_API void _lfortran_sp_rand_num(float *x);
 LFORTRAN_API void _lfortran_dp_rand_num(double *x);
+LFORTRAN_API int64_t _lpython_open(char *path, char *flags);
+LFORTRAN_API char* _lpython_read(int64_t fd, int64_t n);
+LFORTRAN_API void _lpython_close(int64_t fd);
 
 #ifdef __cplusplus
 }

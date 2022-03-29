@@ -786,3 +786,38 @@ LFORTRAN_API void _lfortran_dp_rand_num(double *x) {
     srand(time(0));
     *x = rand() / (double) RAND_MAX;
 }
+
+LFORTRAN_API int64_t _lpython_open(char *path, char *flags)
+{
+    FILE *fd;
+    fd = fopen(path, flags);
+    if (!fd) 
+    {
+        printf("Error in opening the file!\n");
+        perror(path);
+        exit(1);
+    }
+    return (int64_t)fd;
+}
+
+LFORTRAN_API char* _lpython_read(int64_t fd, int64_t n)
+{
+    char *c = (char *) calloc(n, sizeof(char));
+    if (fd < 0) 
+    {
+        printf("Error in reading the file!\n");
+        exit(1);
+    }
+    int x = fread(c, 1, n, (FILE*)fd);
+    c[x] = '\0';
+    return c;
+}
+
+LFORTRAN_API void _lpython_close(int64_t fd)
+{
+    if (fclose((FILE*)fd) != 0) 
+    {
+        printf("Error in closing the file!\n");
+        exit(1);
+    }
+}
