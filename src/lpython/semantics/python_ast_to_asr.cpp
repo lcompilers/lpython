@@ -683,11 +683,11 @@ public:
                                                     ASRUtils::expr_value(right))->m_n;
                 int64_t result;
                 switch (op) {
-                    case (ASR::binopType::Add): {result = left_value + right_value; break; }
-                    case (ASR::binopType::Sub): {result = left_value - right_value; break; }
-                    case (ASR::binopType::Mul): {result = left_value * right_value; break; }
-                    case (ASR::binopType::Div): {result = left_value / right_value; break; }
-                    case (ASR::binopType::Pow): {result = std::pow(left_value, right_value); break; }
+                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
+                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
+                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
+                    case (ASR::binopType::Div): { result = left_value / right_value; break; }
+                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
                     default: { LFORTRAN_ASSERT(false); } // should never happen
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(
@@ -701,10 +701,10 @@ public:
                 double result;
                 switch (op) {
                     case (ASR::binopType::Add): { result = left_value + right_value; break; }
-                    case (ASR::binopType::Sub): {result = left_value - right_value; break; }
+                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
                     case (ASR::binopType::Mul): { result = left_value * right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
-                    case (ASR::binopType::Pow): {result = std::pow(left_value, right_value); break; }
+                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
                     default: { LFORTRAN_ASSERT(false); }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(
