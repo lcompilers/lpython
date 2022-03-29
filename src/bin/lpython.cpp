@@ -13,7 +13,7 @@
 #include <libasr/codegen/asr_to_cpp.h>
 #include <libasr/codegen/asr_to_py.h>
 #include <libasr/codegen/asr_to_x86.h>
-#include <lpython/fortran_evaluator.h>
+#include <lpython/python_evaluator.h>
 #include <libasr/codegen/evaluator.h>
 #include <libasr/pass/do_loops.h>
 #include <libasr/pass/for_all.h>
@@ -39,7 +39,7 @@ namespace {
 
 using LFortran::endswith;
 using LFortran::CompilerOptions;
-using LFortran::Python::parse_python_file;
+using LFortran::LPython::parse_python_file;
 
 enum Backend {
     llvm, cpp, x86
@@ -97,17 +97,17 @@ int emit_ast(const std::string &infile,
     CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
-    LFortran::Result<LFortran::Python::AST::ast_t*> r = parse_python_file(
+    LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
         al, runtime_library_dir, infile);
     if (!r.ok) {
         return 1;
     }
-    LFortran::Python::AST::ast_t* ast = r.result;
+    LFortran::LPython::AST::ast_t* ast = r.result;
 
     if (compiler_options.tree) {
-        std::cout << LFortran::Python::pickle_tree_python(*ast, compiler_options.use_colors) << std::endl;
+        std::cout << LFortran::LPython::pickle_tree_python(*ast, compiler_options.use_colors) << std::endl;
     } else {
-        std::cout << LFortran::Python::pickle_python(*ast,
+        std::cout << LFortran::LPython::pickle_python(*ast,
             compiler_options.use_colors, compiler_options.indent) << std::endl;
     }
     return 0;
@@ -118,12 +118,12 @@ int emit_asr(const std::string &infile,
     bool with_intrinsic_modules, CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
-    LFortran::Result<LFortran::Python::AST::ast_t*> r1 = parse_python_file(
+    LFortran::Result<LFortran::LPython::AST::ast_t*> r1 = parse_python_file(
         al, runtime_library_dir, infile);
     if (!r1.ok) {
         return 1;
     }
-    LFortran::Python::AST::ast_t* ast = r1.result;
+    LFortran::LPython::AST::ast_t* ast = r1.result;
 
     LFortran::LocationManager lm;
     lm.in_filename = infile;
@@ -131,7 +131,7 @@ int emit_asr(const std::string &infile,
     lm.init_simple(input);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics, true,
+        r = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
             compiler_options.symtab_only);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
@@ -155,12 +155,12 @@ int emit_cpp(const std::string &infile,
     CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
-    LFortran::Result<LFortran::Python::AST::ast_t*> r = parse_python_file(
+    LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
         al, runtime_library_dir, infile);
     if (!r.ok) {
         return 1;
     }
-    LFortran::Python::AST::ast_t* ast = r.result;
+    LFortran::LPython::AST::ast_t* ast = r.result;
 
     LFortran::LocationManager lm;
     lm.in_filename = infile;
@@ -168,7 +168,7 @@ int emit_cpp(const std::string &infile,
     lm.init_simple(input);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics, true,
+        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
             compiler_options.symtab_only);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
@@ -195,7 +195,7 @@ int emit_llvm(const std::string &infile,
     CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
-    LFortran::Result<LFortran::Python::AST::ast_t*> r = parse_python_file(
+    LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
         al, runtime_library_dir, infile);
     if (!r.ok) {
         return 1;
@@ -203,13 +203,13 @@ int emit_llvm(const std::string &infile,
     LFortran::LocationManager lm;
 
     // Src -> AST -> ASR
-    LFortran::Python::AST::ast_t* ast = r.result;
+    LFortran::LPython::AST::ast_t* ast = r.result;
     lm.in_filename = infile;
     std::string input = read_file(infile);
     lm.init_simple(input);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics, true,
+        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
             compiler_options.symtab_only);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
@@ -239,7 +239,7 @@ int compile_python_to_object_file(
         CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
-    LFortran::Result<LFortran::Python::AST::ast_t*> r = parse_python_file(
+    LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
         al, runtime_library_dir, infile);
     if (!r.ok) {
         return 1;
@@ -247,13 +247,13 @@ int compile_python_to_object_file(
     LFortran::LocationManager lm;
 
     // Src -> AST -> ASR
-    LFortran::Python::AST::ast_t* ast = r.result;
+    LFortran::LPython::AST::ast_t* ast = r.result;
     lm.in_filename = infile;
     std::string input = read_file(infile);
     lm.init_simple(input);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::Python::python_ast_to_asr(al, *ast, diagnostics, true,
+        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
             compiler_options.symtab_only);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
@@ -294,24 +294,24 @@ int link_executable(const std::vector<std::string> &infiles,
     The `gcc` line for dynamic linking that is constructed below:
 
     gcc -o $outfile $infile \
-        -Lsrc/runtime -Wl,-rpath=src/runtime -llfortran_runtime
+        -Lsrc/runtime -Wl,-rpath=src/runtime -llpython_runtime
 
     is equivalent to the following:
 
     ld -o $outfile $infile \
-        -Lsrc/runtime -rpath=src/runtime -llfortran_runtime \
+        -Lsrc/runtime -rpath=src/runtime -llpython_runtime \
         -dynamic-linker /lib64/ld-linux-x86-64.so.2  \
         /usr/lib/x86_64-linux-gnu/Scrt1.o /usr/lib/x86_64-linux-gnu/libc.so
 
     and this for static linking:
 
     gcc -static -o $outfile $infile \
-        -Lsrc/runtime -Wl,-rpath=src/runtime -llfortran_runtime_static
+        -Lsrc/runtime -Wl,-rpath=src/runtime -llpython_runtime_static
 
     is equivalent to:
 
     ld -o $outfile $infile \
-        -Lsrc/runtime -rpath=src/runtime -llfortran_runtime_static \
+        -Lsrc/runtime -rpath=src/runtime -llpython_runtime_static \
         /usr/lib/x86_64-linux-gnu/crt1.o /usr/lib/x86_64-linux-gnu/crti.o \
         /usr/lib/x86_64-linux-gnu/libc.a \
         /usr/lib/gcc/x86_64-linux-gnu/7/libgcc_eh.a \
@@ -357,7 +357,7 @@ int link_executable(const std::vector<std::string> &infiles,
             for (auto &s : infiles) {
                 cmd += s + " ";
             }
-            cmd += runtime_library_dir + "\\lfortran_runtime_static.lib";
+            cmd += runtime_library_dir + "\\lpython_runtime_static.lib";
             int err = system(cmd.c_str());
             if (err) {
                 std::cout << "The command '" + cmd + "' failed." << std::endl;
@@ -369,13 +369,13 @@ int link_executable(const std::vector<std::string> &infiles,
             if (env_CC) CC = env_CC;
             std::string base_path = "\"" + runtime_library_dir + "\"";
             std::string options;
-            std::string runtime_lib = "lfortran_runtime";
+            std::string runtime_lib = "lpython_runtime";
             if (static_executable) {
                 if (compiler_options.platform != LFortran::Platform::macOS_Intel
                 && compiler_options.platform != LFortran::Platform::macOS_ARM) {
                     options += " -static ";
                 }
-                runtime_lib = "lfortran_runtime_static";
+                runtime_lib = "lpython_runtime_static";
             }
             std::string cmd = CC + options + " -o " + outfile + " ";
             for (auto &s : infiles) {
@@ -577,7 +577,7 @@ int main(int argc, char *argv[])
 
         if (arg_version) {
             std::string version = LFORTRAN_VERSION;
-            std::cout << "LFortran version: " << version << std::endl;
+            std::cout << "LPython version: " << version << std::endl;
             std::cout << "Platform: ";
             switch (compiler_options.platform) {
                 case (LFortran::Platform::Linux) : std::cout << "Linux"; break;

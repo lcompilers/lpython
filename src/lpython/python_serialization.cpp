@@ -6,7 +6,7 @@
 #include <libasr/string_utils.h>
 
 
-namespace LFortran::Python {
+namespace LFortran::LPython {
 
 class ASTDeserializationVisitor :
 #ifdef WITH_LFORTRAN_BINARY_MODFILES

@@ -1,4 +1,4 @@
-# LFortran
+# LPython
 
 src/bin/lpython
 src/bin/parse
@@ -13,7 +13,7 @@ src/lpython/tests/test_stacktrace*
 src/lpython/tests/test_serialization*
 src/lpython/tests/test_cwrapper
 src/lpython/tests/test_serialization
-src/lpython/tests/test_lfortran
+src/lpython/tests/test_lpython
 src/lpython/tests/write32
 src/lpython/tests/write32.asm
 src/lpython/tests/subroutines32
@@ -23,11 +23,6 @@ src/lpython/tests/print_integer
 src/lpython/tests/cmp32
 src/lpython/tests/x
 src/lpython/tests/ref_pickle.txt.new
-
-# fortran_parser
-
-build-gfortran
-build-lfort
 
 ## CMake
 CMakeCache.txt

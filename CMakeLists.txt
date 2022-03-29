@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_SOURCE_DIR}/cmake/UserOverride.cmake)
 
 # We don't execute this if we have a tarball
-if (LFORTRAN_BUILD_ALL)
+if (LPYTHON_BUILD_ALL)
   execute_process(COMMAND "build0.sh")
 endif()
 
@@ -24,11 +24,11 @@ if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
 endif ()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(LFORTRAN_CXX_NO_RTTI_FLAG "-fno-rtti")
+    set(LPYTHON_CXX_NO_RTTI_FLAG "-fno-rtti")
 elseif (CMAKE_CXX_COMPILER_ID MATCHES Clang)
-    set(LFORTRAN_CXX_NO_RTTI_FLAG "-fno-rtti")
+    set(LPYTHON_CXX_NO_RTTI_FLAG "-fno-rtti")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set(LFORTRAN_CXX_NO_RTTI_FLAG "/GR-")
+    set(LPYTHON_CXX_NO_RTTI_FLAG "/GR-")
 endif ()
 
 
@@ -70,8 +70,8 @@ endif()
 set(WITH_LFORTRAN_ASSERT ${WITH_LFORTRAN_ASSERT_DEFAULT}
     CACHE BOOL "Enable LFORTRAN_ASSERT macro")
 
-# LFORTRAN_STATIC_BIN
-set(LFORTRAN_STATIC_BIN no CACHE BOOL "Build LFortran as a static binary")
+# LPYTHON_STATIC_BIN
+set(LPYTHON_STATIC_BIN no CACHE BOOL "Build LPython as a static binary")
 
 # WITH_LFORTRAN_BINARY_MODFILES
 set(WITH_LFORTRAN_BINARY_MODFILES YES
@@ -89,7 +89,7 @@ set(WITH_LLVM no CACHE BOOL "Build with LLVM support")
 set(WITH_TARGET_AARCH64 no CACHE BOOL "Enable target AARCH64")
 set(WITH_TARGET_X86 no CACHE BOOL "Enable target X86")
 if (WITH_LLVM)
-    set(LFORTRAN_LLVM_COMPONENTS core support mcjit orcjit native asmparser asmprinter)
+    set(LPYTHON_LLVM_COMPONENTS core support mcjit orcjit native asmparser asmprinter)
     find_package(LLVM REQUIRED)
     message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
     message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
@@ -108,7 +108,7 @@ if (WITH_LLVM)
             message(FATAL_ERROR "The selected LLVM library doesn't have support for AArch64 targets")
         endif()
 
-        list(APPEND LFORTRAN_LLVM_COMPONENTS aarch64info aarch64utils aarch64desc aarch64asmparser aarch64codegen aarch64disassembler)
+        list(APPEND LPYTHON_LLVM_COMPONENTS aarch64info aarch64utils aarch64desc aarch64asmparser aarch64codegen aarch64disassembler)
         add_definitions("-DHAVE_TARGET_AARCH64=1")
     endif()
 
@@ -117,12 +117,12 @@ if (WITH_LLVM)
             message(FATAL_ERROR "The selected LLVM library doesn't have support for X86 targets")
         endif()
 
-        list(APPEND LFORTRAN_LLVM_COMPONENTS x86info x86desc x86codegen x86asmparser x86disassembler)
+        list(APPEND LPYTHON_LLVM_COMPONENTS x86info x86desc x86codegen x86asmparser x86disassembler)
         add_definitions("-DHAVE_TARGET_X86=1")
     endif()
 
-    llvm_map_components_to_libnames(llvm_libs ${LFORTRAN_LLVM_COMPONENTS})
-    unset(LFORTRAN_LLVM_COMPONENTS)
+    llvm_map_components_to_libnames(llvm_libs ${LPYTHON_LLVM_COMPONENTS})
+    unset(LPYTHON_LLVM_COMPONENTS)
 
     add_library(p::llvm INTERFACE IMPORTED)
     set_property(TARGET p::llvm PROPERTY INTERFACE_INCLUDE_DIRECTORIES
@@ -132,7 +132,7 @@ if (WITH_LLVM)
     #set_property(TARGET p::llvm PROPERTY INTERFACE_COMPILE_OPTIONS
     #    ${LLVM_DEFINITIONS})
     set_property(TARGET p::llvm PROPERTY INTERFACE_COMPILE_OPTIONS
-        $<$<COMPILE_LANGUAGE:CXX>:${LFORTRAN_CXX_NO_RTTI_FLAG}>)
+        $<$<COMPILE_LANGUAGE:CXX>:${LPYTHON_CXX_NO_RTTI_FLAG}>)
     set_property(TARGET p::llvm PROPERTY INTERFACE_LINK_LIBRARIES
         ${llvm_libs})
     if (MSVC)
@@ -237,7 +237,7 @@ enable_testing()
 message("\n")
 message("Configuration results")
 message("---------------------")
-message("LFORTRAN_VERSION: ${LFORTRAN_VERSION}")
+message("LPYTHON_VERSION: ${LFORTRAN_VERSION}")
 message("CPACK_PACKAGE_FILE_NAME: ${CPACK_PACKAGE_FILE_NAME}")
 message("C compiler      : ${CMAKE_C_COMPILER}")
 message("C++ compiler    : ${CMAKE_CXX_COMPILER}")
@@ -251,7 +251,7 @@ else ()
 endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 message("WITH_LFORTRAN_ASSERT: ${WITH_LFORTRAN_ASSERT}")
-message("LFORTRAN_STATIC_BIN: ${LFORTRAN_STATIC_BIN}")
+message("LPYTHON_STATIC_BIN: ${LPYTHON_STATIC_BIN}")
 message("WITH_STACKTRACE: ${WITH_STACKTRACE}")
 message("WITH_UNWIND: ${WITH_UNWIND}")
 message("WITH_BFD: ${WITH_BFD}")
