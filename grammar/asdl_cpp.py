@@ -683,8 +683,9 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
         self.emit("")
         self.emit("public:")
         self.emit("    bool success;")
+        self.emit("    bool allow_procedure_calls;")
         self.emit("")
-        self.emit("    ExprStmtDuplicator(Allocator& al_) : al(al_), success(false) {}")
+        self.emit("    ExprStmtDuplicator(Allocator& al_) : al(al_), success(false), allow_procedure_calls(true) {}")
         self.emit("")
         self.duplicate_stmt.append(("    ASR::stmt_t* duplicate_stmt(ASR::stmt_t* x) {", 0))
         self.duplicate_stmt.append(("    if( !x ) {", 1))
@@ -743,19 +744,6 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
         self.make_visitor(cons.name, cons.fields)
 
     def make_visitor(self, name, fields):
-        if name == "FunctionCall" or name == "SubroutineCall":
-            if self.is_stmt:
-                self.duplicate_stmt.append(("    case ASR::stmtType::%s: {" % name, 2))
-                self.duplicate_stmt.append(("    success = false;", 3))
-                self.duplicate_stmt.append(("    return nullptr;", 3))
-                self.duplicate_stmt.append(("    }", 2))
-            elif self.is_expr:
-                self.duplicate_expr.append(("    case ASR::exprType::%s: {" % name, 2))
-                self.duplicate_expr.append(("    success = false;", 3))
-                self.duplicate_expr.append(("    return nullptr;", 3))
-                self.duplicate_expr.append(("    }", 2))
-            return None
-
         self.emit("")
         self.emit("ASR::asr_t* duplicate_%s(%s_t* x) {" % (name, name), 1)
         self.used = False
@@ -771,10 +759,20 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
             self.emit("return make_%s_t(al, x->base.base.loc, %s);" %(name, node_arg_str), 2)
         if self.is_stmt:
             self.duplicate_stmt.append(("    case ASR::stmtType::%s: {" % name, 2))
+            if name == "SubroutineCall":
+                self.duplicate_stmt.append(("    if( !allow_procedure_calls ) {", 3))
+                self.duplicate_stmt.append(("    success = false;", 4))
+                self.duplicate_stmt.append(("    return nullptr;", 4))
+                self.duplicate_stmt.append(("    }", 3))
             self.duplicate_stmt.append(("    return down_cast<ASR::stmt_t>(duplicate_%s(down_cast<ASR::%s_t>(x)));" % (name, name), 3))
             self.duplicate_stmt.append(("    }", 2))
         elif self.is_expr:
             self.duplicate_expr.append(("    case ASR::exprType::%s: {" % name, 2))
+            if name == "FunctionCall":
+                self.duplicate_expr.append(("    if( !allow_procedure_calls ) {", 3))
+                self.duplicate_expr.append(("    success = false;", 4))
+                self.duplicate_expr.append(("    return nullptr;", 4))
+                self.duplicate_expr.append(("    }", 3))
             self.duplicate_expr.append(("    return down_cast<ASR::expr_t>(duplicate_%s(down_cast<ASR::%s_t>(x)));" % (name, name), 3))
             self.duplicate_expr.append(("    }", 2))
         self.emit("}", 1)
@@ -782,15 +780,23 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
 
     def visitField(self, field):
         arguments = None
-        if field.type == "expr" or field.type == "stmt" or field.type == "symbol":
+        if field.type == "expr" or field.type == "stmt" or field.type == "symbol" or field.type == "call_arg":
             level = 2
             if field.seq:
                 self.used = True
-                self.emit("Vec<%s_t*> m_%s;" % (field.type, field.name), level)
+                pointer_char = ''
+                if field.type != "call_arg":
+                    pointer_char = '*'
+                self.emit("Vec<%s_t%s> m_%s;" % (field.type, pointer_char, field.name), level)
                 self.emit("m_%s.reserve(al, x->n_%s);" % (field.name, field.name), level)
                 self.emit("for (size_t i = 0; i < x->n_%s; i++) {" % field.name, level)
                 if field.type == "symbol":
                     self.emit("    m_%s.push_back(al, x->m_%s[i]);" % (field.name, field.name), level)
+                elif field.type == "call_arg":
+                    self.emit("    ASR::call_arg_t call_arg_copy;", level)
+                    self.emit("    call_arg_copy.loc = x->m_%s[i].loc;"%(field.name), level)
+                    self.emit("    call_arg_copy.m_value = duplicate_expr(x->m_%s[i].m_value);"%(field.name), level)
+                    self.emit("    m_%s.push_back(al, call_arg_copy);"%(field.name), level)
                 else:
                     self.emit("    m_%s.push_back(al, duplicate_%s(x->m_%s[i]));" % (field.name, field.type, field.name), level)
                 self.emit("}", level)
