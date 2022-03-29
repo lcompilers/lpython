@@ -736,37 +736,43 @@ ASR::asr_t* make_ImplicitCast_t_value(Allocator &al, const Location &a_loc, ASR:
         }
 
         else if(a_kind == ASR::cast_kindType::IntegerToReal){
-            int64_t value = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(a_arg))->m_n;
-            n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, a_loc, (double)value, a_type));
+            try{
+                int64_t value = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(a_arg))->m_n;
+                n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, a_loc, (double)value, a_type));
+            } catch(LFortranException e){}
         }
-        // else if(a_kind == ASR::cast_kindType::IntegerToComplex){
-        //     int64_t int_value = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(a_arg))->m_n;
-        //     std::complex<double> value(int_value, 0);
-        //     n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantComplex_t(al, a_loc,
-        //                 std::real(value), std::imag(value), a_type));
-        // }
-        // else if(a_kind == ASR::cast_kindType::IntegerToInteger){
-        //     int64_t value = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(a_arg))->m_n;
-        //     n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, a_loc, value, a_type));
-        // }
-        // else if(a_kind == ASR::cast_kindType::IntegerToLogical){
-        //     // int64_t value = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(a_arg))->m_n;
-        //     // n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, a_loc, value, a_type));
-        //     std::cout << "not yet implemented\n";
-        // }
+        else if(a_kind == ASR::cast_kindType::IntegerToComplex){
+            int64_t int_value = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(a_arg))->m_n;
+            std::complex<double> value(int_value, 0);
+            n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantComplex_t(al, a_loc,
+                        std::real(value), std::imag(value), a_type));
+        }
+        else if(a_kind == ASR::cast_kindType::IntegerToInteger){
+            // TODO: implement 
+            // ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, a_loc, 4, nullptr, 0));
+            // std::cout << a_type->type << std::endl;
+            // int64_t value = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(a_arg))->m_n;
+            // n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, a_loc, value, a_type));
+            
+        }
+        else if(a_kind == ASR::cast_kindType::IntegerToLogical){
+            // TODO implement
+            // int64_t value = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(a_arg))->m_n;
+            // n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, a_loc, value, a_type));
+        }
         
 
-        // else if(a_kind == ASR::cast_kindType::ComplexToComplex){
-        //     ASR::ConstantComplex_t* value_complex = ASR::down_cast<ASR::ConstantComplex_t>(ASRUtils::expr_value(a_arg));
-        //     double real = value_complex->m_re;
-        //     double imag = value_complex->m_im;
-        //     n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantComplex_t(al, a_loc, real, imag, a_type));
-        // }
-        // else if(a_kind == ASR::cast_kindType::ComplexToReal){
-        //     ASR::ConstantComplex_t* value_complex = ASR::down_cast<ASR::ConstantComplex_t>(ASRUtils::expr_value(a_arg));
-        //     double real = value_complex->m_re;
-        //     n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, a_loc, real, a_type));
-        // }
+        else if(a_kind == ASR::cast_kindType::ComplexToComplex){
+            ASR::ConstantComplex_t* value_complex = ASR::down_cast<ASR::ConstantComplex_t>(ASRUtils::expr_value(a_arg));
+            double real = value_complex->m_re;
+            double imag = value_complex->m_im;
+            n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantComplex_t(al, a_loc, real, imag, a_type));
+        }
+        else if(a_kind == ASR::cast_kindType::ComplexToReal){
+            ASR::ConstantComplex_t* value_complex = ASR::down_cast<ASR::ConstantComplex_t>(ASRUtils::expr_value(a_arg));
+            double real = value_complex->m_re;
+            n->m_value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, a_loc, real, a_type));
+        }
         
     }
 
