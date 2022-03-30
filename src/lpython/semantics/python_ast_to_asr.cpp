@@ -608,7 +608,7 @@ public:
         } else if((ASRUtils::is_integer(*left_type) || ASRUtils::is_real(*left_type) ||
                     ASRUtils::is_complex(*left_type) || ASRUtils::is_logical(*left_type)) &&
                 (ASRUtils::is_integer(*right_type) || ASRUtils::is_real(*right_type) ||
-                    ASRUtils::is_complex(*right_type) || ASRUtils::is_logical(*left_type))) {
+                    ASRUtils::is_complex(*right_type) || ASRUtils::is_logical(*right_type))) {
             left = implicitcast_helper(ASRUtils::expr_type(right), left);
             right = implicitcast_helper(ASRUtils::expr_type(left), right);
             dest_type = ASRUtils::expr_type(left);
