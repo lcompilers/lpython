@@ -10,4 +10,21 @@ def f():
     print(x)
     assert x == "abcdefghijkl123"
 
-f()
+def test_str_concat():
+    a: str
+    a = "abc"
+    b: str
+    b = "def"
+    c: str
+    c = a + b
+    assert c == "abcdef"
+    a = ""
+    b = "z"
+    c = a + b
+    assert c == "z"
+
+def check():
+    f()
+    test_str_concat()
+
+check()
