@@ -12,4 +12,33 @@ def test_int():
     assert int(5.5) == 5
     assert int(-5.5) == -5
 
-test_int()
+
+def test_bool_to_int():
+    b: i32
+    b = True - True
+    assert b == 0
+    b = False - False
+    assert b == 0
+    b = False - True
+    assert b == -1
+    b = True - False
+    assert b == 1
+    b = True + True
+    assert b == 2
+    b = False + False
+    assert b == 0
+    b = False + True
+    assert b == 1
+    b = True + False
+    assert b == 1
+    b = True + True + True - False
+    assert b == 3
+    b = True + (True + True) - (False + True)
+    assert b == 2
+
+
+def check_all():
+    test_int()
+    test_bool_to_int()
+
+check_all()
