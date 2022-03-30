@@ -2,6 +2,8 @@ from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
                   ldexp, fabs, gcd, lcm)
 from ltypes import i32, f64
 
+eps: f64
+eps = 1e-12
 
 def test_factorial_1():
     i: i32
@@ -30,31 +32,31 @@ def test_isqrt():
 def test_degrees():
     i: f64
     i = degrees(32.2)
-    assert i == 1844.924100321251
+    assert abs(i - 1844.924100321251) < eps
 
 
 def test_radians():
     i: f64
     i = radians(100.1)
-    assert i == 1.7470745812463238
+    assert abs(i - 1.7470745812463238) < eps
 
 
 def test_exp():
     i: f64
     i = exp(2.34)
-    assert i == 10.381236562731843
+    assert abs(i - 10.381236562731843) < eps
 
 
 def test_pow():
     i: f64
     i = pow(2.4, 4.3)
-    assert i == 43.14280115650323
+    assert abs(i - 43.14280115650323) < eps
 
 
 def test_ldexp():
     i: f64
     i = ldexp(23.3, 2)
-    assert i == 93.2
+    assert abs(i - 93.2) < eps
 
 
 def test_fabs():
@@ -84,15 +86,18 @@ def test_lcm():
     assert i == 84
 
 
-test_factorial_1()
-test_comb()
-test_isqrt()
-test_perm()
-test_degrees()
-test_radians()
-test_exp()
-test_pow()
-test_fabs()
-test_ldexp()
-test_gcd()
-test_lcm()
+def check():
+    test_factorial_1()
+    test_comb()
+    test_isqrt()
+    test_perm()
+    test_degrees()
+    test_radians()
+    test_exp()
+    test_pow()
+    test_fabs()
+    test_ldexp()
+    test_gcd()
+    test_lcm()
+
+check()
