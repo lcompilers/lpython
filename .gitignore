@@ -5,6 +5,7 @@ src/bin/parse
 src/bin/parse2
 tests/output
 src/lpython/tests/test_asm
+src/lpython/tests/test_lfortran
 src/lpython/tests/test_ast
 src/lpython/tests/test_llvm
 src/lpython/tests/test_parse
