@@ -1,3 +1,5 @@
+from ltypes import i32
+
 def _lpython_strcmp_eq(a: str, b: str) -> bool:
     if len(a) != len(b):
         return False
@@ -37,6 +39,14 @@ def _lpython_strcmp_gt(a: str, b: str) -> bool:
 
 def _lpython_strcmp_gteq(a: str, b: str) -> bool:
     return _lpython_strcmp_eq(a, b) or _lpython_strcmp_gt(a, b)
+
+def _lpython_str_repeat(a: str, n: i32) -> str:
+    s: str
+    s = ""
+    i: i32
+    for i in range(n):
+        s += a
+    return s
 
 def f():
     assert _lpython_strcmp_eq("a", "a")
@@ -79,5 +89,8 @@ def f():
     assert _lpython_strcmp_gteq("a123", "a123")
     assert _lpython_strcmp_gteq("bg", "abc")
     assert _lpython_strcmp_gteq(a, b)
+
+    assert _lpython_str_repeat("abc", 3) == "abcabcabc"
+    assert _lpython_str_repeat("", -1) == ""
 
 f()
