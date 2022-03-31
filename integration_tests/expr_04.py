@@ -10,4 +10,14 @@ def main0():
             break
     assert sum == 21
 
+
+def test_issue_255():
+    i: f64
+    i = 300.27
+    eps: f64
+    eps = 1e-12
+    assert abs(i//1.0 - 300.0) < eps
+
+
+test_issue_255()
 main0()
