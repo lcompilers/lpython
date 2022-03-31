@@ -1,5 +1,5 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
-                  ldexp, fabs, gcd, lcm)
+                  ldexp, fabs, gcd, lcm, floor, ceil)
 from ltypes import i32, f64
 
 eps: f64
@@ -86,6 +86,26 @@ def test_lcm():
     assert i == 84
 
 
+def test_floor():
+    i: i64
+    i = floor(10.02)
+    assert i == 10
+    i = floor(-13)
+    assert i == -13
+    i = floor(-13.31)
+    assert i == -14
+
+
+def test_ceil():
+    i: i64
+    i = ceil(10.02)
+    assert i == 11
+    i = ceil(-13)
+    assert i == -13
+    i = ceil(-13.31)
+    assert i == -13
+
+
 def check():
     test_factorial_1()
     test_comb()
@@ -99,5 +119,7 @@ def check():
     test_ldexp()
     test_gcd()
     test_lcm()
+    test_floor()
+    test_ceil()
 
 check()
