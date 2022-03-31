@@ -58,7 +58,7 @@ def ceil(x: i64) -> i64:
 def ceil(x: f64) -> i64:
     r: i64
     r = int(x)
-    if x <= 0 || r == x:
+    if x <= 0 or r == x:
         return r
     return r + 1
 
@@ -66,7 +66,7 @@ def ceil(x: f64) -> i64:
 def ceil(x: f32) -> i32:
     r: i32
     r = int(x)
-    if x <= 0 || r == x:
+    if x <= 0 or r == x:
         return r
     return r + 1
 
