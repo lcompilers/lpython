@@ -78,6 +78,10 @@ def main():
             run_test("cpp", "lpython --no-color --show-cpp {infile}",
                     filename, update_reference, extra_args)
 
+        if tokens:
+            run_test("cpp", "lpython --no-color --show-tokens {infile} -o {outfile}",
+                    filename, update_reference, extra_args)
+
         print()
 
     if list_tests:
