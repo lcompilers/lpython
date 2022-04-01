@@ -281,6 +281,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             'cycle' { KW(CYCLE) }
             'data' { KW(DATA) }
             'deallocate' { KW(DEALLOCATE) }
+            'def' { KW(DEF) }
             'default' { KW(DEFAULT) }
             'deferred' { KW(DEFERRED) }
             'dimension' { KW(DIMENSION) }
@@ -405,6 +406,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             'formatted' { KW(FORMATTED) }
             'form' { KW(FORM) }
             'formteam' { KW(FORM_TEAM) }
+            'from' { KW(FROM) }
             'function' { KW(FUNCTION) }
             'generic' { KW(GENERIC) }
             'go' { KW(GO) }
@@ -516,7 +518,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
 
             // Single character symbols
             "(" { RET(TK_LPAREN) }
-            "(" / "/=" { RET(TK_LPAREN) } // To parse "operator(/=)" correctly
+            // "(" / "/=" { RET(TK_LPAREN) } // To parse "operator(/=)" correctly
             "(" / "/)" { RET(TK_LPAREN) } // To parse "operator(/)" correctly
             // To parse "operator(/ )" correctly
             "(" / "/" whitespace ")" { RET(TK_LPAREN) }
@@ -527,6 +529,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "[" | "(/" { RET(TK_LBRACKET) }
             "]" { RET(TK_RBRACKET) }
             "/)" { RET(TK_RBRACKET_OLD) }
+            "{" { RET(TK_LBRACE) }
+            "}" { RET(TK_RBRACE) }
             "+" { RET(TK_PLUS) }
             "-" { RET(TK_MINUS) }
             "=" { RET(TK_EQUAL) }
@@ -537,19 +541,39 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "," { RET(TK_COMMA) }
             "*" { RET(TK_STAR) }
             "|" { RET(TK_VBAR) }
+            "&" { RET(TK_AMPERSAND) }
+            "." { RET(TK_DOT) }
+            "`" { RET(TK_BACKQUOTE) }
+            "~" { RET(TK_TILDE) }
+            "^" { RET(TK_CARET) }
+            "@" { RET(TK_AT) }
 
             // Multiple character symbols
             ".." { RET(TK_DBL_DOT) }
             "::" { RET(TK_DBL_COLON) }
-            "**" { RET(TK_POW) }
-            "//" { RET(TK_CONCAT) }
             "=>" { RET(TK_ARROW) }
+            ">>" { RET(TK_RIGHTSHIFT) }
+            "<<" { RET(TK_LEFTSHIFT) }
+            "**" { RET(TK_POW) }
+            "//" { RET(TK_FLOOR_DIV) }
+            "+=" { RET(TK_PLUS_EQUAL) }
+            "-=" { RET(TK_MIN_EQUAL) }
+            "*=" { RET(TK_STAR_EQUAL) }
+            "/=" { RET(TK_SLASH_EQUAL) }
+            "%=" { RET(TK_PERCENT_EQUAL) }
+            "&=" { RET(TK_AMPER_EQUAL) }
+            "|=" { RET(TK_VBAR_EQUAL) }
+            "^=" { RET(TK_CARET_EQUAL) }
+            "<<=" { RET(TK_LEFTSHIFT_EQUAL) }
+            ">>=" { RET(TK_RIGHTSHIFT_EQUAL) }
+            "**=" { RET(TK_POW_EQUAL) }
+            "//=" { RET(TK_DOUBLESLASH_EQUAL) }
 
             // Relational operators
             "=="   { RET(TK_EQ) }
             '.eq.' { WARN_REL(EQ) RET(TK_EQ) }
 
-            "/="   { RET(TK_NE) }
+            "!="   { RET(TK_NE) }
             '.ne.' { WARN_REL(NE) RET(TK_NE) }
 
             "<"    { RET(TK_LT) }
@@ -564,20 +588,19 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             ">="   { RET(TK_GE) }
             '.ge.' { WARN_REL(GE) RET(TK_GE) }
 
-
             // Logical operators
-            '.not.'  { RET(TK_NOT) }
-            '.and.'  { RET(TK_AND) }
-            '.or.'   { RET(TK_OR) }
+            'not'  { RET(TK_NOT) }
+            'and'  { RET(TK_AND) }
+            'or'   { RET(TK_OR) }
             '.xor.'  { RET(TK_XOR) }
             '.eqv.'  { RET(TK_EQV) }
             '.neqv.' { RET(TK_NEQV) }
 
             // True/False
 
-            '.true.' ("_" kind)? { RET(TK_TRUE) }
-            '.false.' ("_" kind)? { RET(TK_FALSE) }
-
+            'True' { RET(TK_TRUE) }
+            'False' { RET(TK_FALSE) }
+            
             // This is needed to ensure that 2.op.3 gets tokenized as
             // TK_INTEGER(2), TK_DEFOP(.op.), TK_INTEGER(3), and not
             // TK_REAL(2.), TK_NAME(op), TK_REAL(.3). The `.op.` can be a
@@ -803,8 +826,16 @@ std::string token2text(const int token)
         T(TK_LBRACKET, "[")
         T(TK_RBRACKET, "]")
         T(TK_RBRACKET_OLD, "/)")
+        T(TK_LBRACE, "{")
+        T(TK_RBRACE, "}")
         T(TK_PERCENT, "%")
         T(TK_VBAR, "|")
+        T(TK_AMPERSAND, "&")
+        T(TK_DOT, ".")
+        T(TK_BACKQUOTE, "`")
+        T(TK_TILDE, "~")
+        T(TK_CARET, "^")
+        T(TK_AT, "@")
 
         T(TK_STRING, "string")
         T(TK_COMMENT, "comment")
@@ -814,8 +845,22 @@ std::string token2text(const int token)
         T(TK_DBL_DOT, "..")
         T(TK_DBL_COLON, "::")
         T(TK_POW, "**")
-        T(TK_CONCAT, "//")
+        T(TK_FLOOR_DIV, "//")
         T(TK_ARROW, "=>")
+        T(TK_RIGHTSHIFT, ">>")
+        T(TK_LEFTSHIFT, "<<")
+        T(TK_PLUS_EQUAL, "+=")
+        T(TK_MIN_EQUAL, "-=")
+        T(TK_STAR_EQUAL, "*=")
+        T(TK_SLASH_EQUAL, "/=")
+        T(TK_PERCENT_EQUAL, "%=")
+        T(TK_AMPER_EQUAL, "&=")
+        T(TK_VBAR_EQUAL, "|=")
+        T(TK_CARET_EQUAL, "^=")
+        T(TK_LEFTSHIFT_EQUAL, "<<=")
+        T(TK_RIGHTSHIFT_EQUAL, ">>=")
+        T(TK_POW_EQUAL, "**=")
+        T(TK_DOUBLESLASH_EQUAL, "//=")
 
         T(TK_EQ, "==")
         T(TK_NE, "!=")
@@ -824,14 +869,14 @@ std::string token2text(const int token)
         T(TK_GT, ">")
         T(TK_GE, ">=")
 
-        T(TK_NOT, ".not.")
-        T(TK_AND, ".and.")
-        T(TK_OR, ".or.")
+        T(TK_NOT, "not")
+        T(TK_AND, "and")
+        T(TK_OR, "or")
         T(TK_EQV, ".eqv.")
         T(TK_NEQV, ".neqv.")
 
-        T(TK_TRUE, ".true.")
-        T(TK_FALSE, ".false.")
+        T(TK_TRUE, "True")
+        T(TK_FALSE, "False")
 
         T(TK_FORMAT, "format")
 
@@ -865,6 +910,7 @@ std::string token2text(const int token)
         T(KW_DATA, "data")
         T(KW_DEALLOCATE, "deallocate")
         T(KW_DEFAULT, "default")
+        T(KW_DEF, "def")
         T(KW_DEFERRED, "deferred")
         T(KW_DIMENSION, "dimension")
         T(KW_DO, "do")
@@ -935,6 +981,7 @@ std::string token2text(const int token)
         T(KW_FORMATTED, "formatted")
         T(KW_FORM, "form")
         T(KW_FORM_TEAM, "formteam")
+        T(KW_FROM, "from")
         T(KW_FUNCTION, "function")
         T(KW_GENERIC, "generic")
         T(KW_GO, "go")
@@ -1063,7 +1110,8 @@ std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
 {
     std::string t;
     t += "(";
-    if (token >= yytokentype::TK_NAME && token <= TK_FALSE) {
+    if (token >= yytokentype::TK_NAME && token <= TK_FALSE ||
+        token >= yytokentype::TK_DOCSTRING && token <= TK_DOUBLESLASH_EQUAL) {
         t += "TOKEN";
     } else if (token == yytokentype::TK_NEWLINE) {
         t += "NEWLINE";
