@@ -1,7 +1,8 @@
 # Possible tests:
 # ast ... run the Parser and output AST, compare against reference version
 # asr ... run the Semantics and output ASR, compare against reference version
-#llvm ... run the Semantics and output LLVM, compare against reference version
+# llvm ... run the Semantics and output LLVM, compare against reference version
+# tokens ... output Tokens, compare against reference version
 
 [[test]]
 filename = "doconcurrentloop_01.py"
@@ -212,3 +213,7 @@ asr = true
 [[test]]
 filename = "../integration_tests/test_builtin_oct.py"
 asr = true
+
+[[test]]
+filename = "tokens/docstring1.py"
+tokens = true
