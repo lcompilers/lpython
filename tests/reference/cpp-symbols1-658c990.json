@@ -2,11 +2,11 @@
     "basename": "cpp-symbols1-658c990",
     "cmd": "lpython --no-color --show-tokens {infile} -o {outfile}",
     "infile": "tests/tokens/symbols1.py",
-    "infile_hash": "c1a4fc8a1c2188105740fc26dd5e7b8e0aeab378fec8685ec6465f06",
+    "infile_hash": "4f8b111c9caf59245efae13d9d9efbf2ce5f2c42d0850079e6313903",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "cpp-symbols1-658c990.stdout",
-    "stdout_hash": "84f6a8d52d509259941bca1eee0b4adb5a2749af89483e64a27228f2",
+    "stdout_hash": "0c55157185187ddf4454e6129e742698606b70075a4e689d340f770f",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

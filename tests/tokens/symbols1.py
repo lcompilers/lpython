@@ -46,3 +46,7 @@ def test(x):
 class t:
     def __init__(self, x):
         self.x = x
+
+if i >= 1 or \
+        j <= 10:
+    print("Backlash")

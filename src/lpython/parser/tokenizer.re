@@ -419,7 +419,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             'in' { KW(IN) }
             'include' { KW(INCLUDE) }
             'inout' { KW(INOUT) }
-            'in' whitespace 'out' { KW(IN_OUT) }
+            // 'in' whitespace 'out' { KW(IN_OUT) }
             'inquire' { KW(INQUIRE) }
             'integer' { KW(INTEGER) }
             'intent' { KW(INTENT) }
@@ -537,6 +537,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             ":" { RET(TK_COLON) }
             ";" { RET(TK_SEMICOLON) }
             "/" { RET(TK_SLASH) }
+            "\\" { RET(TK_BACKSLASH) }
             "%" { RET(TK_PERCENT) }
             "," { RET(TK_COMMA) }
             "*" { RET(TK_STAR) }
@@ -600,7 +601,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
 
             'True' { RET(TK_TRUE) }
             'False' { RET(TK_FALSE) }
-            
+
             // This is needed to ensure that 2.op.3 gets tokenized as
             // TK_INTEGER(2), TK_DEFOP(.op.), TK_INTEGER(3), and not
             // TK_REAL(2.), TK_NAME(op), TK_REAL(.3). The `.op.` can be a
@@ -817,6 +818,7 @@ std::string token2text(const int token)
         T(TK_MINUS, "-")
         T(TK_STAR, "*")
         T(TK_SLASH, "/")
+        T(TK_BACKSLASH, "\\")
         T(TK_COLON, ":")
         T(TK_SEMICOLON, ";")
         T(TK_COMMA, ",")
@@ -1110,8 +1112,8 @@ std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
 {
     std::string t;
     t += "(";
-    if (token >= yytokentype::TK_NAME && token <= TK_FALSE ||
-        token >= yytokentype::TK_DOCSTRING && token <= TK_DOUBLESLASH_EQUAL) {
+    if ((token >= yytokentype::TK_NAME && token <= TK_FALSE) ||
+            (token >= yytokentype::TK_DOCSTRING && token <= TK_BACKSLASH)) {
         t += "TOKEN";
     } else if (token == yytokentype::TK_NEWLINE) {
         t += "NEWLINE";

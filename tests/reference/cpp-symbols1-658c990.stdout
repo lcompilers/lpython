@@ -244,4 +244,23 @@
 (TOKEN "identifier" x) 518:518
 (TOKEN "=") 520:520
 (TOKEN "identifier" x) 522:522
-(EOF) 523:523
+(NEWLINE) 523:523
+(NEWLINE) 524:524
+(KEYWORD "if") 525:526
+(TOKEN "identifier" i) 528:528
+(TOKEN ">=") 530:531
+(TOKEN "integer" 1) 533:533
+(TOKEN "or") 535:536
+(TOKEN "\") 538:538
+(NEWLINE) 539:539
+(TOKEN "identifier" j) 548:548
+(TOKEN "<=") 550:551
+(TOKEN "integer" 10) 553:554
+(TOKEN ":") 555:555
+(NEWLINE) 556:556
+(KEYWORD "print") 561:565
+(TOKEN "(") 566:566
+(TOKEN "string" "Backlash") 567:576
+(TOKEN ")") 577:577
+(NEWLINE) 578:578
+(EOF) 579:579
