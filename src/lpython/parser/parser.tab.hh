@@ -245,7 +245,8 @@
     KW_WHERE = 491,
     KW_WHILE = 492,
     KW_WRITE = 493,
-    UMINUS = 494
+    UMINUS = 494,
+    TK_DOCSTRING = 495
   };
 
 #endif // LPYTHON_PARSER_PARSER_TAB_H

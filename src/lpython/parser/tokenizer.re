@@ -233,9 +233,10 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             exp = [edED][-+]? digit+;
             integer = digit+ ("_" kind)?;
             real = ((significand exp?) | (digit+ exp)) ("_" kind)?;
-            string1 = (kind "_")? '"' ('""'|[^"\x00])* '"';
-            string2 = (kind "_")? "'" ("''"|[^'\x00])* "'";
+            string1 = '"' ('""'|[^"\x00])* '"';
+            string2 = "'" ("''"|[^'\x00])* "'";
             comment = "#" [^\n\x00]*;
+            docstring = newline whitespace? string1 | string2;
             ws_comment = whitespace? comment? newline;
 
             * { token_loc(loc);
@@ -649,6 +650,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                     return yytokentype::TK_EOLCOMMENT;
                 }
             }
+            docstring { RET(TK_DOCSTRING) }
 
             // Include statements are ignored for now
             'include' whitespace string1 { continue; }
@@ -781,6 +783,7 @@ std::string token2text(const int token)
     switch (token) {
         T(END_OF_FILE, "end of file")
         T(TK_NEWLINE, "newline")
+        T(TK_DOCSTRING, "docstring")
         T(TK_NAME, "identifier")
         T(TK_DEF_OP, "defined operator")
         T(TK_INTEGER, "integer")
