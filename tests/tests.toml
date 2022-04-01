@@ -217,3 +217,7 @@ asr = true
 [[test]]
 filename = "tokens/docstring1.py"
 tokens = true
+
+[[test]]
+filename = "tokens/comment1.py"
+tokens = true

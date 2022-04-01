@@ -808,6 +808,7 @@ std::string token2text(const int token)
 
         T(TK_STRING, "string")
         T(TK_COMMENT, "comment")
+        T(TK_EOLCOMMENT, "eolcomment")
         T(TK_LABEL, "label")
 
         T(TK_DBL_DOT, "..")
