@@ -235,7 +235,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             real = ((significand exp?) | (digit+ exp)) ("_" kind)?;
             string1 = (kind "_")? '"' ('""'|[^"\x00])* '"';
             string2 = (kind "_")? "'" ("''"|[^'\x00])* "'";
-            comment = "!" [^\n\x00]*;
+            comment = "#" [^\n\x00]*;
             ws_comment = whitespace? comment? newline;
 
             * { token_loc(loc);
@@ -649,9 +649,6 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                     return yytokentype::TK_EOLCOMMENT;
                 }
             }
-
-            // Macros are ignored for now:
-            "#" [^\n\x00]* newline { line_num++; cur_line=cur; continue; }
 
             // Include statements are ignored for now
             'include' whitespace string1 { continue; }
