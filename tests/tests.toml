@@ -221,3 +221,7 @@ tokens = true
 [[test]]
 filename = "tokens/comment1.py"
 tokens = true
+
+[[test]]
+filename = "tokens/symbols1.py"
+tokens = true

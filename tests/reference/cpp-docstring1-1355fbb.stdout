@@ -1,26 +1,26 @@
-(TOKEN "identifier" def) 0:2
+(KEYWORD "def") 0:2
 (TOKEN "identifier" test1) 4:8
 (TOKEN "(") 9:9
 (TOKEN ")") 10:10
 (TOKEN ":") 11:11
-(KEYWORD "docstring") 12:54
+(TOKEN "docstring") 12:54
 (NEWLINE) 55:55
 (NEWLINE) 56:56
-(TOKEN "identifier" def) 57:59
+(KEYWORD "def") 57:59
 (TOKEN "identifier" test2) 61:65
 (TOKEN "(") 66:66
 (TOKEN ")") 67:67
 (TOKEN ":") 68:68
-(KEYWORD "docstring") 69:116
+(TOKEN "docstring") 69:116
 (NEWLINE) 117:117
 (NEWLINE) 118:118
-(TOKEN "identifier" def) 119:121
+(KEYWORD "def") 119:121
 (TOKEN "identifier" test2) 123:127
 (TOKEN "(") 128:128
 (TOKEN ")") 129:129
 (TOKEN ":") 130:130
-(KEYWORD "docstring") 131:166
+(TOKEN "docstring") 131:166
 (NEWLINE) 167:167
-(KEYWORD "docstring") 168:199
+(TOKEN "docstring") 168:199
 (NEWLINE) 200:200
 (EOF) 201:201

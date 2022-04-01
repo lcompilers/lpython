@@ -1,5 +1,5 @@
 (TOKEN "eolcomment") 0:10
-(TOKEN "identifier" def) 11:13
+(KEYWORD "def") 11:13
 (TOKEN "identifier" test) 15:18
 (TOKEN "(") 19:19
 (TOKEN ")") 20:20
