@@ -385,7 +385,10 @@ static inline bool is_intrinsic_function2(const ASR::Function_t *fn) {
     ASR::symbol_t *sym = (ASR::symbol_t*)fn;
     ASR::Module_t *m = get_sym_module0(sym);
     if (m != nullptr) {
-        if (m->m_intrinsic) return true;
+        if (m->m_intrinsic ||
+            fn->m_abi == ASR::abiType::Intrinsic) {
+                return true;
+        }
     }
     return false;
 }
