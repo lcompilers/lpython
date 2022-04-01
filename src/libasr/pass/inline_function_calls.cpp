@@ -279,6 +279,7 @@ public:
         // in the current scope. See, `visit_Var` to know how replacement occurs.
         for( size_t i = 0; i < exprs_to_be_visited.size() && success; i++ ) {
             ASR::expr_t* value = exprs_to_be_visited[i].first;
+            fixed_duplicated_expr_stmt = true;
             visit_expr(*value);
             if( !fixed_duplicated_expr_stmt ) {
                 success = false;
