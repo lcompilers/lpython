@@ -674,7 +674,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                     return yytokentype::TK_EOLCOMMENT;
                 }
             }
-            docstring { RET(TK_DOCSTRING) }
+            //docstring { RET(TK_DOCSTRING) }
 
             // Include statements are ignored for now
             'include' whitespace string1 { continue; }
