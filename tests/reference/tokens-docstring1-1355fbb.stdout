@@ -3,7 +3,10 @@
 (TOKEN "(") 9:9
 (TOKEN ")") 10:10
 (TOKEN ":") 11:11
-(TOKEN "docstring") 12:54
+(NEWLINE) 12:12
+(TOKEN "string" """A multi-line
+    docstring.
+    """) 17:54
 (NEWLINE) 55:55
 (NEWLINE) 56:56
 (KEYWORD "def") 57:59
@@ -11,7 +14,11 @@
 (TOKEN "(") 66:66
 (TOKEN ")") 67:67
 (TOKEN ":") 68:68
-(TOKEN "docstring") 69:116
+(NEWLINE) 69:69
+(TOKEN "string" """
+    A multi-line
+    docstring.
+    """) 74:116
 (NEWLINE) 117:117
 (NEWLINE) 118:118
 (KEYWORD "def") 119:121
@@ -19,8 +26,13 @@
 (TOKEN "(") 128:128
 (TOKEN ")") 129:129
 (TOKEN ":") 130:130
-(TOKEN "docstring") 131:166
+(NEWLINE) 131:131
+(TOKEN "string" """ A single-line docstring.""") 136:166
 (NEWLINE) 167:167
-(TOKEN "docstring") 168:199
+(NEWLINE) 168:168
+(TOKEN "string" """
+A multi-line
+docstring.
+""") 169:199
 (NEWLINE) 200:200
 (EOF) 201:201
