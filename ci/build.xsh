@@ -33,6 +33,9 @@ python grammar/asdl_cpp.py grammar/Python.asdl src/lpython/python_ast.h
 # Generate a Python AST from Python.asdl (Python)
 python grammar/asdl_py.py
 
+# Generate the tokenizer
+pushd src/lpython/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd
+
 $lpython_version=$(cat version).strip()
 $dest="lpython-" + $lpython_version
 bash ci/create_source_tarball0.sh

@@ -23,6 +23,7 @@ src/lpython/tests/print_integer
 src/lpython/tests/cmp32
 src/lpython/tests/x
 src/lpython/tests/ref_pickle.txt.new
+src/lpython/parser/tokenizer.cpp
 
 ## CMake
 CMakeCache.txt
