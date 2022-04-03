@@ -23,6 +23,9 @@ public:
     bool enddo_newline_process = false;
     int enddo_state = 0;
     int enddo_insert_count = 0;
+    bool indent = false;
+    bool dedent = false;
+    int last_indent_length = 0;
 
 public:
     // Set the string to tokenize. The caller must ensure `str` will stay valid
