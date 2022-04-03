@@ -148,6 +148,7 @@ def bool(c: c64) -> bool:
     pass
 
 
+@interface
 def len(s: str) -> i32:
     """
     Return the length of the string `s`.
@@ -273,31 +274,40 @@ def round(b: bool) -> i32:
 #: complex() as a generic procedure.
 #: supported types for arguments:
 #: (i32, i32), (f64, f64), (i32, f64), (f64, i32)
+@interface
 @overload
 def complex(x: f64, y: f64) -> c64:
     pass
 
+@interface
 @overload
 def complex(x: i32, y: i32) -> c64:
     pass
 
+@interface
 @overload
 def complex(x: i32, y: f64) -> c64:
     pass
 
+@interface
 @overload
 def complex(x: f64, y: i32) -> c64:
     pass
 
+
+@interface
 def divmod(x: i32, y: i32) -> tuple[i32, i32]:
     #: TODO: Implement once we have tuple support in the LLVM backend
     pass
 
+
 def lbound(x: i32[:], dim: i32) -> i32:
     pass
 
+
 def ubound(x: i32[:], dim: i32) -> i32:
     pass
+
 
 @ccall
 def _lfortran_caimag(x: c32) -> f32:

@@ -1230,7 +1230,7 @@ public:
                         current_procedure_abi_type = ASR::abiType::BindC;
                     } else if (name == "overload") {
                         overload = true;
-                    } else {
+                    } else if (name != "interface") {
                         throw SemanticError("Decorator: " + name + " is not supported",
                             x.base.base.loc);
                     }
