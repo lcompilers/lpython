@@ -518,6 +518,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 RET(TK_NEWLINE);
             }
 
+            "\\" newline { continue; }
+
             // Single character symbols
             "(" { RET(TK_LPAREN) }
             // "(" / "/=" { RET(TK_LPAREN) } // To parse "operator(/=)" correctly
@@ -539,7 +541,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             ":" { RET(TK_COLON) }
             ";" { RET(TK_SEMICOLON) }
             "/" { RET(TK_SLASH) }
-            "\\" { RET(TK_BACKSLASH) }
+            // "\\" { RET(TK_BACKSLASH) }
             "%" { RET(TK_PERCENT) }
             "," { RET(TK_COMMA) }
             "*" { RET(TK_STAR) }
