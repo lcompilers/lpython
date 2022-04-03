@@ -64,11 +64,19 @@ def abs(b: bool) -> i32:
 
 @overload
 def abs(c: c32) -> f32:
-    pass
+    a: f32
+    b: f32
+    a = c.real
+    b = _lfortran_caimag(c)
+    return (a**2 + b**2)**(1/2)
 
 @overload
 def abs(c: c64) -> f64:
-    pass
+    a: f64
+    b: f64
+    a = c.real
+    b = _lfortran_zaimag(c)
+    return (a**2 + b**2)**(1/2)
 
 
 def str(x: i32) -> str:
@@ -172,20 +180,6 @@ def pow(x: f64, y: i32) -> f64:
     return x**y
 
 
-def int(f: f64) -> i32:
-    """
-    Converts a floating point number to an integer.
-    """
-    pass # handled by LLVM
-
-
-def float(i: i32) -> f64:
-    """
-    Converts an integer to a floating point number.
-    """
-    pass # handled by LLVM
-
-
 def bin(n: i32) -> str:
     """
     Returns the binary representation of an integer `n`.
@@ -276,7 +270,23 @@ def round(value: i32) -> i64:
 def round(b: bool) -> i32:
     return abs(b)
 
+#: complex() as a generic procedure.
+#: supported types for arguments:
+#: (i32, i32), (f64, f64), (i32, f64), (f64, i32)
+@overload
 def complex(x: f64, y: f64) -> c64:
+    pass
+
+@overload
+def complex(x: i32, y: i32) -> c64:
+    pass
+
+@overload
+def complex(x: i32, y: f64) -> c64:
+    pass
+
+@overload
+def complex(x: f64, y: i32) -> c64:
     pass
 
 def divmod(x: i32, y: i32) -> tuple[i32, i32]:
@@ -288,3 +298,19 @@ def lbound(x: i32[:], dim: i32) -> i32:
 
 def ubound(x: i32[:], dim: i32) -> i32:
     pass
+
+@ccall
+def _lfortran_caimag(x: c32) -> f32:
+    pass
+
+@ccall
+def _lfortran_zaimag(x: c64) -> f64:
+    pass
+
+@overload
+def _lpython_imag(x: c64) -> f64:
+    return _lfortran_zaimag(x)
+
+@overload
+def _lpython_imag(x: c32) -> f32:
+    return _lfortran_caimag(x)

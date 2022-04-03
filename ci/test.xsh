@@ -1,3 +1,8 @@
+#!/usr/bin/env xonsh
+#
+$RAISE_SUBPROC_ERROR = True
+trace on
+
 # Run some simple compilation tests, works everywhere:
 src/bin/lpython --version
 # Compile and link separately

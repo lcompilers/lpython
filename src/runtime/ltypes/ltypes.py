@@ -122,11 +122,11 @@ class CTypes:
             return os.path.join(current_dir, "..")
         def get_crtlib_name():
             if platform.system() == "Linux":
-                return "liblfortran_runtime.so"
+                return "liblpython_runtime.so"
             elif platform.system() == "Darwin":
-                return "liblfortran_runtime.dylib"
+                return "liblpython_runtime.dylib"
             elif platform.system() == "Windows":
-                return "lfortran_runtime.dll"
+                return "lpython_runtime.dll"
             else:
                 raise NotImplementedError("Platform not implemented")
         def get_crtlib_path():

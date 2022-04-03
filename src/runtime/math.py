@@ -21,6 +21,56 @@ def factorial(x: i32) -> i32:
     return result
 
 
+@overload
+def floor(x: i32) -> i32:
+    return x
+
+@overload
+def floor(x: i64) -> i64:
+    return x
+
+@overload
+def floor(x: f64) -> i64:
+    r: i64
+    r = int(x)
+    if x >= 0 or x == r:
+        return r
+    return r - 1
+
+@overload
+def floor(x: f32) -> i32:
+    r: i32
+    r = int(x)
+    if x >= 0 or x == r:
+        return r
+    return r - 1
+
+
+@overload
+def ceil(x: i32) -> i32:
+    return x
+
+@overload
+def ceil(x: i64) -> i64:
+    return x
+
+@overload
+def ceil(x: f64) -> i64:
+    r: i64
+    r = int(x)
+    if x <= 0 or r == x:
+        return r
+    return r + 1
+
+@overload
+def ceil(x: f32) -> i32:
+    r: i32
+    r = int(x)
+    if x <= 0 or r == x:
+        return r
+    return r + 1
+
+
 def comb(n: i32, k: i32) -> i32:
     """
     Computes the result of `nCk`, i.e, the number of ways to choose `k`

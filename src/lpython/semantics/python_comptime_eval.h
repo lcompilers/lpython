@@ -37,13 +37,14 @@ struct PythonIntrinsicProcedures {
             {"ord", {m_builtin, &eval_ord}},
             {"len", {m_builtin, &eval_len}},
             {"pow", {m_builtin, &eval_pow}},
-            {"int", {m_builtin, &eval_int}},
-            {"float", {m_builtin, &eval_float}},
+            // {"int", {m_builtin, &eval_int}},
+            // {"float", {m_builtin, &eval_float}},
             {"round", {m_builtin, &eval_round}},
             {"bin", {m_builtin, &eval_bin}},
             {"hex", {m_builtin, &eval_hex}},
             {"oct", {m_builtin, &eval_oct}},
             {"complex", {m_builtin, &eval_complex}},
+            {"_lpython_imag", {m_builtin, &eval__lpython_imag}},
             {"divmod", {m_builtin, &eval_divmod}},
         };
     }
@@ -131,12 +132,13 @@ struct PythonIntrinsicProcedures {
     }
 
     static ASR::expr_t *eval_str(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
             loc, 1, 1, nullptr, nullptr, 0));
         if (args.size() == 0) { // create an empty string
             return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(al, loc, s2c(al, ""), str_type));
         }
-        ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
+        ASR::expr_t* arg = args[0];
         ASR::ttype_t* arg_type = ASRUtils::expr_type(arg);
         if (ASRUtils::is_integer(*arg_type)) {
             int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(arg)->m_n;
@@ -161,13 +163,14 @@ struct PythonIntrinsicProcedures {
     }
 
     static ASR::expr_t *eval_bool(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         if (args.size() != 1) {
             throw SemanticError("bool() takes exactly one argument (" +
                 std::to_string(args.size()) + " given)", loc);
         }
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
             1, nullptr, 0));
-        ASR::expr_t* arg = ASRUtils::expr_value(args[0]);
+        ASR::expr_t* arg = args[0];
         ASR::ttype_t* t = ASRUtils::expr_type(arg);
         bool result;
         if (ASRUtils::is_real(*t)) {
@@ -229,11 +232,12 @@ struct PythonIntrinsicProcedures {
     }
 
     static ASR::expr_t *eval_len(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         if (args.size() != 1) {
             throw SemanticError("len() takes exactly one argument (" +
                 std::to_string(args.size()) + " given)", loc);
         }
-        ASR::expr_t *arg = ASRUtils::expr_value(args[0]);
+        ASR::expr_t *arg = args[0];
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         if (arg->type == ASR::exprType::ConstantString) {
             char* str_value = ASR::down_cast<ASR::ConstantString_t>(arg)->m_s;
@@ -311,11 +315,12 @@ struct PythonIntrinsicProcedures {
     }
 
     static ASR::expr_t *eval_int(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         if (args.size() == 0) {
             return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc, 0, type));
         }
-        ASR::expr_t* int_expr = ASRUtils::expr_value(args[0]);
+        ASR::expr_t* int_expr = args[0];
         ASR::ttype_t* int_type = ASRUtils::expr_type(int_expr);
         if (ASRUtils::is_integer(*int_type)) {
             int64_t ival = ASR::down_cast<ASR::ConstantInteger_t>(int_expr)->m_n;
@@ -344,11 +349,12 @@ struct PythonIntrinsicProcedures {
     }
 
     static ASR::expr_t *eval_float(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
         if (args.size() == 0) {
             return ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al, loc, 0.0, type));
         }
-        ASR::expr_t* expr = ASRUtils::expr_value(args[0]);
+        ASR::expr_t* expr = args[0];
         ASR::ttype_t* float_type = ASRUtils::expr_type(expr);
         if (ASRUtils::is_real(*float_type)) {
             float rv = ASR::down_cast<ASR::ConstantReal_t>(expr)->m_r;
@@ -373,11 +379,12 @@ struct PythonIntrinsicProcedures {
     }
 
     static ASR::expr_t *eval_bin(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         if (args.size() != 1) {
             throw SemanticError("bin() takes exactly one argument (" +
                 std::to_string(args.size()) + " given)", loc);
         }
-        ASR::expr_t* expr = ASRUtils::expr_value(args[0]);
+        ASR::expr_t* expr = args[0];
         ASR::ttype_t* type = ASRUtils::expr_type(expr);
         if (ASRUtils::is_integer(*type)) {
             int64_t n = ASR::down_cast<ASR::ConstantInteger_t>(expr)->m_n;
@@ -396,11 +403,12 @@ struct PythonIntrinsicProcedures {
     }
 
     static ASR::expr_t *eval_hex(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         if (args.size() != 1) {
             throw SemanticError("hex() takes exactly one argument (" +
                 std::to_string(args.size()) + " given)", loc);
         }
-        ASR::expr_t* expr = ASRUtils::expr_value(args[0]);
+        ASR::expr_t* expr = args[0];
         ASR::ttype_t* type = ASRUtils::expr_type(expr);
         if (ASRUtils::is_integer(*type)) {
             int64_t n = ASR::down_cast<ASR::ConstantInteger_t>(expr)->m_n;
@@ -420,11 +428,12 @@ struct PythonIntrinsicProcedures {
     }
 
     static ASR::expr_t *eval_oct(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         if (args.size() != 1) {
             throw SemanticError("oct() takes exactly one argument (" +
                 std::to_string(args.size()) + " given)", loc);
         }
-        ASR::expr_t* expr = ASRUtils::expr_value(args[0]);
+        ASR::expr_t* expr = args[0];
         ASR::ttype_t* type = ASRUtils::expr_type(expr);
         if (ASRUtils::is_integer(*type)) {
             int64_t n = ASR::down_cast<ASR::ConstantInteger_t>(expr)->m_n;
@@ -470,6 +479,7 @@ struct PythonIntrinsicProcedures {
     }
 
     static ASR::expr_t *eval_complex(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         int16_t n_args = args.size();
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Complex_t(al, loc, 8, nullptr, 0));
         if( n_args > 2 || n_args < 0 ) { // n_args shouldn't be less than 0 but added this check for safety
@@ -481,17 +491,35 @@ struct PythonIntrinsicProcedures {
             if (ASR::is_a<ASR::ConstantInteger_t>(*args[0])) {
                 c1 = ASR::down_cast<ASR::ConstantInteger_t>(args[0])->m_n;
             } else if (ASR::is_a<ASR::ConstantReal_t>(*args[0])) {
-                c1 = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(args[0]))->m_r;
+                c1 = ASR::down_cast<ASR::ConstantReal_t>(args[0])->m_r;
             }
         }
         if (n_args == 2) { // Extracts imaginary component if n_args = 2
             if (ASR::is_a<ASR::ConstantInteger_t>(*args[1])) {
                 c2 = ASR::down_cast<ASR::ConstantInteger_t>(args[1])->m_n;
             } else if (ASR::is_a<ASR::ConstantReal_t>(*args[1])) {
-                c2 = ASR::down_cast<ASR::ConstantReal_t>(ASRUtils::expr_value(args[1]))->m_r;
+                c2 = ASR::down_cast<ASR::ConstantReal_t>(args[1])->m_r;
             }
         }
         return ASR::down_cast<ASR::expr_t>(make_ConstantComplex_t(al, loc, c1, c2, type));
+    }
+
+    static ASR::expr_t *eval__lpython_imag(Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args
+            ) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        if (args.size() != 1) {
+            throw SemanticError("Intrinsic _lpython_imag function accepts exactly 1 argument", loc);
+        }
+        ASR::expr_t* imag_arg = args[0];
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
+        if (ASR::is_a<ASR::Complex_t>(*ASRUtils::expr_type(imag_arg))) {
+            double im = ASR::down_cast<ASR::ConstantComplex_t>(imag_arg)->m_im;
+            double result = im;
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, result, type));
+        } else {
+            throw SemanticError("Argument of the _lpython_imag() function must be Complex", loc);
+        }
     }
 
     static ASR::expr_t *eval_divmod(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &args) {

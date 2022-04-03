@@ -48,9 +48,15 @@
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/ADT/StringRef.h>
 #include <llvm/Target/TargetOptions.h>
-#include <llvm/Support/TargetRegistry.h>
+#if LLVM_VERSION_MAJOR >= 14
+#    include <llvm/MC/TargetRegistry.h>
+#else
+#    include <llvm/Support/TargetRegistry.h>
+#endif
 #include <llvm/Support/Host.h>
-#include <libasr/codegen/KaleidoscopeJIT.h>
+#if LLVM_VERSION_MAJOR <= 11
+#    include <libasr/codegen/KaleidoscopeJIT.h>
+#endif
 
 #include <libasr/codegen/evaluator.h>
 #include <libasr/codegen/asr_to_llvm.h>
@@ -172,14 +178,18 @@ LLVMEvaluator::LLVMEvaluator(const std::string &t)
 
     // For some reason the JIT requires a different TargetMachine
     llvm::TargetMachine *TM2 = llvm::EngineBuilder().selectTarget();
+#if LLVM_VERSION_MAJOR <= 11
     jit = std::make_unique<llvm::orc::KaleidoscopeJIT>(TM2);
+#endif
 
     _lfortran_stan(0.5);
 }
 
 LLVMEvaluator::~LLVMEvaluator()
 {
+#if LLVM_VERSION_MAJOR <= 11
     jit.reset();
+#endif
     context.reset();
 }
 
@@ -196,7 +206,9 @@ std::unique_ptr<llvm::Module> LLVMEvaluator::parse_module(const std::string &sou
         throw LFortranException("parse_module(): module failed verification.");
     };
     module->setTargetTriple(target_triple);
+#if LLVM_VERSION_MAJOR <= 11
     module->setDataLayout(jit->getTargetMachine().createDataLayout());
+#endif
     return module;
 }
 
@@ -217,8 +229,10 @@ void LLVMEvaluator::add_module(std::unique_ptr<llvm::Module> mod) {
     // These are already set in parse_module(), but we set it here again for
     // cases when the Module was constructed directly, not via parse_module().
     mod->setTargetTriple(target_triple);
+#if LLVM_VERSION_MAJOR <= 11
     mod->setDataLayout(jit->getTargetMachine().createDataLayout());
     jit->addModule(std::move(mod));
+#endif
 }
 
 void LLVMEvaluator::add_module(std::unique_ptr<LLVMModule> m) {
@@ -226,11 +240,16 @@ void LLVMEvaluator::add_module(std::unique_ptr<LLVMModule> m) {
 }
 
 intptr_t LLVMEvaluator::get_symbol_address(const std::string &name) {
+#if LLVM_VERSION_MAJOR <= 11
     llvm::JITSymbol s = jit->findSymbol(name);
+#else
+    llvm::JITSymbol s = nullptr;
+#endif
     if (!s) {
         throw std::runtime_error("findSymbol() failed to find the symbol '"
             + name + "'");
     }
+#if LLVM_VERSION_MAJOR <= 11
     llvm::Expected<uint64_t> addr0 = s.getAddress();
     if (!addr0) {
         llvm::Error e = addr0.takeError();
@@ -242,6 +261,7 @@ intptr_t LLVMEvaluator::get_symbol_address(const std::string &name) {
         throw LFortranException("JITSymbol::getAddress() returned an error: " + msg);
     }
     return (intptr_t)cantFail(std::move(addr0));
+#endif
 }
 
 int32_t LLVMEvaluator::int32fn(const std::string &name) {
@@ -305,9 +325,11 @@ std::string LLVMEvaluator::get_asm(llvm::Module &m)
     llvm::CodeGenFileType ft = llvm::CGFT_AssemblyFile;
     llvm::SmallVector<char, 128> buf;
     llvm::raw_svector_ostream dest(buf);
+#if LLVM_VERSION_MAJOR <= 11
     if (jit->getTargetMachine().addPassesToEmitFile(pass, dest, nullptr, ft)) {
         throw std::runtime_error("TargetMachine can't emit a file of this type");
     }
+#endif
     pass.run(m);
     return std::string(dest.str().data(), dest.str().size());
 }

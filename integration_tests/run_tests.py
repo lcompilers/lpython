@@ -20,6 +20,7 @@ tests = [
     "test_numpy_01.py",
     "test_numpy_02.py",
     "test_random.py",
+    "test_os.py",
     "test_builtin.py",
     "test_builtin_abs.py",
     "test_builtin_bool.py",
@@ -34,6 +35,7 @@ tests = [
     "test_c_interop_01.py",
     "test_generics_01.py",
     "test_cmath.py",
+    "test_complex.py"
 ]
 
 # CPython tests only

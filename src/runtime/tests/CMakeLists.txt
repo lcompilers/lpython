@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
-project(lfortran_runtime_tests C Fortran)
+project(lpython_runtime_tests C Fortran)
 
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug
@@ -43,11 +43,11 @@ set(SRC
     ../pure/lfortran_intrinsic_ieee_arithmetic.f90
     ../pure/lfortran_intrinsic_iso_c_binding.f90
 )
-add_library(lfortran_runtime SHARED ${SRC})
-add_library(lfortran_runtime_static STATIC ${SRC})
+add_library(lpython_runtime SHARED ${SRC})
+add_library(lpython_runtime_static STATIC ${SRC})
 
 macro(ADDTEST name)
     add_executable(${name} ${name}.f90)
-    target_link_libraries(${name} lfortran_runtime ${ARGN})
+    target_link_libraries(${name} lpython_runtime ${ARGN})
     add_test(${name} ${PROJECT_BINARY_DIR}/${name})
 endmacro(ADDTEST)

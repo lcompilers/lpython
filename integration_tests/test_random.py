@@ -30,6 +30,13 @@ def test_randint():
     print(ri2)
     assert ri2 >= -50 and ri2 <= 76
 
+def test_uniform():
+    r: f64
+    r = random.uniform(5., 76.)
+    print(r)
+    r = random.uniform(-50., 76.)
+    print(r)
+
 def test_paretovariate():
     r: f64
     r = random.paretovariate(2.0)
@@ -37,7 +44,27 @@ def test_paretovariate():
     r = random.paretovariate(-5.6)
     print(r)
 
-test_random()
-test_randrange()
-test_randint()
-test_paretovariate()
+def test_expovariate():
+    r: f64
+    r = random.expovariate(2.0)
+    print(r)
+    r = random.expovariate(-5.6)
+    print(r)
+
+def test_weibullvariate():
+    r: f64
+    r = random.weibullvariate(2.0, 3.0)
+    print(r)
+    r = random.weibullvariate(-5.6, 1.2)
+    print(r)
+
+def check():
+    test_random()
+    test_randrange()
+    test_randint()
+    test_uniform()
+    test_paretovariate()
+    test_expovariate()
+    test_weibullvariate()
+
+check()

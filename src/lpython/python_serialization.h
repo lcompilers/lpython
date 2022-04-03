@@ -4,7 +4,7 @@
 #include <lpython/python_ast.h>
 #include <libasr/asr.h>
 
-namespace LFortran::Python {
+namespace LFortran::LPython {
 
     AST::ast_t* deserialize_ast(Allocator &al, const std::string &s);
 

@@ -1,7 +1,9 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
-                  ldexp, fabs, gcd, lcm, log1p, log, expm1, floor, ceil, remainder)
+                  ldexp, fabs, gcd, lcm, floor, ceil)
 from ltypes import i32, f64
 
+eps: f64
+eps = 1e-12
 
 def test_factorial_1():
     i: i32
@@ -30,31 +32,31 @@ def test_isqrt():
 def test_degrees():
     i: f64
     i = degrees(32.2)
-    assert i == 1844.924100321251
+    assert abs(i - 1844.924100321251) < eps
 
 
 def test_radians():
     i: f64
     i = radians(100.1)
-    assert i == 1.7470745812463238
+    assert abs(i - 1.7470745812463238) < eps
 
 
 def test_exp():
     i: f64
     i = exp(2.34)
-    assert i == 10.381236562731843
+    assert abs(i - 10.381236562731843) < eps
 
 
 def test_pow():
     i: f64
     i = pow(2.4, 4.3)
-    assert i == 43.14280115650323
+    assert abs(i - 43.14280115650323) < eps
 
 
 def test_ldexp():
     i: f64
     i = ldexp(23.3, 2)
-    assert i == 93.2
+    assert abs(i - 93.2) < eps
 
 
 def test_fabs():
@@ -83,51 +85,41 @@ def test_lcm():
     i = lcm(21, -12)
     assert i == 84
 
-def test_log1p():
-    i: f64
-    i = 10.0
-    assert log1p(i) == log(i+1)
-
-def test_expm1():
-    i: f64
-    eps: f64
-    eps = 1e-12
-    i = 2.0
-    assert abs(expm1(i) - exp(i) + 1) < eps
 
 def test_floor():
-    assert floor(2.0) == 2.0
-    assert floor(2.4) == 2.0
-    assert floor(2.9) == 2.0
-    assert floor(-2.7) == -3.0
-    assert floor(-2.0) == -2.0
+    i: i64
+    i = floor(10.02)
+    assert i == 10
+    i = floor(-13)
+    assert i == -13
+    i = floor(-13.31)
+    assert i == -14
+
 
 def test_ceil():
-    assert ceil(2.0) == 2.0
-    assert ceil(2.4) == 3.0
-    assert ceil(2.9) == 3.0
-    assert ceil(-2.7) == -2.0
-    assert ceil(-2.0) == -2.0
+    i: i64
+    i = ceil(10.02)
+    assert i == 11
+    i = ceil(-13)
+    assert i == -13
+    i = ceil(-13.31)
+    assert i == -13
 
-def test_remainder():
-    assert remainder(9.0, 3.0) == 0.0
-    assert remainder(12.0, 5.0) == 2.0
-    assert remainder(13.0, 5.0) == -2.0
 
-test_factorial_1()
-test_comb()
-test_isqrt()
-test_perm()
-test_degrees()
-test_radians()
-test_exp()
-test_pow()
-test_fabs()
-test_ldexp()
-test_gcd()
-test_lcm()
-test_log1p()
-test_expm1()
-test_floor()
-test_ceil()
-test_remainder()
+def check():
+    test_factorial_1()
+    test_comb()
+    test_isqrt()
+    test_perm()
+    test_degrees()
+    test_radians()
+    test_exp()
+    test_pow()
+    test_fabs()
+    test_ldexp()
+    test_gcd()
+    test_lcm()
+    test_floor()
+    test_ceil()
+
+check()

@@ -25,9 +25,9 @@
 #include <lpython/semantics/python_comptime_eval.h>
 
 
-namespace LFortran::Python {
+namespace LFortran::LPython {
 
-LFortran::Result<LFortran::Python::AST::ast_t*> parse_python_file(Allocator &al,
+LFortran::Result<LFortran::LPython::AST::ast_t*> parse_python_file(Allocator &al,
         const std::string &runtime_library_dir,
         const std::string &infile) {
     std::string pycmd = "python " + runtime_library_dir + "/lpython_parser.py " + infile;
@@ -43,7 +43,7 @@ LFortran::Result<LFortran::Python::AST::ast_t*> parse_python_file(Allocator &al,
         std::cerr << "The file '" << infile_ser << "' cannot be read." << std::endl;
         return LFortran::Error();
     }
-    LFortran::Python::AST::ast_t* ast = LFortran::Python::deserialize_ast(al, input);
+    LFortran::LPython::AST::ast_t* ast = LFortran::LPython::deserialize_ast(al, input);
     return ast;
 }
 
@@ -123,7 +123,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     if (!r.ok) {
         err("The file '" + infile + "' failed to parse", loc);
     }
-    LFortran::Python::AST::ast_t* ast = r.result;
+    LFortran::LPython::AST::ast_t* ast = r.result;
 
     // Convert the module from AST to ASR
     LFortran::LocationManager lm;
@@ -154,7 +154,9 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         for (auto &item : mod2->m_symtab->scope) {
             if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
                 ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
-                s->m_abi = ASR::abiType::Intrinsic;
+                if (s->m_abi == ASR::abiType::Source) {
+                    s->m_abi = ASR::abiType::Intrinsic;
+                }
                 if (s->n_body == 0) {
                     std::string name = s->m_name;
                     if (name == "ubound" || name == "lbound") {
@@ -164,7 +166,9 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
             }
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
-                s->m_abi = ASR::abiType::Intrinsic;
+                if (s->m_abi == ASR::abiType::Source) {
+                    s->m_abi = ASR::abiType::Intrinsic;
+                }
                 if (s->n_body == 0) {
                     std::string name = s->m_name;
                     if (name == "ubound" || name == "lbound") {
@@ -1837,6 +1841,58 @@ public:
 
     }
 
+    void visit_Attribute(const AST::Attribute_t &x) {
+        if (AST::is_a<AST::Name_t>(*x.m_value)) {
+            std::string value = AST::down_cast<AST::Name_t>(x.m_value)->m_id;
+            ASR::symbol_t *t = current_scope->scope[value];
+            if (!t) {
+                throw SemanticError("'" + value + "' is not defined in the scope",
+                    x.base.base.loc);
+            }
+            if (ASR::is_a<ASR::Variable_t>(*t)) {
+                ASR::Variable_t *var = ASR::down_cast<ASR::Variable_t>(t);
+                if (ASRUtils::is_complex(*var->m_type)) {
+                    std::string attr = x.m_attr;
+                    if (attr == "imag") {
+                        ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, x.base.base.loc, t));
+                        ASR::symbol_t *fn_imag = resolve_intrinsic_function(x.base.base.loc, "_lpython_imag");
+                        Vec<ASR::call_arg_t> args;
+                        args.reserve(al, 1);
+                        ASR::call_arg_t arg;
+                        arg.loc = val->base.loc;
+                        arg.m_value = val;
+                        args.push_back(al, arg);
+                        make_call_helper(al, fn_imag, current_scope, args, "_lpython_imag", x.base.base.loc);
+                        return;
+                    } else if (attr == "real") {
+                        ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, x.base.base.loc, t));
+                        int kind = ASRUtils::extract_kind_from_ttype_t(var->m_type);
+                        ASR::ttype_t *dest_type = ASR::down_cast<ASR::ttype_t>(ASR::make_Real_t(al, x.base.base.loc,
+                                                        kind, nullptr, 0));
+                        tmp = (ASR::asr_t*)ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                            al, val->base.loc, val, ASR::cast_kindType::ComplexToReal, dest_type,
+                            nullptr));
+                        return;
+                    } else {
+                        throw SemanticError("'" + attr + "' is not implemented for Complex type",
+                            x.base.base.loc);
+                    }
+
+                } else {
+                    throw SemanticError("Only Complex type supported for now in Attribute",
+                        x.base.base.loc);
+                }
+            } else {
+                throw SemanticError("Only Variable type is supported for now in Attribute",
+                    x.base.base.loc);
+            }
+
+        } else {
+            throw SemanticError("Only Name is supported for now in Attribute",
+                x.base.base.loc);
+        }
+    }
+
     void visit_If(const AST::If_t &x) {
         visit_expr(*x.m_test);
         ASR::expr_t *test = ASRUtils::EXPR(tmp);
@@ -2247,6 +2303,70 @@ public:
         tmp = nullptr;
     }
 
+    ASR::asr_t* handle_intrinsic_int(Allocator &al, Vec<ASR::call_arg_t> args,
+                                        const Location &loc) {
+        ASR::expr_t *arg = nullptr, *value = nullptr;
+        ASR::ttype_t *type = nullptr;
+        if (args.size() > 0) {
+            arg = args[0].m_value;
+            type = ASRUtils::expr_type(arg);
+        }
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                                    4, nullptr, 0));
+        if (!arg) {
+            return ASR::make_ConstantInteger_t(al, loc, 0, to_type);
+        }
+        if (ASRUtils::is_real(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                int32_t ival = ASR::down_cast<ASR::ConstantReal_t>(
+                                        ASRUtils::expr_value(arg))->m_r;
+                value =  ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al,
+                                loc, ival, to_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+            al, loc, arg, ASR::cast_kindType::RealToInteger,
+            to_type, value));
+        } else if (!ASRUtils::is_integer(*type)) {
+            std::string stype = ASRUtils::type_to_str(type);
+            throw SemanticError(
+                "Conversion of '" + stype + "' to integer is not Implemented",
+                loc);
+        }
+        return nullptr;
+    }
+
+    ASR::asr_t* handle_intrinsic_float(Allocator &al, Vec<ASR::call_arg_t> args,
+                                        const Location &loc) {
+        ASR::expr_t *arg = nullptr, *value = nullptr;
+        ASR::ttype_t *type = nullptr;
+        if (args.size() > 0) {
+            arg = args[0].m_value;
+            type = ASRUtils::expr_type(arg);
+        }
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
+                                    8, nullptr, 0));
+        if (!arg) {
+            return ASR::make_ConstantReal_t(al, loc, 0.0, to_type);
+        }
+        if (ASRUtils::is_integer(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                double dval = ASR::down_cast<ASR::ConstantInteger_t>(
+                                        ASRUtils::expr_value(arg))->m_n;
+                value =  ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al,
+                                loc, dval, to_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+            al, loc, arg, ASR::cast_kindType::IntegerToReal,
+            to_type, value));
+        } else if (!ASRUtils::is_real(*type)) {
+            std::string stype = ASRUtils::type_to_str(type);
+            throw SemanticError(
+                "Conversion of '" + stype + "' to float is not Implemented",
+                loc);
+        }
+        return nullptr;
+    }
+
     void visit_Call(const AST::Call_t &x) {
         std::string call_name;
         Vec<ASR::call_arg_t> args;
@@ -2354,6 +2474,17 @@ public:
                 }
                 tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, result, type);
                 return;
+            } else if (call_name == "int" || call_name == "float") {
+                if (args.size() > 1) {
+                    throw SemanticError("Either 0 or 1 argument is expected in '" + call_name + "'",
+                            x.base.base.loc);
+                }
+                if (call_name == "int") {
+                    tmp = handle_intrinsic_int(al, args, x.base.base.loc);
+                } else {
+                    tmp = handle_intrinsic_float(al, args, x.base.base.loc);
+                }
+                return;
             } else {
                 // The function was not found and it is not intrinsic
                 throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
@@ -2458,6 +2589,21 @@ std::string pickle_python(AST::ast_t &ast, bool colors, bool indent) {
     PickleVisitor v;
     v.use_colors = colors;
     v.indent = indent;
+    v.visit_ast(ast);
+    return v.get_str();
+}
+
+class TreeVisitor : public AST::TreeBaseVisitor<TreeVisitor>
+{
+public:
+    std::string get_str() {
+        return s;
+    }
+};
+
+std::string pickle_tree_python(AST::ast_t &ast, bool colors) {
+    TreeVisitor v;
+    v.use_colors = colors;
     v.visit_ast(ast);
     return v.get_str();
 }
