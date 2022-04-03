@@ -19,11 +19,6 @@ public:
 
     int last_token=-1;
 
-    std::vector<uint64_t> enddo_label_stack = {0};
-    bool enddo_newline_process = false;
-    int enddo_state = 0;
-    int enddo_insert_count = 0;
-
 public:
     // Set the string to tokenize. The caller must ensure `str` will stay valid
     // as long as `lex` is being called.
@@ -59,11 +54,7 @@ public:
         loc.first = tok-string_start;
         loc.last = cur-string_start-1;
     }
-    void add_rel_warning(diag::Diagnostics &diagnostics, int rel_token) const;
 };
-
-bool lex_int(const unsigned char *s, const unsigned char *e, uint64_t &u,
-    Str &suffix);
 
 std::string token2text(const int token);
 
