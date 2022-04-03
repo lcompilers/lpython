@@ -44,12 +44,12 @@
 (TOKEN ")") 86:86
 (TOKEN ":") 87:87
 (NEWLINE) 88:88
-(KEYWORD "print") 93:97
+(TOKEN "identifier" print) 93:97
 (TOKEN "(") 98:98
 (TOKEN "string" ":") 99:101
 (TOKEN ")") 102:102
 (TOKEN ";") 103:103
-(KEYWORD "print") 105:109
+(TOKEN "identifier" print) 105:109
 (TOKEN "(") 110:110
 (TOKEN "string" ";") 111:113
 (TOKEN ")") 114:114
@@ -220,7 +220,7 @@
 (TOKEN ")") 441:441
 (TOKEN ":") 442:442
 (NEWLINE) 443:443
-(KEYWORD "print") 448:452
+(TOKEN "identifier" print) 448:452
 (TOKEN "(") 453:453
 (TOKEN "string" "Decorators") 454:465
 (TOKEN ")") 466:466
@@ -251,14 +251,12 @@
 (TOKEN ">=") 530:531
 (TOKEN "integer" 1) 533:533
 (TOKEN "or") 535:536
-(TOKEN "\") 538:538
-(NEWLINE) 539:539
 (TOKEN "identifier" j) 548:548
 (TOKEN "<=") 550:551
 (TOKEN "integer" 10) 553:554
 (TOKEN ":") 555:555
 (NEWLINE) 556:556
-(KEYWORD "print") 561:565
+(TOKEN "identifier" print) 561:565
 (TOKEN "(") 566:566
 (TOKEN "string" "Backlash") 567:576
 (TOKEN ")") 577:577

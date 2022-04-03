@@ -109,8 +109,8 @@ int Tokenizer::lex(Allocator &/*al*/, YYSTYPE &yylval, Location &loc, diag::Diag
             significand = (digit+"."digit*) | ("."digit+);
             exp = [edED][-+]? digit+;
             integer = digit+ | oct_digit | bin_digit | hex_digit;
-            float = (significand exp?) | (digit+ exp);
-            imag_number = (float | digit+)[jJ];
+            real = (significand exp?) | (digit+ exp);
+            imag_number = (real | digit+)[jJ];
             string1 = '"' ('""'|[^"\x00])* '"';
             string2 = "'" ("''"|[^'\x00])* "'";
             comment = "#" [^\n\x00]*;
@@ -132,6 +132,8 @@ int Tokenizer::lex(Allocator &/*al*/, YYSTYPE &yylval, Location &loc, diag::Diag
             // Keywords
             'as'       { KW(AS) }
             'assert'   { KW(ASSERT) }
+            'async'    { KW(ASYNC) }
+            'await'    { KW(AWAIT) }
             'break'    { KW(BREAK) }
             'class'    { KW(CLASS) }
             'continue' { KW(CONTINUE) }
@@ -140,7 +142,7 @@ int Tokenizer::lex(Allocator &/*al*/, YYSTYPE &yylval, Location &loc, diag::Diag
             'elif'     { KW(ELIF) }
             'else'     { KW(ELSE) }
             'except'   { KW(EXCEPT) }
-            'exec'     { KW(EXEC) }
+            // 'exec'     { KW(EXEC) }
             'finally'  { KW(FINALLY) }
             'for'      { KW(FOR) }
             'from'     { KW(FROM) }
@@ -150,8 +152,9 @@ int Tokenizer::lex(Allocator &/*al*/, YYSTYPE &yylval, Location &loc, diag::Diag
             'in'       { KW(IN) }
             'is'       { KW(IS) }
             'lambda'   { KW(LAMBDA) }
+            'nonlocal' { KW(NONLOCAL) }
             'pass'     { KW(PASS) }
-            'print'    { KW(PRINT) }
+            // 'print'    { KW(PRINT) }
             'raise'    { KW(RAISE) }
             'return'   { KW(RETURN) }
             'try'      { KW(TRY) }
@@ -163,6 +166,8 @@ int Tokenizer::lex(Allocator &/*al*/, YYSTYPE &yylval, Location &loc, diag::Diag
             newline {
                 RET(TK_NEWLINE)
             }
+
+            "\\" newline { continue; }
 
             // Single character symbols
             "(" { RET(TK_LPAREN) }
@@ -177,21 +182,17 @@ int Tokenizer::lex(Allocator &/*al*/, YYSTYPE &yylval, Location &loc, diag::Diag
             ":" { RET(TK_COLON) }
             ";" { RET(TK_SEMICOLON) }
             "/" { RET(TK_SLASH) }
-            "\\" { RET(TK_BACKSLASH) }
             "%" { RET(TK_PERCENT) }
             "," { RET(TK_COMMA) }
             "*" { RET(TK_STAR) }
             "|" { RET(TK_VBAR) }
             "&" { RET(TK_AMPERSAND) }
             "." { RET(TK_DOT) }
-            "`" { RET(TK_BACKQUOTE) }
             "~" { RET(TK_TILDE) }
             "^" { RET(TK_CARET) }
             "@" { RET(TK_AT) }
 
             // Multiple character symbols
-            ".." { RET(TK_DBL_DOT) }
-            "::" { RET(TK_DBL_COLON) }
             ">>" { RET(TK_RIGHTSHIFT) }
             "<<" { RET(TK_LEFTSHIFT) }
             "**" { RET(TK_POW) }
@@ -204,6 +205,10 @@ int Tokenizer::lex(Allocator &/*al*/, YYSTYPE &yylval, Location &loc, diag::Diag
             "&=" { RET(TK_AMPER_EQUAL) }
             "|=" { RET(TK_VBAR_EQUAL) }
             "^=" { RET(TK_CARET_EQUAL) }
+            "@=" { RET(TK_ATEQUAL) }
+            "->" { RET(TK_RARROW) }
+            ":=" { RET(TK_COLONEQUAL) }
+            "..." { RET(TK_ELLIPSIS) }
             "<<=" { RET(TK_LEFTSHIFT_EQUAL) }
             ">>=" { RET(TK_RIGHTSHIFT_EQUAL) }
             "**=" { RET(TK_POW_EQUAL) }
@@ -226,10 +231,11 @@ int Tokenizer::lex(Allocator &/*al*/, YYSTYPE &yylval, Location &loc, diag::Diag
 
             'True' { RET(TK_TRUE) }
             'False' { RET(TK_FALSE) }
+            'None' { RET(TK_NONE) }
 
-            float { token(yylval.string); RET(TK_FLOAT) }
+            real { token(yylval.string); RET(TK_REAL) }
             integer { token(yylval.string);  RET(TK_INTEGER) }
-            imag_number { token(yylval.string);  RET(TK_INTEGER) }
+            imag_number { token(yylval.string);  RET(TK_IMAG_NUM) }
 
             comment newline {
                 line_num++; cur_line=cur;
@@ -266,13 +272,13 @@ std::string token2text(const int token)
         T(TK_NEWLINE, "newline")
         T(TK_NAME, "identifier")
         T(TK_INTEGER, "integer")
-        T(TK_FLOAT, "float")
+        T(TK_REAL, "real")
+        T(TK_IMAG_NUM, "imag number")
 
         T(TK_PLUS, "+")
         T(TK_MINUS, "-")
         T(TK_STAR, "*")
         T(TK_SLASH, "/")
-        T(TK_BACKSLASH, "\\")
         T(TK_COLON, ":")
         T(TK_SEMICOLON, ";")
         T(TK_COMMA, ",")
@@ -287,7 +293,6 @@ std::string token2text(const int token)
         T(TK_VBAR, "|")
         T(TK_AMPERSAND, "&")
         T(TK_DOT, ".")
-        T(TK_BACKQUOTE, "`")
         T(TK_TILDE, "~")
         T(TK_CARET, "^")
         T(TK_AT, "@")
@@ -296,8 +301,6 @@ std::string token2text(const int token)
         T(TK_COMMENT, "comment")
         T(TK_EOLCOMMENT, "eolcomment")
 
-        T(TK_DBL_DOT, "..")
-        T(TK_DBL_COLON, "::")
         T(TK_POW, "**")
         T(TK_FLOOR_DIV, "//")
         T(TK_RIGHTSHIFT, ">>")
@@ -310,6 +313,10 @@ std::string token2text(const int token)
         T(TK_AMPER_EQUAL, "&=")
         T(TK_VBAR_EQUAL, "|=")
         T(TK_CARET_EQUAL, "^=")
+        T(TK_ATEQUAL, "@=")
+        T(TK_RARROW, "->")
+        T(TK_COLONEQUAL, ":=")
+        T(TK_ELLIPSIS, "...")
         T(TK_LEFTSHIFT_EQUAL, "<<=")
         T(TK_RIGHTSHIFT_EQUAL, ">>=")
         T(TK_POW_EQUAL, "**=")
@@ -328,9 +335,12 @@ std::string token2text(const int token)
 
         T(TK_TRUE, "True")
         T(TK_FALSE, "False")
+        T(TK_NONE, "None")
 
         T(KW_AS, "as")
         T(KW_ASSERT, "assert")
+        T(KW_ASYNC, "async")
+        T(KW_AWAIT, "await")
         T(KW_BREAK, "break")
         T(KW_CLASS, "class")
         T(KW_CONTINUE, "continue")
@@ -339,7 +349,6 @@ std::string token2text(const int token)
         T(KW_ELIF, "elif")
         T(KW_ELSE, "else")
         T(KW_EXCEPT, "except")
-        T(KW_EXEC, "exec")
         T(KW_FINALLY, "finally")
         T(KW_FOR, "for")
         T(KW_FROM, "from")
@@ -349,8 +358,8 @@ std::string token2text(const int token)
         T(KW_IN, "in")
         T(KW_IS, "is")
         T(KW_LAMBDA, "lambda")
+        T(KW_NONLOCAL, "nonlocal")
         T(KW_PASS, "pass")
-        T(KW_PRINT, "print")
         T(KW_RAISE, "raise")
         T(KW_RETURN, "return")
         T(KW_TRY, "try")
@@ -394,7 +403,7 @@ std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
 {
     std::string t;
     t += "(";
-    if (token >= yytokentype::TK_NAME && token <= TK_FALSE) {
+    if (token >= yytokentype::TK_NAME && token <= TK_NONE) {
         t += "TOKEN";
     } else if (token == yytokentype::TK_NEWLINE) {
         t += "NEWLINE";
@@ -414,7 +423,9 @@ std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
         t += " " + yystype.string.str();
     } else if (token == yytokentype::TK_INTEGER) {
         t += " " + yystype.string.str();
-    } else if (token == yytokentype::TK_FLOAT) {
+    } else if (token == yytokentype::TK_REAL) {
+        t += " " + yystype.string.str();
+    } else if (token == yytokentype::TK_IMAG_NUM) {
         t += " " + yystype.string.str();
     } else if (token == yytokentype::TK_STRING) {
         t = t + " " + "\"" + yystype.string.str() + "\"";
