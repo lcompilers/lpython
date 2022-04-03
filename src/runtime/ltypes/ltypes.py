@@ -92,6 +92,9 @@ def overload(f):
     return overloaded_f
 
 
+def interface(f):
+    raise Exception("Unexpected to be called by CPython")
+
 
 # C interoperation support
 
