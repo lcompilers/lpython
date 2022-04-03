@@ -1,0 +1,89 @@
+(TOKEN "identifier" i) 0:0
+(TOKEN "=") 2:2
+(TOKEN "integer" 123) 4:6
+(NEWLINE) 7:7
+(TOKEN "identifier" i) 8:8
+(TOKEN "=") 10:10
+(TOKEN "-") 12:12
+(TOKEN "integer" 123) 13:15
+(NEWLINE) 16:16
+(TOKEN "identifier" i) 17:17
+(TOKEN "=") 19:19
+(TOKEN "-") 21:21
+(TOKEN "integer" 0x123) 22:26
+(NEWLINE) 27:27
+(TOKEN "identifier" i) 28:28
+(TOKEN "=") 30:30
+(TOKEN "integer" 0X1abc) 32:37
+(NEWLINE) 38:38
+(TOKEN "identifier" i) 39:39
+(TOKEN "=") 41:41
+(TOKEN "integer" 0x1ABC) 43:48
+(NEWLINE) 49:49
+(TOKEN "identifier" i) 50:50
+(TOKEN "=") 52:52
+(TOKEN "-") 54:54
+(TOKEN "integer" 0o123) 55:59
+(NEWLINE) 60:60
+(TOKEN "identifier" i) 61:61
+(TOKEN "=") 63:63
+(TOKEN "integer" 0O0127) 65:70
+(NEWLINE) 71:71
+(TOKEN "identifier" i) 72:72
+(TOKEN "=") 74:74
+(TOKEN "-") 76:76
+(TOKEN "integer" 0b1101) 77:82
+(NEWLINE) 83:83
+(TOKEN "identifier" i) 84:84
+(TOKEN "=") 86:86
+(TOKEN "integer" 0B1101) 88:93
+(NEWLINE) 94:94
+(TOKEN "identifier" i) 95:95
+(TOKEN "=") 97:97
+(TOKEN "float" 123.) 99:102
+(NEWLINE) 103:103
+(TOKEN "identifier" i) 104:104
+(TOKEN "=") 106:106
+(TOKEN "float" .123) 108:111
+(NEWLINE) 112:112
+(TOKEN "identifier" i) 113:113
+(TOKEN "=") 115:115
+(TOKEN "float" 123.45) 117:122
+(NEWLINE) 123:123
+(TOKEN "identifier" i) 124:124
+(TOKEN "=") 126:126
+(TOKEN "float" 0.123) 128:132
+(NEWLINE) 133:133
+(TOKEN "identifier" i) 134:134
+(TOKEN "=") 136:136
+(TOKEN "float" 12.e+10) 138:144
+(NEWLINE) 145:145
+(TOKEN "identifier" i) 146:146
+(TOKEN "=") 148:148
+(TOKEN "float" 12.34e+10) 150:158
+(NEWLINE) 159:159
+(TOKEN "identifier" i) 160:160
+(TOKEN "=") 162:162
+(TOKEN "float" .12e-10) 164:170
+(NEWLINE) 171:171
+(TOKEN "identifier" i) 172:172
+(TOKEN "=") 174:174
+(TOKEN "float" 0.12e-10) 176:183
+(NEWLINE) 184:184
+(TOKEN "identifier" i) 185:185
+(TOKEN "=") 187:187
+(TOKEN "float" 12.34e10) 189:196
+(NEWLINE) 197:197
+(TOKEN "identifier" i) 198:198
+(TOKEN "=") 200:200
+(TOKEN "integer" 12) 202:203
+(TOKEN "+") 204:204
+(TOKEN "integer" 3j) 205:206
+(NEWLINE) 207:207
+(TOKEN "identifier" i) 208:208
+(TOKEN "=") 210:210
+(TOKEN "integer" 12) 212:213
+(TOKEN "+") 214:214
+(TOKEN "integer" 3J) 215:216
+(NEWLINE) 217:217
+(EOF) 218:218

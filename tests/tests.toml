@@ -225,3 +225,7 @@ tokens = true
 [[test]]
 filename = "tokens/symbols1.py"
 tokens = true
+
+[[test]]
+filename = "tokens/numbers1.py"
+tokens = true

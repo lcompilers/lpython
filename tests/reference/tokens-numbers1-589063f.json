@@ -1,0 +1,13 @@
+{
+    "basename": "tokens-numbers1-589063f",
+    "cmd": "lpython --no-color --show-tokens {infile} -o {outfile}",
+    "infile": "tests/tokens/numbers1.py",
+    "infile_hash": "0ee05274331d41526e28803dbba30dc27f9727d9bcaa2fafc5ec40d3",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "tokens-numbers1-589063f.stdout",
+    "stdout_hash": "7dc52631432cd677f95f27c1b8c06fd17c6a0aab06ecf6582cf55f0c",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
