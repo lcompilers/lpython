@@ -504,6 +504,13 @@ LFORTRAN_API double_complex_t _lfortran_zacosh(double_complex_t x)
     return cacosh(x);
 }
 
+// fmod -----------------------------------------------------------------------
+
+LFORTRAN_API double _lfortran_dfmod(double x, double y)
+{
+    return fmod(x, y);
+}
+
 // atanh -----------------------------------------------------------------------
 
 LFORTRAN_API float _lfortran_satanh(float x)

@@ -347,34 +347,29 @@ def _lfortran_datanh(x: f64) -> f64:
 def atanh(x: f64) -> f64:
     return _lfortran_datanh(x)
 
-def ceil(x: f64) -> f64:
-    i : f64
-    i = x // 1.0
-    if x - i <= 0:
-        return i
-    return i + 1
-
-def floor(x: f64) -> f64:
-    i : f64
-    i = x // 1.0
-    if x - i >= 0:
-        return i
-    return i - 1
 
 def expm1(x: f64) -> f64:
     return exp(x) - 1
 
+
 def log1p(x: f64) -> f64:
     return log(1 + x)
 
+
 def fmod(x: f64, y: f64) -> f64:
-    if y == 0.0:
+    if y == 0:
         raise ValueError('math domain error')
-    return x - (x//y)*y
+    return _lfortran_dfmod(x, y)
+
+
+@ccall
+def _lfortran_dfmod(x: f64, y: f64) -> f64:
+    pass
+
 
 def remainder(x: f64, y: f64) -> f64:
-    mod: f64
-    mod = fmod(x, y)
-    if fabs(mod) > fabs(mod - y):
-        return mod - y
-    return mod
+    q: i64
+    q = int(x/y)
+    if x - y*q > y*(q + 1) - x:
+        return x - y*(q + 1)
+    return x - y*q
