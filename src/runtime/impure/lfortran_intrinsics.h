@@ -53,6 +53,14 @@ LFORTRAN_API void _lfortran_complex_pow(struct _lfortran_complex_32* a,
 
 LFORTRAN_API void _lfortran_complex_add_64(struct _lfortran_complex_64* a,
         struct _lfortran_complex_64* b, struct _lfortran_complex_64 *result);
+LFORTRAN_API void _lfortran_complex_sub_64(struct _lfortran_complex_64* a,
+        struct _lfortran_complex_64* b, struct _lfortran_complex_64 *result);
+LFORTRAN_API void _lfortran_complex_mul_64(struct _lfortran_complex_64* a,
+        struct _lfortran_complex_64* b, struct _lfortran_complex_64 *result);
+LFORTRAN_API void _lfortran_complex_div_64(struct _lfortran_complex_64* a,
+        struct _lfortran_complex_64* b, struct _lfortran_complex_64 *result);
+LFORTRAN_API void _lfortran_complex_pow_64(struct _lfortran_complex_64* a,
+        struct _lfortran_complex_64* b, struct _lfortran_complex_64 *result);
 
 LFORTRAN_API float_complex_t _lfortran_csqrt(float_complex_t x);
 LFORTRAN_API double_complex_t _lfortran_zsqrt(double_complex_t x);

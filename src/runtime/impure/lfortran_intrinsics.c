@@ -70,14 +70,21 @@ LFORTRAN_API void _lfortran_complex_add_64(struct _lfortran_complex_64* a,
     result->im = a->im + b->im;
 }
 
-LFORTRAN_API void _lfortran_complex_sub(struct _lfortran_complex_32* a,
+LFORTRAN_API void _lfortran_complex_sub_32(struct _lfortran_complex_32* a,
         struct _lfortran_complex_32* b, struct _lfortran_complex_32 *result)
 {
     result->re = a->re - b->re;
     result->im = a->im - b->im;
 }
 
-LFORTRAN_API void _lfortran_complex_mul(struct _lfortran_complex_32* a,
+LFORTRAN_API void _lfortran_complex_sub_64(struct _lfortran_complex_64* a,
+        struct _lfortran_complex_64* b, struct _lfortran_complex_64 *result)
+{
+    result->re = a->re - b->re;
+    result->im = a->im - b->im;
+}
+
+LFORTRAN_API void _lfortran_complex_mul_32(struct _lfortran_complex_32* a,
         struct _lfortran_complex_32* b, struct _lfortran_complex_32 *result)
 {
     float p = a->re, q = a->im;
@@ -86,12 +93,31 @@ LFORTRAN_API void _lfortran_complex_mul(struct _lfortran_complex_32* a,
     result->im = (p*s + q*r);
 }
 
-LFORTRAN_API void _lfortran_complex_div(struct _lfortran_complex_32* a,
+LFORTRAN_API void _lfortran_complex_mul_64(struct _lfortran_complex_64* a,
+        struct _lfortran_complex_64* b, struct _lfortran_complex_64 *result)
+{
+    double p = a->re, q = a->im;
+    double r = b->re, s = b->im;
+    result->re = (p*r - q*s);
+    result->im = (p*s + q*r);
+}
+
+LFORTRAN_API void _lfortran_complex_div_32(struct _lfortran_complex_32* a,
         struct _lfortran_complex_32* b, struct _lfortran_complex_32 *result)
 {
     float p = a->re, q = a->im;
     float r = b->re, s = -(b->im);
     float mod_b = r*r + s*s;
+    result->re = (p*r - q*s)/mod_b;
+    result->im = (p*s + q*r)/mod_b;
+}
+
+LFORTRAN_API void _lfortran_complex_div_64(struct _lfortran_complex_64* a,
+        struct _lfortran_complex_64* b, struct _lfortran_complex_64 *result)
+{
+    double p = a->re, q = a->im;
+    double r = b->re, s = -(b->im);
+    double mod_b = r*r + s*s;
     result->re = (p*r - q*s)/mod_b;
     result->im = (p*s + q*r)/mod_b;
 }
@@ -109,22 +135,37 @@ LFORTRAN_API void _lfortran_complex_div(struct _lfortran_complex_32* a,
 #define BITS_32 32
 #define BITS_64 64
 
-LFORTRAN_API void _lfortran_complex_pow(struct _lfortran_complex_32* a,
+LFORTRAN_API void _lfortran_complex_pow_32(struct _lfortran_complex_32* a,
         struct _lfortran_complex_32* b, struct _lfortran_complex_32 *result)
 {
     #ifdef _MSC_VER
         _Fcomplex ca = _FCOMPLEX_(a->re, a->im);
         _Fcomplex cb = _FCOMPLEX_(b->re, b->im);
         _Fcomplex cr = cpowf(ca, cb);
-        result->re = crealf(cr);
-        result->im = cimagf(cr);
     #else
         float complex ca = CMPLXF(a->re, a->im);
         float complex cb = CMPLXF(b->re, b->im);
         float complex cr = cpowf(ca, cb);
+    #endif
         result->re = crealf(cr);
         result->im = cimagf(cr);
+
+}
+
+LFORTRAN_API void _lfortran_complex_pow_64(struct _lfortran_complex_64* a,
+        struct _lfortran_complex_64* b, struct _lfortran_complex_64 *result)
+{
+    #ifdef _MSC_VER
+        _Dcomplex ca = _DCOMPLEX_(a->re, a->im);
+        _Dcomplex cb = _DCOMPLEX_(b->re, b->im);
+        _Dcomplex cr = cpow(ca, cb);
+    #else
+        double complex ca = CMPLX(a->re, a->im);
+        double complex cb = CMPLX(b->re, b->im);
+        double complex cr = cpow(ca, cb);
     #endif
+        result->re = creal(cr);
+        result->im = cimag(cr);
 
 }
 
