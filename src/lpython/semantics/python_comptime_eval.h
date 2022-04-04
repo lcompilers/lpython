@@ -46,6 +46,7 @@ struct PythonIntrinsicProcedures {
             {"complex", {m_builtin, &eval_complex}},
             {"_lpython_imag", {m_builtin, &eval__lpython_imag}},
             {"divmod", {m_builtin, &eval_divmod}},
+            {"_lpython_floordiv", {m_builtin, &eval__lpython_floordiv}}
         };
     }
 
@@ -519,6 +520,33 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, loc, result, type));
         } else {
             throw SemanticError("Argument of the _lpython_imag() function must be Complex", loc);
+        }
+    }
+
+    static ASR::expr_t *eval__lpython_floordiv(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        if (args.size() != 2) {
+            throw SemanticError("_lpython_floordiv() takes exactly two arguments (" +
+                std::to_string(args.size()) + " given)", loc);
+        }
+        ASR::expr_t *arg1 = args[0];
+        ASR::expr_t *arg2 = args[1];
+        ASR::ttype_t *arg1_type = ASRUtils::expr_type(arg1);
+        ASR::ttype_t *arg2_type = ASRUtils::expr_type(arg2);
+        if (ASRUtils::is_real(*arg1_type) && ASRUtils::is_real(*arg2_type)) {
+            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
+            double n = ASR::down_cast<ASR::ConstantReal_t>(arg1)->m_r;
+            double d = ASR::down_cast<ASR::ConstantReal_t>(arg1)->m_r;
+            ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8, nullptr, 0));
+            ASR::expr_t *tmp = ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al, loc, n/d, type));
+            tmp = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                al, tmp->base.loc, tmp, ASR::cast_kindType::RealToInteger,
+                int_type, nullptr));
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                al, tmp->base.loc, tmp, ASR::cast_kindType::IntegerToReal,
+                type, nullptr));
+        } else {
+            throw SemanticError("Only real arguments are expected.", loc);
         }
     }
 

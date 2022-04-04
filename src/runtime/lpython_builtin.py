@@ -324,3 +324,13 @@ def _lpython_imag(x: c64) -> f64:
 @overload
 def _lpython_imag(x: c32) -> f32:
     return _lfortran_caimag(x)
+
+
+def _lpython_floordiv(a: f64, b: f64) -> f64:
+    r: f64
+    r = a/b
+    result: i64
+    result = int(r)
+    if r >= 0.0 or result == r:
+        return float(result)
+    return float(result-1)
