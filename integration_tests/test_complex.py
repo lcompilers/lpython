@@ -10,8 +10,7 @@ def test_real_imag():
     a = x.real
     b = x.imag
     assert abs(a - 2) < eps
-    # TODO: below test should work
-    # assert abs(b - 3) < eps
+    assert abs(b - 3) < eps
 
 def test_complex():
     x: c64
