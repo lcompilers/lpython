@@ -26,10 +26,10 @@ void test_binop()
     x2 = 3.454000 - 765.430000 + 534.600000;
     x2 = 5346.565000*3.450000;
     x2 = std::pow(5346.565000, 3.450000);
-    x = true + true;
-    x = true - false;
-    x = true*false;
-    x = std::pow(false, false);
+    x = (int)(true) + (int)(true);
+    x = (int)(true) - (int)(false);
+    x = (int)(true)*(int)(false);
+    x = std::pow((int)(true), (int)(false));
 }
 
 namespace {

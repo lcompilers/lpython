@@ -12,4 +12,4 @@ def test_binop():
     x = True + True
     x = True - False
     x = True * False
-    x = False ** False
+    x = True ** False
