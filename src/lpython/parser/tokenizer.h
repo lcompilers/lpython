@@ -24,8 +24,9 @@ public:
     int enddo_state = 0;
     int enddo_insert_count = 0;
     bool indent = false;
-    bool dedent = false;
-    int last_indent_length = 0;
+    int dedent = 0;
+    long int last_indent_length = 0;
+    std::vector<uint64_t> indent_length;
 
 public:
     // Set the string to tokenize. The caller must ensure `str` will stay valid
