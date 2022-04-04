@@ -11,6 +11,8 @@ def test_int():
     assert int(f) == -183745
     assert int(5.5) == 5
     assert int(-5.5) == -5
+    assert int(True) == 1
+    assert int(False) == 0
 
 
 def test_bool_to_int():
