@@ -85,9 +85,9 @@ def test_int():
     a = int(4.56)
     a = int(5)
     a = int(-5.00001)
+    a = int(True)
+    a = int(False)
     # commented tests should work
-    # a = int(True)
-    # a = int(False)
     # a = int("5346")
 
 
@@ -97,9 +97,9 @@ def test_float():
     a = float(4.56)
     a = float(5)
     a = float(-1)
+    a = float(True)
+    a = float(False)
     # commented tests should work
-    # a = float(True)
-    # a = float(False)
     # a = float("5346")
     # a = float("423.534")
 

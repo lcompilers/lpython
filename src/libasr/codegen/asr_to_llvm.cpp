@@ -3316,6 +3316,27 @@ public:
                 tmp = builder->CreateICmpNE(tmp, builder->getInt32(0));
                 break;
             }
+            case (ASR::cast_kindType::LogicalToInteger) : {
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                if (a_kind == 2) {
+                    tmp = builder->CreateSExt(tmp, llvm::Type::getInt16Ty(context));
+                    llvm::Value *zero = llvm::ConstantInt::get(context, llvm::APInt(16, 0, true));
+                    tmp = builder ->CreateSub(zero, tmp);
+                } else if (a_kind == 4) {
+                    tmp = builder->CreateSExt(tmp, llvm::Type::getInt32Ty(context));
+                    llvm::Value *zero = llvm::ConstantInt::get(context, llvm::APInt(32, 0, true));
+                    tmp = builder ->CreateSub(zero, tmp);
+                } else if (a_kind == 8) {
+                    tmp = builder->CreateSExt(tmp, llvm::Type::getInt64Ty(context));
+                    llvm::Value *zero = llvm::ConstantInt::get(context, llvm::APInt(64, 0, true));
+                    tmp = builder ->CreateSub(zero, tmp);
+                } else {
+                    std::string msg = "Conversion from i1 to"  +
+                                      std::to_string(a_kind) + " is not implemented yet.";
+                    throw CodeGenError(msg);
+                }
+                break;
+            }
             case (ASR::cast_kindType::RealToReal) : {
                 int arg_kind = -1, dest_kind = -1;
                 extract_kinds(x, arg_kind, dest_kind);
