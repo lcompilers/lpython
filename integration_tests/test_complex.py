@@ -50,10 +50,37 @@ def test_complex_abs():
     y = complex(6, 8)
     assert abs(abs(y) - 10.0) < eps
 
+def test_complex_binop_32():
+    x: c32
+    y: c32
+    z: c32
+    x = 2 + 3j
+    y = 4 + 5j
+    z = x + y
+    z = x - y
+    z = x * y
+    # TODO:
+    #z = x / y
+    z = x ** y
+
+def test_complex_binop_64():
+    x: c64
+    y: c64
+    z: c64
+    x = 2 + 3j
+    y = 4 + 5j
+    z = x + y
+    z = x - y
+    z = x * y
+    # TODO:
+    #z = x / y
+    z = x ** y
 
 def check():
     test_real_imag()
     test_complex()
     test_complex_abs()
+    test_complex_binop_32()
+    test_complex_binop_64()
 
 check()
