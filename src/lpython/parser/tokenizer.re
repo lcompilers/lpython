@@ -152,6 +152,7 @@ int Tokenizer::lex(Allocator &/*al*/, YYSTYPE &yylval, Location &loc, diag::Diag
             'in'       { KW(IN) }
             'is'       { KW(IS) }
             'lambda'   { KW(LAMBDA) }
+            'None'     { KW(NONE) }
             'nonlocal' { KW(NONLOCAL) }
             'pass'     { KW(PASS) }
             // 'print'    { KW(PRINT) }
@@ -231,7 +232,6 @@ int Tokenizer::lex(Allocator &/*al*/, YYSTYPE &yylval, Location &loc, diag::Diag
 
             'True' { RET(TK_TRUE) }
             'False' { RET(TK_FALSE) }
-            'None' { RET(TK_NONE) }
 
             real { token(yylval.string); RET(TK_REAL) }
             integer { token(yylval.string);  RET(TK_INTEGER) }
@@ -335,7 +335,6 @@ std::string token2text(const int token)
 
         T(TK_TRUE, "True")
         T(TK_FALSE, "False")
-        T(TK_NONE, "None")
 
         T(KW_AS, "as")
         T(KW_ASSERT, "assert")
@@ -358,6 +357,7 @@ std::string token2text(const int token)
         T(KW_IN, "in")
         T(KW_IS, "is")
         T(KW_LAMBDA, "lambda")
+        T(KW_NONE, "none")
         T(KW_NONLOCAL, "nonlocal")
         T(KW_PASS, "pass")
         T(KW_RAISE, "raise")
@@ -403,7 +403,7 @@ std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
 {
     std::string t;
     t += "(";
-    if (token >= yytokentype::TK_NAME && token <= TK_NONE) {
+    if (token >= yytokentype::TK_NAME && token <= TK_FALSE) {
         t += "TOKEN";
     } else if (token == yytokentype::TK_NEWLINE) {
         t += "NEWLINE";
