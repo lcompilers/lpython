@@ -9,8 +9,8 @@
     docstring.
     """) 17:54
 (NEWLINE) 55:55
-(TOKEN "dedent") 56:56
 (NEWLINE) 56:56
+(TOKEN "dedent") 56:56
 (KEYWORD "def") 57:59
 (TOKEN "identifier" test2) 61:65
 (TOKEN "(") 66:66
@@ -23,8 +23,8 @@
     docstring.
     """) 74:116
 (NEWLINE) 117:117
-(TOKEN "dedent") 118:118
 (NEWLINE) 118:118
+(TOKEN "dedent") 118:118
 (KEYWORD "def") 119:121
 (TOKEN "identifier" test2) 123:127
 (TOKEN "(") 128:128
@@ -34,8 +34,8 @@
 (TOKEN "indent") 132:135
 (TOKEN "string" """ A single-line docstring.""") 136:166
 (NEWLINE) 167:167
-(TOKEN "dedent") 168:168
 (NEWLINE) 168:168
+(TOKEN "dedent") 168:168
 (TOKEN "string" """
 A multi-line
 docstring.

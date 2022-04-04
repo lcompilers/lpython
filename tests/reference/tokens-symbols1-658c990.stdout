@@ -55,8 +55,8 @@
 (TOKEN "string" ";") 111:113
 (TOKEN ")") 114:114
 (NEWLINE) 115:115
-(TOKEN "dedent") 116:116
 (NEWLINE) 116:116
+(TOKEN "dedent") 116:116
 (TOKEN "identifier" i) 117:117
 (TOKEN "=") 119:119
 (TOKEN "integer" 1) 121:121
@@ -228,8 +228,8 @@
 (TOKEN "string" "Decorators") 454:465
 (TOKEN ")") 466:466
 (NEWLINE) 467:467
-(TOKEN "dedent") 468:468
 (NEWLINE) 468:468
+(TOKEN "dedent") 468:468
 (KEYWORD "class") 469:473
 (TOKEN "identifier" t) 475:475
 (TOKEN ":") 476:476
@@ -251,8 +251,9 @@
 (TOKEN "=") 520:520
 (TOKEN "identifier" x) 522:522
 (NEWLINE) 523:523
-(TOKEN "dedent") 524:524
 (NEWLINE) 524:524
+(TOKEN "dedent") 524:524
+(TOKEN "dedent") 524:524
 (KEYWORD "if") 525:526
 (TOKEN "identifier" i) 528:528
 (TOKEN ">=") 530:531
@@ -269,5 +270,5 @@
 (TOKEN "string" "Backlash") 567:576
 (TOKEN ")") 577:577
 (NEWLINE) 578:578
-(TOKEN "dedent") 579:579
+(TOKEN "dedent") 578:578
 (EOF) 579:579
