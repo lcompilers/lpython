@@ -93,7 +93,9 @@ def overload(f):
 
 
 def interface(f):
-    raise Exception("Unexpected to be called by CPython")
+    def inner_func():
+        raise Exception("Unexpected to be called by CPython")
+    return inner_func
 
 
 # C interoperation support
