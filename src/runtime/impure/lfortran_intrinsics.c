@@ -56,22 +56,22 @@ LFORTRAN_API void _lfortran_printf(const char* format, ...)
     va_end(args);
 }
 
-LFORTRAN_API void _lfortran_complex_add(struct _lfortran_complex* a,
-        struct _lfortran_complex* b, struct _lfortran_complex *result)
+LFORTRAN_API void _lfortran_complex_add(struct _lfortran_complex_32* a,
+        struct _lfortran_complex_32* b, struct _lfortran_complex_32 *result)
 {
     result->re = a->re + b->re;
     result->im = a->im + b->im;
 }
 
-LFORTRAN_API void _lfortran_complex_sub(struct _lfortran_complex* a,
-        struct _lfortran_complex* b, struct _lfortran_complex *result)
+LFORTRAN_API void _lfortran_complex_sub(struct _lfortran_complex_32* a,
+        struct _lfortran_complex_32* b, struct _lfortran_complex_32 *result)
 {
     result->re = a->re - b->re;
     result->im = a->im - b->im;
 }
 
-LFORTRAN_API void _lfortran_complex_mul(struct _lfortran_complex* a,
-        struct _lfortran_complex* b, struct _lfortran_complex *result)
+LFORTRAN_API void _lfortran_complex_mul(struct _lfortran_complex_32* a,
+        struct _lfortran_complex_32* b, struct _lfortran_complex_32 *result)
 {
     float p = a->re, q = a->im;
     float r = b->re, s = b->im;
@@ -79,8 +79,8 @@ LFORTRAN_API void _lfortran_complex_mul(struct _lfortran_complex* a,
     result->im = (p*s + q*r);
 }
 
-LFORTRAN_API void _lfortran_complex_div(struct _lfortran_complex* a,
-        struct _lfortran_complex* b, struct _lfortran_complex *result)
+LFORTRAN_API void _lfortran_complex_div(struct _lfortran_complex_32* a,
+        struct _lfortran_complex_32* b, struct _lfortran_complex_32 *result)
 {
     float p = a->re, q = a->im;
     float r = b->re, s = -(b->im);
@@ -102,8 +102,8 @@ LFORTRAN_API void _lfortran_complex_div(struct _lfortran_complex* a,
 #define BITS_32 32
 #define BITS_64 64
 
-LFORTRAN_API void _lfortran_complex_pow(struct _lfortran_complex* a,
-        struct _lfortran_complex* b, struct _lfortran_complex *result)
+LFORTRAN_API void _lfortran_complex_pow(struct _lfortran_complex_32* a,
+        struct _lfortran_complex_32* b, struct _lfortran_complex_32 *result)
 {
     #ifdef _MSC_VER
         _Fcomplex ca = _FCOMPLEX_(a->re, a->im);
