@@ -8,6 +8,26 @@
 namespace LFortran
 {
 
+template<int base>
+bool adddgt(uint64_t &u, uint64_t d)
+{
+    if (u > (std::numeric_limits<uint64_t>::max() - d) / base) {
+        return false;
+    }
+    u = u * base + d;
+    return true;
+}
+
+bool lex_dec(const unsigned char *s, const unsigned char *e, uint64_t &u)
+{
+    for (u = 0; s < e; ++s) {
+        if (!adddgt<10>(u, *s - 0x30u)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void Tokenizer::set_string(const std::string &str)
 {
     // The input string must be NULL terminated, otherwise the tokenizer will
