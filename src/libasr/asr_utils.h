@@ -876,6 +876,8 @@ ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
             SymbolTable* current_scope, Allocator& al,
             const std::function<void (const std::string &, const Location &)> err);
 
+ASR::asr_t* make_ImplicitCast_t_value(Allocator &al, const Location &a_loc, ASR::expr_t* a_arg, ASR::cast_kindType a_kind, ASR::ttype_t* a_type);
+
 } // namespace ASRUtils
 
 } // namespace LFortran

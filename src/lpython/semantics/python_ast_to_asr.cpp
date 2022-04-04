@@ -456,30 +456,30 @@ public:
             int lkind = ASR::down_cast<ASR::Integer_t>(left_type)->m_kind;
             int rkind = ASR::down_cast<ASR::Integer_t>(right_type)->m_kind;
             if ((is_assign && (lkind != rkind)) || (lkind > rkind)) {
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                return ASR::down_cast<ASR::expr_t>(ASRUtils::make_ImplicitCast_t_value(
                     al, right->base.loc, right, ASR::cast_kindType::IntegerToInteger,
-                    left_type, nullptr));
+                    left_type));
             }
         } else if (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type)) {
             bool is_l64 = ASR::down_cast<ASR::Real_t>(left_type)->m_kind == 8;
             bool is_r64 = ASR::down_cast<ASR::Real_t>(right_type)->m_kind == 8;
             if ((is_assign && (is_l64 != is_r64)) || (is_l64 && !is_r64)) {
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                return ASR::down_cast<ASR::expr_t>(ASRUtils::make_ImplicitCast_t_value(
                     al, right->base.loc, right, ASR::cast_kindType::RealToReal,
-                    left_type, nullptr));
+                    left_type));
             }
         } else if (ASRUtils::is_complex(*left_type) && ASRUtils::is_complex(*right_type)) {
             bool is_l64 = ASR::down_cast<ASR::Complex_t>(left_type)->m_kind == 8;
             bool is_r64 = ASR::down_cast<ASR::Complex_t>(right_type)->m_kind == 8;
             if ((is_assign && (is_l64 != is_r64)) || (is_l64 && !is_r64)) {
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                return ASR::down_cast<ASR::expr_t>(ASRUtils::make_ImplicitCast_t_value(
                     al, right->base.loc, right, ASR::cast_kindType::ComplexToComplex,
-                    left_type, nullptr));
+                    left_type));
             }
         } else if (!is_assign && ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type)) {
-            return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+            return ASR::down_cast<ASR::expr_t>(ASRUtils::make_ImplicitCast_t_value(
                 al, right->base.loc, right, ASR::cast_kindType::IntegerToReal,
-                left_type, nullptr));
+                left_type));
         } else if (is_assign && ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type)) {
             throw SemanticError("Assigning integer to float is not supported",
                     right->base.loc);
@@ -488,13 +488,13 @@ public:
                     right->base.loc);
         } else if (!is_assign && ASRUtils::is_complex(*left_type) && !ASRUtils::is_complex(*right_type)) {
             if (ASRUtils::is_real(*right_type)) {
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                return ASR::down_cast<ASR::expr_t>(ASRUtils::make_ImplicitCast_t_value(
                     al, right->base.loc, right, ASR::cast_kindType::RealToComplex,
-                    left_type, nullptr));
+                    left_type));
             } else if (ASRUtils::is_integer(*right_type)) {
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
+                return ASR::down_cast<ASR::expr_t>(ASRUtils::make_ImplicitCast_t_value(
                     al, right->base.loc, right, ASR::cast_kindType::IntegerToComplex,
-                    left_type, nullptr));
+                    left_type));
             } else {
                 std::string rtype = ASRUtils::type_to_str(right_type);
                 throw SemanticError("Casting " + rtype + " to complex is not Implemented",
