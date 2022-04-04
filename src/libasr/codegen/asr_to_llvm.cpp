@@ -2924,7 +2924,11 @@ public:
             }
             switch (x.m_op) {
                 case ASR::binopType::Add: {
-                    tmp = lfortran_complex_bin_op(left_val, right_val, "_lfortran_complex_add", type);
+                    if (a_kind == 4) {
+                        tmp = lfortran_complex_bin_op(left_val, right_val, "_lfortran_complex_add_32", type);
+                    } else {
+                        tmp = lfortran_complex_bin_op(left_val, right_val, "_lfortran_complex_add_64", type);
+                    }
                     break;
                 };
                 case ASR::binopType::Sub: {
