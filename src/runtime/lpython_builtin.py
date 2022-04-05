@@ -342,26 +342,60 @@ def round(b: bool) -> i32:
 
 #: complex() as a generic procedure.
 #: supported types for arguments:
-#: (i32, i32), (f64, f64), (i32, f64), (f64, i32)
+#: (f64, f64), (f32, f64), (f64, f32), (f32, f32),
+#: (i32, i32), (i64, i64), (i32, i64), (i64, i32)
 @interface
 @overload
 def complex(x: f64, y: f64) -> c64:
-    pass
+    """
+    Return a complex number with the given real and imaginary parts.
+    """
+    return x + y*1j
+
+@interface
+@overload
+def complex(x: f32, y: f32) -> c32:
+    return x + y*1j
+
+@interface
+@overload
+def complex(x: f32, y: f64) -> c64:
+    return x + y*1j
+
+@interface
+@overload
+def complex(x: f64, y: f32) -> c64:
+    return x + y*1j
 
 @interface
 @overload
 def complex(x: i32, y: i32) -> c64:
-    pass
+    return x + y*1j
+
+@interface
+@overload
+def complex(x: i64, y: i64) -> c64:
+    return x + y*1j
+
+@interface
+@overload
+def complex(x: i32, y: i64) -> c64:
+    return x + y*1j
+
+@interface
+@overload
+def complex(x: i64, y: i32) -> c64:
+    return x + y*1j
 
 @interface
 @overload
 def complex(x: i32, y: f64) -> c64:
-    pass
+    return x + y*1j
 
 @interface
 @overload
 def complex(x: f64, y: i32) -> c64:
-    pass
+    return x + y*1j
 
 
 @interface
