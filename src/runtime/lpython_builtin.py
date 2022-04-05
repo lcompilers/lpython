@@ -30,7 +30,7 @@ def chr(i: i32) -> str:
 
 #: abs() as a generic procedure.
 #: supported types for argument:
-#: i32, f32, f64, bool, c32, c64
+#: i8, i16, i32, i64, f32, f64, bool, c32, c64
 @overload
 def abs(x: f64) -> f64:
     """
@@ -126,6 +126,9 @@ def str(x: i32) -> str:
         result += rev_result[pos]
     return result
 
+#: bool() as a generic procedure.
+#: supported types for argument:
+#: i8, i16, i32, i64, f32, f64, bool
 @overload
 def bool(x: i32) -> bool:
     """
@@ -135,6 +138,14 @@ def bool(x: i32) -> bool:
 
 @overload
 def bool(x: i64) -> bool:
+    return x != 0
+
+@overload
+def bool(x: i8) -> bool:
+    return x != 0
+
+@overload
+def bool(x: i16) -> bool:
     return x != 0
 
 @overload
