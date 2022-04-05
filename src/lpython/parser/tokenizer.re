@@ -122,6 +122,27 @@ void Tokenizer::set_string(const std::string &str)
 
 int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnostics &/*diagnostics*/)
 {
+    if(dedent == 1) {
+        // Removes the indent completely i.e., to level 0
+        if(!indent_length.empty()) {
+            indent_length.pop_back();
+            return yytokentype::TK_DEDENT;
+        } else {
+            dedent = 0;
+        }
+    } else if(dedent == 2) {
+        // Reduce the indent to `last_indent_length`
+        long int sum = 0;
+        for (auto& n : indent_length) sum += n;
+        if(sum != last_indent_length) {
+            indent_length.pop_back();
+            loc.first = loc.last;
+            return yytokentype::TK_DEDENT;
+        } else {
+            dedent = 0;
+        }
+    }
+
     for (;;) {
         tok = cur;
 
@@ -223,7 +244,25 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 );
             }
             end { RET(END_OF_FILE); }
-            whitespace { continue; }
+            whitespace {
+                if (indent) {
+                    indent = false;
+                    indent_length.push_back(cur-tok);
+                    last_indent_length = cur-tok;
+                    RET(TK_INDENT);
+                } else {
+                    if(last_token == yytokentype::TK_NEWLINE && cur[0] != ' '
+                            && last_indent_length > cur-tok) {
+                        last_indent_length = cur-tok;
+                        dedent = 2;
+                        if (!indent_length.empty()) {
+                            indent_length.pop_back();
+                        }
+                        RET(TK_DEDENT);
+                    }
+                }
+                continue;
+             }
 
             // Keywords
             'as'       { KW(AS) }
@@ -261,7 +300,14 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
 
             // Tokens
             newline {
-                RET(TK_NEWLINE)
+                if (last_token == yytokentype::TK_COLON) {
+                    indent = true;
+                } else if (cur[0] != ' ' && cur[0] != '\n'
+                        && last_indent_length > cur-tok) {
+                    last_indent_length = 0;
+                    dedent = 1;
+                }
+                RET(TK_NEWLINE);
             }
 
             "\\" newline { continue; }
@@ -376,6 +422,8 @@ std::string token2text(const int token)
     switch (token) {
         T(END_OF_FILE, "end of file")
         T(TK_NEWLINE, "newline")
+        T(TK_INDENT, "indent")
+        T(TK_DEDENT, "dedent")
         T(TK_NAME, "identifier")
         T(TK_INTEGER, "integer")
         T(TK_REAL, "real")
@@ -509,7 +557,7 @@ std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
 {
     std::string t;
     t += "(";
-    if (token >= yytokentype::TK_NAME && token <= TK_FALSE) {
+    if (token >= yytokentype::TK_INDENT && token <= TK_FALSE) {
         t += "TOKEN";
     } else if (token == yytokentype::TK_NEWLINE) {
         t += "NEWLINE";

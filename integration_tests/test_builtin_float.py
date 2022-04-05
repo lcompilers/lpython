@@ -10,6 +10,8 @@ def test_float():
     assert float(-4235) == -4235.0
     assert float(34) == 34.0
     assert float(-4235) == -4235.0
+    assert float(True) == 1.0
+    assert float(False) == 0.0
 
 
 test_float()

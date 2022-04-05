@@ -2922,28 +2922,50 @@ public:
             if( right_val->getType()->isPointerTy() ) {
                 right_val = CreateLoad(right_val);
             }
+            std::string fn_name;
             switch (x.m_op) {
                 case ASR::binopType::Add: {
-                    tmp = lfortran_complex_bin_op(left_val, right_val, "_lfortran_complex_add", type);
+                    if (a_kind == 4) {
+                        fn_name = "_lfortran_complex_add_32";
+                    } else {
+                        fn_name = "_lfortran_complex_add_64";
+                    }
                     break;
                 };
                 case ASR::binopType::Sub: {
-                    tmp = lfortran_complex_bin_op(left_val, right_val, "_lfortran_complex_sub", type);
+                    if (a_kind == 4) {
+                        fn_name = "_lfortran_complex_sub_32";
+                    } else {
+                        fn_name = "_lfortran_complex_sub_64";
+                    }
                     break;
                 };
                 case ASR::binopType::Mul: {
-                    tmp = lfortran_complex_bin_op(left_val, right_val, "_lfortran_complex_mul", type);
+                    if (a_kind == 4) {
+                        fn_name = "_lfortran_complex_mul_32";
+                    } else {
+                        fn_name = "_lfortran_complex_mul_64";
+                    }
                     break;
                 };
                 case ASR::binopType::Div: {
-                    tmp = lfortran_complex_bin_op(left_val, right_val, "_lfortran_complex_div", type);
+                    if (a_kind == 4) {
+                        fn_name = "_lfortran_complex_div_32";
+                    } else {
+                        fn_name = "_lfortran_complex_div_64";
+                    }
                     break;
                 };
                 case ASR::binopType::Pow: {
-                    tmp = lfortran_complex_bin_op(left_val, right_val, "_lfortran_complex_pow", type);
+                    if (a_kind == 4) {
+                        fn_name = "_lfortran_complex_pow_32";
+                    } else {
+                        fn_name = "_lfortran_complex_pow_64";
+                    }
                     break;
                 };
             }
+            tmp = lfortran_complex_bin_op(left_val, right_val, fn_name, type);
         } else {
             throw CodeGenError("Binop: Only Real, Integer and Complex types implemented");
         }
@@ -3314,6 +3336,27 @@ public:
             }
             case (ASR::cast_kindType::IntegerToLogical) : {
                 tmp = builder->CreateICmpNE(tmp, builder->getInt32(0));
+                break;
+            }
+            case (ASR::cast_kindType::LogicalToInteger) : {
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                if (a_kind == 2) {
+                    tmp = builder->CreateSExt(tmp, llvm::Type::getInt16Ty(context));
+                    llvm::Value *zero = llvm::ConstantInt::get(context, llvm::APInt(16, 0, true));
+                    tmp = builder ->CreateSub(zero, tmp);
+                } else if (a_kind == 4) {
+                    tmp = builder->CreateSExt(tmp, llvm::Type::getInt32Ty(context));
+                    llvm::Value *zero = llvm::ConstantInt::get(context, llvm::APInt(32, 0, true));
+                    tmp = builder ->CreateSub(zero, tmp);
+                } else if (a_kind == 8) {
+                    tmp = builder->CreateSExt(tmp, llvm::Type::getInt64Ty(context));
+                    llvm::Value *zero = llvm::ConstantInt::get(context, llvm::APInt(64, 0, true));
+                    tmp = builder ->CreateSub(zero, tmp);
+                } else {
+                    std::string msg = "Conversion from i1 to"  +
+                                      std::to_string(a_kind) + " is not implemented yet.";
+                    throw CodeGenError(msg);
+                }
                 break;
             }
             case (ASR::cast_kindType::RealToReal) : {

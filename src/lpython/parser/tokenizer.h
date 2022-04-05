@@ -19,6 +19,11 @@ public:
 
     int last_token=-1;
 
+    bool indent = false; // Next line is expected to be indented
+    int dedent = 0; // Allowed values: 0, 1, 2, see the code below the meaning of this state variable
+    long int last_indent_length = 0;
+    std::vector<uint64_t> indent_length;
+
 public:
     // Set the string to tokenize. The caller must ensure `str` will stay valid
     // as long as `lex` is being called.
