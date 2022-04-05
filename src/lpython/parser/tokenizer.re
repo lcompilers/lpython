@@ -18,6 +18,16 @@ bool adddgt(uint64_t &u, uint64_t d)
     return true;
 }
 
+bool lex_oct(const unsigned char *s, const unsigned char *e, unsigned long &u)
+{
+    for (u = 0, ++s; s < e; ++s) {
+        if (!adddgt<8>(u, *s - 0x30u)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool lex_dec(const unsigned char *s, const unsigned char *e, uint64_t &u)
 {
     for (u = 0; s < e; ++s) {
@@ -26,6 +36,72 @@ bool lex_dec(const unsigned char *s, const unsigned char *e, uint64_t &u)
         }
     }
     return true;
+}
+
+// Tokenizes integer of the kind 0x1234 into `prefix` and `u`
+// s ... the start of the integer
+// e ... the character after the end
+void lex_int(Allocator &al, const unsigned char *s,
+    const unsigned char *e, BigInt::BigInt &u, Str &prefix)
+{
+    if (std::tolower(s[1]) == 'x') {
+        s = s + 2;
+        prefix.p = (char*) "Hex";
+        prefix.n = 3;
+        Str num;
+        num.p = (char*)s;
+        num.n = e-s;
+        u.from_largeint(al, num);
+    } else if (std::tolower(s[1]) == 'b') {
+        s = s + 2;
+        prefix.p = (char*) "Bin";
+        prefix.n = 3;
+        Str num;
+        num.p = (char*)s;
+        num.n = e-s;
+        u.from_largeint(al, num);
+    } else if ((std::tolower(s[1]) == 'o') | (s[0] == '0')) {
+        if(std::isdigit(s[1])) {
+            s++;
+        } else {
+            s = s + 2;
+        }
+        prefix.p = (char*) "Oct";
+        prefix.n = 3;
+        Str num;
+        num.p = (char*)s;
+        num.n = e-s;
+        u.from_largeint(al, num);
+    } else {
+        prefix.p = nullptr;
+        prefix.n = 0;
+        Str num;
+        num.p = (char*)s;
+        num.n = e-s;
+        u.from_largeint(al, num);
+    }
+    return;
+}
+
+// Tokenizes imag num of value 123j into `u` and `suffix`
+// s ... the start of the integer
+// e ... the character after the end
+void lex_imag(Allocator &al, const unsigned char *s,
+    const unsigned char *e, BigInt::BigInt &u, Str &suffix)
+{
+    const unsigned char *start = s;
+    for (; s < e; ++s) {
+        if ((*s == 'j') | (*s == 'J')) {
+            suffix.p = (char*) s; // `j`
+            suffix.n = 1;
+
+            Str num;
+            num.p = (char*)start;
+            num.n = s-start;
+            u.from_largeint(al, num);
+            return;
+        }
+    }
 }
 
 void Tokenizer::set_string(const std::string &str)
@@ -44,7 +120,7 @@ void Tokenizer::set_string(const std::string &str)
 #define RET(x) token_loc(loc); last_token=yytokentype::x; return yytokentype::x;
 
 
-int Tokenizer::lex(Allocator &/*al*/, YYSTYPE &yylval, Location &loc, diag::Diagnostics &/*diagnostics*/)
+int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnostics &/*diagnostics*/)
 {
     for (;;) {
         tok = cur;
@@ -121,9 +197,9 @@ int Tokenizer::lex(Allocator &/*al*/, YYSTYPE &yylval, Location &loc, diag::Diag
             whitespace = [ \t\v\r]+;
             newline = "\n";
             digit = [0-9];
-            oct_digit = [0][oO][0-7]+;
-            bin_digit = [0][bB][01]+;
-            hex_digit = ([0][xX] | [0])[0-9a-fA-F]+;
+            oct_digit = ("0"[oO] | "0")[0-7]+;
+            bin_digit = "0"[bB][01]+;
+            hex_digit = "0"[xX][0-9a-fA-F]+;
             char =  [a-zA-Z_];
             name = char (char | digit)*;
             significand = (digit+"."digit*) | ("."digit+);
@@ -254,8 +330,18 @@ int Tokenizer::lex(Allocator &/*al*/, YYSTYPE &yylval, Location &loc, diag::Diag
             'False' { RET(TK_FALSE) }
 
             real { token(yylval.string); RET(TK_REAL) }
-            integer { token(yylval.string);  RET(TK_INTEGER) }
-            imag_number { token(yylval.string);  RET(TK_IMAG_NUM) }
+            integer {
+                lex_int(al, tok, cur,
+                    yylval.int_suffix.int_n,
+                    yylval.int_suffix.int_kind);
+                RET(TK_INTEGER)
+            }
+            imag_number {
+                lex_imag(al, tok, cur,
+                    yylval.int_suffix.int_n,
+                    yylval.int_suffix.int_kind);
+                RET(TK_IMAG_NUM)
+            }
 
             comment newline {
                 line_num++; cur_line=cur;
@@ -442,11 +528,14 @@ std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
     if (token == yytokentype::TK_NAME) {
         t += " " + yystype.string.str();
     } else if (token == yytokentype::TK_INTEGER) {
-        t += " " + yystype.string.str();
+        t += " " + yystype.int_suffix.int_n.str();
+        if (yystype.int_suffix.int_kind.p) {
+            t += " " + yystype.int_suffix.int_kind.str();
+        }
     } else if (token == yytokentype::TK_REAL) {
         t += " " + yystype.string.str();
     } else if (token == yytokentype::TK_IMAG_NUM) {
-        t += " " + yystype.string.str();
+        t += " " + yystype.int_suffix.int_n.str() + "j";
     } else if (token == yytokentype::TK_STRING) {
         t = t + " " + "\"" + yystype.string.str() + "\"";
     }
