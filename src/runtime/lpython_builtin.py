@@ -1,4 +1,4 @@
-from ltypes import i32, i64, f32, f64, c32, c64, overload
+from ltypes import i8, i16, i32, i64, f32, f64, c32, c64, overload
 #from sys import exit
 
 
@@ -49,7 +49,28 @@ def abs(x: f32) -> f32:
         return -x
 
 @overload
-def abs(x: i32) -> i64:
+def abs(x: i8) -> i8:
+    if x >= 0:
+        return x
+    else:
+        return -x
+
+@overload
+def abs(x: i16) -> i16:
+    if x >= 0:
+        return x
+    else:
+        return -x
+
+@overload
+def abs(x: i32) -> i32:
+    if x >= 0:
+        return x
+    else:
+        return -x
+
+@overload
+def abs(x: i64) -> i64:
     if x >= 0:
         return x
     else:

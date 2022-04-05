@@ -1,4 +1,4 @@
-from ltypes import f32, f64, i32
+from ltypes import f32, f64, i32, i64, i8, i16
 
 def test_abs():
     x: f64
@@ -17,6 +17,18 @@ def test_abs():
     i = -5
     assert abs(i) == 5
     assert abs(-1) == 1
+
+    i2: i64
+    i2 = -6
+    assert abs(i2) == 6
+
+    i3: i8
+    i3 = -7
+    assert abs(i3) == 7
+
+    i4: i16
+    i4 = -8
+    assert abs(i4) == 8
 
     b: bool
     b = True
