@@ -64,6 +64,12 @@
 #include <libasr/codegen/llvm_utils.h>
 #include <libasr/codegen/llvm_array_utils.h>
 
+#if LLVM_VERSION_MAJOR >= 11
+#    define FIXED_VECTOR_TYPE llvm::FixedVectorType
+#else
+#    define FIXED_VECTOR_TYPE llvm::VectorType
+#endif
+
 
 namespace LFortran {
 
@@ -1530,6 +1536,9 @@ public:
                         target_var = ptr;
                         this->visit_expr_wrapper(v->m_symbolic_value, true);
                         llvm::Value *init_value = tmp;
+                        if (ASR::is_a<ASR::ConstantArray_t>(*v->m_symbolic_value)) {
+                            target_var = arr_descr->get_pointer_to_data(target_var);
+                        }
                         builder->CreateStore(init_value, target_var);
                         auto finder = std::find(nested_globals.begin(),
                                 nested_globals.end(), h);
@@ -1689,7 +1698,7 @@ public:
                                         type = type_fx2;
                                     } else {
                                         // type_fx2 is <2 x float>
-                                        llvm::Type* type_fx2 = llvm::FixedVectorType::get(llvm::Type::getFloatTy(context), 2);
+                                        llvm::Type* type_fx2 = FIXED_VECTOR_TYPE::get(llvm::Type::getFloatTy(context), 2);
                                         type = type_fx2;
                                     }
                                 } else {
@@ -2143,7 +2152,7 @@ public:
                             return_type = getComplexType(a_kind);
                         } else {
                             // <2 x float>
-                            return_type = llvm::FixedVectorType::get(llvm::Type::getFloatTy(context), 2);
+                            return_type = FIXED_VECTOR_TYPE::get(llvm::Type::getFloatTy(context), 2);
                         }
                     } else {
                         return_type = getComplexType(a_kind);
@@ -2290,7 +2299,7 @@ public:
                     } else {
                         // tmp is {float, float}*
                         // type_fx2p is <2 x float>*
-                        llvm::Type* type_fx2p = llvm::FixedVectorType::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
+                        llvm::Type* type_fx2p = FIXED_VECTOR_TYPE::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
                         // Convert {float,float}* to <2 x float>* using bitcast
                         tmp = builder->CreateBitCast(tmp, type_fx2p);
                         // Then convert <2 x float>* -> <2 x float>
@@ -3063,6 +3072,72 @@ public:
 
     }
 
+    void visit_ConstantArray(const ASR::ConstantArray_t &x) {
+        llvm::Type* el_type;
+        if (ASR::is_a<ASR::Integer_t>(*x.m_type)) {
+            el_type = getIntType(ASR::down_cast<ASR::Integer_t>(x.m_type)->m_kind);
+        } else if (ASR::is_a<ASR::Real_t>(*x.m_type)) {
+            switch (ASR::down_cast<ASR::Real_t>(x.m_type)->m_kind) {
+                case (4) :
+                    el_type = llvm::Type::getFloatTy(context); break;
+                case (8) :
+                    el_type = llvm::Type::getDoubleTy(context); break;
+                default :
+                    throw CodeGenError("ConstArray real kind not supported yet");
+            }
+        } else {
+            throw CodeGenError("ConstArray type not supported yet");
+        }
+        // Create <n x float> type, where `n` is the length of the `x` constant array
+        llvm::Type* type_fxn = FIXED_VECTOR_TYPE::get(el_type, x.n_args);
+        // Create a pointer <n x float>* to a stack allocated <n x float>
+        llvm::AllocaInst *p_fxn = builder->CreateAlloca(type_fxn, nullptr);
+        // Assign the array elements to `p_fxn`.
+        for (size_t i=0; i < x.n_args; i++) {
+            llvm::Value *llvm_el = llvm_utils->create_gep(p_fxn, i);
+            ASR::expr_t *el = x.m_args[i];
+            llvm::Value *llvm_val;
+            if (ASR::is_a<ASR::Integer_t>(*x.m_type)) {
+                ASR::ConstantInteger_t *ci = ASR::down_cast<ASR::ConstantInteger_t>(el);
+                switch (ASR::down_cast<ASR::Integer_t>(x.m_type)->m_kind) {
+                    case (4) : {
+                        int32_t el_value = ci->m_n;
+                        llvm_val = llvm::ConstantInt::get(context, llvm::APInt(32, static_cast<int32_t>(el_value), true));
+                        break;
+                    }
+                    case (8) : {
+                        int64_t el_value = ci->m_n;
+                        llvm_val = llvm::ConstantInt::get(context, llvm::APInt(32, el_value, true));
+                        break;
+                    }
+                    default :
+                        throw CodeGenError("ConstArray real kind not supported yet");
+                }
+            } else if (ASR::is_a<ASR::Real_t>(*x.m_type)) {
+                ASR::ConstantReal_t *cr = ASR::down_cast<ASR::ConstantReal_t>(el);
+                switch (ASR::down_cast<ASR::Real_t>(x.m_type)->m_kind) {
+                    case (4) : {
+                        float el_value = cr->m_r;
+                        llvm_val = llvm::ConstantFP::get(context, llvm::APFloat(el_value));
+                        break;
+                    }
+                    case (8) : {
+                        double el_value = cr->m_r;
+                        llvm_val = llvm::ConstantFP::get(context, llvm::APFloat(el_value));
+                        break;
+                    }
+                    default :
+                        throw CodeGenError("ConstArray real kind not supported yet");
+                }
+            } else {
+                throw CodeGenError("ConstArray type not supported yet");
+            }
+            builder->CreateStore(llvm_val, llvm_el);
+        }
+        // Return the vector as float* type:
+        tmp = llvm_utils->create_gep(p_fxn, 0);
+    }
+
     void visit_Assert(const ASR::Assert_t &x) {
         this->visit_expr_wrapper(x.m_test, true);
         llvm::Value *cond = tmp;
@@ -3763,7 +3838,7 @@ public:
                                                     } else {
                                                         // tmp is {float, float}*
                                                         // type_fx2p is <2 x float>*
-                                                        llvm::Type* type_fx2p = llvm::FixedVectorType::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
+                                                        llvm::Type* type_fx2p = FIXED_VECTOR_TYPE::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
                                                         // Convert {float,float}* to <2 x float>* using bitcast
                                                         tmp = builder->CreateBitCast(tmp, type_fx2p);
                                                         // Then convert <2 x float>* -> <2 x float>
@@ -4169,7 +4244,7 @@ public:
                         // tmp is <2 x float>, have to convert to {float, float}
 
                         // <2 x float>
-                        llvm::Type* type_fx2 = llvm::FixedVectorType::get(llvm::Type::getFloatTy(context), 2);
+                        llvm::Type* type_fx2 = FIXED_VECTOR_TYPE::get(llvm::Type::getFloatTy(context), 2);
                         // Convert <2 x float> to <2 x float>*
                         llvm::AllocaInst *p_fx2 = builder->CreateAlloca(type_fx2, nullptr);
                         builder->CreateStore(tmp, p_fx2);
