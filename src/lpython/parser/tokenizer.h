@@ -23,6 +23,10 @@ public:
     bool enddo_newline_process = false;
     int enddo_state = 0;
     int enddo_insert_count = 0;
+    bool indent = false; // Next line is expected to be indented
+    int dedent = 0; // Allowed values: 0, 1, 2, see the code below the meaning of this state variable
+    long int last_indent_length = 0;
+    std::vector<uint64_t> indent_length;
 
 public:
     // Set the string to tokenize. The caller must ensure `str` will stay valid
