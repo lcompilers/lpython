@@ -1,4 +1,4 @@
-from ltypes import i32, i64, f32, f64, c32, c64, overload
+from ltypes import i8, i16, i32, i64, f32, f64, c32, c64, overload
 #from sys import exit
 
 
@@ -30,7 +30,7 @@ def chr(i: i32) -> str:
 
 #: abs() as a generic procedure.
 #: supported types for argument:
-#: i32, f32, f64, bool, c32, c64
+#: i8, i16, i32, i64, f32, f64, bool, c32, c64
 @overload
 def abs(x: f64) -> f64:
     """
@@ -49,7 +49,28 @@ def abs(x: f32) -> f32:
         return -x
 
 @overload
-def abs(x: i32) -> i64:
+def abs(x: i8) -> i8:
+    if x >= 0:
+        return x
+    else:
+        return -x
+
+@overload
+def abs(x: i16) -> i16:
+    if x >= 0:
+        return x
+    else:
+        return -x
+
+@overload
+def abs(x: i32) -> i32:
+    if x >= 0:
+        return x
+    else:
+        return -x
+
+@overload
+def abs(x: i64) -> i64:
     if x >= 0:
         return x
     else:
@@ -105,6 +126,9 @@ def str(x: i32) -> str:
         result += rev_result[pos]
     return result
 
+#: bool() as a generic procedure.
+#: supported types for argument:
+#: i8, i16, i32, i64, f32, f64, bool
 @overload
 def bool(x: i32) -> bool:
     """
@@ -114,6 +138,14 @@ def bool(x: i32) -> bool:
 
 @overload
 def bool(x: i64) -> bool:
+    return x != 0
+
+@overload
+def bool(x: i8) -> bool:
+    return x != 0
+
+@overload
+def bool(x: i16) -> bool:
     return x != 0
 
 @overload
@@ -252,19 +284,56 @@ def oct(n: i32) -> str:
 
 #: round() as a generic procedure.
 #: supported types for argument:
-#: i32, f64, bool
+#: i8, i16, i32, i64, f32, f64, bool
 @overload
 def round(value: f64) -> i32:
     """
     Rounds a floating point number to the nearest integer.
     """
-    if abs(value - int(value)) <= 0.5:
-        return int(value)
+    i: i32
+    i = int(value)
+    f: f64
+    f = abs(value - i)
+    if f < 0.5:
+        return i
+    elif f > 0.5:
+        return i + 1
     else:
-        return int(value) + 1
+        if i - (i//2) * 2 == 0:
+            return i
+        else:
+            return i + 1
 
 @overload
-def round(value: i32) -> i64:
+def round(value: f32) -> i32:
+    i: i32
+    i = int(value)
+    f: f64
+    f = abs(value - i)
+    if f < 0.5:
+        return i
+    elif f > 0.5:
+        return i + 1
+    else:
+        if i - (i//2) * 2 == 0:
+            return i
+        else:
+            return i + 1
+
+@overload
+def round(value: i32) -> i32:
+    return value
+
+@overload
+def round(value: i64) -> i64:
+    return value
+
+@overload
+def round(value: i8) -> i8:
+    return value
+
+@overload
+def round(value: i16) -> i16:
     return value
 
 @overload
