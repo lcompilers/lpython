@@ -23,7 +23,7 @@ public:
     bool enddo_newline_process = false;
     int enddo_state = 0;
     int enddo_insert_count = 0;
-    bool indent = false;
+    bool indent = false; // Next line is expected to be indented
     int dedent = 0;
     long int last_indent_length = 0;
     std::vector<uint64_t> indent_length;
