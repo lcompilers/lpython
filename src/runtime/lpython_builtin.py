@@ -284,19 +284,56 @@ def oct(n: i32) -> str:
 
 #: round() as a generic procedure.
 #: supported types for argument:
-#: i32, f64, bool
+#: i8, i16, i32, i64, f32, f64, bool
 @overload
 def round(value: f64) -> i32:
     """
     Rounds a floating point number to the nearest integer.
     """
-    if abs(value - int(value)) <= 0.5:
-        return int(value)
+    i: i32
+    i = int(value)
+    f: f64
+    f = abs(value - i)
+    if f < 0.5:
+        return i
+    elif f > 0.5:
+        return i + 1
     else:
-        return int(value) + 1
+        if i - (i//2) * 2 == 0:
+            return i
+        else:
+            return i + 1
 
 @overload
-def round(value: i32) -> i64:
+def round(value: f32) -> i32:
+    i: i32
+    i = int(value)
+    f: f64
+    f = abs(value - i)
+    if f < 0.5:
+        return i
+    elif f > 0.5:
+        return i + 1
+    else:
+        if i - (i//2) * 2 == 0:
+            return i
+        else:
+            return i + 1
+
+@overload
+def round(value: i32) -> i32:
+    return value
+
+@overload
+def round(value: i64) -> i64:
+    return value
+
+@overload
+def round(value: i8) -> i8:
+    return value
+
+@overload
+def round(value: i16) -> i16:
     return value
 
 @overload
