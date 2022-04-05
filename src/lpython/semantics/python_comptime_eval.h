@@ -534,19 +534,44 @@ struct PythonIntrinsicProcedures {
         ASR::ttype_t *arg1_type = ASRUtils::expr_type(arg1);
         ASR::ttype_t *arg2_type = ASRUtils::expr_type(arg2);
         if (ASRUtils::is_real(*arg1_type) && ASRUtils::is_real(*arg2_type)) {
-            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
+            int kind = ASRUtils::extract_kind_from_ttype_t(arg1_type);
+            ASR::ttype_t *type = nullptr;
+            if (kind == 8) {
+                type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
+            } else {
+                type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 4, nullptr, 0));
+            }
             double n = ASR::down_cast<ASR::ConstantReal_t>(arg1)->m_r;
-            double d = ASR::down_cast<ASR::ConstantReal_t>(arg1)->m_r;
-            ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8, nullptr, 0));
-            ASR::expr_t *tmp = ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al, loc, n/d, type));
-            tmp = ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
-                al, tmp->base.loc, tmp, ASR::cast_kindType::RealToInteger,
-                int_type, nullptr));
-            return ASR::down_cast<ASR::expr_t>(ASR::make_ImplicitCast_t(
-                al, tmp->base.loc, tmp, ASR::cast_kindType::IntegerToReal,
-                type, nullptr));
+            double d = ASR::down_cast<ASR::ConstantReal_t>(arg2)->m_r;
+            double r = n/d, res = 0.0;
+            int64_t ival = (int64_t)r;
+            if (r > 0 || ival == r) {
+                res = ival;
+            } else {
+                res = ival-1;
+            }
+            return ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al, loc, res, type));
+        } else if (ASRUtils::is_integer(*arg1_type) && ASRUtils::is_integer(*arg2_type)) {
+            int kind = ASRUtils::extract_kind_from_ttype_t(arg1_type);
+            ASR::ttype_t *type = nullptr;
+            if (kind == 8) {
+                type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 8, nullptr, 0));
+            } else {
+                type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+            }
+            int64_t n = ASR::down_cast<ASR::ConstantInteger_t>(arg1)->m_n;
+            int64_t d = ASR::down_cast<ASR::ConstantInteger_t>(arg2)->m_n;
+            int64_t res = 0;
+            double r = 1.0*n/d;
+            int64_t ival = (int64_t)r;
+            if (r > 0 || ival == r) {
+                res = ival;
+            } else {
+                res = ival-1;
+            }
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc, res, type));
         } else {
-            throw SemanticError("Only real arguments are expected.", loc);
+            throw SemanticError("Only real/integers arguments are expected.", loc);
         }
     }
 
