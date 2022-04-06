@@ -5,6 +5,8 @@ pi: f64 = 3.141592653589793238462643383279502884197
 e: f64 = 2.718281828459045235360287471352662497757
 tau: f64 = 6.283185307179586
 
+# TODO: Change floor used inside functions implemented here to
+# floordiv operator (//) once the multiple import issue is fixed
 
 def factorial(x: i32) -> i32:
     """
@@ -79,7 +81,9 @@ def comb(n: i32, k: i32) -> i32:
 
     if n < k or n < 0:
         return 0
-    return factorial(n)//(factorial(k)*factorial(n-k))
+    res: i32
+    res = floor(factorial(n)/(factorial(k)*factorial(n-k)))
+    return res
 
 
 def perm(n: i32, k: i32) -> i32:
@@ -90,7 +94,9 @@ def perm(n: i32, k: i32) -> i32:
 
     if n < k or n < 0:
         return 0
-    return factorial(n)//factorial(n-k)
+    res: i32
+    res = floor(factorial(n)/factorial(n-k))
+    return res
 
 
 def isqrt(n: i32) -> i32:
@@ -105,7 +111,7 @@ def isqrt(n: i32) -> i32:
     low = 0
     high = n+1
     while low + 1 < high:
-        mid = (low + high)//2
+        mid = floor((low + high)/2)
         if mid*mid <= n:
             low = mid
         else:
@@ -158,7 +164,9 @@ def mod(a: i32, b: i32) -> i32:
     """
     Returns a%b
     """
-    return a - (a//b)*b
+    r: i32
+    r = floor(a/b)
+    return a - r*b
 
 
 def gcd(a: i32, b: i32) -> i32:
@@ -188,7 +196,9 @@ def lcm(a: i32, b: i32) -> i32:
         b = -b
     if a*b == 0:
         return 0
-    return (a*b)//gcd(a, b)
+    res: i32
+    res = floor((a*b)/gcd(a, b))
+    return res
 
 
 def copysign(x: f64, y: f64) -> f64:
