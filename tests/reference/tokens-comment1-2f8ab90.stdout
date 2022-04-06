@@ -6,7 +6,7 @@
 (TOKEN ":") 21:21
 (TOKEN "eolcomment") 23:34
 (TOKEN "comment") 39:50
-(KEYWORD "print") 55:59
+(TOKEN "identifier" print) 55:59
 (TOKEN "(") 60:60
 (TOKEN ")") 61:61
 (NEWLINE) 62:62

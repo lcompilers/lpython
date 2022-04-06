@@ -227,5 +227,9 @@ filename = "tokens/symbols1.py"
 tokens = true
 
 [[test]]
+filename = "tokens/numbers1.py"
+tokens = true
+
+[[test]]
 filename = "tokens/indent1.py"
 tokens = true
