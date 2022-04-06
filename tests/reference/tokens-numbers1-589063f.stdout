@@ -86,4 +86,16 @@
 (TOKEN "+") 214:214
 (TOKEN "imag number" 3j) 215:216
 (NEWLINE) 217:217
-(EOF) 218:218
+(TOKEN "identifier" i) 218:218
+(TOKEN "=") 220:220
+(TOKEN "integer" 12) 222:223
+(TOKEN "+") 224:224
+(TOKEN "imag number" 3.14e-10j) 225:233
+(NEWLINE) 234:234
+(TOKEN "identifier" i) 235:235
+(TOKEN "=") 237:237
+(TOKEN "real" .12) 239:241
+(TOKEN "+") 242:242
+(TOKEN "imag number" .001j) 243:247
+(NEWLINE) 248:248
+(EOF) 249:249
