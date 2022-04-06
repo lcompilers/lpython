@@ -201,9 +201,8 @@ struct PythonIntrinsicProcedures {
         if(!semantic_error_flag)
             throw SemanticError(msg , loc);
         else
-        {
             return args[biggest_ind];
-        }
+
         //ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al , loc ,1 , nullptr , 0 ));
 
     }
