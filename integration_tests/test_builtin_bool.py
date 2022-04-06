@@ -1,4 +1,4 @@
-from ltypes import i32, i64, f32, f64
+from ltypes import i8, i16, i32, i64, f32, f64
 
 def test_bool():
     a: i32
@@ -12,6 +12,14 @@ def test_bool():
     a2: i64
     a2 = 34
     assert bool(a2)
+
+    a3: i8
+    a3 = 34
+    assert bool(a3)
+
+    a4: i16
+    a4 = -1
+    assert bool(a4)
 
     f: f64
     f = 0.0

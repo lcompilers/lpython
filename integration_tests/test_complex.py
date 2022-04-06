@@ -1,4 +1,4 @@
-from ltypes import f64, c64
+from ltypes import i32, i64, f32, f64, c32, c64
 
 def test_real_imag():
     x: c64
@@ -34,10 +34,31 @@ def test_complex():
 
     a: f64
     a = 534.6
-    x = complex(a, -a)
+    x = complex(a, -a) # (f64, f64)
     print(x)
-    print(x.real)
-    print(x.imag)
+    assert abs(x.real - 534.60000000000002274) < eps
+    assert abs(x.imag - (-534.60000000000002274)) < eps
+
+    a2: f32
+    a2 = -423.5430806348152437
+    a3: f32
+    a3 = 34.5
+    x2: c32
+    x2 = complex(a2, a3) # (f32, f32)
+    print(x2)
+    assert abs(x2.imag - 34.5) < eps
+
+    i1: i32
+    i1 = -5
+    i2: i64
+    i2 = -6
+
+    x = complex(a3, a) # (f32, f64)
+    x = complex(a, a3) # (f64, f32)
+    x = complex(i1, i2) # (i32, i64)
+    x = complex(i1, -i1) # (i32, i32)
+    x = complex(-i2, -i2) # (i64, i64)
+    x = complex(i2, -i1) # (i64, i32)
 
 
 def test_complex_abs():
