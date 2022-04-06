@@ -299,7 +299,7 @@ def round(value: f64) -> i32:
     elif f > 0.5:
         return i + 1
     else:
-        if i - (i//2) * 2 == 0:
+        if i - _lpython_floordiv(i, 2) * 2 == 0:
             return i
         else:
             return i + 1
@@ -315,7 +315,7 @@ def round(value: f32) -> i32:
     elif f > 0.5:
         return i + 1
     else:
-        if i - (i//2) * 2 == 0:
+        if i - _lpython_floordiv(i, 2) * 2 == 0:
             return i
         else:
             return i + 1
