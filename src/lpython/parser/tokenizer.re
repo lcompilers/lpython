@@ -18,7 +18,7 @@ bool adddgt(uint64_t &u, uint64_t d)
     return true;
 }
 
-bool lex_oct(const unsigned char *s, const unsigned char *e, unsigned long &u)
+bool lex_oct(const unsigned char *s, const unsigned char *e, uint64_t &u)
 {
     for (u = 0, ++s; s < e; ++s) {
         if (!adddgt<8>(u, *s - 0x30u)) {
@@ -60,7 +60,7 @@ void lex_int(Allocator &al, const unsigned char *s,
         num.p = (char*)s;
         num.n = e-s;
         u.from_largeint(al, num);
-    } else if ((std::tolower(s[1]) == 'o') | (s[0] == '0')) {
+    } else if ((std::tolower(s[1]) == 'o')) {
         if(std::isdigit(s[1])) {
             s++;
         } else {
@@ -218,7 +218,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             whitespace = [ \t\v\r]+;
             newline = "\n";
             digit = [0-9];
-            oct_digit = ("0"[oO] | "0")[0-7]+;
+            oct_digit = "0"[oO][0-7]+;
             bin_digit = "0"[bB][01]+;
             hex_digit = "0"[xX][0-9a-fA-F]+;
             char =  [a-zA-Z_];
@@ -277,7 +277,6 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             'elif'     { KW(ELIF) }
             'else'     { KW(ELSE) }
             'except'   { KW(EXCEPT) }
-            // 'exec'     { KW(EXEC) }
             'finally'  { KW(FINALLY) }
             'for'      { KW(FOR) }
             'from'     { KW(FROM) }
@@ -290,7 +289,6 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             'None'     { KW(NONE) }
             'nonlocal' { KW(NONLOCAL) }
             'pass'     { KW(PASS) }
-            // 'print'    { KW(PRINT) }
             'raise'    { KW(RAISE) }
             'return'   { KW(RETURN) }
             'try'      { KW(TRY) }
