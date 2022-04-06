@@ -1052,6 +1052,7 @@ public:
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = ASRUtils::EXPR(tmp);
         ASR::binopType op;
+        bool is_mod = false;
         switch (x.m_op) {
             case (AST::operatorType::Add) : { op = ASR::binopType::Add; break; }
             case (AST::operatorType::Sub) : { op = ASR::binopType::Sub; break; }
@@ -1059,10 +1060,27 @@ public:
             case (AST::operatorType::Div) : { op = ASR::binopType::Div; break; }
             case (AST::operatorType::FloorDiv) : {op = ASR::binopType::Div; break;}
             case (AST::operatorType::Pow) : { op = ASR::binopType::Pow; break; }
+            case (AST::operatorType::Mod) : { is_mod = true; break; }
             default : {
                 throw SemanticError("Binary operator type not supported",
                     x.base.base.loc);
             }
+        }
+        if (is_mod) {
+            left = implicitcast_helper(ASRUtils::expr_type(right), left);
+            right = implicitcast_helper(ASRUtils::expr_type(left), right);
+            ASR::symbol_t *fn_mod = resolve_intrinsic_function(x.base.base.loc, "_mod");
+            Vec<ASR::call_arg_t> args;
+            args.reserve(al, 2);
+            ASR::call_arg_t arg1, arg2;
+            arg1.loc = left->base.loc;
+            arg1.m_value = left;
+            args.push_back(al, arg1);
+            arg2.loc = right->base.loc;
+            arg2.m_value = right;
+            args.push_back(al, arg2);
+            tmp = make_call_helper(al, fn_mod, current_scope, args, "_mod", x.base.base.loc);
+            return;
         }
         bool floordiv = (x.m_op == AST::operatorType::FloorDiv);
         make_BinOp_helper(left, right, op, x.base.base.loc, floordiv);

@@ -469,3 +469,20 @@ def _lpython_floordiv(a: i64, b: i64) -> i64:
     if r >= 0.0 or result == r:
         return result
     return result - 1
+
+
+@overload
+def _mod(a: i32, b: i32) -> i32:
+    return a - _lpython_floordiv(a, b)*b
+
+@overload
+def _mod(a: f32, b: f32) -> f32:
+    return a - _lpython_floordiv(a, b)*b
+
+@overload
+def _mod(a: i64, b: i64) -> i64:
+    return a - _lpython_floordiv(a, b)*b
+
+@overload
+def _mod(a: f64, b: f64) -> f64:
+    return a - _lpython_floordiv(a, b)*b

@@ -46,7 +46,8 @@ struct PythonIntrinsicProcedures {
             {"complex", {m_builtin, &eval_complex}},
             {"_lpython_imag", {m_builtin, &eval__lpython_imag}},
             {"divmod", {m_builtin, &eval_divmod}},
-            {"_lpython_floordiv", {m_builtin, &eval__lpython_floordiv}}
+            {"_lpython_floordiv", {m_builtin, &eval__lpython_floordiv}},
+            {"_mod", {m_builtin, &eval__mod}}
         };
     }
 
@@ -214,6 +215,30 @@ struct PythonIntrinsicProcedures {
                 ASR::make_ConstantString_t(al, loc, s2c(al, svalue), str_type));
         } else {
             throw SemanticError("chr() must have one integer argument.", loc);
+        }
+    }
+
+    static ASR::expr_t *eval__mod(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        if (args.size() != 2) {
+            throw SemanticError("_mod() must have two integer/real arguments.", loc);
+        }
+        ASR::expr_t* arg1 = args[0], *arg2 = args[1];
+        LFORTRAN_ASSERT(ASRUtils::check_equal_type(ASRUtils::expr_type(arg1),
+                                    ASRUtils::expr_type(arg2)));
+        ASR::ttype_t* type = ASRUtils::expr_type(arg1);
+        if (ASRUtils::is_integer(*type)) {
+            int64_t a = ASR::down_cast<ASR::ConstantInteger_t>(arg1)->m_n;
+            int64_t b = ASR::down_cast<ASR::ConstantInteger_t>(arg2)->m_n;
+            return ASR::down_cast<ASR::expr_t>(
+                ASR::make_ConstantInteger_t(al, loc, a%b, type));
+        } else if (ASRUtils::is_real(*type)) {
+            double a = ASR::down_cast<ASR::ConstantReal_t>(arg1)->m_r;
+            double b = ASR::down_cast<ASR::ConstantReal_t>(arg2)->m_r;
+            return ASR::down_cast<ASR::expr_t>(
+                ASR::make_ConstantReal_t(al, loc, std::fmod(a, b), type));
+        } else {
+            throw SemanticError("_mod() must have both integer or both real arguments.", loc);
         }
     }
 
