@@ -19,5 +19,28 @@ def test_issue_255():
     assert abs(i//1.0 - 300.0) < eps
 
 
-test_issue_255()
-main0()
+def test_floor_div():
+    a: i32
+    b: i32
+    a = 5
+    b = 2
+    assert a//b == 2
+    a = -5
+    assert a//b == -3
+    x: f32
+    eps: f64
+    eps = 1e-12
+    x = 5.0
+    assert abs(x//2 - 2) < eps
+    assert abs(x//2.0 - 2.0) < eps
+    x = -5.0
+    assert abs(x//2 + 3.0) < eps
+    assert abs(x//2.0 + 3.0) < eps
+
+
+def check():
+    test_issue_255()
+    main0()
+    test_floor_div()
+
+check()

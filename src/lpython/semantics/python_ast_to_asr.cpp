@@ -727,19 +727,22 @@ public:
                             al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type,
                             value));
                     }
-                    ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_floordiv");
-                    Vec<ASR::call_arg_t> args;
-                    args.reserve(al, 1);
-                    ASR::call_arg_t arg1, arg2;
-                    arg1.loc = left->base.loc;
-                    arg2.loc = right->base.loc;
-                    arg1.m_value = left;
-                    arg2.m_value = right;
-                    args.push_back(al, arg1);
-                    args.push_back(al, arg2);
-                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_floordiv", loc);
-                    return;
+                    left = implicitcast_helper(ASRUtils::expr_type(right), left);
+                    right = implicitcast_helper(ASRUtils::expr_type(left), right);
+                    dest_type = ASRUtils::expr_type(left);
                 }
+                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_floordiv");
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, 1);
+                ASR::call_arg_t arg1, arg2;
+                arg1.loc = left->base.loc;
+                arg2.loc = right->base.loc;
+                arg1.m_value = left;
+                arg2.m_value = right;
+                args.push_back(al, arg1);
+                args.push_back(al, arg2);
+                tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_floordiv", loc);
+                return;
 
             } else { // real divison in python using (`/`)
                 dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,

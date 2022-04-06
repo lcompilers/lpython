@@ -118,9 +118,9 @@ def str(x: i32) -> str:
     pos_to_str: list[str]
     pos_to_str = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
     while x > 0:
-        rev_result += pos_to_str[x - (x//10)*10]
+        rev_result += pos_to_str[x - _lpython_floordiv(x, 10)*10]
         rev_result_len += 1
-        x = x//10
+        x = _lpython_floordiv(x, 10)
     pos: i32
     for pos in range(rev_result_len - 1, -1, -1):
         result += rev_result[pos]
@@ -226,10 +226,10 @@ def bin(n: i32) -> str:
         prep = '-0b'
     res: str
     res = ''
-    res += '0' if (n - (n//2)*2) == 0 else '1'
+    res += '0' if (n - _lpython_floordiv(n, 2)*2) == 0 else '1'
     while n > 1:
-        n = n//2
-        res += '0' if (n - (n//2)*2) == 0 else '1'
+        n = _lpython_floordiv(n, 2)
+        res += '0' if (n - _lpython_floordiv(n, 2)*2) == 0 else '1'
     return prep + res[::-1]
 
 
@@ -251,9 +251,9 @@ def hex(n: i32) -> str:
     res = ""
     remainder: i32
     while n > 0:
-        remainder = n - (n//16)*16
+        remainder = n - _lpython_floordiv(n, 16)*16
         n -= remainder
-        n = n//16
+        n = _lpython_floordiv(n, 16)
         res += hex_values[remainder]
     return prep + res[::-1]
 
@@ -276,9 +276,9 @@ def oct(n: i32) -> str:
     res = ""
     remainder: i32
     while n > 0:
-        remainder = n - (n//8)*8
+        remainder = n - _lpython_floordiv(n, 8)*8
         n -= remainder
-        n = n//8
+        n = _lpython_floordiv(n, 8)
         res += _values[remainder]
     return prep + res[::-1]
 
@@ -299,7 +299,7 @@ def round(value: f64) -> i32:
     elif f > 0.5:
         return i + 1
     else:
-        if i - (i//2) * 2 == 0:
+        if i - _lpython_floordiv(i, 2) * 2 == 0:
             return i
         else:
             return i + 1
@@ -315,7 +315,7 @@ def round(value: f32) -> i32:
     elif f > 0.5:
         return i + 1
     else:
-        if i - (i//2) * 2 == 0:
+        if i - _lpython_floordiv(i, 2) * 2 == 0:
             return i
         else:
             return i + 1
@@ -429,6 +429,7 @@ def _lpython_imag(x: c32) -> f32:
     return _lfortran_caimag(x)
 
 
+@overload
 def _lpython_floordiv(a: f64, b: f64) -> f64:
     r: f64
     r = a/b
@@ -437,3 +438,34 @@ def _lpython_floordiv(a: f64, b: f64) -> f64:
     if r >= 0.0 or result == r:
         return float(result)
     return float(result-1)
+
+
+@overload
+def _lpython_floordiv(a: f32, b: f32) -> f32:
+    r: f32
+    r = a/b
+    result: i32
+    result = int(r)
+    if r >= 0.0 or result == r:
+        return float(result)
+    return float(result-1)
+
+@overload
+def _lpython_floordiv(a: i32, b: i32) -> i32:
+    r: f32
+    r = a/b
+    result: i32
+    result = int(r)
+    if r >= 0.0 or result == r:
+        return result
+    return result - 1
+
+@overload
+def _lpython_floordiv(a: i64, b: i64) -> i64:
+    r: f64
+    r = a/b
+    result: i64
+    result = int(r)
+    if r >= 0.0 or result == r:
+        return result
+    return result - 1
