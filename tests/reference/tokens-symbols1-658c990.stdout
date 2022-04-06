@@ -44,7 +44,6 @@
 (TOKEN ")") 86:86
 (TOKEN ":") 87:87
 (NEWLINE) 88:88
-(TOKEN "indent") 89:92
 (KEYWORD "print") 93:97
 (TOKEN "(") 98:98
 (TOKEN "string" ":") 99:101
@@ -56,7 +55,6 @@
 (TOKEN ")") 114:114
 (NEWLINE) 115:115
 (NEWLINE) 116:116
-(TOKEN "dedent") 116:116
 (TOKEN "identifier" i) 117:117
 (TOKEN "=") 119:119
 (TOKEN "integer" 1) 121:121
@@ -222,19 +220,16 @@
 (TOKEN ")") 441:441
 (TOKEN ":") 442:442
 (NEWLINE) 443:443
-(TOKEN "indent") 444:447
 (KEYWORD "print") 448:452
 (TOKEN "(") 453:453
 (TOKEN "string" "Decorators") 454:465
 (TOKEN ")") 466:466
 (NEWLINE) 467:467
 (NEWLINE) 468:468
-(TOKEN "dedent") 468:468
 (KEYWORD "class") 469:473
 (TOKEN "identifier" t) 475:475
 (TOKEN ":") 476:476
 (NEWLINE) 477:477
-(TOKEN "indent") 478:481
 (KEYWORD "def") 482:484
 (TOKEN "identifier" __init__) 486:493
 (TOKEN "(") 494:494
@@ -244,7 +239,6 @@
 (TOKEN ")") 502:502
 (TOKEN ":") 503:503
 (NEWLINE) 504:504
-(TOKEN "indent") 505:512
 (TOKEN "identifier" self) 513:516
 (TOKEN ".") 517:517
 (TOKEN "identifier" x) 518:518
@@ -252,23 +246,21 @@
 (TOKEN "identifier" x) 522:522
 (NEWLINE) 523:523
 (NEWLINE) 524:524
-(TOKEN "dedent") 524:524
-(TOKEN "dedent") 524:524
 (KEYWORD "if") 525:526
 (TOKEN "identifier" i) 528:528
 (TOKEN ">=") 530:531
 (TOKEN "integer" 1) 533:533
 (TOKEN "or") 535:536
+(TOKEN "\") 538:538
+(NEWLINE) 539:539
 (TOKEN "identifier" j) 548:548
 (TOKEN "<=") 550:551
 (TOKEN "integer" 10) 553:554
 (TOKEN ":") 555:555
 (NEWLINE) 556:556
-(TOKEN "indent") 557:560
 (KEYWORD "print") 561:565
 (TOKEN "(") 566:566
 (TOKEN "string" "Backlash") 567:576
 (TOKEN ")") 577:577
 (NEWLINE) 578:578
-(TOKEN "dedent") 578:578
 (EOF) 579:579
