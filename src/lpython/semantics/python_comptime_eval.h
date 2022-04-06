@@ -39,7 +39,6 @@ struct PythonIntrinsicProcedures {
             {"pow", {m_builtin, &eval_pow}},
             // {"int", {m_builtin, &eval_int}},
             // {"float", {m_builtin, &eval_float}},
-            {"max",{m_builtin , &eval_max}},
             {"round", {m_builtin, &eval_round}},
             {"bin", {m_builtin, &eval_bin}},
             {"hex", {m_builtin, &eval_hex}},
@@ -47,7 +46,8 @@ struct PythonIntrinsicProcedures {
             {"complex", {m_builtin, &eval_complex}},
             {"_lpython_imag", {m_builtin, &eval__lpython_imag}},
             {"divmod", {m_builtin, &eval_divmod}},
-            {"_lpython_floordiv", {m_builtin, &eval__lpython_floordiv}}
+            {"_lpython_floordiv", {m_builtin, &eval__lpython_floordiv}},
+            {"max",{m_builtin , &eval_max}}
         };
     }
 

@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_max-b2108fe",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_max.py",
+    "infile_hash": "825d84d078d72f4d6f530a7095714751bb7483b299d59e72ac93f51b",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_max-b2108fe.stderr",
+    "stderr_hash": "7c3c96d910901dcafa764cfcb605af2f05817bc0de5f56fe5d9568cb",
+    "returncode": 2
+}

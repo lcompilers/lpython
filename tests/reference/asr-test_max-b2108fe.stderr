@@ -1,0 +1,5 @@
+semantic error: Arguments do not match for any generic procedure
+  --> tests/../integration_tests/test_max.py:10:12
+   |
+10 |     assert max(a ) == a
+   |            ^^^^^^^ 

@@ -191,20 +191,6 @@ def len(s: str) -> i32:
 #: supported types for arguments:
 #: (i32, i32), (f64, f64), (i32, f64), (f64, i32)
 
-@overload
-def max(a:i32 , b:i32) ->i32:
-    if a > b :
-        return a
-    else :
-        return b
-@overload
-def max(a:i32 , b:i32 , c:i32)->i32:
-    res:i32 =a
-    if b > res :
-        res = b
-    if c > res :
-        res =c
-    return res
 
 @overload
 def pow(x: i32, y: i32) -> i32:
@@ -453,3 +439,18 @@ def _lpython_floordiv(a: f64, b: f64) -> f64:
     if r >= 0.0 or result == r:
         return float(result)
     return float(result-1)
+
+@overload
+def max(a:i32 , b:i32) ->i32:
+    if a > b :
+        return a
+    else :
+        return b
+@overload
+def max(a:i32 , b:i32 , c:i32)->i32:
+    res:i32 =a
+    if b > res :
+        res = b
+    if c > res :
+        res =c
+    return res

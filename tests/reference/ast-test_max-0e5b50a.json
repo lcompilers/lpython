@@ -1,0 +1,13 @@
+{
+    "basename": "ast-test_max-0e5b50a",
+    "cmd": "lpython --show-ast --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_max.py",
+    "infile_hash": "825d84d078d72f4d6f530a7095714751bb7483b299d59e72ac93f51b",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast-test_max-0e5b50a.stdout",
+    "stdout_hash": "3b3cf2baa893b97e75558778333bc7217373e7a511f5b5e5bbf21e78",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

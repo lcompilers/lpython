@@ -229,3 +229,8 @@ tokens = true
 [[test]]
 filename = "tokens/indent1.py"
 tokens = true
+
+[[test]]
+filename ="../integration_tests/test_max.py"
+asr = true 
+ast = true 
