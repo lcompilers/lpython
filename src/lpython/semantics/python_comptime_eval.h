@@ -39,6 +39,7 @@ struct PythonIntrinsicProcedures {
             {"pow", {m_builtin, &eval_pow}},
             // {"int", {m_builtin, &eval_int}},
             // {"float", {m_builtin, &eval_float}},
+            {"max",{m_builtin , &eval_max}},
             {"round", {m_builtin, &eval_round}},
             {"bin", {m_builtin, &eval_bin}},
             {"hex", {m_builtin, &eval_hex}},
@@ -161,6 +162,50 @@ struct PythonIntrinsicProcedures {
             throw SemanticError("str() argument must be real, integer, logical, or a string, not '" +
                 ASRUtils::type_to_str(arg_type) + "'", loc);
         }
+    }
+    //max()
+    static ASR::expr_t * eval_max(Allocator &al , const Location &loc , Vec<ASR::expr_t*>&args){
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+
+        bool semantic_error_flag = args.size() !=0 ;
+        std::string msg = "max() takes many arguments to comparing";
+
+        int32_t biggest ;
+        int32_t biggest_ind ;
+        if(semantic_error_flag)
+        {
+            for (int i =0 ; i<args.size() && semantic_error_flag; i++)
+            {
+                ASR::expr_t* current_arg = args[i];
+                ASR::ttype_t *current_arg_type = ASRUtils::expr_type(current_arg);
+
+                semantic_error_flag &= ASRUtils::is_real(*current_arg_type) ||
+                        ASRUtils::is_integer(*current_arg_type) ||
+                        ASRUtils::is_character(*current_arg_type);
+                if(!semantic_error_flag)
+                {
+                    msg = "type of arg in index ["+std::to_string(i)="] is not comparable";
+                    break;
+                }
+                int32_t current_val = ASR::down_cast<ASR::ConstantInteger_t>(current_arg)->m_n;
+                if(i == 0)
+                    biggest = current_val;
+                else
+                {
+                    if(current_val > biggest )
+                        biggest = current_val , biggest_ind = i ;
+                }
+
+            }
+        }
+        if(!semantic_error_flag)
+            throw SemanticError(msg , loc);
+        else
+        {
+            return args[biggest_ind];
+        }
+        //ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al , loc ,1 , nullptr , 0 ));
+
     }
 
     static ASR::expr_t *eval_bool(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
@@ -502,6 +547,7 @@ struct PythonIntrinsicProcedures {
                 c2 = ASR::down_cast<ASR::ConstantReal_t>(args[1])->m_r;
             }
         }
+
         return ASR::down_cast<ASR::expr_t>(make_ConstantComplex_t(al, loc, c1, c2, type));
     }
 
