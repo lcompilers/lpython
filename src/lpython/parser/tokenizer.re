@@ -38,6 +38,24 @@ bool lex_dec(const unsigned char *s, const unsigned char *e, uint64_t &u)
     return true;
 }
 
+void lex_dec_int_large(Allocator &al, const unsigned char *s,
+    const unsigned char *e, BigInt::BigInt &u)
+{
+    uint64_t ui;
+    if (lex_dec(s, e, ui)) {
+        if (ui <= BigInt::MAX_SMALL_INT) {
+            u.from_smallint(ui);
+            return;
+        }
+    }
+    const unsigned char *start = s;
+    Str num;
+    num.p = (char*)start;
+    num.n = e-start;
+    u.from_largeint(al, num);
+}
+
+
 // Tokenizes integer of the kind 0x1234 into `prefix` and `u`
 // s ... the start of the integer
 // e ... the character after the end
@@ -73,12 +91,9 @@ void lex_int(Allocator &al, const unsigned char *s,
         num.n = e-s;
         u.from_largeint(al, num);
     } else {
+        lex_dec_int_large(al, s, e, u);
         prefix.p = nullptr;
         prefix.n = 0;
-        Str num;
-        num.p = (char*)s;
-        num.n = e-s;
-        u.from_largeint(al, num);
     }
     return;
 }
