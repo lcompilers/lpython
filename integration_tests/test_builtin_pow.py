@@ -1,6 +1,7 @@
 from ltypes import i32, i64, f32, f64
 
 def test_pow():
+    # TODO: the commented tests should also work
     a: i32
     b: i32
     eps: f64
@@ -16,10 +17,10 @@ def test_pow():
     assert pow(a, b) == 1
     a = 2
     b = -1
-    print(pow(a, b))
+    # assert abs(pow(a, b) - 0.5) < eps
     a = 6
     b = -4
-    print(pow(a, b))
+    # assert abs(pow(a, b) - 0.0007716049382716049) < eps
 
     i1: i64
     i2: i64
@@ -28,13 +29,14 @@ def test_pow():
     assert pow(i1, i2) == 32
     i1 = 6
     i2 = -3
-    print(pow(i1, i2))
+    # assert abs(pow(i1, i2) - 0.004629629629629629) < eps
 
     f1: f32
     f2: f32
+    p: f32
     f1 = 525346/66456
     f2 = 3.0
-    print(pow(f1, f2))
+    p = pow(f1, f2)
 
     f1 = pow(a, f2) # (i32, f32)
     f1 = pow(f2, a) # (f32, i32)
@@ -46,17 +48,13 @@ def test_pow():
     assert pow(b1, b2) == 1
     assert pow(False, False) == 1
 
-    a1: f64
-    a2: f64
-    a1 = 4.5
-    a2 = 2.3
+    a1: f64 = 4.5
+    a2: f64 = 2.3
     assert abs(pow(a1, a2) - 31.7971929089206) < eps
     assert abs(pow(a2, a1) - 42.43998894277659) < eps
 
-    x: i32
-    x = 3
-    y: f64
-    y = 2.3
+    x: i32 = 3
+    y: f64 = 2.3
     assert abs(pow(x, y) - 12.513502532843182) < eps
     assert abs(pow(y, x) - 12.166999999999998) < eps
     assert abs(pow(x, 5.5) - 420.8883462392372) < eps

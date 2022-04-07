@@ -2,11 +2,11 @@
     "basename": "asr-test_builtin_pow-f02fcda",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/test_builtin_pow.py",
-    "infile_hash": "a4cb844825f68fcbf3c7fc03512bb9b26869d1eb89eebf78d55dfaf0",
+    "infile_hash": "a139a27f3374fe0481271c71ad8fda1a8cc7f6c314a14b132c27aedf",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-test_builtin_pow-f02fcda.stdout",
-    "stdout_hash": "16793ddefc03b64a2247d34fc4a64c7fa2cfb2fecf388ca54263f777",
+    "stdout_hash": "97bd2b64ee8499616f7451d071b39c6e771288b35bcbb00b2936c88a",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
