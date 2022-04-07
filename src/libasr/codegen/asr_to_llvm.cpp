@@ -3181,25 +3181,14 @@ public:
         switch( a_kind ) {
             case 4: {
                 re2 = llvm::ConstantFP::get(context, llvm::APFloat((float)re));
+                im2 = llvm::ConstantFP::get(context, llvm::APFloat((float)im));
                 type = complex_type_4;
                 break;
             }
             case 8: {
                 re2 = llvm::ConstantFP::get(context, llvm::APFloat(re));
-                type = complex_type_8;
-                break;
-            }
-            default: {
-                throw CodeGenError("kind type not supported");
-            }
-        }
-        switch( a_kind ) {
-            case 4: {
-                im2 = llvm::ConstantFP::get(context, llvm::APFloat((float)im));
-                break;
-            }
-            case 8: {
                 im2 = llvm::ConstantFP::get(context, llvm::APFloat(im));
+                type = complex_type_8;
                 break;
             }
             default: {
