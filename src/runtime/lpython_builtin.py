@@ -190,12 +190,22 @@ def len(s: str) -> i32:
 
 #: pow() as a generic procedure.
 #: supported types for arguments:
-#: (i32, i32), (f64, f64), (i32, f64), (f64, i32)
+#: (i32, i32), (i64, i64), (f64, f64),
+#: (f32, f32), (i32, f64), (f64, i32),
+#: (i32, f32), (f32, i32), (bool, bool)
 @overload
 def pow(x: i32, y: i32) -> i32:
     """
     Returns x**y.
     """
+    return x**y
+
+@overload
+def pow(x: i64, y: i64) -> i64:
+    return x**y
+
+@overload
+def pow(x: f32, y: f32) -> f32:
     return x**y
 
 @overload
@@ -206,12 +216,27 @@ def pow(x: f64, y: f64) -> f64:
     return x**y
 
 @overload
+def pow(x: i32, y: f32) -> f32:
+    return x**y
+
+@overload
+def pow(x: f32, y: i32) -> f32:
+    return x**y
+
+@overload
 def pow(x: i32, y: f64) -> f64:
     return x**y
 
 @overload
 def pow(x: f64, y: i32) -> f64:
     return x**y
+
+@overload
+def pow(x: bool, y: bool) -> i32:
+    if y and not x:
+        return 0
+
+    return 1
 
 
 def bin(n: i32) -> str:

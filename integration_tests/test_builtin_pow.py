@@ -1,4 +1,4 @@
-from ltypes import i32, f64
+from ltypes import i32, i64, f32, f64
 
 def test_pow():
     # TODO: the commented tests should also work
@@ -21,6 +21,31 @@ def test_pow():
     a = 6
     b = -4
     print(pow(a, b))
+
+    i1: i64
+    i2: i64
+    i1 = 2
+    i2 = 5
+    assert pow(i1, i2) == 32
+    i1 = 6
+    i2 = -3
+    print(pow(i1, i2))
+
+    f1: f32
+    f2: f32
+    f1 = 525346/66456
+    f2 = 3.0
+    print(pow(f1, f2))
+
+    f1 = pow(a, f2) # (i32, f32)
+    f1 = pow(f2, a) # (f32, i32)
+
+    b1: bool = True
+    b2: bool = False
+    assert pow(b1, b2) == 1
+    assert pow(b2, b1) == 0
+    assert pow(b1, b2) == 1
+    assert pow(False, False) == 1
 
     a1: f64
     a2: f64

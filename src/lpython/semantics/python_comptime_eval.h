@@ -335,8 +335,14 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al, loc,
                 pow(a, b), real_type));
 
+        } else if (ASRUtils::is_logical(*arg1_type) && ASRUtils::is_logical(*arg2_type)) {
+            bool a = ASR::down_cast<ASR::ConstantLogical_t>(arg1)->m_value;
+            bool b = ASR::down_cast<ASR::ConstantLogical_t>(arg2)->m_value;
+            return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc,
+                pow(a, b), int_type));
+
         } else {
-            throw SemanticError("The two arguments to pow() must be of type integer or float.", loc);
+            throw SemanticError("pow() only works on integers, reals, and logicals", loc);
         }
     }
 
