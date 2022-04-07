@@ -33,6 +33,7 @@
 #include <lpython/utils.h>
 #include <lpython/python_serialization.h>
 #include <lpython/parser/tokenizer.h>
+#include <lpython/parser/parser.h>
 
 #include <cpp-terminal/terminal.h>
 #include <cpp-terminal/prompt0.h>
@@ -132,12 +133,21 @@ int emit_ast(const std::string &infile,
     CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
-    LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile);
-    if (!r.ok) {
+    std::string input = read_file(infile);
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::Result<LFortran::LPython::AST::Module_t*> res = LFortran::parse(
+        al, input, diagnostics);
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    lm.init_simple(input);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    LFortran::LPython::AST::ast_t* ast;
+    if (res.ok) {
+        ast = (LFortran::LPython::AST::ast_t*)res.result;
+    } else {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 1;
     }
-    LFortran::LPython::AST::ast_t* ast = r.result;
 
     if (compiler_options.tree) {
         std::cout << LFortran::LPython::pickle_tree_python(*ast, compiler_options.use_colors) << std::endl;
