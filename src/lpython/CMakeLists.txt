@@ -1,5 +1,7 @@
 set(SRC
     parser/tokenizer.cpp
+    parser/parser.cpp
+    parser/parser.tab.cc
     semantics/python_ast_to_asr.cpp
 
     python_evaluator.cpp

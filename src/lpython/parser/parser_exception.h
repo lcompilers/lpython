@@ -24,6 +24,23 @@ namespace parser_local {
         TokenizerError(const diag::Diagnostic &d) : d{d} { }
     };
 
+    class ParserError
+    {
+    public:
+        LFortran::diag::Diagnostic d;
+    public:
+        ParserError(const std::string &msg, const LFortran::Location &loc)
+            : d{diag::Diagnostic(msg, diag::Level::Error, diag::Stage::Parser, {
+                    diag::Label("", {loc})
+                })}
+        { }
+
+        ParserError(const std::string &msg)
+            : d{diag::Diagnostic(msg, diag::Level::Error, diag::Stage::Parser)}
+        { }
+    };
+
+
 }
 
 }
