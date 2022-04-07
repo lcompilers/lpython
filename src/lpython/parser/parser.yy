@@ -198,7 +198,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 // Higher %dprec means higher precedence
 
 units
-    : expr { RESULT($1); }
+    : expr TK_NEWLINE { RESULT($1); }
     ;
 
 expr
