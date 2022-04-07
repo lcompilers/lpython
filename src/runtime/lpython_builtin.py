@@ -104,27 +104,28 @@ def str(x: i32) -> str:
     """
     Return the string representation of an integer `x`.
     """
-    if x == 0:
-        return '0'
-    result: str
-    result = ''
-    if x < 0:
-        result += '-'
-        x = -x
-    rev_result: str
-    rev_result = ''
-    rev_result_len: i32
-    rev_result_len = 0
-    pos_to_str: list[str]
-    pos_to_str = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-    while x > 0:
-        rev_result += pos_to_str[x - _lpython_floordiv(x, 10)*10]
-        rev_result_len += 1
-        x = _lpython_floordiv(x, 10)
-    pos: i32
-    for pos in range(rev_result_len - 1, -1, -1):
-        result += rev_result[pos]
-    return result
+    pass
+    # if x == 0:
+    #     return '0'
+    # result: str
+    # result = ''
+    # if x < 0:
+    #     result += '-'
+    #     x = -x
+    # rev_result: str
+    # rev_result = ''
+    # rev_result_len: i32
+    # rev_result_len = 0
+    # pos_to_str: list[str]
+    # pos_to_str = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+    # while x > 0:
+    #     rev_result += pos_to_str[x - _lpython_floordiv(x, 10)*10]
+    #     rev_result_len += 1
+    #     x = _lpython_floordiv(x, 10)
+    # pos: i32
+    # for pos in range(rev_result_len - 1, -1, -1):
+    #     result += rev_result[pos]
+    # return result
 
 #: bool() as a generic procedure.
 #: supported types for argument:
@@ -237,50 +238,52 @@ def hex(n: i32) -> str:
     """
     Returns the hexadecimal representation of an integer `n`.
     """
-    hex_values: list[str]
-    hex_values = ['0', '1', '2', '3', '4', '5', '6', '7',
-                  '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
-    if n == 0:
-        return '0x0'
-    prep: str
-    prep = '0x'
-    if n < 0:
-        prep = '-0x'
-        n = -n
-    res: str
-    res = ""
-    remainder: i32
-    while n > 0:
-        remainder = n - _lpython_floordiv(n, 16)*16
-        n -= remainder
-        n = _lpython_floordiv(n, 16)
-        res += hex_values[remainder]
-    return prep + res[::-1]
+    pass
+    # hex_values: list[str]
+    # hex_values = ['0', '1', '2', '3', '4', '5', '6', '7',
+    #               '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
+    # if n == 0:
+    #     return '0x0'
+    # prep: str
+    # prep = '0x'
+    # if n < 0:
+    #     prep = '-0x'
+    #     n = -n
+    # res: str
+    # res = ""
+    # remainder: i32
+    # while n > 0:
+    #     remainder = n - _lpython_floordiv(n, 16)*16
+    #     n -= remainder
+    #     n = _lpython_floordiv(n, 16)
+    #     res += hex_values[remainder]
+    # return prep + res[::-1]
 
 
 def oct(n: i32) -> str:
     """
     Returns the octal representation of an integer `n`.
     """
-    _values: list[str]
-    _values = ['0', '1', '2', '3', '4', '5', '6', '7',
-               '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
-    if n == 0:
-        return '0o0'
-    prep: str
-    prep = '0o'
-    if n < 0:
-        prep = '-0o'
-        n = -n
-    res: str
-    res = ""
-    remainder: i32
-    while n > 0:
-        remainder = n - _lpython_floordiv(n, 8)*8
-        n -= remainder
-        n = _lpython_floordiv(n, 8)
-        res += _values[remainder]
-    return prep + res[::-1]
+    pass
+    # _values: list[str]
+    # _values = ['0', '1', '2', '3', '4', '5', '6', '7',
+    #            '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
+    # if n == 0:
+    #     return '0o0'
+    # prep: str
+    # prep = '0o'
+    # if n < 0:
+    #     prep = '-0o'
+    #     n = -n
+    # res: str
+    # res = ""
+    # remainder: i32
+    # while n > 0:
+    #     remainder = n - _lpython_floordiv(n, 8)*8
+    #     n -= remainder
+    #     n = _lpython_floordiv(n, 8)
+    #     res += _values[remainder]
+    # return prep + res[::-1]
 
 #: round() as a generic procedure.
 #: supported types for argument:

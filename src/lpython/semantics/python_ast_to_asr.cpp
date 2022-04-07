@@ -483,16 +483,13 @@ public:
                 }
             } else if (var_annotation == "list") {
                 ASR::ttype_t *type = nullptr;
-                if (AST::is_a<AST::Name_t>(*s->m_slice)) {
+                if (AST::is_a<AST::Name_t>(*s->m_slice) || AST::is_a<AST::Subscript_t>(*s->m_slice)) {
                     type = ast_expr_to_asr_type(loc, *s->m_slice);
-                } else if (AST::is_a<AST::Tuple_t>(*s->m_slice)) {
-                    AST::Tuple_t *t = AST::down_cast<AST::Tuple_t>(s->m_slice);
-                    type = ast_expr_to_asr_type(loc, *t->m_elts[0]);
+                    return ASRUtils::TYPE(ASR::make_List_t(al, loc, type));
                 } else {
-                    throw SemanticError("Only Name or Tuple in Subscript supported for now in `list`"
+                    throw SemanticError("Only Name or Subscript inside Subscript supported for now in `list`"
                         " annotation", loc);
                 }
-                return type;
             } else if (var_annotation == "dict") {
                 if (AST::is_a<AST::Tuple_t>(*s->m_slice)) {
                     AST::Tuple_t *t = AST::down_cast<AST::Tuple_t>(s->m_slice);
@@ -1842,8 +1839,9 @@ public:
             }
             list.push_back(al, expr);
         }
-        tmp = ASR::make_ConstantArray_t(al, x.base.base.loc, list.p,
-            list.size(), type);
+        ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, x.base.base.loc, type));
+        tmp = ASR::make_ConstantList_t(al, x.base.base.loc, list.p,
+            list.size(), list_type);
     }
 
     void visit_Tuple(const AST::Tuple_t &x) {
