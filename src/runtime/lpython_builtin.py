@@ -192,7 +192,7 @@ def len(s: str) -> i32:
 #: supported types for arguments:
 #: (i32, i32), (i64, i64), (f64, f64),
 #: (f32, f32), (i32, f64), (f64, i32),
-#: (i32, f32), (f32, i32), (bool, bool)
+#: (i32, f32), (f32, i32), (bool, bool), (c32, i32)
 @overload
 def pow(x: i32, y: i32) -> i32:
     """
@@ -237,6 +237,10 @@ def pow(x: bool, y: bool) -> i32:
         return 0
 
     return 1
+
+@overload
+def pow(c: c32, y: i32) -> c32:
+    return c**y
 
 
 def bin(n: i32) -> str:

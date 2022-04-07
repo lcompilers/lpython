@@ -1,4 +1,4 @@
-from ltypes import i32, i64, f32, f64
+from ltypes import i32, i64, f32, f64, c32
 
 def test_pow():
     # TODO: the commented tests should also work
@@ -73,5 +73,8 @@ def test_pow():
     assert pow(4, 2) == 16
     assert abs(pow(-4235.0, 52) - 3.948003805985264e+188) < eps
 
+    c1: c32
+    c1 = complex(4, 5)
+    c1 = pow(c1, 4)
 
 test_pow()

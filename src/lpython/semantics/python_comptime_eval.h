@@ -295,6 +295,7 @@ struct PythonIntrinsicProcedures {
         ASR::ttype_t* arg2_type = ASRUtils::expr_type(arg2);
         ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         ASR::ttype_t *real_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
+        ASR::ttype_t *complex_type = ASRUtils::TYPE(ASR::make_Complex_t(al, loc, 8, nullptr, 0));
         if (ASRUtils::is_integer(*arg1_type) && ASRUtils::is_integer(*arg2_type)) {
             int64_t a = ASR::down_cast<ASR::ConstantInteger_t>(arg1)->m_n;
             int64_t b = ASR::down_cast<ASR::ConstantInteger_t>(arg2)->m_n;
@@ -341,8 +342,17 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(make_ConstantInteger_t(al, loc,
                 pow(a, b), int_type));
 
+        } else if (ASRUtils::is_complex(*arg1_type) && ASRUtils::is_integer(*arg2_type)) {
+            double re = ASR::down_cast<ASR::ConstantComplex_t>(arg1)->m_re;
+            double im = ASR::down_cast<ASR::ConstantComplex_t>(arg1)->m_im;
+            std::complex<double> x(re, im);
+            int64_t b = ASR::down_cast<ASR::ConstantInteger_t>(arg2)->m_n;
+            std::complex<double> y = pow(x, b);
+            return ASR::down_cast<ASR::expr_t>(make_ConstantComplex_t(al, loc,
+                y.real(), y.imag(), complex_type));
+
         } else {
-            throw SemanticError("pow() only works on integers, reals, and logicals", loc);
+            throw SemanticError("pow() only works on integer, real, logical, and complex types", loc);
         }
     }
 
