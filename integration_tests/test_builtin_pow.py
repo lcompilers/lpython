@@ -1,7 +1,6 @@
 from ltypes import i32, i64, f32, f64
 
 def test_pow():
-    # TODO: the commented tests should also work
     a: i32
     b: i32
     eps: f64
