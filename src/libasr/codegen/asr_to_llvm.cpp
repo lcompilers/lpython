@@ -3111,7 +3111,7 @@ public:
                         break;
                     }
                     default :
-                        throw CodeGenError("ConstArray real kind not supported yet");
+                        throw CodeGenError("ConstArray integer kind not supported yet");
                 }
             } else if (ASR::is_a<ASR::Real_t>(*x.m_type)) {
                 ASR::ConstantReal_t *cr = ASR::down_cast<ASR::ConstantReal_t>(el);
