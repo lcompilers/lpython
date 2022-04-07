@@ -2972,7 +2972,7 @@ public:
             }
             tmp = lfortran_complex_bin_op(left_val, right_val, fn_name, type);
         } else {
-            throw CodeGenError("Binop: Only Real, Integer and Complex types implemented");
+            throw CodeGenError("Binop: Only Real, Integer and Complex types are allowed");
         }
     }
 
@@ -3652,7 +3652,7 @@ public:
                 args.push_back(d);
             } else {
                 throw LFortranException("Printing support is available only for integer, real,"
-                    " character, and complex kinds.");
+                    " character, and complex types.");
             }
         }
         std::string fmt_str;
