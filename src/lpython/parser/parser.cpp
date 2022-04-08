@@ -86,16 +86,18 @@ void Parser::handle_yyerror(const Location &loc, const std::string &msg)
 
 Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
         const std::string &runtime_library_dir,
-        const std::string &infile, diag::Diagnostics &diagnostics,
+        const std::string &infile,
+        diag::Diagnostics &diagnostics,
         bool new_parser) {
     LPython::AST::ast_t* ast;
     if (new_parser) {
         std::string input = read_file(infile);
-        Result<LPython::AST::Module_t*> res = parse(
-            al, input, diagnostics);
+        Result<LPython::AST::Module_t*> res = parse(al, input, diagnostics);
         LocationManager lm;
         lm.in_filename = infile;
         lm.init_simple(input);
+        CompilerOptions compiler_options;
+        std::cerr << diagnostics.render(input, lm, compiler_options);
         if (res.ok) {
             ast = (LPython::AST::ast_t*)res.result;
         } else {
