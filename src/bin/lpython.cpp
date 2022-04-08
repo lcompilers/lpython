@@ -120,7 +120,16 @@ int emit_ast(const std::string &infile,
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
         al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+    if (diagnostic.diagnostics.size() > 0) {
+        LocationManager lm;
+        lm.in_filename = infile;
+        // TODO: only read this once, and pass it as an argument to parse_python_file()
+        std::string input = read_file(infile);
+        lm.init_simple(input);
+        std::cerr << diagnostics.render(input, lm, compiler_options);
+    }
     if (!r.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 1;
     }
     LFortran::LPython::AST::ast_t* ast = r.result;

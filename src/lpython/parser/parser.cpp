@@ -93,11 +93,6 @@ Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
     if (new_parser) {
         std::string input = read_file(infile);
         Result<LPython::AST::Module_t*> res = parse(al, input, diagnostics);
-        LocationManager lm;
-        lm.in_filename = infile;
-        lm.init_simple(input);
-        CompilerOptions compiler_options;
-        std::cerr << diagnostics.render(input, lm, compiler_options);
         if (res.ok) {
             ast = (LPython::AST::ast_t*)res.result;
         } else {
