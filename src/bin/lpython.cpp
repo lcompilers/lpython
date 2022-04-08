@@ -561,7 +561,7 @@ int main(int argc, char *argv[])
         // LPython specific options
         app.add_flag("--cpp", compiler_options.c_preprocessor, "Enable C preprocessing");
         app.add_flag("--show-tokens", show_tokens, "Show tokens for the given python file and exit");
-        app.add_flag("--new-parser", compiler_options.new_parser, "Use lpython parser");
+        app.add_flag("--new-parser", compiler_options.new_parser, "Use the new LPython parser");
         app.add_flag("--show-ast", show_ast, "Show AST for the given python file and exit");
         app.add_flag("--show-asr", show_asr, "Show ASR for the given python file and exit");
         app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
