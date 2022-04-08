@@ -233,3 +233,7 @@ tokens = true
 [[test]]
 filename = "tokens/indent1.py"
 tokens = true
+
+[[test]]
+filename = "errors/test_str_indexing.py"
+asr = true
