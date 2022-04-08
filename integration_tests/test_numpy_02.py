@@ -192,6 +192,34 @@ def real(b: bool) -> i32:
     return 0
 
 #------------------------------
+@overload
+def imag(c: c32) -> f32:
+    return c.imag
+
+@overload
+def imag(c: c64) -> f64:
+    return c.imag
+
+@overload
+def imag(x: i32) -> i32:
+    return 0
+
+@overload
+def imag(x: i64) -> i64:
+    return 0
+
+@overload
+def imag(f: f32) -> f32:
+    return 0.0
+
+@overload
+def imag(f: f64) -> f64:
+    return 0.0
+
+@overload
+def imag(b: bool) -> i32:
+    return 0
+#------------------------------
 
 def test_zeros():
     a: f64[4]
@@ -322,6 +350,28 @@ def test_real():
     assert abs(real(f) - 534.6475) < eps
     assert real(True) == 1
 
+def test_imag():
+    c: c32
+    c = 4 + 3j
+    assert abs(imag(c) - 3.0) < eps
+
+    c2: c64
+    c2 = complex(5, -6)
+    assert abs(imag(c2) - -6.0) < eps
+
+    i: i32
+    i = 4
+    assert imag(i) == 0
+
+    i2: i64
+    i2 = -4
+    assert imag(i2) == 0
+
+    f: f64
+    f = 534.6475
+    assert abs(imag(f) - 0.0) < eps
+    assert imag(True) == 0
+
 def check():
     test_zeros()
     test_ones()
@@ -332,5 +382,6 @@ def check():
     test_linspace()
     test_sign()
     test_real()
+    test_imag()
 
 check()
