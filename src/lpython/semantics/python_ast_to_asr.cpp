@@ -1219,6 +1219,9 @@ public:
             }
         } else {
             this->visit_expr(*x.m_slice);
+            if (!ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
+                throw SemanticError("string indices must be integers", tmp->loc);
+            }
             ASR::expr_t *index = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
             ai.m_right = index;
         }
