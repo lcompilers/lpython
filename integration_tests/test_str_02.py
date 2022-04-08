@@ -6,11 +6,9 @@ def f():
     g(x)
     y: str
     y = h(x)
-    print(y)
     assert y == "abcdefghijkl123|x"
 
 def g(x: str):
-    print(x)
     assert x == "abcdefghijkl123"
 
 def h(x: str) -> str:
