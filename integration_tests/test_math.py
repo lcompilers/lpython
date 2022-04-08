@@ -62,9 +62,11 @@ def test_ldexp():
 def test_fabs():
     i: f64
     j: f64
+    eps: f64
+    eps = 1e-12
     i = fabs(10.3)
     j = fabs(-10.3)
-    print(i, j)
+    assert abs(i - j) < eps
 
 
 def test_gcd():

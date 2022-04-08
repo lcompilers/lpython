@@ -35,7 +35,7 @@ def test_complex():
     a: f64
     a = 534.6
     x = complex(a, -a) # (f64, f64)
-    print(x)
+
     assert abs(x.real - 534.60000000000002274) < eps
     assert abs(x.imag - (-534.60000000000002274)) < eps
 
@@ -45,7 +45,7 @@ def test_complex():
     a3 = 34.5
     x2: c32
     x2 = complex(a2, a3) # (f32, f32)
-    print(x2)
+
     assert abs(x2.imag - 34.5) < eps
 
     i1: i32

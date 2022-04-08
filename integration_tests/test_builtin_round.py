@@ -13,7 +13,7 @@ def test_round():
     f = -50.5
     assert round(f) == -50
     f = 1.5
-    print(round(f))
+    assert round(f) == 2
     assert round(13.001) == 13
     assert round(-40.49999) == -40
     assert round(0.5) == 0
