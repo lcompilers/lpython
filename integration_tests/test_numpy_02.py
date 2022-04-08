@@ -1,6 +1,6 @@
 # This test handles actual LPython implementations of functions from the numpy
 # module.
-from ltypes import i32, i64, f32, f64, TypeVar, overload
+from ltypes import i32, i64, f32, f64, c32, c64, TypeVar, overload
 from numpy import empty, int64
 
 e: f64 = 2.718281828459045
@@ -8,6 +8,9 @@ pi: f64 = 3.141592653589793
 euler_gamma: f64 = 0.5772156649015329
 PZERO: f64 = 0.0
 NZERO: f64 = -0.0
+
+eps: f64
+eps = 1e-12
 
 n: i32
 n = TypeVar("n")
@@ -129,6 +132,7 @@ def linspace(start: f64, stop: f64, num: i32) -> f64[num]:
         A[i] = start + (stop-start)*i/(num-1)
     return A
 
+#------------------------------
 @overload
 def sign(x: i32) -> i32:
     if x == 0:
@@ -155,11 +159,43 @@ def sign(x: f32) -> f32:
 def sign(x: f64) -> f64:
     return x/fabs(x)
 
+#------------------------------
+@overload
+def real(c: c32) -> f32:
+    return c.real
+
+@overload
+def real(c: c64) -> f64:
+    return c.real
+
+@overload
+def real(x: i32) -> i32:
+    return x
+
+@overload
+def real(x: i64) -> i64:
+    return x
+
+@overload
+def real(f: f32) -> f32:
+    return f
+
+@overload
+def real(f: f64) -> f64:
+    return f
+
+@overload
+def real(b: bool) -> i32:
+    if b:
+        return 1
+
+    return 0
+
+#------------------------------
+
 def test_zeros():
     a: f64[4]
     a = zeros(4)
-    eps: f64
-    eps = 1e-12
     assert abs(a[0] - 0.0) < eps
     assert abs(a[1] - 0.0) < eps
     assert abs(a[2] - 0.0) < eps
@@ -168,8 +204,6 @@ def test_zeros():
 def test_ones():
     a: f64[4]
     a = ones(4)
-    eps: f64
-    eps = 1e-12
     assert abs(a[0] - 1.0) < eps
     assert abs(a[1] - 1.0) < eps
     assert abs(a[2] - 1.0) < eps
@@ -184,8 +218,6 @@ def test_arange():
     assert a[3] == 3
 
 def test_sqrt():
-    eps: f64
-    eps = 1e-12
     a: f64
     a2: f64
     a = sqrt(2)
@@ -208,8 +240,7 @@ def test_exp():
     a = exp(6)
     a2: f64
     a2 = exp(5.6)
-    eps: f64
-    eps = 1e-12
+
     assert abs(a - 403.4287934927351) < eps
     assert abs(a2 - 270.42640742615254) < eps
     assert abs(exp(True) - 2.719) < eps
@@ -228,8 +259,6 @@ def test_fabs():
     a = fabs(-3.7)
     a2: f64
     a2 = fabs(-3)
-    eps: f64
-    eps = 1e-12
     assert abs(a - 3.7) < eps
     assert abs(a2 - 3.0) < eps
     assert abs(fabs(True) - 1.0) < eps
@@ -246,8 +275,6 @@ def test_fabs():
 def test_linspace():
     a: f64[4]
     a = linspace(1., 7., 4)
-    eps: f64
-    eps = 1e-12
     assert abs(a[0] - 1.0) < eps
     assert abs(a[1] - 3.0) < eps
     assert abs(a[2] - 5.0) < eps
@@ -273,6 +300,28 @@ def test_sign():
     f2 = -3.0
     assert sign(f2) == -1.0
 
+def test_real():
+    c: c32
+    c = 4 + 3j
+    assert abs(real(c) - 4.0) < eps
+
+    c2: c64
+    c2 = complex(5, -6)
+    assert abs(real(c2) - 5.0) < eps
+
+    i: i32
+    i = 4
+    assert real(i) == 4
+
+    i2: i64
+    i2 = -4
+    assert real(i2) == -4
+
+    f: f64
+    f = 534.6475
+    assert abs(real(f) - 534.6475) < eps
+    assert real(True) == 1
+
 def check():
     test_zeros()
     test_ones()
@@ -282,5 +331,6 @@ def check():
     test_fabs()
     test_linspace()
     test_sign()
+    test_real()
 
 check()
