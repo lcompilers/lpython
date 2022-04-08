@@ -33,6 +33,7 @@
 #include <lpython/utils.h>
 #include <lpython/python_serialization.h>
 #include <lpython/parser/tokenizer.h>
+#include <lpython/parser/parser.h>
 
 #include <cpp-terminal/terminal.h>
 #include <cpp-terminal/prompt0.h>
@@ -41,7 +42,7 @@ namespace {
 
 using LFortran::endswith;
 using LFortran::CompilerOptions;
-using LFortran::LPython::parse_python_file;
+using LFortran::parse_python_file;
 
 enum Backend {
     llvm, cpp, x86
@@ -65,22 +66,6 @@ std::string remove_path(const std::string& filename) {
     return filename.substr(lastslash+1);
 }
 
-std::string read_file(const std::string &filename)
-{
-    std::ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary
-            | std::ios::ate);
-
-    std::ifstream::pos_type filesize = ifs.tellg();
-    if (filesize < 0) return std::string();
-
-    ifs.seekg(0, std::ios::beg);
-
-    std::vector<char> bytes(filesize);
-    ifs.read(&bytes[0], filesize);
-
-    return std::string(&bytes[0], filesize);
-}
-
 std::string get_kokkos_dir()
 {
     char *env_p = std::getenv("LFORTRAN_KOKKOS_DIR");
@@ -97,7 +82,7 @@ std::string get_kokkos_dir()
 
 int emit_tokens(const std::string &infile, bool line_numbers, const CompilerOptions &compiler_options)
 {
-    std::string input = read_file(infile);
+    std::string input = LFortran::read_file(infile);
     // Src -> Tokens
     Allocator al(64*1024*1024);
     std::vector<int> toks;
@@ -132,15 +117,26 @@ int emit_ast(const std::string &infile,
     CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
+    LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile);
+        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+    if (diagnostics.diagnostics.size() > 0) {
+        LFortran::LocationManager lm;
+        lm.in_filename = infile;
+        // TODO: only read this once, and pass it as an argument to parse_python_file()
+        std::string input = LFortran::read_file(infile);
+        lm.init_simple(input);
+        std::cerr << diagnostics.render(input, lm, compiler_options);
+    }
     if (!r.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return 1;
     }
     LFortran::LPython::AST::ast_t* ast = r.result;
 
     if (compiler_options.tree) {
-        std::cout << LFortran::LPython::pickle_tree_python(*ast, compiler_options.use_colors) << std::endl;
+        std::cout << LFortran::LPython::pickle_tree_python(*ast,
+            compiler_options.use_colors) << std::endl;
     } else {
         std::cout << LFortran::LPython::pickle_python(*ast,
             compiler_options.use_colors, compiler_options.indent) << std::endl;
@@ -153,18 +149,20 @@ int emit_asr(const std::string &infile,
     bool with_intrinsic_modules, CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    std::string input = LFortran::read_file(infile);
+    lm.init_simple(input);
     LFortran::Result<LFortran::LPython::AST::ast_t*> r1 = parse_python_file(
-        al, runtime_library_dir, infile);
+        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         return 1;
     }
     LFortran::LPython::AST::ast_t* ast = r1.result;
 
-    LFortran::LocationManager lm;
-    lm.in_filename = infile;
-    std::string input = read_file(infile);
-    lm.init_simple(input);
-    LFortran::diag::Diagnostics diagnostics;
+    diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
             compiler_options.symtab_only);
@@ -190,18 +188,20 @@ int emit_cpp(const std::string &infile,
     CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    std::string input = LFortran::read_file(infile);
+    lm.init_simple(input);
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile);
+        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
         return 1;
     }
     LFortran::LPython::AST::ast_t* ast = r.result;
 
-    LFortran::LocationManager lm;
-    lm.in_filename = infile;
-    std::string input = read_file(infile);
-    lm.init_simple(input);
-    LFortran::diag::Diagnostics diagnostics;
+    diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
             compiler_options.symtab_only);
@@ -230,19 +230,21 @@ int emit_llvm(const std::string &infile,
     CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    std::string input = LFortran::read_file(infile);
+    lm.init_simple(input);
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile);
+        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
         return 1;
     }
-    LFortran::LocationManager lm;
 
     // Src -> AST -> ASR
     LFortran::LPython::AST::ast_t* ast = r.result;
-    lm.in_filename = infile;
-    std::string input = read_file(infile);
-    lm.init_simple(input);
-    LFortran::diag::Diagnostics diagnostics;
+    diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
             compiler_options.symtab_only);
@@ -274,19 +276,21 @@ int compile_python_to_object_file(
         CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    std::string input = LFortran::read_file(infile);
+    lm.init_simple(input);
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile);
+        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
         return 1;
     }
-    LFortran::LocationManager lm;
 
     // Src -> AST -> ASR
     LFortran::LPython::AST::ast_t* ast = r.result;
-    lm.in_filename = infile;
-    std::string input = read_file(infile);
-    lm.init_simple(input);
-    LFortran::diag::Diagnostics diagnostics;
+    diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
             compiler_options.symtab_only);
@@ -557,6 +561,7 @@ int main(int argc, char *argv[])
         // LPython specific options
         app.add_flag("--cpp", compiler_options.c_preprocessor, "Enable C preprocessing");
         app.add_flag("--show-tokens", show_tokens, "Show tokens for the given python file and exit");
+        app.add_flag("--new-parser", compiler_options.new_parser, "Use the new LPython parser");
         app.add_flag("--show-ast", show_ast, "Show AST for the given python file and exit");
         app.add_flag("--show-asr", show_asr, "Show ASR for the given python file and exit");
         app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");

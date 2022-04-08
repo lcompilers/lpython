@@ -30,6 +30,7 @@ struct CompilerOptions {
     bool openmp = false;
     bool no_warnings = false;
     bool no_error_banner = false;
+    bool new_parser = false;
     std::string target = "";
     Platform platform;
 

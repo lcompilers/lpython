@@ -24,6 +24,9 @@ src/lpython/tests/cmp32
 src/lpython/tests/x
 src/lpython/tests/ref_pickle.txt.new
 src/lpython/parser/tokenizer.cpp
+src/lpython/parser/parser.output
+src/lpython/parser/parser.tab.cc
+src/lpython/parser/parser.tab.hh
 
 ## CMake
 CMakeCache.txt

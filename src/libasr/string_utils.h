@@ -25,6 +25,8 @@ char *s2c(Allocator &al, const std::string &s);
 std::string replace(const std::string &s,
     const std::string &regex, const std::string &replace);
 
+std::string read_file(const std::string &filename);
+
 } // namespace LFortran
 
 #endif // LFORTRAN_STRING_UTILS_H
