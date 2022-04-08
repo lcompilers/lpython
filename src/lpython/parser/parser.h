@@ -34,6 +34,10 @@ Result<LPython::AST::Module_t*> parse(Allocator &al,
     const std::string &s,
     diag::Diagnostics &diagnostics);
 
+Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
+        const std::string &runtime_library_dir,
+        const std::string &infile, diag::Diagnostics &diagnostics,
+        bool new_parser);
 
 } // namespace LFortran
 

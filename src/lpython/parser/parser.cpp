@@ -5,7 +5,10 @@
 #include <lpython/parser/parser.h>
 #include <lpython/parser/parser.tab.hh>
 #include <libasr/diagnostics.h>
+#include <libasr/string_utils.h>
+#include <libasr/utils.h>
 #include <lpython/parser/parser_exception.h>
+#include <lpython/python_serialization.h>
 
 namespace LFortran {
 
@@ -79,6 +82,43 @@ void Parser::handle_yyerror(const Location &loc, const std::string &msg)
         message = "Internal Compiler Error: parser returned unknown error";
     }
     throw parser_local::ParserError(message, loc);
+}
+
+Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
+        const std::string &runtime_library_dir,
+        const std::string &infile, diag::Diagnostics &diagnostics,
+        bool new_parser) {
+    LPython::AST::ast_t* ast;
+    if (new_parser) {
+        std::string input = read_file(infile);
+        Result<LPython::AST::Module_t*> res = parse(
+            al, input, diagnostics);
+        LocationManager lm;
+        lm.in_filename = infile;
+        lm.init_simple(input);
+        if (res.ok) {
+            ast = (LPython::AST::ast_t*)res.result;
+        } else {
+            LFORTRAN_ASSERT(diagnostics.has_error())
+            return Error();
+        }
+    } else {
+        std::string pycmd = "python " + runtime_library_dir + "/lpython_parser.py " + infile;
+        int err = std::system(pycmd.c_str());
+        if (err != 0) {
+            std::cerr << "The command '" << pycmd << "' failed." << std::endl;
+            return Error();
+        }
+        std::string infile_ser = "ser.txt";
+        std::string input;
+        bool status = read_file(infile_ser, input);
+        if (!status) {
+            std::cerr << "The file '" << infile_ser << "' cannot be read." << std::endl;
+            return Error();
+        }
+        ast = LPython::deserialize_ast(al, input);
+    }
+    return ast;
 }
 
 

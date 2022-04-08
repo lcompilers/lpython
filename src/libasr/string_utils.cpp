@@ -2,6 +2,8 @@
 #include <regex>
 #include <algorithm>
 #include <string>
+#include <iostream>
+#include <fstream>
 
 #include <libasr/string_utils.h>
 #include <libasr/containers.h>
@@ -83,5 +85,23 @@ std::string replace(const std::string &s,
 {
     return std::regex_replace(s, std::regex(regex), replace);
 }
+
+std::string read_file(const std::string &filename)
+{
+    std::ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary
+            | std::ios::ate);
+
+    std::ifstream::pos_type filesize = ifs.tellg();
+    if (filesize < 0) return std::string();
+
+    ifs.seekg(0, std::ios::beg);
+
+    std::vector<char> bytes(filesize);
+    ifs.read(&bytes[0], filesize);
+
+    return std::string(&bytes[0], filesize);
+}
+
+
 
 } // namespace LFortran

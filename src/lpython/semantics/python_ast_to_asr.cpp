@@ -23,29 +23,10 @@
 #include <lpython/semantics/semantic_exception.h>
 #include <lpython/python_serialization.h>
 #include <lpython/semantics/python_comptime_eval.h>
+#include <lpython/parser/parser.h>
 
 
 namespace LFortran::LPython {
-
-LFortran::Result<LFortran::LPython::AST::ast_t*> parse_python_file(Allocator &al,
-        const std::string &runtime_library_dir,
-        const std::string &infile) {
-    std::string pycmd = "python " + runtime_library_dir + "/lpython_parser.py " + infile;
-    int err = std::system(pycmd.c_str());
-    if (err != 0) {
-        std::cerr << "The command '" << pycmd << "' failed." << std::endl;
-        return LFortran::Error();
-    }
-    std::string infile_ser = "ser.txt";
-    std::string input;
-    bool status = read_file(infile_ser, input);
-    if (!status) {
-        std::cerr << "The file '" << infile_ser << "' cannot be read." << std::endl;
-        return LFortran::Error();
-    }
-    LFortran::LPython::AST::ast_t* ast = LFortran::LPython::deserialize_ast(al, input);
-    return ast;
-}
 
 // Does a CPython style lookup for a module:
 // * First the current directory (this is incorrect, we need to do it relative to the current file)
@@ -119,7 +100,10 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     if (ltypes) return nullptr;
     if (numpy) return nullptr;
     std::string infile = rinfile.result;
-    Result<AST::ast_t*> r = parse_python_file(al, rl_path, infile);
+    // TODO: diagnostic should be an argument to this function
+    diag::Diagnostics diagnostics;
+    Result<AST::ast_t*> r = parse_python_file(al, rl_path, infile,
+        diagnostics, false);
     if (!r.ok) {
         err("The file '" + infile + "' failed to parse", loc);
     }
@@ -128,8 +112,6 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     // Convert the module from AST to ASR
     LFortran::LocationManager lm;
     lm.in_filename = infile;
-    // TODO: diagnostic should be an argument to this function
-    diag::Diagnostics diagnostics;
     Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast, diagnostics, false, false);
     std::string input;
     read_file(infile, input);

@@ -33,6 +33,7 @@
 #include <lpython/utils.h>
 #include <lpython/python_serialization.h>
 #include <lpython/parser/tokenizer.h>
+#include <lpython/parser/parser.h>
 
 #include <cpp-terminal/terminal.h>
 #include <cpp-terminal/prompt0.h>
@@ -41,7 +42,7 @@ namespace {
 
 using LFortran::endswith;
 using LFortran::CompilerOptions;
-using LFortran::LPython::parse_python_file;
+using LFortran::parse_python_file;
 
 enum Backend {
     llvm, cpp, x86
@@ -65,22 +66,6 @@ std::string remove_path(const std::string& filename) {
     return filename.substr(lastslash+1);
 }
 
-std::string read_file(const std::string &filename)
-{
-    std::ifstream ifs(filename.c_str(), std::ios::in | std::ios::binary
-            | std::ios::ate);
-
-    std::ifstream::pos_type filesize = ifs.tellg();
-    if (filesize < 0) return std::string();
-
-    ifs.seekg(0, std::ios::beg);
-
-    std::vector<char> bytes(filesize);
-    ifs.read(&bytes[0], filesize);
-
-    return std::string(&bytes[0], filesize);
-}
-
 std::string get_kokkos_dir()
 {
     char *env_p = std::getenv("LFORTRAN_KOKKOS_DIR");
@@ -97,7 +82,7 @@ std::string get_kokkos_dir()
 
 int emit_tokens(const std::string &infile, bool line_numbers, const CompilerOptions &compiler_options)
 {
-    std::string input = read_file(infile);
+    std::string input = LFortran::read_file(infile);
     // Src -> Tokens
     Allocator al(64*1024*1024);
     std::vector<int> toks;
@@ -133,7 +118,7 @@ int emit_ast(const std::string &infile,
 {
     Allocator al(4*1024);
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile);
+        al, runtime_library_dir, infile, compiler_options.new_parser);
     if (!r.ok) {
         return 1;
     }
