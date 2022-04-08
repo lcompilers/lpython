@@ -129,6 +129,32 @@ def linspace(start: f64, stop: f64, num: i32) -> f64[num]:
         A[i] = start + (stop-start)*i/(num-1)
     return A
 
+@overload
+def sign(x: i32) -> i32:
+    if x == 0:
+        return 0
+    elif x > 0:
+        return 1
+
+    return -1
+
+@overload
+def sign(x: i64) -> i64:
+    if x == 0:
+        return 0
+    elif x > 0:
+        return 1
+
+    return -1
+
+@overload
+def sign(x: f32) -> f32:
+    return x/fabs(x)
+
+@overload
+def sign(x: f64) -> f64:
+    return x/fabs(x)
+
 def test_zeros():
     a: f64[4]
     a = zeros(4)
@@ -227,6 +253,26 @@ def test_linspace():
     assert abs(a[2] - 5.0) < eps
     assert abs(a[3] - 7.0) < eps
 
+def test_sign():
+    a: i32
+    a = sign(-3)
+    assert a == -1
+    assert sign(0) == 0
+
+    f: f32
+    f = -3.0
+    assert sign(f) == -1.0
+    f = 235.4142135623730951
+    assert sign(f) == 1.0
+
+    a2: i64
+    a2 = sign(3)
+    assert a2 == 1
+
+    f2: f64
+    f2 = -3.0
+    assert sign(f2) == -1.0
+
 def check():
     test_zeros()
     test_ones()
@@ -235,5 +281,6 @@ def check():
     test_exp()
     test_fabs()
     test_linspace()
+    test_sign()
 
 check()
