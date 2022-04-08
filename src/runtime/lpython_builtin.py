@@ -172,7 +172,7 @@ def bool(b: bool) -> bool:
     return b
 
 @overload
-def bool(c: c32) -> bool:
+def bool(c: str) -> bool:
     pass
 
 @overload
@@ -518,3 +518,70 @@ def _mod(a: i64, b: i64) -> i64:
 @overload
 def _mod(a: f64, b: f64) -> f64:
     return a - _lpython_floordiv(a, b)*b
+
+
+@overload
+def max(a:i32 , b:i32) ->i32:
+    if a > b :
+        return a
+    else :
+        return b
+
+@overload
+def max(a:i32 , b:i32 , c:i32)->i32:
+    res:i32 =a
+    if b > res :
+        res = b
+    if c > res :
+        res =c
+    return res
+
+
+@overload
+def max(a:f64 , b:f64 ,c:f64)->f64:
+    res:f64 =a
+    if b - res > 1e-6:
+        res = b
+    if c - res > 1e-6:
+        res =c
+    return res
+
+@overload
+def max(a:f64 , b:f64) ->f64:
+    if a - b > 1e-6 :
+        return a
+    else :
+        return b
+
+
+@overload
+def min(a:i32 , b:i32) ->i32:
+    if a < b :
+        return a
+    else :
+        return b
+
+@overload
+def min(a:i32 , b:i32 , c:i32)->i32:
+    res:i32 =a
+    if b < res :
+        res = b
+    if c < res :
+        res =c
+    return res
+
+@overload
+def min(a:f64 , b:f64 ,c:f64)->f64:
+    res:f64 =a
+    if res -b  > 1e-6:
+        res = b
+    if res -c  > 1e-6:
+        res =c
+    return res
+
+@overload
+def min(a:f64 , b:f64) ->f64:
+    if b - a > 1e-6 :
+        return a
+    else :
+        return b

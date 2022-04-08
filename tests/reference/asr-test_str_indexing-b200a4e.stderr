@@ -1,5 +1,0 @@
-semantic error: string indices must be integers
- --> tests/errors/test_str_indexing.py:4:13
-  |
-4 |     print(s[1.2])
-  |             ^^^ 
