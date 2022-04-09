@@ -35,5 +35,9 @@ def main0():
     assert -105346 ^ -32771 == 72579
     assert 10 >> 1 == 5
     assert 5 << 1 == 10
+    i1: i32 = 10
+    i2: i32 = 4
+    assert i1 << i2 == 160
+    assert i1 >> i2 == 0
 
 main0()
