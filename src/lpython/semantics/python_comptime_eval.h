@@ -48,7 +48,8 @@ struct PythonIntrinsicProcedures {
             {"divmod", {m_builtin, &eval_divmod}},
             {"_lpython_floordiv", {m_builtin, &eval__lpython_floordiv}},
             {"_mod", {m_builtin, &eval__mod}},
-            {"_bitwise_or", {m_builtin, &eval__bitwise_or}}
+            {"_bitwise_or", {m_builtin, &eval__bitwise_or}},
+            {"_bitwise_and", {m_builtin, &eval__bitwise_and}}
         };
     }
 
@@ -259,6 +260,25 @@ struct PythonIntrinsicProcedures {
                 ASR::make_ConstantInteger_t(al, loc, (a|b), type));
         } else {
             throw SemanticError("_bitwise_or() must have both integer arguments.", loc);
+        }
+    }
+
+    static ASR::expr_t *eval__bitwise_and(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        if (args.size() != 2) {
+            throw SemanticError("_bitwise_and() must have two integer arguments.", loc);
+        }
+        ASR::expr_t* arg1 = args[0], *arg2 = args[1];
+        LFORTRAN_ASSERT(ASRUtils::check_equal_type(ASRUtils::expr_type(arg1),
+                                    ASRUtils::expr_type(arg2)));
+        ASR::ttype_t* type = ASRUtils::expr_type(arg1);
+        if (ASRUtils::is_integer(*type)) {
+            int64_t a = ASR::down_cast<ASR::ConstantInteger_t>(arg1)->m_n;
+            int64_t b = ASR::down_cast<ASR::ConstantInteger_t>(arg2)->m_n;
+            return ASR::down_cast<ASR::expr_t>(
+                ASR::make_ConstantInteger_t(al, loc, (a&b), type));
+        } else {
+            throw SemanticError("_bitwise_and() must have both integer arguments.", loc);
         }
     }
 
