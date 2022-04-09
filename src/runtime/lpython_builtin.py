@@ -550,3 +550,19 @@ def _bitwise_and(a: i8, b: i8) -> i8:
 @overload
 def _bitwise_and(a: i16, b: i16) -> i16:
     pass
+
+@overload
+def _bitwise_xor(a: i32, b: i32) -> i32:
+    pass
+
+@overload
+def _bitwise_xor(a: i64, b: i64) -> i64:
+    pass
+
+@overload
+def _bitwise_xor(a: i8, b: i8) -> i8:
+    pass
+
+@overload
+def _bitwise_xor(a: i16, b: i16) -> i16:
+    pass

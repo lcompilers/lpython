@@ -1034,6 +1034,7 @@ public:
         bool is_mod = false;
         bool is_bitwise_or = false;
         bool is_bitwise_and = false;
+        bool is_bitwise_xor = false;
         switch (x.m_op) {
             case (AST::operatorType::Add) : { op = ASR::binopType::Add; break; }
             case (AST::operatorType::Sub) : { op = ASR::binopType::Sub; break; }
@@ -1044,6 +1045,7 @@ public:
             case (AST::operatorType::Mod) : { is_mod = true; break; }
             case (AST::operatorType::BitOr) : { is_bitwise_or = true; break; }
             case (AST::operatorType::BitAnd) : { is_bitwise_and = true; break; }
+            case (AST::operatorType::BitXor) : { is_bitwise_xor = true; break; }
             default : {
                 throw SemanticError("Binary operator type not supported",
                     x.base.base.loc);
@@ -1074,6 +1076,11 @@ public:
         if (is_bitwise_and) {
             ASR::symbol_t *fn_mod = resolve_intrinsic_function(x.base.base.loc, "_bitwise_and");
             tmp = make_call_helper(al, fn_mod, current_scope, args, "_bitwise_and", x.base.base.loc);
+            return;
+        }
+        if (is_bitwise_xor) {
+            ASR::symbol_t *fn_mod = resolve_intrinsic_function(x.base.base.loc, "_bitwise_xor");
+            tmp = make_call_helper(al, fn_mod, current_scope, args, "_bitwise_xor", x.base.base.loc);
             return;
         }
         bool floordiv = (x.m_op == AST::operatorType::FloorDiv);
