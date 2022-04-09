@@ -518,3 +518,19 @@ def _mod(a: i64, b: i64) -> i64:
 @overload
 def _mod(a: f64, b: f64) -> f64:
     return a - _lpython_floordiv(a, b)*b
+
+@overload
+def _bitwise_or(a: i32, b: i32) -> i32:
+    pass
+
+@overload
+def _bitwise_or(a: i64, b: i64) -> i64:
+    pass
+
+@overload
+def _bitwise_or(a: i8, b: i8) -> i8:
+    pass
+
+@overload
+def _bitwise_or(a: i16, b: i16) -> i16:
+    pass

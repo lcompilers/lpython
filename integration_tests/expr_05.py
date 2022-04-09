@@ -6,10 +6,6 @@ def test_multiply(a: i32, b: i32) -> i32:
 def test_mod(a: i32, b: i32) -> i32:
     return a%b
 
-def test_bitwise_or(a: i32, b: i32) -> i32:
-    return a|b
-
-
 def main0():
     a: i32
     b: i32
@@ -31,11 +27,7 @@ def main0():
     b = 32771
     assert test_mod(a, b) == 2128
 
-    a = 10
-    b = 4
-    assert test_bitwise_or(a, b) == 14
-    a = -105346
-    b = -32771
-    assert test_bitwise_or(a, b) == -32769
+    assert 10 | 4 == 14
+    assert -105346 | -32771 == -32769
 
 main0()
