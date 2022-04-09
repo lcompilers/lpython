@@ -172,7 +172,7 @@ def bool(b: bool) -> bool:
     return b
 
 @overload
-def bool(c: str) -> bool:
+def bool(c: c32) -> bool:
     pass
 
 @overload
