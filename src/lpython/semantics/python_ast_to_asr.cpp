@@ -1032,6 +1032,7 @@ public:
         ASR::expr_t *right = ASRUtils::EXPR(tmp);
         ASR::binopType op;
         bool is_mod = false;
+        bool is_bitwise_or = false;
         switch (x.m_op) {
             case (AST::operatorType::Add) : { op = ASR::binopType::Add; break; }
             case (AST::operatorType::Sub) : { op = ASR::binopType::Sub; break; }
@@ -1040,6 +1041,7 @@ public:
             case (AST::operatorType::FloorDiv) : {op = ASR::binopType::Div; break;}
             case (AST::operatorType::Pow) : { op = ASR::binopType::Pow; break; }
             case (AST::operatorType::Mod) : { is_mod = true; break; }
+            case (AST::operatorType::BitOr) : { is_bitwise_or = true; break; }
             default : {
                 throw SemanticError("Binary operator type not supported",
                     x.base.base.loc);
