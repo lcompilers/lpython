@@ -1234,6 +1234,9 @@ public:
                 ai.m_left = ai.m_right;
             }
         }
+        if (ASR::is_a<ASR::List_t>(*type)) {
+            type = ASR::down_cast<ASR::List_t>(type)->m_type;
+        }
         args.push_back(al, ai);
         tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, s, args.p,
             args.size(), type, nullptr);
