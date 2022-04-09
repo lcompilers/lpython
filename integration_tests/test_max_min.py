@@ -16,7 +16,6 @@ def tes_max_float():
     f:f64 =21.23
     assert max(d ,e ,f) == d
     assert max(e ,f) == e
-    print(max(d , e ,f ))
 
 def test_min_int():
     a:i32 = 1
