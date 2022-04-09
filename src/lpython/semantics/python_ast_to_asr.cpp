@@ -1063,6 +1063,22 @@ public:
             tmp = make_call_helper(al, fn_mod, current_scope, args, "_mod", x.base.base.loc);
             return;
         }
+        if (is_bitwise_or) {
+            left = implicitcast_helper(ASRUtils::expr_type(right), left);
+            right = implicitcast_helper(ASRUtils::expr_type(left), right);
+            ASR::symbol_t *fn_mod = resolve_intrinsic_function(x.base.base.loc, "_bitwise_or");
+            Vec<ASR::call_arg_t> args;
+            args.reserve(al, 2);
+            ASR::call_arg_t arg1, arg2;
+            arg1.loc = left->base.loc;
+            arg1.m_value = left;
+            args.push_back(al, arg1);
+            arg2.loc = right->base.loc;
+            arg2.m_value = right;
+            args.push_back(al, arg2);
+            tmp = make_call_helper(al, fn_mod, current_scope, args, "_bitwise_or", x.base.base.loc);
+            return;
+        }
         bool floordiv = (x.m_op == AST::operatorType::FloorDiv);
         make_BinOp_helper(left, right, op, x.base.base.loc, floordiv);
     }
