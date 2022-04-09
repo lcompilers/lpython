@@ -319,7 +319,6 @@ struct PythonIntrinsicProcedures {
             if (b < 0) {
                 throw SemanticError("Negative shift count not allowed.", loc);
             }
-            std::cout << (a << b) << std::endl;
             return ASR::down_cast<ASR::expr_t>(
                 ASR::make_ConstantInteger_t(al, loc, (a<<b), type));
         } else {
