@@ -34,8 +34,6 @@ def main0():
     assert 10 ^ 4 == 14
     assert -105346 ^ -32771 == 72579
     assert 10 >> 1 == 5
-    assert -54 >> 645 == -1
     assert 5 << 1 == 10
-    assert -10 << 3 == -80
 
 main0()
