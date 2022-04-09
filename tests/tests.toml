@@ -237,3 +237,7 @@ tokens = true
 [[test]]
 filename = "errors/test_str_indexing.py"
 asr = true
+
+[[test]]
+filename = "errors/test_str_slicing.py"
+asr = true
