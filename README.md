@@ -30,10 +30,9 @@ https://github.com/conda-forge/miniforge/#download
 
 ## Compile LPython
 
-Create a Conda environment:
+Create a Conda environment using the preexisting environment.yml file:
 
-    conda create -c conda-forge -n lp llvmdev=11.0.1 bison=3.4 re2c python cmake make toml numpy
-    conda activate lp
+    conda env create -f environment.yml
 
 Install required packages (Linux - 64 bit):
 
