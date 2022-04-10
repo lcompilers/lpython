@@ -42,5 +42,12 @@ def main0():
     assert i1 & i2 == 0
     assert i1 | i2 == 14
     assert i1 ^ i2 == 14
+    assert -i1 ^ -i2 == 10
+    i3: i32 = 432534534
+    i4: i32 = -4325
+    assert i3 | i4 == -225
+    assert i4 >> 3 == -541
+    assert -i3 & i4 == -432534758
+    assert -i3 ^ i4 == 432530657
 
 main0()

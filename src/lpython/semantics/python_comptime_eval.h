@@ -260,11 +260,10 @@ struct PythonIntrinsicProcedures {
 
     static ASR::expr_t *eval_bitwise(Allocator &al, const Location &loc,
                 Vec<ASR::expr_t*> &args, const comptime_eval_callback X) {
-        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         if (args.size() != 2) {
             throw SemanticError("Bitwise Operation must have two integer arguments.", loc);
         }
-        ASR::expr_t* arg1 = args[0], *arg2 = args[1];
+        ASR::expr_t* arg1 = ASRUtils::expr_value(args[0]), *arg2 = ASRUtils::expr_value(args[1]);
         LFORTRAN_ASSERT(ASRUtils::check_equal_type(ASRUtils::expr_type(arg1),
                                     ASRUtils::expr_type(arg2)));
         ASR::ttype_t* type = ASRUtils::expr_type(arg1);
