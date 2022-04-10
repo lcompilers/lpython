@@ -39,5 +39,8 @@ def main0():
     i2: i32 = 4
     assert i1 << i2 == 160
     assert i1 >> i2 == 0
+    assert i1 & i2 == 0
+    assert i1 | i2 == 14
+    assert i1 ^ i2 == 14
 
 main0()
