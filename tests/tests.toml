@@ -237,7 +237,6 @@ tokens = true
 [[test]]
 filename = "../integration_tests/test_max_min.py"
 asr = true
-ast = true
 
 [[test]]
 filename = "errors/test_str_indexing.py"
