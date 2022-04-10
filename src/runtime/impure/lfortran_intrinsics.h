@@ -129,6 +129,7 @@ LFORTRAN_API double_complex_t _lfortran_zasinh(double_complex_t x);
 LFORTRAN_API float _lfortran_sacosh(float x);
 LFORTRAN_API double _lfortran_dacosh(double x);
 LFORTRAN_API float_complex_t _lfortran_cacosh(float_complex_t x);
+LFORTRAN_API double _lfortran_dfmod(double x, double y);
 LFORTRAN_API double_complex_t _lfortran_zacosh(double_complex_t x);
 LFORTRAN_API float _lfortran_satanh(float x);
 LFORTRAN_API double _lfortran_datanh(double x);
