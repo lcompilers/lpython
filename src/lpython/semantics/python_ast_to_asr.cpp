@@ -1211,6 +1211,9 @@ public:
             }
             if (s->m_upper != nullptr) {
                 this->visit_expr(*s->m_upper);
+                if (!ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
+                    throw SemanticError("slice indices must be integers or None", tmp->loc);
+                }
                 ai.m_right = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
             }
             if (s->m_step != nullptr) {
@@ -1233,6 +1236,9 @@ public:
                 // String indexing is done using "a(3:3)" style
                 ai.m_left = ai.m_right;
             }
+        }
+        if (ASR::is_a<ASR::List_t>(*type)) {
+            type = ASR::down_cast<ASR::List_t>(type)->m_type;
         }
         args.push_back(al, ai);
         tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, s, args.p,
