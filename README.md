@@ -33,6 +33,7 @@ https://github.com/conda-forge/miniforge/#download
 Create a Conda environment using the preexisting environment.yml file:
 
     conda env create -f environment.yml
+    conda activate lp
 
 Install required packages (Linux - 64 bit):
 
