@@ -3578,6 +3578,22 @@ public:
             if (ASRUtils::is_integer(*t) ||
                 ASR::is_a<ASR::Logical_t>(*ASRUtils::type_get_past_pointer(t))) {
                 switch( a_kind ) {
+                    case 1 : {
+                        if (llvm::ConstantInt* CI = llvm::dyn_cast<llvm::ConstantInt>(tmp)) {
+                            if (CI->getBitWidth() <= 8) {
+                                if (CI->isZero())
+                                {
+                                    tmp = builder->CreateGlobalStringPtr("False");
+                                }
+                                else if (CI->isOne())
+                                {
+                                    tmp = builder->CreateGlobalStringPtr("True");
+                                }
+                            }
+                        }
+                        fmt.push_back("%s");
+                        break;
+                    } 
                     case 4 : {
                         fmt.push_back("%d");
                         break;
