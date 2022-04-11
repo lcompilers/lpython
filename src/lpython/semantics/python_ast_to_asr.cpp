@@ -1031,7 +1031,7 @@ public:
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = ASRUtils::EXPR(tmp);
         ASR::binopType op;
-        bool is_mod = false;
+        std::string op_name = "";
         switch (x.m_op) {
             case (AST::operatorType::Add) : { op = ASR::binopType::Add; break; }
             case (AST::operatorType::Sub) : { op = ASR::binopType::Sub; break; }
@@ -1039,26 +1039,31 @@ public:
             case (AST::operatorType::Div) : { op = ASR::binopType::Div; break; }
             case (AST::operatorType::FloorDiv) : {op = ASR::binopType::Div; break;}
             case (AST::operatorType::Pow) : { op = ASR::binopType::Pow; break; }
-            case (AST::operatorType::Mod) : { is_mod = true; break; }
+            case (AST::operatorType::Mod) : { op_name = "_mod"; break; }
+            case (AST::operatorType::BitOr) : { op_name = "_bitwise_or"; break; }
+            case (AST::operatorType::BitAnd) : { op_name = "_bitwise_and"; break; }
+            case (AST::operatorType::BitXor) : { op_name = "_bitwise_xor"; break; }
+            case (AST::operatorType::LShift) : { op_name = "_bitwise_lshift"; break; }
+            case (AST::operatorType::RShift) : { op_name = "_bitwise_rshift"; break; }
             default : {
                 throw SemanticError("Binary operator type not supported",
                     x.base.base.loc);
             }
         }
-        if (is_mod) {
-            left = implicitcast_helper(ASRUtils::expr_type(right), left);
-            right = implicitcast_helper(ASRUtils::expr_type(left), right);
-            ASR::symbol_t *fn_mod = resolve_intrinsic_function(x.base.base.loc, "_mod");
-            Vec<ASR::call_arg_t> args;
-            args.reserve(al, 2);
-            ASR::call_arg_t arg1, arg2;
-            arg1.loc = left->base.loc;
-            arg1.m_value = left;
-            args.push_back(al, arg1);
-            arg2.loc = right->base.loc;
-            arg2.m_value = right;
-            args.push_back(al, arg2);
-            tmp = make_call_helper(al, fn_mod, current_scope, args, "_mod", x.base.base.loc);
+        left = implicitcast_helper(ASRUtils::expr_type(right), left);
+        right = implicitcast_helper(ASRUtils::expr_type(left), right);
+        Vec<ASR::call_arg_t> args;
+        args.reserve(al, 2);
+        ASR::call_arg_t arg1, arg2;
+        arg1.loc = left->base.loc;
+        arg1.m_value = left;
+        args.push_back(al, arg1);
+        arg2.loc = right->base.loc;
+        arg2.m_value = right;
+        args.push_back(al, arg2);
+        if (op_name != "") {
+            ASR::symbol_t *fn_mod = resolve_intrinsic_function(x.base.base.loc, op_name);
+            tmp = make_call_helper(al, fn_mod, current_scope, args, op_name, x.base.base.loc);
             return;
         }
         bool floordiv = (x.m_op == AST::operatorType::FloorDiv);

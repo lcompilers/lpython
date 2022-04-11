@@ -6,7 +6,6 @@ def test_multiply(a: i32, b: i32) -> i32:
 def test_mod(a: i32, b: i32) -> i32:
     return a%b
 
-
 def main0():
     a: i32
     b: i32
@@ -28,5 +27,27 @@ def main0():
     b = 32771
     assert test_mod(a, b) == 2128
 
+    assert 10 | 4 == 14
+    assert -105346 | -32771 == -32769
+    assert 10 & 4 == 0
+    assert -105346 & -32771 == -105348
+    assert 10 ^ 4 == 14
+    assert -105346 ^ -32771 == 72579
+    assert 10 >> 1 == 5
+    assert 5 << 1 == 10
+    i1: i32 = 10
+    i2: i32 = 4
+    assert i1 << i2 == 160
+    assert i1 >> i2 == 0
+    assert i1 & i2 == 0
+    assert i1 | i2 == 14
+    assert i1 ^ i2 == 14
+    assert -i1 ^ -i2 == 10
+    i3: i32 = 432534534
+    i4: i32 = -4325
+    assert i3 | i4 == -225
+    assert i4 >> 3 == -541
+    assert -i3 & i4 == -432534758
+    assert -i3 ^ i4 == 432530657
 
 main0()
