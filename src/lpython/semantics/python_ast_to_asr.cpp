@@ -1239,6 +1239,8 @@ public:
         }
         if (ASR::is_a<ASR::List_t>(*type)) {
             type = ASR::down_cast<ASR::List_t>(type)->m_type;
+        } else if (ASR::is_a<ASR::Set_t>(*type)) {
+            throw SemanticError("'set' object is not subscriptable", x.base.base.loc);
         }
         args.push_back(al, ai);
         tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, s, args.p,
