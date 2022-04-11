@@ -502,26 +502,6 @@ def _lpython_floordiv(a: i64, b: i64) -> i64:
         return result
     return result - 1
 
-@overload
-def _lpython_floordiv(a: i8, b: i8) -> i8:
-    r: f32
-    r = a/b
-    result: i32
-    result = int(r)
-    if r >= 0.0 or result == r:
-        return result
-    return result - 1
-
-@overload
-def _lpython_floordiv(a: i16, b: i16) -> i16:
-    r: f32
-    r = a/b
-    result: i32
-    result = int(r)
-    if r >= 0.0 or result == r:
-        return result
-    return result - 1
-
 
 @overload
 def _mod(a: i32, b: i32) -> i32:
@@ -548,27 +528,11 @@ def _bitwise_or(a: i64, b: i64) -> i64:
     pass
 
 @overload
-def _bitwise_or(a: i8, b: i8) -> i8:
-    pass
-
-@overload
-def _bitwise_or(a: i16, b: i16) -> i16:
-    pass
-
-@overload
 def _bitwise_and(a: i32, b: i32) -> i32:
     pass
 
 @overload
 def _bitwise_and(a: i64, b: i64) -> i64:
-    pass
-
-@overload
-def _bitwise_and(a: i8, b: i8) -> i8:
-    pass
-
-@overload
-def _bitwise_and(a: i16, b: i16) -> i16:
     pass
 
 @overload
@@ -580,27 +544,11 @@ def _bitwise_xor(a: i64, b: i64) -> i64:
     pass
 
 @overload
-def _bitwise_xor(a: i8, b: i8) -> i8:
-    pass
-
-@overload
-def _bitwise_xor(a: i16, b: i16) -> i16:
-    pass
-
-@overload
 def _bitwise_lshift(a: i32, b: i32) -> i32:
     return a*2**b
 
 @overload
 def _bitwise_lshift(a: i64, b: i64) -> i64:
-    return a*2**b
-
-@overload
-def _bitwise_lshift(a: i8, b: i8) -> i8:
-    return a*2**b
-
-@overload
-def _bitwise_lshift(a: i16, b: i16) -> i16:
     return a*2**b
 
 @overload
@@ -612,17 +560,5 @@ def _bitwise_rshift(a: i32, b: i32) -> i32:
 @overload
 def _bitwise_rshift(a: i64, b: i64) -> i64:
     i: i64
-    i = 2
-    return _lpython_floordiv(a, i**b)
-
-@overload
-def _bitwise_rshift(a: i8, b: i8) -> i8:
-    i: i8
-    i = 2
-    return _lpython_floordiv(a, i**b)
-
-@overload
-def _bitwise_rshift(a: i16, b: i16) -> i16:
-    i: i16
     i = 2
     return _lpython_floordiv(a, i**b)
