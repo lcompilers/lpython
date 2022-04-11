@@ -533,7 +533,6 @@ def max(a: i32, b: i32, c: i32) -> i32:
         res = c
     return res
 
-
 @overload
 def max(a: f64, b: f64, c: f64) -> f64:
     res: f64 =a
@@ -549,7 +548,6 @@ def max(a: f64, b: f64) -> f64:
         return a
     else:
         return b
-
 
 @overload
 def min(a: i32, b: i32) -> i32:
@@ -583,4 +581,46 @@ def min(a: f64, b: f64) -> f64:
     else:
         return b
 
+@overload
+def _bitwise_or(a: i32, b: i32) -> i32:
+    pass
 
+@overload
+def _bitwise_or(a: i64, b: i64) -> i64:
+    pass
+
+@overload
+def _bitwise_and(a: i32, b: i32) -> i32:
+    pass
+
+@overload
+def _bitwise_and(a: i64, b: i64) -> i64:
+    pass
+
+@overload
+def _bitwise_xor(a: i32, b: i32) -> i32:
+    pass
+
+@overload
+def _bitwise_xor(a: i64, b: i64) -> i64:
+    pass
+
+@overload
+def _bitwise_lshift(a: i32, b: i32) -> i32:
+    return a*2**b
+
+@overload
+def _bitwise_lshift(a: i64, b: i64) -> i64:
+    return a*2**b
+
+@overload
+def _bitwise_rshift(a: i32, b: i32) -> i32:
+    i: i32
+    i = 2
+    return _lpython_floordiv(a, i**b)
+
+@overload
+def _bitwise_rshift(a: i64, b: i64) -> i64:
+    i: i64
+    i = 2
+    return _lpython_floordiv(a, i**b)
