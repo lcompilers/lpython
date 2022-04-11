@@ -281,8 +281,13 @@ int compile_python_to_object_file(
     lm.in_filename = infile;
     std::string input = LFortran::read_file(infile);
     lm.init_simple(input);
+
+    auto init_time = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser || compiler_options.parser_time);
+    auto finish_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> double_ms(finish_time - init_time);
+    double time_ms = double_ms.count();
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
         return 1;
@@ -315,6 +320,9 @@ int compile_python_to_object_file(
     }
     m = std::move(res.result);
     e.save_object_file(*(m->m_m), outfile);
+    if (compiler_options.parser_time) {
+        std::cout <<"Parsing time: " << time_ms <<" ms" << std::endl;
+    }
     return 0;
 }
 
@@ -523,7 +531,7 @@ int main(int argc, char *argv[])
         std::string arg_backend = "llvm";
         std::string arg_kernel_f;
         bool print_targets = false;
-
+        bool parser_time = false;
         std::string arg_fmt_file;
         // int arg_fmt_indent = 4;
         // bool arg_fmt_indent_unit = false;
@@ -583,6 +591,8 @@ int main(int argc, char *argv[])
         app.add_flag("--fast", compiler_options.fast, "Best performance (disable strict standard compliance)");
         app.add_option("--target", compiler_options.target, "Generate code for the given target")->capture_default_str();
         app.add_flag("--print-targets", print_targets, "Print the registered targets");
+        app.add_flag("--parser-time", compiler_options.parser_time, "Print time for parsing the file");
+
 
         /*
         * Subcommands:

@@ -31,6 +31,7 @@ struct CompilerOptions {
     bool no_warnings = false;
     bool no_error_banner = false;
     bool new_parser = false;
+    bool parser_time = false;
     std::string target = "";
     Platform platform;
 
