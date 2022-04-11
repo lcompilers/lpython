@@ -16,6 +16,7 @@
 #include <lpython/semantics/semantic_exception.h>
 
 namespace LFortran {
+
 struct PythonIntrinsicProcedures {
 
     const std::string m_builtin = "lpython_builtin";
@@ -657,7 +658,7 @@ struct PythonIntrinsicProcedures {
 
     static ASR::expr_t* eval_max(Allocator &al , const Location &loc , Vec<ASR::expr_t*>&args) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        bool semantic_error_flag = args.size() !=0 ;
+        bool semantic_error_flag = args.size() !=0;
         std::string msg = "max() takes many arguments to comparing";
         ASR::expr_t* first_element = args[0];
         ASR::ttype_t* first_element_type = ASRUtils::expr_type(first_element);
@@ -665,56 +666,54 @@ struct PythonIntrinsicProcedures {
                                 || ASRUtils::is_real(*first_element_type)
                                 || ASRUtils::is_character(*first_element_type);
         int32_t biggest_ind  = 0;
-        if(semantic_error_flag) {
+        if (semantic_error_flag) {
             if (ASRUtils::is_integer(*first_element_type)) {
-                int32_t biggest = 0 ;
+                int32_t biggest = 0;
                 for (int i = 0; i < args.size() && semantic_error_flag; i++) {
                     ASR::expr_t* current_arg = args[i];
                     ASR::ttype_t* current_arg_type = ASRUtils::expr_type(current_arg);
                     semantic_error_flag &= current_arg_type->type == first_element_type->type;
-                    if(!semantic_error_flag) {
+                    if (!semantic_error_flag) {
                         msg = "type of arg in index ["+std::to_string(i)="] is not comparable";
                         break;
                     }
                     int32_t current_val = ASR::down_cast<ASR::ConstantInteger_t>(current_arg)->m_n;
-                    if(i == 0) {
+                    if (i == 0) {
                         biggest = current_val;
                         biggest_ind = 0;
-                    }
-                    else {
-                        if(current_val > biggest ) {
+                    } else {
+                        if (current_val > biggest ) {
                             biggest = current_val;
                             biggest_ind = i;
                         }
                     }
                 }
-                if(semantic_error_flag) {
+                if (semantic_error_flag) {
                     return args[biggest_ind];
                 }
             }
-            else if(ASRUtils::is_real(*first_element_type)) {
-                double_t biggest = 0 ;
+            else if (ASRUtils::is_real(*first_element_type)) {
+                double_t biggest = 0;
                 for (int i = 0; i < args.size() && semantic_error_flag; i++) {
                     ASR::expr_t* current_arg = args[i];
                     ASR::ttype_t* current_arg_type = ASRUtils::expr_type(current_arg);
-                    semantic_error_flag &= current_arg_type->type == first_element_type->type ;
-                    if(!semantic_error_flag) {
+                    semantic_error_flag &= current_arg_type->type == first_element_type->type;
+                    if (!semantic_error_flag) {
                         msg = "type of arg in index ["+std::to_string(i)="] is not comparable";
                         break;
                     }
                     double_t current_val = ASR::down_cast<ASR::ConstantReal_t>(current_arg)->m_r;
-                    if(i == 0) {
+                    if (i == 0) {
                         biggest = current_val ;
                         biggest_ind = 0 ;
-                    }
-                    else {
-                        if(current_val - biggest > 1e-6 ) {
-                            biggest = current_val ;
-                            biggest_ind = i ;
+                    } else {
+                        if (current_val - biggest > 1e-6 ) {
+                            biggest = current_val;
+                            biggest_ind = i;
                         }
                     }
                 }
-                if(semantic_error_flag) {
+                if (semantic_error_flag) {
                     return args[biggest_ind];
                 }
             }
@@ -723,7 +722,7 @@ struct PythonIntrinsicProcedures {
     }
     static ASR::expr_t* eval_min(Allocator &al , const Location &loc , Vec<ASR::expr_t*>&args) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        bool semantic_error_flag = args.size() !=0 ;
+        bool semantic_error_flag = args.size() !=0;
         std::string msg = "min() takes many arguments to comparing";
         ASR::expr_t *first_element = args[0];
         ASR::ttype_t *first_element_type = ASRUtils::expr_type(first_element);
@@ -737,50 +736,48 @@ struct PythonIntrinsicProcedures {
                 for (int i =0; i < args.size() && semantic_error_flag; i++) {
                     ASR::expr_t* current_arg = args[i];
                     ASR::ttype_t* current_arg_type = ASRUtils::expr_type(current_arg);
-                    semantic_error_flag &= current_arg_type->type == first_element_type->type ;
-                    if(!semantic_error_flag) {
+                    semantic_error_flag &= current_arg_type->type == first_element_type->type;
+                    if (!semantic_error_flag) {
                         msg = "type of arg in index ["+std::to_string(i)="] is not comparable";
                         break;
                     }
                     int32_t current_val = ASR::down_cast<ASR::ConstantInteger_t>(current_arg)->m_n;
-                    if(i == 0) {
+                    if (i == 0) {
                         smallest = current_val;
                         smallest_ind = 0;
-                    }
-                    else{
-                        if(current_val < smallest) {
+                    } else {
+                        if (current_val < smallest) {
                             smallest = current_val;
                             smallest_ind = i;
                         }
                     }
                 }
-                if(semantic_error_flag) {
+                if (semantic_error_flag) {
                     return args[smallest_ind];
                 }
             }
-            else if(ASRUtils::is_real(*first_element_type)) {
+            else if (ASRUtils::is_real(*first_element_type)) {
                 double_t smallest = 0;
                 for (int i =0; i < args.size() && semantic_error_flag; i++) {
                     ASR::expr_t *current_arg = args[i];
                     ASR::ttype_t *current_arg_type = ASRUtils::expr_type(current_arg);
                     semantic_error_flag &= current_arg_type->type == first_element_type->type;
-                    if(!semantic_error_flag) {
+                    if (!semantic_error_flag) {
                         msg = "type of arg in index ["+std::to_string(i)="] is not comparable";
                         break;
                     }
                     double_t current_val = ASR::down_cast<ASR::ConstantReal_t>(current_arg)->m_r;
-                    if(i == 0) {
+                    if (i == 0) {
                         smallest = current_val;
                         smallest_ind = 0;
-                    }
-                    else {
-                        if(smallest -current_val >1e-6 ) {
+                    } else {
+                        if (smallest -current_val >1e-6 ) {
                             smallest = current_val;
                             smallest_ind = i;
                         }
                     }
                 }
-                if(semantic_error_flag) {
+                if (semantic_error_flag) {
                     return args[smallest_ind];
                 }
             }
