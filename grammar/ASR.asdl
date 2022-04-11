@@ -203,6 +203,7 @@ stmt
 expr
     = BoolOp(expr left, boolop op, expr right, ttype type, expr? value)
     | BinOp(expr left, binop op, expr right, ttype type, expr? value, expr? overloaded)
+    | IntegerBitOp(expr left, bitop op, expr right, ttype type, expr? value, expr? overloaded)
     | StrOp(expr left, strop op, expr right, ttype type, expr? value)
     | UnaryOp(unaryop op, expr operand, ttype type, expr? value)
         -- Such as: (x, y+z), (3.0, 2.0) generally not known at compile time
@@ -255,6 +256,8 @@ ttype
 boolop = And | Or | Xor | NEqv | Eqv
 
 binop = Add | Sub | Mul | Div | Pow
+
+bitop = BitAnd | BitOr | BitXor | LShift | RShift
 
 unaryop = Invert | Not | UAdd | USub
 
