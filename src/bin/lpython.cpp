@@ -155,6 +155,7 @@ int emit_parser_time(const std::string &infile,
     auto finish_time = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> double_ms(finish_time - init_time);
     double time_ms = double_ms.count();
+    // same diagnostic printing from emit_show_ast.
     if (diagnostics.diagnostics.size() > 0) {
         LFortran::LocationManager lm;
         lm.in_filename = infile;
@@ -866,5 +867,6 @@ int main(int argc, char *argv[])
         std::cerr << "Unknown Exception" << std::endl;
         return 1;
     }
+
     return 0;
 }
