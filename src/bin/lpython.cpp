@@ -144,6 +144,32 @@ int emit_ast(const std::string &infile,
     return 0;
 }
 
+int emit_parser_time(const std::string &infile,
+    const std::string &runtime_library_dir, CompilerOptions &compiler_options)
+{
+    Allocator al(4*1024);
+    LFortran::diag::Diagnostics diagnostics;
+    auto init_time = std::chrono::high_resolution_clock::now();
+    LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
+            al, runtime_library_dir, infile, diagnostics, true);
+    auto finish_time = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> double_ms(finish_time - init_time);
+    double time_ms = double_ms.count();
+    if (diagnostics.diagnostics.size() > 0) {
+        LFortran::LocationManager lm;
+        lm.in_filename = infile;
+        // TODO: only read this once, and pass it as an argument to parse_python_file()
+        std::string input = LFortran::read_file(infile);
+        lm.init_simple(input);
+        std::cerr << diagnostics.render(input, lm, compiler_options);
+    }
+    if (!r.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        return 1;
+    }
+    std::cout << "Parsing time: " << time_ms << " ms" << std::endl;
+    return 0;
+}
 int emit_asr(const std::string &infile,
     const std::string &runtime_library_dir,
     bool with_intrinsic_modules, CompilerOptions &compiler_options)
@@ -282,12 +308,8 @@ int compile_python_to_object_file(
     std::string input = LFortran::read_file(infile);
     lm.init_simple(input);
 
-    auto init_time = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser || compiler_options.parser_time);
-    auto finish_time = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> double_ms(finish_time - init_time);
-    double time_ms = double_ms.count();
+        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
         return 1;
@@ -320,9 +342,6 @@ int compile_python_to_object_file(
     }
     m = std::move(res.result);
     e.save_object_file(*(m->m_m), outfile);
-    if (compiler_options.parser_time) {
-        std::cout <<"Parsing time: " << time_ms <<" ms" << std::endl;
-    }
     return 0;
 }
 
@@ -591,7 +610,7 @@ int main(int argc, char *argv[])
         app.add_flag("--fast", compiler_options.fast, "Best performance (disable strict standard compliance)");
         app.add_option("--target", compiler_options.target, "Generate code for the given target")->capture_default_str();
         app.add_flag("--print-targets", print_targets, "Print the registered targets");
-        app.add_flag("--parser-time", compiler_options.parser_time, "Print time for parsing the file");
+        app.add_flag("--parser-time", parser_time, "Print time for parsing the file");
 
 
         /*
@@ -757,6 +776,9 @@ int main(int argc, char *argv[])
         }
         if (show_tokens) {
             return emit_tokens(arg_file, true, compiler_options);
+        }
+        if (parser_time) {
+            return emit_parser_time(arg_file, runtime_library_dir, compiler_options);
         }
         if (show_ast) {
             return emit_ast(arg_file, runtime_library_dir, compiler_options);
