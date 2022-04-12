@@ -198,6 +198,7 @@ stmt
     | WhileLoop(expr test, stmt* body)
     | Nullify(symbol* vars)
     | Flush(int label, expr unit, expr? err, expr? iomsg, expr? iostat)
+    | ListAppend(symbol a, expr ele)
 
 
 expr
