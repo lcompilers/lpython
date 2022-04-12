@@ -2395,7 +2395,13 @@ public:
                         if (ASR::is_a<ASR::List_t>(*var->m_type)) {
                             std::string attr = at->m_attr;
                             if (attr == "append") {
-                                // TODO: implement append here
+                                if (c->n_args != 1) {
+                                    throw SemanticError("append() takes exactly one argument",
+                                        x.base.base.loc);
+                                }
+                                visit_expr(*c->m_args[0]);
+                                ASR::expr_t *ele = ASRUtils::EXPR(tmp);
+                                tmp = make_ListAppend_t(al, x.base.base.loc, t, ele);
                                 return;
                             } else {
                                 throw SemanticError("'" + attr + "' is not implemented for List type",
