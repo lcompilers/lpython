@@ -1,5 +1,5 @@
 class Test:
-    def foo():
-        if 'foo':
+    def foo(a):
+        if a == 'foo':
             return 'foo'
         return 'bar'

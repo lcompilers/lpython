@@ -6,22 +6,25 @@
 (KEYWORD "def") 16:18
 (TOKEN "identifier" foo) 20:22
 (TOKEN "(") 23:23
-(TOKEN ")") 24:24
-(TOKEN ":") 25:25
-(NEWLINE) 26:26
-(TOKEN "indent") 27:34
-(KEYWORD "if") 35:36
-(TOKEN "string" "foo") 38:42
-(TOKEN ":") 43:43
-(NEWLINE) 44:44
-(TOKEN "indent") 45:56
-(KEYWORD "return") 57:62
-(TOKEN "string" "foo") 64:68
-(NEWLINE) 69:69
-(TOKEN "dedent") 70:77
-(KEYWORD "return") 78:83
-(TOKEN "string" "bar") 85:89
-(NEWLINE) 90:90
-(TOKEN "dedent") 90:90
-(TOKEN "dedent") 90:90
-(EOF) 91:91
+(TOKEN "identifier" a) 24:24
+(TOKEN ")") 25:25
+(TOKEN ":") 26:26
+(NEWLINE) 27:27
+(TOKEN "indent") 28:35
+(KEYWORD "if") 36:37
+(TOKEN "identifier" a) 39:39
+(TOKEN "==") 41:42
+(TOKEN "string" "foo") 44:48
+(TOKEN ":") 49:49
+(NEWLINE) 50:50
+(TOKEN "indent") 51:62
+(KEYWORD "return") 63:68
+(TOKEN "string" "foo") 70:74
+(NEWLINE) 75:75
+(TOKEN "dedent") 76:83
+(KEYWORD "return") 84:89
+(TOKEN "string" "bar") 91:95
+(NEWLINE) 96:96
+(TOKEN "dedent") 96:96
+(TOKEN "dedent") 96:96
+(EOF) 97:97
