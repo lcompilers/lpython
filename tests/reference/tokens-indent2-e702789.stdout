@@ -1,0 +1,27 @@
+(KEYWORD "class") 0:4
+(TOKEN "identifier" Test) 6:9
+(TOKEN ":") 10:10
+(NEWLINE) 11:11
+(TOKEN "indent") 12:15
+(KEYWORD "def") 16:18
+(TOKEN "identifier" foo) 20:22
+(TOKEN "(") 23:23
+(TOKEN ")") 24:24
+(TOKEN ":") 25:25
+(NEWLINE) 26:26
+(TOKEN "indent") 27:34
+(KEYWORD "if") 35:36
+(TOKEN "string" "foo") 38:42
+(TOKEN ":") 43:43
+(NEWLINE) 44:44
+(TOKEN "indent") 45:56
+(KEYWORD "return") 57:62
+(TOKEN "string" "foo") 64:68
+(NEWLINE) 69:69
+(TOKEN "dedent") 70:77
+(KEYWORD "return") 78:83
+(TOKEN "string" "bar") 85:89
+(NEWLINE) 90:90
+(TOKEN "dedent") 90:90
+(TOKEN "dedent") 90:90
+(EOF) 91:91
