@@ -235,6 +235,10 @@ filename = "tokens/indent1.py"
 tokens = true
 
 [[test]]
+filename = "../integration_tests/test_max_min.py"
+asr = true
+
+[[test]]
 filename = "errors/test_str_indexing.py"
 asr = true
 
