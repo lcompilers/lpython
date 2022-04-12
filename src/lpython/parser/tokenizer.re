@@ -148,7 +148,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
     } else if(dedent == 2) {
         // Reduce the indent to `last_indent_length`
         long int sum = 0;
-        for (auto& n : indent_length) sum += n;
+        // for (auto& n : indent_length) sum += n;
+        sum = indent_length.back();
         if(sum != last_indent_length) {
             indent_length.pop_back();
             loc.first = loc.last;
