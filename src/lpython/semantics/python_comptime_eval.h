@@ -707,7 +707,7 @@ struct PythonIntrinsicProcedures {
         }
     }
 
-    static ASR::expr_t *eval_max(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &args) {
+    static ASR::expr_t *eval_max(Allocator &/*al*/, const Location &loc, Vec<ASR::expr_t *> &args) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         bool semantic_error_flag = args.size() != 0;
         std::string msg = "max() takes many arguments to comparing";
@@ -720,7 +720,7 @@ struct PythonIntrinsicProcedures {
         if (semantic_error_flag) {
             if (ASRUtils::is_integer(*first_element_type)) {
                 int32_t biggest = 0;
-                for (int i = 0; i < args.size() && semantic_error_flag; i++) {
+                for (size_t i = 0; i < args.size() && semantic_error_flag; i++) {
                     ASR::expr_t *current_arg = args[i];
                     ASR::ttype_t *current_arg_type = ASRUtils::expr_type(current_arg);
                     semantic_error_flag &= current_arg_type->type == first_element_type->type;
@@ -744,7 +744,7 @@ struct PythonIntrinsicProcedures {
                 }
             } else if (ASRUtils::is_real(*first_element_type)) {
                 double_t biggest = 0;
-                for (int i = 0; i < args.size() && semantic_error_flag; i++) {
+                for (size_t i = 0; i < args.size() && semantic_error_flag; i++) {
                     ASR::expr_t *current_arg = args[i];
                     ASR::ttype_t *current_arg_type = ASRUtils::expr_type(current_arg);
                     semantic_error_flag &= current_arg_type->type == first_element_type->type;
@@ -771,7 +771,7 @@ struct PythonIntrinsicProcedures {
         throw SemanticError(msg, loc);
     }
 
-    static ASR::expr_t *eval_min(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &args) {
+    static ASR::expr_t *eval_min(Allocator &/*al*/, const Location &loc, Vec<ASR::expr_t *> &args) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         bool semantic_error_flag = args.size() != 0;
         std::string msg = "min() takes many arguments to comparing";
@@ -784,7 +784,7 @@ struct PythonIntrinsicProcedures {
         if (semantic_error_flag) {
             if (ASRUtils::is_integer(*first_element_type)) {
                 int32_t smallest = 0;
-                for (int i = 0; i < args.size() && semantic_error_flag; i++) {
+                for (size_t i = 0; i < args.size() && semantic_error_flag; i++) {
                     ASR::expr_t *current_arg = args[i];
                     ASR::ttype_t *current_arg_type = ASRUtils::expr_type(current_arg);
                     semantic_error_flag &= current_arg_type->type == first_element_type->type;
@@ -808,7 +808,7 @@ struct PythonIntrinsicProcedures {
                 }
             } else if (ASRUtils::is_real(*first_element_type)) {
                 double_t smallest = 0;
-                for (int i = 0; i < args.size() && semantic_error_flag; i++) {
+                for (size_t i = 0; i < args.size() && semantic_error_flag; i++) {
                     ASR::expr_t *current_arg = args[i];
                     ASR::ttype_t *current_arg_type = ASRUtils::expr_type(current_arg);
                     semantic_error_flag &= current_arg_type->type == first_element_type->type;
