@@ -177,9 +177,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> expr_list
 /* %type <vec_ast> expr_list_opt */
 %type <ast> statement
-%type <ast> statement1
 %type <ast> single_line_statement
-/* %type <ast> multi_line_statement */
+%type <ast> multi_line_statement
 /* %type <ast> augassign_statement */
 %type <ast> pass_statement
 %type <ast> continue_statement
@@ -200,6 +199,12 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> module
 %type <ast> module_as_id
 %type <vec_ast> module_item_list
+%type <ast> function_def
+%type <ast> decorator
+%type <vec_ast> decorators
+%type <ast> parameter
+%type <vec_ast> parameter_list_opt
+/* %type <ast> if_statement */
 %type <vec_ast> sep
 %type <ast> sep_one
 
@@ -238,16 +243,28 @@ units
     ;
 
 script_unit
-    : statement
+    : statement sep
     | expr sep
     ;
 
-statement
-    : statement1 sep { $$ = $1; }
+statements
+    : single_stmt_list TK_NEWLINE { }
+    | sep TK_INDENT statements1 TK_DEDENT { }
+    ;
 
-statement1
+statements1
+    : statements1 statement sep { }
+    | statement sep { }
+    ;
+
+single_stmt_list
+    : single_stmt_list ";" single_line_statement { }
+    | single_line_statement { }
+    ;
+
+statement
     : single_line_statement
-    /* | multi_line_statement */
+    | multi_line_statement
     ;
 
 single_line_statement
@@ -271,11 +288,11 @@ single_line_statement
     | global_statement
     | nonlocal_statement
     ;
-/*
+
 multi_line_statement
-    :
-    |
-    ; */
+    /* : if_statement */
+    : function_def
+    ;
 
 pass_statement
     : KW_PASS { $$ = PASS(@$); }
@@ -338,17 +355,46 @@ nonlocal_statement
     : KW_NONLOCAL expr_list { $$ = NON_LOCAL($2, @$); }
     ;
 
+decorators
+    : decorators decorator { }
+    | decorator { }
+    ;
+
+decorator
+    : "@" expr sep { }
+    | "@" id ":=" expr sep { }
+    ;
+
+parameter
+    : id { }
+    | id ":" expr { }
+    ;
+
+parameter_list_opt
+    : parameter_list_opt "," parameter { }
+    | parameter { }
+    | %empty {}
+    ;
+
+function_def
+    : KW_DEF id "(" parameter_list_opt ")" ":" statements { }
+    | decorators KW_DEF id "(" parameter_list_opt ")" ":" statements { }
+    ;
 
 expr_list
     : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }
     | expr { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
+/* if_statement */
+
 expr
 // ### primary
     : id { $$ = $1; }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | "(" expr ")" { $$ = $2; }
+    | id "(" ")" { $$ = $1; }
+    | id "(" expr_list ")" { $$ = $1; }
 
     | expr "+" expr { $$ = BINOP($1, Add, $3, @$); }
     | expr "-" expr { $$ = BINOP($1, Sub, $3, @$); }
