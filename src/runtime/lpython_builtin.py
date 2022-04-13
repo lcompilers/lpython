@@ -607,20 +607,28 @@ def _bitwise_xor(a: i64, b: i64) -> i64:
 
 @overload
 def _bitwise_lshift(a: i32, b: i32) -> i32:
+    if b < 0:
+        raise ValueError("Negative shift count not allowed.")
     return a*2**b
 
 @overload
 def _bitwise_lshift(a: i64, b: i64) -> i64:
+    if b < 0:
+        raise ValueError("Negative shift count not allowed.")
     return a*2**b
 
 @overload
 def _bitwise_rshift(a: i32, b: i32) -> i32:
+    if b < 0:
+        raise ValueError("Negative shift count not allowed.")
     i: i32
     i = 2
     return _lpython_floordiv(a, i**b)
 
 @overload
 def _bitwise_rshift(a: i64, b: i64) -> i64:
+    if b < 0:
+        raise ValueError("Negative shift count not allowed.")
     i: i64
     i = 2
     return _lpython_floordiv(a, i**b)
