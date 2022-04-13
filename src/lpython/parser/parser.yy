@@ -204,7 +204,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> decorators
 %type <ast> parameter
 %type <vec_ast> parameter_list_opt
-/* %type <ast> if_statement */
+%type <ast> if_statement
 %type <vec_ast> sep
 %type <ast> sep_one
 
@@ -213,7 +213,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 //%left "or"
 //%left "and"
 //%precedence "not"
-//%left "==" "!=" ">=" ">" "<=" "<" "is not" "is" "not in" "in"
+%left "==" "!=" ">=" ">" "<=" "<" //"is not" "is" "not in" "in"
 %left "|"
 %left "^"
 %left "&"
@@ -290,8 +290,8 @@ single_line_statement
     ;
 
 multi_line_statement
-    /* : if_statement */
-    : function_def
+    : if_statement
+    | function_def
     ;
 
 pass_statement
@@ -386,7 +386,17 @@ expr_list
     | expr { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
-/* if_statement */
+elif_stmt
+    : elif_stmt KW_ELIF expr ":" statements {}
+    | KW_ELIF expr ":" statements {}
+    ;
+
+if_statement
+    : KW_IF expr ":" statements {}
+    | KW_IF expr ":" statements elif_stmt {}
+    | KW_IF expr ":" statements KW_ELSE ":" statements {}
+    | KW_IF expr ":" statements elif_stmt KW_ELSE ":" statements {}
+    ;
 
 expr
 // ### primary
@@ -410,6 +420,13 @@ expr
     | expr "^" expr { $$ = BINOP($1, BitXor, $3, @$); }
     | expr "<<" expr { $$ = BINOP($1, LShift, $3, @$); }
     | expr ">>" expr { $$ = BINOP($1, RShift, $3, @$); }
+
+    | expr "==" expr { }
+    | expr "!=" expr { }
+    | expr "<" expr { }
+    | expr "<=" expr { }
+    | expr ">" expr { }
+    | expr ">=" expr { }
     ;
 
 id
