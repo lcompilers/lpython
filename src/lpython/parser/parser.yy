@@ -172,6 +172,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 // Nonterminal tokens
 
 %type <ast> script_unit
+%type <ast> id
 %type <ast> expr
 %type <vec_ast> expr_list
 /* %type <vec_ast> expr_list_opt */
@@ -185,6 +186,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> break_statement
 %type <ast> raise_statement
 %type <ast> assert_statement
+%type <ast> import_statement
 %type <ast> global_statement
 %type <ast> nonlocal_statement
 /*
@@ -195,6 +197,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> return_statement
 %type <ast> yeild_statement
  */
+%type <vec_ast> module
+%type <ast> module_as_id
+%type <vec_ast> module_item_list
 %type <vec_ast> sep
 %type <ast> sep_one
 
@@ -253,7 +258,6 @@ single_line_statement
     | augassign_statement
     | ann_assignment_statement
  */
-
     | pass_statement
 /*
     | delete_statement
@@ -263,9 +267,15 @@ single_line_statement
     | raise_statement
     | break_statement
     | continue_statement
+    | import_statement
     | global_statement
     | nonlocal_statement
     ;
+/*
+multi_line_statement
+    :
+    |
+    ; */
 
 pass_statement
     : KW_PASS { $$ = PASS(@$); }
@@ -280,14 +290,44 @@ continue_statement
     ;
 
 raise_statement
-    : KW_RAISE { $$ = RAISE(@$); }
-    | KW_RAISE expr { $$ = RAISE1($2, @$); }
-    | KW_RAISE expr KW_FROM expr { $$ = RAISE2($2, $4, @$); }
+    : KW_RAISE { $$ = RAISE_01(@$); }
+    | KW_RAISE expr { $$ = RAISE_02($2, @$); }
+    | KW_RAISE expr KW_FROM expr { $$ = RAISE_03($2, $4, @$); }
     ;
 
 assert_statement
-    : KW_ASSERT expr { $$ = ASSERT($2, @$); }
-    | KW_ASSERT expr "," expr { $$ = ASSERT1($2, $4, @$); }
+    : KW_ASSERT expr { $$ = ASSERT_01($2, @$); }
+    | KW_ASSERT expr "," expr { $$ = ASSERT_02($2, $4, @$); }
+    ;
+
+module
+    : module "." id { }
+    | id { }
+    ;
+
+module_as_id
+    : module { }
+    | module KW_AS id { }
+    ;
+
+module_item_list
+    : module_item_list "," module_as_id { }
+    | "," module_as_id { }
+    ;
+
+module_opt
+    : module { }
+    | %empty { }
+    ;
+
+import_statement
+    : KW_IMPORT module_as_id { }
+    | KW_IMPORT module_as_id module_item_list { }
+    | KW_FROM module_opt KW_IMPORT module_as_id { }
+    | KW_FROM module_opt KW_IMPORT module_as_id module_item_list { }
+    | KW_FROM module_opt KW_IMPORT "(" module_as_id ")" { }
+    | KW_FROM module_opt KW_IMPORT "(" module_as_id module_item_list ")" { }
+    | KW_FROM module_opt KW_IMPORT "*" { }
     ;
 
 global_statement
@@ -306,7 +346,7 @@ expr_list
 
 expr
 // ### primary
-    : TK_NAME { $$ = SYMBOL($1, @$); }
+    : id { $$ = $1; }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | "(" expr ")" { $$ = $2; }
 
@@ -324,6 +364,10 @@ expr
     | expr "^" expr { $$ = BINOP($1, BitXor, $3, @$); }
     | expr "<<" expr { $$ = BINOP($1, LShift, $3, @$); }
     | expr ">>" expr { $$ = BINOP($1, RShift, $3, @$); }
+    ;
+
+id
+    : TK_NAME { $$ = SYMBOL($1, @$); }
     ;
 
 sep

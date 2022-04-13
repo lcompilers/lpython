@@ -59,12 +59,12 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define BREAK(l) make_Break_t(p.m_a, l)
 #define CONTINUE(l) make_Continue_t(p.m_a, l)
 
-#define RAISE(l) make_Raise_t(p.m_a, l, nullptr, nullptr)
-#define RAISE1(exec, l) make_Raise_t(p.m_a, l, EXPR(exec), nullptr)
-#define RAISE2(exec, cause, l) make_Raise_t(p.m_a, l, EXPR(exec), EXPR(cause))
+#define RAISE_01(l) make_Raise_t(p.m_a, l, nullptr, nullptr)
+#define RAISE_02(exec, l) make_Raise_t(p.m_a, l, EXPR(exec), nullptr)
+#define RAISE_03(exec, cause, l) make_Raise_t(p.m_a, l, EXPR(exec), EXPR(cause))
 
-#define ASSERT(test, l) make_Assert_t(p.m_a, l, EXPR(test), nullptr)
-#define ASSERT1(test, msg, l) make_Assert_t(p.m_a, l, EXPR(test), EXPR(msg))
+#define ASSERT_01(test, l) make_Assert_t(p.m_a, l, EXPR(test), nullptr)
+#define ASSERT_02(test, msg, l) make_Assert_t(p.m_a, l, EXPR(test), EXPR(msg))
 
 #define GLOBAL(names, l) make_Global_t(p.m_a, l, \
         REDUCE_ARGS(p.m_a, names), names.size())
