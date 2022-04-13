@@ -460,11 +460,7 @@ public:
                 visit_expr(*(x.m_args[i].m_value));
             }
         }
-        SymbolTable *parent_symtab = current_symtab;
-        current_symtab = ASRUtils::symbol_symtab(x.m_name);
-        if (current_symtab == nullptr) current_symtab = parent_symtab;
         visit_ttype(*x.m_type);
-        current_symtab = parent_symtab;
     }
 
     void visit_Derived(const Derived_t &x) {
