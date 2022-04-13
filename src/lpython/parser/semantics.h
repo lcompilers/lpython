@@ -25,6 +25,13 @@ static inline char* name2char(const ast_t *n) {
     return down_cast2<Name_t>(n)->m_id;
 }
 
+Vec<ast_t*> A2LIST(Allocator &al, ast_t *x) {
+    Vec<ast_t*> v;
+    v.reserve(al, 1);
+    v.push_back(al, x);
+    return v;
+}
+
 static inline char** REDUCE_ARGS(Allocator &al, const Vec<ast_t*> args) {
     char **a = al.allocate<char*>(args.size());
     for (size_t i=0; i < args.size(); i++) {
@@ -50,7 +57,7 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define STMT(x) (down_cast<stmt_t>(x))
 #define EXPR2STMT(x) ((stmt_t*)make_Expr_t(p.m_a, x->base.loc, x))
 
-#define RESULT(x) p.result.push_back(p.m_a, STMT(x))
+#define RESULT(x) p.result.push_back(p.m_a, EXPR2STMT(EXPR(x)))
 #define LIST_NEW(l) l.reserve(p.m_a, 4)
 #define LIST_ADD(l, x) l.push_back(p.m_a, x)
 #define PLIST_ADD(l, x) l.push_back(p.m_a, *x)
@@ -74,6 +81,8 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 
 #define BINOP(x, op, y, l) make_BinOp_t(p.m_a, l, \
         EXPR(x), operatorType::op, EXPR(y))
+#define COMPARE(x, op, y, l) make_Compare_t(p.m_a, l, \
+        EXPR(x), cmpopType::op, EXPRS(A2LIST(p.m_a, y)), 1)
 
 #define SYMBOL(x, l) make_Name_t(p.m_a, l, \
         x.c_str(p.m_a), expr_contextType::Load)

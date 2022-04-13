@@ -421,12 +421,12 @@ expr
     | expr "<<" expr { $$ = BINOP($1, LShift, $3, @$); }
     | expr ">>" expr { $$ = BINOP($1, RShift, $3, @$); }
 
-    | expr "==" expr { }
-    | expr "!=" expr { }
-    | expr "<" expr { }
-    | expr "<=" expr { }
-    | expr ">" expr { }
-    | expr ">=" expr { }
+    | expr "==" expr { $$ = COMPARE($1, Eq, $3, @$); }
+    | expr "!=" expr { $$ = COMPARE($1, NotEq, $3, @$); }
+    | expr "<" expr { $$ = COMPARE($1, Lt, $3, @$); }
+    | expr "<=" expr { $$ = COMPARE($1, LtE, $3, @$); }
+    | expr ">" expr { $$ = COMPARE($1, Gt, $3, @$); }
+    | expr ">=" expr { $$ = COMPARE($1, GtE, $3, @$); }
     ;
 
 id
