@@ -3307,7 +3307,7 @@ public:
         return ASRUtils::expr_type(expr);
     }
 
-    void extract_kinds(const ASR::ImplicitCast_t& x,
+    void extract_kinds(const ASR::Cast_t& x,
                        int& arg_kind, int& dest_kind)
     {
         dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
@@ -3316,7 +3316,7 @@ public:
         arg_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
     }
 
-    void visit_ImplicitCast(const ASR::ImplicitCast_t &x) {
+    void visit_Cast(const ASR::Cast_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
             return;
