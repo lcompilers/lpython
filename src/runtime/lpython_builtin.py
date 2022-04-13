@@ -8,7 +8,7 @@ def ord(s: str) -> i32: # currently supports characters with unicode value betwe
     point of a given unicode character. This is the inverse of `chr()`.
     """
     if len(s) != 1:
-        return "Not a character"
+        return -1 # not a character
     i: i32
     for i in range(32, 127):
         if chr(i) == s:
