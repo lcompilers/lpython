@@ -80,6 +80,10 @@ std::string get_kokkos_dir()
 
 #endif
 
+int make_time_report()
+{
+
+}
 int emit_tokens(const std::string &infile, bool line_numbers, const CompilerOptions &compiler_options)
 {
     std::string input = LFortran::read_file(infile);
@@ -110,7 +114,6 @@ int emit_tokens(const std::string &infile, bool line_numbers, const CompilerOpti
     }
     return 0;
 }
-
 
 int emit_ast(const std::string &infile,
     const std::string &runtime_library_dir,
@@ -249,7 +252,7 @@ int emit_cpp(const std::string &infile,
     std::cout << res.result;
     return 0;
 }
-
+#define HAVE_LFORTRAN_LLVM 1
 #ifdef HAVE_LFORTRAN_LLVM
 
 int emit_llvm(const std::string &infile,
@@ -296,55 +299,73 @@ int emit_llvm(const std::string &infile,
     return 0;
 }
 
-int compile_python_to_object_file(
-        const std::string &infile,
-        const std::string &outfile,
-        const std::string &runtime_library_dir,
-        CompilerOptions &compiler_options)
-{
-    Allocator al(4*1024);
-    LFortran::diag::Diagnostics diagnostics;
-    LFortran::LocationManager lm;
-    lm.in_filename = infile;
-    std::string input = LFortran::read_file(infile);
-    lm.init_simple(input);
+    int compile_python_to_object_file(
+            const std::string &infile,
+            const std::string &outfile,
+            const std::string &runtime_library_dir,
+            CompilerOptions &compiler_options) {
+        std::chrono::time_point <std::chrono::system_clock> start, end;
+        Allocator al(4 * 1024);
+        LFortran::diag::Diagnostics diagnostics;
+        LFortran::LocationManager lm;
+        std::vector <std::pair<std::string, double>> times;
 
-    LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
-    if (!r.ok) {
-        return 1;
-    }
+        start = std::chrono::high_resolution_clock::now();
+        lm.in_filename = infile;
+        std::string input = LFortran::read_file(infile);
+        lm.init_simple(input);
+        end = std::chrono::high_resolution_clock::now();
+        times.push_back(std::make_pair("Reading_file", std::chrono::duration<double, std::milli>(end - start).count()));
 
-    // Src -> AST -> ASR
-    LFortran::LPython::AST::ast_t* ast = r.result;
-    diagnostics.diagnostics.clear();
-    LFortran::Result<LFortran::ASR::TranslationUnit_t*>
+        start = std::chrono::high_resolution_clock::now();
+        LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
+                al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+        end = std::chrono::high_resolution_clock::now();
+        times.push_back(std::make_pair("parsing", std::chrono::duration<double, std::milli>(end - start).count()));
+        std::cerr << diagnostics.render(input, lm, compiler_options);
+        if (!r.ok) {
+            return 1;
+        }
+
+        // Src -> AST -> ASR
+        start = std::chrono::high_resolution_clock::now();
+        LFortran::LPython::AST::ast_t *ast = r.result;
+        diagnostics.diagnostics.clear();
+        LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-            compiler_options.symtab_only);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
-    if (!r1.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
-        return 2;
-    }
-    LFortran::ASR::TranslationUnit_t* asr = r1.result;
-    diagnostics.diagnostics.clear();
+                                                  compiler_options.symtab_only);
+        end = std::chrono::high_resolution_clock::now();
+        times.push_back(std::make_pair("AST -> ASR", std::chrono::duration<double, std::milli>(end - start).count()));
+        std::cerr << diagnostics.render(input, lm, compiler_options);
+        if (!r1.ok) {
+            LFORTRAN_ASSERT(diagnostics.has_error())
+            return 2;
+        }
+        LFortran::ASR::TranslationUnit_t *asr = r1.result;
+        diagnostics.diagnostics.clear();
 
-    // ASR -> LLVM
-    LFortran::PythonCompiler fe(compiler_options);
-    LFortran::LLVMEvaluator e(compiler_options.target);
-    std::unique_ptr<LFortran::LLVMModule> m;
-    LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
-        res = fe.get_llvm3(*asr, diagnostics);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
-    if (!res.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
-        return 3;
+        // ASR -> LLVM
+        start = std::chrono::high_resolution_clock::now();
+        LFortran::PythonCompiler fe(compiler_options);
+        LFortran::LLVMEvaluator e(compiler_options.target);
+        std::unique_ptr<LFortran::LLVMModule> m;
+        LFortran::Result <std::unique_ptr<LFortran::LLVMModule>>
+                res = fe.get_llvm3(*asr, diagnostics);
+        end = std::chrono::high_resolution_clock::now();
+        std::cerr << diagnostics.render(input, lm, compiler_options);
+        if (!res.ok) {
+            LFORTRAN_ASSERT(diagnostics.has_error())
+            return 3;
+        }
+        times.push_back(std::make_pair("ASR -> LLVM", std::chrono::duration<double, std::milli>(end - start).count()));
+        m = std::move(res.result);
+        e.save_object_file(*(m->m_m), outfile);
+        for (std::pair<std::string, double> &stage: times) {
+            std::cout << stage.first << ": " << stage.second << "ms" << std::endl;
+        }
+        return 0;
     }
-    m = std::move(res.result);
-    e.save_object_file(*(m->m_m), outfile);
-    return 0;
-}
+
 
 #endif
 
@@ -551,7 +572,6 @@ int main(int argc, char *argv[])
         std::string arg_backend = "llvm";
         std::string arg_kernel_f;
         bool print_targets = false;
-        bool parser_time = false;
         std::string arg_fmt_file;
         // int arg_fmt_indent = 4;
         // bool arg_fmt_indent_unit = false;
@@ -611,7 +631,6 @@ int main(int argc, char *argv[])
         app.add_flag("--fast", compiler_options.fast, "Best performance (disable strict standard compliance)");
         app.add_option("--target", compiler_options.target, "Generate code for the given target")->capture_default_str();
         app.add_flag("--print-targets", print_targets, "Print the registered targets");
-        app.add_flag("--parser-time", parser_time, "Print time for parsing the file");
 
 
         /*
@@ -777,9 +796,6 @@ int main(int argc, char *argv[])
         }
         if (show_tokens) {
             return emit_tokens(arg_file, true, compiler_options);
-        }
-        if (parser_time) {
-            return emit_parser_time(arg_file, runtime_library_dir, compiler_options);
         }
         if (show_ast) {
             return emit_ast(arg_file, runtime_library_dir, compiler_options);
