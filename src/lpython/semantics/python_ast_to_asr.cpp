@@ -2398,6 +2398,8 @@ public:
                     if (ASR::is_a<ASR::Variable_t>(*t)) {
                         ASR::Variable_t *var = ASR::down_cast<ASR::Variable_t>(t);
                         if (ASR::is_a<ASR::List_t>(*var->m_type)) {
+                            ASR::List_t *list = ASR::down_cast<ASR::List_t>(var->m_type);
+                            ASR::ttype_t *list_type = list->m_type;
                             std::string attr = at->m_attr;
                             if (attr == "append") {
                                 if (c->n_args != 1) {
@@ -2406,6 +2408,12 @@ public:
                                 }
                                 visit_expr(*c->m_args[0]);
                                 ASR::expr_t *ele = ASRUtils::EXPR(tmp);
+                                ASR::ttype_t *ele_type = ASRUtils::expr_type(ele);
+                                if (!ASRUtils::check_equal_type(ele_type, list_type)) {
+                                    throw SemanticError("Type mismatch while appending to a list, found (" +
+                                        ASRUtils::type_to_str(ele_type) + " and " +
+                                        ASRUtils::type_to_str(list_type) + ").", x.base.base.loc);
+                                }
                                 tmp = make_ListAppend_t(al, x.base.base.loc, t, ele);
                                 return;
                             } else {
