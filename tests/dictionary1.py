@@ -6,7 +6,7 @@ def test_Dict():
     y: dict[str, i32]
     y = {"a": -1, "b": -2}
 
-    # z: i32
-    # # this assignment should eventually work
-    # z = x["a"]
-    # z = x["b"]
+    z: i32
+    z = y["a"]
+    z = y["b"]
+    z = x[1]
