@@ -16,3 +16,5 @@ def test_List():
     # ragged list
     e: list[list[str]]
     e = [['a', 'b', 'c'], ['d', 'e']]
+
+    a.append(10)

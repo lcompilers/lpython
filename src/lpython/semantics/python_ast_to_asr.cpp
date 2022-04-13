@@ -2386,10 +2386,47 @@ public:
             if (AST::is_a<AST::Name_t>(*c->m_func)) {
                 AST::Name_t *n = AST::down_cast<AST::Name_t>(c->m_func);
                 call_name = n->m_id;
+            } else if (AST::is_a<AST::Attribute_t>(*c->m_func)) {
+                AST::Attribute_t *at = AST::down_cast<AST::Attribute_t>(c->m_func);
+                if (AST::is_a<AST::Name_t>(*at->m_value)) {
+                    std::string value = AST::down_cast<AST::Name_t>(at->m_value)->m_id;
+                    ASR::symbol_t *t = current_scope->scope[value];
+                    if (!t) {
+                        throw SemanticError("'" + value + "' is not defined in the scope",
+                            x.base.base.loc);
+                    }
+                    if (ASR::is_a<ASR::Variable_t>(*t)) {
+                        ASR::Variable_t *var = ASR::down_cast<ASR::Variable_t>(t);
+                        if (ASR::is_a<ASR::List_t>(*var->m_type)) {
+                            std::string attr = at->m_attr;
+                            if (attr == "append") {
+                                if (c->n_args != 1) {
+                                    throw SemanticError("append() takes exactly one argument",
+                                        x.base.base.loc);
+                                }
+                                visit_expr(*c->m_args[0]);
+                                ASR::expr_t *ele = ASRUtils::EXPR(tmp);
+                                tmp = make_ListAppend_t(al, x.base.base.loc, t, ele);
+                                return;
+                            } else {
+                                throw SemanticError("'" + attr + "' is not implemented for List type",
+                                    x.base.base.loc);
+                            }
+
+                        } else {
+                            throw SemanticError("Only List type supported for now in Attribute",
+                                x.base.base.loc);
+                        }
+                    } else {
+                        throw SemanticError("Only Variable type is supported for now in Attribute",
+                            x.base.base.loc);
+                    }
+                }
             } else {
-                throw SemanticError("Only Name supported in Call",
+                throw SemanticError("Only Name/Attribute supported in Call",
                     x.base.base.loc);
             }
+
             Vec<ASR::call_arg_t> args;
             args.reserve(al, c->n_args);
             for (size_t i=0; i<c->n_args; i++) {
