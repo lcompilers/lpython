@@ -171,16 +171,45 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 // Nonterminal tokens
 
+%type <ast> script_unit
 %type <ast> expr
+%type <vec_ast> expr_list
+/* %type <vec_ast> expr_list_opt */
+%type <ast> statement
+%type <ast> statement1
+%type <ast> single_line_statement
+/* %type <ast> multi_line_statement */
+/* %type <ast> augassign_statement */
+%type <ast> pass_statement
+%type <ast> continue_statement
+%type <ast> break_statement
+%type <ast> raise_statement
+%type <ast> assert_statement
+%type <ast> global_statement
+%type <ast> nonlocal_statement
+/*
+%type <ast> assignment_statement
+%type <ast> expression_statment
+%type <ast> ann_assignment_statement
+%type <ast> delete_statement
+%type <ast> return_statement
+%type <ast> yeild_statement
+ */
+%type <vec_ast> sep
+%type <ast> sep_one
 
 // Precedence
 
 //%left "or"
 //%left "and"
 //%precedence "not"
-//%left "==" "/=" "<" "<=" ">" ">="
+//%left "==" "!=" ">=" ">" "<=" "<" "is not" "is" "not in" "in"
+%left "|"
+%left "^"
+%left "&"
+%left ">>" "<<"
 %left "-" "+"
-%left "*" "/"
+%left "%" "//" "/" "@" "*"
 //%precedence UMINUS
 %right "**"
 
@@ -198,7 +227,81 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 // Higher %dprec means higher precedence
 
 units
-    : expr TK_NEWLINE { RESULT($1); }
+    : units script_unit   { RESULT($2); }
+    | script_unit         { RESULT($1); }
+    | sep
+    ;
+
+script_unit
+    : statement
+    | expr sep
+    ;
+
+statement
+    : statement1 sep { $$ = $1; }
+
+statement1
+    : single_line_statement
+    /* | multi_line_statement */
+    ;
+
+single_line_statement
+    /* : expression_statment */
+    : assert_statement
+/*
+    | assignment_statement
+    | augassign_statement
+    | ann_assignment_statement
+ */
+
+    | pass_statement
+/*
+    | delete_statement
+    | return_statement
+    | yeild_statement
+ */
+    | raise_statement
+    | break_statement
+    | continue_statement
+    | global_statement
+    | nonlocal_statement
+    ;
+
+pass_statement
+    : KW_PASS { $$ = PASS(@$); }
+    ;
+
+break_statement
+    : KW_BREAK { $$ = BREAK(@$); }
+    ;
+
+continue_statement
+    : KW_CONTINUE { $$ = CONTINUE(@$); }
+    ;
+
+raise_statement
+    : KW_RAISE { $$ = RAISE(@$); }
+    | KW_RAISE expr { $$ = RAISE1($2, @$); }
+    | KW_RAISE expr KW_FROM expr { $$ = RAISE2($2, $4, @$); }
+    ;
+
+assert_statement
+    : KW_ASSERT expr { $$ = ASSERT($2, @$); }
+    | KW_ASSERT expr "," expr { $$ = ASSERT1($2, $4, @$); }
+    ;
+
+global_statement
+    : KW_GLOBAL expr_list { $$ = GLOBAL($2, @$); }
+    ;
+
+nonlocal_statement
+    : KW_NONLOCAL expr_list { $$ = NON_LOCAL($2, @$); }
+    ;
+
+
+expr_list
+    : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }
+    | expr { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 expr
@@ -207,12 +310,30 @@ expr
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | "(" expr ")" { $$ = $2; }
 
+    | expr "+" expr { $$ = BINOP($1, Add, $3, @$); }
+    | expr "-" expr { $$ = BINOP($1, Sub, $3, @$); }
+    | expr "*" expr { $$ = BINOP($1, Mult, $3, @$); }
+    | expr "/" expr { $$ = BINOP($1, Div, $3, @$); }
+    | expr "%" expr { $$ = BINOP($1, Mod, $3, @$); }
+    | expr "**" expr { $$ = BINOP($1, Pow, $3, @$); }
+    | expr "//" expr { $$ = BINOP($1, FloorDiv, $3, @$); }
+    | expr "@" expr { $$ = BINOP($1, MatMult, $3, @$); }
 
-// ### level-2
-    | expr "+" expr { $$ = ADD($1, $3, @$); }
-    | expr "-" expr { $$ = SUB($1, $3, @$); }
-    | expr "*" expr { $$ = MUL($1, $3, @$); }
-    | expr "/" expr { $$ = DIV($1, $3, @$); }
-    | expr "**" expr { $$ = POW($1, $3, @$); }
+    | expr "&" expr { $$ = BINOP($1, BitAnd, $3, @$); }
+    | expr "|" expr { $$ = BINOP($1, BitOr, $3, @$); }
+    | expr "^" expr { $$ = BINOP($1, BitXor, $3, @$); }
+    | expr "<<" expr { $$ = BINOP($1, LShift, $3, @$); }
+    | expr ">>" expr { $$ = BINOP($1, RShift, $3, @$); }
+    ;
 
+sep
+    : sep sep_one { $$ = $1; LIST_ADD($$, $2); }
+    | sep_one { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+sep_one
+    : TK_NEWLINE {}
+    | TK_COMMENT {}
+    | TK_EOLCOMMENT {}
+    | ";" {}
     ;

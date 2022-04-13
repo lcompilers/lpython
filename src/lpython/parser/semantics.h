@@ -19,19 +19,64 @@
 // everything from LFortran::AST to save typing:
 using namespace LFortran::LPython::AST;
 using LFortran::Location;
+using LFortran::Vec;
+
+static inline char* name2char(const ast_t *n) {
+    return down_cast2<Name_t>(n)->m_id;
+}
+
+static inline char** REDUCE_ARGS(Allocator &al, const Vec<ast_t*> args) {
+    char **a = al.allocate<char*>(args.size());
+    for (size_t i=0; i < args.size(); i++) {
+        a[i] = name2char(args.p[i]);
+    }
+    return a;
+}
+
+template <typename T, astType type>
+static inline T** vec_cast(const Vec<ast_t*> &x) {
+    T **s = (T**)x.p;
+    for (size_t i=0; i < x.size(); i++) {
+        LFORTRAN_ASSERT((s[i]->base.type == type))
+    }
+    return s;
+}
+
+#define VEC_CAST(x, type) vec_cast<type##_t, astType::type>(x)
+#define STMTS(x) VEC_CAST(x, stmt)
+#define EXPRS(x) VEC_CAST(x, expr)
 
 #define EXPR(x) (down_cast<expr_t>(x))
+#define STMT(x) (down_cast<stmt_t>(x))
 #define EXPR2STMT(x) ((stmt_t*)make_Expr_t(p.m_a, x->base.loc, x))
 
-#define RESULT(x) p.result.push_back(p.m_a, EXPR2STMT(EXPR(x)))
+#define RESULT(x) p.result.push_back(p.m_a, STMT(x))
+#define LIST_NEW(l) l.reserve(p.m_a, 4)
+#define LIST_ADD(l, x) l.push_back(p.m_a, x)
+#define PLIST_ADD(l, x) l.push_back(p.m_a, *x)
 
+#define PASS(l) make_Pass_t(p.m_a, l)
+#define BREAK(l) make_Break_t(p.m_a, l)
+#define CONTINUE(l) make_Continue_t(p.m_a, l)
 
-#define ADD(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Add, EXPR(y))
-#define SUB(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Sub, EXPR(y))
-#define MUL(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Mult, EXPR(y))
-#define DIV(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Div, EXPR(y))
-#define POW(x, y, l) make_BinOp_t(p.m_a, l, EXPR(x), operatorType::Pow, EXPR(y))
-#define SYMBOL(x, l) make_Name_t(p.m_a, l, x.c_str(p.m_a), expr_contextType::Load)
+#define RAISE(l) make_Raise_t(p.m_a, l, nullptr, nullptr)
+#define RAISE1(exec, l) make_Raise_t(p.m_a, l, EXPR(exec), nullptr)
+#define RAISE2(exec, cause, l) make_Raise_t(p.m_a, l, EXPR(exec), EXPR(cause))
+
+#define ASSERT(test, l) make_Assert_t(p.m_a, l, EXPR(test), nullptr)
+#define ASSERT1(test, msg, l) make_Assert_t(p.m_a, l, EXPR(test), EXPR(msg))
+
+#define GLOBAL(names, l) make_Global_t(p.m_a, l, \
+        REDUCE_ARGS(p.m_a, names), names.size())
+
+#define NON_LOCAL(names, l) make_Nonlocal_t(p.m_a, l, \
+        REDUCE_ARGS(p.m_a, names), names.size())
+
+#define BINOP(x, op, y, l) make_BinOp_t(p.m_a, l, \
+        EXPR(x), operatorType::op, EXPR(y))
+
+#define SYMBOL(x, l) make_Name_t(p.m_a, l, \
+        x.c_str(p.m_a), expr_contextType::Load)
 // `x.int_n` is of type BigInt but we store the int64_t directly in AST
 #define INTEGER(x, l) make_ConstantInt_t(p.m_a, l, x.int_n.n, nullptr)
 
