@@ -249,3 +249,7 @@ asr = true
 [[test]]
 filename = "errors/test_str_slicing.py"
 asr = true
+
+[[test]]
+filename = "errors/test_append_type_mismatch.py"
+asr = true
