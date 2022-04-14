@@ -818,8 +818,7 @@ public:
             std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
             diag.add(diag::Diagnostic(
-                "Not Implemented: type mismatch in binary operator; only Integer, Real, Complex,"
-                " Logical combinations and string concatenation/repetition are implemented for now.",
+                "Type mismatch in binary operator; the types must be compatible",
                 diag::Level::Error, diag::Stage::Semantic, {
                     diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
                             {left->base.loc, right->base.loc})
