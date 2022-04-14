@@ -372,6 +372,34 @@ def round(b: bool) -> i32:
 #: supported types for arguments:
 #: (f64, f64), (f32, f64), (f64, f32), (f32, f32),
 #: (i32, i32), (i64, i64), (i32, i64), (i64, i32)
+
+
+@interface
+@overload
+def complex() -> c64:
+    return 0 + 0*1j
+
+
+@interface
+@overload
+def complex(x: f64) -> c64:
+    return x + 0*1j
+
+@interface
+@overload
+def complex(x: i32) -> c32:
+    return x + 0*1j
+
+@interface
+@overload
+def complex(x: f32) -> c32:
+    return x + 0*1j
+
+@interface
+@overload
+def complex(x: i64) -> c64:
+    return x + 0*1j
+
 @interface
 @overload
 def complex(x: f64, y: f64) -> c64:
