@@ -61,7 +61,7 @@ Compile LPython:
 
 ```bash
 cmake -DCMAKE_BUILD_TYPE=Debug -DWITH_LLVM=yes -DWITH_STACKTRACE=yes -DWITH_LFORTRAN_BINARY_MODFILES=no .
-cmake --build . -j$nproc
+cmake --build . -j16
 ```
 
 ## Tests:
