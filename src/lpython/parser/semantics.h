@@ -57,7 +57,7 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define STMT(x) (down_cast<stmt_t>(x))
 #define EXPR2STMT(x) ((stmt_t*)make_Expr_t(p.m_a, x->base.loc, x))
 
-#define RESULT(x) p.result.push_back(p.m_a, EXPR2STMT(EXPR(x)))
+#define RESULT(x) p.result.push_back(p.m_a, STMT(x))
 #define LIST_NEW(l) l.reserve(p.m_a, 4)
 #define LIST_ADD(l, x) l.push_back(p.m_a, x)
 #define PLIST_ADD(l, x) l.push_back(p.m_a, *x)
@@ -78,6 +78,13 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 
 #define NON_LOCAL(names, l) make_Nonlocal_t(p.m_a, l, \
         REDUCE_ARGS(p.m_a, names), names.size())
+
+#define ASSIGNMENT(targets, val, l) make_Assign_t(p.m_a, l, \
+        EXPRS(targets), targets.size(), EXPR(val), nullptr)
+#define ASSIGN_ID(name, l) make_Name_t(p.m_a, l, \
+        name2char(name), expr_contextType::Store)
+#define TUPLE_01(elts, l) make_Tuple_t(p.m_a, l, \
+        EXPRS(elts), elts.size(), expr_contextType::Store)
 
 #define BINOP(x, op, y, l) make_BinOp_t(p.m_a, l, \
         EXPR(x), operatorType::op, EXPR(y))

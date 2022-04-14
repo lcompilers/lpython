@@ -188,8 +188,12 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> import_statement
 %type <ast> global_statement
 %type <ast> nonlocal_statement
-/*
 %type <ast> assignment_statement
+%type <vec_ast> target_list
+%type <vec_ast> target_item_list
+%type <ast> target_item
+%type <ast> target
+/*
 %type <ast> expression_statment
 %type <ast> ann_assignment_statement
 %type <ast> delete_statement
@@ -270,8 +274,8 @@ statement
 single_line_statement
     /* : expression_statment */
     : assert_statement
-/*
     | assignment_statement
+/*
     | augassign_statement
     | ann_assignment_statement
  */
@@ -315,6 +319,28 @@ raise_statement
 assert_statement
     : KW_ASSERT expr { $$ = ASSERT_01($2, @$); }
     | KW_ASSERT expr "," expr { $$ = ASSERT_02($2, $4, @$); }
+    ;
+
+target
+    : id { $$ = ASSIGN_ID($1, @$); }
+    ;
+
+target_item_list
+    : target_item_list "," target { $$ = $1; LIST_ADD($$, $3); }
+    | target { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+target_item
+    : target_item_list { $$ = TUPLE_01($1, @$); }
+    ;
+
+target_list
+    : target_list target_item "=" { $$ = $1; LIST_ADD($$, $2); }
+    | target_item "=" { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+assignment_statement
+    : target_list expr { $$ = ASSIGNMENT($1, $2, @$); }
     ;
 
 module
