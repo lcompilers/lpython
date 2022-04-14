@@ -87,7 +87,8 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define SYMBOL(x, l) make_Name_t(p.m_a, l, \
         x.c_str(p.m_a), expr_contextType::Load)
 // `x.int_n` is of type BigInt but we store the int64_t directly in AST
-#define INTEGER(x, l) make_ConstantInt_t(p.m_a, l, x.int_n.n, nullptr)
+#define INTEGER(x, l) make_ConstantInt_t(p.m_a, l, \
+        std::stoi(x.int_n.str()), nullptr)
 #define STRING(x, l) make_ConstantStr_t(p.m_a, l, x.c_str(p.m_a), nullptr)
 #define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, \
         std::stof(x.c_str(p.m_a)), nullptr)
