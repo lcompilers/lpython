@@ -33,7 +33,7 @@ https://github.com/conda-forge/miniforge/#download
 Install required packages (Linux - 64 bit):
 
 ```bash
-sudo apt install binutils-dev zlib1g-dev
+sudo apt install binutils-dev
 ```
 
 Clone LPython
