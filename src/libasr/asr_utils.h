@@ -439,8 +439,33 @@ static inline bool is_value_constant(ASR::expr_t *a_value) {
     return true;
 }
 
-template <typename T>
-static inline bool is_value_constant(ASR::expr_t *a_value, T& const_value) {
+static inline bool is_value_constant(ASR::expr_t *a_value, int64_t& const_value) {
+    if( a_value == nullptr ) {
+        return false;
+    }
+    if (ASR::is_a<ASR::ConstantInteger_t>(*a_value)) {
+        ASR::ConstantInteger_t* const_int = ASR::down_cast<ASR::ConstantInteger_t>(a_value);
+        const_value = const_int->m_n;
+    } else {
+        return false;
+    }
+    return true;
+}
+
+static inline bool is_value_constant(ASR::expr_t *a_value, bool& const_value) {
+    if( a_value == nullptr ) {
+        return false;
+    }
+    if (ASR::is_a<ASR::ConstantLogical_t>(*a_value)) {
+        ASR::ConstantLogical_t* const_logical = ASR::down_cast<ASR::ConstantLogical_t>(a_value);
+        const_value = const_logical->m_value;
+    } else {
+        return false;
+    }
+    return true;
+}
+
+static inline bool is_value_constant(ASR::expr_t *a_value, double& const_value) {
     if( a_value == nullptr ) {
         return false;
     }
@@ -450,13 +475,72 @@ static inline bool is_value_constant(ASR::expr_t *a_value, T& const_value) {
     } else if (ASR::is_a<ASR::ConstantReal_t>(*a_value)) {
         ASR::ConstantReal_t* const_real = ASR::down_cast<ASR::ConstantReal_t>(a_value);
         const_value = const_real->m_r;
-    } else if (ASR::is_a<ASR::ConstantLogical_t>(*a_value)) {
-        ASR::ConstantLogical_t* const_logical = ASR::down_cast<ASR::ConstantLogical_t>(a_value);
-        const_value = const_logical->m_value;
     } else {
         return false;
     }
     return true;
+}
+
+static inline bool is_value_constant(ASR::expr_t *a_value, std::string& const_value) {
+    if( a_value == nullptr ) {
+        return false;
+    }
+    if (ASR::is_a<ASR::ConstantString_t>(*a_value)) {
+        ASR::ConstantString_t* const_string = ASR::down_cast<ASR::ConstantString_t>(a_value);
+        const_value = std::string(const_string->m_s);
+    } else {
+        return false;
+    }
+    return true;
+}
+
+static inline bool is_value_equal(ASR::expr_t* test_expr, ASR::expr_t* desired_expr) {
+    ASR::expr_t* test_value = expr_value(test_expr);
+    ASR::expr_t* desired_value = expr_value(desired_expr);
+    if( !is_value_constant(test_value) ||
+        !is_value_constant(desired_value) ||
+        test_value->type != desired_value->type ) {
+        return false;
+    }
+
+    switch( desired_value->type ) {
+        case ASR::exprType::ConstantInteger: {
+            ASR::ConstantInteger_t* test_int = ASR::down_cast<ASR::ConstantInteger_t>(test_value);
+            ASR::ConstantInteger_t* desired_int = ASR::down_cast<ASR::ConstantInteger_t>(desired_value);
+            return test_int->m_n == desired_int->m_n;
+        }
+        case ASR::exprType::ConstantString: {
+            ASR::ConstantString_t* test_str = ASR::down_cast<ASR::ConstantString_t>(test_value);
+            ASR::ConstantString_t* desired_str = ASR::down_cast<ASR::ConstantString_t>(desired_value);
+            return std::string(test_str->m_s) == std::string(desired_str->m_s);
+        }
+        default: {
+            return false;
+        }
+    }
+}
+
+static inline bool is_value_in_range(ASR::expr_t* start, ASR::expr_t* end, ASR::expr_t* value) {
+    ASR::expr_t *start_value = nullptr, *end_value = nullptr;
+    if( start ) {
+        start_value = expr_value(start);
+    }
+    if( end ) {
+        end_value = expr_value(end);
+    }
+    ASR::expr_t* test_value = expr_value(value);
+
+
+    double start_double = std::numeric_limits<double>::min();
+    double end_double = std::numeric_limits<double>::max();
+    double value_double;
+    bool start_const = is_value_constant(start_value, start_double);
+    bool end_const = is_value_constant(end_value, end_double);
+    bool value_const = is_value_constant(test_value, value_double);
+    if( !value_const || (!start_const && !end_const) ) {
+        return false;
+    }
+    return value_double >= start_double && value_double <= end_double;
 }
 
 // Returns true if all arguments are evaluated
