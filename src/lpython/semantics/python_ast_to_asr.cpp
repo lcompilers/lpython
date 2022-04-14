@@ -1737,6 +1737,18 @@ public:
             this->visit_expr(*x.m_value);
             value = ASRUtils::EXPR(tmp);
             value = cast_helper(type, value, true);
+            if (!ASRUtils::check_equal_type(type, ASRUtils::expr_type(value))) {
+                std::string ltype = ASRUtils::type_to_str(type);
+                std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(value));
+                diag.add(diag::Diagnostic(
+                    "Type mismatch for an annotation-assignment. In LPython, the types must be compatible.",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
+                                {x.m_target->base.loc, value->base.loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
         }
         ASR::expr_t *init_expr = nullptr;
         ASR::intentType s_intent = ASRUtils::intent_local;
