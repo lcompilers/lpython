@@ -103,6 +103,10 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define COMPLEX(x, l) make_ConstantComplex_t(p.m_a, l, \
         0, std::stof(x.int_n.str()), nullptr)
 #define BOOL(x, l) make_ConstantBool_t(p.m_a, l, x, nullptr)
+#define CALL_01(func, l) make_Call_t(p.m_a, l, \
+        EXPR(func), nullptr, 0, nullptr, 0)
+#define CALL_02(func, args, l) make_Call_t(p.m_a, l, \
+        EXPR(func), EXPRS(args), args.size(), nullptr, 0)
 
 
 #endif

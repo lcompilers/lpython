@@ -434,8 +434,8 @@ expr
     | TK_TRUE { $$ = BOOL(true, @$); }
     | TK_FALSE { $$ = BOOL(false, @$); }
     | "(" expr ")" { $$ = $2; }
-    | id "(" ")" { $$ = $1; }
-    | id "(" expr_list ")" { $$ = $1; }
+    | id "(" ")" { $$ = CALL_01($1, @$); }
+    | id "(" expr_list ")" { $$ = CALL_02($1, $3, @$); }
 
     | expr "+" expr { $$ = BINOP($1, Add, $3, @$); }
     | expr "-" expr { $$ = BINOP($1, Sub, $3, @$); }
