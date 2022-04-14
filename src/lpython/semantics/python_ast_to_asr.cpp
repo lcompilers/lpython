@@ -1741,7 +1741,7 @@ public:
                 std::string ltype = ASRUtils::type_to_str(type);
                 std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(value));
                 diag.add(diag::Diagnostic(
-                    "Type mismatch for an annotation-assignment. In LPython, the types must be compatible.",
+                    "Type mismatch in annotation-assignment, the types must be compatible",
                     diag::Level::Error, diag::Stage::Semantic, {
                         diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
                                 {x.m_target->base.loc, value->base.loc})
