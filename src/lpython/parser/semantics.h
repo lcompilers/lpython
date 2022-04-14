@@ -81,6 +81,7 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 
 #define BINOP(x, op, y, l) make_BinOp_t(p.m_a, l, \
         EXPR(x), operatorType::op, EXPR(y))
+#define UNARY(x, op, l) make_UnaryOp_t(p.m_a, l, unaryopType::op, EXPR(x))
 #define COMPARE(x, op, y, l) make_Compare_t(p.m_a, l, \
         EXPR(x), cmpopType::op, EXPRS(A2LIST(p.m_a, y)), 1)
 
