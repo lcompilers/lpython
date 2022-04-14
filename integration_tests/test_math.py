@@ -125,6 +125,13 @@ def test_log1p():
 def test_expm1():
     assert expm1(1.0) - 1.71828182845904509 < eps
 
+def test_trunc():
+   i: f64
+   i = trunc(3.5)
+   assert i == 3
+   i = trunc(-4.5)
+   assert i == -4
+
 
 def check():
     test_factorial_1()
@@ -145,5 +152,7 @@ def check():
     test_fmod()
     test_expm1()
     test_log1p()
+    test_trunc()
+
 
 check()
