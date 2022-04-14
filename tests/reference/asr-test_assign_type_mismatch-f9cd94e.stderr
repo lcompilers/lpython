@@ -1,0 +1,5 @@
+semantic error: Type mismatch in assignment, the types must be compatible
+ --> tests/errors/test_assign_type_mismatch.py:5:5
+  |
+5 |     a = "string"
+  |     ^   ^^^^^^^^ type mismatch (integer and string)

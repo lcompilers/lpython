@@ -1,4 +1,4 @@
-semantic error: Type mismatch while appending to a list, found (character and integer).
+semantic error: Type mismatch while appending to a list, found (string and integer).
  --> tests/errors/test_append_type_mismatch.py:6:5
   |
 6 |     l.append('a')

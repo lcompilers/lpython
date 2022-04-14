@@ -138,7 +138,7 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
             return "logical";
         }
         case ASR::ttypeType::Character: {
-            return "character";
+            return "string";
         }
         case ASR::ttypeType::Tuple: {
             return "tuple";

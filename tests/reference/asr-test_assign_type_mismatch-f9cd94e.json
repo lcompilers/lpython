@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_assign_type_mismatch-f9cd94e",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_assign_type_mismatch.py",
+    "infile_hash": "53fa9d840d9299dc93f5ab4cc9e769eadc94e01d6f5e779a38184cdc",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_assign_type_mismatch-f9cd94e.stderr",
+    "stderr_hash": "e2548dc9a0bb416645bb9e67a39157756f7f79dc09e4d19839ae37c2",
+    "returncode": 2
+}
