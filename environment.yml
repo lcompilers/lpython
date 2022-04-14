@@ -13,3 +13,4 @@ dependencies:
   - re2c
   - setuptools
   - toml
+  - zlib
