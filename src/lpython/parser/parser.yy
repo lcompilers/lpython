@@ -403,6 +403,7 @@ expr
     : id { $$ = $1; }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | TK_STRING { $$ = STRING($1, @$); }
+    | TK_REAL { $$ = FLOAT($1, @$); }
     | "(" expr ")" { $$ = $2; }
     | id "(" ")" { $$ = $1; }
     | id "(" expr_list ")" { $$ = $1; }
