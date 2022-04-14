@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <map>
+#include <limits>
 
 #include <libasr/assert.h>
 #include <libasr/asr.h>
