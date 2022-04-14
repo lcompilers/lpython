@@ -405,6 +405,8 @@ expr
     | TK_STRING { $$ = STRING($1, @$); }
     | TK_REAL { $$ = FLOAT($1, @$); }
     | TK_IMAG_NUM { $$ = COMPLEX($1, @$); }
+    | TK_TRUE { $$ = BOOL(true, @$); }
+    | TK_FALSE { $$ = BOOL(false, @$); }
     | "(" expr ")" { $$ = $2; }
     | id "(" ")" { $$ = $1; }
     | id "(" expr_list ")" { $$ = $1; }
