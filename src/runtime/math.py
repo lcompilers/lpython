@@ -217,14 +217,14 @@ def hypot(x: i32, y: i32) -> f64:
     """
     return sqrt(1.0*(x**2 + y**2))
 
-def trunc(x: f64) -> f64:
-   """
-   Return x with the fractional part removed, leaving the integer part.
-   """
-   if x>0:
-       return floor(x)
-   else:
-       return ceil(x)
+def trunc(x: f64) -> i64:
+    """
+    Return x with the fractional part removed, leaving the integer part.
+    """
+    if x>0:
+        return floor(x)
+    else:
+        return ceil(x)
  
 
 
