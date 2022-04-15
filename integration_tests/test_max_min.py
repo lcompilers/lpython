@@ -1,4 +1,4 @@
-from ltypes import i32 ,f32 ,f64
+from ltypes import i32, f64
 
 def test_max_int():
     a: i32 = 1

@@ -20,7 +20,12 @@ def test_i64():
     i = 5
     assert i == 5
 
-test_i8()
-test_i16()
-test_i32()
-test_i64()
+
+def check():
+    test_i8()
+    test_i16()
+    test_i32()
+    test_i64()
+
+
+check()
