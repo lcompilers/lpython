@@ -1,4 +1,5 @@
-from ltypes import i32, f64, ccall
+from typing import overload
+from ltypes import i32, f64, f32, i64, ccall
 
 
 pi: f64 = 3.141592653589793238462643383279502884197
@@ -217,6 +218,7 @@ def hypot(x: i32, y: i32) -> f64:
     """
     return sqrt(1.0*(x**2 + y**2))
 
+@overload
 def trunc(x: f64) -> i64:
     """
     Return x with the fractional part removed, leaving the integer part.
@@ -226,7 +228,15 @@ def trunc(x: f64) -> i64:
     else:
         return ceil(x)
  
-
+@overload
+def trunc(x: f32) -> i32:
+    """
+    Return x with the fractional part removed, leaving the integer part.
+    """
+    if x>0:
+        return floor(x)
+    else:
+        return ceil(x)
 
 def sqrt(x: f64) -> f64:
     return x**(1/2)

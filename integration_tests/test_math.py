@@ -132,6 +132,13 @@ def test_trunc():
     i = trunc(-4.5)
     assert i == -4
 
+    i: i32
+    i = trunc(5.5)
+    assert i == 5
+    i = trunc(-4.5)
+    assert i == -4
+
+
 
 def check():
     test_factorial_1()
