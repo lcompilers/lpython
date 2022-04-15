@@ -198,10 +198,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> delete_statement
 %type <ast> del_target
 %type <vec_ast> del_target_list
+%type <ast> return_statement
 /*
 %type <ast> expression_statment
-%type <ast> return_statement
-%type <ast> yeild_statement
  */
 %type <vec_ast> module
 %type <alias> module_as_id
@@ -282,8 +281,7 @@ single_line_statement
     | ann_assignment_statement
     | pass_statement
     | delete_statement
-    /* | return_statement */
-    /* | yeild_statement */
+    | return_statement
     | raise_statement
     | break_statement
     | continue_statement
@@ -379,6 +377,11 @@ del_target_list
 
 delete_statement
     : KW_DEL del_target_list { $$ = DELETE($2, @$); }
+    ;
+
+return_statement
+    : KW_RETURN { $$ = RETURN_01(@$); }
+    | KW_RETURN expr { $$ = RETURN_02($2, @$); }
     ;
 
 module

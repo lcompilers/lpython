@@ -74,6 +74,9 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define DEL_TARGET_ID(name, l) make_Name_t(p.m_a, l, \
         name2char(name), expr_contextType::Del)
 
+#define RETURN_01(l) make_Return_t(p.m_a, l, nullptr)
+#define RETURN_02(e, l) make_Return_t(p.m_a, l, EXPR(e))
+
 #define PASS(l) make_Pass_t(p.m_a, l)
 #define BREAK(l) make_Break_t(p.m_a, l)
 #define CONTINUE(l) make_Continue_t(p.m_a, l)
