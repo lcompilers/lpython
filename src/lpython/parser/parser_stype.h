@@ -22,6 +22,9 @@ union YYSTYPE {
 
     LPython::AST::ast_t* ast;
     Vec<LPython::AST::ast_t*> vec_ast;
+
+    LPython::AST::alias_t* alias;
+    Vec<LPython::AST::alias_t> vec_alias;
 };
 
 static_assert(std::is_standard_layout<YYSTYPE>::value);

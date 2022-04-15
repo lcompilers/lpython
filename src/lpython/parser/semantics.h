@@ -81,10 +81,54 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 
 #define ASSIGNMENT(targets, val, l) make_Assign_t(p.m_a, l, \
         EXPRS(targets), targets.size(), EXPR(val), nullptr)
-#define ASSIGN_ID(name, l) make_Name_t(p.m_a, l, \
+#define TARGET_ID(name, l) make_Name_t(p.m_a, l, \
         name2char(name), expr_contextType::Store)
+/*
+#define TARGET_EXPR_ID(e, id, l) make_Attribute_t(p.m_a, l, \
+        EXPR(e), name2char(id), expr_contextType::Store)
+*/
 #define TUPLE_01(elts, l) make_Tuple_t(p.m_a, l, \
         EXPRS(elts), elts.size(), expr_contextType::Store)
+
+static inline alias_t *IMPORT_ALIAS_01(Allocator &al, Location &l,
+        char *name, char *asname){
+    alias_t *r = al.allocate<alias_t>();
+    r->loc = l;
+    r->m_name = name;
+    r->m_asname = asname;
+    return r;
+}
+
+static inline char *mod2char(Allocator &al, Vec<ast_t*> module) {
+    std::string s = "";
+    for (size_t i=0; i<module.size(); i++) {
+        s.append(name2char(module[i]));
+        if (i < module.size()-1)s.append(".");
+    }
+    LFortran::Str str;
+    str.from_str_view(s);
+    return str.c_str(al);
+}
+
+#define MOD_ID_01(module, l) IMPORT_ALIAS_01(p.m_a, l, \
+        mod2char(p.m_a, module), nullptr)
+#define MOD_ID_02(module, as_id, l) IMPORT_ALIAS_01(p.m_a, l, \
+        mod2char(p.m_a, module), name2char(as_id))
+#define MOD_ID_03(star, l) IMPORT_ALIAS_01(p.m_a, l, \
+        (char *)"*", nullptr)
+
+int dot_count = 0;
+#define DOT_COUNT_01() dot_count++;
+#define DOT_COUNT_02() dot_count = dot_count + 3;
+
+#define IMPORT_01(names, l) make_Import_t(p.m_a, l, names.p, names.size())
+#define IMPORT_02(module, names, l) make_ImportFrom_t(p.m_a, l, \
+        mod2char(p.m_a, module), names.p, names.size(), 0)
+#define IMPORT_03(names, l) make_ImportFrom_t(p.m_a, l, \
+        nullptr, names.p, names.size(), dot_count); dot_count = 0
+#define IMPORT_04(module, names, l) make_ImportFrom_t(p.m_a, l, \
+        mod2char(p.m_a, module), names.p, names.size(), dot_count); \
+        dot_count = 0
 
 #define BINOP(x, op, y, l) make_BinOp_t(p.m_a, l, \
         EXPR(x), operatorType::op, EXPR(y))

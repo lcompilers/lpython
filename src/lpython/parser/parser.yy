@@ -201,8 +201,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> yeild_statement
  */
 %type <vec_ast> module
-%type <ast> module_as_id
-%type <vec_ast> module_item_list
+%type <alias> module_as_id
+%type <vec_alias> module_item_list
 %type <ast> function_def
 %type <ast> decorator
 %type <vec_ast> decorators
@@ -275,16 +275,12 @@ single_line_statement
     /* : expression_statment */
     : assert_statement
     | assignment_statement
-/*
-    | augassign_statement
-    | ann_assignment_statement
- */
+    /* | augassign_statement */
+    /* | ann_assignment_statement */
     | pass_statement
-/*
-    | delete_statement
-    | return_statement
-    | yeild_statement
- */
+    /* | delete_statement */
+    /* | return_statement */
+    /* | yeild_statement */
     | raise_statement
     | break_statement
     | continue_statement
@@ -322,7 +318,9 @@ assert_statement
     ;
 
 target
-    : id { $$ = ASSIGN_ID($1, @$); }
+    : id { $$ = TARGET_ID($1, @$); }
+    | expr "." id { /* $$ = TARGET_EXPR_ID($1, $3, @$); */ }
+    | expr "[" expr_list "]" { }
     ;
 
 target_item_list
@@ -344,33 +342,42 @@ assignment_statement
     ;
 
 module
-    : module "." id { }
-    | id { }
+    : module "." id { $$ = $1; LIST_ADD($$, $3); }
+    | id { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 module_as_id
-    : module { }
-    | module KW_AS id { }
+    : module { $$ = MOD_ID_01($1, @$); }
+    | module KW_AS id { $$ = MOD_ID_02($1, $3, @$); }
+    | "*" { $$ = MOD_ID_03("*", @$); }
     ;
 
 module_item_list
-    : module_item_list "," module_as_id { }
-    | "," module_as_id { }
+    : module_item_list "," module_as_id { $$ = $1; PLIST_ADD($$, $3); }
+    | module_as_id { LIST_NEW($$); PLIST_ADD($$, $1); }
     ;
 
-module_opt
-    : module { }
-    | %empty { }
+dot_list
+    : dot_list "." { DOT_COUNT_01(); }
+    | "." { DOT_COUNT_01(); }
+    | dot_list "..." { DOT_COUNT_02(); }
+    | "..." { DOT_COUNT_02(); }
     ;
 
 import_statement
-    : KW_IMPORT module_as_id { }
-    | KW_IMPORT module_as_id module_item_list { }
-    | KW_FROM module_opt KW_IMPORT module_as_id { }
-    | KW_FROM module_opt KW_IMPORT module_as_id module_item_list { }
-    | KW_FROM module_opt KW_IMPORT "(" module_as_id ")" { }
-    | KW_FROM module_opt KW_IMPORT "(" module_as_id module_item_list ")" { }
-    | KW_FROM module_opt KW_IMPORT "*" { }
+    : KW_IMPORT module_item_list { $$ = IMPORT_01($2, @$); }
+    | KW_FROM module KW_IMPORT module_item_list {
+        $$ = IMPORT_02($2, $4, @$); }
+    | KW_FROM module KW_IMPORT "(" module_item_list ")" {
+        $$ = IMPORT_02($2, $5, @$); }
+    | KW_FROM dot_list KW_IMPORT module_item_list {
+        $$ = IMPORT_03($4, @$); }
+    | KW_FROM dot_list module KW_IMPORT module_item_list {
+        $$ = IMPORT_04($3, $5, @$); }
+    | KW_FROM dot_list KW_IMPORT "(" module_item_list ")" {
+        $$ = IMPORT_03($5, @$); }
+    | KW_FROM dot_list module KW_IMPORT "(" module_item_list ")" {
+        $$ = IMPORT_04($3, $6, @$); }
     ;
 
 global_statement
