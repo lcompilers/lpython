@@ -167,6 +167,10 @@ ast = true
 asr = true
 
 [[test]]
+filename = "ltypes.py"
+llvm = true
+
+[[test]]
 filename = "../integration_tests/test_builtin.py"
 asr = true
 
