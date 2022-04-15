@@ -3579,6 +3579,14 @@ public:
             if (ASRUtils::is_integer(*t) ||
                 ASR::is_a<ASR::Logical_t>(*ASRUtils::type_get_past_pointer(t))) {
                 switch( a_kind ) {
+                    case 1 : {
+                        fmt.push_back("%d");
+                        break;
+                    }
+                    case 2 : {
+                        fmt.push_back("%d");
+                        break;
+                    }
                     case 4 : {
                         fmt.push_back("%d");
                         break;
@@ -3589,7 +3597,7 @@ public:
                     }
                     default: {
                         throw CodeGenError(R"""(Printing support is available only
-                                            for 32, and 64 bit integer kinds.)""",
+                                            for 8, 16, 32, and 64 bit integer kinds.)""",
                                             x.base.base.loc);
                     }
                 }
