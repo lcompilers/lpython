@@ -195,9 +195,11 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> target_item
 %type <ast> target
 %type <ast> ann_assignment_statement
+%type <ast> delete_statement
+%type <ast> del_target
+%type <vec_ast> del_target_list
 /*
 %type <ast> expression_statment
-%type <ast> delete_statement
 %type <ast> return_statement
 %type <ast> yeild_statement
  */
@@ -279,7 +281,7 @@ single_line_statement
     | augassign_statement
     | ann_assignment_statement
     | pass_statement
-    /* | delete_statement */
+    | delete_statement
     /* | return_statement */
     /* | yeild_statement */
     | raise_statement
@@ -364,6 +366,19 @@ augassign_op
 ann_assignment_statement
     : target ":" expr { $$ = ANNASSIGN_01($1, $3, @$); }
     | target ":" expr "=" expr { $$ = ANNASSIGN_02($1, $3, $5, @$); }
+    ;
+
+del_target
+    : id { $$ = DEL_TARGET_ID($1, @$); }
+    ;
+
+del_target_list
+    : del_target_list "," del_target { $$ = $1; LIST_ADD($$, $3); }
+    | del_target { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+delete_statement
+    : KW_DEL del_target_list { $$ = DELETE($2, @$); }
     ;
 
 module

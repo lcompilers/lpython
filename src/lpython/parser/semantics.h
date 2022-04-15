@@ -70,6 +70,10 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define ANNASSIGN_02(x, y, val, l) make_AnnAssign_t(p.m_a, l, \
         EXPR(x), EXPR(y), EXPR(val), 1)
 
+#define DELETE(e, l) make_Delete_t(p.m_a, l, EXPRS(e), e.size())
+#define DEL_TARGET_ID(name, l) make_Name_t(p.m_a, l, \
+        name2char(name), expr_contextType::Del)
+
 #define PASS(l) make_Pass_t(p.m_a, l)
 #define BREAK(l) make_Break_t(p.m_a, l)
 #define CONTINUE(l) make_Continue_t(p.m_a, l)
