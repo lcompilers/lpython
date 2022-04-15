@@ -58,6 +58,8 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define EXPR2STMT(x) ((stmt_t*)make_Expr_t(p.m_a, x->base.loc, x))
 
 #define RESULT(x) p.result.push_back(p.m_a, STMT(x))
+#define SCRIPT_UNIT_STMT(x) (ast_t*)x
+#define SCRIPT_UNIT_EXPR(x) (ast_t*)EXPR2STMT(EXPR(x))
 #define LIST_NEW(l) l.reserve(p.m_a, 4)
 #define LIST_ADD(l, x) l.push_back(p.m_a, x)
 #define PLIST_ADD(l, x) l.push_back(p.m_a, *x)
@@ -98,10 +100,6 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
         EXPRS(targets), targets.size(), EXPR(val), nullptr)
 #define TARGET_ID(name, l) make_Name_t(p.m_a, l, \
         name2char(name), expr_contextType::Store)
-/*
-#define TARGET_EXPR_ID(e, id, l) make_Attribute_t(p.m_a, l, \
-        EXPR(e), name2char(id), expr_contextType::Store)
-*/
 #define TUPLE_01(elts, l) make_Tuple_t(p.m_a, l, \
         EXPRS(elts), elts.size(), expr_contextType::Store)
 

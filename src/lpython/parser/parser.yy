@@ -178,7 +178,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 /* %type <vec_ast> expr_list_opt */
 %type <ast> statement
 %type <ast> single_line_statement
-%type <ast> multi_line_statement
+/* %type <ast> multi_line_statement */
 %type <ast> augassign_statement
 %type <operator_type> augassign_op
 %type <ast> pass_statement
@@ -205,12 +205,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> module
 %type <alias> module_as_id
 %type <vec_alias> module_item_list
-%type <ast> function_def
-%type <ast> decorator
-%type <vec_ast> decorators
-%type <ast> parameter
-%type <vec_ast> parameter_list_opt
-%type <ast> if_statement
 %type <vec_ast> sep
 %type <ast> sep_one
 
@@ -249,10 +243,10 @@ units
     ;
 
 script_unit
-    : statement sep
-    | expr sep
+    : statement sep   { $$ = SCRIPT_UNIT_STMT($1); }
+    | expr sep        { $$ = SCRIPT_UNIT_EXPR($1); }
     ;
-
+/*
 statements
     : single_stmt_list TK_NEWLINE { }
     | sep TK_INDENT statements1 TK_DEDENT { }
@@ -267,10 +261,10 @@ single_stmt_list
     : single_stmt_list ";" single_line_statement { }
     | single_line_statement { }
     ;
-
+ */
 statement
     : single_line_statement
-    | multi_line_statement
+    /* | multi_line_statement */
     ;
 
 single_line_statement
@@ -288,11 +282,6 @@ single_line_statement
     | import_statement
     | global_statement
     | nonlocal_statement
-    ;
-
-multi_line_statement
-    : if_statement
-    | function_def
     ;
 
 pass_statement
@@ -320,7 +309,7 @@ assert_statement
 
 target
     : id { $$ = TARGET_ID($1, @$); }
-    | expr "." id { /* $$ = TARGET_EXPR_ID($1, $3, @$); */ }
+    | expr "." id { }
     | expr "[" expr_list "]" { }
     ;
 
@@ -431,51 +420,12 @@ nonlocal_statement
     : KW_NONLOCAL expr_list { $$ = NON_LOCAL($2, @$); }
     ;
 
-decorators
-    : decorators decorator { }
-    | decorator { }
-    ;
-
-decorator
-    : "@" expr sep { }
-    | "@" id ":=" expr sep { }
-    ;
-
-parameter
-    : id { }
-    | id ":" expr { }
-    ;
-
-parameter_list_opt
-    : parameter_list_opt "," parameter { }
-    | parameter { }
-    | %empty { }
-    ;
-
-function_def
-    : KW_DEF id "(" parameter_list_opt ")" ":" statements { }
-    | decorators KW_DEF id "(" parameter_list_opt ")" ":" statements { }
-    ;
-
-elif_stmt
-    : elif_stmt KW_ELIF expr ":" statements {}
-    | KW_ELIF expr ":" statements {}
-    ;
-
-if_statement
-    : KW_IF expr ":" statements {}
-    | KW_IF expr ":" statements elif_stmt {}
-    | KW_IF expr ":" statements KW_ELSE ":" statements {}
-    | KW_IF expr ":" statements elif_stmt KW_ELSE ":" statements {}
-    ;
-
 expr_list
     : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }
     | expr { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 expr
-// ### primary
     : id { $$ = $1; }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
     | TK_STRING { $$ = STRING($1, @$); }
