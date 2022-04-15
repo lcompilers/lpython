@@ -194,9 +194,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> target_item_list
 %type <ast> target_item
 %type <ast> target
+%type <ast> ann_assignment_statement
 /*
 %type <ast> expression_statment
-%type <ast> ann_assignment_statement
 %type <ast> delete_statement
 %type <ast> return_statement
 %type <ast> yeild_statement
@@ -277,7 +277,7 @@ single_line_statement
     : assert_statement
     | assignment_statement
     | augassign_statement
-    /* | ann_assignment_statement */
+    | ann_assignment_statement
     | pass_statement
     /* | delete_statement */
     /* | return_statement */
@@ -359,6 +359,11 @@ augassign_op
     | ">>=" { $$ = OPERATOR(RShift, @$); }
     | "**=" { $$ = OPERATOR(Pow, @$); }
     | "//=" { $$ = OPERATOR(FloorDiv, @$); }
+    ;
+
+ann_assignment_statement
+    : target ":" expr { $$ = ANNASSIGN_01($1, $3, @$); }
+    | target ":" expr "=" expr { $$ = ANNASSIGN_02($1, $3, $5, @$); }
     ;
 
 module
