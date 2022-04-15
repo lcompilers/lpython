@@ -356,3 +356,30 @@ def _lfortran_datanh(x: f64) -> f64:
 
 def atanh(x: f64) -> f64:
     return _lfortran_datanh(x)
+
+
+def expm1(x: f64) -> f64:
+    return exp(x) - 1
+
+
+def log1p(x: f64) -> f64:
+    return log(1 + x)
+
+
+def fmod(x: f64, y: f64) -> f64:
+    if y == 0:
+        raise ValueError('math domain error')
+    return _lfortran_dfmod(x, y)
+
+
+@ccall
+def _lfortran_dfmod(x: f64, y: f64) -> f64:
+    pass
+
+
+def remainder(x: f64, y: f64) -> f64:
+    q: i64
+    q = int(x/y)
+    if x - y*q > y*(q + 1) - x:
+        return x - y*(q + 1)
+    return x - y*q

@@ -1,5 +1,5 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
-                  ldexp, fabs, gcd, lcm, floor, ceil)
+                  ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p)
 from ltypes import i32, f64
 
 eps: f64
@@ -108,6 +108,24 @@ def test_ceil():
     assert i == -13
 
 
+def test_remainder():
+    assert remainder(9.0, 3.0) == 0.0
+    assert remainder(12.0, 5.0) == 2.0
+    assert remainder(13.0, 5.0) == -2.0
+
+def test_fmod():
+    assert fmod(20.5, 2.5) == 0.5
+    assert fmod(-20.5, 2.5) == -0.5
+
+
+def test_log1p():
+    assert log1p(1.0) - 0.69314718055994529 < eps
+
+
+def test_expm1():
+    assert expm1(1.0) - 1.71828182845904509 < eps
+
+
 def check():
     test_factorial_1()
     test_comb()
@@ -123,5 +141,9 @@ def check():
     test_lcm()
     test_floor()
     test_ceil()
+    test_remainder()
+    test_fmod()
+    test_expm1()
+    test_log1p()
 
 check()

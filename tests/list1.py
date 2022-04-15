@@ -10,10 +10,11 @@ def test_List():
     c: list[list[i32]]
     c = [[1, 2, 3], [4, 5, 6]]
 
-    #: TODO(namannimmo10): make this work
-    # d: i32
-    # d = a[2]
+    d: i32
+    d = a[2]
 
     # ragged list
     e: list[list[str]]
     e = [['a', 'b', 'c'], ['d', 'e']]
+
+    a.append(10)

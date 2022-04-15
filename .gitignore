@@ -155,3 +155,9 @@ build.ninja
 .ninja_deps
 .ninja_log
 /compile_commands.json
+
+##Parser 
+src/lpython/parser/parser.output
+src/lpython/parser/parser.tab.cc
+src/lpython/parser/parser.tab.hh
+

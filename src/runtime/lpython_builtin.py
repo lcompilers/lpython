@@ -2,30 +2,29 @@ from ltypes import i8, i16, i32, i64, f32, f64, c32, c64, overload
 #from sys import exit
 
 
-def ord(s: str) -> i32:
+def ord(s: str) -> i32: # currently supports characters with unicode value between 32 to 126
     """
     Returns an integer representing the Unicode code
     point of a given unicode character. This is the inverse of `chr()`.
     """
-    if s == '0':
-        return 48
-    elif s == '1':
-        return 49
-#    else:
-#        exit(1)
+    if len(s) != 1:
+        return -1 # not a character
+    i: i32
+    for i in range(32, 127):
+        if chr(i) == s:
+            return i
 
 
-def chr(i: i32) -> str:
+def chr(i: i32) -> str: # currently supports unicode values between 32 to 126
     """
     Returns the string representing a unicode character from
     the given Unicode code point. This is the inverse of `ord()`.
     """
-    if i == 48:
-        return '0'
-    elif i == 49:
-        return '1'
-#    else:
-#        exit(1)
+    if i < 32 or i > 126:
+        return "Not yet supported"
+    all_chars: str
+    all_chars = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
+    return all_chars[i - 32]
 
 
 #: abs() as a generic procedure.
@@ -104,28 +103,27 @@ def str(x: i32) -> str:
     """
     Return the string representation of an integer `x`.
     """
-    pass
-    # if x == 0:
-    #     return '0'
-    # result: str
-    # result = ''
-    # if x < 0:
-    #     result += '-'
-    #     x = -x
-    # rev_result: str
-    # rev_result = ''
-    # rev_result_len: i32
-    # rev_result_len = 0
-    # pos_to_str: list[str]
-    # pos_to_str = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-    # while x > 0:
-    #     rev_result += pos_to_str[x - _lpython_floordiv(x, 10)*10]
-    #     rev_result_len += 1
-    #     x = _lpython_floordiv(x, 10)
-    # pos: i32
-    # for pos in range(rev_result_len - 1, -1, -1):
-    #     result += rev_result[pos]
-    # return result
+    if x == 0:
+        return '0'
+    result: str
+    result = ''
+    if x < 0:
+        result += '-'
+        x = -x
+    rev_result: str
+    rev_result = ''
+    rev_result_len: i32
+    rev_result_len = 0
+    pos_to_str: list[str]
+    pos_to_str = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+    while x > 0:
+        rev_result += pos_to_str[x - _lpython_floordiv(x, 10)*10]
+        rev_result_len += 1
+        x = _lpython_floordiv(x, 10)
+    pos: i32
+    for pos in range(rev_result_len - 1, -1, -1):
+        result += rev_result[pos]
+    return result
 
 #: bool() as a generic procedure.
 #: supported types for argument:
@@ -267,52 +265,50 @@ def hex(n: i32) -> str:
     """
     Returns the hexadecimal representation of an integer `n`.
     """
-    pass
-    # hex_values: list[str]
-    # hex_values = ['0', '1', '2', '3', '4', '5', '6', '7',
-    #               '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
-    # if n == 0:
-    #     return '0x0'
-    # prep: str
-    # prep = '0x'
-    # if n < 0:
-    #     prep = '-0x'
-    #     n = -n
-    # res: str
-    # res = ""
-    # remainder: i32
-    # while n > 0:
-    #     remainder = n - _lpython_floordiv(n, 16)*16
-    #     n -= remainder
-    #     n = _lpython_floordiv(n, 16)
-    #     res += hex_values[remainder]
-    # return prep + res[::-1]
+    hex_values: list[str]
+    hex_values = ['0', '1', '2', '3', '4', '5', '6', '7',
+                  '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
+    if n == 0:
+        return '0x0'
+    prep: str
+    prep = '0x'
+    if n < 0:
+        prep = '-0x'
+        n = -n
+    res: str
+    res = ""
+    remainder: i32
+    while n > 0:
+        remainder = n - _lpython_floordiv(n, 16)*16
+        n -= remainder
+        n = _lpython_floordiv(n, 16)
+        res += hex_values[remainder]
+    return prep + res[::-1]
 
 
 def oct(n: i32) -> str:
     """
     Returns the octal representation of an integer `n`.
     """
-    pass
-    # _values: list[str]
-    # _values = ['0', '1', '2', '3', '4', '5', '6', '7',
-    #            '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
-    # if n == 0:
-    #     return '0o0'
-    # prep: str
-    # prep = '0o'
-    # if n < 0:
-    #     prep = '-0o'
-    #     n = -n
-    # res: str
-    # res = ""
-    # remainder: i32
-    # while n > 0:
-    #     remainder = n - _lpython_floordiv(n, 8)*8
-    #     n -= remainder
-    #     n = _lpython_floordiv(n, 8)
-    #     res += _values[remainder]
-    # return prep + res[::-1]
+    _values: list[str]
+    _values = ['0', '1', '2', '3', '4', '5', '6', '7',
+               '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
+    if n == 0:
+        return '0o0'
+    prep: str
+    prep = '0o'
+    if n < 0:
+        prep = '-0o'
+        n = -n
+    res: str
+    res = ""
+    remainder: i32
+    while n > 0:
+        remainder = n - _lpython_floordiv(n, 8)*8
+        n -= remainder
+        n = _lpython_floordiv(n, 8)
+        res += _values[remainder]
+    return prep + res[::-1]
 
 #: round() as a generic procedure.
 #: supported types for argument:
@@ -376,6 +372,34 @@ def round(b: bool) -> i32:
 #: supported types for arguments:
 #: (f64, f64), (f32, f64), (f64, f32), (f32, f32),
 #: (i32, i32), (i64, i64), (i32, i64), (i64, i32)
+
+
+@interface
+@overload
+def complex() -> c64:
+    return 0 + 0*1j
+
+
+@interface
+@overload
+def complex(x: f64) -> c64:
+    return x + 0*1j
+
+@interface
+@overload
+def complex(x: i32) -> c32:
+    return x + 0*1j
+
+@interface
+@overload
+def complex(x: f32) -> c32:
+    return x + 0*1j
+
+@interface
+@overload
+def complex(x: i64) -> c64:
+    return x + 0*1j
+
 @interface
 @overload
 def complex(x: f64, y: f64) -> c64:
@@ -518,3 +542,120 @@ def _mod(a: i64, b: i64) -> i64:
 @overload
 def _mod(a: f64, b: f64) -> f64:
     return a - _lpython_floordiv(a, b)*b
+
+
+@overload
+def max(a: i32, b: i32) -> i32:
+    if a > b:
+        return a
+    else:
+        return b
+
+@overload
+def max(a: i32, b: i32, c: i32) -> i32:
+    res: i32 = a
+    if b > res:
+        res = b
+    if c > res:
+        res = c
+    return res
+
+@overload
+def max(a: f64, b: f64, c: f64) -> f64:
+    res: f64 =a
+    if b - res > 1e-6:
+        res = b
+    if c - res > 1e-6:
+        res = c
+    return res
+
+@overload
+def max(a: f64, b: f64) -> f64:
+    if a - b > 1e-6:
+        return a
+    else:
+        return b
+
+@overload
+def min(a: i32, b: i32) -> i32:
+    if a < b:
+        return a
+    else:
+        return b
+
+@overload
+def min(a: i32, b: i32, c: i32) -> i32:
+    res: i32 = a
+    if b < res:
+        res = b
+    if c < res:
+        res = c
+    return res
+
+@overload
+def min(a: f64, b: f64, c: f64) -> f64:
+    res: f64 = a
+    if res - b > 1e-6:
+        res = b
+    if res - c > 1e-6:
+        res = c
+    return res
+
+@overload
+def min(a: f64, b: f64) -> f64:
+    if b - a > 1e-6:
+        return a
+    else:
+        return b
+
+@overload
+def _bitwise_or(a: i32, b: i32) -> i32:
+    pass
+
+@overload
+def _bitwise_or(a: i64, b: i64) -> i64:
+    pass
+
+@overload
+def _bitwise_and(a: i32, b: i32) -> i32:
+    pass
+
+@overload
+def _bitwise_and(a: i64, b: i64) -> i64:
+    pass
+
+@overload
+def _bitwise_xor(a: i32, b: i32) -> i32:
+    pass
+
+@overload
+def _bitwise_xor(a: i64, b: i64) -> i64:
+    pass
+
+@overload
+def _bitwise_lshift(a: i32, b: i32) -> i32:
+    if b < 0:
+        raise ValueError("Negative shift count not allowed.")
+    return a*2**b
+
+@overload
+def _bitwise_lshift(a: i64, b: i64) -> i64:
+    if b < 0:
+        raise ValueError("Negative shift count not allowed.")
+    return a*2**b
+
+@overload
+def _bitwise_rshift(a: i32, b: i32) -> i32:
+    if b < 0:
+        raise ValueError("Negative shift count not allowed.")
+    i: i32
+    i = 2
+    return _lpython_floordiv(a, i**b)
+
+@overload
+def _bitwise_rshift(a: i64, b: i64) -> i64:
+    if b < 0:
+        raise ValueError("Negative shift count not allowed.")
+    i: i64
+    i = 2
+    return _lpython_floordiv(a, i**b)

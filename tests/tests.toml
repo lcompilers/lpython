@@ -235,5 +235,25 @@ filename = "tokens/indent1.py"
 tokens = true
 
 [[test]]
+filename = "tokens/indent2.py"
+tokens = true
+
+[[test]]
+filename = "../integration_tests/test_max_min.py"
+asr = true
+
+[[test]]
 filename = "errors/test_str_indexing.py"
+asr = true
+
+[[test]]
+filename = "errors/test_set_indexing.py"
+asr = true
+
+[[test]]
+filename = "errors/test_str_slicing.py"
+asr = true
+
+[[test]]
+filename = "errors/test_append_type_mismatch.py"
 asr = true

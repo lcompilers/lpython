@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_max_min-3c2fc51",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_max_min.py",
+    "infile_hash": "df25c4bdf10041948626093627df9f45d2233315cc19543b3406d1f4",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-test_max_min-3c2fc51.stdout",
+    "stdout_hash": "67b97aa647dea902091a27a8fb51a7d70f798925edf54f17e6cf87f2",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
