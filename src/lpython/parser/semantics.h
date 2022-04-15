@@ -62,6 +62,9 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define LIST_ADD(l, x) l.push_back(p.m_a, x)
 #define PLIST_ADD(l, x) l.push_back(p.m_a, *x)
 
+#define OPERATOR(op, l) operatorType::op
+#define AUGASSIGN_01(x, op, y, l) make_AugAssign_t(p.m_a, l, EXPR(x), op, EXPR(y))
+
 #define PASS(l) make_Pass_t(p.m_a, l)
 #define BREAK(l) make_Break_t(p.m_a, l)
 #define CONTINUE(l) make_Continue_t(p.m_a, l)

@@ -179,7 +179,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> statement
 %type <ast> single_line_statement
 %type <ast> multi_line_statement
-/* %type <ast> augassign_statement */
+%type <ast> augassign_statement
+%type <operator_type> augassign_op
 %type <ast> pass_statement
 %type <ast> continue_statement
 %type <ast> break_statement
@@ -275,7 +276,7 @@ single_line_statement
     /* : expression_statment */
     : assert_statement
     | assignment_statement
-    /* | augassign_statement */
+    | augassign_statement
     /* | ann_assignment_statement */
     | pass_statement
     /* | delete_statement */
@@ -339,6 +340,25 @@ target_list
 
 assignment_statement
     : target_list expr { $$ = ASSIGNMENT($1, $2, @$); }
+    ;
+
+augassign_statement
+    : target augassign_op expr { $$ = AUGASSIGN_01($1, $2, $3, @$); }
+    ;
+
+augassign_op
+    : "+=" { $$ = OPERATOR(Add, @$); }
+    | "-=" { $$ = OPERATOR(Sub, @$); }
+    | "*=" { $$ = OPERATOR(Mult, @$); }
+    | "/=" { $$ = OPERATOR(Div, @$); }
+    | "%=" { $$ = OPERATOR(Mod, @$); }
+    | "&=" { $$ = OPERATOR(BitAnd, @$); }
+    | "|=" { $$ = OPERATOR(BitOr, @$); }
+    | "^=" { $$ = OPERATOR(BitXor, @$); }
+    | "<<=" { $$ = OPERATOR(LShift, @$); }
+    | ">>=" { $$ = OPERATOR(RShift, @$); }
+    | "**=" { $$ = OPERATOR(Pow, @$); }
+    | "//=" { $$ = OPERATOR(FloorDiv, @$); }
     ;
 
 module
@@ -406,17 +426,12 @@ parameter
 parameter_list_opt
     : parameter_list_opt "," parameter { }
     | parameter { }
-    | %empty {}
+    | %empty { }
     ;
 
 function_def
     : KW_DEF id "(" parameter_list_opt ")" ":" statements { }
     | decorators KW_DEF id "(" parameter_list_opt ")" ":" statements { }
-    ;
-
-expr_list
-    : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }
-    | expr { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 elif_stmt
@@ -429,6 +444,11 @@ if_statement
     | KW_IF expr ":" statements elif_stmt {}
     | KW_IF expr ":" statements KW_ELSE ":" statements {}
     | KW_IF expr ":" statements elif_stmt KW_ELSE ":" statements {}
+    ;
+
+expr_list
+    : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }
+    | expr { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 expr
