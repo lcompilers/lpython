@@ -254,6 +254,10 @@ tokens = true
 filename = "parser/import1.py"
 ast_new = true
 
+[[test]]
+filename = "parser/statements1.py"
+ast_new = true
+
 # tests/errors
 
 [[test]]
