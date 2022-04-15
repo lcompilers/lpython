@@ -61,7 +61,10 @@ Compile LPython:
 
 ```bash
 cmake -DCMAKE_BUILD_TYPE=Debug -DWITH_LLVM=yes -DWITH_STACKTRACE=yes -DWITH_LFORTRAN_BINARY_MODFILES=no .
+# For Linux
 cmake --build . -j$(nproc)
+# For MacOS
+cmake --build . -j$(sysctl -n hm.logicalcpu)
 ```
 
 ## Tests:
