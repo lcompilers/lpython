@@ -2662,7 +2662,7 @@ public:
                 }
             }
         } else if (optype == ASR::ttypeType::Logical) {
-            // Convert True to 1 and False to 0 and then compare
+            // i1 -> i32
             left = builder->CreateZExt(left, llvm::Type::getInt32Ty(context));
             right = builder->CreateZExt(right, llvm::Type::getInt32Ty(context));
             switch (x.m_op) {
