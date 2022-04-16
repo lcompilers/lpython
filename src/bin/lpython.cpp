@@ -80,10 +80,6 @@ std::string get_kokkos_dir()
 
 #endif
 
-int make_time_report()
-{
-
-}
 int emit_tokens(const std::string &infile, bool line_numbers, const CompilerOptions &compiler_options)
 {
     std::string input = LFortran::read_file(infile);
@@ -147,33 +143,6 @@ int emit_ast(const std::string &infile,
     return 0;
 }
 
-int emit_parser_time(const std::string &infile,
-    const std::string &runtime_library_dir, CompilerOptions &compiler_options)
-{
-    Allocator al(4*1024);
-    LFortran::diag::Diagnostics diagnostics;
-    auto init_time = std::chrono::high_resolution_clock::now();
-    LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-            al, runtime_library_dir, infile, diagnostics, true);
-    auto finish_time = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> double_ms(finish_time - init_time);
-    double time_ms = double_ms.count();
-    // same diagnostic printing from emit_show_ast.
-    if (diagnostics.diagnostics.size() > 0) {
-        LFortran::LocationManager lm;
-        lm.in_filename = infile;
-        // TODO: only read this once, and pass it as an argument to parse_python_file()
-        std::string input = LFortran::read_file(infile);
-        lm.init_simple(input);
-        std::cerr << diagnostics.render(input, lm, compiler_options);
-    }
-    if (!r.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
-        return 1;
-    }
-    std::cout << "Parsing time: " << time_ms << " ms" << std::endl;
-    return 0;
-}
 int emit_asr(const std::string &infile,
     const std::string &runtime_library_dir,
     bool with_intrinsic_modules, CompilerOptions &compiler_options)
@@ -299,72 +268,79 @@ int emit_llvm(const std::string &infile,
     return 0;
 }
 
-    int compile_python_to_object_file(
-            const std::string &infile,
-            const std::string &outfile,
-            const std::string &runtime_library_dir,
-            CompilerOptions &compiler_options) {
-        std::chrono::time_point <std::chrono::system_clock> start, end;
-        Allocator al(4 * 1024);
-        LFortran::diag::Diagnostics diagnostics;
-        LFortran::LocationManager lm;
-        std::vector <std::pair<std::string, double>> times;
-
-        start = std::chrono::high_resolution_clock::now();
-        lm.in_filename = infile;
-        std::string input = LFortran::read_file(infile);
-        lm.init_simple(input);
-        end = std::chrono::high_resolution_clock::now();
-        times.push_back(std::make_pair("Reading_file", std::chrono::duration<double, std::milli>(end - start).count()));
-
-        start = std::chrono::high_resolution_clock::now();
-        LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-                al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
-        end = std::chrono::high_resolution_clock::now();
-        times.push_back(std::make_pair("parsing", std::chrono::duration<double, std::milli>(end - start).count()));
-        std::cerr << diagnostics.render(input, lm, compiler_options);
-        if (!r.ok) {
-            return 1;
-        }
-
-        // Src -> AST -> ASR
-        start = std::chrono::high_resolution_clock::now();
-        LFortran::LPython::AST::ast_t *ast = r.result;
-        diagnostics.diagnostics.clear();
-        LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-                                                  compiler_options.symtab_only);
-        end = std::chrono::high_resolution_clock::now();
-        times.push_back(std::make_pair("AST -> ASR", std::chrono::duration<double, std::milli>(end - start).count()));
-        std::cerr << diagnostics.render(input, lm, compiler_options);
-        if (!r1.ok) {
-            LFORTRAN_ASSERT(diagnostics.has_error())
-            return 2;
-        }
-        LFortran::ASR::TranslationUnit_t *asr = r1.result;
-        diagnostics.diagnostics.clear();
-
-        // ASR -> LLVM
-        start = std::chrono::high_resolution_clock::now();
-        LFortran::PythonCompiler fe(compiler_options);
-        LFortran::LLVMEvaluator e(compiler_options.target);
-        std::unique_ptr<LFortran::LLVMModule> m;
-        LFortran::Result <std::unique_ptr<LFortran::LLVMModule>>
-                res = fe.get_llvm3(*asr, diagnostics);
-        end = std::chrono::high_resolution_clock::now();
-        std::cerr << diagnostics.render(input, lm, compiler_options);
-        if (!res.ok) {
-            LFORTRAN_ASSERT(diagnostics.has_error())
-            return 3;
-        }
-        times.push_back(std::make_pair("ASR -> LLVM", std::chrono::duration<double, std::milli>(end - start).count()));
-        m = std::move(res.result);
-        e.save_object_file(*(m->m_m), outfile);
-        for (std::pair<std::string, double> &stage: times) {
-            std::cout << stage.first << ": " << stage.second << "ms" << std::endl;
-        }
-        return 0;
+void print_report(std::vector <std::pair<std::string, double>> &times) {
+    for (std::pair<std::string, double> &stage: times) {
+        std::cout << stage.first << ": " << stage.second << "ms" << std::endl;
     }
+}
+
+int compile_python_to_object_file(
+        const std::string &infile,
+        const std::string &outfile,
+        const std::string &runtime_library_dir,
+        CompilerOptions &compiler_options) {
+    std::chrono::time_point <std::chrono::system_clock> start, end;
+    Allocator al(4 * 1024);
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::LocationManager lm;
+    std::vector <std::pair<std::string, double>> times;
+
+    start = std::chrono::high_resolution_clock::now();
+    lm.in_filename = infile;
+    std::string input = LFortran::read_file(infile);
+    lm.init_simple(input);
+    end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("Reading_file", std::chrono::duration<double, std::milli>(end - start).count()));
+
+    start = std::chrono::high_resolution_clock::now();
+    LFortran::Result < LFortran::LPython::AST::ast_t * > r = parse_python_file(
+            al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+    end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("parsing", std::chrono::duration<double, std::milli>(end - start).count()));
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r.ok) {
+        print_report(times);
+        return 1;
+    }
+
+    // Src -> AST -> ASR
+    start = std::chrono::high_resolution_clock::now();
+    LFortran::LPython::AST::ast_t *ast = r.result;
+    diagnostics.diagnostics.clear();
+    LFortran::Result < LFortran::ASR::TranslationUnit_t * >
+    r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
+                                              compiler_options.symtab_only);
+    end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("AST -> ASR", std::chrono::duration<double, std::milli>(end - start).count()));
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r1.ok) {
+        print_report(times);
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        return 2;
+    }
+    LFortran::ASR::TranslationUnit_t *asr = r1.result;
+    diagnostics.diagnostics.clear();
+
+    // ASR -> LLVM
+    start = std::chrono::high_resolution_clock::now();
+    LFortran::PythonCompiler fe(compiler_options);
+    LFortran::LLVMEvaluator e(compiler_options.target);
+    std::unique_ptr <LFortran::LLVMModule> m;
+    LFortran::Result <std::unique_ptr<LFortran::LLVMModule>>
+            res = fe.get_llvm3(*asr, diagnostics);
+    end = std::chrono::high_resolution_clock::now();
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!res.ok) {
+        print_report(times);
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        return 3;
+    }
+    times.push_back(std::make_pair("ASR -> LLVM", std::chrono::duration<double, std::milli>(end - start).count()));
+    m = std::move(res.result);
+    e.save_object_file(*(m->m_m), outfile);
+    print_report(times);
+    return 0;
+}
 
 
 #endif
