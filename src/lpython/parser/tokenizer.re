@@ -56,6 +56,14 @@ void lex_dec_int_large(Allocator &al, const unsigned char *s,
 }
 
 
+char* get_value(Allocator &al, char *s, int base) {
+    std::string str(s);
+    str = std::to_string(std::stol(str, nullptr, base));
+    LFortran::Str s2;
+    s2.from_str_view(str);
+    return s2.c_str(al);
+}
+
 // Tokenizes integer of the kind 0x1234 into `prefix` and `u`
 // s ... the start of the integer
 // e ... the character after the end
@@ -67,7 +75,7 @@ void lex_int(Allocator &al, const unsigned char *s,
         prefix.p = (char*) "Hex";
         prefix.n = 3;
         Str num;
-        num.p = (char*)s;
+        num.p = get_value(al, (char*)s, 16);
         num.n = e-s;
         u.from_largeint(al, num);
     } else if (std::tolower(s[1]) == 'b') {
@@ -75,19 +83,15 @@ void lex_int(Allocator &al, const unsigned char *s,
         prefix.p = (char*) "Bin";
         prefix.n = 3;
         Str num;
-        num.p = (char*)s;
+        num.p = get_value(al, (char*)s, 2);
         num.n = e-s;
         u.from_largeint(al, num);
     } else if ((std::tolower(s[1]) == 'o')) {
-        if(std::isdigit(s[1])) {
-            s++;
-        } else {
-            s = s + 2;
-        }
+        s = s + 2;
         prefix.p = (char*) "Oct";
         prefix.n = 3;
         Str num;
-        num.p = (char*)s;
+        num.p = get_value(al, (char*)s, 8);
         num.n = e-s;
         u.from_largeint(al, num);
     } else {

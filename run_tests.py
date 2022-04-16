@@ -42,6 +42,7 @@ def main():
         ast_cpp = test.get("ast_cpp", False)
         ast_cpp_hip = test.get("ast_cpp_hip", False)
         ast_openmp = test.get("ast_openmp", False)
+        ast_new = test.get("ast_new", False)
         asr = test.get("asr", False)
         asr_preprocess = test.get("asr_preprocess", False)
         asr_indent = test.get("asr_indent", False)
@@ -61,6 +62,10 @@ def main():
 
         if ast:
             run_test("ast", "lpython --show-ast --no-color {infile} -o {outfile}",
+                        filename, update_reference, extra_args)
+
+        if ast_new:
+            run_test("ast_new", "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
                         filename, update_reference, extra_args)
 
         if asr:
