@@ -59,6 +59,7 @@
 #include <libasr/pass/class_constructor.h>
 #include <libasr/pass/unused_functions.h>
 #include <libasr/pass/inline_function_calls.h>
+#include <libasr/pass/dead_code_removal.h>
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/codegen/llvm_utils.h>
@@ -3307,7 +3308,7 @@ public:
         return ASRUtils::expr_type(expr);
     }
 
-    void extract_kinds(const ASR::ImplicitCast_t& x,
+    void extract_kinds(const ASR::Cast_t& x,
                        int& arg_kind, int& dest_kind)
     {
         dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
@@ -3316,7 +3317,7 @@ public:
         arg_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
     }
 
-    void visit_ImplicitCast(const ASR::ImplicitCast_t &x) {
+    void visit_Cast(const ASR::Cast_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
             return;
@@ -3578,6 +3579,14 @@ public:
             if (ASRUtils::is_integer(*t) ||
                 ASR::is_a<ASR::Logical_t>(*ASRUtils::type_get_past_pointer(t))) {
                 switch( a_kind ) {
+                    case 1 : {
+                        fmt.push_back("%d");
+                        break;
+                    }
+                    case 2 : {
+                        fmt.push_back("%d");
+                        break;
+                    }
                     case 4 : {
                         fmt.push_back("%d");
                         break;
@@ -3588,7 +3597,7 @@ public:
                     }
                     default: {
                         throw CodeGenError(R"""(Printing support is available only
-                                            for 32, and 64 bit integer kinds.)""",
+                                            for 8, 16, 32, and 64 bit integer kinds.)""",
                                             x.base.base.loc);
                     }
                 }
@@ -4272,6 +4281,11 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
 
     pass_replace_do_loops(al, asr);
     pass_replace_forall(al, asr);
+
+    if( fast ) {
+        pass_dead_code_removal(al, asr, rl_path);
+    }
+
     pass_replace_select_case(al, asr);
     pass_unused_functions(al, asr);
 
