@@ -10,21 +10,12 @@ import re
 from timeit import default_timer as clock
 import ast
 import shlex
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
 # when you add option to implemented_benchmarks you must also add class to get values from cpython and python.
 implemented_benchmarks = [
     "parser"
 ]
+
 
 class Parser:
     @classmethod
@@ -55,15 +46,14 @@ class Graph:
 
     def __init__(self, plots):
         report_file = open(os.path.join('benchmarks', 'report_file.dat'), 'w')
-
         for plot in plots:
             report_file.write(f"{plot[0]},{plot[1]},{plot[2]}\n")
-        
 
     def show(self):
-        termgraph_command = subprocess.run("termgraph %s --space-between" %(os.path.join('benchmarks', 'report_file.dat')), shell=True ,capture_output=True)
+        termgraph_command = subprocess.run(
+            "termgraph %s --space-between" % (os.path.join('benchmarks', 'report_file.dat')), shell=True,
+            capture_output=True)
         return termgraph_command.stdout.decode('utf-8')
-
 
 
 if __name__ == '__main__':
@@ -71,7 +61,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Lpython benchmark")
     parser.add_argument("-n", "--numerical", action="store_true", help="show results as nnumerical values")
     parser.add_argument("-p", "--plots", action="store_true", help="show results as graph of plots")
-    parser.add_argument("-c", "--compare", action="store", nargs='+', help=f"What you wnat to compare for now we have{implemented_benchmarks} ")
+    parser.add_argument("-c", "--compare", action="store", nargs='+',
+                        help=f"What you wnat to compare for now we have{implemented_benchmarks} ")
     args = parser.parse_args()
     show_graph = args.plots and True
     show_numerical = args.numerical and True
@@ -103,4 +94,3 @@ if __name__ == '__main__':
                     compare_result.append((filename, lpython, cpython))
             graph = Graph(compare_result)
             print(graph.show())
-    

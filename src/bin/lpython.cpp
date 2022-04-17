@@ -268,7 +268,9 @@ int emit_llvm(const std::string &infile,
     return 0;
 }
 
-void print_report(std::vector <std::pair<std::string, double>> &times) {
+void print_report(std::vector <std::pair<std::string, double>> &times, bool allow) {
+    if (!allow)
+        return;
     for (std::pair<std::string, double> &stage: times) {
         std::cout << stage.first << ": " << stage.second << "ms" << std::endl;
     }
@@ -278,43 +280,44 @@ int compile_python_to_object_file(
         const std::string &infile,
         const std::string &outfile,
         const std::string &runtime_library_dir,
+        const bool time_report,
         CompilerOptions &compiler_options) {
-    std::chrono::time_point <std::chrono::system_clock> start, end;
+
     Allocator al(4 * 1024);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::LocationManager lm;
     std::vector <std::pair<std::string, double>> times;
-
-    start = std::chrono::high_resolution_clock::now();
+    
+    auto start_file = std::chrono::high_resolution_clock::now();
     lm.in_filename = infile;
     std::string input = LFortran::read_file(infile);
     lm.init_simple(input);
-    end = std::chrono::high_resolution_clock::now();
-    times.push_back(std::make_pair("Reading_file", std::chrono::duration<double, std::milli>(end - start).count()));
+    auto end_file = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("Reading_file", std::chrono::duration<double, std::milli>(end_file - start_file).count()));
 
-    start = std::chrono::high_resolution_clock::now();
+    auto start_parser = std::chrono::high_resolution_clock::now();
     LFortran::Result < LFortran::LPython::AST::ast_t * > r = parse_python_file(
             al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
-    end = std::chrono::high_resolution_clock::now();
-    times.push_back(std::make_pair("parsing", std::chrono::duration<double, std::milli>(end - start).count()));
+    auto end_parser = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("parsing", std::chrono::duration<double, std::milli>(end_parser - start_parser).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
-        print_report(times);
+        print_report(times, time_report);
         return 1;
     }
 
     // Src -> AST -> ASR
-    start = std::chrono::high_resolution_clock::now();
+    auto start_src_to_ast = std::chrono::high_resolution_clock::now();
     LFortran::LPython::AST::ast_t *ast = r.result;
     diagnostics.diagnostics.clear();
     LFortran::Result < LFortran::ASR::TranslationUnit_t * >
     r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
                                               compiler_options.symtab_only);
-    end = std::chrono::high_resolution_clock::now();
-    times.push_back(std::make_pair("AST -> ASR", std::chrono::duration<double, std::milli>(end - start).count()));
+    auto end_src_to_ast = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("AST -> ASR", std::chrono::duration<double, std::milli>(end_src_to_ast - start_src_to_ast).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
-        print_report(times);
+        print_report(times, time_report);
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 2;
     }
@@ -322,23 +325,23 @@ int compile_python_to_object_file(
     diagnostics.diagnostics.clear();
 
     // ASR -> LLVM
-    start = std::chrono::high_resolution_clock::now();
+    auto start_asr_to_llvm = std::chrono::high_resolution_clock::now();
     LFortran::PythonCompiler fe(compiler_options);
     LFortran::LLVMEvaluator e(compiler_options.target);
     std::unique_ptr <LFortran::LLVMModule> m;
     LFortran::Result <std::unique_ptr<LFortran::LLVMModule>>
             res = fe.get_llvm3(*asr, diagnostics);
-    end = std::chrono::high_resolution_clock::now();
+    auto end_asr_llvm = std::chrono::high_resolution_clock::now();
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
-        print_report(times);
+        print_report(times, time_report);
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 3;
     }
-    times.push_back(std::make_pair("ASR -> LLVM", std::chrono::duration<double, std::milli>(end - start).count()));
+    times.push_back(std::make_pair("ASR -> LLVM", std::chrono::duration<double, std::milli>(end_asr_llvm - start_asr_to_llvm).count()));
     m = std::move(res.result);
     e.save_object_file(*(m->m_m), outfile);
-    print_report(times);
+    print_report(times, time_report);
     return 0;
 }
 
@@ -810,7 +813,7 @@ int main(int argc, char *argv[])
         if (arg_c) {
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-                return compile_python_to_object_file(arg_file, outfile, runtime_library_dir, compiler_options);
+                return compile_python_to_object_file(arg_file, outfile, runtime_library_dir, time_report, compiler_options);
 #else
                 std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
@@ -826,7 +829,7 @@ int main(int argc, char *argv[])
             int err;
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-                err = compile_python_to_object_file(arg_file, tmp_o, runtime_library_dir, compiler_options);
+                err = compile_python_to_object_file(arg_file, tmp_o, runtime_library_dir, time_report, compiler_options);
 #else
                 std::cerr << "Compiling Python files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;

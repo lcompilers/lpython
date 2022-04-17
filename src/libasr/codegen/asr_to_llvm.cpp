@@ -3150,8 +3150,15 @@ public:
         start_new_block(elseBB);
 
         {
-            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("Assertion failed\n");
-            printf(context, *module, *builder, {fmt_ptr});
+            if (x.m_msg) {
+                char* s = ASR::down_cast<ASR::ConstantString_t>(x.m_msg)->m_s;
+                llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("AssertionError: %s\n");
+                llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(s);
+                printf(context, *module, *builder, {fmt_ptr, fmt_ptr2});
+            } else {
+                llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("AssertionError\n");
+                printf(context, *module, *builder, {fmt_ptr});
+            }
             int exit_code_int = 1;
             llvm::Value *exit_code = llvm::ConstantInt::get(context,
                     llvm::APInt(32, exit_code_int));
