@@ -818,8 +818,7 @@ public:
             std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
             diag.add(diag::Diagnostic(
-                "Not Implemented: type mismatch in binary operator; only Integer, Real, Complex,"
-                " Logical combinations and string concatenation/repetition are implemented for now.",
+                "Type mismatch in binary operator; the types must be compatible",
                 diag::Level::Error, diag::Stage::Semantic, {
                     diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
                             {left->base.loc, right->base.loc})
@@ -1208,6 +1207,9 @@ public:
         ai.m_left = nullptr;
         ai.m_right = nullptr;
         ai.m_step = nullptr;
+        ASR::symbol_t *s = ASR::down_cast<ASR::Var_t>(value)->m_v;
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+        ASR::ttype_t *type = v->m_type;
         if (AST::is_a<AST::Slice_t>(*x.m_slice)) {
             AST::Slice_t *s = AST::down_cast<AST::Slice_t>(x.m_slice);
             if (s->m_lower != nullptr) {
@@ -1227,25 +1229,35 @@ public:
             }
         } else {
             this->visit_expr(*x.m_slice);
-            if (!ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
+            if (!ASR::is_a<ASR::Dict_t>(*type) &&
+                    !ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
                 throw SemanticError("string indices must be integers", tmp->loc);
             }
-            ASR::expr_t *index = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
+            ASR::expr_t *index = nullptr;
+            if (ASR::is_a<ASR::Dict_t>(*type)) {
+                index = ASRUtils::EXPR(tmp);
+                ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
+                if (!ASRUtils::check_equal_type(ASRUtils::expr_type(index), key_type)) {
+                    throw SemanticError("Key type must be: " + ASRUtils::type_to_str(key_type),
+                            x.base.base.loc);
+                }
+            } else {
+                index = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
+            }
             ai.m_right = index;
         }
-        ASR::symbol_t *s = ASR::down_cast<ASR::Var_t>(value)->m_v;
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-        ASR::ttype_t *type = v->m_type;
+
         if (ASR::is_a<ASR::Character_t>(*type)) {
             if (!ai.m_left && ai.m_right) {
                 // String indexing is done using "a(3:3)" style
                 ai.m_left = ai.m_right;
             }
-        }
-        if (ASR::is_a<ASR::List_t>(*type)) {
+        } else if (ASR::is_a<ASR::List_t>(*type)) {
             type = ASR::down_cast<ASR::List_t>(type)->m_type;
         } else if (ASR::is_a<ASR::Set_t>(*type)) {
             throw SemanticError("'set' object is not subscriptable", x.base.base.loc);
+        } else if (ASR::is_a<ASR::Dict_t>(*type)) {
+            type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
         }
         args.push_back(al, ai);
         tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, s, args.p,
@@ -2398,6 +2410,8 @@ public:
                     if (ASR::is_a<ASR::Variable_t>(*t)) {
                         ASR::Variable_t *var = ASR::down_cast<ASR::Variable_t>(t);
                         if (ASR::is_a<ASR::List_t>(*var->m_type)) {
+                            ASR::List_t *list = ASR::down_cast<ASR::List_t>(var->m_type);
+                            ASR::ttype_t *list_type = list->m_type;
                             std::string attr = at->m_attr;
                             if (attr == "append") {
                                 if (c->n_args != 1) {
@@ -2406,6 +2420,12 @@ public:
                                 }
                                 visit_expr(*c->m_args[0]);
                                 ASR::expr_t *ele = ASRUtils::EXPR(tmp);
+                                ASR::ttype_t *ele_type = ASRUtils::expr_type(ele);
+                                if (!ASRUtils::check_equal_type(ele_type, list_type)) {
+                                    throw SemanticError("Type mismatch while appending to a list, found (" +
+                                        ASRUtils::type_to_str(ele_type) + " and " +
+                                        ASRUtils::type_to_str(list_type) + ").", x.base.base.loc);
+                                }
                                 tmp = make_ListAppend_t(al, x.base.base.loc, t, ele);
                                 return;
                             } else {

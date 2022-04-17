@@ -4,6 +4,8 @@
 # llvm ... run the Semantics and output LLVM, compare against reference version
 # tokens ... output Tokens, compare against reference version
 
+# tests
+
 [[test]]
 filename = "doconcurrentloop_01.py"
 ast = true
@@ -146,6 +148,7 @@ filename = "assert1.py"
 ast = true
 asr = true
 cpp = true
+llvm = true
 
 [[test]]
 filename = "assign1.py"
@@ -165,6 +168,12 @@ asr = true
 filename = "global_scope1.py"
 ast = true
 asr = true
+
+# integration_tests
+
+[[test]]
+filename = "ltypes.py"
+llvm = true
 
 [[test]]
 filename = "../integration_tests/test_builtin.py"
@@ -215,6 +224,12 @@ filename = "../integration_tests/test_builtin_oct.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/test_max_min.py"
+asr = true
+
+# tests/tokens
+
+[[test]]
 filename = "tokens/docstring1.py"
 tokens = true
 
@@ -235,8 +250,20 @@ filename = "tokens/indent1.py"
 tokens = true
 
 [[test]]
-filename = "../integration_tests/test_max_min.py"
-asr = true
+filename = "tokens/indent2.py"
+tokens = true
+
+# tests/parser
+
+[[test]]
+filename = "parser/import1.py"
+ast_new = true
+
+[[test]]
+filename = "parser/statements1.py"
+ast_new = true
+
+# tests/errors
 
 [[test]]
 filename = "errors/test_str_indexing.py"
@@ -248,4 +275,8 @@ asr = true
 
 [[test]]
 filename = "errors/test_str_slicing.py"
+asr = true
+
+[[test]]
+filename = "errors/test_append_type_mismatch.py"
 asr = true
