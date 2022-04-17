@@ -22,6 +22,21 @@ def factorial(x: i32) -> i32:
         result *= i
     return result
 
+@overload
+def trunc(x: i32)-> i32:
+    return x
+
+@overload
+def trunc(x: i64)-> i64:
+    return x
+
+@overload
+def trunc(x: f32) -> i32:
+    return int(x)
+
+@overload
+def trunc(x: f64) -> i64:
+    return int(x)
 
 @overload
 def floor(x: i32) -> i32:
@@ -118,20 +133,95 @@ def isqrt(n: i32) -> i32:
             high = mid
     return low
 
+# degrees
+# supported data types: i8, i16, i32, i64, f32, f64
 
+@overload
+def degrees(x: i8) -> f64:
+    """
+    Convert angle `x` from radians to degrees.
+    """
+    return x * 180.0 / pi
+
+@overload
+def degrees(x: i16) -> f64:
+    """
+    Convert angle `x` from radians to degrees.
+    """
+    return x * 180.0 / pi
+
+@overload
+def degrees(x: i32) -> f64:
+    """
+    Convert angle `x` from radians to degrees.
+    """
+    return x * 180.0 / pi
+
+@overload
+def degrees(x: i64) -> f64:
+    """
+    Convert angle `x` from radians to degrees.
+    """
+    return x * 180.0 / pi
+
+@overload
+def degrees(x: f32) -> f64:
+    """
+    Convert angle `x` from radians to degrees.
+    """
+    return x * 180.0 / pi
+
+@overload
 def degrees(x: f64) -> f64:
     """
     Convert angle `x` from radians to degrees.
     """
     return x * 180.0 / pi
 
+# radians
+# supported data types: i8, i16, i32, i64, f32, f64
 
-def radians(x: f64) -> f64:
+@overload
+def radians(x: i8) -> f64:
     """
     Convert angle `x` from degrees to radians.
     """
     return x * pi / 180.0
 
+@overload
+def radians(x: i16) -> f64:
+    """
+    Convert angle `x` from degrees to radians.
+    """
+    return x * pi / 180.0
+
+@overload
+def radians(x: i32) -> f64:
+    """
+    Convert angle `x` from degrees to radians.
+    """
+    return x * pi / 180.0
+
+@overload
+def radians(x: i64) -> f64:
+    """
+    Convert angle `x` from degrees to radians.
+    """
+    return x * pi / 180.0
+
+@overload
+def radians(x: f32) -> f64:
+    """
+    Convert angle `x` from degrees to radians.
+    """
+    return x * pi / 180.0
+
+@overload
+def radians(x: f64) -> f64:
+    """
+    Convert angle `x` from degrees to radians.
+    """
+    return x * pi / 180.0
 
 def fabs(x: f64) -> f64:
     """
