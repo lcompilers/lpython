@@ -30,13 +30,25 @@ def test_isqrt():
 
 
 def test_degrees():
+
     i: f64
+
+    # Check for integer
+    i = degrees(32)
+    assert abs(i - 1833.4649444186343) < eps
+    
+    # Check for float
     i = degrees(32.2)
     assert abs(i - 1844.924100321251) < eps
-
-
+  
 def test_radians():
     i: f64
+
+    # Check for integer
+    i = radians(100)
+    assert abs(i - 1.7453292519943295) < eps
+
+    # Check for float
     i = radians(100.1)
     assert abs(i - 1.7470745812463238) < eps
 
@@ -124,7 +136,6 @@ def test_log1p():
 
 def test_expm1():
     assert expm1(1.0) - 1.71828182845904509 < eps
-
 
 def check():
     test_factorial_1()
