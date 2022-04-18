@@ -1,4 +1,4 @@
-from ltypes import i32, f64, ccall
+from ltypes import i8, i16, i32, i64, f32, f64, ccall
 
 
 pi: f64 = 3.141592653589793238462643383279502884197
