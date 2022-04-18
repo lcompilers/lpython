@@ -6,11 +6,10 @@ def test_complex():
     b: bool
 
     # constant real or int as args
-    # c = complex()
-    # c = complex(3.4)
+    c = complex()
+    c = complex(3.4)
     c = complex(5., 4.3)
-    # TODO: allow one argument in complex() built-in
-    # c = complex(1)
+    c = complex(1)
     c1 = complex(3, 4)
     c2 = complex(2, 4.5)
     c3 = complex(3., 4.)

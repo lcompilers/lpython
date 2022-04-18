@@ -135,7 +135,7 @@ The section is tested with `lfortran --show-ast examples/expr2.f90`
 
 We first extend the ASR in *ASR.asdl* and add ^ as a BinOp operator option. 
 
-:fontawesome-solid-code:*grammar/ASR.asdl*
+:fontawesome-solid-code:*src/libasr/ASR.asdl*
 ```
 binop = Add | Sub | Mul | Div | Pow | Caret
 ```

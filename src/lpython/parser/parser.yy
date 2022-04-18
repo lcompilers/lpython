@@ -171,17 +171,56 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 // Nonterminal tokens
 
+%type <ast> script_unit
+%type <ast> id
 %type <ast> expr
+%type <vec_ast> expr_list
+/* %type <vec_ast> expr_list_opt */
+%type <ast> statement
+%type <ast> single_line_statement
+/* %type <ast> multi_line_statement */
+%type <ast> augassign_statement
+%type <operator_type> augassign_op
+%type <ast> pass_statement
+%type <ast> continue_statement
+%type <ast> break_statement
+%type <ast> raise_statement
+%type <ast> assert_statement
+%type <ast> import_statement
+%type <ast> global_statement
+%type <ast> nonlocal_statement
+%type <ast> assignment_statement
+%type <vec_ast> target_list
+%type <vec_ast> target_item_list
+%type <ast> target_item
+%type <ast> target
+%type <ast> ann_assignment_statement
+%type <ast> delete_statement
+%type <ast> del_target
+%type <vec_ast> del_target_list
+%type <ast> return_statement
+/*
+%type <ast> expression_statment
+ */
+%type <vec_ast> module
+%type <alias> module_as_id
+%type <vec_alias> module_item_list
+%type <vec_ast> sep
+%type <ast> sep_one
 
 // Precedence
 
 //%left "or"
 //%left "and"
 //%precedence "not"
-//%left "==" "/=" "<" "<=" ">" ">="
+%left "==" "!=" ">=" ">" "<=" "<" //"is not" "is" "not in" "in"
+%left "|"
+%left "^"
+%left "&"
+%left ">>" "<<"
 %left "-" "+"
-%left "*" "/"
-//%precedence UMINUS
+%left "%" "//" "/" "@" "*"
+%precedence UNARY
 %right "**"
 
 %start units
@@ -198,21 +237,244 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 // Higher %dprec means higher precedence
 
 units
-    : expr TK_NEWLINE { RESULT($1); }
+    : units script_unit   { RESULT($2); }
+    | script_unit         { RESULT($1); }
+    | sep
+    ;
+
+script_unit
+    : statement sep   { $$ = SCRIPT_UNIT_STMT($1); }
+    | expr sep        { $$ = SCRIPT_UNIT_EXPR($1); }
+    ;
+/*
+statements
+    : single_stmt_list TK_NEWLINE { }
+    | sep TK_INDENT statements1 TK_DEDENT { }
+    ;
+
+statements1
+    : statements1 statement sep { }
+    | statement sep { }
+    ;
+
+single_stmt_list
+    : single_stmt_list ";" single_line_statement { }
+    | single_line_statement { }
+    ;
+ */
+statement
+    : single_line_statement
+    /* | multi_line_statement */
+    ;
+
+single_line_statement
+    /* : expression_statment */
+    : assert_statement
+    | assignment_statement
+    | augassign_statement
+    | ann_assignment_statement
+    | pass_statement
+    | delete_statement
+    | return_statement
+    | raise_statement
+    | break_statement
+    | continue_statement
+    | import_statement
+    | global_statement
+    | nonlocal_statement
+    ;
+
+pass_statement
+    : KW_PASS { $$ = PASS(@$); }
+    ;
+
+break_statement
+    : KW_BREAK { $$ = BREAK(@$); }
+    ;
+
+continue_statement
+    : KW_CONTINUE { $$ = CONTINUE(@$); }
+    ;
+
+raise_statement
+    : KW_RAISE { $$ = RAISE_01(@$); }
+    | KW_RAISE expr { $$ = RAISE_02($2, @$); }
+    | KW_RAISE expr KW_FROM expr { $$ = RAISE_03($2, $4, @$); }
+    ;
+
+assert_statement
+    : KW_ASSERT expr { $$ = ASSERT_01($2, @$); }
+    | KW_ASSERT expr "," expr { $$ = ASSERT_02($2, $4, @$); }
+    ;
+
+target
+    : id { $$ = TARGET_ID($1, @$); }
+    | expr "." id { }
+    | expr "[" expr_list "]" { }
+    ;
+
+target_item_list
+    : target_item_list "," target { $$ = $1; LIST_ADD($$, $3); }
+    | target { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+target_item
+    : target_item_list { $$ = TUPLE_01($1, @$); }
+    ;
+
+target_list
+    : target_list target_item "=" { $$ = $1; LIST_ADD($$, $2); }
+    | target_item "=" { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+assignment_statement
+    : target_list expr { $$ = ASSIGNMENT($1, $2, @$); }
+    ;
+
+augassign_statement
+    : target augassign_op expr { $$ = AUGASSIGN_01($1, $2, $3, @$); }
+    ;
+
+augassign_op
+    : "+=" { $$ = OPERATOR(Add, @$); }
+    | "-=" { $$ = OPERATOR(Sub, @$); }
+    | "*=" { $$ = OPERATOR(Mult, @$); }
+    | "/=" { $$ = OPERATOR(Div, @$); }
+    | "%=" { $$ = OPERATOR(Mod, @$); }
+    | "&=" { $$ = OPERATOR(BitAnd, @$); }
+    | "|=" { $$ = OPERATOR(BitOr, @$); }
+    | "^=" { $$ = OPERATOR(BitXor, @$); }
+    | "<<=" { $$ = OPERATOR(LShift, @$); }
+    | ">>=" { $$ = OPERATOR(RShift, @$); }
+    | "**=" { $$ = OPERATOR(Pow, @$); }
+    | "//=" { $$ = OPERATOR(FloorDiv, @$); }
+    ;
+
+ann_assignment_statement
+    : target ":" expr { $$ = ANNASSIGN_01($1, $3, @$); }
+    | target ":" expr "=" expr { $$ = ANNASSIGN_02($1, $3, $5, @$); }
+    ;
+
+del_target
+    : id { $$ = DEL_TARGET_ID($1, @$); }
+    ;
+
+del_target_list
+    : del_target_list "," del_target { $$ = $1; LIST_ADD($$, $3); }
+    | del_target { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+delete_statement
+    : KW_DEL del_target_list { $$ = DELETE($2, @$); }
+    ;
+
+return_statement
+    : KW_RETURN { $$ = RETURN_01(@$); }
+    | KW_RETURN expr { $$ = RETURN_02($2, @$); }
+    ;
+
+module
+    : module "." id { $$ = $1; LIST_ADD($$, $3); }
+    | id { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+module_as_id
+    : module { $$ = MOD_ID_01($1, @$); }
+    | module KW_AS id { $$ = MOD_ID_02($1, $3, @$); }
+    | "*" { $$ = MOD_ID_03("*", @$); }
+    ;
+
+module_item_list
+    : module_item_list "," module_as_id { $$ = $1; PLIST_ADD($$, $3); }
+    | module_as_id { LIST_NEW($$); PLIST_ADD($$, $1); }
+    ;
+
+dot_list
+    : dot_list "." { DOT_COUNT_01(); }
+    | "." { DOT_COUNT_01(); }
+    | dot_list "..." { DOT_COUNT_02(); }
+    | "..." { DOT_COUNT_02(); }
+    ;
+
+import_statement
+    : KW_IMPORT module_item_list { $$ = IMPORT_01($2, @$); }
+    | KW_FROM module KW_IMPORT module_item_list {
+        $$ = IMPORT_02($2, $4, @$); }
+    | KW_FROM module KW_IMPORT "(" module_item_list ")" {
+        $$ = IMPORT_02($2, $5, @$); }
+    | KW_FROM dot_list KW_IMPORT module_item_list {
+        $$ = IMPORT_03($4, @$); }
+    | KW_FROM dot_list module KW_IMPORT module_item_list {
+        $$ = IMPORT_04($3, $5, @$); }
+    | KW_FROM dot_list KW_IMPORT "(" module_item_list ")" {
+        $$ = IMPORT_03($5, @$); }
+    | KW_FROM dot_list module KW_IMPORT "(" module_item_list ")" {
+        $$ = IMPORT_04($3, $6, @$); }
+    ;
+
+global_statement
+    : KW_GLOBAL expr_list { $$ = GLOBAL($2, @$); }
+    ;
+
+nonlocal_statement
+    : KW_NONLOCAL expr_list { $$ = NON_LOCAL($2, @$); }
+    ;
+
+expr_list
+    : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }
+    | expr { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 expr
-// ### primary
-    : TK_NAME { $$ = SYMBOL($1, @$); }
+    : id { $$ = $1; }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
+    | TK_STRING { $$ = STRING($1, @$); }
+    | TK_REAL { $$ = FLOAT($1, @$); }
+    | TK_IMAG_NUM { $$ = COMPLEX($1, @$); }
+    | TK_TRUE { $$ = BOOL(true, @$); }
+    | TK_FALSE { $$ = BOOL(false, @$); }
     | "(" expr ")" { $$ = $2; }
+    | id "(" ")" { $$ = CALL_01($1, @$); }
+    | id "(" expr_list ")" { $$ = CALL_02($1, $3, @$); }
 
+    | expr "+" expr { $$ = BINOP($1, Add, $3, @$); }
+    | expr "-" expr { $$ = BINOP($1, Sub, $3, @$); }
+    | expr "*" expr { $$ = BINOP($1, Mult, $3, @$); }
+    | expr "/" expr { $$ = BINOP($1, Div, $3, @$); }
+    | expr "%" expr { $$ = BINOP($1, Mod, $3, @$); }
+    | "-" expr %prec UNARY { $$ = UNARY($2, USub, @$); }
+    | "+" expr %prec UNARY { $$ = UNARY($2, UAdd, @$); }
+    | "~" expr %prec UNARY { $$ = UNARY($2, Invert, @$); }
+    | expr "**" expr { $$ = BINOP($1, Pow, $3, @$); }
+    | expr "//" expr { $$ = BINOP($1, FloorDiv, $3, @$); }
+    | expr "@" expr { $$ = BINOP($1, MatMult, $3, @$); }
 
-// ### level-2
-    | expr "+" expr { $$ = ADD($1, $3, @$); }
-    | expr "-" expr { $$ = SUB($1, $3, @$); }
-    | expr "*" expr { $$ = MUL($1, $3, @$); }
-    | expr "/" expr { $$ = DIV($1, $3, @$); }
-    | expr "**" expr { $$ = POW($1, $3, @$); }
+    | expr "&" expr { $$ = BINOP($1, BitAnd, $3, @$); }
+    | expr "|" expr { $$ = BINOP($1, BitOr, $3, @$); }
+    | expr "^" expr { $$ = BINOP($1, BitXor, $3, @$); }
+    | expr "<<" expr { $$ = BINOP($1, LShift, $3, @$); }
+    | expr ">>" expr { $$ = BINOP($1, RShift, $3, @$); }
 
+    | expr "==" expr { $$ = COMPARE($1, Eq, $3, @$); }
+    | expr "!=" expr { $$ = COMPARE($1, NotEq, $3, @$); }
+    | expr "<" expr { $$ = COMPARE($1, Lt, $3, @$); }
+    | expr "<=" expr { $$ = COMPARE($1, LtE, $3, @$); }
+    | expr ">" expr { $$ = COMPARE($1, Gt, $3, @$); }
+    | expr ">=" expr { $$ = COMPARE($1, GtE, $3, @$); }
+    ;
+
+id
+    : TK_NAME { $$ = SYMBOL($1, @$); }
+    ;
+
+sep
+    : sep sep_one { $$ = $1; LIST_ADD($$, $2); }
+    | sep_one { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+sep_one
+    : TK_NEWLINE {}
+    | TK_COMMENT {}
+    | TK_EOLCOMMENT {}
+    | ";" {}
     ;
