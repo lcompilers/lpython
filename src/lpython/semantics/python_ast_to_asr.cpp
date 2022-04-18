@@ -1487,6 +1487,21 @@ public:
         }
     }
 
+    void visit_ClassDef(const AST::ClassDef_t &x) {
+        SymbolTable *parent_scope = current_scope;
+        current_scope = al.make_new<SymbolTable>(parent_scope);
+        for (size_t i=0; i<x.n_body; i++) {
+            visit_stmt(*x.m_body[i]);
+        }
+        tmp = ASR::make_ClassType_t(al, x.base.base.loc, current_scope,
+                x.m_name, ASR::abiType::Source, ASR::accessType::Public);
+        tmp = ASR::make_Class_t(al, x.base.base.loc,
+                ASR::down_cast<ASR::symbol_t>(tmp), nullptr, 0);
+        ASR::symbol_t * t = ASR::down_cast<ASR::symbol_t>(tmp);
+        parent_scope->scope[x.m_name] = t;
+        current_scope = parent_scope;
+    }
+
     void create_GenericProcedure(const Location &loc) {
         for(auto &p: overload_defs) {
             std::string def_name = p.first;
