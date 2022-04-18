@@ -91,6 +91,7 @@ filename = "expr8.py"
 ast = true
 asr = true
 cpp = true
+llvm = true
 
 [[test]]
 filename = "expr9.py"
