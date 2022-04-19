@@ -177,7 +177,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> expr_list
 /* %type <vec_ast> expr_list_opt */
 %type <ast> statement
-%type <ast> statement1
 %type <vec_ast> statements
 %type <ast> single_line_statement
 %type <ast> multi_line_statement
@@ -254,11 +253,7 @@ statements
     ;
 
 statement
-    : statement1 sep
-    ;
-
-statement1
-    : single_line_statement
+    : single_line_statement sep
     | multi_line_statement
     ;
 
