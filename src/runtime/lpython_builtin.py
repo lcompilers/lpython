@@ -171,12 +171,11 @@ def bool(b: bool) -> bool:
 
 @overload
 def bool(c: c32) -> bool:
-    pass
+    return c.real != 0.0 or _lfortran_caimag(c) != 0.0
 
 @overload
 def bool(c: c64) -> bool:
-    # TODO: implement once we can access `real` and `imag` attributes
-    pass
+    return c.real != 0.0 or _lfortran_zaimag(c) != 0.0
 
 
 @interface
