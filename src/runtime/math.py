@@ -1,6 +1,4 @@
-from typing import overload
 from ltypes import i32, f64, f32, i64, ccall
-from typing import overload
 
 pi: f64 = 3.141592653589793238462643383279502884197
 e: f64 = 2.718281828459045235360287471352662497757
@@ -23,6 +21,16 @@ def factorial(x: i32) -> i32:
         result *= i
     return result
 
+# n = TypeVar('n')
+# @overload
+# def prod(x: i64[n]) -> i64:
+
+#     result : i64
+#     i: i64
+#     result = 1
+#     for i in range(size(x)):
+#         result = result * x[i]
+#     return result
 
 @overload
 def floor(x: i32) -> i32:

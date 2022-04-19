@@ -28,6 +28,14 @@ def test_isqrt():
     i = isqrt(15)
     assert i == 3
 
+# def test_prod():
+#     i: i64
+#     i = prod([2, 4, 6])
+#     assert i == 48
+
+#     i = prod([3, 11, 4, 6])
+#     assert i == 792
+
 
 def test_degrees():
     i: f64
@@ -131,8 +139,6 @@ def test_trunc():
     assert i == 3
     i = trunc(-4.5)
     assert i == -4
-
-    i: i32
     i = trunc(5.5)
     assert i == 5
     i = trunc(-4.5)

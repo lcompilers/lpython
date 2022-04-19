@@ -234,7 +234,6 @@ def sinh(x: c64) -> c64:
 def sinh(x: c32) -> c32:
     return _lfortran_csinh(x)
 
-
 @ccall
 def _lfortran_ztanh(x: c64) -> c64:
     pass
