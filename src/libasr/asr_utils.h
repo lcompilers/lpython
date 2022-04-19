@@ -114,7 +114,7 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::ConstantLogical: { return ((ASR::ConstantLogical_t*)f)->m_type; }
         case ASR::exprType::ConstantString: { return ((ASR::ConstantString_t*)f)->m_type; }
         case ASR::exprType::ConstantDictionary: { return ((ASR::ConstantDictionary_t*)f)->m_type; }
-        case ASR::exprType::BOZ: { return ((ASR::BOZ_t*)f)->m_type; }
+        case ASR::exprType::IntegerBOZ: { return ((ASR::IntegerBOZ_t*)f)->m_type; }
         case ASR::exprType::Var: { return EXPR2VAR(f)->m_type; }
         case ASR::exprType::ArrayRef: { return ((ASR::ArrayRef_t*)f)->m_type; }
         case ASR::exprType::DerivedRef: { return ((ASR::DerivedRef_t*)f)->m_type; }

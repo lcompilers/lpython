@@ -226,7 +226,7 @@ expr
     | ConstantTuple(expr* elements, ttype type)
     | ConstantString(string s, ttype type)
     | ConstantDictionary(expr* keys, expr* values, ttype type)
-    | BOZ(int v, boz boz_type, ttype? type)
+    | IntegerBOZ(int v, integerboz intboz_type, ttype? type)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type, expr? value)
     | DerivedRef(expr v, symbol m, ttype type, expr? value)
@@ -262,7 +262,7 @@ strop = Concat | Repeat
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
-boz = Binary | Hex | Octal
+integerboz = Binary | Hex | Octal
 
 cast_kind
     = RealToInteger
