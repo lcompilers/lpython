@@ -221,7 +221,6 @@ int emit_cpp(const std::string &infile,
     std::cout << res.result;
     return 0;
 }
-#define HAVE_LFORTRAN_LLVM 1
 #ifdef HAVE_LFORTRAN_LLVM
 
 int emit_llvm(const std::string &infile,
@@ -269,7 +268,7 @@ int emit_llvm(const std::string &infile,
 }
 
 void print_report(std::vector <std::pair<std::string, double>> &times, bool allow) {
-    if (!allow)
+    if (!allow || times.size() == 0)
         return;
     for (std::pair<std::string, double> &stage: times) {
         std::cout << stage.first << ": " << stage.second << "ms" << std::endl;
@@ -302,6 +301,7 @@ int compile_python_to_object_file(
     times.push_back(std::make_pair("parsing", std::chrono::duration<double, std::milli>(end_parser - start_parser).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
+        times.pop_back();
         print_report(times, time_report);
         return 1;
     }
@@ -317,6 +317,7 @@ int compile_python_to_object_file(
     times.push_back(std::make_pair("AST -> ASR", std::chrono::duration<double, std::milli>(end_src_to_ast - start_src_to_ast).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
+        times.pop_back();
         print_report(times, time_report);
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 2;
@@ -330,10 +331,11 @@ int compile_python_to_object_file(
     LFortran::LLVMEvaluator e(compiler_options.target);
     std::unique_ptr <LFortran::LLVMModule> m;
     LFortran::Result <std::unique_ptr<LFortran::LLVMModule>>
-            res = fe.get_llvm3(*asr, diagnostics);
+        res = fe.get_llvm3(*asr, diagnostics);
     auto end_asr_llvm = std::chrono::high_resolution_clock::now();
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
+        times.pop_back();
         print_report(times, time_report);
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 3;
