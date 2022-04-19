@@ -177,9 +177,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> expr_list
 /* %type <vec_ast> expr_list_opt */
 %type <ast> statement
-//%type <ast> statements
+%type <ast> statement1
+%type <vec_ast> statements
 %type <ast> single_line_statement
-//%type <ast> multi_line_statement
+%type <ast> multi_line_statement
 %type <ast> augassign_statement
 %type <operator_type> augassign_op
 %type <ast> pass_statement
@@ -204,8 +205,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> module
 %type <alias> module_as_id
 %type <vec_alias> module_item_list
-//%type <ast> if_statement
-//%type <ast> elif_statement
+%type <ast> if_statement
+%type <ast> elif_statement
 %type <vec_ast> sep
 %type <ast> sep_one
 
@@ -244,16 +245,21 @@ units
     ;
 
 script_unit
-    : statement sep { $$ = SCRIPT_UNIT_STMT($1); }
+    : statement { $$ = SCRIPT_UNIT_STMT($1); }
     ;
 
-//statements
-//    : sep TK_INDENT statement sep TK_DEDENT { $$ = $3; }
-//    ;
+statements
+    : statements statement { $$ = $1; LIST_ADD($$, $2); }
+    | statement { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
 
 statement
+    : statement1 sep
+    ;
+
+statement1
     : single_line_statement
-//    | multi_line_statement
+    | multi_line_statement
     ;
 
 single_line_statement
@@ -273,9 +279,9 @@ single_line_statement
     | nonlocal_statement
     ;
 
-//multi_line_statement
-//    : if_statement
-//    ;
+multi_line_statement
+    : if_statement
+    ;
 
 expression_statment
     : expr { $$ = EXPR_01($1, @$); }
@@ -417,23 +423,24 @@ nonlocal_statement
     : KW_NONLOCAL expr_list { $$ = NON_LOCAL($2, @$); }
     ;
 
-/*
 elif_statement
-    : KW_ELIF expr ":" statements { $$ = IF_STMT_01($2, $4, @$); }
-    | KW_ELIF expr ":" statements KW_ELSE ":" statements {
-        $$ = IF_STMT_02($2, $4, $7, @$); }
-    | KW_ELIF expr ":" statements elif_statement {
-        $$ = IF_STMT_02($2, $4, $5, @$); }
+    : KW_ELIF expr ":" sep TK_INDENT statements TK_DEDENT {
+        $$ = IF_STMT_01($2, $6, @$); }
+    | KW_ELIF expr ":" sep TK_INDENT statements TK_DEDENT KW_ELSE ":" sep
+    TK_INDENT statements TK_DEDENT {
+        $$ = IF_STMT_02($2, $6, $12, @$); }
+    | KW_ELIF expr ":" sep TK_INDENT statements TK_DEDENT elif_statement {
+        $$ = IF_STMT_03($2, $6, $8, @$); }
     ;
 
 if_statement
-    : KW_IF expr ":" statements { $$ = IF_STMT_01($2, $4, @$); }
-    | KW_IF expr ":" statements KW_ELSE ":" statements {
-        $$ = IF_STMT_02($2, $4, $7, @$); }
-    | KW_IF expr ":" statements elif_statement {
-        $$ = IF_STMT_02($2, $4, $5, @$); }
+    : KW_IF expr ":" sep TK_INDENT statements TK_DEDENT { $$ = IF_STMT_01($2, $6, @$); }
+    | KW_IF expr ":" sep TK_INDENT statements TK_DEDENT KW_ELSE ":" sep
+    TK_INDENT statements TK_DEDENT {
+        $$ = IF_STMT_02($2, $6, $12, @$); }
+    | KW_IF expr ":" sep TK_INDENT statements TK_DEDENT elif_statement {
+        $$ = IF_STMT_03($2, $6, $8, @$); }
     ;
-*/
 
 expr_list
     : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }
