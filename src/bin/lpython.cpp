@@ -221,7 +221,6 @@ int emit_cpp(const std::string &infile,
     std::cout << res.result;
     return 0;
 }
-#define HAVE_LFORTRAN_LLVM 1
 #ifdef HAVE_LFORTRAN_LLVM
 
 int emit_llvm(const std::string &infile,

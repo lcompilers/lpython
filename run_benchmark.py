@@ -90,6 +90,7 @@ if __name__ == '__main__':
                 filename = os.path.join('benchmarks', filename)
                 cpython = Parser.get_cpython_result(filename)
                 lpython = Parser.get_lpython_result(filename)
+                print(lpython, cpython)
                 if cpython != None and lpython != None:
                     compare_result.append((filename, lpython, cpython))
             graph = Graph(compare_result)
