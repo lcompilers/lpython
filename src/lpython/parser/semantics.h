@@ -171,5 +171,6 @@ int dot_count = 0;
 #define CALL_02(func, args, l) make_Call_t(p.m_a, l, \
         EXPR(func), EXPRS(args), args.size(), nullptr, 0)
 
+#define SCRIPT_UNIT_STMT(x) (ast_t*)x
 
 #endif
