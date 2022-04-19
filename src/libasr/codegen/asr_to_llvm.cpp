@@ -2662,6 +2662,9 @@ public:
                 }
             }
         } else if (optype == ASR::ttypeType::Logical) {
+            // i1 -> i32
+            left = builder->CreateZExt(left, llvm::Type::getInt32Ty(context));
+            right = builder->CreateZExt(right, llvm::Type::getInt32Ty(context));
             switch (x.m_op) {
                 case (ASR::cmpopType::Eq) : {
                     tmp = builder->CreateICmpEQ(left, right);
@@ -2669,6 +2672,22 @@ public:
                 }
                 case (ASR::cmpopType::NotEq) : {
                     tmp = builder->CreateICmpNE(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::Gt) : {
+                    tmp = builder->CreateICmpUGT(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::GtE) : {
+                    tmp = builder->CreateICmpUGE(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::Lt) : {
+                    tmp = builder->CreateICmpULT(left, right);
+                    break;
+                }
+                case (ASR::cmpopType::LtE) : {
+                    tmp = builder->CreateICmpULE(left, right);
                     break;
                 }
                 default : {

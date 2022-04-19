@@ -49,4 +49,18 @@ def test_bool():
     assert bool(True)
     assert not bool(False)
 
+    c: c32
+    c = complex(2, 3)
+    assert bool(c)
+    c = complex(0, 0)
+    assert not bool(c)
+    assert not bool(0 + 0j)
+
+    c1: c64
+    c1 = complex(0, 0.100202)
+    assert bool(c1)
+    assert not bool(complex(0, 0))
+    assert bool(3 + 5j)
+
+
 test_bool()

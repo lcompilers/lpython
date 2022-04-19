@@ -187,6 +187,7 @@ R"(#include <iostream>
 #include <vector>
 #include <cassert>
 #include <cmath>
+#include <complex>
 #include <Kokkos_Core.hpp>
 #include <lfortran_intrinsics.h>
 
@@ -554,7 +555,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_ConstantComplex(const ASR::ConstantComplex_t &x) {
-        src = "{" + std::to_string(x.m_re) + ", " + std::to_string(x.m_im) + "}";
+        src = "std::complex<double>(" + std::to_string(x.m_re) + ", " + std::to_string(x.m_im) + ")";
         last_expr_precedence = 2;
     }
 
@@ -639,6 +640,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             case (ASR::cast_kindType::IntegerToInteger) : {
                 // In C++, we do not need to cast int <-> long long explicitly:
                 // src = src;
+                break;
+            }
+            case (ASR::cast_kindType::ComplexToComplex) : {
+                break;
+            }
+            case (ASR::cast_kindType::IntegerToComplex) : {
+                src = "std::complex<double>(" + src + ")";
                 break;
             }
             case (ASR::cast_kindType::ComplexToReal) : {
