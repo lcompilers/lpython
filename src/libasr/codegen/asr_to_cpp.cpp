@@ -51,9 +51,9 @@ std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
         if (!start && !end) {
             dims += "*";
         } else if (start && end) {
-            if (ASR::is_a<ASR::ConstantInteger_t>(*start) && ASR::is_a<ASR::ConstantInteger_t>(*end)) {
-                ASR::ConstantInteger_t *s = ASR::down_cast<ASR::ConstantInteger_t>(start);
-                ASR::ConstantInteger_t *e = ASR::down_cast<ASR::ConstantInteger_t>(end);
+            if (ASR::is_a<ASR::IntegerConstant_t>(*start) && ASR::is_a<ASR::IntegerConstant_t>(*end)) {
+                ASR::IntegerConstant_t *s = ASR::down_cast<ASR::IntegerConstant_t>(start);
+                ASR::IntegerConstant_t *e = ASR::down_cast<ASR::IntegerConstant_t>(end);
                 if (s->m_n == 1) {
                     dims += "[" + std::to_string(e->m_n) + "]";
                 } else {
@@ -539,7 +539,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         src = indent + target + " = " + value + ";\n";
     }
 
-    void visit_ConstantInteger(const ASR::ConstantInteger_t &x) {
+    void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {
         src = std::to_string(x.m_n);
         last_expr_precedence = 2;
     }
@@ -1038,13 +1038,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         if (!c) {
             increment = 1;
         } else {
-            if (c->type == ASR::exprType::ConstantInteger) {
-                increment = ASR::down_cast<ASR::ConstantInteger_t>(c)->m_n;
+            if (c->type == ASR::exprType::IntegerConstant) {
+                increment = ASR::down_cast<ASR::IntegerConstant_t>(c)->m_n;
             } else if (c->type == ASR::exprType::UnaryOp) {
                 ASR::UnaryOp_t *u = ASR::down_cast<ASR::UnaryOp_t>(c);
                 LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
-                LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::ConstantInteger);
-                increment = - ASR::down_cast<ASR::ConstantInteger_t>(u->m_operand)->m_n;
+                LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::IntegerConstant);
+                increment = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_operand)->m_n;
             } else {
                 throw CodeGenError("Do loop increment type not supported");
             }

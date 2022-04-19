@@ -184,16 +184,16 @@ public:
                 this_arg_info.ndims   = tmp_arg->n_dims;                                           \
                 for (int j = 0; j < this_arg_info.ndims; j++) {                                    \
                     auto lbound_ptr = tmp_arg->m_dims[j].m_start;                                  \
-                    if (!is_a<ASR::ConstantInteger_t>(*lbound_ptr)) {                              \
+                    if (!is_a<ASR::IntegerConstant_t>(*lbound_ptr)) {                              \
                         throw CodeGenError(errmsg1);                                               \
                     }                                                                              \
-                    if (down_cast<ASR::ConstantInteger_t>(lbound_ptr)->m_n != 1) {                 \
+                    if (down_cast<ASR::IntegerConstant_t>(lbound_ptr)->m_n != 1) {                 \
                         throw CodeGenError(errmsg1);                                               \
                     }                                                                              \
                     if (is_a<ASR::Var_t>(*tmp_arg->m_dims[j].m_end)) {                             \
                         ASR::Variable_t *dimvar = ASRUtils::EXPR2VAR(tmp_arg->m_dims[j].m_end);    \
                         this_arg_info.ubound_varnames.push_back(dimvar->m_name);                   \
-                    } else if (!is_a<ASR::ConstantInteger_t>(*lbound_ptr)) {                       \
+                    } else if (!is_a<ASR::IntegerConstant_t>(*lbound_ptr)) {                       \
                         throw CodeGenError(errmsg2);                                               \
                     }                                                                              \
                 }                                                                                  \

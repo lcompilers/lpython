@@ -105,7 +105,7 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::DerivedTypeConstructor: { return ((ASR::DerivedTypeConstructor_t*)f)->m_type; }
         case ASR::exprType::ConstantArray: { return ((ASR::ConstantArray_t*)f)->m_type; }
         case ASR::exprType::ImpliedDoLoop: { return ((ASR::ImpliedDoLoop_t*)f)->m_type; }
-        case ASR::exprType::ConstantInteger: { return ((ASR::ConstantInteger_t*)f)->m_type; }
+        case ASR::exprType::IntegerConstant: { return ((ASR::IntegerConstant_t*)f)->m_type; }
         case ASR::exprType::ConstantReal: { return ((ASR::ConstantReal_t*)f)->m_type; }
         case ASR::exprType::ConstantComplex: { return ((ASR::ConstantComplex_t*)f)->m_type; }
         case ASR::exprType::ConstantSet: { return ((ASR::ConstantSet_t*)f)->m_type; }
@@ -215,7 +215,7 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::StrOp: { return ASR::down_cast<ASR::StrOp_t>(f)->m_value; }
         case ASR::exprType::ImpliedDoLoop: { return ASR::down_cast<ASR::ImpliedDoLoop_t>(f)->m_value; }
         case ASR::exprType::ConstantArray: // Drop through
-        case ASR::exprType::ConstantInteger: // Drop through
+        case ASR::exprType::IntegerConstant: // Drop through
         case ASR::exprType::ConstantReal: // Drop through
         case ASR::exprType::ConstantComplex: // Drop through
         case ASR::exprType::ConstantLogical: // Drop through
@@ -424,7 +424,7 @@ static inline bool is_value_constant(ASR::expr_t *a_value) {
     if( a_value == nullptr ) {
         return false;
     }
-    if (ASR::is_a<ASR::ConstantInteger_t>(*a_value)) {
+    if (ASR::is_a<ASR::IntegerConstant_t>(*a_value)) {
         // OK
     } else if (ASR::is_a<ASR::ConstantReal_t>(*a_value)) {
         // OK
@@ -444,8 +444,8 @@ static inline bool is_value_constant(ASR::expr_t *a_value, int64_t& const_value)
     if( a_value == nullptr ) {
         return false;
     }
-    if (ASR::is_a<ASR::ConstantInteger_t>(*a_value)) {
-        ASR::ConstantInteger_t* const_int = ASR::down_cast<ASR::ConstantInteger_t>(a_value);
+    if (ASR::is_a<ASR::IntegerConstant_t>(*a_value)) {
+        ASR::IntegerConstant_t* const_int = ASR::down_cast<ASR::IntegerConstant_t>(a_value);
         const_value = const_int->m_n;
     } else {
         return false;
@@ -470,8 +470,8 @@ static inline bool is_value_constant(ASR::expr_t *a_value, double& const_value) 
     if( a_value == nullptr ) {
         return false;
     }
-    if (ASR::is_a<ASR::ConstantInteger_t>(*a_value)) {
-        ASR::ConstantInteger_t* const_int = ASR::down_cast<ASR::ConstantInteger_t>(a_value);
+    if (ASR::is_a<ASR::IntegerConstant_t>(*a_value)) {
+        ASR::IntegerConstant_t* const_int = ASR::down_cast<ASR::IntegerConstant_t>(a_value);
         const_value = const_int->m_n;
     } else if (ASR::is_a<ASR::ConstantReal_t>(*a_value)) {
         ASR::ConstantReal_t* const_real = ASR::down_cast<ASR::ConstantReal_t>(a_value);
@@ -505,9 +505,9 @@ static inline bool is_value_equal(ASR::expr_t* test_expr, ASR::expr_t* desired_e
     }
 
     switch( desired_value->type ) {
-        case ASR::exprType::ConstantInteger: {
-            ASR::ConstantInteger_t* test_int = ASR::down_cast<ASR::ConstantInteger_t>(test_value);
-            ASR::ConstantInteger_t* desired_int = ASR::down_cast<ASR::ConstantInteger_t>(desired_value);
+        case ASR::exprType::IntegerConstant: {
+            ASR::IntegerConstant_t* test_int = ASR::down_cast<ASR::IntegerConstant_t>(test_value);
+            ASR::IntegerConstant_t* desired_int = ASR::down_cast<ASR::IntegerConstant_t>(desired_value);
             return test_int->m_n == desired_int->m_n;
         }
         case ASR::exprType::ConstantString: {
@@ -863,8 +863,8 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
             inline int extract_kind(ASR::expr_t* kind_expr, const Location& loc) {
                 int a_kind = 4;
                 switch( kind_expr->type ) {
-                    case ASR::exprType::ConstantInteger: {
-                        a_kind = ASR::down_cast<ASR::ConstantInteger_t>
+                    case ASR::exprType::IntegerConstant: {
+                        a_kind = ASR::down_cast<ASR::IntegerConstant_t>
                                 (kind_expr)->m_n;
                         break;
                     }
@@ -877,7 +877,7 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                         if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
                             if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
                                 LFORTRAN_ASSERT( kind_variable->m_value != nullptr );
-                                a_kind = ASR::down_cast<ASR::ConstantInteger_t>(kind_variable->m_value)->m_n;
+                                a_kind = ASR::down_cast<ASR::IntegerConstant_t>(kind_variable->m_value)->m_n;
                             } else {
                                 std::string msg = "Integer variable required. " + std::string(kind_variable->m_name) +
                                                 " is not an Integer variable.";
@@ -902,8 +902,8 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
             inline int extract_len(ASR::expr_t* len_expr, const Location& loc) {
                 int a_len = -10;
                 switch( len_expr->type ) {
-                    case ASR::exprType::ConstantInteger: {
-                        a_len = ASR::down_cast<ASR::ConstantInteger_t>
+                    case ASR::exprType::IntegerConstant: {
+                        a_len = ASR::down_cast<ASR::IntegerConstant_t>
                                 (len_expr)->m_n;
                         break;
                     }
@@ -916,7 +916,7 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                         if( len_variable->m_storage == ASR::storage_typeType::Parameter ) {
                             if( len_variable->m_type->type == ASR::ttypeType::Integer ) {
                                 LFORTRAN_ASSERT( len_variable->m_value != nullptr );
-                                a_len = ASR::down_cast<ASR::ConstantInteger_t>(len_variable->m_value)->m_n;
+                                a_len = ASR::down_cast<ASR::IntegerConstant_t>(len_variable->m_value)->m_n;
                             } else {
                                 std::string msg = "Integer variable required. " + std::string(len_variable->m_name) +
                                                 " is not an Integer variable.";

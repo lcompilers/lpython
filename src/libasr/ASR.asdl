@@ -217,7 +217,8 @@ expr
     | ConstantArray(expr* args, ttype type)
     | ImpliedDoLoop(expr* values, expr var, expr start, expr end,
                     expr? increment, ttype type, expr? value)
-    | ConstantInteger(int n, ttype type)
+    | IntegerConstant(int n, ttype type)
+    | IntegerBOZ(int v, integerboz intboz_type, ttype? type)
     | ConstantReal(float r, ttype type)
     | ConstantComplex(float re, float im, ttype type)
     | ConstantLogical(bool value, ttype type)
@@ -226,7 +227,6 @@ expr
     | ConstantTuple(expr* elements, ttype type)
     | ConstantString(string s, ttype type)
     | ConstantDictionary(expr* keys, expr* values, ttype type)
-    | IntegerBOZ(int v, integerboz intboz_type, ttype? type)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type, expr? value)
     | DerivedRef(expr v, symbol m, ttype type, expr? value)

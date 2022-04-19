@@ -3047,7 +3047,7 @@ public:
         }
     }
 
-    void visit_ConstantInteger(const ASR::ConstantInteger_t &x) {
+    void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {
         int64_t val = x.m_n;
         int a_kind = ((ASR::Integer_t*)(&(x.m_type->base)))->m_kind;
         switch( a_kind ) {
@@ -3114,7 +3114,7 @@ public:
             ASR::expr_t *el = x.m_args[i];
             llvm::Value *llvm_val;
             if (ASR::is_a<ASR::Integer_t>(*x.m_type)) {
-                ASR::ConstantInteger_t *ci = ASR::down_cast<ASR::ConstantInteger_t>(el);
+                ASR::IntegerConstant_t *ci = ASR::down_cast<ASR::IntegerConstant_t>(el);
                 switch (ASR::down_cast<ASR::Integer_t>(x.m_type)->m_kind) {
                     case (4) : {
                         int32_t el_value = ci->m_n;
