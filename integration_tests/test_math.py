@@ -1,6 +1,6 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
-                  ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p)
-from ltypes import i32, f64
+                  ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc)
+from ltypes import i32, f64, i64
 
 eps: f64
 eps = 1e-12
@@ -30,13 +30,25 @@ def test_isqrt():
 
 
 def test_degrees():
+
     i: f64
+
+    # Check for integer
+    i = degrees(32)
+    assert abs(i - 1833.4649444186343) < eps
+    
+    # Check for float
     i = degrees(32.2)
     assert abs(i - 1844.924100321251) < eps
-
-
+  
 def test_radians():
     i: f64
+
+    # Check for integer
+    i = radians(100)
+    assert abs(i - 1.7453292519943295) < eps
+
+    # Check for float
     i = radians(100.1)
     assert abs(i - 1.7470745812463238) < eps
 
@@ -126,6 +138,18 @@ def test_expm1():
     assert expm1(1.0) - 1.71828182845904509 < eps
 
 
+def test_trunc():
+    i: i64
+    i = trunc(3.5)
+    assert i == 3
+    i = trunc(-4.5)
+    assert i == -4
+    i = trunc(5.5)
+    assert i == 5
+    i = trunc(-4.5)
+    assert i == -4
+
+
 def check():
     test_factorial_1()
     test_comb()
@@ -145,5 +169,7 @@ def check():
     test_fmod()
     test_expm1()
     test_log1p()
+    test_trunc()
+
 
 check()
