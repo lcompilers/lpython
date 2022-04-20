@@ -151,6 +151,16 @@ int dot_count = 0;
 #define IF_STMT_03(e, stmt, orelse, l) make_If_t(p.m_a, l, \
         EXPR(e), STMTS(stmt), stmt.size(), STMTS(A2LIST(p.m_a, orelse)), 1)
 
+Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
+    Vec<ast_t*> v;
+    v.reserve(al, 2);
+    v.push_back(al, x);
+    v.push_back(al, y);
+    return v;
+}
+
+#define BOOLOP(x, op, y, l) make_BoolOp_t(p.m_a, l, \
+        boolopType::op, EXPRS(MERGE_EXPR(p.m_a, x, y)), 2)
 #define BINOP(x, op, y, l) make_BinOp_t(p.m_a, l, \
         EXPR(x), operatorType::op, EXPR(y))
 #define UNARY(x, op, l) make_UnaryOp_t(p.m_a, l, unaryopType::op, EXPR(x))

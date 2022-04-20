@@ -178,6 +178,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 /* %type <vec_ast> expr_list_opt */
 %type <ast> statement
 %type <vec_ast> statements
+%type <vec_ast> statements1
 %type <ast> single_line_statement
 %type <ast> multi_line_statement
 %type <ast> augassign_statement
@@ -211,9 +212,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 // Precedence
 
-//%left "or"
-//%left "and"
-//%precedence "not"
+%left "or"
+%left "and"
+%precedence "not"
 %left "==" "!=" ">=" ">" "<=" "<" //"is not" "is" "not in" "in"
 %left "|"
 %left "^"
@@ -248,7 +249,11 @@ script_unit
     ;
 
 statements
-    : statements statement { $$ = $1; LIST_ADD($$, $2); }
+    : TK_INDENT statements1 TK_DEDENT { $$ = $2; }
+    ;
+
+statements1
+    : statements1 statement { $$ = $1; LIST_ADD($$, $2); }
     | statement { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
@@ -419,22 +424,19 @@ nonlocal_statement
     ;
 
 elif_statement
-    : KW_ELIF expr ":" sep TK_INDENT statements TK_DEDENT {
-        $$ = IF_STMT_01($2, $6, @$); }
-    | KW_ELIF expr ":" sep TK_INDENT statements TK_DEDENT KW_ELSE ":" sep
-    TK_INDENT statements TK_DEDENT {
-        $$ = IF_STMT_02($2, $6, $12, @$); }
-    | KW_ELIF expr ":" sep TK_INDENT statements TK_DEDENT elif_statement {
-        $$ = IF_STMT_03($2, $6, $8, @$); }
+    : KW_ELIF expr ":" sep statements { $$ = IF_STMT_01($2, $5, @$); }
+    | KW_ELIF expr ":" sep statements KW_ELSE ":" sep statements {
+        $$ = IF_STMT_02($2, $5, $9, @$); }
+    | KW_ELIF expr ":" sep statements elif_statement {
+        $$ = IF_STMT_03($2, $5, $6, @$); }
     ;
 
 if_statement
-    : KW_IF expr ":" sep TK_INDENT statements TK_DEDENT { $$ = IF_STMT_01($2, $6, @$); }
-    | KW_IF expr ":" sep TK_INDENT statements TK_DEDENT KW_ELSE ":" sep
-    TK_INDENT statements TK_DEDENT {
-        $$ = IF_STMT_02($2, $6, $12, @$); }
-    | KW_IF expr ":" sep TK_INDENT statements TK_DEDENT elif_statement {
-        $$ = IF_STMT_03($2, $6, $8, @$); }
+    : KW_IF expr ":" sep statements { $$ = IF_STMT_01($2, $5, @$); }
+    | KW_IF expr ":" sep statements KW_ELSE ":" sep statements {
+        $$ = IF_STMT_02($2, $5, $9, @$); }
+    | KW_IF expr ":" sep statements elif_statement {
+        $$ = IF_STMT_03($2, $5, $6, @$); }
     ;
 
 expr_list
@@ -478,6 +480,11 @@ expr
     | expr "<=" expr { $$ = COMPARE($1, LtE, $3, @$); }
     | expr ">" expr { $$ = COMPARE($1, Gt, $3, @$); }
     | expr ">=" expr { $$ = COMPARE($1, GtE, $3, @$); }
+
+    | expr "and" expr { $$ = BOOLOP($1, And, $3, @$); }
+    | expr "or" expr { $$ = BOOLOP($1, Or, $3, @$); }
+    | "not" expr { $$ = UNARY($2, Not, @$); }
+
     ;
 
 id
