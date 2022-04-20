@@ -1867,7 +1867,7 @@ public:
         }
         ASR::ttype_t *tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, x.base.base.loc,
                                     tuple_type_vec.p, tuple_type_vec.n));
-        tmp = ASR::make_ConstantTuple_t(al, x.base.base.loc,
+        tmp = ASR::make_TupleConstant_t(al, x.base.base.loc,
                                     elements.p, elements.size(), tuple_type);
     }
 

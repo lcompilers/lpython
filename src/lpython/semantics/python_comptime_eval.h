@@ -325,9 +325,9 @@ struct PythonIntrinsicProcedures {
         } else if (arg->type == ASR::exprType::ArrayConstant) {
             return ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc,
                 (int64_t)ASR::down_cast<ASR::ArrayConstant_t>(arg)->n_args, type));
-        } else if (arg->type == ASR::exprType::ConstantTuple) {
+        } else if (arg->type == ASR::exprType::TupleConstant) {
             return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
-                (int64_t)ASR::down_cast<ASR::ConstantTuple_t>(arg)->n_elements, type));
+                (int64_t)ASR::down_cast<ASR::TupleConstant_t>(arg)->n_elements, type));
         } else if (arg->type == ASR::exprType::ConstantDictionary) {
             return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
                 (int64_t)ASR::down_cast<ASR::ConstantDictionary_t>(arg)->n_keys, type));
@@ -699,7 +699,7 @@ struct PythonIntrinsicProcedures {
                 tuple_type_vec.push_back(al, arg2_type);
                 ASR::ttype_t *tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, loc,
                                                           tuple_type_vec.p, tuple_type_vec.n));
-                return ASR::down_cast<ASR::expr_t>(make_ConstantTuple_t(al, loc, tuple.p, tuple.size(), tuple_type));
+                return ASR::down_cast<ASR::expr_t>(make_TupleConstant_t(al, loc, tuple.p, tuple.size(), tuple_type));
             }
         } else {
             throw SemanticError("Both arguments of divmod() must be integers for now, not '" +
