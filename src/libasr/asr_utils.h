@@ -106,7 +106,7 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::ConstantArray: { return ((ASR::ConstantArray_t*)f)->m_type; }
         case ASR::exprType::ImpliedDoLoop: { return ((ASR::ImpliedDoLoop_t*)f)->m_type; }
         case ASR::exprType::IntegerConstant: { return ((ASR::IntegerConstant_t*)f)->m_type; }
-        case ASR::exprType::ConstantReal: { return ((ASR::ConstantReal_t*)f)->m_type; }
+        case ASR::exprType::RealConstant: { return ((ASR::RealConstant_t*)f)->m_type; }
         case ASR::exprType::ConstantComplex: { return ((ASR::ConstantComplex_t*)f)->m_type; }
         case ASR::exprType::ConstantSet: { return ((ASR::ConstantSet_t*)f)->m_type; }
         case ASR::exprType::ConstantList: { return ((ASR::ConstantList_t*)f)->m_type; }
@@ -216,7 +216,7 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::ImpliedDoLoop: { return ASR::down_cast<ASR::ImpliedDoLoop_t>(f)->m_value; }
         case ASR::exprType::ConstantArray: // Drop through
         case ASR::exprType::IntegerConstant: // Drop through
-        case ASR::exprType::ConstantReal: // Drop through
+        case ASR::exprType::RealConstant: // Drop through
         case ASR::exprType::ConstantComplex: // Drop through
         case ASR::exprType::ConstantLogical: // Drop through
         case ASR::exprType::ConstantTuple: // Drop through
@@ -426,7 +426,7 @@ static inline bool is_value_constant(ASR::expr_t *a_value) {
     }
     if (ASR::is_a<ASR::IntegerConstant_t>(*a_value)) {
         // OK
-    } else if (ASR::is_a<ASR::ConstantReal_t>(*a_value)) {
+    } else if (ASR::is_a<ASR::RealConstant_t>(*a_value)) {
         // OK
     } else if (ASR::is_a<ASR::ConstantComplex_t>(*a_value)) {
         // OK
@@ -473,8 +473,8 @@ static inline bool is_value_constant(ASR::expr_t *a_value, double& const_value) 
     if (ASR::is_a<ASR::IntegerConstant_t>(*a_value)) {
         ASR::IntegerConstant_t* const_int = ASR::down_cast<ASR::IntegerConstant_t>(a_value);
         const_value = const_int->m_n;
-    } else if (ASR::is_a<ASR::ConstantReal_t>(*a_value)) {
-        ASR::ConstantReal_t* const_real = ASR::down_cast<ASR::ConstantReal_t>(a_value);
+    } else if (ASR::is_a<ASR::RealConstant_t>(*a_value)) {
+        ASR::RealConstant_t* const_real = ASR::down_cast<ASR::RealConstant_t>(a_value);
         const_value = const_real->m_r;
     } else {
         return false;
@@ -593,8 +593,8 @@ static inline bool extract_value(ASR::expr_t* value_expr, T& value) {
     }
 
     switch( value_expr->type ) {
-        case ASR::exprType::ConstantReal: {
-            ASR::ConstantReal_t* const_real = ASR::down_cast<ASR::ConstantReal_t>(value_expr);
+        case ASR::exprType::RealConstant: {
+            ASR::RealConstant_t* const_real = ASR::down_cast<ASR::RealConstant_t>(value_expr);
             value = (T) const_real->m_r;
             break;
         }

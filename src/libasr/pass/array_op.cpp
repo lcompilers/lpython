@@ -327,7 +327,7 @@ public:
         tmp_val = const_cast<ASR::expr_t*>(&(x.base));
     }
 
-    void visit_ConstantReal(const ASR::ConstantReal_t& x) {
+    void visit_RealConstant(const ASR::RealConstant_t& x) {
         tmp_val = const_cast<ASR::expr_t*>(&(x.base));
     }
 

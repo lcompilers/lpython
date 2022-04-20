@@ -862,9 +862,9 @@ public:
                     al, loc, result, dest_type));
             }
             else if (ASRUtils::is_real(*dest_type)) {
-                double left_value = ASR::down_cast<ASR::ConstantReal_t>(
+                double left_value = ASR::down_cast<ASR::RealConstant_t>(
                                                     ASRUtils::expr_value(left))->m_r;
-                double right_value = ASR::down_cast<ASR::ConstantReal_t>(
+                double right_value = ASR::down_cast<ASR::RealConstant_t>(
                                                     ASRUtils::expr_value(right))->m_r;
                 double result;
                 switch (op) {
@@ -875,7 +875,7 @@ public:
                     case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
                     default: { LFORTRAN_ASSERT(false); }
                 }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(
                     al, loc, result, dest_type));
             }
             else if (ASRUtils::is_complex(*dest_type)) {
@@ -954,7 +954,7 @@ public:
         double f = x.m_value;
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
                 8, nullptr, 0));
-        tmp = ASR::make_ConstantReal_t(al, x.base.base.loc, f, type);
+        tmp = ASR::make_RealConstant_t(al, x.base.base.loc, f, type);
     }
 
     void visit_ConstantComplex(const AST::ConstantComplex_t &x) {
@@ -1113,7 +1113,7 @@ public:
                 }
 
             } else if (ASRUtils::is_real(*operand_type)) {
-                double op_value = ASR::down_cast<ASR::ConstantReal_t>(
+                double op_value = ASR::down_cast<ASR::RealConstant_t>(
                                         ASRUtils::expr_value(operand))->m_r;
                 if (op == ASR::unaryopType::Not) {
                     bool b = (op_value == 0.0);
@@ -1131,7 +1131,7 @@ public:
                                 x.base.base.loc);
                         }
                     }
-                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(
                         al, x.base.base.loc, result, operand_type));
                 }
 
@@ -2195,10 +2195,10 @@ public:
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
                     al, x.base.base.loc, result, type));
             } else if (ASRUtils::is_real(*source_type)) {
-                double left_value = ASR::down_cast<ASR::ConstantReal_t>(
+                double left_value = ASR::down_cast<ASR::RealConstant_t>(
                                         ASRUtils::expr_value(left))
                                         ->m_r;
-                double right_value = ASR::down_cast<ASR::ConstantReal_t>(
+                double right_value = ASR::down_cast<ASR::RealConstant_t>(
                                         ASRUtils::expr_value(right))
                                         ->m_r;
                 bool result;
@@ -2506,7 +2506,7 @@ public:
         }
         if (ASRUtils::is_real(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
-                int32_t ival = ASR::down_cast<ASR::ConstantReal_t>(
+                int32_t ival = ASR::down_cast<ASR::RealConstant_t>(
                                         ASRUtils::expr_value(arg))->m_r;
                 value =  ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al,
                                 loc, ival, to_type));
@@ -2544,13 +2544,13 @@ public:
         ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
                                     8, nullptr, 0));
         if (!arg) {
-            return ASR::make_ConstantReal_t(al, loc, 0.0, to_type);
+            return ASR::make_RealConstant_t(al, loc, 0.0, to_type);
         }
         if (ASRUtils::is_integer(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
                 double dval = ASR::down_cast<ASR::IntegerConstant_t>(
                                         ASRUtils::expr_value(arg))->m_n;
-                value =  ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al,
+                value =  ASR::down_cast<ASR::expr_t>(make_RealConstant_t(al,
                                 loc, dval, to_type));
             }
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
@@ -2570,7 +2570,7 @@ public:
             al, loc, arg, ASR::cast_kindType::LogicalToInteger,
             int_type, value));
             double dval = ival;
-            value =  ASR::down_cast<ASR::expr_t>(make_ConstantReal_t(al,
+            value =  ASR::down_cast<ASR::expr_t>(make_RealConstant_t(al,
                             loc, dval, to_type));
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
             al, loc, t, ASR::cast_kindType::IntegerToReal,

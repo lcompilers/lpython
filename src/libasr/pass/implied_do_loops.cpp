@@ -50,7 +50,7 @@ public:
         contains_array = false;
     }
 
-    void visit_ConstantReal(const ASR::ConstantReal_t&) {
+    void visit_RealConstant(const ASR::RealConstant_t&) {
         contains_array = false;
     }
 

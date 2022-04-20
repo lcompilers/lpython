@@ -3067,7 +3067,7 @@ public:
         }
     }
 
-    void visit_ConstantReal(const ASR::ConstantReal_t &x) {
+    void visit_RealConstant(const ASR::RealConstant_t &x) {
         double val = x.m_r;
         int a_kind = ((ASR::Real_t*)(&(x.m_type->base)))->m_kind;
         switch( a_kind ) {
@@ -3130,7 +3130,7 @@ public:
                         throw CodeGenError("ConstArray integer kind not supported yet");
                 }
             } else if (ASR::is_a<ASR::Real_t>(*x.m_type)) {
-                ASR::ConstantReal_t *cr = ASR::down_cast<ASR::ConstantReal_t>(el);
+                ASR::RealConstant_t *cr = ASR::down_cast<ASR::RealConstant_t>(el);
                 switch (ASR::down_cast<ASR::Real_t>(x.m_type)->m_kind) {
                     case (4) : {
                         float el_value = cr->m_r;

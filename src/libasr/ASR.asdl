@@ -219,7 +219,7 @@ expr
                     expr? increment, ttype type, expr? value)
     | IntegerConstant(int n, ttype type)
     | IntegerBOZ(int v, integerboz intboz_type, ttype? type)
-    | ConstantReal(float r, ttype type)
+    | RealConstant(float r, ttype type)
     | ConstantComplex(float re, float im, ttype type)
     | ConstantLogical(bool value, ttype type)
     | ConstantList(expr* args, ttype type)
