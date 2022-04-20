@@ -222,7 +222,7 @@ expr
     | RealConstant(float r, ttype type)
     | ComplexConstant(float re, float im, ttype type)
     | LogicalConstant(bool value, ttype type)
-    | ConstantList(expr* args, ttype type)
+    | ListConstant(expr* args, ttype type)
     | ConstantSet(expr* elements, ttype type)
     | ConstantTuple(expr* elements, ttype type)
     | StringConstant(string s, ttype type)
