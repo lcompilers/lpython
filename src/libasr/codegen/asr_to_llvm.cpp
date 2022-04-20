@@ -3221,7 +3221,7 @@ public:
         tmp = complex_from_floats(re2, im2, type);
     }
 
-    void visit_ConstantLogical(const ASR::ConstantLogical_t &x) {
+    void visit_LogicalConstant(const ASR::LogicalConstant_t &x) {
         int val;
         if (x.m_value == true) {
             val = 1;

@@ -276,7 +276,7 @@ public:
         m_a.asm_mov_r32_imm32(X86Reg::eax, x.m_n);
     }
 
-    void visit_ConstantLogical(const ASR::ConstantLogical_t &x) {
+    void visit_LogicalConstant(const ASR::LogicalConstant_t &x) {
         int val;
         if (x.m_value == true) {
             val = 1;

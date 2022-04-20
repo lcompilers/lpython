@@ -126,7 +126,7 @@ struct PythonIntrinsicProcedures {
             int64_t val = std::abs(rv);
             return ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, val, int_type));
         } else if (ASRUtils::is_logical(*t)) {
-            int8_t val = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
+            int8_t val = ASR::down_cast<ASR::LogicalConstant_t>(arg)->m_value;
             return ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, val, int_type));
         } else if (ASRUtils::is_complex(*t)) {
             double re = ASR::down_cast<ASR::ComplexConstant_t>(arg)->m_re;
@@ -157,7 +157,7 @@ struct PythonIntrinsicProcedures {
             std::string s = std::to_string(rval);
             return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(al, loc, s2c(al, s), str_type));
         } else if (ASRUtils::is_logical(*arg_type)) {
-            bool rv = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
+            bool rv = ASR::down_cast<ASR::LogicalConstant_t>(arg)->m_value;
             std::string s = rv ? "True" : "False";
             return ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(al, loc, s2c(al, s), str_type));
         } else if (ASRUtils::is_character(*arg_type)) {
@@ -191,7 +191,7 @@ struct PythonIntrinsicProcedures {
             std::complex<double> c(re, im);
             result = (re || im);
         } else if (ASRUtils::is_logical(*t)) {
-            result = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
+            result = ASR::down_cast<ASR::LogicalConstant_t>(arg)->m_value;
         } else if (ASRUtils::is_character(*t)) {
             char* c = ASR::down_cast<ASR::ConstantString_t>(ASRUtils::expr_value(arg))->m_s;
             result = strlen(s2c(al, std::string(c)));
@@ -199,7 +199,7 @@ struct PythonIntrinsicProcedures {
             throw SemanticError("bool() must have one real, integer, character,"
                 " complex, or logical argument, not '" + ASRUtils::type_to_str(t) + "'", loc);
         }
-        return ASR::down_cast<ASR::expr_t>(make_ConstantLogical_t(al, loc, result, type));
+        return ASR::down_cast<ASR::expr_t>(make_LogicalConstant_t(al, loc, result, type));
     }
 
     static ASR::expr_t *eval_chr(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
@@ -390,8 +390,8 @@ struct PythonIntrinsicProcedures {
                 pow(a, b), real_type));
 
         } else if (ASRUtils::is_logical(*arg1_type) && ASRUtils::is_logical(*arg2_type)) {
-            bool a = ASR::down_cast<ASR::ConstantLogical_t>(arg1)->m_value;
-            bool b = ASR::down_cast<ASR::ConstantLogical_t>(arg2)->m_value;
+            bool a = ASR::down_cast<ASR::LogicalConstant_t>(arg1)->m_value;
+            bool b = ASR::down_cast<ASR::LogicalConstant_t>(arg2)->m_value;
             return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
                 pow(a, b), int_type));
 
@@ -433,7 +433,7 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc, ival, type));
 
         } else if (ASRUtils::is_logical(*int_type)) {
-            bool rv = ASR::down_cast<ASR::ConstantLogical_t>(int_expr)->m_value;
+            bool rv = ASR::down_cast<ASR::LogicalConstant_t>(int_expr)->m_value;
             int8_t val = rv ? 1 : 0;
             return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc, val, type));
 
@@ -458,7 +458,7 @@ struct PythonIntrinsicProcedures {
             double rv = ASR::down_cast<ASR::IntegerConstant_t>(expr)->m_n;
             return ASR::down_cast<ASR::expr_t>(make_RealConstant_t(al, loc, rv, type));
         } else if (ASRUtils::is_logical(*float_type)) {
-            bool rv = ASR::down_cast<ASR::ConstantLogical_t>(expr)->m_value;
+            bool rv = ASR::down_cast<ASR::LogicalConstant_t>(expr)->m_value;
             float val = rv ? 1.0 : 0.0;
             return ASR::down_cast<ASR::expr_t>(make_RealConstant_t(al, loc, val, type));
         } else if (ASRUtils::is_character(*float_type)) {
@@ -565,7 +565,7 @@ struct PythonIntrinsicProcedures {
             int64_t rv = ASR::down_cast<ASR::IntegerConstant_t>(expr)->m_n;
             return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc, rv, type));
         } else if (ASRUtils::is_logical(*t)) {
-            int64_t rv = ASR::down_cast<ASR::ConstantLogical_t>(expr)->m_value;
+            int64_t rv = ASR::down_cast<ASR::LogicalConstant_t>(expr)->m_value;
             return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc, rv, type));
         } else {
             throw SemanticError("round() argument must be float, integer, or logical for now, not '" +

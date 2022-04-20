@@ -58,7 +58,7 @@ public:
         contains_array = false;
     }
 
-    void visit_ConstantLogical(const ASR::ConstantLogical_t&) {
+    void visit_LogicalConstant(const ASR::LogicalConstant_t&) {
         contains_array = false;
     }
 

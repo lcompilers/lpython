@@ -111,7 +111,7 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::ConstantSet: { return ((ASR::ConstantSet_t*)f)->m_type; }
         case ASR::exprType::ConstantList: { return ((ASR::ConstantList_t*)f)->m_type; }
         case ASR::exprType::ConstantTuple: { return ((ASR::ConstantTuple_t*)f)->m_type; }
-        case ASR::exprType::ConstantLogical: { return ((ASR::ConstantLogical_t*)f)->m_type; }
+        case ASR::exprType::LogicalConstant: { return ((ASR::LogicalConstant_t*)f)->m_type; }
         case ASR::exprType::ConstantString: { return ((ASR::ConstantString_t*)f)->m_type; }
         case ASR::exprType::ConstantDictionary: { return ((ASR::ConstantDictionary_t*)f)->m_type; }
         case ASR::exprType::IntegerBOZ: { return ((ASR::IntegerBOZ_t*)f)->m_type; }
@@ -218,7 +218,7 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::IntegerConstant: // Drop through
         case ASR::exprType::RealConstant: // Drop through
         case ASR::exprType::ComplexConstant: // Drop through
-        case ASR::exprType::ConstantLogical: // Drop through
+        case ASR::exprType::LogicalConstant: // Drop through
         case ASR::exprType::ConstantTuple: // Drop through
         case ASR::exprType::ConstantDictionary: // Drop through
         case ASR::exprType::ConstantSet: // Drop through
@@ -430,7 +430,7 @@ static inline bool is_value_constant(ASR::expr_t *a_value) {
         // OK
     } else if (ASR::is_a<ASR::ComplexConstant_t>(*a_value)) {
         // OK
-    } else if (ASR::is_a<ASR::ConstantLogical_t>(*a_value)) {
+    } else if (ASR::is_a<ASR::LogicalConstant_t>(*a_value)) {
         // OK
     } else if (ASR::is_a<ASR::ConstantString_t>(*a_value)) {
         // OK
@@ -457,8 +457,8 @@ static inline bool is_value_constant(ASR::expr_t *a_value, bool& const_value) {
     if( a_value == nullptr ) {
         return false;
     }
-    if (ASR::is_a<ASR::ConstantLogical_t>(*a_value)) {
-        ASR::ConstantLogical_t* const_logical = ASR::down_cast<ASR::ConstantLogical_t>(a_value);
+    if (ASR::is_a<ASR::LogicalConstant_t>(*a_value)) {
+        ASR::LogicalConstant_t* const_logical = ASR::down_cast<ASR::LogicalConstant_t>(a_value);
         const_value = const_logical->m_value;
     } else {
         return false;

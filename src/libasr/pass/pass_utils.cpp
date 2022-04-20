@@ -488,7 +488,7 @@ namespace LFortran {
             ASR::stmt_t *stmt1 = nullptr;
             if( !a && !b && !c ) {
                 ASR::ttype_t *cond_type = LFortran::ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0));
-                cond = LFortran::ASRUtils::EXPR(ASR::make_ConstantLogical_t(al, loc, true, cond_type));
+                cond = LFortran::ASRUtils::EXPR(ASR::make_LogicalConstant_t(al, loc, true, cond_type));
             } else {
                 LFORTRAN_ASSERT(a);
                 LFORTRAN_ASSERT(b);

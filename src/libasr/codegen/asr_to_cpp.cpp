@@ -559,7 +559,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         last_expr_precedence = 2;
     }
 
-    void visit_ConstantLogical(const ASR::ConstantLogical_t &x) {
+    void visit_LogicalConstant(const ASR::LogicalConstant_t &x) {
         if (x.m_value == true) {
             src = "true";
         } else {

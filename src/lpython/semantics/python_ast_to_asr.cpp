@@ -898,9 +898,9 @@ public:
                         std::real(result), std::imag(result), dest_type));
             }
             else if (ASRUtils::is_logical(*dest_type)) {
-                int8_t left_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                int8_t left_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                                     ASRUtils::expr_value(left))->m_value;
-                int8_t right_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                int8_t right_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                                     ASRUtils::expr_value(right))->m_value;
                 int8_t result;
                 switch (op) {
@@ -957,7 +957,7 @@ public:
         tmp = ASR::make_RealConstant_t(al, x.base.base.loc, f, type);
     }
 
-    void visit_ComplexConstant(const AST::ConstantComplex_t &x) {
+    void visit_ConstantComplex(const AST::ConstantComplex_t &x) {
         double re = x.m_re, im = x.m_im;
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
                 8, nullptr, 0));
@@ -976,7 +976,7 @@ public:
         bool b = x.m_value;
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
                 1, nullptr, 0));
-        tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, b, type);
+        tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, b, type);
     }
 
     void visit_BoolOp(const AST::BoolOp_t &x) {
@@ -1005,9 +1005,9 @@ public:
         if (ASRUtils::expr_value(lhs) != nullptr && ASRUtils::expr_value(rhs) != nullptr) {
 
             LFORTRAN_ASSERT(ASR::is_a<ASR::Logical_t>(*dest_type));
-            bool left_value = ASR::down_cast<ASR::ConstantLogical_t>(
+            bool left_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                     ASRUtils::expr_value(lhs))->m_value;
-            bool right_value = ASR::down_cast<ASR::ConstantLogical_t>(
+            bool right_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                     ASRUtils::expr_value(rhs))->m_value;
             bool result;
             switch (op) {
@@ -1018,7 +1018,7 @@ public:
                         x.base.base.loc);
                 }
             }
-            value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+            value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                 al, x.base.base.loc, result, dest_type));
         }
         tmp = ASR::make_BoolOp_t(al, x.base.base.loc, lhs, op, rhs, dest_type, value);
@@ -1097,7 +1097,7 @@ public:
                                         ASRUtils::expr_value(operand))->m_n;
                 if (op == ASR::unaryopType::Not) {
                     bool b = (op_value == 0);
-                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                         al, x.base.base.loc, b, logical_type));
                     operand_type = logical_type;
                 } else {
@@ -1117,7 +1117,7 @@ public:
                                         ASRUtils::expr_value(operand))->m_r;
                 if (op == ASR::unaryopType::Not) {
                     bool b = (op_value == 0.0);
-                    value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                         al, x.base.base.loc, b, logical_type));
                     operand_type = logical_type;
                 } else {
@@ -1136,11 +1136,11 @@ public:
                 }
 
             } else if (ASRUtils::is_logical(*operand_type)) {
-                bool op_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                bool op_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                                ASRUtils::expr_value(operand))->m_value;
                 if (op == ASR::unaryopType::Not) {
                     value = ASR::down_cast<ASR::expr_t>(
-                        ASR::make_ConstantLogical_t(al, x.base.base.loc, !op_value, logical_type));
+                        ASR::make_LogicalConstant_t(al, x.base.base.loc, !op_value, logical_type));
                 } else {
                     int8_t result = 0;
                     switch (op) {
@@ -1162,7 +1162,7 @@ public:
                 if (op == ASR::unaryopType::Not) {
                     bool b = (op_value.real() == 0.0 && op_value.imag() == 0.0);
                     value = ASR::down_cast<ASR::expr_t>(
-                        ASR::make_ConstantLogical_t(al, x.base.base.loc, b, logical_type));
+                        ASR::make_LogicalConstant_t(al, x.base.base.loc, b, logical_type));
                     operand_type = logical_type;
                 } else {
                     switch (op) {
@@ -2192,7 +2192,7 @@ public:
                                             x.base.base.loc);
                     }
                 }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
             } else if (ASRUtils::is_real(*source_type)) {
                 double left_value = ASR::down_cast<ASR::RealConstant_t>(
@@ -2214,7 +2214,7 @@ public:
                                             x.base.base.loc);
                     }
                 }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
             } else if (ASR::is_a<ASR::Complex_t>(*source_type)) {
                 ASR::ComplexConstant_t *left0
@@ -2241,13 +2241,13 @@ public:
                                             x.base.base.loc);
                     }
                 }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
 
             } else if (ASRUtils::is_logical(*source_type)) {
-                bool left_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                bool left_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                         ASRUtils::expr_value(left))->m_value;
-                bool right_value = ASR::down_cast<ASR::ConstantLogical_t>(
+                bool right_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                         ASRUtils::expr_value(right))->m_value;
                 bool result;
                 switch (asr_op) {
@@ -2262,7 +2262,7 @@ public:
                                             x.base.base.loc);
                     }
                 }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
 
             } else if (ASRUtils::is_character(*source_type)) {
@@ -2301,7 +2301,7 @@ public:
                     }
                     default: LFORTRAN_ASSERT(false); // should never happen
                 }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
             }
         }
@@ -2516,7 +2516,7 @@ public:
             to_type, value));
         } else if (ASRUtils::is_logical(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
-                int32_t ival = ASR::down_cast<ASR::ConstantLogical_t>(
+                int32_t ival = ASR::down_cast<ASR::LogicalConstant_t>(
                                         ASRUtils::expr_value(arg))->m_value;
                 value =  ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al,
                                 loc, ival, to_type));
@@ -2561,7 +2561,7 @@ public:
             ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
                                         4, nullptr, 0));
             if (ASRUtils::expr_value(arg) != nullptr) {
-                ival = ASR::down_cast<ASR::ConstantLogical_t>(
+                ival = ASR::down_cast<ASR::LogicalConstant_t>(
                                         ASRUtils::expr_value(arg))->m_value;
                 value =  ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al,
                                 loc, ival, int_type));
@@ -2689,7 +2689,7 @@ public:
                     result = (ASR::is_a<ASR::Function_t>(*t) ||
                                 ASR::is_a<ASR::Subroutine_t>(*t));
                 }
-                tmp = ASR::make_ConstantLogical_t(al, x.base.base.loc, result, type);
+                tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, result, type);
                 return;
             } else if (call_name == "int" || call_name == "float") {
                 if (args.size() > 1) {

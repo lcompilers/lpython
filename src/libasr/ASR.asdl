@@ -221,7 +221,7 @@ expr
     | IntegerBOZ(int v, integerboz intboz_type, ttype? type)
     | RealConstant(float r, ttype type)
     | ComplexConstant(float re, float im, ttype type)
-    | ConstantLogical(bool value, ttype type)
+    | LogicalConstant(bool value, ttype type)
     | ConstantList(expr* args, ttype type)
     | ConstantSet(expr* elements, ttype type)
     | ConstantTuple(expr* elements, ttype type)
