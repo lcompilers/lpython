@@ -245,7 +245,7 @@ units
     ;
 
 script_unit
-    : statement { $$ = SCRIPT_UNIT_STMT($1); }
+    : statement
     ;
 
 statements

@@ -183,6 +183,4 @@ Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
 #define CALL_02(func, args, l) make_Call_t(p.m_a, l, \
         EXPR(func), EXPRS(args), args.size(), nullptr, 0)
 
-#define SCRIPT_UNIT_STMT(x) (ast_t*)x
-
 #endif
