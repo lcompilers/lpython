@@ -54,7 +54,7 @@ public:
         contains_array = false;
     }
 
-    void visit_ConstantComplex(const ASR::ConstantComplex_t&) {
+    void visit_ComplexConstant(const ASR::ComplexConstant_t&) {
         contains_array = false;
     }
 

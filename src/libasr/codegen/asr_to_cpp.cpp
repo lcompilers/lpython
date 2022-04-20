@@ -554,7 +554,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         last_expr_precedence = 2;
     }
 
-    void visit_ConstantComplex(const ASR::ConstantComplex_t &x) {
+    void visit_ComplexConstant(const ASR::ComplexConstant_t &x) {
         src = "std::complex<double>(" + std::to_string(x.m_re) + ", " + std::to_string(x.m_im) + ")";
         last_expr_precedence = 2;
     }

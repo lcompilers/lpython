@@ -107,7 +107,7 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::ImpliedDoLoop: { return ((ASR::ImpliedDoLoop_t*)f)->m_type; }
         case ASR::exprType::IntegerConstant: { return ((ASR::IntegerConstant_t*)f)->m_type; }
         case ASR::exprType::RealConstant: { return ((ASR::RealConstant_t*)f)->m_type; }
-        case ASR::exprType::ConstantComplex: { return ((ASR::ConstantComplex_t*)f)->m_type; }
+        case ASR::exprType::ComplexConstant: { return ((ASR::ComplexConstant_t*)f)->m_type; }
         case ASR::exprType::ConstantSet: { return ((ASR::ConstantSet_t*)f)->m_type; }
         case ASR::exprType::ConstantList: { return ((ASR::ConstantList_t*)f)->m_type; }
         case ASR::exprType::ConstantTuple: { return ((ASR::ConstantTuple_t*)f)->m_type; }
@@ -217,7 +217,7 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::ConstantArray: // Drop through
         case ASR::exprType::IntegerConstant: // Drop through
         case ASR::exprType::RealConstant: // Drop through
-        case ASR::exprType::ConstantComplex: // Drop through
+        case ASR::exprType::ComplexConstant: // Drop through
         case ASR::exprType::ConstantLogical: // Drop through
         case ASR::exprType::ConstantTuple: // Drop through
         case ASR::exprType::ConstantDictionary: // Drop through
@@ -428,7 +428,7 @@ static inline bool is_value_constant(ASR::expr_t *a_value) {
         // OK
     } else if (ASR::is_a<ASR::RealConstant_t>(*a_value)) {
         // OK
-    } else if (ASR::is_a<ASR::ConstantComplex_t>(*a_value)) {
+    } else if (ASR::is_a<ASR::ComplexConstant_t>(*a_value)) {
         // OK
     } else if (ASR::is_a<ASR::ConstantLogical_t>(*a_value)) {
         // OK

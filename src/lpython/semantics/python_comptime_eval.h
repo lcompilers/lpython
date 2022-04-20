@@ -129,8 +129,8 @@ struct PythonIntrinsicProcedures {
             int8_t val = ASR::down_cast<ASR::ConstantLogical_t>(arg)->m_value;
             return ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, val, int_type));
         } else if (ASRUtils::is_complex(*t)) {
-            double re = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_re;
-            double im = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_im;
+            double re = ASR::down_cast<ASR::ComplexConstant_t>(arg)->m_re;
+            double im = ASR::down_cast<ASR::ComplexConstant_t>(arg)->m_im;
             std::complex<double> x(re, im);
             double result = std::abs(x);
             return ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(al, loc, result, real_type));
@@ -186,8 +186,8 @@ struct PythonIntrinsicProcedures {
         } else if (ASRUtils::is_integer(*t)) {
             result = ASR::down_cast<ASR::IntegerConstant_t>(arg)->m_n;
         } else if (ASRUtils::is_complex(*t)) {
-            double re = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_re;
-            double im = ASR::down_cast<ASR::ConstantComplex_t>(arg)->m_im;
+            double re = ASR::down_cast<ASR::ComplexConstant_t>(arg)->m_re;
+            double im = ASR::down_cast<ASR::ComplexConstant_t>(arg)->m_im;
             std::complex<double> c(re, im);
             result = (re || im);
         } else if (ASRUtils::is_logical(*t)) {
@@ -396,12 +396,12 @@ struct PythonIntrinsicProcedures {
                 pow(a, b), int_type));
 
         } else if (ASRUtils::is_complex(*arg1_type) && ASRUtils::is_integer(*arg2_type)) {
-            double re = ASR::down_cast<ASR::ConstantComplex_t>(arg1)->m_re;
-            double im = ASR::down_cast<ASR::ConstantComplex_t>(arg1)->m_im;
+            double re = ASR::down_cast<ASR::ComplexConstant_t>(arg1)->m_re;
+            double im = ASR::down_cast<ASR::ComplexConstant_t>(arg1)->m_im;
             std::complex<double> x(re, im);
             int64_t b = ASR::down_cast<ASR::IntegerConstant_t>(arg2)->m_n;
             std::complex<double> y = pow(x, b);
-            return ASR::down_cast<ASR::expr_t>(make_ConstantComplex_t(al, loc,
+            return ASR::down_cast<ASR::expr_t>(make_ComplexConstant_t(al, loc,
                 y.real(), y.imag(), complex_type));
 
         } else {
@@ -596,7 +596,7 @@ struct PythonIntrinsicProcedures {
                 c2 = ASR::down_cast<ASR::RealConstant_t>(args[1])->m_r;
             }
         }
-        return ASR::down_cast<ASR::expr_t>(make_ConstantComplex_t(al, loc, c1, c2, type));
+        return ASR::down_cast<ASR::expr_t>(make_ComplexConstant_t(al, loc, c1, c2, type));
     }
 
     static ASR::expr_t *eval__lpython_imag(Allocator &al, const Location &loc,
@@ -609,7 +609,7 @@ struct PythonIntrinsicProcedures {
         ASR::expr_t* imag_arg = args[0];
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
         if (ASR::is_a<ASR::Complex_t>(*ASRUtils::expr_type(imag_arg))) {
-            double im = ASR::down_cast<ASR::ConstantComplex_t>(imag_arg)->m_im;
+            double im = ASR::down_cast<ASR::ComplexConstant_t>(imag_arg)->m_im;
             double result = im;
             return ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(al, loc, result, type));
         } else {

@@ -323,7 +323,7 @@ public:
         tmp_val = const_cast<ASR::expr_t*>(&(x.base));
     }
 
-    void visit_ConstantComplex(const ASR::ConstantComplex_t& x) {
+    void visit_ComplexConstant(const ASR::ComplexConstant_t& x) {
         tmp_val = const_cast<ASR::expr_t*>(&(x.base));
     }
 

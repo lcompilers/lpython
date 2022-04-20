@@ -879,9 +879,9 @@ public:
                     al, loc, result, dest_type));
             }
             else if (ASRUtils::is_complex(*dest_type)) {
-                ASR::ConstantComplex_t *left0 = ASR::down_cast<ASR::ConstantComplex_t>(
+                ASR::ComplexConstant_t *left0 = ASR::down_cast<ASR::ComplexConstant_t>(
                                                                 ASRUtils::expr_value(left));
-                ASR::ConstantComplex_t *right0 = ASR::down_cast<ASR::ConstantComplex_t>(
+                ASR::ComplexConstant_t *right0 = ASR::down_cast<ASR::ComplexConstant_t>(
                                                                 ASRUtils::expr_value(right));
                 std::complex<double> left_value(left0->m_re, left0->m_im);
                 std::complex<double> right_value(right0->m_re, right0->m_im);
@@ -894,7 +894,7 @@ public:
                     case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
                     default: { LFORTRAN_ASSERT(false); }
                 }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantComplex_t(al, loc,
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_ComplexConstant_t(al, loc,
                         std::real(result), std::imag(result), dest_type));
             }
             else if (ASRUtils::is_logical(*dest_type)) {
@@ -957,11 +957,11 @@ public:
         tmp = ASR::make_RealConstant_t(al, x.base.base.loc, f, type);
     }
 
-    void visit_ConstantComplex(const AST::ConstantComplex_t &x) {
+    void visit_ComplexConstant(const AST::ConstantComplex_t &x) {
         double re = x.m_re, im = x.m_im;
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Complex_t(al, x.base.base.loc,
                 8, nullptr, 0));
-        tmp = ASR::make_ConstantComplex_t(al, x.base.base.loc, re, im, type);
+        tmp = ASR::make_ComplexConstant_t(al, x.base.base.loc, re, im, type);
     }
 
     void visit_ConstantStr(const AST::ConstantStr_t &x) {
@@ -1155,7 +1155,7 @@ public:
                 }
 
             } else if (ASRUtils::is_complex(*operand_type)) {
-                ASR::ConstantComplex_t *c = ASR::down_cast<ASR::ConstantComplex_t>(
+                ASR::ComplexConstant_t *c = ASR::down_cast<ASR::ComplexConstant_t>(
                                         ASRUtils::expr_value(operand));
                 std::complex<double> op_value(c->m_re, c->m_im);
                 std::complex<double> result;
@@ -1175,7 +1175,7 @@ public:
                         }
                     }
                     value = ASR::down_cast<ASR::expr_t>(
-                        ASR::make_ConstantComplex_t(al, x.base.base.loc,
+                        ASR::make_ComplexConstant_t(al, x.base.base.loc,
                         std::real(result), std::imag(result), operand_type));
                 }
             }
@@ -2217,10 +2217,10 @@ public:
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantLogical_t(
                     al, x.base.base.loc, result, type));
             } else if (ASR::is_a<ASR::Complex_t>(*source_type)) {
-                ASR::ConstantComplex_t *left0
-                    = ASR::down_cast<ASR::ConstantComplex_t>(ASRUtils::expr_value(left));
-                ASR::ConstantComplex_t *right0
-                    = ASR::down_cast<ASR::ConstantComplex_t>(ASRUtils::expr_value(right));
+                ASR::ComplexConstant_t *left0
+                    = ASR::down_cast<ASR::ComplexConstant_t>(ASRUtils::expr_value(left));
+                ASR::ComplexConstant_t *right0
+                    = ASR::down_cast<ASR::ComplexConstant_t>(ASRUtils::expr_value(right));
                 std::complex<double> left_value(left0->m_re, left0->m_im);
                 std::complex<double> right_value(right0->m_re, right0->m_im);
                 bool result;

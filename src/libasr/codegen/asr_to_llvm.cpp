@@ -3195,7 +3195,7 @@ public:
         throw CodeGenError("ComplexConstructor with runtime arguments not implemented yet.");
     }
 
-    void visit_ConstantComplex(const ASR::ConstantComplex_t &x) {
+    void visit_ComplexConstant(const ASR::ComplexConstant_t &x) {
         double re = x.m_re;
         double im = x.m_im;
         int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
