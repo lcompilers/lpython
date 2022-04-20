@@ -225,7 +225,7 @@ expr
     | ConstantList(expr* args, ttype type)
     | ConstantSet(expr* elements, ttype type)
     | ConstantTuple(expr* elements, ttype type)
-    | ConstantString(string s, ttype type)
+    | StringConstant(string s, ttype type)
     | ConstantDictionary(expr* keys, expr* values, ttype type)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type, expr? value)

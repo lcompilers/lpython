@@ -3170,7 +3170,7 @@ public:
 
         {
             if (x.m_msg) {
-                char* s = ASR::down_cast<ASR::ConstantString_t>(x.m_msg)->m_s;
+                char* s = ASR::down_cast<ASR::StringConstant_t>(x.m_msg)->m_s;
                 llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("AssertionError: %s\n");
                 llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(s);
                 printf(context, *module, *builder, {fmt_ptr, fmt_ptr2});
@@ -3232,7 +3232,7 @@ public:
     }
 
 
-    void visit_ConstantString(const ASR::ConstantString_t &x) {
+    void visit_StringConstant(const ASR::StringConstant_t &x) {
         tmp = builder->CreateGlobalStringPtr(x.m_s);
     }
 

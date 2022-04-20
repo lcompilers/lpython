@@ -112,7 +112,7 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::ConstantList: { return ((ASR::ConstantList_t*)f)->m_type; }
         case ASR::exprType::ConstantTuple: { return ((ASR::ConstantTuple_t*)f)->m_type; }
         case ASR::exprType::LogicalConstant: { return ((ASR::LogicalConstant_t*)f)->m_type; }
-        case ASR::exprType::ConstantString: { return ((ASR::ConstantString_t*)f)->m_type; }
+        case ASR::exprType::StringConstant: { return ((ASR::StringConstant_t*)f)->m_type; }
         case ASR::exprType::ConstantDictionary: { return ((ASR::ConstantDictionary_t*)f)->m_type; }
         case ASR::exprType::IntegerBOZ: { return ((ASR::IntegerBOZ_t*)f)->m_type; }
         case ASR::exprType::Var: { return EXPR2VAR(f)->m_type; }
@@ -222,7 +222,7 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::ConstantTuple: // Drop through
         case ASR::exprType::ConstantDictionary: // Drop through
         case ASR::exprType::ConstantSet: // Drop through
-        case ASR::exprType::ConstantString:{ // For all Constants
+        case ASR::exprType::StringConstant:{ // For all Constants
             return f;
         }
         default : throw LFortranException("Not implemented");
@@ -432,7 +432,7 @@ static inline bool is_value_constant(ASR::expr_t *a_value) {
         // OK
     } else if (ASR::is_a<ASR::LogicalConstant_t>(*a_value)) {
         // OK
-    } else if (ASR::is_a<ASR::ConstantString_t>(*a_value)) {
+    } else if (ASR::is_a<ASR::StringConstant_t>(*a_value)) {
         // OK
     } else {
         return false;
@@ -486,8 +486,8 @@ static inline bool is_value_constant(ASR::expr_t *a_value, std::string& const_va
     if( a_value == nullptr ) {
         return false;
     }
-    if (ASR::is_a<ASR::ConstantString_t>(*a_value)) {
-        ASR::ConstantString_t* const_string = ASR::down_cast<ASR::ConstantString_t>(a_value);
+    if (ASR::is_a<ASR::StringConstant_t>(*a_value)) {
+        ASR::StringConstant_t* const_string = ASR::down_cast<ASR::StringConstant_t>(a_value);
         const_value = std::string(const_string->m_s);
     } else {
         return false;
@@ -510,9 +510,9 @@ static inline bool is_value_equal(ASR::expr_t* test_expr, ASR::expr_t* desired_e
             ASR::IntegerConstant_t* desired_int = ASR::down_cast<ASR::IntegerConstant_t>(desired_value);
             return test_int->m_n == desired_int->m_n;
         }
-        case ASR::exprType::ConstantString: {
-            ASR::ConstantString_t* test_str = ASR::down_cast<ASR::ConstantString_t>(test_value);
-            ASR::ConstantString_t* desired_str = ASR::down_cast<ASR::ConstantString_t>(desired_value);
+        case ASR::exprType::StringConstant: {
+            ASR::StringConstant_t* test_str = ASR::down_cast<ASR::StringConstant_t>(test_value);
+            ASR::StringConstant_t* desired_str = ASR::down_cast<ASR::StringConstant_t>(desired_value);
             return std::string(test_str->m_s) == std::string(desired_str->m_s);
         }
         default: {

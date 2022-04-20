@@ -771,9 +771,9 @@ public:
             }
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
-                char* str = right_is_int ? ASR::down_cast<ASR::ConstantString_t>(
+                char* str = right_is_int ? ASR::down_cast<ASR::StringConstant_t>(
                                                 ASRUtils::expr_value(left))->m_s :
-                                                ASR::down_cast<ASR::ConstantString_t>(
+                                                ASR::down_cast<ASR::StringConstant_t>(
                                                 ASRUtils::expr_value(right))->m_s;
                 int64_t repeat = right_is_int ? right_int : left_int;
                 char* result;
@@ -781,7 +781,7 @@ public:
                 std::fill_n(std::ostream_iterator<std::string>(os), repeat, std::string(str));
                 result = s2c(al, os.str());
                 LFORTRAN_ASSERT((int64_t)strlen(result) == dest_len)
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(
                     al, loc, result, dest_type));
             }
             tmp = ASR::make_StrOp_t(al, loc, left, ops, right, dest_type, value);
@@ -799,15 +799,15 @@ public:
                     ASR::make_Character_t(al, loc, left_type2->m_kind,
                     left_type2->m_len + right_type2->m_len, nullptr, nullptr, 0));
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
-                char* left_value = ASR::down_cast<ASR::ConstantString_t>(
+                char* left_value = ASR::down_cast<ASR::StringConstant_t>(
                                         ASRUtils::expr_value(left))->m_s;
-                char* right_value = ASR::down_cast<ASR::ConstantString_t>(
+                char* right_value = ASR::down_cast<ASR::StringConstant_t>(
                                         ASRUtils::expr_value(right))->m_s;
                 char* result;
                 std::string result_s = std::string(left_value) + std::string(right_value);
                 result = s2c(al, result_s);
                 LFORTRAN_ASSERT((int64_t)strlen(result) == ASR::down_cast<ASR::Character_t>(dest_type)->m_len)
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantString_t(
+                value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(
                     al, loc, result, dest_type));
             }
             tmp = ASR::make_StrOp_t(al, loc, left, ops, right, dest_type,
@@ -969,7 +969,7 @@ public:
         size_t s_size = std::string(s).size();
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
                 1, s_size, nullptr, nullptr, 0));
-        tmp = ASR::make_ConstantString_t(al, x.base.base.loc, s, type);
+        tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s, type);
     }
 
     void visit_ConstantBool(const AST::ConstantBool_t &x) {
@@ -2266,9 +2266,9 @@ public:
                     al, x.base.base.loc, result, type));
 
             } else if (ASRUtils::is_character(*source_type)) {
-                char* left_value = ASR::down_cast<ASR::ConstantString_t>(
+                char* left_value = ASR::down_cast<ASR::StringConstant_t>(
                                         ASRUtils::expr_value(left))->m_s;
-                char* right_value = ASR::down_cast<ASR::ConstantString_t>(
+                char* right_value = ASR::down_cast<ASR::StringConstant_t>(
                                         ASRUtils::expr_value(right))->m_s;
                 std::string left_str = std::string(left_value);
                 std::string right_str = std::string(right_value);

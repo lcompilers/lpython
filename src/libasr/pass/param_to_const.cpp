@@ -128,7 +128,7 @@ public:
                         case ASR::exprType::RealConstant:
                         case ASR::exprType::ComplexConstant:
                         case ASR::exprType::LogicalConstant:
-                        case ASR::exprType::ConstantString: {
+                        case ASR::exprType::StringConstant: {
                             asr = init_var->m_symbolic_value;
                             break;
                         }

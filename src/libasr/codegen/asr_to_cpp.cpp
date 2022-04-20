@@ -549,7 +549,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         last_expr_precedence = 2;
     }
 
-    void visit_ConstantString(const ASR::ConstantString_t &x) {
+    void visit_StringConstant(const ASR::StringConstant_t &x) {
         src = "\"" + std::string(x.m_s) + "\"";
         last_expr_precedence = 2;
     }
