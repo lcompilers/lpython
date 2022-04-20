@@ -870,7 +870,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
     }
 
-    void visit_ConstantArray(const ASR::ConstantArray_t &x) {
+    void visit_ArrayConstant(const ASR::ArrayConstant_t &x) {
         std::string out = "from_std_vector<float>({";
         for (size_t i=0; i<x.n_args; i++) {
             this->visit_expr(*x.m_args[i]);

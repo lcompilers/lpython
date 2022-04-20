@@ -322,9 +322,9 @@ struct PythonIntrinsicProcedures {
             char* str_value = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
             return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
                 (int64_t)strlen(s2c(al, std::string(str_value))), type));
-        } else if (arg->type == ASR::exprType::ConstantArray) {
+        } else if (arg->type == ASR::exprType::ArrayConstant) {
             return ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc,
-                (int64_t)ASR::down_cast<ASR::ConstantArray_t>(arg)->n_args, type));
+                (int64_t)ASR::down_cast<ASR::ArrayConstant_t>(arg)->n_args, type));
         } else if (arg->type == ASR::exprType::ConstantTuple) {
             return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
                 (int64_t)ASR::down_cast<ASR::ConstantTuple_t>(arg)->n_elements, type));

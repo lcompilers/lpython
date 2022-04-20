@@ -1537,7 +1537,7 @@ public:
                         target_var = ptr;
                         this->visit_expr_wrapper(v->m_symbolic_value, true);
                         llvm::Value *init_value = tmp;
-                        if (ASR::is_a<ASR::ConstantArray_t>(*v->m_symbolic_value)) {
+                        if (ASR::is_a<ASR::ArrayConstant_t>(*v->m_symbolic_value)) {
                             target_var = arr_descr->get_pointer_to_data(target_var);
                         }
                         builder->CreateStore(init_value, target_var);
@@ -3088,7 +3088,7 @@ public:
 
     }
 
-    void visit_ConstantArray(const ASR::ConstantArray_t &x) {
+    void visit_ArrayConstant(const ASR::ArrayConstant_t &x) {
         llvm::Type* el_type;
         if (ASR::is_a<ASR::Integer_t>(*x.m_type)) {
             el_type = getIntType(ASR::down_cast<ASR::Integer_t>(x.m_type)->m_kind);

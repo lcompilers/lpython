@@ -103,7 +103,7 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::IfExp: { return ((ASR::IfExp_t*)f)->m_type; }
         case ASR::exprType::FunctionCall: { return ((ASR::FunctionCall_t*)f)->m_type; }
         case ASR::exprType::DerivedTypeConstructor: { return ((ASR::DerivedTypeConstructor_t*)f)->m_type; }
-        case ASR::exprType::ConstantArray: { return ((ASR::ConstantArray_t*)f)->m_type; }
+        case ASR::exprType::ArrayConstant: { return ((ASR::ArrayConstant_t*)f)->m_type; }
         case ASR::exprType::ImpliedDoLoop: { return ((ASR::ImpliedDoLoop_t*)f)->m_type; }
         case ASR::exprType::IntegerConstant: { return ((ASR::IntegerConstant_t*)f)->m_type; }
         case ASR::exprType::RealConstant: { return ((ASR::RealConstant_t*)f)->m_type; }
@@ -214,7 +214,7 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::Var: { return EXPR2VAR(f)->m_value; }
         case ASR::exprType::StrOp: { return ASR::down_cast<ASR::StrOp_t>(f)->m_value; }
         case ASR::exprType::ImpliedDoLoop: { return ASR::down_cast<ASR::ImpliedDoLoop_t>(f)->m_value; }
-        case ASR::exprType::ConstantArray: // Drop through
+        case ASR::exprType::ArrayConstant: // Drop through
         case ASR::exprType::IntegerConstant: // Drop through
         case ASR::exprType::RealConstant: // Drop through
         case ASR::exprType::ComplexConstant: // Drop through
