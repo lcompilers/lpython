@@ -108,7 +108,7 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::IntegerConstant: { return ((ASR::IntegerConstant_t*)f)->m_type; }
         case ASR::exprType::RealConstant: { return ((ASR::RealConstant_t*)f)->m_type; }
         case ASR::exprType::ComplexConstant: { return ((ASR::ComplexConstant_t*)f)->m_type; }
-        case ASR::exprType::ConstantSet: { return ((ASR::ConstantSet_t*)f)->m_type; }
+        case ASR::exprType::SetConstant: { return ((ASR::SetConstant_t*)f)->m_type; }
         case ASR::exprType::ListConstant: { return ((ASR::ListConstant_t*)f)->m_type; }
         case ASR::exprType::ConstantTuple: { return ((ASR::ConstantTuple_t*)f)->m_type; }
         case ASR::exprType::LogicalConstant: { return ((ASR::LogicalConstant_t*)f)->m_type; }
@@ -221,7 +221,7 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::LogicalConstant: // Drop through
         case ASR::exprType::ConstantTuple: // Drop through
         case ASR::exprType::ConstantDictionary: // Drop through
-        case ASR::exprType::ConstantSet: // Drop through
+        case ASR::exprType::SetConstant: // Drop through
         case ASR::exprType::StringConstant:{ // For all Constants
             return f;
         }

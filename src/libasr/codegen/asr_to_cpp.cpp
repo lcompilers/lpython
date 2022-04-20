@@ -568,7 +568,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         last_expr_precedence = 2;
     }
 
-    void visit_ConstantSet(const ASR::ConstantSet_t &x) {
+    void visit_SetConstant(const ASR::SetConstant_t &x) {
         std::string out = "{";
         for (size_t i=0; i<x.n_elements; i++) {
             visit_expr(*x.m_elements[i]);

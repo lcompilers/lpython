@@ -223,7 +223,7 @@ expr
     | LogicalConstant(bool value, ttype type)
     | ListConstant(expr* args, ttype type)
     | ArrayConstant(expr* args, ttype type)
-    | ConstantSet(expr* elements, ttype type)
+    | SetConstant(expr* elements, ttype type)
     | ConstantTuple(expr* elements, ttype type)
     | StringConstant(string s, ttype type)
     | ConstantDictionary(expr* keys, expr* values, ttype type)

@@ -331,9 +331,9 @@ struct PythonIntrinsicProcedures {
         } else if (arg->type == ASR::exprType::ConstantDictionary) {
             return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
                 (int64_t)ASR::down_cast<ASR::ConstantDictionary_t>(arg)->n_keys, type));
-        } else if (arg->type == ASR::exprType::ConstantSet) {
+        } else if (arg->type == ASR::exprType::SetConstant) {
             return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
-                (int64_t)ASR::down_cast<ASR::ConstantSet_t>(arg)->n_elements, type));
+                (int64_t)ASR::down_cast<ASR::SetConstant_t>(arg)->n_elements, type));
         } else {
             throw SemanticError("len() only works on strings, lists, tuples, dictionaries and sets",
                 loc);
