@@ -35,7 +35,7 @@ The algorithm contains two components,
     of a specific subtree in the complete ASR tree. In this case, we are
     looking for a subtree which has an `If` node as the parent node. The
     `Compare` attribute of that `If` node should contain a `FunctionCall`
-    to `modulo` (with second argument as `2`) and a `ConstantInteger`, `1`.
+    to `modulo` (with second argument as `2`) and a `IntegerConstant`, `1`.
     The statement attribute of `If` node should contain only 1 and that too
     an `Assignment` statement. The right should be a `UnaryOp` expression
     with operand as the left hand side of that expression.
@@ -147,8 +147,8 @@ public:
             potential_func_call = x.m_right;
         }
         if( potential_one &&
-            potential_one->type == ASR::exprType::ConstantInteger ) {
-            ASR::ConstantInteger_t* const_int = ASR::down_cast<ASR::ConstantInteger_t>(potential_one);
+            potential_one->type == ASR::exprType::IntegerConstant ) {
+            ASR::IntegerConstant_t* const_int = ASR::down_cast<ASR::IntegerConstant_t>(potential_one);
             is_one_present = const_int->m_n == 1;
         }
         if( potential_func_call && is_one_present ) {
@@ -177,8 +177,8 @@ public:
             bool cond_for_arg0 = false, cond_for_arg1 = false;
             ASR::ttype_t* arg0_ttype = ASRUtils::expr_type(arg0);
             cond_for_arg0 = arg0_ttype->type == ASR::ttypeType::Integer;
-            if( arg1->type == ASR::exprType::ConstantInteger ) {
-                ASR::ConstantInteger_t* const_int = ASR::down_cast<ASR::ConstantInteger_t>(arg1);
+            if( arg1->type == ASR::exprType::IntegerConstant ) {
+                ASR::IntegerConstant_t* const_int = ASR::down_cast<ASR::IntegerConstant_t>(arg1);
                 cond_for_arg1 = const_int->m_n == 2;
             }
             is_divisor_2 = cond_for_arg0 && cond_for_arg1;

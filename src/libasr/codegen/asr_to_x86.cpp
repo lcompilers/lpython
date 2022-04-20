@@ -272,11 +272,11 @@ public:
 
     // Expressions leave integer values in eax
 
-    void visit_ConstantInteger(const ASR::ConstantInteger_t &x) {
+    void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {
         m_a.asm_mov_r32_imm32(X86Reg::eax, x.m_n);
     }
 
-    void visit_ConstantLogical(const ASR::ConstantLogical_t &x) {
+    void visit_LogicalConstant(const ASR::LogicalConstant_t &x) {
         int val;
         if (x.m_value == true) {
             val = 1;
@@ -431,8 +431,8 @@ public:
     void visit_Print(const ASR::Print_t &x) {
         LFORTRAN_ASSERT(x.n_values == 1);
         ASR::expr_t *e = x.m_values[0];
-        if (e->type == ASR::exprType::ConstantString) {
-            ASR::ConstantString_t *s = down_cast<ASR::ConstantString_t>(e);
+        if (e->type == ASR::exprType::StringConstant) {
+            ASR::StringConstant_t *s = down_cast<ASR::StringConstant_t>(e);
             std::string msg = s->m_s;
             msg += "\n";
             std::string id = "string" + std::to_string(get_hash((ASR::asr_t*)e));
