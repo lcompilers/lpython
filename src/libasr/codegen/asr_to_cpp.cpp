@@ -605,7 +605,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         src = out;
     }
 
-    void visit_ConstantDictionary(const ASR::ConstantDictionary_t &x) {
+    void visit_DictConstant(const ASR::DictConstant_t &x) {
         LFORTRAN_ASSERT(x.n_keys == x.n_values);
         std::string out = "{";
         for(size_t i=0; i<x.n_keys; i++) {

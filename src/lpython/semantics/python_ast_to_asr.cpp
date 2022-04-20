@@ -2081,7 +2081,7 @@ public:
         }
         ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_Dict_t(al, x.base.base.loc,
                                              key_type, value_type));
-        tmp = ASR::make_ConstantDictionary_t(al, x.base.base.loc, keys.p, keys.size(),
+        tmp = ASR::make_DictConstant_t(al, x.base.base.loc, keys.p, keys.size(),
                                              values.p, values.size(), type);
     }
 

@@ -328,9 +328,9 @@ struct PythonIntrinsicProcedures {
         } else if (arg->type == ASR::exprType::TupleConstant) {
             return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
                 (int64_t)ASR::down_cast<ASR::TupleConstant_t>(arg)->n_elements, type));
-        } else if (arg->type == ASR::exprType::ConstantDictionary) {
+        } else if (arg->type == ASR::exprType::DictConstant) {
             return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
-                (int64_t)ASR::down_cast<ASR::ConstantDictionary_t>(arg)->n_keys, type));
+                (int64_t)ASR::down_cast<ASR::DictConstant_t>(arg)->n_keys, type));
         } else if (arg->type == ASR::exprType::SetConstant) {
             return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
                 (int64_t)ASR::down_cast<ASR::SetConstant_t>(arg)->n_elements, type));

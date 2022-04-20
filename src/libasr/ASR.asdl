@@ -226,7 +226,7 @@ expr
     | SetConstant(expr* elements, ttype type)
     | TupleConstant(expr* elements, ttype type)
     | StringConstant(string s, ttype type)
-    | ConstantDictionary(expr* keys, expr* values, ttype type)
+    | DictConstant(expr* keys, expr* values, ttype type)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type, expr? value)
     | DerivedRef(expr v, symbol m, ttype type, expr? value)
