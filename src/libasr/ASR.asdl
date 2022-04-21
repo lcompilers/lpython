@@ -176,7 +176,7 @@ stmt
     | If(expr test, stmt* body, stmt* orelse)
     | IfArithmetic(expr test, int lt_label, int eq_label, int gt_label)
     | Print(expr? fmt, expr* values)
-    | Open(int label, expr? newunit, expr? filename, expr? status)
+    | FileOpen(int label, expr? newunit, expr? filename, expr? status)
     | Close(int label, expr? unit, expr? iostat, expr? iomsg, expr? err, expr? status)
     | Read(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values)
     | Rewind(int label, expr? unit, expr? iostat, expr? err)
