@@ -2484,6 +2484,33 @@ public:
                                     x.base.base.loc);
                             }
 
+                        } else if (ASR::is_a<ASR::Set_t>(*var->m_type)) {
+                            ASR::Set_t *st = ASR::down_cast<ASR::Set_t>(var->m_type);
+                            ASR::ttype_t *set_type = st->m_type;
+                            std::string attr = at->m_attr;
+                            if (attr == "add" || attr == "remove") {
+                                if (c->n_args != 1) {
+                                    throw SemanticError(attr + "() takes exactly one argument",
+                                        x.base.base.loc);
+                                }
+                                visit_expr(*c->m_args[0]);
+                                ASR::expr_t *ele = ASRUtils::EXPR(tmp);
+                                ASR::ttype_t *ele_type = ASRUtils::expr_type(ele);
+                                if (!ASRUtils::check_equal_type(ele_type, set_type)) {
+                                    throw SemanticError("Found type mismatch, (" +
+                                        ASRUtils::type_to_str(ele_type) + " and " +
+                                        ASRUtils::type_to_str(set_type) + ").", x.base.base.loc);
+                                }
+                                if (attr == "add") {
+                                    tmp = make_SetInsert_t(al, x.base.base.loc, t, ele);
+                                } else {
+                                    tmp = make_SetRemove_t(al, x.base.base.loc, t, ele);
+                                }
+                                return;
+                            } else {
+                                throw SemanticError("'" + attr + "' is not implemented for Set type",
+                                    x.base.base.loc);
+                            }
                         } else {
                             throw SemanticError("Only List type supported for now in Attribute",
                                 x.base.base.loc);
