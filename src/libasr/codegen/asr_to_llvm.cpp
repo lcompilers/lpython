@@ -439,7 +439,7 @@ public:
                     type_ptr = llvm::Type::getInt64PtrTy(context);
                     break;
                 default:
-                    throw CodeGenError("Only 32 and 64 bits integer kinds are supported.");
+                    throw CodeGenError("Only 8, 16, 32 and 64 bits integer kinds are supported.");
             }
         } else {
             switch(a_kind)
@@ -457,7 +457,7 @@ public:
                     type_ptr = llvm::Type::getInt64Ty(context);
                     break;
                 default:
-                    throw CodeGenError("Only 32 and 64 bits integer kinds are supported.");
+                    throw CodeGenError("Only 8, 16, 32 and 64 bits integer kinds are supported.");
             }
         }
         return type_ptr;
