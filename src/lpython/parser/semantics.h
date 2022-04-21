@@ -49,13 +49,6 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
     return s;
 }
 
-static inline stmt_t** IFSTMTS(Allocator &al, ast_t* x)
-{
-    stmt_t **s = al.allocate<stmt_t*>();
-    *s = down_cast<stmt_t>(x);
-    return s;
-}
-
 #define VEC_CAST(x, type) vec_cast<type##_t, astType::type>(x)
 #define STMTS(x) VEC_CAST(x, stmt)
 #define EXPRS(x) VEC_CAST(x, expr)
@@ -152,7 +145,7 @@ int dot_count = 0;
 
 #define IF_01(test, body, l) make_If_t(p.m_a, l, \
         /*test*/ EXPR(test), \
-        /*body*/ IFSTMTS(p.m_a, body), \
+        /*body*/ STMTS(A2LIST(p.m_a, body)), \
         /*n_body*/ 1, \
         /*a_orelse*/ nullptr, \
         /*n_orelse*/ 0)
