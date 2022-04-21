@@ -335,7 +335,7 @@ namespace LFortran {
             ASR::call_arg_t arg0, arg1;
             arg0.loc = arr_expr->base.loc, arg0.m_value = arr_expr;
             args.push_back(al, arg0);
-            ASR::expr_t* const_1 = LFortran::ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, arr_expr->base.loc, dim, LFortran::ASRUtils::expr_type(mfn->m_args[1])));
+            ASR::expr_t* const_1 = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_expr->base.loc, dim, LFortran::ASRUtils::expr_type(mfn->m_args[1])));
             arg1.loc = const_1->base.loc, arg1.m_value = const_1;
             args.push_back(al, arg1);
             ASR::ttype_t *type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(
@@ -488,23 +488,23 @@ namespace LFortran {
             ASR::stmt_t *stmt1 = nullptr;
             if( !a && !b && !c ) {
                 ASR::ttype_t *cond_type = LFortran::ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0));
-                cond = LFortran::ASRUtils::EXPR(ASR::make_ConstantLogical_t(al, loc, true, cond_type));
+                cond = LFortran::ASRUtils::EXPR(ASR::make_LogicalConstant_t(al, loc, true, cond_type));
             } else {
                 LFORTRAN_ASSERT(a);
                 LFORTRAN_ASSERT(b);
                 if (!c) {
                     ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-                    c = LFortran::ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, loc, 1, type));
+                    c = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 1, type));
                 }
                 LFORTRAN_ASSERT(c);
                 int increment;
-                if (c->type == ASR::exprType::ConstantInteger) {
-                    increment = ASR::down_cast<ASR::ConstantInteger_t>(c)->m_n;
+                if (c->type == ASR::exprType::IntegerConstant) {
+                    increment = ASR::down_cast<ASR::IntegerConstant_t>(c)->m_n;
                 } else if (c->type == ASR::exprType::UnaryOp) {
                     ASR::UnaryOp_t *u = ASR::down_cast<ASR::UnaryOp_t>(c);
                     LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
-                    LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::ConstantInteger);
-                    increment = - ASR::down_cast<ASR::ConstantInteger_t>(u->m_operand)->m_n;
+                    LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::IntegerConstant);
+                    increment = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_operand)->m_n;
                 } else {
                     throw LFortranException("Do loop increment type not supported");
                 }
