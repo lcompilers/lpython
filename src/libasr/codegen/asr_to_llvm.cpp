@@ -3557,7 +3557,7 @@ public:
         }
     }
 
-    void visit_Read(const ASR::Read_t &x) {
+    void visit_FileRead(const ASR::FileRead_t &x) {
         if (x.m_fmt != nullptr) {
             diag.codegen_warning_label("format string in read() is not implemented yet and it is currently treated as '*'",
                 {x.m_fmt->base.loc}, "treated as '*'");
@@ -3580,7 +3580,7 @@ public:
         handle_print(x);
     }
 
-    void visit_Write(const ASR::Write_t &x) {
+    void visit_FileWrite(const ASR::FileWrite_t &x) {
         if (x.m_fmt != nullptr) {
             diag.codegen_warning_label("format string in write() is not implemented yet and it is currently treated as '*'",
                 {x.m_fmt->base.loc}, "treated as '*'");
