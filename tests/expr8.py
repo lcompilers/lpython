@@ -13,3 +13,9 @@ def test_binop():
     x = True - False
     x = True * False
     x = True ** False
+    b1: bool
+    b2: bool
+    b1 = True
+    b2 = False
+    x = b1//b1
+    x = b1**b2

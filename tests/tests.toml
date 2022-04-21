@@ -91,6 +91,7 @@ filename = "expr8.py"
 ast = true
 asr = true
 cpp = true
+llvm = true
 
 [[test]]
 filename = "expr9.py"
@@ -118,6 +119,10 @@ cpp = true
 filename = "expr13.py"
 ast = true
 asr = true
+
+[[test]]
+filename = "expr14.py"
+llvm = true
 
 [[test]]
 filename = "expr_01.py"
@@ -198,6 +203,7 @@ asr = true
 [[test]]
 filename = "../integration_tests/test_builtin_pow.py"
 asr = true
+cpp = true
 
 [[test]]
 filename = "../integration_tests/test_builtin_int.py"
@@ -263,6 +269,10 @@ ast_new = true
 filename = "parser/statements1.py"
 ast_new = true
 
+[[test]]
+filename = "parser/if1.py"
+ast_new = true
+
 # tests/errors
 
 [[test]]
@@ -275,6 +285,10 @@ asr = true
 
 [[test]]
 filename = "errors/test_str_slicing.py"
+asr = true
+
+[[test]]
+filename = "errors/test_annassign_type_mismatch.py"
 asr = true
 
 [[test]]

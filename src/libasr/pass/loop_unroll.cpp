@@ -47,7 +47,7 @@ public:
             x_inc = ASRUtils::expr_value(x_head.m_increment);
         } else {
             ASR::ttype_t* int32_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
-            x_inc = ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, x_head.m_end->base.loc, 1, int32_type));
+            x_inc = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x_head.m_end->base.loc, 1, int32_type));
         }
 
         int64_t _start, _end, _inc;
@@ -63,7 +63,7 @@ public:
         int64_t remaining_part = loop_size % unroll_factor_;
         ASR::ttype_t *int32_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                                                             4, nullptr, 0));
-        xx.m_head.m_end = ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, x_end->base.loc, new_end, int32_type));
+        xx.m_head.m_end = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x_end->base.loc, new_end, int32_type));
 
         Vec<ASR::stmt_t*> init_and_whileloop = PassUtils::replace_doloop(al, x);
         ASR::stmt_t* whileloop_stmt = init_and_whileloop[1];

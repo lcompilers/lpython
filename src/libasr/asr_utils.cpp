@@ -20,7 +20,8 @@ void visit(
     std::vector<std::string>& result
 ) {
     visited.insert(a);
-    if (auto it = deps.find(a); it != deps.end()) {
+    auto it = deps.find(a);
+    if (it != deps.end()) {
         for (auto n : it->second) {
             if (!visited.count(n)) visit(n, deps, visited, result);
         }

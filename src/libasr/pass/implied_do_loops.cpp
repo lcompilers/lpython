@@ -46,19 +46,19 @@ public:
         contains_array = PassUtils::is_array(x_expr);
     }
 
-    void visit_ConstantInteger(const ASR::ConstantInteger_t&) {
+    void visit_IntegerConstant(const ASR::IntegerConstant_t&) {
         contains_array = false;
     }
 
-    void visit_ConstantReal(const ASR::ConstantReal_t&) {
+    void visit_RealConstant(const ASR::RealConstant_t&) {
         contains_array = false;
     }
 
-    void visit_ConstantComplex(const ASR::ConstantComplex_t&) {
+    void visit_ComplexConstant(const ASR::ComplexConstant_t&) {
         contains_array = false;
     }
 
-    void visit_ConstantLogical(const ASR::ConstantLogical_t&) {
+    void visit_LogicalConstant(const ASR::LogicalConstant_t&) {
         contains_array = false;
     }
 
@@ -85,11 +85,11 @@ public:
         doloop_body.reserve(al, 1);
         ASR::symbol_t* arr = arr_var->m_v;
         ASR::ttype_t *_type = LFortran::ASRUtils::expr_type(idoloop->m_start);
-        ASR::expr_t* const_1 = LFortran::ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, arr_var->base.base.loc, 1, _type));
+        ASR::expr_t* const_1 = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_var->base.base.loc, 1, _type));
         ASR::expr_t *const_n, *offset, *num_grps, *grp_start;
         const_n = offset = num_grps = grp_start = nullptr;
         if( arr_idx == nullptr ) {
-            const_n = LFortran::ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, arr_var->base.base.loc, idoloop->n_values, _type));
+            const_n = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_var->base.base.loc, idoloop->n_values, _type));
             offset = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, idoloop->m_var, ASR::binopType::Sub, idoloop->m_start, _type, nullptr, nullptr));
             num_grps = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, offset, ASR::binopType::Mul, const_n, _type, nullptr, nullptr));
             grp_start = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, num_grps, ASR::binopType::Add, const_1, _type, nullptr, nullptr));
@@ -100,7 +100,7 @@ public:
             ai.loc = arr_var->base.base.loc;
             ai.m_left = nullptr;
             if( arr_idx == nullptr ) {
-                ASR::expr_t* const_i = LFortran::ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, arr_var->base.base.loc, i, _type));
+                ASR::expr_t* const_i = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_var->base.base.loc, i, _type));
                 ASR::expr_t* idx = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc,
                                                             grp_start, ASR::binopType::Add, const_i,
                                                             _type, nullptr, nullptr));
@@ -130,8 +130,8 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
-        if( x.m_value->type == ASR::exprType::ConstantArray ) {
-            ASR::ConstantArray_t* arr_init = ((ASR::ConstantArray_t*)(&(x.m_value->base)));
+        if( x.m_value->type == ASR::exprType::ArrayConstant ) {
+            ASR::ArrayConstant_t* arr_init = ((ASR::ArrayConstant_t*)(&(x.m_value->base)));
             if( arr_init->n_args == 1 && arr_init->m_args[0] != nullptr &&
                 arr_init->m_args[0]->type == ASR::exprType::ImpliedDoLoop ) {
                 ASR::ImpliedDoLoop_t* idoloop = ((ASR::ImpliedDoLoop_t*)(&(arr_init->m_args[0]->base)));
@@ -143,7 +143,7 @@ public:
                 char* idx_var_name = (char*)const_idx_var_name;
                 ASR::expr_t* idx_var = nullptr;
                 ASR::ttype_t* idx_var_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, arr_init->base.base.loc, 4, nullptr, 0));
-                ASR::expr_t* const_1 = LFortran::ASRUtils::EXPR(ASR::make_ConstantInteger_t(al, arr_var->base.base.loc, 1, idx_var_type));
+                ASR::expr_t* const_1 = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_var->base.base.loc, 1, idx_var_type));
                 if( unit.m_global_scope->scope.find(std::string(idx_var_name)) == unit.m_global_scope->scope.end() ) {
                     ASR::asr_t* idx_sym = ASR::make_Variable_t(al, arr_init->base.base.loc, unit.m_global_scope, idx_var_name,
                                                             ASR::intentType::Local, const_1, nullptr, ASR::storage_typeType::Default,
@@ -182,7 +182,7 @@ public:
                     }
                 }
             }
-        } else if( x.m_value->type != ASR::exprType::ConstantArray &&
+        } else if( x.m_value->type != ASR::exprType::ArrayConstant &&
                    x.m_value->type != ASR::exprType::FunctionCall && // This will be converted to SubroutineCall in array_op.cpp
                    PassUtils::is_array(x.m_target)) {
             contains_array = true;

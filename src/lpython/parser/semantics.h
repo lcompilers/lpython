@@ -58,8 +58,7 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define EXPR2STMT(x) ((stmt_t*)make_Expr_t(p.m_a, x->base.loc, x))
 
 #define RESULT(x) p.result.push_back(p.m_a, STMT(x))
-#define SCRIPT_UNIT_STMT(x) (ast_t*)x
-#define SCRIPT_UNIT_EXPR(x) (ast_t*)EXPR2STMT(EXPR(x))
+
 #define LIST_NEW(l) l.reserve(p.m_a, 4)
 #define LIST_ADD(l, x) l.push_back(p.m_a, x)
 #define PLIST_ADD(l, x) l.push_back(p.m_a, *x)
@@ -75,6 +74,8 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define DELETE(e, l) make_Delete_t(p.m_a, l, EXPRS(e), e.size())
 #define DEL_TARGET_ID(name, l) make_Name_t(p.m_a, l, \
         name2char(name), expr_contextType::Del)
+
+#define EXPR_01(e, l) make_Expr_t(p.m_a, l, EXPR(e))
 
 #define RETURN_01(l) make_Return_t(p.m_a, l, nullptr)
 #define RETURN_02(e, l) make_Return_t(p.m_a, l, EXPR(e))
@@ -143,6 +144,30 @@ int dot_count = 0;
         mod2char(p.m_a, module), names.p, names.size(), dot_count); \
         dot_count = 0
 
+#define IF_01(test, body, l) make_If_t(p.m_a, l, \
+        /*test*/ EXPR(test), \
+        /*body*/ STMTS(A2LIST(p.m_a, body)), \
+        /*n_body*/ 1, \
+        /*a_orelse*/ nullptr, \
+        /*n_orelse*/ 0)
+
+#define IF_STMT_01(e, stmt, l) make_If_t(p.m_a, l, \
+        EXPR(e), STMTS(stmt), stmt.size(), nullptr, 0)
+#define IF_STMT_02(e, stmt, orelse, l) make_If_t(p.m_a, l, \
+        EXPR(e), STMTS(stmt), stmt.size(), STMTS(orelse), orelse.size())
+#define IF_STMT_03(e, stmt, orelse, l) make_If_t(p.m_a, l, \
+        EXPR(e), STMTS(stmt), stmt.size(), STMTS(A2LIST(p.m_a, orelse)), 1)
+
+Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
+    Vec<ast_t*> v;
+    v.reserve(al, 2);
+    v.push_back(al, x);
+    v.push_back(al, y);
+    return v;
+}
+
+#define BOOLOP(x, op, y, l) make_BoolOp_t(p.m_a, l, \
+        boolopType::op, EXPRS(MERGE_EXPR(p.m_a, x, y)), 2)
 #define BINOP(x, op, y, l) make_BinOp_t(p.m_a, l, \
         EXPR(x), operatorType::op, EXPR(y))
 #define UNARY(x, op, l) make_UnaryOp_t(p.m_a, l, unaryopType::op, EXPR(x))
@@ -164,6 +189,5 @@ int dot_count = 0;
         EXPR(func), nullptr, 0, nullptr, 0)
 #define CALL_02(func, args, l) make_Call_t(p.m_a, l, \
         EXPR(func), EXPRS(args), args.size(), nullptr, 0)
-
 
 #endif

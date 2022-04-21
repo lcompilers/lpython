@@ -31,13 +31,13 @@ public:
             s.append(color(fg::reset));
         }
     }
-    void visit_ConstantInteger(const ASR::ConstantInteger_t &x) {
+    void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {
         s.append("(");
         if (use_colors) {
             s.append(color(style::bold));
             s.append(color(fg::magenta));
         }
-        s.append("ConstantInteger");
+        s.append("IntegerConstant");
         if (use_colors) {
             s.append(color(fg::reset));
             s.append(color(style::reset));

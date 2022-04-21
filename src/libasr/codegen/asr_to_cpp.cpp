@@ -51,9 +51,9 @@ std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
         if (!start && !end) {
             dims += "*";
         } else if (start && end) {
-            if (ASR::is_a<ASR::ConstantInteger_t>(*start) && ASR::is_a<ASR::ConstantInteger_t>(*end)) {
-                ASR::ConstantInteger_t *s = ASR::down_cast<ASR::ConstantInteger_t>(start);
-                ASR::ConstantInteger_t *e = ASR::down_cast<ASR::ConstantInteger_t>(end);
+            if (ASR::is_a<ASR::IntegerConstant_t>(*start) && ASR::is_a<ASR::IntegerConstant_t>(*end)) {
+                ASR::IntegerConstant_t *s = ASR::down_cast<ASR::IntegerConstant_t>(start);
+                ASR::IntegerConstant_t *e = ASR::down_cast<ASR::IntegerConstant_t>(end);
                 if (s->m_n == 1) {
                     dims += "[" + std::to_string(e->m_n) + "]";
                 } else {
@@ -187,6 +187,7 @@ R"(#include <iostream>
 #include <vector>
 #include <cassert>
 #include <cmath>
+#include <complex>
 #include <Kokkos_Core.hpp>
 #include <lfortran_intrinsics.h>
 
@@ -538,27 +539,27 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         src = indent + target + " = " + value + ";\n";
     }
 
-    void visit_ConstantInteger(const ASR::ConstantInteger_t &x) {
+    void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {
         src = std::to_string(x.m_n);
         last_expr_precedence = 2;
     }
 
-    void visit_ConstantReal(const ASR::ConstantReal_t &x) {
+    void visit_RealConstant(const ASR::RealConstant_t &x) {
         src = std::to_string(x.m_r);
         last_expr_precedence = 2;
     }
 
-    void visit_ConstantString(const ASR::ConstantString_t &x) {
+    void visit_StringConstant(const ASR::StringConstant_t &x) {
         src = "\"" + std::string(x.m_s) + "\"";
         last_expr_precedence = 2;
     }
 
-    void visit_ConstantComplex(const ASR::ConstantComplex_t &x) {
-        src = "{" + std::to_string(x.m_re) + ", " + std::to_string(x.m_im) + "}";
+    void visit_ComplexConstant(const ASR::ComplexConstant_t &x) {
+        src = "std::complex<double>(" + std::to_string(x.m_re) + ", " + std::to_string(x.m_im) + ")";
         last_expr_precedence = 2;
     }
 
-    void visit_ConstantLogical(const ASR::ConstantLogical_t &x) {
+    void visit_LogicalConstant(const ASR::LogicalConstant_t &x) {
         if (x.m_value == true) {
             src = "true";
         } else {
@@ -567,7 +568,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         last_expr_precedence = 2;
     }
 
-    void visit_ConstantSet(const ASR::ConstantSet_t &x) {
+    void visit_SetConstant(const ASR::SetConstant_t &x) {
         std::string out = "{";
         for (size_t i=0; i<x.n_elements; i++) {
             visit_expr(*x.m_elements[i]);
@@ -604,7 +605,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         src = out;
     }
 
-    void visit_ConstantDictionary(const ASR::ConstantDictionary_t &x) {
+    void visit_DictConstant(const ASR::DictConstant_t &x) {
         LFORTRAN_ASSERT(x.n_keys == x.n_values);
         std::string out = "{";
         for(size_t i=0; i<x.n_keys; i++) {
@@ -639,6 +640,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             case (ASR::cast_kindType::IntegerToInteger) : {
                 // In C++, we do not need to cast int <-> long long explicitly:
                 // src = src;
+                break;
+            }
+            case (ASR::cast_kindType::ComplexToComplex) : {
+                break;
+            }
+            case (ASR::cast_kindType::IntegerToComplex) : {
+                src = "std::complex<double>(" + src + ")";
                 break;
             }
             case (ASR::cast_kindType::ComplexToReal) : {
@@ -862,7 +870,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
     }
 
-    void visit_ConstantArray(const ASR::ConstantArray_t &x) {
+    void visit_ArrayConstant(const ASR::ArrayConstant_t &x) {
         std::string out = "from_std_vector<float>({";
         for (size_t i=0; i<x.n_args; i++) {
             this->visit_expr(*x.m_args[i]);
@@ -941,7 +949,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         src = out;
     }
 
-    void visit_Write(const ASR::Write_t &x) {
+    void visit_FileWrite(const ASR::FileWrite_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "std::cout ";
         for (size_t i=0; i<x.n_values; i++) {
@@ -952,7 +960,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         src = out;
     }
 
-    void visit_Read(const ASR::Read_t &x) {
+    void visit_FileRead(const ASR::FileRead_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "// FIXME: READ: std::cout ";
         for (size_t i=0; i<x.n_values; i++) {
@@ -1030,13 +1038,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         if (!c) {
             increment = 1;
         } else {
-            if (c->type == ASR::exprType::ConstantInteger) {
-                increment = ASR::down_cast<ASR::ConstantInteger_t>(c)->m_n;
+            if (c->type == ASR::exprType::IntegerConstant) {
+                increment = ASR::down_cast<ASR::IntegerConstant_t>(c)->m_n;
             } else if (c->type == ASR::exprType::UnaryOp) {
                 ASR::UnaryOp_t *u = ASR::down_cast<ASR::UnaryOp_t>(c);
                 LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
-                LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::ConstantInteger);
-                increment = - ASR::down_cast<ASR::ConstantInteger_t>(u->m_operand)->m_n;
+                LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::IntegerConstant);
+                increment = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_operand)->m_n;
             } else {
                 throw CodeGenError("Do loop increment type not supported");
             }
