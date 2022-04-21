@@ -59,7 +59,7 @@ public:
                     switch( x.m_type->type ) {
                         case ASR::ttypeType::Real: {
                             is_feasible = true;
-                            right_inverse = ASRUtils::EXPR(ASR::make_ConstantReal_t(al, x.m_right->base.loc, 1.0/value, x.m_type));
+                            right_inverse = ASRUtils::EXPR(ASR::make_RealConstant_t(al, x.m_right->base.loc, 1.0/value, x.m_type));
                             break;
                         }
                         default:

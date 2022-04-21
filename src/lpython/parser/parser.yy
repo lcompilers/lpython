@@ -177,8 +177,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> expr_list
 /* %type <vec_ast> expr_list_opt */
 %type <ast> statement
+%type <vec_ast> statements
+%type <vec_ast> statements1
 %type <ast> single_line_statement
-/* %type <ast> multi_line_statement */
+%type <ast> multi_line_statement
 %type <ast> augassign_statement
 %type <operator_type> augassign_op
 %type <ast> pass_statement
@@ -200,20 +202,20 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> del_target
 %type <vec_ast> del_target_list
 %type <ast> return_statement
-/*
 %type <ast> expression_statment
- */
 %type <vec_ast> module
 %type <alias> module_as_id
 %type <vec_alias> module_item_list
+%type <ast> if_statement
+%type <ast> elif_statement
 %type <vec_ast> sep
 %type <ast> sep_one
 
 // Precedence
 
-//%left "or"
-//%left "and"
-//%precedence "not"
+%left "or"
+%left "and"
+%precedence "not"
 %left "==" "!=" ">=" ">" "<=" "<" //"is not" "is" "not in" "in"
 %left "|"
 %left "^"
@@ -244,33 +246,26 @@ units
     ;
 
 script_unit
-    : statement sep   { $$ = SCRIPT_UNIT_STMT($1); }
-    | expr sep        { $$ = SCRIPT_UNIT_EXPR($1); }
+    : statement
     ;
-/*
+
 statements
-    : single_stmt_list TK_NEWLINE { }
-    | sep TK_INDENT statements1 TK_DEDENT { }
+    : TK_INDENT statements1 TK_DEDENT { $$ = $2; }
     ;
 
 statements1
-    : statements1 statement sep { }
-    | statement sep { }
+    : statements1 statement { $$ = $1; LIST_ADD($$, $2); }
+    | statement { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
-single_stmt_list
-    : single_stmt_list ";" single_line_statement { }
-    | single_line_statement { }
-    ;
- */
 statement
-    : single_line_statement
-    /* | multi_line_statement */
+    : single_line_statement sep
+    | multi_line_statement
     ;
 
 single_line_statement
-    /* : expression_statment */
-    : assert_statement
+    : expression_statment
+    | assert_statement
     | assignment_statement
     | augassign_statement
     | ann_assignment_statement
@@ -284,6 +279,14 @@ single_line_statement
     | global_statement
     | if_statement_single
     | nonlocal_statement
+    ;
+
+multi_line_statement
+    : if_statement
+    ;
+
+expression_statment
+    : expr { $$ = EXPR_01($1, @$); }
     ;
 
 pass_statement
@@ -426,6 +429,22 @@ nonlocal_statement
     : KW_NONLOCAL expr_list { $$ = NON_LOCAL($2, @$); }
     ;
 
+elif_statement
+    : KW_ELIF expr ":" sep statements { $$ = IF_STMT_01($2, $5, @$); }
+    | KW_ELIF expr ":" sep statements KW_ELSE ":" sep statements {
+        $$ = IF_STMT_02($2, $5, $9, @$); }
+    | KW_ELIF expr ":" sep statements elif_statement {
+        $$ = IF_STMT_03($2, $5, $6, @$); }
+    ;
+
+if_statement
+    : KW_IF expr ":" sep statements { $$ = IF_STMT_01($2, $5, @$); }
+    | KW_IF expr ":" sep statements KW_ELSE ":" sep statements {
+        $$ = IF_STMT_02($2, $5, $9, @$); }
+    | KW_IF expr ":" sep statements elif_statement {
+        $$ = IF_STMT_03($2, $5, $6, @$); }
+    ;
+
 expr_list
     : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }
     | expr { LIST_NEW($$); LIST_ADD($$, $1); }
@@ -467,6 +486,11 @@ expr
     | expr "<=" expr { $$ = COMPARE($1, LtE, $3, @$); }
     | expr ">" expr { $$ = COMPARE($1, Gt, $3, @$); }
     | expr ">=" expr { $$ = COMPARE($1, GtE, $3, @$); }
+
+    | expr "and" expr { $$ = BOOLOP($1, And, $3, @$); }
+    | expr "or" expr { $$ = BOOLOP($1, Or, $3, @$); }
+    | "not" expr { $$ = UNARY($2, Not, @$); }
+
     ;
 
 id

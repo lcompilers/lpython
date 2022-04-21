@@ -19,6 +19,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
 void test_binop()
 {
+    bool b1;
+    bool b2;
     int x;
     float x2;
     x = std::pow(2, 3);
@@ -31,6 +33,25 @@ void test_binop()
     x = (int)(true) - (int)(false);
     x = (int)(true)*(int)(false);
     x = std::pow((int)(true), (int)(false));
+    b1 = true;
+    b2 = false;
+    x = __lpython_overloaded_2___lpython_floordiv((int)(b1), (int)(b1));
+    x = std::pow((int)(b1), (int)(b2));
+}
+
+int __lpython_overloaded_2___lpython_floordiv(int a, int b)
+{
+    int _lpython_return_variable;
+    float r;
+    int result;
+    r = (float)(a)/(float)(b);
+    result = (int)(r);
+    if (r >= 0.000000 || (float)(result) == r) {
+        _lpython_return_variable = result;
+        return _lpython_return_variable;
+    }
+    _lpython_return_variable = result - 1;
+    return _lpython_return_variable;
 }
 
 namespace {
