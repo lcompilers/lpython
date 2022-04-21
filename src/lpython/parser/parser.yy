@@ -188,6 +188,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> assert_statement
 %type <ast> import_statement
 %type <ast> global_statement
+%type <ast> if_statement_single
 %type <ast> nonlocal_statement
 %type <ast> assignment_statement
 %type <vec_ast> target_list
@@ -281,6 +282,7 @@ single_line_statement
     | continue_statement
     | import_statement
     | global_statement
+    | if_statement_single
     | nonlocal_statement
     ;
 
@@ -414,6 +416,10 @@ import_statement
 
 global_statement
     : KW_GLOBAL expr_list { $$ = GLOBAL($2, @$); }
+    ;
+
+if_statement_single
+    : KW_IF expr TK_COLON single_line_statement { $$ = IF_01($2, $4, @$); }
     ;
 
 nonlocal_statement
