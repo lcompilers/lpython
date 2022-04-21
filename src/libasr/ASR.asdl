@@ -176,11 +176,11 @@ stmt
     | If(expr test, stmt* body, stmt* orelse)
     | IfArithmetic(expr test, int lt_label, int eq_label, int gt_label)
     | Print(expr? fmt, expr* values)
-    | Open(int label, expr? newunit, expr? filename, expr? status)
-    | Close(int label, expr? unit, expr? iostat, expr? iomsg, expr? err, expr? status)
-    | Read(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values)
-    | Rewind(int label, expr? unit, expr? iostat, expr? err)
-    | Inquire(int label, expr? unit, expr? file, expr? iostat, expr? err,
+    | FileOpen(int label, expr? newunit, expr? filename, expr? status)
+    | FileClose(int label, expr? unit, expr? iostat, expr? iomsg, expr? err, expr? status)
+    | FileRead(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values)
+    | FileRewind(int label, expr? unit, expr? iostat, expr? err)
+    | FileInquire(int label, expr? unit, expr? file, expr? iostat, expr? err,
               expr? exist, expr? opened, expr? number, expr? named,
               expr? name, expr? access, expr? sequential, expr? direct,
               expr? form, expr? formatted, expr? unformatted, expr? recl,
@@ -188,7 +188,7 @@ stmt
               expr? read, expr? write, expr? readwrite, expr? delim,
               expr? pad, expr? flen, expr? blocksize, expr? convert,
               expr? carriagecontrol, expr? iolength)
-    | Write(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values)
+    | FileWrite(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values)
     | Return()
     | Select(expr test, case_stmt* body, stmt* default)
     | Stop(expr? code)
@@ -201,6 +201,8 @@ stmt
     | ListAppend(symbol a, expr ele)
     | SetInsert(symbol a, expr ele)
     | SetRemove(symbol a, expr ele)
+    | ListInsert(symbol a, expr pos, expr ele)
+    | ListRemove(symbol a, expr ele)
 
 
 expr

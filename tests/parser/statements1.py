@@ -75,3 +75,10 @@ x < y
 x <= y
 x > y
 x >= y
+
+i: i32 = 4
+if 2 > i : pass
+if i > 5 : break
+
+# TODO: Make compound expressions work
+# if i == 5 and i < 10 : i = 3

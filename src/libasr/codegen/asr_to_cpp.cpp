@@ -949,7 +949,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         src = out;
     }
 
-    void visit_Write(const ASR::Write_t &x) {
+    void visit_FileWrite(const ASR::FileWrite_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "std::cout ";
         for (size_t i=0; i<x.n_values; i++) {
@@ -960,7 +960,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         src = out;
     }
 
-    void visit_Read(const ASR::Read_t &x) {
+    void visit_FileRead(const ASR::FileRead_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "// FIXME: READ: std::cout ";
         for (size_t i=0; i<x.n_values; i++) {

@@ -1736,6 +1736,18 @@ public:
             this->visit_expr(*x.m_value);
             value = ASRUtils::EXPR(tmp);
             value = cast_helper(type, value, true);
+            if (!ASRUtils::check_equal_type(type, ASRUtils::expr_type(value))) {
+                std::string ltype = ASRUtils::type_to_str(type);
+                std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(value));
+                diag.add(diag::Diagnostic(
+                    "Type mismatch in annotation-assignment, the types must be compatible",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
+                                {x.m_target->base.loc, value->base.loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
         }
         ASR::expr_t *init_expr = nullptr;
         ASR::intentType s_intent = ASRUtils::intent_local;
@@ -2427,6 +2439,45 @@ public:
                                         ASRUtils::type_to_str(list_type) + ").", x.base.base.loc);
                                 }
                                 tmp = make_ListAppend_t(al, x.base.base.loc, t, ele);
+                                return;
+                            } else if (attr == "insert") {
+                                if (c->n_args != 2) {
+                                    throw SemanticError("insert() takes exactly two arguments",
+                                        x.base.base.loc);
+                                }
+                                visit_expr(*c->m_args[0]);
+                                ASR::expr_t *pos = ASRUtils::EXPR(tmp);
+                                ASR::ttype_t *pos_type = ASRUtils::expr_type(pos);
+                                ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                                                            4, nullptr, 0));
+                                if (!ASRUtils::check_equal_type(pos_type, int_type)) {
+                                    throw SemanticError("List index should be of integer type",
+                                                        x.base.base.loc);
+                                }
+                                visit_expr(*c->m_args[1]);
+                                ASR::expr_t *ele = ASRUtils::EXPR(tmp);
+                                ASR::ttype_t *ele_type = ASRUtils::expr_type(ele);
+                                if (!ASRUtils::check_equal_type(ele_type, list_type)) {
+                                    throw SemanticError("Type mismatch while inserting to a list, found (" +
+                                        ASRUtils::type_to_str(ele_type) + " and " +
+                                        ASRUtils::type_to_str(list_type) + ").", x.base.base.loc);
+                                }
+                                tmp = make_ListInsert_t(al, x.base.base.loc, t, pos, ele);
+                                return;
+                            } if (attr == "remove") {
+                                if (c->n_args != 1) {
+                                    throw SemanticError("remove() takes exactly one argument",
+                                        x.base.base.loc);
+                                }
+                                visit_expr(*c->m_args[0]);
+                                ASR::expr_t *ele = ASRUtils::EXPR(tmp);
+                                ASR::ttype_t *ele_type = ASRUtils::expr_type(ele);
+                                if (!ASRUtils::check_equal_type(ele_type, list_type)) {
+                                    throw SemanticError("Type mismatch while removing from a list, found (" +
+                                        ASRUtils::type_to_str(ele_type) + " and " +
+                                        ASRUtils::type_to_str(list_type) + ").", x.base.base.loc);
+                                }
+                                tmp = make_ListRemove_t(al, x.base.base.loc, t, ele);
                                 return;
                             } else {
                                 throw SemanticError("'" + attr + "' is not implemented for List type",

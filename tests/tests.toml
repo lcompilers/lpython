@@ -269,6 +269,10 @@ ast_new = true
 filename = "parser/statements1.py"
 ast_new = true
 
+[[test]]
+filename = "parser/if1.py"
+ast_new = true
+
 # tests/errors
 
 [[test]]
@@ -281,6 +285,10 @@ asr = true
 
 [[test]]
 filename = "errors/test_str_slicing.py"
+asr = true
+
+[[test]]
+filename = "errors/test_annassign_type_mismatch.py"
 asr = true
 
 [[test]]
