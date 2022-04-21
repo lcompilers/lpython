@@ -18,3 +18,5 @@ def test_List():
     e = [['a', 'b', 'c'], ['d', 'e']]
 
     a.append(10)
+    a.remove(1)
+    a.insert(2, 13)
