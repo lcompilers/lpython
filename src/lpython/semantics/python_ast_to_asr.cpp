@@ -2497,7 +2497,7 @@ public:
                                 ASR::expr_t *ele = ASRUtils::EXPR(tmp);
                                 ASR::ttype_t *ele_type = ASRUtils::expr_type(ele);
                                 if (!ASRUtils::check_equal_type(ele_type, set_type)) {
-                                    throw SemanticError("Found type mismatch, (" +
+                                    throw SemanticError("Found type mismatch in '" + attr + "'(" +
                                         ASRUtils::type_to_str(ele_type) + " and " +
                                         ASRUtils::type_to_str(set_type) + ").", x.base.base.loc);
                                 }
