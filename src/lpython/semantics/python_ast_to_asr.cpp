@@ -814,6 +814,11 @@ public:
                                     value);
             return;
 
+        } else if (ASR::is_a<ASR::List_t>(*left_type) && ASR::is_a<ASR::List_t>(*right_type)
+                   && op == ASR::binopType::Add) {
+            dest_type = left_type;
+            tmp = ASR::make_ListConcat_t(al, loc, left, right, dest_type, value);
+            return;
         } else {
             std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
