@@ -302,3 +302,11 @@ asr = true
 [[test]]
 filename = "errors/test_list2.py"
 asr = true
+
+[[test]]
+filename = "errors/test_set1.py"
+asr = true
+
+[[test]]
+filename = "errors/test_set2.py"
+asr = true
