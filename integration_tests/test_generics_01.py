@@ -1,6 +1,7 @@
 from overload_testing import foo, test
-from ltypes import overload, i32
+from ltypes import overload, i32, i64
 import overload_testing2
+
 
 @overload
 def foo1(a: i32, b: i32) -> i32:
@@ -14,6 +15,7 @@ def foo1(a: i32) -> i32:
 def foo1(a: str) -> str:
     return "lpython-is-fun-" + a
 
+
 @overload
 def test1(a: i32) -> i32:
     return a + 20
@@ -23,6 +25,19 @@ def test1(a: bool) -> i32:
     if a:
         return 20
     return -20
+
+
+@overload
+def add(a: i32):
+    print(a)
+
+@overload
+def add(a: i32, b: i32):
+    print(a + b)
+
+@overload
+def add(a: i32, b: i64):
+    print(a + b)
 
 
 def check():
@@ -41,5 +56,11 @@ def check():
     assert test(False) == -test(True) and test(True) == 10
     assert test1(False) == -test1(True) and test1(True) == 20
     assert overload_testing2.test2(True) == 30
+    # We are testing the subroutine using print to test it actually works
+    add(1, 2)
+    add(3)
+    i: i64
+    i = 10
+    add(2, i)
 
 check()
