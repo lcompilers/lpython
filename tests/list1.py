@@ -20,3 +20,4 @@ def test_List():
     a.append(10)
     a.remove(1)
     a.insert(2, 13)
+    a += [4, 5]
