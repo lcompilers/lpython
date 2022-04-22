@@ -2560,8 +2560,8 @@ public:
                 throw SemanticError("Function '" + call_name + "' is not declared",
                     x.base.base.loc);
             }
-            tmp = ASR::make_SubroutineCall_t(al, x.base.base.loc, s,
-                nullptr, args.p, args.size(), nullptr);
+            tmp = make_call_helper(al, s, current_scope, args, call_name,
+                    x.base.base.loc);
             return;
         }
         this->visit_expr(*x.m_value);
