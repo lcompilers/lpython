@@ -212,6 +212,11 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> except_statement
 %type <vec_ast> except_list
 %type <ast> try_statement
+%type <ast> function_def
+%type <vec_arg> parameter_list_opt
+%type <arg> parameter
+%type <vec_ast> decorators
+%type <vec_ast> decorators_opt
 %type <vec_ast> sep
 %type <ast> sep_one
 
@@ -289,6 +294,7 @@ multi_line_statement
     : if_statement
     | for_statement
     | try_statement
+    | function_def
     ;
 
 expression_statment
@@ -478,7 +484,33 @@ try_statement
     | KW_TRY ":" sep statements KW_FINALLY ":" sep statements { $$ = TRY_05($4, $8, @$); }
     ;
 
+decorators_opt
+    : decorators { $$ = $1; }
+    | %empty { LIST_NEW($$); }
+    ;
 
+decorators
+    : decorators "@" expr TK_NEWLINE { $$ = $1; LIST_ADD($$, $3); }
+    | "@" expr TK_NEWLINE { LIST_NEW($$); LIST_ADD($$, $2); }
+    ;
+
+parameter
+    : id { $$ = ARGS_01($1, @$); }
+    | id ":" expr { $$ = ARGS_02($1, $3, @$); }
+    ;
+
+parameter_list_opt
+    : parameter_list_opt "," parameter { $$ = $1; PLIST_ADD($$, $3); }
+    | parameter { LIST_NEW($$); PLIST_ADD($$, $1); }
+    | %empty { LIST_NEW($$); }
+    ;
+
+function_def
+    : decorators_opt KW_DEF id "(" parameter_list_opt ")" ":" sep statements {
+        $$ = FUNCTION_01($1, $3, $5, $9, @$); }
+    | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
+        sep statements { $$ = FUNCTION_02($1, $3, $5, $8, $11, @$); }
+    ;
 
 expr_list
     : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }

@@ -190,6 +190,57 @@ int dot_count = 0;
 #define EXCEPT_03(e, id, stmts, l) make_ExceptHandler_t(p.m_a, l, \
         EXPR(e), name2char(id), STMTS(stmts), stmts.size())
 
+static inline arg_t *FUNC_ARG(Allocator &al, Location &l, char *arg, expr_t* e) {
+    arg_t *r = al.allocate<arg_t>();
+    r->loc = l;
+    r->m_arg = arg;
+    r->m_annotation = e;
+    r->m_type_comment = nullptr;
+    return r;
+}
+
+static inline arguments_t FUNC_ARGS(Location &l,
+    arg_t* m_posonlyargs, size_t n_posonlyargs, arg_t* m_args, size_t n_args,
+    arg_t* m_vararg, size_t n_vararg, arg_t* m_kwonlyargs, size_t n_kwonlyargs,
+    expr_t** m_kw_defaults, size_t n_kw_defaults, arg_t* m_kwarg, size_t n_kwarg,
+    expr_t** m_defaults, size_t n_defaults) {
+    arguments_t r;
+    r.loc = l;
+    r.m_posonlyargs = m_posonlyargs;
+    r.n_posonlyargs = n_posonlyargs;
+    r.m_args = m_args;
+    r.n_args = n_args;
+    r.m_vararg = m_vararg;
+    r.n_vararg = n_vararg;
+    r.m_kwonlyargs = m_kwonlyargs;
+    r.n_kwonlyargs = n_kwonlyargs;
+    r.m_kw_defaults = m_kw_defaults;
+    r.n_kw_defaults = n_kw_defaults;
+    r.m_kwarg = m_kwarg;
+    r.n_kwarg = n_kwarg;
+    r.m_defaults = m_defaults;
+    r.n_defaults = n_defaults;
+    return r;
+}
+
+#define ARGS_01(arg, l) FUNC_ARG(p.m_a, l, name2char((ast_t *)arg), nullptr)
+#define ARGS_02(arg, annotation, l) FUNC_ARG(p.m_a, l, \
+        name2char((ast_t *)arg), EXPR(annotation))
+#define FUNCTION_01(decorator, id, args, stmts, l) \
+        make_FunctionDef_t(p.m_a, l, name2char(id), \
+        FUNC_ARGS(l, nullptr, 0, args.p, args.n, nullptr, 0, \
+            nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0), \
+        STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size(), \
+        nullptr, nullptr)
+#define FUNCTION_02(decorator, id, args, return, stmts, l) \
+        make_FunctionDef_t(p.m_a, l, name2char(id), \
+        FUNC_ARGS(l, nullptr, 0, args.p, args.n, nullptr, 0, \
+            nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0), \
+        STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size(), \
+        EXPR(return), nullptr)
+
 Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
     Vec<ast_t*> v;
     v.reserve(al, 2);
