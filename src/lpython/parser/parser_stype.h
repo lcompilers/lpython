@@ -26,6 +26,9 @@ union YYSTYPE {
     LPython::AST::alias_t* alias;
     Vec<LPython::AST::alias_t> vec_alias;
 
+    LPython::AST::arg_t* arg;
+    Vec<LPython::AST::arg_t> vec_arg;
+
     LPython::AST::operatorType operator_type;
 };
 

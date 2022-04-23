@@ -273,6 +273,22 @@ ast_new = true
 filename = "parser/if1.py"
 ast_new = true
 
+[[test]]
+filename = "parser/for1.py"
+ast_new = true
+
+[[test]]
+filename = "parser/try1.py"
+ast_new = true
+
+[[test]]
+filename = "parser/function_def1.py"
+ast_new = true
+
+[[test]]
+filename = "parser/class_def1.py"
+ast_new = true
+
 # tests/errors
 
 [[test]]

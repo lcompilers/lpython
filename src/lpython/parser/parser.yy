@@ -175,7 +175,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> id
 %type <ast> expr
 %type <vec_ast> expr_list
-/* %type <vec_ast> expr_list_opt */
+%type <vec_ast> expr_list_opt
 %type <ast> statement
 %type <vec_ast> statements
 %type <vec_ast> statements1
@@ -208,6 +208,16 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_alias> module_item_list
 %type <ast> if_statement
 %type <ast> elif_statement
+%type <ast> for_statement
+%type <ast> except_statement
+%type <vec_ast> except_list
+%type <ast> try_statement
+%type <ast> function_def
+%type <vec_arg> parameter_list_opt
+%type <arg> parameter
+%type <vec_ast> decorators
+%type <vec_ast> decorators_opt
+%type <ast> class_def
 %type <vec_ast> sep
 %type <ast> sep_one
 
@@ -225,6 +235,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %left "%" "//" "/" "@" "*"
 %precedence UNARY
 %right "**"
+%precedence "."
 
 %start units
 
@@ -283,6 +294,10 @@ single_line_statement
 
 multi_line_statement
     : if_statement
+    | for_statement
+    | try_statement
+    | function_def
+    | class_def
     ;
 
 expression_statment
@@ -314,8 +329,7 @@ assert_statement
 
 target
     : id { $$ = TARGET_ID($1, @$); }
-    | expr "." id { }
-    | expr "[" expr_list "]" { }
+    | expr "." id { $$ = TARGET_ATTR($1, $3, @$); }
     ;
 
 target_item_list
@@ -445,6 +459,71 @@ if_statement
         $$ = IF_STMT_03($2, $5, $6, @$); }
     ;
 
+for_statement
+    : KW_FOR target KW_IN expr ":" sep statements { $$ = FOR_01($2, $4, $7, @$); }
+    | KW_FOR target KW_IN expr ":" sep statements KW_ELSE ":" sep statements {
+        $$ = FOR_02($2, $4, $7, $11, @$); }
+    ;
+
+except_statement
+    : KW_EXCEPT ":" sep statements { $$ = EXCEPT_01($4, @$); }
+    | KW_EXCEPT expr ":" sep statements { $$ = EXCEPT_02($2, $5, @$); }
+    | KW_EXCEPT expr KW_AS id ":" sep statements { $$ = EXCEPT_03($2, $4, $7, @$); }
+    ;
+except_list
+    : except_list except_statement { $$ = $1; LIST_ADD($$, $2); }
+    | except_statement { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+try_statement
+    : KW_TRY ":" sep statements except_list { $$ = TRY_01($4, $5, @$); }
+    | KW_TRY ":" sep statements except_list KW_ELSE ":" sep statements {
+        $$ = TRY_02($4, $5, $9, @$); }
+    | KW_TRY ":" sep statements except_list KW_FINALLY ":" sep statements {
+        $$ = TRY_03($4, $5, $9, @$); }
+    | KW_TRY ":" sep statements except_list KW_ELSE ":" sep statements KW_FINALLY
+        ":" sep statements { $$ = TRY_04($4, $5, $9, $13, @$); }
+    | KW_TRY ":" sep statements KW_FINALLY ":" sep statements { $$ = TRY_05($4, $8, @$); }
+    ;
+
+decorators_opt
+    : decorators { $$ = $1; }
+    | %empty { LIST_NEW($$); }
+    ;
+
+decorators
+    : decorators "@" expr TK_NEWLINE { $$ = $1; LIST_ADD($$, $3); }
+    | "@" expr TK_NEWLINE { LIST_NEW($$); LIST_ADD($$, $2); }
+    ;
+
+parameter
+    : id { $$ = ARGS_01($1, @$); }
+    | id ":" expr { $$ = ARGS_02($1, $3, @$); }
+    ;
+
+parameter_list_opt
+    : parameter_list_opt "," parameter { $$ = $1; PLIST_ADD($$, $3); }
+    | parameter { LIST_NEW($$); PLIST_ADD($$, $1); }
+    | %empty { LIST_NEW($$); }
+    ;
+
+function_def
+    : decorators_opt KW_DEF id "(" parameter_list_opt ")" ":" sep statements {
+        $$ = FUNCTION_01($1, $3, $5, $9, @$); }
+    | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
+        sep statements { $$ = FUNCTION_02($1, $3, $5, $8, $11, @$); }
+    ;
+
+class_def
+    : decorators_opt KW_CLASS id ":" sep statements { $$ = CLASS_01($1, $3, $6, @$); }
+    | decorators_opt KW_CLASS id "(" expr_list_opt ")" ":" sep statements {
+        $$ = CLASS_02($1, $3, $5, $9, @$); }
+    ;
+
+expr_list_opt
+    : expr_list { $$ = $1; }
+    | %empty { LIST_NEW($$); }
+
 expr_list
     : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }
     | expr { LIST_NEW($$); LIST_ADD($$, $1); }
@@ -459,8 +538,11 @@ expr
     | TK_TRUE { $$ = BOOL(true, @$); }
     | TK_FALSE { $$ = BOOL(false, @$); }
     | "(" expr ")" { $$ = $2; }
-    | id "(" ")" { $$ = CALL_01($1, @$); }
-    | id "(" expr_list ")" { $$ = CALL_02($1, $3, @$); }
+    | id "(" expr_list_opt ")" { $$ = CALL_01($1, $3, @$); }
+    | "[" expr_list_opt "]" { $$ = LIST($2, @$); }
+    | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
+    | expr "." id "(" expr_list_opt ")" {
+        $$ = CALL_01(ATTRIBUTE_REF($1, $3, @$), $5, @$); }
 
     | expr "+" expr { $$ = BINOP($1, Add, $3, @$); }
     | expr "-" expr { $$ = BINOP($1, Sub, $3, @$); }
