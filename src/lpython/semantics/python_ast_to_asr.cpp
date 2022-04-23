@@ -621,7 +621,7 @@ public:
                     al, right->base.loc, right, ASR::cast_kindType::IntegerToComplex, left_type,
                     nullptr));
             } else {
-                std::string rtype = ASRUtils::type_to_str(right_type);
+                std::string rtype = ASRUtils::type_to_str_python(right_type);
                 throw SemanticError("Casting " + rtype + " to complex is not Implemented",
                         right->base.loc);
             }
@@ -655,7 +655,7 @@ public:
                         al, right->base.loc, right, ASR::cast_kindType::IntegerToComplex, left_type,
                         nullptr));
                 } else {
-                    std::string ltype = ASRUtils::type_to_str(left_type);
+                    std::string ltype = ASRUtils::type_to_str_python(left_type);
                     throw SemanticError("Binary Operation not implemented for bool and " + ltype,
                             right->base.loc);
                 }
@@ -834,8 +834,8 @@ public:
             tmp = ASR::make_ListConcat_t(al, loc, left, right, dest_type, value);
             return;
         } else {
-            std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
-            std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
+            std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
+            std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
             diag.add(diag::Diagnostic(
                 "Type mismatch in binary operator; the types must be compatible",
                 diag::Level::Error, diag::Stage::Semantic, {
@@ -849,8 +849,8 @@ public:
         // Check that the types are now the same
         if (!ASRUtils::check_equal_type(ASRUtils::expr_type(left),
                                     ASRUtils::expr_type(right))) {
-            std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
-            std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
+            std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
+            std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
             diag.add(diag::Diagnostic(
                 "Type mismatch in binary operator, the types must be compatible",
                 diag::Level::Error, diag::Stage::Semantic, {
@@ -1146,7 +1146,7 @@ public:
                         case (ASR::unaryopType::USub): { result = -op_value; break; }
                         default: {
                             throw SemanticError("Bad operand type for unary " +
-                                ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str(operand_type),
+                                ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str_python(operand_type),
                                 x.base.base.loc);
                         }
                     }
@@ -1189,7 +1189,7 @@ public:
                         case (ASR::unaryopType::USub): { result = -op_value; break; }
                         default: {
                             throw SemanticError("Bad operand type for unary " +
-                                ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str(operand_type),
+                                ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str_python(operand_type),
                                 x.base.base.loc);
                         }
                     }
@@ -1257,7 +1257,7 @@ public:
                 index = ASRUtils::EXPR(tmp);
                 ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(index), key_type)) {
-                    throw SemanticError("Key type must be: " + ASRUtils::type_to_str(key_type),
+                    throw SemanticError("Key type must be: " + ASRUtils::type_to_str_python(key_type),
                             x.base.base.loc);
                 }
             } else {
@@ -1756,12 +1756,12 @@ public:
             value = ASRUtils::EXPR(tmp);
             value = cast_helper(type, value, true);
             if (!ASRUtils::check_equal_type(type, ASRUtils::expr_type(value))) {
-                std::string ltype = ASRUtils::type_to_str(type);
-                std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(value));
+                std::string ltype = ASRUtils::type_to_str_python(type);
+                std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(value));
                 diag.add(diag::Diagnostic(
                     "Type mismatch in annotation-assignment, the types must be compatible",
                     diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
+                        diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
                                 {x.m_target->base.loc, value->base.loc})
                     })
                 );
@@ -1834,12 +1834,12 @@ public:
             ASR::expr_t *value = ASRUtils::EXPR(tmp);
             if (!ASRUtils::check_equal_type(ASRUtils::expr_type(target),
                                         ASRUtils::expr_type(value))) {
-                std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(target));
-                std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(value));
+                std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(target));
+                std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(value));
                 diag.add(diag::Diagnostic(
                     "Type mismatch in assignment, the types must be compatible",
                     diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
+                        diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
                                 {target->base.loc, value->base.loc})
                     })
                 );
@@ -2184,12 +2184,12 @@ public:
         // Check that the types are now the same
         if (!ASRUtils::check_equal_type(ASRUtils::expr_type(left),
                                     ASRUtils::expr_type(right))) {
-            std::string ltype = ASRUtils::type_to_str(ASRUtils::expr_type(left));
-            std::string rtype = ASRUtils::type_to_str(ASRUtils::expr_type(right));
+            std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
+            std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
             diag.add(diag::Diagnostic(
                 "Type mismatch in comparison operator, the types must be compatible",
                 diag::Level::Error, diag::Stage::Semantic, {
-                    diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
+                    diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
                             {left->base.loc, right->base.loc})
                 })
             );
@@ -2363,8 +2363,8 @@ public:
         ASR::ttype_t *target_type = ASRUtils::expr_type(target);
         ASR::ttype_t *value_type = ASRUtils::expr_type(value);
         if (!ASRUtils::check_equal_type(target_type, value_type)) {
-            std::string ltype = ASRUtils::type_to_str(target_type);
-            std::string rtype = ASRUtils::type_to_str(value_type);
+            std::string ltype = ASRUtils::type_to_str_python(target_type);
+            std::string rtype = ASRUtils::type_to_str_python(value_type);
             throw SemanticError("Type Mismatch in return, found (" +
                     ltype + " and " + rtype + ")", x.base.base.loc);
         }
@@ -2453,9 +2453,9 @@ public:
                                 ASR::expr_t *ele = ASRUtils::EXPR(tmp);
                                 ASR::ttype_t *ele_type = ASRUtils::expr_type(ele);
                                 if (!ASRUtils::check_equal_type(ele_type, list_type)) {
-                                    throw SemanticError("Type mismatch while appending to a list, found (" +
-                                        ASRUtils::type_to_str(ele_type) + " and " +
-                                        ASRUtils::type_to_str(list_type) + ").", x.base.base.loc);
+                                    throw SemanticError("Type mismatch while appending to a list, found ('" +
+                                        ASRUtils::type_to_str_python(ele_type) + "' and '" +
+                                        ASRUtils::type_to_str_python(list_type) + "').", x.base.base.loc);
                                 }
                                 tmp = make_ListAppend_t(al, x.base.base.loc, t, ele);
                                 return;
@@ -2477,9 +2477,9 @@ public:
                                 ASR::expr_t *ele = ASRUtils::EXPR(tmp);
                                 ASR::ttype_t *ele_type = ASRUtils::expr_type(ele);
                                 if (!ASRUtils::check_equal_type(ele_type, list_type)) {
-                                    throw SemanticError("Type mismatch while inserting to a list, found (" +
-                                        ASRUtils::type_to_str(ele_type) + " and " +
-                                        ASRUtils::type_to_str(list_type) + ").", x.base.base.loc);
+                                    throw SemanticError("Type mismatch while inserting to a list, found ('" +
+                                        ASRUtils::type_to_str_python(ele_type) + "' and '" +
+                                        ASRUtils::type_to_str_python(list_type) + "').", x.base.base.loc);
                                 }
                                 tmp = make_ListInsert_t(al, x.base.base.loc, t, pos, ele);
                                 return;
@@ -2492,9 +2492,9 @@ public:
                                 ASR::expr_t *ele = ASRUtils::EXPR(tmp);
                                 ASR::ttype_t *ele_type = ASRUtils::expr_type(ele);
                                 if (!ASRUtils::check_equal_type(ele_type, list_type)) {
-                                    throw SemanticError("Type mismatch while removing from a list, found (" +
-                                        ASRUtils::type_to_str(ele_type) + " and " +
-                                        ASRUtils::type_to_str(list_type) + ").", x.base.base.loc);
+                                    throw SemanticError("Type mismatch while removing from a list, found ('" +
+                                        ASRUtils::type_to_str_python(ele_type) + "' and '" +
+                                        ASRUtils::type_to_str_python(list_type) + "').", x.base.base.loc);
                                 }
                                 tmp = make_ListRemove_t(al, x.base.base.loc, t, ele);
                                 return;
@@ -2516,9 +2516,9 @@ public:
                                 ASR::expr_t *ele = ASRUtils::EXPR(tmp);
                                 ASR::ttype_t *ele_type = ASRUtils::expr_type(ele);
                                 if (!ASRUtils::check_equal_type(ele_type, set_type)) {
-                                    throw SemanticError("Found type mismatch in '" + attr + "'(" +
-                                        ASRUtils::type_to_str(ele_type) + " and " +
-                                        ASRUtils::type_to_str(set_type) + ").", x.base.base.loc);
+                                    throw SemanticError("Found type mismatch in '" + attr + "' ('" +
+                                        ASRUtils::type_to_str_python(ele_type) + "' and '" +
+                                        ASRUtils::type_to_str_python(set_type) + "').", x.base.base.loc);
                                 }
                                 if (attr == "add") {
                                     tmp = make_SetInsert_t(al, x.base.base.loc, t, ele);
@@ -2622,7 +2622,7 @@ public:
             al, loc, arg, ASR::cast_kindType::LogicalToInteger,
             to_type, value));
         } else if (!ASRUtils::is_integer(*type)) {
-            std::string stype = ASRUtils::type_to_str(type);
+            std::string stype = ASRUtils::type_to_str_python(type);
             throw SemanticError(
                 "Conversion of '" + stype + "' to integer is not Implemented",
                 loc);
@@ -2673,7 +2673,7 @@ public:
             al, loc, t, ASR::cast_kindType::IntegerToReal,
             to_type, value));
         } else if (!ASRUtils::is_real(*type)) {
-            std::string stype = ASRUtils::type_to_str(type);
+            std::string stype = ASRUtils::type_to_str_python(type);
             throw SemanticError(
                 "Conversion of '" + stype + "' to float is not Implemented",
                 loc);
