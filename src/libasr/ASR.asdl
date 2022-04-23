@@ -225,7 +225,10 @@ expr
     | RealConstant(float r, ttype type)
     | ComplexConstant(float re, float im, ttype type)
     | LogicalConstant(bool value, ttype type)
+
     | ListConstant(expr* args, ttype type)
+    | ListConcat(expr left, expr right, ttype type, expr? value)
+
     | ArrayConstant(expr* args, ttype type)
     | SetConstant(expr* elements, ttype type)
     | TupleConstant(expr* elements, ttype type)
