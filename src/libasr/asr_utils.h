@@ -110,6 +110,7 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::ComplexConstant: { return ((ASR::ComplexConstant_t*)f)->m_type; }
         case ASR::exprType::SetConstant: { return ((ASR::SetConstant_t*)f)->m_type; }
         case ASR::exprType::ListConstant: { return ((ASR::ListConstant_t*)f)->m_type; }
+        case ASR::exprType::ListConcat: { return ((ASR::ListConcat_t*)f)->m_type; }
         case ASR::exprType::TupleConstant: { return ((ASR::TupleConstant_t*)f)->m_type; }
         case ASR::exprType::LogicalConstant: { return ((ASR::LogicalConstant_t*)f)->m_type; }
         case ASR::exprType::StringConstant: { return ((ASR::StringConstant_t*)f)->m_type; }
