@@ -334,7 +334,7 @@ target
 
 target_item_list
     : target_item_list "," target { $$ = $1; LIST_ADD($$, $3); }
-    | target { LIST_NEW($$); LIST_ADD($$, $1); }
+    | target "," target { LIST_NEW($$); LIST_ADD($$, $1); LIST_ADD($$, $3); }
     ;
 
 target_item
@@ -344,6 +344,8 @@ target_item
 target_list
     : target_list target_item "=" { $$ = $1; LIST_ADD($$, $2); }
     | target_item "=" { LIST_NEW($$); LIST_ADD($$, $1); }
+    | target_list target "=" { $$ = $1; LIST_ADD($$, $2); }
+    | target "=" { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 assignment_statement
