@@ -208,6 +208,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_alias> module_item_list
 %type <ast> if_statement
 %type <ast> elif_statement
+%type <ast> for_statement
 %type <vec_ast> sep
 %type <ast> sep_one
 
@@ -283,6 +284,7 @@ single_line_statement
 
 multi_line_statement
     : if_statement
+    | for_statement
     ;
 
 expression_statment
@@ -443,6 +445,12 @@ if_statement
         $$ = IF_STMT_02($2, $5, $9, @$); }
     | KW_IF expr ":" sep statements elif_statement {
         $$ = IF_STMT_03($2, $5, $6, @$); }
+    ;
+
+for_statement
+    : KW_FOR target KW_IN expr ":" sep statements { $$ = FOR_01($2, $4, $7, @$); }
+    | KW_FOR target KW_IN expr ":" sep statements KW_ELSE ":" sep statements {
+        $$ = FOR_02($2, $4, $7, $11, @$); }
     ;
 
 expr_list

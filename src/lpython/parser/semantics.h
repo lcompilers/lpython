@@ -158,6 +158,13 @@ int dot_count = 0;
 #define IF_STMT_03(e, stmt, orelse, l) make_If_t(p.m_a, l, \
         EXPR(e), STMTS(stmt), stmt.size(), STMTS(A2LIST(p.m_a, orelse)), 1)
 
+#define FOR_01(target, iter, stmts, l) make_For_t(p.m_a, l, \
+        EXPR(target), EXPR(iter), STMTS(stmts), stmts.size(), \
+        nullptr, 0, nullptr)
+#define FOR_02(target, iter, stmts, orelse, l) make_For_t(p.m_a, l, \
+        EXPR(target), EXPR(iter), STMTS(stmts), stmts.size(), \
+        STMTS(orelse), orelse.size(), nullptr)
+
 Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
     Vec<ast_t*> v;
     v.reserve(al, 2);
