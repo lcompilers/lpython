@@ -157,6 +157,40 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
     }
 }
 
+static inline std::string type_to_str_python(const ASR::ttype_t *t)
+{
+    switch (t->type) {
+        case ASR::ttypeType::Integer: {
+            return "int";
+        }
+        case ASR::ttypeType::Real: {
+            return "float";
+        }
+        case ASR::ttypeType::Complex: {
+            return "complex";
+        }
+        case ASR::ttypeType::Logical: {
+            return "bool";
+        }
+        case ASR::ttypeType::Character: {
+            return "str";
+        }
+        case ASR::ttypeType::Tuple: {
+            return "tuple";
+        }
+        case ASR::ttypeType::Set: {
+            return "set";
+        }
+        case ASR::ttypeType::Dict: {
+            return "dict";
+        }
+        case ASR::ttypeType::List: {
+            return "list";
+        }
+        default : throw LFortranException("Not implemented");
+    }
+}
+
 static inline std::string unop_to_str(const ASR::unaryopType t) {
     switch (t) {
         case (ASR::unaryopType::Not): { return "!"; }
