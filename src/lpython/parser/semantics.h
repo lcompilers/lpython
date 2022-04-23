@@ -165,6 +165,31 @@ int dot_count = 0;
         EXPR(target), EXPR(iter), STMTS(stmts), stmts.size(), \
         STMTS(orelse), orelse.size(), nullptr)
 
+#define TRY_01(stmts, except, l) make_Try_t(p.m_a, l, \
+        STMTS(stmts), stmts.size(), \
+        VEC_CAST(except, excepthandler), except.size(), nullptr, 0, nullptr, 0)
+#define TRY_02(stmts, except, orelse, l) make_Try_t(p.m_a, l, \
+        STMTS(stmts), stmts.size(), \
+        VEC_CAST(except, excepthandler), except.size(), \
+        STMTS(orelse), orelse.size(), nullptr, 0)
+#define TRY_03(stmts, except, final, l) make_Try_t(p.m_a, l, \
+        STMTS(stmts), stmts.size(), \
+        VEC_CAST(except, excepthandler), except.size(), nullptr, 0, \
+        STMTS(final), final.size())
+#define TRY_04(stmts, except, orelse, final, l) make_Try_t(p.m_a, l, \
+        STMTS(stmts), stmts.size(), \
+        VEC_CAST(except, excepthandler), except.size(), \
+        STMTS(orelse), orelse.size(), STMTS(final), final.size())
+#define TRY_05(stmts, final, l) make_Try_t(p.m_a, l, \
+        STMTS(stmts), stmts.size(), \
+        nullptr, 0, nullptr, 0, STMTS(final), final.size())
+#define EXCEPT_01(stmts, l) make_ExceptHandler_t(p.m_a, l, \
+        nullptr, nullptr, STMTS(stmts), stmts.size())
+#define EXCEPT_02(e, stmts, l) make_ExceptHandler_t(p.m_a, l, \
+        EXPR(e), nullptr, STMTS(stmts), stmts.size())
+#define EXCEPT_03(e, id, stmts, l) make_ExceptHandler_t(p.m_a, l, \
+        EXPR(e), name2char(id), STMTS(stmts), stmts.size())
+
 Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
     Vec<ast_t*> v;
     v.reserve(al, 2);
