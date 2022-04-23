@@ -101,6 +101,8 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
         EXPRS(targets), targets.size(), EXPR(val), nullptr)
 #define TARGET_ID(name, l) make_Name_t(p.m_a, l, \
         name2char(name), expr_contextType::Store)
+#define TARGET_ATTR(val, attr, l) make_Attribute_t(p.m_a, l, \
+        EXPR(val), name2char(attr), expr_contextType::Store)
 #define TUPLE_01(elts, l) make_Tuple_t(p.m_a, l, \
         EXPRS(elts), elts.size(), expr_contextType::Store)
 
@@ -241,6 +243,16 @@ static inline arguments_t FUNC_ARGS(Location &l,
         EXPRS(decorator), decorator.size(), \
         EXPR(return), nullptr)
 
+#define CLASS_01(decorator, id, stmts, l) make_ClassDef_t(p.m_a, l, \
+        name2char(id), nullptr, 0, nullptr, 0, \
+        STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size())
+#define CLASS_02(decorator, id, args, stmts, l) make_ClassDef_t(p.m_a, l, \
+        name2char(id), EXPRS(args), args.size(), nullptr, 0, \
+        STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size())
+
+
 Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
     Vec<ast_t*> v;
     v.reserve(al, 2);
@@ -268,9 +280,11 @@ Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
 #define COMPLEX(x, l) make_ConstantComplex_t(p.m_a, l, \
         0, std::stof(x.int_n.str()), nullptr)
 #define BOOL(x, l) make_ConstantBool_t(p.m_a, l, x, nullptr)
-#define CALL_01(func, l) make_Call_t(p.m_a, l, \
-        EXPR(func), nullptr, 0, nullptr, 0)
-#define CALL_02(func, args, l) make_Call_t(p.m_a, l, \
+#define CALL_01(func, args, l) make_Call_t(p.m_a, l, \
         EXPR(func), EXPRS(args), args.size(), nullptr, 0)
+#define LIST(e, l) make_List_t(p.m_a, l, \
+        EXPRS(e), e.size(), expr_contextType::Load)
+#define ATTRIBUTE_REF(val, attr, l) make_Attribute_t(p.m_a, l, \
+        EXPR(val), name2char(attr), expr_contextType::Load)
 
 #endif

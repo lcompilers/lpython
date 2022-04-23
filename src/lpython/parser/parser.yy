@@ -175,7 +175,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> id
 %type <ast> expr
 %type <vec_ast> expr_list
-/* %type <vec_ast> expr_list_opt */
+%type <vec_ast> expr_list_opt
 %type <ast> statement
 %type <vec_ast> statements
 %type <vec_ast> statements1
@@ -217,6 +217,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <arg> parameter
 %type <vec_ast> decorators
 %type <vec_ast> decorators_opt
+%type <ast> class_def
 %type <vec_ast> sep
 %type <ast> sep_one
 
@@ -234,6 +235,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %left "%" "//" "/" "@" "*"
 %precedence UNARY
 %right "**"
+%precedence "."
 
 %start units
 
@@ -295,6 +297,7 @@ multi_line_statement
     | for_statement
     | try_statement
     | function_def
+    | class_def
     ;
 
 expression_statment
@@ -326,8 +329,7 @@ assert_statement
 
 target
     : id { $$ = TARGET_ID($1, @$); }
-    | expr "." id { }
-    | expr "[" expr_list "]" { }
+    | expr "." id { $$ = TARGET_ATTR($1, $3, @$); }
     ;
 
 target_item_list
@@ -512,6 +514,16 @@ function_def
         sep statements { $$ = FUNCTION_02($1, $3, $5, $8, $11, @$); }
     ;
 
+class_def
+    : decorators_opt KW_CLASS id ":" sep statements { $$ = CLASS_01($1, $3, $6, @$); }
+    | decorators_opt KW_CLASS id "(" expr_list_opt ")" ":" sep statements {
+        $$ = CLASS_02($1, $3, $5, $9, @$); }
+    ;
+
+expr_list_opt
+    : expr_list { $$ = $1; }
+    | %empty { LIST_NEW($$); }
+
 expr_list
     : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }
     | expr { LIST_NEW($$); LIST_ADD($$, $1); }
@@ -526,8 +538,11 @@ expr
     | TK_TRUE { $$ = BOOL(true, @$); }
     | TK_FALSE { $$ = BOOL(false, @$); }
     | "(" expr ")" { $$ = $2; }
-    | id "(" ")" { $$ = CALL_01($1, @$); }
-    | id "(" expr_list ")" { $$ = CALL_02($1, $3, @$); }
+    | id "(" expr_list_opt ")" { $$ = CALL_01($1, $3, @$); }
+    | "[" expr_list_opt "]" { $$ = LIST($2, @$); }
+    | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
+    | expr "." id "(" expr_list_opt ")" {
+        $$ = CALL_01(ATTRIBUTE_REF($1, $3, @$), $5, @$); }
 
     | expr "+" expr { $$ = BINOP($1, Add, $3, @$); }
     | expr "-" expr { $$ = BINOP($1, Sub, $3, @$); }
