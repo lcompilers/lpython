@@ -166,7 +166,7 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, s), str_type));
         } else {
             throw SemanticError("str() argument must be real, integer, logical, or a string, not '" +
-                ASRUtils::type_to_str(arg_type) + "'", loc);
+                ASRUtils::type_to_str_python(arg_type) + "'", loc);
         }
     }
 
@@ -197,7 +197,7 @@ struct PythonIntrinsicProcedures {
             result = strlen(s2c(al, std::string(c)));
         } else {
             throw SemanticError("bool() must have one real, integer, character,"
-                " complex, or logical argument, not '" + ASRUtils::type_to_str(t) + "'", loc);
+                " complex, or logical argument, not '" + ASRUtils::type_to_str_python(t) + "'", loc);
         }
         return ASR::down_cast<ASR::expr_t>(make_LogicalConstant_t(al, loc, result, type));
     }
@@ -439,7 +439,7 @@ struct PythonIntrinsicProcedures {
 
         } else {
             throw SemanticError("int() argument must be real, integer, logical, or a string, not '" +
-                ASRUtils::type_to_str(int_type) + "'", loc);
+                ASRUtils::type_to_str_python(int_type) + "'", loc);
         }
     }
 
@@ -469,7 +469,7 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(make_RealConstant_t(al, loc, rv, type));
         } else {
             throw SemanticError("float() argument must be real, integer, logical, or a string, not '" +
-                ASRUtils::type_to_str(float_type) + "'", loc);
+                ASRUtils::type_to_str_python(float_type) + "'", loc);
         }
     }
 
@@ -493,7 +493,7 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(make_StringConstant_t(al, loc, s2c(al, str), str_type));
         } else {
             throw SemanticError("bin() argument must be an integer, not '" +
-                ASRUtils::type_to_str(type) + "'", loc);
+                ASRUtils::type_to_str_python(type) + "'", loc);
         }
     }
 
@@ -518,7 +518,7 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(make_StringConstant_t(al, loc, s2c(al, str), str_type));
         } else {
             throw SemanticError("hex() argument must be an integer, not '" +
-                ASRUtils::type_to_str(type) + "'", loc);
+                ASRUtils::type_to_str_python(type) + "'", loc);
         }
     }
 
@@ -543,7 +543,7 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(make_StringConstant_t(al, loc, s2c(al, str), str_type));
         } else {
             throw SemanticError("oct() argument must be an integer, not '" +
-                ASRUtils::type_to_str(type) + "'", loc);
+                ASRUtils::type_to_str_python(type) + "'", loc);
         }
     }
 
@@ -569,7 +569,7 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc, rv, type));
         } else {
             throw SemanticError("round() argument must be float, integer, or logical for now, not '" +
-                ASRUtils::type_to_str(t) + "'", loc);
+                ASRUtils::type_to_str_python(t) + "'", loc);
         }
     }
 
@@ -703,7 +703,7 @@ struct PythonIntrinsicProcedures {
             }
         } else {
             throw SemanticError("Both arguments of divmod() must be integers for now, not '" +
-                ASRUtils::type_to_str(arg1_type) + "' and '" + ASRUtils::type_to_str(arg2_type) + "'", loc);
+                ASRUtils::type_to_str_python(arg1_type) + "' and '" + ASRUtils::type_to_str_python(arg2_type) + "'", loc);
         }
     }
 
