@@ -817,6 +817,20 @@ public:
         } else if (ASR::is_a<ASR::List_t>(*left_type) && ASR::is_a<ASR::List_t>(*right_type)
                    && op == ASR::binopType::Add) {
             dest_type = left_type;
+            ASR::ttype_t *left_type2 = ASR::down_cast<ASR::List_t>(left_type)->m_type;
+            ASR::ttype_t *right_type2 = ASR::down_cast<ASR::List_t>(right_type)->m_type;
+            std::string ltype = ASRUtils::type_to_str(left_type2);
+            std::string rtype = ASRUtils::type_to_str(right_type2);
+            if (!ASRUtils::check_equal_type(left_type2, right_type2)) {
+                diag.add(diag::Diagnostic(
+                    "Both the lists should be of the same type for concatenation.",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("type mismatch (list[" + ltype + "] and list[" + rtype + "])",
+                                {left->base.loc, right->base.loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
             tmp = ASR::make_ListConcat_t(al, loc, left, right, dest_type, value);
             return;
         } else {
