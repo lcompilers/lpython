@@ -819,8 +819,8 @@ public:
             dest_type = left_type;
             ASR::ttype_t *left_type2 = ASR::down_cast<ASR::List_t>(left_type)->m_type;
             ASR::ttype_t *right_type2 = ASR::down_cast<ASR::List_t>(right_type)->m_type;
-            std::string ltype = ASRUtils::type_to_str(left_type2);
-            std::string rtype = ASRUtils::type_to_str(right_type2);
+            std::string ltype = ASRUtils::type_to_str_python(left_type2);
+            std::string rtype = ASRUtils::type_to_str_python(right_type2);
             if (!ASRUtils::check_equal_type(left_type2, right_type2)) {
                 diag.add(diag::Diagnostic(
                     "Both the lists should be of the same type for concatenation.",
