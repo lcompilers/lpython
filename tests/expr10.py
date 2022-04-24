@@ -7,6 +7,8 @@ def test_UnaryOp():
     b = not 5
     b = not -1
     b = not 0
+    b = True
+    a = -b
 
     f: f32
     f = +1.0
