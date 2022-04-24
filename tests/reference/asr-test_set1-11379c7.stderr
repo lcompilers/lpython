@@ -1,4 +1,4 @@
-semantic error: Found type mismatch in 'add' ('str' and 'int').
+semantic error: Found type mismatch in 'add' ('str' and 'i32').
  --> tests/errors/test_set1.py:6:5
   |
 6 |     a.add('err')
