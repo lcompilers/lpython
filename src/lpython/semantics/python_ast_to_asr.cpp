@@ -1102,12 +1102,49 @@ public:
                     x.base.base.loc);
             }
         }
+        ASR::ttype_t *result_type = nullptr;
         ASR::ttype_t *operand_type = ASRUtils::expr_type(operand);
         ASR::ttype_t *logical_type = ASRUtils::TYPE(
-            ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
+            ASR::make_Logical_t(al, x.base.base.loc, 1, nullptr, 0));
         ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                 4, nullptr, 0));
         ASR::expr_t *value = nullptr;
+
+        // Assign the return types separately for each case,
+        // so that we don't get a type mismatch error for assignment.
+        if (ASRUtils::is_integer(*operand_type)) {
+            if (op == ASR::unaryopType::Not) {
+                result_type = logical_type;
+            } else {
+                result_type = operand_type;
+            }
+        } else if (ASRUtils::is_real(*operand_type)) {
+            if (op == ASR::unaryopType::Not) {
+                result_type = logical_type;
+            } else if (op == ASR::unaryopType::Invert) {
+                throw SemanticError("Bad operand type for unary " +
+                    ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str_python(operand_type),
+                    x.base.base.loc);
+            } else {
+                result_type = operand_type;
+            }
+        } else if (ASRUtils::is_logical(*operand_type)) {
+            if (op == ASR::unaryopType::Not) {
+                result_type = logical_type;
+            } else {
+                result_type = int_type;
+            }
+        } else if (ASRUtils::is_complex(*operand_type)) {
+            if (op == ASR::unaryopType::Not) {
+                result_type = logical_type;
+            } else if (op == ASR::unaryopType::Invert) {
+                throw SemanticError("Bad operand type for unary " +
+                    ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str_python(operand_type),
+                    x.base.base.loc);
+            } else {
+                result_type = operand_type;
+            }
+        }
 
         if (ASRUtils::expr_value(operand) != nullptr) {
             if (ASRUtils::is_integer(*operand_type)) {
@@ -1118,7 +1155,6 @@ public:
                     bool b = (op_value == 0);
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                         al, x.base.base.loc, b, logical_type));
-                    operand_type = logical_type;
                 } else {
                     int64_t result = 0;
                     switch (op) {
@@ -1138,17 +1174,12 @@ public:
                     bool b = (op_value == 0.0);
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                         al, x.base.base.loc, b, logical_type));
-                    operand_type = logical_type;
                 } else {
                     double result = 0.0;
                     switch (op) {
                         case (ASR::unaryopType::UAdd): { result = op_value; break; }
                         case (ASR::unaryopType::USub): { result = -op_value; break; }
-                        default: {
-                            throw SemanticError("Bad operand type for unary " +
-                                ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str_python(operand_type),
-                                x.base.base.loc);
-                        }
+                        default: { LFORTRAN_ASSERT(false); } // should never happen
                     }
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(
                         al, x.base.base.loc, result, operand_type));
@@ -1182,16 +1213,11 @@ public:
                     bool b = (op_value.real() == 0.0 && op_value.imag() == 0.0);
                     value = ASR::down_cast<ASR::expr_t>(
                         ASR::make_LogicalConstant_t(al, x.base.base.loc, b, logical_type));
-                    operand_type = logical_type;
                 } else {
                     switch (op) {
                         case (ASR::unaryopType::UAdd): { result = op_value; break; }
                         case (ASR::unaryopType::USub): { result = -op_value; break; }
-                        default: {
-                            throw SemanticError("Bad operand type for unary " +
-                                ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str_python(operand_type),
-                                x.base.base.loc);
-                        }
+                        default: { LFORTRAN_ASSERT(false); } // should never happen
                     }
                     value = ASR::down_cast<ASR::expr_t>(
                         ASR::make_ComplexConstant_t(al, x.base.base.loc,
@@ -1199,7 +1225,7 @@ public:
                 }
             }
         }
-        tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
+        tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, result_type,
                               value);
     }
 
@@ -2196,7 +2222,7 @@ public:
             throw SemanticAbort();
         }
         ASR::ttype_t *type = ASRUtils::TYPE(
-            ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
+            ASR::make_Logical_t(al, x.base.base.loc, 1, nullptr, 0));
         ASR::expr_t *value = nullptr;
         ASR::ttype_t *source_type = left_type;
 
