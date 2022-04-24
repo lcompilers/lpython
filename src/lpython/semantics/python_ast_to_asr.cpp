@@ -817,15 +817,15 @@ public:
         } else if (ASR::is_a<ASR::List_t>(*left_type) && ASR::is_a<ASR::List_t>(*right_type)
                    && op == ASR::binopType::Add) {
             dest_type = left_type;
+            std::string ltype = ASRUtils::type_to_str_python(left_type);
+            std::string rtype = ASRUtils::type_to_str_python(right_type);
             ASR::ttype_t *left_type2 = ASR::down_cast<ASR::List_t>(left_type)->m_type;
             ASR::ttype_t *right_type2 = ASR::down_cast<ASR::List_t>(right_type)->m_type;
-            std::string ltype = ASRUtils::type_to_str_python(left_type2);
-            std::string rtype = ASRUtils::type_to_str_python(right_type2);
             if (!ASRUtils::check_equal_type(left_type2, right_type2)) {
                 diag.add(diag::Diagnostic(
                     "Both the lists should be of the same type for concatenation.",
                     diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("type mismatch (list[" + ltype + "] and list[" + rtype + "])",
+                        diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
                                 {left->base.loc, right->base.loc})
                     })
                 );

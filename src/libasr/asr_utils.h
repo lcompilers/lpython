@@ -203,7 +203,8 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t)
             return "dict";
         }
         case ASR::ttypeType::List: {
-            return "list";
+            ASR::List_t *l = (ASR::List_t *)t;
+            return "list[" + type_to_str_python(l->m_type) + "]";
         }
         default : throw LFortranException("Not implemented");
     }
