@@ -182,8 +182,8 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t)
         case ASR::ttypeType::Complex: {
             ASR::Complex_t *c = (ASR::Complex_t*)t;
             switch (c->m_kind) {
+                case 4: { return "c32"; }
                 case 8: { return "c64"; }
-                case 16: { return "c128"; }
                 default: { throw LFortranException("Complex kind not supported"); }
             }
         }
