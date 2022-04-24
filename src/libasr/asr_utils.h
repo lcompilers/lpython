@@ -162,13 +162,30 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t)
 {
     switch (t->type) {
         case ASR::ttypeType::Integer: {
-            return "int";
+            ASR::Integer_t *i = (ASR::Integer_t*)t;
+            switch (i->m_kind) {
+                case 1: { return "i8"; }
+                case 2: { return "i16"; }
+                case 4: { return "i32"; }
+                case 8: { return "i64"; }
+                default: { throw LFortranException("Integer kind not supported"); }
+            }
         }
         case ASR::ttypeType::Real: {
-            return "float";
+            ASR::Real_t *r = (ASR::Real_t*)t;
+            switch (r->m_kind) {
+                case 4: { return "f32"; }
+                case 8: { return "f64"; }
+                default: { throw LFortranException("Float kind not supported"); }
+            }
         }
         case ASR::ttypeType::Complex: {
-            return "complex";
+            ASR::Complex_t *c = (ASR::Complex_t*)t;
+            switch (c->m_kind) {
+                case 8: { return "c64"; }
+                case 16: { return "c128"; }
+                default: { throw LFortranException("Complex kind not supported"); }
+            }
         }
         case ASR::ttypeType::Logical: {
             return "bool";
