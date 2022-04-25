@@ -3343,6 +3343,39 @@ public:
         arg_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
     }
 
+    void visit_ComplexRe(const ASR::ComplexRe_t &x) {
+        this->visit_expr_wrapper(x.m_arg, true);
+        ASR::ttype_t* curr_type = extract_ttype_t_from_expr(x.m_arg);
+        int arg_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
+        int dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+        llvm::Value *re;
+        if (arg_kind == 4 && dest_kind == 4) {
+            // complex(4) -> real(4)
+            re = complex_re(tmp, complex_type_4);
+            tmp = re;
+        } else if (arg_kind == 4 && dest_kind == 8) {
+            // complex(4) -> real(8)
+            re = complex_re(tmp, complex_type_4);
+            tmp = builder->CreateFPExt(re, llvm::Type::getDoubleTy(context));
+        } else if (arg_kind == 8 && dest_kind == 4) {
+            // complex(8) -> real(4)
+            re = complex_re(tmp, complex_type_8);
+            tmp = builder->CreateFPTrunc(re, llvm::Type::getFloatTy(context));
+        } else if (arg_kind == 8 && dest_kind == 8) {
+            // complex(8) -> real(8)
+            re = complex_re(tmp, complex_type_8);
+            tmp = re;
+        } else {
+            std::string msg = "Conversion from " + std::to_string(arg_kind) +
+                              " to " + std::to_string(dest_kind) + " not implemented yet.";
+            throw CodeGenError(msg);
+        }
+    }
+
+    void visit_ComplexIm(const ASR::ComplexIm_t &x) {
+        // TODO
+    }
+
     void visit_Cast(const ASR::Cast_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
