@@ -27,9 +27,16 @@ def test_str_index():
     assert a[-1] == "5"
     assert a[-6] == "0"
 
+def test_str_slice():
+    a: str
+    a = "012345"
+    assert a[2:4] == "23"
+    assert a[2:3] == a[2]
+
 def check():
     f()
     test_str_concat()
     test_str_index()
+    test_str_slice()
 
 check()
