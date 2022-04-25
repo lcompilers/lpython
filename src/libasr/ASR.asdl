@@ -238,6 +238,9 @@ expr
     | ArrayRef(symbol v, array_index* args, ttype type, expr? value)
     | DerivedRef(expr v, symbol m, ttype type, expr? value)
     | Cast(expr arg, cast_kind kind, ttype type, expr? value)
+    | ComplexRe(expr arg, ttype type, expr? value)
+    | ComplexIm(expr arg, ttype type, expr? value)
+
 
 -- `len` in Character:
 -- >=0 ... the length of the string, known at compile time
