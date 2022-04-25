@@ -604,6 +604,17 @@ LFORTRAN_API void _lfortran_strcat(char** s1, char** s2, char** dest)
     *dest = &(dest_char[0]);
 }
 
+// idx1 and idx2 both start from 1
+LFORTRAN_API char* _lfortran_str_copy(char* s, int32_t idx1, int32_t idx2) {
+    char* dest_char = (char*)malloc(idx2-idx1+2);
+    for (int i=idx1; i <= idx2; i++)
+    {
+        dest_char[i-idx1] = s[i-1];
+    }
+    dest_char[idx2-idx1+1] = '\0';
+    return dest_char;
+}
+
 LFORTRAN_API int _lfortran_str_len(char** s)
 {
     return strlen(*s);
