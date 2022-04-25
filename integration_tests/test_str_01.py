@@ -20,8 +20,14 @@ def test_str_concat():
     c = a + b
     assert c == "z"
 
+def test_str_index():
+    a: str
+    a = "012345"
+    assert a[2] == "2"
+
 def check():
     f()
     test_str_concat()
+    test_str_index()
 
 check()

@@ -756,6 +756,20 @@ public:
         return builder->CreateCall(fn, {str});
     }
 
+    llvm::Value* lfortran_str_copy(llvm::Value* str, llvm::Value* idx1, llvm::Value* idx2)
+    {
+        std::string runtime_func_name = "_lfortran_str_copy";
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    character_type, {
+                        character_type, llvm::Type::getInt32Ty(context), llvm::Type::getInt32Ty(context)
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        return builder->CreateCall(fn, {str, idx1, idx2});
+    }
 
     // This function is called as:
     // float complex_re(complex a)
@@ -1066,13 +1080,14 @@ public:
                     // Use the "right" index for now
                     this->visit_expr_wrapper(x.m_args[0].m_right, true);
                     llvm::Value *idx = tmp;
-                    idx = builder->CreateSub(idx, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                    // idx = builder->CreateSub(idx, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
                     //std::vector<llvm::Value*> idx_vec = {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), idx};
-                    std::vector<llvm::Value*> idx_vec = {idx};
+                    // std::vector<llvm::Value*> idx_vec = {idx};
                     llvm::Value *str = CreateLoad(array);
-                    llvm::Value *p = CreateGEP(str, idx_vec);
+                    // llvm::Value *p = CreateGEP(str, idx_vec);
                     // TODO: Currently the string starts at the right location, but goes to the end of the original string.
                     // We have to allocate a new string, copy it and add null termination.
+                    llvm::Value *p = lfortran_str_copy(str, idx, idx);
 
                     tmp = builder->CreateAlloca(character_type, nullptr);
                     builder->CreateStore(p, tmp);
