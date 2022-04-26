@@ -197,7 +197,8 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t)
             return "tuple";
         }
         case ASR::ttypeType::Set: {
-            return "set";
+            ASR::Set_t *s = (ASR::Set_t *)t;
+            return "set[" + type_to_str_python(s->m_type) + "]";
         }
         case ASR::ttypeType::Dict: {
             return "dict";
@@ -999,6 +1000,13 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
             }
 
             inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
+                if (ASR::is_a<ASR::List_t>(*x) && ASR::is_a<ASR::List_t>(*y)) {
+                    x = ASR::down_cast<ASR::List_t>(x)->m_type;
+                    y = ASR::down_cast<ASR::List_t>(y)->m_type;
+                } else if (ASR::is_a<ASR::Set_t>(*x) && ASR::is_a<ASR::Set_t>(*y)) {
+                    x = ASR::down_cast<ASR::Set_t>(x)->m_type;
+                    y = ASR::down_cast<ASR::Set_t>(y)->m_type;
+                }
                 if( x->type == y->type ) {
                     return true;
                 }
