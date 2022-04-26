@@ -33,13 +33,13 @@ def test_bool():
     f2 = -235.6
     assert bool(f2)
 
-    s: str
-    s = ""
-    assert not bool(s)
-    s = "str"
-    assert bool(s)
-    assert not bool('')
-    assert bool("str")
+    # s: str
+    # s = ""
+    # assert not bool(s)
+    # s = "str"
+    # assert bool(s)
+    # assert not bool('')
+    # assert bool("str")
 
     b: bool
     b = True

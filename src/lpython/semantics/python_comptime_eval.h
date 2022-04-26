@@ -35,7 +35,7 @@ struct PythonIntrinsicProcedures {
             {"bool", {m_builtin, &eval_bool}},
             {"chr", {m_builtin, &eval_chr}},
             {"ord", {m_builtin, &eval_ord}},
-            {"len", {m_builtin, &eval_len}},
+            // {"len", {m_builtin, &eval_len}},
             {"pow", {m_builtin, &eval_pow}},
             // {"int", {m_builtin, &eval_int}},
             // {"float", {m_builtin, &eval_float}},

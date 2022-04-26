@@ -7,8 +7,8 @@ def ord(s: str) -> i32: # currently supports characters with unicode value betwe
     Returns an integer representing the Unicode code
     point of a given unicode character. This is the inverse of `chr()`.
     """
-    if len(s) != 1:
-        return -1 # not a character
+    # if len(s) != 1:
+    #     return -1 # not a character
     i: i32
     for i in range(32, 127):
         if chr(i) == s:
@@ -159,13 +159,6 @@ def bool(f: f64) -> bool:
     return f != 0.0
 
 @overload
-def bool(s: str) -> bool:
-    """
-    Return False when the argument `s` is an empty string, True otherwise.
-    """
-    return len(s) > 0
-
-@overload
 def bool(b: bool) -> bool:
     return b
 
@@ -177,13 +170,6 @@ def bool(c: c32) -> bool:
 def bool(c: c64) -> bool:
     return c.real != 0.0 or _lfortran_zaimag(c) != 0.0
 
-
-@interface
-def len(s: str) -> i32:
-    """
-    Return the length of the string `s`.
-    """
-    pass
 
 #: pow() as a generic procedure.
 #: supported types for arguments:
