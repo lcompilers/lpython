@@ -13,7 +13,11 @@
 =======
     "stdout_hash": "8a8ded44e2568a07f90eefa92a606bb253483c6c9aed31507b6612a4",
     "stderr": "cpp-expr7-529bd53.stderr",
+<<<<<<< HEAD
     "stderr_hash": "d207f029180350afa3566fe9b5fe2d7ccd71a90082c7e60e01e81259",
 >>>>>>> efd2bf7a0 (update tests)
+=======
+    "stderr_hash": "28509dd59a386eebd632340a550d14299cd2a921ef6dc3ac7dbe7fe9",
+>>>>>>> 773b374cd (update tests)
     "returncode": 0
 }

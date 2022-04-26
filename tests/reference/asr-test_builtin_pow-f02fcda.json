@@ -13,7 +13,11 @@
 =======
     "stdout_hash": "60b7e8ad6c2f4d78e4142c6f051a7f7170127ec3d84f874b36bb8f15",
     "stderr": "asr-test_builtin_pow-f02fcda.stderr",
+<<<<<<< HEAD
     "stderr_hash": "f98b282ae397bc9f3f897cb8ea47d60a45a2084b7fbc77a7c7a9881e",
 >>>>>>> efd2bf7a0 (update tests)
+=======
+    "stderr_hash": "180e1adfbb0d9c63a2fffa31951bbd629b3f1950cf0d97ca1389efe5",
+>>>>>>> 773b374cd (update tests)
     "returncode": 0
 }
