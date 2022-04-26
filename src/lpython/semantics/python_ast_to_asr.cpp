@@ -2685,8 +2685,10 @@ public:
                                         const Location &loc) {
         ASR::expr_t *arg = args[0].m_value;
         ASR::ttype_t *type = ASRUtils::expr_type(arg);
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                                    4, nullptr, 0));
         if (ASRUtils::is_character(*type)) {
-            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_StringLen_t(al, loc, arg));
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_StringLen_t(al, loc, arg, to_type));
         }
         return nullptr;
     }
