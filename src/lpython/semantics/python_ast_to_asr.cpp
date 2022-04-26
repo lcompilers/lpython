@@ -2743,8 +2743,7 @@ public:
                                     {x.base.base.loc}),
                         })
                     );
-                }
-                    
+                }            
             } else {
                 // TODO: We need to port all functions below to the intrinsic functions file
                 // Then we can uncomment this error message:
