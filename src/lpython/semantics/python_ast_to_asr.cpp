@@ -2736,13 +2736,13 @@ public:
             if (intrinsic_procedures.is_intrinsic(call_name)) {
                 s = resolve_intrinsic_function(x.base.base.loc, call_name);
                 if (call_name == "pow") {
-                     diag.add(diag::Diagnostic(
-                    "Could have used '**' instead of 'pow'",
-                     diag::Level::Style, diag::Stage::Semantic, {
-                        diag::Label("'**' could be used instead" ,
-                                {x.base.base.loc}),
-                    })
-                );
+                    diag.add(diag::Diagnostic(
+                        "Could have used '**' instead of 'pow'",
+                        diag::Level::Style, diag::Stage::Semantic, {
+                            diag::Label("'**' could be used instead",
+                                    {x.base.base.loc}),
+                        })
+                    );
                 }
                     
             } else {
