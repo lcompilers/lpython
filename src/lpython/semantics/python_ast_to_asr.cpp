@@ -2681,6 +2681,16 @@ public:
         return nullptr;
     }
 
+    ASR::asr_t* handle_intrinsic_len(Allocator &al, Vec<ASR::call_arg_t> args,
+                                        const Location &loc) {
+        ASR::expr_t *arg = args[0].m_value;
+        ASR::ttype_t *type = ASRUtils::expr_type(arg);
+        if (ASRUtils::is_character(*type)) {
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_StringLen_t(al, loc, arg));
+        }
+        return nullptr;
+    }
+
     void visit_Call(const AST::Call_t &x) {
         std::string call_name;
         Vec<ASR::call_arg_t> args;
@@ -2807,6 +2817,13 @@ public:
                 } else {
                     tmp = handle_intrinsic_float(al, args, x.base.base.loc);
                 }
+                return;
+            } else if (call_name == "len") {
+                if (args.size() != 1) {
+                    throw SemanticError("len() takes exactly one argument (" +
+                        std::to_string(args.size()) + " given)", x.base.base.loc);
+                }
+                tmp = handle_intrinsic_len(al, args, x.base.base.loc);
                 return;
             } else {
                 // The function was not found and it is not intrinsic
