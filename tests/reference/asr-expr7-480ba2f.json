@@ -6,8 +6,14 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-expr7-480ba2f.stdout",
+<<<<<<< HEAD
     "stdout_hash": "46baddcc31f19815c2225c526120c9ccae116a233cffa6b21f0ad4d4",
     "stderr": null,
     "stderr_hash": null,
+=======
+    "stdout_hash": "63363cd92274b39b824f9b89a603a1ff7ffe8e3987fe6c891f6b5cb7",
+    "stderr": "asr-expr7-480ba2f.stderr",
+    "stderr_hash": "d207f029180350afa3566fe9b5fe2d7ccd71a90082c7e60e01e81259",
+>>>>>>> efd2bf7a0 (update tests)
     "returncode": 0
 }

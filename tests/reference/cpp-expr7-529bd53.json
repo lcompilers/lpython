@@ -6,8 +6,14 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "cpp-expr7-529bd53.stdout",
+<<<<<<< HEAD
     "stdout_hash": "d63e22aa283dc73dd1190b16ddb4bb50f90e14061394d4689ffd2e12",
     "stderr": null,
     "stderr_hash": null,
+=======
+    "stdout_hash": "8a8ded44e2568a07f90eefa92a606bb253483c6c9aed31507b6612a4",
+    "stderr": "cpp-expr7-529bd53.stderr",
+    "stderr_hash": "d207f029180350afa3566fe9b5fe2d7ccd71a90082c7e60e01e81259",
+>>>>>>> efd2bf7a0 (update tests)
     "returncode": 0
 }
