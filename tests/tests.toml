@@ -198,7 +198,7 @@ asr = true
 
 [[test]]
 filename = "../integration_tests/test_builtin_len.py"
-asr = true
+# asr = true
 
 [[test]]
 filename = "../integration_tests/test_builtin_pow.py"

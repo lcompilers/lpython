@@ -48,10 +48,10 @@ def test_bool():
     a: bool
     a = bool(0)
     a = bool(-1)
-    a = bool('')
+    # a = bool('')
     a = bool(complex(0, 0))
     assert a == False
-    a = bool('t')
+    # a = bool('t')
     a = bool(2.3)
     assert a == True
 

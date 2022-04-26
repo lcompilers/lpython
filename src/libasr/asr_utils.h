@@ -109,12 +109,17 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::RealConstant: { return ((ASR::RealConstant_t*)f)->m_type; }
         case ASR::exprType::ComplexConstant: { return ((ASR::ComplexConstant_t*)f)->m_type; }
         case ASR::exprType::SetConstant: { return ((ASR::SetConstant_t*)f)->m_type; }
+        case ASR::exprType::SetLen: { return ((ASR::SetLen_t*)f)->m_type; }
         case ASR::exprType::ListConstant: { return ((ASR::ListConstant_t*)f)->m_type; }
         case ASR::exprType::ListConcat: { return ((ASR::ListConcat_t*)f)->m_type; }
+        case ASR::exprType::ListLen: { return ((ASR::ListLen_t*)f)->m_type; }
         case ASR::exprType::TupleConstant: { return ((ASR::TupleConstant_t*)f)->m_type; }
+        case ASR::exprType::TupleLen: { return ((ASR::TupleLen_t*)f)->m_type; }
         case ASR::exprType::LogicalConstant: { return ((ASR::LogicalConstant_t*)f)->m_type; }
         case ASR::exprType::StringConstant: { return ((ASR::StringConstant_t*)f)->m_type; }
+        case ASR::exprType::StringLen: { return ((ASR::StringLen_t*)f)->m_type; }
         case ASR::exprType::DictConstant: { return ((ASR::DictConstant_t*)f)->m_type; }
+        case ASR::exprType::DictLen: { return ((ASR::DictLen_t*)f)->m_type; }
         case ASR::exprType::IntegerBOZ: { return ((ASR::IntegerBOZ_t*)f)->m_type; }
         case ASR::exprType::Var: { return EXPR2VAR(f)->m_type; }
         case ASR::exprType::ArrayRef: { return ((ASR::ArrayRef_t*)f)->m_type; }
