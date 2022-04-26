@@ -329,4 +329,7 @@ asr = true
 
 [[test]]
 filename = "errors/test_set2.py"
+
+[[test]]
+filename = "errors/test_pow.py"
 asr = true
