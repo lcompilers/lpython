@@ -2689,6 +2689,14 @@ public:
                                     4, nullptr, 0));
         if (ASRUtils::is_character(*type)) {
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_StringLen_t(al, loc, arg, to_type));
+        } else if (ASR::is_a<ASR::Set_t>(*type)) {
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_SetLen_t(al, loc, arg, to_type));
+        } else if (ASR::is_a<ASR::Tuple_t>(*type)) {
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_TupleLen_t(al, loc, arg, to_type));
+        } else if (ASR::is_a<ASR::List_t>(*type)) {
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_ListLen_t(al, loc, arg, to_type));
+        } else if (ASR::is_a<ASR::Dict_t>(*type)) {
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_DictLen_t(al, loc, arg, to_type));
         }
         return nullptr;
     }
