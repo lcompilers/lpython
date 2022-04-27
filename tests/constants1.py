@@ -41,6 +41,11 @@ def test_len():
     a = len([[-4, -5, -6], [-1, -2, -3]])
     a = len({1, 2, 3})
     a = len({1: "c", 2: "b", 3: "c"})
+    l: list[i32]
+    l = [1, 2, 3, 4]
+    a = len(l)
+    l.append(5)
+    a = len(l)
 
 
 def test_bool():

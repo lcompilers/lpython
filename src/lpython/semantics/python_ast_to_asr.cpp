@@ -2683,6 +2683,10 @@ public:
 
     ASR::asr_t* handle_intrinsic_len(Allocator &al, Vec<ASR::call_arg_t> args,
                                         const Location &loc) {
+        if (args.size() != 1) {
+            throw SemanticError("len() takes exactly one argument (" +
+                std::to_string(args.size()) + " given)", loc);
+        }
         ASR::expr_t *arg = args[0].m_value;
         ASR::ttype_t *type = ASRUtils::expr_type(arg);
         ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
@@ -2866,10 +2870,6 @@ public:
                 }
                 return;
             } else if (call_name == "len") {
-                if (args.size() != 1) {
-                    throw SemanticError("len() takes exactly one argument (" +
-                        std::to_string(args.size()) + " given)", x.base.base.loc);
-                }
                 tmp = handle_intrinsic_len(al, args, x.base.base.loc);
                 return;
             } else {

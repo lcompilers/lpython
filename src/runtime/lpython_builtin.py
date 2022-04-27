@@ -159,6 +159,13 @@ def bool(f: f64) -> bool:
     return f != 0.0
 
 @overload
+def bool(s: str) -> bool:
+    """
+    Return False when the argument `s` is an empty string, True otherwise.
+    """
+    return len(s) > 0
+
+@overload
 def bool(b: bool) -> bool:
     return b
 
@@ -169,13 +176,6 @@ def bool(c: c32) -> bool:
 @overload
 def bool(c: c64) -> bool:
     return c.real != 0.0 or _lfortran_zaimag(c) != 0.0
-
-@overload
-def bool(s: str) -> bool:
-    """
-    Return False when the argument `s` is an empty string, True otherwise.
-    """
-    return len(s) > 0
 
 @interface
 def len(s: str) -> i32:
