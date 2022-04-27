@@ -123,6 +123,7 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::IntegerBOZ: { return ((ASR::IntegerBOZ_t*)f)->m_type; }
         case ASR::exprType::Var: { return EXPR2VAR(f)->m_type; }
         case ASR::exprType::ArrayRef: { return ((ASR::ArrayRef_t*)f)->m_type; }
+        case ASR::exprType::ArraySize: { return ((ASR::ArraySize_t*)f)->m_type; }
         case ASR::exprType::DerivedRef: { return ((ASR::DerivedRef_t*)f)->m_type; }
         case ASR::exprType::Cast: { return ((ASR::Cast_t*)f)->m_type; }
         case ASR::exprType::ComplexRe: { return ((ASR::ComplexRe_t*)f)->m_type; }
@@ -270,6 +271,7 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::Compare: { return ASR::down_cast<ASR::Compare_t>(f)->m_value; }
         case ASR::exprType::FunctionCall: { return ASR::down_cast<ASR::FunctionCall_t>(f)->m_value; }
         case ASR::exprType::ArrayRef: { return ASR::down_cast<ASR::ArrayRef_t>(f)->m_value; }
+        case ASR::exprType::ArraySize: { return ASR::down_cast<ASR::ArraySize_t>(f)->m_value; }
         case ASR::exprType::DerivedRef: { return ASR::down_cast<ASR::DerivedRef_t>(f)->m_value; }
         case ASR::exprType::Cast: { return ASR::down_cast<ASR::Cast_t>(f)->m_value; }
         case ASR::exprType::Var: { return EXPR2VAR(f)->m_value; }
@@ -331,6 +333,9 @@ static inline char *symbol_name(const ASR::symbol_t *f)
         case ASR::symbolType::CustomOperator: {
             return ASR::down_cast<ASR::CustomOperator_t>(f)->m_name;
         }
+        case ASR::symbolType::AssociateBlock: {
+            return ASR::down_cast<ASR::AssociateBlock_t>(f)->m_name;
+        }
         default : throw LFortranException("Not implemented");
     }
 }
@@ -367,6 +372,9 @@ static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
         }
         case ASR::symbolType::CustomOperator: {
             return ASR::down_cast<ASR::CustomOperator_t>(f)->m_parent_symtab;
+        }
+        case ASR::symbolType::AssociateBlock: {
+            return ASR::down_cast<ASR::AssociateBlock_t>(f)->m_symtab->parent;
         }
         default : throw LFortranException("Not implemented");
     }
@@ -406,6 +414,9 @@ static inline SymbolTable *symbol_symtab(const ASR::symbol_t *f)
         case ASR::symbolType::ClassProcedure: {
             return nullptr;
             //throw LFortranException("ClassProcedure does not have a symtab");
+        }
+        case ASR::symbolType::AssociateBlock: {
+            return ASR::down_cast<ASR::AssociateBlock_t>(f)->m_symtab;
         }
         default : throw LFortranException("Not implemented");
     }

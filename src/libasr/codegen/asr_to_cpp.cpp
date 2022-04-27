@@ -523,6 +523,24 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         last_expr_precedence = 2;
     }
 
+    void visit_ArraySize(const ASR::ArraySize_t& x) {
+        visit_expr(*x.m_v);
+        std::string var_name = src;
+        std::string args = "";
+        if (x.m_dim == nullptr) {
+            // TODO: return the product of all dimensions:
+            args = "0";
+        } else {
+            if( x.m_dim ) {
+                visit_expr(*x.m_dim);
+                args += src + "-1";
+                args += ", ";
+            }
+            args += std::to_string(ASRUtils::extract_kind_from_ttype_t(x.m_type)) + "-1";
+        }
+        src = var_name + ".extent(" + args + ")";
+    }
+
     void visit_Assignment(const ASR::Assignment_t &x) {
         std::string target;
         if (ASR::is_a<ASR::Var_t>(*x.m_target)) {

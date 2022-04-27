@@ -880,10 +880,6 @@ public:
         complex_type_8_ptr = llvm::StructType::create(context, els_8_ptr, "complex_8_ptr");
         character_type = llvm::Type::getInt8PtrTy(context);
 
-        llvm::Type* size_arg = (llvm::Type*)llvm::StructType::create(context, std::vector<llvm::Type*>({
-                                                                                   arr_descr->get_dimension_descriptor_type(true),
-                                                                                    getIntType(4)}), "size_arg");
-        fname2arg_type["size"] = std::make_pair(size_arg, size_arg->getPointerTo());
         llvm::Type* bound_arg = static_cast<llvm::Type*>(arr_descr->get_dimension_descriptor_type(true));
         fname2arg_type["lbound"] = std::make_pair(bound_arg, bound_arg->getPointerTo());
         fname2arg_type["ubound"] = std::make_pair(bound_arg, bound_arg->getPointerTo());
@@ -2356,50 +2352,7 @@ public:
         } else if( x.m_abi == ASR::abiType::Intrinsic &&
                    x.m_deftype == ASR::deftypeType::Interface ) {
             std::string m_name = x.m_name;
-            if( m_name == "size" ) {
-
-                define_function_entry(x);
-
-                // Defines the size intrinsic's body at LLVM level.
-                ASR::Variable_t *arg = EXPR2VAR(x.m_args[0]);
-                uint32_t h = get_hash((ASR::asr_t*)arg);
-                llvm::Value* llvm_arg = llvm_symtab[h];
-                ASR::Variable_t *ret = EXPR2VAR(x.m_return_var);
-                h = get_hash((ASR::asr_t*)ret);
-                llvm::Value* llvm_ret_ptr = llvm_symtab[h];
-                llvm::Value* dim_des_val = CreateLoad(llvm_utils->create_gep(llvm_arg, 0));
-                llvm::Value* rank = CreateLoad(llvm_utils->create_gep(llvm_arg, 1));
-                builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 1)), llvm_ret_ptr);
-
-                llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
-                llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
-                llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
-                this->current_loophead = loophead;
-                this->current_loopend = loopend;
-
-                llvm::Value* r = builder->CreateAlloca(getIntType(4), nullptr);
-                builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), r);
-                // head
-                start_new_block(loophead);
-                llvm::Value *cond = builder->CreateICmpSLT(CreateLoad(r), rank);
-                builder->CreateCondBr(cond, loopbody, loopend);
-
-                // body
-                start_new_block(loopbody);
-                llvm::Value* r_val = CreateLoad(r);
-                llvm::Value* ret_val = CreateLoad(llvm_ret_ptr);
-                llvm::Value* dim_size = arr_descr->get_dimension_size(dim_des_val, r_val);
-                ret_val = builder->CreateMul(ret_val, dim_size);
-                builder->CreateStore(ret_val, llvm_ret_ptr);
-                r_val = builder->CreateAdd(r_val, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
-                builder->CreateStore(r_val, r);
-                builder->CreateBr(loophead);
-
-                // end
-                start_new_block(loopend);
-
-                define_function_exit(x);
-            } else if( m_name == "lbound" || m_name == "ubound" ) {
+            if( m_name == "lbound" || m_name == "ubound" ) {
                 define_function_entry(x);
 
                 // Defines the size intrinsic's body at LLVM level.
@@ -2529,6 +2482,15 @@ public:
                     nested_global_struct);
             int idx = std::distance(nested_globals.begin(), finder);
             builder->CreateStore(target, llvm_utils->create_gep(ptr, idx));
+        }
+    }
+
+    void visit_AssociateBlockCall(const ASR::AssociateBlockCall_t& x) {
+        LFORTRAN_ASSERT(ASR::is_a<ASR::AssociateBlock_t>(*x.m_m));
+        ASR::AssociateBlock_t* associate_block = ASR::down_cast<ASR::AssociateBlock_t>(x.m_m);
+        declare_vars(*associate_block);
+        for (size_t i = 0; i < associate_block->n_body; i++) {
+            this->visit_stmt(*(associate_block->m_body[i]));
         }
     }
 
@@ -3844,31 +3806,7 @@ public:
             x_abi = sub->m_abi;
         }
         if( x_abi == ASR::abiType::Intrinsic ) {
-            if( name == "size" ) {
-                /*
-                When size intrinsic is called on a fortran array then the above
-                code extracts the dimension descriptor array and its rank from the
-                overall array descriptor. It wraps them into a struct (specifically, arg_struct of type, size_arg here)
-                and passes to LLVM size. So, if you do, size(a) (a is a fortran array), then at LLVM level,
-                @size(%size_arg* %x) is used as call where size_arg
-                is described above.
-                */
-                ASR::Variable_t *arg = EXPR2VAR(x.m_args[0].m_value);
-                uint32_t h = get_hash((ASR::asr_t*)arg);
-                tmp = llvm_symtab[h];
-                llvm::Value* arg_struct = builder->CreateAlloca(fname2arg_type["size"].first, nullptr);
-                llvm::Value* first_ele_ptr = arr_descr->get_pointer_to_dimension_descriptor_array(tmp);
-                llvm::Value* first_arg_ptr = llvm_utils->create_gep(arg_struct, 0);
-                builder->CreateStore(first_ele_ptr, first_arg_ptr);
-                llvm::Value* rank_ptr = llvm_utils->create_gep(arg_struct, 1);
-                builder->CreateStore(arr_descr->get_rank(tmp), rank_ptr);
-                tmp = arg_struct;
-                args.push_back(tmp);
-                llvm::Value* dim = builder->CreateAlloca(getIntType(4));
-                args.push_back(dim);
-                llvm::Value* kind = builder->CreateAlloca(getIntType(4));
-                args.push_back(kind);
-            } else if( name == "lbound" || name == "ubound" ) {
+            if( name == "lbound" || name == "ubound" ) {
                 ASR::Variable_t *arg = EXPR2VAR(x.m_args[0].m_value);
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 tmp = llvm_symtab[h];
@@ -4372,6 +4310,55 @@ public:
         }
         calling_function_hash = h;
         pop_nested_stack(s);
+    }
+
+    void visit_ArraySize(const ASR::ArraySize_t& x) {
+        if( x.m_value ) {
+            visit_expr_wrapper(x.m_value, true);
+            return ;
+        }
+        visit_expr_wrapper(x.m_v);
+        llvm::Value* llvm_arg = tmp;
+        llvm::Value* dim_des_val = arr_descr->get_pointer_to_dimension_descriptor_array(llvm_arg);
+        if( x.m_dim ) {
+            visit_expr_wrapper(x.m_dim, true);
+            int kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_dim));
+            tmp = builder->CreateSub(tmp, llvm::ConstantInt::get(context, llvm::APInt(kind * 8, 1)));
+            tmp = arr_descr->get_dimension_size(dim_des_val, tmp);
+            return ;
+        }
+        llvm::Value* rank = arr_descr->get_rank(llvm_arg);
+        llvm::Value* llvm_size = builder->CreateAlloca(getIntType(ASRUtils::extract_kind_from_ttype_t(x.m_type)), nullptr);
+        builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 1)), llvm_size);
+
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+        this->current_loophead = loophead;
+        this->current_loopend = loopend;
+
+        llvm::Value* r = builder->CreateAlloca(getIntType(4), nullptr);
+        builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), r);
+        // head
+        start_new_block(loophead);
+        llvm::Value *cond = builder->CreateICmpSLT(CreateLoad(r), rank);
+        builder->CreateCondBr(cond, loopbody, loopend);
+
+        // body
+        start_new_block(loopbody);
+        llvm::Value* r_val = CreateLoad(r);
+        llvm::Value* ret_val = CreateLoad(llvm_size);
+        llvm::Value* dim_size = arr_descr->get_dimension_size(dim_des_val, r_val);
+        ret_val = builder->CreateMul(ret_val, dim_size);
+        builder->CreateStore(ret_val, llvm_size);
+        r_val = builder->CreateAdd(r_val, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+        builder->CreateStore(r_val, r);
+        builder->CreateBr(loophead);
+
+        // end
+        start_new_block(loopend);
+
+        tmp = CreateLoad(llvm_size);
     }
 
 };

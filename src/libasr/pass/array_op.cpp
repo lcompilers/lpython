@@ -662,6 +662,10 @@ public:
         visit_ArrayOpCommon<ASR::BoolOp_t>(x, "_bool_op_res");
     }
 
+    void visit_ArraySize(const ASR::ArraySize_t& x) {
+        tmp_val = const_cast<ASR::expr_t*>(&(x.base));
+    }
+
     void visit_FunctionCall(const ASR::FunctionCall_t& x) {
         tmp_val = const_cast<ASR::expr_t*>(&(x.base));
         std::string x_name;
