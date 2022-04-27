@@ -177,6 +177,10 @@ def bool(s: str) -> bool:
     """
     return len(s) > 0
 
+@interface
+def len(s: str) -> i32:
+    pass
+
 #: pow() as a generic procedure.
 #: supported types for arguments:
 #: (i32, i32), (i64, i64), (f64, f64),

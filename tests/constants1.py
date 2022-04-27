@@ -35,23 +35,22 @@ def test_len():
     a = len('')
     a = len('test')
     a = len("this is a test")
-    # TODO(namannimmo10): These commented out tests should work
-    # a = len((1, 2, 3))
-    # a = len((("c", "b", 3.4), ("c", 3, 5.6)))
-    # a = len([1, 2, 3])
-    # a = len([[-4, -5, -6], [-1, -2, -3]])
-    # a = len({1, 2, 3})
-    # a = len({1: "c", 2: "b", 3: "c"})
+    a = len((1, 2, 3))
+    a = len((("c", "b", 3.4), ("c", 3, 5.6)))
+    a = len([1, 2, 3])
+    a = len([[-4, -5, -6], [-1, -2, -3]])
+    a = len({1, 2, 3})
+    a = len({1: "c", 2: "b", 3: "c"})
 
 
 def test_bool():
     a: bool
     a = bool(0)
     a = bool(-1)
-    # a = bool('')
+    a = bool('')
     a = bool(complex(0, 0))
     assert a == False
-    # a = bool('t')
+    a = bool('t')
     a = bool(2.3)
     assert a == True
 
