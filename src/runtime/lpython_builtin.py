@@ -7,8 +7,8 @@ def ord(s: str) -> i32: # currently supports characters with unicode value betwe
     Returns an integer representing the Unicode code
     point of a given unicode character. This is the inverse of `chr()`.
     """
-    # if len(s) != 1:
-    #     return -1 # not a character
+    if len(s) != 1:
+        return -1 # not a character
     i: i32
     for i in range(32, 127):
         if chr(i) == s:
@@ -179,6 +179,9 @@ def bool(s: str) -> bool:
 
 @interface
 def len(s: str) -> i32:
+    """
+    Return the length of the string `s`.
+    """
     pass
 
 #: pow() as a generic procedure.
