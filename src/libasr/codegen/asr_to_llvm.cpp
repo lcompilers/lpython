@@ -3373,7 +3373,41 @@ public:
     }
 
     void visit_ComplexIm(const ASR::ComplexIm_t &x) {
-        // TODO
+        ASR::ttype_t* curr_type = extract_ttype_t_from_expr(x.m_arg);
+        int arg_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
+        llvm::Function *fn = nullptr;
+        llvm::Type *ret_type = nullptr, *complex_type = nullptr;
+        llvm::AllocaInst *arg = nullptr;
+        std::string runtime_func_name = "";
+        if (arg_kind == 4) {
+            runtime_func_name = "_lfortran_complex_aimag_32";
+            ret_type = llvm::Type::getFloatTy(context);
+            complex_type = complex_type_4;
+            arg = builder->CreateAlloca(complex_type_4,
+                nullptr);
+        } else {
+             runtime_func_name = "_lfortran_complex_aimag_64";
+            ret_type = llvm::Type::getDoubleTy(context);
+            complex_type = complex_type_8;
+            arg = builder->CreateAlloca(complex_type_8,
+                nullptr);
+        }
+        fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {
+                        complex_type->getPointerTo(),
+                        ret_type->getPointerTo(),
+                    }, true);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        this->visit_expr_wrapper(x.m_arg, true);
+        builder->CreateStore(tmp, arg);
+        llvm::AllocaInst *result = builder->CreateAlloca(ret_type, nullptr);
+        std::vector<llvm::Value*> args = {arg, result};
+        builder->CreateCall(fn, args);
+        tmp = CreateLoad(result);
     }
 
     void visit_Cast(const ASR::Cast_t &x) {
