@@ -941,6 +941,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         src = out;
     }
 
+    void visit_StringLen(const ASR::StringLen_t &x) {
+        std::string out = "std::string(";
+        visit_expr(*x.m_arg);
+        out += src + ").length()";
+        src = out;
+    }
+
     void visit_ExplicitDeallocate(const ASR::ExplicitDeallocate_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "// FIXME: deallocate(";

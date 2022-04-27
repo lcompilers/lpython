@@ -199,6 +199,7 @@ asr = true
 [[test]]
 filename = "../integration_tests/test_builtin_len.py"
 asr = true
+cpp = true
 
 [[test]]
 filename = "../integration_tests/test_builtin_pow.py"

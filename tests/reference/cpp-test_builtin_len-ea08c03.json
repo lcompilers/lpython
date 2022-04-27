@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-test_builtin_len-ea08c03",
+    "cmd": "lpython --no-color --show-cpp {infile}",
+    "infile": "tests/../integration_tests/test_builtin_len.py",
+    "infile_hash": "f1540b68424e3c8f59af07f56535997ceda392b5e9c16f1d32c8913e",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-test_builtin_len-ea08c03.stdout",
+    "stdout_hash": "1f9f9da12de22e086cb8fe294c3f4dc7f3da8181206bed77dc4ceea5",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
