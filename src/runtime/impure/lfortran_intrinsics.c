@@ -193,6 +193,16 @@ LFORTRAN_API double _lfortran_zaimag(double_complex_t x)
     return cimag(x);
 }
 
+LFORTRAN_API void _lfortran_complex_aimag_32(struct _lfortran_complex_32 *x, float *res)
+{
+    *res = x->im;
+}
+
+LFORTRAN_API void _lfortran_complex_aimag_64(struct _lfortran_complex_64 *x, double *res)
+{
+    *res = x->im;
+}
+
 // exp -------------------------------------------------------------------------
 
 LFORTRAN_API float _lfortran_sexp(float x)
@@ -857,7 +867,7 @@ LFORTRAN_API int64_t _lpython_open(char *path, char *flags)
 {
     FILE *fd;
     fd = fopen(path, flags);
-    if (!fd) 
+    if (!fd)
     {
         printf("Error in opening the file!\n");
         perror(path);
@@ -869,7 +879,7 @@ LFORTRAN_API int64_t _lpython_open(char *path, char *flags)
 LFORTRAN_API char* _lpython_read(int64_t fd, int64_t n)
 {
     char *c = (char *) calloc(n, sizeof(char));
-    if (fd < 0) 
+    if (fd < 0)
     {
         printf("Error in reading the file!\n");
         exit(1);
@@ -881,7 +891,7 @@ LFORTRAN_API char* _lpython_read(int64_t fd, int64_t n)
 
 LFORTRAN_API void _lpython_close(int64_t fd)
 {
-    if (fclose((FILE*)fd) != 0) 
+    if (fclose((FILE*)fd) != 0)
     {
         printf("Error in closing the file!\n");
         exit(1);
