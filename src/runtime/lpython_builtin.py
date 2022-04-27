@@ -170,6 +170,12 @@ def bool(c: c32) -> bool:
 def bool(c: c64) -> bool:
     return c.real != 0.0 or _lfortran_zaimag(c) != 0.0
 
+@overload
+def bool(s: str) -> bool:
+    """
+    Return False when the argument `s` is an empty string, True otherwise.
+    """
+    return len(s) > 0
 
 #: pow() as a generic procedure.
 #: supported types for arguments:
