@@ -93,8 +93,10 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
 {
     LFORTRAN_ASSERT(f != nullptr);
     switch (f->type) {
-        case ASR::exprType::BoolOp: { return ((ASR::BoolOp_t*)f)->m_type; }
-        case ASR::exprType::BinOp: { return ((ASR::BinOp_t*)f)->m_type; }
+        case ASR::exprType::LogicalBinOp: { return ((ASR::LogicalBinOp_t*)f)->m_type; }
+        case ASR::exprType::IntegerBinOp: { return ((ASR::IntegerBinOp_t*)f)->m_type; }
+        case ASR::exprType::RealBinOp: { return ((ASR::RealBinOp_t*)f)->m_type; }
+        case ASR::exprType::ComplexBinOp: { return ((ASR::ComplexBinOp_t*)f)->m_type; }
         case ASR::exprType::StrOp: { return ((ASR::StrOp_t*)f)->m_type; }
         case ASR::exprType::UnaryOp: { return ((ASR::UnaryOp_t*)f)->m_type; }
         case ASR::exprType::ComplexConstructor: { return ((ASR::ComplexConstructor_t*)f)->m_type; }
@@ -251,12 +253,12 @@ static inline std::string cmpop_to_str(const ASR::cmpopType t) {
     }
 }
 
-static inline std::string boolop_to_str(const ASR::boolopType t) {
+static inline std::string boolop_to_str(const ASR::logicalbinopType t) {
     switch (t) {
-        case (ASR::boolopType::And): { return " && "; }
-        case (ASR::boolopType::Or): { return " || "; }
-        case (ASR::boolopType::Eqv): { return " == "; }
-        case (ASR::boolopType::NEqv): { return " != "; }
+        case (ASR::logicalbinopType::And): { return " && "; }
+        case (ASR::logicalbinopType::Or): { return " || "; }
+        case (ASR::logicalbinopType::Eqv): { return " == "; }
+        case (ASR::logicalbinopType::NEqv): { return " != "; }
         default : throw LFortranException("Cannot represent the boolean operator as a string");
     }
 }
@@ -264,8 +266,10 @@ static inline std::string boolop_to_str(const ASR::boolopType t) {
 static inline ASR::expr_t* expr_value(ASR::expr_t *f)
 {
     switch (f->type) {
-        case ASR::exprType::BoolOp: { return ASR::down_cast<ASR::BoolOp_t>(f)->m_value; }
-        case ASR::exprType::BinOp: { return ASR::down_cast<ASR::BinOp_t>(f)->m_value; }
+        case ASR::exprType::LogicalBinOp: { return ASR::down_cast<ASR::LogicalBinOp_t>(f)->m_value; }
+        case ASR::exprType::IntegerBinOp: { return ASR::down_cast<ASR::IntegerBinOp_t>(f)->m_value; }
+        case ASR::exprType::RealBinOp: { return ASR::down_cast<ASR::RealBinOp_t>(f)->m_value; }
+        case ASR::exprType::ComplexBinOp: { return ASR::down_cast<ASR::ComplexBinOp_t>(f)->m_value; }
         case ASR::exprType::UnaryOp: { return ASR::down_cast<ASR::UnaryOp_t>(f)->m_value; }
         case ASR::exprType::ComplexConstructor: { return ASR::down_cast<ASR::ComplexConstructor_t>(f)->m_value; }
         case ASR::exprType::Compare: { return ASR::down_cast<ASR::Compare_t>(f)->m_value; }
@@ -1012,7 +1016,7 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                         a_len = -3;
                         break;
                     }
-                    case ASR::exprType::BinOp: {
+                    case ASR::exprType::IntegerBinOp: {
                         a_len = -3;
                         break;
                     }

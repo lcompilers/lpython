@@ -781,7 +781,20 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
     }
 
-    void visit_BinOp(const ASR::BinOp_t &x) {
+    void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
+        handle_BinOp(x);
+    }
+
+    void visit_RealBinOp(const ASR::RealBinOp_t &x) {
+        handle_BinOp(x);
+    }
+
+    void visit_ComplexBinOp(const ASR::ComplexBinOp_t &x) {
+        handle_BinOp(x);
+    }
+
+    template <typename T>
+    void handle_BinOp(const T &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(src);
         int left_precedence = last_expr_precedence;
@@ -848,7 +861,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
     }
 
-    void visit_BoolOp(const ASR::BoolOp_t &x) {
+    void visit_LogicalBinOp(const ASR::LogicalBinOp_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(src);
         int left_precedence = last_expr_precedence;
@@ -856,19 +869,19 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string right = std::move(src);
         int right_precedence = last_expr_precedence;
         switch (x.m_op) {
-            case (ASR::boolopType::And): {
+            case (ASR::logicalbinopType::And): {
                 last_expr_precedence = 14;
                 break;
             }
-            case (ASR::boolopType::Or): {
+            case (ASR::logicalbinopType::Or): {
                 last_expr_precedence = 15;
                 break;
             }
-            case (ASR::boolopType::NEqv): {
+            case (ASR::logicalbinopType::NEqv): {
                 last_expr_precedence = 10;
                 break;
             }
-            case (ASR::boolopType::Eqv): {
+            case (ASR::logicalbinopType::Eqv): {
                 last_expr_precedence = 10;
                 break;
             }

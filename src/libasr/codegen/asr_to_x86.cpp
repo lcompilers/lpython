@@ -302,7 +302,7 @@ public:
         }
     }
 
-    void visit_BinOp(const ASR::BinOp_t &x) {
+    void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
         this->visit_expr(*x.m_right);
         m_a.asm_push_r32(X86Reg::eax);
         this->visit_expr(*x.m_left);
