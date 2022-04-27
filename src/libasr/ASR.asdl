@@ -227,13 +227,22 @@ expr
     | LogicalConstant(bool value, ttype type)
 
     | ListConstant(expr* args, ttype type)
+    | ListLen(expr arg, ttype type, expr? value)
     | ListConcat(expr left, expr right, ttype type, expr? value)
 
     | ArrayConstant(expr* args, ttype type)
+
     | SetConstant(expr* elements, ttype type)
+    | SetLen(expr arg, ttype type, expr? value)
+
     | TupleConstant(expr* elements, ttype type)
+    | TupleLen(expr arg, ttype type, expr? value)
+
     | StringConstant(string s, ttype type)
+    | StringLen(expr arg, ttype type, expr? value)
+
     | DictConstant(expr* keys, expr* values, ttype type)
+    | DictLen(expr arg, ttype type, expr? value)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type, expr? value)
     | DerivedRef(expr v, symbol m, ttype type, expr? value)

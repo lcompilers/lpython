@@ -35,13 +35,17 @@ def test_len():
     a = len('')
     a = len('test')
     a = len("this is a test")
-    # TODO(namannimmo10): These commented out tests should work
-    # a = len((1, 2, 3))
-    # a = len((("c", "b", 3.4), ("c", 3, 5.6)))
-    # a = len([1, 2, 3])
-    # a = len([[-4, -5, -6], [-1, -2, -3]])
-    # a = len({1, 2, 3})
-    # a = len({1: "c", 2: "b", 3: "c"})
+    a = len((1, 2, 3))
+    a = len((("c", "b", 3.4), ("c", 3, 5.6)))
+    a = len([1, 2, 3])
+    a = len([[-4, -5, -6], [-1, -2, -3]])
+    a = len({1, 2, 3})
+    a = len({1: "c", 2: "b", 3: "c"})
+    l: list[i32]
+    l = [1, 2, 3, 4]
+    a = len(l)
+    l.append(5)
+    a = len(l)
 
 
 def test_bool():

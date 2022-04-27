@@ -2680,6 +2680,67 @@ public:
         return nullptr;
     }
 
+    ASR::asr_t* handle_intrinsic_len(Allocator &al, Vec<ASR::call_arg_t> args,
+                                        const Location &loc) {
+        if (args.size() != 1) {
+            throw SemanticError("len() takes exactly one argument (" +
+                std::to_string(args.size()) + " given)", loc);
+        }
+        ASR::expr_t *arg = args[0].m_value;
+        ASR::ttype_t *type = ASRUtils::expr_type(arg);
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                                4, nullptr, 0));
+        ASR::expr_t *value = nullptr;
+        if (ASRUtils::is_character(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                char* c = ASR::down_cast<ASR::StringConstant_t>(
+                                        ASRUtils::expr_value(arg))->m_s;
+                int64_t ival = std::string(c).size();
+                value = ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al,
+                                loc, ival, to_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(
+                    ASR::make_StringLen_t(al, loc, arg, to_type, value));
+        } else if (ASR::is_a<ASR::Set_t>(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                int64_t ival = (int64_t)ASR::down_cast<ASR::SetConstant_t>(
+                                        ASRUtils::expr_value(arg))->n_elements;
+                value = ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al,
+                                loc, ival, to_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(
+                    ASR::make_SetLen_t(al, loc, arg, to_type, value));
+        } else if (ASR::is_a<ASR::Tuple_t>(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                int64_t ival = (int64_t)ASR::down_cast<ASR::TupleConstant_t>(
+                                        ASRUtils::expr_value(arg))->n_elements;
+                value = ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al,
+                                loc, ival, to_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(
+                    ASR::make_TupleLen_t(al, loc, arg, to_type, value));
+        } else if (ASR::is_a<ASR::List_t>(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                int64_t ival = (int64_t)ASR::down_cast<ASR::ListConstant_t>(
+                                        ASRUtils::expr_value(arg))->n_args;
+                value = ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al,
+                                loc, ival, to_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(
+                    ASR::make_ListLen_t(al, loc, arg, to_type, value));
+        } else if (ASR::is_a<ASR::Dict_t>(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                int64_t ival = (int64_t)ASR::down_cast<ASR::DictConstant_t>(
+                                        ASRUtils::expr_value(arg))->n_keys;
+                value = ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al,
+                                loc, ival, to_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(
+                    ASR::make_DictLen_t(al, loc, arg, to_type, value));
+        }
+        throw SemanticError("len() is only supported for `str`, `set`, `dict`, `list` and `tuple`", loc);
+    }
+
     void visit_Call(const AST::Call_t &x) {
         std::string call_name;
         Vec<ASR::call_arg_t> args;
@@ -2806,6 +2867,9 @@ public:
                 } else {
                     tmp = handle_intrinsic_float(al, args, x.base.base.loc);
                 }
+                return;
+            } else if (call_name == "len") {
+                tmp = handle_intrinsic_len(al, args, x.base.base.loc);
                 return;
             } else {
                 // The function was not found and it is not intrinsic

@@ -2860,6 +2860,17 @@ public:
         }
     }
 
+    void visit_StringLen(const ASR::StringLen_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_arg, true);
+        llvm::AllocaInst *parg = builder->CreateAlloca(character_type, nullptr);
+        builder->CreateStore(tmp, parg);
+        tmp = lfortran_str_len(parg);
+    }
+
     void visit_BinOp(const ASR::BinOp_t &x) {
         if( x.m_overloaded ) {
             this->visit_expr(*x.m_overloaded);

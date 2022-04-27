@@ -177,7 +177,6 @@ def bool(c: c32) -> bool:
 def bool(c: c64) -> bool:
     return c.real != 0.0 or _lfortran_zaimag(c) != 0.0
 
-
 @interface
 def len(s: str) -> i32:
     """
