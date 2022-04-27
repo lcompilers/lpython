@@ -280,6 +280,7 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::TupleConstant: // Drop through
         case ASR::exprType::DictConstant: // Drop through
         case ASR::exprType::SetConstant: // Drop through
+        case ASR::exprType::ListConstant: // Drop through
         case ASR::exprType::StringConstant:{ // For all Constants
             return f;
         }
