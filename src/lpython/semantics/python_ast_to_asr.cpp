@@ -2738,7 +2738,7 @@ public:
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(
                     ASR::make_DictLen_t(al, loc, arg, to_type, value));
         }
-        return nullptr;
+        throw SemanticError("len() is only supported for `str`, `set`, `dict`, `list` and `tuple`", loc);
     }
 
     void visit_Call(const AST::Call_t &x) {
