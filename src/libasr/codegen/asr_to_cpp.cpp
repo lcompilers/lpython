@@ -503,10 +503,6 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 LFORTRAN_ASSERT(x.n_args > 0);
                 visit_expr(*x.m_args[0].m_value);
                 src = "!(" + src + ")";
-            } else if (fn_name == "len") {
-                LFORTRAN_ASSERT(x.n_args > 0);
-                visit_expr(*x.m_args[0].m_value);
-                src = "(" + src + ").size()";
             } else {
                 throw CodeGenError("Intrinsic function '" + fn_name
                         + "' not implemented");
@@ -942,9 +938,13 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_StringLen(const ASR::StringLen_t &x) {
-        std::string out = "std::string(";
-        visit_expr(*x.m_arg);
-        out += src + ").length()";
+        std::string out = "";
+        this->visit_expr(*x.m_arg);
+        if (x.m_value) {
+            out += "std::string(" + src + ").length()";
+        } else {
+            out += src + ".length()";
+        }
         src = out;
     }
 

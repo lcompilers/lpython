@@ -26,9 +26,9 @@ void test_len()
 {
     std::string s;
     s = "abcd";
-    assert (std::string(s).length() == 4);
+    assert (s.length() == 4);
     s = "";
-    assert (std::string(s).length() == 0);
+    assert (s.length() == 0);
     assert (std::string("abcd").length() == 4);
     assert (std::string("").length() == 0);
 }
