@@ -208,9 +208,7 @@ stmt
 
 
 expr
-    = BoolOp(expr left, boolop op, expr right, ttype type, expr? value)
-    | BinOp(expr left, binop op, expr right, ttype type, expr? value, expr? overloaded)
-    | StrOp(expr left, strop op, expr right, ttype type, expr? value)
+    = StrOp(expr left, strop op, expr right, ttype type, expr? value)
     | UnaryOp(unaryop op, expr operand, ttype type, expr? value)
         -- Such as: (x, y+z), (3.0, 2.0) generally not known at compile time
     | ComplexConstructor(expr re, expr im, ttype type, expr? value)
@@ -222,10 +220,14 @@ expr
     | DerivedTypeConstructor(symbol dt_sym, expr* args, ttype type)
     | ImpliedDoLoop(expr* values, expr var, expr start, expr end,
                     expr? increment, ttype type, expr? value)
+    | IntegerBinOp(expr left, binop op, expr right, ttype type, expr? value)
     | IntegerConstant(int n, ttype type)
     | IntegerBOZ(int v, integerboz intboz_type, ttype? type)
+    | RealBinOp(expr left, binop op, expr right, ttype type, expr? value)
     | RealConstant(float r, ttype type)
+    | ComplexBinOp(expr left, binop op, expr right, ttype type, expr? value)
     | ComplexConstant(float re, float im, ttype type)
+    | LogicalBinOp(expr left, logicalbinop op, expr right, ttype type, expr? value)
     | LogicalConstant(bool value, ttype type)
 
     | ListConstant(expr* args, ttype type)
@@ -248,6 +250,7 @@ expr
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type, expr? value)
     | ArraySize(expr v, expr? dim, ttype type, expr? value)
+    | OverloadedBinOp(expr left, binop op, expr right, ttype type, expr? value, expr overloaded)
     | DerivedRef(expr v, symbol m, ttype type, expr? value)
     | Cast(expr arg, cast_kind kind, ttype type, expr? value)
     | ComplexRe(expr arg, ttype type, expr? value)
@@ -274,9 +277,9 @@ ttype
     | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
 
-boolop = And | Or | Xor | NEqv | Eqv
 
 binop = Add | Sub | Mul | Div | Pow
+logicalbinop = And | Or | Xor | NEqv | Eqv
 
 unaryop = Invert | Not | UAdd | USub
 
