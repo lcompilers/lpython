@@ -1832,10 +1832,12 @@ public:
             tmp = nullptr;
         } else {
             ASR::expr_t *value = ASRUtils::EXPR(tmp);
-            if (!ASRUtils::check_equal_type(ASRUtils::expr_type(target),
-                                        ASRUtils::expr_type(value))) {
-                std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(target));
-                std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(value));
+            ASR::ttype_t *target_type = ASRUtils::expr_type(target);
+            ASR::ttype_t *value_type = ASRUtils::expr_type(value);
+
+            if (!ASRUtils::check_equal_type(target_type, value_type)) {
+                std::string ltype = ASRUtils::type_to_str_python(target_type);
+                std::string rtype = ASRUtils::type_to_str_python(value_type);
                 diag.add(diag::Diagnostic(
                     "Type mismatch in assignment, the types must be compatible",
                     diag::Level::Error, diag::Stage::Semantic, {
