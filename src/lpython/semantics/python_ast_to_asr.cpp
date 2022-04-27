@@ -1832,10 +1832,12 @@ public:
             tmp = nullptr;
         } else {
             ASR::expr_t *value = ASRUtils::EXPR(tmp);
-            if (!ASRUtils::check_equal_type(ASRUtils::expr_type(target),
-                                        ASRUtils::expr_type(value))) {
-                std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(target));
-                std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(value));
+            ASR::ttype_t *target_type = ASRUtils::expr_type(target);
+            ASR::ttype_t *value_type = ASRUtils::expr_type(value);
+
+            if (!ASRUtils::check_equal_type(target_type, value_type)) {
+                std::string ltype = ASRUtils::type_to_str_python(target_type);
+                std::string rtype = ASRUtils::type_to_str_python(value_type);
                 diag.add(diag::Diagnostic(
                     "Type mismatch in assignment, the types must be compatible",
                     diag::Level::Error, diag::Stage::Semantic, {
@@ -2025,23 +2027,20 @@ public:
                     std::string attr = x.m_attr;
                     if (attr == "imag") {
                         ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, x.base.base.loc, t));
-                        ASR::symbol_t *fn_imag = resolve_intrinsic_function(x.base.base.loc, "_lpython_imag");
-                        Vec<ASR::call_arg_t> args;
-                        args.reserve(al, 1);
-                        ASR::call_arg_t arg;
-                        arg.loc = val->base.loc;
-                        arg.m_value = val;
-                        args.push_back(al, arg);
-                        tmp = make_call_helper(al, fn_imag, current_scope, args, "_lpython_imag", x.base.base.loc);
+                        int kind = ASRUtils::extract_kind_from_ttype_t(var->m_type);
+                        ASR::ttype_t *dest_type = ASR::down_cast<ASR::ttype_t>(ASR::make_Real_t(al, x.base.base.loc,
+                                                        kind, nullptr, 0));
+                        tmp = ASR::make_ComplexIm_t(al, x.base.base.loc, val, dest_type, nullptr);
                         return;
                     } else if (attr == "real") {
                         ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, x.base.base.loc, t));
                         int kind = ASRUtils::extract_kind_from_ttype_t(var->m_type);
                         ASR::ttype_t *dest_type = ASR::down_cast<ASR::ttype_t>(ASR::make_Real_t(al, x.base.base.loc,
                                                         kind, nullptr, 0));
-                        tmp = (ASR::asr_t*)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                        ASR::expr_t *value = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
                             al, val->base.loc, val, ASR::cast_kindType::ComplexToReal, dest_type,
                             nullptr));
+                        tmp = ASR::make_ComplexRe_t(al, x.base.base.loc, val, dest_type, ASRUtils::expr_value(value));
                         return;
                     } else {
                         throw SemanticError("'" + attr + "' is not implemented for Complex type",

@@ -125,6 +125,8 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::ArrayRef: { return ((ASR::ArrayRef_t*)f)->m_type; }
         case ASR::exprType::DerivedRef: { return ((ASR::DerivedRef_t*)f)->m_type; }
         case ASR::exprType::Cast: { return ((ASR::Cast_t*)f)->m_type; }
+        case ASR::exprType::ComplexRe: { return ((ASR::ComplexRe_t*)f)->m_type; }
+        case ASR::exprType::ComplexIm: { return ((ASR::ComplexIm_t*)f)->m_type; }
         default : throw LFortranException("Not implemented");
     }
 }
@@ -202,7 +204,8 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t)
             return "tuple";
         }
         case ASR::ttypeType::Set: {
-            return "set";
+            ASR::Set_t *s = (ASR::Set_t *)t;
+            return "set[" + type_to_str_python(s->m_type) + "]";
         }
         case ASR::ttypeType::Dict: {
             return "dict";
@@ -277,6 +280,8 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::ListLen: { return ASR::down_cast<ASR::ListLen_t>(f)->m_value; }
         case ASR::exprType::TupleLen: { return ASR::down_cast<ASR::TupleLen_t>(f)->m_value; }
         case ASR::exprType::SetLen: { return ASR::down_cast<ASR::SetLen_t>(f)->m_value; }
+        case ASR::exprType::ComplexRe: { return ASR::down_cast<ASR::ComplexRe_t>(f)->m_value; }
+        case ASR::exprType::ComplexIm: { return ASR::down_cast<ASR::ComplexIm_t>(f)->m_value; }
         case ASR::exprType::ArrayConstant: // Drop through
         case ASR::exprType::IntegerConstant: // Drop through
         case ASR::exprType::RealConstant: // Drop through
@@ -1010,6 +1015,13 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
             }
 
             inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
+                if (ASR::is_a<ASR::List_t>(*x) && ASR::is_a<ASR::List_t>(*y)) {
+                    x = ASR::down_cast<ASR::List_t>(x)->m_type;
+                    y = ASR::down_cast<ASR::List_t>(y)->m_type;
+                } else if (ASR::is_a<ASR::Set_t>(*x) && ASR::is_a<ASR::Set_t>(*y)) {
+                    x = ASR::down_cast<ASR::Set_t>(x)->m_type;
+                    y = ASR::down_cast<ASR::Set_t>(y)->m_type;
+                }
                 if( x->type == y->type ) {
                     return true;
                 }
