@@ -285,13 +285,6 @@ public:
                 "'" + var_name + "' is undeclared");
             throw SemanticAbort();
         }
-        if( v->type == ASR::symbolType::Variable ) {
-            ASR::Variable_t* v_var = ASR::down_cast<ASR::Variable_t>(v);
-            if( v_var->m_type == nullptr &&
-                v_var->m_intent == ASR::intentType::AssociateBlock ) {
-                return (ASR::asr_t*)(v_var->m_symbolic_value);
-            }
-        }
         return ASR::make_Var_t(al, loc, v);
     }
 
