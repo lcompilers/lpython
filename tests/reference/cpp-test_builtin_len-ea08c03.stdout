@@ -24,13 +24,21 @@ void _lpython_main_program()
 
 void test_len()
 {
+    int i;
     std::string s;
+    std::string t;
     s = "abcd";
-    assert (s.length() == 4);
+    assert (s.size() == 4);
     s = "";
-    assert (s.length() == 0);
-    assert (std::string("abcd").length() == 4);
-    assert (std::string("").length() == 0);
+    assert (s.size() == 0);
+    assert (std::string("abcd").size() == 4);
+    assert (std::string("").size() == 0);
+    t = "efg";
+    s = std::string("abcd") + std::string(t);
+    i = s.size();
+    assert (i == 7);
+    i = std::string(std::string("abc") + std::string("def")).size();
+    assert (i == 6);
 }
 
 namespace {
