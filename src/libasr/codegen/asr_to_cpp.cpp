@@ -941,9 +941,9 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::string out = "";
         this->visit_expr(*x.m_arg);
         if (x.m_value) {
-            out += "std::string(" + src + ").length()";
+            out += "std::string(" + src + ").size()";
         } else {
-            out += src + ".length()";
+            out += src + ".size()";
         }
         src = out;
     }
