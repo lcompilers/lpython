@@ -1808,12 +1808,61 @@ public:
     void visit_Assign(const AST::Assign_t &x) {
         ASR::expr_t *target;
         if (x.n_targets == 1) {
+            if (AST::is_a<AST::Subscript_t>(*x.m_targets[0])) {
+                AST::Subscript_t *sb = AST::down_cast<AST::Subscript_t>(x.m_targets[0]);
+                if (AST::is_a<AST::Name_t>(*sb->m_value)) {
+                    std::string name = AST::down_cast<AST::Name_t>(sb->m_value)->m_id;
+                    ASR::symbol_t *s = current_scope->scope[name];
+                    if (!s) {
+                        throw SemanticError("Variable: '" + name + "' is not declared",
+                                x.base.base.loc);
+                    }
+                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+                    ASR::ttype_t *type = v->m_type;
+                    if (ASR::is_a<ASR::Dict_t>(*type)) {
+                        // dict insert case;
+                        this->visit_expr(*sb->m_slice);
+                        ASR::expr_t *key = ASRUtils::EXPR(tmp);
+                        this->visit_expr(*x.m_value);
+                        ASR::expr_t *val = ASRUtils::EXPR(tmp);
+                        ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
+                        ASR::ttype_t *value_type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
+                        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type)) {
+                            std::string ktype = ASRUtils::type_to_str_python(ASRUtils::expr_type(key));
+                            std::string totype = ASRUtils::type_to_str_python(key_type);
+                            diag.add(diag::Diagnostic(
+                                "Type mismatch in dictionary key, the types must be compatible",
+                                diag::Level::Error, diag::Stage::Semantic, {
+                                    diag::Label("type mismatch ('" + ktype + "' and '" + totype + "')",
+                                            {x.base.base.loc})
+                                })
+                            );
+                            throw SemanticAbort();
+                        }
+                        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(val), value_type)) {
+                            std::string vtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(val));
+                            std::string totype = ASRUtils::type_to_str_python(value_type);
+                            diag.add(diag::Diagnostic(
+                                "Type mismatch in dictionary value, the types must be compatible",
+                                diag::Level::Error, diag::Stage::Semantic, {
+                                    diag::Label("type mismatch ('" + vtype + "' and '" + totype + "')",
+                                            {x.base.base.loc})
+                                })
+                            );
+                            throw SemanticAbort();
+                        }
+                        tmp = make_DictInsert_t(al, x.base.base.loc, s, key, val);
+                        return;
+                    }
+                }
+            }
             this->visit_expr(*x.m_targets[0]);
             target = ASRUtils::EXPR(tmp);
         } else {
             throw SemanticError("Assignment to multiple targets not supported",
                 x.base.base.loc);
         }
+
         this->visit_expr(*x.m_value);
         if (tmp == nullptr) {
             // This happens if `m.m_value` is `empty`, such as in:
@@ -2796,7 +2845,7 @@ public:
                                     {x.base.base.loc}),
                         })
                     );
-                }            
+                }
             } else {
                 // TODO: We need to port all functions below to the intrinsic functions file
                 // Then we can uncomment this error message:
