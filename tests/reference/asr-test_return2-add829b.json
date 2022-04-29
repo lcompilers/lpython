@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_return2-add829b",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_return2.py",
+    "infile_hash": "6423d00b6ef8b232c393994d190121f76befdc32a2e5da21d655458b",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_return2-add829b.stderr",
+    "stderr_hash": "493f7a8431e00a1bfeb1756b0718b0a40458883c8b9eb379f0c5b536",
+    "returncode": 2
+}

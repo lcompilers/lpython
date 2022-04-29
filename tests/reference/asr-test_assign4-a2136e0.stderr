@@ -1,0 +1,5 @@
+semantic error: Type mismatch in assignment, the types must be compatible
+ --> tests/errors/test_assign4.py:5:5
+  |
+5 |     f = x
+  |     ^   ^ type mismatch ('f64' and 'i32')
