@@ -24,6 +24,8 @@ def test_str_index():
     a: str
     a = "012345"
     assert a[2] == "2"
+    assert a[-1] == "5"
+    assert a[-6] == "0"
 
 def check():
     f()
