@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_binop2-e5749af",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_binop2.py",
+    "infile_hash": "f59bd668e0e7e0ac665c62d89eee87d8bcaa199e9f11825f38dad655",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_binop2-e5749af.stderr",
+    "stderr_hash": "3214693e7c1f71d8343f547e7a3ab0167b4f9310540009475d2f1c79",
+    "returncode": 2
+}

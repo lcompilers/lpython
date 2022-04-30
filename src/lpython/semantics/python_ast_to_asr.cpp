@@ -847,7 +847,7 @@ public:
             diag.add(diag::Diagnostic(
                 "Type mismatch in binary operator, the types must be compatible",
                 diag::Level::Error, diag::Stage::Semantic, {
-                    diag::Label("type mismatch (" + ltype + " and " + rtype + ")",
+                    diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
                             {left->base.loc, right->base.loc})
                 })
             );
@@ -1250,7 +1250,9 @@ public:
                 index = ASRUtils::EXPR(tmp);
                 ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(index), key_type)) {
-                    throw SemanticError("Key type must be: " + ASRUtils::type_to_str_python(key_type),
+                    throw SemanticError("Key type should be '" + ASRUtils::type_to_str_python(key_type) +
+                                        "' instead of '" +
+                                        ASRUtils::type_to_str_python(ASRUtils::expr_type(index)) + "'",
                             x.base.base.loc);
                 }
             } else {
@@ -2406,8 +2408,8 @@ public:
         if (!ASRUtils::check_equal_type(target_type, value_type)) {
             std::string ltype = ASRUtils::type_to_str_python(target_type);
             std::string rtype = ASRUtils::type_to_str_python(value_type);
-            throw SemanticError("Type Mismatch in return, found (" +
-                    ltype + " and " + rtype + ")", x.base.base.loc);
+            throw SemanticError("Type Mismatch in return, found ('" +
+                    ltype + "' and '" + rtype + "')", x.base.base.loc);
         }
         value = cast_helper(ASRUtils::expr_type(target), value, true);
         ASR::stmt_t *overloaded=nullptr;
