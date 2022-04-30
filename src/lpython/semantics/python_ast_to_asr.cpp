@@ -1833,8 +1833,8 @@ public:
                             diag.add(diag::Diagnostic(
                                 "Type mismatch in dictionary key, the types must be compatible",
                                 diag::Level::Error, diag::Stage::Semantic, {
-                                    diag::Label("type mismatch ('" + ktype + "' and '" + totype + "')",
-                                            {x.base.base.loc})
+                                    diag::Label("type mismatch (found: '" + ktype + "', expected: '" + totype + "')",
+                                            {key->base.loc})
                                 })
                             );
                             throw SemanticAbort();
@@ -1845,8 +1845,8 @@ public:
                             diag.add(diag::Diagnostic(
                                 "Type mismatch in dictionary value, the types must be compatible",
                                 diag::Level::Error, diag::Stage::Semantic, {
-                                    diag::Label("type mismatch ('" + vtype + "' and '" + totype + "')",
-                                            {x.base.base.loc})
+                                    diag::Label("type mismatch (found: '" + vtype + "', expected: '" + totype + "')",
+                                            {val->base.loc})
                                 })
                             );
                             throw SemanticAbort();
