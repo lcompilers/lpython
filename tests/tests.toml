@@ -374,3 +374,7 @@ asr = true
 [[test]]
 filename = "errors/test_return2.py"
 asr = true
+
+[[test]]
+filename = "errors/test_dict2.py"
+asr = true

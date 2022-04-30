@@ -10,3 +10,9 @@ def test_Dict():
     z = y["a"]
     z = y["b"]
     z = x[1]
+
+
+def test_dict_insert():
+    y: dict[str, i32]
+    y = {"a": -1, "b": -2}
+    y["c"] = -3

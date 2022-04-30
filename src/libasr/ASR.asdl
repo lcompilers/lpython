@@ -205,6 +205,7 @@ stmt
     | SetRemove(symbol a, expr ele)
     | ListInsert(symbol a, expr pos, expr ele)
     | ListRemove(symbol a, expr ele)
+    | DictInsert(symbol a, expr key, expr value)
 
 
 expr
