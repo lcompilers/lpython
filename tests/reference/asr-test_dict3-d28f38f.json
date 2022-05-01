@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_dict3-d28f38f",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_dict3.py",
+    "infile_hash": "c8930919a9c47244ed4c57c1235dd2000650eb61dbfb6f413ae934e0",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_dict3-d28f38f.stderr",
+    "stderr_hash": "e2cc26634c1ee7aeca96c006b3bd01205200e1a6187e01fde041c3b4",
+    "returncode": 2
+}
