@@ -253,6 +253,7 @@ expr
     | Cast(expr arg, cast_kind kind, ttype type, expr? value)
     | ComplexRe(expr arg, ttype type, expr? value)
     | ComplexIm(expr arg, ttype type, expr? value)
+    | DictItem(symbol a, expr key, expr? default, ttype type)
 
 
 -- `len` in Character:
