@@ -1233,7 +1233,7 @@ public:
                 if (!ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
                     throw SemanticError("slice indices must be integers or None", tmp->loc);
                 }
-                ai.m_right = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
+                ai.m_right = ASRUtils::EXPR(tmp);
             }
             if (s->m_step != nullptr) {
                 this->visit_expr(*s->m_step);
