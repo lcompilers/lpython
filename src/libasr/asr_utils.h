@@ -210,7 +210,8 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t)
             return "set[" + type_to_str_python(s->m_type) + "]";
         }
         case ASR::ttypeType::Dict: {
-            return "dict";
+            ASR::Dict_t *d = (ASR::Dict_t *)t;
+            return "dict[" + type_to_str_python(d->m_key_type) + ", " + type_to_str_python(d->m_value_type) + "]";
         }
         case ASR::ttypeType::List: {
             ASR::List_t *l = (ASR::List_t *)t;
@@ -1034,6 +1035,17 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                 } else if (ASR::is_a<ASR::Set_t>(*x) && ASR::is_a<ASR::Set_t>(*y)) {
                     x = ASR::down_cast<ASR::Set_t>(x)->m_type;
                     y = ASR::down_cast<ASR::Set_t>(y)->m_type;
+                } else if (ASR::is_a<ASR::Dict_t>(*x) && ASR::is_a<ASR::Dict_t>(*y)) {
+                    ASR::ttype_t *x_key_type = ASR::down_cast<ASR::Dict_t>(x)->m_key_type;
+                    ASR::ttype_t *y_key_type = ASR::down_cast<ASR::Dict_t>(y)->m_key_type;
+                    ASR::ttype_t *x_value_type = ASR::down_cast<ASR::Dict_t>(x)->m_value_type;
+                    ASR::ttype_t *y_value_type = ASR::down_cast<ASR::Dict_t>(y)->m_value_type;
+                    if (x->type == y->type &&
+                        check_equal_type(x_key_type, y_key_type) &&
+                        check_equal_type(x_value_type, y_value_type)) {
+                        return true;
+                    }
+                    return false;
                 }
                 if( x->type == y->type ) {
                     return true;
