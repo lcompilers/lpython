@@ -395,3 +395,6 @@ asr = true
 filename = "errors/test_dict4.py"
 asr = true
 
+[[test]]
+filename = "errors/test_dict5.py"
+asr = true
