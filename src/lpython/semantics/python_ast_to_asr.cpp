@@ -1253,8 +1253,12 @@ public:
                     throw SemanticError("Key type should be '" + ASRUtils::type_to_str_python(key_type) +
                                         "' instead of '" +
                                         ASRUtils::type_to_str_python(ASRUtils::expr_type(index)) + "'",
-                            x.base.base.loc);
+                            index->base.loc);
                 }
+                tmp = make_DictItem_t(al, x.base.base.loc, s, index, nullptr,
+                                      ASR::down_cast<ASR::Dict_t>(type)->m_value_type);
+                return;
+
             } else {
                 index = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
             }
@@ -1270,8 +1274,6 @@ public:
             type = ASR::down_cast<ASR::List_t>(type)->m_type;
         } else if (ASR::is_a<ASR::Set_t>(*type)) {
             throw SemanticError("'set' object is not subscriptable", x.base.base.loc);
-        } else if (ASR::is_a<ASR::Dict_t>(*type)) {
-            type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
         }
         args.push_back(al, ai);
         tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, s, args.p,
