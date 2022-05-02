@@ -703,29 +703,31 @@ public:
                     right = cast_helper(ASRUtils::expr_type(left), right);
                     dest_type = ASRUtils::expr_type(left);
                 }
-                if (ASRUtils::is_integer(*right_type)) {
-                    int8_t value = ASR::down_cast<ASR::IntegerConstant_t>(ASRUtils::expr_value(right))->m_n;
-                    if (value == 0) {
-                        diag.add(diag::Diagnostic(
-                            "integer division by zero is not allowed",
-                            diag::Level::Error, diag::Stage::Semantic, {
-                                diag::Label("integer division by zero",
-                                        {right->base.loc})
-                            })
-                        );
-                        throw SemanticAbort();
-                    }
-                } else {
-                    double value = ASR::down_cast<ASR::RealConstant_t>(ASRUtils::expr_value(right))->m_r;
-                    if (value == 0.0) {
-                        diag.add(diag::Diagnostic(
-                            "float floor division by zero is not allowed",
-                            diag::Level::Error, diag::Stage::Semantic, {
-                                diag::Label("float floor division by zero",
-                                        {right->base.loc})
-                            })
-                        );
-                        throw SemanticAbort();
+                if (ASRUtils::expr_value(right) != nullptr) {
+                    if (ASRUtils::is_integer(*right_type)) {
+                        int8_t value = ASR::down_cast<ASR::IntegerConstant_t>(ASRUtils::expr_value(right))->m_n;
+                        if (value == 0) {
+                            diag.add(diag::Diagnostic(
+                                "integer division by zero is not allowed",
+                                diag::Level::Error, diag::Stage::Semantic, {
+                                    diag::Label("integer division by zero",
+                                            {right->base.loc})
+                                })
+                            );
+                            throw SemanticAbort();
+                        }
+                    } else if (ASRUtils::is_real(*right_type)) {
+                        double value = ASR::down_cast<ASR::RealConstant_t>(ASRUtils::expr_value(right))->m_r;
+                        if (value == 0.0) {
+                            diag.add(diag::Diagnostic(
+                                "float floor division by zero is not allowed",
+                                diag::Level::Error, diag::Stage::Semantic, {
+                                    diag::Label("float floor division by zero",
+                                            {right->base.loc})
+                                })
+                            );
+                            throw SemanticAbort();
+                        }
                     }
                 }
                 ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_floordiv");
