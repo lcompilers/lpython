@@ -741,6 +741,30 @@ public:
         return CreateLoad(presult);
     }
 
+    llvm::Value* lfortran_strrepeat(llvm::Value* left_arg, llvm::Value* right_arg)
+    {
+        std::string runtime_func_name = "_lfortran_strrepeat";
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {
+                        character_type->getPointerTo(),
+                        llvm::Type::getInt32Ty(context),
+                        character_type->getPointerTo()
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        llvm::AllocaInst *pleft_arg = builder->CreateAlloca(character_type,
+            nullptr);
+        builder->CreateStore(left_arg, pleft_arg);
+        llvm::AllocaInst *presult = builder->CreateAlloca(character_type,
+            nullptr);
+        std::vector<llvm::Value*> args = {pleft_arg, right_arg, presult};
+        builder->CreateCall(fn, args);
+        return CreateLoad(presult);
+    }
+
     llvm::Value* lfortran_str_len(llvm::Value* str)
     {
         std::string runtime_func_name = "_lfortran_str_len";
@@ -2818,7 +2842,7 @@ public:
                 break;
             };
             case ASR::stropType::Repeat: {
-                tmp = lfortran_strop(left_val, right_val, "_lfortran_strrepeat");
+                tmp = lfortran_strrepeat(left_val, right_val);
                 break;
             };
         }

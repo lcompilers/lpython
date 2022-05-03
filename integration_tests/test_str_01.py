@@ -33,10 +33,16 @@ def test_str_slice():
     assert a[2:4] == "23"
     assert a[2:3] == a[2]
 
+def test_str_repeat():
+    a: str
+    a = "Xyz"
+    assert a*3 == "XyzXyzXyz"
+
 def check():
     f()
     test_str_concat()
     test_str_index()
     test_str_slice()
+    test_str_repeat()
 
 check()
