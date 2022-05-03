@@ -23,6 +23,7 @@
 #include <lpython/semantics/semantic_exception.h>
 #include <lpython/python_serialization.h>
 #include <lpython/semantics/python_comptime_eval.h>
+#include <lpython/semantics/python_attribute_eval.h>
 #include <lpython/parser/parser.h>
 
 
@@ -266,6 +267,7 @@ public:
     // The main module is stored directly in TranslationUnit, other modules are Modules
     bool main_module;
     PythonIntrinsicProcedures intrinsic_procedures;
+    AttributeHandler attr_handler;
     std::map<int, ASR::symbol_t*> &ast_overload;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
@@ -353,6 +355,12 @@ public:
             }
         }
         return v;
+    }
+
+    void handle_attribute(ASR::symbol_t *s, std::string attr_name,
+                const Location &loc, Vec<ASR::expr_t*> &args) {
+        tmp = attr_handler.get_attribute(s, attr_name, al, loc, args);
+        return;
     }
 
     // Function to create appropriate call based on symbol type. If it is external
