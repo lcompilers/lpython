@@ -1032,20 +1032,18 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                 if (ASR::is_a<ASR::List_t>(*x) && ASR::is_a<ASR::List_t>(*y)) {
                     x = ASR::down_cast<ASR::List_t>(x)->m_type;
                     y = ASR::down_cast<ASR::List_t>(y)->m_type;
+                    return check_equal_type(x, y);
                 } else if (ASR::is_a<ASR::Set_t>(*x) && ASR::is_a<ASR::Set_t>(*y)) {
                     x = ASR::down_cast<ASR::Set_t>(x)->m_type;
                     y = ASR::down_cast<ASR::Set_t>(y)->m_type;
+                    return check_equal_type(x, y);
                 } else if (ASR::is_a<ASR::Dict_t>(*x) && ASR::is_a<ASR::Dict_t>(*y)) {
                     ASR::ttype_t *x_key_type = ASR::down_cast<ASR::Dict_t>(x)->m_key_type;
                     ASR::ttype_t *y_key_type = ASR::down_cast<ASR::Dict_t>(y)->m_key_type;
                     ASR::ttype_t *x_value_type = ASR::down_cast<ASR::Dict_t>(x)->m_value_type;
                     ASR::ttype_t *y_value_type = ASR::down_cast<ASR::Dict_t>(y)->m_value_type;
-                    if (x->type == y->type &&
-                        check_equal_type(x_key_type, y_key_type) &&
-                        check_equal_type(x_value_type, y_value_type)) {
-                        return true;
-                    }
-                    return false;
+                    return (check_equal_type(x_key_type, y_key_type) &&
+                            check_equal_type(x_value_type, y_value_type));
                 }
                 if( x->type == y->type ) {
                     return true;

@@ -352,6 +352,10 @@ filename = "errors/test_assign4.py"
 asr = true
 
 [[test]]
+filename = "errors/test_assign5.py"
+asr = true
+
+[[test]]
 filename = "errors/test_binop1.py"
 asr = true
 
