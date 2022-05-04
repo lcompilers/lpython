@@ -2762,49 +2762,13 @@ public:
                         if (current_scope->scope.find(mod_name) != current_scope->scope.end()) {
                             // this case when we have variable and attribute
                             st = current_scope->scope[mod_name];
-                            ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(st);
-                            ASR::ttype_t *type = v->m_type;
-                            if (ASR::is_a<ASR::Dict_t>(*type)) {
-                                if (call_name == "get") {
-                                    ASR::expr_t *def = nullptr;
-                                    if (args.size() > 2 || args.size() < 1) {
-                                        throw SemanticError("'get' takes atleast 1 and atmost 2 arguments",
-                                            x.base.base.loc);
-                                    }
-                                    ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
-                                    ASR::ttype_t *value_type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
-                                    if (args.size() == 2) {
-                                        def = args[1].m_value;
-                                        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(def), value_type)) {
-                                            std::string vtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(def));
-                                            std::string totype = ASRUtils::type_to_str_python(value_type);
-                                            diag.add(diag::Diagnostic(
-                                                "Type mismatch in get's default value, the types must be compatible",
-                                                diag::Level::Error, diag::Stage::Semantic, {
-                                                    diag::Label("type mismatch (found: '" + vtype + "', expected: '" + totype + "')",
-                                                            {def->base.loc})
-                                                })
-                                            );
-                                            throw SemanticAbort();
-                                        }
-                                    }
-                                    if (!ASRUtils::check_equal_type(ASRUtils::expr_type(args[0].m_value), key_type)) {
-                                        std::string ktype = ASRUtils::type_to_str_python(ASRUtils::expr_type(args[0].m_value));
-                                        std::string totype = ASRUtils::type_to_str_python(key_type);
-                                        diag.add(diag::Diagnostic(
-                                            "Type mismatch in get's key value, the types must be compatible",
-                                            diag::Level::Error, diag::Stage::Semantic, {
-                                                diag::Label("type mismatch (found: '" + ktype + "', expected: '" + totype + "')",
-                                                        {args[0].m_value->base.loc})
-                                            })
-                                        );
-                                        throw SemanticAbort();
-                                    }
-                                    tmp = make_DictItem_t(al, x.base.base.loc, st, args[0].m_value, def,
-                                                          value_type);
-                                    return;
-                                }
+                            Vec<ASR::expr_t*> eles;
+                            eles.reserve(al, x.n_args);
+                            for (size_t i=0; i<x.n_args; i++) {
+                                eles.push_back(al, args[i].m_value);
                             }
+                            handle_attribute(st, at->m_attr, x.base.base.loc, eles);
+                            return;
                         }
                         throw SemanticError("module '" + mod_name + "' is not imported",
                             x.base.base.loc);

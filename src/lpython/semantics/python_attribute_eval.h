@@ -21,7 +21,8 @@ struct AttributeHandler {
             {"list@remove", &eval_list_remove},
             {"list@insert", &eval_list_insert},
             {"set@add", &eval_set_add},
-            {"set@remove", &eval_set_remove}
+            {"set@remove", &eval_set_remove},
+            {"dict@get", &eval_dict_get}
         };
     }
 
@@ -154,6 +155,39 @@ struct AttributeHandler {
 
         return make_SetRemove_t(al, loc, s, args[0]);
     }
+
+    static ASR::asr_t* eval_dict_get(ASR::symbol_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args) {
+        ASR::expr_t *def = nullptr;
+        if (args.size() > 2 || args.size() < 1) {
+            throw SemanticError("'get' takes atleast 1 and atmost 2 arguments",
+                    loc);
+        }
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+        ASR::ttype_t *type = v->m_type;
+        ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
+        ASR::ttype_t *value_type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
+        if (args.size() == 2) {
+            def = args[1];
+            if (!ASRUtils::check_equal_type(ASRUtils::expr_type(def), value_type)) {
+                std::string vtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(def));
+                std::string totype = ASRUtils::type_to_str_python(value_type);
+                throw SemanticError("Found type mismatch in 'get'."
+                        "Type mismatch (found: '" + vtype + "', expected: '" + totype + "')",
+                        def->base.loc);
+            }
+        }
+        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(args[0]), key_type)) {
+            std::string ktype = ASRUtils::type_to_str_python(ASRUtils::expr_type(args[0]));
+            std::string totype = ASRUtils::type_to_str_python(key_type);
+            throw SemanticError("Found type mismatch in 'get'."
+                    "Type mismatch (found: '" + ktype + "', expected: '" + totype + "')",
+                    args[0]->base.loc);
+            throw SemanticAbort();
+        }
+        return make_DictItem_t(al, loc, s, args[0], def, value_type);
+    }
+
 
 }; // AttributeHandler
 
