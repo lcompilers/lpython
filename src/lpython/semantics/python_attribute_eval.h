@@ -85,7 +85,7 @@ struct AttributeHandler {
         ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
         ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
         if (!ASRUtils::check_equal_type(ele_type, list_type)) {
-            throw SemanticError("Type mismatch while removing to a list, found ('" +
+            throw SemanticError("Type mismatch while removing from a list, found ('" +
                 ASRUtils::type_to_str_python(ele_type) + "' and '" +
                 ASRUtils::type_to_str_python(list_type) + "').", loc);
         }
@@ -126,7 +126,7 @@ struct AttributeHandler {
 
         ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
         ASR::ttype_t *type = v->m_type;
-        ASR::ttype_t *set_type = ASR::down_cast<ASR::List_t>(type)->m_type;
+        ASR::ttype_t *set_type = ASR::down_cast<ASR::Set_t>(type)->m_type;
         ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
         if (!ASRUtils::check_equal_type(ele_type, set_type)) {
             throw SemanticError("Found type mismatch in 'add' ('" +
@@ -145,7 +145,7 @@ struct AttributeHandler {
 
         ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
         ASR::ttype_t *type = v->m_type;
-        ASR::ttype_t *set_type = ASR::down_cast<ASR::List_t>(type)->m_type;
+        ASR::ttype_t *set_type = ASR::down_cast<ASR::Set_t>(type)->m_type;
         ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
         if (!ASRUtils::check_equal_type(ele_type, set_type)) {
             throw SemanticError("Found type mismatch in 'remove' ('" +
