@@ -1,4 +1,4 @@
-from ltypes import i8, i16, i32, f32, f64, ccall
+from ltypes import i8, i16, i32, f32, f64, ccall, overload
 
 
 pi: f64 = 3.141592653589793238462643383279502884197
@@ -46,7 +46,6 @@ def floor(x: f32) -> i32:
         return r
     return r - 1
 
-
 @overload
 def ceil(x: i32) -> i32:
     return x
@@ -71,7 +70,63 @@ def ceil(x: f32) -> i32:
         return r
     return r + 1
 
+# fsum
+# supported data types: i8, i16, i32, i64, f32, f64
+
+@overload
+def fsum(n: i32, arr: i8[:]) -> f64:
+    """
+    Sum of the elements of `arr`.
+    """
+    sum: f64
+    sum = 0.0 
+
+    i: i32
+    for i in range(n):
+        sum += arr[i]
+    return sum
+
+@overload
+def fsum(n: i32, arr: i16[:]) -> f64:
+    """
+    Sum of the elements of `arr`.
+    """
+    sum: f64
+    sum = 0.0 
+
+    i: i32
+    for i in range(n):
+        sum += arr[i]
+    return sum
+
+@overload
 def fsum(n: i32, arr: i32[:]) -> f64:
+    """
+    Sum of the elements of `arr`.
+    """
+    sum: f64
+    sum = 0.0 
+
+    i: i32
+    for i in range(n):
+        sum += arr[i]
+    return sum
+
+@overload
+def fsum(n: i32, arr: f32[:]) -> f64:
+    """
+    Sum of the elements of `arr`.
+    """
+    sum: f64
+    sum = 0.0 
+
+    i: i32
+    for i in range(n):
+        sum += arr[i]
+    return sum
+
+@overload
+def fsum(n: i32, arr: f64[:]) -> f64:
     """
     Sum of the elements of `arr`.
     """
