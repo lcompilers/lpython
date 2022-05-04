@@ -151,7 +151,73 @@ def fsum(n: i32, arr: f64[:]) -> f64:
         sum += arr[i]
     return sum
 
+@overload
+def prod(n: i32, arr: i8[:]) -> f64:
+    """
+    Return the product of the elements of `arr`.
+    """
+    
+    result: f64
+    result = 1.0
+    i: i32
+    for i in range(n):
+        result *= arr[i]
+    return result
+
+@overload
+def prod(n: i32, arr: i16[:]) -> f64:
+    """
+    Return the product of the elements of `arr`.
+    """
+    
+    result: f64
+    result = 1.0
+    i: i32
+    for i in range(n):
+        result *= arr[i]
+    return result
+
+@overload
 def prod(n: i32, arr: i32[:]) -> f64:
+    """
+    Return the product of the elements of `arr`.
+    """
+    
+    result: f64
+    result = 1.0
+    i: i32
+    for i in range(n):
+        result *= arr[i]
+    return result
+
+@overload
+def prod(n: i32, arr: i64[:]) -> f64:
+    """
+    Return the product of the elements of `arr`.
+    """
+    
+    result: f64
+    result = 1.0
+    i: i32
+    for i in range(n):
+        result *= arr[i]
+    return result
+
+@overload
+def prod(n: i32, arr: f32[:]) -> f64:
+    """
+    Return the product of the elements of `arr`.
+    """
+    
+    result: f64
+    result = 1.0
+    i: i32
+    for i in range(n):
+        result *= arr[i]
+    return result
+
+@overload
+def prod(n: i32, arr: f64[:]) -> f64:
     """
     Return the product of the elements of `arr`.
     """
