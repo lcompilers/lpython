@@ -623,7 +623,7 @@ LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
     int trmn_size = sizeof(trmn);
     char* dest_char = (char*)malloc(s_len*n+trmn_size);
     for (int i = 0; i < n; i++) {
-        for (int j =0; j < s_len; j++) {
+        for (int j = 0; j < s_len; j++) {
             dest_char[cntr] = (*s)[j];
             cntr++;
         }
