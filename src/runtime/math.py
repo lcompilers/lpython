@@ -151,6 +151,18 @@ def fsum(n: i32, arr: f64[:]) -> f64:
         sum += arr[i]
     return sum
 
+def prod(n: i32, arr: i32[:]) -> f64:
+    """
+    Return the product of the elements of `arr`.
+    """
+    
+    result: f64
+    result = 1.0
+    i: i32
+    for i in range(n):
+        result *= arr[i]
+    return result
+
 def comb(n: i32, k: i32) -> i32:
     """
     Computes the result of `nCk`, i.e, the number of ways to choose `k`
