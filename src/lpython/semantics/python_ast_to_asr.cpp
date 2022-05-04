@@ -768,6 +768,20 @@ public:
                     right = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
                         al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type,
                         value));
+                } else if (ASRUtils::is_real(*right_type)) {
+                    if (ASRUtils::expr_value(right) != nullptr) {
+                        double val = ASR::down_cast<ASR::RealConstant_t>(ASRUtils::expr_value(right))->m_r;
+                        if (val == 0.0) {
+                            diag.add(diag::Diagnostic(
+                                "float division by zero is not allowed",
+                                diag::Level::Error, diag::Stage::Semantic, {
+                                    diag::Label("float division by zero",
+                                            {right->base.loc})
+                                })
+                            );
+                            throw SemanticAbort();
+                        }
+                    }
                 }
             }
         } else if((ASRUtils::is_integer(*left_type) || ASRUtils::is_real(*left_type) ||
