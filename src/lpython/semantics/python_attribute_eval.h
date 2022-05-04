@@ -17,7 +17,9 @@ struct AttributeHandler {
 
     AttributeHandler() {
         attribute_map = {
-            {"list@append", &eval_list_append}
+            {"list@append", &eval_list_append},
+            {"list@remove", &eval_list_remove},
+            {"list@insert", &eval_list_insert}
         };
     }
 
@@ -69,7 +71,49 @@ struct AttributeHandler {
         return make_ListAppend_t(al, loc, s, args[0]);
     }
 
+    static ASR::asr_t* eval_list_remove(ASR::symbol_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args) {
+        if (args.size() != 1) {
+            throw SemanticError("remove() takes exactly one argument",
+                loc);
+        }
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+        ASR::ttype_t *type = v->m_type;
+        ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
+        ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
+        if (!ASRUtils::check_equal_type(ele_type, list_type)) {
+            throw SemanticError("Type mismatch while removing to a list, found ('" +
+                ASRUtils::type_to_str_python(ele_type) + "' and '" +
+                ASRUtils::type_to_str_python(list_type) + "').", loc);
+        }
+        return make_ListRemove_t(al, loc, s, args[0]);
+    }
 
+    static ASR::asr_t* eval_list_insert(ASR::symbol_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args) {
+            if (args.size() != 2) {
+                throw SemanticError("insert() takes exactly two arguments",
+                        loc);
+            }
+            ASR::ttype_t *pos_type = ASRUtils::expr_type(args[0]);
+            ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                                        4, nullptr, 0));
+            if (!ASRUtils::check_equal_type(pos_type, int_type)) {
+                throw SemanticError("List index should be of integer type",
+                                    args[0]->base.loc);
+            }
+
+            ASR::ttype_t *ele_type = ASRUtils::expr_type(args[1]);
+            ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+            ASR::ttype_t *type = v->m_type;
+            ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
+            if (!ASRUtils::check_equal_type(ele_type, list_type)) {
+                throw SemanticError("Type mismatch while inserting to a list, found ('" +
+                    ASRUtils::type_to_str_python(ele_type) + "' and '" +
+                    ASRUtils::type_to_str_python(list_type) + "').", args[1]->base.loc);
+            }
+            return make_ListInsert_t(al, loc, s, args[0], args[1]);
+    }
 
 }; // AttributeHandler
 
