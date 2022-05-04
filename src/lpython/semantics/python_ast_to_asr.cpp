@@ -960,6 +960,23 @@ public:
                                 value, overloaded);
     }
 
+    template <typename T>
+    T get_constant_value(ASR::expr_t *expr, const Location &loc) {
+        ASR::ttype_t *type = ASRUtils::expr_type(expr);
+        if (ASRUtils::is_integer(*type)) {
+            return ASR::down_cast<ASR::IntegerConstant_t>(ASRUtils::expr_value(expr))->m_n;
+        }
+        else if (ASRUtils::is_real(*type)) {
+            return ASR::down_cast<ASR::RealConstant_t>(ASRUtils::expr_value(expr))->m_r;
+        }
+        else if (ASRUtils::is_logical(*type)) {
+            return ASR::down_cast<ASR::LogicalConstant_t>(ASRUtils::expr_value(expr))->m_value;
+        }
+        else {
+            throw SemanticError("Cannot get constant value of " + ASRUtils::type_to_str_python(type), loc);
+        }
+    }
+
     void visit_Name(const AST::Name_t &x) {
         std::string name = x.m_id;
         ASR::symbol_t *s = current_scope->resolve_symbol(name);
@@ -1132,8 +1149,7 @@ public:
         if (ASRUtils::expr_value(operand) != nullptr) {
             if (ASRUtils::is_integer(*operand_type)) {
 
-                int64_t op_value = ASR::down_cast<ASR::IntegerConstant_t>(
-                                        ASRUtils::expr_value(operand))->m_n;
+                int64_t op_value = get_constant_value<int>(operand, x.base.base.loc);
                 if (op == ASR::unaryopType::Not) {
                     bool b = (op_value == 0);
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
