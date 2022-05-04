@@ -752,6 +752,19 @@ public:
                         value));
                 }
                 if (ASRUtils::is_integer(*right_type)) {
+                    if (ASRUtils::expr_value(right) != nullptr) {
+                        int64_t val = ASR::down_cast<ASR::IntegerConstant_t>(ASRUtils::expr_value(right))->m_n;
+                        if (val == 0) {
+                            diag.add(diag::Diagnostic(
+                                "division by zero is not allowed",
+                                diag::Level::Error, diag::Stage::Semantic, {
+                                    diag::Label("division by zero",
+                                            {right->base.loc})
+                                })
+                            );
+                            throw SemanticAbort();
+                        }
+                    }
                     right = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
                         al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type,
                         value));
