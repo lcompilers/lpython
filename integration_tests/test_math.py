@@ -160,7 +160,7 @@ def test_fsum():
     arr_i8 = empty(2)
     arr_i8[0] = 6
     arr_i8[1] = 12
-    res = fsum(arr_i8)
+    res = fsum(len, arr_i8)
     assert res == 18.0
 
     # Test i16
