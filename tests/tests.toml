@@ -380,6 +380,10 @@ filename = "errors/test_zero_division3.py"
 asr = true
 
 [[test]]
+filename = "errors/test_zero_division4.py"
+asr = true
+
+[[test]]
 filename = "errors/test_len1.py"
 asr = true
 
