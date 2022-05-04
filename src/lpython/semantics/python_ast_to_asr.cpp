@@ -23,6 +23,7 @@
 #include <lpython/semantics/semantic_exception.h>
 #include <lpython/python_serialization.h>
 #include <lpython/semantics/python_comptime_eval.h>
+#include <lpython/semantics/python_attribute_eval.h>
 #include <lpython/parser/parser.h>
 
 
@@ -266,6 +267,7 @@ public:
     // The main module is stored directly in TranslationUnit, other modules are Modules
     bool main_module;
     PythonIntrinsicProcedures intrinsic_procedures;
+    AttributeHandler attr_handler;
     std::map<int, ASR::symbol_t*> &ast_overload;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
@@ -353,6 +355,12 @@ public:
             }
         }
         return v;
+    }
+
+    void handle_attribute(ASR::symbol_t *s, std::string attr_name,
+                const Location &loc, Vec<ASR::expr_t*> &args) {
+        tmp = attr_handler.get_attribute(s, attr_name, al, loc, args, diag);
+        return;
     }
 
     // Function to create appropriate call based on symbol type. If it is external
@@ -2537,106 +2545,14 @@ public:
                         throw SemanticError("'" + value + "' is not defined in the scope",
                             x.base.base.loc);
                     }
-                    if (ASR::is_a<ASR::Variable_t>(*t)) {
-                        ASR::Variable_t *var = ASR::down_cast<ASR::Variable_t>(t);
-                        if (ASR::is_a<ASR::List_t>(*var->m_type)) {
-                            ASR::List_t *list = ASR::down_cast<ASR::List_t>(var->m_type);
-                            ASR::ttype_t *list_type = list->m_type;
-                            std::string attr = at->m_attr;
-                            if (attr == "append") {
-                                if (c->n_args != 1) {
-                                    throw SemanticError("append() takes exactly one argument",
-                                        x.base.base.loc);
-                                }
-                                visit_expr(*c->m_args[0]);
-                                ASR::expr_t *ele = ASRUtils::EXPR(tmp);
-                                ASR::ttype_t *ele_type = ASRUtils::expr_type(ele);
-                                if (!ASRUtils::check_equal_type(ele_type, list_type)) {
-                                    throw SemanticError("Type mismatch while appending to a list, found ('" +
-                                        ASRUtils::type_to_str_python(ele_type) + "' and '" +
-                                        ASRUtils::type_to_str_python(list_type) + "').", x.base.base.loc);
-                                }
-                                tmp = make_ListAppend_t(al, x.base.base.loc, t, ele);
-                                return;
-                            } else if (attr == "insert") {
-                                if (c->n_args != 2) {
-                                    throw SemanticError("insert() takes exactly two arguments",
-                                        x.base.base.loc);
-                                }
-                                visit_expr(*c->m_args[0]);
-                                ASR::expr_t *pos = ASRUtils::EXPR(tmp);
-                                ASR::ttype_t *pos_type = ASRUtils::expr_type(pos);
-                                ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                                                            4, nullptr, 0));
-                                if (!ASRUtils::check_equal_type(pos_type, int_type)) {
-                                    throw SemanticError("List index should be of integer type",
-                                                        x.base.base.loc);
-                                }
-                                visit_expr(*c->m_args[1]);
-                                ASR::expr_t *ele = ASRUtils::EXPR(tmp);
-                                ASR::ttype_t *ele_type = ASRUtils::expr_type(ele);
-                                if (!ASRUtils::check_equal_type(ele_type, list_type)) {
-                                    throw SemanticError("Type mismatch while inserting to a list, found ('" +
-                                        ASRUtils::type_to_str_python(ele_type) + "' and '" +
-                                        ASRUtils::type_to_str_python(list_type) + "').", x.base.base.loc);
-                                }
-                                tmp = make_ListInsert_t(al, x.base.base.loc, t, pos, ele);
-                                return;
-                            } if (attr == "remove") {
-                                if (c->n_args != 1) {
-                                    throw SemanticError("remove() takes exactly one argument",
-                                        x.base.base.loc);
-                                }
-                                visit_expr(*c->m_args[0]);
-                                ASR::expr_t *ele = ASRUtils::EXPR(tmp);
-                                ASR::ttype_t *ele_type = ASRUtils::expr_type(ele);
-                                if (!ASRUtils::check_equal_type(ele_type, list_type)) {
-                                    throw SemanticError("Type mismatch while removing from a list, found ('" +
-                                        ASRUtils::type_to_str_python(ele_type) + "' and '" +
-                                        ASRUtils::type_to_str_python(list_type) + "').", x.base.base.loc);
-                                }
-                                tmp = make_ListRemove_t(al, x.base.base.loc, t, ele);
-                                return;
-                            } else {
-                                throw SemanticError("'" + attr + "' is not implemented for List type",
-                                    x.base.base.loc);
-                            }
-
-                        } else if (ASR::is_a<ASR::Set_t>(*var->m_type)) {
-                            ASR::Set_t *st = ASR::down_cast<ASR::Set_t>(var->m_type);
-                            ASR::ttype_t *set_type = st->m_type;
-                            std::string attr = at->m_attr;
-                            if (attr == "add" || attr == "remove") {
-                                if (c->n_args != 1) {
-                                    throw SemanticError(attr + "() takes exactly one argument",
-                                        x.base.base.loc);
-                                }
-                                visit_expr(*c->m_args[0]);
-                                ASR::expr_t *ele = ASRUtils::EXPR(tmp);
-                                ASR::ttype_t *ele_type = ASRUtils::expr_type(ele);
-                                if (!ASRUtils::check_equal_type(ele_type, set_type)) {
-                                    throw SemanticError("Found type mismatch in '" + attr + "' ('" +
-                                        ASRUtils::type_to_str_python(ele_type) + "' and '" +
-                                        ASRUtils::type_to_str_python(set_type) + "').", x.base.base.loc);
-                                }
-                                if (attr == "add") {
-                                    tmp = make_SetInsert_t(al, x.base.base.loc, t, ele);
-                                } else {
-                                    tmp = make_SetRemove_t(al, x.base.base.loc, t, ele);
-                                }
-                                return;
-                            } else {
-                                throw SemanticError("'" + attr + "' is not implemented for Set type",
-                                    x.base.base.loc);
-                            }
-                        } else {
-                            throw SemanticError("Only List type supported for now in Attribute",
-                                x.base.base.loc);
-                        }
-                    } else {
-                        throw SemanticError("Only Variable type is supported for now in Attribute",
-                            x.base.base.loc);
+                    Vec<ASR::expr_t*> elements;
+                    elements.reserve(al, c->n_args);
+                    for (size_t i = 0; i < c->n_args; ++i) {
+                        visit_expr(*c->m_args[i]);
+                        elements.push_back(al, ASRUtils::EXPR(tmp));
                     }
+                    handle_attribute(t, at->m_attr, x.base.base.loc, elements);
+                    return;
                 }
             } else {
                 throw SemanticError("Only Name/Attribute supported in Call",
@@ -2873,49 +2789,13 @@ public:
                         if (current_scope->scope.find(mod_name) != current_scope->scope.end()) {
                             // this case when we have variable and attribute
                             st = current_scope->scope[mod_name];
-                            ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(st);
-                            ASR::ttype_t *type = v->m_type;
-                            if (ASR::is_a<ASR::Dict_t>(*type)) {
-                                if (call_name == "get") {
-                                    ASR::expr_t *def = nullptr;
-                                    if (args.size() > 2 || args.size() < 1) {
-                                        throw SemanticError("'get' takes atleast 1 and atmost 2 arguments",
-                                            x.base.base.loc);
-                                    }
-                                    ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
-                                    ASR::ttype_t *value_type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
-                                    if (args.size() == 2) {
-                                        def = args[1].m_value;
-                                        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(def), value_type)) {
-                                            std::string vtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(def));
-                                            std::string totype = ASRUtils::type_to_str_python(value_type);
-                                            diag.add(diag::Diagnostic(
-                                                "Type mismatch in get's default value, the types must be compatible",
-                                                diag::Level::Error, diag::Stage::Semantic, {
-                                                    diag::Label("type mismatch (found: '" + vtype + "', expected: '" + totype + "')",
-                                                            {def->base.loc})
-                                                })
-                                            );
-                                            throw SemanticAbort();
-                                        }
-                                    }
-                                    if (!ASRUtils::check_equal_type(ASRUtils::expr_type(args[0].m_value), key_type)) {
-                                        std::string ktype = ASRUtils::type_to_str_python(ASRUtils::expr_type(args[0].m_value));
-                                        std::string totype = ASRUtils::type_to_str_python(key_type);
-                                        diag.add(diag::Diagnostic(
-                                            "Type mismatch in get's key value, the types must be compatible",
-                                            diag::Level::Error, diag::Stage::Semantic, {
-                                                diag::Label("type mismatch (found: '" + ktype + "', expected: '" + totype + "')",
-                                                        {args[0].m_value->base.loc})
-                                            })
-                                        );
-                                        throw SemanticAbort();
-                                    }
-                                    tmp = make_DictItem_t(al, x.base.base.loc, st, args[0].m_value, def,
-                                                          value_type);
-                                    return;
-                                }
+                            Vec<ASR::expr_t*> eles;
+                            eles.reserve(al, x.n_args);
+                            for (size_t i=0; i<x.n_args; i++) {
+                                eles.push_back(al, args[i].m_value);
                             }
+                            handle_attribute(st, at->m_attr, x.base.base.loc, eles);
+                            return;
                         }
                         throw SemanticError("module '" + mod_name + "' is not imported",
                             x.base.base.loc);
