@@ -19,7 +19,9 @@ struct AttributeHandler {
         attribute_map = {
             {"list@append", &eval_list_append},
             {"list@remove", &eval_list_remove},
-            {"list@insert", &eval_list_insert}
+            {"list@insert", &eval_list_insert},
+            {"set@add", &eval_set_add},
+            {"set@remove", &eval_set_remove}
         };
     }
 
@@ -113,6 +115,44 @@ struct AttributeHandler {
                     ASRUtils::type_to_str_python(list_type) + "').", args[1]->base.loc);
             }
             return make_ListInsert_t(al, loc, s, args[0], args[1]);
+    }
+
+    static ASR::asr_t* eval_set_add(ASR::symbol_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args) {
+        if (args.size() != 1) {
+            throw SemanticError("add() takes exactly one argument", loc);
+        }
+
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+        ASR::ttype_t *type = v->m_type;
+        ASR::ttype_t *set_type = ASR::down_cast<ASR::List_t>(type)->m_type;
+        ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
+        if (!ASRUtils::check_equal_type(ele_type, set_type)) {
+            throw SemanticError("Found type mismatch in 'add' ('" +
+                ASRUtils::type_to_str_python(ele_type) + "' and '" +
+                ASRUtils::type_to_str_python(set_type) + "').", args[0]->base.loc);
+        }
+
+        return make_SetInsert_t(al, loc, s, args[0]);
+    }
+
+    static ASR::asr_t* eval_set_remove(ASR::symbol_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args) {
+        if (args.size() != 1) {
+            throw SemanticError("remove() takes exactly one argument", loc);
+        }
+
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+        ASR::ttype_t *type = v->m_type;
+        ASR::ttype_t *set_type = ASR::down_cast<ASR::List_t>(type)->m_type;
+        ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
+        if (!ASRUtils::check_equal_type(ele_type, set_type)) {
+            throw SemanticError("Found type mismatch in 'remove' ('" +
+                ASRUtils::type_to_str_python(ele_type) + "' and '" +
+                ASRUtils::type_to_str_python(set_type) + "').", args[0]->base.loc);
+        }
+
+        return make_SetRemove_t(al, loc, s, args[0]);
     }
 
 }; // AttributeHandler
