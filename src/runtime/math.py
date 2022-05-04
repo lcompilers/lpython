@@ -151,6 +151,9 @@ def fsum(n: i32, arr: f64[:]) -> f64:
         sum += arr[i]
     return sum
 
+# prod
+# supported data types: i8, i16, i32, i64, f32, f64
+
 @overload
 def prod(n: i32, arr: i8[:]) -> f64:
     """
