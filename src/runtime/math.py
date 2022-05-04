@@ -71,6 +71,17 @@ def ceil(x: f32) -> i32:
         return r
     return r + 1
 
+def fsum(n: i32, arr: i32[:]) -> f64:
+    """
+    Sum of the elements of `arr`.
+    """
+    sum: f64
+    sum = 0.0 
+
+    i: i32
+    for i in range(n):
+        sum += arr[i]
+    return sum
 
 def comb(n: i32, k: i32) -> i32:
     """
