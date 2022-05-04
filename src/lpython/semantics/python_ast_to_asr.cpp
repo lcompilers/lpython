@@ -359,7 +359,7 @@ public:
 
     void handle_attribute(ASR::symbol_t *s, std::string attr_name,
                 const Location &loc, Vec<ASR::expr_t*> &args) {
-        tmp = attr_handler.get_attribute(s, attr_name, al, loc, args);
+        tmp = attr_handler.get_attribute(s, attr_name, al, loc, args, diag);
         return;
     }
 

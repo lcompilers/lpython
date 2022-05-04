@@ -11,7 +11,8 @@ namespace LFortran {
 
 struct AttributeHandler {
 
-    typedef ASR::asr_t* (*attribute_eval_callback)(ASR::symbol_t*, Allocator &, const Location &, Vec<ASR::expr_t*> &);
+    typedef ASR::asr_t* (*attribute_eval_callback)(ASR::symbol_t*, Allocator &,
+                                const Location &, Vec<ASR::expr_t*> &, diag::Diagnostics &);
 
     std::map<std::string, attribute_eval_callback> attribute_map;
 
@@ -38,7 +39,7 @@ struct AttributeHandler {
     }
 
     ASR::asr_t* get_attribute(ASR::symbol_t *s, std::string attr_name,
-            Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+            Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
         ASR::ttype_t *type = v->m_type;
         std::string class_name = get_type_name(type);
@@ -49,7 +50,7 @@ struct AttributeHandler {
         auto search = attribute_map.find(key);
         if (search != attribute_map.end()) {
             attribute_eval_callback cb = search->second;
-            return cb(s, al, loc, args);
+            return cb(s, al, loc, args, diag);
         } else {
             throw SemanticError(class_name + "." + attr_name + " is not implemented yet",
                 loc);
@@ -57,7 +58,7 @@ struct AttributeHandler {
     }
 
     static ASR::asr_t* eval_list_append(ASR::symbol_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         if (args.size() != 1) {
             throw SemanticError("append() takes exactly one argument",
                 loc);
@@ -67,15 +68,22 @@ struct AttributeHandler {
         ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
         ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
         if (!ASRUtils::check_equal_type(ele_type, list_type)) {
-            throw SemanticError("Type mismatch while appending to a list, found ('" +
-                ASRUtils::type_to_str_python(ele_type) + "' and '" +
-                ASRUtils::type_to_str_python(list_type) + "').", loc);
+            std::string fnd = ASRUtils::type_to_str_python(ele_type);
+            std::string org = ASRUtils::type_to_str_python(list_type);
+            diag.add(diag::Diagnostic(
+                "Type mismatch in 'append', the types must be compatible",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch (found: '" + fnd + "', expected: '" + org + "')",
+                            {args[0]->base.loc})
+                })
+            );
+            throw SemanticAbort();
         }
         return make_ListAppend_t(al, loc, s, args[0]);
     }
 
     static ASR::asr_t* eval_list_remove(ASR::symbol_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         if (args.size() != 1) {
             throw SemanticError("remove() takes exactly one argument",
                 loc);
@@ -85,15 +93,22 @@ struct AttributeHandler {
         ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
         ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
         if (!ASRUtils::check_equal_type(ele_type, list_type)) {
-            throw SemanticError("Type mismatch while removing from a list, found ('" +
-                ASRUtils::type_to_str_python(ele_type) + "' and '" +
-                ASRUtils::type_to_str_python(list_type) + "').", loc);
+            std::string fnd = ASRUtils::type_to_str_python(ele_type);
+            std::string org = ASRUtils::type_to_str_python(list_type);
+            diag.add(diag::Diagnostic(
+                "Type mismatch in 'remove', the types must be compatible",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch (found: '" + fnd + "', expected: '" + org + "')",
+                            {args[0]->base.loc})
+                })
+            );
+            throw SemanticAbort();
         }
         return make_ListRemove_t(al, loc, s, args[0]);
     }
 
     static ASR::asr_t* eval_list_insert(ASR::symbol_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
             if (args.size() != 2) {
                 throw SemanticError("insert() takes exactly two arguments",
                         loc);
@@ -111,15 +126,22 @@ struct AttributeHandler {
             ASR::ttype_t *type = v->m_type;
             ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
             if (!ASRUtils::check_equal_type(ele_type, list_type)) {
-                throw SemanticError("Type mismatch while inserting to a list, found ('" +
-                    ASRUtils::type_to_str_python(ele_type) + "' and '" +
-                    ASRUtils::type_to_str_python(list_type) + "').", args[1]->base.loc);
+                std::string fnd = ASRUtils::type_to_str_python(ele_type);
+                std::string org = ASRUtils::type_to_str_python(list_type);
+                diag.add(diag::Diagnostic(
+                    "Type mismatch in 'insert', the types must be compatible",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("type mismatch (found: '" + fnd + "', expected: '" + org + "')",
+                                {args[0]->base.loc})
+                    })
+                );
+                throw SemanticAbort();
             }
             return make_ListInsert_t(al, loc, s, args[0], args[1]);
     }
 
     static ASR::asr_t* eval_set_add(ASR::symbol_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         if (args.size() != 1) {
             throw SemanticError("add() takes exactly one argument", loc);
         }
@@ -129,16 +151,23 @@ struct AttributeHandler {
         ASR::ttype_t *set_type = ASR::down_cast<ASR::Set_t>(type)->m_type;
         ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
         if (!ASRUtils::check_equal_type(ele_type, set_type)) {
-            throw SemanticError("Found type mismatch in 'add' ('" +
-                ASRUtils::type_to_str_python(ele_type) + "' and '" +
-                ASRUtils::type_to_str_python(set_type) + "').", args[0]->base.loc);
+            std::string fnd = ASRUtils::type_to_str_python(ele_type);
+            std::string org = ASRUtils::type_to_str_python(set_type);
+            diag.add(diag::Diagnostic(
+                "Type mismatch in 'add', the types must be compatible",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch (found: '" + fnd + "', expected: '" + org + "')",
+                            {args[0]->base.loc})
+                })
+            );
+            throw SemanticAbort();
         }
 
         return make_SetInsert_t(al, loc, s, args[0]);
     }
 
     static ASR::asr_t* eval_set_remove(ASR::symbol_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         if (args.size() != 1) {
             throw SemanticError("remove() takes exactly one argument", loc);
         }
@@ -148,16 +177,23 @@ struct AttributeHandler {
         ASR::ttype_t *set_type = ASR::down_cast<ASR::Set_t>(type)->m_type;
         ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
         if (!ASRUtils::check_equal_type(ele_type, set_type)) {
-            throw SemanticError("Found type mismatch in 'remove' ('" +
-                ASRUtils::type_to_str_python(ele_type) + "' and '" +
-                ASRUtils::type_to_str_python(set_type) + "').", args[0]->base.loc);
+            std::string fnd = ASRUtils::type_to_str_python(ele_type);
+            std::string org = ASRUtils::type_to_str_python(set_type);
+            diag.add(diag::Diagnostic(
+                "Type mismatch in 'remove', the types must be compatible",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch (found: '" + fnd + "', expected: '" + org + "')",
+                            {args[0]->base.loc})
+                })
+            );
+            throw SemanticAbort();
         }
 
         return make_SetRemove_t(al, loc, s, args[0]);
     }
 
     static ASR::asr_t* eval_dict_get(ASR::symbol_t *s, Allocator &al, const Location &loc,
-            Vec<ASR::expr_t*> &args) {
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         ASR::expr_t *def = nullptr;
         if (args.size() > 2 || args.size() < 1) {
             throw SemanticError("'get' takes atleast 1 and atmost 2 arguments",
@@ -172,17 +208,26 @@ struct AttributeHandler {
             if (!ASRUtils::check_equal_type(ASRUtils::expr_type(def), value_type)) {
                 std::string vtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(def));
                 std::string totype = ASRUtils::type_to_str_python(value_type);
-                throw SemanticError("Found type mismatch in 'get'."
-                        "Type mismatch (found: '" + vtype + "', expected: '" + totype + "')",
-                        def->base.loc);
+                diag.add(diag::Diagnostic(
+                    "Type mismatch in get's default value, the types must be compatible",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("type mismatch (found: '" + vtype + "', expected: '" + totype + "')",
+                                {def->base.loc})
+                    })
+                );
+                throw SemanticAbort();
             }
         }
         if (!ASRUtils::check_equal_type(ASRUtils::expr_type(args[0]), key_type)) {
             std::string ktype = ASRUtils::type_to_str_python(ASRUtils::expr_type(args[0]));
             std::string totype = ASRUtils::type_to_str_python(key_type);
-            throw SemanticError("Found type mismatch in 'get'."
-                    "Type mismatch (found: '" + ktype + "', expected: '" + totype + "')",
-                    args[0]->base.loc);
+            diag.add(diag::Diagnostic(
+                "Type mismatch in get's key value, the types must be compatible",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch (found: '" + ktype + "', expected: '" + totype + "')",
+                            {args[0]->base.loc})
+                })
+            );
             throw SemanticAbort();
         }
         return make_DictItem_t(al, loc, s, args[0], def, value_type);
