@@ -1,6 +1,8 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
+%complex_8 = type { double, double }
+
 define void @test_binop() {
 .entry:
   %call_arg_value1 = alloca i32, align 4
@@ -101,6 +103,10 @@ return:                                           ; preds = %unreachable_after_r
   %19 = load i32, i32* %_lpython_return_variable, align 4
   ret i32 %19
 }
+
+declare float @_lfortran_caimag([2 x float])
+
+declare double @_lfortran_zaimag(%complex_8)
 
 ; Function Attrs: nounwind readnone speculatable willreturn
 declare double @llvm.pow.f64(double, double) #0

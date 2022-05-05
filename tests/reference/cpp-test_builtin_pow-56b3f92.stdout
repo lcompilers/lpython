@@ -183,6 +183,18 @@ std::complex<float> __lpython_overloaded_9__pow(std::complex<float> c, int y)
     return _lpython_return_variable;
 }
 
+float _lfortran_caimag(std::complex<float> x)
+{
+    float _lpython_return_variable;
+    return _lpython_return_variable;
+}
+
+float _lfortran_zaimag(std::complex<float> x)
+{
+    double _lpython_return_variable;
+    return _lpython_return_variable;
+}
+
 namespace {
 
 void main2() {
