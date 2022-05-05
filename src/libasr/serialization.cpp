@@ -103,7 +103,7 @@ public:
         std::string symbol_name  = read_string();
         LFORTRAN_ASSERT(id_symtab_map.find(symtab_id) != id_symtab_map.end());
         SymbolTable *symtab = id_symtab_map[symtab_id];
-        if (symtab->scope.find(symbol_name) == symtab->scope.end()) {
+        if (symtab->get_symbol(symbol_name) == nullptr) {
             // Symbol is not in the symbol table yet. We construct an empty
             // symbol of the correct type and put it in the symbol table.
             // Later when constructing the symbol table, we will check for this
@@ -122,20 +122,20 @@ public:
                 READ_SYMBOL_CASE(ClassProcedure)
                 default : throw LFortranException("Symbol type not supported");
             }
-            symtab->scope[symbol_name] = s;
+            symtab->add_symbol(symbol_name, s);
         }
-        ASR::symbol_t *sym = symtab->scope[symbol_name];
+        ASR::symbol_t *sym = symtab->get_symbol(symbol_name);
         return sym;
     }
 
     void symtab_insert_symbol(SymbolTable &symtab, const std::string &name,
         ASR::symbol_t *sym) {
-        if (symtab.scope.find(name) == symtab.scope.end()) {
-            symtab.scope[name] = sym;
+        if (symtab.get_symbol(name) == nullptr) {
+            symtab.add_symbol(name, sym);
         } else {
             // We have to copy the contents of `sym` into `sym2` without
             // changing the `sym2` pointer already in the table
-            ASR::symbol_t *sym2 = symtab.scope[name];
+            ASR::symbol_t *sym2 = symtab.get_symbol(name);
             // FIXME LOCATION: document what is going on:
             LFORTRAN_ASSERT(sym2->base.loc.first == 123);
             switch (sym->type) {
@@ -164,7 +164,7 @@ public:
     void visit_TranslationUnit(const TranslationUnit_t &x) {
         current_symtab = x.m_global_scope;
         x.m_global_scope->asr_owner = (asr_t*)&x;
-        for (auto &a : x.m_global_scope->scope) {
+        for (auto &a : x.m_global_scope->get_scope()) {
             this->visit_symbol(*a.second);
         }
     }
@@ -174,7 +174,7 @@ public:
         current_symtab = x.m_symtab;
         x.m_symtab->parent = parent_symtab;
         x.m_symtab->asr_owner = (asr_t*)&x;
-        for (auto &a : x.m_symtab->scope) {
+        for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
         current_symtab = parent_symtab;
@@ -185,7 +185,7 @@ public:
         current_symtab = x.m_symtab;
         x.m_symtab->parent = parent_symtab;
         x.m_symtab->asr_owner = (asr_t*)&x;
-        for (auto &a : x.m_symtab->scope) {
+        for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
         current_symtab = parent_symtab;
@@ -196,7 +196,7 @@ public:
         current_symtab = x.m_symtab;
         x.m_symtab->parent = parent_symtab;
         x.m_symtab->asr_owner = (asr_t*)&x;
-        for (auto &a : x.m_symtab->scope) {
+        for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
         current_symtab = parent_symtab;
@@ -207,7 +207,7 @@ public:
         current_symtab = x.m_symtab;
         x.m_symtab->parent = parent_symtab;
         x.m_symtab->asr_owner = (asr_t*)&x;
-        for (auto &a : x.m_symtab->scope) {
+        for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
         current_symtab = parent_symtab;
@@ -218,7 +218,7 @@ public:
         current_symtab = x.m_symtab;
         x.m_symtab->parent = parent_symtab;
         x.m_symtab->asr_owner = (asr_t*)&x;
-        for (auto &a : x.m_symtab->scope) {
+        for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
         current_symtab = parent_symtab;
@@ -236,7 +236,7 @@ public:
 
     void visit_TranslationUnit(const TranslationUnit_t &x) {
         global_symtab = x.m_global_scope;
-        for (auto &a : x.m_global_scope->scope) {
+        for (auto &a : x.m_global_scope->get_scope()) {
             this->visit_symbol(*a.second);
         }
     }
@@ -255,8 +255,8 @@ public:
         if (startswith(module_name, "lfortran_intrinsic_iso")) {
             module_name = module_name.substr(19);
         }
-        if (global_symtab->scope.find(module_name) != global_symtab->scope.end()) {
-            Module_t *m = down_cast<Module_t>(global_symtab->scope[module_name]);
+        if (global_symtab->get_symbol(module_name) != nullptr) {
+            Module_t *m = down_cast<Module_t>(global_symtab->get_symbol(module_name));
             symbol_t *sym = m->m_symtab->find_scoped_symbol(original_name, x.n_scope_names, x.m_scope_names);
             if (sym) {
                 // FIXME: this is a hack, we need to pass in a non-const `x`.
@@ -267,8 +267,8 @@ public:
                     + original_name + "' was not found in the module '"
                     + module_name + "' (but the module was found)");
             }
-        } else if (external_symtab->scope.find(module_name) != external_symtab->scope.end()) {
-            Module_t *m = down_cast<Module_t>(external_symtab->scope[module_name]);
+        } else if (external_symtab->get_symbol(module_name) != nullptr) {
+            Module_t *m = down_cast<Module_t>(external_symtab->get_symbol(module_name));
             symbol_t *sym = m->m_symtab->find_scoped_symbol(original_name, x.n_scope_names, x.m_scope_names);
             if (sym) {
                 // FIXME: this is a hack, we need to pass in a non-const `x`.

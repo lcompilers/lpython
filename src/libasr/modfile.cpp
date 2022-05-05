@@ -25,8 +25,8 @@ const std::string lfortran_modfile_type_string = "LFortran Modfile";
     Comments below show some possible future improvements to the mod format.
 */
 std::string save_modfile(const ASR::TranslationUnit_t &m) {
-    LFORTRAN_ASSERT(m.m_global_scope->scope.size()== 1);
-    for (auto &a : m.m_global_scope->scope) {
+    LFORTRAN_ASSERT(m.m_global_scope->get_scope().size()== 1);
+    for (auto &a : m.m_global_scope->get_scope()) {
         LFORTRAN_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
         if ((bool&)a) { } // Suppress unused warning in Release mode
     }

@@ -106,6 +106,7 @@ symbol
     | ClassProcedure(symbol_table parent_symtab, identifier name, identifier
         proc_name, symbol proc, abi abi)
     | AssociateBlock(symbol_table symtab, identifier name, stmt* body)
+    | Block(symbol_table symtab, identifier name, stmt* body)
 
 storage_type = Default | Save | Parameter | Allocatable
 access = Public | Private
@@ -201,6 +202,7 @@ stmt
     | Flush(int label, expr unit, expr? err, expr? iomsg, expr? iostat)
     | ListAppend(symbol a, expr ele)
     | AssociateBlockCall(symbol m)
+    | BlockCall(symbol m)
     | SetInsert(symbol a, expr ele)
     | SetRemove(symbol a, expr ele)
     | ListInsert(symbol a, expr pos, expr ele)
@@ -249,6 +251,8 @@ expr
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type, expr? value)
     | ArraySize(expr v, expr? dim, ttype type, expr? value)
+    | ArrayBound(expr v, expr? dim ttype type, arraybound bound,
+                 expr? value)
     | DerivedRef(expr v, symbol m, ttype type, expr? value)
     | Cast(expr arg, cast_kind kind, ttype type, expr? value)
     | ComplexRe(expr arg, ttype type, expr? value)
@@ -287,6 +291,8 @@ strop = Concat | Repeat
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
 integerboz = Binary | Hex | Octal
+
+arraybound = LBound | UBound
 
 cast_kind
     = RealToInteger

@@ -144,15 +144,15 @@ public:
                 ASR::expr_t* idx_var = nullptr;
                 ASR::ttype_t* idx_var_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, arr_init->base.base.loc, 4, nullptr, 0));
                 ASR::expr_t* const_1 = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_var->base.base.loc, 1, idx_var_type));
-                if( unit.m_global_scope->scope.find(std::string(idx_var_name)) == unit.m_global_scope->scope.end() ) {
+                if( unit.m_global_scope->get_symbol(std::string(idx_var_name)) == nullptr ) {
                     ASR::asr_t* idx_sym = ASR::make_Variable_t(al, arr_init->base.base.loc, unit.m_global_scope, idx_var_name,
                                                             ASR::intentType::Local, const_1, nullptr, ASR::storage_typeType::Default,
                                                             idx_var_type, ASR::abiType::Source, ASR::accessType::Public, ASR::presenceType::Required,
                                                             false);
-                    unit.m_global_scope->scope[std::string(idx_var_name)] = ASR::down_cast<ASR::symbol_t>(idx_sym);
+                    unit.m_global_scope->add_symbol(std::string(idx_var_name), ASR::down_cast<ASR::symbol_t>(idx_sym));
                     idx_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
                 } else {
-                    ASR::symbol_t* idx_sym = unit.m_global_scope->scope[std::string(idx_var_name)];
+                    ASR::symbol_t* idx_sym = unit.m_global_scope->get_symbol(std::string(idx_var_name));
                     idx_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, idx_sym));
                     ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, idx_var, const_1, nullptr));
                     pass_result.push_back(al, assign_stmt);

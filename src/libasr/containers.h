@@ -85,6 +85,11 @@ struct Vec {
         return max;
     }
 
+    // return a direct access to the underlying array
+    T* data() const {
+        return p;
+    }
+
     const T& operator[](size_t pos) const {
         return p[pos];
     }
