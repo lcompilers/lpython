@@ -242,6 +242,7 @@ expr
     | TupleLen(expr arg, ttype type, expr? value)
 
     | StringConstant(string s, ttype type)
+    | StringConcat(expr left, expr right, ttype type, expr? value)
     | StringLen(expr arg, ttype type, expr? value)
 
     | DictConstant(expr* keys, expr* values, ttype type)
@@ -282,7 +283,7 @@ binop = Add | Sub | Mul | Div | Pow
 
 unaryop = Invert | Not | UAdd | USub
 
-strop = Concat | Repeat
+strop = Repeat
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
