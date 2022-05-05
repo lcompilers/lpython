@@ -81,8 +81,8 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     ltypes = false;
     numpy = false;
     LFORTRAN_ASSERT(symtab);
-    if (symtab->scope.find(module_name) != symtab->scope.end()) {
-        ASR::symbol_t *m = symtab->scope[module_name];
+    if (symtab->get_scope().find(module_name) != symtab->get_scope().end()) {
+        ASR::symbol_t *m = symtab->get_symbol(module_name);
         if (ASR::is_a<ASR::Module_t>(*m)) {
             return ASR::down_cast<ASR::Module_t>(m);
         } else {
@@ -127,14 +127,14 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     // insert into `symtab`
     ASR::Module_t *mod2 = ASRUtils::extract_module(*mod1);
     mod2->m_name = s2c(al, module_name);
-    symtab->scope[module_name] = (ASR::symbol_t*)mod2;
+    symtab->add_symbol(module_name, (ASR::symbol_t*)mod2);
     mod2->m_symtab->parent = symtab;
     mod2->m_intrinsic = intrinsic;
     if (intrinsic) {
         // TODO: I think we should just store intrinsic once, in the module
         // itself
         // Mark each function as intrinsic also
-        for (auto &item : mod2->m_symtab->scope) {
+        for (auto &item : mod2->m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
                 ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
                 if (s->m_abi == ASR::abiType::Source) {
@@ -175,7 +175,7 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
         throw SemanticError("The symbol '" + cur_sym_name + "' not found in the module '" + mname + "'",
                 loc);
     }
-    if (current_scope->scope.find(cur_sym_name) != current_scope->scope.end()) {
+    if (current_scope->get_scope().find(cur_sym_name) != current_scope->get_scope().end()) {
         throw SemanticError(cur_sym_name + " already defined", loc);
     }
     if (ASR::is_a<ASR::Subroutine_t>(*t)) {
@@ -329,7 +329,7 @@ public:
             );
         std::string sym = fn_name;
 
-        current_scope->scope[sym] = ASR::down_cast<ASR::symbol_t>(fn);
+        current_scope->add_symbol(sym, ASR::down_cast<ASR::symbol_t>(fn));
         ASR::symbol_t *v = ASR::down_cast<ASR::symbol_t>(fn);
 
         // Now we need to add the module `m` with the intrinsic function
@@ -422,8 +422,7 @@ public:
                                 f->m_name,
                                 ASR::accessType::Private
                                 ));
-                            //current_scope->add_symbol(unique_name, new_es);
-                            current_scope->scope[unique_name] = new_es;
+                            current_scope->add_symbol(unique_name, new_es);
                         }
                     }
                     Vec<ASR::call_arg_t> args;
@@ -576,21 +575,21 @@ public:
             }
 
             SymbolTable *symtab = current_scope;
-            while (symtab->parent != nullptr && symtab->scope.find(local_sym) == symtab->scope.end()) {
+            while (symtab->parent != nullptr && symtab->get_scope().find(local_sym) == symtab->get_scope().end()) {
                 symtab = symtab->parent;
             }
-            if (symtab->scope.find(local_sym) == symtab->scope.end()) {
+            if (symtab->get_scope().find(local_sym) == symtab->get_scope().end()) {
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*stemp));
                 std::string mod_name = ASR::down_cast<ASR::ExternalSymbol_t>(stemp)->m_module_name;
-                ASR::symbol_t *mt = symtab->scope[mod_name];
+                ASR::symbol_t *mt = symtab->get_symbol(mod_name);
                 ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(mt);
                 stemp = import_from_module(al, m, symtab, mod_name,
                                     remote_sym, local_sym, loc);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*stemp));
-                symtab->scope[local_sym] = stemp;
+                symtab->add_symbol(local_sym, stemp);
                 s = ASRUtils::symbol_get_past_external(stemp);
             } else {
-                stemp = symtab->scope[local_sym];
+                stemp = symtab->get_symbol(local_sym);
             }
         }
         if (ASR::is_a<ASR::Function_t>(*s)) {
@@ -1603,10 +1602,10 @@ public:
                                         0,
                                         false, false);
 
-            if (parent_scope->scope.find(mod_name) != parent_scope->scope.end()) {
+            if (parent_scope->get_scope().find(mod_name) != parent_scope->get_scope().end()) {
                 throw SemanticError("Module '" + mod_name + "' already defined", tmp1->loc);
             }
-            parent_scope->scope[mod_name] = ASR::down_cast<ASR::symbol_t>(tmp1);
+            parent_scope->add_symbol(mod_name, ASR::down_cast<ASR::symbol_t>(tmp1));
         }
 
         for (size_t i=0; i<x.n_body; i++) {
@@ -1676,9 +1675,9 @@ public:
                     s2c(al, arg_s), s_intent, init_expr, value, storage_type, arg_type,
                     current_procedure_abi_type, s_access, s_presence,
                     value_attr);
-            current_scope->scope[arg_s] = ASR::down_cast<ASR::symbol_t>(v);
+            current_scope->add_symbol(arg_s, ASR::down_cast<ASR::symbol_t>(v));
 
-            ASR::symbol_t *var = current_scope->scope[arg_s];
+            ASR::symbol_t *var = current_scope->get_symbol(arg_s);
             args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc,
                 var)));
         }
@@ -1695,7 +1694,7 @@ public:
             }
             sym_name = "__lpython_overloaded_" + overload_number + "__" + sym_name;
         }
-        if (parent_scope->scope.find(sym_name) != parent_scope->scope.end()) {
+        if (parent_scope->get_scope().find(sym_name) != parent_scope->get_scope().end()) {
             throw SemanticError("Subroutine already defined", tmp->loc);
         }
         ASR::accessType s_access = ASR::accessType::Public;
@@ -1713,11 +1712,11 @@ public:
                     ASR::storage_typeType::Default, type,
                     current_procedure_abi_type, ASR::Public, ASR::presenceType::Required,
                     false);
-                LFORTRAN_ASSERT(current_scope->scope.find(return_var_name) == current_scope->scope.end())
-                current_scope->scope[return_var_name]
-                         = ASR::down_cast<ASR::symbol_t>(return_var);
+                LFORTRAN_ASSERT(current_scope->get_scope().find(return_var_name) == current_scope->get_scope().end())
+                current_scope->add_symbol(return_var_name,
+                        ASR::down_cast<ASR::symbol_t>(return_var));
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
-                    current_scope->scope[return_var_name]);
+                    current_scope->get_symbol(return_var_name));
                 tmp = ASR::make_Function_t(
                     al, x.base.base.loc,
                     /* a_symtab */ current_scope,
@@ -1749,7 +1748,7 @@ public:
                 is_pure, is_module);
         }
         ASR::symbol_t * t = ASR::down_cast<ASR::symbol_t>(tmp);
-        parent_scope->scope[sym_name] = t;
+        parent_scope->add_symbol(sym_name, t);
         current_scope = parent_scope;
         if (overload) {
             overload_defs[x.m_name].push_back(al, t);
@@ -1763,7 +1762,7 @@ public:
             tmp = ASR::make_GenericProcedure_t(al, loc, current_scope, s2c(al, def_name),
                         p.second.p, p.second.size(), ASR::accessType::Public);
             ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(tmp);
-            current_scope->scope[def_name] = t;
+            current_scope->add_symbol(def_name, t);
         }
     }
 
@@ -1807,7 +1806,7 @@ public:
         for (auto &remote_sym : mod_symbols) {
             ASR::symbol_t *t = import_from_module(al, m, current_scope, msym,
                                 remote_sym, remote_sym, x.base.base.loc);
-            current_scope->scope[remote_sym] = t;
+            current_scope->add_symbol(remote_sym, t);
         }
 
         tmp = nullptr;
@@ -1911,7 +1910,7 @@ public:
         current_scope = unit->m_global_scope;
         LFORTRAN_ASSERT(current_scope != nullptr);
         if (!main_module) {
-            ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(current_scope->scope["__main__"]);
+            ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(current_scope->get_symbol("__main__"));
             current_scope = mod->m_symtab;
             LFORTRAN_ASSERT(current_scope != nullptr);
         }
@@ -1945,7 +1944,7 @@ public:
 
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         SymbolTable *old_scope = current_scope;
-        ASR::symbol_t *t = current_scope->scope[x.m_name];
+        ASR::symbol_t *t = current_scope->get_symbol(x.m_name);
         if (ASR::is_a<ASR::Subroutine_t>(*t)) {
             handle_fn(x, *ASR::down_cast<ASR::Subroutine_t>(t));
         } else if (ASR::is_a<ASR::Function_t>(*t)) {
@@ -1984,12 +1983,12 @@ public:
                 x.base.base.loc);
         }
 
-        if (current_scope->scope.find(var_name) !=
-                current_scope->scope.end()) {
+        if (current_scope->get_scope().find(var_name) !=
+                current_scope->get_scope().end()) {
             if (current_scope->parent != nullptr) {
                 // Re-declaring a global scope variable is allowed,
                 // otherwise raise an error
-                ASR::symbol_t *orig_decl = current_scope->scope[var_name];
+                ASR::symbol_t *orig_decl = current_scope->get_symbol(var_name);
                 throw SemanticError(diag::Diagnostic(
                     "Symbol is already declared in the same scope",
                     diag::Level::Error, diag::Stage::Semantic, {
@@ -2031,7 +2030,7 @@ public:
                 s2c(al, var_name), s_intent, init_expr, value, storage_type, type,
                 current_procedure_abi_type, s_access, s_presence,
                 value_attr);
-        current_scope->scope[var_name] = ASR::down_cast<ASR::symbol_t>(v);
+        current_scope->add_symbol(var_name, ASR::down_cast<ASR::symbol_t>(v));
 
         tmp = nullptr;
     }
@@ -2070,7 +2069,7 @@ public:
                 AST::Subscript_t *sb = AST::down_cast<AST::Subscript_t>(x.m_targets[0]);
                 if (AST::is_a<AST::Name_t>(*sb->m_value)) {
                     std::string name = AST::down_cast<AST::Name_t>(sb->m_value)->m_id;
-                    ASR::symbol_t *s = current_scope->scope[name];
+                    ASR::symbol_t *s = current_scope->get_symbol(name);
                     if (!s) {
                         throw SemanticError("Variable: '" + name + "' is not declared",
                                 x.base.base.loc);
@@ -2316,7 +2315,7 @@ public:
     void visit_Attribute(const AST::Attribute_t &x) {
         if (AST::is_a<AST::Name_t>(*x.m_value)) {
             std::string value = AST::down_cast<AST::Name_t>(x.m_value)->m_id;
-            ASR::symbol_t *t = current_scope->scope[value];
+            ASR::symbol_t *t = current_scope->get_symbol(value);
             if (!t) {
                 throw SemanticError("'" + value + "' is not defined in the scope",
                     x.base.base.loc);
@@ -2645,7 +2644,7 @@ public:
 
     void visit_Return(const AST::Return_t &x) {
         std::string return_var_name = "_lpython_return_variable";
-        if(current_scope->scope.find(return_var_name) == current_scope->scope.end()) {
+        if(current_scope->get_scope().find(return_var_name) == current_scope->get_scope().end()) {
             if (x.m_value) {
                 throw SemanticError("Return type of function is not defined",
                                 x.base.base.loc);
@@ -2656,7 +2655,7 @@ public:
         }
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
-        ASR::symbol_t *return_var = current_scope->scope[return_var_name];
+        ASR::symbol_t *return_var = current_scope->get_symbol(return_var_name);
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc, return_var);
         ASR::expr_t *target = ASRUtils::EXPR(return_var_ref);
         ASR::ttype_t *target_type = ASRUtils::expr_type(target);
@@ -2732,7 +2731,7 @@ public:
                 AST::Attribute_t *at = AST::down_cast<AST::Attribute_t>(c->m_func);
                 if (AST::is_a<AST::Name_t>(*at->m_value)) {
                     std::string value = AST::down_cast<AST::Name_t>(at->m_value)->m_id;
-                    ASR::symbol_t *t = current_scope->scope[value];
+                    ASR::symbol_t *t = current_scope->get_symbol(value);
                     if (!t) {
                         throw SemanticError("'" + value + "' is not defined in the scope",
                             x.base.base.loc);
@@ -2972,15 +2971,15 @@ public:
                 call_name = at->m_attr;
                 std::string call_name_store = "__" + mod_name + "_" + call_name;
                 ASR::symbol_t *st = nullptr;
-                if (current_scope->scope.find(call_name_store) != current_scope->scope.end()) {
-                    st = current_scope->scope[call_name_store];
+                if (current_scope->get_scope().find(call_name_store) != current_scope->get_scope().end()) {
+                    st = current_scope->get_symbol(call_name_store);
                 } else {
                     SymbolTable *symtab = current_scope;
                     while (symtab->parent != nullptr) symtab = symtab->parent;
-                    if (symtab->scope.find(mod_name) == symtab->scope.end()) {
-                        if (current_scope->scope.find(mod_name) != current_scope->scope.end()) {
+                    if (symtab->get_scope().find(mod_name) == symtab->get_scope().end()) {
+                        if (current_scope->get_scope().find(mod_name) != current_scope->get_scope().end()) {
                             // this case when we have variable and attribute
-                            st = current_scope->scope[mod_name];
+                            st = current_scope->get_symbol(mod_name);
                             Vec<ASR::expr_t*> eles;
                             eles.reserve(al, x.n_args);
                             for (size_t i=0; i<x.n_args; i++) {
@@ -2992,11 +2991,11 @@ public:
                         throw SemanticError("module '" + mod_name + "' is not imported",
                             x.base.base.loc);
                     }
-                    ASR::symbol_t *mt = symtab->scope[mod_name];
+                    ASR::symbol_t *mt = symtab->get_symbol(mod_name);
                     ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(mt);
                     st = import_from_module(al, m, current_scope, mod_name,
                                         call_name, call_name_store, x.base.base.loc);
-                    current_scope->scope[call_name_store] = st;
+                    current_scope->add_symbol(call_name_store, st);
                 }
                 tmp = make_call_helper(al, st, current_scope, args, call_name, x.base.base.loc);
                 return;

@@ -54,6 +54,18 @@ int __lpython_overloaded_2___lpython_floordiv(int a, int b)
     return _lpython_return_variable;
 }
 
+float _lfortran_caimag(std::complex<float> x)
+{
+    float _lpython_return_variable;
+    return _lpython_return_variable;
+}
+
+float _lfortran_zaimag(std::complex<float> x)
+{
+    double _lpython_return_variable;
+    return _lpython_return_variable;
+}
+
 namespace {
 
 void main2() {

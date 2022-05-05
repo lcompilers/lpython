@@ -118,7 +118,7 @@ public:
     void visit_procedure(const T &x) {
         nesting_depth++;
         if (nesting_depth == 1) {
-            for (auto &item : x.m_symtab->scope) {
+            for (auto &item : x.m_symtab->get_scope()) {
                 if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
                     par_func_hash = cur_func_hash;
                     ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
@@ -173,7 +173,7 @@ public:
     void visit_procedure(const ASR::Program_t &x) {
         nesting_depth++;
         if (nesting_depth == 1) {
-            for (auto &item : x.m_symtab->scope) {
+            for (auto &item : x.m_symtab->get_scope()) {
                 if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
                     par_func_hash = cur_func_hash;
                     ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
@@ -276,8 +276,8 @@ public:
             // If the variable is not defined in the current scope, it is a
             // "needed global" since we need to be able to access it from the
             // nested procedure.
-            if (current_scope->scope.find(v->m_name) ==
-                        current_scope->scope.end()) {
+            if (current_scope->get_symbol(v->m_name) ==
+                        nullptr) {
                 uint32_t h = get_hash((ASR::asr_t*)v);
                 llvm::Type* rel_type;
                 auto finder = std::find(needed_globals.begin(),

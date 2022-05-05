@@ -27,8 +27,10 @@ public:
 
     void visit_Function(const ASR::Function_t &x) {
         uint64_t h = get_hash((ASR::asr_t*)&x);
-        fn_declarations[h] = x.m_name;
-        for (auto &a : x.m_symtab->scope) {
+        if (x.m_abi != ASR::abiType::BindC) {
+            fn_declarations[h] = x.m_name;
+        }
+        for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
         for (size_t i=0; i<x.n_body; i++) {
@@ -188,32 +190,36 @@ public:
 
     UnusedFunctionsVisitor(Allocator &al) : al{al} { }
 
-    void remove_unused_fn(std::map<std::string, ASR::symbol_t*> &scope) {
-        for (auto it = scope.begin(); it != scope.end(); ) {
+    void remove_unused_fn(SymbolTable* symtab) {
+        std::vector<std::string> to_be_erased;
+        for (auto it = symtab->get_scope().begin(); it != symtab->get_scope().end(); ++it) {
             uint64_t h = get_hash((ASR::asr_t*)it->second);
             if (fn_unused.find(h) != fn_unused.end()) {
-                it = scope.erase(it);
+                to_be_erased.push_back(it->first);
             } else {
                 this->visit_symbol(*it->second);
-                ++it;
             }
+        }
+
+        for (std::string& sym_name: to_be_erased) {
+            symtab->erase_symbol(sym_name);
         }
     }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
-        remove_unused_fn(x.m_global_scope->scope);
+        remove_unused_fn(x.m_global_scope);
     }
     void visit_Program(const ASR::Program_t &x) {
-        remove_unused_fn(x.m_symtab->scope);
+        remove_unused_fn(x.m_symtab);
     }
     void visit_Module(const ASR::Module_t &x) {
-        remove_unused_fn(x.m_symtab->scope);
+        remove_unused_fn(x.m_symtab);
     }
     void visit_Subroutine(const ASR::Subroutine_t &x) {
-        remove_unused_fn(x.m_symtab->scope);
+        remove_unused_fn(x.m_symtab);
     }
     void visit_Function(const ASR::Function_t &x) {
-        remove_unused_fn(x.m_symtab->scope);
+        remove_unused_fn(x.m_symtab);
     }
     void visit_GenericProcedure(const ASR::GenericProcedure_t &x) {
         Vec<ASR::symbol_t*> v;

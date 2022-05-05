@@ -165,7 +165,7 @@ public:
                                                         get_array_from_slice(x, x_arr_var), ASR::abiType::Source, ASR::accessType::Public,
                                                         ASR::presenceType::Required, false);
             ASR::symbol_t* slice_sym = ASR::down_cast<ASR::symbol_t>(slice_asr);
-            current_scope->scope[std::string(new_var_name)] = slice_sym;
+            current_scope->add_symbol(std::string(new_var_name), slice_sym);
             slice_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, slice_sym));
             Vec<ASR::expr_t*> idx_vars_target, idx_vars_value;
             PassUtils::create_idx_vars(idx_vars_target, x.n_args, x.base.base.loc, al, current_scope, "_t");

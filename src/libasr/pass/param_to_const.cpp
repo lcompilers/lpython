@@ -41,7 +41,7 @@ public:
     }
 
     void visit_Program(const ASR::Program_t &x) {
-        for (auto &item : x.m_symtab->scope) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 visit_Variable(*v);
