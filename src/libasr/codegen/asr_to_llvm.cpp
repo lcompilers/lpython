@@ -2821,16 +2821,19 @@ public:
         llvm::Value *left_val = tmp;
         this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
-        switch (x.m_op) {
-            case ASR::stropType::Concat: {
-                tmp = lfortran_strop(left_val, right_val, "_lfortran_strcat");
-                break;
-            };
-            case ASR::stropType::Repeat: {
-                tmp = lfortran_strop(left_val, right_val, "_lfortran_strrepeat");
-                break;
-            };
+        tmp = lfortran_strop(left_val, right_val, "_lfortran_strrepeat");
+    }
+
+    void visit_StringConcat(const ASR::StringConcat_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
         }
+        this->visit_expr_wrapper(x.m_left, true);
+        llvm::Value *left_val = tmp;
+        this->visit_expr_wrapper(x.m_right, true);
+        llvm::Value *right_val = tmp;
+        tmp = lfortran_strop(left_val, right_val, "_lfortran_strcat");
     }
 
     void visit_StringLen(const ASR::StringLen_t &x) {
