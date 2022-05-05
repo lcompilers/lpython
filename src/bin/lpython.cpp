@@ -339,7 +339,10 @@ int compile_python_to_object_file(
         return 3;
     }
     m = std::move(res.result);
+    auto llvm_start = std::chrono::high_resolution_clock::now();
     e.save_object_file(*(m->m_m), outfile);
+    auto llvm_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("LLVM to binary", std::chrono::duration<double, std::milli>(llvm_end - llvm_start).count()));
     print_time_report(times, time_report);
     return 0;
 }
