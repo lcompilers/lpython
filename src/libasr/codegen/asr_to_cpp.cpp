@@ -827,7 +827,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
     }
 
-    void visit_StrOp(const ASR::StrOp_t &x) {
+    void visit_StringConcat(const ASR::StringConcat_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(src);
         int left_precedence = last_expr_precedence;
