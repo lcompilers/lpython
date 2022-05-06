@@ -139,7 +139,9 @@ public:
             } else if (ASRUtils::is_complex(*v.m_type)) {
                 ASR::Complex_t *t = ASR::down_cast<ASR::Complex_t>(v.m_type);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
-                sub = format_type(dims, "std::complex<float>", v.m_name, use_ref, dummy);
+                std::string type_name = "std::complex<float>";
+                if (t->m_kind == 8) type_name = "std::complex<double>";
+                sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_logical(*v.m_type)) {
                 ASR::Logical_t *t = ASR::down_cast<ASR::Logical_t>(v.m_type);
                 std::string dims = convert_dims(t->n_dims, t->m_dims);
@@ -413,13 +415,23 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 sub = "long long ";
             }
         } else if (ASRUtils::is_real(*return_var->m_type)) {
-            sub = "float ";
+            bool is_float = ASR::down_cast<ASR::Real_t>(return_var->m_type)->m_kind == 4;
+            if (is_float) {
+                sub = "float ";
+            } else {
+                sub = "double ";
+            }
         } else if (ASRUtils::is_logical(*return_var->m_type)) {
             sub = "bool ";
         } else if (ASRUtils::is_character(*return_var->m_type)) {
             sub = "std::string ";
         } else if (ASRUtils::is_complex(*return_var->m_type)) {
-            sub = "std::complex<float> ";
+            bool is_float = ASR::down_cast<ASR::Complex_t>(return_var->m_type)->m_kind == 4;
+            if (is_float) {
+                sub = "std::complex<float> ";
+            } else {
+                sub = "std::complex<double> ";
+            }
         } else {
             throw CodeGenError("Return type not supported");
         }
