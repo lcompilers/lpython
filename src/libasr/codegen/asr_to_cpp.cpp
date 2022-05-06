@@ -430,49 +430,54 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             sub += convert_variable_decl(*arg);
             if (i < x.n_args-1) sub += ", ";
         }
-        sub += ")\n";
+        sub += ")";
+        if (x.m_abi == ASR::abiType::BindC) {
+            sub += ";\n";
+        } else {
+            sub += "\n";
 
-        indentation_level += 1;
-        std::string indent(indentation_level*indentation_spaces, ' ');
-        std::string decl;
-        for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                if (v->m_intent == LFortran::ASRUtils::intent_local || v->m_intent == LFortran::ASRUtils::intent_return_var) {
-                   decl += indent + convert_variable_decl(*v) + ";\n";
+            indentation_level += 1;
+            std::string indent(indentation_level*indentation_spaces, ' ');
+            std::string decl;
+            for (auto &item : x.m_symtab->get_scope()) {
+                if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
+                    if (v->m_intent == LFortran::ASRUtils::intent_local || v->m_intent == LFortran::ASRUtils::intent_return_var) {
+                    decl += indent + convert_variable_decl(*v) + ";\n";
+                    }
                 }
             }
-        }
 
-        current_function = &x;
-        std::string body;
+            current_function = &x;
+            std::string body;
 
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-            body += src;
-        }
-        current_function = nullptr;
-        bool visited_return = false;
+            for (size_t i=0; i<x.n_body; i++) {
+                this->visit_stmt(*x.m_body[i]);
+                body += src;
+            }
+            current_function = nullptr;
+            bool visited_return = false;
 
-        if (x.n_body > 0 && ASR::is_a<ASR::Return_t>(*x.m_body[x.n_body-1])) {
-            visited_return = true;
-        }
+            if (x.n_body > 0 && ASR::is_a<ASR::Return_t>(*x.m_body[x.n_body-1])) {
+                visited_return = true;
+            }
 
-        if(!visited_return) {
-            body += indent + "return "
-                + LFortran::ASRUtils::EXPR2VAR(x.m_return_var)->m_name
-                + ";\n";
-        }
+            if(!visited_return) {
+                body += indent + "return "
+                    + LFortran::ASRUtils::EXPR2VAR(x.m_return_var)->m_name
+                    + ";\n";
+            }
 
-        if (decl.size() > 0 || body.size() > 0) {
-            sub += "{\n" + decl + body + "}\n";
-        } else {
-            sub[sub.size()-1] = ';';
-            sub += "\n";
+            if (decl.size() > 0 || body.size() > 0) {
+                sub += "{\n" + decl + body + "}\n";
+            } else {
+                sub[sub.size()-1] = ';';
+                sub += "\n";
+            }
+            indentation_level -= 1;
         }
         sub += "\n";
         src = sub;
-        indentation_level -= 1;
     }
 
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
