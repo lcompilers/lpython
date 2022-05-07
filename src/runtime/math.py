@@ -19,7 +19,20 @@ def fsum(data: list) -> f64:
     for i in range(len(data)):
         sum += data[i]
     return sum
+
+def prod(data: list) -> f64:
+    """
+    Return the product of the elements of `data`.
+    """
     
+    result: f64
+    result = 1.0
+    
+    i: i32
+    for i in range(len(data)):
+        result *= data[i]
+    return result
+
 def factorial(x: i32) -> i32:
     """
     Computes the factorial of `x`.
