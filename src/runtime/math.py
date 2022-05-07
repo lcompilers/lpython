@@ -33,6 +33,20 @@ def prod(data: list) -> f64:
         result *= data[i]
     return result
 
+def dist(x: list, y: list) -> f64:
+    """
+    Return euclidean distance between `x` and `y` points.
+    """
+    assert len(x) == len(y), "Length of lists should be same"
+    res: f64
+    res = 0.0
+
+    i: i32
+    for i in range(len(x)):
+        res += (x[i] - y[i]) ** 2
+    res = sqrt(res)
+    return res
+
 def factorial(x: i32) -> i32:
     """
     Computes the factorial of `x`.
