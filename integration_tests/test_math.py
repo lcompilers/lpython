@@ -1,6 +1,6 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
                   ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc,
-                  fsum)
+                  fsum, prod)
 from ltypes import i32, f64, i64
 
 eps: f64
@@ -155,6 +155,11 @@ def test_fsum():
     data = [1, 2.2, 3.333, 4, 5.0]
     assert fsum(data) == 15.533000000000001
 
+def test_prod():
+    data: list
+    data = [1, 2.2, 3.333, 4, 5.0]
+    assert prod(data) == 146.65200000000002
+
 def check():
     test_factorial_1()
     test_comb()
@@ -176,5 +181,6 @@ def check():
     test_log1p()
     test_trunc()
     test_fsum()
+    test_prod()
 
 check()
