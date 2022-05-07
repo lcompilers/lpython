@@ -1,4 +1,4 @@
-from ltypes import i8, i16, i32, f32, f64, ccall
+from ltypes import i8, i16, i32, i64, f32, f64, ccall, overload
 
 
 pi: f64 = 3.141592653589793238462643383279502884197
@@ -8,6 +8,18 @@ tau: f64 = 6.283185307179586
 # TODO: Change floor used inside functions implemented here to
 # floordiv operator (//) once the multiple import issue is fixed
 
+def fsum(data: list) -> f64:
+    """
+    Sum of the elements of `data`.
+    """
+    sum: f64
+    sum = 0.0
+
+    i: i32
+    for i in range(len(data)):
+        sum += data[i]
+    return sum
+    
 def factorial(x: i32) -> i32:
     """
     Computes the factorial of `x`.
