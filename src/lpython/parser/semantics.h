@@ -20,6 +20,7 @@
 using namespace LFortran::LPython::AST;
 using LFortran::Location;
 using LFortran::Vec;
+using LFortran::Key_Val;
 
 static inline char* name2char(const ast_t *n) {
     return down_cast2<Name_t>(n)->m_id;
@@ -286,5 +287,28 @@ Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
         EXPRS(e), e.size(), expr_contextType::Load)
 #define ATTRIBUTE_REF(val, attr, l) make_Attribute_t(p.m_a, l, \
         EXPR(val), name2char(attr), expr_contextType::Load)
+
+Key_Val *DICT(Allocator &al, expr_t *key, expr_t *val) {
+    Key_Val *kv = al.allocate<Key_Val>();
+    kv->key = key;
+    kv->value = val;
+    return kv;
+}
+
+ast_t *DICT1(Allocator &al, Location &l, Vec<Key_Val*> dict_list) {
+    Vec<expr_t*> key;
+    key.reserve(al, dict_list.size());
+    Vec<expr_t*> val;
+    val.reserve(al, dict_list.size());
+    for (auto &item : dict_list) {
+        key.push_back(al, item->key);
+        val.push_back(al, item->value);
+    }
+    return make_Dict_t(al, l, key.p, key.n, val.p, val.n);
+}
+
+#define DICT_EXPR(key, value, l) DICT(p.m_a, EXPR(key), EXPR(value))
+#define DICT_01(l) make_Dict_t(p.m_a, l, nullptr, 0, nullptr, 0)
+#define DICT_02(dict_list, l) DICT1(p.m_a, l, dict_list)
 
 #endif

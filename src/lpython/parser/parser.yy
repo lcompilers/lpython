@@ -218,6 +218,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> decorators
 %type <vec_ast> decorators_opt
 %type <ast> class_def
+%type <key_val> dict
+%type <vec_key_val> dict_list
 %type <vec_ast> sep
 %type <ast> sep_one
 
@@ -525,10 +527,20 @@ class_def
 expr_list_opt
     : expr_list { $$ = $1; }
     | %empty { LIST_NEW($$); }
+    ;
 
 expr_list
     : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }
     | expr { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+dict
+    : expr ":" expr { $$ = DICT_EXPR($1, $3, @$); }
+    ;
+
+dict_list
+    : dict_list "," dict { $$ = $1; LIST_ADD($$, $3); }
+    | dict { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 expr
@@ -545,6 +557,8 @@ expr
     | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
     | expr "." id "(" expr_list_opt ")" {
         $$ = CALL_01(ATTRIBUTE_REF($1, $3, @$), $5, @$); }
+    | "{" "}" { $$ = DICT_01(@$); }
+    | "{" dict_list "}" { $$ = DICT_02($2, @$); }
 
     | expr "+" expr { $$ = BINOP($1, Add, $3, @$); }
     | expr "-" expr { $$ = BINOP($1, Sub, $3, @$); }

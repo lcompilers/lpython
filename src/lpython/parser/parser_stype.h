@@ -10,6 +10,11 @@
 namespace LFortran
 {
 
+struct Key_Val {
+    LPython::AST::expr_t* key;
+    LPython::AST::expr_t* value;
+};
+
 struct IntSuffix {
     BigInt::BigInt int_n;
     Str int_kind;
@@ -28,6 +33,9 @@ union YYSTYPE {
 
     LPython::AST::arg_t* arg;
     Vec<LPython::AST::arg_t> vec_arg;
+
+    Key_Val *key_val;
+    Vec<Key_Val*> vec_key_val;
 
     LPython::AST::operatorType operator_type;
 };
