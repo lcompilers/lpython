@@ -56,7 +56,7 @@ int __lpython_overloaded_2___lpython_floordiv(int a, int b)
 
 float _lfortran_caimag(std::complex<float> x);
 
-float _lfortran_zaimag(std::complex<float> x);
+double _lfortran_zaimag(std::complex<double> x);
 
 namespace {
 

@@ -126,6 +126,10 @@ filename = "expr14.py"
 llvm = true
 
 [[test]]
+filename = "expr15.py"
+cpp = true
+
+[[test]]
 filename = "expr_01.py"
 ast = true
 asr = true
