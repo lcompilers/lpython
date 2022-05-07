@@ -176,6 +176,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> expr
 %type <vec_ast> expr_list
 %type <vec_ast> expr_list_opt
+%type <ast> tuple_list
 %type <ast> statement
 %type <vec_ast> statements
 %type <vec_ast> statements1
@@ -332,6 +333,7 @@ assert_statement
 target
     : id { $$ = TARGET_ID($1, @$); }
     | expr "." id { $$ = TARGET_ATTR($1, $3, @$); }
+    | id "[" tuple_list "]" { $$ = TARGET_SUBSCRIPT($1, $3, @$); }
     ;
 
 target_item_list
@@ -543,6 +545,10 @@ dict_list
     | dict { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
+tuple_list
+    : expr_list { $$ = TUPLE($1, @$); }
+    ;
+
 expr
     : id { $$ = $1; }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
@@ -554,6 +560,7 @@ expr
     | "(" expr ")" { $$ = $2; }
     | id "(" expr_list_opt ")" { $$ = CALL_01($1, $3, @$); }
     | "[" expr_list_opt "]" { $$ = LIST($2, @$); }
+    | id "[" tuple_list "]" { $$ = SUBSCRIPT($1, $3, @$); }
     | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
     | expr "." id "(" expr_list_opt ")" {
         $$ = CALL_01(ATTRIBUTE_REF($1, $3, @$), $5, @$); }
