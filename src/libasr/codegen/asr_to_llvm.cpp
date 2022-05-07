@@ -2842,7 +2842,12 @@ public:
                 break;
             };
             case ASR::stropType::Repeat: {
-                tmp = lfortran_strrepeat(left_val, right_val);
+                if (ASRUtils::expr_type(x.m_right)->type == ASR::ttypeType::Integer) {
+                    tmp = lfortran_strrepeat(left_val, right_val);
+                }
+                else if (ASRUtils::expr_type(x.m_left)->type == ASR::ttypeType::Integer) {
+                    tmp = lfortran_strrepeat(right_val, left_val);
+                }
                 break;
             };
         }
