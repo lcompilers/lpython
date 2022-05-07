@@ -1,5 +1,6 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
-                  ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc)
+                  ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc,
+                  fsum)
 from ltypes import i32, f64, i64
 
 eps: f64
@@ -149,6 +150,10 @@ def test_trunc():
     i = trunc(-4.5)
     assert i == -4
 
+def test_fsum():
+    data: list
+    data = [1, 2.2, 3.333, 4, 5.0]
+    assert fsum(data) == 15.533000000000001
 
 def check():
     test_factorial_1()
@@ -170,6 +175,6 @@ def check():
     test_expm1()
     test_log1p()
     test_trunc()
-
+    test_fsum()
 
 check()
