@@ -1516,6 +1516,10 @@ public:
                 index = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
             }
             ai.m_right = index;
+            if (ASRUtils::is_character(*type)) {
+                tmp = ASR::make_StringItem_t(al, x.base.base.loc, value, index, type, nullptr);
+                return;
+            }
         }
 
         if (ASR::is_a<ASR::Character_t>(*type)) {
