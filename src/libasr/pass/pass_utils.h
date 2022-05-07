@@ -115,7 +115,7 @@ namespace LFortran {
                     transform_stmts(xx.m_body, xx.n_body);
 
                     // Transform nested functions and subroutines
-                    for (auto &item : x.m_symtab->scope) {
+                    for (auto &item : x.m_symtab->get_scope()) {
                         if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
                             ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
                             self().visit_Subroutine(*s);

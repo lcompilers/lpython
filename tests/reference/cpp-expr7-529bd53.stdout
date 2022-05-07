@@ -51,6 +51,10 @@ int __lpython_overloaded_0__pow(int x, int y)
     return _lpython_return_variable;
 }
 
+float _lfortran_caimag(std::complex<float> x);
+
+double _lfortran_zaimag(std::complex<double> x);
+
 namespace {
 
 void main2() {

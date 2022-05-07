@@ -1,5 +1,5 @@
 #include <iostream>
-#include <memory> 
+#include <memory>
 #include <libasr/asr.h>
 #include <libasr/containers.h>
 #include <libasr/exception.h>
@@ -8,12 +8,12 @@
 
 
 /*
- * 
+ *
  * This back-end generates wrapper code that allows Fortran to automatically be called from Python.
  * It also generates a C header file, so I suppose it indirectly generates C wrappers as well.
  * Currently, it outputs Cython, rather than the Python C API directly - much easier to implement.
  * The actual output files are:
- *  - a .h file, containing C-language function declarations *  
+ *  - a .h file, containing C-language function declarations *
  *  - a .pxd file, basically containing the same information as the .h file, but in Cython's format.
  *  - a .pyx file, which is a Cython file that includes the actual python-callable wrapper functions.
  *
@@ -21,12 +21,12 @@
  *  At some later point we will offer the functionality to generate bind (c) wrapper functions for
  *  normal Fortran subprograms, but for now, we don't offer this functionality.
  *
- *  --- H. Snyder, Aug 2021 
- *  
+ *  --- H. Snyder, Aug 2021
+ *
  * */
 
 
-/*  
+/*
  * The following technique is called X-macros, if you don't recognize it.
  * You should be able to look it up under that name for an explanation.
  */
@@ -44,7 +44,7 @@
     _X(ASR::Complex_t, 8, "double _Complex" ) \
     \
     _X(ASR::Logical_t, 1,   "_Bool" ) \
-    _X(ASR::Character_t, 1, "char" ) 
+    _X(ASR::Character_t, 1, "char" )
 
 
 /*
@@ -86,8 +86,8 @@
     _X(ASR::Complex_t, "c_long_double_complex", "long double _Complex" ) \
     \
     _X(ASR::Logical_t, "c_bool",          "_Bool" ) \
-    _X(ASR::Character_t, "c_char",        "char" ) 
- */ 
+    _X(ASR::Character_t, "c_char",        "char" )
+ */
 
 namespace LFortran {
 
@@ -129,15 +129,15 @@ public:
     // What's the name of the pxd file (minus the .pxd extension)
     std::string pxdf;
 
-    ASRToPyVisitor(bool c_order_, std::string chdr_filename_) : 
-            c_order(c_order_), 
+    ASRToPyVisitor(bool c_order_, std::string chdr_filename_) :
+            c_order(c_order_),
             chdr_filename(chdr_filename_),
             pxdf(chdr_filename_)
     {
         // we need to get get the pxd filename (minus extension), so we can import it in the pyx file
         // knock off ".h" from the c header filename
         pxdf.erase(--pxdf.end());
-        pxdf.erase(--pxdf.end());   
+        pxdf.erase(--pxdf.end());
         // this is an unfortuante hack, but we have to add something so that the pxd and pyx filenames
         // are different (beyond just their extensions). If we don't, the cython emits a warning.
         // TODO we definitely need to change this somehow because right now this "append _pxd" trick
@@ -153,7 +153,7 @@ public:
             ASR::Variable_t*  asr_obj;
             std::string       ctype;
             int               ndims;
-            
+
             std::vector<std::string> ubound_varnames;
             std::vector<std::pair<std::string,int> > i_am_ubound_of;
         };
@@ -172,7 +172,7 @@ public:
             arg_info this_arg_info;
 
             const char * errmsg1 = "pywrap does not yet support array dummy arguments with lower bounds other than 1.";
-            const char * errmsg2 = "pywrap can only generate wrappers for array dummy arguments " 
+            const char * errmsg2 = "pywrap can only generate wrappers for array dummy arguments "
                                    "if the upper bound is a constant integer, or another (scalar) dummy argument.";
 
             // Generate a sequence of if-blocks to determine the type, using the type list defined above
@@ -197,7 +197,7 @@ public:
                         throw CodeGenError(errmsg2);                                               \
                     }                                                                              \
                 }                                                                                  \
-            } else       
+            } else
 
             CTYPELIST {
                 // We end up in this block if none of the above if-blocks were triggered
@@ -216,18 +216,18 @@ public:
 
             subroutine foo(n,x)
                 integer :: n, x(n)
-            end subroutine  
+            end subroutine
 
             We don't actually want `n` in the python wrapper's arguments - the Python programmer
             shouldn't need to explicitly pass sizes. From the get_arg_infos block, we already have
-            the mapping from `x` to `n`, but we also need the opposite - we need be able to look at 
-            `n` and know that it's related to `x`. So let's do a pass over the arg_infos list and 
+            the mapping from `x` to `n`, but we also need the opposite - we need be able to look at
+            `n` and know that it's related to `x`. So let's do a pass over the arg_infos list and
             assemble that information.
 
             */
-            
-            for (auto bound_iter =  arg_iter->ubound_varnames.begin(); 
-                      bound_iter != arg_iter->ubound_varnames.end(); 
+
+            for (auto bound_iter =  arg_iter->ubound_varnames.begin();
+                      bound_iter != arg_iter->ubound_varnames.end();
                       bound_iter++ ) {
                 for (unsigned int j = 0; j < arg_infos.size(); j++) {
                     if (0 == std::string(arg_infos[j].asr_obj->m_name).compare(*bound_iter)) {
@@ -242,14 +242,14 @@ public:
         /* apply_c_order */ if(c_order) {
 
             for(auto arg_iter = arg_infos.begin(); arg_iter != arg_infos.end(); arg_iter++) {
-            
+
                 for (auto bound =  arg_iter->i_am_ubound_of.begin();
                           bound != arg_iter->i_am_ubound_of.end();
                           bound++) {
                     auto x = std::make_pair(bound->first, - bound->second -1);
                     bound->swap(x);
-                }  
-            
+                }
+
             }
 
         } /* apply_c_order */
@@ -257,8 +257,8 @@ public:
         std::string c, cyargs, fargs, pyxbody, return_statement;
 
         /* build_return_strings */ for(auto it = arg_infos.begin(); it != arg_infos.end(); it++) {
-           
-            std::string c_wip, cyargs_wip, fargs_wip, rtn_wip;          
+
+            std::string c_wip, cyargs_wip, fargs_wip, rtn_wip;
 
             c_wip = it->ctype;
 
@@ -289,7 +289,7 @@ public:
             fargs_wip += it->asr_obj->m_name;
             if(it->ndims > 0) {
                 fargs_wip += "[0";
-                for(int h = 1; h < it->ndims; h++) 
+                for(int h = 1; h < it->ndims; h++)
                     fargs_wip += ",0";
                 fargs_wip += "]";
             }
@@ -299,11 +299,11 @@ public:
                 rtn_wip = it->asr_obj->m_name;
             }
 
-             
+
             if(!it->i_am_ubound_of.empty()) {
                 cyargs_wip.clear();
                 auto& i_am_ubound_of = it->i_am_ubound_of[0];
-                pyxbody += "    cdef " + it->ctype + " "; 
+                pyxbody += "    cdef " + it->ctype + " ";
                 pyxbody += it->asr_obj->m_name;
                 pyxbody += " = ";
                 pyxbody += i_am_ubound_of.first + ".shape[" + std::to_string(i_am_ubound_of.second) + "]\n";
@@ -323,7 +323,7 @@ public:
             fargs  += fargs_wip;
             cyargs += cyargs_wip;
             return_statement += rtn_wip;
-            
+
 
         } /* build_return_strings */
 
@@ -348,7 +348,7 @@ public:
         pxd_tmp +=  "from libc.stdint cimport int8_t, int16_t, int32_t, int64_t\n";
         pxd_tmp +=  "cdef extern from \"" + chdr_filename + "\":\n";
 
-        
+
         pyx_tmp =  "# This file was automatically generated by the LFortran compiler.\n";
         pyx_tmp += "# Editing by hand is discouraged.\n\n";
         pyx_tmp += "from numpy cimport import_array, ndarray, int8_t, int16_t, int32_t, int64_t\n";
@@ -356,7 +356,7 @@ public:
         pyx_tmp += "cimport " + pxdf + " \n\n";
 
         // Process loose procedures first
-        for (auto &item : x.m_global_scope->scope) {
+        for (auto &item : x.m_global_scope->get_scope()) {
             if (is_a<ASR::Function_t>(*item.second)
                     || is_a<ASR::Subroutine_t>(*item.second)) {
                 visit_symbol(*item.second);
@@ -371,10 +371,10 @@ public:
         std::vector<std::string> build_order
             = ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
-            LFORTRAN_ASSERT(x.m_global_scope->scope.find(item)
-                    != x.m_global_scope->scope.end());
+            LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item)
+                    != x.m_global_scope->get_scope().end());
             if (!startswith(item, "lfortran_intrinsic")) {
-                ASR::symbol_t *mod = x.m_global_scope->scope[item];
+                ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
                 visit_symbol(*mod);
 
                 chdr_tmp += chdr;
@@ -383,7 +383,7 @@ public:
             }
         }
 
-        // There's no need to process the `program` statement, which 
+        // There's no need to process the `program` statement, which
         // is the only other thing that can appear at the top level.
 
         chdr = chdr_tmp;
@@ -399,7 +399,7 @@ public:
         std::string pxd_tmp  ;
         std::string pyx_tmp  ;
 
-        for (auto &item : x.m_symtab->scope) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Subroutine_t>(*item.second)) {
                 ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
@@ -437,11 +437,11 @@ public:
 
         chdr = "void " + effective_name + " (";
 
-        std::string c_args, cy_args, call_args, pyx_body, rtn_statement;       
+        std::string c_args, cy_args, call_args, pyx_body, rtn_statement;
         std::tie(c_args,cy_args,call_args,pyx_body,rtn_statement) = helper_visit_arguments(x.n_args, x.m_args);
 
         if (!rtn_statement.empty()) rtn_statement = "    return " + rtn_statement;
-        
+
         chdr += c_args + ")";
         pxd = "    " + chdr + "\n";
         chdr += ";\n" ;
@@ -461,29 +461,29 @@ public:
         // Return type and function name
         bool bindc_name_not_given = x.m_bindc_name == NULL || !strcmp("",x.m_bindc_name);
         std::string effective_name = bindc_name_not_given ? x.m_name : x.m_bindc_name;
-        
+
         ASR::Variable_t *rtnvar = ASRUtils::EXPR2VAR(x.m_return_var);
         std::string rtnvar_type;
         #define _X(ASR_TYPE, KIND, CTYPE_STR) \
         if ( is_a<ASR_TYPE>(*rtnvar->m_type) && (down_cast<ASR_TYPE>(rtnvar->m_type)->m_kind == KIND) ) { \
             rtnvar_type = CTYPE_STR;                                                                     \
-        } else  
+        } else
 
-        CTYPELIST { 
-            throw CodeGenError("Unrecognized or non-interoperable return type/kind"); 
+        CTYPELIST {
+            throw CodeGenError("Unrecognized or non-interoperable return type/kind");
         }
         #undef _X
         std::string rtnvar_name = effective_name + "_rtnval__";
 
         chdr = rtnvar_type + " " + effective_name + " (";
 
-        std::string c_args, cy_args, call_args, pyx_body, rtn_statement;       
+        std::string c_args, cy_args, call_args, pyx_body, rtn_statement;
         std::tie(c_args,cy_args,call_args,pyx_body,rtn_statement) = helper_visit_arguments(x.n_args, x.m_args);
 
         std::string rtnarg_str =  rtnvar_name;
         if(!rtn_statement.empty()) rtnarg_str += ", ";
         rtn_statement = "    return " + rtnarg_str  + rtn_statement;
-        
+
         chdr += c_args + ")";
         pxd = "    " + chdr + "\n";
         chdr += ";\n" ;

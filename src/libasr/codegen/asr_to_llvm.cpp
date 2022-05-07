@@ -532,7 +532,7 @@ public:
                 dertype2parent[der_type_name] = std::string(par_der_type->m_name);
                 member_idx += 1;
             }
-            std::map<std::string, ASR::symbol_t*> scope = der_type->m_symtab->scope;
+            const std::map<std::string, ASR::symbol_t*>& scope = der_type->m_symtab->get_scope();
             for( auto itr = scope.begin(); itr != scope.end(); itr++ ) {
                 ASR::Variable_t* member = (ASR::Variable_t*)(&(itr->second->base));
                 llvm::Type* mem_type = nullptr;
@@ -608,7 +608,7 @@ public:
         if( name2dertype.find(der_type_name) != name2dertype.end() ) {
             der_type_llvm = name2dertype[der_type_name];
         } else {
-            std::map<std::string, ASR::symbol_t*> scope = der_type->m_symtab->scope;
+            const std::map<std::string, ASR::symbol_t*>& scope = der_type->m_symtab->get_scope();
             std::vector<llvm::Type*> member_types;
             int member_idx = 0;
             for( auto itr = scope.begin(); itr != scope.end(); itr++ ) {
@@ -909,18 +909,18 @@ public:
         fname2arg_type["ubound"] = std::make_pair(bound_arg, bound_arg->getPointerTo());
 
         // Process Variables first:
-        for (auto &item : x.m_global_scope->scope) {
+        for (auto &item : x.m_global_scope->get_scope()) {
             if (is_a<ASR::Variable_t>(*item.second)) {
                 visit_symbol(*item.second);
             }
         }
 
         prototype_only = false;
-        for (auto &item : x.m_global_scope->scope) {
+        for (auto &item : x.m_global_scope->get_scope()) {
             if (is_a<ASR::Module_t>(*item.second) &&
                 item.first.find("lfortran_intrinsic_optimization") != std::string::npos) {
                 ASR::Module_t* mod = ASR::down_cast<ASR::Module_t>(item.second);
-                for( auto &moditem: mod->m_symtab->scope ) {
+                for( auto &moditem: mod->m_symtab->get_scope() ) {
                     ASR::symbol_t* sym = ASRUtils::symbol_get_past_external(moditem.second);
                     if (is_a<ASR::Subroutine_t>(*sym)) {
                         visit_Subroutine(*ASR::down_cast<ASR::Subroutine_t>(sym));
@@ -933,7 +933,7 @@ public:
 
         prototype_only = true;
         // Generate function prototypes
-        for (auto &item : x.m_global_scope->scope) {
+        for (auto &item : x.m_global_scope->get_scope()) {
             if (is_a<ASR::Function_t>(*item.second)) {
                 visit_Function(*ASR::down_cast<ASR::Function_t>(item.second));
             }
@@ -949,14 +949,14 @@ public:
         std::vector<std::string> build_order
             = determine_module_dependencies(x);
         for (auto &item : build_order) {
-            LFORTRAN_ASSERT(x.m_global_scope->scope.find(item)
-                != x.m_global_scope->scope.end());
-            ASR::symbol_t *mod = x.m_global_scope->scope[item];
+            LFORTRAN_ASSERT(x.m_global_scope->get_symbol(item)
+                != nullptr);
+            ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
             visit_symbol(*mod);
         }
 
         // Then do all the procedures
-        for (auto &item : x.m_global_scope->scope) {
+        for (auto &item : x.m_global_scope->get_scope()) {
             if (is_a<ASR::Function_t>(*item.second)
                 || is_a<ASR::Subroutine_t>(*item.second)) {
                 visit_symbol(*item.second);
@@ -964,7 +964,7 @@ public:
         }
 
         // Then the main program
-        for (auto &item : x.m_global_scope->scope) {
+        for (auto &item : x.m_global_scope->get_scope()) {
             if (is_a<ASR::Program_t>(*item.second)) {
                 visit_symbol(*item.second);
             }
@@ -1267,7 +1267,7 @@ public:
 
         start_module_init_function_prototype(x);
 
-        for (auto &item : x.m_symtab->scope) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(
                         item.second);
@@ -1294,7 +1294,7 @@ public:
 
     void visit_Program(const ASR::Program_t &x) {
         // Generate code for nested subroutines and functions first:
-        for (auto &item : x.m_symtab->scope) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *v = down_cast<ASR::Function_t>(
                         item.second);
@@ -1348,7 +1348,7 @@ public:
     template<typename T>
     void declare_vars(const T &x) {
         llvm::Value *target_var;
-        for (auto &item : x.m_symtab->scope) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 uint32_t h = get_hash((ASR::asr_t*)v);
@@ -1877,7 +1877,7 @@ public:
             llvm::Value *sp_loc = module->getOrInsertGlobal(
                 nested_sp_name, llvm::Type::getInt32Ty(context));
             llvm::Value *sp_val = CreateLoad(sp_loc);
-            for (auto &item : x->m_symtab->scope) {
+            for (auto &item : x->m_symtab->get_scope()) {
                 if (is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t *v = down_cast<ASR::Variable_t>(
                         item.second);
@@ -1938,7 +1938,7 @@ public:
             builder->SetInsertPoint(dec_sp);
             builder->CreateStore(builder->CreateAdd(builder->getInt32(-1),
                 sp_val), sp_loc);
-            for (auto &item : x->m_symtab->scope) {
+            for (auto &item : x->m_symtab->get_scope()) {
                 if (is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t *v = down_cast<ASR::Variable_t>(
                         item.second);
@@ -2070,7 +2070,7 @@ public:
             llvm_symtab_fn[h] = F;
 
             // Instantiate (pre-declare) all nested interfaces
-            for (auto &item : x.m_symtab->scope) {
+            for (auto &item : x.m_symtab->get_scope()) {
                 if (is_a<ASR::Function_t>(*item.second)) {
                     ASR::Function_t *v = down_cast<ASR::Function_t>(
                             item.second);
@@ -2143,7 +2143,7 @@ public:
             llvm_symtab_fn[h] = F;
 
             // Instantiate (pre-declare) all nested interfaces
-            for (auto &item : x.m_symtab->scope) {
+            for (auto &item : x.m_symtab->get_scope()) {
                 if (is_a<ASR::Function_t>(*item.second)) {
                     ASR::Function_t *v = down_cast<ASR::Function_t>(
                             item.second);
@@ -2415,7 +2415,7 @@ public:
 
     template<typename T>
     void visit_procedures(const T &x) {
-        for (auto &item : x.m_symtab->scope) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Subroutine_t>(*item.second)) {
                 ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
@@ -2517,6 +2517,15 @@ public:
         declare_vars(*associate_block);
         for (size_t i = 0; i < associate_block->n_body; i++) {
             this->visit_stmt(*(associate_block->m_body[i]));
+        }
+    }
+
+    void visit_BlockCall(const ASR::BlockCall_t& x) {
+        LFORTRAN_ASSERT(ASR::is_a<ASR::Block_t>(*x.m_m));
+        ASR::Block_t* block = ASR::down_cast<ASR::Block_t>(x.m_m);
+        declare_vars(*block);
+        for (size_t i = 0; i < block->n_body; i++) {
+            this->visit_stmt(*(block->m_body[i]));
         }
     }
 
@@ -2836,21 +2845,24 @@ public:
         llvm::Value *left_val = tmp;
         this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
-        switch (x.m_op) {
-            case ASR::stropType::Concat: {
-                tmp = lfortran_strop(left_val, right_val, "_lfortran_strcat");
-                break;
-            };
-            case ASR::stropType::Repeat: {
-                if (ASRUtils::expr_type(x.m_right)->type == ASR::ttypeType::Integer) {
-                    tmp = lfortran_strrepeat(left_val, right_val);
-                }
-                else if (ASRUtils::expr_type(x.m_left)->type == ASR::ttypeType::Integer) {
-                    tmp = lfortran_strrepeat(right_val, left_val);
-                }
-                break;
-            };
+        if (ASRUtils::expr_type(x.m_right)->type == ASR::ttypeType::Integer) {
+            tmp = lfortran_strrepeat(left_val, right_val);
         }
+        else if (ASRUtils::expr_type(x.m_left)->type == ASR::ttypeType::Integer) {
+            tmp = lfortran_strrepeat(right_val, left_val);
+        }
+    }
+
+    void visit_StringConcat(const ASR::StringConcat_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_left, true);
+        llvm::Value *left_val = tmp;
+        this->visit_expr_wrapper(x.m_right, true);
+        llvm::Value *right_val = tmp;
+        tmp = lfortran_strop(left_val, right_val, "_lfortran_strcat");
     }
 
     void visit_StringLen(const ASR::StringLen_t &x) {
@@ -3283,6 +3295,11 @@ public:
             x_v = CreateLoad(CreateGEP(ptr, idx_vec));
         } else {
             x_v = llvm_symtab[x_h];
+            if (x->m_value_attr) {
+                // Already a value, such as value argument to bind(c)
+                tmp = x_v;
+                return;
+            }
         }
         tmp = CreateLoad(x_v);
 
@@ -4390,6 +4407,24 @@ public:
         start_new_block(loopend);
 
         tmp = CreateLoad(llvm_size);
+    }
+
+    void visit_ArrayBound(const ASR::ArrayBound_t& x) {
+        visit_expr_wrapper(x.m_v);
+        llvm::Value* llvm_arg1 = tmp;
+        llvm::Value* dim_des_val = arr_descr->get_pointer_to_dimension_descriptor_array(llvm_arg1);
+        visit_expr_wrapper(x.m_dim, true);
+        llvm::Value* dim_val = tmp;
+        llvm::Value* const_1 = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
+        dim_val = builder->CreateSub(dim_val, const_1);
+        llvm::Value* dim_struct = arr_descr->get_pointer_to_dimension_descriptor(dim_des_val, dim_val);
+        llvm::Value* res = nullptr;
+        if( x.m_bound == ASR::arrayboundType::LBound ) {
+            res = arr_descr->get_lower_bound(dim_struct);
+        } else if( x.m_bound == ASR::arrayboundType::UBound ) {
+            res = arr_descr->get_upper_bound(dim_struct);
+        }
+        tmp = res;
     }
 
 };

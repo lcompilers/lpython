@@ -37,7 +37,7 @@ def test_str_repeat():
     a: str
     a = "Xyz"
     assert a*3 == "XyzXyzXyz"
-    assert a*2*3 == "XyzXyzXyzXyzXyz"
+    assert a*2*3 == "XyzXyzXyzXyzXyzXyz"
     assert 3*a*3 == "XyzXyzXyzXyzXyzXyzXyzXyzXyz"
     assert a*-1 == ""
 

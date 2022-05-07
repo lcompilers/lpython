@@ -89,7 +89,7 @@ void test_pow()
     c1 = __lpython_overloaded_9__pow(c1, 4);
 }
 
-float __lpython_overloaded_0__abs(double x)
+double __lpython_overloaded_0__abs(double x)
 {
     double _lpython_return_variable;
     if (x >= 0.000000) {
@@ -123,7 +123,7 @@ float __lpython_overloaded_2__pow(float x, float y)
     return _lpython_return_variable;
 }
 
-float __lpython_overloaded_3__pow(double x, double y)
+double __lpython_overloaded_3__pow(double x, double y)
 {
     double _lpython_return_variable;
     _lpython_return_variable = std::pow(x, y);
@@ -144,14 +144,14 @@ float __lpython_overloaded_5__pow(float x, int y)
     return _lpython_return_variable;
 }
 
-float __lpython_overloaded_6__pow(int x, double y)
+double __lpython_overloaded_6__pow(int x, double y)
 {
     double _lpython_return_variable;
     _lpython_return_variable = std::pow((float)(x), y);
     return _lpython_return_variable;
 }
 
-float __lpython_overloaded_7__pow(double x, int y)
+double __lpython_overloaded_7__pow(double x, int y)
 {
     double _lpython_return_variable;
     _lpython_return_variable = std::pow(x, (float)(y));
@@ -169,9 +169,9 @@ int __lpython_overloaded_8__pow(bool x, bool y)
     return _lpython_return_variable;
 }
 
-std::complex<float> __lpython_overloaded_9__complex(int x, int y)
+std::complex<double> __lpython_overloaded_9__complex(int x, int y)
 {
-    std::complex<float> _lpython_return_variable;
+    std::complex<double> _lpython_return_variable;
     _lpython_return_variable = std::complex<double>(x) + std::complex<double>(y)*std::complex<double>(0.000000, 1.000000);
     return _lpython_return_variable;
 }
@@ -182,6 +182,10 @@ std::complex<float> __lpython_overloaded_9__pow(std::complex<float> c, int y)
     _lpython_return_variable = std::pow(c, std::complex<double>(y));
     return _lpython_return_variable;
 }
+
+float _lfortran_caimag(std::complex<float> x);
+
+double _lfortran_zaimag(std::complex<double> x);
 
 namespace {
 

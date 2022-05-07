@@ -20,6 +20,7 @@
 using namespace LFortran::LPython::AST;
 using LFortran::Location;
 using LFortran::Vec;
+using LFortran::Key_Val;
 
 static inline char* name2char(const ast_t *n) {
     return down_cast2<Name_t>(n)->m_id;
@@ -103,6 +104,8 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
         name2char(name), expr_contextType::Store)
 #define TARGET_ATTR(val, attr, l) make_Attribute_t(p.m_a, l, \
         EXPR(val), name2char(attr), expr_contextType::Store)
+#define TARGET_SUBSCRIPT(value, slice, l) make_Subscript_t(p.m_a, l, \
+        EXPR(value), CHECK_TUPLE(EXPR(slice)), expr_contextType::Store)
 #define TUPLE_01(elts, l) make_Tuple_t(p.m_a, l, \
         EXPRS(elts), elts.size(), expr_contextType::Store)
 
@@ -286,5 +289,41 @@ Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
         EXPRS(e), e.size(), expr_contextType::Load)
 #define ATTRIBUTE_REF(val, attr, l) make_Attribute_t(p.m_a, l, \
         EXPR(val), name2char(attr), expr_contextType::Load)
+
+expr_t* CHECK_TUPLE(expr_t *x) {
+    if(is_a<Tuple_t>(*x) && down_cast<Tuple_t>(x)->n_elts == 1) {
+        return down_cast<Tuple_t>(x)->m_elts[0];
+    } else {
+        return x;
+    }
+}
+
+#define TUPLE(elts, l) make_Tuple_t(p.m_a, l, \
+        EXPRS(elts), elts.size(), expr_contextType::Load)
+#define SUBSCRIPT(value, slice, l) make_Subscript_t(p.m_a, l, \
+        EXPR(value), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
+
+Key_Val *DICT(Allocator &al, expr_t *key, expr_t *val) {
+    Key_Val *kv = al.allocate<Key_Val>();
+    kv->key = key;
+    kv->value = val;
+    return kv;
+}
+
+ast_t *DICT1(Allocator &al, Location &l, Vec<Key_Val*> dict_list) {
+    Vec<expr_t*> key;
+    key.reserve(al, dict_list.size());
+    Vec<expr_t*> val;
+    val.reserve(al, dict_list.size());
+    for (auto &item : dict_list) {
+        key.push_back(al, item->key);
+        val.push_back(al, item->value);
+    }
+    return make_Dict_t(al, l, key.p, key.n, val.p, val.n);
+}
+
+#define DICT_EXPR(key, value, l) DICT(p.m_a, EXPR(key), EXPR(value))
+#define DICT_01(l) make_Dict_t(p.m_a, l, nullptr, 0, nullptr, 0)
+#define DICT_02(dict_list, l) DICT1(p.m_a, l, dict_list)
 
 #endif
