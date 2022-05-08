@@ -19,3 +19,15 @@ from .a.b import a
 from .a.b import *
 from .abc import a
 from .abc import (a, b, c)
+
+from x import (a, b,
+               c, d)
+from x import (
+    a, b, c, d)
+from x import (
+    a, b, c, d
+)
+from x import (
+    a,
+    b
+)
