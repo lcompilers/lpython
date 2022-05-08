@@ -6,10 +6,12 @@
 (TOKEN ":") 21:21
 (TOKEN "eolcomment") 23:34
 (TOKEN "comment") 39:50
+(TOKEN "indent") 51:54
 (TOKEN "identifier" print) 55:59
 (TOKEN "(") 60:60
 (TOKEN ")") 61:61
 (NEWLINE) 62:62
+(TOKEN "dedent") 62:62
 (TOKEN "comment") 63:74
 (TOKEN "identifier" test) 75:78
 (TOKEN "(") 79:79
