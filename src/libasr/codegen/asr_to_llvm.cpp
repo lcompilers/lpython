@@ -1105,6 +1105,21 @@ public:
         }
     }
 
+    void visit_StringItem(const ASR::StringItem_t& x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_idx, true);
+        llvm::Value *idx = tmp;
+        idx = builder->CreateSub(idx, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+        std::vector<llvm::Value*> idx_vec = {idx};
+        this->visit_expr_wrapper(x.m_arg, true);
+        llvm::Value *p = builder->CreateGEP(tmp, idx_vec);
+        tmp = builder->CreateAlloca(character_type, nullptr);
+        builder->CreateStore(p, tmp);
+    }
+
     void visit_DerivedRef(const ASR::DerivedRef_t& x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
