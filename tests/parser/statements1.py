@@ -80,3 +80,6 @@ i: i32 = 4
 if 2 > i : pass
 if i > 5 : break
 if i == 5 and i < 10 : i = 3
+
+for i in range(N): # type: parallel
+    c[i] = a[i] + scalar * b[i]
