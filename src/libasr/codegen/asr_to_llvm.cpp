@@ -2836,7 +2836,7 @@ public:
         }
     }
 
-    void visit_StrOp(const ASR::StrOp_t &x) {
+    void visit_StringRepeat(const ASR::StringRepeat_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
             return;
@@ -2845,12 +2845,7 @@ public:
         llvm::Value *left_val = tmp;
         this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
-        if (ASRUtils::expr_type(x.m_right)->type == ASR::ttypeType::Integer) {
-            tmp = lfortran_strrepeat(left_val, right_val);
-        }
-        else if (ASRUtils::expr_type(x.m_left)->type == ASR::ttypeType::Integer) {
-            tmp = lfortran_strrepeat(right_val, left_val);
-        }
+        tmp = lfortran_strrepeat(left_val, right_val);
     }
 
     void visit_StringConcat(const ASR::StringConcat_t &x) {

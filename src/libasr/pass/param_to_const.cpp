@@ -59,21 +59,6 @@ public:
         asr = const_cast<ASR::expr_t*>(&(x.base));
     }
 
-    void visit_StrOp(const ASR::StrOp_t& x) {
-        ASR::StrOp_t& x_unconst = const_cast<ASR::StrOp_t&>(x);
-        asr = nullptr;
-        this->visit_expr(*x.m_left);
-        if( asr != nullptr ) {
-            x_unconst.m_left = asr;
-        }
-        asr = nullptr;
-        this->visit_expr(*x.m_right);
-        if( asr != nullptr ) {
-            x_unconst.m_right = asr;
-        }
-        asr = const_cast<ASR::expr_t*>(&(x.base));
-    }
-
     void visit_Compare(const ASR::Compare_t& x) {
         ASR::Compare_t& x_unconst = const_cast<ASR::Compare_t&>(x);
         asr = nullptr;

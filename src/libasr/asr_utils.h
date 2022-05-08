@@ -95,7 +95,6 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
     switch (f->type) {
         case ASR::exprType::BoolOp: { return ((ASR::BoolOp_t*)f)->m_type; }
         case ASR::exprType::BinOp: { return ((ASR::BinOp_t*)f)->m_type; }
-        case ASR::exprType::StrOp: { return ((ASR::StrOp_t*)f)->m_type; }
         case ASR::exprType::UnaryOp: { return ((ASR::UnaryOp_t*)f)->m_type; }
         case ASR::exprType::ComplexConstructor: { return ((ASR::ComplexConstructor_t*)f)->m_type; }
         case ASR::exprType::NamedExpr: { return ((ASR::NamedExpr_t*)f)->m_type; }
@@ -118,6 +117,7 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::LogicalConstant: { return ((ASR::LogicalConstant_t*)f)->m_type; }
         case ASR::exprType::StringConstant: { return ((ASR::StringConstant_t*)f)->m_type; }
         case ASR::exprType::StringConcat: { return ((ASR::StringConcat_t*)f)->m_type; }
+        case ASR::exprType::StringRepeat: { return ((ASR::StringRepeat_t*)f)->m_type; }
         case ASR::exprType::StringLen: { return ((ASR::StringLen_t*)f)->m_type; }
         case ASR::exprType::DictConstant: { return ((ASR::DictConstant_t*)f)->m_type; }
         case ASR::exprType::DictLen: { return ((ASR::DictLen_t*)f)->m_type; }
@@ -280,7 +280,6 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::DerivedRef: { return ASR::down_cast<ASR::DerivedRef_t>(f)->m_value; }
         case ASR::exprType::Cast: { return ASR::down_cast<ASR::Cast_t>(f)->m_value; }
         case ASR::exprType::Var: { return EXPR2VAR(f)->m_value; }
-        case ASR::exprType::StrOp: { return ASR::down_cast<ASR::StrOp_t>(f)->m_value; }
         case ASR::exprType::ImpliedDoLoop: { return ASR::down_cast<ASR::ImpliedDoLoop_t>(f)->m_value; }
         case ASR::exprType::StringLen: { return ASR::down_cast<ASR::StringLen_t>(f)->m_value; }
         case ASR::exprType::DictLen: { return ASR::down_cast<ASR::DictLen_t>(f)->m_value; }
@@ -288,6 +287,7 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::TupleLen: { return ASR::down_cast<ASR::TupleLen_t>(f)->m_value; }
         case ASR::exprType::SetLen: { return ASR::down_cast<ASR::SetLen_t>(f)->m_value; }
         case ASR::exprType::StringConcat: { return ASR::down_cast<ASR::StringConcat_t>(f)->m_value; }
+        case ASR::exprType::StringRepeat: { return ASR::down_cast<ASR::StringRepeat_t>(f)->m_value; }
         case ASR::exprType::ComplexRe: { return ASR::down_cast<ASR::ComplexRe_t>(f)->m_value; }
         case ASR::exprType::ComplexIm: { return ASR::down_cast<ASR::ComplexIm_t>(f)->m_value; }
         case ASR::exprType::DictItem: // Drop through
