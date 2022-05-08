@@ -136,6 +136,7 @@ LFORTRAN_API float _lfortran_satanh(float x);
 LFORTRAN_API double _lfortran_datanh(double x);
 LFORTRAN_API float_complex_t _lfortran_catanh(float_complex_t x);
 LFORTRAN_API double_complex_t _lfortran_zatanh(double_complex_t x);
+LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest);
 LFORTRAN_API void _lfortran_strcat(char** s1, char** s2, char** dest);
 LFORTRAN_API int _lfortran_str_len(char** s);
 LFORTRAN_API char* _lfortran_malloc(int size);
