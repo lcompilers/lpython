@@ -135,6 +135,40 @@ void Tokenizer::set_string(const std::string &str)
     line_num = 1;
 }
 
+void Tokenizer::record_paren(Location &loc, char c) {
+    switch (c) {
+        case '(':
+        case '[':
+        case '{':
+            if(parenlevel >= MAX_PAREN_LEVEL) {
+                throw parser_local::TokenizerError(
+                    "Too many nested parentheses", {loc});
+            }
+            paren_stack[parenlevel] = c;
+            parenlevel++;
+            break;
+
+        case ')':
+        case ']':
+        case '}':
+            if(parenlevel < 1) {
+                throw parser_local::TokenizerError(
+                    "Parenthesis unexpected", {loc});
+            }
+            parenlevel--;
+
+            char prev_paren = paren_stack[parenlevel];
+            if(!((prev_paren == '(' && c == ')') ||
+                 (prev_paren == '[' && c == ']') ||
+                 (prev_paren == '{' && c == '}'))) {
+                throw parser_local::TokenizerError(
+                    "Parentheses does not match", {loc});
+            }
+            break;
+    }
+    return;
+}
+
 #define KW(x) token(yylval.string); RET(KW_##x);
 #define RET(x) token_loc(loc); last_token=yytokentype::x; return yytokentype::x;
 
@@ -260,7 +294,15 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                     })
                 );
             }
-            end { RET(END_OF_FILE); }
+            end {
+                token_loc(loc);
+                if(parenlevel) {
+                    throw parser_local::TokenizerError(
+                        "Parentheses was never closed", {loc});
+                }
+                RET(END_OF_FILE);
+            }
+
             whitespace {
                 if (indent) {
                     indent = false;
@@ -315,6 +357,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
 
             // Tokens
             newline {
+                if(parenlevel) { continue; }
                 if (last_token == yytokentype::TK_COLON) {
                     indent = true;
                 } else if (cur[0] != ' ' && cur[0] != '\n'
@@ -328,12 +371,12 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "\\" newline { continue; }
 
             // Single character symbols
-            "(" { RET(TK_LPAREN) }
-            ")" { RET(TK_RPAREN) }
-            "[" { RET(TK_LBRACKET) }
-            "]" { RET(TK_RBRACKET) }
-            "{" { RET(TK_LBRACE) }
-            "}" { RET(TK_RBRACE) }
+            "(" { token_loc(loc); record_paren(loc, '('); RET(TK_LPAREN) }
+            "[" { token_loc(loc); record_paren(loc, '['); RET(TK_LBRACKET) }
+            "{" { token_loc(loc); record_paren(loc, '{'); RET(TK_LBRACE) }
+            ")" { token_loc(loc); record_paren(loc, ')'); RET(TK_RPAREN) }
+            "]" { token_loc(loc); record_paren(loc, ']'); RET(TK_RBRACKET) }
+            "}" { token_loc(loc); record_paren(loc, '}'); RET(TK_RBRACE) }
             "+" { RET(TK_PLUS) }
             "-" { RET(TK_MINUS) }
             "=" { RET(TK_EQUAL) }

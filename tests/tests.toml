@@ -419,3 +419,21 @@ asr = true
 [[test]]
 filename = "errors/test_dict5.py"
 asr = true
+
+# tests/tokens/errors
+
+[[test]]
+filename = "tokens/errors/paren1.py"
+tokens = true
+
+[[test]]
+filename = "tokens/errors/paren2.py"
+tokens = true
+
+[[test]]
+filename = "tokens/errors/paren3.py"
+tokens = true
+
+[[test]]
+filename = "tokens/errors/paren4.py"
+tokens = true

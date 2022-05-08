@@ -5,6 +5,8 @@
 #include <libasr/alloc.h>
 #include <lpython/parser/parser_stype.h>
 
+#define MAX_PAREN_LEVEL 200
+
 namespace LFortran
 {
 
@@ -23,6 +25,9 @@ public:
     int dedent = 0; // Allowed values: 0, 1, 2, see the code below the meaning of this state variable
     long int last_indent_length = 0;
     std::vector<uint64_t> indent_length;
+
+    char paren_stack[MAX_PAREN_LEVEL];
+    size_t parenlevel = 0;
 
 public:
     // Set the string to tokenize. The caller must ensure `str` will stay valid
@@ -59,6 +64,8 @@ public:
         loc.first = tok-string_start;
         loc.last = cur-string_start-1;
     }
+
+    void record_paren(Location &loc, char c);
 };
 
 std::string token2text(const int token);
