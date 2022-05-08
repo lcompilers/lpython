@@ -994,7 +994,6 @@ public:
             dest_type = ASRUtils::expr_type(left);
         } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
             // string repeat
-            ASR::stropType ops = ASR::stropType::Repeat;
             int64_t left_int = 0, right_int = 0, dest_len = 0;
             if (right_is_int) {
                 ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
@@ -1032,7 +1031,12 @@ public:
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(
                     al, loc, result, dest_type));
             }
-            tmp = ASR::make_StrOp_t(al, loc, left, ops, right, dest_type, value);
+            if (right_is_int) {
+                tmp = ASR::make_StringRepeat_t(al, loc, left, right, dest_type, value);
+            }
+            else if (left_is_int){
+                tmp = ASR::make_StringRepeat_t(al, loc, right, left, dest_type, value);
+            }
             return;
 
         } else if (ASRUtils::is_character(*left_type) && ASRUtils::is_character(*right_type)
