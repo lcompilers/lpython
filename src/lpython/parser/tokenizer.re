@@ -304,6 +304,9 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             }
 
             whitespace {
+                if(cur[0] == '#') {
+                    continue;
+                }
                 if (indent) {
                     indent = false;
                     indent_length.push_back(cur-tok);
@@ -448,6 +451,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             }
 
             comment newline {
+                if(parenlevel) { continue; }
                 line_num++; cur_line=cur;
                 token(yylval.string);
                 yylval.string.n--;
@@ -455,6 +459,9 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 if (last_token == yytokentype::TK_NEWLINE) {
                     return yytokentype::TK_COMMENT;
                 } else {
+                    if (last_token == yytokentype::TK_COLON) {
+                        indent = true;
+                    }
                     last_token=yytokentype::TK_NEWLINE;
                     return yytokentype::TK_EOLCOMMENT;
                 }
