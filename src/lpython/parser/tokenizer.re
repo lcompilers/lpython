@@ -55,10 +55,9 @@ void lex_dec_int_large(Allocator &al, const unsigned char *s,
     u.from_largeint(al, num);
 }
 
-
-char* get_value(Allocator &al, char *s, int base) {
+char* get_value(Allocator &al, char *s, int8_t base) {
     std::string str(s);
-    str = std::to_string(std::stol(str, nullptr, base));
+    str = std::to_string(std::stoll(str, nullptr, base));
     LFortran::Str s2;
     s2.from_str_view(str);
     return s2.c_str(al);
@@ -72,55 +71,28 @@ void lex_int(Allocator &al, const unsigned char *s,
 {
     if (std::tolower(s[1]) == 'x') {
         s = s + 2;
+        lex_dec_int_large(al,
+            (const unsigned char *) get_value(al, (char *)s, 16), e, u);
         prefix.p = (char*) "Hex";
         prefix.n = 3;
-        Str num;
-        num.p = get_value(al, (char*)s, 16);
-        num.n = e-s;
-        u.from_largeint(al, num);
     } else if (std::tolower(s[1]) == 'b') {
         s = s + 2;
+        lex_dec_int_large(al,
+            (const unsigned char *) get_value(al, (char *)s, 2), e, u);
         prefix.p = (char*) "Bin";
         prefix.n = 3;
-        Str num;
-        num.p = get_value(al, (char*)s, 2);
-        num.n = e-s;
-        u.from_largeint(al, num);
     } else if ((std::tolower(s[1]) == 'o')) {
         s = s + 2;
+        lex_dec_int_large(al,
+            (const unsigned char *) get_value(al, (char *)s, 8), e, u);
         prefix.p = (char*) "Oct";
         prefix.n = 3;
-        Str num;
-        num.p = get_value(al, (char*)s, 8);
-        num.n = e-s;
-        u.from_largeint(al, num);
     } else {
         lex_dec_int_large(al, s, e, u);
         prefix.p = nullptr;
         prefix.n = 0;
     }
     return;
-}
-
-// Tokenizes imag num of value 123j into `u` and `suffix`
-// s ... the start of the integer
-// e ... the character after the end
-void lex_imag(Allocator &al, const unsigned char *s,
-    const unsigned char *e, BigInt::BigInt &u, Str &suffix)
-{
-    const unsigned char *start = s;
-    for (; s < e; ++s) {
-        if ((*s == 'j') | (*s == 'J')) {
-            suffix.p = (char*) s; // `j`
-            suffix.n = 1;
-
-            Str num;
-            num.p = (char*)start;
-            num.n = s-start;
-            u.from_largeint(al, num);
-            return;
-        }
-    }
 }
 
 void Tokenizer::set_string(const std::string &str)
@@ -397,12 +369,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                     yylval.int_suffix.int_kind);
                 RET(TK_INTEGER)
             }
-            imag_number {
-                lex_imag(al, tok, cur,
-                    yylval.int_suffix.int_n,
-                    yylval.int_suffix.int_kind);
-                RET(TK_IMAG_NUM)
-            }
+            imag_number { token(yylval.string); RET(TK_IMAG_NUM) }
 
             comment newline {
                 line_num++; cur_line=cur;
@@ -598,7 +565,7 @@ std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
     } else if (token == yytokentype::TK_REAL) {
         t += " " + yystype.string.str();
     } else if (token == yytokentype::TK_IMAG_NUM) {
-        t += " " + yystype.int_suffix.int_n.str() + "j";
+        t += " " + yystype.string.str();
     } else if (token == yytokentype::TK_STRING) {
         t = t + " " + "\"" + yystype.string.str() + "\"";
     }
