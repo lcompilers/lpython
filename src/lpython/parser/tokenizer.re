@@ -304,7 +304,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             }
 
             whitespace {
-                if(cur[0] == '#') {
+                if(cur[0] == '#') { continue; }
+                if(last_token == yytokentype::TK_NEWLINE && cur[0] == '\n') {
                     continue;
                 }
                 if (indent) {
@@ -412,7 +413,6 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "@=" { RET(TK_ATEQUAL) }
             "->" { RET(TK_RARROW) }
             ":=" { RET(TK_COLONEQUAL) }
-            "::" { RET(TK_DBL_COLON) }
             "..." { RET(TK_ELLIPSIS) }
             "<<=" { RET(TK_LEFTSHIFT_EQUAL) }
             ">>=" { RET(TK_RIGHTSHIFT_EQUAL) }
@@ -536,7 +536,6 @@ std::string token2text(const int token)
         T(TK_ATEQUAL, "@=")
         T(TK_RARROW, "->")
         T(TK_COLONEQUAL, ":=")
-        T(TK_DBL_COLON, "::")
         T(TK_ELLIPSIS, "...")
         T(TK_LEFTSHIFT_EQUAL, "<<=")
         T(TK_RIGHTSHIFT_EQUAL, ">>=")

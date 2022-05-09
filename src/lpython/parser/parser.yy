@@ -119,7 +119,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_ATEQUAL "@="
 %token TK_RARROW "->"
 %token TK_COLONEQUAL ":="
-%token TK_DBL_COLON "::"
 %token TK_ELLIPSIS "..."
 %token TK_LEFTSHIFT_EQUAL "<<="
 %token TK_RIGHTSHIFT_EQUAL ">>="
@@ -235,6 +234,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 // Precedence
 
+%precedence ":="
 %left "or"
 %left "and"
 %precedence "not"
@@ -590,13 +590,10 @@ slice_item
     | expr ":"               { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
     | ":" expr               { $$ = SLICE_01(nullptr,      $2, nullptr, @$); }
     | expr ":" expr          { $$ = SLICE_01(     $1,      $3, nullptr, @$); }
-    | "::"                   { $$ = SLICE_01(nullptr, nullptr, nullptr, @$); }
-    | "::" expr              { $$ = SLICE_01(nullptr, nullptr,      $2, @$); }
+    | ":" ":"                   { $$ = SLICE_01(nullptr, nullptr, nullptr, @$); }
     | ":" ":" expr           { $$ = SLICE_01(nullptr, nullptr,      $3, @$); }
-    | expr "::"              { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
     | expr ":" ":"           { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
     | ":" expr ":"           { $$ = SLICE_01(nullptr,      $2, nullptr, @$); }
-    | expr "::" expr         { $$ = SLICE_01(     $1, nullptr,      $3, @$); }
     | expr ":" ":" expr      { $$ = SLICE_01(     $1, nullptr,      $4, @$); }
     | ":" expr ":" expr      { $$ = SLICE_01(nullptr,      $2,      $4, @$); }
     | expr ":" expr ":"      { $$ = SLICE_01(     $1,      $3, nullptr, @$); }
@@ -638,6 +635,9 @@ expr
     | "(" expr ")" { $$ = $2; }
     | id "(" expr_list_opt ")" { $$ = CALL_01($1, $3, @$); }
     | "[" expr_list_opt "]" { $$ = LIST($2, @$); }
+    | "[" expr_list "," "]" { $$ = LIST($2, @$); }
+    | "{" expr_list "}" { $$ = SET($2, @$); }
+    | "{" expr_list "," "}" { $$ = SET($2, @$); }
     | id "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
     | TK_STRING "[" tuple_list "]" { $$ = SUBSCRIPT_02($1, $3, @$); }
     | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
@@ -646,6 +646,7 @@ expr
     | "{" "}" { $$ = DICT_01(@$); }
     | "{" dict_list "}" { $$ = DICT_02($2, @$); }
     | KW_AWAIT expr %prec AWAIT { $$ = AWAIT($2, @$); }
+    | id ":=" expr { $$ = NAMEDEXPR($1, $3, @$); }
 
     | expr "+" expr { $$ = BINOP($1, Add, $3, @$); }
     | expr "-" expr { $$ = BINOP($1, Sub, $3, @$); }
