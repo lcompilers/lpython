@@ -37,6 +37,9 @@ union YYSTYPE {
     Key_Val *key_val;
     Vec<Key_Val*> vec_key_val;
 
+    LPython::AST::withitem_t* withitem;
+    Vec<LPython::AST::withitem_t> vec_withitem;
+
     LPython::AST::operatorType operator_type;
 };
 

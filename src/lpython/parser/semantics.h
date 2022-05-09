@@ -195,6 +195,20 @@ int dot_count = 0;
 #define EXCEPT_03(e, id, stmts, l) make_ExceptHandler_t(p.m_a, l, \
         EXPR(e), name2char(id), STMTS(stmts), stmts.size())
 
+static inline withitem_t *WITH_ITEM(Allocator &al, Location &l,
+        expr_t* context_expr, expr_t* optional_vars) {
+    withitem_t *r = al.allocate<withitem_t>();
+    r->loc = l;
+    r->m_context_expr = context_expr;
+    r->m_optional_vars = optional_vars;
+    return r;
+}
+
+#define WITH_ITEM_01(expr, l) WITH_ITEM(p.m_a, l, EXPR(expr), nullptr)
+#define WITH_ITEM_02(expr, vars, l) WITH_ITEM(p.m_a, l, EXPR(expr), EXPR(vars))
+#define WITH_01(items, body, l) make_With_t(p.m_a, l, \
+        items.p, items.size(), STMTS(body), body.size(), nullptr)
+
 static inline arg_t *FUNC_ARG(Allocator &al, Location &l, char *arg, expr_t* e) {
     arg_t *r = al.allocate<arg_t>();
     r->loc = l;

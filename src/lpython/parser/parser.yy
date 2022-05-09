@@ -221,6 +221,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> class_def
 %type <key_val> dict
 %type <vec_key_val> dict_list
+%type <ast> with_statement
+%type <withitem> with_item
+%type <vec_withitem> with_item_list
 %type <vec_ast> sep
 %type <ast> sep_one
 
@@ -299,6 +302,7 @@ multi_line_statement
     : if_statement
     | for_statement
     | try_statement
+    | with_statement
     | function_def
     | class_def
     ;
@@ -490,6 +494,22 @@ try_statement
     | KW_TRY ":" sep statements except_list KW_ELSE ":" sep statements KW_FINALLY
         ":" sep statements { $$ = TRY_04($4, $5, $9, $13, @$); }
     | KW_TRY ":" sep statements KW_FINALLY ":" sep statements { $$ = TRY_05($4, $8, @$); }
+    ;
+
+with_item
+    : expr { $$ = WITH_ITEM_01($1, @$); }
+    | expr KW_AS target { $$ = WITH_ITEM_02($1, $3, @$); }
+    ;
+
+with_item_list
+    : with_item_list "," with_item { $$ = $1; PLIST_ADD($$, $3); }
+    | with_item { LIST_NEW($$); PLIST_ADD($$, $1); }
+    ;
+
+with_statement
+    : KW_WITH with_item_list ":" sep statements { $$ = WITH_01($2, $5, @$); }
+    | KW_WITH "(" with_item_list "," ")" ":" sep statements {
+        $$ = WITH_01($3, $8, @$);}
     ;
 
 decorators_opt
