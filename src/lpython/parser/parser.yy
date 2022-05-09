@@ -244,6 +244,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %left "%" "//" "/" "@" "*"
 %precedence UNARY
 %right "**"
+%precedence AWAIT
 %precedence "."
 
 %start units
@@ -617,6 +618,7 @@ expr
         $$ = CALL_01(ATTRIBUTE_REF($1, $3, @$), $5, @$); }
     | "{" "}" { $$ = DICT_01(@$); }
     | "{" dict_list "}" { $$ = DICT_02($2, @$); }
+    | KW_AWAIT expr %prec AWAIT { $$ = AWAIT($2, @$); }
 
     | expr "+" expr { $$ = BINOP($1, Add, $3, @$); }
     | expr "-" expr { $$ = BINOP($1, Sub, $3, @$); }
