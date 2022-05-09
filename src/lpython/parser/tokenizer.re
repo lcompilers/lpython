@@ -304,7 +304,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             }
 
             whitespace {
-                if(cur[0] == '#') {
+                if(cur[0] == '#') { continue; }
+                if(last_token == yytokentype::TK_NEWLINE && cur[0] == '\n') {
                     continue;
                 }
                 if (indent) {
