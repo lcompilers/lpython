@@ -119,7 +119,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_ATEQUAL "@="
 %token TK_RARROW "->"
 %token TK_COLONEQUAL ":="
-%token TK_DBL_COLON "::"
 %token TK_ELLIPSIS "..."
 %token TK_LEFTSHIFT_EQUAL "<<="
 %token TK_RIGHTSHIFT_EQUAL ">>="
@@ -590,13 +589,10 @@ slice_item
     | expr ":"               { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
     | ":" expr               { $$ = SLICE_01(nullptr,      $2, nullptr, @$); }
     | expr ":" expr          { $$ = SLICE_01(     $1,      $3, nullptr, @$); }
-    | "::"                   { $$ = SLICE_01(nullptr, nullptr, nullptr, @$); }
-    | "::" expr              { $$ = SLICE_01(nullptr, nullptr,      $2, @$); }
+    | ":" ":"                   { $$ = SLICE_01(nullptr, nullptr, nullptr, @$); }
     | ":" ":" expr           { $$ = SLICE_01(nullptr, nullptr,      $3, @$); }
-    | expr "::"              { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
     | expr ":" ":"           { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
     | ":" expr ":"           { $$ = SLICE_01(nullptr,      $2, nullptr, @$); }
-    | expr "::" expr         { $$ = SLICE_01(     $1, nullptr,      $3, @$); }
     | expr ":" ":" expr      { $$ = SLICE_01(     $1, nullptr,      $4, @$); }
     | ":" expr ":" expr      { $$ = SLICE_01(nullptr,      $2,      $4, @$); }
     | expr ":" expr ":"      { $$ = SLICE_01(     $1,      $3, nullptr, @$); }
