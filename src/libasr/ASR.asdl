@@ -213,7 +213,6 @@ stmt
 expr
     = BoolOp(expr left, boolop op, expr right, ttype type, expr? value)
     | BinOp(expr left, binop op, expr right, ttype type, expr? value, expr? overloaded)
-    | StrOp(expr left, strop op, expr right, ttype type, expr? value)
     | UnaryOp(unaryop op, expr operand, ttype type, expr? value)
         -- Such as: (x, y+z), (3.0, 2.0) generally not known at compile time
     | ComplexConstructor(expr re, expr im, ttype type, expr? value)
@@ -245,6 +244,7 @@ expr
 
     | StringConstant(string s, ttype type)
     | StringConcat(expr left, expr right, ttype type, expr? value)
+    | StringRepeat(expr left, expr right, ttype type, expr? value)
     | StringLen(expr arg, ttype type, expr? value)
 
     | DictConstant(expr* keys, expr* values, ttype type)
@@ -286,8 +286,6 @@ boolop = And | Or | Xor | NEqv | Eqv
 binop = Add | Sub | Mul | Div | Pow
 
 unaryop = Invert | Not | UAdd | USub
-
-strop = Repeat
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
