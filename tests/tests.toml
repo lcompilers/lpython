@@ -298,6 +298,10 @@ ast_new = true
 filename = "parser/dictionary1.py"
 ast_new = true
 
+[[test]]
+filename = "parser/slice1.py"
+ast_new = true
+
 # tests/errors
 
 [[test]]
