@@ -398,5 +398,7 @@ ast_t *DICT1(Allocator &al, Location &l, Vec<Key_Val*> dict_list) {
 #define DICT_02(dict_list, l) DICT1(p.m_a, l, dict_list)
 #define AWAIT(e, l) make_Await_t(p.m_a, l, EXPR(e))
 #define SET(e, l) make_Set_t(p.m_a, l, EXPRS(e), e.size())
+#define NAMEDEXPR(x, y, l) make_NamedExpr_t(p.m_a, l, \
+        EXPR(TARGET_ID(x, l)), EXPR(y))
 
 #endif
