@@ -634,6 +634,9 @@ expr
     | "(" expr ")" { $$ = $2; }
     | id "(" expr_list_opt ")" { $$ = CALL_01($1, $3, @$); }
     | "[" expr_list_opt "]" { $$ = LIST($2, @$); }
+    | "[" expr_list "," "]" { $$ = LIST($2, @$); }
+    | "{" expr_list "}" { $$ = SET($2, @$); }
+    | "{" expr_list "," "}" { $$ = SET($2, @$); }
     | id "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
     | TK_STRING "[" tuple_list "]" { $$ = SUBSCRIPT_02($1, $3, @$); }
     | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
