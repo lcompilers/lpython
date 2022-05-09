@@ -58,6 +58,15 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define STMT(x) (down_cast<stmt_t>(x))
 #define EXPR2STMT(x) ((stmt_t*)make_Expr_t(p.m_a, x->base.loc, x))
 
+static inline expr_t* EXPR_OPT(const ast_t *f)
+{
+    if (f) {
+        return EXPR(f);
+    } else {
+        return nullptr;
+    }
+}
+
 #define RESULT(x) p.result.push_back(p.m_a, STMT(x))
 
 #define LIST_NEW(l) l.reserve(p.m_a, 4)
@@ -300,8 +309,20 @@ expr_t* CHECK_TUPLE(expr_t *x) {
 
 #define TUPLE(elts, l) make_Tuple_t(p.m_a, l, \
         EXPRS(elts), elts.size(), expr_contextType::Load)
-#define SUBSCRIPT(value, slice, l) make_Subscript_t(p.m_a, l, \
+#define SUBSCRIPT_01(value, slice, l) make_Subscript_t(p.m_a, l, \
         EXPR(value), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
+#define SUBSCRIPT_02(s, slice, l) make_Subscript_t(p.m_a, l, \
+        EXPR(STRING(s, l)), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
+
+static inline ast_t* SLICE(Allocator &al, Location &l,
+        ast_t *lower, ast_t *upper, ast_t *_step) {
+    expr_t* start = EXPR_OPT(lower);
+    expr_t* end = EXPR_OPT(upper);
+    expr_t* step = EXPR_OPT(_step);
+    return make_Slice_t(al, l, start, end, step);
+}
+
+#define SLICE_01(lower, upper, step, l) SLICE(p.m_a, l, lower, upper, step)
 
 Key_Val *DICT(Allocator &al, expr_t *key, expr_t *val) {
     Key_Val *kv = al.allocate<Key_Val>();
