@@ -244,7 +244,7 @@ expr
 
     | StringConstant(string s, ttype type)
     | StringConcat(expr left, expr right, ttype type, expr? value)
-    | StringRepeat(expr left, expr right, ttype type, expr? value )
+    | StringRepeat(expr left, expr right, ttype type, expr? value)
     | StringLen(expr arg, ttype type, expr? value)
 
     | DictConstant(expr* keys, expr* values, ttype type)
