@@ -206,7 +206,7 @@ static inline withitem_t *WITH_ITEM(Allocator &al, Location &l,
 
 #define WITH_ITEM_01(expr, l) WITH_ITEM(p.m_a, l, EXPR(expr), nullptr)
 #define WITH_ITEM_02(expr, vars, l) WITH_ITEM(p.m_a, l, EXPR(expr), EXPR(vars))
-#define WITH_01(items, body, l) make_With_t(p.m_a, l, \
+#define WITH(items, body, l) make_With_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), nullptr)
 
 static inline arg_t *FUNC_ARG(Allocator &al, Location &l, char *arg, expr_t* e) {
@@ -269,6 +269,42 @@ static inline arguments_t FUNC_ARGS(Location &l,
         STMTS(stmts), stmts.size(), \
         EXPRS(decorator), decorator.size())
 
+#define ASYNC_FUNCTION_01(decorator, id, args, stmts, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), \
+        FUNC_ARGS(l, nullptr, 0, args.p, args.n, nullptr, 0, \
+            nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0), \
+        STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size(), \
+        nullptr, nullptr)
+#define ASYNC_FUNCTION_02(decorator, id, args, return, stmts, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), \
+        FUNC_ARGS(l, nullptr, 0, args.p, args.n, nullptr, 0, \
+            nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0), \
+        STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size(), \
+        EXPR(return), nullptr)
+#define ASYNC_FUNCTION_03(id, args, stmts, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), \
+        FUNC_ARGS(l, nullptr, 0, args.p, args.n, nullptr, 0, \
+            nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0), \
+        STMTS(stmts), stmts.size(), \
+        nullptr, 0, nullptr, nullptr)
+#define ASYNC_FUNCTION_04(id, args, return, stmts, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), \
+        FUNC_ARGS(l, nullptr, 0, args.p, args.n, nullptr, 0, \
+            nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0), \
+        STMTS(stmts), stmts.size(), \
+        nullptr, 0, EXPR(return), nullptr)
+
+#define ASYNC_FOR_01(target, iter, stmts, l) make_AsyncFor_t(p.m_a, l, \
+        EXPR(target), EXPR(iter), STMTS(stmts), stmts.size(), \
+        nullptr, 0, nullptr)
+#define ASYNC_FOR_02(target, iter, stmts, orelse, l) make_AsyncFor_t(p.m_a, l, \
+        EXPR(target), EXPR(iter), STMTS(stmts), stmts.size(), \
+        STMTS(orelse), orelse.size(), nullptr)
+
+#define ASYNC_WITH(items, body, l) make_AsyncWith_t(p.m_a, l, \
+        items.p, items.size(), STMTS(body), body.size(), nullptr)
 
 Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
     Vec<ast_t*> v;

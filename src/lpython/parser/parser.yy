@@ -224,6 +224,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> with_statement
 %type <withitem> with_item
 %type <vec_withitem> with_item_list
+%type <ast> async_func_def
+%type <ast> async_for_stmt
+%type <ast> async_with_stmt
 %type <vec_ast> sep
 %type <ast> sep_one
 
@@ -305,6 +308,9 @@ multi_line_statement
     | with_statement
     | function_def
     | class_def
+    | async_func_def
+    | async_for_stmt
+    | async_with_stmt
     ;
 
 expression_statment
@@ -507,9 +513,9 @@ with_item_list
     ;
 
 with_statement
-    : KW_WITH with_item_list ":" sep statements { $$ = WITH_01($2, $5, @$); }
+    : KW_WITH with_item_list ":" sep statements { $$ = WITH($2, $5, @$); }
     | KW_WITH "(" with_item_list "," ")" ":" sep statements {
-        $$ = WITH_01($3, $8, @$);}
+        $$ = WITH($3, $8, @$); }
     ;
 
 decorators_opt
@@ -544,6 +550,31 @@ class_def
     : decorators_opt KW_CLASS id ":" sep statements { $$ = CLASS_01($1, $3, $6, @$); }
     | decorators_opt KW_CLASS id "(" expr_list_opt ")" ":" sep statements {
         $$ = CLASS_02($1, $3, $5, $9, @$); }
+    ;
+
+async_func_def
+    : decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":" sep
+        statements { $$ = ASYNC_FUNCTION_01($1, $4, $6, $10, @$); }
+    | decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
+        sep statements { $$ = ASYNC_FUNCTION_02($1, $4, $6, $9, $12, @$); }
+    | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":" sep
+        statements { $$ = ASYNC_FUNCTION_03($3, $5, $9, @$); }
+    | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
+        sep statements { $$ = ASYNC_FUNCTION_04($3, $5, $8, $11, @$); }
+    ;
+
+async_for_stmt
+    : KW_ASYNC KW_FOR target KW_IN expr ":" sep statements {
+        $$ = ASYNC_FOR_01($3, $5, $8, @$); }
+    | KW_ASYNC KW_FOR target KW_IN expr ":" sep statements KW_ELSE ":" sep
+        statements { $$ = ASYNC_FOR_02($3, $5, $8, $12, @$); }
+    ;
+
+async_with_stmt
+    : KW_ASYNC KW_WITH with_item_list ":" sep statements {
+        $$ = ASYNC_WITH($3, $6, @$); }
+    | KW_ASYNC KW_WITH "(" with_item_list "," ")" ":" sep statements {
+        $$ = ASYNC_WITH($4, $9, @$); }
     ;
 
 expr_list_opt
