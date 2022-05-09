@@ -221,6 +221,12 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> class_def
 %type <key_val> dict
 %type <vec_key_val> dict_list
+%type <ast> with_statement
+%type <withitem> with_item
+%type <vec_withitem> with_item_list
+%type <ast> async_func_def
+%type <ast> async_for_stmt
+%type <ast> async_with_stmt
 %type <vec_ast> sep
 %type <ast> sep_one
 
@@ -238,6 +244,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %left "%" "//" "/" "@" "*"
 %precedence UNARY
 %right "**"
+%precedence AWAIT
 %precedence "."
 
 %start units
@@ -299,8 +306,12 @@ multi_line_statement
     : if_statement
     | for_statement
     | try_statement
+    | with_statement
     | function_def
     | class_def
+    | async_func_def
+    | async_for_stmt
+    | async_with_stmt
     ;
 
 expression_statment
@@ -492,6 +503,22 @@ try_statement
     | KW_TRY ":" sep statements KW_FINALLY ":" sep statements { $$ = TRY_05($4, $8, @$); }
     ;
 
+with_item
+    : expr { $$ = WITH_ITEM_01($1, @$); }
+    | expr KW_AS target { $$ = WITH_ITEM_02($1, $3, @$); }
+    ;
+
+with_item_list
+    : with_item_list "," with_item { $$ = $1; PLIST_ADD($$, $3); }
+    | with_item { LIST_NEW($$); PLIST_ADD($$, $1); }
+    ;
+
+with_statement
+    : KW_WITH with_item_list ":" sep statements { $$ = WITH($2, $5, @$); }
+    | KW_WITH "(" with_item_list "," ")" ":" sep statements {
+        $$ = WITH($3, $8, @$); }
+    ;
+
 decorators_opt
     : decorators { $$ = $1; }
     | %empty { LIST_NEW($$); }
@@ -524,6 +551,31 @@ class_def
     : decorators_opt KW_CLASS id ":" sep statements { $$ = CLASS_01($1, $3, $6, @$); }
     | decorators_opt KW_CLASS id "(" expr_list_opt ")" ":" sep statements {
         $$ = CLASS_02($1, $3, $5, $9, @$); }
+    ;
+
+async_func_def
+    : decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":" sep
+        statements { $$ = ASYNC_FUNCTION_01($1, $4, $6, $10, @$); }
+    | decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
+        sep statements { $$ = ASYNC_FUNCTION_02($1, $4, $6, $9, $12, @$); }
+    | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":" sep
+        statements { $$ = ASYNC_FUNCTION_03($3, $5, $9, @$); }
+    | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
+        sep statements { $$ = ASYNC_FUNCTION_04($3, $5, $8, $11, @$); }
+    ;
+
+async_for_stmt
+    : KW_ASYNC KW_FOR target KW_IN expr ":" sep statements {
+        $$ = ASYNC_FOR_01($3, $5, $8, @$); }
+    | KW_ASYNC KW_FOR target KW_IN expr ":" sep statements KW_ELSE ":" sep
+        statements { $$ = ASYNC_FOR_02($3, $5, $8, $12, @$); }
+    ;
+
+async_with_stmt
+    : KW_ASYNC KW_WITH with_item_list ":" sep statements {
+        $$ = ASYNC_WITH($3, $6, @$); }
+    | KW_ASYNC KW_WITH "(" with_item_list "," ")" ":" sep statements {
+        $$ = ASYNC_WITH($4, $9, @$); }
     ;
 
 expr_list_opt
@@ -566,6 +618,7 @@ expr
         $$ = CALL_01(ATTRIBUTE_REF($1, $3, @$), $5, @$); }
     | "{" "}" { $$ = DICT_01(@$); }
     | "{" dict_list "}" { $$ = DICT_02($2, @$); }
+    | KW_AWAIT expr %prec AWAIT { $$ = AWAIT($2, @$); }
 
     | expr "+" expr { $$ = BINOP($1, Add, $3, @$); }
     | expr "-" expr { $$ = BINOP($1, Sub, $3, @$); }
