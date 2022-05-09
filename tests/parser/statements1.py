@@ -83,3 +83,9 @@ if i == 5 and i < 10 : i = 3
 
 for i in range(N): # type: parallel
     c[i] = a[i] + scalar * b[i]
+
+x = (y := 0)
+if a := ord('3'):
+    x = 1
+
+a = {1, 2, 3}
