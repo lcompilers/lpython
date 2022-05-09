@@ -119,6 +119,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_ATEQUAL "@="
 %token TK_RARROW "->"
 %token TK_COLONEQUAL ":="
+%token TK_DBL_COLON "::"
 %token TK_ELLIPSIS "..."
 %token TK_LEFTSHIFT_EQUAL "<<="
 %token TK_RIGHTSHIFT_EQUAL ">>="
@@ -221,6 +222,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> class_def
 %type <key_val> dict
 %type <vec_key_val> dict_list
+%type <ast> slice_item
+%type <vec_ast> slice_item_list
 %type <ast> with_statement
 %type <withitem> with_item
 %type <vec_withitem> with_item_list
@@ -578,6 +581,29 @@ async_with_stmt
         $$ = ASYNC_WITH($4, $9, @$); }
     ;
 
+slice_item_list
+    : slice_item_list "," slice_item { $$ = $1; LIST_ADD($$, $3); }
+    | slice_item { LIST_NEW($$); LIST_ADD($$, $1); }
+
+slice_item
+    : ":"                    { $$ = SLICE_01(nullptr, nullptr, nullptr, @$); }
+    | expr ":"               { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
+    | ":" expr               { $$ = SLICE_01(nullptr,      $2, nullptr, @$); }
+    | expr ":" expr          { $$ = SLICE_01(     $1,      $3, nullptr, @$); }
+    | "::"                   { $$ = SLICE_01(nullptr, nullptr, nullptr, @$); }
+    | "::" expr              { $$ = SLICE_01(nullptr, nullptr,      $2, @$); }
+    | ":" ":" expr           { $$ = SLICE_01(nullptr, nullptr,      $3, @$); }
+    | expr "::"              { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
+    | expr ":" ":"           { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
+    | ":" expr ":"           { $$ = SLICE_01(nullptr,      $2, nullptr, @$); }
+    | expr "::" expr         { $$ = SLICE_01(     $1, nullptr,      $3, @$); }
+    | expr ":" ":" expr      { $$ = SLICE_01(     $1, nullptr,      $4, @$); }
+    | ":" expr ":" expr      { $$ = SLICE_01(nullptr,      $2,      $4, @$); }
+    | expr ":" expr ":"      { $$ = SLICE_01(     $1,      $3, nullptr, @$); }
+    | expr ":" expr ":" expr { $$ = SLICE_01(     $1,      $3,      $5, @$); }
+    | expr                   { $$ = $1; }
+    ;
+
 expr_list_opt
     : expr_list { $$ = $1; }
     | %empty { LIST_NEW($$); }
@@ -598,7 +624,7 @@ dict_list
     ;
 
 tuple_list
-    : expr_list { $$ = TUPLE($1, @$); }
+    : slice_item_list { $$ = TUPLE($1, @$); }
     ;
 
 expr
@@ -612,7 +638,8 @@ expr
     | "(" expr ")" { $$ = $2; }
     | id "(" expr_list_opt ")" { $$ = CALL_01($1, $3, @$); }
     | "[" expr_list_opt "]" { $$ = LIST($2, @$); }
-    | id "[" tuple_list "]" { $$ = SUBSCRIPT($1, $3, @$); }
+    | id "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
+    | TK_STRING "[" tuple_list "]" { $$ = SUBSCRIPT_02($1, $3, @$); }
     | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
     | expr "." id "(" expr_list_opt ")" {
         $$ = CALL_01(ATTRIBUTE_REF($1, $3, @$), $5, @$); }

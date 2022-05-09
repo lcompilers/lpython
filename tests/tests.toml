@@ -306,6 +306,10 @@ ast_new = true
 filename = "parser/async1.py"
 ast_new = true
 
+[[test]]
+filename = "parser/slice1.py"
+ast_new = true
+
 # tests/errors
 
 [[test]]
