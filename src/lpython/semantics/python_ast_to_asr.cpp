@@ -766,30 +766,30 @@ public:
             int lkind = ASR::down_cast<ASR::Integer_t>(left_type)->m_kind;
             int rkind = ASR::down_cast<ASR::Integer_t>(right_type)->m_kind;
             if ((is_assign && (lkind != rkind)) || (lkind > rkind)) {
-                return ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
                     al, right->base.loc, right, ASR::cast_kindType::IntegerToInteger,
-                    left_type, nullptr));
+                    left_type));
             }
         } else if (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type)) {
             bool is_l64 = ASR::down_cast<ASR::Real_t>(left_type)->m_kind == 8;
             bool is_r64 = ASR::down_cast<ASR::Real_t>(right_type)->m_kind == 8;
             if ((is_assign && (is_l64 != is_r64)) || (is_l64 && !is_r64)) {
-                return ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
                     al, right->base.loc, right, ASR::cast_kindType::RealToReal,
-                    left_type, nullptr));
+                    left_type));
             }
         } else if (ASRUtils::is_complex(*left_type) && ASRUtils::is_complex(*right_type)) {
             bool is_l64 = ASR::down_cast<ASR::Complex_t>(left_type)->m_kind == 8;
             bool is_r64 = ASR::down_cast<ASR::Complex_t>(right_type)->m_kind == 8;
             if ((is_assign && (is_l64 != is_r64)) || (is_l64 && !is_r64)) {
-                return ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
                     al, right->base.loc, right, ASR::cast_kindType::ComplexToComplex,
-                    left_type, nullptr));
+                    left_type));
             }
         } else if (!is_assign && ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type)) {
-            return ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+            return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
                 al, right->base.loc, right, ASR::cast_kindType::IntegerToReal,
-                left_type, nullptr));
+                left_type));
         } else if (is_assign && ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type)) {
             throw SemanticError("Assigning integer to float is not supported",
                     right->base.loc);
@@ -798,22 +798,20 @@ public:
                     right->base.loc);
         } else if (!is_assign && ASRUtils::is_complex(*left_type) && !ASRUtils::is_complex(*right_type)) {
             if (ASRUtils::is_real(*right_type)) {
-                return ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
                     al, right->base.loc, right, ASR::cast_kindType::RealToComplex,
-                    left_type, nullptr));
+                    left_type));
             } else if (ASRUtils::is_integer(*right_type)) {
-                return ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
                     al, right->base.loc, right, ASR::cast_kindType::IntegerToComplex,
-                    left_type, nullptr));
+                    left_type));
             } else if (ASRUtils::is_logical(*right_type)) {
                 ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al,
                     right->base.loc, 4, nullptr, 0));
-                right = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                    al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type,
-                    nullptr));
-                return ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                    al, right->base.loc, right, ASR::cast_kindType::IntegerToComplex, left_type,
-                    nullptr));
+                right = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                    al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type));
+                return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                    al, right->base.loc, right, ASR::cast_kindType::IntegerToComplex, left_type));
             } else {
                 std::string rtype = ASRUtils::type_to_str_python(right_type);
                 throw SemanticError("Casting " + rtype + " to complex is not Implemented",
@@ -824,30 +822,24 @@ public:
             if (ASRUtils::is_logical(*left_type) && ASRUtils::is_logical(*right_type)) {
                 ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al,
                     right->base.loc, 4, nullptr, 0));
-                return ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                    al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type,
-                    nullptr));
+                return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                    al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type));
             } else if (ASRUtils::is_logical(*right_type)) {
                 ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al,
                     right->base.loc, 4, nullptr, 0));
                 if (ASRUtils::is_integer(*left_type)) {
-                    return ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                        al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type,
-                        nullptr));
+                    return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                        al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type));
                 } else if (ASRUtils::is_real(*left_type)) {
-                    right = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                        al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type,
-                        nullptr));
-                    return ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                        al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, left_type,
-                        nullptr));
+                    right = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                        al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type));
+                    return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                        al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, left_type));
                 } else if (ASRUtils::is_complex(*left_type)) {
-                    right = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                        al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type,
-                        nullptr));
-                    return ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                        al, right->base.loc, right, ASR::cast_kindType::IntegerToComplex, left_type,
-                        nullptr));
+                    right = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                        al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type));
+                    return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                        al, right->base.loc, right, ASR::cast_kindType::IntegerToComplex, left_type));
                 } else {
                     std::string ltype = ASRUtils::type_to_str_python(left_type);
                     throw SemanticError("Binary Operation not implemented for bool and " + ltype,
@@ -891,14 +883,12 @@ public:
                     dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
                         8, nullptr, 0));
                     if (ASRUtils::is_integer(*left_type)) {
-                        left = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                            al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type,
-                            value));
+                        left = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                            al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type));
                     }
                     if (ASRUtils::is_integer(*right_type)) {
-                        right = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                            al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type,
-                            value));
+                        right = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                            al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type));
                     }
                     left = cast_helper(ASRUtils::expr_type(right), left);
                     right = cast_helper(ASRUtils::expr_type(left), right);
@@ -948,9 +938,8 @@ public:
                 dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
                     8, nullptr, 0));
                 if (ASRUtils::is_integer(*left_type)) {
-                    left = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                        al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type,
-                        value));
+                    left = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                        al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type));
                 }
                 if (ASRUtils::is_integer(*right_type)) {
                     if (ASRUtils::expr_value(right) != nullptr) {
@@ -966,9 +955,8 @@ public:
                             throw SemanticAbort();
                         }
                     }
-                    right = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                        al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type,
-                        value));
+                    right = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                        al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type));
                 } else if (ASRUtils::is_real(*right_type)) {
                     if (ASRUtils::expr_value(right) != nullptr) {
                         double val = ASR::down_cast<ASR::RealConstant_t>(ASRUtils::expr_value(right))->m_r;
@@ -2340,9 +2328,8 @@ public:
                         int kind = ASRUtils::extract_kind_from_ttype_t(var->m_type);
                         ASR::ttype_t *dest_type = ASR::down_cast<ASR::ttype_t>(ASR::make_Real_t(al, x.base.base.loc,
                                                         kind, nullptr, 0));
-                        ASR::expr_t *value = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                            al, val->base.loc, val, ASR::cast_kindType::ComplexToReal, dest_type,
-                            nullptr));
+                        ASR::expr_t *value = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                            al, val->base.loc, val, ASR::cast_kindType::ComplexToReal, dest_type));
                         tmp = ASR::make_ComplexRe_t(al, x.base.base.loc, val, dest_type, ASRUtils::expr_value(value));
                         return;
                     } else {

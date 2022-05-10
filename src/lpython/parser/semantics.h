@@ -58,6 +58,15 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define STMT(x) (down_cast<stmt_t>(x))
 #define EXPR2STMT(x) ((stmt_t*)make_Expr_t(p.m_a, x->base.loc, x))
 
+static inline expr_t* EXPR_OPT(const ast_t *f)
+{
+    if (f) {
+        return EXPR(f);
+    } else {
+        return nullptr;
+    }
+}
+
 #define RESULT(x) p.result.push_back(p.m_a, STMT(x))
 
 #define LIST_NEW(l) l.reserve(p.m_a, 4)
@@ -195,6 +204,20 @@ int dot_count = 0;
 #define EXCEPT_03(e, id, stmts, l) make_ExceptHandler_t(p.m_a, l, \
         EXPR(e), name2char(id), STMTS(stmts), stmts.size())
 
+static inline withitem_t *WITH_ITEM(Allocator &al, Location &l,
+        expr_t* context_expr, expr_t* optional_vars) {
+    withitem_t *r = al.allocate<withitem_t>();
+    r->loc = l;
+    r->m_context_expr = context_expr;
+    r->m_optional_vars = optional_vars;
+    return r;
+}
+
+#define WITH_ITEM_01(expr, l) WITH_ITEM(p.m_a, l, EXPR(expr), nullptr)
+#define WITH_ITEM_02(expr, vars, l) WITH_ITEM(p.m_a, l, EXPR(expr), EXPR(vars))
+#define WITH(items, body, l) make_With_t(p.m_a, l, \
+        items.p, items.size(), STMTS(body), body.size(), nullptr)
+
 static inline arg_t *FUNC_ARG(Allocator &al, Location &l, char *arg, expr_t* e) {
     arg_t *r = al.allocate<arg_t>();
     r->loc = l;
@@ -255,6 +278,42 @@ static inline arguments_t FUNC_ARGS(Location &l,
         STMTS(stmts), stmts.size(), \
         EXPRS(decorator), decorator.size())
 
+#define ASYNC_FUNCTION_01(decorator, id, args, stmts, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), \
+        FUNC_ARGS(l, nullptr, 0, args.p, args.n, nullptr, 0, \
+            nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0), \
+        STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size(), \
+        nullptr, nullptr)
+#define ASYNC_FUNCTION_02(decorator, id, args, return, stmts, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), \
+        FUNC_ARGS(l, nullptr, 0, args.p, args.n, nullptr, 0, \
+            nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0), \
+        STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size(), \
+        EXPR(return), nullptr)
+#define ASYNC_FUNCTION_03(id, args, stmts, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), \
+        FUNC_ARGS(l, nullptr, 0, args.p, args.n, nullptr, 0, \
+            nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0), \
+        STMTS(stmts), stmts.size(), \
+        nullptr, 0, nullptr, nullptr)
+#define ASYNC_FUNCTION_04(id, args, return, stmts, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), \
+        FUNC_ARGS(l, nullptr, 0, args.p, args.n, nullptr, 0, \
+            nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0), \
+        STMTS(stmts), stmts.size(), \
+        nullptr, 0, EXPR(return), nullptr)
+
+#define ASYNC_FOR_01(target, iter, stmts, l) make_AsyncFor_t(p.m_a, l, \
+        EXPR(target), EXPR(iter), STMTS(stmts), stmts.size(), \
+        nullptr, 0, nullptr)
+#define ASYNC_FOR_02(target, iter, stmts, orelse, l) make_AsyncFor_t(p.m_a, l, \
+        EXPR(target), EXPR(iter), STMTS(stmts), stmts.size(), \
+        STMTS(orelse), orelse.size(), nullptr)
+
+#define ASYNC_WITH(items, body, l) make_AsyncWith_t(p.m_a, l, \
+        items.p, items.size(), STMTS(body), body.size(), nullptr)
 
 Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
     Vec<ast_t*> v;
@@ -300,8 +359,20 @@ expr_t* CHECK_TUPLE(expr_t *x) {
 
 #define TUPLE(elts, l) make_Tuple_t(p.m_a, l, \
         EXPRS(elts), elts.size(), expr_contextType::Load)
-#define SUBSCRIPT(value, slice, l) make_Subscript_t(p.m_a, l, \
+#define SUBSCRIPT_01(value, slice, l) make_Subscript_t(p.m_a, l, \
         EXPR(value), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
+#define SUBSCRIPT_02(s, slice, l) make_Subscript_t(p.m_a, l, \
+        EXPR(STRING(s, l)), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
+
+static inline ast_t* SLICE(Allocator &al, Location &l,
+        ast_t *lower, ast_t *upper, ast_t *_step) {
+    expr_t* start = EXPR_OPT(lower);
+    expr_t* end = EXPR_OPT(upper);
+    expr_t* step = EXPR_OPT(_step);
+    return make_Slice_t(al, l, start, end, step);
+}
+
+#define SLICE_01(lower, upper, step, l) SLICE(p.m_a, l, lower, upper, step)
 
 Key_Val *DICT(Allocator &al, expr_t *key, expr_t *val) {
     Key_Val *kv = al.allocate<Key_Val>();
@@ -325,5 +396,9 @@ ast_t *DICT1(Allocator &al, Location &l, Vec<Key_Val*> dict_list) {
 #define DICT_EXPR(key, value, l) DICT(p.m_a, EXPR(key), EXPR(value))
 #define DICT_01(l) make_Dict_t(p.m_a, l, nullptr, 0, nullptr, 0)
 #define DICT_02(dict_list, l) DICT1(p.m_a, l, dict_list)
+#define AWAIT(e, l) make_Await_t(p.m_a, l, EXPR(e))
+#define SET(e, l) make_Set_t(p.m_a, l, EXPRS(e), e.size())
+#define NAMEDEXPR(x, y, l) make_NamedExpr_t(p.m_a, l, \
+        EXPR(TARGET_ID(x, l)), EXPR(y))
 
 #endif
