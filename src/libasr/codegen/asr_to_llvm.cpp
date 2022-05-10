@@ -1112,12 +1112,11 @@ public:
         }
         this->visit_expr_wrapper(x.m_idx, true);
         llvm::Value *idx = tmp;
-        idx = builder->CreateSub(idx, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
-        std::vector<llvm::Value*> idx_vec = {idx};
         this->visit_expr_wrapper(x.m_arg, true);
-        llvm::Value *p = builder->CreateGEP(tmp, idx_vec);
-        tmp = builder->CreateAlloca(character_type, nullptr);
-        builder->CreateStore(p, tmp);
+        llvm::Value *str = tmp;
+        llvm::AllocaInst *parg = builder->CreateAlloca(character_type, nullptr);
+        builder->CreateStore(tmp, parg);
+        tmp = lfortran_str_copy(str, idx, idx);
     }
 
     void visit_DerivedRef(const ASR::DerivedRef_t& x) {
