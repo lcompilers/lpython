@@ -132,6 +132,8 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::ComplexRe: { return ((ASR::ComplexRe_t*)f)->m_type; }
         case ASR::exprType::ComplexIm: { return ((ASR::ComplexIm_t*)f)->m_type; }
         case ASR::exprType::DictItem: { return ((ASR::DictItem_t*)f)->m_type; }
+        case ASR::exprType::ListItem: { return ((ASR::ListItem_t*)f)->m_type; }
+        case ASR::exprType::ListSection: { return ((ASR::ListSection_t*)f)->m_type; }
         default : throw LFortranException("Not implemented");
     }
 }
@@ -292,6 +294,8 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::StringRepeat: { return ASR::down_cast<ASR::StringRepeat_t>(f)->m_value; }
         case ASR::exprType::ComplexRe: { return ASR::down_cast<ASR::ComplexRe_t>(f)->m_value; }
         case ASR::exprType::ComplexIm: { return ASR::down_cast<ASR::ComplexIm_t>(f)->m_value; }
+        case ASR::exprType::ListItem: { return ASR::down_cast<ASR::ListItem_t>(f)->m_value; }
+        case ASR::exprType::ListSection: { return ASR::down_cast<ASR::ListSection_t>(f)->m_value; }
         case ASR::exprType::DictItem: // Drop through
         case ASR::exprType::ArrayConstant: // Drop through
         case ASR::exprType::IntegerConstant: // Drop through
