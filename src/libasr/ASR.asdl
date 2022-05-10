@@ -259,7 +259,8 @@ expr
     | ComplexRe(expr arg, ttype type, expr? value)
     | ComplexIm(expr arg, ttype type, expr? value)
     | DictItem(symbol a, expr key, expr? default, ttype type)
-
+    | ListItem(symbol a, expr pos, ttype type, expr? value)
+    | ListSection(symbol a, array_index section, ttype type, expr? value)
 
 -- `len` in Character:
 -- >=0 ... the length of the string, known at compile time
