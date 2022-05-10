@@ -737,7 +737,7 @@ public:
                 1, -2, nullptr, dims.p, dims.size()));
         } else if (var_annotation == "bool") {
             type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
-                1, dims.p, dims.size()));
+                4, dims.p, dims.size()));
         } else {
             throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
         }
@@ -1232,7 +1232,7 @@ public:
     void visit_ConstantBool(const AST::ConstantBool_t &x) {
         bool b = x.m_value;
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
-                1, nullptr, 0));
+                4, nullptr, 0));
         tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, b, type);
     }
 
@@ -3056,7 +3056,7 @@ public:
                         std::to_string(args.size()) + " given)", x.base.base.loc);
                 }
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
-                                    1, nullptr, 0));
+                                    4, nullptr, 0));
                 ASR::expr_t *arg = args[0].m_value;
                 bool result = false;
                 if (ASR::is_a<ASR::Var_t>(*arg)) {

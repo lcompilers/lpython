@@ -177,7 +177,7 @@ struct PythonIntrinsicProcedures {
                 std::to_string(args.size()) + " given)", loc);
         }
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
-            1, nullptr, 0));
+            4, nullptr, 0));
         ASR::expr_t* arg = args[0];
         ASR::ttype_t* t = ASRUtils::expr_type(arg);
         bool result;
