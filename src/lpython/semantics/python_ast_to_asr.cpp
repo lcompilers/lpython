@@ -1468,27 +1468,40 @@ public:
         ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
         ASR::ttype_t *type = v->m_type;
         if (AST::is_a<AST::Slice_t>(*x.m_slice)) {
-            AST::Slice_t *s = AST::down_cast<AST::Slice_t>(x.m_slice);
-            if (s->m_lower != nullptr) {
-                this->visit_expr(*s->m_lower);
+            AST::Slice_t *sl = AST::down_cast<AST::Slice_t>(x.m_slice);
+            if (sl->m_lower != nullptr) {
+                this->visit_expr(*sl->m_lower);
                 ai.m_left = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
             }
-            if (s->m_upper != nullptr) {
-                this->visit_expr(*s->m_upper);
+            if (sl->m_upper != nullptr) {
+                this->visit_expr(*sl->m_upper);
                 if (!ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
                     throw SemanticError("slice indices must be integers or None", tmp->loc);
                 }
                 ai.m_right = ASRUtils::EXPR(tmp);
             }
-            if (s->m_step != nullptr) {
-                this->visit_expr(*s->m_step);
+            if (sl->m_step != nullptr) {
+                this->visit_expr(*sl->m_step);
                 ai.m_step = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
+            }
+            if (ASR::is_a<ASR::List_t>(*type)) {
+                tmp = ASR::make_ListSection_t(al, x.base.base.loc, s, ai,
+                        type, nullptr);
+                return;
             }
         } else {
             this->visit_expr(*x.m_slice);
             if (!ASR::is_a<ASR::Dict_t>(*type) &&
                     !ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
-                throw SemanticError("string indices must be integers", tmp->loc);
+                std::string fnd = ASRUtils::type_to_str_python(ASRUtils::expr_type(ASRUtils::EXPR(tmp)));
+                diag.add(diag::Diagnostic(
+                    "Type mismatch in index, Index should be of integer type",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("type mismatch (found: '" + fnd + "', expected: 'i32')",
+                                {tmp->loc})
+                    })
+                );
+                throw SemanticAbort();
             }
             ASR::expr_t *index = nullptr;
             if (ASR::is_a<ASR::Dict_t>(*type)) {
@@ -1504,6 +1517,11 @@ public:
                                       ASR::down_cast<ASR::Dict_t>(type)->m_value_type);
                 return;
 
+            } else if (ASR::is_a<ASR::List_t>(*type)) {
+                index = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
+                tmp = make_ListItem_t(al, x.base.base.loc, s, index,
+                                      ASR::down_cast<ASR::List_t>(type)->m_type, nullptr);
+                return;
             } else {
                 index = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
             }
@@ -1515,8 +1533,6 @@ public:
                 // String indexing is done using "a(3:3)" style
                 ai.m_left = ai.m_right;
             }
-        } else if (ASR::is_a<ASR::List_t>(*type)) {
-            type = ASR::down_cast<ASR::List_t>(type)->m_type;
         } else if (ASR::is_a<ASR::Set_t>(*type)) {
             throw SemanticError("'set' object is not subscriptable", x.base.base.loc);
         }
