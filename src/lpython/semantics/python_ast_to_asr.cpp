@@ -1485,7 +1485,7 @@ public:
                 ai.m_step = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
             }
             if (ASR::is_a<ASR::List_t>(*type)) {
-                tmp = ASR::make_ListSection_t(al, x.base.base.loc, s, ai,
+                tmp = ASR::make_ListSection_t(al, x.base.base.loc, value, ai,
                         type, nullptr);
                 return;
             }
