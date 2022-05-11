@@ -56,48 +56,47 @@ void lex_dec_int_large(Allocator &al, const unsigned char *s,
 }
 
 
-char* get_value(Allocator &al, char *s, int base) {
+char* get_value(Allocator &al, char *s, int base, const Location &loc) {
     std::string str(s);
-    str = std::to_string(std::stol(str, nullptr, base));
+    long long n;
+    try {
+        n = std::stoll(str, nullptr, base);
+    } catch (const std::out_of_range &e) {
+        throw parser_local::TokenizerError(
+            "Integer too large to convert", {loc});
+    }
+    str = std::to_string(n);
     LFortran::Str s2;
     s2.from_str_view(str);
     return s2.c_str(al);
 }
 
-// Tokenizes integer of the kind 0x1234 into `prefix` and `u`
+// Converts integer (Dec, Hex, Bin, Oct) from a string to BigInt `u`
 // s ... the start of the integer
 // e ... the character after the end
 void lex_int(Allocator &al, const unsigned char *s,
-    const unsigned char *e, BigInt::BigInt &u, Str &prefix)
+    const unsigned char *e, BigInt::BigInt &u, const Location &loc)
 {
     if (std::tolower(s[1]) == 'x') {
+        // Hex
         s = s + 2;
-        prefix.p = (char*) "Hex";
-        prefix.n = 3;
-        Str num;
-        num.p = get_value(al, (char*)s, 16);
-        num.n = e-s;
-        u.from_largeint(al, num);
+        unsigned char *p1 = (unsigned char*) get_value(al, (char*)s, 16, loc);
+        unsigned char *p2 = p1 + (e-s);
+        lex_dec_int_large(al, p1, p2, u);
     } else if (std::tolower(s[1]) == 'b') {
+        // Bin
         s = s + 2;
-        prefix.p = (char*) "Bin";
-        prefix.n = 3;
-        Str num;
-        num.p = get_value(al, (char*)s, 2);
-        num.n = e-s;
-        u.from_largeint(al, num);
+        unsigned char *p1 = (unsigned char*) get_value(al, (char*)s, 2, loc);
+        unsigned char *p2 = p1 + (e-s);
+        lex_dec_int_large(al, p1, p2, u);
     } else if ((std::tolower(s[1]) == 'o')) {
+        // Oct
         s = s + 2;
-        prefix.p = (char*) "Oct";
-        prefix.n = 3;
-        Str num;
-        num.p = get_value(al, (char*)s, 8);
-        num.n = e-s;
-        u.from_largeint(al, num);
+        unsigned char *p1 = (unsigned char*) get_value(al, (char*)s, 8, loc);
+        unsigned char *p2 = p1 + (e-s);
+        lex_dec_int_large(al, p1, p2, u);
     } else {
         lex_dec_int_large(al, s, e, u);
-        prefix.p = nullptr;
-        prefix.n = 0;
     }
     return;
 }
@@ -439,9 +438,10 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
 
             real { yylval.f = std::atof(token().c_str()); RET(TK_REAL) }
             integer {
-                lex_int(al, tok, cur,
-                    yylval.int_suffix.int_n,
-                    yylval.int_suffix.int_kind);
+                BigInt::BigInt n;
+                token_loc(loc);
+                lex_int(al, tok, cur, n, loc);
+                yylval.n = n.n;
                 RET(TK_INTEGER)
             }
             imag_number {
@@ -640,10 +640,7 @@ std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
     if (token == yytokentype::TK_NAME) {
         t += " " + yystype.string.str();
     } else if (token == yytokentype::TK_INTEGER) {
-        t += " " + yystype.int_suffix.int_n.str();
-        if (yystype.int_suffix.int_kind.p) {
-            t += " " + yystype.int_suffix.int_kind.str();
-        }
+        t += " " + BigInt::int_to_str(yystype.n);
     } else if (token == yytokentype::TK_REAL) {
         t += " " + std::to_string(yystype.f);
     } else if (token == yytokentype::TK_IMAG_NUM) {
