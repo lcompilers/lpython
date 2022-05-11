@@ -15,6 +15,10 @@ struct Key_Val {
     LPython::AST::expr_t* value;
 };
 
+struct Args {
+    LPython::AST::arguments_t arguments;
+};
+
 struct IntSuffix {
     BigInt::BigInt int_n;
     Str int_kind;
@@ -34,11 +38,17 @@ union YYSTYPE {
     LPython::AST::arg_t* arg;
     Vec<LPython::AST::arg_t> vec_arg;
 
+    Args *args;
+    Vec<Args> vec_args;
+
     Key_Val *key_val;
     Vec<Key_Val*> vec_key_val;
 
     LPython::AST::withitem_t* withitem;
     Vec<LPython::AST::withitem_t> vec_withitem;
+
+    LPython::AST::keyword_t* keyword;
+    Vec<LPython::AST::keyword_t> vec_keyword;
 
     LPython::AST::operatorType operator_type;
 };

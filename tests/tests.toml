@@ -291,6 +291,10 @@ filename = "parser/function_def1.py"
 ast_new = true
 
 [[test]]
+filename = "parser/function_def2.py"
+ast_new = true
+
+[[test]]
 filename = "parser/class_def1.py"
 ast_new = true
 

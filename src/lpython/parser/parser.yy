@@ -214,8 +214,11 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> except_list
 %type <ast> try_statement
 %type <ast> function_def
-%type <vec_arg> parameter_list_opt
+%type <args> parameter_list_opt
 %type <arg> parameter
+%type <arg> defparameter
+%type <args> parameter_list_starargs
+%type <vec_arg> defparameter_list
 %type <vec_ast> decorators
 %type <vec_ast> decorators_opt
 %type <ast> class_def
@@ -229,6 +232,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> async_func_def
 %type <ast> async_for_stmt
 %type <ast> async_with_stmt
+%type <keyword> keyword_item
+%type <vec_keyword> keyword_items
+%type <ast> function_call
+%type <ast> primary
 %type <vec_ast> sep
 %type <ast> sep_one
 
@@ -537,10 +544,38 @@ parameter
     | id ":" expr { $$ = ARGS_02($1, $3, @$); }
     ;
 
+defparameter
+    : parameter { $$ = $1; }
+    // TODO: Expose `expr` to AST
+    | parameter "=" expr { $$ = $1; }
+    ;
+
+defparameter_list
+    : defparameter_list "," defparameter { $$ = $1; PLIST_ADD($$, $3); }
+    | defparameter { LIST_NEW($$); PLIST_ADD($$, $1); }
+    ;
+
+parameter_list_starargs
+    : "*" parameter { $$ = STAR_ARGS_01($2, @$); }
+    | "*" parameter "," defparameter_list { $$ = STAR_ARGS_02($2, $4, @$); }
+    | "*" parameter "," defparameter_list "," "**" parameter {
+        $$ = STAR_ARGS_03($2, $4, $7, @$); }
+    | "*" parameter "," "**" parameter { $$ = STAR_ARGS_04($2, $5, @$); }
+    | "**" parameter { $$ = STAR_ARGS_05($2, @$); }
+    | defparameter_list "," "*" parameter { $$ = STAR_ARGS_06($1, $4, @$); }
+    | defparameter_list "," "*" parameter "," defparameter_list {
+        $$ = STAR_ARGS_07($1, $4, $6, @$); }
+    | defparameter_list "," "*" parameter "," defparameter_list "," "**" parameter {
+        $$ = STAR_ARGS_08($1, $4, $6, $9, @$); }
+    | defparameter_list "," "*" parameter "," "**" parameter {
+        $$ = STAR_ARGS_09($1, $4, $7, @$); }
+    | defparameter_list "," "**" parameter { $$ = STAR_ARGS_10($1, $4, @$); }
+    ;
+
 parameter_list_opt
-    : parameter_list_opt "," parameter { $$ = $1; PLIST_ADD($$, $3); }
-    | parameter { LIST_NEW($$); PLIST_ADD($$, $1); }
-    | %empty { LIST_NEW($$); }
+    : defparameter_list { $$ = FUNC_ARG_LIST_01($1, @$); }
+    | parameter_list_starargs { $$ = $1; }
+    | %empty { $$ = FUNC_ARG_LIST_02(@$); }
     ;
 
 function_def
@@ -624,6 +659,30 @@ tuple_list
     : slice_item_list { $$ = TUPLE($1, @$); }
     ;
 
+keyword_item
+    : id "=" expr { $$ = CALL_KEYWORD_01($1, $3, @$); }
+    | "**" expr { $$ = CALL_KEYWORD_02($2, @$); }
+    ;
+
+keyword_items
+    : keyword_items "," keyword_item { $$ = $1; PLIST_ADD($$, $3); }
+    | keyword_item { LIST_NEW($$); PLIST_ADD($$, $1); }
+    ;
+
+primary
+    : id { $$ = $1; }
+    | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
+    ;
+
+function_call
+    : primary "(" expr_list_opt ")" { $$ = CALL_01($1, $3, @$); }
+    | primary "(" expr_list "," keyword_items ")" {
+        $$ = CALL_02($1, $3, $5, @$); }
+    | primary "(" keyword_items "," expr_list ")" {
+        $$ = CALL_02($1, $5, $3, @$); }
+    | primary "(" keyword_items ")" { $$ = CALL_03($1, $3, @$); }
+    ;
+
 expr
     : id { $$ = $1; }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
@@ -633,7 +692,7 @@ expr
     | TK_TRUE { $$ = BOOL(true, @$); }
     | TK_FALSE { $$ = BOOL(false, @$); }
     | "(" expr ")" { $$ = $2; }
-    | id "(" expr_list_opt ")" { $$ = CALL_01($1, $3, @$); }
+    | function_call { $$ = $1; }
     | "[" expr_list_opt "]" { $$ = LIST($2, @$); }
     | "[" expr_list "," "]" { $$ = LIST($2, @$); }
     | "{" expr_list "}" { $$ = SET($2, @$); }
@@ -641,12 +700,11 @@ expr
     | id "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
     | TK_STRING "[" tuple_list "]" { $$ = SUBSCRIPT_02($1, $3, @$); }
     | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
-    | expr "." id "(" expr_list_opt ")" {
-        $$ = CALL_01(ATTRIBUTE_REF($1, $3, @$), $5, @$); }
     | "{" "}" { $$ = DICT_01(@$); }
     | "{" dict_list "}" { $$ = DICT_02($2, @$); }
     | KW_AWAIT expr %prec AWAIT { $$ = AWAIT($2, @$); }
     | id ":=" expr { $$ = NAMEDEXPR($1, $3, @$); }
+    | "*" expr { $$ = STARRED_ARG($2, @$); }
 
     | expr "+" expr { $$ = BINOP($1, Add, $3, @$); }
     | expr "-" expr { $$ = BINOP($1, Sub, $3, @$); }
