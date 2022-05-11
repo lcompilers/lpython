@@ -233,6 +233,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> async_func_def
 %type <ast> async_for_stmt
 %type <ast> async_with_stmt
+%type <keyword> keyword_item
+%type <vec_keyword> keyword_items
+%type <ast> function_call
+%type <ast> primary
 %type <vec_ast> sep
 %type <ast> sep_one
 
@@ -658,6 +662,30 @@ tuple_list
     : slice_item_list { $$ = TUPLE($1, @$); }
     ;
 
+keyword_item
+    : id "=" expr { $$ = CALL_KEYWORD_01($1, $3, @$); }
+    | "**" expr { $$ = CALL_KEYWORD_02($2, @$); }
+    ;
+
+keyword_items
+    : keyword_items "," keyword_item { $$ = $1; PLIST_ADD($$, $3); }
+    | keyword_item { LIST_NEW($$); PLIST_ADD($$, $1); }
+    ;
+
+primary
+    : id { $$ = $1; }
+    | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
+    ;
+
+function_call
+    : primary "(" expr_list_opt ")" { $$ = CALL_01($1, $3, @$); }
+    | primary "(" expr_list "," keyword_items ")" {
+        $$ = CALL_02($1, $3, $5, @$); }
+    | primary "(" keyword_items "," expr_list ")" {
+        $$ = CALL_02($1, $5, $3, @$); }
+    | primary "(" keyword_items ")" { $$ = CALL_03($1, $3, @$); }
+    ;
+
 expr
     : id { $$ = $1; }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
@@ -667,16 +695,15 @@ expr
     | TK_TRUE { $$ = BOOL(true, @$); }
     | TK_FALSE { $$ = BOOL(false, @$); }
     | "(" expr ")" { $$ = $2; }
-    | id "(" expr_list_opt ")" { $$ = CALL_01($1, $3, @$); }
+    | function_call { $$ = $1; }
     | "[" expr_list_opt "]" { $$ = LIST($2, @$); }
     | id "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
     | TK_STRING "[" tuple_list "]" { $$ = SUBSCRIPT_02($1, $3, @$); }
     | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
-    | expr "." id "(" expr_list_opt ")" {
-        $$ = CALL_01(ATTRIBUTE_REF($1, $3, @$), $5, @$); }
     | "{" "}" { $$ = DICT_01(@$); }
     | "{" dict_list "}" { $$ = DICT_02($2, @$); }
     | KW_AWAIT expr %prec AWAIT { $$ = AWAIT($2, @$); }
+    | "*" expr { $$ = STARRED_ARG($2, @$); }
 
     | expr "+" expr { $$ = BINOP($1, Add, $3, @$); }
     | expr "-" expr { $$ = BINOP($1, Sub, $3, @$); }

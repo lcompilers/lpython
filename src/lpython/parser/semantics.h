@@ -360,8 +360,23 @@ Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
 #define COMPLEX(x, l) make_ConstantComplex_t(p.m_a, l, \
         0, std::stof(x.int_n.str()), nullptr)
 #define BOOL(x, l) make_ConstantBool_t(p.m_a, l, x, nullptr)
+
+static inline keyword_t *CALL_KW(Allocator &al, Location &l,
+        char *arg, expr_t* val) {
+    keyword_t *r = al.allocate<keyword_t>();
+    r->loc = l;
+    r->m_arg = arg;
+    r->m_value = val;
+    return r;
+}
+#define CALL_KEYWORD_01(arg, val, l) CALL_KW(p.m_a, l, name2char(arg), EXPR(val))
+#define CALL_KEYWORD_02(val, l) CALL_KW(p.m_a, l, nullptr, EXPR(val))
 #define CALL_01(func, args, l) make_Call_t(p.m_a, l, \
         EXPR(func), EXPRS(args), args.size(), nullptr, 0)
+#define CALL_02(func, args, keywords, l) make_Call_t(p.m_a, l, \
+        EXPR(func), EXPRS(args), args.size(), keywords.p, keywords.size())
+#define CALL_03(func, keywords, l) make_Call_t(p.m_a, l, \
+        EXPR(func), nullptr, 0, keywords.p, keywords.size())
 #define LIST(e, l) make_List_t(p.m_a, l, \
         EXPRS(e), e.size(), expr_contextType::Load)
 #define ATTRIBUTE_REF(val, attr, l) make_Attribute_t(p.m_a, l, \
@@ -415,5 +430,7 @@ ast_t *DICT1(Allocator &al, Location &l, Vec<Key_Val*> dict_list) {
 #define DICT_01(l) make_Dict_t(p.m_a, l, nullptr, 0, nullptr, 0)
 #define DICT_02(dict_list, l) DICT1(p.m_a, l, dict_list)
 #define AWAIT(e, l) make_Await_t(p.m_a, l, EXPR(e))
+#define STARRED_ARG(e, l) make_Starred_t(p.m_a, l, \
+        EXPR(e), expr_contextType::Load)
 
 #endif
