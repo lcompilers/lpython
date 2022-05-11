@@ -215,8 +215,11 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> except_list
 %type <ast> try_statement
 %type <ast> function_def
-%type <vec_arg> parameter_list_opt
+%type <args> parameter_list_opt
 %type <arg> parameter
+%type <arg> defparameter
+%type <args> parameter_list_starargs
+%type <vec_arg> defparameter_list
 %type <vec_ast> decorators
 %type <vec_ast> decorators_opt
 %type <ast> class_def
@@ -537,10 +540,38 @@ parameter
     | id ":" expr { $$ = ARGS_02($1, $3, @$); }
     ;
 
+defparameter
+    : parameter { $$ = $1; }
+    // TODO: Expose `expr` to AST
+    | parameter "=" expr { $$ = $1; }
+    ;
+
+defparameter_list
+    : defparameter_list "," defparameter { $$ = $1; PLIST_ADD($$, $3); }
+    | defparameter { LIST_NEW($$); PLIST_ADD($$, $1); }
+    ;
+
+parameter_list_starargs
+    : "*" parameter { $$ = STAR_ARGS_01($2, @$); }
+    | "*" parameter "," defparameter_list { $$ = STAR_ARGS_02($2, $4, @$); }
+    | "*" parameter "," defparameter_list "," "**" parameter {
+        $$ = STAR_ARGS_03($2, $4, $7, @$); }
+    | "*" parameter "," "**" parameter { $$ = STAR_ARGS_04($2, $5, @$); }
+    | "**" parameter { $$ = STAR_ARGS_05($2, @$); }
+    | defparameter_list "," "*" parameter { $$ = STAR_ARGS_06($1, $4, @$); }
+    | defparameter_list "," "*" parameter "," defparameter_list {
+        $$ = STAR_ARGS_07($1, $4, $6, @$); }
+    | defparameter_list "," "*" parameter "," defparameter_list "," "**" parameter {
+        $$ = STAR_ARGS_08($1, $4, $6, $9, @$); }
+    | defparameter_list "," "*" parameter "," "**" parameter {
+        $$ = STAR_ARGS_09($1, $4, $7, @$); }
+    | defparameter_list "," "**" parameter { $$ = STAR_ARGS_10($1, $4, @$); }
+    ;
+
 parameter_list_opt
-    : parameter_list_opt "," parameter { $$ = $1; PLIST_ADD($$, $3); }
-    | parameter { LIST_NEW($$); PLIST_ADD($$, $1); }
-    | %empty { LIST_NEW($$); }
+    : defparameter_list { $$ = FUNC_ARG_LIST_01($1, @$); }
+    | parameter_list_starargs { $$ = $1; }
+    | %empty { $$ = FUNC_ARG_LIST_02(@$); }
     ;
 
 function_def
