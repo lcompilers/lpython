@@ -214,6 +214,7 @@ public:
     llvm::StructType *complex_type_4, *complex_type_8;
     llvm::StructType *complex_type_4_ptr, *complex_type_8_ptr;
     llvm::PointerType *character_type;
+    llvm::PointerType *list_type;
 
     std::unordered_map<std::uint32_t, std::unordered_map<std::string, llvm::Type*>> arr_arg_type_cache;
 
@@ -795,6 +796,49 @@ public:
         return builder->CreateCall(fn, {str, idx1, idx2});
     }
 
+    llvm::Value* lcompilers_list_init_i32()
+    {
+        std::string runtime_func_name = "_lcompilers_list_init_i32";
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    list_type, { }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        return builder->CreateCall(fn, {});
+    }
+
+    void lcompilers_list_append_i32(llvm::Value* plist, llvm::Value *item)
+    {
+        std::string runtime_func_name = "_lcompilers_list_append_i32";
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {
+                        list_type, llvm::Type::getInt32Ty(context)
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        builder->CreateCall(fn, {plist, item});
+    }
+
+    llvm::Value* lcompilers_list_item_i32(llvm::Value* plist, llvm::Value *pos)
+    {
+        std::string runtime_func_name = "_lcompilers_list_item_i32";
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getInt32Ty(context), {
+                        list_type, llvm::Type::getInt32Ty(context)
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        return builder->CreateCall(fn, {plist, pos});
+    }
+
     // This function is called as:
     // float complex_re(complex a)
     // And it extracts the real part of the complex number
@@ -903,6 +947,7 @@ public:
         complex_type_4_ptr = llvm::StructType::create(context, els_4_ptr, "complex_4_ptr");
         complex_type_8_ptr = llvm::StructType::create(context, els_8_ptr, "complex_8_ptr");
         character_type = llvm::Type::getInt8PtrTy(context);
+        list_type = llvm::Type::getInt8PtrTy(context);
 
         llvm::Type* bound_arg = static_cast<llvm::Type*>(arr_descr->get_dimension_descriptor_type(true));
         fname2arg_type["lbound"] = std::make_pair(bound_arg, bound_arg->getPointerTo());
@@ -1056,6 +1101,56 @@ public:
 
     void visit_ExplicitDeallocate(const ASR::ExplicitDeallocate_t& x) {
         _Deallocate<ASR::ExplicitDeallocate_t>(x);
+    }
+
+    void visit_ListAppend(const ASR::ListAppend_t& x) {
+        ASR::Variable_t *l = ASR::down_cast<ASR::Variable_t>(x.m_a);
+        uint32_t v_h = get_hash((ASR::asr_t*)l);
+        LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
+        llvm::Value *plist = llvm_symtab[v_h];
+
+        this->visit_expr_wrapper(x.m_ele, true);
+        llvm::Value *ele = tmp;
+
+        ASR::ttype_t *el_type = ASR::down_cast<ASR::List_t>(l->m_type)->m_type;
+        if (is_a<ASR::Integer_t>(*el_type)) {
+            int kind = ASR::down_cast<ASR::Integer_t>(el_type)->m_kind;
+            if (kind == 4) {
+                llvm::Value *plist2 = CreateLoad(plist);
+                lcompilers_list_append_i32(plist2, ele);
+            } else {
+                throw CodeGenError("Integer kind not supported yet in ListAppend", x.base.base.loc);
+            }
+
+        } else {
+            throw CodeGenError("List type not supported yet in ListAppend", x.base.base.loc);
+        }
+
+    }
+
+    void visit_ListItem(const ASR::ListItem_t& x) {
+        ASR::Variable_t *l = ASR::down_cast<ASR::Variable_t>(x.m_a);
+        uint32_t v_h = get_hash((ASR::asr_t*)l);
+        LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
+        llvm::Value *plist = llvm_symtab[v_h];
+
+        this->visit_expr_wrapper(x.m_pos, true);
+        llvm::Value *pos = tmp;
+
+        ASR::ttype_t *el_type = ASR::down_cast<ASR::List_t>(l->m_type)->m_type;
+        if (is_a<ASR::Integer_t>(*el_type)) {
+            int kind = ASR::down_cast<ASR::Integer_t>(el_type)->m_kind;
+            if (kind == 4) {
+                llvm::Value *plist2 = CreateLoad(plist);
+                tmp = lcompilers_list_item_i32(plist2, pos);
+            } else {
+                throw CodeGenError("Integer kind not supported yet in ListAppend", x.base.base.loc);
+            }
+
+        } else {
+            throw CodeGenError("List type not supported yet in ListAppend", x.base.base.loc);
+        }
+
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t& x) {
@@ -1250,7 +1345,7 @@ public:
             }
             llvm_symtab[h] = ptr;
         } else {
-            throw CodeGenError("Variable type not supported");
+            throw CodeGenError("Variable type not supported", x.base.base.loc);
         }
     }
 
@@ -1516,19 +1611,25 @@ public:
                                     break;
                                 }
                                 case (ASR::ttypeType::Derived) : {
-                                    throw CodeGenError("Pointers for Derived type not implemented yet in conversion");
+                                    throw CodeGenError("Pointers for Derived type not implemented yet in conversion", v->base.base.loc);
                                 }
                                 case (ASR::ttypeType::Logical) : {
                                     type = llvm::Type::getInt1Ty(context);
                                     break;
                                 }
                                 default :
-                                    throw CodeGenError("Type not implemented");
+                                    throw CodeGenError("Type not implemented", v->base.base.loc);
                             }
                             break;
                         }
+                        case (ASR::ttypeType::List) : {
+                            //ASR::List_t* v_type = down_cast<ASR::List_t>(v->m_type);
+                            //ASR::ttype_t *el_type = v_type->m_type;
+                            type = list_type;
+                            break;
+                        }
                         default :
-                            throw CodeGenError("Type not implemented");
+                            throw CodeGenError("Type not implemented", v->base.base.loc);
                     }
                     /*
                     * The following if block is used for converting any
@@ -1626,6 +1727,11 @@ public:
                             } else {
                                 throw CodeGenError("Unsupported len value in ASR");
                             }
+                        } else if (is_a<ASR::List_t>(*v->m_type)) {
+                            // TODO: do a different initialization based on element type
+                            llvm::Value *init_value = lcompilers_list_init_i32();
+                            target_var = ptr;
+                            builder->CreateStore(init_value, target_var);
                         }
                     }
                 }
