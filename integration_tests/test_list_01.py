@@ -7,5 +7,6 @@ def test_list_i32():
     a.append(4)
     a.append(5)
     print(a[1])
+    assert a[1] == 2 or a[1] == 3
 
 test_list_i32()
