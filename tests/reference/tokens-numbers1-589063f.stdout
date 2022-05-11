@@ -23,7 +23,7 @@
 (TOKEN "identifier" i) 50:50
 (TOKEN "=") 52:52
 (TOKEN "-") 54:54
-(TOKEN "integer" 8) 55:59
+(TOKEN "integer" 83) 55:59
 (NEWLINE) 60:60
 (TOKEN "identifier" i) 61:61
 (TOKEN "=") 63:63
