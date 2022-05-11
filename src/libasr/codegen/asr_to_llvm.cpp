@@ -824,6 +824,21 @@ public:
         builder->CreateCall(fn, {plist, item});
     }
 
+    llvm::Value* lcompilers_list_item_i32(llvm::Value* plist, llvm::Value *pos)
+    {
+        std::string runtime_func_name = "_lcompilers_list_item_i32";
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getInt32Ty(context), {
+                        list_type, llvm::Type::getInt32Ty(context)
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        return builder->CreateCall(fn, {plist, pos});
+    }
+
     // This function is called as:
     // float complex_re(complex a)
     // And it extracts the real part of the complex number
@@ -1103,6 +1118,31 @@ public:
             if (kind == 4) {
                 llvm::Value *plist2 = CreateLoad(plist);
                 lcompilers_list_append_i32(plist2, ele);
+            } else {
+                throw CodeGenError("Integer kind not supported yet in ListAppend", x.base.base.loc);
+            }
+
+        } else {
+            throw CodeGenError("List type not supported yet in ListAppend", x.base.base.loc);
+        }
+
+    }
+
+    void visit_ListItem(const ASR::ListItem_t& x) {
+        ASR::Variable_t *l = ASR::down_cast<ASR::Variable_t>(x.m_a);
+        uint32_t v_h = get_hash((ASR::asr_t*)l);
+        LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
+        llvm::Value *plist = llvm_symtab[v_h];
+
+        this->visit_expr_wrapper(x.m_pos, true);
+        llvm::Value *pos = tmp;
+
+        ASR::ttype_t *el_type = ASR::down_cast<ASR::List_t>(l->m_type)->m_type;
+        if (is_a<ASR::Integer_t>(*el_type)) {
+            int kind = ASR::down_cast<ASR::Integer_t>(el_type)->m_kind;
+            if (kind == 4) {
+                llvm::Value *plist2 = CreateLoad(plist);
+                tmp = lcompilers_list_item_i32(plist2, pos);
             } else {
                 throw CodeGenError("Integer kind not supported yet in ListAppend", x.base.base.loc);
             }

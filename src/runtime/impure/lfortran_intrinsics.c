@@ -706,6 +706,18 @@ LFORTRAN_API void _lcompilers_list_append_i32(int8_t* s, int32_t item) {
     }
 }
 
+// pos is the index = 1..n
+LFORTRAN_API int32_t _lcompilers_list_item_i32(int8_t* s, int32_t pos) {
+    printf("_lcompilers_list_item_i32(*, %d)\n", pos);
+    struct _lcompilers_list_i32 *l = (struct _lcompilers_list_i32 *)s;
+    if (pos >= 1 && pos <= l->n) {
+        return l->p[pos-1];
+    } else {
+        printf("Out of bounds\n");
+        return 0;
+    }
+}
+
 // bit  ------------------------------------------------------------------------
 
 LFORTRAN_API int32_t _lfortran_iand32(int32_t x, int32_t y) {
