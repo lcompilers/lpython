@@ -1252,7 +1252,7 @@ public:
             }
             llvm_symtab[h] = ptr;
         } else {
-            throw CodeGenError("Variable type not supported");
+            throw CodeGenError("Variable type not supported", x.base.base.loc);
         }
     }
 
@@ -1518,19 +1518,19 @@ public:
                                     break;
                                 }
                                 case (ASR::ttypeType::Derived) : {
-                                    throw CodeGenError("Pointers for Derived type not implemented yet in conversion");
+                                    throw CodeGenError("Pointers for Derived type not implemented yet in conversion", v->base.base.loc);
                                 }
                                 case (ASR::ttypeType::Logical) : {
                                     type = llvm::Type::getInt1Ty(context);
                                     break;
                                 }
                                 default :
-                                    throw CodeGenError("Type not implemented");
+                                    throw CodeGenError("Type not implemented", v->base.base.loc);
                             }
                             break;
                         }
                         default :
-                            throw CodeGenError("Type not implemented");
+                            throw CodeGenError("Type not implemented", v->base.base.loc);
                     }
                     /*
                     * The following if block is used for converting any
