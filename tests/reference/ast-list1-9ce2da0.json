@@ -2,11 +2,11 @@
     "basename": "ast-list1-9ce2da0",
     "cmd": "lpython --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/list1.py",
-    "infile_hash": "1b68fdf13bbc301b5d88ffd8cbf74cb6e12822948bc205e39ebd1ded",
+    "infile_hash": "4c857d1e852be3d5d49027d17478d3d52a27c66656fd876a004d8b8b",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-list1-9ce2da0.stdout",
-    "stdout_hash": "19402e89cf96a781e9b1fc9ebad7e55a13e1c0d5719afe8edb40bf6e",
+    "stdout_hash": "ed4674200beb3089b0bbde32b6dc299e110c41a1e48ef3d19cc11a5f",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
