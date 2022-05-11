@@ -445,9 +445,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 RET(TK_INTEGER)
             }
             imag_number {
-                lex_imag(al, tok, cur,
-                    yylval.int_suffix.int_n,
-                    yylval.int_suffix.int_kind);
+                yylval.f = std::atof(token().c_str());
                 RET(TK_IMAG_NUM)
             }
 
@@ -649,7 +647,7 @@ std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
     } else if (token == yytokentype::TK_REAL) {
         t += " " + std::to_string(yystype.f);
     } else if (token == yytokentype::TK_IMAG_NUM) {
-        t += " " + yystype.int_suffix.int_n.str() + "j";
+        t += " " + std::to_string(yystype.f) + "j";
     } else if (token == yytokentype::TK_STRING) {
         t = t + " " + "\"" + yystype.string.str() + "\"";
     }
