@@ -1488,6 +1488,9 @@ public:
                 tmp = ASR::make_ListSection_t(al, x.base.base.loc, value, ai,
                         type, nullptr);
                 return;
+            } else if (ASR::is_a<ASR::Character_t>(*type)) {
+                tmp = ASR::make_StringSection_t(al, x.base.base.loc, value, ai, type, nullptr);
+                return;
             }
         } else {
             this->visit_expr(*x.m_slice);
