@@ -14,6 +14,7 @@ tests = [
     "test_types_01.py",
     "test_str_01.py",
     "test_str_02.py",
+    "test_list_01.py",
     "modules_01.py",
     #"modules_02.py",
     "test_math.py",
