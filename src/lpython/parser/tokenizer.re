@@ -56,19 +56,16 @@ void lex_dec_int_large(Allocator &al, const unsigned char *s,
 }
 
 
-char* get_value(Allocator &al, char *s, int base, const Location &loc) {
+uint64_t get_value(char *s, int base, const Location &loc) {
     std::string str(s);
-    long long n;
+    uint64_t n;
     try {
-        n = std::stoll(str, nullptr, base);
+        n = std::stoull(str, nullptr, base);
     } catch (const std::out_of_range &e) {
         throw parser_local::TokenizerError(
             "Integer too large to convert", {loc});
     }
-    str = std::to_string(n);
-    LFortran::Str s2;
-    s2.from_str_view(str);
-    return s2.c_str(al);
+    return n;
 }
 
 // Converts integer (Dec, Hex, Bin, Oct) from a string to BigInt `u`
@@ -80,21 +77,18 @@ void lex_int(Allocator &al, const unsigned char *s,
     if (std::tolower(s[1]) == 'x') {
         // Hex
         s = s + 2;
-        unsigned char *p1 = (unsigned char*) get_value(al, (char*)s, 16, loc);
-        unsigned char *p2 = p1 + (e-s);
-        lex_dec_int_large(al, p1, p2, u);
+        uint64_t n = get_value((char*)s, 16, loc);
+        u.from_smallint(n);
     } else if (std::tolower(s[1]) == 'b') {
         // Bin
         s = s + 2;
-        unsigned char *p1 = (unsigned char*) get_value(al, (char*)s, 2, loc);
-        unsigned char *p2 = p1 + (e-s)-2;
-        lex_dec_int_large(al, p1, p2, u);
+        uint64_t n = get_value((char*)s, 2, loc);
+        u.from_smallint(n);
     } else if ((std::tolower(s[1]) == 'o')) {
         // Oct
         s = s + 2;
-        unsigned char *p1 = (unsigned char*) get_value(al, (char*)s, 8, loc);
-        unsigned char *p2 = p1 + (e-s)-2;
-        lex_dec_int_large(al, p1, p2, u);
+        uint64_t n = get_value((char*)s, 8, loc);
+        u.from_smallint(n);
     } else {
         lex_dec_int_large(al, s, e, u);
     }
