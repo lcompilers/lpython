@@ -87,13 +87,13 @@ void lex_int(Allocator &al, const unsigned char *s,
         // Bin
         s = s + 2;
         unsigned char *p1 = (unsigned char*) get_value(al, (char*)s, 2, loc);
-        unsigned char *p2 = p1 + (e-s);
+        unsigned char *p2 = p1 + (e-s)-2;
         lex_dec_int_large(al, p1, p2, u);
     } else if ((std::tolower(s[1]) == 'o')) {
         // Oct
         s = s + 2;
         unsigned char *p1 = (unsigned char*) get_value(al, (char*)s, 8, loc);
-        unsigned char *p2 = p1 + (e-s);
+        unsigned char *p2 = p1 + (e-s)-2;
         lex_dec_int_large(al, p1, p2, u);
     } else {
         lex_dec_int_large(al, s, e, u);
