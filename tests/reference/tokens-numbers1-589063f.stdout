@@ -78,24 +78,24 @@
 (TOKEN "=") 200:200
 (TOKEN "integer" 12) 202:203
 (TOKEN "+") 204:204
-(TOKEN "imag number" 3j) 205:206
+(TOKEN "imag number" 3.000000j) 205:206
 (NEWLINE) 207:207
 (TOKEN "identifier" i) 208:208
 (TOKEN "=") 210:210
 (TOKEN "integer" 12) 212:213
 (TOKEN "+") 214:214
-(TOKEN "imag number" 3j) 215:216
+(TOKEN "imag number" 3.000000j) 215:216
 (NEWLINE) 217:217
 (TOKEN "identifier" i) 218:218
 (TOKEN "=") 220:220
 (TOKEN "integer" 12) 222:223
 (TOKEN "+") 224:224
-(TOKEN "imag number" 3.14e-10j) 225:233
+(TOKEN "imag number" 0.000000j) 225:233
 (NEWLINE) 234:234
 (TOKEN "identifier" i) 235:235
 (TOKEN "=") 237:237
 (TOKEN "real" 0.120000) 239:241
 (TOKEN "+") 242:242
-(TOKEN "imag number" .001j) 243:247
+(TOKEN "imag number" 0.001000j) 243:247
 (NEWLINE) 248:248
 (EOF) 249:249
