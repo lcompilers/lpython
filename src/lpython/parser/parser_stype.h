@@ -26,6 +26,7 @@ struct IntSuffix {
 
 union YYSTYPE {
     int64_t n;
+    double f;
     Str string;
     IntSuffix int_suffix;
 

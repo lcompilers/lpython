@@ -355,8 +355,7 @@ Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
 #define INTEGER(x, l) make_ConstantInt_t(p.m_a, l, \
         std::stoi(x.int_n.str()), nullptr)
 #define STRING(x, l) make_ConstantStr_t(p.m_a, l, x.c_str(p.m_a), nullptr)
-#define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, \
-        std::stof(x.c_str(p.m_a)), nullptr)
+#define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, x, nullptr)
 #define COMPLEX(x, l) make_ConstantComplex_t(p.m_a, l, \
         0, std::stof(x.int_n.str()), nullptr)
 #define BOOL(x, l) make_ConstantBool_t(p.m_a, l, x, nullptr)
