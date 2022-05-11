@@ -684,7 +684,6 @@ struct _lcompilers_list_i32 {
 };
 
 LFORTRAN_API int8_t* _lcompilers_list_init_i32() {
-    printf("_lcompilers_list_init_i32()\n");
     struct _lcompilers_list_i32 *l;
     l = (struct _lcompilers_list_i32*)malloc(
             sizeof(struct _lcompilers_list_i32));
@@ -696,7 +695,6 @@ LFORTRAN_API int8_t* _lcompilers_list_init_i32() {
 }
 
 LFORTRAN_API void _lcompilers_list_append_i32(int8_t* s, int32_t item) {
-    printf("_lcompilers_list_append_i32(*, %d)\n", item);
     struct _lcompilers_list_i32 *l = (struct _lcompilers_list_i32 *)s;
     if (l->n < l->capacity) {
         l->p[l->n] = item;
@@ -708,7 +706,6 @@ LFORTRAN_API void _lcompilers_list_append_i32(int8_t* s, int32_t item) {
 
 // pos is the index = 1..n
 LFORTRAN_API int32_t _lcompilers_list_item_i32(int8_t* s, int32_t pos) {
-    printf("_lcompilers_list_item_i32(*, %d)\n", pos);
     struct _lcompilers_list_i32 *l = (struct _lcompilers_list_i32 *)s;
     if (pos >= 1 && pos <= l->n) {
         return l->p[pos-1];
