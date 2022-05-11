@@ -119,6 +119,7 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::StringConcat: { return ((ASR::StringConcat_t*)f)->m_type; }
         case ASR::exprType::StringRepeat: { return ((ASR::StringRepeat_t*)f)->m_type; }
         case ASR::exprType::StringLen: { return ((ASR::StringLen_t*)f)->m_type; }
+        case ASR::exprType::StringItem: { return ((ASR::StringItem_t*)f)->m_type; }
         case ASR::exprType::DictConstant: { return ((ASR::DictConstant_t*)f)->m_type; }
         case ASR::exprType::DictLen: { return ((ASR::DictLen_t*)f)->m_type; }
         case ASR::exprType::IntegerBOZ: { return ((ASR::IntegerBOZ_t*)f)->m_type; }
@@ -131,6 +132,9 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::ComplexRe: { return ((ASR::ComplexRe_t*)f)->m_type; }
         case ASR::exprType::ComplexIm: { return ((ASR::ComplexIm_t*)f)->m_type; }
         case ASR::exprType::DictItem: { return ((ASR::DictItem_t*)f)->m_type; }
+        case ASR::exprType::ListItem: { return ((ASR::ListItem_t*)f)->m_type; }
+        case ASR::exprType::ListSection: { return ((ASR::ListSection_t*)f)->m_type; }
+        case ASR::exprType::ListPop: { return ((ASR::ListPop_t*)f)->m_type; }
         default : throw LFortranException("Not implemented");
     }
 }
@@ -282,6 +286,7 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::Var: { return EXPR2VAR(f)->m_value; }
         case ASR::exprType::ImpliedDoLoop: { return ASR::down_cast<ASR::ImpliedDoLoop_t>(f)->m_value; }
         case ASR::exprType::StringLen: { return ASR::down_cast<ASR::StringLen_t>(f)->m_value; }
+        case ASR::exprType::StringItem: { return ASR::down_cast<ASR::StringItem_t>(f)->m_value; }
         case ASR::exprType::DictLen: { return ASR::down_cast<ASR::DictLen_t>(f)->m_value; }
         case ASR::exprType::ListLen: { return ASR::down_cast<ASR::ListLen_t>(f)->m_value; }
         case ASR::exprType::TupleLen: { return ASR::down_cast<ASR::TupleLen_t>(f)->m_value; }
@@ -290,6 +295,9 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::StringRepeat: { return ASR::down_cast<ASR::StringRepeat_t>(f)->m_value; }
         case ASR::exprType::ComplexRe: { return ASR::down_cast<ASR::ComplexRe_t>(f)->m_value; }
         case ASR::exprType::ComplexIm: { return ASR::down_cast<ASR::ComplexIm_t>(f)->m_value; }
+        case ASR::exprType::ListItem: { return ASR::down_cast<ASR::ListItem_t>(f)->m_value; }
+        case ASR::exprType::ListSection: { return ASR::down_cast<ASR::ListSection_t>(f)->m_value; }
+        case ASR::exprType::ListPop: { return ASR::down_cast<ASR::ListPop_t>(f)->m_value; }
         case ASR::exprType::DictItem: // Drop through
         case ASR::exprType::ArrayConstant: // Drop through
         case ASR::exprType::IntegerConstant: // Drop through
@@ -1075,6 +1083,10 @@ ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
             ASR::symbol_t *v, Vec<ASR::call_arg_t>& args,
             SymbolTable* current_scope, Allocator& al,
             const std::function<void (const std::string &, const Location &)> err);
+
+// Creates an Cast node and automatically computes the `value` if it can be computed at compile time
+ASR::asr_t* make_Cast_t_value(Allocator &al, const Location &a_loc,
+            ASR::expr_t* a_arg, ASR::cast_kindType a_kind, ASR::ttype_t* a_type);
 
 } // namespace ASRUtils
 

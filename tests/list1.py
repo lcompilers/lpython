@@ -20,5 +20,8 @@ def test_List():
     a.append(10)
     a.remove(1)
     a.insert(2, 13)
+    a = a[0:2]
+    d = a.pop()
+    d = a.pop(2)
     a += [4, 5]
     a = [6, 7] + a

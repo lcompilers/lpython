@@ -724,7 +724,63 @@ ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
     }
 }
 
-    } // namespace ASRUtils
+ASR::asr_t* make_Cast_t_value(Allocator &al, const Location &a_loc,
+            ASR::expr_t* a_arg, ASR::cast_kindType a_kind, ASR::ttype_t* a_type) {
+
+    ASR::expr_t* value = nullptr;
+
+    if (ASRUtils::expr_value(a_arg)) {
+        // calculate value
+        if (a_kind == ASR::cast_kindType::RealToInteger) {
+            int64_t v = ASR::down_cast<ASR::RealConstant_t>(
+                        ASRUtils::expr_value(a_arg))->m_r;
+            value = ASR::down_cast<ASR::expr_t>(
+                    ASR::make_IntegerConstant_t(al, a_loc, v, a_type));
+        } else if (a_kind == ASR::cast_kindType::RealToReal) {
+            double v = ASR::down_cast<ASR::RealConstant_t>(
+                       ASRUtils::expr_value(a_arg))->m_r;
+            value = ASR::down_cast<ASR::expr_t>(
+                    ASR::make_RealConstant_t(al, a_loc, v, a_type));
+        } else if (a_kind == ASR::cast_kindType::RealToComplex) {
+            double double_value = ASR::down_cast<ASR::RealConstant_t>(
+                                  ASRUtils::expr_value(a_arg))->m_r;
+            value = ASR::down_cast<ASR::expr_t>(ASR::make_ComplexConstant_t(al, a_loc,
+                        double_value, 0, a_type));
+        } else if (a_kind == ASR::cast_kindType::IntegerToReal) {
+            // TODO: Clashes with the pow functions
+            // int64_t value = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(a_arg))->m_n;
+            // value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantReal_t(al, a_loc, (double)v, a_type));
+        } else if (a_kind == ASR::cast_kindType::IntegerToComplex) {
+            int64_t int_value = ASR::down_cast<ASR::IntegerConstant_t>(
+                                ASRUtils::expr_value(a_arg))->m_n;
+            value = ASR::down_cast<ASR::expr_t>(ASR::make_ComplexConstant_t(al, a_loc,
+                        (double)int_value, 0, a_type));
+        } else if (a_kind == ASR::cast_kindType::IntegerToInteger) {
+            // TODO: implement
+            // int64_t v = ASR::down_cast<ASR::ConstantInteger_t>(ASRUtils::expr_value(a_arg))->m_n;
+            // value = ASR::down_cast<ASR::expr_t>(ASR::make_ConstantInteger_t(al, a_loc, v, a_type));
+        } else if (a_kind == ASR::cast_kindType::IntegerToLogical) {
+            // TODO: implement
+        } else if (a_kind == ASR::cast_kindType::ComplexToComplex) {
+            ASR::ComplexConstant_t* value_complex = ASR::down_cast<ASR::ComplexConstant_t>(
+                        ASRUtils::expr_value(a_arg));
+            double real = value_complex->m_re;
+            double imag = value_complex->m_im;
+            value = ASR::down_cast<ASR::expr_t>(
+                    ASR::make_ComplexConstant_t(al, a_loc, real, imag, a_type));
+        } else if (a_kind == ASR::cast_kindType::ComplexToReal) {
+            ASR::ComplexConstant_t* value_complex = ASR::down_cast<ASR::ComplexConstant_t>(
+                        ASRUtils::expr_value(a_arg));
+            double real = value_complex->m_re;
+            value = ASR::down_cast<ASR::expr_t>(
+                    ASR::make_RealConstant_t(al, a_loc, real, a_type));
+        }
+    }
+
+    return ASR::make_Cast_t(al, a_loc, a_arg, a_kind, a_type, value);
+}
+
+} // namespace ASRUtils
 
 
 } // namespace LFortran

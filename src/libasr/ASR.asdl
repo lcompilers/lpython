@@ -246,6 +246,7 @@ expr
     | StringConcat(expr left, expr right, ttype type, expr? value)
     | StringRepeat(expr left, expr right, ttype type, expr? value)
     | StringLen(expr arg, ttype type, expr? value)
+    | StringItem(expr arg, expr idx, ttype type, expr? value)
 
     | DictConstant(expr* keys, expr* values, ttype type)
     | DictLen(expr arg, ttype type, expr? value)
@@ -259,13 +260,28 @@ expr
     | ComplexRe(expr arg, ttype type, expr? value)
     | ComplexIm(expr arg, ttype type, expr? value)
     | DictItem(symbol a, expr key, expr? default, ttype type)
-
+    | ListItem(symbol a, expr pos, ttype type, expr? value)
+    | ListSection(symbol a, array_index section, ttype type, expr? value)
+    | ListPop(symbol a, expr? index, ttype type, expr? value)
 
 -- `len` in Character:
 -- >=0 ... the length of the string, known at compile time
 --  -1 ... character(*), i.e., inferred at runtime
 --  -2 ... character(:), allocatable (possibly we might use -1 for that also)
 --  -3 ... character(n+3), i.e., a runtime expression stored in `len_expr`
+
+-- kind: The `kind` member selects the kind of a given type. We currently
+-- support the following:
+-- Integer kinds: 1 (i8), 2 (i16), 4 (i32), 8 (i64)
+-- Real kinds: 4 (f32), 8 (f64)
+-- Complex kinds: 4 (c32), 8 (c64)
+-- Character kinds: 1 (utf8 string)
+-- Logical kinds: 1, 2, 4: (boolean represented by 1, 2, 4 bytes; the default
+--     kind is 4, just like the default integer kind, consistent with Python
+--     and Fortran: in Python "Booleans in Python are implemented as a subclass
+--     of integers", in Fortran the "default logical kind has the same storage
+--     size as the default integer"; we currently use kind=4 as default
+--     integer, so we also use kind=4 for the default logical.)
 
 ttype
     = Integer(int kind, dimension* dims)
