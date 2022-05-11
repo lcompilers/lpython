@@ -10,33 +10,33 @@
 (TOKEN "identifier" i) 17:17
 (TOKEN "=") 19:19
 (TOKEN "-") 21:21
-(TOKEN "integer" 291 Hex) 22:26
+(TOKEN "integer" 291) 22:26
 (NEWLINE) 27:27
 (TOKEN "identifier" i) 28:28
 (TOKEN "=") 30:30
-(TOKEN "integer" 6844 Hex) 32:37
+(TOKEN "integer" 6844) 32:37
 (NEWLINE) 38:38
 (TOKEN "identifier" i) 39:39
 (TOKEN "=") 41:41
-(TOKEN "integer" 6844 Hex) 43:48
+(TOKEN "integer" 6844) 43:48
 (NEWLINE) 49:49
 (TOKEN "identifier" i) 50:50
 (TOKEN "=") 52:52
 (TOKEN "-") 54:54
-(TOKEN "integer" 83 Oct) 55:59
+(TOKEN "integer" 8) 55:59
 (NEWLINE) 60:60
 (TOKEN "identifier" i) 61:61
 (TOKEN "=") 63:63
-(TOKEN "integer" 87 Oct) 65:70
+(TOKEN "integer" 87) 65:70
 (NEWLINE) 71:71
 (TOKEN "identifier" i) 72:72
 (TOKEN "=") 74:74
 (TOKEN "-") 76:76
-(TOKEN "integer" 13 Bin) 77:82
+(TOKEN "integer" 13) 77:82
 (NEWLINE) 83:83
 (TOKEN "identifier" i) 84:84
 (TOKEN "=") 86:86
-(TOKEN "integer" 13 Bin) 88:93
+(TOKEN "integer" 13) 88:93
 (NEWLINE) 94:94
 (TOKEN "identifier" i) 95:95
 (TOKEN "=") 97:97
