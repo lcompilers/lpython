@@ -1138,8 +1138,6 @@ public:
         llvm::Value *idx = tmp;
         this->visit_expr_wrapper(x.m_arg, true);
         llvm::Value *str = tmp;
-        llvm::AllocaInst *parg = builder->CreateAlloca(character_type, nullptr);
-        builder->CreateStore(tmp, parg);
         tmp = lfortran_str_copy(str, idx, idx);
     }
 
