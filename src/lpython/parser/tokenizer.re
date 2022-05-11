@@ -274,8 +274,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             hex_digit = "0"[xX][0-9a-fA-F]+;
             char =  [a-zA-Z_];
             name = char (char | digit)*;
-            significand = (digit+"."digit*) | ("."digit+);
-            exp = [edED][-+]? digit+;
+            significand = (digit+ "." digit*) | ("." digit+);
+            exp = [eE][-+]? digit+;
             integer = digit+ | oct_digit | bin_digit | hex_digit;
             real = (significand exp?) | (digit+ exp);
             imag_number = (real | digit+)[jJ];
