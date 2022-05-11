@@ -19,16 +19,10 @@ struct Args {
     LPython::AST::arguments_t arguments;
 };
 
-struct IntSuffix {
-    BigInt::BigInt int_n;
-    Str int_kind;
-};
-
 union YYSTYPE {
     int64_t n;
     double f;
     Str string;
-    IntSuffix int_suffix;
 
     LPython::AST::ast_t* ast;
     Vec<LPython::AST::ast_t*> vec_ast;
