@@ -1491,7 +1491,7 @@ public:
             } else if (ASR::is_a<ASR::Character_t>(*type)) {
                 ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                                                         4, nullptr, 0));
-                // If left is not present, assign it to 0 (the beginning of the string)
+                // If left is not present, assign it to the first ASR index (0 + 1) in string
                 if (ai.m_left == nullptr) {
                     ai.m_left = ASR::down_cast<ASR::expr_t>(
                     ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int_type));
