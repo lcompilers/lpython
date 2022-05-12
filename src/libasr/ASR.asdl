@@ -247,7 +247,7 @@ expr
     | StringRepeat(expr left, expr right, ttype type, expr? value)
     | StringLen(expr arg, ttype type, expr? value)
     | StringItem(expr arg, expr idx, ttype type, expr? value)
-    | StringSection(expr arg, array_index section, ttype type, expr? value)
+    | StringSection(expr arg, expr start, expr end, expr step, ttype type, expr? value)
 
     | DictConstant(expr* keys, expr* values, ttype type)
     | DictLen(expr arg, ttype type, expr? value)
