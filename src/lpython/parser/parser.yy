@@ -693,6 +693,7 @@ expr
     | TK_FALSE { $$ = BOOL(false, @$); }
     | "(" expr ")" { $$ = $2; }
     | function_call { $$ = $1; }
+    | "(" with_item_list "," expr ")" { $$ = LIST($2, @$); }
     | "[" expr_list_opt "]" { $$ = LIST($2, @$); }
     | "[" expr_list "," "]" { $$ = LIST($2, @$); }
     | "{" expr_list "}" { $$ = SET($2, @$); }
