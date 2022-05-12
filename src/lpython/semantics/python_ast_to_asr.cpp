@@ -1489,9 +1489,17 @@ public:
                         type, nullptr);
                 return;
             } else if (ASR::is_a<ASR::Character_t>(*type)) {
-                // If step is not present, assign it to 1 (step should be always present)
                 ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                                                         4, nullptr, 0));
+                if (ai.m_left == nullptr) {
+                    ai.m_left = ASR::down_cast<ASR::expr_t>(
+                    ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int_type));
+                }
+                if (ai.m_right == nullptr) {
+                    ai.m_right = ASR::down_cast<ASR::expr_t>(
+                    ASR::make_IntegerConstant_t(al, x.base.base.loc, 0, int_type));
+                }
+                // If step is not present, assign it to 1 (step should be always present)
                 if (ai.m_step == nullptr) {
                     ai.m_step = ASR::down_cast<ASR::expr_t>(
                     ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int_type));
