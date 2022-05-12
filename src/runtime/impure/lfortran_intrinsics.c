@@ -688,8 +688,8 @@ LFORTRAN_API int8_t* _lcompilers_list_init_i32() {
     l = (struct _lcompilers_list_i32*)malloc(
             sizeof(struct _lcompilers_list_i32));
     l->n = 0;
-    l->capacity = 1;
-    l->p = (int32_t*)malloc(sizeof(int32_t));
+    l->capacity = 4;
+    l->p = (int32_t*)malloc(l->capacity*sizeof(int32_t));
     return (int8_t*)l;
 }
 
