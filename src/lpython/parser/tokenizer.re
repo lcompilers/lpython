@@ -272,8 +272,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             integer = digit+ | oct_digit | bin_digit | hex_digit;
             real = (significand exp?) | (digit+ exp);
             imag_number = (real | digit+)[jJ];
-            string1 = '"' ('""'|[^"\x00])* '"';
-            string2 = "'" ("''"|[^'\x00])* "'";
+            string1 = '"' ('\\"'|[^"\x00])* '"';
+            string2 = "'" ("\\'"|[^'\x00])* "'";
             comment = "#" [^\n\x00]*;
             // docstring = newline whitespace? string1 | string2;
             ws_comment = whitespace? comment? newline;
