@@ -272,8 +272,10 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             integer = digit+ | oct_digit | bin_digit | hex_digit;
             real = (significand exp?) | (digit+ exp);
             imag_number = (real | digit+)[jJ];
-            string1 = '"' ('""'|[^"\x00])* '"';
-            string2 = "'" ("''"|[^'\x00])* "'";
+            string1 = '"' ('\\"'|[^"\x00])* '"';
+            string2 = "'" ("\\'"|[^'\x00])* "'";
+            string3 = '"""' ( '\\"' | '"' [^"\x00] | '""' [^"\x00] | [^"\x00] )* '"""';
+            string4 = "'''" ( "\\'" | "'" [^'\x00] | "''" [^'\x00] | [^'\x00] )* "'''";
             comment = "#" [^\n\x00]*;
             // docstring = newline whitespace? string1 | string2;
             ws_comment = whitespace? comment? newline;
@@ -463,6 +465,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
 
             string1 { token_str(yylval.string); RET(TK_STRING) }
             string2 { token_str(yylval.string); RET(TK_STRING) }
+            string3 { token_str3(yylval.string); RET(TK_STRING) }
+            string4 { token_str3(yylval.string); RET(TK_STRING) }
 
             name { token(yylval.string); RET(TK_NAME) }
         */
