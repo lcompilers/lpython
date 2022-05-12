@@ -1491,10 +1491,12 @@ public:
             } else if (ASR::is_a<ASR::Character_t>(*type)) {
                 ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                                                         4, nullptr, 0));
+                // If left is not present, assign it to 0 (the beginning of the string)
                 if (ai.m_left == nullptr) {
                     ai.m_left = ASR::down_cast<ASR::expr_t>(
                     ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int_type));
                 }
+                // If right is not present, then assign it to the last ASR index (-1 + 1) in string
                 if (ai.m_right == nullptr) {
                     ai.m_right = ASR::down_cast<ASR::expr_t>(
                     ASR::make_IntegerConstant_t(al, x.base.base.loc, 0, int_type));
