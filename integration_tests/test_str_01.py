@@ -32,6 +32,10 @@ def test_str_slice():
     a = "012345"
     assert a[2:4] == "23"
     assert a[2:3] == a[2]
+    assert a[:4] == "0123"
+    assert a[3:] == "345"
+    # TODO:
+    # assert a[0:5:-1] == ""
 
 def test_str_repeat():
     a: str
