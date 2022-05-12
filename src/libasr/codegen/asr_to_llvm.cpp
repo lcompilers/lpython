@@ -1183,6 +1183,20 @@ public:
         tmp = lfortran_str_copy(str, idx, idx);
     }
 
+    void visit_StringSection(const ASR::StringSection_t& x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_arg, true);
+        llvm::Value *str = tmp;
+        this->visit_expr_wrapper(x.m_start, true);
+        llvm::Value *left = tmp;
+        this->visit_expr_wrapper(x.m_end, true);
+        llvm::Value *right = tmp;
+        tmp = lfortran_str_copy(str, left, right);   
+    }
+
     void visit_DerivedRef(const ASR::DerivedRef_t& x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
