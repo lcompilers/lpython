@@ -175,7 +175,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> id
 %type <ast> expr
 %type <vec_ast> expr_list
-%type <vec_ast> expr_list_opt
+//%type <vec_ast> expr_list_opt
 %type <ast> tuple_list
 %type <ast> statement
 %type <vec_ast> statements
@@ -190,9 +190,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> raise_statement
 %type <ast> assert_statement
 %type <ast> import_statement
-%type <ast> global_statement
+//%type <ast> global_statement
 %type <ast> if_statement_single
-%type <ast> nonlocal_statement
+//%type <ast> nonlocal_statement
 %type <ast> assignment_statement
 %type <vec_ast> target_list
 %type <vec_ast> target_item_list
@@ -226,21 +226,22 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_key_val> dict_list
 %type <ast> slice_item
 %type <vec_ast> slice_item_list
-%type <ast> with_statement
-%type <withitem> with_item
-%type <vec_withitem> with_item_list
+//%type <ast> with_statement
+//%type <withitem> with_item
+//%type <vec_withitem> with_item_list
 %type <ast> async_func_def
 %type <ast> async_for_stmt
-%type <ast> async_with_stmt
-%type <keyword> keyword_item
-%type <vec_keyword> keyword_items
-%type <ast> function_call
-%type <ast> primary
+//%type <ast> async_with_stmt
+//%type <keyword> keyword_item
+//%type <vec_keyword> keyword_items
+//%type <ast> function_call
+//%type <ast> primary
 %type <vec_ast> sep
 %type <ast> sep_one
 
 // Precedence
 
+%left ","
 %precedence ":="
 %left "or"
 %left "and"
@@ -257,7 +258,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %precedence AWAIT
 %precedence "."
 
-%start units
+%start expr
 
 %%
 
@@ -270,419 +271,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 
 // Higher %dprec means higher precedence
 
-units
-    : units script_unit   { RESULT($2); }
-    | script_unit         { RESULT($1); }
-    | sep
-    ;
-
-script_unit
-    : statement
-    ;
-
-statements
-    : TK_INDENT statements1 TK_DEDENT { $$ = $2; }
-    ;
-
-statements1
-    : statements1 statement { $$ = $1; LIST_ADD($$, $2); }
-    | statement { LIST_NEW($$); LIST_ADD($$, $1); }
-    ;
-
-statement
-    : single_line_statement sep
-    | multi_line_statement
-    ;
-
-single_line_statement
-    : expression_statment
-    | assert_statement
-    | assignment_statement
-    | augassign_statement
-    | ann_assignment_statement
-    | pass_statement
-    | delete_statement
-    | return_statement
-    | raise_statement
-    | break_statement
-    | continue_statement
-    | import_statement
-    | global_statement
-    | if_statement_single
-    | nonlocal_statement
-    ;
-
-multi_line_statement
-    : if_statement
-    | for_statement
-    | try_statement
-    | with_statement
-    | function_def
-    | class_def
-    | async_func_def
-    | async_for_stmt
-    | async_with_stmt
-    ;
-
-expression_statment
-    : expr { $$ = EXPR_01($1, @$); }
-    ;
-
-pass_statement
-    : KW_PASS { $$ = PASS(@$); }
-    ;
-
-break_statement
-    : KW_BREAK { $$ = BREAK(@$); }
-    ;
-
-continue_statement
-    : KW_CONTINUE { $$ = CONTINUE(@$); }
-    ;
-
-raise_statement
-    : KW_RAISE { $$ = RAISE_01(@$); }
-    | KW_RAISE expr { $$ = RAISE_02($2, @$); }
-    | KW_RAISE expr KW_FROM expr { $$ = RAISE_03($2, $4, @$); }
-    ;
-
-assert_statement
-    : KW_ASSERT expr { $$ = ASSERT_01($2, @$); }
-    | KW_ASSERT expr "," expr { $$ = ASSERT_02($2, $4, @$); }
-    ;
-
-target
-    : id { $$ = TARGET_ID($1, @$); }
-    | expr "." id { $$ = TARGET_ATTR($1, $3, @$); }
-    | id "[" tuple_list "]" { $$ = TARGET_SUBSCRIPT($1, $3, @$); }
-    ;
-
-target_item_list
-    : target_item_list "," target { $$ = $1; LIST_ADD($$, $3); }
-    | target "," target { LIST_NEW($$); LIST_ADD($$, $1); LIST_ADD($$, $3); }
-    ;
-
-target_item
-    : target_item_list { $$ = TUPLE_01($1, @$); }
-    ;
-
-target_list
-    : target_list target_item "=" { $$ = $1; LIST_ADD($$, $2); }
-    | target_item "=" { LIST_NEW($$); LIST_ADD($$, $1); }
-    | target_list target "=" { $$ = $1; LIST_ADD($$, $2); }
-    | target "=" { LIST_NEW($$); LIST_ADD($$, $1); }
-    ;
-
-assignment_statement
-    : target_list expr { $$ = ASSIGNMENT($1, $2, @$); }
-    ;
-
-augassign_statement
-    : target augassign_op expr { $$ = AUGASSIGN_01($1, $2, $3, @$); }
-    ;
-
-augassign_op
-    : "+=" { $$ = OPERATOR(Add, @$); }
-    | "-=" { $$ = OPERATOR(Sub, @$); }
-    | "*=" { $$ = OPERATOR(Mult, @$); }
-    | "/=" { $$ = OPERATOR(Div, @$); }
-    | "%=" { $$ = OPERATOR(Mod, @$); }
-    | "&=" { $$ = OPERATOR(BitAnd, @$); }
-    | "|=" { $$ = OPERATOR(BitOr, @$); }
-    | "^=" { $$ = OPERATOR(BitXor, @$); }
-    | "<<=" { $$ = OPERATOR(LShift, @$); }
-    | ">>=" { $$ = OPERATOR(RShift, @$); }
-    | "**=" { $$ = OPERATOR(Pow, @$); }
-    | "//=" { $$ = OPERATOR(FloorDiv, @$); }
-    ;
-
-ann_assignment_statement
-    : target ":" expr { $$ = ANNASSIGN_01($1, $3, @$); }
-    | target ":" expr "=" expr { $$ = ANNASSIGN_02($1, $3, $5, @$); }
-    ;
-
-del_target
-    : id { $$ = DEL_TARGET_ID($1, @$); }
-    ;
-
-del_target_list
-    : del_target_list "," del_target { $$ = $1; LIST_ADD($$, $3); }
-    | del_target { LIST_NEW($$); LIST_ADD($$, $1); }
-    ;
-
-delete_statement
-    : KW_DEL del_target_list { $$ = DELETE($2, @$); }
-    ;
-
-return_statement
-    : KW_RETURN { $$ = RETURN_01(@$); }
-    | KW_RETURN expr { $$ = RETURN_02($2, @$); }
-    ;
-
-module
-    : module "." id { $$ = $1; LIST_ADD($$, $3); }
-    | id { LIST_NEW($$); LIST_ADD($$, $1); }
-    ;
-
-module_as_id
-    : module { $$ = MOD_ID_01($1, @$); }
-    | module KW_AS id { $$ = MOD_ID_02($1, $3, @$); }
-    | "*" { $$ = MOD_ID_03("*", @$); }
-    ;
-
-module_item_list
-    : module_item_list "," module_as_id { $$ = $1; PLIST_ADD($$, $3); }
-    | module_as_id { LIST_NEW($$); PLIST_ADD($$, $1); }
-    ;
-
-dot_list
-    : dot_list "." { DOT_COUNT_01(); }
-    | "." { DOT_COUNT_01(); }
-    | dot_list "..." { DOT_COUNT_02(); }
-    | "..." { DOT_COUNT_02(); }
-    ;
-
-import_statement
-    : KW_IMPORT module_item_list { $$ = IMPORT_01($2, @$); }
-    | KW_FROM module KW_IMPORT module_item_list {
-        $$ = IMPORT_02($2, $4, @$); }
-    | KW_FROM module KW_IMPORT "(" module_item_list ")" {
-        $$ = IMPORT_02($2, $5, @$); }
-    | KW_FROM dot_list KW_IMPORT module_item_list {
-        $$ = IMPORT_03($4, @$); }
-    | KW_FROM dot_list module KW_IMPORT module_item_list {
-        $$ = IMPORT_04($3, $5, @$); }
-    | KW_FROM dot_list KW_IMPORT "(" module_item_list ")" {
-        $$ = IMPORT_03($5, @$); }
-    | KW_FROM dot_list module KW_IMPORT "(" module_item_list ")" {
-        $$ = IMPORT_04($3, $6, @$); }
-    ;
-
-global_statement
-    : KW_GLOBAL expr_list { $$ = GLOBAL($2, @$); }
-    ;
-
-if_statement_single
-    : KW_IF expr TK_COLON single_line_statement { $$ = IF_01($2, $4, @$); }
-    ;
-
-nonlocal_statement
-    : KW_NONLOCAL expr_list { $$ = NON_LOCAL($2, @$); }
-    ;
-
-elif_statement
-    : KW_ELIF expr ":" sep statements { $$ = IF_STMT_01($2, $5, @$); }
-    | KW_ELIF expr ":" sep statements KW_ELSE ":" sep statements {
-        $$ = IF_STMT_02($2, $5, $9, @$); }
-    | KW_ELIF expr ":" sep statements elif_statement {
-        $$ = IF_STMT_03($2, $5, $6, @$); }
-    ;
-
-if_statement
-    : KW_IF expr ":" sep statements { $$ = IF_STMT_01($2, $5, @$); }
-    | KW_IF expr ":" sep statements KW_ELSE ":" sep statements {
-        $$ = IF_STMT_02($2, $5, $9, @$); }
-    | KW_IF expr ":" sep statements elif_statement {
-        $$ = IF_STMT_03($2, $5, $6, @$); }
-    ;
-
-for_statement
-    : KW_FOR target KW_IN expr ":" sep statements { $$ = FOR_01($2, $4, $7, @$); }
-    | KW_FOR target KW_IN expr ":" sep statements KW_ELSE ":" sep statements {
-        $$ = FOR_02($2, $4, $7, $11, @$); }
-    ;
-
-except_statement
-    : KW_EXCEPT ":" sep statements { $$ = EXCEPT_01($4, @$); }
-    | KW_EXCEPT expr ":" sep statements { $$ = EXCEPT_02($2, $5, @$); }
-    | KW_EXCEPT expr KW_AS id ":" sep statements { $$ = EXCEPT_03($2, $4, $7, @$); }
-    ;
-except_list
-    : except_list except_statement { $$ = $1; LIST_ADD($$, $2); }
-    | except_statement { LIST_NEW($$); LIST_ADD($$, $1); }
-    ;
-
-try_statement
-    : KW_TRY ":" sep statements except_list { $$ = TRY_01($4, $5, @$); }
-    | KW_TRY ":" sep statements except_list KW_ELSE ":" sep statements {
-        $$ = TRY_02($4, $5, $9, @$); }
-    | KW_TRY ":" sep statements except_list KW_FINALLY ":" sep statements {
-        $$ = TRY_03($4, $5, $9, @$); }
-    | KW_TRY ":" sep statements except_list KW_ELSE ":" sep statements KW_FINALLY
-        ":" sep statements { $$ = TRY_04($4, $5, $9, $13, @$); }
-    | KW_TRY ":" sep statements KW_FINALLY ":" sep statements { $$ = TRY_05($4, $8, @$); }
-    ;
-
-with_item
-    : expr { $$ = WITH_ITEM_01($1, @$); }
-    | expr KW_AS target { $$ = WITH_ITEM_02($1, $3, @$); }
-    ;
-
-with_item_list
-    : with_item_list "," with_item { $$ = $1; PLIST_ADD($$, $3); }
-    | with_item { LIST_NEW($$); PLIST_ADD($$, $1); }
-    ;
-
-with_statement
-    : KW_WITH with_item_list ":" sep statements { $$ = WITH($2, $5, @$); }
-    | KW_WITH "(" with_item_list "," ")" ":" sep statements {
-        $$ = WITH($3, $8, @$); }
-    ;
-
-decorators_opt
-    : decorators { $$ = $1; }
-    | %empty { LIST_NEW($$); }
-    ;
-
-decorators
-    : decorators "@" expr TK_NEWLINE { $$ = $1; LIST_ADD($$, $3); }
-    | "@" expr TK_NEWLINE { LIST_NEW($$); LIST_ADD($$, $2); }
-    ;
-
-parameter
-    : id { $$ = ARGS_01($1, @$); }
-    | id ":" expr { $$ = ARGS_02($1, $3, @$); }
-    ;
-
-defparameter
-    : parameter { $$ = $1; }
-    // TODO: Expose `expr` to AST
-    | parameter "=" expr { $$ = $1; }
-    ;
-
-defparameter_list
-    : defparameter_list "," defparameter { $$ = $1; PLIST_ADD($$, $3); }
-    | defparameter { LIST_NEW($$); PLIST_ADD($$, $1); }
-    ;
-
-parameter_list_starargs
-    : "*" parameter { $$ = STAR_ARGS_01($2, @$); }
-    | "*" parameter "," defparameter_list { $$ = STAR_ARGS_02($2, $4, @$); }
-    | "*" parameter "," defparameter_list "," "**" parameter {
-        $$ = STAR_ARGS_03($2, $4, $7, @$); }
-    | "*" parameter "," "**" parameter { $$ = STAR_ARGS_04($2, $5, @$); }
-    | "**" parameter { $$ = STAR_ARGS_05($2, @$); }
-    | defparameter_list "," "*" parameter { $$ = STAR_ARGS_06($1, $4, @$); }
-    | defparameter_list "," "*" parameter "," defparameter_list {
-        $$ = STAR_ARGS_07($1, $4, $6, @$); }
-    | defparameter_list "," "*" parameter "," defparameter_list "," "**" parameter {
-        $$ = STAR_ARGS_08($1, $4, $6, $9, @$); }
-    | defparameter_list "," "*" parameter "," "**" parameter {
-        $$ = STAR_ARGS_09($1, $4, $7, @$); }
-    | defparameter_list "," "**" parameter { $$ = STAR_ARGS_10($1, $4, @$); }
-    ;
-
-parameter_list_opt
-    : defparameter_list { $$ = FUNC_ARG_LIST_01($1, @$); }
-    | parameter_list_starargs { $$ = $1; }
-    | %empty { $$ = FUNC_ARG_LIST_02(@$); }
-    ;
-
-function_def
-    : decorators_opt KW_DEF id "(" parameter_list_opt ")" ":" sep statements {
-        $$ = FUNCTION_01($1, $3, $5, $9, @$); }
-    | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
-        sep statements { $$ = FUNCTION_02($1, $3, $5, $8, $11, @$); }
-    ;
-
-class_def
-    : decorators_opt KW_CLASS id ":" sep statements { $$ = CLASS_01($1, $3, $6, @$); }
-    | decorators_opt KW_CLASS id "(" expr_list_opt ")" ":" sep statements {
-        $$ = CLASS_02($1, $3, $5, $9, @$); }
-    ;
-
-async_func_def
-    : decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":" sep
-        statements { $$ = ASYNC_FUNCTION_01($1, $4, $6, $10, @$); }
-    | decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
-        sep statements { $$ = ASYNC_FUNCTION_02($1, $4, $6, $9, $12, @$); }
-    | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":" sep
-        statements { $$ = ASYNC_FUNCTION_03($3, $5, $9, @$); }
-    | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
-        sep statements { $$ = ASYNC_FUNCTION_04($3, $5, $8, $11, @$); }
-    ;
-
-async_for_stmt
-    : KW_ASYNC KW_FOR target KW_IN expr ":" sep statements {
-        $$ = ASYNC_FOR_01($3, $5, $8, @$); }
-    | KW_ASYNC KW_FOR target KW_IN expr ":" sep statements KW_ELSE ":" sep
-        statements { $$ = ASYNC_FOR_02($3, $5, $8, $12, @$); }
-    ;
-
-async_with_stmt
-    : KW_ASYNC KW_WITH with_item_list ":" sep statements {
-        $$ = ASYNC_WITH($3, $6, @$); }
-    | KW_ASYNC KW_WITH "(" with_item_list "," ")" ":" sep statements {
-        $$ = ASYNC_WITH($4, $9, @$); }
-    ;
-
-slice_item_list
-    : slice_item_list "," slice_item { $$ = $1; LIST_ADD($$, $3); }
-    | slice_item { LIST_NEW($$); LIST_ADD($$, $1); }
-
-slice_item
-    : ":"                    { $$ = SLICE_01(nullptr, nullptr, nullptr, @$); }
-    | expr ":"               { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
-    | ":" expr               { $$ = SLICE_01(nullptr,      $2, nullptr, @$); }
-    | expr ":" expr          { $$ = SLICE_01(     $1,      $3, nullptr, @$); }
-    | ":" ":"                   { $$ = SLICE_01(nullptr, nullptr, nullptr, @$); }
-    | ":" ":" expr           { $$ = SLICE_01(nullptr, nullptr,      $3, @$); }
-    | expr ":" ":"           { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
-    | ":" expr ":"           { $$ = SLICE_01(nullptr,      $2, nullptr, @$); }
-    | expr ":" ":" expr      { $$ = SLICE_01(     $1, nullptr,      $4, @$); }
-    | ":" expr ":" expr      { $$ = SLICE_01(nullptr,      $2,      $4, @$); }
-    | expr ":" expr ":"      { $$ = SLICE_01(     $1,      $3, nullptr, @$); }
-    | expr ":" expr ":" expr { $$ = SLICE_01(     $1,      $3,      $5, @$); }
-    | expr                   { $$ = $1; }
-    ;
-
-expr_list_opt
-    : expr_list { $$ = $1; }
-    | %empty { LIST_NEW($$); }
-    ;
-
-expr_list
-    : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }
-    | expr { LIST_NEW($$); LIST_ADD($$, $1); }
-    ;
-
-dict
-    : expr ":" expr { $$ = DICT_EXPR($1, $3, @$); }
-    ;
-
-dict_list
-    : dict_list "," dict { $$ = $1; LIST_ADD($$, $3); }
-    | dict { LIST_NEW($$); LIST_ADD($$, $1); }
-    ;
-
-tuple_list
-    : slice_item_list { $$ = TUPLE($1, @$); }
-    ;
-
-keyword_item
-    : id "=" expr { $$ = CALL_KEYWORD_01($1, $3, @$); }
-    | "**" expr { $$ = CALL_KEYWORD_02($2, @$); }
-    ;
-
-keyword_items
-    : keyword_items "," keyword_item { $$ = $1; PLIST_ADD($$, $3); }
-    | keyword_item { LIST_NEW($$); PLIST_ADD($$, $1); }
-    ;
-
-primary
-    : id { $$ = $1; }
-    | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
-    ;
-
-function_call
-    : primary "(" expr_list_opt ")" { $$ = CALL_01($1, $3, @$); }
-    | primary "(" expr_list "," keyword_items ")" {
-        $$ = CALL_02($1, $3, $5, @$); }
-    | primary "(" keyword_items "," expr_list ")" {
-        $$ = CALL_02($1, $5, $3, @$); }
-    | primary "(" keyword_items ")" { $$ = CALL_03($1, $3, @$); }
-    ;
-
 expr
     : id { $$ = $1; }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
@@ -692,17 +280,9 @@ expr
     | TK_TRUE { $$ = BOOL(true, @$); }
     | TK_FALSE { $$ = BOOL(false, @$); }
     | "(" expr ")" { $$ = $2; }
-    | function_call { $$ = $1; }
-    | "(" with_item_list "," expr ")" { $$ = LIST($2, @$); }
-    | "[" expr_list_opt "]" { $$ = LIST($2, @$); }
-    | "[" expr_list "," "]" { $$ = LIST($2, @$); }
-    | "{" expr_list "}" { $$ = SET($2, @$); }
-    | "{" expr_list "," "}" { $$ = SET($2, @$); }
-    | id "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
-    | TK_STRING "[" tuple_list "]" { $$ = SUBSCRIPT_02($1, $3, @$); }
+    | expr "," expr { $$ = LIST($1, @$); }
     | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
     | "{" "}" { $$ = DICT_01(@$); }
-    | "{" dict_list "}" { $$ = DICT_02($2, @$); }
     | KW_AWAIT expr %prec AWAIT { $$ = AWAIT($2, @$); }
     | id ":=" expr { $$ = NAMEDEXPR($1, $3, @$); }
     | "*" expr { $$ = STARRED_ARG($2, @$); }
