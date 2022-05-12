@@ -688,20 +688,19 @@ LFORTRAN_API int8_t* _lcompilers_list_init_i32() {
     l = (struct _lcompilers_list_i32*)malloc(
             sizeof(struct _lcompilers_list_i32));
     l->n = 0;
-    // TODO:
-    l->capacity = 1024;
-    l->p = (int32_t*)malloc(1024*sizeof(int32_t));
+    l->capacity = 1;
+    l->p = (int32_t*)malloc(sizeof(int32_t));
     return (int8_t*)l;
 }
 
 LFORTRAN_API void _lcompilers_list_append_i32(int8_t* s, int32_t item) {
     struct _lcompilers_list_i32 *l = (struct _lcompilers_list_i32 *)s;
-    if (l->n < l->capacity) {
-        l->p[l->n] = item;
-        l->n++;
-    } else {
-        printf("Must reallocate\n");
+    if (l->n == l->capacity) {
+        l->capacity = 2*l->capacity;
+        l->p = realloc(l->p, sizeof(int32_t)*l->capacity);
     }
+    l->p[l->n] = item;
+    l->n++;
 }
 
 // pos is the index = 1..n
