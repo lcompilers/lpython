@@ -58,6 +58,14 @@ public:
         s.n = cur-tok-2;
     }
 
+    // Return the current token as YYSTYPE::Str, strips the first 3 and the last
+    // 3 characters
+    void token_str3(Str &s) const
+    {
+        s.p = (char*) tok + 3;
+        s.n = cur-tok-6;
+    }
+
     // Return the current token's location
     void token_loc(Location &loc) const
     {
