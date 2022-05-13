@@ -130,6 +130,10 @@ filename = "expr15.py"
 cpp = true
 
 [[test]]
+filename = "expr16.py"
+asr = true
+
+[[test]]
 filename = "expr_01.py"
 ast = true
 asr = true
