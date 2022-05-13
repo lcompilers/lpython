@@ -921,6 +921,22 @@ inline bool is_array(ASR::ttype_t *x) {
             return is_array(ASR::down_cast<ASR::Pointer_t>(x)->m_type);
             break;
         }
+        case ASR::ttypeType::List: {
+            n_dims = 0;
+            break;
+        }
+        case ASR::ttypeType::Set: {
+            n_dims = 0;
+            break;
+        }
+        case ASR::ttypeType::Dict: {
+            n_dims = 0;
+            break;
+        }
+        case ASR::ttypeType::Tuple: {
+            n_dims = 0;
+            break;
+        }
         default:
             throw LFortranException("Not implemented.");
     }
