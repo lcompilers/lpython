@@ -402,7 +402,7 @@ delete_statement
 
 return_statement
     : KW_RETURN { $$ = RETURN_01(@$); }
-    | KW_RETURN expr { $$ = RETURN_02($2, @$); }
+    | KW_RETURN tuple_item { $$ = RETURN_02($2, @$); }
     ;
 
 module
