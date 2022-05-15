@@ -14,6 +14,8 @@ assert x == "String"
 x = 1
 x, y = x()
 x = y = 1
+x, y = 1, 2
+x[i] = (1, 2)
 
 x += 1
 
@@ -26,6 +28,7 @@ del x, y
 return
 return a + b
 return x(a)
+return x, y
 
 global a
 global a, b
