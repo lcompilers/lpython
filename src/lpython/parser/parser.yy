@@ -195,12 +195,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> nonlocal_statement
 %type <ast> assignment_statement
 %type <vec_ast> target_list
-%type <vec_ast> target_item_list
-%type <ast> target_item
-%type <ast> target
+%type <ast> tuple_item
 %type <ast> ann_assignment_statement
 %type <ast> delete_statement
-%type <ast> del_target
 %type <vec_ast> del_target_list
 %type <ast> return_statement
 %type <ast> expression_statment
@@ -351,34 +348,22 @@ assert_statement
     | KW_ASSERT expr "," expr { $$ = ASSERT_02($2, $4, @$); }
     ;
 
-target
-    : id { $$ = TARGET_ID($1, @$); }
-    | expr "." id { $$ = TARGET_ATTR($1, $3, @$); }
-    | id "[" tuple_list "]" { $$ = TARGET_SUBSCRIPT($1, $3, @$); }
-    ;
-
-target_item_list
-    : target_item_list "," target { $$ = $1; LIST_ADD($$, $3); }
-    | target "," target { LIST_NEW($$); LIST_ADD($$, $1); LIST_ADD($$, $3); }
-    ;
-
-target_item
-    : target_item_list { $$ = TUPLE_01($1, @$); }
+tuple_item
+    : expr_list { $$ = TUPLE_01($1, @$); }
+    | "(" expr_list ","  expr ")" { $$ = TUPLE_01(TUPLE_($2, $4), @$); }
     ;
 
 target_list
-    : target_list target_item "=" { $$ = $1; LIST_ADD($$, $2); }
-    | target_item "=" { LIST_NEW($$); LIST_ADD($$, $1); }
-    | target_list target "=" { $$ = $1; LIST_ADD($$, $2); }
-    | target "=" { LIST_NEW($$); LIST_ADD($$, $1); }
+    : target_list tuple_item "=" { $$ = $1; LIST_ADD($$, $2); }
+    | tuple_item "=" { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 assignment_statement
-    : target_list expr { $$ = ASSIGNMENT($1, $2, @$); }
+    : target_list tuple_item { $$ = ASSIGNMENT($1, $2, @$); }
     ;
 
 augassign_statement
-    : target augassign_op expr { $$ = AUGASSIGN_01($1, $2, $3, @$); }
+    : expr augassign_op expr { $$ = AUGASSIGN_01($1, $2, $3, @$); }
     ;
 
 augassign_op
@@ -397,17 +382,13 @@ augassign_op
     ;
 
 ann_assignment_statement
-    : target ":" expr { $$ = ANNASSIGN_01($1, $3, @$); }
-    | target ":" expr "=" expr { $$ = ANNASSIGN_02($1, $3, $5, @$); }
-    ;
-
-del_target
-    : id { $$ = DEL_TARGET_ID($1, @$); }
+    : expr ":" expr { $$ = ANNASSIGN_01($1, $3, @$); }
+    | expr ":" expr "=" expr { $$ = ANNASSIGN_02($1, $3, $5, @$); }
     ;
 
 del_target_list
-    : del_target_list "," del_target { $$ = $1; LIST_ADD($$, $3); }
-    | del_target { LIST_NEW($$); LIST_ADD($$, $1); }
+    : del_target_list "," expr { $$ = $1; LIST_ADD($$, $3); }
+    | expr { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 delete_statement
@@ -416,7 +397,7 @@ delete_statement
 
 return_statement
     : KW_RETURN { $$ = RETURN_01(@$); }
-    | KW_RETURN expr { $$ = RETURN_02($2, @$); }
+    | KW_RETURN tuple_item { $$ = RETURN_02($2, @$); }
     ;
 
 module
@@ -487,8 +468,8 @@ if_statement
     ;
 
 for_statement
-    : KW_FOR target KW_IN expr ":" sep statements { $$ = FOR_01($2, $4, $7, @$); }
-    | KW_FOR target KW_IN expr ":" sep statements KW_ELSE ":" sep statements {
+    : KW_FOR expr KW_IN expr ":" sep statements { $$ = FOR_01($2, $4, $7, @$); }
+    | KW_FOR expr KW_IN expr ":" sep statements KW_ELSE ":" sep statements {
         $$ = FOR_02($2, $4, $7, $11, @$); }
     ;
 
@@ -515,7 +496,7 @@ try_statement
 
 with_item
     : expr { $$ = WITH_ITEM_01($1, @$); }
-    | expr KW_AS target { $$ = WITH_ITEM_02($1, $3, @$); }
+    | expr KW_AS expr { $$ = WITH_ITEM_02($1, $3, @$); }
     ;
 
 with_item_list
@@ -603,9 +584,9 @@ async_func_def
     ;
 
 async_for_stmt
-    : KW_ASYNC KW_FOR target KW_IN expr ":" sep statements {
+    : KW_ASYNC KW_FOR expr KW_IN expr ":" sep statements {
         $$ = ASYNC_FOR_01($3, $5, $8, @$); }
-    | KW_ASYNC KW_FOR target KW_IN expr ":" sep statements KW_ELSE ":" sep
+    | KW_ASYNC KW_FOR expr KW_IN expr ":" sep statements KW_ELSE ":" sep
         statements { $$ = ASYNC_FOR_02($3, $5, $8, $12, @$); }
     ;
 
