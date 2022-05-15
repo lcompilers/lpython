@@ -1553,12 +1553,7 @@ public:
             }
         }
 
-        if (ASR::is_a<ASR::Character_t>(*type)) {
-            if (!ai.m_left && ai.m_right) {
-                // String indexing is done using "a(3:3)" style
-                ai.m_left = ai.m_right;
-            }
-        } else if (ASR::is_a<ASR::Set_t>(*type)) {
+        if (ASR::is_a<ASR::Set_t>(*type)) {
             throw SemanticError("'set' object is not subscriptable", x.base.base.loc);
         }
         args.push_back(al, ai);
