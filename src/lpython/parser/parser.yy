@@ -198,7 +198,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> tuple_item
 %type <ast> ann_assignment_statement
 %type <ast> delete_statement
-%type <ast> del_target
 %type <vec_ast> del_target_list
 %type <ast> return_statement
 %type <ast> expression_statment
@@ -387,13 +386,9 @@ ann_assignment_statement
     | expr ":" expr "=" expr { $$ = ANNASSIGN_02($1, $3, $5, @$); }
     ;
 
-del_target
-    : id { $$ = DEL_TARGET_ID($1, @$); }
-    ;
-
 del_target_list
-    : del_target_list "," del_target { $$ = $1; LIST_ADD($$, $3); }
-    | del_target { LIST_NEW($$); LIST_ADD($$, $1); }
+    : del_target_list "," expr { $$ = $1; LIST_ADD($$, $3); }
+    | expr { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 delete_statement

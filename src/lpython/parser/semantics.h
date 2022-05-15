@@ -68,6 +68,32 @@ static inline expr_t* EXPR_OPT(const ast_t *f)
     }
 }
 
+#define SET_EXPR_CTX_(y, ctx) \
+        case exprType::y: { \
+            if(is_a<y##_t>(*EXPR(x))) \
+                ((y##_t*)x)->m_ctx = ctx; \
+            break; \
+        }
+
+static inline ast_t* SET_EXPR_CTX_01(ast_t* x, expr_contextType ctx) {
+    LFORTRAN_ASSERT(is_a<expr_t>(*x))
+    switch(EXPR(x)->type) {
+        SET_EXPR_CTX_(Attribute, ctx)
+        SET_EXPR_CTX_(Subscript, ctx)
+        SET_EXPR_CTX_(Starred, ctx)
+        SET_EXPR_CTX_(Name, ctx)
+        SET_EXPR_CTX_(Tuple, ctx)
+        default : { break; }
+    }
+    return x;
+}
+static inline Vec<ast_t*> SET_EXPR_CTX_02(Vec<ast_t*> x, expr_contextType ctx) {
+    for (size_t i=0; i < x.size(); i++) {
+        SET_EXPR_CTX_01(x[i], ctx);
+    }
+    return x;
+}
+
 #define RESULT(x) p.result.push_back(p.m_a, STMT(x))
 
 #define LIST_NEW(l) l.reserve(p.m_a, 4)
@@ -83,9 +109,8 @@ static inline expr_t* EXPR_OPT(const ast_t *f)
 #define ANNASSIGN_02(x, y, val, l) make_AnnAssign_t(p.m_a, l, \
         EXPR(SET_EXPR_CTX_01(x, Store)), EXPR(y), EXPR(val), 1)
 
-#define DELETE(e, l) make_Delete_t(p.m_a, l, EXPRS(e), e.size())
-#define DEL_TARGET_ID(name, l) make_Name_t(p.m_a, l, \
-        name2char(name), expr_contextType::Del)
+#define DELETE(e, l) make_Delete_t(p.m_a, l, \
+        EXPRS(SET_EXPR_CTX_02(e, Del)), e.size())
 
 #define EXPR_01(e, l) make_Expr_t(p.m_a, l, EXPR(e))
 
@@ -109,40 +134,15 @@ static inline expr_t* EXPR_OPT(const ast_t *f)
 #define NON_LOCAL(names, l) make_Nonlocal_t(p.m_a, l, \
         REDUCE_ARGS(p.m_a, names), names.size())
 
-#define SET_EXPR_CTX_(y, ctx) \
-        case exprType::y: { \
-            if(is_a<y##_t>(*EXPR(x))) \
-                ((y##_t*)x)->m_ctx = ctx; \
-            break; \
-        }
-
-static inline ast_t* SET_EXPR_CTX_01(ast_t* x, expr_contextType ctx) {
-    LFORTRAN_ASSERT(is_a<expr_t>(*x))
-    switch(EXPR(x)->type) {
-        SET_EXPR_CTX_(Attribute, ctx)
-        SET_EXPR_CTX_(Subscript, ctx)
-        SET_EXPR_CTX_(Starred, ctx)
-        SET_EXPR_CTX_(Name, ctx)
-        SET_EXPR_CTX_(Tuple, ctx)
-        default : { break; }
-    }
-    return x;
-}
-static inline Vec<ast_t*> SET_EXPR_CTX_02(Vec<ast_t*> x) {
-    for (size_t i=0; i < x.size(); i++) {
-        SET_EXPR_CTX_01(x[i], Store);
-    }
-    return x;
-}
-
 #define ASSIGNMENT(targets, val, l) make_Assign_t(p.m_a, l, \
-        EXPRS(SET_EXPR_CTX_02(targets)), targets.size(), EXPR(val), nullptr)
+        EXPRS(SET_EXPR_CTX_02(targets, Store)), targets.size(), \
+        EXPR(val), nullptr)
 
 static inline ast_t* TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
     if(is_a<expr_t>(*elts[0]) && elts.size() == 1) {
         return (ast_t*) elts[0];
     }
-    return make_Tuple_t(al, l, EXPRS(SET_EXPR_CTX_02(elts)), elts.size(),
+    return make_Tuple_t(al, l, EXPRS(SET_EXPR_CTX_02(elts, Store)), elts.size(),
                 expr_contextType::Store);
 }
 #define TUPLE_01(elts, l) TUPLE_02(p.m_a, l, elts)
