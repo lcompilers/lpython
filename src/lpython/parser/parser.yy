@@ -195,7 +195,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> nonlocal_statement
 %type <ast> assignment_statement
 %type <vec_ast> target_list
-%type <vec_ast> target_item_list
+/* %type <vec_ast> target_item_list */
 %type <ast> target_item
 %type <ast> ann_assignment_statement
 %type <ast> delete_statement
@@ -350,8 +350,17 @@ assert_statement
     | KW_ASSERT expr "," expr { $$ = ASSERT_02($2, $4, @$); }
     ;
 
+target_item
+    : expr_list { $$ = TUPLE_01($1, @$); }
+    ;
+
+target_list
+    : target_list target_item "=" { $$ = $1; LIST_ADD($$, $2); }
+    | target_item "=" { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
 assignment_statement
-    : expr_list "=" expr_list { $$ = ASSIGNMENT($1, $3, @$); }
+    : target_list expr { $$ = ASSIGNMENT($1, $2, @$); }
     ;
 
 augassign_statement
@@ -393,7 +402,7 @@ delete_statement
 
 return_statement
     : KW_RETURN { $$ = RETURN_01(@$); }
-    | KW_RETURN expr_list { $$ = RETURN_02($2, @$); }
+    | KW_RETURN expr { $$ = RETURN_02($2, @$); }
     ;
 
 module
@@ -670,7 +679,6 @@ expr
     | TK_FALSE { $$ = BOOL(false, @$); }
     | "(" expr ")" { $$ = $2; }
     | function_call { $$ = $1; }
-    | "(" with_item_list "," expr ")" { $$ = LIST($2, @$); }
     | "[" expr_list_opt "]" { $$ = LIST($2, @$); }
     | "[" expr_list "," "]" { $$ = LIST($2, @$); }
     | "{" expr_list "}" { $$ = SET($2, @$); }

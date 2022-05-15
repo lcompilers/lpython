@@ -75,12 +75,13 @@ static inline expr_t* EXPR_OPT(const ast_t *f)
 #define PLIST_ADD(l, x) l.push_back(p.m_a, *x)
 
 #define OPERATOR(op, l) operatorType::op
-#define AUGASSIGN_01(x, op, y, l) make_AugAssign_t(p.m_a, l, EXPR(x), op, EXPR(y))
+#define AUGASSIGN_01(x, op, y, l) make_AugAssign_t(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(x, Store)), op, EXPR(y))
 
 #define ANNASSIGN_01(x, y, l) make_AnnAssign_t(p.m_a, l, \
-        EXPR(x), EXPR(y), nullptr, 1)
+        EXPR(SET_EXPR_CTX_01(x, Store)), EXPR(y), nullptr, 1)
 #define ANNASSIGN_02(x, y, val, l) make_AnnAssign_t(p.m_a, l, \
-        EXPR(x), EXPR(y), EXPR(val), 1)
+        EXPR(SET_EXPR_CTX_01(x, Store)), EXPR(y), EXPR(val), 1)
 
 #define DELETE(e, l) make_Delete_t(p.m_a, l, EXPRS(e), e.size())
 #define DEL_TARGET_ID(name, l) make_Name_t(p.m_a, l, \
@@ -108,16 +109,43 @@ static inline expr_t* EXPR_OPT(const ast_t *f)
 #define NON_LOCAL(names, l) make_Nonlocal_t(p.m_a, l, \
         REDUCE_ARGS(p.m_a, names), names.size())
 
+#define SET_EXPR_CTX_(y, ctx) \
+        case exprType::y: { \
+            if(is_a<y##_t>(*EXPR(x))) \
+                ((y##_t*)x)->m_ctx = ctx; \
+            break; \
+        }
+
+static inline ast_t* SET_EXPR_CTX_01(ast_t* x, expr_contextType ctx) {
+    LFORTRAN_ASSERT(is_a<expr_t>(*x))
+    switch(EXPR(x)->type) {
+        SET_EXPR_CTX_(Attribute, ctx)
+        SET_EXPR_CTX_(Subscript, ctx)
+        SET_EXPR_CTX_(Starred, ctx)
+        SET_EXPR_CTX_(Name, ctx)
+        SET_EXPR_CTX_(Tuple, ctx)
+        default : { throw LFortran::LFortranException("Not implemented"); }
+    }
+    return x;
+}
+static inline Vec<ast_t*> SET_EXPR_CTX_02(Vec<ast_t*> x) {
+    for (size_t i=0; i < x.size(); i++) {
+        SET_EXPR_CTX_01(x[i], Store);
+    }
+    return x;
+}
+
 #define ASSIGNMENT(targets, val, l) make_Assign_t(p.m_a, l, \
-        EXPRS(targets), targets.size(), EXPR(val), nullptr)
-#define TARGET_ID(name, l) make_Name_t(p.m_a, l, \
-        name2char(name), expr_contextType::Store)
-#define TARGET_ATTR(val, attr, l) make_Attribute_t(p.m_a, l, \
-        EXPR(val), name2char(attr), expr_contextType::Store)
-#define TARGET_SUBSCRIPT(value, slice, l) make_Subscript_t(p.m_a, l, \
-        EXPR(value), CHECK_TUPLE(EXPR(slice)), expr_contextType::Store)
-#define TUPLE_01(elts, l) make_Tuple_t(p.m_a, l, \
-        EXPRS(elts), elts.size(), expr_contextType::Store)
+        EXPRS(SET_EXPR_CTX_02(targets)), targets.size(), EXPR(val), nullptr)
+
+static inline ast_t* TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
+    if(is_a<expr_t>(*elts[0]) && elts.size() == 1) {
+        return (ast_t*) elts[0];
+    }
+    return make_Tuple_t(al, l, EXPRS(SET_EXPR_CTX_02(elts)), elts.size(),
+                expr_contextType::Store);
+}
+#define TUPLE_01(elts, l) TUPLE_02(p.m_a, l, elts)
 
 static inline alias_t *IMPORT_ALIAS_01(Allocator &al, Location &l,
         char *name, char *asname){
@@ -174,11 +202,11 @@ int dot_count = 0;
         EXPR(e), STMTS(stmt), stmt.size(), STMTS(A2LIST(p.m_a, orelse)), 1)
 
 #define FOR_01(target, iter, stmts, l) make_For_t(p.m_a, l, \
-        EXPR(target), EXPR(iter), STMTS(stmts), stmts.size(), \
-        nullptr, 0, nullptr)
+        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
+        STMTS(stmts), stmts.size(), nullptr, 0, nullptr)
 #define FOR_02(target, iter, stmts, orelse, l) make_For_t(p.m_a, l, \
-        EXPR(target), EXPR(iter), STMTS(stmts), stmts.size(), \
-        STMTS(orelse), orelse.size(), nullptr)
+        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
+        STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), nullptr)
 
 #define TRY_01(stmts, except, l) make_Try_t(p.m_a, l, \
         STMTS(stmts), stmts.size(), \
@@ -215,7 +243,8 @@ static inline withitem_t *WITH_ITEM(Allocator &al, Location &l,
 }
 
 #define WITH_ITEM_01(expr, l) WITH_ITEM(p.m_a, l, EXPR(expr), nullptr)
-#define WITH_ITEM_02(expr, vars, l) WITH_ITEM(p.m_a, l, EXPR(expr), EXPR(vars))
+#define WITH_ITEM_02(expr, vars, l) WITH_ITEM(p.m_a, l, \
+        EXPR(expr), EXPR(SET_EXPR_CTX_01(vars, Store)))
 #define WITH(items, body, l) make_With_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), nullptr)
 
@@ -324,11 +353,11 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
         STMTS(stmts), stmts.size(), nullptr, 0, EXPR(return), nullptr)
 
 #define ASYNC_FOR_01(target, iter, stmts, l) make_AsyncFor_t(p.m_a, l, \
-        EXPR(target), EXPR(iter), STMTS(stmts), stmts.size(), \
-        nullptr, 0, nullptr)
+        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
+        STMTS(stmts), stmts.size(), nullptr, 0, nullptr)
 #define ASYNC_FOR_02(target, iter, stmts, orelse, l) make_AsyncFor_t(p.m_a, l, \
-        EXPR(target), EXPR(iter), STMTS(stmts), stmts.size(), \
-        STMTS(orelse), orelse.size(), nullptr)
+        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
+        STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), nullptr)
 
 #define ASYNC_WITH(items, body, l) make_AsyncWith_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), nullptr)
@@ -429,7 +458,7 @@ ast_t *DICT1(Allocator &al, Location &l, Vec<Key_Val*> dict_list) {
 #define AWAIT(e, l) make_Await_t(p.m_a, l, EXPR(e))
 #define SET(e, l) make_Set_t(p.m_a, l, EXPRS(e), e.size())
 #define NAMEDEXPR(x, y, l) make_NamedExpr_t(p.m_a, l, \
-        EXPR(TARGET_ID(x, l)), EXPR(y))
+        EXPR(SET_EXPR_CTX_01(x, Store)), EXPR(y))
 #define STARRED_ARG(e, l) make_Starred_t(p.m_a, l, \
         EXPR(e), expr_contextType::Load)
 
