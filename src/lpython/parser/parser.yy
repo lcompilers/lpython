@@ -195,8 +195,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> nonlocal_statement
 %type <ast> assignment_statement
 %type <vec_ast> target_list
-/* %type <vec_ast> target_item_list */
-%type <ast> target_item
+%type <ast> tuple_item
 %type <ast> ann_assignment_statement
 %type <ast> delete_statement
 %type <ast> del_target
@@ -350,17 +349,18 @@ assert_statement
     | KW_ASSERT expr "," expr { $$ = ASSERT_02($2, $4, @$); }
     ;
 
-target_item
+tuple_item
     : expr_list { $$ = TUPLE_01($1, @$); }
+    | "(" expr_list ","  expr ")" { $$ = TUPLE_01(TUPLE_($2, $4), @$); }
     ;
 
 target_list
-    : target_list target_item "=" { $$ = $1; LIST_ADD($$, $2); }
-    | target_item "=" { LIST_NEW($$); LIST_ADD($$, $1); }
+    : target_list tuple_item "=" { $$ = $1; LIST_ADD($$, $2); }
+    | tuple_item "=" { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 assignment_statement
-    : target_list expr { $$ = ASSIGNMENT($1, $2, @$); }
+    : target_list tuple_item { $$ = ASSIGNMENT($1, $2, @$); }
     ;
 
 augassign_statement

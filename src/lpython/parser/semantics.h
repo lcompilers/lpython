@@ -124,7 +124,7 @@ static inline ast_t* SET_EXPR_CTX_01(ast_t* x, expr_contextType ctx) {
         SET_EXPR_CTX_(Starred, ctx)
         SET_EXPR_CTX_(Name, ctx)
         SET_EXPR_CTX_(Tuple, ctx)
-        default : { throw LFortran::LFortranException("Not implemented"); }
+        default : { break; }
     }
     return x;
 }
@@ -146,6 +146,17 @@ static inline ast_t* TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
                 expr_contextType::Store);
 }
 #define TUPLE_01(elts, l) TUPLE_02(p.m_a, l, elts)
+
+Vec<ast_t*> TUPLE_APPEND(Allocator &al, Vec<ast_t*> x, ast_t *y) {
+    Vec<ast_t*> v;
+    v.reserve(al, x.size()+1);
+    for (size_t i=0; i<x.size(); i++) {
+        v.push_back(al, x[i]);
+    }
+    v.push_back(al, y);
+    return v;
+}
+#define TUPLE_(x, y) TUPLE_APPEND(p.m_a, x, y)
 
 static inline alias_t *IMPORT_ALIAS_01(Allocator &al, Location &l,
         char *name, char *asname){
