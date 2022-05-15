@@ -448,6 +448,10 @@ asr = true
 filename = "errors/test_dict5.py"
 asr = true
 
+[[test]]
+filename = "errors/test_dict6.py"
+asr = true
+
 # tests/tokens/errors
 
 [[test]]

@@ -24,7 +24,8 @@ struct AttributeHandler {
             {"list@pop", &eval_list_pop},
             {"set@add", &eval_set_add},
             {"set@remove", &eval_set_remove},
-            {"dict@get", &eval_dict_get}
+            {"dict@get", &eval_dict_get},
+            {"dict@pop", &eval_dict_pop}
         };
     }
 
@@ -269,6 +270,29 @@ struct AttributeHandler {
         return make_DictItem_t(al, loc, s, args[0], def, value_type);
     }
 
+    static ASR::asr_t* eval_dict_pop(ASR::symbol_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
+        if (args.size() != 1) {
+            throw SemanticError("'pop' takes only one argument for now", loc);
+        }
+        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+        ASR::ttype_t *type = v->m_type;
+        ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
+        ASR::ttype_t *value_type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
+        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(args[0]), key_type)) {
+            std::string ktype = ASRUtils::type_to_str_python(ASRUtils::expr_type(args[0]));
+            std::string totype = ASRUtils::type_to_str_python(key_type);
+            diag.add(diag::Diagnostic(
+                "Type mismatch in pop's key value, the types must be compatible",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch (found: '" + ktype + "', expected: '" + totype + "')",
+                            {args[0]->base.loc})
+                })
+            );
+            throw SemanticAbort();
+        }
+        return make_DictPop_t(al, loc, s, args[0], value_type, nullptr);
+    }
 
 }; // AttributeHandler
 

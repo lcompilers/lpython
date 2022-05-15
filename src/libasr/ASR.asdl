@@ -264,6 +264,7 @@ expr
     | ListItem(symbol a, expr pos, ttype type, expr? value)
     | ListSection(expr a, array_index section, ttype type, expr? value)
     | ListPop(symbol a, expr? index, ttype type, expr? value)
+    | DictPop(symbol a, expr key, ttype type, expr? value)
 
 -- `len` in Character:
 -- >=0 ... the length of the string, known at compile time
