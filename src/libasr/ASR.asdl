@@ -262,6 +262,7 @@ expr
     | ComplexIm(expr arg, ttype type, expr? value)
     | DictItem(symbol a, expr key, expr? default, ttype type)
     | ListItem(symbol a, expr pos, ttype type, expr? value)
+    | TupleItem(symbol a, expr pos, ttype type, expr? value)
     | ListSection(expr a, array_index section, ttype type, expr? value)
     | ListPop(symbol a, expr? index, ttype type, expr? value)
     | DictPop(symbol a, expr key, ttype type, expr? value)
