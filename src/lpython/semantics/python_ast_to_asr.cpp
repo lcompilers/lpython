@@ -1543,6 +1543,12 @@ public:
                 tmp = make_ListItem_t(al, x.base.base.loc, s, index,
                                       ASR::down_cast<ASR::List_t>(type)->m_type, nullptr);
                 return;
+            } else if (ASR::is_a<ASR::Tuple_t>(*type)) {
+                index = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
+                int i = ASR::down_cast<ASR::IntegerConstant_t>(ASRUtils::EXPR(tmp))->m_n;
+                tmp = make_TupleItem_t(al, x.base.base.loc, s, index,
+                                       ASR::down_cast<ASR::Tuple_t>(type)->m_type[i], nullptr);
+                return;
             } else {
                 index = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
             }
