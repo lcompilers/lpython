@@ -369,6 +369,10 @@ filename = "errors/test_set2.py"
 asr = true
 
 [[test]]
+filename = "errors/test_set3.py"
+asr = true
+
+[[test]]
 filename = "errors/test_pow.py"
 asr = true
 
