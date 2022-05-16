@@ -183,9 +183,12 @@ struct AttributeHandler {
         if (args.size() != 0) {
             throw SemanticError("pop() takes no arguments (" + std::to_string(args.size()) + " given)", loc);
         }
+
         ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+
         ASR::ttype_t *type = v->m_type;
         ASR::ttype_t *set_type = ASR::down_cast<ASR::Set_t>(type)->m_type;
+
         return make_SetPop_t(al, loc, s, set_type, nullptr);
     }
 
