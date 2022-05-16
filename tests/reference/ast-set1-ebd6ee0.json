@@ -2,11 +2,11 @@
     "basename": "ast-set1-ebd6ee0",
     "cmd": "lpython --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/set1.py",
-    "infile_hash": "1fecd0d73e1cca64b609d716c1db4d8c647ac8e37850f5aaaf36df74",
+    "infile_hash": "63b5dc6a1f9c17099f1b10c8c45fcac1e50319ca8efbf7c283060abb",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-set1-ebd6ee0.stdout",
-    "stdout_hash": "ca6e9c6754c51a463169f68fb874a92a1df0f28b6ea854e737ea3692",
+    "stdout_hash": "bc412431f1754c75ece480170de1a8433d23f985ce6875622f85a27e",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
