@@ -84,6 +84,7 @@ module LPython
          | ConstantFloat(float value, string? kind)
          | ConstantComplex(float re, float im, string? kind)
          | ConstantEllipsis(string? kind)
+         | ConstantNone(string? kind)
 
          -- the following expression can appear in assignment context
          | Attribute(expr value, identifier attr, expr_context ctx)
