@@ -389,11 +389,17 @@ Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
 #define COMPARE(x, op, y, l) make_Compare_t(p.m_a, l, \
         EXPR(x), cmpopType::op, EXPRS(A2LIST(p.m_a, y)), 1)
 
+char* concat_string(Allocator &al, ast_t *a, char *b) {
+    char *s = down_cast2<ConstantStr_t>(a)->m_value;
+    return LFortran::s2c(al, std::string(s) + std::string(b));
+}
+
 #define SYMBOL(x, l) make_Name_t(p.m_a, l, \
         x.c_str(p.m_a), expr_contextType::Load)
 // `x.int_n` is of type BigInt but we store the int64_t directly in AST
 #define INTEGER(x, l) make_ConstantInt_t(p.m_a, l, x, nullptr)
-#define STRING(x, l) make_ConstantStr_t(p.m_a, l, x.c_str(p.m_a), nullptr)
+#define STRING1(x, l) make_ConstantStr_t(p.m_a, l, x.c_str(p.m_a), nullptr)
+#define STRING2(x, y, l) make_ConstantStr_t(p.m_a, l, concat_string(p.m_a, x, y.c_str(p.m_a)), nullptr)
 #define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, x, nullptr)
 #define COMPLEX(x, l) make_ConstantComplex_t(p.m_a, l, 0, x, nullptr)
 #define BOOL(x, l) make_ConstantBool_t(p.m_a, l, x, nullptr)
@@ -432,7 +438,7 @@ expr_t* CHECK_TUPLE(expr_t *x) {
 #define SUBSCRIPT_01(value, slice, l) make_Subscript_t(p.m_a, l, \
         EXPR(value), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
 #define SUBSCRIPT_02(s, slice, l) make_Subscript_t(p.m_a, l, \
-        EXPR(STRING(s, l)), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
+        EXPR(s), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
 
 static inline ast_t* SLICE(Allocator &al, Location &l,
         ast_t *lower, ast_t *upper, ast_t *_step) {
