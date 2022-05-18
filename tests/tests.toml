@@ -319,6 +319,10 @@ ast_new = true
 filename = "parser/slice1.py"
 ast_new = true
 
+[[test]]
+filename = "parser/ellipsis1.py"
+ast = true
+
 # tests/errors
 
 [[test]]
