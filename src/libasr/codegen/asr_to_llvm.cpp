@@ -4371,15 +4371,11 @@ public:
                 fmt.push_back("%s");
                 args.push_back(tmp);
             } else if (ASRUtils::is_logical(*t)) {
-                // check if value is 0 or 1 in LLVM
-                llvm::Value *zero = llvm::ConstantInt::get(getIntType(8, false), 0);
-                llvm::Value *one = llvm::ConstantInt::get(getIntType(8, false), 1);
-                llvm::Value *cmp = builder->CreateICmpEQ(tmp, zero);
+                llvm::Value *cmp = builder->CreateICmpEQ(tmp, builder->getInt1(0));
                 llvm::Value *zero_str = builder->CreateGlobalStringPtr("False");
                 llvm::Value *one_str = builder->CreateGlobalStringPtr("True");
                 llvm::Value *str = builder->CreateSelect(cmp, zero_str, one_str);
-                fmt.push_back("%s");
-                args.push_back(str);
+                printf(context, *module, *builder, {str});
             } else if (ASRUtils::is_complex(*t)) {
                 llvm::Type *type, *complex_type;
                 switch( a_kind ) {

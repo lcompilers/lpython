@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-bool1-af4376b",
+    "cmd": "lpython --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/bool1.py",
+    "infile_hash": "963bf5fcc3706fab6a0b5d415caa90048a33ce28b946ce65359204e4",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-bool1-af4376b.stdout",
+    "stdout_hash": "eb08319c96550e3b6bc07ec0612f6102a31e24ac39cb85ea9a4e397c",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
