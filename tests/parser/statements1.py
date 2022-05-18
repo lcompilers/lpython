@@ -14,6 +14,8 @@ assert x == "String"
 x = 1
 x, y = x()
 x = y = 1
+x, y = 1, 2
+x[i] = (1, 2)
 
 x += 1
 
@@ -26,6 +28,7 @@ del x, y
 return
 return a + b
 return x(a)
+return x, y
 
 global a
 global a, b
@@ -80,3 +83,12 @@ i: i32 = 4
 if 2 > i : pass
 if i > 5 : break
 if i == 5 and i < 10 : i = 3
+
+for i in range(N): # type: parallel
+    c[i] = a[i] + scalar * b[i]
+
+x = (y := 0)
+if a := ord('3'):
+    x = 1
+
+a = {1, 2, 3}

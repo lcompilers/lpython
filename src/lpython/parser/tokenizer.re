@@ -56,48 +56,41 @@ void lex_dec_int_large(Allocator &al, const unsigned char *s,
 }
 
 
-char* get_value(Allocator &al, char *s, int base) {
+uint64_t get_value(char *s, int base, const Location &loc) {
     std::string str(s);
-    str = std::to_string(std::stol(str, nullptr, base));
-    LFortran::Str s2;
-    s2.from_str_view(str);
-    return s2.c_str(al);
+    uint64_t n;
+    try {
+        n = std::stoull(str, nullptr, base);
+    } catch (const std::out_of_range &e) {
+        throw parser_local::TokenizerError(
+            "Integer too large to convert", {loc});
+    }
+    return n;
 }
 
-// Tokenizes integer of the kind 0x1234 into `prefix` and `u`
+// Converts integer (Dec, Hex, Bin, Oct) from a string to BigInt `u`
 // s ... the start of the integer
 // e ... the character after the end
 void lex_int(Allocator &al, const unsigned char *s,
-    const unsigned char *e, BigInt::BigInt &u, Str &prefix)
+    const unsigned char *e, BigInt::BigInt &u, const Location &loc)
 {
     if (std::tolower(s[1]) == 'x') {
+        // Hex
         s = s + 2;
-        prefix.p = (char*) "Hex";
-        prefix.n = 3;
-        Str num;
-        num.p = get_value(al, (char*)s, 16);
-        num.n = e-s;
-        u.from_largeint(al, num);
+        uint64_t n = get_value((char*)s, 16, loc);
+        u.from_smallint(n);
     } else if (std::tolower(s[1]) == 'b') {
+        // Bin
         s = s + 2;
-        prefix.p = (char*) "Bin";
-        prefix.n = 3;
-        Str num;
-        num.p = get_value(al, (char*)s, 2);
-        num.n = e-s;
-        u.from_largeint(al, num);
+        uint64_t n = get_value((char*)s, 2, loc);
+        u.from_smallint(n);
     } else if ((std::tolower(s[1]) == 'o')) {
+        // Oct
         s = s + 2;
-        prefix.p = (char*) "Oct";
-        prefix.n = 3;
-        Str num;
-        num.p = get_value(al, (char*)s, 8);
-        num.n = e-s;
-        u.from_largeint(al, num);
+        uint64_t n = get_value((char*)s, 8, loc);
+        u.from_smallint(n);
     } else {
         lex_dec_int_large(al, s, e, u);
-        prefix.p = nullptr;
-        prefix.n = 0;
     }
     return;
 }
@@ -133,6 +126,40 @@ void Tokenizer::set_string(const std::string &str)
     string_start = cur;
     cur_line = cur;
     line_num = 1;
+}
+
+void Tokenizer::record_paren(Location &loc, char c) {
+    switch (c) {
+        case '(':
+        case '[':
+        case '{':
+            if(parenlevel >= MAX_PAREN_LEVEL) {
+                throw parser_local::TokenizerError(
+                    "Too many nested parentheses", {loc});
+            }
+            paren_stack[parenlevel] = c;
+            parenlevel++;
+            break;
+
+        case ')':
+        case ']':
+        case '}':
+            if(parenlevel < 1) {
+                throw parser_local::TokenizerError(
+                    "Parenthesis unexpected", {loc});
+            }
+            parenlevel--;
+
+            char prev_paren = paren_stack[parenlevel];
+            if(!((prev_paren == '(' && c == ')') ||
+                 (prev_paren == '[' && c == ']') ||
+                 (prev_paren == '{' && c == '}'))) {
+                throw parser_local::TokenizerError(
+                    "Parentheses does not match", {loc});
+            }
+            break;
+    }
+    return;
 }
 
 #define KW(x) token(yylval.string); RET(KW_##x);
@@ -240,13 +267,15 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             hex_digit = "0"[xX][0-9a-fA-F]+;
             char =  [a-zA-Z_];
             name = char (char | digit)*;
-            significand = (digit+"."digit*) | ("."digit+);
-            exp = [edED][-+]? digit+;
+            significand = (digit+ "." digit*) | ("." digit+);
+            exp = [eE][-+]? digit+;
             integer = digit+ | oct_digit | bin_digit | hex_digit;
             real = (significand exp?) | (digit+ exp);
             imag_number = (real | digit+)[jJ];
-            string1 = '"' ('""'|[^"\x00])* '"';
-            string2 = "'" ("''"|[^'\x00])* "'";
+            string1 = '"' ('\\"'|[^"\x00])* '"';
+            string2 = "'" ("\\'"|[^'\x00])* "'";
+            string3 = '"""' ( '\\"' | '"' [^"\x00] | '""' [^"\x00] | [^"\x00] )* '"""';
+            string4 = "'''" ( "\\'" | "'" [^'\x00] | "''" [^'\x00] | [^'\x00] )* "'''";
             comment = "#" [^\n\x00]*;
             // docstring = newline whitespace? string1 | string2;
             ws_comment = whitespace? comment? newline;
@@ -260,8 +289,20 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                     })
                 );
             }
-            end { RET(END_OF_FILE); }
+            end {
+                token_loc(loc);
+                if(parenlevel) {
+                    throw parser_local::TokenizerError(
+                        "Parentheses was never closed", {loc});
+                }
+                RET(END_OF_FILE);
+            }
+
             whitespace {
+                if(cur[0] == '#') { continue; }
+                if(last_token == yytokentype::TK_NEWLINE && cur[0] == '\n') {
+                    continue;
+                }
                 if (indent) {
                     indent = false;
                     indent_length.push_back(cur-tok);
@@ -315,6 +356,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
 
             // Tokens
             newline {
+                if(parenlevel) { continue; }
                 if (last_token == yytokentype::TK_COLON) {
                     indent = true;
                 } else if (cur[0] != ' ' && cur[0] != '\n'
@@ -328,12 +370,12 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "\\" newline { continue; }
 
             // Single character symbols
-            "(" { RET(TK_LPAREN) }
-            ")" { RET(TK_RPAREN) }
-            "[" { RET(TK_LBRACKET) }
-            "]" { RET(TK_RBRACKET) }
-            "{" { RET(TK_LBRACE) }
-            "}" { RET(TK_RBRACE) }
+            "(" { token_loc(loc); record_paren(loc, '('); RET(TK_LPAREN) }
+            "[" { token_loc(loc); record_paren(loc, '['); RET(TK_LBRACKET) }
+            "{" { token_loc(loc); record_paren(loc, '{'); RET(TK_LBRACE) }
+            ")" { token_loc(loc); record_paren(loc, ')'); RET(TK_RPAREN) }
+            "]" { token_loc(loc); record_paren(loc, ']'); RET(TK_RBRACKET) }
+            "}" { token_loc(loc); record_paren(loc, '}'); RET(TK_RBRACE) }
             "+" { RET(TK_PLUS) }
             "-" { RET(TK_MINUS) }
             "=" { RET(TK_EQUAL) }
@@ -390,21 +432,21 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             'True' { RET(TK_TRUE) }
             'False' { RET(TK_FALSE) }
 
-            real { token(yylval.string); RET(TK_REAL) }
+            real { yylval.f = std::atof(token().c_str()); RET(TK_REAL) }
             integer {
-                lex_int(al, tok, cur,
-                    yylval.int_suffix.int_n,
-                    yylval.int_suffix.int_kind);
+                BigInt::BigInt n;
+                token_loc(loc);
+                lex_int(al, tok, cur, n, loc);
+                yylval.n = n.n;
                 RET(TK_INTEGER)
             }
             imag_number {
-                lex_imag(al, tok, cur,
-                    yylval.int_suffix.int_n,
-                    yylval.int_suffix.int_kind);
+                yylval.f = std::atof(token().c_str());
                 RET(TK_IMAG_NUM)
             }
 
             comment newline {
+                if(parenlevel) { continue; }
                 line_num++; cur_line=cur;
                 token(yylval.string);
                 yylval.string.n--;
@@ -412,6 +454,9 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 if (last_token == yytokentype::TK_NEWLINE) {
                     return yytokentype::TK_COMMENT;
                 } else {
+                    if (last_token == yytokentype::TK_COLON) {
+                        indent = true;
+                    }
                     last_token=yytokentype::TK_NEWLINE;
                     return yytokentype::TK_EOLCOMMENT;
                 }
@@ -420,6 +465,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
 
             string1 { token_str(yylval.string); RET(TK_STRING) }
             string2 { token_str(yylval.string); RET(TK_STRING) }
+            string3 { token_str3(yylval.string); RET(TK_STRING) }
+            string4 { token_str3(yylval.string); RET(TK_STRING) }
 
             name { token(yylval.string); RET(TK_NAME) }
         */
@@ -591,14 +638,11 @@ std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
     if (token == yytokentype::TK_NAME) {
         t += " " + yystype.string.str();
     } else if (token == yytokentype::TK_INTEGER) {
-        t += " " + yystype.int_suffix.int_n.str();
-        if (yystype.int_suffix.int_kind.p) {
-            t += " " + yystype.int_suffix.int_kind.str();
-        }
+        t += " " + BigInt::int_to_str(yystype.n);
     } else if (token == yytokentype::TK_REAL) {
-        t += " " + yystype.string.str();
+        t += " " + std::to_string(yystype.f);
     } else if (token == yytokentype::TK_IMAG_NUM) {
-        t += " " + yystype.int_suffix.int_n.str() + "j";
+        t += " " + std::to_string(yystype.f) + "j";
     } else if (token == yytokentype::TK_STRING) {
         t = t + " " + "\"" + yystype.string.str() + "\"";
     }

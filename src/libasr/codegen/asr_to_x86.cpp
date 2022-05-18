@@ -60,7 +60,7 @@ public:
         // must be empty:
         LFORTRAN_ASSERT(x.n_items == 0);
 
-        for (auto &item : x.m_global_scope->scope) {
+        for (auto &item : x.m_global_scope->get_scope()) {
             if (!is_a<ASR::Variable_t>(*item.second)) {
                 visit_symbol(*item.second);
             }
@@ -77,7 +77,7 @@ public:
         emit_exit(m_a, "exit_error_stop", 1);
 
         // Generate code for nested subroutines and functions first:
-        for (auto &item : x.m_symtab->scope) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
                 ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
@@ -97,7 +97,7 @@ public:
 
         // Allocate stack space for local variables
         uint32_t total_offset = 0;
-        for (auto &item : x.m_symtab->scope) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
 
@@ -165,7 +165,7 @@ public:
 
         // Allocate stack space for local variables
         uint32_t total_offset = 0;
-        for (auto &item : x.m_symtab->scope) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
 
@@ -227,7 +227,7 @@ public:
 
         // Allocate stack space for local variables
         uint32_t total_offset = 0;
-        for (auto &item : x.m_symtab->scope) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
 

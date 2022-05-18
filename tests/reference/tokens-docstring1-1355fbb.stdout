@@ -5,9 +5,9 @@
 (TOKEN ":") 11:11
 (NEWLINE) 12:12
 (TOKEN "indent") 13:16
-(TOKEN "string" """A multi-line
+(TOKEN "string" "A multi-line
     docstring.
-    """) 17:54
+    ") 17:54
 (NEWLINE) 55:55
 (NEWLINE) 56:56
 (TOKEN "dedent") 56:56
@@ -18,10 +18,10 @@
 (TOKEN ":") 68:68
 (NEWLINE) 69:69
 (TOKEN "indent") 70:73
-(TOKEN "string" """
+(TOKEN "string" "
     A multi-line
     docstring.
-    """) 74:116
+    ") 74:116
 (NEWLINE) 117:117
 (NEWLINE) 118:118
 (TOKEN "dedent") 118:118
@@ -32,13 +32,13 @@
 (TOKEN ":") 130:130
 (NEWLINE) 131:131
 (TOKEN "indent") 132:135
-(TOKEN "string" """ A single-line docstring.""") 136:166
+(TOKEN "string" " A single-line docstring.") 136:166
 (NEWLINE) 167:167
 (NEWLINE) 168:168
 (TOKEN "dedent") 168:168
-(TOKEN "string" """
+(TOKEN "string" "
 A multi-line
 docstring.
-""") 169:199
+") 169:199
 (NEWLINE) 200:200
 (EOF) 201:201

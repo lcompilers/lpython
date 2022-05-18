@@ -24,10 +24,32 @@ def test_str_index():
     a: str
     a = "012345"
     assert a[2] == "2"
+    assert a[-1] == "5"
+    assert a[-6] == "0"
+
+def test_str_slice():
+    a: str
+    a = "012345"
+    assert a[2:4] == "23"
+    assert a[2:3] == a[2]
+    assert a[:4] == "0123"
+    assert a[3:] == "345"
+    # TODO:
+    # assert a[0:5:-1] == ""
+
+def test_str_repeat():
+    a: str
+    a = "Xyz"
+    assert a*3 == "XyzXyzXyz"
+    assert a*2*3 == "XyzXyzXyzXyzXyzXyz"
+    assert 3*a*3 == "XyzXyzXyzXyzXyzXyzXyzXyzXyz"
+    assert a*-1 == ""
 
 def check():
     f()
     test_str_concat()
     test_str_index()
+    test_str_slice()
+    test_str_repeat()
 
 check()

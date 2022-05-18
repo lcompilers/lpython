@@ -1,0 +1,5 @@
+semantic error: pop() takes no arguments (1 given)
+ --> tests/errors/test_set3.py:5:9
+  |
+5 |     i = s.pop(3)
+  |         ^^^^^^^^ 

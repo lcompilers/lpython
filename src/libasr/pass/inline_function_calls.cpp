@@ -95,7 +95,7 @@ public:
         // fixed_duplicated_expr_stmt to false.
         // To be supported later.
         if( current_routine_scope &&
-            current_routine_scope->scope.find(x_var_name) == current_routine_scope->scope.end() ) {
+            current_routine_scope->get_symbol(x_var_name) == nullptr ) {
             fixed_duplicated_expr_stmt = false;
             return ;
         }
@@ -103,7 +103,7 @@ public:
             ASR::Variable_t* x_var = ASR::down_cast<ASR::Variable_t>(x.m_v);
             if( arg2value.find(x_var_name) != arg2value.end() ) {
                 x_var = ASR::down_cast<ASR::Variable_t>(arg2value[x_var_name]);
-                if( current_scope->scope.find(std::string(x_var->m_name)) != current_scope->scope.end() ) {
+                if( current_scope->get_symbol(std::string(x_var->m_name)) != nullptr ) {
                     xx.m_v = arg2value[x_var_name];
                 }
                 x_var = ASR::down_cast<ASR::Variable_t>(x.m_v);
@@ -142,16 +142,16 @@ public:
                 std::string called_sym_name = std::string(called_sym_ext->m_name);
                 std::string new_sym_name_str = current_scope->get_unique_name(called_sym_name);
                 char* new_sym_name = s2c(al, new_sym_name_str);
-                if( current_scope->scope.find(new_sym_name_str) == current_scope->scope.end() ) {
+                if( current_scope->get_symbol(new_sym_name_str) == nullptr ) {
                     ASR::Module_t *m = ASR::down_cast2<ASR::Module_t>(f->m_symtab->parent->asr_owner);
                     char *modname = m->m_name;
                     ASR::symbol_t* new_sym = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(
                                                 al, called_sym->base.loc, current_scope, new_sym_name,
                                                 f_sym, modname, nullptr, 0,
                                                 f->m_name, ASR::accessType::Private));
-                    current_scope->scope[new_sym_name_str] = new_sym;
+                    current_scope->add_symbol(new_sym_name_str, new_sym);
                 }
-                xx.m_name = current_scope->scope[new_sym_name_str];
+                xx.m_name = current_scope->get_symbol(new_sym_name_str);
             }
 
             for( size_t i = 0; i < x.n_args; i++ ) {
@@ -239,7 +239,7 @@ public:
         // The following loop inserts the function's local symbols i.e.,
         // the ones other than the arguments.
         // exprs_to_be_visited temporarily stores the initilisation expression as well.
-        for( auto& itr : func->m_symtab->scope ) {
+        for( auto& itr : func->m_symtab->get_scope() ) {
             ASR::Variable_t* func_var = ASR::down_cast<ASR::Variable_t>(itr.second);
             std::string func_var_name = itr.first;
             if( arg2value.find(func_var_name) == arg2value.end() ) {
@@ -262,7 +262,7 @@ public:
                                                 nullptr, nullptr, ASR::storage_typeType::Default,
                                                 func_var->m_type, ASR::abiType::Source, ASR::accessType::Public,
                                                 ASR::presenceType::Required, false);
-                current_scope->scope[local_var_name] = local_var;
+                current_scope->add_symbol(local_var_name, local_var);
                 arg2value[func_var_name] = local_var;
                 if( m_symbolic_value ) {
                     exprs_to_be_visited.push_back(std::make_pair(m_symbolic_value, local_var));
@@ -337,7 +337,7 @@ public:
             // created for the purpose of inlining the current function call.
             for( auto& itr : arg2value ) {
                 ASR::Variable_t* auxiliary_var = ASR::down_cast<ASR::Variable_t>(itr.second);
-                current_scope->scope.erase(std::string(auxiliary_var->m_name));
+                current_scope->erase_symbol(std::string(auxiliary_var->m_name));
             }
             function_result_var = nullptr;
         }

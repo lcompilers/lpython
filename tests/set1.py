@@ -9,3 +9,6 @@ def test_Set():
     b: set[str]
     b = {"a", "b", "c"}
     # a = {-1, -2, "c"} -> semantic error for now
+
+    s: str
+    s = b.pop()

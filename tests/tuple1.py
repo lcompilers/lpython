@@ -15,8 +15,7 @@ def test_Tuple():
     a5: tuple[tuple[str, str, f32], tuple[str, i32, f32]]
     a5 = (("a", "b", 3.4), ("c", 3, 5.6))
 
-    # TODO: this should work
-    # b0: i32
-    # b1: i32
-    # b0 = a1[0]
-    # b0, b1 = a1[2], a1[1]
+    b0: i32
+    b1: i32
+    b0 = a1[0]
+    b0, b1 = a1[2], a1[1]

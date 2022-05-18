@@ -41,7 +41,7 @@ public:
     }
 
     void visit_Program(const ASR::Program_t &x) {
-        for (auto &item : x.m_symtab->scope) {
+        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
                 visit_Variable(*v);
@@ -55,21 +55,6 @@ public:
         this->visit_expr(*x.m_operand);
         if( asr != nullptr ) {
             x_unconst.m_operand = asr;
-        }
-        asr = const_cast<ASR::expr_t*>(&(x.base));
-    }
-
-    void visit_StrOp(const ASR::StrOp_t& x) {
-        ASR::StrOp_t& x_unconst = const_cast<ASR::StrOp_t&>(x);
-        asr = nullptr;
-        this->visit_expr(*x.m_left);
-        if( asr != nullptr ) {
-            x_unconst.m_left = asr;
-        }
-        asr = nullptr;
-        this->visit_expr(*x.m_right);
-        if( asr != nullptr ) {
-            x_unconst.m_right = asr;
         }
         asr = const_cast<ASR::expr_t*>(&(x.base));
     }

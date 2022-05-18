@@ -1,5 +1,6 @@
 # Possible tests:
 # ast ... run the Parser and output AST, compare against reference version
+# ast_new ... run the New Parser and output AST, compare against reference version
 # asr ... run the Semantics and output ASR, compare against reference version
 # llvm ... run the Semantics and output LLVM, compare against reference version
 # tokens ... output Tokens, compare against reference version
@@ -91,7 +92,7 @@ filename = "expr8.py"
 ast = true
 asr = true
 cpp = true
-llvm = true
+#llvm = true
 
 [[test]]
 filename = "expr9.py"
@@ -123,6 +124,14 @@ asr = true
 [[test]]
 filename = "expr14.py"
 llvm = true
+
+[[test]]
+filename = "expr15.py"
+cpp = true
+
+[[test]]
+filename = "expr16.py"
+asr = true
 
 [[test]]
 filename = "expr_01.py"
@@ -286,7 +295,27 @@ filename = "parser/function_def1.py"
 ast_new = true
 
 [[test]]
+filename = "parser/function_def2.py"
+ast_new = true
+
+[[test]]
 filename = "parser/class_def1.py"
+ast_new = true
+
+[[test]]
+filename = "parser/dictionary1.py"
+ast_new = true
+
+[[test]]
+filename = "parser/with1.py"
+ast_new = true
+
+[[test]]
+filename = "parser/async1.py"
+ast_new = true
+
+[[test]]
+filename = "parser/slice1.py"
 ast_new = true
 
 # tests/errors
@@ -324,11 +353,23 @@ filename = "errors/test_list2.py"
 asr = true
 
 [[test]]
+filename = "errors/test_list3.py"
+asr = true
+
+[[test]]
+filename = "errors/test_list4.py"
+asr = true
+
+[[test]]
 filename = "errors/test_set1.py"
 asr = true
 
 [[test]]
 filename = "errors/test_set2.py"
+asr = true
+
+[[test]]
+filename = "errors/test_set3.py"
 asr = true
 
 [[test]]
@@ -345,4 +386,94 @@ asr = true
 
 [[test]]
 filename = "errors/test_assign3.py"
+asr = true
+
+[[test]]
+filename = "errors/test_assign4.py"
+asr = true
+
+[[test]]
+filename = "errors/test_assign5.py"
+asr = true
+
+[[test]]
+filename = "errors/test_binop1.py"
+asr = true
+
+[[test]]
+filename = "errors/test_binop2.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict1.py"
+asr = true
+
+[[test]]
+filename = "errors/test_zero_division.py"
+asr = true
+
+[[test]]
+filename = "errors/test_zero_division2.py"
+asr = true
+
+[[test]]
+filename = "errors/test_zero_division3.py"
+asr = true
+
+[[test]]
+filename = "errors/test_zero_division4.py"
+asr = true
+
+[[test]]
+filename = "errors/test_len1.py"
+asr = true
+
+[[test]]
+filename = "errors/test_return1.py"
+asr = true
+
+[[test]]
+filename = "errors/test_return2.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict2.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict3.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict4.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict5.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict6.py"
+asr = true
+
+# tests/tokens/errors
+
+[[test]]
+filename = "tokens/errors/paren1.py"
+tokens = true
+
+[[test]]
+filename = "tokens/errors/paren2.py"
+tokens = true
+
+[[test]]
+filename = "tokens/errors/paren3.py"
+tokens = true
+
+[[test]]
+filename = "tokens/errors/paren4.py"
+tokens = true
+
+[[test]]
+filename = "errors/test_tuple1.py"
 asr = true

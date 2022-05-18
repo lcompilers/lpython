@@ -107,7 +107,7 @@ public:
         require(down_cast2<TranslationUnit_t>(current_symtab->asr_owner)->m_global_scope == current_symtab,
             "The asr_owner invariant failed");
         id_symtab_map[x.m_global_scope->counter] = x.m_global_scope;
-        for (auto &a : x.m_global_scope->scope) {
+        for (auto &a : x.m_global_scope->get_scope()) {
             this->visit_symbol(*a.second);
         }
         for (size_t i=0; i<x.n_items; i++) {
@@ -142,7 +142,7 @@ public:
         require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
             "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
-        for (auto &a : x.m_symtab->scope) {
+        for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
         for (size_t i=0; i<x.n_body; i++) {
@@ -165,7 +165,30 @@ public:
         require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
             "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
-        for (auto &a : x.m_symtab->scope) {
+        for (auto &a : x.m_symtab->get_scope()) {
+            this->visit_symbol(*a.second);
+        }
+        for (size_t i=0; i<x.n_body; i++) {
+            visit_stmt(*x.m_body[i]);
+        }
+        current_symtab = parent_symtab;
+    }
+
+    void visit_Block(const Block_t& x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        require(x.m_symtab != nullptr,
+            "The AssociateBlock::m_symtab cannot be nullptr");
+        require(x.m_symtab->parent == parent_symtab,
+            "The AssociateBlock::m_symtab->parent is not the right parent");
+        require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
+            "AssociateBlock::m_symtab->counter must be unique");
+        require(x.m_symtab->asr_owner == (ASR::asr_t*)&x,
+            "The X::m_symtab::asr_owner must point to X");
+        require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
+            "The asr_owner invariant failed");
+        id_symtab_map[x.m_symtab->counter] = x.m_symtab;
+        for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
         for (size_t i=0; i<x.n_body; i++) {
@@ -190,7 +213,7 @@ public:
         require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
             "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
-        for (auto &a : x.m_symtab->scope) {
+        for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
         for (size_t i=0; i < x.n_dependencies; i++) {
@@ -221,7 +244,7 @@ public:
         require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
             "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
-        for (auto &a : x.m_symtab->scope) {
+        for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
         for (size_t i=0; i<x.n_args; i++) {
@@ -247,7 +270,7 @@ public:
         require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
             "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
-        for (auto &a : x.m_symtab->scope) {
+        for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
         for (size_t i=0; i<x.n_args; i++) {
@@ -274,7 +297,7 @@ public:
         require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
             "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
-        for (auto &a : x.m_symtab->scope) {
+        for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
         }
         current_symtab = parent_symtab;
@@ -284,9 +307,9 @@ public:
         SymbolTable *symtab = x.m_parent_symtab;
         require(symtab != nullptr,
             "Variable::m_parent_symtab cannot be nullptr");
-        require(symtab->scope.find(std::string(x.m_name)) != symtab->scope.end(),
+        require(symtab->get_symbol(std::string(x.m_name)) != nullptr,
             "Variable '" + std::string(x.m_name) + "' not found in parent_symtab symbol table");
-        symbol_t *symtab_sym = symtab->scope[std::string(x.m_name)];
+        symbol_t *symtab_sym = symtab->get_symbol(std::string(x.m_name));
         const symbol_t *current_sym = &x.base;
         require(symtab_sym == current_sym,
             "Variable's parent symbol table does not point to it");
@@ -483,11 +506,7 @@ public:
                 visit_expr(*(x.m_args[i].m_value));
             }
         }
-        SymbolTable *parent_symtab = current_symtab;
-        current_symtab = ASRUtils::symbol_symtab(x.m_name);
-        if (current_symtab == nullptr) current_symtab = parent_symtab;
         visit_ttype(*x.m_type);
-        current_symtab = parent_symtab;
     }
 
     void visit_Derived(const Derived_t &x) {

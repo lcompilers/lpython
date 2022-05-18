@@ -13,7 +13,10 @@ namespace ASR {
 }
 
 struct SymbolTable {
+    private:
     std::map<std::string, ASR::symbol_t*> scope;
+
+    public:
     SymbolTable *parent;
     // The ASR node (either symbol_t or TranslationUnit_t) that contains this
     // SymbolTable as m_symtab / m_global_scope member. One of:
@@ -44,6 +47,10 @@ struct SymbolTable {
         return scope[name];
     }
 
+    const std::map<std::string, ASR::symbol_t*>& get_scope() {
+        return scope;
+    }
+
     // Obtains the symbol `name` from the current symbol table
     // Returns `nullptr` if symbol not found.
     ASR::symbol_t* get_symbol(const std::string &name) const {
@@ -54,6 +61,15 @@ struct SymbolTable {
         } else {
             return it->second;
         }
+    }
+
+    void erase_symbol(const std::string &name) {
+        //auto it = scope.find(to_lower(name));
+        scope.erase(name);
+    }
+
+    void add_symbol(const std::string &name, ASR::symbol_t* symbol) {
+        scope[name] = symbol;
     }
 
     // Marks all variables as external

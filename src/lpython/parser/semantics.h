@@ -20,6 +20,8 @@
 using namespace LFortran::LPython::AST;
 using LFortran::Location;
 using LFortran::Vec;
+using LFortran::Key_Val;
+using LFortran::Args;
 
 static inline char* name2char(const ast_t *n) {
     return down_cast2<Name_t>(n)->m_id;
@@ -57,6 +59,41 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define STMT(x) (down_cast<stmt_t>(x))
 #define EXPR2STMT(x) ((stmt_t*)make_Expr_t(p.m_a, x->base.loc, x))
 
+static inline expr_t* EXPR_OPT(const ast_t *f)
+{
+    if (f) {
+        return EXPR(f);
+    } else {
+        return nullptr;
+    }
+}
+
+#define SET_EXPR_CTX_(y, ctx) \
+        case exprType::y: { \
+            if(is_a<y##_t>(*EXPR(x))) \
+                ((y##_t*)x)->m_ctx = ctx; \
+            break; \
+        }
+
+static inline ast_t* SET_EXPR_CTX_01(ast_t* x, expr_contextType ctx) {
+    LFORTRAN_ASSERT(is_a<expr_t>(*x))
+    switch(EXPR(x)->type) {
+        SET_EXPR_CTX_(Attribute, ctx)
+        SET_EXPR_CTX_(Subscript, ctx)
+        SET_EXPR_CTX_(Starred, ctx)
+        SET_EXPR_CTX_(Name, ctx)
+        SET_EXPR_CTX_(Tuple, ctx)
+        default : { break; }
+    }
+    return x;
+}
+static inline Vec<ast_t*> SET_EXPR_CTX_02(Vec<ast_t*> x, expr_contextType ctx) {
+    for (size_t i=0; i < x.size(); i++) {
+        SET_EXPR_CTX_01(x[i], ctx);
+    }
+    return x;
+}
+
 #define RESULT(x) p.result.push_back(p.m_a, STMT(x))
 
 #define LIST_NEW(l) l.reserve(p.m_a, 4)
@@ -64,16 +101,16 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
 #define PLIST_ADD(l, x) l.push_back(p.m_a, *x)
 
 #define OPERATOR(op, l) operatorType::op
-#define AUGASSIGN_01(x, op, y, l) make_AugAssign_t(p.m_a, l, EXPR(x), op, EXPR(y))
+#define AUGASSIGN_01(x, op, y, l) make_AugAssign_t(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(x, Store)), op, EXPR(y))
 
 #define ANNASSIGN_01(x, y, l) make_AnnAssign_t(p.m_a, l, \
-        EXPR(x), EXPR(y), nullptr, 1)
+        EXPR(SET_EXPR_CTX_01(x, Store)), EXPR(y), nullptr, 1)
 #define ANNASSIGN_02(x, y, val, l) make_AnnAssign_t(p.m_a, l, \
-        EXPR(x), EXPR(y), EXPR(val), 1)
+        EXPR(SET_EXPR_CTX_01(x, Store)), EXPR(y), EXPR(val), 1)
 
-#define DELETE(e, l) make_Delete_t(p.m_a, l, EXPRS(e), e.size())
-#define DEL_TARGET_ID(name, l) make_Name_t(p.m_a, l, \
-        name2char(name), expr_contextType::Del)
+#define DELETE(e, l) make_Delete_t(p.m_a, l, \
+        EXPRS(SET_EXPR_CTX_02(e, Del)), e.size())
 
 #define EXPR_01(e, l) make_Expr_t(p.m_a, l, EXPR(e))
 
@@ -98,13 +135,28 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
         REDUCE_ARGS(p.m_a, names), names.size())
 
 #define ASSIGNMENT(targets, val, l) make_Assign_t(p.m_a, l, \
-        EXPRS(targets), targets.size(), EXPR(val), nullptr)
-#define TARGET_ID(name, l) make_Name_t(p.m_a, l, \
-        name2char(name), expr_contextType::Store)
-#define TARGET_ATTR(val, attr, l) make_Attribute_t(p.m_a, l, \
-        EXPR(val), name2char(attr), expr_contextType::Store)
-#define TUPLE_01(elts, l) make_Tuple_t(p.m_a, l, \
-        EXPRS(elts), elts.size(), expr_contextType::Store)
+        EXPRS(SET_EXPR_CTX_02(targets, Store)), targets.size(), \
+        EXPR(val), nullptr)
+
+static inline ast_t* TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
+    if(is_a<expr_t>(*elts[0]) && elts.size() == 1) {
+        return (ast_t*) elts[0];
+    }
+    return make_Tuple_t(al, l, EXPRS(SET_EXPR_CTX_02(elts, Store)), elts.size(),
+                expr_contextType::Store);
+}
+#define TUPLE_01(elts, l) TUPLE_02(p.m_a, l, elts)
+
+Vec<ast_t*> TUPLE_APPEND(Allocator &al, Vec<ast_t*> x, ast_t *y) {
+    Vec<ast_t*> v;
+    v.reserve(al, x.size()+1);
+    for (size_t i=0; i<x.size(); i++) {
+        v.push_back(al, x[i]);
+    }
+    v.push_back(al, y);
+    return v;
+}
+#define TUPLE_(x, y) TUPLE_APPEND(p.m_a, x, y)
 
 static inline alias_t *IMPORT_ALIAS_01(Allocator &al, Location &l,
         char *name, char *asname){
@@ -161,11 +213,11 @@ int dot_count = 0;
         EXPR(e), STMTS(stmt), stmt.size(), STMTS(A2LIST(p.m_a, orelse)), 1)
 
 #define FOR_01(target, iter, stmts, l) make_For_t(p.m_a, l, \
-        EXPR(target), EXPR(iter), STMTS(stmts), stmts.size(), \
-        nullptr, 0, nullptr)
+        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
+        STMTS(stmts), stmts.size(), nullptr, 0, nullptr)
 #define FOR_02(target, iter, stmts, orelse, l) make_For_t(p.m_a, l, \
-        EXPR(target), EXPR(iter), STMTS(stmts), stmts.size(), \
-        STMTS(orelse), orelse.size(), nullptr)
+        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
+        STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), nullptr)
 
 #define TRY_01(stmts, except, l) make_Try_t(p.m_a, l, \
         STMTS(stmts), stmts.size(), \
@@ -192,6 +244,21 @@ int dot_count = 0;
 #define EXCEPT_03(e, id, stmts, l) make_ExceptHandler_t(p.m_a, l, \
         EXPR(e), name2char(id), STMTS(stmts), stmts.size())
 
+static inline withitem_t *WITH_ITEM(Allocator &al, Location &l,
+        expr_t* context_expr, expr_t* optional_vars) {
+    withitem_t *r = al.allocate<withitem_t>();
+    r->loc = l;
+    r->m_context_expr = context_expr;
+    r->m_optional_vars = optional_vars;
+    return r;
+}
+
+#define WITH_ITEM_01(expr, l) WITH_ITEM(p.m_a, l, EXPR(expr), nullptr)
+#define WITH_ITEM_02(expr, vars, l) WITH_ITEM(p.m_a, l, \
+        EXPR(expr), EXPR(SET_EXPR_CTX_01(vars, Store)))
+#define WITH(items, body, l) make_With_t(p.m_a, l, \
+        items.p, items.size(), STMTS(body), body.size(), nullptr)
+
 static inline arg_t *FUNC_ARG(Allocator &al, Location &l, char *arg, expr_t* e) {
     arg_t *r = al.allocate<arg_t>();
     r->loc = l;
@@ -201,46 +268,75 @@ static inline arg_t *FUNC_ARG(Allocator &al, Location &l, char *arg, expr_t* e) 
     return r;
 }
 
-static inline arguments_t FUNC_ARGS(Location &l,
-    arg_t* m_posonlyargs, size_t n_posonlyargs, arg_t* m_args, size_t n_args,
-    arg_t* m_vararg, size_t n_vararg, arg_t* m_kwonlyargs, size_t n_kwonlyargs,
-    expr_t** m_kw_defaults, size_t n_kw_defaults, arg_t* m_kwarg, size_t n_kwarg,
-    expr_t** m_defaults, size_t n_defaults) {
-    arguments_t r;
-    r.loc = l;
-    r.m_posonlyargs = m_posonlyargs;
-    r.n_posonlyargs = n_posonlyargs;
-    r.m_args = m_args;
-    r.n_args = n_args;
-    r.m_vararg = m_vararg;
-    r.n_vararg = n_vararg;
-    r.m_kwonlyargs = m_kwonlyargs;
-    r.n_kwonlyargs = n_kwonlyargs;
-    r.m_kw_defaults = m_kw_defaults;
-    r.n_kw_defaults = n_kw_defaults;
-    r.m_kwarg = m_kwarg;
-    r.n_kwarg = n_kwarg;
-    r.m_defaults = m_defaults;
-    r.n_defaults = n_defaults;
+static inline Args *FUNC_ARGS(Allocator &al, Location &l,
+        arg_t* m_posonlyargs, size_t n_posonlyargs,
+        arg_t* m_args, size_t n_args,
+        arg_t* m_vararg, size_t n_vararg,
+        arg_t* m_kwonlyargs, size_t n_kwonlyargs,
+        expr_t** m_kw_defaults, size_t n_kw_defaults,
+        arg_t* m_kwarg, size_t n_kwarg,
+        expr_t** m_defaults, size_t n_defaults) {
+    Args *r = al.allocate<Args>();
+    r->arguments.loc = l;
+    r->arguments.m_posonlyargs = m_posonlyargs;
+    r->arguments.n_posonlyargs = n_posonlyargs;
+    r->arguments.m_args = m_args;
+    r->arguments.n_args = n_args;
+    r->arguments.m_vararg = m_vararg;
+    r->arguments.n_vararg = n_vararg;
+    r->arguments.m_kwonlyargs = m_kwonlyargs;
+    r->arguments.n_kwonlyargs = n_kwonlyargs;
+    r->arguments.m_kw_defaults = m_kw_defaults;
+    r->arguments.n_kw_defaults = n_kw_defaults;
+    r->arguments.m_kwarg = m_kwarg;
+    r->arguments.n_kwarg = n_kwarg;
+    r->arguments.m_defaults = m_defaults;
+    r->arguments.n_defaults = n_defaults;
     return r;
 }
 
 #define ARGS_01(arg, l) FUNC_ARG(p.m_a, l, name2char((ast_t *)arg), nullptr)
 #define ARGS_02(arg, annotation, l) FUNC_ARG(p.m_a, l, \
         name2char((ast_t *)arg), EXPR(annotation))
+
+#define STAR_ARGS_01(vararg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
+        nullptr, 0, vararg, 1, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0)
+#define STAR_ARGS_02(vararg, kwonlyargs, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
+        nullptr, 0, vararg, 1, kwonlyargs.p, kwonlyargs.n, \
+        nullptr, 0, nullptr, 0, nullptr, 0)
+#define STAR_ARGS_03(vararg, kwonlyargs, kwarg, l) FUNC_ARGS(p.m_a, l, \
+        nullptr, 0, nullptr, 0, vararg, 1, kwonlyargs.p, kwonlyargs.n, \
+        nullptr, 0, kwarg, 1, nullptr, 0)
+#define STAR_ARGS_04(vararg, kwarg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
+        nullptr, 0, vararg, 1, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
+#define STAR_ARGS_05(kwarg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
+        nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
+#define STAR_ARGS_06(args, vararg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
+        args.p, args.n, vararg, 1, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0)
+#define STAR_ARGS_07(args, vararg, kwonlyargs, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
+        args.p, args.n, vararg, 1, kwonlyargs.p, kwonlyargs.n, \
+        nullptr, 0, nullptr, 0, nullptr, 0)
+#define STAR_ARGS_08(args, vararg, kwonlyargs, kwarg, l) FUNC_ARGS(p.m_a, l, \
+        nullptr, 0, args.p, args.n, vararg, 1, kwonlyargs.p, kwonlyargs.n, \
+        nullptr, 0, kwarg, 1, nullptr, 0)
+#define STAR_ARGS_09(args, vararg, kwarg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
+        args.p, args.n, vararg, 1, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
+#define STAR_ARGS_10(args, kwarg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
+        args.p, args.n, nullptr, 0, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
+
+#define FUNC_ARG_LIST_01(args, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
+        args.p, args.n, nullptr, 0, nullptr, 0, nullptr, 0, \
+        nullptr, 0, nullptr, 0)
+#define FUNC_ARG_LIST_02(l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
+        nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0)
+
 #define FUNCTION_01(decorator, id, args, stmts, l) \
-        make_FunctionDef_t(p.m_a, l, name2char(id), \
-        FUNC_ARGS(l, nullptr, 0, args.p, args.n, nullptr, 0, \
-            nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0), \
-        STMTS(stmts), stmts.size(), \
-        EXPRS(decorator), decorator.size(), \
+        make_FunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
         nullptr, nullptr)
 #define FUNCTION_02(decorator, id, args, return, stmts, l) \
-        make_FunctionDef_t(p.m_a, l, name2char(id), \
-        FUNC_ARGS(l, nullptr, 0, args.p, args.n, nullptr, 0, \
-            nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0), \
-        STMTS(stmts), stmts.size(), \
-        EXPRS(decorator), decorator.size(), \
+        make_FunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
         EXPR(return), nullptr)
 
 #define CLASS_01(decorator, id, stmts, l) make_ClassDef_t(p.m_a, l, \
@@ -252,6 +348,30 @@ static inline arguments_t FUNC_ARGS(Location &l,
         STMTS(stmts), stmts.size(), \
         EXPRS(decorator), decorator.size())
 
+#define ASYNC_FUNCTION_01(decorator, id, args, stmts, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
+        nullptr, nullptr)
+#define ASYNC_FUNCTION_02(decorator, id, args, return, stmts, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
+        EXPR(return), nullptr)
+#define ASYNC_FUNCTION_03(id, args, stmts, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), nullptr, 0, nullptr, nullptr)
+#define ASYNC_FUNCTION_04(id, args, return, stmts, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), nullptr, 0, EXPR(return), nullptr)
+
+#define ASYNC_FOR_01(target, iter, stmts, l) make_AsyncFor_t(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
+        STMTS(stmts), stmts.size(), nullptr, 0, nullptr)
+#define ASYNC_FOR_02(target, iter, stmts, orelse, l) make_AsyncFor_t(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
+        STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), nullptr)
+
+#define ASYNC_WITH(items, body, l) make_AsyncWith_t(p.m_a, l, \
+        items.p, items.size(), STMTS(body), body.size(), nullptr)
 
 Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
     Vec<ast_t*> v;
@@ -272,19 +392,85 @@ Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
 #define SYMBOL(x, l) make_Name_t(p.m_a, l, \
         x.c_str(p.m_a), expr_contextType::Load)
 // `x.int_n` is of type BigInt but we store the int64_t directly in AST
-#define INTEGER(x, l) make_ConstantInt_t(p.m_a, l, \
-        std::stoi(x.int_n.str()), nullptr)
+#define INTEGER(x, l) make_ConstantInt_t(p.m_a, l, x, nullptr)
 #define STRING(x, l) make_ConstantStr_t(p.m_a, l, x.c_str(p.m_a), nullptr)
-#define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, \
-        std::stof(x.c_str(p.m_a)), nullptr)
-#define COMPLEX(x, l) make_ConstantComplex_t(p.m_a, l, \
-        0, std::stof(x.int_n.str()), nullptr)
+#define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, x, nullptr)
+#define COMPLEX(x, l) make_ConstantComplex_t(p.m_a, l, 0, x, nullptr)
 #define BOOL(x, l) make_ConstantBool_t(p.m_a, l, x, nullptr)
+
+static inline keyword_t *CALL_KW(Allocator &al, Location &l,
+        char *arg, expr_t* val) {
+    keyword_t *r = al.allocate<keyword_t>();
+    r->loc = l;
+    r->m_arg = arg;
+    r->m_value = val;
+    return r;
+}
+#define CALL_KEYWORD_01(arg, val, l) CALL_KW(p.m_a, l, name2char(arg), EXPR(val))
+#define CALL_KEYWORD_02(val, l) CALL_KW(p.m_a, l, nullptr, EXPR(val))
 #define CALL_01(func, args, l) make_Call_t(p.m_a, l, \
         EXPR(func), EXPRS(args), args.size(), nullptr, 0)
+#define CALL_02(func, args, keywords, l) make_Call_t(p.m_a, l, \
+        EXPR(func), EXPRS(args), args.size(), keywords.p, keywords.size())
+#define CALL_03(func, keywords, l) make_Call_t(p.m_a, l, \
+        EXPR(func), nullptr, 0, keywords.p, keywords.size())
 #define LIST(e, l) make_List_t(p.m_a, l, \
         EXPRS(e), e.size(), expr_contextType::Load)
 #define ATTRIBUTE_REF(val, attr, l) make_Attribute_t(p.m_a, l, \
         EXPR(val), name2char(attr), expr_contextType::Load)
+
+expr_t* CHECK_TUPLE(expr_t *x) {
+    if(is_a<Tuple_t>(*x) && down_cast<Tuple_t>(x)->n_elts == 1) {
+        return down_cast<Tuple_t>(x)->m_elts[0];
+    } else {
+        return x;
+    }
+}
+
+#define TUPLE(elts, l) make_Tuple_t(p.m_a, l, \
+        EXPRS(elts), elts.size(), expr_contextType::Load)
+#define SUBSCRIPT_01(value, slice, l) make_Subscript_t(p.m_a, l, \
+        EXPR(value), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
+#define SUBSCRIPT_02(s, slice, l) make_Subscript_t(p.m_a, l, \
+        EXPR(STRING(s, l)), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
+
+static inline ast_t* SLICE(Allocator &al, Location &l,
+        ast_t *lower, ast_t *upper, ast_t *_step) {
+    expr_t* start = EXPR_OPT(lower);
+    expr_t* end = EXPR_OPT(upper);
+    expr_t* step = EXPR_OPT(_step);
+    return make_Slice_t(al, l, start, end, step);
+}
+
+#define SLICE_01(lower, upper, step, l) SLICE(p.m_a, l, lower, upper, step)
+
+Key_Val *DICT(Allocator &al, expr_t *key, expr_t *val) {
+    Key_Val *kv = al.allocate<Key_Val>();
+    kv->key = key;
+    kv->value = val;
+    return kv;
+}
+
+ast_t *DICT1(Allocator &al, Location &l, Vec<Key_Val*> dict_list) {
+    Vec<expr_t*> key;
+    key.reserve(al, dict_list.size());
+    Vec<expr_t*> val;
+    val.reserve(al, dict_list.size());
+    for (auto &item : dict_list) {
+        key.push_back(al, item->key);
+        val.push_back(al, item->value);
+    }
+    return make_Dict_t(al, l, key.p, key.n, val.p, val.n);
+}
+
+#define DICT_EXPR(key, value, l) DICT(p.m_a, EXPR(key), EXPR(value))
+#define DICT_01(l) make_Dict_t(p.m_a, l, nullptr, 0, nullptr, 0)
+#define DICT_02(dict_list, l) DICT1(p.m_a, l, dict_list)
+#define AWAIT(e, l) make_Await_t(p.m_a, l, EXPR(e))
+#define SET(e, l) make_Set_t(p.m_a, l, EXPRS(e), e.size())
+#define NAMEDEXPR(x, y, l) make_NamedExpr_t(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(x, Store)), EXPR(y))
+#define STARRED_ARG(e, l) make_Starred_t(p.m_a, l, \
+        EXPR(e), expr_contextType::Load)
 
 #endif

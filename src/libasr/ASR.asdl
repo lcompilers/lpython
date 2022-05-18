@@ -106,6 +106,7 @@ symbol
     | ClassProcedure(symbol_table parent_symtab, identifier name, identifier
         proc_name, symbol proc, abi abi)
     | AssociateBlock(symbol_table symtab, identifier name, stmt* body)
+    | Block(symbol_table symtab, identifier name, stmt* body)
 
 storage_type = Default | Save | Parameter | Allocatable
 access = Public | Private
@@ -201,15 +202,16 @@ stmt
     | Flush(int label, expr unit, expr? err, expr? iomsg, expr? iostat)
     | ListAppend(symbol a, expr ele)
     | AssociateBlockCall(symbol m)
+    | BlockCall(symbol m)
     | SetInsert(symbol a, expr ele)
     | SetRemove(symbol a, expr ele)
     | ListInsert(symbol a, expr pos, expr ele)
     | ListRemove(symbol a, expr ele)
+    | DictInsert(symbol a, expr key, expr value)
 
 
 expr
-    = StrOp(expr left, strop op, expr right, ttype type, expr? value)
-    | UnaryOp(unaryop op, expr operand, ttype type, expr? value)
+    = UnaryOp(unaryop op, expr operand, ttype type, expr? value)
         -- Such as: (x, y+z), (3.0, 2.0) generally not known at compile time
     | ComplexConstructor(expr re, expr im, ttype type, expr? value)
     | NamedExpr(expr target, expr value, ttype type)
@@ -243,25 +245,50 @@ expr
     | TupleLen(expr arg, ttype type, expr? value)
 
     | StringConstant(string s, ttype type)
+    | StringConcat(expr left, expr right, ttype type, expr? value)
+    | StringRepeat(expr left, expr right, ttype type, expr? value)
     | StringLen(expr arg, ttype type, expr? value)
+    | StringItem(expr arg, expr idx, ttype type, expr? value)
+    | StringSection(expr arg, expr start, expr end, expr step, ttype type, expr? value)
 
     | DictConstant(expr* keys, expr* values, ttype type)
     | DictLen(expr arg, ttype type, expr? value)
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type, expr? value)
     | ArraySize(expr v, expr? dim, ttype type, expr? value)
+    | ArrayBound(expr v, expr? dim ttype type, arraybound bound,
+                 expr? value)
     | OverloadedBinOp(expr left, binop op, expr right, ttype type, expr? value, expr overloaded)
     | DerivedRef(expr v, symbol m, ttype type, expr? value)
     | Cast(expr arg, cast_kind kind, ttype type, expr? value)
     | ComplexRe(expr arg, ttype type, expr? value)
     | ComplexIm(expr arg, ttype type, expr? value)
-
+    | DictItem(symbol a, expr key, expr? default, ttype type)
+    | ListItem(symbol a, expr pos, ttype type, expr? value)
+    | TupleItem(symbol a, expr pos, ttype type, expr? value)
+    | ListSection(expr a, array_index section, ttype type, expr? value)
+    | ListPop(symbol a, expr? index, ttype type, expr? value)
+    | DictPop(symbol a, expr key, ttype type, expr? value)
+    | SetPop(symbol a, ttype type, expr? value)
 
 -- `len` in Character:
 -- >=0 ... the length of the string, known at compile time
 --  -1 ... character(*), i.e., inferred at runtime
 --  -2 ... character(:), allocatable (possibly we might use -1 for that also)
 --  -3 ... character(n+3), i.e., a runtime expression stored in `len_expr`
+
+-- kind: The `kind` member selects the kind of a given type. We currently
+-- support the following:
+-- Integer kinds: 1 (i8), 2 (i16), 4 (i32), 8 (i64)
+-- Real kinds: 4 (f32), 8 (f64)
+-- Complex kinds: 4 (c32), 8 (c64)
+-- Character kinds: 1 (utf8 string)
+-- Logical kinds: 1, 2, 4: (boolean represented by 1, 2, 4 bytes; the default
+--     kind is 4, just like the default integer kind, consistent with Python
+--     and Fortran: in Python "Booleans in Python are implemented as a subclass
+--     of integers", in Fortran the "default logical kind has the same storage
+--     size as the default integer"; we currently use kind=4 as default
+--     integer, so we also use kind=4 for the default logical.)
 
 ttype
     = Integer(int kind, dimension* dims)
@@ -279,15 +306,16 @@ ttype
 
 
 binop = Add | Sub | Mul | Div | Pow
+
 logicalbinop = And | Or | Xor | NEqv | Eqv
 
 unaryop = Invert | Not | UAdd | USub
 
-strop = Concat | Repeat
-
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
 integerboz = Binary | Hex | Octal
+
+arraybound = LBound | UBound
 
 cast_kind
     = RealToInteger
