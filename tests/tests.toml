@@ -144,6 +144,7 @@ filename = "loop1.py"
 ast = true
 asr = true
 cpp = true
+c = true
 
 [[test]]
 filename = "loop2.py"
