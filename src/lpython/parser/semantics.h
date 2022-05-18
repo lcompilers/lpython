@@ -109,8 +109,12 @@ static inline Vec<ast_t*> SET_EXPR_CTX_02(Vec<ast_t*> x, expr_contextType ctx) {
 #define ANNASSIGN_02(x, y, val, l) make_AnnAssign_t(p.m_a, l, \
         EXPR(SET_EXPR_CTX_01(x, Store)), EXPR(y), EXPR(val), 1)
 
-#define DELETE(e, l) make_Delete_t(p.m_a, l, \
+#define DELETE_01(e, l) make_Delete_t(p.m_a, l, \
         EXPRS(SET_EXPR_CTX_02(e, Del)), e.size())
+#define DELETE_02(l) make_Delete_t(p.m_a, l, \
+        EXPRS(A2LIST(p.m_a, SET_EXPR_CTX_01(TUPLE_EMPTY(l), Del))), 1)
+#define DELETE_03(e, l) make_Delete_t(p.m_a, l, \
+        EXPRS(A2LIST(p.m_a, SET_EXPR_CTX_01(TUPLE_01(e, l), Del))), 1)
 
 #define EXPR_01(e, l) make_Expr_t(p.m_a, l, EXPR(e))
 
@@ -142,10 +146,11 @@ static inline ast_t* TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
     if(is_a<expr_t>(*elts[0]) && elts.size() == 1) {
         return (ast_t*) elts[0];
     }
-    return make_Tuple_t(al, l, EXPRS(SET_EXPR_CTX_02(elts, Store)), elts.size(),
-                expr_contextType::Store);
+    return make_Tuple_t(al, l, EXPRS(elts), elts.size(), expr_contextType::Load);
 }
 #define TUPLE_01(elts, l) TUPLE_02(p.m_a, l, elts)
+#define TUPLE_EMPTY(l) make_Tuple_t(p.m_a, l, \
+        nullptr, 0, expr_contextType::Load)
 
 Vec<ast_t*> TUPLE_APPEND(Allocator &al, Vec<ast_t*> x, ast_t *y) {
     Vec<ast_t*> v;
