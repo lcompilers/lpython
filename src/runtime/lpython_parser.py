@@ -120,9 +120,13 @@ class Serialization(python_ast.SerializationBaseVisitor):
         self.s = "0 "
 
     def write_int8(self, i):
+        assert i >= 0
         self.s += str(i) + " "
 
     def write_int64(self, i):
+        if i < 0:
+            i += 2**64
+        assert i >= 0
         self.s += str(i) + " "
 
     def write_float64(self, f):
