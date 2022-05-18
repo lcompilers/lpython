@@ -31,3 +31,12 @@ for i in range(5):
 sum: i32 = 0
 for j in range(5):
     sum += j
+
+for _, x in y:
+    pass
+
+for (x, y) in z:
+    pass
+
+for i, a in enumerate([4, 5, 6, 7]):
+    print(i, ": ", a)
