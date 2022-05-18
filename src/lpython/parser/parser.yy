@@ -349,6 +349,8 @@ assert_statement
 
 tuple_item
     : expr_list { $$ = TUPLE_01($1, @$); }
+    | expr_list "," { $$ = TUPLE_01($1, @$); }
+    | "(" expr_list "," ")" { $$ = TUPLE_01($2, @$); }
     | "(" expr_list ","  expr ")" { $$ = TUPLE_01(TUPLE_($2, $4), @$); }
     ;
 
@@ -398,6 +400,7 @@ delete_statement
 return_statement
     : KW_RETURN { $$ = RETURN_01(@$); }
     | KW_RETURN tuple_item { $$ = RETURN_02($2, @$); }
+    | KW_RETURN "(" ")" { $$ = RETURN_03(@$); }
     ;
 
 module
