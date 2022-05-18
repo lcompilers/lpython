@@ -139,8 +139,20 @@ static inline Vec<ast_t*> SET_EXPR_CTX_02(Vec<ast_t*> x, expr_contextType ctx) {
 #define NON_LOCAL(names, l) make_Nonlocal_t(p.m_a, l, \
         REDUCE_ARGS(p.m_a, names), names.size())
 
+static inline Vec<ast_t*> SET_STORE(Vec<ast_t*> x) {
+    for (size_t i=0; i < x.size(); i++) {
+        if(is_a<Tuple_t>(*EXPR(x[i]))) {
+            size_t n_elts = down_cast2<Tuple_t>(x[i])->n_elts;
+            for(size_t j=0; j < n_elts; j++) {
+                SET_EXPR_CTX_01(
+                    (ast_t *) down_cast2<Tuple_t>(x[0])->m_elts[j], Store);
+            }
+        }
+    }
+    return x;
+}
 #define ASSIGNMENT(targets, val, l) make_Assign_t(p.m_a, l, \
-        EXPRS(SET_EXPR_CTX_02(targets, Store)), targets.size(), \
+        EXPRS(SET_EXPR_CTX_02(SET_STORE(targets), Store)), targets.size(), \
         EXPR(val), nullptr)
 
 static inline ast_t* TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
