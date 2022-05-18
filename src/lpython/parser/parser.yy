@@ -516,8 +516,8 @@ decorators_opt
     ;
 
 decorators
-    : decorators "@" expr TK_NEWLINE { $$ = $1; LIST_ADD($$, $3); }
-    | "@" expr TK_NEWLINE { LIST_NEW($$); LIST_ADD($$, $2); }
+    : decorators "@" expr sep { $$ = $1; LIST_ADD($$, $3); }
+    | "@" expr sep { LIST_NEW($$); LIST_ADD($$, $2); }
     ;
 
 parameter
@@ -606,7 +606,7 @@ slice_item
     | expr ":"               { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
     | ":" expr               { $$ = SLICE_01(nullptr,      $2, nullptr, @$); }
     | expr ":" expr          { $$ = SLICE_01(     $1,      $3, nullptr, @$); }
-    | ":" ":"                   { $$ = SLICE_01(nullptr, nullptr, nullptr, @$); }
+    | ":" ":"                { $$ = SLICE_01(nullptr, nullptr, nullptr, @$); }
     | ":" ":" expr           { $$ = SLICE_01(nullptr, nullptr,      $3, @$); }
     | expr ":" ":"           { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
     | ":" expr ":"           { $$ = SLICE_01(nullptr,      $2, nullptr, @$); }

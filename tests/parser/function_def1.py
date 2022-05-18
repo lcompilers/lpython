@@ -34,6 +34,11 @@ def test(a: i32) -> i32:
     return a + 10
 
 @overload
+# Comment
+def test(a: i64) -> i64:
+    return a + 10
+
+@overload
 def test(a: bool) -> i32:
     if a:
         return 10
