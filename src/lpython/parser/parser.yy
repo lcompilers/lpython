@@ -235,6 +235,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> primary
 %type <vec_ast> sep
 %type <ast> sep_one
+%type <ast> string
 
 // Precedence
 
@@ -664,10 +665,14 @@ function_call
     | primary "(" keyword_items ")" { $$ = CALL_03($1, $3, @$); }
     ;
 
+string
+    : string TK_STRING { $$ = STRING2($1, $2, @$); } // TODO
+    | TK_STRING { $$ = STRING1($1, @$); }
+
 expr
     : id { $$ = $1; }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
-    | TK_STRING { $$ = STRING($1, @$); }
+    | string { $$ = $1; }
     | TK_REAL { $$ = FLOAT($1, @$); }
     | TK_IMAG_NUM { $$ = COMPLEX($1, @$); }
     | TK_TRUE { $$ = BOOL(true, @$); }
@@ -679,7 +684,7 @@ expr
     | "{" expr_list "}" { $$ = SET($2, @$); }
     | "{" expr_list "," "}" { $$ = SET($2, @$); }
     | id "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
-    | TK_STRING "[" tuple_list "]" { $$ = SUBSCRIPT_02($1, $3, @$); }
+    | string "[" tuple_list "]" { $$ = SUBSCRIPT_02($1, $3, @$); }
     | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
     | "{" "}" { $$ = DICT_01(@$); }
     | "{" dict_list "}" { $$ = DICT_02($2, @$); }
