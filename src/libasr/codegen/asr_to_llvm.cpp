@@ -2878,7 +2878,7 @@ public:
         start_new_block(target);
     }
 
-    void visit_BoolOp(const ASR::BoolOp_t &x) {
+    void visit_LogicalBinOp(const ASR::LogicalBinOp_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
             return;
@@ -2889,23 +2889,23 @@ public:
         llvm::Value *right_val = tmp;
         if (x.m_type->type == ASR::ttypeType::Logical) {
             switch (x.m_op) {
-                case ASR::boolopType::And: {
+                case ASR::logicalbinopType::And: {
                     tmp = builder->CreateAnd(left_val, right_val);
                     break;
                 };
-                case ASR::boolopType::Or: {
+                case ASR::logicalbinopType::Or: {
                     tmp = builder->CreateOr(left_val, right_val);
                     break;
                 };
-                case ASR::boolopType::Xor: {
+                case ASR::logicalbinopType::Xor: {
                     tmp = builder->CreateXor(left_val, right_val);
                     break;
                 };
-                case ASR::boolopType::NEqv: {
+                case ASR::logicalbinopType::NEqv: {
                     tmp = builder->CreateXor(left_val, right_val);
                     break;
                 };
-                case ASR::boolopType::Eqv: {
+                case ASR::logicalbinopType::Eqv: {
                     tmp = builder->CreateXor(left_val, right_val);
                     tmp = builder->CreateNot(tmp);
                 };

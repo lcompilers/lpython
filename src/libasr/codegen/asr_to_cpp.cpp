@@ -927,7 +927,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         } else {
             src += "(" + left + ")";
         }
-        src += ASRUtils::boolop_to_str(x.m_op);
+        src += ASRUtils::logicalbinop_to_str(x.m_op);
         if (right_precedence <= last_expr_precedence) {
             src += right;
         } else {

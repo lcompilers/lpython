@@ -274,7 +274,7 @@ static inline std::string cmpop_to_str(const ASR::cmpopType t) {
     }
 }
 
-static inline std::string boolop_to_str(const ASR::logicalbinopType t) {
+static inline std::string logicalbinop_to_str(const ASR::logicalbinopType t) {
     switch (t) {
         case (ASR::logicalbinopType::And): { return " && "; }
         case (ASR::logicalbinopType::Or): { return " || "; }

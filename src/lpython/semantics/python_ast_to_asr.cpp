@@ -1237,7 +1237,7 @@ public:
     }
 
     void visit_BoolOp(const AST::BoolOp_t &x) {
-        ASR::boolopType op;
+        ASR::logicalbinopType op;
         if (x.n_values > 2) {
             throw SemanticError("Only two operands supported for boolean operations",
                 x.base.base.loc);
@@ -1247,8 +1247,8 @@ public:
         this->visit_expr(*x.m_values[1]);
         ASR::expr_t *rhs = ASRUtils::EXPR(tmp);
         switch (x.m_op) {
-            case (AST::boolopType::And): { op = ASR::boolopType::And; break; }
-            case (AST::boolopType::Or): { op = ASR::boolopType::Or; break; }
+            case (AST::boolopType::And): { op = ASR::logicalbinopType::And; break; }
+            case (AST::boolopType::Or): { op = ASR::logicalbinopType::Or; break; }
             default : {
                 throw SemanticError("Boolean operator type not supported",
                     x.base.base.loc);
@@ -1268,8 +1268,8 @@ public:
                                     ASRUtils::expr_value(rhs))->m_value;
             bool result;
             switch (op) {
-                case (ASR::boolopType::And): { result = left_value && right_value; break; }
-                case (ASR::boolopType::Or): { result = left_value || right_value; break; }
+                case (ASR::logicalbinopType::And): { result = left_value && right_value; break; }
+                case (ASR::logicalbinopType::Or): { result = left_value || right_value; break; }
                 default : {
                     throw SemanticError("Boolean operator type not supported",
                         x.base.base.loc);
@@ -1278,7 +1278,7 @@ public:
             value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                 al, x.base.base.loc, result, dest_type));
         }
-        tmp = ASR::make_BoolOp_t(al, x.base.base.loc, lhs, op, rhs, dest_type, value);
+        tmp = ASR::make_LogicalBinOp_t(al, x.base.base.loc, lhs, op, rhs, dest_type, value);
     }
 
     void visit_BinOp(const AST::BinOp_t &x) {
