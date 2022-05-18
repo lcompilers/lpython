@@ -208,18 +208,24 @@ public:
 
     uint64_t read_int64() {
         std::string tmp;
+        bool first = true;
+        bool minus_sign = false;
         while (s[pos] != ' ') {
             tmp += s[pos];
-            if (! (s[pos] >= '0' && s[pos] <= '9')) {
+            if (first && s[pos] == '-') {
+                minus_sign = true;
+            } else if (! (s[pos] >= '0' && s[pos] <= '9')) {
                 throw LFortranException("read_int64: Expected integer, got `" + tmp + "`");
             }
             pos++;
             if (pos >= s.size()) {
                 throw LFortranException("read_int64: String is too short for deserialization.");
             }
+            first = false;
         }
         pos++;
         uint64_t n = std::stoull(tmp);
+        if (minus_sign) n = -n;
         return n;
     }
 
