@@ -469,9 +469,10 @@ if_statement
     ;
 
 for_statement
-    : KW_FOR expr KW_IN expr ":" sep statements { $$ = FOR_01($2, $4, $7, @$); }
-    | KW_FOR expr KW_IN expr ":" sep statements KW_ELSE ":" sep statements {
-        $$ = FOR_02($2, $4, $7, $11, @$); }
+    : KW_FOR tuple_item KW_IN expr ":" sep statements {
+        $$ = FOR_01($2, $4, $7, @$); }
+    | KW_FOR tuple_item KW_IN expr ":" sep statements KW_ELSE ":"
+        sep statements { $$ = FOR_02($2, $4, $7, $11, @$); }
     ;
 
 except_statement
@@ -585,9 +586,9 @@ async_func_def
     ;
 
 async_for_stmt
-    : KW_ASYNC KW_FOR expr KW_IN expr ":" sep statements {
+    : KW_ASYNC KW_FOR tuple_item KW_IN expr ":" sep statements {
         $$ = ASYNC_FOR_01($3, $5, $8, @$); }
-    | KW_ASYNC KW_FOR expr KW_IN expr ":" sep statements KW_ELSE ":" sep
+    | KW_ASYNC KW_FOR tuple_item KW_IN expr ":" sep statements KW_ELSE ":" sep
         statements { $$ = ASYNC_FOR_02($3, $5, $8, $12, @$); }
     ;
 
