@@ -1737,7 +1737,7 @@ public:
             deftype = ASR::deftypeType::Interface;
         }
         char *bindc_name=nullptr;
-        if (x.m_returns) {
+        if (x.m_returns && !AST::is_a<AST::ConstantNone_t>(*x.m_returns)) {
             if (AST::is_a<AST::Name_t>(*x.m_returns) || AST::is_a<AST::Subscript_t>(*x.m_returns)) {
                 std::string return_var_name = "_lpython_return_variable";
                 ASR::ttype_t *type = ast_expr_to_asr_type(x.m_returns->base.loc, *x.m_returns);
