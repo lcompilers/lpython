@@ -63,6 +63,20 @@ nonlocal a, b
 12+3j
 .12+.001j
 "String"
+"String " "String"
+'String ' 'String'
+'String ' "String"
+"String " "String"[1:]
+x = ("String "
+"String")
+x = ("String " +
+"String")
+x = ("String " \
+"String")
+x = "String " \
+"String"
+x = "String "
+"String"
 True
 False
 

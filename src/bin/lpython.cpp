@@ -11,6 +11,7 @@
 #include <lpython/semantics/python_ast_to_asr.h>
 #include <libasr/codegen/asr_to_llvm.h>
 #include <libasr/codegen/asr_to_cpp.h>
+#include <libasr/codegen/asr_to_c.h>
 #include <libasr/codegen/asr_to_py.h>
 #include <libasr/codegen/asr_to_x86.h>
 #include <lpython/python_evaluator.h>
@@ -214,6 +215,46 @@ int emit_cpp(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     auto res = LFortran::asr_to_cpp(al, *asr, diagnostics);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!res.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        return 3;
+    }
+    std::cout << res.result;
+    return 0;
+}
+
+int emit_c(const std::string &infile,
+    const std::string &runtime_library_dir,
+    CompilerOptions &compiler_options)
+{
+    Allocator al(4*1024);
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    std::string input = LFortran::read_file(infile);
+    lm.init_simple(input);
+    LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
+        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r.ok) {
+        return 1;
+    }
+    LFortran::LPython::AST::ast_t* ast = r.result;
+
+    diagnostics.diagnostics.clear();
+    LFortran::Result<LFortran::ASR::TranslationUnit_t*>
+        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
+            compiler_options.symtab_only);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r1.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        return 2;
+    }
+    LFortran::ASR::TranslationUnit_t* asr = r1.result;
+
+    diagnostics.diagnostics.clear();
+    auto res = LFortran::asr_to_c(al, *asr, diagnostics);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -542,6 +583,7 @@ int main(int argc, char *argv[])
         bool show_ast = false;
         bool show_asr = false;
         bool show_cpp = false;
+        bool show_c = false;
         bool with_intrinsic_modules = false;
         std::string arg_pass;
         bool arg_no_color = false;
@@ -595,6 +637,7 @@ int main(int argc, char *argv[])
         app.add_flag("--show-asr", show_asr, "Show ASR for the given python file and exit");
         app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");
         app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given python file and exit");
+        app.add_flag("--show-c", show_c, "Show C translation source for the given python file and exit");
         app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
         app.add_flag("--show-stacktrace", compiler_options.show_stacktrace, "Show internal stacktrace on compiler errors");
         app.add_flag("--with-intrinsic-mods", with_intrinsic_modules, "Show intrinsic modules in ASR");
@@ -786,6 +829,9 @@ int main(int argc, char *argv[])
         }
         if (show_cpp) {
             return emit_cpp(arg_file, runtime_library_dir, compiler_options);
+        }
+        if (show_c) {
+            return emit_c(arg_file, runtime_library_dir, compiler_options);
         }
         if (show_llvm) {
 #ifdef HAVE_LFORTRAN_LLVM

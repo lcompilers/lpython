@@ -49,6 +49,7 @@ def main():
         mod_to_asr = test.get("mod_to_asr", False)
         llvm = test.get("llvm", False)
         cpp = test.get("cpp", False)
+        c = test.get("c", False)
         obj = test.get("obj", False)
         x86 = test.get("x86", False)
         bin_ = test.get("bin", False)
@@ -81,6 +82,10 @@ def main():
 
         if cpp:
             run_test("cpp", "lpython --no-color --show-cpp {infile}",
+                    filename, update_reference, extra_args)
+
+        if c:
+            run_test("c", "lpython --no-color --show-c {infile}",
                     filename, update_reference, extra_args)
 
         if tokens:

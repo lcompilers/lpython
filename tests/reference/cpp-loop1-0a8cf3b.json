@@ -2,11 +2,11 @@
     "basename": "cpp-loop1-0a8cf3b",
     "cmd": "lpython --no-color --show-cpp {infile}",
     "infile": "tests/loop1.py",
-    "infile_hash": "e50c7161122d599991fafb072d5db8fe7e54d017d56a5c1951a210ca",
+    "infile_hash": "a27a0e48b7c6291be0b0847f5e7a30c591c7168a9004395156d57dbd",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "cpp-loop1-0a8cf3b.stdout",
-    "stdout_hash": "79bcbb41c038ebb668a632a270d4ef7247bca02ceba219d7c9212b8f",
+    "stdout_hash": "c66205b4ecb49a0230d42af74e349dc313754f650801a9420008f99e",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
