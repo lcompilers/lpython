@@ -5,9 +5,7 @@
 
 double f(double x);
 
-void g(double a, float b, long long c, int d)
-{
-}
+void g(double a, float b, long long c, int d);
 
 int main(int argc, char* argv[])
 {
