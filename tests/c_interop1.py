@@ -12,6 +12,10 @@ def g(a: f64, b: f32, c: i64, d: i32) -> None:
 def h(x: f64) -> f64:
     return x + 1.0
 
+@callable
+def l(a: f64, b: f32, c: i64, d: i32) -> None:
+    print("OK")
+
 def main0():
     i: f64
     x: f64
@@ -24,3 +28,5 @@ def main0():
     zz: i32
     zz = 2
     g(x, y, z, zz)
+    i = h(x)
+    l(x, y, z, zz)
