@@ -72,7 +72,15 @@ public:
     const ASR::Function_t *current_function = nullptr;
     std::map<uint64_t, SymbolInfo> sym_info;
 
-    BaseCCPPVisitor(diag::Diagnostics &diag) : diag{diag} {}
+    // Output configuration:
+    // Use std::string or char*
+    bool gen_stdstring;
+    // Use std::complex<float/double> or float/double complex
+    bool gen_stdcomplex;
+
+    BaseCCPPVisitor(diag::Diagnostics &diag,
+            bool gen_stdstring, bool gen_stdcomplex) : diag{diag},
+        gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex} {}
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
@@ -217,40 +225,47 @@ R"(#include <stdio.h>
             sub += self().convert_variable_decl(*arg);
             if (i < x.n_args-1) sub += ", ";
         }
-        sub += ")\n";
+        sub += ")";
+        if (x.m_abi == ASR::abiType::BindC
+                && x.m_deftype == ASR::deftypeType::Interface) {
+            sub += ";\n";
+        } else {
+            sub += "\n";
 
-        for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                if (v->m_intent == LFortran::ASRUtils::intent_local) {
-                    SymbolInfo s;
-                    s.needs_declaration = true;
-                    sym_info[get_hash((ASR::asr_t*)v)] = s;
-                }
-            }
-        }
-
-        std::string body;
-        for (size_t i=0; i<x.n_body; i++) {
-            self().visit_stmt(*x.m_body[i]);
-            body += src;
-        }
-
-        std::string decl;
-        for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                if (v->m_intent == LFortran::ASRUtils::intent_local) {
-                    if (sym_info[get_hash((ASR::asr_t*) v)].needs_declaration) {
-                        std::string indent(indentation_level*indentation_spaces, ' ');
-                        decl += indent;
-                        decl += self().convert_variable_decl(*v) + ";\n";
+            for (auto &item : x.m_symtab->get_scope()) {
+                if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
+                    if (v->m_intent == LFortran::ASRUtils::intent_local) {
+                        SymbolInfo s;
+                        s.needs_declaration = true;
+                        sym_info[get_hash((ASR::asr_t*)v)] = s;
                     }
                 }
             }
-        }
 
-        sub += "{\n" + decl + body + "}\n\n";
+            std::string body;
+            for (size_t i=0; i<x.n_body; i++) {
+                self().visit_stmt(*x.m_body[i]);
+                body += src;
+            }
+
+            std::string decl;
+            for (auto &item : x.m_symtab->get_scope()) {
+                if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
+                    if (v->m_intent == LFortran::ASRUtils::intent_local) {
+                        if (sym_info[get_hash((ASR::asr_t*) v)].needs_declaration) {
+                            std::string indent(indentation_level*indentation_spaces, ' ');
+                            decl += indent;
+                            decl += self().convert_variable_decl(*v) + ";\n";
+                        }
+                    }
+                }
+            }
+
+            sub += "{\n" + decl + body + "}\n";
+        }
+        sub += "\n";
         src = sub;
         indentation_level -= 1;
     }
@@ -300,13 +315,25 @@ R"(#include <stdio.h>
         } else if (ASRUtils::is_logical(*return_var->m_type)) {
             sub = "bool ";
         } else if (ASRUtils::is_character(*return_var->m_type)) {
-            sub = "char * ";
+            if (gen_stdstring) {
+                sub = "std::string ";
+            } else {
+                sub = "char* ";
+            }
         } else if (ASRUtils::is_complex(*return_var->m_type)) {
             bool is_float = ASR::down_cast<ASR::Complex_t>(return_var->m_type)->m_kind == 4;
             if (is_float) {
-                sub = "float complex ";
+                if (gen_stdcomplex) {
+                    sub = "std::complex<float> ";
+                } else {
+                    sub = "float complex ";
+                }
             } else {
-                sub = "double complex ";
+                if (gen_stdcomplex) {
+                    sub = "std::complex<double> ";
+                } else {
+                    sub = "double complex ";
+                }
             }
         } else {
             throw CodeGenError("Return type not supported");
@@ -319,7 +346,8 @@ R"(#include <stdio.h>
             if (i < x.n_args-1) sub += ", ";
         }
         sub += ")";
-        if (x.m_abi == ASR::abiType::BindC) {
+        if (x.m_abi == ASR::abiType::BindC
+                && x.m_deftype == ASR::deftypeType::Interface) {
             sub += ";\n";
         } else {
             sub += "\n";
