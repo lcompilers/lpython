@@ -7,3 +7,16 @@ def f(x: f64) -> f64:
 @ccall
 def g(a: f64, b: f32, c: i64, d: i32) -> None:
     pass
+
+def main():
+    i: f64
+    x: f64
+    x = 5.0
+    i = f(x)
+    y: f32
+    y = 5.4
+    z: i64
+    z = 3
+    zz: i32
+    zz = 2
+    g(x, y, z, zz)
