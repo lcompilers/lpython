@@ -162,6 +162,8 @@ static inline ast_t* TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
     return make_Tuple_t(al, l, EXPRS(elts), elts.size(), expr_contextType::Load);
 }
 #define TUPLE_01(elts, l) TUPLE_02(p.m_a, l, elts)
+#define TUPLE_03(elts, l) make_Tuple_t(p.m_a, l, \
+        EXPRS(elts), elts.size(), expr_contextType::Load);
 #define TUPLE_EMPTY(l) make_Tuple_t(p.m_a, l, \
         nullptr, 0, expr_contextType::Load)
 

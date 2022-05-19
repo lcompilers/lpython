@@ -349,8 +349,8 @@ assert_statement
 
 tuple_item
     : expr_list { $$ = TUPLE_01($1, @$); }
-    | expr_list "," { $$ = TUPLE_01($1, @$); }
-    | "(" expr_list "," ")" { $$ = TUPLE_01($2, @$); }
+    | expr_list "," { $$ = TUPLE_03($1, @$); }
+    | "(" expr_list "," ")" { $$ = TUPLE_03($2, @$); }
     | "(" expr_list ","  expr ")" { $$ = TUPLE_01(TUPLE_($2, $4), @$); }
     ;
 
