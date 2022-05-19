@@ -64,7 +64,8 @@ std::string format_type(const std::string &dims, const std::string &type,
 class ASRToCPPVisitor : public BaseCCPPVisitor<ASRToCPPVisitor>
 {
 public:
-    ASRToCPPVisitor(diag::Diagnostics &diag) : BaseCCPPVisitor(diag) {}
+    ASRToCPPVisitor(diag::Diagnostics &diag) : BaseCCPPVisitor(diag,
+        true, true) {}
 
     std::string convert_variable_decl(const ASR::Variable_t &v)
     {
@@ -266,119 +267,6 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 + indent1 + "Kokkos::finalize();\n"
                 + indent1 + "return 0;\n}\n";
         indentation_level -= 2;
-    }
-
-    void visit_Function(const ASR::Function_t &x) {
-        if (std::string(x.m_name) == "size" && intrinsic_module ) {
-            // Intrinsic function `size`
-            SymbolInfo s;
-            s.intrinsic_function = true;
-            sym_info[get_hash((ASR::asr_t*)&x)] = s;
-            src = "";
-            return;
-        } else if ((
-                std::string(x.m_name) == "int" ||
-                std::string(x.m_name) == "char" ||
-                std::string(x.m_name) == "present" ||
-                std::string(x.m_name) == "len" ||
-                std::string(x.m_name) == "not"
-                ) && intrinsic_module) {
-            // Intrinsic function `int`
-            SymbolInfo s;
-            s.intrinsic_function = true;
-            sym_info[get_hash((ASR::asr_t*)&x)] = s;
-            src = "";
-            return;
-        } else {
-            SymbolInfo s;
-            s.intrinsic_function = false;
-            sym_info[get_hash((ASR::asr_t*)&x)] = s;
-        }
-        std::string sub;
-        ASR::Variable_t *return_var = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
-        if (ASRUtils::is_integer(*return_var->m_type)) {
-            bool is_int = ASR::down_cast<ASR::Integer_t>(return_var->m_type)->m_kind == 4;
-            if (is_int) {
-                sub = "int ";
-            } else {
-                sub = "long long ";
-            }
-        } else if (ASRUtils::is_real(*return_var->m_type)) {
-            bool is_float = ASR::down_cast<ASR::Real_t>(return_var->m_type)->m_kind == 4;
-            if (is_float) {
-                sub = "float ";
-            } else {
-                sub = "double ";
-            }
-        } else if (ASRUtils::is_logical(*return_var->m_type)) {
-            sub = "bool ";
-        } else if (ASRUtils::is_character(*return_var->m_type)) {
-            sub = "std::string ";
-        } else if (ASRUtils::is_complex(*return_var->m_type)) {
-            bool is_float = ASR::down_cast<ASR::Complex_t>(return_var->m_type)->m_kind == 4;
-            if (is_float) {
-                sub = "std::complex<float> ";
-            } else {
-                sub = "std::complex<double> ";
-            }
-        } else {
-            throw CodeGenError("Return type not supported");
-        }
-        sub = sub + std::string(x.m_name) + "(";
-        for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
-            sub += convert_variable_decl(*arg);
-            if (i < x.n_args-1) sub += ", ";
-        }
-        sub += ")";
-        if (x.m_abi == ASR::abiType::BindC) {
-            sub += ";\n";
-        } else {
-            sub += "\n";
-
-            indentation_level += 1;
-            std::string indent(indentation_level*indentation_spaces, ' ');
-            std::string decl;
-            for (auto &item : x.m_symtab->get_scope()) {
-                if (ASR::is_a<ASR::Variable_t>(*item.second)) {
-                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                    if (v->m_intent == LFortran::ASRUtils::intent_local || v->m_intent == LFortran::ASRUtils::intent_return_var) {
-                    decl += indent + convert_variable_decl(*v) + ";\n";
-                    }
-                }
-            }
-
-            current_function = &x;
-            std::string body;
-
-            for (size_t i=0; i<x.n_body; i++) {
-                this->visit_stmt(*x.m_body[i]);
-                body += src;
-            }
-            current_function = nullptr;
-            bool visited_return = false;
-
-            if (x.n_body > 0 && ASR::is_a<ASR::Return_t>(*x.m_body[x.n_body-1])) {
-                visited_return = true;
-            }
-
-            if(!visited_return) {
-                body += indent + "return "
-                    + LFortran::ASRUtils::EXPR2VAR(x.m_return_var)->m_name
-                    + ";\n";
-            }
-
-            if (decl.size() > 0 || body.size() > 0) {
-                sub += "{\n" + decl + body + "}\n";
-            } else {
-                sub[sub.size()-1] = ';';
-                sub += "\n";
-            }
-            indentation_level -= 1;
-        }
-        sub += "\n";
-        src = sub;
     }
 
     void visit_ComplexConstructor(const ASR::ComplexConstructor_t &x) {

@@ -72,7 +72,15 @@ public:
     const ASR::Function_t *current_function = nullptr;
     std::map<uint64_t, SymbolInfo> sym_info;
 
-    BaseCCPPVisitor(diag::Diagnostics &diag) : diag{diag} {}
+    // Output configuration:
+    // Use std::string or char*
+    bool gen_stdstring;
+    // Use std::complex<float/double> or float/double complex
+    bool gen_stdcomplex;
+
+    BaseCCPPVisitor(diag::Diagnostics &diag,
+            bool gen_stdstring, bool gen_stdcomplex) : diag{diag},
+        gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex} {}
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
@@ -300,13 +308,25 @@ R"(#include <stdio.h>
         } else if (ASRUtils::is_logical(*return_var->m_type)) {
             sub = "bool ";
         } else if (ASRUtils::is_character(*return_var->m_type)) {
-            sub = "char * ";
+            if (gen_stdstring) {
+                sub = "std::string ";
+            } else {
+                sub = "char* ";
+            }
         } else if (ASRUtils::is_complex(*return_var->m_type)) {
             bool is_float = ASR::down_cast<ASR::Complex_t>(return_var->m_type)->m_kind == 4;
             if (is_float) {
-                sub = "float complex ";
+                if (gen_stdcomplex) {
+                    sub = "std::complex<float> ";
+                } else {
+                    sub = "float complex ";
+                }
             } else {
-                sub = "double complex ";
+                if (gen_stdcomplex) {
+                    sub = "std::complex<double> ";
+                } else {
+                    sub = "double complex ";
+                }
             }
         } else {
             throw CodeGenError("Return type not supported");
