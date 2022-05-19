@@ -16,6 +16,10 @@ x, y = x()
 x = y = 1
 x, y = 1, 2
 x[i] = (1, 2)
+x, y, z = t
+(x, y, z) = t
+x, = t
+(x,) = t
 
 x += 1
 
@@ -23,11 +27,19 @@ x: i64
 y: i32 = 1
 
 del x
+del ()
+del (x, y)
+del (x, y,)
+del x, y,
 del x, y
 
 return
 return a + b
 return x(a)
+return ()
+return (x, y)
+return (x, y, )
+return x, y,
 return x, y
 
 global a
