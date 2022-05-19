@@ -1,0 +1,14 @@
+#include <stdio.h>
+#include <assert.h>
+#include <complex.h>
+#include <lfortran_intrinsics.h>
+double f(double x);
+
+void g(double a, float b, long long c, int d)
+{
+}
+
+int main(int argc, char* argv[])
+{
+    return 0;
+}
