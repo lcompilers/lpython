@@ -2,7 +2,7 @@
     "basename": "c-c_interop1-e215531",
     "cmd": "lpython --no-color --show-c {infile}",
     "infile": "tests/c_interop1.py",
-    "infile_hash": "87b55eb9d3e4d32b1cbbb7b7af1905934164e518b4352326c48a1a6d",
+    "infile_hash": "e676d05044fa71c2bd65b09dd5ed2d20414f6b1c028ef528aab47748",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "c-c_interop1-e215531.stdout",
