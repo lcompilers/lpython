@@ -9,6 +9,18 @@ double f(double x);
 
 void g(double a, float b, int64_t c, int32_t d);
 
+double h(double x)
+{
+    double _lpython_return_variable;
+    _lpython_return_variable = x + 1.000000;
+    return _lpython_return_variable;
+}
+
+void l(double a, float b, int64_t c, int32_t d)
+{
+    printf("%s\n", "OK");
+}
+
 void main0()
 {
     double i;
@@ -22,6 +34,8 @@ void main0()
     z = 3;
     zz = 2;
     g(x, y, z, zz);
+    i = h(x);
+    l(x, y, z, zz);
 }
 
 int main(int argc, char* argv[])
