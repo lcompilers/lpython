@@ -225,40 +225,46 @@ R"(#include <stdio.h>
             sub += self().convert_variable_decl(*arg);
             if (i < x.n_args-1) sub += ", ";
         }
-        sub += ")\n";
+        sub += ")";
+        if (x.m_abi == ASR::abiType::BindC) {
+            sub += ";\n";
+        } else {
+            sub += "\n";
 
-        for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                if (v->m_intent == LFortran::ASRUtils::intent_local) {
-                    SymbolInfo s;
-                    s.needs_declaration = true;
-                    sym_info[get_hash((ASR::asr_t*)v)] = s;
-                }
-            }
-        }
-
-        std::string body;
-        for (size_t i=0; i<x.n_body; i++) {
-            self().visit_stmt(*x.m_body[i]);
-            body += src;
-        }
-
-        std::string decl;
-        for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                if (v->m_intent == LFortran::ASRUtils::intent_local) {
-                    if (sym_info[get_hash((ASR::asr_t*) v)].needs_declaration) {
-                        std::string indent(indentation_level*indentation_spaces, ' ');
-                        decl += indent;
-                        decl += self().convert_variable_decl(*v) + ";\n";
+            for (auto &item : x.m_symtab->get_scope()) {
+                if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
+                    if (v->m_intent == LFortran::ASRUtils::intent_local) {
+                        SymbolInfo s;
+                        s.needs_declaration = true;
+                        sym_info[get_hash((ASR::asr_t*)v)] = s;
                     }
                 }
             }
-        }
 
-        sub += "{\n" + decl + body + "}\n\n";
+            std::string body;
+            for (size_t i=0; i<x.n_body; i++) {
+                self().visit_stmt(*x.m_body[i]);
+                body += src;
+            }
+
+            std::string decl;
+            for (auto &item : x.m_symtab->get_scope()) {
+                if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
+                    if (v->m_intent == LFortran::ASRUtils::intent_local) {
+                        if (sym_info[get_hash((ASR::asr_t*) v)].needs_declaration) {
+                            std::string indent(indentation_level*indentation_spaces, ' ');
+                            decl += indent;
+                            decl += self().convert_variable_decl(*v) + ";\n";
+                        }
+                    }
+                }
+            }
+
+            sub += "{\n" + decl + body + "}\n";
+        }
+        sub += "\n";
         src = sub;
         indentation_level -= 1;
     }
