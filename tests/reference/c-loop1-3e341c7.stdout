@@ -1,6 +1,8 @@
-#include <stdio.h>
 #include <assert.h>
 #include <complex.h>
+#include <inttypes.h>
+#include <stdio.h>
+
 #include <lfortran_intrinsics.h>
 
 void _lpython_main_program()
@@ -10,18 +12,18 @@ void _lpython_main_program()
 
 void main0()
 {
-    int i;
-    long long j;
+    int32_t i;
+    int64_t j;
     i = test_factorial_1(4);
     i = test_factorial_2(4);
     j = test_factorial_3(5);
     printf("%d %lli\n", i, j);
 }
 
-int test_factorial_1(int x)
+int test_factorial_1(int32_t x)
 {
-    int _lpython_return_variable;
-    int result;
+    int32_t _lpython_return_variable;
+    int32_t result;
     if (x < 0) {
         _lpython_return_variable = 0;
         return _lpython_return_variable;
@@ -35,11 +37,11 @@ int test_factorial_1(int x)
     return _lpython_return_variable;
 }
 
-int test_factorial_2(int x)
+int test_factorial_2(int32_t x)
 {
-    int _lpython_return_variable;
-    int i;
-    int result;
+    int32_t _lpython_return_variable;
+    int32_t i;
+    int32_t result;
     result = 1;
     for (i=1; i<=x + 1 - 1; i++) {
         result = result*i;
@@ -48,10 +50,10 @@ int test_factorial_2(int x)
     return _lpython_return_variable;
 }
 
-long long test_factorial_3(int x)
+long long test_factorial_3(int32_t x)
 {
-    long long _lpython_return_variable;
-    long long result;
+    int64_t _lpython_return_variable;
+    int64_t result;
     if (x < 0) {
         _lpython_return_variable = 0;
         return _lpython_return_variable;
