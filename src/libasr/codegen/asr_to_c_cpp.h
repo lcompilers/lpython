@@ -226,7 +226,8 @@ R"(#include <stdio.h>
             if (i < x.n_args-1) sub += ", ";
         }
         sub += ")";
-        if (x.m_abi == ASR::abiType::BindC) {
+        if (x.m_abi == ASR::abiType::BindC
+                && x.m_deftype == ASR::deftypeType::Interface) {
             sub += ";\n";
         } else {
             sub += "\n";
@@ -345,7 +346,8 @@ R"(#include <stdio.h>
             if (i < x.n_args-1) sub += ", ";
         }
         sub += ")";
-        if (x.m_abi == ASR::abiType::BindC) {
+        if (x.m_abi == ASR::abiType::BindC
+                && x.m_deftype == ASR::deftypeType::Interface) {
             sub += ";\n";
         } else {
             sub += "\n";
