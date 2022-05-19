@@ -8,6 +8,10 @@ def f(x: f64) -> f64:
 def g(a: f64, b: f32, c: i64, d: i32) -> None:
     pass
 
+@callable
+def h(x: f64) -> f64:
+    return x + 1.0
+
 def main0():
     i: f64
     x: f64

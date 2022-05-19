@@ -1659,6 +1659,7 @@ public:
         Vec<ASR::expr_t*> args;
         args.reserve(al, x.m_args.n_args);
         current_procedure_abi_type = ASR::abiType::Source;
+        bool current_procedure_interface = false;
         bool overload = false;
         if (x.n_decorator_list > 0) {
             for(size_t i=0; i<x.n_decorator_list; i++) {
@@ -1666,6 +1667,9 @@ public:
                 if (AST::is_a<AST::Name_t>(*dec)) {
                     std::string name = AST::down_cast<AST::Name_t>(dec)->m_id;
                     if (name == "ccall") {
+                        current_procedure_abi_type = ASR::abiType::BindC;
+                        current_procedure_interface = true;
+                    } else if (name == "callable") {
                         current_procedure_abi_type = ASR::abiType::BindC;
                     } else if (name == "overload") {
                         overload = true;
@@ -1733,7 +1737,8 @@ public:
         }
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::deftypeType deftype = ASR::deftypeType::Implementation;
-        if (current_procedure_abi_type == ASR::abiType::BindC) {
+        if (current_procedure_abi_type == ASR::abiType::BindC &&
+                current_procedure_interface) {
             deftype = ASR::deftypeType::Interface;
         }
         char *bindc_name=nullptr;
