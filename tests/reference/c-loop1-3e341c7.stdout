@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <complex.h>
 #include <lfortran_intrinsics.h>
+
 void _lpython_main_program()
 {
     main0();
