@@ -140,9 +140,11 @@ public:
         indentation_spaces = 4;
 
         std::string headers =
-R"(#include <stdio.h>
-#include <assert.h>
+R"(#include <assert.h>
 #include <complex.h>
+#include <inttypes.h>
+#include <stdio.h>
+
 #include <lfortran_intrinsics.h>
 
 )";
