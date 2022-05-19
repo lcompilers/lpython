@@ -1669,7 +1669,7 @@ public:
                     if (name == "ccall") {
                         current_procedure_abi_type = ASR::abiType::BindC;
                         current_procedure_interface = true;
-                    } else if (name == "callable") {
+                    } else if (name == "ccallback") {
                         current_procedure_abi_type = ASR::abiType::BindC;
                     } else if (name == "overload") {
                         overload = true;
