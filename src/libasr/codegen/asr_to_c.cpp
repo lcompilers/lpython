@@ -82,8 +82,16 @@ public:
             if (ASRUtils::is_integer(*v.m_type)) {
                 ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(v.m_type);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
-                std::string type_name = "int";
-                if (t->m_kind == 8) type_name = "long long";
+                std::string type_name;
+                if (t->m_kind == 1) {
+                    type_name = "int8_t";
+                } else if (t->m_kind == 2) {
+                    type_name = "int16_t";
+                } else if (t->m_kind == 4) {
+                    type_name = "int32_t";
+                } else if (t->m_kind == 8) {
+                    type_name = "int64_t";
+                }
                 sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_real(*v.m_type)) {
                 ASR::Real_t *t = ASR::down_cast<ASR::Real_t>(v.m_type);
@@ -100,7 +108,7 @@ public:
             } else if (ASRUtils::is_logical(*v.m_type)) {
                 ASR::Logical_t *t = ASR::down_cast<ASR::Logical_t>(v.m_type);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
-                sub = format_type_c(dims, "bool", v.m_name, use_ref, dummy);
+                sub = format_type_c(dims, "int8_t", v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_character(*v.m_type)) {
                 // TODO
             } else if (ASR::is_a<ASR::Derived_t>(*v.m_type)) {
