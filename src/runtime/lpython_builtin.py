@@ -98,7 +98,6 @@ def abs(c: c64) -> f64:
     b = _lfortran_zaimag(c)
     return (a**2 + b**2)**(1/2)
 
-
 @overload
 def str() -> str:
     return ''
