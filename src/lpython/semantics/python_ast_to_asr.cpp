@@ -606,7 +606,7 @@ public:
                 diag.add(diag::Diagnostic(
                     "Number of arguments does not match in the function call",
                     diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("found: '" + fnd + "', expected: '" + org + "')",
+                        diag::Label("(found: '" + fnd + "', expected: '" + org + "')",
                                 {loc})
                     })
                 );
@@ -625,6 +625,18 @@ public:
                 s_generic, args_new.p, args_new.size(), a_type, value, nullptr);
         } else if (ASR::is_a<ASR::Subroutine_t>(*s)) {
             ASR::Subroutine_t *func = ASR::down_cast<ASR::Subroutine_t>(s);
+            if (args.size() != func->n_args) {
+                std::string fnd = std::to_string(args.size());
+                std::string org = std::to_string(func->n_args);
+                diag.add(diag::Diagnostic(
+                    "Number of arguments does not match in the function call",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("(found: '" + fnd + "', expected: '" + org + "')",
+                                {loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
             Vec<ASR::call_arg_t> args_new;
             args_new.reserve(al, func->n_args);
             for (size_t i=0; i<func->n_args; i++) {
