@@ -467,6 +467,10 @@ asr = true
 filename = "errors/test_dict6.py"
 asr = true
 
+[[test]]
+filename = "errors/test_func_args.py"
+asr = true
+
 # tests/tokens/errors
 
 [[test]]
