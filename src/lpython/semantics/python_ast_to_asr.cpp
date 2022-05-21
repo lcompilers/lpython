@@ -647,7 +647,7 @@ public:
                 args_new.push_back(al, c_arg);
             }
             return ASR::make_SubroutineCall_t(al, loc, stemp,
-                s_generic, args.p, args.size(), nullptr);
+                s_generic, args_new.p, args_new.size(), nullptr);
         } else {
             throw SemanticError("Unsupported call type for " + call_name, loc);
         }
