@@ -65,7 +65,7 @@ class ASRToCPPVisitor : public BaseCCPPVisitor<ASRToCPPVisitor>
 {
 public:
     ASRToCPPVisitor(diag::Diagnostics &diag) : BaseCCPPVisitor(diag,
-        true, true) {}
+        true, true, false) {}
 
     std::string convert_variable_decl(const ASR::Variable_t &v)
     {

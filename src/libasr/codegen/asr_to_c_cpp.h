@@ -77,11 +77,12 @@ public:
     bool gen_stdstring;
     // Use std::complex<float/double> or float/double complex
     bool gen_stdcomplex;
-    bool is_c = false;
+    bool is_c;
 
     BaseCCPPVisitor(diag::Diagnostics &diag,
-            bool gen_stdstring, bool gen_stdcomplex) : diag{diag},
-        gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex} {}
+            bool gen_stdstring, bool gen_stdcomplex, bool is_c) : diag{diag},
+        gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
+        is_c{is_c} {}
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
