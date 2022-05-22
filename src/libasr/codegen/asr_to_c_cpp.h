@@ -77,6 +77,7 @@ public:
     bool gen_stdstring;
     // Use std::complex<float/double> or float/double complex
     bool gen_stdcomplex;
+    bool is_c = false;
 
     BaseCCPPVisitor(diag::Diagnostics &diag,
             bool gen_stdstring, bool gen_stdcomplex) : diag{diag},
@@ -674,7 +675,8 @@ R"(#include <stdio.h>
             case (ASR::binopType::Mul) : { last_expr_precedence = 5; break; }
             case (ASR::binopType::Div) : { last_expr_precedence = 5; break; }
             case (ASR::binopType::Pow) : {
-                src = "std::pow(" + left + ", " + right + ")";
+                src = "pow(" + left + ", " + right + ")";
+                if (!is_c) src = "std::" + src;
                 return;
             }
             default: throw CodeGenError("BinOp: operator not implemented yet");

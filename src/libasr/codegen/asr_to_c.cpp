@@ -59,7 +59,9 @@ class ASRToCVisitor : public BaseCCPPVisitor<ASRToCVisitor>
 public:
 
     ASRToCVisitor(diag::Diagnostics &diag) : BaseCCPPVisitor(diag,
-        false, false) {}
+        false, false) {
+            is_c = true;
+        }
 
     std::string convert_variable_decl(const ASR::Variable_t &v)
     {
@@ -144,6 +146,7 @@ R"(#include <assert.h>
 #include <complex.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <math.h>
 
 #include <lfortran_intrinsics.h>
 
