@@ -1,0 +1,51 @@
+#include <assert.h>
+#include <complex.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <math.h>
+
+#include <lfortran_intrinsics.h>
+
+void _lpython_main_program()
+{
+    main0();
+}
+
+void main0()
+{
+    int32_t c;
+    test_pow();
+    c = test_pow_1(1, 2);
+}
+
+void test_pow()
+{
+    int32_t a;
+    a = __lpython_overloaded_0__pow(2, 2);
+}
+
+int test_pow_1(int32_t a, int32_t b)
+{
+    int32_t _lpython_return_variable;
+    int32_t res;
+    res = __lpython_overloaded_0__pow(a, b);
+    _lpython_return_variable = res;
+    return _lpython_return_variable;
+}
+
+int __lpython_overloaded_0__pow(int32_t x, int32_t y)
+{
+    int32_t _lpython_return_variable;
+    _lpython_return_variable = pow(x, y);
+    return _lpython_return_variable;
+}
+
+float _lfortran_caimag(float complex x);
+
+double _lfortran_zaimag(double complex x);
+
+int main(int argc, char* argv[])
+{
+        _lpython_main_program();
+    return 0;
+}
