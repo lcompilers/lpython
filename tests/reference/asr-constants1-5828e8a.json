@@ -2,11 +2,11 @@
     "basename": "asr-constants1-5828e8a",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/constants1.py",
-    "infile_hash": "680bb6f62b6e7d58fdddc891954816cea0c25b9201576498f149849e",
+    "infile_hash": "cee5ee435f95d4ce19c6602a539e212d144920b7635557962fb0de2d",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-constants1-5828e8a.stdout",
-    "stdout_hash": "0a1dc0f25e4d924292468fe539457de28f1366d752d7dacddc670278",
+    "stdout_hash": "cf16b8d7774e78cec5456912cacb31fbb9f8f8a80f98f5822fc0c8c1",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

@@ -91,8 +91,7 @@ def test_int():
     a = int(-5.00001)
     a = int(True)
     a = int(False)
-    # commented tests should work
-    # a = int("5346")
+    a = int("5346")
 
 
 def test_float():
