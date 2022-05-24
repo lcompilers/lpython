@@ -6,5 +6,9 @@ def test_str_int():
     assert s == "-567"
     assert str(4) == "4"
     assert str(-5) == "-5"
+    assert str() == ""
+    assert str("1234") == "1234"
+    assert str(False) == "False"
+    assert str(True) == "True"
 
 test_str_int()
