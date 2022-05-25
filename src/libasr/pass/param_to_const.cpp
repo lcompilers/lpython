@@ -74,8 +74,9 @@ public:
         asr = const_cast<ASR::expr_t*>(&(x.base));
     }
 
-    void visit_BinOp(const ASR::BinOp_t& x) {
-        ASR::BinOp_t& x_unconst = const_cast<ASR::BinOp_t&>(x);
+    template <typename T>
+    void visit_BinOp(const T& x) {
+        T& x_unconst = const_cast<T&>(x);
         asr = nullptr;
         this->visit_expr(*x.m_left);
         if( asr != nullptr ) {
@@ -87,6 +88,19 @@ public:
             x_unconst.m_right = asr;
         }
         asr = const_cast<ASR::expr_t*>(&(x.base));
+    }
+
+    void visit_IntegerBinOp(const ASR::IntegerBinOp_t& x) {
+        visit_BinOp(x);
+    }
+    void visit_RealBinOp(const ASR::RealBinOp_t& x) {
+        visit_BinOp(x);
+    }
+    void visit_ComplexBinOp(const ASR::ComplexBinOp_t& x) {
+        visit_BinOp(x);
+    }
+    void visit_LogicalBinOp(const ASR::LogicalBinOp_t& x) {
+        visit_BinOp(x);
     }
 
     void visit_Cast(const ASR::Cast_t& x) {
