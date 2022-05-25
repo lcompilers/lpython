@@ -2950,11 +2950,7 @@ public:
         tmp = lfortran_str_len(parg);
     }
 
-    void visit_BinOp(const ASR::BinOp_t &x) {
-        if( x.m_overloaded ) {
-            this->visit_expr(*x.m_overloaded);
-            return ;
-        }
+    void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
             return;
@@ -2963,142 +2959,161 @@ public:
         llvm::Value *left_val = tmp;
         this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
-        if (ASRUtils::is_integer(*x.m_type)) {
-            switch (x.m_op) {
-                case ASR::binopType::Add: {
-                    tmp = builder->CreateAdd(left_val, right_val);
-                    break;
-                };
-                case ASR::binopType::Sub: {
-                    tmp = builder->CreateSub(left_val, right_val);
-                    break;
-                };
-                case ASR::binopType::Mul: {
-                    tmp = builder->CreateMul(left_val, right_val);
-                    break;
-                };
-                case ASR::binopType::Div: {
-                    tmp = builder->CreateUDiv(left_val, right_val);
-                    break;
-                };
-                case ASR::binopType::Pow: {
-                    llvm::Type *type;
-                    int a_kind;
-                    a_kind = down_cast<ASR::Integer_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
-                    type = getFPType(a_kind);
-                    llvm::Value *fleft = builder->CreateSIToFP(left_val,
-                            type);
-                    llvm::Value *fright = builder->CreateSIToFP(right_val,
-                            type);
-                    std::string func_name = a_kind == 4 ? "llvm.pow.f32" : "llvm.pow.f64";
-                    llvm::Function *fn_pow = module->getFunction(func_name);
-                    if (!fn_pow) {
-                        llvm::FunctionType *function_type = llvm::FunctionType::get(
-                                type, { type, type}, false);
-                        fn_pow = llvm::Function::Create(function_type,
-                                llvm::Function::ExternalLinkage, func_name,
-                                module.get());
-                    }
-                    tmp = builder->CreateCall(fn_pow, {fleft, fright});
-                    type = getIntType(a_kind);
-                    tmp = builder->CreateFPToSI(tmp, type);
-                    break;
-                };
-            }
-        } else if (ASRUtils::is_real(*x.m_type)) {
-            switch (x.m_op) {
-                case ASR::binopType::Add: {
-                    tmp = builder->CreateFAdd(left_val, right_val);
-                    break;
-                };
-                case ASR::binopType::Sub: {
-                    tmp = builder->CreateFSub(left_val, right_val);
-                    break;
-                };
-                case ASR::binopType::Mul: {
-                    tmp = builder->CreateFMul(left_val, right_val);
-                    break;
-                };
-                case ASR::binopType::Div: {
-                    tmp = builder->CreateFDiv(left_val, right_val);
-                    break;
-                };
-                case ASR::binopType::Pow: {
-                    llvm::Type *type;
-                    int a_kind;
-                    a_kind = down_cast<ASR::Real_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
-                    type = getFPType(a_kind);
-                    std::string func_name = a_kind == 4 ? "llvm.pow.f32" : "llvm.pow.f64";
-                    llvm::Function *fn_pow = module->getFunction(func_name);
-                    if (!fn_pow) {
-                        llvm::FunctionType *function_type = llvm::FunctionType::get(
-                                type, { type, type }, false);
-                        fn_pow = llvm::Function::Create(function_type,
-                                llvm::Function::ExternalLinkage, func_name,
-                                module.get());
-                    }
-                    tmp = builder->CreateCall(fn_pow, {left_val, right_val});
-                    break;
-                };
-            }
-        } else if (ASRUtils::is_complex(*x.m_type)) {
-            llvm::Type *type;
-            int a_kind;
-            a_kind = down_cast<ASR::Complex_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
-            type = getComplexType(a_kind);
-            if( left_val->getType()->isPointerTy() ) {
-                left_val = CreateLoad(left_val);
-            }
-            if( right_val->getType()->isPointerTy() ) {
-                right_val = CreateLoad(right_val);
-            }
-            std::string fn_name;
-            switch (x.m_op) {
-                case ASR::binopType::Add: {
-                    if (a_kind == 4) {
-                        fn_name = "_lfortran_complex_add_32";
-                    } else {
-                        fn_name = "_lfortran_complex_add_64";
-                    }
-                    break;
-                };
-                case ASR::binopType::Sub: {
-                    if (a_kind == 4) {
-                        fn_name = "_lfortran_complex_sub_32";
-                    } else {
-                        fn_name = "_lfortran_complex_sub_64";
-                    }
-                    break;
-                };
-                case ASR::binopType::Mul: {
-                    if (a_kind == 4) {
-                        fn_name = "_lfortran_complex_mul_32";
-                    } else {
-                        fn_name = "_lfortran_complex_mul_64";
-                    }
-                    break;
-                };
-                case ASR::binopType::Div: {
-                    if (a_kind == 4) {
-                        fn_name = "_lfortran_complex_div_32";
-                    } else {
-                        fn_name = "_lfortran_complex_div_64";
-                    }
-                    break;
-                };
-                case ASR::binopType::Pow: {
-                    if (a_kind == 4) {
-                        fn_name = "_lfortran_complex_pow_32";
-                    } else {
-                        fn_name = "_lfortran_complex_pow_64";
-                    }
-                    break;
-                };
-            }
-            tmp = lfortran_complex_bin_op(left_val, right_val, fn_name, type);
-        } else {
-            throw CodeGenError("Binop: Only Real, Integer and Complex types are allowed");
+        LFORTRAN_ASSERT(ASRUtils::is_integer(*x.m_type))
+        switch (x.m_op) {
+            case ASR::binopType::Add: {
+                tmp = builder->CreateAdd(left_val, right_val);
+                break;
+            };
+            case ASR::binopType::Sub: {
+                tmp = builder->CreateSub(left_val, right_val);
+                break;
+            };
+            case ASR::binopType::Mul: {
+                tmp = builder->CreateMul(left_val, right_val);
+                break;
+            };
+            case ASR::binopType::Div: {
+                tmp = builder->CreateUDiv(left_val, right_val);
+                break;
+            };
+            case ASR::binopType::Pow: {
+                llvm::Type *type;
+                int a_kind;
+                a_kind = down_cast<ASR::Integer_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
+                type = getFPType(a_kind);
+                llvm::Value *fleft = builder->CreateSIToFP(left_val,
+                        type);
+                llvm::Value *fright = builder->CreateSIToFP(right_val,
+                        type);
+                std::string func_name = a_kind == 4 ? "llvm.pow.f32" : "llvm.pow.f64";
+                llvm::Function *fn_pow = module->getFunction(func_name);
+                if (!fn_pow) {
+                    llvm::FunctionType *function_type = llvm::FunctionType::get(
+                            type, { type, type}, false);
+                    fn_pow = llvm::Function::Create(function_type,
+                            llvm::Function::ExternalLinkage, func_name,
+                            module.get());
+                }
+                tmp = builder->CreateCall(fn_pow, {fleft, fright});
+                type = getIntType(a_kind);
+                tmp = builder->CreateFPToSI(tmp, type);
+                break;
+            };
         }
+    }
+
+    void visit_RealBinOp(const ASR::RealBinOp_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_left, true);
+        llvm::Value *left_val = tmp;
+        this->visit_expr_wrapper(x.m_right, true);
+        llvm::Value *right_val = tmp;
+        LFORTRAN_ASSERT(ASRUtils::is_real(*x.m_type)) 
+        switch (x.m_op) {
+            case ASR::binopType::Add: {
+                tmp = builder->CreateFAdd(left_val, right_val);
+                break;
+            };
+            case ASR::binopType::Sub: {
+                tmp = builder->CreateFSub(left_val, right_val);
+                break;
+            };
+            case ASR::binopType::Mul: {
+                tmp = builder->CreateFMul(left_val, right_val);
+                break;
+            };
+            case ASR::binopType::Div: {
+                tmp = builder->CreateFDiv(left_val, right_val);
+                break;
+            };
+            case ASR::binopType::Pow: {
+                llvm::Type *type;
+                int a_kind;
+                a_kind = down_cast<ASR::Real_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
+                type = getFPType(a_kind);
+                std::string func_name = a_kind == 4 ? "llvm.pow.f32" : "llvm.pow.f64";
+                llvm::Function *fn_pow = module->getFunction(func_name);
+                if (!fn_pow) {
+                    llvm::FunctionType *function_type = llvm::FunctionType::get(
+                            type, { type, type }, false);
+                    fn_pow = llvm::Function::Create(function_type,
+                            llvm::Function::ExternalLinkage, func_name,
+                            module.get());
+                }
+                tmp = builder->CreateCall(fn_pow, {left_val, right_val});
+                break;
+            };
+        }
+    }
+
+    void visit_ComplexBinOp(const ASR::ComplexBinOp_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_left, true);
+        llvm::Value *left_val = tmp;
+        this->visit_expr_wrapper(x.m_right, true);
+        llvm::Value *right_val = tmp;
+        LFORTRAN_ASSERT(ASRUtils::is_complex(*x.m_type));
+        llvm::Type *type;
+        int a_kind;
+        a_kind = down_cast<ASR::Complex_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
+        type = getComplexType(a_kind);
+        if( left_val->getType()->isPointerTy() ) {
+            left_val = CreateLoad(left_val);
+        }
+        if( right_val->getType()->isPointerTy() ) {
+            right_val = CreateLoad(right_val);
+        }
+        std::string fn_name;
+        switch (x.m_op) {
+            case ASR::binopType::Add: {
+                if (a_kind == 4) {
+                    fn_name = "_lfortran_complex_add_32";
+                } else {
+                    fn_name = "_lfortran_complex_add_64";
+                }
+                break;
+            };
+            case ASR::binopType::Sub: {
+                if (a_kind == 4) {
+                    fn_name = "_lfortran_complex_sub_32";
+                } else {
+                    fn_name = "_lfortran_complex_sub_64";
+                }
+                break;
+            };
+            case ASR::binopType::Mul: {
+                if (a_kind == 4) {
+                    fn_name = "_lfortran_complex_mul_32";
+                } else {
+                    fn_name = "_lfortran_complex_mul_64";
+                }
+                break;
+            };
+            case ASR::binopType::Div: {
+                if (a_kind == 4) {
+                    fn_name = "_lfortran_complex_div_32";
+                } else {
+                    fn_name = "_lfortran_complex_div_64";
+                }
+                break;
+            };
+            case ASR::binopType::Pow: {
+                if (a_kind == 4) {
+                    fn_name = "_lfortran_complex_pow_32";
+                } else {
+                    fn_name = "_lfortran_complex_pow_64";
+                }
+                break;
+            };
+        }
+        tmp = lfortran_complex_bin_op(left_val, right_val, fn_name, type);
     }
 
     void visit_UnaryOp(const ASR::UnaryOp_t &x) {
