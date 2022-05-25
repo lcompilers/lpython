@@ -6,9 +6,9 @@ def fib(n: i64) -> i64:
     else:
         return fib(n - 1) + fib(n - 2)
 
-def main():
+def main0():
     ans: i64
-    ans = fib(35)
-    print(ans)
+    ans = fib(15)
+    assert ans == 610
 
-main()
+main0()
