@@ -349,8 +349,9 @@ public:
         arg2value.clear();
     }
 
-    void visit_BinOp(const ASR::BinOp_t& x) {
-        ASR::BinOp_t& xx = const_cast<ASR::BinOp_t&>(x);
+    template <typename T>
+    void visit_BinOp(const T& x) {
+        T& xx = const_cast<T&>(x);
         from_inline_function_call = true;
         function_result_var = nullptr;
         visit_expr(*x.m_left);
@@ -364,6 +365,19 @@ public:
         }
         function_result_var = nullptr;
         from_inline_function_call = false;
+    }
+
+    void visit_IntegerBinOp(const ASR::IntegerBinOp_t& x) {
+        visit_BinOp(x);
+    }
+    void visit_RealBinOp(const ASR::RealBinOp_t& x) {
+        visit_BinOp(x);
+    }
+    void visit_ComplexBinOp(const ASR::ComplexBinOp_t& x) {
+        visit_BinOp(x);
+    }
+    void visit_LogicalBinOp(const ASR::LogicalBinOp_t& x) {
+        visit_BinOp(x);
     }
 
     void visit_Assignment(const ASR::Assignment_t& x) {
