@@ -175,35 +175,31 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         }
     }
 
-    void visit_BinOp(const ASR::BinOp_t &x) {
+    void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
         this->visit_expr(*x.m_left);
        
         this->visit_expr(*x.m_right);
         
-        if (ASRUtils::is_integer(*x.m_type)) {
-            switch (x.m_op) {
-                case ASR::binopType::Add: {
-                    wasm::emit_i32_add(m_code_section, m_al);
-                    break;
-                };
-                case ASR::binopType::Sub: {
-                    wasm::emit_i32_sub(m_code_section, m_al);
-                    break;
-                };
-                case ASR::binopType::Mul: {
-                    wasm::emit_i32_mul(m_code_section, m_al);
-                    break;
-                };
-                case ASR::binopType::Div: {
-                    wasm::emit_i32_div(m_code_section, m_al);
-                    break;
-                };
-                default:
-                    throw CodeGenError(
-                        "Binop: Pow Operation not yet implemented");
-            }
-        } else {
-            throw CodeGenError("Binop: Only Integer type implemented");
+        switch (x.m_op) {
+            case ASR::binopType::Add: {
+                wasm::emit_i32_add(m_code_section, m_al);
+                break;
+            };
+            case ASR::binopType::Sub: {
+                wasm::emit_i32_sub(m_code_section, m_al);
+                break;
+            };
+            case ASR::binopType::Mul: {
+                wasm::emit_i32_mul(m_code_section, m_al);
+                break;
+            };
+            case ASR::binopType::Div: {
+                wasm::emit_i32_div(m_code_section, m_al);
+                break;
+            };
+            default:
+                throw CodeGenError(
+                    "Binop: Pow Operation not yet implemented");
         }
     }
 
