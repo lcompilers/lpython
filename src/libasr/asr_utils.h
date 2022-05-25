@@ -1139,6 +1139,22 @@ ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
 ASR::asr_t* make_Cast_t_value(Allocator &al, const Location &a_loc,
             ASR::expr_t* a_arg, ASR::cast_kindType a_kind, ASR::ttype_t* a_type);
 
+ASR::expr_t* create_binop_add(Allocator &al, const Location &loc, ASR::expr_t* left, ASR::expr_t* right) {
+    LFORTRAN_ASSERT(expr_type(left) == expr_type(right))
+    ASR::ttype_t* type = expr_type(left);
+    // TODO: compute `value`:
+    if (is_integer(*type)) {
+        return EXPR(ASR::make_IntegerBinOp_t(al, loc, left, ASR::binopType::Add, right, type, nullptr));
+    } else if (is_real(*type)) {
+        return EXPR(ASR::make_RealBinOp_t(al, loc, left, ASR::binopType::Add, right, type, nullptr));
+    } else if (is_complex(*type)) {
+        return EXPR(ASR::make_ComplexBinOp_t(al, loc, left, ASR::binopType::Add, right, type, nullptr));
+    } else {
+        LFORTRAN_ASSERT(false);
+        return nullptr;
+    }
+}
+
 } // namespace ASRUtils
 
 } // namespace LFortran
