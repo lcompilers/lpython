@@ -746,15 +746,14 @@ public:
 
     ASR::expr_t *index_add_one(const Location &loc, ASR::expr_t *idx) {
         // Add 1 to the index `idx`, assumes `idx` is of type Integer 4
-        ASR::expr_t *overloaded = nullptr;
         ASR::expr_t *comptime_value = nullptr;
         ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
             4, nullptr, 0));
         ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                                             al, loc, 1, a_type));
-        return ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, idx,
+        return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, idx,
             ASR::binopType::Add, constant_one, a_type,
-            comptime_value, overloaded));
+            comptime_value));
     }
 
     // Casts `right` if needed to the type of `left`
