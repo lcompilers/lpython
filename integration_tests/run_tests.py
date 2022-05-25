@@ -40,8 +40,9 @@ tests = [
     "test_generics_01.py",
     "test_cmath.py",
     "test_complex.py",
-    "test_max_min.py"
-    
+    "test_max_min.py",
+    "test_issue_518.py"
+
 ]
 
 # CPython tests only

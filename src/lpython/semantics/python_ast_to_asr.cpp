@@ -600,11 +600,54 @@ public:
             if (ASRUtils::is_intrinsic_function2(func)) {
                 value = intrinsic_procedures.comptime_eval(call_name, al, loc, args);
             }
+            if (args.size() != func->n_args) {
+                std::string fnd = std::to_string(args.size());
+                std::string org = std::to_string(func->n_args);
+                diag.add(diag::Diagnostic(
+                    "Number of arguments does not match in the function call",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("(found: '" + fnd + "', expected: '" + org + "')",
+                                {loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+            Vec<ASR::call_arg_t> args_new;
+            args_new.reserve(al, func->n_args);
+            for (size_t i=0; i<func->n_args; i++) {
+                ASR::call_arg_t c_arg;
+                c_arg.loc = args[i].loc;
+                c_arg.m_value = cast_helper(ASRUtils::expr_type(func->m_args[i]),
+                                    args[i].m_value, true);
+                args_new.push_back(al, c_arg);
+            }
             return ASR::make_FunctionCall_t(al, loc, stemp,
-                s_generic, args.p, args.size(), a_type, value, nullptr);
+                s_generic, args_new.p, args_new.size(), a_type, value, nullptr);
         } else if (ASR::is_a<ASR::Subroutine_t>(*s)) {
+            ASR::Subroutine_t *func = ASR::down_cast<ASR::Subroutine_t>(s);
+            if (args.size() != func->n_args) {
+                std::string fnd = std::to_string(args.size());
+                std::string org = std::to_string(func->n_args);
+                diag.add(diag::Diagnostic(
+                    "Number of arguments does not match in the function call",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("(found: '" + fnd + "', expected: '" + org + "')",
+                                {loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+            Vec<ASR::call_arg_t> args_new;
+            args_new.reserve(al, func->n_args);
+            for (size_t i=0; i<func->n_args; i++) {
+                ASR::call_arg_t c_arg;
+                c_arg.loc = args[i].loc;
+                c_arg.m_value = cast_helper(ASRUtils::expr_type(func->m_args[i]),
+                                    args[i].m_value, true);
+                args_new.push_back(al, c_arg);
+            }
             return ASR::make_SubroutineCall_t(al, loc, stemp,
-                s_generic, args.p, args.size(), nullptr);
+                s_generic, args_new.p, args_new.size(), nullptr);
         } else {
             throw SemanticError("Unsupported call type for " + call_name, loc);
         }
