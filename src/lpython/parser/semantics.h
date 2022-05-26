@@ -109,13 +109,18 @@ static inline Vec<ast_t*> SET_EXPR_CTX_02(Vec<ast_t*> x, expr_contextType ctx) {
 #define ANNASSIGN_02(x, y, val, l) make_AnnAssign_t(p.m_a, l, \
         EXPR(SET_EXPR_CTX_01(x, Store)), EXPR(y), EXPR(val), 1)
 
-#define DELETE(e, l) make_Delete_t(p.m_a, l, \
+#define DELETE_01(e, l) make_Delete_t(p.m_a, l, \
         EXPRS(SET_EXPR_CTX_02(e, Del)), e.size())
+#define DELETE_02(l) make_Delete_t(p.m_a, l, \
+        EXPRS(A2LIST(p.m_a, SET_EXPR_CTX_01(TUPLE_EMPTY(l), Del))), 1)
+#define DELETE_03(e, l) make_Delete_t(p.m_a, l, \
+        EXPRS(A2LIST(p.m_a, SET_EXPR_CTX_01(TUPLE_01(e, l), Del))), 1)
 
 #define EXPR_01(e, l) make_Expr_t(p.m_a, l, EXPR(e))
 
 #define RETURN_01(l) make_Return_t(p.m_a, l, nullptr)
 #define RETURN_02(e, l) make_Return_t(p.m_a, l, EXPR(e))
+#define RETURN_03(l) make_Return_t(p.m_a, l, EXPR(TUPLE_EMPTY(l)))
 
 #define PASS(l) make_Pass_t(p.m_a, l)
 #define BREAK(l) make_Break_t(p.m_a, l)
@@ -134,18 +139,37 @@ static inline Vec<ast_t*> SET_EXPR_CTX_02(Vec<ast_t*> x, expr_contextType ctx) {
 #define NON_LOCAL(names, l) make_Nonlocal_t(p.m_a, l, \
         REDUCE_ARGS(p.m_a, names), names.size())
 
+static inline ast_t *SET_STORE_01(ast_t *x) {
+    if(is_a<Tuple_t>(*EXPR(x))) {
+        size_t n_elts = down_cast2<Tuple_t>(x)->n_elts;
+        for(size_t i=0; i < n_elts; i++) {
+            SET_EXPR_CTX_01(
+                (ast_t *) down_cast2<Tuple_t>(x)->m_elts[i], Store);
+        }
+    }
+    return x;
+}
+static inline Vec<ast_t*> SET_STORE_02(Vec<ast_t*> x) {
+    for (size_t i=0; i < x.size(); i++) {
+        SET_STORE_01(x[i]);
+    }
+    return x;
+}
 #define ASSIGNMENT(targets, val, l) make_Assign_t(p.m_a, l, \
-        EXPRS(SET_EXPR_CTX_02(targets, Store)), targets.size(), \
+        EXPRS(SET_EXPR_CTX_02(SET_STORE_02(targets), Store)), targets.size(), \
         EXPR(val), nullptr)
 
 static inline ast_t* TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
     if(is_a<expr_t>(*elts[0]) && elts.size() == 1) {
         return (ast_t*) elts[0];
     }
-    return make_Tuple_t(al, l, EXPRS(SET_EXPR_CTX_02(elts, Store)), elts.size(),
-                expr_contextType::Store);
+    return make_Tuple_t(al, l, EXPRS(elts), elts.size(), expr_contextType::Load);
 }
 #define TUPLE_01(elts, l) TUPLE_02(p.m_a, l, elts)
+#define TUPLE_03(elts, l) make_Tuple_t(p.m_a, l, \
+        EXPRS(elts), elts.size(), expr_contextType::Load);
+#define TUPLE_EMPTY(l) make_Tuple_t(p.m_a, l, \
+        nullptr, 0, expr_contextType::Load)
 
 Vec<ast_t*> TUPLE_APPEND(Allocator &al, Vec<ast_t*> x, ast_t *y) {
     Vec<ast_t*> v;
@@ -213,10 +237,10 @@ int dot_count = 0;
         EXPR(e), STMTS(stmt), stmt.size(), STMTS(A2LIST(p.m_a, orelse)), 1)
 
 #define FOR_01(target, iter, stmts, l) make_For_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
+        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), nullptr, 0, nullptr)
 #define FOR_02(target, iter, stmts, orelse, l) make_For_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
+        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), nullptr)
 
 #define TRY_01(stmts, except, l) make_Try_t(p.m_a, l, \
@@ -364,10 +388,10 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
         STMTS(stmts), stmts.size(), nullptr, 0, EXPR(return), nullptr)
 
 #define ASYNC_FOR_01(target, iter, stmts, l) make_AsyncFor_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
+        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), nullptr, 0, nullptr)
 #define ASYNC_FOR_02(target, iter, stmts, orelse, l) make_AsyncFor_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
+        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), nullptr)
 
 #define ASYNC_WITH(items, body, l) make_AsyncWith_t(p.m_a, l, \
@@ -389,11 +413,17 @@ Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
 #define COMPARE(x, op, y, l) make_Compare_t(p.m_a, l, \
         EXPR(x), cmpopType::op, EXPRS(A2LIST(p.m_a, y)), 1)
 
+char* concat_string(Allocator &al, ast_t *a, char *b) {
+    char *s = down_cast2<ConstantStr_t>(a)->m_value;
+    return LFortran::s2c(al, std::string(s) + std::string(b));
+}
+
 #define SYMBOL(x, l) make_Name_t(p.m_a, l, \
         x.c_str(p.m_a), expr_contextType::Load)
 // `x.int_n` is of type BigInt but we store the int64_t directly in AST
 #define INTEGER(x, l) make_ConstantInt_t(p.m_a, l, x, nullptr)
-#define STRING(x, l) make_ConstantStr_t(p.m_a, l, x.c_str(p.m_a), nullptr)
+#define STRING1(x, l) make_ConstantStr_t(p.m_a, l, x.c_str(p.m_a), nullptr)
+#define STRING2(x, y, l) make_ConstantStr_t(p.m_a, l, concat_string(p.m_a, x, y.c_str(p.m_a)), nullptr)
 #define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, x, nullptr)
 #define COMPLEX(x, l) make_ConstantComplex_t(p.m_a, l, 0, x, nullptr)
 #define BOOL(x, l) make_ConstantBool_t(p.m_a, l, x, nullptr)
@@ -432,7 +462,7 @@ expr_t* CHECK_TUPLE(expr_t *x) {
 #define SUBSCRIPT_01(value, slice, l) make_Subscript_t(p.m_a, l, \
         EXPR(value), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
 #define SUBSCRIPT_02(s, slice, l) make_Subscript_t(p.m_a, l, \
-        EXPR(STRING(s, l)), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
+        EXPR(s), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
 
 static inline ast_t* SLICE(Allocator &al, Location &l,
         ast_t *lower, ast_t *upper, ast_t *_step) {

@@ -98,7 +98,21 @@ def abs(c: c64) -> f64:
     b = _lfortran_zaimag(c)
     return (a**2 + b**2)**(1/2)
 
+@overload
+def str() -> str:
+    return ''
 
+@overload
+def str(x: str) -> str:
+    return x
+
+@overload
+def str(x: bool) -> str:
+    if x:
+        return "True"
+    return "False"
+
+@overload
 def str(x: i32) -> str:
     """
     Return the string representation of an integer `x`.

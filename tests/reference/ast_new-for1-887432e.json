@@ -2,11 +2,11 @@
     "basename": "ast_new-for1-887432e",
     "cmd": "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
     "infile": "tests/parser/for1.py",
-    "infile_hash": "60515a1800d4a8b1a2cad5ad7b23f75f2510e1d369e94065f01c0844",
+    "infile_hash": "a05c8da4019ead83ba9840212112e467f7a8968896b55d0122962b7f",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast_new-for1-887432e.stdout",
-    "stdout_hash": "438c7ad856655fd2f666faab754e58f11179a800975359501be7b8fa",
+    "stdout_hash": "616164b90733fae6f26818243182810e9864ad8499e1d2c591b27cf3",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

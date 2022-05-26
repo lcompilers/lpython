@@ -35,5 +35,6 @@ def main0():
     i = test_factorial_2(4)
     j: i64
     j = test_factorial_3(5)
+    print(i, j)
 
 main0()

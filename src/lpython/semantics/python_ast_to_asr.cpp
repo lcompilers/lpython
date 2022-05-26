@@ -600,11 +600,54 @@ public:
             if (ASRUtils::is_intrinsic_function2(func)) {
                 value = intrinsic_procedures.comptime_eval(call_name, al, loc, args);
             }
+            if (args.size() != func->n_args) {
+                std::string fnd = std::to_string(args.size());
+                std::string org = std::to_string(func->n_args);
+                diag.add(diag::Diagnostic(
+                    "Number of arguments does not match in the function call",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("(found: '" + fnd + "', expected: '" + org + "')",
+                                {loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+            Vec<ASR::call_arg_t> args_new;
+            args_new.reserve(al, func->n_args);
+            for (size_t i=0; i<func->n_args; i++) {
+                ASR::call_arg_t c_arg;
+                c_arg.loc = args[i].loc;
+                c_arg.m_value = cast_helper(ASRUtils::expr_type(func->m_args[i]),
+                                    args[i].m_value, true);
+                args_new.push_back(al, c_arg);
+            }
             return ASR::make_FunctionCall_t(al, loc, stemp,
-                s_generic, args.p, args.size(), a_type, value, nullptr);
+                s_generic, args_new.p, args_new.size(), a_type, value, nullptr);
         } else if (ASR::is_a<ASR::Subroutine_t>(*s)) {
+            ASR::Subroutine_t *func = ASR::down_cast<ASR::Subroutine_t>(s);
+            if (args.size() != func->n_args) {
+                std::string fnd = std::to_string(args.size());
+                std::string org = std::to_string(func->n_args);
+                diag.add(diag::Diagnostic(
+                    "Number of arguments does not match in the function call",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("(found: '" + fnd + "', expected: '" + org + "')",
+                                {loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+            Vec<ASR::call_arg_t> args_new;
+            args_new.reserve(al, func->n_args);
+            for (size_t i=0; i<func->n_args; i++) {
+                ASR::call_arg_t c_arg;
+                c_arg.loc = args[i].loc;
+                c_arg.m_value = cast_helper(ASRUtils::expr_type(func->m_args[i]),
+                                    args[i].m_value, true);
+                args_new.push_back(al, c_arg);
+            }
             return ASR::make_SubroutineCall_t(al, loc, stemp,
-                s_generic, args.p, args.size(), nullptr);
+                s_generic, args_new.p, args_new.size(), nullptr);
         } else {
             throw SemanticError("Unsupported call type for " + call_name, loc);
         }
@@ -1658,6 +1701,7 @@ public:
         Vec<ASR::expr_t*> args;
         args.reserve(al, x.m_args.n_args);
         current_procedure_abi_type = ASR::abiType::Source;
+        bool current_procedure_interface = false;
         bool overload = false;
         if (x.n_decorator_list > 0) {
             for(size_t i=0; i<x.n_decorator_list; i++) {
@@ -1665,6 +1709,9 @@ public:
                 if (AST::is_a<AST::Name_t>(*dec)) {
                     std::string name = AST::down_cast<AST::Name_t>(dec)->m_id;
                     if (name == "ccall") {
+                        current_procedure_abi_type = ASR::abiType::BindC;
+                        current_procedure_interface = true;
+                    } else if (name == "ccallback") {
                         current_procedure_abi_type = ASR::abiType::BindC;
                     } else if (name == "overload") {
                         overload = true;
@@ -1732,11 +1779,12 @@ public:
         }
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::deftypeType deftype = ASR::deftypeType::Implementation;
-        if (current_procedure_abi_type == ASR::abiType::BindC) {
+        if (current_procedure_abi_type == ASR::abiType::BindC &&
+                current_procedure_interface) {
             deftype = ASR::deftypeType::Interface;
         }
         char *bindc_name=nullptr;
-        if (x.m_returns) {
+        if (x.m_returns && !AST::is_a<AST::ConstantNone_t>(*x.m_returns)) {
             if (AST::is_a<AST::Name_t>(*x.m_returns) || AST::is_a<AST::Subscript_t>(*x.m_returns)) {
                 std::string return_var_name = "_lpython_return_variable";
                 ASR::ttype_t *type = ast_expr_to_asr_type(x.m_returns->base.loc, *x.m_returns);
@@ -2849,6 +2897,14 @@ public:
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
             al, loc, arg, ASR::cast_kindType::RealToInteger,
             to_type, value));
+        } else if (ASRUtils::is_character(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                char *c = ASR::down_cast<ASR::StringConstant_t>(
+                                    ASRUtils::expr_value(arg))->m_s;
+                return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al,
+                                loc, std::atoi(c), to_type));
+            }
+            // TODO: make int() work for non-constant strings
         } else if (ASRUtils::is_logical(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
                 int32_t ival = ASR::down_cast<ASR::LogicalConstant_t>(

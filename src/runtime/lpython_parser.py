@@ -50,6 +50,10 @@ class Transform(ast.NodeVisitor):
         elif isinstance(node.value, complex):
             new_node = python_ast.ConstantComplex(node.value.real,
                         node.value.imag, node.kind)
+        elif isinstance(node.value, Ellipsis.__class__):
+            new_node = python_ast.ConstantEllipsis(node.kind)
+        elif isinstance(node.value, None.__class__):
+            new_node = python_ast.ConstantNone(node.kind)
         else:
             print(type(node.value))
             raise Exception("Unsupported Constant type")
@@ -116,9 +120,13 @@ class Serialization(python_ast.SerializationBaseVisitor):
         self.s = "0 "
 
     def write_int8(self, i):
+        assert i >= 0
         self.s += str(i) + " "
 
     def write_int64(self, i):
+        if i < 0:
+            i += 2**64
+        assert i >= 0
         self.s += str(i) + " "
 
     def write_float64(self, f):

@@ -198,7 +198,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> tuple_item
 %type <ast> ann_assignment_statement
 %type <ast> delete_statement
-%type <vec_ast> del_target_list
 %type <ast> return_statement
 %type <ast> expression_statment
 %type <vec_ast> module
@@ -235,6 +234,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> primary
 %type <vec_ast> sep
 %type <ast> sep_one
+%type <ast> string
 
 // Precedence
 
@@ -350,6 +350,8 @@ assert_statement
 
 tuple_item
     : expr_list { $$ = TUPLE_01($1, @$); }
+    | expr_list "," { $$ = TUPLE_03($1, @$); }
+    | "(" expr_list "," ")" { $$ = TUPLE_03($2, @$); }
     | "(" expr_list ","  expr ")" { $$ = TUPLE_01(TUPLE_($2, $4), @$); }
     ;
 
@@ -386,18 +388,20 @@ ann_assignment_statement
     | expr ":" expr "=" expr { $$ = ANNASSIGN_02($1, $3, $5, @$); }
     ;
 
-del_target_list
-    : del_target_list "," expr { $$ = $1; LIST_ADD($$, $3); }
-    | expr { LIST_NEW($$); LIST_ADD($$, $1); }
-    ;
-
 delete_statement
-    : KW_DEL del_target_list { $$ = DELETE($2, @$); }
+    : KW_DEL expr_list { $$ = DELETE_01($2, @$); }
+    | KW_DEL expr_list "," { $$ = DELETE_01($2, @$); }
+    | KW_DEL "(" ")" { $$ = DELETE_02(@$); }
+    | KW_DEL "(" expr_list "," ")" {
+        $$ = DELETE_03(SET_EXPR_CTX_02($3, Del), @$); }
+    | KW_DEL "(" expr_list "," expr ")" {
+        $$ = DELETE_03(SET_EXPR_CTX_02(TUPLE_($3, $5), Del), @$); }
     ;
 
 return_statement
     : KW_RETURN { $$ = RETURN_01(@$); }
     | KW_RETURN tuple_item { $$ = RETURN_02($2, @$); }
+    | KW_RETURN "(" ")" { $$ = RETURN_03(@$); }
     ;
 
 module
@@ -468,9 +472,10 @@ if_statement
     ;
 
 for_statement
-    : KW_FOR expr KW_IN expr ":" sep statements { $$ = FOR_01($2, $4, $7, @$); }
-    | KW_FOR expr KW_IN expr ":" sep statements KW_ELSE ":" sep statements {
-        $$ = FOR_02($2, $4, $7, $11, @$); }
+    : KW_FOR tuple_item KW_IN expr ":" sep statements {
+        $$ = FOR_01($2, $4, $7, @$); }
+    | KW_FOR tuple_item KW_IN expr ":" sep statements KW_ELSE ":"
+        sep statements { $$ = FOR_02($2, $4, $7, $11, @$); }
     ;
 
 except_statement
@@ -516,8 +521,8 @@ decorators_opt
     ;
 
 decorators
-    : decorators "@" expr TK_NEWLINE { $$ = $1; LIST_ADD($$, $3); }
-    | "@" expr TK_NEWLINE { LIST_NEW($$); LIST_ADD($$, $2); }
+    : decorators "@" expr sep { $$ = $1; LIST_ADD($$, $3); }
+    | "@" expr sep { LIST_NEW($$); LIST_ADD($$, $2); }
     ;
 
 parameter
@@ -584,9 +589,9 @@ async_func_def
     ;
 
 async_for_stmt
-    : KW_ASYNC KW_FOR expr KW_IN expr ":" sep statements {
+    : KW_ASYNC KW_FOR tuple_item KW_IN expr ":" sep statements {
         $$ = ASYNC_FOR_01($3, $5, $8, @$); }
-    | KW_ASYNC KW_FOR expr KW_IN expr ":" sep statements KW_ELSE ":" sep
+    | KW_ASYNC KW_FOR tuple_item KW_IN expr ":" sep statements KW_ELSE ":" sep
         statements { $$ = ASYNC_FOR_02($3, $5, $8, $12, @$); }
     ;
 
@@ -606,7 +611,7 @@ slice_item
     | expr ":"               { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
     | ":" expr               { $$ = SLICE_01(nullptr,      $2, nullptr, @$); }
     | expr ":" expr          { $$ = SLICE_01(     $1,      $3, nullptr, @$); }
-    | ":" ":"                   { $$ = SLICE_01(nullptr, nullptr, nullptr, @$); }
+    | ":" ":"                { $$ = SLICE_01(nullptr, nullptr, nullptr, @$); }
     | ":" ":" expr           { $$ = SLICE_01(nullptr, nullptr,      $3, @$); }
     | expr ":" ":"           { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
     | ":" expr ":"           { $$ = SLICE_01(nullptr,      $2, nullptr, @$); }
@@ -664,10 +669,14 @@ function_call
     | primary "(" keyword_items ")" { $$ = CALL_03($1, $3, @$); }
     ;
 
+string
+    : string TK_STRING { $$ = STRING2($1, $2, @$); } // TODO
+    | TK_STRING { $$ = STRING1($1, @$); }
+
 expr
     : id { $$ = $1; }
     | TK_INTEGER { $$ = INTEGER($1, @$); }
-    | TK_STRING { $$ = STRING($1, @$); }
+    | string { $$ = $1; }
     | TK_REAL { $$ = FLOAT($1, @$); }
     | TK_IMAG_NUM { $$ = COMPLEX($1, @$); }
     | TK_TRUE { $$ = BOOL(true, @$); }
@@ -679,7 +688,7 @@ expr
     | "{" expr_list "}" { $$ = SET($2, @$); }
     | "{" expr_list "," "}" { $$ = SET($2, @$); }
     | id "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
-    | TK_STRING "[" tuple_list "]" { $$ = SUBSCRIPT_02($1, $3, @$); }
+    | string "[" tuple_list "]" { $$ = SUBSCRIPT_02($1, $3, @$); }
     | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
     | "{" "}" { $$ = DICT_01(@$); }
     | "{" dict_list "}" { $$ = DICT_02($2, @$); }

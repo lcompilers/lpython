@@ -86,6 +86,7 @@ filename = "expr7.py"
 ast = true
 asr = true
 cpp = true
+c = true
 
 [[test]]
 filename = "expr8.py"
@@ -144,6 +145,7 @@ filename = "loop1.py"
 ast = true
 asr = true
 cpp = true
+c = true
 
 [[test]]
 filename = "loop2.py"
@@ -182,6 +184,11 @@ asr = true
 filename = "global_scope1.py"
 ast = true
 asr = true
+
+[[test]]
+filename = "c_interop1.py"
+asr = true
+c = true
 
 # integration_tests
 
@@ -317,6 +324,10 @@ ast_new = true
 [[test]]
 filename = "parser/slice1.py"
 ast_new = true
+
+[[test]]
+filename = "parser/ellipsis1.py"
+ast = true
 
 # tests/errors
 
@@ -454,6 +465,10 @@ asr = true
 
 [[test]]
 filename = "errors/test_dict6.py"
+asr = true
+
+[[test]]
+filename = "errors/test_func_args.py"
 asr = true
 
 # tests/tokens/errors

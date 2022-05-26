@@ -1,0 +1,13 @@
+{
+    "basename": "c-loop1-3e341c7",
+    "cmd": "lpython --no-color --show-c {infile}",
+    "infile": "tests/loop1.py",
+    "infile_hash": "a27a0e48b7c6291be0b0847f5e7a30c591c7168a9004395156d57dbd",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "c-loop1-3e341c7.stdout",
+    "stdout_hash": "a0890fe0052d3a3fe6e74eb71fa408a8883b1bd20d03f8bca0eac59d",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
