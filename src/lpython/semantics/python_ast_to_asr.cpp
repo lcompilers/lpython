@@ -1480,6 +1480,7 @@ public:
                 }
             }
         }
+
         tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
                               value);
     }
