@@ -3140,13 +3140,6 @@ public:
             } else {
                 throw CodeGenError("Unary type not implemented yet");
             }
-        } else if (x.m_type->type == ASR::ttypeType::Logical) {
-            if (x.m_op == ASR::unaryopType::Not) {
-                tmp = builder ->CreateNot(tmp);
-                return;
-            } else {
-                throw CodeGenError("Unary type not implemented yet in Logical");
-            }
         } else {
             throw CodeGenError("UnaryOp: type not supported yet");
         }
@@ -3336,6 +3329,11 @@ public:
         tmp = llvm::ConstantInt::get(context, llvm::APInt(1, val));
     }
 
+    void visit_LogicalNot(const ASR::LogicalNot_t &x) {
+        this->visit_expr_wrapper(x.m_arg, true);
+        llvm::Value *arg = tmp;
+        tmp = builder->CreateNot(arg);
+    }
 
     void visit_StringConstant(const ASR::StringConstant_t &x) {
         tmp = builder->CreateGlobalStringPtr(x.m_s);
