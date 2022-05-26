@@ -1481,6 +1481,11 @@ public:
             }
         }
 
+        if (ASRUtils::is_logical(*operand_type) && op == ASR::unaryopType::Not) {
+            tmp = ASR::make_LogicalNot_t(al, x.base.base.loc, operand, logical_type, value);
+            return;
+        }
+
         tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
                               value);
     }
