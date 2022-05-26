@@ -3,31 +3,3 @@ style suggestion: Could have used '**' instead of 'pow'
    |
 11 |     assert pow(a, b) == 32
    |            ^^^^^^^^^ '**' could be used instead
-Internal Compiler Error: Unhandled exception
-Traceback (most recent call last):
-[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 831[0m
-    return emit_cpp(arg_file, runtime_library_dir, compiler_options);
-[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 217[0m
-    auto res = LFortran::asr_to_cpp(al, *asr, diagnostics);
-[2m  File "[0m[1m[35m$DIR/src/libasr/codegen/asr_to_cpp.cpp[39m[0m[2m", line 475[0m
-    v.visit_asr((ASR::asr_t &)asr);
-[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 3108[0m
-[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 3086[0m
-[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 3109[0m
-[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 2911[0m
-[2m  File "[0m[1m[35m$DIR/src/libasr/codegen/asr_to_cpp.cpp[39m[0m[2m", line 205[0m
-    ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
-[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 3111[0m
-[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 2920[0m
-[2m  File "[0m[1m[35m../libasr/codegen/asr_to_c_cpp.h[39m[0m[2m", line 171[0m
-[2m  File "[0m[1m[35m../libasr/codegen/asr_to_c_cpp.h[39m[0m[2m", line 373[0m
-[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 3125[0m
-[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 2953[0m
-[2m  File "[0m[1m[35m../libasr/codegen/asr_to_c_cpp.h[39m[0m[2m", line 978[0m
-[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 3166[0m
-[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 2987[0m
-[2m  File "[0m[1m[35m../libasr/codegen/asr_to_c_cpp.h[39m[0m[2m", line 717[0m
-[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 3166[0m
-[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 3001[0m
-[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 3182[0m
-LFortranException: visit_LogicalNot() not implemented
