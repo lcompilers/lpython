@@ -179,6 +179,22 @@ namespace LFortran {
             return array_ref;
         }
 
+        ASR::expr_t* create_binop_add(Allocator &al, const Location &loc, ASR::expr_t* left, ASR::expr_t* right) {
+            LFORTRAN_ASSERT(ASRUtils::expr_type(left) == ASRUtils::expr_type(right))
+            ASR::ttype_t* type = ASRUtils::expr_type(left);
+            // TODO: compute `value`:
+            if (ASRUtils::is_integer(*type)) {
+                return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, left, ASR::binopType::Add, right, type, nullptr));
+            } else if (ASRUtils::is_real(*type)) {
+                return ASRUtils::EXPR(ASR::make_RealBinOp_t(al, loc, left, ASR::binopType::Add, right, type, nullptr));
+            } else if (ASRUtils::is_complex(*type)) {
+                return ASRUtils::EXPR(ASR::make_ComplexBinOp_t(al, loc, left, ASR::binopType::Add, right, type, nullptr));
+            } else {
+                LFORTRAN_ASSERT(false);
+                return nullptr;
+            }
+        }
+
         void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, int n_dims, const Location& loc, Allocator& al,
                              SymbolTable*& current_scope, std::string suffix) {
             idx_vars.reserve(al, n_dims);

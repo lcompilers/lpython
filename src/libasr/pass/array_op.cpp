@@ -568,7 +568,7 @@ public:
                     doloop_body.push_back(al, set_to_one);
                     doloop_body.push_back(al, doloop);
                 }
-                ASR::expr_t* inc_expr = ASRUtils::create_binop_add(al, x.base.base.loc, idx_vars_value[i], const_1);
+                ASR::expr_t* inc_expr = PassUtils::create_binop_add(al, x.base.base.loc, idx_vars_value[i], const_1);
                 ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i], inc_expr, nullptr));
                 doloop_body.push_back(al, assign_stmt);
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
@@ -661,7 +661,7 @@ public:
                     doloop_body.push_back(al, set_to_one);
                     doloop_body.push_back(al, doloop);
                 }
-                ASR::expr_t* inc_expr = ASRUtils::create_binop_add(al, x.base.base.loc, idx_vars_value[i], const_1);
+                ASR::expr_t* inc_expr = PassUtils::create_binop_add(al, x.base.base.loc, idx_vars_value[i], const_1);
                 ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i], inc_expr, nullptr));
                 doloop_body.push_back(al, assign_stmt);
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
