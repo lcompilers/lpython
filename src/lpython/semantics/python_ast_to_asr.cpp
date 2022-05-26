@@ -1116,6 +1116,7 @@ public:
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                     al, loc, result, dest_type));
+                tmp = ASR::make_IntegerBinOp_t(al, loc, left, op, right, dest_type, value);
             }
             else if (ASRUtils::is_real(*dest_type)) {
                 double left_value = ASR::down_cast<ASR::RealConstant_t>(
@@ -1133,6 +1134,7 @@ public:
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(
                     al, loc, result, dest_type));
+                tmp = ASR::make_RealBinOp_t(al, loc, left, op, right, dest_type, value);
             }
             else if (ASRUtils::is_complex(*dest_type)) {
                 ASR::ComplexConstant_t *left0 = ASR::down_cast<ASR::ComplexConstant_t>(
@@ -1152,6 +1154,7 @@ public:
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ComplexConstant_t(al, loc,
                         std::real(result), std::imag(result), dest_type));
+                tmp = ASR::make_ComplexBinOp_t(al, loc, left, op, right, dest_type, value);
             }
             else if (ASRUtils::is_logical(*dest_type)) {
                 int8_t left_value = ASR::down_cast<ASR::LogicalConstant_t>(
@@ -1169,12 +1172,9 @@ public:
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                     al, loc, result, int_type));
-                dest_type = int_type;
+                tmp = ASR::make_IntegerBinOp_t(al, loc, left, op, right, int_type, value);
             }
         }
-        ASR::expr_t *overloaded = nullptr;
-        tmp = ASR::make_BinOp_t(al, loc, left, op, right, dest_type,
-                                value, overloaded);
     }
 
     void visit_Name(const AST::Name_t &x) {
