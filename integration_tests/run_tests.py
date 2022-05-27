@@ -41,6 +41,7 @@ tests = [
     "test_cmath.py",
     "test_complex.py",
     "test_max_min.py",
+    "test_integer_bitnot.py",
     "test_issue_518.py"
 
 ]

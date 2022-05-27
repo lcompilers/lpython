@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-test_integer_bitnot-20195fd",
+    "cmd": "lpython --no-color --show-cpp {infile}",
+    "infile": "tests/../integration_tests/test_integer_bitnot.py",
+    "infile_hash": "dc976a358fbeebedead889f8e85b3eed4ac77ee20f68fcac58b81429",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-test_integer_bitnot-20195fd.stdout",
+    "stdout_hash": "358f9416fac8d21169d6ddf7490849a155151646a8b5f10ed1caced8",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
