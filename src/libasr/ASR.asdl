@@ -229,6 +229,7 @@ expr
     | RealConstant(float r, ttype type)
     | ComplexConstant(float re, float im, ttype type)
     | LogicalConstant(bool value, ttype type)
+    | LogicalNot(expr arg, ttype type, expr? value)
 
     | ListConstant(expr* args, ttype type)
     | ListLen(expr arg, ttype type, expr? value)
