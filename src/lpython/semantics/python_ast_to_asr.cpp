@@ -1384,6 +1384,7 @@ public:
             }
         }
         ASR::ttype_t *operand_type = ASRUtils::expr_type(operand);
+        ASR::ttype_t *dest_type = operand_type;
         ASR::ttype_t *logical_type = ASRUtils::TYPE(
             ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
         ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
@@ -1399,7 +1400,7 @@ public:
                     bool b = (op_value == 0);
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                         al, x.base.base.loc, b, logical_type));
-                    operand_type = logical_type;
+                    dest_type = logical_type;
                 } else {
                     int64_t result = 0;
                     switch (op) {
@@ -1419,7 +1420,7 @@ public:
                     bool b = (op_value == 0.0);
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                         al, x.base.base.loc, b, logical_type));
-                    operand_type = logical_type;
+                    dest_type = logical_type;
                 } else {
                     double result = 0.0;
                     switch (op) {
@@ -1451,7 +1452,7 @@ public:
                     }
                     value = ASR::down_cast<ASR::expr_t>(
                         ASR::make_IntegerConstant_t(al, x.base.base.loc, result, int_type));
-                    operand_type = int_type;
+                    dest_type = int_type;
                 }
 
             } else if (ASRUtils::is_complex(*operand_type)) {
@@ -1463,7 +1464,7 @@ public:
                     bool b = (op_value.real() == 0.0 && op_value.imag() == 0.0);
                     value = ASR::down_cast<ASR::expr_t>(
                         ASR::make_LogicalConstant_t(al, x.base.base.loc, b, logical_type));
-                    operand_type = logical_type;
+                    dest_type = logical_type;
                 } else {
                     switch (op) {
                         case (ASR::unaryopType::UAdd): { result = op_value; break; }
@@ -1481,10 +1482,10 @@ public:
             }
         }
         if (ASRUtils::is_integer(*operand_type) && op == ASR::unaryopType::Invert) {
-            tmp = ASR::make_IntegerBitNot_t(al, x.base.base.loc, operand, operand_type, value);
+            tmp = ASR::make_IntegerBitNot_t(al, x.base.base.loc, operand, dest_type, value);
             return;
         }
-        tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
+        tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, dest_type,
                               value);
     }
 
