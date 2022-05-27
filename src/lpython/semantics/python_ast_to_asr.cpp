@@ -1480,6 +1480,10 @@ public:
                 }
             }
         }
+        if (ASRUtils::is_integer(*operand_type) && op == ASR::unaryopType::Invert) {
+            tmp = ASR::make_IntegerBitNot_t(al, x.base.base.loc, operand, operand_type, value);
+            return;
+        }
         tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
                               value);
     }
