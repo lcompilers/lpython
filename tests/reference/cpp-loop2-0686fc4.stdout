@@ -17,6 +17,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+void _lpython_main_program()
+{
+    test_for();
+}
+
 void test_for()
 {
     int i;
@@ -31,17 +36,18 @@ void test_for()
             exit(0);
         }
     }
-    exit(0);
+    exit(2);
 }
 
 void exit(int error_code)
 {
-    exit(0);
+    exit(error_code);
 }
 
 namespace {
 
 void main2() {
+        _lpython_main_program();
 }
 
 }
