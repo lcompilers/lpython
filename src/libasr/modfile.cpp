@@ -10,7 +10,7 @@
 
 namespace LCompilers {
 
-const std::string lfortran_modfile_type_string = "LFortran Modfile";
+const std::string lcompilers_modfile_type_string = "LCompilers Modfile";
 
 // The save_modfile() and load_modfile() must stay consistent. What is saved
 // must be loaded in exactly the same order.
@@ -36,7 +36,7 @@ std::string save_modfile(const ASR::TranslationUnit_t &m) {
     TextWriter b;
 #endif
     // Header
-    b.write_string(lfortran_modfile_type_string);
+    b.write_string(lcompilers_modfile_type_string);
     b.write_string(LCOMPILERS_VERSION);
 
     // AST section: Original module source code:
@@ -65,12 +65,12 @@ ASR::TranslationUnit_t* load_modfile(Allocator &al, const std::string &s,
     TextReader b(s);
 #endif
     std::string file_type = b.read_string();
-    if (file_type != lfortran_modfile_type_string) {
-        throw LFortranException("LFortran Modfile format not recognized");
+    if (file_type != lcompilers_modfile_type_string) {
+        throw LFortranException("LCompilers Modfile format not recognized");
     }
     std::string version = b.read_string();
     if (version != LCOMPILERS_VERSION) {
-        throw LFortranException("Incompatible format: LFortran Modfile was generated using version '" + version + "', but current LFortran version is '" + LCOMPILERS_VERSION + "'");
+        throw LFortranException("Incompatible format: LCompilers Modfile was generated using version '" + version + "', but current LFortran version is '" + LCOMPILERS_VERSION + "'");
     }
     std::string asr_binary = b.read_string();
     ASR::asr_t *asr = deserialize_asr(al, asr_binary, load_symtab_id, symtab);

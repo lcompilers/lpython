@@ -315,140 +315,140 @@ def sqrt(x: f64) -> f64:
     return x**(1/2)
 
 @ccall
-def _lfortran_dsin(x: f64) -> f64:
+def _lcompilers_dsin(x: f64) -> f64:
     pass
 
 def sin(x: f64) -> f64:
-    return _lfortran_dsin(x)
+    return _lcompilers_dsin(x)
 
 @ccall
-def _lfortran_dcos(x: f64) -> f64:
+def _lcompilers_dcos(x: f64) -> f64:
     pass
 
 def cos(x: f64) -> f64:
-    return _lfortran_dcos(x)
+    return _lcompilers_dcos(x)
 
 @ccall
-def _lfortran_dtan(x: f64) -> f64:
+def _lcompilers_dtan(x: f64) -> f64:
     pass
 
 def tan(x: f64) -> f64:
-    return _lfortran_dtan(x)
+    return _lcompilers_dtan(x)
 
 @ccall
-def _lfortran_dlog(x: f64) -> f64:
+def _lcompilers_dlog(x: f64) -> f64:
     pass
 
 def log(x: f64) -> f64:
-    return _lfortran_dlog(x)
+    return _lcompilers_dlog(x)
 
 @ccall
-def _lfortran_dlog10(x: f64) -> f64:
+def _lcompilers_dlog10(x: f64) -> f64:
     pass
 
 def log10(x: f64) -> f64:
-    return _lfortran_dlog10(x)
+    return _lcompilers_dlog10(x)
 
 def log2(x: f64) -> f64:
-    return _lfortran_dlog(x)/_lfortran_dlog(2.0)
+    return _lcompilers_dlog(x)/_lcompilers_dlog(2.0)
 
 @ccall
-def _lfortran_derf(x: f64) -> f64:
+def _lcompilers_derf(x: f64) -> f64:
     pass
 
 def erf(x: f64) -> f64:
-    return _lfortran_derf(x)
+    return _lcompilers_derf(x)
 
 @ccall
-def _lfortran_derfc(x: f64) -> f64:
+def _lcompilers_derfc(x: f64) -> f64:
     pass
 
 def erfc(x: f64) -> f64:
-    return _lfortran_derfc(x)
+    return _lcompilers_derfc(x)
 
 @ccall
-def _lfortran_dgamma(x: f64) -> f64:
+def _lcompilers_dgamma(x: f64) -> f64:
     pass
 
 def gamma(x: f64) -> f64:
-    return _lfortran_dgamma(x)
+    return _lcompilers_dgamma(x)
 
 @ccall
-def _lfortran_dlog_gamma(x: f64) -> f64:
+def _lcompilers_dlog_gamma(x: f64) -> f64:
     pass
 
 def lgamma(x: f64) -> f64:
-    return _lfortran_dlog_gamma(x)
+    return _lcompilers_dlog_gamma(x)
 
 @ccall
-def _lfortran_dasin(x: f64) -> f64:
+def _lcompilers_dasin(x: f64) -> f64:
     pass
 
 def asin(x: f64) -> f64:
-    return _lfortran_dasin(x)
+    return _lcompilers_dasin(x)
 
 @ccall
-def _lfortran_dacos(x: f64) -> f64:
+def _lcompilers_dacos(x: f64) -> f64:
     pass
 
 def acos(x: f64) -> f64:
-    return _lfortran_dacos(x)
+    return _lcompilers_dacos(x)
 
 @ccall
-def _lfortran_datan(x: f64) -> f64:
+def _lcompilers_datan(x: f64) -> f64:
     pass
 
 def atan(x: f64) -> f64:
-    return _lfortran_datan(x)
+    return _lcompilers_datan(x)
 
 @ccall
-def _lfortran_datan2(y: f64, x: f64) -> f64:
+def _lcompilers_datan2(y: f64, x: f64) -> f64:
     pass
 
 def atan2(y: f64, x: f64) -> f64:
-    return _lfortran_datan2(y, x)
+    return _lcompilers_datan2(y, x)
 
 @ccall
-def _lfortran_dsinh(x: f64) -> f64:
+def _lcompilers_dsinh(x: f64) -> f64:
     pass
 
 def sinh(x: f64) -> f64:
-    return _lfortran_dsinh(x)
+    return _lcompilers_dsinh(x)
 
 @ccall
-def _lfortran_dcosh(x: f64) -> f64:
+def _lcompilers_dcosh(x: f64) -> f64:
     pass
 
 def cosh(x: f64) -> f64:
-    return _lfortran_dcosh(x)
+    return _lcompilers_dcosh(x)
 
 @ccall
-def _lfortran_dtanh(x: f64) -> f64:
+def _lcompilers_dtanh(x: f64) -> f64:
     pass
 
 def tanh(x: f64) -> f64:
-    return _lfortran_dtanh(x)
+    return _lcompilers_dtanh(x)
 
 @ccall
-def _lfortran_dasinh(x: f64) -> f64:
+def _lcompilers_dasinh(x: f64) -> f64:
     pass
 
 def asinh(x: f64) -> f64:
-    return _lfortran_dasinh(x)
+    return _lcompilers_dasinh(x)
 
 @ccall
-def _lfortran_dacosh(x: f64) -> f64:
+def _lcompilers_dacosh(x: f64) -> f64:
     pass
 
 def acosh(x: f64) -> f64:
-    return _lfortran_dacosh(x)
+    return _lcompilers_dacosh(x)
 
 @ccall
-def _lfortran_datanh(x: f64) -> f64:
+def _lcompilers_datanh(x: f64) -> f64:
     pass
 
 def atanh(x: f64) -> f64:
-    return _lfortran_datanh(x)
+    return _lcompilers_datanh(x)
 
 
 def expm1(x: f64) -> f64:
@@ -462,11 +462,11 @@ def log1p(x: f64) -> f64:
 def fmod(x: f64, y: f64) -> f64:
     if y == 0:
         raise ValueError('math domain error')
-    return _lfortran_dfmod(x, y)
+    return _lcompilers_dfmod(x, y)
 
 
 @ccall
-def _lfortran_dfmod(x: f64, y: f64) -> f64:
+def _lcompilers_dfmod(x: f64, y: f64) -> f64:
     pass
 
 

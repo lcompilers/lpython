@@ -19,7 +19,7 @@ namespace LCompilers {
 
     namespace LLVMArrUtils {
 
-        llvm::Value* lfortran_malloc(llvm::LLVMContext &context, llvm::Module &module,
+        llvm::Value* lcompilers_malloc(llvm::LLVMContext &context, llvm::Module &module,
                 llvm::IRBuilder<> &builder, llvm::Value* arg_size);
 
         /*

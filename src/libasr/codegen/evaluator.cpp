@@ -133,7 +133,7 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
 
 extern "C" {
 
-float _lfortran_stan(float x);
+float _lcompilers_stan(float x);
 
 }
 
@@ -182,7 +182,7 @@ LLVMEvaluator::LLVMEvaluator(const std::string &t)
     jit = std::make_unique<llvm::orc::KaleidoscopeJIT>(TM2);
 #endif
 
-    _lfortran_stan(0.5);
+    _lcompilers_stan(0.5);
 }
 
 LLVMEvaluator::~LLVMEvaluator()

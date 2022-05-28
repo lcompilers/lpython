@@ -133,12 +133,12 @@ uint64_t static get_hash(ASR::asr_t *node)
 void printf(llvm::LLVMContext &context, llvm::Module &module,
     llvm::IRBuilder<> &builder, const std::vector<llvm::Value*> &args)
 {
-    llvm::Function *fn_printf = module.getFunction("_lfortran_printf");
+    llvm::Function *fn_printf = module.getFunction("_lcompilers_printf");
     if (!fn_printf) {
         llvm::FunctionType *function_type = llvm::FunctionType::get(
                 llvm::Type::getVoidTy(context), {llvm::Type::getInt8PtrTy(context)}, true);
         fn_printf = llvm::Function::Create(function_type,
-                llvm::Function::ExternalLinkage, "_lfortran_printf", &module);
+                llvm::Function::ExternalLinkage, "_lcompilers_printf", &module);
     }
     builder.CreateCall(fn_printf, args);
 }
@@ -159,7 +159,7 @@ void exit(llvm::LLVMContext &context, llvm::Module &module,
 
 void string_init(llvm::LLVMContext &context, llvm::Module &module,
         llvm::IRBuilder<> &builder, llvm::Value* arg_size, llvm::Value* arg_string) {
-    std::string func_name = "_lfortran_string_init";
+    std::string func_name = "_lcompilers_string_init";
     llvm::Function *fn = module.getFunction(func_name);
     if (!fn) {
         llvm::FunctionType *function_type = llvm::FunctionType::get(
@@ -672,16 +672,16 @@ public:
     * ====
     *
     * Internally the call to this function gets transformed into a runtime call:
-    * void _lfortran_complex_add(complex* a, complex* b, complex *result)
+    * void _lcompilers_complex_add(complex* a, complex* b, complex *result)
     *
     * As of now the following values for func_name are supported,
     *
-    * _lfortran_complex_add
-    * _lfortran_complex_sub
-    * _lfortran_complex_div
-    * _lfortran_complex_mul
+    * _lcompilers_complex_add
+    * _lcompilers_complex_sub
+    * _lcompilers_complex_div
+    * _lcompilers_complex_mul
     */
-    llvm::Value* lfortran_complex_bin_op(llvm::Value* left_arg, llvm::Value* right_arg,
+    llvm::Value* lcompilers_complex_bin_op(llvm::Value* left_arg, llvm::Value* right_arg,
                                          std::string runtime_func_name,
                                          llvm::Type* complex_type=nullptr)
     {
@@ -715,7 +715,7 @@ public:
     }
 
 
-    llvm::Value* lfortran_strop(llvm::Value* left_arg, llvm::Value* right_arg,
+    llvm::Value* lcompilers_strop(llvm::Value* left_arg, llvm::Value* right_arg,
                                          std::string runtime_func_name)
     {
         llvm::Function *fn = module->getFunction(runtime_func_name);
@@ -742,9 +742,9 @@ public:
         return CreateLoad(presult);
     }
 
-    llvm::Value* lfortran_strrepeat(llvm::Value* left_arg, llvm::Value* right_arg)
+    llvm::Value* lcompilers_strrepeat(llvm::Value* left_arg, llvm::Value* right_arg)
     {
-        std::string runtime_func_name = "_lfortran_strrepeat";
+        std::string runtime_func_name = "_lcompilers_strrepeat";
         llvm::Function *fn = module->getFunction(runtime_func_name);
         if (!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
@@ -766,9 +766,9 @@ public:
         return CreateLoad(presult);
     }
 
-    llvm::Value* lfortran_str_len(llvm::Value* str)
+    llvm::Value* lcompilers_str_len(llvm::Value* str)
     {
-        std::string runtime_func_name = "_lfortran_str_len";
+        std::string runtime_func_name = "_lcompilers_str_len";
         llvm::Function *fn = module->getFunction(runtime_func_name);
         if (!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
@@ -781,9 +781,9 @@ public:
         return builder->CreateCall(fn, {str});
     }
 
-    llvm::Value* lfortran_str_copy(llvm::Value* str, llvm::Value* idx1, llvm::Value* idx2)
+    llvm::Value* lcompilers_str_copy(llvm::Value* str, llvm::Value* idx1, llvm::Value* idx2)
     {
-        std::string runtime_func_name = "_lfortran_str_copy";
+        std::string runtime_func_name = "_lcompilers_str_copy";
         llvm::Function *fn = module->getFunction(runtime_func_name);
         if (!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
@@ -901,14 +901,14 @@ public:
      * @brief This function generates the
      * @detail This is converted to
      *
-     *     float lfortran_KEY(float *x)
+     *     float lcompilers_KEY(float *x)
      *
      *   Where KEY can be any of the supported intrinsics; this is then
      *   transformed into a runtime call:
      *
-     *     void _lfortran_KEY(float x, float *result)
+     *     void _lcompilers_KEY(float x, float *result)
      */
-    llvm::Value* lfortran_intrinsic(llvm::Function *fn, llvm::Value* pa, int a_kind)
+    llvm::Value* lcompilers_intrinsic(llvm::Function *fn, llvm::Value* pa, int a_kind)
     {
         llvm::Type *presult_type = getFPType(a_kind);
         llvm::AllocaInst *presult = builder->CreateAlloca(presult_type, nullptr);
@@ -963,7 +963,7 @@ public:
         prototype_only = false;
         for (auto &item : x.m_global_scope->get_scope()) {
             if (is_a<ASR::Module_t>(*item.second) &&
-                item.first.find("lfortran_intrinsic_optimization") != std::string::npos) {
+                item.first.find("lcompilers_intrinsic_optimization") != std::string::npos) {
                 ASR::Module_t* mod = ASR::down_cast<ASR::Module_t>(item.second);
                 for( auto &moditem: mod->m_symtab->get_scope() ) {
                     ASR::symbol_t* sym = ASRUtils::symbol_get_past_external(moditem.second);
@@ -1050,7 +1050,7 @@ public:
         }
     }
 
-    inline void call_lfortran_free(llvm::Function* fn) {
+    inline void call_lcompilers_free(llvm::Function* fn) {
         llvm::Value* arr = CreateLoad(arr_descr->get_pointer_to_data(tmp));
         llvm::AllocaInst *arg_arr = builder->CreateAlloca(character_type, nullptr);
         builder->CreateStore(builder->CreateBitCast(arr, character_type), arg_arr);
@@ -1061,7 +1061,7 @@ public:
 
     template <typename T>
     void _Deallocate(const T& x) {
-        std::string func_name = "_lfortran_free";
+        std::string func_name = "_lcompilers_free";
         llvm::Function *free_fn = module->getFunction(func_name);
         if (!free_fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
@@ -1085,12 +1085,12 @@ public:
                 builder->CreateCondBr(cond, thenBB, elseBB);
                 builder->SetInsertPoint(thenBB);
                 //print_util(cond, "%d");
-                call_lfortran_free(free_fn);
+                call_lcompilers_free(free_fn);
                 builder->CreateBr(mergeBB);
                 start_new_block(elseBB);
                 start_new_block(mergeBB);
             } else {
-                call_lfortran_free(free_fn);
+                call_lcompilers_free(free_fn);
             }
         }
     }
@@ -1180,7 +1180,7 @@ public:
         llvm::Value *idx = tmp;
         this->visit_expr_wrapper(x.m_arg, true);
         llvm::Value *str = tmp;
-        tmp = lfortran_str_copy(str, idx, idx);
+        tmp = lcompilers_str_copy(str, idx, idx);
     }
 
     void visit_StringSection(const ASR::StringSection_t& x) {
@@ -1194,7 +1194,7 @@ public:
         llvm::Value *left = tmp;
         this->visit_expr_wrapper(x.m_end, true);
         llvm::Value *right = tmp;
-        tmp = lfortran_str_copy(str, left, right);
+        tmp = lcompilers_str_copy(str, left, right);
     }
 
     void visit_DerivedRef(const ASR::DerivedRef_t& x) {
@@ -1315,7 +1315,7 @@ public:
         llvm::FunctionType *function_type = llvm::FunctionType::get(
                 llvm::Type::getVoidTy(context), {}, false);
         LFORTRAN_ASSERT(llvm_symtab_fn.find(h) == llvm_symtab_fn.end());
-        std::string module_fn_name = "__lfortran_module_init_" + std::string(x.m_name);
+        std::string module_fn_name = "__lcompilers_module_init_" + std::string(x.m_name);
         llvm::Function *F = llvm::Function::Create(function_type,
                 llvm::Function::ExternalLinkage, module_fn_name, module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context, ".entry", F);
@@ -1682,7 +1682,7 @@ public:
                                 llvm::Value *arg_size = tmp;
                                 arg_size = builder->CreateAdd(arg_size, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
                                 // TODO: this temporary string is never deallocated (leaks memory)
-                                llvm::Value *init_value = LLVMArrUtils::lfortran_malloc(context, *module, *builder, arg_size);
+                                llvm::Value *init_value = LLVMArrUtils::lcompilers_malloc(context, *module, *builder, arg_size);
                                 string_init(context, *module, *builder, arg_size, init_value);
                                 builder->CreateStore(init_value, target_var);
                             } else {
@@ -2924,7 +2924,7 @@ public:
         llvm::Value *left_val = tmp;
         this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
-        tmp = lfortran_strrepeat(left_val, right_val);
+        tmp = lcompilers_strrepeat(left_val, right_val);
     }
 
     void visit_StringConcat(const ASR::StringConcat_t &x) {
@@ -2936,7 +2936,7 @@ public:
         llvm::Value *left_val = tmp;
         this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
-        tmp = lfortran_strop(left_val, right_val, "_lfortran_strcat");
+        tmp = lcompilers_strop(left_val, right_val, "_lcompilers_strcat");
     }
 
     void visit_StringLen(const ASR::StringLen_t &x) {
@@ -2947,7 +2947,7 @@ public:
         this->visit_expr_wrapper(x.m_arg, true);
         llvm::AllocaInst *parg = builder->CreateAlloca(character_type, nullptr);
         builder->CreateStore(tmp, parg);
-        tmp = lfortran_str_len(parg);
+        tmp = lcompilers_str_len(parg);
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
@@ -3056,46 +3056,46 @@ public:
             switch (x.m_op) {
                 case ASR::binopType::Add: {
                     if (a_kind == 4) {
-                        fn_name = "_lfortran_complex_add_32";
+                        fn_name = "_lcompilers_complex_add_32";
                     } else {
-                        fn_name = "_lfortran_complex_add_64";
+                        fn_name = "_lcompilers_complex_add_64";
                     }
                     break;
                 };
                 case ASR::binopType::Sub: {
                     if (a_kind == 4) {
-                        fn_name = "_lfortran_complex_sub_32";
+                        fn_name = "_lcompilers_complex_sub_32";
                     } else {
-                        fn_name = "_lfortran_complex_sub_64";
+                        fn_name = "_lcompilers_complex_sub_64";
                     }
                     break;
                 };
                 case ASR::binopType::Mul: {
                     if (a_kind == 4) {
-                        fn_name = "_lfortran_complex_mul_32";
+                        fn_name = "_lcompilers_complex_mul_32";
                     } else {
-                        fn_name = "_lfortran_complex_mul_64";
+                        fn_name = "_lcompilers_complex_mul_64";
                     }
                     break;
                 };
                 case ASR::binopType::Div: {
                     if (a_kind == 4) {
-                        fn_name = "_lfortran_complex_div_32";
+                        fn_name = "_lcompilers_complex_div_32";
                     } else {
-                        fn_name = "_lfortran_complex_div_64";
+                        fn_name = "_lcompilers_complex_div_64";
                     }
                     break;
                 };
                 case ASR::binopType::Pow: {
                     if (a_kind == 4) {
-                        fn_name = "_lfortran_complex_pow_32";
+                        fn_name = "_lcompilers_complex_pow_32";
                     } else {
-                        fn_name = "_lfortran_complex_pow_64";
+                        fn_name = "_lcompilers_complex_pow_64";
                     }
                     break;
                 };
             }
-            tmp = lfortran_complex_bin_op(left_val, right_val, fn_name, type);
+            tmp = lcompilers_complex_bin_op(left_val, right_val, fn_name, type);
         } else {
             throw CodeGenError("Binop: Only Real, Integer and Complex types are allowed");
         }
@@ -3490,13 +3490,13 @@ public:
         llvm::AllocaInst *arg = nullptr;
         std::string runtime_func_name = "";
         if (arg_kind == 4) {
-            runtime_func_name = "_lfortran_complex_aimag_32";
+            runtime_func_name = "_lcompilers_complex_aimag_32";
             ret_type = llvm::Type::getFloatTy(context);
             complex_type = complex_type_4;
             arg = builder->CreateAlloca(complex_type_4,
                 nullptr);
         } else {
-             runtime_func_name = "_lfortran_complex_aimag_64";
+             runtime_func_name = "_lcompilers_complex_aimag_64";
             ret_type = llvm::Type::getDoubleTy(context);
             complex_type = complex_type_8;
             arg = builder->CreateAlloca(complex_type_8,
@@ -4344,7 +4344,7 @@ public:
                 if (func_name == "len") {
                     args = convert_call_args(x, "len");
                     LFORTRAN_ASSERT(args.size() == 1)
-                    tmp = lfortran_str_len(args[0]);
+                    tmp = lcompilers_str_len(args[0]);
                     return;
                 }
                 if( s->m_deftype == ASR::deftypeType::Interface ) {
