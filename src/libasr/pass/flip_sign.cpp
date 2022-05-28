@@ -101,7 +101,7 @@ public:
             LCOMPILERS_ASSERT(flip_sign_variable);
             ASR::stmt_t* flip_sign_call = PassUtils::get_flipsign(flip_sign_signal_variable,
                                             flip_sign_variable, al, unit, rl_path, current_scope,
-                                            [&](const std::string &msg, const Location &) { throw LFortranException(msg); });
+                                            [&](const std::string &msg, const Location &) { throw LCompilersException(msg); });
             pass_result.push_back(al, flip_sign_call);
         }
     }

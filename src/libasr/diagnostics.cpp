@@ -18,7 +18,7 @@ std::string highlight_line(const std::string &line,
 {
     if (first_column == 0 || last_column == 0) return "";
     if (last_column > line.size()+1) {
-        throw LFortranException("The `last_column` in highlight_line is longer than the source line");
+        throw LCompilersException("The `last_column` in highlight_line is longer than the source line");
     }
     LCOMPILERS_ASSERT(first_column >= 1)
     LCOMPILERS_ASSERT(first_column <= last_column)
@@ -230,7 +230,7 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
         out << std::endl;
         for (auto &l : d.labels) {
             if (l.spans.size() == 0) {
-                throw LFortranException("ICE: Label does not have a span");
+                throw LCompilersException("ICE: Label does not have a span");
             }
             std::string color;
             char symbol;
@@ -308,7 +308,7 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
                         out << color << "..." + std::string(s0.last_column-1+1, symbol);
                         out << " " << l.message << reset << std::endl;
                     } else {
-                        throw LFortranException("location last_line < first_line");
+                        throw LCompilersException("location last_line < first_line");
                     }
                 }
             }

@@ -116,10 +116,10 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
             } else if (startswith(std::string(st->getName()), "complex_8")) {
                 return "complex8";
             } else {
-                throw LFortranException("LLVMModule::get_return_type(): Struct return type `" + std::string(st->getName()) + "` not supported");
+                throw LCompilersException("LLVMModule::get_return_type(): Struct return type `" + std::string(st->getName()) + "` not supported");
             }
         } else {
-            throw LFortranException("LLVMModule::get_return_type(): Noname struct return type not supported");
+            throw LCompilersException("LLVMModule::get_return_type(): Noname struct return type not supported");
         }
     } else if (type->isVectorTy()) {
         // Used for passing complex_4 on some platforms
@@ -127,7 +127,7 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
     } else if (type->isVoidTy()) {
         return "void";
     } else {
-        throw LFortranException("LLVMModule::get_return_type(): Return type not supported");
+        throw LCompilersException("LLVMModule::get_return_type(): Return type not supported");
     }
 }
 
@@ -168,7 +168,7 @@ LLVMEvaluator::LLVMEvaluator(const std::string &t)
     std::string Error;
     const llvm::Target *target = llvm::TargetRegistry::lookupTarget(target_triple, Error);
     if (!target) {
-        throw LFortranException(Error);
+        throw LCompilersException(Error);
     }
     std::string CPU = "generic";
     std::string features = "";
@@ -199,11 +199,11 @@ std::unique_ptr<llvm::Module> LLVMEvaluator::parse_module(const std::string &sou
     std::unique_ptr<llvm::Module> module
         = llvm::parseAssemblyString(source, err, *context);
     if (!module) {
-        throw LFortranException("parse_module(): Invalid LLVM IR");
+        throw LCompilersException("parse_module(): Invalid LLVM IR");
     }
     bool v = llvm::verifyModule(*module);
     if (v) {
-        throw LFortranException("parse_module(): module failed verification.");
+        throw LCompilersException("parse_module(): module failed verification.");
     };
     module->setTargetTriple(target_triple);
 #if LLVM_VERSION_MAJOR <= 11
@@ -258,7 +258,7 @@ intptr_t LLVMEvaluator::get_symbol_address(const std::string &name) {
         llvm::logAllUnhandledErrors(std::move(e), dest, "");
         std::string msg = std::string(dest.str().data(), dest.str().size());
         if (msg[msg.size()-1] == '\n') msg = msg.substr(0, msg.size()-1);
-        throw LFortranException("JITSymbol::getAddress() returned an error: " + msg);
+        throw LCompilersException("JITSymbol::getAddress() returned an error: " + msg);
     }
     return (intptr_t)cantFail(std::move(addr0));
 #endif

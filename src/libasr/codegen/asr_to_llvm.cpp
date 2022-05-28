@@ -3863,7 +3863,7 @@ public:
                 d = builder->CreateFPExt(complex_im(tmp, complex_type), type);
                 args.push_back(d);
             } else {
-                throw LFortranException("Printing support is available only for integer, real,"
+                throw LCompilersException("Printing support is available only for integer, real,"
                     " character, and complex types.");
             }
         }

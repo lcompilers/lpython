@@ -70,7 +70,7 @@ ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m) {
         LCOMPILERS_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
         return ASR::down_cast<ASR::Module_t>(a.second);
     }
-    throw LFortranException("ICE: Module not found");
+    throw LCompilersException("ICE: Module not found");
 }
 
 ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,

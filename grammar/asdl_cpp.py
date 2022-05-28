@@ -326,7 +326,7 @@ class ASTVisitorVisitor2(ASDLVisitor):
             self.emit("void visit_%s(const %s_t &b) { visit_%s_t(b, self()); }"\
                     % (base, base, base), 1)
             for type_ in sum.types:
-                self.emit("""void visit_%s(const %s_t & /* x */) { throw LCompilers::LFortranException("visit_%s() not implemented"); }""" \
+                self.emit("""void visit_%s(const %s_t & /* x */) { throw LCompilers::LCompilersException("visit_%s() not implemented"); }""" \
                         % (type_.name, type_.name, type_.name), 2)
 
 
@@ -1325,9 +1325,9 @@ class DeserializationVisitorVisitor(ASDLVisitor):
             for tp in sum.types:
                 self.emit(    'case (%s::%sType::%s) : return self().deserialize_%s();' \
                     % (subs["MOD"], args[0], tp.name, tp.name), 3)
-            self.emit(    'default : throw LFortranException("Unknown type in deserialize_%s()");' % args[0], 3)
+            self.emit(    'default : throw LCompilersException("Unknown type in deserialize_%s()");' % args[0], 3)
             self.emit(  '}', 2)
-            self.emit(  'throw LFortranException("Switch statement above was not exhaustive.");', 2)
+            self.emit(  'throw LCompilersException("Switch statement above was not exhaustive.");', 2)
 
             self.emit("}", 1)
 
@@ -1341,9 +1341,9 @@ class DeserializationVisitorVisitor(ASDLVisitor):
         for tp in sums:
             self.emit(    'case (%s::%sType::%s) : return self().deserialize_%s();' \
                 % (subs["MOD"], subs["mod"], tp, tp), 3)
-        self.emit(    'default : throw LFortranException("Unknown type in deserialize_%s()");' % name, 3)
+        self.emit(    'default : throw LCompilersException("Unknown type in deserialize_%s()");' % name, 3)
         self.emit(  '}', 2)
-        self.emit(  'throw LFortranException("Switch statement above was not exhaustive.");', 2)
+        self.emit(  'throw LCompilersException("Switch statement above was not exhaustive.");', 2)
         self.emit(  '}', 1)
 
     def visitProduct(self, prod, name):

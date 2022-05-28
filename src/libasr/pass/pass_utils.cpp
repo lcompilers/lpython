@@ -219,7 +219,7 @@ namespace LCompilers {
             ASR::Module_t *m = LCompilers::ASRUtils::load_module(al, current_scope,
                                             module_name, loc, true,
                                             rl_path, false,
-                                            [&](const std::string &msg, const Location &) { throw LFortranException(msg); }
+                                            [&](const std::string &msg, const Location &) { throw LCompilersException(msg); }
                                             );
             ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
 
@@ -257,7 +257,7 @@ namespace LCompilers {
             ASR::Module_t *m = LCompilers::ASRUtils::load_module(al, current_scope,
                                             module_name, loc, true,
                                             rl_path, false,
-                                            [&](const std::string &msg, const Location &) { throw LFortranException(msg); });
+                                            [&](const std::string &msg, const Location &) { throw LCompilersException(msg); });
 
             ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
             ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
@@ -385,7 +385,7 @@ namespace LCompilers {
             if( cast_kind > 0 ) {
                 return LCompilers::ASRUtils::EXPR(ASR::make_Cast_t(al, x->base.loc, x, (ASR::cast_kindType)cast_kind, int64type, nullptr));
             } else {
-                throw LFortranException("Array indices can only be of type real or integer.");
+                throw LCompilersException("Array indices can only be of type real or integer.");
             }
             return nullptr;
         }
@@ -418,7 +418,7 @@ namespace LCompilers {
             if( current_scope->get_symbol(name) == nullptr ) {
                 current_scope->add_symbol(name, ASR::down_cast<ASR::symbol_t>(expr_sym));
             } else {
-                throw LFortranException("Symbol with " + name + " is already present in " + std::to_string(current_scope->counter));
+                throw LCompilersException("Symbol with " + name + " is already present in " + std::to_string(current_scope->counter));
             }
             ASR::expr_t* var = LCompilers::ASRUtils::EXPR(ASR::make_Var_t(al, expr->base.loc, ASR::down_cast<ASR::symbol_t>(expr_sym)));
             assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, var->base.loc, var, expr, nullptr));
@@ -434,7 +434,7 @@ namespace LCompilers {
             if( current_scope->get_symbol(name) == nullptr ) {
                 current_scope->add_symbol(name, ASR::down_cast<ASR::symbol_t>(expr_sym));
             } else {
-                throw LFortranException("Symbol with " + name + " is already present in " + std::to_string(current_scope->counter));
+                throw LCompilersException("Symbol with " + name + " is already present in " + std::to_string(current_scope->counter));
             }
             ASR::expr_t* var = LCompilers::ASRUtils::EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(expr_sym)));
             return var;
@@ -506,7 +506,7 @@ namespace LCompilers {
                     LCOMPILERS_ASSERT(u->m_operand->type == ASR::exprType::IntegerConstant);
                     increment = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_operand)->m_n;
                 } else {
-                    throw LFortranException("Do loop increment type not supported");
+                    throw LCompilersException("Do loop increment type not supported");
                 }
                 ASR::cmpopType cmp_op;
                 if (increment > 0) {

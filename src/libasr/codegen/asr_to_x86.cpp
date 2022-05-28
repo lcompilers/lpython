@@ -446,11 +446,11 @@ public:
                 m_a.asm_call_label("print_int");
                 m_a.asm_add_r32_imm8(LCompilers::X86Reg::esp, 4);
             } else if (t->type == ASR::ttypeType::Real) {
-                throw LFortranException("Type not implemented");
+                throw LCompilersException("Type not implemented");
             } else if (t->type == ASR::ttypeType::Character) {
-                throw LFortranException("Type not implemented");
+                throw LCompilersException("Type not implemented");
             } else {
-                throw LFortranException("Type not implemented");
+                throw LCompilersException("Type not implemented");
             }
 
 

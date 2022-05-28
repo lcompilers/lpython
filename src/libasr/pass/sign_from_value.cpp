@@ -120,7 +120,7 @@ public:
 
         sign_from_value_var = PassUtils::get_sign_from_value(first_arg, second_arg,
                                      al, unit, rl_path, current_scope, x.base.base.loc,
-                                     [&](const std::string &msg, const Location &) { throw LFortranException(msg); });
+                                     [&](const std::string &msg, const Location &) { throw LCompilersException(msg); });
         from_sign_from_value = false;
     }
 

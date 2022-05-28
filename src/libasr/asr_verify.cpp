@@ -46,7 +46,7 @@ public:
     // Requires the condition `cond` to be true. Raise an exception otherwise.
     void require(bool cond, const std::string &error_msg) {
         if (!cond) {
-            throw LFortranException("ASR verify failed: " + error_msg);
+            throw LCompilersException("ASR verify failed: " + error_msg);
         }
     }
     void require(bool cond, const std::string &error_msg,

@@ -66,11 +66,11 @@ ASR::TranslationUnit_t* load_modfile(Allocator &al, const std::string &s,
 #endif
     std::string file_type = b.read_string();
     if (file_type != lcompilers_modfile_type_string) {
-        throw LFortranException("LCompilers Modfile format not recognized");
+        throw LCompilersException("LCompilers Modfile format not recognized");
     }
     std::string version = b.read_string();
     if (version != LCOMPILERS_VERSION) {
-        throw LFortranException("Incompatible format: LCompilers Modfile was generated using version '" + version + "', but current LFortran version is '" + LCOMPILERS_VERSION + "'");
+        throw LCompilersException("Incompatible format: LCompilers Modfile was generated using version '" + version + "', but current LFortran version is '" + LCOMPILERS_VERSION + "'");
     }
     std::string asr_binary = b.read_string();
     ASR::asr_t *asr = deserialize_asr(al, asr_binary, load_symtab_id, symtab);

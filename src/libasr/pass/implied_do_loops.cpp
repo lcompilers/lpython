@@ -115,7 +115,7 @@ public:
                                                                 args.p, args.size(),
                                                                 LCompilers::ASRUtils::expr_type(LCompilers::ASRUtils::EXPR((ASR::asr_t*)arr_var)), nullptr));
             if( idoloop->m_values[i]->type == ASR::exprType::ImpliedDoLoop ) {
-                throw LFortranException("Pass for nested ImpliedDoLoop nodes isn't implemented yet."); // idoloop->m_values[i]->base.loc
+                throw LCompilersException("Pass for nested ImpliedDoLoop nodes isn't implemented yet."); // idoloop->m_values[i]->base.loc
             }
             ASR::stmt_t* doloop_stmt = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, array_ref, idoloop->m_values[i], nullptr));
             doloop_body.push_back(al, doloop_stmt);
