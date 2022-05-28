@@ -3145,6 +3145,11 @@ public:
         }
     }
 
+    void visit_IntegerBitNot(const ASR::IntegerBitNot_t &x) {
+        this->visit_expr_wrapper(x.m_arg, true);
+        tmp = builder->CreateNot(tmp);
+    }
+
     void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {
         int64_t val = x.m_n;
         int a_kind = ((ASR::Integer_t*)(&(x.m_type->base)))->m_kind;

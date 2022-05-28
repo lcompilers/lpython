@@ -605,13 +605,6 @@ R"(#include <stdio.h>
                 } else {
                     src = "-(" + src + ")";
                 }
-            } else if (x.m_op == ASR::unaryopType::Invert) {
-                last_expr_precedence = 3;
-                if (expr_precedence <= last_expr_precedence) {
-                    src = "~" + src;
-                } else {
-                    src = "~(" + src + ")";
-                }
 
             } else if (x.m_op == ASR::unaryopType::Not) {
                 last_expr_precedence = 3;
@@ -648,6 +641,17 @@ R"(#include <stdio.h>
             return;
         } else {
             throw CodeGenError("UnaryOp: type not supported yet");
+        }
+    }
+
+    void visit_IntegerBitNot(const ASR::IntegerBitNot_t& x) {
+        self().visit_expr(*x.m_arg);
+        int expr_precedence = last_expr_precedence;
+        last_expr_precedence = 3;
+        if (expr_precedence <= last_expr_precedence) {
+            src = "~" + src;
+        } else {
+            src = "~(" + src + ")";
         }
     }
 

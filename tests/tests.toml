@@ -249,6 +249,12 @@ asr = true
 filename = "../integration_tests/test_max_min.py"
 asr = true
 
+[[test]]
+filename = "../integration_tests/test_integer_bitnot.py"
+asr = true
+llvm = true
+cpp = true
+
 # tests/tokens
 
 [[test]]

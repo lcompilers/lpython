@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_integer_bitnot-08e2e96",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_integer_bitnot.py",
+    "infile_hash": "dc976a358fbeebedead889f8e85b3eed4ac77ee20f68fcac58b81429",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-test_integer_bitnot-08e2e96.stdout",
+    "stdout_hash": "245cb21a3f13e2485ed1b83a59f22cd18a66caa0ff01203afbc424b6",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

@@ -226,6 +226,7 @@ expr
                     expr? increment, ttype type, expr? value)
     | IntegerConstant(int n, ttype type)
     | IntegerBOZ(int v, integerboz intboz_type, ttype? type)
+    | IntegerBitNot(expr arg, ttype type, expr? value)
     | RealConstant(float r, ttype type)
     | ComplexConstant(float re, float im, ttype type)
     | LogicalConstant(bool value, ttype type)
