@@ -8,7 +8,7 @@
 #include <libasr/utils.h>
 #include <libasr/modfile.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     namespace ASRUtils  {
 
@@ -290,7 +290,7 @@ ASR::asr_t* getDerivedRef_t(Allocator& al, const Location& loc,
         default :
             break;
     }
-    return ASR::make_DerivedRef_t(al, loc, LFortran::ASRUtils::EXPR(v_var), member, member_type, nullptr);
+    return ASR::make_DerivedRef_t(al, loc, LCompilers::ASRUtils::EXPR(v_var), member, member_type, nullptr);
 }
 
 bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
@@ -298,8 +298,8 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                     SymbolTable* curr_scope, ASR::asr_t*& asr,
                     Allocator &al, const Location& loc,
                     const std::function<void (const std::string &, const Location &)> err) {
-    ASR::ttype_t *left_type = LFortran::ASRUtils::expr_type(left);
-    ASR::ttype_t *right_type = LFortran::ASRUtils::expr_type(right);
+    ASR::ttype_t *left_type = LCompilers::ASRUtils::expr_type(left);
+    ASR::ttype_t *right_type = LCompilers::ASRUtils::expr_type(right);
     bool found = false;
     if( is_op_overloaded(op, intrinsic_op_name, curr_scope) ) {
         ASR::symbol_t* sym = curr_scope->get_symbol(intrinsic_op_name);
@@ -386,8 +386,8 @@ bool use_overloaded_assignment(ASR::expr_t* target, ASR::expr_t* value,
                                SymbolTable* curr_scope, ASR::asr_t*& asr,
                                Allocator &al, const Location& loc,
                                const std::function<void (const std::string &, const Location &)> err) {
-    ASR::ttype_t *target_type = LFortran::ASRUtils::expr_type(target);
-    ASR::ttype_t *value_type = LFortran::ASRUtils::expr_type(value);
+    ASR::ttype_t *target_type = LCompilers::ASRUtils::expr_type(target);
+    ASR::ttype_t *value_type = LCompilers::ASRUtils::expr_type(value);
     bool found = false;
     ASR::symbol_t* sym = curr_scope->resolve_symbol("~assign");
     if (sym) {
@@ -446,8 +446,8 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                     SymbolTable* curr_scope, ASR::asr_t*& asr,
                     Allocator &al, const Location& loc,
                     const std::function<void (const std::string &, const Location &)> err) {
-    ASR::ttype_t *left_type = LFortran::ASRUtils::expr_type(left);
-    ASR::ttype_t *right_type = LFortran::ASRUtils::expr_type(right);
+    ASR::ttype_t *left_type = LCompilers::ASRUtils::expr_type(left);
+    ASR::ttype_t *right_type = LCompilers::ASRUtils::expr_type(right);
     bool found = false;
     if( is_op_overloaded(op, intrinsic_op_name, curr_scope) ) {
         ASR::symbol_t* sym = curr_scope->resolve_symbol(intrinsic_op_name);
@@ -609,15 +609,15 @@ bool argument_types_match(const Vec<ASR::call_arg_t>& args,
     if (args.size() <= sub.n_args) {
         size_t i;
         for (i = 0; i < args.size(); i++) {
-            ASR::Variable_t *v = LFortran::ASRUtils::EXPR2VAR(sub.m_args[i]);
-            ASR::ttype_t *arg1 = LFortran::ASRUtils::expr_type(args[i].m_value);
+            ASR::Variable_t *v = LCompilers::ASRUtils::EXPR2VAR(sub.m_args[i]);
+            ASR::ttype_t *arg1 = LCompilers::ASRUtils::expr_type(args[i].m_value);
             ASR::ttype_t *arg2 = v->m_type;
             if (!types_equal(*arg1, *arg2)) {
                 return false;
             }
         }
         for( ; i < sub.n_args; i++ ) {
-            ASR::Variable_t *v = LFortran::ASRUtils::EXPR2VAR(sub.m_args[i]);
+            ASR::Variable_t *v = LCompilers::ASRUtils::EXPR2VAR(sub.m_args[i]);
             if( v->m_presence != ASR::presenceType::Optional ) {
                 return false;
             }
@@ -686,14 +686,14 @@ ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
     bool is_subroutine = ASR::is_a<ASR::Subroutine_t>(*final_sym);
     ASR::ttype_t *return_type = nullptr;
     if( ASR::is_a<ASR::Function_t>(*final_sym) ) {
-        return_type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(final_sym)->m_return_var)->m_type;
+        return_type = LCompilers::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(final_sym)->m_return_var)->m_type;
     }
     // Create ExternalSymbol for the final subroutine:
     // We mangle the new ExternalSymbol's local name as:
     //   generic_procedure_local_name @
     //     specific_procedure_remote_name
     std::string local_sym = std::string(p->m_name) + "@"
-        + LFortran::ASRUtils::symbol_name(final_sym);
+        + LCompilers::ASRUtils::symbol_name(final_sym);
     if (current_scope->get_symbol(local_sym)
         == nullptr) {
         Str name;
@@ -704,7 +704,7 @@ ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
             /* a_symtab */ current_scope,
             /* a_name */ cname,
             final_sym,
-            p->m_module_name, nullptr, 0, LFortran::ASRUtils::symbol_name(final_sym),
+            p->m_module_name, nullptr, 0, LCompilers::ASRUtils::symbol_name(final_sym),
             ASR::accessType::Private
             );
         final_sym = ASR::down_cast<ASR::symbol_t>(sub);
@@ -783,4 +783,4 @@ ASR::asr_t* make_Cast_t_value(Allocator &al, const Location &a_loc,
 } // namespace ASRUtils
 
 
-} // namespace LFortran
+} // namespace LCompilers

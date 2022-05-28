@@ -1,12 +1,12 @@
-#ifndef LFORTRAN_PASS_UNUSED_FUNCTIONS_H
-#define LFORTRAN_PASS_UNUSED_FUNCTIONS_H
+#ifndef LCOMPILERS_PASS_UNUSED_FUNCTIONS_H
+#define LCOMPILERS_PASS_UNUSED_FUNCTIONS_H
 
 #include <libasr/asr.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     void pass_unused_functions(Allocator &al, ASR::TranslationUnit_t &unit);
 
-} // namespace LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_PASS_UNUSED_FUNCTIONS_H
+#endif // LCOMPILERS_PASS_UNUSED_FUNCTIONS_H

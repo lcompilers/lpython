@@ -6,11 +6,11 @@
 #include <libasr/pass/global_stmts.h>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 
-using LFortran::ASRUtils::EXPR;
+using LCompilers::ASRUtils::EXPR;
 
 /*
  * This ASR pass transforms (in-place) the ASR tree and wraps all global
@@ -49,4 +49,4 @@ void pass_wrap_global_stmts_into_program(Allocator &al,
     LFORTRAN_ASSERT(asr_verify(unit));
 }
 
-} // namespace LFortran
+} // namespace LCompilers

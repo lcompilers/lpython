@@ -1,7 +1,7 @@
 #include <libasr/codegen/llvm_array_utils.h>
 #include <libasr/codegen/llvm_utils.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     namespace LLVMArrUtils {
 
@@ -459,4 +459,4 @@ namespace LFortran {
 
     } // LLVMArrUtils
 
-} // LFortran
+} // namespace LCompilers

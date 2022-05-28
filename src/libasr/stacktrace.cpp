@@ -19,26 +19,26 @@
 // The following C headers are needed for some specific C functionality (see
 // the comments), which is not available in C++:
 
-#ifdef HAVE_LFORTRAN_UNWIND
+#ifdef HAVE_LCOMPILERS_UNWIND
 // For _Unwind_Backtrace() function
 #  include <unwind.h>
 #endif
 
-#if defined(HAVE_LFORTRAN_DEMANGLE)
+#if defined(HAVE_LCOMPILERS_DEMANGLE)
 // For demangling function names
 #  include <cxxabi.h>
 #endif
 
-#ifdef HAVE_LFORTRAN_LINK
+#ifdef HAVE_LCOMPILERS_LINK
 // For dl_iterate_phdr() functionality
 #  include <link.h>
 #endif
 
-#ifdef HAVE_LFORTRAN_MACHO
+#ifdef HAVE_LCOMPILERS_MACHO
 #  include <mach-o/dyld.h>
 #endif
 
-#ifdef HAVE_LFORTRAN_BFD
+#ifdef HAVE_LCOMPILERS_BFD
 // For bfd_* family of functions for loading debugging symbols from the binary
 // This is the only nonstandard header file and the binary needs to be linked
 // with "-lbfd".
@@ -55,11 +55,11 @@
 #  include <bfd.h>
 #endif
 
-namespace LFortran {
+namespace LCompilers {
 
 std::string binary_executable_path = "/proc/self/exe";
 
-#ifdef HAVE_LFORTRAN_UNWIND
+#ifdef HAVE_LCOMPILERS_UNWIND
 
 static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
   void *vdata)
@@ -76,11 +76,11 @@ static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
   return _URC_NO_REASON;
 }
 
-#endif // HAVE_LFORTRAN_UNWIND
+#endif // HAVE_LCOMPILERS_UNWIND
 
 
 
-#ifdef HAVE_LFORTRAN_LINK
+#ifdef HAVE_LCOMPILERS_LINK
 
 /* Tries to find the 'data.addr' in the current shared lib (as passed in
    'info'). If it succeeds, returns (in the 'data') the full path to the shared
@@ -109,13 +109,13 @@ int shared_lib_callback(struct dl_phdr_info *info,
   return 0;
 }
 
-#endif // HAVE_LFORTRAN_LINK
+#endif // HAVE_LCOMPILERS_LINK
 
 
 // Fills in `local_pc` and `binary_filename` of `item`
 void get_local_address(StacktraceItem &item)
 {
-#ifdef HAVE_LFORTRAN_LINK
+#ifdef HAVE_LCOMPILERS_LINK
     // Iterate over all loaded shared libraries (see dl_iterate_phdr(3) -
     // Linux man page for more documentation)
     if (dl_iterate_phdr(shared_lib_callback, &item) == 0) {
@@ -137,7 +137,7 @@ void get_local_address(StacktraceItem &item)
       abort();
     }
 #else
-#ifdef HAVE_LFORTRAN_MACHO
+#ifdef HAVE_LCOMPILERS_MACHO
     for (uint32_t i = 0; i < _dyld_image_count(); i++) {
         const struct mach_header *header = _dyld_get_image_header(i);
         intptr_t offset = _dyld_get_image_vmaddr_slide(i);
@@ -181,8 +181,8 @@ void get_local_address(StacktraceItem &item)
     abort();
 #else
     item.local_pc=0;
-#endif // HAVE_LFORTRAN_MACHO
-#endif // HAVE_LFORTRAN_LINK
+#endif // HAVE_LCOMPILERS_MACHO
+#endif // HAVE_LCOMPILERS_LINK
 }
 
 
@@ -202,7 +202,7 @@ std::string demangle_function_name(std::string name)
     s = "??";
   } else {
     char *d = 0;
-#if defined(HAVE_LFORTRAN_DEMANGLE)
+#if defined(HAVE_LCOMPILERS_DEMANGLE)
     int status = 0;
     d = abi::__cxa_demangle(name.c_str(), 0, 0, &status);
 #endif
@@ -218,7 +218,7 @@ std::string demangle_function_name(std::string name)
 }
 
 
-#ifdef HAVE_LFORTRAN_BFD
+#ifdef HAVE_LCOMPILERS_BFD
 
 /* This struct is used to pass information into process_section().
 */
@@ -365,7 +365,7 @@ void get_symbol_info_bfd(std::string binary_filename, uintptr_t addr,
   }
 }
 
-#endif // HAVE_LFORTRAN_BFD
+#endif // HAVE_LCOMPILERS_BFD
 
 
 
@@ -544,7 +544,7 @@ void show_stacktrace()
 std::vector<StacktraceItem> get_stacktrace_addresses()
 {
   std::vector<StacktraceItem> d;
-#ifdef HAVE_LFORTRAN_UNWIND
+#ifdef HAVE_LCOMPILERS_UNWIND
   _Unwind_Backtrace(unwind_callback, &d);
 #endif
   return d;
@@ -624,14 +624,14 @@ void get_local_info_dwarfdump(std::vector<StacktraceItem> &d)
 
 void get_local_info(std::vector<StacktraceItem> &d)
 {
-#ifdef HAVE_LFORTRAN_DWARFDUMP
+#ifdef HAVE_LCOMPILERS_DWARFDUMP
   get_local_info_dwarfdump(d);
 #else
-#  ifdef HAVE_LFORTRAN_BFD
+#  ifdef HAVE_LCOMPILERS_BFD
   bfd_init();
 #  endif
   for (size_t i=0; i < d.size(); i++) {
-#  ifdef HAVE_LFORTRAN_BFD
+#  ifdef HAVE_LCOMPILERS_BFD
     get_symbol_info_bfd(d[i].binary_filename, d[i].local_pc,
       d[i].source_filename, d[i].function_name, d[i].line_number);
 #  endif
@@ -647,4 +647,4 @@ std::string error_stacktrace(const std::vector<StacktraceItem> &stacktrace)
     return stacktrace2str(d, stacktrace_depth-1);
 }
 
-} // namespace LFortran
+} // namespace LCompilers

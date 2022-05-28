@@ -3,7 +3,7 @@
 
 #include <libasr/asr.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     std::string serialize(const ASR::asr_t &asr);
     std::string serialize(const ASR::TranslationUnit_t &unit);

@@ -1,12 +1,12 @@
-#ifndef LFORTRAN_BWRITER_H
-#define LFORTRAN_BWRITER_H
+#ifndef LCOMPILERS_BWRITER_H
+#define LCOMPILERS_BWRITER_H
 
 #include <sstream>
 #include <iomanip>
 
 #include <libasr/exception.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 std::string static inline uint32_to_string(uint32_t i) {
     char bytes[4];
@@ -252,6 +252,6 @@ public:
     }
 };
 
-} // namespace LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_BWRITER_H
+#endif // LCOMPILERS_BWRITER_H

@@ -3,10 +3,10 @@
 
 #include <libasr/asr.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     void pass_replace_flip_sign(Allocator &al, ASR::TranslationUnit_t &unit, const std::string& rl_path);
 
-} // namespace LFortran
+} // namespace LCompilers
 
 #endif // LIBASR_PASS_FLIP_SIGN_H

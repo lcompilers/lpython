@@ -89,7 +89,7 @@
     _X(ASR::Character_t, "c_char",        "char" )
  */
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace {
 
@@ -505,4 +505,4 @@ std::tuple<std::string, std::string, std::string> asr_to_py(ASR::TranslationUnit
     return std::make_tuple(v.chdr, v.pxd, v.pyx);
 }
 
-} // namespace LFortran
+} // namespace LCompilers

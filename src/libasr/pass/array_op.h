@@ -1,13 +1,13 @@
-#ifndef LFORTRAN_PASS_ARRAY_OP_H
-#define LFORTRAN_PASS_ARRAY_OP_H
+#ifndef LCOMPILERS_PASS_ARRAY_OP_H
+#define LCOMPILERS_PASS_ARRAY_OP_H
 
 #include <libasr/asr.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     void pass_replace_array_op(Allocator &al, ASR::TranslationUnit_t &unit,
         const std::string &rl_path);
 
-} // namespace LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_PASS_ARRAY_OP_H
+#endif // LCOMPILERS_PASS_ARRAY_OP_H

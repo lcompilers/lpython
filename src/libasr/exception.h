@@ -1,17 +1,17 @@
-#ifndef LFORTRAN_EXCEPTION_H
-#define LFORTRAN_EXCEPTION_H
+#ifndef LCOMPILERS_EXCEPTION_H
+#define LCOMPILERS_EXCEPTION_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef enum {
-    LFORTRAN_NO_EXCEPTION    = 0,
-    LFORTRAN_RUNTIME_ERROR   = 1,
-    LFORTRAN_EXCEPTION       = 2,
-    LFORTRAN_PARSER_ERROR    = 4,
-    LFORTRAN_ASSERT_FAILED   = 7,
-    LFORTRAN_ASSEMBLER_ERROR = 8,
+    LCOMPILERS_NO_EXCEPTION    = 0,
+    LCOMPILERS_RUNTIME_ERROR   = 1,
+    LCOMPILERS_EXCEPTION       = 2,
+    LCOMPILERS_PARSER_ERROR    = 4,
+    LCOMPILERS_ASSERT_FAILED   = 7,
+    LCOMPILERS_ASSEMBLER_ERROR = 8,
 } lfortran_exceptions_t;
 
 #ifdef __cplusplus
@@ -28,8 +28,7 @@ typedef enum {
 #include <libasr/stacktrace.h>
 #include <libasr/diagnostics.h>
 
-namespace LFortran
-{
+namespace LCompilers {
 
 /*
     This Error structure is returned in Result when failure happens.
@@ -108,7 +107,7 @@ public:
         : m_msg{msg}, ec{error}, m_stacktrace_addresses{get_stacktrace_addresses()}
     { }
     LFortranException(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_EXCEPTION)
+        : LFortranException(msg, LCOMPILERS_EXCEPTION)
     {
     }
     const char *what() const throw()
@@ -122,9 +121,9 @@ public:
     std::string name() const
     {
         switch (ec) {
-            case (lfortran_exceptions_t::LFORTRAN_EXCEPTION) :
+            case (lfortran_exceptions_t::LCOMPILERS_EXCEPTION) :
                 return "LFortranException";
-            case (lfortran_exceptions_t::LFORTRAN_ASSERT_FAILED) :
+            case (lfortran_exceptions_t::LCOMPILERS_ASSERT_FAILED) :
                 return "AssertFailed";
             default : return "Unknown Exception";
         }
@@ -143,7 +142,7 @@ class AssertFailed : public LFortranException
 {
 public:
     AssertFailed(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_ASSERT_FAILED)
+        : LFortranException(msg, LCOMPILERS_ASSERT_FAILED)
     {
     }
 };
@@ -152,7 +151,7 @@ class AssemblerError : public LFortranException
 {
 public:
     AssemblerError(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_ASSEMBLER_ERROR)
+        : LFortranException(msg, LCOMPILERS_ASSEMBLER_ERROR)
     {
     }
 };
@@ -170,4 +169,4 @@ static inline T TRY(Result<T> result) {
 } // Namespace LFortran
 
 #endif // __cplusplus
-#endif // LFORTRAN_EXCEPTION_H
+#endif // LCOMPILERS_EXCEPTION_H

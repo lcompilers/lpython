@@ -1,14 +1,14 @@
 #ifdef __unix__
-#define LFORTRAN_LINUX
+#define LCOMPILERS_LINUX
 #endif
 
-#ifdef LFORTRAN_LINUX
+#ifdef LCOMPILERS_LINUX
 #include <sys/stat.h>
 #endif
 
 #include <libasr/codegen/x86_assembler.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 void X86Assembler::save_binary(const std::string &filename) {
     {
@@ -16,7 +16,7 @@ void X86Assembler::save_binary(const std::string &filename) {
         out.open(filename);
         out.write((const char*) m_code.p, m_code.size());
     }
-#ifdef LFORTRAN_LINUX
+#ifdef LCOMPILERS_LINUX
     std::string mode = "0755";
     int mod = strtol(mode.c_str(), 0, 8);
     if (chmod(filename.c_str(),mod) < 0) {
@@ -89,8 +89,8 @@ void emit_exit(X86Assembler &a, const std::string &name,
 {
     a.add_label(name);
     // void exit(int status);
-    a.asm_mov_r32_imm32(LFortran::X86Reg::eax, 1); // sys_exit
-    a.asm_mov_r32_imm32(LFortran::X86Reg::ebx, exit_code); // exit code
+    a.asm_mov_r32_imm32(LCompilers::X86Reg::eax, 1); // sys_exit
+    a.asm_mov_r32_imm32(LCompilers::X86Reg::ebx, exit_code); // exit code
     a.asm_int_imm8(0x80); // syscall
 }
 
@@ -105,10 +105,10 @@ void emit_print(X86Assembler &a, const std::string &msg_label,
     uint32_t size)
 {
     // ssize_t write(int fd, const void *buf, size_t count);
-    a.asm_mov_r32_imm32(LFortran::X86Reg::eax, 4); // sys_write
-    a.asm_mov_r32_imm32(LFortran::X86Reg::ebx, 1); // fd (stdout)
-    a.asm_mov_r32_label(LFortran::X86Reg::ecx, msg_label); // buf
-    a.asm_mov_r32_imm32(LFortran::X86Reg::edx, size); // count
+    a.asm_mov_r32_imm32(LCompilers::X86Reg::eax, 4); // sys_write
+    a.asm_mov_r32_imm32(LCompilers::X86Reg::ebx, 1); // fd (stdout)
+    a.asm_mov_r32_label(LCompilers::X86Reg::ecx, msg_label); // buf
+    a.asm_mov_r32_imm32(LCompilers::X86Reg::edx, size); // count
     a.asm_int_imm8(0x80);
 }
 
@@ -145,11 +145,11 @@ void emit_print_int(X86Assembler &a, const std::string &name)
     a.asm_je_label(".print");
 //    jmp .loop
     a.asm_jmp_label(".loop");
-    
+
     a.add_label(".print");
 //    cmp esi, 0
     a.asm_cmp_r32_imm8(X86Reg::esi, 0);
-//    jz end 
+//    jz end
     a.asm_je_label(".end");
 //    dec esi
     a.asm_dec_r32(X86Reg::esi);
@@ -176,4 +176,4 @@ void emit_print_int(X86Assembler &a, const std::string &name)
     a.asm_ret();
 }
 
-} // namespace LFortran
+} // namespace LCompilers

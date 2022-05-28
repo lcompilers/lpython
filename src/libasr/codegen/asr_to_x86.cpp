@@ -12,7 +12,7 @@
 #include <libasr/asr_utils.h>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace {
 
@@ -147,8 +147,8 @@ public:
 
         // Add arguments to x86_symtab with their correct offset
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
+            ASR::Variable_t *arg = LCompilers::ASRUtils::EXPR2VAR(x.m_args[i]);
+            LFORTRAN_ASSERT(LCompilers::ASRUtils::is_arg_dummy(arg->m_intent));
             // TODO: we are assuming integer here:
             LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
             Sym s;
@@ -169,7 +169,7 @@ public:
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
 
-                if (v->m_intent == LFortran::ASRUtils::intent_local || v->m_intent == LFortran::ASRUtils::intent_return_var) {
+                if (v->m_intent == LCompilers::ASRUtils::intent_local || v->m_intent == LCompilers::ASRUtils::intent_return_var) {
                     if (v->m_type->type == ASR::ttypeType::Integer) {
                         total_offset += 4;
                         Sym s;
@@ -209,8 +209,8 @@ public:
 
         // Add arguments to x86_symtab with their correct offset
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
+            ASR::Variable_t *arg = LCompilers::ASRUtils::EXPR2VAR(x.m_args[i]);
+            LFORTRAN_ASSERT(LCompilers::ASRUtils::is_arg_dummy(arg->m_intent));
             // TODO: we are assuming integer here:
             LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
             Sym s;
@@ -231,7 +231,7 @@ public:
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
 
-                if (v->m_intent == LFortran::ASRUtils::intent_local || v->m_intent == LFortran::ASRUtils::intent_return_var) {
+                if (v->m_intent == LCompilers::ASRUtils::intent_local || v->m_intent == LCompilers::ASRUtils::intent_return_var) {
                     if (v->m_type->type == ASR::ttypeType::Integer) {
                         total_offset += 4;
                         Sym s;
@@ -253,7 +253,7 @@ public:
 
         // Leave return value in eax
         {
-            ASR::Variable_t *retv = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
+            ASR::Variable_t *retv = LCompilers::ASRUtils::EXPR2VAR(x.m_return_var);
 
             uint32_t h = get_hash((ASR::asr_t*)retv);
             LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
@@ -365,8 +365,8 @@ public:
         // The left operand is in eax, the right operand is in ecx
         // Leave the result in eax.
         m_a.asm_cmp_r32_r32(X86Reg::eax, X86Reg::ecx);
-        LFORTRAN_ASSERT(LFortran::ASRUtils::expr_type(x.m_left)->type == LFortran::ASRUtils::expr_type(x.m_right)->type);
-        ASR::ttypeType optype = LFortran::ASRUtils::expr_type(x.m_left)->type;
+        LFORTRAN_ASSERT(LCompilers::ASRUtils::expr_type(x.m_left)->type == LCompilers::ASRUtils::expr_type(x.m_right)->type);
+        ASR::ttypeType optype = LCompilers::ASRUtils::expr_type(x.m_left)->type;
         if (optype == ASR::ttypeType::Integer) {
             switch (x.m_op) {
                 case (ASR::cmpopType::Eq) : {
@@ -411,7 +411,7 @@ public:
         this->visit_expr(*x.m_value);
         // RHS is in eax
 
-        ASR::Variable_t *v = LFortran::ASRUtils::EXPR2VAR(x.m_target);
+        ASR::Variable_t *v = LCompilers::ASRUtils::EXPR2VAR(x.m_target);
         uint32_t h = get_hash((ASR::asr_t*)v);
         LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
         Sym s = x86_symtab[h];
@@ -440,11 +440,11 @@ public:
             m_global_strings[id] = msg;
         } else {
             this->visit_expr(*e);
-            ASR::ttype_t *t = LFortran::ASRUtils::expr_type(e);
+            ASR::ttype_t *t = LCompilers::ASRUtils::expr_type(e);
             if (t->type == ASR::ttypeType::Integer) {
                 m_a.asm_push_r32(X86Reg::eax);
                 m_a.asm_call_label("print_int");
-                m_a.asm_add_r32_imm8(LFortran::X86Reg::esp, 4);
+                m_a.asm_add_r32_imm8(LCompilers::X86Reg::esp, 4);
             } else if (t->type == ASR::ttypeType::Real) {
                 throw LFortranException("Type not implemented");
             } else if (t->type == ASR::ttypeType::Character) {
@@ -474,7 +474,7 @@ public:
         std::string id = std::to_string(get_hash((ASR::asr_t*)&x));
         this->visit_expr(*x.m_test);
         // eax contains the logical value (true=1, false=0) of the if condition
-        m_a.asm_cmp_r32_imm8(LFortran::X86Reg::eax, 1);
+        m_a.asm_cmp_r32_imm8(LCompilers::X86Reg::eax, 1);
         m_a.asm_je_label(".then" + id);
         m_a.asm_jmp_label(".else" + id);
         m_a.add_label(".then" + id);
@@ -496,7 +496,7 @@ public:
         m_a.add_label(".loop.head" + id);
         this->visit_expr(*x.m_test);
         // eax contains the logical value (true=1, false=0) of the while condition
-        m_a.asm_cmp_r32_imm8(LFortran::X86Reg::eax, 1);
+        m_a.asm_cmp_r32_imm8(LCompilers::X86Reg::eax, 1);
         m_a.asm_je_label(".loop.body" + id);
         m_a.asm_jmp_label(".loop.end" + id);
 
@@ -520,8 +520,8 @@ public:
         for (int i=x.n_args-1; i>=0; i--) {
             bool pass_as_pointer;
             {
-                ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(sub.m_args[i]);
-                LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
+                ASR::Variable_t *arg = LCompilers::ASRUtils::EXPR2VAR(sub.m_args[i]);
+                LFORTRAN_ASSERT(LCompilers::ASRUtils::is_arg_dummy(arg->m_intent));
                 // TODO: we are assuming integer here:
                 LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
                 uint32_t h = get_hash((ASR::asr_t*)arg);
@@ -529,7 +529,7 @@ public:
                 pass_as_pointer = s.pointer;
             }
             if (x.m_args[i].m_value->type == ASR::exprType::Var) {
-                ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i].m_value);
+                ASR::Variable_t *arg = LCompilers::ASRUtils::EXPR2VAR(x.m_args[i].m_value);
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
                 Sym s = x86_symtab[h];
@@ -587,7 +587,7 @@ public:
         // Call the subroutine
         m_a.asm_call_label(sym.fn_label);
         // Remove arguments from stack
-        m_a.asm_add_r32_imm8(LFortran::X86Reg::esp, arg_offset);
+        m_a.asm_add_r32_imm8(LCompilers::X86Reg::esp, arg_offset);
     }
 
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
@@ -604,7 +604,7 @@ public:
         // Call the function (the result is in eax, we leave it there)
         m_a.asm_call_label(sym.fn_label);
         // Remove arguments from stack
-        m_a.asm_add_r32_imm8(LFortran::X86Reg::esp, arg_offset);
+        m_a.asm_add_r32_imm8(LCompilers::X86Reg::esp, arg_offset);
     }
 
 };
@@ -674,4 +674,4 @@ Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
     return 0;
 }
 
-} // namespace LFortran
+} // namespace LCompilers

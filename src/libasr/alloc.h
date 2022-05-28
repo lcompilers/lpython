@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_PARSER_ALLOC_H
-#define LFORTRAN_PARSER_ALLOC_H
+#ifndef LCOMPILERS_PARSER_ALLOC_H
+#define LCOMPILERS_PARSER_ALLOC_H
 
 #include <algorithm>
 #include <cstdlib>

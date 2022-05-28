@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_EVALUATOR_H
-#define LFORTRAN_EVALUATOR_H
+#ifndef LCOMPILERS_EVALUATOR_H
+#define LCOMPILERS_EVALUATOR_H
 
 #include <complex>
 #include <iostream>
@@ -26,7 +26,7 @@ namespace llvm {
 #endif
 }
 
-namespace LFortran {
+namespace LCompilers {
 
 class LLVMModule
 {
@@ -77,6 +77,6 @@ public:
 };
 
 
-} // namespace LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_EVALUATOR_H
+#endif // LCOMPILERS_EVALUATOR_H

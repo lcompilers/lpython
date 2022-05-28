@@ -10,7 +10,7 @@
 #include <string>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 using ASR::is_a;
@@ -146,4 +146,4 @@ void pass_replace_sign_from_value(Allocator &al, ASR::TranslationUnit_t &unit,
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

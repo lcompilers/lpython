@@ -1,11 +1,11 @@
-#ifndef LFORTRAN_SEMANTICS_ASR_SCOPES_H
-#define LFORTRAN_SEMANTICS_ASR_SCOPES_H
+#ifndef LCOMPILERS_SEMANTICS_ASR_SCOPES_H
+#define LCOMPILERS_SEMANTICS_ASR_SCOPES_H
 
 #include <map>
 
 #include <libasr/alloc.h>
 
-namespace LFortran  {
+namespace LCompilers {
 
 namespace ASR {
     struct asr_t;
@@ -81,6 +81,6 @@ struct SymbolTable {
     std::string get_unique_name(const std::string &name);
 };
 
-} // namespace LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_SEMANTICS_ASR_SCOPES_H
+#endif // LCOMPILERS_SEMANTICS_ASR_SCOPES_H

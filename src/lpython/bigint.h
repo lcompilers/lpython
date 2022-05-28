@@ -1,11 +1,11 @@
-#ifndef LFORTRAN_BIGINT_H
-#define LFORTRAN_BIGINT_H
+#ifndef LCOMPILERS_BIGINT_H
+#define LCOMPILERS_BIGINT_H
 
 #include <cstdint>
 
 #include <libasr/containers.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace BigInt {
 
@@ -104,7 +104,7 @@ inline static bool is_int64(std::string str_repr) {
     if( str_repr.size() > str_int64.size() ) {
         return false;
     }
-    
+
     if( str_repr.size() < str_int64.size() ) {
         return true;
     }
@@ -163,6 +163,6 @@ static_assert(sizeof(BigInt) == 8);
 
 } // BigInt
 
-} // LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_BIGINT_H
+#endif // LCOMPILERS_BIGINT_H

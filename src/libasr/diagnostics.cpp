@@ -6,7 +6,7 @@
 #include <libasr/exception.h>
 #include <libasr/utils.h>
 
-namespace LFortran::diag {
+namespace LCompilers::diag {
 
 const static std::string redon  = "\033[0;31m";
 const static std::string redoff = "\033[0;00m";
@@ -159,7 +159,7 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
     std::string type_color = "";
     switch (d.level) {
         case (Level::Error):
-            primary_color = red_bold;    
+            primary_color = red_bold;
             type_color = primary_color;
             switch (d.stage) {
                 case (Stage::CPreprocessor):
@@ -186,17 +186,17 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
             }
             break;
         case (Level::Warning):
-            primary_color = yellow_bold;    
+            primary_color = yellow_bold;
             type_color = primary_color;
             message_type = "warning";
             break;
         case (Level::Note):
-            primary_color = bold;    
+            primary_color = bold;
             type_color = primary_color;
             message_type = "note";
             break;
         case (Level::Help):
-            primary_color = bold;    
+            primary_color = bold;
             type_color = primary_color;
             message_type = "help";
             break;
@@ -320,4 +320,4 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
     return out.str();
 }
 
-} // namespace LFortran::diag
+} // namespace LCompilers::diag

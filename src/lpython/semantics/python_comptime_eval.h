@@ -15,7 +15,7 @@
 #include <lpython/utils.h>
 #include <lpython/semantics/semantic_exception.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 struct PythonIntrinsicProcedures {
 
@@ -840,6 +840,6 @@ struct PythonIntrinsicProcedures {
 
 }; // ComptimeEval
 
-} // namespace LFortran
+} // namespace LCompilers
 
 #endif /* LPYTHON_SEMANTICS_COMPTIME_EVAL_H */

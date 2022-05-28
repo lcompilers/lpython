@@ -12,11 +12,11 @@
 #if !defined(LFORTRAN_ASSERT)
 #define stringize(s) #s
 #define XSTR(s) stringize(s)
-#if defined(HAVE_LFORTRAN_STACKTRACE)
+#if defined(HAVE_LCOMPILERS_STACKTRACE)
 #define LFORTRAN_ASSERT(cond)                                                  \
     {                                                                          \
         if (!(cond)) {                                                         \
-            throw LFortran::AssertFailed(XSTR(cond));                  \
+            throw LCompilers::AssertFailed(XSTR(cond));                  \
         }                                                                      \
     }
 #else
@@ -30,7 +30,7 @@
             abort();                                                           \
         }                                                                      \
     }
-#endif // defined(HAVE_LFORTRAN_STACKTRACE)
+#endif // defined(HAVE_LCOMPILERS_STACKTRACE)
 #endif // !defined(LFORTRAN_ASSERT)
 
 #if !defined(LFORTRAN_ASSERT_MSG)
@@ -55,7 +55,7 @@
 
 #endif // defined(WITH_LFORTRAN_ASSERT)
 
-#define LFORTRAN_ERROR(description)                                           \
+#define LCOMPILERS_ERROR(description)                                           \
     std::cerr << description;                                                  \
     std::cerr << "\n";                                                         \
     abort();

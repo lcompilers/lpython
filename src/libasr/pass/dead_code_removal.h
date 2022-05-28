@@ -3,10 +3,10 @@
 
 #include <libasr/asr.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     void pass_dead_code_removal(Allocator &al, ASR::TranslationUnit_t &unit, const std::string& rl_path);
 
-} // namespace LFortran
+} // namespace LCompilers
 
 #endif

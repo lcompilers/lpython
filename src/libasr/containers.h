@@ -1,11 +1,10 @@
-#ifndef LFORTRAN_CONTAINERS_H
-#define LFORTRAN_CONTAINERS_H
+#ifndef LCOMPILERS_CONTAINERS_H
+#define LCOMPILERS_CONTAINERS_H
 
 #include <cstring>
 #include <libasr/alloc.h>
 
-namespace LFortran
-{
+namespace LCompilers {
 
 // Vector implementation
 
@@ -175,7 +174,7 @@ struct Str {
 static_assert(std::is_standard_layout<Str>::value);
 static_assert(std::is_trivial<Str>::value);
 
-} // namespace LFortran
+} // namespace LCompilers
 
 
 

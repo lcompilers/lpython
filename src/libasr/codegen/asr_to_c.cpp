@@ -11,7 +11,7 @@
 #include <libasr/pass/unused_functions.h>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 std::string convert_dims_c(size_t n_dims, ASR::dimension_t *m_dims)
 {
@@ -64,8 +64,8 @@ public:
     std::string convert_variable_decl(const ASR::Variable_t &v)
     {
         std::string sub;
-        bool use_ref = (v.m_intent == LFortran::ASRUtils::intent_out || v.m_intent == LFortran::ASRUtils::intent_inout);
-        bool dummy = LFortran::ASRUtils::is_arg_dummy(v.m_intent);
+        bool use_ref = (v.m_intent == LCompilers::ASRUtils::intent_out || v.m_intent == LCompilers::ASRUtils::intent_inout);
+        bool dummy = LCompilers::ASRUtils::is_arg_dummy(v.m_intent);
         if (ASRUtils::is_pointer(v.m_type)) {
             ASR::ttype_t *t2 = ASR::down_cast<ASR::Pointer_t>(v.m_type)->m_type;
             if (ASRUtils::is_integer(*t2)) {
@@ -157,7 +157,7 @@ R"(#include <assert.h>
         {
             // Process intrinsic modules in the right order
             std::vector<std::string> build_order
-                = LFortran::ASRUtils::determine_module_dependencies(x);
+                = LCompilers::ASRUtils::determine_module_dependencies(x);
             for (auto &item : build_order) {
                 LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item)
                     != x.m_global_scope->get_scope().end());
@@ -180,7 +180,7 @@ R"(#include <assert.h>
 
         // Then do all the modules in the right order
         std::vector<std::string> build_order
-            = LFortran::ASRUtils::determine_module_dependencies(x);
+            = LCompilers::ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
             LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item)
                 != x.m_global_scope->get_scope().end());
@@ -366,4 +366,4 @@ Result<std::string> asr_to_c(Allocator &al, ASR::TranslationUnit_t &asr,
     return v.src;
 }
 
-} // namespace LFortran
+} // namespace LCompilers

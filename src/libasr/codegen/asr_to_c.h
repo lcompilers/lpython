@@ -1,13 +1,13 @@
-#ifndef LFORTRAN_ASR_TO_C_H
-#define LFORTRAN_ASR_TO_C_H
+#ifndef LCOMPILERS_ASR_TO_C_H
+#define LCOMPILERS_ASR_TO_C_H
 
 #include <libasr/asr.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     Result<std::string> asr_to_c(Allocator &al, ASR::TranslationUnit_t &asr,
         diag::Diagnostics &diagnostics);
 
-} // namespace LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_ASR_TO_C_H
+#endif // LCOMPILERS_ASR_TO_C_H

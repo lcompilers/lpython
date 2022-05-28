@@ -1,7 +1,7 @@
 #include <libasr/assert.h>
 #include <libasr/codegen/llvm_utils.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     namespace LLVM {
 
@@ -59,4 +59,4 @@ namespace LFortran {
         return LLVM::CreateInBoundsGEP(*builder, ptr, idx_vec);
     }
 
-} // LFortran
+} // namespace LCompilers

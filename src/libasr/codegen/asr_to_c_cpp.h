@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_ASR_TO_C_CPP_H
-#define LFORTRAN_ASR_TO_C_CPP_H
+#ifndef LCOMPILERS_ASR_TO_C_CPP_H
+#define LCOMPILERS_ASR_TO_C_CPP_H
 
 /*
  * Common code to be used in both of:
@@ -23,7 +23,7 @@
 #include <libasr/pass/unused_functions.h>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace {
 
@@ -105,7 +105,7 @@ R"(#include <stdio.h>
         {
             // Process intrinsic modules in the right order
             std::vector<std::string> build_order
-                = LFortran::ASRUtils::determine_module_dependencies(x);
+                = LCompilers::ASRUtils::determine_module_dependencies(x);
             for (auto &item : build_order) {
                 LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item)
                     != x.m_global_scope->get_scope().end());
@@ -128,7 +128,7 @@ R"(#include <stdio.h>
 
         // Then do all the modules in the right order
         std::vector<std::string> build_order
-            = LFortran::ASRUtils::determine_module_dependencies(x);
+            = LCompilers::ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
             LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item)
                 != x.m_global_scope->get_scope().end());
@@ -220,7 +220,7 @@ R"(#include <stdio.h>
         indentation_level += 1;
         std::string sub = "void " + std::string(x.m_name) + "(";
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
+            ASR::Variable_t *arg = LCompilers::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
             sub += self().convert_variable_decl(*arg);
             if (i < x.n_args-1) sub += ", ";
@@ -235,7 +235,7 @@ R"(#include <stdio.h>
             for (auto &item : x.m_symtab->get_scope()) {
                 if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                    if (v->m_intent == LFortran::ASRUtils::intent_local) {
+                    if (v->m_intent == LCompilers::ASRUtils::intent_local) {
                         SymbolInfo s;
                         s.needs_declaration = true;
                         sym_info[get_hash((ASR::asr_t*)v)] = s;
@@ -253,7 +253,7 @@ R"(#include <stdio.h>
             for (auto &item : x.m_symtab->get_scope()) {
                 if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                    if (v->m_intent == LFortran::ASRUtils::intent_local) {
+                    if (v->m_intent == LCompilers::ASRUtils::intent_local) {
                         if (sym_info[get_hash((ASR::asr_t*) v)].needs_declaration) {
                             std::string indent(indentation_level*indentation_spaces, ' ');
                             decl += indent;
@@ -297,7 +297,7 @@ R"(#include <stdio.h>
             sym_info[get_hash((ASR::asr_t*)&x)] = s;
         }
         std::string sub;
-        ASR::Variable_t *return_var = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
+        ASR::Variable_t *return_var = LCompilers::ASRUtils::EXPR2VAR(x.m_return_var);
         if (ASRUtils::is_integer(*return_var->m_type)) {
             bool is_int = ASR::down_cast<ASR::Integer_t>(return_var->m_type)->m_kind == 4;
             if (is_int) {
@@ -340,8 +340,8 @@ R"(#include <stdio.h>
         }
         sub = sub + std::string(x.m_name) + "(";
         for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
+            ASR::Variable_t *arg = LCompilers::ASRUtils::EXPR2VAR(x.m_args[i]);
+            LFORTRAN_ASSERT(LCompilers::ASRUtils::is_arg_dummy(arg->m_intent));
             sub += self().convert_variable_decl(*arg);
             if (i < x.n_args-1) sub += ", ";
         }
@@ -358,7 +358,7 @@ R"(#include <stdio.h>
             for (auto &item : x.m_symtab->get_scope()) {
                 if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                    if (v->m_intent == LFortran::ASRUtils::intent_local || v->m_intent == LFortran::ASRUtils::intent_return_var) {
+                    if (v->m_intent == LCompilers::ASRUtils::intent_local || v->m_intent == LCompilers::ASRUtils::intent_return_var) {
                     decl += indent + self().convert_variable_decl(*v) + ";\n";
                     }
                 }
@@ -380,7 +380,7 @@ R"(#include <stdio.h>
 
             if(!visited_return) {
                 body += indent + "return "
-                    + LFortran::ASRUtils::EXPR2VAR(x.m_return_var)->m_name
+                    + LCompilers::ASRUtils::EXPR2VAR(x.m_return_var)->m_name
                     + ";\n";
             }
 
@@ -398,7 +398,7 @@ R"(#include <stdio.h>
 
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
         ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(
-            LFortran::ASRUtils::symbol_get_past_external(x.m_name));
+            LCompilers::ASRUtils::symbol_get_past_external(x.m_name));
         std::string fn_name = fn->m_name;
         if (sym_info[get_hash((ASR::asr_t*)fn)].intrinsic_function) {
             if (fn_name == "size") {
@@ -461,7 +461,7 @@ R"(#include <stdio.h>
     void visit_Assignment(const ASR::Assignment_t &x) {
         std::string target;
         if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
-            target = LFortran::ASRUtils::EXPR2VAR(x.m_target)->m_name;
+            target = LCompilers::ASRUtils::EXPR2VAR(x.m_target)->m_name;
         } else if (ASR::is_a<ASR::ArrayRef_t>(*x.m_target)) {
             visit_ArrayRef(*ASR::down_cast<ASR::ArrayRef_t>(x.m_target));
             target = src;
@@ -884,7 +884,7 @@ R"(#include <stdio.h>
         std::string indent(indentation_level*indentation_spaces, ' ');
         if (current_function) {
             src = indent + "return "
-                + LFortran::ASRUtils::EXPR2VAR(current_function->m_return_var)->m_name
+                + LCompilers::ASRUtils::EXPR2VAR(current_function->m_return_var)->m_name
                 + ";\n";
         } else {
             src = indent + "return;\n";
@@ -911,7 +911,7 @@ R"(#include <stdio.h>
     void visit_DoLoop(const ASR::DoLoop_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "for (";
-        ASR::Variable_t *loop_var = LFortran::ASRUtils::EXPR2VAR(x.m_head.m_v);
+        ASR::Variable_t *loop_var = LCompilers::ASRUtils::EXPR2VAR(x.m_head.m_v);
         std::string lvname=loop_var->m_name;
         ASR::expr_t *a=x.m_head.m_start;
         ASR::expr_t *b=x.m_head.m_end;
@@ -1011,11 +1011,11 @@ R"(#include <stdio.h>
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
-            LFortran::ASRUtils::symbol_get_past_external(x.m_name));
+            LCompilers::ASRUtils::symbol_get_past_external(x.m_name));
         std::string out = indent + s->m_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             if (ASR::is_a<ASR::Var_t>(*x.m_args[i].m_value)) {
-                ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i].m_value);
+                ASR::Variable_t *arg = LCompilers::ASRUtils::EXPR2VAR(x.m_args[i].m_value);
                 std::string arg_name = arg->m_name;
                 out += arg_name;
             } else {
@@ -1030,6 +1030,6 @@ R"(#include <stdio.h>
 
 };
 
-} // namespace LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_ASR_TO_C_CPP_H
+#endif // LCOMPILERS_ASR_TO_C_CPP_H

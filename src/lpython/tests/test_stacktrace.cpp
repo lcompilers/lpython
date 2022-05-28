@@ -5,10 +5,10 @@
 
 int h()
 {
-    LFortran::show_stacktrace();
-    std::vector<LFortran::StacktraceItem> d = LFortran::get_stacktrace_addresses();
-    LFortran::get_local_addresses(d);
-    LFortran::get_local_info(d);
+    LCompilers::show_stacktrace();
+    std::vector<LCompilers::StacktraceItem> d = LCompilers::get_stacktrace_addresses();
+    LCompilers::get_local_addresses(d);
+    LCompilers::get_local_info(d);
     for (size_t i = 0; i < d.size(); i++) {
         std::cout << i << " ";
         std::cout << "pc: " << (void*) d[i].pc << " ";

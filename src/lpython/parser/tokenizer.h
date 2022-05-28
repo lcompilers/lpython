@@ -7,8 +7,7 @@
 
 #define MAX_PAREN_LEVEL 200
 
-namespace LFortran
-{
+namespace LCompilers {
 
 class Tokenizer
 {
@@ -87,6 +86,6 @@ Result<std::vector<int>> tokens(Allocator &al, const std::string &input,
 std::string pickle_token(int token, const YYSTYPE &yystype);
 
 
-} // namespace LFortran
+} // namespace LCompilers
 
 #endif // LPYTHON_SRC_PARSER_TOKENIZER_H

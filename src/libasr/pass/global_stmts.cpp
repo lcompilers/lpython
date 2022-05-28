@@ -6,11 +6,11 @@
 #include <libasr/pass/global_stmts.h>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 
-using LFortran::ASRUtils::EXPR;
+using LCompilers::ASRUtils::EXPR;
 
 /*
  * This ASR pass transforms (in-place) the ASR tree and wras all global
@@ -40,15 +40,15 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 ASR::expr_t *target;
                 ASR::expr_t *value = EXPR(unit.m_items[i]);
                 // Create a new variable with the right type
-                if (LFortran::ASRUtils::expr_type(value)->type == ASR::ttypeType::Integer) {
+                if (LCompilers::ASRUtils::expr_type(value)->type == ASR::ttypeType::Integer) {
                     s.from_str(al, fn_name_s + std::to_string(idx));
                     var_name = s.c_str(al);
 
-                    int a_kind = down_cast<ASR::Integer_t>(LFortran::ASRUtils::expr_type(value))->m_kind;
+                    int a_kind = down_cast<ASR::Integer_t>(LCompilers::ASRUtils::expr_type(value))->m_kind;
 
-                    type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, a_kind, nullptr, 0));
+                    type = LCompilers::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, a_kind, nullptr, 0));
                     return_var = ASR::make_Variable_t(al, loc,
-                        fn_scope, var_name, LFortran::ASRUtils::intent_local, nullptr, nullptr,
+                        fn_scope, var_name, LCompilers::ASRUtils::intent_local, nullptr, nullptr,
                         ASR::storage_typeType::Default, type,
                         ASR::abiType::BindC,
                         ASR::Public, ASR::presenceType::Required, false);
@@ -57,12 +57,12 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                     fn_scope->add_symbol(std::string(var_name), down_cast<ASR::symbol_t>(return_var));
                     target = return_var_ref;
                     idx++;
-                } else if (LFortran::ASRUtils::expr_type(value)->type == ASR::ttypeType::Real) {
+                } else if (LCompilers::ASRUtils::expr_type(value)->type == ASR::ttypeType::Real) {
                     s.from_str(al, fn_name_s + std::to_string(idx));
                     var_name = s.c_str(al);
                     type = ASRUtils::expr_type(value);
                     return_var = ASR::make_Variable_t(al, loc,
-                        fn_scope, var_name, LFortran::ASRUtils::intent_local, nullptr, nullptr,
+                        fn_scope, var_name, LCompilers::ASRUtils::intent_local, nullptr, nullptr,
                         ASR::storage_typeType::Default, type,
                         ASR::abiType::BindC,
                         ASR::Public, ASR::presenceType::Required, false);
@@ -71,12 +71,12 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                     fn_scope->add_symbol(std::string(var_name), down_cast<ASR::symbol_t>(return_var));
                     target = return_var_ref;
                     idx++;
-                } else if (LFortran::ASRUtils::expr_type(value)->type == ASR::ttypeType::Complex) {
+                } else if (LCompilers::ASRUtils::expr_type(value)->type == ASR::ttypeType::Complex) {
                     s.from_str(al, fn_name_s + std::to_string(idx));
                     var_name = s.c_str(al);
                     type = ASRUtils::expr_type(value);
                     return_var = ASR::make_Variable_t(al, loc,
-                        fn_scope, var_name, LFortran::ASRUtils::intent_local, nullptr, nullptr,
+                        fn_scope, var_name, LCompilers::ASRUtils::intent_local, nullptr, nullptr,
                         ASR::storage_typeType::Default, type,
                         ASR::abiType::BindC,
                         ASR::Public, ASR::presenceType::Required, false);
@@ -88,10 +88,10 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 } else {
                     throw LFortranException("Return type not supported in interactive mode");
                 }
-                ASR::stmt_t* asr_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target, value, nullptr));
+                ASR::stmt_t* asr_stmt = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target, value, nullptr));
                 body.push_back(al, asr_stmt);
             } else if (unit.m_items[i]->type == ASR::asrType::stmt) {
-                ASR::stmt_t* asr_stmt = LFortran::ASRUtils::STMT(unit.m_items[i]);
+                ASR::stmt_t* asr_stmt = LCompilers::ASRUtils::STMT(unit.m_items[i]);
                 body.push_back(al, asr_stmt);
                 return_var = nullptr;
             } else {
@@ -103,7 +103,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
             // The last item was an expression, create a function returning it
 
             // The last defined `return_var` is the actual return value
-            ASR::down_cast2<ASR::Variable_t>(return_var)->m_intent = LFortran::ASRUtils::intent_return_var;
+            ASR::down_cast2<ASR::Variable_t>(return_var)->m_intent = LCompilers::ASRUtils::intent_return_var;
 
 
             ASR::asr_t *fn = ASR::make_Function_t(
@@ -148,4 +148,4 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
     }
 }
 
-} // namespace LFortran
+} // namespace LCompilers

@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_STRING_UTILS_H
-#define LFORTRAN_STRING_UTILS_H
+#ifndef LCOMPILERS_STRING_UTILS_H
+#define LCOMPILERS_STRING_UTILS_H
 
 #include <string>
 #include <vector>
@@ -7,8 +7,7 @@
 
 #include <libasr/alloc.h>
 
-namespace LFortran
-{
+namespace LCompilers {
 
 
 bool startswith(const std::string &s, const std::string &e);
@@ -27,6 +26,6 @@ std::string replace(const std::string &s,
 
 std::string read_file(const std::string &filename);
 
-} // namespace LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_STRING_UTILS_H
+#endif // LCOMPILERS_STRING_UTILS_H

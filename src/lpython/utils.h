@@ -1,15 +1,15 @@
-#ifndef LFORTRAN_UTILS_H
-#define LFORTRAN_UTILS_H
+#ifndef LCOMPILERS_UTILS_H
+#define LCOMPILERS_UTILS_H
 
 #include <string>
 #include <libasr/utils.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 void get_executable_path(std::string &executable_path, int &dirname_length);
 std::string get_runtime_library_dir();
 std::string get_runtime_library_header_dir();
 
-} // LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_UTILS_H
+#endif // LCOMPILERS_UTILS_H

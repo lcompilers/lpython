@@ -27,12 +27,12 @@
 #include <lpython/parser/parser.h>
 
 
-namespace LFortran::LPython {
+namespace LCompilers::LPython {
 
 // Does a CPython style lookup for a module:
 // * First the current directory (this is incorrect, we need to do it relative to the current file)
 // * Then the LPython runtime directory
-LFortran::Result<std::string> get_full_path(const std::string &filename,
+LCompilers::Result<std::string> get_full_path(const std::string &filename,
         const std::string &runtime_library_dir, bool &ltypes, bool &numpy) {
     ltypes = false;
     numpy = false;
@@ -54,7 +54,7 @@ LFortran::Result<std::string> get_full_path(const std::string &filename,
                     ltypes = true;
                     return filename_intrinsic;
                 } else {
-                    return LFortran::Error();
+                    return LCompilers::Error();
                 }
             } else if (filename == "numpy.py") {
                 filename_intrinsic = runtime_library_dir + "/lpython_intrinsic_numpy.py";
@@ -63,10 +63,10 @@ LFortran::Result<std::string> get_full_path(const std::string &filename,
                     numpy = true;
                     return filename_intrinsic;
                 } else {
-                    return LFortran::Error();
+                    return LCompilers::Error();
                 }
             } else {
-                return LFortran::Error();
+                return LCompilers::Error();
             }
         }
     }
@@ -108,10 +108,10 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     if (!r.ok) {
         err("The file '" + infile + "' failed to parse", loc);
     }
-    LFortran::LPython::AST::ast_t* ast = r.result;
+    LCompilers::LPython::AST::ast_t* ast = r.result;
 
     // Convert the module from AST to ASR
-    LFortran::LocationManager lm;
+    LCompilers::LocationManager lm;
     lm.in_filename = infile;
     Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast, diagnostics, false, false);
     std::string input;
@@ -3236,4 +3236,4 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     return tu;
 }
 
-} // namespace LFortran::Python
+} // namespace LCompilers::Python

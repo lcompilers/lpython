@@ -16,12 +16,12 @@
 #include <libasr/string_utils.h>
 
 // This is only used in parser.tab.cc, nowhere else, so we simply include
-// everything from LFortran::AST to save typing:
-using namespace LFortran::LPython::AST;
-using LFortran::Location;
-using LFortran::Vec;
-using LFortran::Key_Val;
-using LFortran::Args;
+// everything from LCompilers::AST to save typing:
+using namespace LCompilers::LPython::AST;
+using LCompilers::Location;
+using LCompilers::Vec;
+using LCompilers::Key_Val;
+using LCompilers::Args;
 
 static inline char* name2char(const ast_t *n) {
     return down_cast2<Name_t>(n)->m_id;
@@ -197,7 +197,7 @@ static inline char *mod2char(Allocator &al, Vec<ast_t*> module) {
         s.append(name2char(module[i]));
         if (i < module.size()-1)s.append(".");
     }
-    LFortran::Str str;
+    LCompilers::Str str;
     str.from_str_view(s);
     return str.c_str(al);
 }
@@ -415,7 +415,7 @@ Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
 
 char* concat_string(Allocator &al, ast_t *a, char *b) {
     char *s = down_cast2<ConstantStr_t>(a)->m_value;
-    return LFortran::s2c(al, std::string(s) + std::string(b));
+    return LCompilers::s2c(al, std::string(s) + std::string(b));
 }
 
 #define SYMBOL(x, l) make_Name_t(p.m_a, l, \

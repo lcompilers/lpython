@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_LLVM_ARR_UTILS_H
-#define LFORTRAN_LLVM_ARR_UTILS_H
+#ifndef LCOMPILERS_LLVM_ARR_UTILS_H
+#define LCOMPILERS_LLVM_ARR_UTILS_H
 
 #include <map>
 #include <memory>
@@ -15,7 +15,7 @@
 #include <libasr/asr.h>
 #include <libasr/codegen/llvm_utils.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     namespace LLVMArrUtils {
 
@@ -362,6 +362,6 @@ namespace LFortran {
 
     } // LLVMArrUtils
 
-} // LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_LLVM_ARR_UTILS_H
+#endif // LCOMPILERS_LLVM_ARR_UTILS_H
