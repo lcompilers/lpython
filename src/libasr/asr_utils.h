@@ -41,7 +41,7 @@ static inline ASR::symbol_t *symbol_get_past_external(ASR::symbol_t *f)
 {
     if (f->type == ASR::symbolType::ExternalSymbol) {
         ASR::ExternalSymbol_t *e = ASR::down_cast<ASR::ExternalSymbol_t>(f);
-        LFORTRAN_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
+        LCOMPILERS_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
         return e->m_external;
     } else {
         return f;
@@ -52,7 +52,7 @@ static inline const ASR::symbol_t *symbol_get_past_external(const ASR::symbol_t 
 {
     if (f->type == ASR::symbolType::ExternalSymbol) {
         ASR::ExternalSymbol_t *e = ASR::down_cast<ASR::ExternalSymbol_t>(f);
-        LFORTRAN_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
+        LCOMPILERS_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
         return e->m_external;
     } else {
         return f;
@@ -63,7 +63,7 @@ static inline ASR::ttype_t *type_get_past_pointer(ASR::ttype_t *f)
 {
     if (ASR::is_a<ASR::Pointer_t>(*f)) {
         ASR::Pointer_t *e = ASR::down_cast<ASR::Pointer_t>(f);
-        LFORTRAN_ASSERT(!ASR::is_a<ASR::Pointer_t>(*e->m_type));
+        LCOMPILERS_ASSERT(!ASR::is_a<ASR::Pointer_t>(*e->m_type));
         return e->m_type;
     } else {
         return f;
@@ -91,7 +91,7 @@ static inline ASR::Subroutine_t* EXPR2SUB(const ASR::expr_t *f)
 
 static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
 {
-    LFORTRAN_ASSERT(f != nullptr);
+    LCOMPILERS_ASSERT(f != nullptr);
     switch (f->type) {
         case ASR::exprType::BoolOp: { return ((ASR::BoolOp_t*)f)->m_type; }
         case ASR::exprType::BinOp: { return ((ASR::BinOp_t*)f)->m_type; }
@@ -758,7 +758,7 @@ static inline SymbolTable *get_tu_symtab(SymbolTable *symtab) {
     while (s->parent != nullptr) {
         s = s->parent;
     }
-    LFORTRAN_ASSERT(ASR::is_a<ASR::unit_t>(*s->asr_owner))
+    LCOMPILERS_ASSERT(ASR::is_a<ASR::unit_t>(*s->asr_owner))
     return s;
 }
 
@@ -1014,7 +1014,7 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                                 symbol_get_past_external(kind_var->m_v));
                         if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
                             if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
-                                LFORTRAN_ASSERT( kind_variable->m_value != nullptr );
+                                LCOMPILERS_ASSERT( kind_variable->m_value != nullptr );
                                 a_kind = ASR::down_cast<ASR::IntegerConstant_t>(kind_variable->m_value)->m_n;
                             } else {
                                 std::string msg = "Integer variable required. " + std::string(kind_variable->m_name) +
@@ -1053,7 +1053,7 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                                 symbol_get_past_external(len_var->m_v));
                         if( len_variable->m_storage == ASR::storage_typeType::Parameter ) {
                             if( len_variable->m_type->type == ASR::ttypeType::Integer ) {
-                                LFORTRAN_ASSERT( len_variable->m_value != nullptr );
+                                LCOMPILERS_ASSERT( len_variable->m_value != nullptr );
                                 a_len = ASR::down_cast<ASR::IntegerConstant_t>(len_variable->m_value)->m_n;
                             } else {
                                 std::string msg = "Integer variable required. " + std::string(len_variable->m_name) +
@@ -1079,7 +1079,7 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                                             loc);
                     }
                 }
-                LFORTRAN_ASSERT(a_len != -10)
+                LCOMPILERS_ASSERT(a_len != -10)
                 return a_len;
             }
 

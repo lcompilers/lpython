@@ -55,7 +55,7 @@ void pass_replace_class_constructor(Allocator &al, ASR::TranslationUnit_t &unit)
         v.is_constructor_present = false;
         v.visit_TranslationUnit(unit);
     } while( v.is_constructor_present );
-    LFORTRAN_ASSERT(asr_verify(unit));
+    LCOMPILERS_ASSERT(asr_verify(unit));
 }
 
 

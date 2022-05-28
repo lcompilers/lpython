@@ -490,20 +490,20 @@ namespace LCompilers {
                 ASR::ttype_t *cond_type = LCompilers::ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0));
                 cond = LCompilers::ASRUtils::EXPR(ASR::make_LogicalConstant_t(al, loc, true, cond_type));
             } else {
-                LFORTRAN_ASSERT(a);
-                LFORTRAN_ASSERT(b);
+                LCOMPILERS_ASSERT(a);
+                LCOMPILERS_ASSERT(b);
                 if (!c) {
                     ASR::ttype_t *type = LCompilers::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
                     c = LCompilers::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 1, type));
                 }
-                LFORTRAN_ASSERT(c);
+                LCOMPILERS_ASSERT(c);
                 int increment;
                 if (c->type == ASR::exprType::IntegerConstant) {
                     increment = ASR::down_cast<ASR::IntegerConstant_t>(c)->m_n;
                 } else if (c->type == ASR::exprType::UnaryOp) {
                     ASR::UnaryOp_t *u = ASR::down_cast<ASR::UnaryOp_t>(c);
-                    LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
-                    LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::IntegerConstant);
+                    LCOMPILERS_ASSERT(u->m_op == ASR::unaryopType::USub);
+                    LCOMPILERS_ASSERT(u->m_operand->type == ASR::exprType::IntegerConstant);
                     increment = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_operand)->m_n;
                 } else {
                     throw LFortranException("Do loop increment type not supported");

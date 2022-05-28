@@ -321,7 +321,7 @@ std::map<uint64_t, std::vector<llvm::Type*>> pass_find_nested_vars(
         std::map<uint64_t, std::vector<uint64_t>> &nesting_map) {
     NestedVarVisitor v(context, needed_globals, nested_call_out, nesting_map);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
+    LCOMPILERS_ASSERT(asr_verify(unit));
     return v.nested_func_types;
 }
 

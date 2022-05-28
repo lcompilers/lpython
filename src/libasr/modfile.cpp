@@ -25,9 +25,9 @@ const std::string lcompilers_modfile_type_string = "LCompilers Modfile";
     Comments below show some possible future improvements to the mod format.
 */
 std::string save_modfile(const ASR::TranslationUnit_t &m) {
-    LFORTRAN_ASSERT(m.m_global_scope->get_scope().size()== 1);
+    LCOMPILERS_ASSERT(m.m_global_scope->get_scope().size()== 1);
     for (auto &a : m.m_global_scope->get_scope()) {
-        LFORTRAN_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
+        LCOMPILERS_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
         if ((bool&)a) { } // Suppress unused warning in Release mode
     }
 #ifdef WITH_LCOMPILERS_BINARY_MODFILES

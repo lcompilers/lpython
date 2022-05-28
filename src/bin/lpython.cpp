@@ -98,7 +98,7 @@ int emit_tokens(const std::string &infile, bool line_numbers, const CompilerOpti
     if (res.ok) {
         toks = res.result;
     } else {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 1;
     }
 
@@ -130,7 +130,7 @@ int emit_ast(const std::string &infile,
         std::cerr << diagnostics.render(input, lm, compiler_options);
     }
     if (!r.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 1;
     }
     LCompilers::LPython::AST::ast_t* ast = r.result;
@@ -169,7 +169,7 @@ int emit_asr(const std::string &infile,
             compiler_options.symtab_only);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 2;
     }
     LCompilers::ASR::TranslationUnit_t* asr = r.result;
@@ -208,7 +208,7 @@ int emit_cpp(const std::string &infile,
             compiler_options.symtab_only);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 2;
     }
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
@@ -217,7 +217,7 @@ int emit_cpp(const std::string &infile,
     auto res = LCompilers::asr_to_cpp(al, *asr, diagnostics);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 3;
     }
     std::cout << res.result;
@@ -248,7 +248,7 @@ int emit_c(const std::string &infile,
             compiler_options.symtab_only);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 2;
     }
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
@@ -257,7 +257,7 @@ int emit_c(const std::string &infile,
     auto res = LCompilers::asr_to_c(al, *asr, diagnostics);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 3;
     }
     std::cout << res.result;
@@ -291,7 +291,7 @@ int emit_llvm(const std::string &infile,
             compiler_options.symtab_only);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 2;
     }
     LCompilers::ASR::TranslationUnit_t* asr = r1.result;
@@ -303,7 +303,7 @@ int emit_llvm(const std::string &infile,
         res = fe.get_llvm3(*asr, diagnostics);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 3;
     }
     std::cout << (res.result)->str();
@@ -357,7 +357,7 @@ int compile_python_to_object_file(
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         print_time_report(times, time_report);
         return 2;
     }
@@ -375,7 +375,7 @@ int compile_python_to_object_file(
     times.push_back(std::make_pair("ASR to LLVM", std::chrono::duration<double, std::milli>(asr_to_llvm_end - asr_to_llvm_start).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         print_time_report(times, time_report);
         return 3;
     }
@@ -534,7 +534,7 @@ int link_executable(const std::vector<std::string> &infiles,
         }
         return 0;
     } else {
-        LFORTRAN_ASSERT(false);
+        LCOMPILERS_ASSERT(false);
         return 1;
     }
 }
@@ -853,7 +853,7 @@ int main(int argc, char *argv[])
                 std::cerr << "The C++ backend does not work with the -S option yet." << std::endl;
                 return 1;
             } else {
-                LFORTRAN_ASSERT(false);
+                LCOMPILERS_ASSERT(false);
             }
         }
 

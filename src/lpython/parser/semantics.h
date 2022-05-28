@@ -46,7 +46,7 @@ template <typename T, astType type>
 static inline T** vec_cast(const Vec<ast_t*> &x) {
     T **s = (T**)x.p;
     for (size_t i=0; i < x.size(); i++) {
-        LFORTRAN_ASSERT((s[i]->base.type == type))
+        LCOMPILERS_ASSERT((s[i]->base.type == type))
     }
     return s;
 }
@@ -76,7 +76,7 @@ static inline expr_t* EXPR_OPT(const ast_t *f)
         }
 
 static inline ast_t* SET_EXPR_CTX_01(ast_t* x, expr_contextType ctx) {
-    LFORTRAN_ASSERT(is_a<expr_t>(*x))
+    LCOMPILERS_ASSERT(is_a<expr_t>(*x))
     switch(EXPR(x)->type) {
         SET_EXPR_CTX_(Attribute, ctx)
         SET_EXPR_CTX_(Subscript, ctx)

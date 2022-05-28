@@ -279,7 +279,7 @@ class ASTVisitorVisitor1(ASDLVisitor):
             self.emit("template <class Visitor>")
             self.emit("static void visit_%s_t(const %s_t &x, Visitor &v) {" \
                     % (base, base))
-            self.emit(    "LFORTRAN_ASSERT(x.base.type == %sType::%s)" \
+            self.emit(    "LCOMPILERS_ASSERT(x.base.type == %sType::%s)" \
                     % (subs["mod"], base), 1)
             self.emit(    "switch (x.type) {", 1)
             for type_ in sum.types:
@@ -435,7 +435,7 @@ class TreeVisitorVisitor(ASDLVisitor):
         self.emit(  "}", 1)
         self.emit(  "void dec_indent() {", 1)
         self.emit(      "indent_level--;", 2)
-        self.emit(      "LFORTRAN_ASSERT(indent_level >= 0);", 2)
+        self.emit(      "LCOMPILERS_ASSERT(indent_level >= 0);", 2)
         self.emit(      "indtd = indtd.substr(0, indent_level*indent_spaces);",2)
         self.emit(  "}", 1)
         self.mod = mod
@@ -703,7 +703,7 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
 
         super(ExprStmtDuplicatorVisitor, self).visitModule(mod)
         self.duplicate_stmt.append(("    default: {", 2))
-        self.duplicate_stmt.append(('    LFORTRAN_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " statement is not supported yet.");', 3))
+        self.duplicate_stmt.append(('    LCOMPILERS_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " statement is not supported yet.");', 3))
         self.duplicate_stmt.append(("    }", 2))
         self.duplicate_stmt.append(("    }", 1))
         self.duplicate_stmt.append(("", 0))
@@ -711,7 +711,7 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
         self.duplicate_stmt.append(("    }", 0))
 
         self.duplicate_expr.append(("    default: {", 2))
-        self.duplicate_expr.append(('    LFORTRAN_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " expression is not supported yet.");', 3))
+        self.duplicate_expr.append(('    LCOMPILERS_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " expression is not supported yet.");', 3))
         self.duplicate_expr.append(("    }", 2))
         self.duplicate_expr.append(("    }", 1))
         self.duplicate_expr.append(("", 0))
@@ -843,7 +843,7 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit(  "}",1)
         self.emit(  "void dec_indent() {", 1)
         self.emit(      "indent_level--;", 2)
-        self.emit(      "LFORTRAN_ASSERT(indent_level >= 0);", 2)
+        self.emit(      "LCOMPILERS_ASSERT(indent_level >= 0);", 2)
         self.emit(      "indtd = std::string(indent_level*indent_spaces, ' ');",2)
         self.emit(  "}",1)
         self.mod = mod
@@ -1519,12 +1519,12 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                             # symbol table that was not constructed yet. If
                             # that ever happens, we would have to remember
                             # this and come back later to fix the pointer.
-                            lines.append("LFORTRAN_ASSERT(id_symtab_map.find(m_%s_counter) != id_symtab_map.end());" % f.name)
+                            lines.append("LCOMPILERS_ASSERT(id_symtab_map.find(m_%s_counter) != id_symtab_map.end());" % f.name)
                             lines.append("SymbolTable *m_%s = id_symtab_map[m_%s_counter];" % (f.name, f.name))
                         else:
                             # We construct a new table. It should not
                             # be present:
-                            lines.append("LFORTRAN_ASSERT(id_symtab_map.find(m_%s_counter) == id_symtab_map.end());" % f.name)
+                            lines.append("LCOMPILERS_ASSERT(id_symtab_map.find(m_%s_counter) == id_symtab_map.end());" % f.name)
                             lines.append("SymbolTable *m_%s = al.make_new<SymbolTable>(nullptr);" % (f.name))
                             lines.append("if (load_symtab_id) m_%s->counter = m_%s_counter;" % (f.name, f.name))
                             lines.append("id_symtab_map[m_%s_counter] = m_%s;" % (f.name, f.name))
@@ -1662,8 +1662,8 @@ inline bool is_a(const U &x)
 template <class T, class U>
 static inline T* down_cast(const U *f)
 {
-    LFORTRAN_ASSERT(f != nullptr);
-    LFORTRAN_ASSERT(is_a<T>(*f));
+    LCOMPILERS_ASSERT(f != nullptr);
+    LCOMPILERS_ASSERT(is_a<T>(*f));
     return (T*)f;
 }
 

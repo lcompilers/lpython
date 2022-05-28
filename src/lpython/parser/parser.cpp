@@ -96,7 +96,7 @@ Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
         if (res.ok) {
             ast = (LPython::AST::ast_t*)res.result;
         } else {
-            LFORTRAN_ASSERT(diagnostics.has_error())
+            LCOMPILERS_ASSERT(diagnostics.has_error())
             return Error();
         }
     } else {

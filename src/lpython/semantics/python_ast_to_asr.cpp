@@ -80,7 +80,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const std::function<void (const std::string &, const Location &)> err) {
     ltypes = false;
     numpy = false;
-    LFORTRAN_ASSERT(symtab);
+    LCOMPILERS_ASSERT(symtab);
     if (symtab->get_scope().find(module_name) != symtab->get_scope().end()) {
         ASR::symbol_t *m = symtab->get_symbol(module_name);
         if (ASR::is_a<ASR::Module_t>(*m)) {
@@ -89,7 +89,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
             err("The symbol '" + module_name + "' is not a module", loc);
         }
     }
-    LFORTRAN_ASSERT(symtab->parent == nullptr);
+    LCOMPILERS_ASSERT(symtab->parent == nullptr);
 
     // Parse the module `module_name`.py to AST
     std::string infile0 = module_name + ".py";
@@ -119,7 +119,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     CompilerOptions compiler_options;
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r2.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return nullptr; // Error
     }
     ASR::TranslationUnit_t* mod1 = r2.result;
@@ -245,7 +245,7 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
         throw SemanticError("Only Subroutines, Functions and Variables are currently supported in 'import'",
             loc);
     }
-    LFORTRAN_ASSERT(false);
+    LCOMPILERS_ASSERT(false);
     return nullptr;
 }
 
@@ -291,7 +291,7 @@ public:
     }
 
     ASR::symbol_t* resolve_intrinsic_function(const Location &loc, const std::string &remote_sym) {
-        LFORTRAN_ASSERT(intrinsic_procedures.is_intrinsic(remote_sym))
+        LCOMPILERS_ASSERT(intrinsic_procedures.is_intrinsic(remote_sym))
         std::string module_name = intrinsic_procedures.get_module(remote_sym, loc);
 
         SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
@@ -302,8 +302,8 @@ public:
                 ltypes, numpy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
                 );
-        LFORTRAN_ASSERT(!ltypes)
-        LFORTRAN_ASSERT(!numpy)
+        LCOMPILERS_ASSERT(!ltypes)
+        LCOMPILERS_ASSERT(!numpy)
 
         ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
         if (!t) {
@@ -412,7 +412,7 @@ public:
                             std::string unique_name = current_scope->get_unique_name(f->m_name);
                             Str s; s.from_str_view(unique_name);
                             char *unique_name_c = s.c_str(al);
-                            LFORTRAN_ASSERT(current_scope->get_symbol(unique_name) == nullptr);
+                            LCOMPILERS_ASSERT(current_scope->get_symbol(unique_name) == nullptr);
                             new_es = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(
                                 al, f->base.base.loc,
                                 /* a_symtab */ current_scope,
@@ -579,13 +579,13 @@ public:
                 symtab = symtab->parent;
             }
             if (symtab->get_scope().find(local_sym) == symtab->get_scope().end()) {
-                LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*stemp));
+                LCOMPILERS_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*stemp));
                 std::string mod_name = ASR::down_cast<ASR::ExternalSymbol_t>(stemp)->m_module_name;
                 ASR::symbol_t *mt = symtab->get_symbol(mod_name);
                 ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(mt);
                 stemp = import_from_module(al, m, symtab, mod_name,
                                     remote_sym, local_sym, loc);
-                LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*stemp));
+                LCOMPILERS_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*stemp));
                 symtab->add_symbol(local_sym, stemp);
                 s = ASRUtils::symbol_get_past_external(stemp);
             } else {
@@ -985,7 +985,7 @@ public:
             int64_t left_int = 0, right_int = 0, dest_len = 0;
             if (right_is_int) {
                 ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
-                LFORTRAN_ASSERT(left_type2->n_dims == 0);
+                LCOMPILERS_ASSERT(left_type2->n_dims == 0);
                 right_int = ASR::down_cast<ASR::IntegerConstant_t>(
                                                    ASRUtils::expr_value(right))->m_n;
                 dest_len = left_type2->m_len * right_int;
@@ -995,7 +995,7 @@ public:
                         dest_len, nullptr, nullptr, 0));
             } else if (left_is_int) {
                 ASR::Character_t *right_type2 = ASR::down_cast<ASR::Character_t>(right_type);
-                LFORTRAN_ASSERT(right_type2->n_dims == 0);
+                LCOMPILERS_ASSERT(right_type2->n_dims == 0);
                 left_int = ASR::down_cast<ASR::IntegerConstant_t>(
                                                    ASRUtils::expr_value(left))->m_n;
                 dest_len = right_type2->m_len * left_int;
@@ -1015,7 +1015,7 @@ public:
                 std::ostringstream os;
                 std::fill_n(std::ostream_iterator<std::string>(os), repeat, std::string(str));
                 result = s2c(al, os.str());
-                LFORTRAN_ASSERT((int64_t)strlen(result) == dest_len)
+                LCOMPILERS_ASSERT((int64_t)strlen(result) == dest_len)
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(
                     al, loc, result, dest_type));
             }
@@ -1032,8 +1032,8 @@ public:
             // string concat
             ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
             ASR::Character_t *right_type2 = ASR::down_cast<ASR::Character_t>(right_type);
-            LFORTRAN_ASSERT(left_type2->n_dims == 0);
-            LFORTRAN_ASSERT(right_type2->n_dims == 0);
+            LCOMPILERS_ASSERT(left_type2->n_dims == 0);
+            LCOMPILERS_ASSERT(right_type2->n_dims == 0);
             dest_type = ASR::down_cast<ASR::ttype_t>(
                     ASR::make_Character_t(al, loc, left_type2->m_kind,
                     left_type2->m_len + right_type2->m_len, nullptr, nullptr, 0));
@@ -1045,7 +1045,7 @@ public:
                 char* result;
                 std::string result_s = std::string(left_value) + std::string(right_value);
                 result = s2c(al, result_s);
-                LFORTRAN_ASSERT((int64_t)strlen(result) == ASR::down_cast<ASR::Character_t>(dest_type)->m_len)
+                LCOMPILERS_ASSERT((int64_t)strlen(result) == ASR::down_cast<ASR::Character_t>(dest_type)->m_len)
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(
                     al, loc, result, dest_type));
             }
@@ -1113,7 +1113,7 @@ public:
                     case (ASR::binopType::Mul): { result = left_value * right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
                     case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
-                    default: { LFORTRAN_ASSERT(false); } // should never happen
+                    default: { LCOMPILERS_ASSERT(false); } // should never happen
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                     al, loc, result, dest_type));
@@ -1130,7 +1130,7 @@ public:
                     case (ASR::binopType::Mul): { result = left_value * right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
                     case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
-                    default: { LFORTRAN_ASSERT(false); }
+                    default: { LCOMPILERS_ASSERT(false); }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(
                     al, loc, result, dest_type));
@@ -1149,7 +1149,7 @@ public:
                     case (ASR::binopType::Mul): { result = left_value * right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
                     case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
-                    default: { LFORTRAN_ASSERT(false); }
+                    default: { LCOMPILERS_ASSERT(false); }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ComplexConstant_t(al, loc,
                         std::real(result), std::imag(result), dest_type));
@@ -1166,7 +1166,7 @@ public:
                     case (ASR::binopType::Mul): { result = left_value * right_value; break; }
                     case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
                     case (ASR::binopType::Div): { } // TODO: Handle division of logicals
-                    default: { LFORTRAN_ASSERT(false); } // should never happen
+                    default: { LCOMPILERS_ASSERT(false); } // should never happen
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                     al, loc, result, int_type));
@@ -1196,7 +1196,7 @@ public:
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
         ASR::ttype_t *value_type = ASRUtils::expr_type(value);
-        LFORTRAN_ASSERT(ASRUtils::check_equal_type(target_type, value_type));
+        LCOMPILERS_ASSERT(ASRUtils::check_equal_type(target_type, value_type));
         tmp = ASR::make_NamedExpr_t(al, x.base.base.loc, target, value, value_type);
     }
 
@@ -1254,14 +1254,14 @@ public:
                     x.base.base.loc);
             }
         }
-        LFORTRAN_ASSERT(
+        LCOMPILERS_ASSERT(
             ASRUtils::check_equal_type(ASRUtils::expr_type(lhs), ASRUtils::expr_type(rhs)));
         ASR::expr_t *value = nullptr;
         ASR::ttype_t *dest_type = ASRUtils::expr_type(lhs);
 
         if (ASRUtils::expr_value(lhs) != nullptr && ASRUtils::expr_value(rhs) != nullptr) {
 
-            LFORTRAN_ASSERT(ASR::is_a<ASR::Logical_t>(*dest_type));
+            LCOMPILERS_ASSERT(ASR::is_a<ASR::Logical_t>(*dest_type));
             bool left_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                     ASRUtils::expr_value(lhs))->m_value;
             bool right_value = ASR::down_cast<ASR::LogicalConstant_t>(
@@ -1363,7 +1363,7 @@ public:
                         case (ASR::unaryopType::UAdd): { result = op_value; break; }
                         case (ASR::unaryopType::USub): { result = -op_value; break; }
                         case (ASR::unaryopType::Invert): { result = ~op_value; break; }
-                        default: LFORTRAN_ASSERT(false); // should never happen
+                        default: LCOMPILERS_ASSERT(false); // should never happen
                     }
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                                 al, x.base.base.loc, result, operand_type));
@@ -1404,7 +1404,7 @@ public:
                         case (ASR::unaryopType::UAdd): { result = +op_value; break; }
                         case (ASR::unaryopType::USub): { result = -op_value; break; }
                         case (ASR::unaryopType::Invert): { result = op_value ? -2 : -1; break; }
-                        default : LFORTRAN_ASSERT(false); // should never happen
+                        default : LCOMPILERS_ASSERT(false); // should never happen
                     }
                     value = ASR::down_cast<ASR::expr_t>(
                         ASR::make_IntegerConstant_t(al, x.base.base.loc, result, int_type));
@@ -1448,7 +1448,7 @@ public:
         ASR::expr_t *body = ASRUtils::EXPR(tmp);
         this->visit_expr(*x.m_orelse);
         ASR::expr_t *orelse = ASRUtils::EXPR(tmp);
-        LFORTRAN_ASSERT(ASRUtils::check_equal_type(ASRUtils::expr_type(body),
+        LCOMPILERS_ASSERT(ASRUtils::check_equal_type(ASRUtils::expr_type(body),
                                                    ASRUtils::expr_type(orelse)));
         tmp = ASR::make_IfExp_t(al, x.base.base.loc, test, body, orelse,
                                 ASRUtils::expr_type(body));
@@ -1612,7 +1612,7 @@ public:
         if (!current_scope) {
             current_scope = al.make_new<SymbolTable>(nullptr);
         }
-        LFORTRAN_ASSERT(current_scope != nullptr);
+        LCOMPILERS_ASSERT(current_scope != nullptr);
         global_scope = current_scope;
 
         // Create the TU early, so that asr_owner is set, so that
@@ -1751,7 +1751,7 @@ public:
                     ASR::storage_typeType::Default, type,
                     current_procedure_abi_type, ASR::Public, ASR::presenceType::Required,
                     false);
-                LFORTRAN_ASSERT(current_scope->get_scope().find(return_var_name) == current_scope->get_scope().end())
+                LCOMPILERS_ASSERT(current_scope->get_scope().find(return_var_name) == current_scope->get_scope().end())
                 current_scope->add_symbol(return_var_name,
                         ASR::down_cast<ASR::symbol_t>(return_var));
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
@@ -1947,11 +1947,11 @@ public:
     void visit_Module(const AST::Module_t &x) {
         ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
         current_scope = unit->m_global_scope;
-        LFORTRAN_ASSERT(current_scope != nullptr);
+        LCOMPILERS_ASSERT(current_scope != nullptr);
         if (!main_module) {
             ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(current_scope->get_symbol("__main__"));
             current_scope = mod->m_symtab;
-            LFORTRAN_ASSERT(current_scope != nullptr);
+            LCOMPILERS_ASSERT(current_scope != nullptr);
         }
 
         Vec<ASR::asr_t*> items;
@@ -1997,10 +1997,10 @@ public:
                 ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
                 handle_fn(x, *f);
             } else {
-                LFORTRAN_ASSERT(false);
+                LCOMPILERS_ASSERT(false);
             }
         } else {
-            LFORTRAN_ASSERT(false);
+            LCOMPILERS_ASSERT(false);
         }
         current_scope = old_scope;
         tmp = nullptr;
@@ -2413,7 +2413,7 @@ public:
     }
 
     void visit_Dict(const AST::Dict_t &x) {
-        LFORTRAN_ASSERT(x.n_keys == x.n_values);
+        LCOMPILERS_ASSERT(x.n_keys == x.n_values);
         Vec<ASR::expr_t*> keys;
         keys.reserve(al, x.n_keys);
         ASR::ttype_t* key_type = nullptr;
@@ -2666,7 +2666,7 @@ public:
                         result = (strcmp < 0 || strcmp == 0);
                         break;
                     }
-                    default: LFORTRAN_ASSERT(false); // should never happen
+                    default: LCOMPILERS_ASSERT(false); // should never happen
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
@@ -2737,7 +2737,7 @@ public:
     }
 
     void visit_Set(const AST::Set_t &x) {
-        LFORTRAN_ASSERT(x.n_elts > 0); // type({}) is 'dict'
+        LCOMPILERS_ASSERT(x.n_elts > 0); // type({}) is 'dict'
         Vec<ASR::expr_t*> elements;
         elements.reserve(al, x.n_elts);
         ASR::ttype_t* type = nullptr;
@@ -3213,7 +3213,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
         return res.error;
     }
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
-    LFORTRAN_ASSERT(asr_verify(*tu));
+    LCOMPILERS_ASSERT(asr_verify(*tu));
 
     if (!symtab_only) {
         auto res2 = body_visitor(al, *ast_m, diagnostics, unit, main_module,
@@ -3223,14 +3223,14 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
         } else {
             return res2.error;
         }
-        LFORTRAN_ASSERT(asr_verify(*tu));
+        LCOMPILERS_ASSERT(asr_verify(*tu));
     }
 
     if (main_module) {
         // If it is a main module, turn it into a program.
         // Note: we can modify this behavior for interactive mode later
         pass_wrap_global_stmts_into_program(al, *tu, "_lpython_main_program");
-        LFORTRAN_ASSERT(asr_verify(*tu));
+        LCOMPILERS_ASSERT(asr_verify(*tu));
     }
 
     return tu;

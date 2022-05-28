@@ -101,7 +101,7 @@ public:
         uint64_t symtab_id = read_int64();
         uint64_t symbol_type = read_int8();
         std::string symbol_name  = read_string();
-        LFORTRAN_ASSERT(id_symtab_map.find(symtab_id) != id_symtab_map.end());
+        LCOMPILERS_ASSERT(id_symtab_map.find(symtab_id) != id_symtab_map.end());
         SymbolTable *symtab = id_symtab_map[symtab_id];
         if (symtab->get_symbol(symbol_name) == nullptr) {
             // Symbol is not in the symbol table yet. We construct an empty
@@ -137,7 +137,7 @@ public:
             // changing the `sym2` pointer already in the table
             ASR::symbol_t *sym2 = symtab.get_symbol(name);
             // FIXME LOCATION: document what is going on:
-            LFORTRAN_ASSERT(sym2->base.loc.first == 123);
+            LCOMPILERS_ASSERT(sym2->base.loc.first == 123);
             switch (sym->type) {
                 INSERT_SYMBOL_CASE(Program)
                 INSERT_SYMBOL_CASE(Module)
@@ -246,7 +246,7 @@ public:
             // Nothing to do, the external symbol is already resolved
             return;
         }
-        LFORTRAN_ASSERT(x.m_external == nullptr);
+        LCOMPILERS_ASSERT(x.m_external == nullptr);
         if (x.m_module_name == nullptr) {
             throw LFortranException("The ExternalSymbol was referenced in some ASR node, but it was not loaded as part of the SymbolTable");
         }
@@ -310,7 +310,7 @@ ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
     ASR::FixParentSymtabVisitor p;
     p.visit_TranslationUnit(*tu);
 
-    LFORTRAN_ASSERT(asr_verify(*tu, false));
+    LCOMPILERS_ASSERT(asr_verify(*tu, false));
 
     // Suppress a warning for now
     if ((bool&)external_symtab) {}

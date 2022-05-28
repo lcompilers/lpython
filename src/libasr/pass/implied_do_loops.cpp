@@ -222,7 +222,7 @@ void pass_replace_implied_do_loops(Allocator &al, ASR::TranslationUnit_t &unit,
         const std::string &rl_path) {
     ImpliedDoLoopVisitor v(al, unit, rl_path);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
+    LCOMPILERS_ASSERT(asr_verify(unit));
 }
 
 

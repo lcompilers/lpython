@@ -393,7 +393,7 @@ public:
     }
 
     SymbolTable *get_dt_symtab(ASR::symbol_t *dt, const Location &loc) {
-        LFORTRAN_ASSERT(dt)
+        LCOMPILERS_ASSERT(dt)
         SymbolTable *symtab = ASRUtils::symbol_symtab(ASRUtils::symbol_get_past_external(dt));
         require(symtab,
             "m_dt::m_v::m_type::class/derived_type must point to a symbol with a symbol table",

@@ -713,7 +713,7 @@ void pass_replace_array_op(Allocator &al, ASR::TranslationUnit_t &unit,
         const std::string &rl_path) {
     ArrayOpVisitor v(al, unit, rl_path);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
+    LCOMPILERS_ASSERT(asr_verify(unit));
 }
 
 

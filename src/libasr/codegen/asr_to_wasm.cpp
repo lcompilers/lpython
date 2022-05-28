@@ -96,7 +96,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         int curIdx = 0;
         for (size_t i = 0; i < x.n_args; i++) {
             ASR::Variable_t *arg = LCompilers::ASRUtils::EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(LCompilers::ASRUtils::is_arg_dummy(arg->m_intent));
+            LCOMPILERS_ASSERT(LCompilers::ASRUtils::is_arg_dummy(arg->m_intent));
             if (arg->m_type->type == ASR::ttypeType::Integer) {
                 // checking for array is currently omitted
 
@@ -171,7 +171,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         } else if (ASR::is_a<ASR::ArrayRef_t>(*x.m_target)) {
             throw CodeGenError("Assignment: Arrays not yet supported");
         } else {
-            LFORTRAN_ASSERT(false)
+            LCOMPILERS_ASSERT(false)
         }
     }
 

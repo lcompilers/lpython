@@ -142,7 +142,7 @@ public:
 void pass_replace_param_to_const(Allocator &al, ASR::TranslationUnit_t &unit) {
     VarVisitor v(al);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
+    LCOMPILERS_ASSERT(asr_verify(unit));
 }
 
 } // namespace LCompilers

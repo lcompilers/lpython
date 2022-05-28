@@ -97,8 +97,8 @@ public:
         set_flip_sign();
         if( is_flip_sign_present ) {
             // xi = xor(shiftl(int(Nd),63), xi)
-            LFORTRAN_ASSERT(flip_sign_signal_variable);
-            LFORTRAN_ASSERT(flip_sign_variable);
+            LCOMPILERS_ASSERT(flip_sign_signal_variable);
+            LCOMPILERS_ASSERT(flip_sign_variable);
             ASR::stmt_t* flip_sign_call = PassUtils::get_flipsign(flip_sign_signal_variable,
                                             flip_sign_variable, al, unit, rl_path, current_scope,
                                             [&](const std::string &msg, const Location &) { throw LFortranException(msg); });
@@ -192,7 +192,7 @@ void pass_replace_flip_sign(Allocator &al, ASR::TranslationUnit_t &unit,
                             const std::string& rl_path) {
     FlipSignVisitor v(al, unit, rl_path);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
+    LCOMPILERS_ASSERT(asr_verify(unit));
 }
 
 

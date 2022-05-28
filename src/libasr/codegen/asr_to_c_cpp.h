@@ -85,7 +85,7 @@ public:
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
         // must be empty:
-        LFORTRAN_ASSERT(x.n_items == 0);
+        LCOMPILERS_ASSERT(x.n_items == 0);
         std::string unit_src = "";
         indentation_level = 0;
         indentation_spaces = 4;
@@ -107,7 +107,7 @@ R"(#include <stdio.h>
             std::vector<std::string> build_order
                 = LCompilers::ASRUtils::determine_module_dependencies(x);
             for (auto &item : build_order) {
-                LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item)
+                LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
                     != x.m_global_scope->get_scope().end());
                 if (startswith(item, "lfortran_intrinsic")) {
                     ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
@@ -130,7 +130,7 @@ R"(#include <stdio.h>
         std::vector<std::string> build_order
             = LCompilers::ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
-            LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item)
+            LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
                 != x.m_global_scope->get_scope().end());
             if (!startswith(item, "lfortran_intrinsic")) {
                 ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
@@ -221,7 +221,7 @@ R"(#include <stdio.h>
         std::string sub = "void " + std::string(x.m_name) + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LCompilers::ASRUtils::EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
+            LCOMPILERS_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
             sub += self().convert_variable_decl(*arg);
             if (i < x.n_args-1) sub += ", ";
         }
@@ -341,7 +341,7 @@ R"(#include <stdio.h>
         sub = sub + std::string(x.m_name) + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LCompilers::ASRUtils::EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(LCompilers::ASRUtils::is_arg_dummy(arg->m_intent));
+            LCOMPILERS_ASSERT(LCompilers::ASRUtils::is_arg_dummy(arg->m_intent));
             sub += self().convert_variable_decl(*arg);
             if (i < x.n_args-1) sub += ", ";
         }
@@ -402,7 +402,7 @@ R"(#include <stdio.h>
         std::string fn_name = fn->m_name;
         if (sym_info[get_hash((ASR::asr_t*)fn)].intrinsic_function) {
             if (fn_name == "size") {
-                LFORTRAN_ASSERT(x.n_args > 0);
+                LCOMPILERS_ASSERT(x.n_args > 0);
                 self().visit_expr(*x.m_args[0].m_value);
                 std::string var_name = src;
                 std::string args;
@@ -417,11 +417,11 @@ R"(#include <stdio.h>
                 }
                 src = var_name + ".extent(" + args + ")";
             } else if (fn_name == "int") {
-                LFORTRAN_ASSERT(x.n_args > 0);
+                LCOMPILERS_ASSERT(x.n_args > 0);
                 self().visit_expr(*x.m_args[0].m_value);
                 src = "(int)" + src;
             } else if (fn_name == "not") {
-                LFORTRAN_ASSERT(x.n_args > 0);
+                LCOMPILERS_ASSERT(x.n_args > 0);
                 self().visit_expr(*x.m_args[0].m_value);
                 src = "!(" + src + ")";
             } else {
@@ -466,7 +466,7 @@ R"(#include <stdio.h>
             visit_ArrayRef(*ASR::down_cast<ASR::ArrayRef_t>(x.m_target));
             target = src;
         } else {
-            LFORTRAN_ASSERT(false)
+            LCOMPILERS_ASSERT(false)
         }
         self().visit_expr(*x.m_value);
         std::string value = src;
@@ -574,7 +574,7 @@ R"(#include <stdio.h>
             case (ASR::cmpopType::Lt) : { last_expr_precedence = 9;  break; }
             case (ASR::cmpopType::LtE) : { last_expr_precedence = 9; break; }
             case (ASR::cmpopType::NotEq): { last_expr_precedence = 10; break; }
-            default : LFORTRAN_ASSERT(false); // should never happen
+            default : LCOMPILERS_ASSERT(false); // should never happen
         }
         if (left_precedence <= last_expr_precedence) {
             src += left;
@@ -916,8 +916,8 @@ R"(#include <stdio.h>
         ASR::expr_t *a=x.m_head.m_start;
         ASR::expr_t *b=x.m_head.m_end;
         ASR::expr_t *c=x.m_head.m_increment;
-        LFORTRAN_ASSERT(a);
-        LFORTRAN_ASSERT(b);
+        LCOMPILERS_ASSERT(a);
+        LCOMPILERS_ASSERT(b);
         int increment;
         if (!c) {
             increment = 1;
@@ -926,8 +926,8 @@ R"(#include <stdio.h>
                 increment = ASR::down_cast<ASR::IntegerConstant_t>(c)->m_n;
             } else if (c->type == ASR::exprType::UnaryOp) {
                 ASR::UnaryOp_t *u = ASR::down_cast<ASR::UnaryOp_t>(c);
-                LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
-                LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::IntegerConstant);
+                LCOMPILERS_ASSERT(u->m_op == ASR::unaryopType::USub);
+                LCOMPILERS_ASSERT(u->m_operand->type == ASR::exprType::IntegerConstant);
                 increment = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_operand)->m_n;
             } else {
                 throw CodeGenError("Do loop increment type not supported");

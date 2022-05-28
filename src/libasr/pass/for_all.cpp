@@ -46,7 +46,7 @@ public:
 void pass_replace_forall(Allocator &al, ASR::TranslationUnit_t &unit) {
     ForAllVisitor v(al);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
+    LCOMPILERS_ASSERT(asr_verify(unit));
 }
 
 } // namespace LCompilers

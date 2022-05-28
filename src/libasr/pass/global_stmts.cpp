@@ -144,7 +144,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
         }
         unit.m_items = nullptr;
         unit.n_items = 0;
-        LFORTRAN_ASSERT(asr_verify(unit));
+        LCOMPILERS_ASSERT(asr_verify(unit));
     }
 }
 

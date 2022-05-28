@@ -120,7 +120,7 @@ void Tokenizer::set_string(const std::string &str)
     // The input string must be NULL terminated, otherwise the tokenizer will
     // not detect the end of string. After C++11, the std::string is guaranteed
     // to end with \0, but we check this here just in case.
-    LFORTRAN_ASSERT(str[str.size()] == '\0');
+    LCOMPILERS_ASSERT(str[str.size()] == '\0');
     cur = (unsigned char *)(&str[0]);
     string_start = cur;
     cur_line = cur;
