@@ -898,9 +898,14 @@ R"(#include <stdio.h>
         src = "";
     }
 
-    void visit_Stop(const ASR::Stop_t & /* x */) {
+    void visit_Stop(const ASR::Stop_t &x) {
+        if (x.m_code) {
+            self().visit_expr(*x.m_code);
+        } else {
+            src = "";
+        }
         std::string indent(indentation_level*indentation_spaces, ' ');
-        src = indent + "exit(0);\n";
+        src = indent + "exit(" + src + ");\n";
     }
 
     void visit_ImpliedDoLoop(const ASR::ImpliedDoLoop_t &/*x*/) {
