@@ -357,7 +357,7 @@ public:
         return v;
     }
 
-    void handle_attribute(ASR::symbol_t *s, std::string attr_name,
+    void handle_attribute(ASR::expr_t *s, std::string attr_name,
                 const Location &loc, Vec<ASR::expr_t*> &args) {
         tmp = attr_handler.get_attribute(s, attr_name, al, loc, args, diag);
         return;
@@ -1603,19 +1603,19 @@ public:
                                         ASRUtils::type_to_str_python(ASRUtils::expr_type(index)) + "'",
                             index->base.loc);
                 }
-                tmp = make_DictItem_t(al, x.base.base.loc, s, index, nullptr,
+                tmp = make_DictItem_t(al, x.base.base.loc, value, index, nullptr,
                                       ASR::down_cast<ASR::Dict_t>(type)->m_value_type, nullptr);
                 return;
 
             } else if (ASR::is_a<ASR::List_t>(*type)) {
                 index = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
-                tmp = make_ListItem_t(al, x.base.base.loc, s, index,
+                tmp = make_ListItem_t(al, x.base.base.loc, value, index,
                                       ASR::down_cast<ASR::List_t>(type)->m_type, nullptr);
                 return;
             } else if (ASR::is_a<ASR::Tuple_t>(*type)) {
                 index = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
                 int i = ASR::down_cast<ASR::IntegerConstant_t>(ASRUtils::EXPR(tmp))->m_n;
-                tmp = make_TupleItem_t(al, x.base.base.loc, s, index,
+                tmp = make_TupleItem_t(al, x.base.base.loc, value, index,
                                        ASR::down_cast<ASR::Tuple_t>(type)->m_type[i], nullptr);
                 return;
             } else {
@@ -2216,7 +2216,9 @@ public:
                             );
                             throw SemanticAbort();
                         }
-                        tmp = make_DictInsert_t(al, x.base.base.loc, s, key, val);
+                        ASR::expr_t* se = ASR::down_cast<ASR::expr_t>(
+                                ASR::make_Var_t(al, x.base.base.loc, s));
+                        tmp = make_DictInsert_t(al, x.base.base.loc, se, key, val);
                         return;
                     }
                 }
@@ -2849,7 +2851,9 @@ public:
                         visit_expr(*c->m_args[i]);
                         elements.push_back(al, ASRUtils::EXPR(tmp));
                     }
-                    handle_attribute(t, at->m_attr, x.base.base.loc, elements);
+                    ASR::expr_t *te = ASR::down_cast<ASR::expr_t>(
+                                        ASR::make_Var_t(al, x.base.base.loc, t));
+                    handle_attribute(te, at->m_attr, x.base.base.loc, elements);
                     return;
                 }
             } else {
@@ -3100,7 +3104,9 @@ public:
                             for (size_t i=0; i<x.n_args; i++) {
                                 eles.push_back(al, args[i].m_value);
                             }
-                            handle_attribute(st, at->m_attr, x.base.base.loc, eles);
+                            ASR::expr_t *se = ASR::down_cast<ASR::expr_t>(
+                                            ASR::make_Var_t(al, x.base.base.loc, st));
+                            handle_attribute(se, at->m_attr, x.base.base.loc, eles);
                             return;
                         }
                         throw SemanticError("module '" + mod_name + "' is not imported",
