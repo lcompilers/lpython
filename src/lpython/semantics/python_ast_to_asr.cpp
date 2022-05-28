@@ -1483,10 +1483,12 @@ public:
         }
         if (ASRUtils::is_integer(*operand_type) && op == ASR::unaryopType::Invert) {
             tmp = ASR::make_IntegerBitNot_t(al, x.base.base.loc, operand, dest_type, value);
-            return;
+        } else if (ASRUtils::is_logical(*operand_type) && op == ASR::unaryopType::Not) {
+            tmp = ASR::make_LogicalNot_t(al, x.base.base.loc, operand, logical_type, value);
+        } else {
+            tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, dest_type,
+                                      value);
         }
-        tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, dest_type,
-                              value);
     }
 
     void visit_IfExp(const AST::IfExp_t &x) {

@@ -639,18 +639,6 @@ R"(#include <stdio.h>
                 throw CodeGenError("Unary type not implemented yet for Real");
             }
             return;
-        } else if (x.m_type->type == ASR::ttypeType::Logical) {
-            if (x.m_op == ASR::unaryopType::Not) {
-                last_expr_precedence = 3;
-                if (expr_precedence <= last_expr_precedence) {
-                    src = "!" + src;
-                } else {
-                    src = "!(" + src + ")";
-                }
-                return;
-            } else {
-                throw CodeGenError("Unary type not implemented yet for Logical");
-            }
         } else {
             throw CodeGenError("UnaryOp: type not supported yet");
         }
@@ -664,6 +652,17 @@ R"(#include <stdio.h>
             src = "~" + src;
         } else {
             src = "~(" + src + ")";
+        }
+    }
+
+    void visit_LogicalNot(const ASR::LogicalNot_t &x) {
+        self().visit_expr(*x.m_arg);
+        int expr_precedence = last_expr_precedence;
+        last_expr_precedence = 3;
+        if (expr_precedence <= last_expr_precedence) {
+            src = "!" + src;
+        } else {
+            src = "!(" + src + ")";
         }
     }
 
