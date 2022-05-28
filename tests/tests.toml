@@ -152,6 +152,7 @@ filename = "loop2.py"
 ast = true
 asr = true
 cpp = true
+c = true
 
 [[test]]
 filename = "loop3.py"
