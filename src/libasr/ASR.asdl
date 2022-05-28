@@ -200,15 +200,15 @@ stmt
     | WhileLoop(expr test, stmt* body)
     | Nullify(symbol* vars)
     | Flush(int label, expr unit, expr? err, expr? iomsg, expr? iostat)
-    | ListAppend(symbol a, expr ele)
+    | ListAppend(expr a, expr ele)
     | AssociateBlockCall(symbol m)
     | CFPointer(expr cptr, expr fptr, expr? shape)
     | BlockCall(symbol m)
-    | SetInsert(symbol a, expr ele)
-    | SetRemove(symbol a, expr ele)
-    | ListInsert(symbol a, expr pos, expr ele)
-    | ListRemove(symbol a, expr ele)
-    | DictInsert(symbol a, expr key, expr value)
+    | SetInsert(expr a, expr ele)
+    | SetRemove(expr a, expr ele)
+    | ListInsert(expr a, expr pos, expr ele)
+    | ListRemove(expr a, expr ele)
+    | DictInsert(expr a, expr key, expr value)
 
 
 expr
@@ -270,14 +270,14 @@ expr
     | Cast(expr arg, cast_kind kind, ttype type, expr? value)
     | ComplexRe(expr arg, ttype type, expr? value)
     | ComplexIm(expr arg, ttype type, expr? value)
-    | DictItem(symbol a, expr key, expr? default, ttype type, expr? value)
+    | DictItem(expr a, expr key, expr? default, ttype type, expr? value)
     | CLoc(expr arg, ttype type, expr? value)
-    | ListItem(symbol a, expr pos, ttype type, expr? value)
-    | TupleItem(symbol a, expr pos, ttype type, expr? value)
+    | ListItem(expr a, expr pos, ttype type, expr? value)
+    | TupleItem(expr a, expr pos, ttype type, expr? value)
     | ListSection(expr a, array_index section, ttype type, expr? value)
-    | ListPop(symbol a, expr? index, ttype type, expr? value)
-    | DictPop(symbol a, expr key, ttype type, expr? value)
-    | SetPop(symbol a, ttype type, expr? value)
+    | ListPop(expr a, expr? index, ttype type, expr? value)
+    | DictPop(expr a, expr key, ttype type, expr? value)
+    | SetPop(expr a, ttype type, expr? value)
 
 
 -- `len` in Character:
