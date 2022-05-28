@@ -902,7 +902,7 @@ R"(#include <stdio.h>
         if (x.m_code) {
             self().visit_expr(*x.m_code);
         } else {
-            src = "";
+            src = "0";
         }
         std::string indent(indentation_level*indentation_spaces, ' ');
         src = indent + "exit(" + src + ");\n";
