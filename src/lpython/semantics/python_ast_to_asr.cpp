@@ -1485,6 +1485,8 @@ public:
             tmp = ASR::make_IntegerBitNot_t(al, x.base.base.loc, operand, dest_type, value);
         } else if (ASRUtils::is_logical(*operand_type) && op == ASR::unaryopType::Not) {
             tmp = ASR::make_LogicalNot_t(al, x.base.base.loc, operand, logical_type, value);
+        } else if (op == ASR::unaryopType::USub) {
+            tmp = ASR::make_UnaryMinus_t(al, x.base.base.loc, operand, dest_type, value);
         } else {
             tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, dest_type,
                                       value);
