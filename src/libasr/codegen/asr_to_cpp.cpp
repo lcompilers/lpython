@@ -238,13 +238,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         // Generate code for the main program
         indentation_level += 1;
         std::string indent1(indentation_level*indentation_spaces, ' ');
-        indentation_level += 1;
-        std::string indent(indentation_level*indentation_spaces, ' ');
         std::string decl;
         for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                decl += indent;
+                decl += indent1;
                 decl += convert_variable_decl(*v) + ";\n";
             }
         }
