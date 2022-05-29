@@ -67,7 +67,7 @@ void test_return_4(int a)
 namespace {
 
 void main2() {
-        _lpython_main_program();
+    _lpython_main_program();
 }
 
 }

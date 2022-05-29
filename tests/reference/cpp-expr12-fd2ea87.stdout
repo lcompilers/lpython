@@ -47,7 +47,7 @@ int test(int a, int b)
 namespace {
 
 void main2() {
-        _lpython_main_program();
+    _lpython_main_program();
 }
 
 }

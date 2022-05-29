@@ -190,7 +190,7 @@ double _lfortran_zaimag(std::complex<double> x);
 namespace {
 
 void main2() {
-        _lpython_main_program();
+    _lpython_main_program();
 }
 
 }

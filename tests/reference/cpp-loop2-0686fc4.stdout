@@ -47,7 +47,7 @@ void exit(int error_code)
 namespace {
 
 void main2() {
-        _lpython_main_program();
+    _lpython_main_program();
 }
 
 }

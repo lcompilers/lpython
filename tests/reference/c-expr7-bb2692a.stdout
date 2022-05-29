@@ -46,6 +46,6 @@ double _lfortran_zaimag(double complex x);
 
 int main(int argc, char* argv[])
 {
-        _lpython_main_program();
+    _lpython_main_program();
     return 0;
 }

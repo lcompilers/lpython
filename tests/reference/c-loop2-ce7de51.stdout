@@ -35,6 +35,6 @@ void exit(int32_t error_code)
 
 int main(int argc, char* argv[])
 {
-        _lpython_main_program();
+    _lpython_main_program();
     return 0;
 }

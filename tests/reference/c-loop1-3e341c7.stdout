@@ -70,6 +70,6 @@ long long test_factorial_3(int32_t x)
 
 int main(int argc, char* argv[])
 {
-        _lpython_main_program();
+    _lpython_main_program();
     return 0;
 }
