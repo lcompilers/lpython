@@ -222,12 +222,11 @@ R"(#include <assert.h>
         // Generate code for the main program
         indentation_level += 1;
         std::string indent1(indentation_level*indentation_spaces, ' ');
-        indentation_level += 1;
-        std::string indent(indentation_level*indentation_spaces, ' ');
         std::string decl;
         for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
+                decl += indent1;
                 decl += convert_variable_decl(*v) + ";\n";
             }
         }
@@ -237,7 +236,6 @@ R"(#include <assert.h>
             this->visit_stmt(*x.m_body[i]);
             body += src;
         }
-
         src = contains
                 + "int main(int argc, char* argv[])\n{\n"
                 + decl + body
