@@ -500,9 +500,8 @@ namespace LFortran {
                 int increment;
                 if (c->type == ASR::exprType::IntegerConstant) {
                     increment = ASR::down_cast<ASR::IntegerConstant_t>(c)->m_n;
-                } else if (c->type == ASR::exprType::UnaryOp) {
-                    ASR::UnaryOp_t *u = ASR::down_cast<ASR::UnaryOp_t>(c);
-                    LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
+                } else if (c->type == ASR::exprType::UnaryMinus) {
+                    ASR::UnaryMinus_t *u = ASR::down_cast<ASR::UnaryMinus_t>(c);
                     LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::IntegerConstant);
                     increment = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_operand)->m_n;
                 } else {

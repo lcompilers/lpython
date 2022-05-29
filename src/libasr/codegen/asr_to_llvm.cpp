@@ -3111,31 +3111,12 @@ public:
             if (x.m_op == ASR::unaryopType::UAdd) {
                 // tmp = tmp;
                 return;
-            } else if (x.m_op == ASR::unaryopType::USub) {
-                llvm::Value *zero = llvm::ConstantInt::get(context,
-                    llvm::APInt(ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_operand)) * 8, 0));
-                tmp = builder ->CreateSub(zero, tmp);
-                return;
             } else {
                 throw CodeGenError("Unary type not implemented yet");
             }
         } else if (x.m_type->type == ASR::ttypeType::Real) {
             if (x.m_op == ASR::unaryopType::UAdd) {
                 // tmp = tmp;
-                return;
-            } else if (x.m_op == ASR::unaryopType::USub) {
-                llvm::Value *zero;
-                int a_kind = down_cast<ASR::Real_t>(x.m_type)->m_kind;
-                if (a_kind == 4) {
-                    zero = llvm::ConstantFP::get(context,
-                            llvm::APFloat((float)0.0));
-                } else if (a_kind == 8) {
-                    zero = llvm::ConstantFP::get(context,
-                            llvm::APFloat((double)0.0));
-                } else {
-                    throw CodeGenError("Unary type kind not implemented yet, only 4 and 8 is");
-                }
-                tmp = builder ->CreateFSub(zero, tmp);
                 return;
             } else {
                 throw CodeGenError("Unary type not implemented yet");
@@ -3148,6 +3129,33 @@ public:
     void visit_IntegerBitNot(const ASR::IntegerBitNot_t &x) {
         this->visit_expr_wrapper(x.m_arg, true);
         tmp = builder->CreateNot(tmp);
+    }
+
+    void visit_UnaryMinus(const ASR::UnaryMinus_t &x) {
+        this->visit_expr_wrapper(x.m_operand, true);
+        if (x.m_type->type == ASR::ttypeType::Integer) {
+            llvm::Value *zero = llvm::ConstantInt::get(context,
+                llvm::APInt(ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_operand)) * 8, 0));
+            tmp = builder->CreateSub(zero, tmp);
+
+        } else if (x.m_type->type == ASR::ttypeType::Real) {
+            llvm::Value *zero;
+            int a_kind = down_cast<ASR::Real_t>(x.m_type)->m_kind;
+            if (a_kind == 4) {
+                zero = llvm::ConstantFP::get(context,
+                        llvm::APFloat((float)0.0));
+            } else if (a_kind == 8) {
+                zero = llvm::ConstantFP::get(context,
+                        llvm::APFloat((double)0.0));
+            } else {
+                throw CodeGenError("UnaryMinus: real kind not implemented yet, only 4 and 8 is");
+            }
+
+            tmp = builder->CreateFSub(zero, tmp);
+
+        } else {
+            throw CodeGenError("UnaryMinus: type not supported yet");
+        }
     }
 
     void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {
