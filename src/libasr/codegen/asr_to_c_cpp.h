@@ -598,13 +598,6 @@ R"(#include <stdio.h>
             if (x.m_op == ASR::unaryopType::UAdd) {
                 // src = src;
                 // Skip unary plus, keep the previous precedence
-            } else if (x.m_op == ASR::unaryopType::USub) {
-                last_expr_precedence = 3;
-                if (expr_precedence <= last_expr_precedence) {
-                    src = "-" + src;
-                } else {
-                    src = "-(" + src + ")";
-                }
 
             } else if (x.m_op == ASR::unaryopType::Not) {
                 last_expr_precedence = 3;
@@ -621,13 +614,6 @@ R"(#include <stdio.h>
             if (x.m_op == ASR::unaryopType::UAdd) {
                 // src = src;
                 // Skip unary plus, keep the previous precedence
-            } else if (x.m_op == ASR::unaryopType::USub) {
-                last_expr_precedence = 3;
-                if (expr_precedence <= last_expr_precedence) {
-                    src = "-" + src;
-                } else {
-                    src = "-(" + src + ")";
-                }
             } else if (x.m_op == ASR::unaryopType::Not) {
                 last_expr_precedence = 3;
                 if (expr_precedence <= last_expr_precedence) {
@@ -652,6 +638,17 @@ R"(#include <stdio.h>
             src = "~" + src;
         } else {
             src = "~(" + src + ")";
+        }
+    }
+
+    void visit_UnaryMinus(const ASR::UnaryMinus_t& x) {
+        self().visit_expr(*x.m_operand);
+        int expr_precedence = last_expr_precedence;
+        last_expr_precedence = 3;
+        if (expr_precedence <= last_expr_precedence) {
+            src = "-" + src;
+        } else {
+            src = "-(" + src + ")";
         }
     }
 
