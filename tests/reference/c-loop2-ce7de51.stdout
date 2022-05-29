@@ -1,0 +1,40 @@
+#include <assert.h>
+#include <complex.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <math.h>
+
+#include <lfortran_intrinsics.h>
+
+void _lpython_main_program()
+{
+    test_for();
+}
+
+void test_for()
+{
+    int32_t i;
+    for (i=0; i<=10 - 1; i++) {
+        if (i == 0) {
+            continue;
+        }
+        if (i > 5) {
+            break;
+        }
+        if (i == 3) {
+            exit(0);
+        }
+    }
+    exit(2);
+}
+
+void exit(int32_t error_code)
+{
+    exit(error_code);
+}
+
+int main(int argc, char* argv[])
+{
+        _lpython_main_program();
+    return 0;
+}

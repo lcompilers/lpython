@@ -9,4 +9,6 @@ def test_for():
             break
         if i == 3:
             quit()
-    exit(0)
+    exit(2)
+
+test_for()
