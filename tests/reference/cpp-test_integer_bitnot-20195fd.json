@@ -5,9 +5,9 @@
     "infile_hash": "dc976a358fbeebedead889f8e85b3eed4ac77ee20f68fcac58b81429",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "cpp-test_integer_bitnot-20195fd.stdout",
-    "stdout_hash": "358f9416fac8d21169d6ddf7490849a155151646a8b5f10ed1caced8",
-    "stderr": null,
-    "stderr_hash": null,
-    "returncode": 0
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "cpp-test_integer_bitnot-20195fd.stderr",
+    "stderr_hash": "5715199dd20dc72a41f168fdb832732b2f87c5a535f4a9e591ded69c",
+    "returncode": 1
 }

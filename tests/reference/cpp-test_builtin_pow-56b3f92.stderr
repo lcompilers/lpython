@@ -3,3 +3,27 @@ style suggestion: Could have used '**' instead of 'pow'
    |
 11 |     assert pow(a, b) == 32
    |            ^^^^^^^^^ '**' could be used instead
+Internal Compiler Error: Unhandled exception
+Traceback (most recent call last):
+[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 831[0m
+    return emit_cpp(arg_file, runtime_library_dir, compiler_options);
+[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 217[0m
+    auto res = LFortran::asr_to_cpp(al, *asr, diagnostics);
+[2m  File "[0m[1m[35m$DIR/src/libasr/codegen/asr_to_cpp.cpp[39m[0m[2m", line 475[0m
+    v.visit_asr((ASR::asr_t &)asr);
+[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 3152[0m
+[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 3130[0m
+[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 3153[0m
+[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 2953[0m
+[2m  File "[0m[1m[35m$DIR/src/libasr/codegen/asr_to_cpp.cpp[39m[0m[2m", line 193[0m
+    visit_symbol(*item.second);
+[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 3155[0m
+[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 2963[0m
+[2m  File "[0m[1m[35m../libasr/codegen/asr_to_c_cpp.h[39m[0m[2m", line 250[0m
+[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 3169[0m
+[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 2983[0m
+[2m  File "[0m[1m[35m../libasr/codegen/asr_to_c_cpp.h[39m[0m[2m", line 473[0m
+[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 3210[0m
+[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 3037[0m
+[2m  File "[0m[1m[35m../libasr/asr.h[39m[0m[2m", line 3220[0m
+LFortranException: visit_UnaryMinus() not implemented
