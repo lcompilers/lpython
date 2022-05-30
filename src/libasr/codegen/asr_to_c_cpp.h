@@ -220,7 +220,11 @@ R"(#include <stdio.h>
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
         indentation_level += 1;
-        std::string sub = "void " + std::string(x.m_name) + "(";
+        std::string sym_name = x.m_name;
+        if (sym_name == "main") {
+            sym_name = "_xx_lpython_changed_main_xx";
+        }
+        std::string sub = "void " + sym_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
@@ -340,7 +344,11 @@ R"(#include <stdio.h>
         } else {
             throw CodeGenError("Return type not supported");
         }
-        sub = sub + std::string(x.m_name) + "(";
+        std::string sym_name = x.m_name;
+        if (sym_name == "main") {
+            sym_name = "_xx_lpython_changed_main_xx";
+        }
+        sub = sub + sym_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
