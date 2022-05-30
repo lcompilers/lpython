@@ -256,6 +256,11 @@ asr = true
 llvm = true
 cpp = true
 
+[[test]]
+filename = "../integration_tests/test_issue_518.py"
+llvm = true
+c = true
+
 # tests/tokens
 
 [[test]]
