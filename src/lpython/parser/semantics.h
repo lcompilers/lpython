@@ -457,6 +457,10 @@ expr_t* CHECK_TUPLE(expr_t *x) {
     }
 }
 
+#define ELLIPSIS(l) make_ConstantEllipsis_t(p.m_a, l, nullptr)
+
+#define NONE(l) make_ConstantNone_t(p.m_a, l, nullptr)
+
 #define TUPLE(elts, l) make_Tuple_t(p.m_a, l, \
         EXPRS(elts), elts.size(), expr_contextType::Load)
 #define SUBSCRIPT_01(value, slice, l) make_Subscript_t(p.m_a, l, \
