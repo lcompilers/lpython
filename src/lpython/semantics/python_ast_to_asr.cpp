@@ -1496,7 +1496,7 @@ public:
         } else if (ASRUtils::is_complex(*operand_type) && op == ASR::unaryopType::USub) {
             tmp = ASR::make_ComplexUnaryMinus_t(al, x.base.base.loc, operand, dest_type, value);
 
-        } else if (ASR::is_logical(*operand_type) && op == ASR::unaryopType::USub) {
+        } else if (ASRUtils::is_logical(*operand_type) && op == ASR::unaryopType::USub) {
             // cast Logical to Integer
             // Reason: Resultant type of an unary operation should be the same as operand type
             ASR::expr_t *int_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(

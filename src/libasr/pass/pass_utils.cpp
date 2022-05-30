@@ -500,10 +500,9 @@ namespace LFortran {
                 int increment;
                 if (c->type == ASR::exprType::IntegerConstant) {
                     increment = ASR::down_cast<ASR::IntegerConstant_t>(c)->m_n;
-                } else if (c->type == ASR::exprType::UnaryMinus) {
-                    ASR::UnaryMinus_t *u = ASR::down_cast<ASR::UnaryMinus_t>(c);
-                    LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::IntegerConstant);
-                    increment = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_operand)->m_n;
+                } else if (c->type == ASR::exprType::IntegerUnaryMinus) {
+                    ASR::IntegerUnaryMinus_t *u = ASR::down_cast<ASR::IntegerUnaryMinus_t>(c);
+                    increment = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_arg)->m_n;
                 } else {
                     throw LFortranException("Do loop increment type not supported");
                 }
