@@ -234,7 +234,6 @@ expr
     | ComplexUnaryMinus(expr arg, ttype type, expr? value)
     | LogicalConstant(bool value, ttype type)
     | LogicalNot(expr arg, ttype type, expr? value)
-    | LogicalUnaryMinus(expr arg, ttype type, expr? value)
 
     | ListConstant(expr* args, ttype type)
     | ListLen(expr arg, ttype type, expr? value)
