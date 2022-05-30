@@ -222,16 +222,19 @@ expr
     | FunctionCall(symbol name, symbol? original_name,
             call_arg* args, ttype type, expr? value, expr? dt)
     | DerivedTypeConstructor(symbol dt_sym, expr* args, ttype type)
-    | UnaryMinus(expr operand, ttype type, expr? value)
     | ImpliedDoLoop(expr* values, expr var, expr start, expr end,
                     expr? increment, ttype type, expr? value)
     | IntegerConstant(int n, ttype type)
     | IntegerBOZ(int v, integerboz intboz_type, ttype? type)
     | IntegerBitNot(expr arg, ttype type, expr? value)
+    | IntegerUnaryMinus(expr arg, ttype type, expr? value)
     | RealConstant(float r, ttype type)
+    | RealUnaryMinus(expr arg, ttype type, expr? value)
     | ComplexConstant(float re, float im, ttype type)
+    | ComplexUnaryMinus(expr arg, ttype type, expr? value)
     | LogicalConstant(bool value, ttype type)
     | LogicalNot(expr arg, ttype type, expr? value)
+    | LogicalUnaryMinus(expr arg, ttype type, expr? value)
 
     | ListConstant(expr* args, ttype type)
     | ListLen(expr arg, ttype type, expr? value)
