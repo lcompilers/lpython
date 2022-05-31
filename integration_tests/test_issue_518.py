@@ -11,4 +11,12 @@ def main0():
     ans = fib(15)
     assert ans == 610
 
+def main():
+    # test of issue-529
+    ans: i64
+    ans = fib(10)
+    assert ans == 55
+
+
 main0()
+main()
