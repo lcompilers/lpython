@@ -3131,31 +3131,28 @@ public:
         tmp = builder->CreateNot(tmp);
     }
 
-    void visit_UnaryMinus(const ASR::UnaryMinus_t &x) {
-        this->visit_expr_wrapper(x.m_operand, true);
-        if (x.m_type->type == ASR::ttypeType::Integer) {
-            llvm::Value *zero = llvm::ConstantInt::get(context,
-                llvm::APInt(ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_operand)) * 8, 0));
-            tmp = builder->CreateSub(zero, tmp);
+    void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {
+        this->visit_expr_wrapper(x.m_arg, true);
+        llvm::Value *zero = llvm::ConstantInt::get(context,
+            llvm::APInt(ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_arg)) * 8, 0));
+        tmp = builder->CreateSub(zero, tmp);
+    }
 
-        } else if (x.m_type->type == ASR::ttypeType::Real) {
-            llvm::Value *zero;
-            int a_kind = down_cast<ASR::Real_t>(x.m_type)->m_kind;
-            if (a_kind == 4) {
-                zero = llvm::ConstantFP::get(context,
-                        llvm::APFloat((float)0.0));
-            } else if (a_kind == 8) {
-                zero = llvm::ConstantFP::get(context,
-                        llvm::APFloat((double)0.0));
-            } else {
-                throw CodeGenError("UnaryMinus: real kind not implemented yet, only 4 and 8 is");
-            }
-
-            tmp = builder->CreateFSub(zero, tmp);
-
+    void visit_RealUnaryMinus(const ASR::RealUnaryMinus_t &x) {
+        this->visit_expr_wrapper(x.m_arg, true);
+        llvm::Value *zero;
+        int a_kind = down_cast<ASR::Real_t>(x.m_type)->m_kind;
+        if (a_kind == 4) {
+            zero = llvm::ConstantFP::get(context,
+                llvm::APFloat((float)0.0));
+        } else if (a_kind == 8) {
+            zero = llvm::ConstantFP::get(context,
+                llvm::APFloat((double)0.0));
         } else {
-            throw CodeGenError("UnaryMinus: type not supported yet");
+            throw CodeGenError("RealUnaryMinus: kind not supported yet");
         }
+
+        tmp = builder->CreateFSub(zero, tmp);
     }
 
     void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {

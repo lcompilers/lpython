@@ -126,7 +126,9 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
         case ASR::exprType::DictLen: { return ((ASR::DictLen_t*)f)->m_type; }
         case ASR::exprType::IntegerBOZ: { return ((ASR::IntegerBOZ_t*)f)->m_type; }
         case ASR::exprType::IntegerBitNot: { return ((ASR::IntegerBitNot_t*)f)->m_type; }
-        case ASR::exprType::UnaryMinus: { return ((ASR::UnaryMinus_t*)f)->m_type; }
+        case ASR::exprType::IntegerUnaryMinus: { return ((ASR::IntegerUnaryMinus_t*)f)->m_type; }
+        case ASR::exprType::RealUnaryMinus: { return ((ASR::RealUnaryMinus_t*)f)->m_type; }
+        case ASR::exprType::ComplexUnaryMinus: { return ((ASR::ComplexUnaryMinus_t*)f)->m_type; }
         case ASR::exprType::Var: { return EXPR2VAR(f)->m_type; }
         case ASR::exprType::ArrayRef: { return ((ASR::ArrayRef_t*)f)->m_type; }
         case ASR::exprType::ArraySize: { return ((ASR::ArraySize_t*)f)->m_type; }
@@ -312,7 +314,9 @@ static inline ASR::expr_t* expr_value(ASR::expr_t *f)
         case ASR::exprType::StringConcat: { return ASR::down_cast<ASR::StringConcat_t>(f)->m_value; }
         case ASR::exprType::StringRepeat: { return ASR::down_cast<ASR::StringRepeat_t>(f)->m_value; }
         case ASR::exprType::IntegerBitNot: { return ASR::down_cast<ASR::IntegerBitNot_t>(f)->m_value; }
-        case ASR::exprType::UnaryMinus: { return ASR::down_cast<ASR::UnaryMinus_t>(f)->m_value; }
+        case ASR::exprType::IntegerUnaryMinus: { return ASR::down_cast<ASR::IntegerUnaryMinus_t>(f)->m_value; }
+        case ASR::exprType::RealUnaryMinus: { return ASR::down_cast<ASR::RealUnaryMinus_t>(f)->m_value; }
+        case ASR::exprType::ComplexUnaryMinus: { return ASR::down_cast<ASR::ComplexUnaryMinus_t>(f)->m_value; }
         case ASR::exprType::ComplexRe: { return ASR::down_cast<ASR::ComplexRe_t>(f)->m_value; }
         case ASR::exprType::ComplexIm: { return ASR::down_cast<ASR::ComplexIm_t>(f)->m_value; }
         case ASR::exprType::ListItem: { return ASR::down_cast<ASR::ListItem_t>(f)->m_value; }

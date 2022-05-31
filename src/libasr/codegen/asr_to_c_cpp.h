@@ -641,8 +641,17 @@ R"(#include <stdio.h>
         }
     }
 
-    void visit_UnaryMinus(const ASR::UnaryMinus_t& x) {
-        self().visit_expr(*x.m_operand);
+    void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {
+        handle_UnaryMinus(x);
+    }
+
+    void visit_RealUnaryMinus(const ASR::RealUnaryMinus_t &x) {
+        handle_UnaryMinus(x);
+    }
+
+    template <typename T>
+    void handle_UnaryMinus(const T &x) {
+        self().visit_expr(*x.m_arg);
         int expr_precedence = last_expr_precedence;
         last_expr_precedence = 3;
         if (expr_precedence <= last_expr_precedence) {
