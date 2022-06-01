@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <memory>
+#include <set>
 
 #include <libasr/asr.h>
 #include <libasr/containers.h>
@@ -79,10 +80,28 @@ public:
     bool gen_stdcomplex;
     bool is_c;
 
+    // For declaring all the functions and subroutines
+    // before defining them. This will help in avoiding
+    // errors due to implicit declaration in C.
+    bool declare_only;
+
+    std::set<uint64_t> declared_syms;
+
     BaseCCPPVisitor(diag::Diagnostics &diag,
             bool gen_stdstring, bool gen_stdcomplex, bool is_c) : diag{diag},
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
-        is_c{is_c} {}
+        is_c{is_c}, declare_only{false} {}
+
+    void visit_FunctionSubroutine(SymbolTable* symtab,
+        std::string& unit_src) {
+        for (auto &item : symtab->get_scope()) {
+            if (ASR::is_a<ASR::Function_t>(*item.second)
+                || ASR::is_a<ASR::Subroutine_t>(*item.second)) {
+                self().visit_symbol(*item.second);
+                unit_src += src;
+            }
+        }
+    }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
@@ -120,13 +139,10 @@ R"(#include <stdio.h>
         }
 
         // Process procedures first:
-        for (auto &item : x.m_global_scope->get_scope()) {
-            if (ASR::is_a<ASR::Function_t>(*item.second)
-                || ASR::is_a<ASR::Subroutine_t>(*item.second)) {
-                self().visit_symbol(*item.second);
-                unit_src += src;
-            }
-        }
+        declare_only = true;
+        visit_FunctionSubroutine(x.m_global_scope, unit_src);
+        declare_only = false;
+        visit_FunctionSubroutine(x.m_global_scope, unit_src);
 
         // Then do all the modules in the right order
         std::vector<std::string> build_order
@@ -176,10 +192,14 @@ R"(#include <stdio.h>
         intrinsic_module = false;
     }
 
-    void visit_Program(const ASR::Program_t &x) {
-        // Generate code for nested subroutines and functions first:
-        std::string contains;
-        for (auto &item : x.m_symtab->get_scope()) {
+    template <typename T>
+    bool is_declared(T& x) {
+        return (declared_syms.find(get_hash((ASR::asr_t*)&x)) !=
+                    declared_syms.end());
+    }
+
+    void visit_SymbolTable_FunctionSubroutine(SymbolTable* symtab, std::string& contains) {
+        for (auto &item : symtab->get_scope()) {
             if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
                 ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
@@ -191,6 +211,15 @@ R"(#include <stdio.h>
                 contains += src;
             }
         }
+    }
+
+    void visit_Program(const ASR::Program_t &x) {
+        // Generate code for nested subroutines and functions first:
+        std::string contains;
+        declare_only = true;
+        visit_SymbolTable_FunctionSubroutine(x.m_symtab, contains);
+        declare_only = false;
+        visit_SymbolTable_FunctionSubroutine(x.m_symtab, contains);
 
         // Generate code for the main program
         indentation_level += 1;
@@ -219,6 +248,10 @@ R"(#include <stdio.h>
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
+        if( is_declared(x) && (x.m_abi == ASR::abiType::BindC
+            && x.m_deftype == ASR::deftypeType::Interface) ) {
+            return ;
+        }
         indentation_level += 1;
         std::string sym_name = x.m_name;
         if (sym_name == "main") {
@@ -232,9 +265,11 @@ R"(#include <stdio.h>
             if (i < x.n_args-1) sub += ", ";
         }
         sub += ")";
-        if (x.m_abi == ASR::abiType::BindC
-                && x.m_deftype == ASR::deftypeType::Interface) {
+        if ( (x.m_abi == ASR::abiType::BindC
+                && x.m_deftype == ASR::deftypeType::Interface) ||
+              declare_only ) {
             sub += ";\n";
+            declared_syms.insert(get_hash((ASR::asr_t*)&x));
         } else {
             sub += "\n";
 
@@ -277,6 +312,10 @@ R"(#include <stdio.h>
     }
 
     void visit_Function(const ASR::Function_t &x) {
+        if( is_declared(x) && (x.m_abi == ASR::abiType::BindC
+            && x.m_deftype == ASR::deftypeType::Interface) ) {
+            return ;
+        }
         if (std::string(x.m_name) == "size" && intrinsic_module ) {
             // Intrinsic function `size`
             SymbolInfo s;
@@ -304,41 +343,45 @@ R"(#include <stdio.h>
         }
         std::string sub;
         ASR::Variable_t *return_var = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
+        std::string ptr = "";
+        if (ASRUtils::is_array(return_var->m_type)) {
+            ptr = "*";
+        }
         if (ASRUtils::is_integer(*return_var->m_type)) {
             bool is_int = ASR::down_cast<ASR::Integer_t>(return_var->m_type)->m_kind == 4;
             if (is_int) {
-                sub = "int ";
+                sub = "int" + ptr + " ";
             } else {
-                sub = "long long ";
+                sub = "long long" + ptr + " ";
             }
         } else if (ASRUtils::is_real(*return_var->m_type)) {
             bool is_float = ASR::down_cast<ASR::Real_t>(return_var->m_type)->m_kind == 4;
             if (is_float) {
-                sub = "float ";
+                sub = "float" + ptr + " ";
             } else {
-                sub = "double ";
+                sub = "double" + ptr + " ";
             }
         } else if (ASRUtils::is_logical(*return_var->m_type)) {
-            sub = "bool ";
+            sub = "bool" + ptr + " ";
         } else if (ASRUtils::is_character(*return_var->m_type)) {
             if (gen_stdstring) {
-                sub = "std::string ";
+                sub = "std::string" + ptr + " ";
             } else {
-                sub = "char* ";
+                sub = "char*" + ptr + " ";
             }
         } else if (ASRUtils::is_complex(*return_var->m_type)) {
             bool is_float = ASR::down_cast<ASR::Complex_t>(return_var->m_type)->m_kind == 4;
             if (is_float) {
                 if (gen_stdcomplex) {
-                    sub = "std::complex<float> ";
+                    sub = "std::complex<float>" + ptr + " ";
                 } else {
-                    sub = "float complex ";
+                    sub = "float complex" + ptr + " ";
                 }
             } else {
                 if (gen_stdcomplex) {
-                    sub = "std::complex<double> ";
+                    sub = "std::complex<double>" + ptr + " ";
                 } else {
-                    sub = "double complex ";
+                    sub = "double complex" + ptr + " ";
                 }
             }
         } else {
@@ -356,9 +399,11 @@ R"(#include <stdio.h>
             if (i < x.n_args-1) sub += ", ";
         }
         sub += ")";
-        if (x.m_abi == ASR::abiType::BindC
-                && x.m_deftype == ASR::deftypeType::Interface) {
+        if ( (x.m_abi == ASR::abiType::BindC
+                && x.m_deftype == ASR::deftypeType::Interface) ||
+              declare_only ) {
             sub += ";\n";
+            declared_syms.insert(get_hash((ASR::asr_t*)&x));
         } else {
             sub += "\n";
 

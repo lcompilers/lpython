@@ -44,13 +44,10 @@ std::string format_type_c(const std::string &dims, const std::string &type,
         const std::string &name, bool use_ref, bool /*dummy*/)
 {
     std::string fmt;
-    if (dims.size() == 0) {
-        std::string ref;
-        if (use_ref) ref = "&";
-        fmt = type + " " + ref + name;
-    } else {
-        throw CodeGenError("Dimensions is not supported yet.");
-    }
+    std::string ref = "", ptr = "";
+    if (dims.size() > 0) ptr = "*";
+    if (use_ref) ref = "&";
+    fmt = type + " " + ptr + ref + name;
     return fmt;
 }
 
@@ -130,7 +127,6 @@ public:
         return sub;
     }
 
-
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
         // must be empty:
@@ -171,13 +167,10 @@ R"(#include <assert.h>
         }
 
         // Process procedures first:
-        for (auto &item : x.m_global_scope->get_scope()) {
-            if (ASR::is_a<ASR::Function_t>(*item.second)
-                || ASR::is_a<ASR::Subroutine_t>(*item.second)) {
-                visit_symbol(*item.second);
-                unit_src += src;
-            }
-        }
+        declare_only = true;
+        visit_FunctionSubroutine(x.m_global_scope, unit_src);
+        declare_only = false;
+        visit_FunctionSubroutine(x.m_global_scope, unit_src);
 
         // Then do all the modules in the right order
         std::vector<std::string> build_order
@@ -206,18 +199,10 @@ R"(#include <assert.h>
     void visit_Program(const ASR::Program_t &x) {
         // Generate code for nested subroutines and functions first:
         std::string contains;
-        for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
-                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
-                visit_Subroutine(*s);
-                contains += src;
-            }
-            if (ASR::is_a<ASR::Function_t>(*item.second)) {
-                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
-                visit_Function(*s);
-                contains += src;
-            }
-        }
+        declare_only = true;
+        visit_SymbolTable_FunctionSubroutine(x.m_symtab, contains);
+        declare_only = false;
+        visit_SymbolTable_FunctionSubroutine(x.m_symtab, contains);
 
         // Generate code for the main program
         indentation_level += 1;
