@@ -637,7 +637,12 @@ LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
 
 // idx1 and idx2 both start from 1
 LFORTRAN_API char* _lfortran_str_copy(char* s, int32_t idx1, int32_t idx2) {
+
     int s_len = strlen(s);
+    if(idx1 > s_len || idx1 <= (-1*s_len)){
+        printf("String index out of Bounds\n");
+        exit(1);
+    }
     if(idx1 <= 0) {
         idx1 = s_len + idx1;
     }
