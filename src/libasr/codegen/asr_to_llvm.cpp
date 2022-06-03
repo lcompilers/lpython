@@ -3135,11 +3135,19 @@ public:
     }
 
     void visit_IntegerBitNot(const ASR::IntegerBitNot_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
         this->visit_expr_wrapper(x.m_arg, true);
         tmp = builder->CreateNot(tmp);
     }
 
     void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
         this->visit_expr_wrapper(x.m_arg, true);
         llvm::Value *zero = llvm::ConstantInt::get(context,
             llvm::APInt(ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_arg)) * 8, 0));
@@ -3147,6 +3155,10 @@ public:
     }
 
     void visit_RealUnaryMinus(const ASR::RealUnaryMinus_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
         this->visit_expr_wrapper(x.m_arg, true);
         llvm::Value *zero;
         int a_kind = down_cast<ASR::Real_t>(x.m_type)->m_kind;
@@ -3164,6 +3176,10 @@ public:
     }
 
     void visit_ComplexUnaryMinus(const ASR::ComplexUnaryMinus_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
         this->visit_expr_wrapper(x.m_arg, true);
         llvm::Value *c = tmp;
         double re = 0.0;
@@ -3381,6 +3397,10 @@ public:
     }
 
     void visit_LogicalNot(const ASR::LogicalNot_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
         this->visit_expr_wrapper(x.m_arg, true);
         llvm::Value *arg = tmp;
         tmp = builder->CreateNot(arg);
@@ -3503,6 +3523,10 @@ public:
     }
 
     void visit_ComplexRe(const ASR::ComplexRe_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
         this->visit_expr_wrapper(x.m_arg, true);
         ASR::ttype_t* curr_type = extract_ttype_t_from_expr(x.m_arg);
         int arg_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
@@ -3532,6 +3556,10 @@ public:
     }
 
     void visit_ComplexIm(const ASR::ComplexIm_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
         ASR::ttype_t* curr_type = extract_ttype_t_from_expr(x.m_arg);
         int arg_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
         llvm::Function *fn = nullptr;
