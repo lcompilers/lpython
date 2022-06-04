@@ -345,6 +345,10 @@ ast = true
 filename = "parser/ellipsis2.py"
 ast_new = true
 
+[[test]]
+filename = "parser/while1.py"
+ast_new = true
+
 # tests/errors
 
 [[test]]
