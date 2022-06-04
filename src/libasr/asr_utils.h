@@ -91,61 +91,7 @@ static inline ASR::Subroutine_t* EXPR2SUB(const ASR::expr_t *f)
 
 static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
 {
-    LFORTRAN_ASSERT(f != nullptr);
-    switch (f->type) {
-        case ASR::exprType::BoolOp: { return ((ASR::BoolOp_t*)f)->m_type; }
-        case ASR::exprType::BinOp: { return ((ASR::BinOp_t*)f)->m_type; }
-        case ASR::exprType::UnaryOp: { return ((ASR::UnaryOp_t*)f)->m_type; }
-        case ASR::exprType::ComplexConstructor: { return ((ASR::ComplexConstructor_t*)f)->m_type; }
-        case ASR::exprType::NamedExpr: { return ((ASR::NamedExpr_t*)f)->m_type; }
-        case ASR::exprType::Compare: { return ((ASR::Compare_t*)f)->m_type; }
-        case ASR::exprType::IfExp: { return ((ASR::IfExp_t*)f)->m_type; }
-        case ASR::exprType::FunctionCall: { return ((ASR::FunctionCall_t*)f)->m_type; }
-        case ASR::exprType::DerivedTypeConstructor: { return ((ASR::DerivedTypeConstructor_t*)f)->m_type; }
-        case ASR::exprType::ArrayConstant: { return ((ASR::ArrayConstant_t*)f)->m_type; }
-        case ASR::exprType::ImpliedDoLoop: { return ((ASR::ImpliedDoLoop_t*)f)->m_type; }
-        case ASR::exprType::IntegerConstant: { return ((ASR::IntegerConstant_t*)f)->m_type; }
-        case ASR::exprType::RealConstant: { return ((ASR::RealConstant_t*)f)->m_type; }
-        case ASR::exprType::ComplexConstant: { return ((ASR::ComplexConstant_t*)f)->m_type; }
-        case ASR::exprType::SetConstant: { return ((ASR::SetConstant_t*)f)->m_type; }
-        case ASR::exprType::SetLen: { return ((ASR::SetLen_t*)f)->m_type; }
-        case ASR::exprType::ListConstant: { return ((ASR::ListConstant_t*)f)->m_type; }
-        case ASR::exprType::ListConcat: { return ((ASR::ListConcat_t*)f)->m_type; }
-        case ASR::exprType::ListLen: { return ((ASR::ListLen_t*)f)->m_type; }
-        case ASR::exprType::TupleConstant: { return ((ASR::TupleConstant_t*)f)->m_type; }
-        case ASR::exprType::TupleLen: { return ((ASR::TupleLen_t*)f)->m_type; }
-        case ASR::exprType::LogicalConstant: { return ((ASR::LogicalConstant_t*)f)->m_type; }
-        case ASR::exprType::LogicalNot: { return ((ASR::LogicalNot_t*)f)->m_type; }
-        case ASR::exprType::StringConstant: { return ((ASR::StringConstant_t*)f)->m_type; }
-        case ASR::exprType::StringConcat: { return ((ASR::StringConcat_t*)f)->m_type; }
-        case ASR::exprType::StringRepeat: { return ((ASR::StringRepeat_t*)f)->m_type; }
-        case ASR::exprType::StringLen: { return ((ASR::StringLen_t*)f)->m_type; }
-        case ASR::exprType::StringItem: { return ((ASR::StringItem_t*)f)->m_type; }
-        case ASR::exprType::StringSection: { return ((ASR::StringSection_t*)f)->m_type; }
-        case ASR::exprType::DictConstant: { return ((ASR::DictConstant_t*)f)->m_type; }
-        case ASR::exprType::DictLen: { return ((ASR::DictLen_t*)f)->m_type; }
-        case ASR::exprType::IntegerBOZ: { return ((ASR::IntegerBOZ_t*)f)->m_type; }
-        case ASR::exprType::IntegerBitNot: { return ((ASR::IntegerBitNot_t*)f)->m_type; }
-        case ASR::exprType::IntegerUnaryMinus: { return ((ASR::IntegerUnaryMinus_t*)f)->m_type; }
-        case ASR::exprType::RealUnaryMinus: { return ((ASR::RealUnaryMinus_t*)f)->m_type; }
-        case ASR::exprType::ComplexUnaryMinus: { return ((ASR::ComplexUnaryMinus_t*)f)->m_type; }
-        case ASR::exprType::Var: { return EXPR2VAR(f)->m_type; }
-        case ASR::exprType::ArrayRef: { return ((ASR::ArrayRef_t*)f)->m_type; }
-        case ASR::exprType::ArraySize: { return ((ASR::ArraySize_t*)f)->m_type; }
-        case ASR::exprType::ArrayBound: { return ((ASR::ArrayBound_t*)f)->m_type; }
-        case ASR::exprType::DerivedRef: { return ((ASR::DerivedRef_t*)f)->m_type; }
-        case ASR::exprType::Cast: { return ((ASR::Cast_t*)f)->m_type; }
-        case ASR::exprType::ComplexRe: { return ((ASR::ComplexRe_t*)f)->m_type; }
-        case ASR::exprType::ComplexIm: { return ((ASR::ComplexIm_t*)f)->m_type; }
-        case ASR::exprType::DictItem: { return ((ASR::DictItem_t*)f)->m_type; }
-        case ASR::exprType::ListItem: { return ((ASR::ListItem_t*)f)->m_type; }
-        case ASR::exprType::TupleItem: { return ((ASR::TupleItem_t*)f)->m_type; }
-        case ASR::exprType::ListSection: { return ((ASR::ListSection_t*)f)->m_type; }
-        case ASR::exprType::ListPop: { return ((ASR::ListPop_t*)f)->m_type; }
-        case ASR::exprType::DictPop: { return ((ASR::DictPop_t*)f)->m_type; }
-        case ASR::exprType::SetPop: { return ((ASR::SetPop_t*)f)->m_type; }
-        default : throw LFortranException("Not implemented");
-    }
+    return ASR::expr_type0(f);
 }
 
 static inline std::string type_to_str(const ASR::ttype_t *t)
@@ -178,7 +124,17 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
         case ASR::ttypeType::List: {
             return "list";
         }
-        default : throw LFortranException("Not implemented");
+        case ASR::ttypeType::Derived: {
+            return "derived type";
+        }
+        case ASR::ttypeType::CPtr: {
+            return "type(c_ptr)";
+        }
+        case ASR::ttypeType::Pointer: {
+            return type_to_str(ASRUtils::type_get_past_pointer(
+                        const_cast<ASR::ttype_t*>(t))) + " pointer";
+        }
+        default : throw LFortranException("Not implemented " + std::to_string(t->type) + ".");
     }
 }
 
@@ -289,57 +245,7 @@ static inline std::string boolop_to_str(const ASR::boolopType t) {
 
 static inline ASR::expr_t* expr_value(ASR::expr_t *f)
 {
-    switch (f->type) {
-        case ASR::exprType::BoolOp: { return ASR::down_cast<ASR::BoolOp_t>(f)->m_value; }
-        case ASR::exprType::BinOp: { return ASR::down_cast<ASR::BinOp_t>(f)->m_value; }
-        case ASR::exprType::UnaryOp: { return ASR::down_cast<ASR::UnaryOp_t>(f)->m_value; }
-        case ASR::exprType::ComplexConstructor: { return ASR::down_cast<ASR::ComplexConstructor_t>(f)->m_value; }
-        case ASR::exprType::Compare: { return ASR::down_cast<ASR::Compare_t>(f)->m_value; }
-        case ASR::exprType::FunctionCall: { return ASR::down_cast<ASR::FunctionCall_t>(f)->m_value; }
-        case ASR::exprType::ArrayRef: { return ASR::down_cast<ASR::ArrayRef_t>(f)->m_value; }
-        case ASR::exprType::ArraySize: { return ASR::down_cast<ASR::ArraySize_t>(f)->m_value; }
-        case ASR::exprType::ArrayBound: { return ASR::down_cast<ASR::ArrayBound_t>(f)->m_value; }
-        case ASR::exprType::DerivedRef: { return ASR::down_cast<ASR::DerivedRef_t>(f)->m_value; }
-        case ASR::exprType::Cast: { return ASR::down_cast<ASR::Cast_t>(f)->m_value; }
-        case ASR::exprType::Var: { return EXPR2VAR(f)->m_value; }
-        case ASR::exprType::ImpliedDoLoop: { return ASR::down_cast<ASR::ImpliedDoLoop_t>(f)->m_value; }
-        case ASR::exprType::StringLen: { return ASR::down_cast<ASR::StringLen_t>(f)->m_value; }
-        case ASR::exprType::StringItem: { return ASR::down_cast<ASR::StringItem_t>(f)->m_value; }
-        case ASR::exprType::StringSection: { return ASR::down_cast<ASR::StringSection_t>(f)->m_value; }
-        case ASR::exprType::DictLen: { return ASR::down_cast<ASR::DictLen_t>(f)->m_value; }
-        case ASR::exprType::ListLen: { return ASR::down_cast<ASR::ListLen_t>(f)->m_value; }
-        case ASR::exprType::TupleLen: { return ASR::down_cast<ASR::TupleLen_t>(f)->m_value; }
-        case ASR::exprType::SetLen: { return ASR::down_cast<ASR::SetLen_t>(f)->m_value; }
-        case ASR::exprType::LogicalNot: { return ASR::down_cast<ASR::LogicalNot_t>(f)->m_value; }
-        case ASR::exprType::StringConcat: { return ASR::down_cast<ASR::StringConcat_t>(f)->m_value; }
-        case ASR::exprType::StringRepeat: { return ASR::down_cast<ASR::StringRepeat_t>(f)->m_value; }
-        case ASR::exprType::IntegerBitNot: { return ASR::down_cast<ASR::IntegerBitNot_t>(f)->m_value; }
-        case ASR::exprType::IntegerUnaryMinus: { return ASR::down_cast<ASR::IntegerUnaryMinus_t>(f)->m_value; }
-        case ASR::exprType::RealUnaryMinus: { return ASR::down_cast<ASR::RealUnaryMinus_t>(f)->m_value; }
-        case ASR::exprType::ComplexUnaryMinus: { return ASR::down_cast<ASR::ComplexUnaryMinus_t>(f)->m_value; }
-        case ASR::exprType::ComplexRe: { return ASR::down_cast<ASR::ComplexRe_t>(f)->m_value; }
-        case ASR::exprType::ComplexIm: { return ASR::down_cast<ASR::ComplexIm_t>(f)->m_value; }
-        case ASR::exprType::ListItem: { return ASR::down_cast<ASR::ListItem_t>(f)->m_value; }
-        case ASR::exprType::TupleItem: { return ASR::down_cast<ASR::TupleItem_t>(f)->m_value; }
-        case ASR::exprType::ListSection: { return ASR::down_cast<ASR::ListSection_t>(f)->m_value; }
-        case ASR::exprType::ListPop: { return ASR::down_cast<ASR::ListPop_t>(f)->m_value; }
-        case ASR::exprType::DictPop: { return ASR::down_cast<ASR::DictPop_t>(f)->m_value; }
-        case ASR::exprType::SetPop: { return ASR::down_cast<ASR::SetPop_t>(f)->m_value; }
-        case ASR::exprType::DictItem: // Drop through
-        case ASR::exprType::ArrayConstant: // Drop through
-        case ASR::exprType::IntegerConstant: // Drop through
-        case ASR::exprType::RealConstant: // Drop through
-        case ASR::exprType::ComplexConstant: // Drop through
-        case ASR::exprType::LogicalConstant: // Drop through
-        case ASR::exprType::TupleConstant: // Drop through
-        case ASR::exprType::DictConstant: // Drop through
-        case ASR::exprType::SetConstant: // Drop through
-        case ASR::exprType::ListConstant: // Drop through
-        case ASR::exprType::StringConstant:{ // For all Constants
-            return f;
-        }
-        default : throw LFortranException("Not implemented");
-    }
+    return ASR::expr_value0(f);
 }
 
 static inline char *symbol_name(const ASR::symbol_t *f)
@@ -503,7 +409,8 @@ static inline ASR::Module_t *get_sym_module0(const ASR::symbol_t *sym) {
 }
 
 // Returns true if the Function is intrinsic, otherwise false
-static inline bool is_intrinsic_function(const ASR::Function_t *fn) {
+template <typename T>
+static inline bool is_intrinsic_procedure(const T *fn) {
     ASR::symbol_t *sym = (ASR::symbol_t*)fn;
     ASR::Module_t *m = get_sym_module0(sym);
     if (m != nullptr) {
@@ -512,9 +419,21 @@ static inline bool is_intrinsic_function(const ASR::Function_t *fn) {
     return false;
 }
 
+static inline bool is_intrinsic_symbol(const ASR::symbol_t *fn) {
+    const ASR::symbol_t *sym = fn;
+    ASR::Module_t *m = get_sym_module0(sym);
+    if (m != nullptr) {
+        if (m->m_intrinsic) {
+            return true;
+        }
+        if (startswith(m->m_name, "lfortran_intrinsic")) return true;
+    }
+    return false;
+}
+
 // Returns true if the Function is intrinsic, otherwise false
 // This version uses the `intrinsic` member of `Module`, so it
-// should be used instead of is_intrinsic_function
+// should be used instead of is_intrinsic_procedure
 static inline bool is_intrinsic_function2(const ASR::Function_t *fn) {
     ASR::symbol_t *sym = (ASR::symbol_t*)fn;
     ASR::Module_t *m = get_sym_module0(sym);
@@ -911,61 +830,118 @@ static inline bool is_logical(ASR::ttype_t &x) {
     return ASR::is_a<ASR::Logical_t>(*type_get_past_pointer(&x));
 }
 
-inline bool is_array(ASR::ttype_t *x) {
+inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
+                                         ASR::dimension_t*& m_dims) {
     int n_dims = 0;
     switch (x->type) {
         case ASR::ttypeType::Integer: {
-            n_dims = ASR::down_cast<ASR::Integer_t>(x)->n_dims;
+            ASR::Integer_t* Integer_type = ASR::down_cast<ASR::Integer_t>(x);
+            n_dims = Integer_type->n_dims;
+            m_dims = Integer_type->m_dims;
             break;
         }
         case ASR::ttypeType::Real: {
-            n_dims = ASR::down_cast<ASR::Real_t>(x)->n_dims;
+            ASR::Real_t* Real_type = ASR::down_cast<ASR::Real_t>(x);
+            n_dims = Real_type->n_dims;
+            m_dims = Real_type->m_dims;
             break;
         }
         case ASR::ttypeType::Complex: {
-            n_dims = ASR::down_cast<ASR::Complex_t>(x)->n_dims;
+            ASR::Complex_t* Complex_type = ASR::down_cast<ASR::Complex_t>(x);
+            n_dims = Complex_type->n_dims;
+            m_dims = Complex_type->m_dims;
             break;
         }
         case ASR::ttypeType::Character: {
-            n_dims = ASR::down_cast<ASR::Character_t>(x)->n_dims;
+            ASR::Character_t* Character_type = ASR::down_cast<ASR::Character_t>(x);
+            n_dims = Character_type->n_dims;
+            m_dims = Character_type->m_dims;
             break;
         }
         case ASR::ttypeType::Logical: {
-            n_dims = ASR::down_cast<ASR::Logical_t>(x)->n_dims;
+            ASR::Logical_t* Logical_type = ASR::down_cast<ASR::Logical_t>(x);
+            n_dims = Logical_type->n_dims;
+            m_dims = Logical_type->m_dims;
             break;
         }
         case ASR::ttypeType::Derived: {
-            n_dims = ASR::down_cast<ASR::Derived_t>(x)->n_dims;
+            ASR::Derived_t* Derived_type = ASR::down_cast<ASR::Derived_t>(x);
+            n_dims = Derived_type->n_dims;
+            m_dims = Derived_type->m_dims;
             break;
         }
         case ASR::ttypeType::Class: {
-            n_dims = ASR::down_cast<ASR::Class_t>(x)->n_dims;
+            ASR::Class_t* Class_type = ASR::down_cast<ASR::Class_t>(x);
+            n_dims = Class_type->n_dims;
+            m_dims = Class_type->m_dims;
             break;
         }
         case ASR::ttypeType::Pointer: {
-            return is_array(ASR::down_cast<ASR::Pointer_t>(x)->m_type);
+            n_dims = extract_dimensions_from_ttype(ASR::down_cast<ASR::Pointer_t>(x)->m_type, m_dims);
             break;
         }
         case ASR::ttypeType::List: {
             n_dims = 0;
+            m_dims = nullptr;
             break;
         }
-        case ASR::ttypeType::Set: {
+        case ASR::ttypeType::CPtr: {
             n_dims = 0;
-            break;
-        }
-        case ASR::ttypeType::Dict: {
-            n_dims = 0;
-            break;
-        }
-        case ASR::ttypeType::Tuple: {
-            n_dims = 0;
+            m_dims = nullptr;
             break;
         }
         default:
             throw LFortranException("Not implemented.");
     }
-    return n_dims > 0;
+    return n_dims;
+}
+
+inline bool is_array(ASR::ttype_t *x) {
+    ASR::dimension_t* dims = nullptr;
+    return extract_dimensions_from_ttype(x, dims) > 0;
+}
+
+static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
+                                           Vec<ASR::dimension_t>* dims = nullptr) {
+    switch (t->type) {
+        case ASR::ttypeType::Integer: {
+            ASR::Integer_t* tnew = ASR::down_cast<ASR::Integer_t>(t);
+            ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
+            size_t dimsn = dims ? dims->n : tnew->n_dims;
+            return ASRUtils::TYPE(ASR::make_Integer_t(al, t->base.loc,
+                        tnew->m_kind, dimsp, dimsn));
+        }
+        case ASR::ttypeType::Real: {
+            ASR::Real_t* tnew = ASR::down_cast<ASR::Real_t>(t);
+            ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
+            size_t dimsn = dims ? dims->n : tnew->n_dims;
+            return ASRUtils::TYPE(ASR::make_Real_t(al, t->base.loc,
+                        tnew->m_kind, dimsp, dimsn));
+        }
+        case ASR::ttypeType::Complex: {
+            ASR::Complex_t* tnew = ASR::down_cast<ASR::Complex_t>(t);
+            ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
+            size_t dimsn = dims ? dims->n : tnew->n_dims;
+            return ASRUtils::TYPE(ASR::make_Integer_t(al, t->base.loc,
+                        tnew->m_kind, dimsp, dimsn));
+        }
+        case ASR::ttypeType::Logical: {
+            ASR::Logical_t* tnew = ASR::down_cast<ASR::Logical_t>(t);
+            ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
+            size_t dimsn = dims ? dims->n : tnew->n_dims;
+            return ASRUtils::TYPE(ASR::make_Logical_t(al, t->base.loc,
+                        tnew->m_kind, dimsp, dimsn));
+        }
+        case ASR::ttypeType::Character: {
+            ASR::Character_t* tnew = ASR::down_cast<ASR::Character_t>(t);
+            ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
+            size_t dimsn = dims ? dims->n : tnew->n_dims;
+            return ASRUtils::TYPE(ASR::make_Character_t(al, t->base.loc,
+                        tnew->m_kind, tnew->m_len, tnew->m_len_expr,
+                        dimsp, dimsn));
+        }
+        default : throw LFortranException("Not implemented");
+    }
 }
 
 inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
@@ -1133,7 +1109,8 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
 
 int select_generic_procedure(const Vec<ASR::call_arg_t> &args,
         const ASR::GenericProcedure_t &p, Location loc,
-        const std::function<void (const std::string &, const Location &)> err);
+        const std::function<void (const std::string &, const Location &)> err,
+        bool raise_error=true);
 
 ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
             const Location &loc,
@@ -1141,9 +1118,111 @@ ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
             SymbolTable* current_scope, Allocator& al,
             const std::function<void (const std::string &, const Location &)> err);
 
-// Creates an Cast node and automatically computes the `value` if it can be computed at compile time
+class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
+
+    private:
+
+    Allocator& al;
+
+    SymbolTable* current_scope;
+
+    ASR::Function_t* orig_func;
+
+    Vec<ASR::call_arg_t>& orig_args;
+
+    public:
+
+    ReplaceArgVisitor(Allocator& al_, SymbolTable* current_scope_,
+                      ASR::Function_t* orig_func_, Vec<ASR::call_arg_t>& orig_args_) :
+        al(al_), current_scope(current_scope_), orig_func(orig_func_),
+        orig_args(orig_args_)
+    {}
+
+    void replace_FunctionCall(ASR::FunctionCall_t* x) {
+        ASR::symbol_t *new_es = x->m_name;
+        // Import a function as external only if necessary
+        ASR::Function_t *f = nullptr;
+        ASR::symbol_t* f_sym = nullptr;
+        if (ASR::is_a<ASR::Function_t>(*x->m_name)) {
+            f = ASR::down_cast<ASR::Function_t>(x->m_name);
+        } else if( ASR::is_a<ASR::ExternalSymbol_t>(*x->m_name) ) {
+            f_sym = ASRUtils::symbol_get_past_external(x->m_name);
+            if( ASR::is_a<ASR::Function_t>(*f_sym) ) {
+                f = ASR::down_cast<ASR::Function_t>(f_sym);
+            }
+        }
+        ASR::Module_t *m = ASR::down_cast2<ASR::Module_t>(f->m_symtab->parent->asr_owner);
+        char *modname = m->m_name;
+        ASR::symbol_t *maybe_f = current_scope->resolve_symbol(std::string(f->m_name));
+        ASR::symbol_t* maybe_f_actual = nullptr;
+        std::string maybe_modname = "";
+        if( maybe_f && ASR::is_a<ASR::ExternalSymbol_t>(*maybe_f) ) {
+            maybe_modname = ASR::down_cast<ASR::ExternalSymbol_t>(maybe_f)->m_module_name;
+            maybe_f_actual = ASRUtils::symbol_get_past_external(maybe_f);
+        }
+        // If the Function to be imported is already present
+        // then do not import.
+        if( maybe_modname == std::string(modname) &&
+            f_sym == maybe_f_actual ) {
+            new_es = maybe_f;
+        } else {
+            // Import while assigning a new name to avoid conflicts
+            // For example, if someone is using `len` from a user
+            // define module then `get_unique_name` will avoid conflict
+            std::string unique_name = current_scope->get_unique_name(f->m_name);
+            Str s; s.from_str_view(unique_name);
+            char *unique_name_c = s.c_str(al);
+            LFORTRAN_ASSERT(current_scope->get_symbol(unique_name) == nullptr);
+            new_es = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(
+                al, f->base.base.loc,
+                /* a_symtab */ current_scope,
+                /* a_name */ unique_name_c,
+                (ASR::symbol_t*)f,
+                modname, nullptr, 0,
+                f->m_name,
+                ASR::accessType::Private
+                ));
+            current_scope->add_symbol(unique_name, new_es);
+        }
+        // The following substitutes args from the current scope
+        for (size_t i = 0; i < x->n_args; i++) {
+            current_expr_copy = current_expr;
+            current_expr = &(x->m_args[i].m_value);
+            replace_expr(x->m_args[i].m_value);
+            current_expr = current_expr_copy;
+        }
+        x->m_name = new_es;
+    }
+
+    void replace_Var(ASR::Var_t* x) {
+        size_t arg_idx = 0;
+        bool idx_found = false;
+        std::string arg_name = ASRUtils::symbol_name(x->m_v);
+        // Finds the index of the argument to be used for substitution
+        // Basically if we are calling maybe(string, ret_type=character(len=len(s)))
+        // where string is a variable in current scope and s is one of the arguments
+        // accepted by maybe i.e., maybe has a signature maybe(s). Then, we will
+        // replace s with string. So, the call would become,
+        // maybe(string, ret_type=character(len=len(string)))
+        for( size_t j = 0; j < orig_func->n_args && !idx_found; j++ ) {
+            if( ASR::is_a<ASR::Var_t>(*(orig_func->m_args[j])) ) {
+                std::string arg_name_2 = std::string(ASRUtils::symbol_name(
+                    ASR::down_cast<ASR::Var_t>(orig_func->m_args[j])->m_v));
+                arg_idx = j;
+                idx_found = arg_name_2 == arg_name;
+            }
+        }
+        if( idx_found ) {
+            LFORTRAN_ASSERT(current_expr);
+            *current_expr = orig_args[arg_idx].m_value;
+        }
+    }
+
+};
+
 ASR::asr_t* make_Cast_t_value(Allocator &al, const Location &a_loc,
-            ASR::expr_t* a_arg, ASR::cast_kindType a_kind, ASR::ttype_t* a_type);
+        ASR::expr_t* a_arg, ASR::cast_kindType a_kind, ASR::ttype_t* a_type);
+
 
 } // namespace ASRUtils
 

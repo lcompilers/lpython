@@ -63,7 +63,6 @@ nodes are implemented and more are yet to be implemented with time.
 class ArrayOpVisitor : public PassUtils::PassVisitor<ArrayOpVisitor>
 {
 private:
-    ASR::TranslationUnit_t &unit;
 
     /*
         This pointer stores the result of a node.
@@ -98,8 +97,8 @@ private:
     std::string rl_path;
 
 public:
-    ArrayOpVisitor(Allocator &al, ASR::TranslationUnit_t &unit_,
-        const std::string &rl_path) : PassVisitor(al, nullptr), unit(unit_),
+    ArrayOpVisitor(Allocator &al,
+        const std::string &rl_path) : PassVisitor(al, nullptr),
     tmp_val(nullptr), result_var(nullptr), use_custom_loop_params(false),
     result_var_num(0), rl_path(rl_path)
     {
@@ -177,6 +176,10 @@ public:
                 ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
                 visit_Subroutine(*s);
             }
+            if (is_a<ASR::AssociateBlock_t>(*item.second)) {
+                ASR::AssociateBlock_t *s = ASR::down_cast<ASR::AssociateBlock_t>(item.second);
+                visit_AssociateBlock(*s);
+            }
             if (is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
@@ -243,12 +246,12 @@ public:
             for( int i = 0; i < (int) array_ref->n_args; i++ ) {
                 if( array_ref->m_args[i].m_step != nullptr ) {
                     if( array_ref->m_args[i].m_left == nullptr ) {
-                        m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al, unit, rl_path, current_scope);
+                        m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al);
                     } else {
                         m_start = array_ref->m_args[i].m_left;
                     }
                     if( array_ref->m_args[i].m_right == nullptr ) {
-                        m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al, unit, rl_path, current_scope);
+                        m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al);
                     } else {
                         m_end = array_ref->m_args[i].m_right;
                     }
@@ -286,10 +289,8 @@ public:
         for( int i = 0; i < ndims; i++ ) {
             ASR::dimension_t new_m_dim;
             new_m_dim.loc = m_dims[i].loc;
-            new_m_dim.m_start = PassUtils::get_bound(sibling, i + 1, "lbound",
-                                                     al, unit, rl_path, current_scope);
-            new_m_dim.m_end = PassUtils::get_bound(sibling, i + 1, "ubound",
-                                                    al, unit, rl_path, current_scope);
+            new_m_dim.m_start = PassUtils::get_bound(sibling, i + 1, "lbound", al);
+            new_m_dim.m_end = PassUtils::get_bound(sibling, i + 1, "ubound", al);
             new_m_dims.push_back(al, new_m_dim);
         }
         return PassUtils::set_dim_rank(sibling_type, new_m_dims.p, ndims, true, &al);
@@ -358,8 +359,8 @@ public:
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 ASR::do_loop_head_t head;
                 head.m_v = idx_vars[i];
-                head.m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al, unit, rl_path, current_scope);
-                head.m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al, unit, rl_path, current_scope);
+                head.m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al);
+                head.m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al);
                 head.m_increment = nullptr;
                 head.loc = head.m_v->base.loc;
                 Vec<ASR::stmt_t*> doloop_body;
@@ -394,8 +395,8 @@ public:
                 // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
                 ASR::do_loop_head_t head;
                 head.m_v = idx_vars[i];
-                head.m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al, unit, rl_path, current_scope);
-                head.m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al, unit, rl_path, current_scope);
+                head.m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al);
+                head.m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al);
                 head.m_increment = nullptr;
                 head.loc = head.m_v->base.loc;
                 Vec<ASR::stmt_t*> doloop_body;
@@ -448,8 +449,8 @@ public:
                 // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
                 ASR::do_loop_head_t head;
                 head.m_v = idx_vars[i];
-                head.m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al, unit, rl_path, current_scope);
-                head.m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al, unit, rl_path, current_scope);
+                head.m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al);
+                head.m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al);
                 head.m_increment = nullptr;
                 head.loc = head.m_v->base.loc;
                 Vec<ASR::stmt_t*> doloop_body;
@@ -517,8 +518,8 @@ public:
                     head.m_end = result_ubound[i];
                     head.m_increment = result_inc[i];
                 } else {
-                    head.m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al, unit, rl_path, current_scope);
-                    head.m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al, unit, rl_path, current_scope);
+                    head.m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al);
+                    head.m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al);
                     head.m_increment = nullptr;
                 }
                 head.loc = head.m_v->base.loc;
@@ -601,8 +602,8 @@ public:
                     head.m_end = result_ubound[i];
                     head.m_increment = result_inc[i];
                 } else {
-                    head.m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al, unit, rl_path, current_scope);
-                    head.m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al, unit, rl_path, current_scope);
+                    head.m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al);
+                    head.m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al);
                     head.m_increment = nullptr;
                 }
                 head.loc = head.m_v->base.loc;
@@ -711,7 +712,7 @@ public:
 
 void pass_replace_array_op(Allocator &al, ASR::TranslationUnit_t &unit,
         const std::string &rl_path) {
-    ArrayOpVisitor v(al, unit, rl_path);
+    ArrayOpVisitor v(al, rl_path);
     v.visit_TranslationUnit(unit);
     LFORTRAN_ASSERT(asr_verify(unit));
 }

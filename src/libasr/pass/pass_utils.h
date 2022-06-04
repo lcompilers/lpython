@@ -26,9 +26,7 @@ namespace LFortran {
                              Allocator& al, SymbolTable*& current_scope, std::string suffix="_k");
 
         ASR::expr_t* get_bound(ASR::expr_t* arr_expr, int dim, std::string bound,
-                                Allocator& al, ASR::TranslationUnit_t& unit,
-                                const std::string &rl_path,
-                                SymbolTable*& current_scope);
+                                Allocator& al);
 
 
         ASR::stmt_t* get_flipsign(ASR::expr_t* arg0, ASR::expr_t* arg1,
@@ -124,6 +122,10 @@ namespace LFortran {
                             ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                             self().visit_Function(*s);
                         }
+                        if (ASR::is_a<ASR::AssociateBlock_t>(*item.second)) {
+                            ASR::AssociateBlock_t *s = ASR::down_cast<ASR::AssociateBlock_t>(item.second);
+                            self().visit_AssociateBlock(*s);
+                        }
                     }
                 }
 
@@ -139,6 +141,12 @@ namespace LFortran {
                     // FIXME: this is a hack, we need to pass in a non-const `x`,
                     // which requires to generate a TransformVisitor.
                     ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
+                    current_scope = xx.m_symtab;
+                    transform_stmts(xx.m_body, xx.n_body);
+                }
+
+                void visit_AssociateBlock(const ASR::AssociateBlock_t& x) {
+                    ASR::AssociateBlock_t &xx = const_cast<ASR::AssociateBlock_t&>(x);
                     current_scope = xx.m_symtab;
                     transform_stmts(xx.m_body, xx.n_body);
                 }

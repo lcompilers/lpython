@@ -202,6 +202,28 @@ public:
         current_symtab = parent_symtab;
     }
 
+    void visit_AssociateBlock(const AssociateBlock_t &x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        x.m_symtab->parent = parent_symtab;
+        x.m_symtab->asr_owner = (asr_t*)&x;
+        for (auto &a : x.m_symtab->get_scope()) {
+            this->visit_symbol(*a.second);
+        }
+        current_symtab = parent_symtab;
+    }
+
+    void visit_Block(const Block_t &x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        x.m_symtab->parent = parent_symtab;
+        x.m_symtab->asr_owner = (asr_t*)&x;
+        for (auto &a : x.m_symtab->get_scope()) {
+            this->visit_symbol(*a.second);
+        }
+        current_symtab = parent_symtab;
+    }
+
     void visit_Function(const Function_t &x) {
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;

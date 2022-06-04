@@ -33,7 +33,6 @@ to:
 class ArrSliceVisitor : public PassUtils::PassVisitor<ArrSliceVisitor>
 {
 private:
-    ASR::TranslationUnit_t &unit;
 
     ASR::expr_t* slice_var;
     bool create_slice_var;
@@ -43,8 +42,7 @@ private:
     std::string rl_path;
 
 public:
-    ArrSliceVisitor(Allocator &al, ASR::TranslationUnit_t &unit_,
-        const std::string &rl_path) : PassVisitor(al, nullptr), unit(unit_),
+    ArrSliceVisitor(Allocator &al, const std::string &rl_path) : PassVisitor(al, nullptr),
     slice_var(nullptr), create_slice_var(false), slice_counter(0),
     rl_path(rl_path)
     {
@@ -60,15 +58,13 @@ public:
             if( x.m_args[i].m_step != nullptr ) {
                 ASR::expr_t *start = nullptr, *end = nullptr, *step = nullptr;
                 if( x.m_args[i].m_left == nullptr ) {
-                    start = PassUtils::get_bound(arr_var, i + 1, "lbound",
-                                                al, unit, rl_path, current_scope);
+                    start = PassUtils::get_bound(arr_var, i + 1, "lbound", al);
                 } else {
                     start = x.m_args[i].m_left;
                 }
 
                 if( x.m_args[i].m_right == nullptr ) {
-                    end = PassUtils::get_bound(arr_var, i + 1, "ubound",
-                                                al, unit, rl_path, current_scope);
+                    end = PassUtils::get_bound(arr_var, i + 1, "ubound", al);
                 } else {
                     end = x.m_args[i].m_right;
                 }
@@ -178,12 +174,12 @@ public:
                 head.m_v = idx_vars_value[i];
                 if( x.m_args[i].m_step != nullptr ) {
                     if( x.m_args[i].m_left == nullptr ) {
-                        head.m_start = PassUtils::get_bound(x_arr_var, i + 1, "lbound", al, unit, rl_path, current_scope);
+                        head.m_start = PassUtils::get_bound(x_arr_var, i + 1, "lbound", al);
                     } else {
                         head.m_start = x.m_args[i].m_left;
                     }
                     if( x.m_args[i].m_right == nullptr ) {
-                        head.m_end = PassUtils::get_bound(x_arr_var, i + 1, "ubound", al, unit, rl_path, current_scope);
+                        head.m_end = PassUtils::get_bound(x_arr_var, i + 1, "ubound", al);
                     } else {
                         head.m_end = x.m_args[i].m_right;
                     }
@@ -265,7 +261,7 @@ public:
 
 void pass_replace_arr_slice(Allocator &al, ASR::TranslationUnit_t &unit,
         const std::string &rl_path) {
-    ArrSliceVisitor v(al, unit, rl_path);
+    ArrSliceVisitor v(al, rl_path);
     v.visit_TranslationUnit(unit);
     LFORTRAN_ASSERT(asr_verify(unit));
 }
