@@ -56,6 +56,7 @@ lpython/asr/asr.py
 src/lpython/ast.h
 src/lpython/asr.h
 src/libasr/asr.h
+src/libasr/wasm_visitor.h
 src/libasr/config.h
 share/jupyter/kernels/fortran/kernel.json
 src/runtime/*.o.empty.c
@@ -156,8 +157,7 @@ build.ninja
 .ninja_log
 /compile_commands.json
 
-##Parser 
+##Parser
 src/lpython/parser/parser.output
 src/lpython/parser/parser.tab.cc
 src/lpython/parser/parser.tab.hh
-
