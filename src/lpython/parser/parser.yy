@@ -232,6 +232,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_keyword> keyword_items
 %type <ast> function_call
 %type <ast> primary
+%type <ast> while_statement
 %type <vec_ast> sep
 %type <ast> sep_one
 %type <ast> string
@@ -319,6 +320,7 @@ multi_line_statement
     | async_func_def
     | async_for_stmt
     | async_with_stmt
+    | while_statement
     ;
 
 expression_statment
@@ -600,6 +602,12 @@ async_with_stmt
         $$ = ASYNC_WITH($3, $6, @$); }
     | KW_ASYNC KW_WITH "(" with_item_list "," ")" ":" sep statements {
         $$ = ASYNC_WITH($4, $9, @$); }
+    ;
+
+while_statement
+    : KW_WHILE expr ":" sep statements { $$ = WHILE_01($2, $5, @$); }
+    | KW_WHILE expr ":" sep statements KW_ELSE ":" sep statements {
+        $$ = WHILE_02($2, $5, $9, @$); }
     ;
 
 slice_item_list
