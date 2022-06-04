@@ -1590,7 +1590,7 @@ public:
                 break;
             }
             default :
-                throw CodeGenError("Support for type" + ASRUtils::type_to_str(asr_type) +
+                throw CodeGenError("Support for type " + ASRUtils::type_to_str(asr_type) +
                                    " not yet implemented.");
         }
         return llvm_type;
