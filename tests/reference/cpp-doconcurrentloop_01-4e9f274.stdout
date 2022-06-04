@@ -51,7 +51,7 @@ void triad(const Kokkos::View<float*> &a, const Kokkos::View<float*> &b, float s
 namespace {
 
 void main2() {
-        _lpython_main_program();
+    _lpython_main_program();
 }
 
 }

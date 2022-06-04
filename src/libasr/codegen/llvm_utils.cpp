@@ -26,7 +26,7 @@ namespace LCompilers {
             llvm::Type *t2 = t->getContainedType(0);
             return builder.CreateInBoundsGEP(t2, x, idx);
         }
-    }
+    } // namespace LLVM
 
     LLVMUtils::LLVMUtils(llvm::LLVMContext& context,
         llvm::IRBuilder<>* _builder):

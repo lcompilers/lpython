@@ -86,6 +86,7 @@ filename = "expr7.py"
 ast = true
 asr = true
 cpp = true
+c = true
 
 [[test]]
 filename = "expr8.py"
@@ -151,6 +152,7 @@ filename = "loop2.py"
 ast = true
 asr = true
 cpp = true
+c = true
 
 [[test]]
 filename = "loop3.py"
@@ -248,6 +250,17 @@ asr = true
 filename = "../integration_tests/test_max_min.py"
 asr = true
 
+[[test]]
+filename = "../integration_tests/test_integer_bitnot.py"
+asr = true
+llvm = true
+cpp = true
+
+[[test]]
+filename = "../integration_tests/test_issue_518.py"
+llvm = true
+c = true
+
 # tests/tokens
 
 [[test]]
@@ -327,6 +340,10 @@ ast_new = true
 [[test]]
 filename = "parser/ellipsis1.py"
 ast = true
+
+[[test]]
+filename = "parser/ellipsis2.py"
+ast_new = true
 
 # tests/errors
 
@@ -464,6 +481,10 @@ asr = true
 
 [[test]]
 filename = "errors/test_dict6.py"
+asr = true
+
+[[test]]
+filename = "errors/test_func_args.py"
 asr = true
 
 # tests/tokens/errors

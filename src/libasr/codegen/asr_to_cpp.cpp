@@ -65,7 +65,7 @@ class ASRToCPPVisitor : public BaseCCPPVisitor<ASRToCPPVisitor>
 {
 public:
     ASRToCPPVisitor(diag::Diagnostics &diag) : BaseCCPPVisitor(diag,
-        true, true) {}
+        true, true, false) {}
 
     std::string convert_variable_decl(const ASR::Variable_t &v)
     {
@@ -238,13 +238,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         // Generate code for the main program
         indentation_level += 1;
         std::string indent1(indentation_level*indentation_spaces, ' ');
-        indentation_level += 1;
-        std::string indent(indentation_level*indentation_spaces, ' ');
         std::string decl;
         for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                decl += indent;
+                decl += indent1;
                 decl += convert_variable_decl(*v) + ";\n";
             }
         }
@@ -390,6 +388,81 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             src += right;
         }
     }
+
+
+    // TODO: remove once we remove UnaryOp
+    void visit_UnaryOp(const ASR::UnaryOp_t &x) {
+        this->visit_expr(*x.m_operand);
+        int expr_precedence = last_expr_precedence;
+        if (x.m_type->type == ASR::ttypeType::Integer) {
+            if (x.m_op == ASR::unaryopType::UAdd) {
+                // src = src;
+                // Skip unary plus, keep the previous precedence
+            } else if (x.m_op == ASR::unaryopType::USub) {
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "-" + src;
+                } else {
+                    src = "-(" + src + ")";
+                }
+            } else if (x.m_op == ASR::unaryopType::Invert) {
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "~" + src;
+                } else {
+                    src = "~(" + src + ")";
+                }
+
+            } else if (x.m_op == ASR::unaryopType::Not) {
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "!" + src;
+                } else {
+                    src = "!(" + src + ")";
+                }
+            } else {
+                throw CodeGenError("Unary type not implemented yet for Integer");
+            }
+            return;
+        } else if (x.m_type->type == ASR::ttypeType::Real) {
+            if (x.m_op == ASR::unaryopType::UAdd) {
+                // src = src;
+                // Skip unary plus, keep the previous precedence
+            } else if (x.m_op == ASR::unaryopType::USub) {
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "-" + src;
+                } else {
+                    src = "-(" + src + ")";
+                }
+            } else if (x.m_op == ASR::unaryopType::Not) {
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "!" + src;
+                } else {
+                    src = "!(" + src + ")";
+                }
+            } else {
+                throw CodeGenError("Unary type not implemented yet for Real");
+            }
+            return;
+        } else if (x.m_type->type == ASR::ttypeType::Logical) {
+            if (x.m_op == ASR::unaryopType::Not) {
+                last_expr_precedence = 3;
+                if (expr_precedence <= last_expr_precedence) {
+                    src = "!" + src;
+                } else {
+                    src = "!(" + src + ")";
+                }
+                return;
+            } else {
+                throw CodeGenError("Unary type not implemented yet for Logical");
+            }
+        } else {
+            throw CodeGenError("UnaryOp: type not supported yet");
+        }
+    }
+
 
     void visit_ArrayConstant(const ASR::ArrayConstant_t &x) {
         std::string out = "from_std_vector<float>({";

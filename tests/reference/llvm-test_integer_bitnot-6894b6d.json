@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-test_integer_bitnot-6894b6d",
+    "cmd": "lpython --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_integer_bitnot.py",
+    "infile_hash": "dc976a358fbeebedead889f8e85b3eed4ac77ee20f68fcac58b81429",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-test_integer_bitnot-6894b6d.stdout",
+    "stdout_hash": "84524ea0d4e9137edf9f74b0d00095eadbd805b45a632882f646f330",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

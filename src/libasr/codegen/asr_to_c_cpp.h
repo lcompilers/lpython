@@ -77,10 +77,12 @@ public:
     bool gen_stdstring;
     // Use std::complex<float/double> or float/double complex
     bool gen_stdcomplex;
+    bool is_c;
 
     BaseCCPPVisitor(diag::Diagnostics &diag,
-            bool gen_stdstring, bool gen_stdcomplex) : diag{diag},
-        gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex} {}
+            bool gen_stdstring, bool gen_stdcomplex, bool is_c) : diag{diag},
+        gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
+        is_c{is_c} {}
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
@@ -218,7 +220,11 @@ R"(#include <stdio.h>
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
         indentation_level += 1;
-        std::string sub = "void " + std::string(x.m_name) + "(";
+        std::string sym_name = x.m_name;
+        if (sym_name == "main") {
+            sym_name = "_xx_lcompilers_changed_main_xx";
+        }
+        std::string sub = "void " + sym_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LCompilers::ASRUtils::EXPR2VAR(x.m_args[i]);
             LCOMPILERS_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
@@ -338,7 +344,11 @@ R"(#include <stdio.h>
         } else {
             throw CodeGenError("Return type not supported");
         }
-        sub = sub + std::string(x.m_name) + "(";
+        std::string sym_name = x.m_name;
+        if (sym_name == "main") {
+            sym_name = "_xx_lcompilers_changed_main_xx";
+        }
+        sub = sub + sym_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LCompilers::ASRUtils::EXPR2VAR(x.m_args[i]);
             LCOMPILERS_ASSERT(LCompilers::ASRUtils::is_arg_dummy(arg->m_intent));
@@ -596,20 +606,6 @@ R"(#include <stdio.h>
             if (x.m_op == ASR::unaryopType::UAdd) {
                 // src = src;
                 // Skip unary plus, keep the previous precedence
-            } else if (x.m_op == ASR::unaryopType::USub) {
-                last_expr_precedence = 3;
-                if (expr_precedence <= last_expr_precedence) {
-                    src = "-" + src;
-                } else {
-                    src = "-(" + src + ")";
-                }
-            } else if (x.m_op == ASR::unaryopType::Invert) {
-                last_expr_precedence = 3;
-                if (expr_precedence <= last_expr_precedence) {
-                    src = "~" + src;
-                } else {
-                    src = "~(" + src + ")";
-                }
 
             } else if (x.m_op == ASR::unaryopType::Not) {
                 last_expr_precedence = 3;
@@ -626,13 +622,6 @@ R"(#include <stdio.h>
             if (x.m_op == ASR::unaryopType::UAdd) {
                 // src = src;
                 // Skip unary plus, keep the previous precedence
-            } else if (x.m_op == ASR::unaryopType::USub) {
-                last_expr_precedence = 3;
-                if (expr_precedence <= last_expr_precedence) {
-                    src = "-" + src;
-                } else {
-                    src = "-(" + src + ")";
-                }
             } else if (x.m_op == ASR::unaryopType::Not) {
                 last_expr_precedence = 3;
                 if (expr_precedence <= last_expr_precedence) {
@@ -644,20 +633,50 @@ R"(#include <stdio.h>
                 throw CodeGenError("Unary type not implemented yet for Real");
             }
             return;
-        } else if (x.m_type->type == ASR::ttypeType::Logical) {
-            if (x.m_op == ASR::unaryopType::Not) {
-                last_expr_precedence = 3;
-                if (expr_precedence <= last_expr_precedence) {
-                    src = "!" + src;
-                } else {
-                    src = "!(" + src + ")";
-                }
-                return;
-            } else {
-                throw CodeGenError("Unary type not implemented yet for Logical");
-            }
         } else {
             throw CodeGenError("UnaryOp: type not supported yet");
+        }
+    }
+
+    void visit_IntegerBitNot(const ASR::IntegerBitNot_t& x) {
+        self().visit_expr(*x.m_arg);
+        int expr_precedence = last_expr_precedence;
+        last_expr_precedence = 3;
+        if (expr_precedence <= last_expr_precedence) {
+            src = "~" + src;
+        } else {
+            src = "~(" + src + ")";
+        }
+    }
+
+    void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {
+        handle_UnaryMinus(x);
+    }
+
+    void visit_RealUnaryMinus(const ASR::RealUnaryMinus_t &x) {
+        handle_UnaryMinus(x);
+    }
+
+    template <typename T>
+    void handle_UnaryMinus(const T &x) {
+        self().visit_expr(*x.m_arg);
+        int expr_precedence = last_expr_precedence;
+        last_expr_precedence = 3;
+        if (expr_precedence <= last_expr_precedence) {
+            src = "-" + src;
+        } else {
+            src = "-(" + src + ")";
+        }
+    }
+
+    void visit_LogicalNot(const ASR::LogicalNot_t &x) {
+        self().visit_expr(*x.m_arg);
+        int expr_precedence = last_expr_precedence;
+        last_expr_precedence = 3;
+        if (expr_precedence <= last_expr_precedence) {
+            src = "!" + src;
+        } else {
+            src = "!(" + src + ")";
         }
     }
 
@@ -674,7 +693,8 @@ R"(#include <stdio.h>
             case (ASR::binopType::Mul) : { last_expr_precedence = 5; break; }
             case (ASR::binopType::Div) : { last_expr_precedence = 5; break; }
             case (ASR::binopType::Pow) : {
-                src = "std::pow(" + left + ", " + right + ")";
+                src = "pow(" + left + ", " + right + ")";
+                if (!is_c) src = "std::" + src;
                 return;
             }
             default: throw CodeGenError("BinOp: operator not implemented yet");
@@ -896,9 +916,14 @@ R"(#include <stdio.h>
         src = "";
     }
 
-    void visit_Stop(const ASR::Stop_t & /* x */) {
+    void visit_Stop(const ASR::Stop_t &x) {
+        if (x.m_code) {
+            self().visit_expr(*x.m_code);
+        } else {
+            src = "0";
+        }
         std::string indent(indentation_level*indentation_spaces, ' ');
-        src = indent + "exit(0);\n";
+        src = indent + "exit(" + src + ");\n";
     }
 
     void visit_ImpliedDoLoop(const ASR::ImpliedDoLoop_t &/*x*/) {

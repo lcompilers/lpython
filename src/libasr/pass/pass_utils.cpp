@@ -316,32 +316,15 @@ namespace LCompilers {
 
 
         ASR::expr_t* get_bound(ASR::expr_t* arr_expr, int dim, std::string bound,
-                                Allocator& al, ASR::TranslationUnit_t& unit,
-                                const std::string& rl_path,
-                                SymbolTable*& current_scope) {
-            // Loads ubound/lbound from the module already in ASR
-            ASR::symbol_t *v = import_function2(bound, "lpython_builtin", al,
-                                               unit, current_scope);
-            if (!v) {
-                // If it fails, try to load from the source until we fix
-                // namespace LCompilers to preload this module
-                v = import_function(bound, "lfortran_intrinsic_builtin", al,
-                        unit, rl_path, current_scope, arr_expr->base.loc);
+                                Allocator& al) {
+            ASR::ttype_t* int32_type = LCompilers::ASRUtils::TYPE(ASR::make_Integer_t(al, arr_expr->base.loc, 4, nullptr, 0));
+            ASR::expr_t* dim_expr = LCompilers::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_expr->base.loc, dim, int32_type));
+            ASR::arrayboundType bound_type = ASR::arrayboundType::LBound;
+            if( bound == "ubound" ) {
+                bound_type = ASR::arrayboundType::UBound;
             }
-            ASR::ExternalSymbol_t* v_ext = ASR::down_cast<ASR::ExternalSymbol_t>(v);
-            ASR::Function_t* mfn = ASR::down_cast<ASR::Function_t>(v_ext->m_external);
-            Vec<ASR::call_arg_t> args;
-            args.reserve(al, 2);
-            ASR::call_arg_t arg0, arg1;
-            arg0.loc = arr_expr->base.loc, arg0.m_value = arr_expr;
-            args.push_back(al, arg0);
-            ASR::expr_t* const_1 = LCompilers::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_expr->base.loc, dim, LCompilers::ASRUtils::expr_type(mfn->m_args[1])));
-            arg1.loc = const_1->base.loc, arg1.m_value = const_1;
-            args.push_back(al, arg1);
-            ASR::ttype_t *type = LCompilers::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(
-                                        LCompilers::ASRUtils::symbol_get_past_external(v))->m_return_var)->m_type;
-            return LCompilers::ASRUtils::EXPR(ASR::make_FunctionCall_t(al, arr_expr->base.loc, v, nullptr,
-                                                args.p, args.size(), type, nullptr, nullptr));
+            return LCompilers::ASRUtils::EXPR(ASR::make_ArrayBound_t(al, arr_expr->base.loc, arr_expr, dim_expr,
+                        int32_type, bound_type, nullptr));
         }
 
 
@@ -500,7 +483,11 @@ namespace LCompilers {
                 int increment;
                 if (c->type == ASR::exprType::IntegerConstant) {
                     increment = ASR::down_cast<ASR::IntegerConstant_t>(c)->m_n;
+                } else if (c->type == ASR::exprType::IntegerUnaryMinus) {
+                    ASR::IntegerUnaryMinus_t *u = ASR::down_cast<ASR::IntegerUnaryMinus_t>(c);
+                    increment = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_arg)->m_n;
                 } else if (c->type == ASR::exprType::UnaryOp) {
+                    // TODO: remove once we remove UnaryOp
                     ASR::UnaryOp_t *u = ASR::down_cast<ASR::UnaryOp_t>(c);
                     LCOMPILERS_ASSERT(u->m_op == ASR::unaryopType::USub);
                     LCOMPILERS_ASSERT(u->m_operand->type == ASR::exprType::IntegerConstant);

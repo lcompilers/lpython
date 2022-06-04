@@ -82,7 +82,7 @@ long long test_factorial_3(int x)
 namespace {
 
 void main2() {
-        _lpython_main_program();
+    _lpython_main_program();
 }
 
 }

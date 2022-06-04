@@ -600,11 +600,54 @@ public:
             if (ASRUtils::is_intrinsic_function2(func)) {
                 value = intrinsic_procedures.comptime_eval(call_name, al, loc, args);
             }
+            if (args.size() != func->n_args) {
+                std::string fnd = std::to_string(args.size());
+                std::string org = std::to_string(func->n_args);
+                diag.add(diag::Diagnostic(
+                    "Number of arguments does not match in the function call",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("(found: '" + fnd + "', expected: '" + org + "')",
+                                {loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+            Vec<ASR::call_arg_t> args_new;
+            args_new.reserve(al, func->n_args);
+            for (size_t i=0; i<func->n_args; i++) {
+                ASR::call_arg_t c_arg;
+                c_arg.loc = args[i].loc;
+                c_arg.m_value = cast_helper(ASRUtils::expr_type(func->m_args[i]),
+                                    args[i].m_value, true);
+                args_new.push_back(al, c_arg);
+            }
             return ASR::make_FunctionCall_t(al, loc, stemp,
-                s_generic, args.p, args.size(), a_type, value, nullptr);
+                s_generic, args_new.p, args_new.size(), a_type, value, nullptr);
         } else if (ASR::is_a<ASR::Subroutine_t>(*s)) {
+            ASR::Subroutine_t *func = ASR::down_cast<ASR::Subroutine_t>(s);
+            if (args.size() != func->n_args) {
+                std::string fnd = std::to_string(args.size());
+                std::string org = std::to_string(func->n_args);
+                diag.add(diag::Diagnostic(
+                    "Number of arguments does not match in the function call",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("(found: '" + fnd + "', expected: '" + org + "')",
+                                {loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+            Vec<ASR::call_arg_t> args_new;
+            args_new.reserve(al, func->n_args);
+            for (size_t i=0; i<func->n_args; i++) {
+                ASR::call_arg_t c_arg;
+                c_arg.loc = args[i].loc;
+                c_arg.m_value = cast_helper(ASRUtils::expr_type(func->m_args[i]),
+                                    args[i].m_value, true);
+                args_new.push_back(al, c_arg);
+            }
             return ASR::make_SubroutineCall_t(al, loc, stemp,
-                s_generic, args.p, args.size(), nullptr);
+                s_generic, args_new.p, args_new.size(), nullptr);
         } else {
             throw SemanticError("Unsupported call type for " + call_name, loc);
         }
@@ -1341,6 +1384,7 @@ public:
             }
         }
         ASR::ttype_t *operand_type = ASRUtils::expr_type(operand);
+        ASR::ttype_t *dest_type = operand_type;
         ASR::ttype_t *logical_type = ASRUtils::TYPE(
             ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
         ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
@@ -1356,7 +1400,7 @@ public:
                     bool b = (op_value == 0);
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                         al, x.base.base.loc, b, logical_type));
-                    operand_type = logical_type;
+                    dest_type = logical_type;
                 } else {
                     int64_t result = 0;
                     switch (op) {
@@ -1376,7 +1420,7 @@ public:
                     bool b = (op_value == 0.0);
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                         al, x.base.base.loc, b, logical_type));
-                    operand_type = logical_type;
+                    dest_type = logical_type;
                 } else {
                     double result = 0.0;
                     switch (op) {
@@ -1408,7 +1452,7 @@ public:
                     }
                     value = ASR::down_cast<ASR::expr_t>(
                         ASR::make_IntegerConstant_t(al, x.base.base.loc, result, int_type));
-                    operand_type = int_type;
+                    dest_type = int_type;
                 }
 
             } else if (ASRUtils::is_complex(*operand_type)) {
@@ -1420,7 +1464,7 @@ public:
                     bool b = (op_value.real() == 0.0 && op_value.imag() == 0.0);
                     value = ASR::down_cast<ASR::expr_t>(
                         ASR::make_LogicalConstant_t(al, x.base.base.loc, b, logical_type));
-                    operand_type = logical_type;
+                    dest_type = logical_type;
                 } else {
                     switch (op) {
                         case (ASR::unaryopType::UAdd): { result = op_value; break; }
@@ -1437,8 +1481,33 @@ public:
                 }
             }
         }
-        tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, operand_type,
-                              value);
+        if (ASRUtils::is_integer(*operand_type) && op == ASR::unaryopType::Invert) {
+            tmp = ASR::make_IntegerBitNot_t(al, x.base.base.loc, operand, dest_type, value);
+
+        } else if (ASRUtils::is_logical(*operand_type) && op == ASR::unaryopType::Not) {
+            tmp = ASR::make_LogicalNot_t(al, x.base.base.loc, operand, logical_type, value);
+
+        } else if (ASRUtils::is_integer(*operand_type) && op == ASR::unaryopType::USub) {
+            tmp = ASR::make_IntegerUnaryMinus_t(al, x.base.base.loc, operand, dest_type, value);
+
+        } else if (ASRUtils::is_real(*operand_type) && op == ASR::unaryopType::USub) {
+            tmp = ASR::make_RealUnaryMinus_t(al, x.base.base.loc, operand, dest_type, value);
+
+        } else if (ASRUtils::is_complex(*operand_type) && op == ASR::unaryopType::USub) {
+            tmp = ASR::make_ComplexUnaryMinus_t(al, x.base.base.loc, operand, dest_type, value);
+
+        } else if (ASRUtils::is_logical(*operand_type) && op == ASR::unaryopType::USub) {
+            // cast Logical to Integer
+            // Reason: Resultant type of an unary operation should be the same as operand type
+            ASR::expr_t *int_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                        al, x.base.base.loc, operand, ASR::cast_kindType::LogicalToInteger,
+                        int_type, value));
+            tmp = ASR::make_IntegerUnaryMinus_t(al, x.base.base.loc, int_arg, int_type, value);
+
+        } else {
+            tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, dest_type,
+                                      value);
+        }
     }
 
     void visit_IfExp(const AST::IfExp_t &x) {
@@ -1451,7 +1520,7 @@ public:
         LCOMPILERS_ASSERT(ASRUtils::check_equal_type(ASRUtils::expr_type(body),
                                                    ASRUtils::expr_type(orelse)));
         tmp = ASR::make_IfExp_t(al, x.base.base.loc, test, body, orelse,
-                                ASRUtils::expr_type(body));
+                                ASRUtils::expr_type(body), nullptr);
     }
 
     void visit_Subscript(const AST::Subscript_t &x) {
@@ -1535,7 +1604,7 @@ public:
                             index->base.loc);
                 }
                 tmp = make_DictItem_t(al, x.base.base.loc, s, index, nullptr,
-                                      ASR::down_cast<ASR::Dict_t>(type)->m_value_type);
+                                      ASR::down_cast<ASR::Dict_t>(type)->m_value_type, nullptr);
                 return;
 
             } else if (ASR::is_a<ASR::List_t>(*type)) {
@@ -2855,6 +2924,14 @@ public:
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
             al, loc, arg, ASR::cast_kindType::RealToInteger,
             to_type, value));
+        } else if (ASRUtils::is_character(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                char *c = ASR::down_cast<ASR::StringConstant_t>(
+                                    ASRUtils::expr_value(arg))->m_s;
+                return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al,
+                                loc, std::atoi(c), to_type));
+            }
+            // TODO: make int() work for non-constant strings
         } else if (ASRUtils::is_logical(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
                 int32_t ival = ASR::down_cast<ASR::LogicalConstant_t>(

@@ -282,7 +282,7 @@ struct AttributeHandler {
             );
             throw SemanticAbort();
         }
-        return make_DictItem_t(al, loc, s, args[0], def, value_type);
+        return make_DictItem_t(al, loc, s, args[0], def, value_type, nullptr);
     }
 
     static ASR::asr_t* eval_dict_pop(ASR::symbol_t *s, Allocator &al, const Location &loc,

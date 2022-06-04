@@ -1,0 +1,11 @@
+style suggestion: Could have used '**' instead of 'pow'
+ --> tests/expr7.py:3:9
+  |
+3 |     a = pow(2, 2)
+  |         ^^^^^^^^^ '**' could be used instead
+
+style suggestion: Could have used '**' instead of 'pow'
+ --> tests/expr7.py:7:11
+  |
+7 |     res = pow(a, b)
+  |           ^^^^^^^^^ '**' could be used instead

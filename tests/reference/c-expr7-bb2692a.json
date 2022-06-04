@@ -1,0 +1,13 @@
+{
+    "basename": "c-expr7-bb2692a",
+    "cmd": "lpython --no-color --show-c {infile}",
+    "infile": "tests/expr7.py",
+    "infile_hash": "4a455e2279eb7dd269d81c1a257dea625b17b100d92e304e5ac34421",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "c-expr7-bb2692a.stdout",
+    "stdout_hash": "c87675f14bfd755545fe1884bacb6d6f764c906c2f98a0f582e21f0f",
+    "stderr": "c-expr7-bb2692a.stderr",
+    "stderr_hash": "28509dd59a386eebd632340a550d14299cd2a921ef6dc3ac7dbe7fe9",
+    "returncode": 0
+}

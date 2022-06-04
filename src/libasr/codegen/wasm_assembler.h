@@ -162,6 +162,23 @@ void emit_i32_mul(Vec<uint8_t> &code, Allocator &al) {
 void emit_i32_div(Vec<uint8_t> &code, Allocator &al) {
     code.push_back(al, 0x6D);
 }
+
+void emit_i64_add(Vec<uint8_t> &code, Allocator &al) {
+    code.push_back(al, 0x7C);
+}
+
+void emit_i64_sub(Vec<uint8_t> &code, Allocator &al) {
+    code.push_back(al, 0x7D);
+}
+
+void emit_i64_mul(Vec<uint8_t> &code, Allocator &al) {
+    code.push_back(al, 0x7E);
+}
+
+void emit_i64_div(Vec<uint8_t> &code, Allocator &al) {
+    code.push_back(al, 0x7F);
+}
+
 // function to emit call instruction
 void emit_call(Vec<uint8_t> &code, Allocator &al, uint32_t idx) {
     code.push_back(al, 0x10);

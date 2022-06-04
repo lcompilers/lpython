@@ -198,8 +198,8 @@ public:
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 ASR::do_loop_head_t head;
                 head.m_v = idx_vars[i];
-                head.m_start = PassUtils::get_bound(x.m_target, n_dims, "lbound", al, unit, rl_path, current_scope);
-                head.m_end = PassUtils::get_bound(x.m_target, n_dims, "ubound", al, unit, rl_path, current_scope);
+                head.m_start = PassUtils::get_bound(x.m_target, n_dims, "lbound", al);
+                head.m_end = PassUtils::get_bound(x.m_target, n_dims, "ubound", al);
                 head.m_increment = nullptr;
                 head.loc = head.m_v->base.loc;
                 Vec<ASR::stmt_t*> doloop_body;

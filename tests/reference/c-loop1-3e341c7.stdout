@@ -2,6 +2,7 @@
 #include <complex.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <math.h>
 
 #include <lfortran_intrinsics.h>
 
@@ -69,6 +70,6 @@ long long test_factorial_3(int32_t x)
 
 int main(int argc, char* argv[])
 {
-        _lpython_main_program();
+    _lpython_main_program();
     return 0;
 }

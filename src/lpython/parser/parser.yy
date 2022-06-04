@@ -681,6 +681,8 @@ expr
     | TK_IMAG_NUM { $$ = COMPLEX($1, @$); }
     | TK_TRUE { $$ = BOOL(true, @$); }
     | TK_FALSE { $$ = BOOL(false, @$); }
+    | KW_NONE { $$ = NONE(@$); }
+    | TK_ELLIPSIS { $$ = ELLIPSIS(@$); }
     | "(" expr ")" { $$ = $2; }
     | function_call { $$ = $1; }
     | "[" expr_list_opt "]" { $$ = LIST($2, @$); }

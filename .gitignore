@@ -63,6 +63,7 @@ python_ast.py
 python_ast.h
 ser.txt
 integration_tests/py_*
+wasm_visitor.h
 
 ### https://raw.github.com/github/gitignore/218a941be92679ce67d0484547e3e142b2f5f6f0/Global/macOS.gitignore
 
@@ -156,7 +157,7 @@ build.ninja
 .ninja_log
 /compile_commands.json
 
-##Parser 
+##Parser
 src/lpython/parser/parser.output
 src/lpython/parser/parser.tab.cc
 src/lpython/parser/parser.tab.hh
