@@ -7,7 +7,7 @@ source_filename = "LFortran"
 define void @_lpython_main_program() {
 .entry:
   call void @main0()
-  call void @_xx_lpython_changed_main_xx()
+  call void @_xx_lcompilers_changed_main_xx()
   br label %return
 
 return:                                           ; preds = %.entry
@@ -55,7 +55,7 @@ return:                                           ; preds = %ifcont, %else, %the
   ret i64 %10
 }
 
-define void @_xx_lpython_changed_main_xx() {
+define void @_xx_lcompilers_changed_main_xx() {
 .entry:
   %call_arg_value = alloca i64, align 8
   %ans = alloca i64, align 8

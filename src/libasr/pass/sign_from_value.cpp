@@ -69,7 +69,7 @@ public:
             return nullptr;
         }
         ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(func_sym);
-        if( ASRUtils::is_intrinsic_function(func) &&
+        if( ASRUtils::is_intrinsic_procedure(func) &&
             std::string(func->m_name).find("sign") == std::string::npos ) {
             return nullptr;
         }

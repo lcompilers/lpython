@@ -222,7 +222,7 @@ R"(#include <stdio.h>
         indentation_level += 1;
         std::string sym_name = x.m_name;
         if (sym_name == "main") {
-            sym_name = "_xx_lpython_changed_main_xx";
+            sym_name = "_xx_lcompilers_changed_main_xx";
         }
         std::string sub = "void " + sym_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
@@ -346,7 +346,7 @@ R"(#include <stdio.h>
         }
         std::string sym_name = x.m_name;
         if (sym_name == "main") {
-            sym_name = "_xx_lpython_changed_main_xx";
+            sym_name = "_xx_lcompilers_changed_main_xx";
         }
         sub = sub + sym_name + "(";
         for (size_t i=0; i<x.n_args; i++) {

@@ -114,6 +114,16 @@ public:
         return type_ptr;
     }
 
+    inline llvm::Type* getLogicalType(int /*a_kind*/, bool get_pointer=false) {
+        llvm::Type* type_ptr = nullptr;
+        if (get_pointer) {
+            type_ptr = llvm::Type::getInt1PtrTy(context);
+        } else {
+            type_ptr = llvm::Type::getInt1Ty(context);
+        }
+        return type_ptr;
+    }
+
     template<typename T>
     void visit_procedure(const T &x) {
         nesting_depth++;
@@ -298,9 +308,14 @@ public:
                             rel_type = getFPType(a_kind)->getPointerTo();
                             break;
                         }
+                        case ASR::ttypeType::Logical: {
+                            int a_kind = down_cast<ASR::Logical_t>(v->m_type)->
+                                m_kind;
+                            rel_type = getLogicalType(a_kind)->getPointerTo();
+                            break;
+                        }
                         default: {
-                                throw LFortranException("Variable type not \
-                                        supported in nested functions");
+                            throw LFortranException("Variable type not supported in nested functions");
                             break;
                         }
                     }

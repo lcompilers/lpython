@@ -1520,7 +1520,7 @@ public:
         LFORTRAN_ASSERT(ASRUtils::check_equal_type(ASRUtils::expr_type(body),
                                                    ASRUtils::expr_type(orelse)));
         tmp = ASR::make_IfExp_t(al, x.base.base.loc, test, body, orelse,
-                                ASRUtils::expr_type(body));
+                                ASRUtils::expr_type(body), nullptr);
     }
 
     void visit_Subscript(const AST::Subscript_t &x) {
@@ -1604,7 +1604,7 @@ public:
                             index->base.loc);
                 }
                 tmp = make_DictItem_t(al, x.base.base.loc, s, index, nullptr,
-                                      ASR::down_cast<ASR::Dict_t>(type)->m_value_type);
+                                      ASR::down_cast<ASR::Dict_t>(type)->m_value_type, nullptr);
                 return;
 
             } else if (ASR::is_a<ASR::List_t>(*type)) {

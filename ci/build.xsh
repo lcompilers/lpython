@@ -32,6 +32,8 @@ python grammar/asdl_cpp.py src/libasr/ASR.asdl src/libasr/asr.h
 python grammar/asdl_cpp.py grammar/Python.asdl src/lpython/python_ast.h
 # Generate a Python AST from Python.asdl (Python)
 python grammar/asdl_py.py
+# Generate a wasm_visitor.h from src/libasr/wasm_instructions.txt (C++)
+python src/libasr/wasm_instructions_visitor.py
 
 # Generate the tokenizer and parser
 pushd src/lpython/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd

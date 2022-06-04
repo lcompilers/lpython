@@ -154,7 +154,7 @@ abi                   -- External     ABI
 
 
 stmt
-    = Allocate(alloc_arg* args, expr? stat, expr? errmsg)
+    = Allocate(alloc_arg* args, expr? stat, expr? errmsg, expr? source)
     | Assign(int label, identifier variable)
     | Assignment(expr target, expr value, stmt? overloaded)
     | Associate(expr target, expr value)
@@ -202,6 +202,7 @@ stmt
     | Flush(int label, expr unit, expr? err, expr? iomsg, expr? iostat)
     | ListAppend(symbol a, expr ele)
     | AssociateBlockCall(symbol m)
+    | CFPointer(expr cptr, expr fptr, expr? shape)
     | BlockCall(symbol m)
     | SetInsert(symbol a, expr ele)
     | SetRemove(symbol a, expr ele)
@@ -218,10 +219,10 @@ expr
     | ComplexConstructor(expr re, expr im, ttype type, expr? value)
     | NamedExpr(expr target, expr value, ttype type)
     | Compare(expr left, cmpop op, expr right, ttype type, expr? value, expr? overloaded)
-    | IfExp(expr test, expr body, expr orelse, ttype type)
+    | IfExp(expr test, expr body, expr orelse, ttype type, expr? value)
     | FunctionCall(symbol name, symbol? original_name,
             call_arg* args, ttype type, expr? value, expr? dt)
-    | DerivedTypeConstructor(symbol dt_sym, expr* args, ttype type)
+    | DerivedTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
     | ImpliedDoLoop(expr* values, expr var, expr start, expr end,
                     expr? increment, ttype type, expr? value)
     | IntegerConstant(int n, ttype type)
@@ -259,19 +260,25 @@ expr
     | Var(symbol v)
     | ArrayRef(symbol v, array_index* args, ttype type, expr? value)
     | ArraySize(expr v, expr? dim, ttype type, expr? value)
-    | ArrayBound(expr v, expr? dim ttype type, arraybound bound,
+    | ArrayBound(expr v, expr? dim, ttype type, arraybound bound,
                  expr? value)
+    | ArrayTranspose(expr matrix, ttype type, expr? value)
+    | ArrayMatMul(expr matrix_a, expr matrix_b, ttype type, expr? value)
+    | ArrayPack(expr array, expr mask, expr? vector, ttype type, expr? value)
+    | Transfer(expr source, expr mold, expr? size, ttype type, expr? value)
     | DerivedRef(expr v, symbol m, ttype type, expr? value)
     | Cast(expr arg, cast_kind kind, ttype type, expr? value)
     | ComplexRe(expr arg, ttype type, expr? value)
     | ComplexIm(expr arg, ttype type, expr? value)
-    | DictItem(symbol a, expr key, expr? default, ttype type)
+    | DictItem(symbol a, expr key, expr? default, ttype type, expr? value)
+    | CLoc(expr arg, ttype type, expr? value)
     | ListItem(symbol a, expr pos, ttype type, expr? value)
     | TupleItem(symbol a, expr pos, ttype type, expr? value)
     | ListSection(expr a, array_index section, ttype type, expr? value)
     | ListPop(symbol a, expr? index, ttype type, expr? value)
     | DictPop(symbol a, expr key, ttype type, expr? value)
     | SetPop(symbol a, ttype type, expr? value)
+
 
 -- `len` in Character:
 -- >=0 ... the length of the string, known at compile time
@@ -305,6 +312,7 @@ ttype
     | Class(symbol class_type, dimension* dims)
     | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
+    | CPtr()
 
 boolop = And | Or | Xor | NEqv | Eqv
 

@@ -26,7 +26,7 @@ namespace LFortran {
             llvm::Type *t2 = t->getContainedType(0);
             return builder.CreateInBoundsGEP(t2, x, idx);
         }
-    }
+    } // namespace LLVM
 
     LLVMUtils::LLVMUtils(llvm::LLVMContext& context,
         llvm::IRBuilder<>* _builder):
@@ -59,4 +59,4 @@ namespace LFortran {
         return LLVM::CreateInBoundsGEP(*builder, ptr, idx_vec);
     }
 
-} // LFortran
+} // namespace LFortran

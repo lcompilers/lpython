@@ -81,6 +81,11 @@ struct Vec {
         return n;
     }
 
+    void resize(Allocator &al, size_t max){
+        reserve(al, max);
+        n = max;
+    }
+
     size_t capacity() const {
         return max;
     }
