@@ -40,9 +40,9 @@ int __lpython_overloaded_0__pow(int32_t x, int32_t y)
     return _lpython_return_variable;
 }
 
-float _lfortran_caimag(float complex x);
+float _lcompilers_caimag(float complex x);
 
-double _lfortran_zaimag(double complex x);
+double _lcompilers_zaimag(double complex x);
 
 int main(int argc, char* argv[])
 {

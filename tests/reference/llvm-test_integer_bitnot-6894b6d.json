@@ -6,7 +6,7 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-test_integer_bitnot-6894b6d.stdout",
-    "stdout_hash": "84524ea0d4e9137edf9f74b0d00095eadbd805b45a632882f646f330",
+    "stdout_hash": "e771b178f9c49132afe372d3d765e6c061c53abefab2ebc604293c1f",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
