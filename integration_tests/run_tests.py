@@ -43,6 +43,7 @@ tests = [
     "test_max_min.py",
     "test_integer_bitnot.py",
     "test_unary_minus.py",
+    "test_unary_plus.py",
     "test_issue_518.py"
 
 ]

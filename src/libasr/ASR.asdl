@@ -214,7 +214,6 @@ stmt
 expr
     = BoolOp(expr left, boolop op, expr right, ttype type, expr? value)
     | BinOp(expr left, binop op, expr right, ttype type, expr? value, expr? overloaded)
-    | UnaryOp(unaryop op, expr operand, ttype type, expr? value)
         -- Such as: (x, y+z), (3.0, 2.0) generally not known at compile time
     | ComplexConstructor(expr re, expr im, ttype type, expr? value)
     | NamedExpr(expr target, expr value, ttype type)
@@ -317,8 +316,6 @@ ttype
 boolop = And | Or | Xor | NEqv | Eqv
 
 binop = Add | Sub | Mul | Div | Pow
-
-unaryop = Invert | Not | UAdd | USub
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 
