@@ -2147,7 +2147,7 @@ public:
         llvm::Function *F = nullptr;
         std::string sym_name = x.m_name;
         if (sym_name == "main") {
-            sym_name = "_xx_lpython_changed_main_xx";
+            sym_name = "_xx_lcompilers_changed_main_xx";
         }
         if (llvm_symtab_fn.find(h) != llvm_symtab_fn.end()) {
             /*
@@ -2224,7 +2224,7 @@ public:
         llvm::Function *F = nullptr;
         std::string sym_name = x.m_name;
         if (sym_name == "main") {
-            sym_name = "_xx_lpython_changed_main_xx";
+            sym_name = "_xx_lcompilers_changed_main_xx";
         }
         if (llvm_symtab_fn.find(h) != llvm_symtab_fn.end()) {
             /*
