@@ -1,5 +1,5 @@
-#ifndef LPYTHON_PARSER_PARSER_EXCEPTION_H
-#define LPYTHON_PARSER_PARSER_EXCEPTION_H
+#ifndef LCOMPILERS_PARSER_PARSER_EXCEPTION_H
+#define LCOMPILERS_PARSER_PARSER_EXCEPTION_H
 
 #include <libasr/exception.h>
 #include <libasr/diagnostics.h>
@@ -46,4 +46,4 @@ namespace parser_local {
 }
 
 
-#endif // LPYTHON_PARSER_PARSER_EXCEPTION_H
+#endif // LCOMPILERS_PARSER_PARSER_EXCEPTION_H

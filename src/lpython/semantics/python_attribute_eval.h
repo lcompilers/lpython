@@ -1,5 +1,5 @@
-#ifndef LPYTHON_ATTRIBUTE_EVAL_H
-#define LPYTHON_ATTRIBUTE_EVAL_H
+#ifndef LCOMPILERS_ATTRIBUTE_EVAL_H
+#define LCOMPILERS_ATTRIBUTE_EVAL_H
 
 
 #include <libasr/asr.h>
@@ -313,4 +313,4 @@ struct AttributeHandler {
 
 } // namespace LCompilers
 
-#endif /* LPYTHON_ATTRIBUTE_EVAL_H */
+#endif /* LCOMPILERS_ATTRIBUTE_EVAL_H */

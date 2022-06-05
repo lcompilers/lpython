@@ -1,5 +1,5 @@
-#ifndef LPYTHON_PARSER_STYPE_H
-#define LPYTHON_PARSER_STYPE_H
+#ifndef LCOMPILERS_PARSER_STYPE_H
+#define LCOMPILERS_PARSER_STYPE_H
 
 #include <cstring>
 #include <lpython/python_ast.h>
@@ -62,4 +62,4 @@ typedef struct LCompilers::Location YYLTYPE;
 #define YYLTYPE_IS_TRIVIAL 0
 
 
-#endif // LPYTHON_PARSER_STYPE_H
+#endif // LCOMPILERS_PARSER_STYPE_H

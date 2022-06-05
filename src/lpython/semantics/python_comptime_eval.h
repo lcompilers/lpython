@@ -1,5 +1,5 @@
-#ifndef LPYTHON_SEMANTICS_COMPTIME_EVAL_H
-#define LPYTHON_SEMANTICS_COMPTIME_EVAL_H
+#ifndef LCOMPILERS_SEMANTICS_COMPTIME_EVAL_H
+#define LCOMPILERS_SEMANTICS_COMPTIME_EVAL_H
 
 #include <complex>
 #include <string>
@@ -842,4 +842,4 @@ struct PythonIntrinsicProcedures {
 
 } // namespace LCompilers
 
-#endif /* LPYTHON_SEMANTICS_COMPTIME_EVAL_H */
+#endif /* LCOMPILERS_SEMANTICS_COMPTIME_EVAL_H */

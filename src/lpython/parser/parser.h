@@ -1,5 +1,5 @@
-#ifndef LPYTHON_PARSER_PARSER_H
-#define LPYTHON_PARSER_PARSER_H
+#ifndef LCOMPILERS_PARSER_PARSER_H
+#define LCOMPILERS_PARSER_PARSER_H
 
 #include <libasr/containers.h>
 #include <libasr/diagnostics.h>
