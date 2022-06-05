@@ -3264,14 +3264,6 @@ public:
         tmp = builder->CreateSub(zero, tmp);
     }
 
-    void visit_IntegerUnaryPlus(const ASR::IntegerUnaryPlus_t &x) {
-        if (x.m_value) {
-            this->visit_expr_wrapper(x.m_value, true);
-            return;
-        }
-        // tmp = tmp;
-    }
-
     void visit_RealUnaryMinus(const ASR::RealUnaryMinus_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
@@ -3291,14 +3283,6 @@ public:
         }
 
         tmp = builder->CreateFSub(zero, tmp);
-    }
-
-    void visit_RealUnaryPlus(const ASR::RealUnaryPlus_t &x) {
-        if (x.m_value) {
-            this->visit_expr_wrapper(x.m_value, true);
-            return;
-        }
-        // tmp = tmp;
     }
 
     void visit_ComplexUnaryMinus(const ASR::ComplexUnaryMinus_t &x) {
@@ -3336,14 +3320,6 @@ public:
         tmp = complex_from_floats(re2, im2, type);
         llvm::Value *zero_c = tmp;
         tmp = lfortran_complex_bin_op(zero_c, c, f_name, type);
-    }
-
-    void visit_ComplexUnaryPlus(const ASR::ComplexUnaryPlus_t &x) {
-        if (x.m_value) {
-            this->visit_expr_wrapper(x.m_value, true);
-            return;
-        }
-        // tmp = tmp;
     }
 
     void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {
