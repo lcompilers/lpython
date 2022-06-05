@@ -1400,7 +1400,7 @@ public:
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     bool op_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                                ASRUtils::expr_value(operand))->m_value;
-                    value =  ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                         al, x.base.base.loc, op_value ? -2 : -1, int_type));
                 }
                 // cast Logical to Integer
@@ -1464,8 +1464,8 @@ public:
                                         ASRUtils::expr_value(operand));
                     std::complex<double> op_value(c->m_re, c->m_im);
                     bool b = (op_value.real() == 0.0 && op_value.imag() == 0.0);
-                    return ASR::down_cast<ASR::expr_t>(
-                        ASR::make_LogicalConstant_t(al, x.base.base.loc, b, logical_type));
+                    tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, b, logical_type);
+                    return;
                 }
                 // TODO: Maybe add Complex to Logical cast in ASR
                 throw SemanticError("'not' Unary is not supported for complex type yet",
@@ -1482,37 +1482,33 @@ public:
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     int64_t op_value = ASR::down_cast<ASR::IntegerConstant_t>(
                                             ASRUtils::expr_value(operand))->m_n;
-                    return ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
-                        al, x.base.base.loc, op_value, operand_type));
+                    tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, op_value, operand_type);
                 }
             }
             else if (ASRUtils::is_real(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     double op_value = ASR::down_cast<ASR::RealConstant_t>(
                                             ASRUtils::expr_value(operand))->m_r;
-                    return ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(
-                        al, x.base.base.loc, op_value, operand_type));
+                    tmp = ASR::make_RealConstant_t(al, x.base.base.loc, op_value, operand_type);
                 }
             }
             else if (ASRUtils::is_logical(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     bool op_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                                ASRUtils::expr_value(operand))->m_value;
-                    return ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
-                        al, x.base.base.loc, +op_value, int_type));
+                    tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, +op_value, int_type);
+                    return;
                 }
-                tmp = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                            al, x.base.base.loc, operand, ASR::cast_kindType::LogicalToInteger,
-                            int_type, value));
+                tmp = ASR::make_Cast_t(al, x.base.base.loc, operand, ASR::cast_kindType::LogicalToInteger,
+                        int_type, value);
             }
             else if (ASRUtils::is_complex(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
                     ASR::ComplexConstant_t *c = ASR::down_cast<ASR::ComplexConstant_t>(
                                         ASRUtils::expr_value(operand));
                     std::complex<double> op_value(c->m_re, c->m_im);
-                    return ASR::down_cast<ASR::expr_t>(
-                        ASR::make_ComplexConstant_t(al, x.base.base.loc,
-                        std::real(op_value), std::imag(op_value), operand_type));
+                    tmp = ASR::make_ComplexConstant_t(al, x.base.base.loc,
+                        std::real(op_value), std::imag(op_value), operand_type);
                 }
             }
             return;
