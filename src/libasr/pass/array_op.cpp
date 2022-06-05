@@ -421,11 +421,28 @@ public:
         }
     }
 
-    void visit_UnaryOp(const ASR::UnaryOp_t& x) {
+    void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {
+        visit_UnaryOp(x);
+    }
+    void visit_RealUnaryMinus(const ASR::RealUnaryMinus_t &x) {
+        visit_UnaryOp(x);
+    }
+    void visit_ComplexUnaryMinus(const ASR::ComplexUnaryMinus_t &x) {
+        visit_UnaryOp(x);
+    }
+    void visit_IntegerBitNot(const ASR::IntegerBitNot_t &x) {
+        visit_UnaryOp(x);
+    }
+    void visit_LogicalNot(const ASR::LogicalNot_t &x) {
+        visit_UnaryOp(x);
+    }
+
+    template<typename T>
+    void visit_UnaryOp(const T& x) {
         std::string res_prefix = "_unary_op_res";
         ASR::expr_t* result_var_copy = result_var;
         result_var = nullptr;
-        this->visit_expr(*(x.m_operand));
+        this->visit_expr(*(x.m_arg));
         ASR::expr_t* operand = tmp_val;
         int rank_operand = PassUtils::get_rank(operand);
         if( rank_operand == 0 ) {
@@ -458,9 +475,8 @@ public:
                 if( doloop == nullptr ) {
                     ASR::expr_t* ref = PassUtils::create_array_ref(operand, idx_vars, al);
                     ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
-                    ASR::expr_t* op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_UnaryOp_t(
-                                                    al, x.base.base.loc,
-                                                    x.m_op, ref, x.m_type, nullptr));
+                    ASR::expr_t* op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_IntegerUnaryMinus_t(al, x.base.base.loc,
+                        ref, x.m_type, nullptr));
                     ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr));
                     doloop_body.push_back(al, assign);
                 } else {
