@@ -11,7 +11,7 @@
 #include <libasr/pass/unused_functions.h>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
 {
@@ -70,8 +70,8 @@ public:
     std::string convert_variable_decl(const ASR::Variable_t &v)
     {
         std::string sub;
-        bool use_ref = (v.m_intent == LFortran::ASRUtils::intent_out || v.m_intent == LFortran::ASRUtils::intent_inout);
-        bool dummy = LFortran::ASRUtils::is_arg_dummy(v.m_intent);
+        bool use_ref = (v.m_intent == LCompilers::ASRUtils::intent_out || v.m_intent == LCompilers::ASRUtils::intent_inout);
+        bool dummy = LCompilers::ASRUtils::is_arg_dummy(v.m_intent);
         if (ASRUtils::is_pointer(v.m_type)) {
             ASR::ttype_t *t2 = ASR::down_cast<ASR::Pointer_t>(v.m_type)->m_type;
             if (ASRUtils::is_integer(*t2)) {
@@ -139,7 +139,7 @@ public:
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
         // must be empty:
-        LFORTRAN_ASSERT(x.n_items == 0);
+        LCOMPILERS_ASSERT(x.n_items == 0);
         std::string unit_src = "";
         indentation_level = 0;
         indentation_spaces = 4;
@@ -174,9 +174,9 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         {
             // Process intrinsic modules in the right order
             std::vector<std::string> build_order
-                = LFortran::ASRUtils::determine_module_dependencies(x);
+                = LCompilers::ASRUtils::determine_module_dependencies(x);
             for (auto &item : build_order) {
-                LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item)
+                LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
                     != x.m_global_scope->get_scope().end());
                 if (startswith(item, "lfortran_intrinsic")) {
                     ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
@@ -197,9 +197,9 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
         // Then do all the modules in the right order
         std::vector<std::string> build_order
-            = LFortran::ASRUtils::determine_module_dependencies(x);
+            = LCompilers::ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
-            LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item)
+            LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
                 != x.m_global_scope->get_scope().end());
             if (!startswith(item, "lfortran_intrinsic")) {
                 ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
@@ -312,7 +312,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_DictConstant(const ASR::DictConstant_t &x) {
-        LFORTRAN_ASSERT(x.n_keys == x.n_values);
+        LCOMPILERS_ASSERT(x.n_keys == x.n_values);
         std::string out = "{";
         for(size_t i=0; i<x.n_keys; i++) {
             out += "{";
@@ -517,7 +517,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         out += src + ", ";
         visit_expr(*x.m_head.m_end);
         out += src + "+1)";
-        ASR::Variable_t *loop_var = LFortran::ASRUtils::EXPR2VAR(x.m_head.m_v);
+        ASR::Variable_t *loop_var = LCompilers::ASRUtils::EXPR2VAR(x.m_head.m_v);
         sym_info[get_hash((ASR::asr_t*) loop_var)].needs_declaration = false;
         out += ", KOKKOS_LAMBDA(const long " + std::string(loop_var->m_name)
                 + ") {\n";
@@ -555,4 +555,4 @@ Result<std::string> asr_to_cpp(Allocator &al, ASR::TranslationUnit_t &asr,
     return v.src;
 }
 
-} // namespace LFortran
+} // namespace LCompilers

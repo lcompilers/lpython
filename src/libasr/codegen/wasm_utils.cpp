@@ -1,6 +1,6 @@
 #include <libasr/codegen/wasm_utils.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace wasm {
 
@@ -40,7 +40,7 @@ int32_t decode_signed_leb128(Vec<uint8_t> &code, uint32_t &offset) {
 
 uint8_t read_byte(Vec<uint8_t> &code, uint32_t &offset) {
     if (offset >= code.size()) {
-        throw LFortran::LFortranException("read_byte: offset out of bounds");
+        throw LCompilers::LCompilersException("read_byte: offset out of bounds");
     }
     return code.p[offset++];
 }
@@ -80,4 +80,4 @@ void hexdump(void *ptr, int buflen) {
 
 }  // namespace wasm
 
-}  // namespace LFortran
+}  // namespace LCompilers

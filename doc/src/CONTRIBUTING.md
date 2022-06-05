@@ -94,7 +94,7 @@ std:string token2text(const int token)
 The added code is tested with `lfortran --show-tokens examples2/expr2.f90`
 
 ### Parse the New Token
- 
+
 Now we have to parse the new operator. We add it to the AST by extending the BinOp with a caret operator and modifying the *AST.asdl* file. Then we add it in *parse.yy* to properly parse and generate the new AST in *semantics.h*.Finally we extend *pickle.cpp* so that the new operator can print itself.
 
 
@@ -102,7 +102,7 @@ Now we have to parse the new operator. We add it to the AST by extending the Bin
 :fontawesome-solid-code:*grammar/AST.asdl*
 ```
 operator = Add | Sub | Mul | Div | Pow | Caret
-``` 
+```
 
 :fontawesome-solid-code:*src/lfortran/parser/parser.yy*
 ```
@@ -126,14 +126,14 @@ std::string op2str(const operatorType type)
     switch (type) {
         case (operatorType::Caret) : return "^";
     } // now the caret operator can print itself
-   
+
 }
 ```
 The section is tested with `lfortran --show-ast examples/expr2.f90`
 
 ### Implement the Semantics of the New Token
 
-We first extend the ASR in *ASR.asdl* and add ^ as a BinOp operator option. 
+We first extend the ASR in *ASR.asdl* and add ^ as a BinOp operator option.
 
 :fontawesome-solid-code:*src/libasr/ASR.asdl*
 ```
@@ -141,7 +141,7 @@ binop = Add | Sub | Mul | Div | Pow | Caret
 ```
 :fontawesome-solid-code:*src/lfortran/semantics/ast_common_visitor.h*
 ```
-namespace LFortran {
+namespace LCompilers {
 class CommonVisitorMethods {
 public:
   inline static void visit_BinOp(Allocator &al, const AST::BinOp_t &x,
@@ -149,19 +149,19 @@ public:
                                  ASR::asr_t *&asr) {
     ASR::binopType op;
     switch (x.m_op) {
-    
+
     case (AST::Caret):
       op = ASR::Caret;
       break;
     }
-    if (LFortran::ASRUtils::expr_value(left) != nullptr &&
-        LFortran::ASRUtils::expr_value(right) != nullptr) {
-      if (ASR::is_a<LFortran::ASR::Integer_t>(*dest_type)) {
+    if (LCompilers::ASRUtils::expr_value(left) != nullptr &&
+        LCompilers::ASRUtils::expr_value(right) != nullptr) {
+      if (ASR::is_a<LCompilers::ASR::Integer_t>(*dest_type)) {
         int64_t left_value = ASR::down_cast<ASR::ConstantInteger_t>(
-                                 LFortran::ASRUtils::expr_value(left))
+                                 LCompilers::ASRUtils::expr_value(left))
                                  ->m_n;
         int64_t right_value = ASR::down_cast<ASR::ConstantInteger_t>(
-                                  LFortran::ASRUtils::expr_value(right))
+                                  LCompilers::ASRUtils::expr_value(right))
                                   ->m_n;
         int64_t result;
         switch (op) {
@@ -176,7 +176,7 @@ public:
 }
 ```
 
-Then we transform it from AST to ASR by extending *src/lfortran/semantics/ast_common_visitor.h*. 
+Then we transform it from AST to ASR by extending *src/lfortran/semantics/ast_common_visitor.h*.
 
 We also add it into compile time evaluation triggered by expressions such as `e = (2+3)^5` which is evaluated at compile time. An expression such as `e = x^5` is evaluated at run time only.
 
@@ -197,10 +197,10 @@ divide by two.
         llvm::Value *left_val = tmp;
         this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
-        if (x.m_type->type == ASR::ttypeType::Integer || 
+        if (x.m_type->type == ASR::ttypeType::Integer ||
             x.m_type->type == ASR::ttypeType::IntegerPointer) {
             switch (x.m_op) {
-                
+
                 case ASR::binopType::Caret: {
                     tmp = builder->CreateAdd(left_val, right_val);
                     llvm::Value *two = llvm::ConstantInt::get(context,
@@ -239,7 +239,7 @@ Interactive Fortran. Experimental prototype, not ready for end users.
 >>> x^8                                                                  1,4   ]
 6
 ```
-## Reach Out 
+## Reach Out
 
 If you have any questions or need help, please ask as at our
 [mailinglist](https://groups.io/g/lfortran) or a

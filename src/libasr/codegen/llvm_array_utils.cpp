@@ -1,13 +1,13 @@
 #include <libasr/codegen/llvm_array_utils.h>
 #include <libasr/codegen/llvm_utils.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     namespace LLVMArrUtils {
 
-        llvm::Value* lfortran_malloc(llvm::LLVMContext &context, llvm::Module &module,
+        llvm::Value* lcompilers_malloc(llvm::LLVMContext &context, llvm::Module &module,
                 llvm::IRBuilder<> &builder, llvm::Value* arg_size) {
-            std::string func_name = "_lfortran_malloc";
+            std::string func_name = "_lcompilers_malloc";
             llvm::Function *fn = module.getFunction(func_name);
             if (!fn) {
                 llvm::FunctionType *function_type = llvm::FunctionType::get(
@@ -78,7 +78,7 @@ namespace LFortran {
                     break;
                 }
                 default: {
-                    throw LFortranException("Explicit shape checking supported only for integer, real, complex, logical and derived types.");
+                    throw LCompilersException("Explicit shape checking supported only for integer, real, complex, logical and derived types.");
                 }
             }
             return compile_time_dimensions_t(m_dims, n_dims);
@@ -369,7 +369,7 @@ namespace LFortran {
             llvm::Value* llvm_size = llvm::ConstantInt::get(context, llvm::APInt(32, size));
             num_elements = builder->CreateMul(num_elements, llvm_size);
             builder->CreateStore(num_elements, arg_size);
-            llvm::Value* ptr_as_char_ptr = lfortran_malloc(context, *module, *builder, LLVM::CreateLoad(*builder, arg_size));
+            llvm::Value* ptr_as_char_ptr = lcompilers_malloc(context, *module, *builder, LLVM::CreateLoad(*builder, arg_size));
             llvm::Value* first_ptr = builder->CreateBitCast(ptr_as_char_ptr, ptr_type);
             builder->CreateStore(first_ptr, ptr2firstptr);
         }
@@ -459,4 +459,4 @@ namespace LFortran {
 
     } // LLVMArrUtils
 
-} // LFortran
+} // namespace LCompilers

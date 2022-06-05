@@ -5,8 +5,7 @@
 #include <lpython/parser/parser.tab.hh>
 #include <libasr/bigint.h>
 
-namespace LFortran
-{
+namespace LCompilers {
 
 template<int base>
 bool adddgt(uint64_t &u, uint64_t d)
@@ -121,7 +120,7 @@ void Tokenizer::set_string(const std::string &str)
     // The input string must be NULL terminated, otherwise the tokenizer will
     // not detect the end of string. After C++11, the std::string is guaranteed
     // to end with \0, but we check this here just in case.
-    LFORTRAN_ASSERT(str[str.size()] == '\0');
+    LCOMPILERS_ASSERT(str[str.size()] == '\0');
     cur = (unsigned char *)(&str[0]);
     string_start = cur;
     cur_line = cur;
@@ -585,7 +584,7 @@ std::string token2text(const int token)
 
         default : {
             std::cout << "TOKEN: " << token << std::endl;
-            throw LFortranException("Token conversion not implemented yet.");
+            throw LCompilersException("Token conversion not implemented yet.");
         }
     }
 }
@@ -615,7 +614,7 @@ Result<std::vector<int>> tokens(Allocator &al, const std::string &input,
     return tst;
 }
 
-std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
+std::string pickle_token(int token, const LCompilers::YYSTYPE &yystype)
 {
     std::string t;
     t += "(";
@@ -651,4 +650,4 @@ std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

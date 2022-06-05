@@ -1,12 +1,12 @@
-#ifndef LFORTRAN_PASS_DO_LOOPS_H
-#define LFORTRAN_PASS_DO_LOOPS_H
+#ifndef LCOMPILERS_PASS_DO_LOOPS_H
+#define LCOMPILERS_PASS_DO_LOOPS_H
 
 #include <libasr/asr.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     void pass_replace_do_loops(Allocator &al, ASR::TranslationUnit_t &unit);
 
-} // namespace LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_PASS_DO_LOOPS_H
+#endif // LCOMPILERS_PASS_DO_LOOPS_H

@@ -6,7 +6,7 @@
 #include <libasr/pass/for_all.h>
 #include <libasr/pass/stmt_walk_visitor.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 /*
  * This ASR pass replaces forall statement with Do Concurrent.
@@ -33,7 +33,7 @@ public:
         body.reserve(al, 1);
         body.push_back(al, assign_stmt);
 
-        ASR::stmt_t *stmt = LFortran::ASRUtils::STMT(
+        ASR::stmt_t *stmt = LCompilers::ASRUtils::STMT(
             ASR::make_DoConcurrentLoop_t(al, loc, x.m_head, body.p, body.size())
         );
         Vec<ASR::stmt_t*> result;
@@ -46,7 +46,7 @@ public:
 void pass_replace_forall(Allocator &al, ASR::TranslationUnit_t &unit) {
     ForAllVisitor v(al);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
+    LCOMPILERS_ASSERT(asr_verify(unit));
 }
 
-} // namespace LFortran
+} // namespace LCompilers

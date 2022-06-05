@@ -66,7 +66,7 @@
 #include <libasr/string_utils.h>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 // Extracts the integer from APInt.
 // APInt does not seem to have this functionality, so we implement it here.
@@ -89,7 +89,7 @@ LLVMModule::~LLVMModule() = default;
 
 std::string LLVMModule::str()
 {
-    return LFortran::LLVMEvaluator::module_to_string(*m_m);
+    return LCompilers::LLVMEvaluator::module_to_string(*m_m);
 }
 
 std::string LLVMModule::get_return_type(const std::string &fn_name)
@@ -116,10 +116,10 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
             } else if (startswith(std::string(st->getName()), "complex_8")) {
                 return "complex8";
             } else {
-                throw LFortranException("LLVMModule::get_return_type(): Struct return type `" + std::string(st->getName()) + "` not supported");
+                throw LCompilersException("LLVMModule::get_return_type(): Struct return type `" + std::string(st->getName()) + "` not supported");
             }
         } else {
-            throw LFortranException("LLVMModule::get_return_type(): Noname struct return type not supported");
+            throw LCompilersException("LLVMModule::get_return_type(): Noname struct return type not supported");
         }
     } else if (type->isVectorTy()) {
         // Used for passing complex_4 on some platforms
@@ -127,13 +127,13 @@ std::string LLVMModule::get_return_type(const std::string &fn_name)
     } else if (type->isVoidTy()) {
         return "void";
     } else {
-        throw LFortranException("LLVMModule::get_return_type(): Return type not supported");
+        throw LCompilersException("LLVMModule::get_return_type(): Return type not supported");
     }
 }
 
 extern "C" {
 
-float _lfortran_stan(float x);
+float _lcompilers_stan(float x);
 
 }
 
@@ -168,7 +168,7 @@ LLVMEvaluator::LLVMEvaluator(const std::string &t)
     std::string Error;
     const llvm::Target *target = llvm::TargetRegistry::lookupTarget(target_triple, Error);
     if (!target) {
-        throw LFortranException(Error);
+        throw LCompilersException(Error);
     }
     std::string CPU = "generic";
     std::string features = "";
@@ -182,7 +182,7 @@ LLVMEvaluator::LLVMEvaluator(const std::string &t)
     jit = std::make_unique<llvm::orc::KaleidoscopeJIT>(TM2);
 #endif
 
-    _lfortran_stan(0.5);
+    _lcompilers_stan(0.5);
 }
 
 LLVMEvaluator::~LLVMEvaluator()
@@ -199,11 +199,11 @@ std::unique_ptr<llvm::Module> LLVMEvaluator::parse_module(const std::string &sou
     std::unique_ptr<llvm::Module> module
         = llvm::parseAssemblyString(source, err, *context);
     if (!module) {
-        throw LFortranException("parse_module(): Invalid LLVM IR");
+        throw LCompilersException("parse_module(): Invalid LLVM IR");
     }
     bool v = llvm::verifyModule(*module);
     if (v) {
-        throw LFortranException("parse_module(): module failed verification.");
+        throw LCompilersException("parse_module(): module failed verification.");
     };
     module->setTargetTriple(target_triple);
 #if LLVM_VERSION_MAJOR <= 11
@@ -258,7 +258,7 @@ intptr_t LLVMEvaluator::get_symbol_address(const std::string &name) {
         llvm::logAllUnhandledErrors(std::move(e), dest, "");
         std::string msg = std::string(dest.str().data(), dest.str().size());
         if (msg[msg.size()-1] == '\n') msg = msg.substr(0, msg.size()-1);
-        throw LFortranException("JITSymbol::getAddress() returned an error: " + msg);
+        throw LCompilersException("JITSymbol::getAddress() returned an error: " + msg);
     }
     return (intptr_t)cantFail(std::move(addr0));
 #endif
@@ -432,4 +432,4 @@ std::string LLVMEvaluator::get_default_target_triple()
     return llvm::sys::getDefaultTargetTriple();
 }
 
-} // namespace LFortran
+} // namespace LCompilers

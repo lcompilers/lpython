@@ -7,14 +7,14 @@
 #include <libasr/bwriter.h>
 #include <libasr/string_utils.h>
 
-using LFortran::ASRUtils::symbol_parent_symtab;
-using LFortran::ASRUtils::symbol_name;
+using LCompilers::ASRUtils::symbol_parent_symtab;
+using LCompilers::ASRUtils::symbol_name;
 
-namespace LFortran {
+namespace LCompilers {
 
 
 class ASRSerializationVisitor :
-#ifdef WITH_LFORTRAN_BINARY_MODFILES
+#ifdef WITH_LCOMPILERS_BINARY_MODFILES
         public BinaryWriter,
 #else
         public TextWriter,
@@ -49,7 +49,7 @@ std::string serialize(const ASR::TranslationUnit_t &unit) {
 }
 
 class ASRDeserializationVisitor :
-#ifdef WITH_LFORTRAN_BINARY_MODFILES
+#ifdef WITH_LCOMPILERS_BINARY_MODFILES
         public BinaryReader,
 #else
         public TextReader,
@@ -59,7 +59,7 @@ class ASRDeserializationVisitor :
 public:
     ASRDeserializationVisitor(Allocator &al, const std::string &s,
         bool load_symtab_id) :
-#ifdef WITH_LFORTRAN_BINARY_MODFILES
+#ifdef WITH_LCOMPILERS_BINARY_MODFILES
             BinaryReader(s),
 #else
             TextReader(s),
@@ -73,7 +73,7 @@ public:
 
     char* read_cstring() {
         std::string s = read_string();
-        LFortran::Str cs;
+        LCompilers::Str cs;
         cs.from_str_view(s);
         char* p = cs.c_str(al);
         return p;
@@ -101,7 +101,7 @@ public:
         uint64_t symtab_id = read_int64();
         uint64_t symbol_type = read_int8();
         std::string symbol_name  = read_string();
-        LFORTRAN_ASSERT(id_symtab_map.find(symtab_id) != id_symtab_map.end());
+        LCOMPILERS_ASSERT(id_symtab_map.find(symtab_id) != id_symtab_map.end());
         SymbolTable *symtab = id_symtab_map[symtab_id];
         if (symtab->get_symbol(symbol_name) == nullptr) {
             // Symbol is not in the symbol table yet. We construct an empty
@@ -120,7 +120,7 @@ public:
                 READ_SYMBOL_CASE(DerivedType)
                 READ_SYMBOL_CASE(Variable)
                 READ_SYMBOL_CASE(ClassProcedure)
-                default : throw LFortranException("Symbol type not supported");
+                default : throw LCompilersException("Symbol type not supported");
             }
             symtab->add_symbol(symbol_name, s);
         }
@@ -137,7 +137,7 @@ public:
             // changing the `sym2` pointer already in the table
             ASR::symbol_t *sym2 = symtab.get_symbol(name);
             // FIXME LOCATION: document what is going on:
-            LFORTRAN_ASSERT(sym2->base.loc.first == 123);
+            LCOMPILERS_ASSERT(sym2->base.loc.first == 123);
             switch (sym->type) {
                 INSERT_SYMBOL_CASE(Program)
                 INSERT_SYMBOL_CASE(Module)
@@ -148,7 +148,7 @@ public:
                 INSERT_SYMBOL_CASE(DerivedType)
                 INSERT_SYMBOL_CASE(Variable)
                 INSERT_SYMBOL_CASE(ClassProcedure)
-                default : throw LFortranException("Symbol type not supported");
+                default : throw LCompilersException("Symbol type not supported");
             }
         }
     }
@@ -268,9 +268,9 @@ public:
             // Nothing to do, the external symbol is already resolved
             return;
         }
-        LFORTRAN_ASSERT(x.m_external == nullptr);
+        LCOMPILERS_ASSERT(x.m_external == nullptr);
         if (x.m_module_name == nullptr) {
-            throw LFortranException("The ExternalSymbol was referenced in some ASR node, but it was not loaded as part of the SymbolTable");
+            throw LCompilersException("The ExternalSymbol was referenced in some ASR node, but it was not loaded as part of the SymbolTable");
         }
         std::string module_name = x.m_module_name;
         std::string original_name = x.m_original_name;
@@ -285,7 +285,7 @@ public:
                 ExternalSymbol_t &xx = const_cast<ExternalSymbol_t&>(x);
                 xx.m_external = sym;
             } else {
-                throw LFortranException("ExternalSymbol cannot be resolved, the symbol '"
+                throw LCompilersException("ExternalSymbol cannot be resolved, the symbol '"
                     + original_name + "' was not found in the module '"
                     + module_name + "' (but the module was found)");
             }
@@ -297,12 +297,12 @@ public:
                 ExternalSymbol_t &xx = const_cast<ExternalSymbol_t&>(x);
                 xx.m_external = sym;
             } else {
-                throw LFortranException("ExternalSymbol cannot be resolved, the symbol '"
+                throw LCompilersException("ExternalSymbol cannot be resolved, the symbol '"
                     + original_name + "' was not found in the module '"
                     + module_name + "' (but the module was found)");
             }
         } else {
-            throw LFortranException("ExternalSymbol cannot be resolved, the module '"
+            throw LCompilersException("ExternalSymbol cannot be resolved, the module '"
                 + module_name + "' was not found, so the symbol '"
                 + original_name + "' could not be resolved");
         }
@@ -332,7 +332,7 @@ ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
     ASR::FixParentSymtabVisitor p;
     p.visit_TranslationUnit(*tu);
 
-    LFORTRAN_ASSERT(asr_verify(*tu, false));
+    LCOMPILERS_ASSERT(asr_verify(*tu, false));
 
     // Suppress a warning for now
     if ((bool&)external_symtab) {}
@@ -340,4 +340,4 @@ ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
     return node;
 }
 
-} // namespace LFortran
+} // namespace LCompilers

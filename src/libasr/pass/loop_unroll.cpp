@@ -12,7 +12,7 @@
 #include <cmath>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 using ASR::is_a;
@@ -46,7 +46,7 @@ public:
         if( x_head.m_increment ) {
             x_inc = ASRUtils::expr_value(x_head.m_increment);
         } else {
-            ASR::ttype_t* int32_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+            ASR::ttype_t* int32_type = LCompilers::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
             x_inc = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x_head.m_end->base.loc, 1, int32_type));
         }
 
@@ -61,7 +61,7 @@ public:
         bool create_unrolled_loop = unroll_factor_ < loop_size;
         int64_t new_end = unroll_factor_ * (loop_size / unroll_factor_);
         int64_t remaining_part = loop_size % unroll_factor_;
-        ASR::ttype_t *int32_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+        ASR::ttype_t *int32_type = LCompilers::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                                                             4, nullptr, 0));
         xx.m_head.m_end = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x_end->base.loc, new_end, int32_type));
 
@@ -112,8 +112,8 @@ void pass_loop_unroll(Allocator &al, ASR::TranslationUnit_t &unit,
                       int64_t unroll_factor) {
     LoopUnrollVisitor v(al, rl_path, unroll_factor);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
+    LCOMPILERS_ASSERT(asr_verify(unit));
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

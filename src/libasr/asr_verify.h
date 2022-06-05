@@ -1,9 +1,9 @@
-#ifndef LFORTRAN_ASR_VERIFY_H
-#define LFORTRAN_ASR_VERIFY_H
+#ifndef LCOMPILERS_ASR_VERIFY_H
+#define LCOMPILERS_ASR_VERIFY_H
 
 #include <libasr/asr.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     // Verifies that ASR is correctly constructed and contains valid Fortran
     // code and passes all our requirements on ASR, such as:
@@ -33,11 +33,11 @@ namespace LFortran {
     // The function will raise an exception if there is an error. Otherwise
     // it will return true. It can be used in Debug mode only as:
     //
-    //   LFORTRAN_ASSERT(asr_verify(*asr));
+    //   LCOMPILERS_ASSERT(asr_verify(*asr));
     //
     bool asr_verify(const ASR::TranslationUnit_t &unit, bool
             check_external=true);
 
-} // namespace LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_ASR_VERIFY_H
+#endif // LCOMPILERS_ASR_VERIFY_H

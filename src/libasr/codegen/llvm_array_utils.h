@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_LLVM_ARR_UTILS_H
-#define LFORTRAN_LLVM_ARR_UTILS_H
+#ifndef LCOMPILERS_LLVM_ARR_UTILS_H
+#define LCOMPILERS_LLVM_ARR_UTILS_H
 
 #include <map>
 #include <memory>
@@ -15,11 +15,11 @@
 #include <libasr/asr.h>
 #include <libasr/codegen/llvm_utils.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     namespace LLVMArrUtils {
 
-        llvm::Value* lfortran_malloc(llvm::LLVMContext &context, llvm::Module &module,
+        llvm::Value* lcompilers_malloc(llvm::LLVMContext &context, llvm::Module &module,
                 llvm::IRBuilder<> &builder, llvm::Value* arg_size);
 
         /*
@@ -362,6 +362,6 @@ namespace LFortran {
 
     } // LLVMArrUtils
 
-} // LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_LLVM_ARR_UTILS_H
+#endif // LCOMPILERS_LLVM_ARR_UTILS_H

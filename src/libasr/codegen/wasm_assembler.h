@@ -3,7 +3,7 @@
 #include <libasr/alloc.h>
 #include <libasr/containers.h>
 
-namespace LFortran {
+namespace LCompilers {
 namespace wasm {
 
 std::vector<uint8_t> encode_signed_leb128(int32_t n) {
@@ -198,4 +198,4 @@ void emit_export_fn(Vec<uint8_t> &code, Allocator &al, const std::string& name,
 
 }  // namespace wasm
 
-}  // namespace LFortran
+}  // namespace LCompilers

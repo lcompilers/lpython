@@ -4,7 +4,7 @@
 #include <string>
 #include <libasr/containers.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 enum Platform {
     Linux,
@@ -42,6 +42,6 @@ bool read_file(const std::string &filename, std::string &text);
 bool present(Vec<char*> &v, const char* name);
 int initialize();
 
-} // LFortran
+} // namespace LCompilers
 
 #endif // LIBASR_UTILS_H

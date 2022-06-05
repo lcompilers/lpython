@@ -14,12 +14,12 @@ namespace {
 
 }
 
-using LFortran::diag::Diagnostic;
-using LFortran::diag::Level;
-using LFortran::diag::Stage;
-using LFortran::diag::Label;
-using LFortran::Location;
-using LFortran::LocationManager;
+using LCompilers::diag::Diagnostic;
+using LCompilers::diag::Level;
+using LCompilers::diag::Stage;
+using LCompilers::diag::Label;
+using LCompilers::Location;
+using LCompilers::LocationManager;
 
 TEST_CASE("Error Render: no labels") {
     std::string out, ref;

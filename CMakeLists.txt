@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_SOURCE_DIR}/cmake/UserOverride.cmake)
 
 # We don't execute this if we have a tarball
-if (LPYTHON_BUILD_ALL)
+if (LCOMPILERS_BUILD_ALL)
   execute_process(COMMAND "build0.sh")
 endif()
 
-file(STRINGS "version" LFORTRAN_VERSION)
+file(STRINGS "version" LCOMPILERS_VERSION)
 
 project(lpython LANGUAGES C CXX)
 
@@ -24,11 +24,11 @@ if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
 endif ()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set(LPYTHON_CXX_NO_RTTI_FLAG "-fno-rtti")
+    set(LCOMPILERS_CXX_NO_RTTI_FLAG "-fno-rtti")
 elseif (CMAKE_CXX_COMPILER_ID MATCHES Clang)
-    set(LPYTHON_CXX_NO_RTTI_FLAG "-fno-rtti")
+    set(LCOMPILERS_CXX_NO_RTTI_FLAG "-fno-rtti")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-    set(LPYTHON_CXX_NO_RTTI_FLAG "/GR-")
+    set(LCOMPILERS_CXX_NO_RTTI_FLAG "/GR-")
 endif ()
 
 
@@ -45,10 +45,10 @@ include(GNUInstallDirs)
 include(InstallRequiredSystemLibraries)
 set(CPACK_GENERATOR "TBZ2")
 set(CPACK_STRIP_FILES YES)
-set(CPACK_PACKAGE_FILE_NAME lpython-${LFORTRAN_VERSION}-${CMAKE_SYSTEM_NAME})
+set(CPACK_PACKAGE_FILE_NAME lpython-${LCOMPILERS_VERSION}-${CMAKE_SYSTEM_NAME})
 include(CPack)
 # So that CPACK_PACKAGE_FILE_NAME prints the correct value below
-set(CPACK_PACKAGE_FILE_NAME lpython-${LFORTRAN_VERSION}-${CMAKE_SYSTEM_NAME})
+set(CPACK_PACKAGE_FILE_NAME lpython-${LCOMPILERS_VERSION}-${CMAKE_SYSTEM_NAME})
 
 
 if (NOT CMAKE_CXX_STANDARD)
@@ -60,21 +60,21 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     # In Debug mode we enable assertions
-    set(WITH_LFORTRAN_ASSERT_DEFAULT yes)
+    set(WITH_LCOMPILERS_ASSERT_DEFAULT yes)
 else()
-    set(WITH_LFORTRAN_ASSERT_DEFAULT no)
+    set(WITH_LCOMPILERS_ASSERT_DEFAULT no)
 endif()
 
 
-# LFORTRAN_ASSERT
-set(WITH_LFORTRAN_ASSERT ${WITH_LFORTRAN_ASSERT_DEFAULT}
-    CACHE BOOL "Enable LFORTRAN_ASSERT macro")
+# LCOMPILERS_ASSERT
+set(WITH_LCOMPILERS_ASSERT ${WITH_LCOMPILERS_ASSERT_DEFAULT}
+    CACHE BOOL "Enable LCOMPILERS_ASSERT macro")
 
-# LPYTHON_STATIC_BIN
-set(LPYTHON_STATIC_BIN no CACHE BOOL "Build LPython as a static binary")
+# LCOMPILERS_STATIC_BIN
+set(LCOMPILERS_STATIC_BIN no CACHE BOOL "Build LPython as a static binary")
 
-# WITH_LFORTRAN_BINARY_MODFILES
-set(WITH_LFORTRAN_BINARY_MODFILES YES
+# WITH_LCOMPILERS_BINARY_MODFILES
+set(WITH_LCOMPILERS_BINARY_MODFILES YES
     CACHE BOOL "Use binary modfiles")
 
 set(WITH_RUNTIME_LIBRARY YES
@@ -89,7 +89,7 @@ set(WITH_LLVM no CACHE BOOL "Build with LLVM support")
 set(WITH_TARGET_AARCH64 no CACHE BOOL "Enable target AARCH64")
 set(WITH_TARGET_X86 no CACHE BOOL "Enable target X86")
 if (WITH_LLVM)
-    set(LPYTHON_LLVM_COMPONENTS core support mcjit orcjit native asmparser asmprinter)
+    set(LCOMPILERS_LLVM_COMPONENTS core support mcjit orcjit native asmparser asmprinter)
     find_package(LLVM REQUIRED)
     message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
     message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
@@ -108,7 +108,7 @@ if (WITH_LLVM)
             message(FATAL_ERROR "The selected LLVM library doesn't have support for AArch64 targets")
         endif()
 
-        list(APPEND LPYTHON_LLVM_COMPONENTS aarch64info aarch64utils aarch64desc aarch64asmparser aarch64codegen aarch64disassembler)
+        list(APPEND LCOMPILERS_LLVM_COMPONENTS aarch64info aarch64utils aarch64desc aarch64asmparser aarch64codegen aarch64disassembler)
         add_definitions("-DHAVE_TARGET_AARCH64=1")
     endif()
 
@@ -117,12 +117,12 @@ if (WITH_LLVM)
             message(FATAL_ERROR "The selected LLVM library doesn't have support for X86 targets")
         endif()
 
-        list(APPEND LPYTHON_LLVM_COMPONENTS x86info x86desc x86codegen x86asmparser x86disassembler)
+        list(APPEND LCOMPILERS_LLVM_COMPONENTS x86info x86desc x86codegen x86asmparser x86disassembler)
         add_definitions("-DHAVE_TARGET_X86=1")
     endif()
 
-    llvm_map_components_to_libnames(llvm_libs ${LPYTHON_LLVM_COMPONENTS})
-    unset(LPYTHON_LLVM_COMPONENTS)
+    llvm_map_components_to_libnames(llvm_libs ${LCOMPILERS_LLVM_COMPONENTS})
+    unset(LCOMPILERS_LLVM_COMPONENTS)
 
     add_library(p::llvm INTERFACE IMPORTED)
     set_property(TARGET p::llvm PROPERTY INTERFACE_INCLUDE_DIRECTORIES
@@ -132,7 +132,7 @@ if (WITH_LLVM)
     #set_property(TARGET p::llvm PROPERTY INTERFACE_COMPILE_OPTIONS
     #    ${LLVM_DEFINITIONS})
     set_property(TARGET p::llvm PROPERTY INTERFACE_COMPILE_OPTIONS
-        $<$<COMPILE_LANGUAGE:CXX>:${LPYTHON_CXX_NO_RTTI_FLAG}>)
+        $<$<COMPILE_LANGUAGE:CXX>:${LCOMPILERS_CXX_NO_RTTI_FLAG}>)
     set_property(TARGET p::llvm PROPERTY INTERFACE_LINK_LIBRARIES
         ${llvm_libs})
     if (MSVC)
@@ -142,14 +142,14 @@ if (WITH_LLVM)
         target_link_directories(p::llvm BEFORE INTERFACE ${mypath})
         message(STATUS "ZLIB LIBRARY PATH: ${mypath}")
     endif()
-    set(HAVE_LFORTRAN_LLVM yes)
+    set(HAVE_LCOMPILERS_LLVM yes)
 endif()
 
 # XEUS (Fortran kernel)
 set(WITH_XEUS no CACHE BOOL "Build with XEUS support")
 if (WITH_XEUS)
     find_package(xeus 0.24.1 REQUIRED)
-    set(HAVE_LFORTRAN_XEUS yes)
+    set(HAVE_LCOMPILERS_XEUS yes)
 
     # Generate kernel.json with correct paths
     configure_file (
@@ -157,7 +157,7 @@ if (WITH_XEUS)
         "${CMAKE_CURRENT_BINARY_DIR}/share/jupyter/kernels/fortran/kernel.json"
     )
 
-    # Configuration and data directories for Jupyter and LFortran
+    # Configuration and data directories for Jupyter and LCompilers
     set(XJUPYTER_DATA_DIR "share/jupyter" CACHE STRING "Jupyter data directory")
 
     # Install Jupyter kernelspecs
@@ -173,12 +173,12 @@ if (WITH_JSON)
     find_package(RapidJSON REQUIRED)
 endif()
 
-set(HAVE_LFORTRAN_DEMANGLE yes
+set(HAVE_LCOMPILERS_DEMANGLE yes
     CACHE BOOL "Build with C++ name demangling support (cxxabi.h)")
 
 if (MSVC)
     # MSVC doesn't have cxxabi.h
-    set(HAVE_LFORTRAN_DEMANGLE no)
+    set(HAVE_LCOMPILERS_DEMANGLE no)
 endif()
 
 # fmt (`conda install fmt`)
@@ -211,25 +211,25 @@ if (WITH_STACKTRACE)
         set(WITH_LINKH yes)
         set(WITH_BFD yes)
     endif()
-    set(HAVE_LFORTRAN_STACKTRACE yes)
+    set(HAVE_LCOMPILERS_STACKTRACE yes)
 endif()
 if (WITH_BFD)
     find_package(BFD REQUIRED)
-    set(HAVE_LFORTRAN_BFD yes)
+    set(HAVE_LCOMPILERS_BFD yes)
 endif()
 if (WITH_DWARFDUMP)
-    set(HAVE_LFORTRAN_DWARFDUMP yes)
+    set(HAVE_LCOMPILERS_DWARFDUMP yes)
 endif()
 if (WITH_LINKH)
     find_package(LINKH REQUIRED)
-    set(HAVE_LFORTRAN_LINK yes)
+    set(HAVE_LCOMPILERS_LINK yes)
 endif()
 if (WITH_MACHO)
     find_package(MACHO REQUIRED)
-    set(HAVE_LFORTRAN_MACHO yes)
+    set(HAVE_LCOMPILERS_MACHO yes)
 endif()
 if (WITH_UNWIND)
-    set(HAVE_LFORTRAN_UNWIND yes)
+    set(HAVE_LCOMPILERS_UNWIND yes)
 endif()
 
 enable_testing()
@@ -237,7 +237,7 @@ enable_testing()
 message("\n")
 message("Configuration results")
 message("---------------------")
-message("LPYTHON_VERSION: ${LFORTRAN_VERSION}")
+message("LPYTHON_VERSION: ${LCOMPILERS_VERSION}")
 message("CPACK_PACKAGE_FILE_NAME: ${CPACK_PACKAGE_FILE_NAME}")
 message("C compiler      : ${CMAKE_C_COMPILER}")
 message("C++ compiler    : ${CMAKE_CXX_COMPILER}")
@@ -250,20 +250,20 @@ else ()
     message("C++ compiler flags    : ${CMAKE_CXX_FLAGS_RELEASE}")
 endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
-message("WITH_LFORTRAN_ASSERT: ${WITH_LFORTRAN_ASSERT}")
-message("LPYTHON_STATIC_BIN: ${LPYTHON_STATIC_BIN}")
+message("WITH_LCOMPILERS_ASSERT: ${WITH_LCOMPILERS_ASSERT}")
+message("LCOMPILERS_STATIC_BIN: ${LCOMPILERS_STATIC_BIN}")
 message("WITH_STACKTRACE: ${WITH_STACKTRACE}")
 message("WITH_UNWIND: ${WITH_UNWIND}")
 message("WITH_BFD: ${WITH_BFD}")
 message("WITH_DWARFDUMP: ${WITH_DWARFDUMP}")
 message("WITH_LINKH: ${WITH_LINKH}")
 message("WITH_MACHO: ${WITH_MACHO}")
-message("HAVE_LFORTRAN_DEMANGLE: ${HAVE_LFORTRAN_DEMANGLE}")
+message("HAVE_LCOMPILERS_DEMANGLE: ${HAVE_LCOMPILERS_DEMANGLE}")
 message("WITH_LLVM: ${WITH_LLVM}")
 message("WITH_XEUS: ${WITH_XEUS}")
 message("WITH_JSON: ${WITH_JSON}")
 message("WITH_FMT: ${WITH_FMT}")
-message("WITH_LFORTRAN_BINARY_MODFILES: ${WITH_LFORTRAN_BINARY_MODFILES}")
+message("WITH_LCOMPILERS_BINARY_MODFILES: ${WITH_LCOMPILERS_BINARY_MODFILES}")
 message("WITH_RUNTIME_LIBRARY: ${WITH_RUNTIME_LIBRARY}")
 message("WITH_TARGET_AARCH64: ${WITH_TARGET_AARCH64}")
 message("WITH_TARGET_X86: ${WITH_TARGET_X86}")

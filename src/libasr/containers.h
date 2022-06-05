@@ -1,11 +1,10 @@
-#ifndef LFORTRAN_CONTAINERS_H
-#define LFORTRAN_CONTAINERS_H
+#ifndef LCOMPILERS_CONTAINERS_H
+#define LCOMPILERS_CONTAINERS_H
 
 #include <cstring>
 #include <libasr/alloc.h>
 
-namespace LFortran
-{
+namespace LCompilers {
 
 // Vector implementation
 
@@ -36,7 +35,7 @@ private:
     size_t m_index;
 };
 
-#ifdef WITH_LFORTRAN_ASSERT
+#ifdef WITH_LCOMPILERS_ASSERT
 static int vec_called_const = 0xdeadbeef;
 #endif
 
@@ -44,7 +43,7 @@ template <typename T>
 struct Vec {
     size_t n, max;
     T* p;
-#ifdef WITH_LFORTRAN_ASSERT
+#ifdef WITH_LCOMPILERS_ASSERT
     int reserve_called;
 #endif
 
@@ -52,10 +51,10 @@ struct Vec {
     void reserve(Allocator &al, size_t max) {
         n = 0;
         if (max == 0) max++;
-        LFORTRAN_ASSERT(max > 0)
+        LCOMPILERS_ASSERT(max > 0)
         this->max = max;
         p = al.allocate<T>(max);
-#ifdef WITH_LFORTRAN_ASSERT
+#ifdef WITH_LCOMPILERS_ASSERT
         reserve_called = vec_called_const;
 #endif
     }
@@ -65,7 +64,7 @@ struct Vec {
         // reserve_called happens to be equal to vec_called_const when Vec is
         // allocated in memory), but the chance is small. It catches such bugs
         // in practice.
-        LFORTRAN_ASSERT(reserve_called == vec_called_const);
+        LCOMPILERS_ASSERT(reserve_called == vec_called_const);
         if (n == max) {
             size_t max2 = 2*max;
             T* p2 = al.allocate<T>(max2);
@@ -108,7 +107,7 @@ struct Vec {
         this->p = p;
         this->n = n;
         this->max = n;
-#ifdef WITH_LFORTRAN_ASSERT
+#ifdef WITH_LCOMPILERS_ASSERT
         reserve_called = vec_called_const;
 #endif
     }
@@ -180,7 +179,7 @@ struct Str {
 static_assert(std::is_standard_layout<Str>::value);
 static_assert(std::is_trivial<Str>::value);
 
-} // namespace LFortran
+} // namespace LCompilers
 
 
 

@@ -1,9 +1,9 @@
-#ifndef LFORTRAN_WASM_TO_WAT_H
-#define LFORTRAN_WASM_TO_WAT_H
+#ifndef LCOMPILERS_WASM_TO_WAT_H
+#define LCOMPILERS_WASM_TO_WAT_H
 
 #include <libasr/wasm_visitor.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace WASM_INSTS_VISITOR {
 
@@ -56,7 +56,7 @@ class WASMDecoder {
     WASMDecoder(Allocator &al) : al(al) {
         var_type_to_string = {{0x7F, "i32"}, {0x7E, "i64"}, {0x7D, "f32"}, {0x7C, "f64"}};
         kind_to_string = {{0x00, "func"}, {0x01, "table"}, {0x02, "mem"}, {0x03, "global"}};
-        
+
         // wasm_bytes.reserve(al, 1024 * 128);
         // func_types.reserve(al, 1024 * 128);
         // type_indices.reserve(al, 1024 * 128);
@@ -75,6 +75,6 @@ class WASMDecoder {
 
 }  // namespace wasm
 
-}  // namespace LFortran
+}  // namespace LCompilers
 
-#endif  // LFORTRAN_WASM_TO_WAT_H
+#endif  // LCOMPILERS_WASM_TO_WAT_H

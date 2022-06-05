@@ -7,7 +7,7 @@
 #include <libasr/pass/pass_utils.h>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 using ASR::is_a;
@@ -84,15 +84,15 @@ public:
         Vec<ASR::stmt_t*> doloop_body;
         doloop_body.reserve(al, 1);
         ASR::symbol_t* arr = arr_var->m_v;
-        ASR::ttype_t *_type = LFortran::ASRUtils::expr_type(idoloop->m_start);
-        ASR::expr_t* const_1 = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_var->base.base.loc, 1, _type));
+        ASR::ttype_t *_type = LCompilers::ASRUtils::expr_type(idoloop->m_start);
+        ASR::expr_t* const_1 = LCompilers::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_var->base.base.loc, 1, _type));
         ASR::expr_t *const_n, *offset, *num_grps, *grp_start;
         const_n = offset = num_grps = grp_start = nullptr;
         if( arr_idx == nullptr ) {
-            const_n = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_var->base.base.loc, idoloop->n_values, _type));
-            offset = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, idoloop->m_var, ASR::binopType::Sub, idoloop->m_start, _type, nullptr, nullptr));
-            num_grps = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, offset, ASR::binopType::Mul, const_n, _type, nullptr, nullptr));
-            grp_start = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, num_grps, ASR::binopType::Add, const_1, _type, nullptr, nullptr));
+            const_n = LCompilers::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_var->base.base.loc, idoloop->n_values, _type));
+            offset = LCompilers::ASRUtils::EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, idoloop->m_var, ASR::binopType::Sub, idoloop->m_start, _type, nullptr, nullptr));
+            num_grps = LCompilers::ASRUtils::EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, offset, ASR::binopType::Mul, const_n, _type, nullptr, nullptr));
+            grp_start = LCompilers::ASRUtils::EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, num_grps, ASR::binopType::Add, const_1, _type, nullptr, nullptr));
         }
         for( size_t i = 0; i < idoloop->n_values; i++ ) {
             Vec<ASR::array_index_t> args;
@@ -100,8 +100,8 @@ public:
             ai.loc = arr_var->base.base.loc;
             ai.m_left = nullptr;
             if( arr_idx == nullptr ) {
-                ASR::expr_t* const_i = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_var->base.base.loc, i, _type));
-                ASR::expr_t* idx = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc,
+                ASR::expr_t* const_i = LCompilers::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_var->base.base.loc, i, _type));
+                ASR::expr_t* idx = LCompilers::ASRUtils::EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc,
                                                             grp_start, ASR::binopType::Add, const_i,
                                                             _type, nullptr, nullptr));
                 ai.m_right = idx;
@@ -111,21 +111,21 @@ public:
             ai.m_step = nullptr;
             args.reserve(al, 1);
             args.push_back(al, ai);
-            ASR::expr_t* array_ref = LFortran::ASRUtils::EXPR(ASR::make_ArrayRef_t(al, arr_var->base.base.loc, arr,
+            ASR::expr_t* array_ref = LCompilers::ASRUtils::EXPR(ASR::make_ArrayRef_t(al, arr_var->base.base.loc, arr,
                                                                 args.p, args.size(),
-                                                                LFortran::ASRUtils::expr_type(LFortran::ASRUtils::EXPR((ASR::asr_t*)arr_var)), nullptr));
+                                                                LCompilers::ASRUtils::expr_type(LCompilers::ASRUtils::EXPR((ASR::asr_t*)arr_var)), nullptr));
             if( idoloop->m_values[i]->type == ASR::exprType::ImpliedDoLoop ) {
-                throw LFortranException("Pass for nested ImpliedDoLoop nodes isn't implemented yet."); // idoloop->m_values[i]->base.loc
+                throw LCompilersException("Pass for nested ImpliedDoLoop nodes isn't implemented yet."); // idoloop->m_values[i]->base.loc
             }
-            ASR::stmt_t* doloop_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, array_ref, idoloop->m_values[i], nullptr));
+            ASR::stmt_t* doloop_stmt = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, array_ref, idoloop->m_values[i], nullptr));
             doloop_body.push_back(al, doloop_stmt);
             if( arr_idx != nullptr ) {
-                ASR::expr_t* increment = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, arr_idx, ASR::binopType::Add, const_1, LFortran::ASRUtils::expr_type(arr_idx), nullptr, nullptr));
-                ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, arr_idx, increment, nullptr));
+                ASR::expr_t* increment = LCompilers::ASRUtils::EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, arr_idx, ASR::binopType::Add, const_1, LCompilers::ASRUtils::expr_type(arr_idx), nullptr, nullptr));
+                ASR::stmt_t* assign_stmt = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, arr_idx, increment, nullptr));
                 doloop_body.push_back(al, assign_stmt);
             }
         }
-        ASR::stmt_t* doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, arr_var->base.base.loc, head, doloop_body.p, doloop_body.size()));
+        ASR::stmt_t* doloop = LCompilers::ASRUtils::STMT(ASR::make_DoLoop_t(al, arr_var->base.base.loc, head, doloop_body.p, doloop_body.size()));
         pass_result.push_back(al, doloop);
     }
 
@@ -142,19 +142,19 @@ public:
                 const char* const_idx_var_name = "1_k";
                 char* idx_var_name = (char*)const_idx_var_name;
                 ASR::expr_t* idx_var = nullptr;
-                ASR::ttype_t* idx_var_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, arr_init->base.base.loc, 4, nullptr, 0));
-                ASR::expr_t* const_1 = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_var->base.base.loc, 1, idx_var_type));
+                ASR::ttype_t* idx_var_type = LCompilers::ASRUtils::TYPE(ASR::make_Integer_t(al, arr_init->base.base.loc, 4, nullptr, 0));
+                ASR::expr_t* const_1 = LCompilers::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_var->base.base.loc, 1, idx_var_type));
                 if( unit.m_global_scope->get_symbol(std::string(idx_var_name)) == nullptr ) {
                     ASR::asr_t* idx_sym = ASR::make_Variable_t(al, arr_init->base.base.loc, unit.m_global_scope, idx_var_name,
                                                             ASR::intentType::Local, const_1, nullptr, ASR::storage_typeType::Default,
                                                             idx_var_type, ASR::abiType::Source, ASR::accessType::Public, ASR::presenceType::Required,
                                                             false);
                     unit.m_global_scope->add_symbol(std::string(idx_var_name), ASR::down_cast<ASR::symbol_t>(idx_sym));
-                    idx_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
+                    idx_var = LCompilers::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
                 } else {
                     ASR::symbol_t* idx_sym = unit.m_global_scope->get_symbol(std::string(idx_var_name));
-                    idx_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, idx_sym));
-                    ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, idx_var, const_1, nullptr));
+                    idx_var = LCompilers::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, idx_sym));
+                    ASR::stmt_t* assign_stmt = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, idx_var, const_1, nullptr));
                     pass_result.push_back(al, assign_stmt);
                 }
                 for( size_t k = 0; k < arr_init->n_args; k++ ) {
@@ -171,13 +171,13 @@ public:
                         ai.m_step = nullptr;
                         args.reserve(al, 1);
                         args.push_back(al, ai);
-                        ASR::expr_t* array_ref = LFortran::ASRUtils::EXPR(ASR::make_ArrayRef_t(al, arr_var->base.base.loc, arr_var->m_v,
+                        ASR::expr_t* array_ref = LCompilers::ASRUtils::EXPR(ASR::make_ArrayRef_t(al, arr_var->base.base.loc, arr_var->m_v,
                                                                             args.p, args.size(),
-                                                                            LFortran::ASRUtils::expr_type(LFortran::ASRUtils::EXPR((ASR::asr_t*)arr_var)), nullptr));
-                        ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, array_ref, arr_init->m_args[k], nullptr));
+                                                                            LCompilers::ASRUtils::expr_type(LCompilers::ASRUtils::EXPR((ASR::asr_t*)arr_var)), nullptr));
+                        ASR::stmt_t* assign_stmt = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, array_ref, arr_init->m_args[k], nullptr));
                         pass_result.push_back(al, assign_stmt);
-                        ASR::expr_t* increment = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, idx_var, ASR::binopType::Add, const_1, LFortran::ASRUtils::expr_type(idx_var), nullptr, nullptr));
-                        assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, idx_var, increment, nullptr));
+                        ASR::expr_t* increment = LCompilers::ASRUtils::EXPR(ASR::make_BinOp_t(al, arr_var->base.base.loc, idx_var, ASR::binopType::Add, const_1, LCompilers::ASRUtils::expr_type(idx_var), nullptr, nullptr));
+                        assign_stmt = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, idx_var, increment, nullptr));
                         pass_result.push_back(al, assign_stmt);
                     }
                 }
@@ -206,12 +206,12 @@ public:
                 doloop_body.reserve(al, 1);
                 if( doloop == nullptr ) {
                     ASR::expr_t* ref = PassUtils::create_array_ref(x.m_target, idx_vars, al);
-                    ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, ref, x.m_value, nullptr));
+                    ASR::stmt_t* assign = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, ref, x.m_value, nullptr));
                     doloop_body.push_back(al, assign);
                 } else {
                     doloop_body.push_back(al, doloop);
                 }
-                doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
+                doloop = LCompilers::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
             pass_result.push_back(al, doloop);
         }
@@ -222,8 +222,8 @@ void pass_replace_implied_do_loops(Allocator &al, ASR::TranslationUnit_t &unit,
         const std::string &rl_path) {
     ImpliedDoLoopVisitor v(al, unit, rl_path);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
+    LCOMPILERS_ASSERT(asr_verify(unit));
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

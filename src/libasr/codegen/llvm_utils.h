@@ -1,18 +1,18 @@
-#ifndef LFORTRAN_LLVM_UTILS_H
-#define LFORTRAN_LLVM_UTILS_H
+#ifndef LCOMPILERS_LLVM_UTILS_H
+#define LCOMPILERS_LLVM_UTILS_H
 
 #include <memory>
 
 #include <llvm/IR/Value.h>
 #include <llvm/IR/IRBuilder.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     namespace LLVM {
 
-        llvm::Value* CreateLoad(llvm::IRBuilder<> &builder, llvm::Value *x); 
-        llvm::Value* CreateGEP(llvm::IRBuilder<> &builder, llvm::Value *x, std::vector<llvm::Value *> &idx); 
-        llvm::Value* CreateInBoundsGEP(llvm::IRBuilder<> &builder, llvm::Value *x, std::vector<llvm::Value *> &idx); 
+        llvm::Value* CreateLoad(llvm::IRBuilder<> &builder, llvm::Value *x);
+        llvm::Value* CreateGEP(llvm::IRBuilder<> &builder, llvm::Value *x, std::vector<llvm::Value *> &idx);
+        llvm::Value* CreateInBoundsGEP(llvm::IRBuilder<> &builder, llvm::Value *x, std::vector<llvm::Value *> &idx);
     }
 
     class LLVMUtils {
@@ -21,7 +21,7 @@ namespace LFortran {
 
             llvm::LLVMContext& context;
             llvm::IRBuilder<>* builder;
-        
+
         public:
 
             LLVMUtils(llvm::LLVMContext& context,
@@ -37,6 +37,6 @@ namespace LFortran {
 
     }; // LLVMUtils
 
-} // LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_LLVM_UTILS_H
+#endif // LCOMPILERS_LLVM_UTILS_H

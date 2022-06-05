@@ -6,7 +6,7 @@
 #include <libasr/pass/param_to_const.h>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 using ASR::is_a;
@@ -102,8 +102,8 @@ public:
     }
 
     void visit_Var(const ASR::Var_t& x) {
-        if (is_a<ASR::Variable_t>(*LFortran::ASRUtils::symbol_get_past_external(x.m_v))) {
-            ASR::Variable_t *init_var = ASR::down_cast<ASR::Variable_t>(LFortran::ASRUtils::symbol_get_past_external(x.m_v));
+        if (is_a<ASR::Variable_t>(*LCompilers::ASRUtils::symbol_get_past_external(x.m_v))) {
+            ASR::Variable_t *init_var = ASR::down_cast<ASR::Variable_t>(LCompilers::ASRUtils::symbol_get_past_external(x.m_v));
             if( init_var->m_storage == ASR::storage_typeType::Parameter ) {
                 if( init_var->m_symbolic_value == nullptr ) {
                     asr = init_var->m_symbolic_value;
@@ -142,7 +142,7 @@ public:
 void pass_replace_param_to_const(Allocator &al, ASR::TranslationUnit_t &unit) {
     VarVisitor v(al);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
+    LCOMPILERS_ASSERT(asr_verify(unit));
 }
 
-} // namespace LFortran
+} // namespace LCompilers

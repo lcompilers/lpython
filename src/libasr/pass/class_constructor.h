@@ -1,12 +1,12 @@
-#ifndef LFORTRAN_PASS_CLASS_CONSTRUCTOR_H
-#define LFORTRAN_PASS_CLASS_CONSTRUCTOR_H
+#ifndef LCOMPILERS_PASS_CLASS_CONSTRUCTOR_H
+#define LCOMPILERS_PASS_CLASS_CONSTRUCTOR_H
 
 #include <libasr/asr.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     void pass_replace_class_constructor(Allocator &al, ASR::TranslationUnit_t &unit);
 
-} // namespace LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_PASS_CLASS_CONSTRUCTOR_H
+#endif // LCOMPILERS_PASS_CLASS_CONSTRUCTOR_H

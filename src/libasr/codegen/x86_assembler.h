@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_CODEGEN_X86_ASSEMBER_H
-#define LFORTRAN_CODEGEN_X86_ASSEMBER_H
+#ifndef LCOMPILERS_CODEGEN_X86_ASSEMBER_H
+#define LCOMPILERS_CODEGEN_X86_ASSEMBER_H
 
 /*
 
@@ -13,7 +13,7 @@ final machine code is not the shortest possible, because jumps could possibly be
 encoded shorter if the final relative address is shorter, but it would require
 more passes and thus slower compilation.
 
-For debugging purposes, one can enable the macro LFORTRAN_ASM_PRINT and one can
+For debugging purposes, one can enable the macro LCOMPILERS_ASM_PRINT and one can
 then obtain a human readable assembly printout of all instructions. Disable the
 macro for best performance.
 
@@ -33,9 +33,9 @@ https://www.systutorials.com/go/intel-x86-64-reference-manual/
 #include <libasr/containers.h>
 
 // Define to allow the Assembler print the asm instructions
-#define LFORTRAN_ASM_PRINT
+#define LCOMPILERS_ASM_PRINT
 
-#ifdef LFORTRAN_ASM_PRINT
+#ifdef LCOMPILERS_ASM_PRINT
 #    define EMIT(s) emit("    ", s)
 #    define EMIT_LABEL(s) emit("", s)
 #    define EMIT_VAR(a, b) emit("\n", a + " equ " + i2s(b) + "\n")
@@ -45,7 +45,7 @@ https://www.systutorials.com/go/intel-x86-64-reference-manual/
 #    define EMIT_VAR(a, b)
 #endif
 
-namespace LFortran {
+namespace LCompilers {
 
 enum X86Reg : uint8_t {
     eax = 0,
@@ -143,17 +143,17 @@ static void insert_uint16(Vec<uint8_t> &code, size_t pos, uint16_t i16) {
 
 // Implements table 2-2 in [1].
 static uint8_t ModRM_byte(uint8_t mode, uint8_t reg, uint8_t rm) {
-    LFORTRAN_ASSERT(mode <= 3);
-    LFORTRAN_ASSERT(reg <= 7);
-    LFORTRAN_ASSERT(rm <= 7);
+    LCOMPILERS_ASSERT(mode <= 3);
+    LCOMPILERS_ASSERT(reg <= 7);
+    LCOMPILERS_ASSERT(rm <= 7);
     return (mode << 6) | (reg << 3) | rm;
 }
 
 // Implements table 2-3 in [1].
 static uint8_t SIB_byte(uint8_t base, uint8_t index, uint8_t scale_index) {
-    LFORTRAN_ASSERT(base <= 7);
-    LFORTRAN_ASSERT(index <= 7);
-    LFORTRAN_ASSERT(scale_index <= 3);
+    LCOMPILERS_ASSERT(base <= 7);
+    LCOMPILERS_ASSERT(index <= 7);
+    LCOMPILERS_ASSERT(scale_index <= 3);
     return (scale_index << 6) | (index << 3) | base;
 }
 
@@ -169,7 +169,7 @@ static void ModRM_SIB_disp_bytes(Vec<uint8_t> &code, Allocator &al,
     }
     if (mod == 0b01) {
         // disp8 is present
-        LFORTRAN_ASSERT(-128 <= disp && disp < 128);
+        LCOMPILERS_ASSERT(-128 <= disp && disp < 128);
         uint8_t disp8 = disp;
         code.push_back(al, disp8);
     } else if ((mod == 0b00 && (rm==0b101 || base==0b101)) || (mod == 0b10)) {
@@ -263,7 +263,7 @@ class X86Assembler {
     Vec<uint8_t> m_code;
     std::map<std::string,Symbol> m_symbols;
     uint32_t m_origin;
-#ifdef LFORTRAN_ASM_PRINT
+#ifdef LCOMPILERS_ASM_PRINT
     std::string m_asm_code;
     void emit(const std::string &indent, const std::string &s) {
         m_asm_code += indent + s + "\n";
@@ -273,12 +273,12 @@ public:
     X86Assembler(Allocator &al) : m_al{al} {
         m_code.reserve(m_al, 1024*128);
         m_origin = 0x08048000;
-#ifdef LFORTRAN_ASM_PRINT
+#ifdef LCOMPILERS_ASM_PRINT
         m_asm_code = "BITS 32\n\n";
 #endif
     }
 
-#ifdef LFORTRAN_ASM_PRINT
+#ifdef LCOMPILERS_ASM_PRINT
     std::string get_asm() {
         return m_asm_code;
     }
@@ -363,7 +363,7 @@ public:
 
     // Does not touch undefined_positions, symbol must be defined
     Symbol &get_defined_symbol(const std::string &name) {
-        LFORTRAN_ASSERT(m_symbols.find(name) != m_symbols.end());
+        LCOMPILERS_ASSERT(m_symbols.find(name) != m_symbols.end());
         return m_symbols[name];
     }
 
@@ -821,6 +821,6 @@ void emit_print(X86Assembler &a, const std::string &msg_label,
     uint32_t size);
 void emit_print_int(X86Assembler &a, const std::string &name);
 
-} // namespace LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_CODEGEN_X86_ASSEMBER_H
+#endif // LCOMPILERS_CODEGEN_X86_ASSEMBER_H

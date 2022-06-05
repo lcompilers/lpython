@@ -60,9 +60,9 @@ std::complex<double> __lpython_overloaded_9__complex(int x, int y)
     return _lpython_return_variable;
 }
 
-float _lfortran_caimag(std::complex<float> x);
+float _lcompilers_caimag(std::complex<float> x);
 
-double _lfortran_zaimag(std::complex<double> x);
+double _lcompilers_zaimag(std::complex<double> x);
 
 namespace {
 

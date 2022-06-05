@@ -12,8 +12,8 @@ build_script:
 - set CONDA_PREFIX=C:\\Miniconda37-x64
 - set WIN=1
 - set MACOS=0
-#- set LFORTRAN_CMAKE_GENERATOR=Visual Studio 15 2017 Win64
-- set LFORTRAN_CMAKE_GENERATOR=Ninja
+#- set LCOMPILERS_CMAKE_GENERATOR=Visual Studio 15 2017 Win64
+- set LCOMPILERS_CMAKE_GENERATOR=Ninja
 - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\Tools\VsDevCmd" -arch=x64
 - xonsh ci\build.xsh
 

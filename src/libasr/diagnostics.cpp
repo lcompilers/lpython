@@ -6,7 +6,7 @@
 #include <libasr/exception.h>
 #include <libasr/utils.h>
 
-namespace LFortran::diag {
+namespace LCompilers::diag {
 
 const static std::string redon  = "\033[0;31m";
 const static std::string redoff = "\033[0;00m";
@@ -18,11 +18,11 @@ std::string highlight_line(const std::string &line,
 {
     if (first_column == 0 || last_column == 0) return "";
     if (last_column > line.size()+1) {
-        throw LFortranException("The `last_column` in highlight_line is longer than the source line");
+        throw LCompilersException("The `last_column` in highlight_line is longer than the source line");
     }
-    LFORTRAN_ASSERT(first_column >= 1)
-    LFORTRAN_ASSERT(first_column <= last_column)
-    LFORTRAN_ASSERT(last_column <= line.size()+1)
+    LCOMPILERS_ASSERT(first_column >= 1)
+    LCOMPILERS_ASSERT(first_column <= last_column)
+    LCOMPILERS_ASSERT(last_column <= line.size()+1)
     std::stringstream out;
     if (line.size() > 0) {
         out << line.substr(0, first_column-1);
@@ -110,7 +110,7 @@ void populate_span(diag::Span &s, const LocationManager &lm,
     for (uint32_t i = s.first_line; i <= s.last_line; i++) {
         s.source_code.push_back(get_line(input, i));
     }
-    LFORTRAN_ASSERT(s.source_code.size() > 0)
+    LCOMPILERS_ASSERT(s.source_code.size() > 0)
 }
 
 // Loop over all labels and their spans, populate all of them
@@ -159,7 +159,7 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
     std::string type_color = "";
     switch (d.level) {
         case (Level::Error):
-            primary_color = red_bold;    
+            primary_color = red_bold;
             type_color = primary_color;
             switch (d.stage) {
                 case (Stage::CPreprocessor):
@@ -186,17 +186,17 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
             }
             break;
         case (Level::Warning):
-            primary_color = yellow_bold;    
+            primary_color = yellow_bold;
             type_color = primary_color;
             message_type = "warning";
             break;
         case (Level::Note):
-            primary_color = bold;    
+            primary_color = bold;
             type_color = primary_color;
             message_type = "note";
             break;
         case (Level::Help):
-            primary_color = bold;    
+            primary_color = bold;
             type_color = primary_color;
             message_type = "help";
             break;
@@ -230,7 +230,7 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
         out << std::endl;
         for (auto &l : d.labels) {
             if (l.spans.size() == 0) {
-                throw LFortranException("ICE: Label does not have a span");
+                throw LCompilersException("ICE: Label does not have a span");
             }
             std::string color;
             char symbol;
@@ -308,7 +308,7 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
                         out << color << "..." + std::string(s0.last_column-1+1, symbol);
                         out << " " << l.message << reset << std::endl;
                     } else {
-                        throw LFortranException("location last_line < first_line");
+                        throw LCompilersException("location last_line < first_line");
                     }
                 }
             }
@@ -320,4 +320,4 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
     return out.str();
 }
 
-} // namespace LFortran::diag
+} // namespace LCompilers::diag

@@ -6,247 +6,247 @@ tau: f64 = 6.283185307179586
 
 
 @ccall
-def _lfortran_zexp(x: c64) -> c64:
+def _lcompilers_zexp(x: c64) -> c64:
     pass
 
 @ccall
-def _lfortran_cexp(x: c32) -> c32:
+def _lcompilers_cexp(x: c32) -> c32:
     pass
 
 @overload
 def exp(x: c64) -> c64:
-    return _lfortran_zexp(x)
+    return _lcompilers_zexp(x)
 
 @overload
 def exp(x: c32) -> c32:
-    return _lfortran_cexp(x)
+    return _lcompilers_cexp(x)
 
 
 @ccall
-def _lfortran_zlog(x: c64) -> c64:
+def _lcompilers_zlog(x: c64) -> c64:
     pass
 
 @ccall
-def _lfortran_clog(x: c32) -> c32:
+def _lcompilers_clog(x: c32) -> c32:
     pass
 
 @overload
 def log(x: c64) -> c64:
-    return _lfortran_zlog(x)
+    return _lcompilers_zlog(x)
 
 @overload
 def log(x: c32) -> c32:
-    return _lfortran_clog(x)
+    return _lcompilers_clog(x)
 
 
 @ccall
-def _lfortran_zsqrt(x: c64) -> c64:
+def _lcompilers_zsqrt(x: c64) -> c64:
     pass
 
 @ccall
-def _lfortran_csqrt(x: c32) -> c32:
+def _lcompilers_csqrt(x: c32) -> c32:
     pass
 
 @overload
 def sqrt(x: c64) -> c64:
-    return _lfortran_zsqrt(x)
+    return _lcompilers_zsqrt(x)
 
 @overload
 def sqrt(x: c32) -> c32:
-    return _lfortran_csqrt(x)
+    return _lcompilers_csqrt(x)
 
 
 @ccall
-def _lfortran_zacos(x: c64) -> c64:
+def _lcompilers_zacos(x: c64) -> c64:
     pass
 
 @ccall
-def _lfortran_cacos(x: c32) -> c32:
+def _lcompilers_cacos(x: c32) -> c32:
     pass
 
 @overload
 def acos(x: c64) -> c64:
-    return _lfortran_zacos(x)
+    return _lcompilers_zacos(x)
 
 @overload
 def acos(x: c32) -> c32:
-    return _lfortran_cacos(x)
+    return _lcompilers_cacos(x)
 
 @ccall
-def _lfortran_zasin(x: c64) -> c64:
+def _lcompilers_zasin(x: c64) -> c64:
     pass
 
 @ccall
-def _lfortran_casin(x: c32) -> c32:
+def _lcompilers_casin(x: c32) -> c32:
     pass
 
 @overload
 def asin(x: c64) -> c64:
-    return _lfortran_zasin(x)
+    return _lcompilers_zasin(x)
 
 @overload
 def asin(x: c32) -> c32:
-    return _lfortran_casin(x)
+    return _lcompilers_casin(x)
 
 @ccall
-def _lfortran_zatan(x: c64) -> c64:
+def _lcompilers_zatan(x: c64) -> c64:
     pass
 
 @ccall
-def _lfortran_catan(x: c32) -> c32:
+def _lcompilers_catan(x: c32) -> c32:
     pass
 
 @overload
 def atan(x: c64) -> c64:
-    return _lfortran_zatan(x)
+    return _lcompilers_zatan(x)
 
 @overload
 def atan(x: c32) -> c32:
-    return _lfortran_catan(x)
+    return _lcompilers_catan(x)
 
 @ccall
-def _lfortran_zcos(x: c64) -> c64:
+def _lcompilers_zcos(x: c64) -> c64:
     pass
 
 @ccall
-def _lfortran_ccos(x: c32) -> c32:
+def _lcompilers_ccos(x: c32) -> c32:
     pass
 
 @overload
 def cos(x: c64) -> c64:
-    return _lfortran_zcos(x)
+    return _lcompilers_zcos(x)
 
 @overload
 def cos(x: c32) -> c32:
-    return _lfortran_ccos(x)
+    return _lcompilers_ccos(x)
 
 @ccall
-def _lfortran_zsin(x: c64) -> c64:
+def _lcompilers_zsin(x: c64) -> c64:
     pass
 
 @ccall
-def _lfortran_csin(x: c32) -> c32:
+def _lcompilers_csin(x: c32) -> c32:
     pass
 
 @overload
 def sin(x: c64) -> c64:
-    return _lfortran_zsin(x)
+    return _lcompilers_zsin(x)
 
 @overload
 def sin(x: c32) -> c32:
-    return _lfortran_csin(x)
+    return _lcompilers_csin(x)
 
 @ccall
-def _lfortran_ztan(x: c64) -> c64:
+def _lcompilers_ztan(x: c64) -> c64:
     pass
 
 @ccall
-def _lfortran_ctan(x: c32) -> c32:
+def _lcompilers_ctan(x: c32) -> c32:
     pass
 
 @overload
 def tan(x: c64) -> c64:
-    return _lfortran_ztan(x)
+    return _lcompilers_ztan(x)
 
 @overload
 def tan(x: c32) -> c32:
-    return _lfortran_ctan(x)
+    return _lcompilers_ctan(x)
 
 
 @ccall
-def _lfortran_zacosh(x: c64) -> c64:
+def _lcompilers_zacosh(x: c64) -> c64:
     pass
 
 @ccall
-def _lfortran_cacosh(x: c32) -> c32:
+def _lcompilers_cacosh(x: c32) -> c32:
     pass
 
 @overload
 def acosh(x: c64) -> c64:
-    return _lfortran_zacosh(x)
+    return _lcompilers_zacosh(x)
 
 @overload
 def acosh(x: c32) -> c32:
-    return _lfortran_cacosh(x)
+    return _lcompilers_cacosh(x)
 
 @ccall
-def _lfortran_zasinh(x: c64) -> c64:
+def _lcompilers_zasinh(x: c64) -> c64:
     pass
 
 @ccall
-def _lfortran_casinh(x: c32) -> c32:
+def _lcompilers_casinh(x: c32) -> c32:
     pass
 
 @overload
 def asinh(x: c64) -> c64:
-    return _lfortran_zasinh(x)
+    return _lcompilers_zasinh(x)
 
 @overload
 def asinh(x: c32) -> c32:
-    return _lfortran_casinh(x)
+    return _lcompilers_casinh(x)
 
 @ccall
-def _lfortran_zatanh(x: c64) -> c64:
+def _lcompilers_zatanh(x: c64) -> c64:
     pass
 
 @ccall
-def _lfortran_catanh(x: c32) -> c32:
+def _lcompilers_catanh(x: c32) -> c32:
     pass
 
 @overload
 def atanh(x: c64) -> c64:
-    return _lfortran_zatanh(x)
+    return _lcompilers_zatanh(x)
 
 @overload
 def atanh(x: c32) -> c32:
-    return _lfortran_catanh(x)
+    return _lcompilers_catanh(x)
 
 
 @ccall
-def _lfortran_zcosh(x: c64) -> c64:
+def _lcompilers_zcosh(x: c64) -> c64:
     pass
 
 @ccall
-def _lfortran_ccosh(x: c32) -> c32:
+def _lcompilers_ccosh(x: c32) -> c32:
     pass
 
 @overload
 def cosh(x: c64) -> c64:
-    return _lfortran_zcosh(x)
+    return _lcompilers_zcosh(x)
 
 @overload
 def cosh(x: c32) -> c32:
-    return _lfortran_ccosh(x)
+    return _lcompilers_ccosh(x)
 
 @ccall
-def _lfortran_zsinh(x: c64) -> c64:
+def _lcompilers_zsinh(x: c64) -> c64:
     pass
 
 @ccall
-def _lfortran_csinh(x: c32) -> c32:
+def _lcompilers_csinh(x: c32) -> c32:
     pass
 
 @overload
 def sinh(x: c64) -> c64:
-    return _lfortran_zsinh(x)
+    return _lcompilers_zsinh(x)
 
 @overload
 def sinh(x: c32) -> c32:
-    return _lfortran_csinh(x)
+    return _lcompilers_csinh(x)
 
 
 @ccall
-def _lfortran_ztanh(x: c64) -> c64:
+def _lcompilers_ztanh(x: c64) -> c64:
     pass
 
 @ccall
-def _lfortran_ctanh(x: c32) -> c32:
+def _lcompilers_ctanh(x: c32) -> c32:
     pass
 
 @overload
 def tanh(x: c64) -> c64:
-    return _lfortran_ztanh(x)
+    return _lcompilers_ztanh(x)
 
 @overload
 def tanh(x: c32) -> c32:
-    return _lfortran_ctanh(x)
+    return _lcompilers_ctanh(x)

@@ -1,10 +1,10 @@
-#ifndef LPYTHON_PARSER_PARSER_EXCEPTION_H
-#define LPYTHON_PARSER_PARSER_EXCEPTION_H
+#ifndef LCOMPILERS_PARSER_PARSER_EXCEPTION_H
+#define LCOMPILERS_PARSER_PARSER_EXCEPTION_H
 
 #include <libasr/exception.h>
 #include <libasr/diagnostics.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace parser_local {
 
@@ -27,9 +27,9 @@ namespace parser_local {
     class ParserError
     {
     public:
-        LFortran::diag::Diagnostic d;
+        LCompilers::diag::Diagnostic d;
     public:
-        ParserError(const std::string &msg, const LFortran::Location &loc)
+        ParserError(const std::string &msg, const LCompilers::Location &loc)
             : d{diag::Diagnostic(msg, diag::Level::Error, diag::Stage::Parser, {
                     diag::Label("", {loc})
                 })}
@@ -46,4 +46,4 @@ namespace parser_local {
 }
 
 
-#endif // LPYTHON_PARSER_PARSER_EXCEPTION_H
+#endif // LCOMPILERS_PARSER_PARSER_EXCEPTION_H

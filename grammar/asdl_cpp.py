@@ -279,7 +279,7 @@ class ASTVisitorVisitor1(ASDLVisitor):
             self.emit("template <class Visitor>")
             self.emit("static void visit_%s_t(const %s_t &x, Visitor &v) {" \
                     % (base, base))
-            self.emit(    "LFORTRAN_ASSERT(x.base.type == %sType::%s)" \
+            self.emit(    "LCOMPILERS_ASSERT(x.base.type == %sType::%s)" \
                     % (subs["mod"], base), 1)
             self.emit(    "switch (x.type) {", 1)
             for type_ in sum.types:
@@ -326,7 +326,7 @@ class ASTVisitorVisitor2(ASDLVisitor):
             self.emit("void visit_%s(const %s_t &b) { visit_%s_t(b, self()); }"\
                     % (base, base, base), 1)
             for type_ in sum.types:
-                self.emit("""void visit_%s(const %s_t & /* x */) { throw LFortran::LFortranException("visit_%s() not implemented"); }""" \
+                self.emit("""void visit_%s(const %s_t & /* x */) { throw LCompilers::LCompilersException("visit_%s() not implemented"); }""" \
                         % (type_.name, type_.name, type_.name), 2)
 
 
@@ -435,7 +435,7 @@ class TreeVisitorVisitor(ASDLVisitor):
         self.emit(  "}", 1)
         self.emit(  "void dec_indent() {", 1)
         self.emit(      "indent_level--;", 2)
-        self.emit(      "LFORTRAN_ASSERT(indent_level >= 0);", 2)
+        self.emit(      "LCOMPILERS_ASSERT(indent_level >= 0);", 2)
         self.emit(      "indtd = indtd.substr(0, indent_level*indent_spaces);",2)
         self.emit(  "}", 1)
         self.mod = mod
@@ -703,7 +703,7 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
 
         super(ExprStmtDuplicatorVisitor, self).visitModule(mod)
         self.duplicate_stmt.append(("    default: {", 2))
-        self.duplicate_stmt.append(('    LFORTRAN_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " statement is not supported yet.");', 3))
+        self.duplicate_stmt.append(('    LCOMPILERS_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " statement is not supported yet.");', 3))
         self.duplicate_stmt.append(("    }", 2))
         self.duplicate_stmt.append(("    }", 1))
         self.duplicate_stmt.append(("", 0))
@@ -711,7 +711,7 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
         self.duplicate_stmt.append(("    }", 0))
 
         self.duplicate_expr.append(("    default: {", 2))
-        self.duplicate_expr.append(('    LFORTRAN_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " expression is not supported yet.");', 3))
+        self.duplicate_expr.append(('    LCOMPILERS_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " expression is not supported yet.");', 3))
         self.duplicate_expr.append(("    }", 2))
         self.duplicate_expr.append(("    }", 1))
         self.duplicate_expr.append(("", 0))
@@ -848,7 +848,7 @@ class ExprBaseReplacerVisitor(ASDLVisitor):
         super(ExprBaseReplacerVisitor, self).visitModule(mod)
 
         self.replace_expr.append(("    default: {", 2))
-        self.replace_expr.append(('    LFORTRAN_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " expression is not supported yet.");', 3))
+        self.replace_expr.append(('    LCOMPILERS_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " expression is not supported yet.");', 3))
         self.replace_expr.append(("    }", 2))
         self.replace_expr.append(("    }", 1))
         self.replace_expr.append(("", 0))
@@ -940,7 +940,7 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit(  "}",1)
         self.emit(  "void dec_indent() {", 1)
         self.emit(      "indent_level--;", 2)
-        self.emit(      "LFORTRAN_ASSERT(indent_level >= 0);", 2)
+        self.emit(      "LCOMPILERS_ASSERT(indent_level >= 0);", 2)
         self.emit(      "indtd = std::string(indent_level*indent_spaces, ' ');",2)
         self.emit(  "}",1)
         self.mod = mod
@@ -1422,9 +1422,9 @@ class DeserializationVisitorVisitor(ASDLVisitor):
             for tp in sum.types:
                 self.emit(    'case (%s::%sType::%s) : return self().deserialize_%s();' \
                     % (subs["MOD"], args[0], tp.name, tp.name), 3)
-            self.emit(    'default : throw LFortranException("Unknown type in deserialize_%s()");' % args[0], 3)
+            self.emit(    'default : throw LCompilersException("Unknown type in deserialize_%s()");' % args[0], 3)
             self.emit(  '}', 2)
-            self.emit(  'throw LFortranException("Switch statement above was not exhaustive.");', 2)
+            self.emit(  'throw LCompilersException("Switch statement above was not exhaustive.");', 2)
 
             self.emit("}", 1)
 
@@ -1438,9 +1438,9 @@ class DeserializationVisitorVisitor(ASDLVisitor):
         for tp in sums:
             self.emit(    'case (%s::%sType::%s) : return self().deserialize_%s();' \
                 % (subs["MOD"], subs["mod"], tp, tp), 3)
-        self.emit(    'default : throw LFortranException("Unknown type in deserialize_%s()");' % name, 3)
+        self.emit(    'default : throw LCompilersException("Unknown type in deserialize_%s()");' % name, 3)
         self.emit(  '}', 2)
-        self.emit(  'throw LFortranException("Switch statement above was not exhaustive.");', 2)
+        self.emit(  'throw LCompilersException("Switch statement above was not exhaustive.");', 2)
         self.emit(  '}', 1)
 
     def visitProduct(self, prod, name):
@@ -1616,12 +1616,12 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                             # symbol table that was not constructed yet. If
                             # that ever happens, we would have to remember
                             # this and come back later to fix the pointer.
-                            lines.append("LFORTRAN_ASSERT(id_symtab_map.find(m_%s_counter) != id_symtab_map.end());" % f.name)
+                            lines.append("LCOMPILERS_ASSERT(id_symtab_map.find(m_%s_counter) != id_symtab_map.end());" % f.name)
                             lines.append("SymbolTable *m_%s = id_symtab_map[m_%s_counter];" % (f.name, f.name))
                         else:
                             # We construct a new table. It should not
                             # be present:
-                            lines.append("LFORTRAN_ASSERT(id_symtab_map.find(m_%s_counter) == id_symtab_map.end());" % f.name)
+                            lines.append("LCOMPILERS_ASSERT(id_symtab_map.find(m_%s_counter) == id_symtab_map.end());" % f.name)
                             lines.append("SymbolTable *m_%s = al.make_new<SymbolTable>(nullptr);" % (f.name))
                             lines.append("if (load_symtab_id) m_%s->counter = m_%s_counter;" % (f.name, f.name))
                             lines.append("id_symtab_map[m_%s_counter] = m_%s;" % (f.name, f.name))
@@ -1693,12 +1693,12 @@ class ExprTypeVisitor(ASDLVisitor):
         self.emit("""\
 static inline ASR::ttype_t* expr_type0(const ASR::expr_t *f)
 {
-    LFORTRAN_ASSERT(f != nullptr);
+    LCOMPILERS_ASSERT(f != nullptr);
     switch (f->type) {""")
 
         super(ExprTypeVisitor, self).visitModule(mod)
 
-        self.emit("""        default : throw LFortranException("Not implemented");
+        self.emit("""        default : throw LCompilersException("Not implemented");
     }
 }
 """)
@@ -1726,7 +1726,7 @@ static inline ASR::ttype_t* expr_type0(const ASR::expr_t *f)
             ASR::symbol_t *s = ((ASR::%s_t*)f)->m_v;
             if (s->type == ASR::symbolType::ExternalSymbol) {
                 ASR::ExternalSymbol_t *e = ASR::down_cast<ASR::ExternalSymbol_t>(s);
-                LFORTRAN_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
+                LCOMPILERS_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
                 s = e->m_external;
             }
             return ASR::down_cast<ASR::Variable_t>(s)->m_type;
@@ -1760,12 +1760,12 @@ class ExprValueVisitor(ASDLVisitor):
         self.emit("""\
 static inline ASR::expr_t* expr_value0(ASR::expr_t *f)
 {
-    LFORTRAN_ASSERT(f != nullptr);
+    LCOMPILERS_ASSERT(f != nullptr);
     switch (f->type) {""")
 
         super(ExprValueVisitor, self).visitModule(mod)
 
-        self.emit("""        default : throw LFortranException("Not implemented");
+        self.emit("""        default : throw LCompilersException("Not implemented");
     }
 }
 """)
@@ -1793,7 +1793,7 @@ static inline ASR::expr_t* expr_value0(ASR::expr_t *f)
             ASR::symbol_t *s = ((ASR::%s_t*)f)->m_v;
             if (s->type == ASR::symbolType::ExternalSymbol) {
                 ASR::ExternalSymbol_t *e = ASR::down_cast<ASR::ExternalSymbol_t>(s);
-                LFORTRAN_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
+                LCOMPILERS_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
                 s = e->m_external;
             }
             return ASR::down_cast<ASR::Variable_t>(s)->m_value;
@@ -1857,8 +1857,8 @@ class ASDLData(object):
         self.optional_masks = optional_masks
 
 
-HEAD = r"""#ifndef LFORTRAN_%(MOD2)s_H
-#define LFORTRAN_%(MOD2)s_H
+HEAD = r"""#ifndef LCOMPILERS_%(MOD2)s_H
+#define LCOMPILERS_%(MOD2)s_H
 
 // Generated by grammar/asdl_cpp.py
 
@@ -1870,7 +1870,7 @@ HEAD = r"""#ifndef LFORTRAN_%(MOD2)s_H
 #include <libasr/asr_scopes.h>
 
 
-namespace LFortran::%(MOD)s {
+namespace LCompilers::%(MOD)s {
 
 enum %(mod)sType
 {
@@ -1895,8 +1895,8 @@ inline bool is_a(const U &x)
 template <class T, class U>
 static inline T* down_cast(const U *f)
 {
-    LFORTRAN_ASSERT(f != nullptr);
-    LFORTRAN_ASSERT(is_a<T>(*f));
+    LCOMPILERS_ASSERT(f != nullptr);
+    LCOMPILERS_ASSERT(is_a<T>(*f));
     return (T*)f;
 }
 
@@ -1912,9 +1912,9 @@ static inline T* down_cast2(const %(mod)s_t *f)
 
 """
 
-FOOT = r"""} // namespace LFortran::%(MOD)s
+FOOT = r"""} // namespace LCompilers::%(MOD)s
 
-#endif // LFORTRAN_%(MOD2)s_H
+#endif // LCOMPILERS_%(MOD2)s_H
 """
 
 visitors = [ASTNodeVisitor0, ASTNodeVisitor1, ASTNodeVisitor,

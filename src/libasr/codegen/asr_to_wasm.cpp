@@ -13,7 +13,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace {
 
@@ -64,7 +64,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_Program(const ASR::Program_t &x) {
-        wasm::emit_header(m_preamble, m_al);  // emit header and version
+        wasm::emit_header(m_preamble, m_al); // emit header and version
 
         uint32_t len_idx_type_section = wasm::emit_len_placeholder(m_type_section, m_al);
         uint32_t len_idx_func_section = wasm::emit_len_placeholder(m_func_section, m_al);
@@ -93,8 +93,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         uint32_t len_idx_type_section_param_types_list = wasm::emit_len_placeholder(m_type_section, m_al);
         int curIdx = 0;
         for (size_t i = 0; i < x.n_args; i++) {
-            ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
+            ASR::Variable_t *arg = LCompilers::ASRUtils::EXPR2VAR(x.m_args[i]);
+            LCOMPILERS_ASSERT(LCompilers::ASRUtils::is_arg_dummy(arg->m_intent));
             if (ASR::is_a<ASR::Integer_t>(*arg->m_type)) {
                 // checking for array is currently omitted
                 bool is_int32 = ASR::down_cast<ASR::Integer_t>(arg->m_type)->m_kind == 4;
@@ -111,7 +111,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         wasm::fixup_len(m_type_section, len_idx_type_section_param_types_list);
 
         uint32_t len_idx_type_section_return_types_list = wasm::emit_len_placeholder(m_type_section, m_al);
-        return_var = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
+        return_var = LCompilers::ASRUtils::EXPR2VAR(x.m_return_var);
         if (ASRUtils::is_integer(*return_var->m_type)) {
             bool is_int32 = ASR::down_cast<ASR::Integer_t>(return_var->m_type)->m_kind == 4;
             if (is_int32) {
@@ -130,7 +130,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                if (v->m_intent == LFortran::ASRUtils::intent_local || v->m_intent == LFortran::ASRUtils::intent_return_var) {
+                if (v->m_intent == LCompilers::ASRUtils::intent_local || v->m_intent == LCompilers::ASRUtils::intent_return_var) {
                     if (ASR::is_a<ASR::Integer_t>(*v->m_type)) {
                         wasm::emit_u32(m_code_section, m_al, 1);    // count of local vars of this type
                         bool is_int32 = ASR::down_cast<ASR::Integer_t>(v->m_type)->m_kind == 4;
@@ -167,13 +167,13 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         this->visit_expr(*x.m_value);
         // this->visit_expr(*x.m_target);
         if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
-            ASR::Variable_t *asr_target = LFortran::ASRUtils::EXPR2VAR(x.m_target);
+            ASR::Variable_t *asr_target = LCompilers::ASRUtils::EXPR2VAR(x.m_target);
 
             wasm::emit_set_local(m_code_section, m_al, m_var_name_idx_map[asr_target->m_name]);
         } else if (ASR::is_a<ASR::ArrayRef_t>(*x.m_target)) {
             throw CodeGenError("Assignment: Arrays not yet supported");
         } else {
-            LFORTRAN_ASSERT(false)
+            LCOMPILERS_ASSERT(false)
         }
     }
 
@@ -268,7 +268,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
-        ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(LFortran::ASRUtils::symbol_get_past_external(x.m_name));
+        ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(
+            LCompilers::ASRUtils::symbol_get_past_external(x.m_name));
 
         for (size_t i = 0; i < x.n_args; i++) {
             visit_expr(*x.m_args[i].m_value);
@@ -281,10 +282,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 Result<Vec<uint8_t>> asr_to_wasm_bytes_stream(ASR::TranslationUnit_t &asr, Allocator &al) {
     ASRToWASMVisitor v(al);
     Vec<uint8_t> wasm_bytes;
-    
+
     pass_wrap_global_stmts_into_function(al, asr, "f");
     pass_replace_do_loops(al, asr);
-    
+
     try {
         wasm::emit_u32(v.m_type_section, v.m_al, 1);
         wasm::emit_u32(v.m_func_section, v.m_al, 3);
@@ -362,4 +363,4 @@ Result<int> asr_to_wasm(ASR::TranslationUnit_t &asr, Allocator &al, const std::s
     return 0;
 }
 
-}  // namespace LFortran
+}  // namespace LCompilers

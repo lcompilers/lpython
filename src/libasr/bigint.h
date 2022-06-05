@@ -1,11 +1,11 @@
-#ifndef LFORTRAN_BIGINT_H
-#define LFORTRAN_BIGINT_H
+#ifndef LCOMPILERS_BIGINT_H
+#define LCOMPILERS_BIGINT_H
 
 #include <cstdint>
 
 #include <libasr/containers.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace BigInt {
 
@@ -85,7 +85,7 @@ inline static int64_t string_to_largeint(Allocator &al, const Str &s) {
 
 // Converts a large int to a string
 inline static char* largeint_to_string(int64_t i) {
-    LFORTRAN_ASSERT(is_int_ptr(i));
+    LCOMPILERS_ASSERT(is_int_ptr(i));
     void *p = int_to_ptr(i);
     char *cs = (char*)p;
     return cs;
@@ -104,7 +104,7 @@ inline static bool is_int64(std::string str_repr) {
     if( str_repr.size() > str_int64.size() ) {
         return false;
     }
-    
+
     if( str_repr.size() < str_int64.size() ) {
         return true;
     }
@@ -132,7 +132,7 @@ struct BigInt {
     BigInt& operator=(const BigInt &) = default;
 
     void from_smallint(int64_t i) {
-        LFORTRAN_ASSERT(is_small_int(i));
+        LCOMPILERS_ASSERT(is_small_int(i));
         n = i;
     }
 
@@ -145,7 +145,7 @@ struct BigInt {
     }
 
     int64_t as_smallint() const {
-        LFORTRAN_ASSERT(!is_large());
+        LCOMPILERS_ASSERT(!is_large());
         return n;
     }
 
@@ -163,6 +163,6 @@ static_assert(sizeof(BigInt) == 8);
 
 } // BigInt
 
-} // LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_BIGINT_H
+#endif // LCOMPILERS_BIGINT_H

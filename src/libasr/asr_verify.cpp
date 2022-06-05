@@ -4,11 +4,11 @@
 #include <libasr/asr_verify.h>
 
 
-namespace LFortran {
+namespace LCompilers {
 namespace ASR {
 
-using LFortran::ASRUtils::symbol_name;
-using LFortran::ASRUtils::symbol_parent_symtab;
+using LCompilers::ASRUtils::symbol_name;
+using LCompilers::ASRUtils::symbol_parent_symtab;
 
 bool valid_char(char c) {
     if (c >= 'a' && c <= 'z') return true;
@@ -46,7 +46,7 @@ public:
     // Requires the condition `cond` to be true. Raise an exception otherwise.
     void require(bool cond, const std::string &error_msg) {
         if (!cond) {
-            throw LFortranException("ASR verify failed: " + error_msg);
+            throw LCompilersException("ASR verify failed: " + error_msg);
         }
     }
     void require(bool cond, const std::string &error_msg,
@@ -393,7 +393,7 @@ public:
     }
 
     SymbolTable *get_dt_symtab(ASR::symbol_t *dt, const Location &loc) {
-        LFORTRAN_ASSERT(dt)
+        LCOMPILERS_ASSERT(dt)
         SymbolTable *symtab = ASRUtils::symbol_symtab(ASRUtils::symbol_get_past_external(dt));
         require(symtab,
             "m_dt::m_v::m_type::class/derived_type must point to a symbol with a symbol table",
@@ -534,4 +534,4 @@ bool asr_verify(const ASR::TranslationUnit_t &unit, bool check_external) {
     return true;
 }
 
-} // namespace LFortran
+} // namespace LCompilers

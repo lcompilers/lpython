@@ -7,11 +7,11 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 
-using LFortran::TRY;
-using LFortran::string_to_uint64;
-using LFortran::uint64_to_string;
-using LFortran::string_to_uint32;
-using LFortran::uint32_to_string;
+using LCompilers::TRY;
+using LCompilers::string_to_uint64;
+using LCompilers::uint64_to_string;
+using LCompilers::string_to_uint32;
+using LCompilers::uint32_to_string;
 
 TEST_CASE("Integer conversion") {
     uint64_t i;
@@ -56,7 +56,7 @@ TEST_CASE("Topological sorting string") {
     deps["C"].push_back("A");
     deps["B"].push_back("D");
     deps["C"].push_back("D");
-    CHECK(LFortran::ASRUtils::order_deps(deps) == std::vector<std::string>(
+    CHECK(LCompilers::ASRUtils::order_deps(deps) == std::vector<std::string>(
                 {"D", "B", "A", "C"}));
 
     deps.clear();
@@ -64,6 +64,6 @@ TEST_CASE("Topological sorting string") {
     deps["module_c"].push_back("module_a");
     deps["module_c"].push_back("module_d");
     deps["module_d"].push_back("module_a");
-    CHECK(LFortran::ASRUtils::order_deps(deps) == std::vector<std::string>(
+    CHECK(LCompilers::ASRUtils::order_deps(deps) == std::vector<std::string>(
                 {"module_b", "module_a", "module_d", "module_c"}));
 }

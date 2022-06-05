@@ -5,10 +5,10 @@ eps: f64 = 1e-16
 
 #: TODO: Call `log` from C directly until we fix the multiple import issue
 def _log(x: f64) -> f64:
-    return _lfortran_dlog(x)
+    return _lcompilers_dlog(x)
 
 @ccall
-def _lfortran_dlog(x: f64) -> f64:
+def _lcompilers_dlog(x: f64) -> f64:
     pass
 
 def _exp(x: f64) -> f64:
@@ -26,30 +26,30 @@ def random() -> f64:
     """
     Returns a random floating point number in the range [0.0, 1.0)
     """
-    return _lfortran_random()
+    return _lcompilers_random()
 
 @ccall
-def _lfortran_random() -> f64:
+def _lcompilers_random() -> f64:
     pass
 
 def randrange(lower: i32, upper: i32) -> i32:
     """
     Return a random integer N such that `lower <= N < upper`.
     """
-    return _lfortran_randrange(lower, upper)
+    return _lcompilers_randrange(lower, upper)
 
 @ccall
-def _lfortran_randrange(lower: i32, upper: i32) -> i32:
+def _lcompilers_randrange(lower: i32, upper: i32) -> i32:
     pass
 
 def randint(lower: i32, upper: i32) -> i32:
     """
     Return a random integer N such that `lower <= N <= upper`.
     """
-    return _lfortran_random_int(lower, upper)
+    return _lcompilers_random_int(lower, upper)
 
 @ccall
-def _lfortran_random_int(lower: i32, upper: i32) -> i32:
+def _lcompilers_random_int(lower: i32, upper: i32) -> i32:
     pass
 
 def uniform(a: f64, b: f64) -> f64:

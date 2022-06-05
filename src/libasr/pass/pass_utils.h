@@ -1,10 +1,10 @@
-#ifndef LFORTRAN_PASS_UTILS_H
-#define LFORTRAN_PASS_UTILS_H
+#ifndef LCOMPILERS_PASS_UTILS_H
+#define LCOMPILERS_PASS_UTILS_H
 
 #include <libasr/asr.h>
 #include <libasr/containers.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     namespace PassUtils {
 
@@ -189,6 +189,6 @@ namespace LFortran {
 
     }
 
-} // namespace LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_PASS_UTILS_H
+#endif // LCOMPILERS_PASS_UTILS_H

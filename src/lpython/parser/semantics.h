@@ -1,5 +1,5 @@
-#ifndef LPYTHON_PARSER_SEMANTICS_H
-#define LPYTHON_PARSER_SEMANTICS_H
+#ifndef LCOMPILERS_PARSER_SEMANTICS_H
+#define LCOMPILERS_PARSER_SEMANTICS_H
 
 /*
    This header file contains parser semantics: how the AST classes get
@@ -16,12 +16,12 @@
 #include <libasr/string_utils.h>
 
 // This is only used in parser.tab.cc, nowhere else, so we simply include
-// everything from LFortran::AST to save typing:
-using namespace LFortran::LPython::AST;
-using LFortran::Location;
-using LFortran::Vec;
-using LFortran::Key_Val;
-using LFortran::Args;
+// everything from LCompilers::AST to save typing:
+using namespace LCompilers::LPython::AST;
+using LCompilers::Location;
+using LCompilers::Vec;
+using LCompilers::Key_Val;
+using LCompilers::Args;
 
 static inline char* name2char(const ast_t *n) {
     return down_cast2<Name_t>(n)->m_id;
@@ -46,7 +46,7 @@ template <typename T, astType type>
 static inline T** vec_cast(const Vec<ast_t*> &x) {
     T **s = (T**)x.p;
     for (size_t i=0; i < x.size(); i++) {
-        LFORTRAN_ASSERT((s[i]->base.type == type))
+        LCOMPILERS_ASSERT((s[i]->base.type == type))
     }
     return s;
 }
@@ -76,7 +76,7 @@ static inline expr_t* EXPR_OPT(const ast_t *f)
         }
 
 static inline ast_t* SET_EXPR_CTX_01(ast_t* x, expr_contextType ctx) {
-    LFORTRAN_ASSERT(is_a<expr_t>(*x))
+    LCOMPILERS_ASSERT(is_a<expr_t>(*x))
     switch(EXPR(x)->type) {
         SET_EXPR_CTX_(Attribute, ctx)
         SET_EXPR_CTX_(Subscript, ctx)
@@ -197,7 +197,7 @@ static inline char *mod2char(Allocator &al, Vec<ast_t*> module) {
         s.append(name2char(module[i]));
         if (i < module.size()-1)s.append(".");
     }
-    LFortran::Str str;
+    LCompilers::Str str;
     str.from_str_view(s);
     return str.c_str(al);
 }
@@ -420,7 +420,7 @@ Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
 
 char* concat_string(Allocator &al, ast_t *a, char *b) {
     char *s = down_cast2<ConstantStr_t>(a)->m_value;
-    return LFortran::s2c(al, std::string(s) + std::string(b));
+    return LCompilers::s2c(al, std::string(s) + std::string(b));
 }
 
 #define SYMBOL(x, l) make_Name_t(p.m_a, l, \

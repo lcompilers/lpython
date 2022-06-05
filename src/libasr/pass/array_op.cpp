@@ -10,7 +10,7 @@
 #include <utility>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 using ASR::is_a;
@@ -237,7 +237,7 @@ public:
             this->visit_expr(*(x.m_value));
         } else if( PassUtils::is_slice_present(x.m_target) ) {
             ASR::ArrayRef_t* array_ref = ASR::down_cast<ASR::ArrayRef_t>(x.m_target);
-            result_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.m_target->base.loc, array_ref->m_v));
+            result_var = LCompilers::ASRUtils::EXPR(ASR::make_Var_t(al, x.m_target->base.loc, array_ref->m_v));
             result_lbound.reserve(al, array_ref->n_args);
             result_ubound.reserve(al, array_ref->n_args);
             result_inc.reserve(al, array_ref->n_args);
@@ -271,7 +271,7 @@ public:
     }
 
     ASR::ttype_t* get_matching_type(ASR::expr_t* sibling) {
-        ASR::ttype_t* sibling_type = LFortran::ASRUtils::expr_type(sibling);
+        ASR::ttype_t* sibling_type = LCompilers::ASRUtils::expr_type(sibling);
         if( sibling->type != ASR::exprType::Var ) {
             return sibling_type;
         }
@@ -311,10 +311,10 @@ public:
                                                     var_type, ASR::abiType::Source, ASR::accessType::Public, ASR::presenceType::Required,
                                                     false);
             current_scope->add_symbol(std::string(idx_var_name), ASR::down_cast<ASR::symbol_t>(idx_sym));
-            idx_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
+            idx_var = LCompilers::ASRUtils::EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
         } else {
             ASR::symbol_t* idx_sym = current_scope->get_symbol(std::string(idx_var_name));
-            idx_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, loc, idx_sym));
+            idx_var = LCompilers::ASRUtils::EXPR(ASR::make_Var_t(al, loc, idx_sym));
         }
 
         return idx_var;
@@ -334,7 +334,7 @@ public:
 
     void fix_dimension(const ASR::Cast_t& x, ASR::expr_t* arg_expr) {
         ASR::ttype_t* x_type = const_cast<ASR::ttype_t*>(x.m_type);
-        ASR::ttype_t* arg_type = LFortran::ASRUtils::expr_type(arg_expr);
+        ASR::ttype_t* arg_type = LCompilers::ASRUtils::expr_type(arg_expr);
         ASR::dimension_t* m_dims;
         int ndims;
         PassUtils::get_dim_rank(arg_type, m_dims, ndims);
@@ -368,13 +368,13 @@ public:
                 if( doloop == nullptr ) {
                     ASR::expr_t* ref = PassUtils::create_array_ref(tmp_val, idx_vars, al);
                     ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
-                    ASR::expr_t* impl_cast_el_wise = LFortran::ASRUtils::EXPR(ASR::make_Cast_t(al, x.base.base.loc, ref, x.m_kind, x.m_type, nullptr));
-                    ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, impl_cast_el_wise, nullptr));
+                    ASR::expr_t* impl_cast_el_wise = LCompilers::ASRUtils::EXPR(ASR::make_Cast_t(al, x.base.base.loc, ref, x.m_kind, x.m_type, nullptr));
+                    ASR::stmt_t* assign = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, impl_cast_el_wise, nullptr));
                     doloop_body.push_back(al, assign);
                 } else {
                     doloop_body.push_back(al, doloop);
                 }
-                doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
+                doloop = LCompilers::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
             pass_result.push_back(al, doloop);
             tmp_val = result_var;
@@ -409,12 +409,12 @@ public:
                         ref = tmp_val;
                     }
                     ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
-                    ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, ref, nullptr));
+                    ASR::stmt_t* assign = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, ref, nullptr));
                     doloop_body.push_back(al, assign);
                 } else {
                     doloop_body.push_back(al, doloop);
                 }
-                doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
+                doloop = LCompilers::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
             pass_result.push_back(al, doloop);
             tmp_val = nullptr;
@@ -458,15 +458,15 @@ public:
                 if( doloop == nullptr ) {
                     ASR::expr_t* ref = PassUtils::create_array_ref(operand, idx_vars, al);
                     ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
-                    ASR::expr_t* op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_UnaryOp_t(
+                    ASR::expr_t* op_el_wise = LCompilers::ASRUtils::EXPR(ASR::make_UnaryOp_t(
                                                     al, x.base.base.loc,
                                                     x.m_op, ref, x.m_type, nullptr));
-                    ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr));
+                    ASR::stmt_t* assign = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr));
                     doloop_body.push_back(al, assign);
                 } else {
                     doloop_body.push_back(al, doloop);
                 }
-                doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
+                doloop = LCompilers::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
             pass_result.push_back(al, doloop);
         }
@@ -493,7 +493,7 @@ public:
         if( rank_left > 0 && rank_right > 0 ) {
             if( rank_left != rank_right ) {
                 // This should be checked by verify() and thus should not happen
-                throw LFortranException("Cannot generate loop for operands of different shapes");
+                throw LCompilersException("Cannot generate loop for operands of different shapes");
             }
             result_var = result_var_copy;
             if( result_var == nullptr ) {
@@ -506,8 +506,8 @@ public:
             Vec<ASR::expr_t*> idx_vars, idx_vars_value;
             PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope, "_t");
             PassUtils::create_idx_vars(idx_vars_value, n_dims, x.base.base.loc, al, current_scope, "_v");
-            ASR::ttype_t* int32_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
-            ASR::expr_t* const_1 = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int32_type));
+            ASR::ttype_t* int32_type = LCompilers::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+            ASR::expr_t* const_1 = LCompilers::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int32_type));
             ASR::stmt_t* doloop = nullptr;
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
@@ -532,39 +532,39 @@ public:
                     ASR::expr_t* op_el_wise = nullptr;
                     switch( x.class_type ) {
                         case ASR::exprType::BinOp:
-                            op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(
+                            op_el_wise = LCompilers::ASRUtils::EXPR(ASR::make_BinOp_t(
                                                 al, x.base.base.loc,
                                                 ref_1, (ASR::binopType)x.m_op, ref_2,
                                                 x.m_type, nullptr, nullptr));
                             break;
                         case ASR::exprType::Compare:
-                            op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(
+                            op_el_wise = LCompilers::ASRUtils::EXPR(ASR::make_Compare_t(
                                                 al, x.base.base.loc,
                                                 ref_1, (ASR::cmpopType)x.m_op, ref_2, x.m_type, nullptr, nullptr));
                             break;
                         case ASR::exprType::BoolOp:
-                            op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_BoolOp_t(
+                            op_el_wise = LCompilers::ASRUtils::EXPR(ASR::make_BoolOp_t(
                                                 al, x.base.base.loc,
                                                 ref_1, (ASR::boolopType)x.m_op, ref_2, x.m_type, nullptr));
                             break;
                         default:
-                            throw LFortranException("The desired operation is not supported yet for arrays.");
+                            throw LCompilersException("The desired operation is not supported yet for arrays.");
                     }
-                    ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr));
+                    ASR::stmt_t* assign = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr));
                     doloop_body.push_back(al, assign);
                 } else {
-                    ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i+1], const_1, nullptr));
+                    ASR::stmt_t* set_to_one = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i+1], const_1, nullptr));
                     doloop_body.push_back(al, set_to_one);
                     doloop_body.push_back(al, doloop);
                 }
-                ASR::expr_t* inc_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc, idx_vars_value[i],
+                ASR::expr_t* inc_expr = LCompilers::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc, idx_vars_value[i],
                                                                                    ASR::binopType::Add, const_1, int32_type,
                                                                                    nullptr, nullptr));
-                ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i], inc_expr, nullptr));
+                ASR::stmt_t* assign_stmt = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i], inc_expr, nullptr));
                 doloop_body.push_back(al, assign_stmt);
-                doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
+                doloop = LCompilers::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
-            ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[0], const_1, nullptr));
+            ASR::stmt_t* set_to_one = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[0], const_1, nullptr));
             pass_result.push_back(al, set_to_one);
             pass_result.push_back(al, doloop);
         } else if( (rank_left == 0 && rank_right > 0) ||
@@ -590,8 +590,8 @@ public:
             Vec<ASR::expr_t*> idx_vars, idx_vars_value;
             PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope, "_t");
             PassUtils::create_idx_vars(idx_vars_value, n_dims, x.base.base.loc, al, current_scope, "_v");
-            ASR::ttype_t* int32_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
-            ASR::expr_t* const_1 = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int32_type));
+            ASR::ttype_t* int32_type = LCompilers::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
+            ASR::expr_t* const_1 = LCompilers::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int32_type));
             ASR::stmt_t* doloop = nullptr;
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
@@ -615,37 +615,37 @@ public:
                     ASR::expr_t* op_el_wise = nullptr;
                     switch( x.class_type ) {
                         case ASR::exprType::BinOp:
-                            op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(
+                            op_el_wise = LCompilers::ASRUtils::EXPR(ASR::make_BinOp_t(
                                                     al, x.base.base.loc,
                                                     ref, (ASR::binopType)x.m_op, other_expr,
                                                     x.m_type, nullptr, nullptr));
                             break;
                         case ASR::exprType::Compare:
-                            op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(
+                            op_el_wise = LCompilers::ASRUtils::EXPR(ASR::make_Compare_t(
                                                     al, x.base.base.loc,
                                                     ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type, nullptr, nullptr));
                             break;
                         case ASR::exprType::BoolOp:
-                            op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_BoolOp_t(
+                            op_el_wise = LCompilers::ASRUtils::EXPR(ASR::make_BoolOp_t(
                                                     al, x.base.base.loc,
                                                     ref, (ASR::boolopType)x.m_op, other_expr, x.m_type, nullptr));
                             break;
                         default:
-                            throw LFortranException("The desired operation is not supported yet for arrays.");
+                            throw LCompilersException("The desired operation is not supported yet for arrays.");
                     }
-                    ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr));
+                    ASR::stmt_t* assign = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr));
                     doloop_body.push_back(al, assign);
                 } else {
-                    ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i+1], const_1, nullptr));
+                    ASR::stmt_t* set_to_one = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i+1], const_1, nullptr));
                     doloop_body.push_back(al, set_to_one);
                     doloop_body.push_back(al, doloop);
                 }
-                ASR::expr_t* inc_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc, idx_vars_value[i], ASR::binopType::Add, const_1, int32_type, nullptr, nullptr));
-                ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i], inc_expr, nullptr));
+                ASR::expr_t* inc_expr = LCompilers::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc, idx_vars_value[i], ASR::binopType::Add, const_1, int32_type, nullptr, nullptr));
+                ASR::stmt_t* assign_stmt = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i], inc_expr, nullptr));
                 doloop_body.push_back(al, assign_stmt);
-                doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
+                doloop = LCompilers::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
-            ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[0], const_1, nullptr));
+            ASR::stmt_t* set_to_one = LCompilers::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[0], const_1, nullptr));
             pass_result.push_back(al, set_to_one);
             pass_result.push_back(al, doloop);
         }
@@ -699,7 +699,7 @@ public:
                 result_arg.m_value = result_var;
                 s_args.push_back(al, result_arg);
                 tmp_val = result_var;
-                ASR::stmt_t* subrout_call = LFortran::ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc,
+                ASR::stmt_t* subrout_call = LCompilers::ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc,
                                                     sub, nullptr,
                                                     s_args.p, s_args.size(), nullptr));
                 pass_result.push_back(al, subrout_call);
@@ -714,8 +714,8 @@ void pass_replace_array_op(Allocator &al, ASR::TranslationUnit_t &unit,
         const std::string &rl_path) {
     ArrayOpVisitor v(al, rl_path);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
+    LCOMPILERS_ASSERT(asr_verify(unit));
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

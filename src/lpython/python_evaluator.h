@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_PYTHON_EVALUATOR_H
-#define LFORTRAN_PYTHON_EVALUATOR_H
+#ifndef LCOMPILERS_PYTHON_EVALUATOR_H
+#define LCOMPILERS_PYTHON_EVALUATOR_H
 
 #include <iostream>
 #include <memory>
@@ -11,7 +11,7 @@
 #include <libasr/config.h>
 #include <libasr/diagnostics.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 class LLVMModule;
 class LLVMEvaluator;
@@ -55,7 +55,7 @@ public:
 
 private:
     Allocator al;
-#ifdef HAVE_LFORTRAN_LLVM
+#ifdef HAVE_LCOMPILERS_LLVM
     std::unique_ptr<LLVMEvaluator> e;
     int eval_count;
 #endif
@@ -64,6 +64,6 @@ private:
     std::string run_fn;
 };
 
-} // namespace LFortran
+} // namespace LCompilers
 
-#endif // LFORTRAN_PYTHON_EVALUATOR_H
+#endif // LCOMPILERS_PYTHON_EVALUATOR_H

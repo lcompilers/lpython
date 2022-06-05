@@ -87,7 +87,7 @@ def abs(c: c32) -> f32:
     a: f32
     b: f32
     a = c.real
-    b = _lfortran_caimag(c)
+    b = _lcompilers_caimag(c)
     return (a**2 + b**2)**(1/2)
 
 @overload
@@ -95,7 +95,7 @@ def abs(c: c64) -> f64:
     a: f64
     b: f64
     a = c.real
-    b = _lfortran_zaimag(c)
+    b = _lcompilers_zaimag(c)
     return (a**2 + b**2)**(1/2)
 
 @overload
@@ -185,11 +185,11 @@ def bool(b: bool) -> bool:
 
 @overload
 def bool(c: c32) -> bool:
-    return c.real != 0.0 or _lfortran_caimag(c) != 0.0
+    return c.real != 0.0 or _lcompilers_caimag(c) != 0.0
 
 @overload
 def bool(c: c64) -> bool:
-    return c.real != 0.0 or _lfortran_zaimag(c) != 0.0
+    return c.real != 0.0 or _lcompilers_zaimag(c) != 0.0
 
 @interface
 def len(s: str) -> i32:
@@ -481,20 +481,20 @@ def ubound(x: i32[:], dim: i32) -> i32:
 
 
 @ccall
-def _lfortran_caimag(x: c32) -> f32:
+def _lcompilers_caimag(x: c32) -> f32:
     pass
 
 @ccall
-def _lfortran_zaimag(x: c64) -> f64:
+def _lcompilers_zaimag(x: c64) -> f64:
     pass
 
 @overload
 def _lpython_imag(x: c64) -> f64:
-    return _lfortran_zaimag(x)
+    return _lcompilers_zaimag(x)
 
 @overload
 def _lpython_imag(x: c32) -> f32:
-    return _lfortran_caimag(x)
+    return _lcompilers_caimag(x)
 
 
 @overload

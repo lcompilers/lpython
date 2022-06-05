@@ -10,7 +10,7 @@
 #include <string>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 using ASR::is_a;
@@ -120,7 +120,7 @@ public:
 
         sign_from_value_var = PassUtils::get_sign_from_value(first_arg, second_arg,
                                      al, unit, rl_path, current_scope, x.base.base.loc,
-                                     [&](const std::string &msg, const Location &) { throw LFortranException(msg); });
+                                     [&](const std::string &msg, const Location &) { throw LCompilersException(msg); });
         from_sign_from_value = false;
     }
 
@@ -142,8 +142,8 @@ void pass_replace_sign_from_value(Allocator &al, ASR::TranslationUnit_t &unit,
                             const std::string& rl_path) {
     SignFromValueVisitor v(al, unit, rl_path);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
+    LCOMPILERS_ASSERT(asr_verify(unit));
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

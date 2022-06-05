@@ -8,8 +8,7 @@
 #include <libasr/string_utils.h>
 #include <libasr/containers.h>
 
-namespace LFortran
-{
+namespace LCompilers {
 
 
 bool startswith(const std::string &s, const std::string &e)
@@ -104,4 +103,4 @@ std::string read_file(const std::string &filename)
 
 
 
-} // namespace LFortran
+} // namespace LCompilers

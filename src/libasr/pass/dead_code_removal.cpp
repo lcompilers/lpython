@@ -11,7 +11,7 @@
 #include <utility>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 using ASR::is_a;
@@ -102,8 +102,8 @@ void pass_dead_code_removal(Allocator &al, ASR::TranslationUnit_t &unit,
                             const std::string& rl_path) {
     DeadCodeRemovalVisitor v(al, rl_path);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
+    LCOMPILERS_ASSERT(asr_verify(unit));
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

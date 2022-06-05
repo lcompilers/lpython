@@ -3,10 +3,10 @@
 
 #include <libasr/asr.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     void pass_replace_sign_from_value(Allocator &al, ASR::TranslationUnit_t &unit, const std::string& rl_path);
 
-} // namespace LFortran
+} // namespace LCompilers
 
 #endif // LIBASR_PASS_SIGN_FROM_VALUE_H

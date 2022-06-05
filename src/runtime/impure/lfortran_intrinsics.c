@@ -12,7 +12,7 @@
 #include "lfortran_intrinsics.h"
 
 
-LFORTRAN_API double _lfortran_sum(int n, double *v)
+LCOMPILERS_API double _lcompilers_sum(int n, double *v)
 {
     int i, r;
     r = 0;
@@ -22,7 +22,7 @@ LFORTRAN_API double _lfortran_sum(int n, double *v)
     return r;
 }
 
-LFORTRAN_API void _lfortran_random_number(int n, double *v)
+LCOMPILERS_API void _lcompilers_random_number(int n, double *v)
 {
     int i;
     for (i=0; i < n; i++) {
@@ -30,24 +30,24 @@ LFORTRAN_API void _lfortran_random_number(int n, double *v)
     }
 }
 
-LFORTRAN_API double _lfortran_random()
+LCOMPILERS_API double _lcompilers_random()
 {
     return (rand() / (double) RAND_MAX);
 }
 
-LFORTRAN_API int _lfortran_randrange(int lower, int upper)
+LCOMPILERS_API int _lcompilers_randrange(int lower, int upper)
 {
     int rr = lower + (rand() % (upper - lower));
     return rr;
 }
 
-LFORTRAN_API int _lfortran_random_int(int lower, int upper)
+LCOMPILERS_API int _lcompilers_random_int(int lower, int upper)
 {
     int randint = lower + (rand() % (upper - lower + 1));
     return randint;
 }
 
-LFORTRAN_API void _lfortran_printf(const char* format, ...)
+LCOMPILERS_API void _lcompilers_printf(const char* format, ...)
 {
     va_list args;
     va_start(args, format);
@@ -56,36 +56,36 @@ LFORTRAN_API void _lfortran_printf(const char* format, ...)
     va_end(args);
 }
 
-LFORTRAN_API void _lfortran_complex_add_32(struct _lfortran_complex_32* a,
-        struct _lfortran_complex_32* b, struct _lfortran_complex_32 *result)
+LCOMPILERS_API void _lcompilers_complex_add_32(struct _lcompilers_complex_32* a,
+        struct _lcompilers_complex_32* b, struct _lcompilers_complex_32 *result)
 {
     result->re = a->re + b->re;
     result->im = a->im + b->im;
 }
 
-LFORTRAN_API void _lfortran_complex_add_64(struct _lfortran_complex_64* a,
-        struct _lfortran_complex_64* b, struct _lfortran_complex_64 *result)
+LCOMPILERS_API void _lcompilers_complex_add_64(struct _lcompilers_complex_64* a,
+        struct _lcompilers_complex_64* b, struct _lcompilers_complex_64 *result)
 {
     result->re = a->re + b->re;
     result->im = a->im + b->im;
 }
 
-LFORTRAN_API void _lfortran_complex_sub_32(struct _lfortran_complex_32* a,
-        struct _lfortran_complex_32* b, struct _lfortran_complex_32 *result)
+LCOMPILERS_API void _lcompilers_complex_sub_32(struct _lcompilers_complex_32* a,
+        struct _lcompilers_complex_32* b, struct _lcompilers_complex_32 *result)
 {
     result->re = a->re - b->re;
     result->im = a->im - b->im;
 }
 
-LFORTRAN_API void _lfortran_complex_sub_64(struct _lfortran_complex_64* a,
-        struct _lfortran_complex_64* b, struct _lfortran_complex_64 *result)
+LCOMPILERS_API void _lcompilers_complex_sub_64(struct _lcompilers_complex_64* a,
+        struct _lcompilers_complex_64* b, struct _lcompilers_complex_64 *result)
 {
     result->re = a->re - b->re;
     result->im = a->im - b->im;
 }
 
-LFORTRAN_API void _lfortran_complex_mul_32(struct _lfortran_complex_32* a,
-        struct _lfortran_complex_32* b, struct _lfortran_complex_32 *result)
+LCOMPILERS_API void _lcompilers_complex_mul_32(struct _lcompilers_complex_32* a,
+        struct _lcompilers_complex_32* b, struct _lcompilers_complex_32 *result)
 {
     float p = a->re, q = a->im;
     float r = b->re, s = b->im;
@@ -93,8 +93,8 @@ LFORTRAN_API void _lfortran_complex_mul_32(struct _lfortran_complex_32* a,
     result->im = (p*s + q*r);
 }
 
-LFORTRAN_API void _lfortran_complex_mul_64(struct _lfortran_complex_64* a,
-        struct _lfortran_complex_64* b, struct _lfortran_complex_64 *result)
+LCOMPILERS_API void _lcompilers_complex_mul_64(struct _lcompilers_complex_64* a,
+        struct _lcompilers_complex_64* b, struct _lcompilers_complex_64 *result)
 {
     double p = a->re, q = a->im;
     double r = b->re, s = b->im;
@@ -102,8 +102,8 @@ LFORTRAN_API void _lfortran_complex_mul_64(struct _lfortran_complex_64* a,
     result->im = (p*s + q*r);
 }
 
-LFORTRAN_API void _lfortran_complex_div_32(struct _lfortran_complex_32* a,
-        struct _lfortran_complex_32* b, struct _lfortran_complex_32 *result)
+LCOMPILERS_API void _lcompilers_complex_div_32(struct _lcompilers_complex_32* a,
+        struct _lcompilers_complex_32* b, struct _lcompilers_complex_32 *result)
 {
     float p = a->re, q = a->im;
     float r = b->re, s = -(b->im);
@@ -112,8 +112,8 @@ LFORTRAN_API void _lfortran_complex_div_32(struct _lfortran_complex_32* a,
     result->im = (p*s + q*r)/mod_b;
 }
 
-LFORTRAN_API void _lfortran_complex_div_64(struct _lfortran_complex_64* a,
-        struct _lfortran_complex_64* b, struct _lfortran_complex_64 *result)
+LCOMPILERS_API void _lcompilers_complex_div_64(struct _lcompilers_complex_64* a,
+        struct _lcompilers_complex_64* b, struct _lcompilers_complex_64 *result)
 {
     double p = a->re, q = a->im;
     double r = b->re, s = -(b->im);
@@ -135,8 +135,8 @@ LFORTRAN_API void _lfortran_complex_div_64(struct _lfortran_complex_64* a,
 #define BITS_32 32
 #define BITS_64 64
 
-LFORTRAN_API void _lfortran_complex_pow_32(struct _lfortran_complex_32* a,
-        struct _lfortran_complex_32* b, struct _lfortran_complex_32 *result)
+LCOMPILERS_API void _lcompilers_complex_pow_32(struct _lcompilers_complex_32* a,
+        struct _lcompilers_complex_32* b, struct _lcompilers_complex_32 *result)
 {
     #ifdef _MSC_VER
         _Fcomplex ca = _FCOMPLEX_(a->re, a->im);
@@ -152,8 +152,8 @@ LFORTRAN_API void _lfortran_complex_pow_32(struct _lfortran_complex_32* a,
 
 }
 
-LFORTRAN_API void _lfortran_complex_pow_64(struct _lfortran_complex_64* a,
-        struct _lfortran_complex_64* b, struct _lfortran_complex_64 *result)
+LCOMPILERS_API void _lcompilers_complex_pow_64(struct _lcompilers_complex_64* a,
+        struct _lcompilers_complex_64* b, struct _lcompilers_complex_64 *result)
 {
     #ifdef _MSC_VER
         _Dcomplex ca = _DCOMPLEX_(a->re, a->im);
@@ -171,226 +171,226 @@ LFORTRAN_API void _lfortran_complex_pow_64(struct _lfortran_complex_64* a,
 
 // sqrt ------------------------------------------------------------------------
 
-LFORTRAN_API float_complex_t _lfortran_csqrt(float_complex_t x)
+LCOMPILERS_API float_complex_t _lcompilers_csqrt(float_complex_t x)
 {
     return csqrtf(x);
 }
 
-LFORTRAN_API double_complex_t _lfortran_zsqrt(double_complex_t x)
+LCOMPILERS_API double_complex_t _lcompilers_zsqrt(double_complex_t x)
 {
     return csqrt(x);
 }
 
 // aimag -----------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_caimag(float_complex_t x)
+LCOMPILERS_API float _lcompilers_caimag(float_complex_t x)
 {
     return cimagf(x);
 }
 
-LFORTRAN_API double _lfortran_zaimag(double_complex_t x)
+LCOMPILERS_API double _lcompilers_zaimag(double_complex_t x)
 {
     return cimag(x);
 }
 
-LFORTRAN_API void _lfortran_complex_aimag_32(struct _lfortran_complex_32 *x, float *res)
+LCOMPILERS_API void _lcompilers_complex_aimag_32(struct _lcompilers_complex_32 *x, float *res)
 {
     *res = x->im;
 }
 
-LFORTRAN_API void _lfortran_complex_aimag_64(struct _lfortran_complex_64 *x, double *res)
+LCOMPILERS_API void _lcompilers_complex_aimag_64(struct _lcompilers_complex_64 *x, double *res)
 {
     *res = x->im;
 }
 
 // exp -------------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_sexp(float x)
+LCOMPILERS_API float _lcompilers_sexp(float x)
 {
     return expf(x);
 }
 
-LFORTRAN_API double _lfortran_dexp(double x)
+LCOMPILERS_API double _lcompilers_dexp(double x)
 {
     return exp(x);
 }
 
-LFORTRAN_API float_complex_t _lfortran_cexp(float_complex_t x)
+LCOMPILERS_API float_complex_t _lcompilers_cexp(float_complex_t x)
 {
     return cexpf(x);
 }
 
-LFORTRAN_API double_complex_t _lfortran_zexp(double_complex_t x)
+LCOMPILERS_API double_complex_t _lcompilers_zexp(double_complex_t x)
 {
     return cexp(x);
 }
 
 // log -------------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_slog(float x)
+LCOMPILERS_API float _lcompilers_slog(float x)
 {
     return logf(x);
 }
 
-LFORTRAN_API double _lfortran_dlog(double x)
+LCOMPILERS_API double _lcompilers_dlog(double x)
 {
     return log(x);
 }
 
-LFORTRAN_API float_complex_t _lfortran_clog(float_complex_t x)
+LCOMPILERS_API float_complex_t _lcompilers_clog(float_complex_t x)
 {
     return clogf(x);
 }
 
-LFORTRAN_API double_complex_t _lfortran_zlog(double_complex_t x)
+LCOMPILERS_API double_complex_t _lcompilers_zlog(double_complex_t x)
 {
     return clog(x);
 }
 
 // erf -------------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_serf(float x)
+LCOMPILERS_API float _lcompilers_serf(float x)
 {
     return erff(x);
 }
 
-LFORTRAN_API double _lfortran_derf(double x)
+LCOMPILERS_API double _lcompilers_derf(double x)
 {
     return erf(x);
 }
 
 // erfc ------------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_serfc(float x)
+LCOMPILERS_API float _lcompilers_serfc(float x)
 {
     return erfcf(x);
 }
 
-LFORTRAN_API double _lfortran_derfc(double x)
+LCOMPILERS_API double _lcompilers_derfc(double x)
 {
     return erfc(x);
 }
 
 // log10 -----------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_slog10(float x)
+LCOMPILERS_API float _lcompilers_slog10(float x)
 {
     return log10f(x);
 }
 
-LFORTRAN_API double _lfortran_dlog10(double x)
+LCOMPILERS_API double _lcompilers_dlog10(double x)
 {
     return log10(x);
 }
 
 // gamma -----------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_sgamma(float x)
+LCOMPILERS_API float _lcompilers_sgamma(float x)
 {
     return tgammaf(x);
 }
 
-LFORTRAN_API double _lfortran_dgamma(double x)
+LCOMPILERS_API double _lcompilers_dgamma(double x)
 {
     return tgamma(x);
 }
 
 // gamma -----------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_slog_gamma(float x)
+LCOMPILERS_API float _lcompilers_slog_gamma(float x)
 {
     return lgammaf(x);
 }
 
-LFORTRAN_API double _lfortran_dlog_gamma(double x)
+LCOMPILERS_API double _lcompilers_dlog_gamma(double x)
 {
     return lgamma(x);
 }
 
 // sin -------------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_ssin(float x)
+LCOMPILERS_API float _lcompilers_ssin(float x)
 {
     return sinf(x);
 }
 
-LFORTRAN_API double _lfortran_dsin(double x)
+LCOMPILERS_API double _lcompilers_dsin(double x)
 {
     return sin(x);
 }
 
-LFORTRAN_API float_complex_t _lfortran_csin(float_complex_t x)
+LCOMPILERS_API float_complex_t _lcompilers_csin(float_complex_t x)
 {
     return csinf(x);
 }
 
-LFORTRAN_API double_complex_t _lfortran_zsin(double_complex_t x)
+LCOMPILERS_API double_complex_t _lcompilers_zsin(double_complex_t x)
 {
     return csin(x);
 }
 
 // cos -------------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_scos(float x)
+LCOMPILERS_API float _lcompilers_scos(float x)
 {
     return cosf(x);
 }
 
-LFORTRAN_API double _lfortran_dcos(double x)
+LCOMPILERS_API double _lcompilers_dcos(double x)
 {
     return cos(x);
 }
 
-LFORTRAN_API float_complex_t _lfortran_ccos(float_complex_t x)
+LCOMPILERS_API float_complex_t _lcompilers_ccos(float_complex_t x)
 {
     return ccosf(x);
 }
 
-LFORTRAN_API double_complex_t _lfortran_zcos(double_complex_t x)
+LCOMPILERS_API double_complex_t _lcompilers_zcos(double_complex_t x)
 {
     return ccos(x);
 }
 
 // tan -------------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_stan(float x)
+LCOMPILERS_API float _lcompilers_stan(float x)
 {
     return tanf(x);
 }
 
-LFORTRAN_API double _lfortran_dtan(double x)
+LCOMPILERS_API double _lcompilers_dtan(double x)
 {
     return tan(x);
 }
 
-LFORTRAN_API float_complex_t _lfortran_ctan(float_complex_t x)
+LCOMPILERS_API float_complex_t _lcompilers_ctan(float_complex_t x)
 {
     return ctanf(x);
 }
 
-LFORTRAN_API double_complex_t _lfortran_ztan(double_complex_t x)
+LCOMPILERS_API double_complex_t _lcompilers_ztan(double_complex_t x)
 {
     return ctan(x);
 }
 
 // sinh ------------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_ssinh(float x)
+LCOMPILERS_API float _lcompilers_ssinh(float x)
 {
     return sinhf(x);
 }
 
-LFORTRAN_API double _lfortran_dsinh(double x)
+LCOMPILERS_API double _lcompilers_dsinh(double x)
 {
     return sinh(x);
 }
 
-LFORTRAN_API float_complex_t _lfortran_csinh(float_complex_t x)
+LCOMPILERS_API float_complex_t _lcompilers_csinh(float_complex_t x)
 {
     return csinhf(x);
 }
 
-LFORTRAN_API double_complex_t _lfortran_zsinh(double_complex_t x)
+LCOMPILERS_API double_complex_t _lcompilers_zsinh(double_complex_t x)
 {
     return csinh(x);
 }
@@ -398,195 +398,195 @@ LFORTRAN_API double_complex_t _lfortran_zsinh(double_complex_t x)
 // cosh ------------------------------------------------------------------------
 
 
-LFORTRAN_API float _lfortran_scosh(float x)
+LCOMPILERS_API float _lcompilers_scosh(float x)
 {
     return coshf(x);
 }
 
-LFORTRAN_API double _lfortran_dcosh(double x)
+LCOMPILERS_API double _lcompilers_dcosh(double x)
 {
     return cosh(x);
 }
 
-LFORTRAN_API float_complex_t _lfortran_ccosh(float_complex_t x)
+LCOMPILERS_API float_complex_t _lcompilers_ccosh(float_complex_t x)
 {
     return ccoshf(x);
 }
 
-LFORTRAN_API double_complex_t _lfortran_zcosh(double_complex_t x)
+LCOMPILERS_API double_complex_t _lcompilers_zcosh(double_complex_t x)
 {
     return ccosh(x);
 }
 
 // tanh ------------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_stanh(float x)
+LCOMPILERS_API float _lcompilers_stanh(float x)
 {
     return tanhf(x);
 }
 
-LFORTRAN_API double _lfortran_dtanh(double x)
+LCOMPILERS_API double _lcompilers_dtanh(double x)
 {
     return tanh(x);
 }
 
-LFORTRAN_API float_complex_t _lfortran_ctanh(float_complex_t x)
+LCOMPILERS_API float_complex_t _lcompilers_ctanh(float_complex_t x)
 {
     return ctanhf(x);
 }
 
-LFORTRAN_API double_complex_t _lfortran_ztanh(double_complex_t x)
+LCOMPILERS_API double_complex_t _lcompilers_ztanh(double_complex_t x)
 {
     return ctanh(x);
 }
 
 // asin ------------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_sasin(float x)
+LCOMPILERS_API float _lcompilers_sasin(float x)
 {
     return asinf(x);
 }
 
-LFORTRAN_API double _lfortran_dasin(double x)
+LCOMPILERS_API double _lcompilers_dasin(double x)
 {
     return asin(x);
 }
 
-LFORTRAN_API float_complex_t _lfortran_casin(float_complex_t x)
+LCOMPILERS_API float_complex_t _lcompilers_casin(float_complex_t x)
 {
     return casinf(x);
 }
 
-LFORTRAN_API double_complex_t _lfortran_zasin(double_complex_t x)
+LCOMPILERS_API double_complex_t _lcompilers_zasin(double_complex_t x)
 {
     return casin(x);
 }
 
 // acos ------------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_sacos(float x)
+LCOMPILERS_API float _lcompilers_sacos(float x)
 {
     return acosf(x);
 }
 
-LFORTRAN_API double _lfortran_dacos(double x)
+LCOMPILERS_API double _lcompilers_dacos(double x)
 {
     return acos(x);
 }
 
-LFORTRAN_API float_complex_t _lfortran_cacos(float_complex_t x)
+LCOMPILERS_API float_complex_t _lcompilers_cacos(float_complex_t x)
 {
     return cacosf(x);
 }
 
-LFORTRAN_API double_complex_t _lfortran_zacos(double_complex_t x)
+LCOMPILERS_API double_complex_t _lcompilers_zacos(double_complex_t x)
 {
     return cacos(x);
 }
 
 // atan ------------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_satan(float x)
+LCOMPILERS_API float _lcompilers_satan(float x)
 {
     return atanf(x);
 }
 
-LFORTRAN_API double _lfortran_datan(double x)
+LCOMPILERS_API double _lcompilers_datan(double x)
 {
     return atan(x);
 }
 
-LFORTRAN_API float_complex_t _lfortran_catan(float_complex_t x)
+LCOMPILERS_API float_complex_t _lcompilers_catan(float_complex_t x)
 {
     return catanf(x);
 }
 
-LFORTRAN_API double_complex_t _lfortran_zatan(double_complex_t x)
+LCOMPILERS_API double_complex_t _lcompilers_zatan(double_complex_t x)
 {
     return catan(x);
 }
 
 // atan2 -----------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_satan2(float y, float x)
+LCOMPILERS_API float _lcompilers_satan2(float y, float x)
 {
     return atan2f(y, x);
 }
 
-LFORTRAN_API double _lfortran_datan2(double y, double x)
+LCOMPILERS_API double _lcompilers_datan2(double y, double x)
 {
     return atan2(y, x);
 }
 
 // asinh -----------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_sasinh(float x)
+LCOMPILERS_API float _lcompilers_sasinh(float x)
 {
     return asinhf(x);
 }
 
-LFORTRAN_API double _lfortran_dasinh(double x)
+LCOMPILERS_API double _lcompilers_dasinh(double x)
 {
     return asinh(x);
 }
 
-LFORTRAN_API float_complex_t _lfortran_casinh(float_complex_t x)
+LCOMPILERS_API float_complex_t _lcompilers_casinh(float_complex_t x)
 {
     return casinhf(x);
 }
 
-LFORTRAN_API double_complex_t _lfortran_zasinh(double_complex_t x)
+LCOMPILERS_API double_complex_t _lcompilers_zasinh(double_complex_t x)
 {
     return casinh(x);
 }
 
 // acosh -----------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_sacosh(float x)
+LCOMPILERS_API float _lcompilers_sacosh(float x)
 {
     return acoshf(x);
 }
 
-LFORTRAN_API double _lfortran_dacosh(double x)
+LCOMPILERS_API double _lcompilers_dacosh(double x)
 {
     return acosh(x);
 }
 
-LFORTRAN_API float_complex_t _lfortran_cacosh(float_complex_t x)
+LCOMPILERS_API float_complex_t _lcompilers_cacosh(float_complex_t x)
 {
     return cacoshf(x);
 }
 
-LFORTRAN_API double_complex_t _lfortran_zacosh(double_complex_t x)
+LCOMPILERS_API double_complex_t _lcompilers_zacosh(double_complex_t x)
 {
     return cacosh(x);
 }
 
 // fmod -----------------------------------------------------------------------
 
-LFORTRAN_API double _lfortran_dfmod(double x, double y)
+LCOMPILERS_API double _lcompilers_dfmod(double x, double y)
 {
     return fmod(x, y);
 }
 
 // atanh -----------------------------------------------------------------------
 
-LFORTRAN_API float _lfortran_satanh(float x)
+LCOMPILERS_API float _lcompilers_satanh(float x)
 {
     return atanhf(x);
 }
 
-LFORTRAN_API double _lfortran_datanh(double x)
+LCOMPILERS_API double _lcompilers_datanh(double x)
 {
     return atanh(x);
 }
 
-LFORTRAN_API float_complex_t _lfortran_catanh(float_complex_t x)
+LCOMPILERS_API float_complex_t _lcompilers_catanh(float_complex_t x)
 {
     return catanhf(x);
 }
 
-LFORTRAN_API double_complex_t _lfortran_zatanh(double_complex_t x)
+LCOMPILERS_API double_complex_t _lcompilers_zatanh(double_complex_t x)
 {
     return catanh(x);
 }
@@ -594,7 +594,7 @@ LFORTRAN_API double_complex_t _lfortran_zatanh(double_complex_t x)
 
 // strcat  --------------------------------------------------------------------
 
-LFORTRAN_API void _lfortran_strcat(char** s1, char** s2, char** dest)
+LCOMPILERS_API void _lcompilers_strcat(char** s1, char** s2, char** dest)
 {
     int cntr = 0;
     char trmn = '\0';
@@ -615,7 +615,7 @@ LFORTRAN_API void _lfortran_strcat(char** s1, char** s2, char** dest)
 }
 
 //repeat str for n time
-LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
+LCOMPILERS_API void _lcompilers_strrepeat(char** s, int32_t n, char** dest)
 {
     int cntr = 0;
     char trmn = '\0';
@@ -636,8 +636,7 @@ LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
 }
 
 // idx1 and idx2 both start from 1
-LFORTRAN_API char* _lfortran_str_copy(char* s, int32_t idx1, int32_t idx2) {
-
+LCOMPILERS_API char* _lcompilers_str_copy(char* s, int32_t idx1, int32_t idx2) {
     int s_len = strlen(s);
     if(idx1 > s_len || idx1 <= (-1*s_len)){
         printf("String index out of Bounds\n");
@@ -658,21 +657,21 @@ LFORTRAN_API char* _lfortran_str_copy(char* s, int32_t idx1, int32_t idx2) {
     return dest_char;
 }
 
-LFORTRAN_API int _lfortran_str_len(char** s)
+LCOMPILERS_API int _lcompilers_str_len(char** s)
 {
     return strlen(*s);
 }
 
-LFORTRAN_API char* _lfortran_malloc(int size) {
+LCOMPILERS_API char* _lcompilers_malloc(int size) {
     return (char*)malloc(size);
 }
 
-LFORTRAN_API void _lfortran_free(char* ptr) {
+LCOMPILERS_API void _lcompilers_free(char* ptr) {
     free((void*)ptr);
 }
 
 // size_plus_one is the size of the string including the null character
-LFORTRAN_API void _lfortran_string_init(int size_plus_one, char *s) {
+LCOMPILERS_API void _lcompilers_string_init(int size_plus_one, char *s) {
     int size = size_plus_one-1;
     for (int i=0; i < size; i++) {
         s[i] = ' ';
@@ -688,7 +687,7 @@ struct _lcompilers_list_i32 {
     int32_t *p;
 };
 
-LFORTRAN_API int8_t* _lcompilers_list_init_i32() {
+LCOMPILERS_API int8_t* _lcompilers_list_init_i32() {
     struct _lcompilers_list_i32 *l;
     l = (struct _lcompilers_list_i32*)malloc(
             sizeof(struct _lcompilers_list_i32));
@@ -698,7 +697,7 @@ LFORTRAN_API int8_t* _lcompilers_list_init_i32() {
     return (int8_t*)l;
 }
 
-LFORTRAN_API void _lcompilers_list_append_i32(int8_t* s, int32_t item) {
+LCOMPILERS_API void _lcompilers_list_append_i32(int8_t* s, int32_t item) {
     struct _lcompilers_list_i32 *l = (struct _lcompilers_list_i32 *)s;
     if (l->n == l->capacity) {
         l->capacity = 2*l->capacity;
@@ -709,7 +708,7 @@ LFORTRAN_API void _lcompilers_list_append_i32(int8_t* s, int32_t item) {
 }
 
 // pos is the index = 1..n
-LFORTRAN_API int32_t _lcompilers_list_item_i32(int8_t* s, int32_t pos) {
+LCOMPILERS_API int32_t _lcompilers_list_item_i32(int8_t* s, int32_t pos) {
     struct _lcompilers_list_i32 *l = (struct _lcompilers_list_i32 *)s;
     if (pos >= 1 && pos <= l->n) {
         return l->p[pos-1];
@@ -721,63 +720,63 @@ LFORTRAN_API int32_t _lcompilers_list_item_i32(int8_t* s, int32_t pos) {
 
 // bit  ------------------------------------------------------------------------
 
-LFORTRAN_API int32_t _lfortran_iand32(int32_t x, int32_t y) {
+LCOMPILERS_API int32_t _lcompilers_iand32(int32_t x, int32_t y) {
     return x & y;
 }
 
-LFORTRAN_API int64_t _lfortran_iand64(int64_t x, int64_t y) {
+LCOMPILERS_API int64_t _lcompilers_iand64(int64_t x, int64_t y) {
     return x & y;
 }
 
-LFORTRAN_API int32_t _lfortran_not32(int32_t x) {
+LCOMPILERS_API int32_t _lcompilers_not32(int32_t x) {
     return ~ x;
 }
 
-LFORTRAN_API int64_t _lfortran_not64(int64_t x) {
+LCOMPILERS_API int64_t _lcompilers_not64(int64_t x) {
     return ~ x;
 }
 
-LFORTRAN_API int32_t _lfortran_ior32(int32_t x, int32_t y) {
+LCOMPILERS_API int32_t _lcompilers_ior32(int32_t x, int32_t y) {
     return x | y;
 }
 
-LFORTRAN_API int64_t _lfortran_ior64(int64_t x, int64_t y) {
+LCOMPILERS_API int64_t _lcompilers_ior64(int64_t x, int64_t y) {
     return x | y;
 }
 
-LFORTRAN_API int32_t _lfortran_ieor32(int32_t x, int32_t y) {
+LCOMPILERS_API int32_t _lcompilers_ieor32(int32_t x, int32_t y) {
     return x ^ y;
 }
 
-LFORTRAN_API int64_t _lfortran_ieor64(int64_t x, int64_t y) {
+LCOMPILERS_API int64_t _lcompilers_ieor64(int64_t x, int64_t y) {
     return x ^ y;
 }
 
-LFORTRAN_API int32_t _lfortran_ibclr32(int32_t i, int pos) {
+LCOMPILERS_API int32_t _lcompilers_ibclr32(int32_t i, int pos) {
     return i & ~(1 << pos);
 }
 
-LFORTRAN_API int64_t _lfortran_ibclr64(int64_t i, int pos) {
+LCOMPILERS_API int64_t _lcompilers_ibclr64(int64_t i, int pos) {
     return i & ~(1LL << pos);
 }
 
-LFORTRAN_API int32_t _lfortran_ibset32(int32_t i, int pos) {
+LCOMPILERS_API int32_t _lcompilers_ibset32(int32_t i, int pos) {
     return i | (1 << pos);
 }
 
-LFORTRAN_API int64_t _lfortran_ibset64(int64_t i, int pos) {
+LCOMPILERS_API int64_t _lcompilers_ibset64(int64_t i, int pos) {
     return i | (1LL << pos);
 }
 
-LFORTRAN_API int32_t _lfortran_btest32(int32_t i, int pos) {
+LCOMPILERS_API int32_t _lcompilers_btest32(int32_t i, int pos) {
     return i & (1 << pos);
 }
 
-LFORTRAN_API int64_t _lfortran_btest64(int64_t i, int pos) {
+LCOMPILERS_API int64_t _lcompilers_btest64(int64_t i, int pos) {
     return i & (1LL << pos);
 }
 
-LFORTRAN_API int32_t _lfortran_ishft32(int32_t i, int32_t shift) {
+LCOMPILERS_API int32_t _lcompilers_ishft32(int32_t i, int32_t shift) {
     if(shift > 0) {
         return i << shift;
     } else if(shift < 0) {
@@ -787,7 +786,7 @@ LFORTRAN_API int32_t _lfortran_ishft32(int32_t i, int32_t shift) {
     }
 }
 
-LFORTRAN_API int64_t _lfortran_ishft64(int64_t i, int64_t shift) {
+LCOMPILERS_API int64_t _lcompilers_ishft64(int64_t i, int64_t shift) {
     if(shift > 0) {
         return i << shift;
     } else if(shift < 0) {
@@ -797,7 +796,7 @@ LFORTRAN_API int64_t _lfortran_ishft64(int64_t i, int64_t shift) {
     }
 }
 
-LFORTRAN_API int32_t _lfortran_mvbits32(int32_t from, int32_t frompos,
+LCOMPILERS_API int32_t _lcompilers_mvbits32(int32_t from, int32_t frompos,
                                         int32_t len, int32_t to, int32_t topos) {
     uint32_t all_ones = ~0;
     uint32_t ufrom = from;
@@ -811,7 +810,7 @@ LFORTRAN_API int32_t _lfortran_mvbits32(int32_t from, int32_t frompos,
     return (~all_ones & uto) | ufrom;
 }
 
-LFORTRAN_API int64_t _lfortran_mvbits64(int64_t from, int32_t frompos,
+LCOMPILERS_API int64_t _lcompilers_mvbits64(int64_t from, int32_t frompos,
                                         int32_t len, int64_t to, int32_t topos) {
     uint64_t all_ones = ~0;
     uint64_t ufrom = from;
@@ -825,65 +824,65 @@ LFORTRAN_API int64_t _lfortran_mvbits64(int64_t from, int32_t frompos,
     return (~all_ones & uto) | ufrom;
 }
 
-LFORTRAN_API int32_t _lfortran_bgt32(int32_t i, int32_t j) {
+LCOMPILERS_API int32_t _lcompilers_bgt32(int32_t i, int32_t j) {
     uint32_t ui = i, uj = j;
     return ui > uj;
 }
 
-LFORTRAN_API int32_t _lfortran_bgt64(int64_t i, int64_t j) {
+LCOMPILERS_API int32_t _lcompilers_bgt64(int64_t i, int64_t j) {
     uint64_t ui = i, uj = j;
     return ui > uj;
 }
 
-LFORTRAN_API int32_t _lfortran_bge32(int32_t i, int32_t j) {
+LCOMPILERS_API int32_t _lcompilers_bge32(int32_t i, int32_t j) {
     uint32_t ui = i, uj = j;
     return ui >= uj;
 }
 
-LFORTRAN_API int32_t _lfortran_bge64(int64_t i, int64_t j) {
+LCOMPILERS_API int32_t _lcompilers_bge64(int64_t i, int64_t j) {
     uint64_t ui = i, uj = j;
     return ui >= uj;
 }
 
-LFORTRAN_API int32_t _lfortran_ble32(int32_t i, int32_t j) {
+LCOMPILERS_API int32_t _lcompilers_ble32(int32_t i, int32_t j) {
     uint32_t ui = i, uj = j;
     return ui <= uj;
 }
 
-LFORTRAN_API int32_t _lfortran_ble64(int64_t i, int64_t j) {
+LCOMPILERS_API int32_t _lcompilers_ble64(int64_t i, int64_t j) {
     uint64_t ui = i, uj = j;
     return ui <= uj;
 }
 
-LFORTRAN_API int32_t _lfortran_blt32(int32_t i, int32_t j) {
+LCOMPILERS_API int32_t _lcompilers_blt32(int32_t i, int32_t j) {
     uint32_t ui = i, uj = j;
     return ui < uj;
 }
 
-LFORTRAN_API int32_t _lfortran_blt64(int64_t i, int64_t j) {
+LCOMPILERS_API int32_t _lcompilers_blt64(int64_t i, int64_t j) {
     uint64_t ui = i, uj = j;
     return ui < uj;
 }
 
-LFORTRAN_API int32_t _lfortran_ibits32(int32_t i, int32_t pos, int32_t len) {
+LCOMPILERS_API int32_t _lcompilers_ibits32(int32_t i, int32_t pos, int32_t len) {
     uint32_t ui = i;
     return ((ui << (BITS_32 - pos - len)) >> (BITS_32 - len));
 }
 
-LFORTRAN_API int64_t _lfortran_ibits64(int64_t i, int32_t pos, int32_t len) {
+LCOMPILERS_API int64_t _lcompilers_ibits64(int64_t i, int32_t pos, int32_t len) {
     uint64_t ui = i;
     return ((ui << (BITS_64 - pos - len)) >> (BITS_64 - len));
 }
 
 // cpu_time  -------------------------------------------------------------------
 
-LFORTRAN_API void _lfortran_cpu_time(double *t) {
+LCOMPILERS_API void _lcompilers_cpu_time(double *t) {
     *t = ((double) clock()) / CLOCKS_PER_SEC;
 }
 
 // system_time -----------------------------------------------------------------
 
-LFORTRAN_API void _lfortran_i32sys_clock(
+LCOMPILERS_API void _lcompilers_i32sys_clock(
         int32_t *count, int32_t *rate, int32_t *max) {
 #ifdef _MSC_VER
         *count = - INT_MAX;
@@ -903,7 +902,7 @@ LFORTRAN_API void _lfortran_i32sys_clock(
 #endif
 }
 
-LFORTRAN_API void _lfortran_i64sys_clock(
+LCOMPILERS_API void _lcompilers_i64sys_clock(
         uint64_t *count, int64_t *rate, int64_t *max) {
 #ifdef _MSC_VER
         *count = - INT_MAX;
@@ -925,17 +924,17 @@ LFORTRAN_API void _lfortran_i64sys_clock(
 #endif
 }
 
-LFORTRAN_API void _lfortran_sp_rand_num(float *x) {
+LCOMPILERS_API void _lcompilers_sp_rand_num(float *x) {
     srand(time(0));
     *x = rand() / (float) RAND_MAX;
 }
 
-LFORTRAN_API void _lfortran_dp_rand_num(double *x) {
+LCOMPILERS_API void _lcompilers_dp_rand_num(double *x) {
     srand(time(0));
     *x = rand() / (double) RAND_MAX;
 }
 
-LFORTRAN_API int64_t _lpython_open(char *path, char *flags)
+LCOMPILERS_API int64_t _lpython_open(char *path, char *flags)
 {
     FILE *fd;
     fd = fopen(path, flags);
@@ -948,7 +947,7 @@ LFORTRAN_API int64_t _lpython_open(char *path, char *flags)
     return (int64_t)fd;
 }
 
-LFORTRAN_API char* _lpython_read(int64_t fd, int64_t n)
+LCOMPILERS_API char* _lpython_read(int64_t fd, int64_t n)
 {
     char *c = (char *) calloc(n, sizeof(char));
     if (fd < 0)
@@ -961,7 +960,7 @@ LFORTRAN_API char* _lpython_read(int64_t fd, int64_t n)
     return c;
 }
 
-LFORTRAN_API void _lpython_close(int64_t fd)
+LCOMPILERS_API void _lpython_close(int64_t fd)
 {
     if (fclose((FILE*)fd) != 0)
     {
