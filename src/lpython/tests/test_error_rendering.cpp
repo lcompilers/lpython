@@ -89,7 +89,7 @@ semantic error: Error with label no message
  --> input:1:5
   |
 1 | One line text
-  |     ^^^^
+  |     ^^^^ 
 )""");
     CHECK(out == ref);
 
