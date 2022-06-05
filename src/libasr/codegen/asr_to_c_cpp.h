@@ -599,45 +599,6 @@ R"(#include <stdio.h>
         }
     }
 
-    void visit_UnaryOp(const ASR::UnaryOp_t &x) {
-        self().visit_expr(*x.m_operand);
-        int expr_precedence = last_expr_precedence;
-        if (x.m_type->type == ASR::ttypeType::Integer) {
-            if (x.m_op == ASR::unaryopType::UAdd) {
-                // src = src;
-                // Skip unary plus, keep the previous precedence
-
-            } else if (x.m_op == ASR::unaryopType::Not) {
-                last_expr_precedence = 3;
-                if (expr_precedence <= last_expr_precedence) {
-                    src = "!" + src;
-                } else {
-                    src = "!(" + src + ")";
-                }
-            } else {
-                throw CodeGenError("Unary type not implemented yet for Integer");
-            }
-            return;
-        } else if (x.m_type->type == ASR::ttypeType::Real) {
-            if (x.m_op == ASR::unaryopType::UAdd) {
-                // src = src;
-                // Skip unary plus, keep the previous precedence
-            } else if (x.m_op == ASR::unaryopType::Not) {
-                last_expr_precedence = 3;
-                if (expr_precedence <= last_expr_precedence) {
-                    src = "!" + src;
-                } else {
-                    src = "!(" + src + ")";
-                }
-            } else {
-                throw CodeGenError("Unary type not implemented yet for Real");
-            }
-            return;
-        } else {
-            throw CodeGenError("UnaryOp: type not supported yet");
-        }
-    }
-
     void visit_IntegerBitNot(const ASR::IntegerBitNot_t& x) {
         self().visit_expr(*x.m_arg);
         int expr_precedence = last_expr_precedence;
@@ -949,11 +910,9 @@ R"(#include <stdio.h>
         } else {
             if (c->type == ASR::exprType::IntegerConstant) {
                 increment = ASR::down_cast<ASR::IntegerConstant_t>(c)->m_n;
-            } else if (c->type == ASR::exprType::UnaryOp) {
-                ASR::UnaryOp_t *u = ASR::down_cast<ASR::UnaryOp_t>(c);
-                LFORTRAN_ASSERT(u->m_op == ASR::unaryopType::USub);
-                LFORTRAN_ASSERT(u->m_operand->type == ASR::exprType::IntegerConstant);
-                increment = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_operand)->m_n;
+            } else if (c->type == ASR::exprType::IntegerUnaryMinus) {
+                ASR::IntegerUnaryMinus_t *ium = ASR::down_cast<ASR::IntegerUnaryMinus_t>(c);
+                increment = - ASR::down_cast<ASR::IntegerConstant_t>(ium->m_arg)->m_n;
             } else {
                 throw CodeGenError("Do loop increment type not supported");
             }
