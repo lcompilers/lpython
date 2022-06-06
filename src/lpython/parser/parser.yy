@@ -243,7 +243,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %left "or"
 %left "and"
 %precedence "not"
-%left "==" "!=" ">=" ">" "<=" "<" //"is not" "is" "not in" "in"
+%left "==" "!=" ">=" ">" "<=" "<" KW_IS //"is not" "is" "not in" "in"
 %left "|"
 %left "^"
 %left "&"
@@ -730,6 +730,8 @@ expr
     | expr "<=" expr { $$ = COMPARE($1, LtE, $3, @$); }
     | expr ">" expr { $$ = COMPARE($1, Gt, $3, @$); }
     | expr ">=" expr { $$ = COMPARE($1, GtE, $3, @$); }
+    | expr KW_IS expr { $$ = COMPARE($1, Is, $3, @$); }
+    /* | expr KW_IS TK_NOT expr { $$ = COMPARE($1, IsNot, $4, @$); } */
 
     | expr "and" expr { $$ = BOOLOP($1, And, $3, @$); }
     | expr "or" expr { $$ = BOOLOP($1, Or, $3, @$); }
