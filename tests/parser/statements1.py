@@ -105,6 +105,12 @@ x <= y
 x > y
 x >= y
 
+if type(x) is int:
+    pass
+
+if ((2 + 3)/2 - 1 is 5) is True:
+    pass
+
 i: i32 = 4
 if 2 > i : pass
 if i > 5 : break
