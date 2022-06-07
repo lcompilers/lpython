@@ -131,6 +131,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_GT ">"
 %token TK_GE ">="
 %token TK_NOT "not"
+%token TK_IS_NOT "is not"
 %token TK_AND "and"
 %token TK_OR "or"
 %token TK_TRUE "True"
@@ -243,7 +244,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %left "or"
 %left "and"
 %precedence "not"
-%left "==" "!=" ">=" ">" "<=" "<" KW_IS //"is not" "is" "not in" "in"
+%left "==" "!=" ">=" ">" "<=" "<" TK_IS_NOT KW_IS //"is not" "is" "not in" "in"
 %left "|"
 %left "^"
 %left "&"
@@ -731,7 +732,7 @@ expr
     | expr ">" expr { $$ = COMPARE($1, Gt, $3, @$); }
     | expr ">=" expr { $$ = COMPARE($1, GtE, $3, @$); }
     | expr KW_IS expr { $$ = COMPARE($1, Is, $3, @$); }
-    /* | expr KW_IS TK_NOT expr { $$ = COMPARE($1, IsNot, $4, @$); } */
+    | expr TK_IS_NOT expr { $$ = COMPARE($1, IsNot, $3, @$); }
 
     | expr "and" expr { $$ = BOOLOP($1, And, $3, @$); }
     | expr "or" expr { $$ = BOOLOP($1, Or, $3, @$); }
