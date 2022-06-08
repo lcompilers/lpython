@@ -4,8 +4,8 @@ import ctypes
 import platform
 from typing import TypeVar
 
-__slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64",
-        "overload", "ccall", "TypeVar"]
+__slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64", "c_ptr",
+        "overload", "ccall", "TypeVar", "pointer"]
 
 # data-types
 
@@ -29,6 +29,7 @@ f32 = Type("f32")
 f64 = Type("f64")
 c32 = Type("c32")
 c64 = Type("c64")
+CPtr = Type("c_ptr")
 
 # Overloading support
 
@@ -162,3 +163,9 @@ class CTypes:
 def ccall(f):
     wrapped_f = CTypes(f)
     return wrapped_f
+
+def pointer(type_):
+    return type_
+
+def c_p_pointer(cptr, targettype):
+    return pointer(targettype)

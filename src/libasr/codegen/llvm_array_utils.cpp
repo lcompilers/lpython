@@ -259,8 +259,12 @@ namespace LFortran {
         }
 
         llvm::Value* SimpleCMODescriptor::
-        get_pointer_to_dimension_descriptor_array(llvm::Value* arr) {
-            return LLVM::CreateLoad(*builder, llvm_utils->create_gep(arr, 2));
+        get_pointer_to_dimension_descriptor_array(llvm::Value* arr, bool load) {
+            llvm::Value* dim_des_arr_ptr = llvm_utils->create_gep(arr, 2);
+            if( !load ) {
+                return dim_des_arr_ptr;
+            }
+            return LLVM::CreateLoad(*builder, dim_des_arr_ptr);
         }
 
         llvm::Value* SimpleCMODescriptor::
@@ -272,10 +276,19 @@ namespace LFortran {
             return LLVM::CreateLoad(*builder, rank_ptr);
         }
 
+        void SimpleCMODescriptor::
+        set_rank(llvm::Value* arr, llvm::Value* rank) {
+            llvm::Value* rank_ptr = llvm_utils->create_gep(arr, 4);
+            LLVM::CreateStore(*builder, rank, rank_ptr);
+        }
+
         llvm::Value* SimpleCMODescriptor::
-        get_dimension_size(llvm::Value* dim_des_arr, llvm::Value* dim) {
-            return LLVM::CreateLoad(*builder,
-                        llvm_utils->create_gep(llvm_utils->create_ptr_gep(dim_des_arr, dim), 3));
+        get_dimension_size(llvm::Value* dim_des_arr, llvm::Value* dim, bool load) {
+            llvm::Value* dim_size = llvm_utils->create_gep(llvm_utils->create_ptr_gep(dim_des_arr, dim), 3);
+            if( !load ) {
+                return dim_size;
+            }
+            return LLVM::CreateLoad(*builder, dim_size);
         }
 
         void SimpleCMODescriptor::fill_array_details(
@@ -398,12 +411,20 @@ namespace LFortran {
             return LLVM::CreateLoad(*builder, llvm_utils->create_gep(arr, 1));
         }
 
-        llvm::Value* SimpleCMODescriptor::get_lower_bound(llvm::Value* dim_des) {
-            return LLVM::CreateLoad(*builder, llvm_utils->create_gep(dim_des, 1));
+        llvm::Value* SimpleCMODescriptor::get_lower_bound(llvm::Value* dim_des, bool load) {
+            llvm::Value* lb = llvm_utils->create_gep(dim_des, 1);
+            if( !load ) {
+                return lb;
+            }
+            return LLVM::CreateLoad(*builder, lb);
         }
 
-        llvm::Value* SimpleCMODescriptor::get_upper_bound(llvm::Value* dim_des) {
-            return LLVM::CreateLoad(*builder, llvm_utils->create_gep(dim_des, 2));
+        llvm::Value* SimpleCMODescriptor::get_upper_bound(llvm::Value* dim_des, bool load) {
+            llvm::Value* ub = llvm_utils->create_gep(dim_des, 2);
+            if( !load ) {
+                return ub;
+            }
+            return LLVM::CreateLoad(*builder, ub);
         }
 
         llvm::Value* SimpleCMODescriptor::get_stride(llvm::Value*) {
