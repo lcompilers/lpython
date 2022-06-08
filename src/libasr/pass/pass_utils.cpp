@@ -486,9 +486,6 @@ namespace LFortran {
                 } else if (c->type == ASR::exprType::IntegerUnaryMinus) {
                     ASR::IntegerUnaryMinus_t *u = ASR::down_cast<ASR::IntegerUnaryMinus_t>(c);
                     increment = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_arg)->m_n;
-                } else if (c->type == ASR::exprType::IntegerUnaryMinus) {
-                    ASR::IntegerUnaryMinus_t *u = ASR::down_cast<ASR::IntegerUnaryMinus_t>(c);
-                    increment = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_arg)->m_n;
                 } else {
                     throw LFortranException("Do loop increment type not supported");
                 }

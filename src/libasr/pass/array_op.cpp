@@ -422,23 +422,23 @@ public:
     }
 
     void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {
-        visit_UnaryOp(x);
+        handle_UnaryOp(x, 0);
     }
     void visit_RealUnaryMinus(const ASR::RealUnaryMinus_t &x) {
-        visit_UnaryOp(x);
+        handle_UnaryOp(x, 1);
     }
     void visit_ComplexUnaryMinus(const ASR::ComplexUnaryMinus_t &x) {
-        visit_UnaryOp(x);
+        handle_UnaryOp(x, 2);
     }
     void visit_IntegerBitNot(const ASR::IntegerBitNot_t &x) {
-        visit_UnaryOp(x);
+        handle_UnaryOp(x, 3);
     }
     void visit_LogicalNot(const ASR::LogicalNot_t &x) {
-        visit_UnaryOp(x);
+        handle_UnaryOp(x, 4);
     }
 
     template<typename T>
-    void visit_UnaryOp(const T& x) {
+    void handle_UnaryOp(const T& x, int unary_type) {
         std::string res_prefix = "_unary_op_res";
         ASR::expr_t* result_var_copy = result_var;
         result_var = nullptr;
@@ -475,8 +475,23 @@ public:
                 if( doloop == nullptr ) {
                     ASR::expr_t* ref = PassUtils::create_array_ref(operand, idx_vars, al);
                     ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
-                    ASR::expr_t* op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_IntegerUnaryMinus_t(al, x.base.base.loc,
-                        ref, x.m_type, nullptr));
+                    ASR::expr_t* op_el_wise = nullptr;
+                    if (unary_type == 0) {
+                        op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_IntegerUnaryMinus_t(al, x.base.base.loc,
+                            ref, x.m_type, nullptr));
+                    } else if (unary_type == 1) {
+                        op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_RealUnaryMinus_t(al, x.base.base.loc,
+                            ref, x.m_type, nullptr));
+                    } else if (unary_type == 2) {
+                        op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_ComplexUnaryMinus_t(al, x.base.base.loc,
+                            ref, x.m_type, nullptr));
+                    } else if (unary_type == 3) {
+                        op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_IntegerBitNot_t(al, x.base.base.loc,
+                            ref, x.m_type, nullptr));
+                    } else if (unary_type == 4) {
+                        op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_LogicalNot_t(al, x.base.base.loc,
+                            ref, x.m_type, nullptr));
+                    }
                     ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr));
                     doloop_body.push_back(al, assign);
                 } else {

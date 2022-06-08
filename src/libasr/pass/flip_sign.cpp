@@ -118,10 +118,10 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t& x) {
-        if( x.m_value->type == ASR::exprType::IntegerUnaryMinus ) {
+        if( x.m_value->type == ASR::exprType::RealUnaryMinus ) {
             is_unary_op_present = true;
             ASR::symbol_t* sym = nullptr;
-            ASR::IntegerUnaryMinus_t* negation = ASR::down_cast<ASR::IntegerUnaryMinus_t>(x.m_value);
+            ASR::RealUnaryMinus_t* negation = ASR::down_cast<ASR::RealUnaryMinus_t>(x.m_value);
             if( negation->m_arg->type == ASR::exprType::Var ) {
                 ASR::Var_t* var = ASR::down_cast<ASR::Var_t>(negation->m_arg);
                 sym = var->m_v;
