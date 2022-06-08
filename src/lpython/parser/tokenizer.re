@@ -550,6 +550,7 @@ std::string token2text(const int token)
         T(TK_NOT, "not")
         T(TK_AND, "and")
         T(TK_OR, "or")
+        T(TK_IS_NOT, "is not")
 
         T(TK_TRUE, "True")
         T(TK_FALSE, "False")
