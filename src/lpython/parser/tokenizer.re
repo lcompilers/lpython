@@ -427,6 +427,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             'and'  { RET(TK_AND) }
             'or'   { RET(TK_OR) }
             'is' whitespace 'not'  { RET(TK_IS_NOT) }
+            'is' whitespace? "\\" newline whitespace? 'not'  { RET(TK_IS_NOT) }
 
             // True/False
 
