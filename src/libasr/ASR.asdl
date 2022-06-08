@@ -202,7 +202,7 @@ stmt
     | Flush(int label, expr unit, expr? err, expr? iomsg, expr? iostat)
     | ListAppend(symbol a, expr ele)
     | AssociateBlockCall(symbol m)
-    | CFPointer(expr cptr, expr fptr, expr? shape)
+    | CPtrToPointer(expr cptr, expr ptr, expr? shape)
     | BlockCall(symbol m)
     | SetInsert(symbol a, expr ele)
     | SetRemove(symbol a, expr ele)
