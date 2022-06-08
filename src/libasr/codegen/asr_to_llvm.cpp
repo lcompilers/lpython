@@ -1338,6 +1338,43 @@ public:
                 }
             }
             llvm_symtab[h] = ptr;
+        } else if( x.m_type->type == ASR::ttypeType::CPtr ) {
+            llvm::Type* void_ptr = llvm::Type::getVoidTy(context)->getPointerTo();
+            llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
+                void_ptr);
+            if (!external) {
+                if (init_value) {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            init_value);
+                } else {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            llvm::ConstantPointerNull::get(
+                                static_cast<llvm::PointerType*>(void_ptr))
+                            );
+                }
+            }
+            llvm_symtab[h] = ptr;
+        } else if(x.m_type->type == ASR::ttypeType::Pointer) {
+            ASR::dimension_t* m_dims = nullptr;
+            int n_dims = -1, a_kind = -1;
+            bool is_array_type = false, is_malloc_array_type = false;
+            llvm::Type* x_ptr = get_type_from_ttype_t(x.m_type, x.m_storage, is_array_type,
+                                                      is_malloc_array_type, m_dims, n_dims,
+                                                      a_kind);
+            llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
+                x_ptr);
+            if (!external) {
+                if (init_value) {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            init_value);
+                } else {
+                    module->getNamedGlobal(x.m_name)->setInitializer(
+                            llvm::ConstantPointerNull::get(
+                                static_cast<llvm::PointerType*>(x_ptr))
+                            );
+                }
+            }
+            llvm_symtab[h] = ptr;
         } else {
             throw CodeGenError("Variable type not supported", x.base.base.loc);
         }
@@ -2549,24 +2586,65 @@ public:
     }
 
 
-    void visit_CFPointer(const ASR::CFPointer_t& x) {
-        ASR::expr_t *cptr = x.m_cptr, *fptr = x.m_fptr, *shape = x.m_shape;
+    void visit_CPtrToPointer(const ASR::CPtrToPointer_t& x) {
+        ASR::expr_t *cptr = x.m_cptr, *fptr = x.m_ptr, *shape = x.m_shape;
         if( shape ) {
-            throw CodeGenError("Arrays not yet supported for "
-                               "fptr argument in c_f_pointer.");
+            uint64_t ptr_loads_copy = ptr_loads;
+            ptr_loads = 1;
+            this->visit_expr(*cptr);
+            llvm::Value* llvm_cptr = tmp;
+            ptr_loads = 0;
+            this->visit_expr(*fptr);
+            llvm::Value* llvm_fptr = tmp;
+            ptr_loads = ptr_loads_copy;
+            this->visit_expr(*shape);
+            llvm::Value* llvm_shape = tmp;
+            llvm::Type* llvm_fptr_type = llvm_fptr->getType();
+            llvm_fptr_type = static_cast<llvm::PointerType*>(llvm_fptr_type)->getElementType();
+            llvm_fptr_type = static_cast<llvm::PointerType*>(llvm_fptr_type)->getElementType();
+            llvm::Value* fptr_array = builder->CreateAlloca(llvm_fptr_type);
+            ASR::dimension_t* fptr_dims;
+            int fptr_rank = ASRUtils::extract_dimensions_from_ttype(
+                                ASRUtils::expr_type(fptr),
+                                fptr_dims);
+            llvm::Value* llvm_rank = llvm::ConstantInt::get(context, llvm::APInt(32, fptr_rank));
+            llvm::Value* dim_des = builder->CreateAlloca(arr_descr->get_dimension_descriptor_type(), llvm_rank);
+            builder->CreateStore(dim_des, arr_descr->get_pointer_to_dimension_descriptor_array(fptr_array, false));
+            arr_descr->set_rank(fptr_array, llvm_rank);
+            builder->CreateStore(fptr_array, llvm_fptr);
+            llvm_fptr = fptr_array;
+            llvm::Value* fptr_data = arr_descr->get_pointer_to_data(llvm_fptr);
+            llvm::Value* fptr_des = arr_descr->get_pointer_to_dimension_descriptor_array(llvm_fptr);
+            llvm::Value* shape_data = builder->CreateLoad(arr_descr->get_pointer_to_data(llvm_shape));
+            llvm_cptr = builder->CreateBitCast(llvm_cptr,
+                            static_cast<llvm::PointerType*>(fptr_data->getType())->getElementType());
+            builder->CreateStore(llvm_cptr, fptr_data);
+            for( int i = 0; i < fptr_rank; i++ ) {
+                llvm::Value* curr_dim = llvm::ConstantInt::get(context, llvm::APInt(32, i));
+                llvm::Value* desi = arr_descr->get_pointer_to_dimension_descriptor(fptr_des, curr_dim);
+                llvm::Value* desi_lb = arr_descr->get_lower_bound(desi, false);
+                llvm::Value* desi_ub = arr_descr->get_upper_bound(desi, false);
+                llvm::Value* desi_size = arr_descr->get_dimension_size(fptr_des, curr_dim, false);
+                llvm::Value* i32_one = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
+                llvm::Value* new_lb = i32_one;
+                llvm::Value* new_ub = builder->CreateLoad(llvm_utils->create_ptr_gep(shape_data, i));
+                builder->CreateStore(new_lb, desi_lb);
+                builder->CreateStore(new_ub, desi_ub);
+                builder->CreateStore(builder->CreateAdd(builder->CreateSub(new_ub, new_lb), i32_one), desi_size);
+            }
+        } else {
+            uint64_t ptr_loads_copy = ptr_loads;
+            ptr_loads = 1;
+            this->visit_expr(*cptr);
+            llvm::Value* llvm_cptr = tmp;
+            ptr_loads = 0;
+            this->visit_expr(*fptr);
+            llvm::Value* llvm_fptr = tmp;
+            ptr_loads = ptr_loads_copy;
+            llvm_cptr = builder->CreateBitCast(llvm_cptr,
+                            static_cast<llvm::PointerType*>(llvm_fptr->getType())->getElementType());
+            builder->CreateStore(llvm_cptr, llvm_fptr);
         }
-
-        uint64_t ptr_loads_copy = ptr_loads;
-        ptr_loads = 1;
-        this->visit_expr(*cptr);
-        llvm::Value* llvm_cptr = tmp;
-        ptr_loads = 0;
-        this->visit_expr(*fptr);
-        llvm::Value* llvm_fptr = tmp;
-        ptr_loads = ptr_loads_copy;
-        llvm_cptr = builder->CreateBitCast(llvm_cptr,
-                        static_cast<llvm::PointerType*>(llvm_fptr->getType())->getElementType());
-        builder->CreateStore(llvm_cptr, llvm_fptr);
     }
 
     void visit_Associate(const ASR::Associate_t& x) {
@@ -3965,10 +4043,19 @@ public:
         std::vector<llvm::Value *> args;
         std::vector<std::string> fmt;
         for (size_t i=0; i<x.n_values; i++) {
+            uint64_t ptr_loads_copy = ptr_loads;
+            ptr_loads = 1;
             this->visit_expr_wrapper(x.m_values[i], true);
+            ptr_loads = ptr_loads_copy;
             ASR::expr_t *v = x.m_values[i];
             ASR::ttype_t *t = expr_type(v);
             int a_kind = ASRUtils::extract_kind_from_ttype_t(t);
+            if( ASR::is_a<ASR::Pointer_t>(*t) ) {
+                fmt.push_back("%lld");
+                llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
+                args.push_back(d);
+                continue;
+            }
             if (ASRUtils::is_integer(*t) ||
                 ASR::is_a<ASR::Logical_t>(*ASRUtils::type_get_past_pointer(t))) {
                 switch( a_kind ) {
@@ -4056,7 +4143,6 @@ public:
                 fmt.push_back("%lld");
                 llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
                 args.push_back(d);
-
             } else {
                 throw LFortranException("Printing support is available only for integer, real,"
                     " character, and complex types, got type " +
