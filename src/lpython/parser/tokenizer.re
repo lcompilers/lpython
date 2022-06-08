@@ -426,6 +426,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             'not'  { RET(TK_NOT) }
             'and'  { RET(TK_AND) }
             'or'   { RET(TK_OR) }
+            'is' whitespace 'not'  { RET(TK_IS_NOT) }
+            'is' whitespace? "\\" newline whitespace? 'not'  { RET(TK_IS_NOT) }
 
             // True/False
 
@@ -548,6 +550,7 @@ std::string token2text(const int token)
         T(TK_NOT, "not")
         T(TK_AND, "and")
         T(TK_OR, "or")
+        T(TK_IS_NOT, "is not")
 
         T(TK_TRUE, "True")
         T(TK_FALSE, "False")
