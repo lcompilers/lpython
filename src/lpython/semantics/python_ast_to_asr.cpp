@@ -553,6 +553,55 @@ public:
         return nullptr;
     }
 
+    ASR::ttype_t* get_type_from_var_annotation(std::string var_annotation,
+        const Location& loc, Vec<ASR::dimension_t>& dims,
+        AST::expr_t** m_args=nullptr, size_t n_args=0) {
+        ASR::ttype_t* type = nullptr;
+        if (var_annotation == "i8") {
+            type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                1, dims.p, dims.size()));
+        } else if (var_annotation == "i16") {
+            type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                2, dims.p, dims.size()));
+        } else if (var_annotation == "i32") {
+            type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                4, dims.p, dims.size()));
+        } else if (var_annotation == "i64") {
+            type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                8, dims.p, dims.size()));
+        } else if (var_annotation == "f32") {
+            type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
+                4, dims.p, dims.size()));
+        } else if (var_annotation == "f64") {
+            type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
+                8, dims.p, dims.size()));
+        } else if (var_annotation == "c32") {
+            type = ASRUtils::TYPE(ASR::make_Complex_t(al, loc,
+                4, dims.p, dims.size()));
+        } else if (var_annotation == "c64") {
+            type = ASRUtils::TYPE(ASR::make_Complex_t(al, loc,
+                8, dims.p, dims.size()));
+        } else if (var_annotation == "str") {
+            type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                1, -2, nullptr, dims.p, dims.size()));
+        } else if (var_annotation == "bool") {
+            type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
+                4, dims.p, dims.size()));
+        } else if (var_annotation == "CPtr") {
+            type = ASRUtils::TYPE(ASR::make_CPtr_t(al, loc));
+        } else if (var_annotation == "pointer") {
+            LFORTRAN_ASSERT(n_args == 1);
+            AST::expr_t* underlying_type = m_args[0];
+            LFORTRAN_ASSERT(AST::is_a<AST::Name_t>(*underlying_type));
+            AST::Name_t* type_name = AST::down_cast<AST::Name_t>(underlying_type);
+            type = get_type_from_var_annotation(std::string(type_name->m_id), loc, dims);
+            type = ASRUtils::TYPE(ASR::make_Pointer_t(al, loc, type));
+        } else {
+            throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
+        }
+        return type;
+    }
+
 
     // Function to create appropriate call based on symbol type. If it is external
     // generic symbol then it changes the name accordingly.
@@ -660,6 +709,7 @@ public:
     ASR::ttype_t * ast_expr_to_asr_type(const Location &loc, const AST::expr_t &annotation) {
         Vec<ASR::dimension_t> dims;
         dims.reserve(al, 4);
+        AST::expr_t** m_args = nullptr; size_t n_args = 0;
 
         std::string var_annotation;
         if (AST::is_a<AST::Name_t>(annotation)) {
@@ -745,46 +795,23 @@ public:
 
                 dims.push_back(al, dim);
             }
+        } else if( AST::is_a<AST::Call_t>(annotation) ) {
+            AST::Call_t *c = AST::down_cast<AST::Call_t>(&annotation);
+            if (AST::is_a<AST::Name_t>(*c->m_func)) {
+                AST::Name_t *n = AST::down_cast<AST::Name_t>(c->m_func);
+                var_annotation = n->m_id;
+                m_args = c->m_args;
+                n_args = c->n_args;
+            } else {
+                throw SemanticError("Only Name in Call supported for now in annotation",
+                    loc);
+            }
         } else {
-            throw SemanticError("Only Name or Subscript supported for now in annotation of annotated assignment.",
+            throw SemanticError("Only Name, Subscript, and Call supported for now in annotation of annotated assignment.",
                 loc);
         }
 
-        ASR::ttype_t *type;
-        if (var_annotation == "i8") {
-            type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                1, dims.p, dims.size()));
-        } else if (var_annotation == "i16") {
-            type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                2, dims.p, dims.size()));
-        } else if (var_annotation == "i32") {
-            type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                4, dims.p, dims.size()));
-        } else if (var_annotation == "i64") {
-            type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                8, dims.p, dims.size()));
-        } else if (var_annotation == "f32") {
-            type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
-                4, dims.p, dims.size()));
-        } else if (var_annotation == "f64") {
-            type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
-                8, dims.p, dims.size()));
-        } else if (var_annotation == "c32") {
-            type = ASRUtils::TYPE(ASR::make_Complex_t(al, loc,
-                4, dims.p, dims.size()));
-        } else if (var_annotation == "c64") {
-            type = ASRUtils::TYPE(ASR::make_Complex_t(al, loc,
-                8, dims.p, dims.size()));
-        } else if (var_annotation == "str") {
-            type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                1, -2, nullptr, dims.p, dims.size()));
-        } else if (var_annotation == "bool") {
-            type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
-                4, dims.p, dims.size()));
-        } else {
-            throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
-        }
-        return type;
+        return get_type_from_var_annotation(var_annotation, loc, dims, m_args, n_args);
     }
 
     ASR::expr_t *index_add_one(const Location &loc, ASR::expr_t *idx) {
@@ -804,7 +831,18 @@ public:
     // (to be used during assignment, BinOp, or compare)
     ASR::expr_t* cast_helper(ASR::ttype_t *left_type, ASR::expr_t *right,
                                         bool is_assign=false) {
-        ASR::ttype_t *right_type = ASRUtils::expr_type(right);
+        bool no_cast = (ASR::is_a<ASR::Pointer_t>(*left_type) ||
+                        ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(right)));
+        ASR::ttype_t *right_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(right));
+        left_type = ASRUtils::type_get_past_pointer(left_type);
+        if( no_cast ) {
+            int lkind = ASRUtils::extract_kind_from_ttype_t(left_type);
+            int rkind = ASRUtils::extract_kind_from_ttype_t(right_type);
+            if( left_type->type != right_type->type || lkind != rkind ) {
+                throw SemanticError("Casting for mismatching pointer types not supported yet.",
+                                    right_type->base.loc);
+            }
+        }
         if (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) {
             int lkind = ASR::down_cast<ASR::Integer_t>(left_type)->m_kind;
             int rkind = ASR::down_cast<ASR::Integer_t>(right_type)->m_kind;
@@ -2834,6 +2872,11 @@ public:
             if (AST::is_a<AST::Name_t>(*c->m_func)) {
                 AST::Name_t *n = AST::down_cast<AST::Name_t>(c->m_func);
                 call_name = n->m_id;
+                ASR::symbol_t* s = current_scope->resolve_symbol(call_name);
+                if( call_name == "c_p_pointer" && !s ) {
+                    tmp = create_CPtrToPointer(*c);
+                    return ;
+                }
             } else if (AST::is_a<AST::Attribute_t>(*c->m_func)) {
                 AST::Attribute_t *at = AST::down_cast<AST::Attribute_t>(c->m_func);
                 if (AST::is_a<AST::Name_t>(*at->m_value)) {
@@ -2859,14 +2902,7 @@ public:
 
             Vec<ASR::call_arg_t> args;
             args.reserve(al, c->n_args);
-            for (size_t i=0; i<c->n_args; i++) {
-                visit_expr(*c->m_args[i]);
-                ASR::expr_t *expr = ASRUtils::EXPR(tmp);
-                ASR::call_arg_t arg;
-                arg.loc = c->m_args[i]->base.loc;
-                arg.m_value = expr;
-                args.push_back(al, arg);
-            }
+            visit_expr_list(c->m_args, c->n_args, args);
             if (call_name == "print") {
                 ASR::expr_t *fmt=nullptr;
                 Vec<ASR::expr_t*> args_expr = ASRUtils::call_arg2expr(al, args);
@@ -3063,18 +3099,48 @@ public:
         throw SemanticError("len() is only supported for `str`, `set`, `dict`, `list` and `tuple`", loc);
     }
 
+    void visit_expr_list(AST::expr_t** exprs, size_t n,
+                         Vec<ASR::expr_t*> exprs_vec) {
+        LFORTRAN_ASSERT(exprs_vec.reserve_called);
+        for( size_t i = 0; i < n; i++ ) {
+            visit_expr(*exprs[i]);
+            exprs_vec.push_back(al, ASRUtils::EXPR(tmp));
+        }
+    }
+
+    void visit_expr_list(AST::expr_t** exprs, size_t n,
+                         Vec<ASR::call_arg_t>& call_args_vec) {
+        LFORTRAN_ASSERT(call_args_vec.reserve_called);
+        for( size_t i = 0; i < n; i++ ) {
+            visit_expr(*exprs[i]);
+            ASR::expr_t* expr = ASRUtils::EXPR(tmp);
+            ASR::call_arg_t arg;
+            arg.loc = expr->base.loc;
+            arg.m_value = expr;
+            call_args_vec.push_back(al, arg);
+        }
+    }
+
+    ASR::asr_t* create_CPtrToPointer(const AST::Call_t& x) {
+        if( x.n_args != 2 ) {
+            throw SemanticError("c_p_pointer accepts two positional arguments, "
+                                "first a variable of c_ptr type and second "
+                                " the target type of the first variable.",
+                                x.base.base.loc);
+        }
+        visit_expr(*x.m_args[0]);
+        ASR::expr_t* cptr = ASRUtils::EXPR(tmp);
+        visit_expr(*x.m_args[1]);
+        ASR::expr_t* pptr = ASRUtils::EXPR(tmp);
+        return ASR::make_CPtrToPointer_t(al, x.base.base.loc, cptr,
+                                         pptr, nullptr);
+    }
+
     void visit_Call(const AST::Call_t &x) {
         std::string call_name;
         Vec<ASR::call_arg_t> args;
         args.reserve(al, x.n_args);
-        for (size_t i=0; i<x.n_args; i++) {
-            visit_expr(*x.m_args[i]);
-            ASR::expr_t *expr = ASRUtils::EXPR(tmp);
-            ASR::call_arg_t arg;
-            arg.loc = expr->base.loc;
-            arg.m_value = expr;
-            args.push_back(al, arg);
-        }
+        visit_expr_list(x.m_args, x.n_args, args);
         if (AST::is_a<AST::Name_t>(*x.m_func)) {
             AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
             call_name = n->m_id;
