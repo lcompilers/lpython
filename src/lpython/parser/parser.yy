@@ -244,7 +244,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %left "or"
 %left "and"
 %precedence "not"
-%left "==" "!=" ">=" ">" "<=" "<" TK_IS_NOT KW_IS //"is not" "is" "not in" "in"
+%left "==" "!=" ">=" ">" "<=" "<" TK_IS_NOT KW_IS // "not in" "in"
 %left "|"
 %left "^"
 %left "&"
