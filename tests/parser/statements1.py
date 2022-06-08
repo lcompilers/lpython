@@ -114,6 +114,10 @@ if ((2 + 3)/2 - 1 is 5) is True:
 if x is not type(float):
     pass
 
+if x is \
+    not type(int):
+    pass
+
 i: i32 = 4
 if 2 > i : pass
 if i > 5 : break
