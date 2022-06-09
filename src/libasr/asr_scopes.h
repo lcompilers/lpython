@@ -47,7 +47,7 @@ struct SymbolTable {
         return scope[name];
     }
 
-    const std::map<std::string, ASR::symbol_t*>& get_scope() {
+    const std::map<std::string, ASR::symbol_t*>& get_scope() const {
         return scope;
     }
 
