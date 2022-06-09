@@ -105,7 +105,7 @@ endmacro(RUN)
 
 
 # Test zero and non-zero exit code
-RUN(NAME exit_01             LABELS cpython llvm)
+RUN(NAME exit_01             LABELS cpython llvm c)
 RUN(NAME exit_02     FAIL    LABELS cpython llvm)
 
 # Test all three backends
