@@ -2,6 +2,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <chrono>
 
 #include <lpython/parser/parser.h>
 #include <lpython/parser/parser.tab.hh>
