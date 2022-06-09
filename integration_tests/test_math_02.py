@@ -1,6 +1,15 @@
-from math import (sin, cos, tan, pi, sqrt, log, log10, log2, erf, erfc, gamma,
+from math import (sin, cos, tan, pi, sqrt, cbrt, log, log10, log2, erf, erfc, gamma,
                   lgamma, asin, acos, atan, atan2, asinh, acosh, atanh,
                   tanh, sinh, cosh, hypot, copysign)
+
+from ltypes import i32, f64, i64
+
+pi: f64 = 3.141592653589793238462643383279502884197
+e: f64 = 2.718281828459045235360287471352662497757
+tau: f64 = 6.283185307179586
+
+eps: f64
+eps = 1e-12
 
 def test_trig():
     eps: f64 = 1e-12
@@ -14,6 +23,15 @@ def test_trig():
     assert abs(acos(1.0) - 0) < eps
     assert abs(atan(1.0) - pi/4) < eps
     assert abs(atan2(1.0, 1.0) - pi/4) < eps
+
+
+def test_cbrt():
+    assert cbrt(0) == 0 , f"assertion error in cube root function"
+    assert cbrt(1) == 1 , f"assertion error in cube root function"
+    assert cbrt(8) == 2 , f"assertion error in cube root function"
+    assert cbrt(-27) == -3 , f"assertion error in cube root function"
+    assert cbrt(1.2) == 1.062658569182611 , f"assertion error in cube root function"
+
 
 def test_sqrt():
     eps: f64 = 1e-12
@@ -54,6 +72,7 @@ def test_hypot():
     assert abs(hypot(6, 6) - 8.48528137423857) < eps
 
 def check():
+    test_cbrt()
     test_trig()
     test_sqrt()
     test_log()

@@ -1,4 +1,4 @@
-from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
+from math import (factorial, isqrt, perm, comb, degrees, radians, exp, exp2, pow,
                   ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc)
 from ltypes import i32, f64, i64
 
@@ -58,6 +58,13 @@ def test_exp():
     i = exp(2.34)
     assert abs(i - 10.381236562731843) < eps
 
+def test_exp2():
+    i: f64
+    i = exp2(2.3)
+    assert abs(i - 4.924577653379665) < eps
+    assert exp2(-1) == 0.5, f"assertion error in exp2"
+    assert exp2(0) == 1, f"assertion error in exp2"
+    assert exp2(1) == 2, f"assertion error in exp2"
 
 def test_pow():
     i: f64
@@ -151,6 +158,7 @@ def test_trunc():
 
 
 def check():
+    test_exp2()
     test_factorial_1()
     test_comb()
     test_isqrt()

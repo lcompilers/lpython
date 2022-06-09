@@ -226,6 +226,11 @@ def exp(x: f64) -> f64:
     """
     return e**x
 
+def exp2(x: f64) -> f64:
+    """
+    Return `2` raised to the power `x`.
+    """
+    return 2**x
 
 def pow(x: f64, y: f64) -> f64:
     """
@@ -312,7 +317,17 @@ def trunc(x: f32) -> i32:
         return ceil(x)
 
 def sqrt(x: f64) -> f64:
+    """
+    Returns square root of a non negative x
+    """
+
     return x**(1/2)
+
+def cbrt(x: f64) -> f64:
+    """
+    Returns cube root of a number x
+    """
+    return x**(1/3)
 
 @ccall
 def _lfortran_dsin(x: f64) -> f64:
