@@ -2169,18 +2169,23 @@ public:
 
     void visit_Function(const ASR::Function_t &x) {
         instantiate_function(x);
+        if (x.m_deftype == ASR::deftypeType::Interface) {
+            // Interface does not have an implementation and it is already
+            // declared, so there is nothing to do here
+            return;
+        }
         visit_procedures(x);
         generate_function(x);
         parent_function = nullptr;
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
+        instantiate_subroutine(x);
         if (x.m_deftype == ASR::deftypeType::Interface) {
             // Interface does not have an implementation and it is already
             // declared, so there is nothing to do here
             return;
         }
-        instantiate_subroutine(x);
         visit_procedures(x);
         generate_subroutine(x);
         parent_subroutine = nullptr;
