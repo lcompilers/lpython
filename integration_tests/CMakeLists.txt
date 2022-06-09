@@ -114,7 +114,7 @@ RUN(NAME print_01            LABELS cpython llvm c)
 # CPython and LLVM
 RUN(NAME expr_01             LABELS cpython llvm c)
 RUN(NAME expr_02             LABELS cpython llvm)
-RUN(NAME expr_03             LABELS cpython llvm)
+RUN(NAME expr_03             LABELS cpython llvm c)
 RUN(NAME expr_04             LABELS cpython llvm)
 RUN(NAME expr_05             LABELS cpython llvm)
 RUN(NAME test_types_01       LABELS cpython llvm)
