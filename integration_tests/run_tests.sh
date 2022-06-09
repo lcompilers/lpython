@@ -2,6 +2,8 @@
 
 set -ex
 
+export PATH="$(pwd)/../src/bin:$PATH"
+
 cmake .
 ctest
 
