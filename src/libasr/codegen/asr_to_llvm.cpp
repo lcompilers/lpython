@@ -65,6 +65,9 @@
 #include <libasr/codegen/llvm_utils.h>
 #include <libasr/codegen/llvm_array_utils.h>
 
+// Uncomment for ASR printing below
+//#include <lfortran/pickle.h>
+
 #if LLVM_VERSION_MAJOR >= 11
 #    define FIXED_VECTOR_TYPE llvm::FixedVectorType
 #else
@@ -1958,6 +1961,10 @@ public:
                 type = get_arg_type_from_ttype_t(arg->m_type, x.m_abi,
                             arg->m_abi, arg->m_storage, arg->m_value_attr,
                             n_dims, a_kind, is_array_type);
+                if( arg->m_intent == ASRUtils::intent_out &&
+                    ASR::is_a<ASR::CPtr_t>(*arg->m_type) ) {
+                    type = type->getPointerTo();
+                }
                 std::uint32_t m_h;
                 std::string m_name = std::string(x.m_name);
                 if( x.class_type == ASR::symbolType::Function ) {
@@ -2168,10 +2175,10 @@ public:
     }
 
     void visit_Subroutine(const ASR::Subroutine_t &x) {
-        if (x.m_abi != ASR::abiType::Source &&
-            x.m_abi != ASR::abiType::Interactive &&
-            x.m_abi != ASR::abiType::Intrinsic) {
-                return;
+        if (x.m_deftype == ASR::deftypeType::Interface) {
+            // Interface does not have an implementation and it is already
+            // declared, so there is nothing to do here
+            return;
         }
         instantiate_subroutine(x);
         visit_procedures(x);
@@ -2578,9 +2585,16 @@ public:
 
     void visit_CLoc(const ASR::CLoc_t& x) {
         uint64_t ptr_loads_copy = ptr_loads;
-        ptr_loads = 1;
+        ptr_loads = 0;
         this->visit_expr(*x.m_arg);
         ptr_loads = ptr_loads_copy;
+        if( tmp->getType()->isPointerTy() &&
+            tmp->getType()->getContainedType(0)->isPointerTy() ) {
+            tmp = builder->CreateLoad(tmp);
+        }
+        if( arr_descr->is_array(tmp) ) {
+            tmp = builder->CreateLoad(arr_descr->get_pointer_to_data(tmp));
+        }
         tmp = builder->CreateBitCast(tmp,
                     llvm::Type::getVoidTy(context)->getPointerTo());
     }
@@ -2615,7 +2629,10 @@ public:
             llvm_fptr = fptr_array;
             llvm::Value* fptr_data = arr_descr->get_pointer_to_data(llvm_fptr);
             llvm::Value* fptr_des = arr_descr->get_pointer_to_dimension_descriptor_array(llvm_fptr);
-            llvm::Value* shape_data = builder->CreateLoad(arr_descr->get_pointer_to_data(llvm_shape));
+            llvm::Value* shape_data = llvm_shape;
+            if( arr_descr->is_array(llvm_shape) ) {
+                shape_data = builder->CreateLoad(arr_descr->get_pointer_to_data(llvm_shape));
+            }
             llvm_cptr = builder->CreateBitCast(llvm_cptr,
                             static_cast<llvm::PointerType*>(fptr_data->getType())->getElementType());
             builder->CreateStore(llvm_cptr, fptr_data);
@@ -3635,10 +3652,10 @@ public:
                 return;
             }
         }
-        tmp = CreateLoad(x_v);
-
         if( arr_descr->is_array(x_v) ) {
             tmp = x_v;
+        } else {
+            tmp = CreateLoad(x_v);
         }
     }
 
@@ -4043,19 +4060,10 @@ public:
         std::vector<llvm::Value *> args;
         std::vector<std::string> fmt;
         for (size_t i=0; i<x.n_values; i++) {
-            uint64_t ptr_loads_copy = ptr_loads;
-            ptr_loads = 1;
             this->visit_expr_wrapper(x.m_values[i], true);
-            ptr_loads = ptr_loads_copy;
             ASR::expr_t *v = x.m_values[i];
             ASR::ttype_t *t = expr_type(v);
             int a_kind = ASRUtils::extract_kind_from_ttype_t(t);
-            if( ASR::is_a<ASR::Pointer_t>(*t) ) {
-                fmt.push_back("%lld");
-                llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
-                args.push_back(d);
-                continue;
-            }
             if (ASRUtils::is_integer(*t) ||
                 ASR::is_a<ASR::Logical_t>(*ASRUtils::type_get_past_pointer(t))) {
                 switch( a_kind ) {
@@ -4309,15 +4317,33 @@ public:
                                                         tmp = CreateLoad(tmp);
                                                     }
                                                 }
+                                            } else if (is_a<ASR::CPtr_t>(*arg_type)) {
+                                                // pass
                                             } else {
-                                                // Dereference the pointer argument
-                                                // to pass by value
-                                                // E.g.:
-                                                // i32* -> i32
-                                                // {double,double}* -> {double,double}
-                                                tmp = CreateLoad(tmp);
+                                                if (!arg->m_value_attr) {
+                                                    // Dereference the pointer argument (unless it is a CPtr)
+                                                    // to pass by value
+                                                    // E.g.:
+                                                    // i32* -> i32
+                                                    // {double,double}* -> {double,double}
+                                                    tmp = CreateLoad(tmp);
+                                                }
                                             }
                                         }
+                                    if (!orig_arg->m_value_attr && arg->m_value_attr) {
+                                        llvm::Type *target_type = tmp->getType();
+                                        // Create alloca to get a pointer, but do it
+                                        // at the beginning of the function to avoid
+                                        // using alloca inside a loop, which would
+                                        // run out of stack
+                                        llvm::BasicBlock &entry_block = builder->GetInsertBlock()->getParent()->getEntryBlock();
+                                        llvm::IRBuilder<> builder0(context);
+                                        builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
+                                        llvm::AllocaInst *target = builder0.CreateAlloca(
+                                            target_type, nullptr, "call_arg_value_ptr");
+                                        builder->CreateStore(tmp, target);
+                                        tmp = target;
+                                    }
                                 }
                             }
                         } else {
@@ -4399,8 +4425,11 @@ public:
                             break;
                         case (ASR::ttypeType::Derived) :
                             break;
+                        case (ASR::ttypeType::CPtr) :
+                            target_type = llvm::Type::getVoidTy(context)->getPointerTo();
+                            break;
                         default :
-                            throw CodeGenError("Type not implemented yet.");
+                            throw CodeGenError("Type " + ASRUtils::type_to_str(arg_type) + " not implemented yet.");
                     }
                     switch(arg_type->type) {
                         case ASR::ttypeType::Derived: {
@@ -4722,7 +4751,12 @@ public:
             return ;
         }
         int output_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+        uint64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = ptr_loads_copy -
+                    (ASRUtils::expr_type(x.m_v)->type ==
+                     ASR::ttypeType::Pointer);
         visit_expr_wrapper(x.m_v);
+        ptr_loads = ptr_loads_copy;
         llvm::Value* llvm_arg = tmp;
         llvm::Value* dim_des_val = arr_descr->get_pointer_to_dimension_descriptor_array(llvm_arg);
         if( x.m_dim ) {
@@ -4818,8 +4852,6 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
     ASRToLLVMVisitor v(al, context, platform, diagnostics);
     pass_wrap_global_stmts_into_function(al, asr, run_fn);
 
-    // Uncomment for debugging the ASR after the transformation
-    // std::cout << pickle(asr) << std::endl;
     pass_replace_class_constructor(al, asr);
     pass_replace_implied_do_loops(al, asr, rl_path);
     pass_replace_arr_slice(al, asr, rl_path);
@@ -4847,6 +4879,9 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
         pass_replace_fma(al, asr, rl_path);
         pass_inline_function_calls(al, asr, rl_path);
     }
+
+    // Uncomment for debugging the ASR after the transformation
+    //std::cout << pickle(asr, true, true, true) << std::endl;
 
     v.nested_func_types = pass_find_nested_vars(asr, context,
         v.nested_globals, v.nested_call_out, v.nesting_map);
