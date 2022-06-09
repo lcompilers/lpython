@@ -2,10 +2,19 @@
 #include <complex.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
 #include <lfortran_intrinsics.h>
 
+// Forward declarations
+double f(double x);
+void g(double a, float b, int64_t c, int32_t d);
+double h(double x);
+void l(double a, float b, int64_t c, int32_t d);
+void main0();
+
+// Implementations
 double f(double x);
 
 void g(double a, float b, int64_t c, int32_t d);

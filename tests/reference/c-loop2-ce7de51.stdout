@@ -2,10 +2,17 @@
 #include <complex.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 
 #include <lfortran_intrinsics.h>
 
+// Forward declarations
+void _lpython_main_program();
+void test_for();
+void _xx_lcompilers_changed_exit_xx(int32_t error_code);
+
+// Implementations
 void _lpython_main_program()
 {
     test_for();
@@ -25,10 +32,10 @@ void test_for()
             exit(0);
         }
     }
-    exit(2);
+    _xx_lcompilers_changed_exit_xx(2);
 }
 
-void exit(int32_t error_code)
+void _xx_lcompilers_changed_exit_xx(int32_t error_code)
 {
     exit(error_code);
 }

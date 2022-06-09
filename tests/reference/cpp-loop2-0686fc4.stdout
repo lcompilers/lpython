@@ -36,10 +36,10 @@ void test_for()
             exit(0);
         }
     }
-    exit(2);
+    _xx_lcompilers_changed_exit_xx(2);
 }
 
-void exit(int error_code)
+void _xx_lcompilers_changed_exit_xx(int error_code)
 {
     exit(error_code);
 }
