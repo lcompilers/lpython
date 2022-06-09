@@ -5,12 +5,12 @@ set -ex
 export PATH="$(pwd)/../src/bin:$PATH"
 
 cmake .
-ctest
+ctest --output-on-failure
 
 cmake -DLPYTHON_BACKEND=llvm .
 make
-ctest
+ctest --output-on-failure
 
 cmake -DLPYTHON_BACKEND=c .
 make
-ctest
+ctest --output-on-failure
