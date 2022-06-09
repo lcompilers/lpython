@@ -922,7 +922,7 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
             ASR::Complex_t* tnew = ASR::down_cast<ASR::Complex_t>(t);
             ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
             size_t dimsn = dims ? dims->n : tnew->n_dims;
-            return ASRUtils::TYPE(ASR::make_Integer_t(al, t->base.loc,
+            return ASRUtils::TYPE(ASR::make_Complex_t(al, t->base.loc,
                         tnew->m_kind, dimsp, dimsn));
         }
         case ASR::ttypeType::Logical: {
