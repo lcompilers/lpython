@@ -23,6 +23,7 @@ set_property(TARGET lpython_rtlib PROPERTY INTERFACE_INCLUDE_DIRECTORIES
     ${LPYTHON_RTLIB_DIR})
 set_property(TARGET lpython_rtlib PROPERTY INTERFACE_LINK_LIBRARIES
     ${LPYTHON_RTLIB_LIBRARY})
+target_link_libraries(lpython_rtlib INTERFACE m)
 
 enable_testing()
 
