@@ -222,6 +222,9 @@ R"(#include <stdio.h>
         if (sym_name == "main") {
             sym_name = "_xx_lcompilers_changed_main_xx";
         }
+        if (sym_name == "exit") {
+            sym_name = "_xx_lcompilers_changed_exit_xx";
+        }
         std::string sub = "void " + sym_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
@@ -1062,7 +1065,12 @@ R"(#include <stdio.h>
         std::string indent(indentation_level*indentation_spaces, ' ');
         ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
             LFortran::ASRUtils::symbol_get_past_external(x.m_name));
-        std::string out = indent + s->m_name + "(";
+        // TODO: use a mapping with a hash(s) instead:
+        std::string sym_name = s->m_name;
+        if (sym_name == "exit") {
+            sym_name = "_xx_lcompilers_changed_exit_xx";
+        }
+        std::string out = indent + sym_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             if (ASR::is_a<ASR::Var_t>(*x.m_args[i].m_value)) {
                 ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i].m_value);
