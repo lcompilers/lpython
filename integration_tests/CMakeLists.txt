@@ -12,7 +12,7 @@ if (NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR
     message(FATAL_ERROR "CMAKE_BUILD_TYPE must be one of: Debug, Release (current value: '${CMAKE_BUILD_TYPE}')")
 endif ()
 
-set(LPYTHON_BACKEND no CACHE STRING "Only compile the LPython subset for the given backend")
+set(KIND no CACHE STRING "Type of Test")
 
 find_path(LPYTHON_RTLIB_DIR lfortran_intrinsics.h
     ${CMAKE_SOURCE_DIR}/../src/runtime/impure)
@@ -38,7 +38,7 @@ else ()
     message("C compiler flags      : ${CMAKE_C_FLAGS_RELEASE}")
 endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
-message("LPYTHON_BACKEND: ${LPYTHON_BACKEND}")
+message("KIND: ${KIND}")
 message("LPYTHON_RTLIB_DIR: ${LPYTHON_RTLIB_DIR}")
 message("LPYTHON_RTLIB_LIBRARY: ${LPYTHON_RTLIB_LIBRARY}")
 
@@ -54,46 +54,41 @@ macro(RUN)
     if (NOT name)
         message(FATAL_ERROR "Must specify the NAME argument")
     endif()
-    if (LPYTHON_BACKEND)
-        if (${LPYTHON_BACKEND} IN_LIST RUN_LABELS)
-            # Test is supported by the given LPython backend
-            if (LPYTHON_BACKEND STREQUAL "llvm")
-                add_custom_command(
-                    OUTPUT ${name}.o
-                    COMMAND lpython -c ${name}.py -o ${name}.o
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
-                    VERBATIM)
-                add_executable(${name} ${name}.o ${RUN_EXTRAFILES})
-                set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
-                target_link_libraries(${name} lpython_rtlib)
-                add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
-                if (RUN_LABELS)
-                    set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
-                endif()
-                if (${RUN_FAIL})
-                   set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
-                endif()
+
+    if (${KIND} IN_LIST RUN_LABELS)
+        if (KIND STREQUAL "llvm")
+            add_custom_command(
+                OUTPUT ${name}.o
+                COMMAND lpython -c ${name}.py -o ${name}.o
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                VERBATIM)
+            add_executable(${name} ${name}.o ${RUN_EXTRAFILES})
+            set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
+            target_link_libraries(${name} lpython_rtlib)
+            add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
+            if (RUN_LABELS)
+                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
             endif()
-            if (LPYTHON_BACKEND STREQUAL "c")
-                add_custom_command(
-                    OUTPUT ${name}.c
-                    COMMAND lpython --show-c ${name}.py > ${name}.c
-                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
-                    VERBATIM)
-                add_executable(${name} ${name}.c ${RUN_EXTRAFILES})
-                set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
-                target_link_libraries(${name} lpython_rtlib)
-                add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
-                if (RUN_LABELS)
-                    set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
-                endif()
-                if (${RUN_FAIL})
-                   set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
-                endif()
+            if (${RUN_FAIL})
+               set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
-        endif()
-    else()
-        if ("cpython" IN_LIST RUN_LABELS)
+        elseif(KIND STREQUAL "c")
+            add_custom_command(
+                OUTPUT ${name}.c
+                COMMAND lpython --show-c ${name}.py > ${name}.c
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                VERBATIM)
+            add_executable(${name} ${name}.c ${RUN_EXTRAFILES})
+            set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
+            target_link_libraries(${name} lpython_rtlib)
+            add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
+            if (RUN_LABELS)
+                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
+            endif()
+            if (${RUN_FAIL})
+               set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+            endif()
+        elseif(KIND STREQUAL "cpython")
             # CPython test
             add_test(${name} python ${CMAKE_CURRENT_BINARY_DIR}/${name}.py)
             set_tests_properties(${name} PROPERTIES

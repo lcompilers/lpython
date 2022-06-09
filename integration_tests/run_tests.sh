@@ -7,13 +7,13 @@ jn=$1
 
 export PATH="$(pwd)/../src/bin:$PATH"
 
-cmake .
+cmake -DKIND=cpython .
 ctest $jn --output-on-failure
 
-cmake -DLPYTHON_BACKEND=llvm .
+cmake -DKIND=llvm .
 make $jn
 ctest $jn --output-on-failure
 
-cmake -DLPYTHON_BACKEND=c .
+cmake -DKIND=c .
 make $jn
 ctest $jn --output-on-failure
