@@ -3,8 +3,7 @@ import python_ast
 import ast
 
 filename = sys.argv[1]
-#filename = "doconcurrentloop_01.py"
-#filename = "expr2.py"
+filename_out = sys.argv[2]
 
 input = open(filename).read()
 a = ast.parse(input, type_comments=True)
@@ -147,4 +146,4 @@ v.visit(a2)
 #print()
 #print(v.s)
 
-open("ser.txt", "w").write(v.s)
+open(filename_out, "w").write(v.s)
