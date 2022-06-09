@@ -24,66 +24,6 @@ def test_trig():
     assert abs(atan(1.0) - pi/4) < eps
     assert abs(atan2(1.0, 1.0) - pi/4) < eps
 
-def test_acos():
-    assert acos(-1) == pi , f"assertion error in acos"
-    assert acos(0) == pi/2, f"assertion error in acos"
-    assert acos(1) == 0, f"assertion error in acos"
-
-def test_acosh():
-    assert acosh(1) == 0 , f"assertion error in acosh"
-    assert acosh(2) == 1.3169578969248168, f"assertion error in acosh"
-    assert acosh(5.90) == 2.46, f"assertion error in acosh"
-
-
-def test_asin():
-    assert asin(-1) == -pi/2 , f"assertion error in asin"
-    assert asin(0) == 0, f"assertion error in asin"
-    assert asin(1) == pi/2, f"assertion error in asin"
-
-def test_asinh():
-    assert asinh(0) == 0 , f"assertion error in asinh"
-    assert asinh(1) == 0.88137358701954305, f"assertion error in asinh"
-    assert asinh(-1) == -0.88137358701954305, f"assertion error in asinh"
-
-def test_atan():
-    assert atan(-1) == -pi/4 , f"assertion error in atan"
-    assert atan(0) == 0, f"assertion error in atan"
-    assert atan(1) == pi/4, f"assertion error in atan"
-
-def test_atanh():
-    assert atanh(0) == 0 , f"assertion error in atanh"
-    assert atanh(0.5) == 0.54930614433405489, f"assertion error in atanh"
-    assert atanh(-0.5) == -0.54930614433405489, f"assertion error in atanh"
-
-def test_atan2():
-    assert atan2(-1,0) == -pi/2 , f"assertion error in atan2"
-    assert atan2(-1,1) == pi/4, f"assertion error in atan2"
-    assert atan2(0,1) == 0, f"assertion error in atan2"
-    assert atan2(1,1) == pi/4 , f"assertion error in atan2"
-    assert atan2(1,0) == pi/2, f"assertion error in atan2"
-
-    assert atan2(0.,-2.3) == pi, f"assertion error in atan2"
-    assert atan2(0.,-0.) == pi , f"assertion error in atan2"
-
-    assert atan2(-0.,-2.3) == -pi, f"assertion error in atan2"
-    assert atan2(-0.,-0.) == -pi , f"assertion error in atan2"
-
-    assert atan2(2.3,-0) == pi/2, f"assertion error in atan2"
-    assert atan2(2.3,0) == pi/2, f"assertion error in atan2"
-
-    assert atan2(-2.3,-0) == -pi/2, f"assertion error in atan2"
-    assert atan2(-2.3,0) == -pi/2, f"assertion error in atan2"
-
-def test_cos():
-    assert cos(-pi/2) == 0 , f"assertion error in cos"
-    assert cos(0) == 1, f"assertion error in cos"
-    assert cos(pi/2) == 0, f"assertion error in cos"
-    assert cos(pi) == -1, f"assertion error in cos"
-
-def test_cosh():
-    assert cosh(0) == 1 , f"assertion error in cosh"
-    assert cosh(2)-2*cosh(1)**2 == -1, f"assertion error in cosh"
-
 
 def test_cbrt():
     assert cbrt(0) == 0 , f"assertion error in cube root function"
@@ -132,16 +72,6 @@ def test_hypot():
     assert abs(hypot(6, 6) - 8.48528137423857) < eps
 
 def check():
-    test_acos()
-    test_acosh()
-    test_asin()
-    test_asinh()
-    test_atan()
-    test_atan2()
-    test_atanh()
-    test_cos()
-    test_cosh()
-
     test_cbrt()
     test_trig()
     test_sqrt()
