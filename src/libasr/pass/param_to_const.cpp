@@ -49,12 +49,29 @@ public:
         }
     }
 
-    void visit_UnaryOp(const ASR::UnaryOp_t& x) {
-        ASR::UnaryOp_t& x_unconst = const_cast<ASR::UnaryOp_t&>(x);
+    void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {
+        visit_UnaryOp(x);
+    }
+    void visit_RealUnaryMinus(const ASR::RealUnaryMinus_t &x) {
+        visit_UnaryOp(x);
+    }
+    void visit_ComplexUnaryMinus(const ASR::ComplexUnaryMinus_t &x) {
+        visit_UnaryOp(x);
+    }
+    void visit_IntegerBitNot(const ASR::IntegerBitNot_t &x) {
+        visit_UnaryOp(x);
+    }
+    void visit_LogicalNot(const ASR::LogicalNot_t &x) {
+        visit_UnaryOp(x);
+    }
+
+    template<typename T>
+    void visit_UnaryOp(const T& x) {
+        T& x_unconst = const_cast<T&>(x);
         asr = nullptr;
-        this->visit_expr(*x.m_operand);
+        this->visit_expr(*x.m_arg);
         if( asr != nullptr ) {
-            x_unconst.m_operand = asr;
+            x_unconst.m_arg = asr;
         }
         asr = const_cast<ASR::expr_t*>(&(x.base));
     }

@@ -1410,141 +1410,202 @@ public:
     void visit_UnaryOp(const AST::UnaryOp_t &x) {
         this->visit_expr(*x.m_operand);
         ASR::expr_t *operand = ASRUtils::EXPR(tmp);
-        ASR::unaryopType op;
-        switch (x.m_op) {
-            case (AST::unaryopType::Invert) : { op = ASR::unaryopType::Invert; break; }
-            case (AST::unaryopType::Not) : { op = ASR::unaryopType::Not; break; }
-            case (AST::unaryopType::UAdd) : { op = ASR::unaryopType::UAdd; break; }
-            case (AST::unaryopType::USub) : { op = ASR::unaryopType::USub; break; }
-            default : {
-                throw SemanticError("Unary operator type not supported",
-                    x.base.base.loc);
-            }
-        }
         ASR::ttype_t *operand_type = ASRUtils::expr_type(operand);
         ASR::ttype_t *dest_type = operand_type;
         ASR::ttype_t *logical_type = ASRUtils::TYPE(
             ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
         ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                4, nullptr, 0));
+            4, nullptr, 0));
         ASR::expr_t *value = nullptr;
 
-        if (ASRUtils::expr_value(operand) != nullptr) {
-            if (ASRUtils::is_integer(*operand_type)) {
+        if (x.m_op == AST::unaryopType::Invert) {
 
-                int64_t op_value = ASR::down_cast<ASR::IntegerConstant_t>(
+            if (ASRUtils::is_integer(*operand_type)) {
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    int64_t op_value = ASR::down_cast<ASR::IntegerConstant_t>(
+                                            ASRUtils::expr_value(operand))->m_n;
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
+                        al, x.base.base.loc, ~op_value, operand_type));
+                }
+                tmp = ASR::make_IntegerBitNot_t(al, x.base.base.loc, operand, dest_type, value);
+                return;
+            }
+            else if (ASRUtils::is_real(*operand_type)) {
+                throw SemanticError("Unary operator '~' not supported for floats",
+                    x.base.base.loc);
+            }
+            else if (ASRUtils::is_logical(*operand_type)) {
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    bool op_value = ASR::down_cast<ASR::LogicalConstant_t>(
+                                               ASRUtils::expr_value(operand))->m_value;
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
+                        al, x.base.base.loc, op_value ? -2 : -1, int_type));
+                }
+                // cast Logical to Integer
+                // Reason: Resultant type of an unary operation should be the same as operand type
+                ASR::expr_t *int_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                            al, x.base.base.loc, operand, ASR::cast_kindType::LogicalToInteger,
+                            int_type, value));
+                tmp = ASR::make_IntegerBitNot_t(al, x.base.base.loc, int_arg, int_type, value);
+                return;
+            }
+            else if (ASRUtils::is_complex(*operand_type)) {
+                throw SemanticError("Unary operator '~' not supported for complex type",
+                    x.base.base.loc);
+            }
+
+        }
+        else if (x.m_op == AST::unaryopType::Not) {
+
+            ASR::expr_t *logical_arg = operand;
+            if (ASRUtils::is_integer(*operand_type)) {
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    int64_t op_value = ASR::down_cast<ASR::IntegerConstant_t>(
                                         ASRUtils::expr_value(operand))->m_n;
-                if (op == ASR::unaryopType::Not) {
                     bool b = (op_value == 0);
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                         al, x.base.base.loc, b, logical_type));
-                    dest_type = logical_type;
-                } else {
-                    int64_t result = 0;
-                    switch (op) {
-                        case (ASR::unaryopType::UAdd): { result = op_value; break; }
-                        case (ASR::unaryopType::USub): { result = -op_value; break; }
-                        case (ASR::unaryopType::Invert): { result = ~op_value; break; }
-                        default: LFORTRAN_ASSERT(false); // should never happen
-                    }
-                    value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
-                                al, x.base.base.loc, result, operand_type));
                 }
-
-            } else if (ASRUtils::is_real(*operand_type)) {
-                double op_value = ASR::down_cast<ASR::RealConstant_t>(
+                // cast Integer to Logical
+                logical_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                            al, x.base.base.loc, operand, ASR::cast_kindType::IntegerToLogical,
+                            logical_type, value));
+            }
+            else if (ASRUtils::is_real(*operand_type)) {
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    double op_value = ASR::down_cast<ASR::RealConstant_t>(
                                         ASRUtils::expr_value(operand))->m_r;
-                if (op == ASR::unaryopType::Not) {
                     bool b = (op_value == 0.0);
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                         al, x.base.base.loc, b, logical_type));
-                    dest_type = logical_type;
-                } else {
-                    double result = 0.0;
-                    switch (op) {
-                        case (ASR::unaryopType::UAdd): { result = op_value; break; }
-                        case (ASR::unaryopType::USub): { result = -op_value; break; }
-                        default: {
-                            throw SemanticError("Bad operand type for unary " +
-                                ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str_python(operand_type),
-                                x.base.base.loc);
-                        }
-                    }
-                    value = ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(
-                        al, x.base.base.loc, result, operand_type));
                 }
-
-            } else if (ASRUtils::is_logical(*operand_type)) {
-                bool op_value = ASR::down_cast<ASR::LogicalConstant_t>(
+                // Cast Real to Integer
+                ASR::expr_t *int_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                            al, x.base.base.loc, operand, ASR::cast_kindType::RealToInteger,
+                            int_type, value));
+                // Cast Integer to Logical
+                logical_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                            al, x.base.base.loc, int_arg, ASR::cast_kindType::IntegerToLogical,
+                            logical_type, value));
+            }
+            else if (ASRUtils::is_logical(*operand_type)) {
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    bool op_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                                ASRUtils::expr_value(operand))->m_value;
-                if (op == ASR::unaryopType::Not) {
-                    value = ASR::down_cast<ASR::expr_t>(
-                        ASR::make_LogicalConstant_t(al, x.base.base.loc, !op_value, logical_type));
-                } else {
-                    int8_t result = 0;
-                    switch (op) {
-                        case (ASR::unaryopType::UAdd): { result = +op_value; break; }
-                        case (ASR::unaryopType::USub): { result = -op_value; break; }
-                        case (ASR::unaryopType::Invert): { result = op_value ? -2 : -1; break; }
-                        default : LFORTRAN_ASSERT(false); // should never happen
-                    }
-                    value = ASR::down_cast<ASR::expr_t>(
-                        ASR::make_IntegerConstant_t(al, x.base.base.loc, result, int_type));
-                    dest_type = int_type;
-                }
-
-            } else if (ASRUtils::is_complex(*operand_type)) {
-                ASR::ComplexConstant_t *c = ASR::down_cast<ASR::ComplexConstant_t>(
-                                        ASRUtils::expr_value(operand));
-                std::complex<double> op_value(c->m_re, c->m_im);
-                std::complex<double> result;
-                if (op == ASR::unaryopType::Not) {
-                    bool b = (op_value.real() == 0.0 && op_value.imag() == 0.0);
-                    value = ASR::down_cast<ASR::expr_t>(
-                        ASR::make_LogicalConstant_t(al, x.base.base.loc, b, logical_type));
-                    dest_type = logical_type;
-                } else {
-                    switch (op) {
-                        case (ASR::unaryopType::UAdd): { result = op_value; break; }
-                        case (ASR::unaryopType::USub): { result = -op_value; break; }
-                        default: {
-                            throw SemanticError("Bad operand type for unary " +
-                                ASRUtils::unop_to_str(op) + ": " + ASRUtils::type_to_str_python(operand_type),
-                                x.base.base.loc);
-                        }
-                    }
-                    value = ASR::down_cast<ASR::expr_t>(
-                        ASR::make_ComplexConstant_t(al, x.base.base.loc,
-                        std::real(result), std::imag(result), operand_type));
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
+                        al, x.base.base.loc, !op_value, logical_type));
                 }
             }
+            else if (ASRUtils::is_complex(*operand_type)) {
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    ASR::ComplexConstant_t *c = ASR::down_cast<ASR::ComplexConstant_t>(
+                                        ASRUtils::expr_value(operand));
+                    std::complex<double> op_value(c->m_re, c->m_im);
+                    bool b = (op_value.real() == 0.0 && op_value.imag() == 0.0);
+                    tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, b, logical_type);
+                    return;
+                }
+                // TODO: Maybe add Complex to Logical cast in ASR
+                throw SemanticError("'not' Unary is not supported for complex type yet",
+                    x.base.base.loc);
+            }
+
+            tmp = ASR::make_LogicalNot_t(al, x.base.base.loc, logical_arg, logical_type, value);
+            return;
+
         }
-        if (ASRUtils::is_integer(*operand_type) && op == ASR::unaryopType::Invert) {
-            tmp = ASR::make_IntegerBitNot_t(al, x.base.base.loc, operand, dest_type, value);
+        else if (x.m_op == AST::unaryopType::UAdd) {
 
-        } else if (ASRUtils::is_logical(*operand_type) && op == ASR::unaryopType::Not) {
-            tmp = ASR::make_LogicalNot_t(al, x.base.base.loc, operand, logical_type, value);
+            if (ASRUtils::is_integer(*operand_type)) {
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    int64_t op_value = ASR::down_cast<ASR::IntegerConstant_t>(
+                                            ASRUtils::expr_value(operand))->m_n;
+                    tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, op_value, operand_type);
+                }
+            }
+            else if (ASRUtils::is_real(*operand_type)) {
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    double op_value = ASR::down_cast<ASR::RealConstant_t>(
+                                            ASRUtils::expr_value(operand))->m_r;
+                    tmp = ASR::make_RealConstant_t(al, x.base.base.loc, op_value, operand_type);
+                }
+            }
+            else if (ASRUtils::is_logical(*operand_type)) {
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    bool op_value = ASR::down_cast<ASR::LogicalConstant_t>(
+                                               ASRUtils::expr_value(operand))->m_value;
+                    tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, +op_value, int_type);
+                    return;
+                }
+                tmp = ASR::make_Cast_t(al, x.base.base.loc, operand, ASR::cast_kindType::LogicalToInteger,
+                        int_type, value);
+            }
+            else if (ASRUtils::is_complex(*operand_type)) {
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    ASR::ComplexConstant_t *c = ASR::down_cast<ASR::ComplexConstant_t>(
+                                        ASRUtils::expr_value(operand));
+                    std::complex<double> op_value(c->m_re, c->m_im);
+                    tmp = ASR::make_ComplexConstant_t(al, x.base.base.loc,
+                        std::real(op_value), std::imag(op_value), operand_type);
+                }
+            }
+            return;
 
-        } else if (ASRUtils::is_integer(*operand_type) && op == ASR::unaryopType::USub) {
-            tmp = ASR::make_IntegerUnaryMinus_t(al, x.base.base.loc, operand, dest_type, value);
+        }
+        else if (x.m_op == AST::unaryopType::USub) {
 
-        } else if (ASRUtils::is_real(*operand_type) && op == ASR::unaryopType::USub) {
-            tmp = ASR::make_RealUnaryMinus_t(al, x.base.base.loc, operand, dest_type, value);
-
-        } else if (ASRUtils::is_complex(*operand_type) && op == ASR::unaryopType::USub) {
-            tmp = ASR::make_ComplexUnaryMinus_t(al, x.base.base.loc, operand, dest_type, value);
-
-        } else if (ASRUtils::is_logical(*operand_type) && op == ASR::unaryopType::USub) {
-            // cast Logical to Integer
-            // Reason: Resultant type of an unary operation should be the same as operand type
-            ASR::expr_t *int_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+            if (ASRUtils::is_integer(*operand_type)) {
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    int64_t op_value = ASR::down_cast<ASR::IntegerConstant_t>(
+                                            ASRUtils::expr_value(operand))->m_n;
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
+                        al, x.base.base.loc, -op_value, operand_type));
+                }
+                tmp = ASR::make_IntegerUnaryMinus_t(al, x.base.base.loc, operand,
+                                                    operand_type, value);
+                return;
+            }
+            else if (ASRUtils::is_real(*operand_type)) {
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    double op_value = ASR::down_cast<ASR::RealConstant_t>(
+                                            ASRUtils::expr_value(operand))->m_r;
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(
+                        al, x.base.base.loc, -op_value, operand_type));
+                }
+                tmp = ASR::make_RealUnaryMinus_t(al, x.base.base.loc, operand,
+                                                 operand_type, value);
+                return;
+            }
+            else if (ASRUtils::is_logical(*operand_type)) {
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    bool op_value = ASR::down_cast<ASR::LogicalConstant_t>(
+                                               ASRUtils::expr_value(operand))->m_value;
+                    value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
+                        al, x.base.base.loc, -op_value, int_type));
+                }
+                // cast Logical to Integer
+                ASR::expr_t *int_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
                         al, x.base.base.loc, operand, ASR::cast_kindType::LogicalToInteger,
                         int_type, value));
-            tmp = ASR::make_IntegerUnaryMinus_t(al, x.base.base.loc, int_arg, int_type, value);
-
-        } else {
-            tmp = ASR::make_UnaryOp_t(al, x.base.base.loc, op, operand, dest_type,
-                                      value);
+                tmp = ASR::make_IntegerUnaryMinus_t(al, x.base.base.loc, int_arg,
+                                                    int_type, value);
+                return;
+            }
+            else if (ASRUtils::is_complex(*operand_type)) {
+                if (ASRUtils::expr_value(operand) != nullptr) {
+                    ASR::ComplexConstant_t *c = ASR::down_cast<ASR::ComplexConstant_t>(
+                                        ASRUtils::expr_value(operand));
+                    std::complex<double> op_value(c->m_re, c->m_im);
+                    std::complex<double> result;
+                    result = -op_value;
+                    value = ASR::down_cast<ASR::expr_t>(
+                        ASR::make_ComplexConstant_t(al, x.base.base.loc, std::real(result),
+                        std::imag(result), operand_type));
+                }
+                tmp = ASR::make_ComplexUnaryMinus_t(al, x.base.base.loc, operand,
+                                                    operand_type, value);
+                return;
+            }
         }
     }
 

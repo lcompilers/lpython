@@ -201,16 +201,6 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t)
     }
 }
 
-static inline std::string unop_to_str(const ASR::unaryopType t) {
-    switch (t) {
-        case (ASR::unaryopType::Not): { return "!"; }
-        case (ASR::unaryopType::USub): { return "-"; }
-        case (ASR::unaryopType::UAdd): { return "+"; }
-        case (ASR::unaryopType::Invert): {return "~"; }
-        default : throw LFortranException("Not implemented");
-    }
-}
-
 static inline std::string binop_to_str(const ASR::binopType t) {
     switch (t) {
         case (ASR::binopType::Add): { return " + "; }

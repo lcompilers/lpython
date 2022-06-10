@@ -3293,57 +3293,6 @@ public:
         }
     }
 
-    void visit_UnaryOp(const ASR::UnaryOp_t &x) {
-        if (x.m_value) {
-            this->visit_expr_wrapper(x.m_value, true);
-            return;
-        }
-        this->visit_expr_wrapper(x.m_operand, true);
-        if (x.m_type->type == ASR::ttypeType::Integer) {
-            if (x.m_op == ASR::unaryopType::UAdd) {
-                // tmp = tmp;
-                return;
-            } else if (x.m_op == ASR::unaryopType::USub) {
-                llvm::Value *zero = llvm::ConstantInt::get(context,
-                    llvm::APInt(ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_operand)) * 8, 0));
-                tmp = builder ->CreateSub(zero, tmp);
-                return;
-            } else {
-                throw CodeGenError("Unary type not implemented yet");
-            }
-        } else if (x.m_type->type == ASR::ttypeType::Real) {
-            if (x.m_op == ASR::unaryopType::UAdd) {
-                // tmp = tmp;
-                return;
-            } else if (x.m_op == ASR::unaryopType::USub) {
-                llvm::Value *zero;
-                int a_kind = down_cast<ASR::Real_t>(x.m_type)->m_kind;
-                if (a_kind == 4) {
-                    zero = llvm::ConstantFP::get(context,
-                            llvm::APFloat((float)0.0));
-                } else if (a_kind == 8) {
-                    zero = llvm::ConstantFP::get(context,
-                            llvm::APFloat((double)0.0));
-                } else {
-                    throw CodeGenError("Unary type kind not implemented yet, only 4 and 8 is");
-                }
-                tmp = builder ->CreateFSub(zero, tmp);
-                return;
-            } else {
-                throw CodeGenError("Unary type not implemented yet");
-            }
-        } else if (x.m_type->type == ASR::ttypeType::Logical) {
-            if (x.m_op == ASR::unaryopType::Not) {
-                tmp = builder ->CreateNot(tmp);
-                return;
-            } else {
-                throw CodeGenError("Unary type not implemented yet in Logical");
-            }
-        } else {
-            throw CodeGenError("UnaryOp: type not supported yet");
-        }
-    }
-
     void visit_IntegerBitNot(const ASR::IntegerBitNot_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);

@@ -339,21 +339,9 @@ public:
         }
     }
 
-    void visit_UnaryOp(const ASR::UnaryOp_t &x) {
-        this->visit_expr(*x.m_operand);
-        if (x.m_type->type == ASR::ttypeType::Integer) {
-            if (x.m_op == ASR::unaryopType::UAdd) {
-                // eax = eax
-                return;
-            } else if (x.m_op == ASR::unaryopType::USub) {
-                m_a.asm_neg_r32(X86Reg::eax);
-                return;
-            } else {
-                throw CodeGenError("Unary type not implemented yet");
-            }
-        } else {
-            throw CodeGenError("UnaryOp: type not supported yet");
-        }
+    void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {
+        this->visit_expr(*x.m_arg);
+        m_a.asm_neg_r32(X86Reg::eax);
     }
 
     void visit_Compare(const ASR::Compare_t &x) {
