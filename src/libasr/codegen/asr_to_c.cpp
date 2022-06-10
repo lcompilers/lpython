@@ -44,13 +44,10 @@ std::string format_type_c(const std::string &dims, const std::string &type,
         const std::string &name, bool use_ref, bool /*dummy*/)
 {
     std::string fmt;
-    if (dims.size() == 0) {
-        std::string ref;
-        if (use_ref) ref = "&";
-        fmt = type + " " + ref + name;
-    } else {
-        throw CodeGenError("Dimensions is not supported yet.");
-    }
+    std::string ref = "", ptr = "";
+    if (dims.size() > 0) ptr = "*";
+    if (use_ref) ref = "&";
+    fmt = type + " " + ptr + ref + name;
     return fmt;
 }
 
