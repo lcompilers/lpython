@@ -23,7 +23,7 @@ void g(double a, float b, int64_t c, int32_t d);
 double h(double x)
 {
     double _lpython_return_variable;
-    _lpython_return_variable = x + 1.000000;
+    _lpython_return_variable = x + 1.000000e+00;
     return _lpython_return_variable;
 }
 
@@ -39,9 +39,9 @@ void main0()
     float y;
     int64_t z;
     int32_t zz;
-    x = 5.000000;
+    x = 5.000000e+00;
     i = f(x);
-    y = 5.400000;
+    y = 5.400000e+00;
     z = 3;
     zz = 2;
     g(x, y, z, zz);
