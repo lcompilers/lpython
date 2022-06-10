@@ -197,8 +197,10 @@ R"(#include <assert.h>
                     != x.m_global_scope->get_scope().end());
                 if (startswith(item, "lfortran_intrinsic")) {
                     ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
-                    visit_symbol(*mod);
-                    unit_src += src;
+                    if( ASRUtils::get_body_size(mod) != 0 ) {
+                        visit_symbol(*mod);
+                        unit_src += src;
+                    }
                 }
             }
         }
@@ -207,8 +209,10 @@ R"(#include <assert.h>
         for (auto &item : x.m_global_scope->get_scope()) {
             if (ASR::is_a<ASR::Function_t>(*item.second)
                 || ASR::is_a<ASR::Subroutine_t>(*item.second)) {
-                visit_symbol(*item.second);
-                unit_src += src;
+                if( ASRUtils::get_body_size(item.second) != 0 ) {
+                    visit_symbol(*item.second);
+                    unit_src += src;
+                }
             }
         }
 
