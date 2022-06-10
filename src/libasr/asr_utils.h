@@ -820,6 +820,31 @@ static inline bool is_logical(ASR::ttype_t &x) {
     return ASR::is_a<ASR::Logical_t>(*type_get_past_pointer(&x));
 }
 
+static inline int get_body_size(ASR::symbol_t* s) {
+    int n_body = 0;
+    switch (s->type) {
+        case ASR::symbolType::Function: {
+            ASR::Function_t* f = ASR::down_cast<ASR::Function_t>(s);
+            n_body = f->n_body;
+            break;
+        }
+        case ASR::symbolType::Subroutine: {
+            ASR::Subroutine_t* sub = ASR::down_cast<ASR::Subroutine_t>(s);
+            n_body = sub->n_body;
+            break;
+        }
+        case ASR::symbolType::Program: {
+            ASR::Program_t* p = ASR::down_cast<ASR::Program_t>(s);
+            n_body = p->n_body;
+            break;
+        }
+        default: {
+            n_body = -1;
+        }
+    }
+    return n_body;
+}
+
 inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
                                          ASR::dimension_t*& m_dims) {
     int n_dims = 0;
