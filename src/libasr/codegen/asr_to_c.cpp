@@ -108,7 +108,7 @@ public:
             } else if (ASRUtils::is_logical(*v.m_type)) {
                 ASR::Logical_t *t = ASR::down_cast<ASR::Logical_t>(v.m_type);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
-                sub = format_type_c(dims, "int8_t", v.m_name, use_ref, dummy);
+                sub = format_type_c(dims, "bool", v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_character(*v.m_type)) {
                 // TODO
             } else if (ASR::is_a<ASR::Derived_t>(*v.m_type)) {
@@ -144,16 +144,52 @@ R"(#include <assert.h>
 #include <complex.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 
 #include <lfortran_intrinsics.h>
+
+#define ASSERT(cond)                                                           \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+#define ASSERT_MSG(cond, msg)                                                  \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            printf("%s", "ERROR MESSAGE:\n");                                  \
+            printf("%s%s", msg, "\n");                                         \
+            exit(1);                                                           \
+        }                                                                      \
+    }
 
 )";
         unit_src += headers;
 
 
-        // TODO: We need to pre-declare all functions first, then generate code
+        // Pre-declare all functions first, then generate code
         // Otherwise some function might not be found.
+        unit_src += "// Forward declarations\n";
+        unit_src += declare_all_functions(*x.m_global_scope);
+        // Now pre-declare all functions from modules
+        for (auto &item : x.m_global_scope->get_scope()) {
+            if (ASR::is_a<ASR::Module_t>(*item.second)) {
+                ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(item.second);
+                unit_src += declare_all_functions(*m->m_symtab);
+            }
+        }
+        unit_src += "\n";
+        unit_src += "// Implementations\n";
 
         {
             // Process intrinsic modules in the right order
@@ -250,6 +286,23 @@ R"(#include <assert.h>
             src = "false";
         }
         last_expr_precedence = 2;
+    }
+
+    void visit_Assert(const ASR::Assert_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent;
+        if (x.m_msg) {
+            out += "ASSERT_MSG(";
+            visit_expr(*x.m_test);
+            out += src + ", ";
+            visit_expr(*x.m_msg);
+            out += src + ");\n";
+        } else {
+            out += "ASSERT(";
+            visit_expr(*x.m_test);
+            out += src + ");\n";
+        }
+        src = out;
     }
 
     void visit_Cast(const ASR::Cast_t &x) {

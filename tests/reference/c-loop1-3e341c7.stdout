@@ -2,10 +2,43 @@
 #include <complex.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 
 #include <lfortran_intrinsics.h>
 
+#define ASSERT(cond)                                                           \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+#define ASSERT_MSG(cond, msg)                                                  \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            printf("%s", "ERROR MESSAGE:\n");                                  \
+            printf("%s%s", msg, "\n");                                         \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+
+// Forward declarations
+void _lpython_main_program();
+void main0();
+int test_factorial_1(int32_t x);
+int test_factorial_2(int32_t x);
+long long test_factorial_3(int32_t x);
+
+// Implementations
 void _lpython_main_program()
 {
     main0();

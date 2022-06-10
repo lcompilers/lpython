@@ -12,6 +12,11 @@ namespace LFortran {
             return builder.CreateLoad(t2, x);
         }
 
+        llvm::Value* CreateStore(llvm::IRBuilder<> &builder, llvm::Value *x, llvm::Value *y) {
+            LFORTRAN_ASSERT(y->getType()->isPointerTy());
+            return builder.CreateStore(x, y);
+        }
+
 
         llvm::Value* CreateGEP(llvm::IRBuilder<> &builder, llvm::Value *x, std::vector<llvm::Value *> &idx) {
             llvm::Type *t = x->getType();

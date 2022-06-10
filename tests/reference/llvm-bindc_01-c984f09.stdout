@@ -1,0 +1,30 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+@queries = global void* null
+@x = global i16* null
+@0 = private unnamed_addr constant [9 x i8] c"%lld %d\0A\00", align 1
+
+define void @_lpython_main_program() {
+.entry:
+  %0 = load void*, void** @queries, align 8
+  %1 = bitcast void* %0 to i16*
+  store i16* %1, i16** @x, align 8
+  %2 = load void*, void** @queries, align 8
+  %3 = ptrtoint void* %2 to i64
+  %4 = load i16*, i16** @x, align 8
+  %5 = load i16, i16* %4, align 2
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @0, i32 0, i32 0), i64 %3, i16 %5)
+  br label %return
+
+return:                                           ; preds = %.entry
+  ret void
+}
+
+declare void @_lfortran_printf(i8*, ...)
+
+define i32 @main() {
+.entry:
+  call void @_lpython_main_program()
+  ret i32 0
+}

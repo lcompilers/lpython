@@ -2,10 +2,42 @@
 #include <complex.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
+#include <stdbool.h>
 
 #include <lfortran_intrinsics.h>
 
+#define ASSERT(cond)                                                           \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+#define ASSERT_MSG(cond, msg)                                                  \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            printf("%s", "ERROR MESSAGE:\n");                                  \
+            printf("%s%s", msg, "\n");                                         \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+
+// Forward declarations
+void _lpython_main_program();
+long long fib(int64_t n);
+void _xx_lcompilers_changed_main_xx();
+void main0();
+
+// Implementations
 void _lpython_main_program()
 {
     main0();
@@ -29,14 +61,14 @@ void _xx_lcompilers_changed_main_xx()
 {
     int64_t ans;
     ans = fib(10);
-    assert (ans == 55);
+    ASSERT(ans == 55);
 }
 
 void main0()
 {
     int64_t ans;
     ans = fib(15);
-    assert (ans == 610);
+    ASSERT(ans == 610);
 }
 
 int main(int argc, char* argv[])
