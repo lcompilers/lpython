@@ -161,3 +161,5 @@ build.ninja
 src/lpython/parser/parser.output
 src/lpython/parser/parser.tab.cc
 src/lpython/parser/parser.tab.hh
+
+*.py[0-9A-Za-z]*
