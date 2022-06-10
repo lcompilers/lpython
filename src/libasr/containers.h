@@ -180,10 +180,17 @@ struct Str {
 static_assert(std::is_standard_layout<Str>::value);
 static_assert(std::is_trivial<Str>::value);
 
+template <typename ...Args>
+std::string string_format(const std::string& format, Args && ...args)
+{
+    auto size = std::snprintf(nullptr, 0, format.c_str(), std::forward<Args>(args)...);
+    std::string output(size, '\0');
+    std::sprintf(&output[0], format.c_str(), std::forward<Args>(args)...);
+    return output;
+}
+
 static inline std::string double_to_scientific(double x) {
-    std::string buf(30, '\0');
-    std::sprintf(&buf[0], "%e", x);
-    return buf;
+    return string_format("%e", x);
 }
 
 } // namespace LFortran
