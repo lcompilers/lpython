@@ -339,7 +339,8 @@ public:
         }
     }
 
-    void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &/*x*/) {
+    void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {
+        this->visit_expr(*x.m_arg);
         m_a.asm_neg_r32(X86Reg::eax);
     }
 
