@@ -26,12 +26,10 @@ def test_trig():
 
 
 def test_cbrt():
-    assert cbrt(0) == 0 , f"assertion error in cube root function"
-    assert cbrt(1) == 1 , f"assertion error in cube root function"
-    assert cbrt(8) == 2 , f"assertion error in cube root function"
-    assert cbrt(-27) == -3 , f"assertion error in cube root function"
-    assert cbrt(1.2) == 1.062658569182611 , f"assertion error in cube root function"
-
+    eps: f64 = 1e-12
+    assert abs(cbrt(8.0) - 2) < eps
+    assert abs(cbrt(1.0) - 1) < eps
+    assert abs(cbrt(-27.0) + 3) < eps
 
 def test_sqrt():
     eps: f64 = 1e-12

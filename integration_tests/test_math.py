@@ -62,7 +62,10 @@ def test_exp2():
     i: f64
     i = exp2(2.3)
     assert abs(i - 4.924577653379665) < eps
-    # assert exp2(0) == 1.0, f"assertion error in exp2"
+
+    # p: f64
+    # p = exp2(0.0)
+    # assert exp2(p) == 1.0, f"assertion error in exp2"
     # assert exp2(1) == 2, f"assertion error in exp2"
 
 def test_pow():
