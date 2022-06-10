@@ -150,6 +150,29 @@ R"(#include <assert.h>
 
 #include <lfortran_intrinsics.h>
 
+#define ASSERT(cond)                                                           \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+#define ASSERT_MSG(cond, msg)                                                  \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            printf("%s", "ERROR MESSAGE:\n");                                  \
+            printf("%s%s", msg, "\n");                                         \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+
 )";
         unit_src += headers;
 
@@ -263,6 +286,23 @@ R"(#include <assert.h>
             src = "false";
         }
         last_expr_precedence = 2;
+    }
+
+    void visit_Assert(const ASR::Assert_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent;
+        if (x.m_msg) {
+            out += "ASSERT_MSG(";
+            visit_expr(*x.m_test);
+            out += src + ", ";
+            visit_expr(*x.m_msg);
+            out += src + ");\n";
+        } else {
+            out += "ASSERT(";
+            visit_expr(*x.m_test);
+            out += src + ");\n";
+        }
+        src = out;
     }
 
     void visit_Cast(const ASR::Cast_t &x) {
