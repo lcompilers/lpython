@@ -104,11 +104,12 @@ macro(RUN)
 endmacro(RUN)
 
 
-# Test zero and non-zero exit code
+# Test zero and non-zero exit code and assert statements
 RUN(NAME exit_01             LABELS cpython llvm c)
 RUN(NAME exit_02     FAIL    LABELS cpython llvm c)
 RUN(NAME exit_01b            LABELS cpython llvm c)
 RUN(NAME exit_02b    FAIL    LABELS cpython llvm c)
+RUN(NAME exit_02c    FAIL    LABELS cpython llvm c)
 
 # Test all three backends
 RUN(NAME print_01            LABELS cpython llvm c)

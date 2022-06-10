@@ -1,7 +1,6 @@
 def main0():
     print("Before")
-    assert True
-    assert True, "OK!"
+    assert False, "Custom message"
     print("After")
 
 main0()
