@@ -518,7 +518,7 @@ R"(#include <stdio.h>
     }
 
     void visit_RealConstant(const ASR::RealConstant_t &x) {
-        src = std::to_string(x.m_r);
+        src = double_to_scientific(x.m_r);
         last_expr_precedence = 2;
     }
 
