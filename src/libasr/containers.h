@@ -180,6 +180,12 @@ struct Str {
 static_assert(std::is_standard_layout<Str>::value);
 static_assert(std::is_trivial<Str>::value);
 
+static inline std::string double_to_scientific(double x) {
+    std::string buf(30, '\0');
+    std::sprintf(&buf[0], "%e", x);
+    return buf;
+}
+
 } // namespace LFortran
 
 
