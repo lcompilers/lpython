@@ -213,6 +213,10 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t& x) {
+        if( ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
+            ASR::is_a<ASR::GetPointer_t>(*x.m_value) ) {
+            return ;
+        }
         this->visit_expr(*x.m_value);
         // If any slicing happened then do loop must have been created
         // So, the current assignment should be inserted into pass_result

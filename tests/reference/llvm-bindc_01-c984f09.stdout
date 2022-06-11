@@ -3,7 +3,7 @@ source_filename = "LFortran"
 
 @queries = global void* null
 @x = global i16* null
-@0 = private unnamed_addr constant [9 x i8] c"%lld %d\0A\00", align 1
+@0 = private unnamed_addr constant [11 x i8] c"%lld %lld\0A\00", align 1
 
 define void @_lpython_main_program() {
 .entry:
@@ -13,8 +13,8 @@ define void @_lpython_main_program() {
   %2 = load void*, void** @queries, align 8
   %3 = ptrtoint void* %2 to i64
   %4 = load i16*, i16** @x, align 8
-  %5 = load i16, i16* %4, align 2
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @0, i32 0, i32 0), i64 %3, i16 %5)
+  %5 = ptrtoint i16* %4 to i64
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @0, i32 0, i32 0), i64 %3, i64 %5)
   br label %return
 
 return:                                           ; preds = %.entry

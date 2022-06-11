@@ -232,6 +232,10 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t& x) {
+        if( ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
+            ASR::is_a<ASR::GetPointer_t>(*x.m_value) ) {
+            return ;
+        }
         if( PassUtils::is_array(x.m_target) ) {
             result_var = x.m_target;
             this->visit_expr(*(x.m_value));
