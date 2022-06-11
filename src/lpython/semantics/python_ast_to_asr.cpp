@@ -3005,6 +3005,7 @@ public:
             ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
         ASR::expr_t *value = nullptr;
         ASR::ttype_t *source_type = left_type;
+        ASR::expr_t *overloaded = nullptr;
 
         if (ASRUtils::is_integer(*source_type)) {
 
@@ -3160,6 +3161,11 @@ public:
             }
 
             tmp = ASR::make_StringCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+        }
+
+        if (overloaded != nullptr) {
+            tmp = ASR::make_OverloadedCompare_t(al, x.base.base.loc, left, asr_op, right, type,
+                value, overloaded);
         }
     }
 
