@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <memory>
+#include <set>
 
 #include <libasr/asr.h>
 #include <libasr/containers.h>
@@ -78,6 +79,7 @@ public:
     // Use std::complex<float/double> or float/double complex
     bool gen_stdcomplex;
     bool is_c;
+    std::set<std::string> headers;
 
     BaseCCPPVisitor(diag::Diagnostics &diag,
             bool gen_stdstring, bool gen_stdcomplex, bool is_c) : diag{diag},
@@ -682,8 +684,12 @@ R"(#include <stdio.h>
             case (ASR::binopType::Mul) : { last_expr_precedence = 5; break; }
             case (ASR::binopType::Div) : { last_expr_precedence = 5; break; }
             case (ASR::binopType::Pow) : {
-                src = "pow(" + left + ", " + right + ")";
-                if (!is_c) src = "std::" + src;
+                if (is_c) {
+                    headers.insert("math");
+                    src = "pow(" + left + ", " + right + ")";
+                } else {
+                    src = "std::" + src;
+                }
                 return;
             }
             default: throw CodeGenError("BinOp: operator not implemented yet");
