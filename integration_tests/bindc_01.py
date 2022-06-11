@@ -1,4 +1,4 @@
-from ltypes import c_p_pointer, CPtr, pointer, i16
+from ltypes import c_p_pointer, CPtr, i16
 
 queries: CPtr
 x: Pointer[i16]
