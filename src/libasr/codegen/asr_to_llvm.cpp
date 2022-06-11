@@ -3059,6 +3059,10 @@ public:
         }
     }
 
+    void visit_OverloadedCompare(const ASR::OverloadedCompare_t &x) {
+        this->visit_expr(*x.m_overloaded);
+    }
+
     void visit_If(const ASR::If_t &x) {
         this->visit_expr_wrapper(x.m_test, true);
         llvm::Value *cond=tmp;
