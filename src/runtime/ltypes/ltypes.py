@@ -5,7 +5,7 @@ import platform
 from typing import TypeVar
 
 __slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64", "c_ptr",
-        "overload", "ccall", "TypeVar", "pointer"]
+        "overload", "ccall", "TypeVar", "pointer", "Pointer"]
 
 # data-types
 
@@ -15,6 +15,10 @@ class Type:
 
     def __getitem__(self, params):
         return Array(self, params)
+
+class Pointer:
+    def __getitem__(self, type):
+        return type
 
 class Array:
     def __init__(self, type, dims):

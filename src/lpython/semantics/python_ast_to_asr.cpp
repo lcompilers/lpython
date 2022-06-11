@@ -592,9 +592,7 @@ public:
         } else if (var_annotation == "pointer") {
             LFORTRAN_ASSERT(n_args == 1);
             AST::expr_t* underlying_type = m_args[0];
-            LFORTRAN_ASSERT(AST::is_a<AST::Name_t>(*underlying_type));
-            AST::Name_t* type_name = AST::down_cast<AST::Name_t>(underlying_type);
-            type = get_type_from_var_annotation(std::string(type_name->m_id), loc, dims);
+            type = ast_expr_to_asr_type(underlying_type->base.loc, *underlying_type);
             type = ASRUtils::TYPE(ASR::make_Pointer_t(al, loc, type));
         } else {
             throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
@@ -773,6 +771,9 @@ public:
                     throw SemanticError("`dict` annotation must have 2 elements: types of"
                         " both keys and values", loc);
                 }
+            } else if (var_annotation == "Pointer") {
+                ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice);
+                return ASRUtils::TYPE(ASR::make_Pointer_t(al, loc, type));
             } else {
                 ASR::dimension_t dim;
                 dim.loc = loc;
@@ -795,17 +796,6 @@ public:
 
                 dims.push_back(al, dim);
             }
-        } else if( AST::is_a<AST::Call_t>(annotation) ) {
-            AST::Call_t *c = AST::down_cast<AST::Call_t>(&annotation);
-            if (AST::is_a<AST::Name_t>(*c->m_func)) {
-                AST::Name_t *n = AST::down_cast<AST::Name_t>(c->m_func);
-                var_annotation = n->m_id;
-                m_args = c->m_args;
-                n_args = c->n_args;
-            } else {
-                throw SemanticError("Only Name in Call supported for now in annotation",
-                    loc);
-            }
         } else {
             throw SemanticError("Only Name, Subscript, and Call supported for now in annotation of annotated assignment.",
                 loc);
@@ -827,14 +817,13 @@ public:
             comptime_value, overloaded));
     }
 
-    // Casts `right` if needed to the type of `left`
-    // (to be used during assignment, BinOp, or compare)
-    ASR::expr_t* cast_helper(ASR::ttype_t *left_type, ASR::expr_t *right,
-                                        bool is_assign=false) {
-        bool no_cast = (ASR::is_a<ASR::Pointer_t>(*left_type) ||
-                        ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(right)));
+    ASR::expr_t* cast_helper(ASR::expr_t* left, ASR::expr_t* right, bool is_assign) {
+        bool no_cast = ((ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(left)) &&
+                        ASR::is_a<ASR::Var_t>(*left)) ||
+                        (ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(right)) &&
+                        ASR::is_a<ASR::Var_t>(*right)));
         ASR::ttype_t *right_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(right));
-        left_type = ASRUtils::type_get_past_pointer(left_type);
+        ASR::ttype_t *left_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(left));
         if( no_cast ) {
             int lkind = ASRUtils::extract_kind_from_ttype_t(left_type);
             int rkind = ASRUtils::extract_kind_from_ttype_t(right_type);
@@ -843,6 +832,14 @@ public:
                                     right_type->base.loc);
             }
         }
+        return cast_helper(left_type, right, is_assign);
+    }
+
+    // Casts `right` if needed to the type of `left`
+    // (to be used during assignment, BinOp, or compare)
+    ASR::expr_t* cast_helper(ASR::ttype_t *left_type, ASR::expr_t *right,
+                                        bool is_assign=false) {
+        ASR::ttype_t *right_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(right));
         if (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) {
             int lkind = ASR::down_cast<ASR::Integer_t>(left_type)->m_kind;
             int rkind = ASR::down_cast<ASR::Integer_t>(right_type)->m_kind;
@@ -2340,6 +2337,21 @@ public:
             ASR::expr_t *value = ASRUtils::EXPR(tmp);
             ASR::ttype_t *target_type = ASRUtils::expr_type(target);
             ASR::ttype_t *value_type = ASRUtils::expr_type(value);
+            if( ASR::is_a<ASR::Pointer_t>(*target_type) &&
+                ASR::is_a<ASR::Var_t>(*target) ) {
+                if( !ASR::is_a<ASR::GetPointer_t>(*value) ) {
+                    throw SemanticError("A pointer variable can only "
+                                        "be associated with the output "
+                                        "of pointer() call.",
+                                        value->base.loc);
+                }
+                if( target_type->type != value_type->type ) {
+                    throw SemanticError("Casting not supported for different pointer types yet.",
+                                        x.base.base.loc);
+                }
+                tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value, nullptr);
+                return ;
+            }
 
             if (!ASRUtils::check_equal_type(target_type, value_type)) {
                 std::string ltype = ASRUtils::type_to_str_python(target_type);
@@ -2353,7 +2365,7 @@ public:
                 );
                 throw SemanticAbort();
             }
-            value = cast_helper(ASRUtils::expr_type(target), value, true);
+            value = cast_helper(target, value, true);
             ASR::stmt_t *overloaded=nullptr;
             tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
                                     overloaded);
@@ -3331,6 +3343,11 @@ public:
             } else if (call_name == "len") {
                 tmp = handle_intrinsic_len(al, args, x.base.base.loc);
                 return;
+            } else if( call_name == "pointer" ) {
+                ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Pointer_t(al, x.base.base.loc,
+                                            ASRUtils::expr_type(args[0].m_value)));
+                tmp = ASR::make_GetPointer_t(al, x.base.base.loc, args[0].m_value, type, nullptr);
+                return ;
             } else {
                 // The function was not found and it is not intrinsic
                 throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
