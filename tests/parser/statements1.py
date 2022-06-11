@@ -118,6 +118,15 @@ if x is \
     not type(int):
     pass
 
+a = [1, 2, 3]
+
+if a not in [1, 2]:
+    pass
+
+if (a not in [1, 2]) not \
+    in [True, False]:
+    pass
+
 i: i32 = 4
 if 2 > i : pass
 if i > 5 : break
