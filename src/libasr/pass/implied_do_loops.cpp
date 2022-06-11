@@ -130,6 +130,10 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
+        if( ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
+            ASR::is_a<ASR::GetPointer_t>(*x.m_value) ) {
+            return ;
+        }
         if( x.m_value->type == ASR::exprType::ArrayConstant ) {
             ASR::ArrayConstant_t* arr_init = ((ASR::ArrayConstant_t*)(&(x.m_value->base)));
             if( arr_init->n_args == 1 && arr_init->m_args[0] != nullptr &&
