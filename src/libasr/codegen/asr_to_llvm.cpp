@@ -2588,17 +2588,32 @@ public:
         }
     }
 
-    void visit_CLoc(const ASR::CLoc_t& x) {
+    llvm::Value* GetPointerCPtrUtil(llvm::Value* llvm_tmp) {
+        if( llvm_tmp->getType()->isPointerTy() &&
+            llvm_tmp->getType()->getContainedType(0)->isPointerTy() ) {
+            llvm_tmp = builder->CreateLoad(llvm_tmp);
+        }
+        if( arr_descr->is_array(llvm_tmp) ) {
+            llvm_tmp = builder->CreateLoad(arr_descr->get_pointer_to_data(llvm_tmp));
+        }
+        return llvm_tmp;
+    }
+
+    void visit_GetPointer(const ASR::GetPointer_t& x) {
         uint64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
         this->visit_expr(*x.m_arg);
         ptr_loads = ptr_loads_copy;
-        if( tmp->getType()->isPointerTy() &&
-            tmp->getType()->getContainedType(0)->isPointerTy() ) {
-            tmp = builder->CreateLoad(tmp);
-        }
-        if( arr_descr->is_array(tmp) ) {
-            tmp = builder->CreateLoad(arr_descr->get_pointer_to_data(tmp));
+        tmp = GetPointerCPtrUtil(tmp);
+    }
+
+    void visit_PointerToCPtr(const ASR::PointerToCPtr_t& x) {
+        uint64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_arg);
+        ptr_loads = ptr_loads_copy;
+        if( !ASR::is_a<ASR::GetPointer_t>(*x.m_arg) ) {
+            tmp = GetPointerCPtrUtil(tmp);
         }
         tmp = builder->CreateBitCast(tmp,
                     llvm::Type::getVoidTy(context)->getPointerTo());
@@ -2607,7 +2622,7 @@ public:
 
     void visit_CPtrToPointer(const ASR::CPtrToPointer_t& x) {
         ASR::expr_t *cptr = x.m_cptr, *fptr = x.m_ptr, *shape = x.m_shape;
-        if( shape ) {
+        if( ASRUtils::is_array(ASRUtils::expr_type(fptr)) ) {
             uint64_t ptr_loads_copy = ptr_loads;
             ptr_loads = 1;
             this->visit_expr(*cptr);
@@ -2616,8 +2631,11 @@ public:
             this->visit_expr(*fptr);
             llvm::Value* llvm_fptr = tmp;
             ptr_loads = ptr_loads_copy;
-            this->visit_expr(*shape);
-            llvm::Value* llvm_shape = tmp;
+            llvm::Value* llvm_shape = nullptr;
+            if( shape ) {
+                this->visit_expr(*shape);
+                llvm_shape = tmp;
+            }
             llvm::Type* llvm_fptr_type = llvm_fptr->getType();
             llvm_fptr_type = static_cast<llvm::PointerType*>(llvm_fptr_type)->getElementType();
             llvm_fptr_type = static_cast<llvm::PointerType*>(llvm_fptr_type)->getElementType();
@@ -2635,7 +2653,7 @@ public:
             llvm::Value* fptr_data = arr_descr->get_pointer_to_data(llvm_fptr);
             llvm::Value* fptr_des = arr_descr->get_pointer_to_dimension_descriptor_array(llvm_fptr);
             llvm::Value* shape_data = llvm_shape;
-            if( arr_descr->is_array(llvm_shape) ) {
+            if( llvm_shape && arr_descr->is_array(llvm_shape) ) {
                 shape_data = builder->CreateLoad(arr_descr->get_pointer_to_data(llvm_shape));
             }
             llvm_cptr = builder->CreateBitCast(llvm_cptr,
@@ -2649,7 +2667,7 @@ public:
                 llvm::Value* desi_size = arr_descr->get_dimension_size(fptr_des, curr_dim, false);
                 llvm::Value* i32_one = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
                 llvm::Value* new_lb = i32_one;
-                llvm::Value* new_ub = builder->CreateLoad(llvm_utils->create_ptr_gep(shape_data, i));
+                llvm::Value* new_ub = shape_data ? builder->CreateLoad(llvm_utils->create_ptr_gep(shape_data, i)) : i32_one;
                 builder->CreateStore(new_lb, desi_lb);
                 builder->CreateStore(new_ub, desi_ub);
                 builder->CreateStore(builder->CreateAdd(builder->CreateSub(new_ub, new_lb), i32_one), desi_size);
@@ -2680,6 +2698,17 @@ public:
     void visit_Assignment(const ASR::Assignment_t &x) {
         if( x.m_overloaded ) {
             this->visit_stmt(*x.m_overloaded);
+            return ;
+        }
+
+        if( ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
+            ASR::is_a<ASR::GetPointer_t>(*x.m_value) ) {
+            ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
+            ASR::GetPointer_t* get_ptr = ASR::down_cast<ASR::GetPointer_t>(x.m_value);
+            ASR::Variable_t *asr_value = EXPR2VAR(get_ptr->m_arg);
+            uint32_t value_h = get_hash((ASR::asr_t*)asr_value);
+            uint32_t target_h = get_hash((ASR::asr_t*)asr_target);
+            builder->CreateStore(llvm_symtab[value_h], llvm_symtab[target_h]);
             return ;
         }
         llvm::Value *target, *value;
@@ -4014,11 +4043,30 @@ public:
         std::vector<llvm::Value *> args;
         std::vector<std::string> fmt;
         for (size_t i=0; i<x.n_values; i++) {
+            uint64_t ptr_loads_copy = ptr_loads;
+            ptr_loads = 1;
             this->visit_expr_wrapper(x.m_values[i], true);
+            ptr_loads = ptr_loads_copy;
             ASR::expr_t *v = x.m_values[i];
             ASR::ttype_t *t = expr_type(v);
             int a_kind = ASRUtils::extract_kind_from_ttype_t(t);
-            if (ASRUtils::is_integer(*t) ||
+            if( ASR::is_a<ASR::Pointer_t>(*t) && ASR::is_a<ASR::Var_t>(*v) ) {
+                if( ASRUtils::is_array(ASRUtils::type_get_past_pointer(t)) ) {
+                    tmp = builder->CreateLoad(arr_descr->get_pointer_to_data(tmp));
+                }
+                fmt.push_back("%lld");
+                llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
+                args.push_back(d);
+                continue;
+            }
+            if (t->type == ASR::ttypeType::CPtr ||
+                (t->type == ASR::ttypeType::Pointer &&
+                (ASR::is_a<ASR::Var_t>(*v) || ASR::is_a<ASR::GetPointer_t>(*v)))
+               ) {
+                fmt.push_back("%lld");
+                llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
+                args.push_back(d);
+            } else if (ASRUtils::is_integer(*t) ||
                 ASR::is_a<ASR::Logical_t>(*ASRUtils::type_get_past_pointer(t))) {
                 switch( a_kind ) {
                     case 1 : {
@@ -4100,10 +4148,6 @@ public:
                 d = builder->CreateFPExt(complex_re(tmp, complex_type), type);
                 args.push_back(d);
                 d = builder->CreateFPExt(complex_im(tmp, complex_type), type);
-                args.push_back(d);
-            } else if (t->type == ASR::ttypeType::CPtr) {
-                fmt.push_back("%lld");
-                llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
                 args.push_back(d);
             } else {
                 throw LFortranException("Printing support is available only for integer, real,"
@@ -4835,7 +4879,7 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
     }
 
     // Uncomment for debugging the ASR after the transformation
-    //std::cout << pickle(asr, true, true, true) << std::endl;
+    // std::cout << pickle(asr, true, true, true) << std::endl;
 
     v.nested_func_types = pass_find_nested_vars(asr, context,
         v.nested_globals, v.nested_call_out, v.nesting_map);

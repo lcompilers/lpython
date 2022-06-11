@@ -105,6 +105,8 @@ endmacro(RUN)
 
 
 # Test zero and non-zero exit code and assert statements
+RUN(NAME bindc_01             LABELS llvm)
+RUN(NAME bindc_02             LABELS llvm)
 RUN(NAME exit_01             LABELS cpython llvm c)
 RUN(NAME exit_02     FAIL    LABELS cpython llvm c)
 RUN(NAME exit_01b            LABELS cpython llvm c)
@@ -148,6 +150,7 @@ RUN(NAME test_complex        LABELS cpython llvm)
 RUN(NAME test_max_min        LABELS cpython llvm)
 RUN(NAME test_integer_bitnot LABELS cpython llvm)
 RUN(NAME test_unary_minus    LABELS cpython llvm)
+RUN(NAME test_unary_plus     LABELS cpython llvm)
 RUN(NAME test_issue_518      LABELS cpython llvm)
 
 # Just CPython
