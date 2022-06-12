@@ -35,8 +35,8 @@
 void _lpython_main_program();
 void main0();
 void test_pow();
-int test_pow_1(int32_t a, int32_t b);
-int __lpython_overloaded_0__pow(int32_t x, int32_t y);
+int32_t test_pow_1(int32_t a, int32_t b);
+int32_t __lpython_overloaded_0__pow(int32_t x, int32_t y);
 float _lfortran_caimag(float complex x);
 double _lfortran_zaimag(double complex x);
 
@@ -59,7 +59,7 @@ void test_pow()
     a = __lpython_overloaded_0__pow(2, 2);
 }
 
-int test_pow_1(int32_t a, int32_t b)
+int32_t test_pow_1(int32_t a, int32_t b)
 {
     int32_t _lpython_return_variable;
     int32_t res;
@@ -68,7 +68,7 @@ int test_pow_1(int32_t a, int32_t b)
     return _lpython_return_variable;
 }
 
-int __lpython_overloaded_0__pow(int32_t x, int32_t y)
+int32_t __lpython_overloaded_0__pow(int32_t x, int32_t y)
 {
     int32_t _lpython_return_variable;
     _lpython_return_variable = pow(x, y);

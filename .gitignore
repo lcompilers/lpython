@@ -163,3 +163,6 @@ src/lpython/parser/parser.tab.cc
 src/lpython/parser/parser.tab.hh
 
 *.py[0-9A-Za-z]*
+
+##Generated files in integration_tests
+integration_tests/test_c_interop_01.c

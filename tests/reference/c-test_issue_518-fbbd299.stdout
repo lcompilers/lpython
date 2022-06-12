@@ -33,7 +33,7 @@
 
 // Forward declarations
 void _lpython_main_program();
-long long fib(int64_t n);
+int64_t fib(int64_t n);
 void _xx_lcompilers_changed_main_xx();
 void main0();
 
@@ -44,7 +44,7 @@ void _lpython_main_program()
     main();
 }
 
-long long fib(int64_t n)
+int64_t fib(int64_t n)
 {
     int64_t _lpython_return_variable;
     if (n < 2) {

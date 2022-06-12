@@ -34,9 +34,9 @@
 // Forward declarations
 void _lpython_main_program();
 void main0();
-int test_factorial_1(int32_t x);
-int test_factorial_2(int32_t x);
-long long test_factorial_3(int32_t x);
+int32_t test_factorial_1(int32_t x);
+int32_t test_factorial_2(int32_t x);
+int64_t test_factorial_3(int32_t x);
 
 // Implementations
 void _lpython_main_program()
@@ -54,7 +54,7 @@ void main0()
     printf("%d %lli\n", i, j);
 }
 
-int test_factorial_1(int32_t x)
+int32_t test_factorial_1(int32_t x)
 {
     int32_t _lpython_return_variable;
     int32_t result;
@@ -71,7 +71,7 @@ int test_factorial_1(int32_t x)
     return _lpython_return_variable;
 }
 
-int test_factorial_2(int32_t x)
+int32_t test_factorial_2(int32_t x)
 {
     int32_t _lpython_return_variable;
     int32_t i;
@@ -84,7 +84,7 @@ int test_factorial_2(int32_t x)
     return _lpython_return_variable;
 }
 
-long long test_factorial_3(int32_t x)
+int64_t test_factorial_3(int32_t x)
 {
     int64_t _lpython_return_variable;
     int64_t result;

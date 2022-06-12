@@ -28,7 +28,7 @@ double test1()
 {
     double _lpython_return_variable;
     double x;
-    x = 1.000000e+00;
+    x =   1.00000000000000000e+00;
     _lpython_return_variable = x;
     return _lpython_return_variable;
 }
@@ -42,7 +42,7 @@ std::complex<double> test2()
     return _lpython_return_variable;
 }
 
-int test3()
+int32_t test3()
 {
     int _lpython_return_variable;
     std::complex<double> x;
