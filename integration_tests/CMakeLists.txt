@@ -144,6 +144,8 @@ RUN(NAME test_builtin_round  LABELS cpython llvm)
 RUN(NAME test_math1          LABELS cpython llvm)
 RUN(NAME test_math_02        LABELS cpython llvm)
 RUN(NAME test_c_interop_01   LABELS cpython llvm c)
+RUN(NAME test_c_interop_02   LABELS llvm c
+        EXTRAFILES test_c_interop_02b.c)
 RUN(NAME test_generics_01    LABELS cpython llvm)
 RUN(NAME test_cmath          LABELS cpython llvm)
 RUN(NAME test_complex        LABELS cpython llvm)
