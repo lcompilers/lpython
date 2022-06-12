@@ -14,7 +14,7 @@ def _lfortran_bgt32(i: i32, j: i32) -> i32:
     pass
 
 @ccall
-def _lfortran_bgt64(i: i64, j: i64) -> i64:
+def _lfortran_bgt64(i: i64, j: i64) -> i32:
     pass
 
 @ccall
