@@ -22,20 +22,14 @@ def _lfortran_random_number(n: i64, v: f64[:]):
     pass
 
 def test_c_callbacks():
-    # TODO: Uncomment asserts
     pi: f64 = 3.141592653589793238462643383279502884197
-    print(pi)
-    print(abs(_lfortran_dsin(pi) - 0))
-    # assert abs(_lfortran_dsin(pi) - 0) < 1e-12
-    print(abs(_lfortran_dsin(pi/2) - 1))
-    # assert abs(_lfortran_dsin(pi/2) - 1) < 1e-12
+    assert abs(_lfortran_dsin(pi) - 0) < 1e-12
+    assert abs(_lfortran_dsin(pi/2) - 1) < 1e-12
     #assert abs(_lfortran_ssin(pi) - 0) < 1e-6
     #assert abs(_lfortran_ssin(pi/2) - 1) < 1e-6
 
-    print(_lfortran_bgt32(3, 4))
-    # assert _lfortran_bgt32(3, 4) == 0
-    print(_lfortran_bgt32(4, 3))
-    # assert _lfortran_bgt32(4, 3) == 1
+    assert _lfortran_bgt32(3, 4) == 0
+    assert _lfortran_bgt32(4, 3) == 1
     #assert _lfortran_bgt64(3, 4) == 0
     #assert _lfortran_bgt64(4, 3) == 1
 
