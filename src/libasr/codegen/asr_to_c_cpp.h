@@ -298,9 +298,6 @@ R"(#include <stdio.h>
     std::string declare_all_functions(const SymbolTable &scope) {
         std::string code;
         for (auto &item : scope.get_scope()) {
-            if( startswith(item.first, "_lfortran_") ) {
-                continue ;
-            }
             if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
                 ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
                 code += get_subroutine_declaration(*s) + ";\n";
