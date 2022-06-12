@@ -77,6 +77,7 @@ public:
             }
         } else {
             if (ASRUtils::is_integer(*v.m_type)) {
+                headers.insert("inttypes");
                 ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(v.m_type);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
                 std::string type_name;
@@ -97,6 +98,7 @@ public:
                 if (t->m_kind == 8) type_name = "double";
                 sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_complex(*v.m_type)) {
+                headers.insert("complex");
                 ASR::Complex_t *t = ASR::down_cast<ASR::Complex_t>(v.m_type);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
                 std::string type_name = "float complex";
@@ -136,15 +138,11 @@ public:
         indentation_level = 0;
         indentation_spaces = 4;
 
-        std::string headers =
-R"(#include <assert.h>
-#include <complex.h>
-#include <inttypes.h>
-#include <stdio.h>
+        std::string head =
+R"(
 #include <stdlib.h>
-#include <math.h>
 #include <stdbool.h>
-
+#include <stdio.h>
 #include <lfortran_intrinsics.h>
 
 #define ASSERT(cond)                                                           \
@@ -171,7 +169,7 @@ R"(#include <assert.h>
     }
 
 )";
-        unit_src += headers;
+        unit_src += head;
 
 
         // Pre-declare all functions first, then generate code
@@ -236,8 +234,11 @@ R"(#include <assert.h>
                 unit_src += src;
             }
         }
-
-        src = unit_src;
+        std::string to_include = "";
+        for (auto s: headers) {
+            to_include += "#include <" + s + ".h>\n";
+        }
+        src = to_include + unit_src;
     }
 
     void visit_Program(const ASR::Program_t &x) {
@@ -331,6 +332,7 @@ R"(#include <assert.h>
                 break;
             }
             case (ASR::cast_kindType::ComplexToReal) : {
+                headers.insert("complex");
                 src = "creal(" + src + ")";
                 break;
             }
