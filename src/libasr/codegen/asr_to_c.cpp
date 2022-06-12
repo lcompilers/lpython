@@ -105,7 +105,6 @@ public:
                 if (t->m_kind == 8) type_name = "double complex";
                 sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_logical(*v.m_type)) {
-                headers.insert("stdbool");
                 ASR::Logical_t *t = ASR::down_cast<ASR::Logical_t>(v.m_type);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
                 sub = format_type_c(dims, "bool", v.m_name, use_ref, dummy);
@@ -141,6 +140,9 @@ public:
 
         std::string head =
 R"(
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
 #include <lfortran_intrinsics.h>
 
 #define ASSERT(cond)                                                           \
@@ -232,9 +234,9 @@ R"(
                 unit_src += src;
             }
         }
-        std::string to_include;
+        std::string to_include = "";
         for (auto s: headers) {
-            to_include += "#include<"+s+".h>\n";
+            to_include += "#include <" + s + ".h>\n";
         }
         src = to_include + unit_src;
     }
@@ -374,7 +376,6 @@ R"(
     }
 
     void visit_Print(const ASR::Print_t &x) {
-        headers.insert("stdio");
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "printf(\"";
         std::vector<std::string> v;
@@ -397,8 +398,6 @@ R"(
     }
 
     void visit_ErrorStop(const ASR::ErrorStop_t & /* x */) {
-        headers.insert("stdio");
-        headers.insert("stdlib");
         std::string indent(indentation_level*indentation_spaces, ' ');
         src = indent + "fprintf(stderr, \"ERROR STOP\");\n";
         src += indent + "exit(1);\n";

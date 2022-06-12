@@ -684,9 +684,9 @@ R"(#include <stdio.h>
             case (ASR::binopType::Mul) : { last_expr_precedence = 5; break; }
             case (ASR::binopType::Div) : { last_expr_precedence = 5; break; }
             case (ASR::binopType::Pow) : {
+                src = "pow(" + left + ", " + right + ")";
                 if (is_c) {
                     headers.insert("math");
-                    src = "pow(" + left + ", " + right + ")";
                 } else {
                     src = "std::" + src;
                 }
