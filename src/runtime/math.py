@@ -207,6 +207,18 @@ def radians(x: f64) -> f64:
     """
     return x * pi / 180.0
 
+# fabs
+# supported data types: i32, i64, f32, f64
+@overload
+def fabs(x: f32) -> f32:
+    """
+    Return the absolute value of `x`.
+    """
+    if x < 0.0:
+        return -x
+    return x
+
+@overload
 def fabs(x: f64) -> f64:
     """
     Return the absolute value of `x`.
@@ -214,6 +226,55 @@ def fabs(x: f64) -> f64:
     if x < 0.0:
         return -x
     return x
+
+@overload
+def fabs(x: i64) -> i64:
+    """
+    Return the absolute value of `x`.
+    """
+    if x < 0:
+        return -x
+    return x
+
+@overload
+def fabs(x: i32) -> i32:
+    """
+    Return the absolute value of `x`.
+    """
+    if x < 0:
+        return -x
+    return x
+
+# pow
+# supported data types: i32, i64, f32, f64
+@overload
+def pow(x: f64, y: f64) -> f64:
+    """
+    Return `x` raised to the power `y`.
+    """
+    return x**y
+
+
+@overload
+def pow(x: i64, y: i64) -> i64:
+    """
+    Return `x` raised to the power `y`.
+    """
+    return x**y
+
+@overload
+def pow(x: f32, y: f32) -> f64:
+    """
+    Return `x` raised to the power `y`.
+    """
+    return x**y
+
+@overload
+def pow(x: i32, y: i32) -> i64:
+    """
+    Return `x` raised to the power `y`.
+    """
+    return x**y
 
 
 def ldexp(x: f64, i: i32) -> f64:
@@ -226,12 +287,6 @@ def exp(x: f64) -> f64:
     """
     return e**x
 
-
-def pow(x: f64, y: f64) -> f64:
-    """
-    Return `x` raised to the power `y`.
-    """
-    return x**y
 
 
 def mod(a: i32, b: i32) -> i32:
