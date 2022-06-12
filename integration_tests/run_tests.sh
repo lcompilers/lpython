@@ -2,6 +2,8 @@
 
 set -ex
 
+git clean -dfx
+
 # Append "-j4" or "-j" to run in parallel
 jn=$1
 
