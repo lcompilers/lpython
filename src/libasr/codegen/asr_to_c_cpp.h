@@ -564,6 +564,55 @@ R"(#include <stdio.h>
     }
 
     void visit_Cast(const ASR::Cast_t &x) {
+        visit_expr(*x.m_arg);
+        switch (x.m_kind) {
+            case (ASR::cast_kindType::IntegerToReal) : {
+                src = "(float)(" + src + ")";
+                break;
+            }
+            case (ASR::cast_kindType::RealToInteger) : {
+                src = "(int)(" + src + ")";
+                break;
+            }
+            case (ASR::cast_kindType::RealToReal) : {
+                // In C++, we do not need to cast float to float explicitly:
+                // src = src;
+                break;
+            }
+            case (ASR::cast_kindType::IntegerToInteger) : {
+                // In C++, we do not need to cast int <-> long long explicitly:
+                // src = src;
+                break;
+            }
+            case (ASR::cast_kindType::ComplexToComplex) : {
+                break;
+            }
+            case (ASR::cast_kindType::IntegerToComplex) : {
+                if (is_c) {
+                    src = "CMPLX(" + src + ", 0)";
+                } else {
+                    src = "std::complex<double>(" + src + ")";
+                }
+                break;
+            }
+            case (ASR::cast_kindType::ComplexToReal) : {
+                if (is_c) {
+                    src = "creal(" + src + ")";
+                } else {
+                    src = "std::real(" + src + ")";
+                }
+                break;
+            }
+            case (ASR::cast_kindType::LogicalToInteger) : {
+                src = "(int)(" + src + ")";
+                break;
+            }
+            default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented");
+        }
+        last_expr_precedence = 2;
+    }
+
+    void visit_Cast(const ASR::Cast_t &x) {
         self().visit_expr(*x.m_arg);
         switch (x.m_kind) {
             case (ASR::cast_kindType::IntegerToReal) : {
