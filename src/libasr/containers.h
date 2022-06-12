@@ -190,7 +190,7 @@ std::string string_format(const std::string& format, Args && ...args)
 }
 
 static inline std::string double_to_scientific(double x) {
-    return string_format("%e", x);
+    return string_format("%25.17e", x);
 }
 
 } // namespace LFortran
