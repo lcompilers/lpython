@@ -24,11 +24,11 @@ void test_binop()
     int x;
     float x2;
     x = std::pow(2, 3);
-    x2 = std::pow((float)(2), 3.500000e+00);
+    x2 = std::pow((float)(2),   3.50000000000000000e+00);
     x = 54 - 100;
-    x2 = 3.454000e+00 - 7.654300e+02 + 5.346000e+02;
-    x2 = 5.346565e+03*3.450000e+00;
-    x2 = std::pow(5.346565e+03, 3.450000e+00);
+    x2 =   3.45400000000000018e+00 -   7.65429999999999950e+02 +   5.34600000000000023e+02;
+    x2 =   5.34656499999999960e+03*  3.45000000000000018e+00;
+    x2 = std::pow(  5.34656499999999960e+03,   3.45000000000000018e+00);
     x = (int)(true) + (int)(true);
     x = (int)(true) - (int)(false);
     x = (int)(true)*(int)(false);
@@ -39,14 +39,14 @@ void test_binop()
     x = std::pow((int)(b1), (int)(b2));
 }
 
-int __lpython_overloaded_2___lpython_floordiv(int a, int b)
+int32_t __lpython_overloaded_2___lpython_floordiv(int a, int b)
 {
     int _lpython_return_variable;
     float r;
     int result;
     r = (float)(a)/(float)(b);
     result = (int)(r);
-    if (r >= 0.000000e+00 || (float)(result) == r) {
+    if (r >=   0.00000000000000000e+00 || (float)(result) == r) {
         _lpython_return_variable = result;
         return _lpython_return_variable;
     }
