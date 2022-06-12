@@ -8,6 +8,7 @@ jn=$1
 export PATH="$(pwd)/../src/bin:$PATH"
 
 cmake -DKIND=cpython .
+make $jn
 ctest $jn --output-on-failure
 
 cmake -DKIND=llvm .

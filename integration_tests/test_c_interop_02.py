@@ -23,7 +23,7 @@ def test_c_callbacks():
 
     xf32: f32
     xf32 = 3.3
-    assert abs(f_f32_f32(xf32) - (xf32+1)) < 1e-12
+    assert abs(f_f32_f32(xf32) - (xf32+1)) < 1e-6
 
     xi64: i64
     xi64 = 3

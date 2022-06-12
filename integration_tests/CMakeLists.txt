@@ -90,9 +90,17 @@ macro(RUN)
             endif()
         elseif(KIND STREQUAL "cpython")
             # CPython test
+            if (RUN_EXTRAFILES)
+                set(PY_MOD "${name}_mod")
+                add_library(${PY_MOD} SHARED ${RUN_EXTRAFILES})
+                set_target_properties(${PY_MOD} PROPERTIES LINKER_LANGUAGE C)
+            else()
+                set(PY_MOD "")
+            endif()
+
             add_test(${name} python ${CMAKE_CURRENT_BINARY_DIR}/${name}.py)
             set_tests_properties(${name} PROPERTIES
-                ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/../src/runtime/ltypes)
+                ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/../src/runtime/ltypes;LPYTHON_PY_MOD_NAME=${PY_MOD};LPYTHON_PY_MOD_PATH=${CMAKE_CURRENT_BINARY_DIR}")
             if (RUN_LABELS)
                 set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
             endif()
@@ -144,7 +152,7 @@ RUN(NAME test_builtin_round  LABELS cpython llvm)
 RUN(NAME test_math1          LABELS cpython llvm)
 RUN(NAME test_math_02        LABELS cpython llvm)
 RUN(NAME test_c_interop_01   LABELS cpython llvm c)
-RUN(NAME test_c_interop_02   LABELS llvm c
+RUN(NAME test_c_interop_02   LABELS cpython llvm c
         EXTRAFILES test_c_interop_02b.c)
 RUN(NAME test_generics_01    LABELS cpython llvm)
 RUN(NAME test_cmath          LABELS cpython llvm)

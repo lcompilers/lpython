@@ -130,17 +130,23 @@ class CTypes:
         def get_rtlib_dir():
             current_dir = os.path.dirname(os.path.abspath(__file__))
             return os.path.join(current_dir, "..")
-        def get_crtlib_name():
+        def get_lib_name(name):
             if platform.system() == "Linux":
-                return "liblpython_runtime.so"
+                return "lib" + name + ".so"
             elif platform.system() == "Darwin":
-                return "liblpython_runtime.dylib"
+                return "lib" + name + ".dylib"
             elif platform.system() == "Windows":
-                return "lpython_runtime.dll"
+                return name + ".dll"
             else:
                 raise NotImplementedError("Platform not implemented")
         def get_crtlib_path():
-            return os.path.join(get_rtlib_dir(), get_crtlib_name())
+            py_mod = os.environ["LPYTHON_PY_MOD_NAME"]
+            if py_mod == "":
+                return os.path.join(get_rtlib_dir(),
+                    get_lib_name("lpython_runtime"))
+            else:
+                py_mod_path = os.environ["LPYTHON_PY_MOD_PATH"]
+                return os.path.join(py_mod_path, get_lib_name(py_mod))
         self.name = f.__name__
         self.args = f.__code__.co_varnames
         self.annotations = f.__annotations__
