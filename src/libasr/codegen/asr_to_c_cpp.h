@@ -243,9 +243,9 @@ R"(#include <stdio.h>
         if (ASRUtils::is_integer(*return_var->m_type)) {
             bool is_int = ASR::down_cast<ASR::Integer_t>(return_var->m_type)->m_kind == 4;
             if (is_int) {
-                sub = "int ";
+                sub = "int32_t ";
             } else {
-                sub = "long long ";
+                sub = "int64_t ";
             }
         } else if (ASRUtils::is_real(*return_var->m_type)) {
             bool is_float = ASR::down_cast<ASR::Real_t>(return_var->m_type)->m_kind == 4;
