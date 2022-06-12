@@ -140,12 +140,13 @@ class CTypes:
             else:
                 raise NotImplementedError("Platform not implemented")
         def get_crtlib_path():
-            py_mod = os.environ["LPYTHON_PY_MOD"]
+            py_mod = os.environ["LPYTHON_PY_MOD_NAME"]
             if py_mod == "":
                 return os.path.join(get_rtlib_dir(),
                     get_lib_name("lpython_runtime"))
             else:
-                return get_lib_name(py_mod)
+                py_mod_path = os.environ["LPYTHON_PY_MOD_PATH"]
+                return os.path.join(py_mod_path, get_lib_name(py_mod))
         self.name = f.__name__
         self.args = f.__code__.co_varnames
         self.annotations = f.__annotations__
