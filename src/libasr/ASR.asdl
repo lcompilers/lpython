@@ -202,7 +202,7 @@ stmt
     | Flush(int label, expr unit, expr? err, expr? iomsg, expr? iostat)
     | ListAppend(expr a, expr ele)
     | AssociateBlockCall(symbol m)
-    | CFPointer(expr cptr, expr fptr, expr? shape)
+    | CPtrToPointer(expr cptr, expr ptr, expr? shape)
     | BlockCall(symbol m)
     | SetInsert(expr a, expr ele)
     | SetRemove(expr a, expr ele)
@@ -214,7 +214,6 @@ stmt
 expr
     = BoolOp(expr left, boolop op, expr right, ttype type, expr? value)
     | BinOp(expr left, binop op, expr right, ttype type, expr? value, expr? overloaded)
-    | UnaryOp(unaryop op, expr operand, ttype type, expr? value)
         -- Such as: (x, y+z), (3.0, 2.0) generally not known at compile time
     | ComplexConstructor(expr re, expr im, ttype type, expr? value)
     | NamedExpr(expr target, expr value, ttype type)
@@ -271,7 +270,8 @@ expr
     | ComplexRe(expr arg, ttype type, expr? value)
     | ComplexIm(expr arg, ttype type, expr? value)
     | DictItem(expr a, expr key, expr? default, ttype type, expr? value)
-    | CLoc(expr arg, ttype type, expr? value)
+    | PointerToCPtr(expr arg, ttype type, expr? value)
+    | GetPointer(expr arg, ttype type, expr? value)
     | ListItem(expr a, expr pos, ttype type, expr? value)
     | TupleItem(expr a, expr pos, ttype type, expr? value)
     | ListSection(expr a, array_index section, ttype type, expr? value)
@@ -317,8 +317,6 @@ ttype
 boolop = And | Or | Xor | NEqv | Eqv
 
 binop = Add | Sub | Mul | Div | Pow
-
-unaryop = Invert | Not | UAdd | USub
 
 cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 

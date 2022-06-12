@@ -102,18 +102,16 @@ public:
         }
 
         if( is_other_expr_negative ) {
-            other_expr = ASRUtils::EXPR(ASR::make_UnaryOp_t(al, other_expr->base.loc,
-                            ASR::unaryopType::USub, other_expr, ASRUtils::expr_type(other_expr),
-                            nullptr));
+            other_expr = ASRUtils::EXPR(ASR::make_RealUnaryMinus_t(al, other_expr->base.loc, other_expr,
+                ASRUtils::expr_type(other_expr), nullptr));
         }
 
         ASR::BinOp_t* mul_binop = ASR::down_cast<ASR::BinOp_t>(mul_expr);
         ASR::expr_t *first_arg = mul_binop->m_left, *second_arg = mul_binop->m_right;
 
         if( is_mul_expr_negative ) {
-            first_arg = ASRUtils::EXPR(ASR::make_UnaryOp_t(al, first_arg->base.loc,
-                            ASR::unaryopType::USub, first_arg, ASRUtils::expr_type(first_arg),
-                            nullptr));
+            first_arg = ASRUtils::EXPR(ASR::make_RealUnaryMinus_t(al, first_arg->base.loc, first_arg,
+                ASRUtils::expr_type(first_arg), nullptr));
         }
 
         fma_var = PassUtils::get_fma(other_expr, first_arg, second_arg,
@@ -134,13 +132,30 @@ public:
         from_fma = false;
     }
 
-    void visit_UnaryOp(const ASR::UnaryOp_t& x) {
+    void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {
+        visit_UnaryOp(x);
+    }
+    void visit_RealUnaryMinus(const ASR::RealUnaryMinus_t &x) {
+        visit_UnaryOp(x);
+    }
+    void visit_ComplexUnaryMinus(const ASR::ComplexUnaryMinus_t &x) {
+        visit_UnaryOp(x);
+    }
+    void visit_IntegerBitNot(const ASR::IntegerBitNot_t &x) {
+        visit_UnaryOp(x);
+    }
+    void visit_LogicalNot(const ASR::LogicalNot_t &x) {
+        visit_UnaryOp(x);
+    }
+
+    template<typename T>
+    void visit_UnaryOp(const T& x) {
         from_fma = true;
-        ASR::UnaryOp_t& xx = const_cast<ASR::UnaryOp_t&>(x);
+        T& xx = const_cast<T&>(x);
         fma_var = nullptr;
-        visit_expr(*x.m_operand);
+        visit_expr(*x.m_arg);
         if( fma_var ) {
-            xx.m_operand = fma_var;
+            xx.m_arg = fma_var;
         }
         fma_var = nullptr;
         from_fma = false;

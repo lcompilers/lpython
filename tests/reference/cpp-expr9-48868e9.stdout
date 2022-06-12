@@ -32,7 +32,7 @@ void main0()
     test_return_4(4);
 }
 
-int test_return_1(int a)
+int32_t test_return_1(int a)
 {
     int _lpython_return_variable;
     int x;
@@ -50,7 +50,7 @@ std::string test_return_2(int a)
     return _lpython_return_variable;
 }
 
-int test_return_3(int a)
+int32_t test_return_3(int a)
 {
     int _lpython_return_variable;
     a = 3;

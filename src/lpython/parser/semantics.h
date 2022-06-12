@@ -397,6 +397,11 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
 #define ASYNC_WITH(items, body, l) make_AsyncWith_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), nullptr)
 
+#define WHILE_01(e, stmts, l) make_While_t(p.m_a, l, \
+        EXPR(e), STMTS(stmts), stmts.size(), nullptr, 0)
+#define WHILE_02(e, stmts, orelse, l) make_While_t(p.m_a, l, \
+        EXPR(e), STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size())
+
 Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
     Vec<ast_t*> v;
     v.reserve(al, 2);

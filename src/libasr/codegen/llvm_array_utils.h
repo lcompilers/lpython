@@ -185,7 +185,7 @@ namespace LFortran {
                 * implemented by current class).
                 */
                 virtual
-                llvm::Value* get_lower_bound(llvm::Value* dim_des) = 0;
+                llvm::Value* get_lower_bound(llvm::Value* dim_des, bool load=true) = 0;
 
                 /*
                 * Returns upper bound in the input
@@ -193,7 +193,7 @@ namespace LFortran {
                 * implemented by current class.
                 */
                 virtual
-                llvm::Value* get_upper_bound(llvm::Value* dim_des) = 0;
+                llvm::Value* get_upper_bound(llvm::Value* dim_des, bool load=true) = 0;
 
                 /*
                 * Returns stride in the input
@@ -210,10 +210,13 @@ namespace LFortran {
                 */
                 virtual
                 llvm::Value* get_dimension_size(llvm::Value* dim_des_arr,
-                    llvm::Value* dim) = 0;
+                    llvm::Value* dim, bool load=true) = 0;
 
                 virtual
                 llvm::Value* get_rank(llvm::Value* arr, bool get_pointer=false) = 0;
+
+                virtual
+                void set_rank(llvm::Value* arr, llvm::Value* rank) = 0;
 
                 /*
                 * Returns pointer to dimension descriptor array
@@ -221,7 +224,7 @@ namespace LFortran {
                 * implemented by current class.
                 */
                 virtual
-                llvm::Value* get_pointer_to_dimension_descriptor_array(llvm::Value* arr) = 0;
+                llvm::Value* get_pointer_to_dimension_descriptor_array(llvm::Value* arr, bool load=true) = 0;
 
                 /*
                 * Returns pointer to the dimension descriptor
@@ -326,20 +329,23 @@ namespace LFortran {
                 llvm::Value* get_rank(llvm::Value* arr, bool get_pointer=false);
 
                 virtual
+                void set_rank(llvm::Value* arr, llvm::Value* rank);
+
+                virtual
                 llvm::Value* get_offset(llvm::Value* dim_des);
 
                 virtual
-                llvm::Value* get_lower_bound(llvm::Value* dim_des);
+                llvm::Value* get_lower_bound(llvm::Value* dim_des, bool load=true);
 
                 virtual
-                llvm::Value* get_upper_bound(llvm::Value* dim_des);
+                llvm::Value* get_upper_bound(llvm::Value* dim_des, bool load=true);
 
                 virtual
                 llvm::Value* get_dimension_size(llvm::Value* dim_des_arr,
-                    llvm::Value* dim);
+                    llvm::Value* dim, bool load=true);
 
                 virtual
-                llvm::Value* get_pointer_to_dimension_descriptor_array(llvm::Value* arr);
+                llvm::Value* get_pointer_to_dimension_descriptor_array(llvm::Value* arr, bool load=true);
 
                 virtual
                 llvm::Value* get_pointer_to_dimension_descriptor(llvm::Value* dim_des_arr,

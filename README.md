@@ -76,7 +76,8 @@ ctest
 Also, run the integration tests:
 
 ```bash
-./integration_tests/run_tests.py
+cd integration_tests
+./run_tests.sh
 ```
 
 ## Examples

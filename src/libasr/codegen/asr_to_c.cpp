@@ -44,13 +44,10 @@ std::string format_type_c(const std::string &dims, const std::string &type,
         const std::string &name, bool use_ref, bool /*dummy*/)
 {
     std::string fmt;
-    if (dims.size() == 0) {
-        std::string ref;
-        if (use_ref) ref = "&";
-        fmt = type + " " + ref + name;
-    } else {
-        throw CodeGenError("Dimensions is not supported yet.");
-    }
+    std::string ref = "", ptr = "";
+    if (dims.size() > 0) ptr = "*";
+    if (use_ref) ref = "&";
+    fmt = type + " " + ptr + ref + name;
     return fmt;
 }
 
@@ -80,6 +77,7 @@ public:
             }
         } else {
             if (ASRUtils::is_integer(*v.m_type)) {
+                headers.insert("inttypes");
                 ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(v.m_type);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
                 std::string type_name;
@@ -100,6 +98,7 @@ public:
                 if (t->m_kind == 8) type_name = "double";
                 sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_complex(*v.m_type)) {
+                headers.insert("complex");
                 ASR::Complex_t *t = ASR::down_cast<ASR::Complex_t>(v.m_type);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
                 std::string type_name = "float complex";
@@ -108,7 +107,7 @@ public:
             } else if (ASRUtils::is_logical(*v.m_type)) {
                 ASR::Logical_t *t = ASR::down_cast<ASR::Logical_t>(v.m_type);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
-                sub = format_type_c(dims, "int8_t", v.m_name, use_ref, dummy);
+                sub = format_type_c(dims, "bool", v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_character(*v.m_type)) {
                 // TODO
             } else if (ASR::is_a<ASR::Derived_t>(*v.m_type)) {
@@ -139,21 +138,53 @@ public:
         indentation_level = 0;
         indentation_spaces = 4;
 
-        std::string headers =
-R"(#include <assert.h>
-#include <complex.h>
-#include <inttypes.h>
+        std::string head =
+R"(
+#include <stdlib.h>
+#include <stdbool.h>
 #include <stdio.h>
-#include <math.h>
-
 #include <lfortran_intrinsics.h>
 
+#define ASSERT(cond)                                                           \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+#define ASSERT_MSG(cond, msg)                                                  \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            printf("%s", "ERROR MESSAGE:\n");                                  \
+            printf("%s%s", msg, "\n");                                         \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+
 )";
-        unit_src += headers;
+        unit_src += head;
 
 
-        // TODO: We need to pre-declare all functions first, then generate code
+        // Pre-declare all functions first, then generate code
         // Otherwise some function might not be found.
+        unit_src += "// Forward declarations\n";
+        unit_src += declare_all_functions(*x.m_global_scope);
+        // Now pre-declare all functions from modules
+        for (auto &item : x.m_global_scope->get_scope()) {
+            if (ASR::is_a<ASR::Module_t>(*item.second)) {
+                ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(item.second);
+                unit_src += declare_all_functions(*m->m_symtab);
+            }
+        }
+        unit_src += "\n";
+        unit_src += "// Implementations\n";
 
         {
             // Process intrinsic modules in the right order
@@ -164,8 +195,10 @@ R"(#include <assert.h>
                     != x.m_global_scope->get_scope().end());
                 if (startswith(item, "lfortran_intrinsic")) {
                     ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
-                    visit_symbol(*mod);
-                    unit_src += src;
+                    if( ASRUtils::get_body_size(mod) != 0 ) {
+                        visit_symbol(*mod);
+                        unit_src += src;
+                    }
                 }
             }
         }
@@ -174,8 +207,10 @@ R"(#include <assert.h>
         for (auto &item : x.m_global_scope->get_scope()) {
             if (ASR::is_a<ASR::Function_t>(*item.second)
                 || ASR::is_a<ASR::Subroutine_t>(*item.second)) {
-                visit_symbol(*item.second);
-                unit_src += src;
+                if( ASRUtils::get_body_size(item.second) != 0 ) {
+                    visit_symbol(*item.second);
+                    unit_src += src;
+                }
             }
         }
 
@@ -199,8 +234,11 @@ R"(#include <assert.h>
                 unit_src += src;
             }
         }
-
-        src = unit_src;
+        std::string to_include = "";
+        for (auto s: headers) {
+            to_include += "#include <" + s + ".h>\n";
+        }
+        src = to_include + unit_src;
     }
 
     void visit_Program(const ASR::Program_t &x) {
@@ -252,6 +290,23 @@ R"(#include <assert.h>
         last_expr_precedence = 2;
     }
 
+    void visit_Assert(const ASR::Assert_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string out = indent;
+        if (x.m_msg) {
+            out += "ASSERT_MSG(";
+            visit_expr(*x.m_test);
+            out += src + ", ";
+            visit_expr(*x.m_msg);
+            out += src + ");\n";
+        } else {
+            out += "ASSERT(";
+            visit_expr(*x.m_test);
+            out += src + ");\n";
+        }
+        src = out;
+    }
+
     void visit_Cast(const ASR::Cast_t &x) {
         visit_expr(*x.m_arg);
         switch (x.m_kind) {
@@ -277,6 +332,7 @@ R"(#include <assert.h>
                 break;
             }
             case (ASR::cast_kindType::ComplexToReal) : {
+                headers.insert("complex");
                 src = "creal(" + src + ")";
                 break;
             }

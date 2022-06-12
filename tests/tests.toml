@@ -202,6 +202,16 @@ filename = "../integration_tests/test_builtin.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/bindc_01.py"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/bindc_02.py"
+asr = true
+llvm = true
+
+[[test]]
 filename = "../integration_tests/test_builtin_abs.py"
 asr = true
 
@@ -343,6 +353,10 @@ ast = true
 
 [[test]]
 filename = "parser/ellipsis2.py"
+ast_new = true
+
+[[test]]
+filename = "parser/while1.py"
 ast_new = true
 
 # tests/errors

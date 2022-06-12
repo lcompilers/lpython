@@ -35,7 +35,7 @@ void test_pow()
     a = __lpython_overloaded_0__pow(2, 2);
 }
 
-int test_pow_1(int a, int b)
+int32_t test_pow_1(int a, int b)
 {
     int _lpython_return_variable;
     int res;
@@ -44,7 +44,7 @@ int test_pow_1(int a, int b)
     return _lpython_return_variable;
 }
 
-int __lpython_overloaded_0__pow(int x, int y)
+int32_t __lpython_overloaded_0__pow(int x, int y)
 {
     int _lpython_return_variable;
     _lpython_return_variable = std::pow(x, y);

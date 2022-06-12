@@ -201,16 +201,6 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t)
     }
 }
 
-static inline std::string unop_to_str(const ASR::unaryopType t) {
-    switch (t) {
-        case (ASR::unaryopType::Not): { return "!"; }
-        case (ASR::unaryopType::USub): { return "-"; }
-        case (ASR::unaryopType::UAdd): { return "+"; }
-        case (ASR::unaryopType::Invert): {return "~"; }
-        default : throw LFortranException("Not implemented");
-    }
-}
-
 static inline std::string binop_to_str(const ASR::binopType t) {
     switch (t) {
         case (ASR::binopType::Add): { return " + "; }
@@ -830,6 +820,31 @@ static inline bool is_logical(ASR::ttype_t &x) {
     return ASR::is_a<ASR::Logical_t>(*type_get_past_pointer(&x));
 }
 
+static inline int get_body_size(ASR::symbol_t* s) {
+    int n_body = 0;
+    switch (s->type) {
+        case ASR::symbolType::Function: {
+            ASR::Function_t* f = ASR::down_cast<ASR::Function_t>(s);
+            n_body = f->n_body;
+            break;
+        }
+        case ASR::symbolType::Subroutine: {
+            ASR::Subroutine_t* sub = ASR::down_cast<ASR::Subroutine_t>(s);
+            n_body = sub->n_body;
+            break;
+        }
+        case ASR::symbolType::Program: {
+            ASR::Program_t* p = ASR::down_cast<ASR::Program_t>(s);
+            n_body = p->n_body;
+            break;
+        }
+        default: {
+            n_body = -1;
+        }
+    }
+    return n_body;
+}
+
 inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
                                          ASR::dimension_t*& m_dims) {
     int n_dims = 0;
@@ -922,7 +937,7 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
             ASR::Complex_t* tnew = ASR::down_cast<ASR::Complex_t>(t);
             ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
             size_t dimsn = dims ? dims->n : tnew->n_dims;
-            return ASRUtils::TYPE(ASR::make_Integer_t(al, t->base.loc,
+            return ASRUtils::TYPE(ASR::make_Complex_t(al, t->base.loc,
                         tnew->m_kind, dimsp, dimsn));
         }
         case ASR::ttypeType::Logical: {
