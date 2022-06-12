@@ -1110,7 +1110,7 @@ public:
     }
 
     void visit_ListAppend(const ASR::ListAppend_t& x) {
-        ASR::Variable_t *l = ASR::down_cast<ASR::Variable_t>(x.m_a);
+        ASR::Variable_t *l = EXPR2VAR(x.m_a);
         uint32_t v_h = get_hash((ASR::asr_t*)l);
         LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
         llvm::Value *plist = llvm_symtab[v_h];
@@ -1135,7 +1135,7 @@ public:
     }
 
     void visit_ListItem(const ASR::ListItem_t& x) {
-        ASR::Variable_t *l = ASR::down_cast<ASR::Variable_t>(x.m_a);
+        ASR::Variable_t *l = EXPR2VAR(x.m_a);
         uint32_t v_h = get_hash((ASR::asr_t*)l);
         LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
         llvm::Value *plist = llvm_symtab[v_h];
