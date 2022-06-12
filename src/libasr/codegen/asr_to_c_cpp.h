@@ -921,6 +921,16 @@ R"(#include <stdio.h>
         src = indent + "exit(" + src + ");\n";
     }
 
+    void visit_ErrorStop(const ASR::ErrorStop_t & /* x */) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        if (is_c) {
+            src = indent + "fprintf(stderr, \"ERROR STOP\");\n";
+        } else {
+            src = indent + "std::cerr << \"ERROR STOP\" << std::endl;\n";
+        }
+        src += indent + "exit(1);\n";
+    }
+
     void visit_ImpliedDoLoop(const ASR::ImpliedDoLoop_t &/*x*/) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + " /* FIXME: implied do loop */ ";

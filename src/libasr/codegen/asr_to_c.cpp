@@ -397,12 +397,6 @@ R"(
         src = out;
     }
 
-    void visit_ErrorStop(const ASR::ErrorStop_t & /* x */) {
-        std::string indent(indentation_level*indentation_spaces, ' ');
-        src = indent + "fprintf(stderr, \"ERROR STOP\");\n";
-        src += indent + "exit(1);\n";
-    }
-
 };
 
 Result<std::string> asr_to_c(Allocator &al, ASR::TranslationUnit_t &asr,
