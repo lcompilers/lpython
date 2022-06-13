@@ -3,13 +3,26 @@
 
 #include <stdint.h>
 
+struct Data {
+    int64_t x, *p;
+    double y, *z;
+    int32_t a;
+    char name[25];
+};
+
 int32_t f_i32_i32(int32_t x);
 int32_t f_pi32_i32(int32_t *x);
+int32_t f_pstruct_i32(struct Data *x);
+
 int32_t callback1();
 int32_t callback2(int32_t x);
 int32_t callback3(int32_t *x);
+int32_t callback4(struct Data *x);
+
 int32_t driver1();
 int32_t driver2();
 int32_t driver3();
+int32_t driver4();
+
 
 #endif // TEST_C_INTEROP_05B
