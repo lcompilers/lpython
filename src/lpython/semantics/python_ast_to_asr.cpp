@@ -2950,7 +2950,11 @@ public:
                 ASR::symbol_t* s = current_scope->resolve_symbol(call_name);
                 if( call_name == "c_p_pointer" && !s ) {
                     tmp = create_CPtrToPointer(*c);
-                    return ;
+                    return;
+                }
+                if( call_name == "p_c_pointer" && !s ) {
+                    tmp = create_PointerToCPtr(*c);
+                    return;
                 }
             } else if (AST::is_a<AST::Attribute_t>(*c->m_func)) {
                 AST::Attribute_t *at = AST::down_cast<AST::Attribute_t>(c->m_func);
@@ -3211,6 +3215,25 @@ public:
         ASR::expr_t* pptr = ASRUtils::EXPR(tmp);
         return ASR::make_CPtrToPointer_t(al, x.base.base.loc, cptr,
                                          pptr, nullptr);
+    }
+
+    ASR::asr_t* create_PointerToCPtr(const AST::Call_t& x) {
+        if( x.n_args != 2 ) {
+            throw SemanticError("p_c_pointer accepts two positional arguments, "
+                                "first a Pointer variable, second a CPtr variable.",
+                                x.base.base.loc);
+        }
+        visit_expr(*x.m_args[0]);
+        ASR::expr_t* arg = ASRUtils::EXPR(tmp);
+        visit_expr(*x.m_args[1]);
+        ASR::expr_t* cptr = ASRUtils::EXPR(tmp);
+        ASR::ttype_t *type = ASR::down_cast<ASR::ttype_t>(ASR::make_Pointer_t(al, x.base.base.loc,
+            ASRUtils::expr_type(arg)));
+        ASR::expr_t* pptr = ASR::down_cast<ASR::expr_t>(ASR::make_GetPointer_t(al, x.base.base.loc, arg, type, nullptr));
+        ASR::asr_t* pp = ASR::make_PointerToCPtr_t(al, x.base.base.loc, pptr,
+                                         ASRUtils::expr_type(cptr), nullptr);
+        return ASR::make_Assignment_t(al, x.base.base.loc,
+            cptr, ASR::down_cast<ASR::expr_t>(pp), nullptr);
     }
 
     void visit_Call(const AST::Call_t &x) {
