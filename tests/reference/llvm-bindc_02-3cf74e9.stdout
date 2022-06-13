@@ -50,7 +50,6 @@ return:                                           ; preds = %.entry
 
 define void @f() {
 .entry:
-  %call_arg_value_ptr = alloca i16*, align 8
   %y = alloca %array, align 8
   %0 = getelementptr %array, %array* %y, i32 0, i32 1
   store i32 0, i32* %0, align 4
@@ -150,42 +149,40 @@ define void @f() {
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @1, i32 0, i32 0), i16 %63, i16 %79)
   %80 = getelementptr %array, %array* %y, i32 0, i32 0
   %81 = load i16*, i16** %80, align 8
-  store i16* %81, i16** %call_arg_value_ptr, align 8
-  %82 = load i16*, i16** %call_arg_value_ptr, align 8
-  %83 = ptrtoint i16* %82 to i64
-  %84 = load %array*, %array** %yptr1, align 8
-  %85 = getelementptr %array, %array* %84, i32 0, i32 0
-  %86 = load i16*, i16** %85, align 8
-  %87 = ptrtoint i16* %86 to i64
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @2, i32 0, i32 0), i64 %83, i64 %87)
-  %88 = load void*, void** %yq, align 8
-  %89 = alloca %array, align 8
-  %90 = alloca %dimension_descriptor, align 8
-  %91 = getelementptr %array, %array* %89, i32 0, i32 2
-  store %dimension_descriptor* %90, %dimension_descriptor** %91, align 8
-  %92 = getelementptr %array, %array* %89, i32 0, i32 4
-  store i32 1, i32* %92, align 4
-  store %array* %89, %array** %yptr1, align 8
-  %93 = getelementptr %array, %array* %89, i32 0, i32 0
-  %94 = getelementptr %array, %array* %89, i32 0, i32 2
-  %95 = load %dimension_descriptor*, %dimension_descriptor** %94, align 8
-  %96 = bitcast void* %88 to i16*
-  store i16* %96, i16** %93, align 8
-  %97 = getelementptr inbounds %dimension_descriptor, %dimension_descriptor* %95, i32 0
-  %98 = getelementptr %dimension_descriptor, %dimension_descriptor* %97, i32 0, i32 1
-  %99 = getelementptr %dimension_descriptor, %dimension_descriptor* %97, i32 0, i32 2
-  %100 = getelementptr inbounds %dimension_descriptor, %dimension_descriptor* %95, i32 0
-  %101 = getelementptr %dimension_descriptor, %dimension_descriptor* %100, i32 0, i32 3
+  %82 = ptrtoint i16* %81 to i64
+  %83 = load %array*, %array** %yptr1, align 8
+  %84 = getelementptr %array, %array* %83, i32 0, i32 0
+  %85 = load i16*, i16** %84, align 8
+  %86 = ptrtoint i16* %85 to i64
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @2, i32 0, i32 0), i64 %82, i64 %86)
+  %87 = load void*, void** %yq, align 8
+  %88 = alloca %array, align 8
+  %89 = alloca %dimension_descriptor, align 8
+  %90 = getelementptr %array, %array* %88, i32 0, i32 2
+  store %dimension_descriptor* %89, %dimension_descriptor** %90, align 8
+  %91 = getelementptr %array, %array* %88, i32 0, i32 4
+  store i32 1, i32* %91, align 4
+  store %array* %88, %array** %yptr1, align 8
+  %92 = getelementptr %array, %array* %88, i32 0, i32 0
+  %93 = getelementptr %array, %array* %88, i32 0, i32 2
+  %94 = load %dimension_descriptor*, %dimension_descriptor** %93, align 8
+  %95 = bitcast void* %87 to i16*
+  store i16* %95, i16** %92, align 8
+  %96 = getelementptr inbounds %dimension_descriptor, %dimension_descriptor* %94, i32 0
+  %97 = getelementptr %dimension_descriptor, %dimension_descriptor* %96, i32 0, i32 1
+  %98 = getelementptr %dimension_descriptor, %dimension_descriptor* %96, i32 0, i32 2
+  %99 = getelementptr inbounds %dimension_descriptor, %dimension_descriptor* %94, i32 0
+  %100 = getelementptr %dimension_descriptor, %dimension_descriptor* %99, i32 0, i32 3
+  store i32 1, i32* %97, align 4
   store i32 1, i32* %98, align 4
-  store i32 1, i32* %99, align 4
-  store i32 1, i32* %101, align 4
-  %102 = load void*, void** %yq, align 8
-  %103 = ptrtoint void* %102 to i64
-  %104 = load %array*, %array** %yptr1, align 8
-  %105 = getelementptr %array, %array* %104, i32 0, i32 0
-  %106 = load i16*, i16** %105, align 8
-  %107 = ptrtoint i16* %106 to i64
-  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @3, i32 0, i32 0), i64 %103, i64 %107)
+  store i32 1, i32* %100, align 4
+  %101 = load void*, void** %yq, align 8
+  %102 = ptrtoint void* %101 to i64
+  %103 = load %array*, %array** %yptr1, align 8
+  %104 = getelementptr %array, %array* %103, i32 0, i32 0
+  %105 = load i16*, i16** %104, align 8
+  %106 = ptrtoint i16* %105 to i64
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([11 x i8], [11 x i8]* @3, i32 0, i32 0), i64 %102, i64 %106)
   br label %return
 
 return:                                           ; preds = %.entry
