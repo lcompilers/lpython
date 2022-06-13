@@ -9,6 +9,6 @@ def test_c_callbacks():
     xi32 = 3
     p: CPtr
 #    p_c_pointer(p, xi32)
-#    assert f_pi32_i32(p) == 4
+    assert f_pi32_i32(p) == 4
 
 test_c_callbacks()

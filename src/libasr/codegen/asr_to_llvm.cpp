@@ -4316,7 +4316,12 @@ public:
                                                     }
                                                 }
                                             } else if (is_a<ASR::CPtr_t>(*arg_type)) {
-                                                // pass
+                                                if (arg->m_intent == intent_local) {
+                                                    // Local variable of type
+                                                    // CPtr is a void**, so we
+                                                    // have to load it
+                                                    tmp = CreateLoad(tmp);
+                                                }
                                             } else {
                                                 if (!arg->m_value_attr) {
                                                     // Dereference the pointer argument (unless it is a CPtr)
