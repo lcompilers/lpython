@@ -2596,6 +2596,20 @@ public:
         if( arr_descr->is_array(llvm_tmp) ) {
             llvm_tmp = builder->CreateLoad(arr_descr->get_pointer_to_data(llvm_tmp));
         }
+
+        // TODO: refactor this into a function, it is being used a few times
+        llvm::Type *target_type = llvm_tmp->getType();
+        // Create alloca to get a pointer, but do it
+        // at the beginning of the function to avoid
+        // using alloca inside a loop, which would
+        // run out of stack
+        llvm::BasicBlock &entry_block = builder->GetInsertBlock()->getParent()->getEntryBlock();
+        llvm::IRBuilder<> builder0(context);
+        builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
+        llvm::AllocaInst *target = builder0.CreateAlloca(
+            target_type, nullptr, "call_arg_value_ptr");
+        builder->CreateStore(llvm_tmp, target);
+        llvm_tmp = target;
         return llvm_tmp;
     }
 
@@ -4316,7 +4330,12 @@ public:
                                                     }
                                                 }
                                             } else if (is_a<ASR::CPtr_t>(*arg_type)) {
-                                                // pass
+                                                if (arg->m_intent == intent_local) {
+                                                    // Local variable of type
+                                                    // CPtr is a void**, so we
+                                                    // have to load it
+                                                    tmp = CreateLoad(tmp);
+                                                }
                                             } else {
                                                 if (!arg->m_value_attr) {
                                                     // Dereference the pointer argument (unless it is a CPtr)
