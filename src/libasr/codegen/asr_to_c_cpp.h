@@ -587,8 +587,22 @@ R"(#include <stdio.h>
             case (ASR::cast_kindType::ComplexToComplex) : {
                 break;
             }
+            case (ASR::cast_kindType::IntegerToComplex) : {
+                if (is_c) {
+                    headers.insert("complex");
+                    src = "CMPLX(" + src + ", 0)";
+                } else {
+                    src = "std::complex<double>(" + src + ")";
+                }
+                break;
+            }
             case (ASR::cast_kindType::ComplexToReal) : {
-                src = "creal(" + src + ")";
+                if (is_c) {
+                    headers.insert("complex");
+                    src = "creal(" + src + ")";
+                } else {
+                    src = "std::real(" + src + ")";
+                }
                 break;
             }
             case (ASR::cast_kindType::LogicalToInteger) : {
@@ -762,58 +776,6 @@ R"(#include <stdio.h>
         }
     }
 
-    std::string get_print_type(ASR::ttype_t *t) {
-        switch (t->type) {
-            case ASR::ttypeType::Integer: {
-                ASR::Integer_t *i = (ASR::Integer_t*)t;
-                switch (i->m_kind) {
-                    case 1: { return "%d"; }
-                    case 2: { return "%d"; }
-                    case 4: { return "%d"; }
-                    case 8: { return "%lli"; }
-                    default: { throw LFortranException("Integer kind not supported"); }
-                }
-            }
-            case ASR::ttypeType::Real: {
-                ASR::Real_t *r = (ASR::Real_t*)t;
-                switch (r->m_kind) {
-                    case 4: { return "%f"; }
-                    case 8: { return "%lf"; }
-                    default: { throw LFortranException("Float kind not supported"); }
-                }
-            }
-            case ASR::ttypeType::Logical: {
-                return "%d";
-            }
-            case ASR::ttypeType::Character: {
-                return "%s";
-            }
-            default : throw LFortranException("Not implemented");
-        }
-    }
-
-    void visit_Print(const ASR::Print_t &x) {
-        std::string indent(indentation_level*indentation_spaces, ' ');
-        std::string out = indent + "printf(\"";
-        std::vector<std::string> v;
-        for (size_t i=0; i<x.n_values; i++) {
-            self().visit_expr(*x.m_values[i]);
-            out += get_print_type(ASRUtils::expr_type(x.m_values[i]));
-            if (i+1!=x.n_values) {
-                out += " ";
-            }
-            v.push_back(src);
-        }
-        out += "\\n\"";
-        if (!v.empty()) {
-            for (auto s: v) {
-                out += ", " + s;
-            }
-        }
-        out += ");\n";
-        src = out;
-    }
-
     void visit_Allocate(const ASR::Allocate_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "// FIXME: allocate(";
@@ -921,6 +883,16 @@ R"(#include <stdio.h>
         src = indent + "exit(" + src + ");\n";
     }
 
+    void visit_ErrorStop(const ASR::ErrorStop_t & /* x */) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        if (is_c) {
+            src = indent + "fprintf(stderr, \"ERROR STOP\");\n";
+        } else {
+            src = indent + "std::cerr << \"ERROR STOP\" << std::endl;\n";
+        }
+        src += indent + "exit(1);\n";
+    }
+
     void visit_ImpliedDoLoop(const ASR::ImpliedDoLoop_t &/*x*/) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + " /* FIXME: implied do loop */ ";
@@ -979,12 +951,6 @@ R"(#include <stdio.h>
         out += indent + "}\n";
         indentation_level -= 1;
         src = out;
-    }
-
-    void visit_ErrorStop(const ASR::ErrorStop_t & /* x */) {
-        std::string indent(indentation_level*indentation_spaces, ' ');
-        src = indent + "fprintf(stderr, \"ERROR STOP\");\n";
-        src += indent + "exit(1);\n";
     }
 
     void visit_If(const ASR::If_t &x) {

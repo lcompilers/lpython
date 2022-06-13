@@ -327,47 +327,6 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         last_expr_precedence = 2;
     }
 
-    void visit_Cast(const ASR::Cast_t &x) {
-        visit_expr(*x.m_arg);
-        switch (x.m_kind) {
-            case (ASR::cast_kindType::IntegerToReal) : {
-                src = "(float)(" + src + ")";
-                break;
-            }
-            case (ASR::cast_kindType::RealToInteger) : {
-                src = "(int)(" + src + ")";
-                break;
-            }
-            case (ASR::cast_kindType::RealToReal) : {
-                // In C++, we do not need to cast float to float explicitly:
-                // src = src;
-                break;
-            }
-            case (ASR::cast_kindType::IntegerToInteger) : {
-                // In C++, we do not need to cast int <-> long long explicitly:
-                // src = src;
-                break;
-            }
-            case (ASR::cast_kindType::ComplexToComplex) : {
-                break;
-            }
-            case (ASR::cast_kindType::IntegerToComplex) : {
-                src = "std::complex<double>(" + src + ")";
-                break;
-            }
-            case (ASR::cast_kindType::ComplexToReal) : {
-                src = "std::real(" + src + ")";
-                break;
-            }
-            case (ASR::cast_kindType::LogicalToInteger) : {
-                src = "(int)(" + src + ")";
-                break;
-            }
-            default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented");
-        }
-        last_expr_precedence = 2;
-    }
-
     void visit_StringConcat(const ASR::StringConcat_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(src);
@@ -454,12 +413,6 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         out += indent + "});\n";
         indentation_level -= 1;
         src = out;
-    }
-
-    void visit_ErrorStop(const ASR::ErrorStop_t & /* x */) {
-        std::string indent(indentation_level*indentation_spaces, ' ');
-        src = indent + "std::cerr << \"ERROR STOP\" << std::endl;\n";
-        src += indent + "exit(1);\n";
     }
 
 };

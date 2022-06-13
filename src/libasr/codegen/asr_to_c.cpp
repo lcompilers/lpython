@@ -307,44 +307,6 @@ R"(
         src = out;
     }
 
-    void visit_Cast(const ASR::Cast_t &x) {
-        visit_expr(*x.m_arg);
-        switch (x.m_kind) {
-            case (ASR::cast_kindType::IntegerToReal) : {
-                src = "(float)(" + src + ")";
-                break;
-            }
-            case (ASR::cast_kindType::RealToInteger) : {
-                src = "(int)(" + src + ")";
-                break;
-            }
-            case (ASR::cast_kindType::RealToReal) : {
-                // In C++, we do not need to cast float to float explicitly:
-                // src = src;
-                break;
-            }
-            case (ASR::cast_kindType::IntegerToInteger) : {
-                // In C++, we do not need to cast int <-> long long explicitly:
-                // src = src;
-                break;
-            }
-            case (ASR::cast_kindType::ComplexToComplex) : {
-                break;
-            }
-            case (ASR::cast_kindType::ComplexToReal) : {
-                headers.insert("complex");
-                src = "creal(" + src + ")";
-                break;
-            }
-            case (ASR::cast_kindType::LogicalToInteger) : {
-                src = "(int)(" + src + ")";
-                break;
-            }
-            default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented");
-        }
-        last_expr_precedence = 2;
-    }
-
     std::string get_print_type(ASR::ttype_t *t) {
         switch (t->type) {
             case ASR::ttypeType::Integer: {
@@ -395,12 +357,6 @@ R"(
         }
         out += ");\n";
         src = out;
-    }
-
-    void visit_ErrorStop(const ASR::ErrorStop_t & /* x */) {
-        std::string indent(indentation_level*indentation_spaces, ' ');
-        src = indent + "fprintf(stderr, \"ERROR STOP\");\n";
-        src += indent + "exit(1);\n";
     }
 
 };
