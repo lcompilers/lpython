@@ -166,3 +166,5 @@ src/lpython/parser/parser.tab.hh
 
 ##Generated files in integration_tests
 integration_tests/test_c_interop_01.c
+integration_tests/test_c_interop_03
+integration_tests/test_c_interop_04

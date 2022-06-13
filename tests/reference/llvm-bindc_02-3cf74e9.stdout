@@ -50,7 +50,6 @@ return:                                           ; preds = %.entry
 
 define void @f() {
 .entry:
-  %call_arg_value_ptr = alloca i16*, align 8
   %y = alloca %array, align 8
   %0 = getelementptr %array, %array* %y, i32 0, i32 1
   store i32 0, i32* %0, align 4
@@ -150,8 +149,7 @@ define void @f() {
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @1, i32 0, i32 0), i16 %63, i16 %79)
   %80 = getelementptr %array, %array* %y, i32 0, i32 0
   %81 = load i16*, i16** %80, align 8
-  store i16* %81, i16** %call_arg_value_ptr, align 8
-  %82 = ptrtoint i16** %call_arg_value_ptr to i64
+  %82 = ptrtoint i16* %81 to i64
   %83 = load %array*, %array** %yptr1, align 8
   %84 = getelementptr %array, %array* %83, i32 0, i32 0
   %85 = load i16*, i16** %84, align 8

@@ -3224,12 +3224,9 @@ public:
                                 x.base.base.loc);
         }
         visit_expr(*x.m_args[0]);
-        ASR::expr_t* arg = ASRUtils::EXPR(tmp);
+        ASR::expr_t* pptr = ASRUtils::EXPR(tmp);
         visit_expr(*x.m_args[1]);
         ASR::expr_t* cptr = ASRUtils::EXPR(tmp);
-        ASR::ttype_t *type = ASR::down_cast<ASR::ttype_t>(ASR::make_Pointer_t(al, x.base.base.loc,
-            ASRUtils::expr_type(arg)));
-        ASR::expr_t* pptr = ASR::down_cast<ASR::expr_t>(ASR::make_GetPointer_t(al, x.base.base.loc, arg, type, nullptr));
         ASR::asr_t* pp = ASR::make_PointerToCPtr_t(al, x.base.base.loc, pptr,
                                          ASRUtils::expr_type(cptr), nullptr);
         return ASR::make_Assignment_t(al, x.base.base.loc,
