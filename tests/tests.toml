@@ -271,6 +271,10 @@ filename = "../integration_tests/test_issue_518.py"
 llvm = true
 c = true
 
+[[test]]
+filename = "../integration_tests/test_c_interop_01.py"
+asr = true
+
 # tests/tokens
 
 [[test]]
