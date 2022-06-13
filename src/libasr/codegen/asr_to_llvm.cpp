@@ -2610,7 +2610,7 @@ public:
             target_type, nullptr, "call_arg_value_ptr");
         builder->CreateStore(llvm_tmp, target);
         llvm_tmp = target;
-        return llvm_tmp;
+        return builder->CreateLoad(llvm_tmp);
     }
 
     void visit_GetPointer(const ASR::GetPointer_t& x) {
@@ -3652,7 +3652,11 @@ public:
         if( arr_descr->is_array(x_v) ) {
             tmp = x_v;
         } else {
-            tmp = CreateLoad(x_v);
+            tmp = x_v;
+            // Load only once since its a value
+            if( ptr_loads > 0 ) {
+                tmp = CreateLoad(tmp);
+            }
         }
     }
 
