@@ -270,6 +270,7 @@ expr
     | ComplexRe(expr arg, ttype type, expr? value)
     | ComplexIm(expr arg, ttype type, expr? value)
     | DictItem(expr a, expr key, expr? default, ttype type, expr? value)
+    | CLoc(expr arg, ttype type, expr? value)
     | PointerToCPtr(expr arg, ttype type, expr? value)
     | GetPointer(expr arg, ttype type, expr? value)
     | ListItem(expr a, expr pos, ttype type, expr? value)

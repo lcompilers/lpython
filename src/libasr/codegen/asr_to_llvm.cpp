@@ -2588,6 +2588,23 @@ public:
         }
     }
 
+    void visit_CLoc(const ASR::CLoc_t& x) {
+        uint64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_arg);
+        ptr_loads = ptr_loads_copy;
+        if( tmp->getType()->isPointerTy() &&
+            tmp->getType()->getContainedType(0)->isPointerTy() ) {
+            tmp = builder->CreateLoad(tmp);
+        }
+        if( arr_descr->is_array(tmp) ) {
+            tmp = builder->CreateLoad(arr_descr->get_pointer_to_data(tmp));
+        }
+        tmp = builder->CreateBitCast(tmp,
+                    llvm::Type::getVoidTy(context)->getPointerTo());
+    }
+
+
     llvm::Value* GetPointerCPtrUtil(llvm::Value* llvm_tmp) {
         if( llvm_tmp->getType()->isPointerTy() &&
             llvm_tmp->getType()->getContainedType(0)->isPointerTy() ) {
@@ -4166,6 +4183,10 @@ public:
                 d = builder->CreateFPExt(complex_re(tmp, complex_type), type);
                 args.push_back(d);
                 d = builder->CreateFPExt(complex_im(tmp, complex_type), type);
+                args.push_back(d);
+            } else if (t->type == ASR::ttypeType::CPtr) {
+                fmt.push_back("%lld");
+                llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
                 args.push_back(d);
             } else {
                 throw LFortranException("Printing support is available only for integer, real,"
