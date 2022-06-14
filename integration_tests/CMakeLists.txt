@@ -158,7 +158,7 @@ RUN(NAME test_c_interop_03   LABELS llvm c
         EXTRAFILES test_c_interop_03b.c)
 RUN(NAME test_c_interop_04   LABELS llvm c
         EXTRAFILES test_c_interop_04b.c)
-RUN(NAME test_c_interop_05   LABELS llvm
+RUN(NAME test_c_interop_05   LABELS llvm c
         EXTRAFILES test_c_interop_05b.c)
 RUN(NAME test_generics_01    LABELS cpython llvm)
 RUN(NAME test_cmath          LABELS cpython llvm)
