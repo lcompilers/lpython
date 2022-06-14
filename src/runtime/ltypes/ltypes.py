@@ -4,8 +4,9 @@ import ctypes
 import platform
 from typing import TypeVar
 
-__slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64", "c_ptr",
-        "overload", "ccall", "TypeVar", "pointer", "Pointer"]
+# TODO: this does not seem to restrict other imports
+__slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64", "CPtr",
+        "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer"]
 
 # data-types
 
@@ -120,13 +121,15 @@ class CTypes:
                 return ctypes.c_int64
             elif arg == i32:
                 return ctypes.c_int32
+            elif arg == CPtr:
+                return ctypes.c_void_p
             elif arg is None:
                 raise NotImplementedError("Type cannot be None")
             elif isinstance(arg, Array):
                 type = convert_type_to_ctype(arg._type)
                 return ctypes.POINTER(type)
             else:
-                raise NotImplementedError("Type not implemented")
+                raise NotImplementedError("Type %r not implemented" % arg)
         def get_rtlib_dir():
             current_dir = os.path.dirname(os.path.abspath(__file__))
             return os.path.join(current_dir, "..")
@@ -174,8 +177,23 @@ def ccall(f):
     wrapped_f = CTypes(f)
     return wrapped_f
 
-def pointer(type_):
-    return type_
+def pointer(x):
+    from numpy import ndarray
+    if isinstance(x, ndarray):
+        return ctypes.c_void_p(x.ctypes.data)
+        #return x.ctypes.data_as(ctypes.POINTER(ctypes.c_int32))
+    else:
+        type_ = x.annotations[0]
+        if type_ == i32:
+            return ctypes.pointer(ctypes.c_int32(x))
+        else:
+            raise Exception("Type not supported in pointer()")
 
 def c_p_pointer(cptr, targettype):
     return pointer(targettype)
+
+def p_c_pointer(ptr, cptr):
+    cptr.value = ptr.value
+
+def empty_c_void_p():
+    return ctypes.c_void_p()

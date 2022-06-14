@@ -3336,6 +3336,11 @@ public:
                 // with the type
                 tmp = nullptr;
                 return;
+            } else if (call_name == "empty_c_void_p") {
+                // TODO: check that `empty_c_void_p uses` has arguments that are compatible
+                // with the type
+                tmp = nullptr;
+                return;
             } else if (call_name == "TypeVar") {
                 // Ignore TypeVar for now, we handle it based on the identifier itself
                 tmp = nullptr;
