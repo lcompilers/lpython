@@ -3047,10 +3047,10 @@ public:
                         char chr = *ch;
                         switch (chr) {
                             case '.' :
-                                throw std::string("");
+                                throw std::string(""); break;
                             default :
                                 if (chr < '0' || chr > '9')
-                                    throw std::string("");
+                                    throw std::string(""); break;
                         }
                         ch++;
                     }
