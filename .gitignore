@@ -168,4 +168,5 @@ src/lpython/parser/parser.tab.hh
 integration_tests/test_c_interop_01.c
 integration_tests/test_c_interop_01
 integration_tests/test_c_interop_03
+integration_tests/test_c_interop_03.c
 integration_tests/test_c_interop_04
