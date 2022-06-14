@@ -197,7 +197,10 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t)
             ASR::List_t *l = (ASR::List_t *)t;
             return "list[" + type_to_str_python(l->m_type) + "]";
         }
-        default : throw LFortranException("Not implemented");
+        case ASR::ttypeType::CPtr: {
+            return "CPtr";
+        }
+        default : throw LFortranException("Not implemented " + std::to_string(t->type));
     }
 }
 
