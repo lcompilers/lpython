@@ -173,3 +173,5 @@ integration_tests/test_c_interop_04
 integration_tests/test_c_interop_04.c
 integration_tests/test_c_interop_05
 integration_tests/test_c_interop_05.c
+integration_tests/bindc_01
+integration_tests/bindc_01.c
