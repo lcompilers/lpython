@@ -1,4 +1,4 @@
-from ltypes import i8, i16, i32, f32, f64, ccall
+from ltypes import i8, i16, i32, f32, i64, f64, ccall
 
 
 pi: f64 = 3.141592653589793238462643383279502884197
@@ -232,7 +232,7 @@ def fabs(x: i64) -> i64:
     """
     Return the absolute value of `x`.
     """
-    if x < 0:
+    if x < 0.0:
         return -x
     return x
 
@@ -241,7 +241,7 @@ def fabs(x: i32) -> i32:
     """
     Return the absolute value of `x`.
     """
-    if x < 0:
+    if x < 0.0:
         return -x
     return x
 
@@ -250,8 +250,10 @@ def fabs(x: i32) -> i32:
 @overload
 def pow(x: f64, y: f64) -> f64:
     """
-    Return `x` raised to the power `y`.
+    Return `x` raised to the power  `y`.
     """
+    if y < 0:
+        raise ValueError('y should be nonnegative')
     return x**y
 
 
@@ -260,6 +262,8 @@ def pow(x: i64, y: i64) -> i64:
     """
     Return `x` raised to the power `y`.
     """
+    if y < 0:
+        raise ValueError('y should be nonnegative')
     return x**y
 
 @overload
@@ -267,6 +271,8 @@ def pow(x: f32, y: f32) -> f64:
     """
     Return `x` raised to the power `y`.
     """
+    if y < 0:
+        raise ValueError('y should be nonnegative')
     return x**y
 
 @overload
@@ -274,6 +280,8 @@ def pow(x: i32, y: i32) -> i64:
     """
     Return `x` raised to the power `y`.
     """
+    if y < 0:
+        raise ValueError('y should be nonnegative')
     return x**y
 
 
