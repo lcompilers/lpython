@@ -3040,6 +3040,9 @@ public:
                 int ival = 0;
                 try {
                     char *ch = c;
+                    if ((ch)[0] == '-') {
+                        ch++;
+                    }
                     while (*ch) {
                         char chr = *ch;
                         switch (chr) {
