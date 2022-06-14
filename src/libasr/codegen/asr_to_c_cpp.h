@@ -685,6 +685,42 @@ R"(#include <stdio.h>
         }
     }
 
+    std::string get_c_type_from_ttype_t(ASR::ttype_t* t) {
+        std::string type_src = "";
+        switch( t->type ) {
+            case ASR::ttypeType::Integer: {
+                type_src = "int";
+                break;
+            }
+            case ASR::ttypeType::Pointer: {
+                ASR::Pointer_t* ptr_type = ASR::down_cast<ASR::Pointer_t>(t);
+                type_src = get_c_type_from_ttype_t(ptr_type->m_type) + "*";
+                break;
+            }
+            case ASR::ttypeType::CPtr: {
+                type_src = "void*";
+                break;
+            }
+            default: {
+                throw CodeGenError("Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
+            }
+        }
+        return type_src;
+    }
+
+    void visit_GetPointer(const ASR::GetPointer_t& x) {
+        self().visit_expr(*x.m_arg);
+        std::string arg_src = std::move(src);
+        src = "&" + arg_src;
+    }
+
+    void visit_PointerToCPtr(const ASR::PointerToCPtr_t& x) {
+        self().visit_expr(*x.m_arg);
+        std::string arg_src = std::move(src);
+        std::string type_src = get_c_type_from_ttype_t(x.m_type);
+        src = "(" + type_src + ") " + arg_src;
+    }
+
     void visit_BinOp(const ASR::BinOp_t &x) {
         self().visit_expr(*x.m_left);
         std::string left = std::move(src);
