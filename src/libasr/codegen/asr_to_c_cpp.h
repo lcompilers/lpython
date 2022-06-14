@@ -81,12 +81,15 @@ public:
     bool is_c;
     std::set<std::string> headers;
 
+    SymbolTable* global_scope;
+
     BaseCCPPVisitor(diag::Diagnostics &diag,
             bool gen_stdstring, bool gen_stdcomplex, bool is_c) : diag{diag},
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
-        is_c{is_c} {}
+        is_c{is_c}, global_scope{nullptr} {}
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
+        global_scope = x.m_global_scope;
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LFORTRAN_ASSERT(x.n_items == 0);
@@ -320,7 +323,18 @@ R"(#include <stdio.h>
             sub += ";\n";
         } else {
             sub += "\n";
-
+            if( to_lower(x.m_name) == "_lpython_main_program" ) {
+                for (auto &item : global_scope->get_scope()) {
+                    if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
+                        if (v->m_intent == LFortran::ASRUtils::intent_local) {
+                            SymbolInfo s;
+                            s.needs_declaration = true;
+                            sym_info[get_hash((ASR::asr_t*)v)] = s;
+                        }
+                    }
+                }
+            }
             for (auto &item : x.m_symtab->get_scope()) {
                 if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
@@ -339,6 +353,20 @@ R"(#include <stdio.h>
             }
 
             std::string decl;
+            if( to_lower(x.m_name) == "_lpython_main_program" ) {
+                for (auto &item : global_scope->get_scope()) {
+                    if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
+                        if (v->m_intent == LFortran::ASRUtils::intent_local) {
+                            if (sym_info[get_hash((ASR::asr_t*) v)].needs_declaration) {
+                                std::string indent(indentation_level*indentation_spaces, ' ');
+                                decl += indent;
+                                decl += self().convert_variable_decl(*v) + ";\n";
+                            }
+                        }
+                    }
+                }
+            }
             for (auto &item : x.m_symtab->get_scope()) {
                 if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
@@ -686,10 +714,11 @@ R"(#include <stdio.h>
     }
 
     std::string get_c_type_from_ttype_t(ASR::ttype_t* t) {
+        int kind = ASRUtils::extract_kind_from_ttype_t(t);
         std::string type_src = "";
         switch( t->type ) {
             case ASR::ttypeType::Integer: {
-                type_src = "int";
+                type_src = "int" + std::to_string(kind * 8) + "_t";
                 break;
             }
             case ASR::ttypeType::Pointer: {
@@ -723,6 +752,20 @@ R"(#include <stdio.h>
         std::string arg_src = std::move(src);
         std::string type_src = get_c_type_from_ttype_t(x.m_type);
         src = "(" + type_src + ") " + arg_src;
+    }
+
+    void visit_CPtrToPointer(const ASR::CPtrToPointer_t& x) {
+        if( ASRUtils::is_array(ASRUtils::expr_type(x.m_ptr)) ) {
+            throw CodeGenError("Arrays in destination pointer "
+                    "not supported yet in c_p_pointer/c_f_pointer.");
+        }
+        self().visit_expr(*x.m_cptr);
+        std::string source_src = std::move(src);
+        self().visit_expr(*x.m_ptr);
+        std::string dest_src = std::move(src);
+        std::string type_src = get_c_type_from_ttype_t(ASRUtils::expr_type(x.m_ptr));
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        src = indent + dest_src + " = (" + type_src + ") " + source_src + ";\n";
     }
 
     void visit_BinOp(const ASR::BinOp_t &x) {
