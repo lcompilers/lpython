@@ -1,4 +1,5 @@
-from ltypes import ccall, f32, f64, i32, i64, CPtr, pointer, Pointer, p_c_pointer
+from ltypes import (ccall, f32, f64, i32, i64, CPtr, pointer, Pointer,
+        p_c_pointer, empty_c_void_p)
 
 @ccall
 def f_pi32_i32(x: CPtr) -> i32:
@@ -20,26 +21,27 @@ def test_c_callbacks():
     xi32: i32
     xi32 = 3
     p: CPtr
-    p_c_pointer(pointer(xi32), p)
-    print(pointer(xi32), p)
+    p = empty_c_void_p()
+    p_c_pointer(pointer(xi32, i32), p)
+    print(pointer(xi32, i32), p)
     assert f_pi32_i32(p) == 4
 
     xi64: i64
     xi64 = 3
-    p_c_pointer(pointer(xi64), p)
-    print(pointer(xi64), p)
+    p_c_pointer(pointer(xi64, i64), p)
+    print(pointer(xi64, i64), p)
     assert f_pi64_i32(p) == 4
 
     xf32: f32
     xf32 = 3.3
-    p_c_pointer(pointer(xf32), p)
-    print(pointer(xf32), p)
+    p_c_pointer(pointer(xf32, f32), p)
+    print(pointer(xf32, f32), p)
     assert abs(f_pf32_i32(p)-4.3) < 1e-6
 
     xf64: f64
     xf64 = 3.3
-    p_c_pointer(pointer(xf64), p)
-    print(pointer(xf64), p)
+    p_c_pointer(pointer(xf64, f64), p)
+    print(pointer(xf64, f64), p)
     assert abs(f_pf64_i32(p)-4.3) < 1e-12
 
 test_c_callbacks()

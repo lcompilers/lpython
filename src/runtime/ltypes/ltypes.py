@@ -177,15 +177,26 @@ def ccall(f):
     wrapped_f = CTypes(f)
     return wrapped_f
 
-def pointer(x):
+def pointer(x, type=None):
     from numpy import ndarray
     if isinstance(x, ndarray):
         return ctypes.c_void_p(x.ctypes.data)
         #return x.ctypes.data_as(ctypes.POINTER(ctypes.c_int32))
     else:
-        type_ = x.annotations[0]
-        if type_ == i32:
-            return ctypes.pointer(ctypes.c_int32(x))
+        if type == i32:
+            #return ctypes.c_void_p(ctypes.pointer(ctypes.c_int32(x)))
+            #return ctypes.pointer(ctypes.c_int32(x))
+            return ctypes.cast(ctypes.pointer(ctypes.c_int32(x)),
+                    ctypes.c_void_p)
+        elif type == i64:
+            return ctypes.cast(ctypes.pointer(ctypes.c_int64(x)),
+                    ctypes.c_void_p)
+        elif type == f32:
+            return ctypes.cast(ctypes.pointer(ctypes.c_float(x)),
+                    ctypes.c_void_p)
+        elif type == f64:
+            return ctypes.cast(ctypes.pointer(ctypes.c_double(x)),
+                    ctypes.c_void_p)
         else:
             raise Exception("Type not supported in pointer()")
 
