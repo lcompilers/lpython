@@ -1261,6 +1261,11 @@ public:
         ASR::symbol_t *s = current_scope->resolve_symbol(name);
         if (s) {
             tmp = ASR::make_Var_t(al, x.base.base.loc, s);
+        } else if (name == "i32" || name == "i64" || name == "f32" || name == "f64") {
+            int64_t i = -1;
+            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                    4, nullptr, 0));
+            tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, i, type);
         } else {
             throw SemanticError("Variable '" + name + "' not declared",
                 x.base.base.loc);
