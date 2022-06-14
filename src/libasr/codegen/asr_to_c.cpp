@@ -44,10 +44,13 @@ std::string format_type_c(const std::string &dims, const std::string &type,
         const std::string &name, bool use_ref, bool /*dummy*/)
 {
     std::string fmt;
-    std::string ref = "", ptr = "";
-    if (dims.size() > 0) ptr = "*";
+    std::string ref = "";
     if (use_ref) ref = "&";
-    fmt = type + " " + ptr + ref + name;
+    if( dims == "*" ) {
+        fmt = type + " " + dims + ref + name;
+    } else {
+        fmt = type + " " + ref + name + dims;
+    }
     return fmt;
 }
 

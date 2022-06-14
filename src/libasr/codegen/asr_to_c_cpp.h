@@ -711,7 +711,11 @@ R"(#include <stdio.h>
     void visit_GetPointer(const ASR::GetPointer_t& x) {
         self().visit_expr(*x.m_arg);
         std::string arg_src = std::move(src);
-        src = "&" + arg_src;
+        std::string addr_prefix = "&";
+        if( ASRUtils::is_array(ASRUtils::expr_type(x.m_arg)) ) {
+            addr_prefix.clear();
+        }
+        src = addr_prefix + arg_src;
     }
 
     void visit_PointerToCPtr(const ASR::PointerToCPtr_t& x) {
