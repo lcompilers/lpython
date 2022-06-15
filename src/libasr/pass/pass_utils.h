@@ -68,7 +68,7 @@ namespace LFortran {
 
             public:
 
-                bool asr_changed, retain_original_stmt;
+                bool asr_changed, retain_original_stmt, remove_original_stmt;
                 Allocator& al;
                 Vec<ASR::stmt_t*> pass_result;
                 SymbolTable* current_scope;
@@ -86,6 +86,7 @@ namespace LFortran {
                         // visitor method:
                         pass_result.n = 0;
                         retain_original_stmt = false;
+                        remove_original_stmt = false;
                         self().visit_stmt(*m_body[i]);
                         if (pass_result.size() > 0) {
                             asr_changed = true;
@@ -97,7 +98,7 @@ namespace LFortran {
                                 retain_original_stmt = false;
                             }
                             pass_result.n = 0;
-                        } else {
+                        } else if(!remove_original_stmt) {
                             body.push_back(al, m_body[i]);
                         }
                     }

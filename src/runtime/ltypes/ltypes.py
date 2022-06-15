@@ -3,6 +3,7 @@ import os
 import ctypes
 import platform
 from typing import TypeVar
+from dataclasses import dataclass
 
 # TODO: this does not seem to restrict other imports
 __slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64", "CPtr",
