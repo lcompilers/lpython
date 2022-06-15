@@ -137,6 +137,7 @@ public:
 
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
+        global_scope = x.m_global_scope;
         // All loose statements must be converted to a function, so the items
         // must be empty:
         LFORTRAN_ASSERT(x.n_items == 0);
