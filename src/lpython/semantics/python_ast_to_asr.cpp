@@ -269,7 +269,6 @@ public:
     PythonIntrinsicProcedures intrinsic_procedures;
     AttributeHandler attr_handler;
     std::map<int, ASR::symbol_t*> &ast_overload;
-    std::string current_Name_id;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module,
@@ -1313,70 +1312,7 @@ public:
         return std::string(dec_name->m_id) == "dataclass";
     }
 
-    void visit_ClassDef(const AST::ClassDef_t& x) {
-        std::string x_m_name = x.m_name;
-        if( current_scope->resolve_symbol(x_m_name) ) {
-            return ;
-        }
-        if( !is_dataclass(x.m_decorator_list, x.n_decorator_list) ) {
-            throw SemanticError("Only dataclass decorated classes are supported.",
-                                x.base.base.loc);
-        }
-
-        if( x.n_bases > 0 ) {
-            throw SemanticError("Inheritance in classes isn't supported yet.",
-                                x.base.base.loc);
-        }
-
-        SymbolTable *parent_scope = current_scope;
-        current_scope = al.make_new<SymbolTable>(parent_scope);
-
-        Vec<char*> member_names;
-        member_names.reserve(al, x.n_body);
-        for( size_t i = 0; i < x.n_body; i++ ) {
-            current_Name_id.clear();
-            this->visit_stmt(*x.m_body[i]);
-            if( current_Name_id.size() > 0 ) {
-                member_names.push_back(al, s2c(al, current_Name_id));
-            }
-        }
-        ASR::symbol_t* class_type = ASR::down_cast<ASR::symbol_t>(ASR::make_DerivedType_t(al,
-                                        x.base.base.loc, current_scope, x.m_name,
-                                        member_names.p, member_names.size(),
-                                        ASR::abiType::Source, ASR::accessType::Public,
-                                        nullptr));
-        current_scope = parent_scope;
-        current_scope->add_symbol(std::string(x.m_name), class_type);
-    }
-
-    void visit_AnnAssign(const AST::AnnAssign_t &x) {
-        // We treat this as a declaration
-        std::string var_name;
-        std::string var_annotation;
-        if (AST::is_a<AST::Name_t>(*x.m_target)) {
-            AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_target);
-            var_name = n->m_id;
-            current_Name_id = var_name;
-        } else {
-            throw SemanticError("Only Name supported for now as LHS of annotated assignment",
-                x.base.base.loc);
-        }
-
-        if (current_scope->get_scope().find(var_name) !=
-                current_scope->get_scope().end()) {
-            if (current_scope->parent != nullptr) {
-                // Re-declaring a global scope variable is allowed,
-                // otherwise raise an error
-                ASR::symbol_t *orig_decl = current_scope->get_symbol(var_name);
-                throw SemanticError(diag::Diagnostic(
-                    "Symbol is already declared in the same scope",
-                    diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("original declaration", {orig_decl->base.loc}, false),
-                        diag::Label("redeclaration", {x.base.base.loc}),
-                    }));
-            }
-        }
-
+    void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name) {
         ASR::ttype_t *type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation);
 
         ASR::expr_t *value = nullptr;
@@ -1415,9 +1351,46 @@ public:
         tmp = nullptr;
     }
 
+    void visit_ClassDef(const AST::ClassDef_t& x) {
+        std::string x_m_name = x.m_name;
+        if( current_scope->resolve_symbol(x_m_name) ) {
+            return ;
+        }
+        if( !is_dataclass(x.m_decorator_list, x.n_decorator_list) ) {
+            throw SemanticError("Only dataclass decorated classes are supported.",
+                                x.base.base.loc);
+        }
+
+        if( x.n_bases > 0 ) {
+            throw SemanticError("Inheritance in classes isn't supported yet.",
+                                x.base.base.loc);
+        }
+
+        SymbolTable *parent_scope = current_scope;
+        current_scope = al.make_new<SymbolTable>(parent_scope);
+
+        Vec<char*> member_names;
+        member_names.reserve(al, x.n_body);
+        for( size_t i = 0; i < x.n_body; i++ ) {
+            LFORTRAN_ASSERT(AST::is_a<AST::AnnAssign_t>(*x.m_body[i]));
+            AST::AnnAssign_t* ann_assign = AST::down_cast<AST::AnnAssign_t>(x.m_body[i]);
+            LFORTRAN_ASSERT(AST::is_a<AST::Name_t>(*ann_assign->m_target));
+            AST::Name_t *n = AST::down_cast<AST::Name_t>(ann_assign->m_target);
+            std::string var_name = n->m_id;
+            visit_AnnAssignUtil(*ann_assign, var_name);
+            member_names.push_back(al, n->m_id);
+        }
+        ASR::symbol_t* class_type = ASR::down_cast<ASR::symbol_t>(ASR::make_DerivedType_t(al,
+                                        x.base.base.loc, current_scope, x.m_name,
+                                        member_names.p, member_names.size(),
+                                        ASR::abiType::Source, ASR::accessType::Public,
+                                        nullptr));
+        current_scope = parent_scope;
+        current_scope->add_symbol(std::string(x.m_name), class_type);
+    }
+
     void visit_Name(const AST::Name_t &x) {
-        std::string current_Name_id = x.m_id;
-        std::string& name = current_Name_id;
+        std::string name = x.m_id;
         ASR::symbol_t *s = current_scope->resolve_symbol(name);
         if (s) {
             tmp = ASR::make_Var_t(al, x.base.base.loc, s);
@@ -2211,6 +2184,10 @@ public:
         }
     }
 
+    void visit_AnnAssign(const AST::AnnAssign_t &/*x*/) {
+        // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
+    }
+
     void visit_Assign(const AST::Assign_t &/*x*/) {
         // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
     }
@@ -2334,6 +2311,36 @@ public:
 
     void visit_Import(const AST::Import_t &/*x*/) {
         // visited in symbol visitor
+    }
+
+    void visit_AnnAssign(const AST::AnnAssign_t &x) {
+        // We treat this as a declaration
+        std::string var_name;
+        std::string var_annotation;
+        if (AST::is_a<AST::Name_t>(*x.m_target)) {
+            AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_target);
+            var_name = n->m_id;
+        } else {
+            throw SemanticError("Only Name supported for now as LHS of annotated assignment",
+                x.base.base.loc);
+        }
+
+        if (current_scope->get_scope().find(var_name) !=
+                current_scope->get_scope().end()) {
+            if (current_scope->parent != nullptr) {
+                // Re-declaring a global scope variable is allowed,
+                // otherwise raise an error
+                ASR::symbol_t *orig_decl = current_scope->get_symbol(var_name);
+                throw SemanticError(diag::Diagnostic(
+                    "Symbol is already declared in the same scope",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("original declaration", {orig_decl->base.loc}, false),
+                        diag::Label("redeclaration", {x.base.base.loc}),
+                    }));
+            }
+        }
+
+        visit_AnnAssignUtil(x, var_name);
     }
 
     void visit_Delete(const AST::Delete_t &x) {
