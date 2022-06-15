@@ -575,7 +575,8 @@ R"(#include <stdio.h>
 
     void visit_ArrayRef(const ASR::ArrayRef_t &x) {
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
-        std::string out = ASR::down_cast<ASR::Variable_t>(s)->m_name;
+        ASR::Variable_t* sv = ASR::down_cast<ASR::Variable_t>(s);
+        std::string out = std::string(sv->m_name);
         out += "[";
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i].m_right) {
@@ -755,10 +756,6 @@ R"(#include <stdio.h>
     }
 
     void visit_CPtrToPointer(const ASR::CPtrToPointer_t& x) {
-        if( ASRUtils::is_array(ASRUtils::expr_type(x.m_ptr)) ) {
-            throw CodeGenError("Arrays in destination pointer "
-                    "not supported yet in c_p_pointer/c_f_pointer.");
-        }
         self().visit_expr(*x.m_cptr);
         std::string source_src = std::move(src);
         self().visit_expr(*x.m_ptr);

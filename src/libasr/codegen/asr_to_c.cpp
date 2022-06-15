@@ -72,7 +72,10 @@ public:
                 ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(t2);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
                 std::string type_name = "int" + std::to_string(t->m_kind * 8) + "_t";
-                sub = format_type_c(dims, type_name + " *", v.m_name, use_ref, dummy);
+                if( !ASRUtils::is_array(v.m_type) ) {
+                    type_name.append(" *");
+                }
+                sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
             } else {
                 diag.codegen_error_label("Type number '"
                     + std::to_string(v.m_type->type)
@@ -305,7 +308,7 @@ R"(
         src = out;
     }
 
-    std::string get_print_type(ASR::ttype_t *t) {
+    std::string get_print_type(ASR::ttype_t *t, bool deref_ptr) {
         switch (t->type) {
             case ASR::ttypeType::Integer: {
                 ASR::Integer_t *i = (ASR::Integer_t*)t;
@@ -335,7 +338,12 @@ R"(
                 return "%p";
             }
             case ASR::ttypeType::Pointer: {
-                return "%p";
+                if( !deref_ptr ) {
+                    return "%p";
+                } else {
+                    ASR::Pointer_t* type_ptr = ASR::down_cast<ASR::Pointer_t>(t);
+                    return get_print_type(type_ptr->m_type, false);
+                }
             }
             default : throw LFortranException("Not implemented");
         }
@@ -347,7 +355,8 @@ R"(
         std::vector<std::string> v;
         for (size_t i=0; i<x.n_values; i++) {
             this->visit_expr(*x.m_values[i]);
-            out += get_print_type(ASRUtils::expr_type(x.m_values[i]));
+            ASR::ttype_t* valuei_type = ASRUtils::expr_type(x.m_values[i]);
+            out += get_print_type(valuei_type, ASR::is_a<ASR::ArrayRef_t>(*x.m_values[i]));
             if (i+1!=x.n_values) {
                 out += " ";
             }
