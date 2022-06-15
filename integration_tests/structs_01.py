@@ -11,7 +11,8 @@ def f(a: A):
 
 def g():
     x: A
-    x = A()
+    x = A(3, 3.3)
+    f(x)
     x.x = 5
     x.y = 5.5
     f(x)
