@@ -177,60 +177,55 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         }
     }
 
-    void visit_BinOp(const ASR::BinOp_t &x) {
+    void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
         this->visit_expr(*x.m_left);
-
         this->visit_expr(*x.m_right);
 
-        if (ASRUtils::is_integer(*x.m_type)) {
-            ASR::Integer_t *i = ASR::down_cast<ASR::Integer_t>(x.m_type);
-            if (i->m_kind == 4) {
-                switch (x.m_op) {
-                    case ASR::binopType::Add: {
-                        wasm::emit_i32_add(m_code_section, m_al);
-                        break;
-                    };
-                    case ASR::binopType::Sub: {
-                        wasm::emit_i32_sub(m_code_section, m_al);
-                        break;
-                    };
-                    case ASR::binopType::Mul: {
-                        wasm::emit_i32_mul(m_code_section, m_al);
-                        break;
-                    };
-                    case ASR::binopType::Div: {
-                        wasm::emit_i32_div(m_code_section, m_al);
-                        break;
-                    };
-                    default:
-                        throw CodeGenError("Binop: Pow Operation not yet implemented");
-                }
-            } else if (i->m_kind == 8) {
-                switch (x.m_op) {
-                    case ASR::binopType::Add: {
-                        wasm::emit_i64_add(m_code_section, m_al);
-                        break;
-                    };
-                    case ASR::binopType::Sub: {
-                        wasm::emit_i64_sub(m_code_section, m_al);
-                        break;
-                    };
-                    case ASR::binopType::Mul: {
-                        wasm::emit_i64_mul(m_code_section, m_al);
-                        break;
-                    };
-                    case ASR::binopType::Div: {
-                        wasm::emit_i64_div(m_code_section, m_al);
-                        break;
-                    };
-                    default:
-                        throw CodeGenError("Binop: Pow Operation not yet implemented");
-                }
-            } else {
-                throw CodeGenError("Binop: Integer kind not supported");
+        ASR::Integer_t *i = ASR::down_cast<ASR::Integer_t>(x.m_type);
+        if (i->m_kind == 4) {
+            switch (x.m_op) {
+                case ASR::binopType::Add: {
+                    wasm::emit_i32_add(m_code_section, m_al);
+                    break;
+                };
+                case ASR::binopType::Sub: {
+                    wasm::emit_i32_sub(m_code_section, m_al);
+                    break;
+                };
+                case ASR::binopType::Mul: {
+                    wasm::emit_i32_mul(m_code_section, m_al);
+                    break;
+                };
+                case ASR::binopType::Div: {
+                    wasm::emit_i32_div(m_code_section, m_al);
+                    break;
+                };
+                default:
+                    throw CodeGenError("IntegerBinop: Pow Operation not yet implemented");
+            }
+        } else if (i->m_kind == 8) {
+            switch (x.m_op) {
+                case ASR::binopType::Add: {
+                    wasm::emit_i64_add(m_code_section, m_al);
+                    break;
+                };
+                case ASR::binopType::Sub: {
+                    wasm::emit_i64_sub(m_code_section, m_al);
+                    break;
+                };
+                case ASR::binopType::Mul: {
+                    wasm::emit_i64_mul(m_code_section, m_al);
+                    break;
+                };
+                case ASR::binopType::Div: {
+                    wasm::emit_i64_div(m_code_section, m_al);
+                    break;
+                };
+                default:
+                    throw CodeGenError("IntegerBinop: Pow Operation not yet implemented");
             }
         } else {
-            throw CodeGenError("Binop: Only Integer type implemented");
+            throw CodeGenError("IntegerBinop: Integer kind not supported");
         }
     }
 
