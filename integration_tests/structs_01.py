@@ -2,8 +2,8 @@ from ltypes import i32, f32, dataclass
 
 @dataclass
 class A:
-    x: i32
     y: f32
+    x: i32
 
 def f(a: A):
     print(a.x)
@@ -11,12 +11,10 @@ def f(a: A):
 
 def g():
     x: A
-    x = A(3, 3.3)
+    x = A(3.25, 3)
     f(x)
-    # TODO: the above constructor does not initialize `A` in LPython yet, so
-    # the below does not work:
-    #assert x.x == 3
-    #assert x.y == 3.3
+    assert x.x == 3
+    assert x.y == 3.25
 
     x.x = 5
     x.y = 5.5
