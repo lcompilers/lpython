@@ -576,7 +576,7 @@ public:
     }
 
     void visit_expr_list(Vec<ASR::call_arg_t>& exprs, size_t n,
-                         Vec<ASR::expr_t*> exprs_vec) {
+                         Vec<ASR::expr_t*>& exprs_vec) {
         LFORTRAN_ASSERT(exprs_vec.reserve_called);
         for( size_t i = 0; i < n; i++ ) {
             exprs_vec.push_back(al, exprs[i].m_value);
@@ -735,6 +735,13 @@ public:
             Vec<ASR::expr_t*> args_new;
             args_new.reserve(al, args.size());
             visit_expr_list(args, args.size(), args_new);
+            ASR::DerivedType_t* derivedtype = ASR::down_cast<ASR::DerivedType_t>(s);
+            for( size_t i = 0; i < std::min(args.size(), derivedtype->n_members); i++ ) {
+                std::string member_name = derivedtype->m_members[i];
+                ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(
+                                                derivedtype->m_symtab->resolve_symbol(member_name));
+                args_new.p[i] = cast_helper(member_var->m_type, args_new[i], true);
+            }
             ASR::ttype_t* der_type = ASRUtils::TYPE(ASR::make_Derived_t(al, loc, s, nullptr, 0));
             return ASR::make_DerivedTypeConstructor_t(al, loc, s, args_new.p, args_new.size(), der_type, nullptr);
         } else {
