@@ -855,15 +855,13 @@ public:
 
     ASR::expr_t *index_add_one(const Location &loc, ASR::expr_t *idx) {
         // Add 1 to the index `idx`, assumes `idx` is of type Integer 4
-        ASR::expr_t *overloaded = nullptr;
         ASR::expr_t *comptime_value = nullptr;
         ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
             4, nullptr, 0));
         ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                                             al, loc, 1, a_type));
-        return ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, idx,
-            ASR::binopType::Add, constant_one, a_type,
-            comptime_value, overloaded));
+        return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, idx,
+            ASR::binopType::Add, constant_one, a_type, comptime_value));
     }
 
     ASR::expr_t* cast_helper(ASR::expr_t* left, ASR::expr_t* right, bool is_assign) {
@@ -983,6 +981,7 @@ public:
         ASR::ttype_t *right_type = ASRUtils::expr_type(right);
         ASR::ttype_t *dest_type = nullptr;
         ASR::expr_t *value = nullptr;
+        ASR::expr_t *overloaded = nullptr;
 
         bool right_is_int = ASRUtils::is_character(*left_type) && ASRUtils::is_integer(*right_type);
         bool left_is_int = ASRUtils::is_integer(*left_type) && ASRUtils::is_character(*right_type);
@@ -1226,9 +1225,11 @@ public:
             throw SemanticAbort();
         }
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-        // Now, compute the result of the binary operations
-        if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
-            if (ASRUtils::is_integer(*dest_type)) {
+        value = nullptr;
+
+        if (ASRUtils::is_integer(*dest_type)) {
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 int64_t left_value = ASR::down_cast<ASR::IntegerConstant_t>(
                                                     ASRUtils::expr_value(left))->m_n;
                 int64_t right_value = ASR::down_cast<ASR::IntegerConstant_t>(
@@ -1245,7 +1246,12 @@ public:
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                     al, loc, result, dest_type));
             }
-            else if (ASRUtils::is_real(*dest_type)) {
+
+            tmp = ASR::make_IntegerBinOp_t(al, loc, left, op, right, dest_type, value);
+
+        } else if (ASRUtils::is_real(*dest_type)) {
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 double left_value = ASR::down_cast<ASR::RealConstant_t>(
                                                     ASRUtils::expr_value(left))->m_r;
                 double right_value = ASR::down_cast<ASR::RealConstant_t>(
@@ -1262,7 +1268,12 @@ public:
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(
                     al, loc, result, dest_type));
             }
-            else if (ASRUtils::is_complex(*dest_type)) {
+
+            tmp = ASR::make_RealBinOp_t(al, loc, left, op, right, dest_type, value);
+
+        } else if (ASRUtils::is_complex(*dest_type)) {
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 ASR::ComplexConstant_t *left0 = ASR::down_cast<ASR::ComplexConstant_t>(
                                                                 ASRUtils::expr_value(left));
                 ASR::ComplexConstant_t *right0 = ASR::down_cast<ASR::ComplexConstant_t>(
@@ -1281,7 +1292,12 @@ public:
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_ComplexConstant_t(al, loc,
                         std::real(result), std::imag(result), dest_type));
             }
-            else if (ASRUtils::is_logical(*dest_type)) {
+
+            tmp = ASR::make_ComplexBinOp_t(al, loc, left, op, right, dest_type, value);
+
+        } else if (ASRUtils::is_logical(*dest_type)) {
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 int8_t left_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                                     ASRUtils::expr_value(left))->m_value;
                 int8_t right_value = ASR::down_cast<ASR::LogicalConstant_t>(
@@ -1297,12 +1313,22 @@ public:
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                     al, loc, result, int_type));
-                dest_type = int_type;
             }
+
+            // True + True -> (1 + 1)
+            left = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                        al, loc, left, ASR::cast_kindType::LogicalToInteger, int_type, nullptr));
+            right = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                        al, loc, right, ASR::cast_kindType::LogicalToInteger, int_type, nullptr));
+
+            // now that Logical is casted to Integer, do the binary operation on it.
+            tmp = ASR::make_IntegerBinOp_t(al, loc, left, op, right, int_type, value);
+
         }
-        ASR::expr_t *overloaded = nullptr;
-        tmp = ASR::make_BinOp_t(al, loc, left, op, right, dest_type,
-                                value, overloaded);
+
+        if (overloaded != nullptr) {
+            tmp = ASR::make_OverloadedBinOp_t(al, loc, left, op, right, dest_type, value, overloaded);
+        }
     }
 
     bool is_dataclass(AST::expr_t** decorators, size_t n) {
@@ -1460,7 +1486,7 @@ public:
     }
 
     void visit_BoolOp(const AST::BoolOp_t &x) {
-        ASR::boolopType op;
+        ASR::logicalbinopType op;
         if (x.n_values > 2) {
             throw SemanticError("Only two operands supported for boolean operations",
                 x.base.base.loc);
@@ -1470,8 +1496,8 @@ public:
         this->visit_expr(*x.m_values[1]);
         ASR::expr_t *rhs = ASRUtils::EXPR(tmp);
         switch (x.m_op) {
-            case (AST::boolopType::And): { op = ASR::boolopType::And; break; }
-            case (AST::boolopType::Or): { op = ASR::boolopType::Or; break; }
+            case (AST::boolopType::And): { op = ASR::logicalbinopType::And; break; }
+            case (AST::boolopType::Or): { op = ASR::logicalbinopType::Or; break; }
             default : {
                 throw SemanticError("Boolean operator type not supported",
                     x.base.base.loc);
@@ -1491,8 +1517,8 @@ public:
                                     ASRUtils::expr_value(rhs))->m_value;
             bool result;
             switch (op) {
-                case (ASR::boolopType::And): { result = left_value && right_value; break; }
-                case (ASR::boolopType::Or): { result = left_value || right_value; break; }
+                case (ASR::logicalbinopType::And): { result = left_value && right_value; break; }
+                case (ASR::logicalbinopType::Or): { result = left_value || right_value; break; }
                 default : {
                     throw SemanticError("Boolean operator type not supported",
                         x.base.base.loc);
@@ -1501,7 +1527,7 @@ public:
             value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                 al, x.base.base.loc, result, dest_type));
         }
-        tmp = ASR::make_BoolOp_t(al, x.base.base.loc, lhs, op, rhs, dest_type, value);
+        tmp = ASR::make_LogicalBinOp_t(al, x.base.base.loc, lhs, op, rhs, dest_type, value);
     }
 
     void visit_BinOp(const AST::BinOp_t &x) {
