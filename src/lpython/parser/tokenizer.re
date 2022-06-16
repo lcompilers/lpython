@@ -458,6 +458,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             }
 
             comment {
+                if(last_token == -1) { RET(TK_COMMENT); }
                 if(parenlevel) { continue; }
                 line_num++; cur_line=cur;
                 token(yylval.string);
