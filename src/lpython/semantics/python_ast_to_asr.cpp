@@ -1636,6 +1636,9 @@ public:
             AST::Slice_t *sl = AST::down_cast<AST::Slice_t>(x.m_slice);
             if (sl->m_lower != nullptr) {
                 this->visit_expr(*sl->m_lower);
+                if (!ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
+                    throw SemanticError("slice indices must be integers or None", tmp->loc);
+                }
                 ai.m_left = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
             }
             if (sl->m_upper != nullptr) {
@@ -1647,6 +1650,9 @@ public:
             }
             if (sl->m_step != nullptr) {
                 this->visit_expr(*sl->m_step);
+                if (!ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
+                    throw SemanticError("slice indices must be integers or None", tmp->loc);
+                }
                 ai.m_step = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
             }
             if (ASR::is_a<ASR::List_t>(*type)) {
