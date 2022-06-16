@@ -1224,8 +1224,6 @@ public:
             );
             throw SemanticAbort();
         }
-        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-        value = nullptr;
 
         if (ASRUtils::is_integer(*dest_type)) {
 
@@ -1294,35 +1292,6 @@ public:
             }
 
             tmp = ASR::make_ComplexBinOp_t(al, loc, left, op, right, dest_type, value);
-
-        } else if (ASRUtils::is_logical(*dest_type)) {
-
-            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
-                int8_t left_value = ASR::down_cast<ASR::LogicalConstant_t>(
-                                                    ASRUtils::expr_value(left))->m_value;
-                int8_t right_value = ASR::down_cast<ASR::LogicalConstant_t>(
-                                                    ASRUtils::expr_value(right))->m_value;
-                int8_t result;
-                switch (op) {
-                    case (ASR::binopType::Add): { result = left_value + right_value; break; }
-                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
-                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
-                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
-                    case (ASR::binopType::Div): { } // TODO: Handle division of logicals
-                    default: { LFORTRAN_ASSERT(false); } // should never happen
-                }
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
-                    al, loc, result, int_type));
-            }
-
-            // True + True -> (1 + 1)
-            left = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                        al, loc, left, ASR::cast_kindType::LogicalToInteger, int_type, nullptr));
-            right = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                        al, loc, right, ASR::cast_kindType::LogicalToInteger, int_type, nullptr));
-
-            // now that Logical is casted to Integer, do the binary operation on it.
-            tmp = ASR::make_IntegerBinOp_t(al, loc, left, op, right, int_type, value);
 
         }
 
