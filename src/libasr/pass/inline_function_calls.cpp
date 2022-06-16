@@ -349,8 +349,25 @@ public:
         arg2value.clear();
     }
 
-    void visit_BinOp(const ASR::BinOp_t& x) {
-        ASR::BinOp_t& xx = const_cast<ASR::BinOp_t&>(x);
+    void visit_IntegerBinOp(const ASR::IntegerBinOp_t& x) {
+        handle_BinOp(x);
+    }
+
+    void visit_RealBinOp(const ASR::RealBinOp_t& x) {
+        handle_BinOp(x);
+    }
+
+    void visit_ComplexBinOp(const ASR::ComplexBinOp_t& x) {
+        handle_BinOp(x);
+    }
+
+    void visit_LogicalBinOp(const ASR::LogicalBinOp_t& x) {
+        handle_BinOp(x);
+    }
+
+    template <typename T>
+    void handle_BinOp(const T& x) {
+        T& xx = const_cast<T&>(x);
         from_inline_function_call = true;
         function_result_var = nullptr;
         visit_expr(*x.m_left);
