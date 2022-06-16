@@ -169,6 +169,8 @@ RUN(NAME test_unary_minus    LABELS cpython llvm)
 RUN(NAME test_unary_plus     LABELS cpython llvm)
 RUN(NAME test_issue_518      LABELS cpython llvm)
 RUN(NAME structs_01          LABELS cpython llvm)
+RUN(NAME structs_02          LABELS llvm)
+RUN(NAME structs_03          LABELS llvm)
 
 # Just CPython
 RUN(NAME test_builtin_bin    LABELS cpython)
