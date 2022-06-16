@@ -457,7 +457,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 RET(TK_IMAG_NUM)
             }
 
-            comment newline {
+            comment {
                 if(parenlevel) { continue; }
                 line_num++; cur_line=cur;
                 token(yylval.string);
