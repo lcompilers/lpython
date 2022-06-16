@@ -1978,7 +1978,7 @@ public:
                     if (name == "ccall") {
                         current_procedure_abi_type = ASR::abiType::BindC;
                         current_procedure_interface = true;
-                    } else if (name == "ccallback") {
+                    } else if (name == "ccallback" || name == "ccallable") {
                         current_procedure_abi_type = ASR::abiType::BindC;
                     } else if (name == "overload") {
                         overload = true;
@@ -2644,6 +2644,59 @@ public:
 
     }
 
+    void visit_AttributeUtil(ASR::ttype_t* type, char* attr_char,
+                             ASR::symbol_t *t, const Location& loc) {
+        if (ASRUtils::is_complex(*type)) {
+            std::string attr = attr_char;
+            if (attr == "imag") {
+                ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, t));
+                int kind = ASRUtils::extract_kind_from_ttype_t(type);
+                ASR::ttype_t *dest_type = ASR::down_cast<ASR::ttype_t>(ASR::make_Real_t(al, loc,
+                                                kind, nullptr, 0));
+                tmp = ASR::make_ComplexIm_t(al, loc, val, dest_type, nullptr);
+                return;
+            } else if (attr == "real") {
+                ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, t));
+                int kind = ASRUtils::extract_kind_from_ttype_t(type);
+                ASR::ttype_t *dest_type = ASR::down_cast<ASR::ttype_t>(ASR::make_Real_t(al, loc,
+                                                kind, nullptr, 0));
+                ASR::expr_t *value = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                    al, val->base.loc, val, ASR::cast_kindType::ComplexToReal, dest_type));
+                tmp = ASR::make_ComplexRe_t(al, loc, val, dest_type, ASRUtils::expr_value(value));
+                return;
+            } else {
+                throw SemanticError("'" + attr + "' is not implemented for Complex type",
+                    loc);
+            }
+        } else if( ASR::is_a<ASR::Derived_t>(*type) ) {
+            ASR::Derived_t* der = ASR::down_cast<ASR::Derived_t>(type);
+            ASR::symbol_t* der_sym = ASRUtils::symbol_get_past_external(der->m_derived_type);
+            ASR::DerivedType_t* der_type = ASR::down_cast<ASR::DerivedType_t>(der_sym);
+            bool member_found = false;
+            std::string member_name = attr_char;
+            for( size_t i = 0; i < der_type->n_members && !member_found; i++ ) {
+                member_found = std::string(der_type->m_members[i]) == member_name;
+            }
+            if( !member_found ) {
+                throw SemanticError("No member " + member_name +
+                                    " found in " + std::string(der_type->m_name),
+                                    loc);
+            }
+            ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, t));
+            ASR::symbol_t* member_sym = der_type->m_symtab->resolve_symbol(member_name);
+            LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member_sym));
+            ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member_sym);
+            tmp = ASR::make_DerivedRef_t(al, loc, val, member_sym,
+                                            member_var->m_type, nullptr);
+        } else if(ASR::is_a<ASR::Pointer_t>(*type)) {
+            ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(type);
+            visit_AttributeUtil(p->m_type, attr_char, t, loc);
+        } else {
+            throw SemanticError(ASRUtils::type_to_str_python(type) + " not supported yet in Attribute.",
+                loc);
+        }
+    }
+
     void visit_Attribute(const AST::Attribute_t &x) {
         if (AST::is_a<AST::Name_t>(*x.m_value)) {
             std::string value = AST::down_cast<AST::Name_t>(x.m_value)->m_id;
@@ -2654,53 +2707,7 @@ public:
             }
             if (ASR::is_a<ASR::Variable_t>(*t)) {
                 ASR::Variable_t *var = ASR::down_cast<ASR::Variable_t>(t);
-                if (ASRUtils::is_complex(*var->m_type)) {
-                    std::string attr = x.m_attr;
-                    if (attr == "imag") {
-                        ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, x.base.base.loc, t));
-                        int kind = ASRUtils::extract_kind_from_ttype_t(var->m_type);
-                        ASR::ttype_t *dest_type = ASR::down_cast<ASR::ttype_t>(ASR::make_Real_t(al, x.base.base.loc,
-                                                        kind, nullptr, 0));
-                        tmp = ASR::make_ComplexIm_t(al, x.base.base.loc, val, dest_type, nullptr);
-                        return;
-                    } else if (attr == "real") {
-                        ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, x.base.base.loc, t));
-                        int kind = ASRUtils::extract_kind_from_ttype_t(var->m_type);
-                        ASR::ttype_t *dest_type = ASR::down_cast<ASR::ttype_t>(ASR::make_Real_t(al, x.base.base.loc,
-                                                        kind, nullptr, 0));
-                        ASR::expr_t *value = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
-                            al, val->base.loc, val, ASR::cast_kindType::ComplexToReal, dest_type));
-                        tmp = ASR::make_ComplexRe_t(al, x.base.base.loc, val, dest_type, ASRUtils::expr_value(value));
-                        return;
-                    } else {
-                        throw SemanticError("'" + attr + "' is not implemented for Complex type",
-                            x.base.base.loc);
-                    }
-
-                } else if( ASR::is_a<ASR::Derived_t>(*var->m_type) ) {
-                    ASR::Derived_t* der = ASR::down_cast<ASR::Derived_t>(var->m_type);
-                    ASR::symbol_t* der_sym = ASRUtils::symbol_get_past_external(der->m_derived_type);
-                    ASR::DerivedType_t* der_type = ASR::down_cast<ASR::DerivedType_t>(der_sym);
-                    bool member_found = false;
-                    std::string member_name = x.m_attr;
-                    for( size_t i = 0; i < der_type->n_members && !member_found; i++ ) {
-                        member_found = std::string(der_type->m_members[i]) == member_name;
-                    }
-                    if( !member_found ) {
-                        throw SemanticError("No member " + member_name +
-                                            " found in " + std::string(der_type->m_name),
-                                            x.base.base.loc);
-                    }
-                    ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, x.base.base.loc, t));
-                    ASR::symbol_t* member_sym = der_type->m_symtab->resolve_symbol(member_name);
-                    LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member_sym));
-                    ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member_sym);
-                    tmp = ASR::make_DerivedRef_t(al, x.base.base.loc, val, member_sym,
-                                                 member_var->m_type, nullptr);
-                } else {
-                    throw SemanticError("Only Complex type supported for now in Attribute",
-                        x.base.base.loc);
-                }
+                visit_AttributeUtil(var->m_type, x.m_attr, t, x.base.base.loc);
             } else {
                 throw SemanticError("Only Variable type is supported for now in Attribute",
                     x.base.base.loc);
