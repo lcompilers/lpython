@@ -302,40 +302,36 @@ public:
         }
     }
 
-    void visit_BinOp(const ASR::BinOp_t &x) {
+    void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
         this->visit_expr(*x.m_right);
         m_a.asm_push_r32(X86Reg::eax);
         this->visit_expr(*x.m_left);
         m_a.asm_pop_r32(X86Reg::ecx);
         // The left operand is in eax, the right operand is in ecx
         // Leave the result in eax.
-        if (x.m_type->type == ASR::ttypeType::Integer) {
-            switch (x.m_op) {
-                case ASR::binopType::Add: {
-                    m_a.asm_add_r32_r32(X86Reg::eax, X86Reg::ecx);
-                    break;
-                };
-                case ASR::binopType::Sub: {
-                    m_a.asm_sub_r32_r32(X86Reg::eax, X86Reg::ecx);
-                    break;
-                };
-                case ASR::binopType::Mul: {
-                    m_a.asm_mov_r32_imm32(X86Reg::edx, 0);
-                    m_a.asm_mul_r32(X86Reg::ecx);
-                    break;
-                };
-                case ASR::binopType::Div: {
-                    m_a.asm_mov_r32_imm32(X86Reg::edx, 0);
-                    m_a.asm_div_r32(X86Reg::ecx);
-                    break;
-                };
-                case ASR::binopType::Pow: {
-                    throw CodeGenError("Pow not implemented yet.");
-                    break;
-                };
-            }
-        } else {
-            throw CodeGenError("Binop: Only Integer types implemented so far");
+        switch (x.m_op) {
+            case ASR::binopType::Add: {
+                m_a.asm_add_r32_r32(X86Reg::eax, X86Reg::ecx);
+                break;
+            };
+            case ASR::binopType::Sub: {
+                m_a.asm_sub_r32_r32(X86Reg::eax, X86Reg::ecx);
+                break;
+            };
+            case ASR::binopType::Mul: {
+                m_a.asm_mov_r32_imm32(X86Reg::edx, 0);
+                m_a.asm_mul_r32(X86Reg::ecx);
+                break;
+            };
+            case ASR::binopType::Div: {
+                m_a.asm_mov_r32_imm32(X86Reg::edx, 0);
+                m_a.asm_div_r32(X86Reg::ecx);
+                break;
+            };
+            case ASR::binopType::Pow: {
+                throw CodeGenError("Pow not implemented yet.");
+                break;
+            };
         }
     }
 
