@@ -226,12 +226,12 @@ static inline std::string cmpop_to_str(const ASR::cmpopType t) {
     }
 }
 
-static inline std::string boolop_to_str(const ASR::boolopType t) {
+static inline std::string logicalbinop_to_str(const ASR::logicalbinopType t) {
     switch (t) {
-        case (ASR::boolopType::And): { return " && "; }
-        case (ASR::boolopType::Or): { return " || "; }
-        case (ASR::boolopType::Eqv): { return " == "; }
-        case (ASR::boolopType::NEqv): { return " != "; }
+        case (ASR::logicalbinopType::And): { return " && "; }
+        case (ASR::logicalbinopType::Or): { return " || "; }
+        case (ASR::logicalbinopType::Eqv): { return " == "; }
+        case (ASR::logicalbinopType::NEqv): { return " != "; }
         default : throw LFortranException("Cannot represent the boolean operator as a string");
     }
 }
@@ -1074,7 +1074,7 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                         a_len = -3;
                         break;
                     }
-                    case ASR::exprType::BinOp: {
+                    case ASR::exprType::IntegerBinOp: {
                         a_len = -3;
                         break;
                     }
