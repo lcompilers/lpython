@@ -4087,11 +4087,15 @@ public:
         for (size_t i=0; i<x.n_values; i++) {
             uint64_t ptr_loads_copy = ptr_loads;
             int reduce_loads = 0;
+            ptr_loads = 2;
             if( ASR::is_a<ASR::Var_t>(*x.m_values[i]) ) {
-                ASR::Variable_t* cptr_var = ASRUtils::EXPR2VAR(x.m_values[i]);
-                reduce_loads = cptr_var->m_intent == ASRUtils::intent_in;
+                ASR::Variable_t* var = ASRUtils::EXPR2VAR(x.m_values[i]);
+                reduce_loads = var->m_intent == ASRUtils::intent_in;
+                if( ASR::is_a<ASR::Pointer_t>(*var->m_type) ) {
+                    ptr_loads = 1;
+                }
             }
-            ptr_loads = 1 - reduce_loads;
+            ptr_loads = ptr_loads - reduce_loads;
             this->visit_expr_wrapper(x.m_values[i], true);
             ptr_loads = ptr_loads_copy;
             ASR::expr_t *v = x.m_values[i];
