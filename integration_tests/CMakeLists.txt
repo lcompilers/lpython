@@ -169,7 +169,7 @@ RUN(NAME test_unary_minus    LABELS cpython llvm)
 RUN(NAME test_unary_plus     LABELS cpython llvm)
 RUN(NAME test_bool_binop     LABELS cpython llvm)
 RUN(NAME test_issue_518      LABELS cpython llvm)
-RUN(NAME structs_01          LABELS cpython llvm)
+RUN(NAME structs_01          LABELS cpython llvm c)
 RUN(NAME structs_02          LABELS llvm)
 RUN(NAME structs_03          LABELS llvm)
 
