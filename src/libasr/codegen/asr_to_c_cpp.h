@@ -533,6 +533,9 @@ R"(#include <stdio.h>
         } else if (ASR::is_a<ASR::ArrayRef_t>(*x.m_target)) {
             visit_ArrayRef(*ASR::down_cast<ASR::ArrayRef_t>(x.m_target));
             target = src;
+        } else if (ASR::is_a<ASR::DerivedRef_t>(*x.m_target)) {
+            visit_DerivedRef(*ASR::down_cast<ASR::DerivedRef_t>(x.m_target));
+            target = src;
         } else {
             LFORTRAN_ASSERT(false)
         }
@@ -571,6 +574,21 @@ R"(#include <stdio.h>
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
         src = ASR::down_cast<ASR::Variable_t>(s)->m_name;
         last_expr_precedence = 2;
+    }
+
+    void visit_DerivedRef(const ASR::DerivedRef_t& x) {
+        std::string der_expr, deref = "", member;
+        this->visit_expr(*x.m_v);
+        der_expr = std::move(src);
+        if( ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_v)) ) {
+            deref = "*";
+        }
+        member = ASRUtils::symbol_name(x.m_m);
+        if( !deref.empty() ) {
+            src = "(" + deref + der_expr + ")->" + member;
+        } else {
+            src = der_expr + "->" + member;
+        }
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t &x) {
