@@ -2221,6 +2221,61 @@ public:
                     }
                 }
             }
+
+            /**
+             *  Add different treatment for Assign in the form of `T = TypeVar('T')`
+             */
+            if (AST::is_a<AST::Call_t>(*x.m_value)) {
+                AST::Call_t *rh = AST::down_cast<AST::Call_t>(x.m_value);
+                if (AST::is_a<AST::Name_t>(*rh->m_func)) {
+                    AST::Name_t *tv = AST::down_cast<AST::Name_t>(rh->m_func);
+                    std::string f_name = tv->m_id;
+                    if (strcmp(s2c(al, f_name), "TypeVar") == 0 &&
+                            rh->n_args > 0 && AST::is_a<AST::ConstantStr_t>(*rh->m_args[0])) {
+                        if (AST::is_a<AST::Name_t>(*x.m_targets[0])) {
+                            std::string tvar_name = AST::down_cast<AST::ConstantStr_t>(rh->m_args[0])->m_value;
+                            // Check if the type variable is already defined
+                            if (current_scope->get_scope().find(tvar_name) !=
+                                    current_scope->get_scope().end()) {
+                                ASR::symbol_t *orig_decl = current_scope->get_symbol(tvar_name);
+                                throw SemanticError(diag::Diagnostic(
+                                    "Type variable is already declared in the same scope",
+                                    diag::Level::Error, diag::Stage::Semantic, {
+                                        diag::Label("original declaration", {orig_decl->base.loc}, false),
+                                        diag::Label("redeclaration", {x.base.base.loc}),
+                                }));
+                            }
+
+                            // Build ttype
+                            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_TypeVar_t(al, x.base.base.loc, s2c(al, tvar_name)));
+
+                            ASR::expr_t *value = nullptr;
+                            ASR::expr_t *init_expr = nullptr;
+                            ASR::intentType s_intent = ASRUtils::intent_local;
+                            ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
+                            ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
+                            ASR::accessType s_access = ASR::accessType::Public;
+                            ASR::presenceType s_presence = ASR::presenceType::Required;
+                            bool value_attr = false;
+
+                            // Build the variable and add it to the scope
+                            ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
+                                s2c(al, tvar_name), s_intent, init_expr, value, storage_type, type,
+                                current_procedure_abi_type, s_access, s_presence,
+                                value_attr);
+                            current_scope->add_symbol(tvar_name, ASR::down_cast<ASR::symbol_t>(v));
+                            
+                            tmp = nullptr;
+                            
+                            return;
+                        } else {
+                            // This error might not to be further elaborated
+                            throw SemanticError("Type variable must be a variable", x.base.base.loc);
+                        }
+                    }
+                }
+            }
+
             this->visit_expr(*x.m_targets[0]);
             target = ASRUtils::EXPR(tmp);
         } else {

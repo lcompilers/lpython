@@ -305,6 +305,7 @@ ttype
     | Class(symbol class_type, dimension* dims)
     | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
+    | TypeVar(string var)
 
 boolop = And | Or | Xor | NEqv | Eqv
 
