@@ -682,6 +682,8 @@ function_call
 string
     : string TK_STRING { $$ = STRING2($1, $2, @$); } // TODO
     | TK_STRING { $$ = STRING1($1, @$); }
+    | id TK_STRING { $$ = STRING3($1, $2, @$); }
+    ;
 
 expr
     : id { $$ = $1; }

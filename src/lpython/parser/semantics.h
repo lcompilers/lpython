@@ -423,15 +423,75 @@ char* concat_string(Allocator &al, ast_t *a, char *b) {
     return LFortran::s2c(al, std::string(s) + std::string(b));
 }
 
+
 #define SYMBOL(x, l) make_Name_t(p.m_a, l, \
         x.c_str(p.m_a), expr_contextType::Load)
 // `x.int_n` is of type BigInt but we store the int64_t directly in AST
 #define INTEGER(x, l) make_ConstantInt_t(p.m_a, l, x, nullptr)
 #define STRING1(x, l) make_ConstantStr_t(p.m_a, l, x.c_str(p.m_a), nullptr)
 #define STRING2(x, y, l) make_ConstantStr_t(p.m_a, l, concat_string(p.m_a, x, y.c_str(p.m_a)), nullptr)
+#define STRING3(id, x, l) PREFIX_STRING(p.m_a, l, name2char(id), x.c_str(p.m_a))
 #define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, x, nullptr)
 #define COMPLEX(x, l) make_ConstantComplex_t(p.m_a, l, 0, x, nullptr)
 #define BOOL(x, l) make_ConstantBool_t(p.m_a, l, x, nullptr)
+
+static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, char *s){
+    Vec<ast_t *> exprs;
+    exprs.reserve(al, 4);
+    ast_t *tmp;
+    if (strcmp(prefix, "f") == 0) {
+        // Split the string s with delimiter `{` and `}`
+        // Pass the value between `{` and `}` to make_FormattedValue_t
+        // Pass the other values to make_ConstantStr_t
+        // Make a list of 
+
+        // make_JoinedStr_t
+        // make_FormattedValue_t
+        std::string str = std::string(s);
+        std::string s1 = "\"";
+        std::string id;
+        std::vector<std::string> strs;
+        bool open_paren = false;
+        for (size_t i = 0; i < str.length(); i++) {
+            if(str[i] == '{') {
+                if(s1 != "\"") {
+                    s1.push_back('"');
+                    strs.push_back(s1);
+                    s1 = "\"";
+                }
+                open_paren = true;
+            } else if (str[i] != '}' && open_paren) {
+                id.push_back(s[i]);
+            } else if (str[i] == '}') {
+                if(id != "") {
+                    strs.push_back(id);
+                    id = "";
+                }
+                open_paren = false;
+            } else if (!open_paren) {
+                s1.push_back(s[i]);
+            }
+            if(i == str.length()-1 && s1 != "\"") {
+                s1.push_back('"');
+                strs.push_back(s1);
+            }
+        }
+
+        for (size_t i = 0; i < strs.size(); i++) {
+            if (strs[i][0] == '"') {
+                strs[i] = strs[i].substr(1, strs[i].length() - 2);
+                tmp = make_ConstantStr_t(al, l, (char *)strs[i].c_str(), nullptr);
+                exprs.push_back(al, tmp);
+            } else {
+                tmp = make_Name_t(al, l,
+                        (char *)strs[i].c_str(), expr_contextType::Load);
+                tmp = make_FormattedValue_t(al, l, EXPR(tmp), -1, nullptr);
+                exprs.push_back(al, tmp);
+            }
+        }
+    }
+    return make_JoinedStr_t(al, l, EXPRS(exprs), exprs.size());
+}
 
 static inline keyword_t *CALL_KW(Allocator &al, Location &l,
         char *arg, expr_t* val) {
