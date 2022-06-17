@@ -177,3 +177,4 @@ integration_tests/bindc_01
 integration_tests/bindc_01.c
 integration_tests/bindc_02
 integration_tests/bindc_02.c
+integration_tests/bindc_03
