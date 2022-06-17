@@ -37,6 +37,49 @@ static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
     return ASR::down_cast<ASR::ttype_t>(f);
 }
 
+static inline char *symbol_name(const ASR::symbol_t *f)
+{
+    switch (f->type) {
+        case ASR::symbolType::Program: {
+            return ASR::down_cast<ASR::Program_t>(f)->m_name;
+        }
+        case ASR::symbolType::Module: {
+            return ASR::down_cast<ASR::Module_t>(f)->m_name;
+        }
+        case ASR::symbolType::Subroutine: {
+            return ASR::down_cast<ASR::Subroutine_t>(f)->m_name;
+        }
+        case ASR::symbolType::Function: {
+            return ASR::down_cast<ASR::Function_t>(f)->m_name;
+        }
+        case ASR::symbolType::GenericProcedure: {
+            return ASR::down_cast<ASR::GenericProcedure_t>(f)->m_name;
+        }
+        case ASR::symbolType::DerivedType: {
+            return ASR::down_cast<ASR::DerivedType_t>(f)->m_name;
+        }
+        case ASR::symbolType::Variable: {
+            return ASR::down_cast<ASR::Variable_t>(f)->m_name;
+        }
+        case ASR::symbolType::ExternalSymbol: {
+            return ASR::down_cast<ASR::ExternalSymbol_t>(f)->m_name;
+        }
+        case ASR::symbolType::ClassProcedure: {
+            return ASR::down_cast<ASR::ClassProcedure_t>(f)->m_name;
+        }
+        case ASR::symbolType::CustomOperator: {
+            return ASR::down_cast<ASR::CustomOperator_t>(f)->m_name;
+        }
+        case ASR::symbolType::AssociateBlock: {
+            return ASR::down_cast<ASR::AssociateBlock_t>(f)->m_name;
+        }
+        case ASR::symbolType::Block: {
+            return ASR::down_cast<ASR::Block_t>(f)->m_name;
+        }
+        default : throw LFortranException("Not implemented");
+    }
+}
+
 static inline ASR::symbol_t *symbol_get_past_external(ASR::symbol_t *f)
 {
     if (f->type == ASR::symbolType::ExternalSymbol) {
@@ -200,6 +243,14 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t)
         case ASR::ttypeType::CPtr: {
             return "CPtr";
         }
+        case ASR::ttypeType::Derived: {
+            ASR::Derived_t* d = ASR::down_cast<ASR::Derived_t>(t);
+            return symbol_name(d->m_derived_type);
+        }
+        case ASR::ttypeType::Pointer: {
+            ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(t);
+            return "Pointer[" + type_to_str_python(p->m_type) + "]";
+        }
         default : throw LFortranException("Not implemented " + std::to_string(t->type));
     }
 }
@@ -239,49 +290,6 @@ static inline std::string logicalbinop_to_str(const ASR::logicalbinopType t) {
 static inline ASR::expr_t* expr_value(ASR::expr_t *f)
 {
     return ASR::expr_value0(f);
-}
-
-static inline char *symbol_name(const ASR::symbol_t *f)
-{
-    switch (f->type) {
-        case ASR::symbolType::Program: {
-            return ASR::down_cast<ASR::Program_t>(f)->m_name;
-        }
-        case ASR::symbolType::Module: {
-            return ASR::down_cast<ASR::Module_t>(f)->m_name;
-        }
-        case ASR::symbolType::Subroutine: {
-            return ASR::down_cast<ASR::Subroutine_t>(f)->m_name;
-        }
-        case ASR::symbolType::Function: {
-            return ASR::down_cast<ASR::Function_t>(f)->m_name;
-        }
-        case ASR::symbolType::GenericProcedure: {
-            return ASR::down_cast<ASR::GenericProcedure_t>(f)->m_name;
-        }
-        case ASR::symbolType::DerivedType: {
-            return ASR::down_cast<ASR::DerivedType_t>(f)->m_name;
-        }
-        case ASR::symbolType::Variable: {
-            return ASR::down_cast<ASR::Variable_t>(f)->m_name;
-        }
-        case ASR::symbolType::ExternalSymbol: {
-            return ASR::down_cast<ASR::ExternalSymbol_t>(f)->m_name;
-        }
-        case ASR::symbolType::ClassProcedure: {
-            return ASR::down_cast<ASR::ClassProcedure_t>(f)->m_name;
-        }
-        case ASR::symbolType::CustomOperator: {
-            return ASR::down_cast<ASR::CustomOperator_t>(f)->m_name;
-        }
-        case ASR::symbolType::AssociateBlock: {
-            return ASR::down_cast<ASR::AssociateBlock_t>(f)->m_name;
-        }
-        case ASR::symbolType::Block: {
-            return ASR::down_cast<ASR::Block_t>(f)->m_name;
-        }
-        default : throw LFortranException("Not implemented");
-    }
 }
 
 static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
