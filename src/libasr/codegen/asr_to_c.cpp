@@ -77,6 +77,12 @@ public:
                     type_name.append(" *");
                 }
                 sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
+            } else if(ASR::is_a<ASR::Derived_t>(*t2)) {
+                ASR::Derived_t *t = ASR::down_cast<ASR::Derived_t>(t2);
+                std::string der_type_name = ASRUtils::symbol_name(t->m_derived_type);
+                std::string dims = convert_dims_c(t->n_dims, t->m_dims);
+                sub = format_type_c(dims, "struct " + der_type_name + "*",
+                                    v.m_name, use_ref, dummy);
             } else {
                 diag.codegen_error_label("Type number '"
                     + std::to_string(v.m_type->type)
