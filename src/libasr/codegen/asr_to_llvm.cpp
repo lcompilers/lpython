@@ -1223,7 +1223,10 @@ public:
             std::vector<llvm::Value*> indices;
             for( size_t r = 0; r < x.n_args; r++ ) {
                 ASR::array_index_t curr_idx = x.m_args[r];
+                uint64_t ptr_loads_copy = ptr_loads;
+                ptr_loads = 2;
                 this->visit_expr_wrapper(curr_idx.m_right, true);
+                ptr_loads = ptr_loads_copy;
                 indices.push_back(tmp);
             }
             if (v->m_type->type == ASR::ttypeType::Pointer) {
@@ -2375,6 +2378,9 @@ public:
                 break;
             case (ASR::ttypeType::Logical) :
                 return_type = llvm::Type::getInt1Ty(context);
+                break;
+            case (ASR::ttypeType::CPtr) :
+                return_type = llvm::Type::getVoidTy(context)->getPointerTo();
                 break;
             case (ASR::ttypeType::Derived) :
                 throw CodeGenError("Derived return type not implemented yet");
