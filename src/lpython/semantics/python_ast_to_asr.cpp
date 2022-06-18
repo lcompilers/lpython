@@ -1307,6 +1307,11 @@ public:
 
         } else if (ASRUtils::is_complex(*dest_type)) {
 
+            if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
+                op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift || op == ASR::binopType::Mod) {
+                throw SemanticError("Unsupported binary operation on complex: '" + ASRUtils::binop_to_str(op) + "'", loc);
+            }
+
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 ASR::ComplexConstant_t *left0 = ASR::down_cast<ASR::ComplexConstant_t>(
                                                                 ASRUtils::expr_value(left));
