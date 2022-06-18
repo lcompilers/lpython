@@ -86,9 +86,6 @@ def test_fabs():
     assert fabs(-5) == 5.0
 
 
-
-
-
 def test_gcd():
     i: i32
     i = gcd(10, 4)
