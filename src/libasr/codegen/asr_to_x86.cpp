@@ -328,10 +328,9 @@ public:
                 m_a.asm_div_r32(X86Reg::ecx);
                 break;
             };
-            case ASR::binopType::Pow: {
-                throw CodeGenError("Pow not implemented yet.");
-                break;
-            };
+            default: {
+                throw CodeGenError("Binary operation not supported yet");
+            }
         }
     }
 

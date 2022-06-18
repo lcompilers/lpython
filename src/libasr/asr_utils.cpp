@@ -388,6 +388,15 @@ bool is_op_overloaded(ASR::binopType op, std::string& intrinsic_op_name,
             }
             break;
         }
+        case ASR::binopType::Mod: {
+            if(intrinsic_op_name != "~mod") {
+                result = false;
+            }
+            break;
+        }
+        default: {
+            throw LFortranException("Binary operation not supported yet");
+        }
     }
     if( result && curr_scope->get_symbol(intrinsic_op_name) == nullptr ) {
         result = false;
