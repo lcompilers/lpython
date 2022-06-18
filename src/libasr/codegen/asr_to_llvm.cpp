@@ -1168,69 +1168,16 @@ public:
         uint32_t v_h = get_hash((ASR::asr_t*)v);
         LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
         llvm::Value* array = llvm_symtab[v_h];
-        if (is_a<ASR::Character_t>(*x.m_type)
-             && ASR::down_cast<ASR::Character_t>(x.m_type)->n_dims == 0) {
-            // String indexing:
-            if (x.n_args == 1) {
-                LFORTRAN_ASSERT(x.m_args[0].m_left)
-                LFORTRAN_ASSERT(x.m_args[0].m_right)
-                if (ASR::is_a<ASR::Var_t>(*x.m_args[0].m_left)
-                  &&ASR::is_a<ASR::Var_t>(*x.m_args[0].m_right)) {
-                    ASR::Variable_t *l = EXPR2VAR(x.m_args[0].m_left);
-                    ASR::Variable_t *r = EXPR2VAR(x.m_args[0].m_right);
-                    if (l == r) {
-                        this->visit_expr_wrapper(x.m_args[0].m_left, true);
-                        llvm::Value *idx = tmp;
-                        idx = builder->CreateSub(idx, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
-                        //std::vector<llvm::Value*> idx_vec = {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), idx};
-                        std::vector<llvm::Value*> idx_vec = {idx};
-                        llvm::Value *str = CreateLoad(array);
-                        llvm::Value *p = CreateGEP(str, idx_vec);
-                        // TODO: Currently the string starts at the right location, but goes to the end of the original string.
-                        // We have to allocate a new string, copy it and add null termination.
-
-                        tmp = builder->CreateAlloca(character_type, nullptr);
-                        builder->CreateStore(p, tmp);
-
-                        //tmp = p;
-                    } else {
-                        throw CodeGenError("Only string(a:b) for a==b supported for now.", x.base.base.loc);
-                    }
-                } else {
-                    //throw CodeGenError("Only string(a:b) for a,b variables for now.", x.base.base.loc);
-                    // Use the "right" index for now
-                    this->visit_expr_wrapper(x.m_args[0].m_right, true);
-                    llvm::Value *idx2 = tmp;
-                    this->visit_expr_wrapper(x.m_args[0].m_left, true);
-                    llvm::Value *idx1 = tmp;
-                    // idx = builder->CreateSub(idx, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
-                    //std::vector<llvm::Value*> idx_vec = {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), idx};
-                    // std::vector<llvm::Value*> idx_vec = {idx};
-                    llvm::Value *str = CreateLoad(array);
-                    // llvm::Value *p = CreateGEP(str, idx_vec);
-                    // TODO: Currently the string starts at the right location, but goes to the end of the original string.
-                    // We have to allocate a new string, copy it and add null termination.
-                    llvm::Value *p = lfortran_str_copy(str, idx1, idx2);
-
-                    tmp = builder->CreateAlloca(character_type, nullptr);
-                    builder->CreateStore(p, tmp);
-                }
-            } else {
-                throw CodeGenError("Only string(a:b) supported for now.", x.base.base.loc);
-            }
-        } else {
-            // Array indexing:
-            std::vector<llvm::Value*> indices;
-            for( size_t r = 0; r < x.n_args; r++ ) {
-                ASR::array_index_t curr_idx = x.m_args[r];
-                this->visit_expr_wrapper(curr_idx.m_right, true);
-                indices.push_back(tmp);
-            }
-            if (v->m_type->type == ASR::ttypeType::Pointer) {
-                array = builder->CreateLoad(array);
-            }
-            tmp = arr_descr->get_single_element(array, indices, x.n_args);
+        std::vector<llvm::Value*> indices;
+        for( size_t r = 0; r < x.n_args; r++ ) {
+            ASR::array_index_t curr_idx = x.m_args[r];
+            this->visit_expr_wrapper(curr_idx.m_right, true);
+            indices.push_back(tmp);
         }
+        if (v->m_type->type == ASR::ttypeType::Pointer) {
+            array = builder->CreateLoad(array);
+        }
+        tmp = arr_descr->get_single_element(array, indices, x.n_args);
     }
 
     void visit_DerivedRef(const ASR::DerivedRef_t& x) {
