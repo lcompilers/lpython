@@ -1279,6 +1279,11 @@ public:
 
         } else if (ASRUtils::is_real(*dest_type)) {
 
+            if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
+                op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift) {
+                throw SemanticError("Unsupported binary operation on floats: '" + ASRUtils::binop_to_str(op) + "'", loc);
+            }
+
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 double left_value = ASR::down_cast<ASR::RealConstant_t>(
                                                     ASRUtils::expr_value(left))->m_r;
@@ -1291,6 +1296,7 @@ public:
                     case (ASR::binopType::Mul): { result = left_value * right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
                     case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
+                    case (ASR::binopType::Mod): { result = std::fmod(left_value, right_value); break; }
                     default: { LFORTRAN_ASSERT(false); }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(
