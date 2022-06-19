@@ -123,6 +123,10 @@ class CTypes:
                 return ctypes.c_int64
             elif arg == i32:
                 return ctypes.c_int32
+            elif arg == i16:
+                return ctypes.c_int16
+            elif arg == i8:
+                return ctypes.c_int8
             elif arg == CPtr:
                 return ctypes.c_void_p
             elif arg is None:
