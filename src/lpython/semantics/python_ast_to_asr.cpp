@@ -3185,26 +3185,20 @@ public:
                 char *c = ASR::down_cast<ASR::StringConstant_t>(
                                     ASRUtils::expr_value(arg))->m_s;
                 int ival = 0;
-                try {
-                    char *ch = c;
-                    if ((ch)[0] == '-') {
-                        ch++;
-                    }
-                    while (*ch) {
-                        char chr = *ch;
-                        switch (chr) {
-                            case '.' :
-                                throw std::string(""); break;
-                            default :
-                                if (chr < '0' || chr > '9')
-                                    throw std::string(""); break;
-                        }
-                        ch++;
-                    }
-                    ival = std::stoi(c);
-                } catch(...) {
-                    throw SemanticError("invalid literal for int() with base 10: '"+ std::string(c) + "'", arg->base.loc);
+                char *ch = c;
+                if (*ch == '-') {
+                    ch++;
                 }
+                while (*ch) {
+                    if (*ch == '.') {
+                        throw SemanticError("invalid literal for int() with base 10: '"+ std::string(c) + "'", arg->base.loc);
+                    }
+                    if (*ch < '0' || *ch > '9') {
+                        throw SemanticError("invalid literal for int() with base 10: '"+ std::string(c) + "'", arg->base.loc);
+                    }
+                    ch++;
+                }
+                ival = std::stoi(c);
                 return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al,
                                 loc, ival, to_type));
             }

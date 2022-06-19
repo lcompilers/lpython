@@ -175,6 +175,7 @@ RUN(NAME test_issue_518      LABELS cpython llvm)
 RUN(NAME structs_01          LABELS cpython llvm c)
 RUN(NAME structs_02          LABELS llvm c)
 RUN(NAME structs_03          LABELS llvm c)
+RUN(NAME test_str_to_int     LABELS cpython llvm)
 
 # Just CPython
 RUN(NAME test_builtin_bin    LABELS cpython)
