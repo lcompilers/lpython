@@ -9,6 +9,7 @@
 #include <complex>
 #include <sstream>
 #include <iterator>
+#include <filesystem>
 
 #include <libasr/asr.h>
 #include <libasr/asr_utils.h>
