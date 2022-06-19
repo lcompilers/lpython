@@ -246,11 +246,12 @@ R"(#include <stdio.h>
         std::string sub;
         ASR::Variable_t *return_var = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
         if (ASRUtils::is_integer(*return_var->m_type)) {
-            bool is_int = ASR::down_cast<ASR::Integer_t>(return_var->m_type)->m_kind == 4;
-            if (is_int) {
-                sub = "int32_t ";
-            } else {
-                sub = "int64_t ";
+            int kind = ASR::down_cast<ASR::Integer_t>(return_var->m_type)->m_kind; 
+            switch (kind) {
+                case (1) : sub = "int8_t "; break;
+                case (2) : sub = "int16_t "; break;
+                case (4) : sub = "int32_t "; break;
+                case (8) : sub = "int64_t "; break;
             }
         } else if (ASRUtils::is_real(*return_var->m_type)) {
             bool is_float = ASR::down_cast<ASR::Real_t>(return_var->m_type)->m_kind == 4;
