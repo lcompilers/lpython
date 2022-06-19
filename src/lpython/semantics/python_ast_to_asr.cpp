@@ -113,7 +113,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     // Convert the module from AST to ASR
     LFortran::LocationManager lm;
     lm.in_filename = infile;
-    Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast, diagnostics, false, false);
+    Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast, diagnostics, false, false, false);
     std::string input;
     read_file(infile, input);
     CompilerOptions compiler_options;
@@ -3567,7 +3567,7 @@ std::string pickle_tree_python(AST::ast_t &ast, bool colors) {
 
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     AST::ast_t &ast, diag::Diagnostics &diagnostics, bool main_module,
-    bool symtab_only)
+    bool disable_main, bool symtab_only)
 {
     std::map<int, ASR::symbol_t*> ast_overload;
 
@@ -3596,10 +3596,25 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     }
 
     if (main_module) {
-        // If it is a main module, turn it into a program.
+        // If it is a main module, turn it into a program
         // Note: we can modify this behavior for interactive mode later
-        pass_wrap_global_stmts_into_program(al, *tu, "_lpython_main_program");
-        LFORTRAN_ASSERT(asr_verify(*tu));
+        if (disable_main) {
+            if (tu->n_items > 0) {
+                diagnostics.add(diag::Diagnostic(
+                    "The script is invoked as the main module and it has code to execute,\n"
+                    "but `--disable-main` was passed so no code was generated for `main`.\n"
+                    "We are removing all global executable code from ASR.",
+                    diag::Level::Warning, diag::Stage::Semantic, {})
+                );
+                // We have to remove the code
+                tu->m_items=nullptr;
+                tu->n_items=0;
+                LFORTRAN_ASSERT(asr_verify(*tu));
+            }
+        } else {
+            pass_wrap_global_stmts_into_program(al, *tu, "_lpython_main_program");
+            LFORTRAN_ASSERT(asr_verify(*tu));
+        }
     }
 
     return tu;
