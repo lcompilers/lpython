@@ -3258,6 +3258,30 @@ public:
                 tmp = builder->CreateFPToSI(tmp, type);
                 break;
             };
+            case ASR::binopType::Mod: {
+                tmp = builder->CreateSRem(left_val, right_val);
+                break;
+            }
+            case ASR::binopType::BitOr: {
+                tmp = builder->CreateOr(left_val, right_val);
+                break;
+            }
+            case ASR::binopType::BitAnd: {
+                tmp = builder->CreateAnd(left_val, right_val);
+                break;
+            }
+            case ASR::binopType::BitXor: {
+                tmp = builder->CreateXor(left_val, right_val);
+                break;
+            }
+            case ASR::binopType::BitLShift: {
+                tmp = builder->CreateShl(left_val, right_val);
+                break;
+            }
+            case ASR::binopType::BitRShift: {
+                tmp = builder->CreateAShr(left_val, right_val);
+                break;
+            }
             default: {
                 throw CodeGenError("Binary operator '" + ASRUtils::binop_to_str(x.m_op) + "' not supported yet",
                     x.base.base.loc);
@@ -3310,7 +3334,7 @@ public:
                 break;
             };
             default: {
-                throw CodeGenError("Binary operator '" + ASRUtils::binop_to_str(x.m_op) + "' not supported yet",
+                throw CodeGenError("Binary operator '" + ASRUtils::binop_to_str(x.m_op) + "' not supported",
                     x.base.base.loc);
             }
         }
@@ -3379,7 +3403,7 @@ public:
                 break;
             };
             default: {
-                throw CodeGenError("Binary operator '" + ASRUtils::binop_to_str(x.m_op) + "' not supported yet",
+                throw CodeGenError("Binary operator '" + ASRUtils::binop_to_str(x.m_op) + "' not supported",
                     x.base.base.loc);
             }
         }
