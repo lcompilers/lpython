@@ -3602,6 +3602,12 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
         if (tu->n_items > 0) {
             pass_wrap_global_stmts_into_program(al, *tu, "_lpython_main_program");
             LFORTRAN_ASSERT(asr_verify(*tu));
+        } else {
+            diagnostics.add(diag::Diagnostic(
+                "The script is invoked as the main module but it does not have any main\ncode to execute, so the `main` function is not generated. "
+                "Consequently, if this\nis being linked into an executable, it will fail due to the missing `main`\nfunction.",
+                diag::Level::Warning, diag::Stage::Semantic, {})
+            );
         }
     }
 
