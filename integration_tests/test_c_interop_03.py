@@ -17,6 +17,10 @@ def f_pf32_i32(x: CPtr) -> f32:
 def f_pf64_i32(x: CPtr) -> f64:
     pass
 
+@ccall
+def f_pvoid_pvoid(x: CPtr) -> CPtr:
+    pass
+
 def test_c_callbacks():
     xi32: i32
     xi32 = 3

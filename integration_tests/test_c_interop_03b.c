@@ -15,3 +15,7 @@ float   f_pf32_i32(float *x) {
 double  f_pf64_i32(double *x) {
     return *x+1;
 }
+
+void*  f_pvoid_pvoid(void *x) {
+    return x;
+}
