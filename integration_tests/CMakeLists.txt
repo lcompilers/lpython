@@ -59,8 +59,8 @@ macro(RUN)
         if (KIND STREQUAL "llvm")
             add_custom_command(
                 OUTPUT ${name}.o
-                COMMAND lpython -c ${name}.py -o ${name}.o
-                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                COMMAND lpython -c ${CMAKE_SOURCE_DIR}/${name}.py -o ${name}.o
+                DEPENDS ${CMAKE_SOURCE_DIR}/${name}.py
                 VERBATIM)
             add_executable(${name} ${name}.o ${RUN_EXTRAFILES})
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
@@ -75,8 +75,8 @@ macro(RUN)
         elseif(KIND STREQUAL "c")
             add_custom_command(
                 OUTPUT ${name}.c
-                COMMAND lpython --show-c ${name}.py > ${name}.c
-                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                COMMAND lpython --show-c ${CMAKE_SOURCE_DIR}/${name}.py > ${name}.c
+                DEPENDS ${CMAKE_SOURCE_DIR}/${name}.py
                 VERBATIM)
             add_executable(${name} ${name}.c ${RUN_EXTRAFILES})
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
@@ -100,7 +100,7 @@ macro(RUN)
 
             add_test(${name} python ${CMAKE_CURRENT_BINARY_DIR}/${name}.py)
             set_tests_properties(${name} PROPERTIES
-                ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/../src/runtime/ltypes;LPYTHON_PY_MOD_NAME=${PY_MOD};LPYTHON_PY_MOD_PATH=${CMAKE_CURRENT_BINARY_DIR}")
+                ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/../src/runtime/ltypes;LPYTHON_PY_MOD_NAME=${PY_MOD};LPYTHON_PY_MOD_PATH=${CMAKE_SOURCE_DIR}")
             if (RUN_LABELS)
                 set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
             endif()
