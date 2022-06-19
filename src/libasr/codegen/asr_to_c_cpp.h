@@ -289,6 +289,8 @@ R"(#include <stdio.h>
                     sub = "double complex ";
                 }
             }
+        } else if (ASR::is_a<ASR::CPtr_t>(*return_var->m_type)) {
+            sub = "void* ";
         } else {
             throw CodeGenError("Return type not supported", return_var->base.base.loc);
         }
