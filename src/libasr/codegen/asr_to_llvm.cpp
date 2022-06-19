@@ -4953,7 +4953,7 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
     }
 
     pass_replace_select_case(al, asr);
-    pass_unused_functions(al, asr);
+    pass_unused_functions(al, asr, false);
 
     if( fast ) {
         pass_replace_flip_sign(al, asr, rl_path);

@@ -244,8 +244,9 @@ public:
 
 };
 
-void pass_unused_functions(Allocator &al, ASR::TranslationUnit_t &unit) {
-    if (is_program_present(unit)) {
+void pass_unused_functions(Allocator &al, ASR::TranslationUnit_t &unit,
+        bool always_run) {
+    if (is_program_present(unit) || always_run) {
         for (int i=0; i < 4; i++)
         {
             std::map<uint64_t, std::string> fn_unused;

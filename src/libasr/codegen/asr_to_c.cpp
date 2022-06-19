@@ -430,7 +430,7 @@ R"(
 Result<std::string> asr_to_c(Allocator &al, ASR::TranslationUnit_t &asr,
     diag::Diagnostics &diagnostics)
 {
-    pass_unused_functions(al, asr);
+    pass_unused_functions(al, asr, true);
     pass_replace_class_constructor(al, asr);
     ASRToCVisitor v(diagnostics);
     try {

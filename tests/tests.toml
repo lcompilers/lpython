@@ -194,7 +194,7 @@ c = true
 # integration_tests
 
 [[test]]
-filename = "ltypes.py"
+filename = "ltypes1.py"
 llvm = true
 
 [[test]]

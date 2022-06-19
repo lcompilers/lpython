@@ -292,7 +292,9 @@ R"(#include <stdio.h>
         } else if (ASR::is_a<ASR::CPtr_t>(*return_var->m_type)) {
             sub = "void* ";
         } else {
-            throw CodeGenError("Return type not supported", return_var->base.base.loc);
+            throw CodeGenError("Return type not supported in function '" +
+                std::string(x.m_name) +
+                + "'", return_var->base.base.loc);
         }
         std::string sym_name = x.m_name;
         if (sym_name == "main") {
@@ -654,11 +656,21 @@ R"(#include <stdio.h>
                 }
                 break;
             }
+            case (ASR::cast_kindType::RealToComplex) : {
+                if (is_c) {
+                    headers.insert("complex");
+                    src = "CMPLX(" + src + ", 0.0)";
+                } else {
+                    src = "std::complex<double>(" + src + ")";
+                }
+                break;
+            }
             case (ASR::cast_kindType::LogicalToInteger) : {
                 src = "(int)(" + src + ")";
                 break;
             }
-            default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented");
+            default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented",
+                x.base.base.loc);
         }
         last_expr_precedence = 2;
     }
