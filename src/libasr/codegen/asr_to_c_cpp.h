@@ -292,7 +292,9 @@ R"(#include <stdio.h>
         } else if (ASR::is_a<ASR::CPtr_t>(*return_var->m_type)) {
             sub = "void* ";
         } else {
-            throw CodeGenError("Return type not supported", return_var->base.base.loc);
+            throw CodeGenError("Return type not supported in function '" +
+                std::string(x.m_name) +
+                + "'", return_var->base.base.loc);
         }
         std::string sym_name = x.m_name;
         if (sym_name == "main") {
