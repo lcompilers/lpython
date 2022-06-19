@@ -38,6 +38,12 @@ namespace {
         CodeGenError(const std::string &msg)
             : d{diag::Diagnostic(msg, diag::Level::Error, diag::Stage::CodeGen)}
         { }
+
+        CodeGenError(const std::string &msg, const Location &loc)
+            : d{diag::Diagnostic(msg, diag::Level::Error, diag::Stage::CodeGen, {
+                diag::Label("", {loc})
+            })}
+        { }
     };
 
     class Abort {};
@@ -283,8 +289,10 @@ R"(#include <stdio.h>
                     sub = "double complex ";
                 }
             }
+        } else if (ASR::is_a<ASR::CPtr_t>(*return_var->m_type)) {
+            sub = "void* ";
         } else {
-            throw CodeGenError("Return type not supported");
+            throw CodeGenError("Return type not supported", return_var->base.base.loc);
         }
         std::string sym_name = x.m_name;
         if (sym_name == "main") {
