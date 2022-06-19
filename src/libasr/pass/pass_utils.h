@@ -25,6 +25,9 @@ namespace LFortran {
         void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, int n_dims, const Location& loc,
                              Allocator& al, SymbolTable*& current_scope, std::string suffix="_k");
 
+        ASR::expr_t* create_binop_helper(Allocator &al, const Location &loc, ASR::expr_t* left, ASR::expr_t* right,
+                                            ASR::binopType op);
+
         ASR::expr_t* get_bound(ASR::expr_t* arr_expr, int dim, std::string bound,
                                 Allocator& al);
 
@@ -68,7 +71,7 @@ namespace LFortran {
 
             public:
 
-                bool asr_changed, retain_original_stmt;
+                bool asr_changed, retain_original_stmt, remove_original_stmt;
                 Allocator& al;
                 Vec<ASR::stmt_t*> pass_result;
                 SymbolTable* current_scope;
@@ -86,6 +89,7 @@ namespace LFortran {
                         // visitor method:
                         pass_result.n = 0;
                         retain_original_stmt = false;
+                        remove_original_stmt = false;
                         self().visit_stmt(*m_body[i]);
                         if (pass_result.size() > 0) {
                             asr_changed = true;
@@ -97,7 +101,7 @@ namespace LFortran {
                                 retain_original_stmt = false;
                             }
                             pass_result.n = 0;
-                        } else {
+                        } else if(!remove_original_stmt) {
                             body.push_back(al, m_body[i]);
                         }
                     }

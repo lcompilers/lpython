@@ -1110,7 +1110,7 @@ public:
     }
 
     void visit_ListAppend(const ASR::ListAppend_t& x) {
-        ASR::Variable_t *l = ASR::down_cast<ASR::Variable_t>(x.m_a);
+        ASR::Variable_t *l = EXPR2VAR(x.m_a);
         uint32_t v_h = get_hash((ASR::asr_t*)l);
         LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
         llvm::Value *plist = llvm_symtab[v_h];
@@ -1135,7 +1135,7 @@ public:
     }
 
     void visit_ListItem(const ASR::ListItem_t& x) {
-        ASR::Variable_t *l = ASR::down_cast<ASR::Variable_t>(x.m_a);
+        ASR::Variable_t *l = EXPR2VAR(x.m_a);
         uint32_t v_h = get_hash((ASR::asr_t*)l);
         LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
         llvm::Value *plist = llvm_symtab[v_h];
@@ -1223,7 +1223,10 @@ public:
             std::vector<llvm::Value*> indices;
             for( size_t r = 0; r < x.n_args; r++ ) {
                 ASR::array_index_t curr_idx = x.m_args[r];
+                uint64_t ptr_loads_copy = ptr_loads;
+                ptr_loads = 2;
                 this->visit_expr_wrapper(curr_idx.m_right, true);
+                ptr_loads = ptr_loads_copy;
                 indices.push_back(tmp);
             }
             if (v->m_type->type == ASR::ttypeType::Pointer) {
@@ -1239,7 +1242,10 @@ public:
             return;
         }
         der_type_name = "";
+        uint64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = ptr_loads_copy - ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_v));
         this->visit_expr(*x.m_v);
+        ptr_loads = ptr_loads_copy;
         ASR::Variable_t* member = down_cast<ASR::Variable_t>(symbol_get_past_external(x.m_m));
         std::string member_name = std::string(member->m_name);
         LFORTRAN_ASSERT(der_type_name.size() != 0);
@@ -1608,15 +1614,9 @@ public:
             }
             case (ASR::ttypeType::Pointer) : {
                 ASR::ttype_t *t2 = ASR::down_cast<ASR::Pointer_t>(asr_type)->m_type;
-                switch (t2->type) {
-                    case (ASR::ttypeType::Derived) : {
-                        throw CodeGenError("Pointers for Derived type not implemented yet in conversion.");
-                    }
-                    default :
-                        llvm_type = get_type_from_ttype_t(t2, m_storage, is_array_type,
+                llvm_type = get_type_from_ttype_t(t2, m_storage, is_array_type,
                                         is_malloc_array_type, m_dims, n_dims, a_kind);
-                        llvm_type = llvm_type->getPointerTo();
-                }
+                llvm_type = llvm_type->getPointerTo();
                 break;
             }
             case (ASR::ttypeType::List) : {
@@ -1709,7 +1709,8 @@ public:
                         // Set allocatable arrays as unallocated
                         arr_descr->set_is_allocated_flag(ptr, 0);
                     }
-                    if( v->m_symbolic_value != nullptr ) {
+                    if( v->m_symbolic_value != nullptr &&
+                        !ASR::is_a<ASR::List_t>(*v->m_type)) {
                         target_var = ptr;
                         this->visit_expr_wrapper(v->m_symbolic_value, true);
                         llvm::Value *init_value = tmp;
@@ -2378,6 +2379,9 @@ public:
             case (ASR::ttypeType::Logical) :
                 return_type = llvm::Type::getInt1Ty(context);
                 break;
+            case (ASR::ttypeType::CPtr) :
+                return_type = llvm::Type::getVoidTy(context)->getPointerTo();
+                break;
             case (ASR::ttypeType::Derived) :
                 throw CodeGenError("Derived return type not implemented yet");
                 break;
@@ -2588,6 +2592,23 @@ public:
         }
     }
 
+    void visit_CLoc(const ASR::CLoc_t& x) {
+        uint64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_arg);
+        ptr_loads = ptr_loads_copy;
+        if( tmp->getType()->isPointerTy() &&
+            tmp->getType()->getContainedType(0)->isPointerTy() ) {
+            tmp = builder->CreateLoad(tmp);
+        }
+        if( arr_descr->is_array(tmp) ) {
+            tmp = builder->CreateLoad(arr_descr->get_pointer_to_data(tmp));
+        }
+        tmp = builder->CreateBitCast(tmp,
+                    llvm::Type::getVoidTy(context)->getPointerTo());
+    }
+
+
     llvm::Value* GetPointerCPtrUtil(llvm::Value* llvm_tmp) {
         if( llvm_tmp->getType()->isPointerTy() &&
             llvm_tmp->getType()->getContainedType(0)->isPointerTy() ) {
@@ -2596,6 +2617,20 @@ public:
         if( arr_descr->is_array(llvm_tmp) ) {
             llvm_tmp = builder->CreateLoad(arr_descr->get_pointer_to_data(llvm_tmp));
         }
+
+        // // TODO: refactor this into a function, it is being used a few times
+        // llvm::Type *target_type = llvm_tmp->getType();
+        // // Create alloca to get a pointer, but do it
+        // // at the beginning of the function to avoid
+        // // using alloca inside a loop, which would
+        // // run out of stack
+        // llvm::BasicBlock &entry_block = builder->GetInsertBlock()->getParent()->getEntryBlock();
+        // llvm::IRBuilder<> builder0(context);
+        // builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
+        // llvm::AllocaInst *target = builder0.CreateAlloca(
+        //     target_type, nullptr, "call_arg_value_ptr");
+        // builder->CreateStore(llvm_tmp, target);
+        // llvm_tmp = target;
         return llvm_tmp;
     }
 
@@ -2622,9 +2657,14 @@ public:
 
     void visit_CPtrToPointer(const ASR::CPtrToPointer_t& x) {
         ASR::expr_t *cptr = x.m_cptr, *fptr = x.m_ptr, *shape = x.m_shape;
+        int reduce_loads = 0;
+        if( ASR::is_a<ASR::Var_t>(*cptr) ) {
+            ASR::Variable_t* cptr_var = ASRUtils::EXPR2VAR(cptr);
+            reduce_loads = cptr_var->m_intent == ASRUtils::intent_in;
+        }
         if( ASRUtils::is_array(ASRUtils::expr_type(fptr)) ) {
             uint64_t ptr_loads_copy = ptr_loads;
-            ptr_loads = 1;
+            ptr_loads = 1 - reduce_loads;
             this->visit_expr(*cptr);
             llvm::Value* llvm_cptr = tmp;
             ptr_loads = 0;
@@ -2674,7 +2714,7 @@ public:
             }
         } else {
             uint64_t ptr_loads_copy = ptr_loads;
-            ptr_loads = 1;
+            ptr_loads = 1 - reduce_loads;
             this->visit_expr(*cptr);
             llvm::Value* llvm_cptr = tmp;
             ptr_loads = 0;
@@ -3072,7 +3112,7 @@ public:
         start_new_block(target);
     }
 
-    void visit_BoolOp(const ASR::BoolOp_t &x) {
+    void visit_LogicalBinOp(const ASR::LogicalBinOp_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
             return;
@@ -3081,31 +3121,28 @@ public:
         llvm::Value *left_val = tmp;
         this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
-        if (x.m_type->type == ASR::ttypeType::Logical) {
-            switch (x.m_op) {
-                case ASR::boolopType::And: {
-                    tmp = builder->CreateAnd(left_val, right_val);
-                    break;
-                };
-                case ASR::boolopType::Or: {
-                    tmp = builder->CreateOr(left_val, right_val);
-                    break;
-                };
-                case ASR::boolopType::Xor: {
-                    tmp = builder->CreateXor(left_val, right_val);
-                    break;
-                };
-                case ASR::boolopType::NEqv: {
-                    tmp = builder->CreateXor(left_val, right_val);
-                    break;
-                };
-                case ASR::boolopType::Eqv: {
-                    tmp = builder->CreateXor(left_val, right_val);
-                    tmp = builder->CreateNot(tmp);
-                };
-            }
-        } else {
-            throw CodeGenError("Boolop: Only Logical types can be used with logical operators.");
+        LFORTRAN_ASSERT(ASRUtils::is_logical(*x.m_type))
+        switch (x.m_op) {
+            case ASR::logicalbinopType::And: {
+                tmp = builder->CreateAnd(left_val, right_val);
+                break;
+            };
+            case ASR::logicalbinopType::Or: {
+                tmp = builder->CreateOr(left_val, right_val);
+                break;
+            };
+            case ASR::logicalbinopType::Xor: {
+                tmp = builder->CreateXor(left_val, right_val);
+                break;
+            };
+            case ASR::logicalbinopType::NEqv: {
+                tmp = builder->CreateXor(left_val, right_val);
+                break;
+            };
+            case ASR::logicalbinopType::Eqv: {
+                tmp = builder->CreateXor(left_val, right_val);
+                tmp = builder->CreateNot(tmp);
+            };
         }
     }
 
@@ -3170,12 +3207,7 @@ public:
         tmp = lfortran_str_copy(str, left, right);
     }
 
-
-    void visit_BinOp(const ASR::BinOp_t &x) {
-        if( x.m_overloaded ) {
-            this->visit_expr(*x.m_overloaded);
-            return ;
-        }
+    void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
             return;
@@ -3184,142 +3216,165 @@ public:
         llvm::Value *left_val = tmp;
         this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
-        if (ASRUtils::is_integer(*x.m_type)) {
-            switch (x.m_op) {
-                case ASR::binopType::Add: {
-                    tmp = builder->CreateAdd(left_val, right_val);
-                    break;
-                };
-                case ASR::binopType::Sub: {
-                    tmp = builder->CreateSub(left_val, right_val);
-                    break;
-                };
-                case ASR::binopType::Mul: {
-                    tmp = builder->CreateMul(left_val, right_val);
-                    break;
-                };
-                case ASR::binopType::Div: {
-                    tmp = builder->CreateUDiv(left_val, right_val);
-                    break;
-                };
-                case ASR::binopType::Pow: {
-                    llvm::Type *type;
-                    int a_kind;
-                    a_kind = down_cast<ASR::Integer_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
-                    type = getFPType(a_kind);
-                    llvm::Value *fleft = builder->CreateSIToFP(left_val,
-                            type);
-                    llvm::Value *fright = builder->CreateSIToFP(right_val,
-                            type);
-                    std::string func_name = a_kind == 4 ? "llvm.pow.f32" : "llvm.pow.f64";
-                    llvm::Function *fn_pow = module->getFunction(func_name);
-                    if (!fn_pow) {
-                        llvm::FunctionType *function_type = llvm::FunctionType::get(
-                                type, { type, type}, false);
-                        fn_pow = llvm::Function::Create(function_type,
-                                llvm::Function::ExternalLinkage, func_name,
-                                module.get());
-                    }
-                    tmp = builder->CreateCall(fn_pow, {fleft, fright});
-                    type = getIntType(a_kind);
-                    tmp = builder->CreateFPToSI(tmp, type);
-                    break;
-                };
-            }
-        } else if (ASRUtils::is_real(*x.m_type)) {
-            switch (x.m_op) {
-                case ASR::binopType::Add: {
-                    tmp = builder->CreateFAdd(left_val, right_val);
-                    break;
-                };
-                case ASR::binopType::Sub: {
-                    tmp = builder->CreateFSub(left_val, right_val);
-                    break;
-                };
-                case ASR::binopType::Mul: {
-                    tmp = builder->CreateFMul(left_val, right_val);
-                    break;
-                };
-                case ASR::binopType::Div: {
-                    tmp = builder->CreateFDiv(left_val, right_val);
-                    break;
-                };
-                case ASR::binopType::Pow: {
-                    llvm::Type *type;
-                    int a_kind;
-                    a_kind = down_cast<ASR::Real_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
-                    type = getFPType(a_kind);
-                    std::string func_name = a_kind == 4 ? "llvm.pow.f32" : "llvm.pow.f64";
-                    llvm::Function *fn_pow = module->getFunction(func_name);
-                    if (!fn_pow) {
-                        llvm::FunctionType *function_type = llvm::FunctionType::get(
-                                type, { type, type }, false);
-                        fn_pow = llvm::Function::Create(function_type,
-                                llvm::Function::ExternalLinkage, func_name,
-                                module.get());
-                    }
-                    tmp = builder->CreateCall(fn_pow, {left_val, right_val});
-                    break;
-                };
-            }
-        } else if (ASRUtils::is_complex(*x.m_type)) {
-            llvm::Type *type;
-            int a_kind;
-            a_kind = down_cast<ASR::Complex_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
-            type = getComplexType(a_kind);
-            if( left_val->getType()->isPointerTy() ) {
-                left_val = CreateLoad(left_val);
-            }
-            if( right_val->getType()->isPointerTy() ) {
-                right_val = CreateLoad(right_val);
-            }
-            std::string fn_name;
-            switch (x.m_op) {
-                case ASR::binopType::Add: {
-                    if (a_kind == 4) {
-                        fn_name = "_lfortran_complex_add_32";
-                    } else {
-                        fn_name = "_lfortran_complex_add_64";
-                    }
-                    break;
-                };
-                case ASR::binopType::Sub: {
-                    if (a_kind == 4) {
-                        fn_name = "_lfortran_complex_sub_32";
-                    } else {
-                        fn_name = "_lfortran_complex_sub_64";
-                    }
-                    break;
-                };
-                case ASR::binopType::Mul: {
-                    if (a_kind == 4) {
-                        fn_name = "_lfortran_complex_mul_32";
-                    } else {
-                        fn_name = "_lfortran_complex_mul_64";
-                    }
-                    break;
-                };
-                case ASR::binopType::Div: {
-                    if (a_kind == 4) {
-                        fn_name = "_lfortran_complex_div_32";
-                    } else {
-                        fn_name = "_lfortran_complex_div_64";
-                    }
-                    break;
-                };
-                case ASR::binopType::Pow: {
-                    if (a_kind == 4) {
-                        fn_name = "_lfortran_complex_pow_32";
-                    } else {
-                        fn_name = "_lfortran_complex_pow_64";
-                    }
-                    break;
-                };
-            }
-            tmp = lfortran_complex_bin_op(left_val, right_val, fn_name, type);
-        } else {
-            throw CodeGenError("Binop: Only Real, Integer and Complex types are allowed");
+        LFORTRAN_ASSERT(ASRUtils::is_integer(*x.m_type))
+        switch (x.m_op) {
+            case ASR::binopType::Add: {
+                tmp = builder->CreateAdd(left_val, right_val);
+                break;
+            };
+            case ASR::binopType::Sub: {
+                tmp = builder->CreateSub(left_val, right_val);
+                break;
+            };
+            case ASR::binopType::Mul: {
+                tmp = builder->CreateMul(left_val, right_val);
+                break;
+            };
+            case ASR::binopType::Div: {
+                tmp = builder->CreateUDiv(left_val, right_val);
+                break;
+            };
+            case ASR::binopType::Pow: {
+                llvm::Type *type;
+                int a_kind;
+                a_kind = down_cast<ASR::Integer_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
+                type = getFPType(a_kind);
+                llvm::Value *fleft = builder->CreateSIToFP(left_val,
+                        type);
+                llvm::Value *fright = builder->CreateSIToFP(right_val,
+                        type);
+                std::string func_name = a_kind == 4 ? "llvm.pow.f32" : "llvm.pow.f64";
+                llvm::Function *fn_pow = module->getFunction(func_name);
+                if (!fn_pow) {
+                    llvm::FunctionType *function_type = llvm::FunctionType::get(
+                            type, { type, type}, false);
+                    fn_pow = llvm::Function::Create(function_type,
+                            llvm::Function::ExternalLinkage, func_name,
+                            module.get());
+                }
+                tmp = builder->CreateCall(fn_pow, {fleft, fright});
+                type = getIntType(a_kind);
+                tmp = builder->CreateFPToSI(tmp, type);
+                break;
+            };
         }
+    }
+
+    void visit_RealBinOp(const ASR::RealBinOp_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_left, true);
+        llvm::Value *left_val = tmp;
+        this->visit_expr_wrapper(x.m_right, true);
+        llvm::Value *right_val = tmp;
+        LFORTRAN_ASSERT(ASRUtils::is_real(*x.m_type))
+        switch (x.m_op) {
+            case ASR::binopType::Add: {
+                tmp = builder->CreateFAdd(left_val, right_val);
+                break;
+            };
+            case ASR::binopType::Sub: {
+                tmp = builder->CreateFSub(left_val, right_val);
+                break;
+            };
+            case ASR::binopType::Mul: {
+                tmp = builder->CreateFMul(left_val, right_val);
+                break;
+            };
+            case ASR::binopType::Div: {
+                tmp = builder->CreateFDiv(left_val, right_val);
+                break;
+            };
+            case ASR::binopType::Pow: {
+                llvm::Type *type;
+                int a_kind;
+                a_kind = down_cast<ASR::Real_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
+                type = getFPType(a_kind);
+                std::string func_name = a_kind == 4 ? "llvm.pow.f32" : "llvm.pow.f64";
+                llvm::Function *fn_pow = module->getFunction(func_name);
+                if (!fn_pow) {
+                    llvm::FunctionType *function_type = llvm::FunctionType::get(
+                            type, { type, type }, false);
+                    fn_pow = llvm::Function::Create(function_type,
+                            llvm::Function::ExternalLinkage, func_name,
+                            module.get());
+                }
+                tmp = builder->CreateCall(fn_pow, {left_val, right_val});
+                break;
+            };
+        }
+    }
+
+    void visit_ComplexBinOp(const ASR::ComplexBinOp_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_left, true);
+        llvm::Value *left_val = tmp;
+        this->visit_expr_wrapper(x.m_right, true);
+        llvm::Value *right_val = tmp;
+        LFORTRAN_ASSERT(ASRUtils::is_complex(*x.m_type));
+        llvm::Type *type;
+        int a_kind;
+        a_kind = down_cast<ASR::Complex_t>(ASRUtils::type_get_past_pointer(x.m_type))->m_kind;
+        type = getComplexType(a_kind);
+        if( left_val->getType()->isPointerTy() ) {
+            left_val = CreateLoad(left_val);
+        }
+        if( right_val->getType()->isPointerTy() ) {
+            right_val = CreateLoad(right_val);
+        }
+        std::string fn_name;
+        switch (x.m_op) {
+            case ASR::binopType::Add: {
+                if (a_kind == 4) {
+                    fn_name = "_lfortran_complex_add_32";
+                } else {
+                    fn_name = "_lfortran_complex_add_64";
+                }
+                break;
+            };
+            case ASR::binopType::Sub: {
+                if (a_kind == 4) {
+                    fn_name = "_lfortran_complex_sub_32";
+                } else {
+                    fn_name = "_lfortran_complex_sub_64";
+                }
+                break;
+            };
+            case ASR::binopType::Mul: {
+                if (a_kind == 4) {
+                    fn_name = "_lfortran_complex_mul_32";
+                } else {
+                    fn_name = "_lfortran_complex_mul_64";
+                }
+                break;
+            };
+            case ASR::binopType::Div: {
+                if (a_kind == 4) {
+                    fn_name = "_lfortran_complex_div_32";
+                } else {
+                    fn_name = "_lfortran_complex_div_64";
+                }
+                break;
+            };
+            case ASR::binopType::Pow: {
+                if (a_kind == 4) {
+                    fn_name = "_lfortran_complex_pow_32";
+                } else {
+                    fn_name = "_lfortran_complex_pow_64";
+                }
+                break;
+            };
+        }
+        tmp = lfortran_complex_bin_op(left_val, right_val, fn_name, type);
+    }
+
+    void visit_OverloadedBinOp(const ASR::OverloadedBinOp_t &x) {
+        this->visit_expr(*x.m_overloaded);
     }
 
     void visit_IntegerBitNot(const ASR::IntegerBitNot_t &x) {
@@ -3638,7 +3693,11 @@ public:
         if( arr_descr->is_array(x_v) ) {
             tmp = x_v;
         } else {
-            tmp = CreateLoad(x_v);
+            tmp = x_v;
+            // Load only once since its a value
+            if( ptr_loads > 0 ) {
+                tmp = CreateLoad(tmp);
+            }
         }
     }
 
@@ -3653,13 +3712,17 @@ public:
                 switch (t2->type) {
                     case ASR::ttypeType::Integer:
                     case ASR::ttypeType::Real:
-                    case ASR::ttypeType::Complex: {
+                    case ASR::ttypeType::Complex:
+                    case ASR::ttypeType::Derived: {
+                        if( t2->type == ASR::ttypeType::Derived ) {
+                            ASR::Derived_t* d = ASR::down_cast<ASR::Derived_t>(t2);
+                            der_type_name = ASRUtils::symbol_name(d->m_derived_type);
+                        }
                         fetch_ptr(x);
                         break;
                     }
                     case ASR::ttypeType::Character:
-                    case ASR::ttypeType::Logical:
-                    case ASR::ttypeType::Derived: {
+                    case ASR::ttypeType::Logical: {
                         break;
                     }
                     default:
@@ -4044,7 +4107,16 @@ public:
         std::vector<std::string> fmt;
         for (size_t i=0; i<x.n_values; i++) {
             uint64_t ptr_loads_copy = ptr_loads;
-            ptr_loads = 1;
+            int reduce_loads = 0;
+            ptr_loads = 2;
+            if( ASR::is_a<ASR::Var_t>(*x.m_values[i]) ) {
+                ASR::Variable_t* var = ASRUtils::EXPR2VAR(x.m_values[i]);
+                reduce_loads = var->m_intent == ASRUtils::intent_in;
+                if( ASR::is_a<ASR::Pointer_t>(*var->m_type) ) {
+                    ptr_loads = 1;
+                }
+            }
+            ptr_loads = ptr_loads - reduce_loads;
             this->visit_expr_wrapper(x.m_values[i], true);
             ptr_loads = ptr_loads_copy;
             ASR::expr_t *v = x.m_values[i];
@@ -4149,6 +4221,10 @@ public:
                 args.push_back(d);
                 d = builder->CreateFPExt(complex_im(tmp, complex_type), type);
                 args.push_back(d);
+            } else if (t->type == ASR::ttypeType::CPtr) {
+                fmt.push_back("%lld");
+                llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
+                args.push_back(d);
             } else {
                 throw LFortranException("Printing support is available only for integer, real,"
                     " character, and complex types, got type " +
@@ -4195,11 +4271,13 @@ public:
     template <typename T>
     inline void set_func_subrout_params(T* func_subrout, ASR::abiType& x_abi,
                                         std::uint32_t& m_h, ASR::Variable_t*& orig_arg,
-                                        std::string& orig_arg_name, size_t arg_idx) {
+                                        std::string& orig_arg_name, ASR::intentType& arg_intent,
+                                        size_t arg_idx) {
         m_h = get_hash((ASR::asr_t*)func_subrout);
         orig_arg = EXPR2VAR(func_subrout->m_args[arg_idx]);
         orig_arg_name = orig_arg->m_name;
         x_abi = func_subrout->m_abi;
+        arg_intent = orig_arg->m_intent;
     }
 
 
@@ -4215,6 +4293,7 @@ public:
             ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
             x_abi = sub->m_abi;
         }
+        // TODO: Below if check is dead. Remove.
         if( x_abi == ASR::abiType::Intrinsic ) {
             if( name == "lbound" || name == "ubound" ) {
                 ASR::Variable_t *arg = EXPR2VAR(x.m_args[0].m_value);
@@ -4243,23 +4322,24 @@ public:
                             tmp = llvm_symtab[h];
                             func_subrout = symbol_get_past_external(x.m_name);
                             x_abi = (ASR::abiType) 0;
+                            ASR::intentType orig_arg_intent = ASR::intentType::Unspecified;
                             std::uint32_t m_h;
                             ASR::Variable_t *orig_arg = nullptr;
                             std::string orig_arg_name = "";
                             if( func_subrout->type == ASR::symbolType::Function ) {
                                 ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
-                                set_func_subrout_params(func, x_abi, m_h, orig_arg, orig_arg_name, i);
+                                set_func_subrout_params(func, x_abi, m_h, orig_arg, orig_arg_name, orig_arg_intent, i);
                             } else if( func_subrout->type == ASR::symbolType::Subroutine ) {
                                 ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
-                                set_func_subrout_params(sub, x_abi, m_h, orig_arg, orig_arg_name, i);
+                                set_func_subrout_params(sub, x_abi, m_h, orig_arg, orig_arg_name, orig_arg_intent, i);
                             } else if( func_subrout->type == ASR::symbolType::ClassProcedure ) {
                                 ASR::ClassProcedure_t* clss_proc = ASR::down_cast<ASR::ClassProcedure_t>(func_subrout);
                                 if( clss_proc->m_proc->type == ASR::symbolType::Subroutine ) {
                                     ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(clss_proc->m_proc);
-                                    set_func_subrout_params(sub, x_abi, m_h, orig_arg, orig_arg_name, i);
+                                    set_func_subrout_params(sub, x_abi, m_h, orig_arg, orig_arg_name, orig_arg_intent, i);
                                 } else if( clss_proc->m_proc->type == ASR::symbolType::Function ) {
                                     ASR::Function_t* func = down_cast<ASR::Function_t>(clss_proc->m_proc);
-                                    set_func_subrout_params(func, x_abi, m_h, orig_arg, orig_arg_name, i);
+                                    set_func_subrout_params(func, x_abi, m_h, orig_arg, orig_arg_name, orig_arg_intent, i);
                                 }
                             } else {
                                 LFORTRAN_ASSERT(false)
@@ -4316,7 +4396,12 @@ public:
                                                     }
                                                 }
                                             } else if (is_a<ASR::CPtr_t>(*arg_type)) {
-                                                // pass
+                                                if (arg->m_intent == intent_local) {
+                                                    // Local variable of type
+                                                    // CPtr is a void**, so we
+                                                    // have to load it
+                                                    tmp = CreateLoad(tmp);
+                                                }
                                             } else {
                                                 if (!arg->m_value_attr) {
                                                     // Dereference the pointer argument (unless it is a CPtr)

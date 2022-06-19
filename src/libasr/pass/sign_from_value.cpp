@@ -80,13 +80,26 @@ public:
         return arg1;
     }
 
-    void visit_BinOp(const ASR::BinOp_t& x_const) {
+    void visit_IntegerBinOp(const ASR::IntegerBinOp_t& x) {
+        handle_BinOp(x);
+    }
+
+    void visit_RealBinOp(const ASR::RealBinOp_t& x) {
+        handle_BinOp(x);
+    }
+
+    void visit_ComplexBinOp(const ASR::ComplexBinOp_t& x) {
+        handle_BinOp(x);
+    }
+
+    template <typename T>
+    void handle_BinOp(const T& x_const) {
         if( !from_sign_from_value ) {
             return ;
         }
 
         from_sign_from_value = true;
-        ASR::BinOp_t& x = const_cast<ASR::BinOp_t&>(x_const);
+        T& x = const_cast<T&>(x_const);
 
         sign_from_value_var = nullptr;
         visit_expr(*x.m_left);

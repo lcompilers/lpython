@@ -356,8 +356,11 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
 
             // Tokens
             newline {
+                if(cur[0] == '#') { RET(TK_NEWLINE); }
                 if(parenlevel) { continue; }
-                if (last_token == yytokentype::TK_COLON) {
+                if (last_token == yytokentype::TK_COLON
+                        || colon_actual_last_token) {
+                    colon_actual_last_token = false;
                     indent = true;
                 } else if (cur[0] != ' ' && cur[0] != '\n'
                         && last_indent_length > cur-tok) {
@@ -379,7 +382,12 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "+" { RET(TK_PLUS) }
             "-" { RET(TK_MINUS) }
             "=" { RET(TK_EQUAL) }
-            ":" { RET(TK_COLON) }
+            ":" { 
+                    if(cur[0] == '\n'){
+                        colon_actual_last_token = true; 
+                    }
+                    RET(TK_COLON);
+                }
             ";" { RET(TK_SEMICOLON) }
             "/" { RET(TK_SLASH) }
             "%" { RET(TK_PERCENT) }
@@ -449,7 +457,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 RET(TK_IMAG_NUM)
             }
 
-            comment newline {
+            comment {
+                if(last_token == -1) { RET(TK_COMMENT); }
                 if(parenlevel) { continue; }
                 line_num++; cur_line=cur;
                 token(yylval.string);

@@ -290,8 +290,9 @@ statements1
     ;
 
 statement
-    : single_line_statement sep
+    : single_line_statement sep { $$ = $1; }
     | multi_line_statement
+    | multi_line_statement sep { $$ = $1; }
     ;
 
 single_line_statement

@@ -1,11 +1,10 @@
-#include <assert.h>
 #include <complex.h>
 #include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
-#include <stdbool.h>
 
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
 #include <lfortran_intrinsics.h>
 
 #define ASSERT(cond)                                                           \
