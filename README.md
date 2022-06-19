@@ -73,12 +73,7 @@ ctest
 ./run_tests.py
 ```
 
-Also, run the integration tests:
-
-```bash
-cd integration_tests
-./run_tests.sh
-```
+That command also runs the integration tests.
 
 ## Examples
 
