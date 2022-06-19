@@ -19,3 +19,5 @@ def test_binop():
     b2 = False
     x = b1//b1
     x = b1**b2
+
+test_binop()
