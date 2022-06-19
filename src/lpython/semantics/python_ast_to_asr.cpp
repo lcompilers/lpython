@@ -9,6 +9,8 @@
 #include <complex>
 #include <sstream>
 #include <iterator>
+#include <cstdlib>
+
 
 #include <libasr/asr.h>
 #include <libasr/asr_utils.h>
@@ -96,7 +98,13 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     Result<std::string> rinfile = get_full_path(infile0, rl_path, ltypes,
         numpy);
     if (!rinfile.ok) {
-        err("Could not find the module '" + infile0 + "'", loc);
+        if (getenv("LPYTHON_PY_MOD_PATH") != NULL) {
+            rinfile = get_full_path(infile0, getenv("LPYTHON_PY_MOD_PATH"), ltypes,
+                numpy);
+        }
+        if (!rinfile.ok) {
+            err("Could not find the module '" + infile0 + "'", loc);
+        }
     }
     if (ltypes) return nullptr;
     if (numpy) return nullptr;
