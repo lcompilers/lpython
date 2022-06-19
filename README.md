@@ -100,6 +100,7 @@ You can run the following examples by hand in a terminal:
 ./src/bin/lpython --show-asr examples/expr2.py
 ./src/bin/lpython --show-cpp examples/expr2.py
 ./src/bin/lpython --show-llvm examples/expr2.py
+./src/bin/lpython --show-c examples/expr2.py
 ```
 
 ## Contributing
