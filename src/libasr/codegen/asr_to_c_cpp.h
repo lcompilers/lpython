@@ -657,9 +657,9 @@ R"(#include <stdio.h>
             case (ASR::cast_kindType::RealToComplex) : {
                 if (is_c) {
                     headers.insert("complex");
-                    src = "complex(" + src + ")";
+                    src = "CMPLX(" + src + ", 0.0)";
                 } else {
-                    src = "std::complex(" + src + ")";
+                    src = "std::complex<double>(" + src + ")";
                 }
                 break;
             }
