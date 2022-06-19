@@ -27,16 +27,3 @@ void test_ifexp()
     c = (b > 5) ? (true) : (false);
 }
 
-namespace {
-
-void main2() {
-}
-
-}
-int main(int argc, char* argv[])
-{
-    Kokkos::initialize(argc, argv);
-    main2();
-    Kokkos::finalize();
-    return 0;
-}

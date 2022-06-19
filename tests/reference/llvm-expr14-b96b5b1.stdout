@@ -44,8 +44,3 @@ define void @test_boolean_comparison() {
 return:                                           ; preds = %.entry
   ret void
 }
-
-define i32 @main() {
-.entry:
-  ret i32 0
-}

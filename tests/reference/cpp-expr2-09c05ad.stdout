@@ -31,16 +31,3 @@ void test_boolOp()
     a = b || b;
 }
 
-namespace {
-
-void main2() {
-}
-
-}
-int main(int argc, char* argv[])
-{
-    Kokkos::initialize(argc, argv);
-    main2();
-    Kokkos::finalize();
-    return 0;
-}

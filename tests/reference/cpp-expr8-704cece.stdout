@@ -17,6 +17,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+void _lpython_main_program()
+{
+    test_binop();
+}
+
 void test_binop()
 {
     bool b1;
@@ -61,6 +66,7 @@ double _lfortran_zaimag(std::complex<double> x);
 namespace {
 
 void main2() {
+    _lpython_main_program();
 }
 
 }
