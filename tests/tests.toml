@@ -273,6 +273,10 @@ filename = "../integration_tests/test_max_min.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/expr_05.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/test_integer_bitnot.py"
 asr = true
 llvm = true
