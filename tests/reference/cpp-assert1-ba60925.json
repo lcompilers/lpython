@@ -7,7 +7,7 @@
     "outfile_hash": null,
     "stdout": "cpp-assert1-ba60925.stdout",
     "stdout_hash": "deebff9d0d668e2cecde897f25f7d8b3bb388238ed5a404dd57c9eae",
-    "stderr": null,
-    "stderr_hash": null,
+    "stderr": "cpp-assert1-ba60925.stderr",
+    "stderr_hash": "8345045bf4dfc55c7bdd6dd039c12e48f03d1d91f414e434635dbdf1",
     "returncode": 0
 }
