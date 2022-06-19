@@ -83,6 +83,15 @@ set(WITH_RUNTIME_LIBRARY YES
 set(WITH_INTRINSIC_MODULES no
     CACHE BOOL "Compile intrinsic modules to .pyc (ASR) at build time")
 
+# Build to wasm
+set(LPYTHON_BUILD_TO_WASM no
+    CACHE BOOL "Compile LPython To WASM")
+
+if (LPYTHON_BUILD_TO_WASM)
+    set(HAVE_BUILD_TO_WASM yes)
+    add_definitions("-DHAVE_BUILD_TO_WASM=1")
+endif()
+
 # Find ZLIB with our custom finder before including LLVM since the finder for LLVM
 # might search for ZLIB again and find the shared libraries instead of the static ones
 find_package(StaticZLIB REQUIRED)
@@ -257,6 +266,7 @@ endif ()
 message("Installation prefix: ${CMAKE_INSTALL_PREFIX}")
 message("WITH_LFORTRAN_ASSERT: ${WITH_LFORTRAN_ASSERT}")
 message("LPYTHON_STATIC_BIN: ${LPYTHON_STATIC_BIN}")
+message("LPYTHON_BUILD_TO_WASM: ${LPYTHON_BUILD_TO_WASM}")
 message("WITH_STACKTRACE: ${WITH_STACKTRACE}")
 message("WITH_UNWIND: ${WITH_UNWIND}")
 message("WITH_BFD: ${WITH_BFD}")
