@@ -3259,7 +3259,8 @@ public:
                 break;
             };
             default: {
-                throw CodeGenError("Binary operation not supported yet", x.base.base.loc);
+                throw CodeGenError("Binary operator '" + ASRUtils::binop_to_str(x.m_op) + "' not supported yet",
+                    x.base.base.loc);
             }
         }
     }
@@ -3309,7 +3310,8 @@ public:
                 break;
             };
             default: {
-                throw CodeGenError("Binary operation not supported yet", x.base.base.loc);
+                throw CodeGenError("Binary operator '" + ASRUtils::binop_to_str(x.m_op) + "' not supported yet",
+                    x.base.base.loc);
             }
         }
     }
@@ -3377,7 +3379,8 @@ public:
                 break;
             };
             default: {
-                throw CodeGenError("Binary operation not supported yet", x.base.base.loc);
+                throw CodeGenError("Binary operator '" + ASRUtils::binop_to_str(x.m_op) + "' not supported yet",
+                    x.base.base.loc);
             }
         }
         tmp = lfortran_complex_bin_op(left_val, right_val, fn_name, type);
