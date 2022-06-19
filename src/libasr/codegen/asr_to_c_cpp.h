@@ -654,6 +654,15 @@ R"(#include <stdio.h>
                 }
                 break;
             }
+            case (ASR::cast_kindType::RealToComplex) : {
+                if (is_c) {
+                    headers.insert("complex");
+                    src = "complex(" + src + ")";
+                } else {
+                    src = "std::complex(" + src + ")";
+                }
+                break;
+            }
             case (ASR::cast_kindType::LogicalToInteger) : {
                 src = "(int)(" + src + ")";
                 break;
