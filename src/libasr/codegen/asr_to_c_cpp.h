@@ -658,7 +658,8 @@ R"(#include <stdio.h>
                 src = "(int)(" + src + ")";
                 break;
             }
-            default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented");
+            default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented",
+                x.base.base.loc);
         }
         last_expr_precedence = 2;
     }
