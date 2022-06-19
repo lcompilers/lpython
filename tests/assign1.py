@@ -11,3 +11,5 @@ def test_augassign():
     a: str
     a = ""
     a += "test"
+
+test_augassign()

@@ -2,12 +2,12 @@
     "basename": "llvm-assert1-8df4f31",
     "cmd": "lpython --no-color --show-llvm {infile} -o {outfile}",
     "infile": "tests/assert1.py",
-    "infile_hash": "0ff84ea5ccd3d0815cbb66e1c3d3acd61dee7257c98aa1a27ceeef3b",
+    "infile_hash": "c1f94f11ca0587087af8fcaa94ac7586df4ae3d33bfdf8cc7da7ca3e",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-assert1-8df4f31.stdout",
-    "stdout_hash": "35a6227d4dd2640d59bd12d1f4678a3e34147d5f0e331147b46df754",
-    "stderr": "llvm-assert1-8df4f31.stderr",
-    "stderr_hash": "8345045bf4dfc55c7bdd6dd039c12e48f03d1d91f414e434635dbdf1",
+    "stdout_hash": "724347182039e93875ccf7c10b021b2828b1cd66732d55802b992fb6",
+    "stderr": null,
+    "stderr_hash": null,
     "returncode": 0
 }

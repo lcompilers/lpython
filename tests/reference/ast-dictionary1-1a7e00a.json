@@ -2,11 +2,11 @@
     "basename": "ast-dictionary1-1a7e00a",
     "cmd": "lpython --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/dictionary1.py",
-    "infile_hash": "31b7838c2cd2a67e4888ffa04070333904025cda07487029698c6183",
+    "infile_hash": "e99f0182734199529f9131bd28c47b1b0a7b54c18678bdff36afc204",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-dictionary1-1a7e00a.stdout",
-    "stdout_hash": "5785b52e8edbcfe38a6b15c576f6796561b2d328567eaaa20fa1ab9a",
+    "stdout_hash": "565e1f8cdd644a33301dd21bee3e7e3cb326a22b1e6d664fe1405b75",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

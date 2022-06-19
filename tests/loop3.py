@@ -3,3 +3,5 @@ def test_pass():
     a = 1
     while a > 0:
         pass
+
+test_pass()

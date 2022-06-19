@@ -2,12 +2,12 @@
     "basename": "cpp-expr6-f337f4f",
     "cmd": "lpython --no-color --show-cpp {infile}",
     "infile": "tests/expr6.py",
-    "infile_hash": "1f3b5a7d997851264e679d58353346835eb450c608f6da7d2f5e5cd2",
+    "infile_hash": "2afb4a3284c01ecaa71408f080c13a076d8fde1b2509be6c406d22dc",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "cpp-expr6-f337f4f.stdout",
-    "stdout_hash": "ae929ff37711f8e9616804ea28127505700028e9663def9d10989645",
-    "stderr": "cpp-expr6-f337f4f.stderr",
-    "stderr_hash": "8345045bf4dfc55c7bdd6dd039c12e48f03d1d91f414e434635dbdf1",
+    "stdout_hash": "400bd04ac7228045d21a0e51a4512b7ab3e378a83df1276d1876d1e4",
+    "stderr": null,
+    "stderr_hash": null,
     "returncode": 0
 }

@@ -29,6 +29,7 @@
     }
 
 // Forward declarations
+void _lpython_main_program();
 double f(double x);
 void g(double a, float b, int64_t c, int32_t d);
 double h(double x);
@@ -36,6 +37,11 @@ void l(double a, float b, int64_t c, int32_t d);
 void main0();
 
 // Implementations
+void _lpython_main_program()
+{
+    main0();
+}
+
 double h(double x)
 {
     double _lpython_return_variable;
@@ -65,3 +71,8 @@ void main0()
     l(x, y, z, zz);
 }
 
+int main(int argc, char* argv[])
+{
+    _lpython_main_program();
+    return 0;
+}

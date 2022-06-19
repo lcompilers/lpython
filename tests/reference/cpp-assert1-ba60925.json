@@ -2,12 +2,12 @@
     "basename": "cpp-assert1-ba60925",
     "cmd": "lpython --no-color --show-cpp {infile}",
     "infile": "tests/assert1.py",
-    "infile_hash": "0ff84ea5ccd3d0815cbb66e1c3d3acd61dee7257c98aa1a27ceeef3b",
+    "infile_hash": "c1f94f11ca0587087af8fcaa94ac7586df4ae3d33bfdf8cc7da7ca3e",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "cpp-assert1-ba60925.stdout",
-    "stdout_hash": "deebff9d0d668e2cecde897f25f7d8b3bb388238ed5a404dd57c9eae",
-    "stderr": "cpp-assert1-ba60925.stderr",
-    "stderr_hash": "8345045bf4dfc55c7bdd6dd039c12e48f03d1d91f414e434635dbdf1",
+    "stdout_hash": "02e0a9374927a114bc25303f924442f0a50512a902c0967050135ddf",
+    "stderr": null,
+    "stderr_hash": null,
     "returncode": 0
 }

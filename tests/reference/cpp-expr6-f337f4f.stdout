@@ -17,6 +17,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+void _lpython_main_program()
+{
+    test_ifexp();
+}
+
 void test_ifexp()
 {
     int a;
@@ -27,3 +32,17 @@ void test_ifexp()
     c = (b > 5) ? (true) : (false);
 }
 
+namespace {
+
+void main2() {
+    _lpython_main_program();
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
+    Kokkos::finalize();
+    return 0;
+}

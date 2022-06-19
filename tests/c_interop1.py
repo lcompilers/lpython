@@ -30,3 +30,5 @@ def main0():
     g(x, y, z, zz)
     i = h(x)
     l(x, y, z, zz)
+
+main0()

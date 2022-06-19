@@ -4,3 +4,5 @@ def test_del():
     a = 4
     b = 20
     del a, b
+
+test_del()

@@ -1,4 +1,0 @@
-warning: The script is invoked as the main module but it does not have any main
-code to execute, so the `main` function is not generated. Consequently, if this
-is being linked into an executable, it will fail due to the missing `main`
-function.

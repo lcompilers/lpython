@@ -116,3 +116,5 @@ def test_divmod():
     a = divmod(3, 3)
     a = divmod(4, 5)
     a = divmod(0, 5)
+
+test_float()

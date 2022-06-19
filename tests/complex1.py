@@ -34,3 +34,6 @@ def test():
     z = x + y
     z = x - y
     z = 2 * x
+
+test_complex()
+test()

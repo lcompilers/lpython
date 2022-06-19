@@ -31,3 +31,5 @@ def test_dict_pop():
     y = {"a": 1, "b": 2}
     x: i32
     x = y.pop("a")
+
+test_dict_pop()

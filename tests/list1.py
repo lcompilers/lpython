@@ -25,3 +25,5 @@ def test_List():
     d = a.pop(2)
     a += [4, 5]
     a = [6, 7] + a
+
+test_List()

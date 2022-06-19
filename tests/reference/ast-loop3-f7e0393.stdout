@@ -1,1 +1,1 @@
-(Module [(FunctionDef test_pass ([] [] [] [] [] [] []) [(AnnAssign (Name a Store) (Name i32 Load) () 1) (Assign [(Name a Store)] (ConstantInt 1 ()) ()) (While (Compare (Name a Load) Gt [(ConstantInt 0 ())]) [(Pass)] [])] [] () ())] [])
+(Module [(FunctionDef test_pass ([] [] [] [] [] [] []) [(AnnAssign (Name a Store) (Name i32 Load) () 1) (Assign [(Name a Store)] (ConstantInt 1 ()) ()) (While (Compare (Name a Load) Gt [(ConstantInt 0 ())]) [(Pass)] [])] [] () ()) (Expr (Call (Name test_pass Load) [] []))] [])

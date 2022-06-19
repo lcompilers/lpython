@@ -13,3 +13,5 @@ def test_namedexpr():
     # check 3
     while a := 1:
         y = 1
+
+test_namedexpr()

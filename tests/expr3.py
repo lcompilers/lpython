@@ -11,3 +11,5 @@ def test_cast():
     b = 3/4
     if a < b:
         print("a < b")
+
+test_cast()

@@ -2,12 +2,12 @@
     "basename": "asr-expr2-2e78a12",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/expr2.py",
-    "infile_hash": "52d7d4d33553138f2cf55b9900047e5310c54d62e54b3ca1fa394024",
+    "infile_hash": "622f8d0f65e6bf5997bafb74e5ef88ef921466e41adceadbe3667ff7",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-expr2-2e78a12.stdout",
-    "stdout_hash": "62315d20601bad5154fb38d1582b09f03a717694216513fe37260c68",
-    "stderr": "asr-expr2-2e78a12.stderr",
-    "stderr_hash": "8345045bf4dfc55c7bdd6dd039c12e48f03d1d91f414e434635dbdf1",
+    "stdout_hash": "8c22501038101f20b7fb577ef092aa8de60a968ef81c07074626af09",
+    "stderr": null,
+    "stderr_hash": null,
     "returncode": 0
 }
