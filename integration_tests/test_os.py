@@ -3,7 +3,7 @@ from os import (open, read, close, O_RDONLY)
 
 def test():
     path: str 
-    path = "test_os.py"
+    path = "../test_os.py"
     fd: i64
     n: i64
     fd = open(path, O_RDONLY)
