@@ -3640,6 +3640,9 @@ std::string pickle_tree_python(AST::ast_t &ast, bool colors) {
 std::string get_parent_dir(const std::string &path) {
     int idx = path.size()-1;
     while (idx >= 0 && path[idx] != '/' && path[idx] != '\\') idx--;
+    if (idx == -1) {
+        return "";
+    }
     return path.substr(0,idx);
 }
 
