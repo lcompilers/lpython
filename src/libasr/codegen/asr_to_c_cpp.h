@@ -334,18 +334,6 @@ R"(#include <stdio.h>
             sub += ";\n";
         } else {
             sub += "\n";
-            if( to_lower(x.m_name) == "_lpython_main_program" ) {
-                for (auto &item : global_scope->get_scope()) {
-                    if (ASR::is_a<ASR::Variable_t>(*item.second)) {
-                        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                        if (v->m_intent == LFortran::ASRUtils::intent_local) {
-                            SymbolInfo s;
-                            s.needs_declaration = true;
-                            sym_info[get_hash((ASR::asr_t*)v)] = s;
-                        }
-                    }
-                }
-            }
             for (auto &item : x.m_symtab->get_scope()) {
                 if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
@@ -364,20 +352,6 @@ R"(#include <stdio.h>
             }
 
             std::string decl;
-            if( to_lower(x.m_name) == "_lpython_main_program" ) {
-                for (auto &item : global_scope->get_scope()) {
-                    if (ASR::is_a<ASR::Variable_t>(*item.second)) {
-                        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                        if (v->m_intent == LFortran::ASRUtils::intent_local) {
-                            if (sym_info[get_hash((ASR::asr_t*) v)].needs_declaration) {
-                                std::string indent(indentation_level*indentation_spaces, ' ');
-                                decl += indent;
-                                decl += self().convert_variable_decl(*v) + ";\n";
-                            }
-                        }
-                    }
-                }
-            }
             for (auto &item : x.m_symtab->get_scope()) {
                 if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
