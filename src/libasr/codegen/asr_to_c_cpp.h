@@ -38,6 +38,12 @@ namespace {
         CodeGenError(const std::string &msg)
             : d{diag::Diagnostic(msg, diag::Level::Error, diag::Stage::CodeGen)}
         { }
+
+        CodeGenError(const std::string &msg, const Location &loc)
+            : d{diag::Diagnostic(msg, diag::Level::Error, diag::Stage::CodeGen, {
+                diag::Label("", {loc})
+            })}
+        { }
     };
 
     class Abort {};
@@ -246,11 +252,12 @@ R"(#include <stdio.h>
         std::string sub;
         ASR::Variable_t *return_var = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
         if (ASRUtils::is_integer(*return_var->m_type)) {
-            bool is_int = ASR::down_cast<ASR::Integer_t>(return_var->m_type)->m_kind == 4;
-            if (is_int) {
-                sub = "int32_t ";
-            } else {
-                sub = "int64_t ";
+            int kind = ASR::down_cast<ASR::Integer_t>(return_var->m_type)->m_kind; 
+            switch (kind) {
+                case (1) : sub = "int8_t "; break;
+                case (2) : sub = "int16_t "; break;
+                case (4) : sub = "int32_t "; break;
+                case (8) : sub = "int64_t "; break;
             }
         } else if (ASRUtils::is_real(*return_var->m_type)) {
             bool is_float = ASR::down_cast<ASR::Real_t>(return_var->m_type)->m_kind == 4;
@@ -282,8 +289,12 @@ R"(#include <stdio.h>
                     sub = "double complex ";
                 }
             }
+        } else if (ASR::is_a<ASR::CPtr_t>(*return_var->m_type)) {
+            sub = "void* ";
         } else {
-            throw CodeGenError("Return type not supported");
+            throw CodeGenError("Return type not supported in function '" +
+                std::string(x.m_name) +
+                + "'", return_var->base.base.loc);
         }
         std::string sym_name = x.m_name;
         if (sym_name == "main") {
@@ -533,6 +544,9 @@ R"(#include <stdio.h>
         } else if (ASR::is_a<ASR::ArrayRef_t>(*x.m_target)) {
             visit_ArrayRef(*ASR::down_cast<ASR::ArrayRef_t>(x.m_target));
             target = src;
+        } else if (ASR::is_a<ASR::DerivedRef_t>(*x.m_target)) {
+            visit_DerivedRef(*ASR::down_cast<ASR::DerivedRef_t>(x.m_target));
+            target = src;
         } else {
             LFORTRAN_ASSERT(false)
         }
@@ -571,6 +585,14 @@ R"(#include <stdio.h>
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
         src = ASR::down_cast<ASR::Variable_t>(s)->m_name;
         last_expr_precedence = 2;
+    }
+
+    void visit_DerivedRef(const ASR::DerivedRef_t& x) {
+        std::string der_expr, member;
+        this->visit_expr(*x.m_v);
+        der_expr = std::move(src);
+        member = ASRUtils::symbol_name(x.m_m);
+        src = der_expr + "->" + member;
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t &x) {
@@ -634,11 +656,21 @@ R"(#include <stdio.h>
                 }
                 break;
             }
+            case (ASR::cast_kindType::RealToComplex) : {
+                if (is_c) {
+                    headers.insert("complex");
+                    src = "CMPLX(" + src + ", 0.0)";
+                } else {
+                    src = "std::complex<double>(" + src + ")";
+                }
+                break;
+            }
             case (ASR::cast_kindType::LogicalToInteger) : {
                 src = "(int)(" + src + ")";
                 break;
             }
-            default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented");
+            default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented",
+                x.base.base.loc);
         }
         last_expr_precedence = 2;
     }
@@ -731,6 +763,11 @@ R"(#include <stdio.h>
                 type_src = "void*";
                 break;
             }
+            case ASR::ttypeType::Derived: {
+                ASR::Derived_t* der_type = ASR::down_cast<ASR::Derived_t>(t);
+                type_src = std::string("struct ") + ASRUtils::symbol_name(der_type->m_derived_type);
+                break;
+            }
             default: {
                 throw CodeGenError("Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
             }
@@ -742,7 +779,8 @@ R"(#include <stdio.h>
         self().visit_expr(*x.m_arg);
         std::string arg_src = std::move(src);
         std::string addr_prefix = "&";
-        if( ASRUtils::is_array(ASRUtils::expr_type(x.m_arg)) ) {
+        if( ASRUtils::is_array(ASRUtils::expr_type(x.m_arg)) ||
+            ASR::is_a<ASR::Derived_t>(*ASRUtils::expr_type(x.m_arg)) ) {
             addr_prefix.clear();
         }
         src = addr_prefix + arg_src;

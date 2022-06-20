@@ -421,7 +421,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 Result<std::string> asr_to_cpp(Allocator &al, ASR::TranslationUnit_t &asr,
     diag::Diagnostics &diagnostics)
 {
-    pass_unused_functions(al, asr);
+    pass_unused_functions(al, asr, true);
     ASRToCPPVisitor v(diagnostics);
     try {
         v.visit_asr((ASR::asr_t &)asr);

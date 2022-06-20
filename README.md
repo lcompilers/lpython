@@ -73,12 +73,21 @@ ctest
 ./run_tests.py
 ```
 
-Also, run the integration tests:
+Run integration tests:
 
 ```bash
 cd integration_tests
 ./run_tests.sh
 ```
+
+### Speed up Integration Test on Macs
+
+Integration tests run slowly because Apple checks the hash of each
+executable online before running. You can turn off that feature
+in the Privacy tab of the Security and Privacy item of System
+Preferences, Developer Tools, Terminal.app, "allow the apps below
+to run software locally that does not meet the system's security
+policy."
 
 ## Examples
 
@@ -91,6 +100,7 @@ You can run the following examples by hand in a terminal:
 ./src/bin/lpython --show-asr examples/expr2.py
 ./src/bin/lpython --show-cpp examples/expr2.py
 ./src/bin/lpython --show-llvm examples/expr2.py
+./src/bin/lpython --show-c examples/expr2.py
 ```
 
 ## Contributing

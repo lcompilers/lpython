@@ -194,7 +194,7 @@ c = true
 # integration_tests
 
 [[test]]
-filename = "ltypes.py"
+filename = "ltypes1.py"
 llvm = true
 
 [[test]]
@@ -384,6 +384,10 @@ ast_new = true
 filename = "parser/while1.py"
 ast_new = true
 
+[[test]]
+filename = "parser/string1.py"
+ast_new = true
+
 # tests/errors
 
 [[test]]
@@ -532,6 +536,10 @@ asr = true
 
 [[test]]
 filename = "errors/test_func_args.py"
+asr = true
+
+[[test]]
+filename = "errors/test_str_to_int.py"
 asr = true
 
 # tests/tokens/errors

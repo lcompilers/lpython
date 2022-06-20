@@ -113,7 +113,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     // Convert the module from AST to ASR
     LFortran::LocationManager lm;
     lm.in_filename = infile;
-    Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast, diagnostics, false, false);
+    Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast, diagnostics, false, false, false);
     std::string input;
     read_file(infile, input);
     CompilerOptions compiler_options;
@@ -1395,6 +1395,36 @@ public:
         current_scope->add_symbol(std::string(x.m_name), class_type);
     }
 
+    void add_name(const Location &loc) {
+        std::string var_name = "__name__";
+        std::string var_value;
+        if (main_module) {
+            var_value = "__main__";
+        } else {
+            // TODO: put the actual module name here
+            var_value = "__non_main__";
+        }
+        size_t s_size = var_value.size();
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                1, s_size, nullptr, nullptr, 0));
+        ASR::expr_t *value = ASRUtils::EXPR(ASR::make_StringConstant_t(al,
+            loc, s2c(al, var_value), type));
+        ASR::expr_t *init_expr = value;
+
+        ASR::intentType s_intent = ASRUtils::intent_local;
+        ASR::storage_typeType storage_type =
+                ASR::storage_typeType::Default;
+        ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
+        ASR::accessType s_access = ASR::accessType::Public;
+        ASR::presenceType s_presence = ASR::presenceType::Required;
+        bool value_attr = false;
+        ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
+                s2c(al, var_name), s_intent, init_expr, value, storage_type, type,
+                current_procedure_abi_type, s_access, s_presence,
+                value_attr);
+        current_scope->add_symbol(var_name, ASR::down_cast<ASR::symbol_t>(v));
+    }
+
     void visit_Name(const AST::Name_t &x) {
         std::string name = x.m_id;
         ASR::symbol_t *s = current_scope->resolve_symbol(name);
@@ -1405,6 +1435,14 @@ public:
             ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                     4, nullptr, 0));
             tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, i, type);
+        } else if (name == "__name__") {
+            // __name__ was not declared yet in this scope, so we
+            // declare it first:
+            add_name(x.base.base.loc);
+            // And now resolve it:
+            ASR::symbol_t *s = current_scope->resolve_symbol(name);
+            LFORTRAN_ASSERT(s);
+            tmp = ASR::make_Var_t(al, x.base.base.loc, s);
         } else {
             throw SemanticError("Variable '" + name + "' not declared",
                 x.base.base.loc);
@@ -3189,8 +3227,23 @@ public:
             if (ASRUtils::expr_value(arg) != nullptr) {
                 char *c = ASR::down_cast<ASR::StringConstant_t>(
                                     ASRUtils::expr_value(arg))->m_s;
+                int ival = 0;
+                char *ch = c;
+                if (*ch == '-') {
+                    ch++;
+                }
+                while (*ch) {
+                    if (*ch == '.') {
+                        throw SemanticError("invalid literal for int() with base 10: '"+ std::string(c) + "'", arg->base.loc);
+                    }
+                    if (*ch < '0' || *ch > '9') {
+                        throw SemanticError("invalid literal for int() with base 10: '"+ std::string(c) + "'", arg->base.loc);
+                    }
+                    ch++;
+                }
+                ival = std::stoi(c);
                 return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al,
-                                loc, std::atoi(c), to_type));
+                                loc, ival, to_type));
             }
             // TODO: make int() work for non-constant strings
         } else if (ASRUtils::is_logical(*type)) {
@@ -3572,7 +3625,7 @@ std::string pickle_tree_python(AST::ast_t &ast, bool colors) {
 
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     AST::ast_t &ast, diag::Diagnostics &diagnostics, bool main_module,
-    bool symtab_only)
+    bool disable_main, bool symtab_only)
 {
     std::map<int, ASR::symbol_t*> ast_overload;
 
@@ -3601,10 +3654,25 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     }
 
     if (main_module) {
-        // If it is a main module, turn it into a program.
+        // If it is a main module, turn it into a program
         // Note: we can modify this behavior for interactive mode later
-        pass_wrap_global_stmts_into_program(al, *tu, "_lpython_main_program");
-        LFORTRAN_ASSERT(asr_verify(*tu));
+        if (disable_main) {
+            if (tu->n_items > 0) {
+                diagnostics.add(diag::Diagnostic(
+                    "The script is invoked as the main module and it has code to execute,\n"
+                    "but `--disable-main` was passed so no code was generated for `main`.\n"
+                    "We are removing all global executable code from ASR.",
+                    diag::Level::Warning, diag::Stage::Semantic, {})
+                );
+                // We have to remove the code
+                tu->m_items=nullptr;
+                tu->n_items=0;
+                LFORTRAN_ASSERT(asr_verify(*tu));
+            }
+        } else {
+            pass_wrap_global_stmts_into_program(al, *tu, "_lpython_main_program");
+            LFORTRAN_ASSERT(asr_verify(*tu));
+        }
     }
 
     return tu;

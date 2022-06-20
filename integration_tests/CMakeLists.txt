@@ -115,6 +115,7 @@ endmacro(RUN)
 # Test zero and non-zero exit code and assert statements
 RUN(NAME bindc_01            LABELS llvm c)
 RUN(NAME bindc_02            LABELS llvm c)
+RUN(NAME bindc_04            LABELS llvm)
 RUN(NAME exit_01             LABELS cpython llvm c)
 RUN(NAME exit_02     FAIL    LABELS cpython llvm c)
 RUN(NAME exit_01b            LABELS cpython llvm c)
@@ -161,6 +162,8 @@ RUN(NAME test_c_interop_04   LABELS cpython llvm c
         EXTRAFILES test_c_interop_04b.c)
 RUN(NAME test_c_interop_05   LABELS llvm c
         EXTRAFILES test_c_interop_05b.c)
+RUN(NAME bindc_03   LABELS llvm
+        EXTRAFILES bindc_03b.c)
 RUN(NAME test_generics_01    LABELS cpython llvm)
 RUN(NAME test_cmath          LABELS cpython llvm)
 RUN(NAME test_complex        LABELS cpython llvm)
@@ -170,9 +173,12 @@ RUN(NAME test_unary_minus    LABELS cpython llvm)
 RUN(NAME test_unary_plus     LABELS cpython llvm)
 RUN(NAME test_bool_binop     LABELS cpython llvm)
 RUN(NAME test_issue_518      LABELS cpython llvm)
-RUN(NAME structs_01          LABELS cpython llvm)
-RUN(NAME structs_02          LABELS llvm)
-RUN(NAME structs_03          LABELS llvm)
+RUN(NAME structs_01          LABELS cpython llvm c)
+RUN(NAME structs_02          LABELS llvm c)
+RUN(NAME structs_03          LABELS llvm c)
+RUN(NAME test_str_to_int     LABELS cpython llvm)
+RUN(NAME test_platform       LABELS cpython llvm)
+RUN(NAME test_vars_01        LABELS cpython llvm)
 
 # Just CPython
 RUN(NAME test_builtin_bin    LABELS cpython)

@@ -7,7 +7,8 @@ from dataclasses import dataclass
 
 # TODO: this does not seem to restrict other imports
 __slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64", "CPtr",
-        "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer"]
+        "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer",
+        "p_c_pointer"]
 
 # data-types
 
@@ -122,6 +123,10 @@ class CTypes:
                 return ctypes.c_int64
             elif arg == i32:
                 return ctypes.c_int32
+            elif arg == i16:
+                return ctypes.c_int16
+            elif arg == i8:
+                return ctypes.c_int8
             elif arg == CPtr:
                 return ctypes.c_void_p
             elif arg is None:

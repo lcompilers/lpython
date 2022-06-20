@@ -1,4 +1,4 @@
-from ltypes import ccall, f32, f64, i32, i64
+from ltypes import ccall, f32, f64, i8, i16, i32, i64
 
 @ccall
 def f_f64_f64(x: f64) -> f64:
@@ -14,6 +14,14 @@ def f_i64_i64(x: i64) -> i64:
 
 @ccall
 def f_i32_i32(x: i32) -> i32:
+    pass
+
+@ccall
+def f_i16_i16(x: i16) -> i16:
+    pass
+
+@ccall
+def f_i8_i8(x: i8) -> i8:
     pass
 
 def test_c_callbacks():
@@ -32,5 +40,13 @@ def test_c_callbacks():
     xi32: i32
     xi32 = 3
     assert f_i32_i32(xi32) == 4
+
+    xi16: i16
+    xi16 = 3
+    assert f_i16_i16(xi16) == 4
+
+    xi8: i8
+    xi8 = 3
+    assert f_i8_i8(xi8) == 4
 
 test_c_callbacks()
