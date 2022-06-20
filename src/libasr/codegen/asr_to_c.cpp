@@ -204,6 +204,13 @@ R"(
         }
 
         for (auto &item : x.m_global_scope->get_scope()) {
+            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
+                unit_src += convert_variable_decl(*v) + ";\n";
+            }
+        }
+
+        for (auto &item : x.m_global_scope->get_scope()) {
             if (ASR::is_a<ASR::DerivedType_t>(*item.second)) {
                 visit_symbol(*item.second);
                 unit_src += src;
