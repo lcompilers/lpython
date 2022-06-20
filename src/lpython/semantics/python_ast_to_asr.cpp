@@ -3184,8 +3184,23 @@ public:
             if (ASRUtils::expr_value(arg) != nullptr) {
                 char *c = ASR::down_cast<ASR::StringConstant_t>(
                                     ASRUtils::expr_value(arg))->m_s;
+                int ival = 0;
+                char *ch = c;
+                if (*ch == '-') {
+                    ch++;
+                }
+                while (*ch) {
+                    if (*ch == '.') {
+                        throw SemanticError("invalid literal for int() with base 10: '"+ std::string(c) + "'", arg->base.loc);
+                    }
+                    if (*ch < '0' || *ch > '9') {
+                        throw SemanticError("invalid literal for int() with base 10: '"+ std::string(c) + "'", arg->base.loc);
+                    }
+                    ch++;
+                }
+                ival = std::stoi(c);
                 return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al,
-                                loc, std::atoi(c), to_type));
+                                loc, ival, to_type));
             }
             // TODO: make int() work for non-constant strings
         } else if (ASRUtils::is_logical(*type)) {

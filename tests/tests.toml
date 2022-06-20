@@ -534,6 +534,10 @@ asr = true
 filename = "errors/test_func_args.py"
 asr = true
 
+[[test]]
+filename = "errors/test_str_to_int.py"
+asr = true
+
 # tests/tokens/errors
 
 [[test]]
