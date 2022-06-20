@@ -11,7 +11,7 @@ namespace LFortran {
 
 struct AttributeHandler {
 
-    typedef ASR::asr_t* (*attribute_eval_callback)(ASR::symbol_t*, Allocator &,
+    typedef ASR::asr_t* (*attribute_eval_callback)(ASR::expr_t*, Allocator &,
                                 const Location &, Vec<ASR::expr_t*> &, diag::Diagnostics &);
 
     std::map<std::string, attribute_eval_callback> attribute_map;
@@ -41,10 +41,9 @@ struct AttributeHandler {
         return "";
     }
 
-    ASR::asr_t* get_attribute(ASR::symbol_t *s, std::string attr_name,
+    ASR::asr_t* get_attribute(ASR::expr_t *e, std::string attr_name,
             Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-        ASR::ttype_t *type = v->m_type;
+        ASR::ttype_t *type = ASRUtils::expr_type(e);
         std::string class_name = get_type_name(type);
         if (class_name == "") {
             throw SemanticError("Type name is not implemented yet.", loc);
@@ -53,21 +52,20 @@ struct AttributeHandler {
         auto search = attribute_map.find(key);
         if (search != attribute_map.end()) {
             attribute_eval_callback cb = search->second;
-            return cb(s, al, loc, args, diag);
+            return cb(e, al, loc, args, diag);
         } else {
             throw SemanticError(class_name + "." + attr_name + " is not implemented yet",
                 loc);
         }
     }
 
-    static ASR::asr_t* eval_list_append(ASR::symbol_t *s, Allocator &al, const Location &loc,
+    static ASR::asr_t* eval_list_append(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         if (args.size() != 1) {
             throw SemanticError("append() takes exactly one argument",
                 loc);
         }
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-        ASR::ttype_t *type = v->m_type;
+        ASR::ttype_t *type = ASRUtils::expr_type(s);
         ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
         ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
         if (!ASRUtils::check_equal_type(ele_type, list_type)) {
@@ -85,14 +83,13 @@ struct AttributeHandler {
         return make_ListAppend_t(al, loc, s, args[0]);
     }
 
-    static ASR::asr_t* eval_list_remove(ASR::symbol_t *s, Allocator &al, const Location &loc,
+    static ASR::asr_t* eval_list_remove(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         if (args.size() != 1) {
             throw SemanticError("remove() takes exactly one argument",
                 loc);
         }
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-        ASR::ttype_t *type = v->m_type;
+        ASR::ttype_t *type = ASRUtils::expr_type(s);
         ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
         ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
         if (!ASRUtils::check_equal_type(ele_type, list_type)) {
@@ -110,7 +107,7 @@ struct AttributeHandler {
         return make_ListRemove_t(al, loc, s, args[0]);
     }
 
-    static ASR::asr_t* eval_list_insert(ASR::symbol_t *s, Allocator &al, const Location &loc,
+    static ASR::asr_t* eval_list_insert(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
             if (args.size() != 2) {
                 throw SemanticError("insert() takes exactly two arguments",
@@ -125,8 +122,7 @@ struct AttributeHandler {
             }
 
             ASR::ttype_t *ele_type = ASRUtils::expr_type(args[1]);
-            ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-            ASR::ttype_t *type = v->m_type;
+            ASR::ttype_t *type = ASRUtils::expr_type(s);
             ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
             if (!ASRUtils::check_equal_type(ele_type, list_type)) {
                 std::string fnd = ASRUtils::type_to_str_python(ele_type);
@@ -143,7 +139,7 @@ struct AttributeHandler {
             return make_ListInsert_t(al, loc, s, args[0], args[1]);
     }
 
-    static ASR::asr_t* eval_list_pop(ASR::symbol_t *s, Allocator &al, const Location &loc,
+    static ASR::asr_t* eval_list_pop(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
             if (args.size() > 1) {
                 throw SemanticError("pop() takes atmost one argument",
@@ -152,8 +148,7 @@ struct AttributeHandler {
             ASR::expr_t *idx = nullptr;
             ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
                                         4, nullptr, 0));
-            ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-            ASR::ttype_t *type = v->m_type;
+            ASR::ttype_t *type = ASRUtils::expr_type(s);
             ASR::ttype_t *list_type = ASR::down_cast<ASR::List_t>(type)->m_type;
             if (args.size() == 1) {
                 ASR::ttype_t *pos_type = ASRUtils::expr_type(args[0]);
@@ -178,28 +173,24 @@ struct AttributeHandler {
             return make_ListPop_t(al, loc, s, idx, list_type, nullptr);
     }
 
-    static ASR::asr_t* eval_set_pop(ASR::symbol_t *s, Allocator &al, const Location &loc,
+    static ASR::asr_t* eval_set_pop(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
         if (args.size() != 0) {
             throw SemanticError("pop() takes no arguments (" + std::to_string(args.size()) + " given)", loc);
         }
-
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-
-        ASR::ttype_t *type = v->m_type;
+        ASR::ttype_t *type = ASRUtils::expr_type(s);
         ASR::ttype_t *set_type = ASR::down_cast<ASR::Set_t>(type)->m_type;
 
         return make_SetPop_t(al, loc, s, set_type, nullptr);
     }
 
-    static ASR::asr_t* eval_set_add(ASR::symbol_t *s, Allocator &al, const Location &loc,
+    static ASR::asr_t* eval_set_add(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         if (args.size() != 1) {
             throw SemanticError("add() takes exactly one argument", loc);
         }
 
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-        ASR::ttype_t *type = v->m_type;
+        ASR::ttype_t *type = ASRUtils::expr_type(s);
         ASR::ttype_t *set_type = ASR::down_cast<ASR::Set_t>(type)->m_type;
         ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
         if (!ASRUtils::check_equal_type(ele_type, set_type)) {
@@ -218,14 +209,13 @@ struct AttributeHandler {
         return make_SetInsert_t(al, loc, s, args[0]);
     }
 
-    static ASR::asr_t* eval_set_remove(ASR::symbol_t *s, Allocator &al, const Location &loc,
+    static ASR::asr_t* eval_set_remove(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         if (args.size() != 1) {
             throw SemanticError("remove() takes exactly one argument", loc);
         }
 
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-        ASR::ttype_t *type = v->m_type;
+        ASR::ttype_t *type = ASRUtils::expr_type(s);
         ASR::ttype_t *set_type = ASR::down_cast<ASR::Set_t>(type)->m_type;
         ASR::ttype_t *ele_type = ASRUtils::expr_type(args[0]);
         if (!ASRUtils::check_equal_type(ele_type, set_type)) {
@@ -244,15 +234,14 @@ struct AttributeHandler {
         return make_SetRemove_t(al, loc, s, args[0]);
     }
 
-    static ASR::asr_t* eval_dict_get(ASR::symbol_t *s, Allocator &al, const Location &loc,
+    static ASR::asr_t* eval_dict_get(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         ASR::expr_t *def = nullptr;
         if (args.size() > 2 || args.size() < 1) {
             throw SemanticError("'get' takes atleast 1 and atmost 2 arguments",
                     loc);
         }
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-        ASR::ttype_t *type = v->m_type;
+        ASR::ttype_t *type = ASRUtils::expr_type(s);
         ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
         ASR::ttype_t *value_type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
         if (args.size() == 2) {
@@ -282,16 +271,15 @@ struct AttributeHandler {
             );
             throw SemanticAbort();
         }
-        return make_DictItem_t(al, loc, s, args[0], def, value_type);
+        return make_DictItem_t(al, loc, s, args[0], def, value_type, nullptr);
     }
 
-    static ASR::asr_t* eval_dict_pop(ASR::symbol_t *s, Allocator &al, const Location &loc,
+    static ASR::asr_t* eval_dict_pop(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &diag) {
         if (args.size() != 1) {
             throw SemanticError("'pop' takes only one argument for now", loc);
         }
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-        ASR::ttype_t *type = v->m_type;
+        ASR::ttype_t *type = ASRUtils::expr_type(s);
         ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
         ASR::ttype_t *value_type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
         if (!ASRUtils::check_equal_type(ASRUtils::expr_type(args[0]), key_type)) {

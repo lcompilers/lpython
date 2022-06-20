@@ -397,6 +397,11 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
 #define ASYNC_WITH(items, body, l) make_AsyncWith_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), nullptr)
 
+#define WHILE_01(e, stmts, l) make_While_t(p.m_a, l, \
+        EXPR(e), STMTS(stmts), stmts.size(), nullptr, 0)
+#define WHILE_02(e, stmts, orelse, l) make_While_t(p.m_a, l, \
+        EXPR(e), STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size())
+
 Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
     Vec<ast_t*> v;
     v.reserve(al, 2);
@@ -424,9 +429,61 @@ char* concat_string(Allocator &al, ast_t *a, char *b) {
 #define INTEGER(x, l) make_ConstantInt_t(p.m_a, l, x, nullptr)
 #define STRING1(x, l) make_ConstantStr_t(p.m_a, l, x.c_str(p.m_a), nullptr)
 #define STRING2(x, y, l) make_ConstantStr_t(p.m_a, l, concat_string(p.m_a, x, y.c_str(p.m_a)), nullptr)
+#define STRING3(id, x, l) PREFIX_STRING(p.m_a, l, name2char(id), x.c_str(p.m_a))
 #define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, x, nullptr)
 #define COMPLEX(x, l) make_ConstantComplex_t(p.m_a, l, 0, x, nullptr)
 #define BOOL(x, l) make_ConstantBool_t(p.m_a, l, x, nullptr)
+
+static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, char *s){
+    Vec<expr_t *> exprs;
+    exprs.reserve(al, 4);
+    ast_t *tmp;
+    if (strcmp(prefix, "f") == 0) {
+        std::string str = std::string(s);
+        std::string s1 = "\"";
+        std::string id;
+        std::vector<std::string> strs;
+        bool open_paren = false;
+        for (size_t i = 0; i < str.length(); i++) {
+            if(str[i] == '{') {
+                if(s1 != "\"") {
+                    s1.push_back('"');
+                    strs.push_back(s1);
+                    s1 = "\"";
+                }
+                open_paren = true;
+            } else if (str[i] != '}' && open_paren) {
+                id.push_back(s[i]);
+            } else if (str[i] == '}') {
+                if(id != "") {
+                    strs.push_back(id);
+                    id = "";
+                }
+                open_paren = false;
+            } else if (!open_paren) {
+                s1.push_back(s[i]);
+            }
+            if(i == str.length()-1 && s1 != "\"") {
+                s1.push_back('"');
+                strs.push_back(s1);
+            }
+        }
+
+        for (size_t i = 0; i < strs.size(); i++) {
+            if (strs[i][0] == '"') {
+                strs[i] = strs[i].substr(1, strs[i].length() - 2);
+                tmp = make_ConstantStr_t(al, l, LFortran::s2c(al, strs[i]), nullptr);
+                exprs.push_back(al, down_cast<expr_t>(tmp));
+            } else {
+                tmp = make_Name_t(al, l,
+                        LFortran::s2c(al, strs[i]), expr_contextType::Load);
+                tmp = make_FormattedValue_t(al, l, EXPR(tmp), -1, nullptr);
+                exprs.push_back(al, down_cast<expr_t>(tmp));
+            }
+        }
+    }
+    return make_JoinedStr_t(al, l, exprs.p, exprs.size());
+}
 
 static inline keyword_t *CALL_KW(Allocator &al, Location &l,
         char *arg, expr_t* val) {

@@ -22,7 +22,7 @@ void _lpython_main_program()
     main0();
 }
 
-int check()
+int32_t check()
 {
     int _lpython_return_variable;
     int a;
@@ -37,7 +37,7 @@ void main0()
     x = check();
 }
 
-int test(int a, int b)
+int32_t test(int a, int b)
 {
     int _lpython_return_variable;
     _lpython_return_variable = std::pow(a, b);

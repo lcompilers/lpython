@@ -81,6 +81,11 @@ struct Vec {
         return n;
     }
 
+    void resize(Allocator &al, size_t max){
+        reserve(al, max);
+        n = max;
+    }
+
     size_t capacity() const {
         return max;
     }
@@ -174,6 +179,19 @@ struct Str {
 
 static_assert(std::is_standard_layout<Str>::value);
 static_assert(std::is_trivial<Str>::value);
+
+template <typename ...Args>
+std::string string_format(const std::string& format, Args && ...args)
+{
+    auto size = std::snprintf(nullptr, 0, format.c_str(), std::forward<Args>(args)...);
+    std::string output(size, '\0');
+    std::sprintf(&output[0], format.c_str(), std::forward<Args>(args)...);
+    return output;
+}
+
+static inline std::string double_to_scientific(double x) {
+    return string_format("%25.17e", x);
+}
 
 } // namespace LFortran
 

@@ -3,9 +3,12 @@ import os
 import ctypes
 import platform
 from typing import TypeVar
+from dataclasses import dataclass
 
-__slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64",
-        "overload", "ccall", "TypeVar"]
+# TODO: this does not seem to restrict other imports
+__slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64", "CPtr",
+        "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer",
+        "p_c_pointer"]
 
 # data-types
 
@@ -15,6 +18,10 @@ class Type:
 
     def __getitem__(self, params):
         return Array(self, params)
+
+class Pointer:
+    def __getitem__(self, type):
+        return type
 
 class Array:
     def __init__(self, type, dims):
@@ -29,6 +36,7 @@ f32 = Type("f32")
 f64 = Type("f64")
 c32 = Type("c32")
 c64 = Type("c64")
+CPtr = Type("c_ptr")
 
 # Overloading support
 
@@ -115,27 +123,39 @@ class CTypes:
                 return ctypes.c_int64
             elif arg == i32:
                 return ctypes.c_int32
+            elif arg == i16:
+                return ctypes.c_int16
+            elif arg == i8:
+                return ctypes.c_int8
+            elif arg == CPtr:
+                return ctypes.c_void_p
             elif arg is None:
                 raise NotImplementedError("Type cannot be None")
             elif isinstance(arg, Array):
                 type = convert_type_to_ctype(arg._type)
                 return ctypes.POINTER(type)
             else:
-                raise NotImplementedError("Type not implemented")
+                raise NotImplementedError("Type %r not implemented" % arg)
         def get_rtlib_dir():
             current_dir = os.path.dirname(os.path.abspath(__file__))
             return os.path.join(current_dir, "..")
-        def get_crtlib_name():
+        def get_lib_name(name):
             if platform.system() == "Linux":
-                return "liblpython_runtime.so"
+                return "lib" + name + ".so"
             elif platform.system() == "Darwin":
-                return "liblpython_runtime.dylib"
+                return "lib" + name + ".dylib"
             elif platform.system() == "Windows":
-                return "lpython_runtime.dll"
+                return name + ".dll"
             else:
                 raise NotImplementedError("Platform not implemented")
         def get_crtlib_path():
-            return os.path.join(get_rtlib_dir(), get_crtlib_name())
+            py_mod = os.environ["LPYTHON_PY_MOD_NAME"]
+            if py_mod == "":
+                return os.path.join(get_rtlib_dir(),
+                    get_lib_name("lpython_runtime"))
+            else:
+                py_mod_path = os.environ["LPYTHON_PY_MOD_PATH"]
+                return os.path.join(py_mod_path, get_lib_name(py_mod))
         self.name = f.__name__
         self.args = f.__code__.co_varnames
         self.annotations = f.__annotations__
@@ -162,3 +182,35 @@ class CTypes:
 def ccall(f):
     wrapped_f = CTypes(f)
     return wrapped_f
+
+def pointer(x, type=None):
+    from numpy import ndarray
+    if isinstance(x, ndarray):
+        return ctypes.c_void_p(x.ctypes.data)
+        #return x.ctypes.data_as(ctypes.POINTER(ctypes.c_int32))
+    else:
+        if type == i32:
+            #return ctypes.c_void_p(ctypes.pointer(ctypes.c_int32(x)))
+            #return ctypes.pointer(ctypes.c_int32(x))
+            return ctypes.cast(ctypes.pointer(ctypes.c_int32(x)),
+                    ctypes.c_void_p)
+        elif type == i64:
+            return ctypes.cast(ctypes.pointer(ctypes.c_int64(x)),
+                    ctypes.c_void_p)
+        elif type == f32:
+            return ctypes.cast(ctypes.pointer(ctypes.c_float(x)),
+                    ctypes.c_void_p)
+        elif type == f64:
+            return ctypes.cast(ctypes.pointer(ctypes.c_double(x)),
+                    ctypes.c_void_p)
+        else:
+            raise Exception("Type not supported in pointer()")
+
+def c_p_pointer(cptr, targettype):
+    return pointer(targettype)
+
+def p_c_pointer(ptr, cptr):
+    cptr.value = ptr.value
+
+def empty_c_void_p():
+    return ctypes.c_void_p()

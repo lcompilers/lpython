@@ -32,7 +32,7 @@ void main0()
     std::cout << i << j << std::endl;
 }
 
-int test_factorial_1(int x)
+int32_t test_factorial_1(int x)
 {
     int _lpython_return_variable;
     int result;
@@ -49,7 +49,7 @@ int test_factorial_1(int x)
     return _lpython_return_variable;
 }
 
-int test_factorial_2(int x)
+int32_t test_factorial_2(int x)
 {
     int _lpython_return_variable;
     int i;
@@ -62,7 +62,7 @@ int test_factorial_2(int x)
     return _lpython_return_variable;
 }
 
-long long test_factorial_3(int x)
+int64_t test_factorial_3(int x)
 {
     long long _lpython_return_variable;
     long long result;
