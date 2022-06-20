@@ -84,6 +84,13 @@ namespace LFortran {
                 void transform_stmts(ASR::stmt_t **&m_body, size_t &n_body) {
                     Vec<ASR::stmt_t*> body;
                     body.reserve(al, n_body);
+                    if (pass_result.size() > 0) {
+                        asr_changed = true;
+                        for (size_t j=0; j < pass_result.size(); j++) {
+                            body.push_back(al, pass_result[j]);
+                        }
+                        pass_result.n = 0;
+                    }
                     for (size_t i=0; i<n_body; i++) {
                         // Not necessary after we check it after each visit_stmt in every
                         // visitor method:
