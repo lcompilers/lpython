@@ -1391,6 +1391,36 @@ public:
         current_scope->add_symbol(std::string(x.m_name), class_type);
     }
 
+    void add_name(const Location &loc) {
+        std::string var_name = "__name__";
+        std::string var_value;
+        if (main_module) {
+            var_value = "__main__";
+        } else {
+            // TODO: put the actual module name here
+            var_value = "__non_main__";
+        }
+        size_t s_size = var_value.size();
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                1, s_size, nullptr, nullptr, 0));
+        ASR::expr_t *value = ASRUtils::EXPR(ASR::make_StringConstant_t(al,
+            loc, s2c(al, var_value), type));
+        ASR::expr_t *init_expr = value;
+
+        ASR::intentType s_intent = ASRUtils::intent_local;
+        ASR::storage_typeType storage_type =
+                ASR::storage_typeType::Default;
+        ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
+        ASR::accessType s_access = ASR::accessType::Public;
+        ASR::presenceType s_presence = ASR::presenceType::Required;
+        bool value_attr = false;
+        ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
+                s2c(al, var_name), s_intent, init_expr, value, storage_type, type,
+                current_procedure_abi_type, s_access, s_presence,
+                value_attr);
+        current_scope->add_symbol(var_name, ASR::down_cast<ASR::symbol_t>(v));
+    }
+
     void visit_Name(const AST::Name_t &x) {
         std::string name = x.m_id;
         ASR::symbol_t *s = current_scope->resolve_symbol(name);
@@ -1401,6 +1431,14 @@ public:
             ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                     4, nullptr, 0));
             tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, i, type);
+        } else if (name == "__name__") {
+            // __name__ was not declared yet in this scope, so we
+            // declare it first:
+            add_name(x.base.base.loc);
+            // And now resolve it:
+            ASR::symbol_t *s = current_scope->resolve_symbol(name);
+            LFORTRAN_ASSERT(s);
+            tmp = ASR::make_Var_t(al, x.base.base.loc, s);
         } else {
             throw SemanticError("Variable '" + name + "' not declared",
                 x.base.base.loc);
