@@ -23,6 +23,7 @@ public:
 
     bool indent = false; // Next line is expected to be indented
     int dedent = 0; // Allowed values: 0, 1, 2, see the code below the meaning of this state variable
+    bool colon_actual_last_token = false; // If the actual last token was a colon
     long int last_indent_length = 0;
     std::vector<uint64_t> indent_length;
 

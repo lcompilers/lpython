@@ -33,7 +33,6 @@ to:
 class ArrSliceVisitor : public PassUtils::PassVisitor<ArrSliceVisitor>
 {
 private:
-    ASR::TranslationUnit_t &unit;
 
     ASR::expr_t* slice_var;
     bool create_slice_var;
@@ -43,8 +42,7 @@ private:
     std::string rl_path;
 
 public:
-    ArrSliceVisitor(Allocator &al, ASR::TranslationUnit_t &unit_,
-        const std::string &rl_path) : PassVisitor(al, nullptr), unit(unit_),
+    ArrSliceVisitor(Allocator &al, const std::string &rl_path) : PassVisitor(al, nullptr),
     slice_var(nullptr), create_slice_var(false), slice_counter(0),
     rl_path(rl_path)
     {
@@ -60,15 +58,13 @@ public:
             if( x.m_args[i].m_step != nullptr ) {
                 ASR::expr_t *start = nullptr, *end = nullptr, *step = nullptr;
                 if( x.m_args[i].m_left == nullptr ) {
-                    start = PassUtils::get_bound(arr_var, i + 1, "lbound",
-                                                al, unit, rl_path, current_scope);
+                    start = PassUtils::get_bound(arr_var, i + 1, "lbound", al);
                 } else {
                     start = x.m_args[i].m_left;
                 }
 
                 if( x.m_args[i].m_right == nullptr ) {
-                    end = PassUtils::get_bound(arr_var, i + 1, "ubound",
-                                                al, unit, rl_path, current_scope);
+                    end = PassUtils::get_bound(arr_var, i + 1, "ubound", al);
                 } else {
                     end = x.m_args[i].m_right;
                 }
@@ -83,18 +79,12 @@ public:
                 end = PassUtils::to_int32(end, int32_type, al);
                 step = PassUtils::to_int32(step, int32_type, al);
 
-                ASR::expr_t* gap = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc,
-                                                        end, ASR::binopType::Sub, start,
-                                                        int32_type, nullptr, nullptr));
-                // ASR::expr_t* slice_size = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc,
-                //                                                  gap, ASR::binopType::Add, const_1,
-                //                                                  int64_type, nullptr));
-                ASR::expr_t* slice_size = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc,
-                                                                gap, ASR::binopType::Div, step,
-                                                                int32_type, nullptr, nullptr));
-                ASR::expr_t* actual_size = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc,
-                                                                slice_size, ASR::binopType::Add, const_1,
-                                                                int32_type, nullptr, nullptr));
+                ASR::expr_t* gap = LFortran::ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, x.base.base.loc,
+                                                        end, ASR::binopType::Sub, start, int32_type, nullptr));
+                ASR::expr_t* slice_size = LFortran::ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, x.base.base.loc,
+                                                        gap, ASR::binopType::Div, step, int32_type, nullptr));
+                ASR::expr_t* actual_size = LFortran::ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, x.base.base.loc,
+                                                        slice_size, ASR::binopType::Add, const_1, int32_type, nullptr));
                 ASR::dimension_t curr_dim;
                 curr_dim.loc = x.base.base.loc;
                 curr_dim.m_start = const_1;
@@ -178,12 +168,12 @@ public:
                 head.m_v = idx_vars_value[i];
                 if( x.m_args[i].m_step != nullptr ) {
                     if( x.m_args[i].m_left == nullptr ) {
-                        head.m_start = PassUtils::get_bound(x_arr_var, i + 1, "lbound", al, unit, rl_path, current_scope);
+                        head.m_start = PassUtils::get_bound(x_arr_var, i + 1, "lbound", al);
                     } else {
                         head.m_start = x.m_args[i].m_left;
                     }
                     if( x.m_args[i].m_right == nullptr ) {
-                        head.m_end = PassUtils::get_bound(x_arr_var, i + 1, "ubound", al, unit, rl_path, current_scope);
+                        head.m_end = PassUtils::get_bound(x_arr_var, i + 1, "ubound", al);
                     } else {
                         head.m_end = x.m_args[i].m_right;
                     }
@@ -205,7 +195,7 @@ public:
                     doloop_body.push_back(al, set_to_one);
                     doloop_body.push_back(al, doloop);
                 }
-                ASR::expr_t* inc_expr = LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, x.base.base.loc, idx_vars_target[i], ASR::binopType::Add, const_1, int32_type, nullptr, nullptr));
+                ASR::expr_t* inc_expr = LFortran::ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, x.base.base.loc, idx_vars_target[i], ASR::binopType::Add, const_1, int32_type, nullptr));
                 ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_target[i], inc_expr, nullptr));
                 doloop_body.push_back(al, assign_stmt);
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
@@ -217,6 +207,10 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t& x) {
+        if( ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
+            ASR::is_a<ASR::GetPointer_t>(*x.m_value) ) {
+            return ;
+        }
         this->visit_expr(*x.m_value);
         // If any slicing happened then do loop must have been created
         // So, the current assignment should be inserted into pass_result
@@ -226,8 +220,22 @@ public:
         }
     }
 
-    void visit_BinOp(const ASR::BinOp_t& x) {
-        ASR::BinOp_t& xx = const_cast<ASR::BinOp_t&>(x);
+    void visit_IntegerBinOp(const ASR::IntegerBinOp_t& x) {
+        handle_BinOp(x);
+    }
+    void visit_RealBinOp(const ASR::RealBinOp_t& x) {
+        handle_BinOp(x);
+    }
+    void visit_ComplexBinOp(const ASR::ComplexBinOp_t& x) {
+        handle_BinOp(x);
+    }
+    void visit_LogicalBinOp(const ASR::LogicalBinOp_t& x) {
+        handle_BinOp(x);
+    }
+
+    template <typename T>
+    void handle_BinOp(const T& x) {
+        T& xx = const_cast<T&>(x);
         create_slice_var = true;
         slice_var = nullptr;
         this->visit_expr(*x.m_left);
@@ -265,7 +273,7 @@ public:
 
 void pass_replace_arr_slice(Allocator &al, ASR::TranslationUnit_t &unit,
         const std::string &rl_path) {
-    ArrSliceVisitor v(al, unit, rl_path);
+    ArrSliceVisitor v(al, rl_path);
     v.visit_TranslationUnit(unit);
     LFORTRAN_ASSERT(asr_verify(unit));
 }

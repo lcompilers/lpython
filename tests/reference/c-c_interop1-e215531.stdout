@@ -1,19 +1,45 @@
-#include <assert.h>
-#include <complex.h>
 #include <inttypes.h>
-#include <stdio.h>
-#include <math.h>
 
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
 #include <lfortran_intrinsics.h>
 
+#define ASSERT(cond)                                                           \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+#define ASSERT_MSG(cond, msg)                                                  \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            printf("%s", "ERROR MESSAGE:\n");                                  \
+            printf("%s%s", msg, "\n");                                         \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+
+// Forward declarations
 double f(double x);
-
 void g(double a, float b, int64_t c, int32_t d);
+double h(double x);
+void l(double a, float b, int64_t c, int32_t d);
+void main0();
 
+// Implementations
 double h(double x)
 {
     double _lpython_return_variable;
-    _lpython_return_variable = x + 1.000000;
+    _lpython_return_variable = x +   1.00000000000000000e+00;
     return _lpython_return_variable;
 }
 
@@ -29,9 +55,9 @@ void main0()
     float y;
     int64_t z;
     int32_t zz;
-    x = 5.000000;
+    x =   5.00000000000000000e+00;
     i = f(x);
-    y = 5.400000;
+    y =   5.40000000000000036e+00;
     z = 3;
     zz = 2;
     g(x, y, z, zz);

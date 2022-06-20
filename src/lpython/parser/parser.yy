@@ -131,6 +131,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token TK_GT ">"
 %token TK_GE ">="
 %token TK_NOT "not"
+%token TK_IS_NOT "is not"
+%token TK_NOT_IN "not in"
 %token TK_AND "and"
 %token TK_OR "or"
 %token TK_TRUE "True"
@@ -232,6 +234,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_keyword> keyword_items
 %type <ast> function_call
 %type <ast> primary
+%type <ast> while_statement
 %type <vec_ast> sep
 %type <ast> sep_one
 %type <ast> string
@@ -242,7 +245,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %left "or"
 %left "and"
 %precedence "not"
-%left "==" "!=" ">=" ">" "<=" "<" //"is not" "is" "not in" "in"
+%left "==" "!=" ">=" ">" "<=" "<" TK_IS_NOT KW_IS TK_NOT_IN // "in"
 %left "|"
 %left "^"
 %left "&"
@@ -287,8 +290,9 @@ statements1
     ;
 
 statement
-    : single_line_statement sep
+    : single_line_statement sep { $$ = $1; }
     | multi_line_statement
+    | multi_line_statement sep { $$ = $1; }
     ;
 
 single_line_statement
@@ -319,6 +323,7 @@ multi_line_statement
     | async_func_def
     | async_for_stmt
     | async_with_stmt
+    | while_statement
     ;
 
 expression_statment
@@ -602,6 +607,12 @@ async_with_stmt
         $$ = ASYNC_WITH($4, $9, @$); }
     ;
 
+while_statement
+    : KW_WHILE expr ":" sep statements { $$ = WHILE_01($2, $5, @$); }
+    | KW_WHILE expr ":" sep statements KW_ELSE ":" sep statements {
+        $$ = WHILE_02($2, $5, $9, @$); }
+    ;
+
 slice_item_list
     : slice_item_list "," slice_item { $$ = $1; LIST_ADD($$, $3); }
     | slice_item { LIST_NEW($$); LIST_ADD($$, $1); }
@@ -722,6 +733,10 @@ expr
     | expr "<=" expr { $$ = COMPARE($1, LtE, $3, @$); }
     | expr ">" expr { $$ = COMPARE($1, Gt, $3, @$); }
     | expr ">=" expr { $$ = COMPARE($1, GtE, $3, @$); }
+    | expr KW_IS expr { $$ = COMPARE($1, Is, $3, @$); }
+    | expr TK_IS_NOT expr { $$ = COMPARE($1, IsNot, $3, @$); }
+    /* | expr KW_IN expr { $$ = COMPARE($1, In, $3, @$); } */ // TODO
+    | expr TK_NOT_IN expr { $$ = COMPARE($1, NotIn, $3, @$); }
 
     | expr "and" expr { $$ = BOOLOP($1, And, $3, @$); }
     | expr "or" expr { $$ = BOOLOP($1, Or, $3, @$); }

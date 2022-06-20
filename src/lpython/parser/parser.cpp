@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <fstream>
+#include <chrono>
 
 #include <lpython/parser/parser.h>
 #include <lpython/parser/parser.tab.hh>
@@ -84,6 +86,32 @@ void Parser::handle_yyerror(const Location &loc, const std::string &msg)
     throw parser_local::ParserError(message, loc);
 }
 
+bool file_exists(const std::string &name) {
+    std::ifstream file(name);
+    if (!file.is_open()) {
+        return false;
+    }
+    return true;
+}
+
+std::string unique_filename(const std::string &prefix) {
+    uint64_t ms = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+    ms = ms % 1000000000;
+    srand((unsigned) ms);
+    std::string hex = "0123456789ABCDEF";
+    std::string random_hash;
+    for (int i=0; i < 6; i++) {
+        random_hash += hex[rand() % 16];
+    }
+    int counter = 1;
+    std::string filename = prefix + random_hash + std::to_string(counter);
+    while (file_exists(filename)) {
+        counter++;
+        filename = prefix + random_hash + std::to_string(counter);
+    }
+    return filename;
+}
+
 Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
         const std::string &runtime_library_dir,
         const std::string &infile,
@@ -100,17 +128,18 @@ Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
             return Error();
         }
     } else {
-        std::string pycmd = "python " + runtime_library_dir + "/lpython_parser.py " + infile;
+        std::string outfile = unique_filename(infile);
+        std::string pycmd = "python " + runtime_library_dir
+            + "/lpython_parser.py " + infile + " " + outfile;
         int err = std::system(pycmd.c_str());
         if (err != 0) {
             std::cerr << "The command '" << pycmd << "' failed." << std::endl;
             return Error();
         }
-        std::string infile_ser = "ser.txt";
         std::string input;
-        bool status = read_file(infile_ser, input);
+        bool status = read_file(outfile, input);
         if (!status) {
-            std::cerr << "The file '" << infile_ser << "' cannot be read." << std::endl;
+            std::cerr << "The file '" << outfile << "' cannot be read." << std::endl;
             return Error();
         }
         ast = LPython::deserialize_ast(al, input);

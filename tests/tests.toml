@@ -194,12 +194,34 @@ c = true
 # integration_tests
 
 [[test]]
-filename = "ltypes.py"
+filename = "ltypes1.py"
 llvm = true
 
 [[test]]
 filename = "../integration_tests/test_builtin.py"
 asr = true
+
+[[test]]
+filename = "../integration_tests/structs_01.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/structs_02.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/structs_03.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/bindc_01.py"
+asr = true
+llvm = true
+
+[[test]]
+filename = "../integration_tests/bindc_02.py"
+asr = true
+llvm = true
 
 [[test]]
 filename = "../integration_tests/test_builtin_abs.py"
@@ -257,9 +279,17 @@ llvm = true
 cpp = true
 
 [[test]]
+filename = "../integration_tests/test_bool_binop.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/test_issue_518.py"
 llvm = true
 c = true
+
+[[test]]
+filename = "../integration_tests/test_c_interop_01.py"
+asr = true
 
 # tests/tokens
 
@@ -270,6 +300,11 @@ tokens = true
 [[test]]
 filename = "tokens/comment1.py"
 tokens = true
+
+[[test]]
+filename = "tokens/comment2.py"
+tokens = true
+ast_new = true
 
 [[test]]
 filename = "tokens/symbols1.py"
@@ -345,6 +380,10 @@ ast = true
 filename = "parser/ellipsis2.py"
 ast_new = true
 
+[[test]]
+filename = "parser/while1.py"
+ast_new = true
+
 # tests/errors
 
 [[test]]
@@ -357,6 +396,14 @@ asr = true
 
 [[test]]
 filename = "errors/test_str_slicing.py"
+asr = true
+
+[[test]]
+filename = "errors/test_str_slicing2.py"
+asr = true
+
+[[test]]
+filename = "errors/test_str_slicing3.py"
 asr = true
 
 [[test]]

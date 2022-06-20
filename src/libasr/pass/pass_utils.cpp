@@ -314,34 +314,31 @@ namespace LFortran {
             return v;
         }
 
+        ASR::expr_t* create_binop_helper(Allocator &al, const Location &loc, ASR::expr_t* left, ASR::expr_t* right,
+                                                ASR::binopType op) {
+            ASR::ttype_t* type = ASRUtils::expr_type(left);
+            // TODO: compute `value`:
+            if (ASRUtils::is_integer(*type)) {
+                return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, left, op, right, type, nullptr));
+            } else if (ASRUtils::is_real(*type)) {
+                return ASRUtils::EXPR(ASR::make_RealBinOp_t(al, loc, left, op, right, type, nullptr));
+            } else if (ASRUtils::is_complex(*type)) {
+                return ASRUtils::EXPR(ASR::make_ComplexBinOp_t(al, loc, left, op, right, type, nullptr));
+            } else {
+                throw LFortranException("Type not supported");
+            }
+        }
 
         ASR::expr_t* get_bound(ASR::expr_t* arr_expr, int dim, std::string bound,
-                                Allocator& al, ASR::TranslationUnit_t& unit,
-                                const std::string& rl_path,
-                                SymbolTable*& current_scope) {
-            // Loads ubound/lbound from the module already in ASR
-            ASR::symbol_t *v = import_function2(bound, "lpython_builtin", al,
-                                               unit, current_scope);
-            if (!v) {
-                // If it fails, try to load from the source until we fix
-                // LFortran to preload this module
-                v = import_function(bound, "lfortran_intrinsic_builtin", al,
-                        unit, rl_path, current_scope, arr_expr->base.loc);
+                                Allocator& al) {
+            ASR::ttype_t* int32_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, arr_expr->base.loc, 4, nullptr, 0));
+            ASR::expr_t* dim_expr = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_expr->base.loc, dim, int32_type));
+            ASR::arrayboundType bound_type = ASR::arrayboundType::LBound;
+            if( bound == "ubound" ) {
+                bound_type = ASR::arrayboundType::UBound;
             }
-            ASR::ExternalSymbol_t* v_ext = ASR::down_cast<ASR::ExternalSymbol_t>(v);
-            ASR::Function_t* mfn = ASR::down_cast<ASR::Function_t>(v_ext->m_external);
-            Vec<ASR::call_arg_t> args;
-            args.reserve(al, 2);
-            ASR::call_arg_t arg0, arg1;
-            arg0.loc = arr_expr->base.loc, arg0.m_value = arr_expr;
-            args.push_back(al, arg0);
-            ASR::expr_t* const_1 = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_expr->base.loc, dim, LFortran::ASRUtils::expr_type(mfn->m_args[1])));
-            arg1.loc = const_1->base.loc, arg1.m_value = const_1;
-            args.push_back(al, arg1);
-            ASR::ttype_t *type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(
-                                        LFortran::ASRUtils::symbol_get_past_external(v))->m_return_var)->m_type;
-            return LFortran::ASRUtils::EXPR(ASR::make_FunctionCall_t(al, arr_expr->base.loc, v, nullptr,
-                                                args.p, args.size(), type, nullptr, nullptr));
+            return LFortran::ASRUtils::EXPR(ASR::make_ArrayBound_t(al, arr_expr->base.loc, arr_expr, dim_expr,
+                        int32_type, bound_type, nullptr));
         }
 
 
@@ -515,16 +512,14 @@ namespace LFortran {
                 ASR::expr_t *target = loop.m_head.m_v;
                 ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
                 stmt1 = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target,
-                    LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, a, ASR::binopType::Sub, c, type, nullptr, nullptr)),
-                    nullptr));
+                    LFortran::ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, a, ASR::binopType::Sub, c, type, nullptr)), nullptr));
 
                 cond = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc,
-                    LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, target, ASR::binopType::Add, c, type, nullptr, nullptr)),
+                    LFortran::ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, target, ASR::binopType::Add, c, type, nullptr)),
                     cmp_op, b, type, nullptr, nullptr));
 
                 inc_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target,
-                            LFortran::ASRUtils::EXPR(ASR::make_BinOp_t(al, loc, target, ASR::binopType::Add, c, type, nullptr, nullptr)),
-                        nullptr));
+                            LFortran::ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, target, ASR::binopType::Add, c, type, nullptr)), nullptr));
             }
             Vec<ASR::stmt_t*> body;
             body.reserve(al, loop.n_body + (inc_stmt != nullptr));

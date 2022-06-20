@@ -22,11 +22,11 @@ void test_cast()
     int a;
     float b;
     a = 2;
-    b = 4.200000;
+    b =   4.20000000000000018e+00;
     a = (float)(a)*b;
     b = b + (float)(1);
     a = 5;
-    a = (float)(a) - 3.900000;
+    a = (float)(a) -   3.89999999999999991e+00;
     a = (float)(a)/b;
     b = (float)(3)/(float)(4);
     if ((float)(a) < b) {

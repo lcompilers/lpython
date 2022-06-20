@@ -29,11 +29,11 @@ void main0()
     Kokkos::View<float[10000]> c("c");
     int nsize;
     float scalar;
-    scalar = 10.000000;
+    scalar =   1.00000000000000000e+01;
     nsize = 1234;
     Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(0, nsize - 1+1), KOKKOS_LAMBDA(const long i) {
-        a[i + 1-1] = 5.000000;
-        b[i + 1-1] = 5.000000;
+        a[i + 1-1] =   5.00000000000000000e+00;
+        b[i + 1-1] =   5.00000000000000000e+00;
     });
     triad(a, b, scalar, c);
     std::cout << "End Stream Triad" << std::endl;
