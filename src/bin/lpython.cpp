@@ -390,6 +390,11 @@ int compile_python_to_object_file(
 
 #endif
 
+void do_print_rtlib_header_dir() {
+    std::string rtlib_header_dir = LFortran::get_runtime_library_header_dir();
+    std::cout << rtlib_header_dir << std::endl;
+}
+
 
 // infile is an object file
 // outfile will become the executable
@@ -594,6 +599,7 @@ int main(int argc, char *argv[])
         std::string arg_backend = "llvm";
         std::string arg_kernel_f;
         bool print_targets = false;
+        bool print_rtlib_header_dir = false;
 
         std::string arg_fmt_file;
         // int arg_fmt_indent = 4;
@@ -656,6 +662,7 @@ int main(int argc, char *argv[])
         app.add_flag("--fast", compiler_options.fast, "Best performance (disable strict standard compliance)");
         app.add_option("--target", compiler_options.target, "Generate code for the given target")->capture_default_str();
         app.add_flag("--print-targets", print_targets, "Print the registered targets");
+        app.add_flag("--get-rtlib-header-dir", print_rtlib_header_dir, "Print the path to the runtime library header file");
 
         /*
         * Subcommands:
@@ -716,6 +723,11 @@ int main(int argc, char *argv[])
             std::cerr << "The --print-targets option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
             return 1;
 #endif
+        }
+
+        if (print_rtlib_header_dir) {
+            do_print_rtlib_header_dir();
+            return 0;
         }
 
         compiler_options.use_colors = !arg_no_color;
