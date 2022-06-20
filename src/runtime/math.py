@@ -228,22 +228,40 @@ def fabs(x: f64) -> f64:
     return x
 
 @overload
-def fabs(x: i64) -> i64:
+def fabs(x: i64) -> f64:
     """
     Return the absolute value of `x`.
     """
     if x < 0.0:
-        return -x
-    return x
+        return -float(x)
+    return float(x)
 
 @overload
-def fabs(x: i32) -> i32:
+def fabs(x: i32) -> f32:
     """
     Return the absolute value of `x`.
     """
     if x < 0.0:
-        return -x
-    return x
+        return -float(x)
+    return float(x)
+
+@overload
+def fabs(x: i16) -> f32:
+    """
+    Return the absolute value of `x`.
+    """
+    if x < 0.0:
+        return -float(x)
+    return float(x)
+
+@overload
+def fabs(x: i8) -> f32:
+    """
+    Return the absolute value of `x`.
+    """
+    if x < 0.0:
+        return -float(x)
+    return float(x)
 
 # pow
 # supported data types: i32, i64, f32, f64
