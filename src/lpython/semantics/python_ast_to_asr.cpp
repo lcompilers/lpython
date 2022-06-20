@@ -1319,8 +1319,11 @@ public:
 
         ASR::expr_t *value = nullptr;
         ASR::expr_t *init_expr = nullptr;
+        tmp = nullptr;
         if (x.m_value) {
             this->visit_expr(*x.m_value);
+        }
+        if (tmp) {
             value = ASRUtils::EXPR(tmp);
             value = cast_helper(type, value, true);
             if (!ASRUtils::check_equal_type(type, ASRUtils::expr_type(value))) {
@@ -1336,6 +1339,7 @@ public:
                 throw SemanticAbort();
             }
             init_expr = value;
+            value = ASRUtils::expr_value(value);
         }
         ASR::intentType s_intent = ASRUtils::intent_local;
         ASR::storage_typeType storage_type =
@@ -2899,8 +2903,9 @@ public:
         if (ASRUtils::expr_value(left) != nullptr &&
             ASRUtils::expr_value(right) != nullptr) {
             if (ASRUtils::is_integer(*source_type)) {
+                ASR::expr_t* left_value_expr = ASRUtils::expr_value(left);
                 int64_t left_value = ASR::down_cast<ASR::IntegerConstant_t>(
-                                        ASRUtils::expr_value(left))
+                                        left_value_expr)
                                         ->m_n;
                 int64_t right_value = ASR::down_cast<ASR::IntegerConstant_t>(
                                         ASRUtils::expr_value(right))

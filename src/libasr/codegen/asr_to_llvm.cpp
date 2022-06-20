@@ -66,7 +66,7 @@
 #include <libasr/codegen/llvm_array_utils.h>
 
 // Uncomment for ASR printing below
-//#include <lfortran/pickle.h>
+// #include <lpython/pickle.h>
 
 #if LLVM_VERSION_MAJOR >= 11
 #    define FIXED_VECTOR_TYPE llvm::FixedVectorType
@@ -1712,6 +1712,7 @@ public:
                     if( v->m_symbolic_value != nullptr &&
                         !ASR::is_a<ASR::List_t>(*v->m_type)) {
                         target_var = ptr;
+                        tmp = nullptr;
                         this->visit_expr_wrapper(v->m_symbolic_value, true);
                         llvm::Value *init_value = tmp;
                         if (ASR::is_a<ASR::ArrayConstant_t>(*v->m_symbolic_value)) {
