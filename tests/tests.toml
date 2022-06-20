@@ -546,6 +546,14 @@ asr = true
 filename = "errors/test_str_to_int.py"
 asr = true
 
+[[test]]
+filename = "errors/test_bitwise_on_float.py"
+asr = true
+
+[[test]]
+filename = "errors/test_bitwise_on_complex.py"
+asr = true
+
 # tests/tokens/errors
 
 [[test]]
