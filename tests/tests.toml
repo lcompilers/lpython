@@ -384,6 +384,10 @@ ast_new = true
 filename = "parser/while1.py"
 ast_new = true
 
+[[test]]
+filename = "parser/string1.py"
+ast_new = true
+
 # tests/errors
 
 [[test]]
