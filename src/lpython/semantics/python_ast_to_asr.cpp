@@ -9,7 +9,6 @@
 #include <complex>
 #include <sstream>
 #include <iterator>
-#include <filesystem>
 
 #include <libasr/asr.h>
 #include <libasr/asr_utils.h>
@@ -3638,13 +3637,18 @@ std::string pickle_tree_python(AST::ast_t &ast, bool colors) {
     return v.get_str();
 }
 
+std::string get_parent_dir(const std::string &path) {
+    int idx = path.size()-1;
+    while (idx >= 0 && path[idx] != '/' && path[idx] != '\\') idx--;
+    return path.substr(0,idx);
+}
+
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     AST::ast_t &ast, diag::Diagnostics &diagnostics, bool main_module,
     bool disable_main, bool symtab_only, std::string file_path)
 {
     std::map<int, ASR::symbol_t*> ast_overload;
-    std::filesystem::path fp = file_path;
-    std::string parent_dir = fp.parent_path().string();
+    std::string parent_dir = get_parent_dir(file_path);
     AST::Module_t *ast_m = AST::down_cast2<AST::Module_t>(&ast);
 
     ASR::asr_t *unit;
