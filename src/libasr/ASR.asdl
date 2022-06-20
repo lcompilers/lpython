@@ -319,12 +319,6 @@ ttype
     | CPtr()
     | TypeVar(string var)
 
-<<<<<<< HEAD
-=======
-boolop = And | Or | Xor | NEqv | Eqv
-
-
->>>>>>> e3d2c769087003417bd349630ed4fabc02cb6e8c
 binop = Add | Sub | Mul | Div | Pow
 
 logicalbinop = And | Or | Xor | NEqv | Eqv
