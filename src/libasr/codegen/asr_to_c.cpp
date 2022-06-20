@@ -145,11 +145,11 @@ public:
                     + "' not supported", {v.base.base.loc}, "");
                 throw Abort();
             }
-            if (v.m_symbolic_value) {
-                this->visit_expr(*v.m_symbolic_value);
-                std::string init = src;
-                sub += "=" + init;
-            }
+        }
+        if (v.m_symbolic_value) {
+            this->visit_expr(*v.m_symbolic_value);
+            std::string init = src;
+            sub += "=" + init;
         }
         return sub;
     }

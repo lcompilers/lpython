@@ -252,7 +252,7 @@ R"(#include <stdio.h>
         std::string sub;
         ASR::Variable_t *return_var = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
         if (ASRUtils::is_integer(*return_var->m_type)) {
-            int kind = ASR::down_cast<ASR::Integer_t>(return_var->m_type)->m_kind; 
+            int kind = ASR::down_cast<ASR::Integer_t>(return_var->m_type)->m_kind;
             switch (kind) {
                 case (1) : sub = "int8_t "; break;
                 case (2) : sub = "int16_t "; break;
