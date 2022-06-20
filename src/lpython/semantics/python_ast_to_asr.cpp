@@ -1251,7 +1251,6 @@ public:
                     case (ASR::binopType::Mul): { result = left_value * right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
                     case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
-                    case (ASR::binopType::Mod): { result = left_value % right_value; break; }
                     case (ASR::binopType::BitAnd): { result = left_value & right_value; break; }
                     case (ASR::binopType::BitOr): { result = left_value | right_value; break; }
                     case (ASR::binopType::BitXor): { result = left_value ^ right_value; break; }
@@ -1280,7 +1279,7 @@ public:
         } else if (ASRUtils::is_real(*dest_type)) {
 
             if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
-                op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift || op == ASR::binopType::Mod) {
+                op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift) {
                 throw SemanticError("Unsupported binary operation on floats: '" + ASRUtils::binop_to_str(op) + "'", loc);
             }
 
@@ -1307,7 +1306,7 @@ public:
         } else if (ASRUtils::is_complex(*dest_type)) {
 
             if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
-                op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift || op == ASR::binopType::Mod) {
+                op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift) {
                 throw SemanticError("Unsupported binary operation on complex: '" + ASRUtils::binop_to_str(op) + "'", loc);
             }
 
@@ -1587,6 +1586,7 @@ public:
         this->visit_expr(*x.m_right);
         ASR::expr_t *right = ASRUtils::EXPR(tmp);
         ASR::binopType op;
+        std::string op_name = "";
         switch (x.m_op) {
             case (AST::operatorType::Add) : { op = ASR::binopType::Add; break; }
             case (AST::operatorType::Sub) : { op = ASR::binopType::Sub; break; }
@@ -1594,12 +1594,12 @@ public:
             case (AST::operatorType::Div) : { op = ASR::binopType::Div; break; }
             case (AST::operatorType::FloorDiv) : {op = ASR::binopType::Div; break;}
             case (AST::operatorType::Pow) : { op = ASR::binopType::Pow; break; }
-            case (AST::operatorType::Mod) : { op = ASR::binopType::Mod; break; }
             case (AST::operatorType::BitOr) : { op = ASR::binopType::BitOr; break; }
             case (AST::operatorType::BitAnd) : { op = ASR::binopType::BitAnd; break; }
             case (AST::operatorType::BitXor) : { op = ASR::binopType::BitXor; break; }
             case (AST::operatorType::LShift) : { op = ASR::binopType::BitLShift; break; }
             case (AST::operatorType::RShift) : { op = ASR::binopType::BitRShift; break; }
+            case (AST::operatorType::Mod) : { op_name = "_mod"; break; }
             default : {
                 throw SemanticError("Binary operator type not supported",
                     x.base.base.loc);
@@ -1607,6 +1607,20 @@ public:
         }
         left = cast_helper(ASRUtils::expr_type(right), left);
         right = cast_helper(ASRUtils::expr_type(left), right);
+        Vec<ASR::call_arg_t> args;
+        args.reserve(al, 2);
+        ASR::call_arg_t arg1, arg2;
+        arg1.loc = left->base.loc;
+        arg1.m_value = left;
+        args.push_back(al, arg1);
+        arg2.loc = right->base.loc;
+        arg2.m_value = right;
+        args.push_back(al, arg2);
+        if (op_name != "") {
+            ASR::symbol_t *fn_mod = resolve_intrinsic_function(x.base.base.loc, op_name);
+            tmp = make_call_helper(al, fn_mod, current_scope, args, op_name, x.base.base.loc);
+            return;
+        }
         bool floordiv = (x.m_op == AST::operatorType::FloorDiv);
         make_BinOp_helper(left, right, op, x.base.base.loc, floordiv);
     }

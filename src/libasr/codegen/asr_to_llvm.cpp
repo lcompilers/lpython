@@ -3258,10 +3258,6 @@ public:
                 tmp = builder->CreateFPToSI(tmp, type);
                 break;
             };
-            case ASR::binopType::Mod: {
-                tmp = builder->CreateSRem(left_val, right_val);
-                break;
-            }
             case ASR::binopType::BitOr: {
                 tmp = builder->CreateOr(left_val, right_val);
                 break;
@@ -3281,10 +3277,6 @@ public:
             case ASR::binopType::BitRShift: {
                 tmp = builder->CreateAShr(left_val, right_val);
                 break;
-            }
-            default: {
-                throw CodeGenError("Binary operator '" + ASRUtils::binop_to_str(x.m_op) + "' not supported yet",
-                    x.base.base.loc);
             }
         }
     }
