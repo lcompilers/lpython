@@ -10,8 +10,7 @@ def f(pa: Pointer[A]):
     print(pa.y)
 
 def g():
-    x: A
-    x = A(5, 5.5)
+    x: A = A(3, 3.5)
     px: Pointer[A]
     px = pointer(x)
     px.x = 5
