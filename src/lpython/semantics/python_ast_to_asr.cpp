@@ -3601,11 +3601,12 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
 {
     std::map<int, ASR::symbol_t*> ast_overload;
     std::filesystem::path fp = file_path;
+    std::string parent_dir = fp.parent_path().string();
     AST::Module_t *ast_m = AST::down_cast2<AST::Module_t>(&ast);
 
     ASR::asr_t *unit;
     auto res = symbol_table_visitor(al, *ast_m, diagnostics, main_module,
-        ast_overload, fp.parent_path());
+        ast_overload, parent_dir);
     if (res.ok) {
         unit = res.result;
     } else {
