@@ -1,0 +1,13 @@
+{
+    "basename": "asr-typevar1-88b4515",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/typevar1.py",
+    "infile_hash": "7f87ae488515a911eb765ab844c4f3dd0c382c08bdcb9894db018df0",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-typevar1-88b4515.stdout",
+    "stdout_hash": "2a804666c62980dde22362b1c0f45dd34d190f80a1797a3fa8a5e24c",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
