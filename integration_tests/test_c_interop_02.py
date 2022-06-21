@@ -53,4 +53,9 @@ def test_c_callbacks():
     xi8 = 3
     assert f_i8_i8(xi8) == 4
 
+    s: str
+    s = "Hello World!"
+    print(f_str_i32(s))
+    assert f_str_i32(s) == 3
+
 test_c_callbacks()
