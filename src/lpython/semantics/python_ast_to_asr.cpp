@@ -281,12 +281,14 @@ public:
     AttributeHandler attr_handler;
     std::map<int, ASR::symbol_t*> &ast_overload;
     std::string parent_dir;
+    Vec<ASR::stmt_t*> *current_body;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module,
             std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir)
         : diag{diagnostics}, al{al}, current_scope{symbol_table}, main_module{main_module},
-            ast_overload{ast_overload}, parent_dir{parent_dir} {
+            ast_overload{ast_overload}, parent_dir{parent_dir},
+            current_body{nullptr} {
         current_module_dependencies.reserve(al, 4);
     }
 
@@ -1379,7 +1381,12 @@ public:
                 throw SemanticAbort();
             }
             init_expr = value;
-            value = ASRUtils::expr_value(value);
+            // Set compile time to value to nullptr
+            // Once constant variables are supported
+            // in LPython set value according to the
+            // nature of the variable (nullptr if non-constant,
+            // otherwise ASRUtils::expr_value(init_expr).
+            value = nullptr;
         }
         ASR::intentType s_intent = ASRUtils::intent_local;
         ASR::storage_typeType storage_type =
@@ -1392,7 +1399,21 @@ public:
                 s2c(al, var_name), s_intent, init_expr, value, storage_type, type,
                 current_procedure_abi_type, s_access, s_presence,
                 value_attr);
-        current_scope->add_symbol(var_name, ASR::down_cast<ASR::symbol_t>(v));
+        ASR::symbol_t* v_sym = ASR::down_cast<ASR::symbol_t>(v);
+        // Convert initialisation at declaration to assignment
+        // only for non-global variables. For global variables
+        // keep relying on `m_symbolic_value`.
+        if( init_expr && current_body) {
+            ASR::expr_t* v_expr = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, v_sym));
+            init_expr = cast_helper(ASRUtils::expr_type(v_expr), init_expr, true);
+            ASR::asr_t* assign = ASR::make_Assignment_t(al, x.base.base.loc, v_expr,
+                                                        init_expr, nullptr);
+            current_body->push_back(al, ASRUtils::STMT(assign));
+            ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
+            v_variable->m_symbolic_value = nullptr;
+            v_variable->m_value = nullptr;
+        }
+        current_scope->add_symbol(var_name, v_sym);
 
         tmp = nullptr;
     }
@@ -2341,7 +2362,6 @@ private:
 
 public:
     ASR::asr_t *asr;
-    Vec<ASR::stmt_t*> *current_body;
 
     BodyVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
          bool main_module, std::map<int, ASR::symbol_t*> &ast_overload)
@@ -2354,11 +2374,11 @@ public:
     // The `body` Vec must already be reserved
     void transform_stmts(Vec<ASR::stmt_t*> &body, size_t n_body, AST::stmt_t **m_body) {
         tmp = nullptr;
+        Vec<ASR::stmt_t*>* current_body_copy = current_body;
+        current_body = &body;
         for (size_t i=0; i<n_body; i++) {
             // Visit the statement
-            current_body = &body;
             this->visit_stmt(*m_body[i]);
-            current_body = nullptr;
             if (tmp != nullptr) {
                 ASR::stmt_t* tmp_stmt = ASRUtils::STMT(tmp);
                 body.push_back(al, tmp_stmt);
@@ -2366,6 +2386,7 @@ public:
             // To avoid last statement to be entered twice once we exit this node
             tmp = nullptr;
         }
+        current_body = current_body_copy;
     }
 
     void visit_Module(const AST::Module_t &x) {
