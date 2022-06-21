@@ -24,6 +24,10 @@ def f_i16_i16(x: i16) -> i16:
 def f_i8_i8(x: i8) -> i8:
     pass
 
+@ccall
+def f_str_i32(x: str) -> i32:
+    pass
+
 def test_c_callbacks():
     xf64: f64
     xf64 = 3.3
