@@ -318,7 +318,7 @@ ttype
     | Pointer(ttype type)
     | CPtr()
 
-binop = Add | Sub | Mul | Div | Pow
+binop = Add | Sub | Mul | Div | Pow | BitAnd | BitOr | BitXor | BitLShift | BitRShift
 
 logicalbinop = And | Or | Xor | NEqv | Eqv
 

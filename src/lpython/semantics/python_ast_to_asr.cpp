@@ -1251,6 +1251,23 @@ public:
                     case (ASR::binopType::Mul): { result = left_value * right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
                     case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
+                    case (ASR::binopType::BitAnd): { result = left_value & right_value; break; }
+                    case (ASR::binopType::BitOr): { result = left_value | right_value; break; }
+                    case (ASR::binopType::BitXor): { result = left_value ^ right_value; break; }
+                    case (ASR::binopType::BitLShift): {
+                        if (right_value < 0) {
+                            throw SemanticError("Negative shift count not allowed.", loc);
+                        }
+                        result = left_value << right_value;
+                        break;
+                    }
+                    case (ASR::binopType::BitRShift): {
+                        if (right_value < 0) {
+                            throw SemanticError("Negative shift count not allowed.", loc);
+                        }
+                        result = left_value >> right_value;
+                        break;
+                    }
                     default: { LFORTRAN_ASSERT(false); } // should never happen
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
@@ -1260,6 +1277,11 @@ public:
             tmp = ASR::make_IntegerBinOp_t(al, loc, left, op, right, dest_type, value);
 
         } else if (ASRUtils::is_real(*dest_type)) {
+
+            if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
+                op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift) {
+                throw SemanticError("Unsupported binary operation on floats: '" + ASRUtils::binop_to_str(op) + "'", loc);
+            }
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 double left_value = ASR::down_cast<ASR::RealConstant_t>(
@@ -1282,6 +1304,11 @@ public:
             tmp = ASR::make_RealBinOp_t(al, loc, left, op, right, dest_type, value);
 
         } else if (ASRUtils::is_complex(*dest_type)) {
+
+            if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
+                op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift) {
+                throw SemanticError("Unsupported binary operation on complex: '" + ASRUtils::binop_to_str(op) + "'", loc);
+            }
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 ASR::ComplexConstant_t *left0 = ASR::down_cast<ASR::ComplexConstant_t>(
@@ -1567,12 +1594,12 @@ public:
             case (AST::operatorType::Div) : { op = ASR::binopType::Div; break; }
             case (AST::operatorType::FloorDiv) : {op = ASR::binopType::Div; break;}
             case (AST::operatorType::Pow) : { op = ASR::binopType::Pow; break; }
+            case (AST::operatorType::BitOr) : { op = ASR::binopType::BitOr; break; }
+            case (AST::operatorType::BitAnd) : { op = ASR::binopType::BitAnd; break; }
+            case (AST::operatorType::BitXor) : { op = ASR::binopType::BitXor; break; }
+            case (AST::operatorType::LShift) : { op = ASR::binopType::BitLShift; break; }
+            case (AST::operatorType::RShift) : { op = ASR::binopType::BitRShift; break; }
             case (AST::operatorType::Mod) : { op_name = "_mod"; break; }
-            case (AST::operatorType::BitOr) : { op_name = "_bitwise_or"; break; }
-            case (AST::operatorType::BitAnd) : { op_name = "_bitwise_and"; break; }
-            case (AST::operatorType::BitXor) : { op_name = "_bitwise_xor"; break; }
-            case (AST::operatorType::LShift) : { op_name = "_bitwise_lshift"; break; }
-            case (AST::operatorType::RShift) : { op_name = "_bitwise_rshift"; break; }
             default : {
                 throw SemanticError("Binary operator type not supported",
                     x.base.base.loc);
