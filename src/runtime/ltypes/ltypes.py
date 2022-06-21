@@ -130,7 +130,8 @@ class CTypes:
             elif arg == CPtr:
                 return ctypes.c_void_p
             elif arg == str:
-                return ctypes.POINTER(ctypes.c_char)
+                #return ctypes.POINTER(ctypes.c_char)
+                return ctypes.c_void_p
             elif arg is None:
                 raise NotImplementedError("Type cannot be None")
             elif isinstance(arg, Array):
@@ -178,6 +179,21 @@ class CTypes:
     def __call__(self, *args, **kwargs):
         if len(kwargs) > 0:
             raise Exception("kwargs are not supported")
+        new_args = []
+        for arg in args:
+            if isinstance(arg, str):
+                # wrap strings into c_char_p
+                #b = arg.encode("utf-8")
+                #new_args.append(ctypes.c_char_p(bytes(arg, "utf-8")))
+                #new_args.append(bytes(arg, "utf-8"))
+                b = "xxxxxxx"
+                b = ctypes.create_string_buffer(str.encode(b))
+                print(type(b))
+                new_args.append(b)
+            else:
+                new_args.append(arg)
+        print(self.cf.argtypes)
+        print(new_args)
         return self.cf(*args)
 
 
