@@ -59,8 +59,8 @@ class ASRToCVisitor : public BaseCCPPVisitor<ASRToCVisitor>
 {
 public:
 
-    ASRToCVisitor(diag::Diagnostics &diag) : BaseCCPPVisitor(diag,
-        false, false, true) {}
+    ASRToCVisitor(diag::Diagnostics &diag, Platform &platform)
+         : BaseCCPPVisitor(diag, platform, false, false, true) {}
 
     std::string convert_variable_decl(const ASR::Variable_t &v)
     {
@@ -435,11 +435,11 @@ R"(
 };
 
 Result<std::string> asr_to_c(Allocator &al, ASR::TranslationUnit_t &asr,
-    diag::Diagnostics &diagnostics)
+    diag::Diagnostics &diagnostics, Platform &platform)
 {
     pass_unused_functions(al, asr, true);
     pass_replace_class_constructor(al, asr);
-    ASRToCVisitor v(diagnostics);
+    ASRToCVisitor v(diagnostics, platform);
     try {
         v.visit_asr((ASR::asr_t &)asr);
     } catch (const CodeGenError &e) {

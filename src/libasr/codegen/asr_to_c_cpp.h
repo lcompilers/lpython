@@ -69,6 +69,7 @@ private:
     Derived& self() { return static_cast<Derived&>(*this); }
 public:
     diag::Diagnostics &diag;
+    Platform platform;
     std::string src;
     int indentation_level;
     int indentation_spaces;
@@ -89,8 +90,9 @@ public:
 
     SymbolTable* global_scope;
 
-    BaseCCPPVisitor(diag::Diagnostics &diag,
+    BaseCCPPVisitor(diag::Diagnostics &diag, Platform &platform,
             bool gen_stdstring, bool gen_stdcomplex, bool is_c) : diag{diag},
+            platform{platform},
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
         is_c{is_c}, global_scope{nullptr} {}
 
