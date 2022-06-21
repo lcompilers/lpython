@@ -542,7 +542,20 @@ R"(#include <stdio.h>
 
 
     void visit_StringConstant(const ASR::StringConstant_t &x) {
-        src = "\"" + std::string(x.m_s) + "\"";
+        src = "\"";
+        std::string s = x.m_s;
+        for (size_t idx=0; idx < s.size(); idx++) {
+            if (s[idx] == '\n') {
+                src += "\\n";
+            } else if (s[idx] == '\\') {
+                src += "\\\\";
+            } else if (s[idx] == '\"') {
+                src += "\\\"";
+            } else {
+                src += s[idx];
+            }
+        }
+        src += "\"";
         last_expr_precedence = 2;
     }
 
