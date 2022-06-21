@@ -3263,6 +3263,26 @@ public:
                 tmp = builder->CreateFPToSI(tmp, type);
                 break;
             };
+            case ASR::binopType::BitOr: {
+                tmp = builder->CreateOr(left_val, right_val);
+                break;
+            }
+            case ASR::binopType::BitAnd: {
+                tmp = builder->CreateAnd(left_val, right_val);
+                break;
+            }
+            case ASR::binopType::BitXor: {
+                tmp = builder->CreateXor(left_val, right_val);
+                break;
+            }
+            case ASR::binopType::BitLShift: {
+                tmp = builder->CreateShl(left_val, right_val);
+                break;
+            }
+            case ASR::binopType::BitRShift: {
+                tmp = builder->CreateAShr(left_val, right_val);
+                break;
+            }
         }
     }
 
@@ -3310,6 +3330,10 @@ public:
                 tmp = builder->CreateCall(fn_pow, {left_val, right_val});
                 break;
             };
+            default: {
+                throw CodeGenError("Binary operator '" + ASRUtils::binop_to_str(x.m_op) + "' not supported",
+                    x.base.base.loc);
+            }
         }
     }
 
@@ -3375,6 +3399,10 @@ public:
                 }
                 break;
             };
+            default: {
+                throw CodeGenError("Binary operator '" + ASRUtils::binop_to_str(x.m_op) + "' not supported",
+                    x.base.base.loc);
+            }
         }
         tmp = lfortran_complex_bin_op(left_val, right_val, fn_name, type);
     }

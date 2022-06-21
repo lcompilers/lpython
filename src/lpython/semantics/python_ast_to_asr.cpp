@@ -13,6 +13,7 @@
 #include <libasr/asr.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
+#include <libasr/config.h>
 #include <libasr/string_utils.h>
 #include <libasr/utils.h>
 #include <libasr/pass/global_stmts_program.h>
@@ -1253,6 +1254,23 @@ public:
                     case (ASR::binopType::Mul): { result = left_value * right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
                     case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
+                    case (ASR::binopType::BitAnd): { result = left_value & right_value; break; }
+                    case (ASR::binopType::BitOr): { result = left_value | right_value; break; }
+                    case (ASR::binopType::BitXor): { result = left_value ^ right_value; break; }
+                    case (ASR::binopType::BitLShift): {
+                        if (right_value < 0) {
+                            throw SemanticError("Negative shift count not allowed.", loc);
+                        }
+                        result = left_value << right_value;
+                        break;
+                    }
+                    case (ASR::binopType::BitRShift): {
+                        if (right_value < 0) {
+                            throw SemanticError("Negative shift count not allowed.", loc);
+                        }
+                        result = left_value >> right_value;
+                        break;
+                    }
                     default: { LFORTRAN_ASSERT(false); } // should never happen
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
@@ -1262,6 +1280,11 @@ public:
             tmp = ASR::make_IntegerBinOp_t(al, loc, left, op, right, dest_type, value);
 
         } else if (ASRUtils::is_real(*dest_type)) {
+
+            if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
+                op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift) {
+                throw SemanticError("Unsupported binary operation on floats: '" + ASRUtils::binop_to_str(op) + "'", loc);
+            }
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 double left_value = ASR::down_cast<ASR::RealConstant_t>(
@@ -1284,6 +1307,11 @@ public:
             tmp = ASR::make_RealBinOp_t(al, loc, left, op, right, dest_type, value);
 
         } else if (ASRUtils::is_complex(*dest_type)) {
+
+            if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
+                op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift) {
+                throw SemanticError("Unsupported binary operation on complex: '" + ASRUtils::binop_to_str(op) + "'", loc);
+            }
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 ASR::ComplexConstant_t *left0 = ASR::down_cast<ASR::ComplexConstant_t>(
@@ -1458,6 +1486,30 @@ public:
         current_scope->add_symbol(var_name, ASR::down_cast<ASR::symbol_t>(v));
     }
 
+    void add_lpython_version(const Location &loc) {
+        std::string var_name = "__LPYTHON_VERSION__";
+        std::string var_value = LFORTRAN_VERSION;
+        size_t s_size = var_value.size();
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                1, s_size, nullptr, nullptr, 0));
+        ASR::expr_t *value = ASRUtils::EXPR(ASR::make_StringConstant_t(al,
+            loc, s2c(al, var_value), type));
+        ASR::expr_t *init_expr = value;
+
+        ASR::intentType s_intent = ASRUtils::intent_local;
+        ASR::storage_typeType storage_type =
+                ASR::storage_typeType::Default;
+        ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
+        ASR::accessType s_access = ASR::accessType::Public;
+        ASR::presenceType s_presence = ASR::presenceType::Required;
+        bool value_attr = false;
+        ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
+                s2c(al, var_name), s_intent, init_expr, value, storage_type, type,
+                current_procedure_abi_type, s_access, s_presence,
+                value_attr);
+        current_scope->add_symbol(var_name, ASR::down_cast<ASR::symbol_t>(v));
+    }
+
     void visit_Name(const AST::Name_t &x) {
         std::string name = x.m_id;
         ASR::symbol_t *s = current_scope->resolve_symbol(name);
@@ -1473,6 +1525,11 @@ public:
             // declare it first:
             add_name(x.base.base.loc);
             // And now resolve it:
+            ASR::symbol_t *s = current_scope->resolve_symbol(name);
+            LFORTRAN_ASSERT(s);
+            tmp = ASR::make_Var_t(al, x.base.base.loc, s);
+        } else if (name == "__LPYTHON_VERSION__") {
+            add_lpython_version(x.base.base.loc);
             ASR::symbol_t *s = current_scope->resolve_symbol(name);
             LFORTRAN_ASSERT(s);
             tmp = ASR::make_Var_t(al, x.base.base.loc, s);
@@ -1588,12 +1645,12 @@ public:
             case (AST::operatorType::Div) : { op = ASR::binopType::Div; break; }
             case (AST::operatorType::FloorDiv) : {op = ASR::binopType::Div; break;}
             case (AST::operatorType::Pow) : { op = ASR::binopType::Pow; break; }
+            case (AST::operatorType::BitOr) : { op = ASR::binopType::BitOr; break; }
+            case (AST::operatorType::BitAnd) : { op = ASR::binopType::BitAnd; break; }
+            case (AST::operatorType::BitXor) : { op = ASR::binopType::BitXor; break; }
+            case (AST::operatorType::LShift) : { op = ASR::binopType::BitLShift; break; }
+            case (AST::operatorType::RShift) : { op = ASR::binopType::BitRShift; break; }
             case (AST::operatorType::Mod) : { op_name = "_mod"; break; }
-            case (AST::operatorType::BitOr) : { op_name = "_bitwise_or"; break; }
-            case (AST::operatorType::BitAnd) : { op_name = "_bitwise_and"; break; }
-            case (AST::operatorType::BitXor) : { op_name = "_bitwise_xor"; break; }
-            case (AST::operatorType::LShift) : { op_name = "_bitwise_lshift"; break; }
-            case (AST::operatorType::RShift) : { op_name = "_bitwise_rshift"; break; }
             default : {
                 throw SemanticError("Binary operator type not supported",
                     x.base.base.loc);

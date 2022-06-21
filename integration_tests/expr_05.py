@@ -23,6 +23,9 @@ def main0():
     a = 123282374
     b = 32771
     assert test_mod(a, b) == 30643
+    a = -5345
+    b = -534
+    assert a % b == -5
     a = -123282374
     b = 32771
     assert test_mod(a, b) == 2128

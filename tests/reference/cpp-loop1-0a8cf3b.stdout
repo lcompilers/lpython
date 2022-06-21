@@ -29,7 +29,6 @@ void main0()
     i = test_factorial_1(4);
     i = test_factorial_2(4);
     j = test_factorial_3(5);
-    std::cout << i << j << std::endl;
 }
 
 int32_t test_factorial_1(int x)

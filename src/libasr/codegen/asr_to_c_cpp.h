@@ -69,6 +69,7 @@ private:
     Derived& self() { return static_cast<Derived&>(*this); }
 public:
     diag::Diagnostics &diag;
+    Platform platform;
     std::string src;
     int indentation_level;
     int indentation_spaces;
@@ -89,8 +90,9 @@ public:
 
     SymbolTable* global_scope;
 
-    BaseCCPPVisitor(diag::Diagnostics &diag,
+    BaseCCPPVisitor(diag::Diagnostics &diag, Platform &platform,
             bool gen_stdstring, bool gen_stdcomplex, bool is_c) : diag{diag},
+            platform{platform},
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
         is_c{is_c}, global_scope{nullptr} {}
 
@@ -542,7 +544,20 @@ R"(#include <stdio.h>
 
 
     void visit_StringConstant(const ASR::StringConstant_t &x) {
-        src = "\"" + std::string(x.m_s) + "\"";
+        src = "\"";
+        std::string s = x.m_s;
+        for (size_t idx=0; idx < s.size(); idx++) {
+            if (s[idx] == '\n') {
+                src += "\\n";
+            } else if (s[idx] == '\\') {
+                src += "\\\\";
+            } else if (s[idx] == '\"') {
+                src += "\\\"";
+            } else {
+                src += s[idx];
+            }
+        }
+        src += "\"";
         last_expr_precedence = 2;
     }
 

@@ -261,6 +261,11 @@ static inline std::string binop_to_str(const ASR::binopType t) {
         case (ASR::binopType::Sub): { return " - "; }
         case (ASR::binopType::Mul): { return "*"; }
         case (ASR::binopType::Div): { return "/"; }
+        case (ASR::binopType::BitAnd): { return "&"; }
+        case (ASR::binopType::BitOr): { return "|"; }
+        case (ASR::binopType::BitXor): { return "^"; }
+        case (ASR::binopType::BitLShift): { return "<<"; }
+        case (ASR::binopType::BitRShift): { return ">>"; }
         default : throw LFortranException("Cannot represent the binary operator as a string");
     }
 }

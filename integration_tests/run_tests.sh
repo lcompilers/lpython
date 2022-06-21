@@ -2,7 +2,7 @@
 
 set -ex
 
-git clean -dfx
+rm -rf b1 b2 b3
 
 # Append "-j4" or "-j" to run in parallel
 jn=$1

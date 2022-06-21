@@ -59,8 +59,8 @@ class ASRToCVisitor : public BaseCCPPVisitor<ASRToCVisitor>
 {
 public:
 
-    ASRToCVisitor(diag::Diagnostics &diag) : BaseCCPPVisitor(diag,
-        false, false, true) {}
+    ASRToCVisitor(diag::Diagnostics &diag, Platform &platform)
+         : BaseCCPPVisitor(diag, platform, false, false, true) {}
 
     std::string convert_variable_decl(const ASR::Variable_t &v)
     {
@@ -376,7 +376,13 @@ R"(
                     case 1: { return "%d"; }
                     case 2: { return "%d"; }
                     case 4: { return "%d"; }
-                    case 8: { return "%lli"; }
+                    case 8: {
+                        if (platform == Platform::Linux) {
+                            return "%li";
+                        } else {
+                            return "%lli";
+                        }
+                    }
                     default: { throw LFortranException("Integer kind not supported"); }
                 }
             }
@@ -415,8 +421,8 @@ R"(
         std::vector<std::string> v;
         for (size_t i=0; i<x.n_values; i++) {
             this->visit_expr(*x.m_values[i]);
-            ASR::ttype_t* valuei_type = ASRUtils::expr_type(x.m_values[i]);
-            out += get_print_type(valuei_type, ASR::is_a<ASR::ArrayRef_t>(*x.m_values[i]));
+            ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_values[i]);
+            out += get_print_type(value_type, ASR::is_a<ASR::ArrayRef_t>(*x.m_values[i]));
             if (i+1!=x.n_values) {
                 out += " ";
             }
@@ -435,11 +441,11 @@ R"(
 };
 
 Result<std::string> asr_to_c(Allocator &al, ASR::TranslationUnit_t &asr,
-    diag::Diagnostics &diagnostics)
+    diag::Diagnostics &diagnostics, Platform &platform)
 {
     pass_unused_functions(al, asr, true);
     pass_replace_class_constructor(al, asr);
-    ASRToCVisitor v(diagnostics);
+    ASRToCVisitor v(diagnostics, platform);
     try {
         v.visit_asr((ASR::asr_t &)asr);
     } catch (const CodeGenError &e) {
