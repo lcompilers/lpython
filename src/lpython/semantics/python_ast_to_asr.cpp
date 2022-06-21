@@ -638,6 +638,25 @@ public:
             type = ast_expr_to_asr_type(underlying_type->base.loc, *underlying_type);
             type = ASRUtils::TYPE(ASR::make_Pointer_t(al, loc, type));
         } else {
+            ASR::symbol_t *s = current_scope->resolve_symbol(var_annotation);
+            if (s) {
+                if (ASR::is_a<ASR::Variable_t>(*s)) {
+                    ASR::Variable_t *var_sym = ASR::down_cast<ASR::Variable_t>(s);
+                    if (var_sym->m_type->type == ASR::ttypeType::TypeVar) {
+                        return ASRUtils::TYPE(ASR::make_TypeVar_t(al, loc, 
+                            ASR::down_cast<ASR::TypeVar_t>(var_sym->m_type)->m_var));
+                    }
+                } else {
+                    ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
+                    if (der_sym && der_sym->type == ASR::symbolType::DerivedType) {
+                        return ASRUtils::TYPE(ASR::make_Derived_t(al, loc, der_sym, dims.p, dims.size()));
+                    } 
+                }
+            }
+            throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
+        }
+        /*
+        } else {
             ASR::symbol_t* der_sym = ASRUtils::symbol_get_past_external(
                                         current_scope->resolve_symbol(var_annotation));
             if( !der_sym || der_sym->type != ASR::symbolType::DerivedType ) {
@@ -645,6 +664,7 @@ public:
             }
             type = ASRUtils::TYPE(ASR::make_Derived_t(al, loc, der_sym, dims.p, dims.size()));
         }
+        */
         return type;
     }
 
@@ -2196,9 +2216,73 @@ public:
         // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
     }
 
-    void visit_Assign(const AST::Assign_t &/*x*/) {
-        // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
+    void visit_Assign(const AST::Assign_t &x) {
+        /**
+         *  Type variables have to put in the symbol table before checking function definitions.
+         *  This describes a different treatment for Assign in the form of `T = TypeVar('T')`
+         */
+        if (x.n_targets == 1 && AST::is_a<AST::Call_t>(*x.m_value)) {
+            AST::Call_t *rh = AST::down_cast<AST::Call_t>(x.m_value);
+            if (AST::is_a<AST::Name_t>(*rh->m_func)) {
+                AST::Name_t *tv = AST::down_cast<AST::Name_t>(rh->m_func);
+                std::string f_name = tv->m_id;
+                if (strcmp(s2c(al, f_name), "TypeVar") == 0 &&
+                        rh->n_args > 0 && AST::is_a<AST::ConstantStr_t>(*rh->m_args[0])) {
+                    if (AST::is_a<AST::Name_t>(*x.m_targets[0])) {
+                        std::string tvar_name = AST::down_cast<AST::Name_t>(x.m_targets[0])->m_id;
+                        // Check if the type variable name is a reserved type keyword
+                        const char* type_list[14] 
+                            = { "list", "set", "dict", "tuple", "i8", "i16", "i32", "i64", "f32",
+                                "f64", "c32", "c64", "str", "bool"};
+                        for (int i = 0; i < 14; i++) {
+                            if (strcmp(s2c(al, tvar_name), type_list[i]) == 0) {
+                                throw SemanticError(tvar_name + " is a reserved type, consider a different type variable name",
+                                    x.base.base.loc);
+                            }
+                        }
+                        // Check if the type variable is already defined
+                        if (current_scope->get_scope().find(tvar_name) !=
+                                current_scope->get_scope().end()) {
+                            ASR::symbol_t *orig_decl = current_scope->get_symbol(tvar_name);
+                            throw SemanticError(diag::Diagnostic(
+                                "Variable " + tvar_name + " is already declared in the same scope",
+                                diag::Level::Error, diag::Stage::Semantic, {
+                                    diag::Label("original declaration", {orig_decl->base.loc}, false),
+                                    diag::Label("redeclaration", {x.base.base.loc}),
+                            }));
+                        }
+
+                        // Build ttype
+                        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_TypeVar_t(al, x.base.base.loc, s2c(al, tvar_name)));
+
+                        ASR::expr_t *value = nullptr;
+                        ASR::expr_t *init_expr = nullptr;
+                        ASR::intentType s_intent = ASRUtils::intent_local;
+                        ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
+                        ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
+                        ASR::accessType s_access = ASR::accessType::Public;
+                        ASR::presenceType s_presence = ASR::presenceType::Required;
+                        bool value_attr = false;
+
+                        // Build the variable and add it to the scope
+                        ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
+                            s2c(al, tvar_name), s_intent, init_expr, value, storage_type, type,
+                            current_procedure_abi_type, s_access, s_presence,
+                            value_attr);
+                        current_scope->add_symbol(tvar_name, ASR::down_cast<ASR::symbol_t>(v));
+                        
+                        tmp = nullptr;
+                        
+                        return;
+                    } else {
+                        // This error might need to be further elaborated
+                        throw SemanticError("Type variable must be a variable", x.base.base.loc);
+                    }
+                }
+            }        
+        }
     }
+
     void visit_Expr(const AST::Expr_t &/*x*/) {
         // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
     }
@@ -2435,6 +2519,7 @@ public:
             /**
              *  Add different treatment for Assign in the form of `T = TypeVar('T')`
              */
+            /*
             if (AST::is_a<AST::Call_t>(*x.m_value)) {
                 AST::Call_t *rh = AST::down_cast<AST::Call_t>(x.m_value);
                 if (AST::is_a<AST::Name_t>(*rh->m_func)) {
@@ -2443,13 +2528,23 @@ public:
                     if (strcmp(s2c(al, f_name), "TypeVar") == 0 &&
                             rh->n_args > 0 && AST::is_a<AST::ConstantStr_t>(*rh->m_args[0])) {
                         if (AST::is_a<AST::Name_t>(*x.m_targets[0])) {
-                            std::string tvar_name = AST::down_cast<AST::ConstantStr_t>(rh->m_args[0])->m_value;
+                            std::string tvar_name = AST::down_cast<AST::Name_t>(x.m_targets[0])->m_id;
+                            // Check if the type variable name is a reserved type keyword
+                            const char* type_list[14] 
+                                = { "list", "set", "dict", "tuple", "i8", "i16", "i32", "i64", "f32",
+                                    "f64", "c32", "c64", "str", "bool"};
+                            for (int i = 0; i < 14; i++) {
+                                if (strcmp(s2c(al, tvar_name), type_list[i]) == 0) {
+                                    throw SemanticError(tvar_name + " is a reserved type, consider a different type variable name",
+                                        x.base.base.loc);
+                                }
+                            }
                             // Check if the type variable is already defined
                             if (current_scope->get_scope().find(tvar_name) !=
                                     current_scope->get_scope().end()) {
                                 ASR::symbol_t *orig_decl = current_scope->get_symbol(tvar_name);
                                 throw SemanticError(diag::Diagnostic(
-                                    "Type variable is already declared in the same scope",
+                                    "Variable " + tvar_name + " is already declared in the same scope",
                                     diag::Level::Error, diag::Stage::Semantic, {
                                         diag::Label("original declaration", {orig_decl->base.loc}, false),
                                         diag::Label("redeclaration", {x.base.base.loc}),
@@ -2485,6 +2580,7 @@ public:
                     }
                 }
             }
+            */
 
             this->visit_expr(*x.m_targets[0]);
             target = ASRUtils::EXPR(tmp);
