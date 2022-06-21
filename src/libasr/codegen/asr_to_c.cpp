@@ -376,7 +376,13 @@ R"(
                     case 1: { return "%d"; }
                     case 2: { return "%d"; }
                     case 4: { return "%d"; }
-                    case 8: { return "%lli"; }
+                    case 8: {
+                        if (platform == Platform::Linux) {
+                            return "%li";
+                        } else {
+                            return "%lli";
+                        }
+                    }
                     default: { throw LFortranException("Integer kind not supported"); }
                 }
             }
