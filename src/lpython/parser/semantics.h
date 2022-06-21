@@ -423,11 +423,24 @@ char* concat_string(Allocator &al, ast_t *a, char *b) {
     return LFortran::s2c(al, std::string(s) + std::string(b));
 }
 
+char* unescape(Allocator &al, LFortran::Str &s) {
+    std::string x;
+    for (size_t idx=0; idx < s.size(); idx++) {
+        if (s.p[idx] == '\\' && s.p[idx+1] == 'n') {
+            x += "\n";
+            idx++;
+        } else {
+            x += s.p[idx];
+        }
+    }
+    return LFortran::s2c(al, x);
+}
+
 #define SYMBOL(x, l) make_Name_t(p.m_a, l, \
         x.c_str(p.m_a), expr_contextType::Load)
 // `x.int_n` is of type BigInt but we store the int64_t directly in AST
 #define INTEGER(x, l) make_ConstantInt_t(p.m_a, l, x, nullptr)
-#define STRING1(x, l) make_ConstantStr_t(p.m_a, l, x.c_str(p.m_a), nullptr)
+#define STRING1(x, l) make_ConstantStr_t(p.m_a, l, unescape(p.m_a, x), nullptr)
 #define STRING2(x, y, l) make_ConstantStr_t(p.m_a, l, concat_string(p.m_a, x, y.c_str(p.m_a)), nullptr)
 #define STRING3(id, x, l) PREFIX_STRING(p.m_a, l, name2char(id), x.c_str(p.m_a))
 #define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, x, nullptr)
