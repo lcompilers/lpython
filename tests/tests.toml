@@ -149,6 +149,10 @@ filename = "../integration_tests/expr_09.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/expr_10.py"
+asr = true
+
+[[test]]
 filename = "loop1.py"
 ast = true
 asr = true

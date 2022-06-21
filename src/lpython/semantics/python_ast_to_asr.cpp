@@ -667,7 +667,8 @@ public:
     // Function to create appropriate call based on symbol type. If it is external
     // generic symbol then it changes the name accordingly.
     ASR::asr_t* make_call_helper(Allocator &al, ASR::symbol_t* s, SymbolTable *current_scope,
-                    Vec<ASR::call_arg_t> args, std::string call_name, const Location &loc) {
+                    Vec<ASR::call_arg_t> args, std::string call_name, const Location &loc,
+                    bool ignore_return_value=false) {
         ASR::symbol_t *s_generic = nullptr, *stemp = s;
         // handling ExternalSymbol
         bool is_external = ASR::is_a<ASR::ExternalSymbol_t>(*s);
@@ -725,8 +726,23 @@ public:
             Vec<ASR::call_arg_t> args_new;
             args_new.reserve(al, func->n_args);
             visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
-            return ASR::make_FunctionCall_t(al, loc, stemp,
-                s_generic, args_new.p, args_new.size(), a_type, value, nullptr);
+            ASR::asr_t* func_call_asr = ASR::make_FunctionCall_t(al, loc, stemp,
+                                            s_generic, args_new.p, args_new.size(),
+                                            a_type, value, nullptr);
+            if( ignore_return_value ) {
+                std::string dummy_ret_name = current_scope->get_unique_name("__lpython_dummy");
+                ASR::asr_t* variable_asr = ASR::make_Variable_t(al, loc, current_scope,
+                                                s2c(al, dummy_ret_name), ASR::intentType::Local,
+                                                nullptr, nullptr, ASR::storage_typeType::Default,
+                                                a_type, ASR::abiType::Source, ASR::accessType::Public,
+                                                ASR::presenceType::Required, false);
+                ASR::symbol_t* variable_sym = ASR::down_cast<ASR::symbol_t>(variable_asr);
+                current_scope->add_symbol(dummy_ret_name, variable_sym);
+                ASR::expr_t* variable_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, variable_sym));
+                return ASR::make_Assignment_t(al, loc, variable_var, ASRUtils::EXPR(func_call_asr), nullptr);
+            } else {
+                return func_call_asr;
+            }
         } else if (ASR::is_a<ASR::Subroutine_t>(*s)) {
             ASR::Subroutine_t *func = ASR::down_cast<ASR::Subroutine_t>(s);
             if (args.size() != func->n_args) {
@@ -3284,7 +3300,7 @@ public:
                     x.base.base.loc);
             }
             tmp = make_call_helper(al, s, current_scope, args, call_name,
-                    x.base.base.loc);
+                    x.base.base.loc, true);
             return;
         }
         this->visit_expr(*x.m_value);
