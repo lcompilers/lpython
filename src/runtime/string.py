@@ -13,5 +13,18 @@ def capitalize(s: str) -> str:
     Return a copy of the string with its first character capitalized and the rest lowercased.
     """
     result: str
-    result = s[0].upper() + s[1:]
+    result = upper(s[0]) + s[1:]
     return result
+
+def upper(s: str) -> str:
+    result : str
+    result = ''
+    char : str
+
+    for char in s:
+        if ord(char) >= 97 and ord(char) <=122 :
+            result += chr(ord(char) - 32)
+        else :
+            result += char
+    return result
+
