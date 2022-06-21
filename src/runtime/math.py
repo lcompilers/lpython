@@ -1,4 +1,4 @@
-from ltypes import i8, i16, i32, f32, f64, ccall
+from ltypes import i8, i16, i32, i64, f32, f64, ccall, overload
 
 
 pi: f64 = 3.141592653589793238462643383279502884197
@@ -7,6 +7,45 @@ tau: f64 = 6.283185307179586
 
 # TODO: Change floor used inside functions implemented here to
 # floordiv operator (//) once the multiple import issue is fixed
+
+def fsum(data: list) -> f64:
+    """
+    Sum of the elements of `data`.
+    """
+    sum: f64
+    sum = 0.0
+
+    i: i32
+    for i in range(len(data)):
+        sum += data[i]
+    return sum
+
+def prod(data: list) -> f64:
+    """
+    Return the product of the elements of `data`.
+    """
+    
+    result: f64
+    result = 1.0
+    
+    i: i32
+    for i in range(len(data)):
+        result *= data[i]
+    return result
+
+def dist(x: list, y: list) -> f64:
+    """
+    Return euclidean distance between `x` and `y` points.
+    """
+    assert len(x) == len(y), "Length of lists should be same"
+    res: f64
+    res = 0.0
+
+    i: i32
+    for i in range(len(x)):
+        res += (x[i] - y[i]) ** 2
+    res = sqrt(res)
+    return res
 
 def factorial(x: i32) -> i32:
     """
