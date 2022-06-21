@@ -4691,6 +4691,35 @@ public:
         pop_nested_stack(s);
     }
 
+    void handle_bitwise_args(const ASR::FunctionCall_t& x, llvm::Value*& arg1,
+                             llvm::Value*& arg2) {
+        LFORTRAN_ASSERT(x.n_args == 2);
+        tmp = nullptr;
+        this->visit_expr_wrapper(x.m_args[0].m_value, true);
+        arg1 = tmp;
+        tmp = nullptr;
+        this->visit_expr_wrapper(x.m_args[1].m_value, true);
+        arg2 = tmp;
+    }
+
+    void handle_bitwise_xor(const ASR::FunctionCall_t& x) {
+        llvm::Value *arg1 = nullptr, *arg2 = nullptr;
+        handle_bitwise_args(x, arg1, arg2);
+        tmp = builder->CreateXor(arg1, arg2);
+    }
+
+    void handle_bitwise_and(const ASR::FunctionCall_t& x) {
+        llvm::Value *arg1 = nullptr, *arg2 = nullptr;
+        handle_bitwise_args(x, arg1, arg2);
+        tmp = builder->CreateAnd(arg1, arg2);
+    }
+
+    void handle_bitwise_or(const ASR::FunctionCall_t& x) {
+        llvm::Value *arg1 = nullptr, *arg2 = nullptr;
+        handle_bitwise_args(x, arg1, arg2);
+        tmp = builder->CreateOr(arg1, arg2);
+    }
+
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
         if( ASRUtils::is_intrinsic_optimization(x.m_name) ) {
             ASR::Function_t* routine = ASR::down_cast<ASR::Function_t>(
@@ -4720,6 +4749,21 @@ public:
         }
         if( s == nullptr ) {
             s = ASR::down_cast<ASR::Function_t>(symbol_get_past_external(x.m_name));
+        }
+        if( ASRUtils::is_intrinsic_function2(s) ) {
+            std::string symbol_name = ASRUtils::symbol_name(x.m_name);
+            if( startswith(symbol_name, "_bitwise_xor") ) {
+                handle_bitwise_xor(x);
+                return ;
+            }
+            if( startswith(symbol_name, "_bitwise_and") ) {
+                handle_bitwise_and(x);
+                return ;
+            }
+            if( startswith(symbol_name, "_bitwise_or") ) {
+                handle_bitwise_or(x);
+                return ;
+            }
         }
         if (parent_function){
             push_nested_stack(parent_function);
