@@ -5,6 +5,7 @@ def main0():
     i2: i32 = 4
     i1 = 3
     i2 = 5
+    print(-i1 ^ -i2)
     assert -i1 ^ -i2 == 6
 
 main0()
