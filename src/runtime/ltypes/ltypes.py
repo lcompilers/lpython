@@ -129,6 +129,8 @@ class CTypes:
                 return ctypes.c_int8
             elif arg == CPtr:
                 return ctypes.c_void_p
+            elif arg == str:
+                return ctypes.POINTER(ctypes.c_char)
             elif arg is None:
                 raise NotImplementedError("Type cannot be None")
             elif isinstance(arg, Array):
