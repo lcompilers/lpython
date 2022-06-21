@@ -214,7 +214,8 @@ int emit_cpp(const std::string &infile,
     LFortran::ASR::TranslationUnit_t* asr = r1.result;
 
     diagnostics.diagnostics.clear();
-    auto res = LFortran::asr_to_cpp(al, *asr, diagnostics);
+    auto res = LFortran::asr_to_cpp(al, *asr, diagnostics,
+        compiler_options.platform);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -254,7 +255,8 @@ int emit_c(const std::string &infile,
     LFortran::ASR::TranslationUnit_t* asr = r1.result;
 
     diagnostics.diagnostics.clear();
-    auto res = LFortran::asr_to_c(al, *asr, diagnostics);
+    auto res = LFortran::asr_to_c(al, *asr, diagnostics,
+        compiler_options.platform);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())

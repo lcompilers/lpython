@@ -64,8 +64,8 @@ std::string format_type(const std::string &dims, const std::string &type,
 class ASRToCPPVisitor : public BaseCCPPVisitor<ASRToCPPVisitor>
 {
 public:
-    ASRToCPPVisitor(diag::Diagnostics &diag) : BaseCCPPVisitor(diag,
-        true, true, false) {}
+    ASRToCPPVisitor(diag::Diagnostics &diag, Platform &platform)
+        : BaseCCPPVisitor(diag, platform, true, true, false) {}
 
     std::string convert_variable_decl(const ASR::Variable_t &v)
     {
@@ -419,10 +419,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 };
 
 Result<std::string> asr_to_cpp(Allocator &al, ASR::TranslationUnit_t &asr,
-    diag::Diagnostics &diagnostics)
+    diag::Diagnostics &diagnostics, Platform &platform)
 {
     pass_unused_functions(al, asr, true);
-    ASRToCPPVisitor v(diagnostics);
+    ASRToCPPVisitor v(diagnostics, platform);
     try {
         v.visit_asr((ASR::asr_t &)asr);
     } catch (const CodeGenError &e) {
