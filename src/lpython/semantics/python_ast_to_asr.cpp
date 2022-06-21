@@ -1375,14 +1375,12 @@ public:
         // Convert initialisation at declaration to assignment
         // only for non-global variables. For global variables
         // keep relying on `m_symbolic_value`.
-        if( init_expr && current_scope->parent != nullptr) {
+        if( init_expr && current_body) {
             ASR::expr_t* v_expr = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, v_sym));
             init_expr = cast_helper(ASRUtils::expr_type(v_expr), init_expr, true);
             ASR::asr_t* assign = ASR::make_Assignment_t(al, x.base.base.loc, v_expr,
                                                         init_expr, nullptr);
-            if( current_body ) {
-                current_body->push_back(al, ASRUtils::STMT(assign));
-            }
+            current_body->push_back(al, ASRUtils::STMT(assign));
             ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
             v_variable->m_symbolic_value = nullptr;
             v_variable->m_value = nullptr;
