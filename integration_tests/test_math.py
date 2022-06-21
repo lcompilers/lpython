@@ -28,7 +28,6 @@ def test_isqrt():
     i = isqrt(15)
     assert i == 3
 
-
 def test_degrees():
 
     i: f64
