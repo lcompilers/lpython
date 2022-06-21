@@ -63,12 +63,18 @@ void test_pow()
     p = __lpython_overloaded_2__pow(f1, f2);
     f1 = __lpython_overloaded_4__pow(a, f2);
     f1 = __lpython_overloaded_5__pow(f2, a);
+    b1 = true;
+    b2 = false;
     assert (__lpython_overloaded_8__pow(b1, b2) == 1);
     assert (__lpython_overloaded_8__pow(b2, b1) == 0);
     assert (__lpython_overloaded_8__pow(b1, b2) == 1);
     assert (__lpython_overloaded_8__pow(false, false) == 1);
+    a1 =   4.50000000000000000e+00;
+    a2 =   2.29999999999999982e+00;
     assert (__lpython_overloaded_0__abs(__lpython_overloaded_3__pow(a1, a2) -   3.17971929089206000e+01) < eps);
     assert (__lpython_overloaded_0__abs(__lpython_overloaded_3__pow(a2, a1) -   4.24399889427765871e+01) < eps);
+    x = 3;
+    y =   2.29999999999999982e+00;
     assert (__lpython_overloaded_0__abs(__lpython_overloaded_6__pow(x, y) -   1.25135025328431819e+01) < eps);
     assert (__lpython_overloaded_0__abs(__lpython_overloaded_7__pow(y, x) -   1.21669999999999980e+01) < eps);
     assert (__lpython_overloaded_0__abs(__lpython_overloaded_6__pow(x,   5.50000000000000000e+00) -   4.20888346239237194e+02) < eps);
