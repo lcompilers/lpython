@@ -91,3 +91,5 @@ endif()
 if (WITH_LLVM)
     target_link_libraries(asr p::llvm)
 endif()
+
+add_subdirectory(lsp)
