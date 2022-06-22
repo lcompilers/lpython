@@ -730,7 +730,7 @@ public:
                                             s_generic, args_new.p, args_new.size(),
                                             a_type, value, nullptr);
             if( ignore_return_value ) {
-                std::string dummy_ret_name = current_scope->get_unique_name("__lpython_dummy");
+                std::string dummy_ret_name = current_scope->get_unique_name("__lcompilers_dummy");
                 ASR::asr_t* variable_asr = ASR::make_Variable_t(al, loc, current_scope,
                                                 s2c(al, dummy_ret_name), ASR::intentType::Local,
                                                 nullptr, nullptr, ASR::storage_typeType::Default,
