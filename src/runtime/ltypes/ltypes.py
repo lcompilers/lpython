@@ -129,6 +129,8 @@ class CTypes:
                 return ctypes.c_int8
             elif arg == CPtr:
                 return ctypes.c_void_p
+            elif arg == str:
+                return ctypes.c_char_p
             elif arg is None:
                 raise NotImplementedError("Type cannot be None")
             elif isinstance(arg, Array):
@@ -176,7 +178,13 @@ class CTypes:
     def __call__(self, *args, **kwargs):
         if len(kwargs) > 0:
             raise Exception("kwargs are not supported")
-        return self.cf(*args)
+        new_args = []
+        for arg in args:
+            if isinstance(arg, str):
+                new_args.append(arg.encode("utf-8"))
+            else:
+                new_args.append(arg)
+        return self.cf(*new_args)
 
 
 def ccall(f):
