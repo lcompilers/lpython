@@ -1,0 +1,14 @@
+#Possible comparison 
+# parser: Parsing time
+
+[[benchmark]]
+filename = 'test_math.py'
+parser = true
+
+[[benchmark]]
+filename = 'long_statment.py'
+parser = true
+
+[[benchmark]]
+filename = 'very_long_statment.py'
+parser = true
