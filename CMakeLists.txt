@@ -83,6 +83,12 @@ set(WITH_RUNTIME_LIBRARY YES
 set(WITH_INTRINSIC_MODULES no
     CACHE BOOL "Compile intrinsic modules to .pyc (ASR) at build time")
 
+set(WITH_WHEREAMI yes
+    CACHE BOOL "Include whereami.cpp")
+
+set(WITH_ZLIB yes
+    CACHE BOOL "Compile with ZLIB Library")
+
 # Build to wasm
 set(LPYTHON_BUILD_TO_WASM no
     CACHE BOOL "Compile LPython To WASM")
@@ -281,6 +287,8 @@ message("WITH_LSP: ${WITH_LSP}")
 message("WITH_FMT: ${WITH_FMT}")
 message("WITH_LFORTRAN_BINARY_MODFILES: ${WITH_LFORTRAN_BINARY_MODFILES}")
 message("WITH_RUNTIME_LIBRARY: ${WITH_RUNTIME_LIBRARY}")
+message("WITH_WHEREAMI: ${WITH_WHEREAMI}")
+message("WITH_ZLIB: ${WITH_ZLIB}")
 message("WITH_TARGET_AARCH64: ${WITH_TARGET_AARCH64}")
 message("WITH_TARGET_X86: ${WITH_TARGET_X86}")
 
