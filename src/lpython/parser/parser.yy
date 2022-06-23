@@ -246,7 +246,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %left "or"
 %left "and"
 %precedence "not"
-%left "==" "!=" ">=" ">" "<=" "<" TK_IS_NOT KW_IS TK_NOT_IN KW_IF KW_ELSE// "in"
+%left "==" "!=" ">=" ">" "<=" "<" TK_IS_NOT KW_IS TK_NOT_IN // "in"
+%left KW_IF KW_ELSE
 %left "|"
 %left "^"
 %left "&"
@@ -749,7 +750,6 @@ expr
     | expr "or" expr { $$ = BOOLOP($1, Or, $3, @$); }
     | "not" expr { $$ = UNARY($2, Not, @$); }
 
-    /* | expr KW_IF expr KW_ELSE expr { } */
     | ternary_if_statement { $$ = $1; }
 
     ;
