@@ -950,10 +950,6 @@ public:
                     al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type));
                 return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
                     al, right->base.loc, right, ASR::cast_kindType::IntegerToComplex, left_type));
-            } else {
-                std::string rtype = ASRUtils::type_to_str_python(right_type);
-                throw SemanticError("Casting " + rtype + " to complex is not Implemented",
-                        right->base.loc);
             }
         }
         if (!is_assign) { // This will only be used for BinOp
