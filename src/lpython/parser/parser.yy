@@ -238,6 +238,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> sep
 %type <ast> sep_one
 %type <ast> string
+%type <ast> ternary_if_statement
 
 // Precedence
 
@@ -245,7 +246,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %left "or"
 %left "and"
 %precedence "not"
-%left "==" "!=" ">=" ">" "<=" "<" TK_IS_NOT KW_IS TK_NOT_IN // "in"
+%left "==" "!=" ">=" ">" "<=" "<" TK_IS_NOT KW_IS TK_NOT_IN KW_IF KW_ELSE// "in"
 %left "|"
 %left "^"
 %left "&"
@@ -454,6 +455,10 @@ global_statement
 
 if_statement_single
     : KW_IF expr TK_COLON single_line_statement { $$ = IF_01($2, $4, @$); }
+    ;
+
+ternary_if_statement
+    : expr KW_IF expr KW_ELSE expr { $$ = TERNARY($3, $1, $5, @$); }
     ;
 
 nonlocal_statement
@@ -743,6 +748,9 @@ expr
     | expr "and" expr { $$ = BOOLOP($1, And, $3, @$); }
     | expr "or" expr { $$ = BOOLOP($1, Or, $3, @$); }
     | "not" expr { $$ = UNARY($2, Not, @$); }
+
+    /* | expr KW_IF expr KW_ELSE expr { } */
+    | ternary_if_statement { $$ = $1; }
 
     ;
 

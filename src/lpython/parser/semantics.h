@@ -235,6 +235,8 @@ int dot_count = 0;
         EXPR(e), STMTS(stmt), stmt.size(), STMTS(orelse), orelse.size())
 #define IF_STMT_03(e, stmt, orelse, l) make_If_t(p.m_a, l, \
         EXPR(e), STMTS(stmt), stmt.size(), STMTS(A2LIST(p.m_a, orelse)), 1)
+#define TERNARY(test, body, orelse, l) make_IfExp_t(p.m_a, l, \
+        EXPR(test), EXPR(body), EXPR(orelse))
 
 #define FOR_01(target, iter, stmts, l) make_For_t(p.m_a, l, \
         EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
