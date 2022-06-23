@@ -237,7 +237,7 @@ def fabs(x: i64) -> f64:
     return float(x)
 
 @overload
-def fabs(x: i32) -> f32:
+def fabs(x: i32) -> f64:
     """
     Return the absolute value of `x`.
     """
@@ -246,7 +246,7 @@ def fabs(x: i32) -> f32:
     return float(x)
 
 @overload
-def fabs(x: i16) -> f32:
+def fabs(x: i16) -> f64:
     """
     Return the absolute value of `x`.
     """
@@ -255,7 +255,7 @@ def fabs(x: i16) -> f32:
     return float(x)
 
 @overload
-def fabs(x: i8) -> f32:
+def fabs(x: i8) -> f64:
     """
     Return the absolute value of `x`.
     """
