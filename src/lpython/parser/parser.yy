@@ -239,6 +239,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> sep_one
 %type <ast> string
 %type <ast> ternary_if_statement
+%type <ast> list_comprehension
+%type <vec_ast> id_list
+%type <ast> id_item
 
 // Precedence
 
@@ -662,6 +665,23 @@ tuple_list
     : slice_item_list { $$ = TUPLE($1, @$); }
     ;
 
+id_list
+    : id_list "," id { $$ = $1; LIST_ADD($$, $3); }
+    | id { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+id_item
+    : id_list { $$ = ID_TUPLE_01($1, @$); }
+    | id_list "," { $$ = ID_TUPLE_03($1, @$); }
+    | "(" id_list "," ")" { $$ = ID_TUPLE_03($2, @$); }
+    | "(" id_list ","  id ")" { $$ = ID_TUPLE_01(TUPLE_($2, $4), @$); }
+    ;
+
+list_comprehension
+    : "[" expr KW_FOR id_item KW_IN expr "]" { $$ = LIST_COMP_1($2, $4, $6, @$); }
+    | "[" expr KW_FOR id_item KW_IN expr KW_IF expr "]" { $$ = LIST_COMP_2($2, $4, $6, $8, @$); }
+    ;
+
 keyword_item
     : id "=" expr { $$ = CALL_KEYWORD_01($1, $3, @$); }
     | "**" expr { $$ = CALL_KEYWORD_02($2, @$); }
@@ -752,6 +772,7 @@ expr
 
     | ternary_if_statement { $$ = $1; }
 
+    | list_comprehension { $$ = $1; }
     ;
 
 id
