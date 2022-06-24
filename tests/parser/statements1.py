@@ -143,3 +143,13 @@ if a := ord('3'):
     x = 1
 
 a = {1, 2, 3}
+
+# Ternary operator (Conditional expressions)
+
+b = 6 if a == 2 else 8
+
+'true' if True else 'false'
+
+result = x if not (a > b) else y
+
+print(a,"is greater") if (a > b) else print(b,"is Greater")
