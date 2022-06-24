@@ -314,6 +314,25 @@ namespace LFortran {
             return v;
         }
 
+        ASR::expr_t* create_compare_helper(Allocator &al, const Location &loc, ASR::expr_t* left, ASR::expr_t* right,
+                                                ASR::cmpopType op) {
+            ASR::ttype_t* type = ASRUtils::expr_type(left);
+            // TODO: compute `value`:
+            if (ASRUtils::is_integer(*type)) {
+                return ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, left, op, right, type, nullptr));
+            } else if (ASRUtils::is_real(*type)) {
+                return ASRUtils::EXPR(ASR::make_RealCompare_t(al, loc, left, op, right, type, nullptr));
+            } else if (ASRUtils::is_complex(*type)) {
+                return ASRUtils::EXPR(ASR::make_ComplexCompare_t(al, loc, left, op, right, type, nullptr));
+            } else if (ASRUtils::is_logical(*type)) {
+                return ASRUtils::EXPR(ASR::make_LogicalCompare_t(al, loc, left, op, right, type, nullptr));
+            } else if (ASRUtils::is_character(*type)) {
+                return ASRUtils::EXPR(ASR::make_StringCompare_t(al, loc, left, op, right, type, nullptr));
+            } else {
+                throw LFortranException("Type not supported");
+            }
+        }
+
         ASR::expr_t* create_binop_helper(Allocator &al, const Location &loc, ASR::expr_t* left, ASR::expr_t* right,
                                                 ASR::binopType op) {
             ASR::ttype_t* type = ASRUtils::expr_type(left);
