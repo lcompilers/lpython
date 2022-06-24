@@ -54,7 +54,7 @@ def main():
         x86 = test.get("x86", False)
         bin_ = test.get("bin", False)
         pass_ = test.get("pass", None)
-        if pass_ and pass_ not in ["do_loops", "global_stmts"]:
+        if pass_ and pass_ not in ["do_loops", "global_stmts", "loop_vectorise"]:
             raise Exception("Unknown pass: %s" % pass_)
 
         print(color(style.bold)+"TEST:"+color(style.reset), filename)
@@ -72,6 +72,11 @@ def main():
         if asr:
             run_test("asr", "lpython --show-asr --no-color {infile} -o {outfile}",
                     filename, update_reference, extra_args)
+
+        if pass_ is not None:
+            cmd = "lpython --pass=" + pass_ + " --show-asr --no-color {infile} -o {outfile}"
+            run_test("pass_{}".format(pass_), cmd,
+                     filename, update_reference, extra_args)
 
         if llvm:
             if no_llvm:
