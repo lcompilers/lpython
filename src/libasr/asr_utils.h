@@ -137,6 +137,20 @@ static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
     return ASR::expr_type0(f);
 }
 
+static inline ASR::ttype_t* symbol_type(const ASR::symbol_t *f)
+{
+    switch( f->type ) {
+        case ASR::symbolType::Variable: {
+            return ASR::down_cast<ASR::Variable_t>(f)->m_type;
+        }
+        default: {
+            throw LFortranException("Cannot return type of, " +
+                                    std::to_string(f->type) + " symbol.");
+        }
+    }
+    return nullptr;
+}
+
 static inline std::string type_to_str(const ASR::ttype_t *t)
 {
     switch (t->type) {
@@ -649,6 +663,11 @@ static inline bool extract_value(ASR::expr_t* value_expr, T& value) {
     }
 
     switch( value_expr->type ) {
+        case ASR::exprType::IntegerConstant: {
+            ASR::IntegerConstant_t* const_int = ASR::down_cast<ASR::IntegerConstant_t>(value_expr);
+            value = (T) const_int->m_n;
+            break;
+        }
         case ASR::exprType::RealConstant: {
             ASR::RealConstant_t* const_real = ASR::down_cast<ASR::RealConstant_t>(value_expr);
             value = (T) const_real->m_r;
