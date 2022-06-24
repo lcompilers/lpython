@@ -514,9 +514,9 @@ namespace LFortran {
                 stmt1 = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target,
                     LFortran::ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, a, ASR::binopType::Sub, c, type, nullptr)), nullptr));
 
-                cond = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc,
+                cond = LFortran::ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc,
                     LFortran::ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, target, ASR::binopType::Add, c, type, nullptr)),
-                    cmp_op, b, type, nullptr, nullptr));
+                    cmp_op, b, type, nullptr));
 
                 inc_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target,
                             LFortran::ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, target, ASR::binopType::Add, c, type, nullptr)), nullptr));

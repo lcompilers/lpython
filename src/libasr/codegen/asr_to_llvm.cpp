@@ -3015,7 +3015,7 @@ public:
         }
     }
 
-    void visit_LogicalCompare(const ASR::LogicaLCompare_t &x) {
+    void visit_LogicalCompare(const ASR::LogicalCompare_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
             return;
