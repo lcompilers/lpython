@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_factorial-9983e4f",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_factorial.py",
+    "infile_hash": "d379d2f378eb34c6c8e87695f9bc7c042f0047421bc231e8f0adc297",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-test_factorial-9983e4f.stdout",
+    "stdout_hash": "d4ad7df5515415c8d87f2b4f0b1ed1d457fda2a85d3e11a8917adf36",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
