@@ -45,8 +45,9 @@ def test_str_repeat():
     assert 3*a*3 == "XyzXyzXyzXyzXyzXyzXyzXyzXyz"
     assert a*-1 == ""
 
-def test_cosntant_str_index():
+def test_constant_str_subscript():
     assert "abc"[2] == "c"
+    assert "abc"[:2] == "ab"
 
 def check():
     f()
@@ -54,6 +55,6 @@ def check():
     test_str_index()
     test_str_slice()
     test_str_repeat()
-    test_cosntant_str_index()
+    test_constant_str_subscript()
 
 check()
