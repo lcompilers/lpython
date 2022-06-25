@@ -45,11 +45,15 @@ def test_str_repeat():
     assert 3*a*3 == "XyzXyzXyzXyzXyzXyzXyzXyzXyz"
     assert a*-1 == ""
 
+def test_cosntant_str_index():
+    assert "abc"[2] == "c"
+
 def check():
     f()
     test_str_concat()
     test_str_index()
     test_str_slice()
     test_str_repeat()
+    test_cosntant_str_index()
 
 check()

@@ -1917,9 +1917,16 @@ public:
         ai.m_left = nullptr;
         ai.m_right = nullptr;
         ai.m_step = nullptr;
-        ASR::symbol_t *s = ASR::down_cast<ASR::Var_t>(value)->m_v;
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-        ASR::ttype_t *type = v->m_type;
+        ASR::symbol_t *s = nullptr;
+        ASR::ttype_t *type;
+        if (AST::is_a<ASR::StringConstant_t>(*value)) {
+            type = ASR::down_cast<ASR::StringConstant_t>(value)->m_type;
+        }
+        else {
+            s = ASR::down_cast<ASR::Var_t>(value)->m_v;
+            ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+            type = v->m_type;
+        }
         if (AST::is_a<AST::Slice_t>(*x.m_slice)) {
             AST::Slice_t *sl = AST::down_cast<AST::Slice_t>(x.m_slice);
             if (sl->m_lower != nullptr) {
