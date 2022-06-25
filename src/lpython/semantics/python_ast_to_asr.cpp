@@ -3303,8 +3303,27 @@ public:
             args.reserve(al, c->n_args);
             visit_expr_list(c->m_args, c->n_args, args);
             if (call_name == "print") {
-                ASR::expr_t *fmt=nullptr;
+                ASR::expr_t *fmt = nullptr;
                 Vec<ASR::expr_t*> args_expr = ASRUtils::call_arg2expr(al, args);
+                ASR::expr_t *separator = nullptr;
+                if (c->n_keywords > 0) {
+                    std::string arg_name;
+                    for (size_t i = 0; i < c->n_keywords; i++) {
+                        arg_name = c->m_keywords[i].m_arg;
+                        if (arg_name == "sep") {
+                            visit_expr(*c->m_keywords[i].m_value);
+                            separator = ASRUtils::EXPR(tmp);
+                            break;
+                        }
+                    }
+                }
+                if (!separator) {
+                    ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
+                            1, 1, nullptr, nullptr, 0));
+                    tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, " "), type);
+                    separator = ASRUtils::EXPR(tmp);
+                }
+                args_expr.push_back(al, separator);
                 tmp = ASR::make_Print_t(al, x.base.base.loc, fmt,
                     args_expr.p, args_expr.size());
                 return;
