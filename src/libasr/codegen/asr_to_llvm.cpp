@@ -60,6 +60,7 @@
 #include <libasr/pass/unused_functions.h>
 #include <libasr/pass/inline_function_calls.h>
 #include <libasr/pass/dead_code_removal.h>
+#include <libasr/pass/loop_vectorise.h>
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/codegen/llvm_utils.h>
@@ -5051,6 +5052,7 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
     pass_replace_print_arr(al, asr, rl_path);
 
     if( fast ) {
+        pass_loop_vectorise(al, asr, rl_path);
         pass_loop_unroll(al, asr, rl_path);
     }
 
