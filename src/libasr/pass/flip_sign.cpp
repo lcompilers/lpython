@@ -134,7 +134,28 @@ public:
         }
     }
 
-    void visit_Compare(const ASR::Compare_t& x) {
+    void visit_IntegerCompare(const ASR::IntegerCompare_t& x) {
+        handle_Compare(x);
+    }
+
+    void visit_RealCompare(const ASR::RealCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    void visit_ComplexCompare(const ASR::ComplexCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    void visit_LogicalCompare(const ASR::LogicalCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    void visit_StringCompare(const ASR::StringCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    template <typename T>
+    void handle_Compare(const T& x) {
         is_compare_present = true;
         ASR::expr_t* potential_one = nullptr;
         ASR::expr_t* potential_func_call = nullptr;

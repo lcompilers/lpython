@@ -664,7 +664,28 @@ R"(#include <stdio.h>
         last_expr_precedence = 2;
     }
 
-    void visit_Compare(const ASR::Compare_t &x) {
+    void visit_IntegerCompare(const ASR::IntegerCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    void visit_RealCompare(const ASR::RealCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    void visit_ComplexCompare(const ASR::ComplexCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    void visit_LogicalCompare(const ASR::LogicalCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    void visit_StringCompare(const ASR::StringCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    template<typename T>
+    void handle_Compare(const T &x) {
         self().visit_expr(*x.m_left);
         std::string left = std::move(src);
         int left_precedence = last_expr_precedence;
