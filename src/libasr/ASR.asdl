@@ -270,7 +270,7 @@ expr
     | ArrayTranspose(expr matrix, ttype type, expr? value)
     | ArrayMatMul(expr matrix_a, expr matrix_b, ttype type, expr? value)
     | ArrayPack(expr array, expr mask, expr? vector, ttype type, expr? value)
-    | Transfer(expr source, expr mold, expr? size, ttype type, expr? value)
+    | BitCast(expr source, expr mold, expr? size, ttype type, expr? value)
     | DerivedRef(expr v, symbol m, ttype type, expr? value)
     | OverloadedCompare(expr left, cmpop op, expr right, ttype type, expr? value, expr overloaded)
     | OverloadedBinOp(expr left, binop op, expr right, ttype type, expr? value, expr overloaded)
