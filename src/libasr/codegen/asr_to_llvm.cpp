@@ -4171,6 +4171,13 @@ public:
     void handle_print(const T &x) {
         std::vector<llvm::Value *> args;
         std::vector<std::string> fmt;
+        llvm::Value *sep = nullptr;
+        if (x.m_separator) {
+            this->visit_expr_wrapper(x.m_separator, true);
+            sep = tmp;
+        } else {
+            sep = builder->CreateGlobalStringPtr(" ");
+        }
         for (size_t i=0; i<x.n_values; i++) {
             uint64_t ptr_loads_copy = ptr_loads;
             int reduce_loads = 0;
@@ -4181,6 +4188,10 @@ public:
                 if( ASR::is_a<ASR::Pointer_t>(*var->m_type) ) {
                     ptr_loads = 1;
                 }
+            }
+            if (i != 0) {
+                fmt.push_back("%s");
+                args.push_back(sep);
             }
             ptr_loads = ptr_loads - reduce_loads;
             this->visit_expr_wrapper(x.m_values[i], true);
@@ -4300,7 +4311,6 @@ public:
         std::string fmt_str;
         for (size_t i=0; i<fmt.size(); i++) {
             fmt_str += fmt[i];
-            if (i < fmt.size()-1) fmt_str += " ";
         }
         fmt_str += "\n";
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(fmt_str);

@@ -3317,15 +3317,8 @@ public:
                         }
                     }
                 }
-                if (!separator) {
-                    ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                            1, 1, nullptr, nullptr, 0));
-                    tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, " "), type);
-                    separator = ASRUtils::EXPR(tmp);
-                }
-                args_expr.push_back(al, separator);
                 tmp = ASR::make_Print_t(al, x.base.base.loc, fmt,
-                    args_expr.p, args_expr.size());
+                    args_expr.p, args_expr.size(), separator);
                 return;
 
             } else if (call_name == "quit") {
