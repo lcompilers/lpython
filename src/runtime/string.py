@@ -16,8 +16,7 @@ def capitalize(s: str) -> str:
     result = upper(s[0]) + s[1:]
     return result
 
-def upper(s: str) -> str: #implementing upper as a function for now
-
+def upper(s: str) -> str:
     result : str
     result = ''
     char : str
