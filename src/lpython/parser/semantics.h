@@ -452,7 +452,9 @@ char* unescape(Allocator &al, LFortran::Str &s) {
 static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, char *s){
     Vec<expr_t *> exprs;
     exprs.reserve(al, 4);
-    ast_t *tmp;
+    ast_t *tmp = nullptr;
+    // Assuming prefix has only one character.
+    prefix[0] = tolower(prefix[0]);
     if (strcmp(prefix, "f") == 0) {
         std::string str = std::string(s);
         std::string s1 = "\"";
@@ -496,8 +498,18 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
                 exprs.push_back(al, down_cast<expr_t>(tmp));
             }
         }
+        tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
+    } else if (strcmp(prefix, "b") == 0) {
+        std::string str = std::string(s);
+        size_t start_pos = 0;
+        while((start_pos = str.find("\n", start_pos)) != std::string::npos) {
+                str.replace(start_pos, 1, "\\n");
+                start_pos += 2;
+        }
+        str = "b'" + str + "'";
+        tmp = make_ConstantBytes_t(al, l, LFortran::s2c(al, str), nullptr);
     }
-    return make_JoinedStr_t(al, l, exprs.p, exprs.size());
+    return tmp;
 }
 
 static inline keyword_t *CALL_KW(Allocator &al, Location &l,
