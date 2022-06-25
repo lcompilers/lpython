@@ -566,6 +566,10 @@ asr = true
 filename = "errors/test_bitwise_on_complex.py"
 asr = true
 
+[[test]]
+filename = "errors/test_c_interop1.py"
+llvm = true
+
 # tests/tokens/errors
 
 [[test]]

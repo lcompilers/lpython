@@ -1,0 +1,4 @@
+code generation error: asr_to_llvm: module failed verification. Error:
+Stored value type does not match pointer operand type!
+  store %array* %y, %array.0** %yptr1, align 8
+ %array.0*
