@@ -4001,6 +4001,12 @@ public:
                 tmp = builder->CreateICmpNE(tmp, builder->getInt32(0));
                 break;
             }
+            case (ASR::cast_kindType::CharacterToLogical) : {
+                llvm::AllocaInst *parg = builder->CreateAlloca(character_type, nullptr);
+                builder->CreateStore(tmp, parg);
+                tmp = builder->CreateICmpNE(lfortran_str_len(parg), builder->getInt32(0));
+                break;
+            }
             case (ASR::cast_kindType::LogicalToInteger) : {
                 int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
                 if (a_kind == 2) {
