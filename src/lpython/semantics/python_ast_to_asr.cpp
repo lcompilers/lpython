@@ -3480,7 +3480,8 @@ public:
                 value = ASR::down_cast<ASR::expr_t>(make_LogicalConstant_t(al,
                                 loc, std::string(c) != "", to_type));
             }
-            // TODO: make bool() work for non-constant strings
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                al, loc, arg, ASR::cast_kindType::CharacterToLogical, to_type, value));
 
         } else if (ASRUtils::is_complex(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
