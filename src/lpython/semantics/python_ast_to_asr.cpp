@@ -3313,6 +3313,17 @@ public:
                         if (arg_name == "sep") {
                             visit_expr(*c->m_keywords[i].m_value);
                             separator = ASRUtils::EXPR(tmp);
+                            ASR::ttype_t *type = ASRUtils::expr_type(separator);
+                            if (!ASRUtils::is_character(*type)) {
+                                std::string found = ASRUtils::type_to_str(type);
+                                diag.add(diag::Diagnostic(
+                                    "Separator is expected to be of string type",
+                                    diag::Level::Error, diag::Stage::Semantic, {
+                                        diag::Label("Expected string, found: " + found,
+                                                {separator->base.loc})
+                                    })
+                                );
+                            }
                             break;
                         }
                     }
