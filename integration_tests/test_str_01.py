@@ -49,6 +49,12 @@ def test_constant_str_subscript():
     assert "abc"[2] == "c"
     assert "abc"[:2] == "ab"
 
+def test_str_slice_step():
+    s: str
+    s = "abcdefghijk"
+    assert s[3:12:3] == "dgj"
+    assert s[12:3:-3] == "mjg"
+
 def check():
     f()
     test_str_concat()
