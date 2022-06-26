@@ -60,6 +60,7 @@
 #include <libasr/pass/unused_functions.h>
 #include <libasr/pass/inline_function_calls.h>
 #include <libasr/pass/dead_code_removal.h>
+#include <libasr/pass/loop_vectorise.h>
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/codegen/llvm_utils.h>
@@ -2856,11 +2857,7 @@ public:
         }
     }
 
-    void visit_Compare(const ASR::Compare_t &x) {
-        if( x.m_overloaded ) {
-            this->visit_expr(*x.m_overloaded);
-            return ;
-        }
+    void visit_IntegerCompare(const ASR::IntegerCompare_t &x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
             return;
@@ -2869,167 +2866,202 @@ public:
         llvm::Value *left = tmp;
         this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right = tmp;
-        LFORTRAN_ASSERT_MSG(expr_type(x.m_left)->type == expr_type(x.m_right)->type,
-                            ASRUtils::type_to_str(expr_type(x.m_left)) + " != " +
-                            ASRUtils::type_to_str(expr_type(x.m_right)));
-        ASR::ttypeType optype = expr_type(x.m_left)->type;
-        if (optype == ASR::ttypeType::Integer) {
-            switch (x.m_op) {
-                case (ASR::cmpopType::Eq) : {
-                    tmp = builder->CreateICmpEQ(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::Gt) : {
-                    tmp = builder->CreateICmpSGT(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::GtE) : {
-                    tmp = builder->CreateICmpSGE(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::Lt) : {
-                    tmp = builder->CreateICmpSLT(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::LtE) : {
-                    tmp = builder->CreateICmpSLE(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::NotEq) : {
-                    tmp = builder->CreateICmpNE(left, right);
-                    break;
-                }
-                default : {
-                    throw CodeGenError("Comparison operator not implemented",
-                            x.base.base.loc);
-                }
+        switch (x.m_op) {
+            case (ASR::cmpopType::Eq) : {
+                tmp = builder->CreateICmpEQ(left, right);
+                break;
             }
-        } else if (optype == ASR::ttypeType::Real) {
-            switch (x.m_op) {
-                case (ASR::cmpopType::Eq) : {
-                    tmp = builder->CreateFCmpUEQ(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::Gt) : {
-                    tmp = builder->CreateFCmpUGT(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::GtE) : {
-                    tmp = builder->CreateFCmpUGE(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::Lt) : {
-                    tmp = builder->CreateFCmpULT(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::LtE) : {
-                    tmp = builder->CreateFCmpULE(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::NotEq) : {
-                    tmp = builder->CreateFCmpUNE(left, right);
-                    break;
-                }
-                default : {
-                    throw CodeGenError("Comparison operator not implemented",
-                            x.base.base.loc);
-                }
+            case (ASR::cmpopType::Gt) : {
+                tmp = builder->CreateICmpSGT(left, right);
+                break;
             }
-        } else if (optype == ASR::ttypeType::Complex) {
-            llvm::Value* real_left = complex_re(left, left->getType());
-            llvm::Value* real_right = complex_re(right, right->getType());
-            llvm::Value* img_left = complex_im(left, left->getType());
-            llvm::Value* img_right = complex_im(right, right->getType());
-            llvm::Value *real_res, *img_res;
-            switch (x.m_op) {
-                case (ASR::cmpopType::Eq) : {
-                    real_res = builder->CreateFCmpUEQ(real_left, real_right);
-                    img_res = builder->CreateFCmpUEQ(img_left, img_right);
-                    break;
-                }
-                case (ASR::cmpopType::NotEq) : {
-                    real_res = builder->CreateFCmpUNE(real_left, real_right);
-                    img_res = builder->CreateFCmpUNE(img_left, img_right);
-                    break;
-                }
-                default : {
-                    throw CodeGenError("Comparison operator not implemented",
-                            x.base.base.loc);
-                }
+            case (ASR::cmpopType::GtE) : {
+                tmp = builder->CreateICmpSGE(left, right);
+                break;
             }
-            tmp = builder->CreateAnd(real_res, img_res);
-        } else if (optype == ASR::ttypeType::Character) {
-            // TODO: For now we only compare the first character of the strings
-            left = CreateLoad(left);
-            right = CreateLoad(right);
-            switch (x.m_op) {
-                case (ASR::cmpopType::Eq) : {
-                    tmp = builder->CreateICmpEQ(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::NotEq) : {
-                    tmp = builder->CreateICmpNE(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::Gt) : {
-                    tmp = builder->CreateICmpUGT(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::GtE) : {
-                    tmp = builder->CreateICmpUGE(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::Lt) : {
-                    tmp = builder->CreateICmpULT(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::LtE) : {
-                    tmp = builder->CreateICmpULE(left, right);
-                    break;
-                }
-                default : {
-                    throw CodeGenError("Comparison operator not implemented.",
-                            x.base.base.loc);
-                }
+            case (ASR::cmpopType::Lt) : {
+                tmp = builder->CreateICmpSLT(left, right);
+                break;
             }
-        } else if (optype == ASR::ttypeType::Logical) {
-            // i1 -> i32
-            left = builder->CreateZExt(left, llvm::Type::getInt32Ty(context));
-            right = builder->CreateZExt(right, llvm::Type::getInt32Ty(context));
-            switch (x.m_op) {
-                case (ASR::cmpopType::Eq) : {
-                    tmp = builder->CreateICmpEQ(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::NotEq) : {
-                    tmp = builder->CreateICmpNE(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::Gt) : {
-                    tmp = builder->CreateICmpUGT(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::GtE) : {
-                    tmp = builder->CreateICmpUGE(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::Lt) : {
-                    tmp = builder->CreateICmpULT(left, right);
-                    break;
-                }
-                case (ASR::cmpopType::LtE) : {
-                    tmp = builder->CreateICmpULE(left, right);
-                    break;
-                }
-                default : {
-                    throw CodeGenError("Comparison operator not implemented.",
-                            x.base.base.loc);
-                }
+            case (ASR::cmpopType::LtE) : {
+                tmp = builder->CreateICmpSLE(left, right);
+                break;
             }
-        } else {
-            throw CodeGenError("Only Integer, Real, Complex, Character, and Logical"
-                    " types are supported for comparison.", x.base.base.loc);
+            case (ASR::cmpopType::NotEq) : {
+                tmp = builder->CreateICmpNE(left, right);
+                break;
+            }
+            default : {
+                throw CodeGenError("Comparison operator not implemented",
+                        x.base.base.loc);
+            }
         }
+    }
+
+    void visit_RealCompare(const ASR::RealCompare_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_left, true);
+        llvm::Value *left = tmp;
+        this->visit_expr_wrapper(x.m_right, true);
+        llvm::Value *right = tmp;
+        switch (x.m_op) {
+            case (ASR::cmpopType::Eq) : {
+                tmp = builder->CreateFCmpUEQ(left, right);
+                break;
+            }
+            case (ASR::cmpopType::Gt) : {
+                tmp = builder->CreateFCmpUGT(left, right);
+                break;
+            }
+            case (ASR::cmpopType::GtE) : {
+                tmp = builder->CreateFCmpUGE(left, right);
+                break;
+            }
+            case (ASR::cmpopType::Lt) : {
+                tmp = builder->CreateFCmpULT(left, right);
+                break;
+            }
+            case (ASR::cmpopType::LtE) : {
+                tmp = builder->CreateFCmpULE(left, right);
+                break;
+            }
+            case (ASR::cmpopType::NotEq) : {
+                tmp = builder->CreateFCmpUNE(left, right);
+                break;
+            }
+            default : {
+                throw CodeGenError("Comparison operator not implemented",
+                        x.base.base.loc);
+            }
+        }
+    }
+
+    void visit_ComplexCompare(const ASR::ComplexCompare_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_left, true);
+        llvm::Value *left = tmp;
+        this->visit_expr_wrapper(x.m_right, true);
+        llvm::Value *right = tmp;
+        llvm::Value* real_left = complex_re(left, left->getType());
+        llvm::Value* real_right = complex_re(right, right->getType());
+        llvm::Value* img_left = complex_im(left, left->getType());
+        llvm::Value* img_right = complex_im(right, right->getType());
+        llvm::Value *real_res, *img_res;
+        switch (x.m_op) {
+            case (ASR::cmpopType::Eq) : {
+                real_res = builder->CreateFCmpUEQ(real_left, real_right);
+                img_res = builder->CreateFCmpUEQ(img_left, img_right);
+                break;
+            }
+            case (ASR::cmpopType::NotEq) : {
+                real_res = builder->CreateFCmpUNE(real_left, real_right);
+                img_res = builder->CreateFCmpUNE(img_left, img_right);
+                break;
+            }
+            default : {
+                throw CodeGenError("Comparison operator not implemented",
+                        x.base.base.loc);
+            }
+        }
+        tmp = builder->CreateAnd(real_res, img_res);
+    }
+
+    void visit_StringCompare(const ASR::StringCompare_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_left, true);
+        llvm::Value *left = tmp;
+        this->visit_expr_wrapper(x.m_right, true);
+        llvm::Value *right = tmp;
+        // TODO: For now we only compare the first character of the strings
+        left = CreateLoad(left);
+        right = CreateLoad(right);
+        switch (x.m_op) {
+            case (ASR::cmpopType::Eq) : {
+                tmp = builder->CreateICmpEQ(left, right);
+                break;
+            }
+            case (ASR::cmpopType::NotEq) : {
+                tmp = builder->CreateICmpNE(left, right);
+                break;
+            }
+            case (ASR::cmpopType::Gt) : {
+                tmp = builder->CreateICmpUGT(left, right);
+                break;
+            }
+            case (ASR::cmpopType::GtE) : {
+                tmp = builder->CreateICmpUGE(left, right);
+                break;
+            }
+            case (ASR::cmpopType::Lt) : {
+                tmp = builder->CreateICmpULT(left, right);
+                break;
+            }
+            case (ASR::cmpopType::LtE) : {
+                tmp = builder->CreateICmpULE(left, right);
+                break;
+            }
+            default : {
+                throw CodeGenError("Comparison operator not implemented.",
+                        x.base.base.loc);
+            }
+        }
+    }
+
+    void visit_LogicalCompare(const ASR::LogicalCompare_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_left, true);
+        llvm::Value *left = tmp;
+        this->visit_expr_wrapper(x.m_right, true);
+        llvm::Value *right = tmp;
+        // i1 -> i32
+        left = builder->CreateZExt(left, llvm::Type::getInt32Ty(context));
+        right = builder->CreateZExt(right, llvm::Type::getInt32Ty(context));
+        switch (x.m_op) {
+            case (ASR::cmpopType::Eq) : {
+                tmp = builder->CreateICmpEQ(left, right);
+                break;
+            }
+            case (ASR::cmpopType::NotEq) : {
+                tmp = builder->CreateICmpNE(left, right);
+                break;
+            }
+            case (ASR::cmpopType::Gt) : {
+                tmp = builder->CreateICmpUGT(left, right);
+                break;
+            }
+            case (ASR::cmpopType::GtE) : {
+                tmp = builder->CreateICmpUGE(left, right);
+                break;
+            }
+            case (ASR::cmpopType::Lt) : {
+                tmp = builder->CreateICmpULT(left, right);
+                break;
+            }
+            case (ASR::cmpopType::LtE) : {
+                tmp = builder->CreateICmpULE(left, right);
+                break;
+            }
+            default : {
+                throw CodeGenError("Comparison operator not implemented.",
+                        x.base.base.loc);
+            }
+        }
+    }
+
+    void visit_OverloadedCompare(const ASR::OverloadedCompare_t &x) {
+        this->visit_expr(*x.m_overloaded);
     }
 
     void visit_If(const ASR::If_t &x) {
@@ -5020,6 +5052,7 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
     pass_replace_print_arr(al, asr, rl_path);
 
     if( fast ) {
+        pass_loop_vectorise(al, asr, rl_path);
         pass_loop_unroll(al, asr, rl_path);
     }
 

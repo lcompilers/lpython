@@ -45,11 +45,16 @@ def test_str_repeat():
     assert 3*a*3 == "XyzXyzXyzXyzXyzXyzXyzXyzXyz"
     assert a*-1 == ""
 
+def test_constant_str_subscript():
+    assert "abc"[2] == "c"
+    assert "abc"[:2] == "ab"
+
 def check():
     f()
     test_str_concat()
     test_str_index()
     test_str_slice()
     test_str_repeat()
+    test_constant_str_subscript()
 
 check()

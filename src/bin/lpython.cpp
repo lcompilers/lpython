@@ -26,6 +26,7 @@
 #include <libasr/pass/print_arr.h>
 #include <libasr/pass/unused_functions.h>
 #include <libasr/pass/inline_function_calls.h>
+#include <libasr/pass/loop_vectorise.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/modfile.h>
@@ -52,7 +53,7 @@ enum Backend {
 enum ASRPass {
     do_loops, global_stmts, implied_do_loops, array_op,
     arr_slice, print_arr, class_constructor, unused_functions,
-    inline_function_calls
+    inline_function_calls, loop_vectorise
 };
 
 std::string remove_extension(const std::string& filename) {
@@ -146,6 +147,7 @@ int emit_ast(const std::string &infile,
 }
 
 int emit_asr(const std::string &infile,
+    const std::vector<ASRPass> &passes,
     const std::string &runtime_library_dir,
     bool with_intrinsic_modules, CompilerOptions &compiler_options)
 {
@@ -173,6 +175,51 @@ int emit_asr(const std::string &infile,
         return 2;
     }
     LFortran::ASR::TranslationUnit_t* asr = r.result;
+    for (size_t i=0; i < passes.size(); i++) {
+        switch (passes[i]) {
+            case (ASRPass::do_loops) : {
+                LFortran::pass_replace_do_loops(al, *asr);
+                break;
+            }
+            case (ASRPass::global_stmts) : {
+                LFortran::pass_wrap_global_stmts_into_function(al, *asr, "f");
+                break;
+            }
+            case (ASRPass::implied_do_loops) : {
+                LFortran::pass_replace_implied_do_loops(al, *asr, runtime_library_dir);
+                break;
+            }
+            case (ASRPass::array_op) : {
+                LFortran::pass_replace_array_op(al, *asr, runtime_library_dir);
+                break;
+            }
+            case (ASRPass::inline_function_calls) : {
+                LFortran::pass_inline_function_calls(al, *asr, runtime_library_dir);
+                break;
+            }
+            case (ASRPass::class_constructor) : {
+                LFortran::pass_replace_class_constructor(al, *asr);
+                break;
+            }
+            case (ASRPass::arr_slice) : {
+                LFortran::pass_replace_arr_slice(al, *asr, runtime_library_dir);
+                break;
+            }
+            case (ASRPass::print_arr) : {
+                LFortran::pass_replace_print_arr(al, *asr, runtime_library_dir);
+                break;
+            }
+            case (ASRPass::unused_functions) : {
+              LFortran::pass_unused_functions(al, *asr, true);
+                break;
+            }
+            case (ASRPass::loop_vectorise) : {
+                LFortran::pass_loop_vectorise(al, *asr, runtime_library_dir);
+                break ;
+            }
+            default : throw LFortran::LFortranException("Pass not implemened");
+        }
+    }
 
     if (compiler_options.tree) {
         std::cout << LFortran::pickle_tree(*asr, compiler_options.use_colors,
@@ -826,6 +873,8 @@ int main(int argc, char *argv[])
                 passes.push_back(ASRPass::arr_slice);
             } else if (arg_pass == "unused_functions") {
                 passes.push_back(ASRPass::unused_functions);
+            } else if (arg_pass == "loop_vectorise") {
+                passes.push_back(ASRPass::loop_vectorise);
             } else {
                 std::cerr << "Pass must be one of: do_loops, global_stmts, implied_do_loops, array_op, class_constructor, print_arr, arr_slice, unused_functions" << std::endl;
                 return 1;
@@ -839,7 +888,7 @@ int main(int argc, char *argv[])
             return emit_ast(arg_file, runtime_library_dir, compiler_options);
         }
         if (show_asr) {
-            return emit_asr(arg_file, runtime_library_dir,
+            return emit_asr(arg_file, passes, runtime_library_dir,
                     with_intrinsic_modules, compiler_options);
         }
         if (show_cpp) {

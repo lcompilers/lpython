@@ -1917,9 +1917,16 @@ public:
         ai.m_left = nullptr;
         ai.m_right = nullptr;
         ai.m_step = nullptr;
-        ASR::symbol_t *s = ASR::down_cast<ASR::Var_t>(value)->m_v;
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-        ASR::ttype_t *type = v->m_type;
+        ASR::symbol_t *s = nullptr;
+        ASR::ttype_t *type;
+        if (AST::is_a<ASR::StringConstant_t>(*value)) {
+            type = ASR::down_cast<ASR::StringConstant_t>(value)->m_type;
+        }
+        else {
+            s = ASR::down_cast<ASR::Var_t>(value)->m_v;
+            ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+            type = v->m_type;
+        }
         if (AST::is_a<AST::Slice_t>(*x.m_slice)) {
             AST::Slice_t *sl = AST::down_cast<AST::Slice_t>(x.m_slice);
             if (sl->m_lower != nullptr) {
@@ -2987,6 +2994,7 @@ public:
             left = cast_helper(ASRUtils::expr_type(right), left);
             right = cast_helper(ASRUtils::expr_type(left), right);
         }
+        ASR::ttype_t *dest_type = ASRUtils::expr_type(left);
 
         // Check that the types are now the same
         if (!ASRUtils::check_equal_type(ASRUtils::expr_type(left),
@@ -3005,19 +3013,14 @@ public:
         ASR::ttype_t *type = ASRUtils::TYPE(
             ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
         ASR::expr_t *value = nullptr;
-        ASR::ttype_t *source_type = left_type;
 
-        // Now, compute the result
-        if (ASRUtils::expr_value(left) != nullptr &&
-            ASRUtils::expr_value(right) != nullptr) {
-            if (ASRUtils::is_integer(*source_type)) {
-                ASR::expr_t* left_value_expr = ASRUtils::expr_value(left);
+        if (ASRUtils::is_integer(*dest_type)) {
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 int64_t left_value = ASR::down_cast<ASR::IntegerConstant_t>(
-                                        left_value_expr)
-                                        ->m_n;
+                                        ASRUtils::expr_value(left))->m_n;
                 int64_t right_value = ASR::down_cast<ASR::IntegerConstant_t>(
-                                        ASRUtils::expr_value(right))
-                                        ->m_n;
+                                        ASRUtils::expr_value(right))->m_n;
                 bool result;
                 switch (asr_op) {
                     case (ASR::cmpopType::Eq):  { result = left_value == right_value; break; }
@@ -3033,13 +3036,17 @@ public:
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
-            } else if (ASRUtils::is_real(*source_type)) {
+            }
+
+            tmp = ASR::make_IntegerCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+
+        } else if (ASRUtils::is_real(*dest_type)) {
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 double left_value = ASR::down_cast<ASR::RealConstant_t>(
-                                        ASRUtils::expr_value(left))
-                                        ->m_r;
+                                        ASRUtils::expr_value(left))->m_r;
                 double right_value = ASR::down_cast<ASR::RealConstant_t>(
-                                        ASRUtils::expr_value(right))
-                                        ->m_r;
+                                        ASRUtils::expr_value(right))->m_r;
                 bool result;
                 switch (asr_op) {
                     case (ASR::cmpopType::Eq):  { result = left_value == right_value; break; }
@@ -3055,7 +3062,13 @@ public:
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
-            } else if (ASR::is_a<ASR::Complex_t>(*source_type)) {
+            }
+
+            tmp = ASR::make_RealCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+
+        } else if (ASRUtils::is_complex(*dest_type)) {
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 ASR::ComplexConstant_t *left0
                     = ASR::down_cast<ASR::ComplexConstant_t>(ASRUtils::expr_value(left));
                 ASR::ComplexConstant_t *right0
@@ -3082,8 +3095,13 @@ public:
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
+            }
 
-            } else if (ASRUtils::is_logical(*source_type)) {
+            tmp = ASR::make_ComplexCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+
+        } else if (ASRUtils::is_logical(*dest_type)) {
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 bool left_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                         ASRUtils::expr_value(left))->m_value;
                 bool right_value = ASR::down_cast<ASR::LogicalConstant_t>(
@@ -3103,8 +3121,13 @@ public:
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
+            }
 
-            } else if (ASRUtils::is_character(*source_type)) {
+            tmp = ASR::make_LogicalCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+
+        } else if (ASRUtils::is_character(*dest_type)) {
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 char* left_value = ASR::down_cast<ASR::StringConstant_t>(
                                         ASRUtils::expr_value(left))->m_s;
                 char* right_value = ASR::down_cast<ASR::StringConstant_t>(
@@ -3143,9 +3166,14 @@ public:
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
             }
+
+            tmp = ASR::make_StringCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
         }
-        tmp = ASR::make_Compare_t(al, x.base.base.loc, left, asr_op, right,
-                                  type, value, overloaded);
+
+        if (overloaded != nullptr) {
+            tmp = ASR::make_OverloadedCompare_t(al, x.base.base.loc, left, asr_op, right, type,
+                value, overloaded);
+        }
     }
 
     void visit_Pass(const AST::Pass_t &/*x*/) {
