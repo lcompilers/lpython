@@ -3323,6 +3323,7 @@ public:
                                                 {separator->base.loc})
                                     })
                                 );
+                                throw SemanticAbort();
                             }
                             break;
                         }
