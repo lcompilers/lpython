@@ -511,12 +511,7 @@ namespace LFortran {
             Vec<ASR::expr_t*> idx_vars;
             create_idx_vars(idx_vars, 1, arg_exprs[2]->base.loc,
                             al, vector_copy_symtab);
-            ASR::expr_t* one = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, idx_vars[0]->base.loc, 1,
-                                                ASRUtils::expr_type(idx_vars[0])));
-            ASR::expr_t* shifted_idx = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, idx_vars[0]->base.loc, idx_vars[0],
-                                                ASR::binopType::Add, one, ASRUtils::expr_type(idx_vars[0]), nullptr));
             do_loop_head.m_v = idx_vars[0];
-            idx_vars.p[0] = shifted_idx;
             Vec<ASR::stmt_t*> loop_body;
             loop_body.reserve(al, 1);
             ASR::expr_t* target = create_array_ref(arg_exprs[0], idx_vars, al);
