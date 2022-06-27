@@ -367,6 +367,10 @@ filename = "parser/for1.py"
 ast_new = true
 
 [[test]]
+filename = "parser/comprehension1.py"
+ast_new = true
+
+[[test]]
 filename = "parser/try1.py"
 ast_new = true
 
