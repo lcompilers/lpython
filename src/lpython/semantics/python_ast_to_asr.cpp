@@ -1948,7 +1948,7 @@ public:
                 if (!ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
                     throw SemanticError("slice indices must be integers or None", tmp->loc);
                 }
-                ai.m_step = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
+                ai.m_step = ASRUtils::EXPR(tmp);
             }
             if (ASR::is_a<ASR::List_t>(*type)) {
                 tmp = ASR::make_ListSection_t(al, x.base.base.loc, value, ai,

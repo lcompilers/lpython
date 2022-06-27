@@ -1,3 +1,4 @@
+from ltypes import i32
 def f():
     x: str
     x = "ok"
@@ -49,6 +50,23 @@ def test_constant_str_subscript():
     assert "abc"[2] == "c"
     assert "abc"[:2] == "ab"
 
+def test_str_slice_step():
+    s: str
+    start: i32
+    end: i32
+    step: i32
+    s = "abcdefghijk"
+    start = 1
+    end = 4
+    step = 1
+    assert s[3:12:3] == "dgj"
+    assert s[10:3:-2] == "kige"
+    assert s[::] == "abcdefghijk"
+    assert s[1:4:] == "bcd"
+    assert s[:4:5] == "a"
+    assert s[start:end:step] == "bcd"
+    assert s[start:2*end-3:step] == "bcde"
+
 def check():
     f()
     test_str_concat()
@@ -56,5 +74,6 @@ def check():
     test_str_slice()
     test_str_repeat()
     test_constant_str_subscript()
+    #test_str_slice_step()
 
 check()
