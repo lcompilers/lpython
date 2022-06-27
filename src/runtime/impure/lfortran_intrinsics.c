@@ -636,7 +636,7 @@ LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
 }
 
 // idx1 and idx2 both start from 1
-LFORTRAN_API char* _lfortran_str_copy(char* s, int32_t idx1, int32_t idx2, int32_t idx3) {
+LFORTRAN_API char* _lfortran_str_copy(char* s, int32_t idx1, int32_t idx2, int32_t step) {
 
     int s_len = strlen(s);
     if(idx1 > s_len || idx1 <= (-1*s_len)){
@@ -650,17 +650,17 @@ LFORTRAN_API char* _lfortran_str_copy(char* s, int32_t idx1, int32_t idx2, int32
         idx2 = s_len + idx2;
     }
     char* dest_char;
-    if (idx3 > 0 && (idx1 <= idx2)) {
+    if (step > 0 && (idx1 <= idx2)) {
         dest_char = (char*)malloc(idx2-idx1+2);
-        for (int i=idx1; i <= idx2; i+=idx3){
-            dest_char[((i - idx1)/(idx3))] = s[i-1];
+        for (int i=idx1; i <= idx2; i+=step){
+            dest_char[((i - idx1)/(step))] = s[i-1];
         }
         dest_char[idx2-idx1+1] = '\0';
-    } else if (idx3 < 0 && (idx1 > idx2)) {
+    } else if (step < 0 && (idx1 > idx2)) {
         dest_char = (char*)malloc(idx1-idx2+1);
-        idx3 *= -1;
-        for (int i=idx1; i > idx2 + 1; i-=idx3){
-            dest_char[((idx1 - i)/(idx3))] = s[i-1];
+        step *= -1;
+        for (int i=idx1; i > idx2 + 1; i-=step){
+            dest_char[((idx1 - i)/(step))] = s[i-1];
         }
     }
     return dest_char;

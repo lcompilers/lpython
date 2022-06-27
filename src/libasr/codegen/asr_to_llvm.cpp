@@ -788,7 +788,7 @@ public:
         return builder->CreateCall(fn, {str});
     }
 
-    llvm::Value* lfortran_str_copy(llvm::Value* str, llvm::Value* idx1, llvm::Value* idx2, llvm::Value* idx3 = nullptr)
+    llvm::Value* lfortran_str_copy(llvm::Value* str, llvm::Value* idx1, llvm::Value* idx2, llvm::Value* step = nullptr)
     {
         std::string runtime_func_name = "_lfortran_str_copy";
         llvm::Function *fn = module->getFunction(runtime_func_name);
@@ -801,7 +801,7 @@ public:
             fn = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, runtime_func_name, *module);
         }
-        return builder->CreateCall(fn, {str, idx1, idx2, idx3});
+        return builder->CreateCall(fn, {str, idx1, idx2, step});
     }
 
     llvm::Value* lcompilers_list_init_i32()

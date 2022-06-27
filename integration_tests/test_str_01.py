@@ -51,9 +51,20 @@ def test_constant_str_subscript():
 
 def test_str_slice_step():
     s: str
+    start: i32
+    end: i32
+    step: i32
     s = "abcdefghijk"
+    start = 1
+    end = 4
+    step = 1
     assert s[3:12:3] == "dgj"
     assert s[12:3:-3] == "mjg"
+    assert s[::] == "abcdefghijk"
+    assert s[1:4:] == "bcd"
+    assert s[:4:5] == "a"
+    assert s[start:end:step] == "bcd"
+    assert s[start:2*end-3:step] == "bcde"
 
 def check():
     f()
@@ -62,5 +73,6 @@ def check():
     test_str_slice()
     test_str_repeat()
     test_constant_str_subscript()
+    test_str_slice_step()
 
 check()
