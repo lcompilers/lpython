@@ -3491,7 +3491,8 @@ public:
                 value = ASR::down_cast<ASR::expr_t>(make_LogicalConstant_t(al,
                                 loc, c_value.real() != 0.0 || c_value.imag() != 0.0, to_type));
             }
-            // TODO: make bool() work for non-constant complex
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                al, loc, arg, ASR::cast_kindType::ComplexToLogical, to_type, value));
 
         } else if (!ASRUtils::is_logical(*type)) {
             std::string stype = ASRUtils::type_to_str_python(type);
