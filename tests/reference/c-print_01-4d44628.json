@@ -1,0 +1,13 @@
+{
+    "basename": "c-print_01-4d44628",
+    "cmd": "lpython --no-color --show-c {infile}",
+    "infile": "tests/../integration_tests/print_01.py",
+    "infile_hash": "5a374d3eb80482f7f96821dbd03c3edfb770dd187b6c6302b8db9658",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "c-print_01-4d44628.stdout",
+    "stdout_hash": "99b4de396e5667f59d5e7d5fe9abadc25a9a7bf9794109c69212c9cb",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

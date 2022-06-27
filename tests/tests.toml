@@ -312,6 +312,11 @@ c = true
 filename = "../integration_tests/test_c_interop_01.py"
 asr = true
 
+[[test]]
+filename = "../integration_tests/print_01.py"
+c = true
+cpp = true
+
 # tests/tokens
 
 [[test]]
