@@ -14,33 +14,6 @@
 
 namespace LFortran {
 
-std::string convert_dims_c(size_t n_dims, ASR::dimension_t *m_dims)
-{
-    std::string dims;
-    for (size_t i=0; i<n_dims; i++) {
-        ASR::expr_t *start = m_dims[i].m_start;
-        ASR::expr_t *end = m_dims[i].m_end;
-        if (!start && !end) {
-            dims += "*";
-        } else if (start && end) {
-            if (ASR::is_a<ASR::IntegerConstant_t>(*start) && ASR::is_a<ASR::IntegerConstant_t>(*end)) {
-                ASR::IntegerConstant_t *s = ASR::down_cast<ASR::IntegerConstant_t>(start);
-                ASR::IntegerConstant_t *e = ASR::down_cast<ASR::IntegerConstant_t>(end);
-                if (s->m_n == 1) {
-                    dims += "[" + std::to_string(e->m_n) + "]";
-                } else {
-                    throw CodeGenError("Lower dimension must be 1 for now");
-                }
-            } else {
-                dims += "[ /* FIXME symbolic dimensions */ ]";
-            }
-        } else {
-            throw CodeGenError("Dimension type not supported");
-        }
-    }
-    return dims;
-}
-
 std::string format_type_c(const std::string &dims, const std::string &type,
         const std::string &name, bool use_ref, bool /*dummy*/)
 {
@@ -61,6 +34,36 @@ public:
 
     ASRToCVisitor(diag::Diagnostics &diag, Platform &platform)
          : BaseCCPPVisitor(diag, platform, false, false, true) {}
+
+    std::string convert_dims_c(size_t n_dims, ASR::dimension_t *m_dims)
+    {
+        std::string dims;
+        for (size_t i=0; i<n_dims; i++) {
+            ASR::expr_t *start = m_dims[i].m_start;
+            ASR::expr_t *end = m_dims[i].m_end;
+            if (!start && !end) {
+                dims += "*";
+            } else if (start && end) {
+                ASR::expr_t* start_value = ASRUtils::expr_value(start);
+                ASR::expr_t* end_value = ASRUtils::expr_value(end);
+                if( start_value && end_value ) {
+                    int64_t start_int = -1, end_int = -1;
+                    ASRUtils::extract_value(start_value, start_int);
+                    ASRUtils::extract_value(end_value, end_int);
+                    dims += "[" + std::to_string(end_int - start_int + 1) + "]";
+                } else {
+                    this->visit_expr(*start);
+                    std::string start_expr = std::move(src);
+                    this->visit_expr(*end);
+                    std::string end_expr = std::move(src);
+                    dims += "[" + end_expr + " - " + start_expr + " + 1]";
+                }
+            } else {
+                throw CodeGenError("Dimension type not supported");
+            }
+        }
+        return dims;
+    }
 
     std::string convert_variable_decl(const ASR::Variable_t &v)
     {

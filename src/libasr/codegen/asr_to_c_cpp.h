@@ -588,6 +588,8 @@ R"(#include <stdio.h>
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
         ASR::Variable_t* sv = ASR::down_cast<ASR::Variable_t>(s);
         std::string out = std::string(sv->m_name);
+        ASR::dimension_t* m_dims;
+        ASRUtils::extract_dimensions_from_ttype(sv->m_type, m_dims);
         out += "[";
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i].m_right) {
@@ -596,9 +598,13 @@ R"(#include <stdio.h>
                 src = "/* FIXME right index */";
             }
             out += src;
-            if (i < x.n_args-1) out += ", ";
+            if( m_dims[i].m_start ) {
+                this->visit_expr(*m_dims[i].m_start);
+                out += " - " + src;
+            }
+            if (i < x.n_args-1) out += "][";
         }
-        out += "-1]";
+        out += "]";
         last_expr_precedence = 2;
         src = out;
     }
