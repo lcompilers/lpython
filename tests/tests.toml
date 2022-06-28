@@ -312,6 +312,11 @@ c = true
 filename = "../integration_tests/test_c_interop_01.py"
 asr = true
 
+[[test]]
+filename = "../integration_tests/print_01.py"
+c = true
+cpp = true
+
 # tests/tokens
 
 [[test]]
@@ -359,6 +364,10 @@ ast_new = true
 
 [[test]]
 filename = "parser/for1.py"
+ast_new = true
+
+[[test]]
+filename = "parser/comprehension1.py"
 ast_new = true
 
 [[test]]
@@ -569,6 +578,10 @@ asr = true
 
 [[test]]
 filename = "errors/test_bitwise_on_complex.py"
+asr = true
+
+[[test]]
+filename = "errors/test_print1.py"
 asr = true
 
 # tests/tokens/errors
