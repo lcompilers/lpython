@@ -158,8 +158,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token KW_GLOBAL
 %token KW_IF
 %token KW_IMPORT
-%token KW_IN
-%token KW_IS
+%token KW_IN "in"
+%token KW_IS "is"
 %token KW_LAMBDA
 %token KW_NONE
 %token KW_NONLOCAL
@@ -249,7 +249,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %left "or"
 %left "and"
 %precedence "not"
-%left "==" "!=" ">=" ">" "<=" "<" TK_IS_NOT KW_IS TK_NOT_IN // "in"
+%left "==" "!=" ">=" ">" "<=" "<" "is not" "is" "not in" "in" // "in"
+%precedence FOR
 %left KW_IF KW_ELSE
 %left "|"
 %left "^"
@@ -648,8 +649,8 @@ expr_list_opt
     ;
 
 expr_list
-    : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }
-    | expr { LIST_NEW($$); LIST_ADD($$, $1); }
+    : expr_list "," expr %prec FOR { $$ = $1; LIST_ADD($$, $3); }
+    | expr %prec FOR { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 dict
@@ -761,10 +762,10 @@ expr
     | expr "<=" expr { $$ = COMPARE($1, LtE, $3, @$); }
     | expr ">" expr { $$ = COMPARE($1, Gt, $3, @$); }
     | expr ">=" expr { $$ = COMPARE($1, GtE, $3, @$); }
-    | expr KW_IS expr { $$ = COMPARE($1, Is, $3, @$); }
-    | expr TK_IS_NOT expr { $$ = COMPARE($1, IsNot, $3, @$); }
-    /* | expr KW_IN expr { $$ = COMPARE($1, In, $3, @$); } */ // TODO
-    | expr TK_NOT_IN expr { $$ = COMPARE($1, NotIn, $3, @$); }
+    | expr "is" expr { $$ = COMPARE($1, Is, $3, @$); }
+    | expr "is not" expr { $$ = COMPARE($1, IsNot, $3, @$); }
+    | expr "in" expr { $$ = COMPARE($1, In, $3, @$); }
+    | expr "not in" expr { $$ = COMPARE($1, NotIn, $3, @$); }
 
     | expr "and" expr { $$ = BOOLOP($1, And, $3, @$); }
     | expr "or" expr { $$ = BOOLOP($1, Or, $3, @$); }
