@@ -1,10 +1,11 @@
 import argparse
-import subprocess
-import os
-import toml
-import re
-from timeit import default_timer as clock
 import ast
+import os
+import re
+import subprocess
+from timeit import default_timer as clock
+
+import toml
 from tabulate import tabulate
 
 # when you add option to implemented_benchmarks you must also add class to get values from cpython and lpython.
@@ -16,6 +17,7 @@ implemented_benchmarks = [
 class Parser:
     @classmethod
     def get_lpython_result(cls, file_path):
+
         lpython_run = subprocess.Popen("lpython --new-parser --time-report " + file_path, shell=True,
                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -65,10 +67,10 @@ class Graph:
 if __name__ == '__main__':
     os.environ["PATH"] = os.path.join(os.getcwd(), "src", "bin") + os.pathsep + os.environ["PATH"]
     app = argparse.ArgumentParser(description="Lpython benchmark")
-    app.add_argument("-n", "--numerical", action="store_true", help="show results as numerical values")
-    app.add_argument("-p", "--plots", action="store_true", help="show results as graph of plots")
+    app.add_argument("-n", "--numerical", action="store_true", help="show results as numerical table")
+    app.add_argument("-p", "--plots", action="store_true", help="show results as graph of pars")
     app.add_argument("-c", "--compare", action="store", nargs='+',
-                     help=f"What you what to compare, for now we have{implemented_benchmarks}")
+                     help=f"What stages you want to compare, for now we have{implemented_benchmarks}")
     args = app.parse_args()
 
     show_graph = args.plots or True
