@@ -43,24 +43,8 @@
 #include <libasr/codegen/asr_to_llvm.h>
 #include <libasr/pass/do_loops.h>
 #include <libasr/pass/for_all.h>
-#include <libasr/pass/implied_do_loops.h>
-#include <libasr/pass/array_op.h>
-#include <libasr/pass/select_case.h>
-#include <libasr/pass/global_stmts.h>
-#include <libasr/pass/param_to_const.h>
 #include <libasr/pass/nested_vars.h>
-#include <libasr/pass/print_arr.h>
-#include <libasr/pass/arr_slice.h>
-#include <libasr/pass/flip_sign.h>
-#include <libasr/pass/div_to_mul.h>
-#include <libasr/pass/fma.h>
-#include <libasr/pass/loop_unroll.h>
-#include <libasr/pass/sign_from_value.h>
-#include <libasr/pass/class_constructor.h>
-#include <libasr/pass/unused_functions.h>
-#include <libasr/pass/inline_function_calls.h>
-#include <libasr/pass/dead_code_removal.h>
-#include <libasr/pass/loop_vectorise.h>
+#include <libasr/pass/pass_manager.h>
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/codegen/llvm_utils.h>
@@ -5049,40 +5033,12 @@ public:
 
 Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
         diag::Diagnostics &diagnostics,
-        llvm::LLVMContext &context, Allocator &al, Platform platform,
-        bool fast, const std::string &rl_path, const std::string &run_fn)
+        llvm::LLVMContext &context, Allocator &al,
+        LCompilers::PassManager& pass_manager,
+        Platform platform, const std::string &run_fn)
 {
     ASRToLLVMVisitor v(al, context, platform, diagnostics);
-    pass_wrap_global_stmts_into_function(al, asr, run_fn);
-
-    pass_replace_class_constructor(al, asr);
-    pass_replace_implied_do_loops(al, asr, rl_path);
-    pass_replace_arr_slice(al, asr, rl_path);
-    pass_replace_array_op(al, asr, rl_path);
-    pass_replace_print_arr(al, asr, rl_path);
-
-    if( fast ) {
-        pass_loop_vectorise(al, asr, rl_path);
-        pass_loop_unroll(al, asr, rl_path);
-    }
-
-    pass_replace_do_loops(al, asr);
-    pass_replace_forall(al, asr);
-
-    if( fast ) {
-        pass_dead_code_removal(al, asr, rl_path);
-    }
-
-    pass_replace_select_case(al, asr);
-    pass_unused_functions(al, asr, false);
-
-    if( fast ) {
-        pass_replace_flip_sign(al, asr, rl_path);
-        pass_replace_sign_from_value(al, asr, rl_path);
-        pass_replace_div_to_mul(al, asr, rl_path);
-        pass_replace_fma(al, asr, rl_path);
-        pass_inline_function_calls(al, asr, rl_path);
-    }
+    pass_manager.apply_passes(al, &asr, run_fn, false);
 
     // Uncomment for debugging the ASR after the transformation
     // std::cout << pickle(asr, true, true, true) << std::endl;
