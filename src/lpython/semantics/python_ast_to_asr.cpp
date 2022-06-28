@@ -2718,6 +2718,33 @@ public:
     }
 
     void visit_AttributeUtil(ASR::ttype_t* type, char* attr_char,
+                             ASR::expr_t *e, const Location& loc) {
+        if( ASR::is_a<ASR::Derived_t>(*type) ) {
+            ASR::Derived_t* der = ASR::down_cast<ASR::Derived_t>(type);
+            ASR::symbol_t* der_sym = ASRUtils::symbol_get_past_external(der->m_derived_type);
+            ASR::DerivedType_t* der_type = ASR::down_cast<ASR::DerivedType_t>(der_sym);
+            bool member_found = false;
+            std::string member_name = attr_char;
+            for( size_t i = 0; i < der_type->n_members && !member_found; i++ ) {
+                member_found = std::string(der_type->m_members[i]) == member_name;
+            }
+            if( !member_found ) {
+                throw SemanticError("No member " + member_name +
+                                    " found in " + std::string(der_type->m_name),
+                                    loc);
+            }
+            ASR::symbol_t* member_sym = der_type->m_symtab->resolve_symbol(member_name);
+            LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member_sym));
+            ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member_sym);
+            tmp = ASR::make_DerivedRef_t(al, loc, e, member_sym,
+                                         member_var->m_type, nullptr);
+        } else {
+            throw SemanticError(ASRUtils::type_to_str_python(type) + " not supported yet in Attribute.",
+                loc);
+        }
+    }
+
+    void visit_AttributeUtil(ASR::ttype_t* type, char* attr_char,
                              ASR::symbol_t *t, const Location& loc) {
         if (ASRUtils::is_complex(*type)) {
             std::string attr = attr_char;
@@ -2786,8 +2813,13 @@ public:
                     x.base.base.loc);
             }
 
+        } else if(AST::is_a<AST::Attribute_t>(*x.m_value)) {
+            AST::Attribute_t* x_m_value = AST::down_cast<AST::Attribute_t>(x.m_value);
+            visit_Attribute(*x_m_value);
+            ASR::expr_t* e = ASRUtils::EXPR(tmp);
+            visit_AttributeUtil(ASRUtils::expr_type(e), x.m_attr, e, x.base.base.loc);
         } else {
-            throw SemanticError("Only Name is supported for now in Attribute",
+            throw SemanticError("Only Name, Attribute is supported for now in Attribute",
                 x.base.base.loc);
         }
     }
