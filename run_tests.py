@@ -54,7 +54,8 @@ def main():
         x86 = test.get("x86", False)
         bin_ = test.get("bin", False)
         pass_ = test.get("pass", None)
-        if pass_ and pass_ not in ["do_loops", "global_stmts", "loop_vectorise"]:
+        if pass_ and pass_ not in ["do_loops", "global_stmts",
+                                   "loop_vectorise", "inline_function_calls"]:
             raise Exception("Unknown pass: %s" % pass_)
 
         print(color(style.bold)+"TEST:"+color(style.reset), filename)

@@ -73,8 +73,9 @@ public:
         pass_result.reserve(al, 1);
     }
 
-    void configure_node_duplicator(bool allow_procedure_calls_) {
+    void configure_node_duplicator(bool allow_procedure_calls_, bool allow_return_stmts_) {
         node_duplicator.allow_procedure_calls = allow_procedure_calls_;
+        node_duplicator.allow_return_stmts = allow_return_stmts_;
     }
 
     void visit_Function(const ASR::Function_t &x) {
@@ -404,9 +405,9 @@ void pass_inline_function_calls(Allocator &al, ASR::TranslationUnit_t &unit,
                                 const std::string& rl_path,
                                 bool inline_external_symbol_calls) {
     InlineFunctionCallVisitor v(al, rl_path, inline_external_symbol_calls);
-    v.configure_node_duplicator(false);
+    v.configure_node_duplicator(false, false);
     v.visit_TranslationUnit(unit);
-    v.configure_node_duplicator(true);
+    v.configure_node_duplicator(true, false);
     v.visit_TranslationUnit(unit);
     LFORTRAN_ASSERT(asr_verify(unit));
 }
