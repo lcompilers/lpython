@@ -65,7 +65,8 @@ public:
         return dims;
     }
 
-    std::string convert_variable_decl(const ASR::Variable_t &v)
+    std::string convert_variable_decl(const ASR::Variable_t &v,
+                                      bool pre_initialise_derived_type=true)
     {
         std::string sub;
         bool use_ref = (v.m_intent == LFortran::ASRUtils::intent_out || v.m_intent == LFortran::ASRUtils::intent_inout);
@@ -125,7 +126,7 @@ public:
                 ASR::Derived_t *t = ASR::down_cast<ASR::Derived_t>(v.m_type);
                 std::string der_type_name = ASRUtils::symbol_name(t->m_derived_type);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
-                if( v.m_intent == ASRUtils::intent_local ) {
+                if( v.m_intent == ASRUtils::intent_local && pre_initialise_derived_type ) {
                     std::string value_var_name = v.m_parent_symtab->get_unique_name(std::string(v.m_name) + "_value");
                     sub = format_type_c(dims, "struct " + der_type_name,
                                         value_var_name, use_ref, dummy);
@@ -340,7 +341,7 @@ R"(
         for( size_t i = 0; i < x.n_members; i++ ) {
             ASR::symbol_t* member = x.m_symtab->get_symbol(x.m_members[i]);
             LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
-            body += indent + convert_variable_decl(*ASR::down_cast<ASR::Variable_t>(member)) + ";\n";
+            body += indent + convert_variable_decl(*ASR::down_cast<ASR::Variable_t>(member), false) + ";\n";
         }
         indentation_level -= 1;
         std::string end_struct = "};\n\n";
