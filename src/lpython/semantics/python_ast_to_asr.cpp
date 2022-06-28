@@ -26,6 +26,8 @@
 #include <lpython/semantics/python_attribute_eval.h>
 #include <lpython/parser/parser.h>
 
+// For temporary debugging purposes
+#include <lpython/pickle.h>
 
 namespace LFortran::LPython {
 
@@ -642,9 +644,9 @@ public:
             if (s) {
                 if (ASR::is_a<ASR::Variable_t>(*s)) {
                     ASR::Variable_t *var_sym = ASR::down_cast<ASR::Variable_t>(s);
-                    if (var_sym->m_type->type == ASR::ttypeType::TypeVar) {
-                        return ASRUtils::TYPE(ASR::make_TypeVar_t(al, loc, 
-                            ASR::down_cast<ASR::TypeVar_t>(var_sym->m_type)->m_var));
+                    if (var_sym->m_type->type == ASR::ttypeType::TypeParameter) {
+                        return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, loc, 
+                            ASR::down_cast<ASR::TypeParameter_t>(var_sym->m_type)->m_param));
                     }
                 } else {
                     ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
@@ -1991,6 +1993,7 @@ public:
         current_procedure_abi_type = ASR::abiType::Source;
         bool current_procedure_interface = false;
         bool overload = false;
+        bool generic = false;
         if (x.n_decorator_list > 0) {
             for(size_t i=0; i<x.n_decorator_list; i++) {
                 AST::expr_t *dec = x.m_decorator_list[i];
@@ -2022,7 +2025,9 @@ public:
                 throw SemanticError("Argument does not have a type", loc);
             }
             ASR::ttype_t *arg_type = ast_expr_to_asr_type(x.base.base.loc, *x.m_args.m_args[i].m_annotation);
-
+            // Set the function as generic if an argument is typed with a type parameter
+            if (ASR::is_a<ASR::TypeParameter_t>(*arg_type)) { generic = true; }
+            
             std::string arg_s = arg;
 
             ASR::expr_t *value = nullptr;
@@ -2086,17 +2091,32 @@ public:
                         ASR::down_cast<ASR::symbol_t>(return_var));
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     current_scope->get_symbol(return_var_name));
-                tmp = ASR::make_Function_t(
-                    al, x.base.base.loc,
-                    /* a_symtab */ current_scope,
-                    /* a_name */ s2c(al, sym_name),
-                    /* a_args */ args.p,
-                    /* n_args */ args.size(),
-                    /* a_body */ nullptr,
-                    /* n_body */ 0,
-                    /* a_return_var */ ASRUtils::EXPR(return_var_ref),
-                    current_procedure_abi_type,
-                    s_access, deftype, bindc_name);
+                if (generic) {
+                    /** Same structure as Function, just different type **/
+                    tmp = ASR::make_TemplateFunction_t(
+                        al, x.base.base.loc,
+                        /* a_symtab */ current_scope,
+                        /* a_name */ s2c(al, sym_name),
+                        /* a_args */ args.p,
+                        /* n_args */ args.size(),
+                        /* a_body */ nullptr,
+                        /* n_body */ 0,
+                        /* a_return_var */ ASRUtils::EXPR(return_var_ref),
+                        current_procedure_abi_type,
+                        s_access, deftype, bindc_name);
+                } else {
+                    tmp = ASR::make_Function_t(
+                        al, x.base.base.loc,
+                        /* a_symtab */ current_scope,
+                        /* a_name */ s2c(al, sym_name),
+                        /* a_args */ args.p,
+                        /* n_args */ args.size(),
+                        /* a_body */ nullptr,
+                        /* n_body */ 0,
+                        /* a_return_var */ ASRUtils::EXPR(return_var_ref),
+                        current_procedure_abi_type,
+                        s_access, deftype, bindc_name);                    
+                }             
 
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
@@ -2218,7 +2238,7 @@ public:
 
     void visit_Assign(const AST::Assign_t &x) {
         /**
-         *  Type variables have to put in the symbol table before checking function definitions.
+         *  Type variables have to be put in the symbol table before checking function definitions.
          *  This describes a different treatment for Assign in the form of `T = TypeVar('T')`
          */
         if (x.n_targets == 1 && AST::is_a<AST::Call_t>(*x.m_value)) {
@@ -2253,7 +2273,7 @@ public:
                         }
 
                         // Build ttype
-                        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_TypeVar_t(al, x.base.base.loc, s2c(al, tvar_name)));
+                        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, x.base.base.loc, s2c(al, tvar_name)));
 
                         ASR::expr_t *value = nullptr;
                         ASR::expr_t *init_expr = nullptr;
@@ -2306,6 +2326,184 @@ Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, const AST::Module_t &ast
     ASR::asr_t *unit = v.tmp;
     return unit;
 }
+
+class TemplateVisitor : public CommonVisitor<TemplateVisitor> {
+public:
+    ASR::asr_t *asr;
+    ASR::ttype_t *tmp_type = nullptr;
+
+    TemplateVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
+        bool main_module, std::map<int, ASR::symbol_t*> &ast_overload)
+        : CommonVisitor(al, nullptr, diagnostics, main_module, ast_overload), asr(unit) {}
+    
+    void visit_Module(const AST::Module_t &x) {
+        ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
+        current_scope = unit->m_global_scope;
+        for (size_t i=0; i<x.n_body; i++) {
+            visit_stmt(*x.m_body[i]);
+        }
+        // No change for now
+        tmp = asr;
+    }
+
+    // Do nothing for now
+    void visit_FunctionDef(const AST::FunctionDef_t &/*x*/) {
+
+    }
+
+    // Do nothing for now
+    void visit_Assign(const AST::Assign_t &/*x*/) {
+
+    }
+
+    void visit_Expr(const AST::Expr_t &x) {
+        visit_expr(*x.m_value);
+    }
+    
+    void visit_Call(const AST::Call_t &x) {
+        std::string call_name;
+        if (AST::is_a<AST::Name_t>(*x.m_func)) {
+            AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
+            call_name = n->m_id;
+        }
+        ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
+        if (s && ASR::is_a<ASR::TemplateFunction_t>(*s)) {
+            ASR::TemplateFunction_t *func = ASR::down_cast<ASR::TemplateFunction_t>(s);
+            std::map<std::string, ASR::ttype_t*> subs;
+            for (size_t i=0; i<x.n_args; i++) {
+                visit_expr(*x.m_args[i]);
+                // If the formal parameter has a type parameter, then the consistency of the subsitution
+                ASR::ttype_t *param_type = ASRUtils::expr_type(func->m_args[i]);
+                if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
+                    std::string param_name = (ASR::down_cast<ASR::TypeParameter_t>(param_type))->m_param;
+                    if (subs.find(param_name) != subs.end() &&
+                            !ASRUtils::check_equal_type(subs[param_name], tmp_type)) {
+                        throw SemanticError("Get this error message changed!", func->base.base.loc);
+                    } else {
+                        subs[param_name] = tmp_type;
+                    }
+                }
+            }
+            if (!subs.empty()) {
+                instantiate_generic_function(subs, *func);
+            }
+        } else {
+            for (size_t i=0; i<x.n_args; i++) {
+                visit_expr(*x.m_args[i]);
+            }            
+        }
+    }
+
+    void instantiate_generic_function(std::map<std::string, ASR::ttype_t*> subs, 
+            ASR::TemplateFunction_t &func) {
+        SymbolTable *parent_scope = current_scope;
+        current_scope = al.make_new<SymbolTable>(parent_scope);
+
+        /** Substitute parameters' types with arguments' types **/
+        Vec<ASR::expr_t*> args;
+        args.reserve(al, func.n_args);
+        for (size_t i=0; i<func.n_args; i++) {
+            ASR::Variable_t *param_var = ASR::down_cast<ASR::Variable_t>(
+                (ASR::down_cast<ASR::Var_t>(func.m_args[i]))->m_v);
+
+            ASR::ttype_t *param_type = ASRUtils::expr_type(func.m_args[i]);
+            ASR::ttype_t *arg_type = ASR::is_a<ASR::TypeParameter_t>(*param_type) ?
+                subs[ASR::down_cast<ASR::TypeParameter_t>(param_type)->m_param] : param_type;
+
+            Location loc = param_var->base.base.loc;
+            std::string var_name = param_var->m_name;
+            ASR::intentType s_intent = param_var->m_intent;
+            ASR::expr_t *init_expr = nullptr;
+            ASR::expr_t *value = nullptr;
+            ASR::storage_typeType storage_type = param_var->m_storage;
+            ASR::abiType abi_type = param_var->m_abi;
+            ASR::accessType s_access = param_var->m_access;
+            ASR::presenceType s_presence = param_var->m_presence;
+            bool value_attr = param_var->m_value_attr;
+
+            ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
+                s2c(al, var_name), s_intent, init_expr, value, storage_type, arg_type,
+                abi_type, s_access, s_presence, value_attr);
+            current_scope->add_symbol(var_name, ASR::down_cast<ASR::symbol_t>(v));
+
+            ASR::symbol_t *var = current_scope->get_symbol(var_name);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, func.base.base.loc, var)));
+        }
+
+        /** Build the name, needs to be overloaded **/
+        std::string func_name = func.m_name;
+
+        /** Build the return variable **/
+        ASR::Variable_t *return_var = ASR::down_cast<ASR::Variable_t>(
+            (ASR::down_cast<ASR::Var_t>(func.m_return_var))->m_v);
+        std::string return_var_name = return_var->m_name;
+        ASR::ttype_t *return_param_type = ASRUtils::expr_type(func.m_return_var);
+        ASR::ttype_t *return_type = ASR::is_a<ASR::TypeParameter_t>(*return_param_type) ?
+            subs[ASR::down_cast<ASR::TypeParameter_t>(return_param_type)->m_param] : return_param_type;
+        ASR::asr_t *new_return_var = ASR::make_Variable_t(al, return_var->base.base.loc,
+            current_scope, s2c(al, return_var_name), return_var->m_intent, nullptr, nullptr,
+            return_var->m_storage, return_type, return_var->m_abi, return_var->m_access,
+            return_var->m_presence, return_var->m_value_attr);
+        current_scope->add_symbol(return_var_name, ASR::down_cast<ASR::symbol_t>(new_return_var));
+        ASR::asr_t *new_return_var_ref = ASR::make_Var_t(al, func.base.base.loc,
+            current_scope->get_symbol(return_var_name));
+
+        /** Assemble the rest of the function **/
+        ASR::abiType func_abi = func.m_abi;
+        ASR::accessType func_access = func.m_access;
+        ASR::deftypeType func_deftype = func.m_deftype;
+        char *bindc_name = func.m_bindc_name;
+
+        tmp = ASR::make_Function_t(
+            al, func.base.base.loc,
+            /* m_symtab */ current_scope,
+            /* m_name */ s2c(al, func_name),
+            /* m_args */ args.p,
+            /* n_args */ args.size(),
+            /* m_body */ nullptr,
+            /* n_body */ 0,
+            /* m_return_var */ ASRUtils::EXPR(new_return_var_ref),
+            func_abi, func_access, func_deftype, bindc_name);
+        
+        ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(tmp);
+        parent_scope->add_symbol(func_name, t);
+        current_scope = parent_scope;
+
+        // overload?
+    }
+
+    void visit_ConstantInt(const AST::ConstantInt_t &x) {
+        tmp_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+            4, nullptr, 0));
+    }
+
+    void visit_ConstantStr(const AST::ConstantStr_t &x) {
+        char *s = x.m_value;
+        size_t s_size = std::string(s).size();
+        tmp_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
+            1, s_size, nullptr, nullptr, 0));
+    }    
+
+};
+
+Result<ASR::asr_t*> template_visitor(Allocator &al, 
+        const AST::Module_t &ast,
+        diag::Diagnostics &diagnostics, 
+        ASR::asr_t *unit, bool main_module,
+        std::map<int, ASR::symbol_t*> &ast_overload)
+{
+    TemplateVisitor t(al, unit, diagnostics, main_module, ast_overload);
+    try {
+        t.visit_Module(ast);
+    } catch (const SemanticError &e) {
+        Error error;
+        diagnostics.diagnostics.push_back(e.d);
+        return error;
+    }
+    ASR::asr_t *res = t.tmp;
+    return res;
+}
+
 
 class BodyVisitor : public CommonVisitor<BodyVisitor> {
 private:
@@ -3749,6 +3947,14 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     }
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
     LFORTRAN_ASSERT(asr_verify(*tu));
+
+    // Processing template functions
+    auto res3 = template_visitor(al, *ast_m, diagnostics, unit, main_module,
+        ast_overload);
+    unit = res.result;
+
+    // For temporary debugging purposes
+    std::cout << pickle(*unit, 1, 1, 0) << std::endl;
 
     if (!symtab_only) {
         auto res2 = body_visitor(al, *ast_m, diagnostics, unit, main_module,

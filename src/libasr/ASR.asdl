@@ -90,6 +90,9 @@ symbol
     | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
         expr return_var, abi abi, access access, deftype deftype,
         string? bindc_name)
+    | TemplateFunction(symbol_table symtab, identifier name, expr* args,
+        stmt* body, expr return_var, abi abi, access access, deftype deftype,
+        string? bindc_name)
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
     | CustomOperator(symbol_table parent_symtab, identifier name,
@@ -317,7 +320,7 @@ ttype
     | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
     | CPtr()
-    | TypeVar(string var)
+    | TypeParameter(identifier param)
 
 binop = Add | Sub | Mul | Div | Pow
 

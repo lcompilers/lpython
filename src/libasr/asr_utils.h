@@ -916,6 +916,12 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
             m_dims = nullptr;
             break;
         }
+        // Set type variable dimension to be 0 for now
+        case ASR::ttypeType::TypeParameter: {
+            n_dims = 0;
+            m_dims = nullptr;
+            break;
+        }
         default:
             throw LFortranException("Not implemented.");
     }
