@@ -158,6 +158,11 @@ asr = true
 pass = "loop_vectorise"
 
 [[test]]
+filename = "../integration_tests/func_inline_01.py"
+asr = true
+pass = "inline_function_calls"
+
+[[test]]
 filename = "loop1.py"
 ast = true
 asr = true
