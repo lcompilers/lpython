@@ -1,4 +1,4 @@
-semantic error: Casting not supported for different pointer types. Received target pointer type, Pointer[i16] and value pointer type, Pointer[i32]
+semantic error: Casting not supported for different pointer types. Received target pointer type, Pointer[i16[:]] and value pointer type, Pointer[i32[2]]
  --> tests/errors/test_pointer_types.py:8:5
   |
 8 |     yptr1 = pointer(y)
