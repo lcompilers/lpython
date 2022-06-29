@@ -177,7 +177,7 @@ stmt
     | GoToTarget(int id)
     | If(expr test, stmt* body, stmt* orelse)
     | IfArithmetic(expr test, int lt_label, int eq_label, int gt_label)
-    | Print(expr? fmt, expr* values, expr? separator)
+    | Print(expr? fmt, expr* values, expr? separator, expr? end)
     | FileOpen(int label, expr? newunit, expr? filename, expr? status)
     | FileClose(int label, expr? unit, expr? iostat, expr? iomsg, expr? err, expr? status)
     | FileRead(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values)
@@ -190,7 +190,7 @@ stmt
               expr? read, expr? write, expr? readwrite, expr? delim,
               expr? pad, expr? flen, expr? blocksize, expr? convert,
               expr? carriagecontrol, expr? iolength)
-    | FileWrite(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values, expr? separator)
+    | FileWrite(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values, expr? separator, expr? end)
     | Return()
     | Select(expr test, case_stmt* body, stmt* default)
     | Stop(expr? code)

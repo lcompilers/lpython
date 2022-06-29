@@ -4174,11 +4174,18 @@ public:
         std::vector<llvm::Value *> args;
         std::vector<std::string> fmt;
         llvm::Value *sep = nullptr;
+        llvm::Value *end = nullptr;
         if (x.m_separator) {
             this->visit_expr_wrapper(x.m_separator, true);
             sep = tmp;
         } else {
             sep = builder->CreateGlobalStringPtr(" ");
+        }
+        if (x.m_end) {
+            this->visit_expr_wrapper(x.m_end, true);
+            end = tmp;
+        } else {
+            end = builder->CreateGlobalStringPtr("\n");
         }
         for (size_t i=0; i<x.n_values; i++) {
             uint64_t ptr_loads_copy = ptr_loads;
@@ -4310,11 +4317,12 @@ public:
                     ASRUtils::type_to_str(t));
             }
         }
+        fmt.push_back("%s");
+        args.push_back(end);
         std::string fmt_str;
         for (size_t i=0; i<fmt.size(); i++) {
             fmt_str += fmt[i];
         }
-        fmt_str += "\n";
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(fmt_str);
         std::vector<llvm::Value *> printf_args;
         printf_args.push_back(fmt_ptr);

@@ -3265,6 +3265,7 @@ public:
                 ASR::expr_t *fmt = nullptr;
                 Vec<ASR::expr_t*> args_expr = ASRUtils::call_arg2expr(al, args);
                 ASR::expr_t *separator = nullptr;
+                ASR::expr_t *end = nullptr;
                 if (c->n_keywords > 0) {
                     std::string arg_name;
                     for (size_t i = 0; i < c->n_keywords; i++) {
@@ -3284,12 +3285,27 @@ public:
                                 );
                                 throw SemanticAbort();
                             }
-                            break;
+                        }
+                        if (arg_name == "end") {
+                            visit_expr(*c->m_keywords[i].m_value);
+                            end = ASRUtils::EXPR(tmp);
+                            ASR::ttype_t *type = ASRUtils::expr_type(end);
+                            if (!ASRUtils::is_character(*type)) {
+                                std::string found = ASRUtils::type_to_str(type);
+                                diag.add(diag::Diagnostic(
+                                    "End is expected to be of string type",
+                                    diag::Level::Error, diag::Stage::Semantic, {
+                                        diag::Label("Expected string, found: " + found,
+                                                {separator->base.loc})
+                                    })
+                                );
+                                throw SemanticAbort();
+                            }
                         }
                     }
                 }
                 tmp = ASR::make_Print_t(al, x.base.base.loc, fmt,
-                    args_expr.p, args_expr.size(), separator);
+                    args_expr.p, args_expr.size(), separator, end);
                 return;
 
             } else if (call_name == "quit") {
