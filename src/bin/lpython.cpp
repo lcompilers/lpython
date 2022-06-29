@@ -257,12 +257,12 @@ int emit_c(const std::string &infile,
 
 int emit_llvm(const std::string &infile,
     const std::string &runtime_library_dir,
+    LCompilers::PassManager& pass_manager,
     CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::LocationManager lm;
-    LCompilers::PassManager lpm;
     lm.in_filename = infile;
     std::string input = LFortran::read_file(infile);
     lm.init_simple(input);
@@ -290,7 +290,7 @@ int emit_llvm(const std::string &infile,
     // ASR -> LLVM
     LFortran::PythonCompiler fe(compiler_options);
     LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
-        res = fe.get_llvm3(*asr, lpm, diagnostics);
+        res = fe.get_llvm3(*asr, pass_manager, diagnostics);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -312,15 +312,13 @@ int compile_python_to_object_file(
         const std::string &infile,
         const std::string &outfile,
         const std::string &runtime_library_dir,
+        LCompilers::PassManager& pass_manager,
         CompilerOptions &compiler_options,
         bool time_report)
 {
     Allocator al(4*1024);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::LocationManager lm;
-    LCompilers::PassManager lpm;
-    lpm.use_default_passes();
-    lpm.do_not_use_optimization_passes();
     lm.in_filename = infile;
     std::vector<std::pair<std::string, double>>times;
     auto file_reading_start = std::chrono::high_resolution_clock::now();
@@ -363,7 +361,7 @@ int compile_python_to_object_file(
     std::unique_ptr<LFortran::LLVMModule> m;
     auto asr_to_llvm_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
-        res = fe.get_llvm3(*asr, lpm, diagnostics);
+        res = fe.get_llvm3(*asr, pass_manager, diagnostics);
     auto asr_to_llvm_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("ASR to LLVM", std::chrono::duration<double, std::milli>(asr_to_llvm_end - asr_to_llvm_start).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
@@ -819,9 +817,10 @@ int main(int argc, char *argv[])
         if (show_c) {
             return emit_c(arg_file, runtime_library_dir, compiler_options);
         }
+        lpython_pass_manager.use_default_passes();
         if (show_llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-            return emit_llvm(arg_file, runtime_library_dir, compiler_options);
+            return emit_llvm(arg_file, runtime_library_dir, lpython_pass_manager, compiler_options);
 #else
             std::cerr << "The --show-llvm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
             return 1;
@@ -846,7 +845,7 @@ int main(int argc, char *argv[])
         if (arg_c) {
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-                return compile_python_to_object_file(arg_file, outfile, runtime_library_dir, compiler_options, time_report);
+                return compile_python_to_object_file(arg_file, outfile, runtime_library_dir, lpython_pass_manager, compiler_options, time_report);
 #else
                 std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
@@ -862,7 +861,7 @@ int main(int argc, char *argv[])
             int err;
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-                err = compile_python_to_object_file(arg_file, tmp_o, runtime_library_dir, compiler_options, time_report);
+                err = compile_python_to_object_file(arg_file, tmp_o, runtime_library_dir, lpython_pass_manager, compiler_options, time_report);
 #else
                 std::cerr << "Compiling Python files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
