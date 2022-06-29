@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_pointer_types-1bf0d01",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_pointer_types.py",
+    "infile_hash": "750a2bb08545b8c11e44585855545060693c59a71df5989ac5371720",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_pointer_types-1bf0d01.stderr",
+    "stderr_hash": "4248a146be3436187b5baeb4137e5060524644193483e18be2040cf0",
+    "returncode": 2
+}
