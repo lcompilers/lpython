@@ -508,6 +508,46 @@ public:
         return nullptr;
     }
 
+    llvm::Type* getMemberType(ASR::ttype_t* mem_type, ASR::Variable_t* member) {
+        llvm::Type* llvm_mem_type = nullptr;
+        switch( mem_type->type ) {
+            case ASR::ttypeType::Integer: {
+                int a_kind = down_cast<ASR::Integer_t>(mem_type)->m_kind;
+                llvm_mem_type = getIntType(a_kind);
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                int a_kind = down_cast<ASR::Real_t>(mem_type)->m_kind;
+                llvm_mem_type = getFPType(a_kind);
+                break;
+            }
+            case ASR::ttypeType::Derived: {
+                llvm_mem_type = getDerivedType(mem_type);
+                break;
+            }
+            case ASR::ttypeType::Pointer: {
+                ASR::Pointer_t* ptr_type = ASR::down_cast<ASR::Pointer_t>(mem_type);
+                llvm_mem_type = getMemberType(ptr_type->m_type, member)->getPointerTo();
+                break;
+            }
+            case ASR::ttypeType::Complex: {
+                int a_kind = down_cast<ASR::Complex_t>(mem_type)->m_kind;
+                llvm_mem_type = getComplexType(a_kind);
+                break;
+            }
+            case ASR::ttypeType::Character: {
+                llvm_mem_type = character_type;
+                break;
+            }
+            default:
+                throw CodeGenError("Cannot identify the type of member, '" +
+                                    std::string(member->m_name) +
+                                    "' in derived type, '" + der_type_name + "'.",
+                                    member->base.base.loc);
+        }
+        return llvm_mem_type;
+    }
+
     llvm::Type* getDerivedType(ASR::DerivedType_t* der_type, bool is_pointer=false) {
         std::string der_type_name = std::string(der_type->m_name);
         llvm::StructType* der_type_llvm;
@@ -527,38 +567,8 @@ public:
             const std::map<std::string, ASR::symbol_t*>& scope = der_type->m_symtab->get_scope();
             for( auto itr = scope.begin(); itr != scope.end(); itr++ ) {
                 ASR::Variable_t* member = (ASR::Variable_t*)(&(itr->second->base));
-                llvm::Type* mem_type = nullptr;
-                switch( member->m_type->type ) {
-                    case ASR::ttypeType::Integer: {
-                        int a_kind = down_cast<ASR::Integer_t>(member->m_type)->m_kind;
-                        mem_type = getIntType(a_kind);
-                        break;
-                    }
-                    case ASR::ttypeType::Real: {
-                        int a_kind = down_cast<ASR::Real_t>(member->m_type)->m_kind;
-                        mem_type = getFPType(a_kind);
-                        break;
-                    }
-                    case ASR::ttypeType::Derived: {
-                        mem_type = getDerivedType(member->m_type);
-                        break;
-                    }
-                    case ASR::ttypeType::Complex: {
-                        int a_kind = down_cast<ASR::Complex_t>(member->m_type)->m_kind;
-                        mem_type = getComplexType(a_kind);
-                        break;
-                    }
-                    case ASR::ttypeType::Character: {
-                        mem_type = character_type;
-                        break;
-                    }
-                    default:
-                        throw CodeGenError("Cannot identify the type of member, '" +
-                                            std::string(member->m_name) +
-                                            "' in derived type, '" + der_type_name + "'.",
-                                            member->base.base.loc);
-                }
-                member_types.push_back(mem_type);
+                llvm::Type* llvm_mem_type = getMemberType(member->m_type, member);
+                member_types.push_back(llvm_mem_type);
                 name2memidx[der_type_name][std::string(member->m_name)] = member_idx;
                 member_idx++;
             }
@@ -1227,8 +1237,9 @@ public:
             return;
         }
         der_type_name = "";
+        ASR::ttype_t* x_m_v_type = ASRUtils::expr_type(x.m_v);
         uint64_t ptr_loads_copy = ptr_loads;
-        ptr_loads = ptr_loads_copy - ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_v));
+        ptr_loads = ptr_loads_copy - ASR::is_a<ASR::Pointer_t>(*x_m_v_type);
         this->visit_expr(*x.m_v);
         ptr_loads = ptr_loads_copy;
         ASR::Variable_t* member = down_cast<ASR::Variable_t>(symbol_get_past_external(x.m_m));
@@ -1246,9 +1257,16 @@ public:
         std::vector<llvm::Value*> idx_vec = {
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, member_idx))};
+        if( ASR::is_a<ASR::DerivedRef_t>(*x.m_v) ) {
+            tmp = builder->CreateLoad(tmp);
+        }
         llvm::Value* tmp1 = CreateGEP(tmp, idx_vec);
-        if( member->m_type->type == ASR::ttypeType::Derived ) {
-            ASR::Derived_t* der = (ASR::Derived_t*)(&(member->m_type->base));
+        ASR::ttype_t* member_type = member->m_type;
+        if( ASR::is_a<ASR::Pointer_t>(*member_type) ) {
+            member_type = ASR::down_cast<ASR::Pointer_t>(member_type)->m_type;
+        }
+        if( member_type->type == ASR::ttypeType::Derived ) {
+            ASR::Derived_t* der = (ASR::Derived_t*)(&(member_type->base));
             ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
             der_type_name = std::string(der_type->m_name);
             uint32_t h = get_hash((ASR::asr_t*)member);
