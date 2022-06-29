@@ -994,21 +994,6 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
     }
 }
 
-inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
-    bool is_source_pointer = is_pointer(source), is_dest_pointer = is_pointer(dest);
-    if( (!is_source_pointer && !is_dest_pointer) ||
-        (is_source_pointer && is_dest_pointer) ) {
-        return false;
-    }
-    if( is_source_pointer && !is_dest_pointer ) {
-        ASR::ttype_t* temp = source;
-        source = dest;
-        dest = temp;
-    }
-    bool res = source->type == ASR::down_cast<ASR::Pointer_t>(dest)->m_type->type;
-    return res;
-}
-
             inline int extract_kind_str(char* m_n, char *&kind_str) {
                 char *p = m_n;
                 while (*p != '\0') {
@@ -1120,7 +1105,12 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
             }
 
             inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
-                if (ASR::is_a<ASR::List_t>(*x) && ASR::is_a<ASR::List_t>(*y)) {
+                if( ASR::is_a<ASR::Pointer_t>(*x) ||
+                    ASR::is_a<ASR::Pointer_t>(*y) ) {
+                    x = ASRUtils::type_get_past_pointer(x);
+                    y = ASRUtils::type_get_past_pointer(y);
+                    return check_equal_type(x, y);
+                } else if (ASR::is_a<ASR::List_t>(*x) && ASR::is_a<ASR::List_t>(*y)) {
                     x = ASR::down_cast<ASR::List_t>(x)->m_type;
                     y = ASR::down_cast<ASR::List_t>(y)->m_type;
                     return check_equal_type(x, y);
@@ -1150,11 +1140,16 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                     }
                     return result;
                 }
-                if( x->type == y->type ) {
+
+                int64_t x_kind = ASRUtils::extract_kind_from_ttype_t(x);
+                int64_t y_kind = ASRUtils::extract_kind_from_ttype_t(y);
+
+                if( x->type == y->type &&
+                    x_kind == y_kind ) {
                     return true;
                 }
 
-                return ASRUtils::is_same_type_pointer(x, y);
+                return false;
             }
 
 int select_generic_procedure(const Vec<ASR::call_arg_t> &args,
