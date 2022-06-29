@@ -17,11 +17,17 @@ def f(b: B):
     assert b.a.y == 3.0
 
 def g():
-    a: A = A(1.0, 1.0)
-    b: B = B(a, 1)
+    a1: A = A(1.0, 1.0)
+    a2: A = A(2.0, 2.0)
+    b: B = B(a1, 1)
+    b.a = a2
     b.z = 1
     b.a.x = 2
     b.a.y = 3.0
+    assert a1.x == 1
+    assert a1.y == 1.0
+    assert a2.x == 2
+    assert a2.y == 3.0
     f(b)
 
 g()
