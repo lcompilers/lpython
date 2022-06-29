@@ -16,17 +16,7 @@
 #include <libasr/codegen/asr_to_x86.h>
 #include <lpython/python_evaluator.h>
 #include <libasr/codegen/evaluator.h>
-#include <libasr/pass/do_loops.h>
-#include <libasr/pass/for_all.h>
-#include <libasr/pass/global_stmts.h>
-#include <libasr/pass/implied_do_loops.h>
-#include <libasr/pass/array_op.h>
-#include <libasr/pass/class_constructor.h>
-#include <libasr/pass/arr_slice.h>
-#include <libasr/pass/print_arr.h>
-#include <libasr/pass/unused_functions.h>
-#include <libasr/pass/inline_function_calls.h>
-#include <libasr/pass/loop_vectorise.h>
+#include <libasr/pass/pass_manager.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/modfile.h>
@@ -48,12 +38,6 @@ using LFortran::parse_python_file;
 
 enum Backend {
     llvm, cpp, x86
-};
-
-enum ASRPass {
-    do_loops, global_stmts, implied_do_loops, array_op,
-    arr_slice, print_arr, class_constructor, unused_functions,
-    inline_function_calls, loop_vectorise
 };
 
 std::string remove_extension(const std::string& filename) {
@@ -147,7 +131,7 @@ int emit_ast(const std::string &infile,
 }
 
 int emit_asr(const std::string &infile,
-    const std::vector<ASRPass> &passes,
+    LCompilers::PassManager& pass_manager,
     const std::string &runtime_library_dir,
     bool with_intrinsic_modules, CompilerOptions &compiler_options)
 {
@@ -175,51 +159,7 @@ int emit_asr(const std::string &infile,
         return 2;
     }
     LFortran::ASR::TranslationUnit_t* asr = r.result;
-    for (size_t i=0; i < passes.size(); i++) {
-        switch (passes[i]) {
-            case (ASRPass::do_loops) : {
-                LFortran::pass_replace_do_loops(al, *asr);
-                break;
-            }
-            case (ASRPass::global_stmts) : {
-                LFortran::pass_wrap_global_stmts_into_function(al, *asr, "f");
-                break;
-            }
-            case (ASRPass::implied_do_loops) : {
-                LFortran::pass_replace_implied_do_loops(al, *asr, runtime_library_dir);
-                break;
-            }
-            case (ASRPass::array_op) : {
-                LFortran::pass_replace_array_op(al, *asr, runtime_library_dir);
-                break;
-            }
-            case (ASRPass::inline_function_calls) : {
-                LFortran::pass_inline_function_calls(al, *asr, runtime_library_dir);
-                break;
-            }
-            case (ASRPass::class_constructor) : {
-                LFortran::pass_replace_class_constructor(al, *asr);
-                break;
-            }
-            case (ASRPass::arr_slice) : {
-                LFortran::pass_replace_arr_slice(al, *asr, runtime_library_dir);
-                break;
-            }
-            case (ASRPass::print_arr) : {
-                LFortran::pass_replace_print_arr(al, *asr, runtime_library_dir);
-                break;
-            }
-            case (ASRPass::unused_functions) : {
-              LFortran::pass_unused_functions(al, *asr, true);
-                break;
-            }
-            case (ASRPass::loop_vectorise) : {
-                LFortran::pass_loop_vectorise(al, *asr, runtime_library_dir);
-                break ;
-            }
-            default : throw LFortran::LFortranException("Pass not implemened");
-        }
-    }
+    pass_manager.apply_passes(al, asr, "f", true);
 
     if (compiler_options.tree) {
         std::cout << LFortran::pickle_tree(*asr, compiler_options.use_colors,
@@ -322,6 +262,7 @@ int emit_llvm(const std::string &infile,
     Allocator al(4*1024);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::LocationManager lm;
+    LCompilers::PassManager lpm;
     lm.in_filename = infile;
     std::string input = LFortran::read_file(infile);
     lm.init_simple(input);
@@ -349,7 +290,7 @@ int emit_llvm(const std::string &infile,
     // ASR -> LLVM
     LFortran::PythonCompiler fe(compiler_options);
     LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
-        res = fe.get_llvm3(*asr, diagnostics);
+        res = fe.get_llvm3(*asr, lpm, diagnostics);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -377,6 +318,9 @@ int compile_python_to_object_file(
     Allocator al(4*1024);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::LocationManager lm;
+    LCompilers::PassManager lpm;
+    lpm.use_default_passes();
+    lpm.do_not_use_optimization_passes();
     lm.in_filename = infile;
     std::vector<std::pair<std::string, double>>times;
     auto file_reading_start = std::chrono::high_resolution_clock::now();
@@ -419,7 +363,7 @@ int compile_python_to_object_file(
     std::unique_ptr<LFortran::LLVMModule> m;
     auto asr_to_llvm_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
-        res = fe.get_llvm3(*asr, diagnostics);
+        res = fe.get_llvm3(*asr, lpm, diagnostics);
     auto asr_to_llvm_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("ASR to LLVM", std::chrono::duration<double, std::milli>(asr_to_llvm_end - asr_to_llvm_start).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
@@ -664,6 +608,7 @@ int main(int argc, char *argv[])
         std::string arg_pywrap_array_order="f";
 
         CompilerOptions compiler_options;
+        LCompilers::PassManager lpython_pass_manager;
 
         CLI::App app{"LPython: modern interactive LLVM-based Python compiler"};
         // Standard options compatible with gfortran, gcc or clang
@@ -712,6 +657,10 @@ int main(int argc, char *argv[])
         app.add_option("--target", compiler_options.target, "Generate code for the given target")->capture_default_str();
         app.add_flag("--print-targets", print_targets, "Print the registered targets");
         app.add_flag("--get-rtlib-header-dir", print_rtlib_header_dir, "Print the path to the runtime library header file");
+
+        if( compiler_options.fast ) {
+            lpython_pass_manager.use_optimization_passes();
+        }
 
         /*
         * Subcommands:
@@ -853,34 +802,7 @@ int main(int argc, char *argv[])
         //     return emit_c_preprocessor(arg_file, compiler_options);
         // }
 
-        std::vector<ASRPass> passes;
-        if (arg_pass != "") {
-            if (arg_pass == "do_loops") {
-                passes.push_back(ASRPass::do_loops);
-            } else if (arg_pass == "global_stmts") {
-                passes.push_back(ASRPass::global_stmts);
-            } else if (arg_pass == "implied_do_loops") {
-                passes.push_back(ASRPass::implied_do_loops);
-            } else if (arg_pass == "array_op") {
-                passes.push_back(ASRPass::array_op);
-            } else if (arg_pass == "inline_function_calls") {
-                passes.push_back(ASRPass::inline_function_calls);
-            } else if (arg_pass == "class_constructor") {
-                passes.push_back(ASRPass::class_constructor);
-            } else if (arg_pass == "print_arr") {
-                passes.push_back(ASRPass::print_arr);
-            } else if (arg_pass == "arr_slice") {
-                passes.push_back(ASRPass::arr_slice);
-            } else if (arg_pass == "unused_functions") {
-                passes.push_back(ASRPass::unused_functions);
-            } else if (arg_pass == "loop_vectorise") {
-                passes.push_back(ASRPass::loop_vectorise);
-            } else {
-                std::cerr << "Pass must be one of: do_loops, global_stmts, implied_do_loops, array_op, class_constructor, print_arr, arr_slice, unused_functions" << std::endl;
-                return 1;
-            }
-            show_asr = true;
-        }
+        lpython_pass_manager.parse_pass_arg(arg_pass);
         if (show_tokens) {
             return emit_tokens(arg_file, true, compiler_options);
         }
@@ -888,7 +810,7 @@ int main(int argc, char *argv[])
             return emit_ast(arg_file, runtime_library_dir, compiler_options);
         }
         if (show_asr) {
-            return emit_asr(arg_file, passes, runtime_library_dir,
+            return emit_asr(arg_file, lpython_pass_manager, runtime_library_dir,
                     with_intrinsic_modules, compiler_options);
         }
         if (show_cpp) {
