@@ -851,6 +851,10 @@ public:
                     al, right->base.loc, right, ASR::cast_kindType::ComplexToComplex,
                     left_type));
             }
+        } else if(is_assign && ASRUtils::is_integer(*left_type) && ASRUtils::is_real(*right_type)) {
+            return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                al, right->base.loc, right, ASR::cast_kindType::RealToInteger,
+                left_type));
         } else if (!is_assign && ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type)) {
             return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
                 al, right->base.loc, right, ASR::cast_kindType::IntegerToReal,
@@ -1281,8 +1285,13 @@ public:
         return std::string(dec_name->m_id) == "dataclass";
     }
 
-    void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name) {
+    void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name,
+                             bool wrap_derived_type_in_pointer=false) {
         ASR::ttype_t *type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation);
+        if( ASR::is_a<ASR::Derived_t>(*type) &&
+            wrap_derived_type_in_pointer ) {
+            type = ASRUtils::TYPE(ASR::make_Pointer_t(al, type->base.loc, type));
+        }
 
         ASR::expr_t *value = nullptr;
         ASR::expr_t *init_expr = nullptr;
@@ -1369,7 +1378,7 @@ public:
             LFORTRAN_ASSERT(AST::is_a<AST::Name_t>(*ann_assign->m_target));
             AST::Name_t *n = AST::down_cast<AST::Name_t>(ann_assign->m_target);
             std::string var_name = n->m_id;
-            visit_AnnAssignUtil(*ann_assign, var_name);
+            visit_AnnAssignUtil(*ann_assign, var_name, true);
             member_names.push_back(al, n->m_id);
         }
         ASR::symbol_t* class_type = ASR::down_cast<ASR::symbol_t>(ASR::make_DerivedType_t(al,
@@ -2738,6 +2747,9 @@ public:
             ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member_sym);
             tmp = ASR::make_DerivedRef_t(al, loc, e, member_sym,
                                          member_var->m_type, nullptr);
+        } else if( ASR::is_a<ASR::Pointer_t>(*type) ) {
+            ASR::Pointer_t* ptr_type = ASR::down_cast<ASR::Pointer_t>(type);
+            visit_AttributeUtil(ptr_type->m_type, attr_char, e, loc);
         } else {
             throw SemanticError(ASRUtils::type_to_str_python(type) + " not supported yet in Attribute.",
                 loc);
