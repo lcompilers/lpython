@@ -3502,6 +3502,7 @@ public:
                 "Conversion of '" + stype + "' to logical is not Implemented",
                 loc);
         }
+        // TODO: Make this work if the argument is, let's say, a class.
         return nullptr;
     }
 
