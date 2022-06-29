@@ -3998,7 +3998,23 @@ public:
                 break;
             }
             case (ASR::cast_kindType::IntegerToLogical) : {
-                tmp = builder->CreateICmpNE(tmp, builder->getInt32(0));
+                ASR::ttype_t* curr_type = extract_ttype_t_from_expr(x.m_arg);
+                LFORTRAN_ASSERT(curr_type != nullptr)
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
+                switch (a_kind) {
+                    case 1:
+                        tmp = builder->CreateICmpNE(tmp, builder->getInt8(0));
+                        break;
+                    case 2:
+                        tmp = builder->CreateICmpNE(tmp, builder->getInt16(0));
+                        break;
+                    case 4:
+                        tmp = builder->CreateICmpNE(tmp, builder->getInt32(0));
+                        break;
+                    case 8:
+                        tmp = builder->CreateICmpNE(tmp, builder->getInt64(0));
+                        break;
+                }
                 break;
             }
             case (ASR::cast_kindType::CharacterToLogical) : {
@@ -4010,7 +4026,9 @@ public:
             case (ASR::cast_kindType::ComplexToLogical) : {
                 // !(c.real == 0.0 && c.imag == 0.0)
                 llvm::Value *zero;
-                int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                ASR::ttype_t* curr_type = extract_ttype_t_from_expr(x.m_arg);
+                LFORTRAN_ASSERT(curr_type != nullptr)
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
                 if (a_kind == 4) {
                     zero = llvm::ConstantFP::get(context, llvm::APFloat((float)0.0));
                 } else {

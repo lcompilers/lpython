@@ -3494,7 +3494,9 @@ public:
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
                 al, loc, arg, ASR::cast_kindType::ComplexToLogical, to_type, value));
 
-        } else if (!ASRUtils::is_logical(*type)) {
+        } else if (ASRUtils::is_logical(*type)) {
+            return (ASR::asr_t *)arg;
+        } else {
             std::string stype = ASRUtils::type_to_str_python(type);
             throw SemanticError(
                 "Conversion of '" + stype + "' to logical is not Implemented",
