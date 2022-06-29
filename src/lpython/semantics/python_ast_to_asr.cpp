@@ -2331,6 +2331,7 @@ class TemplateVisitor : public CommonVisitor<TemplateVisitor> {
 public:
     ASR::asr_t *asr;
     ASR::ttype_t *tmp_type = nullptr;
+    std::map<std::string, Vec<ASR::symbol_t*>> generic_defs;
 
     TemplateVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
         bool main_module, std::map<int, ASR::symbol_t*> &ast_overload)
@@ -2378,7 +2379,15 @@ public:
                     std::string param_name = (ASR::down_cast<ASR::TypeParameter_t>(param_type))->m_param;
                     if (subs.find(param_name) != subs.end() &&
                             !ASRUtils::check_equal_type(subs[param_name], tmp_type)) {
-                        throw SemanticError("Get this error message changed!", func->base.base.loc);
+                        AST::expr_t *arg = x.m_args[i];
+                        throw SemanticError(diag::Diagnostic(
+                            "Inconsistent type parameter substitution",
+                            diag::Level::Error, diag::Stage::Semantic, {
+                                diag::Label("type parameter " + param_name + " was assigned with " + ASRUtils::type_to_str_python(subs[param_name]), 
+                                    {(func->m_args[i])->base.loc}),
+                                diag::Label("but this argument is of type " + ASRUtils::type_to_str_python(tmp_type), 
+                                    {arg->base.loc})
+                            }));
                     } else {
                         subs[param_name] = tmp_type;
                     }
@@ -2432,6 +2441,16 @@ public:
 
         /** Build the name, needs to be overloaded **/
         std::string func_name = func.m_name;
+        std::string generic_number;
+        if (generic_defs.find(func_name) == generic_defs.end()) {
+            generic_number = "0";
+            Vec<ASR::symbol_t*> v;
+            v.reserve(al, 1);
+            generic_defs[func_name] = v;
+        } else {
+            generic_number = std::to_string(generic_defs[func_name].size());
+        }
+        func_name = "__lpython_overloaded_" + generic_number + "__" + func_name;
 
         /** Build the return variable **/
         ASR::Variable_t *return_var = ASR::down_cast<ASR::Variable_t>(
@@ -2469,7 +2488,9 @@ public:
         parent_scope->add_symbol(func_name, t);
         current_scope = parent_scope;
 
-        // overload?
+        /** Add the function to the vector containing overloads **/
+        generic_defs[func.m_name].push_back(al, t);
+        ast_overload[(int64_t)&func] = t;
     }
 
     void visit_ConstantInt(const AST::ConstantInt_t &x) {
@@ -2483,6 +2504,11 @@ public:
         tmp_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
             1, s_size, nullptr, nullptr, 0));
     }    
+
+    void visit_ConstantFloat(const AST::ConstantFloat_t &x) {
+        tmp_type = ASRUtils::TYPE(ASR::make_Real_t(al, x.base.base.loc,
+            8, nullptr, 0));
+    }
 
 };
 
@@ -3954,7 +3980,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     unit = res.result;
 
     // For temporary debugging purposes
-    std::cout << pickle(*unit, 1, 1, 0) << std::endl;
+    // std::cout << pickle(*unit, 1, 1, 0) << std::endl;
 
     if (!symtab_only) {
         auto res2 = body_visitor(al, *ast_m, diagnostics, unit, main_module,
