@@ -454,6 +454,10 @@ filename = "errors/test_annassign_type_mismatch.py"
 asr = true
 
 [[test]]
+filename = "errors/test_annassign_type_mismatch2.py"
+asr = true
+
+[[test]]
 filename = "errors/test_append_type_mismatch.py"
 asr = true
 
