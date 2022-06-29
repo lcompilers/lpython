@@ -202,7 +202,7 @@ static inline std::string type_1dim_helper(const std::string & res,const ASR::ex
     return res + "[" + std::to_string(ic->m_n) + "]";
 }
 
-static inline std::string type_to_str_python(const ASR::ttype_t *t)
+static inline std::string type_to_str_python(const ASR::ttype_t *t, bool for_error_message = true)
 {
     switch (t->type) {
         case ASR::ttypeType::Integer: {
@@ -215,7 +215,7 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t)
                 case 8: { res = "i64"; break; }
                 default: { throw LFortranException("Integer kind not supported"); }
             }
-            if (i->n_dims == 1) res = type_1dim_helper(res, i->m_dims->m_end);
+            if (i->n_dims == 1 && for_error_message) res = type_1dim_helper(res, i->m_dims->m_end);
             return res;
         }
         case ASR::ttypeType::Real: {
@@ -226,7 +226,7 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t)
                 case 8: { res = "f64"; break; }
                 default: { throw LFortranException("Float kind not supported"); }
             }
-            if (r->n_dims == 1) res = type_1dim_helper(res, r->m_dims->m_end);
+            if (r->n_dims == 1 && for_error_message) res = type_1dim_helper(res, r->m_dims->m_end);
             return res;
         }
         case ASR::ttypeType::Complex: {

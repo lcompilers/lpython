@@ -482,7 +482,7 @@ namespace LFortran {
             const int num_args = 6;
             std::string vector_copy_name = prefix;
             for( ASR::ttype_t*& type: types ) {
-                vector_copy_name += ASRUtils::type_to_str_python(type);
+                vector_copy_name += ASRUtils::type_to_str_python(type, false);
             }
             vector_copy_name += "@IntrinsicOptimization";
             if( global_scope->resolve_symbol(vector_copy_name) ) {
