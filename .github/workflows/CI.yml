@@ -10,14 +10,15 @@ on:
 
 
 jobs:
-  Build:
-    name: LPython CI (${{ matrix.python-version }}, ${{ matrix.os }})
+  test-ubuntu-latest-py310
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "macos-latest", "windows-2019"]
-        python-version: ["3.10"]
+        os: ["ubuntu-latest"]
+        python-version:
+          - "3.10"
+
     steps:
       - uses: actions/checkout@v2
         with:
@@ -30,13 +31,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           auto-activate-base: false
 
-      - name: Install Windows Conda Packages
-        if: contains(matrix.os, 'windows')
-        shell: bash -l {0}
-        run: conda install m2-bison=3.0.4 ninja
-
-      - name: Install Linux / macOS Conda Packages
-        if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
+      - name: Install Conda Packages
         shell: bash -l {0}
         run: conda install bison=3.4
 
@@ -47,55 +42,121 @@ jobs:
             conda list
 
       - name: Setup Platform (Linux)
-        if: contains(matrix.os, 'ubuntu')
         shell: bash -l {0}
         run: |
             echo "LFORTRAN_CMAKE_GENERATOR=Unix Makefiles" >> $GITHUB_ENV
             echo "WIN=0" >> $GITHUB_ENV
             echo "MACOS=0" >> $GITHUB_ENV
 
-      - name: Setup Platform (macOS)
-        if: contains(matrix.os, 'macos')
+      - name: Build
+        shell: bash -l {0}
+        run: |
+            xonsh ci/build.xsh
+
+      - name: Test
+        shell: bash -l {0}
+        run: |
+            xonsh ci/test.xsh
+
+  test-macos-latest-py310:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["macos-latest"]
+        python-version:
+          - "3.10"
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          environment-file: ci/environment.yml
+          python-version: ${{ matrix.python-version }}
+          auto-activate-base: false
+
+      - name: Install Conda Packages
+        shell: bash -l {0}
+        run: conda install bison=3.4
+
+      - name: Conda info
+        shell: bash -l {0}
+        run: |
+            conda info
+            conda list
+
+      - name: Setup Platform
         shell: bash -l {0}
         run: |
             echo "LFORTRAN_CMAKE_GENERATOR=Unix Makefiles" >> $GITHUB_ENV
             echo "WIN=0" >> $GITHUB_ENV
             echo "MACOS=1" >> $GITHUB_ENV
 
-      - name: Build (Linux / macOS)
+      - name: Build
         shell: bash -l {0}
-        if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
         run: |
             xonsh ci/build.xsh
 
-      - name: Build (Windows)
-        if: contains(matrix.os, 'windows')
-        shell: cmd
-        run: |
-            set CONDA_INSTALL_LOCN=C:\\Miniconda
-            call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
-            call conda activate test
-            set LFORTRAN_CMAKE_GENERATOR=Ninja
-            set WIN=1
-            set MACOS=0
-            call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
-            xonsh ci\build.xsh
-
-      - name: Test (Linux / macOS)
+      - name: Test
         shell: bash -l {0}
-        if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
         run: |
             xonsh ci/test.xsh
 
-      - name: Test (Windows)
-        if: contains(matrix.os, 'windows')
-        shell: cmd
-        run: |
-            set CONDA_INSTALL_LOCN=C:\\Miniconda
-            call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
-            call conda activate test
-            set LFORTRAN_CMAKE_GENERATOR=Ninja
-            set WIN=1
-            set MACOS=0
-            call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
-            xonsh ci\test.xsh
+  test-windows-2019-py310:
+      runs-on: ${{ matrix.os }}
+      strategy:
+        fail-fast: false
+        matrix:
+          os: ["windows-2019"]
+          python-version:
+            - "3.10"
+
+      steps:
+        - uses: actions/checkout@v2
+          with:
+            fetch-depth: 0
+
+        - uses: conda-incubator/setup-miniconda@v2
+          with:
+            auto-update-conda: true
+            environment-file: ci/environment.yml
+            python-version: ${{ matrix.python-version }}
+            auto-activate-base: false
+
+        - name: Install Conda Packages
+          shell: bash -l {0}
+          run: conda install m2-bison=3.0.4 ninja
+
+        - name: Conda info
+          shell: bash -l {0}
+          run: |
+              conda info
+              conda list
+
+        - name: Build
+          shell: cmd
+          run: |
+              set CONDA_INSTALL_LOCN=C:\\Miniconda
+              call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
+              call conda activate test
+              set LFORTRAN_CMAKE_GENERATOR=Ninja
+              set WIN=1
+              set MACOS=0
+              call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+              xonsh ci\build.xsh
+
+        - name: Test
+          shell: cmd
+          run: |
+              set CONDA_INSTALL_LOCN=C:\\Miniconda
+              call %CONDA_INSTALL_LOCN%\Scripts\activate.bat
+              call conda activate test
+              set LFORTRAN_CMAKE_GENERATOR=Ninja
+              set WIN=1
+              set MACOS=0
+              call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
+              xonsh ci\test.xsh
