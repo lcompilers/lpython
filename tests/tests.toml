@@ -160,6 +160,7 @@ pass = "loop_vectorise"
 [[test]]
 filename = "../integration_tests/func_inline_01.py"
 asr = true
+llvm = true
 pass = "inline_function_calls"
 
 [[test]]
