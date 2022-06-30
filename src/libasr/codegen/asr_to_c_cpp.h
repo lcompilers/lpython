@@ -664,6 +664,10 @@ R"(#include <stdio.h>
                 src = "(int)(" + src + ")";
                 break;
             }
+            case (ASR::cast_kindType::IntegerToLogical) : {
+                src = "(bool)(" + src + ")";
+                break;
+            }
             default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented",
                 x.base.base.loc);
         }
