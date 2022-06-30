@@ -1,0 +1,54 @@
+#include <inttypes.h>
+
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <lfortran_intrinsics.h>
+
+#define ASSERT(cond)                                                           \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+#define ASSERT_MSG(cond, msg)                                                  \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            printf("%s", "ERROR MESSAGE:\n");                                  \
+            printf("%s%s", msg, "\n");                                         \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+
+// Forward declarations
+void _lpython_main_program();
+void f();
+
+// Implementations
+void _lpython_main_program()
+{
+    f();
+}
+
+void f()
+{
+    bool b;
+    int32_t i;
+    i = 3;
+    b = (bool)(i);
+    printf("%d\n", b);
+}
+
+int main(int argc, char* argv[])
+{
+    _lpython_main_program();
+    return 0;
+}
