@@ -36,7 +36,7 @@ jobs:
         run: conda install m2-bison=3.0.4 ninja
 
       - name: Install Linux / macOS Conda Packages
-        if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
+        if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
         shell: bash -l {0}
         run: conda install bison=3.4
 
@@ -64,7 +64,7 @@ jobs:
 
       - name: Build (Linux / macOS)
         shell: bash -l {0}
-        if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
+        if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
         run: |
             xonsh ci/build.xsh
 
@@ -83,7 +83,7 @@ jobs:
 
       - name: Test (Linux / macOS)
         shell: bash -l {0}
-        if: contains(matrix.os, 'ubuntu') || contains(matrix.os, 'macos')
+        if: contains(matrix.os, 'macos') || contains(matrix.os, 'ubuntu')
         run: |
             xonsh ci/test.xsh
 
