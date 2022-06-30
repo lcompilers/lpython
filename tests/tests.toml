@@ -224,6 +224,10 @@ filename = "../integration_tests/test_builtin.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/test_complex.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/structs_01.py"
 asr = true
 
