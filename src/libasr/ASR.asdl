@@ -203,7 +203,7 @@ stmt
     | ListAppend(expr a, expr ele)
     | AssociateBlockCall(symbol m)
     | CPtrToPointer(expr cptr, expr ptr, expr? shape)
-    | BlockCall(symbol m)
+    | BlockCall(int label, symbol m)
     | SetInsert(expr a, expr ele)
     | SetRemove(expr a, expr ele)
     | ListInsert(expr a, expr pos, expr ele)
