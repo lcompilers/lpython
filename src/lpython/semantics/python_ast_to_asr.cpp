@@ -1695,9 +1695,10 @@ public:
                     tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, b, logical_type);
                     return;
                 }
-                // TODO: Maybe add Complex to Logical cast in ASR
-                throw SemanticError("'not' Unary is not supported for complex type yet",
-                    x.base.base.loc);
+                // cast Complex to Logical
+                logical_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                            al, x.base.base.loc, operand, ASR::cast_kindType::ComplexToLogical,
+                            logical_type, value));
             }
 
             tmp = ASR::make_LogicalNot_t(al, x.base.base.loc, logical_arg, logical_type, value);
