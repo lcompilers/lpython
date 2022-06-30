@@ -10,7 +10,7 @@ on:
 
 
 jobs:
-  test-ubuntu-latest-py310
+  test-ubuntu-latest-py310:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
