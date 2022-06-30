@@ -47,7 +47,7 @@ public:
             PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
             ASR::stmt_t* doloop = nullptr;
             ASR::stmt_t* empty_print_endl = LFortran::ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc,
-                                                nullptr, nullptr, 0, nullptr));
+                                                nullptr, nullptr, 0, nullptr, nullptr));
             for( int i = n_dims - 1; i >= 0; i-- ) {
                 ASR::do_loop_head_t head;
                 head.m_v = idx_vars[i];
@@ -63,7 +63,7 @@ public:
                     print_args.reserve(al, 1);
                     print_args.push_back(al, ref);
                     ASR::stmt_t* print_stmt = LFortran::ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc, nullptr,
-                                                                 print_args.p, print_args.size(), nullptr));
+                                                                 print_args.p, print_args.size(), nullptr, nullptr));
                     doloop_body.push_back(al, print_stmt);
                 } else {
                     doloop_body.push_back(al, doloop);

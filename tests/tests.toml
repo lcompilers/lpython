@@ -597,6 +597,10 @@ asr = true
 filename = "errors/test_print1.py"
 asr = true
 
+[[test]]
+filename = "errors/test_print2.py"
+asr = true
+
 # tests/tokens/errors
 
 [[test]]
