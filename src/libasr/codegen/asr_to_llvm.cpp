@@ -3365,7 +3365,7 @@ public:
                 break;
             };
             default: {
-                throw CodeGenError("Binary operator '" + ASRUtils::binop_to_str(x.m_op) + "' not supported",
+                throw CodeGenError("Binary operator '" + ASRUtils::binop_to_str_python(x.m_op) + "' not supported",
                     x.base.base.loc);
             }
         }
@@ -3434,7 +3434,7 @@ public:
                 break;
             };
             default: {
-                throw CodeGenError("Binary operator '" + ASRUtils::binop_to_str(x.m_op) + "' not supported",
+                throw CodeGenError("Binary operator '" + ASRUtils::binop_to_str_python(x.m_op) + "' not supported",
                     x.base.base.loc);
             }
         }

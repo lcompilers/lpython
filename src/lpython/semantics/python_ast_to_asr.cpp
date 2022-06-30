@@ -1197,7 +1197,7 @@ public:
 
             if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
                 op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift) {
-                throw SemanticError("Unsupported binary operation on floats: '" + ASRUtils::binop_to_str(op) + "'", loc);
+                throw SemanticError("Unsupported binary operation on floats: '" + ASRUtils::binop_to_str_python(op) + "'", loc);
             }
 
             right = cast_helper(left_type, right);
@@ -1226,7 +1226,7 @@ public:
 
             if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
                 op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift) {
-                throw SemanticError("Unsupported binary operation on complex: '" + ASRUtils::binop_to_str(op) + "'", loc);
+                throw SemanticError("Unsupported binary operation on complex: '" + ASRUtils::binop_to_str_python(op) + "'", loc);
             }
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {

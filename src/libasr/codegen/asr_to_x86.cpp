@@ -329,7 +329,7 @@ public:
                 break;
             };
             default: {
-                throw CodeGenError("Binary operator '" + ASRUtils::binop_to_str(x.m_op) + "' not supported yet");
+                throw CodeGenError("Binary operator '" + ASRUtils::binop_to_str_python(x.m_op) + "' not supported yet");
             }
         }
     }

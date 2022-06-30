@@ -207,7 +207,7 @@ static inline std::string cmpop_to_str(const ASR::cmpopType t) {
     }
 }
 
-static inline std::string logicalbinop_to_str(const ASR::logicalbinopType t) {
+static inline std::string logicalbinop_to_str_python(const ASR::logicalbinopType t) {
     switch (t) {
         case (ASR::logicalbinopType::And): { return " && "; }
         case (ASR::logicalbinopType::Or): { return " || "; }
@@ -691,7 +691,7 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
     }
 }
 
-static inline std::string binop_to_str(const ASR::binopType t) {
+static inline std::string binop_to_str_python(const ASR::binopType t) {
     switch (t) {
         case (ASR::binopType::Add): { return " + "; }
         case (ASR::binopType::Sub): { return " - "; }
