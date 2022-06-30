@@ -25,12 +25,16 @@ void _lpython_main_program()
 void f()
 {
     std::string x;
+    std::string y;
     std::cout << "Hello World!" << std::endl;
     x = ",";
+    y = "!!";
     std::cout << "a" << x << "b" << std::endl;
     x = "-+-+-";
     std::cout << "a" << x << "b" << x << "c" << std::endl;
-    std::cout << "a" << ":" << "b" << std::endl;
+    std::cout << "d" << "=" << "e" << "=" << "f" << std::endl;
+    std::cout << "x" << "*\n" << "y" << "*\n" << "z" << std::endl;
+    std::cout << "1" << ":" << "2" << std::endl;
     std::cout << "LCompilers" << " " << "LPython" << std::endl;
 }
 

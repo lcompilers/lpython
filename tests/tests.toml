@@ -598,6 +598,10 @@ filename = "errors/test_print1.py"
 asr = true
 
 [[test]]
+filename = "errors/test_print2.py"
+asr = true
+
+[[test]]
 filename = "errors/test_pointer_types.py"
 asr = true
 

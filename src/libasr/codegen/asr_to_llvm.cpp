@@ -3998,7 +3998,48 @@ public:
                 break;
             }
             case (ASR::cast_kindType::IntegerToLogical) : {
-                tmp = builder->CreateICmpNE(tmp, builder->getInt32(0));
+                ASR::ttype_t* curr_type = extract_ttype_t_from_expr(x.m_arg);
+                LFORTRAN_ASSERT(curr_type != nullptr)
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
+                switch (a_kind) {
+                    case 1:
+                        tmp = builder->CreateICmpNE(tmp, builder->getInt8(0));
+                        break;
+                    case 2:
+                        tmp = builder->CreateICmpNE(tmp, builder->getInt16(0));
+                        break;
+                    case 4:
+                        tmp = builder->CreateICmpNE(tmp, builder->getInt32(0));
+                        break;
+                    case 8:
+                        tmp = builder->CreateICmpNE(tmp, builder->getInt64(0));
+                        break;
+                }
+                break;
+            }
+            case (ASR::cast_kindType::CharacterToLogical) : {
+                llvm::AllocaInst *parg = builder->CreateAlloca(character_type, nullptr);
+                builder->CreateStore(tmp, parg);
+                tmp = builder->CreateICmpNE(lfortran_str_len(parg), builder->getInt32(0));
+                break;
+            }
+            case (ASR::cast_kindType::ComplexToLogical) : {
+                // !(c.real == 0.0 && c.imag == 0.0)
+                llvm::Value *zero;
+                ASR::ttype_t* curr_type = extract_ttype_t_from_expr(x.m_arg);
+                LFORTRAN_ASSERT(curr_type != nullptr)
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
+                if (a_kind == 4) {
+                    zero = llvm::ConstantFP::get(context, llvm::APFloat((float)0.0));
+                } else {
+                    zero = llvm::ConstantFP::get(context, llvm::APFloat(0.0));
+                }
+                llvm::Value *c_real = complex_re(tmp, tmp->getType());
+                llvm::Value *real_check = builder->CreateFCmpUEQ(c_real, zero);
+                llvm::Value *c_imag = complex_im(tmp, tmp->getType());
+                llvm::Value *imag_check = builder->CreateFCmpUEQ(c_imag, zero);
+                tmp = builder->CreateAnd(real_check, imag_check);
+                tmp = builder->CreateNot(tmp);
                 break;
             }
             case (ASR::cast_kindType::LogicalToInteger) : {
@@ -4174,11 +4215,18 @@ public:
         std::vector<llvm::Value *> args;
         std::vector<std::string> fmt;
         llvm::Value *sep = nullptr;
+        llvm::Value *end = nullptr;
         if (x.m_separator) {
             this->visit_expr_wrapper(x.m_separator, true);
             sep = tmp;
         } else {
             sep = builder->CreateGlobalStringPtr(" ");
+        }
+        if (x.m_end) {
+            this->visit_expr_wrapper(x.m_end, true);
+            end = tmp;
+        } else {
+            end = builder->CreateGlobalStringPtr("\n");
         }
         for (size_t i=0; i<x.n_values; i++) {
             uint64_t ptr_loads_copy = ptr_loads;
@@ -4310,11 +4358,12 @@ public:
                     ASRUtils::type_to_str(t));
             }
         }
+        fmt.push_back("%s");
+        args.push_back(end);
         std::string fmt_str;
         for (size_t i=0; i<fmt.size(); i++) {
             fmt_str += fmt[i];
         }
-        fmt_str += "\n";
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(fmt_str);
         std::vector<llvm::Value *> printf_args;
         printf_args.push_back(fmt_ptr);
