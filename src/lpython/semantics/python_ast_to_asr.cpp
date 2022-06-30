@@ -3435,6 +3435,77 @@ public:
         return nullptr;
     }
 
+    ASR::asr_t* handle_intrinsic_bool(Allocator &al, Vec<ASR::call_arg_t> args,
+                                        const Location &loc) {
+        ASR::expr_t *arg = nullptr, *value = nullptr;
+        ASR::ttype_t *type = nullptr;
+        if (args.size() > 0) {
+            arg = args[0].m_value;
+            type = ASRUtils::expr_type(arg);
+        }
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
+                                    4, nullptr, 0));
+        if (!arg) {
+            return ASR::make_LogicalConstant_t(al, loc, false, to_type);
+        }
+        if (ASRUtils::is_integer(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                bool b = ASR::down_cast<ASR::IntegerConstant_t>(
+                                        ASRUtils::expr_value(arg))->m_n;
+                value = ASR::down_cast<ASR::expr_t>(make_LogicalConstant_t(al,
+                                loc, b, to_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                al, loc, arg, ASR::cast_kindType::IntegerToLogical, to_type, value));
+
+        } else if (ASRUtils::is_real(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                bool b = ASR::down_cast<ASR::RealConstant_t>(
+                                        ASRUtils::expr_value(arg))->m_r;
+                value = ASR::down_cast<ASR::expr_t>(make_LogicalConstant_t(al,
+                                loc, b, to_type));
+            }
+            ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                                        4, nullptr, 0));
+            ASR::expr_t *t = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                al, loc, arg, ASR::cast_kindType::RealToInteger, int_type, nullptr));
+
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                al, loc, t, ASR::cast_kindType::IntegerToLogical, to_type, value));
+
+        } else if (ASRUtils::is_character(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                char *c = ASR::down_cast<ASR::StringConstant_t>(
+                                        ASRUtils::expr_value(arg))->m_s;
+                value = ASR::down_cast<ASR::expr_t>(make_LogicalConstant_t(al,
+                                loc, std::string(c) != "", to_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                al, loc, arg, ASR::cast_kindType::CharacterToLogical, to_type, value));
+
+        } else if (ASRUtils::is_complex(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                ASR::ComplexConstant_t *c_arg = ASR::down_cast<ASR::ComplexConstant_t>(
+                                                ASRUtils::expr_value(arg));
+                std::complex<double> c_value(c_arg->m_re, c_arg->m_im);
+                value = ASR::down_cast<ASR::expr_t>(make_LogicalConstant_t(al,
+                                loc, c_value.real() != 0.0 || c_value.imag() != 0.0, to_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                al, loc, arg, ASR::cast_kindType::ComplexToLogical, to_type, value));
+
+        } else if (ASRUtils::is_logical(*type)) {
+            return (ASR::asr_t *)arg;
+        } else {
+            std::string stype = ASRUtils::type_to_str_python(type);
+            throw SemanticError(
+                "Conversion of '" + stype + "' to logical is not Implemented",
+                loc);
+        }
+        // TODO: Make this work if the argument is, let's say, a class.
+        return nullptr;
+    }
+
     ASR::asr_t* handle_intrinsic_len(Allocator &al, Vec<ASR::call_arg_t> args,
                                         const Location &loc) {
         if (args.size() != 1) {
@@ -3654,15 +3725,17 @@ public:
                 }
                 tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, result, type);
                 return;
-            } else if (call_name == "int" || call_name == "float") {
+            } else if (call_name == "int" || call_name == "float" || call_name == "bool") {
                 if (args.size() > 1) {
                     throw SemanticError("Either 0 or 1 argument is expected in '" + call_name + "'",
                             x.base.base.loc);
                 }
                 if (call_name == "int") {
                     tmp = handle_intrinsic_int(al, args, x.base.base.loc);
-                } else {
+                } else if (call_name == "float") {
                     tmp = handle_intrinsic_float(al, args, x.base.base.loc);
+                } else {
+                    tmp = handle_intrinsic_bool(al, args, x.base.base.loc);
                 }
                 return;
             } else if (call_name == "len") {

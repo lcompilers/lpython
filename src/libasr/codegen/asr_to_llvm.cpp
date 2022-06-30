@@ -3998,7 +3998,48 @@ public:
                 break;
             }
             case (ASR::cast_kindType::IntegerToLogical) : {
-                tmp = builder->CreateICmpNE(tmp, builder->getInt32(0));
+                ASR::ttype_t* curr_type = extract_ttype_t_from_expr(x.m_arg);
+                LFORTRAN_ASSERT(curr_type != nullptr)
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
+                switch (a_kind) {
+                    case 1:
+                        tmp = builder->CreateICmpNE(tmp, builder->getInt8(0));
+                        break;
+                    case 2:
+                        tmp = builder->CreateICmpNE(tmp, builder->getInt16(0));
+                        break;
+                    case 4:
+                        tmp = builder->CreateICmpNE(tmp, builder->getInt32(0));
+                        break;
+                    case 8:
+                        tmp = builder->CreateICmpNE(tmp, builder->getInt64(0));
+                        break;
+                }
+                break;
+            }
+            case (ASR::cast_kindType::CharacterToLogical) : {
+                llvm::AllocaInst *parg = builder->CreateAlloca(character_type, nullptr);
+                builder->CreateStore(tmp, parg);
+                tmp = builder->CreateICmpNE(lfortran_str_len(parg), builder->getInt32(0));
+                break;
+            }
+            case (ASR::cast_kindType::ComplexToLogical) : {
+                // !(c.real == 0.0 && c.imag == 0.0)
+                llvm::Value *zero;
+                ASR::ttype_t* curr_type = extract_ttype_t_from_expr(x.m_arg);
+                LFORTRAN_ASSERT(curr_type != nullptr)
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
+                if (a_kind == 4) {
+                    zero = llvm::ConstantFP::get(context, llvm::APFloat((float)0.0));
+                } else {
+                    zero = llvm::ConstantFP::get(context, llvm::APFloat(0.0));
+                }
+                llvm::Value *c_real = complex_re(tmp, tmp->getType());
+                llvm::Value *real_check = builder->CreateFCmpUEQ(c_real, zero);
+                llvm::Value *c_imag = complex_im(tmp, tmp->getType());
+                llvm::Value *imag_check = builder->CreateFCmpUEQ(c_imag, zero);
+                tmp = builder->CreateAnd(real_check, imag_check);
+                tmp = builder->CreateNot(tmp);
                 break;
             }
             case (ASR::cast_kindType::LogicalToInteger) : {
