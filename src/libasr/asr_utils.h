@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <map>
+#include <set>
 #include <limits>
 
 #include <libasr/assert.h>
@@ -1281,6 +1282,72 @@ class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
         }
     }
 
+};
+
+class ReplaceReturnWithGotoVisitor: public ASR::BaseStmtReplacer<ReplaceReturnWithGotoVisitor> {
+
+    private:
+
+    Allocator& al;
+
+    uint64_t goto_label;
+
+    public:
+
+    ReplaceReturnWithGotoVisitor(Allocator& al_, uint64_t goto_label_) :
+        al(al_), goto_label(goto_label_)
+    {}
+
+    void set_goto_label(uint64_t label) {
+        goto_label = label;
+    }
+
+    void replace_Return(ASR::Return_t* x) {
+        *current_stmt = ASRUtils::STMT(ASR::make_GoTo_t(al, x->base.base.loc, goto_label));
+    }
+
+};
+
+// Singleton LabelGenerator so that it generates
+// unique labels for different statements, from
+// whereever it is called (be it ASR passes, be it
+// AST to ASR transition, etc).
+class LabelGenerator {
+    private:
+
+        static LabelGenerator *label_generator;
+        uint64_t unique_label;
+        std::map<ASR::asr_t*, uint64_t> node2label;
+
+        // Private constructor so that more than
+        // one object cannot be created by calling the
+        // constructor.
+        LabelGenerator() {
+            unique_label = 0;
+        }
+
+    public:
+
+        static LabelGenerator *get_instance() {
+            if (!label_generator) {
+                label_generator = new LabelGenerator;
+            }
+            return label_generator;
+        }
+
+        int get_unique_label() {
+            unique_label += 1;
+            return unique_label;
+        }
+
+        void add_node_with_unique_label(ASR::asr_t* node, uint64_t label) {
+            LFORTRAN_ASSERT( node2label.find(node) == node2label.end() );
+            node2label[node] = label;
+        }
+
+        bool verify(ASR::asr_t* node) {
+            return node2label.find(node) != node2label.end();
+        }
 };
 
 ASR::asr_t* make_Cast_t_value(Allocator &al, const Location &a_loc,

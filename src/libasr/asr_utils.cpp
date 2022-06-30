@@ -879,6 +879,9 @@ ASR::asr_t* make_Cast_t_value(Allocator &al, const Location &a_loc,
     return ASR::make_Cast_t(al, a_loc, a_arg, a_kind, a_type, value);
 }
 
+//Initialize pointer to zero so that it can be initialized in first call to get_instance
+ASRUtils::LabelGenerator* ASRUtils::LabelGenerator::label_generator = nullptr;
+
 } // namespace ASRUtils
 
 
