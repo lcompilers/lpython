@@ -3296,7 +3296,7 @@ public:
                                     "End is expected to be of string type",
                                     diag::Level::Error, diag::Stage::Semantic, {
                                         diag::Label("Expected string, found: " + found,
-                                                {separator->base.loc})
+                                                {end->base.loc})
                                     })
                                 );
                                 throw SemanticAbort();

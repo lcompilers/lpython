@@ -1,29 +1,5 @@
-Traceback (most recent call last):
-[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 811[0m
-    return emit_asr(arg_file, lpython_pass_manager, runtime_library_dir,
-[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 154[0m
-    r = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 3792[0m
-    if (res2.ok) {
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 3717[0m
-    b.visit_Module(ast);
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 2353[0m
-    visit_stmt(*x.m_body[i]);
-[2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1882[0m
-    void visit_stmt(const stmt_t &b) { visit_stmt_t(b, self()); }
-[2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1750[0m
-    case stmtType::FunctionDef: { v.visit_FunctionDef((const FunctionDef_t &)x); return; }
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 2381[0m
-    } else if (ASR::is_a<ASR::Function_t>(*t)) {
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 2371[0m
-    transform_stmts(body, x.n_body, x.m_body);
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 2328[0m
-    this->visit_stmt(*m_body[i]);
-[2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1882[0m
-    void visit_stmt(const stmt_t &b) { visit_stmt_t(b, self()); }
-[2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1772[0m
-    case stmtType::Expr: { v.visit_Expr((const Expr_t &)x); return; }
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 3299[0m
-    {separator->base.loc})
-[2m  Binary file "[0m[1m[35m/usr/lib/system/libsystem_platform.dylib[39m[0m[2m", local address: 0x7fff5013cf59[0m
-Segfault: Signal SIGSEGV (segmentation fault) received
+semantic error: End is expected to be of string type
+ --> tests/errors/test_print2.py:2:26
+  |
+2 |      print("a", "b", end=1)
+  |                          ^ Expected string, found: integer
