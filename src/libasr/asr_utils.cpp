@@ -389,7 +389,7 @@ bool is_op_overloaded(ASR::binopType op, std::string& intrinsic_op_name,
             break;
         }
         default: {
-            throw LFortranException("Binary operator '" + ASRUtils::binop_to_str(op) + "' not supported yet");
+            throw LFortranException("Binary operator '" + ASRUtils::binop_to_str_python(op) + "' not supported yet");
         }
     }
     if( result && curr_scope->get_symbol(intrinsic_op_name) == nullptr ) {

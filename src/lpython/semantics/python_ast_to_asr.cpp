@@ -1154,21 +1154,6 @@ public:
             throw SemanticAbort();
         }
 
-        // Check that the types are now the same
-        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(left),
-                                    ASRUtils::expr_type(right))) {
-            std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
-            std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
-            diag.add(diag::Diagnostic(
-                "Type mismatch in binary operator, the types must be compatible",
-                diag::Level::Error, diag::Stage::Semantic, {
-                    diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
-                            {left->base.loc, right->base.loc})
-                })
-            );
-            throw SemanticAbort();
-        }
-
         if (ASRUtils::is_integer(*dest_type)) {
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
@@ -1212,9 +1197,11 @@ public:
 
             if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
                 op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift) {
-                throw SemanticError("Unsupported binary operation on floats: '" + ASRUtils::binop_to_str(op) + "'", loc);
+                throw SemanticError("Unsupported binary operation on floats: '" + ASRUtils::binop_to_str_python(op) + "'", loc);
             }
 
+            right = cast_helper(left_type, right);
+            dest_type = ASRUtils::expr_type(right);
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 double left_value = ASR::down_cast<ASR::RealConstant_t>(
                                                     ASRUtils::expr_value(left))->m_r;
@@ -1239,7 +1226,7 @@ public:
 
             if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
                 op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift) {
-                throw SemanticError("Unsupported binary operation on complex: '" + ASRUtils::binop_to_str(op) + "'", loc);
+                throw SemanticError("Unsupported binary operation on complex: '" + ASRUtils::binop_to_str_python(op) + "'", loc);
             }
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
@@ -2044,7 +2031,6 @@ public:
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
-
         Vec<ASR::expr_t*> args;
         args.reserve(al, x.m_args.n_args);
         current_procedure_abi_type = ASR::abiType::Source;
@@ -2540,14 +2526,18 @@ public:
                                         "of pointer() call.",
                                         value->base.loc);
                 }
-                if( target_type->type != value_type->type ) {
-                    throw SemanticError("Casting not supported for different pointer types yet.",
+                if( !ASRUtils::check_equal_type(target_type, value_type) ) {
+                    throw SemanticError("Casting not supported for different pointer types. Received "
+                                        "target pointer type, " + ASRUtils::type_to_str_python(target_type) +
+                                        " and value pointer type, " + ASRUtils::type_to_str_python(value_type),
                                         x.base.base.loc);
                 }
                 tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value, nullptr);
                 return ;
             }
 
+            value = cast_helper(target, value, true);
+            value_type = ASRUtils::expr_type(value);
             if (!ASRUtils::check_equal_type(target_type, value_type)) {
                 std::string ltype = ASRUtils::type_to_str_python(target_type);
                 std::string rtype = ASRUtils::type_to_str_python(value_type);
@@ -2560,7 +2550,6 @@ public:
                 );
                 throw SemanticAbort();
             }
-            value = cast_helper(target, value, true);
             ASR::stmt_t *overloaded=nullptr;
             tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
                                     overloaded);

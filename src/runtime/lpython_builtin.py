@@ -35,10 +35,12 @@ def abs(x: f64) -> f64:
     """
     Return the absolute value of `x`.
     """
+    result: f64
     if x >= 0.0:
-        return x
+        result = x
     else:
-        return -x
+        result = -x
+    return result
 
 @overload
 def abs(x: f32) -> f32:
@@ -86,17 +88,21 @@ def abs(b: bool) -> i32:
 def abs(c: c32) -> f32:
     a: f32
     b: f32
+    result: f32
     a = c.real
     b = _lfortran_caimag(c)
-    return (a**2 + b**2)**(1/2)
+    result = (a**2 + b**2)**(1/2)
+    return result
 
 @overload
 def abs(c: c64) -> f64:
     a: f64
     b: f64
+    result: f64
     a = c.real
     b = _lfortran_zaimag(c)
-    return (a**2 + b**2)**(1/2)
+    result = (a**2 + b**2)**(1/2)
+    return result
 
 @overload
 def str() -> str:
@@ -348,12 +354,16 @@ def complex(x: f64) -> c64:
 @interface
 @overload
 def complex(x: i32) -> c32:
-    return x + 0*1j
+    result: c32
+    result = x + 0*1j
+    return result
 
 @interface
 @overload
 def complex(x: f32) -> c32:
-    return x + 0*1j
+    result: c32
+    result = x + 0*1j
+    return result
 
 @interface
 @overload
@@ -371,7 +381,9 @@ def complex(x: f64, y: f64) -> c64:
 @interface
 @overload
 def complex(x: f32, y: f32) -> c32:
-    return x + y*1j
+    result: c32
+    result = x + y*1j
+    return result
 
 @interface
 @overload
@@ -461,10 +473,13 @@ def _lpython_floordiv(a: f32, b: f32) -> f32:
     r: f32
     r = a/b
     result: i32
+    resultf32: f32
     result = int(r)
     if r >= 0.0 or result == r:
-        return float(result)
-    return float(result-1)
+        resultf32 = 1.0 * result
+    else:
+        resultf32 = 1.0 * result-1
+    return resultf32
 
 @overload
 def _lpython_floordiv(a: i32, b: i32) -> i32:

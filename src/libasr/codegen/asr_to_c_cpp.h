@@ -865,7 +865,7 @@ R"(#include <stdio.h>
                 src += "(" + left + ")";
             }
         }
-        src += ASRUtils::binop_to_str(x.m_op);
+        src += ASRUtils::binop_to_str_python(x.m_op);
         if (right_precedence == 3) {
             src += "(" + right + ")";
         } else if (x.m_op == ASR::binopType::Sub) {
@@ -915,7 +915,7 @@ R"(#include <stdio.h>
         } else {
             src += "(" + left + ")";
         }
-        src += ASRUtils::logicalbinop_to_str(x.m_op);
+        src += ASRUtils::logicalbinop_to_str_python(x.m_op);
         if (right_precedence <= last_expr_precedence) {
             src += right;
         } else {

@@ -195,108 +195,6 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
     }
 }
 
-static inline std::string type_1dim_helper(const std::string & res,const ASR::expr_t* e )
-{
-    ASR::IntegerBinOp_t *ib = (ASR::IntegerBinOp_t *) e;
-    ASR::IntegerConstant_t *ic = (ASR::IntegerConstant_t*) ib->m_left;
-    return res + "[" + std::to_string(ic->m_n) + "]";
-}
-
-static inline std::string type_to_str_python(const ASR::ttype_t *t, bool for_error_message = true)
-{
-    switch (t->type) {
-        case ASR::ttypeType::Integer: {
-            ASR::Integer_t *i = (ASR::Integer_t*)t;
-            std::string res = "";
-            switch (i->m_kind) {
-                case 1: { res = "i8"; break; }
-                case 2: { res = "i16"; break; }
-                case 4: { res = "i32"; break; }
-                case 8: { res = "i64"; break; }
-                default: { throw LFortranException("Integer kind not supported"); }
-            }
-            if (i->n_dims == 1 && for_error_message) res = type_1dim_helper(res, i->m_dims->m_end);
-            return res;
-        }
-        case ASR::ttypeType::Real: {
-            ASR::Real_t *r = (ASR::Real_t*)t;
-            std::string res = "";
-            switch (r->m_kind) {
-                case 4: { res = "f32"; break; }
-                case 8: { res = "f64"; break; }
-                default: { throw LFortranException("Float kind not supported"); }
-            }
-            if (r->n_dims == 1 && for_error_message) res = type_1dim_helper(res, r->m_dims->m_end);
-            return res;
-        }
-        case ASR::ttypeType::Complex: {
-            ASR::Complex_t *c = (ASR::Complex_t*)t;
-            switch (c->m_kind) {
-                case 4: { return "c32"; }
-                case 8: { return "c64"; }
-                default: { throw LFortranException("Complex kind not supported"); }
-            }
-        }
-        case ASR::ttypeType::Logical: {
-            return "bool";
-        }
-        case ASR::ttypeType::Character: {
-            return "str";
-        }
-        case ASR::ttypeType::Tuple: {
-            ASR::Tuple_t *tup = ASR::down_cast<ASR::Tuple_t>(t);
-            std::string result = "tuple[";
-            for (size_t i=0; i<tup->n_type; i++) {
-                result += type_to_str_python(tup->m_type[i]);
-                if (i+1 != tup->n_type) {
-                    result += ", ";
-                }
-            }
-            result += "]";
-            return result;
-        }
-        case ASR::ttypeType::Set: {
-            ASR::Set_t *s = (ASR::Set_t *)t;
-            return "set[" + type_to_str_python(s->m_type) + "]";
-        }
-        case ASR::ttypeType::Dict: {
-            ASR::Dict_t *d = (ASR::Dict_t *)t;
-            return "dict[" + type_to_str_python(d->m_key_type) + ", " + type_to_str_python(d->m_value_type) + "]";
-        }
-        case ASR::ttypeType::List: {
-            ASR::List_t *l = (ASR::List_t *)t;
-            return "list[" + type_to_str_python(l->m_type) + "]";
-        }
-        case ASR::ttypeType::CPtr: {
-            return "CPtr";
-        }
-        case ASR::ttypeType::Derived: {
-            ASR::Derived_t* d = ASR::down_cast<ASR::Derived_t>(t);
-            return symbol_name(d->m_derived_type);
-        }
-        case ASR::ttypeType::Pointer: {
-            ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(t);
-            return "Pointer[" + type_to_str_python(p->m_type) + "]";
-        }
-        default : throw LFortranException("Not implemented " + std::to_string(t->type));
-    }
-}
-
-static inline std::string binop_to_str(const ASR::binopType t) {
-    switch (t) {
-        case (ASR::binopType::Add): { return " + "; }
-        case (ASR::binopType::Sub): { return " - "; }
-        case (ASR::binopType::Mul): { return "*"; }
-        case (ASR::binopType::Div): { return "/"; }
-        case (ASR::binopType::BitAnd): { return "&"; }
-        case (ASR::binopType::BitOr): { return "|"; }
-        case (ASR::binopType::BitXor): { return "^"; }
-        case (ASR::binopType::BitLShift): { return "<<"; }
-        case (ASR::binopType::BitRShift): { return ">>"; }
-        default : throw LFortranException("Cannot represent the binary operator as a string");
-    }
-}
-
 static inline std::string cmpop_to_str(const ASR::cmpopType t) {
     switch (t) {
         case (ASR::cmpopType::Eq): { return " == "; }
@@ -309,7 +207,7 @@ static inline std::string cmpop_to_str(const ASR::cmpopType t) {
     }
 }
 
-static inline std::string logicalbinop_to_str(const ASR::logicalbinopType t) {
+static inline std::string logicalbinop_to_str_python(const ASR::logicalbinopType t) {
     switch (t) {
         case (ASR::logicalbinopType::And): { return " && "; }
         case (ASR::logicalbinopType::Or): { return " || "; }
@@ -692,6 +590,122 @@ static inline bool extract_value(ASR::expr_t* value_expr, T& value) {
     return true;
 }
 
+static inline std::string type_python_1dim_helper(const std::string & res,
+                                                  const ASR::dimension_t* e )
+{
+    if( !e->m_end && !e->m_start ) {
+        return res + "[:]";
+    }
+
+    if( ASRUtils::expr_value(e->m_end) ) {
+        int64_t end_dim;
+        ASRUtils::extract_value(ASRUtils::expr_value(e->m_end), end_dim);
+        return res + "[" + std::to_string(end_dim + 1) + "]";
+    }
+
+    return res;
+}
+
+static inline std::string type_to_str_python(const ASR::ttype_t *t,
+                                             bool for_error_message=true)
+{
+    switch (t->type) {
+        case ASR::ttypeType::Integer: {
+            ASR::Integer_t *i = (ASR::Integer_t*)t;
+            std::string res = "";
+            switch (i->m_kind) {
+                case 1: { res = "i8"; break; }
+                case 2: { res = "i16"; break; }
+                case 4: { res = "i32"; break; }
+                case 8: { res = "i64"; break; }
+                default: { throw LFortranException("Integer kind not supported"); }
+            }
+            if (i->n_dims == 1 && for_error_message) {
+                res = type_python_1dim_helper(res, i->m_dims);
+            }
+            return res;
+        }
+        case ASR::ttypeType::Real: {
+            ASR::Real_t *r = (ASR::Real_t*)t;
+            std::string res = "";
+            switch (r->m_kind) {
+                case 4: { res = "f32"; break; }
+                case 8: { res = "f64"; break; }
+                default: { throw LFortranException("Float kind not supported"); }
+            }
+            if (r->n_dims == 1 && for_error_message) {
+                res = type_python_1dim_helper(res, r->m_dims);
+            }
+            return res;
+        }
+        case ASR::ttypeType::Complex: {
+            ASR::Complex_t *c = (ASR::Complex_t*)t;
+            switch (c->m_kind) {
+                case 4: { return "c32"; }
+                case 8: { return "c64"; }
+                default: { throw LFortranException("Complex kind not supported"); }
+            }
+        }
+        case ASR::ttypeType::Logical: {
+            return "bool";
+        }
+        case ASR::ttypeType::Character: {
+            return "str";
+        }
+        case ASR::ttypeType::Tuple: {
+            ASR::Tuple_t *tup = ASR::down_cast<ASR::Tuple_t>(t);
+            std::string result = "tuple[";
+            for (size_t i=0; i<tup->n_type; i++) {
+                result += type_to_str_python(tup->m_type[i]);
+                if (i+1 != tup->n_type) {
+                    result += ", ";
+                }
+            }
+            result += "]";
+            return result;
+        }
+        case ASR::ttypeType::Set: {
+            ASR::Set_t *s = (ASR::Set_t *)t;
+            return "set[" + type_to_str_python(s->m_type) + "]";
+        }
+        case ASR::ttypeType::Dict: {
+            ASR::Dict_t *d = (ASR::Dict_t *)t;
+            return "dict[" + type_to_str_python(d->m_key_type) + ", " + type_to_str_python(d->m_value_type) + "]";
+        }
+        case ASR::ttypeType::List: {
+            ASR::List_t *l = (ASR::List_t *)t;
+            return "list[" + type_to_str_python(l->m_type) + "]";
+        }
+        case ASR::ttypeType::CPtr: {
+            return "CPtr";
+        }
+        case ASR::ttypeType::Derived: {
+            ASR::Derived_t* d = ASR::down_cast<ASR::Derived_t>(t);
+            return symbol_name(d->m_derived_type);
+        }
+        case ASR::ttypeType::Pointer: {
+            ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(t);
+            return "Pointer[" + type_to_str_python(p->m_type) + "]";
+        }
+        default : throw LFortranException("Not implemented " + std::to_string(t->type));
+    }
+}
+
+static inline std::string binop_to_str_python(const ASR::binopType t) {
+    switch (t) {
+        case (ASR::binopType::Add): { return " + "; }
+        case (ASR::binopType::Sub): { return " - "; }
+        case (ASR::binopType::Mul): { return "*"; }
+        case (ASR::binopType::Div): { return "/"; }
+        case (ASR::binopType::BitAnd): { return "&"; }
+        case (ASR::binopType::BitOr): { return "|"; }
+        case (ASR::binopType::BitXor): { return "^"; }
+        case (ASR::binopType::BitLShift): { return "<<"; }
+        case (ASR::binopType::BitRShift): { return ">>"; }
+        default : throw LFortranException("Cannot represent the binary operator as a string");
+    }
+}
+
 // Returns a list of values
 static inline Vec<ASR::call_arg_t> get_arg_values(Allocator &al, const Vec<ASR::call_arg_t>& args) {
     Vec<ASR::call_arg_t> values;
@@ -1007,21 +1021,6 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
     }
 }
 
-inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
-    bool is_source_pointer = is_pointer(source), is_dest_pointer = is_pointer(dest);
-    if( (!is_source_pointer && !is_dest_pointer) ||
-        (is_source_pointer && is_dest_pointer) ) {
-        return false;
-    }
-    if( is_source_pointer && !is_dest_pointer ) {
-        ASR::ttype_t* temp = source;
-        source = dest;
-        dest = temp;
-    }
-    bool res = source->type == ASR::down_cast<ASR::Pointer_t>(dest)->m_type->type;
-    return res;
-}
-
             inline int extract_kind_str(char* m_n, char *&kind_str) {
                 char *p = m_n;
                 while (*p != '\0') {
@@ -1133,7 +1132,12 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
             }
 
             inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
-                if (ASR::is_a<ASR::List_t>(*x) && ASR::is_a<ASR::List_t>(*y)) {
+                if( ASR::is_a<ASR::Pointer_t>(*x) ||
+                    ASR::is_a<ASR::Pointer_t>(*y) ) {
+                    x = ASRUtils::type_get_past_pointer(x);
+                    y = ASRUtils::type_get_past_pointer(y);
+                    return check_equal_type(x, y);
+                } else if (ASR::is_a<ASR::List_t>(*x) && ASR::is_a<ASR::List_t>(*y)) {
                     x = ASR::down_cast<ASR::List_t>(x)->m_type;
                     y = ASR::down_cast<ASR::List_t>(y)->m_type;
                     return check_equal_type(x, y);
@@ -1163,11 +1167,16 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
                     }
                     return result;
                 }
-                if( x->type == y->type ) {
+
+                int64_t x_kind = ASRUtils::extract_kind_from_ttype_t(x);
+                int64_t y_kind = ASRUtils::extract_kind_from_ttype_t(y);
+
+                if( x->type == y->type &&
+                    x_kind == y_kind ) {
                     return true;
                 }
 
-                return ASRUtils::is_same_type_pointer(x, y);
+                return false;
             }
 
 int select_generic_procedure(const Vec<ASR::call_arg_t> &args,
