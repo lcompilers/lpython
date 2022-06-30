@@ -58,6 +58,9 @@ private:
     ASR::ExprStmtDuplicator node_duplicator;
 
     SymbolTable* current_routine_scope;
+    ASRUtils::LabelGenerator* label_generator;
+    ASR::symbol_t* empty_block;
+    ASRUtils::ReplaceReturnWithGotoVisitor return_replacer;
 
 public:
 
@@ -68,7 +71,10 @@ public:
     rl_path(rl_path_), function_result_var(nullptr),
     from_inline_function_call(false), inlining_function(false), fixed_duplicated_expr_stmt(false),
     current_routine(""), inline_external_symbol_calls(inline_external_symbol_calls_),
-    node_duplicator(al_), current_routine_scope(nullptr), function_inlined(false)
+    node_duplicator(al_), current_routine_scope(nullptr),
+    label_generator(ASRUtils::LabelGenerator::get_instance()),
+    empty_block(nullptr), return_replacer(al_, 0),
+    function_inlined(false)
     {
         pass_result.reserve(al, 1);
     }
@@ -316,6 +322,22 @@ public:
             }
 
             if( success ) {
+                std::string empty_block_name = current_scope->get_unique_name("~empty_block");
+                if( empty_block_name != "~empty_block" ) {
+                    empty_block = current_scope->get_symbol("~empty_block");
+                } else {
+                    SymbolTable* empty_symtab = al.make_new<SymbolTable>(current_scope);
+                    empty_block = ASR::down_cast<ASR::symbol_t>(ASR::make_Block_t(al, func->base.base.loc,
+                                        empty_symtab,
+                                        s2c(al, empty_block_name), nullptr, 0));
+                    current_scope->add_symbol(empty_block_name, empty_block);
+                }
+                uint64_t block_call_label = label_generator->get_unique_label();
+                ASR::stmt_t* block_call = ASRUtils::STMT(ASR::make_BlockCall_t(al, x.base.base.loc,
+                                                         block_call_label, empty_block));
+                label_generator->add_node_with_unique_label((ASR::asr_t*) block_call,
+                                                            block_call_label);
+                return_replacer.set_goto_label(block_call_label);
                 // If duplication is successfull then fill the
                 // pass result with assignment statements
                 // (for local variables in the loop just below)
@@ -325,8 +347,11 @@ public:
                 }
 
                 for( size_t i = 0; i < func->n_body; i++ ) {
+                    return_replacer.current_stmt = &func_copy.p[i];
+                    return_replacer.replace_stmt(func_copy[i]);
                     pass_result.push_back(al, func_copy[i]);
                 }
+                pass_result.push_back(al, block_call);
             }
             inlining_function = false;
             current_routine_scope = nullptr;
@@ -405,9 +430,9 @@ void pass_inline_function_calls(Allocator &al, ASR::TranslationUnit_t &unit,
                                 const std::string& rl_path,
                                 bool inline_external_symbol_calls) {
     InlineFunctionCallVisitor v(al, rl_path, inline_external_symbol_calls);
-    v.configure_node_duplicator(false, false);
+    v.configure_node_duplicator(false, true);
     v.visit_TranslationUnit(unit);
-    v.configure_node_duplicator(true, false);
+    v.configure_node_duplicator(true, true);
     v.visit_TranslationUnit(unit);
     LFORTRAN_ASSERT(asr_verify(unit));
 }
