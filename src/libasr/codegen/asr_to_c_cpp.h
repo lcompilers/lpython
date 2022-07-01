@@ -581,12 +581,20 @@ R"(#include <stdio.h>
         this->visit_expr(*x.m_v);
         der_expr = std::move(src);
         member = ASRUtils::symbol_name(x.m_m);
-        src = der_expr + "->" + member;
+        if( ASR::is_a<ASR::ArrayRef_t>(*x.m_v) ) {
+            src = der_expr + "." + member;
+        } else {
+            src = der_expr + "->" + member;
+        }
     }
 
     void visit_ArrayRef(const ASR::ArrayRef_t &x) {
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
         ASR::Variable_t* sv = ASR::down_cast<ASR::Variable_t>(s);
+        std::string prefix = "";
+        // if( ASR::is_a<ASR::Derived_t>(*sv->m_type) ) {
+        //     prefix = "&";
+        // }
         std::string out = std::string(sv->m_name);
         ASR::dimension_t* m_dims;
         ASRUtils::extract_dimensions_from_ttype(sv->m_type, m_dims);
@@ -606,6 +614,11 @@ R"(#include <stdio.h>
         }
         out += "]";
         last_expr_precedence = 2;
+        // if( !prefix.empty() ) {
+        //     src = prefix + "(" + out + ")";
+        // } else {
+        //     src = out;
+        // }
         src = out;
     }
 
