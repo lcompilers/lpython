@@ -334,6 +334,18 @@ def exp(x: f64) -> f64:
 
 
 
+def ldexp(x: f64, i: i32) -> f64:
+    return x * (2**i)
+
+
+def exp(x: f64) -> f64:
+    """
+    Return `e` raised to the power `x`.
+    """
+    return e**x
+
+
+
 def mod(a: i32, b: i32) -> i32:
     """
     Returns a%b
