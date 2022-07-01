@@ -938,8 +938,9 @@ class StmtBaseReplacerVisitor(ASDLVisitor):
         self.emit("")
         self.emit("    ASR::stmt_t** current_stmt;")
         self.emit("    ASR::stmt_t** current_stmt_copy;")
+        self.emit("    bool has_replacement_happened;")
         self.emit("")
-        self.emit("    BaseStmtReplacer() : current_stmt(nullptr) {}")
+        self.emit("    BaseStmtReplacer() : current_stmt(nullptr), has_replacement_happened(false) {}")
         self.emit("")
 
         self.replace_stmt.append(("    void replace_stmt(ASR::stmt_t* x) {", 0))

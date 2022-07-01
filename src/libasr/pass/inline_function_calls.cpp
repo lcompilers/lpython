@@ -346,12 +346,17 @@ public:
                     pass_result.push_back(al, pass_result_local[i]);
                 }
 
+                bool is_goto_added = false;
                 for( size_t i = 0; i < func->n_body; i++ ) {
                     return_replacer.current_stmt = &func_copy.p[i];
+                    return_replacer.has_replacement_happened = false;
                     return_replacer.replace_stmt(func_copy[i]);
+                    is_goto_added = is_goto_added || return_replacer.has_replacement_happened;
                     pass_result.push_back(al, func_copy[i]);
                 }
-                pass_result.push_back(al, block_call);
+                if( is_goto_added ) {
+                    pass_result.push_back(al, block_call);
+                }
             }
             inlining_function = false;
             current_routine_scope = nullptr;
