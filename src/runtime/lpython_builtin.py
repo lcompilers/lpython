@@ -57,7 +57,7 @@ def abs(x: i8) -> i8:
 @overload
 def abs(x: i16) -> i16:
     if x >= 0:
-        return x
+        return xbit_count
     else:
         return -x
 
@@ -138,6 +138,40 @@ def str(x: i32) -> str:
     for pos in range(rev_result_len - 1, -1, -1):
         result += rev_result[pos]
     return result
+
+
+def capitalize(s: str) -> str:
+    """
+    Return a copy of the string with its first character capitalized and the rest lowercased.
+    """
+    result: str
+    result = upper(s[0]) + lower(s[1:])
+    return result
+
+def upper(s: str) -> str:
+    result : str
+    result = ''
+    char : str
+
+    for char in s:
+        if ord(char) >= 97 and ord(char) <=122 :
+            result += chr(ord(char) - 32)
+        else :
+            result += char
+    return result
+
+def lower(s: str) -> str:
+    result : str
+    result = ''
+    char : str
+
+    for char in s:
+        if ord(char) >= 65 and ord(char) <=90 :
+            result += chr(ord(char) + 32)
+        else :
+            result += char
+    return result
+
 
 #: bool() as a generic procedure.
 #: supported types for argument:
@@ -488,7 +522,7 @@ def _lfortran_caimag(x: c32) -> f32:
 def _lfortran_zaimag(x: c64) -> f64:
     pass
 
-@overload
+@overload￼
 def _lpython_imag(x: c64) -> f64:
     return _lfortran_zaimag(x)
 
@@ -619,3 +653,4 @@ def min(a: f64, b: f64) -> f64:
         return a
     else:
         return b
+
