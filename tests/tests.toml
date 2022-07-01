@@ -467,7 +467,27 @@ filename = "errors/test_set3.py"
 asr = true
 
 [[test]]
-filename = "errors/test_pow.py"
+filename = "errors/test_pow1.py"
+asr = true
+
+[[test]]
+filename = "errors/test_pow2.py"
+asr = true
+
+[[test]]
+filename = "errors/test_pow3.py"
+asr = true
+
+[[test]]
+filename = "errors/test_pow4.py"
+asr = true
+
+[[test]]
+filename = "errors/test_pow5.py"
+asr = true
+
+[[test]]
+filename = "errors/test_factorial.py"
 asr = true
 
 [[test]]

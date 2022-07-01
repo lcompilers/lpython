@@ -1,5 +1,5 @@
 style suggestion: Could have used '**' instead of 'pow'
- --> tests/errors/test_pow.py:2:11
+ --> tests/errors/test_pow2.py:2:11
   |
 2 |     print(pow(2, 2))
   |           ^^^^^^^^^ '**' could be used instead

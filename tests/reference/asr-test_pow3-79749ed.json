@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_pow3-79749ed",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_pow3.py",
+    "infile_hash": "a82fbc22f1ccdd0d75c48461c5505a547a37adcc685464085415a551",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-test_pow3-79749ed.stdout",
+    "stdout_hash": "b82788fdac9d1c137226a7ceabc0bcb2e07cb3f60fcf9bf5e45c5359",
+    "stderr": "asr-test_pow3-79749ed.stderr",
+    "stderr_hash": "82b702d830eefcd8b50dc4452b1dad8659643b11f3feba17e612839e",
+    "returncode": 0
+}
