@@ -120,6 +120,24 @@ public:
         }
     }
 
+    void set_empty_block(SymbolTable* scope, const Location& loc) {
+        std::string empty_block_name = scope->get_unique_name("~empty_block");
+        if( empty_block_name != "~empty_block" ) {
+            empty_block = scope->get_symbol("~empty_block");
+        } else {
+            SymbolTable* empty_symtab = al.make_new<SymbolTable>(scope);
+            empty_block = ASR::down_cast<ASR::symbol_t>(ASR::make_Block_t(al, loc,
+                                empty_symtab,
+                                s2c(al, empty_block_name), nullptr, 0));
+            scope->add_symbol(empty_block_name, empty_block);
+        }
+    }
+
+    void remove_empty_block(SymbolTable* scope) {
+        scope->erase_symbol("~empty_block");
+    }
+
+
     void visit_FunctionCall(const ASR::FunctionCall_t& x) {
         // If this node is visited by any other visitor
         // or it is being visited while inlining another function call
@@ -247,6 +265,10 @@ public:
         // the ones other than the arguments.
         // exprs_to_be_visited temporarily stores the initilisation expression as well.
         for( auto& itr : func->m_symtab->get_scope() ) {
+            if( startswith(itr.first, "~empty_block") ) {
+                set_empty_block(current_scope, func->base.base.loc);
+                continue;
+            }
             ASR::Variable_t* func_var = ASR::down_cast<ASR::Variable_t>(itr.second);
             std::string func_var_name = itr.first;
             if( arg2value.find(func_var_name) == arg2value.end() ) {
@@ -322,16 +344,7 @@ public:
             }
 
             if( success ) {
-                std::string empty_block_name = current_scope->get_unique_name("~empty_block");
-                if( empty_block_name != "~empty_block" ) {
-                    empty_block = current_scope->get_symbol("~empty_block");
-                } else {
-                    SymbolTable* empty_symtab = al.make_new<SymbolTable>(current_scope);
-                    empty_block = ASR::down_cast<ASR::symbol_t>(ASR::make_Block_t(al, func->base.base.loc,
-                                        empty_symtab,
-                                        s2c(al, empty_block_name), nullptr, 0));
-                    current_scope->add_symbol(empty_block_name, empty_block);
-                }
+                set_empty_block(current_scope, func->base.base.loc);
                 uint64_t block_call_label = label_generator->get_unique_label();
                 ASR::stmt_t* block_call = ASRUtils::STMT(ASR::make_BlockCall_t(al, x.base.base.loc,
                                                          block_call_label, empty_block));
@@ -356,6 +369,8 @@ public:
                 }
                 if( is_goto_added ) {
                     pass_result.push_back(al, block_call);
+                } else {
+                    remove_empty_block(current_scope);
                 }
             }
             inlining_function = false;
