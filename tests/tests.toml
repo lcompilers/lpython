@@ -135,11 +135,6 @@ filename = "expr16.py"
 asr = true
 
 [[test]]
-filename = "expr17.py"
-cpp = true
-c = true
-
-[[test]]
 filename = "expr_01.py"
 ast = true
 asr = true
@@ -156,6 +151,11 @@ asr = true
 [[test]]
 filename = "../integration_tests/expr_10.py"
 asr = true
+
+[[test]]
+filename = "../integration_tests/expr_11.py"
+c = true
+cpp = true
 
 [[test]]
 filename = "../integration_tests/vec_01.py"

@@ -28,6 +28,7 @@ void f()
     int i;
     i = 3;
     b = (bool)(i);
+    assert (b);
     std::cout << b << std::endl;
 }
 

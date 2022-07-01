@@ -44,6 +44,7 @@ void f()
     int32_t i;
     i = 3;
     b = (bool)(i);
+    ASSERT(b);
     printf("%d\n", b);
 }
 

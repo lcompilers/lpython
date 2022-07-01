@@ -1,0 +1,13 @@
+{
+    "basename": "c-expr_11-c452314",
+    "cmd": "lpython --no-color --show-c {infile}",
+    "infile": "tests/../integration_tests/expr_11.py",
+    "infile_hash": "0519507fdfc01296c8161d8fae6706269bdb2d7b7da54512f5410fca",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "c-expr_11-c452314.stdout",
+    "stdout_hash": "d813a0159ad56648560c2f020f991cd86d0d1a028a009f944a2af69c",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
