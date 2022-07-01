@@ -684,9 +684,8 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
         self.emit("public:")
         self.emit("    bool success;")
         self.emit("    bool allow_procedure_calls;")
-        self.emit("    bool allow_return_stmts;")
         self.emit("")
-        self.emit("    ExprStmtDuplicator(Allocator& al_) : al(al_), success(false), allow_procedure_calls(true), allow_return_stmts(false) {}")
+        self.emit("    ExprStmtDuplicator(Allocator& al_) : al(al_), success(false), allow_procedure_calls(true) {}")
         self.emit("")
         self.duplicate_stmt.append(("    ASR::stmt_t* duplicate_stmt(ASR::stmt_t* x) {", 0))
         self.duplicate_stmt.append(("    if( !x ) {", 1))
@@ -762,11 +761,6 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
             self.duplicate_stmt.append(("    case ASR::stmtType::%s: {" % name, 2))
             if name == "SubroutineCall":
                 self.duplicate_stmt.append(("    if( !allow_procedure_calls ) {", 3))
-                self.duplicate_stmt.append(("    success = false;", 4))
-                self.duplicate_stmt.append(("    return nullptr;", 4))
-                self.duplicate_stmt.append(("    }", 3))
-            elif name == "Return":
-                self.duplicate_stmt.append(("    if( !allow_return_stmts ) {", 3))
                 self.duplicate_stmt.append(("    success = false;", 4))
                 self.duplicate_stmt.append(("    return nullptr;", 4))
                 self.duplicate_stmt.append(("    }", 3))
