@@ -153,6 +153,11 @@ filename = "../integration_tests/expr_10.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/expr_11.py"
+c = true
+cpp = true
+
+[[test]]
 filename = "../integration_tests/vec_01.py"
 asr = true
 pass = "loop_vectorise"
