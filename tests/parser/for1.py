@@ -48,3 +48,8 @@ for i in range(5):  # type: int
 
 for j in k:  #     type:     List[str]
     pass
+
+for i in range(5):  #   type:int
+    pass
+else:
+    pass
