@@ -4027,8 +4027,7 @@ public:
                 } else {
                     zero = llvm::ConstantFP::get(context, llvm::APFloat(0.0));
                 }
-                tmp = builder->CreateFCmpUEQ(tmp, zero);
-                tmp = builder->CreateNot(tmp);
+                tmp = builder->CreateFCmpUNE(tmp, zero);
                 break;
             }
             case (ASR::cast_kindType::CharacterToLogical) : {
