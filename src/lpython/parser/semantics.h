@@ -238,12 +238,31 @@ int dot_count = 0;
 #define TERNARY(test, body, orelse, l) make_IfExp_t(p.m_a, l, \
         EXPR(test), EXPR(body), EXPR(orelse))
 
+static inline char *extract_type_hint(Allocator &al, LFortran::Str &s) {
+    std::string str = s.str();
+    std::string kw{"type:"};
+ 
+    str.erase(str.begin()); // removes "#" at the beginning
+    str.erase(0, str.find_first_not_of(' ')); // trim left spaces
+
+    std::string::size_type pos = 5;
+    str = str.substr(pos, str.size());
+    str.erase(str.find_last_not_of(' ') + 1); // trim right spaces
+    str.erase(0, str.find_first_not_of(' ')); // trim left spaces
+
+    s.from_str_view(str);
+    return s.c_str(al);
+}
+
 #define FOR_01(target, iter, stmts, l) make_For_t(p.m_a, l, \
         EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), nullptr, 0, nullptr)
 #define FOR_02(target, iter, stmts, orelse, l) make_For_t(p.m_a, l, \
         EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), nullptr)
+#define FOR_03(target, iter, type_hint, stmts, l) make_For_t(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        STMTS(stmts), stmts.size(), nullptr, 0, extract_type_hint(p.m_a, type_hint))
 
 #define TRY_01(stmts, except, l) make_Try_t(p.m_a, l, \
         STMTS(stmts), stmts.size(), \

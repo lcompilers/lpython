@@ -104,6 +104,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> TK_STRING
 %token <string> TK_COMMENT
 %token <string> TK_EOLCOMMENT
+%token <string> TK_TYPE_COMMENT
 %token TK_POW "**"
 %token TK_FLOOR_DIV "//"
 %token TK_RIGHTSHIFT ">>"
@@ -491,6 +492,8 @@ for_statement
         $$ = FOR_01($2, $4, $7, @$); }
     | KW_FOR tuple_item KW_IN expr ":" sep statements KW_ELSE ":"
         sep statements { $$ = FOR_02($2, $4, $7, $11, @$); }
+    | KW_FOR tuple_item KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE statements {
+        $$ = FOR_03($2, $4, $6, $8, @$); }
     ;
 
 except_statement
