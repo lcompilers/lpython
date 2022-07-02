@@ -40,3 +40,11 @@ for (x, y) in z:
 
 for i, a in enumerate([4, 5, 6, 7]):
     print(i, ": ", a)
+
+# For-loops with type-comment
+
+for i in range(5):  # type: int
+    pass
+
+for j in k:  #     type:     List[str]
+    pass
