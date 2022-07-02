@@ -341,6 +341,7 @@ cast_kind
     | RealToComplex
     | IntegerToComplex
     | IntegerToLogical
+    | RealToLogical
     | CharacterToLogical
     | ComplexToLogical
     | ComplexToComplex
