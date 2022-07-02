@@ -279,7 +279,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             string2 = "'" ("\\'"|[^'\x00])* "'";
             string3 = '"""' ( '\\"' | '"' [^"\x00] | '""' [^"\x00] | [^"\x00] )* '"""';
             string4 = "'''" ( "\\'" | "'" [^'\x00] | "''" [^'\x00] | [^'\x00] )* "'''";
-            type_hint = "#" whitespace? "type:" whitespace? [^\n\x00]*;
+            type_comment = "#" whitespace? "type:" whitespace? [^\n\x00]*;
             comment = "#" [^\n\x00]*;
             // docstring = newline whitespace? string1 | string2;
             ws_comment = whitespace? comment? newline;
@@ -461,9 +461,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 RET(TK_IMAG_NUM)
             }
 
-            // "#" whitespace? "type" whitespace? ":" 
-
-            type_hint {
+            type_comment {
                 if (last_token == yytokentype::TK_COLON) {
                     indent = true;
                 }
@@ -677,8 +675,6 @@ std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
         t += " " + std::to_string(yystype.f) + "j";
     } else if (token == yytokentype::TK_STRING) {
         t = t + " " + "\"" + yystype.string.str() + "\"";
-    // } else if (token == yytokentype::TK_EOLCOMMENT) {
-    //     t = t + " " + "\"" + yystype.string.str() + "\"";
     } else if (token == yytokentype::TK_TYPE_COMMENT) {
         t = t + " " + "\"" + yystype.string.str() + "\"";
     }
