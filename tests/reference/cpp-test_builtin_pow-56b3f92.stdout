@@ -98,13 +98,13 @@ void test_pow()
 double __lpython_overloaded_0__abs(double x)
 {
     double _lpython_return_variable;
+    double result;
     if (x >=   0.00000000000000000e+00) {
-        _lpython_return_variable = x;
-        return _lpython_return_variable;
+        result = x;
     } else {
-        _lpython_return_variable = -x;
-        return _lpython_return_variable;
+        result = -x;
     }
+    _lpython_return_variable = result;
     return _lpython_return_variable;
 }
 

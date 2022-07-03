@@ -1,0 +1,14 @@
+[0;31;1msemantic error[0;00m[0;1m: Subroutine already defined[0;00m
+ [0;34;1m-->[0;00m $DIR/src/bin/../runtime/math.py:1:1
+  [0;34;1m|[0;00m
+[0;34;1m1 |[0;00m from ltypes import i8, i16, i32, f32, i64, f64, ccall
+  [0;34;1m|[0;00m [0;31;1m^ [0;00m
+
+
+[0;1mNote[0;00m: if any of the above error or warning messages are not clear or are lacking
+context please report it to us (we consider that a bug that needs to be fixed).
+semantic error: The module 'math' cannot be loaded
+ --> tests/errors/test_factorial.py:1:1
+  |
+1 | from math import factorial
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^ 

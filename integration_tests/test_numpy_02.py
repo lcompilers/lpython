@@ -52,7 +52,9 @@ def sqrt(n: i64) -> f64:
 
 @overload
 def sqrt(f: f32) -> f32:
-    return f**(1/2)
+    half: f32
+    half = 1/2
+    return f**half
 
 @overload
 def sqrt(f: f64) -> f64:
@@ -78,7 +80,9 @@ def exp(n: i64) -> f64:
 
 @overload
 def exp(f: f32) -> f32:
-    return e**f
+    ef32: f32
+    ef32 = e
+    return ef32**f
 
 @overload
 def exp(f: f64) -> f64:
@@ -144,16 +148,20 @@ def sign(x: i32) -> i32:
 
 @overload
 def sign(x: i64) -> i64:
+    result: i64
     if x == 0:
-        return 0
+        result = 0
     elif x > 0:
-        return 1
-
-    return -1
+        result = 1
+    else:
+        result = -1
+    return result
 
 @overload
 def sign(x: f32) -> f32:
-    return x/fabs(x)
+    fabsf32: f32
+    fabsf32 = fabs(x)
+    return x/fabsf32
 
 @overload
 def sign(x: f64) -> f64:
@@ -206,11 +214,15 @@ def imag(x: i32) -> i32:
 
 @overload
 def imag(x: i64) -> i64:
-    return 0
+    result: i64
+    result = 0
+    return result
 
 @overload
 def imag(f: f32) -> f32:
-    return 0.0
+    result: f32
+    result = 0.0
+    return result
 
 @overload
 def imag(f: f64) -> f64:

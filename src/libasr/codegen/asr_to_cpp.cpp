@@ -363,10 +363,19 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_Print(const ASR::Print_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
-        std::string out = indent + "std::cout ";
+        std::string out = indent + "std::cout ", sep;
+        if (x.m_separator) {
+            this->visit_expr(*x.m_separator);
+            sep = src;
+        } else {
+            sep = "\" \"";
+        }
         for (size_t i=0; i<x.n_values; i++) {
             this->visit_expr(*x.m_values[i]);
             out += "<< " + src + " ";
+            if (i+1 != x.n_values) {
+                out += "<< " + sep + " ";
+            }
         }
         out += "<< std::endl;\n";
         src = out;

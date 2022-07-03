@@ -23,7 +23,7 @@ set(SRC
     codegen/asr_to_wasm.cpp
     codegen/wasm_to_wat.cpp
     codegen/wasm_utils.cpp
-    
+
     pass/param_to_const.cpp
     pass/do_loops.cpp
     pass/for_all.cpp
@@ -40,6 +40,7 @@ set(SRC
     pass/flip_sign.cpp
     pass/div_to_mul.cpp
     pass/fma.cpp
+    pass/loop_vectorise.cpp
     pass/sign_from_value.cpp
     pass/inline_function_calls.cpp
     pass/loop_unroll.cpp

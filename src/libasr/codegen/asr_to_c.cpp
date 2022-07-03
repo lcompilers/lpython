@@ -14,33 +14,6 @@
 
 namespace LFortran {
 
-std::string convert_dims_c(size_t n_dims, ASR::dimension_t *m_dims)
-{
-    std::string dims;
-    for (size_t i=0; i<n_dims; i++) {
-        ASR::expr_t *start = m_dims[i].m_start;
-        ASR::expr_t *end = m_dims[i].m_end;
-        if (!start && !end) {
-            dims += "*";
-        } else if (start && end) {
-            if (ASR::is_a<ASR::IntegerConstant_t>(*start) && ASR::is_a<ASR::IntegerConstant_t>(*end)) {
-                ASR::IntegerConstant_t *s = ASR::down_cast<ASR::IntegerConstant_t>(start);
-                ASR::IntegerConstant_t *e = ASR::down_cast<ASR::IntegerConstant_t>(end);
-                if (s->m_n == 1) {
-                    dims += "[" + std::to_string(e->m_n) + "]";
-                } else {
-                    throw CodeGenError("Lower dimension must be 1 for now");
-                }
-            } else {
-                dims += "[ /* FIXME symbolic dimensions */ ]";
-            }
-        } else {
-            throw CodeGenError("Dimension type not supported");
-        }
-    }
-    return dims;
-}
-
 std::string format_type_c(const std::string &dims, const std::string &type,
         const std::string &name, bool use_ref, bool /*dummy*/)
 {
@@ -62,7 +35,38 @@ public:
     ASRToCVisitor(diag::Diagnostics &diag, Platform &platform)
          : BaseCCPPVisitor(diag, platform, false, false, true) {}
 
-    std::string convert_variable_decl(const ASR::Variable_t &v)
+    std::string convert_dims_c(size_t n_dims, ASR::dimension_t *m_dims)
+    {
+        std::string dims;
+        for (size_t i=0; i<n_dims; i++) {
+            ASR::expr_t *start = m_dims[i].m_start;
+            ASR::expr_t *end = m_dims[i].m_end;
+            if (!start && !end) {
+                dims += "*";
+            } else if (start && end) {
+                ASR::expr_t* start_value = ASRUtils::expr_value(start);
+                ASR::expr_t* end_value = ASRUtils::expr_value(end);
+                if( start_value && end_value ) {
+                    int64_t start_int = -1, end_int = -1;
+                    ASRUtils::extract_value(start_value, start_int);
+                    ASRUtils::extract_value(end_value, end_int);
+                    dims += "[" + std::to_string(end_int - start_int + 1) + "]";
+                } else {
+                    this->visit_expr(*start);
+                    std::string start_expr = std::move(src);
+                    this->visit_expr(*end);
+                    std::string end_expr = std::move(src);
+                    dims += "[" + end_expr + " - " + start_expr + " + 1]";
+                }
+            } else {
+                throw CodeGenError("Dimension type not supported");
+            }
+        }
+        return dims;
+    }
+
+    std::string convert_variable_decl(const ASR::Variable_t &v,
+                                      bool pre_initialise_derived_type=true)
     {
         std::string sub;
         bool use_ref = (v.m_intent == LFortran::ASRUtils::intent_out || v.m_intent == LFortran::ASRUtils::intent_inout);
@@ -122,7 +126,7 @@ public:
                 ASR::Derived_t *t = ASR::down_cast<ASR::Derived_t>(v.m_type);
                 std::string der_type_name = ASRUtils::symbol_name(t->m_derived_type);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
-                if( v.m_intent == ASRUtils::intent_local ) {
+                if( v.m_intent == ASRUtils::intent_local && pre_initialise_derived_type ) {
                     std::string value_var_name = v.m_parent_symtab->get_unique_name(std::string(v.m_name) + "_value");
                     sub = format_type_c(dims, "struct " + der_type_name,
                                         value_var_name, use_ref, dummy);
@@ -337,7 +341,7 @@ R"(
         for( size_t i = 0; i < x.n_members; i++ ) {
             ASR::symbol_t* member = x.m_symtab->get_symbol(x.m_members[i]);
             LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
-            body += indent + convert_variable_decl(*ASR::down_cast<ASR::Variable_t>(member)) + ";\n";
+            body += indent + convert_variable_decl(*ASR::down_cast<ASR::Variable_t>(member), false) + ";\n";
         }
         indentation_level -= 1;
         std::string end_struct = "};\n\n";
@@ -421,14 +425,22 @@ R"(
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "printf(\"";
         std::vector<std::string> v;
+        std::string separator;
+        if (x.m_separator) {
+            this->visit_expr(*x.m_separator);
+            separator = src;
+        } else {
+            separator = "\" \"";
+        }
         for (size_t i=0; i<x.n_values; i++) {
             this->visit_expr(*x.m_values[i]);
             ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_values[i]);
             out += get_print_type(value_type, ASR::is_a<ASR::ArrayRef_t>(*x.m_values[i]));
-            if (i+1!=x.n_values) {
-                out += " ";
-            }
             v.push_back(src);
+            if (i+1!=x.n_values) {
+                out += "\%s";
+                v.push_back(separator);
+            }
         }
         out += "\\n\"";
         if (!v.empty()) {

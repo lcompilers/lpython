@@ -314,6 +314,25 @@ namespace LFortran {
             return v;
         }
 
+        ASR::expr_t* create_compare_helper(Allocator &al, const Location &loc, ASR::expr_t* left, ASR::expr_t* right,
+                                                ASR::cmpopType op) {
+            ASR::ttype_t* type = ASRUtils::expr_type(left);
+            // TODO: compute `value`:
+            if (ASRUtils::is_integer(*type)) {
+                return ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc, left, op, right, type, nullptr));
+            } else if (ASRUtils::is_real(*type)) {
+                return ASRUtils::EXPR(ASR::make_RealCompare_t(al, loc, left, op, right, type, nullptr));
+            } else if (ASRUtils::is_complex(*type)) {
+                return ASRUtils::EXPR(ASR::make_ComplexCompare_t(al, loc, left, op, right, type, nullptr));
+            } else if (ASRUtils::is_logical(*type)) {
+                return ASRUtils::EXPR(ASR::make_LogicalCompare_t(al, loc, left, op, right, type, nullptr));
+            } else if (ASRUtils::is_character(*type)) {
+                return ASRUtils::EXPR(ASR::make_StringCompare_t(al, loc, left, op, right, type, nullptr));
+            } else {
+                throw LFortranException("Type not supported");
+            }
+        }
+
         ASR::expr_t* create_binop_helper(Allocator &al, const Location &loc, ASR::expr_t* left, ASR::expr_t* right,
                                                 ASR::binopType op) {
             ASR::ttype_t* type = ASRUtils::expr_type(left);
@@ -457,6 +476,97 @@ namespace LFortran {
                         loc, v, args, current_scope, al, err));
         }
 
+        ASR::symbol_t* insert_fallback_vector_copy(Allocator& al, ASR::TranslationUnit_t& unit,
+            SymbolTable*& global_scope, std::vector<ASR::ttype_t*>& types,
+            std::string prefix) {
+            const int num_args = 6;
+            std::string vector_copy_name = prefix;
+            for( ASR::ttype_t*& type: types ) {
+                vector_copy_name += ASRUtils::type_to_str_python(type, false);
+            }
+            vector_copy_name += "@IntrinsicOptimization";
+            if( global_scope->resolve_symbol(vector_copy_name) ) {
+                return global_scope->resolve_symbol(vector_copy_name);
+            }
+            Vec<ASR::expr_t*> arg_exprs;
+            arg_exprs.reserve(al, num_args);
+            SymbolTable* vector_copy_symtab = al.make_new<SymbolTable>(global_scope);
+            for( int i = 0; i < num_args; i++ ) {
+                std::string arg_name = "arg" + std::to_string(i);
+                ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(al, unit.base.base.loc, vector_copy_symtab,
+                                        s2c(al, arg_name), ASR::intentType::In, nullptr, nullptr, ASR::storage_typeType::Default,
+                                        types[std::min(i, (int) types.size() - 1)], ASR::abiType::Source, ASR::accessType::Public,
+                                        ASR::presenceType::Required, false));
+                ASR::expr_t* arg_expr = ASRUtils::EXPR(ASR::make_Var_t(al, arg->base.loc, arg));
+                arg_exprs.push_back(al, arg_expr);
+                vector_copy_symtab->add_symbol(arg_name, arg);
+            }
+            Vec<ASR::stmt_t*> body;
+            body.reserve(al, 1);
+            ASR::do_loop_head_t do_loop_head;
+            do_loop_head.m_start = arg_exprs[2];
+            do_loop_head.m_end = arg_exprs[3];
+            do_loop_head.m_increment = arg_exprs[4];
+            do_loop_head.loc = arg_exprs[2]->base.loc;
+            Vec<ASR::expr_t*> idx_vars;
+            create_idx_vars(idx_vars, 1, arg_exprs[2]->base.loc,
+                            al, vector_copy_symtab);
+            do_loop_head.m_v = idx_vars[0];
+            Vec<ASR::stmt_t*> loop_body;
+            loop_body.reserve(al, 1);
+            ASR::expr_t* target = create_array_ref(arg_exprs[0], idx_vars, al);
+            ASR::expr_t* value = create_array_ref(arg_exprs[1], idx_vars, al);
+            ASR::stmt_t* copy_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, target->base.loc,
+                                        target, value, nullptr));
+            loop_body.push_back(al, copy_stmt);
+            ASR::stmt_t* fallback_loop = ASRUtils::STMT(ASR::make_DoLoop_t(al, do_loop_head.loc,
+                                            do_loop_head, loop_body.p, loop_body.size()));
+            Vec<ASR::stmt_t*> fallback_while_loop = replace_doloop(al, *ASR::down_cast<ASR::DoLoop_t>(fallback_loop),
+                                                                  (int) ASR::cmpopType::Lt);
+            for( size_t i = 0; i < fallback_while_loop.size(); i++ ) {
+                body.push_back(al, fallback_while_loop[i]);
+            }
+            ASR::asr_t* vector_copy_asr = ASR::make_Subroutine_t(al, unit.base.base.loc, vector_copy_symtab,
+                                            s2c(al, vector_copy_name), arg_exprs.p, arg_exprs.size(), body.p,
+                                            body.size(), ASR::abiType::Source, ASR::accessType::Public, ASR::deftypeType::Implementation,
+                                            nullptr, false, false);
+            global_scope->add_symbol(vector_copy_name, ASR::down_cast<ASR::symbol_t>(vector_copy_asr));
+            return ASR::down_cast<ASR::symbol_t>(vector_copy_asr);
+        }
+
+        ASR::stmt_t* get_vector_copy(ASR::symbol_t* array0, ASR::symbol_t* array1, ASR::expr_t* start,
+            ASR::expr_t* end, ASR::expr_t* step, ASR::expr_t* vector_length,
+            Allocator& al, ASR::TranslationUnit_t& unit,
+            SymbolTable*& global_scope, Location& loc) {
+            ASR::ttype_t* array0_type = ASRUtils::symbol_type(array0);
+            ASR::ttype_t* array1_type = ASRUtils::symbol_type(array1);
+            ASR::ttype_t* index_type = ASRUtils::expr_type(start);
+            std::vector<ASR::ttype_t*> types = {array0_type, array1_type, index_type};
+            ASR::symbol_t *v = insert_fallback_vector_copy(al, unit, global_scope,
+                                                           types,
+                                                           "vector_copy_");
+            Vec<ASR::call_arg_t> args;
+            args.reserve(al, 6);
+            ASR::call_arg_t arg0_, arg1_, arg2_, arg3_, arg4_, arg5_;
+            ASR::expr_t* array0_expr = ASRUtils::EXPR(ASR::make_Var_t(al, array0->base.loc, array0));
+            arg0_.loc = array0->base.loc, arg0_.m_value = array0_expr;
+            args.push_back(al, arg0_);
+            ASR::expr_t* array1_expr = ASRUtils::EXPR(ASR::make_Var_t(al, array1->base.loc, array1));
+            arg1_.loc = array1->base.loc, arg1_.m_value = array1_expr;
+            args.push_back(al, arg1_);
+            arg2_.loc = start->base.loc, arg2_.m_value = start;
+            args.push_back(al, arg2_);
+            arg3_.loc = end->base.loc, arg3_.m_value = end;
+            args.push_back(al, arg3_);
+            arg4_.loc = step->base.loc, arg4_.m_value = step;
+            args.push_back(al, arg4_);
+            arg5_.loc = vector_length->base.loc, arg5_.m_value = vector_length;
+            args.push_back(al, arg5_);
+            return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, v,
+                                                             nullptr, args.p, args.size(),
+                                                             nullptr));
+        }
+
         ASR::expr_t* get_sign_from_value(ASR::expr_t* arg0, ASR::expr_t* arg1,
             Allocator& al, ASR::TranslationUnit_t& unit, std::string& rl_path,
             SymbolTable*& current_scope, Location& loc,
@@ -475,7 +585,8 @@ namespace LFortran {
                         loc, v, args, current_scope, al, err));
         }
 
-        Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop) {
+        Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop,
+                                         int comp) {
             Location loc = loop.base.base.loc;
             ASR::expr_t *a=loop.m_head.m_start;
             ASR::expr_t *b=loop.m_head.m_end;
@@ -494,29 +605,33 @@ namespace LFortran {
                     c = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 1, type));
                 }
                 LFORTRAN_ASSERT(c);
-                int increment;
-                if (c->type == ASR::exprType::IntegerConstant) {
-                    increment = ASR::down_cast<ASR::IntegerConstant_t>(c)->m_n;
-                } else if (c->type == ASR::exprType::IntegerUnaryMinus) {
-                    ASR::IntegerUnaryMinus_t *u = ASR::down_cast<ASR::IntegerUnaryMinus_t>(c);
-                    increment = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_arg)->m_n;
-                } else {
-                    throw LFortranException("Do loop increment type not supported");
-                }
                 ASR::cmpopType cmp_op;
-                if (increment > 0) {
-                    cmp_op = ASR::cmpopType::LtE;
+                if( comp == -1 ) {
+                    int increment;
+                    if (c->type == ASR::exprType::IntegerConstant) {
+                        increment = ASR::down_cast<ASR::IntegerConstant_t>(c)->m_n;
+                    } else if (c->type == ASR::exprType::IntegerUnaryMinus) {
+                        ASR::IntegerUnaryMinus_t *u = ASR::down_cast<ASR::IntegerUnaryMinus_t>(c);
+                        increment = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_arg)->m_n;
+                    } else {
+                        throw LFortranException("Do loop increment type not supported");
+                    }
+                    if (increment > 0) {
+                        cmp_op = ASR::cmpopType::LtE;
+                    } else {
+                        cmp_op = ASR::cmpopType::GtE;
+                    }
                 } else {
-                    cmp_op = ASR::cmpopType::GtE;
+                    cmp_op = (ASR::cmpopType) comp;
                 }
                 ASR::expr_t *target = loop.m_head.m_v;
                 ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
                 stmt1 = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target,
                     LFortran::ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, a, ASR::binopType::Sub, c, type, nullptr)), nullptr));
 
-                cond = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(al, loc,
+                cond = LFortran::ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc,
                     LFortran::ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, target, ASR::binopType::Add, c, type, nullptr)),
-                    cmp_op, b, type, nullptr, nullptr));
+                    cmp_op, b, type, nullptr));
 
                 inc_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target,
                             LFortran::ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, target, ASR::binopType::Add, c, type, nullptr)), nullptr));
