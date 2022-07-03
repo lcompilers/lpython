@@ -201,7 +201,7 @@ namespace LCompilers {
             std::string current_pass = "";
             for( size_t i = 0; i < arg_pass.size(); i++ ) {
                 char ch = arg_pass[i];
-                if( ch != ' ' ) {
+                if( ch != ' ' && ch != ',' ) {
                     current_pass.push_back(ch);
                 }
                 if( ch == ',' || i == arg_pass.size() - 1 ) {
