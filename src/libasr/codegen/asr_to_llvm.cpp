@@ -51,6 +51,7 @@
 #include <libasr/codegen/llvm_array_utils.h>
 
 // Uncomment for ASR printing below
+//#include <lfortran/pickle.h>
 // #include <lpython/pickle.h>
 
 #if LLVM_VERSION_MAJOR >= 11
@@ -3019,7 +3020,7 @@ public:
                 break;
             }
             default : {
-                throw CodeGenError("Comparison operator not implemented.",
+                throw CodeGenError("Comparison operator not implemented",
                         x.base.base.loc);
             }
         }
@@ -3063,7 +3064,7 @@ public:
                 break;
             }
             default : {
-                throw CodeGenError("Comparison operator not implemented.",
+                throw CodeGenError("Comparison operator not implemented",
                         x.base.base.loc);
             }
         }
@@ -5026,7 +5027,7 @@ public:
         }
         int output_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
         uint64_t ptr_loads_copy = ptr_loads;
-        ptr_loads = ptr_loads_copy -
+        ptr_loads = 2 - // Sync: instead of 2 - , should this be ptr_loads_copy -
                     (ASRUtils::expr_type(x.m_v)->type ==
                      ASR::ttypeType::Pointer);
         visit_expr_wrapper(x.m_v);
@@ -5093,7 +5094,7 @@ public:
             return ;
         }
         uint64_t ptr_loads_copy = ptr_loads;
-        ptr_loads = ptr_loads_copy -
+        ptr_loads = 2 - // Sync: instead of 2 - , should this be ptr_loads_copy -
                     (ASRUtils::expr_type(x.m_v)->type ==
                      ASR::ttypeType::Pointer);
         visit_expr_wrapper(x.m_v);

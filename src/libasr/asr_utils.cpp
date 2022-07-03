@@ -242,6 +242,7 @@ ASR::asr_t* getDerivedRef_t(Allocator& al, const Location& loc,
     ASR::ttype_t* member_type = member_variable->m_type;
     switch( member_type->type ) {
         case ASR::ttypeType::Derived: {
+            // Sync: Probably failing at the following two lines
             ASR::Derived_t* der = ASR::down_cast<ASR::Derived_t>(member_type);
             ASR::DerivedType_t* der_type = ASR::down_cast<ASR::DerivedType_t>(der->m_derived_type);
             if( current_scope->resolve_symbol(std::string(der_type->m_name)) == nullptr ) {

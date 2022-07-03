@@ -38,49 +38,6 @@ static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
     return ASR::down_cast<ASR::ttype_t>(f);
 }
 
-static inline char *symbol_name(const ASR::symbol_t *f)
-{
-    switch (f->type) {
-        case ASR::symbolType::Program: {
-            return ASR::down_cast<ASR::Program_t>(f)->m_name;
-        }
-        case ASR::symbolType::Module: {
-            return ASR::down_cast<ASR::Module_t>(f)->m_name;
-        }
-        case ASR::symbolType::Subroutine: {
-            return ASR::down_cast<ASR::Subroutine_t>(f)->m_name;
-        }
-        case ASR::symbolType::Function: {
-            return ASR::down_cast<ASR::Function_t>(f)->m_name;
-        }
-        case ASR::symbolType::GenericProcedure: {
-            return ASR::down_cast<ASR::GenericProcedure_t>(f)->m_name;
-        }
-        case ASR::symbolType::DerivedType: {
-            return ASR::down_cast<ASR::DerivedType_t>(f)->m_name;
-        }
-        case ASR::symbolType::Variable: {
-            return ASR::down_cast<ASR::Variable_t>(f)->m_name;
-        }
-        case ASR::symbolType::ExternalSymbol: {
-            return ASR::down_cast<ASR::ExternalSymbol_t>(f)->m_name;
-        }
-        case ASR::symbolType::ClassProcedure: {
-            return ASR::down_cast<ASR::ClassProcedure_t>(f)->m_name;
-        }
-        case ASR::symbolType::CustomOperator: {
-            return ASR::down_cast<ASR::CustomOperator_t>(f)->m_name;
-        }
-        case ASR::symbolType::AssociateBlock: {
-            return ASR::down_cast<ASR::AssociateBlock_t>(f)->m_name;
-        }
-        case ASR::symbolType::Block: {
-            return ASR::down_cast<ASR::Block_t>(f)->m_name;
-        }
-        default : throw LFortranException("Not implemented");
-    }
-}
-
 static inline ASR::symbol_t *symbol_get_past_external(ASR::symbol_t *f)
 {
     if (f->type == ASR::symbolType::ExternalSymbol) {
@@ -196,6 +153,16 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
     }
 }
 
+static inline std::string binop_to_str(const ASR::binopType t) {
+    switch (t) {
+        case (ASR::binopType::Add): { return " + "; }
+        case (ASR::binopType::Sub): { return " - "; }
+        case (ASR::binopType::Mul): { return "*"; }
+        case (ASR::binopType::Div): { return "/"; }
+        default : throw LFortranException("Cannot represent the binary operator as a string");
+    }
+}
+
 static inline std::string cmpop_to_str(const ASR::cmpopType t) {
     switch (t) {
         case (ASR::cmpopType::Eq): { return " == "; }
@@ -221,6 +188,49 @@ static inline std::string logicalbinop_to_str_python(const ASR::logicalbinopType
 static inline ASR::expr_t* expr_value(ASR::expr_t *f)
 {
     return ASR::expr_value0(f);
+}
+
+static inline char *symbol_name(const ASR::symbol_t *f)
+{
+    switch (f->type) {
+        case ASR::symbolType::Program: {
+            return ASR::down_cast<ASR::Program_t>(f)->m_name;
+        }
+        case ASR::symbolType::Module: {
+            return ASR::down_cast<ASR::Module_t>(f)->m_name;
+        }
+        case ASR::symbolType::Subroutine: {
+            return ASR::down_cast<ASR::Subroutine_t>(f)->m_name;
+        }
+        case ASR::symbolType::Function: {
+            return ASR::down_cast<ASR::Function_t>(f)->m_name;
+        }
+        case ASR::symbolType::GenericProcedure: {
+            return ASR::down_cast<ASR::GenericProcedure_t>(f)->m_name;
+        }
+        case ASR::symbolType::DerivedType: {
+            return ASR::down_cast<ASR::DerivedType_t>(f)->m_name;
+        }
+        case ASR::symbolType::Variable: {
+            return ASR::down_cast<ASR::Variable_t>(f)->m_name;
+        }
+        case ASR::symbolType::ExternalSymbol: {
+            return ASR::down_cast<ASR::ExternalSymbol_t>(f)->m_name;
+        }
+        case ASR::symbolType::ClassProcedure: {
+            return ASR::down_cast<ASR::ClassProcedure_t>(f)->m_name;
+        }
+        case ASR::symbolType::CustomOperator: {
+            return ASR::down_cast<ASR::CustomOperator_t>(f)->m_name;
+        }
+        case ASR::symbolType::AssociateBlock: {
+            return ASR::down_cast<ASR::AssociateBlock_t>(f)->m_name;
+        }
+        case ASR::symbolType::Block: {
+            return ASR::down_cast<ASR::Block_t>(f)->m_name;
+        }
+        default : throw LFortranException("Not implemented");
+    }
 }
 
 static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
@@ -1020,6 +1030,21 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
         }
         default : throw LFortranException("Not implemented");
     }
+}
+
+inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
+    bool is_source_pointer = is_pointer(source), is_dest_pointer = is_pointer(dest);
+    if( (!is_source_pointer && !is_dest_pointer) ||
+        (is_source_pointer && is_dest_pointer) ) {
+        return false;
+    }
+    if( is_source_pointer && !is_dest_pointer ) {
+        ASR::ttype_t* temp = source;
+        source = dest;
+        dest = temp;
+    }
+    bool res = source->type == ASR::down_cast<ASR::Pointer_t>(dest)->m_type->type;
+    return res;
 }
 
             inline int extract_kind_str(char* m_n, char *&kind_str) {

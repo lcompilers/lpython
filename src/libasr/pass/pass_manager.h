@@ -4,8 +4,9 @@
 #include <libasr/asr.h>
 #include <libasr/string_utils.h>
 #include <libasr/alloc.h>
+#include <lfortran/utils.h>
 // TODO: Remove lpython/lfortran includes, make it compiler agnostic
-#include <lpython/utils.h>
+// #include <lpython/utils.h>
 #include <libasr/pass/do_loops.h>
 #include <libasr/pass/for_all.h>
 #include <libasr/pass/implied_do_loops.h>
@@ -30,6 +31,8 @@
 
 #include <map>
 #include <vector>
+
+#include <iostream>
 
 namespace LCompilers {
 

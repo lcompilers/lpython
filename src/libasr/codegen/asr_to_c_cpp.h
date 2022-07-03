@@ -242,7 +242,7 @@ R"(#include <stdio.h>
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
-            sub += self().convert_variable_decl(*arg);
+            sub += self().convert_variable_decl(*arg, false);
             if (i < x.n_args-1) sub += ", ";
         }
         sub += ")";
@@ -306,7 +306,7 @@ R"(#include <stdio.h>
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
-            sub += self().convert_variable_decl(*arg);
+            sub += self().convert_variable_decl(*arg, false);
             if (i < x.n_args-1) sub += ", ";
         }
         sub += ")";
