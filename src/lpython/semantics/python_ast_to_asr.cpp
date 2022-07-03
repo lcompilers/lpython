@@ -3406,27 +3406,18 @@ public:
                                 loc, dval, to_type));
             }
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-            al, loc, arg, ASR::cast_kindType::IntegerToReal,
-            to_type, value));
+                al, loc, arg, ASR::cast_kindType::IntegerToReal,
+                to_type, value));
         } else if (ASRUtils::is_logical(*type)) {
-            int32_t ival = 0;
-            ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                        4, nullptr, 0));
             if (ASRUtils::expr_value(arg) != nullptr) {
-                ival = ASR::down_cast<ASR::LogicalConstant_t>(
+                double dval = ASR::down_cast<ASR::LogicalConstant_t>(
                                         ASRUtils::expr_value(arg))->m_value;
-                value =  ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al,
-                                loc, ival, int_type));
+                value =  ASR::down_cast<ASR::expr_t>(make_RealConstant_t(al,
+                                loc, dval, to_type));
             }
-            ASR::expr_t *t = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-            al, loc, arg, ASR::cast_kindType::LogicalToInteger,
-            int_type, value));
-            double dval = ival;
-            value =  ASR::down_cast<ASR::expr_t>(make_RealConstant_t(al,
-                            loc, dval, to_type));
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-            al, loc, t, ASR::cast_kindType::IntegerToReal,
-            to_type, value));
+                al, loc, arg, ASR::cast_kindType::LogicalToReal,
+                to_type, value));
         } else if (!ASRUtils::is_real(*type)) {
             std::string stype = ASRUtils::type_to_str_python(type);
             throw SemanticError(
