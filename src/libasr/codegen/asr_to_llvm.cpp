@@ -2841,6 +2841,13 @@ public:
     }
 
     void visit_BlockCall(const ASR::BlockCall_t& x) {
+        if( x.m_label != -1 ) {
+            if( llvm_goto_targets.find(x.m_label) == llvm_goto_targets.end() ) {
+                llvm::BasicBlock *new_target = llvm::BasicBlock::Create(context, "goto_target");
+                llvm_goto_targets[x.m_label] = new_target;
+            }
+            start_new_block(llvm_goto_targets[x.m_label]);
+        }
         LFORTRAN_ASSERT(ASR::is_a<ASR::Block_t>(*x.m_m));
         ASR::Block_t* block = ASR::down_cast<ASR::Block_t>(x.m_m);
         declare_vars(*block);
