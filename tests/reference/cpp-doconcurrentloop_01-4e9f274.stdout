@@ -17,6 +17,14 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+// Forward declarations
+void _lpython_main_program();
+void main0();
+void triad(const Kokkos::View<float*> &a, const Kokkos::View<float*> &b, float scalar, const Kokkos::View<float*> &c);
+namespace {
+}
+
+// Implementations
 void _lpython_main_program()
 {
     main0();

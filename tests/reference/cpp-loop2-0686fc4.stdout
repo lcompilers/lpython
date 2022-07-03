@@ -17,6 +17,14 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+// Forward declarations
+void _lpython_main_program();
+void test_for();
+namespace {
+}
+void _xx_lcompilers_changed_exit_xx(int error_code);
+
+// Implementations
 void _lpython_main_program()
 {
     test_for();
