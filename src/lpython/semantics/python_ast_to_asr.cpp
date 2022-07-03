@@ -3412,7 +3412,7 @@ public:
             type = ASRUtils::expr_type(arg);
         }
         ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                    4, nullptr, 0));
+                                    8, nullptr, 0));
         if (!arg) {
             return ASR::make_IntegerConstant_t(al, loc, 0, to_type);
         }
@@ -3461,12 +3461,21 @@ public:
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
                 al, loc, arg, ASR::cast_kindType::LogicalToInteger,
                 to_type, value));
-        } else if (!ASRUtils::is_integer(*type)) {
+        } else if (ASRUtils::is_integer(*type)) {
+            // int() returns a 64-bit integer
+            if (ASRUtils::extract_kind_from_ttype_t(type) != 8) {
+                return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                    al, loc, arg, ASR::cast_kindType::IntegerToInteger,
+                    to_type, value));
+            }
+            return (ASR::asr_t *)arg;
+        } else {
             std::string stype = ASRUtils::type_to_str_python(type);
             throw SemanticError(
                 "Conversion of '" + stype + "' to integer is not Implemented",
                 loc);
         }
+        // TODO: Make this work if the argument is, let's say, a class.
         return nullptr;
     }
 
@@ -3503,12 +3512,21 @@ public:
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
                 al, loc, arg, ASR::cast_kindType::LogicalToReal,
                 to_type, value));
-        } else if (!ASRUtils::is_real(*type)) {
+        } else if (ASRUtils::is_real(*type)) {
+            // float() always returns 64-bit floating point numbers.
+            if (ASRUtils::extract_kind_from_ttype_t(type) != 8) {
+                return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                    al, loc, arg, ASR::cast_kindType::RealToReal,
+                    to_type, value));
+            }
+            return (ASR::asr_t *)arg;
+        } else {
             std::string stype = ASRUtils::type_to_str_python(type);
             throw SemanticError(
                 "Conversion of '" + stype + "' to float is not Implemented",
                 loc);
         }
+        // TODO: Make this work if the argument is, let's say, a class.
         return nullptr;
     }
 
