@@ -3952,22 +3952,8 @@ public:
                 break;
             }
             case (ASR::cast_kindType::LogicalToReal) : {
-                llvm::Value *zero;
                 int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
-                if (a_kind == 4) {
-                    tmp = builder->CreateSExt(tmp, llvm::Type::getInt32Ty(context));
-                    zero = llvm::ConstantInt::get(context, llvm::APInt(32, 0, true));
-                    tmp = builder ->CreateSub(zero, tmp);
-                    tmp = builder->CreateSIToFP(tmp, llvm::Type::getFloatTy(context));
-                } else if (a_kind == 8) {
-                    tmp = builder->CreateSExt(tmp, llvm::Type::getInt64Ty(context));
-                    zero = llvm::ConstantInt::get(context, llvm::APInt(64, 0, true));
-                    tmp = builder ->CreateSub(zero, tmp);
-                    tmp = builder->CreateSIToFP(tmp, llvm::Type::getDoubleTy(context));
-                } else {
-                    throw CodeGenError(R"""(Only 32 and 64 bit real kinds are implemented)""",
-                                            x.base.base.loc);
-                }
+                tmp = builder->CreateUIToFP(tmp, getFPType(a_kind, false));
                 break;
             }
             case (ASR::cast_kindType::RealToInteger) : {
