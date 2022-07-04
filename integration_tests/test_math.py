@@ -1,6 +1,7 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
-                  ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc)
-from ltypes import i32, f64, i64
+                  ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc, fsum, prod)
+from ltypes import i8, i16, i32, i64, f32, f64
+from numpy import empty
 
 eps: f64
 eps = 1e-12
@@ -149,6 +150,106 @@ def test_trunc():
     i = trunc(-4.5)
     assert i == -4
 
+def test_fsum():
+    res: f64
+    len: i32
+    len = 2
+
+    # Test i8
+    arr_i8: i8[2]
+    arr_i8 = empty(2)
+    arr_i8[0] = 6
+    arr_i8[1] = 12
+    res = fsum(len, arr_i8)
+    assert res == 18.0
+
+    # Test i16
+    arr_i16: i16[2]
+    arr_i16 = empty(2)
+    arr_i16[0] = 6
+    arr_i16[1] = 12
+    res = fsum(len, arr_i16)
+    assert res == 18.0
+
+    # Test i32
+    arr_i32: i32[2]
+    arr_i32 = empty(2)
+    arr_i32[0] = 6
+    arr_i32[1] = 12
+    res = fsum(len, arr_i32)
+    assert res == 18.0
+
+    # Test i64
+    arr_i64: i64[2]
+    arr_i64 = empty(2)
+    arr_i64[0] = 6
+    arr_i64[1] = 12
+    res = fsum(len, arr_i64)
+    assert res == 18.0
+
+    # Test f32
+    arr_f32: f32[2]
+    arr_f32 = empty(2)
+    arr_f32[0] = 6.1
+    arr_f32[1] = 12.2
+    res = fsum(len, arr_f32)
+    assert res > 18.29
+
+    # Test f64
+    arr_f64: f64[2]
+    arr_f64 = empty(2)
+    arr_f64[0] = 6.1
+    arr_f64[1] = 12.2
+    res = fsum(len, arr_f64)
+    assert res > 18.29
+
+def test_prod():
+    res: f64
+    len: i32
+    len = 2
+
+    # Test i8
+    arr_i8: i8[2]
+
+    arr_i8[0] = 6
+    arr_i8[1] = 12
+    res = prod(len, arr_i8)
+    assert res == 72.0
+
+    # Test i16
+    arr_i16: i16[2]
+    arr_i16[0] = 6
+    arr_i16[1] = 12
+    res = prod(len, arr_i16)
+    assert res == 72.0
+
+    # Test i32
+    arr_i32: i32[2]
+    arr_i32[0] = 6
+    arr_i32[1] = 12
+    res = prod(len, arr_i32)
+    assert res == 72.0
+
+    # Test i64
+    arr_i64: i64[2]
+    arr_i64[0] = 6
+    arr_i64[1] = 12
+    res = prod(len, arr_i64)
+    assert res == 72.0
+
+    # Test f32
+    arr_f32: f32[2]
+    arr_f32[0] = 6.1
+    arr_f32[1] = 12.2
+    res = prod(len, arr_f32)
+    assert res > 74.4
+
+    # Test f64
+    arr_f64: f64[2]
+    arr_f64[0] = 6.1
+    arr_f64[1] = 12.2
+    res = prod(len, arr_f64)
+    assert res > 74.4
 
 def check():
     test_factorial_1()
@@ -170,6 +271,8 @@ def check():
     test_expm1()
     test_log1p()
     test_trunc()
+    # test_fsum()
+    # test_prod()
 
 
 check()
