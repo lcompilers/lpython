@@ -508,6 +508,10 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
         }
         str = "b'" + str + "'";
         tmp = make_ConstantBytes_t(al, l, LFortran::s2c(al, str), nullptr);
+    } else if (strcmp(prefix, "r") == 0 ) {
+        tmp = make_ConstantStr_t(al, l,  s, nullptr);
+    } else {
+        throw LFortran::LFortranException("The string is not recognized by the parser.");
     }
     return tmp;
 }
