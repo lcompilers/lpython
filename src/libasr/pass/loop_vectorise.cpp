@@ -154,7 +154,7 @@ public:
         }
         ASR::do_loop_head_t vectorised_loop_head;
         vectorised_loop_head.m_start = loop_start;
-        int64_t vector_length_int;
+        int64_t vector_length_int = -1;
         ASRUtils::extract_value(vector_length, vector_length_int);
         // TODO: Add tests for loop sizes not divisible by vector_length.
         vectorised_loop_head.m_end = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.m_head.m_v->base.loc,
