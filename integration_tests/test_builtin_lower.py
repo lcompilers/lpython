@@ -5,4 +5,5 @@ def test_lower():
     i: str
     i = lower("CoMpIlEr")
     assert i == "compiler"
+
 test_lower()

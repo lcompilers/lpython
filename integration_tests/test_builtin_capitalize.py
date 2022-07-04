@@ -8,3 +8,5 @@ def test_capitalize():
     i: str
     i = capitalize("deVeLoPmEnT")
     assert i == "Development"
+
+test_capitalize()

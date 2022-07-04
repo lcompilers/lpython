@@ -57,7 +57,7 @@ def abs(x: i8) -> i8:
 @overload
 def abs(x: i16) -> i16:
     if x >= 0:
-        return xbit_count
+        return x
     else:
         return -x
 
@@ -150,9 +150,11 @@ def capitalize(s: str) -> str:
 
 def upper(s: str) -> str:
     result : str
-    result = ''
+    # result = ''
     char : str
-
+    # l: list[str]
+    # l[:0] = s
+    # l = [a for a in s]
     for char in s:
         if ord(char) >= 97 and ord(char) <=122 :
             result += chr(ord(char) - 32)
@@ -162,7 +164,7 @@ def upper(s: str) -> str:
 
 def lower(s: str) -> str:
     result : str
-    result = ''
+    # result = ''
     char : str
 
     for char in s:
@@ -522,7 +524,7 @@ def _lfortran_caimag(x: c32) -> f32:
 def _lfortran_zaimag(x: c64) -> f64:
     pass
 
-@overload￼
+@overload
 def _lpython_imag(x: c64) -> f64:
     return _lfortran_zaimag(x)
 
