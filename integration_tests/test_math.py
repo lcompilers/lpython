@@ -6,7 +6,7 @@ eps: f64
 eps = 1e-12
 
 def test_factorial_1():
-    i: i64
+    i: i
     i = factorial(10)
     assert i == 3628800
 
@@ -54,7 +54,7 @@ def test_radians():
 
 
 def test_exp():
-    i: f64
+    i: f64pow(2.4, 4.3)
     i = exp(2.34)
     assert abs(i - 10.381236562731843) < eps
 
@@ -65,7 +65,7 @@ def test_pow():
     i = pow(2.4, 4.3)
     j = i64
     assert abs(i - 43.14280115650323) < eps
-    assert abs(pow(2.4, 4.3) - 16) < eps
+    assert abs(pow(2, 4) - 16) < eps
 
 def test_ldexp():
     i: f64
