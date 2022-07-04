@@ -287,7 +287,9 @@ def pow(x: f64, y: f64) -> f64:
     """
     if y < 0:
         raise ValueError('y should be nonnegative')
-    return x**y
+    result: f64
+    result = x**y
+    return result
 
 
 @overload
@@ -297,7 +299,9 @@ def pow(x: i64, y: i64) -> i64:
     """
     if y < 0:
         raise ValueError('y should be nonnegative')
-    return x**y
+    result: i64
+    result = x**y
+    return result
 
 @overload
 def pow(x: f32, y: f32) -> f64:
@@ -311,13 +315,13 @@ def pow(x: f32, y: f32) -> f64:
     return result
 
 @overload
-def pow(x: i32, y: i32) -> i64:
+def pow(x: i32, y: i32) -> i32:
     """
     Return `x` raised to the power `y`.
     """
     if y < 0:
         raise ValueError('y should be nonnegative')
-    result: i64
+    result: i32
     result = x**y
     return result
 
