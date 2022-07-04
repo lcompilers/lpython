@@ -471,23 +471,6 @@ filename = "errors/test_pow.py"
 asr = true
 
 [[test]]
-filename = "errors/test_pow1.py"
-asr = true
-
-[[test]]
-filename = "errors/test_pow2.py"
-asr = true
-
-[[test]]
-filename = "errors/test_pow3.py"
-asr = true
-
-[[test]]
-filename = "errors/test_pow4.py"
-asr = true
-
-
-[[test]]
 filename = "errors/test_assign1.py"
 asr = true
 

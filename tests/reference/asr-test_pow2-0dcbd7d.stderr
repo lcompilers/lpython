@@ -1,5 +1,0 @@
-style suggestion: Could have used '**' instead of 'pow'
- --> tests/errors/test_pow2.py:7:11
-  |
-7 |     print(pow(a, b))
-  |           ^^^^^^^^^ '**' could be used instead
