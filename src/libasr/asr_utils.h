@@ -609,7 +609,7 @@ static inline std::string type_python_1dim_helper(const std::string & res,
     }
 
     if( ASRUtils::expr_value(e->m_end) ) {
-        int64_t end_dim;
+        int64_t end_dim = -1;
         ASRUtils::extract_value(ASRUtils::expr_value(e->m_end), end_dim);
         return res + "[" + std::to_string(end_dim + 1) + "]";
     }
