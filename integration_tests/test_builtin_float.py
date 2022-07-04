@@ -17,5 +17,7 @@ def test_float():
     f: f64
     f = float(b)
     assert f == 1.0
+    b = False
+    assert b == 0.0
 
 test_float()
