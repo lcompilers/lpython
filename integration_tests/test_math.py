@@ -1,5 +1,6 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
-                  ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc)
+                  ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc,
+                  modf)
 from ltypes import i32, f64, i64
 
 eps: f64
@@ -149,6 +150,14 @@ def test_trunc():
     i = trunc(-4.5)
     assert i == -4
 
+def test_modf():
+    i: f64
+    i = 3.14
+
+    res: tuple[f64, i32]
+    res = modf(i)
+    assert res[0] == 0.14000000000000012
+    assert res[1] == 3
 
 def check():
     test_factorial_1()
@@ -170,6 +179,6 @@ def check():
     test_expm1()
     test_log1p()
     test_trunc()
-
+    test_modf()
 
 check()

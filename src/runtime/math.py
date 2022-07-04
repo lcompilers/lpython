@@ -1,4 +1,4 @@
-from ltypes import i8, i16, i32, f32, f64, ccall
+from ltypes import i8, i16, i32, i64, f32, f64, ccall, overload
 
 
 pi: f64 = 3.141592653589793238462643383279502884197
@@ -7,6 +7,13 @@ tau: f64 = 6.283185307179586
 
 # TODO: Change floor used inside functions implemented here to
 # floordiv operator (//) once the multiple import issue is fixed
+
+def modf(x: f64) -> tuple[f64, i32]:
+    """
+    Return fractional and integral parts of `x` as a pair.
+    """
+    
+    return (x - int(x), int(x))
 
 def factorial(x: i32) -> i32:
     """
