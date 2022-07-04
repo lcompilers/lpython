@@ -1,0 +1,11 @@
+style suggestion: Could have used '**' instead of 'pow'
+ --> tests/errors/test_pow4.py:5:11
+  |
+5 |     print(pow(4,x))
+  |           ^^^^^^^^ '**' could be used instead
+
+semantic error: Arguments do not match for any generic procedure, pow
+ --> tests/errors/test_pow4.py:5:11
+  |
+5 |     print(pow(4,x))
+  |           ^^^^^^^^ 

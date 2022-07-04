@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_pow4-ef60978",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_pow4.py",
+    "infile_hash": "55a371aa97f1e9bf969e3062331a52a752f5cd1a7d5937cf3d508834",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_pow4-ef60978.stderr",
+    "stderr_hash": "944951a1f90e5636b77f7ba4575052e4bbba7603f7c441024464dcd9",
+    "returncode": 2
+}
