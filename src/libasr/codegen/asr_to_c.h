@@ -7,7 +7,8 @@
 namespace LFortran {
 
     Result<std::string> asr_to_c(Allocator &al, ASR::TranslationUnit_t &asr,
-        diag::Diagnostics &diagnostics, Platform &platform);
+        diag::Diagnostics &diagnostics, Platform &platform,
+        int64_t default_lower_bound);
 
 } // namespace LFortran
 

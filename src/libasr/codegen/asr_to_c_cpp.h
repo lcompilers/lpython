@@ -89,12 +89,14 @@ public:
     std::set<std::string> headers;
 
     SymbolTable* global_scope;
+    int64_t lower_bound;
 
     BaseCCPPVisitor(diag::Diagnostics &diag, Platform &platform,
-            bool gen_stdstring, bool gen_stdcomplex, bool is_c) : diag{diag},
+            bool gen_stdstring, bool gen_stdcomplex, bool is_c,
+            int64_t default_lower_bound) : diag{diag},
             platform{platform},
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
-        is_c{is_c}, global_scope{nullptr} {}
+        is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound} {}
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         global_scope = x.m_global_scope;
@@ -598,10 +600,7 @@ R"(#include <stdio.h>
                 src = "/* FIXME right index */";
             }
             out += src;
-            if( m_dims[i].m_start ) {
-                this->visit_expr(*m_dims[i].m_start);
-                out += " - " + src;
-            }
+            out += " - " + std::to_string(lower_bound);
             if (i < x.n_args-1) out += "][";
         }
         out += "]";

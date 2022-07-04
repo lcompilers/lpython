@@ -13,33 +13,6 @@
 
 namespace LFortran {
 
-std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
-{
-    std::string dims;
-    for (size_t i=0; i<n_dims; i++) {
-        ASR::expr_t *start = m_dims[i].m_start;
-        ASR::expr_t *end = m_dims[i].m_end;
-        if (!start && !end) {
-            dims += "*";
-        } else if (start && end) {
-            if (ASR::is_a<ASR::IntegerConstant_t>(*start) && ASR::is_a<ASR::IntegerConstant_t>(*end)) {
-                ASR::IntegerConstant_t *s = ASR::down_cast<ASR::IntegerConstant_t>(start);
-                ASR::IntegerConstant_t *e = ASR::down_cast<ASR::IntegerConstant_t>(end);
-                if (s->m_n == 1) {
-                    dims += "[" + std::to_string(e->m_n) + "]";
-                } else {
-                    throw CodeGenError("Lower dimension must be 1 for now");
-                }
-            } else {
-                dims += "[ /* FIXME symbolic dimensions */ ]";
-            }
-        } else {
-            throw CodeGenError("Dimension type not supported");
-        }
-    }
-    return dims;
-}
-
 std::string format_type(const std::string &dims, const std::string &type,
         const std::string &name, bool use_ref, bool dummy)
 {
@@ -64,8 +37,36 @@ std::string format_type(const std::string &dims, const std::string &type,
 class ASRToCPPVisitor : public BaseCCPPVisitor<ASRToCPPVisitor>
 {
 public:
-    ASRToCPPVisitor(diag::Diagnostics &diag, Platform &platform)
-        : BaseCCPPVisitor(diag, platform, true, true, false) {}
+    ASRToCPPVisitor(diag::Diagnostics &diag, Platform &platform,
+                    int64_t default_lower_bound)
+        : BaseCCPPVisitor(diag, platform, true, true, false,
+                          default_lower_bound) {}
+
+    std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
+    {
+        std::string dims;
+        for (size_t i=0; i<n_dims; i++) {
+            ASR::expr_t *start = m_dims[i].m_start;
+            ASR::expr_t *end = m_dims[i].m_end;
+            if (!start && !end) {
+                dims += "*";
+            } else if (start && end) {
+                ASR::expr_t* start_value = ASRUtils::expr_value(start);
+                ASR::expr_t* end_value = ASRUtils::expr_value(end);
+                if( start_value && end_value ) {
+                    int64_t start_int = -1, end_int = -1;
+                    ASRUtils::extract_value(start_value, start_int);
+                    ASRUtils::extract_value(end_value, end_int);
+                    dims += "[" + std::to_string(end_int - start_int + 1) + "]";
+                } else {
+                    dims += "[ /* FIXME symbolic dimensions */ ]";
+                }
+            } else {
+                throw CodeGenError("Dimension type not supported");
+            }
+        }
+        return dims;
+    }
 
     std::string convert_variable_decl(const ASR::Variable_t &v, bool use_static=true)
     {
@@ -443,10 +444,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 };
 
 Result<std::string> asr_to_cpp(Allocator &al, ASR::TranslationUnit_t &asr,
-    diag::Diagnostics &diagnostics, Platform &platform)
+    diag::Diagnostics &diagnostics, Platform &platform,
+    int64_t default_lower_bound)
 {
     pass_unused_functions(al, asr, true);
-    ASRToCPPVisitor v(diagnostics, platform);
+    ASRToCPPVisitor v(diagnostics, platform, default_lower_bound);
     try {
         v.visit_asr((ASR::asr_t &)asr);
     } catch (const CodeGenError &e) {
