@@ -150,7 +150,7 @@ public:
                 ASR::Logical_t *t = ASR::down_cast<ASR::Logical_t>(v.m_type);
                 dims = convert_dims_c(t->n_dims, t->m_dims);
                 sub = format_type_c(dims, "bool", v.m_name, use_ref, dummy);
-            }else if (ASRUtils::is_character(*v.m_type)) {
+            } else if (ASRUtils::is_character(*v.m_type)) {
                 ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(v.m_type);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
                 sub = format_type_c(dims, "char *", v.m_name, use_ref, dummy);
