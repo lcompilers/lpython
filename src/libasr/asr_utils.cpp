@@ -242,10 +242,10 @@ ASR::asr_t* getDerivedRef_t(Allocator& al, const Location& loc,
     ASR::ttype_t* member_type = member_variable->m_type;
     switch( member_type->type ) {
         case ASR::ttypeType::Derived: {
-            // Sync: Probably failing at the following two lines
             ASR::Derived_t* der = ASR::down_cast<ASR::Derived_t>(member_type);
-            ASR::DerivedType_t* der_type = ASR::down_cast<ASR::DerivedType_t>(der->m_derived_type);
-            if( current_scope->resolve_symbol(std::string(der_type->m_name)) == nullptr ) {
+            std::string der_type_name = ASRUtils::symbol_name(der->m_derived_type);
+            ASR::symbol_t* der_type_sym = current_scope->resolve_symbol(der_type_name);
+            if( der_type_sym == nullptr ) {
                 ASR::symbol_t* der_ext;
                 char* module_name = (char*)"~nullptr";
                 ASR::symbol_t* m_external = der->m_derived_type;
@@ -257,13 +257,13 @@ ASR::asr_t* getDerivedRef_t(Allocator& al, const Location& loc,
                 Str mangled_name;
                 mangled_name.from_str(al, "1_" +
                                             std::string(module_name) + "_" +
-                                            std::string(der_type->m_name));
+                                            std::string(der_type_name));
                 char* mangled_name_char = mangled_name.c_str(al);
                 if( current_scope->get_symbol(mangled_name.str()) == nullptr ) {
                     bool make_new_ext_sym = true;
                     ASR::symbol_t* der_tmp = nullptr;
-                    if( current_scope->get_symbol(std::string(der_type->m_name)) != nullptr ) {
-                        der_tmp = current_scope->get_symbol(std::string(der_type->m_name));
+                    if( current_scope->get_symbol(std::string(der_type_name)) != nullptr ) {
+                        der_tmp = current_scope->get_symbol(std::string(der_type_name));
                         if( der_tmp->type == ASR::symbolType::ExternalSymbol ) {
                             ASR::ExternalSymbol_t* der_ext_tmp = (ASR::ExternalSymbol_t*)(&(der_tmp->base));
                             if( der_ext_tmp->m_external == m_external ) {
@@ -275,7 +275,7 @@ ASR::asr_t* getDerivedRef_t(Allocator& al, const Location& loc,
                     }
                     if( make_new_ext_sym ) {
                         der_ext = (ASR::symbol_t*)ASR::make_ExternalSymbol_t(al, loc, current_scope, mangled_name_char, m_external,
-                                                                            module_name, nullptr, 0, der_type->m_name, ASR::accessType::Public);
+                                                                            module_name, nullptr, 0, s2c(al, der_type_name), ASR::accessType::Public);
                         current_scope->add_symbol(mangled_name.str(), der_ext);
                     } else {
                         LFORTRAN_ASSERT(der_tmp != nullptr);
@@ -285,7 +285,10 @@ ASR::asr_t* getDerivedRef_t(Allocator& al, const Location& loc,
                     der_ext = current_scope->get_symbol(mangled_name.str());
                 }
                 ASR::asr_t* der_new = ASR::make_Derived_t(al, loc, der_ext, der->m_dims, der->n_dims);
-                member_type = (ASR::ttype_t*)(der_new);
+                member_type = ASRUtils::TYPE(der_new);
+            } else if(ASR::is_a<ASR::ExternalSymbol_t>(*der_type_sym)) {
+                member_type = ASRUtils::TYPE(ASR::make_Derived_t(al, loc, der_type_sym,
+                                der->m_dims, der->n_dims));
             }
             break;
         }
