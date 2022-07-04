@@ -39,8 +39,6 @@
 #include <map>
 #include <vector>
 
-#include <iostream>
-
 namespace LCompilers {
 
     enum ASRPass {
