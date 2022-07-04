@@ -36,11 +36,11 @@ def test_degrees():
     # Check for integer
     i = degrees(32)
     assert abs(i - 1833.4649444186343) < eps
-    
+
     # Check for float
     i = degrees(32.2)
     assert abs(i - 1844.924100321251) < eps
-  
+
 def test_radians():
     i: f64
 
@@ -60,10 +60,10 @@ def test_exp():
 
 
 def test_pow():
-    i: f64
-    i = pow(2.4, 4.3)
-    assert abs(i - 43.14280115650323) < eps
 
+    # i: f64
+    assert abs(pow(2.4, 4.3) - 43.14280115650323) < eps
+    assert abs(pow(2, 4) - 16) < eps
 
 def test_ldexp():
     i: f64
@@ -72,13 +72,19 @@ def test_ldexp():
 
 
 def test_fabs():
-    i: f64
-    j: f64
+
     eps: f64
     eps = 1e-12
-    i = fabs(10.3)
-    j = fabs(-10.3)
-    assert abs(i - j) < eps
+    i: f64
+    j: f64
+    i = -10.5
+    j = -7.0
+    assert fabs(i + fabs(j)) == 3.5
+    assert abs(fabs(10) - fabs(-10)) < eps
+    assert abs(fabs(10.3) - fabs(-10.3)) < eps
+    assert fabs(0.5) == 0.5
+    assert fabs(-5) == 5.0
+
 
 
 def test_gcd():
