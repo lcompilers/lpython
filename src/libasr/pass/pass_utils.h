@@ -25,6 +25,9 @@ namespace LFortran {
         void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, int n_dims, const Location& loc,
                              Allocator& al, SymbolTable*& current_scope, std::string suffix="_k");
 
+        ASR::expr_t* create_compare_helper(Allocator &al, const Location &loc, ASR::expr_t* left, ASR::expr_t* right,
+                                            ASR::cmpopType op);
+
         ASR::expr_t* create_binop_helper(Allocator &al, const Location &loc, ASR::expr_t* left, ASR::expr_t* right,
                                             ASR::binopType op);
 
@@ -60,7 +63,13 @@ namespace LFortran {
                                          SymbolTable*& current_scope, Location& loc,
                                          const std::function<void (const std::string &, const Location &)> err);
 
-        Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop);
+        ASR::stmt_t* get_vector_copy(ASR::symbol_t* array0, ASR::symbol_t* array1, ASR::expr_t* start,
+            ASR::expr_t* end, ASR::expr_t* step, ASR::expr_t* vector_length,
+            Allocator& al, ASR::TranslationUnit_t& unit,
+            SymbolTable*& global_scope, Location& loc);
+
+        Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop,
+                                         int comp=-1);
 
         template <class Derived>
         class PassVisitor: public ASR::BaseWalkVisitor<Derived> {

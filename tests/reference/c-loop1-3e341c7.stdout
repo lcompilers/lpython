@@ -84,8 +84,9 @@ int64_t test_factorial_3(int32_t x)
 {
     int64_t _lpython_return_variable;
     int64_t result;
+    result = 0;
     if (x < 0) {
-        _lpython_return_variable = 0;
+        _lpython_return_variable = result;
         return _lpython_return_variable;
     }
     result = 1;

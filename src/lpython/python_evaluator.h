@@ -10,6 +10,7 @@
 #include <lpython/utils.h>
 #include <libasr/config.h>
 #include <libasr/diagnostics.h>
+#include <libasr/pass/pass_manager.h>
 
 namespace LFortran {
 
@@ -51,7 +52,7 @@ public:
     };
 
     Result<std::unique_ptr<LLVMModule>> get_llvm3(ASR::TranslationUnit_t &asr,
-        diag::Diagnostics &diagnostics);
+        LCompilers::PassManager& lpm, diag::Diagnostics &diagnostics);
 
 private:
     Allocator al;

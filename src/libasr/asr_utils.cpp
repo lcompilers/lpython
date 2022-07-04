@@ -242,9 +242,9 @@ ASR::asr_t* getDerivedRef_t(Allocator& al, const Location& loc,
     ASR::ttype_t* member_type = member_variable->m_type;
     switch( member_type->type ) {
         case ASR::ttypeType::Derived: {
-            ASR::Derived_t* der = (ASR::Derived_t*)(&(member_type->base));
-            ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
-            if( der_type->m_symtab->counter != current_scope->counter ) {
+            ASR::Derived_t* der = ASR::down_cast<ASR::Derived_t>(member_type);
+            ASR::DerivedType_t* der_type = ASR::down_cast<ASR::DerivedType_t>(der->m_derived_type);
+            if( current_scope->resolve_symbol(std::string(der_type->m_name)) == nullptr ) {
                 ASR::symbol_t* der_ext;
                 char* module_name = (char*)"~nullptr";
                 ASR::symbol_t* m_external = der->m_derived_type;
@@ -389,7 +389,7 @@ bool is_op_overloaded(ASR::binopType op, std::string& intrinsic_op_name,
             break;
         }
         default: {
-            throw LFortranException("Binary operator '" + ASRUtils::binop_to_str(op) + "' not supported yet");
+            throw LFortranException("Binary operator '" + ASRUtils::binop_to_str_python(op) + "' not supported yet");
         }
     }
     if( result && curr_scope->get_symbol(intrinsic_op_name) == nullptr ) {
@@ -878,6 +878,9 @@ ASR::asr_t* make_Cast_t_value(Allocator &al, const Location &a_loc,
 
     return ASR::make_Cast_t(al, a_loc, a_arg, a_kind, a_type, value);
 }
+
+//Initialize pointer to zero so that it can be initialized in first call to get_instance
+ASRUtils::LabelGenerator* ASRUtils::LabelGenerator::label_generator = nullptr;
 
 } // namespace ASRUtils
 

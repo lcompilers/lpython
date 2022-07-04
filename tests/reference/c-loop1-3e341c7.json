@@ -2,11 +2,11 @@
     "basename": "c-loop1-3e341c7",
     "cmd": "lpython --no-color --show-c {infile}",
     "infile": "tests/loop1.py",
-    "infile_hash": "a7086ba45522bcfd6dd9ce93e81d5488690193393b7447de3523a968",
+    "infile_hash": "c6799c859004650fdb3abca560c74e978e8f0d22d9f1e3466a074017",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "c-loop1-3e341c7.stdout",
-    "stdout_hash": "2e178606a52ff01810c9ac67f1abcaf9e18692fdb42a4c535850dcb7",
+    "stdout_hash": "b6f5d4094e8c39da6dbb52a047d31f332b54d989165854cceb047443",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

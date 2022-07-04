@@ -32,7 +32,6 @@ struct PythonIntrinsicProcedures {
         comptime_eval_map = {
             {"abs", {m_builtin, &eval_abs}},
             {"str", {m_builtin, &eval_str}},
-            {"bool", {m_builtin, &eval_bool}},
             {"chr", {m_builtin, &eval_chr}},
             {"ord", {m_builtin, &eval_ord}},
             // {"len", {m_builtin, &eval_len}},
@@ -163,38 +162,6 @@ struct PythonIntrinsicProcedures {
             throw SemanticError("str() argument must be real, integer, logical, or a string, not '" +
                 ASRUtils::type_to_str_python(arg_type) + "'", loc);
         }
-    }
-
-    static ASR::expr_t *eval_bool(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        if (args.size() != 1) {
-            throw SemanticError("bool() takes exactly one argument (" +
-                std::to_string(args.size()) + " given)", loc);
-        }
-        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
-            4, nullptr, 0));
-        ASR::expr_t* arg = args[0];
-        ASR::ttype_t* t = ASRUtils::expr_type(arg);
-        bool result;
-        if (ASRUtils::is_real(*t)) {
-            result = ASR::down_cast<ASR::RealConstant_t>(arg)->m_r;
-        } else if (ASRUtils::is_integer(*t)) {
-            result = ASR::down_cast<ASR::IntegerConstant_t>(arg)->m_n;
-        } else if (ASRUtils::is_complex(*t)) {
-            double re = ASR::down_cast<ASR::ComplexConstant_t>(arg)->m_re;
-            double im = ASR::down_cast<ASR::ComplexConstant_t>(arg)->m_im;
-            std::complex<double> c(re, im);
-            result = (re || im);
-        } else if (ASRUtils::is_logical(*t)) {
-            result = ASR::down_cast<ASR::LogicalConstant_t>(arg)->m_value;
-        } else if (ASRUtils::is_character(*t)) {
-            char* c = ASR::down_cast<ASR::StringConstant_t>(ASRUtils::expr_value(arg))->m_s;
-            result = strlen(s2c(al, std::string(c)));
-        } else {
-            throw SemanticError("bool() must have one real, integer, character,"
-                " complex, or logical argument, not '" + ASRUtils::type_to_str_python(t) + "'", loc);
-        }
-        return ASR::down_cast<ASR::expr_t>(make_LogicalConstant_t(al, loc, result, type));
     }
 
     static ASR::expr_t *eval_chr(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
