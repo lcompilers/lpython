@@ -131,16 +131,7 @@ public:
                 headers.insert("inttypes");
                 ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(v.m_type);
                 dims = convert_dims_c(t->n_dims, t->m_dims);
-                std::string type_name;
-                if (t->m_kind == 1) {
-                    type_name = "int8_t";
-                } else if (t->m_kind == 2) {
-                    type_name = "int16_t";
-                } else if (t->m_kind == 4) {
-                    type_name = "int32_t";
-                } else if (t->m_kind == 8) {
-                    type_name = "int64_t";
-                }
+                std::string type_name = "int" + std::to_string(t->m_kind * 8) + "_t";
                 sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_real(*v.m_type)) {
                 ASR::Real_t *t = ASR::down_cast<ASR::Real_t>(v.m_type);
