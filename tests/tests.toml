@@ -487,10 +487,6 @@ filename = "errors/test_pow5.py"
 asr = true
 
 [[test]]
-filename = "errors/test_factorial.py"
-asr = true
-
-[[test]]
 filename = "errors/test_assign1.py"
 asr = true
 

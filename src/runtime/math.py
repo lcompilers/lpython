@@ -321,9 +321,11 @@ def pow(x: i32, y: i32) -> i64:
     result = x**y
     return result
 
-
+@overload
 def ldexp(x: f64, i: i32) -> f64:
-    return x * (2**i)
+    result: f64
+    result = x * (2**i)
+    return result
 
 
 def exp(x: f64) -> f64:
@@ -331,19 +333,6 @@ def exp(x: f64) -> f64:
     Return `e` raised to the power `x`.
     """
     return e**x
-
-
-
-def ldexp(x: f64, i: i32) -> f64:
-    return x * (2**i)
-
-
-def exp(x: f64) -> f64:
-    """
-    Return `e` raised to the power `x`.
-    """
-    return e**x
-
 
 
 def mod(a: i32, b: i32) -> i32:
