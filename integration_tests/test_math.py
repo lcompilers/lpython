@@ -6,7 +6,7 @@ eps: f64
 eps = 1e-12
 
 def test_factorial_1():
-    i: i32
+    i: i64
     i = factorial(10)
     assert i == 3628800
 
@@ -64,9 +64,8 @@ def test_pow():
     i: f64
     i = pow(2.4, 4.3)
     j = i64
-    j = pow(2.4, 4.3)
     assert abs(i - 43.14280115650323) < eps
-    assert abs(j - 16) < eps
+    assert abs(pow(2.4, 4.3) - 16) < eps
 
 def test_ldexp():
     i: f64
