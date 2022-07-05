@@ -54,17 +54,14 @@ def test_radians():
 
 
 def test_exp():
-    i: f64pow(2.4, 4.3)
+    i: f64
     i = exp(2.34)
     assert abs(i - 10.381236562731843) < eps
 
 
 def test_pow():
 
-    i: f64
-    i = pow(2.4, 4.3)
-    j = i64
-    assert abs(i - 43.14280115650323) < eps
+    assert abs(pow(2.4, 4.3) - 43.14280115650323) < eps
     assert abs(pow(2, 4) - 16) < eps
 
 def test_ldexp():
