@@ -27,10 +27,10 @@ def factorial(x: i64) -> i64:
     """
     Computes the factorial of `x`.
     """
-
-    if x < 0:
-        return 0
     result: i64
+    result = 0
+    if x < 0:
+        return result
     result = 1
     i: i64
     for i in range(1, x+1):
