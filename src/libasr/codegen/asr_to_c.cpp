@@ -174,6 +174,11 @@ public:
                     }
                     return sub;
                 } else {
+                    if( v.m_intent == ASRUtils::intent_in ||
+                        v.m_intent == ASRUtils::intent_inout ) {
+                        use_ref = false;
+                        dims = "";
+                    }
                     sub = format_type_c(dims, "struct " + der_type_name + "*",
                                         v.m_name, use_ref, dummy);
                 }
