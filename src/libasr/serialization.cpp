@@ -120,7 +120,7 @@ public:
                 READ_SYMBOL_CASE(DerivedType)
                 READ_SYMBOL_CASE(Variable)
                 READ_SYMBOL_CASE(ClassProcedure)
-                default : throw LFortranException("Symbol type not supported");
+                default : throw LCompilersException("Symbol type not supported");
             }
             symtab->add_symbol(symbol_name, s);
         }
@@ -148,7 +148,7 @@ public:
                 INSERT_SYMBOL_CASE(DerivedType)
                 INSERT_SYMBOL_CASE(Variable)
                 INSERT_SYMBOL_CASE(ClassProcedure)
-                default : throw LFortranException("Symbol type not supported");
+                default : throw LCompilersException("Symbol type not supported");
             }
         }
     }
@@ -270,7 +270,7 @@ public:
         }
         LFORTRAN_ASSERT(x.m_external == nullptr);
         if (x.m_module_name == nullptr) {
-            throw LFortranException("The ExternalSymbol was referenced in some ASR node, but it was not loaded as part of the SymbolTable");
+            throw LCompilersException("The ExternalSymbol was referenced in some ASR node, but it was not loaded as part of the SymbolTable");
         }
         std::string module_name = x.m_module_name;
         std::string original_name = x.m_original_name;
@@ -285,7 +285,7 @@ public:
                 ExternalSymbol_t &xx = const_cast<ExternalSymbol_t&>(x);
                 xx.m_external = sym;
             } else {
-                throw LFortranException("ExternalSymbol cannot be resolved, the symbol '"
+                throw LCompilersException("ExternalSymbol cannot be resolved, the symbol '"
                     + original_name + "' was not found in the module '"
                     + module_name + "' (but the module was found)");
             }
@@ -297,12 +297,12 @@ public:
                 ExternalSymbol_t &xx = const_cast<ExternalSymbol_t&>(x);
                 xx.m_external = sym;
             } else {
-                throw LFortranException("ExternalSymbol cannot be resolved, the symbol '"
+                throw LCompilersException("ExternalSymbol cannot be resolved, the symbol '"
                     + original_name + "' was not found in the module '"
                     + module_name + "' (but the module was found)");
             }
         } else {
-            throw LFortranException("ExternalSymbol cannot be resolved, the module '"
+            throw LCompilersException("ExternalSymbol cannot be resolved, the module '"
                 + module_name + "' was not found, so the symbol '"
                 + original_name + "' could not be resolved");
         }
