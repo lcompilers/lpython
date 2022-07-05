@@ -136,7 +136,6 @@ public:
         scope->erase_symbol("~empty_block");
     }
 
-
     void visit_FunctionCall(const ASR::FunctionCall_t& x) {
         // If this node is visited by any other visitor
         // or it is being visited while inlining another function call
@@ -346,7 +345,7 @@ public:
                 set_empty_block(current_scope, func->base.base.loc);
                 uint64_t block_call_label = label_generator->get_unique_label();
                 ASR::stmt_t* block_call = ASRUtils::STMT(ASR::make_BlockCall_t(al, x.base.base.loc,
-                                                         block_call_label, empty_block));
+                                                        block_call_label, empty_block));
                 label_generator->add_node_with_unique_label((ASR::asr_t*) block_call,
                                                             block_call_label);
                 return_replacer.set_goto_label(block_call_label);

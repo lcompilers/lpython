@@ -4,12 +4,13 @@ namespace LFortran {
 
 namespace wasm {
 
-uint32_t decode_unsigned_leb128(Vec<uint8_t> &code, uint32_t &offset) {
+uint32_t decode_leb128_u32(Vec<uint8_t> &code, uint32_t &offset) {
     uint32_t result = 0U;
     uint32_t shift = 0U;
     while (true) {
         uint8_t byte = code.p[offset++];
-        result |= (byte & 0x7f) << shift;
+        uint32_t slice = byte & 0x7f;
+        result |= slice << shift;
         if ((byte & 0x80) == 0) {
             return result;
         }
@@ -17,47 +18,80 @@ uint32_t decode_unsigned_leb128(Vec<uint8_t> &code, uint32_t &offset) {
     }
 }
 
-int32_t decode_signed_leb128(Vec<uint8_t> &code, uint32_t &offset) {
+int32_t decode_leb128_i32(Vec<uint8_t> &code, uint32_t &offset) {
     int32_t result = 0;
     uint32_t shift = 0U;
-    uint32_t size = 32U;
     uint8_t byte;
 
     do {
         byte = code.p[offset++];
-        result |= (byte & 0x7f) << shift;
+        uint32_t slice = byte & 0x7f;
+        result |= slice << shift;
         shift += 7;
-    } while ((byte & 0x80) != 0);
+    } while (byte & 0x80);
 
-    if ((shift < size) && (byte & 0x40)) {
-        // without U it gives warning that negative number is being shifted, unsure if this works currently
-        // this needs to be tested/fixed once the ASR->WASM Backend supports negative integers
-        result |= (~0U << shift);
+    // Sign extend negative numbers if needed.
+    if ((shift < 32U) && (byte & 0x40)) {
+        result |= (-1U << shift);
     }
 
     return result;
 }
 
-uint8_t read_byte(Vec<uint8_t> &code, uint32_t &offset) {
-    if (offset >= code.size()) {
-        throw LFortran::LFortranException("read_byte: offset out of bounds");
+int64_t decode_leb128_i64(Vec<uint8_t> &code, uint32_t &offset) {
+    int64_t result = 0;
+    uint32_t shift = 0U;
+    uint8_t byte;
+
+    do {
+        byte = code.p[offset++];
+        uint64_t slice = byte & 0x7f;
+        result |= slice << shift;
+        shift += 7;
+    } while (byte & 0x80);
+
+    // Sign extend negative numbers if needed.
+    if ((shift < 64U) && (byte & 0x40)) {
+        result |= (-1ULL << shift);
     }
+
+    return result;
+}
+
+float decode_ieee754_f32(Vec<uint8_t> &code, uint32_t &offset) {
+    float value = 0.0;
+    std::memcpy(&value, &code.p[offset], sizeof(value));
+    offset += sizeof(value);
+    return value;
+}
+
+double decode_ieee754_f64(Vec<uint8_t> &code, uint32_t &offset) {
+    double value = 0.0;
+    std::memcpy(&value, &code.p[offset], sizeof(value));
+    offset += sizeof(value);
+    return value;
+}
+
+uint8_t read_b8(Vec<uint8_t> &code, uint32_t &offset) {
+    LFORTRAN_ASSERT(offset < code.size());
     return code.p[offset++];
 }
 
-float read_float(Vec<uint8_t> & /*code*/, uint32_t & /*offset*/) {
-    // to implement
-    return 0.00;
+float read_f32(Vec<uint8_t> & code, uint32_t & offset) {
+    LFORTRAN_ASSERT(offset + sizeof(float) <= code.size());
+    return decode_ieee754_f32(code, offset);
 }
 
-double read_double(Vec<uint8_t> & /*code*/, uint32_t & /*offset*/) {
-    // to implement
-    return 0.00;
+double read_f64(Vec<uint8_t> & code, uint32_t & offset) {
+    LFORTRAN_ASSERT(offset + sizeof(double) <= code.size());
+    return decode_ieee754_f64(code, offset);
 }
 
-int32_t read_signed_num(Vec<uint8_t> &code, uint32_t &offset) { return decode_signed_leb128(code, offset); }
+uint32_t read_u32(Vec<uint8_t> &code, uint32_t &offset) { return decode_leb128_u32(code, offset); }
 
-uint32_t read_unsigned_num(Vec<uint8_t> &code, uint32_t &offset) { return decode_unsigned_leb128(code, offset); }
+int32_t read_i32(Vec<uint8_t> &code, uint32_t &offset) { return decode_leb128_i32(code, offset); }
+
+int64_t read_i64(Vec<uint8_t> &code, uint32_t &offset) { return decode_leb128_i64(code, offset); }
 
 void hexdump(void *ptr, int buflen) {
     unsigned char *buf = (unsigned char *)ptr;

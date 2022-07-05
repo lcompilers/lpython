@@ -41,17 +41,12 @@
 #include <libasr/asr.h>
 #include <libasr/containers.h>
 #include <libasr/codegen/asr_to_llvm.h>
-#include <libasr/pass/do_loops.h>
-#include <libasr/pass/for_all.h>
 #include <libasr/pass/nested_vars.h>
 #include <libasr/pass/pass_manager.h>
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/codegen/llvm_utils.h>
 #include <libasr/codegen/llvm_array_utils.h>
-
-// Uncomment for ASR printing below
-// #include <lpython/pickle.h>
 
 #if LLVM_VERSION_MAJOR >= 11
 #    define FIXED_VECTOR_TYPE llvm::FixedVectorType
@@ -1257,7 +1252,8 @@ public:
         std::vector<llvm::Value*> idx_vec = {
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, member_idx))};
-        if( ASR::is_a<ASR::DerivedRef_t>(*x.m_v) ) {
+        if( ASR::is_a<ASR::DerivedRef_t>(*x.m_v) &&
+            is_nested_pointer(tmp) ) {
             tmp = builder->CreateLoad(tmp);
         }
         llvm::Value* tmp1 = CreateGEP(tmp, idx_vec);
@@ -2596,13 +2592,19 @@ public:
         }
     }
 
+    bool is_nested_pointer(llvm::Value* val) {
+        // TODO: Remove this in future
+        // Related issue, https://github.com/lcompilers/lpython/pull/707#issuecomment-1169773106.
+        return val->getType()->isPointerTy() &&
+               val->getType()->getContainedType(0)->isPointerTy();
+    }
+
     void visit_CLoc(const ASR::CLoc_t& x) {
         uint64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
         this->visit_expr(*x.m_arg);
         ptr_loads = ptr_loads_copy;
-        if( tmp->getType()->isPointerTy() &&
-            tmp->getType()->getContainedType(0)->isPointerTy() ) {
+        if( is_nested_pointer(tmp) ) {
             tmp = builder->CreateLoad(tmp);
         }
         if( arr_descr->is_array(tmp) ) {
@@ -2614,8 +2616,7 @@ public:
 
 
     llvm::Value* GetPointerCPtrUtil(llvm::Value* llvm_tmp) {
-        if( llvm_tmp->getType()->isPointerTy() &&
-            llvm_tmp->getType()->getContainedType(0)->isPointerTy() ) {
+        if( is_nested_pointer(llvm_tmp) ) {
             llvm_tmp = builder->CreateLoad(llvm_tmp);
         }
         if( arr_descr->is_array(llvm_tmp) ) {
@@ -3019,7 +3020,7 @@ public:
                 break;
             }
             default : {
-                throw CodeGenError("Comparison operator not implemented.",
+                throw CodeGenError("Comparison operator not implemented",
                         x.base.base.loc);
             }
         }
@@ -3063,7 +3064,7 @@ public:
                 break;
             }
             default : {
-                throw CodeGenError("Comparison operator not implemented.",
+                throw CodeGenError("Comparison operator not implemented",
                         x.base.base.loc);
             }
         }
@@ -5026,7 +5027,7 @@ public:
         }
         int output_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
         uint64_t ptr_loads_copy = ptr_loads;
-        ptr_loads = ptr_loads_copy -
+        ptr_loads = 2 - // Sync: instead of 2 - , should this be ptr_loads_copy -
                     (ASRUtils::expr_type(x.m_v)->type ==
                      ASR::ttypeType::Pointer);
         visit_expr_wrapper(x.m_v);
@@ -5093,7 +5094,7 @@ public:
             return ;
         }
         uint64_t ptr_loads_copy = ptr_loads;
-        ptr_loads = ptr_loads_copy -
+        ptr_loads = 2 - // Sync: instead of 2 - , should this be ptr_loads_copy -
                     (ASRUtils::expr_type(x.m_v)->type ==
                      ASR::ttypeType::Pointer);
         visit_expr_wrapper(x.m_v);
