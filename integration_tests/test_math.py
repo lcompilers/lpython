@@ -6,7 +6,7 @@ eps: f64
 eps = 1e-12
 
 def test_factorial_1():
-    i: i
+    i: i64
     i = factorial(10)
     assert i == 3628800
 
