@@ -13,9 +13,10 @@ def factorial(x: i32) -> i32:
     Computes the factorial of `x`.
     """
 
-    if x < 0:
-        return 0
     result: i32
+    result = 0
+    if x < 0:
+        return result
     result = 1
     i: i32
     for i in range(1, x+1):

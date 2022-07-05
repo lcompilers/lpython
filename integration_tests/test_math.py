@@ -60,9 +60,19 @@ def test_exp():
 
 
 def test_pow():
+    eps: f64
+    eps = 1e-12
+    x: f64
+    x = 2.4
+    y: f64
+    y = 4.3
+    assert abs(pow(x, y) - 43.14280115650323) < eps
 
-    assert abs(pow(2.4, 4.3) - 43.14280115650323) < eps
-    assert abs(pow(2, 4) - 16) < eps
+    a: i64
+    a = 2
+    b: i64
+    b = 4
+    assert abs(pow(a, b) - 16) < eps
 
 def test_ldexp():
     i: f64
