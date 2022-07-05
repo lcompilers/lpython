@@ -89,12 +89,14 @@ public:
     std::set<std::string> headers;
 
     SymbolTable* global_scope;
+    int64_t lower_bound;
 
     BaseCCPPVisitor(diag::Diagnostics &diag, Platform &platform,
-            bool gen_stdstring, bool gen_stdcomplex, bool is_c) : diag{diag},
+            bool gen_stdstring, bool gen_stdcomplex, bool is_c,
+            int64_t default_lower_bound) : diag{diag},
             platform{platform},
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
-        is_c{is_c}, global_scope{nullptr} {}
+        is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound} {}
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         global_scope = x.m_global_scope;
@@ -242,7 +244,7 @@ R"(#include <stdio.h>
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
-            sub += self().convert_variable_decl(*arg);
+            sub += self().convert_variable_decl(*arg, false);
             if (i < x.n_args-1) sub += ", ";
         }
         sub += ")";
@@ -306,7 +308,7 @@ R"(#include <stdio.h>
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
-            sub += self().convert_variable_decl(*arg);
+            sub += self().convert_variable_decl(*arg, false);
             if (i < x.n_args-1) sub += ", ";
         }
         sub += ")";
@@ -588,6 +590,8 @@ R"(#include <stdio.h>
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
         ASR::Variable_t* sv = ASR::down_cast<ASR::Variable_t>(s);
         std::string out = std::string(sv->m_name);
+        ASR::dimension_t* m_dims;
+        ASRUtils::extract_dimensions_from_ttype(sv->m_type, m_dims);
         out += "[";
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i].m_right) {
@@ -596,9 +600,10 @@ R"(#include <stdio.h>
                 src = "/* FIXME right index */";
             }
             out += src;
-            if (i < x.n_args-1) out += ", ";
+            out += " - " + std::to_string(lower_bound);
+            if (i < x.n_args-1) out += "][";
         }
-        out += "-1]";
+        out += "]";
         last_expr_precedence = 2;
         src = out;
     }
@@ -658,13 +663,38 @@ R"(#include <stdio.h>
                 src = "(int)(" + src + ")";
                 break;
             }
+            case (ASR::cast_kindType::IntegerToLogical) : {
+                src = "(bool)(" + src + ")";
+                break;
+            }
             default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented",
                 x.base.base.loc);
         }
         last_expr_precedence = 2;
     }
 
-    void visit_Compare(const ASR::Compare_t &x) {
+    void visit_IntegerCompare(const ASR::IntegerCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    void visit_RealCompare(const ASR::RealCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    void visit_ComplexCompare(const ASR::ComplexCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    void visit_LogicalCompare(const ASR::LogicalCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    void visit_StringCompare(const ASR::StringCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    template<typename T>
+    void handle_Compare(const T &x) {
         self().visit_expr(*x.m_left);
         std::string left = std::move(src);
         int left_precedence = last_expr_precedence;
@@ -838,7 +868,7 @@ R"(#include <stdio.h>
                 src += "(" + left + ")";
             }
         }
-        src += ASRUtils::binop_to_str(x.m_op);
+        src += ASRUtils::binop_to_str_python(x.m_op);
         if (right_precedence == 3) {
             src += "(" + right + ")";
         } else if (x.m_op == ASR::binopType::Sub) {
@@ -888,7 +918,7 @@ R"(#include <stdio.h>
         } else {
             src += "(" + left + ")";
         }
-        src += ASRUtils::logicalbinop_to_str(x.m_op);
+        src += ASRUtils::logicalbinop_to_str_python(x.m_op);
         if (right_precedence <= last_expr_precedence) {
             src += right;
         } else {

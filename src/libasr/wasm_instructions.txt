@@ -1,9 +1,10 @@
+0x40 ⇒ emtpy_block_type
 0x00 ⇒ unreachable
 0x01 ⇒ nop
 -- 0x02 bt:blocktype (in:instr)* 0x0B ⇒ block bt in* end
 -- 0x03 bt:blocktype (in:instr)* 0x0B ⇒ loop bt in* end
--- 0x04 bt:blocktype (in:instr)* 0x0B ⇒ if bt in* else 𝜖 end
--- 0x05 (in2:instr)* 0x0B ⇒ else bt in*1 else in*2 end
+0x04 ⇒ if
+0x05 ⇒ else
 0x0C u32:labelidx:𝑙 ⇒ br 𝑙
 0x0D u32:labelidx:𝑙 ⇒ br_if 𝑙
 -- 0x0E 𝑙*:vec(labelidx) 𝑙𝑁:labelidx ⇒ br_table 𝑙* 𝑙𝑁

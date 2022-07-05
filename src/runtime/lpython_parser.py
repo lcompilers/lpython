@@ -53,6 +53,8 @@ class Transform(ast.NodeVisitor):
             new_node = python_ast.ConstantEllipsis(node.kind)
         elif isinstance(node.value, None.__class__):
             new_node = python_ast.ConstantNone(node.kind)
+        elif isinstance(node.value, bytes):
+            new_node = python_ast.ConstantBytes(str(node.value), node.kind)
         else:
             print(type(node.value))
             raise Exception("Unsupported Constant type")

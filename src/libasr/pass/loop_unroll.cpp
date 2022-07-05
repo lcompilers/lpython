@@ -56,10 +56,15 @@ public:
             !ASRUtils::is_value_constant(x_inc, _inc) ) {
             return ;
         }
-        int64_t loop_size = std::ceil( ((float) (_end - _start + 1)) / ((float) _inc) );
+        int64_t loop_size = (_end - _start)/_inc + 1;
         int64_t unroll_factor_ = std::min(unroll_factor, loop_size);
         bool create_unrolled_loop = unroll_factor_ < loop_size;
-        int64_t new_end = unroll_factor_ * (loop_size / unroll_factor_);
+        // Avoid unnecessary loop unrolling
+        if( !create_unrolled_loop ) {
+            return ;
+        }
+        int64_t groups = loop_size / unroll_factor_;
+        int64_t new_end = _start + (groups - 1) * _inc * unroll_factor_ + (unroll_factor_ - 1) * _inc;
         int64_t remaining_part = loop_size % unroll_factor_;
         ASR::ttype_t *int32_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                                                             4, nullptr, 0));
@@ -88,19 +93,13 @@ public:
         }
 
         pass_result.push_back(al, init_stmt);
-        if( create_unrolled_loop ) {
-            ASR::stmt_t* unrolled_whileloop = ASRUtils::STMT(ASR::make_WhileLoop_t(al, x.base.base.loc,
-                                                             whileloop->m_test, unrolled_loop.p, unrolled_loop.size()));
-            pass_result.push_back(al, unrolled_whileloop);
-            for( int64_t i = 0; i < remaining_part; i++ ) {
-                for( size_t i = 0; i < whileloop->n_body; i++ ) {
-                    ASR::stmt_t* m_body_copy = node_duplicator.duplicate_stmt(whileloop->m_body[i]);
-                    pass_result.push_back(al, m_body_copy);
-                }
-            }
-        } else {
-            for( size_t i = 0; i < unrolled_loop.size(); i++ ) {
-                pass_result.push_back(al, unrolled_loop[i]);
+        ASR::stmt_t* unrolled_whileloop = ASRUtils::STMT(ASR::make_WhileLoop_t(al, x.base.base.loc,
+                                                            whileloop->m_test, unrolled_loop.p, unrolled_loop.size()));
+        pass_result.push_back(al, unrolled_whileloop);
+        for( int64_t i = 0; i < remaining_part; i++ ) {
+            for( size_t i = 0; i < whileloop->n_body; i++ ) {
+                ASR::stmt_t* m_body_copy = node_duplicator.duplicate_stmt(whileloop->m_body[i]);
+                pass_result.push_back(al, m_body_copy);
             }
         }
     }

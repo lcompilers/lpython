@@ -13,33 +13,6 @@
 
 namespace LFortran {
 
-std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
-{
-    std::string dims;
-    for (size_t i=0; i<n_dims; i++) {
-        ASR::expr_t *start = m_dims[i].m_start;
-        ASR::expr_t *end = m_dims[i].m_end;
-        if (!start && !end) {
-            dims += "*";
-        } else if (start && end) {
-            if (ASR::is_a<ASR::IntegerConstant_t>(*start) && ASR::is_a<ASR::IntegerConstant_t>(*end)) {
-                ASR::IntegerConstant_t *s = ASR::down_cast<ASR::IntegerConstant_t>(start);
-                ASR::IntegerConstant_t *e = ASR::down_cast<ASR::IntegerConstant_t>(end);
-                if (s->m_n == 1) {
-                    dims += "[" + std::to_string(e->m_n) + "]";
-                } else {
-                    throw CodeGenError("Lower dimension must be 1 for now");
-                }
-            } else {
-                dims += "[ /* FIXME symbolic dimensions */ ]";
-            }
-        } else {
-            throw CodeGenError("Dimension type not supported");
-        }
-    }
-    return dims;
-}
-
 std::string format_type(const std::string &dims, const std::string &type,
         const std::string &name, bool use_ref, bool dummy)
 {
@@ -64,10 +37,38 @@ std::string format_type(const std::string &dims, const std::string &type,
 class ASRToCPPVisitor : public BaseCCPPVisitor<ASRToCPPVisitor>
 {
 public:
-    ASRToCPPVisitor(diag::Diagnostics &diag, Platform &platform)
-        : BaseCCPPVisitor(diag, platform, true, true, false) {}
+    ASRToCPPVisitor(diag::Diagnostics &diag, Platform &platform,
+                    int64_t default_lower_bound)
+        : BaseCCPPVisitor(diag, platform, true, true, false,
+                          default_lower_bound) {}
 
-    std::string convert_variable_decl(const ASR::Variable_t &v)
+    std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
+    {
+        std::string dims;
+        for (size_t i=0; i<n_dims; i++) {
+            ASR::expr_t *start = m_dims[i].m_start;
+            ASR::expr_t *end = m_dims[i].m_end;
+            if (!start && !end) {
+                dims += "*";
+            } else if (start && end) {
+                ASR::expr_t* start_value = ASRUtils::expr_value(start);
+                ASR::expr_t* end_value = ASRUtils::expr_value(end);
+                if( start_value && end_value ) {
+                    int64_t start_int = -1, end_int = -1;
+                    ASRUtils::extract_value(start_value, start_int);
+                    ASRUtils::extract_value(end_value, end_int);
+                    dims += "[" + std::to_string(end_int - start_int + 1) + "]";
+                } else {
+                    dims += "[ /* FIXME symbolic dimensions */ ]";
+                }
+            } else {
+                throw CodeGenError("Dimension type not supported");
+            }
+        }
+        return dims;
+    }
+
+    std::string convert_variable_decl(const ASR::Variable_t &v, bool use_static=true)
     {
         std::string sub;
         bool use_ref = (v.m_intent == LFortran::ASRUtils::intent_out || v.m_intent == LFortran::ASRUtils::intent_inout);
@@ -85,51 +86,50 @@ public:
                 throw Abort();
             }
         } else {
+            std::string dims;
             if (ASRUtils::is_integer(*v.m_type)) {
                 ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(v.m_type);
-                std::string dims = convert_dims(t->n_dims, t->m_dims);
+                dims = convert_dims(t->n_dims, t->m_dims);
                 std::string type_name = "int";
                 if (t->m_kind == 8) type_name = "long long";
                 sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_real(*v.m_type)) {
                 ASR::Real_t *t = ASR::down_cast<ASR::Real_t>(v.m_type);
-                std::string dims = convert_dims(t->n_dims, t->m_dims);
+                dims = convert_dims(t->n_dims, t->m_dims);
                 std::string type_name = "float";
                 if (t->m_kind == 8) type_name = "double";
                 sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_complex(*v.m_type)) {
                 ASR::Complex_t *t = ASR::down_cast<ASR::Complex_t>(v.m_type);
-                std::string dims = convert_dims(t->n_dims, t->m_dims);
+                dims = convert_dims(t->n_dims, t->m_dims);
                 std::string type_name = "std::complex<float>";
                 if (t->m_kind == 8) type_name = "std::complex<double>";
                 sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_logical(*v.m_type)) {
                 ASR::Logical_t *t = ASR::down_cast<ASR::Logical_t>(v.m_type);
-                std::string dims = convert_dims(t->n_dims, t->m_dims);
+                dims = convert_dims(t->n_dims, t->m_dims);
                 sub = format_type(dims, "bool", v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_character(*v.m_type)) {
                 ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(v.m_type);
-                std::string dims = convert_dims(t->n_dims, t->m_dims);
+                dims = convert_dims(t->n_dims, t->m_dims);
                 sub = format_type(dims, "std::string", v.m_name, use_ref, dummy);
-                if (v.m_symbolic_value) {
-                    this->visit_expr(*v.m_symbolic_value);
-                    std::string init = src;
-                    sub += "=" + init;
-                }
             } else if (ASR::is_a<ASR::Derived_t>(*v.m_type)) {
                 ASR::Derived_t *t = ASR::down_cast<ASR::Derived_t>(v.m_type);
-                std::string dims = convert_dims(t->n_dims, t->m_dims);
+                dims = convert_dims(t->n_dims, t->m_dims);
                 sub = format_type(dims, "struct", v.m_name, use_ref, dummy);
-                if (v.m_symbolic_value) {
-                    this->visit_expr(*v.m_symbolic_value);
-                    std::string init = src;
-                    sub += "=" + init;
-                }
             } else {
                 diag.codegen_error_label("Type number '"
                     + std::to_string(v.m_type->type)
                     + "' not supported", {v.base.base.loc}, "");
                 throw Abort();
+            }
+            if (dims.size() == 0 && v.m_storage == ASR::storage_typeType::Save && use_static) {
+                sub = "static " + sub;
+            }
+            if (dims.size() == 0 && v.m_symbolic_value) {
+                this->visit_expr(*v.m_symbolic_value);
+                std::string init = src;
+                sub += "=" + init;
             }
         }
         return sub;
@@ -169,8 +169,24 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         unit_src += headers;
 
 
-        // TODO: We need to pre-declare all functions first, then generate code
+        // Pre-declare all functions first, then generate code
         // Otherwise some function might not be found.
+        unit_src += "// Forward declarations\n";
+        unit_src += declare_all_functions(*x.m_global_scope);
+        // Now pre-declare all functions from modules and programs
+        for (auto &item : x.m_global_scope->get_scope()) {
+            if (ASR::is_a<ASR::Module_t>(*item.second)) {
+                ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(item.second);
+                unit_src += declare_all_functions(*m->m_symtab);
+            } else if (ASR::is_a<ASR::Program_t>(*item.second)) {
+                ASR::Program_t *p = ASR::down_cast<ASR::Program_t>(item.second);
+                unit_src += "namespace {\n"
+                            + declare_all_functions(*p->m_symtab)
+                            + "}\n";
+            }
+        }
+        unit_src += "\n";
+        unit_src += "// Implementations\n";
 
         {
             // Process intrinsic modules in the right order
@@ -363,10 +379,19 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
     void visit_Print(const ASR::Print_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
-        std::string out = indent + "std::cout ";
+        std::string out = indent + "std::cout ", sep;
+        if (x.m_separator) {
+            this->visit_expr(*x.m_separator);
+            sep = src;
+        } else {
+            sep = "\" \"";
+        }
         for (size_t i=0; i<x.n_values; i++) {
             this->visit_expr(*x.m_values[i]);
             out += "<< " + src + " ";
+            if (i+1 != x.n_values) {
+                out += "<< " + sep + " ";
+            }
         }
         out += "<< std::endl;\n";
         src = out;
@@ -419,10 +444,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 };
 
 Result<std::string> asr_to_cpp(Allocator &al, ASR::TranslationUnit_t &asr,
-    diag::Diagnostics &diagnostics, Platform &platform)
+    diag::Diagnostics &diagnostics, Platform &platform,
+    int64_t default_lower_bound)
 {
     pass_unused_functions(al, asr, true);
-    ASRToCPPVisitor v(diagnostics, platform);
+    ASRToCPPVisitor v(diagnostics, platform, default_lower_bound);
     try {
         v.visit_asr((ASR::asr_t &)asr);
     } catch (const CodeGenError &e) {

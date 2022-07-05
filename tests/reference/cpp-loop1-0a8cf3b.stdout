@@ -17,6 +17,16 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+// Forward declarations
+void _lpython_main_program();
+void main0();
+int32_t test_factorial_1(int x);
+int32_t test_factorial_2(int x);
+int64_t test_factorial_3(int x);
+namespace {
+}
+
+// Implementations
 void _lpython_main_program()
 {
     main0();
@@ -65,8 +75,9 @@ int64_t test_factorial_3(int x)
 {
     long long _lpython_return_variable;
     long long result;
+    result = 0;
     if (x < 0) {
-        _lpython_return_variable = 0;
+        _lpython_return_variable = result;
         return _lpython_return_variable;
     }
     result = 1;

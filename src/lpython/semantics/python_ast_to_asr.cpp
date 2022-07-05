@@ -379,133 +379,35 @@ public:
     }
 
 
-    void fill_func_calls_ttype_t(std::vector<ASR::expr_t*>& func_calls, ASR::dimension_t* dims, size_t n_dims) {
+    void fill_expr_in_ttype_t(std::vector<ASR::expr_t*>& exprs, ASR::dimension_t* dims, size_t n_dims) {
         for( size_t i = 0; i < n_dims; i++ ) {
-            func_calls.push_back(dims[i].m_start);
-            func_calls.push_back(dims[i].m_end);
+            exprs.push_back(dims[i].m_start);
+            exprs.push_back(dims[i].m_end);
         }
     }
 
-    void fix_function_calls_ttype_t(std::vector<ASR::expr_t*>& func_calls,
-                                    Vec<ASR::call_arg_t>& orig_args,
-                                    ASR::Function_t* orig_func=nullptr,
-                                    bool is_external_func=false) {
-        for( size_t i = 0; i < func_calls.size(); i++ ) {
-            ASR::expr_t* potential_call = func_calls[i];
-            if (potential_call) {
-                // The case when expression in return type (like len_expr of character)
-                // is a function call.
-                if (ASR::is_a<ASR::FunctionCall_t>(*potential_call)) {
-                    ASR::FunctionCall_t *fc = ASR::down_cast<ASR::FunctionCall_t>(potential_call);
-                    ASR::symbol_t *new_es = fc->m_name;
-                    // Import a function as external only if necessary
-                    if( is_external_func ) {
-                        ASR::Function_t *f = nullptr;
-                        if (ASR::is_a<ASR::Function_t>(*fc->m_name)) {
-                            f = ASR::down_cast<ASR::Function_t>(fc->m_name);
-                        } else if( ASR::is_a<ASR::ExternalSymbol_t>(*fc->m_name) ) {
-                            ASR::symbol_t* f_sym = ASRUtils::symbol_get_past_external(fc->m_name);
-                            if( ASR::is_a<ASR::Function_t>(*f_sym) ) {
-                                f = ASR::down_cast<ASR::Function_t>(f_sym);
-                            }
-                        }
-                        ASR::Module_t *m = ASR::down_cast2<ASR::Module_t>(f->m_symtab->parent->asr_owner);
-                        char *modname = m->m_name;
-                        ASR::symbol_t *maybe_f = current_scope->resolve_symbol(std::string(f->m_name));
-                        std::string maybe_modname = "";
-                        if( maybe_f && ASR::is_a<ASR::ExternalSymbol_t>(*maybe_f) ) {
-                            maybe_modname = ASR::down_cast<ASR::ExternalSymbol_t>(maybe_f)->m_module_name;
-                        }
-                        // If the Function to be imported is already present
-                        // then do not import.
-                        if( maybe_modname == std::string(modname) ) {
-                            new_es = maybe_f;
-                        } else {
-                            // Import while assigning a new name to avoid conflicts
-                            // For example, if someone is using `len` from a user
-                            // define module then `get_unique_name` will avoid conflict
-                            std::string unique_name = current_scope->get_unique_name(f->m_name);
-                            Str s; s.from_str_view(unique_name);
-                            char *unique_name_c = s.c_str(al);
-                            LFORTRAN_ASSERT(current_scope->get_symbol(unique_name) == nullptr);
-                            new_es = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(
-                                al, f->base.base.loc,
-                                /* a_symtab */ current_scope,
-                                /* a_name */ unique_name_c,
-                                (ASR::symbol_t*)f,
-                                modname, nullptr, 0,
-                                f->m_name,
-                                ASR::accessType::Private
-                                ));
-                            current_scope->add_symbol(unique_name, new_es);
-                        }
-                    }
-                    Vec<ASR::call_arg_t> args;
-                    args.reserve(al, fc->n_args);
-                    // The following substitutes args from the current scope
-                    for (size_t i = 0; i < fc->n_args; i++) {
-                        ASR::expr_t *arg = fc->m_args[i].m_value;
-                        size_t arg_idx = i;
-                        bool idx_found = false;
-                        if (ASR::is_a<ASR::Var_t>(*arg)) {
-                            std::string arg_name = ASRUtils::symbol_name(ASR::down_cast<ASR::Var_t>(arg)->m_v);
-                            // Finds the index of the argument to be used for substitution
-                            // Basically if we are calling maybe(string, ret_type=character(len=len(s)))
-                            // where string is a variable in current scope and s is one of the arguments
-                            // accepted by maybe i.e., maybe has a signature maybe(s). Then, we will
-                            // replace s with string. So, the call would become,
-                            // maybe(string, ret_type=character(len=len(string)))
-                            for( size_t j = 0; j < orig_func->n_args && !idx_found; j++ ) {
-                                if( ASR::is_a<ASR::Var_t>(*(orig_func->m_args[j])) ) {
-                                    std::string arg_name_2 = std::string(ASRUtils::symbol_name(ASR::down_cast<ASR::Var_t>(orig_func->m_args[j])->m_v));
-                                    arg_idx = j;
-                                    idx_found = arg_name_2 == arg_name;
-                                }
-                            }
-                        }
-                        ASR::call_arg_t call_arg;
-                        call_arg.loc = arg->base.loc;
-                        if( idx_found ) {
-                            arg = orig_args[arg_idx].m_value;
-                        }
-                        call_arg.m_value = arg;
-                        args.push_back(al, call_arg);
-                    }
-                    ASR::expr_t *new_call_expr = ASR::down_cast<ASR::expr_t>(ASR::make_FunctionCall_t(
-                        al, fc->base.base.loc, new_es, nullptr, args.p, args.n, fc->m_type, fc->m_value, fc->m_dt));
-                    func_calls[i] = new_call_expr;
-                } else {
-                    // If the potential_call is not a call but any other expression
-                    ASR::expr_t *arg = potential_call;
-                    size_t arg_idx = 0;
-                    bool idx_found = false;
-                    if (ASR::is_a<ASR::Var_t>(*arg)) {
-                        std::string arg_name = ASRUtils::symbol_name(ASR::down_cast<ASR::Var_t>(arg)->m_v);
-                        // Finds the index of the argument to be used for substitution
-                        // Basically if we are calling maybe(3, ret_type=character(len=n))
-                        // where 3 is an argument to be maybe and n is one of the arguments
-                        // accepted by maybe i.e., maybe has a signature maybe(n). Then, we will
-                        // replace n with 3. So, the call would become,
-                        // maybe(string, ret_type=character(len=3))
-                        for( size_t j = 0; j < orig_func->n_args && !idx_found; j++ ) {
-                            if( ASR::is_a<ASR::Var_t>(*(orig_func->m_args[j])) ) {
-                                std::string arg_name_2 = std::string(ASRUtils::symbol_name(ASR::down_cast<ASR::Var_t>(orig_func->m_args[j])->m_v));
-                                arg_idx = j;
-                                idx_found = arg_name_2 == arg_name;
-                            }
-                        }
-                    }
-
-                    if( idx_found ) {
-                        func_calls[i] = orig_args[arg_idx].m_value;
-                    }
-                }
+    void fix_exprs_ttype_t(std::vector<ASR::expr_t*>& exprs,
+                           Vec<ASR::call_arg_t>& orig_args,
+                           ASR::Function_t* orig_func=nullptr) {
+        ASR::ExprStmtDuplicator expr_duplicator(al);
+        expr_duplicator.allow_procedure_calls = true;
+        ASRUtils::ReplaceArgVisitor arg_replacer(al, current_scope, orig_func,
+                                                 orig_args);
+        for( size_t i = 0; i < exprs.size(); i++ ) {
+            ASR::expr_t* expri = exprs[i];
+            if (expri) {
+                expr_duplicator.success = true;
+                ASR::expr_t* expri_copy = expr_duplicator.duplicate_expr(expri);
+                LFORTRAN_ASSERT(expr_duplicator.success);
+                arg_replacer.current_expr = &expri_copy;
+                arg_replacer.replace_expr(expri_copy);
+                exprs[i] = expri_copy;
             }
         }
     }
 
     ASR::ttype_t* handle_return_type(ASR::ttype_t *return_type, const Location &loc,
-                                     Vec<ASR::call_arg_t>& args, bool is_external_func_=true,
+                                     Vec<ASR::call_arg_t>& args,
                                      ASR::Function_t* f=nullptr) {
         // Rebuild the return type if needed and make FunctionCalls use ExternalSymbol
         std::vector<ASR::expr_t*> func_calls;
@@ -513,8 +415,8 @@ public:
             case ASR::ttypeType::Character: {
                 ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(return_type);
                 func_calls.push_back(t->m_len_expr);
-                fill_func_calls_ttype_t(func_calls, t->m_dims, t->n_dims);
-                fix_function_calls_ttype_t(func_calls, args, f, is_external_func_);
+                fill_expr_in_ttype_t(func_calls, t->m_dims, t->n_dims);
+                fix_exprs_ttype_t(func_calls, args, f);
                 Vec<ASR::dimension_t> new_dims;
                 new_dims.reserve(al, t->n_dims);
                 for( size_t i = 1; i < func_calls.size(); i += 2 ) {
@@ -532,8 +434,8 @@ public:
             }
             case ASR::ttypeType::Integer: {
                 ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(return_type);
-                fill_func_calls_ttype_t(func_calls, t->m_dims, t->n_dims);
-                fix_function_calls_ttype_t(func_calls, args, f, is_external_func_);
+                fill_expr_in_ttype_t(func_calls, t->m_dims, t->n_dims);
+                fix_exprs_ttype_t(func_calls, args, f);
                 Vec<ASR::dimension_t> new_dims;
                 new_dims.reserve(al, t->n_dims);
                 for( size_t i = 0; i < func_calls.size(); i += 2 ) {
@@ -547,8 +449,8 @@ public:
             }
             case ASR::ttypeType::Real: {
                 ASR::Real_t *t = ASR::down_cast<ASR::Real_t>(return_type);
-                fill_func_calls_ttype_t(func_calls, t->m_dims, t->n_dims);
-                fix_function_calls_ttype_t(func_calls, args, f, is_external_func_);
+                fill_expr_in_ttype_t(func_calls, t->m_dims, t->n_dims);
+                fix_exprs_ttype_t(func_calls, args, f);
                 Vec<ASR::dimension_t> new_dims;
                 new_dims.reserve(al, t->n_dims);
                 for( size_t i = 0; i < func_calls.size(); i += 2 ) {
@@ -671,7 +573,6 @@ public:
                     bool ignore_return_value=false) {
         ASR::symbol_t *s_generic = nullptr, *stemp = s;
         // handling ExternalSymbol
-        bool is_external = ASR::is_a<ASR::ExternalSymbol_t>(*s);
         s = ASRUtils::symbol_get_past_external(s);
         if (ASR::is_a<ASR::GenericProcedure_t>(*s)) {
             s_generic = stemp;
@@ -706,7 +607,7 @@ public:
         if (ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
             ASR::ttype_t *a_type = ASRUtils::expr_type(func->m_return_var);
-            a_type = handle_return_type(a_type, loc, args, is_external, func);
+            a_type = handle_return_type(a_type, loc, args, func);
             ASR::expr_t *value = nullptr;
             if (ASRUtils::is_intrinsic_function2(func)) {
                 value = intrinsic_procedures.comptime_eval(call_name, al, loc, args);
@@ -864,10 +765,18 @@ public:
                     this->visit_expr(*s->m_slice);
                     ASR::expr_t *value = ASRUtils::EXPR(tmp);
                     if (ASR::is_a<ASR::IntegerConstant_t>(*value) || ASR::is_a<ASR::Var_t>(*value)) {
-                        ASR::ttype_t *itype = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                4, nullptr, 0));
-                        dim.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, 1, itype));
-                        dim.m_end = value;
+                        ASR::ttype_t *itype = ASRUtils::expr_type(value);
+                        ASR::expr_t* one = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 1, itype));
+                        ASR::expr_t* zero = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 0, itype));
+                        ASR::expr_t* comptime_val = nullptr;
+                        int64_t value_int = -1;
+                        ASRUtils::extract_value(ASRUtils::expr_value(value), value_int);
+                        if( value_int != -1 ) {
+                            comptime_val = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, value_int - 1, itype));
+                        }
+                        dim.m_start = zero;
+                        dim.m_end = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, value->base.loc, value, ASR::binopType::Sub,
+                                        one, itype, comptime_val));
                     } else {
                         throw SemanticError("Only Integer, `:` or identifier in [] in Subscript supported for now in annotation",
                             loc);
@@ -942,6 +851,10 @@ public:
                     al, right->base.loc, right, ASR::cast_kindType::ComplexToComplex,
                     left_type));
             }
+        } else if(is_assign && ASRUtils::is_integer(*left_type) && ASRUtils::is_real(*right_type)) {
+            return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                al, right->base.loc, right, ASR::cast_kindType::RealToInteger,
+                left_type));
         } else if (!is_assign && ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type)) {
             return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
                 al, right->base.loc, right, ASR::cast_kindType::IntegerToReal,
@@ -1241,21 +1154,6 @@ public:
             throw SemanticAbort();
         }
 
-        // Check that the types are now the same
-        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(left),
-                                    ASRUtils::expr_type(right))) {
-            std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
-            std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
-            diag.add(diag::Diagnostic(
-                "Type mismatch in binary operator, the types must be compatible",
-                diag::Level::Error, diag::Stage::Semantic, {
-                    diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
-                            {left->base.loc, right->base.loc})
-                })
-            );
-            throw SemanticAbort();
-        }
-
         if (ASRUtils::is_integer(*dest_type)) {
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
@@ -1299,9 +1197,11 @@ public:
 
             if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
                 op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift) {
-                throw SemanticError("Unsupported binary operation on floats: '" + ASRUtils::binop_to_str(op) + "'", loc);
+                throw SemanticError("Unsupported binary operation on floats: '" + ASRUtils::binop_to_str_python(op) + "'", loc);
             }
 
+            right = cast_helper(left_type, right);
+            dest_type = ASRUtils::expr_type(right);
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 double left_value = ASR::down_cast<ASR::RealConstant_t>(
                                                     ASRUtils::expr_value(left))->m_r;
@@ -1326,7 +1226,7 @@ public:
 
             if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
                 op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift) {
-                throw SemanticError("Unsupported binary operation on complex: '" + ASRUtils::binop_to_str(op) + "'", loc);
+                throw SemanticError("Unsupported binary operation on complex: '" + ASRUtils::binop_to_str_python(op) + "'", loc);
             }
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
@@ -1372,8 +1272,13 @@ public:
         return std::string(dec_name->m_id) == "dataclass";
     }
 
-    void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name) {
+    void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name,
+                             bool wrap_derived_type_in_pointer=false) {
         ASR::ttype_t *type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation);
+        if( ASR::is_a<ASR::Derived_t>(*type) &&
+            wrap_derived_type_in_pointer ) {
+            type = ASRUtils::TYPE(ASR::make_Pointer_t(al, type->base.loc, type));
+        }
 
         ASR::expr_t *value = nullptr;
         ASR::expr_t *init_expr = nullptr;
@@ -1460,7 +1365,7 @@ public:
             LFORTRAN_ASSERT(AST::is_a<AST::Name_t>(*ann_assign->m_target));
             AST::Name_t *n = AST::down_cast<AST::Name_t>(ann_assign->m_target);
             std::string var_name = n->m_id;
-            visit_AnnAssignUtil(*ann_assign, var_name);
+            visit_AnnAssignUtil(*ann_assign, var_name, true);
             member_names.push_back(al, n->m_id);
         }
         ASR::symbol_t* class_type = ASR::down_cast<ASR::symbol_t>(ASR::make_DerivedType_t(al,
@@ -1764,13 +1669,9 @@ public:
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                         al, x.base.base.loc, b, logical_type));
                 }
-                // Cast Real to Integer
-                ASR::expr_t *int_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                            al, x.base.base.loc, operand, ASR::cast_kindType::RealToInteger,
-                            int_type, value));
-                // Cast Integer to Logical
+                // cast Real to Logical
                 logical_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                            al, x.base.base.loc, int_arg, ASR::cast_kindType::IntegerToLogical,
+                            al, x.base.base.loc, operand, ASR::cast_kindType::RealToLogical,
                             logical_type, value));
             }
             else if (ASRUtils::is_logical(*operand_type)) {
@@ -1917,9 +1818,16 @@ public:
         ai.m_left = nullptr;
         ai.m_right = nullptr;
         ai.m_step = nullptr;
-        ASR::symbol_t *s = ASR::down_cast<ASR::Var_t>(value)->m_v;
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-        ASR::ttype_t *type = v->m_type;
+        ASR::symbol_t *s = nullptr;
+        ASR::ttype_t *type;
+        if (AST::is_a<ASR::StringConstant_t>(*value)) {
+            type = ASR::down_cast<ASR::StringConstant_t>(value)->m_type;
+        }
+        else {
+            s = ASR::down_cast<ASR::Var_t>(value)->m_v;
+            ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+            type = v->m_type;
+        }
         if (AST::is_a<AST::Slice_t>(*x.m_slice)) {
             AST::Slice_t *sl = AST::down_cast<AST::Slice_t>(x.m_slice);
             if (sl->m_lower != nullptr) {
@@ -1927,7 +1835,7 @@ public:
                 if (!ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
                     throw SemanticError("slice indices must be integers or None", tmp->loc);
                 }
-                ai.m_left = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
+                ai.m_left = ASRUtils::EXPR(tmp);
             }
             if (sl->m_upper != nullptr) {
                 this->visit_expr(*sl->m_upper);
@@ -1941,7 +1849,7 @@ public:
                 if (!ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
                     throw SemanticError("slice indices must be integers or None", tmp->loc);
                 }
-                ai.m_step = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
+                ai.m_step = ASRUtils::EXPR(tmp);
             }
             if (ASR::is_a<ASR::List_t>(*type)) {
                 tmp = ASR::make_ListSection_t(al, x.base.base.loc, value, ai,
@@ -1954,6 +1862,8 @@ public:
                 if (ai.m_left == nullptr) {
                     ai.m_left = ASR::down_cast<ASR::expr_t>(
                     ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int_type));
+                } else {
+                    ai.m_left = index_add_one(x.base.base.loc, ai.m_left);
                 }
                 // If right is not present, then assign it to the last ASR index (-1 + 1) in string
                 if (ai.m_right == nullptr) {
@@ -1964,6 +1874,8 @@ public:
                 if (ai.m_step == nullptr) {
                     ai.m_step = ASR::down_cast<ASR::expr_t>(
                     ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int_type));
+                } else {
+                    ai.m_step = index_add_one(x.base.base.loc, ai.m_step);
                 }
                 tmp = ASR::make_StringSection_t(al, x.base.base.loc, value, ai.m_left, ai.m_right,
                     ai.m_step, type, nullptr);
@@ -1998,21 +1910,23 @@ public:
                 return;
 
             } else if (ASR::is_a<ASR::List_t>(*type)) {
-                index = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
+                index = ASRUtils::EXPR(tmp);
                 tmp = make_ListItem_t(al, x.base.base.loc, value, index,
                                       ASR::down_cast<ASR::List_t>(type)->m_type, nullptr);
                 return;
             } else if (ASR::is_a<ASR::Tuple_t>(*type)) {
-                index = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
+                index = ASRUtils::EXPR(tmp);
                 int i = ASR::down_cast<ASR::IntegerConstant_t>(ASRUtils::EXPR(tmp))->m_n;
                 tmp = make_TupleItem_t(al, x.base.base.loc, value, index,
                                        ASR::down_cast<ASR::Tuple_t>(type)->m_type[i], nullptr);
                 return;
             } else {
-                index = index_add_one(x.base.base.loc, ASRUtils::EXPR(tmp));
+                index = ASRUtils::EXPR(tmp);
             }
             ai.m_right = index;
             if (ASRUtils::is_character(*type)) {
+                index = index_add_one(x.base.base.loc, index);
+                ai.m_right = index;
                 tmp = ASR::make_StringItem_t(al, x.base.base.loc, value, index, type, nullptr);
                 return;
             }
@@ -2113,7 +2027,6 @@ public:
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
-
         Vec<ASR::expr_t*> args;
         args.reserve(al, x.m_args.n_args);
         current_procedure_abi_type = ASR::abiType::Source;
@@ -2609,14 +2522,18 @@ public:
                                         "of pointer() call.",
                                         value->base.loc);
                 }
-                if( target_type->type != value_type->type ) {
-                    throw SemanticError("Casting not supported for different pointer types yet.",
+                if( !ASRUtils::check_equal_type(target_type, value_type) ) {
+                    throw SemanticError("Casting not supported for different pointer types. Received "
+                                        "target pointer type, " + ASRUtils::type_to_str_python(target_type) +
+                                        " and value pointer type, " + ASRUtils::type_to_str_python(value_type),
                                         x.base.base.loc);
                 }
                 tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value, nullptr);
                 return ;
             }
 
+            value = cast_helper(target, value, true);
+            value_type = ASRUtils::expr_type(value);
             if (!ASRUtils::check_equal_type(target_type, value_type)) {
                 std::string ltype = ASRUtils::type_to_str_python(target_type);
                 std::string rtype = ASRUtils::type_to_str_python(value_type);
@@ -2629,7 +2546,6 @@ public:
                 );
                 throw SemanticAbort();
             }
-            value = cast_helper(target, value, true);
             ASR::stmt_t *overloaded=nullptr;
             tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
                                     overloaded);
@@ -2796,6 +2712,36 @@ public:
     }
 
     void visit_AttributeUtil(ASR::ttype_t* type, char* attr_char,
+                             ASR::expr_t *e, const Location& loc) {
+        if( ASR::is_a<ASR::Derived_t>(*type) ) {
+            ASR::Derived_t* der = ASR::down_cast<ASR::Derived_t>(type);
+            ASR::symbol_t* der_sym = ASRUtils::symbol_get_past_external(der->m_derived_type);
+            ASR::DerivedType_t* der_type = ASR::down_cast<ASR::DerivedType_t>(der_sym);
+            bool member_found = false;
+            std::string member_name = attr_char;
+            for( size_t i = 0; i < der_type->n_members && !member_found; i++ ) {
+                member_found = std::string(der_type->m_members[i]) == member_name;
+            }
+            if( !member_found ) {
+                throw SemanticError("No member " + member_name +
+                                    " found in " + std::string(der_type->m_name),
+                                    loc);
+            }
+            ASR::symbol_t* member_sym = der_type->m_symtab->resolve_symbol(member_name);
+            LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member_sym));
+            ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member_sym);
+            tmp = ASR::make_DerivedRef_t(al, loc, e, member_sym,
+                                         member_var->m_type, nullptr);
+        } else if( ASR::is_a<ASR::Pointer_t>(*type) ) {
+            ASR::Pointer_t* ptr_type = ASR::down_cast<ASR::Pointer_t>(type);
+            visit_AttributeUtil(ptr_type->m_type, attr_char, e, loc);
+        } else {
+            throw SemanticError(ASRUtils::type_to_str_python(type) + " not supported yet in Attribute.",
+                loc);
+        }
+    }
+
+    void visit_AttributeUtil(ASR::ttype_t* type, char* attr_char,
                              ASR::symbol_t *t, const Location& loc) {
         if (ASRUtils::is_complex(*type)) {
             std::string attr = attr_char;
@@ -2864,8 +2810,13 @@ public:
                     x.base.base.loc);
             }
 
+        } else if(AST::is_a<AST::Attribute_t>(*x.m_value)) {
+            AST::Attribute_t* x_m_value = AST::down_cast<AST::Attribute_t>(x.m_value);
+            visit_Attribute(*x_m_value);
+            ASR::expr_t* e = ASRUtils::EXPR(tmp);
+            visit_AttributeUtil(ASRUtils::expr_type(e), x.m_attr, e, x.base.base.loc);
         } else {
-            throw SemanticError("Only Name is supported for now in Attribute",
+            throw SemanticError("Only Name, Attribute is supported for now in Attribute",
                 x.base.base.loc);
         }
     }
@@ -2987,6 +2938,7 @@ public:
             left = cast_helper(ASRUtils::expr_type(right), left);
             right = cast_helper(ASRUtils::expr_type(left), right);
         }
+        ASR::ttype_t *dest_type = ASRUtils::expr_type(left);
 
         // Check that the types are now the same
         if (!ASRUtils::check_equal_type(ASRUtils::expr_type(left),
@@ -3005,19 +2957,14 @@ public:
         ASR::ttype_t *type = ASRUtils::TYPE(
             ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
         ASR::expr_t *value = nullptr;
-        ASR::ttype_t *source_type = left_type;
 
-        // Now, compute the result
-        if (ASRUtils::expr_value(left) != nullptr &&
-            ASRUtils::expr_value(right) != nullptr) {
-            if (ASRUtils::is_integer(*source_type)) {
-                ASR::expr_t* left_value_expr = ASRUtils::expr_value(left);
+        if (ASRUtils::is_integer(*dest_type)) {
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 int64_t left_value = ASR::down_cast<ASR::IntegerConstant_t>(
-                                        left_value_expr)
-                                        ->m_n;
+                                        ASRUtils::expr_value(left))->m_n;
                 int64_t right_value = ASR::down_cast<ASR::IntegerConstant_t>(
-                                        ASRUtils::expr_value(right))
-                                        ->m_n;
+                                        ASRUtils::expr_value(right))->m_n;
                 bool result;
                 switch (asr_op) {
                     case (ASR::cmpopType::Eq):  { result = left_value == right_value; break; }
@@ -3033,13 +2980,17 @@ public:
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
-            } else if (ASRUtils::is_real(*source_type)) {
+            }
+
+            tmp = ASR::make_IntegerCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+
+        } else if (ASRUtils::is_real(*dest_type)) {
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 double left_value = ASR::down_cast<ASR::RealConstant_t>(
-                                        ASRUtils::expr_value(left))
-                                        ->m_r;
+                                        ASRUtils::expr_value(left))->m_r;
                 double right_value = ASR::down_cast<ASR::RealConstant_t>(
-                                        ASRUtils::expr_value(right))
-                                        ->m_r;
+                                        ASRUtils::expr_value(right))->m_r;
                 bool result;
                 switch (asr_op) {
                     case (ASR::cmpopType::Eq):  { result = left_value == right_value; break; }
@@ -3055,7 +3006,13 @@ public:
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
-            } else if (ASR::is_a<ASR::Complex_t>(*source_type)) {
+            }
+
+            tmp = ASR::make_RealCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+
+        } else if (ASRUtils::is_complex(*dest_type)) {
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 ASR::ComplexConstant_t *left0
                     = ASR::down_cast<ASR::ComplexConstant_t>(ASRUtils::expr_value(left));
                 ASR::ComplexConstant_t *right0
@@ -3082,8 +3039,13 @@ public:
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
+            }
 
-            } else if (ASRUtils::is_logical(*source_type)) {
+            tmp = ASR::make_ComplexCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+
+        } else if (ASRUtils::is_logical(*dest_type)) {
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 bool left_value = ASR::down_cast<ASR::LogicalConstant_t>(
                                         ASRUtils::expr_value(left))->m_value;
                 bool right_value = ASR::down_cast<ASR::LogicalConstant_t>(
@@ -3103,8 +3065,13 @@ public:
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
+            }
 
-            } else if (ASRUtils::is_character(*source_type)) {
+            tmp = ASR::make_LogicalCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+
+        } else if (ASRUtils::is_character(*dest_type)) {
+
+            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
                 char* left_value = ASR::down_cast<ASR::StringConstant_t>(
                                         ASRUtils::expr_value(left))->m_s;
                 char* right_value = ASR::down_cast<ASR::StringConstant_t>(
@@ -3143,9 +3110,14 @@ public:
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                     al, x.base.base.loc, result, type));
             }
+
+            tmp = ASR::make_StringCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
         }
-        tmp = ASR::make_Compare_t(al, x.base.base.loc, left, asr_op, right,
-                                  type, value, overloaded);
+
+        if (overloaded != nullptr) {
+            tmp = ASR::make_OverloadedCompare_t(al, x.base.base.loc, left, asr_op, right, type,
+                value, overloaded);
+        }
     }
 
     void visit_Pass(const AST::Pass_t &/*x*/) {
@@ -3275,10 +3247,50 @@ public:
             args.reserve(al, c->n_args);
             visit_expr_list(c->m_args, c->n_args, args);
             if (call_name == "print") {
-                ASR::expr_t *fmt=nullptr;
+                ASR::expr_t *fmt = nullptr;
                 Vec<ASR::expr_t*> args_expr = ASRUtils::call_arg2expr(al, args);
+                ASR::expr_t *separator = nullptr;
+                ASR::expr_t *end = nullptr;
+                if (c->n_keywords > 0) {
+                    std::string arg_name;
+                    for (size_t i = 0; i < c->n_keywords; i++) {
+                        arg_name = c->m_keywords[i].m_arg;
+                        if (arg_name == "sep") {
+                            visit_expr(*c->m_keywords[i].m_value);
+                            separator = ASRUtils::EXPR(tmp);
+                            ASR::ttype_t *type = ASRUtils::expr_type(separator);
+                            if (!ASRUtils::is_character(*type)) {
+                                std::string found = ASRUtils::type_to_str(type);
+                                diag.add(diag::Diagnostic(
+                                    "Separator is expected to be of string type",
+                                    diag::Level::Error, diag::Stage::Semantic, {
+                                        diag::Label("Expected string, found: " + found,
+                                                {separator->base.loc})
+                                    })
+                                );
+                                throw SemanticAbort();
+                            }
+                        }
+                        if (arg_name == "end") {
+                            visit_expr(*c->m_keywords[i].m_value);
+                            end = ASRUtils::EXPR(tmp);
+                            ASR::ttype_t *type = ASRUtils::expr_type(end);
+                            if (!ASRUtils::is_character(*type)) {
+                                std::string found = ASRUtils::type_to_str(type);
+                                diag.add(diag::Diagnostic(
+                                    "End is expected to be of string type",
+                                    diag::Level::Error, diag::Stage::Semantic, {
+                                        diag::Label("Expected string, found: " + found,
+                                                {end->base.loc})
+                                    })
+                                );
+                                throw SemanticAbort();
+                            }
+                        }
+                    }
+                }
                 tmp = ASR::make_Print_t(al, x.base.base.loc, fmt,
-                    args_expr.p, args_expr.size());
+                    args_expr.p, args_expr.size(), separator, end);
                 return;
 
             } else if (call_name == "quit") {
@@ -3421,6 +3433,72 @@ public:
                 "Conversion of '" + stype + "' to float is not Implemented",
                 loc);
         }
+        return nullptr;
+    }
+
+    ASR::asr_t* handle_intrinsic_bool(Allocator &al, Vec<ASR::call_arg_t> args,
+                                        const Location &loc) {
+        ASR::expr_t *arg = nullptr, *value = nullptr;
+        ASR::ttype_t *type = nullptr;
+        if (args.size() > 0) {
+            arg = args[0].m_value;
+            type = ASRUtils::expr_type(arg);
+        }
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
+                                    4, nullptr, 0));
+        if (!arg) {
+            return ASR::make_LogicalConstant_t(al, loc, false, to_type);
+        }
+        if (ASRUtils::is_integer(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                bool b = ASR::down_cast<ASR::IntegerConstant_t>(
+                                        ASRUtils::expr_value(arg))->m_n;
+                value = ASR::down_cast<ASR::expr_t>(make_LogicalConstant_t(al,
+                                loc, b, to_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                al, loc, arg, ASR::cast_kindType::IntegerToLogical, to_type, value));
+
+        } else if (ASRUtils::is_real(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                bool b = ASR::down_cast<ASR::RealConstant_t>(
+                                        ASRUtils::expr_value(arg))->m_r;
+                value = ASR::down_cast<ASR::expr_t>(make_LogicalConstant_t(al,
+                                loc, b, to_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                al, loc, arg, ASR::cast_kindType::RealToLogical, to_type, value));
+
+        } else if (ASRUtils::is_character(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                char *c = ASR::down_cast<ASR::StringConstant_t>(
+                                        ASRUtils::expr_value(arg))->m_s;
+                value = ASR::down_cast<ASR::expr_t>(make_LogicalConstant_t(al,
+                                loc, std::string(c) != "", to_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                al, loc, arg, ASR::cast_kindType::CharacterToLogical, to_type, value));
+
+        } else if (ASRUtils::is_complex(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                ASR::ComplexConstant_t *c_arg = ASR::down_cast<ASR::ComplexConstant_t>(
+                                                ASRUtils::expr_value(arg));
+                std::complex<double> c_value(c_arg->m_re, c_arg->m_im);
+                value = ASR::down_cast<ASR::expr_t>(make_LogicalConstant_t(al,
+                                loc, c_value.real() != 0.0 || c_value.imag() != 0.0, to_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                al, loc, arg, ASR::cast_kindType::ComplexToLogical, to_type, value));
+
+        } else if (ASRUtils::is_logical(*type)) {
+            return (ASR::asr_t *)arg;
+        } else {
+            std::string stype = ASRUtils::type_to_str_python(type);
+            throw SemanticError(
+                "Conversion of '" + stype + "' to logical is not Implemented",
+                loc);
+        }
+        // TODO: Make this work if the argument is, let's say, a class.
         return nullptr;
     }
 
@@ -3643,15 +3721,17 @@ public:
                 }
                 tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, result, type);
                 return;
-            } else if (call_name == "int" || call_name == "float") {
+            } else if (call_name == "int" || call_name == "float" || call_name == "bool") {
                 if (args.size() > 1) {
                     throw SemanticError("Either 0 or 1 argument is expected in '" + call_name + "'",
                             x.base.base.loc);
                 }
                 if (call_name == "int") {
                     tmp = handle_intrinsic_int(al, args, x.base.base.loc);
-                } else {
+                } else if (call_name == "float") {
                     tmp = handle_intrinsic_float(al, args, x.base.base.loc);
+                } else {
+                    tmp = handle_intrinsic_bool(al, args, x.base.base.loc);
                 }
                 return;
             } else if (call_name == "len") {
