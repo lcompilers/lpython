@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <map>
+#include <set>
 #include <limits>
 
 #include <libasr/assert.h>
@@ -35,49 +36,6 @@ static inline ASR::case_stmt_t* CASE_STMT(const ASR::asr_t *f)
 static inline ASR::ttype_t* TYPE(const ASR::asr_t *f)
 {
     return ASR::down_cast<ASR::ttype_t>(f);
-}
-
-static inline char *symbol_name(const ASR::symbol_t *f)
-{
-    switch (f->type) {
-        case ASR::symbolType::Program: {
-            return ASR::down_cast<ASR::Program_t>(f)->m_name;
-        }
-        case ASR::symbolType::Module: {
-            return ASR::down_cast<ASR::Module_t>(f)->m_name;
-        }
-        case ASR::symbolType::Subroutine: {
-            return ASR::down_cast<ASR::Subroutine_t>(f)->m_name;
-        }
-        case ASR::symbolType::Function: {
-            return ASR::down_cast<ASR::Function_t>(f)->m_name;
-        }
-        case ASR::symbolType::GenericProcedure: {
-            return ASR::down_cast<ASR::GenericProcedure_t>(f)->m_name;
-        }
-        case ASR::symbolType::DerivedType: {
-            return ASR::down_cast<ASR::DerivedType_t>(f)->m_name;
-        }
-        case ASR::symbolType::Variable: {
-            return ASR::down_cast<ASR::Variable_t>(f)->m_name;
-        }
-        case ASR::symbolType::ExternalSymbol: {
-            return ASR::down_cast<ASR::ExternalSymbol_t>(f)->m_name;
-        }
-        case ASR::symbolType::ClassProcedure: {
-            return ASR::down_cast<ASR::ClassProcedure_t>(f)->m_name;
-        }
-        case ASR::symbolType::CustomOperator: {
-            return ASR::down_cast<ASR::CustomOperator_t>(f)->m_name;
-        }
-        case ASR::symbolType::AssociateBlock: {
-            return ASR::down_cast<ASR::AssociateBlock_t>(f)->m_name;
-        }
-        case ASR::symbolType::Block: {
-            return ASR::down_cast<ASR::Block_t>(f)->m_name;
-        }
-        default : throw LFortranException("Not implemented");
-    }
 }
 
 static inline ASR::symbol_t *symbol_get_past_external(ASR::symbol_t *f)
@@ -195,6 +153,16 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
     }
 }
 
+static inline std::string binop_to_str(const ASR::binopType t) {
+    switch (t) {
+        case (ASR::binopType::Add): { return " + "; }
+        case (ASR::binopType::Sub): { return " - "; }
+        case (ASR::binopType::Mul): { return "*"; }
+        case (ASR::binopType::Div): { return "/"; }
+        default : throw LFortranException("Cannot represent the binary operator as a string");
+    }
+}
+
 static inline std::string cmpop_to_str(const ASR::cmpopType t) {
     switch (t) {
         case (ASR::cmpopType::Eq): { return " == "; }
@@ -220,6 +188,49 @@ static inline std::string logicalbinop_to_str_python(const ASR::logicalbinopType
 static inline ASR::expr_t* expr_value(ASR::expr_t *f)
 {
     return ASR::expr_value0(f);
+}
+
+static inline char *symbol_name(const ASR::symbol_t *f)
+{
+    switch (f->type) {
+        case ASR::symbolType::Program: {
+            return ASR::down_cast<ASR::Program_t>(f)->m_name;
+        }
+        case ASR::symbolType::Module: {
+            return ASR::down_cast<ASR::Module_t>(f)->m_name;
+        }
+        case ASR::symbolType::Subroutine: {
+            return ASR::down_cast<ASR::Subroutine_t>(f)->m_name;
+        }
+        case ASR::symbolType::Function: {
+            return ASR::down_cast<ASR::Function_t>(f)->m_name;
+        }
+        case ASR::symbolType::GenericProcedure: {
+            return ASR::down_cast<ASR::GenericProcedure_t>(f)->m_name;
+        }
+        case ASR::symbolType::DerivedType: {
+            return ASR::down_cast<ASR::DerivedType_t>(f)->m_name;
+        }
+        case ASR::symbolType::Variable: {
+            return ASR::down_cast<ASR::Variable_t>(f)->m_name;
+        }
+        case ASR::symbolType::ExternalSymbol: {
+            return ASR::down_cast<ASR::ExternalSymbol_t>(f)->m_name;
+        }
+        case ASR::symbolType::ClassProcedure: {
+            return ASR::down_cast<ASR::ClassProcedure_t>(f)->m_name;
+        }
+        case ASR::symbolType::CustomOperator: {
+            return ASR::down_cast<ASR::CustomOperator_t>(f)->m_name;
+        }
+        case ASR::symbolType::AssociateBlock: {
+            return ASR::down_cast<ASR::AssociateBlock_t>(f)->m_name;
+        }
+        case ASR::symbolType::Block: {
+            return ASR::down_cast<ASR::Block_t>(f)->m_name;
+        }
+        default : throw LFortranException("Not implemented");
+    }
 }
 
 static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
@@ -598,7 +609,7 @@ static inline std::string type_python_1dim_helper(const std::string & res,
     }
 
     if( ASRUtils::expr_value(e->m_end) ) {
-        int64_t end_dim;
+        int64_t end_dim = -1;
         ASRUtils::extract_value(ASRUtils::expr_value(e->m_end), end_dim);
         return res + "[" + std::to_string(end_dim + 1) + "]";
     }
@@ -1021,163 +1032,178 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
     }
 }
 
-            inline int extract_kind_str(char* m_n, char *&kind_str) {
-                char *p = m_n;
-                while (*p != '\0') {
-                    if (*p == '_') {
-                        p++;
-                        std::string kind = std::string(p);
-                        int ikind = std::atoi(p);
-                        if (ikind == 0) {
-                            // Not an integer, return a string
-                            kind_str = p;
-                            return 0;
-                        } else {
-                            return ikind;
-                        }
-                    }
-                    if (*p == 'd' || *p == 'D') {
-                        // Double precision
-                        return 8;
-                    }
-                    p++;
-                }
-                return 4;
+inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
+    bool is_source_pointer = is_pointer(source), is_dest_pointer = is_pointer(dest);
+    if( (!is_source_pointer && !is_dest_pointer) ||
+        (is_source_pointer && is_dest_pointer) ) {
+        return false;
+    }
+    if( is_source_pointer && !is_dest_pointer ) {
+        ASR::ttype_t* temp = source;
+        source = dest;
+        dest = temp;
+    }
+    bool res = source->type == ASR::down_cast<ASR::Pointer_t>(dest)->m_type->type;
+    return res;
+}
+
+inline int extract_kind_str(char* m_n, char *&kind_str) {
+    char *p = m_n;
+    while (*p != '\0') {
+        if (*p == '_') {
+            p++;
+            std::string kind = std::string(p);
+            int ikind = std::atoi(p);
+            if (ikind == 0) {
+                // Not an integer, return a string
+                kind_str = p;
+                return 0;
+            } else {
+                return ikind;
             }
+        }
+        if (*p == 'd' || *p == 'D') {
+            // Double precision
+            return 8;
+        }
+        p++;
+    }
+    return 4;
+}
 
-            template <typename SemanticError>
-            inline int extract_kind(ASR::expr_t* kind_expr, const Location& loc) {
-                int a_kind = 4;
-                switch( kind_expr->type ) {
-                    case ASR::exprType::IntegerConstant: {
-                        a_kind = ASR::down_cast<ASR::IntegerConstant_t>
-                                (kind_expr)->m_n;
-                        break;
-                    }
-                    case ASR::exprType::Var: {
-                        ASR::Var_t* kind_var =
-                            ASR::down_cast<ASR::Var_t>(kind_expr);
-                        ASR::Variable_t* kind_variable =
-                            ASR::down_cast<ASR::Variable_t>(
-                                symbol_get_past_external(kind_var->m_v));
-                        if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
-                            if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
-                                LFORTRAN_ASSERT( kind_variable->m_value != nullptr );
-                                a_kind = ASR::down_cast<ASR::IntegerConstant_t>(kind_variable->m_value)->m_n;
-                            } else {
-                                std::string msg = "Integer variable required. " + std::string(kind_variable->m_name) +
-                                                " is not an Integer variable.";
-                                throw SemanticError(msg, loc);
-                            }
-                        } else {
-                            std::string msg = "Parameter " + std::string(kind_variable->m_name) +
-                                            " is a variable, which does not reduce to a constant expression";
-                            throw SemanticError(msg, loc);
-                        }
-                        break;
-                    }
-                    default: {
-                        throw SemanticError(R"""(Only Integer literals or expressions which reduce to constant Integer are accepted as kind parameters.)""",
-                                            loc);
-                    }
+template <typename SemanticError>
+inline int extract_kind(ASR::expr_t* kind_expr, const Location& loc) {
+    int a_kind = 4;
+    switch( kind_expr->type ) {
+        case ASR::exprType::IntegerConstant: {
+            a_kind = ASR::down_cast<ASR::IntegerConstant_t>
+                    (kind_expr)->m_n;
+            break;
+        }
+        case ASR::exprType::Var: {
+            ASR::Var_t* kind_var =
+                ASR::down_cast<ASR::Var_t>(kind_expr);
+            ASR::Variable_t* kind_variable =
+                ASR::down_cast<ASR::Variable_t>(
+                    symbol_get_past_external(kind_var->m_v));
+            if( kind_variable->m_storage == ASR::storage_typeType::Parameter ) {
+                if( kind_variable->m_type->type == ASR::ttypeType::Integer ) {
+                    LFORTRAN_ASSERT( kind_variable->m_value != nullptr );
+                    a_kind = ASR::down_cast<ASR::IntegerConstant_t>(kind_variable->m_value)->m_n;
+                } else {
+                    std::string msg = "Integer variable required. " + std::string(kind_variable->m_name) +
+                                    " is not an Integer variable.";
+                    throw SemanticError(msg, loc);
                 }
-                return a_kind;
+            } else {
+                std::string msg = "Parameter " + std::string(kind_variable->m_name) +
+                                " is a variable, which does not reduce to a constant expression";
+                throw SemanticError(msg, loc);
             }
+            break;
+        }
+        default: {
+            throw SemanticError(R"""(Only Integer literals or expressions which reduce to constant Integer are accepted as kind parameters.)""",
+                                loc);
+        }
+    }
+    return a_kind;
+}
 
-            template <typename SemanticError>
-            inline int extract_len(ASR::expr_t* len_expr, const Location& loc) {
-                int a_len = -10;
-                switch( len_expr->type ) {
-                    case ASR::exprType::IntegerConstant: {
-                        a_len = ASR::down_cast<ASR::IntegerConstant_t>
-                                (len_expr)->m_n;
-                        break;
-                    }
-                    case ASR::exprType::Var: {
-                        ASR::Var_t* len_var =
-                            ASR::down_cast<ASR::Var_t>(len_expr);
-                        ASR::Variable_t* len_variable =
-                            ASR::down_cast<ASR::Variable_t>(
-                                symbol_get_past_external(len_var->m_v));
-                        if( len_variable->m_storage == ASR::storage_typeType::Parameter ) {
-                            if( len_variable->m_type->type == ASR::ttypeType::Integer ) {
-                                LFORTRAN_ASSERT( len_variable->m_value != nullptr );
-                                a_len = ASR::down_cast<ASR::IntegerConstant_t>(len_variable->m_value)->m_n;
-                            } else {
-                                std::string msg = "Integer variable required. " + std::string(len_variable->m_name) +
-                                                " is not an Integer variable.";
-                                throw SemanticError(msg, loc);
-                            }
-                        } else {
-                            // An expression is beind used for `len` that cannot be evaluated
-                            a_len = -3;
-                        }
-                        break;
-                    }
-                    case ASR::exprType::FunctionCall: {
-                        a_len = -3;
-                        break;
-                    }
-                    case ASR::exprType::IntegerBinOp: {
-                        a_len = -3;
-                        break;
-                    }
-                    default: {
-                        throw SemanticError("Only Integers or variables implemented so far for `len` expressions",
-                                            loc);
-                    }
+template <typename SemanticError>
+inline int extract_len(ASR::expr_t* len_expr, const Location& loc) {
+    int a_len = -10;
+    switch( len_expr->type ) {
+        case ASR::exprType::IntegerConstant: {
+            a_len = ASR::down_cast<ASR::IntegerConstant_t>
+                    (len_expr)->m_n;
+            break;
+        }
+        case ASR::exprType::Var: {
+            ASR::Var_t* len_var =
+                ASR::down_cast<ASR::Var_t>(len_expr);
+            ASR::Variable_t* len_variable =
+                ASR::down_cast<ASR::Variable_t>(
+                    symbol_get_past_external(len_var->m_v));
+            if( len_variable->m_storage == ASR::storage_typeType::Parameter ) {
+                if( len_variable->m_type->type == ASR::ttypeType::Integer ) {
+                    LFORTRAN_ASSERT( len_variable->m_value != nullptr );
+                    a_len = ASR::down_cast<ASR::IntegerConstant_t>(len_variable->m_value)->m_n;
+                } else {
+                    std::string msg = "Integer variable required. " + std::string(len_variable->m_name) +
+                                    " is not an Integer variable.";
+                    throw SemanticError(msg, loc);
                 }
-                LFORTRAN_ASSERT(a_len != -10)
-                return a_len;
+            } else {
+                // An expression is beind used for `len` that cannot be evaluated
+                a_len = -3;
             }
+            break;
+        }
+        case ASR::exprType::FunctionCall: {
+            a_len = -3;
+            break;
+        }
+        case ASR::exprType::IntegerBinOp: {
+            a_len = -3;
+            break;
+        }
+        default: {
+            throw SemanticError("Only Integers or variables implemented so far for `len` expressions",
+                                loc);
+        }
+    }
+    LFORTRAN_ASSERT(a_len != -10)
+    return a_len;
+}
 
-            inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
-                if( ASR::is_a<ASR::Pointer_t>(*x) ||
-                    ASR::is_a<ASR::Pointer_t>(*y) ) {
-                    x = ASRUtils::type_get_past_pointer(x);
-                    y = ASRUtils::type_get_past_pointer(y);
-                    return check_equal_type(x, y);
-                } else if (ASR::is_a<ASR::List_t>(*x) && ASR::is_a<ASR::List_t>(*y)) {
-                    x = ASR::down_cast<ASR::List_t>(x)->m_type;
-                    y = ASR::down_cast<ASR::List_t>(y)->m_type;
-                    return check_equal_type(x, y);
-                } else if (ASR::is_a<ASR::Set_t>(*x) && ASR::is_a<ASR::Set_t>(*y)) {
-                    x = ASR::down_cast<ASR::Set_t>(x)->m_type;
-                    y = ASR::down_cast<ASR::Set_t>(y)->m_type;
-                    return check_equal_type(x, y);
-                } else if (ASR::is_a<ASR::Dict_t>(*x) && ASR::is_a<ASR::Dict_t>(*y)) {
-                    ASR::ttype_t *x_key_type = ASR::down_cast<ASR::Dict_t>(x)->m_key_type;
-                    ASR::ttype_t *y_key_type = ASR::down_cast<ASR::Dict_t>(y)->m_key_type;
-                    ASR::ttype_t *x_value_type = ASR::down_cast<ASR::Dict_t>(x)->m_value_type;
-                    ASR::ttype_t *y_value_type = ASR::down_cast<ASR::Dict_t>(y)->m_value_type;
-                    return (check_equal_type(x_key_type, y_key_type) &&
-                            check_equal_type(x_value_type, y_value_type));
-                } else if (ASR::is_a<ASR::Tuple_t>(*x) && ASR::is_a<ASR::Tuple_t>(*y)) {
-                    ASR::Tuple_t *a = ASR::down_cast<ASR::Tuple_t>(x);
-                    ASR::Tuple_t *b = ASR::down_cast<ASR::Tuple_t>(y);
-                    if(a->n_type != b->n_type) {
-                        return false;
-                    }
-                    bool result = true;
-                    for (size_t i=0; i<a->n_type; i++) {
-                        result = result && check_equal_type(a->m_type[i], b->m_type[i]);
-                        if (!result) {
-                            return false;
-                        }
-                    }
-                    return result;
-                }
-
-                int64_t x_kind = ASRUtils::extract_kind_from_ttype_t(x);
-                int64_t y_kind = ASRUtils::extract_kind_from_ttype_t(y);
-
-                if( x->type == y->type &&
-                    x_kind == y_kind ) {
-                    return true;
-                }
-
+inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
+    if( ASR::is_a<ASR::Pointer_t>(*x) ||
+        ASR::is_a<ASR::Pointer_t>(*y) ) {
+        x = ASRUtils::type_get_past_pointer(x);
+        y = ASRUtils::type_get_past_pointer(y);
+        return check_equal_type(x, y);
+    } else if (ASR::is_a<ASR::List_t>(*x) && ASR::is_a<ASR::List_t>(*y)) {
+        x = ASR::down_cast<ASR::List_t>(x)->m_type;
+        y = ASR::down_cast<ASR::List_t>(y)->m_type;
+        return check_equal_type(x, y);
+    } else if (ASR::is_a<ASR::Set_t>(*x) && ASR::is_a<ASR::Set_t>(*y)) {
+        x = ASR::down_cast<ASR::Set_t>(x)->m_type;
+        y = ASR::down_cast<ASR::Set_t>(y)->m_type;
+        return check_equal_type(x, y);
+    } else if (ASR::is_a<ASR::Dict_t>(*x) && ASR::is_a<ASR::Dict_t>(*y)) {
+        ASR::ttype_t *x_key_type = ASR::down_cast<ASR::Dict_t>(x)->m_key_type;
+        ASR::ttype_t *y_key_type = ASR::down_cast<ASR::Dict_t>(y)->m_key_type;
+        ASR::ttype_t *x_value_type = ASR::down_cast<ASR::Dict_t>(x)->m_value_type;
+        ASR::ttype_t *y_value_type = ASR::down_cast<ASR::Dict_t>(y)->m_value_type;
+        return (check_equal_type(x_key_type, y_key_type) &&
+                check_equal_type(x_value_type, y_value_type));
+    } else if (ASR::is_a<ASR::Tuple_t>(*x) && ASR::is_a<ASR::Tuple_t>(*y)) {
+        ASR::Tuple_t *a = ASR::down_cast<ASR::Tuple_t>(x);
+        ASR::Tuple_t *b = ASR::down_cast<ASR::Tuple_t>(y);
+        if(a->n_type != b->n_type) {
+            return false;
+        }
+        bool result = true;
+        for (size_t i=0; i<a->n_type; i++) {
+            result = result && check_equal_type(a->m_type[i], b->m_type[i]);
+            if (!result) {
                 return false;
             }
+        }
+        return result;
+    }
+
+    int64_t x_kind = ASRUtils::extract_kind_from_ttype_t(x);
+    int64_t y_kind = ASRUtils::extract_kind_from_ttype_t(y);
+
+    if( x->type == y->type &&
+        x_kind == y_kind ) {
+        return true;
+    }
+
+    return false;
+}
 
 int select_generic_procedure(const Vec<ASR::call_arg_t> &args,
         const ASR::GenericProcedure_t &p, Location loc,
@@ -1290,6 +1316,73 @@ class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
         }
     }
 
+};
+
+class ReplaceReturnWithGotoVisitor: public ASR::BaseStmtReplacer<ReplaceReturnWithGotoVisitor> {
+
+    private:
+
+    Allocator& al;
+
+    uint64_t goto_label;
+
+    public:
+
+    ReplaceReturnWithGotoVisitor(Allocator& al_, uint64_t goto_label_) :
+        al(al_), goto_label(goto_label_)
+    {}
+
+    void set_goto_label(uint64_t label) {
+        goto_label = label;
+    }
+
+    void replace_Return(ASR::Return_t* x) {
+        *current_stmt = ASRUtils::STMT(ASR::make_GoTo_t(al, x->base.base.loc, goto_label));
+        has_replacement_happened = true;
+    }
+
+};
+
+// Singleton LabelGenerator so that it generates
+// unique labels for different statements, from
+// whereever it is called (be it ASR passes, be it
+// AST to ASR transition, etc).
+class LabelGenerator {
+    private:
+
+        static LabelGenerator *label_generator;
+        uint64_t unique_label;
+        std::map<ASR::asr_t*, uint64_t> node2label;
+
+        // Private constructor so that more than
+        // one object cannot be created by calling the
+        // constructor.
+        LabelGenerator() {
+            unique_label = 0;
+        }
+
+    public:
+
+        static LabelGenerator *get_instance() {
+            if (!label_generator) {
+                label_generator = new LabelGenerator;
+            }
+            return label_generator;
+        }
+
+        int get_unique_label() {
+            unique_label += 1;
+            return unique_label;
+        }
+
+        void add_node_with_unique_label(ASR::asr_t* node, uint64_t label) {
+            LFORTRAN_ASSERT( node2label.find(node) == node2label.end() );
+            node2label[node] = label;
+        }
+
+        bool verify(ASR::asr_t* node) {
+            return node2label.find(node) != node2label.end();
+        }
 };
 
 ASR::asr_t* make_Cast_t_value(Allocator &al, const Location &a_loc,

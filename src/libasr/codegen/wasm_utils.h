@@ -33,19 +33,36 @@ struct Code {
     uint32_t insts_start_index;
 };
 
-uint32_t decode_unsigned_leb128(Vec<uint8_t> &code, uint32_t &offset);
+struct Import {
+    std::string mod_name;
+    std::string name;
+    uint8_t kind;
+    union {
+        uint32_t type_idx;
+        std::pair<uint32_t, uint32_t> mem_page_size_limits;
+    };
+};
 
-int32_t decode_signed_leb128(Vec<uint8_t> &code, uint32_t &offset);
+struct Data {
+    std::string insts;
+    std::string text;
+};
 
-uint8_t read_byte(Vec<uint8_t> &code, uint32_t &offset);
+uint32_t decode_leb128_u32(Vec<uint8_t> &code, uint32_t &offset);
+int32_t decode_leb128_i32(Vec<uint8_t> &code, uint32_t &offset);
+int64_t decode_leb128_i64(Vec<uint8_t> &code, uint32_t &offset);
 
-float read_float(Vec<uint8_t> & code, uint32_t & offset);
+uint8_t read_b8(Vec<uint8_t> &code, uint32_t &offset);
 
-double read_double(Vec<uint8_t> & code, uint32_t & offset);
+float read_f32(Vec<uint8_t> & code, uint32_t & offset);
 
-int32_t read_signed_num(Vec<uint8_t> &code, uint32_t &offset);
+double read_f64(Vec<uint8_t> & code, uint32_t & offset);
 
-uint32_t read_unsigned_num(Vec<uint8_t> &code, uint32_t &offset);
+uint32_t read_u32(Vec<uint8_t> &code, uint32_t &offset);
+
+int32_t read_i32(Vec<uint8_t> &code, uint32_t &offset);
+
+int64_t read_i64(Vec<uint8_t> &code, uint32_t &offset);
 
 void hexdump(void *ptr, int buflen);
 

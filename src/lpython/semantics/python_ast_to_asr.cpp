@@ -1669,13 +1669,9 @@ public:
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                         al, x.base.base.loc, b, logical_type));
                 }
-                // Cast Real to Integer
-                ASR::expr_t *int_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                            al, x.base.base.loc, operand, ASR::cast_kindType::RealToInteger,
-                            int_type, value));
-                // Cast Integer to Logical
+                // cast Real to Logical
                 logical_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                            al, x.base.base.loc, int_arg, ASR::cast_kindType::IntegerToLogical,
+                            al, x.base.base.loc, operand, ASR::cast_kindType::RealToLogical,
                             logical_type, value));
             }
             else if (ASRUtils::is_logical(*operand_type)) {
@@ -3475,13 +3471,8 @@ public:
                 value = ASR::down_cast<ASR::expr_t>(make_LogicalConstant_t(al,
                                 loc, b, to_type));
             }
-            ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                        4, nullptr, 0));
-            ASR::expr_t *t = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                al, loc, arg, ASR::cast_kindType::RealToInteger, int_type, nullptr));
-
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                al, loc, t, ASR::cast_kindType::IntegerToLogical, to_type, value));
+                al, loc, arg, ASR::cast_kindType::RealToLogical, to_type, value));
 
         } else if (ASRUtils::is_character(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
