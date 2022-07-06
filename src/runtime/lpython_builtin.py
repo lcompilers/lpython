@@ -150,12 +150,10 @@ def capitalize(s: str) -> str:
 
 def upper(s: str) -> str:
     result : str
-    # result = ''
     char : str
-    # l: list[str]
-    # l[:0] = s
-    # l = [a for a in s]
-    for char in s:
+    i: i64
+    for i in range(len(s)):
+        char = s[i]
         if ord(char) >= 97 and ord(char) <=122 :
             result += chr(ord(char) - 32)
         else :
@@ -166,8 +164,9 @@ def lower(s: str) -> str:
     result : str
     # result = ''
     char : str
-
-    for char in s:
+    i: i64
+    for i in range(len(s)):
+        char = s[i]
         if ord(char) >= 65 and ord(char) <=90 :
             result += chr(ord(char) + 32)
         else :
