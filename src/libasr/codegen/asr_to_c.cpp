@@ -471,7 +471,7 @@ R"(
         for (size_t i=0; i<x.n_values; i++) {
             this->visit_expr(*x.m_values[i]);
             ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_values[i]);
-            out += get_print_type(value_type, ASR::is_a<ASR::ArrayRef_t>(*x.m_values[i]));
+            out += get_print_type(value_type, ASR::is_a<ASR::ArrayItem_t>(*x.m_values[i]));
             v.push_back(src);
             if (i+1!=x.n_values) {
                 out += "\%s";

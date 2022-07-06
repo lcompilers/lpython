@@ -239,8 +239,8 @@ public:
         if( PassUtils::is_array(x.m_target) ) {
             result_var = x.m_target;
             this->visit_expr(*(x.m_value));
-        } else if( PassUtils::is_slice_present(x.m_target) ) {
-            ASR::ArrayRef_t* array_ref = ASR::down_cast<ASR::ArrayRef_t>(x.m_target);
+        } else if( ASR::is_a<ASR::ArraySection_t>(*x.m_target) ) {
+            ASR::ArraySection_t* array_ref = ASR::down_cast<ASR::ArraySection_t>(x.m_target);
             result_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.m_target->base.loc, array_ref->m_v));
             result_lbound.reserve(al, array_ref->n_args);
             result_ubound.reserve(al, array_ref->n_args);
