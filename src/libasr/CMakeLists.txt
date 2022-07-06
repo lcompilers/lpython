@@ -46,6 +46,9 @@ set(SRC
     pass/loop_unroll.cpp
     pass/dead_code_removal.cpp
 
+    lsp/JSONRPC2Connection.cpp
+    lsp/LPythonServer.cpp
+
     asr_verify.cpp
     asr_utils.cpp
     diagnostics.cpp
@@ -91,5 +94,3 @@ endif()
 if (WITH_LLVM)
     target_link_libraries(asr p::llvm)
 endif()
-
-add_subdirectory(lsp)
