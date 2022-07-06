@@ -26,6 +26,7 @@
 #include <lpython/python_serialization.h>
 #include <lpython/parser/tokenizer.h>
 #include <lpython/parser/parser.h>
+#include <libasr/lsp/LPythonServer.hpp>
 
 #include <cpp-terminal/terminal.h>
 #include <cpp-terminal/prompt0.h>
@@ -605,6 +606,8 @@ int main(int argc, char *argv[])
         std::string arg_pywrap_file;
         std::string arg_pywrap_array_order="f";
 
+        std::string arg_lsp_filename;
+
         CompilerOptions compiler_options;
         LCompilers::PassManager lpython_pass_manager;
 
@@ -688,6 +691,10 @@ int main(int argc, char *argv[])
         pywrap.add_option("--array-order", arg_pywrap_array_order,
                 "Select array order (c, f)")->capture_default_str();
 
+        // Language Server Protocol
+        CLI::App &lsp = *app.add_subcommand("lsp", "Language Server Protocol");
+        lsp.add_option("filename", arg_lsp_filename, "Path to a filename")->required();
+
 
         app.get_formatter()->column_width(25);
         app.require_subcommand(0, 1);
@@ -752,6 +759,11 @@ int main(int argc, char *argv[])
         if (pywrap) {
             std::cerr << "Pywrap is not implemented yet." << std::endl;
             return 1;
+        }
+
+        if (lsp) {
+            LPythonServer().run(arg_lsp_filename);
+            return 0;
         }
 
         if (arg_backend == "llvm") {
