@@ -156,9 +156,25 @@ namespace LFortran {
         }
 
         ASR::expr_t* create_array_ref(ASR::expr_t* arr_expr, Vec<ASR::expr_t*>& idx_vars, Allocator& al) {
-            ASR::Var_t* arr_var = ASR::down_cast<ASR::Var_t>(arr_expr);
-            ASR::symbol_t* arr = arr_var->m_v;
-            return create_array_ref(arr, idx_vars, al, arr_expr->base.loc, LFortran::ASRUtils::expr_type(LFortran::ASRUtils::EXPR((ASR::asr_t*)arr_var)));
+            Vec<ASR::array_index_t> args;
+            args.reserve(al, 1);
+            for( size_t i = 0; i < idx_vars.size(); i++ ) {
+                ASR::array_index_t ai;
+                ai.loc = arr_expr->base.loc;
+                ai.m_left = nullptr;
+                ai.m_right = idx_vars[i];
+                ai.m_step = nullptr;
+                args.push_back(al, ai);
+            }
+            Vec<ASR::dimension_t> empty_dims;
+            empty_dims.reserve(al, 1);
+            ASR::ttype_t* _type = ASRUtils::expr_type(arr_expr);
+            _type = ASRUtils::duplicate_type(al, _type, &empty_dims);
+            ASR::expr_t* array_ref = LFortran::ASRUtils::EXPR(ASR::make_ArrayItem_t(al,
+                                                              arr_expr->base.loc, arr_expr,
+                                                              args.p, args.size(),
+                                                              _type, nullptr));
+            return array_ref;
         }
 
         ASR::expr_t* create_array_ref(ASR::symbol_t* arr, Vec<ASR::expr_t*>& idx_vars, Allocator& al,
@@ -173,7 +189,11 @@ namespace LFortran {
                 ai.m_step = nullptr;
                 args.push_back(al, ai);
             }
-            ASR::expr_t* array_ref = LFortran::ASRUtils::EXPR(ASR::make_ArrayItem_t(al, loc, arr,
+            Vec<ASR::dimension_t> empty_dims;
+            empty_dims.reserve(al, 1);
+            _type = ASRUtils::duplicate_type(al, _type, &empty_dims);
+            ASR::expr_t* arr_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, arr));
+            ASR::expr_t* array_ref = LFortran::ASRUtils::EXPR(ASR::make_ArrayItem_t(al, loc, arr_var,
                                                                 args.p, args.size(),
                                                                 _type, nullptr));
             return array_ref;
@@ -515,12 +535,12 @@ namespace LFortran {
             return ASR::down_cast<ASR::symbol_t>(vector_copy_asr);
         }
 
-        ASR::stmt_t* get_vector_copy(ASR::symbol_t* array0, ASR::symbol_t* array1, ASR::expr_t* start,
+        ASR::stmt_t* get_vector_copy(ASR::expr_t* array0, ASR::expr_t* array1, ASR::expr_t* start,
             ASR::expr_t* end, ASR::expr_t* step, ASR::expr_t* vector_length,
             Allocator& al, ASR::TranslationUnit_t& unit,
             SymbolTable*& global_scope, Location& loc) {
-            ASR::ttype_t* array0_type = ASRUtils::symbol_type(array0);
-            ASR::ttype_t* array1_type = ASRUtils::symbol_type(array1);
+            ASR::ttype_t* array0_type = ASRUtils::expr_type(array0);
+            ASR::ttype_t* array1_type = ASRUtils::expr_type(array1);
             ASR::ttype_t* index_type = ASRUtils::expr_type(start);
             std::vector<ASR::ttype_t*> types = {array0_type, array1_type, index_type};
             ASR::symbol_t *v = insert_fallback_vector_copy(al, unit, global_scope,
@@ -529,10 +549,10 @@ namespace LFortran {
             Vec<ASR::call_arg_t> args;
             args.reserve(al, 6);
             ASR::call_arg_t arg0_, arg1_, arg2_, arg3_, arg4_, arg5_;
-            ASR::expr_t* array0_expr = ASRUtils::EXPR(ASR::make_Var_t(al, array0->base.loc, array0));
+            ASR::expr_t* array0_expr = array0;
             arg0_.loc = array0->base.loc, arg0_.m_value = array0_expr;
             args.push_back(al, arg0_);
-            ASR::expr_t* array1_expr = ASRUtils::EXPR(ASR::make_Var_t(al, array1->base.loc, array1));
+            ASR::expr_t* array1_expr = array1;
             arg1_.loc = array1->base.loc, arg1_.m_value = array1_expr;
             args.push_back(al, arg1_);
             arg2_.loc = start->base.loc, arg2_.m_value = start;

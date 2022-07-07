@@ -360,8 +360,7 @@ public:
 
     template <typename T>
     void visit_ArrayItemSection(const T &x) {
-        require(symtab_in_scope(current_symtab, x.m_v),
-            "ArrayItem/ArraySection::m_v cannot point outside of its symbol table");
+        visit_expr(*x.m_v);
         for (size_t i=0; i<x.n_args; i++) {
             visit_array_index(x.m_args[i]);
         }

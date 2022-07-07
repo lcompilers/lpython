@@ -1953,11 +1953,15 @@ public:
             ai.m_step = nullptr;
         }
         args.push_back(al, ai);
+        ASR::expr_t* v_Var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, s));
         if( is_item ) {
-            tmp = ASR::make_ArrayItem_t(al, x.base.base.loc, s, args.p,
+            Vec<ASR::dimension_t> empty_dims;
+            empty_dims.reserve(al, 1);
+            type = ASRUtils::duplicate_type(al, type, &empty_dims);
+            tmp = ASR::make_ArrayItem_t(al, x.base.base.loc, v_Var, args.p,
                         args.size(), type, nullptr);
         } else {
-            tmp = ASR::make_ArraySection_t(al, x.base.base.loc, s, args.p,
+            tmp = ASR::make_ArraySection_t(al, x.base.base.loc, v_Var, args.p,
                         args.size(), type, nullptr);
         }
     }

@@ -580,7 +580,7 @@ R"(#include <stdio.h>
             sv->m_intent == ASRUtils::intent_inout) &&
             is_c && ASRUtils::is_array(sv->m_type) &&
             ASRUtils::is_pointer(sv->m_type)) {
-            src = "*" + std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name);
+            src = "(*" + std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name) + ")";
         } else {
             src = std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name);
         }
@@ -600,20 +600,10 @@ R"(#include <stdio.h>
     }
 
     void visit_ArrayItem(const ASR::ArrayItem_t &x) {
-        const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
-        ASR::Variable_t* sv = ASR::down_cast<ASR::Variable_t>(s);
-        std::string prefix = "";
-        // if( ASR::is_a<ASR::Derived_t>(*sv->m_type) ) {
-        //     prefix = "&";
-        // }
-        std::string out = std::string(sv->m_name);
-        if( (sv->m_intent == ASRUtils::intent_in ||
-            sv->m_intent == ASRUtils::intent_inout) &&
-            is_c && ASRUtils::is_pointer(sv->m_type) ) {
-            out = "(*" + out + ")";
-        }
+        this->visit_expr(*x.m_v);
+        std::string out = src;
         ASR::dimension_t* m_dims;
-        ASRUtils::extract_dimensions_from_ttype(sv->m_type, m_dims);
+        ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(x.m_v), m_dims);
         out += "[";
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i].m_right) {
