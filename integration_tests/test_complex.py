@@ -118,6 +118,18 @@ def test_complex_unary_minus():
     assert abs(c2.real - (-3.0)) < 1e-12
     assert abs(c2.imag - (-4.0)) < 1e-12
 
+def test_complex_not():
+    c: c32
+    c = complex(4, 5)
+    b: bool
+    b = not c
+    assert not b
+
+    c2: c64
+    c2 = complex(0, 0)
+    b = not c2
+    assert b
+
 def check():
     test_real_imag()
     test_complex()
@@ -125,5 +137,6 @@ def check():
     test_complex_binop_32()
     test_complex_binop_64()
     test_complex_unary_minus()
+    test_complex_not()
 
 check()
