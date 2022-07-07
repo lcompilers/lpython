@@ -519,8 +519,8 @@ R"(#include <stdio.h>
         std::string target;
         if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
             target = LFortran::ASRUtils::EXPR2VAR(x.m_target)->m_name;
-        } else if (ASR::is_a<ASR::ArrayRef_t>(*x.m_target)) {
-            visit_ArrayRef(*ASR::down_cast<ASR::ArrayRef_t>(x.m_target));
+        } else if (ASR::is_a<ASR::ArrayItem_t>(*x.m_target)) {
+            visit_ArrayItem(*ASR::down_cast<ASR::ArrayItem_t>(x.m_target));
             target = src;
         } else if (ASR::is_a<ASR::DerivedRef_t>(*x.m_target)) {
             visit_DerivedRef(*ASR::down_cast<ASR::DerivedRef_t>(x.m_target));
@@ -586,7 +586,7 @@ R"(#include <stdio.h>
         src = der_expr + "->" + member;
     }
 
-    void visit_ArrayRef(const ASR::ArrayRef_t &x) {
+    void visit_ArrayItem(const ASR::ArrayItem_t &x) {
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
         ASR::Variable_t* sv = ASR::down_cast<ASR::Variable_t>(s);
         std::string out = std::string(sv->m_name);
