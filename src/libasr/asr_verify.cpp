@@ -358,13 +358,22 @@ public:
             "Var::m_v `" + std::string(ASRUtils::symbol_name(x.m_v)) + "` cannot point outside of its symbol table");
     }
 
-    void visit_ArrayRef(const ArrayRef_t &x) {
+    template <typename T>
+    void visit_ArrayItemSection(const T &x) {
         require(symtab_in_scope(current_symtab, x.m_v),
-            "ArrayRef::m_v cannot point outside of its symbol table");
+            "ArrayItem/ArraySection::m_v cannot point outside of its symbol table");
         for (size_t i=0; i<x.n_args; i++) {
             visit_array_index(x.m_args[i]);
         }
         visit_ttype(*x.m_type);
+    }
+
+    void visit_ArrayItem(const ArrayItem_t &x) {
+        visit_ArrayItemSection(x);
+    }
+
+    void visit_ArraySection(const ArraySection_t &x) {
+        visit_ArrayItemSection(x);
     }
 
     void visit_SubroutineCall(const SubroutineCall_t &x) {

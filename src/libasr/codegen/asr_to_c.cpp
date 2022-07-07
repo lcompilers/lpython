@@ -51,7 +51,7 @@ std::string format_type_c(const std::string &dims, const std::string &type,
     // if (use_ref) ref = "&";
     // fmt = type + " " + ptr + ref + name;
     std::string ref = "";
-    if (use_ref) ref = "&";
+    if (use_ref) ref = "*";
     if( dims == "*" ) {
         fmt = type + " " + dims + ref + name;
     } else {
@@ -124,6 +124,7 @@ public:
             }
         } else {
             std::string dims;
+            use_ref = use_ref && !ASRUtils::is_array(v.m_type);
             if (ASRUtils::is_integer(*v.m_type)) {
                 headers.insert("inttypes");
                 ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(v.m_type);
@@ -156,7 +157,7 @@ public:
                 ASR::Derived_t *t = ASR::down_cast<ASR::Derived_t>(v.m_type);
                 std::string der_type_name = ASRUtils::symbol_name(t->m_derived_type);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
-                if( v.m_intent == ASRUtils::intent_local && pre_initialise_derived_type ) {
+                if( v.m_intent == ASRUtils::intent_local && pre_initialise_derived_type) {
                     std::string value_var_name = v.m_parent_symtab->get_unique_name(std::string(v.m_name) + "_value");
                     sub = format_type_c(dims, "struct " + der_type_name,
                                         value_var_name, use_ref, dummy);
@@ -167,9 +168,18 @@ public:
                     }
                     sub += ";\n";
                     sub += indent + format_type_c("", "struct " + der_type_name + "*", v.m_name, use_ref, dummy);
-                    sub += "= &" + value_var_name;
+                    if( t->n_dims != 0 ) {
+                        sub += " = " + value_var_name;
+                    } else {
+                        sub += " = &" + value_var_name;
+                    }
                     return sub;
                 } else {
+                    if( v.m_intent == ASRUtils::intent_in ||
+                        v.m_intent == ASRUtils::intent_inout ) {
+                        use_ref = false;
+                        dims = "";
+                    }
                     sub = format_type_c(dims, "struct " + der_type_name + "*",
                                         v.m_name, use_ref, dummy);
                 }
@@ -471,7 +481,7 @@ R"(
         for (size_t i=0; i<x.n_values; i++) {
             this->visit_expr(*x.m_values[i]);
             ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_values[i]);
-            out += get_print_type(value_type, ASR::is_a<ASR::ArrayRef_t>(*x.m_values[i]));
+            out += get_print_type(value_type, ASR::is_a<ASR::ArrayItem_t>(*x.m_values[i]));
             v.push_back(src);
             if (i+1!=x.n_values) {
                 out += "\%s";

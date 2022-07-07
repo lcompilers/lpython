@@ -49,7 +49,7 @@ public:
         pass_result.reserve(al, 1);
     }
 
-    ASR::ttype_t* get_array_from_slice(const ASR::ArrayRef_t& x, ASR::expr_t* arr_var) {
+    ASR::ttype_t* get_array_from_slice(const ASR::ArraySection_t& x, ASR::expr_t* arr_var) {
         Vec<ASR::dimension_t> m_dims;
         m_dims.reserve(al, x.n_args);
         ASR::ttype_t* int32_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
@@ -143,8 +143,8 @@ public:
         return new_type;
     }
 
-    void visit_ArrayRef(const ASR::ArrayRef_t& x) {
-        if( PassUtils::is_slice_present(x) && create_slice_var ) {
+    void visit_ArraySection(const ASR::ArraySection_t& x) {
+        if( create_slice_var ) {
             ASR::expr_t* x_arr_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, x.m_v));
             Str new_name_str;
             new_name_str.from_str(al, "~" + std::to_string(slice_counter) + "_slice");

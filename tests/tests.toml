@@ -158,6 +158,11 @@ c = true
 cpp = true
 
 [[test]]
+filename = "../integration_tests/expr_12.py"
+asr = true
+c = true
+
+[[test]]
 filename = "../integration_tests/vec_01.py"
 asr = true
 pass = "loop_vectorise"
@@ -244,6 +249,10 @@ asr = true
 
 [[test]]
 filename = "../integration_tests/structs_04.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/structs_05.py"
 asr = true
 
 [[test]]

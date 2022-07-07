@@ -507,7 +507,7 @@ public:
         for (size_t i = 0; i < n_args; i++) {
             ASR::call_arg_t c_arg;
             c_arg.loc = args[i].loc;
-            c_arg.m_value = cast_helper(ASRUtils::expr_type(m_args[i]),
+            c_arg.m_value = cast_helper(m_args[i],
                                 args[i].m_value, true);
             call_args_vec.push_back(al, c_arg);
         }
@@ -1819,6 +1819,7 @@ public:
         ai.m_right = nullptr;
         ai.m_step = nullptr;
         ASR::symbol_t *s = nullptr;
+        bool is_item = true;
         ASR::ttype_t *type;
         if (AST::is_a<ASR::StringConstant_t>(*value)) {
             type = ASR::down_cast<ASR::StringConstant_t>(value)->m_type;
@@ -1850,6 +1851,17 @@ public:
                     throw SemanticError("slice indices must be integers or None", tmp->loc);
                 }
                 ai.m_step = ASRUtils::EXPR(tmp);
+            }
+            if( ai.m_left != nullptr &&
+                ASR::is_a<ASR::Var_t>(*ai.m_left) &&
+                ASR::is_a<ASR::Var_t>(*ai.m_right) ) {
+                ASR::Variable_t* startv = ASRUtils::EXPR2VAR(ai.m_left);
+                ASR::Variable_t* endv = ASRUtils::EXPR2VAR(ai.m_right);
+                is_item = is_item && (startv == endv);
+            } else {
+                is_item = is_item && (ai.m_left == nullptr &&
+                                      ai.m_step == nullptr &&
+                                      ai.m_right != nullptr);
             }
             if (ASR::is_a<ASR::List_t>(*type)) {
                 tmp = ASR::make_ListSection_t(al, x.base.base.loc, value, ai,
@@ -1935,9 +1947,18 @@ public:
         if (ASR::is_a<ASR::Set_t>(*type)) {
             throw SemanticError("'set' object is not subscriptable", x.base.base.loc);
         }
+        if( is_item ) {
+            ai.m_left = nullptr;
+            ai.m_step = nullptr;
+        }
         args.push_back(al, ai);
-        tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, s, args.p,
-            args.size(), type, nullptr);
+        if( is_item ) {
+            tmp = ASR::make_ArrayItem_t(al, x.base.base.loc, s, args.p,
+                        args.size(), type, nullptr);
+        } else {
+            tmp = ASR::make_ArraySection_t(al, x.base.base.loc, s, args.p,
+                        args.size(), type, nullptr);
+        }
     }
 
 };
@@ -2813,6 +2834,11 @@ public:
         } else if(AST::is_a<AST::Attribute_t>(*x.m_value)) {
             AST::Attribute_t* x_m_value = AST::down_cast<AST::Attribute_t>(x.m_value);
             visit_Attribute(*x_m_value);
+            ASR::expr_t* e = ASRUtils::EXPR(tmp);
+            visit_AttributeUtil(ASRUtils::expr_type(e), x.m_attr, e, x.base.base.loc);
+        } else if(AST::is_a<AST::Subscript_t>(*x.m_value)) {
+            AST::Subscript_t* x_m_value = AST::down_cast<AST::Subscript_t>(x.m_value);
+            visit_Subscript(*x_m_value);
             ASR::expr_t* e = ASRUtils::EXPR(tmp);
             visit_AttributeUtil(ASRUtils::expr_type(e), x.m_attr, e, x.base.base.loc);
         } else {

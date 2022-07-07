@@ -67,10 +67,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     uint32_t cur_func_idx;
     uint32_t no_of_functions;
     uint32_t no_of_imports;
-    uint32_t no_of_data_segments;  
+    uint32_t no_of_data_segments;
     uint32_t last_str_len;
     uint32_t avail_mem_loc;
-    
+
     std::map<std::string, int32_t> m_var_name_idx_map;
     std::map<std::string, int32_t> m_func_name_idx_map;
 
@@ -144,10 +144,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         wasm::emit_import_mem(m_import_section, m_al, "js", "memory", 10U /* min page limit */, 10U /* max page limit */);
         no_of_imports++;
     }
-    
-    
+
+
     void visit_Program(const ASR::Program_t &x) {
-        
+
         emit_imports();
 
         no_of_functions = 0;
@@ -171,10 +171,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
         wasm::emit_u32(m_type_section, m_al, 0U); // emit parameter types length = 0
         wasm::emit_u32(m_type_section, m_al, 0U); // emit result types length = 0
-        
+
         /********************* Function Body Starts Here *********************/
         uint32_t len_idx_code_section_func_size = wasm::emit_len_placeholder(m_code_section, m_al);
-        
+
         /********************* Local Vars Types List *********************/
         uint32_t len_idx_code_section_local_vars_list = wasm::emit_len_placeholder(m_code_section, m_al);
         int local_vars_cnt = 0, cur_idx = 0;
@@ -226,7 +226,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             }
             else if(v_float->m_kind == 8){
                 wasm::emit_b8(code, m_al, wasm::type::f64);
-            } 
+            }
             else {
                 throw CodeGenError("Floating Points of kind 4 and 8 only supported");
             }
@@ -238,7 +238,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             }
             else if(v_logical->m_kind == 8){
                 wasm::emit_b8(code, m_al, wasm::type::i64);
-            } 
+            }
             else {
                 throw CodeGenError("Logicals of kind 4 and 8 only supported");
             }
@@ -251,7 +251,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         m_var_name_idx_map.clear(); // clear all previous variable and their indices
 
         wasm::emit_b8(m_type_section, m_al, 0x60);  // new type declaration starts here
-        
+
         m_func_name_idx_map[x.m_name] = cur_func_idx; // add func to map early to support recursive func calls
 
         /********************* Parameter Types List *********************/
@@ -274,7 +274,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
         /********************* Function Body Starts Here *********************/
         uint32_t len_idx_code_section_func_size = wasm::emit_len_placeholder(m_code_section, m_al);
-        
+
         /********************* Local Vars Types List *********************/
         uint32_t len_idx_code_section_local_vars_list = wasm::emit_len_placeholder(m_code_section, m_al);
         int local_vars_cnt = 0;
@@ -318,7 +318,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             ASR::Variable_t *asr_target = LFortran::ASRUtils::EXPR2VAR(x.m_target);
             LFORTRAN_ASSERT(m_var_name_idx_map.find(asr_target->m_name) != m_var_name_idx_map.end());
             wasm::emit_set_local(m_code_section, m_al, m_var_name_idx_map[asr_target->m_name]);
-        } else if (ASR::is_a<ASR::ArrayRef_t>(*x.m_target)) {
+        } else if (ASR::is_a<ASR::ArrayItem_t>(*x.m_target)) {
             throw CodeGenError("Assignment: Arrays not yet supported");
         } else {
             LFORTRAN_ASSERT(false)
@@ -326,9 +326,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
-        if (x.m_value) { 
-            visit_expr(*x.m_value); 
-            return; 
+        if (x.m_value) {
+            visit_expr(*x.m_value);
+            return;
         }
         this->visit_expr(*x.m_left);
         this->visit_expr(*x.m_right);
@@ -381,9 +381,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_RealBinOp(const ASR::RealBinOp_t &x) {
-        if (x.m_value) { 
-            visit_expr(*x.m_value); 
-            return; 
+        if (x.m_value) {
+            visit_expr(*x.m_value);
+            return;
         }
         this->visit_expr(*x.m_left);
         this->visit_expr(*x.m_right);
@@ -436,9 +436,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_IntegerUnaryMinus(const ASR::IntegerUnaryMinus_t &x) {
-         if (x.m_value) { 
-            visit_expr(*x.m_value); 
-            return; 
+         if (x.m_value) {
+            visit_expr(*x.m_value);
+            return;
         }
         ASR::Integer_t *i = ASR::down_cast<ASR::Integer_t>(x.m_type);
         // there seems no direct unary-minus inst in wasm, so subtracting from 0
@@ -458,9 +458,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_RealUnaryMinus(const ASR::RealUnaryMinus_t &x) {
-         if (x.m_value) { 
-            visit_expr(*x.m_value); 
-            return; 
+         if (x.m_value) {
+            visit_expr(*x.m_value);
+            return;
         }
         ASR::Real_t *f = ASR::down_cast<ASR::Real_t>(x.m_type);
         if(f->m_kind == 4){
@@ -487,7 +487,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 wasm::emit_get_local(m_code_section, m_al, m_var_name_idx_map[v->m_name]);
                 break;
             }
-            
+
             default:
                 throw CodeGenError("Only Integer and Float Variable types currently supported");
         }
@@ -622,8 +622,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
                 // call JavaScript printStr
                 wasm::emit_call(m_code_section, m_al, m_func_name_idx_map["print_str"]);
-                
-            } 
+
+            }
         }
 
         // call JavaScript Flush
@@ -720,10 +720,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 Result<Vec<uint8_t>> asr_to_wasm_bytes_stream(ASR::TranslationUnit_t &asr, Allocator &al, diag::Diagnostics &diagnostics) {
     ASRToWASMVisitor v(al, diagnostics);
     Vec<uint8_t> wasm_bytes;
-    
+
     pass_wrap_global_stmts_into_function(al, asr, "f");
     pass_replace_do_loops(al, asr);
-    
+
     try {
         v.visit_asr((ASR::asr_t &)asr);
     } catch (const CodeGenError &e) {
@@ -732,10 +732,10 @@ Result<Vec<uint8_t>> asr_to_wasm_bytes_stream(ASR::TranslationUnit_t &asr, Alloc
     }
 
     {
-        wasm_bytes.reserve(al, 8U /* preamble size */ + 8U /* (section id + section size) */ * 6U /* number of sections */ 
-            + v.m_type_section.size() + v.m_import_section.size() + v.m_func_section.size() 
+        wasm_bytes.reserve(al, 8U /* preamble size */ + 8U /* (section id + section size) */ * 6U /* number of sections */
+            + v.m_type_section.size() + v.m_import_section.size() + v.m_func_section.size()
             + v.m_export_section.size() + v.m_code_section.size() + v.m_data_section.size());
-        
+
         wasm::emit_header(wasm_bytes, al);  // emit header and version
         wasm::encode_section(wasm_bytes, v.m_type_section, al, 1U);
         wasm::encode_section(wasm_bytes, v.m_import_section, al, 2U);
