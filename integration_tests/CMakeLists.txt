@@ -191,6 +191,7 @@ RUN(NAME test_platform       LABELS cpython llvm)
 RUN(NAME test_vars_01        LABELS cpython llvm)
 RUN(NAME test_version        LABELS cpython llvm)
 RUN(NAME vec_01              LABELS cpython llvm)
+RUN(NAME test_str_comparison LABELS cpython llvm)
 
 # Just CPython
 RUN(NAME test_builtin_bin    LABELS cpython)
