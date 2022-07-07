@@ -252,6 +252,10 @@ filename = "../integration_tests/structs_04.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/structs_05.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/bindc_01.py"
 asr = true
 llvm = true

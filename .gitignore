@@ -188,6 +188,8 @@ integration_tests/structs_02
 integration_tests/structs_02.c
 integration_tests/structs_03
 integration_tests/structs_03.c
+integration_tests/structs_05
+integration_tests/structs_05.c
 integration_tests/expr_08
 integration_tests/expr_08.c
 integration_tests/expr_12
