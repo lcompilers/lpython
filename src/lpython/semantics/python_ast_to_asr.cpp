@@ -2836,6 +2836,11 @@ public:
             visit_Attribute(*x_m_value);
             ASR::expr_t* e = ASRUtils::EXPR(tmp);
             visit_AttributeUtil(ASRUtils::expr_type(e), x.m_attr, e, x.base.base.loc);
+        } else if(AST::is_a<AST::Subscript_t>(*x.m_value)) {
+            AST::Subscript_t* x_m_value = AST::down_cast<AST::Subscript_t>(x.m_value);
+            visit_Subscript(*x_m_value);
+            ASR::expr_t* e = ASRUtils::EXPR(tmp);
+            visit_AttributeUtil(ASRUtils::expr_type(e), x.m_attr, e, x.base.base.loc);
         } else {
             throw SemanticError("Only Name, Attribute is supported for now in Attribute",
                 x.base.base.loc);

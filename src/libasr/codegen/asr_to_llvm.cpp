@@ -1155,6 +1155,10 @@ public:
             return;
         }
         ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x.m_v);
+        if( ASR::is_a<ASR::Derived_t>(*v->m_type) ) {
+            ASR::Derived_t* der_type = ASR::down_cast<ASR::Derived_t>(v->m_type);
+            der_type_name = ASRUtils::symbol_name(ASRUtils::symbol_get_past_external(der_type->m_derived_type));
+        }
         uint32_t v_h = get_hash((ASR::asr_t*)v);
         LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
         llvm::Value* array = llvm_symtab[v_h];
