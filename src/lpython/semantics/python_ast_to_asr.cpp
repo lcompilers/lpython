@@ -507,7 +507,7 @@ public:
         for (size_t i = 0; i < n_args; i++) {
             ASR::call_arg_t c_arg;
             c_arg.loc = args[i].loc;
-            c_arg.m_value = cast_helper(ASRUtils::expr_type(m_args[i]),
+            c_arg.m_value = cast_helper(m_args[i],
                                 args[i].m_value, true);
             call_args_vec.push_back(al, c_arg);
         }

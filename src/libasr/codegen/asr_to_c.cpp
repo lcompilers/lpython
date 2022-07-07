@@ -51,7 +51,7 @@ std::string format_type_c(const std::string &dims, const std::string &type,
     // if (use_ref) ref = "&";
     // fmt = type + " " + ptr + ref + name;
     std::string ref = "";
-    if (use_ref) ref = "&";
+    if (use_ref) ref = "*";
     if( dims == "*" ) {
         fmt = type + " " + dims + ref + name;
     } else {
@@ -124,6 +124,7 @@ public:
             }
         } else {
             std::string dims;
+            use_ref = use_ref && !ASRUtils::is_array(v.m_type);
             if (ASRUtils::is_integer(*v.m_type)) {
                 headers.insert("inttypes");
                 ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(v.m_type);
