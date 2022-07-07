@@ -583,7 +583,7 @@ R"(#include <stdio.h>
         this->visit_expr(*x.m_v);
         der_expr = std::move(src);
         member = ASRUtils::symbol_name(x.m_m);
-        if( ASR::is_a<ASR::ArrayRef_t>(*x.m_v) ) {
+        if( ASR::is_a<ASR::ArrayItem_t>(*x.m_v) ) {
             src = der_expr + "." + member;
         } else {
             src = der_expr + "->" + member;
@@ -1172,7 +1172,7 @@ R"(#include <stdio.h>
                 out += arg_name;
             } else {
                 self().visit_expr(*x.m_args[i].m_value);
-                if( ASR::is_a<ASR::ArrayRef_t>(*x.m_args[i].m_value) &&
+                if( ASR::is_a<ASR::ArrayItem_t>(*x.m_args[i].m_value) &&
                     ASR::is_a<ASR::Derived_t>(*ASRUtils::expr_type(x.m_args[i].m_value)) ) {
                     out += "&" + src;
                 } else {
