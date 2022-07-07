@@ -263,7 +263,8 @@ expr
     | DictConstant(expr* keys, expr* values, ttype type)
     | DictLen(expr arg, ttype type, expr? value)
     | Var(symbol v)
-    | ArrayRef(symbol v, array_index* args, ttype type, expr? value)
+    | ArrayItem(symbol v, array_index* args, ttype type, expr? value)
+    | ArraySection(symbol v, array_index* args, ttype type, expr? value)
     | ArraySize(expr v, expr? dim, ttype type, expr? value)
     | ArrayBound(expr v, expr? dim, ttype type, arraybound bound,
                  expr? value)

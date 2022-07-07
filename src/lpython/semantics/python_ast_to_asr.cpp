@@ -1819,6 +1819,7 @@ public:
         ai.m_right = nullptr;
         ai.m_step = nullptr;
         ASR::symbol_t *s = nullptr;
+        bool is_item = true;
         ASR::ttype_t *type;
         if (AST::is_a<ASR::StringConstant_t>(*value)) {
             type = ASR::down_cast<ASR::StringConstant_t>(value)->m_type;
@@ -1850,6 +1851,17 @@ public:
                     throw SemanticError("slice indices must be integers or None", tmp->loc);
                 }
                 ai.m_step = ASRUtils::EXPR(tmp);
+            }
+            if( ai.m_left != nullptr &&
+                ASR::is_a<ASR::Var_t>(*ai.m_left) &&
+                ASR::is_a<ASR::Var_t>(*ai.m_right) ) {
+                ASR::Variable_t* startv = ASRUtils::EXPR2VAR(ai.m_left);
+                ASR::Variable_t* endv = ASRUtils::EXPR2VAR(ai.m_right);
+                is_item = is_item && (startv == endv);
+            } else {
+                is_item = is_item && (ai.m_left == nullptr &&
+                                      ai.m_step == nullptr &&
+                                      ai.m_right != nullptr);
             }
             if (ASR::is_a<ASR::List_t>(*type)) {
                 tmp = ASR::make_ListSection_t(al, x.base.base.loc, value, ai,
@@ -1935,9 +1947,18 @@ public:
         if (ASR::is_a<ASR::Set_t>(*type)) {
             throw SemanticError("'set' object is not subscriptable", x.base.base.loc);
         }
+        if( is_item ) {
+            ai.m_left = nullptr;
+            ai.m_step = nullptr;
+        }
         args.push_back(al, ai);
-        tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, s, args.p,
-            args.size(), type, nullptr);
+        if( is_item ) {
+            tmp = ASR::make_ArrayItem_t(al, x.base.base.loc, s, args.p,
+                        args.size(), type, nullptr);
+        } else {
+            tmp = ASR::make_ArraySection_t(al, x.base.base.loc, s, args.p,
+                        args.size(), type, nullptr);
+        }
     }
 
 };

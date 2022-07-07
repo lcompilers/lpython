@@ -127,7 +127,7 @@ public:
             ai.m_step = nullptr;
             args.reserve(al, 1);
             args.push_back(al, ai);
-            ASR::expr_t* array_ref = LFortran::ASRUtils::EXPR(ASR::make_ArrayRef_t(al, arr_var->base.base.loc, arr,
+            ASR::expr_t* array_ref = LFortran::ASRUtils::EXPR(ASR::make_ArrayItem_t(al, arr_var->base.base.loc, arr,
                                                                 args.p, args.size(),
                                                                 LFortran::ASRUtils::expr_type(LFortran::ASRUtils::EXPR((ASR::asr_t*)arr_var)), nullptr));
             if( idoloop->m_values[i]->type == ASR::exprType::ImpliedDoLoop ) {
@@ -191,7 +191,7 @@ public:
                         ai.m_step = nullptr;
                         args.reserve(al, 1);
                         args.push_back(al, ai);
-                        ASR::expr_t* array_ref = LFortran::ASRUtils::EXPR(ASR::make_ArrayRef_t(al, arr_var->base.base.loc, arr_var->m_v,
+                        ASR::expr_t* array_ref = LFortran::ASRUtils::EXPR(ASR::make_ArrayItem_t(al, arr_var->base.base.loc, arr_var->m_v,
                                                                             args.p, args.size(),
                                                                             LFortran::ASRUtils::expr_type(LFortran::ASRUtils::EXPR((ASR::asr_t*)arr_var)), nullptr));
                         ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, array_ref, arr_init->m_args[k], nullptr));

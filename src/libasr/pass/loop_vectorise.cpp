@@ -68,12 +68,12 @@ public:
         ASR::Assignment_t* x_assignment = ASR::down_cast<ASR::Assignment_t>(x);
         ASR::expr_t* target = x_assignment->m_target;
         ASR::expr_t* value = x_assignment->m_value;
-        if( !ASR::is_a<ASR::ArrayRef_t>(*target) ||
-            !ASR::is_a<ASR::ArrayRef_t>(*value) ) {
+        if( !ASR::is_a<ASR::ArrayItem_t>(*target) ||
+            !ASR::is_a<ASR::ArrayItem_t>(*value) ) {
             return false;
         }
-        ASR::ArrayRef_t* target_array_ref = ASR::down_cast<ASR::ArrayRef_t>(target);
-        ASR::ArrayRef_t* value_array_ref = ASR::down_cast<ASR::ArrayRef_t>(value);
+        ASR::ArrayItem_t* target_array_ref = ASR::down_cast<ASR::ArrayItem_t>(target);
+        ASR::ArrayItem_t* value_array_ref = ASR::down_cast<ASR::ArrayItem_t>(value);
         if( target_array_ref->m_args->m_left ||
             target_array_ref->m_args->m_step ||
             value_array_ref->m_args->m_left ||
