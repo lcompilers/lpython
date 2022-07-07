@@ -61,7 +61,7 @@ public:
                 ASR::is_a<ASR::WhileLoop_t>(x));
     }
 
-    bool is_vector_copy(ASR::stmt_t* x, Vec<ASR::symbol_t*>& arrays) {
+    bool is_vector_copy(ASR::stmt_t* x, Vec<ASR::expr_t*>& arrays) {
         if( !ASR::is_a<ASR::Assignment_t>(*x) ) {
             return false;
         }
@@ -100,11 +100,11 @@ public:
                               ASR::expr_t*& vector_length,
                               Vec<ASR::stmt_t*>& vectorised_loop_body) {
         LFORTRAN_ASSERT(vectorised_loop_body.reserve_called);
-        Vec<ASR::symbol_t*> arrays;
+        Vec<ASR::expr_t*> arrays;
         arrays.reserve(al, 2);
         if( is_vector_copy(loop_stmt, arrays) ) {
-            ASR::symbol_t *target_sym = arrays[0], *value_sym = arrays[1];
-            ASR::ttype_t* target_type = ASRUtils::symbol_type(target_sym);
+            ASR::expr_t *target_sym = arrays[0], *value_sym = arrays[1];
+            ASR::ttype_t* target_type = ASRUtils::expr_type(target_sym);
             int64_t vector_length_int = get_vector_length(target_type);
             vector_length = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loop_stmt->base.loc,
                                 vector_length_int, ASRUtils::expr_type(index)));

@@ -145,7 +145,7 @@ public:
 
     void visit_ArraySection(const ASR::ArraySection_t& x) {
         if( create_slice_var ) {
-            ASR::expr_t* x_arr_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, x.m_v));
+            ASR::expr_t* x_arr_var = x.m_v;
             Str new_name_str;
             new_name_str.from_str(al, "~" + std::to_string(slice_counter) + "_slice");
             slice_counter += 1;
@@ -187,7 +187,7 @@ public:
                 doloop_body.reserve(al, 1);
                 if( doloop == nullptr ) {
                     ASR::expr_t* target_ref = PassUtils::create_array_ref(slice_sym, idx_vars_target, al, x.base.base.loc, x.m_type);
-                    ASR::expr_t* value_ref = PassUtils::create_array_ref(x.m_v, idx_vars_value, al, x.base.base.loc, x.m_type);
+                    ASR::expr_t* value_ref = PassUtils::create_array_ref(x.m_v, idx_vars_value, al);
                     ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, target_ref, value_ref, nullptr));
                     doloop_body.push_back(al, assign_stmt);
                 } else {

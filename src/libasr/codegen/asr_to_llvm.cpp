@@ -1154,16 +1154,31 @@ public:
             this->visit_expr_wrapper(x.m_value, true);
             return;
         }
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x.m_v);
-        if( ASR::is_a<ASR::Derived_t>(*v->m_type) ) {
-            ASR::Derived_t* der_type = ASR::down_cast<ASR::Derived_t>(v->m_type);
-            der_type_name = ASRUtils::symbol_name(ASRUtils::symbol_get_past_external(der_type->m_derived_type));
+        llvm::Value* array = nullptr;
+        if( ASR::is_a<ASR::Var_t>(*x.m_v) ) {
+            ASR::Variable_t *v = ASRUtils::EXPR2VAR(x.m_v);
+            if( ASR::is_a<ASR::Derived_t>(*v->m_type) ) {
+                ASR::Derived_t* der_type = ASR::down_cast<ASR::Derived_t>(v->m_type);
+                der_type_name = ASRUtils::symbol_name(ASRUtils::symbol_get_past_external(der_type->m_derived_type));
+            }
+            uint32_t v_h = get_hash((ASR::asr_t*)v);
+            LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
+            array = llvm_symtab[v_h];
+        } else {
+            int64_t ptr_loads_copy = ptr_loads;
+            ptr_loads = 0;
+            this->visit_expr(*x.m_v);
+            if( ASR::is_a<ASR::Derived_t>(*ASRUtils::expr_type(x.m_v)) ) {
+                ASR::Derived_t* der_type = ASR::down_cast<ASR::Derived_t>(ASRUtils::expr_type(x.m_v));
+                der_type_name = ASRUtils::symbol_name(ASRUtils::symbol_get_past_external(der_type->m_derived_type));
+            }
+            ptr_loads = ptr_loads_copy;
+            array = tmp;
         }
-        uint32_t v_h = get_hash((ASR::asr_t*)v);
-        LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
-        llvm::Value* array = llvm_symtab[v_h];
-        if (is_a<ASR::Character_t>(*x.m_type)
-             && ASR::down_cast<ASR::Character_t>(x.m_type)->n_dims == 0) {
+        ASR::dimension_t* m_dims;
+        int n_dims = ASRUtils::extract_dimensions_from_ttype(
+                        ASRUtils::expr_type(x.m_v), m_dims);
+        if (is_a<ASR::Character_t>(*x.m_type) && n_dims == 0) {
             // String indexing:
             if (x.n_args != 1) {
                 throw CodeGenError("Only string(a) supported for now.", x.base.base.loc);
@@ -1194,7 +1209,7 @@ public:
                 ptr_loads = ptr_loads_copy;
                 indices.push_back(tmp);
             }
-            if (v->m_type->type == ASR::ttypeType::Pointer) {
+            if (ASRUtils::expr_type(x.m_v)->type == ASR::ttypeType::Pointer) {
                 array = builder->CreateLoad(array);
             }
             tmp = arr_descr->get_single_element(array, indices, x.n_args);
@@ -1206,12 +1221,16 @@ public:
             this->visit_expr_wrapper(x.m_value, true);
             return;
         }
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x.m_v);
-        uint32_t v_h = get_hash((ASR::asr_t*)v);
-        LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
-        llvm::Value* array = llvm_symtab[v_h];
-        LFORTRAN_ASSERT(ASR::is_a<ASR::Character_t>(*x.m_type) &&
-            ASR::down_cast<ASR::Character_t>(x.m_type)->n_dims == 0);
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_v);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value* array = tmp;
+        ASR::dimension_t* m_dims;
+        int n_dims = ASRUtils::extract_dimensions_from_ttype(
+                        ASRUtils::expr_type(x.m_v), m_dims);
+        LFORTRAN_ASSERT(ASR::is_a<ASR::Character_t>(*ASRUtils::expr_type(x.m_v)) &&
+                        n_dims == 0);
         // String indexing:
         if (x.n_args == 1) {
             throw CodeGenError("Only string(a:b) supported for now.", x.base.base.loc);
@@ -2783,8 +2802,8 @@ public:
             target = tmp;
             if (is_a<ASR::ArrayItem_t>(*x.m_target)) {
                 ASR::ArrayItem_t *asr_target0 = ASR::down_cast<ASR::ArrayItem_t>(x.m_target);
-                if (is_a<ASR::Variable_t>(*asr_target0->m_v)) {
-                    ASR::Variable_t *asr_target = ASR::down_cast<ASR::Variable_t>(asr_target0->m_v);
+                if (is_a<ASR::Var_t>(*asr_target0->m_v)) {
+                    ASR::Variable_t *asr_target = ASRUtils::EXPR2VAR(asr_target0->m_v);
                     if ( is_a<ASR::Character_t>(*asr_target->m_type) ) {
                         ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(asr_target->m_type);
                         if (t->n_dims == 0) {
@@ -2795,8 +2814,8 @@ public:
                 }
             } else if (is_a<ASR::ArraySection_t>(*x.m_target)) {
                 ASR::ArraySection_t *asr_target0 = ASR::down_cast<ASR::ArraySection_t>(x.m_target);
-                if (is_a<ASR::Variable_t>(*asr_target0->m_v)) {
-                    ASR::Variable_t *asr_target = ASR::down_cast<ASR::Variable_t>(asr_target0->m_v);
+                if (is_a<ASR::Var_t>(*asr_target0->m_v)) {
+                    ASR::Variable_t *asr_target = ASRUtils::EXPR2VAR(asr_target0->m_v);
                     if ( is_a<ASR::Character_t>(*asr_target->m_type) ) {
                         ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(asr_target->m_type);
                         if (t->n_dims == 0) {
