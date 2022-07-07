@@ -43,10 +43,6 @@ namespace LFortran {
 
         ASR::expr_t* to_int32(ASR::expr_t* x, ASR::ttype_t* int32type, Allocator& al);
 
-        bool is_slice_present(const ASR::ArrayRef_t& x);
-
-        bool is_slice_present(const ASR::expr_t* x);
-
         ASR::expr_t* create_auxiliary_variable_for_expr(ASR::expr_t* expr, std::string& name,
             Allocator& al, SymbolTable*& current_scope, ASR::stmt_t*& assign_stmt);
 

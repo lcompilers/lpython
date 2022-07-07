@@ -173,7 +173,7 @@ namespace LFortran {
                 ai.m_step = nullptr;
                 args.push_back(al, ai);
             }
-            ASR::expr_t* array_ref = LFortran::ASRUtils::EXPR(ASR::make_ArrayRef_t(al, loc, arr,
+            ASR::expr_t* array_ref = LFortran::ASRUtils::EXPR(ASR::make_ArrayItem_t(al, loc, arr,
                                                                 args.p, args.size(),
                                                                 _type, nullptr));
             return array_ref;
@@ -404,25 +404,6 @@ namespace LFortran {
                 throw LFortranException("Array indices can only be of type real or integer.");
             }
             return nullptr;
-        }
-
-        bool is_slice_present(const ASR::ArrayRef_t& x) {
-            bool slice_present = false;
-            for( size_t i = 0; i < x.n_args; i++ ) {
-                if( x.m_args[i].m_step != nullptr ) {
-                    slice_present = true;
-                    break;
-                }
-            }
-            return slice_present;
-        }
-
-        bool is_slice_present(const ASR::expr_t* x) {
-            if( x == nullptr || x->type != ASR::exprType::ArrayRef ) {
-                return false;
-            }
-            ASR::ArrayRef_t* array_ref = ASR::down_cast<ASR::ArrayRef_t>(x);
-            return is_slice_present(*array_ref);
         }
 
         ASR::expr_t* create_auxiliary_variable_for_expr(ASR::expr_t* expr, std::string& name,
