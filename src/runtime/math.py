@@ -1,4 +1,4 @@
-from ltypes import i8, i16, i32, f32, f64, ccall
+from ltypes import i8, i16, i32, f32, i64, f64, ccall
 
 
 pi: f64 = 3.141592653589793238462643383279502884197
@@ -7,17 +7,33 @@ tau: f64 = 6.283185307179586
 
 # TODO: Change floor used inside functions implemented here to
 # floordiv operator (//) once the multiple import issue is fixed
-
+@overload
 def factorial(x: i32) -> i32:
     """
     Computes the factorial of `x`.
     """
 
-    if x < 0:
-        return 0
     result: i32
+    result = 0
+    if x < 0:
+        return result
     result = 1
     i: i32
+    for i in range(1, x+1):
+        result *= i
+    return result
+
+@overload
+def factorial(x: i64) -> i64:
+    """
+    Computes the factorial of `x`.
+    """
+    result: i64
+    result = 0
+    if x < 0:
+        return result
+    result = 1
+    i: i64
     for i in range(1, x+1):
         result *= i
     return result
@@ -207,6 +223,18 @@ def radians(x: f64) -> f64:
     """
     return x * pi / 180.0
 
+# fabs
+# supported data types: i32, i64, f32, f64
+@overload
+def fabs(x: f32) -> f32:
+    """
+    Return the absolute value of `x`.
+    """
+    if x < 0.0:
+        return -x
+    return x
+
+@overload
 def fabs(x: f64) -> f64:
     """
     Return the absolute value of `x`.
@@ -215,9 +243,94 @@ def fabs(x: f64) -> f64:
         return -x
     return x
 
+@overload
+def fabs(x: i64) -> f64:
+    """
+    Return the absolute value of `x`.
+    """
+    if x < 0.0:
+        return -float(x)
+    return float(x)
 
+@overload
+def fabs(x: i32) -> f64:
+    """
+    Return the absolute value of `x`.
+    """
+    if x < 0.0:
+        return -float(x)
+    return float(x)
+
+@overload
+def fabs(x: i16) -> f64:
+    """
+    Return the absolute value of `x`.
+    """
+    if x < 0.0:
+        return -float(x)
+    return float(x)
+
+@overload
+def fabs(x: i8) -> f64:
+    """
+    Return the absolute value of `x`.
+    """
+    if x < 0.0:
+        return -float(x)
+    return float(x)
+
+# pow
+# supported data types: i32, i64, f32, f64
+@overload
+def pow(x: f64, y: f64) -> f64:
+    """
+    Return `x` raised to the power  `y`.
+    """
+    if y < 0:
+        raise ValueError('y should be nonnegative')
+    result: f64
+    result = x**y
+    return result
+
+
+@overload
+def pow(x: i64, y: i64) -> i64:
+    """
+    Return `x` raised to the power `y`.
+    """
+    if y < 0:
+        raise ValueError('y should be nonnegative')
+    result: i64
+    result = x**y
+    return result
+
+@overload
+def pow(x: f32, y: f32) -> f64:
+    """
+    Return `x` raised to the power `y`.
+    """
+    if y < 0:
+        raise ValueError('y should be nonnegative')
+    result: f64
+    result = x**y
+    return result
+
+@overload
+def pow(x: i32, y: i32) -> i32:
+    """
+    Return `x` raised to the power `y`.
+    """
+    if y < 0:
+        raise ValueError('y should be nonnegative')
+    result: i32
+    result = x**y
+    return result
+
+@overload
 def ldexp(x: f64, i: i32) -> f64:
-    return x * (2**i)
+    result: f64
+    result = x * (2**i)
+    return result
 
 
 def exp(x: f64) -> f64:
@@ -225,13 +338,6 @@ def exp(x: f64) -> f64:
     Return `e` raised to the power `x`.
     """
     return e**x
-
-
-def pow(x: f64, y: f64) -> f64:
-    """
-    Return `x` raised to the power `y`.
-    """
-    return x**y
 
 
 def mod(a: i32, b: i32) -> i32:
