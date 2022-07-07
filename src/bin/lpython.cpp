@@ -768,9 +768,9 @@ int main(int argc, char *argv[])
             #ifdef HAVE_LFORTRAN_RAPIDJSON
                 LPythonServer().run(arg_lsp_filename);
                 return 0;
+            #else 
+                std::cerr << "Compiler was not built with LSP support (-DWITH_LSP), please build it again.\n";
             #endif
-        } else {
-            std::cerr << "Compiler was not built with LSP support (-DWITH_LSP), please build it again.\n";
         }
 
         if (arg_backend == "llvm") {
