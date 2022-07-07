@@ -1,0 +1,5 @@
+style suggestion: Could have used '**' instead of 'pow'
+ --> tests/errors/test_pow3.py:5:11
+  |
+5 |     print(pow(x,3))
+  |           ^^^^^^^^ '**' could be used instead
