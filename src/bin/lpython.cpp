@@ -26,7 +26,10 @@
 #include <lpython/python_serialization.h>
 #include <lpython/parser/tokenizer.h>
 #include <lpython/parser/parser.h>
-#include <libasr/lsp/LPythonServer.hpp>
+
+#ifdef HAVE_LFORTRAN_RAPIDJSON
+    #include <libasr/lsp/LPythonServer.hpp>
+#endif
 
 #include <cpp-terminal/terminal.h>
 #include <cpp-terminal/prompt0.h>
@@ -762,8 +765,12 @@ int main(int argc, char *argv[])
         }
 
         if (lsp) {
-            LPythonServer().run(arg_lsp_filename);
-            return 0;
+            #ifdef HAVE_LFORTRAN_RAPIDJSON
+                LPythonServer().run(arg_lsp_filename);
+                return 0;
+            #endif
+        } else {
+            std::cerr << "Compiler was not built with LSP support (-DWITH_LSP), please build it again.\n";
         }
 
         if (arg_backend == "llvm") {

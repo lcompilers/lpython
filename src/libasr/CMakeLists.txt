@@ -46,9 +46,6 @@ set(SRC
     pass/loop_unroll.cpp
     pass/dead_code_removal.cpp
 
-    lsp/JSONRPC2Connection.cpp
-    lsp/LPythonServer.cpp
-
     asr_verify.cpp
     asr_utils.cpp
     diagnostics.cpp
@@ -79,6 +76,14 @@ if (WITH_LLVM)
             COMPILE_FLAGS -Wno-deprecated-declarations)
     endif()
 endif()
+
+if (WITH_LSP)
+  set (SRC ${SRC}
+      lsp/JSONRPC2Connection.cpp
+      lsp/LPythonServer.cpp
+  )
+endif()
+
 add_library(asr ${SRC})
 target_include_directories(asr BEFORE PUBLIC ${libasr_SOURCE_DIR}/..)
 target_include_directories(asr BEFORE PUBLIC ${libasr_BINARY_DIR}/..)
@@ -93,4 +98,7 @@ if (WITH_EXECINFO)
 endif()
 if (WITH_LLVM)
     target_link_libraries(asr p::llvm)
+endif()
+if (WITH_LSP)
+    add_subdirectory(lsp)
 endif()
