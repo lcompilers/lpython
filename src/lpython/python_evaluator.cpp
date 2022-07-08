@@ -38,9 +38,11 @@ PythonCompiler::~PythonCompiler() = default;
 
 Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
 #ifdef HAVE_LFORTRAN_LLVM
-    ASR::TranslationUnit_t &asr, diag::Diagnostics &diagnostics
+    ASR::TranslationUnit_t &asr, LCompilers::PassManager& lpm,
+    diag::Diagnostics &diagnostics
 #else
-    ASR::TranslationUnit_t &/*asr*/, diag::Diagnostics &/*diagnostics*/
+    ASR::TranslationUnit_t &/*asr*/, LCompilers::PassManager&/*lpm*/,
+    diag::Diagnostics &/*diagnostics*/
 #endif
     )
 {
@@ -52,8 +54,7 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
     std::unique_ptr<LFortran::LLVMModule> m;
     Result<std::unique_ptr<LFortran::LLVMModule>> res
         = asr_to_llvm(asr, diagnostics,
-            e->get_context(), al, compiler_options.platform,
-            compiler_options.fast, get_runtime_library_dir(),
+            e->get_context(), al, lpm, compiler_options.platform,
             run_fn);
     if (res.ok) {
         m = std::move(res.result);

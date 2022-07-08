@@ -17,6 +17,18 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+// Forward declarations
+void _lpython_main_program();
+double test1();
+std::complex<double> test2();
+int32_t test3();
+std::complex<double> __lpython_overloaded_9__complex(int x, int y);
+float _lfortran_caimag(std::complex<float> x);
+double _lfortran_zaimag(std::complex<double> x);
+namespace {
+}
+
+// Implementations
 void _lpython_main_program()
 {
     std::cout << test1() << std::endl;

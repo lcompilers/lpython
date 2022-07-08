@@ -235,6 +235,8 @@ int dot_count = 0;
         EXPR(e), STMTS(stmt), stmt.size(), STMTS(orelse), orelse.size())
 #define IF_STMT_03(e, stmt, orelse, l) make_If_t(p.m_a, l, \
         EXPR(e), STMTS(stmt), stmt.size(), STMTS(A2LIST(p.m_a, orelse)), 1)
+#define TERNARY(test, body, orelse, l) make_IfExp_t(p.m_a, l, \
+        EXPR(test), EXPR(body), EXPR(orelse))
 
 #define FOR_01(target, iter, stmts, l) make_For_t(p.m_a, l, \
         EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
@@ -423,11 +425,24 @@ char* concat_string(Allocator &al, ast_t *a, char *b) {
     return LFortran::s2c(al, std::string(s) + std::string(b));
 }
 
+char* unescape(Allocator &al, LFortran::Str &s) {
+    std::string x;
+    for (size_t idx=0; idx < s.size(); idx++) {
+        if (s.p[idx] == '\\' && s.p[idx+1] == 'n') {
+            x += "\n";
+            idx++;
+        } else {
+            x += s.p[idx];
+        }
+    }
+    return LFortran::s2c(al, x);
+}
+
 #define SYMBOL(x, l) make_Name_t(p.m_a, l, \
         x.c_str(p.m_a), expr_contextType::Load)
 // `x.int_n` is of type BigInt but we store the int64_t directly in AST
 #define INTEGER(x, l) make_ConstantInt_t(p.m_a, l, x, nullptr)
-#define STRING1(x, l) make_ConstantStr_t(p.m_a, l, x.c_str(p.m_a), nullptr)
+#define STRING1(x, l) make_ConstantStr_t(p.m_a, l, unescape(p.m_a, x), nullptr)
 #define STRING2(x, y, l) make_ConstantStr_t(p.m_a, l, concat_string(p.m_a, x, y.c_str(p.m_a)), nullptr)
 #define STRING3(id, x, l) PREFIX_STRING(p.m_a, l, name2char(id), x.c_str(p.m_a))
 #define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, x, nullptr)
@@ -437,7 +452,9 @@ char* concat_string(Allocator &al, ast_t *a, char *b) {
 static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, char *s){
     Vec<expr_t *> exprs;
     exprs.reserve(al, 4);
-    ast_t *tmp;
+    ast_t *tmp = nullptr;
+    // Assuming prefix has only one character.
+    prefix[0] = tolower(prefix[0]);
     if (strcmp(prefix, "f") == 0) {
         std::string str = std::string(s);
         std::string s1 = "\"";
@@ -481,8 +498,18 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
                 exprs.push_back(al, down_cast<expr_t>(tmp));
             }
         }
+        tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
+    } else if (strcmp(prefix, "b") == 0) {
+        std::string str = std::string(s);
+        size_t start_pos = 0;
+        while((start_pos = str.find("\n", start_pos)) != std::string::npos) {
+                str.replace(start_pos, 1, "\\n");
+                start_pos += 2;
+        }
+        str = "b'" + str + "'";
+        tmp = make_ConstantBytes_t(al, l, LFortran::s2c(al, str), nullptr);
     }
-    return make_JoinedStr_t(al, l, exprs.p, exprs.size());
+    return tmp;
 }
 
 static inline keyword_t *CALL_KW(Allocator &al, Location &l,
@@ -505,6 +532,34 @@ static inline keyword_t *CALL_KW(Allocator &al, Location &l,
         EXPRS(e), e.size(), expr_contextType::Load)
 #define ATTRIBUTE_REF(val, attr, l) make_Attribute_t(p.m_a, l, \
         EXPR(val), name2char(attr), expr_contextType::Load)
+
+static inline comprehension_t *COMP(Allocator &al, Location &l,
+        expr_t *target, expr_t* iter, expr_t **ifs, size_t ifs_size,
+        int64_t is_async) {
+    comprehension_t *r = al.allocate<comprehension_t>();
+    r->loc = l;
+    r->m_target = target;
+    r->m_iter = iter;
+    r->m_ifs = ifs;
+    r->n_ifs = ifs_size;
+    r->m_is_async = is_async;
+    return r;
+}
+
+static inline ast_t* ID_TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
+    if(is_a<expr_t>(*elts[0]) && elts.size() == 1) {
+        return (ast_t*) SET_EXPR_CTX_01(elts[0], Store);
+    }
+    return make_Tuple_t(al, l, EXPRS(SET_EXPR_CTX_02(SET_STORE_02(elts), Store)), elts.size(), expr_contextType::Store);
+}
+#define ID_TUPLE_01(elts, l) ID_TUPLE_02(p.m_a, l, elts)
+#define ID_TUPLE_03(elts, l) make_Tuple_t(p.m_a, l, \
+        EXPRS(SET_EXPR_CTX_02(SET_STORE_02(elts), Store)), elts.size(), expr_contextType::Store);
+
+#define LIST_COMP_1(expr, target, iter, l) make_ListComp_t(p.m_a, l, EXPR(expr), \
+        COMP(p.m_a, l, EXPR(target), EXPR(iter), nullptr, 0, 0), 1)
+#define LIST_COMP_2(expr, target, iter, ifs, l) make_ListComp_t(p.m_a, l, EXPR(expr), \
+        COMP(p.m_a, l, EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), EXPRS(A2LIST(p.m_a, ifs)), 1, 0), 1)
 
 expr_t* CHECK_TUPLE(expr_t *x) {
     if(is_a<Tuple_t>(*x) && down_cast<Tuple_t>(x)->n_elts == 1) {

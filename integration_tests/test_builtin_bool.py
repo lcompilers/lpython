@@ -33,6 +33,9 @@ def test_bool():
     f2 = -235.6
     assert bool(f2)
 
+    f2 = 0.0000534
+    assert bool(f2)
+
     s: str
     s = ""
     assert not bool(s)

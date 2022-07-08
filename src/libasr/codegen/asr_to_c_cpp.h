@@ -69,6 +69,7 @@ private:
     Derived& self() { return static_cast<Derived&>(*this); }
 public:
     diag::Diagnostics &diag;
+    Platform platform;
     std::string src;
     int indentation_level;
     int indentation_spaces;
@@ -88,11 +89,14 @@ public:
     std::set<std::string> headers;
 
     SymbolTable* global_scope;
+    int64_t lower_bound;
 
-    BaseCCPPVisitor(diag::Diagnostics &diag,
-            bool gen_stdstring, bool gen_stdcomplex, bool is_c) : diag{diag},
+    BaseCCPPVisitor(diag::Diagnostics &diag, Platform &platform,
+            bool gen_stdstring, bool gen_stdcomplex, bool is_c,
+            int64_t default_lower_bound) : diag{diag},
+            platform{platform},
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
-        is_c{is_c}, global_scope{nullptr} {}
+        is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound} {}
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         global_scope = x.m_global_scope;
@@ -240,7 +244,7 @@ R"(#include <stdio.h>
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
-            sub += self().convert_variable_decl(*arg);
+            sub += self().convert_variable_decl(*arg, false);
             if (i < x.n_args-1) sub += ", ";
         }
         sub += ")";
@@ -304,7 +308,7 @@ R"(#include <stdio.h>
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
-            sub += self().convert_variable_decl(*arg);
+            sub += self().convert_variable_decl(*arg, false);
             if (i < x.n_args-1) sub += ", ";
         }
         sub += ")";
@@ -514,9 +518,10 @@ R"(#include <stdio.h>
     void visit_Assignment(const ASR::Assignment_t &x) {
         std::string target;
         if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
-            target = LFortran::ASRUtils::EXPR2VAR(x.m_target)->m_name;
-        } else if (ASR::is_a<ASR::ArrayRef_t>(*x.m_target)) {
-            visit_ArrayRef(*ASR::down_cast<ASR::ArrayRef_t>(x.m_target));
+            visit_Var(*ASR::down_cast<ASR::Var_t>(x.m_target));
+            target = src;
+        } else if (ASR::is_a<ASR::ArrayItem_t>(*x.m_target)) {
+            visit_ArrayItem(*ASR::down_cast<ASR::ArrayItem_t>(x.m_target));
             target = src;
         } else if (ASR::is_a<ASR::DerivedRef_t>(*x.m_target)) {
             visit_DerivedRef(*ASR::down_cast<ASR::DerivedRef_t>(x.m_target));
@@ -570,7 +575,15 @@ R"(#include <stdio.h>
 
     void visit_Var(const ASR::Var_t &x) {
         const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
-        src = ASR::down_cast<ASR::Variable_t>(s)->m_name;
+        ASR::Variable_t* sv = ASR::down_cast<ASR::Variable_t>(s);
+        if( (sv->m_intent == ASRUtils::intent_in ||
+            sv->m_intent == ASRUtils::intent_inout) &&
+            is_c && ASRUtils::is_array(sv->m_type) &&
+            ASRUtils::is_pointer(sv->m_type)) {
+            src = "(*" + std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name) + ")";
+        } else {
+            src = std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name);
+        }
         last_expr_precedence = 2;
     }
 
@@ -579,13 +592,18 @@ R"(#include <stdio.h>
         this->visit_expr(*x.m_v);
         der_expr = std::move(src);
         member = ASRUtils::symbol_name(x.m_m);
-        src = der_expr + "->" + member;
+        if( ASR::is_a<ASR::ArrayItem_t>(*x.m_v) ) {
+            src = der_expr + "." + member;
+        } else {
+            src = der_expr + "->" + member;
+        }
     }
 
-    void visit_ArrayRef(const ASR::ArrayRef_t &x) {
-        const ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_v);
-        ASR::Variable_t* sv = ASR::down_cast<ASR::Variable_t>(s);
-        std::string out = std::string(sv->m_name);
+    void visit_ArrayItem(const ASR::ArrayItem_t &x) {
+        this->visit_expr(*x.m_v);
+        std::string out = src;
+        ASR::dimension_t* m_dims;
+        ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(x.m_v), m_dims);
         out += "[";
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i].m_right) {
@@ -594,10 +612,16 @@ R"(#include <stdio.h>
                 src = "/* FIXME right index */";
             }
             out += src;
-            if (i < x.n_args-1) out += ", ";
+            out += " - " + std::to_string(lower_bound);
+            if (i < x.n_args-1) out += "][";
         }
-        out += "-1]";
+        out += "]";
         last_expr_precedence = 2;
+        // if( !prefix.empty() ) {
+        //     src = prefix + "(" + out + ")";
+        // } else {
+        //     src = out;
+        // }
         src = out;
     }
 
@@ -656,13 +680,38 @@ R"(#include <stdio.h>
                 src = "(int)(" + src + ")";
                 break;
             }
+            case (ASR::cast_kindType::IntegerToLogical) : {
+                src = "(bool)(" + src + ")";
+                break;
+            }
             default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented",
                 x.base.base.loc);
         }
         last_expr_precedence = 2;
     }
 
-    void visit_Compare(const ASR::Compare_t &x) {
+    void visit_IntegerCompare(const ASR::IntegerCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    void visit_RealCompare(const ASR::RealCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    void visit_ComplexCompare(const ASR::ComplexCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    void visit_LogicalCompare(const ASR::LogicalCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    void visit_StringCompare(const ASR::StringCompare_t &x) {
+        handle_Compare(x);
+    }
+
+    template<typename T>
+    void handle_Compare(const T &x) {
         self().visit_expr(*x.m_left);
         std::string left = std::move(src);
         int left_precedence = last_expr_precedence;
@@ -836,7 +885,7 @@ R"(#include <stdio.h>
                 src += "(" + left + ")";
             }
         }
-        src += ASRUtils::binop_to_str(x.m_op);
+        src += ASRUtils::binop_to_str_python(x.m_op);
         if (right_precedence == 3) {
             src += "(" + right + ")";
         } else if (x.m_op == ASR::binopType::Sub) {
@@ -886,7 +935,7 @@ R"(#include <stdio.h>
         } else {
             src += "(" + left + ")";
         }
-        src += ASRUtils::logicalbinop_to_str(x.m_op);
+        src += ASRUtils::logicalbinop_to_str_python(x.m_op);
         if (right_precedence <= last_expr_precedence) {
             src += right;
         } else {
@@ -1124,10 +1173,20 @@ R"(#include <stdio.h>
             if (ASR::is_a<ASR::Var_t>(*x.m_args[i].m_value)) {
                 ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i].m_value);
                 std::string arg_name = arg->m_name;
-                out += arg_name;
+                if( ASRUtils::is_array(arg->m_type) &&
+                    ASRUtils::is_pointer(arg->m_type) ) {
+                    out += "&" + arg_name;
+                } else {
+                    out += arg_name;
+                }
             } else {
                 self().visit_expr(*x.m_args[i].m_value);
-                out += src;
+                if( ASR::is_a<ASR::ArrayItem_t>(*x.m_args[i].m_value) &&
+                    ASR::is_a<ASR::Derived_t>(*ASRUtils::expr_type(x.m_args[i].m_value)) ) {
+                    out += "&" + src;
+                } else {
+                    out += src;
+                }
             }
             if (i < x.n_args-1) out += ", ";
         }

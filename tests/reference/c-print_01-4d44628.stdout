@@ -1,0 +1,60 @@
+
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <lfortran_intrinsics.h>
+
+#define ASSERT(cond)                                                           \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+#define ASSERT_MSG(cond, msg)                                                  \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            printf("%s", "ERROR MESSAGE:\n");                                  \
+            printf("%s%s", msg, "\n");                                         \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+
+// Forward declarations
+void _lpython_main_program();
+void f();
+
+// Implementations
+void _lpython_main_program()
+{
+    f();
+}
+
+void f()
+{
+    char * x;
+    char * y;
+    printf("%s\n", "Hello World!");
+    x = ",";
+    y = "!!";
+    printf("%s%s%s\n", "a", x, "b");
+    x = "-+-+-";
+    printf("%s%s%s%s%s\n", "a", x, "b", x, "c");
+    printf("%s%s%s%s%s\n", "d", "=", "e", "=", "f");
+    printf("%s%s%s%s%s\n", "x", "*\n", "y", "*\n", "z");
+    printf("%s%s%s\n", "1", ":", "2");
+    printf("%s%s%s\n", "LCompilers", " ", "LPython");
+}
+
+int main(int argc, char* argv[])
+{
+    _lpython_main_program();
+    return 0;
+}

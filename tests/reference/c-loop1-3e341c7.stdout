@@ -48,7 +48,6 @@ void main0()
     i = test_factorial_1(4);
     i = test_factorial_2(4);
     j = test_factorial_3(5);
-    printf("%d %lli\n", i, j);
 }
 
 int32_t test_factorial_1(int32_t x)
@@ -85,8 +84,9 @@ int64_t test_factorial_3(int32_t x)
 {
     int64_t _lpython_return_variable;
     int64_t result;
+    result = 0;
     if (x < 0) {
-        _lpython_return_variable = 0;
+        _lpython_return_variable = result;
         return _lpython_return_variable;
     }
     result = 1;

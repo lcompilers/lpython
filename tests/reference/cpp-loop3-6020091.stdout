@@ -17,6 +17,12 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+// Forward declarations
+void test_pass();
+namespace {
+}
+
+// Implementations
 void test_pass()
 {
     int a;

@@ -157,6 +157,13 @@ LLVMEvaluator::LLVMEvaluator(const std::string &t)
     LLVMInitializeX86AsmPrinter();
     LLVMInitializeX86AsmParser();
 #endif
+#ifdef HAVE_TARGET_WASM
+    LLVMInitializeWebAssemblyTarget();
+    LLVMInitializeWebAssemblyTargetInfo();
+    LLVMInitializeWebAssemblyTargetMC();
+    LLVMInitializeWebAssemblyAsmPrinter();
+    LLVMInitializeWebAssemblyAsmParser();
+#endif
 
     context = std::make_unique<llvm::LLVMContext>();
 
@@ -423,6 +430,9 @@ void LLVMEvaluator::print_targets()
 #ifdef HAVE_TARGET_X86
     LLVMInitializeX86TargetInfo();
 #endif
+#ifdef HAVE_TARGET_WASM
+    LLVMInitializeWebAssemblyTargetInfo();
+#endif    
     llvm::raw_ostream &os = llvm::outs();
     llvm::TargetRegistry::printRegisteredTargetsForVersion(os);
 }
