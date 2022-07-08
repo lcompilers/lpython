@@ -1868,7 +1868,6 @@ public:
                 tmp = ASR::make_ListSection_t(al, x.base.base.loc, value, ai,
                         type, nullptr);
                 return;
-
             } else if (ASR::is_a<ASR::Character_t>(*type)) {
                 ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                                                         4, nullptr, 0));
@@ -1894,7 +1893,6 @@ public:
                 tmp = ASR::make_StringSection_t(al, x.base.base.loc, value, ai.m_left, ai.m_right,
                     ai.m_step, type, nullptr);
                 return;
-
             } else if (ASR::is_a<ASR::Dict_t>(*type)) {
                 throw SemanticError("unhashable type in dict: 'slice'", x.base.base.loc);
             }

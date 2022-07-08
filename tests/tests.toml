@@ -598,6 +598,10 @@ filename = "errors/test_dict6.py"
 asr = true
 
 [[test]]
+filename = "errors/test_dict7.py"
+asr = true
+
+[[test]]
 filename = "errors/test_func_args.py"
 asr = true
 
