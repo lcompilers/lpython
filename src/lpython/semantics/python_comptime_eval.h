@@ -172,26 +172,26 @@ struct PythonIntrinsicProcedures {
             throw SemanticError("upper() takes exactly one argument (" +
                 std::to_string(args.size()) + " given)", loc);
         }
-        ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,loc, 1, 1, nullptr, nullptr, 0));
+        ASR::ttype_t* str_type = ASRUtils::expr_type(args[0]);
         ASR::expr_t *arg = args[0];
         ASR::ttype_t* arg_type = ASRUtils::expr_type(arg);
-
         if (ASRUtils::is_character(*arg_type)) {
             char* c = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
             std::string s = std::string(c);
             return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, s), str_type));
         }
         else {
-            throw SemanticError("upper() only woks on strings", loc);
+            throw SemanticError("upper() only works on strings", loc);
         }
     }
-        static ASR::expr_t *eval_lower(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+
+    static ASR::expr_t *eval_lower(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         if (args.size() != 1) {
-            throw SemanticError("upper() takes exactly one argument (" +
+            throw SemanticError("lower() takes exactly one argument (" +
                 std::to_string(args.size()) + " given)", loc);
         }
-        ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,loc, 1, 1, nullptr, nullptr, 0));
+        ASR::ttype_t* str_type = ASRUtils::expr_type(args[0]);
         ASR::expr_t *arg = args[0];
         ASR::ttype_t* arg_type = ASRUtils::expr_type(arg);
 
@@ -201,16 +201,16 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, s), str_type));
         }
         else {
-            throw SemanticError("upper() only woks on strings", loc);
+            throw SemanticError("lower() only works on strings", loc);
         }
     }
-        static ASR::expr_t *eval_capitalize(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+    static ASR::expr_t *eval_capitalize(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         if (args.size() != 1) {
-            throw SemanticError("upper() takes exactly one argument (" +
+            throw SemanticError("capitalize() takes exactly one argument (" +
                 std::to_string(args.size()) + " given)", loc);
         }
-        ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,loc, 1, 1, nullptr, nullptr, 0));
+        ASR::ttype_t* str_type = ASRUtils::expr_type(args[0]);
         ASR::expr_t *arg = args[0];
         ASR::ttype_t* arg_type = ASRUtils::expr_type(arg);
 
@@ -220,7 +220,7 @@ struct PythonIntrinsicProcedures {
             return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, s), str_type));
         }
         else {
-            throw SemanticError("upper() only woks on strings", loc);
+            throw SemanticError("capitalize() only works on strings", loc);
         }
     }
 
