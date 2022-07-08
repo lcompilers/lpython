@@ -40,6 +40,7 @@ set(SRC
     pass/flip_sign.cpp
     pass/div_to_mul.cpp
     pass/fma.cpp
+    pass/loop_vectorise.cpp
     pass/sign_from_value.cpp
     pass/inline_function_calls.cpp
     pass/loop_unroll.cpp

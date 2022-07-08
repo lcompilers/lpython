@@ -24,6 +24,10 @@ def f_i16_i16(x: i16) -> i16:
 def f_i8_i8(x: i8) -> i8:
     pass
 
+@ccall
+def f_str_i32(x: str) -> i32:
+    pass
+
 def test_c_callbacks():
     xf64: f64
     xf64 = 3.3
@@ -48,5 +52,14 @@ def test_c_callbacks():
     xi8: i8
     xi8 = 3
     assert f_i8_i8(xi8) == 4
+
+    assert f_str_i32("Hello World!") == 12
+    assert f_str_i32("abc") == 3
+    assert f_str_i32("a") == 1
+    assert f_str_i32("") == 0
+    x: str = "Hello World!"
+    assert f_str_i32(x) == 12
+    x = "abc"
+    assert f_str_i32(x) == 3
 
 test_c_callbacks()

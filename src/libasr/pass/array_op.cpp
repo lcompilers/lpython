@@ -239,9 +239,9 @@ public:
         if( PassUtils::is_array(x.m_target) ) {
             result_var = x.m_target;
             this->visit_expr(*(x.m_value));
-        } else if( PassUtils::is_slice_present(x.m_target) ) {
-            ASR::ArrayRef_t* array_ref = ASR::down_cast<ASR::ArrayRef_t>(x.m_target);
-            result_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, x.m_target->base.loc, array_ref->m_v));
+        } else if( ASR::is_a<ASR::ArraySection_t>(*x.m_target) ) {
+            ASR::ArraySection_t* array_ref = ASR::down_cast<ASR::ArraySection_t>(x.m_target);
+            result_var = array_ref->m_v;
             result_lbound.reserve(al, array_ref->n_args);
             result_ubound.reserve(al, array_ref->n_args);
             result_inc.reserve(al, array_ref->n_args);
@@ -586,10 +586,25 @@ public:
                                                 al, x.base.base.loc,
                                                 ref_1, (ASR::logicalbinopType)x.m_op, ref_2, x.m_type, nullptr));
                             break;
-                        case ASR::exprType::Compare:
-                            op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(
-                                                al, x.base.base.loc,
-                                                ref_1, (ASR::cmpopType)x.m_op, ref_2, x.m_type, nullptr, nullptr));
+                       case ASR::exprType::IntegerCompare:
+                            op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_IntegerCompare_t(
+                                                    al, x.base.base.loc,
+                                                    ref_1, (ASR::cmpopType)x.m_op, ref_2, x.m_type, nullptr));
+                            break;
+                        case ASR::exprType::RealCompare:
+                            op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_RealCompare_t(
+                                                    al, x.base.base.loc,
+                                                    ref_1, (ASR::cmpopType)x.m_op, ref_2, x.m_type, nullptr));
+                            break;
+                        case ASR::exprType::ComplexCompare:
+                            op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_ComplexCompare_t(
+                                                    al, x.base.base.loc,
+                                                    ref_1, (ASR::cmpopType)x.m_op, ref_2, x.m_type, nullptr));
+                            break;
+                        case ASR::exprType::LogicalCompare:
+                            op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_LogicalCompare_t(
+                                                    al, x.base.base.loc,
+                                                    ref_1, (ASR::cmpopType)x.m_op, ref_2, x.m_type, nullptr));
                             break;
                         default:
                             throw LFortranException("The desired operation is not supported yet for arrays.");
@@ -677,10 +692,25 @@ public:
                                                     al, x.base.base.loc,
                                                     ref, (ASR::logicalbinopType)x.m_op, other_expr, x.m_type, nullptr));
                             break;
-                        case ASR::exprType::Compare:
-                            op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_Compare_t(
+                        case ASR::exprType::IntegerCompare:
+                            op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_IntegerCompare_t(
                                                     al, x.base.base.loc,
-                                                    ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type, nullptr, nullptr));
+                                                    ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type, nullptr));
+                            break;
+                        case ASR::exprType::RealCompare:
+                            op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_RealCompare_t(
+                                                    al, x.base.base.loc,
+                                                    ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type, nullptr));
+                            break;
+                        case ASR::exprType::ComplexCompare:
+                            op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_ComplexCompare_t(
+                                                    al, x.base.base.loc,
+                                                    ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type, nullptr));
+                            break;
+                        case ASR::exprType::LogicalCompare:
+                            op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_LogicalCompare_t(
+                                                    al, x.base.base.loc,
+                                                    ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type, nullptr));
                             break;
                         default:
                             throw LFortranException("The desired operation is not supported yet for arrays.");
@@ -720,8 +750,20 @@ public:
         visit_ArrayOpCommon<ASR::LogicalBinOp_t>(x, "_bool_op_res");
     }
 
-    void visit_Compare(const ASR::Compare_t &x) {
-        visit_ArrayOpCommon<ASR::Compare_t>(x, "_comp_op_res");
+    void visit_IntegerCompare(const ASR::IntegerCompare_t &x) {
+        visit_ArrayOpCommon<ASR::IntegerCompare_t>(x, "_comp_op_res");
+    }
+
+    void visit_RealCompare(const ASR::RealCompare_t &x) {
+        visit_ArrayOpCommon<ASR::RealCompare_t>(x, "_comp_op_res");
+    }
+
+    void visit_ComplexCompare(const ASR::ComplexCompare_t &x) {
+        visit_ArrayOpCommon<ASR::ComplexCompare_t>(x, "_comp_op_res");
+    }
+
+    void visit_LogicalCompare(const ASR::LogicalCompare_t &x) {
+        visit_ArrayOpCommon<ASR::LogicalCompare_t>(x, "_comp_op_res");
     }
 
     void visit_ArraySize(const ASR::ArraySize_t& x) {

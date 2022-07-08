@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-print_01-026ef17",
+    "cmd": "lpython --no-color --show-cpp {infile}",
+    "infile": "tests/../integration_tests/print_01.py",
+    "infile_hash": "4755131262f8eb382c206da769880635ad00787824c37f788d1c3d44",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-print_01-026ef17.stdout",
+    "stdout_hash": "dd676c204e4cdac681c5643a3cc25491fdfd826f1f29cea9fe5330a6",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
