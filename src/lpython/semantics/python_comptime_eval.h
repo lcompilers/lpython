@@ -8,6 +8,7 @@
 #include <sstream>
 #include <algorithm>
 #include <iterator>
+#include <cctype>
 
 #include <libasr/asr.h>
 #include <lpython/bigint.h>
@@ -177,7 +178,7 @@ struct PythonIntrinsicProcedures {
         ASR::ttype_t* arg_type = ASRUtils::expr_type(arg);
         if (ASRUtils::is_character(*arg_type)) {
             char* c = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
-            std::string s = std::string(c);
+            std::string s = toupper(std::string(c));
             return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, s), str_type));
         }
         else {
@@ -197,7 +198,7 @@ struct PythonIntrinsicProcedures {
 
         if (ASRUtils::is_character(*arg_type)) {
             char* c = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
-            std::string s = std::string(c);
+            std::string s = tolower(std::string(c));
             return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, s), str_type));
         }
         else {
@@ -217,6 +218,8 @@ struct PythonIntrinsicProcedures {
         if (ASRUtils::is_character(*arg_type)) {
             char* c = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
             std::string s = std::string(c);
+            s[0] = toupper(s[0]);
+            std::transform(s.begin()+1, s.end(), s.begin()+1, tolower);
             return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, s), str_type));
         }
         else {
