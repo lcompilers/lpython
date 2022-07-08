@@ -76,6 +76,14 @@ if (WITH_LLVM)
             COMPILE_FLAGS -Wno-deprecated-declarations)
     endif()
 endif()
+
+if (WITH_LSP)
+  set (SRC ${SRC}
+      lsp/JSONRPC2Connection.cpp
+      lsp/LPythonServer.cpp
+  )
+endif()
+
 add_library(asr ${SRC})
 target_include_directories(asr BEFORE PUBLIC ${libasr_SOURCE_DIR}/..)
 target_include_directories(asr BEFORE PUBLIC ${libasr_BINARY_DIR}/..)
