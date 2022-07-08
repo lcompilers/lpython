@@ -14,7 +14,7 @@ struct handle_functions
     this->conn = new JSONRPC2Connection();
   }
 
-  rapidjson::Document serve_initialize(rapidjson::Document &request) {
+  rapidjson::Document serve_initialize(rapidjson::Document &/*request*/) {
     rapidjson::Document capabilities(rapidjson::kObjectType);
     rapidjson::Document::AllocatorType &allocator = capabilities.GetAllocator(); 
     capabilities.SetObject();
@@ -162,7 +162,7 @@ void LPythonServer::handle(rapidjson::Document &request) {
     }
 }
 
-void LPythonServer::run(std::string path) {
+void LPythonServer::run(std::string /*path*/) {
   while (this->running) {
     rapidjson::Document request  = this->conn->read_message();
     this->handle(request);
