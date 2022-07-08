@@ -75,7 +75,7 @@ struct PythonIntrinsicProcedures {
         } else {
             throw SemanticError("Function '" + name
                 + "' not found among intrinsic procedures",
-                loc);/home/madhav/lpython/src/lpython/semantics/
+                loc);
         }
     }
 
