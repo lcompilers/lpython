@@ -155,6 +155,15 @@ comp = [i**2 for i in range(10) if i not in [3, 5, 7] and i in list3]
 for i in a in list1:
     pass
 
+a.b[1]
+a.b[1:]
+a.b[:-1]
+a.b[1:2]
+a.b[:]
+y.z[1:2:3]
+y.z[1::3]
+y.z[1::]
+
 i: i32 = 4
 if 2 > i : pass
 if i > 5 : break
