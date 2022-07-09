@@ -1140,11 +1140,11 @@ public:
                 llvm::Value *plist2 = CreateLoad(plist);
                 tmp = lcompilers_list_item_i32(plist2, pos);
             } else {
-                throw CodeGenError("Integer kind not supported yet in ListAppend", x.base.base.loc);
+                throw CodeGenError("Integer kind not supported as index in ListItem", x.base.base.loc);
             }
 
         } else {
-            throw CodeGenError("List type not supported yet in ListAppend", x.base.base.loc);
+            throw CodeGenError("List type not supported yet in ListItem", x.base.base.loc);
         }
 
     }
