@@ -1,4 +1,4 @@
-from ltypes import i32
+from ltypes import i32, f64
 
 def test_float():
     i: i32
@@ -12,6 +12,12 @@ def test_float():
     assert float(-4235) == -4235.0
     assert float(True) == 1.0
     assert float(False) == 0.0
-
+    b: bool
+    b = True
+    f: f64
+    f = float(b)
+    assert f == 1.0
+    b = False
+    assert b == 0.0
 
 test_float()

@@ -337,6 +337,7 @@ arraybound = LBound | UBound
 cast_kind
     = RealToInteger
     | IntegerToReal
+    | LogicalToReal
     | RealToReal
     | IntegerToInteger
     | RealToComplex
