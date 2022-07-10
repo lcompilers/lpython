@@ -663,6 +663,12 @@ LFORTRAN_API int _lfortran_str_len(char** s)
     return strlen(*s);
 }
 
+LFORTRAN_API int _lfortran_str_to_int(char** s)
+{
+    char *ptr;
+    return strtol(*s, &ptr, 10);
+}
+
 LFORTRAN_API char* _lfortran_malloc(int size) {
     return (char*)malloc(size);
 }
