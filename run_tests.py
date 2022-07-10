@@ -55,9 +55,6 @@ def main():
         bin_ = test.get("bin", False)
         pass_ = test.get("pass", None)
         pass_with_llvm = test.get("pass_with_llvm", None)
-        if pass_ and pass_ not in ["do_loops", "global_stmts",
-                                   "loop_vectorise", "inline_function_calls"]:
-            raise Exception("Unknown pass: %s" % pass_)
 
         print(color(style.bold)+"TEST:"+color(style.reset), filename)
 

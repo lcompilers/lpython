@@ -165,7 +165,8 @@ c = true
 [[test]]
 filename = "../integration_tests/vec_01.py"
 asr = true
-pass = "loop_vectorise"
+pass_with_llvm = true
+pass = "loop_vectorise,do_loops"
 
 [[test]]
 filename = "../integration_tests/func_inline_01.py"
