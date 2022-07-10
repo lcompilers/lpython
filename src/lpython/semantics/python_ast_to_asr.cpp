@@ -3372,8 +3372,8 @@ public:
                                 loc, ival, to_type));
             }
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-            al, loc, arg, ASR::cast_kindType::RealToInteger,
-            to_type, value));
+                al, loc, arg, ASR::cast_kindType::RealToInteger,
+                to_type, value));
         } else if (ASRUtils::is_character(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
                 char *c = ASR::down_cast<ASR::StringConstant_t>(
@@ -3396,7 +3396,9 @@ public:
                 return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al,
                                 loc, ival, to_type));
             }
-            // TODO: make int() work for non-constant strings
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                al, loc, arg, ASR::cast_kindType::CharacterToInteger,
+                to_type, value));
         } else if (ASRUtils::is_logical(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
                 int32_t ival = ASR::down_cast<ASR::LogicalConstant_t>(
@@ -3405,8 +3407,8 @@ public:
                                 loc, ival, to_type));
             }
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-            al, loc, arg, ASR::cast_kindType::LogicalToInteger,
-            to_type, value));
+                al, loc, arg, ASR::cast_kindType::LogicalToInteger,
+                to_type, value));
         } else if (!ASRUtils::is_integer(*type)) {
             std::string stype = ASRUtils::type_to_str_python(type);
             throw SemanticError(
