@@ -10,3 +10,9 @@ b"Some text goes here."
 B"""
 Multiple texts goes here.
 """
+
+r"""
+Text
+"""
+R"Text"
+r'a\tb\nA\tB'
