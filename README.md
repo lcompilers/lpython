@@ -60,7 +60,8 @@ call build0.bat  # Windows
 Compile LPython:
 
 ```bash
-./build1.sh
+cmake -DCMAKE_BUILD_TYPE=Debug -DWITH_LLVM=yes -DWITH_STACKTRACE=yes -DWITH_LFORTRAN_BINARY_MODFILES=no .
+cmake --build . -j16
 ```
 
 ## Tests:
