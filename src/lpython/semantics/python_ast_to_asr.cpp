@@ -790,7 +790,7 @@ public:
                 loc);
         }
 
-        return get_type_from_var_annotation(var_annotation, loc, dims, m_args, n_args);
+        return get_type_from_var_annotation(var_annotation, annotation.base.loc, dims, m_args, n_args);
     }
 
     ASR::expr_t *index_add_one(const Location &loc, ASR::expr_t *idx) {
