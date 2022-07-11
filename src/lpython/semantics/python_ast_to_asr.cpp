@@ -1893,6 +1893,8 @@ public:
                 tmp = ASR::make_StringSection_t(al, x.base.base.loc, value, ai.m_left, ai.m_right,
                     ai.m_step, type, nullptr);
                 return;
+            } else if (ASR::is_a<ASR::Dict_t>(*type)) {
+                throw SemanticError("unhashable type in dict: 'slice'", x.base.base.loc);
             }
         } else {
             this->visit_expr(*x.m_slice);
