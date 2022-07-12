@@ -272,6 +272,9 @@ public:
     AttributeHandler attr_handler;
     std::map<int, ASR::symbol_t*> &ast_overload;
 
+    // Replace later to type substitution
+    std::map<std::string, int> generic_defs;
+
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module,
             std::map<int, ASR::symbol_t*> &ast_overload)
@@ -766,9 +769,126 @@ public:
             }
             ASR::ttype_t* der_type = ASRUtils::TYPE(ASR::make_Derived_t(al, loc, s, nullptr, 0));
             return ASR::make_DerivedTypeConstructor_t(al, loc, s, args_new.p, args_new.size(), der_type, nullptr);
+        } else if (ASR::is_a<ASR::TemplateFunction_t>(*s)) {
+            /** Instantiating the template functions with arguments' types **/
+            ASR::TemplateFunction_t *func = ASR::down_cast<ASR::TemplateFunction_t>(s);
+            std::map<std::string, ASR::ttype_t*> subs;
+            for (size_t i=0; i<args.size(); i++) {
+                ASR::ttype_t *param_type = ASRUtils::expr_type(func->m_args[i]);
+                if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
+                    ASR::ttype_t *arg_type = ASRUtils::expr_type(args[i].m_value);
+                    std::string param_name = (ASR::down_cast<ASR::TypeParameter_t>(param_type))->m_param;
+                    if (subs.find(param_name) != subs.end()) {
+                        if (!ASRUtils::check_equal_type(subs[param_name], arg_type)) {
+                            std::string func_name = func->m_name;
+                            throw SemanticError("Inconsistent type variable subsitutition for function " + func_name,
+                                func->base.base.loc); 
+                        }
+                    } else {
+                        subs[param_name] = arg_type;
+                    }
+                }
+            }
+            ASR::symbol_t *t = instantiate_generic_function(subs, *func);
+
+            std::string new_call_name = call_name;
+            if (ASR::is_a<ASR::Function_t>(*t)) {
+                new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
+            }
+
+            /** Build the function call **/
+            return make_call_helper(al, t, current_scope, args, new_call_name, loc);
         } else {
             throw SemanticError("Unsupported call type for " + call_name, loc);
         }
+    }
+
+    ASR::symbol_t* instantiate_generic_function(std::map<std::string, ASR::ttype_t*> subs,
+            ASR::TemplateFunction_t &func) {
+        SymbolTable *parent_scope = current_scope;
+        current_scope = al.make_new<SymbolTable>(parent_scope);
+
+        /** Substitute parameters' types with arguments' types **/
+        Vec<ASR::expr_t*> args;
+        args.reserve(al, func.n_args);
+        for (size_t i=0; i<func.n_args; i++) {
+            ASR::Variable_t *param_var = ASR::down_cast<ASR::Variable_t>(
+                (ASR::down_cast<ASR::Var_t>(func.m_args[i]))->m_v);
+
+            ASR::ttype_t *param_type = ASRUtils::expr_type(func.m_args[i]);
+            ASR::ttype_t *arg_type = ASR::is_a<ASR::TypeParameter_t>(*param_type) ?
+                subs[ASR::down_cast<ASR::TypeParameter_t>(param_type)->m_param] : param_type;
+
+            Location loc = param_var->base.base.loc;
+            std::string var_name = param_var->m_name;
+            ASR::intentType s_intent = param_var->m_intent;
+            ASR::expr_t *init_expr = nullptr;
+            ASR::expr_t *value = nullptr;
+            ASR::storage_typeType storage_type = param_var->m_storage;
+            ASR::abiType abi_type = param_var->m_abi;
+            ASR::accessType s_access = param_var->m_access;
+            ASR::presenceType s_presence = param_var->m_presence;
+            bool value_attr = param_var->m_value_attr;
+
+            ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
+                s2c(al, var_name), s_intent, init_expr, value, storage_type, arg_type,
+                abi_type, s_access, s_presence, value_attr);
+            current_scope->add_symbol(var_name, ASR::down_cast<ASR::symbol_t>(v));
+
+            ASR::symbol_t *var = current_scope->get_symbol(var_name);
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, func.base.base.loc, var)));
+        }
+
+        /** TODO: Build the name, needs to be changed **/
+        std::string func_name = func.m_name;
+        int generic_number;
+        if (generic_defs.find(func_name) != generic_defs.end()) {
+            generic_number = generic_defs[func_name] + 1;
+        } else {
+            generic_number = 0;
+        }
+        generic_defs[func_name] = generic_number;
+        func_name = func_name + "_" + std::to_string(generic_number);
+
+        /** Build the return variable **/
+        ASR::Variable_t *return_var = ASR::down_cast<ASR::Variable_t>(
+            (ASR::down_cast<ASR::Var_t>(func.m_return_var))->m_v);
+        std::string return_var_name = return_var->m_name;
+        ASR::ttype_t *return_param_type = ASRUtils::expr_type(func.m_return_var);
+        ASR::ttype_t *return_type = ASR::is_a<ASR::TypeParameter_t>(*return_param_type) ?
+            subs[ASR::down_cast<ASR::TypeParameter_t>(return_param_type)->m_param] : return_param_type;
+        ASR::asr_t *new_return_var = ASR::make_Variable_t(al, return_var->base.base.loc,
+            current_scope, s2c(al, return_var_name), return_var->m_intent, nullptr, nullptr,
+            return_var->m_storage, return_type, return_var->m_abi, return_var->m_access,
+            return_var->m_presence, return_var->m_value_attr);
+        current_scope->add_symbol(return_var_name, ASR::down_cast<ASR::symbol_t>(new_return_var));
+        ASR::asr_t *new_return_var_ref = ASR::make_Var_t(al, func.base.base.loc,
+            current_scope->get_symbol(return_var_name));
+
+        /** TODO: Rebuild the scope by the original function **/
+
+        /** Assemble the rest of the function **/
+        ASR::abiType func_abi = func.m_abi;
+        ASR::accessType func_access = func.m_access;
+        ASR::deftypeType func_deftype = func.m_deftype;
+        char *bindc_name = func.m_bindc_name;
+
+        ASR::asr_t *new_function = ASR::make_Function_t(
+            al, func.base.base.loc,
+            /* m_symtab */ current_scope,
+            /* m_name */ s2c(al, func_name),
+            /* m_args */ args.p,
+            /* n_args */ args.size(),
+            /* m_body */ nullptr,
+            /* n_body */ 0,
+            /* m_return_var */ ASRUtils::EXPR(new_return_var_ref),
+            func_abi, func_access, func_deftype, bindc_name);
+
+        ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(new_function);
+        parent_scope->add_symbol(func_name, t);
+        current_scope = parent_scope;
+        
+        return t;
     }
 
     // Convert Python AST type annotation to an ASR type
@@ -2327,6 +2447,7 @@ Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, const AST::Module_t &ast
     return unit;
 }
 
+/*
 class TemplateVisitor : public CommonVisitor<TemplateVisitor> {
 public:
     ASR::asr_t *asr;
@@ -2348,12 +2469,12 @@ public:
     }
 
     // Do nothing for now
-    void visit_FunctionDef(const AST::FunctionDef_t &/*x*/) {
+    void visit_FunctionDef(const AST::FunctionDef_t &x) {
 
     }
 
     // Do nothing for now
-    void visit_Assign(const AST::Assign_t &/*x*/) {
+    void visit_Assign(const AST::Assign_t &x) {
 
     }
 
@@ -2408,7 +2529,7 @@ public:
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
 
-        /** Substitute parameters' types with arguments' types **/
+        // Substitute parameters' types with arguments' types 
         Vec<ASR::expr_t*> args;
         args.reserve(al, func.n_args);
         for (size_t i=0; i<func.n_args; i++) {
@@ -2439,7 +2560,7 @@ public:
             args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, func.base.base.loc, var)));
         }
 
-        /** Build the name, needs to be overloaded **/
+        // Build the name, needs to be overloaded 
         std::string func_name = func.m_name;
         std::string generic_number;
         if (generic_defs.find(func_name) == generic_defs.end()) {
@@ -2452,7 +2573,7 @@ public:
         }
         func_name = "__lpython_overloaded_" + generic_number + "__" + func_name;
 
-        /** Build the return variable **/
+        // Build the return variable 
         ASR::Variable_t *return_var = ASR::down_cast<ASR::Variable_t>(
             (ASR::down_cast<ASR::Var_t>(func.m_return_var))->m_v);
         std::string return_var_name = return_var->m_name;
@@ -2467,7 +2588,7 @@ public:
         ASR::asr_t *new_return_var_ref = ASR::make_Var_t(al, func.base.base.loc,
             current_scope->get_symbol(return_var_name));
 
-        /** Assemble the rest of the function **/
+        // Assemble the rest of the function
         ASR::abiType func_abi = func.m_abi;
         ASR::accessType func_access = func.m_access;
         ASR::deftypeType func_deftype = func.m_deftype;
@@ -2475,20 +2596,20 @@ public:
 
         tmp = ASR::make_Function_t(
             al, func.base.base.loc,
-            /* m_symtab */ current_scope,
-            /* m_name */ s2c(al, func_name),
-            /* m_args */ args.p,
-            /* n_args */ args.size(),
-            /* m_body */ nullptr,
-            /* n_body */ 0,
-            /* m_return_var */ ASRUtils::EXPR(new_return_var_ref),
+            current_scope,
+            s2c(al, func_name),
+            args.p,
+            args.size(),
+            nullptr,
+            0,
+            ASRUtils::EXPR(new_return_var_ref),
             func_abi, func_access, func_deftype, bindc_name);
         
         ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(tmp);
         parent_scope->add_symbol(func_name, t);
         current_scope = parent_scope;
 
-        /** Add the function to the vector containing overloads **/
+        // Add the function to the vector containing overloads 
         generic_defs[func.m_name].push_back(al, t);
         ast_overload[(int64_t)&func] = t;
     }
@@ -2529,7 +2650,7 @@ Result<ASR::asr_t*> template_visitor(Allocator &al,
     ASR::asr_t *res = t.tmp;
     return res;
 }
-
+*/
 
 class BodyVisitor : public CommonVisitor<BodyVisitor> {
 private:
@@ -3975,9 +4096,11 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     LFORTRAN_ASSERT(asr_verify(*tu));
 
     // Processing template functions
+    /*
     auto res3 = template_visitor(al, *ast_m, diagnostics, unit, main_module,
         ast_overload);
     unit = res.result;
+    */
 
     // For temporary debugging purposes
     // std::cout << pickle(*unit, 1, 1, 0) << std::endl;
