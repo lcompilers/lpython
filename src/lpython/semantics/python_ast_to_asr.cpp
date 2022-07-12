@@ -2857,6 +2857,8 @@ public:
             } else {
                 LFORTRAN_ASSERT(false);
             }
+        } else if (ASR::is_a<ASR::TemplateFunction_t>(*t)) {
+            // pass
         } else {
             LFORTRAN_ASSERT(false);
         }
