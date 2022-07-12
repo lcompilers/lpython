@@ -314,7 +314,8 @@ public:
         require(symtab_sym == current_sym,
             "Variable's parent symbol table does not point to it");
         require(id_symtab_map.find(symtab->counter) != id_symtab_map.end(),
-            "Variable::m_parent_symtab must be present in the ASR");
+            "Variable::m_parent_symtab must be present in the ASR ("
+                + std::string(x.m_name) + ")");
 
         if (x.m_symbolic_value)
             visit_expr(*x.m_symbolic_value);
