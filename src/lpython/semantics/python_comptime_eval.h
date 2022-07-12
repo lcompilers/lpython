@@ -198,7 +198,7 @@ struct PythonIntrinsicProcedures {
 
         if (ASRUtils::is_character(*arg_type)) {
             char* c = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
-            std::string s = (int (*)(int))std::tolower(std::string(c));
+            std::string s = std::tolower(std::string(c));
             return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, s), str_type));
         }
         else {
@@ -218,8 +218,8 @@ struct PythonIntrinsicProcedures {
         if (ASRUtils::is_character(*arg_type)) {
             char* c = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
             std::string s = std::string(c);
-            s[0] = ::toupper(s[0]);
-            std::transform(s.begin()+1, s.end(), s.begin()+1, (int (*)(int))std::tolower);
+            s[0] =  std::toupper(s[0]);
+            std::transform(s.begin()+1, s.end(), s.begin()+1, std::tolower);
             return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, s), str_type));
         }
         else {
