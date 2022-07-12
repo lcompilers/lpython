@@ -507,7 +507,7 @@ public:
         for (size_t i = 0; i < n_args; i++) {
             ASR::call_arg_t c_arg;
             c_arg.loc = args[i].loc;
-            c_arg.m_value = cast_helper(ASRUtils::expr_type(m_args[i]),
+            c_arg.m_value = cast_helper(m_args[i],
                                 args[i].m_value, true);
             call_args_vec.push_back(al, c_arg);
         }
@@ -790,7 +790,7 @@ public:
                 loc);
         }
 
-        return get_type_from_var_annotation(var_annotation, loc, dims, m_args, n_args);
+        return get_type_from_var_annotation(var_annotation, annotation.base.loc, dims, m_args, n_args);
     }
 
     ASR::expr_t *index_add_one(const Location &loc, ASR::expr_t *idx) {
@@ -1669,13 +1669,9 @@ public:
                     value = ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(
                         al, x.base.base.loc, b, logical_type));
                 }
-                // Cast Real to Integer
-                ASR::expr_t *int_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                            al, x.base.base.loc, operand, ASR::cast_kindType::RealToInteger,
-                            int_type, value));
-                // Cast Integer to Logical
+                // cast Real to Logical
                 logical_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                            al, x.base.base.loc, int_arg, ASR::cast_kindType::IntegerToLogical,
+                            al, x.base.base.loc, operand, ASR::cast_kindType::RealToLogical,
                             logical_type, value));
             }
             else if (ASRUtils::is_logical(*operand_type)) {
@@ -1695,9 +1691,10 @@ public:
                     tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, b, logical_type);
                     return;
                 }
-                // TODO: Maybe add Complex to Logical cast in ASR
-                throw SemanticError("'not' Unary is not supported for complex type yet",
-                    x.base.base.loc);
+                // cast Complex to Logical
+                logical_arg = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                            al, x.base.base.loc, operand, ASR::cast_kindType::ComplexToLogical,
+                            logical_type, value));
             }
 
             tmp = ASR::make_LogicalNot_t(al, x.base.base.loc, logical_arg, logical_type, value);
@@ -1823,6 +1820,7 @@ public:
         ai.m_right = nullptr;
         ai.m_step = nullptr;
         ASR::symbol_t *s = nullptr;
+        bool is_item = true;
         ASR::ttype_t *type;
         if (AST::is_a<ASR::StringConstant_t>(*value)) {
             type = ASR::down_cast<ASR::StringConstant_t>(value)->m_type;
@@ -1855,6 +1853,17 @@ public:
                 }
                 ai.m_step = ASRUtils::EXPR(tmp);
             }
+            if( ai.m_left != nullptr &&
+                ASR::is_a<ASR::Var_t>(*ai.m_left) &&
+                ASR::is_a<ASR::Var_t>(*ai.m_right) ) {
+                ASR::Variable_t* startv = ASRUtils::EXPR2VAR(ai.m_left);
+                ASR::Variable_t* endv = ASRUtils::EXPR2VAR(ai.m_right);
+                is_item = is_item && (startv == endv);
+            } else {
+                is_item = is_item && (ai.m_left == nullptr &&
+                                      ai.m_step == nullptr &&
+                                      ai.m_right != nullptr);
+            }
             if (ASR::is_a<ASR::List_t>(*type)) {
                 tmp = ASR::make_ListSection_t(al, x.base.base.loc, value, ai,
                         type, nullptr);
@@ -1884,6 +1893,8 @@ public:
                 tmp = ASR::make_StringSection_t(al, x.base.base.loc, value, ai.m_left, ai.m_right,
                     ai.m_step, type, nullptr);
                 return;
+            } else if (ASR::is_a<ASR::Dict_t>(*type)) {
+                throw SemanticError("unhashable type in dict: 'slice'", x.base.base.loc);
             }
         } else {
             this->visit_expr(*x.m_slice);
@@ -1939,9 +1950,22 @@ public:
         if (ASR::is_a<ASR::Set_t>(*type)) {
             throw SemanticError("'set' object is not subscriptable", x.base.base.loc);
         }
+        if( is_item ) {
+            ai.m_left = nullptr;
+            ai.m_step = nullptr;
+        }
         args.push_back(al, ai);
-        tmp = ASR::make_ArrayRef_t(al, x.base.base.loc, s, args.p,
-            args.size(), type, nullptr);
+        ASR::expr_t* v_Var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, s));
+        if( is_item ) {
+            Vec<ASR::dimension_t> empty_dims;
+            empty_dims.reserve(al, 1);
+            type = ASRUtils::duplicate_type(al, type, &empty_dims);
+            tmp = ASR::make_ArrayItem_t(al, x.base.base.loc, v_Var, args.p,
+                        args.size(), type, nullptr);
+        } else {
+            tmp = ASR::make_ArraySection_t(al, x.base.base.loc, v_Var, args.p,
+                        args.size(), type, nullptr);
+        }
     }
 
 };
@@ -2819,6 +2843,11 @@ public:
             visit_Attribute(*x_m_value);
             ASR::expr_t* e = ASRUtils::EXPR(tmp);
             visit_AttributeUtil(ASRUtils::expr_type(e), x.m_attr, e, x.base.base.loc);
+        } else if(AST::is_a<AST::Subscript_t>(*x.m_value)) {
+            AST::Subscript_t* x_m_value = AST::down_cast<AST::Subscript_t>(x.m_value);
+            visit_Subscript(*x_m_value);
+            ASR::expr_t* e = ASRUtils::EXPR(tmp);
+            visit_AttributeUtil(ASRUtils::expr_type(e), x.m_attr, e, x.base.base.loc);
         } else {
             throw SemanticError("Only Name, Attribute is supported for now in Attribute",
                 x.base.base.loc);
@@ -3410,27 +3439,18 @@ public:
                                 loc, dval, to_type));
             }
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-            al, loc, arg, ASR::cast_kindType::IntegerToReal,
-            to_type, value));
+                al, loc, arg, ASR::cast_kindType::IntegerToReal,
+                to_type, value));
         } else if (ASRUtils::is_logical(*type)) {
-            int32_t ival = 0;
-            ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                        4, nullptr, 0));
             if (ASRUtils::expr_value(arg) != nullptr) {
-                ival = ASR::down_cast<ASR::LogicalConstant_t>(
+                double dval = ASR::down_cast<ASR::LogicalConstant_t>(
                                         ASRUtils::expr_value(arg))->m_value;
-                value =  ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al,
-                                loc, ival, int_type));
+                value =  ASR::down_cast<ASR::expr_t>(make_RealConstant_t(al,
+                                loc, dval, to_type));
             }
-            ASR::expr_t *t = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-            al, loc, arg, ASR::cast_kindType::LogicalToInteger,
-            int_type, value));
-            double dval = ival;
-            value =  ASR::down_cast<ASR::expr_t>(make_RealConstant_t(al,
-                            loc, dval, to_type));
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-            al, loc, t, ASR::cast_kindType::IntegerToReal,
-            to_type, value));
+                al, loc, arg, ASR::cast_kindType::LogicalToReal,
+                to_type, value));
         } else if (!ASRUtils::is_real(*type)) {
             std::string stype = ASRUtils::type_to_str_python(type);
             throw SemanticError(
@@ -3470,13 +3490,8 @@ public:
                 value = ASR::down_cast<ASR::expr_t>(make_LogicalConstant_t(al,
                                 loc, b, to_type));
             }
-            ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                        4, nullptr, 0));
-            ASR::expr_t *t = ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                al, loc, arg, ASR::cast_kindType::RealToInteger, int_type, nullptr));
-
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-                al, loc, t, ASR::cast_kindType::IntegerToLogical, to_type, value));
+                al, loc, arg, ASR::cast_kindType::RealToLogical, to_type, value));
 
         } else if (ASRUtils::is_character(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {

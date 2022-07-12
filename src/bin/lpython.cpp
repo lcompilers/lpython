@@ -27,6 +27,10 @@
 #include <lpython/parser/tokenizer.h>
 #include <lpython/parser/parser.h>
 
+#ifdef HAVE_LFORTRAN_RAPIDJSON
+    #include <libasr/lsp/LPythonServer.hpp>
+#endif
+
 #include <cpp-terminal/terminal.h>
 #include <cpp-terminal/prompt0.h>
 
@@ -202,7 +206,7 @@ int emit_cpp(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     auto res = LFortran::asr_to_cpp(al, *asr, diagnostics,
-        compiler_options.platform);
+        compiler_options.platform, 0);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -243,7 +247,7 @@ int emit_c(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     auto res = LFortran::asr_to_c(al, *asr, diagnostics,
-        compiler_options.platform);
+        compiler_options.platform, 0);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -605,6 +609,8 @@ int main(int argc, char *argv[])
         std::string arg_pywrap_file;
         std::string arg_pywrap_array_order="f";
 
+        std::string arg_lsp_filename;
+
         CompilerOptions compiler_options;
         LCompilers::PassManager lpython_pass_manager;
 
@@ -688,6 +694,10 @@ int main(int argc, char *argv[])
         pywrap.add_option("--array-order", arg_pywrap_array_order,
                 "Select array order (c, f)")->capture_default_str();
 
+        // Language Server Protocol
+        CLI::App &lsp = *app.add_subcommand("lsp", "Language Server Protocol");
+        lsp.add_option("filename", arg_lsp_filename, "Path to a filename")->required();
+
 
         app.get_formatter()->column_width(25);
         app.require_subcommand(0, 1);
@@ -752,6 +762,15 @@ int main(int argc, char *argv[])
         if (pywrap) {
             std::cerr << "Pywrap is not implemented yet." << std::endl;
             return 1;
+        }
+
+        if (lsp) {
+            #ifdef HAVE_LFORTRAN_RAPIDJSON
+                LPythonServer().run(arg_lsp_filename);
+                return 0;
+            #else 
+                std::cerr << "Compiler was not built with LSP support (-DWITH_LSP), please build it again.\n";
+            #endif
         }
 
         if (arg_backend == "llvm") {

@@ -61,19 +61,19 @@ public:
                 ASR::is_a<ASR::WhileLoop_t>(x));
     }
 
-    bool is_vector_copy(ASR::stmt_t* x, Vec<ASR::symbol_t*>& arrays) {
+    bool is_vector_copy(ASR::stmt_t* x, Vec<ASR::expr_t*>& arrays) {
         if( !ASR::is_a<ASR::Assignment_t>(*x) ) {
             return false;
         }
         ASR::Assignment_t* x_assignment = ASR::down_cast<ASR::Assignment_t>(x);
         ASR::expr_t* target = x_assignment->m_target;
         ASR::expr_t* value = x_assignment->m_value;
-        if( !ASR::is_a<ASR::ArrayRef_t>(*target) ||
-            !ASR::is_a<ASR::ArrayRef_t>(*value) ) {
+        if( !ASR::is_a<ASR::ArrayItem_t>(*target) ||
+            !ASR::is_a<ASR::ArrayItem_t>(*value) ) {
             return false;
         }
-        ASR::ArrayRef_t* target_array_ref = ASR::down_cast<ASR::ArrayRef_t>(target);
-        ASR::ArrayRef_t* value_array_ref = ASR::down_cast<ASR::ArrayRef_t>(value);
+        ASR::ArrayItem_t* target_array_ref = ASR::down_cast<ASR::ArrayItem_t>(target);
+        ASR::ArrayItem_t* value_array_ref = ASR::down_cast<ASR::ArrayItem_t>(value);
         if( target_array_ref->m_args->m_left ||
             target_array_ref->m_args->m_step ||
             value_array_ref->m_args->m_left ||
@@ -100,11 +100,11 @@ public:
                               ASR::expr_t*& vector_length,
                               Vec<ASR::stmt_t*>& vectorised_loop_body) {
         LFORTRAN_ASSERT(vectorised_loop_body.reserve_called);
-        Vec<ASR::symbol_t*> arrays;
+        Vec<ASR::expr_t*> arrays;
         arrays.reserve(al, 2);
         if( is_vector_copy(loop_stmt, arrays) ) {
-            ASR::symbol_t *target_sym = arrays[0], *value_sym = arrays[1];
-            ASR::ttype_t* target_type = ASRUtils::symbol_type(target_sym);
+            ASR::expr_t *target_sym = arrays[0], *value_sym = arrays[1];
+            ASR::ttype_t* target_type = ASRUtils::expr_type(target_sym);
             int64_t vector_length_int = get_vector_length(target_type);
             vector_length = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loop_stmt->base.loc,
                                 vector_length_int, ASRUtils::expr_type(index)));
@@ -154,7 +154,7 @@ public:
         }
         ASR::do_loop_head_t vectorised_loop_head;
         vectorised_loop_head.m_start = loop_start;
-        int64_t vector_length_int;
+        int64_t vector_length_int = -1;
         ASRUtils::extract_value(vector_length, vector_length_int);
         // TODO: Add tests for loop sizes not divisible by vector_length.
         vectorised_loop_head.m_end = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.m_head.m_v->base.loc,

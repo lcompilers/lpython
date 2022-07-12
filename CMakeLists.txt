@@ -167,10 +167,12 @@ if (WITH_XEUS)
             PATTERN "*.in" EXCLUDE)
 endif()
 
-# JSON
+# JSON OR LSP (`conda install rapidjson`)
 set(WITH_JSON no CACHE BOOL "Build with JSON support")
-if (WITH_JSON)
+set(WITH_LSP no CACHE BOOL "Build with LSP support")
+if (WITH_JSON OR WITH_LSP)
     find_package(RapidJSON REQUIRED)
+    set(HAVE_LFORTRAN_RAPIDJSON yes)
 endif()
 
 set(HAVE_LFORTRAN_DEMANGLE yes
@@ -262,6 +264,7 @@ message("HAVE_LFORTRAN_DEMANGLE: ${HAVE_LFORTRAN_DEMANGLE}")
 message("WITH_LLVM: ${WITH_LLVM}")
 message("WITH_XEUS: ${WITH_XEUS}")
 message("WITH_JSON: ${WITH_JSON}")
+message("WITH_LSP: ${WITH_LSP}")
 message("WITH_FMT: ${WITH_FMT}")
 message("WITH_LFORTRAN_BINARY_MODFILES: ${WITH_LFORTRAN_BINARY_MODFILES}")
 message("WITH_RUNTIME_LIBRARY: ${WITH_RUNTIME_LIBRARY}")

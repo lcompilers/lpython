@@ -41,17 +41,12 @@
 #include <libasr/asr.h>
 #include <libasr/containers.h>
 #include <libasr/codegen/asr_to_llvm.h>
-#include <libasr/pass/do_loops.h>
-#include <libasr/pass/for_all.h>
 #include <libasr/pass/nested_vars.h>
 #include <libasr/pass/pass_manager.h>
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/codegen/llvm_utils.h>
 #include <libasr/codegen/llvm_array_utils.h>
-
-// Uncomment for ASR printing below
-// #include <lpython/pickle.h>
 
 #if LLVM_VERSION_MAJOR >= 11
 #    define FIXED_VECTOR_TYPE llvm::FixedVectorType
@@ -1145,74 +1140,64 @@ public:
                 llvm::Value *plist2 = CreateLoad(plist);
                 tmp = lcompilers_list_item_i32(plist2, pos);
             } else {
-                throw CodeGenError("Integer kind not supported yet in ListAppend", x.base.base.loc);
+                throw CodeGenError("Integer kind not supported as index in ListItem", x.base.base.loc);
             }
 
         } else {
-            throw CodeGenError("List type not supported yet in ListAppend", x.base.base.loc);
+            throw CodeGenError("List type not supported yet in ListItem", x.base.base.loc);
         }
 
     }
 
-    void visit_ArrayRef(const ASR::ArrayRef_t& x) {
+    void visit_ArrayItem(const ASR::ArrayItem_t& x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
             return;
         }
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x.m_v);
-        uint32_t v_h = get_hash((ASR::asr_t*)v);
-        LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
-        llvm::Value* array = llvm_symtab[v_h];
-        if (is_a<ASR::Character_t>(*x.m_type)
-             && ASR::down_cast<ASR::Character_t>(x.m_type)->n_dims == 0) {
-            // String indexing:
-            if (x.n_args == 1) {
-                LFORTRAN_ASSERT(x.m_args[0].m_left)
-                LFORTRAN_ASSERT(x.m_args[0].m_right)
-                if (ASR::is_a<ASR::Var_t>(*x.m_args[0].m_left)
-                  &&ASR::is_a<ASR::Var_t>(*x.m_args[0].m_right)) {
-                    ASR::Variable_t *l = EXPR2VAR(x.m_args[0].m_left);
-                    ASR::Variable_t *r = EXPR2VAR(x.m_args[0].m_right);
-                    if (l == r) {
-                        this->visit_expr_wrapper(x.m_args[0].m_left, true);
-                        llvm::Value *idx = tmp;
-                        idx = builder->CreateSub(idx, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
-                        //std::vector<llvm::Value*> idx_vec = {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), idx};
-                        std::vector<llvm::Value*> idx_vec = {idx};
-                        llvm::Value *str = CreateLoad(array);
-                        llvm::Value *p = CreateGEP(str, idx_vec);
-                        // TODO: Currently the string starts at the right location, but goes to the end of the original string.
-                        // We have to allocate a new string, copy it and add null termination.
-
-                        tmp = builder->CreateAlloca(character_type, nullptr);
-                        builder->CreateStore(p, tmp);
-
-                        //tmp = p;
-                    } else {
-                        throw CodeGenError("Only string(a:b) for a==b supported for now.", x.base.base.loc);
-                    }
-                } else {
-                    //throw CodeGenError("Only string(a:b) for a,b variables for now.", x.base.base.loc);
-                    // Use the "right" index for now
-                    this->visit_expr_wrapper(x.m_args[0].m_right, true);
-                    llvm::Value *idx2 = tmp;
-                    this->visit_expr_wrapper(x.m_args[0].m_left, true);
-                    llvm::Value *idx1 = tmp;
-                    // idx = builder->CreateSub(idx, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
-                    //std::vector<llvm::Value*> idx_vec = {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), idx};
-                    // std::vector<llvm::Value*> idx_vec = {idx};
-                    llvm::Value *str = CreateLoad(array);
-                    // llvm::Value *p = CreateGEP(str, idx_vec);
-                    // TODO: Currently the string starts at the right location, but goes to the end of the original string.
-                    // We have to allocate a new string, copy it and add null termination.
-                    llvm::Value *p = lfortran_str_copy(str, idx1, idx2);
-
-                    tmp = builder->CreateAlloca(character_type, nullptr);
-                    builder->CreateStore(p, tmp);
-                }
-            } else {
-                throw CodeGenError("Only string(a:b) supported for now.", x.base.base.loc);
+        llvm::Value* array = nullptr;
+        if( ASR::is_a<ASR::Var_t>(*x.m_v) ) {
+            ASR::Variable_t *v = ASRUtils::EXPR2VAR(x.m_v);
+            if( ASR::is_a<ASR::Derived_t>(*v->m_type) ) {
+                ASR::Derived_t* der_type = ASR::down_cast<ASR::Derived_t>(v->m_type);
+                der_type_name = ASRUtils::symbol_name(ASRUtils::symbol_get_past_external(der_type->m_derived_type));
             }
+            uint32_t v_h = get_hash((ASR::asr_t*)v);
+            LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
+            array = llvm_symtab[v_h];
+        } else {
+            int64_t ptr_loads_copy = ptr_loads;
+            ptr_loads = 0;
+            this->visit_expr(*x.m_v);
+            if( ASR::is_a<ASR::Derived_t>(*ASRUtils::expr_type(x.m_v)) ) {
+                ASR::Derived_t* der_type = ASR::down_cast<ASR::Derived_t>(ASRUtils::expr_type(x.m_v));
+                der_type_name = ASRUtils::symbol_name(ASRUtils::symbol_get_past_external(der_type->m_derived_type));
+            }
+            ptr_loads = ptr_loads_copy;
+            array = tmp;
+        }
+        ASR::dimension_t* m_dims;
+        int n_dims = ASRUtils::extract_dimensions_from_ttype(
+                        ASRUtils::expr_type(x.m_v), m_dims);
+        if (is_a<ASR::Character_t>(*x.m_type) && n_dims == 0) {
+            // String indexing:
+            if (x.n_args != 1) {
+                throw CodeGenError("Only string(a) supported for now.", x.base.base.loc);
+            }
+            LFORTRAN_ASSERT(ASR::is_a<ASR::Var_t>(*x.m_args[0].m_right));
+            this->visit_expr_wrapper(x.m_args[0].m_right, true);
+            llvm::Value *idx = tmp;
+            idx = builder->CreateSub(idx, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            //std::vector<llvm::Value*> idx_vec = {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), idx};
+            std::vector<llvm::Value*> idx_vec = {idx};
+            llvm::Value *str = CreateLoad(array);
+            llvm::Value *p = CreateGEP(str, idx_vec);
+            // TODO: Currently the string starts at the right location, but goes to the end of the original string.
+            // We have to allocate a new string, copy it and add null termination.
+
+            tmp = builder->CreateAlloca(character_type, nullptr);
+            builder->CreateStore(p, tmp);
+
+            //tmp = p;
         } else {
             // Array indexing:
             std::vector<llvm::Value*> indices;
@@ -1224,11 +1209,52 @@ public:
                 ptr_loads = ptr_loads_copy;
                 indices.push_back(tmp);
             }
-            if (v->m_type->type == ASR::ttypeType::Pointer) {
+            if (ASRUtils::expr_type(x.m_v)->type == ASR::ttypeType::Pointer) {
                 array = builder->CreateLoad(array);
             }
             tmp = arr_descr->get_single_element(array, indices, x.n_args);
         }
+    }
+
+    void visit_ArraySection(const ASR::ArraySection_t& x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_v);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value* array = tmp;
+        ASR::dimension_t* m_dims;
+        int n_dims = ASRUtils::extract_dimensions_from_ttype(
+                        ASRUtils::expr_type(x.m_v), m_dims);
+        LFORTRAN_ASSERT(ASR::is_a<ASR::Character_t>(*ASRUtils::expr_type(x.m_v)) &&
+                        n_dims == 0);
+        // String indexing:
+        if (x.n_args == 1) {
+            throw CodeGenError("Only string(a:b) supported for now.", x.base.base.loc);
+        }
+
+        LFORTRAN_ASSERT(x.m_args[0].m_left)
+        LFORTRAN_ASSERT(x.m_args[0].m_right)
+        //throw CodeGenError("Only string(a:b) for a,b variables for now.", x.base.base.loc);
+        // Use the "right" index for now
+        this->visit_expr_wrapper(x.m_args[0].m_right, true);
+        llvm::Value *idx2 = tmp;
+        this->visit_expr_wrapper(x.m_args[0].m_left, true);
+        llvm::Value *idx1 = tmp;
+        // idx = builder->CreateSub(idx, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+        //std::vector<llvm::Value*> idx_vec = {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), idx};
+        // std::vector<llvm::Value*> idx_vec = {idx};
+        llvm::Value *str = CreateLoad(array);
+        // llvm::Value *p = CreateGEP(str, idx_vec);
+        // TODO: Currently the string starts at the right location, but goes to the end of the original string.
+        // We have to allocate a new string, copy it and add null termination.
+        llvm::Value *p = lfortran_str_copy(str, idx1, idx2);
+
+        tmp = builder->CreateAlloca(character_type, nullptr);
+        builder->CreateStore(p, tmp);
     }
 
     void visit_DerivedRef(const ASR::DerivedRef_t& x) {
@@ -1257,7 +1283,8 @@ public:
         std::vector<llvm::Value*> idx_vec = {
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, member_idx))};
-        if( ASR::is_a<ASR::DerivedRef_t>(*x.m_v) ) {
+        if( ASR::is_a<ASR::DerivedRef_t>(*x.m_v) &&
+            is_nested_pointer(tmp) ) {
             tmp = builder->CreateLoad(tmp);
         }
         llvm::Value* tmp1 = CreateGEP(tmp, idx_vec);
@@ -2596,13 +2623,19 @@ public:
         }
     }
 
+    bool is_nested_pointer(llvm::Value* val) {
+        // TODO: Remove this in future
+        // Related issue, https://github.com/lcompilers/lpython/pull/707#issuecomment-1169773106.
+        return val->getType()->isPointerTy() &&
+               val->getType()->getContainedType(0)->isPointerTy();
+    }
+
     void visit_CLoc(const ASR::CLoc_t& x) {
         uint64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
         this->visit_expr(*x.m_arg);
         ptr_loads = ptr_loads_copy;
-        if( tmp->getType()->isPointerTy() &&
-            tmp->getType()->getContainedType(0)->isPointerTy() ) {
+        if( is_nested_pointer(tmp) ) {
             tmp = builder->CreateLoad(tmp);
         }
         if( arr_descr->is_array(tmp) ) {
@@ -2614,8 +2647,7 @@ public:
 
 
     llvm::Value* GetPointerCPtrUtil(llvm::Value* llvm_tmp) {
-        if( llvm_tmp->getType()->isPointerTy() &&
-            llvm_tmp->getType()->getContainedType(0)->isPointerTy() ) {
+        if( is_nested_pointer(llvm_tmp) ) {
             llvm_tmp = builder->CreateLoad(llvm_tmp);
         }
         if( arr_descr->is_array(llvm_tmp) ) {
@@ -2763,14 +2795,27 @@ public:
         llvm::Value *target, *value;
         uint32_t h;
         bool lhs_is_string_arrayref = false;
-        if( x.m_target->type == ASR::exprType::ArrayRef ||
+        if( x.m_target->type == ASR::exprType::ArrayItem ||
+            x.m_target->type == ASR::exprType::ArraySection ||
             x.m_target->type == ASR::exprType::DerivedRef ) {
             this->visit_expr(*x.m_target);
             target = tmp;
-            if (is_a<ASR::ArrayRef_t>(*x.m_target)) {
-                ASR::ArrayRef_t *asr_target0 = ASR::down_cast<ASR::ArrayRef_t>(x.m_target);
-                if (is_a<ASR::Variable_t>(*asr_target0->m_v)) {
-                    ASR::Variable_t *asr_target = ASR::down_cast<ASR::Variable_t>(asr_target0->m_v);
+            if (is_a<ASR::ArrayItem_t>(*x.m_target)) {
+                ASR::ArrayItem_t *asr_target0 = ASR::down_cast<ASR::ArrayItem_t>(x.m_target);
+                if (is_a<ASR::Var_t>(*asr_target0->m_v)) {
+                    ASR::Variable_t *asr_target = ASRUtils::EXPR2VAR(asr_target0->m_v);
+                    if ( is_a<ASR::Character_t>(*asr_target->m_type) ) {
+                        ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(asr_target->m_type);
+                        if (t->n_dims == 0) {
+                            target = CreateLoad(target);
+                            lhs_is_string_arrayref = true;
+                        }
+                    }
+                }
+            } else if (is_a<ASR::ArraySection_t>(*x.m_target)) {
+                ASR::ArraySection_t *asr_target0 = ASR::down_cast<ASR::ArraySection_t>(x.m_target);
+                if (is_a<ASR::Var_t>(*asr_target0->m_v)) {
+                    ASR::Variable_t *asr_target = ASRUtils::EXPR2VAR(asr_target0->m_v);
                     if ( is_a<ASR::Character_t>(*asr_target->m_type) ) {
                         ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(asr_target->m_type);
                         if (t->n_dims == 0) {
@@ -2841,6 +2886,13 @@ public:
     }
 
     void visit_BlockCall(const ASR::BlockCall_t& x) {
+        if( x.m_label != -1 ) {
+            if( llvm_goto_targets.find(x.m_label) == llvm_goto_targets.end() ) {
+                llvm::BasicBlock *new_target = llvm::BasicBlock::Create(context, "goto_target");
+                llvm_goto_targets[x.m_label] = new_target;
+            }
+            start_new_block(llvm_goto_targets[x.m_label]);
+        }
         LFORTRAN_ASSERT(ASR::is_a<ASR::Block_t>(*x.m_m));
         ASR::Block_t* block = ASR::down_cast<ASR::Block_t>(x.m_m);
         declare_vars(*block);
@@ -2851,7 +2903,8 @@ public:
 
     inline void visit_expr_wrapper(const ASR::expr_t* x, bool load_ref=false) {
         this->visit_expr(*x);
-        if( x->type == ASR::exprType::ArrayRef ||
+        if( x->type == ASR::exprType::ArrayItem ||
+            x->type == ASR::exprType::ArraySection ||
             x->type == ASR::exprType::DerivedRef ) {
             if( load_ref ) {
                 tmp = CreateLoad(tmp);
@@ -3012,7 +3065,7 @@ public:
                 break;
             }
             default : {
-                throw CodeGenError("Comparison operator not implemented.",
+                throw CodeGenError("Comparison operator not implemented",
                         x.base.base.loc);
             }
         }
@@ -3056,7 +3109,7 @@ public:
                 break;
             }
             default : {
-                throw CodeGenError("Comparison operator not implemented.",
+                throw CodeGenError("Comparison operator not implemented",
                         x.base.base.loc);
             }
         }
@@ -3928,20 +3981,12 @@ public:
         switch (x.m_kind) {
             case (ASR::cast_kindType::IntegerToReal) : {
                 int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
-                switch (a_kind) {
-                    case 4 : {
-                        tmp = builder->CreateSIToFP(tmp, llvm::Type::getFloatTy(context));
-                        break;
-                    }
-                    case 8 : {
-                        tmp = builder->CreateSIToFP(tmp, llvm::Type::getDoubleTy(context));
-                        break;
-                    }
-                    default : {
-                        throw CodeGenError(R"""(Only 32 and 64 bit real kinds are implemented)""",
-                                            x.base.base.loc);
-                    }
-                }
+                tmp = builder->CreateSIToFP(tmp, getFPType(a_kind, false));
+		        break;
+            }
+            case (ASR::cast_kindType::LogicalToReal) : {
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                tmp = builder->CreateUIToFP(tmp, getFPType(a_kind, false));
                 break;
             }
             case (ASR::cast_kindType::RealToInteger) : {
@@ -4017,6 +4062,19 @@ public:
                 }
                 break;
             }
+            case (ASR::cast_kindType::RealToLogical) : {
+                llvm::Value *zero;
+                ASR::ttype_t* curr_type = extract_ttype_t_from_expr(x.m_arg);
+                LFORTRAN_ASSERT(curr_type != nullptr)
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
+                if (a_kind == 4) {
+                    zero = llvm::ConstantFP::get(context, llvm::APFloat((float)0.0));
+                } else {
+                    zero = llvm::ConstantFP::get(context, llvm::APFloat(0.0));
+                }
+                tmp = builder->CreateFCmpUNE(tmp, zero);
+                break;
+            }
             case (ASR::cast_kindType::CharacterToLogical) : {
                 llvm::AllocaInst *parg = builder->CreateAlloca(character_type, nullptr);
                 builder->CreateStore(tmp, parg);
@@ -4044,23 +4102,7 @@ public:
             }
             case (ASR::cast_kindType::LogicalToInteger) : {
                 int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
-                if (a_kind == 2) {
-                    tmp = builder->CreateSExt(tmp, llvm::Type::getInt16Ty(context));
-                    llvm::Value *zero = llvm::ConstantInt::get(context, llvm::APInt(16, 0, true));
-                    tmp = builder ->CreateSub(zero, tmp);
-                } else if (a_kind == 4) {
-                    tmp = builder->CreateSExt(tmp, llvm::Type::getInt32Ty(context));
-                    llvm::Value *zero = llvm::ConstantInt::get(context, llvm::APInt(32, 0, true));
-                    tmp = builder ->CreateSub(zero, tmp);
-                } else if (a_kind == 8) {
-                    tmp = builder->CreateSExt(tmp, llvm::Type::getInt64Ty(context));
-                    llvm::Value *zero = llvm::ConstantInt::get(context, llvm::APInt(64, 0, true));
-                    tmp = builder ->CreateSub(zero, tmp);
-                } else {
-                    std::string msg = "Conversion from i1 to"  +
-                                      std::to_string(a_kind) + " is not implemented yet.";
-                    throw CodeGenError(msg);
-                }
+                tmp = builder->CreateZExt(tmp, getIntType(a_kind));
                 break;
             }
             case (ASR::cast_kindType::RealToReal) : {
@@ -4087,22 +4129,10 @@ public:
                 if( arg_kind > 0 && dest_kind > 0 &&
                     arg_kind != dest_kind )
                 {
-                    if( arg_kind == 4 && dest_kind == 8 ) {
-                        tmp = builder->CreateSExt(tmp, llvm::Type::getInt64Ty(context));
-                    } else if( arg_kind == 8 && dest_kind == 4 ) {
-                        tmp = builder->CreateTrunc(tmp, llvm::Type::getInt32Ty(context));
-                    } else if( arg_kind == 2 && dest_kind == 4 ) {
-                        tmp = builder->CreateSExt(tmp, llvm::Type::getInt32Ty(context));
-                    } else if( arg_kind == 4 && dest_kind == 2 ) {
-                        tmp = builder->CreateTrunc(tmp, llvm::Type::getInt16Ty(context));
-                    } else if( arg_kind == 1 && dest_kind == 4 ) {
-                        tmp = builder->CreateSExt(tmp, llvm::Type::getInt32Ty(context));
-                    } else if( arg_kind == 4 && dest_kind == 1 ) {
-                        tmp = builder->CreateTrunc(tmp, llvm::Type::getInt8Ty(context));
+                    if (dest_kind > arg_kind) {
+                        tmp = builder->CreateSExt(tmp, getIntType(dest_kind));
                     } else {
-                        std::string msg = "Conversion from " + std::to_string(arg_kind) +
-                                          " to " + std::to_string(dest_kind) + " not implemented yet.";
-                        throw CodeGenError(msg);
+                        tmp = builder->CreateTrunc(tmp, getIntType(dest_kind));
                     }
                 }
                 break;
@@ -5006,7 +5036,7 @@ public:
         }
         int output_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
         uint64_t ptr_loads_copy = ptr_loads;
-        ptr_loads = ptr_loads_copy -
+        ptr_loads = 2 - // Sync: instead of 2 - , should this be ptr_loads_copy -
                     (ASRUtils::expr_type(x.m_v)->type ==
                      ASR::ttypeType::Pointer);
         visit_expr_wrapper(x.m_v);
@@ -5073,7 +5103,7 @@ public:
             return ;
         }
         uint64_t ptr_loads_copy = ptr_loads;
-        ptr_loads = ptr_loads_copy -
+        ptr_loads = 2 - // Sync: instead of 2 - , should this be ptr_loads_copy -
                     (ASRUtils::expr_type(x.m_v)->type ==
                      ASR::ttypeType::Pointer);
         visit_expr_wrapper(x.m_v);

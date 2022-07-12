@@ -158,6 +158,11 @@ c = true
 cpp = true
 
 [[test]]
+filename = "../integration_tests/expr_12.py"
+asr = true
+c = true
+
+[[test]]
 filename = "../integration_tests/vec_01.py"
 asr = true
 pass = "loop_vectorise"
@@ -165,6 +170,8 @@ pass = "loop_vectorise"
 [[test]]
 filename = "../integration_tests/func_inline_01.py"
 asr = true
+llvm = true
+pass_with_llvm = true
 pass = "inline_function_calls"
 
 [[test]]
@@ -229,6 +236,10 @@ filename = "../integration_tests/test_builtin.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/test_complex.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/structs_01.py"
 asr = true
 
@@ -242,6 +253,10 @@ asr = true
 
 [[test]]
 filename = "../integration_tests/structs_04.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/structs_05.py"
 asr = true
 
 [[test]]
@@ -432,6 +447,11 @@ ast_new = true
 filename = "parser/string1.py"
 ast_new = true
 
+[[test]]
+filename = "parser/global1.py"
+ast = true
+ast_new = true
+
 # tests/errors
 
 [[test]]
@@ -583,6 +603,10 @@ filename = "errors/test_dict6.py"
 asr = true
 
 [[test]]
+filename = "errors/test_dict7.py"
+asr = true
+
+[[test]]
 filename = "errors/test_func_args.py"
 asr = true
 
@@ -608,6 +632,10 @@ asr = true
 
 [[test]]
 filename = "errors/test_pointer_types.py"
+asr = true
+
+[[test]]
+filename = "errors/test_unsupported_type.py"
 asr = true
 
 # tests/tokens/errors

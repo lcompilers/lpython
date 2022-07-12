@@ -203,7 +203,7 @@ stmt
     | ListAppend(expr a, expr ele)
     | AssociateBlockCall(symbol m)
     | CPtrToPointer(expr cptr, expr ptr, expr? shape)
-    | BlockCall(symbol m)
+    | BlockCall(int label, symbol m)
     | SetInsert(expr a, expr ele)
     | SetRemove(expr a, expr ele)
     | ListInsert(expr a, expr pos, expr ele)
@@ -263,7 +263,8 @@ expr
     | DictConstant(expr* keys, expr* values, ttype type)
     | DictLen(expr arg, ttype type, expr? value)
     | Var(symbol v)
-    | ArrayRef(symbol v, array_index* args, ttype type, expr? value)
+    | ArrayItem(expr v, array_index* args, ttype type, expr? value)
+    | ArraySection(expr v, array_index* args, ttype type, expr? value)
     | ArraySize(expr v, expr? dim, ttype type, expr? value)
     | ArrayBound(expr v, expr? dim, ttype type, arraybound bound,
                  expr? value)
@@ -336,11 +337,13 @@ arraybound = LBound | UBound
 cast_kind
     = RealToInteger
     | IntegerToReal
+    | LogicalToReal
     | RealToReal
     | IntegerToInteger
     | RealToComplex
     | IntegerToComplex
     | IntegerToLogical
+    | RealToLogical
     | CharacterToLogical
     | ComplexToLogical
     | ComplexToComplex

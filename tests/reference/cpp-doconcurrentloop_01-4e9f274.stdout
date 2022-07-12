@@ -17,6 +17,14 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+// Forward declarations
+void _lpython_main_program();
+void main0();
+void triad(const Kokkos::View<float*> &a, const Kokkos::View<float*> &b, float scalar, const Kokkos::View<float*> &c);
+namespace {
+}
+
+// Implementations
 void _lpython_main_program()
 {
     main0();
@@ -24,9 +32,9 @@ void _lpython_main_program()
 
 void main0()
 {
-    Kokkos::View<float[ /* FIXME symbolic dimensions */ ]> a("a");
-    Kokkos::View<float[ /* FIXME symbolic dimensions */ ]> b("b");
-    Kokkos::View<float[ /* FIXME symbolic dimensions */ ]> c("c");
+    Kokkos::View<float[10000]> a("a");
+    Kokkos::View<float[10000]> b("b");
+    Kokkos::View<float[10000]> c("c");
     int nsize;
     float scalar;
     scalar =   1.00000000000000000e+01;
@@ -44,7 +52,7 @@ void triad(const Kokkos::View<float*> &a, const Kokkos::View<float*> &b, float s
     int N;
     N = 1234;
     Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(0, N - 1+1), KOKKOS_LAMBDA(const long i) {
-        c[i] = a[i] + scalar*b[i];
+        c[i - 0] = a[i - 0] + scalar*b[i - 0];
     });
 }
 

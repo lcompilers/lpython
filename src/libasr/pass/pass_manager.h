@@ -4,8 +4,16 @@
 #include <libasr/asr.h>
 #include <libasr/string_utils.h>
 #include <libasr/alloc.h>
+
 // TODO: Remove lpython/lfortran includes, make it compiler agnostic
-#include <lpython/utils.h>
+#if __has_include(<lfortran/utils.h>)
+    #include <lfortran/utils.h>
+#endif
+
+#if __has_include(<lpython/utils.h>)
+    #include <lpython/utils.h>
+#endif
+
 #include <libasr/pass/do_loops.h>
 #include <libasr/pass/for_all.h>
 #include <libasr/pass/implied_do_loops.h>
@@ -201,7 +209,7 @@ namespace LCompilers {
             std::string current_pass = "";
             for( size_t i = 0; i < arg_pass.size(); i++ ) {
                 char ch = arg_pass[i];
-                if( ch != ' ' ) {
+                if( ch != ' ' && ch != ',' ) {
                     current_pass.push_back(ch);
                 }
                 if( ch == ',' || i == arg_pass.size() - 1 ) {
