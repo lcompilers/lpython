@@ -1,3 +1,5 @@
+from ltypes import TypeVar
+
 T = TypeVar('T')
 
 def f(x: T, y: T) -> T:
