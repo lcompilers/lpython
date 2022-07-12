@@ -17,10 +17,27 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+
+struct dimension_descriptor
+{
+    int32_t lower_bound, upper_bound;
+};
+
+struct f32_10000_1
+{
+    Kokkos::View<float*>* data;
+    dimension_descriptor dims[1];
+    bool is_allocated;
+
+    f32_10000_1(Kokkos::View<float*>* data_): data{data_} {};
+};
+
 // Forward declarations
 void _lpython_main_program();
 void main0();
-void triad(const Kokkos::View<float*> &a, const Kokkos::View<float*> &b, float scalar, const Kokkos::View<float*> &c);
+
+template <typename T0, typename T1, typename T2>
+void triad(T0* a, T1* b, float scalar, T2* c);
 namespace {
 }
 
@@ -32,27 +49,41 @@ void _lpython_main_program()
 
 void main0()
 {
-    Kokkos::View<float[10000]> a("a");
-    Kokkos::View<float[10000]> b("b");
-    Kokkos::View<float[10000]> c("c");
+    Kokkos::View<float*> a_data("a_data", 10000);
+    f32_10000_1 a_value(&a_data);
+    f32_10000_1* a = &a_value;
+    a->dims[0].lower_bound = 0;
+    a->dims[0].upper_bound = 10000 - 1;
+    Kokkos::View<float*> b_data("b_data", 10000);
+    f32_10000_1 b_value(&b_data);
+    f32_10000_1* b = &b_value;
+    b->dims[0].lower_bound = 0;
+    b->dims[0].upper_bound = 10000 - 1;
+    Kokkos::View<float*> c_data("c_data", 10000);
+    f32_10000_1 c_value(&c_data);
+    f32_10000_1* c = &c_value;
+    c->dims[0].lower_bound = 0;
+    c->dims[0].upper_bound = 10000 - 1;
     int nsize;
     float scalar;
     scalar =   1.00000000000000000e+01;
     nsize = 1234;
     Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(0, nsize - 1+1), KOKKOS_LAMBDA(const long i) {
-        a[i - 0] =   5.00000000000000000e+00;
-        b[i - 0] =   5.00000000000000000e+00;
+        a->data->operator[](i - a->dims[0].lower_bound) =   5.00000000000000000e+00;
+        b->data->operator[](i - b->dims[0].lower_bound) =   5.00000000000000000e+00;
     });
     triad(a, b, scalar, c);
     std::cout << "End Stream Triad" << std::endl;
 }
 
-void triad(const Kokkos::View<float*> &a, const Kokkos::View<float*> &b, float scalar, const Kokkos::View<float*> &c)
+
+template <typename T0, typename T1, typename T2>
+void triad(T0* a, T1* b, float scalar, T2* c)
 {
     int N;
     N = 1234;
     Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(0, N - 1+1), KOKKOS_LAMBDA(const long i) {
-        c[i - 0] = a[i - 0] + scalar*b[i - 0];
+        c->data->operator[](i - c->dims[0].lower_bound) = a->data->operator[](i - a->dims[0].lower_bound) + scalar*b->data->operator[](i - b->dims[0].lower_bound);
     });
 }
 

@@ -192,5 +192,7 @@ integration_tests/structs_05
 integration_tests/structs_05.c
 integration_tests/expr_08
 integration_tests/expr_08.c
+integration_tests/array_01_decl
+integration_tests/array_01_decl.c
 integration_tests/expr_12
 integration_tests/expr_12.c
