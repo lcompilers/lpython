@@ -28,6 +28,11 @@
         }                                                                      \
     }
 
+
+struct dimension_descriptor
+{
+    int32_t lower_bound, upper_bound;
+};
 // Forward declarations
 double f(double x);
 void g(double a, float b, int64_t c, int32_t d);

@@ -28,6 +28,11 @@
         }                                                                      \
     }
 
+
+struct dimension_descriptor
+{
+    int32_t lower_bound, upper_bound;
+};
 // Forward declarations
 void _lpython_main_program();
 void f();
