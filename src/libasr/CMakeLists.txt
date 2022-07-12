@@ -40,6 +40,7 @@ set(SRC
     pass/flip_sign.cpp
     pass/div_to_mul.cpp
     pass/fma.cpp
+    pass/loop_vectorise.cpp
     pass/sign_from_value.cpp
     pass/inline_function_calls.cpp
     pass/loop_unroll.cpp
@@ -75,6 +76,14 @@ if (WITH_LLVM)
             COMPILE_FLAGS -Wno-deprecated-declarations)
     endif()
 endif()
+
+if (WITH_LSP)
+  set (SRC ${SRC}
+      lsp/JSONRPC2Connection.cpp
+      lsp/LPythonServer.cpp
+  )
+endif()
+
 add_library(asr ${SRC})
 target_include_directories(asr BEFORE PUBLIC ${libasr_SOURCE_DIR}/..)
 target_include_directories(asr BEFORE PUBLIC ${libasr_BINARY_DIR}/..)

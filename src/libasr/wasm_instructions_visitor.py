@@ -41,12 +41,16 @@ class WASMInstructionsVisitor():
         self.emit("private:", 0)
         self.emit(    "Derived& self() { return static_cast<Derived&>(*this); }", 1)
         self.emit("public:", 0)
+        self.emit(    "Vec<uint8_t> &code;", 1)
+        self.emit(    "uint32_t offset;\n", 1)
 
+        self.emit(    "BaseWASMVisitor(Vec<uint8_t> &code, uint32_t offset): code(code), offset(offset) {}", 1)
+        
         for inst in mod["instructions"]:
             self.emit("void visit_%s(%s) {throw LFortran::LFortranException(\"visit_%s() not implemented\");}\n" % (inst["func"], make_param_list(inst["params"]), inst["func"]), 1)
 
-        self.emit(    "void decode_instructions(Vec<uint8_t> &code, uint32_t offset) {", 1)
-        self.emit(        "uint8_t cur_byte = wasm::read_byte(code, offset);", 2)
+        self.emit(    "void decode_instructions() {", 1)
+        self.emit(        "uint8_t cur_byte = wasm::read_b8(code, offset);", 2)
         self.emit(        "while (cur_byte != 0x0B) {", 2)
         self.emit(            "switch (cur_byte) {", 3)
         for inst in filter(lambda i: i["opcode"] not in ["0xFC", "0xFD"], mod["instructions"]):
@@ -58,7 +62,7 @@ class WASMInstructionsVisitor():
             self.emit(            "}", 4)
         
         self.emit(                "case 0xFC: {", 4)
-        self.emit(                    "uint32_t num = wasm::read_unsigned_num(code, offset);", 5)
+        self.emit(                    "uint32_t num = wasm::read_u32(code, offset);", 5)
         self.emit(                    "switch(num) {", 5)
         for inst in filter(lambda i: i["opcode"] == "0xFC", mod["instructions"]):
             self.emit(                    "case %sU: {" % (inst["params"][0]["val"]), 6)
@@ -75,7 +79,7 @@ class WASMInstructionsVisitor():
         self.emit(                "}", 4)
         
         self.emit(                "case 0xFD: {", 4)
-        self.emit(                    "uint32_t num = wasm::read_signed_num(code, offset);", 5)
+        self.emit(                    "uint32_t num = wasm::read_u32(code, offset);", 5)
         self.emit(                    "switch(num) {", 5)
         for inst in filter(lambda i: i["opcode"] == "0xFD", mod["instructions"]):
             self.emit(                    "case %sU: {" % (inst["params"][0]["val"]), 6)
@@ -95,7 +99,7 @@ class WASMInstructionsVisitor():
         self.emit(                    "throw LFortran::LFortranException(\"Unknown opcode\");", 5)
         self.emit(                "}", 4)
         self.emit(            "}", 3)
-        self.emit(            "cur_byte = wasm::read_byte(code, offset);", 3)
+        self.emit(            "cur_byte = wasm::read_b8(code, offset);", 3)
         self.emit(        "}", 2)
         self.emit(    "}", 1)
         self.emit("};", 0)
@@ -131,12 +135,12 @@ def get_func_name(func):
     return "".join(map(lambda name_sub_part: name_sub_part.capitalize(), splitted_name))
 
 param_read_function = {
-    "uint8_t": "wasm::read_byte",
-    "uint32_t": "wasm::read_unsigned_num",
-    "int32_t": "wasm::read_signed_num",
-    "int64_t": "wasm::read_signed_num",
-    "float": "wasm::read_float",
-    "double": "wasm::read_double"
+    "uint8_t": "wasm::read_b8",
+    "uint32_t": "wasm::read_u32",
+    "int32_t": "wasm::read_i32",
+    "int64_t": "wasm::read_i64",
+    "float": "wasm::read_f32",
+    "double": "wasm::read_f64"
 }
 
 param_type = {

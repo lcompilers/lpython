@@ -141,6 +141,40 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/expr_07.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/expr_09.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/expr_10.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/expr_11.py"
+c = true
+cpp = true
+
+[[test]]
+filename = "../integration_tests/expr_12.py"
+asr = true
+c = true
+
+[[test]]
+filename = "../integration_tests/vec_01.py"
+asr = true
+pass = "loop_vectorise"
+
+[[test]]
+filename = "../integration_tests/func_inline_01.py"
+asr = true
+llvm = true
+pass_with_llvm = true
+pass = "inline_function_calls"
+
+[[test]]
 filename = "loop1.py"
 ast = true
 asr = true
@@ -206,6 +240,10 @@ filename = "../integration_tests/test_builtin.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/test_complex.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/structs_01.py"
 asr = true
 
@@ -215,6 +253,14 @@ asr = true
 
 [[test]]
 filename = "../integration_tests/structs_03.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/structs_04.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/structs_05.py"
 asr = true
 
 [[test]]
@@ -277,6 +323,10 @@ filename = "../integration_tests/test_max_min.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/expr_05.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/test_integer_bitnot.py"
 asr = true
 llvm = true
@@ -294,6 +344,11 @@ c = true
 [[test]]
 filename = "../integration_tests/test_c_interop_01.py"
 asr = true
+
+[[test]]
+filename = "../integration_tests/print_01.py"
+c = true
+cpp = true
 
 # tests/tokens
 
@@ -345,6 +400,10 @@ filename = "parser/for1.py"
 ast_new = true
 
 [[test]]
+filename = "parser/comprehension1.py"
+ast_new = true
+
+[[test]]
 filename = "parser/try1.py"
 ast_new = true
 
@@ -392,6 +451,11 @@ ast_new = true
 filename = "parser/string1.py"
 ast_new = true
 
+[[test]]
+filename = "parser/global1.py"
+ast = true
+ast_new = true
+
 # tests/errors
 
 [[test]]
@@ -416,6 +480,10 @@ asr = true
 
 [[test]]
 filename = "errors/test_annassign_type_mismatch.py"
+asr = true
+
+[[test]]
+filename = "errors/test_annassign_type_mismatch2.py"
 asr = true
 
 [[test]]
@@ -539,11 +607,39 @@ filename = "errors/test_dict6.py"
 asr = true
 
 [[test]]
+filename = "errors/test_dict7.py"
+asr = true
+
+[[test]]
 filename = "errors/test_func_args.py"
 asr = true
 
 [[test]]
 filename = "errors/test_str_to_int.py"
+asr = true
+
+[[test]]
+filename = "errors/test_bitwise_on_float.py"
+asr = true
+
+[[test]]
+filename = "errors/test_bitwise_on_complex.py"
+asr = true
+
+[[test]]
+filename = "errors/test_print1.py"
+asr = true
+
+[[test]]
+filename = "errors/test_print2.py"
+asr = true
+
+[[test]]
+filename = "errors/test_pointer_types.py"
+asr = true
+
+[[test]]
+filename = "errors/test_unsupported_type.py"
 asr = true
 
 # tests/tokens/errors

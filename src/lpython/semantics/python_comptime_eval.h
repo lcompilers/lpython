@@ -32,7 +32,6 @@ struct PythonIntrinsicProcedures {
         comptime_eval_map = {
             {"abs", {m_builtin, &eval_abs}},
             {"str", {m_builtin, &eval_str}},
-            {"bool", {m_builtin, &eval_bool}},
             {"chr", {m_builtin, &eval_chr}},
             {"ord", {m_builtin, &eval_ord}},
             // {"len", {m_builtin, &eval_len}},
@@ -49,12 +48,7 @@ struct PythonIntrinsicProcedures {
             {"_lpython_floordiv", {m_builtin, &eval__lpython_floordiv}},
             {"_mod", {m_builtin, &eval__mod}},
             {"max" , {m_builtin , &eval_max}},
-            {"min" , {m_builtin , &eval_min}},
-            {"_bitwise_or", {m_builtin, &eval__bitwise_or}},
-            {"_bitwise_and", {m_builtin, &eval__bitwise_and}},
-            {"_bitwise_xor", {m_builtin, &eval__bitwise_xor}},
-            {"_bitwise_lshift", {m_builtin, &eval__bitwise_lshift}},
-            {"_bitwise_rshift", {m_builtin, &eval__bitwise_rshift}}
+            {"min" , {m_builtin , &eval_min}}
         };
     }
 
@@ -170,38 +164,6 @@ struct PythonIntrinsicProcedures {
         }
     }
 
-    static ASR::expr_t *eval_bool(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        if (args.size() != 1) {
-            throw SemanticError("bool() takes exactly one argument (" +
-                std::to_string(args.size()) + " given)", loc);
-        }
-        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
-            4, nullptr, 0));
-        ASR::expr_t* arg = args[0];
-        ASR::ttype_t* t = ASRUtils::expr_type(arg);
-        bool result;
-        if (ASRUtils::is_real(*t)) {
-            result = ASR::down_cast<ASR::RealConstant_t>(arg)->m_r;
-        } else if (ASRUtils::is_integer(*t)) {
-            result = ASR::down_cast<ASR::IntegerConstant_t>(arg)->m_n;
-        } else if (ASRUtils::is_complex(*t)) {
-            double re = ASR::down_cast<ASR::ComplexConstant_t>(arg)->m_re;
-            double im = ASR::down_cast<ASR::ComplexConstant_t>(arg)->m_im;
-            std::complex<double> c(re, im);
-            result = (re || im);
-        } else if (ASRUtils::is_logical(*t)) {
-            result = ASR::down_cast<ASR::LogicalConstant_t>(arg)->m_value;
-        } else if (ASRUtils::is_character(*t)) {
-            char* c = ASR::down_cast<ASR::StringConstant_t>(ASRUtils::expr_value(arg))->m_s;
-            result = strlen(s2c(al, std::string(c)));
-        } else {
-            throw SemanticError("bool() must have one real, integer, character,"
-                " complex, or logical argument, not '" + ASRUtils::type_to_str_python(t) + "'", loc);
-        }
-        return ASR::down_cast<ASR::expr_t>(make_LogicalConstant_t(al, loc, result, type));
-    }
-
     static ASR::expr_t *eval_chr(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         ASR::expr_t* arg = args[0];
@@ -245,53 +207,6 @@ struct PythonIntrinsicProcedures {
                 ASR::make_RealConstant_t(al, loc, std::fmod(a, b), type));
         } else {
             throw SemanticError("_mod() must have both integer or both real arguments.", loc);
-        }
-    }
-
-    #define BITWISE(X) \
-        static ASR::expr_t *X(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) { \
-            return eval_bitwise(al, loc, args, &X); \
-    }
-
-    BITWISE(eval__bitwise_or)
-    BITWISE(eval__bitwise_and)
-    BITWISE(eval__bitwise_xor)
-    BITWISE(eval__bitwise_lshift)
-    BITWISE(eval__bitwise_rshift)
-
-    static ASR::expr_t *eval_bitwise(Allocator &al, const Location &loc,
-                Vec<ASR::expr_t*> &args, const comptime_eval_callback X) {
-        if (args.size() != 2) {
-            throw SemanticError("Bitwise Operation must have two integer arguments.", loc);
-        }
-        ASR::expr_t* arg1 = ASRUtils::expr_value(args[0]), *arg2 = ASRUtils::expr_value(args[1]);
-        LFORTRAN_ASSERT(ASRUtils::check_equal_type(ASRUtils::expr_type(arg1),
-                                    ASRUtils::expr_type(arg2)));
-        ASR::ttype_t* type = ASRUtils::expr_type(arg1);
-        if (ASRUtils::is_integer(*type)) {
-            int64_t a = ASR::down_cast<ASR::IntegerConstant_t>(arg1)->m_n;
-            int64_t b = ASR::down_cast<ASR::IntegerConstant_t>(arg2)->m_n;
-            int64_t result = 0;
-            if (X == eval__bitwise_or) {
-                result = a | b;
-            } else if (X == eval__bitwise_and) {
-                result = a & b;
-            } else if (X == eval__bitwise_xor) {
-                result = a ^ b;
-            } else if (X == eval__bitwise_lshift) {
-                if (b < 0) {
-                    throw SemanticError("Negative shift count not allowed.", loc);
-                }
-                result = a << b;
-            } else if (X == eval__bitwise_rshift) {
-                if (b < 0) {
-                    throw SemanticError("Negative shift count not allowed.", loc);
-                }
-                result = a >> b;
-            }
-            return ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, result, type));
-        } else {
-            throw SemanticError("Bitwise Operation must have both integer arguments.", loc);
         }
     }
 

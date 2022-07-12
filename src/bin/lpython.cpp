@@ -16,16 +16,7 @@
 #include <libasr/codegen/asr_to_x86.h>
 #include <lpython/python_evaluator.h>
 #include <libasr/codegen/evaluator.h>
-#include <libasr/pass/do_loops.h>
-#include <libasr/pass/for_all.h>
-#include <libasr/pass/global_stmts.h>
-#include <libasr/pass/implied_do_loops.h>
-#include <libasr/pass/array_op.h>
-#include <libasr/pass/class_constructor.h>
-#include <libasr/pass/arr_slice.h>
-#include <libasr/pass/print_arr.h>
-#include <libasr/pass/unused_functions.h>
-#include <libasr/pass/inline_function_calls.h>
+#include <libasr/pass/pass_manager.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/modfile.h>
@@ -35,6 +26,10 @@
 #include <lpython/python_serialization.h>
 #include <lpython/parser/tokenizer.h>
 #include <lpython/parser/parser.h>
+
+#ifdef HAVE_LFORTRAN_RAPIDJSON
+    #include <libasr/lsp/LPythonServer.hpp>
+#endif
 
 #include <cpp-terminal/terminal.h>
 #include <cpp-terminal/prompt0.h>
@@ -47,12 +42,6 @@ using LFortran::parse_python_file;
 
 enum Backend {
     llvm, cpp, x86
-};
-
-enum ASRPass {
-    do_loops, global_stmts, implied_do_loops, array_op,
-    arr_slice, print_arr, class_constructor, unused_functions,
-    inline_function_calls
 };
 
 std::string remove_extension(const std::string& filename) {
@@ -146,6 +135,7 @@ int emit_ast(const std::string &infile,
 }
 
 int emit_asr(const std::string &infile,
+    LCompilers::PassManager& pass_manager,
     const std::string &runtime_library_dir,
     bool with_intrinsic_modules, CompilerOptions &compiler_options)
 {
@@ -166,13 +156,14 @@ int emit_asr(const std::string &infile,
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only);
+            compiler_options.disable_main, compiler_options.symtab_only, infile);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 2;
     }
     LFortran::ASR::TranslationUnit_t* asr = r.result;
+    pass_manager.apply_passes(al, asr, "f", true);
 
     if (compiler_options.tree) {
         std::cout << LFortran::pickle_tree(*asr, compiler_options.use_colors,
@@ -205,7 +196,7 @@ int emit_cpp(const std::string &infile,
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only);
+            compiler_options.disable_main, compiler_options.symtab_only, infile);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -214,7 +205,8 @@ int emit_cpp(const std::string &infile,
     LFortran::ASR::TranslationUnit_t* asr = r1.result;
 
     diagnostics.diagnostics.clear();
-    auto res = LFortran::asr_to_cpp(al, *asr, diagnostics);
+    auto res = LFortran::asr_to_cpp(al, *asr, diagnostics,
+        compiler_options.platform, 0);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -245,7 +237,7 @@ int emit_c(const std::string &infile,
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only);
+            compiler_options.disable_main, compiler_options.symtab_only, infile);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -254,7 +246,8 @@ int emit_c(const std::string &infile,
     LFortran::ASR::TranslationUnit_t* asr = r1.result;
 
     diagnostics.diagnostics.clear();
-    auto res = LFortran::asr_to_c(al, *asr, diagnostics);
+    auto res = LFortran::asr_to_c(al, *asr, diagnostics,
+        compiler_options.platform, 0);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -268,6 +261,7 @@ int emit_c(const std::string &infile,
 
 int emit_llvm(const std::string &infile,
     const std::string &runtime_library_dir,
+    LCompilers::PassManager& pass_manager,
     CompilerOptions &compiler_options)
 {
     Allocator al(4*1024);
@@ -288,7 +282,7 @@ int emit_llvm(const std::string &infile,
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only);
+            compiler_options.disable_main, compiler_options.symtab_only, infile);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -300,7 +294,7 @@ int emit_llvm(const std::string &infile,
     // ASR -> LLVM
     LFortran::PythonCompiler fe(compiler_options);
     LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
-        res = fe.get_llvm3(*asr, diagnostics);
+        res = fe.get_llvm3(*asr, pass_manager, diagnostics);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -322,6 +316,7 @@ int compile_python_to_object_file(
         const std::string &infile,
         const std::string &outfile,
         const std::string &runtime_library_dir,
+        LCompilers::PassManager& pass_manager,
         CompilerOptions &compiler_options,
         bool time_report)
 {
@@ -352,7 +347,7 @@ int compile_python_to_object_file(
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only);
+            compiler_options.disable_main, compiler_options.symtab_only, infile);
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
@@ -370,7 +365,7 @@ int compile_python_to_object_file(
     std::unique_ptr<LFortran::LLVMModule> m;
     auto asr_to_llvm_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
-        res = fe.get_llvm3(*asr, diagnostics);
+        res = fe.get_llvm3(*asr, pass_manager, diagnostics);
     auto asr_to_llvm_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("ASR to LLVM", std::chrono::duration<double, std::milli>(asr_to_llvm_end - asr_to_llvm_start).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
@@ -389,6 +384,11 @@ int compile_python_to_object_file(
 }
 
 #endif
+
+void do_print_rtlib_header_dir() {
+    std::string rtlib_header_dir = LFortran::get_runtime_library_header_dir();
+    std::cout << rtlib_header_dir << std::endl;
+}
 
 
 // infile is an object file
@@ -594,6 +594,7 @@ int main(int argc, char *argv[])
         std::string arg_backend = "llvm";
         std::string arg_kernel_f;
         bool print_targets = false;
+        bool print_rtlib_header_dir = false;
 
         std::string arg_fmt_file;
         // int arg_fmt_indent = 4;
@@ -608,7 +609,10 @@ int main(int argc, char *argv[])
         std::string arg_pywrap_file;
         std::string arg_pywrap_array_order="f";
 
+        std::string arg_lsp_filename;
+
         CompilerOptions compiler_options;
+        LCompilers::PassManager lpython_pass_manager;
 
         CLI::App app{"LPython: modern interactive LLVM-based Python compiler"};
         // Standard options compatible with gfortran, gcc or clang
@@ -656,6 +660,11 @@ int main(int argc, char *argv[])
         app.add_flag("--fast", compiler_options.fast, "Best performance (disable strict standard compliance)");
         app.add_option("--target", compiler_options.target, "Generate code for the given target")->capture_default_str();
         app.add_flag("--print-targets", print_targets, "Print the registered targets");
+        app.add_flag("--get-rtlib-header-dir", print_rtlib_header_dir, "Print the path to the runtime library header file");
+
+        if( compiler_options.fast ) {
+            lpython_pass_manager.use_optimization_passes();
+        }
 
         /*
         * Subcommands:
@@ -684,6 +693,10 @@ int main(int argc, char *argv[])
         pywrap.add_option("file", arg_pywrap_file, "Fortran source file (*.f90)")->required();
         pywrap.add_option("--array-order", arg_pywrap_array_order,
                 "Select array order (c, f)")->capture_default_str();
+
+        // Language Server Protocol
+        CLI::App &lsp = *app.add_subcommand("lsp", "Language Server Protocol");
+        lsp.add_option("filename", arg_lsp_filename, "Path to a filename")->required();
 
 
         app.get_formatter()->column_width(25);
@@ -718,6 +731,11 @@ int main(int argc, char *argv[])
 #endif
         }
 
+        if (print_rtlib_header_dir) {
+            do_print_rtlib_header_dir();
+            return 0;
+        }
+
         compiler_options.use_colors = !arg_no_color;
 
         // if (fmt) {
@@ -744,6 +762,15 @@ int main(int argc, char *argv[])
         if (pywrap) {
             std::cerr << "Pywrap is not implemented yet." << std::endl;
             return 1;
+        }
+
+        if (lsp) {
+            #ifdef HAVE_LFORTRAN_RAPIDJSON
+                LPythonServer().run(arg_lsp_filename);
+                return 0;
+            #else 
+                std::cerr << "Compiler was not built with LSP support (-DWITH_LSP), please build it again.\n";
+            #endif
         }
 
         if (arg_backend == "llvm") {
@@ -792,32 +819,7 @@ int main(int argc, char *argv[])
         //     return emit_c_preprocessor(arg_file, compiler_options);
         // }
 
-        std::vector<ASRPass> passes;
-        if (arg_pass != "") {
-            if (arg_pass == "do_loops") {
-                passes.push_back(ASRPass::do_loops);
-            } else if (arg_pass == "global_stmts") {
-                passes.push_back(ASRPass::global_stmts);
-            } else if (arg_pass == "implied_do_loops") {
-                passes.push_back(ASRPass::implied_do_loops);
-            } else if (arg_pass == "array_op") {
-                passes.push_back(ASRPass::array_op);
-            } else if (arg_pass == "inline_function_calls") {
-                passes.push_back(ASRPass::inline_function_calls);
-            } else if (arg_pass == "class_constructor") {
-                passes.push_back(ASRPass::class_constructor);
-            } else if (arg_pass == "print_arr") {
-                passes.push_back(ASRPass::print_arr);
-            } else if (arg_pass == "arr_slice") {
-                passes.push_back(ASRPass::arr_slice);
-            } else if (arg_pass == "unused_functions") {
-                passes.push_back(ASRPass::unused_functions);
-            } else {
-                std::cerr << "Pass must be one of: do_loops, global_stmts, implied_do_loops, array_op, class_constructor, print_arr, arr_slice, unused_functions" << std::endl;
-                return 1;
-            }
-            show_asr = true;
-        }
+        lpython_pass_manager.parse_pass_arg(arg_pass);
         if (show_tokens) {
             return emit_tokens(arg_file, true, compiler_options);
         }
@@ -825,7 +827,7 @@ int main(int argc, char *argv[])
             return emit_ast(arg_file, runtime_library_dir, compiler_options);
         }
         if (show_asr) {
-            return emit_asr(arg_file, runtime_library_dir,
+            return emit_asr(arg_file, lpython_pass_manager, runtime_library_dir,
                     with_intrinsic_modules, compiler_options);
         }
         if (show_cpp) {
@@ -834,9 +836,10 @@ int main(int argc, char *argv[])
         if (show_c) {
             return emit_c(arg_file, runtime_library_dir, compiler_options);
         }
+        lpython_pass_manager.use_default_passes();
         if (show_llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-            return emit_llvm(arg_file, runtime_library_dir, compiler_options);
+            return emit_llvm(arg_file, runtime_library_dir, lpython_pass_manager, compiler_options);
 #else
             std::cerr << "The --show-llvm option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
             return 1;
@@ -861,7 +864,7 @@ int main(int argc, char *argv[])
         if (arg_c) {
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-                return compile_python_to_object_file(arg_file, outfile, runtime_library_dir, compiler_options, time_report);
+                return compile_python_to_object_file(arg_file, outfile, runtime_library_dir, lpython_pass_manager, compiler_options, time_report);
 #else
                 std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
@@ -877,7 +880,7 @@ int main(int argc, char *argv[])
             int err;
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-                err = compile_python_to_object_file(arg_file, tmp_o, runtime_library_dir, compiler_options, time_report);
+                err = compile_python_to_object_file(arg_file, tmp_o, runtime_library_dir, lpython_pass_manager, compiler_options, time_report);
 #else
                 std::cerr << "Compiling Python files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;

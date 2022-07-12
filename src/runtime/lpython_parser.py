@@ -53,6 +53,8 @@ class Transform(ast.NodeVisitor):
             new_node = python_ast.ConstantEllipsis(node.kind)
         elif isinstance(node.value, None.__class__):
             new_node = python_ast.ConstantNone(node.kind)
+        elif isinstance(node.value, bytes):
+            new_node = python_ast.ConstantBytes(str(node.value), node.kind)
         else:
             print(type(node.value))
             raise Exception("Unsupported Constant type")
@@ -73,6 +75,9 @@ class Transform(ast.NodeVisitor):
                 for item in value:
                     if isinstance(item, ast.AST):
                         new_list.append(self.visit(item))
+                    else:
+                        if type(item) == str:
+                            new_list.append(item)
                 d[field] = new_list
             elif field in ["vararg", "kwarg"]:
                 if value is None:

@@ -31,6 +31,7 @@ bool lex_oct(const unsigned char *s, const unsigned char *e, uint64_t &u)
 bool lex_dec(const unsigned char *s, const unsigned char *e, uint64_t &u)
 {
     for (u = 0; s < e; ++s) {
+        if (*s == '_') continue;
         if (!adddgt<10>(u, *s - 0x30u)) {
             return false;
         }
@@ -48,6 +49,7 @@ void lex_dec_int_large(Allocator &al, const unsigned char *s,
             return;
         }
     }
+    // TODO: remove underscore from large ints
     const unsigned char *start = s;
     Str num;
     num.p = (char*)start;
@@ -262,14 +264,15 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             whitespace = [ \t\v\r]+;
             newline = "\n";
             digit = [0-9];
-            oct_digit = "0"[oO][0-7]+;
-            bin_digit = "0"[bB][01]+;
-            hex_digit = "0"[xX][0-9a-fA-F]+;
+            int_oct = "0"[oO][0-7]+;
+            int_bin = "0"[bB][01]+;
+            int_hex = "0"[xX][0-9a-fA-F]+;
+            int_dec = digit+ (digit | "_" digit)*;
             char =  [a-zA-Z_];
             name = char (char | digit)*;
             significand = (digit+ "." digit*) | ("." digit+);
             exp = [eE][-+]? digit+;
-            integer = digit+ | oct_digit | bin_digit | hex_digit;
+            integer = int_dec | int_oct | int_bin | int_hex;
             real = (significand exp?) | (digit+ exp);
             imag_number = (real | digit+)[jJ];
             string1 = '"' ('\\"'|[^"\x00])* '"';

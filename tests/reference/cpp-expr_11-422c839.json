@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-expr_11-422c839",
+    "cmd": "lpython --no-color --show-cpp {infile}",
+    "infile": "tests/../integration_tests/expr_11.py",
+    "infile_hash": "0519507fdfc01296c8161d8fae6706269bdb2d7b7da54512f5410fca",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-expr_11-422c839.stdout",
+    "stdout_hash": "ed5b929f3c9ee51fff1d8cc1043b3f0b47734110cd431b5039abd429",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

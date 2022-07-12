@@ -158,8 +158,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token KW_GLOBAL
 %token KW_IF
 %token KW_IMPORT
-%token KW_IN
-%token KW_IS
+%token KW_IN "in"
+%token KW_IS "is"
 %token KW_LAMBDA
 %token KW_NONE
 %token KW_NONLOCAL
@@ -238,6 +238,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> sep
 %type <ast> sep_one
 %type <ast> string
+%type <ast> ternary_if_statement
+%type <ast> list_comprehension
+%type <vec_ast> id_list
+%type <ast> id_item
 
 // Precedence
 
@@ -245,7 +249,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %left "or"
 %left "and"
 %precedence "not"
-%left "==" "!=" ">=" ">" "<=" "<" TK_IS_NOT KW_IS TK_NOT_IN // "in"
+%left "==" "!=" ">=" ">" "<=" "<" "is not" "is" "not in" "in" // "in"
+%precedence FOR
+%left KW_IF KW_ELSE
 %left "|"
 %left "^"
 %left "&"
@@ -456,6 +462,10 @@ if_statement_single
     : KW_IF expr TK_COLON single_line_statement { $$ = IF_01($2, $4, @$); }
     ;
 
+ternary_if_statement
+    : expr KW_IF expr KW_ELSE expr { $$ = TERNARY($3, $1, $5, @$); }
+    ;
+
 nonlocal_statement
     : KW_NONLOCAL expr_list { $$ = NON_LOCAL($2, @$); }
     ;
@@ -639,8 +649,8 @@ expr_list_opt
     ;
 
 expr_list
-    : expr_list "," expr { $$ = $1; LIST_ADD($$, $3); }
-    | expr { LIST_NEW($$); LIST_ADD($$, $1); }
+    : expr_list "," expr %prec FOR { $$ = $1; LIST_ADD($$, $3); }
+    | expr %prec FOR { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 dict
@@ -654,6 +664,23 @@ dict_list
 
 tuple_list
     : slice_item_list { $$ = TUPLE($1, @$); }
+    ;
+
+id_list
+    : id_list "," id { $$ = $1; LIST_ADD($$, $3); }
+    | id { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+id_item
+    : id_list { $$ = ID_TUPLE_01($1, @$); }
+    | id_list "," { $$ = ID_TUPLE_03($1, @$); }
+    | "(" id_list "," ")" { $$ = ID_TUPLE_03($2, @$); }
+    | "(" id_list ","  id ")" { $$ = ID_TUPLE_01(TUPLE_($2, $4), @$); }
+    ;
+
+list_comprehension
+    : "[" expr KW_FOR id_item KW_IN expr "]" { $$ = LIST_COMP_1($2, $4, $6, @$); }
+    | "[" expr KW_FOR id_item KW_IN expr KW_IF expr "]" { $$ = LIST_COMP_2($2, $4, $6, $8, @$); }
     ;
 
 keyword_item
@@ -705,6 +732,8 @@ expr
     | id "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
     | string "[" tuple_list "]" { $$ = SUBSCRIPT_02($1, $3, @$); }
     | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
+    | expr "." id "[" tuple_list "]" {
+        $$ = SUBSCRIPT_01(ATTRIBUTE_REF($1, $3, @$), $5, @$); }
     | "{" "}" { $$ = DICT_01(@$); }
     | "{" dict_list "}" { $$ = DICT_02($2, @$); }
     | KW_AWAIT expr %prec AWAIT { $$ = AWAIT($2, @$); }
@@ -735,15 +764,18 @@ expr
     | expr "<=" expr { $$ = COMPARE($1, LtE, $3, @$); }
     | expr ">" expr { $$ = COMPARE($1, Gt, $3, @$); }
     | expr ">=" expr { $$ = COMPARE($1, GtE, $3, @$); }
-    | expr KW_IS expr { $$ = COMPARE($1, Is, $3, @$); }
-    | expr TK_IS_NOT expr { $$ = COMPARE($1, IsNot, $3, @$); }
-    /* | expr KW_IN expr { $$ = COMPARE($1, In, $3, @$); } */ // TODO
-    | expr TK_NOT_IN expr { $$ = COMPARE($1, NotIn, $3, @$); }
+    | expr "is" expr { $$ = COMPARE($1, Is, $3, @$); }
+    | expr "is not" expr { $$ = COMPARE($1, IsNot, $3, @$); }
+    | expr "in" expr { $$ = COMPARE($1, In, $3, @$); }
+    | expr "not in" expr { $$ = COMPARE($1, NotIn, $3, @$); }
 
     | expr "and" expr { $$ = BOOLOP($1, And, $3, @$); }
     | expr "or" expr { $$ = BOOLOP($1, Or, $3, @$); }
     | "not" expr { $$ = UNARY($2, Not, @$); }
 
+    | ternary_if_statement { $$ = $1; }
+
+    | list_comprehension { $$ = $1; }
     ;
 
 id

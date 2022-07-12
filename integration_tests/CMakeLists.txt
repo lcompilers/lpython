@@ -59,7 +59,7 @@ macro(RUN)
         if (KIND STREQUAL "llvm")
             add_custom_command(
                 OUTPUT ${name}.o
-                COMMAND lpython -c ${name}.py -o ${name}.o
+                COMMAND lpython -c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
                 DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                 VERBATIM)
             add_executable(${name} ${name}.o ${RUN_EXTRAFILES})
@@ -75,7 +75,7 @@ macro(RUN)
         elseif(KIND STREQUAL "c")
             add_custom_command(
                 OUTPUT ${name}.c
-                COMMAND lpython --show-c ${name}.py > ${name}.c
+                COMMAND lpython --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
                 DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                 VERBATIM)
             add_executable(${name} ${name}.c ${RUN_EXTRAFILES})
@@ -98,7 +98,7 @@ macro(RUN)
                 set(PY_MOD "")
             endif()
 
-            add_test(${name} python ${CMAKE_CURRENT_BINARY_DIR}/${name}.py)
+            add_test(${name} python ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py)
             set_tests_properties(${name} PROPERTIES
                 ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/../src/runtime/ltypes;LPYTHON_PY_MOD_NAME=${PY_MOD};LPYTHON_PY_MOD_PATH=${CMAKE_CURRENT_BINARY_DIR}")
             if (RUN_LABELS)
@@ -131,9 +131,17 @@ RUN(NAME expr_02             LABELS cpython llvm c)
 RUN(NAME expr_03             LABELS cpython llvm c)
 RUN(NAME expr_04             LABELS cpython llvm c)
 RUN(NAME expr_05             LABELS cpython llvm)
+RUN(NAME expr_06             LABELS cpython llvm)
+RUN(NAME expr_07             LABELS cpython llvm)
+RUN(NAME expr_08             LABELS llvm c)
+RUN(NAME expr_09             LABELS cpython llvm)
+RUN(NAME expr_10             LABELS cpython llvm)
+RUN(NAME expr_11             LABELS cpython llvm c)
+RUN(NAME expr_12             LABELS llvm c)
 RUN(NAME test_types_01       LABELS cpython llvm)
 RUN(NAME test_str_01         LABELS cpython llvm)
 RUN(NAME test_str_02         LABELS cpython llvm)
+RUN(NAME test_str_03         LABELS cpython llvm c)
 RUN(NAME test_list_01        LABELS cpython llvm)
 RUN(NAME modules_01          LABELS cpython llvm)
 RUN(NAME test_math           LABELS cpython llvm)
@@ -175,7 +183,13 @@ RUN(NAME test_issue_518      LABELS cpython llvm)
 RUN(NAME structs_01          LABELS cpython llvm c)
 RUN(NAME structs_02          LABELS llvm c)
 RUN(NAME structs_03          LABELS llvm c)
+RUN(NAME structs_04          LABELS cpython llvm c)
+RUN(NAME structs_05          LABELS llvm c)
 RUN(NAME test_str_to_int     LABELS cpython llvm)
+RUN(NAME test_platform       LABELS cpython llvm)
+RUN(NAME test_vars_01        LABELS cpython llvm)
+RUN(NAME test_version        LABELS cpython llvm)
+RUN(NAME vec_01              LABELS cpython llvm)
 
 # Just CPython
 RUN(NAME test_builtin_bin    LABELS cpython)

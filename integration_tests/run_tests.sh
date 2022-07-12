@@ -2,21 +2,31 @@
 
 set -ex
 
-git clean -dfx
+rm -rf b1 b2 b3
 
 # Append "-j4" or "-j" to run in parallel
 jn=$1
 
 export PATH="$(pwd)/../src/bin:$PATH"
 
-cmake -DKIND=cpython .
+mkdir b1
+cd b1
+cmake -DKIND=cpython ..
 make $jn
 ctest $jn --output-on-failure
+cd ..
 
-cmake -DKIND=llvm .
+
+mkdir b2
+cd b2
+cmake -DKIND=llvm ..
 make $jn
 ctest $jn --output-on-failure
+cd ..
 
-cmake -DKIND=c .
+mkdir b3
+cd b3
+
+cmake -DKIND=c ..
 make $jn
 ctest $jn --output-on-failure

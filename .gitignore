@@ -64,6 +64,9 @@ python_ast.py
 python_ast.h
 ser.txt
 integration_tests/py_*
+integration_tests/b1/*
+integration_tests/b2/*
+integration_tests/b3/*
 
 ### https://raw.github.com/github/gitignore/218a941be92679ce67d0484547e3e142b2f5f6f0/Global/macOS.gitignore
 
@@ -185,3 +188,9 @@ integration_tests/structs_02
 integration_tests/structs_02.c
 integration_tests/structs_03
 integration_tests/structs_03.c
+integration_tests/structs_05
+integration_tests/structs_05.c
+integration_tests/expr_08
+integration_tests/expr_08.c
+integration_tests/expr_12
+integration_tests/expr_12.c
