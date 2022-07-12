@@ -91,12 +91,17 @@ public:
     SymbolTable* global_scope;
     int64_t lower_bound;
 
+    std::string template_for_Kokkos;
+    size_t template_number;
+    std::string from_std_vector_helper;
+
     BaseCCPPVisitor(diag::Diagnostics &diag, Platform &platform,
             bool gen_stdstring, bool gen_stdcomplex, bool is_c,
             int64_t default_lower_bound) : diag{diag},
             platform{platform},
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
-        is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound} {}
+        is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound},
+        template_number{0} {}
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         global_scope = x.m_global_scope;
@@ -233,6 +238,8 @@ R"(#include <stdio.h>
 
     // Returns the declaration, no semi colon at the end
     std::string get_subroutine_declaration(const ASR::Subroutine_t &x) {
+        template_for_Kokkos.clear();
+        template_number = 0;
         std::string sym_name = x.m_name;
         if (sym_name == "main") {
             sym_name = "_xx_lcompilers_changed_main_xx";
@@ -240,19 +247,31 @@ R"(#include <stdio.h>
         if (sym_name == "exit") {
             sym_name = "_xx_lcompilers_changed_exit_xx";
         }
-        std::string sub = "void " + sym_name + "(";
+        std::string func = "void " + sym_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
-            sub += self().convert_variable_decl(*arg, false);
-            if (i < x.n_args-1) sub += ", ";
+            if( is_c ) {
+                func += self().convert_variable_decl(*arg, false);
+            } else {
+                func += self().convert_variable_decl(*arg, false, true);
+            }
+            if (i < x.n_args-1) func += ", ";
         }
-        sub += ")";
-        return sub;
+        func += ")";
+        if( is_c || template_for_Kokkos.empty() ) {
+            return func;
+        }
+
+        template_for_Kokkos.pop_back();
+        template_for_Kokkos.pop_back();
+        return "\ntemplate <" + template_for_Kokkos + ">\n" + func;
     }
 
     // Returns the declaration, no semi colon at the end
     std::string get_function_declaration(const ASR::Function_t &x) {
+        template_for_Kokkos.clear();
+        template_number = 0;
         std::string sub;
         ASR::Variable_t *return_var = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
         if (ASRUtils::is_integer(*return_var->m_type)) {
@@ -304,15 +323,25 @@ R"(#include <stdio.h>
         if (sym_name == "main") {
             sym_name = "_xx_lcompilers_changed_main_xx";
         }
-        sub = sub + sym_name + "(";
+        std::string func = sub + sym_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
-            sub += self().convert_variable_decl(*arg, false);
-            if (i < x.n_args-1) sub += ", ";
+            if( is_c ) {
+                func += self().convert_variable_decl(*arg, false);
+            } else {
+                func += self().convert_variable_decl(*arg, false, true);
+            }
+            if (i < x.n_args-1) func += ", ";
         }
-        sub += ")";
-        return sub;
+        func += ")";
+        if( is_c || template_for_Kokkos.empty() ) {
+            return func;
+        }
+
+        template_for_Kokkos.pop_back();
+        template_for_Kokkos.pop_back();
+        return "\ntemplate <" + template_for_Kokkos + ">\n" + func;
     }
 
     std::string declare_all_functions(const SymbolTable &scope) {
@@ -512,7 +541,7 @@ R"(#include <stdio.h>
             }
             args += std::to_string(ASRUtils::extract_kind_from_ttype_t(x.m_type)) + "-1";
         }
-        src = var_name + ".extent(" + args + ")";
+        src = var_name + "->data->extent(" + args + ")";
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
@@ -520,6 +549,9 @@ R"(#include <stdio.h>
         if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
             visit_Var(*ASR::down_cast<ASR::Var_t>(x.m_target));
             target = src;
+            if( ASRUtils::is_array(ASRUtils::expr_type(x.m_target)) && !is_c ) {
+                target += "->data";
+            }
         } else if (ASR::is_a<ASR::ArrayItem_t>(*x.m_target)) {
             visit_ArrayItem(*ASR::down_cast<ASR::ArrayItem_t>(x.m_target));
             target = src;
@@ -529,10 +561,17 @@ R"(#include <stdio.h>
         } else {
             LFORTRAN_ASSERT(false)
         }
+        from_std_vector_helper.clear();
         self().visit_expr(*x.m_value);
         std::string value = src;
         std::string indent(indentation_level*indentation_spaces, ' ');
-        src = indent + target + " = " + value + ";\n";
+        if( !from_std_vector_helper.empty() ) {
+            src = from_std_vector_helper;
+        } else {
+            src.clear();
+        }
+        src += indent + target + " = " + value + ";\n";
+        from_std_vector_helper.clear();
     }
 
     void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {
@@ -601,10 +640,15 @@ R"(#include <stdio.h>
 
     void visit_ArrayItem(const ASR::ArrayItem_t &x) {
         this->visit_expr(*x.m_v);
-        std::string out = src;
+        std::string array = src;
+        std::string out = array;
         ASR::dimension_t* m_dims;
         ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(x.m_v), m_dims);
-        out += "[";
+        if( is_c ) {
+            out += "->data[";
+        } else {
+            out += "->data->operator[](";
+        }
         for (size_t i=0; i<x.n_args; i++) {
             if (x.m_args[i].m_right) {
                 self().visit_expr(*x.m_args[i].m_right);
@@ -612,16 +656,21 @@ R"(#include <stdio.h>
                 src = "/* FIXME right index */";
             }
             out += src;
-            out += " - " + std::to_string(lower_bound);
-            if (i < x.n_args-1) out += "][";
+            out += " - " + array + "->dims[" + std::to_string(i) + "].lower_bound";
+            if (i < x.n_args-1) {
+                if( is_c ) {
+                    out += "][";
+                } else {
+                    out += ", ";
+                }
+            }
         }
-        out += "]";
+        if( is_c ) {
+            out += "]";
+        } else {
+            out += ")";
+        }
         last_expr_precedence = 2;
-        // if( !prefix.empty() ) {
-        //     src = prefix + "(" + out + ")";
-        // } else {
-        //     src = out;
-        // }
         src = out;
     }
 
@@ -825,6 +874,9 @@ R"(#include <stdio.h>
     void visit_PointerToCPtr(const ASR::PointerToCPtr_t& x) {
         self().visit_expr(*x.m_arg);
         std::string arg_src = std::move(src);
+        if( ASRUtils::is_array(ASRUtils::expr_type(x.m_arg)) ) {
+            arg_src += "->data";
+        }
         std::string type_src = get_c_type_from_ttype_t(x.m_type);
         src = "(" + type_src + ") " + arg_src;
     }
@@ -834,6 +886,9 @@ R"(#include <stdio.h>
         std::string source_src = std::move(src);
         self().visit_expr(*x.m_ptr);
         std::string dest_src = std::move(src);
+        if( ASRUtils::is_array(ASRUtils::expr_type(x.m_ptr)) ) {
+            dest_src += "->data";
+        }
         std::string type_src = get_c_type_from_ttype_t(ASRUtils::expr_type(x.m_ptr));
         std::string indent(indentation_level*indentation_spaces, ' ');
         src = indent + dest_src + " = (" + type_src + ") " + source_src + ";\n";
