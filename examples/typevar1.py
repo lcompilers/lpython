@@ -5,4 +5,5 @@ def f(x: T, y: T) -> T:
 
 print(f(1,2))
 print(f("a","b"))
-print(f("c","d"))
+# Does not work yet
+#print(f("c","d"))
