@@ -29,7 +29,6 @@
 
 
 namespace LFortran::LPython {
-
 // Does a CPython style lookup for a module:
 // * First the current directory (this is incorrect, we need to do it relative to the current file)
 // * Then the LPython runtime directory
@@ -3842,6 +3841,48 @@ std::string get_parent_dir(const std::string &path) {
         return "";
     }
     return path.substr(0,idx);
+}
+
+std::vector<lsp_locations> symbol_information(LFortran::ASR::TranslationUnit_t *x,
+                const LFortran::LocationManager &lm) {
+    std::vector<lsp_locations> symbol_lists;
+    lsp_locations loc;
+    for (auto &a : x->m_global_scope->get_scope()) {
+        std::string symbol_name = a.first;
+        uint32_t first_line;
+        uint32_t last_line;
+        uint32_t first_column;
+        uint32_t last_column;
+        lm.pos_to_linecol(a.second->base.loc.first, first_line, first_column);
+        lm.pos_to_linecol(a.second->base.loc.last, last_line, last_column);
+        loc.first_column = first_column;
+        loc.last_column = last_column;
+        loc.first_line = first_line;
+        loc.last_line = last_line;
+        loc.symbol_name = symbol_name;
+        symbol_lists.push_back(loc);
+    }
+ return symbol_lists;
+}
+ 
+std::vector<lsp_locations> get_symbol_locations(Allocator &al, LFortran::LPython::AST::ast_t &ast,
+                 LFortran::diag::Diagnostics &diagnostics, bool main_module,
+                 std::string file_path, const LFortran::LocationManager &lm) {
+    std::map<int, LFortran::ASR::symbol_t *> ast_overload;
+    std::string parent_dir = get_parent_dir(file_path);
+    LFortran::LPython::AST::Module_t *ast_m =
+        LFortran::LPython::AST::down_cast2<LFortran::LPython::AST::Module_t>(
+            &ast);
+    
+    LFortran::ASR::asr_t *unit;
+    auto res = symbol_table_visitor(al, *ast_m, diagnostics, main_module,
+                                    ast_overload, parent_dir);
+    if (res.ok) {
+    unit = res.result;
+    }
+    LFortran::ASR::TranslationUnit_t *tu =
+        LFortran::ASR::down_cast2<LFortran::ASR::TranslationUnit_t>(unit);
+    return symbol_information(tu, lm);
 }
 
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
