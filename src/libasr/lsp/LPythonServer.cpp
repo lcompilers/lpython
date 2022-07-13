@@ -74,10 +74,8 @@ struct handle_functions
   }
 
   std::string getPath(std::string raw_uri)  {
-    if (raw_uri.compare(0, 7, "file://")) {
-      std::cout << "Warning";
+    if (raw_uri.compare(0, 7, "file://"))
       return raw_uri;
-    }
     std::string ret;
     #ifdef _WIN32
       // Skipping the initial "/" on Windows
