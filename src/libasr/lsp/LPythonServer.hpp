@@ -2,7 +2,6 @@
 #define LPYTHON_SERVER_HPP
 
 #include <string>
-#include <iostream>
 #include <rapidjson/document.h>
 
 #include <libasr/asr.h>
