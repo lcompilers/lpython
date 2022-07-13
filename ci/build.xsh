@@ -52,10 +52,10 @@ cd test-bld
 # modes:
 BUILD_TYPE = "Release"
 cmake -G $LFORTRAN_CMAKE_GENERATOR -DCMAKE_VERBOSE_MAKEFILE=ON -DWITH_LLVM=yes -DWITH_LSP=yes -DWITH_XEUS=yes -DCMAKE_PREFIX_PATH=$CONDA_PREFIX -DCMAKE_INSTALL_PREFIX=$CONDA_PREFIX -DWITH_LFORTRAN_BINARY_MODFILES=no -DCMAKE_BUILD_TYPE=@(BUILD_TYPE) ..
-cmake --build . --target install -j8
+cmake --build . --target install -j16
 ./src/lpython/tests/test_lpython
 #./src/bin/lpython < ../src/bin/example_input.txt
-ctest --output-on-failure -j8
+ctest --output-on-failure -j16
 cpack -V
 cd ../..
 
