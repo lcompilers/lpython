@@ -733,7 +733,7 @@ public:
         }
     }
 
-    // Instantiate new generic function if a template function is called
+    // Instantiate new generic function if a template function is called    
     ASR::symbol_t* instantiate_generic_function(std::map<std::string, ASR::ttype_t*> subs,
             ASR::TemplateFunction_t &func) {
         SymbolTable *parent_scope = current_scope;
@@ -2329,6 +2329,10 @@ public:
                     current_scope->get_symbol(return_var_name));
                 if (generic) {
                     // Same structure as Function, just different type
+                    // TODO: Merge the definition of TemplateFunction with Function but add
+                    //       fields of type parameters to Function
+                    // TODO (important): No verify support for TemplateFunction
+                    // TODO: Body of TemplateFunction
                     tmp = ASR::make_TemplateFunction_t(
                         al, x.base.base.loc,
                         /* a_symtab */ current_scope,
@@ -2857,8 +2861,11 @@ public:
             } else {
                 LFORTRAN_ASSERT(false);
             }
+        // TODO: Take care of TemplateFunction
         } else if (ASR::is_a<ASR::TemplateFunction_t>(*t)) {
-            // pass
+            ASR::TemplateFunction_t *f = ASR::down_cast<ASR::TemplateFunction_t>(t);
+            std::cout << f->m_name << std::endl;
+        }
         } else {
             LFORTRAN_ASSERT(false);
         }
