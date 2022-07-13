@@ -687,6 +687,12 @@ struct _lcompilers_list_i32 {
     uint64_t capacity;
     int32_t *p;
 };
+struct _lcompilers_list_str {
+    uint64_t n;
+    uint64_t capacity;
+    char** p;
+};
+
 
 LFORTRAN_API int8_t* _lcompilers_list_init_i32() {
     struct _lcompilers_list_i32 *l;
@@ -716,6 +722,15 @@ LFORTRAN_API int32_t _lcompilers_list_item_i32(int8_t* s, int32_t pos) {
     } else {
         printf("Out of bounds\n");
         return 0;
+    }
+}
+LFORTRAN_API int32_t _lcompilers_list_item_str(char** s, int32_t pos, char* res) {
+    printf("%s, %d\n", (*s), pos);
+    struct _lcompilers_list_str *l = (struct _lcompilers_list_str *)s;
+    if(pos >= 1 && pos <= l->n) {
+        res = l->p[pos-1];
+    } else {
+        printf("Out of bounds\n");
     }
 }
 

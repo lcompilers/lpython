@@ -835,6 +835,24 @@ public:
         return builder->CreateCall(fn, {plist, pos});
     }
 
+    llvm::Value* lcompilers_list_item_str(llvm::Value* plist, llvm::Value *pos)
+    {
+        std::string runtime_func_name = "_lcompilers_list_item_str";
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {
+                        list_type, llvm::Type::getInt32Ty(context),
+                        character_type->getPointerTo()
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        llvm::AllocaInst *presult = builder->CreateAlloca(character_type, nullptr);
+        builder->CreateCall(fn, {plist, pos, presult});
+        return CreateLoad(presult);
+    }
+
     // This function is called as:
     // float complex_re(complex a)
     // And it extracts the real part of the complex number
@@ -1134,6 +1152,7 @@ public:
         llvm::Value *pos = tmp;
 
         ASR::ttype_t *el_type = ASR::down_cast<ASR::List_t>(l->m_type)->m_type;
+        std::cout << el_type->type << " " << l->m_type->type << std::endl;
         if (is_a<ASR::Integer_t>(*el_type)) {
             int kind = ASR::down_cast<ASR::Integer_t>(el_type)->m_kind;
             if (kind == 4) {
@@ -1142,7 +1161,9 @@ public:
             } else {
                 throw CodeGenError("Integer kind not supported as index in ListItem", x.base.base.loc);
             }
-
+        } else if (is_a<ASR::Character_t>(*el_type)) {
+                llvm::Value *plist2 = CreateLoad(plist);
+                tmp = lcompilers_list_item_str(plist2, pos);
         } else {
             throw CodeGenError("List type not supported yet in ListItem", x.base.base.loc);
         }
