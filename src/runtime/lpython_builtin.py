@@ -135,7 +135,7 @@ def str(x: i32) -> str:
     rev_result_len: i32
     rev_result_len = 0
     while x > 0:
-        rev_result += chr(ord('0') + (x - _lpython_floordiv(x, 10) * 10))
+        rev_result += chr(48 + (x - _lpython_floordiv(x, 10)*10))
         rev_result_len += 1
         x = _lpython_floordiv(x, 10)
     pos: i32
