@@ -792,6 +792,22 @@ public:
         return builder->CreateCall(fn, {str, idx1, idx2});
     }
 
+    llvm::Value* lfortran_str_slice_copy(llvm::Value* str, llvm::Value* left, llvm::Value* right, llvm::Value* step)
+    {
+        std::string runtime_func_name = "_lfortran_str_slice_copy";
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    character_type, {
+                        character_type, llvm::Type::getInt32Ty(context), llvm::Type::getInt32Ty(context),
+                        llvm::Type::getInt32Ty(context)
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        return builder->CreateCall(fn, {str, left, right, step});
+    }
+
     llvm::Value* lcompilers_list_init_i32()
     {
         std::string runtime_func_name = "_lcompilers_list_init_i32";
@@ -3297,7 +3313,9 @@ public:
         llvm::Value *left = tmp;
         this->visit_expr_wrapper(x.m_end, true);
         llvm::Value *right = tmp;
-        tmp = lfortran_str_copy(str, left, right);
+        this->visit_expr_wrapper(x.m_step, true);
+        llvm::Value *step = tmp;
+        tmp = lfortran_str_slice_copy(str, left, right, step);
     }
 
     void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {

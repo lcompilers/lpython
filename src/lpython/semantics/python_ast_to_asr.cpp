@@ -27,6 +27,8 @@
 #include <lpython/semantics/python_attribute_eval.h>
 #include <lpython/parser/parser.h>
 
+#define MAX_INTEGER 2147483647
+#define MIN_INTEGER -2147483648
 
 namespace LFortran::LPython {
 
@@ -1871,25 +1873,39 @@ public:
             } else if (ASR::is_a<ASR::Character_t>(*type)) {
                 ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                                                         4, nullptr, 0));
-                // If left is not present, assign it to the first ASR index (0 + 1) in string
-                if (ai.m_left == nullptr) {
-                    ai.m_left = ASR::down_cast<ASR::expr_t>(
-                    ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int_type));
-                } else {
-                    ai.m_left = index_add_one(x.base.base.loc, ai.m_left);
-                }
-                // If right is not present, then assign it to the last ASR index (-1 + 1) in string
-                if (ai.m_right == nullptr) {
-                    ai.m_right = ASR::down_cast<ASR::expr_t>(
-                    ASR::make_IntegerConstant_t(al, x.base.base.loc, 0, int_type));
-                }
+
+                bool step_forward = true;
                 // If step is not present, assign it to 1 (step should be always present)
                 if (ai.m_step == nullptr) {
                     ai.m_step = ASR::down_cast<ASR::expr_t>(
                     ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int_type));
                 } else {
-                    ai.m_step = index_add_one(x.base.base.loc, ai.m_step);
+                    ai.m_step = ASRUtils::EXPR(tmp); // IntegerUnaryMinus IntegerConstant
+                    if (ASR::is_a<ASR::IntegerUnaryMinus_t>(*ai.m_step))
+                        step_forward = false;
                 }
+
+
+
+                // If left is not present, assign it to the first ASR index (0 + 1) in string
+                if (ai.m_left == nullptr) {
+                    ai.m_left = ASR::down_cast<ASR::expr_t>(
+                    ASR::make_IntegerConstant_t(al, x.base.base.loc, step_forward ? MIN_INTEGER : MAX_INTEGER, int_type));
+                }
+
+                // If right is not present, then assign it to the last ASR index (-1 + 1) in string
+                if (ai.m_right == nullptr) {
+                    ai.m_right = ASR::down_cast<ASR::expr_t>(
+                    ASR::make_IntegerConstant_t(al, x.base.base.loc, step_forward ? MAX_INTEGER : MIN_INTEGER, int_type));
+                }
+
+                // If step is not present, assign it to 1 (step should be always present)
+                // if (ai.m_step == nullptr) {
+                //     ai.m_step = ASR::down_cast<ASR::expr_t>(
+                //     ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int_type));
+                // } else {
+                //     ai.m_step = ASRUtils::EXPR(tmp);
+                // }
                 tmp = ASR::make_StringSection_t(al, x.base.base.loc, value, ai.m_left, ai.m_right,
                     ai.m_step, type, nullptr);
                 return;
