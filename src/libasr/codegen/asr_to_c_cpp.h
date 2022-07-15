@@ -638,6 +638,9 @@ R"(#include <stdio.h>
         }
     }
 
+    // TODO: C and non-C code have diverged too much
+    // so, split and define the methods in individual
+    // C and non-C (CPP) visitors.
     void visit_ArrayItem(const ASR::ArrayItem_t &x) {
         this->visit_expr(*x.m_v);
         std::string array = src;
@@ -649,24 +652,37 @@ R"(#include <stdio.h>
         } else {
             out += "->data->operator[](";
         }
+        std::string index = "";
         for (size_t i=0; i<x.n_args; i++) {
+            std::string current_index = "";
             if (x.m_args[i].m_right) {
                 self().visit_expr(*x.m_args[i].m_right);
             } else {
                 src = "/* FIXME right index */";
             }
-            out += src;
-            out += " - " + array + "->dims[" + std::to_string(i) + "].lower_bound";
-            if (i < x.n_args-1) {
+            if( is_c ) {
+                current_index += "(" + src + " - " + array + "->dims["
+                                    + std::to_string(i) + "].lower_bound)";
+                for( size_t j = 0; j < i; j++ ) {
+                    std::string lb = array + "->dims[" + std::to_string(j) + "].lower_bound";
+                    std::string ub = array + "->dims[" + std::to_string(j) + "].upper_bound";
+                    current_index += " * (" + ub + " - " + lb + " + 1)";
+                }
+                index += current_index;
+            } else {
+                out += src;
+                out += " - " + array + "->dims[" + std::to_string(i) + "].lower_bound";
+            }
+            if (i < x.n_args - 1) {
                 if( is_c ) {
-                    out += "][";
+                    index += " + ";
                 } else {
                     out += ", ";
                 }
             }
         }
         if( is_c ) {
-            out += "]";
+            out += index + "]";
         } else {
             out += ")";
         }
