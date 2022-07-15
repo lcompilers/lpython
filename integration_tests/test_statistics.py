@@ -5,12 +5,6 @@ eps: f64
 eps = 1e-12
 
 def test_mean():
-    a: list[i32]
-    a = [7, 4, 19]
-    i: i32
-    i = mean(a)
-    assert abs(i - 10) < eps
-
     b: list[i32]
     b = [9, 4, 10]
     j: f64
