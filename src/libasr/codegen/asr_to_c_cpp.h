@@ -553,7 +553,7 @@ R"(#include <stdio.h>
                 target += "->data";
             }
         } else if (ASR::is_a<ASR::ArrayItem_t>(*x.m_target)) {
-            visit_ArrayItem(*ASR::down_cast<ASR::ArrayItem_t>(x.m_target));
+            self().visit_ArrayItem(*ASR::down_cast<ASR::ArrayItem_t>(x.m_target));
             target = src;
         } else if (ASR::is_a<ASR::DerivedRef_t>(*x.m_target)) {
             visit_DerivedRef(*ASR::down_cast<ASR::DerivedRef_t>(x.m_target));
@@ -636,58 +636,6 @@ R"(#include <stdio.h>
         } else {
             src = der_expr + "->" + member;
         }
-    }
-
-    // TODO: C and non-C code have diverged too much
-    // so, split and define the methods in individual
-    // C and non-C (CPP) visitors.
-    void visit_ArrayItem(const ASR::ArrayItem_t &x) {
-        this->visit_expr(*x.m_v);
-        std::string array = src;
-        std::string out = array;
-        ASR::dimension_t* m_dims;
-        ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(x.m_v), m_dims);
-        if( is_c ) {
-            out += "->data[";
-        } else {
-            out += "->data->operator[](";
-        }
-        std::string index = "";
-        for (size_t i=0; i<x.n_args; i++) {
-            std::string current_index = "";
-            if (x.m_args[i].m_right) {
-                self().visit_expr(*x.m_args[i].m_right);
-            } else {
-                src = "/* FIXME right index */";
-            }
-            if( is_c ) {
-                current_index += "(" + src + " - " + array + "->dims["
-                                    + std::to_string(i) + "].lower_bound)";
-                for( size_t j = 0; j < i; j++ ) {
-                    std::string lb = array + "->dims[" + std::to_string(j) + "].lower_bound";
-                    std::string ub = array + "->dims[" + std::to_string(j) + "].upper_bound";
-                    current_index += " * (" + ub + " - " + lb + " + 1)";
-                }
-                index += current_index;
-            } else {
-                out += src;
-                out += " - " + array + "->dims[" + std::to_string(i) + "].lower_bound";
-            }
-            if (i < x.n_args - 1) {
-                if( is_c ) {
-                    index += " + ";
-                } else {
-                    out += ", ";
-                }
-            }
-        }
-        if( is_c ) {
-            out += index + "]";
-        } else {
-            out += ")";
-        }
-        last_expr_precedence = 2;
-        src = out;
     }
 
     void visit_Cast(const ASR::Cast_t &x) {
