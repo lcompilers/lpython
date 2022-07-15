@@ -28,22 +28,19 @@ def test_geometric_mean():
     c = [1,2,3]
     k: f64
     k = geometric_mean(c)
-    assert abs(k - 1.817120) < eps
+    assert abs(k - 1.8171205928321397) < eps
 
 def test_harmonic_mean():
     c: list[i32]
     c = [9,2,46]
     k: f64
     k = harmonic_mean(c)
-    assert abs(k - 4.740458) < eps
+    assert abs(k - 4.740458015267175) < eps
 
 
 def check():
     test_mean()
     test_geometric_mean()
     test_harmonic_mean()
-
-
-
 
 check()
