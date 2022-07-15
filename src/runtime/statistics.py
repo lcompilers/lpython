@@ -4,7 +4,7 @@ from ltypes import i32, f64
 def mean(x: list[i32]) -> f64:
     k: i32 = len(x)
     if k == 0:
-        return 0
+        return 0.0
     sum: f64
     sum = 0.0
     i: i32
@@ -16,10 +16,25 @@ def mean(x: list[i32]) -> f64:
     return float(ans)
 
 @overload
-def mean(x: list[f64]) -> f64:
+def mean(x: list[i32]) -> i32:
     k: i32 = len(x)
     if k == 0:
         return 0
+    sum: i32
+    sum = 0
+    i: i32
+
+    for i in range(k):
+        sum += x[i]
+    ans: i32
+    ans = sum/k
+    return ans
+
+@overload
+def mean(x: list[f64]) -> f64:
+    k: i32 = len(x)
+    if k == 0:
+        return 0.0
     sum: f64
     sum = 0.0
     i: i32
@@ -33,7 +48,7 @@ def mean(x: list[f64]) -> f64:
 def geometric_mean(x: list[i32]) -> f64:
     k: i32 = len(x)
     if k == 0:
-        return 0
+        return 0.0
     product: f64
     product = 1.0
     i: i32
@@ -47,7 +62,7 @@ def geometric_mean(x: list[i32]) -> f64:
 def harmonic_mean(x: list[i32]) -> f64:
     k: i32 = len(x)
     if k == 0:
-        return 0
+        return 0.0
     sum: f64
     sum = 0.0
     for i in range(k):
@@ -55,4 +70,3 @@ def harmonic_mean(x: list[i32]) -> f64:
     ans: f64
     ans = k/sum
     return float(ans)
-
