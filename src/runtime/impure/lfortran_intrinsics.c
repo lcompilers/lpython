@@ -659,34 +659,34 @@ LFORTRAN_API char* _lfortran_str_copy(char* s, int32_t idx1, int32_t idx2) {
 }
 
 // string copy in slicing
-LFORTRAN_API char* _lfortran_str_slice_copy(char* s, int32_t left, int32_t right, int32_t step) {
+LFORTRAN_API char* _lfortran_str_slice_copy(char* s, int32_t start, int32_t end, int32_t step) {
     if (step == 0) {
         printf("slice step cannot be zero\n");
         exit(1);
     }
 
     int s_len = strlen(s);
-    left = left < 0 ? left + s_len : left;
-    right = right < 0 ? right + s_len : right;
-    if (left == right ||
-        (step > 0 && (left > right || left >= s_len)) ||
-        (step < 0 && (left < right || right >= s_len-1)))
+    start = start < 0 ? start + s_len : start;
+    end = end < 0 ? end + s_len : end;
+    if (start == end ||
+        (step > 0 && (start > end || start >= s_len)) ||
+        (step < 0 && (start < end || end >= s_len-1)))
         return "";
 
     if (step > 0) {
-        left = left < 0 ? 0 : left;
-        right = right > s_len ? s_len : right;
+        start = start < 0 ? 0 : start;
+        end = end > s_len ? s_len : end;
     }
     else {
-        left = left >= s_len ? s_len-1: left;
-        right = right <= -1 ? -1 : right;
+        start = start >= s_len ? s_len-1: start;
+        end = end <= -1 ? -1 : end;
     }
 
-    int dest_len = (right-left+(step-1))/step + 1;
+    int dest_len = (end-start+(step-1))/step + 1;
     char* dest_char = (char*) malloc(dest_len);
-    int s_i = left, d_i = 0;
-    while((step > 0 && s_i >=left && s_i < right) ||
-        (step <0 && s_i <=left && s_i >right)) {
+    int s_i = start, d_i = 0;
+    while((step > 0 && s_i >= start && s_i < end) ||
+        (step < 0 && s_i <= start && s_i > end)) {
         dest_char[d_i] = s[s_i];
         d_i++;
         s_i+=step;
