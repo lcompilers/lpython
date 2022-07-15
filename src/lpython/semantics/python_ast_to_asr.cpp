@@ -681,6 +681,50 @@ public:
         }
     }
 
+    void fill_dims_for_asr_type(Vec<ASR::dimension_t>& dims,
+                                ASR::expr_t* value, const Location& loc) {
+        ASR::dimension_t dim;
+        dim.loc = loc;
+        if (ASR::is_a<ASR::IntegerConstant_t>(*value) ||
+            ASR::is_a<ASR::Var_t>(*value)) {
+            ASR::ttype_t *itype = ASRUtils::expr_type(value);
+            ASR::expr_t* one = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 1, itype));
+            ASR::expr_t* zero = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 0, itype));
+            ASR::expr_t* comptime_val = nullptr;
+            int64_t value_int = -1;
+            ASRUtils::extract_value(ASRUtils::expr_value(value), value_int);
+            if( value_int != -1 ) {
+                comptime_val = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, value_int - 1, itype));
+            }
+            dim.m_start = zero;
+            dim.m_end = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, value->base.loc, value, ASR::binopType::Sub,
+                            one, itype, comptime_val));
+            dims.push_back(al, dim);
+        } else if(ASR::is_a<ASR::TupleConstant_t>(*value)) {
+            ASR::TupleConstant_t* tuple_constant = ASR::down_cast<ASR::TupleConstant_t>(value);
+            for( size_t i = 0; i < tuple_constant->n_elements; i++ ) {
+                ASR::expr_t *value = tuple_constant->m_elements[i];
+                fill_dims_for_asr_type(dims, value, loc);
+            }
+        } else {
+            throw SemanticError("Only Integer, `:` or identifier in [] in Subscript supported for now in annotation"
+                                "found, " + std::to_string(value->type),
+                loc);
+        }
+    }
+
+    bool is_runtime_array(AST::expr_t* m_slice) {
+        if( AST::is_a<AST::Tuple_t>(*m_slice) ) {
+            AST::Tuple_t* multidim = AST::down_cast<AST::Tuple_t>(m_slice);
+            for( size_t i = 0; i < multidim->n_elts; i++ ) {
+                if( AST::is_a<AST::Slice_t>(*multidim->m_elts[i]) ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     // Convert Python AST type annotation to an ASR type
     // Examples:
     // i32, i64, f32, f64
@@ -756,34 +800,28 @@ public:
                 ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice);
                 return ASRUtils::TYPE(ASR::make_Pointer_t(al, loc, type));
             } else {
-                ASR::dimension_t dim;
-                dim.loc = loc;
                 if (AST::is_a<AST::Slice_t>(*s->m_slice)) {
+                    ASR::dimension_t dim;
+                    dim.loc = loc;
                     dim.m_start = nullptr;
                     dim.m_end = nullptr;
+                    dims.push_back(al, dim);
+                } else if( is_runtime_array(s->m_slice) ) {
+                    AST::Tuple_t* tuple_multidim = AST::down_cast<AST::Tuple_t>(s->m_slice);
+                    for( size_t i = 0; i < tuple_multidim->n_elts; i++ ) {
+                        if( AST::is_a<AST::Slice_t>(*tuple_multidim->m_elts[i]) ) {
+                            ASR::dimension_t dim;
+                            dim.loc = loc;
+                            dim.m_start = nullptr;
+                            dim.m_end = nullptr;
+                            dims.push_back(al, dim);
+                        }
+                    }
                 } else {
                     this->visit_expr(*s->m_slice);
                     ASR::expr_t *value = ASRUtils::EXPR(tmp);
-                    if (ASR::is_a<ASR::IntegerConstant_t>(*value) || ASR::is_a<ASR::Var_t>(*value)) {
-                        ASR::ttype_t *itype = ASRUtils::expr_type(value);
-                        ASR::expr_t* one = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 1, itype));
-                        ASR::expr_t* zero = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 0, itype));
-                        ASR::expr_t* comptime_val = nullptr;
-                        int64_t value_int = -1;
-                        ASRUtils::extract_value(ASRUtils::expr_value(value), value_int);
-                        if( value_int != -1 ) {
-                            comptime_val = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, value_int - 1, itype));
-                        }
-                        dim.m_start = zero;
-                        dim.m_end = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, value->base.loc, value, ASR::binopType::Sub,
-                                        one, itype, comptime_val));
-                    } else {
-                        throw SemanticError("Only Integer, `:` or identifier in [] in Subscript supported for now in annotation",
-                            loc);
-                    }
+                    fill_dims_for_asr_type(dims, value, loc);
                 }
-
-                dims.push_back(al, dim);
             }
         } else {
             throw SemanticError("Only Name, Subscript, and Call supported for now in annotation of annotated assignment.",
@@ -1471,6 +1509,23 @@ public:
         tmp = ASR::make_NamedExpr_t(al, x.base.base.loc, target, value, value_type);
     }
 
+    void visit_Tuple(const AST::Tuple_t &x) {
+        Vec<ASR::expr_t*> elements;
+        elements.reserve(al, x.n_elts);
+        Vec<ASR::ttype_t*> tuple_type_vec;
+        tuple_type_vec.reserve(al, x.n_elts);
+        for (size_t i=0; i<x.n_elts; i++) {
+            this->visit_expr(*x.m_elts[i]);
+            ASR::expr_t *expr = ASRUtils::EXPR(tmp);
+            elements.push_back(al, expr);
+            tuple_type_vec.push_back(al, ASRUtils::expr_type(expr));
+        }
+        ASR::ttype_t *tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, x.base.base.loc,
+                                    tuple_type_vec.p, tuple_type_vec.n));
+        tmp = ASR::make_TupleConstant_t(al, x.base.base.loc,
+                                    elements.p, elements.size(), tuple_type);
+    }
+
     void visit_ConstantInt(const AST::ConstantInt_t &x) {
         int64_t i = x.m_value;
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
@@ -1809,29 +1864,16 @@ public:
                                 ASRUtils::expr_type(body), nullptr);
     }
 
-    void visit_Subscript(const AST::Subscript_t &x) {
-        this->visit_expr(*x.m_value);
-        ASR::expr_t *value = ASRUtils::EXPR(tmp);
-        Vec<ASR::array_index_t> args;
-        args.reserve(al, 1);
+    bool visit_SubscriptIndices(AST::expr_t* m_slice, Vec<ASR::array_index_t>& args,
+                                ASR::expr_t* value, ASR::ttype_t* type, bool& is_item,
+                                const Location& loc) {
         ASR::array_index_t ai;
-        ai.loc = x.base.base.loc;
+        ai.loc = loc;
         ai.m_left = nullptr;
         ai.m_right = nullptr;
         ai.m_step = nullptr;
-        ASR::symbol_t *s = nullptr;
-        bool is_item = true;
-        ASR::ttype_t *type;
-        if (AST::is_a<ASR::StringConstant_t>(*value)) {
-            type = ASR::down_cast<ASR::StringConstant_t>(value)->m_type;
-        }
-        else {
-            s = ASR::down_cast<ASR::Var_t>(value)->m_v;
-            ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
-            type = v->m_type;
-        }
-        if (AST::is_a<AST::Slice_t>(*x.m_slice)) {
-            AST::Slice_t *sl = AST::down_cast<AST::Slice_t>(x.m_slice);
+        if (AST::is_a<AST::Slice_t>(*m_slice)) {
+            AST::Slice_t *sl = AST::down_cast<AST::Slice_t>(m_slice);
             if (sl->m_lower != nullptr) {
                 this->visit_expr(*sl->m_lower);
                 if (!ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
@@ -1865,39 +1907,45 @@ public:
                                       ai.m_right != nullptr);
             }
             if (ASR::is_a<ASR::List_t>(*type)) {
-                tmp = ASR::make_ListSection_t(al, x.base.base.loc, value, ai,
-                        type, nullptr);
-                return;
+                tmp = ASR::make_ListSection_t(al, loc, value, ai, type, nullptr);
+                return false;
             } else if (ASR::is_a<ASR::Character_t>(*type)) {
-                ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                                                        4, nullptr, 0));
+                ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
                 // If left is not present, assign it to the first ASR index (0 + 1) in string
                 if (ai.m_left == nullptr) {
                     ai.m_left = ASR::down_cast<ASR::expr_t>(
-                    ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int_type));
+                    ASR::make_IntegerConstant_t(al, loc, 1, int_type));
                 } else {
-                    ai.m_left = index_add_one(x.base.base.loc, ai.m_left);
+                    ai.m_left = index_add_one(loc, ai.m_left);
                 }
                 // If right is not present, then assign it to the last ASR index (-1 + 1) in string
                 if (ai.m_right == nullptr) {
                     ai.m_right = ASR::down_cast<ASR::expr_t>(
-                    ASR::make_IntegerConstant_t(al, x.base.base.loc, 0, int_type));
+                    ASR::make_IntegerConstant_t(al, loc, 0, int_type));
                 }
                 // If step is not present, assign it to 1 (step should be always present)
                 if (ai.m_step == nullptr) {
                     ai.m_step = ASR::down_cast<ASR::expr_t>(
-                    ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int_type));
+                    ASR::make_IntegerConstant_t(al, loc, 1, int_type));
                 } else {
-                    ai.m_step = index_add_one(x.base.base.loc, ai.m_step);
+                    ai.m_step = index_add_one(loc, ai.m_step);
                 }
-                tmp = ASR::make_StringSection_t(al, x.base.base.loc, value, ai.m_left, ai.m_right,
+                tmp = ASR::make_StringSection_t(al, loc, value, ai.m_left, ai.m_right,
                     ai.m_step, type, nullptr);
-                return;
+                return false;
             } else if (ASR::is_a<ASR::Dict_t>(*type)) {
-                throw SemanticError("unhashable type in dict: 'slice'", x.base.base.loc);
+                throw SemanticError("unhashable type in dict: 'slice'", loc);
             }
+        } else if(AST::is_a<AST::Tuple_t>(*m_slice)) {
+            bool final_result = true;
+            AST::Tuple_t* indices = AST::down_cast<AST::Tuple_t>(m_slice);
+            for( size_t i = 0; i < indices->n_elts; i++ ) {
+                final_result &= visit_SubscriptIndices(indices->m_elts[i], args,
+                                                        value, type, is_item, loc);
+            }
+            return final_result;
         } else {
-            this->visit_expr(*x.m_slice);
+            this->visit_expr(*m_slice);
             if (!ASR::is_a<ASR::Dict_t>(*type) &&
                     !ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
                 std::string fnd = ASRUtils::type_to_str_python(ASRUtils::expr_type(ASRUtils::EXPR(tmp)));
@@ -1920,42 +1968,60 @@ public:
                                         ASRUtils::type_to_str_python(ASRUtils::expr_type(index)) + "'",
                             index->base.loc);
                 }
-                tmp = make_DictItem_t(al, x.base.base.loc, value, index, nullptr,
+                tmp = make_DictItem_t(al, loc, value, index, nullptr,
                                       ASR::down_cast<ASR::Dict_t>(type)->m_value_type, nullptr);
-                return;
+                return false;
 
             } else if (ASR::is_a<ASR::List_t>(*type)) {
                 index = ASRUtils::EXPR(tmp);
-                tmp = make_ListItem_t(al, x.base.base.loc, value, index,
+                tmp = make_ListItem_t(al, loc, value, index,
                                       ASR::down_cast<ASR::List_t>(type)->m_type, nullptr);
-                return;
+                return false;
             } else if (ASR::is_a<ASR::Tuple_t>(*type)) {
                 index = ASRUtils::EXPR(tmp);
                 int i = ASR::down_cast<ASR::IntegerConstant_t>(ASRUtils::EXPR(tmp))->m_n;
-                tmp = make_TupleItem_t(al, x.base.base.loc, value, index,
+                tmp = make_TupleItem_t(al, loc, value, index,
                                        ASR::down_cast<ASR::Tuple_t>(type)->m_type[i], nullptr);
-                return;
+                return false;
             } else {
                 index = ASRUtils::EXPR(tmp);
             }
             ai.m_right = index;
             if (ASRUtils::is_character(*type)) {
-                index = index_add_one(x.base.base.loc, index);
+                index = index_add_one(loc, index);
                 ai.m_right = index;
-                tmp = ASR::make_StringItem_t(al, x.base.base.loc, value, index, type, nullptr);
-                return;
+                tmp = ASR::make_StringItem_t(al, loc, value, index, type, nullptr);
+                return false;
             }
         }
+        args.push_back(al, ai);
+        return true;
+    }
+
+    void visit_Subscript(const AST::Subscript_t &x) {
+        this->visit_expr(*x.m_value);
+        ASR::expr_t *value = ASRUtils::EXPR(tmp);
+        ASR::ttype_t *type = ASRUtils::expr_type(value);
+        Vec<ASR::array_index_t> args;
+        args.reserve(al, 1);
+        bool is_item = true;
 
         if (ASR::is_a<ASR::Set_t>(*type)) {
             throw SemanticError("'set' object is not subscriptable", x.base.base.loc);
         }
-        if( is_item ) {
-            ai.m_left = nullptr;
-            ai.m_step = nullptr;
+
+        if( !visit_SubscriptIndices(x.m_slice, args, value, type,
+                                    is_item, x.base.base.loc) ) {
+            return ;
         }
-        args.push_back(al, ai);
-        ASR::expr_t* v_Var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, s));
+
+        if( is_item ) {
+            for( size_t i = 0; i < args.size(); i++ ) {
+                args.p[i].m_left = nullptr;
+                args.p[i].m_step = nullptr;
+            }
+        }
+        ASR::expr_t* v_Var = value;
         if( is_item ) {
             Vec<ASR::dimension_t> empty_dims;
             empty_dims.reserve(al, 1);
@@ -2611,23 +2677,6 @@ public:
         ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, x.base.base.loc, type));
         tmp = ASR::make_ListConstant_t(al, x.base.base.loc, list.p,
             list.size(), list_type);
-    }
-
-    void visit_Tuple(const AST::Tuple_t &x) {
-        Vec<ASR::expr_t*> elements;
-        elements.reserve(al, x.n_elts);
-        Vec<ASR::ttype_t*> tuple_type_vec;
-        tuple_type_vec.reserve(al, x.n_elts);
-        for (size_t i=0; i<x.n_elts; i++) {
-            this->visit_expr(*x.m_elts[i]);
-            ASR::expr_t *expr = ASRUtils::EXPR(tmp);
-            elements.push_back(al, expr);
-            tuple_type_vec.push_back(al, ASRUtils::expr_type(expr));
-        }
-        ASR::ttype_t *tuple_type = ASRUtils::TYPE(ASR::make_Tuple_t(al, x.base.base.loc,
-                                    tuple_type_vec.p, tuple_type_vec.n));
-        tmp = ASR::make_TupleConstant_t(al, x.base.base.loc,
-                                    elements.p, elements.size(), tuple_type);
     }
 
     void visit_For(const AST::For_t &x) {
