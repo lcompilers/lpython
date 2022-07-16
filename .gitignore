@@ -190,3 +190,4 @@ integration_tests/structs_03
 integration_tests/structs_03.c
 integration_tests/expr_08
 integration_tests/expr_08.c
+benchmark/generated_code/*

@@ -1,10 +1,15 @@
+#!/usr/bin/env python
 import argparse
 import ast
+from lib2to3.pgen2.pgen import generate_grammar
+from lib2to3.pytree import Node
 import os
 import re
 import subprocess
 from timeit import default_timer as clock
-
+from numpy import PINF, true_divide
+import sys
+from io import StringIO
 import toml
 from tabulate import tabulate
 
@@ -18,7 +23,7 @@ class Parser:
     @classmethod
     def get_lpython_result(cls, file_path):
 
-        lpython_run = subprocess.Popen("lpython --new-parser --time-report " + file_path, shell=True,
+        lpython_run = subprocess.Popen("lpython --new-parser --time-report " + file_path, shell=True, 
                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         try:
@@ -28,8 +33,9 @@ class Parser:
             parsing_value = parsing_value.replace('ms', '')
             parsing_value = float(parsing_value)
 
-        except:
+        except Exception as e :
             parsing_value = None
+            print(e)
 
         return parsing_value
 
@@ -40,6 +46,21 @@ class Parser:
         a = ast.parse(input, type_comments=True)
         t2 = clock()
         return float(t2 - t1) * 1000
+
+class Genrator:
+    @classmethod
+    def generate_code(cls, generating_script_file):
+        old_stdout = sys.stdout
+        redirected_output = sys.stdout = StringIO()
+        exec(open(generating_script_file).read())
+        sys.stdout = old_stdout
+        generated_code_str = redirected_output.getvalue()
+        generated_code_file_name = os.path.join('benchmark', 'generated_code', os.path.split(generating_script_file)[-1])
+        generated_code_file = open(generated_code_file_name, 'w')
+        generated_code_file.write(generated_code_str)
+        generated_code_file.close()
+        return generated_code_file_name
+
 
 
 class Graph:
@@ -64,6 +85,7 @@ class Graph:
         return (tabulate(self.plots, headers=['File Name', 'LPython', 'Python']))
 
 
+
 if __name__ == '__main__':
     os.environ["PATH"] = os.path.join(os.getcwd(), "src", "bin") + os.pathsep + os.environ["PATH"]
     app = argparse.ArgumentParser(description="Lpython benchmark")
@@ -75,37 +97,52 @@ if __name__ == '__main__':
 
     show_graph = args.plots or True
     show_numerical = args.numerical or True
-
-    compare_list = args.compare
-    if compare_list == None:
-        compare_list = implemented_benchmarks[:]
+    compare_stage_iwant = args.compare
+    if compare_stage_iwant == None:
+        compare_stage_iwant = implemented_benchmarks[:]
 
     files = toml.load("./benchmark/benchmark.toml")
     comparsing_map: dict = {}
     for option in implemented_benchmarks:
-        comparsing_map[option] = []
+        comparsing_map[option] = dict()
+        comparsing_map[option][0] = [] #basic files 
+        comparsing_map[option][1] = [] #genertaed files
+
 
     for file in files['benchmark']:
-        for option in implemented_benchmarks:
+        for option in compare_stage_iwant:
             if option in file.keys():
-                comparsing_map[option].append(file["filename"])
+                comparsing_map[option][int(('generate' in file.keys()) and file['generate'] == True)].append(file["filename"])
 
     for option, files_list in comparsing_map.items():
-        if files_list == []:
+        basic_files_list = files_list[0]
+        generated_files_list = files_list[1]
+        if generated_files_list == [] and basic_files_list == []:
             pref = "\033["
             reset = f"{pref}0m"
             print(f"{pref}1;31mThere is no files for this comparision option({option}){reset}")
         else:
             compare_result = []
-            if option == 'parser':
 
-                for filename in files_list:
-                    filename = os.path.join('benchmark', filename)
-                    cpython = Parser.get_cpython_result(filename)
-                    lpython = Parser.get_lpython_result(filename)
+            if option == 'parser':
+                for filename in basic_files_list:
+                    basic_code_file = os.path.join('benchmark', filename)
+                    cpython = Parser.get_cpython_result(basic_code_file)
+                    lpython = Parser.get_lpython_result(basic_code_file)
                     if cpython != None and lpython != None:
                         compare_result.append((filename, lpython, cpython))
-
+                
+                for filename in generated_files_list:
+                    generating_script_file = os.path.join( 'benchmark', 'generating_scripts', filename)
+                    generated_code_file = None
+                    try:
+                        generated_code_file = Genrator.generate_code(generating_script_file)
+                    except Exception as e:
+                        print(e)
+                    cpython = Parser.get_cpython_result(generated_code_file)
+                    lpython = Parser.get_lpython_result(generated_code_file)
+                    if cpython != None and lpython != None:
+                        compare_result.append((filename, lpython, cpython))
             # here other comparision
 
             if show_graph or show_numerical:

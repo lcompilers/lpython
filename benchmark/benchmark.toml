@@ -1,14 +1,18 @@
 #Possible comparisons 
 # parser: Parsing time
+# generate: file name is the generating script or it's file you want to compare.
 
 [[benchmark]]
 filename = 'test_math.py'
 parser = true
+generate = false
 
 [[benchmark]]
-filename = 'long_statment.py'
+filename = 'long_statement.py'
 parser = true
+generate = true
 
 [[benchmark]]
-filename = 'very_long_statment.py'
+filename = 'very_long_statement.py'
 parser = true
+generate = true
