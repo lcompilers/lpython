@@ -738,6 +738,29 @@ public:
         return CreateLoad(presult);
     }
 
+    llvm::Value* lfortran_str_cmp(llvm::Value* left_arg, llvm::Value* right_arg,
+                                         std::string runtime_func_name)
+    {
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if(!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getInt1Ty(context), {
+                        character_type->getPointerTo(),
+                        character_type->getPointerTo()
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        llvm::AllocaInst *pleft_arg = builder->CreateAlloca(character_type,
+            nullptr);
+        builder->CreateStore(left_arg, pleft_arg);
+        llvm::AllocaInst *pright_arg = builder->CreateAlloca(character_type,
+            nullptr);
+        builder->CreateStore(right_arg, pright_arg);
+        std::vector<llvm::Value*> args = {pleft_arg, pright_arg};
+        return builder->CreateCall(fn, args);
+    }
+
     llvm::Value* lfortran_strrepeat(llvm::Value* left_arg, llvm::Value* right_arg)
     {
         std::string runtime_func_name = "_lfortran_strrepeat";
@@ -3052,32 +3075,30 @@ public:
         llvm::Value *left = tmp;
         this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right = tmp;
-        // TODO: For now we only compare the first character of the strings
-        left = CreateLoad(left);
-        right = CreateLoad(right);
+        std::string fn;
         switch (x.m_op) {
             case (ASR::cmpopType::Eq) : {
-                tmp = builder->CreateICmpEQ(left, right);
+                fn = "_lpython_str_compare_eq";
                 break;
             }
             case (ASR::cmpopType::NotEq) : {
-                tmp = builder->CreateICmpNE(left, right);
+                fn = "_lpython_str_compare_noteq";
                 break;
             }
             case (ASR::cmpopType::Gt) : {
-                tmp = builder->CreateICmpUGT(left, right);
+                fn = "_lpython_str_compare_gt";
                 break;
             }
             case (ASR::cmpopType::GtE) : {
-                tmp = builder->CreateICmpUGE(left, right);
+                fn = "_lpython_str_compare_gte";
                 break;
             }
             case (ASR::cmpopType::Lt) : {
-                tmp = builder->CreateICmpULT(left, right);
+                fn = "_lpython_str_compare_lt";
                 break;
             }
             case (ASR::cmpopType::LtE) : {
-                tmp = builder->CreateICmpULE(left, right);
+                fn = "_lpython_str_compare_lte";
                 break;
             }
             default : {
@@ -3085,6 +3106,7 @@ public:
                         x.base.base.loc);
             }
         }
+        tmp = lfortran_str_cmp(left, right, fn);
     }
 
     void visit_LogicalCompare(const ASR::LogicalCompare_t &x) {
