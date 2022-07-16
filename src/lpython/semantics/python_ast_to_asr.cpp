@@ -1912,15 +1912,14 @@ public:
                 tmp = ASR::make_ListSection_t(al, loc, value, ai, type, nullptr);
                 return false;
             } else if (ASR::is_a<ASR::Character_t>(*type)) {
-                ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                                                        4, nullptr, 0));
+                ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
                 // Step forward can be used to set m_left, m_right boundary, if any of one not present.
                 bool step_forward = true;
-                
+
                 // Step will be assigned to 1 , if not set.
                 if (ai.m_step == nullptr) {
                     ai.m_step = ASR::down_cast<ASR::expr_t>(
-                    ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int_type));
+                    ASR::make_IntegerConstant_t(al, loc, 1, int_type));
                 } else {
                     ai.m_step = ASRUtils::EXPR(tmp);
                     if (ASR::is_a<ASR::IntegerUnaryMinus_t>(*ai.m_step))
@@ -1930,16 +1929,16 @@ public:
                 // If left is not present, assign it to the Min or Max Integer depending on step forard
                 if (ai.m_left == nullptr) {
                     ai.m_left = ASR::down_cast<ASR::expr_t>(
-                    ASR::make_IntegerConstant_t(al, x.base.base.loc, step_forward ? MIN_INTEGER : MAX_INTEGER, int_type));
+                    ASR::make_IntegerConstant_t(al, loc, step_forward ? MIN_INTEGER : MAX_INTEGER, int_type));
                 }
 
                 // If right is not present, assign it to the Max or Min Integer depending on step forard
                 if (ai.m_right == nullptr) {
                     ai.m_right = ASR::down_cast<ASR::expr_t>(
-                    ASR::make_IntegerConstant_t(al, x.base.base.loc, step_forward ? MAX_INTEGER : MIN_INTEGER, int_type));
+                    ASR::make_IntegerConstant_t(al, loc, step_forward ? MAX_INTEGER : MIN_INTEGER, int_type));
                 }
 
-                tmp = ASR::make_StringSection_t(al, x.base.base.loc, value, ai.m_left, ai.m_right,
+                tmp = ASR::make_StringSection_t(al, loc, value, ai.m_left, ai.m_right,
                     ai.m_step, type, nullptr);
                 return false;
             } else if (ASR::is_a<ASR::Dict_t>(*type)) {

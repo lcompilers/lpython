@@ -712,7 +712,7 @@ LFORTRAN_API char* _lfortran_str_slice_copy(char* s, int32_t start, int32_t end,
         exit(1);
     }
 
-    int s_len = strlen(s);
+    int dest_len, s_len = strlen(s);
     start = start < 0 ? start + s_len : start;
     end = end < 0 ? end + s_len : end;
     if (start == end ||
@@ -723,13 +723,14 @@ LFORTRAN_API char* _lfortran_str_slice_copy(char* s, int32_t start, int32_t end,
     if (step > 0) {
         start = start < 0 ? 0 : start;
         end = end > s_len ? s_len : end;
+        dest_len = (end-start+step-1)/step + 1;
     }
     else {
         start = start >= s_len ? s_len-1: start;
         end = end <= -1 ? -1 : end;
+        dest_len = (end-start+step+1)/step + 1;
     }
 
-    int dest_len = (end-start+(step-1))/step + 1;
     char* dest_char = (char*) malloc(dest_len);
     int s_i = start, d_i = 0;
     while((step > 0 && s_i >= start && s_i < end) ||

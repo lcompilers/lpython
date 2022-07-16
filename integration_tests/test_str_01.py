@@ -59,12 +59,17 @@ def test_str_slice_step():
     end = 4
     step = 1
     assert s[3:12:3] == "dgj"
+    assert s[3:9:3] == "dg"
     assert s[10:3:-2] == "kige"
     assert s[::] == "abcdefghijk"
     assert s[1:4:] == "bcd"
     assert s[:4:5] == "a"
+    assert s[-2:-10] == ""
+    assert s[-3:-9:-3] == "if"
+    assert s[-3:-10:-3] == "ifc"
     assert s[start:end:step] == "bcd"
     assert s[start:2*end-3:step] == "bcde"
+    assert s[start:2*end-3:-step] == ""
 
 def check():
     f()
