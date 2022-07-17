@@ -1,13 +1,12 @@
 #ifndef MESSAGE_HANDLER_HPP
 #define MESSAGE_HANDLER_HPP
- 
-#include <libasr/asr.h>
-#include <lpython/semantics/python_ast_to_asr.h>
+
+#include <lpython/utils.h>
 #include <lpython/parser/parser.h>
-#include <libasr/pass/pass_manager.h>
-#include <lpython/python_ast.h>
+#include <libasr/string_utils.h>
+#include <lpython/semantics/python_ast_to_asr.h>
  
-namespace LFortran::LPython {
+ namespace LFortran::LPython {
        struct lsp_locations {
               std::string symbol_name;
               uint32_t first_line;
