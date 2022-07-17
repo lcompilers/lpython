@@ -109,7 +109,6 @@ struct handle_functions
     std::string path = getPath(uri);
     using LFortran::CompilerOptions;
     CompilerOptions compiler_options;
-    LCompilers::PassManager lpython_pass_manager;
     std::string runtime_library_dir = LFortran::get_runtime_library_dir();
 
     std::vector<LFortran::LPython::lsp_locations> 
