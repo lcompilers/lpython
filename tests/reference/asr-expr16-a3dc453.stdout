@@ -1,1 +1,93 @@
+([1m[35mTranslationUnit[39m[0m 
+   ([33mSymbolTable[39m 
+      1 
+      {
+         test_issue_455: 
+            ([1m[35mFunction[39m[0m 
+               ([33mSymbolTable[39m 
+                  2 
+                  {
+                     _lpython_return_variable: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           _lpython_return_variable [1m[32m
+                           ReturnVar[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mReal[39m[0m 8 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     data: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           data [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mList[39m[0m 
+                              ([1m[35mInteger[39m[0m 4 [])) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     i: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           i [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     sum: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           sum [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mReal[39m[0m 8 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               test_issue_455 [
+               ([1m[35mVar[39m[0m 2 [33mdata[39m)] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33msum[39m) 
+                  ([1m[35mRealConstant[39m[0m   0.00000000000000000e+00 
+                     ([1m[35mReal[39m[0m 8 [])) ()) 
+               ([1m[35mDoLoop[39m[0m 
+                  (
+                     ([1m[35mVar[39m[0m 2 [33mi[39m) ([1m[35mIntegerConstant[39m[0m [36m0[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) 
+                     ([1m[35mIntegerBinOp[39m[0m 
+                        ([1m[35mListLen[39m[0m 
+                           ([1m[35mVar[39m[0m 2 [33mdata[39m) 
+                           ([1m[35mInteger[39m[0m 4 []) ()) [1m[32m
+                        Sub[39m[0m ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) 
+                        ([1m[35mInteger[39m[0m 4 []) ()) ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                     ([1m[35mInteger[39m[0m 4 []))) [
+                  ([1m[35m=[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33msum[39m) 
+                     ([1m[35mRealBinOp[39m[0m 
+                        ([1m[35mVar[39m[0m 2 [33msum[39m) [1m[32m
+                        Add[39m[0m 
+                        ([1m[35mCast[39m[0m 
+                           ([1m[35mListItem[39m[0m 
+                              ([1m[35mVar[39m[0m 2 [33mdata[39m) 
+                              ([1m[35mVar[39m[0m 2 [33mi[39m) 
+                              ([1m[35mInteger[39m[0m 4 []) ()) [1m[32m
+                           IntegerToReal[39m[0m 
+                           ([1m[35mReal[39m[0m 8 []) ()) 
+                        ([1m[35mReal[39m[0m 8 []) ()) ())]) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33m_lpython_return_variable[39m) 
+                  ([1m[35mVar[39m[0m 2 [33msum[39m) ()) 
+               ([1m[35mReturn[39m[0m)] 
+               ([1m[35mVar[39m[0m 2 [33m_lpython_return_variable[39m) [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m ())
+      }) 
+   [])
 (TranslationUnit (SymbolTable 1 {main_program: (Program (SymbolTable 3 {}) main_program [] []), test_issue_455: (Function (SymbolTable 2 {_lpython_return_variable: (Variable 2 _lpython_return_variable ReturnVar () () Default (Real 8 []) Source Public Required .false.), data: (Variable 2 data In () () Default (List (Integer 4 [])) Source Public Required .false.), i: (Variable 2 i Local () () Default (Integer 4 []) Source Public Required .false.), sum: (Variable 2 sum Local () () Default (Real 8 []) Source Public Required .false.)}) test_issue_455 [(Var 2 data)] [(= (Var 2 sum) (RealConstant   0.00000000000000000e+00 (Real 8 [])) ()) (DoLoop ((Var 2 i) (IntegerConstant 0 (Integer 4 [])) (IntegerBinOp (ListLen (Var 2 data) (Integer 4 []) ()) Sub (IntegerConstant 1 (Integer 4 [])) (Integer 4 []) ()) (IntegerConstant 1 (Integer 4 []))) [(= (Var 2 sum) (RealBinOp (Var 2 sum) Add (Cast (ListItem (Var 2 data) (Var 2 i) (Integer 4 []) ()) IntegerToReal (Real 8 []) ()) (Real 8 []) ()) ())]) (= (Var 2 _lpython_return_variable) (Var 2 sum) ()) (Return)] (Var 2 _lpython_return_variable) Source Public Implementation ())}) [])

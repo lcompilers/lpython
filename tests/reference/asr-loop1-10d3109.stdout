@@ -1,1 +1,306 @@
+([1m[35mTranslationUnit[39m[0m 
+   ([33mSymbolTable[39m 
+      1 
+      {
+         main0: 
+            ([1m[35mSubroutine[39m[0m 
+               ([33mSymbolTable[39m 
+                  5 
+                  {
+                     i: 
+                        ([1m[35mVariable[39m[0m 
+                           5 
+                           i [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     j: 
+                        ([1m[35mVariable[39m[0m 
+                           5 
+                           j [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 8 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               main0 [] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 5 [33mi[39m) 
+                  ([1m[35mFunctionCall[39m[0m 1 [33mtest_factorial_1[39m () [
+                     (([1m[35mIntegerConstant[39m[0m [36m4[39m 
+                        ([1m[35mInteger[39m[0m 4 [])))] 
+                     ([1m[35mInteger[39m[0m 4 []) () ()) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 5 [33mi[39m) 
+                  ([1m[35mFunctionCall[39m[0m 1 [33mtest_factorial_2[39m () [
+                     (([1m[35mIntegerConstant[39m[0m [36m4[39m 
+                        ([1m[35mInteger[39m[0m 4 [])))] 
+                     ([1m[35mInteger[39m[0m 4 []) () ()) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 5 [33mj[39m) 
+                  ([1m[35mFunctionCall[39m[0m 1 [33mtest_factorial_3[39m () [
+                     (([1m[35mIntegerConstant[39m[0m [36m5[39m 
+                        ([1m[35mInteger[39m[0m 4 [])))] 
+                     ([1m[35mInteger[39m[0m 8 []) () ()) ())] [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m () .false. .false.), 
+         test_factorial_1: 
+            ([1m[35mFunction[39m[0m 
+               ([33mSymbolTable[39m 
+                  2 
+                  {
+                     _lpython_return_variable: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           _lpython_return_variable [1m[32m
+                           ReturnVar[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     result: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           result [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     x: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           x [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               test_factorial_1 [
+               ([1m[35mVar[39m[0m 2 [33mx[39m)] [
+               ([1m[35mIf[39m[0m 
+                  ([1m[35mIntegerCompare[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33mx[39m) [1m[32m
+                     Lt[39m[0m ([1m[35mIntegerConstant[39m[0m [36m0[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) 
+                     ([1m[35mLogical[39m[0m 4 []) ()) [
+                  ([1m[35m=[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33m_lpython_return_variable[39m) ([1m[35mIntegerConstant[39m[0m [36m0[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) ()) 
+                  ([1m[35mReturn[39m[0m)] []) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33mresult[39m) ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                  ([1m[35mInteger[39m[0m 4 [])) ()) 
+               ([1m[35mWhileLoop[39m[0m 
+                  ([1m[35mIntegerCompare[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33mx[39m) [1m[32m
+                     Gt[39m[0m ([1m[35mIntegerConstant[39m[0m [36m0[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) 
+                     ([1m[35mLogical[39m[0m 4 []) ()) [
+                  ([1m[35m=[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33mresult[39m) 
+                     ([1m[35mIntegerBinOp[39m[0m 
+                        ([1m[35mVar[39m[0m 2 [33mresult[39m) [1m[32m
+                        Mul[39m[0m 
+                        ([1m[35mVar[39m[0m 2 [33mx[39m) 
+                        ([1m[35mInteger[39m[0m 4 []) ()) ()) 
+                  ([1m[35m=[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33mx[39m) 
+                     ([1m[35mIntegerBinOp[39m[0m 
+                        ([1m[35mVar[39m[0m 2 [33mx[39m) [1m[32m
+                        Sub[39m[0m ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) 
+                        ([1m[35mInteger[39m[0m 4 []) ()) ())]) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33m_lpython_return_variable[39m) 
+                  ([1m[35mVar[39m[0m 2 [33mresult[39m) ()) 
+               ([1m[35mReturn[39m[0m)] 
+               ([1m[35mVar[39m[0m 2 [33m_lpython_return_variable[39m) [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m ()), 
+         test_factorial_2: 
+            ([1m[35mFunction[39m[0m 
+               ([33mSymbolTable[39m 
+                  3 
+                  {
+                     _lpython_return_variable: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           _lpython_return_variable [1m[32m
+                           ReturnVar[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     i: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           i [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     result: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           result [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     x: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           x [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               test_factorial_2 [
+               ([1m[35mVar[39m[0m 3 [33mx[39m)] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 3 [33mresult[39m) ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                  ([1m[35mInteger[39m[0m 4 [])) ()) 
+               ([1m[35mDoLoop[39m[0m 
+                  (
+                     ([1m[35mVar[39m[0m 3 [33mi[39m) ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) 
+                     ([1m[35mIntegerBinOp[39m[0m 
+                        ([1m[35mIntegerBinOp[39m[0m 
+                           ([1m[35mVar[39m[0m 3 [33mx[39m) [1m[32m
+                           Add[39m[0m ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                           ([1m[35mInteger[39m[0m 4 [])) 
+                           ([1m[35mInteger[39m[0m 4 []) ()) [1m[32m
+                        Sub[39m[0m ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) 
+                        ([1m[35mInteger[39m[0m 4 []) ()) ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                     ([1m[35mInteger[39m[0m 4 []))) [
+                  ([1m[35m=[39m[0m 
+                     ([1m[35mVar[39m[0m 3 [33mresult[39m) 
+                     ([1m[35mIntegerBinOp[39m[0m 
+                        ([1m[35mVar[39m[0m 3 [33mresult[39m) [1m[32m
+                        Mul[39m[0m 
+                        ([1m[35mVar[39m[0m 3 [33mi[39m) 
+                        ([1m[35mInteger[39m[0m 4 []) ()) ())]) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 3 [33m_lpython_return_variable[39m) 
+                  ([1m[35mVar[39m[0m 3 [33mresult[39m) ()) 
+               ([1m[35mReturn[39m[0m)] 
+               ([1m[35mVar[39m[0m 3 [33m_lpython_return_variable[39m) [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m ()), 
+         test_factorial_3: 
+            ([1m[35mFunction[39m[0m 
+               ([33mSymbolTable[39m 
+                  4 
+                  {
+                     _lpython_return_variable: 
+                        ([1m[35mVariable[39m[0m 
+                           4 
+                           _lpython_return_variable [1m[32m
+                           ReturnVar[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 8 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     result: 
+                        ([1m[35mVariable[39m[0m 
+                           4 
+                           result [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 8 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     x: 
+                        ([1m[35mVariable[39m[0m 
+                           4 
+                           x [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               test_factorial_3 [
+               ([1m[35mVar[39m[0m 4 [33mx[39m)] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 4 [33mresult[39m) 
+                  ([1m[35mCast[39m[0m ([1m[35mIntegerConstant[39m[0m [36m0[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) [1m[32m
+                     IntegerToInteger[39m[0m 
+                     ([1m[35mInteger[39m[0m 8 []) ()) ()) 
+               ([1m[35mIf[39m[0m 
+                  ([1m[35mIntegerCompare[39m[0m 
+                     ([1m[35mVar[39m[0m 4 [33mx[39m) [1m[32m
+                     Lt[39m[0m ([1m[35mIntegerConstant[39m[0m [36m0[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) 
+                     ([1m[35mLogical[39m[0m 4 []) ()) [
+                  ([1m[35m=[39m[0m 
+                     ([1m[35mVar[39m[0m 4 [33m_lpython_return_variable[39m) 
+                     ([1m[35mVar[39m[0m 4 [33mresult[39m) ()) 
+                  ([1m[35mReturn[39m[0m)] []) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 4 [33mresult[39m) 
+                  ([1m[35mCast[39m[0m ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) [1m[32m
+                     IntegerToInteger[39m[0m 
+                     ([1m[35mInteger[39m[0m 8 []) ()) ()) 
+               ([1m[35mWhileLoop[39m[0m 
+                  ([1m[35mIntegerCompare[39m[0m 
+                     ([1m[35mVar[39m[0m 4 [33mx[39m) [1m[32m
+                     Gt[39m[0m ([1m[35mIntegerConstant[39m[0m [36m0[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) 
+                     ([1m[35mLogical[39m[0m 4 []) ()) [
+                  ([1m[35m=[39m[0m 
+                     ([1m[35mVar[39m[0m 4 [33mresult[39m) 
+                     ([1m[35mIntegerBinOp[39m[0m 
+                        ([1m[35mVar[39m[0m 4 [33mresult[39m) [1m[32m
+                        Mul[39m[0m 
+                        ([1m[35mCast[39m[0m 
+                           ([1m[35mVar[39m[0m 4 [33mx[39m) [1m[32m
+                           IntegerToInteger[39m[0m 
+                           ([1m[35mInteger[39m[0m 8 []) ()) 
+                        ([1m[35mInteger[39m[0m 8 []) ()) ()) 
+                  ([1m[35m=[39m[0m 
+                     ([1m[35mVar[39m[0m 4 [33mx[39m) 
+                     ([1m[35mIntegerBinOp[39m[0m 
+                        ([1m[35mVar[39m[0m 4 [33mx[39m) [1m[32m
+                        Sub[39m[0m ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) 
+                        ([1m[35mInteger[39m[0m 4 []) ()) ())]) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 4 [33m_lpython_return_variable[39m) 
+                  ([1m[35mVar[39m[0m 4 [33mresult[39m) ()) 
+               ([1m[35mReturn[39m[0m)] 
+               ([1m[35mVar[39m[0m 4 [33m_lpython_return_variable[39m) [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m ())
+      }) 
+   [
+   ([1m[35mSubroutineCall[39m[0m 1 [33mmain0[39m () [] ())])
 (TranslationUnit (SymbolTable 1 {_lpython_main_program: (Subroutine (SymbolTable 7 {}) _lpython_main_program [] [(SubroutineCall 1 main0 () [] ())] Source Public Implementation () .false. .false.), main0: (Subroutine (SymbolTable 5 {i: (Variable 5 i Local () () Default (Integer 4 []) Source Public Required .false.), j: (Variable 5 j Local () () Default (Integer 8 []) Source Public Required .false.)}) main0 [] [(= (Var 5 i) (FunctionCall 1 test_factorial_1 () [((IntegerConstant 4 (Integer 4 [])))] (Integer 4 []) () ()) ()) (= (Var 5 i) (FunctionCall 1 test_factorial_2 () [((IntegerConstant 4 (Integer 4 [])))] (Integer 4 []) () ()) ()) (= (Var 5 j) (FunctionCall 1 test_factorial_3 () [((IntegerConstant 5 (Integer 4 [])))] (Integer 8 []) () ()) ())] Source Public Implementation () .false. .false.), main_program: (Program (SymbolTable 6 {}) main_program [] [(SubroutineCall 1 _lpython_main_program () [] ())]), test_factorial_1: (Function (SymbolTable 2 {_lpython_return_variable: (Variable 2 _lpython_return_variable ReturnVar () () Default (Integer 4 []) Source Public Required .false.), result: (Variable 2 result Local () () Default (Integer 4 []) Source Public Required .false.), x: (Variable 2 x In () () Default (Integer 4 []) Source Public Required .false.)}) test_factorial_1 [(Var 2 x)] [(If (IntegerCompare (Var 2 x) Lt (IntegerConstant 0 (Integer 4 [])) (Logical 4 []) ()) [(= (Var 2 _lpython_return_variable) (IntegerConstant 0 (Integer 4 [])) ()) (Return)] []) (= (Var 2 result) (IntegerConstant 1 (Integer 4 [])) ()) (WhileLoop (IntegerCompare (Var 2 x) Gt (IntegerConstant 0 (Integer 4 [])) (Logical 4 []) ()) [(= (Var 2 result) (IntegerBinOp (Var 2 result) Mul (Var 2 x) (Integer 4 []) ()) ()) (= (Var 2 x) (IntegerBinOp (Var 2 x) Sub (IntegerConstant 1 (Integer 4 [])) (Integer 4 []) ()) ())]) (= (Var 2 _lpython_return_variable) (Var 2 result) ()) (Return)] (Var 2 _lpython_return_variable) Source Public Implementation ()), test_factorial_2: (Function (SymbolTable 3 {_lpython_return_variable: (Variable 3 _lpython_return_variable ReturnVar () () Default (Integer 4 []) Source Public Required .false.), i: (Variable 3 i Local () () Default (Integer 4 []) Source Public Required .false.), result: (Variable 3 result Local () () Default (Integer 4 []) Source Public Required .false.), x: (Variable 3 x In () () Default (Integer 4 []) Source Public Required .false.)}) test_factorial_2 [(Var 3 x)] [(= (Var 3 result) (IntegerConstant 1 (Integer 4 [])) ()) (DoLoop ((Var 3 i) (IntegerConstant 1 (Integer 4 [])) (IntegerBinOp (IntegerBinOp (Var 3 x) Add (IntegerConstant 1 (Integer 4 [])) (Integer 4 []) ()) Sub (IntegerConstant 1 (Integer 4 [])) (Integer 4 []) ()) (IntegerConstant 1 (Integer 4 []))) [(= (Var 3 result) (IntegerBinOp (Var 3 result) Mul (Var 3 i) (Integer 4 []) ()) ())]) (= (Var 3 _lpython_return_variable) (Var 3 result) ()) (Return)] (Var 3 _lpython_return_variable) Source Public Implementation ()), test_factorial_3: (Function (SymbolTable 4 {_lpython_return_variable: (Variable 4 _lpython_return_variable ReturnVar () () Default (Integer 8 []) Source Public Required .false.), result: (Variable 4 result Local () () Default (Integer 8 []) Source Public Required .false.), x: (Variable 4 x In () () Default (Integer 4 []) Source Public Required .false.)}) test_factorial_3 [(Var 4 x)] [(= (Var 4 result) (Cast (IntegerConstant 0 (Integer 4 [])) IntegerToInteger (Integer 8 []) ()) ()) (If (IntegerCompare (Var 4 x) Lt (IntegerConstant 0 (Integer 4 [])) (Logical 4 []) ()) [(= (Var 4 _lpython_return_variable) (Var 4 result) ()) (Return)] []) (= (Var 4 result) (Cast (IntegerConstant 1 (Integer 4 [])) IntegerToInteger (Integer 8 []) ()) ()) (WhileLoop (IntegerCompare (Var 4 x) Gt (IntegerConstant 0 (Integer 4 [])) (Logical 4 []) ()) [(= (Var 4 result) (IntegerBinOp (Var 4 result) Mul (Cast (Var 4 x) IntegerToInteger (Integer 8 []) ()) (Integer 8 []) ()) ()) (= (Var 4 x) (IntegerBinOp (Var 4 x) Sub (IntegerConstant 1 (Integer 4 [])) (Integer 4 []) ()) ())]) (= (Var 4 _lpython_return_variable) (Var 4 result) ()) (Return)] (Var 4 _lpython_return_variable) Source Public Implementation ())}) [])

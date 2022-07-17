@@ -1,1 +1,208 @@
+([1m[35mTranslationUnit[39m[0m 
+   ([33mSymbolTable[39m 
+      1 
+      {
+         test_List: 
+            ([1m[35mSubroutine[39m[0m 
+               ([33mSymbolTable[39m 
+                  2 
+                  {
+                     a: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           a [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mList[39m[0m 
+                              ([1m[35mInteger[39m[0m 4 [])) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     b: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           b [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mList[39m[0m 
+                              ([1m[35mCharacter[39m[0m 1 -2 () [])) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     c: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           c [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mList[39m[0m 
+                              ([1m[35mList[39m[0m 
+                                 ([1m[35mInteger[39m[0m 4 []))) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     d: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           d [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     e: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           e [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mList[39m[0m 
+                              ([1m[35mList[39m[0m 
+                                 ([1m[35mCharacter[39m[0m 1 -2 () []))) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               test_List [] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33ma[39m) 
+                  ([1m[35mListConstant[39m[0m [([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) ([1m[35mIntegerConstant[39m[0m [36m2[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) ([1m[35mIntegerConstant[39m[0m [36m3[39m 
+                     ([1m[35mInteger[39m[0m 4 []))] 
+                     ([1m[35mList[39m[0m 
+                        ([1m[35mInteger[39m[0m 4 []))) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33ma[39m) 
+                  ([1m[35mListConstant[39m[0m [
+                     ([1m[35mIntegerUnaryMinus[39m[0m ([1m[35mIntegerConstant[39m[0m [36m3[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) 
+                        ([1m[35mInteger[39m[0m 4 []) ([1m[35mIntegerConstant[39m[0m [36m-3[39m 
+                        ([1m[35mInteger[39m[0m 4 []))) 
+                     ([1m[35mIntegerUnaryMinus[39m[0m ([1m[35mIntegerConstant[39m[0m [36m2[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) 
+                        ([1m[35mInteger[39m[0m 4 []) ([1m[35mIntegerConstant[39m[0m [36m-2[39m 
+                        ([1m[35mInteger[39m[0m 4 []))) 
+                     ([1m[35mIntegerUnaryMinus[39m[0m ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) 
+                        ([1m[35mInteger[39m[0m 4 []) ([1m[35mIntegerConstant[39m[0m [36m-1[39m 
+                        ([1m[35mInteger[39m[0m 4 [])))] 
+                     ([1m[35mList[39m[0m 
+                        ([1m[35mInteger[39m[0m 4 []))) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33mb[39m) 
+                  ([1m[35mListConstant[39m[0m [
+                     ([1m[35mStringConstant[39m[0m "a" 
+                        ([1m[35mCharacter[39m[0m 1 1 () [])) 
+                     ([1m[35mStringConstant[39m[0m "b" 
+                        ([1m[35mCharacter[39m[0m 1 1 () [])) 
+                     ([1m[35mStringConstant[39m[0m "c" 
+                        ([1m[35mCharacter[39m[0m 1 1 () []))] 
+                     ([1m[35mList[39m[0m 
+                        ([1m[35mCharacter[39m[0m 1 1 () []))) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33mc[39m) 
+                  ([1m[35mListConstant[39m[0m [
+                     ([1m[35mListConstant[39m[0m [([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) ([1m[35mIntegerConstant[39m[0m [36m2[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) ([1m[35mIntegerConstant[39m[0m [36m3[39m 
+                        ([1m[35mInteger[39m[0m 4 []))] 
+                        ([1m[35mList[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []))) 
+                     ([1m[35mListConstant[39m[0m [([1m[35mIntegerConstant[39m[0m [36m4[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) ([1m[35mIntegerConstant[39m[0m [36m5[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) ([1m[35mIntegerConstant[39m[0m [36m6[39m 
+                        ([1m[35mInteger[39m[0m 4 []))] 
+                        ([1m[35mList[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 [])))] 
+                     ([1m[35mList[39m[0m 
+                        ([1m[35mList[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 [])))) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33md[39m) 
+                  ([1m[35mListItem[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33ma[39m) ([1m[35mIntegerConstant[39m[0m [36m2[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) 
+                     ([1m[35mInteger[39m[0m 4 []) ()) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33me[39m) 
+                  ([1m[35mListConstant[39m[0m [
+                     ([1m[35mListConstant[39m[0m [
+                        ([1m[35mStringConstant[39m[0m "a" 
+                           ([1m[35mCharacter[39m[0m 1 1 () [])) 
+                        ([1m[35mStringConstant[39m[0m "b" 
+                           ([1m[35mCharacter[39m[0m 1 1 () [])) 
+                        ([1m[35mStringConstant[39m[0m "c" 
+                           ([1m[35mCharacter[39m[0m 1 1 () []))] 
+                        ([1m[35mList[39m[0m 
+                           ([1m[35mCharacter[39m[0m 1 1 () []))) 
+                     ([1m[35mListConstant[39m[0m [
+                        ([1m[35mStringConstant[39m[0m "d" 
+                           ([1m[35mCharacter[39m[0m 1 1 () [])) 
+                        ([1m[35mStringConstant[39m[0m "e" 
+                           ([1m[35mCharacter[39m[0m 1 1 () []))] 
+                        ([1m[35mList[39m[0m 
+                           ([1m[35mCharacter[39m[0m 1 1 () [])))] 
+                     ([1m[35mList[39m[0m 
+                        ([1m[35mList[39m[0m 
+                           ([1m[35mCharacter[39m[0m 1 1 () [])))) ()) 
+               ([1m[35mListAppend[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33ma[39m) ([1m[35mIntegerConstant[39m[0m [36m10[39m 
+                  ([1m[35mInteger[39m[0m 4 []))) 
+               ([1m[35mListRemove[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33ma[39m) ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                  ([1m[35mInteger[39m[0m 4 []))) 
+               ([1m[35mListInsert[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33ma[39m) ([1m[35mIntegerConstant[39m[0m [36m2[39m 
+                  ([1m[35mInteger[39m[0m 4 [])) ([1m[35mIntegerConstant[39m[0m [36m13[39m 
+                  ([1m[35mInteger[39m[0m 4 []))) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33ma[39m) 
+                  ([1m[35mListSection[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33ma[39m) 
+                     (([1m[35mIntegerConstant[39m[0m [36m0[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) ([1m[35mIntegerConstant[39m[0m [36m2[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) ()) 
+                     ([1m[35mList[39m[0m 
+                        ([1m[35mInteger[39m[0m 4 [])) ()) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33md[39m) 
+                  ([1m[35mListPop[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33ma[39m) ([1m[35mIntegerConstant[39m[0m [36m-1[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) 
+                     ([1m[35mInteger[39m[0m 4 []) ()) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33md[39m) 
+                  ([1m[35mListPop[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33ma[39m) ([1m[35mIntegerConstant[39m[0m [36m2[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) 
+                     ([1m[35mInteger[39m[0m 4 []) ()) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33ma[39m) 
+                  ([1m[35mListConcat[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33ma[39m) 
+                     ([1m[35mListConstant[39m[0m [([1m[35mIntegerConstant[39m[0m [36m4[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) ([1m[35mIntegerConstant[39m[0m [36m5[39m 
+                        ([1m[35mInteger[39m[0m 4 []))] 
+                        ([1m[35mList[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []))) 
+                     ([1m[35mList[39m[0m 
+                        ([1m[35mInteger[39m[0m 4 [])) ()) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33ma[39m) 
+                  ([1m[35mListConcat[39m[0m 
+                     ([1m[35mListConstant[39m[0m [([1m[35mIntegerConstant[39m[0m [36m6[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) ([1m[35mIntegerConstant[39m[0m [36m7[39m 
+                        ([1m[35mInteger[39m[0m 4 []))] 
+                        ([1m[35mList[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []))) 
+                     ([1m[35mVar[39m[0m 2 [33ma[39m) 
+                     ([1m[35mList[39m[0m 
+                        ([1m[35mInteger[39m[0m 4 [])) ()) ())] [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m () .false. .false.)
+      }) 
+   [])
 (TranslationUnit (SymbolTable 1 {main_program: (Program (SymbolTable 3 {}) main_program [] []), test_List: (Subroutine (SymbolTable 2 {a: (Variable 2 a Local () () Default (List (Integer 4 [])) Source Public Required .false.), b: (Variable 2 b Local () () Default (List (Character 1 -2 () [])) Source Public Required .false.), c: (Variable 2 c Local () () Default (List (List (Integer 4 []))) Source Public Required .false.), d: (Variable 2 d Local () () Default (Integer 4 []) Source Public Required .false.), e: (Variable 2 e Local () () Default (List (List (Character 1 -2 () []))) Source Public Required .false.)}) test_List [] [(= (Var 2 a) (ListConstant [(IntegerConstant 1 (Integer 4 [])) (IntegerConstant 2 (Integer 4 [])) (IntegerConstant 3 (Integer 4 []))] (List (Integer 4 []))) ()) (= (Var 2 a) (ListConstant [(IntegerUnaryMinus (IntegerConstant 3 (Integer 4 [])) (Integer 4 []) (IntegerConstant -3 (Integer 4 []))) (IntegerUnaryMinus (IntegerConstant 2 (Integer 4 [])) (Integer 4 []) (IntegerConstant -2 (Integer 4 []))) (IntegerUnaryMinus (IntegerConstant 1 (Integer 4 [])) (Integer 4 []) (IntegerConstant -1 (Integer 4 [])))] (List (Integer 4 []))) ()) (= (Var 2 b) (ListConstant [(StringConstant "a" (Character 1 1 () [])) (StringConstant "b" (Character 1 1 () [])) (StringConstant "c" (Character 1 1 () []))] (List (Character 1 1 () []))) ()) (= (Var 2 c) (ListConstant [(ListConstant [(IntegerConstant 1 (Integer 4 [])) (IntegerConstant 2 (Integer 4 [])) (IntegerConstant 3 (Integer 4 []))] (List (Integer 4 []))) (ListConstant [(IntegerConstant 4 (Integer 4 [])) (IntegerConstant 5 (Integer 4 [])) (IntegerConstant 6 (Integer 4 []))] (List (Integer 4 [])))] (List (List (Integer 4 [])))) ()) (= (Var 2 d) (ListItem (Var 2 a) (IntegerConstant 2 (Integer 4 [])) (Integer 4 []) ()) ()) (= (Var 2 e) (ListConstant [(ListConstant [(StringConstant "a" (Character 1 1 () [])) (StringConstant "b" (Character 1 1 () [])) (StringConstant "c" (Character 1 1 () []))] (List (Character 1 1 () []))) (ListConstant [(StringConstant "d" (Character 1 1 () [])) (StringConstant "e" (Character 1 1 () []))] (List (Character 1 1 () [])))] (List (List (Character 1 1 () [])))) ()) (ListAppend (Var 2 a) (IntegerConstant 10 (Integer 4 []))) (ListRemove (Var 2 a) (IntegerConstant 1 (Integer 4 []))) (ListInsert (Var 2 a) (IntegerConstant 2 (Integer 4 [])) (IntegerConstant 13 (Integer 4 []))) (= (Var 2 a) (ListSection (Var 2 a) ((IntegerConstant 0 (Integer 4 [])) (IntegerConstant 2 (Integer 4 [])) ()) (List (Integer 4 [])) ()) ()) (= (Var 2 d) (ListPop (Var 2 a) (IntegerConstant -1 (Integer 4 [])) (Integer 4 []) ()) ()) (= (Var 2 d) (ListPop (Var 2 a) (IntegerConstant 2 (Integer 4 [])) (Integer 4 []) ()) ()) (= (Var 2 a) (ListConcat (Var 2 a) (ListConstant [(IntegerConstant 4 (Integer 4 [])) (IntegerConstant 5 (Integer 4 []))] (List (Integer 4 []))) (List (Integer 4 [])) ()) ()) (= (Var 2 a) (ListConcat (ListConstant [(IntegerConstant 6 (Integer 4 [])) (IntegerConstant 7 (Integer 4 []))] (List (Integer 4 []))) (Var 2 a) (List (Integer 4 [])) ()) ())] Source Public Implementation () .false. .false.)}) [])

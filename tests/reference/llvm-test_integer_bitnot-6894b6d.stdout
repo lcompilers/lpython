@@ -1,3 +1,71 @@
+([1m[35mTranslationUnit[39m[0m 
+   ([33mSymbolTable[39m 
+      1 
+      {
+         f: 
+            ([1m[35mSubroutine[39m[0m 
+               ([33mSymbolTable[39m 
+                  2 
+                  {
+                     i: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           i [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     res: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           res [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               f [] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33mi[39m) ([1m[35mIntegerConstant[39m[0m [36m5[39m 
+                  ([1m[35mInteger[39m[0m 4 [])) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33mres[39m) 
+                  ([1m[35mIntegerBitNot[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33mi[39m) 
+                     ([1m[35mInteger[39m[0m 4 []) ()) ()) 
+               ([1m[35mAssert[39m[0m 
+                  ([1m[35mIntegerCompare[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33mres[39m) [1m[32m
+                     Eq[39m[0m 
+                     ([1m[35mIntegerUnaryMinus[39m[0m ([1m[35mIntegerConstant[39m[0m [36m6[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) 
+                        ([1m[35mInteger[39m[0m 4 []) ([1m[35mIntegerConstant[39m[0m [36m-6[39m 
+                        ([1m[35mInteger[39m[0m 4 []))) 
+                     ([1m[35mLogical[39m[0m 4 []) ()) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33mi[39m) 
+                  ([1m[35mIntegerUnaryMinus[39m[0m ([1m[35mIntegerConstant[39m[0m [36m235346[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) 
+                     ([1m[35mInteger[39m[0m 4 []) ([1m[35mIntegerConstant[39m[0m [36m-235346[39m 
+                     ([1m[35mInteger[39m[0m 4 []))) ()) 
+               ([1m[35mAssert[39m[0m 
+                  ([1m[35mIntegerCompare[39m[0m 
+                     ([1m[35mIntegerBitNot[39m[0m 
+                        ([1m[35mVar[39m[0m 2 [33mi[39m) 
+                        ([1m[35mInteger[39m[0m 4 []) ()) [1m[32m
+                     Eq[39m[0m ([1m[35mIntegerConstant[39m[0m [36m235345[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) 
+                     ([1m[35mLogical[39m[0m 4 []) ()) ())] [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m () .false. .false.)
+      }) 
+   [
+   ([1m[35mSubroutineCall[39m[0m 1 [33mf[39m () [] ())])
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 

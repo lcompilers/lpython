@@ -1,0 +1,235 @@
+([1m[35mTranslationUnit[39m[0m 
+   ([33mSymbolTable[39m 
+      1 
+      {
+         T: 
+            ([1m[35mVariable[39m[0m 
+               1 
+               T [1m[32m
+               Local[39m[0m () () [1m[32m
+               Default[39m[0m 
+               ([1m[35mTypeParameter[39m[0m 
+                  T) [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Required[39m[0m .false.), 
+         __lpython_generic_f_0: 
+            ([1m[35mFunction[39m[0m 
+               ([33mSymbolTable[39m 
+                  3 
+                  {
+                     _lpython_return_variable: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           _lpython_return_variable [1m[32m
+                           ReturnVar[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     x: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           x [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     y: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           y [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               __lpython_generic_f_0 [
+               ([1m[35mVar[39m[0m 3 [33mx[39m) 
+               ([1m[35mVar[39m[0m 3 [33my[39m)] [] 
+               ([1m[35mVar[39m[0m 3 [33m_lpython_return_variable[39m) [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m ()), 
+         __lpython_generic_f_1: 
+            ([1m[35mFunction[39m[0m 
+               ([33mSymbolTable[39m 
+                  4 
+                  {
+                     _lpython_return_variable: 
+                        ([1m[35mVariable[39m[0m 
+                           4 
+                           _lpython_return_variable [1m[32m
+                           ReturnVar[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mCharacter[39m[0m 1 1 () []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     x: 
+                        ([1m[35mVariable[39m[0m 
+                           4 
+                           x [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mCharacter[39m[0m 1 1 () []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     y: 
+                        ([1m[35mVariable[39m[0m 
+                           4 
+                           y [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mCharacter[39m[0m 1 1 () []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               __lpython_generic_f_1 [
+               ([1m[35mVar[39m[0m 4 [33mx[39m) 
+               ([1m[35mVar[39m[0m 4 [33my[39m)] [] 
+               ([1m[35mVar[39m[0m 4 [33m_lpython_return_variable[39m) [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m ()), 
+         f: 
+            ([1m[35mTemplateFunction[39m[0m 
+               ([33mSymbolTable[39m 
+                  2 
+                  {
+                     _lpython_return_variable: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           _lpython_return_variable [1m[32m
+                           ReturnVar[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mTypeParameter[39m[0m 
+                              T) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     x: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           x [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mTypeParameter[39m[0m 
+                              T) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     y: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           y [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mTypeParameter[39m[0m 
+                              T) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               f [
+               ([1m[35mVar[39m[0m 2 [33mx[39m) 
+               ([1m[35mVar[39m[0m 2 [33my[39m)] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33m_lpython_return_variable[39m) 
+                  ([1m[35mTemplateBinOp[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33mx[39m) [1m[32m
+                     Add[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33my[39m) 
+                     ([1m[35mTypeParameter[39m[0m 
+                        T) ()) ()) 
+               ([1m[35mReturn[39m[0m)] 
+               ([1m[35mVar[39m[0m 2 [33m_lpython_return_variable[39m) [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m ())
+      }) 
+   [
+   ([1m[35mPrint[39m[0m () [
+      ([1m[35mFunctionCall[39m[0m 1 [33m__lpython_generic_f_0[39m () [
+         (([1m[35mIntegerConstant[39m[0m [36m1[39m 
+            ([1m[35mInteger[39m[0m 4 []))) 
+         (([1m[35mIntegerConstant[39m[0m [36m2[39m 
+            ([1m[35mInteger[39m[0m 4 [])))] 
+         ([1m[35mInteger[39m[0m 4 []) () ())] () ()) 
+   ([1m[35mPrint[39m[0m () [
+      ([1m[35mFunctionCall[39m[0m 1 [33m__lpython_generic_f_1[39m () [
+         (
+            ([1m[35mStringConstant[39m[0m "a" 
+               ([1m[35mCharacter[39m[0m 1 1 () []))) 
+         (
+            ([1m[35mStringConstant[39m[0m "b" 
+               ([1m[35mCharacter[39m[0m 1 1 () [])))] 
+         ([1m[35mCharacter[39m[0m 1 1 () []) () ())] () ())])
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+@0 = private unnamed_addr constant [2 x i8] c" \00", align 1
+@1 = private unnamed_addr constant [2 x i8] c" \00", align 1
+@2 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
+@3 = private unnamed_addr constant [5 x i8] c"%d%s\00", align 1
+@4 = private unnamed_addr constant [2 x i8] c" \00", align 1
+@5 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
+@6 = private unnamed_addr constant [2 x i8] c"a\00", align 1
+@7 = private unnamed_addr constant [2 x i8] c"b\00", align 1
+@8 = private unnamed_addr constant [5 x i8] c"%s%s\00", align 1
+
+define i32 @__lpython_generic_f_0(i32* %x, i32* %y) {
+.entry:
+  %_lpython_return_variable = alloca i32, align 4
+  br label %return
+
+return:                                           ; preds = %.entry
+  %0 = load i32, i32* %_lpython_return_variable, align 4
+  ret i32 %0
+}
+
+define i8* @__lpython_generic_f_1(i8** %x, i8** %y) {
+.entry:
+  %_lpython_return_variable = alloca i8*, align 8
+  store i8* getelementptr inbounds ([2 x i8], [2 x i8]* @0, i32 0, i32 0), i8** %_lpython_return_variable, align 8
+  br label %return
+
+return:                                           ; preds = %.entry
+  %0 = load i8*, i8** %_lpython_return_variable, align 8
+  ret i8* %0
+}
+
+define void @_lpython_main_program() {
+.entry:
+  %call_arg_value3 = alloca i8*, align 8
+  %call_arg_value2 = alloca i8*, align 8
+  %call_arg_value1 = alloca i32, align 4
+  %call_arg_value = alloca i32, align 4
+  store i32 1, i32* %call_arg_value, align 4
+  store i32 2, i32* %call_arg_value1, align 4
+  %0 = call i32 @__lpython_generic_f_0(i32* %call_arg_value, i32* %call_arg_value1)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @3, i32 0, i32 0), i32 %0, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @2, i32 0, i32 0))
+  store i8* getelementptr inbounds ([2 x i8], [2 x i8]* @6, i32 0, i32 0), i8** %call_arg_value2, align 8
+  store i8* getelementptr inbounds ([2 x i8], [2 x i8]* @7, i32 0, i32 0), i8** %call_arg_value3, align 8
+  %1 = call i8* @__lpython_generic_f_1(i8** %call_arg_value2, i8** %call_arg_value3)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @8, i32 0, i32 0), i8* %1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @5, i32 0, i32 0))
+  br label %return
+
+return:                                           ; preds = %.entry
+  ret void
+}
+
+declare void @_lfortran_printf(i8*, ...)
+
+define i32 @main() {
+.entry:
+  call void @_lpython_main_program()
+  ret i32 0
+}

@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-generics_01-75a9ed8",
+    "cmd": "lpython --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/generics_01.py",
+    "infile_hash": "90f2306b4307f34f1df60f2534d5cf87b17acbe201b7bc81c40b3ada",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-generics_01-75a9ed8.stdout",
+    "stdout_hash": "38712cc6cd90bcd6556151e433987e0a25267677b0194caece5788a0",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

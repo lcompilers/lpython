@@ -1,3 +1,104 @@
+([1m[35mTranslationUnit[39m[0m 
+   ([33mSymbolTable[39m 
+      1 
+      {
+         f: 
+            ([1m[35mSubroutine[39m[0m 
+               ([33mSymbolTable[39m 
+                  2 
+                  {
+                     x: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           x [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mCharacter[39m[0m 1 -2 () []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     y: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           y [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mCharacter[39m[0m 1 -2 () []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               f [] [
+               ([1m[35mPrint[39m[0m () [
+                  ([1m[35mStringConstant[39m[0m "Hello World!" 
+                     ([1m[35mCharacter[39m[0m 1 12 () []))] () ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33mx[39m) 
+                  ([1m[35mStringConstant[39m[0m "," 
+                     ([1m[35mCharacter[39m[0m 1 1 () [])) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33my[39m) 
+                  ([1m[35mStringConstant[39m[0m "!!" 
+                     ([1m[35mCharacter[39m[0m 1 2 () [])) ()) 
+               ([1m[35mPrint[39m[0m () [
+                  ([1m[35mStringConstant[39m[0m "a" 
+                     ([1m[35mCharacter[39m[0m 1 1 () [])) 
+                  ([1m[35mStringConstant[39m[0m "b" 
+                     ([1m[35mCharacter[39m[0m 1 1 () []))] 
+                  ([1m[35mVar[39m[0m 2 [33mx[39m) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33mx[39m) 
+                  ([1m[35mStringConstant[39m[0m "-+-+-" 
+                     ([1m[35mCharacter[39m[0m 1 5 () [])) ()) 
+               ([1m[35mPrint[39m[0m () [
+                  ([1m[35mStringConstant[39m[0m "a" 
+                     ([1m[35mCharacter[39m[0m 1 1 () [])) 
+                  ([1m[35mStringConstant[39m[0m "b" 
+                     ([1m[35mCharacter[39m[0m 1 1 () [])) 
+                  ([1m[35mStringConstant[39m[0m "c" 
+                     ([1m[35mCharacter[39m[0m 1 1 () []))] 
+                  ([1m[35mVar[39m[0m 2 [33mx[39m) ()) 
+               ([1m[35mPrint[39m[0m () [
+                  ([1m[35mStringConstant[39m[0m "d" 
+                     ([1m[35mCharacter[39m[0m 1 1 () [])) 
+                  ([1m[35mStringConstant[39m[0m "e" 
+                     ([1m[35mCharacter[39m[0m 1 1 () [])) 
+                  ([1m[35mStringConstant[39m[0m "f" 
+                     ([1m[35mCharacter[39m[0m 1 1 () []))] 
+                  ([1m[35mStringConstant[39m[0m "=" 
+                     ([1m[35mCharacter[39m[0m 1 1 () [])) 
+                  ([1m[35mStringConstant[39m[0m "+
+" 
+                     ([1m[35mCharacter[39m[0m 1 2 () []))) 
+               ([1m[35mPrint[39m[0m () [
+                  ([1m[35mStringConstant[39m[0m "x" 
+                     ([1m[35mCharacter[39m[0m 1 1 () [])) 
+                  ([1m[35mStringConstant[39m[0m "y" 
+                     ([1m[35mCharacter[39m[0m 1 1 () [])) 
+                  ([1m[35mStringConstant[39m[0m "z" 
+                     ([1m[35mCharacter[39m[0m 1 1 () []))] 
+                  ([1m[35mStringConstant[39m[0m "*
+" 
+                     ([1m[35mCharacter[39m[0m 1 2 () [])) 
+                  ([1m[35mVar[39m[0m 2 [33my[39m)) 
+               ([1m[35mPrint[39m[0m () [
+                  ([1m[35mStringConstant[39m[0m "1" 
+                     ([1m[35mCharacter[39m[0m 1 1 () [])) 
+                  ([1m[35mStringConstant[39m[0m "2" 
+                     ([1m[35mCharacter[39m[0m 1 1 () []))] 
+                  ([1m[35mStringConstant[39m[0m ":" 
+                     ([1m[35mCharacter[39m[0m 1 1 () [])) ()) 
+               ([1m[35mPrint[39m[0m () [
+                  ([1m[35mStringConstant[39m[0m "LCompilers" 
+                     ([1m[35mCharacter[39m[0m 1 10 () [])) 
+                  ([1m[35mStringConstant[39m[0m "LPython" 
+                     ([1m[35mCharacter[39m[0m 1 7 () []))] () ())] [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m () .false. .false.)
+      }) 
+   [
+   ([1m[35mSubroutineCall[39m[0m 1 [33mf[39m () [] ())])
 
 #include <stdlib.h>
 #include <stdbool.h>

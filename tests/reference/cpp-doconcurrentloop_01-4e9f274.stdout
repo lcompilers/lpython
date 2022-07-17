@@ -1,3 +1,277 @@
+([1m[35mTranslationUnit[39m[0m 
+   ([33mSymbolTable[39m 
+      1 
+      {
+         main0: 
+            ([1m[35mSubroutine[39m[0m 
+               ([33mSymbolTable[39m 
+                  3 
+                  {
+                     a: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           a [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mReal[39m[0m 4 [
+                              (([1m[35mIntegerConstant[39m[0m [36m0[39m 
+                                 ([1m[35mInteger[39m[0m 4 [])) 
+                                 ([1m[35mIntegerBinOp[39m[0m ([1m[35mIntegerConstant[39m[0m [36m10000[39m 
+                                    ([1m[35mInteger[39m[0m 4 [])) [1m[32m
+                                    Sub[39m[0m ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                                    ([1m[35mInteger[39m[0m 4 [])) 
+                                    ([1m[35mInteger[39m[0m 4 []) ([1m[35mIntegerConstant[39m[0m [36m9999[39m 
+                                    ([1m[35mInteger[39m[0m 4 []))))]) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     b: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           b [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mReal[39m[0m 4 [
+                              (([1m[35mIntegerConstant[39m[0m [36m0[39m 
+                                 ([1m[35mInteger[39m[0m 4 [])) 
+                                 ([1m[35mIntegerBinOp[39m[0m ([1m[35mIntegerConstant[39m[0m [36m10000[39m 
+                                    ([1m[35mInteger[39m[0m 4 [])) [1m[32m
+                                    Sub[39m[0m ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                                    ([1m[35mInteger[39m[0m 4 [])) 
+                                    ([1m[35mInteger[39m[0m 4 []) ([1m[35mIntegerConstant[39m[0m [36m9999[39m 
+                                    ([1m[35mInteger[39m[0m 4 []))))]) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     c: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           c [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mReal[39m[0m 4 [
+                              (([1m[35mIntegerConstant[39m[0m [36m0[39m 
+                                 ([1m[35mInteger[39m[0m 4 [])) 
+                                 ([1m[35mIntegerBinOp[39m[0m ([1m[35mIntegerConstant[39m[0m [36m10000[39m 
+                                    ([1m[35mInteger[39m[0m 4 [])) [1m[32m
+                                    Sub[39m[0m ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                                    ([1m[35mInteger[39m[0m 4 [])) 
+                                    ([1m[35mInteger[39m[0m 4 []) ([1m[35mIntegerConstant[39m[0m [36m9999[39m 
+                                    ([1m[35mInteger[39m[0m 4 []))))]) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     i: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           i [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     nsize: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           nsize [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     scalar: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           scalar [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mReal[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               main0 [] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 3 [33mscalar[39m) 
+                  ([1m[35mCast[39m[0m 
+                     ([1m[35mRealConstant[39m[0m   1.00000000000000000e+01 
+                        ([1m[35mReal[39m[0m 8 [])) [1m[32m
+                     RealToReal[39m[0m 
+                     ([1m[35mReal[39m[0m 4 []) 
+                     ([1m[35mRealConstant[39m[0m   1.00000000000000000e+01 
+                        ([1m[35mReal[39m[0m 4 []))) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 3 [33mnsize[39m) ([1m[35mIntegerConstant[39m[0m [36m1234[39m 
+                  ([1m[35mInteger[39m[0m 4 [])) ()) 
+               ([1m[35mDoConcurrentLoop[39m[0m 
+                  (
+                     ([1m[35mVar[39m[0m 3 [33mi[39m) ([1m[35mIntegerConstant[39m[0m [36m0[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) 
+                     ([1m[35mIntegerBinOp[39m[0m 
+                        ([1m[35mVar[39m[0m 3 [33mnsize[39m) [1m[32m
+                        Sub[39m[0m ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) 
+                        ([1m[35mInteger[39m[0m 4 []) ()) ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                     ([1m[35mInteger[39m[0m 4 []))) [
+                  ([1m[35m=[39m[0m 
+                     ([1m[35mArrayItem[39m[0m 
+                        ([1m[35mVar[39m[0m 3 [33ma[39m) [
+                        (() 
+                           ([1m[35mVar[39m[0m 3 [33mi[39m) ())] 
+                        ([1m[35mReal[39m[0m 4 []) ()) 
+                     ([1m[35mCast[39m[0m 
+                        ([1m[35mRealConstant[39m[0m   5.00000000000000000e+00 
+                           ([1m[35mReal[39m[0m 8 [])) [1m[32m
+                        RealToReal[39m[0m 
+                        ([1m[35mReal[39m[0m 4 []) 
+                        ([1m[35mRealConstant[39m[0m   5.00000000000000000e+00 
+                           ([1m[35mReal[39m[0m 4 []))) ()) 
+                  ([1m[35m=[39m[0m 
+                     ([1m[35mArrayItem[39m[0m 
+                        ([1m[35mVar[39m[0m 3 [33mb[39m) [
+                        (() 
+                           ([1m[35mVar[39m[0m 3 [33mi[39m) ())] 
+                        ([1m[35mReal[39m[0m 4 []) ()) 
+                     ([1m[35mCast[39m[0m 
+                        ([1m[35mRealConstant[39m[0m   5.00000000000000000e+00 
+                           ([1m[35mReal[39m[0m 8 [])) [1m[32m
+                        RealToReal[39m[0m 
+                        ([1m[35mReal[39m[0m 4 []) 
+                        ([1m[35mRealConstant[39m[0m   5.00000000000000000e+00 
+                           ([1m[35mReal[39m[0m 4 []))) ())]) 
+               ([1m[35mSubroutineCall[39m[0m 1 [33mtriad[39m () [
+                  (
+                     ([1m[35mVar[39m[0m 3 [33ma[39m)) 
+                  (
+                     ([1m[35mVar[39m[0m 3 [33mb[39m)) 
+                  (
+                     ([1m[35mVar[39m[0m 3 [33mscalar[39m)) 
+                  (
+                     ([1m[35mVar[39m[0m 3 [33mc[39m))] ()) 
+               ([1m[35mPrint[39m[0m () [
+                  ([1m[35mStringConstant[39m[0m "End Stream Triad" 
+                     ([1m[35mCharacter[39m[0m 1 16 () []))] () ())] [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m () .false. .false.), 
+         triad: 
+            ([1m[35mSubroutine[39m[0m 
+               ([33mSymbolTable[39m 
+                  2 
+                  {
+                     N: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           N [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     a: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           a [1m[32m
+                           InOut[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mReal[39m[0m 4 [
+                              (() ())]) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     b: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           b [1m[32m
+                           InOut[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mReal[39m[0m 4 [
+                              (() ())]) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     c: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           c [1m[32m
+                           InOut[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mReal[39m[0m 4 [
+                              (() ())]) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     i: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           i [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     scalar: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           scalar [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mReal[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               triad [
+               ([1m[35mVar[39m[0m 2 [33ma[39m) 
+               ([1m[35mVar[39m[0m 2 [33mb[39m) 
+               ([1m[35mVar[39m[0m 2 [33mscalar[39m) 
+               ([1m[35mVar[39m[0m 2 [33mc[39m)] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33mN[39m) ([1m[35mIntegerConstant[39m[0m [36m1234[39m 
+                  ([1m[35mInteger[39m[0m 4 [])) ()) 
+               ([1m[35mDoConcurrentLoop[39m[0m 
+                  (
+                     ([1m[35mVar[39m[0m 2 [33mi[39m) ([1m[35mIntegerConstant[39m[0m [36m0[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) 
+                     ([1m[35mIntegerBinOp[39m[0m 
+                        ([1m[35mVar[39m[0m 2 [33mN[39m) [1m[32m
+                        Sub[39m[0m ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) 
+                        ([1m[35mInteger[39m[0m 4 []) ()) ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                     ([1m[35mInteger[39m[0m 4 []))) [
+                  ([1m[35m=[39m[0m 
+                     ([1m[35mArrayItem[39m[0m 
+                        ([1m[35mVar[39m[0m 2 [33mc[39m) [
+                        (() 
+                           ([1m[35mVar[39m[0m 2 [33mi[39m) ())] 
+                        ([1m[35mReal[39m[0m 4 []) ()) 
+                     ([1m[35mRealBinOp[39m[0m 
+                        ([1m[35mArrayItem[39m[0m 
+                           ([1m[35mVar[39m[0m 2 [33ma[39m) [
+                           (() 
+                              ([1m[35mVar[39m[0m 2 [33mi[39m) ())] 
+                           ([1m[35mReal[39m[0m 4 []) ()) [1m[32m
+                        Add[39m[0m 
+                        ([1m[35mRealBinOp[39m[0m 
+                           ([1m[35mVar[39m[0m 2 [33mscalar[39m) [1m[32m
+                           Mul[39m[0m 
+                           ([1m[35mArrayItem[39m[0m 
+                              ([1m[35mVar[39m[0m 2 [33mb[39m) [
+                              (() 
+                                 ([1m[35mVar[39m[0m 2 [33mi[39m) ())] 
+                              ([1m[35mReal[39m[0m 4 []) ()) 
+                           ([1m[35mReal[39m[0m 4 []) ()) 
+                        ([1m[35mReal[39m[0m 4 []) ()) ())])] [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m () .false. .false.)
+      }) 
+   [
+   ([1m[35mSubroutineCall[39m[0m 1 [33mmain0[39m () [] ())])
 #include <iostream>
 #include <string>
 #include <vector>

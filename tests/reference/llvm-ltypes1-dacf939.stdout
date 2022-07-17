@@ -1,3 +1,118 @@
+([1m[35mTranslationUnit[39m[0m 
+   ([33mSymbolTable[39m 
+      1 
+      {
+         test_i16: 
+            ([1m[35mSubroutine[39m[0m 
+               ([33mSymbolTable[39m 
+                  3 
+                  {
+                     i: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           i [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 2 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               test_i16 [] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 3 [33mi[39m) 
+                  ([1m[35mCast[39m[0m ([1m[35mIntegerConstant[39m[0m [36m4[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) [1m[32m
+                     IntegerToInteger[39m[0m 
+                     ([1m[35mInteger[39m[0m 2 []) ()) ()) 
+               ([1m[35mPrint[39m[0m () [
+                  ([1m[35mVar[39m[0m 3 [33mi[39m)] () ())] [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m () .false. .false.), 
+         test_i32: 
+            ([1m[35mSubroutine[39m[0m 
+               ([33mSymbolTable[39m 
+                  4 
+                  {
+                     i: 
+                        ([1m[35mVariable[39m[0m 
+                           4 
+                           i [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               test_i32 [] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 4 [33mi[39m) ([1m[35mIntegerConstant[39m[0m [36m3[39m 
+                  ([1m[35mInteger[39m[0m 4 [])) ()) 
+               ([1m[35mPrint[39m[0m () [
+                  ([1m[35mVar[39m[0m 4 [33mi[39m)] () ())] [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m () .false. .false.), 
+         test_i64: 
+            ([1m[35mSubroutine[39m[0m 
+               ([33mSymbolTable[39m 
+                  5 
+                  {
+                     i: 
+                        ([1m[35mVariable[39m[0m 
+                           5 
+                           i [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 8 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               test_i64 [] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 5 [33mi[39m) 
+                  ([1m[35mCast[39m[0m ([1m[35mIntegerConstant[39m[0m [36m2[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) [1m[32m
+                     IntegerToInteger[39m[0m 
+                     ([1m[35mInteger[39m[0m 8 []) ()) ()) 
+               ([1m[35mPrint[39m[0m () [
+                  ([1m[35mVar[39m[0m 5 [33mi[39m)] () ())] [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m () .false. .false.), 
+         test_i8: 
+            ([1m[35mSubroutine[39m[0m 
+               ([33mSymbolTable[39m 
+                  2 
+                  {
+                     i: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           i [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 1 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               test_i8 [] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33mi[39m) 
+                  ([1m[35mCast[39m[0m ([1m[35mIntegerConstant[39m[0m [36m5[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) [1m[32m
+                     IntegerToInteger[39m[0m 
+                     ([1m[35mInteger[39m[0m 1 []) ()) ()) 
+               ([1m[35mPrint[39m[0m () [
+                  ([1m[35mVar[39m[0m 2 [33mi[39m)] () ())] [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m () .false. .false.)
+      }) 
+   [])
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 

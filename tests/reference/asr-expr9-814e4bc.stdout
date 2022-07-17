@@ -1,1 +1,222 @@
+([1m[35mTranslationUnit[39m[0m 
+   ([33mSymbolTable[39m 
+      1 
+      {
+         main0: 
+            ([1m[35mSubroutine[39m[0m 
+               ([33mSymbolTable[39m 
+                  6 
+                  {
+                     i: 
+                        ([1m[35mVariable[39m[0m 
+                           6 
+                           i [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     s: 
+                        ([1m[35mVariable[39m[0m 
+                           6 
+                           s [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mCharacter[39m[0m 1 -2 () []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               main0 [] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 6 [33mi[39m) 
+                  ([1m[35mFunctionCall[39m[0m 1 [33mtest_return_1[39m () [
+                     (([1m[35mIntegerConstant[39m[0m [36m4[39m 
+                        ([1m[35mInteger[39m[0m 4 [])))] 
+                     ([1m[35mInteger[39m[0m 4 []) () ()) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 6 [33ms[39m) 
+                  ([1m[35mFunctionCall[39m[0m 1 [33mtest_return_2[39m () [
+                     (([1m[35mIntegerConstant[39m[0m [36m4[39m 
+                        ([1m[35mInteger[39m[0m 4 [])))] 
+                     ([1m[35mCharacter[39m[0m 1 -2 () []) () ()) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 6 [33mi[39m) 
+                  ([1m[35mFunctionCall[39m[0m 1 [33mtest_return_3[39m () [
+                     (([1m[35mIntegerConstant[39m[0m [36m4[39m 
+                        ([1m[35mInteger[39m[0m 4 [])))] 
+                     ([1m[35mInteger[39m[0m 4 []) () ()) ()) 
+               ([1m[35mSubroutineCall[39m[0m 1 [33mtest_return_4[39m () [
+                  (([1m[35mIntegerConstant[39m[0m [36m4[39m 
+                     ([1m[35mInteger[39m[0m 4 [])))] ())] [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m () .false. .false.), 
+         test_return_1: 
+            ([1m[35mFunction[39m[0m 
+               ([33mSymbolTable[39m 
+                  2 
+                  {
+                     _lpython_return_variable: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           _lpython_return_variable [1m[32m
+                           ReturnVar[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     a: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           a [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     x: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           x [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               test_return_1 [
+               ([1m[35mVar[39m[0m 2 [33ma[39m)] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33mx[39m) ([1m[35mIntegerConstant[39m[0m [36m5[39m 
+                  ([1m[35mInteger[39m[0m 4 [])) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33m_lpython_return_variable[39m) 
+                  ([1m[35mVar[39m[0m 2 [33mx[39m) ()) 
+               ([1m[35mReturn[39m[0m)] 
+               ([1m[35mVar[39m[0m 2 [33m_lpython_return_variable[39m) [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m ()), 
+         test_return_2: 
+            ([1m[35mFunction[39m[0m 
+               ([33mSymbolTable[39m 
+                  3 
+                  {
+                     _lpython_return_variable: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           _lpython_return_variable [1m[32m
+                           ReturnVar[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mCharacter[39m[0m 1 -2 () []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     a: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           a [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     x: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           x [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mCharacter[39m[0m 1 -2 () []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               test_return_2 [
+               ([1m[35mVar[39m[0m 3 [33ma[39m)] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 3 [33mx[39m) 
+                  ([1m[35mStringConstant[39m[0m "test" 
+                     ([1m[35mCharacter[39m[0m 1 4 () [])) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 3 [33m_lpython_return_variable[39m) 
+                  ([1m[35mVar[39m[0m 3 [33mx[39m) ()) 
+               ([1m[35mReturn[39m[0m)] 
+               ([1m[35mVar[39m[0m 3 [33m_lpython_return_variable[39m) [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m ()), 
+         test_return_3: 
+            ([1m[35mFunction[39m[0m 
+               ([33mSymbolTable[39m 
+                  4 
+                  {
+                     _lpython_return_variable: 
+                        ([1m[35mVariable[39m[0m 
+                           4 
+                           _lpython_return_variable [1m[32m
+                           ReturnVar[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     a: 
+                        ([1m[35mVariable[39m[0m 
+                           4 
+                           a [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               test_return_3 [
+               ([1m[35mVar[39m[0m 4 [33ma[39m)] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 4 [33ma[39m) ([1m[35mIntegerConstant[39m[0m [36m3[39m 
+                  ([1m[35mInteger[39m[0m 4 [])) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 4 [33m_lpython_return_variable[39m) 
+                  ([1m[35mVar[39m[0m 4 [33ma[39m) ()) 
+               ([1m[35mReturn[39m[0m)] 
+               ([1m[35mVar[39m[0m 4 [33m_lpython_return_variable[39m) [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m ()), 
+         test_return_4: 
+            ([1m[35mSubroutine[39m[0m 
+               ([33mSymbolTable[39m 
+                  5 
+                  {
+                     a: 
+                        ([1m[35mVariable[39m[0m 
+                           5 
+                           a [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               test_return_4 [
+               ([1m[35mVar[39m[0m 5 [33ma[39m)] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 5 [33ma[39m) ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                  ([1m[35mInteger[39m[0m 4 [])) ()) 
+               ([1m[35mReturn[39m[0m)] [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m () .false. .false.)
+      }) 
+   [
+   ([1m[35mSubroutineCall[39m[0m 1 [33mmain0[39m () [] ())])
 (TranslationUnit (SymbolTable 1 {_lpython_main_program: (Subroutine (SymbolTable 8 {}) _lpython_main_program [] [(SubroutineCall 1 main0 () [] ())] Source Public Implementation () .false. .false.), main0: (Subroutine (SymbolTable 6 {i: (Variable 6 i Local () () Default (Integer 4 []) Source Public Required .false.), s: (Variable 6 s Local () () Default (Character 1 -2 () []) Source Public Required .false.)}) main0 [] [(= (Var 6 i) (FunctionCall 1 test_return_1 () [((IntegerConstant 4 (Integer 4 [])))] (Integer 4 []) () ()) ()) (= (Var 6 s) (FunctionCall 1 test_return_2 () [((IntegerConstant 4 (Integer 4 [])))] (Character 1 -2 () []) () ()) ()) (= (Var 6 i) (FunctionCall 1 test_return_3 () [((IntegerConstant 4 (Integer 4 [])))] (Integer 4 []) () ()) ()) (SubroutineCall 1 test_return_4 () [((IntegerConstant 4 (Integer 4 [])))] ())] Source Public Implementation () .false. .false.), main_program: (Program (SymbolTable 7 {}) main_program [] [(SubroutineCall 1 _lpython_main_program () [] ())]), test_return_1: (Function (SymbolTable 2 {_lpython_return_variable: (Variable 2 _lpython_return_variable ReturnVar () () Default (Integer 4 []) Source Public Required .false.), a: (Variable 2 a In () () Default (Integer 4 []) Source Public Required .false.), x: (Variable 2 x Local () () Default (Integer 4 []) Source Public Required .false.)}) test_return_1 [(Var 2 a)] [(= (Var 2 x) (IntegerConstant 5 (Integer 4 [])) ()) (= (Var 2 _lpython_return_variable) (Var 2 x) ()) (Return)] (Var 2 _lpython_return_variable) Source Public Implementation ()), test_return_2: (Function (SymbolTable 3 {_lpython_return_variable: (Variable 3 _lpython_return_variable ReturnVar () () Default (Character 1 -2 () []) Source Public Required .false.), a: (Variable 3 a In () () Default (Integer 4 []) Source Public Required .false.), x: (Variable 3 x Local () () Default (Character 1 -2 () []) Source Public Required .false.)}) test_return_2 [(Var 3 a)] [(= (Var 3 x) (StringConstant "test" (Character 1 4 () [])) ()) (= (Var 3 _lpython_return_variable) (Var 3 x) ()) (Return)] (Var 3 _lpython_return_variable) Source Public Implementation ()), test_return_3: (Function (SymbolTable 4 {_lpython_return_variable: (Variable 4 _lpython_return_variable ReturnVar () () Default (Integer 4 []) Source Public Required .false.), a: (Variable 4 a In () () Default (Integer 4 []) Source Public Required .false.)}) test_return_3 [(Var 4 a)] [(= (Var 4 a) (IntegerConstant 3 (Integer 4 [])) ()) (= (Var 4 _lpython_return_variable) (Var 4 a) ()) (Return)] (Var 4 _lpython_return_variable) Source Public Implementation ()), test_return_4: (Subroutine (SymbolTable 5 {a: (Variable 5 a In () () Default (Integer 4 []) Source Public Required .false.)}) test_return_4 [(Var 5 a)] [(= (Var 5 a) (IntegerConstant 1 (Integer 4 [])) ()) (Return)] Source Public Implementation () .false. .false.)}) [])

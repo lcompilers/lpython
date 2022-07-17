@@ -1,1 +1,175 @@
-(TranslationUnit (SymbolTable 1 {T: (Variable 1 T Local () () Default (TypeParameter T) Source Public Required .false.), __lpython_generic_f_0: (Function (SymbolTable 3 {_lpython_return_variable: (Variable 3 _lpython_return_variable ReturnVar () () Default (Integer 4 []) Source Public Required .false.), x: (Variable 3 x In () () Default (Integer 4 []) Source Public Required .false.), y: (Variable 3 y In () () Default (Integer 4 []) Source Public Required .false.)}) __lpython_generic_f_0 [(Var 3 x) (Var 3 y)] [] (Var 3 _lpython_return_variable) Source Public Implementation ()), __lpython_generic_f_1: (Function (SymbolTable 4 {_lpython_return_variable: (Variable 4 _lpython_return_variable ReturnVar () () Default (Character 1 1 () []) Source Public Required .false.), x: (Variable 4 x In () () Default (Character 1 1 () []) Source Public Required .false.), y: (Variable 4 y In () () Default (Character 1 1 () []) Source Public Required .false.)}) __lpython_generic_f_1 [(Var 4 x) (Var 4 y)] [] (Var 4 _lpython_return_variable) Source Public Implementation ()), _lpython_main_program: (Subroutine (SymbolTable 6 {}) _lpython_main_program [] [(Print () [(FunctionCall 1 __lpython_generic_f_0 () [((IntegerConstant 1 (Integer 4 []))) ((IntegerConstant 2 (Integer 4 [])))] (Integer 4 []) () ())] () ()) (Print () [(FunctionCall 1 __lpython_generic_f_1 () [((StringConstant "a" (Character 1 1 () []))) ((StringConstant "b" (Character 1 1 () [])))] (Character 1 1 () []) () ())] () ())] Source Public Implementation () .false. .false.), f: (TemplateFunction (SymbolTable 2 {_lpython_return_variable: (Variable 2 _lpython_return_variable ReturnVar () () Default (TypeParameter T) Source Public Required .false.), x: (Variable 2 x In () () Default (TypeParameter T) Source Public Required .false.), y: (Variable 2 y In () () Default (TypeParameter T) Source Public Required .false.)}) f [(Var 2 x) (Var 2 y)] [] (Var 2 _lpython_return_variable) Source Public Implementation ()), main_program: (Program (SymbolTable 5 {}) main_program [] [(SubroutineCall 1 _lpython_main_program () [] ())])}) [])
+([1m[35mTranslationUnit[39m[0m 
+   ([33mSymbolTable[39m 
+      1 
+      {
+         T: 
+            ([1m[35mVariable[39m[0m 
+               1 
+               T [1m[32m
+               Local[39m[0m () () [1m[32m
+               Default[39m[0m 
+               ([1m[35mTypeParameter[39m[0m 
+                  T) [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Required[39m[0m .false.), 
+         __lpython_generic_f_0: 
+            ([1m[35mFunction[39m[0m 
+               ([33mSymbolTable[39m 
+                  3 
+                  {
+                     _lpython_return_variable: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           _lpython_return_variable [1m[32m
+                           ReturnVar[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     x: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           x [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     y: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           y [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               __lpython_generic_f_0 [
+               ([1m[35mVar[39m[0m 3 [33mx[39m) 
+               ([1m[35mVar[39m[0m 3 [33my[39m)] [] 
+               ([1m[35mVar[39m[0m 3 [33m_lpython_return_variable[39m) [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m ()), 
+         __lpython_generic_f_1: 
+            ([1m[35mFunction[39m[0m 
+               ([33mSymbolTable[39m 
+                  4 
+                  {
+                     _lpython_return_variable: 
+                        ([1m[35mVariable[39m[0m 
+                           4 
+                           _lpython_return_variable [1m[32m
+                           ReturnVar[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mCharacter[39m[0m 1 1 () []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     x: 
+                        ([1m[35mVariable[39m[0m 
+                           4 
+                           x [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mCharacter[39m[0m 1 1 () []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     y: 
+                        ([1m[35mVariable[39m[0m 
+                           4 
+                           y [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mCharacter[39m[0m 1 1 () []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               __lpython_generic_f_1 [
+               ([1m[35mVar[39m[0m 4 [33mx[39m) 
+               ([1m[35mVar[39m[0m 4 [33my[39m)] [] 
+               ([1m[35mVar[39m[0m 4 [33m_lpython_return_variable[39m) [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m ()), 
+         f: 
+            ([1m[35mTemplateFunction[39m[0m 
+               ([33mSymbolTable[39m 
+                  2 
+                  {
+                     _lpython_return_variable: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           _lpython_return_variable [1m[32m
+                           ReturnVar[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mTypeParameter[39m[0m 
+                              T) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     x: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           x [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mTypeParameter[39m[0m 
+                              T) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     y: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           y [1m[32m
+                           In[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mTypeParameter[39m[0m 
+                              T) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               f [
+               ([1m[35mVar[39m[0m 2 [33mx[39m) 
+               ([1m[35mVar[39m[0m 2 [33my[39m)] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33m_lpython_return_variable[39m) 
+                  ([1m[35mTemplateBinOp[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33mx[39m) [1m[32m
+                     Add[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33my[39m) 
+                     ([1m[35mTypeParameter[39m[0m 
+                        T) ()) ()) 
+               ([1m[35mReturn[39m[0m)] 
+               ([1m[35mVar[39m[0m 2 [33m_lpython_return_variable[39m) [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m ())
+      }) 
+   [
+   ([1m[35mPrint[39m[0m () [
+      ([1m[35mFunctionCall[39m[0m 1 [33m__lpython_generic_f_0[39m () [
+         (([1m[35mIntegerConstant[39m[0m [36m1[39m 
+            ([1m[35mInteger[39m[0m 4 []))) 
+         (([1m[35mIntegerConstant[39m[0m [36m2[39m 
+            ([1m[35mInteger[39m[0m 4 [])))] 
+         ([1m[35mInteger[39m[0m 4 []) () ())] () ()) 
+   ([1m[35mPrint[39m[0m () [
+      ([1m[35mFunctionCall[39m[0m 1 [33m__lpython_generic_f_1[39m () [
+         (
+            ([1m[35mStringConstant[39m[0m "a" 
+               ([1m[35mCharacter[39m[0m 1 1 () []))) 
+         (
+            ([1m[35mStringConstant[39m[0m "b" 
+               ([1m[35mCharacter[39m[0m 1 1 () [])))] 
+         ([1m[35mCharacter[39m[0m 1 1 () []) () ())] () ())])
+(TranslationUnit (SymbolTable 1 {T: (Variable 1 T Local () () Default (TypeParameter T) Source Public Required .false.), __lpython_generic_f_0: (Function (SymbolTable 3 {_lpython_return_variable: (Variable 3 _lpython_return_variable ReturnVar () () Default (Integer 4 []) Source Public Required .false.), x: (Variable 3 x In () () Default (Integer 4 []) Source Public Required .false.), y: (Variable 3 y In () () Default (Integer 4 []) Source Public Required .false.)}) __lpython_generic_f_0 [(Var 3 x) (Var 3 y)] [] (Var 3 _lpython_return_variable) Source Public Implementation ()), __lpython_generic_f_1: (Function (SymbolTable 4 {_lpython_return_variable: (Variable 4 _lpython_return_variable ReturnVar () () Default (Character 1 1 () []) Source Public Required .false.), x: (Variable 4 x In () () Default (Character 1 1 () []) Source Public Required .false.), y: (Variable 4 y In () () Default (Character 1 1 () []) Source Public Required .false.)}) __lpython_generic_f_1 [(Var 4 x) (Var 4 y)] [] (Var 4 _lpython_return_variable) Source Public Implementation ()), _lpython_main_program: (Subroutine (SymbolTable 6 {}) _lpython_main_program [] [(Print () [(FunctionCall 1 __lpython_generic_f_0 () [((IntegerConstant 1 (Integer 4 []))) ((IntegerConstant 2 (Integer 4 [])))] (Integer 4 []) () ())] () ()) (Print () [(FunctionCall 1 __lpython_generic_f_1 () [((StringConstant "a" (Character 1 1 () []))) ((StringConstant "b" (Character 1 1 () [])))] (Character 1 1 () []) () ())] () ())] Source Public Implementation () .false. .false.), f: (TemplateFunction (SymbolTable 2 {_lpython_return_variable: (Variable 2 _lpython_return_variable ReturnVar () () Default (TypeParameter T) Source Public Required .false.), x: (Variable 2 x In () () Default (TypeParameter T) Source Public Required .false.), y: (Variable 2 y In () () Default (TypeParameter T) Source Public Required .false.)}) f [(Var 2 x) (Var 2 y)] [(= (Var 2 _lpython_return_variable) (TemplateBinOp (Var 2 x) Add (Var 2 y) (TypeParameter T) ()) ()) (Return)] (Var 2 _lpython_return_variable) Source Public Implementation ()), main_program: (Program (SymbolTable 5 {}) main_program [] [(SubroutineCall 1 _lpython_main_program () [] ())])}) [])

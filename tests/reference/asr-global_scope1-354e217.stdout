@@ -1,1 +1,20 @@
+([1m[35mTranslationUnit[39m[0m 
+   ([33mSymbolTable[39m 
+      1 
+      {
+         i: 
+            ([1m[35mVariable[39m[0m 
+               1 
+               i [1m[32m
+               Local[39m[0m () () [1m[32m
+               Default[39m[0m 
+               ([1m[35mInteger[39m[0m 4 []) [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Required[39m[0m .false.)
+      }) 
+   [
+   ([1m[35m=[39m[0m 
+      ([1m[35mVar[39m[0m 1 [33mi[39m) ([1m[35mIntegerConstant[39m[0m [36m5[39m 
+      ([1m[35mInteger[39m[0m 4 [])) ())])
 (TranslationUnit (SymbolTable 1 {_lpython_main_program: (Subroutine (SymbolTable 3 {}) _lpython_main_program [] [(= (Var 1 i) (IntegerConstant 5 (Integer 4 [])) ())] Source Public Implementation () .false. .false.), i: (Variable 1 i Local () () Default (Integer 4 []) Source Public Required .false.), main_program: (Program (SymbolTable 2 {}) main_program [] [(SubroutineCall 1 _lpython_main_program () [] ())])}) [])

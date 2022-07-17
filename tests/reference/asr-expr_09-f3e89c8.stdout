@@ -1,1 +1,74 @@
+([1m[35mTranslationUnit[39m[0m 
+   ([33mSymbolTable[39m 
+      1 
+      {
+         main0: 
+            ([1m[35mSubroutine[39m[0m 
+               ([33mSymbolTable[39m 
+                  2 
+                  {
+                     i1: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           i1 [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     i2: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           i2 [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               main0 [] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33mi1[39m) ([1m[35mIntegerConstant[39m[0m [36m10[39m 
+                  ([1m[35mInteger[39m[0m 4 [])) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33mi2[39m) ([1m[35mIntegerConstant[39m[0m [36m4[39m 
+                  ([1m[35mInteger[39m[0m 4 [])) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33mi1[39m) ([1m[35mIntegerConstant[39m[0m [36m3[39m 
+                  ([1m[35mInteger[39m[0m 4 [])) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33mi2[39m) ([1m[35mIntegerConstant[39m[0m [36m5[39m 
+                  ([1m[35mInteger[39m[0m 4 [])) ()) 
+               ([1m[35mPrint[39m[0m () [
+                  ([1m[35mIntegerBinOp[39m[0m 
+                     ([1m[35mIntegerUnaryMinus[39m[0m 
+                        ([1m[35mVar[39m[0m 2 [33mi1[39m) 
+                        ([1m[35mInteger[39m[0m 4 []) ()) [1m[32m
+                     BitXor[39m[0m 
+                     ([1m[35mIntegerUnaryMinus[39m[0m 
+                        ([1m[35mVar[39m[0m 2 [33mi2[39m) 
+                        ([1m[35mInteger[39m[0m 4 []) ()) 
+                     ([1m[35mInteger[39m[0m 4 []) ())] () ()) 
+               ([1m[35mAssert[39m[0m 
+                  ([1m[35mIntegerCompare[39m[0m 
+                     ([1m[35mIntegerBinOp[39m[0m 
+                        ([1m[35mIntegerUnaryMinus[39m[0m 
+                           ([1m[35mVar[39m[0m 2 [33mi1[39m) 
+                           ([1m[35mInteger[39m[0m 4 []) ()) [1m[32m
+                        BitXor[39m[0m 
+                        ([1m[35mIntegerUnaryMinus[39m[0m 
+                           ([1m[35mVar[39m[0m 2 [33mi2[39m) 
+                           ([1m[35mInteger[39m[0m 4 []) ()) 
+                        ([1m[35mInteger[39m[0m 4 []) ()) [1m[32m
+                     Eq[39m[0m ([1m[35mIntegerConstant[39m[0m [36m6[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) 
+                     ([1m[35mLogical[39m[0m 4 []) ()) ())] [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m () .false. .false.)
+      }) 
+   [
+   ([1m[35mSubroutineCall[39m[0m 1 [33mmain0[39m () [] ())])
 (TranslationUnit (SymbolTable 1 {_lpython_main_program: (Subroutine (SymbolTable 4 {}) _lpython_main_program [] [(SubroutineCall 1 main0 () [] ())] Source Public Implementation () .false. .false.), main0: (Subroutine (SymbolTable 2 {i1: (Variable 2 i1 Local () () Default (Integer 4 []) Source Public Required .false.), i2: (Variable 2 i2 Local () () Default (Integer 4 []) Source Public Required .false.)}) main0 [] [(= (Var 2 i1) (IntegerConstant 10 (Integer 4 [])) ()) (= (Var 2 i2) (IntegerConstant 4 (Integer 4 [])) ()) (= (Var 2 i1) (IntegerConstant 3 (Integer 4 [])) ()) (= (Var 2 i2) (IntegerConstant 5 (Integer 4 [])) ()) (Print () [(IntegerBinOp (IntegerUnaryMinus (Var 2 i1) (Integer 4 []) ()) BitXor (IntegerUnaryMinus (Var 2 i2) (Integer 4 []) ()) (Integer 4 []) ())] () ()) (Assert (IntegerCompare (IntegerBinOp (IntegerUnaryMinus (Var 2 i1) (Integer 4 []) ()) BitXor (IntegerUnaryMinus (Var 2 i2) (Integer 4 []) ()) (Integer 4 []) ()) Eq (IntegerConstant 6 (Integer 4 [])) (Logical 4 []) ()) ())] Source Public Implementation () .false. .false.), main_program: (Program (SymbolTable 3 {}) main_program [] [(SubroutineCall 1 _lpython_main_program () [] ())])}) [])

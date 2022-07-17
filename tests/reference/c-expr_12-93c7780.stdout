@@ -1,3 +1,184 @@
+([1m[35mTranslationUnit[39m[0m 
+   ([33mSymbolTable[39m 
+      1 
+      {
+         check: 
+            ([1m[35mSubroutine[39m[0m 
+               ([33mSymbolTable[39m 
+                  3 
+                  {
+                     ptr: 
+                        ([1m[35mVariable[39m[0m 
+                           3 
+                           ptr [1m[32m
+                           InOut[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mPointer[39m[0m 
+                              ([1m[35mInteger[39m[0m 2 [
+                                 (() ())])) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               check [
+               ([1m[35mVar[39m[0m 3 [33mptr[39m)] [
+               ([1m[35mAssert[39m[0m 
+                  ([1m[35mIntegerCompare[39m[0m 
+                     ([1m[35mCast[39m[0m 
+                        ([1m[35mArrayItem[39m[0m 
+                           ([1m[35mVar[39m[0m 3 [33mptr[39m) [
+                           (() ([1m[35mIntegerConstant[39m[0m [36m0[39m 
+                              ([1m[35mInteger[39m[0m 4 [])) ())] 
+                           ([1m[35mPointer[39m[0m 
+                              ([1m[35mInteger[39m[0m 2 [])) ()) [1m[32m
+                        IntegerToInteger[39m[0m 
+                        ([1m[35mInteger[39m[0m 4 []) ()) [1m[32m
+                     Eq[39m[0m ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) 
+                     ([1m[35mLogical[39m[0m 4 []) ()) ()) 
+               ([1m[35mAssert[39m[0m 
+                  ([1m[35mIntegerCompare[39m[0m 
+                     ([1m[35mCast[39m[0m 
+                        ([1m[35mArrayItem[39m[0m 
+                           ([1m[35mVar[39m[0m 3 [33mptr[39m) [
+                           (() ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                              ([1m[35mInteger[39m[0m 4 [])) ())] 
+                           ([1m[35mPointer[39m[0m 
+                              ([1m[35mInteger[39m[0m 2 [])) ()) [1m[32m
+                        IntegerToInteger[39m[0m 
+                        ([1m[35mInteger[39m[0m 4 []) ()) [1m[32m
+                     Eq[39m[0m ([1m[35mIntegerConstant[39m[0m [36m2[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) 
+                     ([1m[35mLogical[39m[0m 4 []) ()) ())] [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m () .false. .false.), 
+         f: 
+            ([1m[35mSubroutine[39m[0m 
+               ([33mSymbolTable[39m 
+                  4 
+                  {
+                     y: 
+                        ([1m[35mVariable[39m[0m 
+                           4 
+                           y [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 2 [
+                              (([1m[35mIntegerConstant[39m[0m [36m0[39m 
+                                 ([1m[35mInteger[39m[0m 4 [])) 
+                                 ([1m[35mIntegerBinOp[39m[0m ([1m[35mIntegerConstant[39m[0m [36m2[39m 
+                                    ([1m[35mInteger[39m[0m 4 [])) [1m[32m
+                                    Sub[39m[0m ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                                    ([1m[35mInteger[39m[0m 4 [])) 
+                                    ([1m[35mInteger[39m[0m 4 []) ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                                    ([1m[35mInteger[39m[0m 4 []))))]) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     yptr1: 
+                        ([1m[35mVariable[39m[0m 
+                           4 
+                           yptr1 [1m[32m
+                           Local[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mPointer[39m[0m 
+                              ([1m[35mInteger[39m[0m 2 [
+                                 (() ())])) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               f [] [
+               ([1m[35mSubroutineCall[39m[0m 1 [33mg[39m () [
+                  (
+                     ([1m[35mVar[39m[0m 4 [33myptr1[39m)) 
+                  (
+                     ([1m[35mVar[39m[0m 4 [33my[39m))] ()) 
+               ([1m[35mSubroutineCall[39m[0m 1 [33mcheck[39m () [
+                  (
+                     ([1m[35mVar[39m[0m 4 [33myptr1[39m))] ())] [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m () .false. .false.), 
+         g: 
+            ([1m[35mSubroutine[39m[0m 
+               ([33mSymbolTable[39m 
+                  2 
+                  {
+                     x: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           x [1m[32m
+                           InOut[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mPointer[39m[0m 
+                              ([1m[35mInteger[39m[0m 2 [
+                                 (() ())])) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.), 
+                     y: 
+                        ([1m[35mVariable[39m[0m 
+                           2 
+                           y [1m[32m
+                           InOut[39m[0m () () [1m[32m
+                           Default[39m[0m 
+                           ([1m[35mInteger[39m[0m 2 [
+                              (() ())]) [1m[32m
+                           Source[39m[0m [1m[32m
+                           Public[39m[0m [1m[32m
+                           Required[39m[0m .false.)
+                  }) 
+               g [
+               ([1m[35mVar[39m[0m 2 [33mx[39m) 
+               ([1m[35mVar[39m[0m 2 [33my[39m)] [
+               ([1m[35m=[39m[0m 
+                  ([1m[35mArrayItem[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33my[39m) [
+                     (() ([1m[35mIntegerConstant[39m[0m [36m0[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) ())] 
+                     ([1m[35mInteger[39m[0m 2 []) ()) 
+                  ([1m[35mCast[39m[0m ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) [1m[32m
+                     IntegerToInteger[39m[0m 
+                     ([1m[35mInteger[39m[0m 2 []) ()) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mArrayItem[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33my[39m) [
+                     (() ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) ())] 
+                     ([1m[35mInteger[39m[0m 2 []) ()) 
+                  ([1m[35mCast[39m[0m ([1m[35mIntegerConstant[39m[0m [36m2[39m 
+                     ([1m[35mInteger[39m[0m 4 [])) [1m[32m
+                     IntegerToInteger[39m[0m 
+                     ([1m[35mInteger[39m[0m 2 []) ()) ()) 
+               ([1m[35m=[39m[0m 
+                  ([1m[35mVar[39m[0m 2 [33mx[39m) 
+                  ([1m[35mGetPointer[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33my[39m) 
+                     ([1m[35mPointer[39m[0m 
+                        ([1m[35mInteger[39m[0m 2 [
+                           (() ())])) ()) ()) 
+               ([1m[35mPrint[39m[0m () [
+                  ([1m[35mArrayItem[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33mx[39m) [
+                     (() ([1m[35mIntegerConstant[39m[0m [36m0[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) ())] 
+                     ([1m[35mPointer[39m[0m 
+                        ([1m[35mInteger[39m[0m 2 [])) ()) 
+                  ([1m[35mArrayItem[39m[0m 
+                     ([1m[35mVar[39m[0m 2 [33mx[39m) [
+                     (() ([1m[35mIntegerConstant[39m[0m [36m1[39m 
+                        ([1m[35mInteger[39m[0m 4 [])) ())] 
+                     ([1m[35mPointer[39m[0m 
+                        ([1m[35mInteger[39m[0m 2 [])) ())] () ())] [1m[32m
+               Source[39m[0m [1m[32m
+               Public[39m[0m [1m[32m
+               Implementation[39m[0m () .false. .false.)
+      }) 
+   [
+   ([1m[35mSubroutineCall[39m[0m 1 [33mf[39m () [] ())])
 #include <inttypes.h>
 
 #include <stdlib.h>
