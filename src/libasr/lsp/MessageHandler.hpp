@@ -7,6 +7,7 @@
 #include <lpython/semantics/python_ast_to_asr.h>
  
  namespace LFortran::LPython {
+       
        struct lsp_locations {
               std::string symbol_name;
               uint32_t first_line;
@@ -17,5 +18,6 @@
        std::vector<lsp_locations> get_SymbolLists(const std::string &infile,
        const std::string &runtime_library_dir,
        LFortran::CompilerOptions &compiler_options);
+       
 }
 #endif

@@ -1,6 +1,7 @@
 #include "MessageHandler.hpp"
 
 namespace LFortran::LPython {
+
     std::vector<lsp_locations> get_SymbolLists(const std::string &infile,
         const std::string &runtime_library_dir,
         LFortran::CompilerOptions &compiler_options) {
@@ -34,5 +35,6 @@ namespace LFortran::LPython {
             }
             return symbol_lists;
        }
+       
 }
 
