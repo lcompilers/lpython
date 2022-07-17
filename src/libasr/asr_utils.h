@@ -701,6 +701,10 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(t);
             return "Pointer[" + type_to_str_python(p->m_type) + "]";
         }
+        case ASR::ttypeType::TypeParameter: {
+            ASR::TypeParameter_t *p = ASR::down_cast<ASR::TypeParameter_t>(t);
+            return p->m_param;
+        }
         default : throw LFortranException("Not implemented " + std::to_string(t->type));
     }
 }
@@ -894,6 +898,10 @@ static inline bool is_complex(ASR::ttype_t &x) {
 
 static inline bool is_logical(ASR::ttype_t &x) {
     return ASR::is_a<ASR::Logical_t>(*type_get_past_pointer(&x));
+}
+
+static inline bool is_type_parameter(ASR::ttype_t &x) {
+    return ASR::is_a<ASR::TypeParameter_t>(*type_get_past_pointer(&x));
 }
 
 static inline int get_body_size(ASR::symbol_t* s) {
@@ -1214,6 +1222,9 @@ inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
             }
         }
         return result;
+    } else if (ASR::is_a<ASR::TypeParameter_t>(*x) && ASR::is_a<ASR::TypeParameter_t>(*y)) {
+        // Since it depends on the substitution, assume to be true
+        return true;
     }
 
     int64_t x_kind = ASRUtils::extract_kind_from_ttype_t(x);

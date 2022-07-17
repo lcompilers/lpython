@@ -242,6 +242,7 @@ expr
     | LogicalNot(expr arg, ttype type, expr? value)
     | LogicalCompare(expr left, cmpop op, expr right, ttype type, expr? value)
     | LogicalBinOp(expr left, logicalbinop op, expr right, ttype type, expr? value)
+    | TemplateBinOp(expr left, binop op, expr right, ttype type, expr? value)
 
     | ListConstant(expr* args, ttype type)
     | ListLen(expr arg, ttype type, expr? value)
