@@ -16,6 +16,37 @@ struct handle_functions
     this->conn = new JSONRPC2Connection();
   }
 
+  std::string getPath(std::string uri)  {
+    // Converts URI to path
+    if (uri.compare(0, 7, "file://"))
+      return uri;
+    std::string ret;
+    #ifdef _WIN32
+      // Skipping the initial "/" on Windows
+      size_t i = 8;
+    #else
+      size_t i = 7;
+    #endif
+      auto from_hex = [](unsigned char c) {
+        return c - '0' < 10 ? c - '0' : (c | 32) - 'a' + 10;
+      };
+      for (; i < uri.size(); i++) {
+        if (i + 3 <= uri.size() && uri[i] == '%') {
+          ret.push_back(from_hex(uri[i + 1]) * 16 + from_hex(uri[i + 2]));
+          i += 2;
+        } else
+          ret.push_back(uri[i]);
+      }
+    #ifdef _WIN32
+      std::replace(ret.begin(), ret.end(), '\\', '/');
+      if (ret.size() > 1 && ret[0] >= 'a' && ret[0] <= 'z' && ret[1] == ':') {
+        ret[0] = toupper(ret[0]);
+      }
+    #endif
+
+    return ret;
+  }
+
   rapidjson::Document serve_initialize(rapidjson::Document &/*request*/) {
     rapidjson::Document capabilities(rapidjson::kObjectType);
     rapidjson::Document::AllocatorType &allocator = capabilities.GetAllocator(); 
@@ -73,36 +104,6 @@ struct handle_functions
         );
   }
 
-  std::string getPath(std::string raw_uri)  {
-    if (raw_uri.compare(0, 7, "file://"))
-      return raw_uri;
-    std::string ret;
-    #ifdef _WIN32
-      // Skipping the initial "/" on Windows
-      size_t i = 8;
-    #else
-      size_t i = 7;
-    #endif
-      auto from_hex = [](unsigned char c) {
-        return c - '0' < 10 ? c - '0' : (c | 32) - 'a' + 10;
-      };
-      for (; i < raw_uri.size(); i++) {
-        if (i + 3 <= raw_uri.size() && raw_uri[i] == '%') {
-          ret.push_back(from_hex(raw_uri[i + 1]) * 16 + from_hex(raw_uri[i + 2]));
-          i += 2;
-        } else
-          ret.push_back(raw_uri[i]);
-      }
-    #ifdef _WIN32
-      std::replace(ret.begin(), ret.end(), '\\', '/');
-      if (ret.size() > 1 && ret[0] >= 'a' && ret[0] <= 'z' && ret[1] == ':') {
-        ret[0] = toupper(ret[0]);
-      }
-    #endif
-
-    return ret;
-  }
-
   void serve_document_symbol(rapidjson::Document &request, JSONRPC2Connection& obj, int rid) {
     std::string uri = request["params"]["textDocument"]["uri"].GetString();
     std::string path = getPath(uri);
@@ -111,8 +112,8 @@ struct handle_functions
     LCompilers::PassManager lpython_pass_manager;
     std::string runtime_library_dir = LFortran::get_runtime_library_dir();
 
-    std::vector<LFortran::LPython::lsp_locations> symbol_lists = LFortran::LPython::get_SymbolLists(path, 
-                          lpython_pass_manager, runtime_library_dir, compiler_options);
+    std::vector<LFortran::LPython::lsp_locations> 
+      symbol_lists = LFortran::LPython::get_SymbolLists(path, runtime_library_dir, compiler_options);
 
     rapidjson::Document test_output(rapidjson::kArrayType);
     rapidjson::Document range_object(rapidjson::kObjectType);

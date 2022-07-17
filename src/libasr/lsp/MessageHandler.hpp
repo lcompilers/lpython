@@ -1,4 +1,3 @@
-
 #ifndef MESSAGE_HANDLER_HPP
 #define MESSAGE_HANDLER_HPP
  
@@ -9,8 +8,14 @@
 #include <lpython/python_ast.h>
  
 namespace LFortran::LPython {
+       struct lsp_locations {
+              std::string symbol_name;
+              uint32_t first_line;
+              uint32_t first_column;
+              uint32_t last_line;
+              uint32_t last_column;
+       };
        std::vector<lsp_locations> get_SymbolLists(const std::string &infile,
-       LCompilers::PassManager& pass_manager,
        const std::string &runtime_library_dir,
        LFortran::CompilerOptions &compiler_options);
 }
