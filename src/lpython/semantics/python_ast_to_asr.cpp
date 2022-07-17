@@ -4373,7 +4373,6 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
         } else {
             return res2.error;
         }
-        std::cout << pickle(*unit, 1, 1, 0) << std::endl;
         LFORTRAN_ASSERT(asr_verify(*tu));
     }
 
