@@ -577,6 +577,14 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
     }
 
+    void visit_StringItem(const ASR::StringItem_t& x) {
+        this->visit_expr(*x.m_idx);
+        std::string idx = std::move(src);
+        this->visit_expr(*x.m_arg);
+        std::string str = std::move(src);
+        src = str + "[" + idx + " - 1]";
+    }
+
     void visit_ArrayConstant(const ASR::ArrayConstant_t &x) {
         std::string indent(indentation_level * indentation_spaces, ' ');
         from_std_vector_helper = indent + "Kokkos::View<float*> r;\n";
