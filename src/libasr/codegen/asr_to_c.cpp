@@ -640,6 +640,11 @@ R"(
         src = out;
     }
 
+    void visit_StringLen(const ASR::StringLen_t &x) {
+        this->visit_expr(*x.m_arg);
+        src = "strlen(" + src + ")";
+    }
+
 };
 
 Result<std::string> asr_to_c(Allocator &al, ASR::TranslationUnit_t &asr,
