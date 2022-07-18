@@ -2683,8 +2683,6 @@ public:
         this->visit_expr(*x.m_target);
         ASR::expr_t *target=ASRUtils::EXPR(tmp);
         Vec<ASR::stmt_t*> body;
-        body.reserve(al, x.n_body);
-        transform_stmts(body, x.n_body, x.m_body);
         bool is_explicit_iterator_required = false;
         ASR::expr_t *loop_end = nullptr, *loop_start = nullptr, *inc = nullptr;
         if (AST::is_a<AST::Call_t>(*x.m_iter)) {
@@ -2772,6 +2770,7 @@ public:
         ASR::do_loop_head_t head;
 
         if(is_explicit_iterator_required) {
+            body.reserve(al, x.n_body + 1);
             // add an assignment instruction to body to assign value of loop_src_var at an index to the loop_target_var
             auto explicit_iter_var = ASR::make_Var_t(al, x.base.base.loc, current_scope->get_symbol("__explicit_iterator"));
             auto index_plus_one = ASR::make_IntegerBinOp_t(al, x.base.base.loc, ASRUtils::EXPR(explicit_iter_var),
@@ -2785,9 +2784,11 @@ public:
 
             head.m_v = ASRUtils::EXPR(explicit_iter_var);
         } else {
+            body.reserve(al, x.n_body);
             head.m_v = target;
         }
 
+        transform_stmts(body, x.n_body, x.m_body);
 
         if (loop_start) {
             head.m_start = loop_start;
