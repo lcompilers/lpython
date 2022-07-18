@@ -360,6 +360,7 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
         nullptr, 0, vararg, 1, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
 #define STAR_ARGS_05(kwarg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
         nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
+
 #define STAR_ARGS_06(args, vararg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
         args.p, args.n, vararg, 1, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0)
 #define STAR_ARGS_07(args, vararg, kwonlyargs, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
@@ -373,11 +374,45 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
 #define STAR_ARGS_10(args, kwarg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
         args.p, args.n, nullptr, 0, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
 
+#define STAR_ARGS_11(posonlyargs, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, nullptr, 0, nullptr, 0, nullptr, 0, \
+        nullptr, 0, nullptr, 0, nullptr, 0)
+#define STAR_ARGS_12(posonlyargs, vararg, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, nullptr, 0, vararg, 1, nullptr, 0, \
+        nullptr, 0, nullptr, 0, nullptr, 0)
+#define STAR_ARGS_13(posonlyargs, vararg, kwonlyargs, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, nullptr, 0, vararg, 1, \
+        kwonlyargs.p, kwonlyargs.n, nullptr, 0, nullptr, 0, nullptr, 0)
+#define STAR_ARGS_14(posonlyargs, vararg, kwonlyargs, kwarg, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, nullptr, 0, vararg, 1, \
+        kwonlyargs.p, kwonlyargs.n, nullptr, 0, kwarg, 1, nullptr, 0)
+#define STAR_ARGS_15(posonlyargs, kwarg, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, nullptr, 0, nullptr, 0, nullptr, 0, \
+        nullptr, 0, kwarg, 1, nullptr, 0)
+#define STAR_ARGS_16(posonlyargs, vararg, kwarg, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, nullptr, 0, vararg, 1, nullptr, 0, \
+        nullptr, 0, kwarg, 1, nullptr, 0)
+#define STAR_ARGS_17(posonlyargs, args, vararg, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, args.p, args.n, vararg, 1, nullptr, 0, \
+        nullptr, 0, nullptr, 0, nullptr, 0)
+#define STAR_ARGS_18(posonlyargs, args, kwarg, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, args.p, args.n, nullptr, 0, nullptr, 0, \
+        nullptr, 0, kwarg, 1, nullptr, 0)
+#define STAR_ARGS_19(posonlyargs, args, vararg, kwarg, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, args.p, args.n, vararg, 1, nullptr, 0, \
+        nullptr, 0, kwarg, 1, nullptr, 0)
+#define STAR_ARGS_20(posonlyargs, args, vararg, kwonlyargs, kwarg, l) \
+        FUNC_ARGS(p.m_a, l, posonlyargs.p, posonlyargs.n, args.p, args.n, \
+        vararg, 1, kwonlyargs.p, kwonlyargs.n, nullptr, 0, kwarg, 1, nullptr, 0)
+
 #define FUNC_ARG_LIST_01(args, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
         args.p, args.n, nullptr, 0, nullptr, 0, nullptr, 0, \
         nullptr, 0, nullptr, 0)
 #define FUNC_ARG_LIST_02(l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
         nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0)
+#define FUNC_ARG_LIST_03(posonlyargs, args, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, args.p, args.n, nullptr, 0, nullptr, 0, \
+        nullptr, 0, nullptr, 0, nullptr, 0)
 
 #define FUNCTION_01(decorator, id, args, stmts, l) \
         make_FunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
