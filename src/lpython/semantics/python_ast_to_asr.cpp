@@ -2750,7 +2750,7 @@ public:
                 is_explicit_iterator_required = true;
             } else if (loop_src_var_ttype->type == ASR::ttypeType::List) {
                 throw SemanticError("Iterating on Lists using for in loop not yet supported as "
-                    "visit_Len() is not yet supported on the LLVM Backend", x.base.base.loc);
+                    "visit_Len() is not yet supported in the LLVM Backend", x.base.base.loc);
             } else if (loop_src_var_ttype->type == ASR::ttypeType::Set) {
                 throw SemanticError("Iterating on Set using for in loop not yet supported", x.base.base.loc);
             } else if (loop_src_var_ttype->type == ASR::ttypeType::Tuple) {
