@@ -679,6 +679,7 @@ id_list
 id_item
     : id_list { $$ = ID_TUPLE_01($1, @$); }
     | id_list "," { $$ = ID_TUPLE_03($1, @$); }
+    | "(" id ")" { $$ = $2; }
     | "(" id_list "," ")" { $$ = ID_TUPLE_03($2, @$); }
     | "(" id_list ","  id ")" { $$ = ID_TUPLE_01(TUPLE_($2, $4), @$); }
     ;
