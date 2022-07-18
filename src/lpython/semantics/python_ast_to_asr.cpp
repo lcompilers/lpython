@@ -2751,8 +2751,12 @@ public:
             } else if (loop_src_var_ttype->type == ASR::ttypeType::List) {
                 throw SemanticError("Iterating on Lists using for in loop not yet supported as "
                     "visit_Len() is not yet supported on the LLVM Backend", x.base.base.loc);
+            } else if (loop_src_var_ttype->type == ASR::ttypeType::Set) {
+                throw SemanticError("Iterating on Set using for in loop not yet supported", x.base.base.loc);
+            } else if (loop_src_var_ttype->type == ASR::ttypeType::Tuple) {
+                throw SemanticError("Iterating on Tuple using for in loop not yet supported", x.base.base.loc);
             } else {
-                throw SemanticError("Only Strings and Lists can be used with for in loop, not " +
+                throw SemanticError("Only Strings, Lists, Sets and Tuples can be used with for in loop, not " +
                     ASRUtils::type_to_str(loop_src_var_ttype), x.base.base.loc);
             }
         } else {
