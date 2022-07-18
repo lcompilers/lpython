@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-loop_01-ac29dce",
+    "cmd": "lpython --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/loop_01.py",
+    "infile_hash": "4a7a536aea7a5740a0e00d436fc9cae9aeb3c489af03858fabf68fd1",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-loop_01-ac29dce.stdout",
+    "stdout_hash": "4aa64d7837978998454f3fd72b711188171038f0e79bb2030ad60481",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
