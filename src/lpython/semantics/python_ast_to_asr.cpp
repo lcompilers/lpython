@@ -2725,7 +2725,7 @@ public:
             std::string loop_src_var_name = AST::down_cast<AST::Name_t>(x.m_iter)->m_id;
             auto loop_src_var_symbol = current_scope->get_symbol(loop_src_var_name);
             auto loop_src_var_ttype = ASRUtils::symbol_type(loop_src_var_symbol);
-            if( loop_src_var_ttype->type == ASR::ttypeType::Character) {
+            if (ASR::is_a<ASR::Character_t>(*loop_src_var_ttype)) {
                 auto int_type = ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0);
 
                 {
@@ -2748,12 +2748,12 @@ public:
                 }
 
                 is_explicit_iterator_required = true;
-            } else if (loop_src_var_ttype->type == ASR::ttypeType::List) {
+            } else if (ASR::is_a<ASR::List_t>(*loop_src_var_ttype)) {
                 throw SemanticError("Iterating on Lists using for in loop not yet supported as "
                     "visit_Len() is not yet supported in the LLVM Backend", x.base.base.loc);
-            } else if (loop_src_var_ttype->type == ASR::ttypeType::Set) {
+            } else if (ASR::is_a<ASR::Set_t>(*loop_src_var_ttype)) {
                 throw SemanticError("Iterating on Set using for in loop not yet supported", x.base.base.loc);
-            } else if (loop_src_var_ttype->type == ASR::ttypeType::Tuple) {
+            } else if (ASR::is_a<ASR::Tuple_t>(*loop_src_var_ttype)) {
                 throw SemanticError("Iterating on Tuple using for in loop not yet supported", x.base.base.loc);
             } else {
                 throw SemanticError("Only Strings, Lists, Sets and Tuples can be used with for in loop, not " +
