@@ -4336,8 +4336,7 @@ public:
                 fmt.push_back("%lld");
                 llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
                 args.push_back(d);
-            } else if (ASRUtils::is_integer(*t) ||
-                ASR::is_a<ASR::Logical_t>(*ASRUtils::type_get_past_pointer(t))) {
+            } else if (ASRUtils::is_integer(*t)) {
                 switch( a_kind ) {
                     case 1 : {
                         fmt.push_back("%d");
@@ -4390,6 +4389,12 @@ public:
             } else if (t->type == ASR::ttypeType::Character) {
                 fmt.push_back("%s");
                 args.push_back(tmp);
+            } else if (ASRUtils::is_logical(*t)) {
+                llvm::Value *cmp = builder->CreateICmpEQ(tmp, builder->getInt1(0));
+                llvm::Value *zero_str = builder->CreateGlobalStringPtr("False");
+                llvm::Value *one_str = builder->CreateGlobalStringPtr("True");
+                llvm::Value *str = builder->CreateSelect(cmp, zero_str, one_str);
+                printf(context, *module, *builder, {str});
             } else if (ASRUtils::is_complex(*t)) {
                 llvm::Type *type, *complex_type;
                 switch( a_kind ) {
@@ -4424,9 +4429,8 @@ public:
                 llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
                 args.push_back(d);
             } else {
-                throw LFortranException("Printing support is available only for integer, real,"
-                    " character, and complex types, got type " +
-                    ASRUtils::type_to_str(t));
+                throw LFortranException("Printing support is not available for " +
+                    ASRUtils::type_to_str(t) + " type.");
             }
         }
         fmt.push_back("%s");

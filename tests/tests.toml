@@ -224,6 +224,10 @@ ast = true
 asr = true
 
 [[test]]
+filename = "bool1.py"
+llvm = true
+
+[[test]]
 filename = "global_scope1.py"
 ast = true
 asr = true
