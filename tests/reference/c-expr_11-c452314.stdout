@@ -1,53 +1,3 @@
-([1m[35mTranslationUnit[39m[0m 
-   ([33mSymbolTable[39m 
-      1 
-      {
-         f: 
-            ([1m[35mSubroutine[39m[0m 
-               ([33mSymbolTable[39m 
-                  2 
-                  {
-                     b: 
-                        ([1m[35mVariable[39m[0m 
-                           2 
-                           b [1m[32m
-                           Local[39m[0m () () [1m[32m
-                           Default[39m[0m 
-                           ([1m[35mLogical[39m[0m 4 []) [1m[32m
-                           Source[39m[0m [1m[32m
-                           Public[39m[0m [1m[32m
-                           Required[39m[0m .false.), 
-                     i: 
-                        ([1m[35mVariable[39m[0m 
-                           2 
-                           i [1m[32m
-                           Local[39m[0m () () [1m[32m
-                           Default[39m[0m 
-                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
-                           Source[39m[0m [1m[32m
-                           Public[39m[0m [1m[32m
-                           Required[39m[0m .false.)
-                  }) 
-               f [] [
-               ([1m[35m=[39m[0m 
-                  ([1m[35mVar[39m[0m 2 [33mi[39m) ([1m[35mIntegerConstant[39m[0m [36m3[39m 
-                  ([1m[35mInteger[39m[0m 4 [])) ()) 
-               ([1m[35m=[39m[0m 
-                  ([1m[35mVar[39m[0m 2 [33mb[39m) 
-                  ([1m[35mCast[39m[0m 
-                     ([1m[35mVar[39m[0m 2 [33mi[39m) [1m[32m
-                     IntegerToLogical[39m[0m 
-                     ([1m[35mLogical[39m[0m 4 []) ()) ()) 
-               ([1m[35mAssert[39m[0m 
-                  ([1m[35mVar[39m[0m 2 [33mb[39m) ()) 
-               ([1m[35mPrint[39m[0m () [
-                  ([1m[35mVar[39m[0m 2 [33mb[39m)] () ())] [1m[32m
-               Source[39m[0m [1m[32m
-               Public[39m[0m [1m[32m
-               Implementation[39m[0m () .false. .false.)
-      }) 
-   [
-   ([1m[35mSubroutineCall[39m[0m 1 [33mf[39m () [] ())])
 #include <inttypes.h>
 
 #include <stdlib.h>
@@ -78,6 +28,11 @@
         }                                                                      \
     }
 
+
+struct dimension_descriptor
+{
+    int32_t lower_bound, upper_bound;
+};
 // Forward declarations
 void _lpython_main_program();
 void f();

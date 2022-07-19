@@ -1,128 +1,3 @@
-([1m[35mTranslationUnit[39m[0m 
-   ([33mSymbolTable[39m 
-      1 
-      {
-         check: 
-            ([1m[35mFunction[39m[0m 
-               ([33mSymbolTable[39m 
-                  3 
-                  {
-                     _lpython_return_variable: 
-                        ([1m[35mVariable[39m[0m 
-                           3 
-                           _lpython_return_variable [1m[32m
-                           ReturnVar[39m[0m () () [1m[32m
-                           Default[39m[0m 
-                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
-                           Source[39m[0m [1m[32m
-                           Public[39m[0m [1m[32m
-                           Required[39m[0m .false.), 
-                     a: 
-                        ([1m[35mVariable[39m[0m 
-                           3 
-                           a [1m[32m
-                           Local[39m[0m () () [1m[32m
-                           Default[39m[0m 
-                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
-                           Source[39m[0m [1m[32m
-                           Public[39m[0m [1m[32m
-                           Required[39m[0m .false.)
-                  }) 
-               check [] [
-               ([1m[35m=[39m[0m 
-                  ([1m[35mVar[39m[0m 3 [33ma[39m) 
-                  ([1m[35mFunctionCall[39m[0m 1 [33mtest[39m () [
-                     (([1m[35mIntegerConstant[39m[0m [36m2[39m 
-                        ([1m[35mInteger[39m[0m 4 []))) 
-                     (([1m[35mIntegerConstant[39m[0m [36m2[39m 
-                        ([1m[35mInteger[39m[0m 4 [])))] 
-                     ([1m[35mInteger[39m[0m 4 []) () ()) ()) 
-               ([1m[35m=[39m[0m 
-                  ([1m[35mVar[39m[0m 3 [33m_lpython_return_variable[39m) 
-                  ([1m[35mVar[39m[0m 3 [33ma[39m) ()) 
-               ([1m[35mReturn[39m[0m)] 
-               ([1m[35mVar[39m[0m 3 [33m_lpython_return_variable[39m) [1m[32m
-               Source[39m[0m [1m[32m
-               Public[39m[0m [1m[32m
-               Implementation[39m[0m ()), 
-         main0: 
-            ([1m[35mSubroutine[39m[0m 
-               ([33mSymbolTable[39m 
-                  4 
-                  {
-                     x: 
-                        ([1m[35mVariable[39m[0m 
-                           4 
-                           x [1m[32m
-                           Local[39m[0m () () [1m[32m
-                           Default[39m[0m 
-                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
-                           Source[39m[0m [1m[32m
-                           Public[39m[0m [1m[32m
-                           Required[39m[0m .false.)
-                  }) 
-               main0 [] [
-               ([1m[35m=[39m[0m 
-                  ([1m[35mVar[39m[0m 4 [33mx[39m) 
-                  ([1m[35mFunctionCall[39m[0m 1 [33mcheck[39m () [] 
-                     ([1m[35mInteger[39m[0m 4 []) () ()) ())] [1m[32m
-               Source[39m[0m [1m[32m
-               Public[39m[0m [1m[32m
-               Implementation[39m[0m () .false. .false.), 
-         test: 
-            ([1m[35mFunction[39m[0m 
-               ([33mSymbolTable[39m 
-                  2 
-                  {
-                     _lpython_return_variable: 
-                        ([1m[35mVariable[39m[0m 
-                           2 
-                           _lpython_return_variable [1m[32m
-                           ReturnVar[39m[0m () () [1m[32m
-                           Default[39m[0m 
-                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
-                           Source[39m[0m [1m[32m
-                           Public[39m[0m [1m[32m
-                           Required[39m[0m .false.), 
-                     a: 
-                        ([1m[35mVariable[39m[0m 
-                           2 
-                           a [1m[32m
-                           In[39m[0m () () [1m[32m
-                           Default[39m[0m 
-                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
-                           Source[39m[0m [1m[32m
-                           Public[39m[0m [1m[32m
-                           Required[39m[0m .false.), 
-                     b: 
-                        ([1m[35mVariable[39m[0m 
-                           2 
-                           b [1m[32m
-                           In[39m[0m () () [1m[32m
-                           Default[39m[0m 
-                           ([1m[35mInteger[39m[0m 4 []) [1m[32m
-                           Source[39m[0m [1m[32m
-                           Public[39m[0m [1m[32m
-                           Required[39m[0m .false.)
-                  }) 
-               test [
-               ([1m[35mVar[39m[0m 2 [33ma[39m) 
-               ([1m[35mVar[39m[0m 2 [33mb[39m)] [
-               ([1m[35m=[39m[0m 
-                  ([1m[35mVar[39m[0m 2 [33m_lpython_return_variable[39m) 
-                  ([1m[35mIntegerBinOp[39m[0m 
-                     ([1m[35mVar[39m[0m 2 [33ma[39m) [1m[32m
-                     Pow[39m[0m 
-                     ([1m[35mVar[39m[0m 2 [33mb[39m) 
-                     ([1m[35mInteger[39m[0m 4 []) ()) ()) 
-               ([1m[35mReturn[39m[0m)] 
-               ([1m[35mVar[39m[0m 2 [33m_lpython_return_variable[39m) [1m[32m
-               Source[39m[0m [1m[32m
-               Public[39m[0m [1m[32m
-               Implementation[39m[0m ())
-      }) 
-   [
-   ([1m[35mSubroutineCall[39m[0m 1 [33mmain0[39m () [] ())])
 #include <iostream>
 #include <string>
 #include <vector>
@@ -142,6 +17,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+
+struct dimension_descriptor
+{
+    int32_t lower_bound, upper_bound;
+};
 // Forward declarations
 void _lpython_main_program();
 int32_t check();

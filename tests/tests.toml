@@ -141,6 +141,14 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/array_01_decl.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/array_02_decl.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/expr_07.py"
 asr = true
 
@@ -390,6 +398,10 @@ ast_new = true
 
 [[test]]
 filename = "parser/statements1.py"
+ast_new = true
+
+[[test]]
+filename = "parser/statements2.py"
 ast_new = true
 
 [[test]]

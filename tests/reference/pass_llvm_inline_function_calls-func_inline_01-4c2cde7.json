@@ -6,7 +6,7 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "pass_llvm_inline_function_calls-func_inline_01-4c2cde7.stdout",
-    "stdout_hash": "a8fb4c5d581e4e0282e2f9525588a6f55ff0f241639fabdab59546c0",
+    "stdout_hash": "d51fce03f9516966aa60a83502d588d5cdabaa343d6e6d03e193260e",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

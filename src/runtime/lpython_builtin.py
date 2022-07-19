@@ -134,14 +134,12 @@ def str(x: i32) -> str:
     rev_result = ''
     rev_result_len: i32
     rev_result_len = 0
-    pos_to_str: list[str]
-    pos_to_str = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
     while x > 0:
-        rev_result += pos_to_str[x - _lpython_floordiv(x, 10)*10]
+        rev_result += chr(48 + (x - _lpython_floordiv(x, 10)*10))
         rev_result_len += 1
         x = _lpython_floordiv(x, 10)
     pos: i32
-    for pos in range(rev_result_len - 1, -1, -1):
+    for pos in range(rev_result_len - 1, 1, -1):
         result += rev_result[pos]
     return result
 

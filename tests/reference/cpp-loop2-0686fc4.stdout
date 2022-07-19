@@ -1,138 +1,3 @@
-([1m[35mTranslationUnit[39m[0m 
-   ([33mSymbolTable[39m 
-      2 
-      {
-         __main__: 
-            ([1m[35mModule[39m[0m 
-               ([33mSymbolTable[39m 
-                  3 
-                  {
-                     exit: 
-                        ([1m[35mSubroutine[39m[0m 
-                           ([33mSymbolTable[39m 
-                              4 
-                              {
-                                 error_code: 
-                                    ([1m[35mVariable[39m[0m 
-                                       4 
-                                       error_code [1m[32m
-                                       In[39m[0m () () [1m[32m
-                                       Default[39m[0m 
-                                       ([1m[35mInteger[39m[0m 4 []) [1m[32m
-                                       Source[39m[0m [1m[32m
-                                       Public[39m[0m [1m[32m
-                                       Required[39m[0m .false.)
-                              }) 
-                           exit [
-                           ([1m[35mVar[39m[0m 4 [33merror_code[39m)] [
-                           ([1m[35mStop[39m[0m 
-                              ([1m[35mVar[39m[0m 4 [33merror_code[39m))] [1m[32m
-                           Source[39m[0m [1m[32m
-                           Public[39m[0m [1m[32m
-                           Implementation[39m[0m () .false. .false.)
-                  }) 
-               __main__ [] .false. .false.)
-      }) 
-   [])
-([1m[35mTranslationUnit[39m[0m 
-   ([33mSymbolTable[39m 
-      1 
-      {
-         exit: 
-            ([1m[35mExternalSymbol[39m[0m 
-               1 
-               exit 3 [33mexit[39m 
-               sys [] 
-               exit [1m[32m
-               Public[39m[0m), 
-         sys: 
-            ([1m[35mModule[39m[0m 
-               ([33mSymbolTable[39m 
-                  3 
-                  {
-                     exit: 
-                        ([1m[35mSubroutine[39m[0m 
-                           ([33mSymbolTable[39m 
-                              4 
-                              {
-                                 error_code: 
-                                    ([1m[35mVariable[39m[0m 
-                                       4 
-                                       error_code [1m[32m
-                                       In[39m[0m () () [1m[32m
-                                       Default[39m[0m 
-                                       ([1m[35mInteger[39m[0m 4 []) [1m[32m
-                                       Source[39m[0m [1m[32m
-                                       Public[39m[0m [1m[32m
-                                       Required[39m[0m .false.)
-                              }) 
-                           exit [
-                           ([1m[35mVar[39m[0m 4 [33merror_code[39m)] [
-                           ([1m[35mStop[39m[0m 
-                              ([1m[35mVar[39m[0m 4 [33merror_code[39m))] [1m[32m
-                           Source[39m[0m [1m[32m
-                           Public[39m[0m [1m[32m
-                           Implementation[39m[0m () .false. .false.)
-                  }) 
-               sys [] .false. .false.), 
-      test_for: 
-         ([1m[35mSubroutine[39m[0m 
-            ([33mSymbolTable[39m 
-               5 
-               {
-                  i: 
-                     ([1m[35mVariable[39m[0m 
-                        5 
-                        i [1m[32m
-                        Local[39m[0m () () [1m[32m
-                        Default[39m[0m 
-                        ([1m[35mInteger[39m[0m 4 []) [1m[32m
-                        Source[39m[0m [1m[32m
-                        Public[39m[0m [1m[32m
-                        Required[39m[0m .false.)
-               }) 
-            test_for [] [
-            ([1m[35mDoLoop[39m[0m 
-               (
-                  ([1m[35mVar[39m[0m 5 [33mi[39m) ([1m[35mIntegerConstant[39m[0m [36m0[39m 
-                  ([1m[35mInteger[39m[0m 4 [])) 
-                  ([1m[35mIntegerBinOp[39m[0m ([1m[35mIntegerConstant[39m[0m [36m10[39m 
-                     ([1m[35mInteger[39m[0m 4 [])) [1m[32m
-                     Sub[39m[0m ([1m[35mIntegerConstant[39m[0m [36m1[39m 
-                     ([1m[35mInteger[39m[0m 4 [])) 
-                     ([1m[35mInteger[39m[0m 4 []) ([1m[35mIntegerConstant[39m[0m [36m9[39m 
-                     ([1m[35mInteger[39m[0m 4 []))) ([1m[35mIntegerConstant[39m[0m [36m1[39m 
-                  ([1m[35mInteger[39m[0m 4 []))) [
-               ([1m[35mIf[39m[0m 
-                  ([1m[35mIntegerCompare[39m[0m 
-                     ([1m[35mVar[39m[0m 5 [33mi[39m) [1m[32m
-                     Eq[39m[0m ([1m[35mIntegerConstant[39m[0m [36m0[39m 
-                     ([1m[35mInteger[39m[0m 4 [])) 
-                     ([1m[35mLogical[39m[0m 4 []) ()) [
-                  ([1m[35mCycle[39m[0m)] []) 
-               ([1m[35mIf[39m[0m 
-                  ([1m[35mIntegerCompare[39m[0m 
-                     ([1m[35mVar[39m[0m 5 [33mi[39m) [1m[32m
-                     Gt[39m[0m ([1m[35mIntegerConstant[39m[0m [36m5[39m 
-                     ([1m[35mInteger[39m[0m 4 [])) 
-                     ([1m[35mLogical[39m[0m 4 []) ()) [
-                  ([1m[35mExit[39m[0m)] []) 
-               ([1m[35mIf[39m[0m 
-                  ([1m[35mIntegerCompare[39m[0m 
-                     ([1m[35mVar[39m[0m 5 [33mi[39m) [1m[32m
-                     Eq[39m[0m ([1m[35mIntegerConstant[39m[0m [36m3[39m 
-                     ([1m[35mInteger[39m[0m 4 [])) 
-                     ([1m[35mLogical[39m[0m 4 []) ()) [
-                  ([1m[35mStop[39m[0m ())] [])]) 
-            ([1m[35mSubroutineCall[39m[0m 1 [33mexit[39m () [
-               (([1m[35mIntegerConstant[39m[0m [36m2[39m 
-                  ([1m[35mInteger[39m[0m 4 [])))] ())] [1m[32m
-            Source[39m[0m [1m[32m
-            Public[39m[0m [1m[32m
-            Implementation[39m[0m () .false. .false.)
-      }) 
-   [
-   ([1m[35mSubroutineCall[39m[0m 1 [33mtest_for[39m () [] ())])
 #include <iostream>
 #include <string>
 #include <vector>
@@ -152,6 +17,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     return r;
 }
 
+
+struct dimension_descriptor
+{
+    int32_t lower_bound, upper_bound;
+};
 // Forward declarations
 void _lpython_main_program();
 void test_for();

@@ -104,6 +104,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> TK_STRING
 %token <string> TK_COMMENT
 %token <string> TK_EOLCOMMENT
+%token <string> TK_TYPE_COMMENT
 %token TK_POW "**"
 %token TK_FLOOR_DIV "//"
 %token TK_RIGHTSHIFT ">>"
@@ -491,6 +492,10 @@ for_statement
         $$ = FOR_01($2, $4, $7, @$); }
     | KW_FOR tuple_item KW_IN expr ":" sep statements KW_ELSE ":"
         sep statements { $$ = FOR_02($2, $4, $7, $11, @$); }
+    | KW_FOR tuple_item KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE statements {
+        $$ = FOR_03($2, $4, $6, $8, @$); }
+    | KW_FOR tuple_item KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE statements
+        KW_ELSE ":" sep statements { $$ = FOR_04($2, $4, $8, $12, $6, @$); }
     ;
 
 except_statement
@@ -563,6 +568,7 @@ parameter_list_starargs
         $$ = STAR_ARGS_03($2, $4, $7, @$); }
     | "*" parameter "," "**" parameter { $$ = STAR_ARGS_04($2, $5, @$); }
     | "**" parameter { $$ = STAR_ARGS_05($2, @$); }
+
     | defparameter_list "," "*" parameter { $$ = STAR_ARGS_06($1, $4, @$); }
     | defparameter_list "," "*" parameter "," defparameter_list {
         $$ = STAR_ARGS_07($1, $4, $6, @$); }
@@ -571,12 +577,35 @@ parameter_list_starargs
     | defparameter_list "," "*" parameter "," "**" parameter {
         $$ = STAR_ARGS_09($1, $4, $7, @$); }
     | defparameter_list "," "**" parameter { $$ = STAR_ARGS_10($1, $4, @$); }
+
+    | defparameter_list "," "/" { $$ = STAR_ARGS_11($1, @$); }
+    | defparameter_list "," "/" "," "*" parameter {
+        $$ = STAR_ARGS_12($1, $6, @$); }
+    | defparameter_list "," "/" "," "*" parameter "," defparameter_list {
+        $$ = STAR_ARGS_13($1, $6, $8, @$); }
+    | defparameter_list "," "/" "," "*" parameter "," defparameter_list
+        "," "**" parameter { $$ = STAR_ARGS_14($1, $6, $8, $11, @$); }
+    | defparameter_list "," "/" "," "**" parameter {
+        $$ = STAR_ARGS_15($1, $6, @$); }
+    | defparameter_list "," "/" "," "*" parameter "," "**" parameter {
+        $$ = STAR_ARGS_16($1, $6, $9, @$); }
+    | defparameter_list "," "/" "," defparameter_list "," "*" parameter {
+        $$ = STAR_ARGS_17($1, $5, $8, @$); }
+    | defparameter_list "," "/" "," defparameter_list "," "**" parameter {
+        $$ = STAR_ARGS_18($1, $5, $8, @$); }
+    | defparameter_list "," "/" "," defparameter_list "," "*" parameter
+        "," "**" parameter { $$ = STAR_ARGS_19($1, $5, $8, $11, @$); }
+    | defparameter_list "," "/" "," defparameter_list "," "*" parameter
+            "," defparameter_list "," "**" parameter {
+        $$ = STAR_ARGS_20($1, $5, $8, $10, $13, @$); }
     ;
 
 parameter_list_opt
     : defparameter_list { $$ = FUNC_ARG_LIST_01($1, @$); }
     | parameter_list_starargs { $$ = $1; }
     | %empty { $$ = FUNC_ARG_LIST_02(@$); }
+    | defparameter_list "," "/" "," defparameter_list {
+        $$ = FUNC_ARG_LIST_03($1, $5, @$); }
     ;
 
 function_def
@@ -674,6 +703,7 @@ id_list
 id_item
     : id_list { $$ = ID_TUPLE_01($1, @$); }
     | id_list "," { $$ = ID_TUPLE_03($1, @$); }
+    | "(" id ")" { $$ = $2; }
     | "(" id_list "," ")" { $$ = ID_TUPLE_03($2, @$); }
     | "(" id_list ","  id ")" { $$ = ID_TUPLE_01(TUPLE_($2, $4), @$); }
     ;
