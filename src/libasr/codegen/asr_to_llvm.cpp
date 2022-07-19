@@ -4410,9 +4410,8 @@ public:
                 llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
                 args.push_back(d);
             } else {
-                throw LFortranException("Printing support is available only for integer, real,"
-                    " character, and complex types, got type " +
-                    ASRUtils::type_to_str(t));
+                throw LFortranException("Printing support is not available for " +
+                    ASRUtils::type_to_str(t) + " type.");
             }
         }
         fmt.push_back("%s");
