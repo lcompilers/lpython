@@ -31,7 +31,7 @@
 
 struct dimension_descriptor
 {
-    int32_t lower_bound, upper_bound;
+    int32_t lower_bound, length;
 };
 // Forward declarations
 void _lpython_main_program();
