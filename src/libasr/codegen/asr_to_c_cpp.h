@@ -553,7 +553,7 @@ R"(#include <stdio.h>
                 target += "->data";
             }
         } else if (ASR::is_a<ASR::ArrayItem_t>(*x.m_target)) {
-            visit_ArrayItem(*ASR::down_cast<ASR::ArrayItem_t>(x.m_target));
+            self().visit_ArrayItem(*ASR::down_cast<ASR::ArrayItem_t>(x.m_target));
             target = src;
         } else if (ASR::is_a<ASR::DerivedRef_t>(*x.m_target)) {
             visit_DerivedRef(*ASR::down_cast<ASR::DerivedRef_t>(x.m_target));
@@ -636,42 +636,6 @@ R"(#include <stdio.h>
         } else {
             src = der_expr + "->" + member;
         }
-    }
-
-    void visit_ArrayItem(const ASR::ArrayItem_t &x) {
-        this->visit_expr(*x.m_v);
-        std::string array = src;
-        std::string out = array;
-        ASR::dimension_t* m_dims;
-        ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(x.m_v), m_dims);
-        if( is_c ) {
-            out += "->data[";
-        } else {
-            out += "->data->operator[](";
-        }
-        for (size_t i=0; i<x.n_args; i++) {
-            if (x.m_args[i].m_right) {
-                self().visit_expr(*x.m_args[i].m_right);
-            } else {
-                src = "/* FIXME right index */";
-            }
-            out += src;
-            out += " - " + array + "->dims[" + std::to_string(i) + "].lower_bound";
-            if (i < x.n_args-1) {
-                if( is_c ) {
-                    out += "][";
-                } else {
-                    out += ", ";
-                }
-            }
-        }
-        if( is_c ) {
-            out += "]";
-        } else {
-            out += ")";
-        }
-        last_expr_precedence = 2;
-        src = out;
     }
 
     void visit_Cast(const ASR::Cast_t &x) {

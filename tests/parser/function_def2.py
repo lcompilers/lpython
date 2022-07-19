@@ -43,6 +43,39 @@ TODO: defaults are not stored in AST
 def test_14(x, *y, z, **args: i32) -> i32:
     pass
 
+def test_15(a, /):
+    pass
+
+def test_16(a, /, b, c):
+    pass
+
+def test_17(a, /, *b):
+    pass
+
+def test_18(a:i32, /, *b: i64, c: i32, d: i32):
+    pass
+
+def test_19(a, /, *b, c, **d):
+    pass
+
+def test_20(a, /, **b):
+    pass
+
+def test_21(a, /, *b, **c):
+    pass
+
+def test_22(a, /, b, c, *d):
+    pass
+
+def test_23(a, /, b, c, **d):
+    pass
+
+def test_24(a, /, b, c, *d, **e):
+    pass
+
+def test_25(a, /, b, c, *d, e, **f):
+    pass
+
 test()
 test(x, y)
 test(x, y = 1, z = '123')

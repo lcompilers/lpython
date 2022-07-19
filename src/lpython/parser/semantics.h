@@ -241,7 +241,7 @@ int dot_count = 0;
 static inline char *extract_type_comment(Allocator &al, LFortran::Str &s) {
     std::string str = s.str();
     std::string kw{"type:"};
- 
+
     str.erase(str.begin()); // removes "#" at the beginning
     str.erase(0, str.find_first_not_of(' ')); // trim left spaces
 
@@ -360,6 +360,7 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
         nullptr, 0, vararg, 1, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
 #define STAR_ARGS_05(kwarg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
         nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
+
 #define STAR_ARGS_06(args, vararg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
         args.p, args.n, vararg, 1, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0)
 #define STAR_ARGS_07(args, vararg, kwonlyargs, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
@@ -373,11 +374,45 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
 #define STAR_ARGS_10(args, kwarg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
         args.p, args.n, nullptr, 0, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
 
+#define STAR_ARGS_11(posonlyargs, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, nullptr, 0, nullptr, 0, nullptr, 0, \
+        nullptr, 0, nullptr, 0, nullptr, 0)
+#define STAR_ARGS_12(posonlyargs, vararg, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, nullptr, 0, vararg, 1, nullptr, 0, \
+        nullptr, 0, nullptr, 0, nullptr, 0)
+#define STAR_ARGS_13(posonlyargs, vararg, kwonlyargs, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, nullptr, 0, vararg, 1, \
+        kwonlyargs.p, kwonlyargs.n, nullptr, 0, nullptr, 0, nullptr, 0)
+#define STAR_ARGS_14(posonlyargs, vararg, kwonlyargs, kwarg, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, nullptr, 0, vararg, 1, \
+        kwonlyargs.p, kwonlyargs.n, nullptr, 0, kwarg, 1, nullptr, 0)
+#define STAR_ARGS_15(posonlyargs, kwarg, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, nullptr, 0, nullptr, 0, nullptr, 0, \
+        nullptr, 0, kwarg, 1, nullptr, 0)
+#define STAR_ARGS_16(posonlyargs, vararg, kwarg, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, nullptr, 0, vararg, 1, nullptr, 0, \
+        nullptr, 0, kwarg, 1, nullptr, 0)
+#define STAR_ARGS_17(posonlyargs, args, vararg, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, args.p, args.n, vararg, 1, nullptr, 0, \
+        nullptr, 0, nullptr, 0, nullptr, 0)
+#define STAR_ARGS_18(posonlyargs, args, kwarg, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, args.p, args.n, nullptr, 0, nullptr, 0, \
+        nullptr, 0, kwarg, 1, nullptr, 0)
+#define STAR_ARGS_19(posonlyargs, args, vararg, kwarg, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, args.p, args.n, vararg, 1, nullptr, 0, \
+        nullptr, 0, kwarg, 1, nullptr, 0)
+#define STAR_ARGS_20(posonlyargs, args, vararg, kwonlyargs, kwarg, l) \
+        FUNC_ARGS(p.m_a, l, posonlyargs.p, posonlyargs.n, args.p, args.n, \
+        vararg, 1, kwonlyargs.p, kwonlyargs.n, nullptr, 0, kwarg, 1, nullptr, 0)
+
 #define FUNC_ARG_LIST_01(args, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
         args.p, args.n, nullptr, 0, nullptr, 0, nullptr, 0, \
         nullptr, 0, nullptr, 0)
 #define FUNC_ARG_LIST_02(l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
         nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0)
+#define FUNC_ARG_LIST_03(posonlyargs, args, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, args.p, args.n, nullptr, 0, nullptr, 0, \
+        nullptr, 0, nullptr, 0, nullptr, 0)
 
 #define FUNCTION_01(decorator, id, args, stmts, l) \
         make_FunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
@@ -427,16 +462,31 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
 #define WHILE_02(e, stmts, orelse, l) make_While_t(p.m_a, l, \
         EXPR(e), STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size())
 
-Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
-    Vec<ast_t*> v;
-    v.reserve(al, 2);
-    v.push_back(al, x);
-    v.push_back(al, y);
-    return v;
+static inline ast_t* BOOLOP_01(Allocator &al, Location &loc,
+        boolopType op, ast_t *x, ast_t *y) {
+    expr_t* x1 = EXPR(x);
+    expr_t* y1 = EXPR(y);
+    Vec<expr_t*> v;
+    v.reserve(al, 4);
+    if (is_a<BoolOp_t>(*x1)) {
+        BoolOp_t* tmp = down_cast<BoolOp_t>(x1);
+        if (op == tmp->m_op) {
+            for(size_t i = 0; i < tmp->n_values; i++) {
+                v.push_back(al, tmp->m_values[i]);
+            }
+            v.push_back(al, y1);
+        } else {
+            v.push_back(al, x1);
+            v.push_back(al, y1);
+        }
+    } else {
+        v.push_back(al, x1);
+        v.push_back(al, y1);
+    }
+    return make_BoolOp_t(al, loc, op, v.p, v.n);
 }
 
-#define BOOLOP(x, op, y, l) make_BoolOp_t(p.m_a, l, \
-        boolopType::op, EXPRS(MERGE_EXPR(p.m_a, x, y)), 2)
+#define BOOLOP(x, op, y, l) BOOLOP_01(p.m_a, l, op, x, y)
 #define BINOP(x, op, y, l) make_BinOp_t(p.m_a, l, \
         EXPR(x), operatorType::op, EXPR(y))
 #define UNARY(x, op, l) make_UnaryOp_t(p.m_a, l, unaryopType::op, EXPR(x))

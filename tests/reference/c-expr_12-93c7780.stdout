@@ -55,8 +55,8 @@ void _lpython_main_program()
 
 void check(struct i16_1* *ptr)
 {
-    ASSERT((*ptr)->data[0 - (*ptr)->dims[0].lower_bound] == 1);
-    ASSERT((*ptr)->data[1 - (*ptr)->dims[0].lower_bound] == 2);
+    ASSERT((*ptr)->data[(0 - (*ptr)->dims[0].lower_bound)] == 1);
+    ASSERT((*ptr)->data[(1 - (*ptr)->dims[0].lower_bound)] == 2);
 }
 
 void f()
@@ -76,10 +76,10 @@ void f()
 
 void g(struct i16_1* *x, struct i16_1* y)
 {
-    y->data[0 - y->dims[0].lower_bound] = 1;
-    y->data[1 - y->dims[0].lower_bound] = 2;
+    y->data[(0 - y->dims[0].lower_bound)] = 1;
+    y->data[(1 - y->dims[0].lower_bound)] = 2;
     (*x) = y;
-    printf("%d%s%d\n", (*x)->data[0 - (*x)->dims[0].lower_bound], " ", (*x)->data[1 - (*x)->dims[0].lower_bound]);
+    printf("%d%s%d\n", (*x)->data[(0 - (*x)->dims[0].lower_bound)], " ", (*x)->data[(1 - (*x)->dims[0].lower_bound)]);
 }
 
 int main(int argc, char* argv[])

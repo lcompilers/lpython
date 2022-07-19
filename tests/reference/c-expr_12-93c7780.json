@@ -6,7 +6,11 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "c-expr_12-93c7780.stdout",
+<<<<<<< HEAD
     "stdout_hash": "4f19d7165cd3881588f4b1e40f11e8092e4483155ac00cb5e61e3371",
+=======
+    "stdout_hash": "15e70688598c75ec10b754b7d379cdbcc60ba46bd0b2eb44c1a69b80",
+>>>>>>> main
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
