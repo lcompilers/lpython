@@ -1,4 +1,3 @@
-#include <map>
 #include <string>
 
 #include <rapidjson/document.h>
@@ -6,12 +5,45 @@
 
 #include "LPythonServer.hpp"
 #include "JSONRPC2Connection.hpp"
+#include "MessageHandler.hpp"
+
 struct handle_functions
 {
   JSONRPC2Connection* conn;
 
   handle_functions() {
     this->conn = new JSONRPC2Connection();
+  }
+
+  std::string getPath(std::string uri)  {
+    // Converts URI to path
+    if (uri.compare(0, 7, "file://"))
+      return uri;
+    std::string ret;
+    #ifdef _WIN32
+      // Skipping the initial "/" on Windows
+      size_t i = 8;
+    #else
+      size_t i = 7;
+    #endif
+      auto from_hex = [](unsigned char c) {
+        return c - '0' < 10 ? c - '0' : (c | 32) - 'a' + 10;
+      };
+      for (; i < uri.size(); i++) {
+        if (i + 3 <= uri.size() && uri[i] == '%') {
+          ret.push_back(from_hex(uri[i + 1]) * 16 + from_hex(uri[i + 2]));
+          i += 2;
+        } else
+          ret.push_back(uri[i]);
+      }
+    #ifdef _WIN32
+      std::replace(ret.begin(), ret.end(), '\\', '/');
+      if (ret.size() > 1 && ret[0] >= 'a' && ret[0] <= 'z' && ret[1] == ':') {
+        ret[0] = toupper(ret[0]);
+      }
+    #endif
+
+    return ret;
   }
 
   rapidjson::Document serve_initialize(rapidjson::Document &/*request*/) {
@@ -73,43 +105,53 @@ struct handle_functions
 
   void serve_document_symbol(rapidjson::Document &request, JSONRPC2Connection& obj, int rid) {
     std::string uri = request["params"]["textDocument"]["uri"].GetString();
+    std::string path = getPath(uri);
+    using LFortran::CompilerOptions;
+    CompilerOptions compiler_options;
+    std::string runtime_library_dir = LFortran::get_runtime_library_dir();
 
-    int start_character = 0;
-    int start_line = 1;
-    int end_character = 10;
-    int end_line = 10;
-
-    rapidjson::Document range_object(rapidjson::kObjectType);
-    rapidjson::Document::AllocatorType &allocator = range_object.GetAllocator(); 
-    range_object.SetObject();
-
-    rapidjson::Document start_detail(rapidjson::kObjectType); 
-    start_detail.SetObject();
-    start_detail.AddMember("character", rapidjson::Value().SetInt(start_character), allocator);
-    start_detail.AddMember("line", rapidjson::Value().SetInt(start_line), allocator);
-    range_object.AddMember("start", start_detail, allocator);
-
-    rapidjson::Document end_detail(rapidjson::kObjectType); 
-    end_detail.SetObject();
-    end_detail.AddMember("character", rapidjson::Value().SetInt(end_character), allocator);
-    end_detail.AddMember("line", rapidjson::Value().SetInt(end_line), allocator);
-    range_object.AddMember("end", end_detail, allocator);
-
-    rapidjson::Document location_object(rapidjson::kObjectType);
-    location_object.SetObject();
-    location_object.AddMember("range", range_object, allocator);
-    location_object.AddMember("uri", rapidjson::Value().SetString(uri.c_str(), allocator), allocator);
+    std::vector<LFortran::LPython::lsp_locations> 
+      symbol_lists = LFortran::LPython::get_SymbolLists(path, runtime_library_dir, compiler_options);
 
     rapidjson::Document test_output(rapidjson::kArrayType);
+    rapidjson::Document range_object(rapidjson::kObjectType);
+    rapidjson::Document start_detail(rapidjson::kObjectType); 
+    rapidjson::Document end_detail(rapidjson::kObjectType); 
+    rapidjson::Document location_object(rapidjson::kObjectType);
+    rapidjson::Document test_capture(rapidjson::kObjectType);
+
     test_output.SetArray();
 
-    rapidjson::Document test_capture(rapidjson::kObjectType);
-    test_capture.SetObject();
-    test_capture.AddMember("kind", rapidjson::Value().SetInt(12), allocator);
-    test_capture.AddMember("location", location_object, allocator);
-    test_capture.AddMember("name", rapidjson::Value().SetString("lsp_symbols", allocator), allocator);
-    test_output.PushBack(test_capture, test_output.GetAllocator());
+    for (auto symbol : symbol_lists) {
+      uint32_t start_character = symbol.first_column;
+      uint32_t start_line = symbol.first_line;
+      uint32_t end_character = symbol.last_column;
+      uint32_t end_line = symbol.last_line;
+      std::string name = symbol.symbol_name;
 
+      range_object.SetObject();
+      rapidjson::Document::AllocatorType &allocator = range_object.GetAllocator(); 
+
+      start_detail.SetObject();
+      start_detail.AddMember("character", rapidjson::Value().SetInt(start_character), allocator);
+      start_detail.AddMember("line", rapidjson::Value().SetInt(start_line), allocator);
+      range_object.AddMember("start", start_detail, allocator);
+
+      end_detail.SetObject();
+      end_detail.AddMember("character", rapidjson::Value().SetInt(end_character), allocator);
+      end_detail.AddMember("line", rapidjson::Value().SetInt(end_line), allocator);
+      range_object.AddMember("end", end_detail, allocator);
+
+      location_object.SetObject();
+      location_object.AddMember("range", range_object, allocator);
+      location_object.AddMember("uri", rapidjson::Value().SetString(uri.c_str(), allocator), allocator);
+
+      test_capture.SetObject();
+      test_capture.AddMember("kind", rapidjson::Value().SetInt(12), allocator);
+      test_capture.AddMember("location", location_object, allocator);
+      test_capture.AddMember("name", rapidjson::Value().SetString(name.c_str(), allocator), allocator);
+      test_output.PushBack(test_capture, test_output.GetAllocator());
+    }
     obj.write_message(rid, test_output);
   }
 };
