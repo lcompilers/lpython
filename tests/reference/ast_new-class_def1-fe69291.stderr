@@ -1,0 +1,5 @@
+syntax error: Token ':' is unexpected here
+  --> tests/parser/class_def1.py:25:29
+   |
+25 |         for item in iterable:
+   |                             ^ 

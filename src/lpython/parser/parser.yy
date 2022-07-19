@@ -679,7 +679,7 @@ expr_list_opt
 
 expr_list
     : expr_list "," expr %prec FOR { $$ = $1; LIST_ADD($$, $3); }
-    | expr %prec FOR { LIST_NEW($$); LIST_ADD($$, $1); }
+    | expr %prec "not" { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 dict

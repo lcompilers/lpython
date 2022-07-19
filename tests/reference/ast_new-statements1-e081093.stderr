@@ -1,0 +1,5 @@
+syntax error: Token ':' is unexpected here
+   --> tests/parser/statements1.py:180:18
+    |
+180 | for item in list1:
+    |                  ^ 

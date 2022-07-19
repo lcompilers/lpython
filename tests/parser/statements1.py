@@ -108,6 +108,42 @@ x <= y
 x > y
 x >= y
 
+# Assigning outputs of expressions to variables
+output: bool = x == y
+output: bool
+output = x == y
+
+output: bool = x > y
+output: bool
+output = x > y
+
+output: bool = [x] not in [y]
+output: bool
+output = [x] not in [y]
+
+def comparison_return(a, b):
+    return a > b
+
+comparison_return(x, y)
+
+def comparison_return(a, b):
+    return [a] in [b]
+
+comparison_return(x, y)
+
+def comparison_return(a, b):
+    output: bool
+    output = [a] not in [b]
+    return output
+
+comparison_return(x, y)
+
+def comparison_return(a, b):
+    output = [a] not in [b]
+    return output
+
+comparison_return(x, y)
+
 if type(x) is int:
     pass
 
