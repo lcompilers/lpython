@@ -4317,8 +4317,7 @@ public:
                 fmt.push_back("%lld");
                 llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
                 args.push_back(d);
-            } else if (ASRUtils::is_integer(*t) ||
-                ASR::is_a<ASR::Logical_t>(*ASRUtils::type_get_past_pointer(t))) {
+            } else if (ASRUtils::is_integer(*t)) {
                 switch( a_kind ) {
                     case 1 : {
                         fmt.push_back("%d");
@@ -4371,6 +4370,16 @@ public:
             } else if (t->type == ASR::ttypeType::Character) {
                 fmt.push_back("%s");
                 args.push_back(tmp);
+            } else if (ASRUtils::is_logical(*t)) {
+                // check if value is 0 or 1 in LLVM
+                llvm::Value *zero = llvm::ConstantInt::get(getIntType(8, false), 0);
+                llvm::Value *one = llvm::ConstantInt::get(getIntType(8, false), 1);
+                llvm::Value *cmp = builder->CreateICmpEQ(tmp, zero);
+                llvm::Value *zero_str = builder->CreateGlobalStringPtr("False");
+                llvm::Value *one_str = builder->CreateGlobalStringPtr("True");
+                llvm::Value *str = builder->CreateSelect(cmp, zero_str, one_str);
+                fmt.push_back("%s");
+                args.push_back(str);
             } else if (ASRUtils::is_complex(*t)) {
                 llvm::Type *type, *complex_type;
                 switch( a_kind ) {
