@@ -2,11 +2,11 @@
     "basename": "ast_new-statements1-e081093",
     "cmd": "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
     "infile": "tests/parser/statements1.py",
-    "infile_hash": "57c83f799b0bb53eaba09687c23c0285a45a466c493dc3269105b66b",
+    "infile_hash": "00b7157f02a5a98bdac6ca52297ba0fd1175c648df82c543d0a8d232",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast_new-statements1-e081093.stdout",
-    "stdout_hash": "efb43978a8a9367cb0f8a127bcf0211f21226179fd5923c4ab3a490a",
+    "stdout_hash": "a6635960221bc739fbd0dfb6204cf929f7242dddbfc54eb7254f8943",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
