@@ -3575,6 +3575,41 @@ public:
         return nullptr;
     }
 
+    ASR::asr_t* handle_intrinsic_str(Allocator &al, Vec<ASR::call_arg_t> args,
+                                        const Location &loc) {
+        ASR::expr_t *arg = nullptr;
+        ASR::expr_t *res_value = nullptr;
+        ASR::ttype_t *arg_type = nullptr;
+        if (args.size() > 0) {
+            arg = args[0].m_value;
+            arg_type = ASRUtils::expr_type(arg);
+        }
+        ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                                    1, 1, nullptr, nullptr , 0));
+        if (!arg) {
+            throw SemanticError("it must be one argument", loc);
+        }
+        if (ASRUtils::is_real(*arg_type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                float_t ival = ASR::down_cast<ASR::RealConstant_t>(
+                                        ASRUtils::expr_value(arg))->m_r;
+                // stringstream for exponential notation formatting.
+                std::stringstream sm;
+                sm << ival;
+                std::string value_str = sm.str();
+                sm.clear();
+                res_value =  ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
+                                loc, s2c(al, value_str), res_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+            al, loc, arg, ASR::cast_kindType::RealToCharacter,
+            res_type, res_value));
+        } else {
+            std::string stype = ASRUtils::type_to_str_python(arg_type);
+            throw SemanticError("Conversion of '" + stype + "' to string is not Implemented", loc);
+        }
+    }
+
     ASR::asr_t* handle_intrinsic_len(Allocator &al, Vec<ASR::call_arg_t> args,
                                         const Location &loc) {
         if (args.size() != 1) {
@@ -3794,7 +3829,8 @@ public:
                 }
                 tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, result, type);
                 return;
-            } else if (call_name == "int" || call_name == "float" || call_name == "bool") {
+            } else if ( call_name == "int" || call_name == "float" 
+                        || call_name == "bool" || call_name == "str") {
                 if (args.size() > 1) {
                     throw SemanticError("Either 0 or 1 argument is expected in '" + call_name + "'",
                             x.base.base.loc);
@@ -3803,6 +3839,8 @@ public:
                     tmp = handle_intrinsic_int(al, args, x.base.base.loc);
                 } else if (call_name == "float") {
                     tmp = handle_intrinsic_float(al, args, x.base.base.loc);
+                } else if (call_name == "str") {
+                    tmp = handle_intrinsic_str(al ,args, x.base.base.loc);
                 } else {
                     tmp = handle_intrinsic_bool(al, args, x.base.base.loc);
                 }

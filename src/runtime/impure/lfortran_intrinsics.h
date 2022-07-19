@@ -143,6 +143,7 @@ LFORTRAN_API bool _lpython_str_compare_gt(char** s1, char** s2);
 LFORTRAN_API bool _lpython_str_compare_lte(char** s1, char** s2);
 LFORTRAN_API bool _lpython_str_compare_lt(char** s1, char** s2);
 LFORTRAN_API bool _lpython_str_compare_gte(char** s1, char** s2);
+LFORTRAN_API char* _lfortran_float_to_str(float num);
 LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest);
 LFORTRAN_API void _lfortran_strcat(char** s1, char** s2, char** dest);
 LFORTRAN_API int _lfortran_str_len(char** s);
