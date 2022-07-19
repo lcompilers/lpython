@@ -190,8 +190,8 @@ public:
                     if (down_cast<ASR::IntegerConstant_t>(lbound_ptr)->m_n != 1) {                 \
                         throw CodeGenError(errmsg1);                                               \
                     }                                                                              \
-                    if (is_a<ASR::Var_t>(*tmp_arg->m_dims[j].m_end)) {                             \
-                        ASR::Variable_t *dimvar = ASRUtils::EXPR2VAR(tmp_arg->m_dims[j].m_end);    \
+                    if (is_a<ASR::Var_t>(*tmp_arg->m_dims[j].m_length)) {                             \
+                        ASR::Variable_t *dimvar = ASRUtils::EXPR2VAR(tmp_arg->m_dims[j].m_length);    \
                         this_arg_info.ubound_varnames.push_back(dimvar->m_name);                   \
                     } else if (!is_a<ASR::IntegerConstant_t>(*lbound_ptr)) {                       \
                         throw CodeGenError(errmsg2);                                               \

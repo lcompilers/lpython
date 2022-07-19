@@ -301,7 +301,7 @@ public:
         }
         bool is_ok = true;
         for( int r = 0; r < n_dims; r++ ) {
-            if( m_dims[r].m_end == nullptr ) {
+            if( m_dims[r].m_length == nullptr ) {
                 is_ok = false;
                 break;
             }
@@ -382,7 +382,7 @@ public:
             ASR::dimension_t m_dim = m_dims[r];
             visit_expr(*(m_dim.m_start));
             llvm::Value* start = tmp;
-            visit_expr(*(m_dim.m_end));
+            visit_expr(*(m_dim.m_length));
             llvm::Value* end = tmp;
             llvm_dims.push_back(std::make_pair(start, end));
         }
@@ -401,7 +401,7 @@ public:
             ASR::dimension_t m_dim = m_dims[r];
             visit_expr(*(m_dim.m_start));
             llvm::Value* start = tmp;
-            visit_expr(*(m_dim.m_end));
+            visit_expr(*(m_dim.m_length));
             llvm::Value* end = tmp;
             llvm_dims.push_back(std::make_pair(start, end));
         }
@@ -2762,13 +2762,11 @@ public:
                 llvm::Value* curr_dim = llvm::ConstantInt::get(context, llvm::APInt(32, i));
                 llvm::Value* desi = arr_descr->get_pointer_to_dimension_descriptor(fptr_des, curr_dim);
                 llvm::Value* desi_lb = arr_descr->get_lower_bound(desi, false);
-                llvm::Value* desi_ub = arr_descr->get_upper_bound(desi, false);
                 llvm::Value* desi_size = arr_descr->get_dimension_size(fptr_des, curr_dim, false);
                 llvm::Value* i32_one = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
                 llvm::Value* new_lb = i32_one;
                 llvm::Value* new_ub = shape_data ? builder->CreateLoad(llvm_utils->create_ptr_gep(shape_data, i)) : i32_one;
                 builder->CreateStore(new_lb, desi_lb);
-                builder->CreateStore(new_ub, desi_ub);
                 builder->CreateStore(builder->CreateAdd(builder->CreateSub(new_ub, new_lb), i32_one), desi_size);
             }
         } else {
