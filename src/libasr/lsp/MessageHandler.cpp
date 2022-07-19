@@ -28,8 +28,8 @@ namespace LFortran::LPython {
                 lm.pos_to_linecol(a.second->base.loc.last, last_line, last_column);
                 loc.first_column = first_column;
                 loc.last_column = last_column;
-                loc.first_line = first_line;
-                loc.last_line = last_line;
+                loc.first_line = first_line-1;
+                loc.last_line = last_line-1;
                 loc.symbol_name = symbol_name;
                 symbol_lists.push_back(loc);
             }
