@@ -697,7 +697,7 @@ public:
                 comptime_val = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, value_int - 1, itype));
             }
             dim.m_start = zero;
-            dim.m_end = ASRUtils::compute_end_from_start_length(al, dim.m_start,
+            dim.m_length = ASRUtils::compute_length_from_start_end(al, dim.m_start,
                             ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, value->base.loc,
                                 value, ASR::binopType::Sub, one, itype, comptime_val)));
             dims.push_back(al, dim);
