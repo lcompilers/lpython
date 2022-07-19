@@ -50,10 +50,12 @@ namespace LFortran::LPython {
             LFortran::Result<LFortran::LPython::AST::ast_t*>
                 r1 = LFortran::parse_python_file(al, runtime_library_dir, infile, 
                         diagnostics, compiler_options.new_parser);
-            LFortran::LPython::AST::ast_t* ast = r1.result;
-            LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-                r = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-                        compiler_options.disable_main, compiler_options.symtab_only, infile);
+            if (r1.ok) {
+                LFortran::LPython::AST::ast_t* ast = r1.result;
+                LFortran::Result<LFortran::ASR::TranslationUnit_t*>
+                    r = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
+                            compiler_options.disable_main, compiler_options.symtab_only, infile);
+            }
             std::vector<lsp_highlight> diag_lists;
             lsp_highlight h;
             for (auto &d : diagnostics.diagnostics) {
