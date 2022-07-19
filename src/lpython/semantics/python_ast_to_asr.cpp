@@ -390,23 +390,7 @@ public:
         right = ASRUtils::EXPR(tmp);
         
         ASR::binopType op;
-        std::string op_name = "";
-        switch (x.m_op) {
-            case (AST::operatorType::Add) : { op = ASR::binopType::Add; break; }
-            case (AST::operatorType::Sub) : { op = ASR::binopType::Sub; break; }
-            case (AST::operatorType::Mult) : { op = ASR::binopType::Mul; break; }
-            case (AST::operatorType::Div) : { op = ASR::binopType::Div; break; }
-            case (AST::operatorType::Pow) : { op = ASR::binopType::Pow; break; }
-            case (AST::operatorType::BitOr) : { op = ASR::binopType::BitOr; break; }
-            case (AST::operatorType::LShift) : { op = ASR::binopType::BitLShift; break; }
-            case (AST::operatorType::RShift) : { op = ASR::binopType::BitRShift; break; }
-            case (AST::operatorType::Mod) : { op_name = "_mod"; break; }
-            default : {
-                throw SemanticError("Binary operator type not supported",
-                    x.base.base.loc);
-            }
-        }
-        // bool floordiv = (x.m_op == AST::operatorType::FloorDiv);
+        op = x.m_op;
 
         // No type check for now
         make_BinOp_helper(left, right, op, x.base.base.loc);
