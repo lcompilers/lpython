@@ -55,9 +55,8 @@ def check():
 
 check()
 
-# TODO:
-# def print_args(*args):
-#         print(args)
+def print_args(*args):
+    print(args)
 
-# def print_kwargs(**kwargs):
-#         print(kwargs)
+def print_kwargs(**kwargs):
+    print(kwargs)
