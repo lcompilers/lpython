@@ -621,9 +621,8 @@ R"(
             current_index += "(" + src + " - " + array + "->dims["
                                 + std::to_string(i) + "].lower_bound)";
             for( size_t j = 0; j < i; j++ ) {
-                std::string lb = array + "->dims[" + std::to_string(j) + "].lower_bound";
-                std::string ub = array + "->dims[" + std::to_string(j) + "].upper_bound";
-                current_index += " * (" + ub + " - " + lb + " + 1)";
+                std::string length = array + "->dims[" + std::to_string(j) + "].length";
+                current_index += " * " + length;
             }
             index += current_index;
             if (i < x.n_args - 1) {
