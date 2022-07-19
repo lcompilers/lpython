@@ -64,6 +64,7 @@ struct handle_functions
 
     using LFortran::CompilerOptions;
     CompilerOptions compiler_options;
+    compiler_options.new_parser = true;
     std::string runtime_library_dir = LFortran::get_runtime_library_dir();
 
     std::vector<LFortran::LPython::lsp_highlight>
