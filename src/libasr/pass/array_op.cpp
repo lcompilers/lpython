@@ -284,7 +284,7 @@ public:
         PassUtils::get_dim_rank(sibling_type, m_dims, ndims);
         for( int i = 0; i < ndims; i++ ) {
             if( m_dims[i].m_start != nullptr ||
-                m_dims[i].m_end != nullptr ) {
+                m_dims[i].m_length != nullptr ) {
                 return sibling_type;
             }
         }
@@ -294,7 +294,8 @@ public:
             ASR::dimension_t new_m_dim;
             new_m_dim.loc = m_dims[i].loc;
             new_m_dim.m_start = PassUtils::get_bound(sibling, i + 1, "lbound", al);
-            new_m_dim.m_end = PassUtils::get_bound(sibling, i + 1, "ubound", al);
+            new_m_dim.m_length = ASRUtils::compute_length_from_start_end(al, new_m_dim.m_start,
+                                     PassUtils::get_bound(sibling, i + 1, "ubound", al));
             new_m_dims.push_back(al, new_m_dim);
         }
         return PassUtils::set_dim_rank(sibling_type, new_m_dims.p, ndims, true, &al);

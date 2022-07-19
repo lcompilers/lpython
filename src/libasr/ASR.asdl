@@ -351,7 +351,7 @@ cast_kind
     | ComplexToReal
     | LogicalToInteger
 
-dimension = (expr? start, expr? end)
+dimension = (expr? start, expr? length)
 
 alloc_arg = (symbol a, dimension* dims)
 

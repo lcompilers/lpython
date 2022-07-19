@@ -88,13 +88,13 @@ public:
                 ASR::dimension_t curr_dim;
                 curr_dim.loc = x.base.base.loc;
                 curr_dim.m_start = const_1;
-                curr_dim.m_end = actual_size;
+                curr_dim.m_length = actual_size;
                 m_dims.push_back(al, curr_dim);
             } else {
                 ASR::dimension_t curr_dim;
                 curr_dim.loc = x.base.base.loc;
                 curr_dim.m_start = const_1;
-                curr_dim.m_end = const_1;
+                curr_dim.m_length = const_1;
                 m_dims.push_back(al, curr_dim);
             }
         }
