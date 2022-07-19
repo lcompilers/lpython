@@ -400,10 +400,6 @@ filename = "parser/statements1.py"
 ast_new = true
 
 [[test]]
-filename = "parser/statements2.py"
-ast_new = true
-
-[[test]]
 filename = "parser/if1.py"
 ast_new = true
 
@@ -466,6 +462,18 @@ ast_new = true
 [[test]]
 filename = "parser/global1.py"
 ast = true
+ast_new = true
+
+[[test]]
+filename = "parser/if2.py"
+ast_new = true
+
+[[test]]
+filename = "parser/for2.py"
+ast_new = true
+
+[[test]]
+filename = "parser/boolOp1.py"
 ast_new = true
 
 # tests/errors

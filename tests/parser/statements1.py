@@ -108,52 +108,9 @@ x <= y
 x > y
 x >= y
 
-if type(x) is int:
-    pass
-
-if ((2 + 3)/2 - 1 is 5) is True:
-    pass
-
-if x is not type(float):
-    pass
-
-if x is \
-    not type(int):
-    pass
-
-a = [1, 2, 3]
-
-if a not in [1, 2]:
-    pass
-
-if (a not in [1, 2]) not \
-    in [True, False]:
-    pass
-
-if field in ["vararg", "kwarg"]:
-    if value is None:
-        pass
-
-if (a in list1):
-    pass
-
 "hello" in x
 'a' in a.func()
 'lo' in 'hello'
-
-for item in list1:
-    if item in list2:
-        pass
-
-if a in list1 and b not in list2 or c in list3:
-    pass
-
-comp = [i**2 for i in range(10) if i not in [3, 5, 7] and i in list3]
-
-# Fow showing the parsing order of 'in' in for-loop and 'in' in expr is correct
-# and there is no conflict. Otherwise, the code below is gibberish.
-for i in a in list1:
-    pass
 
 a.b[1]
 a.b[1:]
@@ -164,26 +121,8 @@ y.z[1:2:3]
 y.z[1::3]
 y.z[1::]
 
-i: i32 = 4
-if 2 > i : pass
-if i > 5 : break
-if i == 5 and i < 10 : i = 3
-
-for i in range(N): # type: parallel
-    c[i] = a[i] + scalar * b[i]
-
 x = (y := 0)
 if a := ord('3'):
     x = 1
 
 a = {1, 2, 3}
-
-# Ternary operator (Conditional expressions)
-
-b = 6 if a == 2 else 8
-
-'true' if True else 'false'
-
-result = x if not (a > b) else y
-
-print(a,"is greater") if (a > b) else print(b,"is Greater")
