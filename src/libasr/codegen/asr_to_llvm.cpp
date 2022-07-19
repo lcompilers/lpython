@@ -800,6 +800,21 @@ public:
         return builder->CreateCall(fn, {str});
     }
 
+    llvm::Value* lfortran_str_to_int(llvm::Value* str)
+    {
+        std::string runtime_func_name = "_lfortran_str_to_int";
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getInt32Ty(context), {
+                        character_type->getPointerTo()
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        return builder->CreateCall(fn, {str});
+    }
+
     llvm::Value* lfortran_str_copy(llvm::Value* str, llvm::Value* idx1, llvm::Value* idx2)
     {
         std::string runtime_func_name = "_lfortran_str_copy";
@@ -4101,6 +4116,12 @@ public:
                 llvm::AllocaInst *parg = builder->CreateAlloca(character_type, nullptr);
                 builder->CreateStore(tmp, parg);
                 tmp = builder->CreateICmpNE(lfortran_str_len(parg), builder->getInt32(0));
+                break;
+            }
+            case (ASR::cast_kindType::CharacterToInteger) : {
+                llvm::AllocaInst *parg = builder->CreateAlloca(character_type, nullptr);
+                builder->CreateStore(tmp, parg);
+                tmp = lfortran_str_to_int(parg);
                 break;
             }
             case (ASR::cast_kindType::ComplexToLogical) : {
