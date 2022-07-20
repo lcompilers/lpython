@@ -7,9 +7,6 @@
 
 #include <cstring>
 
-// Temporary
-#include <iostream>
-
 namespace LFortran {
 
 // Platform dependent fast unique hash:

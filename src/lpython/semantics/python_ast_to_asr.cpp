@@ -27,9 +27,6 @@
 #include <lpython/semantics/python_attribute_eval.h>
 #include <lpython/parser/parser.h>
 
-// For temporary debugging purposes
-#include <lpython/pickle.h>
-
 namespace LFortran::LPython {
 
 // Does a CPython style lookup for a module:
