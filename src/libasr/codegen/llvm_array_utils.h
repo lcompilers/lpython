@@ -193,7 +193,7 @@ namespace LFortran {
                 * implemented by current class.
                 */
                 virtual
-                llvm::Value* get_upper_bound(llvm::Value* dim_des, bool load=true) = 0;
+                llvm::Value* get_upper_bound(llvm::Value* dim_des) = 0;
 
                 /*
                 * Returns stride in the input
@@ -338,7 +338,7 @@ namespace LFortran {
                 llvm::Value* get_lower_bound(llvm::Value* dim_des, bool load=true);
 
                 virtual
-                llvm::Value* get_upper_bound(llvm::Value* dim_des, bool load=true);
+                llvm::Value* get_upper_bound(llvm::Value* dim_des);
 
                 virtual
                 llvm::Value* get_dimension_size(llvm::Value* dim_des_arr,

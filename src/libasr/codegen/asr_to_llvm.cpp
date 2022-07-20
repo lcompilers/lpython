@@ -301,7 +301,7 @@ public:
         }
         bool is_ok = true;
         for( int r = 0; r < n_dims; r++ ) {
-            if( m_dims[r].m_end == nullptr ) {
+            if( m_dims[r].m_length == nullptr ) {
                 is_ok = false;
                 break;
             }
@@ -382,7 +382,7 @@ public:
             ASR::dimension_t m_dim = m_dims[r];
             visit_expr(*(m_dim.m_start));
             llvm::Value* start = tmp;
-            visit_expr(*(m_dim.m_end));
+            visit_expr(*(m_dim.m_length));
             llvm::Value* end = tmp;
             llvm_dims.push_back(std::make_pair(start, end));
         }
@@ -401,7 +401,7 @@ public:
             ASR::dimension_t m_dim = m_dims[r];
             visit_expr(*(m_dim.m_start));
             llvm::Value* start = tmp;
-            visit_expr(*(m_dim.m_end));
+            visit_expr(*(m_dim.m_length));
             llvm::Value* end = tmp;
             llvm_dims.push_back(std::make_pair(start, end));
         }
@@ -788,6 +788,21 @@ public:
     llvm::Value* lfortran_str_len(llvm::Value* str)
     {
         std::string runtime_func_name = "_lfortran_str_len";
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getInt32Ty(context), {
+                        character_type->getPointerTo()
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        return builder->CreateCall(fn, {str});
+    }
+
+    llvm::Value* lfortran_str_to_int(llvm::Value* str)
+    {
+        std::string runtime_func_name = "_lfortran_str_to_int";
         llvm::Function *fn = module->getFunction(runtime_func_name);
         if (!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
@@ -2762,13 +2777,11 @@ public:
                 llvm::Value* curr_dim = llvm::ConstantInt::get(context, llvm::APInt(32, i));
                 llvm::Value* desi = arr_descr->get_pointer_to_dimension_descriptor(fptr_des, curr_dim);
                 llvm::Value* desi_lb = arr_descr->get_lower_bound(desi, false);
-                llvm::Value* desi_ub = arr_descr->get_upper_bound(desi, false);
                 llvm::Value* desi_size = arr_descr->get_dimension_size(fptr_des, curr_dim, false);
                 llvm::Value* i32_one = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
                 llvm::Value* new_lb = i32_one;
                 llvm::Value* new_ub = shape_data ? builder->CreateLoad(llvm_utils->create_ptr_gep(shape_data, i)) : i32_one;
                 builder->CreateStore(new_lb, desi_lb);
-                builder->CreateStore(new_ub, desi_ub);
                 builder->CreateStore(builder->CreateAdd(builder->CreateSub(new_ub, new_lb), i32_one), desi_size);
             }
         } else {
@@ -4103,6 +4116,12 @@ public:
                 tmp = builder->CreateICmpNE(lfortran_str_len(parg), builder->getInt32(0));
                 break;
             }
+            case (ASR::cast_kindType::CharacterToInteger) : {
+                llvm::AllocaInst *parg = builder->CreateAlloca(character_type, nullptr);
+                builder->CreateStore(tmp, parg);
+                tmp = lfortran_str_to_int(parg);
+                break;
+            }
             case (ASR::cast_kindType::ComplexToLogical) : {
                 // !(c.real == 0.0 && c.imag == 0.0)
                 llvm::Value *zero;
@@ -4317,8 +4336,7 @@ public:
                 fmt.push_back("%lld");
                 llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
                 args.push_back(d);
-            } else if (ASRUtils::is_integer(*t) ||
-                ASR::is_a<ASR::Logical_t>(*ASRUtils::type_get_past_pointer(t))) {
+            } else if (ASRUtils::is_integer(*t)) {
                 switch( a_kind ) {
                     case 1 : {
                         fmt.push_back("%d");
@@ -4371,6 +4389,12 @@ public:
             } else if (t->type == ASR::ttypeType::Character) {
                 fmt.push_back("%s");
                 args.push_back(tmp);
+            } else if (ASRUtils::is_logical(*t)) {
+                llvm::Value *cmp = builder->CreateICmpEQ(tmp, builder->getInt1(0));
+                llvm::Value *zero_str = builder->CreateGlobalStringPtr("False");
+                llvm::Value *one_str = builder->CreateGlobalStringPtr("True");
+                llvm::Value *str = builder->CreateSelect(cmp, zero_str, one_str);
+                printf(context, *module, *builder, {str});
             } else if (ASRUtils::is_complex(*t)) {
                 llvm::Type *type, *complex_type;
                 switch( a_kind ) {
@@ -4405,9 +4429,8 @@ public:
                 llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
                 args.push_back(d);
             } else {
-                throw LFortranException("Printing support is available only for integer, real,"
-                    " character, and complex types, got type " +
-                    ASRUtils::type_to_str(t));
+                throw LFortranException("Printing support is not available for " +
+                    ASRUtils::type_to_str(t) + " type.");
             }
         }
         fmt.push_back("%s");

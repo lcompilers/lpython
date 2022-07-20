@@ -29,7 +29,7 @@
 
 
 namespace LFortran::LPython {
-
+    
 // Does a CPython style lookup for a module:
 // * First the current directory (this is incorrect, we need to do it relative to the current file)
 // * Then the LPython runtime directory
@@ -382,7 +382,7 @@ public:
     void fill_expr_in_ttype_t(std::vector<ASR::expr_t*>& exprs, ASR::dimension_t* dims, size_t n_dims) {
         for( size_t i = 0; i < n_dims; i++ ) {
             exprs.push_back(dims[i].m_start);
-            exprs.push_back(dims[i].m_end);
+            exprs.push_back(dims[i].m_length);
         }
     }
 
@@ -423,7 +423,7 @@ public:
                     ASR::dimension_t new_dim;
                     new_dim.loc = func_calls[i]->base.loc;
                     new_dim.m_start = func_calls[i];
-                    new_dim.m_end = func_calls[i + 1];
+                    new_dim.m_length = func_calls[i + 1];
                     new_dims.push_back(al, new_dim);
                 }
                 int64_t a_len = t->m_len;
@@ -442,7 +442,7 @@ public:
                     ASR::dimension_t new_dim;
                     new_dim.loc = func_calls[i]->base.loc;
                     new_dim.m_start = func_calls[i];
-                    new_dim.m_end = func_calls[i + 1];
+                    new_dim.m_length = func_calls[i + 1];
                     new_dims.push_back(al, new_dim);
                 }
                 return ASRUtils::TYPE(ASR::make_Integer_t(al, loc, t->m_kind, new_dims.p, new_dims.size()));
@@ -457,7 +457,7 @@ public:
                     ASR::dimension_t new_dim;
                     new_dim.loc = func_calls[i]->base.loc;
                     new_dim.m_start = func_calls[i];
-                    new_dim.m_end = func_calls[i + 1];
+                    new_dim.m_length = func_calls[i + 1];
                     new_dims.push_back(al, new_dim);
                 }
                 return ASRUtils::TYPE(ASR::make_Real_t(al, loc, t->m_kind, new_dims.p, new_dims.size()));
@@ -697,8 +697,9 @@ public:
                 comptime_val = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, value_int - 1, itype));
             }
             dim.m_start = zero;
-            dim.m_end = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, value->base.loc, value, ASR::binopType::Sub,
-                            one, itype, comptime_val));
+            dim.m_length = ASRUtils::compute_length_from_start_end(al, dim.m_start,
+                            ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, value->base.loc,
+                                value, ASR::binopType::Sub, one, itype, comptime_val)));
             dims.push_back(al, dim);
         } else if(ASR::is_a<ASR::TupleConstant_t>(*value)) {
             ASR::TupleConstant_t* tuple_constant = ASR::down_cast<ASR::TupleConstant_t>(value);
@@ -804,7 +805,7 @@ public:
                     ASR::dimension_t dim;
                     dim.loc = loc;
                     dim.m_start = nullptr;
-                    dim.m_end = nullptr;
+                    dim.m_length = nullptr;
                     dims.push_back(al, dim);
                 } else if( is_runtime_array(s->m_slice) ) {
                     AST::Tuple_t* tuple_multidim = AST::down_cast<AST::Tuple_t>(s->m_slice);
@@ -813,7 +814,7 @@ public:
                             ASR::dimension_t dim;
                             dim.loc = loc;
                             dim.m_start = nullptr;
-                            dim.m_end = nullptr;
+                            dim.m_length = nullptr;
                             dims.push_back(al, dim);
                         }
                     }
@@ -3423,8 +3424,8 @@ public:
                                 loc, ival, to_type));
             }
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-            al, loc, arg, ASR::cast_kindType::RealToInteger,
-            to_type, value));
+                al, loc, arg, ASR::cast_kindType::RealToInteger,
+                to_type, value));
         } else if (ASRUtils::is_character(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
                 char *c = ASR::down_cast<ASR::StringConstant_t>(
@@ -3447,7 +3448,9 @@ public:
                 return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al,
                                 loc, ival, to_type));
             }
-            // TODO: make int() work for non-constant strings
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                al, loc, arg, ASR::cast_kindType::CharacterToInteger,
+                to_type, value));
         } else if (ASRUtils::is_logical(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
                 int32_t ival = ASR::down_cast<ASR::LogicalConstant_t>(
@@ -3456,8 +3459,8 @@ public:
                                 loc, ival, to_type));
             }
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-            al, loc, arg, ASR::cast_kindType::LogicalToInteger,
-            to_type, value));
+                al, loc, arg, ASR::cast_kindType::LogicalToInteger,
+                to_type, value));
         } else if (!ASRUtils::is_integer(*type)) {
             std::string stype = ASRUtils::type_to_str_python(type);
             throw SemanticError(

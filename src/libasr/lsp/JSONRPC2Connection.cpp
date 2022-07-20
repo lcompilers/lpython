@@ -113,11 +113,6 @@ void JSONRPC2Connection::send_notification(std::string method, rapidjson::Docume
   body.AddMember("jsonrpc", rapidjson::Value().SetString("2.0", allocator), allocator);
   body.AddMember("method", rapidjson::Value().SetString(method.c_str(), allocator), allocator);
   body.AddMember("params", params, allocator);
-  rapidjson::StringBuffer buffer;
-  buffer.Clear();
-  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-  body.Accept(writer);
-  std::string str_body(buffer.GetString());
   this->_send(body);
 }
 

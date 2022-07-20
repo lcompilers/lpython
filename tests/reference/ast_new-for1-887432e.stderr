@@ -1,5 +1,0 @@
-syntax error: Token ':' is unexpected here
- --> tests/parser/for1.py:4:16
-  |
-4 | for x in fruits:
-  |                ^ 

@@ -604,14 +604,14 @@ static inline bool extract_value(ASR::expr_t* value_expr, T& value) {
 static inline std::string type_python_1dim_helper(const std::string & res,
                                                   const ASR::dimension_t* e )
 {
-    if( !e->m_end && !e->m_start ) {
+    if( !e->m_length && !e->m_start ) {
         return res + "[:]";
     }
 
-    if( ASRUtils::expr_value(e->m_end) ) {
-        int64_t end_dim = -1;
-        ASRUtils::extract_value(ASRUtils::expr_value(e->m_end), end_dim);
-        return res + "[" + std::to_string(end_dim + 1) + "]";
+    if( ASRUtils::expr_value(e->m_length) ) {
+        int64_t length_dim = -1;
+        ASRUtils::extract_value(ASRUtils::expr_value(e->m_length), length_dim);
+        return res + "[" + std::to_string(length_dim + 1) + "]";
     }
 
     return res;
@@ -1401,6 +1401,49 @@ class LabelGenerator {
 ASR::asr_t* make_Cast_t_value(Allocator &al, const Location &a_loc,
         ASR::expr_t* a_arg, ASR::cast_kindType a_kind, ASR::ttype_t* a_type);
 
+static inline ASR::expr_t* compute_end_from_start_length(Allocator& al, ASR::expr_t* start, ASR::expr_t* length) {
+    ASR::expr_t* start_value = ASRUtils::expr_value(start);
+    ASR::expr_t* length_value = ASRUtils::expr_value(length);
+    ASR::expr_t* end_value = nullptr;
+    if( start_value && length_value ) {
+        int64_t start_int, length_int;
+        ASRUtils::extract_value(start_value, start_int);
+        ASRUtils::extract_value(length_value, length_int);
+        end_value = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, start->base.loc,
+                                length_int + start_int - 1,
+                                ASRUtils::expr_type(start)));
+    }
+    ASR::expr_t* diff = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, length->base.loc, length,
+                                    ASR::binopType::Add, start, ASRUtils::expr_type(length),
+                                    nullptr));
+    ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
+                                            al, diff->base.loc, 1, ASRUtils::expr_type(diff)));
+    return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, length->base.loc, diff,
+                        ASR::binopType::Sub, constant_one, ASRUtils::expr_type(length),
+                        end_value));
+}
+
+static inline ASR::expr_t* compute_length_from_start_end(Allocator& al, ASR::expr_t* start, ASR::expr_t* end) {
+    ASR::expr_t* start_value = ASRUtils::expr_value(start);
+    ASR::expr_t* end_value = ASRUtils::expr_value(end);
+    ASR::expr_t* length_value = nullptr;
+    if( start_value && end_value ) {
+        int64_t start_int, end_int;
+        ASRUtils::extract_value(start_value, start_int);
+        ASRUtils::extract_value(end_value, end_int);
+        length_value = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, start->base.loc,
+                                end_int - start_int + 1,
+                                ASRUtils::expr_type(start)));
+    }
+    ASR::expr_t* diff = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, end->base.loc, end,
+                                    ASR::binopType::Sub, start, ASRUtils::expr_type(end),
+                                    nullptr));
+    ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
+                                            al, diff->base.loc, 1, ASRUtils::expr_type(diff)));
+    return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, end->base.loc, diff,
+                        ASR::binopType::Add, constant_one, ASRUtils::expr_type(end),
+                        length_value));
+}
 
 } // namespace ASRUtils
 

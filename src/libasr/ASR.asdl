@@ -345,12 +345,13 @@ cast_kind
     | IntegerToLogical
     | RealToLogical
     | CharacterToLogical
+    | CharacterToInteger
     | ComplexToLogical
     | ComplexToComplex
     | ComplexToReal
     | LogicalToInteger
 
-dimension = (expr? start, expr? end)
+dimension = (expr? start, expr? length)
 
 alloc_arg = (symbol a, dimension* dims)
 
