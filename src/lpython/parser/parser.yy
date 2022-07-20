@@ -244,6 +244,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> list_comprehension
 %type <vec_ast> id_list
 %type <ast> id_item
+%type <ast> subscription
 
 // Precedence
 
@@ -782,6 +783,14 @@ function_call
     | primary "(" keyword_items ")" { $$ = CALL_03($1, $3, @$); }
     ;
 
+subscription
+    : id "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
+    | string "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
+    | expr "." id "[" tuple_list "]" {
+        $$ = SUBSCRIPT_01(ATTRIBUTE_REF($1, $3, @$), $5, @$); }
+    | function_call "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
+    ;
+
 string
     : string TK_STRING { $$ = STRING2($1, $2, @$); } // TODO
     | TK_STRING { $$ = STRING1($1, @$); }
@@ -800,15 +809,13 @@ expr
     | TK_ELLIPSIS { $$ = ELLIPSIS(@$); }
     | "(" expr ")" { $$ = $2; }
     | function_call { $$ = $1; }
+    | subscription { $$ = $1; }
     | "[" expr_list_opt "]" { $$ = LIST($2, @$); }
     | "[" expr_list "," "]" { $$ = LIST($2, @$); }
     | "{" expr_list "}" { $$ = SET($2, @$); }
     | "{" expr_list "," "}" { $$ = SET($2, @$); }
-    | id "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
-    | string "[" tuple_list "]" { $$ = SUBSCRIPT_02($1, $3, @$); }
     | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
-    | expr "." id "[" tuple_list "]" {
-        $$ = SUBSCRIPT_01(ATTRIBUTE_REF($1, $3, @$), $5, @$); }
+
     | "{" "}" { $$ = DICT_01(@$); }
     | "{" dict_list "}" { $$ = DICT_02($2, @$); }
     | KW_AWAIT expr %prec AWAIT { $$ = AWAIT($2, @$); }

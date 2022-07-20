@@ -735,8 +735,6 @@ expr_t* CHECK_TUPLE(expr_t *x) {
         EXPRS(elts), elts.size(), expr_contextType::Load)
 #define SUBSCRIPT_01(value, slice, l) make_Subscript_t(p.m_a, l, \
         EXPR(value), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
-#define SUBSCRIPT_02(s, slice, l) make_Subscript_t(p.m_a, l, \
-        EXPR(s), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
 
 static inline ast_t* SLICE(Allocator &al, Location &l,
         ast_t *lower, ast_t *upper, ast_t *_step) {
