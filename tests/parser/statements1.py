@@ -126,3 +126,32 @@ if a := ord('3'):
     x = 1
 
 a = {1, 2, 3}
+
+# Assigning outputs of expressions to variables
+
+output: bool = x == y
+output: bool
+output = x == y
+
+output: bool = x > y
+output: bool
+output = x > y
+
+output: bool = [x] not in [y]
+output: bool
+output = [x] not in [y]
+
+def comparison_return(a, b):
+    return a > b
+
+def comparison_return(a, b):
+    return [a] in [b]
+
+def comparison_return(a, b):
+    output: bool
+    output = [a] not in [b]
+    return output
+
+def comparison_return(a, b):
+    output = [a] not in [b]
+    return output
