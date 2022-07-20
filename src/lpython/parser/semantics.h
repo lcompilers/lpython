@@ -310,6 +310,9 @@ static inline withitem_t *WITH_ITEM(Allocator &al, Location &l,
         EXPR(expr), EXPR(SET_EXPR_CTX_01(vars, Store)))
 #define WITH(items, body, l) make_With_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), nullptr)
+#define WITH_01(items, body, type_comment, l) make_With_t(p.m_a, l, \
+        items.p, items.size(), STMTS(body), body.size(), \
+        extract_type_comment(p.m_a, type_comment))
 
 static inline arg_t *FUNC_ARG(Allocator &al, Location &l, char *arg, expr_t* e) {
     arg_t *r = al.allocate<arg_t>();
@@ -490,6 +493,9 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
 
 #define ASYNC_WITH(items, body, l) make_AsyncWith_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), nullptr)
+#define ASYNC_WITH_01(items, body, type_comment, l) make_AsyncWith_t(p.m_a, l, \
+        items.p, items.size(), STMTS(body), body.size(),  \
+        extract_type_comment(p.m_a, type_comment))
 
 #define WHILE_01(e, stmts, l) make_While_t(p.m_a, l, \
         EXPR(e), STMTS(stmts), stmts.size(), nullptr, 0)
