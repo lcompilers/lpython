@@ -158,6 +158,9 @@ static inline Vec<ast_t*> SET_STORE_02(Vec<ast_t*> x) {
 #define ASSIGNMENT(targets, val, l) make_Assign_t(p.m_a, l, \
         EXPRS(SET_EXPR_CTX_02(SET_STORE_02(targets), Store)), targets.size(), \
         EXPR(val), nullptr)
+#define ASSIGNMENT2(targets, val, type_comment, l) make_Assign_t(p.m_a, l, \
+        EXPRS(SET_EXPR_CTX_02(SET_STORE_02(targets), Store)), targets.size(), \
+        EXPR(val), extract_type_comment(p.m_a, type_comment))
 
 static inline ast_t* TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
     if(is_a<expr_t>(*elts[0]) && elts.size() == 1) {

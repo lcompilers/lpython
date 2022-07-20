@@ -374,6 +374,7 @@ target_list
 
 assignment_statement
     : target_list tuple_item { $$ = ASSIGNMENT($1, $2, @$); }
+    | target_list tuple_item TK_TYPE_COMMENT { $$ = ASSIGNMENT2($1, $2, $3, @$); }
     ;
 
 augassign_statement
