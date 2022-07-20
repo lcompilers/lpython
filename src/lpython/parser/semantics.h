@@ -425,6 +425,14 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
         make_FunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
         STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
         EXPR(return), nullptr)
+#define FUNCTION_03(decorator, id, args, stmts, type_comment, l) \
+        make_FunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
+        nullptr, extract_type_comment(p.m_a, type_comment))
+#define FUNCTION_04(decorator, id, args, return, stmts, type_comment, l) \
+        make_FunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
+        EXPR(return), extract_type_comment(p.m_a, type_comment))
 
 #define CLASS_01(decorator, id, stmts, l) make_ClassDef_t(p.m_a, l, \
         name2char(id), nullptr, 0, nullptr, 0, \
@@ -449,6 +457,22 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
 #define ASYNC_FUNCTION_04(id, args, return, stmts, l) \
         make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
         STMTS(stmts), stmts.size(), nullptr, 0, EXPR(return), nullptr)
+#define ASYNC_FUNCTION_05(decorator, id, args, stmts, type_comment, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
+        nullptr, extract_type_comment(p.m_a, type_comment))
+#define ASYNC_FUNCTION_06(decorator, id, args, return, stmts, type_comment, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
+        EXPR(return), extract_type_comment(p.m_a, type_comment))
+#define ASYNC_FUNCTION_07(id, args, stmts, type_comment, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), nullptr, 0, nullptr,\
+        extract_type_comment(p.m_a, type_comment))
+#define ASYNC_FUNCTION_08(id, args, return, stmts, type_comment, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), nullptr, 0, EXPR(return),\
+        extract_type_comment(p.m_a, type_comment))
 
 #define ASYNC_FOR_01(target, iter, stmts, l) make_AsyncFor_t(p.m_a, l, \
         EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
