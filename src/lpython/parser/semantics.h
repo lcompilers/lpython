@@ -456,6 +456,13 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
 #define ASYNC_FOR_02(target, iter, stmts, orelse, l) make_AsyncFor_t(p.m_a, l, \
         EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), nullptr)
+#define ASYNC_FOR_03(target, iter, stmts, type_comment, l) make_AsyncFor_t(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        STMTS(stmts), stmts.size(), nullptr, 0, extract_type_comment(p.m_a, type_comment))
+#define ASYNC_FOR_04(target, iter, stmts, orelse, type_comment, l) make_AsyncFor_t(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), \
+        extract_type_comment(p.m_a, type_comment))
 
 #define ASYNC_WITH(items, body, l) make_AsyncWith_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), nullptr)

@@ -638,6 +638,10 @@ async_for_stmt
         $$ = ASYNC_FOR_01($3, $5, $8, @$); }
     | KW_ASYNC KW_FOR tuple_item KW_IN expr ":" sep statements KW_ELSE ":" sep
         statements { $$ = ASYNC_FOR_02($3, $5, $8, $12, @$); }
+    | KW_ASYNC KW_FOR tuple_item KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE statements {
+        $$ = ASYNC_FOR_03($3, $5, $9, $7, @$); }
+    | KW_ASYNC KW_FOR tuple_item KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE statements
+        KW_ELSE ":" sep statements { $$ = ASYNC_FOR_04($3, $5, $9, $13, $7, @$); }
     ;
 
 async_with_stmt
