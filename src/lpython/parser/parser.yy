@@ -789,6 +789,8 @@ subscription
     | expr "." id "[" tuple_list "]" {
         $$ = SUBSCRIPT_01(ATTRIBUTE_REF($1, $3, @$), $5, @$); }
     | function_call "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
+    | function_call "[" tuple_list "]" "[" tuple_list "]" {
+        $$ = SUBSCRIPT_01(SUBSCRIPT_01($1, $3, @$), $6, @$); }
     ;
 
 string
