@@ -178,6 +178,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> id
 %type <ast> expr
 %type <vec_ast> expr_list
+%type <vec_ast> expr_for_list
 %type <vec_ast> expr_list_opt
 %type <ast> tuple_list
 %type <ast> statement
@@ -199,6 +200,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> assignment_statement
 %type <vec_ast> target_list
 %type <ast> tuple_item
+%type <ast> tuple_for_statement_item
 %type <ast> ann_assignment_statement
 %type <ast> delete_statement
 %type <ast> return_statement
@@ -367,6 +369,13 @@ tuple_item
     | "(" expr_list ","  expr ")" { $$ = TUPLE_01(TUPLE_($2, $4), @$); }
     ;
 
+tuple_for_statement_item
+    : expr_for_list { $$ = TUPLE_01($1, @$); }
+    | expr_for_list "," { $$ = TUPLE_03($1, @$); }
+    | "(" expr_for_list "," ")" { $$ = TUPLE_03($2, @$); }
+    | "(" expr_for_list ","  expr ")" { $$ = TUPLE_01(TUPLE_($2, $4), @$); }
+    ;
+
 target_list
     : target_list tuple_item "=" { $$ = $1; LIST_ADD($$, $2); }
     | tuple_item "=" { LIST_NEW($$); LIST_ADD($$, $1); }
@@ -488,13 +497,13 @@ if_statement
     ;
 
 for_statement
-    : KW_FOR tuple_item KW_IN expr ":" sep statements {
+    : KW_FOR tuple_for_statement_item KW_IN expr ":" sep statements {
         $$ = FOR_01($2, $4, $7, @$); }
-    | KW_FOR tuple_item KW_IN expr ":" sep statements KW_ELSE ":"
+    | KW_FOR tuple_for_statement_item KW_IN expr ":" sep statements KW_ELSE ":"
         sep statements { $$ = FOR_02($2, $4, $7, $11, @$); }
-    | KW_FOR tuple_item KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE statements {
+    | KW_FOR tuple_for_statement_item KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE statements {
         $$ = FOR_03($2, $4, $6, $8, @$); }
-    | KW_FOR tuple_item KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE statements
+    | KW_FOR tuple_for_statement_item KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE statements
         KW_ELSE ":" sep statements { $$ = FOR_04($2, $4, $8, $12, $6, @$); }
     ;
 
@@ -633,9 +642,9 @@ async_func_def
     ;
 
 async_for_stmt
-    : KW_ASYNC KW_FOR tuple_item KW_IN expr ":" sep statements {
+    : KW_ASYNC KW_FOR tuple_for_statement_item KW_IN expr ":" sep statements {
         $$ = ASYNC_FOR_01($3, $5, $8, @$); }
-    | KW_ASYNC KW_FOR tuple_item KW_IN expr ":" sep statements KW_ELSE ":" sep
+    | KW_ASYNC KW_FOR tuple_for_statement_item KW_IN expr ":" sep statements KW_ELSE ":" sep
         statements { $$ = ASYNC_FOR_02($3, $5, $8, $12, @$); }
     ;
 
@@ -678,8 +687,13 @@ expr_list_opt
     ;
 
 expr_list
-    : expr_list "," expr %prec FOR { $$ = $1; LIST_ADD($$, $3); }
+    : expr_list "," expr %prec "not" { $$ = $1; LIST_ADD($$, $3); }
     | expr %prec "not" { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+expr_for_list
+    : expr_for_list "," expr %prec FOR { $$ = $1; LIST_ADD($$, $3); }
+    | expr %prec FOR { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 dict
