@@ -1,63 +1,11 @@
-Internal Compiler Error: Unhandled exception
-Traceback (most recent call last):
-[2m  Binary file "[0m[1m[35m$DIR/src/bin/lpython[39m[0m[2m", in _start()[0m
-[2m  Binary file "[0m[1m[35m/lib/x86_64-linux-gnu/libc.so.6[39m[0m[2m", in __libc_start_main()[0m
-[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 830, in ??[0m
-    return emit_asr(arg_file, lpython_pass_manager, runtime_library_dir,
-[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 159, in ??[0m
-    compiler_options.disable_main, compiler_options.symtab_only, infile);
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 4370, in LFortran::LPython::python_ast_to_asr(Allocator&, LFortran::LPython::AST::ast_t&, LFortran::diag::Diagnostics&, bool, bool, bool, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)[0m
-    ast_overload);
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 4293, in LFortran::LPython::body_visitor(Allocator&, LFortran::LPython::AST::Module_t const&, LFortran::diag::Diagnostics&, LFortran::ASR::asr_t*, bool, std::map<int, LFortran::ASR::symbol_t*, std::less<int>, std::allocator<std::pair<int const, LFortran::ASR::symbol_t*> > >&)[0m
-    b.visit_Module(ast);
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 2858, in LFortran::LPython::BodyVisitor::visit_Module(LFortran::LPython::AST::Module_t const&)[0m
-    visit_stmt(*x.m_body[i]);
-[2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1882, in LFortran::LPython::AST::BaseVisitor<LFortran::LPython::BodyVisitor>::visit_stmt(LFortran::LPython::AST::stmt_t const&)[0m
-    void visit_stmt(const stmt_t &b) { visit_stmt_t(b, self()); }
-[2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1750, in ??[0m
-    case stmtType::FunctionDef: { v.visit_FunctionDef((const FunctionDef_t &)x); return; }
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 2885, in LFortran::LPython::BodyVisitor::visit_FunctionDef(LFortran::LPython::AST::FunctionDef_t const&)[0m
-    handle_fn(x, *ASR::down_cast<ASR::Subroutine_t>(t));
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 2876, in void LFortran::LPython::BodyVisitor::handle_fn<LFortran::ASR::Subroutine_t>(LFortran::LPython::AST::FunctionDef_t const&, LFortran::ASR::Subroutine_t&)[0m
-    transform_stmts(body, x.n_body, x.m_body);
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 2833, in LFortran::LPython::BodyVisitor::transform_stmts(LFortran::Vec<LFortran::ASR::stmt_t*>&, unsigned long, LFortran::LPython::AST::stmt_t**)[0m
-    this->visit_stmt(*m_body[i]);
-[2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1882, in LFortran::LPython::AST::BaseVisitor<LFortran::LPython::BodyVisitor>::visit_stmt(LFortran::LPython::AST::stmt_t const&)[0m
-    void visit_stmt(const stmt_t &b) { visit_stmt_t(b, self()); }
-[2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1755, in ??[0m
-    case stmtType::Assign: { v.visit_Assign((const Assign_t &)x); return; }
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 3031, in LFortran::LPython::BodyVisitor::visit_Assign(LFortran::LPython::AST::Assign_t const&)[0m
-    this->visit_expr(*x.m_value);
-[2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1909, in LFortran::LPython::AST::BaseVisitor<LFortran::LPython::BodyVisitor>::visit_expr(LFortran::LPython::AST::expr_t const&)[0m
-    void visit_expr(const expr_t &b) { visit_expr_t(b, self()); }
-[2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1799, in ??[0m
-    case exprType::Call: { v.visit_Call((const Call_t &)x); return; }
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 4179, in LFortran::LPython::BodyVisitor::visit_Call(LFortran::LPython::AST::Call_t const&)[0m
-    s = resolve_intrinsic_function(x.base.base.loc, call_name);
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 538, in LFortran::LPython::CommonVisitor<LFortran::LPython::BodyVisitor>::resolve_intrinsic_function(LFortran::Location const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)[0m
-    ASR::Module_t *m = load_module(al, tu_symtab, module_name,
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 129, in LFortran::LPython::load_module(Allocator&, LFortran::SymbolTable*, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, LFortran::Location const&, bool, std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >&, bool&, bool&, std::function<void (std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, LFortran::Location const&)>)[0m
-    diagnostics, false, false, false, path_used);
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 4376, in LFortran::LPython::python_ast_to_asr(Allocator&, LFortran::LPython::AST::ast_t&, LFortran::diag::Diagnostics&, bool, bool, bool, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)[0m
-    LFORTRAN_ASSERT(asr_verify(*tu));
-[2m  File "[0m[1m[35m$DIR/src/lpython/pickle.cpp[39m[0m[2m", line 85, in LFortran::pickle[abi:cxx11](LFortran::ASR::asr_t&, bool, bool, bool)[0m
-    v.visit_asr(asr);
-[2m  File "[0m[1m[35m$DIR/src/libasr/asr.h[39m[0m[2m", line 3702, in LFortran::ASR::BaseVisitor<LFortran::ASRPickleVisitor>::visit_asr(LFortran::ASR::asr_t const&)[0m
-    void visit_asr(const asr_t &b) { visit_asr_t(b, self()); }
-[2m  File "[0m[1m[35m$DIR/src/libasr/asr.h[39m[0m[2m", line 3680, in ??[0m
-    case asrType::unit: { v.visit_unit((const unit_t &)x); return; }
-[2m  File "[0m[1m[35m$DIR/src/libasr/asr.h[39m[0m[2m", line 3703, in LFortran::ASR::BaseVisitor<LFortran::ASRPickleVisitor>::visit_unit(LFortran::ASR::unit_t const&)[0m
-    void visit_unit(const unit_t &b) { visit_unit_t(b, self()); }
-[2m  File "[0m[1m[35m$DIR/src/libasr/asr.h[39m[0m[2m", line 3482, in ??[0m
-    case unitType::TranslationUnit: { v.visit_TranslationUnit((const TranslationUnit_t &)x); return; }
-[2m  File "[0m[1m[35m$DIR/src/libasr/asr.h[39m[0m[2m", line 11577, in LFortran::ASR::PickleBaseVisitor<LFortran::ASRPickleVisitor>::visit_TranslationUnit(LFortran::ASR::TranslationUnit_t const&)[0m
-    this->visit_symbol(*a.second);
-[2m  File "[0m[1m[35m$DIR/src/libasr/asr.h[39m[0m[2m", line 3705, in LFortran::ASR::BaseVisitor<LFortran::ASRPickleVisitor>::visit_symbol(LFortran::ASR::symbol_t const&)[0m
-    void visit_symbol(const symbol_t &b) { visit_symbol_t(b, self()); }
-[2m  File "[0m[1m[35m$DIR/src/libasr/asr.h[39m[0m[2m", line 3491, in ??[0m
-    case symbolType::Module: { v.visit_Module((const Module_t &)x); return; }
-[2m  File "[0m[1m[35m$DIR/src/lpython/pickle.cpp[39m[0m[2m", line 74, in LFortran::ASRPickleVisitor::visit_Module(LFortran::ASR::Module_t const&)[0m
-    LFortran::ASR::PickleBaseVisitor<ASRPickleVisitor>::visit_Module(x);
-[2m  File "[0m[1m[35m$DIR/src/libasr/asr.h[39m[0m[2m", line 11776, in LFortran::ASR::PickleBaseVisitor<LFortran::ASRPickleVisitor>::visit_Module(LFortran::ASR::Module_t const&)[0m
-    dec_indent();
-AssertFailed: indent_level >= 0
+style suggestion: Could have used '**' instead of 'pow'
+ --> tests/expr7.py:3:9
+  |
+3 |     a = pow(2, 2)
+  |         ^^^^^^^^^ '**' could be used instead
+
+style suggestion: Could have used '**' instead of 'pow'
+ --> tests/expr7.py:7:11
+  |
+7 |     res = pow(a, b)
+  |           ^^^^^^^^^ '**' could be used instead

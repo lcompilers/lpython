@@ -113,6 +113,8 @@ endmacro(RUN)
 
 
 # Test zero and non-zero exit code and assert statements
+RUN(NAME array_01_decl            LABELS cpython llvm c)
+RUN(NAME array_02_decl            LABELS cpython llvm c)
 RUN(NAME bindc_01            LABELS llvm c)
 RUN(NAME bindc_02            LABELS llvm c)
 RUN(NAME bindc_04            LABELS llvm)
@@ -155,6 +157,7 @@ RUN(NAME test_builtin_bool   LABELS cpython llvm)
 RUN(NAME test_builtin_pow    LABELS cpython llvm)
 RUN(NAME test_builtin_int    LABELS cpython llvm)
 RUN(NAME test_builtin_len    LABELS cpython llvm)
+RUN(NAME test_builtin_str    LABELS cpython llvm)
 RUN(NAME test_builtin_float  LABELS cpython llvm)
 RUN(NAME test_builtin_str_02 LABELS cpython llvm)
 RUN(NAME test_builtin_round  LABELS cpython llvm)
@@ -190,6 +193,7 @@ RUN(NAME test_platform       LABELS cpython llvm)
 RUN(NAME test_vars_01        LABELS cpython llvm)
 RUN(NAME test_version        LABELS cpython llvm)
 RUN(NAME vec_01              LABELS cpython llvm)
+RUN(NAME test_str_comparison LABELS cpython llvm)
 
 RUN(NAME generics_01         LABELS cpython llvm)
 

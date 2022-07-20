@@ -14,7 +14,8 @@
 namespace LFortran {
 
 std::string format_type(const std::string &dims, const std::string &type,
-        const std::string &name, bool use_ref, bool dummy)
+        const std::string &name, bool use_ref, bool dummy, bool use_kokko=true,
+        std::string kokko_ref="&", bool use_name=false, size_t size=0)
 {
     std::string fmt;
     if (dims.size() == 0) {
@@ -25,26 +26,54 @@ std::string format_type(const std::string &dims, const std::string &type,
         if (dummy) {
             std::string c;
             if (!use_ref) c = "const ";
-            fmt = "const Kokkos::View<" + c + type + dims + "> &" + name;
+            if( use_kokko ) {
+                fmt = "const Kokkos::View<" + c + type + dims + "> &" + name;
+            } else {
+                fmt = c + type + dims + " " + name;
+            }
         } else {
-            fmt = "Kokkos::View<" + type + dims + "> " + name
-                + "(\"" + name + "\")";
+            if( use_kokko ) {
+                fmt = "Kokkos::View<" + type + dims + ">" + kokko_ref + " " + name;
+                if( use_name ) {
+                   fmt += "(\"" + name + "\"";
+                   if( size > 0 ) {
+                    fmt += ", " + std::to_string(size);
+                   }
+                   fmt += ")";
+                }
+            } else {
+                fmt = type + dims + " " + name;
+            }
         }
     }
     return fmt;
 }
 
+std::string remove_characters(std::string s, char c)
+{
+    s.erase(remove(s.begin(), s.end(), c), s.end());
+    return s;
+}
+
 class ASRToCPPVisitor : public BaseCCPPVisitor<ASRToCPPVisitor>
 {
 public:
+
+    std::string array_types_decls;
+    std::map<std::string, std::map<std::string,
+             std::map<size_t, std::string>>> eltypedims2arraytype;
+
     ASRToCPPVisitor(diag::Diagnostics &diag, Platform &platform,
                     int64_t default_lower_bound)
         : BaseCCPPVisitor(diag, platform, true, true, false,
-                          default_lower_bound) {}
+                          default_lower_bound),
+          array_types_decls(std::string("\nstruct dimension_descriptor\n"
+                                        "{\n    int32_t lower_bound, upper_bound;\n};\n")) {}
 
-    std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims)
+    std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims, size_t& size)
     {
         std::string dims;
+        size = 1;
         for (size_t i=0; i<n_dims; i++) {
             ASR::expr_t *start = m_dims[i].m_start;
             ASR::expr_t *end = m_dims[i].m_end;
@@ -57,8 +86,10 @@ public:
                     int64_t start_int = -1, end_int = -1;
                     ASRUtils::extract_value(start_value, start_int);
                     ASRUtils::extract_value(end_value, end_int);
+                    size *= (end_int - start_int + 1);
                     dims += "[" + std::to_string(end_int - start_int + 1) + "]";
                 } else {
+                    size = 0;
                     dims += "[ /* FIXME symbolic dimensions */ ]";
                 }
             } else {
@@ -68,17 +99,137 @@ public:
         return dims;
     }
 
-    std::string convert_variable_decl(const ASR::Variable_t &v, bool use_static=true)
+    bool is_array_type_available(std::string& encoded_type_name, std::string& dims,
+                                 size_t n_dims) {
+        return eltypedims2arraytype.find(encoded_type_name) != eltypedims2arraytype.end() &&
+               eltypedims2arraytype[encoded_type_name].find(dims) !=
+               eltypedims2arraytype[encoded_type_name].end() &&
+               eltypedims2arraytype[encoded_type_name][dims].find(n_dims) !=
+               eltypedims2arraytype[encoded_type_name][dims].end();
+    }
+
+    std::string get_array_type(std::string type_name, std::string encoded_type_name,
+                               std::string& dims,
+                               size_t n_dims, bool make_ptr=true) {
+        if( is_array_type_available(encoded_type_name, dims, n_dims) ) {
+            if( make_ptr ) {
+                return eltypedims2arraytype[encoded_type_name][dims][n_dims] + "*";
+            } else {
+                return eltypedims2arraytype[encoded_type_name][dims][n_dims];
+            }
+        }
+
+        std::string struct_name;
+        std::string new_array_type;
+        std::string dims_copy = remove_characters(dims, '[');
+        dims_copy = remove_characters(dims_copy, ']');
+        dims_copy = remove_characters(dims_copy, '*');
+        std::string name = encoded_type_name + "_" + dims_copy + "_" + std::to_string(n_dims);
+        struct_name = "struct " + name;
+        std::string array_data = format_type("*", type_name, "data", false, false, true, "*");
+        new_array_type = struct_name + "\n{\n    " + array_data +
+                            ";\n    dimension_descriptor dims[" +
+                            std::to_string(n_dims) + "];\n    bool is_allocated;\n\n";
+        std::string constructor = "    " + name + "(" + array_data + "_): data{data_} {};\n};\n";
+        new_array_type += constructor;
+        type_name = name + "*";
+        eltypedims2arraytype[encoded_type_name][dims][n_dims] = name;
+        array_types_decls += "\n" + new_array_type + "\n";
+        return type_name;
+    }
+
+    void generate_array_decl(std::string& sub, std::string v_m_name,
+                             std::string& type_name, std::string& dims,
+                             std::string& encoded_type_name,
+                             ASR::dimension_t* m_dims, int n_dims, size_t size,
+                             bool use_ref, bool dummy,
+                             bool declare_value, bool is_pointer=false) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string type_name_copy = type_name;
+        type_name = get_array_type(type_name, encoded_type_name, dims, n_dims);
+        std::string type_name_without_ptr = get_array_type(type_name, encoded_type_name, dims,
+                                                           n_dims, false);
+        if( declare_value ) {
+            std::string variable_name = std::string(v_m_name) + "_value";
+            if( !is_pointer ) {
+                sub = format_type("*", type_name_copy, std::string(v_m_name) + "_data",
+                                  use_ref, dummy, true, "", true, size) + ";\n" + indent;
+            } else {
+                sub = indent;
+            }
+            sub += format_type("", type_name_without_ptr, variable_name, use_ref, dummy, false);
+            if( !is_pointer ) {
+                sub += "(&" + std::string(v_m_name) + "_data);\n";
+            } else {
+                sub += ";\n";
+            }
+            sub += indent + format_type("", type_name, v_m_name, use_ref, dummy, false);
+            sub += " = &" + variable_name + ";\n";
+            if( !is_pointer ) {
+                for (int i = 0; i < n_dims; i++) {
+                    if( m_dims[i].m_start ) {
+                        this->visit_expr(*m_dims[i].m_start);
+                        sub += indent + std::string(v_m_name) +
+                            "->dims[" + std::to_string(i) + "].lower_bound = " + src + ";\n";
+                    } else {
+                        sub += indent + std::string(v_m_name) +
+                            "->dims[" + std::to_string(i) + "].lower_bound = 0" + ";\n";
+                    }
+                    if( m_dims[i].m_end ) {
+                        this->visit_expr(*m_dims[i].m_end);
+                        sub += indent + std::string(v_m_name) +
+                            "->dims[" + std::to_string(i) + "].upper_bound = " + src + ";\n";
+                    } else {
+                        sub += indent + std::string(v_m_name) +
+                            "->dims[" + std::to_string(i) + "].upper_bound = -1" + ";\n";
+                    }
+                }
+                sub.pop_back();
+                sub.pop_back();
+            }
+        } else {
+            sub = format_type("", type_name, v_m_name, use_ref, dummy, false);
+        }
+    }
+
+    std::string generate_templates_for_arrays(std::string v_name) {
+        std::string typename_T = "T" + std::to_string(template_number);
+        template_for_Kokkos += "typename " + typename_T + ", ";
+        template_number += 1;
+        return typename_T + "* " + v_name;
+    }
+
+    std::string convert_variable_decl(const ASR::Variable_t &v, bool use_static=true,
+                                      bool use_templates_for_arrays=false)
     {
         std::string sub;
-        bool use_ref = (v.m_intent == LFortran::ASRUtils::intent_out || v.m_intent == LFortran::ASRUtils::intent_inout);
+        bool use_ref = (v.m_intent == LFortran::ASRUtils::intent_out ||
+
+                        v.m_intent == LFortran::ASRUtils::intent_inout);
+        bool is_array = ASRUtils::is_array(v.m_type);
         bool dummy = LFortran::ASRUtils::is_arg_dummy(v.m_intent);
         if (ASRUtils::is_pointer(v.m_type)) {
             ASR::ttype_t *t2 = ASR::down_cast<ASR::Pointer_t>(v.m_type)->m_type;
             if (ASRUtils::is_integer(*t2)) {
                 ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(t2);
-                std::string dims = convert_dims(t->n_dims, t->m_dims);
-                sub = format_type(dims, "int *", v.m_name, use_ref, dummy);
+                size_t size;
+                std::string dims = convert_dims(t->n_dims, t->m_dims, size);
+                std::string type_name = "int" + std::to_string(t->m_kind * 8) + "_t";
+                if( is_array ) {
+                    if( use_templates_for_arrays ) {
+                        sub += generate_templates_for_arrays(std::string(v.m_name));
+                    } else {
+                        std::string encoded_type_name = "i" + std::to_string(t->m_kind * 8);
+                        generate_array_decl(sub, std::string(v.m_name), type_name, dims,
+                                            encoded_type_name, t->m_dims, t->n_dims, size,
+                                            use_ref, dummy,
+                                            v.m_intent != ASRUtils::intent_in &&
+                                            v.m_intent != ASRUtils::intent_inout &&
+                                            v.m_intent != ASRUtils::intent_out, true);
+                    }
+                } else {
+                    sub = format_type(dims, "int *", v.m_name, use_ref, dummy);
+                }
             } else {
                 diag.codegen_error_label("Type number '"
                     + std::to_string(v.m_type->type)
@@ -87,36 +238,101 @@ public:
             }
         } else {
             std::string dims;
+            use_ref = use_ref && !is_array;
             if (ASRUtils::is_integer(*v.m_type)) {
                 ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(v.m_type);
-                dims = convert_dims(t->n_dims, t->m_dims);
+                size_t size;
+                dims = convert_dims(t->n_dims, t->m_dims, size);
                 std::string type_name = "int";
                 if (t->m_kind == 8) type_name = "long long";
-                sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
+                if( is_array ) {
+                    if( use_templates_for_arrays ) {
+                        sub += generate_templates_for_arrays(std::string(v.m_name));
+                    } else {
+                        std::string encoded_type_name = "i" + std::to_string(t->m_kind * 8);
+                        generate_array_decl(sub, std::string(v.m_name), type_name, dims,
+                                            encoded_type_name, t->m_dims, t->n_dims, size,
+                                            use_ref, dummy,
+                                            v.m_intent != ASRUtils::intent_in &&
+                                            v.m_intent != ASRUtils::intent_inout &&
+                                            v.m_intent != ASRUtils::intent_out);
+                    }
+                } else {
+                    sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
+                }
             } else if (ASRUtils::is_real(*v.m_type)) {
                 ASR::Real_t *t = ASR::down_cast<ASR::Real_t>(v.m_type);
-                dims = convert_dims(t->n_dims, t->m_dims);
+                size_t size;
+                dims = convert_dims(t->n_dims, t->m_dims, size);
                 std::string type_name = "float";
                 if (t->m_kind == 8) type_name = "double";
-                sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
+                if( is_array ) {
+                    if( use_templates_for_arrays ) {
+                        sub += generate_templates_for_arrays(std::string(v.m_name));
+                    } else {
+                        std::string encoded_type_name = "f" + std::to_string(t->m_kind * 8);
+                        generate_array_decl(sub, std::string(v.m_name), type_name, dims,
+                                            encoded_type_name, t->m_dims, t->n_dims, size,
+                                            use_ref, dummy,
+                                            v.m_intent != ASRUtils::intent_in &&
+                                            v.m_intent != ASRUtils::intent_inout &&
+                                            v.m_intent != ASRUtils::intent_out);
+                    }
+                } else {
+                    sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
+                }
             } else if (ASRUtils::is_complex(*v.m_type)) {
                 ASR::Complex_t *t = ASR::down_cast<ASR::Complex_t>(v.m_type);
-                dims = convert_dims(t->n_dims, t->m_dims);
+                size_t size;
+                dims = convert_dims(t->n_dims, t->m_dims, size);
                 std::string type_name = "std::complex<float>";
                 if (t->m_kind == 8) type_name = "std::complex<double>";
-                sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
+                if( is_array ) {
+                    if( use_templates_for_arrays ) {
+                        sub += generate_templates_for_arrays(std::string(v.m_name));
+                    } else {
+                        std::string encoded_type_name = "c" + std::to_string(t->m_kind * 8);
+                        generate_array_decl(sub, std::string(v.m_name), type_name, dims,
+                                            encoded_type_name, t->m_dims, t->n_dims, size,
+                                            use_ref, dummy,
+                                            v.m_intent != ASRUtils::intent_in &&
+                                            v.m_intent != ASRUtils::intent_inout &&
+                                            v.m_intent != ASRUtils::intent_out);
+                    }
+                } else {
+                    sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
+                }
             } else if (ASRUtils::is_logical(*v.m_type)) {
                 ASR::Logical_t *t = ASR::down_cast<ASR::Logical_t>(v.m_type);
-                dims = convert_dims(t->n_dims, t->m_dims);
+                size_t size;
+                dims = convert_dims(t->n_dims, t->m_dims, size);
                 sub = format_type(dims, "bool", v.m_name, use_ref, dummy);
             } else if (ASRUtils::is_character(*v.m_type)) {
                 ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(v.m_type);
-                dims = convert_dims(t->n_dims, t->m_dims);
+                size_t size;
+                dims = convert_dims(t->n_dims, t->m_dims, size);
                 sub = format_type(dims, "std::string", v.m_name, use_ref, dummy);
             } else if (ASR::is_a<ASR::Derived_t>(*v.m_type)) {
                 ASR::Derived_t *t = ASR::down_cast<ASR::Derived_t>(v.m_type);
-                dims = convert_dims(t->n_dims, t->m_dims);
-                sub = format_type(dims, "struct", v.m_name, use_ref, dummy);
+                std::string der_type_name = ASRUtils::symbol_name(t->m_derived_type);
+                size_t size;
+                dims = convert_dims(t->n_dims, t->m_dims, size);
+                if( is_array ) {
+                    if( use_templates_for_arrays ) {
+                        sub += generate_templates_for_arrays(std::string(v.m_name));
+                    } else {
+                        std::string encoded_type_name = "x" + der_type_name;
+                        std::string type_name = std::string("struct ") + der_type_name;
+                        generate_array_decl(sub, std::string(v.m_name), type_name, dims,
+                                            encoded_type_name, t->m_dims, t->n_dims, size,
+                                            use_ref, dummy,
+                                            v.m_intent != ASRUtils::intent_in &&
+                                            v.m_intent != ASRUtils::intent_inout &&
+                                            v.m_intent != ASRUtils::intent_out);
+                    }
+                } else {
+                    sub = format_type(dims, "struct", v.m_name, use_ref, dummy);
+                }
             } else {
                 diag.codegen_error_label("Type number '"
                     + std::to_string(v.m_type->type)
@@ -166,7 +382,6 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 }
 
 )";
-        unit_src += headers;
 
 
         // Pre-declare all functions first, then generate code
@@ -233,7 +448,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             }
         }
 
-        src = unit_src;
+        src = headers + array_types_decls + unit_src;
     }
 
     void visit_Program(const ASR::Program_t &x) {
@@ -366,6 +581,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_ArrayConstant(const ASR::ArrayConstant_t &x) {
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        from_std_vector_helper = indent + "Kokkos::View<float*> r;\n";
         std::string out = "from_std_vector<float>({";
         for (size_t i=0; i<x.n_args; i++) {
             this->visit_expr(*x.m_args[i]);
@@ -373,7 +590,8 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             if (i < x.n_args-1) out += ", ";
         }
         out += "})";
-        src = out;
+        from_std_vector_helper += indent + "r = " + out + ";\n";
+        src = "&r";
         last_expr_precedence = 2;
     }
 
@@ -438,6 +656,32 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
         out += indent + "});\n";
         indentation_level -= 1;
+        src = out;
+    }
+
+    void visit_ArrayItem(const ASR::ArrayItem_t &x) {
+        this->visit_expr(*x.m_v);
+        std::string array = src;
+        std::string out = array;
+        ASR::dimension_t* m_dims;
+        ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(x.m_v), m_dims);
+        out += "->data->operator[](";
+        std::string index = "";
+        for (size_t i=0; i<x.n_args; i++) {
+            std::string current_index = "";
+            if (x.m_args[i].m_right) {
+                this->visit_expr(*x.m_args[i].m_right);
+            } else {
+                src = "/* FIXME right index */";
+            }
+            out += src;
+            out += " - " + array + "->dims[" + std::to_string(i) + "].lower_bound";
+            if (i < x.n_args - 1) {
+                out += ", ";
+            }
+        }
+        out += ")";
+        last_expr_precedence = 2;
         src = out;
     }
 
