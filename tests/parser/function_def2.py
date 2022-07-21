@@ -34,11 +34,8 @@ def test_11(x, *y, **args):
 def test_12(x, **args):
     pass
 
-"""
-TODO: defaults are not stored in AST
-"""
-# def test_13(x: i32 = 1, y: i32 = 1):
-#     pass
+def test_13(x: i32 = 1, y: i32 = 1):
+    pass
 
 def test_14(x, *y, z, **args: i32) -> i32:
     pass

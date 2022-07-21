@@ -215,7 +215,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> function_def
 %type <args> parameter_list_opt
 %type <arg> parameter
-%type <arg> defparameter
 %type <args> parameter_list_starargs
 %type <vec_arg> defparameter_list
 %type <vec_ast> decorators
@@ -548,17 +547,13 @@ decorators
 parameter
     : id { $$ = ARGS_01($1, @$); }
     | id ":" expr { $$ = ARGS_02($1, $3, @$); }
-    ;
-
-defparameter
-    : parameter { $$ = $1; }
-    // TODO: Expose `expr` to AST
-    | parameter "=" expr { $$ = $1; }
+    | id "=" expr { $$ = ARGS_03($1, $3, @$); }
+    | id ":" expr "=" expr { $$ = ARGS_04($1, $3, $5, @$); }
     ;
 
 defparameter_list
-    : defparameter_list "," defparameter { $$ = $1; PLIST_ADD($$, $3); }
-    | defparameter { LIST_NEW($$); PLIST_ADD($$, $1); }
+    : defparameter_list "," parameter { $$ = $1; LIST_ADD($$, $3); }
+    | parameter { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 parameter_list_starargs

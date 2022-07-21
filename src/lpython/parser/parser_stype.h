@@ -19,6 +19,12 @@ struct Args {
     LPython::AST::arguments_t arguments;
 };
 
+struct Arg {
+    bool default_value;
+    LPython::AST::arg_t _arg;
+    LPython::AST::expr_t *defaults;
+};
+
 union YYSTYPE {
     int64_t n;
     double f;
@@ -30,8 +36,8 @@ union YYSTYPE {
     LPython::AST::alias_t* alias;
     Vec<LPython::AST::alias_t> vec_alias;
 
-    LPython::AST::arg_t* arg;
-    Vec<LPython::AST::arg_t> vec_arg;
+    Arg *arg;
+    Vec<Arg*> vec_arg;
 
     Args *args;
     Vec<Args> vec_args;

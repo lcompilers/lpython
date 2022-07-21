@@ -22,6 +22,7 @@ using LFortran::Location;
 using LFortran::Vec;
 using LFortran::Key_Val;
 using LFortran::Args;
+using LFortran::Arg;
 
 static inline char* name2char(const ast_t *n) {
     return down_cast2<Name_t>(n)->m_id;
@@ -308,111 +309,151 @@ static inline withitem_t *WITH_ITEM(Allocator &al, Location &l,
 #define WITH(items, body, l) make_With_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), nullptr)
 
-static inline arg_t *FUNC_ARG(Allocator &al, Location &l, char *arg, expr_t* e) {
-    arg_t *r = al.allocate<arg_t>();
-    r->loc = l;
-    r->m_arg = arg;
-    r->m_annotation = e;
-    r->m_type_comment = nullptr;
+static inline Arg *FUNC_ARG(Allocator &al, Location &l, char *arg,
+        expr_t* e, expr_t* defaults) {
+    Arg *r = al.allocate<Arg>();
+    r->_arg.loc = l;
+    r->_arg.m_arg = arg;
+    r->_arg.m_annotation = e;
+    r->_arg.m_type_comment = nullptr;
+    if(defaults){
+        r->default_value = true;
+    } else {
+        r->default_value = false;
+    }
+    r->defaults = defaults;
     return r;
 }
+
+Arg** ARG2LIST(Allocator &al, Arg *x) {
+    Arg** v = al.allocate<Arg*>(1);
+    v[0] = x;
+    return v;
+}
+
+#define FUNC_ARGS_(x) \
+        Vec<arg_t> _m_##x; \
+        _m_##x.reserve(al, 4); \
+        if(n_##x > 0) { \
+            for(size_t i = 0; i < n_##x; i++) { \
+                _m_##x.push_back(al, m_##x[i]->_arg); \
+                if(m_##x[i]->default_value) { \
+                    defaults.push_back(al, m_##x[i]->defaults); \
+                } \
+            } \
+        }
 
 static inline Args *FUNC_ARGS(Allocator &al, Location &l,
-        arg_t* m_posonlyargs, size_t n_posonlyargs,
-        arg_t* m_args, size_t n_args,
-        arg_t* m_vararg, size_t n_vararg,
-        arg_t* m_kwonlyargs, size_t n_kwonlyargs,
-        expr_t** m_kw_defaults, size_t n_kw_defaults,
-        arg_t* m_kwarg, size_t n_kwarg,
-        expr_t** m_defaults, size_t n_defaults) {
+        Arg** m_posonlyargs, size_t n_posonlyargs,
+        Arg** m_args, size_t n_args,
+        Arg** m_vararg, size_t n_vararg,
+        Arg** m_kwonlyargs, size_t n_kwonlyargs,
+        Arg** m_kwarg, size_t n_kwarg) {
     Args *r = al.allocate<Args>();
+    Vec<expr_t*> defaults;
+    defaults.reserve(al, 4);
+
+    FUNC_ARGS_(posonlyargs);
+    FUNC_ARGS_(args);
+    FUNC_ARGS_(vararg);
+    FUNC_ARGS_(kwonlyargs);
+    FUNC_ARGS_(kwarg);
+
     r->arguments.loc = l;
-    r->arguments.m_posonlyargs = m_posonlyargs;
-    r->arguments.n_posonlyargs = n_posonlyargs;
-    r->arguments.m_args = m_args;
-    r->arguments.n_args = n_args;
-    r->arguments.m_vararg = m_vararg;
-    r->arguments.n_vararg = n_vararg;
-    r->arguments.m_kwonlyargs = m_kwonlyargs;
-    r->arguments.n_kwonlyargs = n_kwonlyargs;
-    r->arguments.m_kw_defaults = m_kw_defaults;
-    r->arguments.n_kw_defaults = n_kw_defaults;
-    r->arguments.m_kwarg = m_kwarg;
-    r->arguments.n_kwarg = n_kwarg;
-    r->arguments.m_defaults = m_defaults;
-    r->arguments.n_defaults = n_defaults;
+    r->arguments.m_posonlyargs = _m_posonlyargs.p;
+    r->arguments.n_posonlyargs = _m_posonlyargs.n;
+    r->arguments.m_args = _m_args.p;
+    r->arguments.n_args = _m_args.n;
+    r->arguments.m_vararg = _m_vararg.p;
+    r->arguments.n_vararg = _m_vararg.n;
+    r->arguments.m_kwonlyargs = _m_kwonlyargs.p;
+    r->arguments.n_kwonlyargs = _m_kwonlyargs.n;
+    r->arguments.m_kw_defaults = nullptr;
+    r->arguments.n_kw_defaults = 0;
+    r->arguments.m_kwarg = _m_kwarg.p;
+    r->arguments.n_kwarg = _m_kwarg.n;
+    r->arguments.m_defaults = defaults.p;
+    r->arguments.n_defaults = defaults.n;
     return r;
 }
 
-#define ARGS_01(arg, l) FUNC_ARG(p.m_a, l, name2char((ast_t *)arg), nullptr)
+#define ARGS_01(arg, l) FUNC_ARG(p.m_a, l, \
+        name2char((ast_t *)arg), nullptr, nullptr)
 #define ARGS_02(arg, annotation, l) FUNC_ARG(p.m_a, l, \
-        name2char((ast_t *)arg), EXPR(annotation))
+        name2char((ast_t *)arg), EXPR(annotation), nullptr)
+#define ARGS_03(arg, defaults, l) FUNC_ARG(p.m_a, l, \
+        name2char((ast_t *)arg), nullptr, EXPR(defaults))
+#define ARGS_04(arg, ann, defaults, l) FUNC_ARG(p.m_a, l, \
+        name2char((ast_t *)arg), EXPR(ann), EXPR(defaults))
+
 
 #define STAR_ARGS_01(vararg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        nullptr, 0, vararg, 1, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0)
-#define STAR_ARGS_02(vararg, kwonlyargs, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        nullptr, 0, vararg, 1, kwonlyargs.p, kwonlyargs.n, \
-        nullptr, 0, nullptr, 0, nullptr, 0)
+        nullptr, 0, ARG2LIST(p.m_a, vararg), 1, nullptr, 0, nullptr, 0)
+#define STAR_ARGS_02(vararg, kwonlyargs, l) FUNC_ARGS(p.m_a, l, \
+        nullptr, 0, nullptr, 0, ARG2LIST(p.m_a, vararg), 1, \
+        kwonlyargs.p, kwonlyargs.n, nullptr, 0)
 #define STAR_ARGS_03(vararg, kwonlyargs, kwarg, l) FUNC_ARGS(p.m_a, l, \
-        nullptr, 0, nullptr, 0, vararg, 1, kwonlyargs.p, kwonlyargs.n, \
-        nullptr, 0, kwarg, 1, nullptr, 0)
-#define STAR_ARGS_04(vararg, kwarg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        nullptr, 0, vararg, 1, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
+        nullptr, 0, nullptr, 0, ARG2LIST(p.m_a, vararg), 1, \
+        kwonlyargs.p, kwonlyargs.n, ARG2LIST(p.m_a, kwarg), 1)
+#define STAR_ARGS_04(vararg, kwarg, l) FUNC_ARGS(p.m_a, l, \
+        nullptr, 0, nullptr, 0, ARG2LIST(p.m_a, vararg), 1, \
+        nullptr, 0, ARG2LIST(p.m_a, kwarg), 1)
 #define STAR_ARGS_05(kwarg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
+        nullptr, 0, nullptr, 0, nullptr, 0, ARG2LIST(p.m_a, kwarg), 1)
 
 #define STAR_ARGS_06(args, vararg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        args.p, args.n, vararg, 1, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0)
-#define STAR_ARGS_07(args, vararg, kwonlyargs, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        args.p, args.n, vararg, 1, kwonlyargs.p, kwonlyargs.n, \
-        nullptr, 0, nullptr, 0, nullptr, 0)
+        args.p, args.n, ARG2LIST(p.m_a, vararg), 1, nullptr, 0, nullptr, 0)
+#define STAR_ARGS_07(args, vararg, kwonlyargs, l) FUNC_ARGS(p.m_a, l, \
+        nullptr, 0, args.p, args.n, ARG2LIST(p.m_a, vararg), 1, \
+        kwonlyargs.p, kwonlyargs.n, nullptr, 0)
 #define STAR_ARGS_08(args, vararg, kwonlyargs, kwarg, l) FUNC_ARGS(p.m_a, l, \
-        nullptr, 0, args.p, args.n, vararg, 1, kwonlyargs.p, kwonlyargs.n, \
-        nullptr, 0, kwarg, 1, nullptr, 0)
-#define STAR_ARGS_09(args, vararg, kwarg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        args.p, args.n, vararg, 1, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
+        nullptr, 0, args.p, args.n, ARG2LIST(p.m_a, vararg), 1, \
+        kwonlyargs.p, kwonlyargs.n, ARG2LIST(p.m_a, kwarg), 1)
+#define STAR_ARGS_09(args, vararg, kwarg, l) FUNC_ARGS(p.m_a, l, \
+        nullptr, 0, args.p, args.n, ARG2LIST(p.m_a, vararg), 1, \
+        nullptr, 0, ARG2LIST(p.m_a, kwarg), 1)
 #define STAR_ARGS_10(args, kwarg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        args.p, args.n, nullptr, 0, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
+        args.p, args.n, nullptr, 0, nullptr, 0, ARG2LIST(p.m_a, kwarg), 1)
 
 #define STAR_ARGS_11(posonlyargs, l) FUNC_ARGS(p.m_a, l, \
-        posonlyargs.p, posonlyargs.n, nullptr, 0, nullptr, 0, nullptr, 0, \
-        nullptr, 0, nullptr, 0, nullptr, 0)
+        posonlyargs.p, posonlyargs.n, nullptr, 0, nullptr, 0, \
+        nullptr, 0, nullptr, 0)
 #define STAR_ARGS_12(posonlyargs, vararg, l) FUNC_ARGS(p.m_a, l, \
-        posonlyargs.p, posonlyargs.n, nullptr, 0, vararg, 1, nullptr, 0, \
-        nullptr, 0, nullptr, 0, nullptr, 0)
+        posonlyargs.p, posonlyargs.n, nullptr, 0, ARG2LIST(p.m_a, vararg), 1, \
+        nullptr, 0, nullptr, 0)
 #define STAR_ARGS_13(posonlyargs, vararg, kwonlyargs, l) FUNC_ARGS(p.m_a, l, \
-        posonlyargs.p, posonlyargs.n, nullptr, 0, vararg, 1, \
-        kwonlyargs.p, kwonlyargs.n, nullptr, 0, nullptr, 0, nullptr, 0)
+        posonlyargs.p, posonlyargs.n, nullptr, 0, ARG2LIST(p.m_a, vararg), 1, \
+        kwonlyargs.p, kwonlyargs.n, nullptr, 0)
 #define STAR_ARGS_14(posonlyargs, vararg, kwonlyargs, kwarg, l) FUNC_ARGS(p.m_a, l, \
-        posonlyargs.p, posonlyargs.n, nullptr, 0, vararg, 1, \
-        kwonlyargs.p, kwonlyargs.n, nullptr, 0, kwarg, 1, nullptr, 0)
+        posonlyargs.p, posonlyargs.n, nullptr, 0, ARG2LIST(p.m_a, vararg), 1, \
+        kwonlyargs.p, kwonlyargs.n, ARG2LIST(p.m_a, kwarg), 1)
 #define STAR_ARGS_15(posonlyargs, kwarg, l) FUNC_ARGS(p.m_a, l, \
         posonlyargs.p, posonlyargs.n, nullptr, 0, nullptr, 0, nullptr, 0, \
-        nullptr, 0, kwarg, 1, nullptr, 0)
+        ARG2LIST(p.m_a, kwarg), 1)
 #define STAR_ARGS_16(posonlyargs, vararg, kwarg, l) FUNC_ARGS(p.m_a, l, \
-        posonlyargs.p, posonlyargs.n, nullptr, 0, vararg, 1, nullptr, 0, \
-        nullptr, 0, kwarg, 1, nullptr, 0)
+        posonlyargs.p, posonlyargs.n, nullptr, 0, ARG2LIST(p.m_a, vararg), 1, \
+        nullptr, 0, ARG2LIST(p.m_a, kwarg), 1)
 #define STAR_ARGS_17(posonlyargs, args, vararg, l) FUNC_ARGS(p.m_a, l, \
-        posonlyargs.p, posonlyargs.n, args.p, args.n, vararg, 1, nullptr, 0, \
-        nullptr, 0, nullptr, 0, nullptr, 0)
+        posonlyargs.p, posonlyargs.n, args.p, args.n, ARG2LIST(p.m_a, vararg), 1, \
+        nullptr, 0, nullptr, 0)
 #define STAR_ARGS_18(posonlyargs, args, kwarg, l) FUNC_ARGS(p.m_a, l, \
         posonlyargs.p, posonlyargs.n, args.p, args.n, nullptr, 0, nullptr, 0, \
-        nullptr, 0, kwarg, 1, nullptr, 0)
+        ARG2LIST(p.m_a, kwarg), 1)
 #define STAR_ARGS_19(posonlyargs, args, vararg, kwarg, l) FUNC_ARGS(p.m_a, l, \
-        posonlyargs.p, posonlyargs.n, args.p, args.n, vararg, 1, nullptr, 0, \
-        nullptr, 0, kwarg, 1, nullptr, 0)
+        posonlyargs.p, posonlyargs.n, args.p, args.n, ARG2LIST(p.m_a, vararg), 1, \
+        nullptr, 0, ARG2LIST(p.m_a, kwarg), 1)
 #define STAR_ARGS_20(posonlyargs, args, vararg, kwonlyargs, kwarg, l) \
-        FUNC_ARGS(p.m_a, l, posonlyargs.p, posonlyargs.n, args.p, args.n, \
-        vararg, 1, kwonlyargs.p, kwonlyargs.n, nullptr, 0, kwarg, 1, nullptr, 0)
+        FUNC_ARGS(p.m_a, l, posonlyargs.p, posonlyargs.n, \
+        args.p, args.n, ARG2LIST(p.m_a, vararg), 1, \
+        kwonlyargs.p, kwonlyargs.n, ARG2LIST(p.m_a, kwarg), 1)
 
 #define FUNC_ARG_LIST_01(args, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        args.p, args.n, nullptr, 0, nullptr, 0, nullptr, 0, \
-        nullptr, 0, nullptr, 0)
+        args.p, args.n, nullptr, 0, nullptr, 0, nullptr, 0)
 #define FUNC_ARG_LIST_02(l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0)
+        nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0)
 #define FUNC_ARG_LIST_03(posonlyargs, args, l) FUNC_ARGS(p.m_a, l, \
-        posonlyargs.p, posonlyargs.n, args.p, args.n, nullptr, 0, nullptr, 0, \
-        nullptr, 0, nullptr, 0, nullptr, 0)
+        posonlyargs.p, posonlyargs.n, args.p, args.n, nullptr, 0, \
+        nullptr, 0, nullptr, 0)
 
 #define FUNCTION_01(decorator, id, args, stmts, l) \
         make_FunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
