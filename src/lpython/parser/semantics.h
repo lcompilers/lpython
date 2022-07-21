@@ -159,6 +159,9 @@ static inline Vec<ast_t*> SET_STORE_02(Vec<ast_t*> x) {
 #define ASSIGNMENT(targets, val, l) make_Assign_t(p.m_a, l, \
         EXPRS(SET_EXPR_CTX_02(SET_STORE_02(targets), Store)), targets.size(), \
         EXPR(val), nullptr)
+#define ASSIGNMENT2(targets, val, type_comment, l) make_Assign_t(p.m_a, l, \
+        EXPRS(SET_EXPR_CTX_02(SET_STORE_02(targets), Store)), targets.size(), \
+        EXPR(val), extract_type_comment(p.m_a, type_comment))
 
 static inline ast_t* TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
     if(is_a<expr_t>(*elts[0]) && elts.size() == 1) {
@@ -308,6 +311,9 @@ static inline withitem_t *WITH_ITEM(Allocator &al, Location &l,
         EXPR(expr), EXPR(SET_EXPR_CTX_01(vars, Store)))
 #define WITH(items, body, l) make_With_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), nullptr)
+#define WITH_01(items, body, type_comment, l) make_With_t(p.m_a, l, \
+        items.p, items.size(), STMTS(body), body.size(), \
+        extract_type_comment(p.m_a, type_comment))
 
 static inline Arg *FUNC_ARG(Allocator &al, Location &l, char *arg,
         expr_t* e, expr_t* defaults) {
@@ -463,6 +469,14 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
         make_FunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
         STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
         EXPR(return), nullptr)
+#define FUNCTION_03(decorator, id, args, stmts, type_comment, l) \
+        make_FunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
+        nullptr, extract_type_comment(p.m_a, type_comment))
+#define FUNCTION_04(decorator, id, args, return, stmts, type_comment, l) \
+        make_FunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
+        EXPR(return), extract_type_comment(p.m_a, type_comment))
 
 #define CLASS_01(decorator, id, stmts, l) make_ClassDef_t(p.m_a, l, \
         name2char(id), nullptr, 0, nullptr, 0, \
@@ -487,6 +501,22 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
 #define ASYNC_FUNCTION_04(id, args, return, stmts, l) \
         make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
         STMTS(stmts), stmts.size(), nullptr, 0, EXPR(return), nullptr)
+#define ASYNC_FUNCTION_05(decorator, id, args, stmts, type_comment, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
+        nullptr, extract_type_comment(p.m_a, type_comment))
+#define ASYNC_FUNCTION_06(decorator, id, args, return, stmts, type_comment, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
+        EXPR(return), extract_type_comment(p.m_a, type_comment))
+#define ASYNC_FUNCTION_07(id, args, stmts, type_comment, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), nullptr, 0, nullptr,\
+        extract_type_comment(p.m_a, type_comment))
+#define ASYNC_FUNCTION_08(id, args, return, stmts, type_comment, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), nullptr, 0, EXPR(return),\
+        extract_type_comment(p.m_a, type_comment))
 
 #define ASYNC_FOR_01(target, iter, stmts, l) make_AsyncFor_t(p.m_a, l, \
         EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
@@ -494,9 +524,19 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
 #define ASYNC_FOR_02(target, iter, stmts, orelse, l) make_AsyncFor_t(p.m_a, l, \
         EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), nullptr)
+#define ASYNC_FOR_03(target, iter, stmts, type_comment, l) make_AsyncFor_t(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        STMTS(stmts), stmts.size(), nullptr, 0, extract_type_comment(p.m_a, type_comment))
+#define ASYNC_FOR_04(target, iter, stmts, orelse, type_comment, l) make_AsyncFor_t(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), \
+        extract_type_comment(p.m_a, type_comment))
 
 #define ASYNC_WITH(items, body, l) make_AsyncWith_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), nullptr)
+#define ASYNC_WITH_01(items, body, type_comment, l) make_AsyncWith_t(p.m_a, l, \
+        items.p, items.size(), STMTS(body), body.size(),  \
+        extract_type_comment(p.m_a, type_comment))
 
 #define WHILE_01(e, stmts, l) make_While_t(p.m_a, l, \
         EXPR(e), STMTS(stmts), stmts.size(), nullptr, 0)
