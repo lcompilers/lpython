@@ -527,7 +527,7 @@ namespace LFortran {
                                   num_elements);
 
             if( this->is_array(shape) ) {
-                llvm::Value* n_dims = this->get_rank(shape);
+                llvm::Value* n_dims = this->get_array_size(shape, nullptr, 4);
                 llvm::Value* shape_data = builder->CreateLoad(this->get_pointer_to_data(shape));
                 llvm::Value* dim_des_val = llvm_utils->create_gep(reshaped, 2);
                 llvm::Value* dim_des_first = builder->CreateAlloca(dim_des, n_dims);
