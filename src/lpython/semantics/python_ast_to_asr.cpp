@@ -29,7 +29,7 @@
 
 
 namespace LFortran::LPython {
-    
+
 // Does a CPython style lookup for a module:
 // * First the current directory (this is incorrect, we need to do it relative to the current file)
 // * Then the LPython runtime directory
@@ -3657,6 +3657,25 @@ public:
         throw SemanticError("len() is only supported for `str`, `set`, `dict`, `list` and `tuple`", loc);
     }
 
+    ASR::asr_t* handle_reshape(Allocator &al, Vec<ASR::call_arg_t> args,
+                               const Location &loc) {
+        if( args.size() != 2 ) {
+            throw SemanticError("reshape accepts only 2 arguments, got " +
+                                std::to_string(args.size()) + " arguments instead.",
+                                loc);
+        }
+        ASR::expr_t* array = args[0].m_value;
+        ASR::expr_t* newshape = args[1].m_value;
+        Vec<ASR::dimension_t> dims;
+        dims.reserve(al, 1);
+        ASR::dimension_t newdim;
+        newdim.loc = loc;
+        newdim.m_start = nullptr, newdim.m_length = nullptr;
+        dims.push_back(al, newdim);
+        ASR::ttype_t* empty_type = ASRUtils::duplicate_type(al, ASRUtils::expr_type(array), &dims);
+        return ASR::make_ArrayReshape_t(al, loc, array, newshape, empty_type, nullptr);
+    }
+
     ASR::asr_t* create_CPtrToPointer(const AST::Call_t& x) {
         if( x.n_args != 2 ) {
             throw SemanticError("c_p_pointer accepts two positional arguments, "
@@ -3790,6 +3809,9 @@ public:
                 // with the type
                 tmp = nullptr;
                 return;
+            } else if (call_name == "reshape") {
+                tmp = handle_reshape(al, args, x.base.base.loc);
+                return ;
             } else if (call_name == "empty_c_void_p") {
                 // TODO: check that `empty_c_void_p uses` has arguments that are compatible
                 // with the type
