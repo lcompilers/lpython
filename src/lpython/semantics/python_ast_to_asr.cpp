@@ -3666,6 +3666,13 @@ public:
         }
         ASR::expr_t* array = args[0].m_value;
         ASR::expr_t* newshape = args[1].m_value;
+        if( !ASRUtils::is_array(ASRUtils::expr_type(newshape)) ) {
+            throw SemanticError("reshape only accept arrays for shape "
+                                "arguments, found " +
+                                ASRUtils::type_to_str_python(ASRUtils::expr_type(newshape)) +
+                                " instead.",
+                                loc);
+        }
         Vec<ASR::dimension_t> dims;
         dims.reserve(al, 1);
         ASR::dimension_t newdim;
