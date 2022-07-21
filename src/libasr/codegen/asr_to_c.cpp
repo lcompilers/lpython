@@ -620,7 +620,7 @@ R"(
 
             current_index += "(" + src + " - " + array + "->dims["
                                 + std::to_string(i) + "].lower_bound)";
-            for( size_t j = 0; j < i; j++ ) {
+            for( size_t j = i + 1; j < x.n_args; j++ ) {
                 std::string length = array + "->dims[" + std::to_string(j) + "].length";
                 current_index += " * " + length;
             }
