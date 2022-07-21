@@ -84,3 +84,8 @@ test(**x, **y)
 lp.test()
 lp.test(x, y)
 lp.test(x, y = 1, z = '123')
+
+test()["version"]
+test(x, y)["version"]
+test(x, *y)[:-1]
+test()[1][1]
