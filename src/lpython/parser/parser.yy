@@ -501,9 +501,11 @@ for_statement
         $$ = FOR_01($2, $4, $7, @$); }
     | KW_FOR tuple_for_statement_item KW_IN expr ":" sep statements KW_ELSE ":"
         sep statements { $$ = FOR_02($2, $4, $7, $11, @$); }
-    | KW_FOR tuple_for_statement_item KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE statements {
+    | KW_FOR tuple_for_statement_item KW_IN expr ":"
+        TK_TYPE_COMMENT TK_NEWLINE statements {
         $$ = FOR_03($2, $4, $6, $8, @$); }
-    | KW_FOR tuple_for_statement_item KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE statements
+    | KW_FOR tuple_for_statement_item KW_IN expr ":"
+        TK_TYPE_COMMENT TK_NEWLINE statements
         KW_ELSE ":" sep statements { $$ = FOR_04($2, $4, $8, $12, $6, @$); }
     ;
 
@@ -622,8 +624,9 @@ function_def
         $$ = FUNCTION_01($1, $3, $5, $9, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
         sep statements { $$ = FUNCTION_02($1, $3, $5, $8, $11, @$); }
-    | decorators_opt KW_DEF id "(" parameter_list_opt ")" ":" TK_TYPE_COMMENT TK_NEWLINE
-        statements { $$ = FUNCTION_03($1, $3, $5, $10, $8, @$); }
+    | decorators_opt KW_DEF id "(" parameter_list_opt ")" ":"
+        TK_TYPE_COMMENT TK_NEWLINE statements {
+        $$ = FUNCTION_03($1, $3, $5, $10, $8, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
         TK_TYPE_COMMENT TK_NEWLINE statements {
             $$ = FUNCTION_04($1, $3, $5, $8, $12, $10, @$); }
@@ -644,13 +647,15 @@ async_func_def
         statements { $$ = ASYNC_FUNCTION_03($3, $5, $9, @$); }
     | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
         sep statements { $$ = ASYNC_FUNCTION_04($3, $5, $8, $11, @$); }
-    | decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":" TK_TYPE_COMMENT
-        TK_NEWLINE statements { $$ = ASYNC_FUNCTION_05($1, $4, $6, $11, $9, @$); }
+    | decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":"
+        TK_TYPE_COMMENT TK_NEWLINE statements {
+        $$ = ASYNC_FUNCTION_05($1, $4, $6, $11, $9, @$); }
     | decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
         TK_TYPE_COMMENT TK_NEWLINE statements {
         $$ = ASYNC_FUNCTION_06($1, $4, $6, $9, $13, $11, @$); }
-    | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":" TK_TYPE_COMMENT TK_NEWLINE
-        statements { $$ = ASYNC_FUNCTION_07($3, $5, $10, $8, @$); }
+    | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":"
+        TK_TYPE_COMMENT TK_NEWLINE statements {
+        $$ = ASYNC_FUNCTION_07($3, $5, $10, $8, @$); }
     | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
         TK_TYPE_COMMENT TK_NEWLINE statements {
         $$ = ASYNC_FUNCTION_08($3, $5, $8, $12, $10, @$); }
@@ -659,12 +664,15 @@ async_func_def
 async_for_stmt
     : KW_ASYNC KW_FOR tuple_for_statement_item KW_IN expr ":" sep statements {
         $$ = ASYNC_FOR_01($3, $5, $8, @$); }
-    | KW_ASYNC KW_FOR tuple_for_statement_item KW_IN expr ":" sep statements KW_ELSE ":" sep
-        statements { $$ = ASYNC_FOR_02($3, $5, $8, $12, @$); }
-    | KW_ASYNC KW_FOR tuple_item KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE statements {
+    | KW_ASYNC KW_FOR tuple_for_statement_item KW_IN expr ":" sep
+        statements KW_ELSE ":" sep statements {
+        $$ = ASYNC_FOR_02($3, $5, $8, $12, @$); }
+    | KW_ASYNC KW_FOR tuple_for_statement_item KW_IN expr ":"
+        TK_TYPE_COMMENT TK_NEWLINE statements {
         $$ = ASYNC_FOR_03($3, $5, $9, $7, @$); }
-    | KW_ASYNC KW_FOR tuple_item KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE statements
-        KW_ELSE ":" sep statements { $$ = ASYNC_FOR_04($3, $5, $9, $13, $7, @$); }
+    | KW_ASYNC KW_FOR tuple_for_statement_item KW_IN expr ":"
+        TK_TYPE_COMMENT TK_NEWLINE statements KW_ELSE ":" sep statements {
+        $$ = ASYNC_FOR_04($3, $5, $9, $13, $7, @$); }
     ;
 
 async_with_stmt
