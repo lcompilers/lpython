@@ -1,5 +1,11 @@
-semantic error: Only Name, Subscript, and Call supported for now in annotation of annotated assignment.
- --> tests/errors/test_pow4.py:4:5
+style suggestion: Could have used '**' instead of 'pow'
+ --> tests/errors/test_pow4.py:8:11
   |
-4 |     a: 2
-  |     ^^^^ 
+8 |     print(pow(x, a, b))
+  |           ^^^^^^^^^^^^ '**' could be used instead
+
+semantic error: Arguments do not match for any generic procedure, pow
+ --> tests/errors/test_pow4.py:8:11
+  |
+8 |     print(pow(x, a, b))
+  |           ^^^^^^^^^^^^ 
