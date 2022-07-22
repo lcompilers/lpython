@@ -200,7 +200,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> assignment_statement
 %type <vec_ast> target_list
 %type <ast> tuple_item
-%type <ast> tuple_for_statement_item
+%type <ast> for_tuple_item
 %type <ast> ann_assignment_statement
 %type <ast> delete_statement
 %type <ast> return_statement
@@ -369,7 +369,7 @@ tuple_item
     | "(" expr_list ","  expr ")" { $$ = TUPLE_01(TUPLE_($2, $4), @$); }
     ;
 
-tuple_for_statement_item
+for_tuple_item
     : expr_for_list { $$ = TUPLE_01($1, @$); }
     | expr_for_list "," { $$ = TUPLE_03($1, @$); }
     | "(" expr_for_list "," ")" { $$ = TUPLE_03($2, @$); }
@@ -498,14 +498,14 @@ if_statement
     ;
 
 for_statement
-    : KW_FOR tuple_for_statement_item KW_IN expr ":" sep statements {
+    : KW_FOR for_tuple_item KW_IN tuple_item ":" sep statements {
         $$ = FOR_01($2, $4, $7, @$); }
-    | KW_FOR tuple_for_statement_item KW_IN expr ":" sep statements KW_ELSE ":"
+    | KW_FOR for_tuple_item KW_IN tuple_item ":" sep statements KW_ELSE ":"
         sep statements { $$ = FOR_02($2, $4, $7, $11, @$); }
-    | KW_FOR tuple_for_statement_item KW_IN expr ":"
+    | KW_FOR for_tuple_item KW_IN tuple_item ":"
         TK_TYPE_COMMENT TK_NEWLINE statements {
         $$ = FOR_03($2, $4, $6, $8, @$); }
-    | KW_FOR tuple_for_statement_item KW_IN expr ":"
+    | KW_FOR for_tuple_item KW_IN tuple_item ":"
         TK_TYPE_COMMENT TK_NEWLINE statements
         KW_ELSE ":" sep statements { $$ = FOR_04($2, $4, $8, $12, $6, @$); }
     ;
@@ -663,15 +663,15 @@ async_func_def
     ;
 
 async_for_stmt
-    : KW_ASYNC KW_FOR tuple_for_statement_item KW_IN expr ":" sep statements {
+    : KW_ASYNC KW_FOR for_tuple_item KW_IN tuple_item ":" sep statements {
         $$ = ASYNC_FOR_01($3, $5, $8, @$); }
-    | KW_ASYNC KW_FOR tuple_for_statement_item KW_IN expr ":" sep
+    | KW_ASYNC KW_FOR for_tuple_item KW_IN tuple_item ":" sep
         statements KW_ELSE ":" sep statements {
         $$ = ASYNC_FOR_02($3, $5, $8, $12, @$); }
-    | KW_ASYNC KW_FOR tuple_for_statement_item KW_IN expr ":"
+    | KW_ASYNC KW_FOR for_tuple_item KW_IN tuple_item ":"
         TK_TYPE_COMMENT TK_NEWLINE statements {
         $$ = ASYNC_FOR_03($3, $5, $9, $7, @$); }
-    | KW_ASYNC KW_FOR tuple_for_statement_item KW_IN expr ":"
+    | KW_ASYNC KW_FOR for_tuple_item KW_IN tuple_item ":"
         TK_TYPE_COMMENT TK_NEWLINE statements KW_ELSE ":" sep statements {
         $$ = ASYNC_FOR_04($3, $5, $9, $13, $7, @$); }
     ;
