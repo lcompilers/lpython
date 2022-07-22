@@ -32,8 +32,8 @@ struct PythonIntrinsicProcedures {
         comptime_eval_map = {
             {"abs", {m_builtin, &eval_abs}},
             {"str", {m_builtin, &eval_str}},
-            {"chr", {m_builtin, &eval_chr}},
-            {"ord", {m_builtin, &eval_ord}},
+            // {"chr", {m_builtin, &eval_chr}},
+            // {"ord", {m_builtin, &eval_ord}},
             // {"len", {m_builtin, &eval_len}},
             {"pow", {m_builtin, &eval_pow}},
             // {"int", {m_builtin, &eval_int}},

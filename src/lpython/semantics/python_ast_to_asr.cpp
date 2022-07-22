@@ -3741,6 +3741,63 @@ public:
         return ASR::make_ArrayReshape_t(al, loc, array, newshape, empty_type, nullptr);
     }
 
+    ASR::asr_t* handle_intrinsic_ord(Allocator &al, Vec<ASR::call_arg_t> args,
+                                        const Location &loc) {
+        if (args.size() != 1) {
+            throw SemanticError("ord() takes exactly one argument (" +
+                std::to_string(args.size()) + " given)", loc);
+        }
+        ASR::expr_t *arg = args[0].m_value;
+        ASR::ttype_t *type = ASRUtils::expr_type(arg);
+        ASR::ttype_t *to_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                                4, nullptr, 0));
+        ASR::expr_t *value = nullptr;
+        if (ASRUtils::is_character(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                char* c = ASR::down_cast<ASR::StringConstant_t>(ASRUtils::expr_value(arg))->m_s;
+                if (std::string(c).size() != 1) {
+                    throw SemanticError("ord() is only supported for `str` of length 1", arg->base.loc);
+                }
+                value = ASR::down_cast<ASR::expr_t>(
+                    ASR::make_IntegerConstant_t(al, loc, c[0], to_type));
+            }
+            return ASR::make_StringOrd_t(al, loc, arg, to_type, value);
+        } else {
+            throw SemanticError("ord() expected string of length 1, but " + ASRUtils::type_to_str_python(type) + " found",
+                arg->base.loc);
+        }
+    }
+
+    ASR::asr_t* handle_intrinsic_chr(Allocator &al, Vec<ASR::call_arg_t> args,
+                                        const Location &loc) {
+        if (args.size() != 1) {
+            throw SemanticError("chr() takes exactly one argument (" +
+                std::to_string(args.size()) + " given)", loc);
+        }
+        ASR::expr_t *arg = args[0].m_value;
+        ASR::ttype_t *type = ASRUtils::expr_type(arg);
+        ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
+            loc, 1, 1, nullptr, nullptr, 0));
+        ASR::expr_t *value = nullptr;
+        if (ASRUtils::is_integer(*type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                int64_t c = ASR::down_cast<ASR::IntegerConstant_t>(arg)->m_n;
+                if (! (c >= 0 && c <= 127) ) {
+                    throw SemanticError("The argument 'x' in chr(x) must be in the range 0 <= x <= 127.", loc);
+                }
+                char cc = c;
+                std::string svalue;
+                svalue += cc;
+                value = ASR::down_cast<ASR::expr_t>(
+                    ASR::make_StringConstant_t(al, loc, s2c(al, svalue), str_type));
+            }
+            return ASR::make_StringChr_t(al, loc, arg, str_type, value);
+        } else {
+            throw SemanticError("'" + ASRUtils::type_to_str_python(type) + "' object cannot be interpreted as an integer",
+                arg->base.loc);
+        }
+    }
+
     ASR::asr_t* create_CPtrToPointer(const AST::Call_t& x) {
         if( x.n_args != 2 ) {
             throw SemanticError("c_p_pointer accepts two positional arguments, "
@@ -3917,6 +3974,12 @@ public:
                 return;
             } else if (call_name == "len") {
                 tmp = handle_intrinsic_len(al, args, x.base.base.loc);
+                return;
+            } else if (call_name == "ord") {
+                tmp = handle_intrinsic_ord(al, args, x.base.base.loc);
+                return;
+            } else if (call_name == "chr") {
+                tmp = handle_intrinsic_chr(al, args, x.base.base.loc);
                 return;
             } else if( call_name == "pointer" ) {
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Pointer_t(al, x.base.base.loc,

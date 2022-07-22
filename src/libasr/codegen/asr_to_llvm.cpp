@@ -815,6 +815,36 @@ public:
         return builder->CreateCall(fn, {str});
     }
 
+    llvm::Value* lfortran_str_ord(llvm::Value* str)
+    {
+        std::string runtime_func_name = "_lfortran_str_ord";
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getInt32Ty(context), {
+                        character_type->getPointerTo()
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        return builder->CreateCall(fn, {str});
+    }
+
+    llvm::Value* lfortran_str_chr(llvm::Value* str)
+    {
+        std::string runtime_func_name = "_lfortran_str_chr";
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    character_type, {
+                        llvm::Type::getInt32Ty(context)
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        return builder->CreateCall(fn, {str});
+    }
+
     llvm::Value* lfortran_str_copy(llvm::Value* str, llvm::Value* idx1, llvm::Value* idx2)
     {
         std::string runtime_func_name = "_lfortran_str_copy";
@@ -3323,6 +3353,26 @@ public:
         llvm::AllocaInst *parg = builder->CreateAlloca(character_type, nullptr);
         builder->CreateStore(tmp, parg);
         tmp = lfortran_str_len(parg);
+    }
+
+    void visit_StringOrd(const ASR::StringOrd_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_arg, true);
+        llvm::AllocaInst *parg = builder->CreateAlloca(character_type, nullptr);
+        builder->CreateStore(tmp, parg);
+        tmp = lfortran_str_ord(parg);
+    }
+
+    void visit_StringChr(const ASR::StringChr_t &x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr_wrapper(x.m_arg, true);
+        tmp = lfortran_str_chr(tmp);
     }
 
     void visit_StringItem(const ASR::StringItem_t& x) {
