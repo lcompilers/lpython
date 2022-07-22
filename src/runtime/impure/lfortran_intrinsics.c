@@ -614,6 +614,54 @@ LFORTRAN_API void _lfortran_strcat(char** s1, char** s2, char** dest)
     *dest = &(dest_char[0]);
 }
 
+#define MIN(x, y) ((x < y) ? x : y)
+
+int str_compare(char **s1, char **s2)
+{
+    int s1_len = strlen(*s1);
+    int s2_len = strlen(*s2);
+    int lim = MIN(s1_len, s2_len);
+    int res = 0;
+    int i ;
+    for (i = 0; i < lim; i++) {
+        if ((*s1)[i] != (*s2)[i]) {
+            res = (*s1)[i] - (*s2)[i];
+            break;
+        }
+    }
+    res = (i == lim)? s1_len - s2_len : res;
+    return res;
+}
+LFORTRAN_API bool _lpython_str_compare_eq(char **s1, char **s2)
+{
+    return str_compare(s1, s2) == 0;
+}
+
+LFORTRAN_API bool _lpython_str_compare_noteq(char **s1, char **s2)
+{
+    return str_compare(s1, s2) != 0;
+}
+
+LFORTRAN_API bool _lpython_str_compare_gt(char **s1, char **s2)
+{
+    return str_compare(s1, s2) > 0;
+}
+
+LFORTRAN_API bool _lpython_str_compare_lte(char **s1, char **s2)
+{
+    return str_compare(s1, s2) <= 0;
+}
+
+LFORTRAN_API bool _lpython_str_compare_lt(char **s1, char **s2)
+{
+    return str_compare(s1, s2) < 0;
+}
+
+LFORTRAN_API bool _lpython_str_compare_gte(char **s1, char **s2)
+{
+    return str_compare(s1, s2) >= 0;
+}
+
 //repeat str for n time
 LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
 {
@@ -661,6 +709,25 @@ LFORTRAN_API char* _lfortran_str_copy(char* s, int32_t idx1, int32_t idx2) {
 LFORTRAN_API int _lfortran_str_len(char** s)
 {
     return strlen(*s);
+}
+
+LFORTRAN_API int _lfortran_str_to_int(char** s)
+{
+    char *ptr;
+    return strtol(*s, &ptr, 10);
+}
+
+LFORTRAN_API int _lfortran_str_ord(char** s)
+{
+    return (*s)[0];
+}
+
+LFORTRAN_API char* _lfortran_str_chr(int val)
+{
+    char* dest_char = (char*)malloc(2);
+    dest_char[0] = val;
+    dest_char[1] = '\0';
+    return dest_char;
 }
 
 LFORTRAN_API char* _lfortran_malloc(int size) {

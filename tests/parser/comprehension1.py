@@ -11,3 +11,9 @@ transform_1 = [2*x + 6 for x in range(10)]
 distance_orig = [x**2 + y**2 + z**2 for x, y, z in points]
 
 odd_elements = [i for i in main_list if i & 1]
+
+first_ten_elements = [i for (i) in range(10)]
+
+another_ten_elements = [(i) for (i) in range(10)]
+
+comp = [i**2 for i in range(10) if i not in [3, 5, 7] and i in list3]

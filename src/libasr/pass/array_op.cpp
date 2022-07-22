@@ -232,8 +232,9 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t& x) {
-        if( ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
-            ASR::is_a<ASR::GetPointer_t>(*x.m_value) ) {
+        if( (ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
+             ASR::is_a<ASR::GetPointer_t>(*x.m_value)) ||
+             ASR::is_a<ASR::ArrayReshape_t>(*x.m_value) ) {
             return ;
         }
         if( PassUtils::is_array(x.m_target) ) {
@@ -284,7 +285,7 @@ public:
         PassUtils::get_dim_rank(sibling_type, m_dims, ndims);
         for( int i = 0; i < ndims; i++ ) {
             if( m_dims[i].m_start != nullptr ||
-                m_dims[i].m_end != nullptr ) {
+                m_dims[i].m_length != nullptr ) {
                 return sibling_type;
             }
         }
@@ -294,7 +295,8 @@ public:
             ASR::dimension_t new_m_dim;
             new_m_dim.loc = m_dims[i].loc;
             new_m_dim.m_start = PassUtils::get_bound(sibling, i + 1, "lbound", al);
-            new_m_dim.m_end = PassUtils::get_bound(sibling, i + 1, "ubound", al);
+            new_m_dim.m_length = ASRUtils::compute_length_from_start_end(al, new_m_dim.m_start,
+                                     PassUtils::get_bound(sibling, i + 1, "ubound", al));
             new_m_dims.push_back(al, new_m_dim);
         }
         return PassUtils::set_dim_rank(sibling_type, new_m_dims.p, ndims, true, &al);
@@ -528,7 +530,7 @@ public:
         if( rank_left > 0 && rank_right > 0 ) {
             if( rank_left != rank_right ) {
                 // This should be checked by verify() and thus should not happen
-                throw LFortranException("Cannot generate loop for operands of different shapes");
+                throw LCompilersException("Cannot generate loop for operands of different shapes");
             }
             result_var = result_var_copy;
             if( result_var == nullptr ) {
@@ -607,7 +609,7 @@ public:
                                                     ref_1, (ASR::cmpopType)x.m_op, ref_2, x.m_type, nullptr));
                             break;
                         default:
-                            throw LFortranException("The desired operation is not supported yet for arrays.");
+                            throw LCompilersException("The desired operation is not supported yet for arrays.");
                     }
                     ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr));
                     doloop_body.push_back(al, assign);
@@ -713,7 +715,7 @@ public:
                                                     ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type, nullptr));
                             break;
                         default:
-                            throw LFortranException("The desired operation is not supported yet for arrays.");
+                            throw LCompilersException("The desired operation is not supported yet for arrays.");
                     }
                     ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr));
                     doloop_body.push_back(al, assign);

@@ -34,13 +34,43 @@ def test_11(x, *y, **args):
 def test_12(x, **args):
     pass
 
-"""
-TODO: defaults are not stored in AST
-"""
-# def test_13(x: i32 = 1, y: i32 = 1):
-#     pass
+def test_13(x: i32 = 1, y: i32 = 1):
+    pass
 
 def test_14(x, *y, z, **args: i32) -> i32:
+    pass
+
+def test_15(a, /):
+    pass
+
+def test_16(a, /, b, c):
+    pass
+
+def test_17(a, /, *b):
+    pass
+
+def test_18(a:i32, /, *b: i64, c: i32, d: i32):
+    pass
+
+def test_19(a, /, *b, c, **d):
+    pass
+
+def test_20(a, /, **b):
+    pass
+
+def test_21(a, /, *b, **c):
+    pass
+
+def test_22(a, /, b, c, *d):
+    pass
+
+def test_23(a, /, b, c, **d):
+    pass
+
+def test_24(a, /, b, c, *d, **e):
+    pass
+
+def test_25(a, /, b, c, *d, e, **f):
     pass
 
 test()
@@ -54,3 +84,8 @@ test(**x, **y)
 lp.test()
 lp.test(x, y)
 lp.test(x, y = 1, z = '123')
+
+test()["version"]
+test(x, y)["version"]
+test(x, *y)[:-1]
+test()[1][1]
