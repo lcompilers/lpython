@@ -143,6 +143,93 @@ def str(x: i32) -> str:
         result += rev_result[pos]
     return result
 
+
+def capitalize(s: str) -> str:
+    """
+    Return a copy of the string with its first character capitalized and the rest lowercased.
+    """
+    result: str
+    result = upper(s[0]) + lower(s[1:])
+    return result
+
+def upper(s: str) -> str:
+    result : str
+    char : str
+    i: i64
+    for i in range(len(s)):
+        char = s[i]
+        if ord(char) >= 97 and ord(char) <=122 :
+            result += chr(ord(char) - 32)
+        else :
+            result += char
+    return result
+
+def lower(s: str) -> str:
+    result : str
+    # result = ''
+    char : str
+    i: i64
+    for i in range(len(s)):
+        char = s[i]
+        if ord(char) >= 65 and ord(char) <=90 :
+            result += chr(ord(char) + 32)
+        else :
+            result += char
+    return result
+
+
+#: bool() as a generic procedure.
+#: supported types for argument:
+#: i8, i16, i32, i64, f32, f64, bool
+@overload
+def bool(x: i32) -> bool:
+    """
+    Return False when the argument `x` is 0, True otherwise.
+    """
+    return x != 0
+
+@overload
+def bool(x: i64) -> bool:
+    return x != 0
+
+@overload
+def bool(x: i8) -> bool:
+    return x != 0
+
+@overload
+def bool(x: i16) -> bool:
+    return x != 0
+
+@overload
+def bool(f: f32) -> bool:
+    return f != 0.0
+
+@overload
+def bool(f: f64) -> bool:
+    """
+    Return False when the argument `x` is 0.0, True otherwise.
+    """
+    return f != 0.0
+
+@overload
+def bool(s: str) -> bool:
+    """
+    Return False when the argument `s` is an empty string, True otherwise.
+    """
+    return len(s) > 0
+
+@overload
+def bool(b: bool) -> bool:
+    return b
+
+@overload
+def bool(c: c32) -> bool:
+    return c.real != 0.0 or _lfortran_caimag(c) != 0.0
+
+@overload
+def bool(c: c64) -> bool:
+    return c.real != 0.0 or _lfortran_zaimag(c) != 0.0
+    
 @interface
 def len(s: str) -> i32:
     """
@@ -580,3 +667,4 @@ def min(a: f64, b: f64) -> f64:
         return a
     else:
         return b
+
