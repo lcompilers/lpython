@@ -18,3 +18,31 @@ for item in list1:
 
 if a in list1 and b not in list2 or c in list3:
     pass
+
+# Looping over Tuples
+
+for f in (a, b, c, d):
+    pass
+
+for x in (a, ):
+    pass
+
+for x in a, :
+    pass
+
+for x in (
+    a,
+    b,
+):
+    pass
+
+
+async def test():
+    async for x in (
+        a,
+        b,
+    ):
+        pass
+
+    async for x in (a, ):
+        pass
