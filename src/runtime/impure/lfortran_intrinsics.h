@@ -147,6 +147,7 @@ LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest);
 LFORTRAN_API void _lfortran_strcat(char** s1, char** s2, char** dest);
 LFORTRAN_API int _lfortran_str_len(char** s);
 LFORTRAN_API int _lfortran_str_ord(char** s);
+LFORTRAN_API char* _lfortran_str_chr(int c);
 LFORTRAN_API int _lfortran_str_to_int(char** s);
 LFORTRAN_API char* _lfortran_malloc(int size);
 LFORTRAN_API void _lfortran_free(char* ptr);
