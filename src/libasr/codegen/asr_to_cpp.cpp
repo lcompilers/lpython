@@ -75,7 +75,6 @@ public:
         std::string dims;
         size = 1;
         for (size_t i=0; i<n_dims; i++) {
-            ASR::expr_t *start = m_dims[i].m_start;
             ASR::expr_t *length = m_dims[i].m_length;
             if (!length) {
                 dims += "*";

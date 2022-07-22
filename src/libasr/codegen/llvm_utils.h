@@ -36,6 +36,10 @@ namespace LFortran {
 
             llvm::Value* create_ptr_gep(llvm::Value* ptr, llvm::Value* idx);
 
+            llvm::Type* getIntType(int a_kind, bool get_pointer=false);
+
+            void start_new_block(llvm::BasicBlock *bb);
+
     }; // LLVMUtils
 
 } // LFortran

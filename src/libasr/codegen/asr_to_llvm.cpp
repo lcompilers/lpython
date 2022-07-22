@@ -1295,6 +1295,14 @@ public:
         builder->CreateStore(p, tmp);
     }
 
+    void visit_ArrayReshape(const ASR::ArrayReshape_t& x) {
+        this->visit_expr(*x.m_array);
+        llvm::Value* array = tmp;
+        this->visit_expr(*x.m_shape);
+        llvm::Value* shape = tmp;
+        tmp = arr_descr->reshape(array, shape, module.get());
+    }
+
     void visit_DerivedRef(const ASR::DerivedRef_t& x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
@@ -2898,7 +2906,15 @@ public:
                 }
             }
         }
-        builder->CreateStore(value, target);
+        ASR::ttype_t* target_type = ASRUtils::expr_type(x.m_target);
+        ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_value);
+        if( ASRUtils::is_array(target_type) &&
+            ASRUtils::is_array(value_type) &&
+            ASRUtils::check_equal_type(target_type, value_type) ) {
+            arr_descr->copy_array(value, target);
+        } else {
+            builder->CreateStore(value, target);
+        }
         auto finder = std::find(nested_globals.begin(),
                 nested_globals.end(), h);
         if (finder != nested_globals.end()) {
@@ -5080,6 +5096,7 @@ public:
             return ;
         }
         int output_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+        int dim_kind = 4;
         uint64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 2 - // Sync: instead of 2 - , should this be ptr_loads_copy -
                     (ASRUtils::expr_type(x.m_v)->type ==
@@ -5087,48 +5104,13 @@ public:
         visit_expr_wrapper(x.m_v);
         ptr_loads = ptr_loads_copy;
         llvm::Value* llvm_arg = tmp;
-        llvm::Value* dim_des_val = arr_descr->get_pointer_to_dimension_descriptor_array(llvm_arg);
+        llvm::Value* llvm_dim = nullptr;
         if( x.m_dim ) {
             visit_expr_wrapper(x.m_dim, true);
-            int kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_dim));
-            tmp = builder->CreateSub(tmp, llvm::ConstantInt::get(context, llvm::APInt(kind * 8, 1)));
-            tmp = arr_descr->get_dimension_size(dim_des_val, tmp);
-            tmp = builder->CreateSExt(tmp, getIntType(output_kind));
-            return ;
+            dim_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_dim));
+            llvm_dim = tmp;
         }
-        llvm::Value* rank = arr_descr->get_rank(llvm_arg);
-        llvm::Value* llvm_size = builder->CreateAlloca(getIntType(output_kind), nullptr);
-        builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(output_kind * 8, 1)), llvm_size);
-
-        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
-        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
-        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
-        this->current_loophead = loophead;
-        this->current_loopend = loopend;
-
-        llvm::Value* r = builder->CreateAlloca(getIntType(4), nullptr);
-        builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), r);
-        // head
-        start_new_block(loophead);
-        llvm::Value *cond = builder->CreateICmpSLT(CreateLoad(r), rank);
-        builder->CreateCondBr(cond, loopbody, loopend);
-
-        // body
-        start_new_block(loopbody);
-        llvm::Value* r_val = CreateLoad(r);
-        llvm::Value* ret_val = CreateLoad(llvm_size);
-        llvm::Value* dim_size = arr_descr->get_dimension_size(dim_des_val, r_val);
-        dim_size = builder->CreateSExt(dim_size, getIntType(output_kind));
-        ret_val = builder->CreateMul(ret_val, dim_size);
-        builder->CreateStore(ret_val, llvm_size);
-        r_val = builder->CreateAdd(r_val, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
-        builder->CreateStore(r_val, r);
-        builder->CreateBr(loophead);
-
-        // end
-        start_new_block(loopend);
-
-        tmp = CreateLoad(llvm_size);
+        tmp = arr_descr->get_array_size(llvm_arg, llvm_dim, output_kind, dim_kind);
     }
 
     void visit_ArrayBound(const ASR::ArrayBound_t& x) {
