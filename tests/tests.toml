@@ -571,6 +571,10 @@ filename = "errors/test_ord.py"
 asr = true
 
 [[test]]
+filename = "errors/test_chr.py"
+asr = true
+
+[[test]]
 filename = "errors/test_assign1.py"
 asr = true
 
