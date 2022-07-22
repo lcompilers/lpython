@@ -1,11 +1,5 @@
-style suggestion: Could have used '**' instead of 'pow'
- --> tests/errors/test_pow4.py:6:9
+semantic error: Only Name, Subscript, and Call supported for now in annotation of annotated assignment.
+ --> tests/errors/test_pow4.py:4:5
   |
-6 |     t = pow(4,x)
-  |         ^^^^^^^^ '**' could be used instead
-
-semantic error: Arguments do not match for any generic procedure, pow
- --> tests/errors/test_pow4.py:6:9
-  |
-6 |     t = pow(4,x)
-  |         ^^^^^^^^ 
+4 |     a: 2
+  |     ^^^^ 

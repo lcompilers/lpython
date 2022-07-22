@@ -1,5 +1,11 @@
 style suggestion: Could have used '**' instead of 'pow'
- --> tests/errors/test_pow2.py:2:11
-  |
-2 |     print(pow(2, 2))
-  |           ^^^^^^^^^ '**' could be used instead
+  --> tests/errors/test_pow2.py:10:11
+   |
+10 |     print(pow(a, b, c, d))
+   |           ^^^^^^^^^^^^^^^ '**' could be used instead
+
+semantic error: Arguments do not match for any generic procedure, pow
+  --> tests/errors/test_pow2.py:10:11
+   |
+10 |     print(pow(a, b, c, d))
+   |           ^^^^^^^^^^^^^^^ 

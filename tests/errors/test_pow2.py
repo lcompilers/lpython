@@ -1,7 +1,10 @@
-from ltypes import i64
 def f():
     a: i64
     b: i64
-    a = 99999999
-    b = 99999999
-    print(pow(a, b))
+    c: i64
+    d: i64
+    a = 1
+    b = 2
+    c = 3
+    d = 4
+    print(pow(a, b, c, d))

@@ -1,7 +1,6 @@
-
 def f():
-    x: str
-    x = "t"
-    t: i64
-    t = pow(4,x)
-    print(t)
+    x: c32
+    x = 2+3j
+    a: 2
+    b: 3
+    print(x, a, b)

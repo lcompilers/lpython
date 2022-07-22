@@ -1,5 +1,6 @@
-from ltypes import c32
 def f():
-    x: c32
-    x = 4 + 6j
-    print(pow(x,3))
+    x: list[i32]
+    x = [2,3]
+    a: i64
+    a = 3
+    print(pow(x,a))
