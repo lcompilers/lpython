@@ -5096,6 +5096,7 @@ public:
             return ;
         }
         int output_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+        int dim_kind = 4;
         uint64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 2 - // Sync: instead of 2 - , should this be ptr_loads_copy -
                     (ASRUtils::expr_type(x.m_v)->type ==
@@ -5104,13 +5105,12 @@ public:
         ptr_loads = ptr_loads_copy;
         llvm::Value* llvm_arg = tmp;
         llvm::Value* llvm_dim = nullptr;
-        llvm::Value* dim_des_val = arr_descr->get_pointer_to_dimension_descriptor_array(llvm_arg);
         if( x.m_dim ) {
             visit_expr_wrapper(x.m_dim, true);
-            output_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_dim));
+            dim_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_dim));
             llvm_dim = tmp;
         }
-        tmp = arr_descr->get_array_size(llvm_arg, llvm_dim, output_kind);
+        tmp = arr_descr->get_array_size(llvm_arg, llvm_dim, output_kind, dim_kind);
     }
 
     void visit_ArrayBound(const ASR::ArrayBound_t& x) {

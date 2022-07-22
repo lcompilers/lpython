@@ -259,7 +259,7 @@ namespace LFortran {
 
                 virtual
                 llvm::Value* get_array_size(llvm::Value* array, llvm::Value* dim,
-                                            int dim_kind) = 0;
+                                            int output_kind, int dim_kind=4) = 0;
 
         };
 
@@ -384,7 +384,7 @@ namespace LFortran {
 
                 virtual
                 llvm::Value* get_array_size(llvm::Value* array, llvm::Value* dim,
-                                            int dim_kind);
+                                            int output_kind, int dim_kind=4);
 
         };
 
