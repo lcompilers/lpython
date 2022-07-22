@@ -4429,7 +4429,7 @@ public:
                 llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
                 args.push_back(d);
             } else {
-                throw LFortranException("Printing support is not available for " +
+                throw LCompilersException("Printing support is not available for " +
                     ASRUtils::type_to_str(t) + " type.");
             }
         }
