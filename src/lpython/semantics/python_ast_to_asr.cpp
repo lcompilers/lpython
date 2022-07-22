@@ -3918,6 +3918,9 @@ public:
             } else if (call_name == "len") {
                 tmp = handle_intrinsic_len(al, args, x.base.base.loc);
                 return;
+            } else if (call_name == "ord") {
+                tmp = handle_intrinsic_ord(al, args, x.base.base.loc);
+                return;
             } else if( call_name == "pointer" ) {
                 ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Pointer_t(al, x.base.base.loc,
                                             ASRUtils::expr_type(args[0].m_value)));
