@@ -661,6 +661,7 @@ LFORTRAN_API bool _lpython_str_compare_gte(char **s1, char **s2)
 {
     return str_compare(s1, s2) >= 0;
 }
+
 //repeat str for n time
 LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
 {
@@ -714,6 +715,11 @@ LFORTRAN_API int _lfortran_str_to_int(char** s)
 {
     char *ptr;
     return strtol(*s, &ptr, 10);
+}
+
+LFORTRAN_API int _lfortran_str_ord(char** s)
+{
+    return (*s)[0];
 }
 
 LFORTRAN_API char* _lfortran_malloc(int size) {
