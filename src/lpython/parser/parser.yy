@@ -634,9 +634,16 @@ function_def
     ;
 
 class_def
-    : decorators_opt KW_CLASS id ":" sep statements { $$ = CLASS_01($1, $3, $6, @$); }
+    : decorators_opt KW_CLASS id ":" sep statements { 
+        $$ = CLASS_01($1, $3, $6, @$); }
     | decorators_opt KW_CLASS id "(" expr_list_opt ")" ":" sep statements {
         $$ = CLASS_02($1, $3, $5, $9, @$); }
+    | decorators_opt KW_CLASS id "(" expr_list "," keyword_items ")" 
+        ":" sep statements { $$ = CLASS_03($1, $3, $5, $7, $11, @$); }
+    | decorators_opt KW_CLASS id "(" keyword_items "," expr_list ")" 
+        ":" sep statements { $$ = CLASS_03($1, $3, $7, $5, $11, @$); } 
+    | decorators_opt KW_CLASS id "(" keyword_items ")" ":" sep statements {
+        $$ = CLASS_04($1, $3, $5, $9, @$); }
     ;
 
 async_func_def
