@@ -1,4 +1,4 @@
-This PR aims to provide a PoC for using VSCode’s official language server module, which replaces the existing LSP’s JSONRPC and LPythonServer code base. Time spent on it was half a day, but the bugs it has fixed save us more than a week of implementing threading with the previous implementation. Here is the gist of what it does and what it does not: (note that this implementation only adds diagnostics to the extension, symbol look up will be next)
+This provides a PoC for using VSCode’s official language server module, which replaces the existing LSP’s JSONRPC and LPythonServer code base. Time spent on it was half a day, but the bugs it has fixed save us more than a week of implementing threading with the previous implementation. Here is the gist of what it does and what it does not: (note that this implementation only adds diagnostics to the extension, symbol look up will be next)
 
 ## What does it add?
 

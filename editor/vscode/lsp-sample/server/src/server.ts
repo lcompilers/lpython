@@ -198,8 +198,8 @@ async function runCompiler(text: string, flags: string, settings: ExampleSetting
 
 	let stdout: string;
 	try {
-		const output = await exec(`/home/ankita/Documents/Internships/GSI/tmp/lpython/src/bin/lpython --show-errors ${tmpFile.name}`);
-		// console.log(output);
+		const output = await exec(`${settings.compiler.executablePath} ${flags} ${tmpFile.name}`);
+		console.log(output);
 		stdout = output.stdout;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	} catch (e: any) {
@@ -243,7 +243,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 
 	const lineBreaks = findLineBreaks(text);
 
-	const stdout = await runCompiler(text, "--show-errors" + textDocument.uri, settings);
+	const stdout = await runCompiler(text, "--show-errors ", settings);
 	const obj = JSON.parse(stdout);
 
 	const diagnostics: Diagnostic[] = [];

@@ -1,5 +1,5 @@
 {
-	"name": "lsp-sample",
+	"name": "lpyth",
 	"description": "A language server example",
 	"author": "Microsoft Corporation",
 	"license": "MIT",
@@ -37,13 +37,13 @@
 			"type": "object",
 			"title": "Example configuration",
 			"properties": {
-				"languageServerExample.maxNumberOfProblems": {
+				"LPythonLanguageServer.maxNumberOfProblems": {
 					"scope": "resource",
 					"type": "number",
 					"default": 100,
 					"description": "Controls the maximum number of problems produced by the server."
 				},
-				"languageServerExample.trace.server": {
+				"LPythonLanguageServer.trace.server": {
 					"scope": "window",
 					"type": "string",
 					"enum": [
@@ -53,6 +53,12 @@
 					],
 					"default": "off",
 					"description": "Traces the communication between VS Code and the language server."
+				},
+				"LPythonLanguageServer.compiler.executablePath": {
+					"scope": "resource",
+					"type": "string",
+					"default": "/home/ankita/Documents/Internships/GSI/tmp/lpython/src/bin/lpython",
+					"description": "The path to the LPython compiler executable."
 				}
 			}
 		}
