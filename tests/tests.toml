@@ -562,9 +562,16 @@ asr = true
 filename = "errors/test_pow3.py"
 asr = true
 
-
 [[test]]
 filename = "errors/test_pow4.py"
+asr = true
+
+[[test]]
+filename = "errors/test_ord.py"
+asr = true
+
+[[test]]
+filename = "errors/test_chr.py"
 asr = true
 
 [[test]]
