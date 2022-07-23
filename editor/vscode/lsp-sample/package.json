@@ -21,6 +21,18 @@
 	],
 	"main": "./out/client/src/extension.js",
 	"contributes": {
+		"languages": [
+			{
+				"id": "LPython",
+				"aliases": [
+					"lpython",
+					"python"
+				],
+				"extensions": [
+					".py"
+				]
+			}
+		],
 		"configuration": {
 			"type": "object",
 			"title": "Example configuration",

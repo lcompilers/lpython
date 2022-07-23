@@ -106,7 +106,7 @@ interface ExampleSettings {
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
 // Please note that this is not the case when using this server with the client provided in this example
 // but could happen with other clients.
-const defaultSettings: ExampleSettings = { maxNumberOfProblems: 1000, compiler: { executablePath: "/home/ankita/Documents/Internships/GSI/lpython/src/bin/lpython" } };
+const defaultSettings: ExampleSettings = { maxNumberOfProblems: 1000, compiler: { executablePath: "/home/ankita/Documents/Internships/GSI/tmp/lpython/src/bin/lpython" } };
 let globalSettings: ExampleSettings = defaultSettings;
 
 // Cache the settings of all open documents
@@ -198,7 +198,7 @@ async function runCompiler(text: string, flags: string, settings: ExampleSetting
 
 	let stdout: string;
 	try {
-		const output = await exec(`/home/ankita/Documents/Internships/GSI/lpython/src/bin/lpython --show-errors ${tmpFile.name}`);
+		const output = await exec(`/home/ankita/Documents/Internships/GSI/tmp/lpython/src/bin/lpython --show-errors ${tmpFile.name}`);
 		// console.log(output);
 		stdout = output.stdout;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
