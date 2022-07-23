@@ -613,16 +613,21 @@ parameter_list_starargs
     ;
 
 parameter_list_opt
-    : defparameter_list { $$ = FUNC_ARG_LIST_01($1, @$); }
+    : defparameter_list comma_opt { $$ = FUNC_ARG_LIST_01($1, @$); }
     | parameter_list_starargs { $$ = $1; }
     | %empty { $$ = FUNC_ARG_LIST_02(@$); }
     | defparameter_list "," "/" "," defparameter_list {
         $$ = FUNC_ARG_LIST_03($1, $5, @$); }
     ;
 
+comma_opt
+    : ","
+    | %empty
+    ;
+
 function_def
-    : decorators_opt KW_DEF id "(" parameter_list_opt ")" ":" sep statements {
-        $$ = FUNCTION_01($1, $3, $5, $9, @$); }
+    : decorators_opt KW_DEF id "(" parameter_list_opt ")" ":" 
+        sep statements { $$ = FUNCTION_01($1, $3, $5, $9, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
         sep statements { $$ = FUNCTION_02($1, $3, $5, $8, $11, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" ":"
@@ -783,11 +788,12 @@ primary
 
 function_call
     : primary "(" expr_list_opt ")" { $$ = CALL_01($1, $3, @$); }
-    | primary "(" expr_list "," keyword_items ")" {
+    | primary "(" expr_list "," ")" { $$ = CALL_01($1, $3, @$); }
+    | primary "(" expr_list "," keyword_items comma_opt ")" {
         $$ = CALL_02($1, $3, $5, @$); }
-    | primary "(" keyword_items "," expr_list ")" {
+    | primary "(" keyword_items "," expr_list comma_opt ")" {
         $$ = CALL_02($1, $5, $3, @$); }
-    | primary "(" keyword_items ")" { $$ = CALL_03($1, $3, @$); }
+    | primary "(" keyword_items comma_opt ")" { $$ = CALL_03($1, $3, @$); }
     ;
 
 subscription
