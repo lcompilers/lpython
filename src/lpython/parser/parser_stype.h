@@ -51,6 +51,9 @@ union YYSTYPE {
     LPython::AST::keyword_t* keyword;
     Vec<LPython::AST::keyword_t> vec_keyword;
 
+    LPython::AST::comprehension_t* comp;
+    Vec<LPython::AST::comprehension_t> vec_comp;
+
     LPython::AST::operatorType operator_type;
 };
 

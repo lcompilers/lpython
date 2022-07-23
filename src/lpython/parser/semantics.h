@@ -686,18 +686,6 @@ static inline keyword_t *CALL_KW(Allocator &al, Location &l,
     r->m_value = val;
     return r;
 }
-#define CALL_KEYWORD_01(arg, val, l) CALL_KW(p.m_a, l, name2char(arg), EXPR(val))
-#define CALL_KEYWORD_02(val, l) CALL_KW(p.m_a, l, nullptr, EXPR(val))
-#define CALL_01(func, args, l) make_Call_t(p.m_a, l, \
-        EXPR(func), EXPRS(args), args.size(), nullptr, 0)
-#define CALL_02(func, args, keywords, l) make_Call_t(p.m_a, l, \
-        EXPR(func), EXPRS(args), args.size(), keywords.p, keywords.size())
-#define CALL_03(func, keywords, l) make_Call_t(p.m_a, l, \
-        EXPR(func), nullptr, 0, keywords.p, keywords.size())
-#define LIST(e, l) make_List_t(p.m_a, l, \
-        EXPRS(e), e.size(), expr_contextType::Load)
-#define ATTRIBUTE_REF(val, attr, l) make_Attribute_t(p.m_a, l, \
-        EXPR(val), name2char(attr), expr_contextType::Load)
 
 static inline comprehension_t *COMP(Allocator &al, Location &l,
         expr_t *target, expr_t* iter, expr_t **ifs, size_t ifs_size,
@@ -711,6 +699,31 @@ static inline comprehension_t *COMP(Allocator &al, Location &l,
     r->m_is_async = is_async;
     return r;
 }
+
+#define CALL_KEYWORD_01(arg, val, l) CALL_KW(p.m_a, l, name2char(arg), EXPR(val))
+#define CALL_KEYWORD_02(val, l) CALL_KW(p.m_a, l, nullptr, EXPR(val))
+#define CALL_01(func, args, l) make_Call_t(p.m_a, l, \
+        EXPR(func), EXPRS(args), args.size(), nullptr, 0)
+#define CALL_02(func, args, keywords, l) make_Call_t(p.m_a, l, \
+        EXPR(func), EXPRS(args), args.size(), keywords.p, keywords.size())
+#define CALL_03(func, keywords, l) make_Call_t(p.m_a, l, \
+        EXPR(func), nullptr, 0, keywords.p, keywords.size())
+#define CALL_04(func, args, l) make_Call_t(p.m_a, l, \
+        EXPR(func), EXPRS(A2LIST(p.m_a, args)), 1, nullptr, 0)
+
+#define COMP_FOR_01(target, iter, l) COMP(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), nullptr, 0, 0)
+#define COMP_FOR_02(target, iter, ifs, l) COMP(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
+        EXPRS(ifs), ifs.size(), 0)
+
+#define GENERATOR_EXPR(elt, generators, l) make_GeneratorExp_t(p.m_a, l, \
+        EXPR(elt), generators.p, generators.n)
+
+#define LIST(e, l) make_List_t(p.m_a, l, \
+        EXPRS(e), e.size(), expr_contextType::Load)
+#define ATTRIBUTE_REF(val, attr, l) make_Attribute_t(p.m_a, l, \
+        EXPR(val), name2char(attr), expr_contextType::Load)
 
 static inline ast_t* ID_TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
     if(is_a<expr_t>(*elts[0]) && elts.size() == 1) {

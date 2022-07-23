@@ -245,6 +245,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> id_list
 %type <ast> id_item
 %type <ast> subscription
+%type <comp> comp_for
+%type <vec_comp> comp_for_items
 
 // Precedence
 
@@ -626,7 +628,7 @@ comma_opt
     ;
 
 function_def
-    : decorators_opt KW_DEF id "(" parameter_list_opt ")" ":" 
+    : decorators_opt KW_DEF id "(" parameter_list_opt ")" ":"
         sep statements { $$ = FUNCTION_01($1, $3, $5, $9, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
         sep statements { $$ = FUNCTION_02($1, $3, $5, $8, $11, @$); }
@@ -639,14 +641,14 @@ function_def
     ;
 
 class_def
-    : decorators_opt KW_CLASS id ":" sep statements { 
+    : decorators_opt KW_CLASS id ":" sep statements {
         $$ = CLASS_01($1, $3, $6, @$); }
     | decorators_opt KW_CLASS id "(" expr_list_opt ")" ":" sep statements {
         $$ = CLASS_02($1, $3, $5, $9, @$); }
-    | decorators_opt KW_CLASS id "(" expr_list "," keyword_items ")" 
+    | decorators_opt KW_CLASS id "(" expr_list "," keyword_items ")"
         ":" sep statements { $$ = CLASS_03($1, $3, $5, $7, $11, @$); }
-    | decorators_opt KW_CLASS id "(" keyword_items "," expr_list ")" 
-        ":" sep statements { $$ = CLASS_03($1, $3, $7, $5, $11, @$); } 
+    | decorators_opt KW_CLASS id "(" keyword_items "," expr_list ")"
+        ":" sep statements { $$ = CLASS_03($1, $3, $7, $5, $11, @$); }
     | decorators_opt KW_CLASS id "(" keyword_items ")" ":" sep statements {
         $$ = CLASS_04($1, $3, $5, $9, @$); }
     ;
@@ -786,6 +788,17 @@ primary
     | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
     ;
 
+comp_for
+    : KW_FOR id_item KW_IN expr { $$ = COMP_FOR_01($2, $4, @$); }
+    | KW_FOR id_item KW_IN expr KW_IF expr {
+        $$ = COMP_FOR_02($2, $4, $6, @$); }
+    ;
+
+comp_for_items
+    : comp_for_items comp_for { $$ = $1; PLIST_ADD($$, $2); }
+    | comp_for { LIST_NEW($$); PLIST_ADD($$, $1); }
+    ;
+
 function_call
     : primary "(" expr_list_opt ")" { $$ = CALL_01($1, $3, @$); }
     | primary "(" expr_list "," ")" { $$ = CALL_01($1, $3, @$); }
@@ -794,6 +807,8 @@ function_call
     | primary "(" keyword_items "," expr_list comma_opt ")" {
         $$ = CALL_02($1, $5, $3, @$); }
     | primary "(" keyword_items comma_opt ")" { $$ = CALL_03($1, $3, @$); }
+    | primary "(" expr comp_for_items ")" {
+        $$ = CALL_04($1, GENERATOR_EXPR($3, $4, @$), @$); }
     ;
 
 subscription
