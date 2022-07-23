@@ -715,7 +715,7 @@ static inline comprehension_t *COMP(Allocator &al, Location &l,
         EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), nullptr, 0, 0)
 #define COMP_FOR_02(target, iter, ifs, l) COMP(p.m_a, l, \
         EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
-        EXPRS(ifs), ifs.size(), 0)
+        EXPRS(A2LIST(p.m_a, ifs)), 1, 0)
 
 #define GENERATOR_EXPR(elt, generators, l) make_GeneratorExp_t(p.m_a, l, \
         EXPR(elt), generators.p, generators.n)
@@ -729,16 +729,20 @@ static inline ast_t* ID_TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
     if(is_a<expr_t>(*elts[0]) && elts.size() == 1) {
         return (ast_t*) SET_EXPR_CTX_01(elts[0], Store);
     }
-    return make_Tuple_t(al, l, EXPRS(SET_EXPR_CTX_02(SET_STORE_02(elts), Store)), elts.size(), expr_contextType::Store);
+    return make_Tuple_t(al, l, EXPRS(SET_EXPR_CTX_02(SET_STORE_02(elts), Store)),
+                                elts.size(), expr_contextType::Store);
 }
 #define ID_TUPLE_01(elts, l) ID_TUPLE_02(p.m_a, l, elts)
 #define ID_TUPLE_03(elts, l) make_Tuple_t(p.m_a, l, \
-        EXPRS(SET_EXPR_CTX_02(SET_STORE_02(elts), Store)), elts.size(), expr_contextType::Store);
+        EXPRS(SET_EXPR_CTX_02(SET_STORE_02(elts), Store)), elts.size(), \
+        expr_contextType::Store);
 
-#define LIST_COMP_1(expr, target, iter, l) make_ListComp_t(p.m_a, l, EXPR(expr), \
-        COMP(p.m_a, l, EXPR(target), EXPR(iter), nullptr, 0, 0), 1)
-#define LIST_COMP_2(expr, target, iter, ifs, l) make_ListComp_t(p.m_a, l, EXPR(expr), \
-        COMP(p.m_a, l, EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), EXPRS(A2LIST(p.m_a, ifs)), 1, 0), 1)
+#define LIST_COMP_1(expr, generators, l) make_ListComp_t(p.m_a, l, \
+        EXPR(expr), generators.p, generators.n)
+#define SET_COMP_1(expr, generators, l) make_SetComp_t(p.m_a, l, \
+        EXPR(expr), generators.p, generators.n)
+#define DICT_COMP_1(key, val, generators, l) make_DictComp_t(p.m_a, l, \
+        EXPR(key), EXPR(val), generators.p, generators.n)
 
 expr_t* CHECK_TUPLE(expr_t *x) {
     if(is_a<Tuple_t>(*x) && down_cast<Tuple_t>(x)->n_elts == 1) {

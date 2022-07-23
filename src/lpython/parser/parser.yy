@@ -241,7 +241,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> sep_one
 %type <ast> string
 %type <ast> ternary_if_statement
-%type <ast> list_comprehension
+/* %type <ast> list_comprehension */
 %type <vec_ast> id_list
 %type <ast> id_item
 %type <ast> subscription
@@ -254,7 +254,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %left "or"
 %left "and"
 %precedence "not"
-%left "==" "!=" ">=" ">" "<=" "<" "is not" "is" "not in" "in" // "in"
+%left "==" "!=" ">=" ">" "<=" "<" "is not" "is" "not in" "in"
 %precedence FOR
 %left KW_IF KW_ELSE
 %left "|"
@@ -768,11 +768,6 @@ id_item
     | "(" id_list ","  id ")" { $$ = ID_TUPLE_01(TUPLE_($2, $4), @$); }
     ;
 
-list_comprehension
-    : "[" expr KW_FOR id_item KW_IN expr "]" { $$ = LIST_COMP_1($2, $4, $6, @$); }
-    | "[" expr KW_FOR id_item KW_IN expr KW_IF expr "]" { $$ = LIST_COMP_2($2, $4, $6, $8, @$); }
-    ;
-
 keyword_item
     : id "=" expr { $$ = CALL_KEYWORD_01($1, $3, @$); }
     | "**" expr { $$ = CALL_KEYWORD_02($2, @$); }
@@ -887,7 +882,10 @@ expr
 
     | ternary_if_statement { $$ = $1; }
 
-    | list_comprehension { $$ = $1; }
+    // Comprehension
+    | "[" expr comp_for_items "]" { $$ = LIST_COMP_1($2, $3, @$); }
+    | "{" expr comp_for_items "}" { $$ = SET_COMP_1($2, $3, @$); }
+    | "{" expr ":" expr comp_for_items "}" { $$ = DICT_COMP_1($2, $4, $5, @$); }
     ;
 
 id
