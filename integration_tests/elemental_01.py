@@ -30,7 +30,7 @@ def elemental_sin():
     sin1d: f64[256] = empty(256)
 
     for i in range(256):
-        array1d[i] = i
+        array1d[i] = float(i)
 
     sin1d = sin(array1d)
 
@@ -42,7 +42,7 @@ def elemental_sin():
     for i in range(256):
         for j in range(64):
             for k in range(16):
-                arraynd[i, j, k] = i + j + k
+                arraynd[i, j, k] = float(i + j + k)
 
     sinnd = sin(arraynd)
 
