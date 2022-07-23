@@ -486,6 +486,14 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
         name2char(id), EXPRS(args), args.size(), nullptr, 0, \
         STMTS(stmts), stmts.size(), \
         EXPRS(decorator), decorator.size())
+#define CLASS_03(decorator, id, args, keywords, stmts, l) \
+        make_ClassDef_t(p.m_a, l, name2char(id), EXPRS(args), args.size(), \
+        keywords.p, keywords.n, STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size())
+#define CLASS_04(decorator, id, keywords, stmts, l) make_ClassDef_t(p.m_a, l, \
+        name2char(id), nullptr, 0, keywords.p, keywords.n, \
+        STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size())
 
 #define ASYNC_FUNCTION_01(decorator, id, args, stmts, l) \
         make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \

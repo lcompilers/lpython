@@ -432,6 +432,10 @@ filename = "parser/class_def1.py"
 ast_new = true
 
 [[test]]
+filename = "parser/class_def2.py"
+ast_new = true
+
+[[test]]
 filename = "parser/dictionary1.py"
 ast_new = true
 
