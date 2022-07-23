@@ -17,6 +17,23 @@
 
 namespace LFortran {
 
+struct ProceduresDatabase {
+    std::map<std::string, std::set<std::string>> to_be_ignored;
+
+    ProceduresDatabase() {
+        to_be_ignored = {{"numpy", {"empty"}}};
+    }
+
+    bool is_function_to_be_ignored(std::string& module_name,
+                                   std::string& function_name) {
+        if( to_be_ignored.find(module_name) == to_be_ignored.end() ) {
+            return false;
+        }
+        return to_be_ignored[module_name].find(function_name) != to_be_ignored[module_name].end();
+    }
+
+};
+
 struct PythonIntrinsicProcedures {
 
     const std::string m_builtin = "lpython_builtin";
