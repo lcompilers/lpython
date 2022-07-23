@@ -686,18 +686,6 @@ static inline keyword_t *CALL_KW(Allocator &al, Location &l,
     r->m_value = val;
     return r;
 }
-#define CALL_KEYWORD_01(arg, val, l) CALL_KW(p.m_a, l, name2char(arg), EXPR(val))
-#define CALL_KEYWORD_02(val, l) CALL_KW(p.m_a, l, nullptr, EXPR(val))
-#define CALL_01(func, args, l) make_Call_t(p.m_a, l, \
-        EXPR(func), EXPRS(args), args.size(), nullptr, 0)
-#define CALL_02(func, args, keywords, l) make_Call_t(p.m_a, l, \
-        EXPR(func), EXPRS(args), args.size(), keywords.p, keywords.size())
-#define CALL_03(func, keywords, l) make_Call_t(p.m_a, l, \
-        EXPR(func), nullptr, 0, keywords.p, keywords.size())
-#define LIST(e, l) make_List_t(p.m_a, l, \
-        EXPRS(e), e.size(), expr_contextType::Load)
-#define ATTRIBUTE_REF(val, attr, l) make_Attribute_t(p.m_a, l, \
-        EXPR(val), name2char(attr), expr_contextType::Load)
 
 static inline comprehension_t *COMP(Allocator &al, Location &l,
         expr_t *target, expr_t* iter, expr_t **ifs, size_t ifs_size,
@@ -712,20 +700,49 @@ static inline comprehension_t *COMP(Allocator &al, Location &l,
     return r;
 }
 
+#define CALL_KEYWORD_01(arg, val, l) CALL_KW(p.m_a, l, name2char(arg), EXPR(val))
+#define CALL_KEYWORD_02(val, l) CALL_KW(p.m_a, l, nullptr, EXPR(val))
+#define CALL_01(func, args, l) make_Call_t(p.m_a, l, \
+        EXPR(func), EXPRS(args), args.size(), nullptr, 0)
+#define CALL_02(func, args, keywords, l) make_Call_t(p.m_a, l, \
+        EXPR(func), EXPRS(args), args.size(), keywords.p, keywords.size())
+#define CALL_03(func, keywords, l) make_Call_t(p.m_a, l, \
+        EXPR(func), nullptr, 0, keywords.p, keywords.size())
+#define CALL_04(func, args, l) make_Call_t(p.m_a, l, \
+        EXPR(func), EXPRS(A2LIST(p.m_a, args)), 1, nullptr, 0)
+
+#define COMP_FOR_01(target, iter, l) COMP(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), nullptr, 0, 0)
+#define COMP_FOR_02(target, iter, ifs, l) COMP(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
+        EXPRS(A2LIST(p.m_a, ifs)), 1, 0)
+
+#define GENERATOR_EXPR(elt, generators, l) make_GeneratorExp_t(p.m_a, l, \
+        EXPR(elt), generators.p, generators.n)
+
+#define LIST(e, l) make_List_t(p.m_a, l, \
+        EXPRS(e), e.size(), expr_contextType::Load)
+#define ATTRIBUTE_REF(val, attr, l) make_Attribute_t(p.m_a, l, \
+        EXPR(val), name2char(attr), expr_contextType::Load)
+
 static inline ast_t* ID_TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
     if(is_a<expr_t>(*elts[0]) && elts.size() == 1) {
         return (ast_t*) SET_EXPR_CTX_01(elts[0], Store);
     }
-    return make_Tuple_t(al, l, EXPRS(SET_EXPR_CTX_02(SET_STORE_02(elts), Store)), elts.size(), expr_contextType::Store);
+    return make_Tuple_t(al, l, EXPRS(SET_EXPR_CTX_02(SET_STORE_02(elts), Store)),
+                                elts.size(), expr_contextType::Store);
 }
 #define ID_TUPLE_01(elts, l) ID_TUPLE_02(p.m_a, l, elts)
 #define ID_TUPLE_03(elts, l) make_Tuple_t(p.m_a, l, \
-        EXPRS(SET_EXPR_CTX_02(SET_STORE_02(elts), Store)), elts.size(), expr_contextType::Store);
+        EXPRS(SET_EXPR_CTX_02(SET_STORE_02(elts), Store)), elts.size(), \
+        expr_contextType::Store);
 
-#define LIST_COMP_1(expr, target, iter, l) make_ListComp_t(p.m_a, l, EXPR(expr), \
-        COMP(p.m_a, l, EXPR(target), EXPR(iter), nullptr, 0, 0), 1)
-#define LIST_COMP_2(expr, target, iter, ifs, l) make_ListComp_t(p.m_a, l, EXPR(expr), \
-        COMP(p.m_a, l, EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), EXPRS(A2LIST(p.m_a, ifs)), 1, 0), 1)
+#define LIST_COMP_1(expr, generators, l) make_ListComp_t(p.m_a, l, \
+        EXPR(expr), generators.p, generators.n)
+#define SET_COMP_1(expr, generators, l) make_SetComp_t(p.m_a, l, \
+        EXPR(expr), generators.p, generators.n)
+#define DICT_COMP_1(key, val, generators, l) make_DictComp_t(p.m_a, l, \
+        EXPR(key), EXPR(val), generators.p, generators.n)
 
 expr_t* CHECK_TUPLE(expr_t *x) {
     if(is_a<Tuple_t>(*x) && down_cast<Tuple_t>(x)->n_elts == 1) {
