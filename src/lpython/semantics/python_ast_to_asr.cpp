@@ -73,6 +73,16 @@ LFortran::Result<std::string> get_full_path(const std::string &filename,
     }
 }
 
+std::string get_parent_dir(const std::string &path) {
+    int idx = path.size()-1;
+    while (idx >= 0 && path[idx] != '/' && path[idx] != '\\') idx--;
+    if (idx == -1) {
+        return "";
+    }
+    return path.substr(0,idx);
+}
+
+
 ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const std::string &module_name,
                             const Location &loc, bool intrinsic,
@@ -82,6 +92,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     ltypes = false;
     numpy = false;
     LFORTRAN_ASSERT(symtab);
+    ASR::asr_t *orig_asr_owner = symtab->asr_owner;
     if (symtab->get_scope().find(module_name) != symtab->get_scope().end()) {
         ASR::symbol_t *m = symtab->get_symbol(module_name);
         if (ASR::is_a<ASR::Module_t>(*m)) {
@@ -124,7 +135,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     LFortran::LocationManager lm;
     lm.in_filename = infile;
     Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast,
-        diagnostics, false, false, false, path_used);
+        diagnostics, false, false, false, path_used, symtab);
     std::string input;
     read_file(infile, input);
     CompilerOptions compiler_options;
@@ -139,7 +150,6 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     ASR::Module_t *mod2 = ASRUtils::extract_module(*mod1);
     mod2->m_name = s2c(al, module_name);
     symtab->add_symbol(module_name, (ASR::symbol_t*)mod2);
-    mod2->m_symtab->parent = symtab;
     mod2->m_intrinsic = intrinsic;
     if (intrinsic) {
         // TODO: I think we should just store intrinsic once, in the module
@@ -280,16 +290,17 @@ public:
     PythonIntrinsicProcedures intrinsic_procedures;
     AttributeHandler attr_handler;
     std::map<int, ASR::symbol_t*> &ast_overload;
-    std::string parent_dir;
+    std::string parent_dir, file_path;
     Vec<ASR::stmt_t*> *current_body;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module,
-            std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir)
+            std::map<int, ASR::symbol_t*> &ast_overload, std::string file_path)
         : diag{diagnostics}, al{al}, current_scope{symbol_table}, main_module{main_module},
-            ast_overload{ast_overload}, parent_dir{parent_dir},
+            ast_overload{ast_overload}, file_path{file_path},
             current_body{nullptr} {
         current_module_dependencies.reserve(al, 4);
+        parent_dir = get_parent_dir(file_path);
     }
 
     ASR::asr_t* resolve_variable(const Location &loc, const std::string &var_name) {
@@ -2085,24 +2096,26 @@ public:
         // Create the TU early, so that asr_owner is set, so that
         // ASRUtils::get_tu_symtab() can be used, which has an assert
         // for asr_owner.
+
         ASR::asr_t *tmp0 = ASR::make_TranslationUnit_t(al, x.base.base.loc,
             current_scope, nullptr, 0);
-
+        ASR::asr_t *orig_asr_owner = current_scope->asr_owner;
+        ASR::asr_t *orig_asr_owner_mod = nullptr;
+        SymbolTable *mod_symtab = nullptr, *parent_scope = current_scope;
         if (!main_module) {
             // Main module goes directly to TranslationUnit.
             // Every other module goes into a Module.
-            SymbolTable *parent_scope = current_scope;
             current_scope = al.make_new<SymbolTable>(parent_scope);
 
-
-            std::string mod_name = "__main__";
+            std::string mod_name = "__main__" + std::to_string((int64_t)&x);
             ASR::asr_t *tmp1 = ASR::make_Module_t(al, x.base.base.loc,
                                         /* a_symtab */ current_scope,
                                         /* a_name */ s2c(al, mod_name),
                                         nullptr,
                                         0,
                                         false, false);
-
+            orig_asr_owner_mod = current_scope->asr_owner;
+            mod_symtab = current_scope;
             if (parent_scope->get_scope().find(mod_name) != parent_scope->get_scope().end()) {
                 throw SemanticError("Module '" + mod_name + "' already defined", tmp1->loc);
             }
@@ -2116,6 +2129,10 @@ public:
             create_GenericProcedure(x.base.base.loc);
         }
         global_scope = nullptr;
+        parent_scope->asr_owner = orig_asr_owner;
+        if (orig_asr_owner_mod) {
+            mod_symtab->asr_owner = orig_asr_owner_mod;
+        }
         tmp = tmp0;
     }
 
@@ -2364,9 +2381,9 @@ public:
 
 Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, const AST::Module_t &ast,
         diag::Diagnostics &diagnostics, bool main_module,
-        std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir)
+        std::map<int, ASR::symbol_t*> &ast_overload, std::string file_path, SymbolTable* symtab)
 {
-    SymbolTableVisitor v(al, nullptr, diagnostics, main_module, ast_overload, parent_dir);
+    SymbolTableVisitor v(al, symtab, diagnostics, main_module, ast_overload, file_path);
     try {
         v.visit_Module(ast);
     } catch (const SemanticError &e) {
@@ -2418,7 +2435,8 @@ public:
         current_scope = unit->m_global_scope;
         LFORTRAN_ASSERT(current_scope != nullptr);
         if (!main_module) {
-            ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(current_scope->get_symbol("__main__"));
+            std::string mod_name = "__main__" + std::to_string((int64_t)&x);
+            ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(current_scope->get_symbol(mod_name));
             current_scope = mod->m_symtab;
             LFORTRAN_ASSERT(current_scope != nullptr);
         }
@@ -4055,26 +4073,16 @@ std::string pickle_tree_python(AST::ast_t &ast, bool colors) {
     return v.get_str();
 }
 
-std::string get_parent_dir(const std::string &path) {
-    int idx = path.size()-1;
-    while (idx >= 0 && path[idx] != '/' && path[idx] != '\\') idx--;
-    if (idx == -1) {
-        return "";
-    }
-    return path.substr(0,idx);
-}
-
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     AST::ast_t &ast, diag::Diagnostics &diagnostics, bool main_module,
-    bool disable_main, bool symtab_only, std::string file_path)
+    bool disable_main, bool symtab_only, std::string file_path, SymbolTable *symtab)
 {
     std::map<int, ASR::symbol_t*> ast_overload;
-    std::string parent_dir = get_parent_dir(file_path);
     AST::Module_t *ast_m = AST::down_cast2<AST::Module_t>(&ast);
 
     ASR::asr_t *unit;
     auto res = symbol_table_visitor(al, *ast_m, diagnostics, main_module,
-        ast_overload, parent_dir);
+        ast_overload, file_path, symtab);
     if (res.ok) {
         unit = res.result;
     } else {

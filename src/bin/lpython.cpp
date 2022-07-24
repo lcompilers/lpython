@@ -156,7 +156,7 @@ int emit_asr(const std::string &infile,
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only, infile);
+            compiler_options.disable_main, compiler_options.symtab_only, infile, nullptr);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -196,7 +196,7 @@ int emit_cpp(const std::string &infile,
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only, infile);
+            compiler_options.disable_main, compiler_options.symtab_only, infile, nullptr);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -237,7 +237,7 @@ int emit_c(const std::string &infile,
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only, infile);
+            compiler_options.disable_main, compiler_options.symtab_only, infile, nullptr);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -282,7 +282,7 @@ int emit_llvm(const std::string &infile,
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only, infile);
+            compiler_options.disable_main, compiler_options.symtab_only, infile, nullptr);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -347,7 +347,7 @@ int compile_python_to_object_file(
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only, infile);
+            compiler_options.disable_main, compiler_options.symtab_only, infile, nullptr);
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
@@ -768,7 +768,7 @@ int main(int argc, char *argv[])
             #ifdef HAVE_LFORTRAN_RAPIDJSON
                 LPythonServer().run(arg_lsp_filename);
                 return 0;
-            #else 
+            #else
                 std::cerr << "Compiler was not built with LSP support (-DWITH_LSP), please build it again.\n";
             #endif
         }
