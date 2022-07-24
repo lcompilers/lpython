@@ -123,6 +123,10 @@ static inline Vec<ast_t*> SET_EXPR_CTX_02(Vec<ast_t*> x, expr_contextType ctx) {
 #define RETURN_02(e, l) make_Return_t(p.m_a, l, EXPR(e))
 #define RETURN_03(l) make_Return_t(p.m_a, l, EXPR(TUPLE_EMPTY(l)))
 
+#define YIELD_01(l) make_Yield_t(p.m_a, l, nullptr)
+#define YIELD_02(exec, l) make_Yield_t(p.m_a, l, EXPR(exec))
+#define YIELD_03(l) make_Yield_t(p.m_a, l, EXPR(TUPLE_EMPTY(l)))
+
 #define PASS(l) make_Pass_t(p.m_a, l)
 #define BREAK(l) make_Break_t(p.m_a, l)
 #define CONTINUE(l) make_Continue_t(p.m_a, l)
