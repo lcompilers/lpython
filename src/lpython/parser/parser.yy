@@ -262,6 +262,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %precedence UNARY
 %right "**"
 %precedence AWAIT
+%precedence YIELD
 %precedence "."
 
 %start units
@@ -767,6 +768,7 @@ expr
     | "{" "}" { $$ = DICT_01(@$); }
     | "{" dict_list "}" { $$ = DICT_02($2, @$); }
     | KW_AWAIT expr %prec AWAIT { $$ = AWAIT($2, @$); }
+    | KW_YIELD expr %prec YIELD { $$ = YIELD($2, @$); }
     | id ":=" expr { $$ = NAMEDEXPR($1, $3, @$); }
     | "*" expr { $$ = STARRED_ARG($2, @$); }
 
