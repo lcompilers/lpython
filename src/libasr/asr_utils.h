@@ -904,6 +904,15 @@ static inline bool is_type_parameter(ASR::ttype_t &x) {
     return ASR::is_a<ASR::TypeParameter_t>(*type_get_past_pointer(&x));
 }
 
+// Check if a type involves a type parameter
+static inline bool is_generic(ASR::ttype_t &x) {
+    if (ASR::is_a<ASR::List_t>(*type_get_past_pointer(&x))) {
+        ASR::List_t *list_type = ASR::down_cast<ASR::List_t>(type_get_past_pointer(&x));
+        return is_generic(*list_type->m_type);
+    }
+    return ASR::is_a<ASR::TypeParameter_t>(*type_get_past_pointer(&x));
+}
+
 static inline int get_body_size(ASR::symbol_t* s) {
     int n_body = 0;
     switch (s->type) {

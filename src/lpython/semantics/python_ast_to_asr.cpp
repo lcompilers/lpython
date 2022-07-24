@@ -17,6 +17,7 @@
 #include <libasr/string_utils.h>
 #include <libasr/utils.h>
 #include <libasr/pass/global_stmts_program.h>
+#include <libasr/pass/template_visitor.h>
 
 #include <lpython/python_ast.h>
 #include <lpython/semantics/python_ast_to_asr.h>
@@ -26,6 +27,8 @@
 #include <lpython/semantics/python_comptime_eval.h>
 #include <lpython/semantics/python_attribute_eval.h>
 #include <lpython/parser/parser.h>
+
+#include <lpython/pickle.h>
 
 namespace LFortran::LPython {
 
@@ -259,6 +262,7 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
     return nullptr;
 }
 
+/*
 class TemplateFunctionVisitor : public ASR::BaseVisitor<TemplateFunctionVisitor>
 {
 public:
@@ -507,6 +511,7 @@ public:
     }
 
 };
+*/
 
 template <class Derived>
 class CommonVisitor : public AST::BaseVisitor<Derived> {
@@ -954,6 +959,13 @@ public:
             std::map<std::string, ASR::ttype_t*> subs;
             for (size_t i=0; i<args.size(); i++) {
                 ASR::ttype_t *param_type = ASRUtils::expr_type(func->m_args[i]);
+
+                // TODO: Has to work with nested type such as list
+        
+                ASR::ttype_t *arg_type = ASRUtils::expr_type(args[i].m_value);
+                subs = check_type_substitution(subs, param_type, arg_type, loc);
+                
+                /*
                 if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
                     ASR::ttype_t *arg_type = ASRUtils::expr_type(args[i].m_value);
                     std::string param_name = (ASR::down_cast<ASR::TypeParameter_t>(param_type))->m_param;
@@ -967,8 +979,11 @@ public:
                         subs[param_name] = arg_type;
                     }
                 }
-            };        
+                */
+        
+            }    
 
+            // TODO: inline get_generic_function?
             ASR::symbol_t *t = get_generic_function(subs, *func);
             std::string new_call_name = call_name;
             if (ASR::is_a<ASR::Function_t>(*t)) {
@@ -980,6 +995,34 @@ public:
         }
     }
 
+    std::map<std::string, ASR::ttype_t*> check_type_substitution(std::map<std::string, ASR::ttype_t*> subs,
+            ASR::ttype_t *param_type, ASR::ttype_t *arg_type, const Location &loc) {
+        if (ASR::is_a<ASR::List_t>(*param_type)) {
+            if (ASR::is_a<ASR::List_t>(*arg_type)) {
+                ASR::ttype_t *param_elem = ASR::down_cast<ASR::List_t>(param_type)->m_type;
+                ASR::ttype_t *arg_elem = ASR::down_cast<ASR::List_t>(arg_type)->m_type;
+                return check_type_substitution(subs, param_elem, arg_elem, loc);
+            } else {
+                throw SemanticError("Type mismatch", loc);
+            }
+        }
+        if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
+            std::string param_name = (ASR::down_cast<ASR::TypeParameter_t>(param_type))->m_param;
+            if (subs.find(param_name) != subs.end()) {
+                if (!ASRUtils::check_equal_type(subs[param_name], arg_type)) {
+                    throw SemanticError("Inconsistent type variable for the function call", loc);
+                }
+            } else {
+                subs[param_name] = arg_type;
+            }
+        }
+        return subs;
+    }
+
+    /**
+     *  Check if a suitable instantiated generic function has already been generated.
+     *  If not, then generate new function through an ASR pass.
+     */
     ASR::symbol_t* get_generic_function(std::map<std::string, ASR::ttype_t*> subs,
             ASR::TemplateFunction_t &func) {
         int new_function_num;
@@ -1016,14 +1059,14 @@ public:
         } else {
             new_function_num = 0;
         }
-        
-        generic_func_nums[func_name] = new_function_num+1;
+        generic_func_nums[func_name] = new_function_num + 1;
         generic_func_subs["__lpython_generic_" + func_name + "_" + std::to_string(new_function_num)] = subs;
-
+        /*
         TemplateFunctionVisitor tf(al, subs, current_scope, new_function_num);
         tf.visit_TemplateFunction(func);
         t = ASR::down_cast<ASR::symbol_t>(tf.new_function);
-
+        */
+        t = pass_instantiate_generic_function(al, subs, current_scope, new_function_num, func);
         return t;
     }
 
@@ -1637,9 +1680,9 @@ public:
 
             tmp = ASR::make_ComplexBinOp_t(al, loc, left, op, right, dest_type, value);
 
-        } else if (ASRUtils::is_type_parameter(*dest_type)) {
+        // } else if (ASRUtils::is_type_parameter(*dest_type)) {
+        } else if (ASRUtils::is_generic(*dest_type)) {
             tmp = ASR::make_TemplateBinOp_t(al, loc, left, op, right, dest_type, value);
-            //throw SemanticError("hey we're here", loc);
         }
 
 
@@ -2511,7 +2554,8 @@ public:
             }
             ASR::ttype_t *arg_type = ast_expr_to_asr_type(x.base.base.loc, *x.m_args.m_args[i].m_annotation);
             // Set the function as generic if an argument is typed with a type parameter
-            if (ASR::is_a<ASR::TypeParameter_t>(*arg_type)) { generic = true; }
+            // if (ASR::is_a<ASR::TypeParameter_t>(*arg_type)) { generic = true; }
+            if (ASRUtils::is_generic(*arg_type)) { generic = true; }
             
             std::string arg_s = arg;
 
@@ -2904,7 +2948,6 @@ public:
             } else {
                 LFORTRAN_ASSERT(false);
             }
-        // TODO: Take care of TemplateFunction
         } else if (ASR::is_a<ASR::TemplateFunction_t>(*t)) {
             ASR::TemplateFunction_t *f = ASR::down_cast<ASR::TemplateFunction_t>(t);
             handle_fn(x, *f);
@@ -4361,6 +4404,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
         } else {
             return res2.error;
         }
+        // std::cout << pickle(*tu, 1, 1, 0) << std::endl;
         LFORTRAN_ASSERT(asr_verify(*tu));
     }
 
