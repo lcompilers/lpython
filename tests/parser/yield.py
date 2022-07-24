@@ -8,3 +8,9 @@ def func():
 
     for i in x:
         yield (i)
+
+    for i in x:
+        yield ()
+
+    for _ in x:
+        yield
