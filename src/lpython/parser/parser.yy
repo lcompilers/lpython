@@ -768,7 +768,9 @@ expr
     | "{" "}" { $$ = DICT_01(@$); }
     | "{" dict_list "}" { $$ = DICT_02($2, @$); }
     | KW_AWAIT expr %prec AWAIT { $$ = AWAIT($2, @$); }
-    | KW_YIELD expr %prec YIELD { $$ = YIELD($2, @$); }
+    | KW_YIELD %prec YIELD { $$ = YIELD_01(@$); }
+    | KW_YIELD expr %prec YIELD { $$ = YIELD_02($2, @$); }
+    | KW_YIELD "(" ")" { $$ = YIELD_03(@$); }
     | id ":=" expr { $$ = NAMEDEXPR($1, $3, @$); }
     | "*" expr { $$ = STARRED_ARG($2, @$); }
 
