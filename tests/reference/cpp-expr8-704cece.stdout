@@ -56,7 +56,7 @@ void test_binop()
 int32_t __lpython_overloaded_2___lpython_floordiv(int a, int b)
 {
     int _lpython_return_variable;
-    float r;
+    double r;
     int result;
     r = (float)(a)/(float)(b);
     result = (int)(r);

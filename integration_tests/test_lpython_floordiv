@@ -1,0 +1,10 @@
+from ltypes import i32
+
+def main():
+    x : i32
+    y : i32
+    y = 10
+    x = 123456789
+    assert(_lpython_floordiv(x, y)) == 12345678
+
+main()
