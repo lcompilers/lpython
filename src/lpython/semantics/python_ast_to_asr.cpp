@@ -939,10 +939,8 @@ public:
                     return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
                         al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type));
                 } else if (ASRUtils::is_real(*left_type)) {
-                    right = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
-                        al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type));
                     return ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
-                        al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, left_type));
+                        al, right->base.loc, right, ASR::cast_kindType::LogicalToReal, left_type));
                 } else if (ASRUtils::is_complex(*left_type)) {
                     right = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
                         al, right->base.loc, right, ASR::cast_kindType::LogicalToInteger, int_type));
