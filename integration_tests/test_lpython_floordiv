@@ -5,6 +5,7 @@ def main():
     y : i32
     y = 10
     x = 123456789
-    assert(_lpython_floordiv(x, y)) == 12345678
+    assert x//y == 12345678
 
 main()
+ 
