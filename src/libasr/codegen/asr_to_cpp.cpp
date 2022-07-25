@@ -592,6 +592,11 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         last_expr_precedence = 2;
     }
 
+    void visit_StringLen(const ASR::StringLen_t &x) {
+        this->visit_expr(*x.m_arg);
+        src = src + ".length()";
+    }
+
     void visit_Print(const ASR::Print_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "std::cout ", sep;
