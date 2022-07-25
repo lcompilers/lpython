@@ -4,7 +4,11 @@
 #include <string>
 #include <rapidjson/document.h>
 
+#include <libasr/utils.h>
+#include <lpython/semantics/python_ast_to_asr.h>
+
 #include "JSONRPC2Connection.hpp"
+#include "MessageHandler.hpp"
 
 class LPythonServer {
     public:

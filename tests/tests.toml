@@ -153,6 +153,10 @@ filename = "../integration_tests/expr_07.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/test_numpy_03.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/expr_09.py"
 asr = true
 
@@ -222,6 +226,10 @@ asr = true
 filename = "set1.py"
 ast = true
 asr = true
+
+[[test]]
+filename = "bool1.py"
+llvm = true
 
 [[test]]
 filename = "global_scope1.py"
@@ -405,7 +413,7 @@ filename = "parser/statements1.py"
 ast_new = true
 
 [[test]]
-filename = "parser/statements2.py"
+filename = "parser/yield.py"
 ast_new = true
 
 [[test]]
@@ -433,7 +441,15 @@ filename = "parser/function_def2.py"
 ast_new = true
 
 [[test]]
+filename = "parser/function_def3.py"
+ast_new = true
+
+[[test]]
 filename = "parser/class_def1.py"
+ast_new = true
+
+[[test]]
+filename = "parser/class_def2.py"
 ast_new = true
 
 [[test]]
@@ -471,6 +487,18 @@ ast_new = true
 [[test]]
 filename = "parser/global1.py"
 ast = true
+ast_new = true
+
+[[test]]
+filename = "parser/if2.py"
+ast_new = true
+
+[[test]]
+filename = "parser/for2.py"
+ast_new = true
+
+[[test]]
+filename = "parser/boolOp1.py"
 ast_new = true
 
 # tests/errors
@@ -541,6 +569,30 @@ asr = true
 
 [[test]]
 filename = "errors/test_pow.py"
+asr = true
+
+[[test]]
+filename = "errors/test_pow1.py"
+asr = true
+
+[[test]]
+filename = "errors/test_pow2.py"
+asr = true
+
+[[test]]
+filename = "errors/test_pow3.py"
+asr = true
+
+[[test]]
+filename = "errors/test_pow4.py"
+asr = true
+
+[[test]]
+filename = "errors/test_ord.py"
+asr = true
+
+[[test]]
+filename = "errors/test_chr.py"
 asr = true
 
 [[test]]

@@ -64,4 +64,59 @@ namespace LFortran {
         return LLVM::CreateInBoundsGEP(*builder, ptr, idx_vec);
     }
 
+    llvm::Type* LLVMUtils::getIntType(int a_kind, bool get_pointer) {
+        llvm::Type* type_ptr = nullptr;
+        if( get_pointer ) {
+            switch(a_kind)
+            {
+                case 1:
+                    type_ptr = llvm::Type::getInt8PtrTy(context);
+                    break;
+                case 2:
+                    type_ptr = llvm::Type::getInt16PtrTy(context);
+                    break;
+                case 4:
+                    type_ptr = llvm::Type::getInt32PtrTy(context);
+                    break;
+                case 8:
+                    type_ptr = llvm::Type::getInt64PtrTy(context);
+                    break;
+                default:
+                    LFORTRAN_ASSERT(false);
+            }
+        } else {
+            switch(a_kind)
+            {
+                case 1:
+                    type_ptr = llvm::Type::getInt8Ty(context);
+                    break;
+                case 2:
+                    type_ptr = llvm::Type::getInt16Ty(context);
+                    break;
+                case 4:
+                    type_ptr = llvm::Type::getInt32Ty(context);
+                    break;
+                case 8:
+                    type_ptr = llvm::Type::getInt64Ty(context);
+                    break;
+                default:
+                    LFORTRAN_ASSERT(false);
+            }
+        }
+        return type_ptr;
+    }
+
+    void LLVMUtils::start_new_block(llvm::BasicBlock *bb) {
+        llvm::BasicBlock *last_bb = builder->GetInsertBlock();
+        llvm::Function *fn = last_bb->getParent();
+        llvm::Instruction *block_terminator = last_bb->getTerminator();
+        if (block_terminator == nullptr) {
+            // The previous block is not terminated --- terminate it by jumping
+            // to our new block
+            builder->CreateBr(bb);
+        }
+        fn->getBasicBlockList().push_back(bb);
+        builder->SetInsertPoint(bb);
+    }
+
 } // namespace LFortran

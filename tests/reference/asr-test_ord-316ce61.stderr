@@ -1,0 +1,5 @@
+semantic error: ord() is only supported for `str` of length 1
+ --> tests/errors/test_ord.py:3:13
+  |
+3 |     i = ord('ab')
+  |             ^^^^ 

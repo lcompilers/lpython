@@ -118,7 +118,7 @@ public:
 
         fma_var = PassUtils::get_fma(other_expr, first_arg, second_arg,
                                      al, unit, rl_path, current_scope, x.base.base.loc,
-                                     [&](const std::string &msg, const Location &) { throw LFortranException(msg); });
+                                     [&](const std::string &msg, const Location &) { throw LCompilersException(msg); });
         from_fma = false;
     }
 
