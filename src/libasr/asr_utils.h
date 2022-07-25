@@ -705,7 +705,7 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
             ASR::TypeParameter_t *p = ASR::down_cast<ASR::TypeParameter_t>(t);
             return p->m_param;
         }
-        default : throw LFortranException("Not implemented " + std::to_string(t->type));
+        default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
 }
 
