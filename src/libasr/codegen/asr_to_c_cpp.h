@@ -549,7 +549,7 @@ R"(#include <stdio.h>
         if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
             visit_Var(*ASR::down_cast<ASR::Var_t>(x.m_target));
             target = src;
-            if( ASRUtils::is_array(ASRUtils::expr_type(x.m_target)) && !is_c ) {
+            if (!is_c && ASRUtils::is_array(ASRUtils::expr_type(x.m_target))) {
                 target += "->data";
             }
         } else if (ASR::is_a<ASR::ArrayItem_t>(*x.m_target)) {
