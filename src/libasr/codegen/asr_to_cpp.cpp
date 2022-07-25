@@ -556,6 +556,21 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         last_expr_precedence = 2;
     }
 
+    void visit_ArrayConstant(const ASR::ArrayConstant_t &x) {
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        from_std_vector_helper = indent + "Kokkos::View<float*> r;\n";
+        std::string out = "from_std_vector<float>({";
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_expr(*x.m_args[i]);
+            out += src;
+            if (i < x.n_args-1) out += ", ";
+        }
+        out += "})";
+        from_std_vector_helper += indent + "r = " + out + ";\n";
+        src = "&r";
+        last_expr_precedence = 2;
+    }
+
     void visit_StringConcat(const ASR::StringConcat_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(src);
@@ -583,21 +598,6 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         this->visit_expr(*x.m_arg);
         std::string str = std::move(src);
         src = str + "[" + idx + " - 1]";
-    }
-
-    void visit_ArrayConstant(const ASR::ArrayConstant_t &x) {
-        std::string indent(indentation_level * indentation_spaces, ' ');
-        from_std_vector_helper = indent + "Kokkos::View<float*> r;\n";
-        std::string out = "from_std_vector<float>({";
-        for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
-            out += src;
-            if (i < x.n_args-1) out += ", ";
-        }
-        out += "})";
-        from_std_vector_helper += indent + "r = " + out + ";\n";
-        src = "&r";
-        last_expr_precedence = 2;
     }
 
     void visit_StringLen(const ASR::StringLen_t &x) {
