@@ -17,7 +17,7 @@
 #include <libasr/string_utils.h>
 #include <libasr/utils.h>
 #include <libasr/pass/global_stmts_program.h>
-#include <libasr/pass/template_visitor.h>
+#include <libasr/pass/instantiate_template.h>
 
 #include <lpython/python_ast.h>
 #include <lpython/semantics/python_ast_to_asr.h>
@@ -27,8 +27,6 @@
 #include <lpython/semantics/python_comptime_eval.h>
 #include <lpython/semantics/python_attribute_eval.h>
 #include <lpython/parser/parser.h>
-
-#include <lpython/pickle.h>
 
 namespace LFortran::LPython {
 
@@ -536,7 +534,6 @@ public:
 
     std::map<std::string, std::map<int, Vec<ASR::expr_t*>>> generic_defs;
     
-    // std::map<std::string, std::vector<std::string>> generic_func_nums;
     std::map<std::string, int> generic_func_nums;
     std::map<std::string, std::map<std::string, ASR::ttype_t*>> generic_func_subs;
 
@@ -959,31 +956,10 @@ public:
             std::map<std::string, ASR::ttype_t*> subs;
             for (size_t i=0; i<args.size(); i++) {
                 ASR::ttype_t *param_type = ASRUtils::expr_type(func->m_args[i]);
-
-                // TODO: Has to work with nested type such as list
-        
                 ASR::ttype_t *arg_type = ASRUtils::expr_type(args[i].m_value);
                 subs = check_type_substitution(subs, param_type, arg_type, loc);
-                
-                /*
-                if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
-                    ASR::ttype_t *arg_type = ASRUtils::expr_type(args[i].m_value);
-                    std::string param_name = (ASR::down_cast<ASR::TypeParameter_t>(param_type))->m_param;
-                    if (subs.find(param_name) != subs.end()) {
-                        if (!ASRUtils::check_equal_type(subs[param_name], arg_type)) {
-                            std::string func_name = func->m_name;
-                            throw SemanticError("Inconsistent type variable subsitutition for function " + func_name,
-                                func->base.base.loc); 
-                        }
-                    } else {
-                        subs[param_name] = arg_type;
-                    }
-                }
-                */
-        
             }    
 
-            // TODO: inline get_generic_function?
             ASR::symbol_t *t = get_generic_function(subs, *func);
             std::string new_call_name = call_name;
             if (ASR::is_a<ASR::Function_t>(*t)) {
@@ -1019,10 +995,6 @@ public:
         return subs;
     }
 
-    /**
-     *  Check if a suitable instantiated generic function has already been generated.
-     *  If not, then generate new function through an ASR pass.
-     */
     ASR::symbol_t* get_generic_function(std::map<std::string, ASR::ttype_t*> subs,
             ASR::TemplateFunction_t &func) {
         int new_function_num;
@@ -1061,11 +1033,6 @@ public:
         }
         generic_func_nums[func_name] = new_function_num + 1;
         generic_func_subs["__lpython_generic_" + func_name + "_" + std::to_string(new_function_num)] = subs;
-        /*
-        TemplateFunctionVisitor tf(al, subs, current_scope, new_function_num);
-        tf.visit_TemplateFunction(func);
-        t = ASR::down_cast<ASR::symbol_t>(tf.new_function);
-        */
         t = pass_instantiate_generic_function(al, subs, current_scope, new_function_num, func);
         return t;
     }

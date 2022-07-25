@@ -45,6 +45,7 @@ set(SRC
     pass/inline_function_calls.cpp
     pass/loop_unroll.cpp
     pass/dead_code_removal.cpp
+    pass/instantiate_template.cpp
 
     asr_verify.cpp
     asr_utils.cpp
