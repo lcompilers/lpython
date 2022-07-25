@@ -2,11 +2,11 @@
     "basename": "asr-elemental_01-b58df26",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/elemental_01.py",
-    "infile_hash": "ebb62312a22a72f48539c94c305c99ed926056aec6f5e2456db8c628",
+    "infile_hash": "795903e293ea38117e5183804bd58c9ef99cf93f914c8509dcfb44e4",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-elemental_01-b58df26.stdout",
-    "stdout_hash": "4113cd29eb8376b95409145d9cd634e3ab484ee09a64c213c4bd0130",
+    "stdout_hash": "e14c05eb6320a1ab57993e05afdd4d4440938f29ff3a25229c32f94f",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
