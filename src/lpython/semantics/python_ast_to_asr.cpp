@@ -601,8 +601,13 @@ public:
         }
         if (ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
-            ASR::ttype_t *a_type = ASRUtils::expr_type(func->m_return_var);
-            a_type = handle_return_type(a_type, loc, args, func);
+            ASR::ttype_t *a_type = nullptr;
+            if( func->m_elemental && args.size() == 1 ) {
+                a_type = ASRUtils::expr_type(args[0].m_value);
+            } else {
+                a_type = ASRUtils::expr_type(func->m_return_var);
+                a_type = handle_return_type(a_type, loc, args, func);
+            }
             ASR::expr_t *value = nullptr;
             if (ASRUtils::is_intrinsic_function2(func)) {
                 value = intrinsic_procedures.comptime_eval(call_name, al, loc, args);
