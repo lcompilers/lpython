@@ -196,6 +196,7 @@ public:
     bool prototype_only;
     llvm::StructType *complex_type_4, *complex_type_8;
     llvm::StructType *complex_type_4_ptr, *complex_type_8_ptr;
+    llvm::StructType *tuple_type;
     llvm::PointerType *character_type;
     llvm::PointerType *list_type;
 
@@ -1025,6 +1026,7 @@ public:
         complex_type_8 = llvm::StructType::create(context, els_8, "complex_8");
         complex_type_4_ptr = llvm::StructType::create(context, els_4_ptr, "complex_4_ptr");
         complex_type_8_ptr = llvm::StructType::create(context, els_8_ptr, "complex_8_ptr");
+        tuple_type = llvm::StructType::create(context, els_8, "tuple");
         character_type = llvm::Type::getInt8PtrTy(context);
         list_type = llvm::Type::getInt8PtrTy(context);
 
@@ -1759,6 +1761,9 @@ public:
                 //ASR::ttype_t *el_type = v_type->m_type;
                 llvm_type = list_type;
                 break;
+            }
+            case (ASR::ttypeType::Tuple) : {
+                llvm_type = tuple_type;
             }
             case (ASR::ttypeType::CPtr) : {
                 llvm_type = llvm::Type::getVoidTy(context)->getPointerTo();
