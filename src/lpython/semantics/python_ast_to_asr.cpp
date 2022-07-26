@@ -2769,9 +2769,12 @@ public:
             throw SemanticError("Only function call `range(..)` supported as for loop iteration for now",
                 x.base.base.loc);
         }
-
+        int a_kind = 4;
+        if (!is_explicit_iterator_required) {
+            a_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(target));
+        }
         ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-            4, nullptr, 0));
+            a_kind, nullptr, 0));
         ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                                             al, x.base.base.loc, 1, a_type));
         make_BinOp_helper(loop_end, constant_one, ASR::binopType::Sub,
