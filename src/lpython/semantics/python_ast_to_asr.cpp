@@ -602,7 +602,8 @@ public:
         if (ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
             ASR::ttype_t *a_type = nullptr;
-            if( func->m_elemental && args.size() == 1 ) {
+            if( func->m_elemental && args.size() == 1 &&
+                ASRUtils::is_array(ASRUtils::expr_type(args[0].m_value)) ) {
                 a_type = ASRUtils::expr_type(args[0].m_value);
             } else {
                 a_type = ASRUtils::expr_type(func->m_return_var);
