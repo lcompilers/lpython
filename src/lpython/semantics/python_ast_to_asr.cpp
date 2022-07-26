@@ -3587,7 +3587,7 @@ public:
         ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
                                     1, 1, nullptr, nullptr , 0));
         if (!arg) {
-            throw SemanticError("it must be one argument", loc);
+            return ASR::make_StringConstant_t(al, loc, "", res_type);
         }
         if (ASRUtils::is_real(*arg_type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
@@ -3615,6 +3615,18 @@ public:
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
             al, loc, arg, ASR::cast_kindType::IntegerToCharacter,
             res_type, res_value));
+        } else if (ASRUtils::is_logical(*arg_type)) {
+            if(ASRUtils::expr_value(arg) != nullptr) {
+                bool bool_number = ASR::down_cast<ASR::LogicalConstant_t>(
+                                        ASRUtils::expr_value(arg))->m_value;
+                std::string value_str = (bool_number)? "True" : "False";
+                res_value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
+                                loc, s2c(al, value_str), res_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+            al, loc, arg, ASR::cast_kindType::LogicalToCharacter,
+            res_type, res_value));
+
         } else {
             std::string stype = ASRUtils::type_to_str_python(arg_type);
             throw SemanticError("Conversion of '" + stype + "' to string is not Implemented", loc);

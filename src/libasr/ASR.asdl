@@ -351,6 +351,7 @@ cast_kind
     | LogicalToInteger
     | RealToCharacter
     | IntegerToCharacter
+    | LogicalToCharacter
 
 dimension = (expr? start, expr? end)
 
