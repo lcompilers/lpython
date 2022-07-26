@@ -669,6 +669,13 @@ LFORTRAN_API char* _lfortran_float_to_str(float num)
     return res;
 }
 
+LFORTRAN_API char* _lfortran_int_to_str(int num)
+{
+    char* res = (char*)malloc(40);
+    sprintf(res, "%d", num);
+    return res;
+}
+
 //repeat str for n time
 LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
 {

@@ -3604,6 +3604,17 @@ public:
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
             al, loc, arg, ASR::cast_kindType::RealToCharacter,
             res_type, res_value));
+        } else if (ASRUtils::is_integer(*arg_type)) {
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                int32_t number = ASR::down_cast<ASR::IntegerConstant_t>(
+                                        ASRUtils::expr_value(arg))->m_n;
+                std::string value_str = std::to_string(number);
+                res_value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
+                                loc, s2c(al, value_str), res_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+            al, loc, arg, ASR::cast_kindType::IntegerToCharacter,
+            res_type, res_value));
         } else {
             std::string stype = ASRUtils::type_to_str_python(arg_type);
             throw SemanticError("Conversion of '" + stype + "' to string is not Implemented", loc);

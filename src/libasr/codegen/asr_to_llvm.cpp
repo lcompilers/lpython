@@ -830,6 +830,22 @@ public:
         llvm::Value* res = builder->CreateCall(fn, {number});
         return res;
     }
+    
+    llvm::Value* lfortran_int_to_str(llvm::Value* number)
+    {
+        std::string func_name = "_lfortran_int_to_str";
+        llvm::Function *fn = module->getFunction(func_name);
+        if(!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                character_type, {
+                    llvm::Type::getInt32Ty(context)
+                }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, func_name, *module);
+        }
+        llvm::Value* res = builder->CreateCall(fn, {number});
+        return res;
+    }
 
     llvm::Value* lcompilers_list_init_i32()
     {
@@ -4241,6 +4257,11 @@ public:
             case (ASR::cast_kindType::RealToCharacter) : {
                 llvm::Value *arg = tmp;
                 tmp = lfortran_float_to_str(arg);
+                break;
+            }
+            case (ASR::cast_kindType::IntegerToCharacter) : {
+                llvm::Value *arg = tmp;
+                tmp = lfortran_int_to_str(arg);
                 break;
             }
             default : throw CodeGenError("Cast kind not implemented");
