@@ -161,6 +161,10 @@ filename = "../integration_tests/expr_09.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/elemental_01.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/expr_10.py"
 asr = true
 
