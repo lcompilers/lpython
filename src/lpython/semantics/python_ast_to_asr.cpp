@@ -120,7 +120,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     LFortran::LocationManager lm;
     lm.in_filename = infile;
     Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast,
-        diagnostics, false, false, false, path_used);
+        diagnostics, false, true, false, infile);
     std::string input;
     read_file(infile, input);
     CompilerOptions compiler_options;
@@ -132,11 +132,20 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     ASR::TranslationUnit_t* mod1 = r2.result;
 
     // insert into `symtab`
-    ASR::Module_t *mod2 = ASRUtils::extract_module(*mod1);
-    mod2->m_name = s2c(al, module_name);
-    symtab->add_symbol(module_name, (ASR::symbol_t*)mod2);
-    mod2->m_symtab->parent = symtab;
-    mod2->m_intrinsic = intrinsic;
+    std::vector<std::pair<std::string, ASR::Module_t*>> children_modules;
+    ASRUtils::extract_module_python(*mod1, children_modules, module_name);
+    ASR::Module_t* mod2 = nullptr;
+    for( auto& a: children_modules ) {
+        std::string a_name = a.first;
+        ASR::Module_t* a_mod = a.second;
+        if( a_name == module_name ) {
+            a_mod->m_name = s2c(al, module_name);
+            a_mod->m_intrinsic = intrinsic;
+            mod2 = a_mod;
+        }
+        symtab->add_symbol(a_name, (ASR::symbol_t*)a_mod);
+        a_mod->m_symtab->parent = symtab;
+    }
     if (intrinsic) {
         // TODO: I think we should just store intrinsic once, in the module
         // itself
@@ -2087,6 +2096,8 @@ public:
         ASR::asr_t *tmp0 = ASR::make_TranslationUnit_t(al, x.base.base.loc,
             current_scope, nullptr, 0);
 
+        ASR::Module_t* module_sym = nullptr;
+
         if (!main_module) {
             // Main module goes directly to TranslationUnit.
             // Every other module goes into a Module.
@@ -2105,11 +2116,16 @@ public:
             if (parent_scope->get_scope().find(mod_name) != parent_scope->get_scope().end()) {
                 throw SemanticError("Module '" + mod_name + "' already defined", tmp1->loc);
             }
+            module_sym = ASR::down_cast<ASR::Module_t>(ASR::down_cast<ASR::symbol_t>(tmp1));
             parent_scope->add_symbol(mod_name, ASR::down_cast<ASR::symbol_t>(tmp1));
         }
-
+        current_module_dependencies.reserve(al, 1);
         for (size_t i=0; i<x.n_body; i++) {
             visit_stmt(*x.m_body[i]);
+        }
+        if( module_sym ) {
+            module_sym->m_dependencies = current_module_dependencies.p;
+            module_sym->n_dependencies = current_module_dependencies.size();
         }
         if (!overload_defs.empty()) {
             create_GenericProcedure(x.base.base.loc);
@@ -2308,6 +2324,7 @@ public:
                 throw SemanticError("The module '" + msym + "' cannot be loaded",
                         x.base.base.loc);
             }
+            current_module_dependencies.push_back(al, s2c(al, msym));
         }
 
         ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
