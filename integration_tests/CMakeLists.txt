@@ -183,6 +183,7 @@ RUN(NAME bindc_03   LABELS llvm
         EXTRAFILES bindc_03b.c)
 RUN(NAME test_generics_01    LABELS cpython llvm)
 RUN(NAME test_cmath          LABELS cpython llvm)
+RUN(NAME test_tuples         LABELS cpython llvm)
 RUN(NAME test_complex        LABELS cpython llvm)
 RUN(NAME test_max_min        LABELS cpython llvm)
 RUN(NAME test_global         LABELS cpython llvm)
