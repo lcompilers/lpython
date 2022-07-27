@@ -376,6 +376,11 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "../integration_tests/generics_array_01.py"
+asr = true
+llvm = true
+
+[[test]]
 filename = "../integration_tests/generics_sum_01.py"
 asr = true
 

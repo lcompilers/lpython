@@ -749,16 +749,18 @@ public:
                     throw SemanticError("Inconsistent type variable for the function call", loc);
                 }
             } else {
-                /*
-                if (ASR::is_a<ASR::Character_t>(*arg_type)) {
-                    ASR::Character_t *char_type = ASR::down_cast<ASR::Character_t>(arg_type);
-                    subs[param_name] = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr, 
-                        char_type->m_dims, char_type->n_dims));
+                if (ASRUtils::is_array(param_type) && ASRUtils::is_array(arg_type)) {
+                    ASR::dimension_t* dims = nullptr;
+                    int param_dims = ASRUtils::extract_dimensions_from_ttype(param_type, dims);
+                    int arg_dims = ASRUtils::extract_dimensions_from_ttype(arg_type, dims);
+                    if (param_dims == arg_dims) {
+                        subs[param_name] = ASRUtils::duplicate_type_without_dims(al, arg_type);
+                    } else {
+                        throw SemanticError("Inconsistent type subsititution for array type", loc);
+                    }
                 } else {
                     subs[param_name] = arg_type;
                 }
-                */
-               subs[param_name] = arg_type;
             }
         }
         return subs;

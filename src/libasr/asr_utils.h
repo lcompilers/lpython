@@ -1004,8 +1004,9 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
         }
         // Set type variable dimension to be 0 for now
         case ASR::ttypeType::TypeParameter: {
-            n_dims = 0;
-            m_dims = nullptr;
+            ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(x);
+            n_dims = tp->n_dims;
+            m_dims = tp->m_dims;
             break;
         }
         default:
@@ -1070,6 +1071,25 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
             ASR::ttype_t* dup_type = duplicate_type(al, ptr->m_type, dims);
             return ASRUtils::TYPE(ASR::make_Pointer_t(al, ptr->base.base.loc,
                         dup_type));
+        }
+        case ASR::ttypeType::TypeParameter: {
+            ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
+            ASR::dimension_t* dimsp = dims ? dims->p : tp->m_dims;
+            size_t dimsn = dims ? dims->n : tp->n_dims;
+            return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
+                        tp->m_param, dimsp, dimsn));
+            throw LCompilersException("Heyo");
+        }
+        default : throw LCompilersException("Not implemented " + std::to_string(t->type));
+    }
+}
+
+static inline ASR::ttype_t* duplicate_type_without_dims(Allocator& al, const ASR::ttype_t* t) {
+    switch (t->type) {
+        case ASR::ttypeType::Integer: {
+            ASR::Integer_t* tnew = ASR::down_cast<ASR::Integer_t>(t);
+            return ASRUtils::TYPE(ASR::make_Integer_t(al, t->base.loc,
+                        tnew->m_kind, nullptr, 0));
         }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }

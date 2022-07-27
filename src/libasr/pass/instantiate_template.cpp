@@ -108,7 +108,6 @@ public:
             current_scope, s2c(al, func_name),
             args.p, args.size(),
             body.p, body.size(),
-            //nullptr, 0,
             ASRUtils::EXPR(new_return_var_ref),
             func_abi, func_access, func_deftype, false, bindc_name);   
 
@@ -135,7 +134,9 @@ public:
             args.push_back(al, duplicate_array_index(x->m_args[i]));
         }
 
-        return ASR::make_ArrayItem_t(al, x->base.base.loc, m_v, args.p, x->n_args, x->m_type, m_value);
+        ASR::ttype_t *type = substitute_type(x->m_type);
+
+        return ASR::make_ArrayItem_t(al, x->base.base.loc, m_v, args.p, x->n_args, type, m_value);
     }
 
     ASR::array_index_t duplicate_array_index(ASR::array_index_t x) {
@@ -179,8 +180,26 @@ public:
         }
         if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
             ASR::TypeParameter_t *param = ASR::down_cast<ASR::TypeParameter_t>(param_type);
-            std::string param_name = param->m_param;
-            return subs[param_name];
+            ASR::ttype_t *t = subs[param->m_param];
+            switch (t->type) {
+                case ASR::ttypeType::Integer: {
+                    ASR::Integer_t* tnew = ASR::down_cast<ASR::Integer_t>(t);
+                    return ASRUtils::TYPE(ASR::make_Integer_t(al, t->base.loc,
+                            tnew->m_kind, param->m_dims, param->n_dims));
+                }
+                case ASR::ttypeType::Real: {
+                    ASR::Real_t* tnew = ASR::down_cast<ASR::Real_t>(t);
+                    return ASRUtils::TYPE(ASR::make_Real_t(al, t->base.loc,
+                            tnew->m_kind, param->m_dims, param->n_dims));
+                }  
+                case ASR::ttypeType::Character: {
+                    ASR::Character_t* tnew = ASR::down_cast<ASR::Character_t>(t);
+                    return ASRUtils::TYPE(ASR::make_Character_t(al, t->base.loc,
+                                tnew->m_kind, tnew->m_len, tnew->m_len_expr,
+                                param->m_dims, param->n_dims));
+                }    
+                default: return subs[param->m_param];                          
+            }
         }
         return param_type;
     }    
