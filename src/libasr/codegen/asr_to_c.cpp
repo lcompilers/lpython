@@ -594,7 +594,7 @@ R"(
         }
         if (x.m_end) {
             this->visit_expr(*x.m_end);
-            out += "\%s";
+            out += "\%s\"";
             v.push_back(src);
         } else {
             out += "\\n\"";
