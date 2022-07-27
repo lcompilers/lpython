@@ -805,6 +805,15 @@ function_call
     | primary "(" keyword_items comma_opt ")" { $$ = CALL_03($1, $3, @$); }
     | primary "(" expr comp_for_items ")" {
         $$ = CALL_04($1, GENERATOR_EXPR($3, $4, @$), @$); }
+    | function_call "(" expr_list_opt ")" { $$ = CALL_01($1, $3, @$); }
+    | function_call "(" expr_list "," ")" { $$ = CALL_01($1, $3, @$); }
+    | function_call "(" expr_list "," keyword_items comma_opt ")" {
+        $$ = CALL_02($1, $3, $5, @$); }
+    | function_call "(" keyword_items "," expr_list comma_opt ")" {
+        $$ = CALL_02($1, $5, $3, @$); }
+    | function_call "(" keyword_items comma_opt ")" { $$ = CALL_03($1, $3, @$); }
+    | function_call "(" expr comp_for_items ")" {
+        $$ = CALL_04($1, GENERATOR_EXPR($3, $4, @$), @$); }
     ;
 
 subscription
