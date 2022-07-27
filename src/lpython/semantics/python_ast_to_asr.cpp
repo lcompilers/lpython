@@ -3602,8 +3602,8 @@ public:
                                 loc, s2c(al, value_str), res_type));
             }
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-            al, loc, arg, ASR::cast_kindType::RealToCharacter,
-            res_type, res_value));
+                al, loc, arg, ASR::cast_kindType::RealToCharacter,
+                res_type, res_value));
         } else if (ASRUtils::is_integer(*arg_type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
                 int32_t number = ASR::down_cast<ASR::IntegerConstant_t>(
@@ -3613,8 +3613,8 @@ public:
                                 loc, s2c(al, value_str), res_type));
             }
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-            al, loc, arg, ASR::cast_kindType::IntegerToCharacter,
-            res_type, res_value));
+                al, loc, arg, ASR::cast_kindType::IntegerToCharacter,
+                res_type, res_value));
         } else if (ASRUtils::is_logical(*arg_type)) {
             if(ASRUtils::expr_value(arg) != nullptr) {
                 bool bool_number = ASR::down_cast<ASR::LogicalConstant_t>(
@@ -3624,9 +3624,19 @@ public:
                                 loc, s2c(al, value_str), res_type));
             }
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
-            al, loc, arg, ASR::cast_kindType::LogicalToCharacter,
-            res_type, res_value));
+                al, loc, arg, ASR::cast_kindType::LogicalToCharacter,
+                res_type, res_value));
 
+        } else if (ASRUtils::is_character(*arg_type)) {
+            if(ASRUtils::expr_value(arg) != nullptr) {
+                std::string string_it_self = ASR::down_cast<ASR::StringConstant_t>(
+                                        ASRUtils::expr_value(arg))->m_s;
+                res_value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
+                                loc, s2c(al, string_it_self), res_type));
+            }
+            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(ASR::make_Cast_t(
+                al, loc, arg, ASR::cast_kindType::CharacterToCharacter,
+                res_type, res_value));
         } else {
             std::string stype = ASRUtils::type_to_str_python(arg_type);
             throw SemanticError("Conversion of '" + stype + "' to string is not Implemented", loc);
@@ -3852,20 +3862,37 @@ public:
                 }
                 tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, result, type);
                 return;
-            } else if ( call_name == "int" || call_name == "float" 
-                        || call_name == "bool" || call_name == "str") {
-                if (args.size() > 1) {
+            }
+            else if (call_name == "int") {
+                if (args.size() <= 1) {
+                    tmp = handle_intrinsic_int(al, args, x.base.base.loc);
+                } else {
                     throw SemanticError("Either 0 or 1 argument is expected in '" + call_name + "'",
                             x.base.base.loc);
                 }
-                if (call_name == "int") {
-                    tmp = handle_intrinsic_int(al, args, x.base.base.loc);
-                } else if (call_name == "float") {
+                return;
+            } else if (call_name == "float") {
+                if(args.size() <= 1) {
                     tmp = handle_intrinsic_float(al, args, x.base.base.loc);
-                } else if (call_name == "str") {
+                } else {
+                    throw SemanticError("Either 0 or 1 argument is expected in '" + call_name + "'",
+                            x.base.base.loc);
+                }
+                return;
+            } else if (call_name == "str") {
+                if(args.size() <= 1) {
                     tmp = handle_intrinsic_str(al ,args, x.base.base.loc);
                 } else {
+                    throw SemanticError("Either 0 or 1 argument is expected in '" + call_name + "'",
+                            x.base.base.loc);
+                }
+                return;
+            } else if(call_name == "bool") {
+                if(args.size() <= 1) {
                     tmp = handle_intrinsic_bool(al, args, x.base.base.loc);
+                } else {
+                    throw SemanticError("Either 0 or 1 argument is expected in '" + call_name + "'",
+                            x.base.base.loc);
                 }
                 return;
             } else if (call_name == "len") {

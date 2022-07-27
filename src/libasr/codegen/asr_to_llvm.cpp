@@ -815,52 +815,19 @@ public:
         return builder->CreateCall(fn, {str, idx1, idx2});
     }
 
-    llvm::Value* lfortran_float_to_str(llvm::Value* number)
-    {
-        std::string func_name = "_lfortran_float_to_str";
-        llvm::Function *fn = module->getFunction(func_name);
-        if (!fn) {
+    llvm::Value* lfortran_type_to_str(llvm::Value* arg, llvm::Type* value_type, std::string type) {
+        std::string func_name = "_lfortran_" + type + "_to_str";
+         llvm::Function *fn = module->getFunction(func_name);
+         if(!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
-                    character_type, {
-                        llvm::Type::getFloatTy(context)
-                    }, false);
+                 character_type, {
+                     value_type
+                 }, false);
             fn = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, func_name, *module);
-        }
-        llvm::Value* res = builder->CreateCall(fn, {number});
-        return res;
-    }
-
-    llvm::Value* lfortran_int_to_str(llvm::Value* number)
-    {
-        std::string func_name = "_lfortran_int_to_str";
-        llvm::Function *fn = module->getFunction(func_name);
-        if(!fn) {
-            llvm::FunctionType *function_type = llvm::FunctionType::get(
-                character_type, {
-                    llvm::Type::getInt32Ty(context)
-                }, false);
-            fn = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, func_name, *module);
-        }
-        llvm::Value* res = builder->CreateCall(fn, {number});
-        return res;
-    }
-
-    llvm::Value* lfortran_bool_to_str(llvm::Value* number)
-    {
-        std::string func_name = "_lfortran_bool_to_str";
-        llvm::Function *fn = module->getFunction(func_name);
-        if(!fn) {
-            llvm::FunctionType *function_type = llvm::FunctionType::get(
-                character_type, {
-                    llvm::Type::getInt1Ty(context)
-                }, false);
-            fn = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, func_name, *module);
-        }
-        llvm::Value* res = builder->CreateCall(fn, {number});
-        return res;
+                     llvm::Function::ExternalLinkage, func_name, *module);
+         }
+         llvm::Value* res = builder->CreateCall(fn, {arg});
+         return res;
     }
 
     llvm::Value* lcompilers_list_init_i32()
@@ -4272,17 +4239,28 @@ public:
             }
             case (ASR::cast_kindType::RealToCharacter) : {
                 llvm::Value *arg = tmp;
-                tmp = lfortran_float_to_str(arg);
+                ASR::ttype_t* arg_type = extract_ttype_t_from_expr(x.m_arg);
+                LFORTRAN_ASSERT(arg_type != nullptr)
+                int arg_kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
+                tmp = lfortran_type_to_str(arg, getFPType(arg_kind), "float");
                 break;
             }
             case (ASR::cast_kindType::IntegerToCharacter) : {
                 llvm::Value *arg = tmp;
-                tmp = lfortran_int_to_str(arg);
+                ASR::ttype_t* arg_type = extract_ttype_t_from_expr(x.m_arg);
+                LFORTRAN_ASSERT(arg_type != nullptr)
+                int arg_kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
+                tmp = lfortran_type_to_str(arg, getIntType(arg_kind), "int");
                 break;
             }
             case (ASR::cast_kindType::LogicalToCharacter) : {
-                llvm::Value *arg =tmp;
-                tmp = lfortran_bool_to_str(arg);
+                llvm::Value *cmp = builder->CreateICmpEQ(tmp, builder->getInt1(0));
+                llvm::Value *zero_str = builder->CreateGlobalStringPtr("False");
+                llvm::Value *one_str = builder->CreateGlobalStringPtr("True");
+                tmp = builder->CreateSelect(cmp, zero_str, one_str);
+                break;
+            }
+            case (ASR::cast_kindType::CharacterToCharacter) : {
                 break;
             }
             default : throw CodeGenError("Cast kind not implemented");

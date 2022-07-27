@@ -669,12 +669,6 @@ LFORTRAN_API char* _lfortran_float_to_str(float num)
     return res;
 }
 
-LFORTRAN_API char* _lfortran_bool_to_str(bool bool_num)
-{   
-    char* res = (bool_num)? "True" : "False";
-    return res;
-}   
-
 LFORTRAN_API char* _lfortran_int_to_str(int num)
 {
     char* res = (char*)malloc(40);
