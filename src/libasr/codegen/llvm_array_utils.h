@@ -193,7 +193,7 @@ namespace LFortran {
                 * implemented by current class.
                 */
                 virtual
-                llvm::Value* get_upper_bound(llvm::Value* dim_des, bool load=true) = 0;
+                llvm::Value* get_upper_bound(llvm::Value* dim_des) = 0;
 
                 /*
                 * Returns stride in the input
@@ -249,6 +249,17 @@ namespace LFortran {
 
                 virtual
                 void set_is_allocated_flag(llvm::Value* array, uint64_t status) = 0;
+
+                virtual
+                llvm::Value* reshape(llvm::Value* array, llvm::Value* shape,
+                                     llvm::Module* module) = 0;
+
+                virtual
+                void copy_array(llvm::Value* src, llvm::Value* dest) = 0;
+
+                virtual
+                llvm::Value* get_array_size(llvm::Value* array, llvm::Value* dim,
+                                            int output_kind, int dim_kind=4) = 0;
 
         };
 
@@ -338,7 +349,7 @@ namespace LFortran {
                 llvm::Value* get_lower_bound(llvm::Value* dim_des, bool load=true);
 
                 virtual
-                llvm::Value* get_upper_bound(llvm::Value* dim_des, bool load=true);
+                llvm::Value* get_upper_bound(llvm::Value* dim_des);
 
                 virtual
                 llvm::Value* get_dimension_size(llvm::Value* dim_des_arr,
@@ -363,6 +374,17 @@ namespace LFortran {
 
                 virtual
                 void set_is_allocated_flag(llvm::Value* array, uint64_t status);
+
+                virtual
+                llvm::Value* reshape(llvm::Value* array, llvm::Value* shape,
+                                     llvm::Module* module);
+
+                virtual
+                void copy_array(llvm::Value* src, llvm::Value* dest);
+
+                virtual
+                llvm::Value* get_array_size(llvm::Value* array, llvm::Value* dim,
+                                            int output_kind, int dim_kind=4);
 
         };
 

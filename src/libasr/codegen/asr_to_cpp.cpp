@@ -68,26 +68,23 @@ public:
         : BaseCCPPVisitor(diag, platform, true, true, false,
                           default_lower_bound),
           array_types_decls(std::string("\nstruct dimension_descriptor\n"
-                                        "{\n    int32_t lower_bound, upper_bound;\n};\n")) {}
+                                        "{\n    int32_t lower_bound, length;\n};\n")) {}
 
     std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims, size_t& size)
     {
         std::string dims;
         size = 1;
         for (size_t i=0; i<n_dims; i++) {
-            ASR::expr_t *start = m_dims[i].m_start;
-            ASR::expr_t *end = m_dims[i].m_end;
-            if (!start && !end) {
+            ASR::expr_t *length = m_dims[i].m_length;
+            if (!length) {
                 dims += "*";
-            } else if (start && end) {
-                ASR::expr_t* start_value = ASRUtils::expr_value(start);
-                ASR::expr_t* end_value = ASRUtils::expr_value(end);
-                if( start_value && end_value ) {
-                    int64_t start_int = -1, end_int = -1;
-                    ASRUtils::extract_value(start_value, start_int);
-                    ASRUtils::extract_value(end_value, end_int);
-                    size *= (end_int - start_int + 1);
-                    dims += "[" + std::to_string(end_int - start_int + 1) + "]";
+            } else if (length) {
+                ASR::expr_t* length_value = ASRUtils::expr_value(length);
+                if( length_value ) {
+                    int64_t length_int = -1;
+                    ASRUtils::extract_value(length_value, length_int);
+                    size *= (length_int);
+                    dims += "[" + std::to_string(length_int) + "]";
                 } else {
                     size = 0;
                     dims += "[ /* FIXME symbolic dimensions */ ]";
@@ -175,13 +172,13 @@ public:
                         sub += indent + std::string(v_m_name) +
                             "->dims[" + std::to_string(i) + "].lower_bound = 0" + ";\n";
                     }
-                    if( m_dims[i].m_end ) {
-                        this->visit_expr(*m_dims[i].m_end);
+                    if( m_dims[i].m_length ) {
+                        this->visit_expr(*m_dims[i].m_length);
                         sub += indent + std::string(v_m_name) +
-                            "->dims[" + std::to_string(i) + "].upper_bound = " + src + ";\n";
+                            "->dims[" + std::to_string(i) + "].length = " + src + ";\n";
                     } else {
                         sub += indent + std::string(v_m_name) +
-                            "->dims[" + std::to_string(i) + "].upper_bound = -1" + ";\n";
+                            "->dims[" + std::to_string(i) + "].length = 0" + ";\n";
                     }
                 }
                 sub.pop_back();

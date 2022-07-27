@@ -88,13 +88,13 @@ public:
                 ASR::dimension_t curr_dim;
                 curr_dim.loc = x.base.base.loc;
                 curr_dim.m_start = const_1;
-                curr_dim.m_end = actual_size;
+                curr_dim.m_length = actual_size;
                 m_dims.push_back(al, curr_dim);
             } else {
                 ASR::dimension_t curr_dim;
                 curr_dim.loc = x.base.base.loc;
                 curr_dim.m_start = const_1;
-                curr_dim.m_end = const_1;
+                curr_dim.m_length = const_1;
                 m_dims.push_back(al, curr_dim);
             }
         }
@@ -207,8 +207,9 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t& x) {
-        if( ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
-            ASR::is_a<ASR::GetPointer_t>(*x.m_value) ) {
+        if( (ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
+            ASR::is_a<ASR::GetPointer_t>(*x.m_value)) ||
+            ASR::is_a<ASR::ArrayReshape_t>(*x.m_value) ) {
             return ;
         }
         this->visit_expr(*x.m_value);

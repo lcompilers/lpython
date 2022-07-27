@@ -135,7 +135,7 @@ public:
                                                               args.p, args.size(),
                                                               array_ref_type, nullptr));
             if( idoloop->m_values[i]->type == ASR::exprType::ImpliedDoLoop ) {
-                throw LFortranException("Pass for nested ImpliedDoLoop nodes isn't implemented yet."); // idoloop->m_values[i]->base.loc
+                throw LCompilersException("Pass for nested ImpliedDoLoop nodes isn't implemented yet."); // idoloop->m_values[i]->base.loc
             }
             ASR::stmt_t* doloop_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, arr_var->base.base.loc, array_ref, idoloop->m_values[i], nullptr));
             doloop_body.push_back(al, doloop_stmt);
@@ -150,8 +150,9 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
-        if( ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
-            ASR::is_a<ASR::GetPointer_t>(*x.m_value) ) {
+        if( (ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
+            ASR::is_a<ASR::GetPointer_t>(*x.m_value)) ||
+            ASR::is_a<ASR::ArrayReshape_t>(*x.m_value) ) {
             return ;
         }
         if( x.m_value->type == ASR::exprType::ArrayConstant ) {

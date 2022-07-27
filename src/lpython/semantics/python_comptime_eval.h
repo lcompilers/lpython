@@ -32,12 +32,7 @@ struct PythonIntrinsicProcedures {
         comptime_eval_map = {
             {"abs", {m_builtin, &eval_abs}},
             {"str", {m_builtin, &eval_str}},
-            {"chr", {m_builtin, &eval_chr}},
-            {"ord", {m_builtin, &eval_ord}},
-            // {"len", {m_builtin, &eval_len}},
             {"pow", {m_builtin, &eval_pow}},
-            // {"int", {m_builtin, &eval_int}},
-            // {"float", {m_builtin, &eval_float}},
             {"round", {m_builtin, &eval_round}},
             {"bin", {m_builtin, &eval_bin}},
             {"hex", {m_builtin, &eval_hex}},
@@ -164,28 +159,6 @@ struct PythonIntrinsicProcedures {
         }
     }
 
-    static ASR::expr_t *eval_chr(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        ASR::expr_t* arg = args[0];
-        ASR::ttype_t* type = ASRUtils::expr_type(arg);
-        if (ASR::is_a<ASR::Integer_t>(*type)) {
-            int64_t c = ASR::down_cast<ASR::IntegerConstant_t>(arg)->m_n;
-            ASR::ttype_t* str_type =
-                ASRUtils::TYPE(ASR::make_Character_t(al,
-                loc, 1, 1, nullptr, nullptr, 0));
-            if (! (c >= 0 && c <= 127) ) {
-                throw SemanticError("The argument 'x' in chr(x) must be in the range 0 <= x <= 127.", loc);
-            }
-            char cc = c;
-            std::string svalue;
-            svalue += cc;
-            return ASR::down_cast<ASR::expr_t>(
-                ASR::make_StringConstant_t(al, loc, s2c(al, svalue), str_type));
-        } else {
-            throw SemanticError("chr() must have one integer argument.", loc);
-        }
-    }
-
     static ASR::expr_t *eval__mod(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
         if (args.size() != 2) {
@@ -207,51 +180,6 @@ struct PythonIntrinsicProcedures {
                 ASR::make_RealConstant_t(al, loc, std::fmod(a, b), type));
         } else {
             throw SemanticError("_mod() must have both integer or both real arguments.", loc);
-        }
-    }
-
-    static ASR::expr_t *eval_ord(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        ASR::expr_t* char_expr = args[0];
-        ASR::ttype_t* char_type = ASRUtils::expr_type(char_expr);
-        if (ASRUtils::is_character(*char_type)) {
-            char* c = ASR::down_cast<ASR::StringConstant_t>(ASRUtils::expr_value(char_expr))->m_s;
-            ASR::ttype_t* int_type =
-                ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-            return ASR::down_cast<ASR::expr_t>(
-                ASR::make_IntegerConstant_t(al, loc, c[0], int_type));
-        } else {
-            throw SemanticError("ord() must have one character argument", loc);
-        }
-    }
-
-    static ASR::expr_t *eval_len(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        if (args.size() != 1) {
-            throw SemanticError("len() takes exactly one argument (" +
-                std::to_string(args.size()) + " given)", loc);
-        }
-        ASR::expr_t *arg = args[0];
-        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-        if (arg->type == ASR::exprType::StringConstant) {
-            char* str_value = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
-            return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
-                (int64_t)strlen(s2c(al, std::string(str_value))), type));
-        } else if (arg->type == ASR::exprType::ArrayConstant) {
-            return ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc,
-                (int64_t)ASR::down_cast<ASR::ArrayConstant_t>(arg)->n_args, type));
-        } else if (arg->type == ASR::exprType::TupleConstant) {
-            return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
-                (int64_t)ASR::down_cast<ASR::TupleConstant_t>(arg)->n_elements, type));
-        } else if (arg->type == ASR::exprType::DictConstant) {
-            return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
-                (int64_t)ASR::down_cast<ASR::DictConstant_t>(arg)->n_keys, type));
-        } else if (arg->type == ASR::exprType::SetConstant) {
-            return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
-                (int64_t)ASR::down_cast<ASR::SetConstant_t>(arg)->n_elements, type));
-        } else {
-            throw SemanticError("len() only works on strings, lists, tuples, dictionaries and sets",
-                loc);
         }
     }
 
@@ -321,70 +249,6 @@ struct PythonIntrinsicProcedures {
 
         } else {
             throw SemanticError("pow() only works on integer, real, logical, and complex types", loc);
-        }
-    }
-
-    static ASR::expr_t *eval_int(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-        if (args.size() == 0) {
-            return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc, 0, type));
-        }
-        ASR::expr_t* int_expr = args[0];
-        ASR::ttype_t* int_type = ASRUtils::expr_type(int_expr);
-        if (ASRUtils::is_integer(*int_type)) {
-            int64_t ival = ASR::down_cast<ASR::IntegerConstant_t>(int_expr)->m_n;
-            return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc, ival, type));
-
-        } else if (ASRUtils::is_character(*int_type)) {
-            // convert a string to an int
-            char* c = ASR::down_cast<ASR::StringConstant_t>(int_expr)->m_s;
-            std::string str = std::string(c);
-            int64_t ival = std::stoll(str);
-            return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc, ival, type));
-
-        } else if (ASRUtils::is_real(*int_type)) {
-            int64_t ival = ASR::down_cast<ASR::RealConstant_t>(int_expr)->m_r;
-            return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc, ival, type));
-
-        } else if (ASRUtils::is_logical(*int_type)) {
-            bool rv = ASR::down_cast<ASR::LogicalConstant_t>(int_expr)->m_value;
-            int8_t val = rv ? 1 : 0;
-            return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc, val, type));
-
-        } else {
-            throw SemanticError("int() argument must be real, integer, logical, or a string, not '" +
-                ASRUtils::type_to_str_python(int_type) + "'", loc);
-        }
-    }
-
-    static ASR::expr_t *eval_float(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
-        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
-        if (args.size() == 0) {
-            return ASR::down_cast<ASR::expr_t>(make_RealConstant_t(al, loc, 0.0, type));
-        }
-        ASR::expr_t* expr = args[0];
-        ASR::ttype_t* float_type = ASRUtils::expr_type(expr);
-        if (ASRUtils::is_real(*float_type)) {
-            float rv = ASR::down_cast<ASR::RealConstant_t>(expr)->m_r;
-            return ASR::down_cast<ASR::expr_t>(make_RealConstant_t(al, loc, rv, type));
-        } else if (ASRUtils::is_integer(*float_type)) {
-            double rv = ASR::down_cast<ASR::IntegerConstant_t>(expr)->m_n;
-            return ASR::down_cast<ASR::expr_t>(make_RealConstant_t(al, loc, rv, type));
-        } else if (ASRUtils::is_logical(*float_type)) {
-            bool rv = ASR::down_cast<ASR::LogicalConstant_t>(expr)->m_value;
-            float val = rv ? 1.0 : 0.0;
-            return ASR::down_cast<ASR::expr_t>(make_RealConstant_t(al, loc, val, type));
-        } else if (ASRUtils::is_character(*float_type)) {
-            // convert a string to a float
-            char* c = ASR::down_cast<ASR::StringConstant_t>(expr)->m_s;
-            std::string str = std::string(c);
-            float rv = std::stof(str);
-            return ASR::down_cast<ASR::expr_t>(make_RealConstant_t(al, loc, rv, type));
-        } else {
-            throw SemanticError("float() argument must be real, integer, logical, or a string, not '" +
-                ASRUtils::type_to_str_python(float_type) + "'", loc);
         }
     }
 
