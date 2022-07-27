@@ -608,7 +608,12 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 out += "<< " + sep + " ";
             }
         }
-        out += "<< std::endl;\n";
+        if (x.m_end) {
+            this->visit_expr(*x.m_end);
+            out += "<< " + src + ";\n";
+        } else {
+            out += "<< std::endl;\n";
+        }
         src = out;
     }
 
