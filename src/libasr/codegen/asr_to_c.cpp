@@ -592,7 +592,13 @@ R"(
                 v.push_back(separator);
             }
         }
-        out += "\\n\"";
+        if (x.m_end) {
+            this->visit_expr(*x.m_end);
+            out += "\%s";
+            v.push_back(src);
+        } else {
+            out += "\\n\"";
+        }
         if (!v.empty()) {
             for (auto s: v) {
                 out += ", " + s;
