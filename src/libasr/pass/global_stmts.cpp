@@ -86,7 +86,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                     target = return_var_ref;
                     idx++;
                 } else {
-                    throw LFortranException("Return type not supported in interactive mode");
+                    throw LCompilersException("Return type not supported in interactive mode");
                 }
                 ASR::stmt_t* asr_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target, value, nullptr));
                 body.push_back(al, asr_stmt);
@@ -95,7 +95,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 body.push_back(al, asr_stmt);
                 return_var = nullptr;
             } else {
-                throw LFortranException("Unsupported type of global scope node");
+                throw LCompilersException("Unsupported type of global scope node");
             }
         }
 
@@ -116,10 +116,11 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 /* n_body */ body.size(),
                 /* a_return_var */ return_var_ref,
                 ASR::abiType::BindC,
-                ASR::Public, ASR::Implementation, nullptr);
+                ASR::Public, ASR::Implementation, false,
+                nullptr);
             std::string sym_name = fn_name;
             if (unit.m_global_scope->get_symbol(sym_name) != nullptr) {
-                throw LFortranException("Function already defined");
+                throw LCompilersException("Function already defined");
             }
             unit.m_global_scope->add_symbol(sym_name, down_cast<ASR::symbol_t>(fn));
         } else {
@@ -138,7 +139,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 false, false);
             std::string sym_name = fn_name;
             if (unit.m_global_scope->get_symbol(sym_name) != nullptr) {
-                throw LFortranException("Function already defined");
+                throw LCompilersException("Function already defined");
             }
             unit.m_global_scope->add_symbol(sym_name, down_cast<ASR::symbol_t>(fn));
         }

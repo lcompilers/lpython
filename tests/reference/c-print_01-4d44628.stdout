@@ -30,7 +30,7 @@
 
 struct dimension_descriptor
 {
-    int32_t lower_bound, upper_bound;
+    int32_t lower_bound, length;
 };
 // Forward declarations
 void _lpython_main_program();
@@ -52,8 +52,8 @@ void f()
     printf("%s%s%s\n", "a", x, "b");
     x = "-+-+-";
     printf("%s%s%s%s%s\n", "a", x, "b", x, "c");
-    printf("%s%s%s%s%s\n", "d", "=", "e", "=", "f");
-    printf("%s%s%s%s%s\n", "x", "*\n", "y", "*\n", "z");
+    printf("%s%s%s%s%s%s", "d", "=", "e", "=", "f", "+\n");
+    printf("%s%s%s%s%s%s", "x", "*\n", "y", "*\n", "z", y);
     printf("%s%s%s\n", "1", ":", "2");
     printf("%s%s%s\n", "LCompilers", " ", "LPython");
 }

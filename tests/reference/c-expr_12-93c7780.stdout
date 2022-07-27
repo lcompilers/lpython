@@ -31,7 +31,7 @@
 
 struct dimension_descriptor
 {
-    int32_t lower_bound, upper_bound;
+    int32_t lower_bound, length;
 };
 
 struct i16_1
@@ -66,7 +66,7 @@ void f()
     int16_t y_data[2];
     y->data = y_data;
     y->dims[0].lower_bound = 0;
-    y->dims[0].upper_bound = 2 - 1;
+    y->dims[0].length = 2 - 1 - 0 + 1;
     struct i16_1 yptr1_value;
     struct i16_1* yptr1 = &yptr1_value;
 ;

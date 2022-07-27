@@ -753,6 +753,25 @@ LFORTRAN_API int _lfortran_str_len(char** s)
     return strlen(*s);
 }
 
+LFORTRAN_API int _lfortran_str_to_int(char** s)
+{
+    char *ptr;
+    return strtol(*s, &ptr, 10);
+}
+
+LFORTRAN_API int _lfortran_str_ord(char** s)
+{
+    return (*s)[0];
+}
+
+LFORTRAN_API char* _lfortran_str_chr(int val)
+{
+    char* dest_char = (char*)malloc(2);
+    dest_char[0] = val;
+    dest_char[1] = '\0';
+    return dest_char;
+}
+
 LFORTRAN_API char* _lfortran_malloc(int size) {
     return (char*)malloc(size);
 }

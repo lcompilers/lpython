@@ -20,7 +20,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
 struct dimension_descriptor
 {
-    int32_t lower_bound, upper_bound;
+    int32_t lower_bound, length;
 };
 
 struct f32_10000_1
@@ -53,17 +53,17 @@ void main0()
     f32_10000_1 a_value(&a_data);
     f32_10000_1* a = &a_value;
     a->dims[0].lower_bound = 0;
-    a->dims[0].upper_bound = 10000 - 1;
+    a->dims[0].length = 10000 - 1 - 0 + 1;
     Kokkos::View<float*> b_data("b_data", 10000);
     f32_10000_1 b_value(&b_data);
     f32_10000_1* b = &b_value;
     b->dims[0].lower_bound = 0;
-    b->dims[0].upper_bound = 10000 - 1;
+    b->dims[0].length = 10000 - 1 - 0 + 1;
     Kokkos::View<float*> c_data("c_data", 10000);
     f32_10000_1 c_value(&c_data);
     f32_10000_1* c = &c_value;
     c->dims[0].lower_bound = 0;
-    c->dims[0].upper_bound = 10000 - 1;
+    c->dims[0].length = 10000 - 1 - 0 + 1;
     int nsize;
     float scalar;
     scalar =   1.00000000000000000e+01;

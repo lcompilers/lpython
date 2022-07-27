@@ -102,7 +102,7 @@ static inline ASR::ttype_t* symbol_type(const ASR::symbol_t *f)
             return ASR::down_cast<ASR::Variable_t>(f)->m_type;
         }
         default: {
-            throw LFortranException("Cannot return type of, " +
+            throw LCompilersException("Cannot return type of, " +
                                     std::to_string(f->type) + " symbol.");
         }
     }
@@ -149,7 +149,7 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
             return type_to_str(ASRUtils::type_get_past_pointer(
                         const_cast<ASR::ttype_t*>(t))) + " pointer";
         }
-        default : throw LFortranException("Not implemented " + std::to_string(t->type) + ".");
+        default : throw LCompilersException("Not implemented " + std::to_string(t->type) + ".");
     }
 }
 
@@ -159,7 +159,7 @@ static inline std::string binop_to_str(const ASR::binopType t) {
         case (ASR::binopType::Sub): { return " - "; }
         case (ASR::binopType::Mul): { return "*"; }
         case (ASR::binopType::Div): { return "/"; }
-        default : throw LFortranException("Cannot represent the binary operator as a string");
+        default : throw LCompilersException("Cannot represent the binary operator as a string");
     }
 }
 
@@ -171,7 +171,7 @@ static inline std::string cmpop_to_str(const ASR::cmpopType t) {
         case (ASR::cmpopType::LtE): { return " <= "; }
         case (ASR::cmpopType::Gt): { return " > "; }
         case (ASR::cmpopType::GtE): { return " >= "; }
-        default : throw LFortranException("Cannot represent the comparison as a string");
+        default : throw LCompilersException("Cannot represent the comparison as a string");
     }
 }
 
@@ -181,7 +181,7 @@ static inline std::string logicalbinop_to_str_python(const ASR::logicalbinopType
         case (ASR::logicalbinopType::Or): { return " || "; }
         case (ASR::logicalbinopType::Eqv): { return " == "; }
         case (ASR::logicalbinopType::NEqv): { return " != "; }
-        default : throw LFortranException("Cannot represent the boolean operator as a string");
+        default : throw LCompilersException("Cannot represent the boolean operator as a string");
     }
 }
 
@@ -229,7 +229,7 @@ static inline char *symbol_name(const ASR::symbol_t *f)
         case ASR::symbolType::Block: {
             return ASR::down_cast<ASR::Block_t>(f)->m_name;
         }
-        default : throw LFortranException("Not implemented");
+        default : throw LCompilersException("Not implemented");
     }
 }
 
@@ -272,7 +272,7 @@ static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
         case ASR::symbolType::Block: {
             return ASR::down_cast<ASR::Block_t>(f)->m_symtab->parent;
         }
-        default : throw LFortranException("Not implemented");
+        default : throw LCompilersException("Not implemented");
     }
 }
 
@@ -294,22 +294,22 @@ static inline SymbolTable *symbol_symtab(const ASR::symbol_t *f)
         }
         case ASR::symbolType::GenericProcedure: {
             return nullptr;
-            //throw LFortranException("GenericProcedure does not have a symtab");
+            //throw LCompilersException("GenericProcedure does not have a symtab");
         }
         case ASR::symbolType::DerivedType: {
             return ASR::down_cast<ASR::DerivedType_t>(f)->m_symtab;
         }
         case ASR::symbolType::Variable: {
             return nullptr;
-            //throw LFortranException("Variable does not have a symtab");
+            //throw LCompilersException("Variable does not have a symtab");
         }
         case ASR::symbolType::ExternalSymbol: {
             return nullptr;
-            //throw LFortranException("ExternalSymbol does not have a symtab");
+            //throw LCompilersException("ExternalSymbol does not have a symtab");
         }
         case ASR::symbolType::ClassProcedure: {
             return nullptr;
-            //throw LFortranException("ClassProcedure does not have a symtab");
+            //throw LCompilersException("ClassProcedure does not have a symtab");
         }
         case ASR::symbolType::AssociateBlock: {
             return ASR::down_cast<ASR::AssociateBlock_t>(f)->m_symtab;
@@ -317,7 +317,7 @@ static inline SymbolTable *symbol_symtab(const ASR::symbol_t *f)
         case ASR::symbolType::Block: {
             return ASR::down_cast<ASR::Block_t>(f)->m_symtab;
         }
-        default : throw LFortranException("Not implemented");
+        default : throw LCompilersException("Not implemented");
     }
 }
 
@@ -604,14 +604,14 @@ static inline bool extract_value(ASR::expr_t* value_expr, T& value) {
 static inline std::string type_python_1dim_helper(const std::string & res,
                                                   const ASR::dimension_t* e )
 {
-    if( !e->m_end && !e->m_start ) {
+    if( !e->m_length && !e->m_start ) {
         return res + "[:]";
     }
 
-    if( ASRUtils::expr_value(e->m_end) ) {
-        int64_t end_dim = -1;
-        ASRUtils::extract_value(ASRUtils::expr_value(e->m_end), end_dim);
-        return res + "[" + std::to_string(end_dim + 1) + "]";
+    if( ASRUtils::expr_value(e->m_length) ) {
+        int64_t length_dim = -1;
+        ASRUtils::extract_value(ASRUtils::expr_value(e->m_length), length_dim);
+        return res + "[" + std::to_string(length_dim + 1) + "]";
     }
 
     return res;
@@ -629,7 +629,7 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
                 case 2: { res = "i16"; break; }
                 case 4: { res = "i32"; break; }
                 case 8: { res = "i64"; break; }
-                default: { throw LFortranException("Integer kind not supported"); }
+                default: { throw LCompilersException("Integer kind not supported"); }
             }
             if (i->n_dims == 1 && for_error_message) {
                 res = type_python_1dim_helper(res, i->m_dims);
@@ -642,7 +642,7 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
             switch (r->m_kind) {
                 case 4: { res = "f32"; break; }
                 case 8: { res = "f64"; break; }
-                default: { throw LFortranException("Float kind not supported"); }
+                default: { throw LCompilersException("Float kind not supported"); }
             }
             if (r->n_dims == 1 && for_error_message) {
                 res = type_python_1dim_helper(res, r->m_dims);
@@ -654,7 +654,7 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
             switch (c->m_kind) {
                 case 4: { return "c32"; }
                 case 8: { return "c64"; }
-                default: { throw LFortranException("Complex kind not supported"); }
+                default: { throw LCompilersException("Complex kind not supported"); }
             }
         }
         case ASR::ttypeType::Logical: {
@@ -698,7 +698,7 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(t);
             return "Pointer[" + type_to_str_python(p->m_type) + "]";
         }
-        default : throw LFortranException("Not implemented " + std::to_string(t->type));
+        default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
 }
 
@@ -713,7 +713,7 @@ static inline std::string binop_to_str_python(const ASR::binopType t) {
         case (ASR::binopType::BitXor): { return "^"; }
         case (ASR::binopType::BitLShift): { return "<<"; }
         case (ASR::binopType::BitRShift): { return ">>"; }
-        default : throw LFortranException("Cannot represent the binary operator as a string");
+        default : throw LCompilersException("Cannot represent the binary operator as a string");
     }
 }
 
@@ -795,6 +795,10 @@ std::vector<std::string> order_deps(std::map<std::string,
 
 std::vector<std::string> determine_module_dependencies(
         const ASR::TranslationUnit_t &unit);
+
+void extract_module_python(const ASR::TranslationUnit_t &m,
+        std::vector<std::pair<std::string, ASR::Module_t*>>& children_modules,
+        std::string module_name);
 
 ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m);
 
@@ -979,7 +983,7 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
             break;
         }
         default:
-            throw LFortranException("Not implemented.");
+            throw LCompilersException("Not implemented.");
     }
     return n_dims;
 }
@@ -1041,7 +1045,7 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
             return ASRUtils::TYPE(ASR::make_Pointer_t(al, ptr->base.base.loc,
                         dup_type));
         }
-        default : throw LFortranException("Not implemented " + std::to_string(t->type));
+        default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
 }
 
@@ -1401,6 +1405,49 @@ class LabelGenerator {
 ASR::asr_t* make_Cast_t_value(Allocator &al, const Location &a_loc,
         ASR::expr_t* a_arg, ASR::cast_kindType a_kind, ASR::ttype_t* a_type);
 
+static inline ASR::expr_t* compute_end_from_start_length(Allocator& al, ASR::expr_t* start, ASR::expr_t* length) {
+    ASR::expr_t* start_value = ASRUtils::expr_value(start);
+    ASR::expr_t* length_value = ASRUtils::expr_value(length);
+    ASR::expr_t* end_value = nullptr;
+    if( start_value && length_value ) {
+        int64_t start_int, length_int;
+        ASRUtils::extract_value(start_value, start_int);
+        ASRUtils::extract_value(length_value, length_int);
+        end_value = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, start->base.loc,
+                                length_int + start_int - 1,
+                                ASRUtils::expr_type(start)));
+    }
+    ASR::expr_t* diff = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, length->base.loc, length,
+                                    ASR::binopType::Add, start, ASRUtils::expr_type(length),
+                                    nullptr));
+    ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
+                                            al, diff->base.loc, 1, ASRUtils::expr_type(diff)));
+    return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, length->base.loc, diff,
+                        ASR::binopType::Sub, constant_one, ASRUtils::expr_type(length),
+                        end_value));
+}
+
+static inline ASR::expr_t* compute_length_from_start_end(Allocator& al, ASR::expr_t* start, ASR::expr_t* end) {
+    ASR::expr_t* start_value = ASRUtils::expr_value(start);
+    ASR::expr_t* end_value = ASRUtils::expr_value(end);
+    ASR::expr_t* length_value = nullptr;
+    if( start_value && end_value ) {
+        int64_t start_int, end_int;
+        ASRUtils::extract_value(start_value, start_int);
+        ASRUtils::extract_value(end_value, end_int);
+        length_value = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, start->base.loc,
+                                end_int - start_int + 1,
+                                ASRUtils::expr_type(start)));
+    }
+    ASR::expr_t* diff = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, end->base.loc, end,
+                                    ASR::binopType::Sub, start, ASRUtils::expr_type(end),
+                                    nullptr));
+    ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
+                                            al, diff->base.loc, 1, ASRUtils::expr_type(diff)));
+    return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, end->base.loc, diff,
+                        ASR::binopType::Add, constant_one, ASRUtils::expr_type(end),
+                        length_value));
+}
 
 } // namespace ASRUtils
 

@@ -232,8 +232,9 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t& x) {
-        if( ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
-            ASR::is_a<ASR::GetPointer_t>(*x.m_value) ) {
+        if( (ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
+             ASR::is_a<ASR::GetPointer_t>(*x.m_value)) ||
+             ASR::is_a<ASR::ArrayReshape_t>(*x.m_value) ) {
             return ;
         }
         if( PassUtils::is_array(x.m_target) ) {
@@ -284,7 +285,7 @@ public:
         PassUtils::get_dim_rank(sibling_type, m_dims, ndims);
         for( int i = 0; i < ndims; i++ ) {
             if( m_dims[i].m_start != nullptr ||
-                m_dims[i].m_end != nullptr ) {
+                m_dims[i].m_length != nullptr ) {
                 return sibling_type;
             }
         }
@@ -294,7 +295,8 @@ public:
             ASR::dimension_t new_m_dim;
             new_m_dim.loc = m_dims[i].loc;
             new_m_dim.m_start = PassUtils::get_bound(sibling, i + 1, "lbound", al);
-            new_m_dim.m_end = PassUtils::get_bound(sibling, i + 1, "ubound", al);
+            new_m_dim.m_length = ASRUtils::compute_length_from_start_end(al, new_m_dim.m_start,
+                                     PassUtils::get_bound(sibling, i + 1, "ubound", al));
             new_m_dims.push_back(al, new_m_dim);
         }
         return PassUtils::set_dim_rank(sibling_type, new_m_dims.p, ndims, true, &al);
@@ -507,6 +509,14 @@ public:
         }
     }
 
+    bool is_elemental(ASR::symbol_t* x) {
+        x = ASRUtils::symbol_get_past_external(x);
+        if( !ASR::is_a<ASR::Function_t>(*x) ) {
+            return false;
+        }
+        return ASR::down_cast<ASR::Function_t>(x)->m_elemental;
+    }
+
     template <typename T>
     void visit_ArrayOpCommon(const T& x, std::string res_prefix) {
         bool current_status = use_custom_loop_params;
@@ -528,7 +538,7 @@ public:
         if( rank_left > 0 && rank_right > 0 ) {
             if( rank_left != rank_right ) {
                 // This should be checked by verify() and thus should not happen
-                throw LFortranException("Cannot generate loop for operands of different shapes");
+                throw LCompilersException("Cannot generate loop for operands of different shapes");
             }
             result_var = result_var_copy;
             if( result_var == nullptr ) {
@@ -607,12 +617,13 @@ public:
                                                     ref_1, (ASR::cmpopType)x.m_op, ref_2, x.m_type, nullptr));
                             break;
                         default:
-                            throw LFortranException("The desired operation is not supported yet for arrays.");
+                            throw LCompilersException("The desired operation is not supported yet for arrays.");
                     }
                     ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr));
                     doloop_body.push_back(al, assign);
                 } else {
-                    ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i+1], const_1, nullptr));
+                    ASR::expr_t* idx_lb = PassUtils::get_bound(left, i + 1, "lbound", al);
+                    ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i+1], idx_lb, nullptr));
                     doloop_body.push_back(al, set_to_one);
                     doloop_body.push_back(al, doloop);
                 }
@@ -622,7 +633,8 @@ public:
                 doloop_body.push_back(al, assign_stmt);
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
-            ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[0], const_1, nullptr));
+            ASR::expr_t* idx_lb = PassUtils::get_bound(right, 1, "lbound", al);
+            ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[0], idx_lb, nullptr));
             pass_result.push_back(al, set_to_one);
             pass_result.push_back(al, doloop);
         } else if( (rank_left == 0 && rank_right > 0) ||
@@ -713,12 +725,20 @@ public:
                                                     ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type, nullptr));
                             break;
                         default:
-                            throw LFortranException("The desired operation is not supported yet for arrays.");
+                            throw LCompilersException("The desired operation is not supported yet for arrays.");
                     }
                     ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr));
                     doloop_body.push_back(al, assign);
                 } else {
-                    ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[i+1], const_1, nullptr));
+                    ASR::expr_t* op_expr = nullptr;
+                    if( rank_left > 0 ) {
+                        op_expr = left;
+                    } else {
+                        op_expr = right;
+                    }
+                    ASR::expr_t* idx_lb = PassUtils::get_bound(op_expr, i + 2, "lbound", al);
+                    ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc,
+                                                idx_vars_value[i + 1], idx_lb, nullptr));
                     doloop_body.push_back(al, set_to_one);
                     doloop_body.push_back(al, doloop);
                 }
@@ -728,7 +748,15 @@ public:
                 doloop_body.push_back(al, assign_stmt);
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
             }
-            ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_value[0], const_1, nullptr));
+            ASR::expr_t* op_expr = nullptr;
+            if( rank_left > 0 ) {
+                op_expr = left;
+            } else {
+                op_expr = right;
+            }
+            ASR::expr_t* idx_lb = PassUtils::get_bound(op_expr, 1, "lbound", al);
+            ASR::stmt_t* set_to_one = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc,
+                                        idx_vars_value[0], idx_lb, nullptr));
             pass_result.push_back(al, set_to_one);
             pass_result.push_back(al, doloop);
         }
@@ -784,28 +812,90 @@ public:
         // So the current function call will be converted to a subroutine
         // call. In short, this check acts as a signal whether to convert
         // a function call to a subroutine call.
-        if (current_scope != nullptr) {
-            ASR::symbol_t *sub = current_scope->resolve_symbol(x_name);
-            if (sub && ASR::is_a<ASR::Subroutine_t>(*sub)) {
+        if (current_scope == nullptr) {
+            return ;
+        }
+
+        ASR::symbol_t *sub = current_scope->resolve_symbol(x_name);
+        if (sub && ASR::is_a<ASR::Subroutine_t>(*sub)) {
+            if( result_var == nullptr ) {
+                result_var = create_var(result_var_num, "_func_call_res",
+                    x.base.base.loc, x.m_args[x.n_args - 1].m_value);
+                result_var_num += 1;
+            }
+            Vec<ASR::call_arg_t> s_args;
+            s_args.reserve(al, x.n_args + 1);
+            for( size_t i = 0; i < x.n_args; i++ ) {
+                s_args.push_back(al, x.m_args[i]);
+            }
+            ASR::call_arg_t result_arg;
+            result_arg.loc = result_var->base.loc;
+            result_arg.m_value = result_var;
+            s_args.push_back(al, result_arg);
+            tmp_val = result_var;
+            ASR::stmt_t* subrout_call = LFortran::ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc,
+                                                sub, nullptr,
+                                                s_args.p, s_args.size(), nullptr));
+            pass_result.push_back(al, subrout_call);
+        } else if( is_elemental(x.m_name) && x.n_args == 1 &&
+                   ASRUtils::is_array(ASRUtils::expr_type(x.m_args[0].m_value)) ) {
+            std::string res_prefix = "_elemental_func_call_res";
+            ASR::expr_t* result_var_copy = result_var;
+            result_var = nullptr;
+            this->visit_expr(*(x.m_args[0].m_value));
+            ASR::expr_t* operand = tmp_val;
+            int rank_operand = PassUtils::get_rank(operand);
+            if( rank_operand == 0 ) {
+                tmp_val = const_cast<ASR::expr_t*>(&(x.base));
+                return ;
+            }
+            if( rank_operand > 0 ) {
+                result_var = result_var_copy;
                 if( result_var == nullptr ) {
-                    result_var = create_var(result_var_num, "_func_call_res",
-                        x.base.base.loc, x.m_args[x.n_args - 1].m_value);
+                    result_var = create_var(result_var_num, res_prefix,
+                                            x.base.base.loc, operand);
                     result_var_num += 1;
                 }
-                Vec<ASR::call_arg_t> s_args;
-                s_args.reserve(al, x.n_args + 1);
-                for( size_t i = 0; i < x.n_args; i++ ) {
-                    s_args.push_back(al, x.m_args[i]);
-                }
-                ASR::call_arg_t result_arg;
-                result_arg.loc = result_var->base.loc;
-                result_arg.m_value = result_var;
-                s_args.push_back(al, result_arg);
                 tmp_val = result_var;
-                ASR::stmt_t* subrout_call = LFortran::ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc,
-                                                    sub, nullptr,
-                                                    s_args.p, s_args.size(), nullptr));
-                pass_result.push_back(al, subrout_call);
+
+                int n_dims = rank_operand;
+                Vec<ASR::expr_t*> idx_vars;
+                PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
+                ASR::stmt_t* doloop = nullptr;
+                for( int i = n_dims - 1; i >= 0; i-- ) {
+                    // TODO: Add an If debug node to check if the lower and upper bounds of both the arrays are same.
+                    ASR::do_loop_head_t head;
+                    head.m_v = idx_vars[i];
+                    head.m_start = PassUtils::get_bound(result_var, i + 1, "lbound", al);
+                    head.m_end = PassUtils::get_bound(result_var, i + 1, "ubound", al);
+                    head.m_increment = nullptr;
+                    head.loc = head.m_v->base.loc;
+                    Vec<ASR::stmt_t*> doloop_body;
+                    doloop_body.reserve(al, 1);
+                    if( doloop == nullptr ) {
+                        ASR::expr_t* ref = PassUtils::create_array_ref(operand, idx_vars, al);
+                        ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
+                        ASR::expr_t* op_el_wise = nullptr;
+                        ASR::call_arg_t ref_arg;
+                        ref_arg.loc = ref->base.loc;
+                        ref_arg.m_value = ref;
+                        Vec<ASR::call_arg_t> ref_args;
+                        ref_args.reserve(al, 1);
+                        ref_args.push_back(al, ref_arg);
+                        Vec<ASR::dimension_t> empty_dim;
+                        empty_dim.reserve(al, 1);
+                        ASR::ttype_t* dim_less_type = ASRUtils::duplicate_type(al, x.m_type, &empty_dim);
+                        op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_FunctionCall_t(al, x.base.base.loc,
+                                        x.m_name, x.m_original_name, ref_args.p, ref_args.size(), dim_less_type,
+                                        nullptr, x.m_dt));
+                        ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr));
+                        doloop_body.push_back(al, assign);
+                    } else {
+                        doloop_body.push_back(al, doloop);
+                    }
+                    doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
+                }
+                pass_result.push_back(al, doloop);
             }
         }
         result_var = nullptr;

@@ -81,6 +81,7 @@ if (WITH_LSP)
   set (SRC ${SRC}
       lsp/JSONRPC2Connection.cpp
       lsp/LPythonServer.cpp
+      lsp/MessageHandler.cpp
   )
 endif()
 

@@ -239,7 +239,7 @@ namespace LFortran {
             ASR::Module_t *m = LFortran::ASRUtils::load_module(al, current_scope,
                                             module_name, loc, true,
                                             rl_path, false,
-                                            [&](const std::string &msg, const Location &) { throw LFortranException(msg); }
+                                            [&](const std::string &msg, const Location &) { throw LCompilersException(msg); }
                                             );
             ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
 
@@ -277,7 +277,7 @@ namespace LFortran {
             ASR::Module_t *m = LFortran::ASRUtils::load_module(al, current_scope,
                                             module_name, loc, true,
                                             rl_path, false,
-                                            [&](const std::string &msg, const Location &) { throw LFortranException(msg); });
+                                            [&](const std::string &msg, const Location &) { throw LCompilersException(msg); });
 
             ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
             ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
@@ -349,7 +349,7 @@ namespace LFortran {
             } else if (ASRUtils::is_character(*type)) {
                 return ASRUtils::EXPR(ASR::make_StringCompare_t(al, loc, left, op, right, type, nullptr));
             } else {
-                throw LFortranException("Type not supported");
+                throw LCompilersException("Type not supported");
             }
         }
 
@@ -364,7 +364,7 @@ namespace LFortran {
             } else if (ASRUtils::is_complex(*type)) {
                 return ASRUtils::EXPR(ASR::make_ComplexBinOp_t(al, loc, left, op, right, type, nullptr));
             } else {
-                throw LFortranException("Type not supported");
+                throw LCompilersException("Type not supported");
             }
         }
 
@@ -421,7 +421,7 @@ namespace LFortran {
             if( cast_kind > 0 ) {
                 return LFortran::ASRUtils::EXPR(ASR::make_Cast_t(al, x->base.loc, x, (ASR::cast_kindType)cast_kind, int64type, nullptr));
             } else {
-                throw LFortranException("Array indices can only be of type real or integer.");
+                throw LCompilersException("Array indices can only be of type real or integer.");
             }
             return nullptr;
         }
@@ -435,7 +435,7 @@ namespace LFortran {
             if( current_scope->get_symbol(name) == nullptr ) {
                 current_scope->add_symbol(name, ASR::down_cast<ASR::symbol_t>(expr_sym));
             } else {
-                throw LFortranException("Symbol with " + name + " is already present in " + std::to_string(current_scope->counter));
+                throw LCompilersException("Symbol with " + name + " is already present in " + std::to_string(current_scope->counter));
             }
             ASR::expr_t* var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, expr->base.loc, ASR::down_cast<ASR::symbol_t>(expr_sym)));
             assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, var->base.loc, var, expr, nullptr));
@@ -451,7 +451,7 @@ namespace LFortran {
             if( current_scope->get_symbol(name) == nullptr ) {
                 current_scope->add_symbol(name, ASR::down_cast<ASR::symbol_t>(expr_sym));
             } else {
-                throw LFortranException("Symbol with " + name + " is already present in " + std::to_string(current_scope->counter));
+                throw LCompilersException("Symbol with " + name + " is already present in " + std::to_string(current_scope->counter));
             }
             ASR::expr_t* var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(expr_sym)));
             return var;
@@ -596,13 +596,15 @@ namespace LFortran {
             ASR::stmt_t *inc_stmt = nullptr;
             ASR::stmt_t *stmt1 = nullptr;
             if( !a && !b && !c ) {
-                ASR::ttype_t *cond_type = LFortran::ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0));
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(loop.m_head.m_v));
+                ASR::ttype_t *cond_type = LFortran::ASRUtils::TYPE(ASR::make_Logical_t(al, loc, a_kind, nullptr, 0));
                 cond = LFortran::ASRUtils::EXPR(ASR::make_LogicalConstant_t(al, loc, true, cond_type));
             } else {
                 LFORTRAN_ASSERT(a);
                 LFORTRAN_ASSERT(b);
                 if (!c) {
-                    ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+                    int a_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(loop.m_head.m_v));
+                    ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, a_kind, nullptr, 0));
                     c = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, loc, 1, type));
                 }
                 LFORTRAN_ASSERT(c);
@@ -615,7 +617,7 @@ namespace LFortran {
                         ASR::IntegerUnaryMinus_t *u = ASR::down_cast<ASR::IntegerUnaryMinus_t>(c);
                         increment = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_arg)->m_n;
                     } else {
-                        throw LFortranException("Do loop increment type not supported");
+                        throw LCompilersException("Do loop increment type not supported");
                     }
                     if (increment > 0) {
                         cmp_op = ASR::cmpopType::LtE;
@@ -626,7 +628,8 @@ namespace LFortran {
                     cmp_op = (ASR::cmpopType) comp;
                 }
                 ASR::expr_t *target = loop.m_head.m_v;
-                ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(target));
+                ASR::ttype_t *type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, a_kind, nullptr, 0));
                 stmt1 = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, loc, target,
                     LFortran::ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, a, ASR::binopType::Sub, c, type, nullptr)), nullptr));
 

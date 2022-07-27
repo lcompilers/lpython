@@ -69,7 +69,7 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
 
     return m;
 #else
-    throw LFortranException("LLVM is not enabled");
+    throw LCompilersException("LLVM is not enabled");
 #endif
 }
 
