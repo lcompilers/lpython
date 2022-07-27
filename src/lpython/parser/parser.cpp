@@ -39,7 +39,7 @@ Result<LPython::AST::Module_t*> parse(Allocator &al, const std::string &s,
         l.last=p.result[p.result.size()-1]->base.loc.last;
     }
     return (LPython::AST::Module_t*)LPython::AST::make_Module_t(al, l,
-        p.result.p, p.result.size(), nullptr, 0);
+        p.result.p, p.result.size(), p.type_ignore.p, p.type_ignore.size());
 }
 
 void Parser::parse(const std::string &input)
