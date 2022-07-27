@@ -815,8 +815,8 @@ public:
         return builder->CreateCall(fn, {str, idx1, idx2});
     }
 
-    llvm::Value* lfortran_type_to_str(llvm::Value* arg, llvm::Type* value_type, std::string type) {
-        std::string func_name = "_lfortran_" + type + "_to_str";
+    llvm::Value* lfortran_type_to_str(llvm::Value* arg, llvm::Type* value_type, std::string type, int value_kind) {
+        std::string func_name = "_lfortran_" + type + "_to_str" + std::to_string(value_kind);
          llvm::Function *fn = module->getFunction(func_name);
          if(!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
@@ -4242,7 +4242,7 @@ public:
                 ASR::ttype_t* arg_type = extract_ttype_t_from_expr(x.m_arg);
                 LFORTRAN_ASSERT(arg_type != nullptr)
                 int arg_kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
-                tmp = lfortran_type_to_str(arg, getFPType(arg_kind), "float");
+                tmp = lfortran_type_to_str(arg, getFPType(arg_kind), "float", arg_kind);
                 break;
             }
             case (ASR::cast_kindType::IntegerToCharacter) : {
@@ -4250,7 +4250,7 @@ public:
                 ASR::ttype_t* arg_type = extract_ttype_t_from_expr(x.m_arg);
                 LFORTRAN_ASSERT(arg_type != nullptr)
                 int arg_kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
-                tmp = lfortran_type_to_str(arg, getIntType(arg_kind), "int");
+                tmp = lfortran_type_to_str(arg, getIntType(arg_kind), "int", arg_kind);
                 break;
             }
             case (ASR::cast_kindType::LogicalToCharacter) : {

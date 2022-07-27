@@ -3591,7 +3591,7 @@ public:
         }
         if (ASRUtils::is_real(*arg_type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
-                float_t ival = ASR::down_cast<ASR::RealConstant_t>(
+                double ival = ASR::down_cast<ASR::RealConstant_t>(
                                         ASRUtils::expr_value(arg))->m_r;
                 // stringstream for exponential notation formatting.
                 std::stringstream sm;
@@ -3606,7 +3606,7 @@ public:
                 res_type, res_value));
         } else if (ASRUtils::is_integer(*arg_type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
-                int32_t number = ASR::down_cast<ASR::IntegerConstant_t>(
+                int64_t number = ASR::down_cast<ASR::IntegerConstant_t>(
                                         ASRUtils::expr_value(arg))->m_n;
                 std::string value_str = std::to_string(number);
                 res_value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
