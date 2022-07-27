@@ -291,7 +291,7 @@ namespace LFortran {
         }
 
         void SimpleCMODescriptor::fill_array_details(
-        llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims,
+        llvm::Value* arr, int n_dims,
         std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims) {
             llvm::Value* offset_val = llvm_utils->create_gep(arr, 1);
             builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(32, 0)), offset_val);
