@@ -44,8 +44,8 @@ void f()
     std::cout << "a" << x << "b" << std::endl;
     x = "-+-+-";
     std::cout << "a" << x << "b" << x << "c" << std::endl;
-    std::cout << "d" << "=" << "e" << "=" << "f" << std::endl;
-    std::cout << "x" << "*\n" << "y" << "*\n" << "z" << std::endl;
+    std::cout << "d" << "=" << "e" << "=" << "f" << "+\n";
+    std::cout << "x" << "*\n" << "y" << "*\n" << "z" << y;
     std::cout << "1" << ":" << "2" << std::endl;
     std::cout << "LCompilers" << " " << "LPython" << std::endl;
 }
