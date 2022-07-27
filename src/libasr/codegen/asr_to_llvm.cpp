@@ -4821,6 +4821,9 @@ public:
                                     builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
                                     llvm::AllocaInst *target = builder0.CreateAlloca(
                                         target_type, nullptr, "call_arg_value");
+                                    if( ASR::is_a<ASR::ArrayItem_t>(*x.m_args[i].m_value) ) {
+                                        value = builder->CreateLoad(value);
+                                    }
                                     builder->CreateStore(value, target);
                                     tmp = target;
                                 }

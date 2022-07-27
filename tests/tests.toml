@@ -161,6 +161,10 @@ filename = "../integration_tests/expr_09.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/elemental_01.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/expr_10.py"
 asr = true
 
@@ -173,6 +177,10 @@ cpp = true
 filename = "../integration_tests/expr_12.py"
 asr = true
 c = true
+
+[[test]]
+filename = "../integration_tests/modules_02.py"
+asr = true
 
 [[test]]
 filename = "../integration_tests/vec_01.py"

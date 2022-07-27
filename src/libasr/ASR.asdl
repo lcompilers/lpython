@@ -88,7 +88,7 @@ symbol
         abi abi, access access, deftype deftype, string? bindc_name, bool pure,
         bool module)
     | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
-        expr return_var, abi abi, access access, deftype deftype,
+        expr return_var, abi abi, access access, deftype deftype, bool elemental,
         string? bindc_name)
     | TemplateFunction(symbol_table symtab, identifier name, expr* args,
         stmt* body, expr return_var, abi abi, access access, deftype deftype,

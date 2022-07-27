@@ -161,8 +161,9 @@ public:
             PassUtils::create_idx_vars(idx_vars_target, x.n_args, x.base.base.loc, al, current_scope, "_t");
             PassUtils::create_idx_vars(idx_vars_value, x.n_args, x.base.base.loc, al, current_scope, "_v");
             ASR::stmt_t* doloop = nullptr;
-            ASR::ttype_t* int32_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 4, nullptr, 0));
-            ASR::expr_t* const_1 = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int32_type));
+            int a_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_v));
+            ASR::ttype_t* int_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, a_kind, nullptr, 0));
+            ASR::expr_t* const_1 = LFortran::ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, int_type));
             for( int i = (int)x.n_args - 1; i >= 0; i-- ) {
                 ASR::do_loop_head_t head;
                 head.m_v = idx_vars_value[i];
@@ -195,7 +196,7 @@ public:
                     doloop_body.push_back(al, set_to_one);
                     doloop_body.push_back(al, doloop);
                 }
-                ASR::expr_t* inc_expr = LFortran::ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, x.base.base.loc, idx_vars_target[i], ASR::binopType::Add, const_1, int32_type, nullptr));
+                ASR::expr_t* inc_expr = LFortran::ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, x.base.base.loc, idx_vars_target[i], ASR::binopType::Add, const_1, int_type, nullptr));
                 ASR::stmt_t* assign_stmt = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, idx_vars_target[i], inc_expr, nullptr));
                 doloop_body.push_back(al, assign_stmt);
                 doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));

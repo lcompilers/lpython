@@ -803,6 +803,10 @@ std::vector<std::string> order_deps(std::map<std::string,
 std::vector<std::string> determine_module_dependencies(
         const ASR::TranslationUnit_t &unit);
 
+void extract_module_python(const ASR::TranslationUnit_t &m,
+        std::vector<std::pair<std::string, ASR::Module_t*>>& children_modules,
+        std::string module_name);
+
 ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m);
 
 ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,

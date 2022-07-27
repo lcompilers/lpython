@@ -34,9 +34,8 @@ namespace LFortran::LPython {
 // * First the current directory (this is incorrect, we need to do it relative to the current file)
 // * Then the LPython runtime directory
 LFortran::Result<std::string> get_full_path(const std::string &filename,
-        const std::string &runtime_library_dir, bool &ltypes, bool &numpy) {
+        const std::string &runtime_library_dir, bool &ltypes) {
     ltypes = false;
-    numpy = false;
     std::string input;
     bool status = read_file(filename, input);
     if (status) {
@@ -61,7 +60,6 @@ LFortran::Result<std::string> get_full_path(const std::string &filename,
                 filename_intrinsic = runtime_library_dir + "/lpython_intrinsic_numpy.py";
                 status = read_file(filename_intrinsic, input);
                 if (status) {
-                    numpy = true;
                     return filename_intrinsic;
                 } else {
                     return LFortran::Error();
@@ -77,10 +75,9 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const std::string &module_name,
                             const Location &loc, bool intrinsic,
                             std::vector<std::string> &rl_path,
-                            bool &ltypes, bool &numpy,
+                            bool &ltypes,
                             const std::function<void (const std::string &, const Location &)> err) {
     ltypes = false;
-    numpy = false;
     LFORTRAN_ASSERT(symtab);
     if (symtab->get_scope().find(module_name) != symtab->get_scope().end()) {
         ASR::symbol_t *m = symtab->get_symbol(module_name);
@@ -97,7 +94,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     bool found = false;
     std::string path_used = "", infile;
     for (auto path: rl_path) {
-        Result<std::string> rinfile = get_full_path(infile0, path, ltypes, numpy);
+        Result<std::string> rinfile = get_full_path(infile0, path, ltypes);
         if (rinfile.ok) {
             found = true;
             infile = rinfile.result;
@@ -109,7 +106,6 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         err("Could not find the module '" + infile0 + "'", loc);
     }
     if (ltypes) return nullptr;
-    if (numpy) return nullptr;
 
     // TODO: diagnostic should be an argument to this function
     diag::Diagnostics diagnostics;
@@ -124,7 +120,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     LFortran::LocationManager lm;
     lm.in_filename = infile;
     Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast,
-        diagnostics, false, false, false, path_used);
+        diagnostics, false, true, false, infile);
     std::string input;
     read_file(infile, input);
     CompilerOptions compiler_options;
@@ -136,11 +132,20 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     ASR::TranslationUnit_t* mod1 = r2.result;
 
     // insert into `symtab`
-    ASR::Module_t *mod2 = ASRUtils::extract_module(*mod1);
-    mod2->m_name = s2c(al, module_name);
-    symtab->add_symbol(module_name, (ASR::symbol_t*)mod2);
-    mod2->m_symtab->parent = symtab;
-    mod2->m_intrinsic = intrinsic;
+    std::vector<std::pair<std::string, ASR::Module_t*>> children_modules;
+    ASRUtils::extract_module_python(*mod1, children_modules, module_name);
+    ASR::Module_t* mod2 = nullptr;
+    for( auto& a: children_modules ) {
+        std::string a_name = a.first;
+        ASR::Module_t* a_mod = a.second;
+        if( a_name == module_name ) {
+            a_mod->m_name = s2c(al, module_name);
+            a_mod->m_intrinsic = intrinsic;
+            mod2 = a_mod;
+        }
+        symtab->add_symbol(a_name, (ASR::symbol_t*)a_mod);
+        a_mod->m_symtab->parent = symtab;
+    }
     if (intrinsic) {
         // TODO: I think we should just store intrinsic once, in the module
         // itself
@@ -180,7 +185,6 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
 ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *current_scope,
                 std::string mname, std::string cur_sym_name, std::string new_sym_name,
                 const Location &loc) {
-
     ASR::symbol_t *t = m->m_symtab->resolve_symbol(cur_sym_name);
     if (!t) {
         throw SemanticError("The symbol '" + cur_sym_name + "' not found in the module '" + mname + "'",
@@ -276,6 +280,7 @@ public:
     // The main module is stored directly in TranslationUnit, other modules are Modules
     bool main_module;
     PythonIntrinsicProcedures intrinsic_procedures;
+    ProceduresDatabase procedures_db;
     AttributeHandler attr_handler;
     std::map<int, ASR::symbol_t*> &ast_overload;
     std::string parent_dir;
@@ -314,14 +319,13 @@ public:
         SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
         std::string rl_path = get_runtime_library_dir();
         std::vector<std::string> paths = {rl_path, parent_dir};
-        bool ltypes, numpy;
+        bool ltypes;
         ASR::Module_t *m = load_module(al, tu_symtab, module_name,
                 loc, true, paths,
-                ltypes, numpy,
+                ltypes,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
                 );
         LFORTRAN_ASSERT(!ltypes)
-        LFORTRAN_ASSERT(!numpy)
 
         ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
         if (!t) {
@@ -630,8 +634,14 @@ public:
         }
         if (ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
-            ASR::ttype_t *a_type = ASRUtils::expr_type(func->m_return_var);
-            a_type = handle_return_type(a_type, loc, args, func);
+            ASR::ttype_t *a_type = nullptr;
+            if( func->m_elemental && args.size() == 1 &&
+                ASRUtils::is_array(ASRUtils::expr_type(args[0].m_value)) ) {
+                a_type = ASRUtils::expr_type(args[0].m_value);
+            } else {
+                a_type = ASRUtils::expr_type(func->m_return_var);
+                a_type = handle_return_type(a_type, loc, args, func);
+            }
             ASR::expr_t *value = nullptr;
             if (ASRUtils::is_intrinsic_function2(func)) {
                 value = intrinsic_procedures.comptime_eval(call_name, al, loc, args);
@@ -2198,6 +2208,8 @@ public:
         ASR::asr_t *tmp0 = ASR::make_TranslationUnit_t(al, x.base.base.loc,
             current_scope, nullptr, 0);
 
+        ASR::Module_t* module_sym = nullptr;
+
         if (!main_module) {
             // Main module goes directly to TranslationUnit.
             // Every other module goes into a Module.
@@ -2216,11 +2228,16 @@ public:
             if (parent_scope->get_scope().find(mod_name) != parent_scope->get_scope().end()) {
                 throw SemanticError("Module '" + mod_name + "' already defined", tmp1->loc);
             }
+            module_sym = ASR::down_cast<ASR::Module_t>(ASR::down_cast<ASR::symbol_t>(tmp1));
             parent_scope->add_symbol(mod_name, ASR::down_cast<ASR::symbol_t>(tmp1));
         }
-
+        current_module_dependencies.reserve(al, 1);
         for (size_t i=0; i<x.n_body; i++) {
             visit_stmt(*x.m_body[i]);
+        }
+        if( module_sym ) {
+            module_sym->m_dependencies = current_module_dependencies.p;
+            module_sym->n_dependencies = current_module_dependencies.size();
         }
         if (!overload_defs.empty()) {
             create_GenericProcedure(x.base.base.loc);
@@ -2238,6 +2255,7 @@ public:
         bool current_procedure_interface = false;
         bool overload = false;
         bool generic = false;
+        bool vectorize = false;
         if (x.n_decorator_list > 0) {
             for(size_t i=0; i<x.n_decorator_list; i++) {
                 AST::expr_t *dec = x.m_decorator_list[i];
@@ -2252,6 +2270,8 @@ public:
                         overload = true;
                     } else if (name == "interface") {
                         // TODO: Implement @interface
+                    } else if (name == "vectorize") {
+                        vectorize = true;
                     } else {
                         throw SemanticError("Decorator: " + name + " is not supported",
                             x.base.base.loc);
@@ -2364,7 +2384,6 @@ public:
                         current_procedure_abi_type,
                         s_access, deftype, bindc_name);                    
                 }             
-
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
                     x.m_returns->base.loc);
@@ -2421,12 +2440,12 @@ public:
             if (!main_module) {
                 st = st->parent;
             }
-            bool ltypes, numpy;
+            bool ltypes;
             t = (ASR::symbol_t*)(load_module(al, st,
-                msym, x.base.base.loc, false, paths, ltypes, numpy,
+                msym, x.base.base.loc, false, paths, ltypes,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
                 ));
-            if (ltypes || numpy) {
+            if (ltypes) {
                 // TODO: For now we skip ltypes import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
                 // importing it.
@@ -2437,10 +2456,14 @@ public:
                 throw SemanticError("The module '" + msym + "' cannot be loaded",
                         x.base.base.loc);
             }
+            current_module_dependencies.push_back(al, s2c(al, msym));
         }
 
         ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
         for (auto &remote_sym : mod_symbols) {
+            if( procedures_db.is_function_to_be_ignored(msym, remote_sym) ) {
+                continue ;
+            }
             ASR::symbol_t *t = import_from_module(al, m, current_scope, msym,
                                 remote_sym, remote_sym, x.base.base.loc);
             current_scope->add_symbol(remote_sym, t);
@@ -2462,12 +2485,12 @@ public:
             st = st->parent;
         }
         for (auto &mod_sym : mods) {
-            bool ltypes, numpy;
+            bool ltypes;
             t = (ASR::symbol_t*)(load_module(al, st,
-                mod_sym, x.base.base.loc, false, paths, ltypes, numpy,
+                mod_sym, x.base.base.loc, false, paths, ltypes,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
                 ));
-            if (ltypes || numpy) {
+            if (ltypes) {
                 // TODO: For now we skip ltypes import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
                 // importing it.
@@ -2966,9 +2989,12 @@ public:
             throw SemanticError("Only function call `range(..)` supported as for loop iteration for now",
                 x.base.base.loc);
         }
-
+        int a_kind = 4;
+        if (!is_explicit_iterator_required) {
+            a_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(target));
+        }
         ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-            4, nullptr, 0));
+            a_kind, nullptr, 0));
         ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                                             al, x.base.base.loc, 1, a_type));
         make_BinOp_helper(loop_end, constant_one, ASR::binopType::Sub,
