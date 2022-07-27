@@ -412,6 +412,10 @@ filename = "parser/statements1.py"
 ast_new = true
 
 [[test]]
+filename = "parser/statements2.py"
+ast_new = true
+
+[[test]]
 filename = "parser/yield.py"
 ast_new = true
 
