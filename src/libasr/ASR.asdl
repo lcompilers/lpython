@@ -327,7 +327,7 @@ ttype
     | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
     | CPtr()
-    | TypeParameter(identifier param)
+    | TypeParameter(identifier param, dimension* dims)
 
 binop = Add | Sub | Mul | Div | Pow | BitAnd | BitOr | BitXor | BitLShift | BitRShift
 

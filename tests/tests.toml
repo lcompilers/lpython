@@ -360,7 +360,7 @@ asr = true
 llvm = true
 
 [[test]]
-filename = "../integration_tests/generics_sum.py"
+filename = "../integration_tests/generics_sum_01.py"
 asr = true
 
 # tests/tokens
