@@ -139,7 +139,7 @@ namespace LFortran {
                 */
                 virtual
                 void fill_array_details(
-                    llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims,
+                    llvm::Value* arr, int n_dims,
                     std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims) = 0;
 
                 /*
@@ -317,7 +317,7 @@ namespace LFortran {
 
                 virtual
                 void fill_array_details(
-                    llvm::Value* arr, ASR::dimension_t* m_dims, int n_dims,
+                    llvm::Value* arr, int n_dims,
                     std::vector<std::pair<llvm::Value*, llvm::Value*>>& llvm_dims);
 
                 virtual

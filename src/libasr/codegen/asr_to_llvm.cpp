@@ -386,7 +386,7 @@ public:
             llvm::Value* end = tmp;
             llvm_dims.push_back(std::make_pair(start, end));
         }
-        arr_descr->fill_array_details(arr, m_dims, n_dims, llvm_dims);
+        arr_descr->fill_array_details(arr, n_dims, llvm_dims);
     }
 
     /*
