@@ -749,7 +749,16 @@ public:
                     throw SemanticError("Inconsistent type variable for the function call", loc);
                 }
             } else {
-                subs[param_name] = arg_type;
+                /*
+                if (ASR::is_a<ASR::Character_t>(*arg_type)) {
+                    ASR::Character_t *char_type = ASR::down_cast<ASR::Character_t>(arg_type);
+                    subs[param_name] = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, -2, nullptr, 
+                        char_type->m_dims, char_type->n_dims));
+                } else {
+                    subs[param_name] = arg_type;
+                }
+                */
+               subs[param_name] = arg_type;
             }
         }
         return subs;
@@ -2382,7 +2391,7 @@ public:
                         /* n_body */ 0,
                         /* a_return_var */ ASRUtils::EXPR(return_var_ref),
                         current_procedure_abi_type,
-                        s_access, deftype, bindc_name);                    
+                        s_access, deftype, false, bindc_name);                    
                 }             
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",

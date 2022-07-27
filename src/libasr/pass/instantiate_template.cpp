@@ -89,7 +89,6 @@ public:
             }
         }
 
-        /*
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
         for (size_t i=0; i<x.n_body; i++) {
@@ -98,7 +97,6 @@ public:
                 body.push_back(al, new_body);
             }
         }
-        */
 
         ASR::abiType func_abi = x.m_abi;
         ASR::accessType func_access = x.m_access;
@@ -109,10 +107,10 @@ public:
             al, x.base.base.loc,
             current_scope, s2c(al, func_name),
             args.p, args.size(),
-            // body.p, body.size(),
-            nullptr, 0,
+            body.p, body.size(),
+            //nullptr, 0,
             ASRUtils::EXPR(new_return_var_ref),
-            func_abi, func_access, func_deftype, bindc_name);   
+            func_abi, func_access, func_deftype, false, bindc_name);   
 
         ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(result);
         parent_scope->add_symbol(func_name, t);
