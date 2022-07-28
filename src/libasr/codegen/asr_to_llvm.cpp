@@ -860,6 +860,21 @@ public:
         return builder->CreateCall(fn, {str, idx1, idx2});
     }
 
+    llvm::Value* lfortran_type_to_str(llvm::Value* arg, llvm::Type* value_type, std::string type, int value_kind) {
+        std::string func_name = "_lfortran_" + type + "_to_str" + std::to_string(value_kind);
+         llvm::Function *fn = module->getFunction(func_name);
+         if(!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                 character_type, {
+                     value_type
+                 }, false);
+            fn = llvm::Function::Create(function_type,
+                     llvm::Function::ExternalLinkage, func_name, *module);
+         }
+         llvm::Value* res = builder->CreateCall(fn, {arg});
+         return res;
+    }
+
     llvm::Value* lcompilers_list_init_i32()
     {
         std::string runtime_func_name = "_lcompilers_list_init_i32";
@@ -4305,6 +4320,32 @@ public:
                 } else {
                     throw CodeGenError("Negative kinds are not supported.");
                 }
+                break;
+            }
+            case (ASR::cast_kindType::RealToCharacter) : {
+                llvm::Value *arg = tmp;
+                ASR::ttype_t* arg_type = extract_ttype_t_from_expr(x.m_arg);
+                LFORTRAN_ASSERT(arg_type != nullptr)
+                int arg_kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
+                tmp = lfortran_type_to_str(arg, getFPType(arg_kind), "float", arg_kind);
+                break;
+            }
+            case (ASR::cast_kindType::IntegerToCharacter) : {
+                llvm::Value *arg = tmp;
+                ASR::ttype_t* arg_type = extract_ttype_t_from_expr(x.m_arg);
+                LFORTRAN_ASSERT(arg_type != nullptr)
+                int arg_kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
+                tmp = lfortran_type_to_str(arg, getIntType(arg_kind), "int", arg_kind);
+                break;
+            }
+            case (ASR::cast_kindType::LogicalToCharacter) : {
+                llvm::Value *cmp = builder->CreateICmpEQ(tmp, builder->getInt1(0));
+                llvm::Value *zero_str = builder->CreateGlobalStringPtr("False");
+                llvm::Value *one_str = builder->CreateGlobalStringPtr("True");
+                tmp = builder->CreateSelect(cmp, zero_str, one_str);
+                break;
+            }
+            case (ASR::cast_kindType::CharacterToCharacter) : {
                 break;
             }
             default : throw CodeGenError("Cast kind not implemented");

@@ -48,7 +48,6 @@ struct PythonIntrinsicProcedures {
     PythonIntrinsicProcedures() {
         comptime_eval_map = {
             {"abs", {m_builtin, &eval_abs}},
-            {"str", {m_builtin, &eval_str}},
             {"pow", {m_builtin, &eval_pow}},
             {"round", {m_builtin, &eval_round}},
             {"bin", {m_builtin, &eval_bin}},

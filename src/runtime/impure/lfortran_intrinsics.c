@@ -662,6 +662,48 @@ LFORTRAN_API bool _lpython_str_compare_gte(char **s1, char **s2)
     return str_compare(s1, s2) >= 0;
 }
 
+LFORTRAN_API char* _lfortran_float_to_str4(float num)
+{
+    char* res = (char*)malloc(40);
+    sprintf(res, "%f", num);
+    return res;
+}
+
+LFORTRAN_API char* _lfortran_float_to_str8(double num)
+{
+    char* res = (char*)malloc(40);
+    sprintf(res, "%f", num);
+    return res;
+}
+
+LFORTRAN_API char* _lfortran_int_to_str1(int8_t num)
+{
+    char* res = (char*)malloc(40);
+    sprintf(res, "%d", num);
+    return res;
+}
+
+LFORTRAN_API char* _lfortran_int_to_str2(int16_t num)
+{
+    char* res = (char*)malloc(40);
+    sprintf(res, "%d", num);
+    return res;
+}
+
+LFORTRAN_API char* _lfortran_int_to_str4(int32_t num)
+{
+    char* res = (char*)malloc(40);
+    sprintf(res, "%d", num);
+    return res;
+}
+
+LFORTRAN_API char* _lfortran_int_to_str8(int64_t num)
+{
+    char* res = (char*)malloc(40);
+    sprintf(res, "%d", num);
+    return res;
+}
+
 //repeat str for n time
 LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
 {
