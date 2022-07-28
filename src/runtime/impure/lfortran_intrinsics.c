@@ -747,43 +747,55 @@ LFORTRAN_API void _lfortran_string_init(int size_plus_one, char *s) {
     s[size] = '\0';
 }
 
-// List  -----------------------------------------------------------------------
+// ########## List Implementation ##########
 
-struct _lcompilers_list_i32 {
+// Generic structure for lists with elements of any type
+struct _lcompilers_list {
     uint64_t n;
     uint64_t capacity;
-    int32_t *p;
+    uint64_t type_size;
+    void *p;
 };
 
-LFORTRAN_API int8_t* _lcompilers_list_init_i32() {
-    struct _lcompilers_list_i32 *l;
-    l = (struct _lcompilers_list_i32*)malloc(
-            sizeof(struct _lcompilers_list_i32));
+LFORTRAN_API int8_t* _lcompilers_list_init(int32_t type_size) {
+    struct _lcompilers_list *l;
+    l = (struct _lcompilers_list*) malloc(sizeof(struct _lcompilers_list));
     l->n = 0;
     l->capacity = 4;
-    l->p = (int32_t*)malloc(l->capacity*sizeof(int32_t));
-    return (int8_t*)l;
+    l->type_size = type_size;
+    l->p = malloc(l->capacity * type_size);
+    return (int8_t*) l;
+}
+
+static inline void _lcompilers_list_append(struct _lcompilers_list *l) {
+    if (l->n == l->capacity) {
+        l->capacity = 2 * l->capacity;
+        l->p = realloc(l->p, l->type_size * l->capacity);
+    }
 }
 
 LFORTRAN_API void _lcompilers_list_append_i32(int8_t* s, int32_t item) {
-    struct _lcompilers_list_i32 *l = (struct _lcompilers_list_i32 *)s;
-    if (l->n == l->capacity) {
-        l->capacity = 2*l->capacity;
-        l->p = realloc(l->p, sizeof(int32_t)*l->capacity);
-    }
-    l->p[l->n] = item;
+    struct _lcompilers_list *l = (struct _lcompilers_list*)s;
+    _lcompilers_list_append(l);
+    int32_t* p_i32 = l->p;
+    p_i32[l->n] = item;
     l->n++;
 }
 
-// pos is the index = 1..n
-LFORTRAN_API int32_t _lcompilers_list_item_i32(int8_t* s, int32_t pos) {
-    struct _lcompilers_list_i32 *l = (struct _lcompilers_list_i32 *)s;
-    if (pos >= 1 && pos <= l->n) {
-        return l->p[pos-1];
-    } else {
+static inline int _lcompilers_list_item(struct _lcompilers_list* l, int32_t pos) {
+    if (!(pos >= 0 && pos < l->n)) {
         printf("Out of bounds\n");
         return 0;
     }
+    return 1;
+}
+
+// pos is the index = 0..n - 1
+LFORTRAN_API int32_t _lcompilers_list_item_i32(int8_t* s, int32_t pos) {
+    struct _lcompilers_list *l = (struct _lcompilers_list*) s;
+    if( !_lcompilers_list_item(l, pos) ) return 0;
+    int32_t* pi32 = l->p;
+    return pi32[pos];
 }
 
 // bit  ------------------------------------------------------------------------
