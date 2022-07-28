@@ -861,19 +861,51 @@ public:
         return builder->CreateCall(fn, {str, idx1, idx2});
     }
 
-    llvm::Value* lcompilers_list_init(llvm::Type* type)
+    void lcompilers_list_copy(llvm::Value* src, llvm::Value *dest)
     {
-        std::string runtime_func_name = "_lcompilers_list_init";
+        std::string runtime_func_name = "_lcompilers_list_copy";
         llvm::Function *fn = module->getFunction(runtime_func_name);
-        llvm::DataLayout data_layout(module.get());
-        uint64_t type_size = data_layout.getTypeAllocSize(type);;
         if (!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
-                    list_type, {getIntType(4)}, false);
+                    llvm::Type::getVoidTy(context), {
+                        list_type, list_type
+                    }, false);
             fn = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, runtime_func_name, *module);
         }
-        return builder->CreateCall(fn, {llvm::ConstantInt::get(context, llvm::APInt(32, type_size))});
+        builder->CreateCall(fn, {src, dest});
+    }
+
+    llvm::Value* lcompilers_list_init(llvm::Type* type,
+        llvm::Value* initial_capacity=nullptr)
+    {
+        std::string runtime_func_name = "_lcompilers_list_init";
+        if( initial_capacity ) {
+            runtime_func_name += "_with_initial_capacity";
+        }
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        llvm::DataLayout data_layout(module.get());
+        uint64_t type_size = data_layout.getTypeAllocSize(type);
+        if (!fn) {
+            llvm::FunctionType *function_type = nullptr;
+            if( initial_capacity ) {
+                function_type = llvm::FunctionType::get(list_type,
+                                    {getIntType(4), getIntType(4)},
+                                    false);
+            } else {
+                function_type = llvm::FunctionType::get(list_type,
+                                    {getIntType(4)}, false);
+            }
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        llvm::Value* llvm_type_size = llvm::ConstantInt::get(context,
+                                                llvm::APInt(32, type_size));
+        if( initial_capacity ) {
+            return builder->CreateCall(fn, {llvm_type_size, initial_capacity});
+        } else {
+            return builder->CreateCall(fn, {llvm_type_size});
+        }
     }
 
     void lcompilers_list_append(llvm::Value* plist, llvm::Value *item,
@@ -906,6 +938,23 @@ public:
                     llvm::Function::ExternalLinkage, runtime_func_name, *module);
         }
         return builder->CreateCall(fn, {plist, pos});
+    }
+
+    llvm::Value* lcompilers_list_write_item(llvm::Value* plist, llvm::Value *pos,
+                                            llvm::Value* item,
+                                            std::string type_code)
+    {
+        std::string runtime_func_name = "_lcompilers_list_write_item_" + type_code;
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {
+                        list_type, getIntType(4), getIntType(4)
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        return builder->CreateCall(fn, {plist, pos, item});
     }
 
     // This function is called as:
@@ -1173,7 +1222,17 @@ public:
     }
 
     void visit_ListConstant(const ASR::ListConstant_t& x) {
-
+        llvm::Value* initial_capacity = llvm::ConstantInt::get(context, llvm::APInt(32, x.n_args));
+        ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(x.m_type);
+        llvm::Type* llvm_el_type = get_el_type(list_type->m_type);
+        llvm::Value* const_list = lcompilers_list_init(llvm_el_type, initial_capacity);
+        for( size_t i = 0; i < x.n_args; i++ ) {
+            this->visit_expr(*x.m_args[i]);
+            llvm::Value* item = tmp;
+            llvm::Value* pos = llvm::ConstantInt::get(context, llvm::APInt(32, i));
+            lcompilers_list_write_item(const_list, pos, item, "i32");
+        }
+        tmp = const_list;
     }
 
     void visit_ListAppend(const ASR::ListAppend_t& x) {
@@ -2862,10 +2921,16 @@ public:
         }
 
         // TODO: Remove this check after supporting ListConstant
-        if( ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_value)) ) {
+        bool is_target_list = ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_target));
+        bool is_value_list = ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_value));
+        if( is_target_list && is_value_list ) {
+            this->visit_expr(*x.m_target);
+            llvm::Value* target_list = tmp;
+            this->visit_expr(*x.m_value);
+            llvm::Value* value_list = tmp;
+            lcompilers_list_copy(value_list, target_list);
             return ;
         }
-
         if( ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
             ASR::is_a<ASR::GetPointer_t>(*x.m_value) ) {
             ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
