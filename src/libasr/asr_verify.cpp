@@ -283,6 +283,7 @@ public:
         current_symtab = parent_symtab;
     }
 
+    /*
     void visit_TemplateFunction(const TemplateFunction_t &x) {
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;
@@ -309,6 +310,7 @@ public:
         visit_expr(*x.m_return_var);
         current_symtab = parent_symtab;
     }
+    */
 
     void visit_DerivedType(const DerivedType_t &x) {
         SymbolTable *parent_symtab = current_symtab;

@@ -2763,9 +2763,11 @@ public:
             } else {
                 LFORTRAN_ASSERT(false);
             }
+        /*
         } else if (ASR::is_a<ASR::TemplateFunction_t>(*t)) {
             ASR::TemplateFunction_t *f = ASR::down_cast<ASR::TemplateFunction_t>(t);
             handle_fn(x, *f);
+        */
         } else {
             LFORTRAN_ASSERT(false);
         }
