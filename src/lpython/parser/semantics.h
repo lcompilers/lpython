@@ -111,9 +111,7 @@ static inline Vec<ast_t*> SET_EXPR_CTX_02(Vec<ast_t*> x, expr_contextType ctx) {
         EXPR(SET_EXPR_CTX_01(x, Store)), EXPR(y), EXPR(val), 1)
 
 #define DELETE_01(e, l) make_Delete_t(p.m_a, l, \
-        EXPRS(SET_EXPR_CTX_02(e, Del)), e.size())
-#define DELETE_02(e, l) make_Delete_t(p.m_a, l, \
-        EXPRS(A2LIST(p.m_a, SET_EXPR_CTX_01(TUPLE_01(e, l), Del))), 1)
+        EXPRS(SET_EXPR_CTX_02(SET_CTX_02(e, Del), Del)), e.size())
 
 #define EXPR_01(e, l) make_Expr_t(p.m_a, l, EXPR(e))
 
@@ -140,27 +138,26 @@ static inline Vec<ast_t*> SET_EXPR_CTX_02(Vec<ast_t*> x, expr_contextType ctx) {
 #define NON_LOCAL(names, l) make_Nonlocal_t(p.m_a, l, \
         REDUCE_ARGS(p.m_a, names), names.size())
 
-static inline ast_t *SET_STORE_01(ast_t *x) {
+static inline ast_t *SET_CTX_01(ast_t *x, expr_contextType ctx) {
     if(is_a<Tuple_t>(*EXPR(x))) {
         size_t n_elts = down_cast2<Tuple_t>(x)->n_elts;
         for(size_t i=0; i < n_elts; i++) {
-            SET_EXPR_CTX_01(
-                (ast_t *) down_cast2<Tuple_t>(x)->m_elts[i], Store);
+            SET_EXPR_CTX_01((ast_t *) down_cast2<Tuple_t>(x)->m_elts[i], ctx);
         }
     }
     return x;
 }
-static inline Vec<ast_t*> SET_STORE_02(Vec<ast_t*> x) {
+static inline Vec<ast_t*> SET_CTX_02(Vec<ast_t*> x, expr_contextType ctx) {
     for (size_t i=0; i < x.size(); i++) {
-        SET_STORE_01(x[i]);
+        SET_CTX_01(x[i], ctx);
     }
     return x;
 }
 #define ASSIGNMENT(targets, val, l) make_Assign_t(p.m_a, l, \
-        EXPRS(SET_EXPR_CTX_02(SET_STORE_02(targets), Store)), targets.size(), \
+        EXPRS(SET_EXPR_CTX_02(SET_CTX_02(targets, Store), Store)), targets.size(), \
         EXPR(val), nullptr)
 #define ASSIGNMENT2(targets, val, type_comment, l) make_Assign_t(p.m_a, l, \
-        EXPRS(SET_EXPR_CTX_02(SET_STORE_02(targets), Store)), targets.size(), \
+        EXPRS(SET_EXPR_CTX_02(SET_CTX_02(targets, Store), Store)), targets.size(), \
         EXPR(val), extract_type_comment(p, l, type_comment))
 
 static inline ast_t* TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
@@ -280,17 +277,17 @@ static inline char *extract_type_comment(LFortran::Parser &p,
 }
 
 #define FOR_01(target, iter, stmts, l) make_For_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        EXPR(SET_EXPR_CTX_01(SET_CTX_01(target, Store), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), nullptr, 0, nullptr)
 #define FOR_02(target, iter, stmts, orelse, l) make_For_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        EXPR(SET_EXPR_CTX_01(SET_CTX_01(target, Store), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), nullptr)
 #define FOR_03(target, iter, type_comment, stmts, l) make_For_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        EXPR(SET_EXPR_CTX_01(SET_CTX_01(target, Store), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), nullptr, 0, \
         extract_type_comment(p, l, type_comment))
 #define FOR_04(target, iter, stmts, orelse, type_comment, l) make_For_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        EXPR(SET_EXPR_CTX_01(SET_CTX_01(target, Store), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), \
         extract_type_comment(p, l, type_comment))
 
@@ -563,17 +560,17 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
         extract_type_comment(p, l, type_comment))
 
 #define ASYNC_FOR_01(target, iter, stmts, l) make_AsyncFor_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        EXPR(SET_EXPR_CTX_01(SET_CTX_01(target, Store), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), nullptr, 0, nullptr)
 #define ASYNC_FOR_02(target, iter, stmts, orelse, l) make_AsyncFor_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        EXPR(SET_EXPR_CTX_01(SET_CTX_01(target, Store), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), nullptr)
 #define ASYNC_FOR_03(target, iter, stmts, type_comment, l) make_AsyncFor_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        EXPR(SET_EXPR_CTX_01(SET_CTX_01(target, Store), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), nullptr, 0, \
         extract_type_comment(p, l, type_comment))
 #define ASYNC_FOR_04(target, iter, stmts, orelse, type_comment, l) make_AsyncFor_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        EXPR(SET_EXPR_CTX_01(SET_CTX_01(target, Store), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), \
         extract_type_comment(p, l, type_comment))
 
@@ -767,12 +764,12 @@ static inline ast_t* ID_TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
     if(is_a<expr_t>(*elts[0]) && elts.size() == 1) {
         return (ast_t*) SET_EXPR_CTX_01(elts[0], Store);
     }
-    return make_Tuple_t(al, l, EXPRS(SET_EXPR_CTX_02(SET_STORE_02(elts), Store)),
+    return make_Tuple_t(al, l, EXPRS(SET_EXPR_CTX_02(SET_CTX_02(elts, Store), Store)),
                                 elts.size(), expr_contextType::Store);
 }
 #define ID_TUPLE_01(elts, l) ID_TUPLE_02(p.m_a, l, elts)
 #define ID_TUPLE_03(elts, l) make_Tuple_t(p.m_a, l, \
-        EXPRS(SET_EXPR_CTX_02(SET_STORE_02(elts), Store)), elts.size(), \
+        EXPRS(SET_EXPR_CTX_02(SET_CTX_02(elts, Store), Store)), elts.size(), \
         expr_contextType::Store);
 
 #define LIST_COMP_1(expr, generators, l) make_ListComp_t(p.m_a, l, \
