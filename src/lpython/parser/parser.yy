@@ -365,10 +365,18 @@ assert_statement
 target_list
     : target_list expr "=" { $$ = $1; LIST_ADD($$, $2); }
     | expr "=" { LIST_NEW($$); LIST_ADD($$, $1); }
+    | target_list expr_list "," expr "=" {
+        $$ = $1; LIST_ADD($$, TUPLE_01(TUPLE_($2, $4), @$)); }
+    | expr_list "," expr "=" {
+        LIST_NEW($$); LIST_ADD($$, TUPLE_01(TUPLE_($1, $3), @$)); }
+    | target_list expr_list "," "=" { $$ = $1; LIST_ADD($$, TUPLE_03($2, @$)); }
+    | expr_list "," "=" { LIST_NEW($$); LIST_ADD($$, TUPLE_03($1, @$)); }
     ;
 
 assignment_statement
     : target_list expr { $$ = ASSIGNMENT($1, $2, @$); }
+    | target_list expr_list "," expr {
+        $$ = ASSIGNMENT($1, TUPLE_01(TUPLE_($2, $4), @$), @$); }
     | target_list expr TK_TYPE_COMMENT { $$ = ASSIGNMENT2($1, $2, $3, @$); }
     ;
 
@@ -404,6 +412,9 @@ delete_statement
 return_statement
     : KW_RETURN { $$ = RETURN_01(@$); }
     | KW_RETURN expr { $$ = RETURN_02($2, @$); }
+    | KW_RETURN expr_list "," expr {
+        $$ = RETURN_02(TUPLE_01(TUPLE_($2, $4), @$), @$); }
+    | KW_RETURN expr_list "," { $$ = RETURN_02(TUPLE_03($2, @$), @$); }
     ;
 
 module
@@ -480,14 +491,23 @@ if_statement
 for_statement
     : KW_FOR expr KW_IN expr ":" sep statements {
         $$ = FOR_01($2, $4, $7, @$); }
+    | KW_FOR expr_list "," expr KW_IN expr ":" sep statements {
+        $$ = FOR_01(TUPLE_01(TUPLE_($2, $4), @$), $6, $9, @$); }
     | KW_FOR expr KW_IN expr ":" sep statements KW_ELSE ":"
         sep statements { $$ = FOR_02($2, $4, $7, $11, @$); }
-    | KW_FOR expr KW_IN expr ":"
-        TK_TYPE_COMMENT TK_NEWLINE statements {
+    | KW_FOR expr_list "," expr KW_IN expr ":" sep statements KW_ELSE ":"
+        sep statements {
+            $$ = FOR_02(TUPLE_01(TUPLE_($2, $4), @$), $6, $9, $13, @$); }
+    | KW_FOR expr KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE statements {
         $$ = FOR_03($2, $4, $6, $8, @$); }
-    | KW_FOR expr KW_IN expr ":"
-        TK_TYPE_COMMENT TK_NEWLINE statements
+    | KW_FOR expr_list "," expr KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE
+        statements {
+            $$ = FOR_03(TUPLE_01(TUPLE_($2, $4), @$), $6, $8, $10, @$); }
+    | KW_FOR expr KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE statements
         KW_ELSE ":" sep statements { $$ = FOR_04($2, $4, $8, $12, $6, @$); }
+    | KW_FOR expr_list "," expr KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE
+        statements KW_ELSE ":" sep statements {
+            $$ = FOR_04(TUPLE_01(TUPLE_($2, $4), @$), $6, $10, $14, $8, @$); }
     ;
 
 except_statement
@@ -814,8 +834,8 @@ expr
     | TK_ELLIPSIS { $$ = ELLIPSIS(@$); }
     | "(" expr ")" { $$ = $2; }
     | "(" ")" { $$ = TUPLE_EMPTY(@$); }
-    | "(" expr_list ","  ")" { $$ = TUPLE_03($2, @$); }
-    | "(" expr_list ","  expr ")" { $$ = TUPLE_01(TUPLE_($2, $4), @$); }
+    | "(" expr_list "," ")" { $$ = TUPLE_03($2, @$); }
+    | "(" expr_list "," expr ")" { $$ = TUPLE_01(TUPLE_($2, $4), @$); }
     | function_call { $$ = $1; }
     | subscription { $$ = $1; }
     | "[" expr_list_opt "]" { $$ = LIST($2, @$); }
