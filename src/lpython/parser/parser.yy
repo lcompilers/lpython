@@ -513,12 +513,8 @@ try_statement
 
 with_statement
     : KW_WITH expr_list ":" sep statements { $$ = WITH($2, $5, @$); }
-    | KW_WITH "(" expr_list "," ")" ":" sep statements {
-        $$ = WITH($3, $8, @$); }
     | KW_WITH expr_list ":" TK_TYPE_COMMENT TK_NEWLINE
         statements { $$ = WITH_01($2, $6, $4, @$); }
-    | KW_WITH "(" expr_list "," ")" ":" TK_TYPE_COMMENT
-        TK_NEWLINE statements { $$ = WITH_01($3, $9, $7, @$); }
     ;
 
 decorators_opt
@@ -661,12 +657,8 @@ async_for_stmt
 async_with_stmt
     : KW_ASYNC KW_WITH expr_list ":" sep statements {
         $$ = ASYNC_WITH($3, $6, @$); }
-    | KW_ASYNC KW_WITH "(" expr_list "," ")" ":" sep statements {
-        $$ = ASYNC_WITH($4, $9, @$); }
     | KW_ASYNC KW_WITH expr_list ":" TK_TYPE_COMMENT
         TK_NEWLINE statements { $$ = ASYNC_WITH_01($3, $7, $5, @$); }
-    | KW_ASYNC KW_WITH "(" expr_list "," ")" ":" TK_TYPE_COMMENT
-        TK_NEWLINE statements { $$ = ASYNC_WITH_01($4, $10, $8, @$); }
     ;
 
 while_statement
@@ -822,6 +814,7 @@ expr
     | TK_ELLIPSIS { $$ = ELLIPSIS(@$); }
     | "(" expr ")" { $$ = $2; }
     | "(" ")" { $$ = TUPLE_EMPTY(@$); }
+    | "(" expr_list ","  ")" { $$ = TUPLE_03($2, @$); }
     | "(" expr_list ","  expr ")" { $$ = TUPLE_01(TUPLE_($2, $4), @$); }
     | function_call { $$ = $1; }
     | subscription { $$ = $1; }
