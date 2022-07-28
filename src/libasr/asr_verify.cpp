@@ -283,6 +283,35 @@ public:
         current_symtab = parent_symtab;
     }
 
+    /*
+    void visit_TemplateFunction(const TemplateFunction_t &x) {
+        SymbolTable *parent_symtab = current_symtab;
+        current_symtab = x.m_symtab;
+        require(x.m_symtab != nullptr,
+            "The Function::m_symtab cannot be nullptr");
+        require(x.m_symtab->parent == parent_symtab,
+            "The Function::m_symtab->parent is not the right parent");
+        require(x.m_symtab->asr_owner == (ASR::asr_t*)&x,
+            "The X::m_symtab::asr_owner must point to X");
+        require(id_symtab_map.find(x.m_symtab->counter) == id_symtab_map.end(),
+            "Function::m_symtab->counter must be unique");
+        require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
+            "The asr_owner invariant failed");
+        id_symtab_map[x.m_symtab->counter] = x.m_symtab;
+        for (auto &a : x.m_symtab->get_scope()) {
+            this->visit_symbol(*a.second);
+        }
+        for (size_t i=0; i<x.n_args; i++) {
+            visit_expr(*x.m_args[i]);
+        }
+        for (size_t i=0; i<x.n_body; i++) {
+            visit_stmt(*x.m_body[i]);
+        }
+        visit_expr(*x.m_return_var);
+        current_symtab = parent_symtab;
+    }
+    */
+
     void visit_DerivedType(const DerivedType_t &x) {
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;
@@ -314,7 +343,8 @@ public:
         require(symtab_sym == current_sym,
             "Variable's parent symbol table does not point to it");
         require(id_symtab_map.find(symtab->counter) != id_symtab_map.end(),
-            "Variable::m_parent_symtab must be present in the ASR");
+            "Variable::m_parent_symtab must be present in the ASR ("
+                + std::string(x.m_name) + ")");
 
         if (x.m_symbolic_value)
             visit_expr(*x.m_symbolic_value);
