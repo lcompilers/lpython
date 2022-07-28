@@ -917,6 +917,21 @@ static inline bool is_generic(ASR::ttype_t &x) {
     return ASR::is_a<ASR::TypeParameter_t>(*type_get_past_pointer(&x));
 }
 
+static inline std::string get_parameter_name(const ASR::ttype_t* t) {
+    switch (t->type) {
+        case ASR::ttypeType::TypeParameter: {
+            ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
+            return tp->m_param;
+        }
+        case ASR::ttypeType::List: {
+            ASR::List_t* tlist = ASR::down_cast<ASR::List_t>(t);
+            return get_parameter_name(tlist->m_type);
+        }
+        default: throw LCompilersException("Cannot obtain type parameter from this type");
+    }
+}
+
+
 static inline int get_body_size(ASR::symbol_t* s) {
     int n_body = 0;
     switch (s->type) {
@@ -1078,7 +1093,6 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
             size_t dimsn = dims ? dims->n : tp->n_dims;
             return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
                         tp->m_param, dimsp, dimsn));
-            throw LCompilersException("Heyo");
         }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
