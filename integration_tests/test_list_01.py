@@ -1,12 +1,13 @@
 from ltypes import i32
 
 def test_list_i32():
-    a: list[i32] = [1]
-    a.append(2)
-    a.append(3)
-    a.append(4)
-    a.append(5)
-    print(a[1])
-    assert a[1] == 2 or a[1] == 3
+    a: list[i32]
+    i: i32
+
+    for i in range(10):
+        a.append(i)
+
+    for i in range(i):
+        assert a[i] == i
 
 test_list_i32()
