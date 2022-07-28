@@ -152,7 +152,7 @@ RUN(NAME test_math           LABELS cpython llvm)
 RUN(NAME test_numpy_01       LABELS cpython llvm)
 RUN(NAME test_numpy_02       LABELS cpython llvm)
 RUN(NAME test_numpy_03       LABELS cpython llvm)
-RUN(NAME elemental_01        LABELS cpython llvm)
+# RUN(NAME elemental_01        LABELS cpython llvm)
 RUN(NAME test_random         LABELS cpython llvm)
 RUN(NAME test_os             LABELS cpython llvm)
 RUN(NAME test_builtin        LABELS cpython llvm)
@@ -201,6 +201,7 @@ RUN(NAME vec_01              LABELS cpython llvm)
 RUN(NAME test_str_comparison LABELS cpython llvm)
 
 RUN(NAME generics_01         LABELS cpython llvm)
+RUN(NAME generics_array_01   LABELS llvm)
 
 # Just CPython
 RUN(NAME test_builtin_bin    LABELS cpython)

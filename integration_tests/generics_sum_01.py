@@ -1,3 +1,5 @@
+from ltypes import TypeVar
+
 T = TypeVar('T')
 
 def sum(lst: list[T]) -> T:
@@ -6,7 +8,7 @@ def sum(lst: list[T]) -> T:
     res: T
     i: i32
     for i in range(l):
-        res = res + l[i]
+        res = res + lst[i]
     return res
 
 print(sum([1,2,3]))
