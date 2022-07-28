@@ -5,50 +5,48 @@ Traceback (most recent call last):
     return emit_asr(arg_file, lpython_pass_manager, runtime_library_dir,
 [2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 159, in ??[0m
     compiler_options.disable_main, compiler_options.symtab_only, infile);
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 4325, in LFortran::LPython::python_ast_to_asr(Allocator&, LFortran::LPython::AST::ast_t&, LFortran::diag::Diagnostics&, bool, bool, bool, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)[0m
-    ast_overload);
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 4251, in LFortran::LPython::body_visitor(Allocator&, LFortran::LPython::AST::Module_t const&, LFortran::diag::Diagnostics&, LFortran::ASR::asr_t*, bool, std::map<int, LFortran::ASR::symbol_t*, std::less<int>, std::allocator<std::pair<int const, LFortran::ASR::symbol_t*> > >&)[0m
-    b.visit_Module(ast);
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 2662, in LFortran::LPython::BodyVisitor::visit_Module(LFortran::LPython::AST::Module_t const&)[0m
-    visit_stmt(*x.m_body[i]);
+[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 4390, in LFortran::LPython::python_ast_to_asr(Allocator&, LFortran::LPython::AST::ast_t&, LFortran::diag::Diagnostics&, bool, bool, bool, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >)[0m
+    Line not found
+[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 4316, in LFortran::LPython::body_visitor(Allocator&, LFortran::LPython::AST::Module_t const&, LFortran::diag::Diagnostics&, LFortran::ASR::asr_t*, bool, std::map<int, LFortran::ASR::symbol_t*, std::less<int>, std::allocator<std::pair<int const, LFortran::ASR::symbol_t*> > >&)[0m
+    unit = res.result;
+[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 2725, in LFortran::LPython::BodyVisitor::visit_Module(LFortran::LPython::AST::Module_t const&)[0m
+    throw SemanticError("Only Name supported for now as LHS of annotated assignment",
 [2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1882, in LFortran::LPython::AST::BaseVisitor<LFortran::LPython::BodyVisitor>::visit_stmt(LFortran::LPython::AST::stmt_t const&)[0m
     void visit_stmt(const stmt_t &b) { visit_stmt_t(b, self()); }
 [2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1772, in ??[0m
     case stmtType::Expr: { v.visit_Expr((const Expr_t &)x); return; }
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 3627, in LFortran::LPython::BodyVisitor::visit_Expr(LFortran::LPython::AST::Expr_t const&)[0m
-    visit_expr_list(c->m_args, c->n_args, args);
+[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 3692, in LFortran::LPython::BodyVisitor::visit_Expr(LFortran::LPython::AST::Expr_t const&)[0m
+    }
 [2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 493, in LFortran::LPython::CommonVisitor<LFortran::LPython::BodyVisitor>::visit_expr_list(LFortran::LPython::AST::expr_t**, unsigned long, LFortran::Vec<LFortran::ASR::call_arg_t>&)[0m
     this->visit_expr(*exprs[i]);
 [2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1909, in LFortran::LPython::AST::BaseVisitor<LFortran::LPython::BodyVisitor>::visit_expr(LFortran::LPython::AST::expr_t const&)[0m
     void visit_expr(const expr_t &b) { visit_expr_t(b, self()); }
 [2m  File "[0m[1m[35m$DIR/src/lpython/python_ast.h[39m[0m[2m", line 1799, in ??[0m
     case exprType::Call: { v.visit_Call((const Call_t &)x); return; }
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 4234, in LFortran::LPython::BodyVisitor::visit_Call(LFortran::LPython::AST::Call_t const&)[0m
-    tmp = make_call_helper(al, s, current_scope, args, call_name, x.base.base.loc);
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 723, in LFortran::LPython::CommonVisitor<LFortran::LPython::BodyVisitor>::make_call_helper(Allocator&, LFortran::ASR::symbol_t*, LFortran::SymbolTable*, LFortran::Vec<LFortran::ASR::call_arg_t>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, LFortran::Location const&, bool)[0m
-    ASR::symbol_t *t = get_generic_function(subs, *func);
-[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 807, in LFortran::LPython::CommonVisitor<LFortran::LPython::BodyVisitor>::get_generic_function(std::map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, LFortran::ASR::ttype_t*, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, LFortran::ASR::ttype_t*> > >, LFortran::ASR::TemplateFunction_t&)[0m
-    t = pass_instantiate_generic_function(al, subs, current_scope, new_function_num, func);
-[2m  File "[0m[1m[35m$DIR/src/libasr/pass/instantiate_template.cpp[39m[0m[2m", line 325, in LFortran::pass_instantiate_generic_function(Allocator&, std::map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, LFortran::ASR::ttype_t*, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, LFortran::ASR::ttype_t*> > >, LFortran::SymbolTable*, int, LFortran::ASR::TemplateFunction_t&)[0m
-    ASR::asr_t* new_function = tf.instantiate_TemplateFunction(func);
-[2m  File "[0m[1m[35m$DIR/src/libasr/pass/instantiate_template.cpp[39m[0m[2m", line 95, in LFortran::FunctionInstantiator::instantiate_TemplateFunction(LFortran::ASR::TemplateFunction_t&)[0m
-    ASR::stmt_t *new_body = this->duplicate_stmt(x.m_body[i]);
-[2m  File "[0m[1m[35m$DIR/src/libasr/asr.h[39m[0m[2m", line 25813, in LFortran::ASR::ExprStmtDuplicator::duplicate_stmt(LFortran::ASR::stmt_t*)[0m
+[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 4299, in LFortran::LPython::BodyVisitor::visit_Call(LFortran::LPython::AST::Call_t const&)[0m
+    return "";
+[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 690, in LFortran::LPython::CommonVisitor<LFortran::LPython::BodyVisitor>::make_call_helper(Allocator&, LFortran::ASR::symbol_t*, LFortran::SymbolTable*, LFortran::Vec<LFortran::ASR::call_arg_t>, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, LFortran::Location const&, bool)[0m
+    {loc})
+[2m  File "[0m[1m[35m$DIR/src/lpython/semantics/python_ast_to_asr.cpp[39m[0m[2m", line 825, in LFortran::LPython::CommonVisitor<LFortran::LPython::BodyVisitor>::get_generic_function(std::map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, LFortran::ASR::ttype_t*, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, LFortran::ASR::ttype_t*> > >, LFortran::ASR::Function_t&)[0m
+    }
+[2m  File "[0m[1m[35m$DIR/src/libasr/pass/instantiate_template.cpp[39m[0m[2m", line 329, in LFortran::pass_instantiate_generic_function(Allocator&, std::map<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, LFortran::ASR::ttype_t*, std::less<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > >, std::allocator<std::pair<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const, LFortran::ASR::ttype_t*> > >, LFortran::SymbolTable*, int, LFortran::ASR::Function_t&)[0m
+    }
+[2m  File "[0m[1m[35m$DIR/src/libasr/pass/instantiate_template.cpp[39m[0m[2m", line 96, in LFortran::FunctionInstantiator::instantiate_Function(LFortran::ASR::Function_t&)[0m
+    if (new_body != nullptr) {
+[2m  File "[0m[1m[35m$DIR/src/libasr/asr.h[39m[0m[2m", line 25514, in LFortran::ASR::ExprStmtDuplicator::duplicate_stmt(LFortran::ASR::stmt_t*)[0m
     return down_cast<ASR::stmt_t>(duplicate_DoLoop(down_cast<ASR::DoLoop_t>(x)));
-[2m  File "[0m[1m[35m$DIR/src/libasr/pass/instantiate_template.cpp[39m[0m[2m", line 164, in LFortran::FunctionInstantiator::duplicate_DoLoop(LFortran::ASR::DoLoop_t*)[0m
-    m_body.push_back(al, duplicate_stmt(x->m_body[i]));
-[2m  File "[0m[1m[35m$DIR/src/libasr/asr.h[39m[0m[2m", line 25795, in LFortran::ASR::ExprStmtDuplicator::duplicate_stmt(LFortran::ASR::stmt_t*)[0m
+[2m  File "[0m[1m[35m$DIR/src/libasr/pass/instantiate_template.cpp[39m[0m[2m", line 166, in LFortran::FunctionInstantiator::duplicate_DoLoop(LFortran::ASR::DoLoop_t*)[0m
+    ASR::do_loop_head_t head;
+[2m  File "[0m[1m[35m$DIR/src/libasr/asr.h[39m[0m[2m", line 25496, in LFortran::ASR::ExprStmtDuplicator::duplicate_stmt(LFortran::ASR::stmt_t*)[0m
     return down_cast<ASR::stmt_t>(duplicate_Assignment(down_cast<ASR::Assignment_t>(x)));
-[2m  File "[0m[1m[35m$DIR/src/libasr/asr.h[39m[0m[2m", line 24856, in LFortran::ASR::ExprStmtDuplicator::duplicate_Assignment(LFortran::ASR::Assignment_t*)[0m
+[2m  File "[0m[1m[35m$DIR/src/libasr/asr.h[39m[0m[2m", line 24557, in LFortran::ASR::ExprStmtDuplicator::duplicate_Assignment(LFortran::ASR::Assignment_t*)[0m
     expr_t* m_value = duplicate_expr(x->m_value);
-[2m  File "[0m[1m[35m$DIR/src/libasr/asr.h[39m[0m[2m", line 26006, in LFortran::ASR::ExprStmtDuplicator::duplicate_expr(LFortran::ASR::expr_t*)[0m
+[2m  File "[0m[1m[35m$DIR/src/libasr/asr.h[39m[0m[2m", line 25707, in LFortran::ASR::ExprStmtDuplicator::duplicate_expr(LFortran::ASR::expr_t*)[0m
     return down_cast<ASR::expr_t>(duplicate_TemplateBinOp(down_cast<ASR::TemplateBinOp_t>(x)));
-[2m  File "[0m[1m[35m$DIR/src/libasr/pass/instantiate_template.cpp[39m[0m[2m", line 157, in LFortran::FunctionInstantiator::duplicate_TemplateBinOp(LFortran::ASR::TemplateBinOp_t*)[0m
-    return make_BinOp_helper(left, right, x->m_op, x->base.base.loc); 
-[2m  File "[0m[1m[35m$DIR/src/libasr/pass/instantiate_template.cpp[39m[0m[2m", line 246, in LFortran::FunctionInstantiator::make_BinOp_helper(LFortran::ASR::expr_t*, LFortran::ASR::expr_t*, LFortran::ASR::binopType, LFortran::Location const&)[0m
-    if (ASRUtils::is_integer(*dest_type)) {
-[2m  File "[0m[1m[35m$DIR/src/libasr/../libasr/asr_utils.h[39m[0m[2m", line 888, in ??[0m
-    return ASR::is_a<ASR::Integer_t>(*type_get_past_pointer(&x));
+[2m  File "[0m[1m[35m$DIR/src/libasr/pass/instantiate_template.cpp[39m[0m[2m", line 159, in LFortran::FunctionInstantiator::duplicate_TemplateBinOp(LFortran::ASR::TemplateBinOp_t*)[0m
+[2m  File "[0m[1m[35m$DIR/src/libasr/pass/instantiate_template.cpp[39m[0m[2m", line 248, in LFortran::FunctionInstantiator::make_BinOp_helper(LFortran::ASR::expr_t*, LFortran::ASR::expr_t*, LFortran::ASR::binopType, LFortran::Location const&)[0m
+    int64_t left_value = ASR::down_cast<ASR::IntegerConstant_t>(ASRUtils::expr_value(left))->m_n;
+[2m  File "[0m[1m[35m$DIR/src/libasr/../libasr/asr_utils.h[39m[0m[2m", line 890, in ??[0m
 [2m  File "[0m[1m[35m$DIR/src/libasr/../libasr/asr_utils.h[39m[0m[2m", line 65, in ??[0m
     if (ASR::is_a<ASR::Pointer_t>(*f)) {
 [2m  File "[0m[1m[35m$DIR/src/libasr/asr.h[39m[0m[2m", line 31, in bool LFortran::ASR::is_a<LFortran::ASR::Pointer_t, LFortran::ASR::ttype_t>(LFortran::ASR::ttype_t const&)[0m
