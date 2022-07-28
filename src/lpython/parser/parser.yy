@@ -416,17 +416,15 @@ ann_assignment_statement
 delete_statement
     : KW_DEL expr_list { $$ = DELETE_01($2, @$); }
     | KW_DEL expr_list "," { $$ = DELETE_01($2, @$); }
-    | KW_DEL "(" ")" { $$ = DELETE_02(@$); }
     | KW_DEL "(" expr_list "," ")" {
-        $$ = DELETE_03(SET_EXPR_CTX_02($3, Del), @$); }
+        $$ = DELETE_02(SET_EXPR_CTX_02($3, Del), @$); }
     | KW_DEL "(" expr_list "," expr ")" {
-        $$ = DELETE_03(SET_EXPR_CTX_02(TUPLE_($3, $5), Del), @$); }
+        $$ = DELETE_02(SET_EXPR_CTX_02(TUPLE_($3, $5), Del), @$); }
     ;
 
 return_statement
     : KW_RETURN { $$ = RETURN_01(@$); }
     | KW_RETURN tuple_item { $$ = RETURN_02($2, @$); }
-    | KW_RETURN "(" ")" { $$ = RETURN_03(@$); }
     ;
 
 module
@@ -843,6 +841,7 @@ expr
     | KW_NONE { $$ = NONE(@$); }
     | TK_ELLIPSIS { $$ = ELLIPSIS(@$); }
     | "(" expr ")" { $$ = $2; }
+    | "(" ")" { $$ = TUPLE_EMPTY(@$); }
     | function_call { $$ = $1; }
     | subscription { $$ = $1; }
     | "[" expr_list_opt "]" { $$ = LIST($2, @$); }
@@ -856,7 +855,6 @@ expr
     | KW_AWAIT expr %prec AWAIT { $$ = AWAIT($2, @$); }
     | KW_YIELD %prec YIELD { $$ = YIELD_01(@$); }
     | KW_YIELD expr %prec YIELD { $$ = YIELD_02($2, @$); }
-    | KW_YIELD "(" ")" { $$ = YIELD_03(@$); }
     | id ":=" expr { $$ = NAMEDEXPR($1, $3, @$); }
     | "*" expr { $$ = STARRED_ARG($2, @$); }
 
