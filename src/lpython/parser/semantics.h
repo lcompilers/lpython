@@ -112,20 +112,16 @@ static inline Vec<ast_t*> SET_EXPR_CTX_02(Vec<ast_t*> x, expr_contextType ctx) {
 
 #define DELETE_01(e, l) make_Delete_t(p.m_a, l, \
         EXPRS(SET_EXPR_CTX_02(e, Del)), e.size())
-#define DELETE_02(l) make_Delete_t(p.m_a, l, \
-        EXPRS(A2LIST(p.m_a, SET_EXPR_CTX_01(TUPLE_EMPTY(l), Del))), 1)
-#define DELETE_03(e, l) make_Delete_t(p.m_a, l, \
+#define DELETE_02(e, l) make_Delete_t(p.m_a, l, \
         EXPRS(A2LIST(p.m_a, SET_EXPR_CTX_01(TUPLE_01(e, l), Del))), 1)
 
 #define EXPR_01(e, l) make_Expr_t(p.m_a, l, EXPR(e))
 
 #define RETURN_01(l) make_Return_t(p.m_a, l, nullptr)
 #define RETURN_02(e, l) make_Return_t(p.m_a, l, EXPR(e))
-#define RETURN_03(l) make_Return_t(p.m_a, l, EXPR(TUPLE_EMPTY(l)))
 
 #define YIELD_01(l) make_Yield_t(p.m_a, l, nullptr)
 #define YIELD_02(exec, l) make_Yield_t(p.m_a, l, EXPR(exec))
-#define YIELD_03(l) make_Yield_t(p.m_a, l, EXPR(TUPLE_EMPTY(l)))
 
 #define PASS(l) make_Pass_t(p.m_a, l)
 #define BREAK(l) make_Break_t(p.m_a, l)
