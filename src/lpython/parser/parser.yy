@@ -779,6 +779,7 @@ keyword_items
 
 primary
     : id { $$ = $1; }
+    | string { $$ = $1; }
     | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
     ;
 
@@ -815,13 +816,16 @@ function_call
     ;
 
 subscription
-    : id "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
-    | string "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
-    | expr "." id "[" tuple_list "]" {
-        $$ = SUBSCRIPT_01(ATTRIBUTE_REF($1, $3, @$), $5, @$); }
+    : primary "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
     | function_call "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
-    | function_call "[" tuple_list "]" "[" tuple_list "]" {
-        $$ = SUBSCRIPT_01(SUBSCRIPT_01($1, $3, @$), $6, @$); }
+    | "[" expr_list_opt "]" "[" tuple_list "]" {
+        $$ = SUBSCRIPT_01(LIST($2, @$), $5, @$); }
+    | "{" expr_list "}" "[" tuple_list "]" {
+        $$ = SUBSCRIPT_01(SET($2, @$), $5, @$); }
+    | "(" expr ")" "[" tuple_list "]" { $$ = SUBSCRIPT_01($2, $5, @$); }
+    | "{" dict_list "}" "[" tuple_list "]" {
+        $$ = SUBSCRIPT_01(DICT_02($2, @$), $5, @$); }
+    | subscription "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
     ;
 
 string
