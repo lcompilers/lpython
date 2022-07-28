@@ -1417,7 +1417,6 @@ public:
 
             tmp = ASR::make_ComplexBinOp_t(al, loc, left, op, right, dest_type, value);
 
-        // } else if (ASRUtils::is_type_parameter(*dest_type)) {
         } else if (ASRUtils::is_generic(*dest_type)) {
             tmp = ASR::make_TemplateBinOp_t(al, loc, left, op, right, dest_type, value);
         }
