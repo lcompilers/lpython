@@ -778,6 +778,7 @@ public:
             pass_result.push_back(al, set_to_one);
             pass_result.push_back(al, doloop);
         }
+        result_var = nullptr;
     }
 
     void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
