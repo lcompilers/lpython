@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-generics_array_01-ed048ff",
+    "cmd": "lpython --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/generics_array_01.py",
+    "infile_hash": "3654a9ba95a996117abeaf02ea9950c776c13f1bbd60dfe063d35a46",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-generics_array_01-ed048ff.stdout",
+    "stdout_hash": "6f1eadae26011afa5288123f0e8328c49e811a873b6a91be63f0c77b",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

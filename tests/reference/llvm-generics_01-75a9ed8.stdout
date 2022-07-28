@@ -1,0 +1,94 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+@0 = private unnamed_addr constant [2 x i8] c" \00", align 1
+@1 = private unnamed_addr constant [2 x i8] c" \00", align 1
+@2 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
+@3 = private unnamed_addr constant [5 x i8] c"%d%s\00", align 1
+@4 = private unnamed_addr constant [2 x i8] c" \00", align 1
+@5 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
+@6 = private unnamed_addr constant [2 x i8] c"a\00", align 1
+@7 = private unnamed_addr constant [2 x i8] c"b\00", align 1
+@8 = private unnamed_addr constant [5 x i8] c"%s%s\00", align 1
+@9 = private unnamed_addr constant [2 x i8] c" \00", align 1
+@10 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
+@11 = private unnamed_addr constant [2 x i8] c"c\00", align 1
+@12 = private unnamed_addr constant [2 x i8] c"d\00", align 1
+@13 = private unnamed_addr constant [5 x i8] c"%s%s\00", align 1
+
+define i32 @__lpython_generic_f_0(i32* %x, i32* %y) {
+.entry:
+  %_lpython_return_variable = alloca i32, align 4
+  %0 = load i32, i32* %x, align 4
+  %1 = load i32, i32* %y, align 4
+  %2 = add i32 %0, %1
+  store i32 %2, i32* %_lpython_return_variable, align 4
+  br label %return
+
+unreachable_after_return:                         ; No predecessors!
+  br label %return
+
+return:                                           ; preds = %unreachable_after_return, %.entry
+  %3 = load i32, i32* %_lpython_return_variable, align 4
+  ret i32 %3
+}
+
+define i8* @__lpython_generic_f_1(i8** %x, i8** %y) {
+.entry:
+  %_lpython_return_variable = alloca i8*, align 8
+  store i8* getelementptr inbounds ([2 x i8], [2 x i8]* @0, i32 0, i32 0), i8** %_lpython_return_variable, align 8
+  %0 = load i8*, i8** %x, align 8
+  %1 = load i8*, i8** %y, align 8
+  %2 = alloca i8*, align 8
+  store i8* %0, i8** %2, align 8
+  %3 = alloca i8*, align 8
+  store i8* %1, i8** %3, align 8
+  %4 = alloca i8*, align 8
+  call void @_lfortran_strcat(i8** %2, i8** %3, i8** %4)
+  %5 = load i8*, i8** %4, align 8
+  store i8* %5, i8** %_lpython_return_variable, align 8
+  br label %return
+
+unreachable_after_return:                         ; No predecessors!
+  br label %return
+
+return:                                           ; preds = %unreachable_after_return, %.entry
+  %6 = load i8*, i8** %_lpython_return_variable, align 8
+  ret i8* %6
+}
+
+define void @_lpython_main_program() {
+.entry:
+  %call_arg_value5 = alloca i8*, align 8
+  %call_arg_value4 = alloca i8*, align 8
+  %call_arg_value3 = alloca i8*, align 8
+  %call_arg_value2 = alloca i8*, align 8
+  %call_arg_value1 = alloca i32, align 4
+  %call_arg_value = alloca i32, align 4
+  store i32 1, i32* %call_arg_value, align 4
+  store i32 2, i32* %call_arg_value1, align 4
+  %0 = call i32 @__lpython_generic_f_0(i32* %call_arg_value, i32* %call_arg_value1)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @3, i32 0, i32 0), i32 %0, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @2, i32 0, i32 0))
+  store i8* getelementptr inbounds ([2 x i8], [2 x i8]* @6, i32 0, i32 0), i8** %call_arg_value2, align 8
+  store i8* getelementptr inbounds ([2 x i8], [2 x i8]* @7, i32 0, i32 0), i8** %call_arg_value3, align 8
+  %1 = call i8* @__lpython_generic_f_1(i8** %call_arg_value2, i8** %call_arg_value3)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @8, i32 0, i32 0), i8* %1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @5, i32 0, i32 0))
+  store i8* getelementptr inbounds ([2 x i8], [2 x i8]* @11, i32 0, i32 0), i8** %call_arg_value4, align 8
+  store i8* getelementptr inbounds ([2 x i8], [2 x i8]* @12, i32 0, i32 0), i8** %call_arg_value5, align 8
+  %2 = call i8* @__lpython_generic_f_1(i8** %call_arg_value4, i8** %call_arg_value5)
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @13, i32 0, i32 0), i8* %2, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @10, i32 0, i32 0))
+  br label %return
+
+return:                                           ; preds = %.entry
+  ret void
+}
+
+declare void @_lfortran_strcat(i8**, i8**, i8**)
+
+declare void @_lfortran_printf(i8*, ...)
+
+define i32 @main() {
+.entry:
+  call void @_lpython_main_program()
+  ret i32 0
+}

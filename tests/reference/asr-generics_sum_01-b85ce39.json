@@ -1,0 +1,13 @@
+{
+    "basename": "asr-generics_sum_01-b85ce39",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/generics_sum_01.py",
+    "infile_hash": "2d775b8101f3970455378453239a404f6e065ddb3457febcf82c1024",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-generics_sum_01-b85ce39.stderr",
+    "stderr_hash": "9d2cd3e4fb643f606735807ef52b8908bdbc21622e3b1eb77e4fb621",
+    "returncode": 1
+}
