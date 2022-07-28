@@ -1,0 +1,16 @@
+# Nested Function Calls
+getattr(x, y)(a, b,)(5, a=a, b=0)
+func(a, _op)(s)
+test()()
+
+# Subscriptions
+a = [1, 2][0]
+
+a, b = ([1, 2] + [0, 0])[:2]
+
+a, b = (c.d() + [1, 0])[:]
+
+{"a": a, "b": b}[val]
+
+if args[i][:1] in ['', '.']:
+    pass

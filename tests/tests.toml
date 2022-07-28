@@ -412,6 +412,10 @@ filename = "parser/statements1.py"
 ast_new = true
 
 [[test]]
+filename = "parser/statements2.py"
+ast_new = true
+
+[[test]]
 filename = "parser/yield.py"
 ast_new = true
 
@@ -498,6 +502,10 @@ ast_new = true
 
 [[test]]
 filename = "parser/boolOp1.py"
+ast_new = true
+
+[[test]]
+filename = "parser/lambda1.py"
 ast_new = true
 
 # tests/errors

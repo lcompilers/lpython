@@ -233,8 +233,11 @@ public:
 
     void visit_Assignment(const ASR::Assignment_t& x) {
         if( (ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
-             ASR::is_a<ASR::GetPointer_t>(*x.m_value)) ||
-             ASR::is_a<ASR::ArrayReshape_t>(*x.m_value) ) {
+             ASR::is_a<ASR::GetPointer_t>(*x.m_value)) ) {
+            return ;
+        }
+        if( ASR::is_a<ASR::ArrayReshape_t>(*x.m_value) ) {
+            this->visit_expr(*x.m_value);
             return ;
         }
         if( PassUtils::is_array(x.m_target) ) {
@@ -273,6 +276,21 @@ public:
             this->visit_expr(*(x.m_value));
         }
         result_var = nullptr;
+    }
+
+    void visit_ArrayReshape(const ASR::ArrayReshape_t& x) {
+        tmp_val = const_cast<ASR::expr_t*>(&(x.base));
+        if( ASRUtils::is_array(ASRUtils::expr_type(x.m_array)) &&
+            !ASR::is_a<ASR::Var_t>(*x.m_array)) {
+            result_var = nullptr;
+            this->visit_expr(*x.m_array);
+            if( tmp_val ) {
+                ASR::ArrayReshape_t& xx = const_cast<ASR::ArrayReshape_t&>(x);
+                xx.m_array = tmp_val;
+                retain_original_stmt = true;
+                remove_original_stmt = false;
+            }
+        }
     }
 
     ASR::ttype_t* get_matching_type(ASR::expr_t* sibling) {
