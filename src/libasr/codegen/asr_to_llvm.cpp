@@ -310,7 +310,8 @@ public:
     }
 
     llvm::Type*
-    get_el_type(ASR::ttype_t* m_type_, int a_kind) {
+    get_el_type(ASR::ttype_t* m_type_) {
+        int a_kind = ASRUtils::extract_kind_from_ttype_t(m_type_);
         llvm::Type* el_type = nullptr;
         if (ASR::is_a<ASR::Pointer_t>(*m_type_)) {
             ASR::ttype_t *t2 = ASR::down_cast<ASR::Pointer_t>(m_type_)->m_type;
@@ -860,27 +861,62 @@ public:
         return builder->CreateCall(fn, {str, idx1, idx2});
     }
 
-    llvm::Value* lcompilers_list_init_i32()
+    void lcompilers_list_copy(llvm::Value* src, llvm::Value *dest)
     {
-        std::string runtime_func_name = "_lcompilers_list_init_i32";
-        llvm::Function *fn = module->getFunction(runtime_func_name);
-        if (!fn) {
-            llvm::FunctionType *function_type = llvm::FunctionType::get(
-                    list_type, { }, false);
-            fn = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
-        }
-        return builder->CreateCall(fn, {});
-    }
-
-    void lcompilers_list_append_i32(llvm::Value* plist, llvm::Value *item)
-    {
-        std::string runtime_func_name = "_lcompilers_list_append_i32";
+        std::string runtime_func_name = "_lcompilers_list_copy";
         llvm::Function *fn = module->getFunction(runtime_func_name);
         if (!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
                     llvm::Type::getVoidTy(context), {
-                        list_type, llvm::Type::getInt32Ty(context)
+                        list_type, list_type
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        builder->CreateCall(fn, {src, dest});
+    }
+
+    llvm::Value* lcompilers_list_init(llvm::Type* type,
+        llvm::Value* initial_capacity=nullptr)
+    {
+        std::string runtime_func_name = "_lcompilers_list_init";
+        if( initial_capacity ) {
+            runtime_func_name += "_with_initial_capacity";
+        }
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        llvm::DataLayout data_layout(module.get());
+        uint64_t type_size = data_layout.getTypeAllocSize(type);
+        if (!fn) {
+            llvm::FunctionType *function_type = nullptr;
+            if( initial_capacity ) {
+                function_type = llvm::FunctionType::get(list_type,
+                                    {getIntType(4), getIntType(4)},
+                                    false);
+            } else {
+                function_type = llvm::FunctionType::get(list_type,
+                                    {getIntType(4)}, false);
+            }
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        llvm::Value* llvm_type_size = llvm::ConstantInt::get(context,
+                                                llvm::APInt(32, type_size));
+        if( initial_capacity ) {
+            return builder->CreateCall(fn, {llvm_type_size, initial_capacity});
+        } else {
+            return builder->CreateCall(fn, {llvm_type_size});
+        }
+    }
+
+    void lcompilers_list_append(llvm::Value* plist, llvm::Value *item,
+                                llvm::Type* el_type, std::string type_code)
+    {
+        std::string runtime_func_name = "_lcompilers_list_append_" + type_code;
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {
+                        list_type, el_type
                     }, false);
             fn = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, runtime_func_name, *module);
@@ -888,19 +924,37 @@ public:
         builder->CreateCall(fn, {plist, item});
     }
 
-    llvm::Value* lcompilers_list_item_i32(llvm::Value* plist, llvm::Value *pos)
+    llvm::Value* lcompilers_list_item(llvm::Value* plist, llvm::Value *pos,
+                                      llvm::Type* el_type, std::string type_code)
     {
-        std::string runtime_func_name = "_lcompilers_list_item_i32";
+        std::string runtime_func_name = "_lcompilers_list_item_" + type_code;
         llvm::Function *fn = module->getFunction(runtime_func_name);
         if (!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
-                    llvm::Type::getInt32Ty(context), {
+                    el_type, {
                         list_type, llvm::Type::getInt32Ty(context)
                     }, false);
             fn = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, runtime_func_name, *module);
         }
         return builder->CreateCall(fn, {plist, pos});
+    }
+
+    llvm::Value* lcompilers_list_write_item(llvm::Value* plist, llvm::Value *pos,
+                                            llvm::Value* item,
+                                            std::string type_code)
+    {
+        std::string runtime_func_name = "_lcompilers_list_write_item_" + type_code;
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {
+                        list_type, getIntType(4), getIntType(4)
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        return builder->CreateCall(fn, {plist, pos, item});
     }
 
     // This function is called as:
@@ -1167,6 +1221,20 @@ public:
         _Deallocate<ASR::ExplicitDeallocate_t>(x);
     }
 
+    void visit_ListConstant(const ASR::ListConstant_t& x) {
+        llvm::Value* initial_capacity = llvm::ConstantInt::get(context, llvm::APInt(32, x.n_args));
+        ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(x.m_type);
+        llvm::Type* llvm_el_type = get_el_type(list_type->m_type);
+        llvm::Value* const_list = lcompilers_list_init(llvm_el_type, initial_capacity);
+        for( size_t i = 0; i < x.n_args; i++ ) {
+            this->visit_expr(*x.m_args[i]);
+            llvm::Value* item = tmp;
+            llvm::Value* pos = llvm::ConstantInt::get(context, llvm::APInt(32, i));
+            lcompilers_list_write_item(const_list, pos, item, "i32");
+        }
+        tmp = const_list;
+    }
+
     void visit_ListAppend(const ASR::ListAppend_t& x) {
         ASR::Variable_t *l = EXPR2VAR(x.m_a);
         uint32_t v_h = get_hash((ASR::asr_t*)l);
@@ -1181,7 +1249,7 @@ public:
             int kind = ASR::down_cast<ASR::Integer_t>(el_type)->m_kind;
             if (kind == 4) {
                 llvm::Value *plist2 = CreateLoad(plist);
-                lcompilers_list_append_i32(plist2, ele);
+                lcompilers_list_append(plist2, ele, get_el_type(el_type), "i32");
             } else {
                 throw CodeGenError("Integer kind not supported yet in ListAppend", x.base.base.loc);
             }
@@ -1206,7 +1274,7 @@ public:
             int kind = ASR::down_cast<ASR::Integer_t>(el_type)->m_kind;
             if (kind == 4) {
                 llvm::Value *plist2 = CreateLoad(plist);
-                tmp = lcompilers_list_item_i32(plist2, pos);
+                tmp = lcompilers_list_item(plist2, pos, get_el_type(el_type), "i32");
             } else {
                 throw CodeGenError("Integer kind not supported as index in ListItem", x.base.base.loc);
             }
@@ -1612,7 +1680,7 @@ public:
                 a_kind = v_type->m_kind;
                 if( n_dims > 0 ) {
                     is_array_type = true;
-                    llvm::Type* el_type = get_el_type(asr_type, a_kind);
+                    llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
                         is_malloc_array_type = true;
                         llvm_type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type);
@@ -1631,7 +1699,7 @@ public:
                 a_kind = v_type->m_kind;
                 if( n_dims > 0 ) {
                     is_array_type = true;
-                    llvm::Type* el_type = get_el_type(asr_type, a_kind);
+                    llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
                         is_malloc_array_type = true;
                         llvm_type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type);
@@ -1650,7 +1718,7 @@ public:
                 a_kind = v_type->m_kind;
                 if( n_dims > 0 ) {
                     is_array_type = true;
-                    llvm::Type* el_type = get_el_type(asr_type, a_kind);
+                    llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
                         is_malloc_array_type = true;
                         llvm_type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type);
@@ -1669,7 +1737,7 @@ public:
                 a_kind = v_type->m_kind;
                 if( n_dims > 0 ) {
                     is_array_type = true;
-                    llvm::Type* el_type = get_el_type(asr_type, a_kind);
+                    llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
                         is_malloc_array_type = true;
                         llvm_type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type);
@@ -1688,7 +1756,7 @@ public:
                 a_kind = v_type->m_kind;
                 if( n_dims > 0 ) {
                     is_array_type = true;
-                    llvm::Type* el_type = get_el_type(asr_type, a_kind);
+                    llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
                         is_malloc_array_type = true;
                         llvm_type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type);
@@ -1706,7 +1774,7 @@ public:
                 n_dims = v_type->n_dims;
                 if( n_dims > 0 ) {
                     is_array_type = true;
-                    llvm::Type* el_type = get_el_type(asr_type, a_kind);
+                    llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
                         is_malloc_array_type = true;
                         llvm_type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type);
@@ -1863,7 +1931,8 @@ public:
                             }
                         } else if (is_a<ASR::List_t>(*v->m_type)) {
                             // TODO: do a different initialization based on element type
-                            llvm::Value *init_value = lcompilers_list_init_i32();
+                            ASR::List_t* asr_list = ASR::down_cast<ASR::List_t>(v->m_type);
+                            llvm::Value *init_value = lcompilers_list_init(get_el_type(asr_list->m_type));
                             target_var = ptr;
                             builder->CreateStore(init_value, target_var);
                         }
@@ -1890,7 +1959,7 @@ public:
                         type = getIntType(a_kind, true);
                     } else {
                         is_array_type = true;
-                        llvm::Type* el_type = get_el_type(asr_type, a_kind);
+                        llvm::Type* el_type = get_el_type(asr_type);
                         if( m_storage == ASR::storage_typeType::Allocatable ) {
                             type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type, true);
                         } else {
@@ -1925,7 +1994,7 @@ public:
                         type = getFPType(a_kind, true);
                     } else {
                         is_array_type = true;
-                        llvm::Type* el_type = get_el_type(asr_type, a_kind);
+                        llvm::Type* el_type = get_el_type(asr_type);
                         if( m_storage == ASR::storage_typeType::Allocatable ) {
                             type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type, true);
                         } else {
@@ -1948,7 +2017,7 @@ public:
                 a_kind = v_type->m_kind;
                 if( n_dims > 0 ) {
                     is_array_type = true;
-                    llvm::Type* el_type = get_el_type(asr_type, a_kind);
+                    llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
                         type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type, true);
                     } else {
@@ -2000,7 +2069,7 @@ public:
                 a_kind = v_type->m_kind;
                 if( n_dims > 0 ) {
                     is_array_type = true;
-                    llvm::Type* el_type = get_el_type(asr_type, a_kind);
+                    llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
                         type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type, true);
                     } else {
@@ -2016,7 +2085,7 @@ public:
                 n_dims = v_type->n_dims;
                 if( n_dims > 0 ) {
                     is_array_type = true;
-                    llvm::Type* el_type = get_el_type(asr_type, a_kind);
+                    llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
                         type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type, true);
                     } else {
@@ -2032,7 +2101,7 @@ public:
                 n_dims = v_type->n_dims;
                 if( n_dims > 0 ) {
                     is_array_type = true;
-                    llvm::Type* el_type = get_el_type(asr_type, a_kind);
+                    llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
                         type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type, true);
                     } else {
@@ -2852,10 +2921,16 @@ public:
         }
 
         // TODO: Remove this check after supporting ListConstant
-        if( ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_value)) ) {
+        bool is_target_list = ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_target));
+        bool is_value_list = ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_value));
+        if( is_target_list && is_value_list ) {
+            this->visit_expr(*x.m_target);
+            llvm::Value* target_list = tmp;
+            this->visit_expr(*x.m_value);
+            llvm::Value* value_list = tmp;
+            lcompilers_list_copy(value_list, target_list);
             return ;
         }
-
         if( ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
             ASR::is_a<ASR::GetPointer_t>(*x.m_value) ) {
             ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);

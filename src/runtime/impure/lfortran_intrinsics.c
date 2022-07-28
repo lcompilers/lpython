@@ -747,43 +747,87 @@ LFORTRAN_API void _lfortran_string_init(int size_plus_one, char *s) {
     s[size] = '\0';
 }
 
-// List  -----------------------------------------------------------------------
+// ########## List Implementation ##########
 
-struct _lcompilers_list_i32 {
+// Generic structure for lists with elements of any type
+
+struct _lcompilers_list_info {
     uint64_t n;
     uint64_t capacity;
-    int32_t *p;
+    uint64_t type_size;
 };
 
-LFORTRAN_API int8_t* _lcompilers_list_init_i32() {
-    struct _lcompilers_list_i32 *l;
-    l = (struct _lcompilers_list_i32*)malloc(
-            sizeof(struct _lcompilers_list_i32));
-    l->n = 0;
-    l->capacity = 4;
-    l->p = (int32_t*)malloc(l->capacity*sizeof(int32_t));
-    return (int8_t*)l;
+struct _lcompilers_list {
+    struct _lcompilers_list_info* info;
+    void *p;
+};
+
+LFORTRAN_API void _lcompilers_list_copy(int8_t* src, int8_t* dest) {
+    struct _lcompilers_list *lsrc = (struct _lcompilers_list*) src;
+    struct _lcompilers_list *ldest = (struct _lcompilers_list*) dest;
+    ldest->info = lsrc->info;
+    ldest->p = lsrc->p;
+}
+
+static inline int8_t* _lcompilers_list_init_util(int32_t type_size, int32_t n, int32_t capacity) {
+    struct _lcompilers_list *l;
+    struct _lcompilers_list_info* l_info;
+    l = (struct _lcompilers_list*) malloc(sizeof(struct _lcompilers_list));
+    l_info = (struct _lcompilers_list_info*) malloc(sizeof(struct _lcompilers_list_info));
+    l_info->n = n;
+    l_info->capacity = capacity;
+    l_info->type_size = type_size;
+    l->info = l_info;
+    l->p = malloc(l->info->capacity * type_size);
+    return (int8_t*) l;
+}
+
+LFORTRAN_API int8_t* _lcompilers_list_init(int32_t type_size) {
+    return _lcompilers_list_init_util(type_size, 0, 1);
+}
+
+LFORTRAN_API int8_t* _lcompilers_list_init_with_initial_capacity(int32_t type_size,
+    int32_t initial_capacity) {
+    return _lcompilers_list_init_util(type_size, initial_capacity, initial_capacity);
+}
+
+static inline void _lcompilers_list_append(struct _lcompilers_list *l) {
+    if (l->info->n == l->info->capacity) {
+        l->info->capacity = 2 * l->info->capacity;
+        l->p = realloc(l->p, l->info->type_size * l->info->capacity);
+    }
 }
 
 LFORTRAN_API void _lcompilers_list_append_i32(int8_t* s, int32_t item) {
-    struct _lcompilers_list_i32 *l = (struct _lcompilers_list_i32 *)s;
-    if (l->n == l->capacity) {
-        l->capacity = 2*l->capacity;
-        l->p = realloc(l->p, sizeof(int32_t)*l->capacity);
-    }
-    l->p[l->n] = item;
-    l->n++;
+    struct _lcompilers_list *l = (struct _lcompilers_list*)s;
+    _lcompilers_list_append(l);
+    int32_t* p_i32 = l->p;
+    p_i32[l->info->n] = item;
+    l->info->n += 1;
 }
 
-// pos is the index = 1..n
-LFORTRAN_API int32_t _lcompilers_list_item_i32(int8_t* s, int32_t pos) {
-    struct _lcompilers_list_i32 *l = (struct _lcompilers_list_i32 *)s;
-    if (pos >= 1 && pos <= l->n) {
-        return l->p[pos-1];
-    } else {
-        printf("Out of bounds\n");
+static inline int _lcompilers_list_item(struct _lcompilers_list* l, int32_t pos) {
+    if (!(pos >= 0 && pos < l->info->n)) {
+        printf("%d is out of bounds (%d, %llu)\n", pos, 0, l->info->n);
         return 0;
     }
+    return 1;
+}
+
+// pos is the index = 0..n - 1
+LFORTRAN_API int32_t _lcompilers_list_item_i32(int8_t* s, int32_t pos) {
+    struct _lcompilers_list *l = (struct _lcompilers_list*) s;
+    if( !_lcompilers_list_item(l, pos) ) return 0;
+    int32_t* pi32 = l->p;
+    return pi32[pos];
+}
+
+// pos is the index = 0..n - 1
+LFORTRAN_API void _lcompilers_list_write_item_i32(int8_t* s, int32_t pos, int32_t item) {
+    struct _lcompilers_list *l = (struct _lcompilers_list*) s;
+    if( !_lcompilers_list_item(l, pos) ) return ;
+    int32_t* pi32 = l->p;
+    pi32[pos] = item;
 }
 
 // bit  ------------------------------------------------------------------------
