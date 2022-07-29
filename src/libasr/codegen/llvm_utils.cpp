@@ -253,15 +253,18 @@ namespace LFortran {
         llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
         builder->CreateCondBr(cond, thenBB, elseBB);
         builder->SetInsertPoint(thenBB);
+        llvm::Value* new_capacity = builder->CreateMul(llvm::ConstantInt::get(context,
+                                                       llvm::APInt(32, 2)), capacity);
         llvm::Value* arg_size = builder->CreateMul(llvm::ConstantInt::get(context,
-                                                   llvm::APInt(32, 2 * type_size)),
-                                                   capacity);
+                                                   llvm::APInt(32, type_size)),
+                                                   new_capacity);
         llvm::Value* copy_data_ptr = get_pointer_to_list_data(list);
         llvm::Value* copy_data = builder->CreateLoad(copy_data_ptr);
         copy_data = LLVM::lfortran_realloc(context, module, *builder,
                                            copy_data, arg_size);
         copy_data = builder->CreateBitCast(copy_data, el_type->getPointerTo());
         builder->CreateStore(copy_data, copy_data_ptr);
+        builder->CreateStore(new_capacity, get_pointer_to_current_capacity(list));
         builder->CreateBr(mergeBB);
         llvm_utils->start_new_block(elseBB);
         llvm_utils->start_new_block(mergeBB);
