@@ -339,13 +339,18 @@ static inline Vec<withitem_t> convert_exprlist_to_withitem(Allocator &al,
     return v;
 }
 
-#define WITH_ITEM_01(expr, l) WITH_ITEM(p.m_a, l, EXPR(expr), nullptr)
-#define WITH_ITEM_02(expr, vars, l) WITH_ITEM(p.m_a, l, \
+#define WITH_ITEM_01(expr, vars, l) WITH_ITEM(p.m_a, l, \
         EXPR(expr), EXPR(SET_EXPR_CTX_01(vars, Store)))
 #define WITH(items, body, l) make_With_t(p.m_a, l, \
-        convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), STMTS(body), body.size(), nullptr)
+        convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
+        STMTS(body), body.size(), nullptr)
 #define WITH_01(items, body, type_comment, l) make_With_t(p.m_a, l, \
-        convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), STMTS(body), body.size(), \
+        convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
+        STMTS(body), body.size(), extract_type_comment(p, l, type_comment))
+#define WITH_02(items, body, l) make_With_t(p.m_a, l, \
+        items.p, items.size(), STMTS(body), body.size(), nullptr)
+#define WITH_03(items, body, type_comment, l) make_With_t(p.m_a, l, \
+        items.p, items.size(), STMTS(body), body.size(), \
         extract_type_comment(p, l, type_comment))
 
 static inline Arg *FUNC_ARG(Allocator &al, Location &l, char *arg,
@@ -577,9 +582,14 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
 #define ASYNC_WITH(items, body, l) make_AsyncWith_t(p.m_a, l, \
         convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
         STMTS(body), body.size(), nullptr)
+#define ASYNC_WITH_02(items, body, l) make_AsyncWith_t(p.m_a, l, \
+        items.p, items.size(), STMTS(body), body.size(), nullptr)
 #define ASYNC_WITH_01(items, body, type_comment, l) make_AsyncWith_t(p.m_a, l, \
         convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
         STMTS(body), body.size(), extract_type_comment(p, l, type_comment))
+#define ASYNC_WITH_03(items, body, type_comment, l) make_AsyncWith_t(p.m_a, l, \
+        items.p, items.size(), STMTS(body), body.size(), \
+        extract_type_comment(p, l, type_comment))
 
 #define WHILE_01(e, stmts, l) make_While_t(p.m_a, l, \
         EXPR(e), STMTS(stmts), stmts.size(), nullptr, 0)

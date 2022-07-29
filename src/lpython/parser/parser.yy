@@ -224,6 +224,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> slice_item
 %type <vec_ast> slice_item_list
 %type <ast> with_statement
+%type <vec_withitem> with_as_items
+%type <vec_withitem> with_as_items_list
 %type <ast> async_func_def
 %type <ast> async_for_stmt
 %type <ast> async_with_stmt
@@ -531,10 +533,25 @@ try_statement
     | KW_TRY ":" sep statements KW_FINALLY ":" sep statements { $$ = TRY_05($4, $8, @$); }
     ;
 
+with_as_items_list
+    : with_as_items_list "," expr KW_AS expr {
+        $$ = $1; PLIST_ADD($$, WITH_ITEM_01($3, $5, @$)); }
+    | expr KW_AS expr { LIST_NEW($$); PLIST_ADD($$, WITH_ITEM_01($1, $3, @$)); }
+    ;
+
+with_as_items
+    : with_as_items_list { $$ = $1; }
+    | "(" with_as_items_list ")" { $$ = $2; }
+    | "(" with_as_items_list "," ")" { $$ = $2; }
+    ;
+
 with_statement
     : KW_WITH expr_list ":" sep statements { $$ = WITH($2, $5, @$); }
+    | KW_WITH with_as_items ":" sep statements { $$ = WITH_02($2, $5, @$); }
     | KW_WITH expr_list ":" TK_TYPE_COMMENT TK_NEWLINE
         statements { $$ = WITH_01($2, $6, $4, @$); }
+    | KW_WITH with_as_items ":" TK_TYPE_COMMENT TK_NEWLINE
+        statements { $$ = WITH_03($2, $6, $4, @$); }
     ;
 
 decorators_opt
@@ -677,8 +694,12 @@ async_for_stmt
 async_with_stmt
     : KW_ASYNC KW_WITH expr_list ":" sep statements {
         $$ = ASYNC_WITH($3, $6, @$); }
+    | KW_ASYNC KW_WITH with_as_items ":" sep statements {
+        $$ = ASYNC_WITH_02($3, $6, @$); }
     | KW_ASYNC KW_WITH expr_list ":" TK_TYPE_COMMENT
         TK_NEWLINE statements { $$ = ASYNC_WITH_01($3, $7, $5, @$); }
+    | KW_ASYNC KW_WITH with_as_items ":" TK_TYPE_COMMENT
+        TK_NEWLINE statements { $$ = ASYNC_WITH_03($3, $7, $5, @$); }
     ;
 
 while_statement
