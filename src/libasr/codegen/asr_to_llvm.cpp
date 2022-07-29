@@ -4345,9 +4345,6 @@ public:
                 tmp = builder->CreateSelect(cmp, zero_str, one_str);
                 break;
             }
-            case (ASR::cast_kindType::CharacterToCharacter) : {
-                break;
-            }
             default : throw CodeGenError("Cast kind not implemented");
         }
     }
