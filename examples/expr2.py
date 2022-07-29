@@ -1,4 +1,10 @@
-a = (1, ) + 4
-a = 3 * (1, 2) + 4
-f((x, y))
-f((x, ))
+def main0():
+    x: i32
+    x = (2+3)*5
+    print(x)
+
+main0()
+
+# Not implemented yet in LPython:
+#if __name__ == "__main__":
+#    main()
