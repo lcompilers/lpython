@@ -113,6 +113,7 @@ x >= y
 'lo' in 'hello'
 
 a.b[1]
+a.b[1,]
 a.b[1:]
 a.b[:-1]
 a.b[1:2]
@@ -126,6 +127,7 @@ if a := ord('3'):
     x = 1
 
 a = {1, 2, 3}
+a = {1, 2, 3,}
 
 # Assigning outputs of expressions to variables
 
