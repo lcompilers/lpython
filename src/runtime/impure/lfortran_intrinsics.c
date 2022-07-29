@@ -776,6 +776,10 @@ LFORTRAN_API char* _lfortran_malloc(int size) {
     return (char*)malloc(size);
 }
 
+LFORTRAN_API int8_t* _lfortran_realloc(int8_t* ptr, int32_t size) {
+    return (int8_t*) realloc(ptr, size);
+}
+
 LFORTRAN_API void _lfortran_free(char* ptr) {
     free((void*)ptr);
 }
@@ -787,45 +791,6 @@ LFORTRAN_API void _lfortran_string_init(int size_plus_one, char *s) {
         s[i] = ' ';
     }
     s[size] = '\0';
-}
-
-// List  -----------------------------------------------------------------------
-
-struct _lcompilers_list_i32 {
-    uint64_t n;
-    uint64_t capacity;
-    int32_t *p;
-};
-
-LFORTRAN_API int8_t* _lcompilers_list_init_i32() {
-    struct _lcompilers_list_i32 *l;
-    l = (struct _lcompilers_list_i32*)malloc(
-            sizeof(struct _lcompilers_list_i32));
-    l->n = 0;
-    l->capacity = 4;
-    l->p = (int32_t*)malloc(l->capacity*sizeof(int32_t));
-    return (int8_t*)l;
-}
-
-LFORTRAN_API void _lcompilers_list_append_i32(int8_t* s, int32_t item) {
-    struct _lcompilers_list_i32 *l = (struct _lcompilers_list_i32 *)s;
-    if (l->n == l->capacity) {
-        l->capacity = 2*l->capacity;
-        l->p = realloc(l->p, sizeof(int32_t)*l->capacity);
-    }
-    l->p[l->n] = item;
-    l->n++;
-}
-
-// pos is the index = 1..n
-LFORTRAN_API int32_t _lcompilers_list_item_i32(int8_t* s, int32_t pos) {
-    struct _lcompilers_list_i32 *l = (struct _lcompilers_list_i32 *)s;
-    if (pos >= 1 && pos <= l->n) {
-        return l->p[pos-1];
-    } else {
-        printf("Out of bounds\n");
-        return 0;
-    }
 }
 
 // bit  ------------------------------------------------------------------------
