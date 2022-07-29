@@ -625,6 +625,7 @@ static inline ast_t* BOOLOP_01(Allocator &al, Location &loc,
     expr_t* y1 = EXPR(y);
     Vec<expr_t*> v;
     v.reserve(al, 4);
+    /*
     if (is_a<BoolOp_t>(*x1)) {
         BoolOp_t* tmp = down_cast<BoolOp_t>(x1);
         if (op == tmp->m_op) {
@@ -636,10 +637,9 @@ static inline ast_t* BOOLOP_01(Allocator &al, Location &loc,
             v.push_back(al, x1);
             v.push_back(al, y1);
         }
-    } else {
-        v.push_back(al, x1);
-        v.push_back(al, y1);
-    }
+    */
+    v.push_back(al, x1);
+    v.push_back(al, y1);
     return make_BoolOp_t(al, loc, op, v.p, v.n);
 }
 
