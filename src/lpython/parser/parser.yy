@@ -208,6 +208,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> if_statement
 %type <ast> elif_statement
 %type <ast> for_statement
+%type <ast> for_target_list
 %type <ast> except_statement
 %type <vec_ast> except_list
 %type <ast> try_statement
@@ -256,6 +257,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %precedence "not"
 %left "==" "!=" ">=" ">" "<=" "<" "is not" "is" "not in" "in"
 %left KW_IF KW_ELSE
+%precedence FOR
 %left "|"
 %left "^"
 %left "&"
@@ -490,26 +492,23 @@ if_statement
         $$ = IF_STMT_03($2, $5, $6, @$); }
     ;
 
+for_target_list
+    : expr %prec FOR { $$ = $1; }
+    | expr_list "," expr %prec FOR { $$ = TUPLE_01(TUPLE_($1, $3), @$); }
+    ;
+
 for_statement
-    : KW_FOR expr KW_IN expr ":" sep statements {
+    : KW_FOR for_target_list KW_IN expr ":" sep statements {
         $$ = FOR_01($2, $4, $7, @$); }
-    | KW_FOR expr_list "," expr KW_IN expr ":" sep statements {
-        $$ = FOR_01(TUPLE_01(TUPLE_($2, $4), @$), $6, $9, @$); }
-    | KW_FOR expr KW_IN expr ":" sep statements KW_ELSE ":"
+    | KW_FOR for_target_list KW_IN expr "," ":" sep statements {
+        $$ = FOR_01($2, TUPLE_03(A2LIST(p.m_a, $4), @$), $8, @$); }
+    | KW_FOR for_target_list KW_IN expr ":" sep statements KW_ELSE ":"
         sep statements { $$ = FOR_02($2, $4, $7, $11, @$); }
-    | KW_FOR expr_list "," expr KW_IN expr ":" sep statements KW_ELSE ":"
-        sep statements {
-            $$ = FOR_02(TUPLE_01(TUPLE_($2, $4), @$), $6, $9, $13, @$); }
-    | KW_FOR expr KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE statements {
-        $$ = FOR_03($2, $4, $6, $8, @$); }
-    | KW_FOR expr_list "," expr KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE
-        statements {
-            $$ = FOR_03(TUPLE_01(TUPLE_($2, $4), @$), $6, $8, $10, @$); }
-    | KW_FOR expr KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE statements
-        KW_ELSE ":" sep statements { $$ = FOR_04($2, $4, $8, $12, $6, @$); }
-    | KW_FOR expr_list "," expr KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE
+    | KW_FOR for_target_list KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE
+        statements { $$ = FOR_03($2, $4, $6, $8, @$); }
+    | KW_FOR for_target_list KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE
         statements KW_ELSE ":" sep statements {
-            $$ = FOR_04(TUPLE_01(TUPLE_($2, $4), @$), $6, $10, $14, $8, @$); }
+            $$ = FOR_04($2, $4, $8, $12, $6, @$); }
     ;
 
 except_statement
