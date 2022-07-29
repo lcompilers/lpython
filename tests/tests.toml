@@ -508,6 +508,10 @@ ast_new = true
 filename = "parser/lambda1.py"
 ast_new = true
 
+[[test]]
+filename = "parser/tuple1.py"
+ast_new = true
+
 # tests/errors
 
 [[test]]
