@@ -122,6 +122,7 @@ static inline Vec<ast_t*> SET_EXPR_CTX_02(Vec<ast_t*> x, expr_contextType ctx) {
 
 #define YIELD_01(l) make_Yield_t(p.m_a, l, nullptr)
 #define YIELD_02(exec, l) make_Yield_t(p.m_a, l, EXPR(exec))
+#define YIELD_03(value, l) make_YieldFrom_t(p.m_a, l, EXPR(value))
 
 #define PASS(l) make_Pass_t(p.m_a, l)
 #define BREAK(l) make_Break_t(p.m_a, l)
