@@ -617,6 +617,90 @@ static inline std::string type_python_1dim_helper(const std::string & res,
     return res;
 }
 
+static inline void encode_dimensions(size_t n_dims, std::string& res) {
+    if( n_dims > 0 ) {
+        res += "[";
+    }
+    for( size_t i = 0; i < n_dims; i++ ) {
+        res += ":";
+        if( i == n_dims - 1 ) {
+            res += "]";
+        } else {
+            res += ", ";
+        }
+    }
+}
+
+static inline std::string get_type_code(const ASR::ttype_t *t)
+{
+    switch (t->type) {
+        case ASR::ttypeType::Integer: {
+            ASR::Integer_t *integer = ASR::down_cast<ASR::Integer_t>(t);
+            std::string res = "i" + std::to_string(integer->m_kind * 8);
+            encode_dimensions(integer->n_dims, res);
+            return res;
+        }
+        case ASR::ttypeType::Real: {
+            ASR::Real_t *real = ASR::down_cast<ASR::Real_t>(t);
+            std::string res = "r" + std::to_string(real->m_kind * 8);
+            encode_dimensions(real->n_dims, res);
+            return res;
+        }
+        case ASR::ttypeType::Complex: {
+            ASR::Complex_t *complx = ASR::down_cast<ASR::Complex_t>(t);
+            std::string res = "r" + std::to_string(complx->m_kind * 8);
+            encode_dimensions(complx->n_dims, res);
+            return res;
+        }
+        case ASR::ttypeType::Logical: {
+            return "bool";
+        }
+        case ASR::ttypeType::Character: {
+            return "str";
+        }
+        case ASR::ttypeType::Tuple: {
+            ASR::Tuple_t *tup = ASR::down_cast<ASR::Tuple_t>(t);
+            std::string result = "tuple[";
+            for (size_t i = 0; i < tup->n_type; i++) {
+                result += get_type_code(tup->m_type[i]);
+                if (i + 1 != tup->n_type) {
+                    result += ", ";
+                }
+            }
+            result += "]";
+            return result;
+        }
+        case ASR::ttypeType::Set: {
+            ASR::Set_t *s = ASR::down_cast<ASR::Set_t>(t);
+            return "set[" + get_type_code(s->m_type) + "]";
+        }
+        case ASR::ttypeType::Dict: {
+            ASR::Dict_t *d = ASR::down_cast<ASR::Dict_t>(t);
+            return "dict[" + get_type_code(d->m_key_type) +
+                   ", " + get_type_code(d->m_value_type) + "]";
+        }
+        case ASR::ttypeType::List: {
+            ASR::List_t *l = ASR::down_cast<ASR::List_t>(t);
+            return "list[" + get_type_code(l->m_type) + "]";
+        }
+        case ASR::ttypeType::CPtr: {
+            return "CPtr";
+        }
+        case ASR::ttypeType::Derived: {
+            ASR::Derived_t* d = ASR::down_cast<ASR::Derived_t>(t);
+            return symbol_name(d->m_derived_type);
+        }
+        case ASR::ttypeType::Pointer: {
+            ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(t);
+            return "Pointer[" + get_type_code(p->m_type) + "]";
+        }
+        default: {
+            throw LCompilersException("Type encoding not implemented for "
+                                      + std::to_string(t->type));
+        }
+    }
+}
+
 static inline std::string type_to_str_python(const ASR::ttype_t *t,
                                              bool for_error_message=true)
 {
