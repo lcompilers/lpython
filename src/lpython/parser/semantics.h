@@ -516,6 +516,21 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
         name2char(id), nullptr, 0, keywords.p, keywords.n, \
         STMTS(stmts), stmts.size(), \
         EXPRS(decorator), decorator.size())
+#define CLASS_05(decorator, id, args, tc, stmts, l) make_ClassDef_t(p.m_a, l, \
+        name2char(id), EXPRS(args), args.size(), nullptr, 0, \
+        STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size()); \
+        extract_type_comment(p, l, tc)
+#define CLASS_06(decorator, id, args, keywords, tc, stmts, l) \
+        make_ClassDef_t(p.m_a, l, name2char(id), EXPRS(args), args.size(), \
+        keywords.p, keywords.n, STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size()); \
+        extract_type_comment(p, l, tc)
+#define CLASS_07(decorator, id, keywords, tc, stmts, l) make_ClassDef_t(p.m_a, l, \
+        name2char(id), nullptr, 0, keywords.p, keywords.n, \
+        STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size()); \
+        extract_type_comment(p, l, tc)
 
 #define ASYNC_FUNCTION_01(decorator, id, args, stmts, l) \
         make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
