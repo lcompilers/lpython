@@ -194,6 +194,7 @@ public:
     llvm::BasicBlock *current_loophead, *current_loopend, *proc_return;
     std::string mangle_prefix;
     bool prototype_only;
+    llvm::StructType *tuple_type;
     llvm::StructType *complex_type_4, *complex_type_8;
     llvm::StructType *complex_type_4_ptr, *complex_type_8_ptr;
     llvm::PointerType *character_type;
@@ -1744,6 +1745,18 @@ public:
                 //ASR::List_t* v_type = down_cast<ASR::List_t>(v->m_type);
                 //ASR::ttype_t *el_type = v_type->m_type;
                 llvm_type = list_type;
+                break;
+            }
+            case (ASR::ttypeType::Tuple) : {
+                ASR::Tuple_t* v_type = down_cast<ASR::Tuple_t>(asr_type);
+                std::vector<llvm::Type*> tuple_types;
+                for (size_t i=0; i < v_type->n_type; i++) {
+                    ASR::ttype_t *t2 = v_type->m_type[i];
+                    tuple_types.push_back(get_type_from_ttype_t(t2, m_storage, is_array_type,
+                                            is_malloc_array_type, m_dims, n_dims, a_kind));
+                }
+                tuple_type = llvm::StructType::create(context, tuple_types);
+                llvm_type = tuple_type;
                 break;
             }
             case (ASR::ttypeType::CPtr) : {
@@ -3864,6 +3877,26 @@ public:
             }
         }
         tmp = complex_from_floats(re2, im2, type);
+    }
+
+    void visit_TupleConstant(const ASR::TupleConstant_t &x) {
+        std::vector<llvm::Value *> elements;
+        llvm::Value *el;
+        for (size_t i=0; i < x.n_elements; i++) {
+            this->visit_expr_wrapper(x.m_elements[i], true);
+            el = tmp;
+            elements.push_back(el);
+        }
+        llvm::AllocaInst *p_fxn = builder->CreateAlloca(
+            llvm::ArrayType::get(llvm::Type::getInt8Ty(context), x.n_elements * sizeof(void *)));
+        llvm::Value *p_fxn_ptr = builder->CreateBitCast(p_fxn,
+            llvm::PointerType::get(llvm::ArrayType::get(llvm::Type::getInt8Ty(context), x.n_elements * sizeof(void *)), 0));
+        for (size_t i=0; i < x.n_elements; i++) {
+            llvm::Value *el_ptr = builder->CreateGEP(p_fxn_ptr, llvm::ConstantInt::get(context, llvm::APInt(32, i, true)));
+            builder->CreateStore(elements[i], el_ptr);
+        }
+        builder->CreateAlloca(tuple_type, nullptr);
+        tmp = p_fxn_ptr;
     }
 
     void visit_LogicalConstant(const ASR::LogicalConstant_t &x) {
