@@ -14,3 +14,13 @@ def func():
 
     for _ in x:
         yield
+
+def iterable1():
+    yield 1
+    yield 2
+
+def iterable2():
+    yield from iterable1()
+    yield 3
+
+assert list(iterable2()) == [1, 2, 3]
