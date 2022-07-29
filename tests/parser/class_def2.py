@@ -25,3 +25,5 @@ class test_07(*x, *y):
 class test_08(**x, **y):
     pass
 
+class test_08(x): # type: ignore[misc]
+    pass
