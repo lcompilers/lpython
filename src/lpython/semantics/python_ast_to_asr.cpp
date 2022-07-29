@@ -3729,14 +3729,7 @@ public:
                 res_type, res_value);
 
         } else if (ASRUtils::is_character(*arg_type)) {
-            if(ASRUtils::expr_value(arg) != nullptr) {
-                std::string string_it_self = ASR::down_cast<ASR::StringConstant_t>(
-                                        ASRUtils::expr_value(arg))->m_s;
-                res_value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al,
-                                loc, s2c(al, string_it_self), res_type));         
-            }
-            return ASR::make_Cast_t(al, loc, arg, ASR::cast_kindType::CharacterToCharacter,
-                res_type, res_value);
+            return (ASR::asr_t *)arg;
         } else {
             std::string stype = ASRUtils::type_to_str_python(arg_type);
             throw SemanticError("Conversion of '" + stype + "' to string is not Implemented", loc);
