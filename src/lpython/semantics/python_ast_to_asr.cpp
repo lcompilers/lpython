@@ -3691,7 +3691,7 @@ public:
         ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
                                     1, 1, nullptr, nullptr , 0));
         if (!arg) {
-            return ASR::make_StringConstant_t(al, loc, "", res_type);
+            return ASR::make_StringConstant_t(al, loc, s2c(al, ""), res_type);
         }
         if (ASRUtils::is_real(*arg_type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
