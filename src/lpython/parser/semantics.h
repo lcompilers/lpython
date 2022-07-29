@@ -414,6 +414,13 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
 #define ARGS_04(arg, ann, defaults, l) FUNC_ARG(p.m_a, l, \
         name2char((ast_t *)arg), EXPR(ann), EXPR(defaults))
 
+static inline void ADD_TYPE_COMMENT_(LFortran::Parser &p, Location l,
+        Vec<Arg*> &x, LFortran::Str &type_comment) {
+    x[x.size() - 1]->_arg.m_type_comment = extract_type_comment(p, l, type_comment);
+}
+
+#define ADD_TYPE_COMMENT(x, type_comment, l) \
+        ADD_TYPE_COMMENT_(p, l, x, type_comment)
 
 #define STAR_ARGS_01(vararg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
         nullptr, 0, ARG2LIST(p.m_a, vararg), 1, nullptr, 0, nullptr, 0)
