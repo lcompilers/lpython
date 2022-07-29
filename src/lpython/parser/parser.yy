@@ -653,6 +653,18 @@ class_def
         ":" sep statements { $$ = CLASS_03($1, $3, $7, $5, $11, @$); }
     | decorators_opt KW_CLASS id "(" keyword_items ")" ":" sep statements {
         $$ = CLASS_04($1, $3, $5, $9, @$); }
+    | decorators_opt KW_CLASS id "(" expr_list_opt ")" ":"
+        TK_TYPE_COMMENT TK_NEWLINE statements {
+        $$ = CLASS_02($1, $3, $5, $10, @$); }
+    | decorators_opt KW_CLASS id "(" expr_list "," keyword_items ")"
+        ":" TK_TYPE_COMMENT TK_NEWLINE statements {
+            $$ = CLASS_03($1, $3, $5, $7, $12, @$); }
+    | decorators_opt KW_CLASS id "(" keyword_items "," expr_list ")"
+        ":" TK_TYPE_COMMENT TK_NEWLINE statements {
+            $$ = CLASS_03($1, $3, $7, $5, $12, @$); }
+    | decorators_opt KW_CLASS id "(" keyword_items ")" ":"
+        TK_TYPE_COMMENT TK_NEWLINE statements {
+        $$ = CLASS_04($1, $3, $5, $10, @$); }
     ;
 
 async_func_def
