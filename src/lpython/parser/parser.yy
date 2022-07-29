@@ -575,7 +575,8 @@ parameter
 defparameter_list
     : defparameter_list "," parameter { $$ = $1; LIST_ADD($$, $3); }
     | parameter { LIST_NEW($$); LIST_ADD($$, $1); }
-    | defparameter_list "," TK_TYPE_COMMENT parameter { $$ = $1; LIST_ADD($$, $4); ADD_TYPE_COMMENT($1, $3, @$); }
+    | defparameter_list "," TK_TYPE_COMMENT parameter { $$ = $1;
+        LIST_ADD($$, $4); ADD_TYPE_COMMENT($1, $3, @$); }
     ;
 
 parameter_list_starargs
@@ -619,7 +620,8 @@ parameter_list_starargs
 
 parameter_list_opt
     : defparameter_list comma_opt { $$ = FUNC_ARG_LIST_01($1, @$); }
-    | defparameter_list "," TK_TYPE_COMMENT { ADD_TYPE_COMMENT($1, $3, @$); $$ = FUNC_ARG_LIST_01($1, @$); }
+    | defparameter_list "," TK_TYPE_COMMENT { ADD_TYPE_COMMENT($1, $3, @$);
+        $$ = FUNC_ARG_LIST_01($1, @$); }
     | parameter_list_starargs { $$ = $1; }
     | %empty { $$ = FUNC_ARG_LIST_02(@$); }
     | defparameter_list "," "/" "," defparameter_list {
