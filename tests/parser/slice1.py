@@ -11,4 +11,5 @@
 "LPython"[1::]
 "LPython"[::]
 List = ['a', 'b', 'c', 'd']
+List = ['a', 'b', 'c', 'd',]
 List[::-2]
