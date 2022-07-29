@@ -357,6 +357,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             'while'    { KW(WHILE) }
             'with'     { KW(WITH) }
             'yield'    { KW(YIELD) }
+            'yield' whitespace? 'from' { KW(YIELD_FROM) }
 
             // Tokens
             newline {
@@ -386,9 +387,9 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "+" { RET(TK_PLUS) }
             "-" { RET(TK_MINUS) }
             "=" { RET(TK_EQUAL) }
-            ":" { 
+            ":" {
                     if(cur[0] == '\n'){
-                        colon_actual_last_token = true; 
+                        colon_actual_last_token = true;
                     }
                     RET(TK_COLON);
                 }
@@ -474,7 +475,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 if(parenlevel) { continue; }
                 line_num++; cur_line=cur;
                 token(yylval.string);
-                // This is commented out because 
+                // This is commented out because
                 // the last character in the comment was skipped.
                 // yylval.string.n--;
                 token_loc(loc);
@@ -612,6 +613,7 @@ std::string token2text(const int token)
         T(KW_WHILE, "while")
         T(KW_WITH, "with")
         T(KW_YIELD, "yield")
+        T(KW_YIELD_FROM, "yield from")
 
         default : {
             std::cout << "TOKEN: " << token << std::endl;

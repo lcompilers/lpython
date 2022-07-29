@@ -171,6 +171,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token KW_WHILE
 %token KW_WITH
 %token KW_YIELD
+%token KW_YIELD_FROM
 
 // Nonterminal tokens
 
@@ -874,6 +875,7 @@ expr
     | KW_AWAIT expr %prec AWAIT { $$ = AWAIT($2, @$); }
     | KW_YIELD %prec YIELD { $$ = YIELD_01(@$); }
     | KW_YIELD expr %prec YIELD { $$ = YIELD_02($2, @$); }
+    | KW_YIELD_FROM expr %prec YIELD { $$ = YIELD_03($2, @$); }
     | id ":=" expr { $$ = NAMEDEXPR($1, $3, @$); }
     | "*" expr { $$ = STARRED_ARG($2, @$); }
 
