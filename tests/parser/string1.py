@@ -16,3 +16,6 @@ Text
 """
 R"Text"
 r'a\tb\nA\tB'
+
+u"1,2,3 # comment"
+u'Text'

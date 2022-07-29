@@ -702,6 +702,8 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
         tmp = make_ConstantBytes_t(al, l, LFortran::s2c(al, str), nullptr);
     } else if (strcmp(prefix, "r") == 0 ) {
         tmp = make_ConstantStr_t(al, l,  s, nullptr);
+    } else if (strcmp(prefix, "u") == 0 ) {
+        tmp = make_ConstantStr_t(al, l,  s, LFortran::s2c(al, "u"));
     } else {
         throw LFortran::LCompilersException("The string is not recognized by the parser.");
     }
