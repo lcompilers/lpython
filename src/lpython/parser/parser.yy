@@ -457,15 +457,15 @@ import_statement
     : KW_IMPORT module_item_list { $$ = IMPORT_01($2, @$); }
     | KW_FROM module KW_IMPORT module_item_list {
         $$ = IMPORT_02($2, $4, @$); }
-    | KW_FROM module KW_IMPORT "(" module_item_list ")" {
+    | KW_FROM module KW_IMPORT "(" module_item_list comma_opt ")" {
         $$ = IMPORT_02($2, $5, @$); }
     | KW_FROM dot_list KW_IMPORT module_item_list {
         $$ = IMPORT_03($4, @$); }
     | KW_FROM dot_list module KW_IMPORT module_item_list {
         $$ = IMPORT_04($3, $5, @$); }
-    | KW_FROM dot_list KW_IMPORT "(" module_item_list ")" {
+    | KW_FROM dot_list KW_IMPORT "(" module_item_list comma_opt ")" {
         $$ = IMPORT_03($5, @$); }
-    | KW_FROM dot_list module KW_IMPORT "(" module_item_list ")" {
+    | KW_FROM dot_list module KW_IMPORT "(" module_item_list comma_opt ")" {
         $$ = IMPORT_04($3, $6, @$); }
     ;
 
@@ -754,7 +754,7 @@ dict_list
     ;
 
 tuple_list
-    : slice_item_list { $$ = TUPLE($1, @$); }
+    : slice_item_list comma_opt { $$ = TUPLE($1, @$); }
     ;
 
 id_list
@@ -826,8 +826,8 @@ subscription
     | "{" expr_list "}" "[" tuple_list "]" {
         $$ = SUBSCRIPT_01(SET($2, @$), $5, @$); }
     | "(" expr ")" "[" tuple_list "]" { $$ = SUBSCRIPT_01($2, $5, @$); }
-    | "{" dict_list "}" "[" tuple_list "]" {
-        $$ = SUBSCRIPT_01(DICT_02($2, @$), $5, @$); }
+    | "{" dict_list comma_opt "}" "[" tuple_list "]" {
+        $$ = SUBSCRIPT_01(DICT_02($2, @$), $6, @$); }
     | subscription "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
     ;
 
@@ -870,7 +870,7 @@ expr
     | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
 
     | "{" "}" { $$ = DICT_01(@$); }
-    | "{" dict_list "}" { $$ = DICT_02($2, @$); }
+    | "{" dict_list comma_opt "}" { $$ = DICT_02($2, @$); }
     | KW_AWAIT expr %prec AWAIT { $$ = AWAIT($2, @$); }
     | KW_YIELD %prec YIELD { $$ = YIELD_01(@$); }
     | KW_YIELD expr %prec YIELD { $$ = YIELD_02($2, @$); }
