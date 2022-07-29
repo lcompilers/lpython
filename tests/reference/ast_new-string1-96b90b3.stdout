@@ -3,4 +3,4 @@ sometext
 anotherline
 " ())) (Expr (ConstantBytes "b'Some text goes here.'" ())) (Expr (ConstantBytes "b'\nMultiple texts goes here.\n'" ())) (Expr (ConstantStr "
 Text
-" ())) (Expr (ConstantStr "Text" ())) (Expr (ConstantStr "a\tb\nA\tB" ()))] [])
+" ())) (Expr (ConstantStr "Text" ())) (Expr (ConstantStr "a\tb\nA\tB" ())) (Expr (ConstantStr "1,2,3 # comment" "u")) (Expr (ConstantStr "Text" "u"))] [])
