@@ -683,9 +683,14 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
     Vec<expr_t *> exprs;
     exprs.reserve(al, 4);
     ast_t *tmp = nullptr;
-    // Assuming prefix has only one character.
-    prefix[0] = tolower(prefix[0]);
-    if (strcmp(prefix, "f") == 0) {
+    if (strcmp(prefix, "U") == 0 ) {
+        return make_ConstantStr_t(al, l,  s, nullptr);
+    }
+    for (size_t i = 0; i < strlen(prefix); i++) {
+        prefix[i] = tolower(prefix[i]);
+    }
+    if (strcmp(prefix, "f") == 0 || strcmp(prefix, "fr") == 0 
+            || strcmp(prefix, "rf") == 0) {
         std::string str = std::string(s);
         std::string s1 = "\"";
         std::string id;
@@ -729,7 +734,8 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
             }
         }
         tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
-    } else if (strcmp(prefix, "b") == 0) {
+    } else if (strcmp(prefix, "b") == 0 || strcmp(prefix, "br") == 0 
+            || strcmp(prefix, "rb") == 0) {
         std::string str = std::string(s);
         size_t start_pos = 0;
         while((start_pos = str.find("\n", start_pos)) != std::string::npos) {
