@@ -397,6 +397,8 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
     Args *r = al.allocate<Args>();
     Vec<expr_t*> defaults;
     defaults.reserve(al, 4);
+    Vec<expr_t*> kw_defaults;
+    kw_defaults.reserve(al, 4);
 
     FUNC_ARGS_(posonlyargs);
     FUNC_ARGS_(args);
@@ -413,8 +415,8 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
     r->arguments.n_vararg = _m_vararg.n;
     r->arguments.m_kwonlyargs = _m_kwonlyargs.p;
     r->arguments.n_kwonlyargs = _m_kwonlyargs.n;
-    r->arguments.m_kw_defaults = nullptr;
-    r->arguments.n_kw_defaults = 0;
+    r->arguments.m_kw_defaults = kw_defaults.p;
+    r->arguments.n_kw_defaults = kw_defaults.n;
     r->arguments.m_kwarg = _m_kwarg.p;
     r->arguments.n_kwarg = _m_kwarg.n;
     r->arguments.m_defaults = defaults.p;
@@ -498,6 +500,16 @@ static inline void ADD_TYPE_COMMENT_(LFortran::Parser &p, Location l,
         FUNC_ARGS(p.m_a, l, posonlyargs.p, posonlyargs.n, \
         args.p, args.n, ARG2LIST(p.m_a, vararg), 1, \
         kwonlyargs.p, kwonlyargs.n, ARG2LIST(p.m_a, kwarg), 1)
+#define STAR_ARGS_21(posonlyargs, kwonlyargs, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, nullptr, 0, nullptr, 0, \
+        kwonlyargs.p, kwonlyargs.n, nullptr, 0)
+#define STAR_ARGS_22(posonlyargs, args, kwonlyargs, l) FUNC_ARGS(p.m_a, l, \
+        posonlyargs.p, posonlyargs.n, args.p, args.n, nullptr, 0, \
+        kwonlyargs.p, kwonlyargs.n, nullptr, 0)
+#define STAR_ARGS_23(args, kwonlyargs, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
+        args.p, args.n, nullptr, 0, kwonlyargs.p, kwonlyargs.n, nullptr, 0)
+#define STAR_ARGS_24(kwonlyargs, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
+        nullptr, 0, nullptr, 0, kwonlyargs.p, kwonlyargs.n, nullptr, 0)
 
 #define FUNC_ARG_LIST_01(args, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
         args.p, args.n, nullptr, 0, nullptr, 0, nullptr, 0)
