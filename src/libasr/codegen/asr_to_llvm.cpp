@@ -865,6 +865,24 @@ public:
         return builder->CreateCall(fn, {str, idx1, idx2});
     }
 
+    llvm::Value* lfortran_str_slice(llvm::Value* str, llvm::Value* idx1, llvm::Value* idx2,
+                    llvm::Value* step, llvm::Value* left_present, llvm::Value* right_present)
+    {
+        std::string runtime_func_name = "_lfortran_str_slice";
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    character_type, {
+                        character_type, llvm::Type::getInt32Ty(context),
+                        llvm::Type::getInt32Ty(context), llvm::Type::getInt32Ty(context),
+                        llvm::Type::getInt1Ty(context), llvm::Type::getInt1Ty(context)
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        return builder->CreateCall(fn, {str, idx1, idx2, step, left_present, right_present});
+    }
+
     llvm::Value* lfortran_type_to_str(llvm::Value* arg, llvm::Type* value_type, std::string type, int value_kind) {
         std::string func_name = "_lfortran_" + type + "_to_str" + std::to_string(value_kind);
          llvm::Function *fn = module->getFunction(func_name);
@@ -3498,11 +3516,36 @@ public:
          }
         this->visit_expr_wrapper(x.m_arg, true);
         llvm::Value *str = tmp;
-        this->visit_expr_wrapper(x.m_start, true);
-        llvm::Value *left = tmp;
-        this->visit_expr_wrapper(x.m_end, true);
-        llvm::Value *right = tmp;
-        tmp = lfortran_str_copy(str, left, right);
+        llvm::Value *left, *right, *step;
+        llvm::Value *left_present, *right_present;
+        if (x.m_start) {
+            this->visit_expr_wrapper(x.m_start, true);
+            left = tmp;
+            left_present = llvm::ConstantInt::get(context,
+                llvm::APInt(1, 1));
+        } else {
+            left = llvm::Constant::getNullValue(llvm::Type::getInt32Ty(context));
+            left_present = llvm::ConstantInt::get(context,
+                llvm::APInt(1, 0));
+        }
+        if (x.m_end) {
+            this->visit_expr_wrapper(x.m_end, true);
+            right = tmp;
+            right_present = llvm::ConstantInt::get(context,
+                llvm::APInt(1, 1));
+        } else {
+            right = llvm::Constant::getNullValue(llvm::Type::getInt32Ty(context));
+            right_present = llvm::ConstantInt::get(context,
+                llvm::APInt(1, 0));
+        }
+        if (x.m_step) {
+            this->visit_expr_wrapper(x.m_step, true);
+            step = tmp;
+        } else {
+            step = llvm::ConstantInt::get(context,
+                llvm::APInt(32, 1));
+        }
+        tmp = lfortran_str_slice(str, left, right, step, left_present, right_present);
     }
 
     void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
