@@ -290,4 +290,54 @@ namespace LFortran {
         shift_end_point_by_one(list);
     }
 
+    LLVMTuple::LLVMTuple(llvm::LLVMContext& context_,
+                         LLVMUtils* llvm_utils_,
+                         llvm::IRBuilder<>* builder_) :
+    context(context_), llvm_utils(llvm_utils_), builder(builder_) {}
+
+    llvm::Type* LLVMTuple::get_tuple_type(std::string& type_code,
+                                          std::vector<llvm::Type*>& el_types) {
+        if( typecode2tupletype.find(type_code) != typecode2tupletype.end() ) {
+            return typecode2tupletype[type_code].first;
+        }
+
+        llvm::Type* llvm_tuple_type = llvm::StructType::create(context, el_types, "tuple");
+        typecode2tupletype[type_code] = std::make_pair(llvm_tuple_type, el_types.size());
+        return llvm_tuple_type;
+    }
+
+    llvm::Value* LLVMTuple::read_item(llvm::Value* llvm_tuple, llvm::Value* pos,
+                                      bool get_pointer) {
+        llvm::Value* item = llvm_utils->create_gep(llvm_tuple, pos);
+        if( get_pointer ) {
+            return item;
+        }
+        return builder->CreateLoad(item);
+    }
+
+    llvm::Value* LLVMTuple::read_item(llvm::Value* llvm_tuple, size_t pos,
+                                      bool get_pointer) {
+        llvm::Value* llvm_pos = llvm::ConstantInt::get(context, llvm::APInt(32, pos));
+        return read_item(llvm_tuple, llvm_pos, get_pointer);
+    }
+
+    void LLVMTuple::tuple_init(llvm::Value* llvm_tuple,
+                               std::vector<llvm::Value*>& values) {
+        for( size_t i = 0; i < values.size(); i++ ) {
+            llvm::Value* item_ptr = read_item(llvm_tuple, i, true);
+            builder->CreateStore(values[i], item_ptr);
+        }
+    }
+
+    void LLVMTuple::tuple_deepcopy(llvm::Value* src, llvm::Value* dest,
+                                   std::string& type_code) {
+        LFORTRAN_ASSERT(src->getType() == dest->getType());
+        size_t n_elements = typecode2tupletype[type_code].second;
+        for( size_t i = 0; i < n_elements; i++ ) {
+            llvm::Value* src_item = read_item(src, i, false);
+            llvm::Value* dest_item_ptr = read_item(dest, i, true);
+            builder->CreateStore(src_item, dest_item_ptr);
+        }
+    }
+
 } // namespace LFortran

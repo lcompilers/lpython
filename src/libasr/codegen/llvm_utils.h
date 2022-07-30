@@ -94,6 +94,36 @@ namespace LFortran {
                         llvm::Module& module, std::string& type_code);
     };
 
+    class LLVMTuple {
+        private:
+
+            llvm::LLVMContext& context;
+            LLVMUtils* llvm_utils;
+            llvm::IRBuilder<>* builder;
+
+            std::map<std::string, std::pair<llvm::Type*, size_t>> typecode2tupletype;
+
+        public:
+
+            LLVMTuple(llvm::LLVMContext& context_,
+                      LLVMUtils* llvm_utils,
+                      llvm::IRBuilder<>* builder);
+
+            llvm::Type* get_tuple_type(std::string& type_code,
+                                       std::vector<llvm::Type*>& el_types);
+
+            void tuple_init(llvm::Value* llvm_tuple, std::vector<llvm::Value*>& values);
+
+            llvm::Value* read_item(llvm::Value* llvm_tuple, llvm::Value* pos,
+                                   bool get_pointer=false);
+
+            llvm::Value* read_item(llvm::Value* llvm_tuple, size_t pos,
+                                   bool get_pointer=false);
+
+            void tuple_deepcopy(llvm::Value* src, llvm::Value* dest,
+                                std::string& type_code);
+    };
+
 } // LFortran
 
 #endif // LFORTRAN_LLVM_UTILS_H

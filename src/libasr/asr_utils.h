@@ -701,6 +701,14 @@ static inline std::string get_type_code(const ASR::ttype_t *t)
     }
 }
 
+static inline std::string get_type_code(ASR::ttype_t** types, size_t n_types) {
+    std::string code = "";
+    for( size_t i = 0; i < n_types; i++ ) {
+        code += get_type_code(types[i]) + "_";
+    }
+    return code;
+}
+
 static inline std::string type_to_str_python(const ASR::ttype_t *t,
                                              bool for_error_message=true)
 {
