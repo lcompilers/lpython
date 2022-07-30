@@ -833,6 +833,7 @@ function_call
     | subscript "(" keyword_items "," expr_list comma_opt ")" {
         $$ = CALL_02($1, $5, $3, @$); }
     | subscript "(" keyword_items comma_opt ")" { $$ = CALL_03($1, $3, @$); }
+    | "(" expr ")" "(" call_arguement_list ")" { $$ = CALL_01($2, $5, @$); }
     ;
 
 subscript
