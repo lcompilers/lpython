@@ -755,6 +755,8 @@ LFORTRAN_API char* _lfortran_str_slice(char* s, int32_t idx1, int32_t idx2, int3
         printf("slice step cannot be zero\n");
         exit(1);
     }
+    idx1 = idx1 < 0 ? idx1 + s_len : idx1;
+    idx2 = idx2 < 0 ? idx2 + s_len : idx2;
     if (!idx1_present) {
         if (step > 0) {
             idx1 = 0;
@@ -769,8 +771,6 @@ LFORTRAN_API char* _lfortran_str_slice(char* s, int32_t idx1, int32_t idx2, int3
             idx2 = -1;
         }
     }
-    idx1 = idx1 < 0 ? idx1 + s_len : idx1;
-    idx2 = idx2 < 0 ? idx2 + s_len : idx2;
     if (idx1 == idx2 ||
         (step > 0 && (idx1 > idx2 || idx1 >= s_len)) ||
         (step < 0 && (idx1 < idx2 || idx2 >= s_len-1)))
@@ -783,6 +783,7 @@ LFORTRAN_API char* _lfortran_str_slice(char* s, int32_t idx1, int32_t idx2, int3
         idx1 = idx1 >= s_len ? s_len-1 : idx1;
         dest_len = (idx2-idx1+step+1)/step + 1;
     }
+
     char* dest_char = (char*)malloc(dest_len);
     int s_i = idx1, d_i = 0;
     while((step > 0 && s_i >= idx1 && s_i < idx2) ||
