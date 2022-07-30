@@ -73,6 +73,7 @@ def test_24(a, /, b, c, *d, **e):
 def test_25(a, /, b, c, *d, e, **f):
     pass
 
+# Function Calls
 test()
 test(x, y)
 test(x, y = 1, z = '123')
@@ -89,3 +90,9 @@ test()["version"]
 test(x, y)["version"]
 test(x, *y)[:-1]
 test()[1][1]
+
+x["numpystr"]()
+x['int']()
+x[func](*args, **kwargs)
+test[0](*test[1:])
+(obj*self._arr.ndim)(*self._arr.shape)
