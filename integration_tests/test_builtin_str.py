@@ -60,6 +60,7 @@ def test_str_slice_step():
     assert s[start:end:step] == "bcd"
     assert s[start:2*end-3:step] == "bcde"
     assert s[start:2*end-3:-step] == ""
+    assert s[::-1] == "kjihgfedcba"
 
 
 test_str_int()
