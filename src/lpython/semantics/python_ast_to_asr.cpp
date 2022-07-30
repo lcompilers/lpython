@@ -1919,26 +1919,6 @@ public:
                 tmp = ASR::make_ListSection_t(al, loc, value, ai, type, nullptr);
                 return false;
             } else if (ASR::is_a<ASR::Character_t>(*type)) {
-                ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-                // If left is not present, assign it to the first ASR index (0 + 1) in string
-                if (ai.m_left == nullptr) {
-                    ai.m_left = ASR::down_cast<ASR::expr_t>(
-                    ASR::make_IntegerConstant_t(al, loc, 1, int_type));
-                } else {
-                    ai.m_left = index_add_one(loc, ai.m_left);
-                }
-                // If right is not present, then assign it to the last ASR index (-1 + 1) in string
-                if (ai.m_right == nullptr) {
-                    ai.m_right = ASR::down_cast<ASR::expr_t>(
-                    ASR::make_IntegerConstant_t(al, loc, 0, int_type));
-                }
-                // If step is not present, assign it to 1 (step should be always present)
-                if (ai.m_step == nullptr) {
-                    ai.m_step = ASR::down_cast<ASR::expr_t>(
-                    ASR::make_IntegerConstant_t(al, loc, 1, int_type));
-                } else {
-                    ai.m_step = index_add_one(loc, ai.m_step);
-                }
                 tmp = ASR::make_StringSection_t(al, loc, value, ai.m_left, ai.m_right,
                     ai.m_step, type, nullptr);
                 return false;
