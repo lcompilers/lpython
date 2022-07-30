@@ -251,6 +251,7 @@ public:
 
     std::unique_ptr<LLVMUtils> llvm_utils;
     std::unique_ptr<LLVMList> list_api;
+    std::unique_ptr<LLVMTuple> tuple_api;
     std::unique_ptr<LLVMArrUtils::Descriptor> arr_descr;
 
     uint64_t ptr_loads;
@@ -265,6 +266,7 @@ public:
     prototype_only(false),
     llvm_utils(std::make_unique<LLVMUtils>(context, builder.get())),
     list_api(std::make_unique<LLVMList>(context, llvm_utils.get(), builder.get())),
+    tuple_api(std::make_unique<LLVMTuple>(context, llvm_utils.get(), builder.get())),
     arr_descr(LLVMArrUtils::Descriptor::get_descriptor(context,
               builder.get(),
               llvm_utils.get(),
@@ -1159,6 +1161,32 @@ public:
         tmp = const_list;
     }
 
+    void visit_TupleConstant(const ASR::TupleConstant_t& x) {
+        ASR::Tuple_t* tuple_type = ASR::down_cast<ASR::Tuple_t>(x.m_type);
+        std::string type_code = ASRUtils::get_type_code(tuple_type->m_type,
+                                                        tuple_type->n_type);
+        std::vector<llvm::Type*> llvm_el_types;
+        ASR::storage_typeType m_storage = ASR::storage_typeType::Default;
+        bool is_array_type = false, is_malloc_array_type = false;
+        bool is_list = false;
+        ASR::dimension_t* m_dims = nullptr;
+        int n_dims = 0, a_kind = -1;
+        for( size_t i = 0; i < tuple_type->n_type; i++ ) {
+            llvm_el_types.push_back(get_type_from_ttype_t(tuple_type->m_type[i],
+                                    m_storage, is_array_type, is_malloc_array_type,
+                                    is_list, m_dims, n_dims, a_kind));
+        }
+        llvm::Type* const_tuple_type = tuple_api->get_tuple_type(type_code, llvm_el_types);
+        llvm::Value* const_tuple = builder->CreateAlloca(const_tuple_type, nullptr, "const_tuple");
+        std::vector<llvm::Value*> init_values;
+        for( size_t i = 0; i < x.n_elements; i++ ) {
+            this->visit_expr(*x.m_elements[i]);
+            init_values.push_back(tmp);
+        }
+        tuple_api->tuple_init(const_tuple, init_values);
+        tmp = const_tuple;
+    }
+
     void visit_ListAppend(const ASR::ListAppend_t& x) {
         uint64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
@@ -1185,6 +1213,19 @@ public:
         llvm::Value *pos = tmp;
 
         tmp = list_api->read_item(plist, pos);
+    }
+
+    void visit_TupleItem(const ASR::TupleItem_t& x) {
+        uint64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_a);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value* ptuple = tmp;
+
+        this->visit_expr_wrapper(x.m_pos, true);
+        llvm::Value *pos = tmp;
+
+        tmp = tuple_api->read_item(ptuple, pos);
     }
 
     void visit_ArrayItem(const ASR::ArrayItem_t& x) {
@@ -1705,8 +1746,8 @@ public:
             case (ASR::ttypeType::Pointer) : {
                 ASR::ttype_t *t2 = ASR::down_cast<ASR::Pointer_t>(asr_type)->m_type;
                 llvm_type = get_type_from_ttype_t(t2, m_storage, is_array_type,
-                                        is_malloc_array_type, is_list, m_dims, n_dims,
-                                        a_kind);
+                                        is_malloc_array_type, is_list, m_dims,
+                                        n_dims, a_kind);
                 llvm_type = llvm_type->getPointerTo();
                 break;
             }
@@ -1715,9 +1756,29 @@ public:
                 ASR::List_t* asr_list = ASR::down_cast<ASR::List_t>(asr_type);
                 llvm::Type* el_llvm_type = get_type_from_ttype_t(asr_list->m_type, m_storage,
                                                                  is_array_type, is_malloc_array_type,
-                                                                 is_list, m_dims, n_dims, a_kind);
+                                                                 is_list, m_dims, n_dims,
+                                                                 a_kind);
                 std::string el_type_code = ASRUtils::get_type_code(asr_list->m_type);
                 llvm_type = list_api->get_list_type(el_llvm_type, el_type_code, a_kind);
+                break;
+            }
+            case (ASR::ttypeType::Tuple) : {
+                ASR::Tuple_t* asr_tuple = ASR::down_cast<ASR::Tuple_t>(asr_type);
+                std::string type_code = ASRUtils::get_type_code(asr_tuple->m_type,
+                                                                asr_tuple->n_type);
+                std::vector<llvm::Type*> llvm_el_types;
+                for( size_t i = 0; i < asr_tuple->n_type; i++ ) {
+                    bool is_local_array_type = false, is_local_malloc_array_type = false;
+                    bool is_local_list = false;
+                    ASR::dimension_t* local_m_dims = nullptr;
+                    int local_n_dims = 0;
+                    int local_a_kind = -1;
+                    ASR::storage_typeType local_m_storage = ASR::storage_typeType::Default;
+                    llvm_el_types.push_back(get_type_from_ttype_t(asr_tuple->m_type[i], local_m_storage,
+                                            is_local_array_type, is_local_malloc_array_type,
+                                            is_local_list, local_m_dims, local_n_dims, local_a_kind));
+                }
+                llvm_type = tuple_api->get_tuple_type(type_code, llvm_el_types);
                 break;
             }
             case (ASR::ttypeType::CPtr) : {
@@ -2843,9 +2904,12 @@ public:
             return ;
         }
 
-        // TODO: Remove this check after supporting ListConstant
-        bool is_target_list = ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_target));
-        bool is_value_list = ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_value));
+        ASR::ttype_t* asr_target_type = ASRUtils::expr_type(x.m_target);
+        ASR::ttype_t* asr_value_type = ASRUtils::expr_type(x.m_value);
+        bool is_target_list = ASR::is_a<ASR::List_t>(*asr_target_type);
+        bool is_value_list = ASR::is_a<ASR::List_t>(*asr_value_type);
+        bool is_target_tuple = ASR::is_a<ASR::Tuple_t>(*asr_target_type);
+        bool is_value_tuple = ASR::is_a<ASR::Tuple_t>(*asr_value_type);
         if( is_target_list && is_value_list ) {
             uint64_t ptr_loads_copy = ptr_loads;
             ptr_loads = 0;
@@ -2858,6 +2922,42 @@ public:
                                             ASRUtils::expr_type(x.m_value));
             std::string value_type_code = ASRUtils::get_type_code(value_asr_list->m_type);
             list_api->list_deepcopy(value_list, target_list, value_type_code, *module);
+            return ;
+        } else if( is_target_tuple && is_value_tuple ) {
+            uint64_t ptr_loads_copy = ptr_loads;
+            ptr_loads = 0;
+            this->visit_expr(*x.m_value);
+            llvm::Value* value_tuple = tmp;
+            if( ASR::is_a<ASR::TupleConstant_t>(*x.m_target) ) {
+                ptr_loads = ptr_loads_copy;
+                ASR::TupleConstant_t* const_tuple = ASR::down_cast<ASR::TupleConstant_t>(x.m_target);
+                for( size_t i = 0; i < const_tuple->n_elements; i++ ) {
+                    // TODO: Adjust for global variables as well
+                    // See if-else check on llvm_symtab for the logic
+                    ASR::Variable_t *target_var = EXPR2VAR(const_tuple->m_elements[i]);
+                    uint32_t h = get_hash((ASR::asr_t*)target_var);
+                    llvm::Value* target_ptr = nullptr;
+                    if (llvm_symtab.find(h) != llvm_symtab.end()) {
+                        target_ptr = llvm_symtab[h];
+                        if (ASR::is_a<ASR::Pointer_t>(*target_var->m_type)) {
+                            target_ptr = CreateLoad(target_ptr);
+                        }
+                    } else {
+                        throw CodeGenError("Support for unpacking tuple value to "
+                                           "a global variable is not available yet.");
+                    }
+                    llvm::Value* item = tuple_api->read_item(value_tuple, i, false);
+                    builder->CreateStore(item, target_ptr);
+                }
+            } else {
+                this->visit_expr(*x.m_target);
+                llvm::Value* target_tuple = tmp;
+                ptr_loads = ptr_loads_copy;
+                ASR::Tuple_t* value_tuple_type = ASR::down_cast<ASR::Tuple_t>(asr_value_type);
+                std::string type_code = ASRUtils::get_type_code(value_tuple_type->m_type,
+                                                                value_tuple_type->n_type);
+                tuple_api->tuple_deepcopy(value_tuple, target_tuple, type_code);
+            }
             return ;
         }
         if( ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
