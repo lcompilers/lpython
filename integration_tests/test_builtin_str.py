@@ -30,14 +30,38 @@ def str_conv_for_variables():
     yy = 12.322234
     assert str(yy) == "12.322234"
     bool_t :bool
-    bool_t = True 
+    bool_t = True
     assert str(bool_t) == "True"
     bool_t = False
     assert str(bool_t) == "False"
-    str_t :str 
+    str_t :str
     str_t = "just a str"
     assert str(str_t) == str_t
 
 
+def test_str_slice_step():
+    s: str
+    start: i32
+    end: i32
+    step: i32
+    s = "abcdefghijk"
+    start = 1
+    end = 4
+    step = 1
+    assert s[3:12:3] == "dgj"
+    assert s[3:9:3] == "dg"
+    assert s[10:3:-2] == "kige"
+    assert s[::] == "abcdefghijk"
+    assert s[1:4:] == "bcd"
+    assert s[:4:5] == "a"
+    assert s[-2:-10] == ""
+    assert s[-3:-9:-3] == "if"
+    assert s[-3:-10:-3] == "ifc"
+    assert s[start:end:step] == "bcd"
+    assert s[start:2*end-3:step] == "bcde"
+    assert s[start:2*end-3:-step] == ""
+
+
 test_str_int()
 str_conv_for_variables()
+test_str_slice_step()
