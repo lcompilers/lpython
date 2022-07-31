@@ -616,6 +616,13 @@ parameter_list_starargs
     | defparameter_list "," "/" "," defparameter_list "," "*" parameter
             "," defparameter_list "," "**" parameter {
         $$ = STAR_ARGS_20($1, $5, $8, $10, $13, @$); }
+    | defparameter_list "," "/" "," "*" "," defparameter_list {
+        $$ = STAR_ARGS_21($1, $7, @$); }
+    | defparameter_list "," "/" "," defparameter_list "," 
+        "*" "," defparameter_list { $$ = STAR_ARGS_22($1, $5, $9, @$); }
+    | defparameter_list "," "*" "," defparameter_list {
+        $$ = STAR_ARGS_23($1, $5, @$); }
+    | "*" "," defparameter_list { $$ = STAR_ARGS_24($3, @$); }
     ;
 
 parameter_list_opt
