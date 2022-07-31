@@ -73,6 +73,30 @@ def test_24(a, /, b, c, *d, **e):
 def test_25(a, /, b, c, *d, e, **f):
     pass
 
+def test_26(*, a):
+    pass
+
+def test_27(*, a, **b):
+    pass
+
+def test_28(a, *, b):
+    pass
+
+def test_29(a, *, b, **c):
+    pass
+
+def test_30(a, /, *, b):
+    pass
+
+def test_31(a, /, b, *, c):
+    pass
+
+def test_32(a, /, *, c, **d):
+    pass
+
+def test_33(a, /, b, *, c, **d):
+    pass
+
 # Function Calls
 test()
 test(x, y)
