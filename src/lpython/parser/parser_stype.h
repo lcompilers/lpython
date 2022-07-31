@@ -39,7 +39,6 @@ struct Args_ {
 
 struct Fn_Arg {
     Vec<Arg*> posonlyargs;
-    bool posonlyarg;
     bool args_val;
     Args_ *args;
 };

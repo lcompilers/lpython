@@ -379,9 +379,13 @@ Arg** ARG2LIST(Allocator &al, Arg *x) {
     return v;
 }
 
-#define FUNC_ARGS_(x, kw) \
+#define FUNC_ARGS1_(x) \
         Vec<arg_t> _m_##x; \
         _m_##x.reserve(al, 4); \
+        r->arguments.m_##x = _m_##x.p; \
+        r->arguments.n_##x = _m_##x.n;
+
+#define FUNC_ARGS_(x, kw) \
         if(n_##x > 0) { \
             for(size_t i = 0; i < n_##x; i++) { \
                 _m_##x.push_back(al, m_##x[i]->_arg); \
@@ -391,9 +395,9 @@ Arg** ARG2LIST(Allocator &al, Arg *x) {
                     kw_defaults.push_back(al, m_##x[i]->defaults); \
                 } \
             } \
-        } \
-        r->arguments.m_##x = _m_##x.p; \
-        r->arguments.n_##x = _m_##x.n;
+            r->arguments.m_##x = _m_##x.p; \
+            r->arguments.n_##x = _m_##x.n; \
+        }
 
 static inline Args *FUNC_ARGS_01(Allocator &al, Location &l, Fn_Arg *parameters) {
     Args *r = al.allocate<Args>();
@@ -401,6 +405,12 @@ static inline Args *FUNC_ARGS_01(Allocator &al, Location &l, Fn_Arg *parameters)
     defaults.reserve(al, 4);
     Vec<expr_t*> kw_defaults;
     kw_defaults.reserve(al, 4);
+
+    FUNC_ARGS1_(posonlyargs);
+    FUNC_ARGS1_(args);
+    FUNC_ARGS1_(vararg);
+    FUNC_ARGS1_(kwonlyargs);
+    FUNC_ARGS1_(kwarg);
 
     r->arguments.loc = l;
     if(parameters != nullptr) {
@@ -427,7 +437,6 @@ static inline Args *FUNC_ARGS_01(Allocator &al, Location &l, Fn_Arg *parameters)
             FUNC_ARGS_(kwarg, true);
         }
     }
-
     r->arguments.m_kw_defaults = kw_defaults.p;
     r->arguments.n_kw_defaults = kw_defaults.n;
     r->arguments.m_defaults = defaults.p;
@@ -449,25 +458,20 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
     Vec<expr_t*> kw_defaults;
     kw_defaults.reserve(al, 4);
 
+    FUNC_ARGS1_(posonlyargs);
+    FUNC_ARGS1_(args);
+    FUNC_ARGS1_(vararg);
+    FUNC_ARGS1_(kwonlyargs);
+    FUNC_ARGS1_(kwarg);
+
+    r->arguments.loc = l;
     FUNC_ARGS_(posonlyargs, false);
     FUNC_ARGS_(args, false);
     FUNC_ARGS_(vararg, false);
     FUNC_ARGS_(kwonlyargs, true);
     FUNC_ARGS_(kwarg, true);
-
-    r->arguments.loc = l;
-    r->arguments.m_posonlyargs = _m_posonlyargs.p;
-    r->arguments.n_posonlyargs = _m_posonlyargs.n;
-    r->arguments.m_args = _m_args.p;
-    r->arguments.n_args = _m_args.n;
-    r->arguments.m_vararg = _m_vararg.p;
-    r->arguments.n_vararg = _m_vararg.n;
-    r->arguments.m_kwonlyargs = _m_kwonlyargs.p;
-    r->arguments.n_kwonlyargs = _m_kwonlyargs.n;
     r->arguments.m_kw_defaults = kw_defaults.p;
     r->arguments.n_kw_defaults = kw_defaults.n;
-    r->arguments.m_kwarg = _m_kwarg.p;
-    r->arguments.n_kwarg = _m_kwarg.n;
     r->arguments.m_defaults = defaults.p;
     r->arguments.n_defaults = defaults.n;
     return r;
@@ -500,11 +504,10 @@ static inline Fn_Arg *FN_ARG(Allocator &al, Arg** m_posonlyargs,
     r->posonlyargs.n = n_posonlyargs;
     if(args) {
         r->args_val = true;
-        r->args = args;
     } else {
         r->args_val = false;
-        r->args = args;
     }
+    r->args = args;
     return r;
 }
 
@@ -515,11 +518,10 @@ static inline Args_ *ARGS(Allocator &al, Arg** m_args,
     r->args.n = n_args;
     if(var_kw) {
         r->var_kw_val = true;
-        r->var_kw = var_kw;
     } else {
         r->var_kw_val = false;
-        r->var_kw = var_kw;
     }
+    r->var_kw = var_kw;
     return r;
 }
 
