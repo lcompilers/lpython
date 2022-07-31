@@ -48,23 +48,20 @@ def test_02(a,  #   type:int
     b):
     pass
 
-
-# TODO: Make the commented out example work.
-
 def quantiles(dist, /, *, n):
     ...
 
-# def quantiles(dist, /, *, n=4, method='exclusive'):
-#     ...
+def quantiles(dist, /, *, n=4, method='exclusive'):
+    ...
 
 def func(self, param1, param2, /, param3, *, param4, param5):
     ...
 
-# def func(self, param1, param2, /, param3=7, *, param4, param5):
-#     ...
+def func(self, param1, param2, /, param3=7, *, param4, param5):
+    ...
 
-# def func(self, param1, param2, /, param3, param3_1=2, *, param4, param5):
-#     ...
+def func(self, param1, param2, /, param3, param3_1=2, *, param4, param5):
+    ...
 
 
 def add(a, b, *, c, d):
