@@ -25,6 +25,25 @@ struct Arg {
     LPython::AST::expr_t *defaults;
 };
 
+struct Var_Kw {
+    Vec<Arg*> vararg;
+    Vec<Arg*> kwonlyargs;
+    Vec<Arg*> kwarg;
+};
+
+struct Args_ {
+    Vec<Arg*> args;
+    bool var_kw_val;
+    Var_Kw *var_kw;
+};
+
+struct Fn_Arg {
+    Vec<Arg*> posonlyargs;
+    bool posonlyarg;
+    bool args_val;
+    Args_ *args;
+};
+
 union YYSTYPE {
     int64_t n;
     double f;
@@ -41,6 +60,10 @@ union YYSTYPE {
 
     Args *args;
     Vec<Args> vec_args;
+
+    Fn_Arg *fn_arg;
+    Args_ *args_;
+    Var_Kw *var_kw;
 
     Key_Val *key_val;
     Vec<Key_Val*> vec_key_val;

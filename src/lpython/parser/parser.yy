@@ -216,7 +216,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> function_def
 %type <args> parameter_list_opt
 %type <arg> parameter
-%type <args> parameter_list_starargs
+%type <fn_arg> parameter_list
+%type <args_> parameter_list_no_posonly
+%type <var_kw> parameter_list_starargs
 %type <vec_arg> defparameter_list
 %type <vec_ast> decorators
 %type <vec_ast> decorators_opt
@@ -577,62 +579,43 @@ defparameter_list
     | parameter { LIST_NEW($$); LIST_ADD($$, $1); }
     | defparameter_list "," TK_TYPE_COMMENT parameter { $$ = $1;
         LIST_ADD($$, $4); ADD_TYPE_COMMENT($1, $3, @$); }
+    | defparameter_list "," TK_TYPE_COMMENT {
+        $$ = $1; ADD_TYPE_COMMENT($1, $3, @$); }
+    ;
+
+parameter_list
+    : defparameter_list "," "/" comma_opt {
+        $$ = PARAMETER_LIST_01($1, nullptr); }
+    | defparameter_list "," "/" "," parameter_list_no_posonly {
+        $$ = PARAMETER_LIST_01($1, $5); }
+    | parameter_list_no_posonly { $$ = PARAMETER_LIST_02($1); }
+    ;
+
+parameter_list_no_posonly
+    : defparameter_list comma_opt { $$ = PARAMETER_LIST_03($1, nullptr); }
+    | defparameter_list "," parameter_list_starargs {
+        $$ = PARAMETER_LIST_03($1, $3); }
+    | parameter_list_starargs { $$ = PARAMETER_LIST_04($1); }
     ;
 
 parameter_list_starargs
-    : "*" parameter { $$ = STAR_ARGS_01($2, @$); }
-    | "*" parameter "," defparameter_list { $$ = STAR_ARGS_02($2, $4, @$); }
-    | "*" parameter "," defparameter_list "," "**" parameter {
-        $$ = STAR_ARGS_03($2, $4, $7, @$); }
-    | "*" parameter "," "**" parameter { $$ = STAR_ARGS_04($2, $5, @$); }
-    | "**" parameter { $$ = STAR_ARGS_05($2, @$); }
-
-    | defparameter_list "," "*" parameter { $$ = STAR_ARGS_06($1, $4, @$); }
-    | defparameter_list "," "*" parameter "," defparameter_list {
-        $$ = STAR_ARGS_07($1, $4, $6, @$); }
-    | defparameter_list "," "*" parameter "," defparameter_list "," "**" parameter {
-        $$ = STAR_ARGS_08($1, $4, $6, $9, @$); }
-    | defparameter_list "," "*" parameter "," "**" parameter {
-        $$ = STAR_ARGS_09($1, $4, $7, @$); }
-    | defparameter_list "," "**" parameter { $$ = STAR_ARGS_10($1, $4, @$); }
-
-    | defparameter_list "," "/" { $$ = STAR_ARGS_11($1, @$); }
-    | defparameter_list "," "/" "," "*" parameter {
-        $$ = STAR_ARGS_12($1, $6, @$); }
-    | defparameter_list "," "/" "," "*" parameter "," defparameter_list {
-        $$ = STAR_ARGS_13($1, $6, $8, @$); }
-    | defparameter_list "," "/" "," "*" parameter "," defparameter_list
-        "," "**" parameter { $$ = STAR_ARGS_14($1, $6, $8, $11, @$); }
-    | defparameter_list "," "/" "," "**" parameter {
-        $$ = STAR_ARGS_15($1, $6, @$); }
-    | defparameter_list "," "/" "," "*" parameter "," "**" parameter {
-        $$ = STAR_ARGS_16($1, $6, $9, @$); }
-    | defparameter_list "," "/" "," defparameter_list "," "*" parameter {
-        $$ = STAR_ARGS_17($1, $5, $8, @$); }
-    | defparameter_list "," "/" "," defparameter_list "," "**" parameter {
-        $$ = STAR_ARGS_18($1, $5, $8, @$); }
-    | defparameter_list "," "/" "," defparameter_list "," "*" parameter
-        "," "**" parameter { $$ = STAR_ARGS_19($1, $5, $8, $11, @$); }
-    | defparameter_list "," "/" "," defparameter_list "," "*" parameter
-            "," defparameter_list "," "**" parameter {
-        $$ = STAR_ARGS_20($1, $5, $8, $10, $13, @$); }
-    | defparameter_list "," "/" "," "*" "," defparameter_list {
-        $$ = STAR_ARGS_21($1, $7, @$); }
-    | defparameter_list "," "/" "," defparameter_list "," 
-        "*" "," defparameter_list { $$ = STAR_ARGS_22($1, $5, $9, @$); }
-    | defparameter_list "," "*" "," defparameter_list {
-        $$ = STAR_ARGS_23($1, $5, @$); }
-    | "*" "," defparameter_list { $$ = STAR_ARGS_24($3, @$); }
+    : "*" "," defparameter_list comma_opt { $$ = PARAMETER_LIST_05($3); }
+    | "*" "," "**" parameter comma_opt { $$ = PARAMETER_LIST_06($4); }
+    | "*" "," defparameter_list "," "**" parameter comma_opt {
+        $$ = PARAMETER_LIST_07($3, $6); }
+    | "*" parameter comma_opt { $$ = PARAMETER_LIST_08($2); }
+    | "*" parameter "," defparameter_list comma_opt {
+        $$ = PARAMETER_LIST_09($2, $4); }
+    | "*" parameter "," "**" parameter comma_opt {
+        $$ = PARAMETER_LIST_10($2, $5); }
+    | "*" parameter "," defparameter_list "," "**" parameter comma_opt {
+        $$ = PARAMETER_LIST_11($2, $4, $7); }
+    | "**" parameter comma_opt { $$ = PARAMETER_LIST_06($2); }
     ;
 
 parameter_list_opt
-    : defparameter_list comma_opt { $$ = FUNC_ARG_LIST_01($1, @$); }
-    | defparameter_list "," TK_TYPE_COMMENT { ADD_TYPE_COMMENT($1, $3, @$);
-        $$ = FUNC_ARG_LIST_01($1, @$); }
-    | parameter_list_starargs { $$ = $1; }
-    | %empty { $$ = FUNC_ARG_LIST_02(@$); }
-    | defparameter_list "," "/" "," defparameter_list {
-        $$ = FUNC_ARG_LIST_03($1, $5, @$); }
+    : parameter_list { $$ = FUNC_ARGS_01(p.m_a, @$, $1); }
+    | %empty { $$ = PARAMETER_LIST_12(@$); }
     ;
 
 comma_opt
@@ -869,7 +852,7 @@ lambda_id_list
 
 lambda_expression
     : KW_LAMBDA ":" expr %prec LAMBDA {
-        $$ = LAMBDA_01(FUNC_ARG_LIST_02(@$), $3, @$); }
+        $$ = LAMBDA_01(PARAMETER_LIST_12(@$), $3, @$); }
     | KW_LAMBDA lambda_id_list ":" expr %prec LAMBDA {
         $$ = LAMBDA_01(FUNC_ARG_LIST_01($2, @$), $4, @$); }
     ;
