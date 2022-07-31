@@ -1,4 +1,16 @@
 from ltypes import f64, f32, ccall, vectorize, overload
+from numpy import empty, int64
+
+n: i32
+n = TypeVar("n")
+
+def zeros(n: i32) -> f64[n]:
+    A: f64[n]
+    A = empty(n)
+    i: i32
+    for i in range(n):
+        A[i] = 0.0
+    return A
 
 ########## sin ##########
 

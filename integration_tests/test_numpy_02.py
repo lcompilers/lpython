@@ -1,7 +1,7 @@
 # This test handles actual LPython implementations of functions from the numpy
 # module.
 from ltypes import i32, i64, f32, f64, c32, c64, TypeVar, overload
-from numpy import empty, int64
+from numpy import empty, int64, zeros
 
 e: f64 = 2.718281828459045
 pi: f64 = 3.141592653589793
@@ -14,14 +14,6 @@ eps = 1e-12
 
 n: i32
 n = TypeVar("n")
-
-def zeros(n: i32) -> f64[n]:
-    A: f64[n]
-    A = empty(n)
-    i: i32
-    for i in range(n):
-        A[i] = 0.0
-    return A
 
 def ones(n: i32) -> f64[n]:
     A: f64[n]
