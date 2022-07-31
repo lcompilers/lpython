@@ -376,14 +376,16 @@ Arg** ARG2LIST(Allocator &al, Arg *x) {
     return v;
 }
 
-#define FUNC_ARGS_(x) \
+#define FUNC_ARGS_(x, kw) \
         Vec<arg_t> _m_##x; \
         _m_##x.reserve(al, 4); \
         if(n_##x > 0) { \
             for(size_t i = 0; i < n_##x; i++) { \
                 _m_##x.push_back(al, m_##x[i]->_arg); \
-                if(m_##x[i]->default_value) { \
+                if(m_##x[i]->default_value && !kw) { \
                     defaults.push_back(al, m_##x[i]->defaults); \
+                } else if (m_##x[i]->default_value){ \
+                    kw_defaults.push_back(al, m_##x[i]->defaults); \
                 } \
             } \
         }
@@ -400,11 +402,11 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
     Vec<expr_t*> kw_defaults;
     kw_defaults.reserve(al, 4);
 
-    FUNC_ARGS_(posonlyargs);
-    FUNC_ARGS_(args);
-    FUNC_ARGS_(vararg);
-    FUNC_ARGS_(kwonlyargs);
-    FUNC_ARGS_(kwarg);
+    FUNC_ARGS_(posonlyargs, false);
+    FUNC_ARGS_(args, false);
+    FUNC_ARGS_(vararg, false);
+    FUNC_ARGS_(kwonlyargs, true);
+    FUNC_ARGS_(kwarg, true);
 
     r->arguments.loc = l;
     r->arguments.m_posonlyargs = _m_posonlyargs.p;
@@ -701,7 +703,7 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
     for (size_t i = 0; i < strlen(prefix); i++) {
         prefix[i] = tolower(prefix[i]);
     }
-    if (strcmp(prefix, "f") == 0 || strcmp(prefix, "fr") == 0 
+    if (strcmp(prefix, "f") == 0 || strcmp(prefix, "fr") == 0
             || strcmp(prefix, "rf") == 0) {
         std::string str = std::string(s);
         std::string s1 = "\"";
@@ -746,7 +748,7 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
             }
         }
         tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
-    } else if (strcmp(prefix, "b") == 0 || strcmp(prefix, "br") == 0 
+    } else if (strcmp(prefix, "b") == 0 || strcmp(prefix, "br") == 0
             || strcmp(prefix, "rb") == 0) {
         std::string str = std::string(s);
         size_t start_pos = 0;
