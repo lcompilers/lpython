@@ -234,6 +234,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <keyword> keyword_item
 %type <vec_keyword> keyword_items
 %type <ast> function_call
+%type <vec_ast> call_arguement_list
 %type <ast> primary
 %type <ast> while_statement
 %type <vec_ast> sep
@@ -243,7 +244,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 /* %type <ast> list_comprehension */
 %type <vec_ast> id_list
 %type <ast> id_item
-%type <ast> subscription
+%type <ast> subscript
 %type <comp> comp_for
 %type <vec_comp> comp_for_items
 %type <ast> lambda_expression
@@ -807,28 +808,35 @@ comp_for_items
     | comp_for { LIST_NEW($$); PLIST_ADD($$, $1); }
     ;
 
+call_arguement_list
+    : expr_list_opt { $$ = $1; }
+    | expr_list "," { $$ = $1; }
+    | expr comp_for_items { $$ = A2LIST(p.m_a, GENERATOR_EXPR($1, $2, @$)); }
+    ;
+
 function_call
-    : primary "(" expr_list_opt ")" { $$ = CALL_01($1, $3, @$); }
-    | primary "(" expr_list "," ")" { $$ = CALL_01($1, $3, @$); }
+    : primary "(" call_arguement_list ")" { $$ = CALL_01($1, $3, @$); }
     | primary "(" expr_list "," keyword_items comma_opt ")" {
         $$ = CALL_02($1, $3, $5, @$); }
     | primary "(" keyword_items "," expr_list comma_opt ")" {
         $$ = CALL_02($1, $5, $3, @$); }
     | primary "(" keyword_items comma_opt ")" { $$ = CALL_03($1, $3, @$); }
-    | primary "(" expr comp_for_items ")" {
-        $$ = CALL_04($1, GENERATOR_EXPR($3, $4, @$), @$); }
-    | function_call "(" expr_list_opt ")" { $$ = CALL_01($1, $3, @$); }
-    | function_call "(" expr_list "," ")" { $$ = CALL_01($1, $3, @$); }
+    | function_call "(" call_arguement_list ")" { $$ = CALL_01($1, $3, @$); }
     | function_call "(" expr_list "," keyword_items comma_opt ")" {
         $$ = CALL_02($1, $3, $5, @$); }
     | function_call "(" keyword_items "," expr_list comma_opt ")" {
         $$ = CALL_02($1, $5, $3, @$); }
     | function_call "(" keyword_items comma_opt ")" { $$ = CALL_03($1, $3, @$); }
-    | function_call "(" expr comp_for_items ")" {
-        $$ = CALL_04($1, GENERATOR_EXPR($3, $4, @$), @$); }
+    | subscript "(" call_arguement_list ")" { $$ = CALL_01($1, $3, @$); }
+    | subscript "(" expr_list "," keyword_items comma_opt ")" {
+        $$ = CALL_02($1, $3, $5, @$); }
+    | subscript "(" keyword_items "," expr_list comma_opt ")" {
+        $$ = CALL_02($1, $5, $3, @$); }
+    | subscript "(" keyword_items comma_opt ")" { $$ = CALL_03($1, $3, @$); }
+    | "(" expr ")" "(" call_arguement_list ")" { $$ = CALL_01($2, $5, @$); }
     ;
 
-subscription
+subscript
     : primary "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
     | function_call "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
     | "[" expr_list_opt "]" "[" tuple_list "]" {
@@ -838,7 +846,7 @@ subscription
     | "(" expr ")" "[" tuple_list "]" { $$ = SUBSCRIPT_01($2, $5, @$); }
     | "{" dict_list comma_opt "}" "[" tuple_list "]" {
         $$ = SUBSCRIPT_01(DICT_02($2, @$), $6, @$); }
-    | subscription "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
+    | subscript "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
     ;
 
 string
@@ -874,7 +882,7 @@ expr
     | "(" expr_list "," ")" { $$ = TUPLE_03($2, @$); }
     | "(" expr_list "," expr ")" { $$ = TUPLE_01(TUPLE_($2, $4), @$); }
     | function_call { $$ = $1; }
-    | subscription { $$ = $1; }
+    | subscript { $$ = $1; }
     | "[" expr_list_opt "]" { $$ = LIST($2, @$); }
     | "[" expr_list "," "]" { $$ = LIST($2, @$); }
     | "{" expr_list "}" { $$ = SET($2, @$); }

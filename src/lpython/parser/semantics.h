@@ -689,7 +689,7 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
     for (size_t i = 0; i < strlen(prefix); i++) {
         prefix[i] = tolower(prefix[i]);
     }
-    if (strcmp(prefix, "f") == 0 || strcmp(prefix, "fr") == 0 
+    if (strcmp(prefix, "f") == 0 || strcmp(prefix, "fr") == 0
             || strcmp(prefix, "rf") == 0) {
         std::string str = std::string(s);
         std::string s1 = "\"";
@@ -734,7 +734,7 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
             }
         }
         tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
-    } else if (strcmp(prefix, "b") == 0 || strcmp(prefix, "br") == 0 
+    } else if (strcmp(prefix, "b") == 0 || strcmp(prefix, "br") == 0
             || strcmp(prefix, "rb") == 0) {
         std::string str = std::string(s);
         size_t start_pos = 0;
@@ -784,8 +784,6 @@ static inline comprehension_t *COMP(Allocator &al, Location &l,
         EXPR(func), EXPRS(args), args.size(), keywords.p, keywords.size())
 #define CALL_03(func, keywords, l) make_Call_t(p.m_a, l, \
         EXPR(func), nullptr, 0, keywords.p, keywords.size())
-#define CALL_04(func, args, l) make_Call_t(p.m_a, l, \
-        EXPR(func), EXPRS(A2LIST(p.m_a, args)), 1, nullptr, 0)
 
 #define COMP_FOR_01(target, iter, l) COMP(p.m_a, l, \
         EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), nullptr, 0, 0)
