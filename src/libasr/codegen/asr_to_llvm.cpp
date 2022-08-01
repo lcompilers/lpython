@@ -1166,16 +1166,25 @@ public:
         ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(x.m_type);
         llvm::Type* llvm_el_type = get_el_type(list_type->m_type);
         std::string type_code = ASRUtils::get_type_code(list_type->m_type);
-        int32_t type_size = ASRUtils::extract_kind_from_ttype_t(list_type->m_type);
+        int32_t type_size = -1;
+        if( ASR::is_a<ASR::Character_t>(*list_type->m_type) ) {
+            llvm::DataLayout data_layout(module.get());
+            type_size = data_layout.getTypeAllocSize(llvm_el_type);
+        } else {
+            type_size = ASRUtils::extract_kind_from_ttype_t(list_type->m_type);
+        }
         llvm::Type* const_list_type = list_api->get_list_type(llvm_el_type, type_code, type_size);
         llvm::Value* const_list = builder->CreateAlloca(const_list_type, nullptr, "const_list");
         list_api->list_init(type_code, const_list, *module, x.n_args, x.n_args);
+        uint64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 1;
         for( size_t i = 0; i < x.n_args; i++ ) {
             this->visit_expr(*x.m_args[i]);
             llvm::Value* item = tmp;
             llvm::Value* pos = llvm::ConstantInt::get(context, llvm::APInt(32, i));
             list_api->write_item(const_list, pos, item);
         }
+        ptr_loads = ptr_loads_copy;
         tmp = const_list;
     }
 
@@ -1777,7 +1786,14 @@ public:
                                                                  is_list, m_dims, n_dims,
                                                                  a_kind);
                 std::string el_type_code = ASRUtils::get_type_code(asr_list->m_type);
-                llvm_type = list_api->get_list_type(el_llvm_type, el_type_code, a_kind);
+                int32_t type_size = -1;
+                if( ASR::is_a<ASR::Character_t>(*asr_list->m_type) ) {
+                    llvm::DataLayout data_layout(module.get());
+                    type_size = data_layout.getTypeAllocSize(el_llvm_type);
+                } else {
+                    type_size = a_kind;
+                }
+                llvm_type = list_api->get_list_type(el_llvm_type, el_type_code, type_size);
                 break;
             }
             case (ASR::ttypeType::Tuple) : {
@@ -2993,7 +3009,8 @@ public:
         bool lhs_is_string_arrayref = false;
         if( x.m_target->type == ASR::exprType::ArrayItem ||
             x.m_target->type == ASR::exprType::ArraySection ||
-            x.m_target->type == ASR::exprType::DerivedRef ) {
+            x.m_target->type == ASR::exprType::DerivedRef ||
+            x.m_target->type == ASR::exprType::ListItem ) {
             this->visit_expr(*x.m_target);
             target = tmp;
             if (is_a<ASR::ArrayItem_t>(*x.m_target)) {
@@ -3020,6 +3037,16 @@ public:
                         }
                     }
                 }
+            } else if( ASR::is_a<ASR::ListItem_t>(*x.m_target) ) {
+                ASR::ListItem_t* asr_target0 = ASR::down_cast<ASR::ListItem_t>(x.m_target);
+                uint64_t ptr_loads_copy = ptr_loads;
+                ptr_loads = 0;
+                this->visit_expr(*asr_target0->m_a);
+                ptr_loads = ptr_loads_copy;
+                llvm::Value* list = tmp;
+                this->visit_expr_wrapper(asr_target0->m_pos, true);
+                llvm::Value* pos = tmp;
+                target = list_api->read_item(list, pos, true);
             }
         } else {
             ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
