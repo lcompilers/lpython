@@ -257,6 +257,101 @@ int emit_c(const std::string &infile,
     return 0;
 }
 
+#ifdef HAVE_LFORTRAN_RAPIDJSON
+
+int get_symbols (const std::string &infile,
+   const std::string &runtime_library_dir,
+   CompilerOptions &compiler_options) {
+       Allocator al(4*1024);
+       LFortran::diag::Diagnostics diagnostics;
+       LFortran::LocationManager lm;
+       lm.in_filename = infile;
+       std::string input = LFortran::read_file(infile);
+       lm.init_simple(input);
+       LFortran::Result<LFortran::LPython::AST::ast_t*> r1 = LFortran::parse_python_file(
+           al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+       if (r1.ok) {
+           LFortran::LPython::AST::ast_t* ast = r1.result;
+           LFortran::Result<LFortran::ASR::TranslationUnit_t*>
+               x = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
+                       compiler_options.disable_main, compiler_options.symtab_only, infile);
+           if (!x.ok) {
+               std::cout << "{}\n";
+               return 0;
+           }
+           std::vector<LFortran::LPython::document_symbols> symbol_lists;
+           LFortran::LPython::document_symbols loc;
+           for (auto &a : x.result->m_global_scope->get_scope()) {
+               std::string symbol_name = a.first;
+               uint32_t first_line;
+               uint32_t last_line;
+               uint32_t first_column;
+               uint32_t last_column;
+               lm.pos_to_linecol(a.second->base.loc.first, first_line, first_column);
+               lm.pos_to_linecol(a.second->base.loc.last, last_line, last_column);
+               loc.first_column = first_column;
+               loc.last_column = last_column;
+               loc.first_line = first_line-1;
+               loc.last_line = last_line-1;
+               loc.symbol_name = symbol_name;
+               symbol_lists.push_back(loc);
+           }
+           rapidjson::Document test_output(rapidjson::kArrayType);
+           rapidjson::Document range_object(rapidjson::kObjectType);
+           rapidjson::Document start_detail(rapidjson::kObjectType);
+           rapidjson::Document end_detail(rapidjson::kObjectType);
+           rapidjson::Document location_object(rapidjson::kObjectType);
+           rapidjson::Document test_capture(rapidjson::kObjectType);
+ 
+           test_output.SetArray();
+ 
+           for (auto symbol : symbol_lists) {
+               uint32_t start_character = symbol.first_column;
+               uint32_t start_line = symbol.first_line;
+               uint32_t end_character = symbol.last_column;
+               uint32_t end_line = symbol.last_line;
+               std::string name = symbol.symbol_name;
+ 
+               range_object.SetObject();
+               rapidjson::Document::AllocatorType &allocator = range_object.GetAllocator();
+ 
+               start_detail.SetObject();
+               start_detail.AddMember("character", rapidjson::Value().SetInt(start_character), allocator);
+               start_detail.AddMember("line", rapidjson::Value().SetInt(start_line), allocator);
+               range_object.AddMember("start", start_detail, allocator);
+ 
+               end_detail.SetObject();
+               end_detail.AddMember("character", rapidjson::Value().SetInt(end_character), allocator);
+               end_detail.AddMember("line", rapidjson::Value().SetInt(end_line), allocator);
+               range_object.AddMember("end", end_detail, allocator);
+ 
+               location_object.SetObject();
+               location_object.AddMember("range", range_object, allocator);
+               location_object.AddMember("uri", rapidjson::Value().SetString("uri", allocator), allocator);
+ 
+               test_capture.SetObject();
+               test_capture.AddMember("kind", rapidjson::Value().SetInt(1), allocator);
+               test_capture.AddMember("location", location_object, allocator);
+               test_capture.AddMember("name", rapidjson::Value().SetString(name.c_str(), allocator), allocator);
+               test_output.PushBack(test_capture, test_output.GetAllocator());
+           }
+           rapidjson::StringBuffer buffer;
+           buffer.Clear();
+           rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+           test_output.Accept(writer);
+           std::string resp_str( buffer.GetString() );
+          
+           std::cout << resp_str;
+       }
+       else {
+           std::cout << "{}\n";
+       }
+ 
+   return 0;
+}
+ 
+#endif
+
 #ifdef HAVE_LFORTRAN_LLVM
 
 int emit_llvm(const std::string &infile,
@@ -584,6 +679,7 @@ int main(int argc, char *argv[])
         bool show_asr = false;
         bool show_cpp = false;
         bool show_c = false;
+        bool show_documentSymbols = false;
         bool with_intrinsic_modules = false;
         std::string arg_pass;
         bool arg_no_color = false;
@@ -661,7 +757,8 @@ int main(int argc, char *argv[])
         app.add_option("--target", compiler_options.target, "Generate code for the given target")->capture_default_str();
         app.add_flag("--print-targets", print_targets, "Print the registered targets");
         app.add_flag("--get-rtlib-header-dir", print_rtlib_header_dir, "Print the path to the runtime library header file");
-
+        
+        app.add_flag("--show-documentSymbols", show_documentSymbols, "Show symbols in lpython file");
         if( compiler_options.fast ) {
             lpython_pass_manager.use_optimization_passes();
         }
@@ -836,6 +933,15 @@ int main(int argc, char *argv[])
         if (show_c) {
             return emit_c(arg_file, runtime_library_dir, compiler_options);
         }
+        if (show_documentSymbols) {
+#ifdef HAVE_LFORTRAN_RAPIDJSON
+            return get_symbols(arg_file, runtime_library_dir, compiler_options);
+#else
+           std::cerr << "Compiler was not built with LSP support (-DWITH_LSP), please build it again." << std::endl;
+           return 1;
+#endif
+       }
+
         lpython_pass_manager.use_default_passes();
         if (show_llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
