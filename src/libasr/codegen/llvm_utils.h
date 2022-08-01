@@ -86,9 +86,11 @@ namespace LFortran {
                                 std::string& src_type_code,
                                 llvm::Module& module);
 
-            llvm::Value* read_item(llvm::Value* list, llvm::Value* pos);
+            llvm::Value* read_item(llvm::Value* list, llvm::Value* pos,
+                                   bool get_pointer=false);
 
-            void write_item(llvm::Value* list, llvm::Value* pos, llvm::Value* item);
+            void write_item(llvm::Value* list, llvm::Value* pos,
+                            llvm::Value* item);
 
             void append(llvm::Value* list, llvm::Value* item,
                         llvm::Module& module, std::string& type_code);

@@ -237,9 +237,12 @@ namespace LFortran {
         builder->CreateStore(item, element_ptr);
     }
 
-    llvm::Value* LLVMList::read_item(llvm::Value* list, llvm::Value* pos) {
+    llvm::Value* LLVMList::read_item(llvm::Value* list, llvm::Value* pos, bool get_pointer) {
         llvm::Value* list_data = builder->CreateLoad(get_pointer_to_list_data(list));
         llvm::Value* element_ptr = llvm_utils->create_ptr_gep(list_data, pos);
+        if( get_pointer ) {
+            return element_ptr;
+        }
         return builder->CreateLoad(element_ptr);
     }
 
