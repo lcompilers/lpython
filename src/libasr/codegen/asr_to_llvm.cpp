@@ -1533,9 +1533,16 @@ public:
                 }
             }
             llvm_symtab[h] = ptr;
+        } else if (x.m_type->type == ASR::ttypeType::TypeParameter) {
+            // Ignore type variables
+        } else {
+            throw CodeGenError("Type not supported", x.base.base.loc);
+        }
+        /*
         } else {
             throw CodeGenError("Variable type not supported", x.base.base.loc);
         }
+        */
     }
 
     void start_module_init_function_prototype(const ASR::Module_t &x) {
