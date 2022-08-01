@@ -9,8 +9,13 @@ def test_list():
         a.append(i + 5)
         f.append(float(i + 6))
 
-
     for i in range(15):
         assert (f[i] - a[i]) == 1.0
+
+    for i in range(15):
+        f[i] = f[i] + i
+
+    for i in range(15):
+        assert (f[i] - a[i]) == (i + 1.0)
 
 test_list()
