@@ -726,24 +726,6 @@ public:
             }
             ASR::ttype_t* der_type = ASRUtils::TYPE(ASR::make_Derived_t(al, loc, s, nullptr, 0));
             return ASR::make_DerivedTypeConstructor_t(al, loc, s, args_new.p, args_new.size(), der_type, nullptr);
-        /*
-        } else if (ASR::is_a<ASR::TemplateFunction_t>(*s)) {
-            // Instantiating the template functions with arguments' types
-            ASR::TemplateFunction_t *func = ASR::down_cast<ASR::TemplateFunction_t>(s);
-            std::map<std::string, ASR::ttype_t*> subs;
-            for (size_t i=0; i<args.size(); i++) {
-                ASR::ttype_t *param_type = ASRUtils::expr_type(func->m_args[i]);
-                ASR::ttype_t *arg_type = ASRUtils::expr_type(args[i].m_value);
-                subs = check_type_substitution(subs, param_type, arg_type, loc);
-            }    
-
-            ASR::symbol_t *t = get_generic_function(subs, *func);
-            std::string new_call_name = call_name;
-            if (ASR::is_a<ASR::Function_t>(*t)) {
-                new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
-            }
-            return make_call_helper(al, t, current_scope, args, new_call_name, loc);
-        */
         } else {
             throw SemanticError("Unsupported call type for " + call_name, loc);
         }
@@ -785,7 +767,7 @@ public:
     }
 
     ASR::symbol_t* get_generic_function(std::map<std::string, ASR::ttype_t*> subs,
-            /* ASR::TemplateFunction_t &func */ ASR::Function_t &func) {
+            ASR::Function_t &func) {
         int new_function_num;
         ASR::symbol_t *t;
         std::string func_name = func.m_name;
@@ -2404,39 +2386,7 @@ public:
                         /* a_return_var */ ASRUtils::EXPR(return_var_ref),
                         current_procedure_abi_type,
                         s_access, deftype, false, bindc_name);  
-                }
-                /*
-                if (generic) {
-                    // Same structure as Function, just different type
-                    // TODO: Merge the definition of TemplateFunction with Function but add
-                    //       fields of type parameters to Function
-                    tmp = ASR::make_TemplateFunction_t(
-                        al, x.base.base.loc,
-                        current_scope,      // a_symtab
-                        s2c(al, sym_name),  // a_name
-                        args.p,             // a_args
-                        args.size(),        // n_args
-                        nullptr,            // a_body
-                        0,                  // n_body
-                        ASRUtils::EXPR(return_var_ref),  // a_return_var
-                        current_procedure_abi_type,
-                        s_access, deftype, bindc_name);
-                } else {
-                    tmp = ASR::make_Function_t(
-                        al, x.base.base.loc,
-                        current_scope,     // a_symtab
-                        s2c(al, sym_name), // a_name
-                        args.p,            // a_args
-                        args.size(),       // n_args
-                        nullptr,           // a_type_ps
-                        0,                 // n_type_ps
-                        nullptr,           // a_body
-                        0,                 // n_body
-                        ASRUtils::EXPR(return_var_ref),  // a_return_var
-                        current_procedure_abi_type,
-                        s_access, deftype, false, bindc_name);                    
-                }  
-                */           
+                }        
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
                     x.m_returns->base.loc);
@@ -2743,11 +2693,6 @@ public:
             } else {
                 LFORTRAN_ASSERT(false);
             }
-        /*
-        } else if (ASR::is_a<ASR::TemplateFunction_t>(*t)) {
-            ASR::TemplateFunction_t *f = ASR::down_cast<ASR::TemplateFunction_t>(t);
-            handle_fn(x, *f);
-        */
         } else {
             LFORTRAN_ASSERT(false);
         }

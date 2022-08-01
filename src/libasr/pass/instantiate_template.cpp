@@ -22,7 +22,6 @@ public:
         new_function_num{new_function_num}
         {}
 
-    /* ASR::asr_t* instantiate_TemplateFunction(ASR::TemplateFunction_t &x) { */
     ASR::asr_t* instantiate_Function(ASR::Function_t &x) {
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
@@ -322,10 +321,8 @@ public:
 };
 
 ASR::symbol_t* pass_instantiate_generic_function(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,
-        SymbolTable *current_scope, int new_function_num, /* ASR::TemplateFunction_t &func */
-        ASR::Function_t &func) {
+        SymbolTable *current_scope, int new_function_num, ASR::Function_t &func) {
     FunctionInstantiator tf(al, subs, current_scope, new_function_num);
-    // ASR::asr_t* new_function = tf.instantiate_TemplateFunction(func);
     ASR::asr_t *new_function = tf.instantiate_Function(func);
     return ASR::down_cast<ASR::symbol_t>(new_function);
 }

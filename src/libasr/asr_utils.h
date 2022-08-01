@@ -292,11 +292,6 @@ static inline SymbolTable *symbol_symtab(const ASR::symbol_t *f)
         case ASR::symbolType::Function: {
             return ASR::down_cast<ASR::Function_t>(f)->m_symtab;
         }
-        /*
-        case ASR::symbolType::TemplateFunction: {
-            return ASR::down_cast<ASR::TemplateFunction_t>(f)->m_symtab;
-        }
-        */
         case ASR::symbolType::GenericProcedure: {
             return nullptr;
             //throw LCompilersException("GenericProcedure does not have a symtab");
