@@ -1,0 +1,89 @@
+{
+	"name": "lpyth",
+	"description": "A language server example",
+	"author": "Microsoft Corporation",
+	"license": "MIT",
+	"version": "1.0.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Microsoft/vscode-extension-samples"
+	},
+	"publisher": "Ankita",
+	"categories": [],
+	"keywords": [
+		"multi-root ready"
+	],
+	"engines": {
+		"vscode": "^1.63.0"
+	},
+	"activationEvents": [
+		"*"
+	],
+	"main": "./out/client/src/extension.js",
+	"contributes": {
+		"languages": [
+			{
+				"id": "LPython",
+				"aliases": [
+					"lpython",
+					"python"
+				],
+				"extensions": [
+					".py"
+				]
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "Example configuration",
+			"properties": {
+				"LPythonLanguageServer.maxNumberOfProblems": {
+					"scope": "resource",
+					"type": "number",
+					"default": 100,
+					"description": "Controls the maximum number of problems produced by the server."
+				},
+				"LPythonLanguageServer.trace.server": {
+					"scope": "window",
+					"type": "string",
+					"enum": [
+						"off",
+						"messages",
+						"verbose"
+					],
+					"default": "off",
+					"description": "Traces the communication between VS Code and the language server."
+				},
+				"LPythonLanguageServer.compiler.executablePath": {
+					"scope": "resource",
+					"type": "string",
+					"default": "/home/ankita/Documents/Internships/GSI/tmp/lpython/src/bin/lpython",
+					"description": "The path to the LPython compiler executable."
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"esbuild-base": "esbuild server/src/server.ts client/src/extension.ts --bundle --outdir=out --external:vscode --format=cjs --platform=node",
+		"esbuild": "npm run esbuild-base -- --sourcemap --minify",
+		"compile": "npm run esbuild",
+		"install-code-dep": "code --install-extension connor4312.esbuild-problem-matchers && code --install-extension dbaeumer.vscode-eslint",
+		"install": "cd server && npm install && cd ../client && npm install && cd .. && npm run install-code-dep",
+		"watch": "npm run esbuild-base -- --sourcemap --watch",
+		"lint": "npx eslint ./client/src ./server/src --ext .ts,.tsx"
+	},
+	"devDependencies": {
+		"@types/mocha": "^9.1.0",
+		"@types/node": "^16.11.7",
+		"@typescript-eslint/eslint-plugin": "^5.30.0",
+		"@typescript-eslint/parser": "^5.30.0",
+		"eslint": "^8.13.0",
+		"mocha": "^9.2.1",
+		"typescript": "^4.7.2",
+		"esbuild": "^0.14.42"
+	},
+	"dependencies": {
+		"tmp": "^0.2.1"
+	}
+}
