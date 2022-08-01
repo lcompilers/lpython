@@ -48,25 +48,25 @@ def elemental_sqrt32():
 
 
 def elemental_norm():
-    array_a: f32[256] = empty(256)
-    array_b: f32[256] = empty(256)
-    array_c: f32[256] = empty(256)
+    array_a: f64[100] = empty(100)
+    array_b: f64[100] = empty(100)
+    array_c: f64[100] = empty(100)
 
     i: i32
     j: i32
 
-    for i in range(256):
+    for i in range(100):
         array_a[i] = float(i)
 
-    for j in range(256):
-        array_b[i] = float(i+5)
+    for j in range(100):
+        array_b[j] = float(j+5)
 
     array_c = sqrt(array_a**2 + array_b**2)
 
-    eps: f32
-    eps = 2e-6
+    eps: f64
+    eps = 5e-6
 
-    for i in range(256):
+    for i in range(100):
         assert abs(array_c[i] - sqrt(array_a[i]**2 + array_b[i]**2)) <= eps
 
 
