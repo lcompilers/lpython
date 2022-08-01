@@ -109,6 +109,7 @@ public:
             args.p, args.size(),
             nullptr, 0,
             body.p, body.size(),
+            // nullptr, 0,
             ASRUtils::EXPR(new_return_var_ref),
             func_abi, func_access, func_deftype, false, bindc_name);   
 
@@ -171,6 +172,13 @@ public:
         head.m_increment = duplicate_expr(x->m_head.m_increment);
         head.loc = x->m_head.m_v->base.loc;
         return ASR::make_DoLoop_t(al, x->base.base.loc, head, m_body.p, x->n_body);
+    }
+
+    ASR::asr_t* duplicate_ListItem(ASR::ListItem_t *x) {
+        ASR::expr_t *a = duplicate_expr(x->m_a);
+        ASR::expr_t *pos = duplicate_expr(x->m_pos);
+        ASR::ttype_t *type = substitute_type(x->m_type);
+        return ASR::make_ListItem_t(al, x->base.base.loc, a, pos, type, nullptr);
     }
 
     ASR::ttype_t* substitute_type(ASR::ttype_t *param_type) {
