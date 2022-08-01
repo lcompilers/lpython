@@ -4068,6 +4068,25 @@ public:
                                             ASRUtils::expr_type(args[0].m_value)));
                 tmp = ASR::make_GetPointer_t(al, x.base.base.loc, args[0].m_value, type, nullptr);
                 return ;
+            } else if( call_name == "array" ) {
+                if( args.size() != 1 ) {
+                    throw SemanticError("array accepts only 1 argument for now, got " +
+                                        std::to_string(args.size()) + " arguments instead.",
+                                        x.base.base.loc);
+                }
+                ASR::expr_t *arg = args[0].m_value;
+                ASR::ttype_t *type = ASRUtils::expr_type(arg);
+                if(ASR::is_a<ASR::ListConstant_t>(*arg)) {
+                    type = ASR::down_cast<ASR::List_t>(type)->m_type;
+                    ASR::ListConstant_t* list = ASR::down_cast<ASR::ListConstant_t>(arg);
+                    ASR::expr_t **m_args = list->m_args;
+                    size_t n_args = list->n_args;
+                    tmp = ASR::make_ArrayConstant_t(al, x.base.base.loc, m_args, n_args, type);
+                } else {
+                    throw SemanticError("array accepts only list for now, got " +
+                                        ASRUtils::type_to_str(type) + " type.", x.base.base.loc);
+                }
+                return;
             } else {
                 // The function was not found and it is not intrinsic
                 throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
