@@ -22,18 +22,20 @@
 #include <libasr/modfile.h>
 #include <libasr/config.h>
 #include <libasr/string_utils.h>
+#include <libasr/lsp_interface.h>
 #include <lpython/utils.h>
 #include <lpython/python_serialization.h>
 #include <lpython/parser/tokenizer.h>
 #include <lpython/parser/parser.h>
 
-#ifdef HAVE_LFORTRAN_RAPIDJSON
-    #include <libasr/lsp/LPythonServer.hpp>
-#endif
-
 #include <cpp-terminal/terminal.h>
 #include <cpp-terminal/prompt0.h>
 
+#ifdef HAVE_LFORTRAN_RAPIDJSON
+    #include <rapidjson/document.h>
+    #include <rapidjson/stringbuffer.h>
+    #include <rapidjson/writer.h>
+#endif
 namespace {
 
 using LFortran::endswith;
@@ -256,6 +258,103 @@ int emit_c(const std::string &infile,
     std::cout << res.result;
     return 0;
 }
+
+#ifdef HAVE_LFORTRAN_RAPIDJSON
+
+int get_errors (const std::string &infile,
+    const std::string &runtime_library_dir,
+    CompilerOptions &compiler_options) {
+        Allocator al(4*1024);
+        LFortran::diag::Diagnostics diagnostics;
+        LFortran::LocationManager lm;
+        lm.in_filename = infile;
+        std::string input = LFortran::read_file(infile);
+        lm.init_simple(input);
+        LFortran::Result<LFortran::LPython::AST::ast_t*>
+            r1 = LFortran::parse_python_file(al, runtime_library_dir, infile, 
+                    diagnostics, compiler_options.new_parser);
+        if (r1.ok) {
+            LFortran::LPython::AST::ast_t* ast = r1.result;
+            LFortran::Result<LFortran::ASR::TranslationUnit_t*>
+                r = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
+                        compiler_options.disable_main, compiler_options.symtab_only, infile);
+        }
+        std::vector<LFortran::LPython::error_highlight> diag_lists;
+        LFortran::LPython::error_highlight h;
+        for (auto &d : diagnostics.diagnostics) {
+            if (compiler_options.no_warnings && d.level != LFortran::diag::Level::Error) {
+                continue;
+            }
+            h.message = d.message;
+            h.severity = d.level;
+            for (auto label : d.labels) {
+                for (auto span : label.spans) {
+                    uint32_t first_line;
+                    uint32_t first_column;
+                    uint32_t last_line;
+                    uint32_t last_column;
+                    lm.pos_to_linecol(span.loc.first, first_line, first_column);
+                    lm.pos_to_linecol(span.loc.last, last_line, last_column);
+                    h.first_column = first_column;
+                    h.last_column = last_column;
+                    h.first_line = first_line-1;
+                    h.last_line = last_line-1;
+                    diag_lists.push_back(h);
+                }
+            }
+        }
+        rapidjson::Document range_obj(rapidjson::kObjectType);
+        rapidjson::Document start_detail(rapidjson::kObjectType); 
+        rapidjson::Document end_detail(rapidjson::kObjectType);
+        rapidjson::Document diag_results(rapidjson::kArrayType);
+        rapidjson::Document diag_capture(rapidjson::kObjectType);
+        rapidjson::Document message_send(rapidjson::kObjectType);
+
+        for (auto diag : diag_lists) {
+            uint32_t start_line = diag.first_line;
+            uint32_t start_column = diag.first_column;
+            uint32_t end_line = diag.last_line;
+            uint32_t end_column = diag.last_column;
+            uint32_t severity = diag.severity;
+            std::string msg = diag.message;
+
+            range_obj.SetObject();
+            rapidjson::Document::AllocatorType &allocator = range_obj.GetAllocator(); 
+
+            start_detail.SetObject();
+            start_detail.AddMember("line", rapidjson::Value().SetInt(start_line), allocator);
+            start_detail.AddMember("character", rapidjson::Value().SetInt(start_column), allocator);
+            range_obj.AddMember("start", start_detail, allocator);
+
+            end_detail.SetObject();
+            end_detail.AddMember("line", rapidjson::Value().SetInt(end_line), allocator);
+            end_detail.AddMember("character", rapidjson::Value().SetInt(end_column), allocator);
+            range_obj.AddMember("end", end_detail, allocator);
+
+            diag_results.SetArray();
+
+            diag_capture.AddMember("source", rapidjson::Value().SetString("lpyth", allocator), allocator);
+            diag_capture.AddMember("range", range_obj, allocator);
+            diag_capture.AddMember("message", rapidjson::Value().SetString(msg.c_str(), allocator), allocator);
+            diag_capture.AddMember("severity", rapidjson::Value().SetInt(severity), allocator);
+            diag_results.PushBack(diag_capture, allocator);
+
+            message_send.SetObject();
+            message_send.AddMember("uri", rapidjson::Value().SetString("uri", allocator), allocator);
+            message_send.AddMember("diagnostics", diag_results, allocator);
+        }
+
+        rapidjson::StringBuffer buffer;
+        buffer.Clear();
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        message_send.Accept(writer);
+        std::string resp_str( buffer.GetString() );
+        std::cout << resp_str;
+
+    return 0;
+}
+
+#endif
 
 #ifdef HAVE_LFORTRAN_LLVM
 
@@ -584,6 +683,7 @@ int main(int argc, char *argv[])
         bool show_asr = false;
         bool show_cpp = false;
         bool show_c = false;
+        bool show_errors = false;
         bool with_intrinsic_modules = false;
         std::string arg_pass;
         bool arg_no_color = false;
@@ -608,8 +708,6 @@ int main(int argc, char *argv[])
 
         std::string arg_pywrap_file;
         std::string arg_pywrap_array_order="f";
-
-        std::string arg_lsp_filename;
 
         CompilerOptions compiler_options;
         LCompilers::PassManager lpython_pass_manager;
@@ -662,6 +760,9 @@ int main(int argc, char *argv[])
         app.add_flag("--print-targets", print_targets, "Print the registered targets");
         app.add_flag("--get-rtlib-header-dir", print_rtlib_header_dir, "Print the path to the runtime library header file");
 
+        // LSP specific options
+        app.add_flag("--show-errors", show_errors, "Show errors when LSP is running in the background");
+
         if( compiler_options.fast ) {
             lpython_pass_manager.use_optimization_passes();
         }
@@ -693,11 +794,6 @@ int main(int argc, char *argv[])
         pywrap.add_option("file", arg_pywrap_file, "Fortran source file (*.f90)")->required();
         pywrap.add_option("--array-order", arg_pywrap_array_order,
                 "Select array order (c, f)")->capture_default_str();
-
-        // Language Server Protocol
-        CLI::App &lsp = *app.add_subcommand("lsp", "Language Server Protocol");
-        lsp.add_option("filename", arg_lsp_filename, "Path to a filename")->required();
-
 
         app.get_formatter()->column_width(25);
         app.require_subcommand(0, 1);
@@ -764,15 +860,6 @@ int main(int argc, char *argv[])
             return 1;
         }
 
-        if (lsp) {
-            #ifdef HAVE_LFORTRAN_RAPIDJSON
-                LPythonServer().run(arg_lsp_filename);
-                return 0;
-            #else 
-                std::cerr << "Compiler was not built with LSP support (-DWITH_LSP), please build it again.\n";
-            #endif
-        }
-
         if (arg_backend == "llvm") {
             backend = Backend::llvm;
         } else if (arg_backend == "cpp") {
@@ -835,6 +922,14 @@ int main(int argc, char *argv[])
         }
         if (show_c) {
             return emit_c(arg_file, runtime_library_dir, compiler_options);
+        }
+        if (show_errors) {
+#ifdef HAVE_LFORTRAN_RAPIDJSON
+             return get_errors(arg_file, runtime_library_dir, compiler_options);
+#else
+            std::cerr << "Compiler was not configured with LSP support (-DWITH_LSP), please build it again." << std::endl;
+            return 1;
+#endif
         }
         lpython_pass_manager.use_default_passes();
         if (show_llvm) {
