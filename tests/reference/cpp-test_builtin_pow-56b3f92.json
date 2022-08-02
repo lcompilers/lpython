@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-test_builtin_pow-56b3f92",
+    "cmd": "lpython --no-color --show-cpp {infile}",
+    "infile": "tests/../integration_tests/test_builtin_pow.py",
+    "infile_hash": "5696eb31b14c38dcd0c4d04d12af41c66c8efd457a54b9adbce00229",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-test_builtin_pow-56b3f92.stdout",
+    "stdout_hash": "f186ef4c12f8305840e9bb4aefd1d6b43ff2e363362b2f8956514741",
+    "stderr": "cpp-test_builtin_pow-56b3f92.stderr",
+    "stderr_hash": "180e1adfbb0d9c63a2fffa31951bbd629b3f1950cf0d97ca1389efe5",
+    "returncode": 0
+}

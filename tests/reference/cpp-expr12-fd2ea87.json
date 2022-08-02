@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-expr12-fd2ea87",
+    "cmd": "lpython --no-color --show-cpp {infile}",
+    "infile": "tests/expr12.py",
+    "infile_hash": "bad9ac6e0956fddb636f4e806f4a97c27396adc2416640bd291d2dc8",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-expr12-fd2ea87.stdout",
+    "stdout_hash": "0ec78f2ed6092a1cfb65a4f59a7ef92994bf878daf52d11a5d2b27a5",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
