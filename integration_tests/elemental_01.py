@@ -31,6 +31,63 @@ def verify2d(array: f64[:, :], result: f64[:, :], size1: i32, size2: i32):
         for j in range(size2):
             assert abs(cos(array[i, j])**2 - result[i, j]) <= eps
 
+
+def verify1d_sum(array_a: f64[:], array_b: f64[:], result: f64[:], size: i32):
+    i: i32
+    eps: f64
+    eps = 1e-12
+
+    for i in range(size):
+        assert abs(array_a[i]**2 + 5*array_b[i]**3 - result[i]) <= eps
+
+
+def verify1d_mul(array_a: f64[:], array_b: f64[:], result: f64[:], size: i32):
+    i: i32
+    eps: f64
+    eps = 1e-12
+
+    for i in range(size):
+        assert abs(array_a[i]**2 * 5*array_b[i]**3 - result[i]) <= eps
+
+
+def elemental_sum():
+    i: i32
+    j: i32
+    k: i32
+
+    array_a: f64[100] = empty(100)
+    array_b: f64[100] = empty(100)
+    array_c: f64[100] = empty(100)
+
+    for i in range(100):
+        array_a[i] = float(i)
+
+    for j in range(100):
+        array_b[j] = float(j+5)
+
+    array_c = array_a**2 + 5*array_b**3
+    verify1d_sum(array_a, array_b, array_c, 100)
+
+
+def elemental_mul():
+    i: i32
+    j: i32
+    k: i32
+
+    array_a: f64[100] = empty(100)
+    array_b: f64[100] = empty(100)
+    array_c: f64[100] = empty(100)
+
+    for i in range(100):
+        array_a[i] = float(i)
+
+    for j in range(100):
+        array_b[j] = float(j+5)
+
+    array_c = array_a**2 * 5*array_b**3
+    verify1d_mul(array_a, array_b, array_c, 100)
+
+
 def elemental_sin():
     i: i32
     j: i32
@@ -104,3 +161,5 @@ def elemental_trig_identity():
 elemental_sin()
 elemental_cos()
 elemental_trig_identity()
+elemental_sum()
+elemental_mul()
