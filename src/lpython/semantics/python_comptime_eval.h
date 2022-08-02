@@ -21,7 +21,7 @@ struct ProceduresDatabase {
     std::map<std::string, std::set<std::string>> to_be_ignored;
 
     ProceduresDatabase() {
-        to_be_ignored = {{"numpy", {"empty", "int64", "int32", "reshape"}}};
+        to_be_ignored = {{"numpy", {"empty", "int64", "int32", "reshape", "array"}}};
     }
 
     bool is_function_to_be_ignored(std::string& module_name,
