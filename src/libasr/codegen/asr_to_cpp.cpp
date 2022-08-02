@@ -225,7 +225,7 @@ public:
                                             v.m_intent != ASRUtils::intent_out, true);
                     }
                 } else {
-                    sub = format_type(dims, "int *", v.m_name, use_ref, dummy);
+                    sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
                 }
             } else {
                 diag.codegen_error_label("Type number '"
@@ -240,8 +240,7 @@ public:
                 ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(v.m_type);
                 size_t size;
                 dims = convert_dims(t->n_dims, t->m_dims, size);
-                std::string type_name = "int";
-                if (t->m_kind == 8) type_name = "long long";
+                std::string type_name = "int" + std::to_string(t->m_kind * 8) + "_t";
                 if( is_array ) {
                     if( use_templates_for_arrays ) {
                         sub += generate_templates_for_arrays(std::string(v.m_name));
