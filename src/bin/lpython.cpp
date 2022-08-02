@@ -933,7 +933,7 @@ int main(int argc, char *argv[])
         if (show_c) {
             return emit_c(arg_file, runtime_library_dir, compiler_options);
         }
-        if (show_documentSymbols) {
+        if (show_document_symbols) {
 #ifdef HAVE_LFORTRAN_RAPIDJSON
             return get_symbols(arg_file, runtime_library_dir, compiler_options);
 #else
