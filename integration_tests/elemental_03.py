@@ -46,5 +46,30 @@ def elemental_sqrt32():
         j = (l - i*16)
         assert abs(observed[l]**2 - i - j) <= eps
 
+
+def elemental_norm():
+    array_a: f64[100] = empty(100)
+    array_b: f64[100] = empty(100)
+    array_c: f64[100] = empty(100)
+
+    i: i32
+    j: i32
+
+    for i in range(100):
+        array_a[i] = float(i)
+
+    for j in range(100):
+        array_b[j] = float(j+5)
+
+    array_c = sqrt(array_a**2 + array_b**2)
+
+    eps: f64
+    eps = 1e-12
+
+    for i in range(100):
+        assert abs(array_c[i] - sqrt(array_a[i]**2 + array_b[i]**2)) <= eps
+
+
 elemental_sqrt64()
 elemental_sqrt32()
+elemental_norm()
