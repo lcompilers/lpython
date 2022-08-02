@@ -19,6 +19,30 @@ struct Args {
     LPython::AST::arguments_t arguments;
 };
 
+struct Arg {
+    bool default_value;
+    LPython::AST::arg_t _arg;
+    LPython::AST::expr_t *defaults;
+};
+
+struct Var_Kw {
+    Vec<Arg*> vararg;
+    Vec<Arg*> kwonlyargs;
+    Vec<Arg*> kwarg;
+};
+
+struct Args_ {
+    Vec<Arg*> args;
+    bool var_kw_val;
+    Var_Kw *var_kw;
+};
+
+struct Fn_Arg {
+    Vec<Arg*> posonlyargs;
+    bool args_val;
+    Args_ *args;
+};
+
 union YYSTYPE {
     int64_t n;
     double f;
@@ -30,11 +54,15 @@ union YYSTYPE {
     LPython::AST::alias_t* alias;
     Vec<LPython::AST::alias_t> vec_alias;
 
-    LPython::AST::arg_t* arg;
-    Vec<LPython::AST::arg_t> vec_arg;
+    Arg *arg;
+    Vec<Arg*> vec_arg;
 
     Args *args;
     Vec<Args> vec_args;
+
+    Fn_Arg *fn_arg;
+    Args_ *args_;
+    Var_Kw *var_kw;
 
     Key_Val *key_val;
     Vec<Key_Val*> vec_key_val;
@@ -44,6 +72,9 @@ union YYSTYPE {
 
     LPython::AST::keyword_t* keyword;
     Vec<LPython::AST::keyword_t> vec_keyword;
+
+    LPython::AST::comprehension_t* comp;
+    Vec<LPython::AST::comprehension_t> vec_comp;
 
     LPython::AST::operatorType operator_type;
 };

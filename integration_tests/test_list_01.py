@@ -1,12 +1,21 @@
-from ltypes import i32
+from ltypes import f64, i32
 
-def test_list_i32():
-    a: list[i32] = [1]
-    a.append(2)
-    a.append(3)
-    a.append(4)
-    a.append(5)
-    print(a[1])
-    assert a[1] == 2 or a[1] == 3
+def test_list():
+    a: list[i32] = [0, 1, 2, 3, 4]
+    f: list[f64] = [1.0, 2.0, 3.0, 4.0, 5.0]
+    i: i32
 
-test_list_i32()
+    for i in range(10):
+        a.append(i + 5)
+        f.append(float(i + 6))
+
+    for i in range(15):
+        assert (f[i] - a[i]) == 1.0
+
+    for i in range(15):
+        f[i] = f[i] + i
+
+    for i in range(15):
+        assert (f[i] - a[i]) == (i + 1.0)
+
+test_list()

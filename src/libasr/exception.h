@@ -98,17 +98,17 @@ struct Result {
 
 const int stacktrace_depth = 4;
 
-class LFortranException : public std::exception
+class LCompilersException : public std::exception
 {
     std::string m_msg;
     lfortran_exceptions_t ec;
     std::vector<StacktraceItem> m_stacktrace_addresses;
 public:
-    LFortranException(const std::string &msg, lfortran_exceptions_t error)
+    LCompilersException(const std::string &msg, lfortran_exceptions_t error)
         : m_msg{msg}, ec{error}, m_stacktrace_addresses{get_stacktrace_addresses()}
     { }
-    LFortranException(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_EXCEPTION)
+    LCompilersException(const std::string &msg)
+        : LCompilersException(msg, LFORTRAN_EXCEPTION)
     {
     }
     const char *what() const throw()
@@ -123,7 +123,7 @@ public:
     {
         switch (ec) {
             case (lfortran_exceptions_t::LFORTRAN_EXCEPTION) :
-                return "LFortranException";
+                return "LCompilersException";
             case (lfortran_exceptions_t::LFORTRAN_ASSERT_FAILED) :
                 return "AssertFailed";
             default : return "Unknown Exception";
@@ -139,20 +139,20 @@ public:
     }
 };
 
-class AssertFailed : public LFortranException
+class AssertFailed : public LCompilersException
 {
 public:
     AssertFailed(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_ASSERT_FAILED)
+        : LCompilersException(msg, LFORTRAN_ASSERT_FAILED)
     {
     }
 };
 
-class AssemblerError : public LFortranException
+class AssemblerError : public LCompilersException
 {
 public:
     AssemblerError(const std::string &msg)
-        : LFortranException(msg, LFORTRAN_ASSEMBLER_ERROR)
+        : LCompilersException(msg, LFORTRAN_ASSEMBLER_ERROR)
     {
     }
 };
@@ -162,7 +162,7 @@ static inline T TRY(Result<T> result) {
     if (result.ok) {
         return result.result;
     } else {
-        throw LFortranException("Internal Compiler Error: TRY failed, error was not handled explicitly");
+        throw LCompilersException("Internal Compiler Error: TRY failed, error was not handled explicitly");
     }
 }
 

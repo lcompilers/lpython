@@ -33,7 +33,7 @@ void WASMDecoder::decode_type_section(uint32_t offset) {
 
     for (uint32_t i = 0; i < no_of_func_types; i++) {
         if (wasm_bytes[offset] != 0x60) {
-            throw LFortran::LFortranException("Invalid type section");
+            throw LFortran::LCompilersException("Invalid type section");
         }
         offset++;
 
@@ -172,7 +172,7 @@ void WASMDecoder::decode_data_section(uint32_t offset) {
     for (uint32_t i = 0; i < no_of_data_segments; i++) {
         uint32_t num = read_u32(wasm_bytes, offset);
         if(num != 0){
-            throw LFortran::LFortranException("Only active default memory (index = 0) is currently supported");
+            throw LFortran::LCompilersException("Only active default memory (index = 0) is currently supported");
         }
 
         {

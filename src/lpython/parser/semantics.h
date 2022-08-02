@@ -22,6 +22,10 @@ using LFortran::Location;
 using LFortran::Vec;
 using LFortran::Key_Val;
 using LFortran::Args;
+using LFortran::Arg;
+using LFortran::Fn_Arg;
+using LFortran::Args_;
+using LFortran::Var_Kw;
 
 static inline char* name2char(const ast_t *n) {
     return down_cast2<Name_t>(n)->m_id;
@@ -110,17 +114,16 @@ static inline Vec<ast_t*> SET_EXPR_CTX_02(Vec<ast_t*> x, expr_contextType ctx) {
         EXPR(SET_EXPR_CTX_01(x, Store)), EXPR(y), EXPR(val), 1)
 
 #define DELETE_01(e, l) make_Delete_t(p.m_a, l, \
-        EXPRS(SET_EXPR_CTX_02(e, Del)), e.size())
-#define DELETE_02(l) make_Delete_t(p.m_a, l, \
-        EXPRS(A2LIST(p.m_a, SET_EXPR_CTX_01(TUPLE_EMPTY(l), Del))), 1)
-#define DELETE_03(e, l) make_Delete_t(p.m_a, l, \
-        EXPRS(A2LIST(p.m_a, SET_EXPR_CTX_01(TUPLE_01(e, l), Del))), 1)
+        EXPRS(SET_EXPR_CTX_02(SET_CTX_02(e, Del), Del)), e.size())
 
 #define EXPR_01(e, l) make_Expr_t(p.m_a, l, EXPR(e))
 
 #define RETURN_01(l) make_Return_t(p.m_a, l, nullptr)
 #define RETURN_02(e, l) make_Return_t(p.m_a, l, EXPR(e))
-#define RETURN_03(l) make_Return_t(p.m_a, l, EXPR(TUPLE_EMPTY(l)))
+
+#define YIELD_01(l) make_Yield_t(p.m_a, l, nullptr)
+#define YIELD_02(exec, l) make_Yield_t(p.m_a, l, EXPR(exec))
+#define YIELD_03(value, l) make_YieldFrom_t(p.m_a, l, EXPR(value))
 
 #define PASS(l) make_Pass_t(p.m_a, l)
 #define BREAK(l) make_Break_t(p.m_a, l)
@@ -139,25 +142,27 @@ static inline Vec<ast_t*> SET_EXPR_CTX_02(Vec<ast_t*> x, expr_contextType ctx) {
 #define NON_LOCAL(names, l) make_Nonlocal_t(p.m_a, l, \
         REDUCE_ARGS(p.m_a, names), names.size())
 
-static inline ast_t *SET_STORE_01(ast_t *x) {
+static inline ast_t *SET_CTX_01(ast_t *x, expr_contextType ctx) {
     if(is_a<Tuple_t>(*EXPR(x))) {
         size_t n_elts = down_cast2<Tuple_t>(x)->n_elts;
         for(size_t i=0; i < n_elts; i++) {
-            SET_EXPR_CTX_01(
-                (ast_t *) down_cast2<Tuple_t>(x)->m_elts[i], Store);
+            SET_EXPR_CTX_01((ast_t *) down_cast2<Tuple_t>(x)->m_elts[i], ctx);
         }
     }
     return x;
 }
-static inline Vec<ast_t*> SET_STORE_02(Vec<ast_t*> x) {
+static inline Vec<ast_t*> SET_CTX_02(Vec<ast_t*> x, expr_contextType ctx) {
     for (size_t i=0; i < x.size(); i++) {
-        SET_STORE_01(x[i]);
+        SET_CTX_01(x[i], ctx);
     }
     return x;
 }
 #define ASSIGNMENT(targets, val, l) make_Assign_t(p.m_a, l, \
-        EXPRS(SET_EXPR_CTX_02(SET_STORE_02(targets), Store)), targets.size(), \
+        EXPRS(SET_EXPR_CTX_02(SET_CTX_02(targets, Store), Store)), targets.size(), \
         EXPR(val), nullptr)
+#define ASSIGNMENT2(targets, val, type_comment, l) make_Assign_t(p.m_a, l, \
+        EXPRS(SET_EXPR_CTX_02(SET_CTX_02(targets, Store), Store)), targets.size(), \
+        EXPR(val), extract_type_comment(p, l, type_comment))
 
 static inline ast_t* TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
     if(is_a<expr_t>(*elts[0]) && elts.size() == 1) {
@@ -167,7 +172,7 @@ static inline ast_t* TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
 }
 #define TUPLE_01(elts, l) TUPLE_02(p.m_a, l, elts)
 #define TUPLE_03(elts, l) make_Tuple_t(p.m_a, l, \
-        EXPRS(elts), elts.size(), expr_contextType::Load);
+        EXPRS(elts), elts.size(), expr_contextType::Load)
 #define TUPLE_EMPTY(l) make_Tuple_t(p.m_a, l, \
         nullptr, 0, expr_contextType::Load)
 
@@ -238,10 +243,10 @@ int dot_count = 0;
 #define TERNARY(test, body, orelse, l) make_IfExp_t(p.m_a, l, \
         EXPR(test), EXPR(body), EXPR(orelse))
 
-static inline char *extract_type_comment(Allocator &al, LFortran::Str &s) {
+static inline char *extract_type_comment(LFortran::Parser &p,
+        Location &loc, LFortran::Str &s) {
     std::string str = s.str();
-    std::string kw{"type:"};
- 
+
     str.erase(str.begin()); // removes "#" at the beginning
     str.erase(0, str.find_first_not_of(' ')); // trim left spaces
 
@@ -250,23 +255,45 @@ static inline char *extract_type_comment(Allocator &al, LFortran::Str &s) {
     str.erase(str.find_last_not_of(' ') + 1); // trim right spaces
     str.erase(0, str.find_first_not_of(' ')); // trim left spaces
 
-    s.from_str_view(str);
-    return s.c_str(al);
+    size_t i = 0;
+    bool flag = true;
+    std::string kw{"ignore"};
+    while (i < 6) {
+        if(str[i] == kw[i]) {
+            i++;
+        } else {
+            flag = false;
+            break;
+        }
+    }
+
+    if (flag) {
+        pos = 6;
+        str = str.substr(pos, str.size());
+        s.from_str_view(str);
+        p.type_ignore.push_back(p.m_a, down_cast<type_ignore_t>(
+            make_TypeIgnore_t(p.m_a, loc, 0, s.c_str(p.m_a))));
+        return nullptr;
+    } else {
+        s.from_str_view(str);
+        return s.c_str(p.m_a);
+    }
 }
 
 #define FOR_01(target, iter, stmts, l) make_For_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        EXPR(SET_EXPR_CTX_01(SET_CTX_01(target, Store), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), nullptr, 0, nullptr)
 #define FOR_02(target, iter, stmts, orelse, l) make_For_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        EXPR(SET_EXPR_CTX_01(SET_CTX_01(target, Store), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), nullptr)
 #define FOR_03(target, iter, type_comment, stmts, l) make_For_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
-        STMTS(stmts), stmts.size(), nullptr, 0, extract_type_comment(p.m_a, type_comment))
+        EXPR(SET_EXPR_CTX_01(SET_CTX_01(target, Store), Store)), EXPR(iter), \
+        STMTS(stmts), stmts.size(), nullptr, 0, \
+        extract_type_comment(p, l, type_comment))
 #define FOR_04(target, iter, stmts, orelse, type_comment, l) make_For_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        EXPR(SET_EXPR_CTX_01(SET_CTX_01(target, Store), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), \
-        extract_type_comment(p.m_a, type_comment))
+        extract_type_comment(p, l, type_comment))
 
 #define TRY_01(stmts, except, l) make_Try_t(p.m_a, l, \
         STMTS(stmts), stmts.size(), \
@@ -302,82 +329,237 @@ static inline withitem_t *WITH_ITEM(Allocator &al, Location &l,
     return r;
 }
 
-#define WITH_ITEM_01(expr, l) WITH_ITEM(p.m_a, l, EXPR(expr), nullptr)
-#define WITH_ITEM_02(expr, vars, l) WITH_ITEM(p.m_a, l, \
+static inline Vec<withitem_t> convert_exprlist_to_withitem(Allocator &al,
+        Location &l, Vec<ast_t*> &expr_list) {
+    Vec<withitem_t> v;
+    v.reserve(al, expr_list.size());
+    for (size_t i=0; i<expr_list.size(); i++) {
+        withitem_t r;
+        r.loc = l;
+        r.m_context_expr = EXPR(expr_list[i]);
+        r.m_optional_vars = nullptr;
+        v.push_back(al, r);
+    }
+    return v;
+}
+
+#define WITH_ITEM_01(expr, vars, l) WITH_ITEM(p.m_a, l, \
         EXPR(expr), EXPR(SET_EXPR_CTX_01(vars, Store)))
 #define WITH(items, body, l) make_With_t(p.m_a, l, \
+        convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
+        STMTS(body), body.size(), nullptr)
+#define WITH_01(items, body, type_comment, l) make_With_t(p.m_a, l, \
+        convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
+        STMTS(body), body.size(), extract_type_comment(p, l, type_comment))
+#define WITH_02(items, body, l) make_With_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), nullptr)
+#define WITH_03(items, body, type_comment, l) make_With_t(p.m_a, l, \
+        items.p, items.size(), STMTS(body), body.size(), \
+        extract_type_comment(p, l, type_comment))
 
-static inline arg_t *FUNC_ARG(Allocator &al, Location &l, char *arg, expr_t* e) {
-    arg_t *r = al.allocate<arg_t>();
-    r->loc = l;
-    r->m_arg = arg;
-    r->m_annotation = e;
-    r->m_type_comment = nullptr;
+static inline Arg *FUNC_ARG(Allocator &al, Location &l, char *arg,
+        expr_t* e, expr_t* defaults) {
+    Arg *r = al.allocate<Arg>();
+    r->_arg.loc = l;
+    r->_arg.m_arg = arg;
+    r->_arg.m_annotation = e;
+    r->_arg.m_type_comment = nullptr;
+    if(defaults){
+        r->default_value = true;
+    } else {
+        r->default_value = false;
+    }
+    r->defaults = defaults;
+    return r;
+}
+
+Arg** ARG2LIST(Allocator &al, Arg *x) {
+    Arg** v = al.allocate<Arg*>(1);
+    v[0] = x;
+    return v;
+}
+
+#define FUNC_ARGS1_(x) \
+        Vec<arg_t> _m_##x; \
+        _m_##x.reserve(al, 4); \
+        r->arguments.m_##x = _m_##x.p; \
+        r->arguments.n_##x = _m_##x.n;
+
+#define FUNC_ARGS_(x, kw) \
+        if(n_##x > 0) { \
+            for(size_t i = 0; i < n_##x; i++) { \
+                _m_##x.push_back(al, m_##x[i]->_arg); \
+                if(m_##x[i]->default_value && !kw) { \
+                    defaults.push_back(al, m_##x[i]->defaults); \
+                } else if (m_##x[i]->default_value){ \
+                    kw_defaults.push_back(al, m_##x[i]->defaults); \
+                } \
+            } \
+            r->arguments.m_##x = _m_##x.p; \
+            r->arguments.n_##x = _m_##x.n; \
+        }
+
+static inline Args *FUNC_ARGS_01(Allocator &al, Location &l, Fn_Arg *parameters) {
+    Args *r = al.allocate<Args>();
+    Vec<expr_t*> defaults;
+    defaults.reserve(al, 4);
+    Vec<expr_t*> kw_defaults;
+    kw_defaults.reserve(al, 4);
+
+    FUNC_ARGS1_(posonlyargs);
+    FUNC_ARGS1_(args);
+    FUNC_ARGS1_(vararg);
+    FUNC_ARGS1_(kwonlyargs);
+    FUNC_ARGS1_(kwarg);
+
+    r->arguments.loc = l;
+    if(parameters != nullptr) {
+        Arg** m_posonlyargs = parameters->posonlyargs.p;
+        size_t n_posonlyargs = parameters->posonlyargs.n;
+        FUNC_ARGS_(posonlyargs, false);
+    }
+    if(parameters != nullptr && parameters->args_val) {
+        Arg** m_args = parameters->args->args.p;
+        size_t n_args = parameters->args->args.n;
+        FUNC_ARGS_(args, false);
+
+        if(parameters->args->var_kw_val) {
+            Arg** m_vararg = parameters->args->var_kw->vararg.p;
+            size_t n_vararg = parameters->args->var_kw->vararg.n;
+            FUNC_ARGS_(vararg, false);
+
+            Arg** m_kwonlyargs = parameters->args->var_kw->kwonlyargs.p;
+            size_t n_kwonlyargs = parameters->args->var_kw->kwonlyargs.n;
+            FUNC_ARGS_(kwonlyargs, true);
+
+            Arg** m_kwarg = parameters->args->var_kw->kwarg.p;
+            size_t n_kwarg = parameters->args->var_kw->kwarg.n;
+            FUNC_ARGS_(kwarg, true);
+        }
+    }
+    r->arguments.m_kw_defaults = kw_defaults.p;
+    r->arguments.n_kw_defaults = kw_defaults.n;
+    r->arguments.m_defaults = defaults.p;
+    r->arguments.n_defaults = defaults.n;
     return r;
 }
 
 static inline Args *FUNC_ARGS(Allocator &al, Location &l,
-        arg_t* m_posonlyargs, size_t n_posonlyargs,
-        arg_t* m_args, size_t n_args,
-        arg_t* m_vararg, size_t n_vararg,
-        arg_t* m_kwonlyargs, size_t n_kwonlyargs,
-        expr_t** m_kw_defaults, size_t n_kw_defaults,
-        arg_t* m_kwarg, size_t n_kwarg,
-        expr_t** m_defaults, size_t n_defaults) {
+        Arg** m_posonlyargs, size_t n_posonlyargs,
+        Arg** m_args, size_t n_args,
+        Arg** m_vararg, size_t n_vararg,
+        Arg** m_kwonlyargs, size_t n_kwonlyargs,
+        Arg** m_kwarg, size_t n_kwarg) {
+    // TODO: Use parameter_list for LAMBDA instead of lambda_id_list,
+    // after which this function can be removed.
     Args *r = al.allocate<Args>();
+    Vec<expr_t*> defaults;
+    defaults.reserve(al, 4);
+    Vec<expr_t*> kw_defaults;
+    kw_defaults.reserve(al, 4);
+
+    FUNC_ARGS1_(posonlyargs);
+    FUNC_ARGS1_(args);
+    FUNC_ARGS1_(vararg);
+    FUNC_ARGS1_(kwonlyargs);
+    FUNC_ARGS1_(kwarg);
+
     r->arguments.loc = l;
-    r->arguments.m_posonlyargs = m_posonlyargs;
-    r->arguments.n_posonlyargs = n_posonlyargs;
-    r->arguments.m_args = m_args;
-    r->arguments.n_args = n_args;
-    r->arguments.m_vararg = m_vararg;
-    r->arguments.n_vararg = n_vararg;
-    r->arguments.m_kwonlyargs = m_kwonlyargs;
-    r->arguments.n_kwonlyargs = n_kwonlyargs;
-    r->arguments.m_kw_defaults = m_kw_defaults;
-    r->arguments.n_kw_defaults = n_kw_defaults;
-    r->arguments.m_kwarg = m_kwarg;
-    r->arguments.n_kwarg = n_kwarg;
-    r->arguments.m_defaults = m_defaults;
-    r->arguments.n_defaults = n_defaults;
+    FUNC_ARGS_(posonlyargs, false);
+    FUNC_ARGS_(args, false);
+    FUNC_ARGS_(vararg, false);
+    FUNC_ARGS_(kwonlyargs, true);
+    FUNC_ARGS_(kwarg, true);
+    r->arguments.m_kw_defaults = kw_defaults.p;
+    r->arguments.n_kw_defaults = kw_defaults.n;
+    r->arguments.m_defaults = defaults.p;
+    r->arguments.n_defaults = defaults.n;
     return r;
 }
 
-#define ARGS_01(arg, l) FUNC_ARG(p.m_a, l, name2char((ast_t *)arg), nullptr)
-#define ARGS_02(arg, annotation, l) FUNC_ARG(p.m_a, l, \
-        name2char((ast_t *)arg), EXPR(annotation))
-
-#define STAR_ARGS_01(vararg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        nullptr, 0, vararg, 1, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0)
-#define STAR_ARGS_02(vararg, kwonlyargs, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        nullptr, 0, vararg, 1, kwonlyargs.p, kwonlyargs.n, \
-        nullptr, 0, nullptr, 0, nullptr, 0)
-#define STAR_ARGS_03(vararg, kwonlyargs, kwarg, l) FUNC_ARGS(p.m_a, l, \
-        nullptr, 0, nullptr, 0, vararg, 1, kwonlyargs.p, kwonlyargs.n, \
-        nullptr, 0, kwarg, 1, nullptr, 0)
-#define STAR_ARGS_04(vararg, kwarg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        nullptr, 0, vararg, 1, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
-#define STAR_ARGS_05(kwarg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
-#define STAR_ARGS_06(args, vararg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        args.p, args.n, vararg, 1, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0)
-#define STAR_ARGS_07(args, vararg, kwonlyargs, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        args.p, args.n, vararg, 1, kwonlyargs.p, kwonlyargs.n, \
-        nullptr, 0, nullptr, 0, nullptr, 0)
-#define STAR_ARGS_08(args, vararg, kwonlyargs, kwarg, l) FUNC_ARGS(p.m_a, l, \
-        nullptr, 0, args.p, args.n, vararg, 1, kwonlyargs.p, kwonlyargs.n, \
-        nullptr, 0, kwarg, 1, nullptr, 0)
-#define STAR_ARGS_09(args, vararg, kwarg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        args.p, args.n, vararg, 1, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
-#define STAR_ARGS_10(args, kwarg, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        args.p, args.n, nullptr, 0, nullptr, 0, nullptr, 0, kwarg, 1, nullptr, 0)
-
 #define FUNC_ARG_LIST_01(args, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        args.p, args.n, nullptr, 0, nullptr, 0, nullptr, 0, \
+        args.p, args.n, nullptr, 0, nullptr, 0, nullptr,0)
+
+#define ARGS_01(arg, l) FUNC_ARG(p.m_a, l, \
+        name2char((ast_t *)arg), nullptr, nullptr)
+#define ARGS_02(arg, annotation, l) FUNC_ARG(p.m_a, l, \
+        name2char((ast_t *)arg), EXPR(annotation), nullptr)
+#define ARGS_03(arg, defaults, l) FUNC_ARG(p.m_a, l, \
+        name2char((ast_t *)arg), nullptr, EXPR(defaults))
+#define ARGS_04(arg, ann, defaults, l) FUNC_ARG(p.m_a, l, \
+        name2char((ast_t *)arg), EXPR(ann), EXPR(defaults))
+
+static inline void ADD_TYPE_COMMENT_(LFortran::Parser &p, Location l,
+        Vec<Arg*> &x, LFortran::Str &type_comment) {
+    x[x.size() - 1]->_arg.m_type_comment = extract_type_comment(p, l, type_comment);
+}
+
+#define ADD_TYPE_COMMENT(x, type_comment, l) \
+        ADD_TYPE_COMMENT_(p, l, x, type_comment)
+
+static inline Fn_Arg *FN_ARG(Allocator &al, Arg** m_posonlyargs,
+        size_t n_posonlyargs, Args_ *args) {
+    Fn_Arg *r = al.allocate<Fn_Arg>();
+    r->posonlyargs.p = m_posonlyargs;
+    r->posonlyargs.n = n_posonlyargs;
+    if(args) {
+        r->args_val = true;
+    } else {
+        r->args_val = false;
+    }
+    r->args = args;
+    return r;
+}
+
+static inline Args_ *ARGS(Allocator &al, Arg** m_args,
+        size_t n_args, Var_Kw *var_kw) {
+    Args_ *r = al.allocate<Args_>();
+    r->args.p = m_args;
+    r->args.n = n_args;
+    if(var_kw) {
+        r->var_kw_val = true;
+    } else {
+        r->var_kw_val = false;
+    }
+    r->var_kw = var_kw;
+    return r;
+}
+
+static inline Var_Kw *VAR_KW(Allocator &al,
+        Arg** m_kwarg, size_t n_kwarg,
+        Arg** m_kwonlyargs, size_t n_kwonlyargs,
+        Arg** m_vararg, size_t n_vararg) {
+    Var_Kw *r = al.allocate<Var_Kw>();
+    r->kwarg.p = m_kwarg;
+    r->kwarg.n = n_kwarg;
+    r->kwonlyargs.p = m_kwonlyargs;
+    r->kwonlyargs.n = n_kwonlyargs;
+    r->vararg.p = m_vararg;
+    r->vararg.n = n_vararg;
+    return r;
+}
+
+#define PARAMETER_LIST_01(posonlyargs, args) \
+        FN_ARG(p.m_a, posonlyargs.p, posonlyargs.n, args)
+#define PARAMETER_LIST_02(args) FN_ARG(p.m_a, nullptr, 0, args)
+#define PARAMETER_LIST_03(args, var_kw) ARGS(p.m_a, args.p, args.n, var_kw)
+#define PARAMETER_LIST_04(var_kw) ARGS(p.m_a, nullptr, 0, var_kw)
+#define PARAMETER_LIST_05(kwonlyargs) VAR_KW(p.m_a, nullptr, 0, \
+        kwonlyargs.p, kwonlyargs.n, nullptr, 0)
+#define PARAMETER_LIST_06(kwarg) VAR_KW(p.m_a, ARG2LIST(p.m_a, kwarg), 1, \
         nullptr, 0, nullptr, 0)
-#define FUNC_ARG_LIST_02(l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0, nullptr, 0)
+#define PARAMETER_LIST_07(kwonlyargs, kwarg) VAR_KW(p.m_a, \
+        ARG2LIST(p.m_a, kwarg), 1, kwonlyargs.p, kwonlyargs.n, nullptr, 0)
+#define PARAMETER_LIST_08(vararg) VAR_KW(p.m_a, nullptr, 0, \
+        nullptr, 0, ARG2LIST(p.m_a, vararg), 1)
+#define PARAMETER_LIST_09(vararg, kwonlyargs) VAR_KW(p.m_a, nullptr, 0, \
+        kwonlyargs.p, kwonlyargs.n, ARG2LIST(p.m_a, vararg), 1)
+#define PARAMETER_LIST_10(vararg, kwarg) VAR_KW(p.m_a, \
+        ARG2LIST(p.m_a, kwarg), 1, nullptr, 0, ARG2LIST(p.m_a, vararg), 1)
+#define PARAMETER_LIST_11(vararg, kwonlyargs, kwarg) VAR_KW(p.m_a, \
+        ARG2LIST(p.m_a, kwarg), 1, kwonlyargs.p, kwonlyargs.n, \
+        ARG2LIST(p.m_a, vararg), 1)
+#define PARAMETER_LIST_12(l) FUNC_ARGS_01(p.m_a, l, nullptr)
 
 #define FUNCTION_01(decorator, id, args, stmts, l) \
         make_FunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
@@ -387,6 +569,14 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
         make_FunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
         STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
         EXPR(return), nullptr)
+#define FUNCTION_03(decorator, id, args, stmts, type_comment, l) \
+        make_FunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
+        nullptr, extract_type_comment(p, l, type_comment))
+#define FUNCTION_04(decorator, id, args, return, stmts, type_comment, l) \
+        make_FunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
+        EXPR(return), extract_type_comment(p, l, type_comment))
 
 #define CLASS_01(decorator, id, stmts, l) make_ClassDef_t(p.m_a, l, \
         name2char(id), nullptr, 0, nullptr, 0, \
@@ -396,6 +586,29 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
         name2char(id), EXPRS(args), args.size(), nullptr, 0, \
         STMTS(stmts), stmts.size(), \
         EXPRS(decorator), decorator.size())
+#define CLASS_03(decorator, id, args, keywords, stmts, l) \
+        make_ClassDef_t(p.m_a, l, name2char(id), EXPRS(args), args.size(), \
+        keywords.p, keywords.n, STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size())
+#define CLASS_04(decorator, id, keywords, stmts, l) make_ClassDef_t(p.m_a, l, \
+        name2char(id), nullptr, 0, keywords.p, keywords.n, \
+        STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size())
+#define CLASS_05(decorator, id, args, tc, stmts, l) make_ClassDef_t(p.m_a, l, \
+        name2char(id), EXPRS(args), args.size(), nullptr, 0, \
+        STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size()); \
+        extract_type_comment(p, l, tc)
+#define CLASS_06(decorator, id, args, keywords, tc, stmts, l) \
+        make_ClassDef_t(p.m_a, l, name2char(id), EXPRS(args), args.size(), \
+        keywords.p, keywords.n, STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size()); \
+        extract_type_comment(p, l, tc)
+#define CLASS_07(decorator, id, keywords, tc, stmts, l) make_ClassDef_t(p.m_a, l, \
+        name2char(id), nullptr, 0, keywords.p, keywords.n, \
+        STMTS(stmts), stmts.size(), \
+        EXPRS(decorator), decorator.size()); \
+        extract_type_comment(p, l, tc)
 
 #define ASYNC_FUNCTION_01(decorator, id, args, stmts, l) \
         make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
@@ -411,32 +624,80 @@ static inline Args *FUNC_ARGS(Allocator &al, Location &l,
 #define ASYNC_FUNCTION_04(id, args, return, stmts, l) \
         make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
         STMTS(stmts), stmts.size(), nullptr, 0, EXPR(return), nullptr)
+#define ASYNC_FUNCTION_05(decorator, id, args, stmts, type_comment, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
+        nullptr, extract_type_comment(p, l, type_comment))
+#define ASYNC_FUNCTION_06(decorator, id, args, return, stmts, type_comment, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), EXPRS(decorator), decorator.size(), \
+        EXPR(return), extract_type_comment(p, l, type_comment))
+#define ASYNC_FUNCTION_07(id, args, stmts, type_comment, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), nullptr, 0, nullptr,\
+        extract_type_comment(p, l, type_comment))
+#define ASYNC_FUNCTION_08(id, args, return, stmts, type_comment, l) \
+        make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
+        STMTS(stmts), stmts.size(), nullptr, 0, EXPR(return),\
+        extract_type_comment(p, l, type_comment))
 
 #define ASYNC_FOR_01(target, iter, stmts, l) make_AsyncFor_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        EXPR(SET_EXPR_CTX_01(SET_CTX_01(target, Store), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), nullptr, 0, nullptr)
 #define ASYNC_FOR_02(target, iter, stmts, orelse, l) make_AsyncFor_t(p.m_a, l, \
-        EXPR(SET_EXPR_CTX_01(SET_STORE_01(target), Store)), EXPR(iter), \
+        EXPR(SET_EXPR_CTX_01(SET_CTX_01(target, Store), Store)), EXPR(iter), \
         STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), nullptr)
+#define ASYNC_FOR_03(target, iter, stmts, type_comment, l) make_AsyncFor_t(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(SET_CTX_01(target, Store), Store)), EXPR(iter), \
+        STMTS(stmts), stmts.size(), nullptr, 0, \
+        extract_type_comment(p, l, type_comment))
+#define ASYNC_FOR_04(target, iter, stmts, orelse, type_comment, l) make_AsyncFor_t(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(SET_CTX_01(target, Store), Store)), EXPR(iter), \
+        STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), \
+        extract_type_comment(p, l, type_comment))
 
 #define ASYNC_WITH(items, body, l) make_AsyncWith_t(p.m_a, l, \
+        convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
+        STMTS(body), body.size(), nullptr)
+#define ASYNC_WITH_02(items, body, l) make_AsyncWith_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), nullptr)
+#define ASYNC_WITH_01(items, body, type_comment, l) make_AsyncWith_t(p.m_a, l, \
+        convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
+        STMTS(body), body.size(), extract_type_comment(p, l, type_comment))
+#define ASYNC_WITH_03(items, body, type_comment, l) make_AsyncWith_t(p.m_a, l, \
+        items.p, items.size(), STMTS(body), body.size(), \
+        extract_type_comment(p, l, type_comment))
 
 #define WHILE_01(e, stmts, l) make_While_t(p.m_a, l, \
         EXPR(e), STMTS(stmts), stmts.size(), nullptr, 0)
 #define WHILE_02(e, stmts, orelse, l) make_While_t(p.m_a, l, \
         EXPR(e), STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size())
 
-Vec<ast_t*> MERGE_EXPR(Allocator &al, ast_t *x, ast_t *y) {
-    Vec<ast_t*> v;
-    v.reserve(al, 2);
-    v.push_back(al, x);
-    v.push_back(al, y);
-    return v;
+static inline ast_t* BOOLOP_01(Allocator &al, Location &loc,
+        boolopType op, ast_t *x, ast_t *y) {
+    expr_t* x1 = EXPR(x);
+    expr_t* y1 = EXPR(y);
+    Vec<expr_t*> v;
+    v.reserve(al, 4);
+    /*
+    if (is_a<BoolOp_t>(*x1)) {
+        BoolOp_t* tmp = down_cast<BoolOp_t>(x1);
+        if (op == tmp->m_op) {
+            for(size_t i = 0; i < tmp->n_values; i++) {
+                v.push_back(al, tmp->m_values[i]);
+            }
+            v.push_back(al, y1);
+        } else {
+            v.push_back(al, x1);
+            v.push_back(al, y1);
+        }
+    */
+    v.push_back(al, x1);
+    v.push_back(al, y1);
+    return make_BoolOp_t(al, loc, op, v.p, v.n);
 }
 
-#define BOOLOP(x, op, y, l) make_BoolOp_t(p.m_a, l, \
-        boolopType::op, EXPRS(MERGE_EXPR(p.m_a, x, y)), 2)
+#define BOOLOP(x, op, y, l) BOOLOP_01(p.m_a, l, op, x, y)
 #define BINOP(x, op, y, l) make_BinOp_t(p.m_a, l, \
         EXPR(x), operatorType::op, EXPR(y))
 #define UNARY(x, op, l) make_UnaryOp_t(p.m_a, l, unaryopType::op, EXPR(x))
@@ -476,9 +737,14 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
     Vec<expr_t *> exprs;
     exprs.reserve(al, 4);
     ast_t *tmp = nullptr;
-    // Assuming prefix has only one character.
-    prefix[0] = tolower(prefix[0]);
-    if (strcmp(prefix, "f") == 0) {
+    if (strcmp(prefix, "U") == 0 ) {
+        return make_ConstantStr_t(al, l,  s, nullptr);
+    }
+    for (size_t i = 0; i < strlen(prefix); i++) {
+        prefix[i] = tolower(prefix[i]);
+    }
+    if (strcmp(prefix, "f") == 0 || strcmp(prefix, "fr") == 0
+            || strcmp(prefix, "rf") == 0) {
         std::string str = std::string(s);
         std::string s1 = "\"";
         std::string id;
@@ -522,7 +788,8 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
             }
         }
         tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
-    } else if (strcmp(prefix, "b") == 0) {
+    } else if (strcmp(prefix, "b") == 0 || strcmp(prefix, "br") == 0
+            || strcmp(prefix, "rb") == 0) {
         std::string str = std::string(s);
         size_t start_pos = 0;
         while((start_pos = str.find("\n", start_pos)) != std::string::npos) {
@@ -533,8 +800,10 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
         tmp = make_ConstantBytes_t(al, l, LFortran::s2c(al, str), nullptr);
     } else if (strcmp(prefix, "r") == 0 ) {
         tmp = make_ConstantStr_t(al, l,  s, nullptr);
+    } else if (strcmp(prefix, "u") == 0 ) {
+        tmp = make_ConstantStr_t(al, l,  s, LFortran::s2c(al, "u"));
     } else {
-        throw LFortran::LFortranException("The string is not recognized by the parser.");
+        throw LFortran::LCompilersException("The string is not recognized by the parser.");
     }
     return tmp;
 }
@@ -547,18 +816,6 @@ static inline keyword_t *CALL_KW(Allocator &al, Location &l,
     r->m_value = val;
     return r;
 }
-#define CALL_KEYWORD_01(arg, val, l) CALL_KW(p.m_a, l, name2char(arg), EXPR(val))
-#define CALL_KEYWORD_02(val, l) CALL_KW(p.m_a, l, nullptr, EXPR(val))
-#define CALL_01(func, args, l) make_Call_t(p.m_a, l, \
-        EXPR(func), EXPRS(args), args.size(), nullptr, 0)
-#define CALL_02(func, args, keywords, l) make_Call_t(p.m_a, l, \
-        EXPR(func), EXPRS(args), args.size(), keywords.p, keywords.size())
-#define CALL_03(func, keywords, l) make_Call_t(p.m_a, l, \
-        EXPR(func), nullptr, 0, keywords.p, keywords.size())
-#define LIST(e, l) make_List_t(p.m_a, l, \
-        EXPRS(e), e.size(), expr_contextType::Load)
-#define ATTRIBUTE_REF(val, attr, l) make_Attribute_t(p.m_a, l, \
-        EXPR(val), name2char(attr), expr_contextType::Load)
 
 static inline comprehension_t *COMP(Allocator &al, Location &l,
         expr_t *target, expr_t* iter, expr_t **ifs, size_t ifs_size,
@@ -573,20 +830,47 @@ static inline comprehension_t *COMP(Allocator &al, Location &l,
     return r;
 }
 
+#define CALL_KEYWORD_01(arg, val, l) CALL_KW(p.m_a, l, name2char(arg), EXPR(val))
+#define CALL_KEYWORD_02(val, l) CALL_KW(p.m_a, l, nullptr, EXPR(val))
+#define CALL_01(func, args, l) make_Call_t(p.m_a, l, \
+        EXPR(func), EXPRS(args), args.size(), nullptr, 0)
+#define CALL_02(func, args, keywords, l) make_Call_t(p.m_a, l, \
+        EXPR(func), EXPRS(args), args.size(), keywords.p, keywords.size())
+#define CALL_03(func, keywords, l) make_Call_t(p.m_a, l, \
+        EXPR(func), nullptr, 0, keywords.p, keywords.size())
+
+#define COMP_FOR_01(target, iter, l) COMP(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), nullptr, 0, 0)
+#define COMP_FOR_02(target, iter, ifs, l) COMP(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
+        EXPRS(A2LIST(p.m_a, ifs)), 1, 0)
+
+#define GENERATOR_EXPR(elt, generators, l) make_GeneratorExp_t(p.m_a, l, \
+        EXPR(elt), generators.p, generators.n)
+
+#define LIST(e, l) make_List_t(p.m_a, l, \
+        EXPRS(e), e.size(), expr_contextType::Load)
+#define ATTRIBUTE_REF(val, attr, l) make_Attribute_t(p.m_a, l, \
+        EXPR(val), name2char(attr), expr_contextType::Load)
+
 static inline ast_t* ID_TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
     if(is_a<expr_t>(*elts[0]) && elts.size() == 1) {
         return (ast_t*) SET_EXPR_CTX_01(elts[0], Store);
     }
-    return make_Tuple_t(al, l, EXPRS(SET_EXPR_CTX_02(SET_STORE_02(elts), Store)), elts.size(), expr_contextType::Store);
+    return make_Tuple_t(al, l, EXPRS(SET_EXPR_CTX_02(SET_CTX_02(elts, Store), Store)),
+                                elts.size(), expr_contextType::Store);
 }
 #define ID_TUPLE_01(elts, l) ID_TUPLE_02(p.m_a, l, elts)
 #define ID_TUPLE_03(elts, l) make_Tuple_t(p.m_a, l, \
-        EXPRS(SET_EXPR_CTX_02(SET_STORE_02(elts), Store)), elts.size(), expr_contextType::Store);
+        EXPRS(SET_EXPR_CTX_02(SET_CTX_02(elts, Store), Store)), elts.size(), \
+        expr_contextType::Store);
 
-#define LIST_COMP_1(expr, target, iter, l) make_ListComp_t(p.m_a, l, EXPR(expr), \
-        COMP(p.m_a, l, EXPR(target), EXPR(iter), nullptr, 0, 0), 1)
-#define LIST_COMP_2(expr, target, iter, ifs, l) make_ListComp_t(p.m_a, l, EXPR(expr), \
-        COMP(p.m_a, l, EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), EXPRS(A2LIST(p.m_a, ifs)), 1, 0), 1)
+#define LIST_COMP_1(expr, generators, l) make_ListComp_t(p.m_a, l, \
+        EXPR(expr), generators.p, generators.n)
+#define SET_COMP_1(expr, generators, l) make_SetComp_t(p.m_a, l, \
+        EXPR(expr), generators.p, generators.n)
+#define DICT_COMP_1(key, val, generators, l) make_DictComp_t(p.m_a, l, \
+        EXPR(key), EXPR(val), generators.p, generators.n)
 
 expr_t* CHECK_TUPLE(expr_t *x) {
     if(is_a<Tuple_t>(*x) && down_cast<Tuple_t>(x)->n_elts == 1) {
@@ -604,8 +888,6 @@ expr_t* CHECK_TUPLE(expr_t *x) {
         EXPRS(elts), elts.size(), expr_contextType::Load)
 #define SUBSCRIPT_01(value, slice, l) make_Subscript_t(p.m_a, l, \
         EXPR(value), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
-#define SUBSCRIPT_02(s, slice, l) make_Subscript_t(p.m_a, l, \
-        EXPR(s), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
 
 static inline ast_t* SLICE(Allocator &al, Location &l,
         ast_t *lower, ast_t *upper, ast_t *_step) {
@@ -645,5 +927,6 @@ ast_t *DICT1(Allocator &al, Location &l, Vec<Key_Val*> dict_list) {
         EXPR(SET_EXPR_CTX_01(x, Store)), EXPR(y))
 #define STARRED_ARG(e, l) make_Starred_t(p.m_a, l, \
         EXPR(e), expr_contextType::Load)
+#define LAMBDA_01(args, e, l) make_Lambda_t(p.m_a, l, args->arguments, EXPR(e))
 
 #endif

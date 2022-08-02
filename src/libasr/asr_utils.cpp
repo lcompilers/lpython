@@ -64,13 +64,34 @@ std::vector<std::string> determine_module_dependencies(
     return order_deps(deps);
 }
 
+void extract_module_python(const ASR::TranslationUnit_t &m,
+                std::vector<std::pair<std::string, ASR::Module_t*>>& children_modules,
+                std::string module_name) {
+    bool module_found = false;
+    for (auto &a : m.m_global_scope->get_scope()) {
+        if( ASR::is_a<ASR::Module_t>(*a.second) ) {
+            if( a.first == "__main__" ) {
+                module_found = true;
+                children_modules.push_back(std::make_pair(module_name,
+                    ASR::down_cast<ASR::Module_t>(a.second)));
+            } else {
+                children_modules.push_back(std::make_pair(a.first,
+                    ASR::down_cast<ASR::Module_t>(a.second)));
+            }
+        }
+    }
+    if( !module_found ) {
+        throw LCompilersException("ICE: Module not found");
+    }
+}
+
 ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m) {
     LFORTRAN_ASSERT(m.m_global_scope->get_scope().size()== 1);
     for (auto &a : m.m_global_scope->get_scope()) {
         LFORTRAN_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
         return ASR::down_cast<ASR::Module_t>(a.second);
     }
-    throw LFortranException("ICE: Module not found");
+    throw LCompilersException("ICE: Module not found");
 }
 
 ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
@@ -393,7 +414,7 @@ bool is_op_overloaded(ASR::binopType op, std::string& intrinsic_op_name,
             break;
         }
         default: {
-            throw LFortranException("Binary operator '" + ASRUtils::binop_to_str_python(op) + "' not supported yet");
+            throw LCompilersException("Binary operator '" + ASRUtils::binop_to_str_python(op) + "' not supported yet");
         }
     }
     if( result && curr_scope->get_symbol(intrinsic_op_name) == nullptr ) {
