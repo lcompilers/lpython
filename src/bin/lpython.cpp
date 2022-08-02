@@ -758,7 +758,7 @@ int main(int argc, char *argv[])
         app.add_flag("--print-targets", print_targets, "Print the registered targets");
         app.add_flag("--get-rtlib-header-dir", print_rtlib_header_dir, "Print the path to the runtime library header file");
         
-        app.add_flag("--show-documentSymbols", show_documentSymbols, "Show symbols in lpython file");
+        app.add_flag("--show-document-symbols", show_document_symbols, "Show symbols in lpython file");
         if( compiler_options.fast ) {
             lpython_pass_manager.use_optimization_passes();
         }
