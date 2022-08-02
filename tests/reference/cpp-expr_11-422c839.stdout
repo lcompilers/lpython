@@ -37,7 +37,7 @@ void _lpython_main_program()
 void f()
 {
     bool b;
-    int i;
+    int32_t i;
     i = 3;
     b = (bool)(i);
     assert (b);

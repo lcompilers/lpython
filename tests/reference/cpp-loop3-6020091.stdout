@@ -30,7 +30,7 @@ namespace {
 // Implementations
 void test_pass()
 {
-    int a;
+    int32_t a;
     a = 1;
     while (a > 0) {
     }
