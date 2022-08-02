@@ -935,6 +935,31 @@ public:
                 throw SemanticError("Casting " + rtype + " to complex is not Implemented",
                         right->base.loc);
             }
+        } else if (is_assign && ASR::is_a<ASR::List_t>(*right_type) && ASRUtils::is_array(left_type)) {
+            ASR::ttype_t* list_type = ASR::down_cast<ASR::List_t>(right_type)->m_type;
+            if (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*list_type)) {
+                if (ASR::is_a<ASR::ListConstant_t>(*right)) {
+                    ASR::ListConstant_t* list = ASR::down_cast<ASR::ListConstant_t>(right);
+                    ASR::expr_t **m_args = list->m_args;
+                    size_t n_args = list->n_args;
+                    return (ASR::expr_t *)ASR::make_ArrayConstant_t(
+                                        al, right->base.loc, m_args, n_args, list_type);
+                } else {
+                    throw SemanticError("Only assigning real ConstantList is supported for now",
+                            right->base.loc);
+                }
+            } else if (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*list_type)) {
+                if (ASR::is_a<ASR::ListConstant_t>(*right)) {
+                    ASR::ListConstant_t* list = ASR::down_cast<ASR::ListConstant_t>(right);
+                    ASR::expr_t **m_args = list->m_args;
+                    size_t n_args = list->n_args;
+                    return (ASR::expr_t *)ASR::make_ArrayConstant_t(
+                                        al, right->base.loc, m_args, n_args, list_type);
+                } else {
+                    throw SemanticError("Only assigning Integer ConstantList is supported for now",
+                            right->base.loc);
+                }
+            }
         }
         if (!is_assign) { // This will only be used for BinOp
             if (ASRUtils::is_logical(*left_type) && ASRUtils::is_logical(*right_type)) {
