@@ -385,22 +385,6 @@ R"(#include <stdio.h>
             }
 
             std::string decl;
-            if( to_lower(x.m_name) == "_lpython_main_program" ) {
-                for (auto &item : global_scope->get_scope()) {
-                    if (ASR::is_a<ASR::Variable_t>(*item.second)) {
-                        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                        // Ignore type variables
-                        if (!ASR::is_a<ASR::TypeParameter_t>(*v->m_type) &&
-                                v->m_intent == LFortran::ASRUtils::intent_local) {
-                            if (sym_info[get_hash((ASR::asr_t*) v)].needs_declaration) {
-                                std::string indent(indentation_level*indentation_spaces, ' ');
-                                decl += indent;
-                                decl += self().convert_variable_decl(*v) + ";\n";
-                            }
-                        }
-                    }
-                }
-            }
             for (auto &item : x.m_symtab->get_scope()) {
                 if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);

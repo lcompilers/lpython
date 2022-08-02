@@ -107,7 +107,7 @@ public:
             al, x.base.base.loc,
             current_scope, s2c(al, func_name),
             args.p, args.size(),
-            nullptr, 0,             // type parameters
+            nullptr, 0,
             body.p, body.size(),
             ASRUtils::EXPR(new_return_var_ref),
             func_abi, func_access, func_deftype, false, bindc_name);   

@@ -87,7 +87,7 @@ symbol
     | Subroutine(symbol_table symtab, identifier name, expr* args, stmt* body,
         abi abi, access access, deftype deftype, string? bindc_name, bool pure,
         bool module)
-    | Function(symbol_table symtab, identifier name, expr* args, ttype* type_ps,
+    | Function(symbol_table symtab, identifier name, expr* args, ttype* type_params,
         stmt* body, expr return_var, abi abi, access access, deftype deftype,
         bool elemental, string? bindc_name)
     | GenericProcedure(symbol_table parent_symtab, identifier name,

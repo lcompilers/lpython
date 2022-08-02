@@ -28,6 +28,7 @@
 #include <lpython/semantics/python_attribute_eval.h>
 #include <lpython/parser/parser.h>
 
+
 namespace LFortran::LPython {
 
 // Does a CPython style lookup for a module:
@@ -264,10 +265,12 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
     return nullptr;
 }
 
+
 template <class Derived>
 class CommonVisitor : public AST::BaseVisitor<Derived> {
 public:
     diag::Diagnostics &diag;
+
 
     ASR::asr_t *tmp;
     Allocator &al;
@@ -286,8 +289,6 @@ public:
     std::string parent_dir;
     Vec<ASR::stmt_t*> *current_body;
 
-    std::map<std::string, std::map<int, Vec<ASR::expr_t*>>> generic_defs;
-    
     std::map<std::string, int> generic_func_nums;
     std::map<std::string, std::map<std::string, ASR::ttype_t*>> generic_func_subs;
 
@@ -580,16 +581,6 @@ public:
             }
             throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
         }
-        /*
-        } else {
-            ASR::symbol_t* der_sym = ASRUtils::symbol_get_past_external(
-                                        current_scope->resolve_symbol(var_annotation));
-            if( !der_sym || der_sym->type != ASR::symbolType::DerivedType ) {
-                throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
-            }
-            type = ASRUtils::TYPE(ASR::make_Derived_t(al, loc, der_sym, dims.p, dims.size()));
-        }
-        */
         return type;
     }
 
@@ -634,7 +625,7 @@ public:
         }
         if (ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
-            if (func->n_type_ps == 0) {
+            if (func->n_type_params == 0) {
                 ASR::ttype_t *a_type = nullptr;
                 if( func->m_elemental && args.size() == 1 &&
                     ASRUtils::is_array(ASRUtils::expr_type(args[0].m_value)) ) {
@@ -749,18 +740,7 @@ public:
                     throw SemanticError("Inconsistent type variable for the function call", loc);
                 }
             } else {
-                if (ASRUtils::is_array(param_type) && ASRUtils::is_array(arg_type)) {
-                    ASR::dimension_t* dims = nullptr;
-                    int param_dims = ASRUtils::extract_dimensions_from_ttype(param_type, dims);
-                    int arg_dims = ASRUtils::extract_dimensions_from_ttype(arg_type, dims);
-                    if (param_dims == arg_dims) {
-                        subs[param_name] = ASRUtils::duplicate_type_without_dims(al, arg_type);
-                    } else {
-                        throw SemanticError("Inconsistent type subsititution for array type", loc);
-                    }
-                } else {
-                    subs[param_name] = arg_type;
-                }
+                subs[param_name] = ASRUtils::duplicate_type(al, arg_type);
             }
         }
         return subs;
@@ -1417,7 +1397,6 @@ public:
 
             tmp = ASR::make_ComplexBinOp_t(al, loc, left, op, right, dest_type, value);
 
-        // } else if (ASRUtils::is_type_parameter(*dest_type)) {
         } else if (ASRUtils::is_generic(*dest_type)) {
             tmp = ASR::make_TemplateBinOp_t(al, loc, left, op, right, dest_type, value);
         }
@@ -2282,7 +2261,6 @@ public:
             ASR::ttype_t *arg_type = ast_expr_to_asr_type(x.base.base.loc, *x.m_args.m_args[i].m_annotation);
             // Set the function as generic if an argument is typed with a type parameter
             if (ASRUtils::is_generic(*arg_type)) { 
-                // generic = true;
                 std::string param_name = ASRUtils::get_parameter_name(arg_type); 
                 ps.insert(param_name);
             }
@@ -2351,13 +2329,13 @@ public:
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     current_scope->get_symbol(return_var_name));
                 if (ps.size() > 0) {
-                    Vec<ASR::ttype_t*> type_ps;
-                    type_ps.reserve(al, ps.size());
+                    Vec<ASR::ttype_t*> type_params;
+                    type_params.reserve(al, ps.size());
                     for (auto &p: ps) {
                         std::string param = p;
                         ASR::ttype_t *type_p = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, 
                                 x.base.base.loc, s2c(al, p), nullptr, 0));
-                        type_ps.push_back(al, type_p);
+                        type_params.push_back(al, type_p);
                     }
                     tmp = ASR::make_Function_t(
                         al, x.base.base.loc,
@@ -2365,8 +2343,8 @@ public:
                         /* a_name */ s2c(al, sym_name),
                         /* a_args */ args.p,
                         /* n_args */ args.size(),
-                        /* a_type_ps */ type_ps.p,
-                        /* n_type_ps */ type_ps.size(),
+                        /* a_type_params */ type_params.p,
+                        /* n_type_params */ type_params.size(),
                         /* a_body */ nullptr,
                         /* n_body */ 0,
                         /* a_return_var */ ASRUtils::EXPR(return_var_ref),
@@ -2379,8 +2357,8 @@ public:
                         /* a_name */ s2c(al, sym_name),
                         /* a_args */ args.p,
                         /* n_args */ args.size(),
-                        /* a_type_ps */ nullptr,
-                        /* n_type_ps */ 0,
+                        /* a_type_params */ nullptr,
+                        /* n_type_params */ 0,
                         /* a_body */ nullptr,
                         /* n_body */ 0,
                         /* a_return_var */ ASRUtils::EXPR(return_var_ref),
@@ -2745,7 +2723,7 @@ public:
             AST::expr_t *target = x.m_targets[i];
             if (AST::is_a<AST::Name_t>(*target)) {
                 AST::Name_t *n = AST::down_cast<AST::Name_t>(target);
-                std::string var_name = n->m_id  ;
+                std::string var_name = n->m_id;
                 if (!current_scope->resolve_symbol(var_name)) {
                     throw SemanticError("Symbol is not declared",
                             x.base.base.loc);
@@ -4395,7 +4373,6 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
         } else {
             return res2.error;
         }
-        // std::cout << pickle(*tu, 1, 1, 0) << std::endl;
         LFORTRAN_ASSERT(asr_verify(*tu));
     }
 
@@ -4416,7 +4393,6 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
                 LFORTRAN_ASSERT(asr_verify(*tu));
             }
         } else {
-            // problem here
             pass_wrap_global_stmts_into_program(al, *tu, "_lpython_main_program");
             LFORTRAN_ASSERT(asr_verify(*tu));
         }
