@@ -679,7 +679,7 @@ int main(int argc, char *argv[])
         bool show_asr = false;
         bool show_cpp = false;
         bool show_c = false;
-        bool show_documentSymbols = false;
+        bool show_document_symbols = false;
         bool with_intrinsic_modules = false;
         std::string arg_pass;
         bool arg_no_color = false;
