@@ -937,8 +937,8 @@ int main(int argc, char *argv[])
 #ifdef HAVE_LFORTRAN_RAPIDJSON
             return get_symbols(arg_file, runtime_library_dir, compiler_options);
 #else
-           std::cerr << "Compiler was not built with LSP support (-DWITH_LSP), please build it again." << std::endl;
-           return 1;
+            std::cerr << "Compiler was not built with LSP support (-DWITH_LSP), please build it again." << std::endl;
+            return 1;
 #endif
        }
 
