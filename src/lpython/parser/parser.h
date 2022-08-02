@@ -18,10 +18,12 @@ public:
     Allocator &m_a;
     Tokenizer m_tokenizer;
     Vec<LPython::AST::stmt_t*> result;
+    Vec<LPython::AST::type_ignore_t*> type_ignore;
 
     Parser(Allocator &al, diag::Diagnostics &diagnostics)
             : diag{diagnostics}, m_a{al} {
         result.reserve(al, 32);
+        type_ignore.reserve(al, 4);
     }
 
     void parse(const std::string &input);

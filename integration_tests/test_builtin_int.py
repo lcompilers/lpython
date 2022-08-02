@@ -1,9 +1,15 @@
-from ltypes import f64
+from ltypes import f64, i32, i64
 
 def test_int():
     f: f64
     f = 5.678
+    i: i32
+    i = 4
     assert int() == 0
+    assert int(i) == 4
+    i2: i64
+    i2 = int(3.0)
+    assert i2 == 3
     assert int(5.678) == 5
     assert int(f) == 5
     f = -183745.23

@@ -96,7 +96,7 @@ class Transform(ast.NodeVisitor):
                 raise Exception("Unsupported value type")
         new_ast = getattr(python_ast, class_name)
         new_node = new_ast(**d)
-        if hasattr(node, "lineno"):
+        if hasattr(node, "col_offset"):
             new_node.first = linecol_to_pos(node.lineno, node.col_offset+1, newlines)
             new_node.last = linecol_to_pos(node.end_lineno, node.end_col_offset, newlines)
         else:

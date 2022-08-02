@@ -31,6 +31,10 @@ from x import (
     a,
     b
 )
+from x import (
+    a,
+    b,
+)
 from x import ( # Comment
     a # Comment
 ) # Comment

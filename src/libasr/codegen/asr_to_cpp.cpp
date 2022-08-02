@@ -68,26 +68,23 @@ public:
         : BaseCCPPVisitor(diag, platform, true, true, false,
                           default_lower_bound),
           array_types_decls(std::string("\nstruct dimension_descriptor\n"
-                                        "{\n    int32_t lower_bound, upper_bound;\n};\n")) {}
+                                        "{\n    int32_t lower_bound, length;\n};\n")) {}
 
     std::string convert_dims(size_t n_dims, ASR::dimension_t *m_dims, size_t& size)
     {
         std::string dims;
         size = 1;
         for (size_t i=0; i<n_dims; i++) {
-            ASR::expr_t *start = m_dims[i].m_start;
-            ASR::expr_t *end = m_dims[i].m_end;
-            if (!start && !end) {
+            ASR::expr_t *length = m_dims[i].m_length;
+            if (!length) {
                 dims += "*";
-            } else if (start && end) {
-                ASR::expr_t* start_value = ASRUtils::expr_value(start);
-                ASR::expr_t* end_value = ASRUtils::expr_value(end);
-                if( start_value && end_value ) {
-                    int64_t start_int = -1, end_int = -1;
-                    ASRUtils::extract_value(start_value, start_int);
-                    ASRUtils::extract_value(end_value, end_int);
-                    size *= (end_int - start_int + 1);
-                    dims += "[" + std::to_string(end_int - start_int + 1) + "]";
+            } else if (length) {
+                ASR::expr_t* length_value = ASRUtils::expr_value(length);
+                if( length_value ) {
+                    int64_t length_int = -1;
+                    ASRUtils::extract_value(length_value, length_int);
+                    size *= (length_int);
+                    dims += "[" + std::to_string(length_int) + "]";
                 } else {
                     size = 0;
                     dims += "[ /* FIXME symbolic dimensions */ ]";
@@ -175,13 +172,13 @@ public:
                         sub += indent + std::string(v_m_name) +
                             "->dims[" + std::to_string(i) + "].lower_bound = 0" + ";\n";
                     }
-                    if( m_dims[i].m_end ) {
-                        this->visit_expr(*m_dims[i].m_end);
+                    if( m_dims[i].m_length ) {
+                        this->visit_expr(*m_dims[i].m_length);
                         sub += indent + std::string(v_m_name) +
-                            "->dims[" + std::to_string(i) + "].upper_bound = " + src + ";\n";
+                            "->dims[" + std::to_string(i) + "].length = " + src + ";\n";
                     } else {
                         sub += indent + std::string(v_m_name) +
-                            "->dims[" + std::to_string(i) + "].upper_bound = -1" + ";\n";
+                            "->dims[" + std::to_string(i) + "].length = 0" + ";\n";
                     }
                 }
                 sub.pop_back();
@@ -559,6 +556,21 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         last_expr_precedence = 2;
     }
 
+    void visit_ArrayConstant(const ASR::ArrayConstant_t &x) {
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        from_std_vector_helper = indent + "Kokkos::View<float*> r;\n";
+        std::string out = "from_std_vector<float>({";
+        for (size_t i=0; i<x.n_args; i++) {
+            this->visit_expr(*x.m_args[i]);
+            out += src;
+            if (i < x.n_args-1) out += ", ";
+        }
+        out += "})";
+        from_std_vector_helper += indent + "r = " + out + ";\n";
+        src = "&r";
+        last_expr_precedence = 2;
+    }
+
     void visit_StringConcat(const ASR::StringConcat_t &x) {
         this->visit_expr(*x.m_left);
         std::string left = std::move(src);
@@ -580,19 +592,17 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
     }
 
-    void visit_ArrayConstant(const ASR::ArrayConstant_t &x) {
-        std::string indent(indentation_level * indentation_spaces, ' ');
-        from_std_vector_helper = indent + "Kokkos::View<float*> r;\n";
-        std::string out = "from_std_vector<float>({";
-        for (size_t i=0; i<x.n_args; i++) {
-            this->visit_expr(*x.m_args[i]);
-            out += src;
-            if (i < x.n_args-1) out += ", ";
-        }
-        out += "})";
-        from_std_vector_helper += indent + "r = " + out + ";\n";
-        src = "&r";
-        last_expr_precedence = 2;
+    void visit_StringItem(const ASR::StringItem_t& x) {
+        this->visit_expr(*x.m_idx);
+        std::string idx = std::move(src);
+        this->visit_expr(*x.m_arg);
+        std::string str = std::move(src);
+        src = str + "[" + idx + " - 1]";
+    }
+
+    void visit_StringLen(const ASR::StringLen_t &x) {
+        this->visit_expr(*x.m_arg);
+        src = src + ".length()";
     }
 
     void visit_Print(const ASR::Print_t &x) {
@@ -611,7 +621,12 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
                 out += "<< " + sep + " ";
             }
         }
-        out += "<< std::endl;\n";
+        if (x.m_end) {
+            this->visit_expr(*x.m_end);
+            out += "<< " + src + ";\n";
+        } else {
+            out += "<< std::endl;\n";
+        }
         src = out;
     }
 
@@ -656,6 +671,32 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         }
         out += indent + "});\n";
         indentation_level -= 1;
+        src = out;
+    }
+
+    void visit_ArrayItem(const ASR::ArrayItem_t &x) {
+        this->visit_expr(*x.m_v);
+        std::string array = src;
+        std::string out = array;
+        ASR::dimension_t* m_dims;
+        ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(x.m_v), m_dims);
+        out += "->data->operator[](";
+        std::string index = "";
+        for (size_t i=0; i<x.n_args; i++) {
+            std::string current_index = "";
+            if (x.m_args[i].m_right) {
+                this->visit_expr(*x.m_args[i].m_right);
+            } else {
+                src = "/* FIXME right index */";
+            }
+            out += src;
+            out += " - " + array + "->dims[" + std::to_string(i) + "].lower_bound";
+            if (i < x.n_args - 1) {
+                out += ", ";
+            }
+        }
+        out += ")";
+        last_expr_precedence = 2;
         src = out;
     }
 
