@@ -405,6 +405,129 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
             self.emit(  "this->visit_symbol(*a.second);", 3)
             self.emit("}", 2)
 
+class CallReplacerOnExpressionsVisitor(ASDLVisitor):
+
+    def visitModule(self, mod):
+        self.emit("/" + "*"*78 + "/")
+        self.emit("// Walk Visitor base class")
+        self.emit("")
+        self.emit("template <class Derived>")
+        self.emit("class CallReplacerOnExpressionsVisitor : public BaseVisitor<Derived>")
+        self.emit("{")
+        self.emit("private:")
+        self.emit("    Derived& self() { return static_cast<Derived&>(*this); }")
+        self.emit("public:")
+        self.emit("    ASR::expr_t** current_expr;")
+        self.emit("    ASR::expr_t** current_expr_copy;")
+        self.emit("")
+        self.emit("    void call_replacer() {}")
+        super(CallReplacerOnExpressionsVisitor, self).visitModule(mod)
+        self.emit("};")
+
+    def visitType(self, tp):
+        if not (isinstance(tp.value, asdl.Sum) and
+                is_simple_sum(tp.value)):
+            super(CallReplacerOnExpressionsVisitor, self).visitType(tp, tp.name)
+
+    def visitProduct(self, prod, name):
+        self.make_visitor(name, prod.fields)
+
+    def visitConstructor(self, cons, _):
+        self.make_visitor(cons.name, cons.fields)
+
+    def make_visitor(self, name, fields):
+        self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
+        self.used = False
+        have_body = False
+        for field in fields:
+            self.visitField(field)
+        if not self.used:
+            # Note: a better solution would be to change `&x` to `& /* x */`
+            # above, but we would need to change emit to return a string.
+            self.emit("if ((bool&)x) { } // Suppress unused warning", 2)
+        self.emit("}", 1)
+
+    def insert_call_replacer_code(self, name, level, index=""):
+        self.emit("    current_expr_copy = current_expr;", level)
+        self.emit("    current_expr = const_cast<ASR::expr_t**>(&(x.m_%s%s));" % (name, index), level)
+        self.emit("    self().call_replacer();", level)
+        self.emit("    current_expr = current_expr_copy;", level)
+
+    def visitField(self, field):
+        if (field.type not in asdl.builtin_types and
+            field.type not in self.data.simple_types):
+            level = 2
+            if field.seq:
+                self.used = True
+                self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
+                if field.type in products:
+                    if field.type == "expr":
+                        self.insert_call_replacer_code(field.name, level, "[i]")
+                    self.emit("    self().visit_%s(x.m_%s[i]);" % (field.type, field.name), level)
+                else:
+                    if field.type != "symbol":
+                        if field.type == "expr":
+                            self.insert_call_replacer_code(field.name, level, "[i]")
+                        self.emit("    self().visit_%s(*x.m_%s[i]);" % (field.type, field.name), level)
+                self.emit("}", level)
+            else:
+                if field.type in products:
+                    self.used = True
+                    if field.opt:
+                        self.emit("if (x.m_%s) {" % field.name, 2)
+                        level = 3
+                        if field.type == "expr":
+                            self.insert_call_replacer_code(field.name, level)
+                    if field.opt:
+                        self.emit("self().visit_%s(*x.m_%s);" % (field.type, field.name), level)
+                        self.emit("}", 2)
+                    else:
+                        self.emit("self().visit_%s(x.m_%s);" % (field.type, field.name), level)
+                else:
+                    if field.type != "symbol":
+                        self.used = True
+                        if field.opt:
+                            self.emit("if (x.m_%s) {" % field.name, 2)
+                            level = 3
+                        if field.type == "expr":
+                            self.insert_call_replacer_code(field.name, level)
+                        self.emit("self().visit_%s(*x.m_%s);" % (field.type, field.name), level)
+                        if field.opt:
+                            self.emit("}", 2)
+        elif field.type == "symbol_table" and field.name in["symtab",
+                "global_scope"]:
+            self.used = True
+            self.emit("for (auto &a : x.m_%s->get_scope()) {" % field.name, 2)
+            self.emit(  "this->visit_symbol(*a.second);", 3)
+            self.emit("}", 2)
+
+class StatementsFirstWalkVisitorVisitor(ASTWalkVisitorVisitor, ASDLVisitor):
+
+    def visitModule(self, mod):
+        self.emit("/" + "*"*78 + "/")
+        self.emit("// Statements First Visitor base class")
+        self.emit("")
+        self.emit("template <class Derived>")
+        self.emit("class StatementsFirstBaseWalkVisitor : public BaseVisitor<Derived>")
+        self.emit("{")
+        self.emit("private:")
+        self.emit("    Derived& self() { return static_cast<Derived&>(*this); }")
+        self.emit("public:")
+        super(ASTWalkVisitorVisitor, self).visitModule(mod)
+        self.emit("};")
+
+    def make_visitor(self, name, fields):
+        self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
+        self.used = False
+        have_body = False
+        for field in fields[::-1]:
+            self.visitField(field)
+        if not self.used:
+            # Note: a better solution would be to change `&x` to `& /* x */`
+            # above, but we would need to change emit to return a string.
+            self.emit("if ((bool&)x) { } // Suppress unused warning", 2)
+        self.emit("}", 1)
+
 # This class generates a visitor that prints the tree structure of AST/ASR
 class TreeVisitorVisitor(ASDLVisitor):
 
@@ -915,94 +1038,94 @@ class ExprBaseReplacerVisitor(ASDLVisitor):
 
 class StmtBaseReplacerVisitor(ASDLVisitor):
 
-    def __init__(self, stream, data):
-        self.replace_stmt = []
-        self.is_stmt = False
-        self.is_product = False
-        super(StmtBaseReplacerVisitor, self).__init__(stream, data)
+     def __init__(self, stream, data):
+         self.replace_stmt = []
+         self.is_stmt = False
+         self.is_product = False
+         super(StmtBaseReplacerVisitor, self).__init__(stream, data)
 
-    def visitModule(self, mod):
-        self.emit("/" + "*"*78 + "/")
-        self.emit("// Statement Replacer Base class")
-        self.emit("")
-        self.emit("template <class Derived>")
-        self.emit("class BaseStmtReplacer {")
-        self.emit("public:")
-        self.emit("    Derived& self() { return static_cast<Derived&>(*this); }")
-        self.emit("")
-        self.emit("    ASR::stmt_t** current_stmt;")
-        self.emit("    ASR::stmt_t** current_stmt_copy;")
-        self.emit("    bool has_replacement_happened;")
-        self.emit("")
-        self.emit("    BaseStmtReplacer() : current_stmt(nullptr), has_replacement_happened(false) {}")
-        self.emit("")
+     def visitModule(self, mod):
+         self.emit("/" + "*"*78 + "/")
+         self.emit("// Statement Replacer Base class")
+         self.emit("")
+         self.emit("template <class Derived>")
+         self.emit("class BaseStmtReplacer {")
+         self.emit("public:")
+         self.emit("    Derived& self() { return static_cast<Derived&>(*this); }")
+         self.emit("")
+         self.emit("    ASR::stmt_t** current_stmt;")
+         self.emit("    ASR::stmt_t** current_stmt_copy;")
+         self.emit("    bool has_replacement_happened;")
+         self.emit("")
+         self.emit("    BaseStmtReplacer() : current_stmt(nullptr), has_replacement_happened(false) {}")
+         self.emit("")
 
-        self.replace_stmt.append(("    void replace_stmt(ASR::stmt_t* x) {", 0))
-        self.replace_stmt.append(("    if( !x ) {", 1))
-        self.replace_stmt.append(("    return ;", 2))
-        self.replace_stmt.append(("    }", 1))
-        self.replace_stmt.append(("", 0))
-        self.replace_stmt.append(("    switch(x->type) {", 1))
+         self.replace_stmt.append(("    void replace_stmt(ASR::stmt_t* x) {", 0))
+         self.replace_stmt.append(("    if( !x ) {", 1))
+         self.replace_stmt.append(("    return ;", 2))
+         self.replace_stmt.append(("    }", 1))
+         self.replace_stmt.append(("", 0))
+         self.replace_stmt.append(("    switch(x->type) {", 1))
 
-        super(StmtBaseReplacerVisitor, self).visitModule(mod)
+         super(StmtBaseReplacerVisitor, self).visitModule(mod)
 
-        self.replace_stmt.append(("    default: {", 2))
-        self.replace_stmt.append(('    LFORTRAN_ASSERT_MSG(false, "Replacement of " + std::to_string(x->type) + " statement is not supported yet.");', 3))
-        self.replace_stmt.append(("    }", 2))
-        self.replace_stmt.append(("    }", 1))
-        self.replace_stmt.append(("", 0))
-        self.replace_stmt.append(("    }", 0))
-        for line, level in self.replace_stmt:
-            self.emit(line, level=level)
-        self.emit("")
-        self.emit("};")
+         self.replace_stmt.append(("    default: {", 2))
+         self.replace_stmt.append(('    LFORTRAN_ASSERT_MSG(false, "Replacement of " + std::to_string(x->type) + " statement is not supported yet.");', 3))
+         self.replace_stmt.append(("    }", 2))
+         self.replace_stmt.append(("    }", 1))
+         self.replace_stmt.append(("", 0))
+         self.replace_stmt.append(("    }", 0))
+         for line, level in self.replace_stmt:
+             self.emit(line, level=level)
+         self.emit("")
+         self.emit("};")
 
-    def visitType(self, tp):
-        if not (isinstance(tp.value, asdl.Sum) and
-                is_simple_sum(tp.value)):
-            super(StmtBaseReplacerVisitor, self).visitType(tp, tp.name)
+     def visitType(self, tp):
+         if not (isinstance(tp.value, asdl.Sum) and
+                 is_simple_sum(tp.value)):
+             super(StmtBaseReplacerVisitor, self).visitType(tp, tp.name)
 
-    def visitSum(self, sum, *args):
-        self.is_stmt = args[0] == 'stmt'
-        if self.is_stmt:
-            for tp in sum.types:
-                self.visit(tp, *args)
+     def visitSum(self, sum, *args):
+         self.is_stmt = args[0] == 'stmt'
+         if self.is_stmt:
+             for tp in sum.types:
+                 self.visit(tp, *args)
 
-    def visitProduct(self, prod, name):
-        pass
+     def visitProduct(self, prod, name):
+         pass
 
-    def visitConstructor(self, cons, _):
-        self.make_visitor(cons.name, cons.fields)
+     def visitConstructor(self, cons, _):
+         self.make_visitor(cons.name, cons.fields)
 
-    def make_visitor(self, name, fields):
-        self.emit("")
-        self.emit("void replace_%s(%s_t* x) {" % (name, name), 1)
-        self.used = False
-        for field in fields:
-            self.visitField(field)
-        if not self.used:
-            self.emit("if (x) { }", 2)
+     def make_visitor(self, name, fields):
+         self.emit("")
+         self.emit("void replace_%s(%s_t* x) {" % (name, name), 1)
+         self.used = False
+         for field in fields:
+             self.visitField(field)
+         if not self.used:
+             self.emit("if (x) { }", 2)
 
-        if self.is_stmt:
-            self.replace_stmt.append(("    case ASR::stmtType::%s: {" % name, 2))
-            self.replace_stmt.append(("    self().replace_%s(down_cast<ASR::%s_t>(x));" % (name, name), 3))
-            self.replace_stmt.append(("    break;", 3))
-            self.replace_stmt.append(("    }", 2))
-        self.emit("}", 1)
-        self.emit("")
+         if self.is_stmt:
+             self.replace_stmt.append(("    case ASR::stmtType::%s: {" % name, 2))
+             self.replace_stmt.append(("    self().replace_%s(down_cast<ASR::%s_t>(x));" % (name, name), 3))
+             self.replace_stmt.append(("    break;", 3))
+             self.replace_stmt.append(("    }", 2))
+         self.emit("}", 1)
+         self.emit("")
 
-    def visitField(self, field):
-        arguments = None
-        if field.type == "stmt":
-            level = 2
-            if field.seq:
-                self.used = True
-                self.emit("for (size_t i = 0; i < x->n_%s; i++) {" % field.name, level)
-                self.emit("    current_stmt_copy = current_stmt;", level)
-                self.emit("    current_stmt = &(x->m_%s[i]);" % (field.name), level)
-                self.emit("    self().replace_stmt(x->m_%s[i]);"%(field.name), level)
-                self.emit("    current_stmt = current_stmt_copy;", level)
-                self.emit("}", level)
+     def visitField(self, field):
+         arguments = None
+         if field.type == "stmt":
+             level = 2
+             if field.seq:
+                 self.used = True
+                 self.emit("for (size_t i = 0; i < x->n_%s; i++) {" % field.name, level)
+                 self.emit("    current_stmt_copy = current_stmt;", level)
+                 self.emit("    current_stmt = &(x->m_%s[i]);" % (field.name), level)
+                 self.emit("    self().replace_stmt(x->m_%s[i]);"%(field.name), level)
+                 self.emit("    current_stmt = current_stmt_copy;", level)
+                 self.emit("}", level)
 
 class PickleVisitorVisitor(ASDLVisitor):
 
@@ -2010,7 +2133,8 @@ FOOT = r"""} // namespace LFortran::%(MOD)s
 visitors = [ASTNodeVisitor0, ASTNodeVisitor1, ASTNodeVisitor,
         ASTVisitorVisitor1, ASTVisitorVisitor1b, ASTVisitorVisitor2,
         ASTWalkVisitorVisitor, TreeVisitorVisitor, PickleVisitorVisitor,
-        SerializationVisitorVisitor, DeserializationVisitorVisitor]
+        StatementsFirstWalkVisitorVisitor, SerializationVisitorVisitor,
+        DeserializationVisitorVisitor]
 
 
 def main(argv):
@@ -2058,6 +2182,8 @@ def main(argv):
             ExprBaseReplacerVisitor(fp, data).visit(mod)
             fp.write("\n\n")
             StmtBaseReplacerVisitor(fp, data).visit(mod)
+            fp.write("\n\n")
+            CallReplacerOnExpressionsVisitor(fp, data).visit(mod)
             fp.write("\n\n")
             ExprTypeVisitor(fp, data).visit(mod)
             fp.write("\n\n")
