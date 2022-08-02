@@ -994,18 +994,6 @@ static inline bool is_logical(ASR::ttype_t &x) {
 }
 
 static inline bool is_generic(ASR::ttype_t &x) {
-    return ASR::is_a<ASR::TypeParameter_t>(*type_get_past_pointer(&x));
-}
-
-static inline std::string get_parameter_name(const ASR::ttype_t* t) {
-    switch (t->type) {
-        case ASR::ttypeType::TypeParameter: {
-            ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
-            return tp->m_param;
-        }
-        default: throw LCompilersException("Cannot obtain type parameter from this type");
-
-static inline bool is_generic(ASR::ttype_t &x) {
     switch (x.type) {
         case ASR::ttypeType::List: {
             ASR::List_t *list_type = ASR::down_cast<ASR::List_t>(type_get_past_pointer(&x));
@@ -1015,6 +1003,19 @@ static inline bool is_generic(ASR::ttype_t &x) {
     }
 }
 
+static inline std::string get_parameter_name(const ASR::ttype_t* t) {
+    switch (t->type) {
+        case ASR::ttypeType::TypeParameter: {
+            ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
+            return tp->m_param;
+        }
+        case ASR::ttypeType::List: {
+            ASR::List_t* tl = ASR::down_cast<ASR::List_t>(t);
+            return get_parameter_name(tl->m_type);
+        }
+        default: throw LCompilersException("Cannot obtain type parameter from this type");
+    }
+}
 
 static inline int get_body_size(ASR::symbol_t* s) {
     int n_body = 0;
@@ -1176,6 +1177,22 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
             size_t dimsn = dims ? dims->n : tp->n_dims;
             return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
                         tp->m_param, dimsp, dimsn));
+        }
+        default : throw LCompilersException("Not implemented " + std::to_string(t->type));
+    }
+}
+
+static inline ASR::ttype_t* duplicate_type_without_dims(Allocator& al, const ASR::ttype_t* t) {
+    switch (t->type) {
+        case ASR::ttypeType::Integer: {
+            ASR::Integer_t* tnew = ASR::down_cast<ASR::Integer_t>(t);
+            return ASRUtils::TYPE(ASR::make_Integer_t(al, t->base.loc,
+                        tnew->m_kind, nullptr, 0));
+        }
+        case ASR::ttypeType::Real: {
+            ASR::Real_t* tnew = ASR::down_cast<ASR::Real_t>(t);
+            return ASRUtils::TYPE(ASR::make_Real_t(al, t->base.loc,
+                        tnew->m_kind, nullptr, 0));
         }
         case ASR::ttypeType::Complex: {
             ASR::Complex_t* tnew = ASR::down_cast<ASR::Complex_t>(t);
