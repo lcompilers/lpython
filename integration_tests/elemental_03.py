@@ -64,7 +64,7 @@ def elemental_norm():
     array_c = sqrt(array_a**2 + array_b**2)
 
     eps: f64
-    eps = 5e-6
+    eps = 1e-12
 
     for i in range(100):
         assert abs(array_c[i] - sqrt(array_a[i]**2 + array_b[i]**2)) <= eps
