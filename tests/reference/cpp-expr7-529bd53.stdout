@@ -26,8 +26,8 @@ struct dimension_descriptor
 void _lpython_main_program();
 void main0();
 void test_pow();
-int32_t test_pow_1(int a, int b);
-int32_t __lpython_overloaded_0__pow(int x, int y);
+int32_t test_pow_1(int32_t a, int32_t b);
+int32_t __lpython_overloaded_0__pow(int32_t x, int32_t y);
 float _lfortran_caimag(std::complex<float> x);
 double _lfortran_zaimag(std::complex<double> x);
 namespace {
@@ -41,29 +41,29 @@ void _lpython_main_program()
 
 void main0()
 {
-    int c;
+    int32_t c;
     test_pow();
     c = test_pow_1(1, 2);
 }
 
 void test_pow()
 {
-    int a;
+    int32_t a;
     a = __lpython_overloaded_0__pow(2, 2);
 }
 
-int32_t test_pow_1(int a, int b)
+int32_t test_pow_1(int32_t a, int32_t b)
 {
-    int _lpython_return_variable;
-    int res;
+    int32_t _lpython_return_variable;
+    int32_t res;
     res = __lpython_overloaded_0__pow(a, b);
     _lpython_return_variable = res;
     return _lpython_return_variable;
 }
 
-int32_t __lpython_overloaded_0__pow(int x, int y)
+int32_t __lpython_overloaded_0__pow(int32_t x, int32_t y)
 {
-    int _lpython_return_variable;
+    int32_t _lpython_return_variable;
     _lpython_return_variable = std::pow(x, y);
     return _lpython_return_variable;
 }

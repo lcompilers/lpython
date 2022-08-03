@@ -36,8 +36,8 @@ void _lpython_main_program()
 
 void f()
 {
-    int i;
-    int res;
+    int32_t i;
+    int32_t res;
     i = 5;
     res = ~i;
     assert (res == -6);

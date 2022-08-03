@@ -405,6 +405,129 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
             self.emit(  "this->visit_symbol(*a.second);", 3)
             self.emit("}", 2)
 
+class CallReplacerOnExpressionsVisitor(ASDLVisitor):
+
+    def visitModule(self, mod):
+        self.emit("/" + "*"*78 + "/")
+        self.emit("// Walk Visitor base class")
+        self.emit("")
+        self.emit("template <class Derived>")
+        self.emit("class CallReplacerOnExpressionsVisitor : public BaseVisitor<Derived>")
+        self.emit("{")
+        self.emit("private:")
+        self.emit("    Derived& self() { return static_cast<Derived&>(*this); }")
+        self.emit("public:")
+        self.emit("    ASR::expr_t** current_expr;")
+        self.emit("    ASR::expr_t** current_expr_copy;")
+        self.emit("")
+        self.emit("    void call_replacer() {}")
+        super(CallReplacerOnExpressionsVisitor, self).visitModule(mod)
+        self.emit("};")
+
+    def visitType(self, tp):
+        if not (isinstance(tp.value, asdl.Sum) and
+                is_simple_sum(tp.value)):
+            super(CallReplacerOnExpressionsVisitor, self).visitType(tp, tp.name)
+
+    def visitProduct(self, prod, name):
+        self.make_visitor(name, prod.fields)
+
+    def visitConstructor(self, cons, _):
+        self.make_visitor(cons.name, cons.fields)
+
+    def make_visitor(self, name, fields):
+        self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
+        self.used = False
+        have_body = False
+        for field in fields:
+            self.visitField(field)
+        if not self.used:
+            # Note: a better solution would be to change `&x` to `& /* x */`
+            # above, but we would need to change emit to return a string.
+            self.emit("if ((bool&)x) { } // Suppress unused warning", 2)
+        self.emit("}", 1)
+
+    def insert_call_replacer_code(self, name, level, index=""):
+        self.emit("    current_expr_copy = current_expr;", level)
+        self.emit("    current_expr = const_cast<ASR::expr_t**>(&(x.m_%s%s));" % (name, index), level)
+        self.emit("    self().call_replacer();", level)
+        self.emit("    current_expr = current_expr_copy;", level)
+
+    def visitField(self, field):
+        if (field.type not in asdl.builtin_types and
+            field.type not in self.data.simple_types):
+            level = 2
+            if field.seq:
+                self.used = True
+                self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
+                if field.type in products:
+                    if field.type == "expr":
+                        self.insert_call_replacer_code(field.name, level, "[i]")
+                    self.emit("    self().visit_%s(x.m_%s[i]);" % (field.type, field.name), level)
+                else:
+                    if field.type != "symbol":
+                        if field.type == "expr":
+                            self.insert_call_replacer_code(field.name, level, "[i]")
+                        self.emit("    self().visit_%s(*x.m_%s[i]);" % (field.type, field.name), level)
+                self.emit("}", level)
+            else:
+                if field.type in products:
+                    self.used = True
+                    if field.opt:
+                        self.emit("if (x.m_%s) {" % field.name, 2)
+                        level = 3
+                        if field.type == "expr":
+                            self.insert_call_replacer_code(field.name, level)
+                    if field.opt:
+                        self.emit("self().visit_%s(*x.m_%s);" % (field.type, field.name), level)
+                        self.emit("}", 2)
+                    else:
+                        self.emit("self().visit_%s(x.m_%s);" % (field.type, field.name), level)
+                else:
+                    if field.type != "symbol":
+                        self.used = True
+                        if field.opt:
+                            self.emit("if (x.m_%s) {" % field.name, 2)
+                            level = 3
+                        if field.type == "expr":
+                            self.insert_call_replacer_code(field.name, level)
+                        self.emit("self().visit_%s(*x.m_%s);" % (field.type, field.name), level)
+                        if field.opt:
+                            self.emit("}", 2)
+        elif field.type == "symbol_table" and field.name in["symtab",
+                "global_scope"]:
+            self.used = True
+            self.emit("for (auto &a : x.m_%s->get_scope()) {" % field.name, 2)
+            self.emit(  "this->visit_symbol(*a.second);", 3)
+            self.emit("}", 2)
+
+class StatementsFirstWalkVisitorVisitor(ASTWalkVisitorVisitor, ASDLVisitor):
+
+    def visitModule(self, mod):
+        self.emit("/" + "*"*78 + "/")
+        self.emit("// Statements First Visitor base class")
+        self.emit("")
+        self.emit("template <class Derived>")
+        self.emit("class StatementsFirstBaseWalkVisitor : public BaseVisitor<Derived>")
+        self.emit("{")
+        self.emit("private:")
+        self.emit("    Derived& self() { return static_cast<Derived&>(*this); }")
+        self.emit("public:")
+        super(ASTWalkVisitorVisitor, self).visitModule(mod)
+        self.emit("};")
+
+    def make_visitor(self, name, fields):
+        self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
+        self.used = False
+        have_body = False
+        for field in fields[::-1]:
+            self.visitField(field)
+        if not self.used:
+            # Note: a better solution would be to change `&x` to `& /* x */`
+            # above, but we would need to change emit to return a string.
+            self.emit("if ((bool&)x) { } // Suppress unused warning", 2)
+        self.emit("}", 1)
+
 # This class generates a visitor that prints the tree structure of AST/ASR
 class TreeVisitorVisitor(ASDLVisitor):
 
@@ -1822,6 +1945,9 @@ static inline ASR::ttype_t* expr_type0(const ASR::expr_t *f)
             return ASR::down_cast<ASR::Variable_t>(s)->m_type;
         }""" \
                     % (name, name), 2, new_line=False)
+        elif name == "OverloadedBinOp":
+            self.emit("case ASR::exprType::%s: { return expr_type0(((ASR::%s_t*)f)->m_overloaded); }"\
+                    % (name, name), 2, new_line=False)
         else:
             self.emit("case ASR::exprType::%s: { return ((ASR::%s_t*)f)->m_type; }"\
                     % (name, name), 2, new_line=False)
@@ -2010,7 +2136,8 @@ FOOT = r"""} // namespace LFortran::%(MOD)s
 visitors = [ASTNodeVisitor0, ASTNodeVisitor1, ASTNodeVisitor,
         ASTVisitorVisitor1, ASTVisitorVisitor1b, ASTVisitorVisitor2,
         ASTWalkVisitorVisitor, TreeVisitorVisitor, PickleVisitorVisitor,
-        SerializationVisitorVisitor, DeserializationVisitorVisitor]
+        StatementsFirstWalkVisitorVisitor, SerializationVisitorVisitor,
+        DeserializationVisitorVisitor]
 
 
 def main(argv):
@@ -2058,6 +2185,8 @@ def main(argv):
             ExprBaseReplacerVisitor(fp, data).visit(mod)
             fp.write("\n\n")
             StmtBaseReplacerVisitor(fp, data).visit(mod)
+            fp.write("\n\n")
+            CallReplacerOnExpressionsVisitor(fp, data).visit(mod)
             fp.write("\n\n")
             ExprTypeVisitor(fp, data).visit(mod)
             fp.write("\n\n")

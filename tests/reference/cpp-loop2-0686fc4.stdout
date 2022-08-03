@@ -27,7 +27,7 @@ void _lpython_main_program();
 void test_for();
 namespace {
 }
-void _xx_lcompilers_changed_exit_xx(int error_code);
+void _xx_lcompilers_changed_exit_xx(int32_t error_code);
 
 // Implementations
 void _lpython_main_program()
@@ -37,7 +37,7 @@ void _lpython_main_program()
 
 void test_for()
 {
-    int i;
+    int32_t i;
     for (i=0; i<=10 - 1; i++) {
         if (i == 0) {
             continue;
@@ -52,7 +52,7 @@ void test_for()
     _xx_lcompilers_changed_exit_xx(2);
 }
 
-void _xx_lcompilers_changed_exit_xx(int error_code)
+void _xx_lcompilers_changed_exit_xx(int32_t error_code)
 {
     exit(error_code);
 }

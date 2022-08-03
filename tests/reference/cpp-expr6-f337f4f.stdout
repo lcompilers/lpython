@@ -30,8 +30,8 @@ namespace {
 // Implementations
 void test_ifexp()
 {
-    int a;
-    int b;
+    int32_t a;
+    int32_t b;
     bool c;
     a = 2;
     b = (a == 2) ? (6) : (8);
