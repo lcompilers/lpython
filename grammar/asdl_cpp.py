@@ -1945,6 +1945,9 @@ static inline ASR::ttype_t* expr_type0(const ASR::expr_t *f)
             return ASR::down_cast<ASR::Variable_t>(s)->m_type;
         }""" \
                     % (name, name), 2, new_line=False)
+        elif name == "OverloadedBinOp":
+            self.emit("case ASR::exprType::%s: { return expr_type0(((ASR::%s_t*)f)->m_overloaded); }"\
+                    % (name, name), 2, new_line=False)
         else:
             self.emit("case ASR::exprType::%s: { return ((ASR::%s_t*)f)->m_type; }"\
                     % (name, name), 2, new_line=False)
