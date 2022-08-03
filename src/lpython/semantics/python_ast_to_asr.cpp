@@ -2601,6 +2601,21 @@ public:
                             " item assignment", x.base.base.loc);
                     }
                 }
+            } else if (AST::is_a<AST::Attribute_t>(*x.m_targets[0])) {
+                AST::Attribute_t *attr = AST::down_cast<AST::Attribute_t>(x.m_targets[0]);
+                if (AST::is_a<AST::Name_t>(*attr->m_value)) {
+                    std::string name = AST::down_cast<AST::Name_t>(attr->m_value)->m_id;
+                    ASR::symbol_t *s = current_scope->get_symbol(name);
+                    if (!s) {
+                        throw SemanticError("Variable: '" + name + "' is not declared",
+                                x.base.base.loc);
+                    }
+                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
+                    ASR::ttype_t *type = v->m_type;
+                    if (is_immutable(type)) {
+                        throw SemanticError("readonly attribute", x.base.base.loc);
+                    }
+                }
             }
             this->visit_expr(*x.m_targets[0]);
             target = ASRUtils::EXPR(tmp);
