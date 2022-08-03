@@ -2538,6 +2538,14 @@ public:
                 targets.size());
     }
 
+    bool is_immutable(const ASR::ttype_t *type) {
+        if (ASR::is_a<ASR::Character_t>(*type) || ASR::is_a<ASR::Tuple_t>(*type)
+            || ASR::is_a<ASR::Complex_t>(*type)) {
+            return true;
+        }
+        return false;
+    }
+
     void visit_Assign(const AST::Assign_t &x) {
         ASR::expr_t *target;
         if (x.n_targets == 1) {
@@ -2588,10 +2596,9 @@ public:
                                 ASR::make_Var_t(al, x.base.base.loc, s));
                         tmp = make_DictInsert_t(al, x.base.base.loc, se, key, val);
                         return;
-                    } else if (ASR::is_a<ASR::Character_t>(*type)) {
-                        throw SemanticError("'str' object does not support item assignment", x.base.base.loc);
-                    } else if (ASR::is_a<ASR::Tuple_t>(*type)) {
-                        throw SemanticError("'tuple' object does not support item assignment", x.base.base.loc);
+                    } else if (is_immutable(type)) {
+                        throw SemanticError("'" + ASRUtils::type_to_str_python(type) + "' object does not support"
+                            " item assignment", x.base.base.loc);
                     }
                 }
             }
