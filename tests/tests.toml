@@ -377,7 +377,6 @@ cpp = true
 [[test]]
 filename = "../integration_tests/generics_01.py"
 asr = true
-llvm = true
 
 # tests/tokens
 
