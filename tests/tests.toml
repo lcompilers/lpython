@@ -639,6 +639,10 @@ filename = "errors/test_assign7.py"
 asr = true
 
 [[test]]
+filename = "errors/test_assign8.py"
+asr = true
+
+[[test]]
 filename = "errors/test_binop1.py"
 asr = true
 
