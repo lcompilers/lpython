@@ -570,7 +570,7 @@ public:
                     if (var_sym->m_type->type == ASR::ttypeType::TypeParameter) {
                         return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, loc, 
                             ASR::down_cast<ASR::TypeParameter_t>(var_sym->m_type)->m_param, 
-                            dims.p, dims.size()));
+                            dims.p, dims.size(), ASR::down_cast<ASR::TypeParameter_t>(var_sym->m_type)->m_tr));
                     }
                 } else {
                     ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
@@ -1276,9 +1276,20 @@ public:
             }
             tmp = ASR::make_StringConcat_t(al, loc, left, right, dest_type, value);
             return;
-        } else if (ASR::is_a<ASR::TypeParameter_t>(*left_type) 
-                || ASR::is_a<ASR::TypeParameter_t>(*right_type)) {
-            dest_type = left_type;
+        } else if (ASR::is_a<ASR::TypeParameter_t>(*left_type) || ASR::is_a<ASR::TypeParameter_t>(*right_type)) {
+            ASR::TypeParameter_t *left_tp = ASR::down_cast<ASR::TypeParameter_t>(left_type);
+            ASR::TypeParameter_t *right_tp = ASR::down_cast<ASR::TypeParameter_t>(right_type);
+            // Currently only allow binary operations between the same type variables
+            if (left_tp->m_param == right_tp->m_param) {
+                ASR::traitType left_trait = left_tp->m_tr;
+                if (left_trait == ASR::traitType::Number) {
+                    dest_type = left_type;
+                } else {
+                    throw SemanticError("Binary operations are not allowed between non-number variables", loc);
+                }
+            } else {
+                throw SemanticError("Binary operations are not allowed between different type variables", loc);
+            }
         } else if (ASR::is_a<ASR::List_t>(*left_type) && ASR::is_a<ASR::List_t>(*right_type)
                    && op == ASR::binopType::Add) {
             dest_type = left_type;
@@ -2345,7 +2356,7 @@ public:
                     for (auto &p: ps) {
                         std::string param = p;
                         ASR::ttype_t *type_p = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, 
-                                x.base.base.loc, s2c(al, p), nullptr, 0));
+                                x.base.base.loc, s2c(al, p), nullptr, 0, ASR::traitType::Assignable));
                         type_params.push_back(al, type_p);
                     }
                     tmp = ASR::make_Function_t(
@@ -2518,6 +2529,7 @@ public:
                         const char* type_list[14] 
                             = { "list", "set", "dict", "tuple", "i8", "i16", "i32", "i64", "f32",
                                 "f64", "c32", "c64", "str", "bool"};
+                        
                         for (int i = 0; i < 14; i++) {
                             if (strcmp(s2c(al, tvar_name), type_list[i]) == 0) {
                                 throw SemanticError(tvar_name + " is a reserved type, consider a different type variable name",
@@ -2539,8 +2551,20 @@ public:
                         // Build ttype
                         Vec<ASR::dimension_t> dims;
                         dims.reserve(al, 4);
+
+                        ASR::traitType trait = ASR::traitType::Assignable;
+                        if (rh->n_args == 2) {
+                            AST::expr_t *trait_expr = rh->m_args[1];
+                            if (AST::is_a<AST::ConstantStr_t>(*trait_expr)) {
+                                AST::ConstantStr_t *trait_name = AST::down_cast<AST::ConstantStr_t>(trait_expr);
+                                trait = get_trait_from_arg(trait_name);
+                            } else {
+                                throw SemanticError("Trait for type variables has to be a constant string", x.base.base.loc);
+                            }
+                        }
+                        
                         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, x.base.base.loc, s2c(al, tvar_name),
-                            dims.p, dims.size()));
+                            dims.p, dims.size(), trait));
 
                         ASR::expr_t *value = nullptr;
                         ASR::expr_t *init_expr = nullptr;
@@ -2569,6 +2593,18 @@ public:
             }        
         }
     }
+
+    ASR::traitType get_trait_from_arg(AST::ConstantStr_t *trait_expr) {
+        std::string name = trait_expr->m_value;
+        if (name == "Number") {
+            return ASR::traitType::Number;
+        } else if (name == "Assignable") {
+            return ASR::traitType::Assignable;
+        } else {
+            throw SemanticError("Unsupported trait " + name, trait_expr->base.base.loc);
+        }
+    }
+
 
     void visit_Expr(const AST::Expr_t &/*x*/) {
         // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor

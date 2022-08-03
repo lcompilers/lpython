@@ -1176,7 +1176,7 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
             ASR::dimension_t* dimsp = dims ? dims->p : tp->m_dims;
             size_t dimsn = dims ? dims->n : tp->n_dims;
             return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
-                        tp->m_param, dimsp, dimsn));
+                        tp->m_param, dimsp, dimsn, tp->m_tr));
         }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
