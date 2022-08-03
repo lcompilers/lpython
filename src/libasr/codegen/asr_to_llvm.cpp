@@ -1987,7 +1987,8 @@ public:
         ASR::abiType m_abi, ASR::abiType arg_m_abi,
         ASR::storage_typeType m_storage,
         bool arg_m_value_attr,
-        int& n_dims, int& a_kind, bool& is_array_type) {
+        int& n_dims, int& a_kind, bool& is_array_type,
+        ASR::intentType arg_intent) {
         llvm::Type* type = nullptr;
         switch (asr_type->type) {
             case (ASR::ttypeType::Integer) : {
@@ -1995,7 +1996,9 @@ public:
                 n_dims = v_type->n_dims;
                 a_kind = v_type->m_kind;
                 if( n_dims > 0 ) {
-                    if (m_abi == ASR::abiType::BindC) {
+                    if (m_abi == ASR::abiType::BindC ||
+                        (!ASRUtils::is_dimension_empty(v_type->m_dims, v_type->n_dims) &&
+                        arg_intent == ASRUtils::intent_in)) {
                         // Bind(C) arrays are represened as a pointer
                         type = getIntType(a_kind, true);
                     } else {
@@ -2021,7 +2024,7 @@ public:
                 ASR::ttype_t *t2 = ASRUtils::type_get_past_pointer(asr_type);
                 type = get_arg_type_from_ttype_t(t2, m_abi, arg_m_abi,
                             m_storage, arg_m_value_attr, n_dims, a_kind,
-                            is_array_type);
+                            is_array_type, arg_intent);
                 type = type->getPointerTo();
                 break;
             }
@@ -2030,7 +2033,9 @@ public:
                 n_dims = v_type->n_dims;
                 a_kind = v_type->m_kind;
                 if( n_dims > 0 ) {
-                    if (m_abi == ASR::abiType::BindC) {
+                    if (m_abi == ASR::abiType::BindC ||
+                        (!ASRUtils::is_dimension_empty(v_type->m_dims, v_type->n_dims) &&
+                          arg_intent == ASRUtils::intent_in)) {
                         // Bind(C) arrays are represened as a pointer
                         type = getFPType(a_kind, true);
                     } else {
@@ -2178,7 +2183,7 @@ public:
                 bool is_array_type = false;
                 type = get_arg_type_from_ttype_t(arg->m_type, x.m_abi,
                             arg->m_abi, arg->m_storage, arg->m_value_attr,
-                            n_dims, a_kind, is_array_type);
+                            n_dims, a_kind, is_array_type, arg->m_intent);
                 if( arg->m_intent == ASRUtils::intent_out &&
                     ASR::is_a<ASR::CPtr_t>(*arg->m_type) ) {
                     type = type->getPointerTo();
@@ -2835,6 +2840,12 @@ public:
 
 
     llvm::Value* GetPointerCPtrUtil(llvm::Value* llvm_tmp) {
+        // If the input is a simple variable and not a pointer
+        // then this check will fail and load will not happen
+        // (which is what we want for simple variables).
+        // For pointers, the actual LLVM variable will be a
+        // double pointer, so we need to load one time and then
+        // use it later on.
         if( is_nested_pointer(llvm_tmp) ) {
             llvm_tmp = CreateLoad(llvm_tmp);
         }
@@ -4843,8 +4854,8 @@ public:
                                 size_t n;
                                 n = ASRUtils::extract_dimensions_from_ttype(orig_arg->m_type, dims);
                                 tmp = arr_descr->convert_to_argument(tmp, new_arr_type,
-                                                                     (!ASRUtils::is_dimension_empty(dims, n) &&
-                                                                      orig_arg->m_intent == ASRUtils::intent_in));
+                                                                    (!ASRUtils::is_dimension_empty(dims, n) &&
+                                                                    orig_arg->m_intent == ASRUtils::intent_in));
                             } else if ( x_abi == ASR::abiType::BindC ) {
                                 if( arr_descr->is_array(tmp) ) {
                                     tmp = CreateLoad(arr_descr->get_pointer_to_data(tmp));
