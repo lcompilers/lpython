@@ -4684,7 +4684,8 @@ public:
                 llvm::Value *zero_str = builder->CreateGlobalStringPtr("False");
                 llvm::Value *one_str = builder->CreateGlobalStringPtr("True");
                 llvm::Value *str = builder->CreateSelect(cmp, zero_str, one_str);
-                printf(context, *module, *builder, {str});
+                fmt.push_back("%s");
+                args.push_back(str);
             } else if (ASRUtils::is_complex(*t)) {
                 llvm::Type *type, *complex_type;
                 switch( a_kind ) {
