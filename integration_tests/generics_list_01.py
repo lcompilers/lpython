@@ -1,4 +1,6 @@
-T = TypeVar('T')
+from ltypes import TypeVar
+
+T = TypeVar('T', 'Number')
 
 def sum(lst: list[T], acc: T) -> T:
     i: i32
