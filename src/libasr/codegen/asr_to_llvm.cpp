@@ -255,6 +255,7 @@ public:
     std::unique_ptr<LLVMArrUtils::Descriptor> arr_descr;
 
     uint64_t ptr_loads;
+    bool is_assignment_target;
 
     ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, Platform platform,
         diag::Diagnostics &diagnostics) :
@@ -271,7 +272,8 @@ public:
               builder.get(),
               llvm_utils.get(),
               LLVMArrUtils::DESCR_TYPE::_SimpleCMODescriptor)),
-    ptr_loads(2)
+    ptr_loads(2),
+    is_assignment_target(false)
     {
     }
 
@@ -1293,12 +1295,16 @@ public:
             }
             LFORTRAN_ASSERT(ASR::is_a<ASR::Var_t>(*x.m_args[0].m_right));
             this->visit_expr_wrapper(x.m_args[0].m_right, true);
+            llvm::Value *p = nullptr;
             llvm::Value *idx = tmp;
-            idx = builder->CreateSub(idx, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
-            //std::vector<llvm::Value*> idx_vec = {llvm::ConstantInt::get(context, llvm::APInt(32, 0)), idx};
-            std::vector<llvm::Value*> idx_vec = {idx};
             llvm::Value *str = CreateLoad(array);
-            llvm::Value *p = CreateGEP(str, idx_vec);
+            if( is_assignment_target ) {
+                idx = builder->CreateSub(idx, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                std::vector<llvm::Value*> idx_vec = {idx};
+                p = CreateGEP(str, idx_vec);
+            } else {
+                p = lfortran_str_copy(str, idx, idx);
+            }
             // TODO: Currently the string starts at the right location, but goes to the end of the original string.
             // We have to allocate a new string, copy it and add null termination.
 
@@ -3030,7 +3036,9 @@ public:
             x.m_target->type == ASR::exprType::ArraySection ||
             x.m_target->type == ASR::exprType::DerivedRef ||
             x.m_target->type == ASR::exprType::ListItem ) {
+            is_assignment_target = true;
             this->visit_expr(*x.m_target);
+            is_assignment_target = false;
             target = tmp;
             if (is_a<ASR::ArrayItem_t>(*x.m_target)) {
                 ASR::ArrayItem_t *asr_target0 = ASR::down_cast<ASR::ArrayItem_t>(x.m_target);
