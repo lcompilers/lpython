@@ -207,7 +207,7 @@ RUN(NAME test_version        LABELS cpython llvm)
 RUN(NAME vec_01              LABELS cpython llvm)
 RUN(NAME test_str_comparison LABELS cpython llvm)
 
-RUN(NAME generics_01         LABELS cpython)
+RUN(NAME generics_01         LABELS cpython llvm)
 
 # Just CPython
 RUN(NAME test_builtin_bin    LABELS cpython)
