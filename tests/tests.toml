@@ -374,17 +374,22 @@ filename = "../integration_tests/print_01.py"
 c = true
 cpp = true
 
-[[test]]
-filename = "../integration_tests/generics_01.py"
-asr = true
+# [[test]]
+# filename = "../integration_tests/generics_01.py"
+# asr = true
+
+# [[test]]
+# filename = "../integration_tests/generics_array_01.py"
+# asr = true
+
+# [[test]]
+# filename = "../integration_tests/generics_list_01.py"
+# asr = true
 
 [[test]]
-filename = "../integration_tests/generics_array_01.py"
+filename = "../integration_tests/generics_trait_01.py"
 asr = true
 
-[[test]]
-filename = "../integration_tests/generics_list_01.py"
-asr = true
 
 # tests/tokens
 

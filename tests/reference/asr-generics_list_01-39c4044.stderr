@@ -1,0 +1,5 @@
+semantic error: Binary operations are not allowed between non-number variables
+ --> tests/../integration_tests/generics_list_01.py:6:15
+  |
+6 |         acc = acc + lst[i]
+  |               ^^^^^^^^^^^^ 

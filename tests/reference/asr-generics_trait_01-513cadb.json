@@ -1,0 +1,13 @@
+{
+    "basename": "asr-generics_trait_01-513cadb",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/generics_trait_01.py",
+    "infile_hash": "9c37b752671479793a32c0403404d25d4f218938a6102db9780a54b2",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-generics_trait_01-513cadb.stdout",
+    "stdout_hash": "3caeba5a1a41d2fc1a84d5e91758276d1a4047b15ea8ae468626644f",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
