@@ -543,24 +543,25 @@ for_statement
     ;
 
 except_statement
-    : KW_EXCEPT ":" sep statements { $$ = EXCEPT_01($4, @$); }
-    | KW_EXCEPT expr ":" sep statements { $$ = EXCEPT_02($2, $5, @$); }
-    | KW_EXCEPT expr KW_AS id ":" sep statements { $$ = EXCEPT_03($2, $4, $7, @$); }
+    : KW_EXCEPT ":" body_stmts { $$ = EXCEPT_01($3, @$); }
+    | KW_EXCEPT expr ":" body_stmts { $$ = EXCEPT_02($2, $4, @$); }
+    | KW_EXCEPT expr KW_AS id ":" body_stmts { $$ = EXCEPT_03($2, $4, $6, @$); }
     ;
+
 except_list
     : except_list except_statement { $$ = $1; LIST_ADD($$, $2); }
     | except_statement { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 try_statement
-    : KW_TRY ":" sep statements except_list { $$ = TRY_01($4, $5, @$); }
-    | KW_TRY ":" sep statements except_list KW_ELSE ":" sep statements {
-        $$ = TRY_02($4, $5, $9, @$); }
-    | KW_TRY ":" sep statements except_list KW_FINALLY ":" sep statements {
-        $$ = TRY_03($4, $5, $9, @$); }
-    | KW_TRY ":" sep statements except_list KW_ELSE ":" sep statements KW_FINALLY
-        ":" sep statements { $$ = TRY_04($4, $5, $9, $13, @$); }
-    | KW_TRY ":" sep statements KW_FINALLY ":" sep statements { $$ = TRY_05($4, $8, @$); }
+    : KW_TRY ":" body_stmts except_list { $$ = TRY_01($3, $4, @$); }
+    | KW_TRY ":" body_stmts except_list KW_ELSE ":" body_stmts {
+        $$ = TRY_02($3, $4, $7, @$); }
+    | KW_TRY ":" body_stmts except_list KW_FINALLY ":" body_stmts {
+        $$ = TRY_03($3, $4, $7, @$); }
+    | KW_TRY ":" body_stmts except_list KW_ELSE ":" body_stmts KW_FINALLY
+        ":" body_stmts { $$ = TRY_04($3, $4, $7, $10, @$); }
+    | KW_TRY ":" body_stmts KW_FINALLY ":" body_stmts { $$ = TRY_05($3, $6, @$); }
     ;
 
 with_as_items_list
