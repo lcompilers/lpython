@@ -183,6 +183,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> tuple_list
 %type <ast> statement
 %type <vec_ast> statements
+%type <vec_ast> sep_statements
+%type <vec_ast> body_stmts
 %type <vec_ast> single_line_statements
 %type <vec_ast> statements1
 %type <vec_ast> single_line_multi_statements
@@ -303,6 +305,15 @@ statements
     : TK_INDENT statements1 TK_DEDENT { $$ = $2; }
     ;
 
+sep_statements
+    : sep statements { $$ = $2; }
+    ;
+
+body_stmts
+    : single_line_statements { $$ = $1; }
+    | sep_statements { $$ = $1; }
+    ;
+
 statements1
     : statements1 statement { $$ = $1; LIST_ADD($$, $2); }
     | statement { LIST_NEW($$); LIST_ADD($$, $1); }
@@ -312,6 +323,8 @@ single_line_statements
     : single_line_multi_statements TK_NEWLINE { $$ = $1; }
     | single_line_multi_statements TK_COMMENT TK_NEWLINE { $$ = $1; }
     | single_line_statement TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
+    | single_line_statement TK_SEMICOLON TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
+    | single_line_statement TK_SEMICOLON TK_COMMENT TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
     | single_line_statement TK_COMMENT TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
     ;
 
@@ -495,20 +508,19 @@ nonlocal_statement
     ;
 
 elif_statement
-    : KW_ELIF expr ":" sep statements { $$ = IF_STMT_01($2, $5, @$); }
-    | KW_ELIF expr ":" sep statements KW_ELSE ":" sep statements {
-        $$ = IF_STMT_02($2, $5, $9, @$); }
-    | KW_ELIF expr ":" sep statements elif_statement {
-        $$ = IF_STMT_03($2, $5, $6, @$); }
+    : KW_ELIF expr ":" body_stmts { $$ = IF_STMT_01($2, $4, @$); }
+    | KW_ELIF expr ":" body_stmts KW_ELSE ":" body_stmts {
+        $$ = IF_STMT_02($2, $4, $7, @$); }
+    | KW_ELIF expr ":" body_stmts elif_statement {
+        $$ = IF_STMT_03($2, $4, $5, @$); }
     ;
 
 if_statement
-    : KW_IF expr ":" single_line_statements { $$ = IF_STMT_01($2, $4, @$); }
-    | KW_IF expr ":" sep statements { $$ = IF_STMT_01($2, $5, @$); }
-    | KW_IF expr ":" sep statements KW_ELSE ":" sep statements {
-        $$ = IF_STMT_02($2, $5, $9, @$); }
-    | KW_IF expr ":" sep statements elif_statement {
-        $$ = IF_STMT_03($2, $5, $6, @$); }
+    : KW_IF expr ":" body_stmts { $$ = IF_STMT_01($2, $4, @$); }
+    | KW_IF expr ":" body_stmts KW_ELSE ":" body_stmts {
+        $$ = IF_STMT_02($2, $4, $7, @$); }
+    | KW_IF expr ":" body_stmts elif_statement {
+        $$ = IF_STMT_03($2, $4, $5, @$); }
     ;
 
 for_target_list
