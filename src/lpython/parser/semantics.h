@@ -871,6 +871,8 @@ static inline ast_t* ID_TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
         EXPR(expr), generators.p, generators.n)
 #define DICT_COMP_1(key, val, generators, l) make_DictComp_t(p.m_a, l, \
         EXPR(key), EXPR(val), generators.p, generators.n)
+#define COMP_EXPR_1(expr, generators, l) make_GeneratorExp_t(p.m_a, l, \
+        EXPR(expr), generators.p, generators.n)
 
 expr_t* CHECK_TUPLE(expr_t *x) {
     if(is_a<Tuple_t>(*x) && down_cast<Tuple_t>(x)->n_elts == 1) {
