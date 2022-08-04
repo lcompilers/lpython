@@ -156,9 +156,9 @@ asr = true
 filename = "../integration_tests/test_numpy_03.py"
 asr = true
 
-# [[test]]
-# filename = "../integration_tests/test_numpy_04.py"
-# asr = true
+[[test]]
+filename = "../integration_tests/test_numpy_04.py"
+asr = true
 
 [[test]]
 filename = "../integration_tests/expr_09.py"
