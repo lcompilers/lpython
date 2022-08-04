@@ -357,7 +357,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             'while'    { KW(WHILE) }
             'with'     { KW(WITH) }
             'yield'    { KW(YIELD) }
-            'yield' whitespace? 'from' { KW(YIELD_FROM) }
+            'yield' whitespace 'from' whitespace { KW(YIELD_FROM) }
 
             // Tokens
             newline {
@@ -439,10 +439,10 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             'not'  { RET(TK_NOT) }
             'and'  { RET(TK_AND) }
             'or'   { RET(TK_OR) }
-            'is' whitespace 'not'  { RET(TK_IS_NOT) }
-            'is' whitespace? "\\" newline whitespace? 'not'  { RET(TK_IS_NOT) }
-            'not' whitespace 'in'  { RET(TK_NOT_IN) }
-            'not' whitespace? "\\" newline whitespace? 'in'  { RET(TK_NOT_IN) }
+            'is' whitespace 'not' whitespace { RET(TK_IS_NOT) }
+            'is' whitespace? "\\" newline whitespace? 'not' whitespace { RET(TK_IS_NOT) }
+            'not' whitespace 'in' whitespace { RET(TK_NOT_IN) }
+            'not' whitespace? "\\" newline whitespace? 'in' whitespace { RET(TK_NOT_IN) }
 
             // True/False
 
