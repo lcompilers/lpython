@@ -2,7 +2,7 @@
 0x00 ⇒ unreachable
 0x01 ⇒ nop
 -- 0x02 bt:blocktype (in:instr)* 0x0B ⇒ block bt in* end
--- 0x03 bt:blocktype (in:instr)* 0x0B ⇒ loop bt in* end
+0x03 ⇒ loop
 0x04 ⇒ if
 0x05 ⇒ else
 0x0C u32:labelidx:𝑙 ⇒ br 𝑙
@@ -30,29 +30,29 @@
 0xFC u32:num:15 u32:tableidx:𝑥 ⇒ table.grow 𝑥
 0xFC u32:num:16 u32:tableidx:𝑥 ⇒ table.size 𝑥
 0xFC u32:num:17 u32:tableidx:𝑥 ⇒ table.fill 𝑥
-0x28 u32:align:𝒶 u32:offset:𝑜 ⇒ i32.load 𝑚
-0x29 u32:align:𝒶 u32:offset:𝑜 ⇒ i64.load 𝑚
-0x2A u32:align:𝒶 u32:offset:𝑜 ⇒ f32.load 𝑚
-0x2B u32:align:𝒶 u32:offset:𝑜 ⇒ f64.load 𝑚
-0x2C u32:align:𝒶 u32:offset:𝑜 ⇒ i32.load8_s 𝑚
-0x2D u32:align:𝒶 u32:offset:𝑜 ⇒ i32.load8_u 𝑚
-0x2E u32:align:𝒶 u32:offset:𝑜 ⇒ i32.load16_s 𝑚
-0x2F u32:align:𝒶 u32:offset:𝑜 ⇒ i32.load16_u 𝑚
-0x30 u32:align:𝒶 u32:offset:𝑜 ⇒ i64.load8_s 𝑚
-0x31 u32:align:𝒶 u32:offset:𝑜 ⇒ i64.load8_u 𝑚
-0x32 u32:align:𝒶 u32:offset:𝑜 ⇒ i64.load16_s 𝑚
-0x33 u32:align:𝒶 u32:offset:𝑜 ⇒ i64.load16_u 𝑚
-0x34 u32:align:𝒶 u32:offset:𝑜 ⇒ i64.load32_s 𝑚
-0x35 u32:align:𝒶 u32:offset:𝑜 ⇒ i64.load32_u 𝑚
-0x36 u32:align:𝒶 u32:offset:𝑜 ⇒ i32.store 𝑚
-0x37 u32:align:𝒶 u32:offset:𝑜 ⇒ i64.store 𝑚
-0x38 u32:align:𝒶 u32:offset:𝑜 ⇒ f32.store 𝑚
-0x39 u32:align:𝒶 u32:offset:𝑜 ⇒ f64.store 𝑚
-0x3A u32:align:𝒶 u32:offset:𝑜 ⇒ i32.store8 𝑚
-0x3B u32:align:𝒶 u32:offset:𝑜 ⇒ i32.store16 𝑚
-0x3C u32:align:𝒶 u32:offset:𝑜 ⇒ i64.store8 𝑚
-0x3D u32:align:𝒶 u32:offset:𝑜 ⇒ i64.store16 𝑚
-0x3E u32:align:𝒶 u32:offset:𝑜 ⇒ i64.store32 𝑚
+0x28 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i32.load 𝑚
+0x29 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i64.load 𝑚
+0x2A u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ f32.load 𝑚
+0x2B u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ f64.load 𝑚
+0x2C u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i32.load8_s 𝑚
+0x2D u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i32.load8_u 𝑚
+0x2E u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i32.load16_s 𝑚
+0x2F u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i32.load16_u 𝑚
+0x30 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i64.load8_s 𝑚
+0x31 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i64.load8_u 𝑚
+0x32 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i64.load16_s 𝑚
+0x33 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i64.load16_u 𝑚
+0x34 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i64.load32_s 𝑚
+0x35 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i64.load32_u 𝑚
+0x36 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i32.store 𝑚
+0x37 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i64.store 𝑚
+0x38 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ f32.store 𝑚
+0x39 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ f64.store 𝑚
+0x3A u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i32.store8 𝑚
+0x3B u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i32.store16 𝑚
+0x3C u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i64.store8 𝑚
+0x3D u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i64.store16 𝑚
+0x3E u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ i64.store32 𝑚
 -- 0x3F u8:temp_byte:0x00 ⇒ memory.size
 -- 0x40 u8:temp_byte:0x00 ⇒ memory.grow
 -- 0xFC u32:num:8 u32:dataidx:𝑥 u8:temp_byte:0x00 ⇒ memory.init 𝑥
@@ -199,28 +199,28 @@
 0xFC u32:num:5 ⇒ i64.trunc_sat_f32_u
 0xFC u32:num:6 ⇒ i64.trunc_sat_f64_s
 0xFC u32:num:7 ⇒ i64.trunc_sat_f64_u
-0xFD u32:num:0 u32:align:𝒶 u32:offset:𝑜 ⇒ v128.load 𝑚
-0xFD u32:num:1 u32:align:𝒶 u32:offset:𝑜 ⇒ v128.load8x8_s 𝑚
-0xFD u32:num:2 u32:align:𝒶 u32:offset:𝑜 ⇒ v128.load8x8_u 𝑚
-0xFD u32:num:3 u32:align:𝒶 u32:offset:𝑜 ⇒ v128.load16x4_s 𝑚
-0xFD u32:num:4 u32:align:𝒶 u32:offset:𝑜 ⇒ v128.load16x4_u 𝑚
-0xFD u32:num:5 u32:align:𝒶 u32:offset:𝑜 ⇒ v128.load32x2_s 𝑚
-0xFD u32:num:6 u32:align:𝒶 u32:offset:𝑜 ⇒ v128.load32x2_u 𝑚
-0xFD u32:num:7 u32:align:𝒶 u32:offset:𝑜 ⇒ v128.load8_splat 𝑚
-0xFD u32:num:8 u32:align:𝒶 u32:offset:𝑜 ⇒ v128.load16_splat 𝑚
-0xFD u32:num:9 u32:align:𝒶 u32:offset:𝑜 ⇒ v128.load32_splat 𝑚
-0xFD u32:num:10 u32:align:𝒶 u32:offset:𝑜 ⇒ v128.load64_splat 𝑚
-0xFD u32:num:92 u32:align:𝒶 u32:offset:𝑜 ⇒ v128.load32_zero 𝑚
-0xFD u32:num:93 u32:align:𝒶 u32:offset:𝑜 ⇒ v128.load64_zero 𝑚
-0xFD u32:num:11 u32:align:𝒶 u32:offset:𝑜 ⇒ v128.store 𝑚
-0xFD u32:num:84 u32:align:𝒶 u32:offset:𝑜 u8:laneidx:𝑙 ⇒ v128.load8_lane 𝑚 𝑙
-0xFD u32:num:85 u32:align:𝒶 u32:offset:𝑜 u8:laneidx:𝑙 ⇒ v128.load16_lane 𝑚 𝑙
-0xFD u32:num:86 u32:align:𝒶 u32:offset:𝑜 u8:laneidx:𝑙 ⇒ v128.load32_lane 𝑚 𝑙
-0xFD u32:num:87 u32:align:𝒶 u32:offset:𝑜 u8:laneidx:𝑙 ⇒ v128.load64_lane 𝑚 𝑙
-0xFD u32:num:88 u32:align:𝒶 u32:offset:𝑜 u8:laneidx:𝑙 ⇒ v128.store8_lane 𝑚 𝑙
-0xFD u32:num:89 u32:align:𝒶 u32:offset:𝑜 u8:laneidx:𝑙 ⇒ v128.store16_lane 𝑚 𝑙
-0xFD u32:num:90 u32:align:𝒶 u32:offset:𝑜 u8:laneidx:𝑙 ⇒ v128.store32_lane 𝑚 𝑙
-0xFD u32:num:91 u32:align:𝒶 u32:offset:𝑜 u8:laneidx:𝑙 ⇒ v128.store64_lane 𝑚 𝑙
+0xFD u32:num:0 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ v128.load 𝑚
+0xFD u32:num:1 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ v128.load8x8_s 𝑚
+0xFD u32:num:2 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ v128.load8x8_u 𝑚
+0xFD u32:num:3 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ v128.load16x4_s 𝑚
+0xFD u32:num:4 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ v128.load16x4_u 𝑚
+0xFD u32:num:5 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ v128.load32x2_s 𝑚
+0xFD u32:num:6 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ v128.load32x2_u 𝑚
+0xFD u32:num:7 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ v128.load8_splat 𝑚
+0xFD u32:num:8 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ v128.load16_splat 𝑚
+0xFD u32:num:9 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ v128.load32_splat 𝑚
+0xFD u32:num:10 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ v128.load64_splat 𝑚
+0xFD u32:num:92 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ v128.load32_zero 𝑚
+0xFD u32:num:93 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ v128.load64_zero 𝑚
+0xFD u32:num:11 u32:mem_align:𝒶 u32:mem_offset:𝑜 ⇒ v128.store 𝑚
+0xFD u32:num:84 u32:mem_align:𝒶 u32:mem_offset:𝑜 u8:laneidx:𝑙 ⇒ v128.load8_lane 𝑚 𝑙
+0xFD u32:num:85 u32:mem_align:𝒶 u32:mem_offset:𝑜 u8:laneidx:𝑙 ⇒ v128.load16_lane 𝑚 𝑙
+0xFD u32:num:86 u32:mem_align:𝒶 u32:mem_offset:𝑜 u8:laneidx:𝑙 ⇒ v128.load32_lane 𝑚 𝑙
+0xFD u32:num:87 u32:mem_align:𝒶 u32:mem_offset:𝑜 u8:laneidx:𝑙 ⇒ v128.load64_lane 𝑚 𝑙
+0xFD u32:num:88 u32:mem_align:𝒶 u32:mem_offset:𝑜 u8:laneidx:𝑙 ⇒ v128.store8_lane 𝑚 𝑙
+0xFD u32:num:89 u32:mem_align:𝒶 u32:mem_offset:𝑜 u8:laneidx:𝑙 ⇒ v128.store16_lane 𝑚 𝑙
+0xFD u32:num:90 u32:mem_align:𝒶 u32:mem_offset:𝑜 u8:laneidx:𝑙 ⇒ v128.store32_lane 𝑚 𝑙
+0xFD u32:num:91 u32:mem_align:𝒶 u32:mem_offset:𝑜 u8:laneidx:𝑙 ⇒ v128.store64_lane 𝑚 𝑙
 -- 0xFD u32:num:12 (𝑏:byte)16 ⇒ v128.const bytes−1 i128(𝑏0 . . . 𝑏15)
 -- 0xFD u32:num:13 (u8:laneidx:𝑙)16 ⇒ i8x16.shuffle 𝑙16
 0xFD u32:num:21 u8:laneidx:𝑙 ⇒ i8x16.extract_lane_s 𝑙

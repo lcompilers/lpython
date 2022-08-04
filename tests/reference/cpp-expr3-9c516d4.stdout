@@ -30,7 +30,7 @@ namespace {
 // Implementations
 void test_cast()
 {
-    int a;
+    int32_t a;
     float b;
     a = 2;
     b =   4.20000000000000018e+00;

@@ -1359,6 +1359,20 @@ ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
             SymbolTable* current_scope, Allocator& al,
             const std::function<void (const std::string &, const Location &)> err);
 
+static inline bool is_dimension_empty(ASR::dimension_t& dim) {
+    return ((dim.m_length == nullptr) ||
+            (dim.m_start == nullptr));
+}
+
+static inline bool is_dimension_empty(ASR::dimension_t* dims, size_t n) {
+    for( size_t i = 0; i < n; i++ ) {
+        if( is_dimension_empty(dims[i]) ) {
+            return true;
+        }
+    }
+    return false;
+}
+
 class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
 
     private:
@@ -1540,17 +1554,17 @@ static inline ASR::expr_t* compute_end_from_start_length(Allocator& al, ASR::exp
         ASRUtils::extract_value(start_value, start_int);
         ASRUtils::extract_value(length_value, length_int);
         end_value = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, start->base.loc,
-                                length_int + start_int - 1,
-                                ASRUtils::expr_type(start)));
+                                   length_int + start_int - 1,
+                                   ASRUtils::expr_type(start)));
     }
     ASR::expr_t* diff = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, length->base.loc, length,
-                                    ASR::binopType::Add, start, ASRUtils::expr_type(length),
-                                    nullptr));
+                                       ASR::binopType::Add, start, ASRUtils::expr_type(length),
+                                       nullptr));
     ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                                             al, diff->base.loc, 1, ASRUtils::expr_type(diff)));
     return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, length->base.loc, diff,
-                        ASR::binopType::Sub, constant_one, ASRUtils::expr_type(length),
-                        end_value));
+                          ASR::binopType::Sub, constant_one, ASRUtils::expr_type(length),
+                          end_value));
 }
 
 static inline ASR::expr_t* compute_length_from_start_end(Allocator& al, ASR::expr_t* start, ASR::expr_t* end) {
@@ -1558,21 +1572,21 @@ static inline ASR::expr_t* compute_length_from_start_end(Allocator& al, ASR::exp
     ASR::expr_t* end_value = ASRUtils::expr_value(end);
     ASR::expr_t* length_value = nullptr;
     if( start_value && end_value ) {
-        int64_t start_int, end_int;
+        int64_t start_int = -1, end_int = -1;
         ASRUtils::extract_value(start_value, start_int);
         ASRUtils::extract_value(end_value, end_int);
         length_value = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, start->base.loc,
-                                end_int - start_int + 1,
-                                ASRUtils::expr_type(start)));
+                                   end_int - start_int + 1,
+                                   ASRUtils::expr_type(start)));
     }
     ASR::expr_t* diff = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, end->base.loc, end,
-                                    ASR::binopType::Sub, start, ASRUtils::expr_type(end),
-                                    nullptr));
+                                       ASR::binopType::Sub, start, ASRUtils::expr_type(end),
+                                       nullptr));
     ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                                             al, diff->base.loc, 1, ASRUtils::expr_type(diff)));
     return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, end->base.loc, diff,
-                        ASR::binopType::Add, constant_one, ASRUtils::expr_type(end),
-                        length_value));
+                          ASR::binopType::Add, constant_one, ASRUtils::expr_type(end),
+                          length_value));
 }
 
 } // namespace ASRUtils

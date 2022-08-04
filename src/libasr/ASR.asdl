@@ -245,8 +245,6 @@ expr
     | ListLen(expr arg, ttype type, expr? value)
     | ListConcat(expr left, expr right, ttype type, expr? value)
 
-    | ArrayConstant(expr* args, ttype type)
-
     | SetConstant(expr* elements, ttype type)
     | SetLen(expr arg, ttype type, expr? value)
 
@@ -265,7 +263,10 @@ expr
 
     | DictConstant(expr* keys, expr* values, ttype type)
     | DictLen(expr arg, ttype type, expr? value)
+
     | Var(symbol v)
+
+    | ArrayConstant(expr* args, ttype type)
     | ArrayItem(expr v, array_index* args, ttype type, expr? value)
     | ArraySection(expr v, array_index* args, ttype type, expr? value)
     | ArraySize(expr v, expr? dim, ttype type, expr? value)
@@ -275,6 +276,7 @@ expr
     | ArrayMatMul(expr matrix_a, expr matrix_b, ttype type, expr? value)
     | ArrayPack(expr array, expr mask, expr? vector, ttype type, expr? value)
     | ArrayReshape(expr array, expr shape, ttype type, expr? value)
+
     | BitCast(expr source, expr mold, expr? size, ttype type, expr? value)
     | DerivedRef(expr v, symbol m, ttype type, expr? value)
     | OverloadedCompare(expr left, cmpop op, expr right, ttype type, expr? value, expr overloaded)

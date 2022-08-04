@@ -8,7 +8,7 @@ uint32_t decode_leb128_u32(Vec<uint8_t> &code, uint32_t &offset) {
     uint32_t result = 0U;
     uint32_t shift = 0U;
     while (true) {
-        uint8_t byte = code.p[offset++];
+        uint8_t byte = read_b8(code, offset);
         uint32_t slice = byte & 0x7f;
         result |= slice << shift;
         if ((byte & 0x80) == 0) {
@@ -24,7 +24,7 @@ int32_t decode_leb128_i32(Vec<uint8_t> &code, uint32_t &offset) {
     uint8_t byte;
 
     do {
-        byte = code.p[offset++];
+        byte = read_b8(code, offset);
         uint32_t slice = byte & 0x7f;
         result |= slice << shift;
         shift += 7;
@@ -44,7 +44,7 @@ int64_t decode_leb128_i64(Vec<uint8_t> &code, uint32_t &offset) {
     uint8_t byte;
 
     do {
-        byte = code.p[offset++];
+        byte = read_b8(code, offset);
         uint64_t slice = byte & 0x7f;
         result |= slice << shift;
         shift += 7;

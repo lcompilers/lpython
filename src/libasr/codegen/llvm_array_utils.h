@@ -19,6 +19,9 @@ namespace LFortran {
 
     namespace LLVMArrUtils {
 
+        llvm::Value* lfortran_malloc(llvm::LLVMContext &context, llvm::Module &module,
+                llvm::IRBuilder<> &builder, llvm::Value* arg_size);
+
         /*
         * This function checks whether the
         * dimensions are available at compile time.
@@ -84,7 +87,7 @@ namespace LFortran {
                 */
                 virtual
                 llvm::Value* convert_to_argument(llvm::Value* tmp,
-                    llvm::Type* arg_type) = 0;
+                    llvm::Type* arg_type, bool data_only=false) = 0;
 
                 /*
                 * Returns the type of the argument to be
@@ -239,7 +242,8 @@ namespace LFortran {
                 */
                 virtual
                 llvm::Value* get_single_element(llvm::Value* array,
-                    std::vector<llvm::Value*>& m_args, int n_args) = 0;
+                    std::vector<llvm::Value*>& m_args, int n_args,
+                    bool data_only=false, llvm::Value** llvm_diminfo=nullptr) = 0;
 
                 virtual
                 llvm::Value* get_is_allocated_flag(llvm::Value* array) = 0;
@@ -249,7 +253,7 @@ namespace LFortran {
 
                 virtual
                 llvm::Value* reshape(llvm::Value* array, llvm::Value* shape,
-                                     llvm::Module* module) = 0;
+                                    llvm::Module* module) = 0;
 
                 virtual
                 void copy_array(llvm::Value* src, llvm::Value* dest) = 0;
@@ -276,6 +280,10 @@ namespace LFortran {
                     llvm::Value* arr, std::vector<llvm::Value*>& m_args,
                     int n_args, bool check_for_bounds);
 
+                llvm::Value* cmo_convertor_single_element_data_only(
+                    llvm::Value** llvm_diminfo, std::vector<llvm::Value*>& m_args,
+                    int n_args, bool check_for_bounds);
+
             public:
 
                 SimpleCMODescriptor(llvm::LLVMContext& _context,
@@ -287,7 +295,7 @@ namespace LFortran {
 
                 virtual
                 llvm::Value* convert_to_argument(llvm::Value* tmp,
-                    llvm::Type* arg_type);
+                    llvm::Type* arg_type, bool data_only=false);
 
                 virtual
                 llvm::Type* get_argument_type(llvm::Type* type,
@@ -364,7 +372,8 @@ namespace LFortran {
 
                 virtual
                 llvm::Value* get_single_element(llvm::Value* array,
-                    std::vector<llvm::Value*>& m_args, int n_args);
+                    std::vector<llvm::Value*>& m_args, int n_args,
+                    bool data_only=false, llvm::Value** llvm_diminfo=nullptr);
 
                 virtual
                 llvm::Value* get_is_allocated_flag(llvm::Value* array);
@@ -374,7 +383,7 @@ namespace LFortran {
 
                 virtual
                 llvm::Value* reshape(llvm::Value* array, llvm::Value* shape,
-                                     llvm::Module* module);
+                                    llvm::Module* module);
 
                 virtual
                 void copy_array(llvm::Value* src, llvm::Value* dest);

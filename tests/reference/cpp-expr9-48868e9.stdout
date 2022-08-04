@@ -25,10 +25,10 @@ struct dimension_descriptor
 // Forward declarations
 void _lpython_main_program();
 void main0();
-int32_t test_return_1(int a);
-std::string test_return_2(int a);
-int32_t test_return_3(int a);
-void test_return_4(int a);
+int32_t test_return_1(int32_t a);
+std::string test_return_2(int32_t a);
+int32_t test_return_3(int32_t a);
+void test_return_4(int32_t a);
 namespace {
 }
 
@@ -40,7 +40,7 @@ void _lpython_main_program()
 
 void main0()
 {
-    int i;
+    int32_t i;
     std::string s;
     i = test_return_1(4);
     s = test_return_2(4);
@@ -48,16 +48,16 @@ void main0()
     test_return_4(4);
 }
 
-int32_t test_return_1(int a)
+int32_t test_return_1(int32_t a)
 {
-    int _lpython_return_variable;
-    int x;
+    int32_t _lpython_return_variable;
+    int32_t x;
     x = 5;
     _lpython_return_variable = x;
     return _lpython_return_variable;
 }
 
-std::string test_return_2(int a)
+std::string test_return_2(int32_t a)
 {
     std::string _lpython_return_variable;
     std::string x;
@@ -66,15 +66,15 @@ std::string test_return_2(int a)
     return _lpython_return_variable;
 }
 
-int32_t test_return_3(int a)
+int32_t test_return_3(int32_t a)
 {
-    int _lpython_return_variable;
+    int32_t _lpython_return_variable;
     a = 3;
     _lpython_return_variable = a;
     return _lpython_return_variable;
 }
 
-void test_return_4(int a)
+void test_return_4(int32_t a)
 {
     a = 1;
     return;

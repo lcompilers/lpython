@@ -115,6 +115,8 @@ endmacro(RUN)
 # Test zero and non-zero exit code and assert statements
 RUN(NAME array_01_decl            LABELS cpython llvm c)
 RUN(NAME array_02_decl            LABELS cpython llvm c)
+RUN(NAME array_expr_01            LABELS cpython llvm)
+RUN(NAME array_expr_02            LABELS cpython llvm)
 RUN(NAME bindc_01            LABELS llvm c)
 RUN(NAME bindc_02            LABELS llvm c)
 RUN(NAME bindc_04            LABELS llvm)

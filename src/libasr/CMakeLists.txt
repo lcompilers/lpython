@@ -23,7 +23,7 @@ set(SRC
     codegen/asr_to_wasm.cpp
     codegen/wasm_to_wat.cpp
     codegen/wasm_utils.cpp
-    
+
     pass/param_to_const.cpp
     pass/do_loops.cpp
     pass/for_all.cpp
@@ -33,6 +33,7 @@ set(SRC
     pass/implied_do_loops.cpp
     pass/array_op.cpp
     pass/class_constructor.cpp
+    pass/arr_dims_propagate.cpp
     pass/arr_slice.cpp
     pass/print_arr.cpp
     pass/pass_utils.cpp
@@ -46,6 +47,7 @@ set(SRC
     pass/loop_unroll.cpp
     pass/dead_code_removal.cpp
     pass/instantiate_template.cpp
+    pass/update_array_dim_intrinsic_calls.cpp
 
     asr_verify.cpp
     asr_utils.cpp
@@ -77,7 +79,6 @@ if (WITH_LLVM)
             COMPILE_FLAGS -Wno-deprecated-declarations)
     endif()
 endif()
-
 add_library(asr ${SRC})
 target_include_directories(asr BEFORE PUBLIC ${libasr_SOURCE_DIR}/..)
 target_include_directories(asr BEFORE PUBLIC ${libasr_BINARY_DIR}/..)

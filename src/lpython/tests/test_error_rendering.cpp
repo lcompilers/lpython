@@ -24,7 +24,7 @@ using LFortran::LocationManager;
 TEST_CASE("Error Render: no labels") {
     std::string out, ref;
 
-    out = render_diagnostic(Diagnostic(
+    out = render_diagnostic_human(Diagnostic(
             "Error no label",
             Level::Error, Stage::Parser
         ), false
@@ -35,7 +35,7 @@ syntax error: Error no label
     CHECK(out == ref);
 
 
-    out = render_diagnostic(Diagnostic(
+    out = render_diagnostic_human(Diagnostic(
             "Error no label",
             Level::Error, Stage::Semantic
         ), false
@@ -45,7 +45,7 @@ semantic error: Error no label
 )""");
     CHECK(out == ref);
 
-    out = render_diagnostic(Diagnostic(
+    out = render_diagnostic_human(Diagnostic(
             "Error no label",
             Level::Warning, Stage::Semantic
         ), false
@@ -83,7 +83,7 @@ TEST_CASE("Error Render: primary/secondary labels, single line") {
                 Label("", {loc1})
             }
         );
-    out = render_diagnostic(d, input, lm, false, false);
+    out = render_diagnostic_human(d, input, lm, false, false);
     ref = S(R"""(
 semantic error: Error with label no message
  --> input:1:5
@@ -101,7 +101,7 @@ semantic error: Error with label no message
                 Label("label message", {loc1, loc2})
             }
         );
-    out = render_diagnostic(d, input, lm, false, false);
+    out = render_diagnostic_human(d, input, lm, false, false);
     ref = S(R"""(
 semantic error: Error with label and message
  --> input:1:5
@@ -118,7 +118,7 @@ semantic error: Error with label and message
                 Label("label message", {loc1, loc2, loc3})
             }
         );
-    out = render_diagnostic(d, input, lm, false, false);
+    out = render_diagnostic_human(d, input, lm, false, false);
     ref = S(R"""(
 semantic error: Error with label and message
  --> input:1:5
@@ -139,7 +139,7 @@ semantic error: Error with label and message
                 Label("label2 message", {loc2})
             }
         );
-    out = render_diagnostic(d, input, lm, false, false);
+    out = render_diagnostic_human(d, input, lm, false, false);
     ref = S(R"""(
 semantic error: Error with two labels and message
  --> input:1:5
@@ -161,7 +161,7 @@ semantic error: Error with two labels and message
                 Label("label3 message", {loc3})
             }
         );
-    out = render_diagnostic(d, input, lm, false, false);
+    out = render_diagnostic_human(d, input, lm, false, false);
     ref = S(R"""(
 semantic error: Error with two labels and message
  --> input:1:5
@@ -186,7 +186,7 @@ semantic error: Error with two labels and message
                 Label("label3 secondary message", {loc3}, false)
             }
         );
-    out = render_diagnostic(d, input, lm, false, false);
+    out = render_diagnostic_human(d, input, lm, false, false);
     ref = S(R"""(
 semantic error: Error with two labels and message
  --> input:1:5
@@ -211,7 +211,7 @@ semantic error: Error with two labels and message
                 Label("label3 secondary message", {loc3}, false)
             }
         );
-    out = render_diagnostic(d, input, lm, false, false);
+    out = render_diagnostic_human(d, input, lm, false, false);
     ref = S(R"""(
 semantic error: Error with three labels and message, two spans
  --> input:1:5
@@ -254,7 +254,7 @@ TEST_CASE("Error Render: primary/secondary labels, multi line") {
                 Label("Multilines", {loc1})
             }
         );
-    out = render_diagnostic(d, input, lm, false, false);
+    out = render_diagnostic_human(d, input, lm, false, false);
     ref = S(R"""(
 semantic error: Error with label no message
  --> input:1:5 - 2:11
@@ -275,7 +275,7 @@ semantic error: Error with label no message
                 Label("Two spans", {loc1, loc2})
             }
         );
-    out = render_diagnostic(d, input, lm, false, false);
+    out = render_diagnostic_human(d, input, lm, false, false);
     ref = S(R"""(
 semantic error: Error with label, two spans
  --> input:1:5 - 2:11
@@ -303,7 +303,7 @@ semantic error: Error with label, two spans
                 Label("Two spans", {loc3, loc2})
             }
         );
-    out = render_diagnostic(d, input, lm, false, false);
+    out = render_diagnostic_human(d, input, lm, false, false);
     ref = S(R"""(
 semantic error: Error with label, two spans
  --> input:1:1

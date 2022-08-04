@@ -361,9 +361,15 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                             if( a_name == nullptr ) {
                                 err("Unable to resolve matched function for operator overloading, " + matched_func_name, loc);
                             }
+                            ASR::ttype_t *return_type = nullptr;
+                            if( func->m_elemental && func->n_args == 1 && ASRUtils::is_array(ASRUtils::expr_type(a_args[0].m_value)) ) {
+                                return_type = ASRUtils::duplicate_type(al, ASRUtils::expr_type(a_args[0].m_value));
+                            } else {
+                                return_type = ASRUtils::expr_type(func->m_return_var);
+                            }
                             asr = ASR::make_FunctionCall_t(al, loc, a_name, sym,
                                                             a_args.p, 2,
-                                                            ASRUtils::expr_type(func->m_return_var),
+                                                            return_type,
                                                             nullptr, nullptr);
                         }
                     }
@@ -513,9 +519,15 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                             if( a_name == nullptr ) {
                                 err("Unable to resolve matched function for operator overloading, " + matched_func_name, loc);
                             }
+                            ASR::ttype_t *return_type = nullptr;
+                            if( func->m_elemental && func->n_args == 1 && ASRUtils::is_array(ASRUtils::expr_type(a_args[0].m_value)) ) {
+                                return_type = ASRUtils::duplicate_type(al, ASRUtils::expr_type(a_args[0].m_value));
+                            } else {
+                                return_type = ASRUtils::expr_type(func->m_return_var);
+                            }
                             asr = ASR::make_FunctionCall_t(al, loc, a_name, sym,
                                                             a_args.p, 2,
-                                                            ASRUtils::expr_type(func->m_return_var),
+                                                            return_type,
                                                             nullptr, nullptr);
                         }
                     }
@@ -810,7 +822,12 @@ ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
     bool is_subroutine = ASR::is_a<ASR::Subroutine_t>(*final_sym);
     ASR::ttype_t *return_type = nullptr;
     if( ASR::is_a<ASR::Function_t>(*final_sym) ) {
-        return_type = LFortran::ASRUtils::EXPR2VAR(ASR::down_cast<ASR::Function_t>(final_sym)->m_return_var)->m_type;
+        ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(final_sym);
+        if( func->m_elemental && func->n_args == 1 && ASRUtils::is_array(ASRUtils::expr_type(args[0].m_value)) ) {
+            return_type = ASRUtils::duplicate_type(al, ASRUtils::expr_type(args[0].m_value));
+        } else {
+            return_type = LFortran::ASRUtils::EXPR2VAR(func->m_return_var)->m_type;
+        }
     }
     // Create ExternalSymbol for the final subroutine:
     // We mangle the new ExternalSymbol's local name as:
