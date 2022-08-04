@@ -1344,6 +1344,20 @@ static inline bool is_dimension_empty(ASR::dimension_t* dims, size_t n) {
     return false;
 }
 
+static inline ASR::ttype_t* get_contained_type(ASR::ttype_t* asr_type) {
+    switch( asr_type->type ) {
+        case ASR::ttypeType::List: {
+            return ASR::down_cast<ASR::List_t>(asr_type)->m_type;
+        }
+        case ASR::ttypeType::Set: {
+            return ASR::down_cast<ASR::Set_t>(asr_type)->m_type;
+        }
+        default: {
+            return asr_type;
+        }
+    }
+}
+
 class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
 
     private:
