@@ -172,7 +172,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             }
 
             auto func = ASR::make_Function_t(m_al, x.base.base.loc, x.m_global_scope, s2c(m_al, import_func.name),
-                    params.data(), params.size(), nullptr, 0, nullptr, ASR::abiType::Source, ASR::accessType::Public,
+                    params.data(), params.size(), nullptr, 0, nullptr, 0, nullptr, ASR::abiType::Source, ASR::accessType::Public,
                     ASR::deftypeType::Implementation, false, nullptr);
             m_import_func_asr_map[import_func.name] = func;
 
@@ -275,7 +275,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
         // Generate main program code
         auto main_func = ASR::make_Function_t(m_al, x.base.base.loc, x.m_symtab, s2c(m_al, "_lcompilers_main"),
-            nullptr, 0, x.m_body, x.n_body, nullptr, ASR::abiType::Source, ASR::accessType::Public,
+            nullptr, 0, nullptr, 0, x.m_body, x.n_body, nullptr, ASR::abiType::Source, ASR::accessType::Public,
             ASR::deftypeType::Implementation, false, nullptr);
         this->visit_Function(*((ASR::Function_t *)main_func));
     }
