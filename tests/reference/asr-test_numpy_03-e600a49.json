@@ -6,11 +6,7 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-test_numpy_03-e600a49.stdout",
-<<<<<<< HEAD
-    "stdout_hash": "4d777db0255c768fbe94e3100db0a4efe7348d1b9bf309cf8de0c3e5",
-=======
-    "stdout_hash": "a9b6c79abcdce6f80d554a05203be016cf0524ca1c77ee4ce9ff316c",
->>>>>>> main
+    "stdout_hash": "d04d75ed2a8cd3f44d15d7225339abf3a5ca31dd5d2e1148c1c398a6",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
