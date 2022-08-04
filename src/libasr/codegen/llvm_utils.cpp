@@ -212,13 +212,13 @@ namespace LFortran {
                                  std::string& src_type_code,
                                  llvm::Module& module) {
         LFORTRAN_ASSERT(src->getType() == dest->getType());
-        llvm::Value* src_end_point = builder->CreateLoad(get_pointer_to_current_end_point(src));
-        llvm::Value* src_capacity = builder->CreateLoad(get_pointer_to_current_capacity(src));
+        llvm::Value* src_end_point = LLVM::CreateLoad(*builder, get_pointer_to_current_end_point(src));
+        llvm::Value* src_capacity = LLVM::CreateLoad(*builder, get_pointer_to_current_capacity(src));
         llvm::Value* dest_end_point_ptr = get_pointer_to_current_end_point(dest);
         llvm::Value* dest_capacity_ptr = get_pointer_to_current_capacity(dest);
         builder->CreateStore(src_end_point, dest_end_point_ptr);
         builder->CreateStore(src_capacity, dest_capacity_ptr);
-        llvm::Value* src_data = builder->CreateLoad(get_pointer_to_list_data(src));
+        llvm::Value* src_data = LLVM::CreateLoad(*builder, get_pointer_to_list_data(src));
         int32_t type_size = std::get<1>(typecode2listtype[src_type_code]);
         llvm::Value* arg_size = builder->CreateMul(llvm::ConstantInt::get(context,
                                                    llvm::APInt(32, type_size)), src_capacity);
@@ -232,18 +232,18 @@ namespace LFortran {
     }
 
     void LLVMList::write_item(llvm::Value* list, llvm::Value* pos, llvm::Value* item) {
-        llvm::Value* list_data = builder->CreateLoad(get_pointer_to_list_data(list));
+        llvm::Value* list_data = LLVM::CreateLoad(*builder, get_pointer_to_list_data(list));
         llvm::Value* element_ptr = llvm_utils->create_ptr_gep(list_data, pos);
         builder->CreateStore(item, element_ptr);
     }
 
     llvm::Value* LLVMList::read_item(llvm::Value* list, llvm::Value* pos, bool get_pointer) {
-        llvm::Value* list_data = builder->CreateLoad(get_pointer_to_list_data(list));
+        llvm::Value* list_data = LLVM::CreateLoad(*builder, get_pointer_to_list_data(list));
         llvm::Value* element_ptr = llvm_utils->create_ptr_gep(list_data, pos);
         if( get_pointer ) {
             return element_ptr;
         }
-        return builder->CreateLoad(element_ptr);
+        return LLVM::CreateLoad(*builder, element_ptr);
     }
 
     void LLVMList::resize_if_needed(llvm::Value* list, llvm::Value* n,
@@ -264,7 +264,7 @@ namespace LFortran {
                                                    llvm::APInt(32, type_size)),
                                                    new_capacity);
         llvm::Value* copy_data_ptr = get_pointer_to_list_data(list);
-        llvm::Value* copy_data = builder->CreateLoad(copy_data_ptr);
+        llvm::Value* copy_data = LLVM::CreateLoad(*builder, copy_data_ptr);
         copy_data = LLVM::lfortran_realloc(context, module, *builder,
                                            copy_data, arg_size);
         copy_data = builder->CreateBitCast(copy_data, el_type->getPointerTo());
@@ -277,7 +277,7 @@ namespace LFortran {
 
     void LLVMList::shift_end_point_by_one(llvm::Value* list) {
         llvm::Value* end_point_ptr = get_pointer_to_current_end_point(list);
-        llvm::Value* end_point = builder->CreateLoad(end_point_ptr);
+        llvm::Value* end_point = LLVM::CreateLoad(*builder, end_point_ptr);
         end_point = builder->CreateAdd(end_point, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
         builder->CreateStore(end_point, end_point_ptr);
     }
@@ -285,8 +285,8 @@ namespace LFortran {
     void LLVMList::append(llvm::Value* list, llvm::Value* item,
                           llvm::Module& module,
                           std::string& type_code) {
-        llvm::Value* current_end_point = builder->CreateLoad(get_pointer_to_current_end_point(list));
-        llvm::Value* current_capacity = builder->CreateLoad(get_pointer_to_current_capacity(list));
+        llvm::Value* current_end_point = LLVM::CreateLoad(*builder, get_pointer_to_current_end_point(list));
+        llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_current_capacity(list));
         int type_size = std::get<1>(typecode2listtype[type_code]);
         llvm::Type* el_type = std::get<2>(typecode2listtype[type_code]);
         resize_if_needed(list, current_end_point, current_capacity,
@@ -317,7 +317,7 @@ namespace LFortran {
         if( get_pointer ) {
             return item;
         }
-        return builder->CreateLoad(item);
+        return LLVM::CreateLoad(*builder, item);
     }
 
     llvm::Value* LLVMTuple::read_item(llvm::Value* llvm_tuple, size_t pos,

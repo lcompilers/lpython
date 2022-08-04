@@ -310,7 +310,10 @@ std::string render_diagnostic_human(const Diagnostic &d, bool use_colors) {
                         out << std::string(line_num_width+1, ' ') << blue_bold << "|"
                             << reset << " ";
                         out << "   " + std::string(s0.first_column-1, ' ');
-                        out << color << std::string(line.size()-s0.first_column+1, symbol);
+                        int64_t repeat = (int64_t)line.size()-(int64_t)s0.first_column+1;
+                        if (repeat > 0) {
+                            out << color << std::string(repeat, symbol);
+                        }
                         out << "..." << reset << std::endl;
 
                         out << "..." << std::endl;
