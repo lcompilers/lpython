@@ -800,13 +800,16 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
         self.emit("/" + "*"*78 + "/")
         self.emit("// Expression and statement Duplicator class")
         self.emit("")
-        self.emit("class ExprStmtDuplicator {")
+        self.emit("template <class Derived>")
+        self.emit("class BaseExprStmtDuplicator {")
         self.emit("public:")
+        self.emit("    Derived& self() { return static_cast<Derived&>(*this); }")
+        self.emit("")
         self.emit("    Allocator &al;")
         self.emit("    bool success;")
         self.emit("    bool allow_procedure_calls;")
         self.emit("")
-        self.emit("    ExprStmtDuplicator(Allocator& al_) : al(al_), success(false), allow_procedure_calls(true) {}")
+        self.emit("    BaseExprStmtDuplicator(Allocator& al_) : al(al_), success(false), allow_procedure_calls(true) {}")
         self.emit("")
         self.duplicate_stmt.append(("    ASR::stmt_t* duplicate_stmt(ASR::stmt_t* x) {", 0))
         self.duplicate_stmt.append(("    if( !x ) {", 1))
@@ -866,7 +869,7 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
 
     def make_visitor(self, name, fields):
         self.emit("")
-        self.emit("virtual ASR::asr_t* duplicate_%s(%s_t* x) {" % (name, name), 1)
+        self.emit("ASR::asr_t* duplicate_%s(%s_t* x) {" % (name, name), 1)
         self.used = False
         arguments = []
         for field in fields:
@@ -885,7 +888,7 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
                 self.duplicate_stmt.append(("    success = false;", 4))
                 self.duplicate_stmt.append(("    return nullptr;", 4))
                 self.duplicate_stmt.append(("    }", 3))
-            self.duplicate_stmt.append(("    return down_cast<ASR::stmt_t>(duplicate_%s(down_cast<ASR::%s_t>(x)));" % (name, name), 3))
+            self.duplicate_stmt.append(("    return down_cast<ASR::stmt_t>(self().duplicate_%s(down_cast<ASR::%s_t>(x)));" % (name, name), 3))
             self.duplicate_stmt.append(("    }", 2))
         elif self.is_expr:
             self.duplicate_expr.append(("    case ASR::exprType::%s: {" % name, 2))
@@ -894,7 +897,7 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
                 self.duplicate_expr.append(("    success = false;", 4))
                 self.duplicate_expr.append(("    return nullptr;", 4))
                 self.duplicate_expr.append(("    }", 3))
-            self.duplicate_expr.append(("    return down_cast<ASR::expr_t>(duplicate_%s(down_cast<ASR::%s_t>(x)));" % (name, name), 3))
+            self.duplicate_expr.append(("    return down_cast<ASR::expr_t>(self().duplicate_%s(down_cast<ASR::%s_t>(x)));" % (name, name), 3))
             self.duplicate_expr.append(("    }", 2))
         self.emit("}", 1)
         self.emit("")
@@ -916,10 +919,10 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
                 elif field.type == "call_arg":
                     self.emit("    ASR::call_arg_t call_arg_copy;", level)
                     self.emit("    call_arg_copy.loc = x->m_%s[i].loc;"%(field.name), level)
-                    self.emit("    call_arg_copy.m_value = duplicate_expr(x->m_%s[i].m_value);"%(field.name), level)
+                    self.emit("    call_arg_copy.m_value = self().duplicate_expr(x->m_%s[i].m_value);"%(field.name), level)
                     self.emit("    m_%s.push_back(al, call_arg_copy);"%(field.name), level)
                 else:
-                    self.emit("    m_%s.push_back(al, duplicate_%s(x->m_%s[i]));" % (field.name, field.type, field.name), level)
+                    self.emit("    m_%s.push_back(al, self().duplicate_%s(x->m_%s[i]));" % (field.name, field.type, field.name), level)
                 self.emit("}", level)
                 arguments = ("m_" + field.name + ".p", "x->n_" + field.name)
             else:
@@ -927,7 +930,7 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
                 if field.type == "symbol":
                     self.emit("%s_t* m_%s = x->m_%s;" % (field.type, field.name, field.name), level)
                 else:
-                    self.emit("%s_t* m_%s = duplicate_%s(x->m_%s);" % (field.type, field.name, field.type, field.name), level)
+                    self.emit("%s_t* m_%s = self().duplicate_%s(x->m_%s);" % (field.type, field.name, field.type, field.name), level)
                 arguments = ("m_" + field.name, )
         else:
             if field.seq:

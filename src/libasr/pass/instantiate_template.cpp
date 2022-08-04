@@ -7,7 +7,7 @@
 
 namespace LFortran {
 
-class FunctionInstantiator : public ASR::ExprStmtDuplicator
+class FunctionInstantiator : public ASR::BaseExprStmtDuplicator<FunctionInstantiator>
 {
 public: 
     SymbolTable *current_scope;
@@ -16,7 +16,7 @@ public:
 
     FunctionInstantiator(Allocator &al, std::map<std::string, ASR::ttype_t*> subs, 
             SymbolTable *current_scope, int new_function_num):
-        ExprStmtDuplicator(al),
+        BaseExprStmtDuplicator(al),
         current_scope{current_scope},
         subs{subs},
         new_function_num{new_function_num}

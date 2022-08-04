@@ -398,7 +398,7 @@ public:
     void fix_exprs_ttype_t(std::vector<ASR::expr_t*>& exprs,
                            Vec<ASR::call_arg_t>& orig_args,
                            ASR::Function_t* orig_func=nullptr) {
-        ASR::ExprStmtDuplicator expr_duplicator(al);
+        ASRUtils::ExprStmtDuplicator expr_duplicator(al);
         expr_duplicator.allow_procedure_calls = true;
         ASRUtils::ReplaceArgVisitor arg_replacer(al, current_scope, orig_func,
                                                  orig_args);
