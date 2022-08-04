@@ -577,8 +577,8 @@ with_as_items
     ;
 
 with_statement
-    : KW_WITH expr_list ":" sep statements { $$ = WITH($2, $5, @$); }
-    | KW_WITH with_as_items ":" sep statements { $$ = WITH_02($2, $5, @$); }
+    : KW_WITH expr_list ":" body_stmts { $$ = WITH($2, $4, @$); }
+    | KW_WITH with_as_items ":" body_stmts { $$ = WITH_02($2, $4, @$); }
     | KW_WITH expr_list ":" TK_TYPE_COMMENT TK_NEWLINE
         statements { $$ = WITH_01($2, $6, $4, @$); }
     | KW_WITH with_as_items ":" TK_TYPE_COMMENT TK_NEWLINE
@@ -727,10 +727,10 @@ async_for_stmt
     ;
 
 async_with_stmt
-    : KW_ASYNC KW_WITH expr_list ":" sep statements {
-        $$ = ASYNC_WITH($3, $6, @$); }
-    | KW_ASYNC KW_WITH with_as_items ":" sep statements {
-        $$ = ASYNC_WITH_02($3, $6, @$); }
+    : KW_ASYNC KW_WITH expr_list ":" body_stmts {
+        $$ = ASYNC_WITH($3, $5, @$); }
+    | KW_ASYNC KW_WITH with_as_items ":" body_stmts {
+        $$ = ASYNC_WITH_02($3, $5, @$); }
     | KW_ASYNC KW_WITH expr_list ":" TK_TYPE_COMMENT
         TK_NEWLINE statements { $$ = ASYNC_WITH_01($3, $7, $5, @$); }
     | KW_ASYNC KW_WITH with_as_items ":" TK_TYPE_COMMENT
