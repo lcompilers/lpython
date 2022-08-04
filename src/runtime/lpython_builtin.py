@@ -541,3 +541,64 @@ def min(a: f64, b: f64) -> f64:
         return a
     else:
         return b
+
+
+@overload
+def _floor(x: f64) -> i64:
+    r: i64
+    r = int(x)
+    if x >= 0 or x == r:
+        return r
+    return r - 1
+
+@overload
+def _floor(x: f32) -> i32:
+    r: i32
+    r = int(x)
+    if x >= 0 or x == r:
+        return r
+    return r - 1
+
+
+@overload
+def _mod(a: i32, b: i32) -> i32:
+    """
+    Returns a%b
+    """
+    r: i32
+    r = _floor(a/b)
+    return a - r*b
+
+
+@overload
+def _mod(a: i64, b: i64) -> i64:
+    """
+    Returns a%b
+    """
+    r: i64
+    r = _floor(a/b)
+    return a - r*b
+
+
+@overload
+def pow(x: i32, y: i32, z: i32) -> i32:
+    """
+    Return `x` raised to the power `y`.
+    """
+    if y < 0:
+        raise ValueError('y should be nonnegative')
+    result: i32
+    result = _mod(x**y, z)
+    return result
+
+
+@overload
+def pow(x: i64, y: i64, z: i64) -> i64:
+    """
+    Return `x` raised to the power `y`.
+    """
+    if y < 0:
+        raise ValueError('y should be nonnegative')
+    result: i64
+    result = _mod(x**y, z)
+    return result

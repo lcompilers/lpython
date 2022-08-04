@@ -73,6 +73,15 @@ def test_pow():
     assert pow(4, 2) == 16
     assert abs(pow(-4235.0, 52) - 3.948003805985264e+188) < eps
 
+    i: i64
+    i = 7
+    j: i64
+    j = 2
+    k: i64
+    k = 5
+    assert pow(i, j, k) == 4
+    assert pow(102, 3, 121) == 38
+
     c1: c32
     c1 = complex(4, 5)
     c1 = pow(c1, 4)

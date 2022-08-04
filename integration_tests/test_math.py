@@ -72,7 +72,7 @@ def test_pow():
     a = 2
     b: i64
     b = 4
-    assert abs(pow(a, b) - 16) < eps
+    assert pow(a, b) == 16
 
 def test_ldexp():
     i: f64
