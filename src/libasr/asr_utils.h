@@ -1530,40 +1530,122 @@ class LabelGenerator {
 ASR::asr_t* make_Cast_t_value(Allocator &al, const Location &a_loc,
         ASR::expr_t* a_arg, ASR::cast_kindType a_kind, ASR::ttype_t* a_type);
 
-static inline ASR::expr_t* compute_end_from_start_length(Allocator& al, ASR::expr_t* start, ASR::expr_t* length) {
-    ASR::expr_t* start_value = ASRUtils::expr_value(start);
-    ASR::expr_t* length_value = ASRUtils::expr_value(length);
-    ASR::expr_t* end_value = nullptr;
-    if( start_value && length_value ) {
-        int64_t start_int, length_int;
-        ASRUtils::extract_value(start_value, start_int);
-        ASRUtils::extract_value(length_value, length_int);
-        end_value = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, start->base.loc,
-                                   length_int + start_int - 1,
-                                   ASRUtils::expr_type(start)));
-    }
-    ASR::expr_t* diff = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, length->base.loc, length,
-                                       ASR::binopType::Add, start, ASRUtils::expr_type(length),
-                                       nullptr));
-    ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
-                                            al, diff->base.loc, 1, ASRUtils::expr_type(diff)));
-    return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, length->base.loc, diff,
-                          ASR::binopType::Sub, constant_one, ASRUtils::expr_type(length),
-                          end_value));
-}
-
 static inline ASR::expr_t* compute_length_from_start_end(Allocator& al, ASR::expr_t* start, ASR::expr_t* end) {
     ASR::expr_t* start_value = ASRUtils::expr_value(start);
     ASR::expr_t* end_value = ASRUtils::expr_value(end);
-    ASR::expr_t* length_value = nullptr;
+
+    // If both start and end have compile time values
+    // then length can be computed easily by extracting
+    // compile time values of end and start.
     if( start_value && end_value ) {
         int64_t start_int = -1, end_int = -1;
         ASRUtils::extract_value(start_value, start_int);
         ASRUtils::extract_value(end_value, end_int);
-        length_value = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, start->base.loc,
-                                   end_int - start_int + 1,
-                                   ASRUtils::expr_type(start)));
+        return ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, start->base.loc,
+                              end_int - start_int + 1,
+                              ASRUtils::expr_type(start)));
     }
+
+    // If start has a compile time value and
+    // end is a variable then length can be
+    // simplified by computing 1 - start as a constant
+    // and then analysing the end expression.
+    if( start_value && !end_value ) {
+        int64_t start_int = -1;
+        ASRUtils::extract_value(start_value, start_int);
+        int64_t remaining_portion = 1 - start_int;
+
+        // If 1 - start is 0 then length is clearly the
+        // end expression.
+        if( remaining_portion == 0 ) {
+            return end;
+        }
+
+        // If end is a binary expression of Add, Sub
+        // type.
+        if( ASR::is_a<ASR::IntegerBinOp_t>(*end) ) {
+            ASR::IntegerBinOp_t* end_binop = ASR::down_cast<ASR::IntegerBinOp_t>(end);
+            if( end_binop->m_op == ASR::binopType::Add ||
+                end_binop->m_op == ASR::binopType::Sub) {
+                ASR::expr_t* end_left = end_binop->m_left;
+                ASR::expr_t* end_right = end_binop->m_right;
+                ASR::expr_t* end_leftv = ASRUtils::expr_value(end_left);
+                ASR::expr_t* end_rightv = ASRUtils::expr_value(end_right);
+                if( end_leftv ) {
+                    // If left part of end is a compile time constant
+                    // then it can be merged with 1 - start.
+                    int64_t el_int = -1;
+                    ASRUtils::extract_value(end_leftv, el_int);
+                    remaining_portion += el_int;
+
+                    // If 1 - start + end_left is 0
+                    // and end is an addition operation
+                    // then clearly end_right is the length.
+                    if( remaining_portion == 0 &&
+                        end_binop->m_op == ASR::binopType::Add ) {
+                        return end_right;
+                    }
+
+                    // In all other cases the length would be (1 - start + end_left) endop end_right
+                    // endop is the operation of end expression and 1 - start + end_left is a constant.
+                    ASR::expr_t* remaining_expr = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                                    end->base.loc, remaining_portion,
+                                                    ASRUtils::expr_type(end)));
+                    return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, end->base.loc, remaining_expr,
+                                end_binop->m_op, end_right, end_binop->m_type, end_binop->m_value));
+                } else if( end_rightv ) {
+                    // If right part of end is a compile time constant
+                    // then it can be merged with 1 - start. The sign
+                    // of end_right depends on the operation in
+                    // end expression.
+                    int64_t er_int = -1;
+                    ASRUtils::extract_value(end_rightv, er_int);
+                    if( end_binop->m_op == ASR::binopType::Sub ) {
+                        er_int = -er_int;
+                    }
+                    remaining_portion += er_int;
+
+                    // If (1 - start endop end_right) is 0
+                    // then clearly end_left is the length expression.
+                    if( remaining_portion == 0 ) {
+                        return end_left;
+                    }
+
+                    // Otherwise, length is end_left Add (1 - start endop end_right)
+                    // where endop is the operation in end expression and
+                    // (1 - start endop end_right) is a compile time constant.
+                    ASR::expr_t* remaining_expr = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                                    end->base.loc, remaining_portion,
+                                                    ASRUtils::expr_type(end)));
+                    return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, end->base.loc, end_left,
+                                ASR::binopType::Add, remaining_expr, end_binop->m_type, end_binop->m_value));
+                }
+            }
+        }
+
+        // If start is a variable and end is a compile time constant
+        // then compute (end + 1) as a constant and then return
+        // (end + 1) - start as the length expression.
+        if( !start_value && end_value ) {
+            int64_t end_int = -1;
+            ASRUtils::extract_value(end_value, end_int);
+            int64_t remaining_portion = end_int + 1;
+            ASR::expr_t* remaining_expr = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                                end->base.loc, remaining_portion,
+                                                ASRUtils::expr_type(end)));
+            return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, end->base.loc, remaining_expr,
+                        ASR::binopType::Sub, start, ASRUtils::expr_type(end), nullptr));
+        }
+
+        // For all the other cases
+        ASR::expr_t* remaining_expr = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                                end->base.loc, remaining_portion,
+                                                ASRUtils::expr_type(end)));
+        return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, end->base.loc, end,
+                    ASR::binopType::Add, remaining_expr, ASRUtils::expr_type(end),
+                    nullptr));
+    }
+
     ASR::expr_t* diff = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, end->base.loc, end,
                                        ASR::binopType::Sub, start, ASRUtils::expr_type(end),
                                        nullptr));
@@ -1571,7 +1653,7 @@ static inline ASR::expr_t* compute_length_from_start_end(Allocator& al, ASR::exp
                                             al, diff->base.loc, 1, ASRUtils::expr_type(diff)));
     return ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, end->base.loc, diff,
                           ASR::binopType::Add, constant_one, ASRUtils::expr_type(end),
-                          length_value));
+                          nullptr));
 }
 
 } // namespace ASRUtils
