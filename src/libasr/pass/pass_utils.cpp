@@ -219,7 +219,6 @@ namespace LFortran {
                 } else {
                     ASR::symbol_t* idx_sym = current_scope->get_symbol(std::string(idx_var_name));
                     idx_var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, loc, idx_sym));
-
                 }
                 idx_vars.push_back(al, idx_var);
             }
