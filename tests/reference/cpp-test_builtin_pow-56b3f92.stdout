@@ -25,10 +25,16 @@ struct dimension_descriptor
 // Forward declarations
 void _lpython_main_program();
 void test_pow();
+int32_t __lpython_overloaded_0___mod(int32_t a, int32_t b);
 double __lpython_overloaded_0__abs(double x);
 int32_t __lpython_overloaded_0__pow(int32_t x, int32_t y);
+int32_t __lpython_overloaded_10__pow(int32_t x, int32_t y, int32_t z);
+int64_t __lpython_overloaded_11__pow(int64_t x, int64_t y, int64_t z);
 int64_t __lpython_overloaded_1__pow(int64_t x, int64_t y);
+int32_t __lpython_overloaded_2___lpython_floordiv(int32_t a, int32_t b);
+int64_t __lpython_overloaded_2___mod(int64_t a, int64_t b);
 float __lpython_overloaded_2__pow(float x, float y);
+int64_t __lpython_overloaded_3___lpython_floordiv(int64_t a, int64_t b);
 double __lpython_overloaded_3__pow(double x, double y);
 float __lpython_overloaded_4__pow(int32_t x, float y);
 float __lpython_overloaded_5__pow(float x, int32_t y);
@@ -60,8 +66,11 @@ void test_pow()
     double eps;
     float f1;
     float f2;
+    int64_t i;
     int64_t i1;
     int64_t i2;
+    int64_t j;
+    int64_t k;
     float p;
     int32_t x;
     double y;
@@ -117,8 +126,20 @@ void test_pow()
     assert (__lpython_overloaded_0__abs(__lpython_overloaded_7__pow(  0.00000000000000000e+00, 53) -   0.00000000000000000e+00) < eps);
     assert (__lpython_overloaded_0__pow(4, 2) == 16);
     assert (__lpython_overloaded_0__abs(__lpython_overloaded_7__pow(-  4.23500000000000000e+03, 52) -  3.94800380598526379e+188) < eps);
+    i = 7;
+    j = 2;
+    k = 5;
+    assert (__lpython_overloaded_11__pow(i, j, k) == 4);
+    assert (__lpython_overloaded_10__pow(102, 3, 121) == 38);
     c1 = __lpython_overloaded_9__complex(4, 5);
     c1 = __lpython_overloaded_9__pow(c1, 4);
+}
+
+int32_t __lpython_overloaded_0___mod(int32_t a, int32_t b)
+{
+    int32_t _lpython_return_variable;
+    _lpython_return_variable = a - __lpython_overloaded_2___lpython_floordiv(a, b)*b;
+    return _lpython_return_variable;
 }
 
 double __lpython_overloaded_0__abs(double x)
@@ -141,6 +162,32 @@ int32_t __lpython_overloaded_0__pow(int32_t x, int32_t y)
     return _lpython_return_variable;
 }
 
+int32_t __lpython_overloaded_10__pow(int32_t x, int32_t y, int32_t z)
+{
+    int32_t _lpython_return_variable;
+    int32_t result;
+    if (y < 0) {
+        std::cerr << "ERROR STOP" << std::endl;
+        exit(1);
+    }
+    result = __lpython_overloaded_0___mod(std::pow(x, y), z);
+    _lpython_return_variable = result;
+    return _lpython_return_variable;
+}
+
+int64_t __lpython_overloaded_11__pow(int64_t x, int64_t y, int64_t z)
+{
+    int64_t _lpython_return_variable;
+    int64_t result;
+    if (y < 0) {
+        std::cerr << "ERROR STOP" << std::endl;
+        exit(1);
+    }
+    result = __lpython_overloaded_2___mod(std::pow(x, y), z);
+    _lpython_return_variable = result;
+    return _lpython_return_variable;
+}
+
 int64_t __lpython_overloaded_1__pow(int64_t x, int64_t y)
 {
     int64_t _lpython_return_variable;
@@ -148,10 +195,47 @@ int64_t __lpython_overloaded_1__pow(int64_t x, int64_t y)
     return _lpython_return_variable;
 }
 
+int32_t __lpython_overloaded_2___lpython_floordiv(int32_t a, int32_t b)
+{
+    int32_t _lpython_return_variable;
+    float r;
+    int32_t result;
+    r = (float)(a)/(float)(b);
+    result = (int)(r);
+    if (r >=   0.00000000000000000e+00 || (float)(result) == r) {
+        _lpython_return_variable = result;
+        return _lpython_return_variable;
+    }
+    _lpython_return_variable = result - 1;
+    return _lpython_return_variable;
+}
+
+int64_t __lpython_overloaded_2___mod(int64_t a, int64_t b)
+{
+    int64_t _lpython_return_variable;
+    _lpython_return_variable = a - __lpython_overloaded_3___lpython_floordiv(a, b)*b;
+    return _lpython_return_variable;
+}
+
 float __lpython_overloaded_2__pow(float x, float y)
 {
     float _lpython_return_variable;
     _lpython_return_variable = std::pow(x, y);
+    return _lpython_return_variable;
+}
+
+int64_t __lpython_overloaded_3___lpython_floordiv(int64_t a, int64_t b)
+{
+    int64_t _lpython_return_variable;
+    double r;
+    int64_t result;
+    r = (float)(a)/(float)(b);
+    result = (int)(r);
+    if (r >=   0.00000000000000000e+00 || (float)(result) == r) {
+        _lpython_return_variable = result;
+        return _lpython_return_variable;
+    }
+    _lpython_return_variable = result - 1;
     return _lpython_return_variable;
 }
 

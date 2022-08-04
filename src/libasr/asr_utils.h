@@ -813,6 +813,11 @@ static inline std::string binop_to_str_python(const ASR::binopType t) {
     }
 }
 
+static inline bool is_immutable(const ASR::ttype_t *type) {
+    return ((ASR::is_a<ASR::Character_t>(*type) || ASR::is_a<ASR::Tuple_t>(*type)
+        || ASR::is_a<ASR::Complex_t>(*type)));
+}
+
 // Returns a list of values
 static inline Vec<ASR::call_arg_t> get_arg_values(Allocator &al, const Vec<ASR::call_arg_t>& args) {
     Vec<ASR::call_arg_t> values;
@@ -1371,6 +1376,20 @@ static inline bool is_dimension_empty(ASR::dimension_t* dims, size_t n) {
         }
     }
     return false;
+}
+
+static inline ASR::ttype_t* get_contained_type(ASR::ttype_t* asr_type) {
+    switch( asr_type->type ) {
+        case ASR::ttypeType::List: {
+            return ASR::down_cast<ASR::List_t>(asr_type)->m_type;
+        }
+        case ASR::ttypeType::Set: {
+            return ASR::down_cast<ASR::Set_t>(asr_type)->m_type;
+        }
+        default: {
+            return asr_type;
+        }
+    }
 }
 
 class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
