@@ -64,43 +64,43 @@ def main():
         extra_args = "--no-error-banner"
 
         if ast:
-            run_test("ast", "lpython --show-ast --no-color {infile} -o {outfile}",
+            run_test(filename, "ast", "lpython --show-ast --no-color {infile} -o {outfile}",
                         filename, update_reference, extra_args)
 
         if ast_new:
-            run_test("ast_new", "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
+            run_test(filename, "ast_new", "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
                         filename, update_reference, extra_args)
 
         if asr:
-            run_test("asr", "lpython --show-asr --no-color {infile} -o {outfile}",
+            run_test(filename, "asr", "lpython --show-asr --no-color {infile} -o {outfile}",
                     filename, update_reference, extra_args)
 
         if pass_ is not None:
             cmd = "lpython --pass=" + pass_ + " --show-asr --no-color {infile} -o {outfile}"
-            run_test("pass_{}".format(pass_), cmd,
+            run_test(filename, "pass_{}".format(pass_), cmd,
                      filename, update_reference, extra_args)
             if pass_with_llvm:
                 cmd = "lpython --pass=" + pass_ + " --show-llvm --no-color {infile} -o {outfile}"
-                run_test("pass_llvm_{}".format(pass_), cmd,
+                run_test(filename, "pass_llvm_{}".format(pass_), cmd,
                         filename, update_reference, extra_args)
 
         if llvm:
             if no_llvm:
                 print("    * llvm   SKIPPED as requested")
             else:
-                run_test("llvm", "lpython --no-color --show-llvm {infile} -o {outfile}",
+                run_test(filename, "llvm", "lpython --no-color --show-llvm {infile} -o {outfile}",
                         filename, update_reference, extra_args)
 
         if cpp:
-            run_test("cpp", "lpython --no-color --show-cpp {infile}",
+            run_test(filename, "cpp", "lpython --no-color --show-cpp {infile}",
                     filename, update_reference, extra_args)
 
         if c:
-            run_test("c", "lpython --no-color --show-c {infile}",
+            run_test(filename, "c", "lpython --no-color --show-c {infile}",
                     filename, update_reference, extra_args)
 
         if tokens:
-            run_test("tokens", "lpython --no-color --show-tokens {infile} -o {outfile}",
+            run_test(filename, "tokens", "lpython --no-color --show-tokens {infile} -o {outfile}",
                     filename, update_reference, extra_args)
 
         print()
