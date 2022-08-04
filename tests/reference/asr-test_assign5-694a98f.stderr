@@ -1,5 +1,0 @@
-semantic error: Type mismatch in assignment, the types must be compatible
- --> tests/errors/test_assign5.py:6:5
-  |
-6 |     x = y
-  |     ^   ^ type mismatch ('list[list[i32]]' and 'list[list[str]]')
