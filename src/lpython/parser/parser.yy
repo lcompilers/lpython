@@ -925,6 +925,7 @@ expr
     | "[" expr comp_for_items "]" { $$ = LIST_COMP_1($2, $3, @$); }
     | "{" expr comp_for_items "}" { $$ = SET_COMP_1($2, $3, @$); }
     | "{" expr ":" expr comp_for_items "}" { $$ = DICT_COMP_1($2, $4, $5, @$); }
+    | "(" expr comp_for_items ")" { $$ = COMP_EXPR_1($2, $3, @$); }
 
     | ternary_if_statement { $$ = $1; }
     | lambda_expression { $$ = $1; }
