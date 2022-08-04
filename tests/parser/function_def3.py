@@ -69,3 +69,7 @@ def add(a, b, *, c, d):
 
 def func(*, param4, param5):
     ...
+
+def func(*, param4, param5): ...;
+
+async def main(): a = b; return a,

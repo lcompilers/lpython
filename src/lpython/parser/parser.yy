@@ -653,9 +653,9 @@ comma_opt
 
 function_def
     : decorators_opt KW_DEF id "(" parameter_list_opt ")" ":"
-        sep statements { $$ = FUNCTION_01($1, $3, $5, $9, @$); }
+        body_stmts { $$ = FUNCTION_01($1, $3, $5, $8, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
-        sep statements { $$ = FUNCTION_02($1, $3, $5, $8, $11, @$); }
+        body_stmts { $$ = FUNCTION_02($1, $3, $5, $8, $10, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" ":"
         TK_TYPE_COMMENT TK_NEWLINE statements {
         $$ = FUNCTION_03($1, $3, $5, $10, $8, @$); }
@@ -690,14 +690,14 @@ class_def
     ;
 
 async_func_def
-    : decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":" sep
-        statements { $$ = ASYNC_FUNCTION_01($1, $4, $6, $10, @$); }
+    : decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":"
+        body_stmts { $$ = ASYNC_FUNCTION_01($1, $4, $6, $9, @$); }
     | decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
-        sep statements { $$ = ASYNC_FUNCTION_02($1, $4, $6, $9, $12, @$); }
-    | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":" sep
-        statements { $$ = ASYNC_FUNCTION_03($3, $5, $9, @$); }
+        body_stmts { $$ = ASYNC_FUNCTION_02($1, $4, $6, $9, $11, @$); }
+    | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":"
+        body_stmts { $$ = ASYNC_FUNCTION_03($3, $5, $8, @$); }
     | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
-        sep statements { $$ = ASYNC_FUNCTION_04($3, $5, $8, $11, @$); }
+        body_stmts { $$ = ASYNC_FUNCTION_04($3, $5, $8, $10, @$); }
     | decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":"
         TK_TYPE_COMMENT TK_NEWLINE statements {
         $$ = ASYNC_FUNCTION_05($1, $4, $6, $11, $9, @$); }
