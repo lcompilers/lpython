@@ -73,3 +73,5 @@ def func(*, param4, param5):
 def func(*, param4, param5): ...;
 
 async def main(): a = b; return a,
+
+def dtype(self) -> _DType_co: ...
