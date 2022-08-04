@@ -665,16 +665,16 @@ function_def
     ;
 
 class_def
-    : decorators_opt KW_CLASS id ":" sep statements {
-        $$ = CLASS_01($1, $3, $6, @$); }
-    | decorators_opt KW_CLASS id "(" expr_list_opt ")" ":" sep statements {
-        $$ = CLASS_02($1, $3, $5, $9, @$); }
+    : decorators_opt KW_CLASS id ":" body_stmts {
+        $$ = CLASS_01($1, $3, $5, @$); }
+    | decorators_opt KW_CLASS id "(" expr_list_opt ")" ":" body_stmts {
+        $$ = CLASS_02($1, $3, $5, $8, @$); }
     | decorators_opt KW_CLASS id "(" expr_list "," keyword_items ")"
-        ":" sep statements { $$ = CLASS_03($1, $3, $5, $7, $11, @$); }
+        ":" body_stmts { $$ = CLASS_03($1, $3, $5, $7, $10, @$); }
     | decorators_opt KW_CLASS id "(" keyword_items "," expr_list ")"
-        ":" sep statements { $$ = CLASS_03($1, $3, $7, $5, $11, @$); }
-    | decorators_opt KW_CLASS id "(" keyword_items ")" ":" sep statements {
-        $$ = CLASS_04($1, $3, $5, $9, @$); }
+        ":" body_stmts { $$ = CLASS_03($1, $3, $7, $5, $10, @$); }
+    | decorators_opt KW_CLASS id "(" keyword_items ")" ":" body_stmts {
+        $$ = CLASS_04($1, $3, $5, $8, @$); }
     | decorators_opt KW_CLASS id "(" expr_list_opt ")" ":"
         TK_TYPE_COMMENT TK_NEWLINE statements {
         $$ = CLASS_05($1, $3, $5, $8, $10, @$); }
@@ -738,9 +738,9 @@ async_with_stmt
     ;
 
 while_statement
-    : KW_WHILE expr ":" sep statements { $$ = WHILE_01($2, $5, @$); }
-    | KW_WHILE expr ":" sep statements KW_ELSE ":" sep statements {
-        $$ = WHILE_02($2, $5, $9, @$); }
+    : KW_WHILE expr ":" body_stmts { $$ = WHILE_01($2, $4, @$); }
+    | KW_WHILE expr ":" body_stmts KW_ELSE ":" body_stmts {
+        $$ = WHILE_02($2, $4, $7, @$); }
     ;
 
 slice_item_list

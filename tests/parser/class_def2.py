@@ -27,3 +27,7 @@ class test_08(**x, **y):
 
 class test_08(x): # type: ignore[misc]
     pass
+
+class sub(np.ndarray): pass
+
+class name: ...;
