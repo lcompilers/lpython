@@ -50,3 +50,14 @@ class t:
 if i >= 1 or \
         j <= 10:
     print("Backlash")
+
+assert self.conv(np.RAISE) == 'NPY_RAISE'
+args += k + '=' + v.tostring(Precedence.NONE)
+
+x = none
+x = None
+
+if not info or name in info[-1]: # next processor
+    pass
+
+assert_(not internal_overlap(a))
