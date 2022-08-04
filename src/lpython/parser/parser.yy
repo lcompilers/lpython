@@ -529,17 +529,17 @@ for_target_list
     ;
 
 for_statement
-    : KW_FOR for_target_list KW_IN expr ":" sep statements {
-        $$ = FOR_01($2, $4, $7, @$); }
-    | KW_FOR for_target_list KW_IN expr "," ":" sep statements {
-        $$ = FOR_01($2, TUPLE_03(A2LIST(p.m_a, $4), @$), $8, @$); }
-    | KW_FOR for_target_list KW_IN expr ":" sep statements KW_ELSE ":"
-        sep statements { $$ = FOR_02($2, $4, $7, $11, @$); }
+    : KW_FOR for_target_list KW_IN expr ":" body_stmts {
+        $$ = FOR_01($2, $4, $6, @$); }
+    | KW_FOR for_target_list KW_IN expr "," ":" body_stmts {
+        $$ = FOR_01($2, TUPLE_03(A2LIST(p.m_a, $4), @$), $7, @$); }
+    | KW_FOR for_target_list KW_IN expr ":" body_stmts KW_ELSE ":"
+        body_stmts { $$ = FOR_02($2, $4, $6, $9, @$); }
     | KW_FOR for_target_list KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE
         statements { $$ = FOR_03($2, $4, $6, $8, @$); }
     | KW_FOR for_target_list KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE
-        statements KW_ELSE ":" sep statements {
-            $$ = FOR_04($2, $4, $8, $12, $6, @$); }
+        statements KW_ELSE ":" body_stmts {
+            $$ = FOR_04($2, $4, $8, $11, $6, @$); }
     ;
 
 except_statement
@@ -712,17 +712,17 @@ async_func_def
     ;
 
 async_for_stmt
-    : KW_ASYNC KW_FOR expr KW_IN expr ":" sep statements {
-        $$ = ASYNC_FOR_01($3, $5, $8, @$); }
-    | KW_ASYNC KW_FOR expr KW_IN expr ":" sep
-        statements KW_ELSE ":" sep statements {
-        $$ = ASYNC_FOR_02($3, $5, $8, $12, @$); }
+    : KW_ASYNC KW_FOR expr KW_IN expr ":" body_stmts {
+        $$ = ASYNC_FOR_01($3, $5, $7, @$); }
+    | KW_ASYNC KW_FOR expr KW_IN expr ":" body_stmts
+        KW_ELSE ":" body_stmts {
+        $$ = ASYNC_FOR_02($3, $5, $7, $10, @$); }
     | KW_ASYNC KW_FOR expr KW_IN expr ":"
         TK_TYPE_COMMENT TK_NEWLINE statements {
         $$ = ASYNC_FOR_03($3, $5, $9, $7, @$); }
     | KW_ASYNC KW_FOR expr KW_IN expr ":"
-        TK_TYPE_COMMENT TK_NEWLINE statements KW_ELSE ":" sep statements {
-        $$ = ASYNC_FOR_04($3, $5, $9, $13, $7, @$); }
+        TK_TYPE_COMMENT TK_NEWLINE statements KW_ELSE ":" body_stmts {
+        $$ = ASYNC_FOR_04($3, $5, $9, $12, $7, @$); }
     ;
 
 async_with_stmt
