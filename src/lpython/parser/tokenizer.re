@@ -361,8 +361,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
 
             // Tokens
             newline {
-                if(cur[0] == '#') { RET(TK_NEWLINE); }
                 if(parenlevel) { continue; }
+                if(cur[0] == '#') { RET(TK_NEWLINE); }
                 if (last_token == yytokentype::TK_COLON
                         || colon_actual_last_token) {
                     colon_actual_last_token = false;
