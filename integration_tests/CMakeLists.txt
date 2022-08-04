@@ -15,7 +15,7 @@ endif ()
 set(KIND no CACHE STRING "Type of Test")
 
 find_path(LPYTHON_RTLIB_DIR lfortran_intrinsics.h
-    ${CMAKE_SOURCE_DIR}/../src/runtime/impure)
+    ${CMAKE_SOURCE_DIR}/../src/libasr/runtime)
 find_library(LPYTHON_RTLIB_LIBRARY lpython_runtime_static
     ${CMAKE_SOURCE_DIR}/../src/runtime/)
 add_library(lpython_rtlib INTERFACE IMPORTED)
