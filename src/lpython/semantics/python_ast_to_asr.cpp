@@ -2371,7 +2371,7 @@ public:
                         /* n_body */ 0,
                         /* a_return_var */ ASRUtils::EXPR(return_var_ref),
                         current_procedure_abi_type,
-                        s_access, deftype, false, bindc_name);  
+                        s_access, deftype, vectorize, bindc_name);  
                 } else {
                     tmp = ASR::make_Function_t(
                         al, x.base.base.loc,
@@ -2385,7 +2385,7 @@ public:
                         /* n_body */ 0,
                         /* a_return_var */ ASRUtils::EXPR(return_var_ref),
                         current_procedure_abi_type,
-                        s_access, deftype, false, bindc_name);  
+                        s_access, deftype, vectorize, bindc_name);  
                 }        
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
