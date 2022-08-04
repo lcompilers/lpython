@@ -227,13 +227,6 @@ int dot_count = 0;
         mod2char(p.m_a, module), names.p, names.size(), dot_count); \
         dot_count = 0
 
-#define IF_01(test, body, l) make_If_t(p.m_a, l, \
-        /*test*/ EXPR(test), \
-        /*body*/ STMTS(A2LIST(p.m_a, body)), \
-        /*n_body*/ 1, \
-        /*a_orelse*/ nullptr, \
-        /*n_orelse*/ 0)
-
 #define IF_STMT_01(e, stmt, l) make_If_t(p.m_a, l, \
         EXPR(e), STMTS(stmt), stmt.size(), nullptr, 0)
 #define IF_STMT_02(e, stmt, orelse, l) make_If_t(p.m_a, l, \

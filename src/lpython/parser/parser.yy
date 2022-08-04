@@ -183,7 +183,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> tuple_list
 %type <ast> statement
 %type <vec_ast> statements
+%type <vec_ast> single_line_statements
 %type <vec_ast> statements1
+%type <vec_ast> single_line_multi_statements
+%type <vec_ast> single_line_multi_statements_opt
 %type <ast> single_line_statement
 %type <ast> multi_line_statement
 %type <ast> augassign_statement
@@ -195,7 +198,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> assert_statement
 %type <ast> import_statement
 %type <ast> global_statement
-%type <ast> if_statement_single
 %type <ast> nonlocal_statement
 %type <ast> assignment_statement
 %type <vec_ast> target_list
@@ -306,6 +308,23 @@ statements1
     | statement { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
+single_line_statements
+    : single_line_multi_statements TK_NEWLINE { $$ = $1; }
+    | single_line_multi_statements TK_COMMENT TK_NEWLINE { $$ = $1; }
+    | single_line_statement TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
+    | single_line_statement TK_COMMENT TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
+    ;
+
+single_line_multi_statements
+    : single_line_multi_statements_opt single_line_statement { $$ = $1; LIST_ADD($$, $2); }
+    | single_line_multi_statements_opt single_line_statement ";" { $$ = $1; LIST_ADD($$, $2); }
+    ;
+
+single_line_multi_statements_opt
+    : single_line_multi_statements_opt single_line_statement ";" { $$ = $1; LIST_ADD($$, $2); }
+    | single_line_statement ";" { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
 statement
     : single_line_statement sep { $$ = $1; }
     | multi_line_statement
@@ -326,7 +345,6 @@ single_line_statement
     | continue_statement
     | import_statement
     | global_statement
-    | if_statement_single
     | nonlocal_statement
     ;
 
@@ -468,10 +486,6 @@ global_statement
     : KW_GLOBAL expr_list { $$ = GLOBAL($2, @$); }
     ;
 
-if_statement_single
-    : KW_IF expr TK_COLON single_line_statement { $$ = IF_01($2, $4, @$); }
-    ;
-
 ternary_if_statement
     : expr KW_IF expr KW_ELSE expr { $$ = TERNARY($3, $1, $5, @$); }
     ;
@@ -489,7 +503,8 @@ elif_statement
     ;
 
 if_statement
-    : KW_IF expr ":" sep statements { $$ = IF_STMT_01($2, $5, @$); }
+    : KW_IF expr ":" single_line_statements { $$ = IF_STMT_01($2, $4, @$); }
+    | KW_IF expr ":" sep statements { $$ = IF_STMT_01($2, $5, @$); }
     | KW_IF expr ":" sep statements KW_ELSE ":" sep statements {
         $$ = IF_STMT_02($2, $5, $9, @$); }
     | KW_IF expr ":" sep statements elif_statement {
