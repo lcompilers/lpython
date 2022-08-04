@@ -258,6 +258,8 @@ namespace LFortran {
         builder->SetInsertPoint(thenBB);
         llvm::Value* new_capacity = builder->CreateMul(llvm::ConstantInt::get(context,
                                                        llvm::APInt(32, 2)), capacity);
+        new_capacity = builder->CreateAdd(new_capacity, llvm::ConstantInt::get(context,
+                                                        llvm::APInt(32, 1)));
         llvm::Value* arg_size = builder->CreateMul(llvm::ConstantInt::get(context,
                                                    llvm::APInt(32, type_size)),
                                                    new_capacity);

@@ -288,6 +288,7 @@ public:
     std::map<int, ASR::symbol_t*> &ast_overload;
     std::string parent_dir;
     Vec<ASR::stmt_t*> *current_body;
+    ASR::ttype_t* ann_assign_target_type;
 
     std::map<std::string, int> generic_func_nums;
     std::map<std::string, std::map<std::string, ASR::ttype_t*>> generic_func_subs;
@@ -297,7 +298,7 @@ public:
             std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir)
         : diag{diagnostics}, al{al}, current_scope{symbol_table}, main_module{main_module},
             ast_overload{ast_overload}, parent_dir{parent_dir},
-            current_body{nullptr} {
+            current_body{nullptr}, ann_assign_target_type{nullptr} {
         current_module_dependencies.reserve(al, 4);
     }
 
@@ -1424,6 +1425,8 @@ public:
     void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name,
                              bool wrap_derived_type_in_pointer=false) {
         ASR::ttype_t *type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation);
+        ASR::ttype_t* ann_assign_target_type_copy = ann_assign_target_type;
+        ann_assign_target_type = type;
         if( ASR::is_a<ASR::Derived_t>(*type) &&
             wrap_derived_type_in_pointer ) {
             type = ASRUtils::TYPE(ASR::make_Pointer_t(al, type->base.loc, type));
@@ -1486,6 +1489,7 @@ public:
         current_scope->add_symbol(var_name, v_sym);
 
         tmp = nullptr;
+        ann_assign_target_type = ann_assign_target_type_copy;
     }
 
     void visit_ClassDef(const AST::ClassDef_t& x) {
@@ -2881,20 +2885,29 @@ public:
 
     void visit_List(const AST::List_t &x) {
         Vec<ASR::expr_t*> list;
-        list.reserve(al, x.n_elts);
+        list.reserve(al, x.n_elts + 1);
         ASR::ttype_t *type = nullptr;
-        for (size_t i=0; i<x.n_elts; i++) {
-            this->visit_expr(*x.m_elts[i]);
-            ASR::expr_t *expr = ASRUtils::EXPR(tmp);
-            if (type == nullptr) {
-                type = ASRUtils::expr_type(expr);
-            } else {
+        ASR::expr_t *expr = nullptr;
+        if( x.n_elts > 0 ) {
+            this->visit_expr(*x.m_elts[0]);
+            expr = ASRUtils::EXPR(tmp);
+            type = ASRUtils::expr_type(expr);
+            list.push_back(al, expr);
+            for (size_t i = 1; i < x.n_elts; i++) {
+                this->visit_expr(*x.m_elts[i]);
+                expr = ASRUtils::EXPR(tmp);
                 if (!ASRUtils::check_equal_type(ASRUtils::expr_type(expr), type)) {
                     throw SemanticError("All List elements must be of the same type for now",
                         x.base.base.loc);
                 }
+                list.push_back(al, expr);
             }
-            list.push_back(al, expr);
+        } else {
+            if( ann_assign_target_type == nullptr ) {
+                tmp = nullptr;
+                return ;
+            }
+            type = ASRUtils::get_contained_type(ann_assign_target_type);
         }
         ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, x.base.base.loc, type));
         tmp = ASR::make_ListConstant_t(al, x.base.base.loc, list.p,
