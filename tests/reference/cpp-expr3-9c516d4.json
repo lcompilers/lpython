@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-expr3-9c516d4",
+    "cmd": "lpython --no-color --show-cpp {infile}",
+    "infile": "tests/expr3.py",
+    "infile_hash": "4fbbd9ddebefcc9afdd6fdc17e16313fafc5b3e214595d6ad62c10cb",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-expr3-9c516d4.stdout",
+    "stdout_hash": "32383cc1a2b38fbc36e15d3576ca04c3ae21941b20e3884bdaeceb4a",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

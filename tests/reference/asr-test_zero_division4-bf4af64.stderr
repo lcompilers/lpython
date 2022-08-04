@@ -1,0 +1,5 @@
+semantic error: float division by zero is not allowed
+ --> tests/errors/test_zero_division4.py:3:13
+  |
+3 |     print(f/0.0)
+  |             ^^^ float division by zero

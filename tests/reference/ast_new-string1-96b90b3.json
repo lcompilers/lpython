@@ -1,0 +1,13 @@
+{
+    "basename": "ast_new-string1-96b90b3",
+    "cmd": "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
+    "infile": "tests/parser/string1.py",
+    "infile_hash": "e4090ab45efb09242e14f3dd494ca869a32e71de3617306d959d8721",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_new-string1-96b90b3.stdout",
+    "stdout_hash": "1666ca8ebba593a8bf35e7906efabf5726626b7c82b130324bd78a43",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

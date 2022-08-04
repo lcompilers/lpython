@@ -1,0 +1,13 @@
+{
+    "basename": "asr-expr7-480ba2f",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/expr7.py",
+    "infile_hash": "4a455e2279eb7dd269d81c1a257dea625b17b100d92e304e5ac34421",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-expr7-480ba2f.stdout",
+    "stdout_hash": "080a592fc7fa62c6cbda0b45ca54593b6aa6162071be7447d960537b",
+    "stderr": "asr-expr7-480ba2f.stderr",
+    "stderr_hash": "28509dd59a386eebd632340a550d14299cd2a921ef6dc3ac7dbe7fe9",
+    "returncode": 0
+}

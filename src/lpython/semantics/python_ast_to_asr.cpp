@@ -569,15 +569,15 @@ public:
                 if (ASR::is_a<ASR::Variable_t>(*s)) {
                     ASR::Variable_t *var_sym = ASR::down_cast<ASR::Variable_t>(s);
                     if (var_sym->m_type->type == ASR::ttypeType::TypeParameter) {
-                        return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, loc, 
-                            ASR::down_cast<ASR::TypeParameter_t>(var_sym->m_type)->m_param, 
+                        return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, loc,
+                            ASR::down_cast<ASR::TypeParameter_t>(var_sym->m_type)->m_param,
                             dims.p, dims.size()));
                     }
                 } else {
                     ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
                     if (der_sym && der_sym->type == ASR::symbolType::DerivedType) {
                         return ASRUtils::TYPE(ASR::make_Derived_t(al, loc, der_sym, dims.p, dims.size()));
-                    } 
+                    }
                 }
             }
             throw SemanticError("Unsupported type annotation: " + var_annotation, loc);
@@ -677,14 +677,14 @@ public:
                     ASR::ttype_t *param_type = ASRUtils::expr_type(func->m_args[i]);
                     ASR::ttype_t *arg_type = ASRUtils::expr_type(args[i].m_value);
                     subs = check_type_substitution(subs, param_type, arg_type, loc);
-                }    
+                }
 
                 ASR::symbol_t *t = get_generic_function(subs, *func);
                 std::string new_call_name = call_name;
                 if (ASR::is_a<ASR::Function_t>(*t)) {
                     new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
                 }
-                return make_call_helper(al, t, current_scope, args, new_call_name, loc);                
+                return make_call_helper(al, t, current_scope, args, new_call_name, loc);
             }
         } else if (ASR::is_a<ASR::Subroutine_t>(*s)) {
             ASR::Subroutine_t *func = ASR::down_cast<ASR::Subroutine_t>(s);
@@ -1266,7 +1266,7 @@ public:
             }
             tmp = ASR::make_StringConcat_t(al, loc, left, right, dest_type, value);
             return;
-        } else if (ASR::is_a<ASR::TypeParameter_t>(*left_type) 
+        } else if (ASR::is_a<ASR::TypeParameter_t>(*left_type)
                 || ASR::is_a<ASR::TypeParameter_t>(*right_type)) {
             dest_type = left_type;
         } else if (ASR::is_a<ASR::List_t>(*left_type) && ASR::is_a<ASR::List_t>(*right_type)
@@ -2264,11 +2264,11 @@ public:
             }
             ASR::ttype_t *arg_type = ast_expr_to_asr_type(x.base.base.loc, *x.m_args.m_args[i].m_annotation);
             // Set the function as generic if an argument is typed with a type parameter
-            if (ASRUtils::is_generic(*arg_type)) { 
-                std::string param_name = ASRUtils::get_parameter_name(arg_type); 
+            if (ASRUtils::is_generic(*arg_type)) {
+                std::string param_name = ASRUtils::get_parameter_name(arg_type);
                 ps.insert(param_name);
             }
-            
+
             std::string arg_s = arg;
 
             ASR::expr_t *value = nullptr;
@@ -2337,7 +2337,7 @@ public:
                     type_params.reserve(al, ps.size());
                     for (auto &p: ps) {
                         std::string param = p;
-                        ASR::ttype_t *type_p = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, 
+                        ASR::ttype_t *type_p = ASRUtils::TYPE(ASR::make_TypeParameter_t(al,
                                 x.base.base.loc, s2c(al, p), nullptr, 0));
                         type_params.push_back(al, type_p);
                     }
@@ -2353,7 +2353,7 @@ public:
                         /* n_body */ 0,
                         /* a_return_var */ ASRUtils::EXPR(return_var_ref),
                         current_procedure_abi_type,
-                        s_access, deftype, false, bindc_name);  
+                        s_access, deftype, vectorize, bindc_name);
                 } else {
                     tmp = ASR::make_Function_t(
                         al, x.base.base.loc,
@@ -2367,8 +2367,8 @@ public:
                         /* n_body */ 0,
                         /* a_return_var */ ASRUtils::EXPR(return_var_ref),
                         current_procedure_abi_type,
-                        s_access, deftype, false, bindc_name);  
-                }        
+                        s_access, deftype, vectorize, bindc_name);
+                }
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
                     x.m_returns->base.loc);
@@ -2508,7 +2508,7 @@ public:
                     if (AST::is_a<AST::Name_t>(*x.m_targets[0])) {
                         std::string tvar_name = AST::down_cast<AST::Name_t>(x.m_targets[0])->m_id;
                         // Check if the type variable name is a reserved type keyword
-                        const char* type_list[14] 
+                        const char* type_list[14]
                             = { "list", "set", "dict", "tuple", "i8", "i16", "i32", "i64", "f32",
                                 "f64", "c32", "c64", "str", "bool"};
                         for (int i = 0; i < 14; i++) {
@@ -2550,16 +2550,16 @@ public:
                             current_procedure_abi_type, s_access, s_presence,
                             value_attr);
                         current_scope->add_symbol(tvar_name, ASR::down_cast<ASR::symbol_t>(v));
-                        
+
                         tmp = nullptr;
-                        
+
                         return;
                     } else {
                         // This error might need to be further elaborated
                         throw SemanticError("Type variable must be a variable", x.base.base.loc);
                     }
                 }
-            }        
+            }
         }
     }
 

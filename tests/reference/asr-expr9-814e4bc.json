@@ -1,0 +1,13 @@
+{
+    "basename": "asr-expr9-814e4bc",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/expr9.py",
+    "infile_hash": "1f02a7486b298ae9e74a163875a76f8fa7cc25d7f50547133dbbdfab",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-expr9-814e4bc.stdout",
+    "stdout_hash": "858b54c7d24dbde0fea0e8f6ae4548c314eb6d94ff059c1870182410",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

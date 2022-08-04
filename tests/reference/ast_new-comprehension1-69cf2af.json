@@ -1,0 +1,13 @@
+{
+    "basename": "ast_new-comprehension1-69cf2af",
+    "cmd": "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
+    "infile": "tests/parser/comprehension1.py",
+    "infile_hash": "db1a35055ce4df698bffbd406fc34ab9fb183a91366f6289575b71d8",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "ast_new-comprehension1-69cf2af.stderr",
+    "stderr_hash": "16c438f6848a027777662f891c0c15366638c2efdea749bb04fabf1f",
+    "returncode": 1
+}

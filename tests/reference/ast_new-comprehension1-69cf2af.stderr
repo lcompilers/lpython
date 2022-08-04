@@ -1,0 +1,5 @@
+syntax error: Token 'for' is unexpected here
+  --> tests/parser/comprehension1.py:38:12
+   |
+38 | (string[i] for i in range(len(string)-1, -1, -1))
+   |            ^^^ 
