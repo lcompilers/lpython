@@ -1275,15 +1275,7 @@ public:
                         && right_param->m_rt == ASR::restrictionType::SupportsPlus) {
                     dest_type = left_type;
                 } else {
-                    std::string ltype = ASRUtils::type_parameter_to_trait(left_type);
-                    std::string rtype = ASRUtils::type_parameter_to_trait(right_type);
-                    diag.add(diag::Diagnostic(
-                        "Both type variables must support addition operation.",
-                        diag::Level::Error, diag::Stage::Semantic, {
-                            diag::Label(ltype + " and " + rtype, {left->base.loc, right->base.loc})
-                        }
-                    ));
-                    throw SemanticAbort();
+                    throw SemanticError("Both type variables must support addition operation", loc);
                 }
             }
         } else if (ASR::is_a<ASR::List_t>(*left_type) && ASR::is_a<ASR::List_t>(*right_type)
@@ -2282,7 +2274,7 @@ public:
             ASR::ttype_t *arg_type = ast_expr_to_asr_type(x.base.base.loc, *x.m_args.m_args[i].m_annotation);
             // Set the function as generic if an argument is typed with a type parameter
             if (ASRUtils::is_generic(*arg_type)) {
-                std::string param_name = ASRUtils::get_parameter_name(arg_type);
+                std::string param_name = ASRUtils::type_to_str(arg_type);
                 ps.insert(param_name);
             }
 
