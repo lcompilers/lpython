@@ -1,5 +1,0 @@
-syntax error: Token 'a' (of type 'identifier') is unexpected here
-  --> tests/parser/for2.py:50:18
-   |
-50 | for a in (b, c): a**2; pass;
-   |                  ^ 

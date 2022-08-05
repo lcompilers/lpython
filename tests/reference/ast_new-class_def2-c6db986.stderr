@@ -1,5 +1,0 @@
-syntax error: Token 'pass' is unexpected here
-  --> tests/parser/class_def2.py:31:24
-   |
-31 | class sub(np.ndarray): pass
-   |                        ^^^^ 

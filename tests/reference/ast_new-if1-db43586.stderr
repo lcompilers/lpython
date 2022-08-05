@@ -1,5 +1,0 @@
-syntax error: Token 'else' is unexpected here
-  --> tests/parser/if1.py:27:1
-   |
-27 | else: a = b;
-   | ^^^^ 
