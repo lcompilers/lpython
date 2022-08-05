@@ -109,7 +109,8 @@ public:
             nullptr, 0,
             body.p, body.size(),
             ASRUtils::EXPR(new_return_var_ref),
-            func_abi, func_access, func_deftype, false, bindc_name);   
+            func_abi, func_access, func_deftype, bindc_name,
+            false, false, false);
 
         ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(result);
         parent_scope->add_symbol(func_name, t);

@@ -526,10 +526,14 @@ namespace LFortran {
             for( size_t i = 0; i < fallback_while_loop.size(); i++ ) {
                 body.push_back(al, fallback_while_loop[i]);
             }
-            ASR::asr_t* vector_copy_asr = ASR::make_Subroutine_t(al, unit.base.base.loc, vector_copy_symtab,
-                                            s2c(al, vector_copy_name), arg_exprs.p, arg_exprs.size(), body.p,
-                                            body.size(), ASR::abiType::Source, ASR::accessType::Public, ASR::deftypeType::Implementation,
-                                            nullptr, false, false);
+            ASR::asr_t* vector_copy_asr = ASR::make_Subroutine_t(al,
+                unit.base.base.loc,
+                vector_copy_symtab,
+                s2c(al, vector_copy_name), arg_exprs.p, arg_exprs.size(),
+                nullptr, 0, body.p, body.size(), nullptr,
+                ASR::abiType::Source, ASR::accessType::Public,
+                ASR::deftypeType::Implementation,
+                nullptr, false, false, false);
             global_scope->add_symbol(vector_copy_name, ASR::down_cast<ASR::symbol_t>(vector_copy_asr));
             return ASR::down_cast<ASR::symbol_t>(vector_copy_asr);
         }

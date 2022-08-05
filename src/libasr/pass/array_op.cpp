@@ -126,9 +126,12 @@ public:
             a_args.push_back(al, s->m_args[i]);
         }
         a_args.push_back(al, s->m_return_var);
-        ASR::asr_t* s_sub_asr = ASR::make_Subroutine_t(al, s->base.base.loc, s->m_symtab,
-                                        s->m_name, a_args.p, a_args.size(), s->m_body, s->n_body,
-                                        s->m_abi, s->m_access, s->m_deftype, nullptr, false, false);
+        ASR::asr_t* s_sub_asr = ASR::make_Subroutine_t(al, s->base.base.loc,
+            s->m_symtab,
+            s->m_name, a_args.p, a_args.size(), nullptr, 0, s->m_body, s->n_body,
+            nullptr,
+            s->m_abi, s->m_access, s->m_deftype, nullptr, false, false,
+            false);
         ASR::symbol_t* s_sub = ASR::down_cast<ASR::symbol_t>(s_sub_asr);
         return s_sub;
     }
