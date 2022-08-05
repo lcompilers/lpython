@@ -353,6 +353,10 @@ public:
         tmp_val = const_cast<ASR::expr_t*>(&(x.base));
     }
 
+    void visit_LogicalConstant(const ASR::LogicalConstant_t& x) {
+        tmp_val = const_cast<ASR::expr_t*>(&(x.base));
+    }
+
     void fix_dimension(const ASR::Cast_t& x, ASR::expr_t* arg_expr) {
         ASR::ttype_t* x_type = const_cast<ASR::ttype_t*>(x.m_type);
         ASR::ttype_t* arg_type = LFortran::ASRUtils::expr_type(arg_expr);
