@@ -375,7 +375,7 @@ public:
         result_var = nullptr;
         this->visit_expr(*(x.m_arg));
         result_var = result_var_copy;
-        if( PassUtils::is_array(tmp_val) ) {
+        if( tmp_val != nullptr && PassUtils::is_array(tmp_val) ) {
             if( result_var == nullptr ) {
                 fix_dimension(x, tmp_val);
                 result_var = create_var(result_var_num, std::string("_implicit_cast_res"), x.base.base.loc, const_cast<ASR::expr_t*>(&(x.base)));
