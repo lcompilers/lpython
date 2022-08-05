@@ -34,3 +34,8 @@ def main():
             pass
         pass
     pass
+
+x = [
+# Comment
+    a,
+]

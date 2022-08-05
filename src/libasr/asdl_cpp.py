@@ -767,7 +767,7 @@ class TreeVisitorVisitor(ASDLVisitor):
                     self.emit('s.append(std::to_string(x.m_%s));' % field.name, 2)
             elif field.type == "float" and not field.seq and not field.opt:
                 self.emit('s.append("\\n" + indtd + "%s" + "%s=");' % (arr, field.name), 2)
-                self.emit('s.append(double_to_scientific(x.m_%s));' % field.name, 2)
+                self.emit('s.append(std::to_string(x.m_%s));' % field.name, 2)
             elif field.type == "bool" and not field.seq and not field.opt:
                 self.emit('s.append("\\n" + indtd + "%s" + "%s=");' % (arr, field.name), 2)
                 self.emit("if (x.m_%s) {" % field.name, 2)
@@ -1389,7 +1389,7 @@ class PickleVisitorVisitor(ASDLVisitor):
                 else:
                     self.emit('s.append(std::to_string(x.m_%s));' % field.name, 2)
             elif field.type == "float" and not field.seq and not field.opt:
-                self.emit('s.append(double_to_scientific(x.m_%s));' % field.name, 2)
+                self.emit('s.append(std::to_string(x.m_%s));' % field.name, 2)
             elif field.type == "bool" and not field.seq and not field.opt:
                 self.emit("if (x.m_%s) {" % field.name, 2)
                 self.emit(    's.append(".true.");', 3)
@@ -1879,6 +1879,11 @@ class DeserializationVisitorVisitor(ASDLVisitor):
         self.emit(    'Location loc;', 2)
         self.emit(    'loc.first = self().read_int64();', 2)
         self.emit(    'loc.last = self().read_int64();', 2)
+        if subs["lcompiler"] == "lfortran":
+            # Set the location to 0 for now, since we do not yet
+            # support multiple files
+            self.emit(    'loc.first = 0;', 2)
+            self.emit(    'loc.last = 0;', 2)
         for line in lines:
             self.emit(line, 2)
         self.emit(    'return %s::make_%s_t(%s);' % (subs["MOD"], name, ", ".join(args)), 2)
@@ -2141,11 +2146,6 @@ visitors = [ASTNodeVisitor0, ASTNodeVisitor1, ASTNodeVisitor,
 def main(argv):
     if len(argv) == 3:
         def_file, out_file = argv[1:]
-    elif len(argv) == 1:
-        print("Assuming default values of AST.asdl and ast.h")
-        here = os.path.dirname(__file__)
-        def_file = os.path.join(here, "AST.asdl")
-        out_file = os.path.join(here, "..", "src", "lpython", "ast.h")
     else:
         print("invalid arguments")
         return 2
@@ -2163,6 +2163,9 @@ def main(argv):
     if subs["MOD"] == "LPYTHON":
         subs["MOD"] = "LPython::AST"
         subs["mod"] = "ast"
+        subs["lcompiler"] = "lpython"
+    else:
+        subs["lcompiler"] = "lfortran"
     is_asr = (mod.name.upper() == "ASR")
     fp = open(out_file, "w", encoding="utf-8")
     try:

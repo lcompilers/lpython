@@ -9,3 +9,8 @@ while i < 6:
     pass
 else:
     pass
+
+while i < 3: pass
+
+while i < 6: pass
+else: pass

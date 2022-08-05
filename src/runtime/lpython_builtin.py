@@ -179,10 +179,16 @@ def bin(n: i32) -> str:
         prep = '-0b'
     res: str
     res = ''
-    res += '0' if (n - _lpython_floordiv(n, 2)*2) == 0 else '1'
+    if (n - _lpython_floordiv(n, 2)*2) == 0:
+        res += '0'
+    else:
+        res += '1'
     while n > 1:
         n = _lpython_floordiv(n, 2)
-        res += '0' if (n - _lpython_floordiv(n, 2)*2) == 0 else '1'
+        if (n - _lpython_floordiv(n, 2)*2) == 0:
+            res += '0'
+        else:
+            res += '1'
     return prep + res[::-1]
 
 

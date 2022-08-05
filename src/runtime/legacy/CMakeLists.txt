@@ -1,5 +1,5 @@
 set(SRC
-    ../impure/lfortran_intrinsics.c
+    ../../../src/libasr/runtime/lfortran_intrinsics.c
 )
 add_library(lpython_runtime SHARED ${SRC})
 set_target_properties(lpython_runtime PROPERTIES

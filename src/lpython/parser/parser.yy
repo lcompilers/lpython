@@ -183,7 +183,12 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> tuple_list
 %type <ast> statement
 %type <vec_ast> statements
+%type <vec_ast> sep_statements
+%type <vec_ast> body_stmts
+%type <vec_ast> single_line_statements
 %type <vec_ast> statements1
+%type <vec_ast> single_line_multi_statements
+%type <vec_ast> single_line_multi_statements_opt
 %type <ast> single_line_statement
 %type <ast> multi_line_statement
 %type <ast> augassign_statement
@@ -195,7 +200,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> assert_statement
 %type <ast> import_statement
 %type <ast> global_statement
-%type <ast> if_statement_single
 %type <ast> nonlocal_statement
 %type <ast> assignment_statement
 %type <vec_ast> target_list
@@ -301,9 +305,37 @@ statements
     : TK_INDENT statements1 TK_DEDENT { $$ = $2; }
     ;
 
+sep_statements
+    : sep statements { $$ = $2; }
+    ;
+
+body_stmts
+    : single_line_statements { $$ = $1; }
+    | sep_statements { $$ = $1; }
+    ;
+
 statements1
     : statements1 statement { $$ = $1; LIST_ADD($$, $2); }
     | statement { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+single_line_statements
+    : single_line_multi_statements TK_NEWLINE { $$ = $1; }
+    | single_line_multi_statements TK_COMMENT TK_NEWLINE { $$ = $1; }
+    | single_line_statement TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
+    | single_line_statement TK_SEMICOLON TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
+    | single_line_statement TK_SEMICOLON TK_COMMENT TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
+    | single_line_statement TK_COMMENT TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
+    ;
+
+single_line_multi_statements
+    : single_line_multi_statements_opt single_line_statement { $$ = $1; LIST_ADD($$, $2); }
+    | single_line_multi_statements_opt single_line_statement ";" { $$ = $1; LIST_ADD($$, $2); }
+    ;
+
+single_line_multi_statements_opt
+    : single_line_multi_statements_opt single_line_statement ";" { $$ = $1; LIST_ADD($$, $2); }
+    | single_line_statement ";" { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 statement
@@ -326,7 +358,6 @@ single_line_statement
     | continue_statement
     | import_statement
     | global_statement
-    | if_statement_single
     | nonlocal_statement
     ;
 
@@ -468,10 +499,6 @@ global_statement
     : KW_GLOBAL expr_list { $$ = GLOBAL($2, @$); }
     ;
 
-if_statement_single
-    : KW_IF expr TK_COLON single_line_statement { $$ = IF_01($2, $4, @$); }
-    ;
-
 ternary_if_statement
     : expr KW_IF expr KW_ELSE expr { $$ = TERNARY($3, $1, $5, @$); }
     ;
@@ -481,19 +508,19 @@ nonlocal_statement
     ;
 
 elif_statement
-    : KW_ELIF expr ":" sep statements { $$ = IF_STMT_01($2, $5, @$); }
-    | KW_ELIF expr ":" sep statements KW_ELSE ":" sep statements {
-        $$ = IF_STMT_02($2, $5, $9, @$); }
-    | KW_ELIF expr ":" sep statements elif_statement {
-        $$ = IF_STMT_03($2, $5, $6, @$); }
+    : KW_ELIF expr ":" body_stmts { $$ = IF_STMT_01($2, $4, @$); }
+    | KW_ELIF expr ":" body_stmts KW_ELSE ":" body_stmts {
+        $$ = IF_STMT_02($2, $4, $7, @$); }
+    | KW_ELIF expr ":" body_stmts elif_statement {
+        $$ = IF_STMT_03($2, $4, $5, @$); }
     ;
 
 if_statement
-    : KW_IF expr ":" sep statements { $$ = IF_STMT_01($2, $5, @$); }
-    | KW_IF expr ":" sep statements KW_ELSE ":" sep statements {
-        $$ = IF_STMT_02($2, $5, $9, @$); }
-    | KW_IF expr ":" sep statements elif_statement {
-        $$ = IF_STMT_03($2, $5, $6, @$); }
+    : KW_IF expr ":" body_stmts { $$ = IF_STMT_01($2, $4, @$); }
+    | KW_IF expr ":" body_stmts KW_ELSE ":" body_stmts {
+        $$ = IF_STMT_02($2, $4, $7, @$); }
+    | KW_IF expr ":" body_stmts elif_statement {
+        $$ = IF_STMT_03($2, $4, $5, @$); }
     ;
 
 for_target_list
@@ -502,38 +529,39 @@ for_target_list
     ;
 
 for_statement
-    : KW_FOR for_target_list KW_IN expr ":" sep statements {
-        $$ = FOR_01($2, $4, $7, @$); }
-    | KW_FOR for_target_list KW_IN expr "," ":" sep statements {
-        $$ = FOR_01($2, TUPLE_03(A2LIST(p.m_a, $4), @$), $8, @$); }
-    | KW_FOR for_target_list KW_IN expr ":" sep statements KW_ELSE ":"
-        sep statements { $$ = FOR_02($2, $4, $7, $11, @$); }
+    : KW_FOR for_target_list KW_IN expr ":" body_stmts {
+        $$ = FOR_01($2, $4, $6, @$); }
+    | KW_FOR for_target_list KW_IN expr "," ":" body_stmts {
+        $$ = FOR_01($2, TUPLE_03(A2LIST(p.m_a, $4), @$), $7, @$); }
+    | KW_FOR for_target_list KW_IN expr ":" body_stmts KW_ELSE ":"
+        body_stmts { $$ = FOR_02($2, $4, $6, $9, @$); }
     | KW_FOR for_target_list KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE
         statements { $$ = FOR_03($2, $4, $6, $8, @$); }
     | KW_FOR for_target_list KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE
-        statements KW_ELSE ":" sep statements {
-            $$ = FOR_04($2, $4, $8, $12, $6, @$); }
+        statements KW_ELSE ":" body_stmts {
+            $$ = FOR_04($2, $4, $8, $11, $6, @$); }
     ;
 
 except_statement
-    : KW_EXCEPT ":" sep statements { $$ = EXCEPT_01($4, @$); }
-    | KW_EXCEPT expr ":" sep statements { $$ = EXCEPT_02($2, $5, @$); }
-    | KW_EXCEPT expr KW_AS id ":" sep statements { $$ = EXCEPT_03($2, $4, $7, @$); }
+    : KW_EXCEPT ":" body_stmts { $$ = EXCEPT_01($3, @$); }
+    | KW_EXCEPT expr ":" body_stmts { $$ = EXCEPT_02($2, $4, @$); }
+    | KW_EXCEPT expr KW_AS id ":" body_stmts { $$ = EXCEPT_03($2, $4, $6, @$); }
     ;
+
 except_list
     : except_list except_statement { $$ = $1; LIST_ADD($$, $2); }
     | except_statement { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 try_statement
-    : KW_TRY ":" sep statements except_list { $$ = TRY_01($4, $5, @$); }
-    | KW_TRY ":" sep statements except_list KW_ELSE ":" sep statements {
-        $$ = TRY_02($4, $5, $9, @$); }
-    | KW_TRY ":" sep statements except_list KW_FINALLY ":" sep statements {
-        $$ = TRY_03($4, $5, $9, @$); }
-    | KW_TRY ":" sep statements except_list KW_ELSE ":" sep statements KW_FINALLY
-        ":" sep statements { $$ = TRY_04($4, $5, $9, $13, @$); }
-    | KW_TRY ":" sep statements KW_FINALLY ":" sep statements { $$ = TRY_05($4, $8, @$); }
+    : KW_TRY ":" body_stmts except_list { $$ = TRY_01($3, $4, @$); }
+    | KW_TRY ":" body_stmts except_list KW_ELSE ":" body_stmts {
+        $$ = TRY_02($3, $4, $7, @$); }
+    | KW_TRY ":" body_stmts except_list KW_FINALLY ":" body_stmts {
+        $$ = TRY_03($3, $4, $7, @$); }
+    | KW_TRY ":" body_stmts except_list KW_ELSE ":" body_stmts KW_FINALLY
+        ":" body_stmts { $$ = TRY_04($3, $4, $7, $10, @$); }
+    | KW_TRY ":" body_stmts KW_FINALLY ":" body_stmts { $$ = TRY_05($3, $6, @$); }
     ;
 
 with_as_items_list
@@ -549,8 +577,8 @@ with_as_items
     ;
 
 with_statement
-    : KW_WITH expr_list ":" sep statements { $$ = WITH($2, $5, @$); }
-    | KW_WITH with_as_items ":" sep statements { $$ = WITH_02($2, $5, @$); }
+    : KW_WITH expr_list ":" body_stmts { $$ = WITH($2, $4, @$); }
+    | KW_WITH with_as_items ":" body_stmts { $$ = WITH_02($2, $4, @$); }
     | KW_WITH expr_list ":" TK_TYPE_COMMENT TK_NEWLINE
         statements { $$ = WITH_01($2, $6, $4, @$); }
     | KW_WITH with_as_items ":" TK_TYPE_COMMENT TK_NEWLINE
@@ -625,9 +653,9 @@ comma_opt
 
 function_def
     : decorators_opt KW_DEF id "(" parameter_list_opt ")" ":"
-        sep statements { $$ = FUNCTION_01($1, $3, $5, $9, @$); }
+        body_stmts { $$ = FUNCTION_01($1, $3, $5, $8, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
-        sep statements { $$ = FUNCTION_02($1, $3, $5, $8, $11, @$); }
+        body_stmts { $$ = FUNCTION_02($1, $3, $5, $8, $10, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" ":"
         TK_TYPE_COMMENT TK_NEWLINE statements {
         $$ = FUNCTION_03($1, $3, $5, $10, $8, @$); }
@@ -637,16 +665,16 @@ function_def
     ;
 
 class_def
-    : decorators_opt KW_CLASS id ":" sep statements {
-        $$ = CLASS_01($1, $3, $6, @$); }
-    | decorators_opt KW_CLASS id "(" expr_list_opt ")" ":" sep statements {
-        $$ = CLASS_02($1, $3, $5, $9, @$); }
+    : decorators_opt KW_CLASS id ":" body_stmts {
+        $$ = CLASS_01($1, $3, $5, @$); }
+    | decorators_opt KW_CLASS id "(" expr_list_opt ")" ":" body_stmts {
+        $$ = CLASS_02($1, $3, $5, $8, @$); }
     | decorators_opt KW_CLASS id "(" expr_list "," keyword_items ")"
-        ":" sep statements { $$ = CLASS_03($1, $3, $5, $7, $11, @$); }
+        ":" body_stmts { $$ = CLASS_03($1, $3, $5, $7, $10, @$); }
     | decorators_opt KW_CLASS id "(" keyword_items "," expr_list ")"
-        ":" sep statements { $$ = CLASS_03($1, $3, $7, $5, $11, @$); }
-    | decorators_opt KW_CLASS id "(" keyword_items ")" ":" sep statements {
-        $$ = CLASS_04($1, $3, $5, $9, @$); }
+        ":" body_stmts { $$ = CLASS_03($1, $3, $7, $5, $10, @$); }
+    | decorators_opt KW_CLASS id "(" keyword_items ")" ":" body_stmts {
+        $$ = CLASS_04($1, $3, $5, $8, @$); }
     | decorators_opt KW_CLASS id "(" expr_list_opt ")" ":"
         TK_TYPE_COMMENT TK_NEWLINE statements {
         $$ = CLASS_05($1, $3, $5, $8, $10, @$); }
@@ -662,14 +690,14 @@ class_def
     ;
 
 async_func_def
-    : decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":" sep
-        statements { $$ = ASYNC_FUNCTION_01($1, $4, $6, $10, @$); }
+    : decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":"
+        body_stmts { $$ = ASYNC_FUNCTION_01($1, $4, $6, $9, @$); }
     | decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
-        sep statements { $$ = ASYNC_FUNCTION_02($1, $4, $6, $9, $12, @$); }
-    | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":" sep
-        statements { $$ = ASYNC_FUNCTION_03($3, $5, $9, @$); }
+        body_stmts { $$ = ASYNC_FUNCTION_02($1, $4, $6, $9, $11, @$); }
+    | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":"
+        body_stmts { $$ = ASYNC_FUNCTION_03($3, $5, $8, @$); }
     | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
-        sep statements { $$ = ASYNC_FUNCTION_04($3, $5, $8, $11, @$); }
+        body_stmts { $$ = ASYNC_FUNCTION_04($3, $5, $8, $10, @$); }
     | decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":"
         TK_TYPE_COMMENT TK_NEWLINE statements {
         $$ = ASYNC_FUNCTION_05($1, $4, $6, $11, $9, @$); }
@@ -685,24 +713,24 @@ async_func_def
     ;
 
 async_for_stmt
-    : KW_ASYNC KW_FOR expr KW_IN expr ":" sep statements {
-        $$ = ASYNC_FOR_01($3, $5, $8, @$); }
-    | KW_ASYNC KW_FOR expr KW_IN expr ":" sep
-        statements KW_ELSE ":" sep statements {
-        $$ = ASYNC_FOR_02($3, $5, $8, $12, @$); }
+    : KW_ASYNC KW_FOR expr KW_IN expr ":" body_stmts {
+        $$ = ASYNC_FOR_01($3, $5, $7, @$); }
+    | KW_ASYNC KW_FOR expr KW_IN expr ":" body_stmts
+        KW_ELSE ":" body_stmts {
+        $$ = ASYNC_FOR_02($3, $5, $7, $10, @$); }
     | KW_ASYNC KW_FOR expr KW_IN expr ":"
         TK_TYPE_COMMENT TK_NEWLINE statements {
         $$ = ASYNC_FOR_03($3, $5, $9, $7, @$); }
     | KW_ASYNC KW_FOR expr KW_IN expr ":"
-        TK_TYPE_COMMENT TK_NEWLINE statements KW_ELSE ":" sep statements {
-        $$ = ASYNC_FOR_04($3, $5, $9, $13, $7, @$); }
+        TK_TYPE_COMMENT TK_NEWLINE statements KW_ELSE ":" body_stmts {
+        $$ = ASYNC_FOR_04($3, $5, $9, $12, $7, @$); }
     ;
 
 async_with_stmt
-    : KW_ASYNC KW_WITH expr_list ":" sep statements {
-        $$ = ASYNC_WITH($3, $6, @$); }
-    | KW_ASYNC KW_WITH with_as_items ":" sep statements {
-        $$ = ASYNC_WITH_02($3, $6, @$); }
+    : KW_ASYNC KW_WITH expr_list ":" body_stmts {
+        $$ = ASYNC_WITH($3, $5, @$); }
+    | KW_ASYNC KW_WITH with_as_items ":" body_stmts {
+        $$ = ASYNC_WITH_02($3, $5, @$); }
     | KW_ASYNC KW_WITH expr_list ":" TK_TYPE_COMMENT
         TK_NEWLINE statements { $$ = ASYNC_WITH_01($3, $7, $5, @$); }
     | KW_ASYNC KW_WITH with_as_items ":" TK_TYPE_COMMENT
@@ -710,9 +738,9 @@ async_with_stmt
     ;
 
 while_statement
-    : KW_WHILE expr ":" sep statements { $$ = WHILE_01($2, $5, @$); }
-    | KW_WHILE expr ":" sep statements KW_ELSE ":" sep statements {
-        $$ = WHILE_02($2, $5, $9, @$); }
+    : KW_WHILE expr ":" body_stmts { $$ = WHILE_01($2, $4, @$); }
+    | KW_WHILE expr ":" body_stmts KW_ELSE ":" body_stmts {
+        $$ = WHILE_02($2, $4, $7, @$); }
     ;
 
 slice_item_list

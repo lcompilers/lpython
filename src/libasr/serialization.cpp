@@ -79,15 +79,13 @@ public:
         return p;
     }
 
-// FIXME LOCATION: document if this is just initialization that will
-// get overriden, or if this needs to be read from the file
-// It seems we do not save/read location information, we need to fix it
 #define READ_SYMBOL_CASE(x)                                \
     case (ASR::symbolType::x) : {                          \
         s = (ASR::symbol_t*)al.make_new<ASR::x##_t>();     \
         s->type = ASR::symbolType::x;                      \
         s->base.type = ASR::asrType::symbol;               \
-        s->base.loc.first = 123;                           \
+        s->base.loc.first = 0;                             \
+        s->base.loc.last = 0;                              \
         break;                                             \
     }
 
@@ -99,6 +97,8 @@ public:
 
     ASR::symbol_t *read_symbol() {
         uint64_t symtab_id = read_int64();
+        // TODO: read the symbol's location information here, after saving
+        // it in write_symbol() above
         uint64_t symbol_type = read_int8();
         std::string symbol_name  = read_string();
         LFORTRAN_ASSERT(id_symtab_map.find(symtab_id) != id_symtab_map.end());
@@ -136,8 +136,6 @@ public:
             // We have to copy the contents of `sym` into `sym2` without
             // changing the `sym2` pointer already in the table
             ASR::symbol_t *sym2 = symtab.get_symbol(name);
-            // FIXME LOCATION: document what is going on:
-            LFORTRAN_ASSERT(sym2->base.loc.first == 123);
             switch (sym->type) {
                 INSERT_SYMBOL_CASE(Program)
                 INSERT_SYMBOL_CASE(Module)
