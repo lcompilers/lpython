@@ -1266,9 +1266,26 @@ public:
             }
             tmp = ASR::make_StringConcat_t(al, loc, left, right, dest_type, value);
             return;
-        } else if (ASR::is_a<ASR::TypeParameter_t>(*left_type)
-                || ASR::is_a<ASR::TypeParameter_t>(*right_type)) {
-            dest_type = left_type;
+        } else if (ASR::is_a<ASR::TypeParameter_t>(*left_type) && ASR::is_a<ASR::TypeParameter_t>(*right_type)) {
+            ASR::TypeParameter_t *left_param = ASR::down_cast<ASR::TypeParameter_t>(left_type);
+            ASR::TypeParameter_t *right_param = ASR::down_cast<ASR::TypeParameter_t>(right_type);
+            if (op == ASR::binopType::Add) {
+                std::cout << "are we here" << std::endl;
+                if (left_param->m_rt == ASR::restrictionType::SupportsPlus 
+                        && right_param->m_rt == ASR::restrictionType::SupportsPlus) {
+                    dest_type = left_type;
+                } else {
+                    std::string ltype = ASRUtils::type_parameter_to_trait(left_type);
+                    std::string rtype = ASRUtils::type_parameter_to_trait(right_type);
+                    diag.add(diag::Diagnostic(
+                        "Both type variables must support addition operation.",
+                        diag::Level::Error, diag::Stage::Semantic, {
+                            diag::Label(ltype + " and " + rtype, {left->base.loc, right->base.loc})
+                        }
+                    ));
+                    throw SemanticAbort();
+                }
+            }
         } else if (ASR::is_a<ASR::List_t>(*left_type) && ASR::is_a<ASR::List_t>(*right_type)
                    && op == ASR::binopType::Add) {
             dest_type = left_type;
