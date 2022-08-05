@@ -40,8 +40,12 @@ CPtr = Type("c_ptr")
 
 # Restrictions
 
+class Any:
+    def __init__(self):
+        pass
+
 class SupportsPlus:
-    def __init__(self, name):
+    def __init__(self):
         pass
 
 # Overloading support
