@@ -779,8 +779,8 @@ expr_list
     ;
 
 dict
-    : expr ":" expr { $$ = DICT_EXPR($1, $3, @$); }
-    | expr ":" TK_NEWLINE expr { $$ = DICT_EXPR($1, $4, @$); }
+    : expr ":" expr { $$ = DICT_EXPR_01($1, $3, @$); }
+    | expr ":" TK_TYPE_COMMENT expr { $$ = DICT_EXPR_02($1, $3, $4, @$); }
     ;
 
 dict_list
@@ -914,7 +914,7 @@ lambda_parameter_list_starargs
         $$ = PARAMETER_LIST_09($2, $4); }
     | "*" lambda_parameter "," "**" lambda_parameter comma_opt {
         $$ = PARAMETER_LIST_10($2, $5); }
-    | "*" lambda_parameter "," lambda_defparameter_list "," 
+    | "*" lambda_parameter "," lambda_defparameter_list ","
         "**" lambda_parameter comma_opt { $$ = PARAMETER_LIST_11($2, $4, $7); }
     | "**" lambda_parameter comma_opt { $$ = PARAMETER_LIST_06($2); }
     ;

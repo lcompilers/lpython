@@ -18,5 +18,10 @@ def test():
           'b':
            2,
         }
+    x = { 'markdown2.tpl': # type: ignore
+          """\
+          Text
+          """
+        }
 
 test()

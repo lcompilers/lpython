@@ -877,7 +877,9 @@ ast_t *DICT1(Allocator &al, Location &l, Vec<Key_Val*> dict_list) {
     return make_Dict_t(al, l, key.p, key.n, val.p, val.n);
 }
 
-#define DICT_EXPR(key, value, l) DICT(p.m_a, EXPR(key), EXPR(value))
+#define DICT_EXPR_01(key, value, l) DICT(p.m_a, EXPR(key), EXPR(value))
+#define DICT_EXPR_02(key, type_comment, value, l) DICT(p.m_a, EXPR(key), \
+        EXPR(value)); extract_type_comment(p, l, type_comment)
 #define DICT_01(l) make_Dict_t(p.m_a, l, nullptr, 0, nullptr, 0)
 #define DICT_02(dict_list, l) DICT1(p.m_a, l, dict_list)
 #define AWAIT(e, l) make_Await_t(p.m_a, l, EXPR(e))
