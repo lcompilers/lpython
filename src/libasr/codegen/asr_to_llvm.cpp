@@ -3411,6 +3411,27 @@ public:
         start_new_block(mergeBB);
     }
 
+    void visit_IfExp(const ASR::IfExp_t &x) {
+        // IfExp(expr test, expr body, expr orelse, ttype type, expr? value)
+        this->visit_expr_wrapper(x.m_test, true);
+        llvm::Value *cond = tmp;
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+        builder->CreateCondBr(cond, thenBB, elseBB);
+        builder->SetInsertPoint(thenBB);
+        this->visit_expr_wrapper(x.m_body, true);
+        llvm::Value *then_val = tmp;
+        builder->CreateBr(mergeBB);
+        start_new_block(elseBB);
+        this->visit_expr_wrapper(x.m_orelse, true);
+        llvm::Value *else_val = tmp;
+        builder->CreateBr(mergeBB);
+        start_new_block(mergeBB);
+        tmp = builder->CreateSelect(cond, then_val, else_val);
+    }
+
     void visit_WhileLoop(const ASR::WhileLoop_t &x) {
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
         llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
