@@ -30,15 +30,17 @@ to:
 class ImpliedDoLoopVisitor : public PassUtils::PassVisitor<ImpliedDoLoopVisitor>
 {
 private:
-    ASR::TranslationUnit_t &unit;
     bool contains_array;
     std::string rl_path;
 public:
-    ImpliedDoLoopVisitor(Allocator &al, ASR::TranslationUnit_t& unit,
-        const std::string &rl_path) : PassVisitor(al, nullptr), unit{unit},
-    contains_array{false}, rl_path{rl_path} {
-        pass_result.reserve(al, 1);
+    // Public to surpress a warning
+    ASR::TranslationUnit_t &unit;
 
+    ImpliedDoLoopVisitor(Allocator &al, ASR::TranslationUnit_t& unit,
+        const std::string &rl_path) :
+             PassVisitor(al, nullptr), contains_array{false}, rl_path{rl_path},
+             unit{unit} {
+        pass_result.reserve(al, 1);
     }
 
     void visit_Var(const ASR::Var_t& x) {
