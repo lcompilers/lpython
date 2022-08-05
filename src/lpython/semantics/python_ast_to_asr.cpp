@@ -1270,7 +1270,6 @@ public:
             ASR::TypeParameter_t *left_param = ASR::down_cast<ASR::TypeParameter_t>(left_type);
             ASR::TypeParameter_t *right_param = ASR::down_cast<ASR::TypeParameter_t>(right_type);
             if (op == ASR::binopType::Add) {
-                std::cout << "are we here" << std::endl;
                 if (left_param->m_rt == ASR::restrictionType::SupportsPlus 
                         && right_param->m_rt == ASR::restrictionType::SupportsPlus) {
                     dest_type = left_type;
