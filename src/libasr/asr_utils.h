@@ -149,6 +149,10 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
             return type_to_str(ASRUtils::type_get_past_pointer(
                         const_cast<ASR::ttype_t*>(t))) + " pointer";
         }
+        case ASR::ttypeType::TypeParameter: {
+            ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
+            return tp->m_param;
+        }        
         default : throw LCompilersException("Not implemented " + std::to_string(t->type) + ".");
     }
 }
@@ -1000,16 +1004,6 @@ static inline bool is_logical(ASR::ttype_t &x) {
 
 static inline bool is_generic(ASR::ttype_t &x) {
     return ASR::is_a<ASR::TypeParameter_t>(*type_get_past_pointer(&x));
-}
-
-static inline std::string get_parameter_name(const ASR::ttype_t* t) {
-    switch (t->type) {
-        case ASR::ttypeType::TypeParameter: {
-            ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
-            return tp->m_param;
-        }
-        default: throw LCompilersException("Cannot obtain type parameter from this type");
-    }
 }
 
 
