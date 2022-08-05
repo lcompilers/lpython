@@ -279,7 +279,7 @@
 (TOKEN "(") 596:596
 (TOKEN "identifier" np) 597:598
 (TOKEN ".") 599:599
-(KEYWORD "raise") 600:604
+(TOKEN "identifier" RAISE) 600:604
 (TOKEN ")") 605:605
 (TOKEN "==") 607:608
 (TOKEN "string" "NPY_RAISE") 610:620
@@ -296,13 +296,13 @@
 (TOKEN "(") 650:650
 (TOKEN "identifier" Precedence) 651:660
 (TOKEN ".") 661:661
-(KEYWORD "none") 662:665
+(TOKEN "identifier" NONE) 662:665
 (TOKEN ")") 666:666
 (NEWLINE) 667:667
 (NEWLINE) 668:668
 (TOKEN "identifier" x) 669:669
 (TOKEN "=") 671:671
-(KEYWORD "none") 673:676
+(TOKEN "identifier" none) 673:676
 (NEWLINE) 677:677
 (TOKEN "identifier" x) 678:678
 (TOKEN "=") 680:680
@@ -310,8 +310,8 @@
 (NEWLINE) 686:686
 (NEWLINE) 687:687
 (KEYWORD "if") 688:689
-(TOKEN "not in") 691:696
-(TOKEN "identifier" fo) 697:698
+(TOKEN "not") 691:693
+(TOKEN "identifier" info) 695:698
 (TOKEN "or") 700:701
 (TOKEN "identifier" name) 703:706
 (KEYWORD "in") 708:709
@@ -330,8 +330,8 @@
 (TOKEN "dedent") 747:747
 (TOKEN "identifier" assert_) 748:754
 (TOKEN "(") 755:755
-(TOKEN "not in") 756:761
-(TOKEN "identifier" ternal_overlap) 762:775
+(TOKEN "not") 756:758
+(TOKEN "identifier" internal_overlap) 760:775
 (TOKEN "(") 776:776
 (TOKEN "identifier" a) 777:777
 (TOKEN ")") 778:778
