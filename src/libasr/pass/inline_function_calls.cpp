@@ -55,7 +55,7 @@ private:
     bool inline_external_symbol_calls;
 
 
-    ASR::ExprStmtDuplicator node_duplicator;
+    ASRUtils::ExprStmtDuplicator node_duplicator;
 
     SymbolTable* current_routine_scope;
     ASRUtils::LabelGenerator* label_generator;
