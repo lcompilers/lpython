@@ -569,9 +569,9 @@ public:
                 if (ASR::is_a<ASR::Variable_t>(*s)) {
                     ASR::Variable_t *var_sym = ASR::down_cast<ASR::Variable_t>(s);
                     if (var_sym->m_type->type == ASR::ttypeType::TypeParameter) {
+                        ASR::TypeParameter_t *type_param = ASR::down_cast<ASR::TypeParameter_t>(var_sym->m_type);
                         return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, loc,
-                            ASR::down_cast<ASR::TypeParameter_t>(var_sym->m_type)->m_param,
-                            dims.p, dims.size()));
+                            type_param->m_param, dims.p, dims.size(), type_param->m_rt));
                     }
                 } else {
                     ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
@@ -2338,7 +2338,8 @@ public:
                     for (auto &p: ps) {
                         std::string param = p;
                         ASR::ttype_t *type_p = ASRUtils::TYPE(ASR::make_TypeParameter_t(al,
-                                x.base.base.loc, s2c(al, p), nullptr, 0));
+                                x.base.base.loc, s2c(al, p), nullptr, 0,
+                                ASR::restrictionType::Any));
                         type_params.push_back(al, type_p);
                     }
                     tmp = ASR::make_Function_t(
@@ -2532,8 +2533,17 @@ public:
                         // Build ttype
                         Vec<ASR::dimension_t> dims;
                         dims.reserve(al, 4);
+
+                        ASR::restrictionType restriction = ASR::restrictionType::Any;
+                        if (rh->n_keywords > 0) {
+                            AST::keyword_t restriction_keyword = rh->m_keywords[0];
+                            if (restriction_keyword.m_arg && strcmp(restriction_keyword.m_arg, "bound") == 0) {
+                                restriction = get_restriction_from_expr(restriction_keyword.m_value);
+                            }
+                        }
+
                         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, x.base.base.loc, s2c(al, tvar_name),
-                            dims.p, dims.size()));
+                            dims.p, dims.size(), restriction));
 
                         ASR::expr_t *value = nullptr;
                         ASR::expr_t *init_expr = nullptr;
@@ -2560,6 +2570,21 @@ public:
                     }
                 }
             }
+        }
+    }
+
+    ASR::restrictionType get_restriction_from_expr(AST::expr_t *value) {
+        if (AST::is_a<AST::Name_t>(*value)) {
+            std::string restriction_name = AST::down_cast<AST::Name_t>(value)->m_id;
+            if (restriction_name == "Any") {
+                return ASR::restrictionType::Any;
+            } else if (restriction_name == "SupportsPlus") {
+                return ASR::restrictionType::SupportsPlus;
+            } else {
+                throw SemanticError("Unsupported restriction " + restriction_name, value->base.loc);
+            }
+        } else {
+            throw SemanticError("Restriction only supports Name", value->base.loc);
         }
     }
 
