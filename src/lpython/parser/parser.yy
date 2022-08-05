@@ -780,6 +780,7 @@ expr_list
 
 dict
     : expr ":" expr { $$ = DICT_EXPR($1, $3, @$); }
+    | expr ":" TK_NEWLINE expr { $$ = DICT_EXPR($1, $4, @$); }
     ;
 
 dict_list
