@@ -152,18 +152,6 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         // itself
         // Mark each function as intrinsic also
         for (auto &item : mod2->m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
-                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
-                if (s->m_abi == ASR::abiType::Source) {
-                    s->m_abi = ASR::abiType::Intrinsic;
-                }
-                if (s->n_body == 0) {
-                    std::string name = s->m_name;
-                    if (name == "ubound" || name == "lbound") {
-                        s->m_deftype = ASR::deftypeType::Interface;
-                    }
-                }
-            }
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 if (s->m_abi == ASR::abiType::Source) {
@@ -194,24 +182,7 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
     if (current_scope->get_scope().find(cur_sym_name) != current_scope->get_scope().end()) {
         throw SemanticError(cur_sym_name + " already defined", loc);
     }
-    if (ASR::is_a<ASR::Subroutine_t>(*t)) {
-
-        ASR::Subroutine_t *msub = ASR::down_cast<ASR::Subroutine_t>(t);
-        // `msub` is the Subroutine in a module. Now we construct
-        // an ExternalSymbol that points to
-        // `msub` via the `external` field.
-        Str name;
-        name.from_str(al, new_sym_name);
-        ASR::asr_t *sub = ASR::make_ExternalSymbol_t(
-            al, msub->base.base.loc,
-            /* a_symtab */ current_scope,
-            /* a_name */ name.c_str(al),
-            (ASR::symbol_t*)msub,
-            m->m_name, nullptr, 0, msub->m_name,
-            ASR::accessType::Public
-            );
-        return ASR::down_cast<ASR::symbol_t>(sub);
-    } else if (ASR::is_a<ASR::Function_t>(*t)) {
+    if (ASR::is_a<ASR::Function_t>(*t)) {
         ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
         // `mfn` is the Function in a module. Now we construct
         // an ExternalSymbol that points to it.
@@ -336,7 +307,7 @@ public:
                 loc);
         } else if (! (ASR::is_a<ASR::GenericProcedure_t>(*t)
                     || ASR::is_a<ASR::Function_t>(*t)
-                    || ASR::is_a<ASR::Subroutine_t>(*t))) {
+                    )) {
             throw SemanticError("The symbol '" + remote_sym
                 + "' found in the module '" + module_name + "', "
                 + "but it is not a function, subroutine or a generic procedure.",
@@ -624,7 +595,8 @@ public:
                 stemp = symtab->get_symbol(local_sym);
             }
         }
-        if (ASR::is_a<ASR::Function_t>(*s)) {
+        if (ASR::is_a<ASR::Function_t>(*s) &&
+            ASR::down_cast<ASR::Function_t>(s)->m_return_var != nullptr) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
             if (func->n_type_params == 0) {
                 ASR::ttype_t *a_type = nullptr;
@@ -686,8 +658,8 @@ public:
                 }
                 return make_call_helper(al, t, current_scope, args, new_call_name, loc);
             }
-        } else if (ASR::is_a<ASR::Subroutine_t>(*s)) {
-            ASR::Subroutine_t *func = ASR::down_cast<ASR::Subroutine_t>(s);
+        } else if (ASR::is_a<ASR::Function_t>(*s)) {
+            ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
             if (args.size() != func->n_args) {
                 std::string fnd = std::to_string(args.size());
                 std::string org = std::to_string(func->n_args);
@@ -2375,7 +2347,7 @@ public:
             }
         } else {
             bool is_pure = false, is_module = false;
-            tmp = ASR::make_Subroutine_t(
+            tmp = ASR::make_Function_t(
                 al, x.base.base.loc,
                 /* a_symtab */ current_scope,
                 /* a_name */ s2c(al, sym_name),
@@ -2649,8 +2621,7 @@ public:
         tmp = asr;
     }
 
-    template <typename Procedure>
-    void handle_fn(const AST::FunctionDef_t &x, Procedure &v) {
+    void handle_fn(const AST::FunctionDef_t &x, ASR::Function_t &v) {
         current_scope = v.m_symtab;
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
@@ -2662,16 +2633,12 @@ public:
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
         SymbolTable *old_scope = current_scope;
         ASR::symbol_t *t = current_scope->get_symbol(x.m_name);
-        if (ASR::is_a<ASR::Subroutine_t>(*t)) {
-            handle_fn(x, *ASR::down_cast<ASR::Subroutine_t>(t));
-        } else if (ASR::is_a<ASR::Function_t>(*t)) {
+        if (ASR::is_a<ASR::Function_t>(*t)) {
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(t);
             handle_fn(x, *f);
         } else if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
             ASR::symbol_t *s = ast_overload[(int64_t)&x];
-            if (ASR::is_a<ASR::Subroutine_t>(*s)) {
-                handle_fn(x, *ASR::down_cast<ASR::Subroutine_t>(s));
-            } else if (ASR::is_a<ASR::Function_t>(*s)) {
+            if (ASR::is_a<ASR::Function_t>(*s)) {
                 ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(s);
                 handle_fn(x, *f);
             } else {
@@ -4271,8 +4238,7 @@ public:
                 bool result = false;
                 if (ASR::is_a<ASR::Var_t>(*arg)) {
                     ASR::symbol_t *t = ASR::down_cast<ASR::Var_t>(arg)->m_v;
-                    result = (ASR::is_a<ASR::Function_t>(*t) ||
-                                ASR::is_a<ASR::Subroutine_t>(*t));
+                    result = ASR::is_a<ASR::Function_t>(*t);
                 }
                 tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, result, type);
                 return;

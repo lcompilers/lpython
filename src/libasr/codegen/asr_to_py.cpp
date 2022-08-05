@@ -357,8 +357,7 @@ public:
 
         // Process loose procedures first
         for (auto &item : x.m_global_scope->get_scope()) {
-            if (is_a<ASR::Function_t>(*item.second)
-                    || is_a<ASR::Subroutine_t>(*item.second)) {
+            if (is_a<ASR::Function_t>(*item.second)) {
                 visit_symbol(*item.second);
 
                 chdr_tmp += chdr;
@@ -400,14 +399,6 @@ public:
         std::string pyx_tmp  ;
 
         for (auto &item : x.m_symtab->get_scope()) {
-            if (is_a<ASR::Subroutine_t>(*item.second)) {
-                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
-                visit_Subroutine(*s);
-
-                chdr_tmp += chdr;
-                pxd_tmp  += pxd;
-                pyx_tmp  += pyx;
-            }
             if (is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
@@ -425,33 +416,6 @@ public:
 
         cur_module.clear();
     }
-
-    void visit_Subroutine(const ASR::Subroutine_t &x) {
-
-        // Only process bind(c) subprograms for now
-        if (x.m_abi != ASR::abiType::BindC) return;
-
-        // Return type and function name
-        bool bindc_name_not_given = x.m_bindc_name == NULL || !strcmp("",x.m_bindc_name);
-        std::string effective_name = bindc_name_not_given ? x.m_name : x.m_bindc_name;
-
-        chdr = "void " + effective_name + " (";
-
-        std::string c_args, cy_args, call_args, pyx_body, rtn_statement;
-        std::tie(c_args,cy_args,call_args,pyx_body,rtn_statement) = helper_visit_arguments(x.n_args, x.m_args);
-
-        if (!rtn_statement.empty()) rtn_statement = "    return " + rtn_statement;
-
-        chdr += c_args + ")";
-        pxd = "    " + chdr + "\n";
-        chdr += ";\n" ;
-
-        pyx = "def " + effective_name + " (" + cy_args + "):\n";
-        pyx += pyx_body;
-        pyx += "    " + pxdf +"."+ effective_name + " (" + call_args + ")\n";
-        pyx += rtn_statement + "\n\n";
-    }
-
 
     void visit_Function(const ASR::Function_t &x) {
 

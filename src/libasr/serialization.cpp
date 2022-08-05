@@ -113,7 +113,6 @@ public:
             switch (ty) {
                 READ_SYMBOL_CASE(Program)
                 READ_SYMBOL_CASE(Module)
-                READ_SYMBOL_CASE(Subroutine)
                 READ_SYMBOL_CASE(Function)
                 READ_SYMBOL_CASE(GenericProcedure)
                 READ_SYMBOL_CASE(ExternalSymbol)
@@ -139,7 +138,6 @@ public:
             switch (sym->type) {
                 INSERT_SYMBOL_CASE(Program)
                 INSERT_SYMBOL_CASE(Module)
-                INSERT_SYMBOL_CASE(Subroutine)
                 INSERT_SYMBOL_CASE(Function)
                 INSERT_SYMBOL_CASE(GenericProcedure)
                 INSERT_SYMBOL_CASE(ExternalSymbol)
@@ -179,17 +177,6 @@ public:
     }
 
     void visit_Module(const Module_t &x) {
-        SymbolTable *parent_symtab = current_symtab;
-        current_symtab = x.m_symtab;
-        x.m_symtab->parent = parent_symtab;
-        x.m_symtab->asr_owner = (asr_t*)&x;
-        for (auto &a : x.m_symtab->get_scope()) {
-            this->visit_symbol(*a.second);
-        }
-        current_symtab = parent_symtab;
-    }
-
-    void visit_Subroutine(const Subroutine_t &x) {
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;
         x.m_symtab->parent = parent_symtab;
