@@ -24,7 +24,7 @@ public:
     std::map<uint64_t, std::string> fn_used;
 
     // TODO: Do subroutines just like Functions:
-
+    
     void visit_Function(const ASR::Function_t &x) {
         uint64_t h = get_hash((ASR::asr_t*)&x);
         if (x.m_abi != ASR::abiType::BindC) {

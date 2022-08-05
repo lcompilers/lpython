@@ -801,10 +801,8 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
         self.emit("// Expression and statement Duplicator class")
         self.emit("")
         self.emit("class ExprStmtDuplicator {")
-        self.emit("private:")
-        self.emit("    Allocator& al;")
-        self.emit("")
         self.emit("public:")
+        self.emit("    Allocator &al;")
         self.emit("    bool success;")
         self.emit("    bool allow_procedure_calls;")
         self.emit("")
@@ -868,7 +866,7 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
 
     def make_visitor(self, name, fields):
         self.emit("")
-        self.emit("ASR::asr_t* duplicate_%s(%s_t* x) {" % (name, name), 1)
+        self.emit("virtual ASR::asr_t* duplicate_%s(%s_t* x) {" % (name, name), 1)
         self.used = False
         arguments = []
         for field in fields:

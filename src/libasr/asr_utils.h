@@ -790,6 +790,10 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(t);
             return "Pointer[" + type_to_str_python(p->m_type) + "]";
         }
+        case ASR::ttypeType::TypeParameter: {
+            ASR::TypeParameter_t *p = ASR::down_cast<ASR::TypeParameter_t>(t);
+            return p->m_param;
+        }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
 }
@@ -994,6 +998,21 @@ static inline bool is_logical(ASR::ttype_t &x) {
     return ASR::is_a<ASR::Logical_t>(*type_get_past_pointer(&x));
 }
 
+static inline bool is_generic(ASR::ttype_t &x) {
+    return ASR::is_a<ASR::TypeParameter_t>(*type_get_past_pointer(&x));
+}
+
+static inline std::string get_parameter_name(const ASR::ttype_t* t) {
+    switch (t->type) {
+        case ASR::ttypeType::TypeParameter: {
+            ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
+            return tp->m_param;
+        }
+        default: throw LCompilersException("Cannot obtain type parameter from this type");
+    }
+}
+
+
 static inline int get_body_size(ASR::symbol_t* s) {
     int n_body = 0;
     switch (s->type) {
@@ -1079,6 +1098,12 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
             m_dims = nullptr;
             break;
         }
+        case ASR::ttypeType::TypeParameter: {
+            ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(x);
+            n_dims = tp->n_dims;
+            m_dims = tp->m_dims;
+            break;
+        }
         default:
             throw LCompilersException("Not implemented.");
     }
@@ -1141,6 +1166,13 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
             ASR::ttype_t* dup_type = duplicate_type(al, ptr->m_type, dims);
             return ASRUtils::TYPE(ASR::make_Pointer_t(al, ptr->base.base.loc,
                         dup_type));
+        }
+        case ASR::ttypeType::TypeParameter: {
+            ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
+            ASR::dimension_t* dimsp = dims ? dims->p : tp->m_dims;
+            size_t dimsn = dims ? dims->n : tp->n_dims;
+            return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
+                        tp->m_param, dimsp, dimsn));
         }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
@@ -1306,6 +1338,8 @@ inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
             }
         }
         return result;
+    } else if (ASR::is_a<ASR::TypeParameter_t>(*x) && ASR::is_a<ASR::TypeParameter_t>(*y)) {
+        return true;
     }
 
     int64_t x_kind = ASRUtils::extract_kind_from_ttype_t(x);
