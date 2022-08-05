@@ -63,6 +63,15 @@ def test_str_slice_step():
     assert s[::-1] == "kjihgfedcba"
 
 
+def test_issue_883():
+    s: str
+    s = "abcde"
+    c: str
+    for c in s[::-1]:
+        print(c)
+
+
 test_str_int()
 str_conv_for_variables()
 test_str_slice_step()
+test_issue_883()
