@@ -388,7 +388,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "-" { RET(TK_MINUS) }
             "=" { RET(TK_EQUAL) }
             ":" {
-                    if(cur[0] == '\n'){
+                    if(cur[0] == '\n' && !parenlevel){
                         colon_actual_last_token = true;
                     }
                     RET(TK_COLON);
@@ -463,7 +463,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             }
 
             type_comment {
-                if (last_token == yytokentype::TK_COLON) {
+                if (last_token == yytokentype::TK_COLON && !parenlevel) {
                     indent = true;
                 }
                 token(yylval.string);
