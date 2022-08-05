@@ -42,7 +42,7 @@ public:
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        ASR::Subroutine_t *sb = ASR::down_cast<ASR::Subroutine_t>(ASRUtils::symbol_get_past_external(x.m_name));
+        ASR::Function_t *sb = ASR::down_cast<ASR::Function_t>(ASRUtils::symbol_get_past_external(x.m_name));
         for (size_t i = 0; i < x.n_args; i++) {
             if (ASR::is_a<ASR::Var_t>(*x.m_args[i].m_value) && ASRUtils::is_array(ASRUtils::expr_type(x.m_args[i].m_value))) {
                 ASR::Variable_t* v = ASRUtils::EXPR2VAR(x.m_args[i].m_value);

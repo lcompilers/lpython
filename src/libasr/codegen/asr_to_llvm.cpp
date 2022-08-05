@@ -101,7 +101,6 @@ using LFortran::ASRUtils::expr_type;
 using LFortran::ASRUtils::symbol_get_past_external;
 using LFortran::ASRUtils::EXPR2VAR;
 using LFortran::ASRUtils::EXPR2FUN;
-using LFortran::ASRUtils::EXPR2SUB;
 using LFortran::ASRUtils::intent_local;
 using LFortran::ASRUtils::intent_return_var;
 using LFortran::ASRUtils::determine_module_dependencies;
@@ -245,9 +244,6 @@ public:
         from the nested_vars analysis pass to determine if we need to save or
         reload a local scope (and increment or decrement the stack pointer) */
     const ASR::Function_t *parent_function = nullptr;
-    const ASR::Subroutine_t *parent_subroutine = nullptr; /* For ensuring we are
-        in a nested_function before checking if we need to declare stack
-        types */
 
     std::unique_ptr<LLVMUtils> llvm_utils;
     std::unique_ptr<LLVMList> list_api;
@@ -1028,9 +1024,7 @@ public:
                 ASR::Module_t* mod = ASR::down_cast<ASR::Module_t>(item.second);
                 for( auto &moditem: mod->m_symtab->get_scope() ) {
                     ASR::symbol_t* sym = ASRUtils::symbol_get_past_external(moditem.second);
-                    if (is_a<ASR::Subroutine_t>(*sym)) {
-                        visit_Subroutine(*ASR::down_cast<ASR::Subroutine_t>(sym));
-                    } else if (is_a<ASR::Function_t>(*sym)) {
+                    if (is_a<ASR::Function_t>(*sym)) {
                         visit_Function(*ASR::down_cast<ASR::Function_t>(sym));
                     }
                 }
@@ -1042,9 +1036,6 @@ public:
         for (auto &item : x.m_global_scope->get_scope()) {
             if (is_a<ASR::Function_t>(*item.second)) {
                 visit_Function(*ASR::down_cast<ASR::Function_t>(item.second));
-            }
-            if (is_a<ASR::Subroutine_t>(*item.second)) {
-                visit_Subroutine(*ASR::down_cast<ASR::Subroutine_t>(item.second));
             }
         }
         prototype_only = false;
@@ -1063,8 +1054,7 @@ public:
 
         // Then do all the procedures
         for (auto &item : x.m_global_scope->get_scope()) {
-            if (is_a<ASR::Function_t>(*item.second)
-                || is_a<ASR::Subroutine_t>(*item.second)) {
+            if (is_a<ASR::Function_t>(*item.second)) {
                 visit_symbol(*item.second);
             }
         }
@@ -1608,12 +1598,6 @@ public:
                 instantiate_function(*v);
                 declare_needed_global_types(*v);
             }
-            if (is_a<ASR::Subroutine_t>(*item.second)) {
-                ASR::Subroutine_t *v = down_cast<ASR::Subroutine_t>(
-                        item.second);
-                instantiate_subroutine(*v);
-                declare_needed_global_types(*v);
-            }
         }
         finish_module_init_function_prototype(x);
 
@@ -1629,11 +1613,6 @@ public:
                 ASR::Function_t *v = down_cast<ASR::Function_t>(
                         item.second);
                 instantiate_function(*v);
-                declare_needed_global_types(*v);
-            } else if (is_a<ASR::Subroutine_t>(*item.second)) {
-                ASR::Subroutine_t *v = down_cast<ASR::Subroutine_t>(
-                        item.second);
-                instantiate_subroutine(*v);
                 declare_needed_global_types(*v);
             }
         }
@@ -1875,8 +1854,7 @@ public:
                     * general array descriptor to a pointer type which
                     * can be passed as an argument in a function call in LLVM IR.
                     */
-                    if( x.class_type == ASR::symbolType::Function ||
-                        x.class_type == ASR::symbolType::Subroutine ) {
+                    if( x.class_type == ASR::symbolType::Function) {
                         std::uint32_t m_h;
                         std::string m_name = std::string(x.m_name);
                         ASR::abiType abi_type = ASR::abiType::Source;
@@ -1886,11 +1864,6 @@ public:
                             m_h = get_hash((ASR::asr_t*)_func);
                             abi_type = _func->m_abi;
                             is_v_arg = is_argument(v, _func->m_args, _func->n_args);
-                        } else if( x.class_type == ASR::symbolType::Subroutine ) {
-                            ASR::Subroutine_t* _sub = (ASR::Subroutine_t*)(&(x.base));
-                            abi_type = _sub->m_abi;
-                            m_h = get_hash((ASR::asr_t*)_sub);
-                            is_v_arg = is_argument(v, _sub->m_args, _sub->n_args);
                         }
                         if( is_array_type && !is_list ) {
                             /* The first element in an array descriptor can be either of
@@ -2195,9 +2168,6 @@ public:
                 if( x.class_type == ASR::symbolType::Function ) {
                     ASR::Function_t* _func = (ASR::Function_t*)(&(x.base));
                     m_h = get_hash((ASR::asr_t*)_func);
-                } else if( x.class_type == ASR::symbolType::Subroutine ) {
-                    ASR::Subroutine_t* _sub = (ASR::Subroutine_t*)(&(x.base));
-                    m_h = get_hash((ASR::asr_t*)_sub);
                 }
                 if( is_array_type && arg->m_type->type != ASR::ttypeType::Pointer ) {
                     if( x.m_abi == ASR::abiType::Source ) {
@@ -2220,13 +2190,6 @@ public:
                     symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
                     x.m_args[i])->m_v));
                 llvm::Type* type = get_function_type(*fn)->getPointerTo();
-                args.push_back(type);
-            } else if (is_a<ASR::Subroutine_t>(*symbol_get_past_external(
-                ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
-                ASR::Subroutine_t* fn = ASR::down_cast<ASR::Subroutine_t>(
-                    symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
-                    x.m_args[i])->m_v));
-                llvm::Type* type = get_subroutine_type(*fn)->getPointerTo();
                 args.push_back(type);
             } else {
                 throw CodeGenError("Argument type not implemented");
@@ -2374,14 +2337,6 @@ public:
                 std::string arg_s = arg->m_name;
                 llvm_arg.setName(arg_s);
                 llvm_symtab_fn_arg[h] = &llvm_arg;
-            } else if (is_a<ASR::Subroutine_t>(*symbol_get_past_external(
-                ASR::down_cast<ASR::Var_t>(x.m_args[i])->m_v))) {
-                // Deal with case where procedure passed in as argument
-                ASR::Subroutine_t *arg = EXPR2SUB(x.m_args[i]);
-                uint32_t h = get_hash((ASR::asr_t*)arg);
-                std::string arg_s = arg->m_name;
-                llvm_arg.setName(arg_s);
-                llvm_symtab_fn_arg[h] = &llvm_arg;
             }
             i++;
         }
@@ -2403,96 +2358,6 @@ public:
         visit_procedures(x);
         generate_function(x);
         parent_function = nullptr;
-    }
-
-    void visit_Subroutine(const ASR::Subroutine_t &x) {
-        llvm_goto_targets.clear();
-        instantiate_subroutine(x);
-        if (x.m_deftype == ASR::deftypeType::Interface) {
-            // Interface does not have an implementation and it is already
-            // declared, so there is nothing to do here
-            return;
-        }
-        visit_procedures(x);
-        generate_subroutine(x);
-        parent_subroutine = nullptr;
-    }
-
-    void instantiate_subroutine(const ASR::Subroutine_t &x){
-        uint32_t h = get_hash((ASR::asr_t*)&x);
-        llvm::Function *F = nullptr;
-        std::string sym_name = x.m_name;
-        if (sym_name == "main") {
-            sym_name = "_xx_lcompilers_changed_main_xx";
-        }
-        if (llvm_symtab_fn.find(h) != llvm_symtab_fn.end()) {
-            /*
-            throw CodeGenError("Subroutine code already generated for '"
-                + std::string(x.m_name) + "'");
-            */
-            F = llvm_symtab_fn[h];
-        } else {
-            llvm::FunctionType *function_type = get_subroutine_type(x);
-            std::string fn_name;
-            if (x.m_abi == ASR::abiType::BindC) {
-                if (x.m_bindc_name) {
-                    fn_name = x.m_bindc_name;
-                } else {
-                    fn_name = sym_name;
-                }
-            } else {
-                fn_name = mangle_prefix + sym_name;
-            }
-            if (llvm_symtab_fn_names.find(fn_name) == llvm_symtab_fn_names.end()) {
-                llvm_symtab_fn_names[fn_name] = h;
-                F = llvm::Function::Create(function_type,
-                    llvm::Function::ExternalLinkage, fn_name, module.get());
-            } else {
-                uint32_t old_h = llvm_symtab_fn_names[fn_name];
-                F = llvm_symtab_fn[old_h];
-            }
-            llvm_symtab_fn[h] = F;
-
-            // Instantiate (pre-declare) all nested interfaces
-            for (auto &item : x.m_symtab->get_scope()) {
-                if (is_a<ASR::Function_t>(*item.second)) {
-                    ASR::Function_t *v = down_cast<ASR::Function_t>(
-                            item.second);
-                    instantiate_function(*v);
-                }
-                if (is_a<ASR::Subroutine_t>(*item.second)) {
-                    ASR::Subroutine_t *v = down_cast<ASR::Subroutine_t>(
-                            item.second);
-                    instantiate_subroutine(*v);
-                }
-            }
-        }
-    }
-
-    llvm::FunctionType* get_subroutine_type(const ASR::Subroutine_t &x){
-        std::vector<llvm::Type*> args = convert_args(x);
-        llvm::FunctionType *function_type = llvm::FunctionType::get(
-                llvm::Type::getVoidTy(context), args, false);
-        return function_type;
-    }
-
-
-    void generate_subroutine(const ASR::Subroutine_t &x){
-        bool interactive = (x.m_abi == ASR::abiType::Interactive);
-        if (x.m_deftype == ASR::deftypeType::Implementation) {
-
-            if (interactive) return;
-
-            if (!prototype_only) {
-                define_subroutine_entry(x);
-
-                for (size_t i=0; i<x.n_body; i++) {
-                    this->visit_stmt(*x.m_body[i]);
-                }
-
-                define_subroutine_exit(x);
-            }
-        }
     }
 
     void instantiate_function(const ASR::Function_t &x){
@@ -2537,83 +2402,82 @@ public:
                             item.second);
                     instantiate_function(*v);
                 }
-                if (is_a<ASR::Subroutine_t>(*item.second)) {
-                    ASR::Subroutine_t *v = down_cast<ASR::Subroutine_t>(
-                            item.second);
-                    instantiate_subroutine(*v);
-                }
             }
         }
     }
 
 
     llvm::FunctionType* get_function_type(const ASR::Function_t &x){
-        ASR::ttype_t *return_var_type0 = EXPR2VAR(x.m_return_var)->m_type;
-        ASR::ttypeType return_var_type = return_var_type0->type;
         llvm::Type *return_type;
-        switch (return_var_type) {
-            case (ASR::ttypeType::Integer) : {
-                int a_kind = down_cast<ASR::Integer_t>(return_var_type0)->m_kind;
-                return_type = getIntType(a_kind);
-                break;
-            }
-            case (ASR::ttypeType::Real) : {
-                int a_kind = down_cast<ASR::Real_t>(return_var_type0)->m_kind;
-                return_type = getFPType(a_kind);
-                break;
-            }
-            case (ASR::ttypeType::Complex) : {
-                int a_kind = down_cast<ASR::Complex_t>(return_var_type0)->m_kind;
-                if (a_kind == 4) {
-                    if (x.m_abi == ASR::abiType::BindC) {
-                        if (platform == Platform::Windows) {
-                            // i64
-                            return_type = llvm::Type::getInt64Ty(context);
-                        } else if (platform == Platform::macOS_ARM) {
-                            // {float, float}
-                            return_type = getComplexType(a_kind);
-                        } else {
-                            // <2 x float>
-                            return_type = FIXED_VECTOR_TYPE::get(llvm::Type::getFloatTy(context), 2);
-                        }
-                    } else {
-                        return_type = getComplexType(a_kind);
-                    }
-                } else {
-                    LFORTRAN_ASSERT(a_kind == 8)
-                    if (x.m_abi == ASR::abiType::BindC) {
-                        if (platform == Platform::Windows) {
-                            // pass as subroutine
-                            return_type = getComplexType(a_kind, true);
-                            std::vector<llvm::Type*> args = convert_args(x);
-                            args.insert(args.begin(), return_type);
-                            llvm::FunctionType *function_type = llvm::FunctionType::get(
-                                    llvm::Type::getVoidTy(context), args, false);
-                            return function_type;
-                        } else {
-                            return_type = getComplexType(a_kind);
-                        }
-                    } else {
-                        return_type = getComplexType(a_kind);
-                    }
+        if (x.m_return_var) {
+            ASR::ttype_t *return_var_type0 = EXPR2VAR(x.m_return_var)->m_type;
+            ASR::ttypeType return_var_type = return_var_type0->type;
+            switch (return_var_type) {
+                case (ASR::ttypeType::Integer) : {
+                    int a_kind = down_cast<ASR::Integer_t>(return_var_type0)->m_kind;
+                    return_type = getIntType(a_kind);
+                    break;
                 }
-                break;
+                case (ASR::ttypeType::Real) : {
+                    int a_kind = down_cast<ASR::Real_t>(return_var_type0)->m_kind;
+                    return_type = getFPType(a_kind);
+                    break;
+                }
+                case (ASR::ttypeType::Complex) : {
+                    int a_kind = down_cast<ASR::Complex_t>(return_var_type0)->m_kind;
+                    if (a_kind == 4) {
+                        if (x.m_abi == ASR::abiType::BindC) {
+                            if (platform == Platform::Windows) {
+                                // i64
+                                return_type = llvm::Type::getInt64Ty(context);
+                            } else if (platform == Platform::macOS_ARM) {
+                                // {float, float}
+                                return_type = getComplexType(a_kind);
+                            } else {
+                                // <2 x float>
+                                return_type = FIXED_VECTOR_TYPE::get(llvm::Type::getFloatTy(context), 2);
+                            }
+                        } else {
+                            return_type = getComplexType(a_kind);
+                        }
+                    } else {
+                        LFORTRAN_ASSERT(a_kind == 8)
+                        if (x.m_abi == ASR::abiType::BindC) {
+                            if (platform == Platform::Windows) {
+                                // pass as subroutine
+                                return_type = getComplexType(a_kind, true);
+                                std::vector<llvm::Type*> args = convert_args(x);
+                                args.insert(args.begin(), return_type);
+                                llvm::FunctionType *function_type = llvm::FunctionType::get(
+                                        llvm::Type::getVoidTy(context), args, false);
+                                return function_type;
+                            } else {
+                                return_type = getComplexType(a_kind);
+                            }
+                        } else {
+                            return_type = getComplexType(a_kind);
+                        }
+                    }
+                    break;
+                }
+                case (ASR::ttypeType::Character) :
+                    return_type = character_type;
+                    break;
+                case (ASR::ttypeType::Logical) :
+                    return_type = llvm::Type::getInt1Ty(context);
+                    break;
+                case (ASR::ttypeType::CPtr) :
+                    return_type = llvm::Type::getVoidTy(context)->getPointerTo();
+                    break;
+                case (ASR::ttypeType::Derived) :
+                    throw CodeGenError("Derived return type not implemented yet");
+                    break;
+                default :
+                    LFORTRAN_ASSERT(false);
+                    throw CodeGenError("Type not implemented");
             }
-            case (ASR::ttypeType::Character) :
-                return_type = character_type;
-                break;
-            case (ASR::ttypeType::Logical) :
-                return_type = llvm::Type::getInt1Ty(context);
-                break;
-            case (ASR::ttypeType::CPtr) :
-                return_type = llvm::Type::getVoidTy(context)->getPointerTo();
-                break;
-            case (ASR::ttypeType::Derived) :
-                throw CodeGenError("Derived return type not implemented yet");
-                break;
-            default :
-                LFORTRAN_ASSERT(false);
-                throw CodeGenError("Type not implemented");
+        } else {
+            return_type = llvm::Type::getVoidTy(context);
         }
         std::vector<llvm::Type*> args = convert_args(x);
         llvm::FunctionType *function_type = llvm::FunctionType::get(
@@ -2684,71 +2548,57 @@ public:
     }
 
 
-    inline void define_subroutine_entry(const ASR::Subroutine_t& x) {
-        uint32_t h = get_hash((ASR::asr_t*)&x);
-        parent_subroutine = &x;
-        parent_function_hash = h;
-        llvm::Function* F = llvm_symtab_fn[h];
-        proc_return = llvm::BasicBlock::Create(context, "return");
-        llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
-                ".entry", F);
-        builder->SetInsertPoint(BB);
-        declare_args(x, *F);
-        declare_local_vars(x);
-    }
-
     inline void define_function_exit(const ASR::Function_t& x) {
-        start_new_block(proc_return);
-        ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
-        uint32_t h = get_hash((ASR::asr_t*)asr_retval);
-        llvm::Value *ret_val = llvm_symtab[h];
-        llvm::Value *ret_val2 = CreateLoad(ret_val);
-        // Handle Complex type return value for BindC:
-        if (x.m_abi == ASR::abiType::BindC) {
-            ASR::ttype_t* arg_type = asr_retval->m_type;
-            llvm::Value *tmp = ret_val;
-            if (is_a<ASR::Complex_t>(*arg_type)) {
-                int c_kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
-                if (c_kind == 4) {
-                    if (platform == Platform::Windows) {
-                        // tmp is {float, float}*
-                        // type_fx2p is i64*
-                        llvm::Type* type_fx2p = llvm::Type::getInt64PtrTy(context);
-                        // Convert {float,float}* to i64* using bitcast
-                        tmp = builder->CreateBitCast(tmp, type_fx2p);
-                        // Then convert i64* -> i64
-                        tmp = CreateLoad(tmp);
-                    } else if (platform == Platform::macOS_ARM) {
-                        // Pass by value
-                        tmp = CreateLoad(tmp);
+        if (x.m_return_var) {
+            start_new_block(proc_return);
+            ASR::Variable_t *asr_retval = EXPR2VAR(x.m_return_var);
+            uint32_t h = get_hash((ASR::asr_t*)asr_retval);
+            llvm::Value *ret_val = llvm_symtab[h];
+            llvm::Value *ret_val2 = CreateLoad(ret_val);
+            // Handle Complex type return value for BindC:
+            if (x.m_abi == ASR::abiType::BindC) {
+                ASR::ttype_t* arg_type = asr_retval->m_type;
+                llvm::Value *tmp = ret_val;
+                if (is_a<ASR::Complex_t>(*arg_type)) {
+                    int c_kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
+                    if (c_kind == 4) {
+                        if (platform == Platform::Windows) {
+                            // tmp is {float, float}*
+                            // type_fx2p is i64*
+                            llvm::Type* type_fx2p = llvm::Type::getInt64PtrTy(context);
+                            // Convert {float,float}* to i64* using bitcast
+                            tmp = builder->CreateBitCast(tmp, type_fx2p);
+                            // Then convert i64* -> i64
+                            tmp = CreateLoad(tmp);
+                        } else if (platform == Platform::macOS_ARM) {
+                            // Pass by value
+                            tmp = CreateLoad(tmp);
+                        } else {
+                            // tmp is {float, float}*
+                            // type_fx2p is <2 x float>*
+                            llvm::Type* type_fx2p = FIXED_VECTOR_TYPE::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
+                            // Convert {float,float}* to <2 x float>* using bitcast
+                            tmp = builder->CreateBitCast(tmp, type_fx2p);
+                            // Then convert <2 x float>* -> <2 x float>
+                            tmp = CreateLoad(tmp);
+                        }
                     } else {
-                        // tmp is {float, float}*
-                        // type_fx2p is <2 x float>*
-                        llvm::Type* type_fx2p = FIXED_VECTOR_TYPE::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
-                        // Convert {float,float}* to <2 x float>* using bitcast
-                        tmp = builder->CreateBitCast(tmp, type_fx2p);
-                        // Then convert <2 x float>* -> <2 x float>
-                        tmp = CreateLoad(tmp);
+                        LFORTRAN_ASSERT(c_kind == 8)
+                        if (platform == Platform::Windows) {
+                            // 128 bit aggregate type is passed by reference
+                        } else {
+                            // Pass by value
+                            tmp = CreateLoad(tmp);
+                        }
                     }
-                } else {
-                    LFORTRAN_ASSERT(c_kind == 8)
-                    if (platform == Platform::Windows) {
-                        // 128 bit aggregate type is passed by reference
-                    } else {
-                        // Pass by value
-                        tmp = CreateLoad(tmp);
-                    }
+                ret_val2 = tmp;
                 }
-            ret_val2 = tmp;
             }
+            builder->CreateRet(ret_val2);
+        } else {
+            start_new_block(proc_return);
+            builder->CreateRetVoid();
         }
-        builder->CreateRet(ret_val2);
-    }
-
-
-    inline void define_subroutine_exit(const ASR::Subroutine_t& /*x*/) {
-        start_new_block(proc_return);
-        builder->CreateRetVoid();
     }
 
     void generate_function(const ASR::Function_t &x){
@@ -2807,10 +2657,6 @@ public:
     template<typename T>
     void visit_procedures(const T &x) {
         for (auto &item : x.m_symtab->get_scope()) {
-            if (is_a<ASR::Subroutine_t>(*item.second)) {
-                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
-                visit_Subroutine(*s);
-            }
             if (is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
@@ -4816,9 +4662,6 @@ public:
         if( is_a<ASR::Function_t>(*func_subrout) ) {
             ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
             x_abi = func->m_abi;
-        } else if( is_a<ASR::Subroutine_t>(*func_subrout) ) {
-            ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
-            x_abi = sub->m_abi;
         }
         // TODO: Below if check is dead. Remove.
         if( x_abi == ASR::abiType::Intrinsic ) {
@@ -4856,15 +4699,9 @@ public:
                             if( func_subrout->type == ASR::symbolType::Function ) {
                                 ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
                                 set_func_subrout_params(func, x_abi, m_h, orig_arg, orig_arg_name, orig_arg_intent, i);
-                            } else if( func_subrout->type == ASR::symbolType::Subroutine ) {
-                                ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
-                                set_func_subrout_params(sub, x_abi, m_h, orig_arg, orig_arg_name, orig_arg_intent, i);
                             } else if( func_subrout->type == ASR::symbolType::ClassProcedure ) {
                                 ASR::ClassProcedure_t* clss_proc = ASR::down_cast<ASR::ClassProcedure_t>(func_subrout);
-                                if( clss_proc->m_proc->type == ASR::symbolType::Subroutine ) {
-                                    ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(clss_proc->m_proc);
-                                    set_func_subrout_params(sub, x_abi, m_h, orig_arg, orig_arg_name, orig_arg_intent, i);
-                                } else if( clss_proc->m_proc->type == ASR::symbolType::Function ) {
+                                if( clss_proc->m_proc->type == ASR::symbolType::Function ) {
                                     ASR::Function_t* func = down_cast<ASR::Function_t>(clss_proc->m_proc);
                                     set_func_subrout_params(func, x_abi, m_h, orig_arg, orig_arg_name, orig_arg_intent, i);
                                 }
@@ -4982,18 +4819,6 @@ public:
                             // Must be an argument/chained procedure pass
                             tmp = llvm_symtab_fn_arg[h];
                         }
-                    } else if (is_a<ASR::Subroutine_t>(*symbol_get_past_external(
-                        ASR::down_cast<ASR::Var_t>(x.m_args[i].m_value)->m_v))) {
-                        ASR::Subroutine_t* fn = ASR::down_cast<ASR::Subroutine_t>(
-                            symbol_get_past_external(ASR::down_cast<ASR::Var_t>(
-                            x.m_args[i].m_value)->m_v));
-                        uint32_t h = get_hash((ASR::asr_t*)fn);
-                        if (fn->m_deftype == ASR::deftypeType::Implementation) {
-                            tmp = llvm_symtab_fn[h];
-                        } else {
-                            // Must be an argument/chained procedure pass
-                            tmp = llvm_symtab_fn_arg[h];
-                        }
                     }
                 } else {
                     this->visit_expr_wrapper(x.m_args[i].m_value);
@@ -5022,9 +4847,6 @@ public:
                             if( func_subrout->type == ASR::symbolType::Function ) {
                                 ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
                                 orig_arg = EXPR2VAR(func->m_args[i]);
-                            } else if( func_subrout->type == ASR::symbolType::Subroutine ) {
-                                ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
-                                orig_arg = EXPR2VAR(sub->m_args[i]);
                             } else {
                                 LFORTRAN_ASSERT(false)
                             }
@@ -5058,9 +4880,6 @@ public:
                                 if( func_subrout->type == ASR::symbolType::Function ) {
                                     ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
                                     orig_arg = EXPR2VAR(func->m_args[i]);
-                                } else if( func_subrout->type == ASR::symbolType::Subroutine ) {
-                                    ASR::Subroutine_t* sub = down_cast<ASR::Subroutine_t>(func_subrout);
-                                    orig_arg = EXPR2VAR(sub->m_args[i]);
                                 } else {
                                     LFORTRAN_ASSERT(false)
                                 }
@@ -5159,13 +4978,13 @@ public:
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         if( ASRUtils::is_intrinsic_optimization(x.m_name) ) {
-            ASR::Subroutine_t* routine = ASR::down_cast<ASR::Subroutine_t>(
+            ASR::Function_t* routine = ASR::down_cast<ASR::Function_t>(
                         ASRUtils::symbol_get_past_external(x.m_name));
             if( generate_optimization_instructions(routine, x.m_args) ) {
                 return ;
             }
         }
-        ASR::Subroutine_t *s;
+        ASR::Function_t *s;
         std::vector<llvm::Value*> args;
         const ASR::symbol_t *proc_sym = symbol_get_past_external(x.m_name);
         if (x.m_dt){
@@ -5173,17 +4992,15 @@ public:
             std::uint32_t h = get_hash((ASR::asr_t*)caller);
             args.push_back(llvm_symtab[h]);
         }
-        if (ASR::is_a<ASR::Subroutine_t>(*proc_sym)) {
-            s = ASR::down_cast<ASR::Subroutine_t>(proc_sym);
+        if (ASR::is_a<ASR::Function_t>(*proc_sym)) {
+            s = ASR::down_cast<ASR::Function_t>(proc_sym);
         } else {
             ASR::ClassProcedure_t *clss_proc = ASR::down_cast<
                 ASR::ClassProcedure_t>(proc_sym);
-            s = ASR::down_cast<ASR::Subroutine_t>(clss_proc->m_proc);
+            s = ASR::down_cast<ASR::Function_t>(clss_proc->m_proc);
         }
         if (parent_function){
             push_nested_stack(parent_function);
-        } else if (parent_subroutine){
-            push_nested_stack(parent_subroutine);
         }
         uint32_t h;
         if (s->m_abi == ASR::abiType::LFortranModule) {
@@ -5203,7 +5020,7 @@ public:
             // Check if this is a callback function
             llvm::Value* fn = llvm_symtab_fn_arg[h];
             llvm::FunctionType* fntype = llvm_symtab_fn[h]->getFunctionType();
-            std::string m_name = std::string(((ASR::Subroutine_t*)(&(x.m_name->base)))->m_name);
+            std::string m_name = ASR::down_cast<ASR::Function_t>(x.m_name)->m_name;
             args = convert_call_args(x, m_name);
             tmp = builder->CreateCall(fntype, fn, args);
         } else if (llvm_symtab_fn.find(h) == llvm_symtab_fn.end()) {
@@ -5211,7 +5028,7 @@ public:
                 + std::string(s->m_name) + "'");
         } else {
             llvm::Function *fn = llvm_symtab_fn[h];
-            std::string m_name = std::string(((ASR::Subroutine_t*)(&(x.m_name->base)))->m_name);
+            std::string m_name = ASRUtils::symbol_name(x.m_name);
             std::vector<llvm::Value *> args2 = convert_call_args(x, m_name);
             args.insert(args.end(), args2.begin(), args2.end());
             builder->CreateCall(fn, args);
@@ -5296,8 +5113,6 @@ public:
         }
         if (parent_function){
             push_nested_stack(parent_function);
-        } else if (parent_subroutine){
-            push_nested_stack(parent_subroutine);
         }
         bool intrinsic_function = ASRUtils::is_intrinsic_function2(s);
         uint32_t h;

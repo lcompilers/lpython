@@ -35,7 +35,7 @@ to:
         vector_copy(8, a[i*8:(i+1)*8], b[i*8:(i+1)*8])
 
 */
-class LoopVectoriseVisitor : public PassUtils::SkipOptimizationSubroutineVisitor<LoopVectoriseVisitor>
+class LoopVectoriseVisitor : public PassUtils::SkipOptimizationFunctionVisitor<LoopVectoriseVisitor>
 {
 private:
     ASR::TranslationUnit_t &unit;
@@ -50,7 +50,7 @@ private:
 
 public:
     LoopVectoriseVisitor(Allocator &al_, ASR::TranslationUnit_t &unit_,
-                         const std::string& rl_path_) : SkipOptimizationSubroutineVisitor(al_),
+                         const std::string& rl_path_) : SkipOptimizationFunctionVisitor(al_),
     unit(unit_), rl_path(rl_path_), from_loop_vectorise(false)
     {
         pass_result.reserve(al, 1);

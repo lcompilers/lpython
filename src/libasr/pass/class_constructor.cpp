@@ -29,28 +29,6 @@ public:
         pass_result.reserve(al, 0);
     }
 
-    void visit_Subroutine(const ASR::Subroutine_t &x) {
-        // FIXME: this is a hack, we need to pass in a non-const `x`,
-        // which requires to generate a TransformVisitor.
-        ASR::Subroutine_t &xx = const_cast<ASR::Subroutine_t&>(x);
-        current_scope = xx.m_symtab;
-        for( auto item: current_scope->get_scope() ) {
-            if( ASR::is_a<ASR::Variable_t>(*item.second) ) {
-                ASR::Variable_t* variable = ASR::down_cast<ASR::Variable_t>(item.second);
-                if( variable->m_symbolic_value ) {
-                    result_var = ASRUtils::EXPR(ASR::make_Var_t(al, variable->base.base.loc,
-                                                                item.second));
-                    is_init_constructor = false;
-                    this->visit_expr(*variable->m_symbolic_value);
-                    if( is_init_constructor ) {
-                        variable->m_symbolic_value = nullptr;
-                    }
-                }
-            }
-        }
-        transform_stmts(xx.m_body, xx.n_body);
-    }
-
     void visit_Assignment(const ASR::Assignment_t& x) {
         if( x.m_value->type == ASR::exprType::DerivedTypeConstructor ) {
             is_constructor_present = true;

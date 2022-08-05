@@ -129,15 +129,6 @@ public:
         nesting_depth++;
         if (nesting_depth == 1) {
             for (auto &item : x.m_symtab->get_scope()) {
-                if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
-                    par_func_hash = cur_func_hash;
-                    ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
-                        item.second);
-                    for (size_t i = 0; i < x.n_body; i++) {
-                        visit_stmt(*x.m_body[i]);
-                    }
-                    visit_Subroutine(*s);
-                }
                 if (ASR::is_a<ASR::Function_t>(*item.second)) {
                     par_func_hash = cur_func_hash;
                     ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
@@ -184,15 +175,6 @@ public:
         nesting_depth++;
         if (nesting_depth == 1) {
             for (auto &item : x.m_symtab->get_scope()) {
-                if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
-                    par_func_hash = cur_func_hash;
-                    ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
-                        item.second);
-                    for (size_t i = 0; i < x.n_body; i++) {
-                        visit_stmt(*x.m_body[i]);
-                    }
-                    visit_Subroutine(*s);
-                }
                 if (ASR::is_a<ASR::Function_t>(*item.second)) {
                     par_func_hash = cur_func_hash;
                     ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
@@ -240,11 +222,6 @@ public:
         visit_procedure(x);
     }
 
-    void visit_Subroutine(const ASR::Subroutine_t &x) {
-        cur_func_hash = get_hash((ASR::asr_t*)&x);
-        visit_procedure(x);
-    }
-
     void visit_Function(const ASR::Function_t &x) {
         cur_func_hash = get_hash((ASR::asr_t*)&x);
         visit_procedure(x);
@@ -267,7 +244,7 @@ public:
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         if (nesting_depth == 1){
-            ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(
+            ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
                 LFortran::ASRUtils::symbol_get_past_external(x.m_name));
             uint32_t call_hash = get_hash((ASR::asr_t*)s);
             if (std::find(calls_to.begin(), calls_to.end(), call_hash) ==

@@ -78,10 +78,6 @@ public:
 
         // Generate code for nested subroutines and functions first:
         for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
-                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
-                visit_Subroutine(*s);
-            }
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
@@ -131,68 +127,6 @@ public:
         }
 
         emit_elf32_footer(m_a);
-    }
-
-    void visit_Subroutine(const ASR::Subroutine_t &x) {
-        uint32_t h = get_hash((ASR::asr_t*)&x);
-        std::string id = std::to_string(h);
-
-        // Generate code for the subroutine
-        Sym s;
-        s.stack_offset = 0;
-        s.pointer = false;
-        s.fn_label = x.m_name + id;
-        x86_symtab[h] = s;
-        m_a.add_label(s.fn_label);
-
-        // Add arguments to x86_symtab with their correct offset
-        for (size_t i=0; i<x.n_args; i++) {
-            ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
-            // TODO: we are assuming integer here:
-            LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
-            Sym s;
-            s.stack_offset = -(i*4+8); // TODO: reverse the sign of offset
-            // We pass intent(in) as value, otherwise as pointer
-            s.pointer = (arg->m_intent != ASR::intentType::In);
-            uint32_t h = get_hash((ASR::asr_t*)arg);
-            x86_symtab[h] = s;
-        }
-
-        // Initialize the stack
-        m_a.asm_push_r32(X86Reg::ebp);
-        m_a.asm_mov_r32_r32(X86Reg::ebp, X86Reg::esp);
-
-        // Allocate stack space for local variables
-        uint32_t total_offset = 0;
-        for (auto &item : x.m_symtab->get_scope()) {
-            if (is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
-
-                if (v->m_intent == LFortran::ASRUtils::intent_local || v->m_intent == LFortran::ASRUtils::intent_return_var) {
-                    if (v->m_type->type == ASR::ttypeType::Integer) {
-                        total_offset += 4;
-                        Sym s;
-                        s.stack_offset = total_offset;
-                        s.pointer = false;
-                        uint32_t h = get_hash((ASR::asr_t*)v);
-                        x86_symtab[h] = s;
-                    } else {
-                        throw CodeGenError("Variable type not supported");
-                    }
-                }
-            }
-        }
-        m_a.asm_sub_r32_imm8(X86Reg::esp, total_offset);
-
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-        }
-
-        // Restore stack
-        m_a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
-        m_a.asm_pop_r32(X86Reg::ebp);
-        m_a.asm_ret();
     }
 
     void visit_Function(const ASR::Function_t &x) {
@@ -551,7 +485,7 @@ public:
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(x.m_name);
+        ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(x.m_name);
 
         uint32_t h = get_hash((ASR::asr_t*)s);
         if (x86_symtab.find(h) == x86_symtab.end()) {

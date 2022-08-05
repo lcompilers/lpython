@@ -129,7 +129,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
         } else {
             // The last item was a statement, create a subroutine (returing
             // nothing)
-            ASR::asr_t *fn = ASR::make_Subroutine_t(
+            ASR::asr_t *fn = ASR::make_Function_t(
                 al, loc,
                 /* a_symtab */ fn_scope,
                 /* a_name */ fn_name,

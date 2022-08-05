@@ -83,13 +83,6 @@ static inline ASR::Function_t* EXPR2FUN(const ASR::expr_t *f)
                 ASR::down_cast<ASR::Var_t>(f)->m_v));
 }
 
-static inline ASR::Subroutine_t* EXPR2SUB(const ASR::expr_t *f)
-{
-    return ASR::down_cast<ASR::Subroutine_t>(symbol_get_past_external(
-                ASR::down_cast<ASR::Var_t>(f)->m_v));
-}
-
-
 static inline ASR::ttype_t* expr_type(const ASR::expr_t *f)
 {
     return ASR::expr_type0(f);
@@ -199,9 +192,6 @@ static inline char *symbol_name(const ASR::symbol_t *f)
         case ASR::symbolType::Module: {
             return ASR::down_cast<ASR::Module_t>(f)->m_name;
         }
-        case ASR::symbolType::Subroutine: {
-            return ASR::down_cast<ASR::Subroutine_t>(f)->m_name;
-        }
         case ASR::symbolType::Function: {
             return ASR::down_cast<ASR::Function_t>(f)->m_name;
         }
@@ -241,9 +231,6 @@ static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
         }
         case ASR::symbolType::Module: {
             return ASR::down_cast<ASR::Module_t>(f)->m_symtab->parent;
-        }
-        case ASR::symbolType::Subroutine: {
-            return ASR::down_cast<ASR::Subroutine_t>(f)->m_symtab->parent;
         }
         case ASR::symbolType::Function: {
             return ASR::down_cast<ASR::Function_t>(f)->m_symtab->parent;
@@ -285,9 +272,6 @@ static inline SymbolTable *symbol_symtab(const ASR::symbol_t *f)
         }
         case ASR::symbolType::Module: {
             return ASR::down_cast<ASR::Module_t>(f)->m_symtab;
-        }
-        case ASR::symbolType::Subroutine: {
-            return ASR::down_cast<ASR::Subroutine_t>(f)->m_symtab;
         }
         case ASR::symbolType::Function: {
             return ASR::down_cast<ASR::Function_t>(f)->m_symtab;
@@ -1019,11 +1003,6 @@ static inline int get_body_size(ASR::symbol_t* s) {
         case ASR::symbolType::Function: {
             ASR::Function_t* f = ASR::down_cast<ASR::Function_t>(s);
             n_body = f->n_body;
-            break;
-        }
-        case ASR::symbolType::Subroutine: {
-            ASR::Subroutine_t* sub = ASR::down_cast<ASR::Subroutine_t>(s);
-            n_body = sub->n_body;
             break;
         }
         case ASR::symbolType::Program: {

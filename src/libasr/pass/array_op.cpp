@@ -126,7 +126,7 @@ public:
             a_args.push_back(al, s->m_args[i]);
         }
         a_args.push_back(al, s->m_return_var);
-        ASR::asr_t* s_sub_asr = ASR::make_Subroutine_t(al, s->base.base.loc,
+        ASR::asr_t* s_sub_asr = ASR::make_Function_t(al, s->base.base.loc,
             s->m_symtab,
             s->m_name, a_args.p, a_args.size(), nullptr, 0, s->m_body, s->n_body,
             nullptr,
@@ -147,15 +147,17 @@ public:
         for (auto &item : x.m_global_scope->get_scope()) {
             if (is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = down_cast<ASR::Function_t>(item.second);
-                /*
-                * A function which returns an array will be converted
-                * to a subroutine with the destination array as the last
-                * argument. This helps in avoiding deep copies and the
-                * destination memory directly gets filled inside the subroutine.
-                */
-                if( PassUtils::is_array(s->m_return_var) ) {
-                    ASR::symbol_t* s_sub = create_subroutine_from_function(s);
-                    replace_vec.push_back(std::make_pair(item.first, s_sub));
+                if (s->m_return_var) {
+                    /*
+                    * A function which returns an array will be converted
+                    * to a subroutine with the destination array as the last
+                    * argument. This helps in avoiding deep copies and the
+                    * destination memory directly gets filled inside the subroutine.
+                    */
+                    if( PassUtils::is_array(s->m_return_var) ) {
+                        ASR::symbol_t* s_sub = create_subroutine_from_function(s);
+                        replace_vec.push_back(std::make_pair(item.first, s_sub));
+                    }
                 }
             }
         }
@@ -186,15 +188,17 @@ public:
         for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
-                /*
-                * A function which returns an array will be converted
-                * to a subroutine with the destination array as the last
-                * argument. This helps in avoiding deep copies and the
-                * destination memory directly gets filled inside the subroutine.
-                */
-                if( PassUtils::is_array(s->m_return_var) ) {
-                    ASR::symbol_t* s_sub = create_subroutine_from_function(s);
-                    replace_vec.push_back(std::make_pair(item.first, s_sub));
+                if (s->m_return_var) {
+                    /*
+                    * A function which returns an array will be converted
+                    * to a subroutine with the destination array as the last
+                    * argument. This helps in avoiding deep copies and the
+                    * destination memory directly gets filled inside the subroutine.
+                    */
+                    if( PassUtils::is_array(s->m_return_var) ) {
+                        ASR::symbol_t* s_sub = create_subroutine_from_function(s);
+                        replace_vec.push_back(std::make_pair(item.first, s_sub));
+                    }
                 }
             }
         }
@@ -207,10 +211,6 @@ public:
         }
 
         for (auto &item : x.m_symtab->get_scope()) {
-            if (is_a<ASR::Subroutine_t>(*item.second)) {
-                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
-                visit_Subroutine(*s);
-            }
             if (is_a<ASR::AssociateBlock_t>(*item.second)) {
                 ASR::AssociateBlock_t *s = ASR::down_cast<ASR::AssociateBlock_t>(item.second);
                 visit_AssociateBlock(*s);
@@ -840,7 +840,8 @@ public:
         }
 
         ASR::symbol_t *sub = current_scope->resolve_symbol(x_name);
-        if (sub && ASR::is_a<ASR::Subroutine_t>(*sub)) {
+        if (sub && ASR::is_a<ASR::Function_t>(*sub)
+            && ASR::down_cast<ASR::Function_t>(sub)->m_return_var == nullptr) {
             if( result_var == nullptr ) {
                 result_var = create_var(result_var_num, "_func_call_res",
                     x.base.base.loc, x.m_type);
