@@ -38,6 +38,12 @@ c32 = Type("c32")
 c64 = Type("c64")
 CPtr = Type("c_ptr")
 
+# Restrictions
+
+class SupportsPlus:
+    def __init__(self, name):
+        pass
+
 # Overloading support
 
 def ltype(x):

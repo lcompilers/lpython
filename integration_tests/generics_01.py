@@ -1,6 +1,6 @@
-from ltypes import TypeVar
+from ltypes import TypeVar, SupportsPlus
 
-T = TypeVar('T')
+T = TypeVar('T', bound=SupportsPlus)
 
 def f(x: T, y: T) -> T:
     return x + y
