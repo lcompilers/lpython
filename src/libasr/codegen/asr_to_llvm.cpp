@@ -1564,6 +1564,8 @@ public:
                 }
             }
             llvm_symtab[h] = ptr;
+        } else if (x.m_type->type == ASR::ttypeType::TypeParameter) {
+            // Ignore type variables
         } else {
             throw CodeGenError("Variable type not supported", x.base.base.loc);
         }
