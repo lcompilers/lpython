@@ -254,7 +254,12 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <comp> comp_for
 %type <vec_comp> comp_for_items
 %type <ast> lambda_expression
-%type <vec_arg> lambda_id_list
+%type <args> lambda_parameter_list_opt
+%type <arg> lambda_parameter
+%type <fn_arg> lambda_parameter_list
+%type <args_> lambda_parameter_list_no_posonly
+%type <var_kw> lambda_parameter_list_starargs
+%type <vec_arg> lambda_defparameter_list
 
 // Precedence
 
@@ -873,16 +878,55 @@ string
     | id TK_STRING { $$ = STRING3($1, $2, @$); }
     ;
 
-lambda_id_list
-    : lambda_id_list "," id { $$ = $1; LIST_ADD($$, ARGS_01($3, @$)); }
-    | id { LIST_NEW($$); LIST_ADD($$, ARGS_01($1, @$)); }
+lambda_parameter
+    : id { $$ = ARGS_01($1, @$); }
+    | id "=" expr { $$ = ARGS_03($1, $3, @$); }
     ;
 
+lambda_defparameter_list
+    : lambda_defparameter_list "," lambda_parameter { $$ = $1; LIST_ADD($$, $3); }
+    | lambda_parameter { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+lambda_parameter_list
+    : lambda_defparameter_list "," "/" comma_opt {
+        $$ = PARAMETER_LIST_01($1, nullptr); }
+    | lambda_defparameter_list "," "/" "," lambda_parameter_list_no_posonly {
+        $$ = PARAMETER_LIST_01($1, $5); }
+    | lambda_parameter_list_no_posonly { $$ = PARAMETER_LIST_02($1); }
+    ;
+
+lambda_parameter_list_no_posonly
+    : lambda_defparameter_list comma_opt { $$ = PARAMETER_LIST_03($1, nullptr); }
+    | lambda_defparameter_list "," lambda_parameter_list_starargs {
+        $$ = PARAMETER_LIST_03($1, $3); }
+    | lambda_parameter_list_starargs { $$ = PARAMETER_LIST_04($1); }
+    ;
+
+lambda_parameter_list_starargs
+    : "*" "," lambda_defparameter_list comma_opt { $$ = PARAMETER_LIST_05($3); }
+    | "*" "," "**" lambda_parameter comma_opt { $$ = PARAMETER_LIST_06($4); }
+    | "*" "," lambda_defparameter_list "," "**" lambda_parameter comma_opt {
+        $$ = PARAMETER_LIST_07($3, $6); }
+    | "*" lambda_parameter comma_opt { $$ = PARAMETER_LIST_08($2); }
+    | "*" lambda_parameter "," lambda_defparameter_list comma_opt {
+        $$ = PARAMETER_LIST_09($2, $4); }
+    | "*" lambda_parameter "," "**" lambda_parameter comma_opt {
+        $$ = PARAMETER_LIST_10($2, $5); }
+    | "*" lambda_parameter "," lambda_defparameter_list "," 
+        "**" lambda_parameter comma_opt { $$ = PARAMETER_LIST_11($2, $4, $7); }
+    | "**" lambda_parameter comma_opt { $$ = PARAMETER_LIST_06($2); }
+    ;
+
+lambda_parameter_list_opt
+    : lambda_parameter_list { $$ = FUNC_ARGS_01(p.m_a, @$, $1); }
+    | %empty { $$ = PARAMETER_LIST_12(@$); }
+    ;
+
+
 lambda_expression
-    : KW_LAMBDA ":" expr %prec LAMBDA {
-        $$ = LAMBDA_01(PARAMETER_LIST_12(@$), $3, @$); }
-    | KW_LAMBDA lambda_id_list ":" expr %prec LAMBDA {
-        $$ = LAMBDA_01(FUNC_ARG_LIST_01($2, @$), $4, @$); }
+    : KW_LAMBDA lambda_parameter_list_opt ":" expr %prec LAMBDA {
+        $$ = LAMBDA_01($2, $4, @$); }
     ;
 
 expr

@@ -437,42 +437,6 @@ static inline Args *FUNC_ARGS_01(Allocator &al, Location &l, Fn_Arg *parameters)
     return r;
 }
 
-static inline Args *FUNC_ARGS(Allocator &al, Location &l,
-        Arg** m_posonlyargs, size_t n_posonlyargs,
-        Arg** m_args, size_t n_args,
-        Arg** m_vararg, size_t n_vararg,
-        Arg** m_kwonlyargs, size_t n_kwonlyargs,
-        Arg** m_kwarg, size_t n_kwarg) {
-    // TODO: Use parameter_list for LAMBDA instead of lambda_id_list,
-    // after which this function can be removed.
-    Args *r = al.allocate<Args>();
-    Vec<expr_t*> defaults;
-    defaults.reserve(al, 4);
-    Vec<expr_t*> kw_defaults;
-    kw_defaults.reserve(al, 4);
-
-    FUNC_ARGS1_(posonlyargs);
-    FUNC_ARGS1_(args);
-    FUNC_ARGS1_(vararg);
-    FUNC_ARGS1_(kwonlyargs);
-    FUNC_ARGS1_(kwarg);
-
-    r->arguments.loc = l;
-    FUNC_ARGS_(posonlyargs, false);
-    FUNC_ARGS_(args, false);
-    FUNC_ARGS_(vararg, false);
-    FUNC_ARGS_(kwonlyargs, true);
-    FUNC_ARGS_(kwarg, true);
-    r->arguments.m_kw_defaults = kw_defaults.p;
-    r->arguments.n_kw_defaults = kw_defaults.n;
-    r->arguments.m_defaults = defaults.p;
-    r->arguments.n_defaults = defaults.n;
-    return r;
-}
-
-#define FUNC_ARG_LIST_01(args, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        args.p, args.n, nullptr, 0, nullptr, 0, nullptr,0)
-
 #define ARGS_01(arg, l) FUNC_ARG(p.m_a, l, \
         name2char((ast_t *)arg), nullptr, nullptr)
 #define ARGS_02(arg, annotation, l) FUNC_ARG(p.m_a, l, \

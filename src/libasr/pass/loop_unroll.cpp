@@ -25,7 +25,7 @@ private:
 
     int64_t unroll_factor;
 
-    ASR::ExprStmtDuplicator node_duplicator;
+    ASRUtils::ExprStmtDuplicator node_duplicator;
 
 public:
 

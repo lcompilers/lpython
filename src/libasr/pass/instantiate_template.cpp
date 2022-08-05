@@ -3,11 +3,10 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr.h>
 #include <libasr/pass/pass_utils.h>
-#include <lpython/semantics/semantic_exception.h>
 
 namespace LFortran {
 
-class FunctionInstantiator : public ASR::ExprStmtDuplicator
+class FunctionInstantiator : public ASR::BaseExprStmtDuplicator<FunctionInstantiator>
 {
 public: 
     SymbolTable *current_scope;
@@ -16,7 +15,7 @@ public:
 
     FunctionInstantiator(Allocator &al, std::map<std::string, ASR::ttype_t*> subs, 
             SymbolTable *current_scope, int new_function_num):
-        ExprStmtDuplicator(al),
+        BaseExprStmtDuplicator(al),
         current_scope{current_scope},
         subs{subs},
         new_function_num{new_function_num}
@@ -260,14 +259,14 @@ public:
                     case (ASR::binopType::BitXor): { result = left_value ^ right_value; break; }
                     case (ASR::binopType::BitLShift): {
                         if (right_value < 0) {
-                            throw SemanticError("Negative shift count not allowed.", loc);
+                            throw LCompilersException("ICE: failure in instantiation: Negative shift count not allowed.");
                         }
                         result = left_value << right_value;
                         break;
                     }
                     case (ASR::binopType::BitRShift): {
                         if (right_value < 0) {
-                            throw SemanticError("Negative shift count not allowed.", loc);
+                            throw LCompilersException("ICE: failure in instantiation: Negative shift count not allowed.");
                         }
                         result = left_value >> right_value;
                         break;
@@ -280,7 +279,8 @@ public:
         } else if (ASRUtils::is_real(*dest_type)) {
             if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
                 op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift) {
-                throw SemanticError("Unsupported binary operation on floats: '" + ASRUtils::binop_to_str_python(op) + "'", loc);
+                throw LCompilersException("ICE: failure in instantiation: Unsupported binary operation on floats: '"
+                    + ASRUtils::binop_to_str_python(op) + "'");
             }
             right = cast_helper(left_type, right);
             dest_type = ASRUtils::expr_type(right);
