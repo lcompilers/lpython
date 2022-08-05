@@ -2353,7 +2353,7 @@ public:
                         /* n_body */ 0,
                         /* a_return_var */ ASRUtils::EXPR(return_var_ref),
                         current_procedure_abi_type,
-                        s_access, deftype, vectorize, bindc_name);
+                        s_access, deftype, bindc_name, vectorize, false, false);
                 } else {
                     tmp = ASR::make_Function_t(
                         al, x.base.base.loc,
@@ -2367,7 +2367,7 @@ public:
                         /* n_body */ 0,
                         /* a_return_var */ ASRUtils::EXPR(return_var_ref),
                         current_procedure_abi_type,
-                        s_access, deftype, vectorize, bindc_name);
+                        s_access, deftype, bindc_name, vectorize, false, false);
                 }
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
@@ -2381,11 +2381,13 @@ public:
                 /* a_name */ s2c(al, sym_name),
                 /* a_args */ args.p,
                 /* n_args */ args.size(),
+                nullptr, 0,
                 /* a_body */ nullptr,
                 /* n_body */ 0,
+                nullptr,
                 current_procedure_abi_type,
                 s_access, deftype, bindc_name,
-                is_pure, is_module);
+                false, is_pure, is_module);
         }
         ASR::symbol_t * t = ASR::down_cast<ASR::symbol_t>(tmp);
         parent_scope->add_symbol(sym_name, t);
