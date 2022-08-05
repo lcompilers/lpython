@@ -284,6 +284,9 @@ R"(#include <stdio.h>
         if (sym_name == "main") {
             sym_name = "_xx_lcompilers_changed_main_xx";
         }
+        if (sym_name == "exit") {
+            sym_name = "_xx_lcompilers_changed_exit_xx";
+        }
         std::string func = sub + sym_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
@@ -956,7 +959,7 @@ R"(#include <stdio.h>
 
     void visit_Return(const ASR::Return_t & /* x */) {
         std::string indent(indentation_level*indentation_spaces, ' ');
-        if (current_function) {
+        if (current_function && current_function->m_return_var) {
             src = indent + "return "
                 + LFortran::ASRUtils::EXPR2VAR(current_function->m_return_var)->m_name
                 + ";\n";
