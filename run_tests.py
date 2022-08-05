@@ -1,15 +1,8 @@
 #!/usr/bin/env python
 
-import argparse
-import os
-import toml
-
-from concurrent.futures import ThreadPoolExecutor
-from functools import partial
-
 import sys
 sys.path.append("src/libasr")
-from compiler_tester.tester import color, fg, log, run_test, style
+from compiler_tester.tester import color, fg, log, run_test, style, tester_main
 
 
 def single_test(test, specific_test, verbose, no_llvm, update_reference):
@@ -89,73 +82,6 @@ def single_test(test, specific_test, verbose, no_llvm, update_reference):
                  filename, update_reference, extra_args)
 
 
-def main():
-    parser = argparse.ArgumentParser(description="LPython Test Suite")
-    parser.add_argument("-u", "--update", action="store_true",
-                        help="update all reference results")
-    parser.add_argument("-l", "--list", action="store_true",
-                        help="list all tests")
-    parser.add_argument("-t", metavar="TEST",
-                        help="Run a specific test")
-    parser.add_argument("-v", "--verbose", action="store_true",
-                        help="increase test verbosity")
-    parser.add_argument("--no-llvm", action="store_true",
-                        help="Skip LLVM tests")
-    parser.add_argument("-s", "--sequential", action="store_true",
-                        help="Run all tests sequentially")
-    args = parser.parse_args()
-    update_reference = args.update
-    list_tests = args.list
-    specific_test = args.t
-    verbose = args.verbose
-    no_llvm = args.no_llvm
-
-    # So that the tests find the `lpython` executable
-    os.environ["PATH"] = os.path.join(os.getcwd(), "src", "bin") \
-        + os.pathsep + os.environ["PATH"]
-    test_data = toml.load(open("tests/tests.toml"))
-    if specific_test:
-        # some fuzzy comparison to get all seemingly fitting tests tested
-        specific = [test for test in test_data["test"]
-                    if specific_test in test["filename"]]
-        # no concurrent execution
-        for test in specific:
-            single_test(test,
-                        update_reference=update_reference,
-                        specific_test=specific_test,
-                        verbose=verbose,
-                        no_llvm=no_llvm)
-    elif args.sequential:
-        for test in test_data["test"]:
-            single_test(test,
-                        update_reference=update_reference,
-                        specific_test=specific_test,
-                        verbose=verbose,
-                        no_llvm=no_llvm)
-    # run in parallel
-    else:
-        single_tester_partial_args = partial(
-            single_test,
-            update_reference=update_reference,
-            specific_test=specific_test,
-            verbose=verbose,
-            no_llvm=no_llvm)
-        with ThreadPoolExecutor() as ex:
-            futures = ex.map(
-                single_tester_partial_args, [
-                    test for test in test_data["test"]])
-            for f in futures:
-                if not f:
-                    ex.shutdown(wait=False)
-    if list_tests:
-        return
-
-    if update_reference:
-        log.info("Test references updated.")
-    else:
-        log.info(
-            f"{(color(fg.green) + color(style.bold))}TESTS PASSED{color(fg.reset) + color(style.reset)}")
-
 
 if __name__ == "__main__":
-    main()
+    tester_main("LPython", single_test)
