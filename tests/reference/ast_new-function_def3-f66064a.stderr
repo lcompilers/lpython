@@ -1,0 +1,5 @@
+syntax error: Token '...' is unexpected here
+  --> tests/parser/function_def3.py:73:30
+   |
+73 | def func(*, param4, param5): ...;
+   |                              ^^^ 

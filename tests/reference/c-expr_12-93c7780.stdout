@@ -67,7 +67,7 @@ void f()
     int16_t y_data[2];
     y->data = y_data;
     y->dims[0].lower_bound = 0;
-    y->dims[0].length = 2;
+    y->dims[0].length = 2 - 1 - 0 + 1;
     struct i16_1 yptr1_value;
     struct i16_1* yptr1 = &yptr1_value;
 ;

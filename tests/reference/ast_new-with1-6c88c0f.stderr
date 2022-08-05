@@ -1,0 +1,5 @@
+syntax error: Token '...' is unexpected here
+  --> tests/parser/with1.py:14:22
+   |
+14 | with open(...) as f: ...
+   |                      ^^^ 

@@ -126,6 +126,7 @@
 (TOKEN "identifier" x) 370:370
 (TOKEN "=") 372:372
 (TOKEN "[") 374:374
+(NEWLINE) 375:375
 (TOKEN "identifier" a) 390:390
 (TOKEN ",") 391:391
 (TOKEN "]") 393:393

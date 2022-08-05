@@ -1,0 +1,5 @@
+syntax error: Newline is unexpected here
+  --> tests/tokens/comment2.py:38:6
+   |
+38 | x = [
+   |      ^ 

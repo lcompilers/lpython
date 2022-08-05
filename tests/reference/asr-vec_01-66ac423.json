@@ -6,11 +6,7 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-vec_01-66ac423.stdout",
-<<<<<<< HEAD
     "stdout_hash": "b8c505e588b7dc59cf981d5d726623ef5bb2b683aadb28f0222504d0",
-=======
-    "stdout_hash": "83dc777bcf988c0aad57e4092d6f3d6f3696bc261a6583bda1d2a199",
->>>>>>> upstream/main
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

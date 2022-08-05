@@ -1,0 +1,5 @@
+syntax error: Token 'pass' is unexpected here
+  --> tests/parser/while1.py:13:14
+   |
+13 | while i < 3: pass
+   |              ^^^^ 

@@ -1,0 +1,5 @@
+syntax error: Token '...' is unexpected here
+  --> tests/parser/try1.py:34:6
+   |
+34 | try: ...
+   |      ^^^ 

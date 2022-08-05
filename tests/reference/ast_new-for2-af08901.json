@@ -5,9 +5,9 @@
     "infile_hash": "5b2063381273e132aae18d9ba76c775c5743c66592fd42046b030543",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "ast_new-for2-af08901.stdout",
-    "stdout_hash": "a6ef674db9539591e9e5c0409f91b616ba70008d77b975d5074196fa",
-    "stderr": null,
-    "stderr_hash": null,
-    "returncode": 0
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "ast_new-for2-af08901.stderr",
+    "stderr_hash": "deb013313518e3d08429bf6bdafd24da9215fc54efc88081cb5f483e",
+    "returncode": 1
 }
