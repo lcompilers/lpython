@@ -741,7 +741,18 @@ public:
                     throw SemanticError("Inconsistent type variable for the function call", loc);
                 }
             } else {
-                subs[param_name] = ASRUtils::duplicate_type(al, arg_type);
+                if (ASRUtils::is_array(param_type) && ASRUtils::is_array(arg_type)) {
+                    ASR::dimension_t* dims = nullptr;
+                    int param_dims = ASRUtils::extract_dimensions_from_ttype(param_type, dims);
+                    int arg_dims = ASRUtils::extract_dimensions_from_ttype(arg_type, dims);
+                    if (param_dims == arg_dims) {
+                        subs[param_name] = ASRUtils::duplicate_type_without_dims(al, arg_type);
+                    } else {
+                        throw SemanticError("Inconsistent type subsititution for array type", loc);
+                    }
+                } else {
+                    subs[param_name] = ASRUtils::duplicate_type(al, arg_type);
+                }                
             }
         }
         return subs;
