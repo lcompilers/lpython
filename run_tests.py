@@ -7,6 +7,8 @@ import toml
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 
+import sys
+sys.path.append("src/libasr")
 from compiler_tester.tester import color, fg, log, run_test, style
 
 
