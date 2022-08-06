@@ -9,12 +9,12 @@ source_filename = "LFortran"
 
 define void @_lpython_main_program() {
 .entry:
-  %0 = load void*, void** @queries
+  %0 = load void*, void** @queries, align 8
   %1 = bitcast void* %0 to i16*
-  store i16* %1, i16** @x
-  %2 = load void*, void** @queries
+  store i16* %1, i16** @x, align 8
+  %2 = load void*, void** @queries, align 8
   %3 = ptrtoint void* %2 to i64
-  %4 = load i16*, i16** @x
+  %4 = load i16*, i16** @x, align 8
   %5 = ptrtoint i16* %4 to i64
   call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([13 x i8], [13 x i8]* @2, i32 0, i32 0), i64 %3, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @0, i32 0, i32 0), i64 %5, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @1, i32 0, i32 0))
   br label %return

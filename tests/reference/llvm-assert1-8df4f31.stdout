@@ -7,9 +7,9 @@ source_filename = "LFortran"
 
 define void @test_assert() {
 .entry:
-  %a = alloca i32
-  store i32 5, i32* %a
-  %0 = load i32, i32* %a
+  %a = alloca i32, align 4
+  store i32 5, i32* %a, align 4
+  %0 = load i32, i32* %a, align 4
   %1 = icmp eq i32 %0, 5
   br i1 %1, label %then, label %else
 
@@ -22,7 +22,7 @@ else:                                             ; preds = %.entry
   br label %ifcont
 
 ifcont:                                           ; preds = %else, %then
-  %2 = load i32, i32* %a
+  %2 = load i32, i32* %a, align 4
   %3 = icmp ne i32 %2, 10
   br i1 %3, label %then1, label %else2
 
