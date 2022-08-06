@@ -17,9 +17,13 @@ def test_len():
     assert len(l2) == 5
 
     l3: list[i32] = []
-    l3.append(1)
-    l3.append(2)
-    l3.append(3)
-    assert len(l3) == 3
+    assert len(l3) == 0
+    i: i32
+    for i in range(50):
+        l3.append(i)
+    assert len(l3) == 50
+
+    list_len: i32 = len([1.0, 2.0])
+    assert list_len == 2
 
 test_len()

@@ -247,7 +247,7 @@ namespace LFortran {
     }
 
     llvm::Value* LLVMList::len(llvm::Value* list) {
-        return LLVM::CreateLoad(*builder, get_pointer_to_current_capacity(list));
+        return LLVM::CreateLoad(*builder, get_pointer_to_current_end_point(list));
     }
 
     void LLVMList::resize_if_needed(llvm::Value* list, llvm::Value* n,
