@@ -1234,6 +1234,15 @@ public:
         tmp = list_api->read_item(plist, pos);
     }
 
+    void visit_ListLen(const ASR::ListLen_t& x) {
+        uint64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_arg);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value* plist = tmp;
+        tmp = list_api->len(plist);
+    }
+
     void visit_TupleItem(const ASR::TupleItem_t& x) {
         uint64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
