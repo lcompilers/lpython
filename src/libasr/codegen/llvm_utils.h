@@ -89,6 +89,8 @@ namespace LFortran {
             llvm::Value* read_item(llvm::Value* list, llvm::Value* pos,
                                    bool get_pointer=false);
 
+            llvm::Value* len(llvm::Value* list);
+
             void write_item(llvm::Value* list, llvm::Value* pos,
                             llvm::Value* item);
 
