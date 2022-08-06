@@ -375,6 +375,10 @@ c = true
 cpp = true
 
 [[test]]
+filename = "../integration_tests/print_02.py"
+llvm = true
+
+[[test]]
 filename = "../integration_tests/generics_01.py"
 asr = true
 

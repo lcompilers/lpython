@@ -3,42 +3,42 @@ source_filename = "LFortran"
 
 define void @test_boolean_comparison() {
 .entry:
-  %b1 = alloca i1, align 1
-  %b2 = alloca i1, align 1
-  %b3 = alloca i1, align 1
-  store i1 true, i1* %b1, align 1
-  store i1 true, i1* %b2, align 1
-  store i1 false, i1* %b3, align 1
-  %0 = load i1, i1* %b1, align 1
-  %1 = load i1, i1* %b2, align 1
+  %b1 = alloca i1
+  %b2 = alloca i1
+  %b3 = alloca i1
+  store i1 true, i1* %b1
+  store i1 true, i1* %b2
+  store i1 false, i1* %b3
+  %0 = load i1, i1* %b1
+  %1 = load i1, i1* %b2
   %2 = zext i1 %0 to i32
   %3 = zext i1 %1 to i32
   %4 = icmp ugt i32 %2, %3
-  store i1 %4, i1* %b1, align 1
-  %5 = load i1, i1* %b1, align 1
-  %6 = load i1, i1* %b2, align 1
+  store i1 %4, i1* %b1
+  %5 = load i1, i1* %b1
+  %6 = load i1, i1* %b2
   %7 = zext i1 %5 to i32
   %8 = zext i1 %6 to i32
   %9 = icmp eq i32 %7, %8
-  store i1 %9, i1* %b1, align 1
-  %10 = load i1, i1* %b2, align 1
-  %11 = load i1, i1* %b3, align 1
+  store i1 %9, i1* %b1
+  %10 = load i1, i1* %b2
+  %11 = load i1, i1* %b3
   %12 = zext i1 %10 to i32
   %13 = zext i1 %11 to i32
   %14 = icmp ne i32 %12, %13
-  store i1 %14, i1* %b1, align 1
-  %15 = load i1, i1* %b2, align 1
-  %16 = load i1, i1* %b3, align 1
+  store i1 %14, i1* %b1
+  %15 = load i1, i1* %b2
+  %16 = load i1, i1* %b3
   %17 = zext i1 %15 to i32
   %18 = zext i1 %16 to i32
   %19 = icmp uge i32 %17, %18
-  store i1 %19, i1* %b1, align 1
-  %20 = load i1, i1* %b2, align 1
-  %21 = load i1, i1* %b3, align 1
+  store i1 %19, i1* %b1
+  %20 = load i1, i1* %b2
+  %21 = load i1, i1* %b3
   %22 = zext i1 %20 to i32
   %23 = zext i1 %21 to i32
   %24 = icmp ule i32 %22, %23
-  store i1 %24, i1* %b1, align 1
+  store i1 %24, i1* %b1
   br label %return
 
 return:                                           ; preds = %.entry
