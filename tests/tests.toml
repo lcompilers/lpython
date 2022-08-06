@@ -767,3 +767,7 @@ tokens = true
 [[test]]
 filename = "errors/test_tuple1.py"
 asr = true
+
+[[test]]
+filename = "errors/test_str_mismatch.py"
+asr = true

@@ -1,0 +1,5 @@
+semantic error: Type mismatch in binary operator; the types must be compatible
+ --> tests/errors/test_str_mismatch.py:5:9
+  |
+5 |     s = "abc" + c
+  |         ^^^^^   ^ type mismatch (str and c32)
