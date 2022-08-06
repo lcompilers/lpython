@@ -1,5 +1,4 @@
-
-
+# Test: Printing ListConstant
 def f():
     print(["ab", "abc", "abcd"])
     print([1, 2, 3, 4])
