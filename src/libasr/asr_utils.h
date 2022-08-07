@@ -1157,6 +1157,17 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
     }
 }
 
+static inline ASR::ttype_t* duplicate_type_without_dims(Allocator& al, const ASR::ttype_t* t) {
+    switch (t->type) {
+        case ASR::ttypeType::Integer: {
+            ASR::Integer_t* tnew = ASR::down_cast<ASR::Integer_t>(t);
+            return ASRUtils::TYPE(ASR::make_Integer_t(al, t->base.loc,
+                        tnew->m_kind, nullptr, 0));
+        }
+        default : throw LCompilersException("Not implemented " + std::to_string(t->type));
+    }
+}
+
 inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
     bool is_source_pointer = is_pointer(source), is_dest_pointer = is_pointer(dest);
     if( (!is_source_pointer && !is_dest_pointer) ||
