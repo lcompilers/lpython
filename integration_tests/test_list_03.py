@@ -14,16 +14,23 @@ def test_list_02(n: i32) -> i32:
     x: list[i32] = [50, 1]
 
     i: i32
+    imod: i32
     for i in range(n):
-        x.insert(1, i)
+        imod = i % 3
+        if imod == 0:
+            x.insert(0, i + n)
+        elif imod == 1:
+            x.insert(len(x), i + n + 1)
+        elif imod == 2:
+            x.insert(len(x)//2, i + n + 2)
 
-    sum: i32 = 0
+    acc: i32 = 0
     for i in range(n):
-        sum += x[i]
-    return sum
+        acc += x[i]
+    return acc
 
 def verify():
     assert test_list_01(11) == 55
-    assert test_list_02(50) == 1275
+    assert test_list_02(50) == 3628
 
 verify()
