@@ -29,8 +29,29 @@ def test_list_02(n: i32) -> i32:
         acc += x[i]
     return acc
 
+def test_list_02_string():
+    x: list[str] = []
+    y: list[str] = []
+    string: str
+    i: i32
+
+    for i in range(50):
+        string = "xd_" + str(i + i % 3)
+        y.append(string)
+
+    imod: i32
+
+    for i in range(50):
+        imod = i % 3
+        string  = "xd_" + str(i + imod)
+        x.insert(len(x), string)
+
+    for i in range(50):
+        assert x[i] == y[i]
+
 def verify():
     assert test_list_01(11) == 55
     assert test_list_02(50) == 3628
+    test_list_02_string()
 
 verify()
