@@ -328,8 +328,7 @@ namespace LFortran {
          * list[pos] = item;
          */
 
-        llvm::AllocaInst *tmp_ptr = builder->CreateAlloca(
-                                    llvm::Type::getInt32Ty(context), nullptr);
+        llvm::AllocaInst *tmp_ptr = builder->CreateAlloca(el_type, nullptr);
         LLVM::CreateStore(*builder, read_item(list, pos, false), tmp_ptr);
         llvm::Value* tmp = nullptr;
 
