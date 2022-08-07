@@ -96,6 +96,12 @@ namespace LFortran {
 
             void append(llvm::Value* list, llvm::Value* item,
                         llvm::Module& module, std::string& type_code);
+
+            void insert_item(llvm::Value* list, llvm::Value* pos,
+                            llvm::Value* item, llvm::Module& module,
+                            std::string& type_code);
+
+
     };
 
     class LLVMTuple {
