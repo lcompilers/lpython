@@ -378,6 +378,14 @@ cpp = true
 filename = "../integration_tests/generics_01.py"
 asr = true
 
+[[test]]
+filename = "../integration_tests/generics_02.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/generics_03.py"
+asr = true
+
 # tests/tokens
 
 [[test]]

@@ -213,6 +213,8 @@ RUN(NAME vec_01              LABELS cpython llvm)
 RUN(NAME test_str_comparison LABELS cpython llvm)
 
 RUN(NAME generics_01         LABELS cpython llvm)
+RUN(NAME generics_02  FAIL   LABELs cpython llvm)
+RUN(NAME generics_03  FAIL   LABELs cpython llvm)
 
 # Just CPython
 RUN(NAME test_statistics     LABELS cpython)
