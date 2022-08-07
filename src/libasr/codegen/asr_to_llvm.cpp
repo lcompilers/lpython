@@ -1247,6 +1247,26 @@ public:
         }
     }
 
+    void visit_ListInsert(const ASR::ListInsert_t& x) {
+        uint64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_a);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value* plist = tmp;
+
+        this->visit_expr_wrapper(x.m_pos, true);
+        llvm::Value *pos = tmp;
+
+        this->visit_expr_wrapper(x.m_ele, true);
+        llvm::Value *item = tmp;
+
+        ASR::List_t* asr_list = ASR::down_cast<ASR::List_t>(
+                                    ASRUtils::expr_type(x.m_a));
+        std::string type_code = ASRUtils::get_type_code(asr_list->m_type);
+
+        list_api->insert_item(plist, pos, item, *module, type_code);
+    }
+
     void visit_TupleItem(const ASR::TupleItem_t& x) {
         uint64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
