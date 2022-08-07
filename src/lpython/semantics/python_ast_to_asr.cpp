@@ -2897,31 +2897,37 @@ public:
     ASR::expr_t* for_iterable_helper(std::string var_name, const Location& loc) {
         auto loop_src_var_symbol = current_scope->get_symbol(var_name);
         auto loop_src_var_ttype = ASRUtils::symbol_type(loop_src_var_symbol);
-        if (ASR::is_a<ASR::Character_t>(*loop_src_var_ttype)) {
-            auto int_type = ASR::make_Integer_t(al, loc, 4, nullptr, 0);
-            // create a new variable called/named __explicit_iterator of type i32 and add it to symbol table
-            std::string explicit_iter_name = current_scope->get_unique_name("__explicit_iterator");
-            auto explicit_iter_variable = ASR::make_Variable_t(al, loc, current_scope,
-                s2c(al, explicit_iter_name), ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
-                ASRUtils::TYPE(int_type), ASR::abiType::Source, ASR::accessType::Public, ASR::presenceType::Required, false
-            );
+        auto int_type = ASR::make_Integer_t(al, loc, 4, nullptr, 0);
+        // create a new variable called/named __explicit_iterator of type i32 and add it to symbol table
+        std::string explicit_iter_name = current_scope->get_unique_name("__explicit_iterator");
+        auto explicit_iter_variable = ASR::make_Variable_t(al, loc,
+            current_scope, s2c(al, explicit_iter_name), ASR::intentType::Local,
+            nullptr, nullptr, ASR::storage_typeType::Default,
+            ASRUtils::TYPE(int_type), ASR::abiType::Source,
+            ASR::accessType::Public, ASR::presenceType::Required, false
+        );
 
-            current_scope->add_symbol(explicit_iter_name, ASR::down_cast<ASR::symbol_t>(explicit_iter_variable));
-            // make loop_end = len(loop_src_var), where loop_src_var is the variable over which
-            // we are iterating the for in loop
-            auto loop_src_var = ASR::make_Var_t(al, loc, loop_src_var_symbol);
-            auto call_str_len = ASR::make_StringLen_t(al, loc, ASRUtils::EXPR(loop_src_var), ASRUtils::TYPE(int_type), nullptr);
-            return ASRUtils::EXPR(call_str_len);
+        current_scope->add_symbol(explicit_iter_name,
+                        ASR::down_cast<ASR::symbol_t>(explicit_iter_variable));
+        // make loop_end = len(loop_src_var), where loop_src_var is the variable over which
+        // we are iterating the for in loop
+        auto loop_src_var = ASR::make_Var_t(al, loc, loop_src_var_symbol);
+        if (ASR::is_a<ASR::Character_t>(*loop_src_var_ttype)) {
+            return ASRUtils::EXPR(ASR::make_StringLen_t(al, loc,
+                                  ASRUtils::EXPR(loop_src_var),
+                                  ASRUtils::TYPE(int_type), nullptr));
         } else if (ASR::is_a<ASR::List_t>(*loop_src_var_ttype)) {
-            throw SemanticError("Iterating on Lists using for in loop not yet supported as "
-                "visit_Len() is not yet supported in the LLVM Backend", loc);
+            return ASRUtils::EXPR(ASR::make_ListLen_t(al, loc,
+                                  ASRUtils::EXPR(loop_src_var),
+                                  ASRUtils::TYPE(int_type), nullptr));
         } else if (ASR::is_a<ASR::Set_t>(*loop_src_var_ttype)) {
             throw SemanticError("Iterating on Set using for in loop not yet supported", loc);
         } else if (ASR::is_a<ASR::Tuple_t>(*loop_src_var_ttype)) {
             throw SemanticError("Iterating on Tuple using for in loop not yet supported", loc);
         } else {
-            throw SemanticError("Only Strings, Lists, Sets and Tuples can be used with for in loop, not " +
-                ASRUtils::type_to_str(loop_src_var_ttype), loc);
+            throw SemanticError("Only Strings, Lists, Sets and Tuples"
+                                "can be used with for in loop, not " +
+                                ASRUtils::type_to_str(loop_src_var_ttype), loc);
         }
         return nullptr;
     }
@@ -2933,6 +2939,7 @@ public:
         bool is_explicit_iterator_required = false;
         std::string loop_src_var_name = "";
         ASR::expr_t *loop_end = nullptr, *loop_start = nullptr, *inc = nullptr;
+        ASR::expr_t *for_iter_type = nullptr;
         if (AST::is_a<AST::Call_t>(*x.m_iter)) {
             AST::Call_t *c = AST::down_cast<AST::Call_t>(x.m_iter);
             std::string call_name;
@@ -2972,6 +2979,7 @@ public:
         } else if (AST::is_a<AST::Name_t>(*x.m_iter)) {
             loop_src_var_name = AST::down_cast<AST::Name_t>(x.m_iter)->m_id;
             loop_end = for_iterable_helper(loop_src_var_name, x.base.base.loc);
+            for_iter_type = loop_end;
             LFORTRAN_ASSERT(loop_end);
             is_explicit_iterator_required = true;
         } else if (AST::is_a<AST::Subscript_t>(*x.m_iter)) {
@@ -2989,6 +2997,7 @@ public:
                 );
                 current_scope->add_symbol(tmp_assign_name, ASR::down_cast<ASR::symbol_t>(tmp_assign_variable));
                 loop_end = for_iterable_helper(tmp_assign_name, x.base.base.loc);
+                for_iter_type = loop_end;
                 LFORTRAN_ASSERT(loop_end);
                 loop_src_var_name = tmp_assign_name;
                 is_explicit_iterator_required = true;
@@ -3020,8 +3029,16 @@ public:
             auto index_plus_one = ASR::make_IntegerBinOp_t(al, x.base.base.loc, ASRUtils::EXPR(explicit_iter_var),
                 ASR::binopType::Add, constant_one, a_type, nullptr);
             auto loop_src_var = ASR::make_Var_t(al, x.base.base.loc, current_scope->get_symbol(loop_src_var_name));
-            auto loop_src_var_element = ASR::make_StringItem_t(al, x.base.base.loc, ASRUtils::EXPR(loop_src_var),
-                               ASRUtils::EXPR(index_plus_one), a_type, nullptr);
+            ASR::asr_t* loop_src_var_element = nullptr;
+            if (ASR::is_a<ASR::StringLen_t>(*for_iter_type)) {
+                loop_src_var_element = ASR::make_StringItem_t(
+                            al, x.base.base.loc, ASRUtils::EXPR(loop_src_var),
+                            ASRUtils::EXPR(index_plus_one), a_type, nullptr);
+            } else if (ASR::is_a<ASR::ListLen_t>(*for_iter_type)) {
+                loop_src_var_element = ASR::make_ListItem_t(
+                            al, x.base.base.loc, ASRUtils::EXPR(loop_src_var),
+                            ASRUtils::EXPR(explicit_iter_var), a_type, nullptr);
+            }
             auto loop_target_assignment = ASR::make_Assignment_t(al, x.base.base.loc, target, ASRUtils::EXPR(loop_src_var_element), nullptr);
             body.push_back(al, ASRUtils::STMT(loop_target_assignment));
 
