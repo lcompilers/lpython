@@ -2195,6 +2195,20 @@ public:
                 type = tuple_api->get_tuple_type(type_code, llvm_el_types)->getPointerTo();
                 break;
             }
+            case (ASR::ttypeType::List) : {
+                bool is_array_type = false, is_malloc_array_type = false;
+                bool is_list = true;
+                ASR::dimension_t *m_dims = nullptr;
+                ASR::List_t* asr_list = ASR::down_cast<ASR::List_t>(asr_type);
+                llvm::Type* el_llvm_type = get_type_from_ttype_t(asr_list->m_type, m_storage,
+                                                                 is_array_type,
+                                                                 is_malloc_array_type,
+                                                                 is_list, m_dims, n_dims,
+                                                                 a_kind);
+                std::string el_type_code = ASRUtils::get_type_code(asr_list->m_type);
+                type = list_api->get_list_type(el_llvm_type, el_type_code, a_kind)->getPointerTo();
+                break;
+            }
             default :
                 LFORTRAN_ASSERT(false);
         }
