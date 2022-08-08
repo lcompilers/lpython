@@ -1268,13 +1268,8 @@ public:
     }
 
     void visit_TupleLen(const ASR::TupleLen_t& x) {
-        if (x.m_value) {
-            this->visit_expr(*x.m_value);
-        } else {
-            ASR::Tuple_t* asr_tuple = ASR::down_cast<ASR::Tuple_t>(
-                                            ASRUtils::expr_type(x.m_arg));
-            tmp = llvm::ConstantInt::get(context, llvm::APInt(32, asr_tuple->n_type));
-        }
+        LFORTRAN_ASSERT(x.m_value);
+        this->visit_expr(*x.m_value);
     }
 
     void visit_TupleItem(const ASR::TupleItem_t& x) {
