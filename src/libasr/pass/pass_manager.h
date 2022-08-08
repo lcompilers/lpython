@@ -22,6 +22,7 @@
 #include <libasr/pass/global_stmts.h>
 #include <libasr/pass/param_to_const.h>
 #include <libasr/pass/print_arr.h>
+#include <libasr/pass/print_list_constant.h>
 #include <libasr/pass/arr_slice.h>
 #include <libasr/pass/flip_sign.h>
 #include <libasr/pass/div_to_mul.h>
@@ -44,7 +45,7 @@ namespace LCompilers {
 
     enum ASRPass {
         do_loops, global_stmts, implied_do_loops, array_op,
-        arr_slice, print_arr, class_constructor, unused_functions,
+        arr_slice, print_arr, print_list_constant, class_constructor, unused_functions,
         flip_sign, div_to_mul, fma, sign_from_value,
         inline_function_calls, loop_unroll, dead_code_removal,
         forall, select_case, loop_vectorise,
@@ -64,6 +65,7 @@ namespace LCompilers {
             {"array_op", ASRPass::array_op},
             {"arr_slice", ASRPass::arr_slice},
             {"print_arr", ASRPass::print_arr},
+            {"print_list_constant", ASRPass::print_list_constant},
             {"class_constructor", ASRPass::class_constructor},
             {"unused_functions", ASRPass::unused_functions},
             {"flip_sign", ASRPass::flip_sign},
@@ -143,6 +145,10 @@ namespace LCompilers {
                         LFortran::pass_replace_print_arr(al, *asr, LFortran::get_runtime_library_dir());
                         break;
                     }
+                    case (ASRPass::print_list_constant) : {
+                        LFortran::pass_replace_print_list_constant(al, *asr, LFortran::get_runtime_library_dir());
+                        break;
+                    }
                     case (ASRPass::unused_functions) : {
                         LFortran::pass_unused_functions(al, *asr, always_run);
                         break;
@@ -177,6 +183,7 @@ namespace LCompilers {
                 ASRPass::arr_slice,
                 ASRPass::array_op,
                 ASRPass::print_arr,
+                ASRPass::print_list_constant,
                 ASRPass::array_dim_intrinsics_update,
                 ASRPass::do_loops,
                 ASRPass::forall,
@@ -191,6 +198,7 @@ namespace LCompilers {
                 ASRPass::arr_slice,
                 ASRPass::array_op,
                 ASRPass::print_arr,
+                ASRPass::print_list_constant,
                 ASRPass::loop_vectorise,
                 ASRPass::loop_unroll,
                 ASRPass::array_dim_intrinsics_update,

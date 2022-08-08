@@ -36,6 +36,7 @@ set(SRC
     pass/arr_dims_propagate.cpp
     pass/arr_slice.cpp
     pass/print_arr.cpp
+    pass/print_list_constant.cpp
     pass/pass_utils.cpp
     pass/unused_functions.cpp
     pass/flip_sign.cpp

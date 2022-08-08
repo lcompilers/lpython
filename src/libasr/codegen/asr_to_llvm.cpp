@@ -4599,52 +4599,6 @@ public:
                 fmt.push_back("%lld");
                 llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
                 args.push_back(d);
-            } else if (t->type == ASR::ttypeType::List) {
-                if(ASR::is_a<ASR::ListConstant_t>(*v)) {
-                    llvm::Value *open_bracket = builder->CreateGlobalStringPtr("[");
-                    fmt.push_back("%s");
-                    args.push_back(open_bracket);
-
-                    ASR::ListConstant_t* listC = ASR::down_cast<ASR::ListConstant_t>(v);
-                    ASR::ttype_t *arg_type;
-                    for(size_t j = 0; j < listC->n_args; ++j) {
-                        if (j == 0) {
-                            arg_type = expr_type(listC->m_args[j]); // current the arg_type in List is same
-                        } else {
-                            fmt.push_back("%s");
-                            llvm::Value *comma_space = builder->CreateGlobalStringPtr(", ");
-                            args.push_back(comma_space);
-                        }
-                        this->visit_expr_wrapper(listC->m_args[j], true);
-                        if (ASRUtils::is_integer(*arg_type)) {
-                            fmt.push_back("%d"); // not use "%lld" for ListConstant default i32
-                            args.push_back(tmp);
-                        }
-                        else if (ASRUtils::is_real(*arg_type)) {
-                            fmt.push_back("%f");
-                            args.push_back(builder->CreateFPExt(tmp, llvm::Type::getDoubleTy(context)));
-                        }
-                        else if (ASRUtils::is_character(*arg_type)) {
-                            llvm::Value *single_quote = builder->CreateGlobalStringPtr("'");
-                            fmt.push_back("%s");
-                            args.push_back(single_quote);
-                            fmt.push_back("%s");
-                            args.push_back(tmp);
-                            fmt.push_back("%s");
-                            args.push_back(single_quote);
-                        } else {
-                            throw LCompilersException("Printing ConstantList is only support for"
-                                "integer, float, char and string now.");
-                        }
-                    }
-                    fmt.push_back("%s");
-                    llvm::Value *close_bracket = builder->CreateGlobalStringPtr("]");
-                    args.push_back(close_bracket);
-                }
-                else {
-                    throw LCompilersException("Printing List is only support for "
-                        "ASR type ListConstant now.");
-                }
             } else {
                 throw LCompilersException("Printing support is not available for " +
                     ASRUtils::type_to_str(t) + " type.");
