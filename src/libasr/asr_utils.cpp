@@ -659,6 +659,11 @@ bool types_equal(const ASR::ttype_t &a, const ASR::ttype_t &b) {
                 }
                 break;
             }
+            case (ASR::ttypeType::List) : {
+                ASR::List_t *a2 = ASR::down_cast<ASR::List_t>(&a);
+                ASR::List_t *b2 = ASR::down_cast<ASR::List_t>(&b);
+                return types_equal(*a2->m_type, *b2->m_type);
+            }
             case (ASR::ttypeType::Derived) : {
                 ASR::Derived_t *a2 = ASR::down_cast<ASR::Derived_t>(&a);
                 ASR::Derived_t *b2 = ASR::down_cast<ASR::Derived_t>(&b);
