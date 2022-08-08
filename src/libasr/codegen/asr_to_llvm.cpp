@@ -1267,6 +1267,20 @@ public:
         list_api->insert_item(plist, pos, item, *module, type_code);
     }
 
+    void visit_TupleLen(const ASR::TupleLen_t& x) {
+        if (x.m_value) {
+            this->visit_expr(*x.m_value);
+        } else {
+            uint64_t ptr_loads_copy = ptr_loads;
+            ptr_loads = 0;
+            this->visit_expr(*x.m_arg);
+            ptr_loads = ptr_loads_copy;
+            ASR::Tuple_t* asr_tuple = ASR::down_cast<ASR::Tuple_t>(
+                                            ASRUtils::expr_type(x.m_arg));
+            tmp = llvm::ConstantInt::get(context, llvm::APInt(32, asr_tuple->n_type));
+        }
+    }
+
     void visit_TupleItem(const ASR::TupleItem_t& x) {
         uint64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
