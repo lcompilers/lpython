@@ -101,7 +101,12 @@ namespace LFortran {
                             llvm::Value* item, llvm::Module& module,
                             std::string& type_code);
 
+            void remove(llvm::Value* list, llvm::Value* item,
+                        ASR::ttypeType item_type, llvm::Module& module);
 
+            llvm::Value* find_item_position(llvm::Value* list,
+                llvm::Value* item, ASR::ttypeType item_type,
+                llvm::Module& module);
     };
 
     class LLVMTuple {

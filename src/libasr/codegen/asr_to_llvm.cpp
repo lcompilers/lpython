@@ -1270,6 +1270,19 @@ public:
         list_api->insert_item(plist, pos, item, *module, type_code);
     }
 
+    void visit_ListRemove(const ASR::ListRemove_t& x) {
+        ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_a));
+        uint64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_a);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value* plist = tmp;
+
+        this->visit_expr_wrapper(x.m_ele, true);
+        llvm::Value *item = tmp;
+        list_api->remove(plist, item, asr_el_type->type, *module);
+    }
+
     void visit_TupleLen(const ASR::TupleLen_t& x) {
         LFORTRAN_ASSERT(x.m_value);
         this->visit_expr(*x.m_value);

@@ -373,6 +373,131 @@ namespace LFortran {
         shift_end_point_by_one(list);
     }
 
+    llvm::Value* LLVMList::find_item_position(llvm::Value* list,
+        llvm::Value* item, ASR::ttypeType item_type, llvm::Module& module) {
+        llvm::Type* pos_type = llvm::Type::getInt32Ty(context);
+        llvm::Value* current_end_point = LLVM::CreateLoad(*builder,
+                                        get_pointer_to_current_end_point(list));
+        llvm::AllocaInst *i = builder->CreateAlloca(pos_type, nullptr);
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 0)), i);
+        llvm::Value* tmp = nullptr;
+
+        /* Equivalent in C++:
+         * int i = 0;
+         * while(list[i] != item && end_point > i) {
+         *     i++;
+         * }
+         *
+         * if (i == end_point) {
+         *    std::cout << "The list does not contain the element";
+         * }
+         */
+
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value* is_item_not_equal = nullptr;
+            llvm::Value* left_arg = read_item(list, LLVM::CreateLoad(*builder, i), false);
+                is_item_not_equal = builder->CreateICmpNE(left_arg, item);
+            llvm::Value *cond = builder->CreateAnd(is_item_not_equal,
+                                                   builder->CreateICmpSGT(current_end_point,
+                                                    LLVM::CreateLoad(*builder, i)));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            tmp = builder->CreateAdd(
+                        LLVM::CreateLoad(*builder, i),
+                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, tmp, i);
+        }
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+
+
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+
+        llvm::Value* cond = builder->CreateICmpEQ(
+                              LLVM::CreateLoad(*builder, i), current_end_point);
+        builder->CreateCondBr(cond, thenBB, elseBB);
+        builder->SetInsertPoint(thenBB);
+        {
+            // TODO: throw Exception when the element is not found in the list.
+        }
+        builder->CreateBr(mergeBB);
+
+        llvm_utils->start_new_block(elseBB);
+        llvm_utils->start_new_block(mergeBB);
+
+        return LLVM::CreateLoad(*builder, i);
+    }
+
+    void LLVMList::remove(llvm::Value* list, llvm::Value* item,
+                          ASR::ttypeType item_type, llvm::Module& module) {
+        llvm::Type* pos_type = llvm::Type::getInt32Ty(context);
+        llvm::Value* current_end_point = LLVM::CreateLoad(*builder,
+                                        get_pointer_to_current_end_point(list));
+        llvm::AllocaInst *item_pos = builder->CreateAlloca(pos_type, nullptr);
+        llvm::Value* tmp = LLVMList::find_item_position(list, item, item_type, module);
+        LLVM::CreateStore(*builder, tmp, item_pos);
+
+        /* While loop equivalent in C++:
+         * item_pos = find_item_position();
+         * while(end_point > item_pos) {
+         *     tmp = item_pos + 1;
+         *     list[item_pos] = list[tmp];
+         *     item_pos = tmp;
+         * }
+         */
+
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpSGT(current_end_point,
+                                         LLVM::CreateLoad(*builder, item_pos));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            tmp = builder->CreateAdd(
+                        LLVM::CreateLoad(*builder, item_pos),
+                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            write_item(list, LLVM::CreateLoad(*builder, item_pos),
+                       read_item(list, tmp, false));
+            LLVM::CreateStore(*builder, tmp, item_pos);
+        }
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+
+        // Decrement end point by one
+        llvm::Value* end_point_ptr = get_pointer_to_current_end_point(list);
+        llvm::Value* end_point = LLVM::CreateLoad(*builder, end_point_ptr);
+        end_point = builder->CreateSub(end_point, llvm::ConstantInt::get(
+                                       context, llvm::APInt(32, 1)));
+        builder->CreateStore(end_point, end_point_ptr);
+    }
+
+
     LLVMTuple::LLVMTuple(llvm::LLVMContext& context_,
                          LLVMUtils* llvm_utils_,
                          llvm::IRBuilder<>* builder_) :
