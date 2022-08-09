@@ -3997,14 +3997,9 @@ public:
             return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(
                     ASR::make_SetLen_t(al, loc, arg, to_type, value));
         } else if (ASR::is_a<ASR::Tuple_t>(*type)) {
-            if (ASRUtils::expr_value(arg) != nullptr) {
-                int64_t ival = (int64_t)ASR::down_cast<ASR::TupleConstant_t>(
-                                        ASRUtils::expr_value(arg))->n_elements;
-                value = ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al,
-                                loc, ival, to_type));
-            }
-            return (ASR::asr_t *)ASR::down_cast<ASR::expr_t>(
-                    ASR::make_TupleLen_t(al, loc, arg, to_type, value));
+            value = ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al,
+                    loc, ASR::down_cast<ASR::Tuple_t>(type)->n_type, to_type));
+            return ASR::make_TupleLen_t(al, loc, arg, to_type, value);
         } else if (ASR::is_a<ASR::List_t>(*type)) {
             if (ASRUtils::expr_value(arg) != nullptr) {
                 int64_t ival = (int64_t)ASR::down_cast<ASR::ListConstant_t>(
