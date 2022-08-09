@@ -155,6 +155,30 @@ namespace LFortran {
         builder->SetInsertPoint(bb);
     }
 
+    llvm::Value* LLVMUtils::lfortran_str_cmp(llvm::Value* left_arg, llvm::Value* right_arg,
+                                             std::string runtime_func_name, llvm::Module& module)
+    {
+        llvm::Type* character_type = llvm::Type::getInt8PtrTy(context);
+        llvm::Function *fn = module.getFunction(runtime_func_name);
+        if(!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getInt1Ty(context), {
+                        character_type->getPointerTo(),
+                        character_type->getPointerTo()
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, module);
+        }
+        llvm::AllocaInst *pleft_arg = builder->CreateAlloca(character_type,
+            nullptr);
+        builder->CreateStore(left_arg, pleft_arg);
+        llvm::AllocaInst *pright_arg = builder->CreateAlloca(character_type,
+            nullptr);
+        builder->CreateStore(right_arg, pright_arg);
+        std::vector<llvm::Value*> args = {pleft_arg, pright_arg};
+        return builder->CreateCall(fn, args);
+    }
+
     LLVMList::LLVMList(llvm::LLVMContext& context_,
         LLVMUtils* llvm_utils_,
         llvm::IRBuilder<>* builder_):
@@ -403,7 +427,13 @@ namespace LFortran {
         {
             llvm::Value* is_item_not_equal = nullptr;
             llvm::Value* left_arg = read_item(list, LLVM::CreateLoad(*builder, i), false);
+            if( item_type == ASR::ttypeType::Character ) {
+                is_item_not_equal = llvm_utils->lfortran_str_cmp(left_arg, item,
+                                                             "_lpython_str_compare_noteq",
+                                                             module);
+            } else {
                 is_item_not_equal = builder->CreateICmpNE(left_arg, item);
+            }
             llvm::Value *cond = builder->CreateAnd(is_item_not_equal,
                                                    builder->CreateICmpSGT(current_end_point,
                                                     LLVM::CreateLoad(*builder, i)));

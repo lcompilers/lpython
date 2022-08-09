@@ -75,6 +75,9 @@ namespace LFortran {
 
             void start_new_block(llvm::BasicBlock *bb);
 
+            llvm::Value* lfortran_str_cmp(llvm::Value* left_arg, llvm::Value* right_arg,
+                                          std::string runtime_func_name, llvm::Module& module);
+
     }; // LLVMUtils
 
     class LLVMList {
