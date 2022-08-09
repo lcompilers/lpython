@@ -112,33 +112,6 @@ uint64_t static get_hash(ASR::asr_t *node)
     return (uint64_t)node;
 }
 
-void printf(llvm::LLVMContext &context, llvm::Module &module,
-    llvm::IRBuilder<> &builder, const std::vector<llvm::Value*> &args)
-{
-    llvm::Function *fn_printf = module.getFunction("_lfortran_printf");
-    if (!fn_printf) {
-        llvm::FunctionType *function_type = llvm::FunctionType::get(
-                llvm::Type::getVoidTy(context), {llvm::Type::getInt8PtrTy(context)}, true);
-        fn_printf = llvm::Function::Create(function_type,
-                llvm::Function::ExternalLinkage, "_lfortran_printf", &module);
-    }
-    builder.CreateCall(fn_printf, args);
-}
-
-void exit(llvm::LLVMContext &context, llvm::Module &module,
-    llvm::IRBuilder<> &builder, llvm::Value* exit_code)
-{
-    llvm::Function *fn_exit = module.getFunction("exit");
-    if (!fn_exit) {
-        llvm::FunctionType *function_type = llvm::FunctionType::get(
-                llvm::Type::getVoidTy(context), {llvm::Type::getInt32Ty(context)},
-                false);
-        fn_exit = llvm::Function::Create(function_type,
-                llvm::Function::ExternalLinkage, "exit", &module);
-    }
-    builder.CreateCall(fn_exit, {exit_code});
-}
-
 void string_init(llvm::LLVMContext &context, llvm::Module &module,
         llvm::IRBuilder<> &builder, llvm::Value* arg_size, llvm::Value* arg_string) {
     std::string func_name = "_lfortran_string_init";
@@ -1268,6 +1241,19 @@ public:
         std::string type_code = ASRUtils::get_type_code(asr_list->m_type);
 
         list_api->insert_item(plist, pos, item, *module, type_code);
+    }
+
+    void visit_ListRemove(const ASR::ListRemove_t& x) {
+        ASR::ttype_t* asr_el_type = ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_a));
+        uint64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_a);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value* plist = tmp;
+
+        this->visit_expr_wrapper(x.m_ele, true);
+        llvm::Value *item = tmp;
+        list_api->remove(plist, item, asr_el_type->type, *module);
     }
 
     void visit_TupleLen(const ASR::TupleLen_t& x) {
