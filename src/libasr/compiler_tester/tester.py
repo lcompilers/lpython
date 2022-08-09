@@ -22,6 +22,12 @@ log.addHandler(handler)
 log.setLevel(level)
 
 
+TESTER_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+LIBASR_DIR = os.path.dirname(TESTER_DIR)
+SRC_DIR = os.path.dirname(LIBASR_DIR)
+ROOT_DIR = os.path.dirname(SRC_DIR)
+
+
 class RunException(Exception):
     pass
 
@@ -335,9 +341,9 @@ def tester_main(compiler, single_test):
     no_llvm = args.no_llvm
 
     # So that the tests find the `lpython` executable
-    os.environ["PATH"] = os.path.join(os.getcwd(), "src", "bin") \
+    os.environ["PATH"] = os.path.join(SRC_DIR, "bin") \
         + os.pathsep + os.environ["PATH"]
-    test_data = toml.load(open("tests/tests.toml"))
+    test_data = toml.load(open(os.path.join(ROOT_DIR, "tests", "tests.toml")))
     if specific_test:
         # some fuzzy comparison to get all seemingly fitting tests tested
         specific = [test for test in test_data["test"]
