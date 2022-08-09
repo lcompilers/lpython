@@ -1198,10 +1198,13 @@ public:
         llvm::Type* const_tuple_type = tuple_api->get_tuple_type(type_code, llvm_el_types);
         llvm::Value* const_tuple = builder->CreateAlloca(const_tuple_type, nullptr, "const_tuple");
         std::vector<llvm::Value*> init_values;
+        uint64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 2;
         for( size_t i = 0; i < x.n_elements; i++ ) {
             this->visit_expr(*x.m_elements[i]);
             init_values.push_back(tmp);
         }
+        ptr_loads = ptr_loads_copy;
         tuple_api->tuple_init(const_tuple, init_values);
         tmp = const_tuple;
     }
@@ -2175,6 +2178,23 @@ public:
                 type = llvm::Type::getVoidTy(context)->getPointerTo();
                 break;
             }
+            case (ASR::ttypeType::Tuple) : {
+                ASR::Tuple_t* asr_tuple = ASR::down_cast<ASR::Tuple_t>(asr_type);
+                std::string type_code = ASRUtils::get_type_code(asr_tuple->m_type,
+                                                                asr_tuple->n_type);
+                std::vector<llvm::Type*> llvm_el_types;
+                for( size_t i = 0; i < asr_tuple->n_type; i++ ) {
+                    bool is_local_array_type = false;
+                    int local_n_dims = 0;
+                    int local_a_kind = -1;
+                    ASR::storage_typeType local_m_storage = ASR::storage_typeType::Default;
+                    llvm_el_types.push_back(get_arg_type_from_ttype_t(asr_tuple->m_type[i], m_abi,
+                                            arg_m_abi, local_m_storage, arg_m_value_attr, local_n_dims,
+                                            local_a_kind, is_local_array_type, ASRUtils::intent_local));
+                }
+                type = tuple_api->get_tuple_type(type_code, llvm_el_types)->getPointerTo();
+                break;
+            }
             default :
                 LFORTRAN_ASSERT(false);
         }
@@ -2510,6 +2530,25 @@ public:
                 case (ASR::ttypeType::Derived) :
                     throw CodeGenError("Derived return type not implemented yet");
                     break;
+                case (ASR::ttypeType::Tuple) : {
+                    ASR::Tuple_t* asr_tuple = ASR::down_cast<ASR::Tuple_t>(return_var_type0);
+                    std::string type_code = ASRUtils::get_type_code(asr_tuple->m_type,
+                                                                    asr_tuple->n_type);
+                    std::vector<llvm::Type*> llvm_el_types;
+                    for( size_t i = 0; i < asr_tuple->n_type; i++ ) {
+                        bool is_local_array_type = false, is_local_malloc_array_type = false;
+                        bool is_local_list = false;
+                        ASR::dimension_t* local_m_dims = nullptr;
+                        int local_n_dims = 0;
+                        int local_a_kind = -1;
+                        ASR::storage_typeType local_m_storage = ASR::storage_typeType::Default;
+                        llvm_el_types.push_back(get_type_from_ttype_t(asr_tuple->m_type[i], local_m_storage,
+                                                is_local_array_type, is_local_malloc_array_type,
+                                                is_local_list, local_m_dims, local_n_dims, local_a_kind));
+                    }
+                    return_type = tuple_api->get_tuple_type(type_code, llvm_el_types);
+                    break;
+                }
                 default :
                     LFORTRAN_ASSERT(false);
                     throw CodeGenError("Type not implemented");
@@ -2909,10 +2948,14 @@ public:
                 this->visit_expr(*x.m_target);
                 llvm::Value* target_tuple = tmp;
                 ptr_loads = ptr_loads_copy;
-                ASR::Tuple_t* value_tuple_type = ASR::down_cast<ASR::Tuple_t>(asr_value_type);
-                std::string type_code = ASRUtils::get_type_code(value_tuple_type->m_type,
-                                                                value_tuple_type->n_type);
-                tuple_api->tuple_deepcopy(value_tuple, target_tuple, type_code);
+                if( ASR::is_a<ASR::FunctionCall_t>(*x.m_value) ) {
+                    builder->CreateStore(value_tuple, target_tuple);
+                } else {
+                    ASR::Tuple_t* value_tuple_type = ASR::down_cast<ASR::Tuple_t>(asr_value_type);
+                    std::string type_code = ASRUtils::get_type_code(value_tuple_type->m_type,
+                                                                    value_tuple_type->n_type);
+                    tuple_api->tuple_deepcopy(value_tuple, target_tuple, type_code);
+                }
             }
             return ;
         }
