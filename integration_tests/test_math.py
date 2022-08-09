@@ -1,6 +1,7 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
-                  ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc)
-from ltypes import i32, f64, i64
+                  ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc, fsum, prod)
+from ltypes import i8, i16, i32, i64, f32, f64
+from numpy import empty
 
 eps: f64
 eps = 1e-12
@@ -162,6 +163,63 @@ def test_trunc():
     i = trunc(-4.5)
     assert i == -4
 
+def test_fsum():
+    res: f64
+    eps: f64 = 1e-12
+
+    arr_i32: list[i32]
+    arr_i32 = [6, 12]
+    res = fsum(arr_i32)
+    assert abs(res - 18.0) < eps
+
+    a: i64 = 12
+    b: i64 = 6
+    arr_i64: list[i64]
+    arr_i64 = [a, b]
+    res = fsum(arr_i64)
+    assert abs(res - 18.0) < eps
+
+    x: f32 = 12.5
+    y: f32 = 6.5
+    arr_f32: list[f32]
+    arr_f32 = [x, y]
+    res = fsum(arr_f32)
+    assert abs(res - 19.0) < eps
+
+    arr_f64: list[f64]
+    arr_f64 = [12.6, 6.4]
+    res = fsum(arr_f64)
+    assert abs(res - 19.0) < eps
+
+
+def test_prod():
+    res: f64
+    eps: f64 = 1e-12
+
+    arr_i32: list[i32]
+    arr_i32 = [6, 12]
+    res = prod(arr_i32)
+    assert abs(res - 72.0) < eps
+
+    a: i64 = 12
+    b: i64 = 6
+    arr_i64: list[i64]
+    arr_i64 = [a, b]
+    res = prod(arr_i64)
+    assert abs(res - 72.0) < eps
+
+    x: f32 = 12.5
+    y: f32 = 6.5
+    arr_f32: list[f32]
+    arr_f32 = [x, y]
+    res = prod(arr_f32)
+    assert abs(res - 81.25) < eps
+
+    arr_f64: list[f64]
+    arr_f64 = [12.6, 6.4]
+    res = prod(arr_f64)
+    assert abs(res - 80.64) < eps
+
 
 def check():
     test_factorial_1()
@@ -183,6 +241,8 @@ def check():
     test_expm1()
     test_log1p()
     test_trunc()
+    test_fsum()
+    test_prod()
 
 
 check()
