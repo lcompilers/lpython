@@ -5,11 +5,39 @@
 
 #include <llvm/IR/Value.h>
 #include <llvm/IR/IRBuilder.h>
+#include <libasr/asr.h>
 
 #include <map>
 #include <tuple>
 
 namespace LFortran {
+
+    static inline void printf(llvm::LLVMContext &context, llvm::Module &module,
+        llvm::IRBuilder<> &builder, const std::vector<llvm::Value*> &args)
+    {
+        llvm::Function *fn_printf = module.getFunction("_lfortran_printf");
+        if (!fn_printf) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {llvm::Type::getInt8PtrTy(context)}, true);
+            fn_printf = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, "_lfortran_printf", &module);
+        }
+        builder.CreateCall(fn_printf, args);
+    }
+
+    static inline void exit(llvm::LLVMContext &context, llvm::Module &module,
+        llvm::IRBuilder<> &builder, llvm::Value* exit_code)
+    {
+        llvm::Function *fn_exit = module.getFunction("exit");
+        if (!fn_exit) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {llvm::Type::getInt32Ty(context)},
+                    false);
+            fn_exit = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, "exit", &module);
+        }
+        builder.CreateCall(fn_exit, {exit_code});
+    }
 
     namespace LLVM {
 

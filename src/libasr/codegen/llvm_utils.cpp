@@ -434,7 +434,16 @@ namespace LFortran {
         builder->CreateCondBr(cond, thenBB, elseBB);
         builder->SetInsertPoint(thenBB);
         {
-            // TODO: throw Exception when the element is not found in the list.
+            // TODO: Allow runtime information like the exact element which is
+            // not found.
+            std::string message = "The list does not contain the element";
+            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("ValueError: %s\n");
+            llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
+            printf(context, module, *builder, {fmt_ptr, fmt_ptr2});
+            int exit_code_int = 1;
+            llvm::Value *exit_code = llvm::ConstantInt::get(context,
+                    llvm::APInt(32, exit_code_int));
+            exit(context, module, *builder, exit_code);
         }
         builder->CreateBr(mergeBB);
 
