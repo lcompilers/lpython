@@ -268,7 +268,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             int_bin = "0"[bB][01]+;
             int_hex = "0"[xX][0-9a-fA-F]+;
             int_dec = digit+ (digit | "_" digit)*;
-            char =  [a-zA-Z_];
+            char =  [^\x00-\x7F]|[a-zA-Z_];
             name = char (char | digit)*;
             significand = (digit+ "." digit*) | ("." digit+);
             exp = [eE][-+]? digit+;
