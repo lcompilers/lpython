@@ -1,0 +1,13 @@
+{
+    "basename": "pass_print_list_constant-print_02-0345a2c",
+    "cmd": "lpython --pass=print_list_constant --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/print_02.py",
+    "infile_hash": "c8a68f01fb14e65675d0d116268a07ff4e6b8ba504fe3001964c1ad9",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "pass_print_list_constant-print_02-0345a2c.stdout",
+    "stdout_hash": "8eeea943df35cbdb4d445c89a7d644456e886720b9ee00d408339084",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

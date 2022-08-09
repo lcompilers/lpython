@@ -376,7 +376,8 @@ cpp = true
 
 [[test]]
 filename = "../integration_tests/print_02.py"
-llvm = true
+asr = true
+pass = "print_list_constant"
 
 [[test]]
 filename = "../integration_tests/generics_01.py"

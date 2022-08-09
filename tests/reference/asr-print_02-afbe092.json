@@ -1,12 +1,12 @@
 {
-    "basename": "llvm-print_02-ce0c320",
-    "cmd": "lpython --no-color --show-llvm {infile} -o {outfile}",
+    "basename": "asr-print_02-afbe092",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/print_02.py",
     "infile_hash": "c8a68f01fb14e65675d0d116268a07ff4e6b8ba504fe3001964c1ad9",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "llvm-print_02-ce0c320.stdout",
-    "stdout_hash": "8921a8de58060599e3474b97cc68372ab1a3a8b06496cc67a4d1f189",
+    "stdout": "asr-print_02-afbe092.stdout",
+    "stdout_hash": "6215d89f2a4671eae3ab3ba3621d7c185dc6603bfaf98b00daf1f368",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
