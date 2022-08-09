@@ -247,7 +247,7 @@ expr
     | SetLen(expr arg, ttype type, expr? value)
 
     | TupleConstant(expr* elements, ttype type)
-    | TupleLen(expr arg, ttype type, expr? value)
+    | TupleLen(expr arg, ttype type, expr value)
 
     | StringConstant(string s, ttype type)
     | StringConcat(expr left, expr right, ttype type, expr? value)
