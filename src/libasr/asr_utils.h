@@ -1693,6 +1693,71 @@ static inline ASR::expr_t* compute_length_from_start_end(Allocator& al, ASR::exp
                           nullptr));
 }
 
+static inline bool is_pass_array_by_data_possible(ASR::Function_t* x, std::vector<size_t>& v) {
+    ASR::ttype_t* typei = nullptr;
+    ASR::dimension_t* dims = nullptr;
+    for( size_t i = 0; i < x->n_args; i++ ) {
+        if( !ASR::is_a<ASR::Var_t>(*x->m_args[i]) ) {
+            continue;
+        }
+        ASR::Var_t* arg_Var = ASR::down_cast<ASR::Var_t>(x->m_args[i]);
+        if( !ASR::is_a<ASR::Variable_t>(*arg_Var->m_v) ) {
+            continue;
+        }
+        typei = ASRUtils::expr_type(x->m_args[i]);
+        int n_dims = ASRUtils::extract_dimensions_from_ttype(typei, dims);
+        ASR::Variable_t* argi = ASRUtils::EXPR2VAR(x->m_args[i]);
+        if( ASRUtils::is_dimension_empty(dims, n_dims) &&
+            (argi->m_intent == ASRUtils::intent_in ||
+             argi->m_intent == ASRUtils::intent_out) &&
+            argi->m_storage != ASR::storage_typeType::Allocatable) {
+            v.push_back(i);
+        }
+    }
+    return v.size() > 0;
+}
+
+static inline ASR::expr_t* get_bound(ASR::expr_t* arr_expr, int dim,
+                                     std::string bound, Allocator& al) {
+    ASR::ttype_t* int32_type = ASRUtils::TYPE(ASR::make_Integer_t(al, arr_expr->base.loc,
+                                                                  4, nullptr, 0));
+    ASR::expr_t* dim_expr = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_expr->base.loc,
+                                                                       dim, int32_type));
+    ASR::arrayboundType bound_type = ASR::arrayboundType::LBound;
+    if( bound == "ubound" ) {
+        bound_type = ASR::arrayboundType::UBound;
+    }
+    return ASRUtils::EXPR(ASR::make_ArrayBound_t(al, arr_expr->base.loc, arr_expr, dim_expr,
+                int32_type, bound_type, nullptr));
+}
+
+static inline ASR::expr_t* get_size(ASR::expr_t* arr_expr, int dim,
+                                    Allocator& al) {
+    ASR::ttype_t* int32_type = ASRUtils::TYPE(ASR::make_Integer_t(al, arr_expr->base.loc, 4, nullptr, 0));
+    ASR::expr_t* dim_expr = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, arr_expr->base.loc, dim, int32_type));
+    return ASRUtils::EXPR(ASR::make_ArraySize_t(al, arr_expr->base.loc, arr_expr, dim_expr,
+                                                int32_type, nullptr));
+}
+
+static inline void get_dimensions(ASR::expr_t* array, Vec<ASR::expr_t*>& dims,
+                                  Allocator& al) {
+    ASR::ttype_t* array_type = ASRUtils::expr_type(array);
+    ASR::dimension_t* compile_time_dims = nullptr;
+    int n_dims = extract_dimensions_from_ttype(array_type, compile_time_dims);
+    for( int i = 0; i < n_dims; i++ ) {
+        ASR::expr_t* start = compile_time_dims[i].m_start;
+        if( start == nullptr ) {
+            start = get_bound(array, i + 1, "lbound", al);
+        }
+        ASR::expr_t* length = compile_time_dims[i].m_length;
+        if( length == nullptr ) {
+            length = get_size(array, i + 1, al);
+        }
+        dims.push_back(al, start);
+        dims.push_back(al, length);
+    }
+}
+
 } // namespace ASRUtils
 
 } // namespace LFortran

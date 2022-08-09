@@ -22,6 +22,10 @@ namespace LFortran {
         ASR::expr_t* create_array_ref(ASR::symbol_t* arr, Vec<ASR::expr_t*>& idx_vars, Allocator& al,
                                       const Location& loc, ASR::ttype_t* _type);
 
+        void create_vars(Vec<ASR::expr_t*>& vars, int n_vars, const Location& loc,
+                         Allocator& al, SymbolTable*& current_scope, std::string suffix="_k",
+                         ASR::intentType intent=ASR::intentType::Local);
+
         void create_idx_vars(Vec<ASR::expr_t*>& idx_vars, int n_dims, const Location& loc,
                              Allocator& al, SymbolTable*& current_scope, std::string suffix="_k");
 
