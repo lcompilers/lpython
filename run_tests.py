@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
 import sys
-sys.path.append("src/libasr")
+import os
+
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+sys.path.append(os.path.join(ROOT_DIR, "src", "libasr"))
+
 from compiler_tester.tester import color, fg, log, run_test, style, tester_main
 
 
