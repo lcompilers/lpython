@@ -390,11 +390,16 @@ def complex(x: i32, y: f64) -> c64:
 def complex(x: f64, y: i32) -> c64:
     return x + y*1j
 
-
 @interface
 def divmod(x: i32, y: i32) -> tuple[i32, i32]:
-    #: TODO: Implement once we have tuple support in the LLVM backend
-    pass
+    """
+    Return the tuple (x//y, x%y).
+    """
+    if y == 0:
+        raise ZeroDivisionError("Integer division or modulo by zero not possible")
+    t: tuple[i32, i32]
+    t = (_lpython_floordiv(x, y), _mod(x, y))
+    return t
 
 
 def lbound(x: i32[:], dim: i32) -> i32:
