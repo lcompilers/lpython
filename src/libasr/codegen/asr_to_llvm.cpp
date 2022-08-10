@@ -1214,6 +1214,26 @@ public:
         tmp = const_tuple;
     }
 
+    void visit_IntegerBitLen(const ASR::IntegerBitLen_t& x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        llvm::Value *int_val = tmp;
+        int int_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+        std::string runtime_func_name = "_lpython_bit_length" + std::to_string(int_kind);
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getInt32Ty(context), {
+                        getIntType(int_kind)
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        tmp = builder->CreateCall(fn, {int_val});
+    }
+
     void visit_ListAppend(const ASR::ListAppend_t& x) {
         uint64_t ptr_loads_copy = ptr_loads;
         ptr_loads = 0;
