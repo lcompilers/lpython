@@ -1,6 +1,6 @@
-from ltypes import TypeVar, Number
+from ltypes import TypeVar, SupportsZero, SupportsPlus
 
-T = TypeVar('T', bound=SupportsZero)
+T = TypeVar('T', bound=SupportsZero|SupportsPlus)
 
 def f(x: T) -> T:
     x = 0

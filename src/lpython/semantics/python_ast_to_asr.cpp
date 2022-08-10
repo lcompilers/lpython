@@ -730,7 +730,7 @@ public:
                 diag.add(diag::Diagnostic(
                     "Argument type does not match parameter's restriction",
                     diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("Type mismatch", {param_type->base.loc, loc})
+                        diag::Label("Type mismatch", {param_type->base.loc, arg_type->base.loc})
                     }
                 ));
                 throw SemanticAbort();
@@ -2549,6 +2549,7 @@ public:
                     if (AST::is_a<AST::Name_t>(*x.m_targets[0])) {
                         std::string tvar_name = AST::down_cast<AST::Name_t>(x.m_targets[0])->m_id;
                         // Check if the type variable name is a reserved type keyword
+                        // TODO: Use ast to asr type to check type variable
                         const char* type_list[14]
                             = { "list", "set", "dict", "tuple", "i8", "i16", "i32", "i64", "f32",
                                 "f64", "c32", "c64", "str", "bool"};
@@ -2576,14 +2577,16 @@ public:
 
                         Vec<ASR::restriction_t*> restrictions;
                         restrictions.reserve(al, 4);
-
                         if (rh->n_keywords > 0) {
                             AST::keyword_t keyword = rh->m_keywords[0];
                             if (keyword.m_arg && strcmp(keyword.m_arg, "bound") == 0) {
-                                ASR::traitType trait = get_trait_from_expr(keyword.m_value);
-                                ASR::restriction_t *restriction = ASR::down_cast<ASR::restriction_t>(
-                                    ASR::make_Restriction_t(al, keyword.loc, trait));
-                                restrictions.push_back(al, restriction);
+                                std::set<ASR::traitType> traits;
+                                traits = get_trait_from_bounds(keyword.m_value, traits);
+                                for (ASR::traitType const trait: traits) {
+                                    ASR::restriction_t *restriction = ASR::down_cast<ASR::restriction_t>(
+                                        ASR::make_Restriction_t(al, keyword.loc, trait));
+                                    restrictions.push_back(al, restriction);
+                                }
                             }
                         }
 
@@ -2618,21 +2621,28 @@ public:
         }
     }
 
-    ASR::traitType get_trait_from_expr(AST::expr_t *value) {
+    std::set<ASR::traitType> get_trait_from_bounds(AST::expr_t *value, std::set<ASR::traitType> traits) {
         if (AST::is_a<AST::Name_t>(*value)) {
             std::string trait_name = AST::down_cast<AST::Name_t>(value)->m_id;
             if (trait_name == "Any") {
-                return ASR::traitType::Any;
+                traits.insert(ASR::traitType::Any);
             } else if (trait_name == "SupportsPlus") {
-                return ASR::traitType::SupportsPlus;
+                traits.insert(ASR::traitType::SupportsPlus);
             } else if (trait_name == "SupportsZero") {
-                return ASR::traitType::SupportsZero;
+                traits.insert(ASR::traitType::SupportsZero);
             } else {
                 throw SemanticError("Unsupported trait " + trait_name, value->base.loc);
             }
+        } else if (AST::is_a<AST::BinOp_t>(*value)) {
+            AST::BinOp_t *binop = AST::down_cast<AST::BinOp_t>(value);
+            if (binop->m_op == AST::operatorType::BitOr) {
+                traits = get_trait_from_bounds(binop->m_left, traits);
+                traits = get_trait_from_bounds(binop->m_right, traits);
+            }
         } else {
-            throw SemanticError("Trait only supports Name", value->base.loc);
+            throw SemanticError("Unsupported expression for restrictions", value->base.loc);
         }
+        return traits;
     }
 
     void visit_Expr(const AST::Expr_t &/*x*/) {
