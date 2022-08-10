@@ -18,6 +18,7 @@ struct AttributeHandler {
 
     AttributeHandler() {
         attribute_map = {
+            {"int@bit_length", &eval_int_bit_length},
             {"list@append", &eval_list_append},
             {"list@remove", &eval_list_remove},
             {"list@insert", &eval_list_insert},
@@ -37,6 +38,8 @@ struct AttributeHandler {
             return "set";
         } else if (ASR::is_a<ASR::Dict_t>(*t)) {
             return "dict";
+        } else if (ASR::is_a<ASR::Integer_t>(*t)) {
+            return "int";
         }
         return "";
     }
@@ -57,6 +60,17 @@ struct AttributeHandler {
             throw SemanticError(class_name + "." + attr_name + " is not implemented yet",
                 loc);
         }
+    }
+
+    static ASR::asr_t* eval_int_bit_length(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        if (args.size() != 0) {
+            throw SemanticError("int.bit_length() takes no arguments", loc);
+        }
+        int int_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(s));
+        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                                        int_kind, nullptr, 0));
+        return ASR::make_IntegerBitLen_t(al, loc, s, int_type, nullptr);
     }
 
     static ASR::asr_t* eval_list_append(ASR::expr_t *s, Allocator &al, const Location &loc,

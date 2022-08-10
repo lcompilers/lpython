@@ -292,6 +292,7 @@ expr
     | ListPop(expr a, expr? index, ttype type, expr? value)
     | DictPop(expr a, expr key, ttype type, expr? value)
     | SetPop(expr a, ttype type, expr? value)
+    | IntegerBitLen(expr a, ttype type, expr? value)
 
 
 -- `len` in Character:
