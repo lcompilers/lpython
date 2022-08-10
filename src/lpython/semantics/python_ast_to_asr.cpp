@@ -735,7 +735,11 @@ public:
             }
         }
         if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
-            std::string param_name = (ASR::down_cast<ASR::TypeParameter_t>(param_type))->m_param;
+            ASR::TypeParameter_t *tp = ASR::down_cast<ASR::TypeParameter_t>(param_type);
+            if (!check_type_restriction(arg_type, tp->m_rt)) {
+                throw SemanticError("Error", loc);
+            }
+            std::string param_name = tp->m_param;
             if (subs.find(param_name) != subs.end()) {
                 if (!ASRUtils::check_equal_type(subs[param_name], arg_type)) {
                     throw SemanticError("Inconsistent type variable for the function call", loc);
@@ -745,6 +749,34 @@ public:
             }
         }
         return subs;
+    }
+
+    // TODO: Think also about dimensions
+    bool check_type_restriction(ASR::ttype_t *expr_type, ASR::restrictionType restriction) {
+        switch (restriction) {
+            case (ASR::restrictionType::Number): {
+                switch (expr_type->type) {
+                    case (ASR::ttypeType::Integer): { return true; }
+                    case (ASR::ttypeType::Real): { return true; }
+                    case (ASR::ttypeType::Complex): { return true; }
+                    default: return false;
+                }
+            }
+            case (ASR::restrictionType::SupportsPlus): {
+                switch (expr_type->type) {
+                    case (ASR::ttypeType::Integer): { return true; }
+                    case (ASR::ttypeType::Real): { return true; }
+                    case (ASR::ttypeType::Complex): { return true; }
+                    case (ASR::ttypeType::Character): { return true; }
+                    case (ASR::ttypeType::List): { return true; }
+                    default: return false;
+                }
+            }
+            case (ASR::restrictionType::Any): {
+                return true;
+            }
+            default: return true;
+        }
     }
 
     ASR::symbol_t* get_generic_function(std::map<std::string, ASR::ttype_t*> subs,
@@ -1272,6 +1304,9 @@ public:
             if (op == ASR::binopType::Add) {
                 if (left_param->m_rt == ASR::restrictionType::SupportsPlus 
                         && right_param->m_rt == ASR::restrictionType::SupportsPlus) {
+                    dest_type = left_type;
+                } else if (left_param->m_rt == ASR::restrictionType::Number &&
+                           right_param->m_rt == ASR::restrictionType::Number) {
                     dest_type = left_type;
                 } else {
                     throw SemanticError("Both type variables must support addition operation", loc);
@@ -2588,6 +2623,8 @@ public:
                 return ASR::restrictionType::Any;
             } else if (restriction_name == "SupportsPlus") {
                 return ASR::restrictionType::SupportsPlus;
+            } else if (restriction_name == "Number") {
+                return ASR::restrictionType::Number;
             } else {
                 throw SemanticError("Unsupported restriction " + restriction_name, value->base.loc);
             }
