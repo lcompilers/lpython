@@ -2581,7 +2581,7 @@ public:
                             AST::keyword_t keyword = rh->m_keywords[0];
                             if (keyword.m_arg && strcmp(keyword.m_arg, "bound") == 0) {
                                 std::set<ASR::traitType> traits;
-                                traits = get_trait_from_bounds(keyword.m_value, traits);
+                                traits = get_traits_from_bounds(keyword.m_value, traits);
                                 for (ASR::traitType const trait: traits) {
                                     ASR::restriction_t *restriction = ASR::down_cast<ASR::restriction_t>(
                                         ASR::make_Restriction_t(al, keyword.loc, trait));
@@ -2621,7 +2621,7 @@ public:
         }
     }
 
-    std::set<ASR::traitType> get_trait_from_bounds(AST::expr_t *value, std::set<ASR::traitType> traits) {
+    std::set<ASR::traitType> get_traits_from_bounds(AST::expr_t *value, std::set<ASR::traitType> traits) {
         if (AST::is_a<AST::Name_t>(*value)) {
             std::string trait_name = AST::down_cast<AST::Name_t>(value)->m_id;
             if (trait_name == "Any") {
@@ -2636,8 +2636,8 @@ public:
         } else if (AST::is_a<AST::BinOp_t>(*value)) {
             AST::BinOp_t *binop = AST::down_cast<AST::BinOp_t>(value);
             if (binop->m_op == AST::operatorType::BitOr) {
-                traits = get_trait_from_bounds(binop->m_left, traits);
-                traits = get_trait_from_bounds(binop->m_right, traits);
+                traits = get_traits_from_bounds(binop->m_left, traits);
+                traits = get_traits_from_bounds(binop->m_right, traits);
             }
         } else {
             throw SemanticError("Unsupported expression for restrictions", value->base.loc);
