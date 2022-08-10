@@ -192,12 +192,22 @@ public:
                     return ASRUtils::TYPE(ASR::make_Real_t(al, t->base.loc,
                             tnew->m_kind, param->m_dims, param->n_dims));
                 }  
+                case ASR::ttypeType::Complex: {
+                    ASR::Complex_t* tnew = ASR::down_cast<ASR::Complex_t>(t);
+                    return ASRUtils::TYPE(ASR::make_Complex_t(al, t->base.loc,
+                            tnew->m_kind, param->m_dims, param->n_dims));
+                }                  
                 case ASR::ttypeType::Character: {
                     ASR::Character_t* tnew = ASR::down_cast<ASR::Character_t>(t);
                     return ASRUtils::TYPE(ASR::make_Character_t(al, t->base.loc,
                                 tnew->m_kind, tnew->m_len, tnew->m_len_expr,
                                 param->m_dims, param->n_dims));
-                }    
+                }  
+                case ASR::ttypeType::Logical: {
+                    ASR::Logical_t* tnew = ASR::down_cast<ASR::Logical_t>(t);
+                    return ASRUtils::TYPE(ASR::make_Logical_t(al, t->base.loc,
+                            tnew->m_kind, param->m_dims, param->n_dims));
+                }                     
                 default: return subs[param->m_param];                          
             }
         }
