@@ -3937,8 +3937,27 @@ public:
                 }
                 tmp = make_call_helper(al, st, current_scope, args, call_name, x.base.base.loc);
                 return;
+            } else if (AST::is_a<AST::ConstantInt_t>(*at->m_value)) {
+                if (std::string(at->m_attr) == std::string("bit_length")) {
+                    //bit_length() attribute:
+                    if(args.size() != 0) {
+                        throw SemanticError("int.bit_length() takes no arguments",
+                            x.base.base.loc);
+                    }
+                    AST::ConstantInt_t *n = AST::down_cast<AST::ConstantInt_t>(at->m_value);
+                    int64_t int_val = std::abs(n->m_value);
+                    int32_t res = 0;
+                    for(; int_val; int_val >>= 1, res++);
+                    ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                        4, nullptr, 0));
+                    tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, res, int_type);
+                    return;
+                } else {
+                    throw SemanticError("'int' object has no attribute '" + std::string(at->m_attr) + "'",
+                        x.base.base.loc);
+                }
             } else {
-                throw SemanticError("Only Name type supported in Call",
+                throw SemanticError("Only Name type and constant integers supported in Call",
                     x.base.base.loc);
             }
         } else {
