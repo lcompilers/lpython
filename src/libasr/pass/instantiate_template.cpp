@@ -173,11 +173,6 @@ public:
     }
 
     ASR::ttype_t* substitute_type(ASR::ttype_t *param_type) {
-        if (ASR::is_a<ASR::List_t>(*param_type)) {
-            ASR::List_t *list_type = ASR::down_cast<ASR::List_t>(param_type);
-            ASR::ttype_t *elem_type = substitute_type(list_type->m_type);
-            return ASRUtils::TYPE(ASR::make_List_t(al, param_type->base.loc, elem_type));
-        }
         if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
             ASR::TypeParameter_t *param = ASR::down_cast<ASR::TypeParameter_t>(param_type);
             ASR::ttype_t *t = subs[param->m_param];
