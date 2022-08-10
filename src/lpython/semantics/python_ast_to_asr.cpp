@@ -678,7 +678,6 @@ public:
                     ASR::ttype_t *arg_type = ASRUtils::expr_type(args[i].m_value);
                     subs = check_type_substitution(subs, param_type, arg_type, loc);
                 }
-
                 ASR::symbol_t *t = get_generic_function(subs, *func);
                 std::string new_call_name = call_name;
                 if (ASR::is_a<ASR::Function_t>(*t)) {
@@ -725,19 +724,16 @@ public:
 
     std::map<std::string, ASR::ttype_t*> check_type_substitution(std::map<std::string, ASR::ttype_t*> subs,
             ASR::ttype_t *param_type, ASR::ttype_t *arg_type, const Location &loc) {
-        if (ASR::is_a<ASR::List_t>(*param_type)) {
-            if (ASR::is_a<ASR::List_t>(*arg_type)) {
-                ASR::ttype_t *param_elem = ASR::down_cast<ASR::List_t>(param_type)->m_type;
-                ASR::ttype_t *arg_elem = ASR::down_cast<ASR::List_t>(arg_type)->m_type;
-                return check_type_substitution(subs, param_elem, arg_elem, loc);
-            } else {
-                throw SemanticError("Type mismatch", loc);
-            }
-        }
         if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
             ASR::TypeParameter_t *tp = ASR::down_cast<ASR::TypeParameter_t>(param_type);
             if (!check_type_restriction(arg_type, tp)) {
-                throw SemanticError("Error", loc);
+                diag.add(diag::Diagnostic(
+                    "Argument type does not match parameter's restriction",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("Type mismatch", {param_type->base.loc, loc})
+                    }
+                ));
+                throw SemanticAbort();
             }
             std::string param_name = tp->m_param;
             if (subs.find(param_name) != subs.end()) {
@@ -793,20 +789,16 @@ public:
                 std::string generic_func_name = "__lpython_generic_" + func_name + "_" + std::to_string(i);
                 if (generic_func_subs.find(generic_func_name) != generic_func_subs.end()) {
                     std::map<std::string, ASR::ttype_t*> subs_check = generic_func_subs[generic_func_name];
-                    if (subs_check.size() != subs.size()) {
-                        continue;
-                    }
+                    if (subs_check.size() != subs.size()) { continue; }
                     bool defined = true;
                     for (auto const &subs_check_pair: subs_check) {
                         if (subs.find(subs_check_pair.first) == subs.end()) {
-                            defined = false;
-                            break;
+                            defined = false; break;
                         }
                         ASR::ttype_t* subs_type = subs[subs_check_pair.first];
                         ASR::ttype_t* subs_check_type = subs_check_pair.second;
                         if (!ASRUtils::check_equal_type(subs_type, subs_check_type)) {
-                            defined = false;
-                            break;
+                            defined = false; break;
                         }
                     }
                     if (defined) {
