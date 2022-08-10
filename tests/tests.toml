@@ -374,6 +374,14 @@ filename = "../integration_tests/print_01.py"
 c = true
 cpp = true
 
+[[test]]
+filename = "../integration_tests/generics_01.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/generics_array_01.py"
+asr = true
+
 # tests/tokens
 
 [[test]]
@@ -513,12 +521,24 @@ filename = "parser/lambda1.py"
 ast_new = true
 
 [[test]]
+filename = "parser/lambda2.py"
+ast_new = true
+
+[[test]]
 filename = "parser/tuple1.py"
 ast_new = true
 
 [[test]]
 filename = "errors/test_bit_length.py"
 asr = true
+
+[[test]]
+filename = "parser/type_comment1.py"
+ast_new = true
+
+[[test]]
+filename = "parser/unicode.py"
+ast_new = true
 
 # tests/errors
 
@@ -632,6 +652,18 @@ asr = true
 
 [[test]]
 filename = "errors/test_assign5.py"
+asr = true
+
+[[test]]
+filename = "errors/test_assign6.py"
+asr = true
+
+[[test]]
+filename = "errors/test_assign7.py"
+asr = true
+
+[[test]]
+filename = "errors/test_assign8.py"
 asr = true
 
 [[test]]

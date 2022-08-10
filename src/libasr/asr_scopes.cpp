@@ -90,13 +90,6 @@ void SymbolTable::mark_all_variables_external(Allocator &/*al*/) {
                 v->n_body = 0;
                 break;
             }
-            case (ASR::symbolType::Subroutine) : {
-                ASR::Subroutine_t *v = ASR::down_cast<ASR::Subroutine_t>(a.second);
-                v->m_abi = ASR::abiType::Interactive;
-                v->m_body = nullptr;
-                v->n_body = 0;
-                break;
-            }
             default : {};
         }
     }

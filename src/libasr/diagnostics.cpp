@@ -68,23 +68,31 @@ std::string Diagnostics::render(const std::string &input,
         if (compiler_options.no_warnings && d.level != Level::Error) {
             continue;
         }
-        out += render_diagnostic(d, input, lm,
-            compiler_options.use_colors,
-            compiler_options.show_stacktrace);
-        if (&d != &this->diagnostics.back()) out += "\n";
+        if (compiler_options.error_format == "human") {
+            out += render_diagnostic_human(d, input, lm,
+                compiler_options.use_colors,
+                compiler_options.show_stacktrace);
+            if (&d != &this->diagnostics.back()) out += "\n";
+        } else if (compiler_options.error_format == "short") {
+            out += render_diagnostic_short(d, input, lm);
+        } else {
+            throw LCompilersException("Error format not supported.");
+        }
     }
-    if (this->diagnostics.size() > 0 && !compiler_options.no_error_banner) {
-        if (!compiler_options.no_warnings || has_error()) {
-            std::string bold  = "\033[0;1m";
-            std::string reset = "\033[0;00m";
-            if (!compiler_options.use_colors) {
-                bold = "";
-                reset = "";
+    if (compiler_options.error_format == "human") {
+        if (this->diagnostics.size() > 0 && !compiler_options.no_error_banner) {
+            if (!compiler_options.no_warnings || has_error()) {
+                std::string bold  = "\033[0;1m";
+                std::string reset = "\033[0;00m";
+                if (!compiler_options.use_colors) {
+                    bold = "";
+                    reset = "";
+                }
+                out += "\n\n";
+                out += bold + "Note" + reset
+                    + ": if any of the above error or warning messages are not clear or are lacking\n";
+                out += "context please report it to us (we consider that a bug that needs to be fixed).\n";
             }
-            out += "\n\n";
-            out += bold + "Note" + reset
-                + ": if any of the above error or warning messages are not clear or are lacking\n";
-            out += "context please report it to us (we consider that a bug that needs to be fixed).\n";
         }
     }
     return out;
@@ -124,7 +132,7 @@ void populate_spans(diag::Diagnostic &d, const LocationManager &lm,
 }
 
 // Fills Diagnostic with span details and renders it
-std::string render_diagnostic(Diagnostic &d, const std::string &input,
+std::string render_diagnostic_human(Diagnostic &d, const std::string &input,
         const LocationManager &lm, bool use_colors, bool show_stacktrace) {
     std::string out;
     if (show_stacktrace) {
@@ -133,11 +141,22 @@ std::string render_diagnostic(Diagnostic &d, const std::string &input,
     // Convert to line numbers and get source code strings
     populate_spans(d, lm, input);
     // Render the message
-    out += render_diagnostic(d, use_colors);
+    out += render_diagnostic_human(d, use_colors);
     return out;
 }
 
-std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
+// Fills Diagnostic with span details and renders it
+std::string render_diagnostic_short(Diagnostic &d, const std::string &input,
+        const LocationManager &lm) {
+    std::string out;
+    // Convert to line numbers and get source code strings
+    populate_spans(d, lm, input);
+    // Render the message
+    out += render_diagnostic_short(d);
+    return out;
+}
+
+std::string render_diagnostic_human(const Diagnostic &d, bool use_colors) {
     std::string bold  = "\033[0;1m";
     std::string red_bold  = "\033[0;31;1m";
     std::string yellow_bold  = "\033[0;33;1m";
@@ -291,7 +310,10 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
                         out << std::string(line_num_width+1, ' ') << blue_bold << "|"
                             << reset << " ";
                         out << "   " + std::string(s0.first_column-1, ' ');
-                        out << color << std::string(line.size()-s0.first_column+1, symbol);
+                        int64_t repeat = (int64_t)line.size()-(int64_t)s0.first_column+1;
+                        if (repeat > 0) {
+                            out << color << std::string(repeat, symbol);
+                        }
                         out << "..." << reset << std::endl;
 
                         out << "..." << std::endl;
@@ -317,6 +339,66 @@ std::string render_diagnostic(const Diagnostic &d, bool use_colors) {
             }
         } // Labels
     }
+    return out.str();
+}
+
+std::string render_diagnostic_short(const Diagnostic &d) {
+    std::stringstream out;
+
+    std::string message_type = "";
+    switch (d.level) {
+        case (Level::Error):
+            switch (d.stage) {
+                case (Stage::CPreprocessor):
+                    message_type = "C preprocessor error";
+                    break;
+                case (Stage::Prescanner):
+                    message_type = "prescanner error";
+                    break;
+                case (Stage::Tokenizer):
+                    message_type = "tokenizer error";
+                    break;
+                case (Stage::Parser):
+                    message_type = "syntax error";
+                    break;
+                case (Stage::Semantic):
+                    message_type = "semantic error";
+                    break;
+                case (Stage::ASRPass):
+                    message_type = "ASR pass error";
+                    break;
+                case (Stage::CodeGen):
+                    message_type = "code generation error";
+                    break;
+            }
+            break;
+        case (Level::Warning):
+            message_type = "warning";
+            break;
+        case (Level::Note):
+            message_type = "note";
+            break;
+        case (Level::Help):
+            message_type = "help";
+            break;
+        case (Level::Style):
+            message_type = "style suggestion";
+            break;
+    }
+
+    if (d.labels.size() > 0) {
+        Label l = d.labels[0];
+        Span s = l.spans[0];
+        // TODO: print the primary line+column here, not the first label:
+        out << s.filename << ":" << s.first_line << ":" << s.first_column;
+        if (s.first_line != s.last_line) {
+            out << " - " << s.last_line << ":" << s.last_column;
+        }
+        out << " ";
+    }
+
+    out << message_type << ": " << d.message << std::endl;
+
     return out.str();
 }
 

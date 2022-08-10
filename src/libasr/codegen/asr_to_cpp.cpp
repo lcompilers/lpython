@@ -225,7 +225,7 @@ public:
                                             v.m_intent != ASRUtils::intent_out, true);
                     }
                 } else {
-                    sub = format_type(dims, "int *", v.m_name, use_ref, dummy);
+                    sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
                 }
             } else {
                 diag.codegen_error_label("Type number '"
@@ -240,8 +240,7 @@ public:
                 ASR::Integer_t *t = ASR::down_cast<ASR::Integer_t>(v.m_type);
                 size_t size;
                 dims = convert_dims(t->n_dims, t->m_dims, size);
-                std::string type_name = "int";
-                if (t->m_kind == 8) type_name = "long long";
+                std::string type_name = "int" + std::to_string(t->m_kind * 8) + "_t";
                 if( is_array ) {
                     if( use_templates_for_arrays ) {
                         sub += generate_templates_for_arrays(std::string(v.m_name));
@@ -417,8 +416,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
 
         // Process procedures first:
         for (auto &item : x.m_global_scope->get_scope()) {
-            if (ASR::is_a<ASR::Function_t>(*item.second)
-                || ASR::is_a<ASR::Subroutine_t>(*item.second)) {
+            if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 visit_symbol(*item.second);
                 unit_src += src;
             }
@@ -452,11 +450,6 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         // Generate code for nested subroutines and functions first:
         std::string contains;
         for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
-                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
-                visit_Subroutine(*s);
-                contains += src;
-            }
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);

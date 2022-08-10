@@ -21,7 +21,9 @@ struct ProceduresDatabase {
     std::map<std::string, std::set<std::string>> to_be_ignored;
 
     ProceduresDatabase() {
-        to_be_ignored = {{"numpy", {"empty", "int64", "int32", "reshape", "array"}}};
+        to_be_ignored = {{"numpy", {"empty", "int64", "int32",
+                                    "float32", "float64",
+                                    "reshape", "array"}}};
     }
 
     bool is_function_to_be_ignored(std::string& module_name,
@@ -205,6 +207,16 @@ struct PythonIntrinsicProcedures {
         ASR::expr_t* arg2 = args[1];
         ASR::ttype_t* arg1_type = ASRUtils::expr_type(arg1);
         ASR::ttype_t* arg2_type = ASRUtils::expr_type(arg2);
+        int64_t mod_by = -1;
+        if (args.size() == 3) {
+            ASR::expr_t* arg3 = args[2];
+            ASR::ttype_t* arg3_type = ASRUtils::expr_type(arg3);
+            if (!ASRUtils::is_integer(*arg3_type) ) { // Zero Division
+                throw SemanticError("Third argument must be an integer. Found: " + \
+                        ASRUtils::type_to_str_python(arg3_type), loc);
+            }
+            mod_by = ASR::down_cast<ASR::IntegerConstant_t>(arg3)->m_n;
+        }
         ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         ASR::ttype_t *real_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
         ASR::ttype_t *complex_type = ASRUtils::TYPE(ASR::make_Complex_t(al, loc, 8, nullptr, 0));
@@ -217,9 +229,16 @@ struct PythonIntrinsicProcedures {
             if (b < 0) // Negative power
                 return ASR::down_cast<ASR::expr_t>(make_RealConstant_t(al, loc,
                     pow(a, b), real_type));
-            else // Positive power
-                return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
-                    (int64_t)pow(a, b), int_type));
+            else {// Positive power
+                if (mod_by == -1)
+                    return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
+                        (int64_t)pow(a, b), int_type));
+                else {
+                    int64_t res = (int64_t)pow(a, b);
+                    return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
+                        res % mod_by, int_type));
+                }
+            }
 
         } else if (ASRUtils::is_real(*arg1_type) && ASRUtils::is_real(*arg2_type)) {
             double a = ASR::down_cast<ASR::RealConstant_t>(arg1)->m_r;

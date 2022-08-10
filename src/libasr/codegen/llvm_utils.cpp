@@ -155,6 +155,30 @@ namespace LFortran {
         builder->SetInsertPoint(bb);
     }
 
+    llvm::Value* LLVMUtils::lfortran_str_cmp(llvm::Value* left_arg, llvm::Value* right_arg,
+                                             std::string runtime_func_name, llvm::Module& module)
+    {
+        llvm::Type* character_type = llvm::Type::getInt8PtrTy(context);
+        llvm::Function *fn = module.getFunction(runtime_func_name);
+        if(!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getInt1Ty(context), {
+                        character_type->getPointerTo(),
+                        character_type->getPointerTo()
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, module);
+        }
+        llvm::AllocaInst *pleft_arg = builder->CreateAlloca(character_type,
+            nullptr);
+        builder->CreateStore(left_arg, pleft_arg);
+        llvm::AllocaInst *pright_arg = builder->CreateAlloca(character_type,
+            nullptr);
+        builder->CreateStore(right_arg, pright_arg);
+        std::vector<llvm::Value*> args = {pleft_arg, pright_arg};
+        return builder->CreateCall(fn, args);
+    }
+
     LLVMList::LLVMList(llvm::LLVMContext& context_,
         LLVMUtils* llvm_utils_,
         llvm::IRBuilder<>* builder_):
@@ -212,13 +236,13 @@ namespace LFortran {
                                  std::string& src_type_code,
                                  llvm::Module& module) {
         LFORTRAN_ASSERT(src->getType() == dest->getType());
-        llvm::Value* src_end_point = builder->CreateLoad(get_pointer_to_current_end_point(src));
-        llvm::Value* src_capacity = builder->CreateLoad(get_pointer_to_current_capacity(src));
+        llvm::Value* src_end_point = LLVM::CreateLoad(*builder, get_pointer_to_current_end_point(src));
+        llvm::Value* src_capacity = LLVM::CreateLoad(*builder, get_pointer_to_current_capacity(src));
         llvm::Value* dest_end_point_ptr = get_pointer_to_current_end_point(dest);
         llvm::Value* dest_capacity_ptr = get_pointer_to_current_capacity(dest);
         builder->CreateStore(src_end_point, dest_end_point_ptr);
         builder->CreateStore(src_capacity, dest_capacity_ptr);
-        llvm::Value* src_data = builder->CreateLoad(get_pointer_to_list_data(src));
+        llvm::Value* src_data = LLVM::CreateLoad(*builder, get_pointer_to_list_data(src));
         int32_t type_size = std::get<1>(typecode2listtype[src_type_code]);
         llvm::Value* arg_size = builder->CreateMul(llvm::ConstantInt::get(context,
                                                    llvm::APInt(32, type_size)), src_capacity);
@@ -232,18 +256,22 @@ namespace LFortran {
     }
 
     void LLVMList::write_item(llvm::Value* list, llvm::Value* pos, llvm::Value* item) {
-        llvm::Value* list_data = builder->CreateLoad(get_pointer_to_list_data(list));
+        llvm::Value* list_data = LLVM::CreateLoad(*builder, get_pointer_to_list_data(list));
         llvm::Value* element_ptr = llvm_utils->create_ptr_gep(list_data, pos);
         builder->CreateStore(item, element_ptr);
     }
 
     llvm::Value* LLVMList::read_item(llvm::Value* list, llvm::Value* pos, bool get_pointer) {
-        llvm::Value* list_data = builder->CreateLoad(get_pointer_to_list_data(list));
+        llvm::Value* list_data = LLVM::CreateLoad(*builder, get_pointer_to_list_data(list));
         llvm::Value* element_ptr = llvm_utils->create_ptr_gep(list_data, pos);
         if( get_pointer ) {
             return element_ptr;
         }
-        return builder->CreateLoad(element_ptr);
+        return LLVM::CreateLoad(*builder, element_ptr);
+    }
+
+    llvm::Value* LLVMList::len(llvm::Value* list) {
+        return LLVM::CreateLoad(*builder, get_pointer_to_current_end_point(list));
     }
 
     void LLVMList::resize_if_needed(llvm::Value* list, llvm::Value* n,
@@ -258,11 +286,13 @@ namespace LFortran {
         builder->SetInsertPoint(thenBB);
         llvm::Value* new_capacity = builder->CreateMul(llvm::ConstantInt::get(context,
                                                        llvm::APInt(32, 2)), capacity);
+        new_capacity = builder->CreateAdd(new_capacity, llvm::ConstantInt::get(context,
+                                                        llvm::APInt(32, 1)));
         llvm::Value* arg_size = builder->CreateMul(llvm::ConstantInt::get(context,
                                                    llvm::APInt(32, type_size)),
                                                    new_capacity);
         llvm::Value* copy_data_ptr = get_pointer_to_list_data(list);
-        llvm::Value* copy_data = builder->CreateLoad(copy_data_ptr);
+        llvm::Value* copy_data = LLVM::CreateLoad(*builder, copy_data_ptr);
         copy_data = LLVM::lfortran_realloc(context, module, *builder,
                                            copy_data, arg_size);
         copy_data = builder->CreateBitCast(copy_data, el_type->getPointerTo());
@@ -275,7 +305,7 @@ namespace LFortran {
 
     void LLVMList::shift_end_point_by_one(llvm::Value* list) {
         llvm::Value* end_point_ptr = get_pointer_to_current_end_point(list);
-        llvm::Value* end_point = builder->CreateLoad(end_point_ptr);
+        llvm::Value* end_point = LLVM::CreateLoad(*builder, end_point_ptr);
         end_point = builder->CreateAdd(end_point, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
         builder->CreateStore(end_point, end_point_ptr);
     }
@@ -283,8 +313,8 @@ namespace LFortran {
     void LLVMList::append(llvm::Value* list, llvm::Value* item,
                           llvm::Module& module,
                           std::string& type_code) {
-        llvm::Value* current_end_point = builder->CreateLoad(get_pointer_to_current_end_point(list));
-        llvm::Value* current_capacity = builder->CreateLoad(get_pointer_to_current_capacity(list));
+        llvm::Value* current_end_point = LLVM::CreateLoad(*builder, get_pointer_to_current_end_point(list));
+        llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_current_capacity(list));
         int type_size = std::get<1>(typecode2listtype[type_code]);
         llvm::Type* el_type = std::get<2>(typecode2listtype[type_code]);
         resize_if_needed(list, current_end_point, current_capacity,
@@ -292,6 +322,220 @@ namespace LFortran {
         write_item(list, current_end_point, item);
         shift_end_point_by_one(list);
     }
+
+    void LLVMList::insert_item(llvm::Value* list, llvm::Value* pos,
+                               llvm::Value* item, llvm::Module& module,
+                               std::string& type_code) {
+        llvm::Value* current_end_point = LLVM::CreateLoad(*builder,
+                                        get_pointer_to_current_end_point(list));
+        llvm::Value* current_capacity = LLVM::CreateLoad(*builder,
+                                        get_pointer_to_current_capacity(list));
+        int type_size = std::get<1>(typecode2listtype[type_code]);
+        llvm::Type* el_type = std::get<2>(typecode2listtype[type_code]);
+        resize_if_needed(list, current_end_point, current_capacity,
+                         type_size, el_type, module);
+
+        /* While loop equivalent in C++:
+         *  end_point         // nth index of list
+         *  pos               // ith index to insert the element
+         *  pos_ptr = pos;
+         *  tmp_ptr = list[pos];
+         *  tmp = 0;
+         *
+         * while(end_point > pos_ptr) {
+         *      tmp           = list[pos + 1];
+         *      list[pos + 1] = tmp_ptr;
+         *      tmp_ptr       = tmp;
+         *      pos_ptr++;
+         *  }
+         *
+         * list[pos] = item;
+         */
+
+        llvm::AllocaInst *tmp_ptr = builder->CreateAlloca(el_type, nullptr);
+        LLVM::CreateStore(*builder, read_item(list, pos, false), tmp_ptr);
+        llvm::Value* tmp = nullptr;
+
+        llvm::AllocaInst *pos_ptr = builder->CreateAlloca(
+                                    llvm::Type::getInt32Ty(context), nullptr);
+        LLVM::CreateStore(*builder, pos, pos_ptr);
+
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpSGT(
+                                        current_end_point,
+                                        LLVM::CreateLoad(*builder, pos_ptr));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            llvm::Value* next_index = builder->CreateAdd(
+                            LLVM::CreateLoad(*builder, pos_ptr),
+                            llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            tmp = read_item(list, next_index, false);
+            write_item(list, next_index,  LLVM::CreateLoad(*builder, tmp_ptr));
+            LLVM::CreateStore(*builder, tmp, tmp_ptr);
+
+            tmp = builder->CreateAdd(
+                        LLVM::CreateLoad(*builder, pos_ptr),
+                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, tmp, pos_ptr);
+        }
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+
+        write_item(list, pos, item);
+        shift_end_point_by_one(list);
+    }
+
+    llvm::Value* LLVMList::find_item_position(llvm::Value* list,
+        llvm::Value* item, ASR::ttypeType item_type, llvm::Module& module) {
+        llvm::Type* pos_type = llvm::Type::getInt32Ty(context);
+        llvm::Value* current_end_point = LLVM::CreateLoad(*builder,
+                                        get_pointer_to_current_end_point(list));
+        llvm::AllocaInst *i = builder->CreateAlloca(pos_type, nullptr);
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 0)), i);
+        llvm::Value* tmp = nullptr;
+
+        /* Equivalent in C++:
+         * int i = 0;
+         * while(list[i] != item && end_point > i) {
+         *     i++;
+         * }
+         *
+         * if (i == end_point) {
+         *    std::cout << "The list does not contain the element";
+         * }
+         */
+
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value* is_item_not_equal = nullptr;
+            llvm::Value* left_arg = read_item(list, LLVM::CreateLoad(*builder, i), false);
+            if( item_type == ASR::ttypeType::Character ) {
+                is_item_not_equal = llvm_utils->lfortran_str_cmp(left_arg, item,
+                                                             "_lpython_str_compare_noteq",
+                                                             module);
+            } else {
+                is_item_not_equal = builder->CreateICmpNE(left_arg, item);
+            }
+            llvm::Value *cond = builder->CreateAnd(is_item_not_equal,
+                                                   builder->CreateICmpSGT(current_end_point,
+                                                    LLVM::CreateLoad(*builder, i)));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            tmp = builder->CreateAdd(
+                        LLVM::CreateLoad(*builder, i),
+                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            LLVM::CreateStore(*builder, tmp, i);
+        }
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+
+
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+
+        llvm::Value* cond = builder->CreateICmpEQ(
+                              LLVM::CreateLoad(*builder, i), current_end_point);
+        builder->CreateCondBr(cond, thenBB, elseBB);
+        builder->SetInsertPoint(thenBB);
+        {
+            // TODO: Allow runtime information like the exact element which is
+            // not found.
+            std::string message = "The list does not contain the element";
+            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("ValueError: %s\n");
+            llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
+            printf(context, module, *builder, {fmt_ptr, fmt_ptr2});
+            int exit_code_int = 1;
+            llvm::Value *exit_code = llvm::ConstantInt::get(context,
+                    llvm::APInt(32, exit_code_int));
+            exit(context, module, *builder, exit_code);
+        }
+        builder->CreateBr(mergeBB);
+
+        llvm_utils->start_new_block(elseBB);
+        llvm_utils->start_new_block(mergeBB);
+
+        return LLVM::CreateLoad(*builder, i);
+    }
+
+    void LLVMList::remove(llvm::Value* list, llvm::Value* item,
+                          ASR::ttypeType item_type, llvm::Module& module) {
+        llvm::Type* pos_type = llvm::Type::getInt32Ty(context);
+        llvm::Value* current_end_point = LLVM::CreateLoad(*builder,
+                                        get_pointer_to_current_end_point(list));
+        llvm::AllocaInst *item_pos = builder->CreateAlloca(pos_type, nullptr);
+        llvm::Value* tmp = LLVMList::find_item_position(list, item, item_type, module);
+        LLVM::CreateStore(*builder, tmp, item_pos);
+
+        /* While loop equivalent in C++:
+         * item_pos = find_item_position();
+         * while(end_point > item_pos) {
+         *     tmp = item_pos + 1;
+         *     list[item_pos] = list[tmp];
+         *     item_pos = tmp;
+         * }
+         */
+
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+        // head
+        llvm_utils->start_new_block(loophead);
+        {
+            llvm::Value *cond = builder->CreateICmpSGT(current_end_point,
+                                         LLVM::CreateLoad(*builder, item_pos));
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        llvm_utils->start_new_block(loopbody);
+        {
+            tmp = builder->CreateAdd(
+                        LLVM::CreateLoad(*builder, item_pos),
+                        llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            write_item(list, LLVM::CreateLoad(*builder, item_pos),
+                       read_item(list, tmp, false));
+            LLVM::CreateStore(*builder, tmp, item_pos);
+        }
+        builder->CreateBr(loophead);
+
+        // end
+        llvm_utils->start_new_block(loopend);
+
+        // Decrement end point by one
+        llvm::Value* end_point_ptr = get_pointer_to_current_end_point(list);
+        llvm::Value* end_point = LLVM::CreateLoad(*builder, end_point_ptr);
+        end_point = builder->CreateSub(end_point, llvm::ConstantInt::get(
+                                       context, llvm::APInt(32, 1)));
+        builder->CreateStore(end_point, end_point_ptr);
+    }
+
 
     LLVMTuple::LLVMTuple(llvm::LLVMContext& context_,
                          LLVMUtils* llvm_utils_,
@@ -315,7 +559,7 @@ namespace LFortran {
         if( get_pointer ) {
             return item;
         }
-        return builder->CreateLoad(item);
+        return LLVM::CreateLoad(*builder, item);
     }
 
     llvm::Value* LLVMTuple::read_item(llvm::Value* llvm_tuple, size_t pos,

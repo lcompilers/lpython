@@ -34,3 +34,7 @@ newSet = {element*3 for element in myList if element % 2 ==0}
 {x: x**3 for x in range(10) if x**3 % 4 == 0}
 
 square_dict = {num: num*num for num in range(1, 11)}
+
+(string[i] for i in range(len(string)-1, -1, -1))
+
+k = (j + k for j, k in range(10) if j > 0)

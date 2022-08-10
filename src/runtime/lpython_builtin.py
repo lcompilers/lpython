@@ -179,10 +179,16 @@ def bin(n: i32) -> str:
         prep = '-0b'
     res: str
     res = ''
-    res += '0' if (n - _lpython_floordiv(n, 2)*2) == 0 else '1'
+    if (n - _lpython_floordiv(n, 2)*2) == 0:
+        res += '0'
+    else:
+        res += '1'
     while n > 1:
         n = _lpython_floordiv(n, 2)
-        res += '0' if (n - _lpython_floordiv(n, 2)*2) == 0 else '1'
+        if (n - _lpython_floordiv(n, 2)*2) == 0:
+            res += '0'
+        else:
+            res += '1'
     return prep + res[::-1]
 
 
@@ -384,11 +390,16 @@ def complex(x: i32, y: f64) -> c64:
 def complex(x: f64, y: i32) -> c64:
     return x + y*1j
 
-
 @interface
 def divmod(x: i32, y: i32) -> tuple[i32, i32]:
-    #: TODO: Implement once we have tuple support in the LLVM backend
-    pass
+    """
+    Return the tuple (x//y, x%y).
+    """
+    if y == 0:
+        raise ZeroDivisionError("Integer division or modulo by zero not possible")
+    t: tuple[i32, i32]
+    t = (_lpython_floordiv(x, y), _mod(x, y))
+    return t
 
 
 def lbound(x: i32[:], dim: i32) -> i32:
@@ -541,3 +552,64 @@ def min(a: f64, b: f64) -> f64:
         return a
     else:
         return b
+
+
+@overload
+def _floor(x: f64) -> i64:
+    r: i64
+    r = int(x)
+    if x >= 0 or x == r:
+        return r
+    return r - 1
+
+@overload
+def _floor(x: f32) -> i32:
+    r: i32
+    r = int(x)
+    if x >= 0 or x == r:
+        return r
+    return r - 1
+
+
+@overload
+def _mod(a: i32, b: i32) -> i32:
+    """
+    Returns a%b
+    """
+    r: i32
+    r = _floor(a/b)
+    return a - r*b
+
+
+@overload
+def _mod(a: i64, b: i64) -> i64:
+    """
+    Returns a%b
+    """
+    r: i64
+    r = _floor(a/b)
+    return a - r*b
+
+
+@overload
+def pow(x: i32, y: i32, z: i32) -> i32:
+    """
+    Return `x` raised to the power `y`.
+    """
+    if y < 0:
+        raise ValueError('y should be nonnegative')
+    result: i32
+    result = _mod(x**y, z)
+    return result
+
+
+@overload
+def pow(x: i64, y: i64, z: i64) -> i64:
+    """
+    Return `x` raised to the power `y`.
+    """
+    if y < 0:
+        raise ValueError('y should be nonnegative')
+    result: i64
+    result = _mod(x**y, z)
+    return result

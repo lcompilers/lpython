@@ -26,7 +26,7 @@ struct dimension_descriptor
 void _lpython_main_program();
 int32_t check();
 void main0();
-int32_t test(int a, int b);
+int32_t test(int32_t a, int32_t b);
 namespace {
 }
 
@@ -38,8 +38,8 @@ void _lpython_main_program()
 
 int32_t check()
 {
-    int _lpython_return_variable;
-    int a;
+    int32_t _lpython_return_variable;
+    int32_t a;
     a = test(2, 2);
     _lpython_return_variable = a;
     return _lpython_return_variable;
@@ -47,13 +47,13 @@ int32_t check()
 
 void main0()
 {
-    int x;
+    int32_t x;
     x = check();
 }
 
-int32_t test(int a, int b)
+int32_t test(int32_t a, int32_t b)
 {
-    int _lpython_return_variable;
+    int32_t _lpython_return_variable;
     _lpython_return_variable = std::pow(a, b);
     return _lpython_return_variable;
 }

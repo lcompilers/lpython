@@ -10,3 +10,7 @@ with (
 
 with open('examples/expr2.py', 'r') as file:
     x = file.read()
+
+with open(...) as f: ...
+
+with open('examples/expr2.py', 'r') as file: x = file.read()

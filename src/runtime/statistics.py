@@ -1,7 +1,12 @@
-from ltypes import i32, f64
+from ltypes import i32, f64, overload
+
+
 
 @overload
 def mean(x: list[i32]) -> f64:
+    """
+    Returns the arithmetic mean of a data sequence of numbers
+    """
     k: i32 = len(x)
     if k == 0:
         return 0.0
@@ -11,54 +16,175 @@ def mean(x: list[i32]) -> f64:
 
     for i in range(k):
         sum += x[i]
-    ans: f64
-    ans = sum/k
-    return ans
+    return sum/k
+
+
+@overload
+def mean(x: list[i64]) -> f64:
+    """
+    Returns the arithmetic mean of a data sequence of numbers
+    """
+    k: i32 = len(x)
+    if k == 0:
+        return 0.0
+    sum: f64
+    sum = 0.0
+    i: i32
+
+    for i in range(k):
+        sum += x[i]
+
+    return sum/k
+
+
+@overload
+def mean(x: list[f32]) -> f64:
+    """
+    Returns the arithmetic mean of a data sequence of numbers
+    """
+    k: i32 = len(x)
+    if k == 0:
+        return 0.0
+    sum: f64
+    sum = 0.0
+    i: i32
+
+    for i in range(k):
+        sum += x[i]
+    return sum/k
+
 
 @overload
 def mean(x: list[f64]) -> f64:
+    """
+    Returns the arithmetic mean of a data sequence of numbers
+    """
     k: i32 = len(x)
     if k == 0:
         return 0.0
     sum: f64
     sum = 0.0
     i: i32
+
     for i in range(k):
         sum += x[i]
-    ans: f64
-    ans = sum/k
-    return ans
+    return sum/k
+
 
 @overload
+def fmean(x: list[i32]) -> f64:
+    """
+    Returns the floating type arithmetic mean of a data sequence of numbers
+    """
+    return mean(x)
+
+
+@overload
+def fmean(x: list[i64]) -> f64:
+    """
+    Returns the floating type arithmetic mean of a data sequence of numbers
+    """
+    return mean(x)
+
+
+@overload
+def fmean(x: list[f64]) -> f64:
+    """
+    Returns the floating type arithmetic mean of a data sequence of numbers
+    """
+    return mean(x)
+
+
+@overload
+def fmean(x: list[f32]) -> f64:
+    """
+    Returns the floating type arithmetic mean of a data sequence of numbers
+    """
+    return mean(x)
+
+
 def geometric_mean(x: list[i32]) -> f64:
+    """
+    Returns the geometric mean of a data sequence of numbers
+    """
     k: i32 = len(x)
     if k == 0:
         return 0.0
     product: f64
     product = 1.0
     i: i32
-    for i in range(k):
-        if x[i] < 1:
-            raise ValueError('geometric mean requires a non-empty dataset  containing positive numbers')
-        product *= x[i]
-    ans: f64
-    ans = product**(1/k)
-    return ans
 
-@overload
+    for i in range(k):
+        product *= x[i]
+
+    return product**(1/k)
+
+
 def harmonic_mean(x: list[i32]) -> f64:
+    """
+    Returns the harmonic mean of a data sequence of numbers
+    """
     k: i32 = len(x)
     if k == 0:
         return 0.0
     sum: f64
     sum = 0.0
     i: i32
+
     for i in range(k):
-        if x[i] < 0:
-            raise ValueError('harmonic mean does not support negative values')
-        if x[i] ==0:
+        if x[i] == 0:
             return 0.0
         sum += 1 / x[i]
-    ans: f64
-    ans = k/sum
-    return ans
+
+    return k/sum
+
+@overload
+def variance(x: list[f64]) -> f64:
+    """
+    Returns the varience of a data sequence of numbers
+    """
+    n: i32
+    n = len(x)
+    if n < 1:
+        raise Exception("n > 1 for variance")
+    xmean: f64
+    xmean = mean(x)
+    num: f64
+    num = 0.0
+    i: i32
+    for i in range(n):
+        num += (x[i]-xmean)**2
+    return num/(n-1)
+
+@overload
+def variance(x: list[i32]) -> f64:
+    """
+    Returns the varience of a data sequence of numbers
+    """
+    n: i32
+    n = len(x)
+    if n < 1:
+        raise Exception("n > 1 for variance")
+    xmean: f64
+    xmean = mean(x)
+    num: f64
+    num = 0.0
+    i: i32
+    for i in range(n):
+        num += (x[i]-xmean)**2
+    return num/(n-1)
+
+
+@overload
+def stdev(x: list[f64]) -> f64:
+    """
+    Returns the standard deviation of a data sequence of numbers
+    """
+    return variance(x)**0.5
+
+@overload
+def stdev(x: list[i32]) -> f64:
+    """
+    Returns the standard deviation of a data sequence of numbers
+    """
+    return variance(x)**0.5

@@ -270,5 +270,71 @@
 (TOKEN "string" "Backlash") 567:576
 (TOKEN ")") 577:577
 (NEWLINE) 578:578
-(TOKEN "dedent") 578:578
-(EOF) 579:579
+(NEWLINE) 579:579
+(TOKEN "dedent") 579:579
+(KEYWORD "assert") 580:585
+(TOKEN "identifier" self) 587:590
+(TOKEN ".") 591:591
+(TOKEN "identifier" conv) 592:595
+(TOKEN "(") 596:596
+(TOKEN "identifier" np) 597:598
+(TOKEN ".") 599:599
+(TOKEN "identifier" RAISE) 600:604
+(TOKEN ")") 605:605
+(TOKEN "==") 607:608
+(TOKEN "string" "NPY_RAISE") 610:620
+(NEWLINE) 621:621
+(TOKEN "identifier" args) 622:625
+(TOKEN "+=") 627:628
+(TOKEN "identifier" k) 630:630
+(TOKEN "+") 632:632
+(TOKEN "string" "=") 634:636
+(TOKEN "+") 638:638
+(TOKEN "identifier" v) 640:640
+(TOKEN ".") 641:641
+(TOKEN "identifier" tostring) 642:649
+(TOKEN "(") 650:650
+(TOKEN "identifier" Precedence) 651:660
+(TOKEN ".") 661:661
+(TOKEN "identifier" NONE) 662:665
+(TOKEN ")") 666:666
+(NEWLINE) 667:667
+(NEWLINE) 668:668
+(TOKEN "identifier" x) 669:669
+(TOKEN "=") 671:671
+(TOKEN "identifier" none) 673:676
+(NEWLINE) 677:677
+(TOKEN "identifier" x) 678:678
+(TOKEN "=") 680:680
+(KEYWORD "none") 682:685
+(NEWLINE) 686:686
+(NEWLINE) 687:687
+(KEYWORD "if") 688:689
+(TOKEN "not") 691:693
+(TOKEN "identifier" info) 695:698
+(TOKEN "or") 700:701
+(TOKEN "identifier" name) 703:706
+(KEYWORD "in") 708:709
+(TOKEN "identifier" info) 711:714
+(TOKEN "[") 715:715
+(TOKEN "-") 716:716
+(TOKEN "integer" 1) 717:717
+(TOKEN "]") 718:718
+(TOKEN ":") 719:719
+(TOKEN "eolcomment") 721:736
+(NEWLINE) 737:737
+(TOKEN "indent") 738:741
+(KEYWORD "pass") 742:745
+(NEWLINE) 746:746
+(NEWLINE) 747:747
+(TOKEN "dedent") 747:747
+(TOKEN "identifier" assert_) 748:754
+(TOKEN "(") 755:755
+(TOKEN "not") 756:758
+(TOKEN "identifier" internal_overlap) 760:775
+(TOKEN "(") 776:776
+(TOKEN "identifier" a) 777:777
+(TOKEN ")") 778:778
+(TOKEN ")") 779:779
+(NEWLINE) 780:780
+(EOF) 781:781

@@ -121,5 +121,13 @@
 (TOKEN "dedent") 360:363
 (KEYWORD "pass") 364:367
 (NEWLINE) 368:368
-(TOKEN "dedent") 368:368
-(EOF) 369:369
+(NEWLINE) 369:369
+(TOKEN "dedent") 369:369
+(TOKEN "identifier" x) 370:370
+(TOKEN "=") 372:372
+(TOKEN "[") 374:374
+(TOKEN "identifier" a) 390:390
+(TOKEN ",") 391:391
+(TOKEN "]") 393:393
+(NEWLINE) 394:394
+(EOF) 395:395

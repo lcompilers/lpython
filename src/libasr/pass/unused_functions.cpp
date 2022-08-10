@@ -24,11 +24,13 @@ public:
     std::map<uint64_t, std::string> fn_used;
 
     // TODO: Do subroutines just like Functions:
-
+    
     void visit_Function(const ASR::Function_t &x) {
-        uint64_t h = get_hash((ASR::asr_t*)&x);
-        if (x.m_abi != ASR::abiType::BindC) {
-            fn_declarations[h] = x.m_name;
+        if (x.m_return_var) {
+            uint64_t h = get_hash((ASR::asr_t*)&x);
+            if (x.m_abi != ASR::abiType::BindC) {
+                fn_declarations[h] = x.m_name;
+            }
         }
         for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
@@ -44,7 +46,8 @@ public:
     }
 
     void visit_ExternalSymbol(const ASR::ExternalSymbol_t &x) {
-        if (ASR::is_a<ASR::Function_t>(*x.m_external)) {
+        if (ASR::is_a<ASR::Function_t>(*x.m_external) &&
+                ASR::down_cast<ASR::Function_t>(x.m_external)->m_return_var) {
             uint64_t h = get_hash((ASR::asr_t*)&x);
             fn_declarations[h] = x.m_name;
             h = get_hash((ASR::asr_t*)x.m_external);
@@ -213,9 +216,6 @@ public:
         remove_unused_fn(x.m_symtab);
     }
     void visit_Module(const ASR::Module_t &x) {
-        remove_unused_fn(x.m_symtab);
-    }
-    void visit_Subroutine(const ASR::Subroutine_t &x) {
         remove_unused_fn(x.m_symtab);
     }
     void visit_Function(const ASR::Function_t &x) {

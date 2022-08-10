@@ -84,12 +84,10 @@ symbol
         stmt* body)
     | Module(symbol_table symtab, identifier name, identifier* dependencies,
         bool loaded_from_mod, bool intrinsic)
-    | Subroutine(symbol_table symtab, identifier name, expr* args, stmt* body,
-        abi abi, access access, deftype deftype, string? bindc_name, bool pure,
-        bool module)
-    | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
-        expr return_var, abi abi, access access, deftype deftype, bool elemental,
-        string? bindc_name)
+    | Function(symbol_table symtab, identifier name, expr* args,
+        ttype* type_params, stmt* body, expr? return_var, abi abi,
+        access access, deftype deftype, string? bindc_name, bool elemental,
+        bool pure, bool module)
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
     | CustomOperator(symbol_table parent_symtab, identifier name,
@@ -239,18 +237,17 @@ expr
     | LogicalNot(expr arg, ttype type, expr? value)
     | LogicalCompare(expr left, cmpop op, expr right, ttype type, expr? value)
     | LogicalBinOp(expr left, logicalbinop op, expr right, ttype type, expr? value)
+    | TemplateBinOp(expr left, binop op, expr right, ttype type, expr? value)
 
     | ListConstant(expr* args, ttype type)
     | ListLen(expr arg, ttype type, expr? value)
     | ListConcat(expr left, expr right, ttype type, expr? value)
 
-    | ArrayConstant(expr* args, ttype type)
-
     | SetConstant(expr* elements, ttype type)
     | SetLen(expr arg, ttype type, expr? value)
 
     | TupleConstant(expr* elements, ttype type)
-    | TupleLen(expr arg, ttype type, expr? value)
+    | TupleLen(expr arg, ttype type, expr value)
 
     | StringConstant(string s, ttype type)
     | StringConcat(expr left, expr right, ttype type, expr? value)
@@ -264,7 +261,10 @@ expr
 
     | DictConstant(expr* keys, expr* values, ttype type)
     | DictLen(expr arg, ttype type, expr? value)
+
     | Var(symbol v)
+
+    | ArrayConstant(expr* args, ttype type)
     | ArrayItem(expr v, array_index* args, ttype type, expr? value)
     | ArraySection(expr v, array_index* args, ttype type, expr? value)
     | ArraySize(expr v, expr? dim, ttype type, expr? value)
@@ -274,6 +274,7 @@ expr
     | ArrayMatMul(expr matrix_a, expr matrix_b, ttype type, expr? value)
     | ArrayPack(expr array, expr mask, expr? vector, ttype type, expr? value)
     | ArrayReshape(expr array, expr shape, ttype type, expr? value)
+
     | BitCast(expr source, expr mold, expr? size, ttype type, expr? value)
     | DerivedRef(expr v, symbol m, ttype type, expr? value)
     | OverloadedCompare(expr left, cmpop op, expr right, ttype type, expr? value, expr overloaded)
@@ -327,6 +328,7 @@ ttype
     | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
     | CPtr()
+    | TypeParameter(identifier param, dimension* dims)
 
 binop = Add | Sub | Mul | Div | Pow | BitAnd | BitOr | BitXor | BitLShift | BitRShift
 

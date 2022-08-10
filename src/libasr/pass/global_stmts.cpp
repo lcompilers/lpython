@@ -112,12 +112,15 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 /* a_name */ fn_name,
                 /* a_args */ nullptr,
                 /* n_args */ 0,
+                /* a_type_params */ nullptr,
+                /* n_type_params*/ 0,
                 /* a_body */ body.p,
                 /* n_body */ body.size(),
                 /* a_return_var */ return_var_ref,
                 ASR::abiType::BindC,
-                ASR::Public, ASR::Implementation, false,
-                nullptr);
+                ASR::Public, ASR::Implementation,
+                nullptr,
+                false, false, false);
             std::string sym_name = fn_name;
             if (unit.m_global_scope->get_symbol(sym_name) != nullptr) {
                 throw LCompilersException("Function already defined");
@@ -126,17 +129,19 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
         } else {
             // The last item was a statement, create a subroutine (returing
             // nothing)
-            ASR::asr_t *fn = ASR::make_Subroutine_t(
+            ASR::asr_t *fn = ASR::make_Function_t(
                 al, loc,
                 /* a_symtab */ fn_scope,
                 /* a_name */ fn_name,
                 /* a_args */ nullptr,
                 /* n_args */ 0,
+                nullptr, 0,
                 /* a_body */ body.p,
                 /* n_body */ body.size(),
+                nullptr,
                 ASR::abiType::Source,
                 ASR::Public, ASR::Implementation, nullptr,
-                false, false);
+                false, false, false);
             std::string sym_name = fn_name;
             if (unit.m_global_scope->get_symbol(sym_name) != nullptr) {
                 throw LCompilersException("Function already defined");

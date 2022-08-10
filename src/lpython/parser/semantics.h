@@ -227,13 +227,6 @@ int dot_count = 0;
         mod2char(p.m_a, module), names.p, names.size(), dot_count); \
         dot_count = 0
 
-#define IF_01(test, body, l) make_If_t(p.m_a, l, \
-        /*test*/ EXPR(test), \
-        /*body*/ STMTS(A2LIST(p.m_a, body)), \
-        /*n_body*/ 1, \
-        /*a_orelse*/ nullptr, \
-        /*n_orelse*/ 0)
-
 #define IF_STMT_01(e, stmt, l) make_If_t(p.m_a, l, \
         EXPR(e), STMTS(stmt), stmt.size(), nullptr, 0)
 #define IF_STMT_02(e, stmt, orelse, l) make_If_t(p.m_a, l, \
@@ -443,42 +436,6 @@ static inline Args *FUNC_ARGS_01(Allocator &al, Location &l, Fn_Arg *parameters)
     r->arguments.n_defaults = defaults.n;
     return r;
 }
-
-static inline Args *FUNC_ARGS(Allocator &al, Location &l,
-        Arg** m_posonlyargs, size_t n_posonlyargs,
-        Arg** m_args, size_t n_args,
-        Arg** m_vararg, size_t n_vararg,
-        Arg** m_kwonlyargs, size_t n_kwonlyargs,
-        Arg** m_kwarg, size_t n_kwarg) {
-    // TODO: Use parameter_list for LAMBDA instead of lambda_id_list,
-    // after which this function can be removed.
-    Args *r = al.allocate<Args>();
-    Vec<expr_t*> defaults;
-    defaults.reserve(al, 4);
-    Vec<expr_t*> kw_defaults;
-    kw_defaults.reserve(al, 4);
-
-    FUNC_ARGS1_(posonlyargs);
-    FUNC_ARGS1_(args);
-    FUNC_ARGS1_(vararg);
-    FUNC_ARGS1_(kwonlyargs);
-    FUNC_ARGS1_(kwarg);
-
-    r->arguments.loc = l;
-    FUNC_ARGS_(posonlyargs, false);
-    FUNC_ARGS_(args, false);
-    FUNC_ARGS_(vararg, false);
-    FUNC_ARGS_(kwonlyargs, true);
-    FUNC_ARGS_(kwarg, true);
-    r->arguments.m_kw_defaults = kw_defaults.p;
-    r->arguments.n_kw_defaults = kw_defaults.n;
-    r->arguments.m_defaults = defaults.p;
-    r->arguments.n_defaults = defaults.n;
-    return r;
-}
-
-#define FUNC_ARG_LIST_01(args, l) FUNC_ARGS(p.m_a, l, nullptr, 0, \
-        args.p, args.n, nullptr, 0, nullptr, 0, nullptr,0)
 
 #define ARGS_01(arg, l) FUNC_ARG(p.m_a, l, \
         name2char((ast_t *)arg), nullptr, nullptr)
@@ -871,6 +828,8 @@ static inline ast_t* ID_TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
         EXPR(expr), generators.p, generators.n)
 #define DICT_COMP_1(key, val, generators, l) make_DictComp_t(p.m_a, l, \
         EXPR(key), EXPR(val), generators.p, generators.n)
+#define COMP_EXPR_1(expr, generators, l) make_GeneratorExp_t(p.m_a, l, \
+        EXPR(expr), generators.p, generators.n)
 
 expr_t* CHECK_TUPLE(expr_t *x) {
     if(is_a<Tuple_t>(*x) && down_cast<Tuple_t>(x)->n_elts == 1) {
@@ -918,7 +877,9 @@ ast_t *DICT1(Allocator &al, Location &l, Vec<Key_Val*> dict_list) {
     return make_Dict_t(al, l, key.p, key.n, val.p, val.n);
 }
 
-#define DICT_EXPR(key, value, l) DICT(p.m_a, EXPR(key), EXPR(value))
+#define DICT_EXPR_01(key, value, l) DICT(p.m_a, EXPR(key), EXPR(value))
+#define DICT_EXPR_02(key, type_comment, value, l) DICT(p.m_a, EXPR(key), \
+        EXPR(value)); extract_type_comment(p, l, type_comment)
 #define DICT_01(l) make_Dict_t(p.m_a, l, nullptr, 0, nullptr, 0)
 #define DICT_02(dict_list, l) DICT1(p.m_a, l, dict_list)
 #define AWAIT(e, l) make_Await_t(p.m_a, l, EXPR(e))

@@ -79,15 +79,13 @@ public:
         return p;
     }
 
-// FIXME LOCATION: document if this is just initialization that will
-// get overriden, or if this needs to be read from the file
-// It seems we do not save/read location information, we need to fix it
 #define READ_SYMBOL_CASE(x)                                \
     case (ASR::symbolType::x) : {                          \
         s = (ASR::symbol_t*)al.make_new<ASR::x##_t>();     \
         s->type = ASR::symbolType::x;                      \
         s->base.type = ASR::asrType::symbol;               \
-        s->base.loc.first = 123;                           \
+        s->base.loc.first = 0;                             \
+        s->base.loc.last = 0;                              \
         break;                                             \
     }
 
@@ -99,6 +97,8 @@ public:
 
     ASR::symbol_t *read_symbol() {
         uint64_t symtab_id = read_int64();
+        // TODO: read the symbol's location information here, after saving
+        // it in write_symbol() above
         uint64_t symbol_type = read_int8();
         std::string symbol_name  = read_string();
         LFORTRAN_ASSERT(id_symtab_map.find(symtab_id) != id_symtab_map.end());
@@ -113,7 +113,6 @@ public:
             switch (ty) {
                 READ_SYMBOL_CASE(Program)
                 READ_SYMBOL_CASE(Module)
-                READ_SYMBOL_CASE(Subroutine)
                 READ_SYMBOL_CASE(Function)
                 READ_SYMBOL_CASE(GenericProcedure)
                 READ_SYMBOL_CASE(ExternalSymbol)
@@ -136,12 +135,9 @@ public:
             // We have to copy the contents of `sym` into `sym2` without
             // changing the `sym2` pointer already in the table
             ASR::symbol_t *sym2 = symtab.get_symbol(name);
-            // FIXME LOCATION: document what is going on:
-            LFORTRAN_ASSERT(sym2->base.loc.first == 123);
             switch (sym->type) {
                 INSERT_SYMBOL_CASE(Program)
                 INSERT_SYMBOL_CASE(Module)
-                INSERT_SYMBOL_CASE(Subroutine)
                 INSERT_SYMBOL_CASE(Function)
                 INSERT_SYMBOL_CASE(GenericProcedure)
                 INSERT_SYMBOL_CASE(ExternalSymbol)
@@ -181,17 +177,6 @@ public:
     }
 
     void visit_Module(const Module_t &x) {
-        SymbolTable *parent_symtab = current_symtab;
-        current_symtab = x.m_symtab;
-        x.m_symtab->parent = parent_symtab;
-        x.m_symtab->asr_owner = (asr_t*)&x;
-        for (auto &a : x.m_symtab->get_scope()) {
-            this->visit_symbol(*a.second);
-        }
-        current_symtab = parent_symtab;
-    }
-
-    void visit_Subroutine(const Subroutine_t &x) {
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;
         x.m_symtab->parent = parent_symtab;

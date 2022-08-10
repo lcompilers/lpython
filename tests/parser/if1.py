@@ -18,3 +18,27 @@ if y > 10:
         print("and also above 20!")
     else:
         print("but not above 20.")
+
+
+if a == b: ...; a+=b
+if a == b: ...; a+=b;
+
+if b: ...
+else: a = b;
+
+if b: ...
+else:
+    a = b
+
+if b:
+
+    pass
+else: a = b
+
+# TODO: Make this work (basically separated by multiple sep(s)).
+# at present, it only works with a single newline separator.
+
+# if b: ...
+
+
+# else: a = b;

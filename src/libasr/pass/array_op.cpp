@@ -108,6 +108,35 @@ public:
         result_inc.reserve(al, 1);
     }
 
+    ASR::symbol_t* create_subroutine_from_function(ASR::Function_t* s) {
+        for( auto& s_item: s->m_symtab->get_scope() ) {
+            ASR::symbol_t* curr_sym = s_item.second;
+            if( curr_sym->type == ASR::symbolType::Variable ) {
+                ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(curr_sym);
+                if( var->m_intent == ASR::intentType::Unspecified ) {
+                    var->m_intent = ASR::intentType::In;
+                } else if( var->m_intent == ASR::intentType::ReturnVar ) {
+                    var->m_intent = ASR::intentType::Out;
+                }
+            }
+        }
+        Vec<ASR::expr_t*> a_args;
+        a_args.reserve(al, s->n_args + 1);
+        for( size_t i = 0; i < s->n_args; i++ ) {
+            a_args.push_back(al, s->m_args[i]);
+        }
+        LFORTRAN_ASSERT(s->m_return_var)
+        a_args.push_back(al, s->m_return_var);
+        ASR::asr_t* s_sub_asr = ASR::make_Function_t(al, s->base.base.loc,
+            s->m_symtab,
+            s->m_name, a_args.p, a_args.size(), nullptr, 0, s->m_body, s->n_body,
+            nullptr,
+            s->m_abi, s->m_access, s->m_deftype, nullptr, false, false,
+            false);
+        ASR::symbol_t* s_sub = ASR::down_cast<ASR::symbol_t>(s_sub_asr);
+        return s_sub;
+    }
+
     // TODO: Only Program and While is processed, we need to process all calls
     // to visit_stmt().
     // TODO: Only TranslationUnit's and Program's symbol table is processed
@@ -119,35 +148,17 @@ public:
         for (auto &item : x.m_global_scope->get_scope()) {
             if (is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = down_cast<ASR::Function_t>(item.second);
-                /*
-                * A function which returns an array will be converted
-                * to a subroutine with the destination array as the last
-                * argument. This helps in avoiding deep copies and the
-                * destination memory directly gets filled inside the subroutine.
-                */
-                if( PassUtils::is_array(s->m_return_var) ) {
-                    for( auto& s_item: s->m_symtab->get_scope() ) {
-                        ASR::symbol_t* curr_sym = s_item.second;
-                        if( curr_sym->type == ASR::symbolType::Variable ) {
-                            ASR::Variable_t* var = down_cast<ASR::Variable_t>(curr_sym);
-                            if( var->m_intent == ASR::intentType::Unspecified ) {
-                                var->m_intent = ASR::intentType::In;
-                            } else if( var->m_intent == ASR::intentType::ReturnVar ) {
-                                var->m_intent = ASR::intentType::Out;
-                            }
-                        }
+                if (s->m_return_var) {
+                    /*
+                    * A function which returns an array will be converted
+                    * to a subroutine with the destination array as the last
+                    * argument. This helps in avoiding deep copies and the
+                    * destination memory directly gets filled inside the subroutine.
+                    */
+                    if( PassUtils::is_array(s->m_return_var) ) {
+                        ASR::symbol_t* s_sub = create_subroutine_from_function(s);
+                        replace_vec.push_back(std::make_pair(item.first, s_sub));
                     }
-                    Vec<ASR::expr_t*> a_args;
-                    a_args.reserve(al, s->n_args + 1);
-                    for( size_t i = 0; i < s->n_args; i++ ) {
-                        a_args.push_back(al, s->m_args[i]);
-                    }
-                    a_args.push_back(al, s->m_return_var);
-                    ASR::asr_t* s_sub_asr = ASR::make_Subroutine_t(al, s->base.base.loc, s->m_symtab,
-                                                    s->m_name, a_args.p, a_args.size(), s->m_body, s->n_body,
-                                                    s->m_abi, s->m_access, s->m_deftype, nullptr, false, false);
-                    ASR::symbol_t* s_sub = ASR::down_cast<ASR::symbol_t>(s_sub_asr);
-                    replace_vec.push_back(std::make_pair(item.first, s_sub));
                 }
             }
         }
@@ -170,12 +181,37 @@ public:
 
     void visit_Program(const ASR::Program_t &x) {
         std::vector<std::pair<std::string, ASR::symbol_t*> > replace_vec;
-        // Transform nested functions and subroutines
+        // FIXME: this is a hack, we need to pass in a non-const `x`,
+        // which requires to generate a TransformVisitor.
+        ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
+        current_scope = xx.m_symtab;
+
         for (auto &item : x.m_symtab->get_scope()) {
-            if (is_a<ASR::Subroutine_t>(*item.second)) {
-                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
-                visit_Subroutine(*s);
+            if (is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
+                if (s->m_return_var) {
+                    /*
+                    * A function which returns an array will be converted
+                    * to a subroutine with the destination array as the last
+                    * argument. This helps in avoiding deep copies and the
+                    * destination memory directly gets filled inside the subroutine.
+                    */
+                    if( PassUtils::is_array(s->m_return_var) ) {
+                        ASR::symbol_t* s_sub = create_subroutine_from_function(s);
+                        replace_vec.push_back(std::make_pair(item.first, s_sub));
+                    }
+                }
             }
+        }
+
+        // Updating the symbol table so that now the name
+        // of the function (which returned array) now points
+        // to the newly created subroutine.
+        for( auto& item: replace_vec ) {
+            current_scope->add_symbol(item.first, item.second);
+        }
+
+        for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::AssociateBlock_t>(*item.second)) {
                 ASR::AssociateBlock_t *s = ASR::down_cast<ASR::AssociateBlock_t>(item.second);
                 visit_AssociateBlock(*s);
@@ -183,50 +219,10 @@ public:
             if (is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
-                /*
-                * A function which returns an array will be converted
-                * to a subroutine with the destination array as the last
-                * argument. This helps in avoiding deep copies and the
-                * destination memory directly gets filled inside the subroutine.
-                */
-                if( PassUtils::is_array(s->m_return_var) ) {
-                    for( auto& s_item: s->m_symtab->get_scope() ) {
-                        ASR::symbol_t* curr_sym = s_item.second;
-                        if( curr_sym->type == ASR::symbolType::Variable ) {
-                            ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(curr_sym);
-                            if( var->m_intent == ASR::intentType::Unspecified ) {
-                                var->m_intent = ASR::intentType::In;
-                            } else if( var->m_intent == ASR::intentType::ReturnVar ) {
-                                var->m_intent = ASR::intentType::Out;
-                            }
-                        }
-                    }
-                    Vec<ASR::expr_t*> a_args;
-                    a_args.reserve(al, s->n_args + 1);
-                    for( size_t i = 0; i < s->n_args; i++ ) {
-                        a_args.push_back(al, s->m_args[i]);
-                    }
-                    a_args.push_back(al, s->m_return_var);
-
-                    ASR::asr_t* s_sub_asr = ASR::make_Subroutine_t(al, s->base.base.loc, s->m_symtab,
-                                                    s->m_name, a_args.p, a_args.size(), s->m_body, s->n_body,
-                                                    s->m_abi, s->m_access, s->m_deftype, nullptr, false, false);
-                    ASR::symbol_t* s_sub = ASR::down_cast<ASR::symbol_t>(s_sub_asr);
-                    replace_vec.push_back(std::make_pair(item.first, s_sub));
-                }
             }
         }
 
-        // FIXME: this is a hack, we need to pass in a non-const `x`,
-        // which requires to generate a TransformVisitor.
-        ASR::Program_t &xx = const_cast<ASR::Program_t&>(x);
         current_scope = xx.m_symtab;
-        // Updating the symbol table so that now the name
-        // of the function (which returned array) now points
-        // to the newly created subroutine.
-        for( auto& item: replace_vec ) {
-            current_scope->add_symbol(item.first, item.second);
-        }
         transform_stmts(xx.m_body, xx.n_body);
 
     }
@@ -321,9 +317,8 @@ public:
     }
 
     ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
-                            ASR::expr_t* sibling) {
+                            ASR::ttype_t* var_type) {
         ASR::expr_t* idx_var = nullptr;
-        ASR::ttype_t* var_type = get_matching_type(sibling);
         Str str_name;
         str_name.from_str(al, "~" + std::to_string(counter) + suffix);
         const char* const_idx_var_name = str_name.c_str(al);
@@ -344,6 +339,12 @@ public:
         return idx_var;
     }
 
+    ASR::expr_t* create_var(int counter, std::string suffix, const Location& loc,
+                            ASR::expr_t* sibling) {
+        ASR::ttype_t* var_type = get_matching_type(sibling);
+        return create_var(counter, suffix, loc, var_type);
+    }
+
     void visit_IntegerConstant(const ASR::IntegerConstant_t& x) {
         tmp_val = const_cast<ASR::expr_t*>(&(x.base));
     }
@@ -353,6 +354,10 @@ public:
     }
 
     void visit_RealConstant(const ASR::RealConstant_t& x) {
+        tmp_val = const_cast<ASR::expr_t*>(&(x.base));
+    }
+
+    void visit_LogicalConstant(const ASR::LogicalConstant_t& x) {
         tmp_val = const_cast<ASR::expr_t*>(&(x.base));
     }
 
@@ -370,7 +375,7 @@ public:
         result_var = nullptr;
         this->visit_expr(*(x.m_arg));
         result_var = result_var_copy;
-        if( PassUtils::is_array(tmp_val) ) {
+        if( tmp_val != nullptr && PassUtils::is_array(tmp_val) ) {
             if( result_var == nullptr ) {
                 fix_dimension(x, tmp_val);
                 result_var = create_var(result_var_num, std::string("_implicit_cast_res"), x.base.base.loc, const_cast<ASR::expr_t*>(&(x.base)));
@@ -778,6 +783,7 @@ public:
             pass_result.push_back(al, set_to_one);
             pass_result.push_back(al, doloop);
         }
+        result_var = nullptr;
     }
 
     void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
@@ -835,10 +841,11 @@ public:
         }
 
         ASR::symbol_t *sub = current_scope->resolve_symbol(x_name);
-        if (sub && ASR::is_a<ASR::Subroutine_t>(*sub)) {
+        if (sub && ASR::is_a<ASR::Function_t>(*sub)
+            && ASR::down_cast<ASR::Function_t>(sub)->m_return_var == nullptr) {
             if( result_var == nullptr ) {
                 result_var = create_var(result_var_num, "_func_call_res",
-                    x.base.base.loc, x.m_args[x.n_args - 1].m_value);
+                    x.base.base.loc, x.m_type);
                 result_var_num += 1;
             }
             Vec<ASR::call_arg_t> s_args;

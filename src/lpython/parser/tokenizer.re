@@ -268,7 +268,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             int_bin = "0"[bB][01]+;
             int_hex = "0"[xX][0-9a-fA-F]+;
             int_dec = digit+ (digit | "_" digit)*;
-            char =  [a-zA-Z_];
+            char =  [^\x00-\x7F]|[a-zA-Z_];
             name = char (char | digit)*;
             significand = (digit+ "." digit*) | ("." digit+);
             exp = [eE][-+]? digit+;
@@ -327,42 +327,42 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
              }
 
             // Keywords
-            'as'       { KW(AS) }
-            'assert'   { KW(ASSERT) }
-            'async'    { KW(ASYNC) }
-            'await'    { KW(AWAIT) }
-            'break'    { KW(BREAK) }
-            'class'    { KW(CLASS) }
-            'continue' { KW(CONTINUE) }
-            'def'      { KW(DEF) }
-            'del'      { KW(DEL) }
-            'elif'     { KW(ELIF) }
-            'else'     { KW(ELSE) }
-            'except'   { KW(EXCEPT) }
-            'finally'  { KW(FINALLY) }
-            'for'      { KW(FOR) }
-            'from'     { KW(FROM) }
-            'global'   { KW(GLOBAL) }
-            'if'       { KW(IF) }
-            'import'   { KW(IMPORT) }
-            'in'       { KW(IN) }
-            'is'       { KW(IS) }
-            'lambda'   { KW(LAMBDA) }
-            'None'     { KW(NONE) }
-            'nonlocal' { KW(NONLOCAL) }
-            'pass'     { KW(PASS) }
-            'raise'    { KW(RAISE) }
-            'return'   { KW(RETURN) }
-            'try'      { KW(TRY) }
-            'while'    { KW(WHILE) }
-            'with'     { KW(WITH) }
-            'yield'    { KW(YIELD) }
-            'yield' whitespace? 'from' { KW(YIELD_FROM) }
+            "as"       { KW(AS) }
+            "assert"   { KW(ASSERT) }
+            "async"    { KW(ASYNC) }
+            "await"    { KW(AWAIT) }
+            "break"    { KW(BREAK) }
+            "class"    { KW(CLASS) }
+            "continue" { KW(CONTINUE) }
+            "def"      { KW(DEF) }
+            "del"      { KW(DEL) }
+            "elif"     { KW(ELIF) }
+            "else"     { KW(ELSE) }
+            "except"   { KW(EXCEPT) }
+            "finally"  { KW(FINALLY) }
+            "for"      { KW(FOR) }
+            "from"     { KW(FROM) }
+            "global"   { KW(GLOBAL) }
+            "if"       { KW(IF) }
+            "import"   { KW(IMPORT) }
+            "in"       { KW(IN) }
+            "is"       { KW(IS) }
+            "lambda"   { KW(LAMBDA) }
+            "None"     { KW(NONE) }
+            "nonlocal" { KW(NONLOCAL) }
+            "pass"     { KW(PASS) }
+            "raise"    { KW(RAISE) }
+            "return"   { KW(RETURN) }
+            "try"      { KW(TRY) }
+            "while"    { KW(WHILE) }
+            "with"     { KW(WITH) }
+            "yield"    { KW(YIELD) }
+            "yield" whitespace "from" whitespace { KW(YIELD_FROM) }
 
             // Tokens
             newline {
-                if(cur[0] == '#') { RET(TK_NEWLINE); }
                 if(parenlevel) { continue; }
+                if(cur[0] == '#') { RET(TK_NEWLINE); }
                 if (last_token == yytokentype::TK_COLON
                         || colon_actual_last_token) {
                     colon_actual_last_token = false;
@@ -388,7 +388,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "-" { RET(TK_MINUS) }
             "=" { RET(TK_EQUAL) }
             ":" {
-                    if(cur[0] == '\n'){
+                    if(cur[0] == '\n' && !parenlevel){
                         colon_actual_last_token = true;
                     }
                     RET(TK_COLON);
@@ -436,18 +436,18 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             ">="   { RET(TK_GE) }
 
             // Logical operators
-            'not'  { RET(TK_NOT) }
-            'and'  { RET(TK_AND) }
-            'or'   { RET(TK_OR) }
-            'is' whitespace 'not'  { RET(TK_IS_NOT) }
-            'is' whitespace? "\\" newline whitespace? 'not'  { RET(TK_IS_NOT) }
-            'not' whitespace 'in'  { RET(TK_NOT_IN) }
-            'not' whitespace? "\\" newline whitespace? 'in'  { RET(TK_NOT_IN) }
+            "not"  { RET(TK_NOT) }
+            "and"  { RET(TK_AND) }
+            "or"   { RET(TK_OR) }
+            "is" whitespace "not" whitespace { RET(TK_IS_NOT) }
+            "is" whitespace? "\\" newline whitespace? "not" whitespace { RET(TK_IS_NOT) }
+            "not" whitespace "in" whitespace { RET(TK_NOT_IN) }
+            "not" whitespace? "\\" newline whitespace? "in" whitespace { RET(TK_NOT_IN) }
 
             // True/False
 
-            'True' { RET(TK_TRUE) }
-            'False' { RET(TK_FALSE) }
+            "True" { RET(TK_TRUE) }
+            "False" { RET(TK_FALSE) }
 
             real { yylval.f = std::atof(token().c_str()); RET(TK_REAL) }
             integer {
@@ -463,7 +463,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             }
 
             type_comment {
-                if (last_token == yytokentype::TK_COLON) {
+                if (last_token == yytokentype::TK_COLON && !parenlevel) {
                     indent = true;
                 }
                 token(yylval.string);

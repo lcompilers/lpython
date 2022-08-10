@@ -35,6 +35,8 @@
 #include <libasr/pass/for_all.h>
 #include <libasr/pass/select_case.h>
 #include <libasr/pass/loop_vectorise.h>
+#include <libasr/pass/update_array_dim_intrinsic_calls.h>
+#include <libasr/pass/pass_array_by_data.h>
 
 #include <map>
 #include <vector>
@@ -46,7 +48,8 @@ namespace LCompilers {
         arr_slice, print_arr, class_constructor, unused_functions,
         flip_sign, div_to_mul, fma, sign_from_value,
         inline_function_calls, loop_unroll, dead_code_removal,
-        forall, select_case, loop_vectorise
+        forall, select_case, loop_vectorise,
+        array_dim_intrinsics_update, pass_array_by_data
     };
 
     class PassManager {
@@ -73,7 +76,9 @@ namespace LCompilers {
             {"dead_code_removal", ASRPass::dead_code_removal},
             {"forall", ASRPass::forall},
             {"select_case", ASRPass::select_case},
-            {"loop_vectorise", ASRPass::loop_vectorise}
+            {"loop_vectorise", ASRPass::loop_vectorise},
+            {"array_dim_intrinsics_update", ASRPass::array_dim_intrinsics_update},
+            {"pass_array_by_data", ASRPass::pass_array_by_data}
         };
 
         bool is_fast;
@@ -156,6 +161,14 @@ namespace LCompilers {
                         LFortran::pass_loop_vectorise(al, *asr, LFortran::get_runtime_library_dir());
                         break;
                     }
+                    case (ASRPass::array_dim_intrinsics_update): {
+                        LFortran::pass_update_array_dim_intrinsic_calls(al, *asr);
+                        break ;
+                    }
+                    case (ASRPass::pass_array_by_data): {
+                        LFortran::pass_array_by_data(al, *asr);
+                        break ;
+                    }
                 }
             }
         }
@@ -167,9 +180,11 @@ namespace LCompilers {
                 ASRPass::global_stmts,
                 ASRPass::class_constructor,
                 ASRPass::implied_do_loops,
+                ASRPass::pass_array_by_data,
                 ASRPass::arr_slice,
                 ASRPass::array_op,
                 ASRPass::print_arr,
+                ASRPass::array_dim_intrinsics_update,
                 ASRPass::do_loops,
                 ASRPass::forall,
                 ASRPass::select_case,
@@ -180,11 +195,13 @@ namespace LCompilers {
                 ASRPass::global_stmts,
                 ASRPass::class_constructor,
                 ASRPass::implied_do_loops,
+                ASRPass::pass_array_by_data,
                 ASRPass::arr_slice,
                 ASRPass::array_op,
                 ASRPass::print_arr,
                 ASRPass::loop_vectorise,
                 ASRPass::loop_unroll,
+                ASRPass::array_dim_intrinsics_update,
                 ASRPass::do_loops,
                 ASRPass::forall,
                 ASRPass::dead_code_removal,
@@ -209,10 +226,10 @@ namespace LCompilers {
             std::string current_pass = "";
             for( size_t i = 0; i < arg_pass.size(); i++ ) {
                 char ch = arg_pass[i];
-                if( ch != ' ' && ch != ',' ) {
+                if (ch != ' ' && ch != ',') {
                     current_pass.push_back(ch);
                 }
-                if( ch == ',' || i == arg_pass.size() - 1 ) {
+                if (ch == ',' || i == arg_pass.size() - 1) {
                     current_pass = LFortran::to_lower(current_pass);
                     if( _passes_db.find(current_pass) == _passes_db.end() ) {
                         std::cerr << current_pass << " isn't supported yet.";
