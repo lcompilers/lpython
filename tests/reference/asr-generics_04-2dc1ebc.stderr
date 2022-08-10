@@ -1,0 +1,5 @@
+semantic error: Error
+  --> tests/../integration_tests/generics_04.py:11:7
+   |
+11 | print(f("a"))
+   |       ^^^^^^ 

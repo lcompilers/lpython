@@ -386,6 +386,10 @@ asr = true
 filename = "../integration_tests/generics_03.py"
 asr = true
 
+[[test]]
+filename = "../integration_tests/generics_04.py"
+asr = true
+
 # tests/tokens
 
 [[test]]
