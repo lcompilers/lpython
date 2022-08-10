@@ -1,6 +1,7 @@
 from ltypes import i32, f64, overload
 
 
+
 @overload
 def mean(x: list[i32]) -> f64:
     """
@@ -134,4 +135,56 @@ def harmonic_mean(x: list[i32]) -> f64:
         if x[i] == 0:
             return 0.0
         sum += 1 / x[i]
+
     return k/sum
+
+@overload
+def variance(x: list[f64]) -> f64:
+    """
+    Returns the varience of a data sequence of numbers
+    """
+    n: i32
+    n = len(x)
+    if n < 1:
+        raise Exception("n > 1 for variance")
+    xmean: f64
+    xmean = mean(x)
+    num: f64
+    num = 0.0
+    i: i32
+    for i in range(n):
+        num += (x[i]-xmean)**2
+    return num/(n-1)
+
+@overload
+def variance(x: list[i32]) -> f64:
+    """
+    Returns the varience of a data sequence of numbers
+    """
+    n: i32
+    n = len(x)
+    if n < 1:
+        raise Exception("n > 1 for variance")
+    xmean: f64
+    xmean = mean(x)
+    num: f64
+    num = 0.0
+    i: i32
+    for i in range(n):
+        num += (x[i]-xmean)**2
+    return num/(n-1)
+
+
+@overload
+def stdev(x: list[f64]) -> f64:
+    """
+    Returns the standard deviation of a data sequence of numbers
+    """
+    return variance(x)**0.5
+
+@overload
+def stdev(x: list[i32]) -> f64:
+    """
+    Returns the standard deviation of a data sequence of numbers
+    """
+    return variance(x)**0.5
