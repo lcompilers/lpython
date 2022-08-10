@@ -571,7 +571,7 @@ public:
                     if (var_sym->m_type->type == ASR::ttypeType::TypeParameter) {
                         ASR::TypeParameter_t *type_param = ASR::down_cast<ASR::TypeParameter_t>(var_sym->m_type);
                         return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, loc,
-                            type_param->m_param, dims.p, dims.size(), type_param->m_rt));
+                            type_param->m_param, dims.p, dims.size(), type_param->m_rt, type_param->n_rt));
                     }
                 } else {
                     ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
@@ -736,7 +736,7 @@ public:
         }
         if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
             ASR::TypeParameter_t *tp = ASR::down_cast<ASR::TypeParameter_t>(param_type);
-            if (!check_type_restriction(arg_type, tp->m_rt)) {
+            if (!check_type_restriction(arg_type, tp)) {
                 throw SemanticError("Error", loc);
             }
             std::string param_name = tp->m_param;
@@ -752,31 +752,34 @@ public:
     }
 
     // TODO: Think also about dimensions
-    bool check_type_restriction(ASR::ttype_t *expr_type, ASR::restrictionType restriction) {
-        switch (restriction) {
-            case (ASR::restrictionType::Number): {
-                switch (expr_type->type) {
-                    case (ASR::ttypeType::Integer): { return true; }
-                    case (ASR::ttypeType::Real): { return true; }
-                    case (ASR::ttypeType::Complex): { return true; }
-                    default: return false;
+    bool check_type_restriction(ASR::ttype_t *expr_type, ASR::TypeParameter_t *tp) {
+        for (size_t i=0; i<tp->n_rt; i++) {
+            ASR::Restriction_t *restriction = ASR::down_cast<ASR::Restriction_t>(tp->m_rt[i]);
+            switch (restriction->m_rt) {
+                case (ASR::traitType::SupportsZero): {
+                    switch (expr_type->type) {
+                        case (ASR::ttypeType::Integer): { continue; }
+                        case (ASR::ttypeType::Real): { continue; }
+                        case (ASR::ttypeType::Complex): { continue; }
+                        default: return false;
+                    }
                 }
-            }
-            case (ASR::restrictionType::SupportsPlus): {
-                switch (expr_type->type) {
-                    case (ASR::ttypeType::Integer): { return true; }
-                    case (ASR::ttypeType::Real): { return true; }
-                    case (ASR::ttypeType::Complex): { return true; }
-                    case (ASR::ttypeType::Character): { return true; }
-                    case (ASR::ttypeType::List): { return true; }
-                    default: return false;
+                case (ASR::traitType::SupportsPlus): {
+                    switch (expr_type->type) {
+                        case (ASR::ttypeType::Integer): { continue; }
+                        case (ASR::ttypeType::Real): { continue; }
+                        case (ASR::ttypeType::Complex): { continue; }
+                        case (ASR::ttypeType::Character): { continue; }
+                        default: return false;
+                    }
                 }
+                case (ASR::traitType::Any): {
+                    continue;
+                }
+                default: continue;
             }
-            case (ASR::restrictionType::Any): {
-                return true;
-            }
-            default: return true;
         }
+        return true;
     }
 
     ASR::symbol_t* get_generic_function(std::map<std::string, ASR::ttype_t*> subs,
@@ -1302,11 +1305,7 @@ public:
             ASR::TypeParameter_t *left_param = ASR::down_cast<ASR::TypeParameter_t>(left_type);
             ASR::TypeParameter_t *right_param = ASR::down_cast<ASR::TypeParameter_t>(right_type);
             if (op == ASR::binopType::Add) {
-                if (left_param->m_rt == ASR::restrictionType::SupportsPlus 
-                        && right_param->m_rt == ASR::restrictionType::SupportsPlus) {
-                    dest_type = left_type;
-                } else if (left_param->m_rt == ASR::restrictionType::Number &&
-                           right_param->m_rt == ASR::restrictionType::Number) {
+                if (ASRUtils::has_supports_plus_trait(left_param) && ASRUtils::has_supports_plus_trait(right_param)) {
                     dest_type = left_type;
                 } else {
                     throw SemanticError("Both type variables must support addition operation", loc);
@@ -2380,9 +2379,15 @@ public:
                     type_params.reserve(al, ps.size());
                     for (auto &p: ps) {
                         std::string param = p;
+                        // TODO: The restriction should correspond to the declaration
+                        // TODO: Location should point to the type variable
+                        Vec<ASR::restriction_t*> restrictions;
+                        restrictions.reserve(al, 4);
+                        ASR::restriction_t *restriction = ASR::down_cast<ASR::restriction_t>(
+                            ASR::make_Restriction_t(al, x.base.base.loc, ASR::traitType::Any));
+                        restrictions.push_back(al, restriction);
                         ASR::ttype_t *type_p = ASRUtils::TYPE(ASR::make_TypeParameter_t(al,
-                                x.base.base.loc, s2c(al, p), nullptr, 0,
-                                ASR::restrictionType::Any));
+                                x.base.base.loc, s2c(al, p), nullptr, 0, restrictions.p, restrictions.size()));
                         type_params.push_back(al, type_p);
                     }
                     tmp = ASR::make_Function_t(
@@ -2577,16 +2582,21 @@ public:
                         Vec<ASR::dimension_t> dims;
                         dims.reserve(al, 4);
 
-                        ASR::restrictionType restriction = ASR::restrictionType::Any;
+                        Vec<ASR::restriction_t*> restrictions;
+                        restrictions.reserve(al, 4);
+
                         if (rh->n_keywords > 0) {
-                            AST::keyword_t restriction_keyword = rh->m_keywords[0];
-                            if (restriction_keyword.m_arg && strcmp(restriction_keyword.m_arg, "bound") == 0) {
-                                restriction = get_restriction_from_expr(restriction_keyword.m_value);
+                            AST::keyword_t keyword = rh->m_keywords[0];
+                            if (keyword.m_arg && strcmp(keyword.m_arg, "bound") == 0) {
+                                ASR::traitType trait = get_trait_from_expr(keyword.m_value);
+                                ASR::restriction_t *restriction = ASR::down_cast<ASR::restriction_t>(
+                                    ASR::make_Restriction_t(al, keyword.loc, trait));
+                                restrictions.push_back(al, restriction);
                             }
                         }
 
                         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, x.base.base.loc, s2c(al, tvar_name),
-                            dims.p, dims.size(), restriction));
+                            dims.p, dims.size(), restrictions.p, restrictions.size()));
 
                         ASR::expr_t *value = nullptr;
                         ASR::expr_t *init_expr = nullptr;
@@ -2616,20 +2626,20 @@ public:
         }
     }
 
-    ASR::restrictionType get_restriction_from_expr(AST::expr_t *value) {
+    ASR::traitType get_trait_from_expr(AST::expr_t *value) {
         if (AST::is_a<AST::Name_t>(*value)) {
-            std::string restriction_name = AST::down_cast<AST::Name_t>(value)->m_id;
-            if (restriction_name == "Any") {
-                return ASR::restrictionType::Any;
-            } else if (restriction_name == "SupportsPlus") {
-                return ASR::restrictionType::SupportsPlus;
-            } else if (restriction_name == "Number") {
-                return ASR::restrictionType::Number;
+            std::string trait_name = AST::down_cast<AST::Name_t>(value)->m_id;
+            if (trait_name == "Any") {
+                return ASR::traitType::Any;
+            } else if (trait_name == "SupportsPlus") {
+                return ASR::traitType::SupportsPlus;
+            } else if (trait_name == "SupportsZero") {
+                return ASR::traitType::SupportsZero;
             } else {
-                throw SemanticError("Unsupported restriction " + restriction_name, value->base.loc);
+                throw SemanticError("Unsupported trait " + trait_name, value->base.loc);
             }
         } else {
-            throw SemanticError("Restriction only supports Name", value->base.loc);
+            throw SemanticError("Trait only supports Name", value->base.loc);
         }
     }
 
@@ -2904,6 +2914,20 @@ public:
             ASR::expr_t *value = ASRUtils::EXPR(tmp);
             ASR::ttype_t *target_type = ASRUtils::expr_type(target);
             ASR::ttype_t *value_type = ASRUtils::expr_type(value);
+            if (ASR::is_a<ASR::TypeParameter_t>(*target_type)
+                    && ASR::is_a<ASR::IntegerConstant_t>(*value)) {
+                ASR::IntegerConstant_t *value_constant = ASR::down_cast<ASR::IntegerConstant_t>(value);
+                if (value_constant->m_n == 0) {
+                    if (!ASRUtils::has_supports_zero_trait(
+                            ASR::down_cast<ASR::TypeParameter_t>(target_type))) {
+                        throw SemanticError("A generic variable must support zero "
+                                            "to be assignable with zero.",
+                                            target_type->base.loc);
+                    }
+                    tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value, nullptr);
+                    return ;    
+                }
+            }
             if( ASR::is_a<ASR::Pointer_t>(*target_type) &&
                 ASR::is_a<ASR::Var_t>(*target) ) {
                 if( !ASR::is_a<ASR::GetPointer_t>(*value) ) {

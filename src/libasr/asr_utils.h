@@ -1166,7 +1166,7 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
             ASR::dimension_t* dimsp = dims ? dims->p : tp->m_dims;
             size_t dimsn = dims ? dims->n : tp->n_dims;
             return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
-                        tp->m_param, dimsp, dimsn, tp->m_rt));
+                        tp->m_param, dimsp, dimsn, tp->m_rt, tp->n_rt));
         }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
@@ -1384,6 +1384,28 @@ static inline ASR::ttype_t* get_contained_type(ASR::ttype_t* asr_type) {
             return asr_type;
         }
     }
+}
+
+static inline bool has_supports_plus_trait(ASR::TypeParameter_t *tp) {
+    for (size_t i=0; i<tp->n_rt; i++) {
+        ASR::Restriction_t *restriction = ASR::down_cast<ASR::Restriction_t>(tp->m_rt[i]);
+        switch (restriction->m_rt) {
+            case (ASR::traitType::SupportsPlus): { return true; }
+            default: continue;
+        }
+    } 
+    return false;
+}
+
+static inline bool has_supports_zero_trait(ASR::TypeParameter_t *tp) {
+    for (size_t i=0; i<tp->n_rt; i++) {
+        ASR::Restriction_t *restriction = ASR::down_cast<ASR::Restriction_t>(tp->m_rt[i]);
+        switch (restriction->m_rt) {
+            case (ASR::traitType::SupportsZero): { return true; }
+            default: continue;
+        }
+    } 
+    return false;
 }
 
 class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {

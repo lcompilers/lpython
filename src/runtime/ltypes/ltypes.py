@@ -48,6 +48,11 @@ class SupportsPlus:
     def __init__(self):
         pass
 
+class Number:
+    def __init__(self):
+        pass    
+
+
 # Overloading support
 
 def ltype(x):
