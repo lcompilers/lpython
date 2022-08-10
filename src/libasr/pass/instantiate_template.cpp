@@ -220,9 +220,6 @@ public:
         ASR::ttype_t *right_type = ASRUtils::expr_type(right);
         ASR::ttype_t *dest_type = nullptr;
         ASR::expr_t *value = nullptr;
-    
-        // bool right_is_int = ASRUtils::is_character(*left_type) && ASRUtils::is_integer(*right_type);
-        // bool left_is_int = ASRUtils::is_integer(*left_type) && ASRUtils::is_character(*right_type);   
 
         if ((ASRUtils::is_integer(*left_type) || ASRUtils::is_real(*left_type) ||
                 ASRUtils::is_complex(*left_type) || ASRUtils::is_logical(*left_type)) &&
@@ -233,7 +230,6 @@ public:
             dest_type = ASRUtils::expr_type(left);
         } else if (ASRUtils::is_character(*left_type) && ASRUtils::is_character(*right_type)
                 && op == ASR::binopType::Add) {
-            // string concat
             ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
             ASR::Character_t *right_type2 = ASR::down_cast<ASR::Character_t>(right_type);
             LFORTRAN_ASSERT(left_type2->n_dims == 0);
