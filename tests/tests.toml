@@ -378,18 +378,6 @@ cpp = true
 filename = "../integration_tests/generics_01.py"
 asr = true
 
-[[test]]
-filename = "../integration_tests/generics_02.py"
-asr = true
-
-[[test]]
-filename = "../integration_tests/generics_03.py"
-asr = true
-
-[[test]]
-filename = "../integration_tests/generics_04.py"
-asr = true
-
 # tests/tokens
 
 [[test]]
@@ -756,6 +744,18 @@ asr = true
 
 [[test]]
 filename = "errors/test_unsupported_type.py"
+asr = true
+
+[[test]]
+filename = "errors/generics_02.py"
+asr = true
+
+[[test]]
+filename = "errors/generics_03.py"
+asr = true
+
+[[test]]
+filename = "errors/generics_04.py"
 asr = true
 
 # tests/tokens/errors

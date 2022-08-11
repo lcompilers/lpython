@@ -1,5 +1,5 @@
 semantic error: Argument type does not match parameter's restriction
- --> tests/../integration_tests/generics_04.py:5:10
+ --> tests/errors/generics_04.py:5:10
   |
 5 | def f(x: T) -> T:
   |          ^ Type mismatch

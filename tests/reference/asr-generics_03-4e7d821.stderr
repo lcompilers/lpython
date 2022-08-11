@@ -1,5 +1,5 @@
 semantic error: Both type variables must support addition operation
- --> tests/../integration_tests/generics_03.py:6:12
+ --> tests/errors/generics_03.py:6:12
   |
 6 |     return x + y
   |            ^^^^^ 

@@ -1,13 +1,13 @@
 {
-    "basename": "asr-generics_04-2dc1ebc",
+    "basename": "asr-generics_04-b134140",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
-    "infile": "tests/../integration_tests/generics_04.py",
+    "infile": "tests/errors/generics_04.py",
     "infile_hash": "ce01344c79a9acedd978eff149048d6debc84859339164d3f1d8ec8e",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,
     "stdout_hash": null,
-    "stderr": "asr-generics_04-2dc1ebc.stderr",
-    "stderr_hash": "6035c234ec8319d6584b8f477e33cb407c3553221c6136508b617c81",
+    "stderr": "asr-generics_04-b134140.stderr",
+    "stderr_hash": "c9d8f75fa5d50520f72c971ca78aef7650d7996b5a905128981ccbee",
     "returncode": 2
 }
