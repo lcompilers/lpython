@@ -724,6 +724,15 @@ public:
 
     std::map<std::string, ASR::ttype_t*> check_type_substitution(std::map<std::string, ASR::ttype_t*> subs,
             ASR::ttype_t *param_type, ASR::ttype_t *arg_type, const Location &loc) {
+        if (ASR::is_a<ASR::List_t>(*param_type)) {
+            if (ASR::is_a<ASR::List_t>(*arg_type)) {
+                ASR::ttype_t *param_elem = ASR::down_cast<ASR::List_t>(param_type)->m_type;
+                ASR::ttype_t *arg_elem = ASR::down_cast<ASR::List_t>(arg_type)->m_type;
+                return check_type_substitution(subs, param_elem, arg_elem, loc);
+            } else {
+                throw SemanticError("The parameter is a list while the argument is not a list", loc);
+            }
+        }
         if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
             ASR::TypeParameter_t *tp = ASR::down_cast<ASR::TypeParameter_t>(param_type);
             if (!check_type_restriction(arg_type, tp)) {
@@ -2263,6 +2272,8 @@ public:
         bool current_procedure_interface = false;
         bool overload = false;
         std::set<std::string> ps;
+        Vec<ASR::ttype_t*> tps;
+        tps.reserve(al, x.m_args.n_args);
         bool vectorize = false;
         if (x.n_decorator_list > 0) {
             for(size_t i=0; i<x.n_decorator_list; i++) {
@@ -2301,6 +2312,8 @@ public:
             if (ASRUtils::is_generic(*arg_type)) {
                 std::string param_name = ASRUtils::type_to_str(arg_type);
                 ps.insert(param_name);
+                ASR::ttype_t *tp = ASRUtils::duplicate_type(al, ASRUtils::get_type_parameter(arg_type));
+                tps.push_back(al, tp);
             }
 
             std::string arg_s = arg;
@@ -2366,50 +2379,19 @@ public:
                         ASR::down_cast<ASR::symbol_t>(return_var));
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     current_scope->get_symbol(return_var_name));
-                if (ps.size() > 0) {
-                    Vec<ASR::ttype_t*> type_params;
-                    type_params.reserve(al, ps.size());
-                    for (auto &p: ps) {
-                        std::string param = p;
-                        // TODO: The restriction should correspond to the declaration
-                        // TODO: Location should point to the type variable
-                        Vec<ASR::restriction_t*> restrictions;
-                        restrictions.reserve(al, 4);
-                        ASR::restriction_t *restriction = ASR::down_cast<ASR::restriction_t>(
-                            ASR::make_Restriction_t(al, x.base.base.loc, ASR::traitType::Any));
-                        restrictions.push_back(al, restriction);
-                        ASR::ttype_t *type_p = ASRUtils::TYPE(ASR::make_TypeParameter_t(al,
-                                x.base.base.loc, s2c(al, p), nullptr, 0, restrictions.p, restrictions.size()));
-                        type_params.push_back(al, type_p);
-                    }
-                    tmp = ASR::make_Function_t(
-                        al, x.base.base.loc,
-                        /* a_symtab */ current_scope,
-                        /* a_name */ s2c(al, sym_name),
-                        /* a_args */ args.p,
-                        /* n_args */ args.size(),
-                        /* a_type_params */ type_params.p,
-                        /* n_type_params */ type_params.size(),
-                        /* a_body */ nullptr,
-                        /* n_body */ 0,
-                        /* a_return_var */ ASRUtils::EXPR(return_var_ref),
-                        current_procedure_abi_type,
-                        s_access, deftype, vectorize, bindc_name);
-                } else {
-                    tmp = ASR::make_Function_t(
-                        al, x.base.base.loc,
-                        /* a_symtab */ current_scope,
-                        /* a_name */ s2c(al, sym_name),
-                        /* a_args */ args.p,
-                        /* n_args */ args.size(),
-                        /* a_type_params */ nullptr,
-                        /* n_type_params */ 0,
-                        /* a_body */ nullptr,
-                        /* n_body */ 0,
-                        /* a_return_var */ ASRUtils::EXPR(return_var_ref),
-                        current_procedure_abi_type,
-                        s_access, deftype, vectorize, bindc_name);
-                }
+                tmp = ASR::make_Function_t(
+                    al, x.base.base.loc,
+                    /* a_symtab */ current_scope,
+                    /* a_name */ s2c(al, sym_name),
+                    /* a_args */ args.p,
+                    /* n_args */ args.size(),
+                    /* a_type_params */ tps.p,
+                    /* n_type_params */ tps.size(),
+                    /* a_body */ nullptr,
+                    /* n_body */ 0,
+                    /* a_return_var */ ASRUtils::EXPR(return_var_ref),
+                    current_procedure_abi_type,
+                    s_access, deftype, vectorize, bindc_name);
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
                     x.m_returns->base.loc);
