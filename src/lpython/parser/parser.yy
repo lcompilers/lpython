@@ -486,6 +486,7 @@ dot_list
 
 import_statement
     : KW_IMPORT module_item_list { $$ = IMPORT_01($2, @$); }
+    | KW_IMPORT module_item_list TK_TYPE_COMMENT { $$ = IMPORT_01($2, @$); }
     | KW_FROM module KW_IMPORT module_item_list {
         $$ = IMPORT_02($2, $4, @$); }
     | KW_FROM module KW_IMPORT "(" module_item_list comma_opt ")" {
@@ -667,6 +668,12 @@ function_def
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
         TK_TYPE_COMMENT TK_NEWLINE statements {
             $$ = FUNCTION_04($1, $3, $5, $8, $12, $10, @$); }
+    | decorators_opt KW_DEF id "(" parameter_list_opt ")" ":"
+        TK_NEWLINE TK_TYPE_COMMENT TK_NEWLINE statements {
+        $$ = FUNCTION_03($1, $3, $5, $11, $9, @$); }
+    | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
+        TK_NEWLINE TK_TYPE_COMMENT TK_NEWLINE statements {
+            $$ = FUNCTION_04($1, $3, $5, $8, $13, $11, @$); }
     ;
 
 class_def
@@ -779,7 +786,8 @@ expr_list
     ;
 
 dict
-    : expr ":" expr { $$ = DICT_EXPR($1, $3, @$); }
+    : expr ":" expr { $$ = DICT_EXPR_01($1, $3, @$); }
+    | expr ":" TK_TYPE_COMMENT expr { $$ = DICT_EXPR_02($1, $3, $4, @$); }
     ;
 
 dict_list
@@ -913,7 +921,7 @@ lambda_parameter_list_starargs
         $$ = PARAMETER_LIST_09($2, $4); }
     | "*" lambda_parameter "," "**" lambda_parameter comma_opt {
         $$ = PARAMETER_LIST_10($2, $5); }
-    | "*" lambda_parameter "," lambda_defparameter_list "," 
+    | "*" lambda_parameter "," lambda_defparameter_list ","
         "**" lambda_parameter comma_opt { $$ = PARAMETER_LIST_11($2, $4, $7); }
     | "**" lambda_parameter comma_opt { $$ = PARAMETER_LIST_06($2); }
     ;

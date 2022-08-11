@@ -14,5 +14,14 @@ def test():
       "b": -2,
     }
     y["a"] = 123
+    a = { 'a': 1,
+          'b':
+           2,
+        }
+    x = { 'markdown2.tpl': # type: ignore
+          """\
+          Text
+          """
+        }
 
 test()

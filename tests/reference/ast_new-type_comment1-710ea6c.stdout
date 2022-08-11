@@ -1,0 +1,1 @@
+(Module [(Import [(pytest ())]) (FunctionDef ndarray_func ([] [(x () ())] [] [] [] [] []) [(Return (Name x Load))] [] () "(np.ndarray) -> np.ndarray")] [])

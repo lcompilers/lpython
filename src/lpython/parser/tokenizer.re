@@ -268,7 +268,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             int_bin = "0"[bB][01]+;
             int_hex = "0"[xX][0-9a-fA-F]+;
             int_dec = digit+ (digit | "_" digit)*;
-            char =  [a-zA-Z_];
+            char =  [^\x00-\x7F]|[a-zA-Z_];
             name = char (char | digit)*;
             significand = (digit+ "." digit*) | ("." digit+);
             exp = [eE][-+]? digit+;
@@ -388,7 +388,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "-" { RET(TK_MINUS) }
             "=" { RET(TK_EQUAL) }
             ":" {
-                    if(cur[0] == '\n'){
+                    if(cur[0] == '\n' && !parenlevel){
                         colon_actual_last_token = true;
                     }
                     RET(TK_COLON);
@@ -463,7 +463,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             }
 
             type_comment {
-                if (last_token == yytokentype::TK_COLON) {
+                if (last_token == yytokentype::TK_COLON && !parenlevel) {
                     indent = true;
                 }
                 token(yylval.string);

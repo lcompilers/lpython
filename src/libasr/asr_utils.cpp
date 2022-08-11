@@ -211,11 +211,6 @@ void set_intrinsic(ASR::symbol_t* sym) {
             function_sym->m_abi = ASR::abiType::Intrinsic;
             break;
         }
-        case ASR::symbolType::Subroutine: {
-            ASR::Subroutine_t* subroutine_sym = ASR::down_cast<ASR::Subroutine_t>(sym);
-            subroutine_sym->m_abi = ASR::abiType::Intrinsic;
-            break;
-        }
         case ASR::symbolType::DerivedType: {
             ASR::DerivedType_t* derived_type_sym = ASR::down_cast<ASR::DerivedType_t>(sym);
             derived_type_sym->m_abi = ASR::abiType::Intrinsic;
@@ -442,7 +437,7 @@ bool use_overloaded_assignment(ASR::expr_t* target, ASR::expr_t* value,
         ASR::CustomOperator_t* gen_proc = ASR::down_cast<ASR::CustomOperator_t>(orig_sym);
         for( size_t i = 0; i < gen_proc->n_procs && !found; i++ ) {
             ASR::symbol_t* proc = gen_proc->m_procs[i];
-            ASR::Subroutine_t* subrout = ASR::down_cast<ASR::Subroutine_t>(proc);
+            ASR::Function_t* subrout = ASR::down_cast<ASR::Function_t>(proc);
             std::string matched_subrout_name = "";
             if( subrout->n_args == 2 ) {
                 ASR::ttype_t* target_arg_type = ASRUtils::expr_type(subrout->m_args[0]);
@@ -664,6 +659,11 @@ bool types_equal(const ASR::ttype_t &a, const ASR::ttype_t &b) {
                 }
                 break;
             }
+            case (ASR::ttypeType::List) : {
+                ASR::List_t *a2 = ASR::down_cast<ASR::List_t>(&a);
+                ASR::List_t *b2 = ASR::down_cast<ASR::List_t>(&b);
+                return types_equal(*a2->m_type, *b2->m_type);
+            }
             case (ASR::ttypeType::Derived) : {
                 ASR::Derived_t *a2 = ASR::down_cast<ASR::Derived_t>(&a);
                 ASR::Derived_t *b2 = ASR::down_cast<ASR::Derived_t>(&b);
@@ -764,13 +764,7 @@ bool argument_types_match(const Vec<ASR::call_arg_t>& args,
 bool select_func_subrout(const ASR::symbol_t* proc, const Vec<ASR::call_arg_t>& args,
                          Location& loc, const std::function<void (const std::string &, const Location &)> err) {
     bool result = false;
-    if (ASR::is_a<ASR::Subroutine_t>(*proc)) {
-        ASR::Subroutine_t *sub
-            = ASR::down_cast<ASR::Subroutine_t>(proc);
-        if (argument_types_match(args, *sub)) {
-            result = true;
-        }
-    } else if (ASR::is_a<ASR::Function_t>(*proc)) {
+    if (ASR::is_a<ASR::Function_t>(*proc)) {
         ASR::Function_t *fn
             = ASR::down_cast<ASR::Function_t>(proc);
         if (argument_types_match(args, *fn)) {
@@ -817,16 +811,17 @@ ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
     int idx = select_generic_procedure(args, *g, loc, err);
     ASR::symbol_t *final_sym;
     final_sym = g->m_procs[idx];
-    LFORTRAN_ASSERT(ASR::is_a<ASR::Function_t>(*final_sym) ||
-                    ASR::is_a<ASR::Subroutine_t>(*final_sym));
-    bool is_subroutine = ASR::is_a<ASR::Subroutine_t>(*final_sym);
+    LFORTRAN_ASSERT(ASR::is_a<ASR::Function_t>(*final_sym));
+    bool is_subroutine = ASR::down_cast<ASR::Function_t>(final_sym)->m_return_var == nullptr;
     ASR::ttype_t *return_type = nullptr;
     if( ASR::is_a<ASR::Function_t>(*final_sym) ) {
         ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(final_sym);
-        if( func->m_elemental && func->n_args == 1 && ASRUtils::is_array(ASRUtils::expr_type(args[0].m_value)) ) {
-            return_type = ASRUtils::duplicate_type(al, ASRUtils::expr_type(args[0].m_value));
-        } else {
-            return_type = LFortran::ASRUtils::EXPR2VAR(func->m_return_var)->m_type;
+        if (func->m_return_var) {
+            if( func->m_elemental && func->n_args == 1 && ASRUtils::is_array(ASRUtils::expr_type(args[0].m_value)) ) {
+                return_type = ASRUtils::duplicate_type(al, ASRUtils::expr_type(args[0].m_value));
+            } else {
+                return_type = LFortran::ASRUtils::EXPR2VAR(func->m_return_var)->m_type;
+            }
         }
     }
     // Create ExternalSymbol for the final subroutine:

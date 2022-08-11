@@ -1,4 +1,4 @@
-from ltypes import i8, i16, i32, f32, i64, f64, ccall
+from ltypes import i8, i16, i32, f32, i64, f64, ccall, overload
 
 
 pi: f64 = 3.141592653589793238462643383279502884197
@@ -62,7 +62,6 @@ def floor(x: f32) -> i32:
         return r
     return r - 1
 
-
 @overload
 def ceil(x: i32) -> i32:
     return x
@@ -86,6 +85,116 @@ def ceil(x: f32) -> i32:
     if x <= 0 or r == x:
         return r
     return r + 1
+
+# fsum
+# supported data types: i32, i64, f32, f64
+
+@overload
+def fsum(arr: list[i32]) -> f64:
+    """
+    Sum of the elements of `arr`.
+    """
+    sum: f64
+    sum = 0.0
+
+    i: i32
+    for i in range(len(arr)):
+        sum += float(arr[i])
+    return sum
+
+@overload
+def fsum(arr: list[i64]) -> f64:
+    """
+    Sum of the elements of `arr`.
+    """
+    sum: f64
+    sum = 0.0
+
+    i: i32
+    for i in range(len(arr)):
+        sum += float(arr[i])
+    return sum
+
+@overload
+def fsum(arr: list[f32]) -> f64:
+    """
+    Sum of the elements of `arr`.
+    """
+    sum: f64
+    sum = 0.0
+
+    i: i32
+    for i in range(len(arr)):
+        sum += float(arr[i])
+    return sum
+
+@overload
+def fsum(arr: list[f64]) -> f64:
+    """
+    Sum of the elements of `arr`.
+    """
+    sum: f64
+    sum = 0.0
+
+    i: i32
+    for i in range(len(arr)):
+        sum += arr[i]
+    return sum
+
+# prod
+# supported data types: i32, i64, f32, f64
+
+@overload
+def prod(arr: list[i32]) -> f64:
+    """
+    Return the product of the elements of `arr`.
+    """
+
+    result: f64
+    result = 1.0
+    i: i32
+    for i in range(len(arr)):
+        result *= float(arr[i])
+    return result
+
+@overload
+def prod(arr: list[i64]) -> f64:
+    """
+    Return the product of the elements of `arr`.
+    """
+
+    result: f64
+    result = 1.0
+    i: i32
+    for i in range(len(arr)):
+        result *= float(arr[i])
+    return result
+
+@overload
+def prod(arr: list[f32]) -> f64:
+    """
+    Return the product of the elements of `arr`.
+    """
+
+    result: f64
+    result = 1.0
+    i: i32
+    for i in range(len(arr)):
+        result *= float(arr[i])
+    return result
+
+@overload
+def prod(arr: list[f64]) -> f64:
+    """
+    Return the product of the elements of `arr`.
+    """
+
+    result: f64
+    result = 1.0
+    i: i32
+    for i in range(len(arr)):
+        result *= arr[i]
+    return result
 
 
 def comb(n: i32, k: i32) -> i32:

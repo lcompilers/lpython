@@ -1,118 +1,101 @@
 #!/usr/bin/env python
 
-import argparse
+import sys
 import os
 
-import toml
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+sys.path.append(os.path.join(ROOT_DIR, "src", "libasr"))
 
-from compiler_tester.tester import run_test, color, style, fg
+from compiler_tester.tester import color, fg, log, run_test, style, tester_main
 
-def main():
-    parser = argparse.ArgumentParser(description="LPython Test Suite")
-    parser.add_argument("-u", "--update", action="store_true",
-            help="update all reference results")
-    parser.add_argument("-l", "--list", action="store_true",
-            help="list all tests")
-    parser.add_argument("-t", metavar="TEST",
-            help="Run a specific test")
-    parser.add_argument("-v", "--verbose", action="store_true",
-            help="increase test verbosity")
-    parser.add_argument("--no-llvm", action="store_true",
-            help="Skip LLVM tests")
-    args = parser.parse_args()
-    update_reference = args.update
-    list_tests = args.list
-    specific_test = args.t
-    verbose = args.verbose
-    no_llvm = args.no_llvm
 
-    # So that the tests find the `lpython` executable
-    os.environ["PATH"] = os.path.join(os.getcwd(), "src", "bin") \
-            + os.pathsep + os.environ["PATH"]
-
-    d = toml.load(open("tests/tests.toml"))
-    for test in d["test"]:
-        filename = test["filename"]
-        if specific_test and filename != specific_test:
-            continue
-        tokens = test.get("tokens", False)
-        ast = test.get("ast", False)
-        ast_indent = test.get("ast_indent", False)
-        ast_f90 = test.get("ast_f90", False)
-        ast_cpp = test.get("ast_cpp", False)
-        ast_cpp_hip = test.get("ast_cpp_hip", False)
-        ast_openmp = test.get("ast_openmp", False)
-        ast_new = test.get("ast_new", False)
-        asr = test.get("asr", False)
-        asr_preprocess = test.get("asr_preprocess", False)
-        asr_indent = test.get("asr_indent", False)
-        mod_to_asr = test.get("mod_to_asr", False)
-        llvm = test.get("llvm", False)
-        cpp = test.get("cpp", False)
-        c = test.get("c", False)
-        obj = test.get("obj", False)
-        x86 = test.get("x86", False)
-        bin_ = test.get("bin", False)
-        pass_ = test.get("pass", None)
-        pass_with_llvm = test.get("pass_with_llvm", None)
-        if pass_ and pass_ not in ["do_loops", "global_stmts",
-                                   "loop_vectorise", "inline_function_calls"]:
-            raise Exception("Unknown pass: %s" % pass_)
-
-        print(color(style.bold)+"TEST:"+color(style.reset), filename)
-
-        extra_args = "--no-error-banner"
-
-        if ast:
-            run_test("ast", "lpython --show-ast --no-color {infile} -o {outfile}",
-                        filename, update_reference, extra_args)
-
-        if ast_new:
-            run_test("ast_new", "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
-                        filename, update_reference, extra_args)
-
-        if asr:
-            run_test("asr", "lpython --show-asr --no-color {infile} -o {outfile}",
-                    filename, update_reference, extra_args)
-
-        if pass_ is not None:
-            cmd = "lpython --pass=" + pass_ + " --show-asr --no-color {infile} -o {outfile}"
-            run_test("pass_{}".format(pass_), cmd,
-                     filename, update_reference, extra_args)
-            if pass_with_llvm:
-                cmd = "lpython --pass=" + pass_ + " --show-llvm --no-color {infile} -o {outfile}"
-                run_test("pass_llvm_{}".format(pass_), cmd,
-                        filename, update_reference, extra_args)
-
-        if llvm:
-            if no_llvm:
-                print("    * llvm   SKIPPED as requested")
-            else:
-                run_test("llvm", "lpython --no-color --show-llvm {infile} -o {outfile}",
-                        filename, update_reference, extra_args)
-
-        if cpp:
-            run_test("cpp", "lpython --no-color --show-cpp {infile}",
-                    filename, update_reference, extra_args)
-
-        if c:
-            run_test("c", "lpython --no-color --show-c {infile}",
-                    filename, update_reference, extra_args)
-
-        if tokens:
-            run_test("tokens", "lpython --no-color --show-tokens {infile} -o {outfile}",
-                    filename, update_reference, extra_args)
-
-        print()
-
-    if list_tests:
+def single_test(test, specific_test, verbose, no_llvm, update_reference):
+    filename = test["filename"]
+    if specific_test and specific_test not in filename:
         return
+    show_verbose = "" if not verbose else "-v"
+    tokens = test.get("tokens", False)
+    ast = test.get("ast", False)
+    ast_new = test.get("ast_new", False)
+    asr = test.get("asr", False)
+    llvm = test.get("llvm", False)
+    cpp = test.get("cpp", False)
+    c = test.get("c", False)
+    pass_ = test.get("pass", None)
+    optimization_passes = ["flip_sign", "div_to_mul", "fma", "sign_from_value",
+                           "inline_function_calls", "loop_unroll",
+                           "dead_code_removal", "loop_vectorise"]
 
-    if update_reference:
-        print("Reference tests updated.")
-    else:
-        print("%sTESTS PASSED%s" % (color(fg.green)+color(style.bold),
-            color(fg.reset)+color(style.reset)))
+    if pass_ and (pass_ not in ["do_loops", "global_stmts"] and
+                  pass_ not in optimization_passes):
+        raise Exception(f"Unknown pass: {pass_}")
+    log.debug(f"{color(style.bold)} START TEST: {color(style.reset)} {filename}")
+
+    extra_args = f"--no-error-banner {show_verbose}"
+
+    if tokens:
+        run_test(
+            filename,
+            "tokens",
+            "lpython --no-color --show-tokens {infile} -o {outfile}",
+            filename,
+            update_reference,
+            extra_args)
+
+    if ast:
+        run_test(
+            filename,
+            "ast",
+            "lpython --show-ast --no-color {infile} -o {outfile}",
+            filename,
+            update_reference,
+            extra_args)
+
+    if ast_new:
+        run_test(
+            filename,
+            "ast_new",
+            "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
+            filename,
+            update_reference,
+            extra_args)
+
+    if asr:
+        run_test(
+            filename,
+            "asr",
+            "lpython --show-asr --no-color {infile} -o {outfile}",
+            filename,
+            update_reference,
+            extra_args)
+
+    if pass_ is not None:
+        cmd = "lpython --pass=" + pass_ + \
+            " --show-asr --no-color {infile} -o {outfile}"
+        run_test(filename, "pass_{}".format(pass_), cmd,
+                 filename, update_reference, extra_args)
+
+    if llvm:
+        if no_llvm:
+            log.info(f"{filename} * llvm   SKIPPED as requested")
+        else:
+            run_test(
+                filename,
+                "llvm",
+                "lpython --no-color --show-llvm {infile} -o {outfile}",
+                filename,
+                update_reference,
+                extra_args)
+
+    if cpp:
+        run_test(filename, "cpp", "lpython --no-color --show-cpp {infile}",
+                 filename, update_reference, extra_args)
+
+    if c:
+        run_test(filename, "c", "lpython --no-color --show-c {infile}",
+                 filename, update_reference, extra_args)
+
+
 
 if __name__ == "__main__":
-    main()
+    tester_main("LPython", single_test)

@@ -62,7 +62,6 @@ cpp = true
 filename = "expr3.py"
 ast = true
 asr = true
-cpp = true
 
 [[test]]
 filename = "expr4.py"
@@ -378,6 +377,10 @@ cpp = true
 filename = "../integration_tests/generics_01.py"
 asr = true
 
+[[test]]
+filename = "../integration_tests/generics_array_01.py"
+asr = true
+
 # tests/tokens
 
 [[test]]
@@ -522,6 +525,18 @@ ast_new = true
 
 [[test]]
 filename = "parser/tuple1.py"
+ast_new = true
+
+[[test]]
+filename = "errors/test_bit_length.py"
+asr = true
+
+[[test]]
+filename = "parser/type_comment1.py"
+ast_new = true
+
+[[test]]
+filename = "parser/unicode.py"
 ast_new = true
 
 # tests/errors

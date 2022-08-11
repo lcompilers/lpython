@@ -26,7 +26,8 @@ void pass_wrap_global_stmts_into_program(Allocator &al,
     if (unit.n_items > 0) {
         pass_wrap_global_stmts_into_function(al, unit, program_fn_name);
         ASR::symbol_t *fn = unit.m_global_scope->get_symbol(program_fn_name);
-        if (ASR::is_a<ASR::Subroutine_t>(*fn)) {
+        if (ASR::is_a<ASR::Function_t>(*fn)
+            && ASR::down_cast<ASR::Function_t>(fn)->m_return_var == nullptr) {
             ASR::asr_t *stmt = ASR::make_SubroutineCall_t(
                     al, unit.base.base.loc,
                     fn, nullptr,

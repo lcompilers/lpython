@@ -57,7 +57,8 @@ class ReplaceArrayDimIntrinsicCalls: public ASR::BaseExprReplacer<ReplaceArrayDi
     {}
 
     void replace_ArraySize(ASR::ArraySize_t* x) {
-        if( !ASR::is_a<ASR::Var_t>(*x->m_v) ) {
+        if( !ASR::is_a<ASR::Var_t>(*x->m_v) ||
+            (x->m_dim != nullptr && !ASRUtils::is_value_constant(x->m_dim)) ) {
             return ;
         }
 
@@ -65,11 +66,18 @@ class ReplaceArrayDimIntrinsicCalls: public ASR::BaseExprReplacer<ReplaceArrayDi
         ASR::ttype_t* array_type = ASRUtils::expr_type(x->m_v);
         ASR::dimension_t* dims = nullptr;
         int n = ASRUtils::extract_dimensions_from_ttype(array_type, dims);
-        bool is_argument = v->m_intent == ASRUtils::intent_in;
+        bool is_argument = v->m_intent == ASRUtils::intent_in || v->m_intent == ASRUtils::intent_out;
         if( !(n > 0 && is_argument &&
               !ASRUtils::is_dimension_empty(dims, n)) ) {
             return ;
         }
+        if( x->m_dim != nullptr ) {
+            int64_t dim = -1;
+            ASRUtils::extract_value(x->m_dim, dim);
+            *current_expr = dims[dim - 1].m_length;
+            return ;
+        }
+
         ASR::expr_t* array_size = ASRUtils::EXPR(ASR::make_IntegerConstant_t(
                                     al, x->base.base.loc, 1, x->m_type));
         for( int i = 0; i < n; i++ ) {
@@ -78,6 +86,37 @@ class ReplaceArrayDimIntrinsicCalls: public ASR::BaseExprReplacer<ReplaceArrayDi
                             nullptr));
         }
         *current_expr = array_size;
+    }
+
+    void replace_ArrayBound(ASR::ArrayBound_t* x) {
+        if( !ASR::is_a<ASR::Var_t>(*x->m_v) ||
+            !ASRUtils::is_value_constant(x->m_dim) ) {
+            return ;
+        }
+
+        ASR::Variable_t* v = ASRUtils::EXPR2VAR(x->m_v);
+        ASR::ttype_t* array_type = ASRUtils::expr_type(x->m_v);
+        ASR::dimension_t* dims = nullptr;
+        int n = ASRUtils::extract_dimensions_from_ttype(array_type, dims);
+        bool is_argument = v->m_intent == ASRUtils::intent_in || v->m_intent == ASRUtils::intent_out;
+        if( !(n > 0 && is_argument &&
+              !ASRUtils::is_dimension_empty(dims, n)) ) {
+            return ;
+        }
+        int64_t dim = -1;
+        ASRUtils::extract_value(x->m_dim, dim);
+        if( x->m_bound == ASR::arrayboundType::LBound ) {
+            *current_expr = dims[dim - 1].m_start;
+        } else {
+            ASR::expr_t* ub = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al,
+                                x->base.base.loc, dims[dim - 1].m_length,
+                                ASR::binopType::Add, dims[dim - 1].m_start,
+                                x->m_type, nullptr));
+            ASR::expr_t* const_1 = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                        x->base.base.loc, 1, x->m_type));
+            *current_expr = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, x->base.base.loc,
+                                ub, ASR::binopType::Sub, const_1, x->m_type, nullptr));
+        }
     }
 
 };

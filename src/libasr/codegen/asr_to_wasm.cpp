@@ -173,7 +173,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
             auto func = ASR::make_Function_t(m_al, x.base.base.loc, x.m_global_scope, s2c(m_al, import_func.name),
                     params.data(), params.size(), nullptr, 0, nullptr, 0, nullptr, ASR::abiType::Source, ASR::accessType::Public,
-                    ASR::deftypeType::Implementation, false, nullptr);
+                    ASR::deftypeType::Implementation, nullptr, false, false, false);
             m_import_func_asr_map[import_func.name] = func;
 
 
@@ -248,10 +248,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
         // Generate the bodies of subroutines
         for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
-                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
-                this->visit_Subroutine(*s);
-            }
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 this->visit_Function(*s);
@@ -263,10 +259,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     void visit_Program(const ASR::Program_t &x) {
 
         for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Subroutine_t>(*item.second)) {
-                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(item.second);
-                this->visit_Subroutine(*s);
-            }
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
                 visit_Function(*s);
@@ -276,7 +268,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         // Generate main program code
         auto main_func = ASR::make_Function_t(m_al, x.base.base.loc, x.m_symtab, s2c(m_al, "_lcompilers_main"),
             nullptr, 0, nullptr, 0, x.m_body, x.n_body, nullptr, ASR::abiType::Source, ASR::accessType::Public,
-            ASR::deftypeType::Implementation, false, nullptr);
+            ASR::deftypeType::Implementation, nullptr, false, false, false);
         this->visit_Function(*((ASR::Function_t *)main_func));
     }
 
@@ -457,42 +449,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         m_func_name_idx_map[get_hash((ASR::asr_t *)&x)] = s; // add function to map
     }
 
-    void emit_subroutine_prototype(const ASR::Subroutine_t & x) {
-        SymbolInfo* s = new SymbolInfo(true);
-
-        /********************* New Type Declaration *********************/
-        wasm::emit_b8(m_type_section, m_al, 0x60);
-
-        /********************* Parameter Types List *********************/
-        uint32_t len_idx_type_section_param_types_list = wasm::emit_len_placeholder(m_type_section, m_al);
-        s->subroutine_return_vars.reserve(m_al, x.n_args);
-        for (size_t i = 0; i < x.n_args; i++) {
-            ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
-            if (arg->m_intent == ASR::intentType::In || arg->m_intent == ASR::intentType::Out) {
-                emit_var_type(m_type_section, arg);
-                m_var_name_idx_map[get_hash((ASR::asr_t *)arg)] = s->no_of_variables++;
-                if (arg->m_intent == ASR::intentType::Out) {
-                    s->subroutine_return_vars.push_back(m_al, arg);
-                }
-            }
-        }
-        wasm::fixup_len(m_type_section, m_al, len_idx_type_section_param_types_list);
-
-        /********************* Result Types List *********************/
-        uint32_t len_idx_type_section_return_types_list = wasm::emit_len_placeholder(m_type_section, m_al);
-        for (size_t i = 0; i < x.n_args; i++) {
-            ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
-            if (arg->m_intent == ASR::intentType::Out) {
-                emit_var_type(m_type_section, arg);
-            }
-        }
-        wasm::fixup_len(m_type_section, m_al, len_idx_type_section_return_types_list);
-
-        /********************* Add Type to Map *********************/
-        s->index = no_of_types++;
-        m_func_name_idx_map[get_hash((ASR::asr_t *)&x)] = s; // add function to map
-    }
-
     template<typename T>
     void emit_function_body(const T& x) {
         LFORTRAN_ASSERT(m_func_name_idx_map.find(get_hash((ASR::asr_t *)&x)) != m_func_name_idx_map.end());
@@ -526,8 +482,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         std::string func_or_sub = "";
         if (x.class_type == ASR::symbolType::Function) {
             func_or_sub = "Function";
-        } else if (x.class_type == ASR::symbolType::Subroutine) {
-            func_or_sub = "Subroutine";
         } else {
             throw CodeGenError("has_c_function_call: C call unknown type");
         }
@@ -543,7 +497,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         for (size_t i = 0; i < x.n_body; i++) {
             if (x.m_body[i]->type == ASR::stmtType::SubroutineCall) {
                 auto sub_call = (const ASR::SubroutineCall_t &)(*x.m_body[i]);
-                ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(ASRUtils::symbol_get_past_external(sub_call.m_name));
+                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(ASRUtils::symbol_get_past_external(sub_call.m_name));
                 if (s->m_abi == ASR::abiType::BindC && s->m_deftype == ASR::deftypeType::Interface) {
                     diag.codegen_warning_label("WASM: Calls to C subroutine are not yet supported", {s->base.base.loc}, func_or_sub + ": calls " + std::string(s->m_name));
                     return true;
@@ -559,15 +513,6 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         }
 
         emit_function_prototype(x);
-        emit_function_body(x);
-    }
-
-    void visit_Subroutine(const ASR::Subroutine_t & x) {
-        if (is_unsupported_function(x)) {
-            return;
-        }
-
-        emit_subroutine_prototype(x);
         emit_function_body(x);
     }
 
@@ -1172,7 +1117,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        ASR::Subroutine_t *s = ASR::down_cast<ASR::Subroutine_t>(ASRUtils::symbol_get_past_external(x.m_name));
+        ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(ASRUtils::symbol_get_past_external(x.m_name));
         // TODO: use a mapping with a hash(s) instead:
         // std::string sym_name = s->m_name;
         // if (sym_name == "exit") {
