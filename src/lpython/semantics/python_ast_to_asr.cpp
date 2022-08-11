@@ -2519,7 +2519,7 @@ public:
     void visit_Assign(const AST::Assign_t &x) {
         /**
          *  Type variables have to be put in the symbol table before checking function definitions.
-         *  This describes a different treatment for Assign in the form of `T = TypeVar('T')`
+         *  This describes a different treatment for Assign in the form of `T = TypeVar('T', ...)`
          */
         if (x.n_targets == 1 && AST::is_a<AST::Call_t>(*x.m_value)) {
             AST::Call_t *rh = AST::down_cast<AST::Call_t>(x.m_value);
@@ -2531,9 +2531,9 @@ public:
                     if (AST::is_a<AST::Name_t>(*x.m_targets[0])) {
                         std::string tvar_name = AST::down_cast<AST::Name_t>(x.m_targets[0])->m_id;
                         // Check if the type variable name is a reserved type keyword
-                        // TODO: Use ast to asr type to check type variable
                         const char* type_list[14]
-                            = { "list", "set", "dict", "tuple", "i8", "i16", "i32", "i64", "f32",
+                            = { "list", "set", "dict", "tuple", 
+                                "i8", "i16", "i32", "i64", "f32",
                                 "f64", "c32", "c64", "str", "bool"};
                         for (int i = 0; i < 14; i++) {
                             if (strcmp(s2c(al, tvar_name), type_list[i]) == 0) {

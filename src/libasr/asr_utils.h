@@ -1003,7 +1003,13 @@ static inline bool is_logical(ASR::ttype_t &x) {
 }
 
 static inline bool is_generic(ASR::ttype_t &x) {
-    return ASR::is_a<ASR::TypeParameter_t>(*type_get_past_pointer(&x));
+    switch (x.type) {
+        case ASR::ttypeType::List: {
+            ASR::List_t *list_type = ASR::down_cast<ASR::List_t>(type_get_past_pointer(&x));
+            return is_generic(*list_type->m_type);
+        }
+        default : return ASR::is_a<ASR::TypeParameter_t>(*type_get_past_pointer(&x));
+    }
 }
 
 
@@ -1383,6 +1389,19 @@ static inline ASR::ttype_t* get_contained_type(ASR::ttype_t* asr_type) {
         default: {
             return asr_type;
         }
+    }
+}
+
+static inline ASR::ttype_t* get_type_parameter(ASR::ttype_t* t) {
+    switch (t->type) {
+        case ASR::ttypeType::TypeParameter: {
+            return t;
+        }
+        case ASR::ttypeType::List: {
+            ASR::List_t *tl = ASR::down_cast<ASR::List_t>(t);
+            return get_type_parameter(tl->m_type);
+        }
+        default: throw LCompilersException("Cannot get type parameter from this type.");
     }
 }
 
