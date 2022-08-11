@@ -1,7 +1,7 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
-                  ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc, fsum, prod)
-from ltypes import i8, i16, i32, i64, f32, f64
-from numpy import empty
+                  ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc,
+                  modf, fsum, prod)
+from ltypes import i32, i64, f32, f64
 
 eps: f64
 eps = 1e-12
@@ -191,7 +191,6 @@ def test_fsum():
     res = fsum(arr_f64)
     assert abs(res - 19.0) < eps
 
-
 def test_prod():
     res: f64
     eps: f64 = 1e-12
@@ -220,6 +219,20 @@ def test_prod():
     res = prod(arr_f64)
     assert abs(res - 80.64) < eps
 
+def test_modf():
+    i: f64
+    i = 3.14
+
+    res: tuple[f64, f64]
+    res = modf(i)
+    assert abs(res[0] - 0.14) <= 1e-6
+    assert abs(res[1] - 3.0) <= 1e-6
+
+    i = -442.3
+    res = modf(i)
+    assert abs(res[0] + 0.3) <= 1e-6
+    assert abs(res[1] + 442.0) <= 1e-6
+
 
 def check():
     test_factorial_1()
@@ -243,6 +256,7 @@ def check():
     test_trunc()
     test_fsum()
     test_prod()
+    test_modf()
 
 
 check()

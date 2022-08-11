@@ -8,12 +8,16 @@ tau: f64 = 6.283185307179586
 # TODO: Change floor used inside functions implemented here to
 # floordiv operator (//) once the multiple import issue is fixed
 
-def modf(x: f64) -> tuple[f64, i32]:
+@overload
+def modf(x: f64) -> tuple[f64, f64]:
     """
     Return fractional and integral parts of `x` as a pair.
-    """
-    return (x - int(x), int(x))
 
+    Both results carry the sign of x and are floats.
+    """
+    return (x - int(x), float(int(x)))
+
+@overload
 def factorial(x: i32) -> i32:
     """
     Computes the factorial of `x`.
