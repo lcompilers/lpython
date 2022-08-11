@@ -732,7 +732,7 @@ LFORTRAN_API int32_t _lpython_bit_length4(int32_t num)
 LFORTRAN_API int32_t _lpython_bit_length8(int64_t num)
 {
     int32_t res = 0;
-    num = abs(num);
+    num = llabs(num);
     for(; num; num >>= 1, res++);
     return res;
 }
