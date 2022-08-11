@@ -99,7 +99,7 @@ def fsum(arr: list[i32]) -> f64:
 
     i: i32
     for i in range(len(arr)):
-        sum += arr[i]
+        sum += float(arr[i])
     return sum
 
 @overload
@@ -112,7 +112,7 @@ def fsum(arr: list[i64]) -> f64:
 
     i: i32
     for i in range(len(arr)):
-        sum += arr[i]
+        sum += float(arr[i])
     return sum
 
 @overload
@@ -125,7 +125,7 @@ def fsum(arr: list[f32]) -> f64:
 
     i: i32
     for i in range(len(arr)):
-        sum += arr[i]
+        sum += float(arr[i])
     return sum
 
 @overload
@@ -154,7 +154,7 @@ def prod(arr: list[i32]) -> f64:
     result = 1.0
     i: i32
     for i in range(len(arr)):
-        result *= arr[i]
+        result *= float(arr[i])
     return result
 
 @overload
@@ -167,7 +167,7 @@ def prod(arr: list[i64]) -> f64:
     result = 1.0
     i: i32
     for i in range(len(arr)):
-        result *= arr[i]
+        result *= float(arr[i])
     return result
 
 @overload
@@ -180,7 +180,7 @@ def prod(arr: list[f32]) -> f64:
     result = 1.0
     i: i32
     for i in range(len(arr)):
-        result *= arr[i]
+        result *= float(arr[i])
     return result
 
 @overload

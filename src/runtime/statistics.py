@@ -15,7 +15,7 @@ def mean(x: list[i32]) -> f64:
     i: i32
 
     for i in range(k):
-        sum += x[i]
+        sum += float(x[i])
     return sum/k
 
 
@@ -32,7 +32,7 @@ def mean(x: list[i64]) -> f64:
     i: i32
 
     for i in range(k):
-        sum += x[i]
+        sum += float(x[i])
 
     return sum/k
 
@@ -50,7 +50,7 @@ def mean(x: list[f32]) -> f64:
     i: i32
 
     for i in range(k):
-        sum += x[i]
+        sum += float(x[i])
     return sum/k
 
 
@@ -115,7 +115,7 @@ def geometric_mean(x: list[i32]) -> f64:
     i: i32
 
     for i in range(k):
-        product *= x[i]
+        product *= float(x[i])
 
     return product**(1/k)
 
