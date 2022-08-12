@@ -179,6 +179,7 @@ def harmonic_mean(x: list[i32]) -> f64:
         sum += 1 / x[i]
 
     return float(k/sum)
+ 
 @overload
 def harmonic_mean(x: list[i64]) -> f64:
     """
