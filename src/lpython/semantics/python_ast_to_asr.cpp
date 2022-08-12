@@ -2433,7 +2433,7 @@ public:
                     /* n_body */ 0,
                     /* a_return_var */ ASRUtils::EXPR(return_var_ref),
                     current_procedure_abi_type,
-                    s_access, deftype, vectorize, bindc_name);
+                    s_access, deftype, bindc_name, vectorize, false, false);
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
                     x.m_returns->base.loc);
@@ -2656,6 +2656,8 @@ public:
                 traits.insert(ASR::traitType::SupportsPlus);
             } else if (trait_name == "SupportsZero") {
                 traits.insert(ASR::traitType::SupportsZero);
+            } else if (trait_name == "Iterable") {
+                traits.insert(ASR::traitType::Iterable);
             } else {
                 throw SemanticError("Unsupported trait " + trait_name, value->base.loc);
             }
@@ -2718,6 +2720,7 @@ public:
         for (size_t i=0; i<n_body; i++) {
             // Visit the statement
             this->visit_stmt(*m_body[i]);
+            std::cout << m_body[i]->type << std::endl;
             if (tmp != nullptr) {
                 ASR::stmt_t* tmp_stmt = ASRUtils::STMT(tmp);
                 body.push_back(al, tmp_stmt);
@@ -2937,6 +2940,7 @@ public:
             ASR::expr_t *value = ASRUtils::EXPR(tmp);
             ASR::ttype_t *target_type = ASRUtils::expr_type(target);
             ASR::ttype_t *value_type = ASRUtils::expr_type(value);
+            // Check if the target parameter type can be assigned with zero
             if (ASR::is_a<ASR::TypeParameter_t>(*target_type)
                     && ASR::is_a<ASR::IntegerConstant_t>(*value)) {
                 ASR::IntegerConstant_t *value_constant = ASR::down_cast<ASR::IntegerConstant_t>(value);

@@ -332,7 +332,7 @@ ttype
 
 restriction = Restriction(trait rt)
 
-trait = SupportsZero | SupportsPlus | Any
+trait = SupportsZero | SupportsPlus | Iterable | Any
 
 binop = Add | Sub | Mul | Div | Pow | BitAnd | BitOr | BitXor | BitLShift | BitRShift
 
