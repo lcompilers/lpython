@@ -158,6 +158,7 @@ def geometric_mean(x: list[f64]) -> f64:
         product *= x[i]
 
     return product**(1/k)
+
 @overload
 def harmonic_mean(x: list[i32]) -> f64:
     """
