@@ -1,4 +1,3 @@
-from random import randrange
 from math import sqrt
 from ltypes import i32
 
