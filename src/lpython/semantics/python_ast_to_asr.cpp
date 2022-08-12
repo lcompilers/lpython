@@ -2271,6 +2271,8 @@ public:
         bool current_procedure_interface = false;
         bool overload = false;
         std::set<std::string> ps;
+        Vec<ASR::ttype_t*> tps;
+        tps.reserve(al, x.m_args.n_args);
         bool vectorize = false;
         if (x.n_decorator_list > 0) {
             for(size_t i=0; i<x.n_decorator_list; i++) {
@@ -2309,6 +2311,8 @@ public:
             if (ASRUtils::is_generic(*arg_type)) {
                 std::string param_name = ASRUtils::get_parameter_name(arg_type);
                 ps.insert(param_name);
+                ASR::ttype_t *tp = ASRUtils::duplicate_type(al, ASRUtils::get_type_parameter(arg_type));
+                tps.push_back(al, tp);
             }
 
             std::string arg_s = arg;
@@ -2374,43 +2378,19 @@ public:
                         ASR::down_cast<ASR::symbol_t>(return_var));
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     current_scope->get_symbol(return_var_name));
-                if (ps.size() > 0) {
-                    Vec<ASR::ttype_t*> type_params;
-                    type_params.reserve(al, ps.size());
-                    for (auto &p: ps) {
-                        std::string param = p;
-                        ASR::ttype_t *type_p = ASRUtils::TYPE(ASR::make_TypeParameter_t(al,
-                                x.base.base.loc, s2c(al, p), nullptr, 0));
-                        type_params.push_back(al, type_p);
-                    }
-                    tmp = ASR::make_Function_t(
-                        al, x.base.base.loc,
-                        /* a_symtab */ current_scope,
-                        /* a_name */ s2c(al, sym_name),
-                        /* a_args */ args.p,
-                        /* n_args */ args.size(),
-                        /* a_type_params */ type_params.p,
-                        /* n_type_params */ type_params.size(),
-                        /* a_body */ nullptr,
-                        /* n_body */ 0,
-                        /* a_return_var */ ASRUtils::EXPR(return_var_ref),
-                        current_procedure_abi_type,
-                        s_access, deftype, bindc_name, vectorize, false, false);
-                } else {
-                    tmp = ASR::make_Function_t(
-                        al, x.base.base.loc,
-                        /* a_symtab */ current_scope,
-                        /* a_name */ s2c(al, sym_name),
-                        /* a_args */ args.p,
-                        /* n_args */ args.size(),
-                        /* a_type_params */ nullptr,
-                        /* n_type_params */ 0,
-                        /* a_body */ nullptr,
-                        /* n_body */ 0,
-                        /* a_return_var */ ASRUtils::EXPR(return_var_ref),
-                        current_procedure_abi_type,
-                        s_access, deftype, bindc_name, vectorize, false, false);
-                }
+                tmp = ASR::make_Function_t(
+                    al, x.base.base.loc,
+                    /* a_symtab */ current_scope,
+                    /* a_name */ s2c(al, sym_name),
+                    /* a_args */ args.p,
+                    /* n_args */ args.size(),
+                    /* a_type_params */ tps.p,
+                    /* n_type_params */ tps.size(),
+                    /* a_body */ nullptr,
+                    /* n_body */ 0,
+                    /* a_return_var */ ASRUtils::EXPR(return_var_ref),
+                    current_procedure_abi_type,
+                    s_access, deftype, bindc_name, vectorize, false, false);
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
                     x.m_returns->base.loc);
@@ -2423,7 +2403,8 @@ public:
                 /* a_name */ s2c(al, sym_name),
                 /* a_args */ args.p,
                 /* n_args */ args.size(),
-                nullptr, 0,
+                /* a_type_params */ tps.p, 
+                /* n_type_params */ tps.size(),
                 /* a_body */ nullptr,
                 /* n_body */ 0,
                 nullptr,

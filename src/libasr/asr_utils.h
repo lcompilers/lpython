@@ -1387,6 +1387,19 @@ static inline ASR::ttype_t* get_contained_type(ASR::ttype_t* asr_type) {
     }
 }
 
+static inline ASR::ttype_t* get_type_parameter(ASR::ttype_t* t) {
+    switch (t->type) {
+        case ASR::ttypeType::TypeParameter: {
+            return t;
+        }
+        case ASR::ttypeType::List: {
+            ASR::List_t *tl = ASR::down_cast<ASR::List_t>(t);
+            return get_type_parameter(tl->m_type);
+        }
+        default: throw LCompilersException("Cannot get type parameter from this type.");
+    }
+}
+
 class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
 
     private:
