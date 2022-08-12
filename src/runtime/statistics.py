@@ -115,7 +115,7 @@ def geometric_mean(x: list[i32]) -> f64:
     i: i32
 
     for i in range(k):
-        if(x[i]<=0):
+        if x[i] <= 0:
             raise Exception("geometric mean requires a non-empty dataset containing positive numbers")
         product *= float(x[i])
 
@@ -134,7 +134,7 @@ def geometric_mean(x: list[i64]) -> f64:
     i: i32
 
     for i in range(k):
-        if(x[i]<=0):
+        if x[i] <= 0:
             raise Exception("geometric mean requires a non-empty dataset containing positive numbers")
         product *= float(x[i])
 
@@ -153,11 +153,12 @@ def geometric_mean(x: list[f64]) -> f64:
     i: i32
 
     for i in range(k):
-        if(x[i]<=0.0):
+        if x[i] <= 0.0:
             raise Exception("geometric mean requires a non-empty dataset containing positive numbers")
         product *= x[i]
 
     return product**(1/k)
+
 @overload
 def harmonic_mean(x: list[i32]) -> f64:
     """
@@ -173,11 +174,12 @@ def harmonic_mean(x: list[i32]) -> f64:
     for i in range(k):
         if x[i] == 0:
             return 0.0
-        if(x[i]<0.0):
+        if x[i] < 0.0:
             raise Exception("Harmonic mean does not support negative values")
         sum += 1 / x[i]
 
     return float(k/sum)
+
 @overload
 def harmonic_mean(x: list[i64]) -> f64:
     """
@@ -193,7 +195,7 @@ def harmonic_mean(x: list[i64]) -> f64:
     for i in range(k):
         if x[i] == 0:
             return 0.0
-        if(x[i]<0):
+        if x[i] < 0 :
             raise Exception("Harmonic mean does not support negative values")
         sum += 1 / x[i]
     return k/sum
@@ -213,7 +215,7 @@ def harmonic_mean(x: list[f64]) -> f64:
     for i in range(k):
         if x[i] == 0.0:
             return 0.0
-        if(x[i]<0.0):
+        if x[i] < 0.0:
             raise Exception("Harmonic mean does not support negative values")
         sum += 1 / x[i]
 
@@ -234,8 +236,8 @@ def variance(x: list[f64]) -> f64:
     num = 0.0
     i: i32
     for i in range(n):
-        num += (x[i]-xmean)**2
-    return num/(n-1)
+        num += (x[i] - xmean)**2
+    return num / (n-1)
 
 @overload
 def variance(x: list[i32]) -> f64:
@@ -253,7 +255,7 @@ def variance(x: list[i32]) -> f64:
     i: i32
     for i in range(n):
         num += (x[i]-xmean)**2
-    return num/(n-1)
+    return num / (n-1)
 
 
 @overload
