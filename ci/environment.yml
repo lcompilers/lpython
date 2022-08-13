@@ -16,5 +16,7 @@ dependencies:
   - re2c
   - numpy
   - zlib
+  - ninja
+  - rapidjson
 #  - bison=3.4  [not win]
 #  - m2-bison=3.4  [win]
