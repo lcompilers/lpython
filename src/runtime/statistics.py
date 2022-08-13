@@ -1,5 +1,5 @@
 from ltypes import i32, f64, overload
-
+from math import sqrt
 
 
 @overload
@@ -138,7 +138,7 @@ def geometric_mean(x: list[i64]) -> f64:
             raise Exception("geometric mean requires a non-empty dataset containing positive numbers")
         product *= float(x[i])
 
-    return product**(1/k)
+    return product ** (1 / k)
 
 @overload
 def geometric_mean(x: list[f64]) -> f64:
@@ -219,7 +219,7 @@ def harmonic_mean(x: list[f64]) -> f64:
             raise Exception("Harmonic mean does not support negative values")
         sum += 1 / x[i]
 
-    return k/sum
+    return k / sum
 
 @overload
 def variance(x: list[f64]) -> f64:
@@ -254,7 +254,7 @@ def variance(x: list[i32]) -> f64:
     num = 0.0
     i: i32
     for i in range(n):
-        num += (x[i]-xmean)**2
+        num += (x[i] - xmean)**2
     return num / (n-1)
 
 
