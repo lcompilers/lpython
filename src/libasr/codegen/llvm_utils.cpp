@@ -1,5 +1,6 @@
 #include <libasr/assert.h>
 #include <libasr/codegen/llvm_utils.h>
+#include <libasr/asr_utils.h>
 
 namespace LFortran {
 
@@ -179,6 +180,59 @@ namespace LFortran {
         return builder->CreateCall(fn, args);
     }
 
+    llvm::Value* LLVMUtils::is_equal_by_value(llvm::Value* left, llvm::Value* right,
+                                              llvm::Module& module, ASR::ttype_t* asr_type) {
+        switch( asr_type->type ) {
+            case ASR::ttypeType::Integer: {
+                return builder->CreateICmpEQ(left, right);
+            };
+            case ASR::ttypeType::Real: {
+                return builder->CreateFCmpOEQ(left, right);
+            }
+            case ASR::ttypeType::Character: {
+                return lfortran_str_cmp(left, right, "_lpython_str_compare_eq",
+                                        module);
+            }
+            case ASR::ttypeType::Tuple: {
+                ASR::Tuple_t* tuple_type = ASR::down_cast<ASR::Tuple_t>(asr_type);
+                return tuple_api->check_tuple_equality(left, right, tuple_type, context,
+                                                       builder, module);
+            }
+            default: {
+                throw LCompilersException("LLVMUtils::is_equal_by_value isn't implemented for " +
+                                          ASRUtils::type_to_str_python(asr_type));
+            }
+        }
+    }
+
+    void LLVMUtils::deepcopy(llvm::Value* src, llvm::Value* dest,
+                             ASR::ttype_t* asr_type, llvm::Module& module) {
+        switch( asr_type->type ) {
+            case ASR::ttypeType::Integer:
+            case ASR::ttypeType::Real:
+            case ASR::ttypeType::Character:
+            case ASR::ttypeType::Logical:
+            case ASR::ttypeType::Complex: {
+                LLVM::CreateStore(*builder, src, dest);
+                break ;
+            };
+            case ASR::ttypeType::Tuple: {
+                ASR::Tuple_t* tuple_type = ASR::down_cast<ASR::Tuple_t>(asr_type);
+                tuple_api->tuple_deepcopy(src, dest, tuple_type, module);
+                break ;
+            }
+            case ASR::ttypeType::List: {
+                ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(asr_type);
+                list_api->list_deepcopy(src, dest, list_type, module);
+                break ;
+            }
+            default: {
+                throw LCompilersException("LLVMUtils::deepcopy isn't implemented for " +
+                                          ASRUtils::type_to_str_python(asr_type));
+            }
+        }
+    }
+
     LLVMList::LLVMList(llvm::LLVMContext& context_,
         LLVMUtils* llvm_utils_,
         llvm::IRBuilder<>* builder_):
@@ -233,9 +287,9 @@ namespace LFortran {
     }
 
     void LLVMList::list_deepcopy(llvm::Value* src, llvm::Value* dest,
-                                 std::string& src_type_code,
-                                 llvm::Module& module) {
+                                 ASR::List_t* list_type, llvm::Module& module) {
         LFORTRAN_ASSERT(src->getType() == dest->getType());
+        std::string src_type_code = ASRUtils::get_type_code(list_type->m_type);
         llvm::Value* src_end_point = LLVM::CreateLoad(*builder, get_pointer_to_current_end_point(src));
         llvm::Value* src_capacity = LLVM::CreateLoad(*builder, get_pointer_to_current_capacity(src));
         llvm::Value* dest_end_point_ptr = get_pointer_to_current_end_point(dest);
@@ -250,15 +304,73 @@ namespace LFortran {
                                                        arg_size);
         llvm::Type* el_type = std::get<2>(typecode2listtype[src_type_code]);
         copy_data = builder->CreateBitCast(copy_data, el_type->getPointerTo());
-        builder->CreateMemCpy(copy_data, llvm::MaybeAlign(), src_data,
-                              llvm::MaybeAlign(), arg_size);
-        builder->CreateStore(copy_data, get_pointer_to_list_data(dest));
+
+        // We consider the case when the element type of a list is defined by a struct
+        // which may also contain non-trivial structs (such as in case of list[list[f64]],
+        // list[tuple[f64]]). We need to make sure that all the data inside those structs
+        // is deepcopied and not just the address of the first element of those structs.
+        // Hence we dive deeper into the lowest level of nested types and deepcopy everything
+        // properly. If we don't consider this case then the data only from first level of nested types
+        // will be deep copied and rest will be shallow copied. The importance of this case
+        // can be figured out by goind through, integration_tests/test_list_06.py and
+        // integration_tests/test_list_07.py.
+        if( LLVM::is_llvm_struct(list_type->m_type) ) {
+            builder->CreateStore(copy_data, get_pointer_to_list_data(dest));
+            llvm::AllocaInst *pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context),
+                                                              nullptr);
+            LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                                               llvm::APInt(32, 0)), pos_ptr);
+
+            llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+            llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+            llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+            // head
+            llvm_utils->start_new_block(loophead);
+            {
+                llvm::Value *cond = builder->CreateICmpSGT(
+                                            src_end_point,
+                                            LLVM::CreateLoad(*builder, pos_ptr));
+                builder->CreateCondBr(cond, loopbody, loopend);
+            }
+
+            // body
+            llvm_utils->start_new_block(loopbody);
+            {
+                llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
+                llvm::Value* srci = read_item(src, pos, true);
+                llvm::Value* desti = read_item(dest, pos, true);
+                llvm_utils->deepcopy(srci, desti, list_type->m_type, module);
+                llvm::Value* tmp = builder->CreateAdd(
+                            pos,
+                            llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+                LLVM::CreateStore(*builder, tmp, pos_ptr);
+            }
+
+            builder->CreateBr(loophead);
+
+            // end
+            llvm_utils->start_new_block(loopend);
+        } else {
+            builder->CreateMemCpy(copy_data, llvm::MaybeAlign(), src_data,
+                                  llvm::MaybeAlign(), arg_size);
+            builder->CreateStore(copy_data, get_pointer_to_list_data(dest));
+        }
     }
 
-    void LLVMList::write_item(llvm::Value* list, llvm::Value* pos, llvm::Value* item) {
+    void LLVMList::write_item(llvm::Value* list, llvm::Value* pos,
+                              llvm::Value* item, ASR::ttype_t* asr_type,
+                              llvm::Module& module) {
         llvm::Value* list_data = LLVM::CreateLoad(*builder, get_pointer_to_list_data(list));
         llvm::Value* element_ptr = llvm_utils->create_ptr_gep(list_data, pos);
-        builder->CreateStore(item, element_ptr);
+        llvm_utils->deepcopy(item, element_ptr, asr_type, module);
+    }
+
+    void LLVMList::write_item(llvm::Value* list, llvm::Value* pos,
+                              llvm::Value* item) {
+        llvm::Value* list_data = LLVM::CreateLoad(*builder, get_pointer_to_list_data(list));
+        llvm::Value* element_ptr = llvm_utils->create_ptr_gep(list_data, pos);
+        LLVM::CreateStore(*builder, item, element_ptr);
     }
 
     llvm::Value* LLVMList::read_item(llvm::Value* list, llvm::Value* pos, bool get_pointer) {
@@ -311,21 +423,22 @@ namespace LFortran {
     }
 
     void LLVMList::append(llvm::Value* list, llvm::Value* item,
-                          llvm::Module& module,
-                          std::string& type_code) {
+                          ASR::ttype_t* asr_type, llvm::Module& module) {
         llvm::Value* current_end_point = LLVM::CreateLoad(*builder, get_pointer_to_current_end_point(list));
         llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_current_capacity(list));
+        std::string type_code = ASRUtils::get_type_code(asr_type);
         int type_size = std::get<1>(typecode2listtype[type_code]);
         llvm::Type* el_type = std::get<2>(typecode2listtype[type_code]);
         resize_if_needed(list, current_end_point, current_capacity,
                          type_size, el_type, module);
-        write_item(list, current_end_point, item);
+        write_item(list, current_end_point, item, asr_type, module);
         shift_end_point_by_one(list);
     }
 
     void LLVMList::insert_item(llvm::Value* list, llvm::Value* pos,
-                               llvm::Value* item, llvm::Module& module,
-                               std::string& type_code) {
+                               llvm::Value* item, ASR::ttype_t* asr_type,
+                               llvm::Module& module) {
+        std::string type_code = ASRUtils::get_type_code(asr_type);
         llvm::Value* current_end_point = LLVM::CreateLoad(*builder,
                                         get_pointer_to_current_end_point(list));
         llvm::Value* current_capacity = LLVM::CreateLoad(*builder,
@@ -380,7 +493,7 @@ namespace LFortran {
                             LLVM::CreateLoad(*builder, pos_ptr),
                             llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
             tmp = read_item(list, next_index, false);
-            write_item(list, next_index,  LLVM::CreateLoad(*builder, tmp_ptr));
+            write_item(list, next_index, LLVM::CreateLoad(*builder, tmp_ptr));
             LLVM::CreateStore(*builder, tmp, tmp_ptr);
 
             tmp = builder->CreateAdd(
@@ -393,12 +506,12 @@ namespace LFortran {
         // end
         llvm_utils->start_new_block(loopend);
 
-        write_item(list, pos, item);
+        write_item(list, pos, item, asr_type, module);
         shift_end_point_by_one(list);
     }
 
     llvm::Value* LLVMList::find_item_position(llvm::Value* list,
-        llvm::Value* item, ASR::ttypeType item_type, llvm::Module& module) {
+        llvm::Value* item, ASR::ttype_t* item_type, llvm::Module& module) {
         llvm::Type* pos_type = llvm::Type::getInt32Ty(context);
         llvm::Value* current_end_point = LLVM::CreateLoad(*builder,
                                         get_pointer_to_current_end_point(list));
@@ -425,15 +538,13 @@ namespace LFortran {
         // head
         llvm_utils->start_new_block(loophead);
         {
-            llvm::Value* is_item_not_equal = nullptr;
-            llvm::Value* left_arg = read_item(list, LLVM::CreateLoad(*builder, i), false);
-            if( item_type == ASR::ttypeType::Character ) {
-                is_item_not_equal = llvm_utils->lfortran_str_cmp(left_arg, item,
-                                                             "_lpython_str_compare_noteq",
-                                                             module);
-            } else {
-                is_item_not_equal = builder->CreateICmpNE(left_arg, item);
-            }
+            llvm::Value* left_arg = read_item(list, LLVM::CreateLoad(*builder, i),
+                                              LLVM::is_llvm_struct(item_type));
+            llvm::Value* is_item_not_equal = builder->CreateNot(
+                                                llvm_utils->is_equal_by_value(
+                                                    left_arg, item,
+                                                    module, item_type)
+                                            );
             llvm::Value *cond = builder->CreateAnd(is_item_not_equal,
                                                    builder->CreateICmpSGT(current_end_point,
                                                     LLVM::CreateLoad(*builder, i)));
@@ -484,7 +595,7 @@ namespace LFortran {
     }
 
     void LLVMList::remove(llvm::Value* list, llvm::Value* item,
-                          ASR::ttypeType item_type, llvm::Module& module) {
+                          ASR::ttype_t* item_type, llvm::Module& module) {
         llvm::Type* pos_type = llvm::Type::getInt32Ty(context);
         llvm::Value* current_end_point = LLVM::CreateLoad(*builder,
                                         get_pointer_to_current_end_point(list));
@@ -536,6 +647,13 @@ namespace LFortran {
         builder->CreateStore(end_point, end_point_ptr);
     }
 
+    void LLVMList::list_clear(llvm::Value* list) {
+        llvm::Value* end_point_ptr = get_pointer_to_current_end_point(list);
+        llvm::Value* zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                                   llvm::APInt(32, 0));
+        LLVM::CreateStore(*builder, zero, end_point_ptr);
+    }
+
 
     LLVMTuple::LLVMTuple(llvm::LLVMContext& context_,
                          LLVMUtils* llvm_utils_,
@@ -577,14 +695,31 @@ namespace LFortran {
     }
 
     void LLVMTuple::tuple_deepcopy(llvm::Value* src, llvm::Value* dest,
-                                   std::string& type_code) {
+                                   ASR::Tuple_t* tuple_type, llvm::Module& module) {
         LFORTRAN_ASSERT(src->getType() == dest->getType());
-        size_t n_elements = typecode2tupletype[type_code].second;
-        for( size_t i = 0; i < n_elements; i++ ) {
-            llvm::Value* src_item = read_item(src, i, false);
+        for( size_t i = 0; i < tuple_type->n_type; i++ ) {
+            llvm::Value* src_item = read_item(src, i, LLVM::is_llvm_struct(
+                                              tuple_type->m_type[i]));
             llvm::Value* dest_item_ptr = read_item(dest, i, true);
-            builder->CreateStore(src_item, dest_item_ptr);
+            llvm_utils->deepcopy(src_item, dest_item_ptr,
+                                 tuple_type->m_type[i], module);
         }
+    }
+
+    llvm::Value* LLVMTuple::check_tuple_equality(llvm::Value* t1, llvm::Value* t2,
+                                                 ASR::Tuple_t* tuple_type,
+                                                 llvm::LLVMContext& context,
+                                                 llvm::IRBuilder<>* builder,
+                                                 llvm::Module& module) {
+        llvm::Value* is_equal = llvm::ConstantInt::get(context, llvm::APInt(1, 1));
+        for( size_t i = 0; i < tuple_type->n_type; i++ ) {
+            llvm::Value* t1i = llvm_utils->tuple_api->read_item(t1, i);
+            llvm::Value* t2i = llvm_utils->tuple_api->read_item(t2, i);
+            llvm::Value* is_t1_eq_t2 = llvm_utils->is_equal_by_value(t1i, t2i, module,
+                                        tuple_type->m_type[i]);
+            is_equal = builder->CreateAnd(is_equal, is_t1_eq_t2);
+        }
+        return is_equal;
     }
 
 } // namespace LFortran
