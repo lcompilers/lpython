@@ -59,7 +59,7 @@ def test_harmonic_mean():
     assert abs(k - 4.740458015267175) < eps
 
     d: list[i32]
-    d = [9,0,46]
+    d = [9, 0, 46]
     l: f64
     l = harmonic_mean(d)
     assert l == 0.0
