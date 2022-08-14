@@ -1,5 +1,5 @@
 from statistics import (mean, fmean, geometric_mean, harmonic_mean,
-                        variance, stdev, covariance, correlation)
+                        variance, stdev)
 from ltypes import i32, f64, i64
 
 eps: f64
@@ -45,12 +45,30 @@ def test_geometric_mean():
     k = geometric_mean(c)
     assert abs(k - 1.8171205928321397) < eps
 
+    d: list[f64]
+    d = [1.1, 3.4, 17.982, 11.8]
+    l: f64
+    l = geometric_mean(d)
+    assert abs(l - 5.307596520524432) < eps
+
 def test_harmonic_mean():
     c: list[i32]
     c = [9,2,46]
     k: f64
     k = harmonic_mean(c)
     assert abs(k - 4.740458015267175) < eps
+
+    d: list[i32]
+    d = [9, 0, 46]
+    l: f64
+    l = harmonic_mean(d)
+    assert l == 0.0
+
+    e: list[f64]
+    e = [1.1, 3.4, 17.982, 11.8]
+    f: f64
+    f = harmonic_mean(e)
+    assert abs(f - 2.977152988015106) < eps
 
 
 def test_variance():
@@ -65,47 +83,6 @@ def test_variance():
     k: f64
     k = variance(b)
     assert abs(k - 0.40924) < eps
-
-def test_covariance():
-    a: list[i32]
-    a = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    b: list[i32]
-    b = [1, 2, 3, 1, 2, 3, 1, 2, 3]
-    j: f64
-    j = covariance(a,b)
-    assert abs(j - 0.75) < eps
-
-    c: list[f64]
-    c = [2.74, 1.23, 2.63, 2.22, 3.0, 1.98]
-    d: list[f64]
-    d = [9.4, 1.23, 2.63, 22.4, 1.9, 13.98]
-    k: f64
-    k = covariance(c,d)
-    assert abs(k + 0.24955999999999934) < eps
-
-def test_correlation():
-    a: list[i32]
-    a = [11, 2, 7, 4, 15, 6, 10, 8, 9, 1, 11, 5, 13, 6, 15]
-    b: list[i32]
-    b = [2, 5, 17, 6, 10, 8, 13, 4, 6, 9, 11, 2, 5, 4, 7]
-
-    j: f64
-    j = correlation(a,b)
-    assert abs(j - 0.11521487988958108) < eps
-
-    c: list[i32]
-    c = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    d: list[i32]
-    d = [9, 8, 7, 6, 5, 4, 3, 2, 1]
-
-    k: f64
-    k = correlation(c,c)
-    assert k == 1.0
-
-    l: f64
-    l = correlation(c,d)
-    assert l == -1.0
-
 
 def test_stdev():
     a: list[i32]
@@ -128,7 +105,5 @@ def check():
     test_fmean()
     test_variance()
     test_stdev()
-    test_covariance()
-    test_correlation()
 
 check()
