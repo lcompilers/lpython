@@ -49,7 +49,16 @@ namespace LFortran {
                 llvm::IRBuilder<> &builder, llvm::Value* arg_size);
         llvm::Value* lfortran_realloc(llvm::LLVMContext &context, llvm::Module &module,
                 llvm::IRBuilder<> &builder, llvm::Value* ptr, llvm::Value* arg_size);
+        static inline bool is_llvm_struct(ASR::ttype_t* asr_type) {
+            return ASR::is_a<ASR::Tuple_t>(*asr_type) ||
+                   ASR::is_a<ASR::List_t>(*asr_type) ||
+                   ASR::is_a<ASR::Derived_t>(*asr_type) ||
+                   ASR::is_a<ASR::Class_t>(*asr_type);
+        }
     }
+
+    class LLVMList;
+    class LLVMTuple;
 
     class LLVMUtils {
 
@@ -59,6 +68,9 @@ namespace LFortran {
             llvm::IRBuilder<>* builder;
 
         public:
+
+            LLVMTuple* tuple_api;
+            LLVMList* list_api;
 
             LLVMUtils(llvm::LLVMContext& context,
                 llvm::IRBuilder<>* _builder);
@@ -77,6 +89,12 @@ namespace LFortran {
 
             llvm::Value* lfortran_str_cmp(llvm::Value* left_arg, llvm::Value* right_arg,
                                           std::string runtime_func_name, llvm::Module& module);
+
+            llvm::Value* is_equal_by_value(llvm::Value* left, llvm::Value* right,
+                                           llvm::Module& module, ASR::ttype_t* asr_type);
+
+            void deepcopy(llvm::Value* src, llvm::Value* dest,
+                          ASR::ttype_t* asr_type, llvm::Module& module);
 
     }; // LLVMUtils
 
@@ -98,7 +116,7 @@ namespace LFortran {
         public:
 
             LLVMList(llvm::LLVMContext& context_, LLVMUtils* llvm_utils,
-                        llvm::IRBuilder<>* builder);
+                     llvm::IRBuilder<>* builder);
 
             llvm::Type* get_list_type(llvm::Type* el_type, std::string& type_code,
                                         int32_t type_size);
@@ -114,7 +132,7 @@ namespace LFortran {
             llvm::Value* get_pointer_to_current_capacity(llvm::Value* list);
 
             void list_deepcopy(llvm::Value* src, llvm::Value* dest,
-                                std::string& src_type_code,
+                                ASR::List_t* list_type,
                                 llvm::Module& module);
 
             llvm::Value* read_item(llvm::Value* list, llvm::Value* pos,
@@ -123,20 +141,26 @@ namespace LFortran {
             llvm::Value* len(llvm::Value* list);
 
             void write_item(llvm::Value* list, llvm::Value* pos,
+                            llvm::Value* item, ASR::ttype_t* asr_type,
+                            llvm::Module& module);
+
+            void write_item(llvm::Value* list, llvm::Value* pos,
                             llvm::Value* item);
 
             void append(llvm::Value* list, llvm::Value* item,
-                        llvm::Module& module, std::string& type_code);
+                        ASR::ttype_t* asr_type, llvm::Module& module);
 
             void insert_item(llvm::Value* list, llvm::Value* pos,
-                            llvm::Value* item, llvm::Module& module,
-                            std::string& type_code);
+                            llvm::Value* item, ASR::ttype_t* asr_type,
+                            llvm::Module& module);
 
             void remove(llvm::Value* list, llvm::Value* item,
-                        ASR::ttypeType item_type, llvm::Module& module);
+                        ASR::ttype_t* item_type, llvm::Module& module);
+
+            void list_clear(llvm::Value* list);
 
             llvm::Value* find_item_position(llvm::Value* list,
-                llvm::Value* item, ASR::ttypeType item_type,
+                llvm::Value* item, ASR::ttype_t* item_type,
                 llvm::Module& module);
     };
 
@@ -167,7 +191,11 @@ namespace LFortran {
                                    bool get_pointer=false);
 
             void tuple_deepcopy(llvm::Value* src, llvm::Value* dest,
-                                std::string& type_code);
+                                ASR::Tuple_t* type_code, llvm::Module& module);
+
+            llvm::Value* check_tuple_equality(llvm::Value* t1, llvm::Value* t2,
+                ASR::Tuple_t* tuple_type, llvm::LLVMContext& context,
+                llvm::IRBuilder<>* builder, llvm::Module& module);
     };
 
 } // LFortran

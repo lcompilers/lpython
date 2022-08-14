@@ -197,6 +197,9 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             std::vector<std::string> &rl_path,
                             bool &ltypes,
                             const std::function<void (const std::string &, const Location &)> err) {
+    if( module_name == "copy" ) {
+        return nullptr;
+    }
     ltypes = false;
     LFORTRAN_ASSERT(symtab);
     if (symtab->get_scope().find(module_name) != symtab->get_scope().end()) {
@@ -4422,6 +4425,14 @@ public:
                                         ASRUtils::type_to_str(type) + " type.", x.base.base.loc);
                 }
                 return;
+            } else if( call_name == "deepcopy" ) {
+                if( args.size() != 1 ) {
+                    throw SemanticError("deepcopy only accepts one argument, found " +
+                                        std::to_string(args.size()) + " instead.",
+                                        x.base.base.loc);
+                }
+                tmp = (ASR::asr_t*) args[0].m_value;
+                return ;
             } else {
                 // The function was not found and it is not intrinsic
                 throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
