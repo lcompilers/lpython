@@ -326,11 +326,11 @@ statements1
 
 single_line_statements
     : single_line_multi_statements TK_NEWLINE { $$ = $1; }
-    | single_line_multi_statements TK_COMMENT TK_NEWLINE { $$ = $1; }
+    | single_line_multi_statements TK_EOLCOMMENT { $$ = $1; }
     | single_line_statement TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
     | single_line_statement TK_SEMICOLON TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
-    | single_line_statement TK_SEMICOLON TK_COMMENT TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
-    | single_line_statement TK_COMMENT TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
+    | single_line_statement TK_SEMICOLON TK_EOLCOMMENT { $$ = A2LIST(p.m_a, $1); }
+    | single_line_statement TK_EOLCOMMENT { $$ = A2LIST(p.m_a, $1); }
     ;
 
 single_line_multi_statements
