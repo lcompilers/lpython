@@ -613,3 +613,12 @@ def pow(x: i64, y: i64, z: i64) -> i64:
     result: i64
     result = _mod(x**y, z)
     return result
+
+@overload
+def _lpython_str_capitalize(x: str) -> str:
+    val: i32
+    val = ord(x[0])
+    if val >= ord('a') and val <= ord('x'):
+        val -= 32
+    x = chr(val) + x[1:]
+    return x
