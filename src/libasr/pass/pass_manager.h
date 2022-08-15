@@ -43,137 +43,46 @@
 
 namespace LCompilers {
 
-    enum ASRPass {
-        do_loops, global_stmts, implied_do_loops, array_op,
-        arr_slice, print_arr, class_constructor, unused_functions,
-        flip_sign, div_to_mul, fma, sign_from_value,
-        inline_function_calls, loop_unroll, dead_code_removal,
-        forall, select_case, loop_vectorise,
-        array_dim_intrinsics_update, pass_array_by_data
-    };
-
-    static inline void set_runtime_library_dir(PassOptions& pass_options) {
-        pass_options.runtime_library_dir = LFortran::get_runtime_library_dir();
-    }
+    typedef void (*pass_function)(Allocator&, LFortran::ASR::TranslationUnit_t&,
+                                  const LCompilers::PassOptions&);
 
     class PassManager {
         private:
 
-        std::vector<ASRPass> _passes;
-        std::vector<ASRPass> _with_optimization_passes;
-        std::vector<ASRPass> _user_defined_passes;
-        std::map<std::string, ASRPass> _passes_db = {
-            {"do_loops", ASRPass::do_loops},
-            {"global_stmts", ASRPass::global_stmts},
-            {"implied_do_loops", ASRPass::implied_do_loops},
-            {"array_op", ASRPass::array_op},
-            {"arr_slice", ASRPass::arr_slice},
-            {"print_arr", ASRPass::print_arr},
-            {"class_constructor", ASRPass::class_constructor},
-            {"unused_functions", ASRPass::unused_functions},
-            {"flip_sign", ASRPass::flip_sign},
-            {"div_to_mul", ASRPass::div_to_mul},
-            {"fma", ASRPass::fma},
-            {"sign_from_value", ASRPass::sign_from_value},
-            {"inline_function_calls", ASRPass::inline_function_calls},
-            {"loop_unroll", ASRPass::loop_unroll},
-            {"dead_code_removal", ASRPass::dead_code_removal},
-            {"forall", ASRPass::forall},
-            {"select_case", ASRPass::select_case},
-            {"loop_vectorise", ASRPass::loop_vectorise},
-            {"array_dim_intrinsics_update", ASRPass::array_dim_intrinsics_update},
-            {"pass_array_by_data", ASRPass::pass_array_by_data}
+        std::vector<std::string> _passes;
+        std::vector<std::string> _with_optimization_passes;
+        std::vector<std::string> _user_defined_passes;
+        std::map<std::string, pass_function> _passes_db = {
+            {"do_loops", &LFortran::pass_replace_do_loops},
+            {"global_stmts", &LFortran::pass_wrap_global_stmts_into_function},
+            {"implied_do_loops", &LFortran::pass_replace_implied_do_loops},
+            {"array_op", &LFortran::pass_replace_array_op},
+            {"arr_slice", &LFortran::pass_replace_arr_slice},
+            {"print_arr", &LFortran::pass_replace_print_arr},
+            {"class_constructor", &LFortran::pass_replace_class_constructor},
+            {"unused_functions", &LFortran::pass_unused_functions},
+            {"flip_sign", &LFortran::pass_replace_flip_sign},
+            {"div_to_mul", &LFortran::pass_replace_div_to_mul},
+            {"fma", &LFortran::pass_replace_fma},
+            {"sign_from_value", &LFortran::pass_replace_sign_from_value},
+            {"inline_function_calls", &LFortran::pass_inline_function_calls},
+            {"loop_unroll", &LFortran::pass_loop_unroll},
+            {"dead_code_removal", &LFortran::pass_dead_code_removal},
+            {"forall", &LFortran::pass_replace_forall},
+            {"select_case", &LFortran::pass_replace_select_case},
+            {"loop_vectorise", &LFortran::pass_loop_vectorise},
+            {"array_dim_intrinsics_update", &LFortran::pass_update_array_dim_intrinsic_calls},
+            {"pass_array_by_data", &LFortran::pass_array_by_data}
         };
 
         bool is_fast;
         bool apply_default_passes;
 
         void _apply_passes(Allocator& al, LFortran::ASR::TranslationUnit_t* asr,
-                           std::vector<ASRPass>& passes, PassOptions pass_options) {
-            set_runtime_library_dir(pass_options);
+                           std::vector<std::string>& passes, PassOptions pass_options) {
+            pass_options.runtime_library_dir = LFortran::get_runtime_library_dir();
             for (size_t i = 0; i < passes.size(); i++) {
-                switch (passes[i]) {
-                    case (ASRPass::do_loops) : {
-                        LFortran::pass_replace_do_loops(al, *asr, pass_options);
-                        break;
-                    }
-                    case (ASRPass::global_stmts) : {
-                        LFortran::pass_wrap_global_stmts_into_function(al, *asr, pass_options);
-                        break;
-                    }
-                    case (ASRPass::implied_do_loops) : {
-                        LFortran::pass_replace_implied_do_loops(al, *asr, pass_options);
-                        break;
-                    }
-                    case (ASRPass::array_op) : {
-                        LFortran::pass_replace_array_op(al, *asr, pass_options);
-                        break;
-                    }
-                    case (ASRPass::flip_sign) : {
-                        LFortran::pass_replace_flip_sign(al, *asr, pass_options);
-                        break;
-                    }
-                    case (ASRPass::fma) : {
-                        LFortran::pass_replace_fma(al, *asr, pass_options);
-                        break;
-                    }
-                    case (ASRPass::loop_unroll) : {
-                        LFortran::pass_loop_unroll(al, *asr, pass_options);
-                        break;
-                    }
-                    case (ASRPass::inline_function_calls) : {
-                        LFortran::pass_inline_function_calls(al, *asr, pass_options);
-                        break;
-                    }
-                    case (ASRPass::dead_code_removal) : {
-                        LFortran::pass_dead_code_removal(al, *asr, pass_options);
-                        break;
-                    }
-                    case (ASRPass::sign_from_value) : {
-                        LFortran::pass_replace_sign_from_value(al, *asr, pass_options);
-                        break;
-                    }
-                    case (ASRPass::div_to_mul) : {
-                        LFortran::pass_replace_div_to_mul(al, *asr, pass_options);
-                        break;
-                    }
-                    case (ASRPass::class_constructor) : {
-                        LFortran::pass_replace_class_constructor(al, *asr, pass_options);
-                        break;
-                    }
-                    case (ASRPass::arr_slice) : {
-                        LFortran::pass_replace_arr_slice(al, *asr, pass_options);
-                        break;
-                    }
-                    case (ASRPass::print_arr) : {
-                        LFortran::pass_replace_print_arr(al, *asr, pass_options);
-                        break;
-                    }
-                    case (ASRPass::unused_functions) : {
-                        LFortran::pass_unused_functions(al, *asr, pass_options);
-                        break;
-                    }
-                    case (ASRPass::forall) : {
-                        LFortran::pass_replace_forall(al, *asr, pass_options);
-                        break ;
-                    }
-                    case (ASRPass::select_case) : {
-                        LFortran::pass_replace_select_case(al, *asr, pass_options);
-                        break;
-                    }
-                    case (ASRPass::loop_vectorise) : {
-                        LFortran::pass_loop_vectorise(al, *asr, pass_options);
-                        break;
-                    }
-                    case (ASRPass::array_dim_intrinsics_update): {
-                        LFortran::pass_update_array_dim_intrinsic_calls(al, *asr, pass_options);
-                        break ;
-                    }
-                    case (ASRPass::pass_array_by_data): {
-                        LFortran::pass_array_by_data(al, *asr, pass_options);
-                        break ;
-                    }
-                }
+                _passes_db[passes[i]](al, *asr, pass_options);
             }
         }
 
@@ -181,41 +90,41 @@ namespace LCompilers {
 
         PassManager(): is_fast{false}, apply_default_passes{false} {
             _passes = {
-                ASRPass::global_stmts,
-                ASRPass::class_constructor,
-                ASRPass::implied_do_loops,
-                ASRPass::pass_array_by_data,
-                ASRPass::arr_slice,
-                ASRPass::array_op,
-                ASRPass::print_arr,
-                ASRPass::array_dim_intrinsics_update,
-                ASRPass::do_loops,
-                ASRPass::forall,
-                ASRPass::select_case,
-                ASRPass::unused_functions
+                "global_stmts",
+                "class_constructor",
+                "implied_do_loops",
+                "pass_array_by_data",
+                "arr_slice",
+                "array_op",
+                "print_arr",
+                "array_dim_intrinsics_update",
+                "do_loops",
+                "forall",
+                "select_case",
+                "unused_functions"
             };
 
             _with_optimization_passes = {
-                ASRPass::global_stmts,
-                ASRPass::class_constructor,
-                ASRPass::implied_do_loops,
-                ASRPass::pass_array_by_data,
-                ASRPass::arr_slice,
-                ASRPass::array_op,
-                ASRPass::print_arr,
-                ASRPass::loop_vectorise,
-                ASRPass::loop_unroll,
-                ASRPass::array_dim_intrinsics_update,
-                ASRPass::do_loops,
-                ASRPass::forall,
-                ASRPass::dead_code_removal,
-                ASRPass::select_case,
-                ASRPass::unused_functions,
-                ASRPass::flip_sign,
-                ASRPass::sign_from_value,
-                ASRPass::div_to_mul,
-                ASRPass::fma,
-                ASRPass::inline_function_calls
+                "global_stmts",
+                "class_constructor",
+                "implied_do_loops",
+                "pass_array_by_data",
+                "arr_slice",
+                "array_op",
+                "print_arr",
+                "loop_vectorise",
+                "loop_unroll",
+                "array_dim_intrinsics_update",
+                "do_loops",
+                "forall",
+                "dead_code_removal",
+                "select_case",
+                "unused_functions",
+                "flip_sign",
+                "sign_from_value",
+                "div_to_mul",
+                "fma",
+                "inline_function_calls"
             };
 
             _user_defined_passes.clear();
@@ -243,7 +152,7 @@ namespace LCompilers {
                         }
                         exit(1);
                     }
-                    _user_defined_passes.push_back(_passes_db[current_pass]);
+                    _user_defined_passes.push_back(current_pass);
                     current_pass.clear();
                 }
             }
