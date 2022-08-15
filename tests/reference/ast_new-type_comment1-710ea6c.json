@@ -2,11 +2,11 @@
     "basename": "ast_new-type_comment1-710ea6c",
     "cmd": "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
     "infile": "tests/parser/type_comment1.py",
-    "infile_hash": "cdc0bdd0faec912e7f3db4e71c4a14aa281828e8b68faac91f5a78ee",
+    "infile_hash": "9c79bc041758b5401f4431a53b6b333999a4e7dfe9dfabac13d83178",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast_new-type_comment1-710ea6c.stdout",
-    "stdout_hash": "98ccc7f80021238fff1a1a1395e64b5d2097f025e60e47821ec76fdb",
+    "stdout_hash": "c7019449158ebe30677a0808ad2fd8f93aebd2eee6cd90914c44cd98",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
