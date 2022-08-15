@@ -1008,7 +1008,9 @@ public:
         // Generate function prototypes
         for (auto &item : x.m_global_scope->get_scope()) {
             if (is_a<ASR::Function_t>(*item.second)) {
-                visit_Function(*ASR::down_cast<ASR::Function_t>(item.second));
+                if (ASR::down_cast<ASR::Function_t>(item.second)->n_type_params == 0) {
+                    visit_Function(*ASR::down_cast<ASR::Function_t>(item.second));
+                }
             }
         }
         prototype_only = false;
@@ -1028,7 +1030,9 @@ public:
         // Then do all the procedures
         for (auto &item : x.m_global_scope->get_scope()) {
             if (is_a<ASR::Function_t>(*item.second)) {
-                visit_symbol(*item.second);
+                if (ASR::down_cast<ASR::Function_t>(item.second)->n_type_params == 0) {
+                    visit_symbol(*item.second);
+                }                
             }
         }
 

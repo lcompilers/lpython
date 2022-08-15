@@ -57,19 +57,22 @@ public:
             args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var)));
         }
 
-        ASR::Variable_t *return_var = ASR::down_cast<ASR::Variable_t>(
-            (ASR::down_cast<ASR::Var_t>(x.m_return_var))->m_v);
-        std::string return_var_name = return_var->m_name;
-        ASR::ttype_t *return_param_type = ASRUtils::expr_type(x.m_return_var);
-        ASR::ttype_t *return_type = ASR::is_a<ASR::TypeParameter_t>(*return_param_type) ?
-            subs[ASR::down_cast<ASR::TypeParameter_t>(return_param_type)->m_param] : return_param_type;
-        ASR::asr_t *new_return_var = ASR::make_Variable_t(al, return_var->base.base.loc,
-            current_scope, s2c(al, return_var_name), return_var->m_intent, nullptr, nullptr,
-            return_var->m_storage, return_type, return_var->m_abi, return_var->m_access,
-            return_var->m_presence, return_var->m_value_attr);
-        current_scope->add_symbol(return_var_name, ASR::down_cast<ASR::symbol_t>(new_return_var));
-        ASR::asr_t *new_return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
-            current_scope->get_symbol(return_var_name));   
+        ASR::expr_t *new_return_var_ref = nullptr;
+        if (x.m_return_var != nullptr) {
+            ASR::Variable_t *return_var = ASR::down_cast<ASR::Variable_t>(
+                (ASR::down_cast<ASR::Var_t>(x.m_return_var))->m_v);
+            std::string return_var_name = return_var->m_name;
+            ASR::ttype_t *return_param_type = ASRUtils::expr_type(x.m_return_var);
+            ASR::ttype_t *return_type = ASR::is_a<ASR::TypeParameter_t>(*return_param_type) ?
+                subs[ASR::down_cast<ASR::TypeParameter_t>(return_param_type)->m_param] : return_param_type;
+            ASR::asr_t *new_return_var = ASR::make_Variable_t(al, return_var->base.base.loc,
+                current_scope, s2c(al, return_var_name), return_var->m_intent, nullptr, nullptr,
+                return_var->m_storage, return_type, return_var->m_abi, return_var->m_access,
+                return_var->m_presence, return_var->m_value_attr);
+            current_scope->add_symbol(return_var_name, ASR::down_cast<ASR::symbol_t>(new_return_var));
+            new_return_var_ref = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc,
+                current_scope->get_symbol(return_var_name)));   
+        }
 
         // Rebuild the symbol table
         for (auto const &sym_pair: x.m_symtab->get_scope()) {
@@ -108,7 +111,7 @@ public:
             args.p, args.size(),
             nullptr, 0,
             body.p, body.size(),
-            ASRUtils::EXPR(new_return_var_ref),
+            new_return_var_ref,
             func_abi, func_access, func_deftype, bindc_name,
             false, false, false);
 
