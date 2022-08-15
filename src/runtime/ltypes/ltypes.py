@@ -48,7 +48,11 @@ class SupportsPlus:
     def __init__(self):
         pass
 
-class Number:
+class SupportsZero:
+    def __init__(self):
+        pass  
+
+class Divisible:
     def __init__(self):
         pass    
 

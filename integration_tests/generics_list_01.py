@@ -1,4 +1,5 @@
-from ltypes import TypeVar
+from ltypes import TypeVar, SupportsPlus, SupportsZero, Divisible
+from ltypes import f64, i32
 
 T = TypeVar('T', bound=SupportsPlus|SupportsZero|Divisible)
 
