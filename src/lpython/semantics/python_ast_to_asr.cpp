@@ -4243,6 +4243,23 @@ public:
                             }
                             ASR::expr_t *se = ASR::down_cast<ASR::expr_t>(
                                             ASR::make_Var_t(al, x.base.base.loc, st));
+                            if (ASR::is_a<ASR::Character_t>(*(ASRUtils::expr_type(se)))) {
+                                if (std::string(at->m_attr) == std::string("capitalize")) {
+                                    if(args.size() != 0) {
+                                        throw SemanticError("str.capitalize() takes no arguments",
+                                            x.base.base.loc);
+                                    }
+                                    ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_capitalize");
+                                    Vec<ASR::call_arg_t> args;
+                                    args.reserve(al, 1);
+                                    ASR::call_arg_t arg;
+                                    arg.loc = x.base.base.loc;
+                                    arg.m_value = se;
+                                    args.push_back(al, arg);
+                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_capitalize", x.base.base.loc);
+                                    return;
+                                }
+                            }
                             handle_attribute(se, at->m_attr, x.base.base.loc, eles);
                             return;
                         }
@@ -4274,6 +4291,23 @@ public:
                     return;
                 } else {
                     throw SemanticError("'int' object has no attribute '" + std::string(at->m_attr) + "'",
+                        x.base.base.loc);
+                }
+            } else if (AST::is_a<AST::ConstantStr_t>(*at->m_value)) {
+                if (std::string(at->m_attr) == std::string("capitalize")) {
+                    if(args.size() != 0) {
+                        throw SemanticError("str.capitalize() takes no arguments",
+                            x.base.base.loc);
+                    }
+                    AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
+                    std::string res = n->m_value;
+                    res[0] = toupper(res[0]);
+                    ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
+                                    1, 1, nullptr, nullptr , 0));
+                    tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
+                    return;
+                } else {
+                    throw SemanticError("'str' object has no attribute '" + std::string(at->m_attr) + "'",
                         x.base.base.loc);
                 }
             } else {

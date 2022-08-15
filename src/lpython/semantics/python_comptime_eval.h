@@ -61,7 +61,8 @@ struct PythonIntrinsicProcedures {
             {"_lpython_floordiv", {m_builtin, &eval__lpython_floordiv}},
             {"_mod", {m_builtin, &eval__mod}},
             {"max" , {m_builtin , &eval_max}},
-            {"min" , {m_builtin , &eval_min}}
+            {"min" , {m_builtin , &eval_min}},
+            {"_lpython_str_capitalize", {m_builtin, &eval__lpython_str_capitalize}}
         };
     }
 
@@ -592,8 +593,8 @@ struct PythonIntrinsicProcedures {
         ASR::expr_t *first_element = args[0];
         ASR::ttype_t *first_element_type = ASRUtils::expr_type(first_element);
         semantic_error_flag &= ASRUtils::is_integer(*first_element_type)
-                               || ASRUtils::is_real(*first_element_type)
-                               || ASRUtils::is_character(*first_element_type);
+                                || ASRUtils::is_real(*first_element_type)
+                                || ASRUtils::is_character(*first_element_type);
         int32_t smallest_ind = 0;
         if (semantic_error_flag) {
             if (ASRUtils::is_integer(*first_element_type)) {
@@ -650,6 +651,24 @@ struct PythonIntrinsicProcedures {
 
     }
 
+    static ASR::expr_t *eval__lpython_str_capitalize(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        if (args.size() != 1) {
+            throw SemanticError("_lpython_str_capitalize() takes exactly one arguments (" +
+                std::to_string(args.size()) + " given)", loc);
+        }
+        ASR::expr_t *arg1 = args[0];
+        ASR::ttype_t *arg1_type = ASRUtils::expr_type(arg1);
+        if (ASRUtils::is_character(*arg1_type)) {
+            std::string val = ASR::down_cast<ASR::StringConstant_t>(arg1)->m_s;
+            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                                        1, 1, nullptr, nullptr, 0));
+            ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_StringConstant_t(al, loc, s2c(al, ""), type));
+            return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, val),  res_type));
+        } else {
+            throw SemanticError("Only string from arguments.", loc);
+        }
+    }
 
 
 }; // ComptimeEval
