@@ -2354,7 +2354,6 @@ public:
         current_procedure_abi_type = ASR::abiType::Source;
         bool current_procedure_interface = false;
         bool overload = false;
-        std::set<std::string> ps;
         Vec<ASR::ttype_t*> tps;
         tps.reserve(al, x.m_args.n_args);
         bool vectorize = false;
@@ -2393,10 +2392,20 @@ public:
             ASR::ttype_t *arg_type = ast_expr_to_asr_type(x.base.base.loc, *x.m_args.m_args[i].m_annotation);
             // Set the function as generic if an argument is typed with a type parameter
             if (ASRUtils::is_generic(*arg_type)) {
-                std::string param_name = ASRUtils::get_parameter_name(arg_type);
-                ps.insert(param_name);
-                ASR::ttype_t *tp = ASRUtils::duplicate_type(al, ASRUtils::get_type_parameter(arg_type));
-                tps.push_back(al, tp);
+                ASR::ttype_t *new_tt = ASRUtils::duplicate_type_without_dims(al, ASRUtils::get_type_parameter(arg_type));
+                size_t current_size = tps.size();
+                if (current_size == 0) {
+                    tps.push_back(al, new_tt);
+                } else {
+                    for (size_t i = 0; i < current_size; i++) {
+                        ASR::TypeParameter_t *added_tp = ASR::down_cast<ASR::TypeParameter_t>(tps.p[i]);
+                        std::string new_param = ASR::down_cast<ASR::TypeParameter_t>(new_tt)->m_param;
+                        std::string added_param = added_tp->m_param;
+                        if (added_param.compare(new_param) != 0) {
+                            tps.push_back(al, new_tt);
+                        }
+                    }
+                }
             }
 
             std::string arg_s = arg;
