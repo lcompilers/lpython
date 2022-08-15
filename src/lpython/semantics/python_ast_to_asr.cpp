@@ -4557,7 +4557,10 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
                 LFORTRAN_ASSERT(asr_verify(*tu));
             }
         } else {
-            pass_wrap_global_stmts_into_program(al, *tu, "_lpython_main_program");
+            LCompilers::PassOptions pass_options;
+            pass_options.run_fun = "_lpython_main_program";
+            pass_options.runtime_library_dir = get_runtime_library_dir();
+            pass_wrap_global_stmts_into_program(al, *tu, pass_options);
             LFORTRAN_ASSERT(asr_verify(*tu));
         }
     }

@@ -165,7 +165,10 @@ int emit_asr(const std::string &infile,
         return 2;
     }
     LFortran::ASR::TranslationUnit_t* asr = r.result;
-    pass_manager.apply_passes(al, asr, "f", true);
+    LCompilers::PassOptions pass_options;
+    pass_options.run_fun = "f";
+    pass_options.always_run = true;
+    pass_manager.apply_passes(al, asr, pass_options);
 
     if (compiler_options.tree) {
         std::cout << LFortran::pickle_tree(*asr, compiler_options.use_colors,
@@ -304,33 +307,33 @@ int get_symbols (const std::string &infile,
            rapidjson::Document end_detail(rapidjson::kObjectType);
            rapidjson::Document location_object(rapidjson::kObjectType);
            rapidjson::Document test_capture(rapidjson::kObjectType);
- 
+
            test_output.SetArray();
- 
+
            for (auto symbol : symbol_lists) {
                uint32_t start_character = symbol.first_column;
                uint32_t start_line = symbol.first_line;
                uint32_t end_character = symbol.last_column;
                uint32_t end_line = symbol.last_line;
                std::string name = symbol.symbol_name;
- 
+
                range_object.SetObject();
                rapidjson::Document::AllocatorType &allocator = range_object.GetAllocator();
- 
+
                start_detail.SetObject();
                start_detail.AddMember("character", rapidjson::Value().SetInt(start_character), allocator);
                start_detail.AddMember("line", rapidjson::Value().SetInt(start_line), allocator);
                range_object.AddMember("start", start_detail, allocator);
- 
+
                end_detail.SetObject();
                end_detail.AddMember("character", rapidjson::Value().SetInt(end_character), allocator);
                end_detail.AddMember("line", rapidjson::Value().SetInt(end_line), allocator);
                range_object.AddMember("end", end_detail, allocator);
- 
+
                location_object.SetObject();
                location_object.AddMember("range", range_object, allocator);
                location_object.AddMember("uri", rapidjson::Value().SetString("uri", allocator), allocator);
- 
+
                test_capture.SetObject();
                test_capture.AddMember("kind", rapidjson::Value().SetInt(1), allocator);
                test_capture.AddMember("location", location_object, allocator);
@@ -342,16 +345,16 @@ int get_symbols (const std::string &infile,
            rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
            test_output.Accept(writer);
            std::string resp_str( buffer.GetString() );
-          
+
            std::cout << resp_str;
        }
        else {
            std::cout << "{}\n";
        }
- 
+
    return 0;
 }
- 
+
 
 int get_errors (const std::string &infile,
     const std::string &runtime_library_dir,
@@ -363,7 +366,7 @@ int get_errors (const std::string &infile,
         std::string input = LFortran::read_file(infile);
         lm.init_simple(input);
         LFortran::Result<LFortran::LPython::AST::ast_t*>
-            r1 = LFortran::parse_python_file(al, runtime_library_dir, infile, 
+            r1 = LFortran::parse_python_file(al, runtime_library_dir, infile,
                     diagnostics, compiler_options.new_parser);
         if (r1.ok) {
             LFortran::LPython::AST::ast_t* ast = r1.result;
@@ -396,7 +399,7 @@ int get_errors (const std::string &infile,
             }
         }
         rapidjson::Document range_obj(rapidjson::kObjectType);
-        rapidjson::Document start_detail(rapidjson::kObjectType); 
+        rapidjson::Document start_detail(rapidjson::kObjectType);
         rapidjson::Document end_detail(rapidjson::kObjectType);
         rapidjson::Document diag_results(rapidjson::kArrayType);
         rapidjson::Document diag_capture(rapidjson::kObjectType);
@@ -411,7 +414,7 @@ int get_errors (const std::string &infile,
             std::string msg = diag.message;
 
             range_obj.SetObject();
-            rapidjson::Document::AllocatorType &allocator = range_obj.GetAllocator(); 
+            rapidjson::Document::AllocatorType &allocator = range_obj.GetAllocator();
 
             start_detail.SetObject();
             start_detail.AddMember("line", rapidjson::Value().SetInt(start_line), allocator);

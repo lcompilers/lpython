@@ -79,7 +79,8 @@ public:
 };
 
 void pass_replace_print_arr(Allocator &al, ASR::TranslationUnit_t &unit,
-        const std::string &rl_path) {
+                            const LCompilers::PassOptions& pass_options) {
+    std::string rl_path = pass_options.runtime_library_dir;
     PrintArrVisitor v(al, rl_path);
     v.visit_TranslationUnit(unit);
     LFORTRAN_ASSERT(asr_verify(unit));
