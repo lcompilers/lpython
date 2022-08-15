@@ -35,6 +35,11 @@ if b:
     pass
 else: a = b
 
+if a == b: pass # comment
+if a == b: pass; # comment
+if a == b: x = a + b; break # comment
+if a == b: x = a + b; break; # comment
+
 # TODO: Make this work (basically separated by multiple sep(s)).
 # at present, it only works with a single newline separator.
 
