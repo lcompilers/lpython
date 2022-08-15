@@ -54,7 +54,8 @@ public:
     }
 };
 
-void pass_replace_class_constructor(Allocator &al, ASR::TranslationUnit_t &unit) {
+void pass_replace_class_constructor(Allocator &al, ASR::TranslationUnit_t &unit,
+                                    const LCompilers::PassOptions& /*pass_options*/) {
     ClassConstructorVisitor v(al);
     do {
         v.is_constructor_present = false;

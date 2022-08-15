@@ -445,8 +445,9 @@ public:
 };
 
 void pass_inline_function_calls(Allocator &al, ASR::TranslationUnit_t &unit,
-                                const std::string& rl_path,
-                                bool inline_external_symbol_calls) {
+                                const LCompilers::PassOptions& pass_options) {
+    std::string rl_path = pass_options.runtime_library_dir;
+    bool inline_external_symbol_calls = pass_options.inline_external_symbol_calls;
     InlineFunctionCallVisitor v(al, rl_path, inline_external_symbol_calls);
     v.configure_node_duplicator(false);
     v.visit_TranslationUnit(unit);
