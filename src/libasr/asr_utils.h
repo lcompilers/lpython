@@ -1422,11 +1422,11 @@ static inline bool has_supports_zero_trait(ASR::TypeParameter_t *tp) {
     return false;
 }
 
-static inline bool has_iterable_trait(ASR::TypeParameter_t *tp) {
+static inline bool has_divisible_trait(ASR::TypeParameter_t *tp) {
     for (size_t i=0; i<tp->n_rt; i++) {
         ASR::Restriction_t *restriction = ASR::down_cast<ASR::Restriction_t>(tp->m_rt[i]);
         switch (restriction->m_rt) {
-            case (ASR::traitType::Iterable): { return true; }
+            case (ASR::traitType::Divisible): { return true; }
             default: continue;
         }
     } 

@@ -1234,6 +1234,9 @@ public:
                 if (ASRUtils::is_integer(*left_type)) {
                     left = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
                         al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type));
+                } else if (ASR::is_a<ASR::TypeParameter_t>(*left_type)) {
+                    left = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                        al, left->base.loc, left, ASR::cast_kindType::TemplateToReal, dest_type));                    
                 }
                 if (ASRUtils::is_integer(*right_type)) {
                     if (ASRUtils::expr_value(right) != nullptr) {
@@ -1353,7 +1356,7 @@ public:
                 } else {
                     throw SemanticError("Both type variables must support addition operation", loc);
                 }
-            }
+            } 
         } else if (ASR::is_a<ASR::List_t>(*left_type) && ASR::is_a<ASR::List_t>(*right_type)
                    && op == ASR::binopType::Add) {
             dest_type = left_type;
@@ -2656,8 +2659,8 @@ public:
                 traits.insert(ASR::traitType::SupportsPlus);
             } else if (trait_name == "SupportsZero") {
                 traits.insert(ASR::traitType::SupportsZero);
-            } else if (trait_name == "Iterable") {
-                traits.insert(ASR::traitType::Iterable);
+            } else if (trait_name == "Divisible") {
+                traits.insert(ASR::traitType::Divisible);
             } else {
                 throw SemanticError("Unsupported trait " + trait_name, value->base.loc);
             }
@@ -2720,7 +2723,6 @@ public:
         for (size_t i=0; i<n_body; i++) {
             // Visit the statement
             this->visit_stmt(*m_body[i]);
-            std::cout << m_body[i]->type << std::endl;
             if (tmp != nullptr) {
                 ASR::stmt_t* tmp_stmt = ASRUtils::STMT(tmp);
                 body.push_back(al, tmp_stmt);

@@ -119,6 +119,8 @@ public:
         return result;
     }
 
+
+
     ASR::asr_t* duplicate_Var(ASR::Var_t *x) {
         std::string sym_name = ASRUtils::symbol_name(x->m_v);
         ASR::symbol_t *sym = current_scope->get_symbol(sym_name);
@@ -140,6 +142,16 @@ public:
         return ASR::make_ArrayItem_t(al, x->base.base.loc, m_v, args.p, x->n_args, type, m_value);
     }
 
+    ASR::asr_t* duplicate_ListItem(ASR::ListItem_t *x) {
+        ASR::expr_t *m_a = duplicate_expr(x->m_a);
+        ASR::expr_t *m_pos = duplicate_expr(x->m_pos);
+        ASR::ttype_t *type = substitute_type(x->m_type);
+        ASR::expr_t *m_value = duplicate_expr(x->m_value);
+
+        return ASR::make_ListItem_t(al, x->base.base.loc, 
+            m_a, m_pos, type, m_value);
+    }
+
     ASR::array_index_t duplicate_array_index(ASR::array_index_t x) {
         ASR::expr_t *left = duplicate_expr(x.m_left);
         ASR::expr_t *right = duplicate_expr(x.m_right);
@@ -149,6 +161,21 @@ public:
         result.m_right = right;
         result.m_step = step;
         return result;
+    }
+
+    ASR::asr_t* duplicate_Assignment(ASR::Assignment_t *x) {
+        ASR::expr_t *target = duplicate_expr(x->m_target);
+        ASR::ttype_t *target_type = substitute_type(ASRUtils::expr_type(x->m_target));
+        ASR::expr_t *value = duplicate_expr(x->m_value);
+        if (ASRUtils::is_real(*target_type) && ASR::is_a<ASR::IntegerConstant_t>(*x->m_value)) {
+            ASR::IntegerConstant_t *int_value = ASR::down_cast<ASR::IntegerConstant_t>(x->m_value);
+            if (int_value->m_n == 0) {
+                value = ASRUtils::EXPR(ASR::make_RealConstant_t(al, value->base.loc, 0, 
+                    ASRUtils::duplicate_type(al, target_type)));
+            }
+        }
+        ASR::stmt_t *overloaded = duplicate_stmt(x->m_overloaded);
+        return ASR::make_Assignment_t(al, x->base.base.loc, target, value, overloaded);
     }
 
     ASR::asr_t* duplicate_TemplateBinOp(ASR::TemplateBinOp_t *x) {
@@ -173,7 +200,21 @@ public:
         return ASR::make_DoLoop_t(al, x->base.base.loc, head, m_body.p, x->n_body);
     }
 
+    ASR::asr_t* duplicate_Cast(ASR::Cast_t *x) {
+        ASR::expr_t *arg = duplicate_expr(x->m_arg);
+        ASR::ttype_t *type = substitute_type(ASRUtils::expr_type(x->m_arg));
+        if (ASRUtils::is_real(*type)) {
+            return (ASR::asr_t*) arg;
+        }
+        return ASRUtils::make_Cast_t_value(al, x->base.base.loc, arg, ASR::cast_kindType::IntegerToReal, x->m_type); 
+    }
+
     ASR::ttype_t* substitute_type(ASR::ttype_t *param_type) {
+        if (ASR::is_a<ASR::List_t>(*param_type)) {
+            ASR::List_t *tlist = ASR::down_cast<ASR::List_t>(param_type);
+            return ASRUtils::TYPE(ASR::make_List_t(al, param_type->base.loc, 
+                substitute_type(tlist->m_type)));
+        }
         if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
             ASR::TypeParameter_t *param = ASR::down_cast<ASR::TypeParameter_t>(param_type);
             ASR::ttype_t *t = subs[param->m_param];
@@ -203,7 +244,7 @@ public:
                     ASR::Logical_t* tnew = ASR::down_cast<ASR::Logical_t>(t);
                     return ASRUtils::TYPE(ASR::make_Logical_t(al, t->base.loc,
                             tnew->m_kind, param->m_dims, param->n_dims));
-                }                     
+                }             
                 default: return subs[param->m_param];                          
             }
         }
