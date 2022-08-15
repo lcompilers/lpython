@@ -593,8 +593,8 @@ struct PythonIntrinsicProcedures {
         ASR::expr_t *first_element = args[0];
         ASR::ttype_t *first_element_type = ASRUtils::expr_type(first_element);
         semantic_error_flag &= ASRUtils::is_integer(*first_element_type)
-                                || ASRUtils::is_real(*first_element_type)
-                                || ASRUtils::is_character(*first_element_type);
+                               || ASRUtils::is_real(*first_element_type)
+                               || ASRUtils::is_character(*first_element_type);
         int32_t smallest_ind = 0;
         if (semantic_error_flag) {
             if (ASRUtils::is_integer(*first_element_type)) {

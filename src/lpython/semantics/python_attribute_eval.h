@@ -6,6 +6,7 @@
 #include <libasr/string_utils.h>
 #include <lpython/utils.h>
 #include <lpython/semantics/semantic_exception.h>
+
 namespace LFortran {
 
 struct AttributeHandler {
@@ -329,7 +330,6 @@ struct AttributeHandler {
     }
 
 }; // AttributeHandler
-
 
 } // namespace LFortran
 
