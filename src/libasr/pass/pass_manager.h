@@ -52,6 +52,10 @@ namespace LCompilers {
         array_dim_intrinsics_update, pass_array_by_data
     };
 
+    static inline void set_runtime_library_dir(PassOptions& pass_options) {
+        pass_options.runtime_library_dir = LFortran::get_runtime_library_dir();
+    }
+
     class PassManager {
         private:
 
@@ -85,88 +89,88 @@ namespace LCompilers {
         bool apply_default_passes;
 
         void _apply_passes(Allocator& al, LFortran::ASR::TranslationUnit_t* asr,
-                           std::vector<ASRPass>& passes, std::string& run_fun,
-                           bool always_run) {
+                           std::vector<ASRPass>& passes, PassOptions pass_options) {
+            set_runtime_library_dir(pass_options);
             for (size_t i = 0; i < passes.size(); i++) {
                 switch (passes[i]) {
                     case (ASRPass::do_loops) : {
-                        LFortran::pass_replace_do_loops(al, *asr);
+                        LFortran::pass_replace_do_loops(al, *asr, pass_options);
                         break;
                     }
                     case (ASRPass::global_stmts) : {
-                        LFortran::pass_wrap_global_stmts_into_function(al, *asr, run_fun);
+                        LFortran::pass_wrap_global_stmts_into_function(al, *asr, pass_options);
                         break;
                     }
                     case (ASRPass::implied_do_loops) : {
-                        LFortran::pass_replace_implied_do_loops(al, *asr, LFortran::get_runtime_library_dir());
+                        LFortran::pass_replace_implied_do_loops(al, *asr, pass_options);
                         break;
                     }
                     case (ASRPass::array_op) : {
-                        LFortran::pass_replace_array_op(al, *asr, LFortran::get_runtime_library_dir());
+                        LFortran::pass_replace_array_op(al, *asr, pass_options);
                         break;
                     }
                     case (ASRPass::flip_sign) : {
-                        LFortran::pass_replace_flip_sign(al, *asr, LFortran::get_runtime_library_dir());
+                        LFortran::pass_replace_flip_sign(al, *asr, pass_options);
                         break;
                     }
                     case (ASRPass::fma) : {
-                        LFortran::pass_replace_fma(al, *asr, LFortran::get_runtime_library_dir());
+                        LFortran::pass_replace_fma(al, *asr, pass_options);
                         break;
                     }
                     case (ASRPass::loop_unroll) : {
-                        LFortran::pass_loop_unroll(al, *asr, LFortran::get_runtime_library_dir());
+                        LFortran::pass_loop_unroll(al, *asr, pass_options);
                         break;
                     }
                     case (ASRPass::inline_function_calls) : {
-                        LFortran::pass_inline_function_calls(al, *asr, LFortran::get_runtime_library_dir());
+                        LFortran::pass_inline_function_calls(al, *asr, pass_options);
                         break;
                     }
                     case (ASRPass::dead_code_removal) : {
-                        LFortran::pass_dead_code_removal(al, *asr, LFortran::get_runtime_library_dir());
+                        LFortran::pass_dead_code_removal(al, *asr, pass_options);
                         break;
                     }
                     case (ASRPass::sign_from_value) : {
-                        LFortran::pass_replace_sign_from_value(al, *asr, LFortran::get_runtime_library_dir());
+                        LFortran::pass_replace_sign_from_value(al, *asr, pass_options);
                         break;
                     }
                     case (ASRPass::div_to_mul) : {
-                        LFortran::pass_replace_div_to_mul(al, *asr, LFortran::get_runtime_library_dir());
+                        LFortran::pass_replace_div_to_mul(al, *asr, pass_options);
                         break;
                     }
                     case (ASRPass::class_constructor) : {
-                        LFortran::pass_replace_class_constructor(al, *asr);
+                        LFortran::pass_replace_class_constructor(al, *asr, pass_options);
                         break;
                     }
                     case (ASRPass::arr_slice) : {
-                        LFortran::pass_replace_arr_slice(al, *asr, LFortran::get_runtime_library_dir());
+                        LFortran::pass_replace_arr_slice(al, *asr, pass_options);
                         break;
                     }
                     case (ASRPass::print_arr) : {
-                        LFortran::pass_replace_print_arr(al, *asr, LFortran::get_runtime_library_dir());
+                        LFortran::pass_replace_print_arr(al, *asr, pass_options);
                         break;
                     }
                     case (ASRPass::unused_functions) : {
-                        LFortran::pass_unused_functions(al, *asr, always_run);
+                        LFortran::pass_unused_functions(al, *asr, pass_options);
                         break;
                     }
                     case (ASRPass::forall) : {
-                        LFortran::pass_replace_forall(al, *asr);
+                        LFortran::pass_replace_forall(al, *asr, pass_options);
                         break ;
                     }
                     case (ASRPass::select_case) : {
-                        LFortran::pass_replace_select_case(al, *asr);
+                        LFortran::pass_replace_select_case(al, *asr, pass_options);
                         break;
                     }
                     case (ASRPass::loop_vectorise) : {
-                        LFortran::pass_loop_vectorise(al, *asr, LFortran::get_runtime_library_dir());
+                        LFortran::pass_loop_vectorise(al, *asr, pass_options);
                         break;
                     }
                     case (ASRPass::array_dim_intrinsics_update): {
-                        LFortran::pass_update_array_dim_intrinsic_calls(al, *asr);
+                        LFortran::pass_update_array_dim_intrinsic_calls(al, *asr, pass_options);
                         break ;
                     }
                     case (ASRPass::pass_array_by_data): {
-                        LFortran::pass_array_by_data(al, *asr);
+                        LFortran::pass_array_by_data(al, *asr, pass_options);
                         break ;
                     }
                 }
@@ -246,14 +250,14 @@ namespace LCompilers {
         }
 
         void apply_passes(Allocator& al, LFortran::ASR::TranslationUnit_t* asr,
-                          std::string run_fun, bool always_run=false) {
+                          PassOptions& pass_options) {
             if( !_user_defined_passes.empty() ) {
-                _apply_passes(al, asr, _user_defined_passes, run_fun, always_run);
+                _apply_passes(al, asr, _user_defined_passes, pass_options);
             } else if( apply_default_passes ) {
                 if( is_fast ) {
-                    _apply_passes(al, asr, _with_optimization_passes, run_fun, always_run);
+                    _apply_passes(al, asr, _with_optimization_passes, pass_options);
                 } else {
-                    _apply_passes(al, asr, _passes, run_fun, always_run);
+                    _apply_passes(al, asr, _passes, pass_options);
                 }
             }
         }
@@ -273,6 +277,7 @@ namespace LCompilers {
         void do_not_use_default_passes() {
             apply_default_passes = false;
         }
+
     };
 
 }
