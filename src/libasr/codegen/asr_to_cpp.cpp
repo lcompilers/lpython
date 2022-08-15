@@ -699,7 +699,9 @@ Result<std::string> asr_to_cpp(Allocator &al, ASR::TranslationUnit_t &asr,
     diag::Diagnostics &diagnostics, Platform &platform,
     int64_t default_lower_bound)
 {
-    pass_unused_functions(al, asr, true);
+    LCompilers::PassOptions pass_options;
+    pass_options.always_run = true;
+    pass_unused_functions(al, asr, pass_options);
     ASRToCPPVisitor v(diagnostics, platform, default_lower_bound);
     try {
         v.visit_asr((ASR::asr_t &)asr);

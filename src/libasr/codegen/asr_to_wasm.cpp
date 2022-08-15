@@ -11,6 +11,7 @@
 #include <libasr/pass/do_loops.h>
 #include <libasr/pass/unused_functions.h>
 #include <libasr/pass/arr_dims_propagate.h>
+#include <libasr/pass/pass_array_by_data.h>
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 
@@ -1532,9 +1533,11 @@ Result<Vec<uint8_t>> asr_to_wasm_bytes_stream(ASR::TranslationUnit_t &asr, Alloc
     ASRToWASMVisitor v(al, diagnostics);
     Vec<uint8_t> wasm_bytes;
 
-    pass_unused_functions(al, asr, true);
-    pass_replace_do_loops(al, asr);
-    pass_propagate_arr_dims(al, asr);
+    LCompilers::PassOptions pass_options;
+    pass_replace_do_loops(al, asr, pass_options);
+    pass_array_by_data(al, asr, pass_options);
+    pass_options.always_run = true;
+    pass_unused_functions(al, asr, pass_options);
 
     // std::cout << pickle(asr, true /* use colors */, true /* indent */,
     //         true /* with_intrinsic_modules */) << std::endl;
