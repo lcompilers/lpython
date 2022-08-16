@@ -622,3 +622,15 @@ def _lpython_str_capitalize(x: str) -> str:
         val -= 32
     x = chr(val) + x[1:]
     return x
+
+@overload
+def _lpython_str_lower(x: str) ->str:
+    res: str
+    res = ""
+    i:str
+    for i in x:
+        if ord('A') <= ord(i) and ord('Z') >= ord(i):
+            res += chr(ord(i) +32)
+        else:
+            res += i
+    return res
