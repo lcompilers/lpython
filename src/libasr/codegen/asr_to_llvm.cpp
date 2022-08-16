@@ -5001,6 +5001,31 @@ public:
                         case (ASR::ttypeType::CPtr) :
                             target_type = llvm::Type::getVoidTy(context)->getPointerTo();
                             break;
+                        case (ASR::ttypeType::List) : {
+                            bool is_array_type = false, is_malloc_array_type = false;
+                            bool is_list = true;
+                            ASR::dimension_t *m_dims = nullptr;
+                            int32_t a_kind = -1, n_dims = 0;
+                            ASR::storage_typeType m_storage = ASR::storage_typeType::Default;
+                            ASR::List_t* asr_list = ASR::down_cast<ASR::List_t>(arg_type);
+                            llvm::Type* el_llvm_type = get_type_from_ttype_t(asr_list->m_type, m_storage,
+                                                                             is_array_type,
+                                                                             is_malloc_array_type,
+                                                                             is_list, m_dims, n_dims,
+                                                                             a_kind);
+                            int32_t type_size = -1;
+                            if( LLVM::is_llvm_struct(asr_list->m_type) ||
+                                ASR::is_a<ASR::Character_t>(*asr_list->m_type) ||
+                                ASR::is_a<ASR::Complex_t>(*asr_list->m_type) ) {
+                                llvm::DataLayout data_layout(module.get());
+                                type_size = data_layout.getTypeAllocSize(el_llvm_type);
+                            } else {
+                                type_size = a_kind;
+                            }
+                            std::string el_type_code = ASRUtils::get_type_code(asr_list->m_type);
+                            target_type = list_api->get_list_type(el_llvm_type, el_type_code, type_size)->getPointerTo();
+                            break;
+                        }
                         default :
                             throw CodeGenError("Type " + ASRUtils::type_to_str(arg_type) + " not implemented yet.");
                     }
