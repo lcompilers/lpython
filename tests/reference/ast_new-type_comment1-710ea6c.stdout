@@ -1,1 +1,1 @@
-(Module [(Import [(pytest ())]) (FunctionDef ndarray_func ([] [(x () ())] [] [] [] [] []) [(Return (Name x Load))] [] () "(np.ndarray) -> np.ndarray")] [])
+(Module [(Import [(pytest ())]) (FunctionDef ndarray_func ([] [(x () ())] [] [] [] [] []) [(Return (Name x Load))] [] () "(np.ndarray) -> np.ndarray") (FunctionDef test ([] [(x () ())] [] [] [] [] []) [(Return (Name x Load))] [(Name decorator1 Load) (Name decorator2 Load) (Name decorator3 Load)] () "(np.ndarray) -> np.ndarray")] [(TypeIgnore 0 "") (TypeIgnore 0 "") (TypeIgnore 0 "")])
