@@ -1,12 +1,21 @@
 from ltypes import f64, i32
 
+def fill_list_i32(size: i32) -> list[i32]:
+    aarg: list[i32] = [0, 1, 2, 3, 4]
+    i: i32
+    for i in range(10):
+        aarg.append(i + 5)
+    return aarg
+
+
 def test_list_01():
-    a: list[i32] = [0, 1, 2, 3, 4]
+    a: list[i32] = []
     f: list[f64] = [1.0, 2.0, 3.0, 4.0, 5.0]
     i: i32
 
+    a = fill_list_i32(10)
+
     for i in range(10):
-        a.append(i + 5)
         f.append(float(i + 6))
 
     for i in range(15):
