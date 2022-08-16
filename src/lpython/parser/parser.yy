@@ -231,6 +231,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <key_val> dict
 %type <vec_key_val> dict_list
 %type <ast> slice_item
+%type <ast> slice_items
 %type <vec_ast> slice_item_list
 %type <ast> with_statement
 %type <vec_withitem> with_as_items
@@ -766,26 +767,6 @@ while_statement
         $$ = WHILE_02($2, $4, $7, @$); }
     ;
 
-slice_item_list
-    : slice_item_list "," slice_item { $$ = $1; LIST_ADD($$, $3); }
-    | slice_item { LIST_NEW($$); LIST_ADD($$, $1); }
-
-slice_item
-    : ":"                    { $$ = SLICE_01(nullptr, nullptr, nullptr, @$); }
-    | expr ":"               { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
-    | ":" expr               { $$ = SLICE_01(nullptr,      $2, nullptr, @$); }
-    | expr ":" expr          { $$ = SLICE_01(     $1,      $3, nullptr, @$); }
-    | ":" ":"                { $$ = SLICE_01(nullptr, nullptr, nullptr, @$); }
-    | ":" ":" expr           { $$ = SLICE_01(nullptr, nullptr,      $3, @$); }
-    | expr ":" ":"           { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
-    | ":" expr ":"           { $$ = SLICE_01(nullptr,      $2, nullptr, @$); }
-    | expr ":" ":" expr      { $$ = SLICE_01(     $1, nullptr,      $4, @$); }
-    | ":" expr ":" expr      { $$ = SLICE_01(nullptr,      $2,      $4, @$); }
-    | expr ":" expr ":"      { $$ = SLICE_01(     $1,      $3, nullptr, @$); }
-    | expr ":" expr ":" expr { $$ = SLICE_01(     $1,      $3,      $5, @$); }
-    | expr                   { $$ = $1; }
-    ;
-
 expr_list_opt
     : expr_list { $$ = $1; }
     | %empty { LIST_NEW($$); }
@@ -804,10 +785,6 @@ dict
 dict_list
     : dict_list "," dict { $$ = $1; LIST_ADD($$, $3); }
     | dict { LIST_NEW($$); LIST_ADD($$, $1); }
-    ;
-
-tuple_list
-    : slice_item_list comma_opt { $$ = TUPLE($1, @$); }
     ;
 
 id_list
@@ -882,17 +859,42 @@ function_call
     | "(" expr ")" "(" call_arguement_list ")" { $$ = CALL_01($2, $5, @$); }
     ;
 
+slice_item_list
+    : slice_item_list "," slice_items { $$ = $1; LIST_ADD($$, $3); }
+    | slice_items { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+slice_items
+    : ":"                    { $$ = SLICE_01(nullptr, nullptr, nullptr, @$); }
+    | expr ":"               { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
+    | ":" expr               { $$ = SLICE_01(nullptr,      $2, nullptr, @$); }
+    | expr ":" expr          { $$ = SLICE_01(     $1,      $3, nullptr, @$); }
+    | ":" ":"                { $$ = SLICE_01(nullptr, nullptr, nullptr, @$); }
+    | ":" ":" expr           { $$ = SLICE_01(nullptr, nullptr,      $3, @$); }
+    | expr ":" ":"           { $$ = SLICE_01(     $1, nullptr, nullptr, @$); }
+    | ":" expr ":"           { $$ = SLICE_01(nullptr,      $2, nullptr, @$); }
+    | expr ":" ":" expr      { $$ = SLICE_01(     $1, nullptr,      $4, @$); }
+    | ":" expr ":" expr      { $$ = SLICE_01(nullptr,      $2,      $4, @$); }
+    | expr ":" expr ":"      { $$ = SLICE_01(     $1,      $3, nullptr, @$); }
+    | expr ":" expr ":" expr { $$ = SLICE_01(     $1,      $3,      $5, @$); }
+    | expr                   { $$ = $1; }
+    ;
+
+slice_item
+    : slice_item_list comma_opt { $$ = TUPLE($1, @$); }
+    ;
+
 subscript
-    : primary "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
-    | function_call "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
-    | "[" expr_list_opt "]" "[" tuple_list "]" {
+    : primary "[" slice_item "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
+    | function_call "[" slice_item "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
+    | "[" expr_list_opt "]" "[" slice_item "]" {
         $$ = SUBSCRIPT_01(LIST($2, @$), $5, @$); }
-    | "{" expr_list "}" "[" tuple_list "]" {
+    | "{" expr_list "}" "[" slice_item "]" {
         $$ = SUBSCRIPT_01(SET($2, @$), $5, @$); }
-    | "(" expr ")" "[" tuple_list "]" { $$ = SUBSCRIPT_01($2, $5, @$); }
-    | "{" dict_list comma_opt "}" "[" tuple_list "]" {
+    | "(" expr ")" "[" slice_item "]" { $$ = SUBSCRIPT_01($2, $5, @$); }
+    | "{" dict_list comma_opt "}" "[" slice_item "]" {
         $$ = SUBSCRIPT_01(DICT_02($2, @$), $6, @$); }
-    | subscript "[" tuple_list "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
+    | subscript "[" slice_item "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
     ;
 
 string
