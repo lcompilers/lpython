@@ -811,13 +811,12 @@ tuple_list
     ;
 
 id_list
-    : id_list "," id { $$ = $1; LIST_ADD($$, $3); }
-    | id { LIST_NEW($$); LIST_ADD($$, $1); }
+    : id_list "," id_item { $$ = $1; LIST_ADD($$, $3); }
+    | id_item { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 id_item
-    : id_list { $$ = ID_TUPLE_01($1, @$); }
-    | id_list "," { $$ = ID_TUPLE_03($1, @$); }
+    : id { $$ = $1; }
     | "(" id ")" { $$ = $2; }
     | "(" id_list "," ")" { $$ = ID_TUPLE_03($2, @$); }
     | "(" id_list ","  id ")" { $$ = ID_TUPLE_01(TUPLE_($2, $4), @$); }
@@ -840,9 +839,14 @@ primary
     ;
 
 comp_for
-    : KW_FOR id_item KW_IN expr { $$ = COMP_FOR_01($2, $4, @$); }
-    | KW_FOR id_item KW_IN expr KW_IF expr {
-        $$ = COMP_FOR_02($2, $4, $6, @$); }
+    : KW_FOR id_list KW_IN expr {
+        $$ = COMP_FOR_01(ID_TUPLE_01($2, @$), $4, @$); }
+    | KW_FOR id_list "," KW_IN expr {
+        $$ = COMP_FOR_01(ID_TUPLE_03($2, @$), $5, @$); }
+    | KW_FOR id_list KW_IN expr KW_IF expr {
+        $$ = COMP_FOR_02(ID_TUPLE_01($2, @$), $4, $6, @$); }
+    | KW_FOR id_list "," KW_IN expr KW_IF expr {
+        $$ = COMP_FOR_02(ID_TUPLE_03($2, @$), $5, $7, @$); }
     ;
 
 comp_for_items
