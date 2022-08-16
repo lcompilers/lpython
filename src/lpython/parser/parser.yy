@@ -790,7 +790,7 @@ id_item
     : id { $$ = $1; }
     | "(" id ")" { $$ = $2; }
     | "(" id_list "," ")" { $$ = ID_TUPLE_03($2, @$); }
-    | "(" id_list ","  id ")" { $$ = ID_TUPLE_01(TUPLE_($2, $4), @$); }
+    | "(" id_list ","  id_item ")" { $$ = ID_TUPLE_01(TUPLE_($2, $4), @$); }
     ;
 
 keyword_item
