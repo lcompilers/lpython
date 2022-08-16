@@ -536,18 +536,23 @@ if_statement
 for_target_list
     : expr %prec FOR { $$ = $1; }
     | expr_list "," expr %prec FOR { $$ = TUPLE_01(TUPLE_($1, $3), @$); }
+    | expr_list "," %prec FOR { $$ = TUPLE_03($1, @$); }
+    ;
+
+tuple_list
+    : expr { $$ = $1; }
+    | expr_list "," expr { $$ = TUPLE_01(TUPLE_($1, $3), @$); }
+    | expr_list "," { $$ = TUPLE_03($1, @$); }
     ;
 
 for_statement
-    : KW_FOR for_target_list KW_IN expr ":" body_stmts {
+    : KW_FOR for_target_list KW_IN tuple_list ":" body_stmts {
         $$ = FOR_01($2, $4, $6, @$); }
-    | KW_FOR for_target_list KW_IN expr "," ":" body_stmts {
-        $$ = FOR_01($2, TUPLE_03(A2LIST(p.m_a, $4), @$), $7, @$); }
-    | KW_FOR for_target_list KW_IN expr ":" body_stmts KW_ELSE ":"
+    | KW_FOR for_target_list KW_IN tuple_list ":" body_stmts KW_ELSE ":"
         body_stmts { $$ = FOR_02($2, $4, $6, $9, @$); }
-    | KW_FOR for_target_list KW_IN expr ":" type_comment TK_NEWLINE
+    | KW_FOR for_target_list KW_IN tuple_list ":" type_comment TK_NEWLINE
         statements { $$ = FOR_03($2, $4, $6, $8, @$); }
-    | KW_FOR for_target_list KW_IN expr ":" type_comment TK_NEWLINE
+    | KW_FOR for_target_list KW_IN tuple_list ":" type_comment TK_NEWLINE
         statements KW_ELSE ":" body_stmts {
             $$ = FOR_04($2, $4, $8, $11, $6, @$); }
     ;
