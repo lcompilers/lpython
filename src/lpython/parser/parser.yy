@@ -410,20 +410,12 @@ assert_statement
     ;
 
 target_list
-    : target_list expr "=" { $$ = $1; LIST_ADD($$, $2); }
-    | expr "=" { LIST_NEW($$); LIST_ADD($$, $1); }
-    | target_list expr_list "," expr "=" {
-        $$ = $1; LIST_ADD($$, TUPLE_01(TUPLE_($2, $4), @$)); }
-    | expr_list "," expr "=" {
-        LIST_NEW($$); LIST_ADD($$, TUPLE_01(TUPLE_($1, $3), @$)); }
-    | target_list expr_list "," "=" { $$ = $1; LIST_ADD($$, TUPLE_03($2, @$)); }
-    | expr_list "," "=" { LIST_NEW($$); LIST_ADD($$, TUPLE_03($1, @$)); }
+    : target_list tuple_list "=" { $$ = $1; LIST_ADD($$, $2); }
+    | tuple_list "=" { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
 assignment_statement
-    : target_list expr { $$ = ASSIGNMENT($1, $2, @$); }
-    | target_list expr_list "," expr {
-        $$ = ASSIGNMENT($1, TUPLE_01(TUPLE_($2, $4), @$), @$); }
+    : target_list tuple_list { $$ = ASSIGNMENT($1, $2, @$); }
     | target_list expr type_comment { $$ = ASSIGNMENT2($1, $2, $3, @$); }
     ;
 
@@ -458,10 +450,7 @@ delete_statement
 
 return_statement
     : KW_RETURN { $$ = RETURN_01(@$); }
-    | KW_RETURN expr { $$ = RETURN_02($2, @$); }
-    | KW_RETURN expr_list "," expr {
-        $$ = RETURN_02(TUPLE_01(TUPLE_($2, $4), @$), @$); }
-    | KW_RETURN expr_list "," { $$ = RETURN_02(TUPLE_03($2, @$), @$); }
+    | KW_RETURN tuple_list { $$ = RETURN_02($2, @$); }
     ;
 
 module
