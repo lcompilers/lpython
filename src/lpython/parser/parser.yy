@@ -383,7 +383,7 @@ multi_line_statement
     ;
 
 expression_statment
-    : expr { $$ = EXPR_01($1, @$); }
+    : tuple_list { $$ = EXPR_01($1, @$); }
     ;
 
 pass_statement
