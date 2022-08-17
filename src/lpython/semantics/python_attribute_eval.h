@@ -21,6 +21,7 @@ struct AttributeHandler {
             {"int@bit_length", &eval_int_bit_length},
             {"list@append", &eval_list_append},
             {"list@remove", &eval_list_remove},
+            {"list@clear", &eval_list_clear},
             {"list@insert", &eval_list_insert},
             {"list@pop", &eval_list_pop},
             {"set@pop", &eval_set_pop},
@@ -185,6 +186,23 @@ struct AttributeHandler {
             }
 
             return make_ListPop_t(al, loc, s, idx, list_type, nullptr);
+    }
+
+    static ASR::asr_t* eval_list_clear(ASR::expr_t *s, Allocator &al,
+        const Location &loc, Vec<ASR::expr_t*> &args, diag::Diagnostics & diag) {
+            if (args.size() != 0) {
+                diag.add(diag::Diagnostic(
+                    "Incorrect number of arguments in 'clear', it accepts no argument",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("incorrect number of arguments in clear (found: " +
+                                    std::to_string(args.size()) + ", expected: 0)",
+                                {loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+
+            return make_ListClear_t(al, loc, s);
     }
 
     static ASR::asr_t* eval_set_pop(ASR::expr_t *s, Allocator &al, const Location &loc,

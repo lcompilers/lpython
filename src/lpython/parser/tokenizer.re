@@ -279,6 +279,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             string2 = "'" ("\\'"|[^'\x00])* "'";
             string3 = '"""' ( '\\"' | '"' [^"\x00] | '""' [^"\x00] | [^"\x00] )* '"""';
             string4 = "'''" ( "\\'" | "'" [^'\x00] | "''" [^'\x00] | [^'\x00] )* "'''";
+            type_ignore = "#" whitespace? "type:" whitespace? "ignore" [^\n\x00]*;
             type_comment = "#" whitespace? "type:" whitespace? [^\n\x00]*;
             comment = "#" [^\n\x00]*;
             // docstring = newline whitespace? string1 | string2;
@@ -462,6 +463,14 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 RET(TK_IMAG_NUM)
             }
 
+            type_ignore {
+                if (last_token == yytokentype::TK_COLON && !parenlevel) {
+                    indent = true;
+                }
+                token(yylval.string);
+                RET(TK_TYPE_IGNORE);
+            }
+            
             type_comment {
                 if (last_token == yytokentype::TK_COLON && !parenlevel) {
                     indent = true;
@@ -545,6 +554,7 @@ std::string token2text(const int token)
         T(TK_COMMENT, "comment")
         T(TK_EOLCOMMENT, "eolcomment")
         T(TK_TYPE_COMMENT, "type_comment")
+        T(TK_TYPE_IGNORE, "type_ignore")
 
         T(TK_POW, "**")
         T(TK_FLOOR_DIV, "//")
@@ -678,6 +688,8 @@ std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
     } else if (token == yytokentype::TK_STRING) {
         t = t + " " + "\"" + yystype.string.str() + "\"";
     } else if (token == yytokentype::TK_TYPE_COMMENT) {
+        t = t + " " + "\"" + yystype.string.str() + "\"";
+    } else if (token == yytokentype::TK_TYPE_IGNORE) {
         t = t + " " + "\"" + yystype.string.str() + "\"";
     }
     t += ")";

@@ -45,12 +45,30 @@ def test_geometric_mean():
     k = geometric_mean(c)
     assert abs(k - 1.8171205928321397) < eps
 
+    d: list[f64]
+    d = [1.1, 3.4, 17.982, 11.8]
+    l: f64
+    l = geometric_mean(d)
+    assert abs(l - 5.307596520524432) < eps
+
 def test_harmonic_mean():
     c: list[i32]
     c = [9,2,46]
     k: f64
     k = harmonic_mean(c)
     assert abs(k - 4.740458015267175) < eps
+
+    d: list[i32]
+    d = [9, 0, 46]
+    l: f64
+    l = harmonic_mean(d)
+    assert l == 0.0
+
+    e: list[f64]
+    e = [1.1, 3.4, 17.982, 11.8]
+    f: f64
+    f = harmonic_mean(e)
+    assert abs(f - 2.977152988015106) < eps
 
 
 def test_variance():
@@ -65,7 +83,6 @@ def test_variance():
     k: f64
     k = variance(b)
     assert abs(k - 0.40924) < eps
-
 
 def test_stdev():
     a: list[i32]

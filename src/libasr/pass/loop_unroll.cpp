@@ -107,8 +107,9 @@ public:
 };
 
 void pass_loop_unroll(Allocator &al, ASR::TranslationUnit_t &unit,
-                      const std::string& rl_path,
-                      int64_t unroll_factor) {
+                      const LCompilers::PassOptions& pass_options) {
+    std::string rl_path = pass_options.runtime_library_dir;
+    int64_t unroll_factor = pass_options.unroll_factor;
     LoopUnrollVisitor v(al, rl_path, unroll_factor);
     v.visit_TranslationUnit(unit);
     LFORTRAN_ASSERT(asr_verify(unit));

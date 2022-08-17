@@ -44,7 +44,8 @@ public:
     }
 };
 
-void pass_replace_do_loops(Allocator &al, ASR::TranslationUnit_t &unit) {
+void pass_replace_do_loops(Allocator &al, ASR::TranslationUnit_t &unit,
+                           const LCompilers::PassOptions& /*pass_options*/) {
     DoLoopVisitor v(al);
     // Each call transforms only one layer of nested loops, so we call it twice
     // to transform doubly nested loops:

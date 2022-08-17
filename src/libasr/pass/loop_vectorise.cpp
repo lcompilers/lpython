@@ -189,7 +189,8 @@ public:
 };
 
 void pass_loop_vectorise(Allocator &al, ASR::TranslationUnit_t &unit,
-                         const std::string& rl_path) {
+                         const LCompilers::PassOptions& pass_options) {
+    std::string rl_path = pass_options.runtime_library_dir;
     LoopVectoriseVisitor v(al, unit, rl_path);
     v.visit_TranslationUnit(unit);
     LFORTRAN_ASSERT(asr_verify(unit));

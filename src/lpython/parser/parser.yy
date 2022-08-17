@@ -105,6 +105,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token <string> TK_COMMENT
 %token <string> TK_EOLCOMMENT
 %token <string> TK_TYPE_COMMENT
+%token <string> TK_TYPE_IGNORE
 %token TK_POW "**"
 %token TK_FLOOR_DIV "//"
 %token TK_RIGHTSHIFT ">>"
@@ -245,6 +246,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> while_statement
 %type <vec_ast> sep
 %type <ast> sep_one
+%type <string> type_comment
 %type <ast> string
 %type <ast> ternary_if_statement
 /* %type <ast> list_comprehension */
@@ -326,11 +328,11 @@ statements1
 
 single_line_statements
     : single_line_multi_statements TK_NEWLINE { $$ = $1; }
-    | single_line_multi_statements TK_COMMENT TK_NEWLINE { $$ = $1; }
+    | single_line_multi_statements TK_EOLCOMMENT { $$ = $1; }
     | single_line_statement TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
     | single_line_statement TK_SEMICOLON TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
-    | single_line_statement TK_SEMICOLON TK_COMMENT TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
-    | single_line_statement TK_COMMENT TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
+    | single_line_statement TK_SEMICOLON TK_EOLCOMMENT { $$ = A2LIST(p.m_a, $1); }
+    | single_line_statement TK_EOLCOMMENT { $$ = A2LIST(p.m_a, $1); }
     ;
 
 single_line_multi_statements
@@ -421,7 +423,7 @@ assignment_statement
     : target_list expr { $$ = ASSIGNMENT($1, $2, @$); }
     | target_list expr_list "," expr {
         $$ = ASSIGNMENT($1, TUPLE_01(TUPLE_($2, $4), @$), @$); }
-    | target_list expr TK_TYPE_COMMENT { $$ = ASSIGNMENT2($1, $2, $3, @$); }
+    | target_list expr type_comment { $$ = ASSIGNMENT2($1, $2, $3, @$); }
     ;
 
 augassign_statement
@@ -486,7 +488,8 @@ dot_list
 
 import_statement
     : KW_IMPORT module_item_list { $$ = IMPORT_01($2, @$); }
-    | KW_IMPORT module_item_list TK_TYPE_COMMENT { $$ = IMPORT_01($2, @$); }
+    | KW_IMPORT module_item_list TK_TYPE_IGNORE { $$ = IMPORT_01($2, @$);
+        extract_type_comment(p, @$, $3); }
     | KW_FROM module KW_IMPORT module_item_list {
         $$ = IMPORT_02($2, $4, @$); }
     | KW_FROM module KW_IMPORT "(" module_item_list comma_opt ")" {
@@ -541,9 +544,9 @@ for_statement
         $$ = FOR_01($2, TUPLE_03(A2LIST(p.m_a, $4), @$), $7, @$); }
     | KW_FOR for_target_list KW_IN expr ":" body_stmts KW_ELSE ":"
         body_stmts { $$ = FOR_02($2, $4, $6, $9, @$); }
-    | KW_FOR for_target_list KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE
+    | KW_FOR for_target_list KW_IN expr ":" type_comment TK_NEWLINE
         statements { $$ = FOR_03($2, $4, $6, $8, @$); }
-    | KW_FOR for_target_list KW_IN expr ":" TK_TYPE_COMMENT TK_NEWLINE
+    | KW_FOR for_target_list KW_IN expr ":" type_comment TK_NEWLINE
         statements KW_ELSE ":" body_stmts {
             $$ = FOR_04($2, $4, $8, $11, $6, @$); }
     ;
@@ -585,9 +588,9 @@ with_as_items
 with_statement
     : KW_WITH expr_list ":" body_stmts { $$ = WITH($2, $4, @$); }
     | KW_WITH with_as_items ":" body_stmts { $$ = WITH_02($2, $4, @$); }
-    | KW_WITH expr_list ":" TK_TYPE_COMMENT TK_NEWLINE
+    | KW_WITH expr_list ":" type_comment TK_NEWLINE
         statements { $$ = WITH_01($2, $6, $4, @$); }
-    | KW_WITH with_as_items ":" TK_TYPE_COMMENT TK_NEWLINE
+    | KW_WITH with_as_items ":" type_comment TK_NEWLINE
         statements { $$ = WITH_03($2, $6, $4, @$); }
     ;
 
@@ -599,6 +602,14 @@ decorators_opt
 decorators
     : decorators "@" expr sep { $$ = $1; LIST_ADD($$, $3); }
     | "@" expr sep { LIST_NEW($$); LIST_ADD($$, $2); }
+    | decorators "@" expr TK_TYPE_IGNORE TK_NEWLINE { $$ = $1;
+        LIST_ADD($$, $3); extract_type_comment(p, @$, $4); }
+    | "@" expr TK_TYPE_IGNORE TK_NEWLINE { LIST_NEW($$); LIST_ADD($$, $2);
+        extract_type_comment(p, @$, $3); }
+    | decorators "@" expr TK_TYPE_IGNORE TK_NEWLINE sep { $$ = $1;
+        LIST_ADD($$, $3); extract_type_comment(p, @$, $4); }
+    | "@" expr TK_TYPE_IGNORE TK_NEWLINE sep { LIST_NEW($$); LIST_ADD($$, $2);
+        extract_type_comment(p, @$, $3); }
     ;
 
 parameter
@@ -611,9 +622,9 @@ parameter
 defparameter_list
     : defparameter_list "," parameter { $$ = $1; LIST_ADD($$, $3); }
     | parameter { LIST_NEW($$); LIST_ADD($$, $1); }
-    | defparameter_list "," TK_TYPE_COMMENT parameter { $$ = $1;
+    | defparameter_list "," type_comment parameter { $$ = $1;
         LIST_ADD($$, $4); ADD_TYPE_COMMENT($1, $3, @$); }
-    | defparameter_list "," TK_TYPE_COMMENT {
+    | defparameter_list "," type_comment {
         $$ = $1; ADD_TYPE_COMMENT($1, $3, @$); }
     ;
 
@@ -663,16 +674,16 @@ function_def
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
         body_stmts { $$ = FUNCTION_02($1, $3, $5, $8, $10, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" ":"
-        TK_TYPE_COMMENT TK_NEWLINE statements {
+        type_comment TK_NEWLINE statements {
         $$ = FUNCTION_03($1, $3, $5, $10, $8, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
-        TK_TYPE_COMMENT TK_NEWLINE statements {
+        type_comment TK_NEWLINE statements {
             $$ = FUNCTION_04($1, $3, $5, $8, $12, $10, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" ":"
-        TK_NEWLINE TK_TYPE_COMMENT TK_NEWLINE statements {
+        TK_NEWLINE type_comment TK_NEWLINE statements {
         $$ = FUNCTION_03($1, $3, $5, $11, $9, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
-        TK_NEWLINE TK_TYPE_COMMENT TK_NEWLINE statements {
+        TK_NEWLINE type_comment TK_NEWLINE statements {
             $$ = FUNCTION_04($1, $3, $5, $8, $13, $11, @$); }
     ;
 
@@ -688,16 +699,16 @@ class_def
     | decorators_opt KW_CLASS id "(" keyword_items ")" ":" body_stmts {
         $$ = CLASS_04($1, $3, $5, $8, @$); }
     | decorators_opt KW_CLASS id "(" expr_list_opt ")" ":"
-        TK_TYPE_COMMENT TK_NEWLINE statements {
+        type_comment TK_NEWLINE statements {
         $$ = CLASS_05($1, $3, $5, $8, $10, @$); }
     | decorators_opt KW_CLASS id "(" expr_list "," keyword_items ")"
-        ":" TK_TYPE_COMMENT TK_NEWLINE statements {
+        ":" type_comment TK_NEWLINE statements {
             $$ = CLASS_06($1, $3, $5, $7, $10, $12, @$); }
     | decorators_opt KW_CLASS id "(" keyword_items "," expr_list ")"
-        ":" TK_TYPE_COMMENT TK_NEWLINE statements {
+        ":" type_comment TK_NEWLINE statements {
             $$ = CLASS_06($1, $3, $7, $5, $10, $12, @$); }
     | decorators_opt KW_CLASS id "(" keyword_items ")" ":"
-        TK_TYPE_COMMENT TK_NEWLINE statements {
+        type_comment TK_NEWLINE statements {
         $$ = CLASS_07($1, $3, $5, $8, $10, @$); }
     ;
 
@@ -711,16 +722,16 @@ async_func_def
     | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
         body_stmts { $$ = ASYNC_FUNCTION_04($3, $5, $8, $10, @$); }
     | decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":"
-        TK_TYPE_COMMENT TK_NEWLINE statements {
+        type_comment TK_NEWLINE statements {
         $$ = ASYNC_FUNCTION_05($1, $4, $6, $11, $9, @$); }
     | decorators KW_ASYNC KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
-        TK_TYPE_COMMENT TK_NEWLINE statements {
+        type_comment TK_NEWLINE statements {
         $$ = ASYNC_FUNCTION_06($1, $4, $6, $9, $13, $11, @$); }
     | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" ":"
-        TK_TYPE_COMMENT TK_NEWLINE statements {
+        type_comment TK_NEWLINE statements {
         $$ = ASYNC_FUNCTION_07($3, $5, $10, $8, @$); }
     | KW_ASYNC KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
-        TK_TYPE_COMMENT TK_NEWLINE statements {
+        type_comment TK_NEWLINE statements {
         $$ = ASYNC_FUNCTION_08($3, $5, $8, $12, $10, @$); }
     ;
 
@@ -731,10 +742,10 @@ async_for_stmt
         KW_ELSE ":" body_stmts {
         $$ = ASYNC_FOR_02($3, $5, $7, $10, @$); }
     | KW_ASYNC KW_FOR expr KW_IN expr ":"
-        TK_TYPE_COMMENT TK_NEWLINE statements {
+        type_comment TK_NEWLINE statements {
         $$ = ASYNC_FOR_03($3, $5, $9, $7, @$); }
     | KW_ASYNC KW_FOR expr KW_IN expr ":"
-        TK_TYPE_COMMENT TK_NEWLINE statements KW_ELSE ":" body_stmts {
+        type_comment TK_NEWLINE statements KW_ELSE ":" body_stmts {
         $$ = ASYNC_FOR_04($3, $5, $9, $12, $7, @$); }
     ;
 
@@ -743,9 +754,9 @@ async_with_stmt
         $$ = ASYNC_WITH($3, $5, @$); }
     | KW_ASYNC KW_WITH with_as_items ":" body_stmts {
         $$ = ASYNC_WITH_02($3, $5, @$); }
-    | KW_ASYNC KW_WITH expr_list ":" TK_TYPE_COMMENT
+    | KW_ASYNC KW_WITH expr_list ":" type_comment
         TK_NEWLINE statements { $$ = ASYNC_WITH_01($3, $7, $5, @$); }
-    | KW_ASYNC KW_WITH with_as_items ":" TK_TYPE_COMMENT
+    | KW_ASYNC KW_WITH with_as_items ":" type_comment
         TK_NEWLINE statements { $$ = ASYNC_WITH_03($3, $7, $5, @$); }
     ;
 
@@ -787,7 +798,7 @@ expr_list
 
 dict
     : expr ":" expr { $$ = DICT_EXPR_01($1, $3, @$); }
-    | expr ":" TK_TYPE_COMMENT expr { $$ = DICT_EXPR_02($1, $3, $4, @$); }
+    | expr ":" type_comment expr { $$ = DICT_EXPR_02($1, $3, $4, @$); }
     ;
 
 dict_list
@@ -1013,6 +1024,11 @@ expr
 
 id
     : TK_NAME { $$ = SYMBOL($1, @$); }
+    ;
+
+type_comment
+    : TK_TYPE_COMMENT { $$ = $1; }
+    | TK_TYPE_IGNORE { $$ = $1; }
     ;
 
 sep
