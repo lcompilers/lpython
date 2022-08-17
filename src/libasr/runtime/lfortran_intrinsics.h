@@ -160,6 +160,8 @@ LFORTRAN_API int _lfortran_str_ord(char** s);
 LFORTRAN_API char* _lfortran_str_chr(int c);
 LFORTRAN_API int _lfortran_str_to_int(char** s);
 LFORTRAN_API char* _lfortran_malloc(int size);
+LFORTRAN_API int8_t* _lfortran_realloc(int8_t* ptr, int32_t size);
+LFORTRAN_API int8_t* _lfortran_calloc(int32_t count, int32_t size);
 LFORTRAN_API void _lfortran_free(char* ptr);
 LFORTRAN_API void _lfortran_string_init(int size_plus_one, char *s);
 LFORTRAN_API int32_t _lfortran_iand32(int32_t x, int32_t y);
