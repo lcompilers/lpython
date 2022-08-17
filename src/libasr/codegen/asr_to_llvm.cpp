@@ -2988,22 +2988,13 @@ public:
                         ASR::ListItem_t* list_ele = ASR::down_cast<ASR::ListItem_t>(const_tuple->m_elements[i]);
                         uint64_t ptr_loads_copy = ptr_loads;
                         ptr_loads = 0;
-                        ASR::Variable_t *target_var = EXPR2VAR(list_ele->m_a);
-                        uint32_t h = get_hash((ASR::asr_t*)target_var);
-                        llvm::Value* target_ptr = nullptr;
-                        if (llvm_symtab.find(h) != llvm_symtab.end()) {
-                            target_ptr = llvm_symtab[h];
-                            if (ASR::is_a<ASR::Pointer_t>(*target_var->m_type)) {
-                                target_ptr = CreateLoad(target_ptr);
-                            }
-                        } else {
-                            throw CodeGenError("List Variable is not defined");
-                        }
+                        this->visit_expr_wrapper(list_ele->m_a, true);
+                        llvm::Value* target_var = tmp;
                         this->visit_expr_wrapper(list_ele->m_pos, true);
                         ptr_loads = ptr_loads_copy;
-                        llvm::Value *pos = tmp;
+                        llvm::Value *pos = CreateLoad(tmp);
                         llvm::Value* item = tuple_api->read_item(value_tuple, i, false);
-                        list_api->write_item(target_ptr, pos, item);
+                        list_api->write_item(target_var, pos, item);
                         continue;
                     }
                     ASR::Variable_t *target_var = EXPR2VAR(const_tuple->m_elements[i]);
