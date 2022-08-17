@@ -670,21 +670,21 @@ struct PythonIntrinsicProcedures {
 
     static ASR::expr_t *eval__lpython_str_lower(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &args) {
         LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        if (args.size() != 1) {
-            throw SemanticError("_lpython_str_lower() takes exactly one arguments (" +
-                std::to_string(args.size()) + " given)", loc);
+        if (args.size() != 0) {
+            throw SemanticError("str.lower() takes no arguments", loc);
         }
-        ASR::expr_t *arg1 = args[0];
-        ASR::ttype_t *arg1_type = ASRUtils::expr_type(arg1);
-        if (ASRUtils::is_character(*arg1_type)) {
-            std::string val = ASR::down_cast<ASR::StringConstant_t>(arg1)->m_s;
-            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                                        1, 1, nullptr, nullptr, 0));
-            ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_StringConstant_t(al, loc, s2c(al, ""), type));
-            return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, val),  res_type));
-        } else {
-            throw SemanticError("Only string from arguments.", loc);
+        ASR::expr_t *arg = args[0];
+        ASR::ttype_t *arg_type = ASRUtils::expr_type(arg);
+        std::string val = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
+        for (auto &i: val) {
+            if (i >= 'A' && i <= 'Z') {
+                i = std::tolower(i);
+            }
         }
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                                    1, 1, nullptr, nullptr, 0));
+        ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_StringConstant_t(al, loc, s2c(al, ""), type));
+        return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, val),  res_type));
     }
 
 
