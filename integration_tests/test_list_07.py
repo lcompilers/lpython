@@ -64,4 +64,22 @@ def test_tuple_with_lists():
         for i in range(cols):
             assert tensors[k][1][i] - vec[i] == -(2 * rows - k) * complex(1.0, 2.0)
 
+
+def sort_list():
+    x: list[i32]
+    x = [4, 5, 6, 3, 2, 1, 10, 12]
+    k: i32 = len(x)
+    i: i32
+    j: i32
+    for i in range(k):
+        for j in range(i + 1, k):
+            if x[i] > x[j]:
+                x[i], x[j] = x[j], x[i]
+    y: list[i32]
+    y = [1, 2, 3, 4, 5, 6, 10, 12]
+    for i in range(k):
+        assert x[i] == y[i]
+
+
+sort_list()
 test_tuple_with_lists()
