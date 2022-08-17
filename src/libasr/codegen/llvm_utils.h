@@ -49,6 +49,10 @@ namespace LFortran {
                 llvm::IRBuilder<> &builder, llvm::Value* arg_size);
         llvm::Value* lfortran_realloc(llvm::LLVMContext &context, llvm::Module &module,
                 llvm::IRBuilder<> &builder, llvm::Value* ptr, llvm::Value* arg_size);
+        llvm::Value* lfortran_calloc(llvm::LLVMContext &context, llvm::Module &module,
+                llvm::IRBuilder<> &builder, llvm::Value* count, llvm::Value* type_size);
+        llvm::Value* lfortran_free(llvm::LLVMContext &context, llvm::Module &module,
+                llvm::IRBuilder<> &builder, llvm::Value* ptr);
         static inline bool is_llvm_struct(ASR::ttype_t* asr_type) {
             return ASR::is_a<ASR::Tuple_t>(*asr_type) ||
                    ASR::is_a<ASR::List_t>(*asr_type) ||
@@ -59,6 +63,7 @@ namespace LFortran {
 
     class LLVMList;
     class LLVMTuple;
+    class LLVMDict;
 
     class LLVMUtils {
 
@@ -71,6 +76,7 @@ namespace LFortran {
 
             LLVMTuple* tuple_api;
             LLVMList* list_api;
+            LLVMDict* dict_api;
 
             LLVMUtils(llvm::LLVMContext& context,
                 llvm::IRBuilder<>* _builder);
@@ -122,6 +128,10 @@ namespace LFortran {
                                         int32_t type_size);
 
             void list_init(std::string& type_code, llvm::Value* list,
+                           llvm::Module& module, llvm::Value* initial_capacity,
+                           llvm::Value* n);
+
+            void list_init(std::string& type_code, llvm::Value* list,
                             llvm::Module& module, int32_t initial_capacity=1,
                             int32_t n=0);
 
@@ -135,17 +145,23 @@ namespace LFortran {
                                 ASR::List_t* list_type,
                                 llvm::Module& module);
 
+            void list_deepcopy(llvm::Value* src, llvm::Value* dest,
+                                ASR::ttype_t* element_type,
+                                llvm::Module& module);
+
             llvm::Value* read_item(llvm::Value* list, llvm::Value* pos,
-                                   bool get_pointer=false);
+                                   bool get_pointer=false, bool check_index_bound=true);
 
             llvm::Value* len(llvm::Value* list);
 
-            void write_item(llvm::Value* list, llvm::Value* pos,
-                            llvm::Value* item, ASR::ttype_t* asr_type,
-                            llvm::Module& module);
+            void check_index_within_bounds(llvm::Value* list, llvm::Value* pos);
 
             void write_item(llvm::Value* list, llvm::Value* pos,
-                            llvm::Value* item);
+                            llvm::Value* item, ASR::ttype_t* asr_type,
+                            llvm::Module& module, bool check_index_bound=true);
+
+            void write_item(llvm::Value* list, llvm::Value* pos,
+                            llvm::Value* item, bool check_index_bound=true);
 
             void append(llvm::Value* list, llvm::Value* item,
                         ASR::ttype_t* asr_type, llvm::Module& module);
@@ -162,6 +178,8 @@ namespace LFortran {
             llvm::Value* find_item_position(llvm::Value* list,
                 llvm::Value* item, ASR::ttype_t* item_type,
                 llvm::Module& module);
+
+            void free_data(llvm::Value* list, llvm::Module& module);
     };
 
     class LLVMTuple {
@@ -196,6 +214,86 @@ namespace LFortran {
             llvm::Value* check_tuple_equality(llvm::Value* t1, llvm::Value* t2,
                 ASR::Tuple_t* tuple_type, llvm::LLVMContext& context,
                 llvm::IRBuilder<>* builder, llvm::Module& module);
+    };
+
+    class LLVMDict {
+        private:
+
+            llvm::LLVMContext& context;
+            LLVMUtils* llvm_utils;
+            llvm::IRBuilder<>* builder;
+            llvm::AllocaInst *pos_ptr, *is_key_matching_var;
+            bool are_iterators_set;
+
+            std::map<std::pair<std::string, std::string>,
+                     std::tuple<llvm::Type*, std::pair<int32_t, int32_t>,
+                                std::pair<llvm::Type*, llvm::Type*>>> typecode2dicttype;
+
+        public:
+
+            LLVMDict(llvm::LLVMContext& context_,
+                     LLVMUtils* llvm_utils,
+                     llvm::IRBuilder<>* builder);
+
+            llvm::Type* get_dict_type(std::string key_type_code, std::string value_type_code,
+                                      int32_t key_type_size, int32_t value_type_size,
+                                      llvm::Type* key_type, llvm::Type* value_type);
+
+            void dict_init(std::string key_type_code, std::string value_type_code,
+                           llvm::Value* dict, llvm::Module* module, size_t initial_capacity);
+
+            llvm::Value* get_key_list(llvm::Value* dict);
+
+            llvm::Value* get_value_list(llvm::Value* dict);
+
+            llvm::Value* get_pointer_to_occupancy(llvm::Value* dict);
+
+            llvm::Value* get_pointer_to_capacity(llvm::Value* dict);
+
+            llvm::Value* get_key_hash(llvm::Value* capacity, llvm::Value* key,
+                                      ASR::ttype_t* key_asr_type, llvm::Module& module);
+
+            void linear_probing(llvm::Value* capacity, llvm::Value* key_hash,
+                                llvm::Value* key, llvm::Value* key_list,
+                                llvm::Value* key_mask, llvm::Module& module,
+                                ASR::ttype_t* key_asr_type);
+
+            void linear_probing_for_write(llvm::Value* dict, llvm::Value* key_hash,
+                                          llvm::Value* key, llvm::Value* value,
+                                          llvm::Module& module, ASR::ttype_t* key_asr_type,
+                                          ASR::ttype_t* value_asr_type);
+
+            llvm::Value* linear_probing_for_read(llvm::Value* dict, llvm::Value* key_hash,
+                                                 llvm::Value* key, llvm::Module& module,
+                                                 ASR::ttype_t* key_asr_type);
+
+            void rehash(llvm::Value* dict, llvm::Module* module,
+                        ASR::ttype_t* key_asr_type,
+                        ASR::ttype_t* value_asr_type);
+
+            void rehash_all_at_once_if_needed(llvm::Value* dict,
+                                              llvm::Module* module,
+                                              ASR::ttype_t* key_asr_type,
+                                              ASR::ttype_t* value_asr_type);
+
+            void write_item(llvm::Value* dict, llvm::Value* key,
+                            llvm::Value* value, llvm::Module* module,
+                            ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type);
+
+            llvm::Value* read_item(llvm::Value* dict, llvm::Value* key,
+                                   llvm::Module& module, ASR::ttype_t* key_asr_type,
+                                   bool get_pointer=false);
+
+            llvm::Value* get_pointer_to_keymask(llvm::Value* dict);
+
+            void set_iterators();
+
+            void reset_iterators();
+
+            void dict_deepcopy(llvm::Value* src, llvm::Value* dest,
+                               ASR::Dict_t* dict_type, llvm::Module* module);
+
+            llvm::Value* len(llvm::Value* dict);
     };
 
 } // LFortran
