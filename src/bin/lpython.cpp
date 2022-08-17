@@ -789,6 +789,7 @@ int main(int argc, char *argv[])
         bool static_link = false;
         std::string arg_backend = "llvm";
         std::string arg_kernel_f;
+        bool print_after_asr_pass = false;
         bool print_targets = false;
         bool print_rtlib_header_dir = false;
 
@@ -855,6 +856,7 @@ int main(int argc, char *argv[])
         app.add_option("--target", compiler_options.target, "Generate code for the given target")->capture_default_str();
         app.add_flag("--print-targets", print_targets, "Print the registered targets");
         app.add_flag("--get-rtlib-header-dir", print_rtlib_header_dir, "Print the path to the runtime library header file");
+        app.add_flag("--print-after-asr-pass", print_after_asr_pass, "Print ASR output after every pass");
 
         // LSP specific options
         app.add_flag("--show-errors", show_errors, "Show errors when LSP is running in the background");
@@ -863,6 +865,7 @@ int main(int argc, char *argv[])
         if( compiler_options.fast ) {
             lpython_pass_manager.use_optimization_passes();
         }
+
 
         /*
         * Subcommands:
@@ -955,6 +958,10 @@ int main(int argc, char *argv[])
         if (pywrap) {
             std::cerr << "Pywrap is not implemented yet." << std::endl;
             return 1;
+        }
+
+        if( print_after_asr_pass ) {
+            lpython_pass_manager.print_after_asr_pass();
         }
 
         if (arg_backend == "llvm") {

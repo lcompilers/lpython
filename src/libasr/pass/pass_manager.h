@@ -14,6 +14,10 @@
     #include <lpython/utils.h>
 #endif
 
+#if __has_include(<lpython/utils.h>)
+    #include <lpython/pickle.h>
+#endif
+
 #include <libasr/pass/do_loops.h>
 #include <libasr/pass/for_all.h>
 #include <libasr/pass/implied_do_loops.h>
@@ -37,7 +41,6 @@
 #include <libasr/pass/loop_vectorise.h>
 #include <libasr/pass/update_array_dim_intrinsic_calls.h>
 #include <libasr/pass/pass_array_by_data.h>
-
 #include <map>
 #include <vector>
 
@@ -77,18 +80,32 @@ namespace LCompilers {
 
         bool is_fast;
         bool apply_default_passes;
+        bool do_print_after_asr_pass;
 
         void _apply_passes(Allocator& al, LFortran::ASR::TranslationUnit_t* asr,
                            std::vector<std::string>& passes, PassOptions pass_options) {
             pass_options.runtime_library_dir = LFortran::get_runtime_library_dir();
+            if (do_print_after_asr_pass) {
+                std::string cmd = "mkdir asr_pass_log";
+                int err = system(cmd.c_str());
+                if (err) {
+                    std::cout << "The command '" + cmd + "' failed." << std::endl;
+                    exit(1);
+                }
+                LFortran::write_asr_to_file("./asr_pass_log/0_raw.log", *asr, false, false);
+            }
             for (size_t i = 0; i < passes.size(); i++) {
                 _passes_db[passes[i]](al, *asr, pass_options);
+                if (do_print_after_asr_pass) {
+                    std::string file = "./asr_pass_log/" + std::to_string(i+1)+"_"+passes[i]+".log";
+                    LFortran::write_asr_to_file(file,*asr, false, false);
+                }
             }
         }
 
         public:
 
-        PassManager(): is_fast{false}, apply_default_passes{false} {
+        PassManager(): is_fast{false}, apply_default_passes{false}, do_print_after_asr_pass(false) {
             _passes = {
                 "global_stmts",
                 "class_constructor",
@@ -169,6 +186,12 @@ namespace LCompilers {
                     _apply_passes(al, asr, _passes, pass_options);
                 }
             }
+        }
+
+
+
+        void print_after_asr_pass() {
+            do_print_after_asr_pass = true;
         }
 
         void use_optimization_passes() {
