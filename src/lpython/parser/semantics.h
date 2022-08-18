@@ -313,13 +313,20 @@ static inline char *extract_type_comment(LFortran::Parser &p,
 #define EXCEPT_03(e, id, stmts, l) make_ExceptHandler_t(p.m_a, l, \
         EXPR(e), name2char(id), STMTS(stmts), stmts.size())
 
-static inline withitem_t *WITH_ITEM(Allocator &al, Location &l,
+static inline withitem_t WITH_ITEM(Location &l,
         expr_t* context_expr, expr_t* optional_vars) {
-    withitem_t *r = al.allocate<withitem_t>();
-    r->loc = l;
-    r->m_context_expr = context_expr;
-    r->m_optional_vars = optional_vars;
+    withitem_t r;
+    r.loc = l;
+    r.m_context_expr = context_expr;
+    r.m_optional_vars = optional_vars;
     return r;
+}
+
+Vec<withitem_t> withitem_to_list(Allocator &al, withitem_t x) {
+    Vec<withitem_t> v;
+    v.reserve(al, 1);
+    v.push_back(al, x);
+    return v;
 }
 
 static inline Vec<withitem_t> convert_exprlist_to_withitem(Allocator &al,
@@ -327,16 +334,12 @@ static inline Vec<withitem_t> convert_exprlist_to_withitem(Allocator &al,
     Vec<withitem_t> v;
     v.reserve(al, expr_list.size());
     for (size_t i=0; i<expr_list.size(); i++) {
-        withitem_t r;
-        r.loc = l;
-        r.m_context_expr = EXPR(expr_list[i]);
-        r.m_optional_vars = nullptr;
-        v.push_back(al, r);
+        WITH_ITEM(l, EXPR(expr_list[i]), nullptr);
     }
     return v;
 }
 
-#define WITH_ITEM_01(expr, vars, l) WITH_ITEM(p.m_a, l, \
+#define WITH_ITEM_01(expr, vars, l) WITH_ITEM(l, \
         EXPR(expr), EXPR(SET_EXPR_CTX_01(vars, Store)))
 #define WITH(items, body, l) make_With_t(p.m_a, l, \
         convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \

@@ -572,14 +572,19 @@ try_statement
 
 with_as_items_list
     : with_as_items_list "," expr KW_AS expr {
-        $$ = $1; PLIST_ADD($$, WITH_ITEM_01($3, $5, @$)); }
-    | expr KW_AS expr { LIST_NEW($$); PLIST_ADD($$, WITH_ITEM_01($1, $3, @$)); }
+        $$ = $1; LIST_ADD($$, WITH_ITEM_01($3, $5, @$)); }
+    | expr KW_AS expr { LIST_NEW($$); LIST_ADD($$, WITH_ITEM_01($1, $3, @$)); }
     ;
 
 with_as_items
     : with_as_items_list { $$ = $1; }
     | "(" with_as_items_list ")" { $$ = $2; }
     | "(" with_as_items_list "," ")" { $$ = $2; }
+    | expr_list "," expr KW_AS expr_list { $$ = withitem_to_list(p.m_a,
+        WITH_ITEM_01(TUPLE_01(TUPLE_($1, $3), @$), TUPLE_03($5, @$), @$)); }
+    | "(" expr_list "," expr KW_AS expr_list comma_opt ")" {
+        $$ = withitem_to_list(p.m_a, WITH_ITEM_01(TUPLE_01(TUPLE_($2, $4), @$),
+                              TUPLE_01($6, @$), @$)); }
     ;
 
 with_statement

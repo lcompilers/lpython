@@ -14,3 +14,7 @@ with open('examples/expr2.py', 'r') as file:
 with open(...) as f: ...
 
 with open('examples/expr2.py', 'r') as file: x = file.read()
+
+with a, b, c as y, \
+            z:
+    pass
