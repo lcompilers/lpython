@@ -7,7 +7,7 @@ def capitalize():
     s = " tom and jerry"
     assert s.capitalize() == s
     assert "empty string" .capitalize() == "Empty string"
-
+    assert "".capitalize() == ""
 
 def lower():
     s: str
