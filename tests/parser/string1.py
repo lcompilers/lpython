@@ -47,3 +47,27 @@ Rb'Text'
 RB"Text"
 
 rf'\N{AMPERSAND}'
+
+(f"Text{a}, {b}"
+f"Text {a}")
+
+(f"Text{a}, {b}"
+"Text")
+
+("Text"
+f"{b}, Text")
+
+(f"Text {a}"
+r"Text")
+
+(r"Text"
+r"Text")
+
+(r"Text"
+"Text")
+
+(r"Text"
+f"{a} Text")
+
+(b"Text"
+b"Text")
