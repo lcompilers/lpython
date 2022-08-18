@@ -775,7 +775,7 @@ public:
                     return ASR::make_Assignment_t(al, loc, variable_var, ASRUtils::EXPR(func_call_asr), nullptr);
                 } else {
                     return func_call_asr;
-                }                
+                }
             } else {
                 ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
                 if (args.size() != func->n_args) {
