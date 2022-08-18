@@ -20,6 +20,7 @@ x, y, z = t
 (x, y, z) = t
 x, = t
 (x,) = t
+obj = obj,
 
 x += 1
 

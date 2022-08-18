@@ -820,7 +820,7 @@ static inline ast_t* ID_TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
 #define ID_TUPLE_01(elts, l) ID_TUPLE_02(p.m_a, l, elts)
 #define ID_TUPLE_03(elts, l) make_Tuple_t(p.m_a, l, \
         EXPRS(SET_EXPR_CTX_02(SET_CTX_02(elts, Store), Store)), elts.size(), \
-        expr_contextType::Store);
+        expr_contextType::Store)
 
 #define LIST_COMP_1(expr, generators, l) make_ListComp_t(p.m_a, l, \
         EXPR(expr), generators.p, generators.n)

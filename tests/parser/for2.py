@@ -50,3 +50,8 @@ async def test():
 for a in (b, c): a**2; pass;
 
 async for a in range(5): print(a)
+
+for like_function in np.zeros_like, np.ones_like, np.empty_like:
+    pass
+for a, in t:
+    pass
