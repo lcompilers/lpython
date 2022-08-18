@@ -900,6 +900,7 @@ subscript
 
 string
     : string TK_STRING { $$ = STRING2($1, $2, @$); } // TODO
+    | string id TK_STRING { $$ = STRING4($1, STRING3($2, $3, @$), @$); }
     | TK_STRING { $$ = STRING1($1, @$); }
     | id TK_STRING { $$ = STRING3($1, $2, @$); }
     ;
