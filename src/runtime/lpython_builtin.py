@@ -616,6 +616,8 @@ def pow(x: i64, y: i64, z: i64) -> i64:
 
 @overload
 def _lpython_str_capitalize(x: str) -> str:
+    if len(x) == 0:
+        return x
     val: i32
     val = ord(x[0])
     if val >= ord('a') and val <= ord('x'):

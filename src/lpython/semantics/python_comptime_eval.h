@@ -661,7 +661,9 @@ struct PythonIntrinsicProcedures {
         ASR::expr_t *arg = args[0];
         ASR::ttype_t *arg_type = ASRUtils::expr_type(arg);
         std::string val = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
-        val = std::toupper(val[0]);
+        if (val.size()) {
+            val[0] = std::toupper(val[0]);
+        }
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
                                     1, 1, nullptr, nullptr, 0));
         ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_StringConstant_t(al, loc, s2c(al, ""), type));
