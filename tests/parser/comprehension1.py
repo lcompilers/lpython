@@ -38,3 +38,7 @@ square_dict = {num: num*num for num in range(1, 11)}
 (string[i] for i in range(len(string)-1, -1, -1))
 
 k = (j + k for j, k in range(10) if j > 0)
+
+(left + size + right for size, (left, right) in zip(array.shape, pad_width))
+
+viter = ((i, j) for ((i, _), (j, _)) in zip(newargs[1:], args[1:]))
