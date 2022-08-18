@@ -1,14 +1,22 @@
 from ltypes import i32
 
-def test_list_01():
+def fill_list_str(size: i32) -> list[str]:
     a: list[str] = ["0_str", "1_str"]
+    i: i32
+    for i in range(size):
+        a.append(str(i + 2) + "_str")
+    return a
+
+def test_list_01():
+    a: list[str] = []
     b: list[str]
     string: str = "string_"
     b = [string, string]
     i: i32
 
+    a = fill_list_str(10)
+
     for i in range(10):
-        a.append(str(i + 2) + "_str")
         b.append(string + str(i + 2))
 
 

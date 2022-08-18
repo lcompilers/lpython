@@ -10,9 +10,7 @@ def test_list_01(n: i32) -> i32:
         sum += a[i]
     return sum
 
-def test_list_02(n: i32) -> i32:
-    x: list[i32] = [50, 1]
-
+def test_list_insert_02(x: list[i32], n: i32) -> list[i32]:
     i: i32
     imod: i32
     for i in range(n):
@@ -24,7 +22,15 @@ def test_list_02(n: i32) -> i32:
         elif imod == 2:
             x.insert(len(x)//2, i + n + 2)
 
+    return x
+
+def test_list_02(n: i32) -> i32:
+    x: list[i32] = [50, 1]
     acc: i32 = 0
+    i: i32
+
+    x = test_list_insert_02(x, n)
+
     for i in range(n):
         acc += x[i]
     return acc
@@ -48,6 +54,7 @@ def test_list_02_string():
 
     for i in range(50):
         assert x[i] == y[i]
+
 
 def verify():
     assert test_list_01(11) == 55
