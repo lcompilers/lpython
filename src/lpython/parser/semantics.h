@@ -14,6 +14,7 @@
 
 #include <lpython/python_ast.h>
 #include <libasr/string_utils.h>
+#include <lpython/parser/parser_exception.h>
 
 // This is only used in parser.tab.cc, nowhere else, so we simply include
 // everything from LFortran::AST to save typing:
@@ -661,9 +662,78 @@ static inline ast_t* BOOLOP_01(Allocator &al, Location &loc,
 #define COMPARE(x, op, y, l) make_Compare_t(p.m_a, l, \
         EXPR(x), cmpopType::op, EXPRS(A2LIST(p.m_a, y)), 1)
 
-char* concat_string(Allocator &al, ast_t *a, char *b) {
-    char *s = down_cast2<ConstantStr_t>(a)->m_value;
-    return LFortran::s2c(al, std::string(s) + std::string(b));
+static inline ast_t* concat_string(Allocator &al, Location &l,
+        expr_t *string, std::string str, expr_t *string_literal) {
+    std::string str1 = "";
+    ast_t* tmp = nullptr;
+    Vec<expr_t *> exprs;
+    exprs.reserve(al, 4);
+
+    // TODO: Merge two concurrent ConstantStr's into one in the JoinedStr
+    if (string_literal) {
+        if (is_a<ConstantStr_t>(*string)
+                && is_a<ConstantStr_t>(*string_literal)) {
+            str1 = std::string(down_cast<ConstantStr_t>(string)->m_value);
+            str = std::string(down_cast<ConstantStr_t>(string_literal)->m_value);
+            str1 = str1 + str;
+            tmp = make_ConstantStr_t(al, l, LFortran::s2c(al, str1), nullptr);
+        } else if (is_a<JoinedStr_t>(*string)
+                && is_a<JoinedStr_t>(*string_literal)) {
+            JoinedStr_t *t = down_cast<JoinedStr_t>(string);
+            for (size_t i = 0; i < t->n_values; i++) {
+                exprs.push_back(al, t->m_values[i]);
+            }
+            t = down_cast<JoinedStr_t>(string_literal);
+            for (size_t i = 0; i < t->n_values; i++) {
+                exprs.push_back(al, t->m_values[i]);
+            }
+            tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
+        } else if (is_a<JoinedStr_t>(*string)
+                && is_a<ConstantStr_t>(*string_literal)) {
+            JoinedStr_t *t = down_cast<JoinedStr_t>(string);
+            for (size_t i = 0; i < t->n_values; i++) {
+                exprs.push_back(al, t->m_values[i]);
+            }
+            exprs.push_back(al, string_literal);
+            tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
+        } else if (is_a<ConstantStr_t>(*string)
+                && is_a<JoinedStr_t>(*string_literal)) {
+            exprs.push_back(al, string);
+            JoinedStr_t *t = down_cast<JoinedStr_t>(string_literal);
+            for (size_t i = 0; i < t->n_values; i++) {
+                exprs.push_back(al, t->m_values[i]);
+            }
+            tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
+        } else if (is_a<ConstantBytes_t>(*string)
+                && is_a<ConstantBytes_t>(*string_literal)) {
+            str1 = std::string(down_cast<ConstantBytes_t>(string)->m_value);
+            str1 = str1.substr(0, str1.size() - 1);
+            str = std::string(down_cast<ConstantBytes_t>(string_literal)->m_value);
+            str = str.substr(2, str.size());
+            str1 = str1 + str;
+            tmp = make_ConstantBytes_t(al, l, LFortran::s2c(al, str1), nullptr);
+        } else {
+            throw LFortran::parser_local::ParserError(
+                "The byte and non-byte literals can not be combined", l);
+        }
+    } else {
+        if (is_a<ConstantStr_t>(*string)) {
+            str1 = std::string(down_cast<ConstantStr_t>(string)->m_value);
+            str1 = str1 + str;
+            tmp = make_ConstantStr_t(al, l, LFortran::s2c(al, str1), nullptr);
+        } else if (is_a<JoinedStr_t>(*string)) {
+            JoinedStr_t *t = down_cast<JoinedStr_t>(string);
+            for (size_t i = 0; i < t->n_values; i++) {
+                exprs.push_back(al, t->m_values[i]);
+            }
+            exprs.push_back(al, (expr_t *)make_ConstantStr_t(al, l,
+                            LFortran::s2c(al, str), nullptr));
+            tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
+        } else {
+            LFORTRAN_ASSERT(false);
+        }
+    }
+    return tmp;
 }
 
 char* unescape(Allocator &al, LFortran::Str &s) {
@@ -684,8 +754,9 @@ char* unescape(Allocator &al, LFortran::Str &s) {
 // `x.int_n` is of type BigInt but we store the int64_t directly in AST
 #define INTEGER(x, l) make_ConstantInt_t(p.m_a, l, x, nullptr)
 #define STRING1(x, l) make_ConstantStr_t(p.m_a, l, unescape(p.m_a, x), nullptr)
-#define STRING2(x, y, l) make_ConstantStr_t(p.m_a, l, concat_string(p.m_a, x, y.c_str(p.m_a)), nullptr)
+#define STRING2(x, y, l) concat_string(p.m_a, l, EXPR(x), y.str(), nullptr)
 #define STRING3(id, x, l) PREFIX_STRING(p.m_a, l, name2char(id), x.c_str(p.m_a))
+#define STRING4(x, s, l) concat_string(p.m_a, l, EXPR(x), "", EXPR(s))
 #define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, x, nullptr)
 #define COMPLEX(x, l) make_ConstantComplex_t(p.m_a, l, 0, x, nullptr)
 #define BOOL(x, l) make_ConstantBool_t(p.m_a, l, x, nullptr)
