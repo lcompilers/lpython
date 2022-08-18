@@ -223,6 +223,7 @@ namespace LFortran {
             LLVMUtils* llvm_utils;
             llvm::IRBuilder<>* builder;
             llvm::AllocaInst *pos_ptr, *is_key_matching_var;
+            llvm::AllocaInst *idx_ptr;
             bool are_iterators_set;
 
             std::map<std::pair<std::string, std::string>,
@@ -230,6 +231,8 @@ namespace LFortran {
                                 std::pair<llvm::Type*, llvm::Type*>>> typecode2dicttype;
 
         public:
+
+            bool is_dict_present;
 
             LLVMDict(llvm::LLVMContext& context_,
                      LLVMUtils* llvm_utils,

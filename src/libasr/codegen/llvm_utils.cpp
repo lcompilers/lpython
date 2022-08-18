@@ -282,7 +282,8 @@ namespace LFortran {
         llvm_utils(std::move(llvm_utils_)),
         builder(std::move(builder_)),
         pos_ptr(nullptr), is_key_matching_var(nullptr),
-        are_iterators_set(false) {
+        idx_ptr(nullptr), are_iterators_set(false),
+        is_dict_present(false) {
     }
 
     llvm::Type* LLVMList::get_list_type(llvm::Type* el_type, std::string& type_code,
@@ -301,6 +302,7 @@ namespace LFortran {
     llvm::Type* LLVMDict::get_dict_type(std::string key_type_code, std::string value_type_code,
         int32_t key_type_size, int32_t value_type_size,
         llvm::Type* key_type, llvm::Type* value_type) {
+        is_dict_present = true;
         std::pair<std::string, std::string> llvm_key = std::make_pair(key_type_code, value_type_code);
         if( typecode2dicttype.find(llvm_key) != typecode2dicttype.end() ) {
             return std::get<0>(typecode2dicttype[llvm_key]);
@@ -554,17 +556,26 @@ namespace LFortran {
     }
 
     void LLVMDict::set_iterators() {
-        if( are_iterators_set ) {
+        if( are_iterators_set || !is_dict_present ) {
             return ;
         }
-        pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-        is_key_matching_var = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
+        pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr, "pos_ptr");
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+            llvm::APInt(32, 0)), pos_ptr);
+        is_key_matching_var = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr,
+                                "is_key_matching_var");
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt1Ty(context),
+            llvm::APInt(1, 0)), is_key_matching_var);
+        idx_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr, "idx_ptr");
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+            llvm::APInt(32, 0)), idx_ptr);
         are_iterators_set = true;
     }
 
     void LLVMDict::reset_iterators() {
         pos_ptr = nullptr;
         is_key_matching_var = nullptr;
+        idx_ptr = nullptr;
         are_iterators_set = false;
     }
 
@@ -572,7 +583,10 @@ namespace LFortran {
                                   llvm::Value* key, llvm::Value* key_list,
                                   llvm::Value* key_mask, llvm::Module& module,
                                   ASR::ttype_t* key_asr_type) {
-        set_iterators();
+        if( !are_iterators_set ) {
+            pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+            is_key_matching_var = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
+        }
         LLVM::CreateStore(*builder, key_hash, pos_ptr);
 
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
@@ -654,7 +668,6 @@ namespace LFortran {
         LLVM::CreateStore(*builder,
                           llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), llvm::APInt(1, 1)),
                           llvm_utils->create_ptr_gep(key_mask, pos));
-        reset_iterators();
     }
 
     llvm::Value* LLVMDict::linear_probing_for_read(llvm::Value* dict, llvm::Value* key_hash,
@@ -667,7 +680,6 @@ namespace LFortran {
         linear_probing(capacity, key_hash, key, key_list, key_mask, module, key_asr_type);
         llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
         llvm::Value* item = llvm_utils->list_api->read_item(value_list, pos, true, false);
-        reset_iterators();
         return item;
     }
 
@@ -729,10 +741,9 @@ namespace LFortran {
         new_key_mask = builder->CreateBitCast(new_key_mask, llvm::Type::getInt1PtrTy(context));
 
         llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
-        // TODO: Should be created outside the user loop and not here.
-        // LLVMDict should treat them as data members and create them
-        // only if they are NULL
-        llvm::Value* idx_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        if( !are_iterators_set ) {
+            idx_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        }
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
             llvm::APInt(32, 0)), idx_ptr);
 
@@ -790,7 +801,6 @@ namespace LFortran {
 
         // end
         llvm_utils->start_new_block(loopend);
-        reset_iterators();
 
         // TODO: Free key_list, value_list and key_mask
         llvm_utils->list_api->free_data(key_list, *module);

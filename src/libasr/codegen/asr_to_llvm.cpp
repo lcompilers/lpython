@@ -1756,6 +1756,8 @@ public:
     }
 
     void visit_Program(const ASR::Program_t &x) {
+        bool is_dict_present_copy = dict_api->is_dict_present;
+        dict_api->is_dict_present = false;
         llvm_goto_targets.clear();
         // Generate code for nested subroutines and functions first:
         for (auto &item : x.m_symtab->get_scope()) {
@@ -1784,6 +1786,7 @@ public:
         llvm::Value *ret_val2 = llvm::ConstantInt::get(context,
             llvm::APInt(32, 0));
         builder->CreateRet(ret_val2);
+        dict_api->is_dict_present = is_dict_present_copy;
     }
 
     /*
@@ -2586,6 +2589,8 @@ public:
     }
 
     void visit_Function(const ASR::Function_t &x) {
+        bool is_dict_present_copy = dict_api->is_dict_present;
+        dict_api->is_dict_present = false;
         llvm_goto_targets.clear();
         instantiate_function(x);
         if (x.m_deftype == ASR::deftypeType::Interface) {
@@ -2596,6 +2601,7 @@ public:
         visit_procedures(x);
         generate_function(x);
         parent_function = nullptr;
+        dict_api->is_dict_present = is_dict_present_copy;
     }
 
     void instantiate_function(const ASR::Function_t &x){
@@ -3577,6 +3583,7 @@ public:
     }
 
     void visit_WhileLoop(const ASR::WhileLoop_t &x) {
+        dict_api->set_iterators();
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
         llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
         llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
@@ -3598,6 +3605,7 @@ public:
 
         // end
         start_new_block(loopend);
+        dict_api->reset_iterators();
     }
 
     void visit_Exit(const ASR::Exit_t & /* x */) {
