@@ -796,90 +796,6 @@ public:
                 return ASR::make_SubroutineCall_t(al, loc, stemp,
                     s_generic, args_new.p, args_new.size(), nullptr);
             }
-        /*
-        if (ASR::is_a<ASR::Function_t>(*s) &&
-            ASR::down_cast<ASR::Function_t>(s)->m_return_var != nullptr) {
-            ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
-            if (func->n_type_params == 0) {
-                ASR::ttype_t *a_type = nullptr;
-                if( func->m_elemental && args.size() == 1 &&
-                    ASRUtils::is_array(ASRUtils::expr_type(args[0].m_value)) ) {
-                    a_type = ASRUtils::expr_type(args[0].m_value);
-                } else {
-                    a_type = ASRUtils::expr_type(func->m_return_var);
-                    a_type = handle_return_type(a_type, loc, args, func);
-                }
-                ASR::expr_t *value = nullptr;
-                if (ASRUtils::is_intrinsic_function2(func)) {
-                    value = intrinsic_procedures.comptime_eval(call_name, al, loc, args);
-                }
-                if (args.size() != func->n_args) {
-                    std::string fnd = std::to_string(args.size());
-                    std::string org = std::to_string(func->n_args);
-                    diag.add(diag::Diagnostic(
-                        "Number of arguments does not match in the function call",
-                        diag::Level::Error, diag::Stage::Semantic, {
-                            diag::Label("(found: '" + fnd + "', expected: '" + org + "')",
-                                    {loc})
-                        })
-                    );
-                    throw SemanticAbort();
-                }
-                Vec<ASR::call_arg_t> args_new;
-                args_new.reserve(al, func->n_args);
-                visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
-                ASR::asr_t* func_call_asr = ASR::make_FunctionCall_t(al, loc, stemp,
-                                                s_generic, args_new.p, args_new.size(),
-                                                a_type, value, nullptr);
-                if( ignore_return_value ) {
-                    std::string dummy_ret_name = current_scope->get_unique_name("__lcompilers_dummy");
-                    ASR::asr_t* variable_asr = ASR::make_Variable_t(al, loc, current_scope,
-                                                    s2c(al, dummy_ret_name), ASR::intentType::Local,
-                                                    nullptr, nullptr, ASR::storage_typeType::Default,
-                                                    a_type, ASR::abiType::Source, ASR::accessType::Public,
-                                                    ASR::presenceType::Required, false);
-                    ASR::symbol_t* variable_sym = ASR::down_cast<ASR::symbol_t>(variable_asr);
-                    current_scope->add_symbol(dummy_ret_name, variable_sym);
-                    ASR::expr_t* variable_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, variable_sym));
-                    return ASR::make_Assignment_t(al, loc, variable_var, ASRUtils::EXPR(func_call_asr), nullptr);
-                } else {
-                    return func_call_asr;
-                }
-            } else {
-                std::map<std::string, ASR::ttype_t*> subs;
-                for (size_t i=0; i<args.size(); i++) {
-                    ASR::ttype_t *param_type = ASRUtils::expr_type(func->m_args[i]);
-                    ASR::ttype_t *arg_type = ASRUtils::expr_type(args[i].m_value);
-                    subs = check_type_substitution(subs, param_type, arg_type, loc);
-                }
-
-                ASR::symbol_t *t = get_generic_function(subs, *func);
-                std::string new_call_name = call_name;
-                if (ASR::is_a<ASR::Function_t>(*t)) {
-                    new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
-                }
-                return make_call_helper(al, t, current_scope, args, new_call_name, loc);
-            }
-        } else if (ASR::is_a<ASR::Function_t>(*s)) {
-            ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
-            if (args.size() != func->n_args) {
-                std::string fnd = std::to_string(args.size());
-                std::string org = std::to_string(func->n_args);
-                diag.add(diag::Diagnostic(
-                    "Number of arguments does not match in the function call",
-                    diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("(found: '" + fnd + "', expected: '" + org + "')",
-                                {loc})
-                    })
-                );
-                throw SemanticAbort();
-            }
-            Vec<ASR::call_arg_t> args_new;
-            args_new.reserve(al, func->n_args);
-            visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
-            return ASR::make_SubroutineCall_t(al, loc, stemp,
-                s_generic, args_new.p, args_new.size(), nullptr);
-        */
         } else if(ASR::is_a<ASR::DerivedType_t>(*s)) {
             Vec<ASR::expr_t*> args_new;
             args_new.reserve(al, args.size());
@@ -2397,13 +2313,18 @@ public:
                 if (current_size == 0) {
                     tps.push_back(al, new_tt);
                 } else {
+                    bool not_found = true;
                     for (size_t i = 0; i < current_size; i++) {
                         ASR::TypeParameter_t *added_tp = ASR::down_cast<ASR::TypeParameter_t>(tps.p[i]);
                         std::string new_param = ASR::down_cast<ASR::TypeParameter_t>(new_tt)->m_param;
                         std::string added_param = added_tp->m_param;
-                        if (added_param.compare(new_param) != 0) {
-                            tps.push_back(al, new_tt);
+                        if (added_param.compare(new_param) == 0) {
+                            not_found = false;
+                            break;
                         }
+                    }
+                    if (not_found) {
+                        tps.push_back(al, new_tt);
                     }
                 }
             }

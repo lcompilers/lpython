@@ -63,8 +63,7 @@ public:
                 (ASR::down_cast<ASR::Var_t>(x.m_return_var))->m_v);
             std::string return_var_name = return_var->m_name;
             ASR::ttype_t *return_param_type = ASRUtils::expr_type(x.m_return_var);
-            ASR::ttype_t *return_type = ASR::is_a<ASR::TypeParameter_t>(*return_param_type) ?
-                subs[ASR::down_cast<ASR::TypeParameter_t>(return_param_type)->m_param] : return_param_type;
+            ASR::ttype_t *return_type = substitute_type(return_param_type);
             ASR::asr_t *new_return_var = ASR::make_Variable_t(al, return_var->base.base.loc,
                 current_scope, s2c(al, return_var_name), return_var->m_intent, nullptr, nullptr,
                 return_var->m_storage, return_type, return_var->m_abi, return_var->m_access,
