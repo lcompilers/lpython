@@ -888,8 +888,9 @@ public:
             new_function_num = 0;
         }
         generic_func_nums[func_name] = new_function_num + 1;
-        generic_func_subs["__lpython_generic_" + func_name + "_" + std::to_string(new_function_num)] = subs;
-        t = pass_instantiate_generic_function(al, subs, current_scope, new_function_num, func);
+        std::string new_func_name = "__lpython_generic_" + func_name + "_" + std::to_string(new_function_num);
+        generic_func_subs[new_func_name] = subs;
+        t = pass_instantiate_generic_function(al, subs, current_scope, new_func_name, func);
         return t;
     }
 
