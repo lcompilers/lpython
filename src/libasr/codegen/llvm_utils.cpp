@@ -1049,7 +1049,9 @@ namespace LFortran {
         return LLVM::CreateLoad(*builder, get_pointer_to_occupancy(dict));
     }
 
-    LLVMDict::~LLVMDict() {}
+    LLVMDict::~LLVMDict() {
+        typecode2dicttype.clear();
+    }
 
     LLVMDictOptimizedLinearProbing::~LLVMDictOptimizedLinearProbing() {}
 
