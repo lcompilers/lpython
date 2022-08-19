@@ -238,7 +238,7 @@ public:
     llvm_utils(std::make_unique<LLVMUtils>(context, builder.get())),
     list_api(std::make_unique<LLVMList>(context, llvm_utils.get(), builder.get())),
     tuple_api(std::make_unique<LLVMTuple>(context, llvm_utils.get(), builder.get())),
-    dict_api(std::make_unique<LLVMDict>(context, llvm_utils.get(), builder.get())),
+    dict_api(std::make_unique<LLVMDictOptimizedLinearProbing>(context, llvm_utils.get(), builder.get())),
     arr_descr(LLVMArrUtils::Descriptor::get_descriptor(context,
               builder.get(),
               llvm_utils.get(),
