@@ -250,7 +250,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <string> type_comment
 %type <ast> string
 %type <ast> ternary_if_statement
-/* %type <ast> list_comprehension */
+%type <ast> comprehension
 %type <vec_ast> id_list
 %type <ast> id_item
 %type <ast> subscript
@@ -896,6 +896,7 @@ subscript
     | "{" dict_list comma_opt "}" "[" slice_item "]" {
         $$ = SUBSCRIPT_01(DICT_02($2, @$), $6, @$); }
     | subscript "[" slice_item "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
+    | comprehension "[" slice_item "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
     ;
 
 string
@@ -954,6 +955,13 @@ lambda_parameter_list_opt
 lambda_expression
     : KW_LAMBDA lambda_parameter_list_opt ":" expr %prec LAMBDA {
         $$ = LAMBDA_01($2, $4, @$); }
+    ;
+
+comprehension
+    : "[" expr comp_for_items "]" { $$ = LIST_COMP_1($2, $3, @$); }
+    | "{" expr comp_for_items "}" { $$ = SET_COMP_1($2, $3, @$); }
+    | "{" expr ":" expr comp_for_items "}" { $$ = DICT_COMP_1($2, $4, $5, @$); }
+    | "(" expr comp_for_items ")" { $$ = COMP_EXPR_1($2, $3, @$); }
     ;
 
 expr
@@ -1016,12 +1024,7 @@ expr
     | expr "or" expr { $$ = BOOLOP($1, Or, $3, @$); }
     | "not" expr { $$ = UNARY($2, Not, @$); }
 
-    // Comprehension
-    | "[" expr comp_for_items "]" { $$ = LIST_COMP_1($2, $3, @$); }
-    | "{" expr comp_for_items "}" { $$ = SET_COMP_1($2, $3, @$); }
-    | "{" expr ":" expr comp_for_items "}" { $$ = DICT_COMP_1($2, $4, $5, @$); }
-    | "(" expr comp_for_items ")" { $$ = COMP_EXPR_1($2, $3, @$); }
-
+    | comprehension { $$ = $1; }
     | ternary_if_statement { $$ = $1; }
     | lambda_expression { $$ = $1; }
     ;
