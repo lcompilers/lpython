@@ -1037,7 +1037,7 @@ public:
             if (is_a<ASR::Function_t>(*item.second)) {
                 if (ASR::down_cast<ASR::Function_t>(item.second)->n_type_params == 0) {
                     visit_symbol(*item.second);
-                }                
+                }
             }
         }
 
@@ -3138,31 +3138,24 @@ public:
             return ;
         } else if( is_target_tuple && is_value_tuple ) {
             uint64_t ptr_loads_copy = ptr_loads;
-            ptr_loads = 0;
-            this->visit_expr(*x.m_value);
-            llvm::Value* value_tuple = tmp;
-            if( ASR::is_a<ASR::TupleConstant_t>(*x.m_target) ) {
-                ptr_loads = ptr_loads_copy;
+            if( ASR::is_a<ASR::TupleConstant_t>(*x.m_target) &&
+                !ASR::is_a<ASR::TupleConstant_t>(*x.m_value) ) {
+                ptr_loads = 0;
+                this->visit_expr(*x.m_value);
+                llvm::Value* value_tuple = tmp;
                 ASR::TupleConstant_t* const_tuple = ASR::down_cast<ASR::TupleConstant_t>(x.m_target);
                 for( size_t i = 0; i < const_tuple->n_elements; i++ ) {
-                    // TODO: Adjust for global variables as well
-                    // See if-else check on llvm_symtab for the logic
-                    ASR::Variable_t *target_var = EXPR2VAR(const_tuple->m_elements[i]);
-                    uint32_t h = get_hash((ASR::asr_t*)target_var);
-                    llvm::Value* target_ptr = nullptr;
-                    if (llvm_symtab.find(h) != llvm_symtab.end()) {
-                        target_ptr = llvm_symtab[h];
-                        if (ASR::is_a<ASR::Pointer_t>(*target_var->m_type)) {
-                            target_ptr = CreateLoad(target_ptr);
-                        }
-                    } else {
-                        throw CodeGenError("Support for unpacking tuple value to "
-                                           "a global variable is not available yet.");
-                    }
+                    ptr_loads = 0;
+                    visit_expr(*const_tuple->m_elements[i]);
+                    llvm::Value* target_ptr = tmp;
                     llvm::Value* item = tuple_api->read_item(value_tuple, i, false);
                     builder->CreateStore(item, target_ptr);
                 }
+                ptr_loads = ptr_loads_copy;
             } else {
+                ptr_loads = 0;
+                this->visit_expr(*x.m_value);
+                llvm::Value* value_tuple = tmp;
                 this->visit_expr(*x.m_target);
                 llvm::Value* target_tuple = tmp;
                 ptr_loads = ptr_loads_copy;
