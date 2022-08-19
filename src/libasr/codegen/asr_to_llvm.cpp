@@ -1272,7 +1272,9 @@ public:
         ptr_loads = ptr_loads_copy;
         llvm::Value *pos = tmp;
 
-        tmp = list_api->read_item(plist, pos, LLVM::is_llvm_struct(el_type));
+        tmp = list_api->read_item(plist, pos,
+                (LLVM::is_llvm_struct(el_type) ||
+                ptr_loads == 0));
     }
 
     void visit_DictItem(const ASR::DictItem_t& x) {
@@ -2026,6 +2028,17 @@ public:
                                    " not yet implemented.");
         }
         return llvm_type;
+    }
+
+    inline llvm::Type* get_type_from_ttype_t_util(ASR::ttype_t* asr_type) {
+        ASR::storage_typeType m_storage_local = ASR::storage_typeType::Default;
+        bool is_array_type_local, is_malloc_array_type_local;
+        bool is_list_local;
+        ASR::dimension_t* m_dims_local;
+        int n_dims_local, a_kind_local;
+        return get_type_from_ttype_t(asr_type, m_storage_local, is_array_type_local,
+                                     is_malloc_array_type_local, is_list_local,
+                                     m_dims_local, n_dims_local, a_kind_local);
     }
 
     template<typename T>
@@ -3150,6 +3163,30 @@ public:
                     llvm::Value* target_ptr = tmp;
                     llvm::Value* item = tuple_api->read_item(value_tuple, i, false);
                     builder->CreateStore(item, target_ptr);
+                }
+                ptr_loads = ptr_loads_copy;
+            } else if( ASR::is_a<ASR::TupleConstant_t>(*x.m_target) &&
+                       ASR::is_a<ASR::TupleConstant_t>(*x.m_value) ) {
+                ASR::TupleConstant_t* asr_value_tuple = ASR::down_cast<ASR::TupleConstant_t>(x.m_value);
+                Vec<llvm::Value*> src_deepcopies;
+                src_deepcopies.reserve(al, asr_value_tuple->n_elements);
+                for( size_t i = 0; i < asr_value_tuple->n_elements; i++ ) {
+                    ASR::ttype_t* asr_tuple_i_type = ASRUtils::expr_type(asr_value_tuple->m_elements[i]);
+                    llvm::Type* llvm_tuple_i_type = get_type_from_ttype_t_util(asr_tuple_i_type);
+                    llvm::Value* llvm_tuple_i = builder->CreateAlloca(llvm_tuple_i_type, nullptr);
+                    ptr_loads = !LLVM::is_llvm_struct(asr_tuple_i_type);
+                    visit_expr(*asr_value_tuple->m_elements[i]);
+                    llvm_utils->deepcopy(tmp, llvm_tuple_i, asr_tuple_i_type, *module);
+                    src_deepcopies.push_back(al, llvm_tuple_i);
+                }
+                ASR::TupleConstant_t* asr_target_tuple = ASR::down_cast<ASR::TupleConstant_t>(x.m_target);
+                for( size_t i = 0; i < asr_target_tuple->n_elements; i++ ) {
+                    ptr_loads = 0;
+                    visit_expr(*asr_target_tuple->m_elements[i]);
+                    LLVM::CreateStore(*builder,
+                        LLVM::CreateLoad(*builder, src_deepcopies[i]),
+                        tmp
+                    );
                 }
                 ptr_loads = ptr_loads_copy;
             } else {
@@ -5123,10 +5160,13 @@ public:
                         }
                     }
                 } else {
+                    ASR::ttype_t* arg_type = expr_type(x.m_args[i].m_value);
+                    uint64_t ptr_loads_copy = ptr_loads;
+                    ptr_loads = !LLVM::is_llvm_struct(arg_type);
                     this->visit_expr_wrapper(x.m_args[i].m_value);
                     llvm::Value *value=tmp;
+                    ptr_loads = ptr_loads_copy;
                     llvm::Type *target_type;
-                    ASR::ttype_t* arg_type = expr_type(x.m_args[i].m_value);
                     bool character_bindc = false;
                     switch (arg_type->type) {
                         case (ASR::ttypeType::Integer) : {
@@ -5167,6 +5207,10 @@ public:
                         case (ASR::ttypeType::CPtr) :
                             target_type = llvm::Type::getVoidTy(context)->getPointerTo();
                             break;
+                        case (ASR::ttypeType::List) : {
+                            target_type = get_type_from_ttype_t_util(arg_type);
+                            break ;
+                        }
                         default :
                             throw CodeGenError("Type " + ASRUtils::type_to_str(arg_type) + " not implemented yet.");
                     }
@@ -5202,7 +5246,12 @@ public:
                                     if( ASR::is_a<ASR::ArrayItem_t>(*x.m_args[i].m_value) ) {
                                         value = CreateLoad(value);
                                     }
-                                    builder->CreateStore(value, target);
+                                    if( ASR::is_a<ASR::Tuple_t>(*arg_type) ||
+                                        ASR::is_a<ASR::List_t>(*arg_type) ) {
+                                        llvm_utils->deepcopy(value, target, arg_type, *module);
+                                    } else {
+                                        builder->CreateStore(value, target);
+                                    }
                                     tmp = target;
                                 }
                             }
