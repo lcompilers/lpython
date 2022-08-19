@@ -252,6 +252,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> ternary_if_statement
 /* %type <ast> list_comprehension */
 %type <vec_ast> id_list
+%type <vec_ast> id_list_opt
 %type <ast> id_item
 %type <ast> subscript
 %type <comp> comp_for
@@ -788,6 +789,11 @@ dict_list
     | dict { LIST_NEW($$); LIST_ADD($$, $1); }
     ;
 
+id_list_opt
+    : id_list { $$ = $1; }
+    | %empty { LIST_NEW($$); }
+    ;
+
 id_list
     : id_list "," id_item { $$ = $1; LIST_ADD($$, $3); }
     | id_item { LIST_NEW($$); LIST_ADD($$, $1); }
@@ -798,6 +804,8 @@ id_item
     | "(" id ")" { $$ = $2; }
     | "(" id_list "," ")" { $$ = ID_TUPLE_03($2, @$); }
     | "(" id_list ","  id_item ")" { $$ = ID_TUPLE_01(TUPLE_($2, $4), @$); }
+    | "[" id_list_opt "]" { $$ = LIST(SET_EXPR_CTX_02($2, Store), @$); }
+    | "[" id_list "," "]" { $$ = LIST(SET_EXPR_CTX_02($2, Store), @$); }
     ;
 
 keyword_item
