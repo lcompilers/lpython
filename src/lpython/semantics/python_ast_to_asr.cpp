@@ -717,10 +717,24 @@ public:
                 stemp = symtab->get_symbol(local_sym);
             }
         }
-        if (ASR::is_a<ASR::Function_t>(*s) &&
-            ASR::down_cast<ASR::Function_t>(s)->m_return_var != nullptr) {
+        if (ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
-            if (func->n_type_params == 0) {
+            if (func->n_type_params > 0) {
+                std::map<std::string, ASR::ttype_t*> subs;
+                for (size_t i=0; i<args.size(); i++) {
+                    ASR::ttype_t *param_type = ASRUtils::expr_type(func->m_args[i]);
+                    ASR::ttype_t *arg_type = ASRUtils::expr_type(args[i].m_value);
+                    subs = check_type_substitution(subs, param_type, arg_type, loc);
+                }
+
+                ASR::symbol_t *t = get_generic_function(subs, *func);
+                std::string new_call_name = call_name;
+                if (ASR::is_a<ASR::Function_t>(*t)) {
+                    new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
+                }
+                return make_call_helper(al, t, current_scope, args, new_call_name, loc); 
+            }
+            if (ASR::down_cast<ASR::Function_t>(s)->m_return_var != nullptr) {
                 ASR::ttype_t *a_type = nullptr;
                 if( func->m_elemental && args.size() == 1 &&
                     ASRUtils::is_array(ASRUtils::expr_type(args[0].m_value)) ) {
@@ -766,39 +780,25 @@ public:
                     return func_call_asr;
                 }
             } else {
-                std::map<std::string, ASR::ttype_t*> subs;
-                for (size_t i=0; i<args.size(); i++) {
-                    ASR::ttype_t *param_type = ASRUtils::expr_type(func->m_args[i]);
-                    ASR::ttype_t *arg_type = ASRUtils::expr_type(args[i].m_value);
-                    subs = check_type_substitution(subs, param_type, arg_type, loc);
+                ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
+                if (args.size() != func->n_args) {
+                    std::string fnd = std::to_string(args.size());
+                    std::string org = std::to_string(func->n_args);
+                    diag.add(diag::Diagnostic(
+                        "Number of arguments does not match in the function call",
+                        diag::Level::Error, diag::Stage::Semantic, {
+                            diag::Label("(found: '" + fnd + "', expected: '" + org + "')",
+                                    {loc})
+                        })
+                    );
+                    throw SemanticAbort();
                 }
-
-                ASR::symbol_t *t = get_generic_function(subs, *func);
-                std::string new_call_name = call_name;
-                if (ASR::is_a<ASR::Function_t>(*t)) {
-                    new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
-                }
-                return make_call_helper(al, t, current_scope, args, new_call_name, loc);
+                Vec<ASR::call_arg_t> args_new;
+                args_new.reserve(al, func->n_args);
+                visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
+                return ASR::make_SubroutineCall_t(al, loc, stemp,
+                    s_generic, args_new.p, args_new.size(), nullptr);
             }
-        } else if (ASR::is_a<ASR::Function_t>(*s)) {
-            ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
-            if (args.size() != func->n_args) {
-                std::string fnd = std::to_string(args.size());
-                std::string org = std::to_string(func->n_args);
-                diag.add(diag::Diagnostic(
-                    "Number of arguments does not match in the function call",
-                    diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("(found: '" + fnd + "', expected: '" + org + "')",
-                                {loc})
-                    })
-                );
-                throw SemanticAbort();
-            }
-            Vec<ASR::call_arg_t> args_new;
-            args_new.reserve(al, func->n_args);
-            visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
-            return ASR::make_SubroutineCall_t(al, loc, stemp,
-                s_generic, args_new.p, args_new.size(), nullptr);
         } else if(ASR::is_a<ASR::DerivedType_t>(*s)) {
             Vec<ASR::expr_t*> args_new;
             args_new.reserve(al, args.size());
@@ -891,8 +891,9 @@ public:
             new_function_num = 0;
         }
         generic_func_nums[func_name] = new_function_num + 1;
-        generic_func_subs["__lpython_generic_" + func_name + "_" + std::to_string(new_function_num)] = subs;
-        t = pass_instantiate_generic_function(al, subs, current_scope, new_function_num, func);
+        std::string new_func_name = "__lpython_generic_" + func_name + "_" + std::to_string(new_function_num);
+        generic_func_subs[new_func_name] = subs;
+        t = pass_instantiate_generic_function(al, subs, current_scope, new_func_name, func);
         return t;
     }
 
@@ -2273,7 +2274,8 @@ public:
         current_procedure_abi_type = ASR::abiType::Source;
         bool current_procedure_interface = false;
         bool overload = false;
-        std::set<std::string> ps;
+        Vec<ASR::ttype_t*> tps;
+        tps.reserve(al, x.m_args.n_args);
         bool vectorize = false;
         if (x.n_decorator_list > 0) {
             for(size_t i=0; i<x.n_decorator_list; i++) {
@@ -2310,8 +2312,25 @@ public:
             ASR::ttype_t *arg_type = ast_expr_to_asr_type(x.base.base.loc, *x.m_args.m_args[i].m_annotation);
             // Set the function as generic if an argument is typed with a type parameter
             if (ASRUtils::is_generic(*arg_type)) {
-                std::string param_name = ASRUtils::get_parameter_name(arg_type);
-                ps.insert(param_name);
+                ASR::ttype_t *new_tt = ASRUtils::duplicate_type_without_dims(al, ASRUtils::get_type_parameter(arg_type));
+                size_t current_size = tps.size();
+                if (current_size == 0) {
+                    tps.push_back(al, new_tt);
+                } else {
+                    bool not_found = true;
+                    for (size_t i = 0; i < current_size; i++) {
+                        ASR::TypeParameter_t *added_tp = ASR::down_cast<ASR::TypeParameter_t>(tps.p[i]);
+                        std::string new_param = ASR::down_cast<ASR::TypeParameter_t>(new_tt)->m_param;
+                        std::string added_param = added_tp->m_param;
+                        if (added_param.compare(new_param) == 0) {
+                            not_found = false;
+                            break;
+                        }
+                    }
+                    if (not_found) {
+                        tps.push_back(al, new_tt);
+                    }
+                }
             }
 
             std::string arg_s = arg;
@@ -2377,43 +2396,19 @@ public:
                         ASR::down_cast<ASR::symbol_t>(return_var));
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     current_scope->get_symbol(return_var_name));
-                if (ps.size() > 0) {
-                    Vec<ASR::ttype_t*> type_params;
-                    type_params.reserve(al, ps.size());
-                    for (auto &p: ps) {
-                        std::string param = p;
-                        ASR::ttype_t *type_p = ASRUtils::TYPE(ASR::make_TypeParameter_t(al,
-                                x.base.base.loc, s2c(al, p), nullptr, 0));
-                        type_params.push_back(al, type_p);
-                    }
-                    tmp = ASR::make_Function_t(
-                        al, x.base.base.loc,
-                        /* a_symtab */ current_scope,
-                        /* a_name */ s2c(al, sym_name),
-                        /* a_args */ args.p,
-                        /* n_args */ args.size(),
-                        /* a_type_params */ type_params.p,
-                        /* n_type_params */ type_params.size(),
-                        /* a_body */ nullptr,
-                        /* n_body */ 0,
-                        /* a_return_var */ ASRUtils::EXPR(return_var_ref),
-                        current_procedure_abi_type,
-                        s_access, deftype, bindc_name, vectorize, false, false);
-                } else {
-                    tmp = ASR::make_Function_t(
-                        al, x.base.base.loc,
-                        /* a_symtab */ current_scope,
-                        /* a_name */ s2c(al, sym_name),
-                        /* a_args */ args.p,
-                        /* n_args */ args.size(),
-                        /* a_type_params */ nullptr,
-                        /* n_type_params */ 0,
-                        /* a_body */ nullptr,
-                        /* n_body */ 0,
-                        /* a_return_var */ ASRUtils::EXPR(return_var_ref),
-                        current_procedure_abi_type,
-                        s_access, deftype, bindc_name, vectorize, false, false);
-                }
+                tmp = ASR::make_Function_t(
+                    al, x.base.base.loc,
+                    /* a_symtab */ current_scope,
+                    /* a_name */ s2c(al, sym_name),
+                    /* a_args */ args.p,
+                    /* n_args */ args.size(),
+                    /* a_type_params */ tps.p,
+                    /* n_type_params */ tps.size(),
+                    /* a_body */ nullptr,
+                    /* n_body */ 0,
+                    /* a_return_var */ ASRUtils::EXPR(return_var_ref),
+                    current_procedure_abi_type,
+                    s_access, deftype, bindc_name, vectorize, false, false);
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
                     x.m_returns->base.loc);
@@ -2426,7 +2421,8 @@ public:
                 /* a_name */ s2c(al, sym_name),
                 /* a_args */ args.p,
                 /* n_args */ args.size(),
-                nullptr, 0,
+                /* a_type_params */ tps.p, 
+                /* n_type_params */ tps.size(),
                 /* a_body */ nullptr,
                 /* n_body */ 0,
                 nullptr,
