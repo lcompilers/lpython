@@ -87,6 +87,7 @@ static inline ast_t* SET_EXPR_CTX_01(ast_t* x, expr_contextType ctx) {
         SET_EXPR_CTX_(Subscript, ctx)
         SET_EXPR_CTX_(Starred, ctx)
         SET_EXPR_CTX_(Name, ctx)
+        SET_EXPR_CTX_(List, ctx)
         SET_EXPR_CTX_(Tuple, ctx)
         default : { break; }
     }
