@@ -893,6 +893,10 @@ subscript
     | "{" expr_list "}" "[" slice_item "]" {
         $$ = SUBSCRIPT_01(SET($2, @$), $5, @$); }
     | "(" expr ")" "[" slice_item "]" { $$ = SUBSCRIPT_01($2, $5, @$); }
+    | "(" expr_list "," ")" "[" slice_item "]" {
+        $$ = SUBSCRIPT_01(TUPLE_03($2, @$), $6, @$); }
+    | "(" expr_list "," expr ")" "[" slice_item "]" {
+        $$ = SUBSCRIPT_01(TUPLE_01(TUPLE_($2, $4), @$), $7, @$); }
     | "{" dict_list comma_opt "}" "[" slice_item "]" {
         $$ = SUBSCRIPT_01(DICT_02($2, @$), $6, @$); }
     | subscript "[" slice_item "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
