@@ -259,7 +259,7 @@ namespace LFortran {
             void linear_probing(llvm::Value* capacity, llvm::Value* key_hash,
                                 llvm::Value* key, llvm::Value* key_list,
                                 llvm::Value* key_mask, llvm::Module& module,
-                                ASR::ttype_t* key_asr_type);
+                                ASR::ttype_t* key_asr_type, bool for_read=false);
 
             void linear_probing_for_write(llvm::Value* dict, llvm::Value* key_hash,
                                           llvm::Value* key, llvm::Value* value,
