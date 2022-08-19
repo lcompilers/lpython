@@ -217,7 +217,7 @@ namespace LFortran {
     };
 
     class LLVMDict {
-        private:
+        protected:
 
             llvm::LLVMContext& context;
             LLVMUtils* llvm_utils;
@@ -256,17 +256,20 @@ namespace LFortran {
             llvm::Value* get_key_hash(llvm::Value* capacity, llvm::Value* key,
                                       ASR::ttype_t* key_asr_type, llvm::Module& module);
 
-            void linear_probing(llvm::Value* capacity, llvm::Value* key_hash,
+            virtual
+            void resolve_collision(llvm::Value* capacity, llvm::Value* key_hash,
                                 llvm::Value* key, llvm::Value* key_list,
                                 llvm::Value* key_mask, llvm::Module& module,
                                 ASR::ttype_t* key_asr_type, bool for_read=false);
 
-            void linear_probing_for_write(llvm::Value* dict, llvm::Value* key_hash,
+            virtual
+            void resolve_collision_for_write(llvm::Value* dict, llvm::Value* key_hash,
                                           llvm::Value* key, llvm::Value* value,
                                           llvm::Module& module, ASR::ttype_t* key_asr_type,
                                           ASR::ttype_t* value_asr_type);
 
-            llvm::Value* linear_probing_for_read(llvm::Value* dict, llvm::Value* key_hash,
+            virtual
+            llvm::Value* resolve_collision_for_read(llvm::Value* dict, llvm::Value* key_hash,
                                                  llvm::Value* key, llvm::Module& module,
                                                  ASR::ttype_t* key_asr_type);
 
@@ -297,6 +300,37 @@ namespace LFortran {
                                ASR::Dict_t* dict_type, llvm::Module* module);
 
             llvm::Value* len(llvm::Value* dict);
+
+            virtual ~LLVMDict();
+    };
+
+    class LLVMDictOptimizedLinearProbing: public LLVMDict {
+
+        public:
+
+            LLVMDictOptimizedLinearProbing(llvm::LLVMContext& context_,
+                                    LLVMUtils* llvm_utils,
+                                    llvm::IRBuilder<>* builder);
+
+            virtual
+            void resolve_collision(llvm::Value* capacity, llvm::Value* key_hash,
+                                llvm::Value* key, llvm::Value* key_list,
+                                llvm::Value* key_mask, llvm::Module& module,
+                                ASR::ttype_t* key_asr_type, bool for_read=false);
+
+            virtual
+            void resolve_collision_for_write(llvm::Value* dict, llvm::Value* key_hash,
+                                            llvm::Value* key, llvm::Value* value,
+                                            llvm::Module& module, ASR::ttype_t* key_asr_type,
+                                            ASR::ttype_t* value_asr_type);
+
+            virtual
+            llvm::Value* resolve_collision_for_read(llvm::Value* dict, llvm::Value* key_hash,
+                                                    llvm::Value* key, llvm::Module& module,
+                                                    ASR::ttype_t* key_asr_type);
+
+            virtual ~LLVMDictOptimizedLinearProbing();
+
     };
 
 } // LFortran
