@@ -1169,6 +1169,22 @@ static inline ASR::ttype_t* duplicate_type_without_dims(Allocator& al, const ASR
             return ASRUtils::TYPE(ASR::make_Integer_t(al, t->base.loc,
                         tnew->m_kind, nullptr, 0));
         }
+        case ASR::ttypeType::Real: {
+            ASR::Real_t* tnew = ASR::down_cast<ASR::Real_t>(t);
+            return ASRUtils::TYPE(ASR::make_Real_t(al, t->base.loc,
+                        tnew->m_kind, nullptr, 0));
+        }
+        case ASR::ttypeType::Character: {
+            ASR::Character_t* tnew = ASR::down_cast<ASR::Character_t>(t);
+            return ASRUtils::TYPE(ASR::make_Character_t(al, t->base.loc,
+                        tnew->m_kind, tnew->m_len, tnew->m_len_expr,
+                        nullptr, 0));
+        }
+        case ASR::ttypeType::TypeParameter: {
+            ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
+            return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
+                        tp->m_param, nullptr, 0));
+        }    
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
 }
@@ -1384,6 +1400,19 @@ static inline ASR::ttype_t* get_contained_type(ASR::ttype_t* asr_type) {
         default: {
             return asr_type;
         }
+    }
+}
+
+static inline ASR::ttype_t* get_type_parameter(ASR::ttype_t* t) {
+    switch (t->type) {
+        case ASR::ttypeType::TypeParameter: {
+            return t;
+        }
+        case ASR::ttypeType::List: {
+            ASR::List_t *tl = ASR::down_cast<ASR::List_t>(t);
+            return get_type_parameter(tl->m_type);
+        }
+        default: throw LCompilersException("Cannot get type parameter from this type.");
     }
 }
 
