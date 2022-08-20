@@ -636,3 +636,11 @@ def _lpython_str_lower(x: str) ->str:
         else:
             res += i
     return res
+
+@overload
+def _lpython_str_rstrip(x: str) -> str:
+    ind: i32
+    ind = len(x) - 1
+    while ind >= 0 and x[ind] == ' ':
+        ind -= 1
+    return x[0: ind + 1]
