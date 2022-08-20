@@ -61,7 +61,10 @@ struct PythonIntrinsicProcedures {
             {"_lpython_floordiv", {m_builtin, &eval__lpython_floordiv}},
             {"_mod", {m_builtin, &eval__mod}},
             {"max" , {m_builtin , &eval_max}},
-            {"min" , {m_builtin , &eval_min}}
+            {"min" , {m_builtin , &eval_min}},
+            {"_lpython_str_capitalize", {m_builtin, &eval__lpython_str_capitalize}},
+            {"_lpython_str_lower", {m_builtin, &eval__lpython_str_lower}}
+
         };
     }
 
@@ -650,6 +653,41 @@ struct PythonIntrinsicProcedures {
 
     }
 
+    static ASR::expr_t *eval__lpython_str_capitalize(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        if (args.size() != 0) {
+            throw SemanticError("str.capitalize() takes no arguments", loc);
+        }
+        ASR::expr_t *arg = args[0];
+        ASR::ttype_t *arg_type = ASRUtils::expr_type(arg);
+        std::string val = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
+        if (val.size()) {
+            val[0] = std::toupper(val[0]);
+        }
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                                    1, 1, nullptr, nullptr, 0));
+        ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_StringConstant_t(al, loc, s2c(al, ""), type));
+        return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, val),  res_type));
+    }
+
+    static ASR::expr_t *eval__lpython_str_lower(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        if (args.size() != 0) {
+            throw SemanticError("str.lower() takes no arguments", loc);
+        }
+        ASR::expr_t *arg = args[0];
+        ASR::ttype_t *arg_type = ASRUtils::expr_type(arg);
+        std::string val = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
+        for (auto &i: val) {
+            if (i >= 'A' && i <= 'Z') {
+                i = std::tolower(i);
+            }
+        }
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                                    1, 1, nullptr, nullptr, 0));
+        ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_StringConstant_t(al, loc, s2c(al, ""), type));
+        return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, val),  res_type));
+    }
 
 
 }; // ComptimeEval

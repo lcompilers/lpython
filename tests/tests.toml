@@ -765,6 +765,9 @@ asr = true
 filename = "errors/test_unsupported_type.py"
 asr = true
 
+[[test]]
+filename = "errors/test_str_capitalize.py"
+asr = true
 # tests/tokens/errors
 
 [[test]]
