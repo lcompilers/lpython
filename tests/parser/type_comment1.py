@@ -17,3 +17,18 @@ def ndarray_func(x):
 def test(x):
     # type: (np.ndarray) -> np.ndarray
     return x
+
+def test():  # type: ignore
+    # Comment
+    ...
+
+def main():
+
+    # type: ignore
+    pass
+
+x (x, # type: ignore
+y)
+
+from sympy.simplify import (collect, powsimp,  # type: ignore
+    separatevars, simplify)
