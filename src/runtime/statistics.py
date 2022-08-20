@@ -1,5 +1,4 @@
-from ltypes import i32, f64, overload
-from math import sqrt
+from ltypes import i32, f64, i64, f64, overload
 
 
 @overload
@@ -271,4 +270,55 @@ def stdev(x: list[i32]) -> f64:
     Returns the standard deviation of a data sequence of numbers
     """
     return variance(x)**0.5
+
+@overload
+def pvariance(x: list[f64]) -> f64:
+    """
+    Returns the population varience of a data sequence of numbers
+    """
+    n: i32
+    n = len(x)
+    if n < 1:
+        raise Exception("n > 1 for variance")
+    xmean: f64
+    xmean = mean(x)
+    num: f64
+    num = 0.0
+    i: i32
+    for i in range(n):
+        num += (x[i] - xmean)**2
+    return num / n
+
+@overload
+def pvariance(x: list[i32]) -> f64:
+    """
+    Returns the population varience of a data sequence of numbers
+    """
+    n: i32
+    n = len(x)
+    if n < 1:
+        raise Exception("n > 1 for variance")
+    xmean: f64
+    xmean = mean(x)
+    num: f64
+    num = 0.0
+    i: i32
+    for i in range(n):
+        num += (x[i] - xmean)**2
+    return num / n
+
+
+@overload
+def pstdev(x: list[f64]) -> f64:
+    """
+    Returns the population standard deviation of a data sequence of numbers
+    """
+    return pvariance(x)**0.5
+
+@overload
+def pstdev(x: list[i32]) -> f64:
+    """
+    Returns the population standard deviation of a data sequence of numbers
+    """
+    return pvariance(x)**0.5
 
