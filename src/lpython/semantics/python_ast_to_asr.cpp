@@ -4376,6 +4376,22 @@ public:
                                     1, 1, nullptr, nullptr , 0));
                     tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
                     return;
+                } else if (std::string(at->m_attr) == std::string("lstrip")) {
+                    if(args.size() != 0) {
+                        throw SemanticError("str.lstrip() takes no arguments",
+                            x.base.base.loc);
+                    }
+                    AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
+                    std::string res = n->m_value;
+                    int ind = 0;
+                    while (ind < res.size() && res[ind] == ' ') {
+                        ind++;
+                    }
+                    res = std::string(res.begin() + ind, res.end());
+                    ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
+                                    1, 1, nullptr, nullptr , 0));
+                    tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
+                    return;
                 } else {
                     throw SemanticError("'str' object has no attribute '" + std::string(at->m_attr) + "'",
                         x.base.base.loc);
