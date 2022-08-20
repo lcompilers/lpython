@@ -626,7 +626,7 @@ def _lpython_str_capitalize(x: str) -> str:
     return x
 
 @overload
-def _lpython_str_lower(x: str) ->str:
+def _lpython_str_lower(x: str) -> str:
     res: str
     res = ""
     i:str
@@ -652,3 +652,10 @@ def _lpython_str_lstrip(x: str) -> str:
     while ind < len(x) and x[ind] == ' ':
         ind += 1
     return x[ind :len(x)]
+
+@overload
+def _lpython_str_strip(x: str) -> str:
+    res :str
+    res = _lpython_str_lstrip(x)
+    res = _lpython_str_rstrip(res)
+    return res
