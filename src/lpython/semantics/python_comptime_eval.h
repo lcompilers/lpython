@@ -63,8 +63,8 @@ struct PythonIntrinsicProcedures {
             {"max" , {m_builtin , &eval_max}},
             {"min" , {m_builtin , &eval_min}},
             {"_lpython_str_capitalize", {m_builtin, &eval__lpython_str_capitalize}},
-            {"_lpython_str_lower", {m_builtin, &eval__lpython_str_lower}}
-
+            {"_lpython_str_lower", {m_builtin, &eval__lpython_str_lower}},
+            {"_lpython_str_rstrip", {m_builtin, &eval__lpython_str_rstrip}},
         };
     }
 
@@ -687,6 +687,23 @@ struct PythonIntrinsicProcedures {
                                     1, 1, nullptr, nullptr, 0));
         ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_StringConstant_t(al, loc, s2c(al, ""), type));
         return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, val),  res_type));
+    }
+
+    static ASR::expr_t *eval__lpython_str_rstrip(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        if (args.size() != 0) {
+            throw SemanticError("str.rstrip() takes no arguments", loc);
+        }
+        ASR::expr_t *arg = args[0];
+        ASR::ttype_t *arg_type = ASRUtils::expr_type(arg);
+        std::string res = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
+         int ind = res.size()-1;
+        while (ind >= 0 && res[ind--] == ' ');
+        res = std::string(res.begin(), res.begin() + ind +1);
+        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                                    1, 1, nullptr, nullptr, 0));
+        ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_StringConstant_t(al, loc, s2c(al, ""), type));
+        return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, res),  res_type));
     }
 
 
