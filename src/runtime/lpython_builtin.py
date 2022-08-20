@@ -644,3 +644,11 @@ def _lpython_str_rstrip(x: str) -> str:
     while ind >= 0 and x[ind] == ' ':
         ind -= 1
     return x[0: ind + 1]
+
+@overload
+def _lpython_str_lstrip(x: str) -> str:
+    ind :i32
+    ind = 0
+    while ind < len(x) and x[ind] == ' ':
+        ind += 1
+    return x[ind :len(x)]
