@@ -250,6 +250,7 @@ public:
         return param_type;
     }    
     
+    // Commented out part is not yet considered for generic functions
     ASR::asr_t* make_BinOp_helper(ASR::expr_t *left, ASR::expr_t *right,
             ASR::binopType op, const Location &loc) {
         ASR::ttype_t *left_type = ASRUtils::expr_type(left);
@@ -292,9 +293,10 @@ public:
                 int64_t result;
                 switch (op) {
                     case (ASR::binopType::Add): { result = left_value + right_value; break; }
-                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
-                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
+                    // case (ASR::binopType::Sub): { result = left_value - right_value; break; }
+                    // case (ASR::binopType::Mul): { result = left_value * right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
+                    /*
                     case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
                     case (ASR::binopType::BitAnd): { result = left_value & right_value; break; }
                     case (ASR::binopType::BitOr): { result = left_value | right_value; break; }
@@ -313,17 +315,20 @@ public:
                         result = left_value >> right_value;
                         break;
                     }
+                    */
                     default: { LFORTRAN_ASSERT(false); } // should never happen
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, result, dest_type));
             }
             return ASR::make_IntegerBinOp_t(al, loc, left, op, right, dest_type, value);
         } else if (ASRUtils::is_real(*dest_type)) {
+            /*
             if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
                 op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift) {
                 throw LCompilersException("ICE: failure in instantiation: Unsupported binary operation on floats: '"
                     + ASRUtils::binop_to_str_python(op) + "'");
             }
+            */
             right = cast_helper(left_type, right);
             dest_type = ASRUtils::expr_type(right);
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
