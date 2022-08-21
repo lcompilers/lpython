@@ -1372,8 +1372,7 @@ public:
                 if (ASRUtils::has_divisible_trait(left_param)) {
                     dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
                 } else {
-                    throw SemanticError("The left expression of the division must be support 
-                        division operation", loc);
+                    throw SemanticError("The left expression of the division must be support division operation", loc);
                 }
             }
         } else if (ASR::is_a<ASR::List_t>(*left_type) && ASR::is_a<ASR::List_t>(*right_type)
