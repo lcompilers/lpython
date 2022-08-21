@@ -1360,14 +1360,15 @@ public:
             ASR::TypeParameter_t *left_param = ASR::down_cast<ASR::TypeParameter_t>(left_type);
             ASR::TypeParameter_t *right_param = ASR::down_cast<ASR::TypeParameter_t>(right_type);
             if (op == ASR::binopType::Add) {
-                if (ASRUtils::has_supports_plus_trait(left_param) && ASRUtils::has_supports_plus_trait(right_param)) {
+                if (ASRUtils::has_trait(left_param, ASR::traitType::SupportsPlus) &&
+                        ASRUtils::has_trait(right_param, ASR::traitType::SupportsPlus)) {
                     dest_type = left_type;
                 } else {
                     throw SemanticError("Both type variables must support addition operation", loc);
                 }
             } 
             if (op == ASR::binopType::Div) {
-                if (ASRUtils::has_divisible_trait(left_param)) {
+                if (ASRUtils::has_trait(left_param, ASR::traitType::Divisible)) {
                     dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
                 } else {
                     throw SemanticError("The left expression of the division must be support division operation", loc);
@@ -2982,8 +2983,8 @@ public:
                     && ASR::is_a<ASR::IntegerConstant_t>(*value)) {
                 ASR::IntegerConstant_t *value_constant = ASR::down_cast<ASR::IntegerConstant_t>(value);
                 if (value_constant->m_n == 0) {
-                    if (!ASRUtils::has_supports_zero_trait(
-                            ASR::down_cast<ASR::TypeParameter_t>(target_type))) {
+                    if (!ASRUtils::has_trait(ASR::down_cast<ASR::TypeParameter_t>(target_type),
+                                             ASR::traitType::SupportsZero)) {
                         throw SemanticError("A generic variable must support zero "
                                             "to be assignable with zero.",
                                             target_type->base.loc);
