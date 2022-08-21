@@ -1,6 +1,6 @@
 from ltypes import TypeVar, Any
 
-T = TypeVar('T', bound=Any)
+T = TypeVar('T', bound=SupportsPlus)
 
 def f(x: T, y: T) -> T:
     return x + y

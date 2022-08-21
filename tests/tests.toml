@@ -770,17 +770,18 @@ filename = "errors/test_unsupported_type.py"
 asr = true
 
 [[test]]
-filename = "errors/generics_02.py"
+filename = "errors/generics_error_01.py"
 asr = true
 
 [[test]]
-filename = "errors/generics_03.py"
+filename = "errors/restriction_error_01.py"
 asr = true
 
 [[test]]
-filename = "errors/generics_04.py"
+filename = "errors/restriction_error_02.py"
 asr = true
 
+[[test]]
 filename = "errors/test_str_capitalize.py"
 asr = true
 

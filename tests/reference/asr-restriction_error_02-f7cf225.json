@@ -1,13 +1,13 @@
 {
-    "basename": "asr-generics_04-b134140",
+    "basename": "asr-restriction_error_02-f7cf225",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
-    "infile": "tests/errors/generics_04.py",
+    "infile": "tests/errors/restriction_error_02.py",
     "infile_hash": "ce01344c79a9acedd978eff149048d6debc84859339164d3f1d8ec8e",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,
     "stdout_hash": null,
-    "stderr": "asr-generics_04-b134140.stderr",
-    "stderr_hash": "c9d8f75fa5d50520f72c971ca78aef7650d7996b5a905128981ccbee",
+    "stderr": "asr-restriction_error_02-f7cf225.stderr",
+    "stderr_hash": "9017f34cb08d26bf067d6073db84a4e51b55c0af651063432ef825fb",
     "returncode": 2
 }
