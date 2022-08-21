@@ -1,6 +1,5 @@
-from statistics import (mean, fmean, geometric_mean, harmonic_mean,
-                        variance, stdev)
-from ltypes import i32, f64, i64
+from statistics import (mean, fmean, geometric_mean, harmonic_mean, variance, stdev, pvariance, pstdev)
+from ltypes import i32, f64, i64, f32
 
 eps: f64
 eps = 1e-12
@@ -97,6 +96,31 @@ def test_stdev():
     k = stdev(b)
     assert abs(k - 0.41967844833872525) < eps
 
+def test_pvariance():
+    a: list[i32]
+    a = [1, 2, 5, 4, 8, 9, 12]
+    j: f64
+    j = pvariance(a)
+    assert abs(j - 13.551020408163266) < eps
+
+    b: list[f64]
+    b = [2.74, 1.23, 2.63, 2.22, 3.0, 1.98]
+    k: f64
+    k = pvariance(b)
+    assert abs(k - 0.34103333333333335) < eps
+
+def test_pstdev():
+    a: list[i32]
+    a = [1, 2, 3, 4, 5]
+    j: f64
+    j = pstdev(a)
+    assert abs(j - 1.4142135623730951) < eps
+
+    b: list[f64]
+    b = [1.23, 1.45, 2.1, 2.2, 1.9]
+    k: f64
+    k = pstdev(b)
+    assert abs(k - 0.37537181567080935) < eps
 
 def check():
     test_mean()
@@ -105,5 +129,7 @@ def check():
     test_fmean()
     test_variance()
     test_stdev()
+    test_pvariance()
+    test_pstdev()
 
 check()
