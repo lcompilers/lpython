@@ -885,6 +885,14 @@ public:
                         default: return false;
                     }
                 }
+                case (ASR::traitType::Divisible): {
+                    switch (expr_type -> type) {
+                        case (ASR::ttypeType::Integer): { continue; }
+                        case (ASR::ttypeType::Real): { continue; }
+                        case (ASR::ttypeType::Complex): { continue; }
+                        default: return false;
+                    }
+                }
                 case (ASR::traitType::Any): {
                     continue;
                 }
@@ -1360,6 +1368,14 @@ public:
                     throw SemanticError("Both type variables must support addition operation", loc);
                 }
             } 
+            if (op == ASR::binopType::Div) {
+                if (ASRUtils::has_divisible_trait(left_param)) {
+                    dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
+                } else {
+                    throw SemanticError("The left expression of the division must be support 
+                        division operation", loc);
+                }
+            }
         } else if (ASR::is_a<ASR::List_t>(*left_type) && ASR::is_a<ASR::List_t>(*right_type)
                    && op == ASR::binopType::Add) {
             dest_type = left_type;
