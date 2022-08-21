@@ -659,7 +659,6 @@ struct PythonIntrinsicProcedures {
             throw SemanticError("str.capitalize() takes no arguments", loc);
         }
         ASR::expr_t *arg = args[0];
-        ASR::ttype_t *arg_type = ASRUtils::expr_type(arg);
         std::string val = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
         if (val.size()) {
             val[0] = std::toupper(val[0]);
@@ -676,7 +675,6 @@ struct PythonIntrinsicProcedures {
             throw SemanticError("str.lower() takes no arguments", loc);
         }
         ASR::expr_t *arg = args[0];
-        ASR::ttype_t *arg_type = ASRUtils::expr_type(arg);
         std::string val = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
         for (auto &i: val) {
             if (i >= 'A' && i <= 'Z') {

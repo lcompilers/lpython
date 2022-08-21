@@ -366,6 +366,14 @@ public:
 
 
     ASR::asr_t *tmp;
+
+    /*
+    If `tmp` is not null, then `tmp_vec` is ignored and `tmp` is used as the only result (statement or
+    expression). If `tmp` is null, then `tmp_vec` is used to return any number of statements:
+    0 (no statement returned), 1 (redundant, one should use `tmp` for that), 2, 3, ... etc.
+    */
+    std::vector<ASR::asr_t *> tmp_vec;
+
     Allocator &al;
     SymbolTable *current_scope;
     // The current_module contains the current module that is being visited;
@@ -732,7 +740,7 @@ public:
                 if (ASR::is_a<ASR::Function_t>(*t)) {
                     new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
                 }
-                return make_call_helper(al, t, current_scope, args, new_call_name, loc); 
+                return make_call_helper(al, t, current_scope, args, new_call_name, loc);
             }
             if (ASR::down_cast<ASR::Function_t>(s)->m_return_var != nullptr) {
                 ASR::ttype_t *a_type = nullptr;
@@ -2421,7 +2429,7 @@ public:
                 /* a_name */ s2c(al, sym_name),
                 /* a_args */ args.p,
                 /* n_args */ args.size(),
-                /* a_type_params */ tps.p, 
+                /* a_type_params */ tps.p,
                 /* n_type_params */ tps.size(),
                 /* a_body */ nullptr,
                 /* n_body */ 0,
@@ -2648,6 +2656,7 @@ public:
     // The `body` Vec must already be reserved
     void transform_stmts(Vec<ASR::stmt_t*> &body, size_t n_body, AST::stmt_t **m_body) {
         tmp = nullptr;
+        tmp_vec.clear();
         Vec<ASR::stmt_t*>* current_body_copy = current_body;
         current_body = &body;
         for (size_t i=0; i<n_body; i++) {
@@ -2656,9 +2665,18 @@ public:
             if (tmp != nullptr) {
                 ASR::stmt_t* tmp_stmt = ASRUtils::STMT(tmp);
                 body.push_back(al, tmp_stmt);
+            } else if (!tmp_vec.empty()) {
+                for (auto t: tmp_vec) {
+                    if (t != nullptr) {
+                        ASR::stmt_t* tmp_stmt = ASRUtils::STMT(t);
+                        body.push_back(al, tmp_stmt);
+                    }
+                }
+                tmp_vec.clear();
             }
             // To avoid last statement to be entered twice once we exit this node
             tmp = nullptr;
+            tmp_vec.clear();
         }
         current_body = current_body_copy;
     }
@@ -2677,9 +2695,16 @@ public:
         items.reserve(al, 4);
         for (size_t i=0; i<x.n_body; i++) {
             tmp = nullptr;
+            tmp_vec.clear();
             visit_stmt(*x.m_body[i]);
             if (tmp) {
                 items.push_back(al, tmp);
+            } else if (!tmp_vec.empty()) {
+                for (auto t: tmp_vec) {
+                    if (t) items.push_back(al, t);
+                }
+                // Ensure that statements in tmp_vec are used only once.
+                tmp_vec.clear();
             }
         }
         // These global statements are added to the translation unit for now,
@@ -2782,10 +2807,21 @@ public:
     }
 
     void visit_Assign(const AST::Assign_t &x) {
-        ASR::expr_t *target;
-        if (x.n_targets == 1) {
-            if (AST::is_a<AST::Subscript_t>(*x.m_targets[0])) {
-                AST::Subscript_t *sb = AST::down_cast<AST::Subscript_t>(x.m_targets[0]);
+        ASR::expr_t *target, *assign_value = nullptr, *tmp_value;
+        this->visit_expr(*x.m_value);
+        if (tmp) {
+            // This happens if `m.m_value` is `empty`, such as in:
+            // a = empty(16)
+            // We skip this statement for now, the array is declared
+            // by the annotation.
+            // TODO: enforce that empty(), ones(), zeros() is called
+            // for every declaration.
+            assign_value = ASRUtils::EXPR(tmp);
+        }
+        for (size_t i=0; i<x.n_targets; i++) {
+            tmp_value = assign_value;
+            if (AST::is_a<AST::Subscript_t>(*x.m_targets[i])) {
+                AST::Subscript_t *sb = AST::down_cast<AST::Subscript_t>(x.m_targets[i]);
                 if (AST::is_a<AST::Name_t>(*sb->m_value)) {
                     std::string name = AST::down_cast<AST::Name_t>(sb->m_value)->m_id;
                     ASR::symbol_t *s = current_scope->get_symbol(name);
@@ -2799,8 +2835,6 @@ public:
                         // dict insert case;
                         this->visit_expr(*sb->m_slice);
                         ASR::expr_t *key = ASRUtils::EXPR(tmp);
-                        this->visit_expr(*x.m_value);
-                        ASR::expr_t *val = ASRUtils::EXPR(tmp);
                         ASR::ttype_t *key_type = ASR::down_cast<ASR::Dict_t>(type)->m_key_type;
                         ASR::ttype_t *value_type = ASR::down_cast<ASR::Dict_t>(type)->m_value_type;
                         if (!ASRUtils::check_equal_type(ASRUtils::expr_type(key), key_type)) {
@@ -2815,29 +2849,30 @@ public:
                             );
                             throw SemanticAbort();
                         }
-                        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(val), value_type)) {
-                            std::string vtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(val));
+                        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(tmp_value), value_type)) {
+                            std::string vtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(tmp_value));
                             std::string totype = ASRUtils::type_to_str_python(value_type);
                             diag.add(diag::Diagnostic(
                                 "Type mismatch in dictionary value, the types must be compatible",
                                 diag::Level::Error, diag::Stage::Semantic, {
                                     diag::Label("type mismatch (found: '" + vtype + "', expected: '" + totype + "')",
-                                            {val->base.loc})
+                                            {tmp_value->base.loc})
                                 })
                             );
                             throw SemanticAbort();
                         }
                         ASR::expr_t* se = ASR::down_cast<ASR::expr_t>(
                                 ASR::make_Var_t(al, x.base.base.loc, s));
-                        tmp = make_DictInsert_t(al, x.base.base.loc, se, key, val);
-                        return;
+                        tmp = nullptr;
+                        tmp_vec.push_back(make_DictInsert_t(al, x.base.base.loc, se, key, tmp_value));
+                        continue;
                     } else if (ASRUtils::is_immutable(type)) {
                         throw SemanticError("'" + ASRUtils::type_to_str_python(type) + "' object does not support"
                             " item assignment", x.base.base.loc);
                     }
                 }
-            } else if (AST::is_a<AST::Attribute_t>(*x.m_targets[0])) {
-                AST::Attribute_t *attr = AST::down_cast<AST::Attribute_t>(x.m_targets[0]);
+            } else if (AST::is_a<AST::Attribute_t>(*x.m_targets[i])) {
+                AST::Attribute_t *attr = AST::down_cast<AST::Attribute_t>(x.m_targets[i]);
                 if (AST::is_a<AST::Name_t>(*attr->m_value)) {
                     std::string name = AST::down_cast<AST::Name_t>(attr->m_value)->m_id;
                     ASR::symbol_t *s = current_scope->get_symbol(name);
@@ -2852,33 +2887,18 @@ public:
                     }
                 }
             }
-            this->visit_expr(*x.m_targets[0]);
+            if (!tmp_value) continue;
+            this->visit_expr(*x.m_targets[i]);
             target = ASRUtils::EXPR(tmp);
-        } else {
-            throw SemanticError("Assignment to multiple targets not supported",
-                x.base.base.loc);
-        }
-
-        this->visit_expr(*x.m_value);
-        if (tmp == nullptr) {
-            // This happens if `m.m_value` is `empty`, such as in:
-            // a = empty(16)
-            // We skip this statement for now, the array is declared
-            // by the annotation.
-            // TODO: enforce that empty(), ones(), zeros() is called
-            // for every declaration.
-            tmp = nullptr;
-        } else {
-            ASR::expr_t *value = ASRUtils::EXPR(tmp);
             ASR::ttype_t *target_type = ASRUtils::expr_type(target);
-            ASR::ttype_t *value_type = ASRUtils::expr_type(value);
+            ASR::ttype_t *value_type = ASRUtils::expr_type(tmp_value);
             if( ASR::is_a<ASR::Pointer_t>(*target_type) &&
                 ASR::is_a<ASR::Var_t>(*target) ) {
-                if( !ASR::is_a<ASR::GetPointer_t>(*value) ) {
+                if( !ASR::is_a<ASR::GetPointer_t>(*tmp_value) ) {
                     throw SemanticError("A pointer variable can only "
                                         "be associated with the output "
                                         "of pointer() call.",
-                                        value->base.loc);
+                                        tmp_value->base.loc);
                 }
                 if( !ASRUtils::check_equal_type(target_type, value_type) ) {
                     throw SemanticError("Casting not supported for different pointer types. Received "
@@ -2886,12 +2906,13 @@ public:
                                         " and value pointer type, " + ASRUtils::type_to_str_python(value_type),
                                         x.base.base.loc);
                 }
-                tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value, nullptr);
-                return ;
+                tmp = nullptr;
+                tmp_vec.push_back(ASR::make_Assignment_t(al, x.base.base.loc, target,
+                                    tmp_value, nullptr));
+                continue;
             }
-
-            cast_helper(target, value, true);
-            value_type = ASRUtils::expr_type(value);
+            cast_helper(target, tmp_value, true);
+            value_type = ASRUtils::expr_type(tmp_value);
             if (!ASRUtils::check_equal_type(target_type, value_type)) {
                 std::string ltype = ASRUtils::type_to_str_python(target_type);
                 std::string rtype = ASRUtils::type_to_str_python(value_type);
@@ -2899,15 +2920,18 @@ public:
                     "Type mismatch in assignment, the types must be compatible",
                     diag::Level::Error, diag::Stage::Semantic, {
                         diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
-                                {target->base.loc, value->base.loc})
+                                {target->base.loc, tmp_value->base.loc})
                     })
                 );
                 throw SemanticAbort();
             }
             ASR::stmt_t *overloaded=nullptr;
-            tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
-                                    overloaded);
+            tmp = nullptr;
+            tmp_vec.push_back(ASR::make_Assignment_t(al, x.base.base.loc, target, tmp_value,
+                                    overloaded));
         }
+        // to make sure that we add only those statements in tmp_vec
+        tmp = nullptr;
     }
 
     void visit_Assert(const AST::Assert_t &x) {
