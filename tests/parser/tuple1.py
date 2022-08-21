@@ -24,6 +24,9 @@ def test():
 
 _promotion_table = { (int8, int8): int8 }
 
-# TODO
-# 1, 2,
-# 1, 2
+x, y
+x, y,
+assert_(np.isnan(div)), 'dt: %s, rem: %s' % (dt, rem)
+
+sum([(1, -1)[i % 2] for i in x])
+sum([(1, -1,)[i % 2] for i in x])

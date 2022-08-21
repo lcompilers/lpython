@@ -1169,6 +1169,22 @@ static inline ASR::ttype_t* duplicate_type_without_dims(Allocator& al, const ASR
             return ASRUtils::TYPE(ASR::make_Integer_t(al, t->base.loc,
                         tnew->m_kind, nullptr, 0));
         }
+        case ASR::ttypeType::Real: {
+            ASR::Real_t* tnew = ASR::down_cast<ASR::Real_t>(t);
+            return ASRUtils::TYPE(ASR::make_Real_t(al, t->base.loc,
+                        tnew->m_kind, nullptr, 0));
+        }
+        case ASR::ttypeType::Character: {
+            ASR::Character_t* tnew = ASR::down_cast<ASR::Character_t>(t);
+            return ASRUtils::TYPE(ASR::make_Character_t(al, t->base.loc,
+                        tnew->m_kind, tnew->m_len, tnew->m_len_expr,
+                        nullptr, 0));
+        }
+        case ASR::ttypeType::TypeParameter: {
+            ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
+            return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
+                        tp->m_param, nullptr, 0));
+        }    
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
 }
@@ -1432,6 +1448,7 @@ static inline bool has_divisible_trait(ASR::TypeParameter_t *tp) {
     } 
     return false;
 }
+
 
 class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
 

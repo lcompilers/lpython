@@ -378,6 +378,10 @@ filename = "../integration_tests/generics_01.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/generics_02.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/generics_array_01.py"
 asr = true
 
@@ -775,6 +779,9 @@ asr = true
 
 [[test]]
 filename = "errors/generics_04.py"
+asr = true
+
+filename = "errors/test_str_capitalize.py"
 asr = true
 
 # tests/tokens/errors

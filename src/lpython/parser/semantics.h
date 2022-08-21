@@ -14,6 +14,7 @@
 
 #include <lpython/python_ast.h>
 #include <libasr/string_utils.h>
+#include <lpython/parser/parser_exception.h>
 
 // This is only used in parser.tab.cc, nowhere else, so we simply include
 // everything from LFortran::AST to save typing:
@@ -86,6 +87,7 @@ static inline ast_t* SET_EXPR_CTX_01(ast_t* x, expr_contextType ctx) {
         SET_EXPR_CTX_(Subscript, ctx)
         SET_EXPR_CTX_(Starred, ctx)
         SET_EXPR_CTX_(Name, ctx)
+        SET_EXPR_CTX_(List, ctx)
         SET_EXPR_CTX_(Tuple, ctx)
         default : { break; }
     }
@@ -313,13 +315,20 @@ static inline char *extract_type_comment(LFortran::Parser &p,
 #define EXCEPT_03(e, id, stmts, l) make_ExceptHandler_t(p.m_a, l, \
         EXPR(e), name2char(id), STMTS(stmts), stmts.size())
 
-static inline withitem_t *WITH_ITEM(Allocator &al, Location &l,
+static inline withitem_t WITH_ITEM(Location &l,
         expr_t* context_expr, expr_t* optional_vars) {
-    withitem_t *r = al.allocate<withitem_t>();
-    r->loc = l;
-    r->m_context_expr = context_expr;
-    r->m_optional_vars = optional_vars;
+    withitem_t r;
+    r.loc = l;
+    r.m_context_expr = context_expr;
+    r.m_optional_vars = optional_vars;
     return r;
+}
+
+Vec<withitem_t> withitem_to_list(Allocator &al, withitem_t x) {
+    Vec<withitem_t> v;
+    v.reserve(al, 1);
+    v.push_back(al, x);
+    return v;
 }
 
 static inline Vec<withitem_t> convert_exprlist_to_withitem(Allocator &al,
@@ -327,16 +336,12 @@ static inline Vec<withitem_t> convert_exprlist_to_withitem(Allocator &al,
     Vec<withitem_t> v;
     v.reserve(al, expr_list.size());
     for (size_t i=0; i<expr_list.size(); i++) {
-        withitem_t r;
-        r.loc = l;
-        r.m_context_expr = EXPR(expr_list[i]);
-        r.m_optional_vars = nullptr;
-        v.push_back(al, r);
+        WITH_ITEM(l, EXPR(expr_list[i]), nullptr);
     }
     return v;
 }
 
-#define WITH_ITEM_01(expr, vars, l) WITH_ITEM(p.m_a, l, \
+#define WITH_ITEM_01(expr, vars, l) WITH_ITEM(l, \
         EXPR(expr), EXPR(SET_EXPR_CTX_01(vars, Store)))
 #define WITH(items, body, l) make_With_t(p.m_a, l, \
         convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
@@ -661,9 +666,78 @@ static inline ast_t* BOOLOP_01(Allocator &al, Location &loc,
 #define COMPARE(x, op, y, l) make_Compare_t(p.m_a, l, \
         EXPR(x), cmpopType::op, EXPRS(A2LIST(p.m_a, y)), 1)
 
-char* concat_string(Allocator &al, ast_t *a, char *b) {
-    char *s = down_cast2<ConstantStr_t>(a)->m_value;
-    return LFortran::s2c(al, std::string(s) + std::string(b));
+static inline ast_t* concat_string(Allocator &al, Location &l,
+        expr_t *string, std::string str, expr_t *string_literal) {
+    std::string str1 = "";
+    ast_t* tmp = nullptr;
+    Vec<expr_t *> exprs;
+    exprs.reserve(al, 4);
+
+    // TODO: Merge two concurrent ConstantStr's into one in the JoinedStr
+    if (string_literal) {
+        if (is_a<ConstantStr_t>(*string)
+                && is_a<ConstantStr_t>(*string_literal)) {
+            str1 = std::string(down_cast<ConstantStr_t>(string)->m_value);
+            str = std::string(down_cast<ConstantStr_t>(string_literal)->m_value);
+            str1 = str1 + str;
+            tmp = make_ConstantStr_t(al, l, LFortran::s2c(al, str1), nullptr);
+        } else if (is_a<JoinedStr_t>(*string)
+                && is_a<JoinedStr_t>(*string_literal)) {
+            JoinedStr_t *t = down_cast<JoinedStr_t>(string);
+            for (size_t i = 0; i < t->n_values; i++) {
+                exprs.push_back(al, t->m_values[i]);
+            }
+            t = down_cast<JoinedStr_t>(string_literal);
+            for (size_t i = 0; i < t->n_values; i++) {
+                exprs.push_back(al, t->m_values[i]);
+            }
+            tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
+        } else if (is_a<JoinedStr_t>(*string)
+                && is_a<ConstantStr_t>(*string_literal)) {
+            JoinedStr_t *t = down_cast<JoinedStr_t>(string);
+            for (size_t i = 0; i < t->n_values; i++) {
+                exprs.push_back(al, t->m_values[i]);
+            }
+            exprs.push_back(al, string_literal);
+            tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
+        } else if (is_a<ConstantStr_t>(*string)
+                && is_a<JoinedStr_t>(*string_literal)) {
+            exprs.push_back(al, string);
+            JoinedStr_t *t = down_cast<JoinedStr_t>(string_literal);
+            for (size_t i = 0; i < t->n_values; i++) {
+                exprs.push_back(al, t->m_values[i]);
+            }
+            tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
+        } else if (is_a<ConstantBytes_t>(*string)
+                && is_a<ConstantBytes_t>(*string_literal)) {
+            str1 = std::string(down_cast<ConstantBytes_t>(string)->m_value);
+            str1 = str1.substr(0, str1.size() - 1);
+            str = std::string(down_cast<ConstantBytes_t>(string_literal)->m_value);
+            str = str.substr(2, str.size());
+            str1 = str1 + str;
+            tmp = make_ConstantBytes_t(al, l, LFortran::s2c(al, str1), nullptr);
+        } else {
+            throw LFortran::parser_local::ParserError(
+                "The byte and non-byte literals can not be combined", l);
+        }
+    } else {
+        if (is_a<ConstantStr_t>(*string)) {
+            str1 = std::string(down_cast<ConstantStr_t>(string)->m_value);
+            str1 = str1 + str;
+            tmp = make_ConstantStr_t(al, l, LFortran::s2c(al, str1), nullptr);
+        } else if (is_a<JoinedStr_t>(*string)) {
+            JoinedStr_t *t = down_cast<JoinedStr_t>(string);
+            for (size_t i = 0; i < t->n_values; i++) {
+                exprs.push_back(al, t->m_values[i]);
+            }
+            exprs.push_back(al, (expr_t *)make_ConstantStr_t(al, l,
+                            LFortran::s2c(al, str), nullptr));
+            tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
+        } else {
+            LFORTRAN_ASSERT(false);
+        }
+    }
+    return tmp;
 }
 
 char* unescape(Allocator &al, LFortran::Str &s) {
@@ -684,8 +758,9 @@ char* unescape(Allocator &al, LFortran::Str &s) {
 // `x.int_n` is of type BigInt but we store the int64_t directly in AST
 #define INTEGER(x, l) make_ConstantInt_t(p.m_a, l, x, nullptr)
 #define STRING1(x, l) make_ConstantStr_t(p.m_a, l, unescape(p.m_a, x), nullptr)
-#define STRING2(x, y, l) make_ConstantStr_t(p.m_a, l, concat_string(p.m_a, x, y.c_str(p.m_a)), nullptr)
+#define STRING2(x, y, l) concat_string(p.m_a, l, EXPR(x), y.str(), nullptr)
 #define STRING3(id, x, l) PREFIX_STRING(p.m_a, l, name2char(id), x.c_str(p.m_a))
+#define STRING4(x, s, l) concat_string(p.m_a, l, EXPR(x), "", EXPR(s))
 #define FLOAT(x, l) make_ConstantFloat_t(p.m_a, l, x, nullptr)
 #define COMPLEX(x, l) make_ConstantComplex_t(p.m_a, l, 0, x, nullptr)
 #define BOOL(x, l) make_ConstantBool_t(p.m_a, l, x, nullptr)
@@ -820,7 +895,7 @@ static inline ast_t* ID_TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
 #define ID_TUPLE_01(elts, l) ID_TUPLE_02(p.m_a, l, elts)
 #define ID_TUPLE_03(elts, l) make_Tuple_t(p.m_a, l, \
         EXPRS(SET_EXPR_CTX_02(SET_CTX_02(elts, Store), Store)), elts.size(), \
-        expr_contextType::Store);
+        expr_contextType::Store)
 
 #define LIST_COMP_1(expr, generators, l) make_ListComp_t(p.m_a, l, \
         EXPR(expr), generators.p, generators.n)

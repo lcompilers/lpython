@@ -468,15 +468,17 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                     indent = true;
                 }
                 token(yylval.string);
-                RET(TK_TYPE_IGNORE);
+                last_token=yytokentype::TK_NEWLINE;
+                return yytokentype::TK_TYPE_IGNORE;
             }
-            
+
             type_comment {
                 if (last_token == yytokentype::TK_COLON && !parenlevel) {
                     indent = true;
                 }
                 token(yylval.string);
-                RET(TK_TYPE_COMMENT);
+                last_token=yytokentype::TK_NEWLINE;
+                return yytokentype::TK_TYPE_COMMENT;
             }
 
             comment {

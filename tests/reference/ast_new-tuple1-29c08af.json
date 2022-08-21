@@ -2,11 +2,11 @@
     "basename": "ast_new-tuple1-29c08af",
     "cmd": "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
     "infile": "tests/parser/tuple1.py",
-    "infile_hash": "c6b5d261e80e336d87a78b4f378c30c43eb12b145c9ca6e731ce527c",
+    "infile_hash": "5ea7f8e0dc86056990f33f70f4998abdd71b97f89f1f174d20d3534f",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast_new-tuple1-29c08af.stdout",
-    "stdout_hash": "32eba4e6e55f98c5125966bc8d1d0873d249f96d8f3a32afb27f1eeb",
+    "stdout_hash": "93105938daca5e518874dc85913b13f0d57210e82f2fdf35d1d843e8",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

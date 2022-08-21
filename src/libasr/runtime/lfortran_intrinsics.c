@@ -860,6 +860,10 @@ LFORTRAN_API int8_t* _lfortran_realloc(int8_t* ptr, int32_t size) {
     return (int8_t*) realloc(ptr, size);
 }
 
+LFORTRAN_API int8_t* _lfortran_calloc(int32_t count, int32_t size) {
+    return (int8_t*) calloc(count, size);
+}
+
 LFORTRAN_API void _lfortran_free(char* ptr) {
     free((void*)ptr);
 }

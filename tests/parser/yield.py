@@ -15,6 +15,9 @@ def func():
     for _ in x:
         yield
 
+    yield x, y
+    yield x, y,
+
 def iterable1():
     yield 1
     yield 2

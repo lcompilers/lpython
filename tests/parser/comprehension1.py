@@ -25,6 +25,18 @@ args = ", ".join(_to_str(i) for i in self.__args__)
 
 rest = tuple(i for i in range(a.ndim) if i not in axis)
 
+(sstr(x) for [x] in self._module.gens)
+
+func(*[[x*y] for [x] in self._module.gens for [y] in J._module.gens])
+
+(x for [a, b] in y)
+
+(x for [a, (b, c)] in y)
+
+(x for [(b, c)] in y)
+
+(x for [] in y)
+
 # Set Comprehension
 newSet = {element*3 for element in myList}
 
@@ -38,3 +50,7 @@ square_dict = {num: num*num for num in range(1, 11)}
 (string[i] for i in range(len(string)-1, -1, -1))
 
 k = (j + k for j, k in range(10) if j > 0)
+
+(left + size + right for size, (left, right) in zip(array.shape, pad_width))
+
+viter = ((i, j) for ((i, _), (j, _)) in zip(newargs[1:], args[1:]))

@@ -14,3 +14,7 @@ a, b = (c.d() + [1, 0])[:]
 
 if args[i][:1] in ['', '.']:
     pass
+
+x = [[-c % self for c in reversed(T.rep.rep)][:-1]]
+
+[x for x in G if self.ring.is_unit(x[0])][0]
