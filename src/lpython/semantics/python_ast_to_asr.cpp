@@ -872,7 +872,6 @@ public:
                     switch (expr_type->type) {
                         case (ASR::ttypeType::Integer): { continue; }
                         case (ASR::ttypeType::Real): { continue; }
-                        case (ASR::ttypeType::Complex): { continue; }
                         default: return false;
                     }
                 }
@@ -880,7 +879,6 @@ public:
                     switch (expr_type->type) {
                         case (ASR::ttypeType::Integer): { continue; }
                         case (ASR::ttypeType::Real): { continue; }
-                        case (ASR::ttypeType::Complex): { continue; }
                         case (ASR::ttypeType::Character): { continue; }
                         default: return false;
                     }
@@ -889,7 +887,6 @@ public:
                     switch (expr_type -> type) {
                         case (ASR::ttypeType::Integer): { continue; }
                         case (ASR::ttypeType::Real): { continue; }
-                        case (ASR::ttypeType::Complex): { continue; }
                         default: return false;
                     }
                 }
@@ -2684,6 +2681,10 @@ public:
         }
     }
 
+    /**
+     *  Convert bounds in type variables declarations into restrictions
+     *    T = TypeVar('T', bounds=...(|...)*)
+     */
     std::set<ASR::traitType> get_traits_from_bounds(AST::expr_t *value, std::set<ASR::traitType> traits) {
         if (AST::is_a<AST::Name_t>(*value)) {
             std::string trait_name = AST::down_cast<AST::Name_t>(value)->m_id;
