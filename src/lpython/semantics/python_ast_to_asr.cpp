@@ -18,6 +18,7 @@
 #include <libasr/utils.h>
 #include <libasr/pass/global_stmts_program.h>
 #include <libasr/pass/instantiate_template.h>
+#include <libasr/modfile.h>
 
 #include <lpython/python_ast.h>
 #include <lpython/semantics/python_ast_to_asr.h>
@@ -27,6 +28,7 @@
 #include <lpython/semantics/python_comptime_eval.h>
 #include <lpython/semantics/python_attribute_eval.h>
 #include <lpython/parser/parser.h>
+#include <libasr/serialization.h>
 
 
 namespace LFortran::LPython {
@@ -150,13 +152,30 @@ namespace CastingUtil {
     }
 }
 
+int save_pyc_files(const LFortran::ASR::TranslationUnit_t &u,
+                       std::string infile) {
+    LFORTRAN_ASSERT(LFortran::asr_verify(u));
+    std::string modfile_binary = LFortran::save_pycfile(u);
+
+    while( infile.back() != '.' ) {
+        infile.pop_back();
+    }
+    std::string modfile = infile + "pyc";
+    {
+        std::ofstream out;
+        out.open(modfile, std::ofstream::out | std::ofstream::binary);
+        out << modfile_binary;
+    }
+    return 0;
+}
+
 // Does a CPython style lookup for a module:
 // * First the current directory (this is incorrect, we need to do it relative to the current file)
 // * Then the LPython runtime directory
 LFortran::Result<std::string> get_full_path(const std::string &filename,
-        const std::string &runtime_library_dir, bool &ltypes) {
+        const std::string &runtime_library_dir, std::string& input,
+        bool &ltypes) {
     ltypes = false;
-    std::string input;
     bool status = read_file(filename, input);
     if (status) {
         return filename;
@@ -176,8 +195,8 @@ LFortran::Result<std::string> get_full_path(const std::string &filename,
                 } else {
                     return LFortran::Error();
                 }
-            } else if (filename == "numpy.py") {
-                filename_intrinsic = runtime_library_dir + "/lpython_intrinsic_numpy.py";
+            } else if (startswith(filename, "numpy.py")) {
+                filename_intrinsic = runtime_library_dir + "/lpython_intrinsic_" + filename;
                 status = read_file(filename_intrinsic, input);
                 if (status) {
                     return filename_intrinsic;
@@ -189,6 +208,54 @@ LFortran::Result<std::string> get_full_path(const std::string &filename,
             }
         }
     }
+}
+
+bool set_module_path(std::string infile0, std::vector<std::string> &rl_path,
+                     std::string& infile, std::string& path_used, std::string& input,
+                     bool& ltypes) {
+    for (auto path: rl_path) {
+        Result<std::string> rinfile = get_full_path(infile0, path, input, ltypes);
+        if (rinfile.ok) {
+            infile = rinfile.result;
+            path_used = path;
+            return true;
+        }
+    }
+    return false;
+}
+
+ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
+    std::vector<std::string> &rl_path, std::string infile,
+    const Location &loc,
+    const std::function<void (const std::string &, const Location &)> err) {
+    // TODO: diagnostic should be an argument to this function
+    diag::Diagnostics diagnostics;
+    Result<AST::ast_t*> r = parse_python_file(al, rl_path[0], infile,
+        diagnostics, false);
+    if (!r.ok) {
+        err("The file '" + infile + "' failed to parse", loc);
+    }
+    LFortran::LPython::AST::ast_t* ast = r.result;
+
+    // Convert the module from AST to ASR
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast,
+        diagnostics, false, true, false, infile);
+    // TODO: Uncomment once a check is added for ensuring
+    // that module.py file hasn't changed between
+    // builds.
+    // save_pyc_files(*r2.result, infile + "c");
+    std::string input;
+    read_file(infile, input);
+    CompilerOptions compiler_options;
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r2.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        return nullptr; // Error
+    }
+
+    return r2.result;
 }
 
 ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
@@ -214,45 +281,32 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
 
     // Parse the module `module_name`.py to AST
     std::string infile0 = module_name + ".py";
-    bool found = false;
+    std::string infile0c = infile0 + "c";
     std::string path_used = "", infile;
-    for (auto path: rl_path) {
-        Result<std::string> rinfile = get_full_path(infile0, path, ltypes);
-        if (rinfile.ok) {
-            found = true;
-            infile = rinfile.result;
-            path_used = path;
-            break;
-        }
+    bool compile_module = true;
+    ASR::TranslationUnit_t* mod1 = nullptr;
+    std::string input;
+    bool found = set_module_path(infile0c, rl_path, infile,
+                                 path_used, input, ltypes);
+    if( !found ) {
+        input.clear();
+        found = set_module_path(infile0, rl_path, infile,
+                                path_used, input, ltypes);
+    } else {
+        mod1 = load_pycfile(al, input, false);
+        fix_external_symbols(*mod1, *ASRUtils::get_tu_symtab(symtab));
+        LFORTRAN_ASSERT(asr_verify(*mod1));
+        compile_module = false;
     }
+
     if (!found) {
         err("Could not find the module '" + infile0 + "'", loc);
     }
     if (ltypes) return nullptr;
 
-    // TODO: diagnostic should be an argument to this function
-    diag::Diagnostics diagnostics;
-    Result<AST::ast_t*> r = parse_python_file(al, rl_path[0], infile,
-        diagnostics, false);
-    if (!r.ok) {
-        err("The file '" + infile + "' failed to parse", loc);
+    if( compile_module ) {
+        mod1 = compile_module_till_asr(al, rl_path, infile, loc, err);
     }
-    LFortran::LPython::AST::ast_t* ast = r.result;
-
-    // Convert the module from AST to ASR
-    LFortran::LocationManager lm;
-    lm.in_filename = infile;
-    Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast,
-        diagnostics, false, true, false, infile);
-    std::string input;
-    read_file(infile, input);
-    CompilerOptions compiler_options;
-    std::cerr << diagnostics.render(input, lm, compiler_options);
-    if (!r2.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
-        return nullptr; // Error
-    }
-    ASR::TranslationUnit_t* mod1 = r2.result;
 
     // insert into `symtab`
     std::vector<std::pair<std::string, ASR::Module_t*>> children_modules;
