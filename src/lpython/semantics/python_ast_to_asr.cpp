@@ -4292,6 +4292,48 @@ public:
                                     args.push_back(al, arg);
                                     tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_lower", x.base.base.loc);
                                     return;
+                                } else if (std::string(at->m_attr) == std::string("rstrip")) {
+                                    if(args.size() != 0) {
+                                        throw SemanticError("str.srtrip() takes no arguments",
+                                            x.base.base.loc);
+                                    }
+                                    ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_rstrip");
+                                    Vec<ASR::call_arg_t> args;
+                                    args.reserve(al, 1);
+                                    ASR::call_arg_t arg;
+                                    arg.loc = x.base.base.loc;
+                                    arg.m_value = se;
+                                    args.push_back(al, arg);
+                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_rstrip", x.base.base.loc);
+                                    return;
+                                } else if (std::string(at->m_attr) == std::string("lstrip")) {
+                                    if(args.size() != 0) {
+                                        throw SemanticError("str.lrtrip() takes no arguments",
+                                            x.base.base.loc);
+                                    }
+                                    ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_lstrip");
+                                    Vec<ASR::call_arg_t> args;
+                                    args.reserve(al, 1);
+                                    ASR::call_arg_t arg;
+                                    arg.loc = x.base.base.loc;
+                                    arg.m_value = se;
+                                    args.push_back(al, arg);
+                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_lstrip", x.base.base.loc);
+                                    return;
+                                } else if (std::string(at->m_attr) == std::string("strip")) {
+                                    if(args.size() != 0) {
+                                        throw SemanticError("str.srtrip() takes no arguments",
+                                            x.base.base.loc);
+                                    }
+                                    ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_strip");
+                                    Vec<ASR::call_arg_t> args;
+                                    args.reserve(al, 1);
+                                    ASR::call_arg_t arg;
+                                    arg.loc = x.base.base.loc;
+                                    arg.m_value = se;
+                                    args.push_back(al, arg);
+                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_strip", x.base.base.loc);
+                                    return;
                                 }
                             }
                             handle_attribute(se, at->m_attr, x.base.base.loc, eles);
@@ -4352,6 +4394,55 @@ public:
                             i = tolower(i);
                         }
                     }
+                    ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
+                                    1, 1, nullptr, nullptr , 0));
+                    tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
+                    return;
+                } else if (std::string(at->m_attr) == std::string("rstrip")) {
+                    if(args.size() != 0) {
+                        throw SemanticError("str.rstrip() takes no arguments",
+                            x.base.base.loc);
+                    }
+                    AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
+                    std::string res = n->m_value;
+                    int ind = res.size()-1;
+                    while (ind >= 0 && res[ind] == ' '){
+                        ind--;
+                    }
+                    res = std::string(res.begin(), res.begin() + ind +1);
+                    ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
+                                    1, 1, nullptr, nullptr , 0));
+                    tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
+                    return;
+                } else if (std::string(at->m_attr) == std::string("lstrip")) {
+                    if(args.size() != 0) {
+                        throw SemanticError("str.lstrip() takes no arguments",
+                            x.base.base.loc);
+                    }
+                    AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
+                    std::string res = n->m_value;
+                    int ind = 0;
+                    while (ind < res.size() && res[ind] == ' ') {
+                        ind++;
+                    }
+                    res = std::string(res.begin() + ind, res.end());
+                    ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
+                                    1, 1, nullptr, nullptr , 0));
+                    tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
+                    return;
+                } else if (std::string(at->m_attr) == std::string("strip")) {
+                    if(args.size() != 0) {
+                        throw SemanticError("str.strip() takes no arguments",
+                            x.base.base.loc);
+                    }
+                    AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
+                    std::string res = n->m_value;
+                    int l = 0 ,r = res.size() - 1;
+                    while (l < res.size() && r >= 0 && (res[l] == ' ' || res[r] == ' ')) {
+                        l += res[l] == ' ';
+                        r -= res[r] == ' ';
+                    }
+                    res = std::string(res.begin() + l, res.begin() + r + 1);
                     ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
                                     1, 1, nullptr, nullptr , 0));
                     tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
