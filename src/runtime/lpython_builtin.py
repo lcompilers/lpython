@@ -626,7 +626,7 @@ def _lpython_str_capitalize(x: str) -> str:
     return x
 
 @overload
-def _lpython_str_lower(x: str) ->str:
+def _lpython_str_lower(x: str) -> str:
     res: str
     res = ""
     i:str
@@ -635,4 +635,27 @@ def _lpython_str_lower(x: str) ->str:
             res += chr(ord(i) +32)
         else:
             res += i
+    return res
+
+@overload
+def _lpython_str_rstrip(x: str) -> str:
+    ind: i32
+    ind = len(x) - 1
+    while ind >= 0 and x[ind] == ' ':
+        ind -= 1
+    return x[0: ind + 1]
+
+@overload
+def _lpython_str_lstrip(x: str) -> str:
+    ind :i32
+    ind = 0
+    while ind < len(x) and x[ind] == ' ':
+        ind += 1
+    return x[ind :len(x)]
+
+@overload
+def _lpython_str_strip(x: str) -> str:
+    res :str
+    res = _lpython_str_lstrip(x)
+    res = _lpython_str_rstrip(res)
     return res
