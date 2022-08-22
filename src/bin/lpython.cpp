@@ -512,7 +512,7 @@ int compile_python_to_object_file(
         const std::string &runtime_library_dir,
         LCompilers::PassManager& pass_manager,
         CompilerOptions &compiler_options,
-        bool time_report)
+        bool time_report, bool arg_c=false)
 {
     Allocator al(4*1024);
     LFortran::diag::Diagnostics diagnostics;
@@ -540,7 +540,8 @@ int compile_python_to_object_file(
     diagnostics.diagnostics.clear();
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
+        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics,
+            !(arg_c && compiler_options.disable_main),
             compiler_options.disable_main, compiler_options.symtab_only, infile);
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
@@ -551,6 +552,12 @@ int compile_python_to_object_file(
         return 2;
     }
     LFortran::ASR::TranslationUnit_t* asr = r1.result;
+    if( compiler_options.disable_main ) {
+        int err = LFortran::LPython::save_pyc_files(*asr, infile);
+        if( err ) {
+            return err;
+        }
+    }
     diagnostics.diagnostics.clear();
 
     // ASR -> LLVM
@@ -1065,7 +1072,8 @@ int main(int argc, char *argv[])
         if (arg_c) {
             if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-                return compile_python_to_object_file(arg_file, outfile, runtime_library_dir, lpython_pass_manager, compiler_options, time_report);
+                return compile_python_to_object_file(arg_file, outfile, runtime_library_dir, lpython_pass_manager, compiler_options, time_report,
+                                                     arg_c);
 #else
                 std::cerr << "The -c option requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
