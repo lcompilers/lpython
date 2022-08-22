@@ -2997,11 +2997,11 @@ public:
             this->visit_expr(*x.m_targets[i]);
             target = ASRUtils::EXPR(tmp);
             ASR::ttype_t *target_type = ASRUtils::expr_type(target);
-            ASR::ttype_t *value_type = ASRUtils::expr_type(value);
+            ASR::ttype_t *value_type = ASRUtils::expr_type(assign_value);
             // Check if the target parameter type can be assigned with zero
             if (ASR::is_a<ASR::TypeParameter_t>(*target_type)
-                    && ASR::is_a<ASR::IntegerConstant_t>(*value)) {
-                ASR::IntegerConstant_t *value_constant = ASR::down_cast<ASR::IntegerConstant_t>(value);
+                    && ASR::is_a<ASR::IntegerConstant_t>(*assign_value)) {
+                ASR::IntegerConstant_t *value_constant = ASR::down_cast<ASR::IntegerConstant_t>(assign_value);
                 if (value_constant->m_n == 0) {
                     if (!ASRUtils::has_trait(ASR::down_cast<ASR::TypeParameter_t>(target_type),
                                              ASR::traitType::SupportsZero)) {
@@ -3009,7 +3009,7 @@ public:
                                             "to be assignable with zero.",
                                             target_type->base.loc);
                     }
-                    tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value, nullptr);
+                    tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, assign_value, nullptr);
                     return ;    
                 }
             }
