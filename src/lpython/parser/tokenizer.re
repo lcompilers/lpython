@@ -275,10 +275,18 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             integer = int_dec | int_oct | int_bin | int_hex;
             real = (significand exp?) | (digit+ exp);
             imag_number = (real | digit+)[jJ];
-            string1 = '"' ('\\"'|[^"\x00])* '"';
-            string2 = "'" ("\\'"|[^'\x00])* "'";
-            string3 = '"""' ( '\\"' | '"' [^"\x00] | '""' [^"\x00] | [^"\x00] )* '"""';
-            string4 = "'''" ( "\\'" | "'" [^'\x00] | "''" [^'\x00] | [^'\x00] )* "'''";
+            string1 = '"' ('\\'[^\x00] | [^"\x00\n\\])* '"';
+            string2 = "'" ("\\"[^\x00] | [^'\x00\n\\])* "'";
+            string3 = '"""' ( '\\'[^\x00]
+                            | ('"' | '"' '\\'+) [^"\x00\\]
+                            | ('""' | '""' '\\'+) [^"\x00\\]
+                            | [^"\x00\\] )*
+                      '"""';
+            string4 = "'''" ( "\\"[^\x00]
+                            | ("'" | "'" "\\"+) [^'\x00\\]
+                            | ("''" | "''" "\\"+) [^'\x00\\]
+                            | [^'\x00\\] )*
+                      "'''";
             type_ignore = "#" whitespace? "type:" whitespace? "ignore" [^\n\x00]*;
             type_comment = "#" whitespace? "type:" whitespace? [^\n\x00]*;
             comment = "#" [^\n\x00]*;
