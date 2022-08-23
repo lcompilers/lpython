@@ -80,6 +80,9 @@ set(WITH_LFORTRAN_BINARY_MODFILES YES
 set(WITH_RUNTIME_LIBRARY YES
     CACHE BOOL "Compile and install the runtime library")
 
+set(WITH_INTRINSIC_MODULES no
+    CACHE BOOL "Compile intrinsic modules to .pyc (ASR) at build time")
+
 # Find ZLIB with our custom finder before including LLVM since the finder for LLVM
 # might search for ZLIB again and find the shared libraries instead of the static ones
 find_package(StaticZLIB REQUIRED)

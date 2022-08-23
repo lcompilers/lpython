@@ -57,3 +57,31 @@ set_target_properties(lpython PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<0:>
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<0:>
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<0:>)
+
+if (WITH_INTRINSIC_MODULES)
+    macro(LPYTHON_COMPILE_MODULE name)
+        add_custom_command(
+            OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/../runtime/${name}.pyc
+            COMMAND ${CMAKE_CURRENT_BINARY_DIR}/lpython
+            ARGS --disable-main -c ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/${name}.py -o ${name}.o
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/../runtime
+            DEPENDS lpython ${CMAKE_CURRENT_SOURCE_DIR}/../runtime/${name}.py ${ARGN}
+            COMMENT "LPython Compiling ${name}.py")
+    endmacro(LPYTHON_COMPILE_MODULE)
+
+    LPYTHON_COMPILE_MODULE(lpython_intrinsic_numpy)
+    LPYTHON_COMPILE_MODULE(lpython_builtin)
+
+    add_custom_target(lpython_intrinsics
+        ALL
+        DEPENDS
+        ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lpython_intrinsic_numpy.pyc
+        ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lpython_builtin.pyc
+    )
+
+    install(
+        FILES ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lpython_intrinsic_numpy.pyc
+            ${CMAKE_CURRENT_BINARY_DIR}/../runtime/lpython_builtin.pyc
+        DESTINATION share/lfortran/lib
+    )
+endif()
