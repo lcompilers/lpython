@@ -503,6 +503,10 @@ filename = "parser/string1.py"
 ast_new = true
 
 [[test]]
+filename = "parser/string2.py"
+ast_new = true
+
+[[test]]
 filename = "parser/global1.py"
 ast = true
 ast_new = true
