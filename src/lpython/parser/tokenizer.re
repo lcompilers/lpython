@@ -323,7 +323,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                     RET(TK_INDENT);
                 } else {
                     if(last_token == yytokentype::TK_NEWLINE && cur[0] != ' '
-                            && last_indent_length > cur-tok) {
+                            && cur[0] != '\t' && last_indent_length > cur-tok) {
                         last_indent_length = cur-tok;
                         dedent = 2;
                         if (!indent_length.empty()) {
@@ -376,8 +376,8 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                         || colon_actual_last_token) {
                     colon_actual_last_token = false;
                     indent = true;
-                } else if (cur[0] != ' ' && cur[0] != '\n'
-                        && last_indent_length > cur-tok) {
+                } else if (cur[0] != ' ' && cur[0] != '\t' && cur[0] != '\n'
+                        && last_indent_length >= cur-tok) {
                     last_indent_length = 0;
                     dedent = 1;
                 }
