@@ -23,5 +23,10 @@ def test():
           Text
           """
         }
+    x = { **x,
+          y: "Text",
+          **z,
+          None: "None",
+        }
 
 test()

@@ -782,6 +782,7 @@ expr_list
 dict
     : expr ":" expr { $$ = DICT_EXPR_01($1, $3, @$); }
     | expr ":" type_comment expr { $$ = DICT_EXPR_02($1, $3, $4, @$); }
+    | "**" expr { $$ = DICT_EXPR_01(NONE(@$), $2, @$); }
     ;
 
 dict_list
