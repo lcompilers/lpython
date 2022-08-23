@@ -31,3 +31,5 @@ class test_08(x): # type: ignore[misc]
 class sub(np.ndarray): pass
 
 class name: ...;
+
+class MMatrix(MaskedArray, np.matrix,): ...

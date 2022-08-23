@@ -30,3 +30,8 @@ assert_(np.isnan(div)), 'dt: %s, rem: %s' % (dt, rem)
 
 sum([(1, -1)[i % 2] for i in x])
 sum([(1, -1,)[i % 2] for i in x])
+
+a = ( # type: ignore
+    x,
+    y,
+)
