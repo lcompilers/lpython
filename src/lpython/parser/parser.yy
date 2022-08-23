@@ -996,9 +996,14 @@ expr
     | KW_NONE { $$ = NONE(@$); }
     | TK_ELLIPSIS { $$ = ELLIPSIS(@$); }
     | "(" expr ")" { $$ = $2; }
+    | "(" TK_TYPE_IGNORE expr ")" { $$ = $3; extract_type_comment(p, @$, $2); }
     | "(" ")" { $$ = TUPLE_EMPTY(@$); }
     | "(" expr_list "," ")" { $$ = TUPLE_03($2, @$); }
+    | "(" TK_TYPE_IGNORE expr_list "," ")" { $$ = TUPLE_03($3, @$);
+        extract_type_comment(p, @$, $2); }
     | "(" expr_list "," expr ")" { $$ = TUPLE_01(TUPLE_($2, $4), @$); }
+    | "(" TK_TYPE_IGNORE expr_list "," expr ")" {
+        $$ = TUPLE_01(TUPLE_($3, $5), @$); extract_type_comment(p, @$, $2);}
     | function_call { $$ = $1; }
     | subscript { $$ = $1; }
     | "[" expr_list_opt "]" { $$ = LIST($2, @$); }
