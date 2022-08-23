@@ -670,9 +670,9 @@ public:
                 if (ASR::is_a<ASR::Variable_t>(*s)) {
                     ASR::Variable_t *var_sym = ASR::down_cast<ASR::Variable_t>(s);
                     if (var_sym->m_type->type == ASR::ttypeType::TypeParameter) {
+                        ASR::TypeParameter_t *type_param = ASR::down_cast<ASR::TypeParameter_t>(var_sym->m_type);
                         return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, loc,
-                            ASR::down_cast<ASR::TypeParameter_t>(var_sym->m_type)->m_param,
-                            dims.p, dims.size()));
+                            type_param->m_param, dims.p, dims.size(), type_param->m_rt, type_param->n_rt));
                     }
                 } else {
                     ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
@@ -788,7 +788,6 @@ public:
                     return func_call_asr;
                 }
             } else {
-                ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
                 if (args.size() != func->n_args) {
                     std::string fnd = std::to_string(args.size());
                     std::string org = std::to_string(func->n_args);
@@ -835,11 +834,21 @@ public:
                 ASR::ttype_t *arg_elem = ASR::down_cast<ASR::List_t>(arg_type)->m_type;
                 return check_type_substitution(subs, param_elem, arg_elem, loc);
             } else {
-                throw SemanticError("Type mismatch", loc);
+                throw SemanticError("The parameter is a list while the argument is not a list", loc);
             }
         }
         if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
-            std::string param_name = (ASR::down_cast<ASR::TypeParameter_t>(param_type))->m_param;
+            ASR::TypeParameter_t *tp = ASR::down_cast<ASR::TypeParameter_t>(param_type);
+            if (!check_type_restriction(arg_type, tp)) {
+                diag.add(diag::Diagnostic(
+                    "Argument type does not match parameter's restriction",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("Type mismatch", {param_type->base.loc, arg_type->base.loc})
+                    }
+                ));
+                throw SemanticAbort();
+            }
+            std::string param_name = tp->m_param;
             if (subs.find(param_name) != subs.end()) {
                 if (!ASRUtils::check_equal_type(subs[param_name], arg_type)) {
                     throw SemanticError("Inconsistent type variable for the function call", loc);
@@ -862,6 +871,42 @@ public:
         return subs;
     }
 
+    // TODO: Think also about dimensions
+    bool check_type_restriction(ASR::ttype_t *expr_type, ASR::TypeParameter_t *tp) {
+        for (size_t i=0; i<tp->n_rt; i++) {
+            ASR::Restriction_t *restriction = ASR::down_cast<ASR::Restriction_t>(tp->m_rt[i]);
+            switch (restriction->m_rt) {
+                case (ASR::traitType::SupportsZero): {
+                    switch (expr_type->type) {
+                        case (ASR::ttypeType::Integer): { continue; }
+                        case (ASR::ttypeType::Real): { continue; }
+                        default: return false;
+                    }
+                }
+                case (ASR::traitType::SupportsPlus): {
+                    switch (expr_type->type) {
+                        case (ASR::ttypeType::Integer): { continue; }
+                        case (ASR::ttypeType::Real): { continue; }
+                        case (ASR::ttypeType::Character): { continue; }
+                        default: return false;
+                    }
+                }
+                case (ASR::traitType::Divisible): {
+                    switch (expr_type -> type) {
+                        case (ASR::ttypeType::Integer): { continue; }
+                        case (ASR::ttypeType::Real): { continue; }
+                        default: return false;
+                    }
+                }
+                case (ASR::traitType::Any): {
+                    continue;
+                }
+                default: continue;
+            }
+        }
+        return true;
+    }
+
     ASR::symbol_t* get_generic_function(std::map<std::string, ASR::ttype_t*> subs,
             ASR::Function_t &func) {
         int new_function_num;
@@ -873,20 +918,16 @@ public:
                 std::string generic_func_name = "__lpython_generic_" + func_name + "_" + std::to_string(i);
                 if (generic_func_subs.find(generic_func_name) != generic_func_subs.end()) {
                     std::map<std::string, ASR::ttype_t*> subs_check = generic_func_subs[generic_func_name];
-                    if (subs_check.size() != subs.size()) {
-                        continue;
-                    }
+                    if (subs_check.size() != subs.size()) { continue; }
                     bool defined = true;
                     for (auto const &subs_check_pair: subs_check) {
                         if (subs.find(subs_check_pair.first) == subs.end()) {
-                            defined = false;
-                            break;
+                            defined = false; break;
                         }
                         ASR::ttype_t* subs_type = subs[subs_check_pair.first];
                         ASR::ttype_t* subs_check_type = subs_check_pair.second;
                         if (!ASRUtils::check_equal_type(subs_type, subs_check_type)) {
-                            defined = false;
-                            break;
+                            defined = false; break;
                         }
                     }
                     if (defined) {
@@ -1210,6 +1251,9 @@ public:
                 if (ASRUtils::is_integer(*left_type)) {
                     left = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
                         al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type));
+                } else if (ASR::is_a<ASR::TypeParameter_t>(*left_type)) {
+                    left = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                        al, left->base.loc, left, ASR::cast_kindType::TemplateToReal, dest_type));                    
                 }
                 if (ASRUtils::is_integer(*right_type)) {
                     if (ASRUtils::expr_value(right) != nullptr) {
@@ -1320,9 +1364,24 @@ public:
             }
             tmp = ASR::make_StringConcat_t(al, loc, left, right, dest_type, value);
             return;
-        } else if (ASR::is_a<ASR::TypeParameter_t>(*left_type)
-                || ASR::is_a<ASR::TypeParameter_t>(*right_type)) {
-            dest_type = left_type;
+        } else if (ASR::is_a<ASR::TypeParameter_t>(*left_type) && ASR::is_a<ASR::TypeParameter_t>(*right_type)) {
+            ASR::TypeParameter_t *left_param = ASR::down_cast<ASR::TypeParameter_t>(left_type);
+            ASR::TypeParameter_t *right_param = ASR::down_cast<ASR::TypeParameter_t>(right_type);
+            if (op == ASR::binopType::Add) {
+                if (ASRUtils::has_trait(left_param, ASR::traitType::SupportsPlus) &&
+                        ASRUtils::has_trait(right_param, ASR::traitType::SupportsPlus)) {
+                    dest_type = left_type;
+                } else {
+                    throw SemanticError("Both type variables must support addition operation", loc);
+                }
+            } 
+            if (op == ASR::binopType::Div) {
+                if (ASRUtils::has_trait(left_param, ASR::traitType::Divisible)) {
+                    dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
+                } else {
+                    throw SemanticError("The left expression of the division must be support division operation", loc);
+                }
+            }
         } else if (ASR::is_a<ASR::List_t>(*left_type) && ASR::is_a<ASR::List_t>(*right_type)
                    && op == ASR::binopType::Add) {
             dest_type = left_type;
@@ -2547,7 +2606,7 @@ public:
     void visit_Assign(const AST::Assign_t &x) {
         /**
          *  Type variables have to be put in the symbol table before checking function definitions.
-         *  This describes a different treatment for Assign in the form of `T = TypeVar('T')`
+         *  This describes a different treatment for Assign in the form of `T = TypeVar('T', ...)`
          */
         if (x.n_targets == 1 && AST::is_a<AST::Call_t>(*x.m_value)) {
             AST::Call_t *rh = AST::down_cast<AST::Call_t>(x.m_value);
@@ -2560,7 +2619,8 @@ public:
                         std::string tvar_name = AST::down_cast<AST::Name_t>(x.m_targets[0])->m_id;
                         // Check if the type variable name is a reserved type keyword
                         const char* type_list[14]
-                            = { "list", "set", "dict", "tuple", "i8", "i16", "i32", "i64", "f32",
+                            = { "list", "set", "dict", "tuple", 
+                                "i8", "i16", "i32", "i64", "f32",
                                 "f64", "c32", "c64", "str", "bool"};
                         for (int i = 0; i < 14; i++) {
                             if (strcmp(s2c(al, tvar_name), type_list[i]) == 0) {
@@ -2583,8 +2643,24 @@ public:
                         // Build ttype
                         Vec<ASR::dimension_t> dims;
                         dims.reserve(al, 4);
+
+                        Vec<ASR::restriction_t*> restrictions;
+                        restrictions.reserve(al, 4);
+                        if (rh->n_keywords > 0) {
+                            AST::keyword_t keyword = rh->m_keywords[0];
+                            if (keyword.m_arg && strcmp(keyword.m_arg, "bound") == 0) {
+                                std::set<ASR::traitType> traits;
+                                traits = get_traits_from_bounds(keyword.m_value, traits);
+                                for (ASR::traitType const trait: traits) {
+                                    ASR::restriction_t *restriction = ASR::down_cast<ASR::restriction_t>(
+                                        ASR::make_Restriction_t(al, keyword.loc, trait));
+                                    restrictions.push_back(al, restriction);
+                                }
+                            }
+                        }
+
                         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, x.base.base.loc, s2c(al, tvar_name),
-                            dims.p, dims.size()));
+                            dims.p, dims.size(), restrictions.p, restrictions.size()));
 
                         ASR::expr_t *value = nullptr;
                         ASR::expr_t *init_expr = nullptr;
@@ -2612,6 +2688,36 @@ public:
                 }
             }
         }
+    }
+
+    /**
+     *  Convert bounds in type variables declarations into restrictions
+     *    T = TypeVar('T', bounds=...(|...)*)
+     */
+    std::set<ASR::traitType> get_traits_from_bounds(AST::expr_t *value, std::set<ASR::traitType> traits) {
+        if (AST::is_a<AST::Name_t>(*value)) {
+            std::string trait_name = AST::down_cast<AST::Name_t>(value)->m_id;
+            if (trait_name == "Any") {
+                traits.insert(ASR::traitType::Any);
+            } else if (trait_name == "SupportsPlus") {
+                traits.insert(ASR::traitType::SupportsPlus);
+            } else if (trait_name == "SupportsZero") {
+                traits.insert(ASR::traitType::SupportsZero);
+            } else if (trait_name == "Divisible") {
+                traits.insert(ASR::traitType::Divisible);
+            } else {
+                throw SemanticError("Unsupported trait " + trait_name, value->base.loc);
+            }
+        } else if (AST::is_a<AST::BinOp_t>(*value)) {
+            AST::BinOp_t *binop = AST::down_cast<AST::BinOp_t>(value);
+            if (binop->m_op == AST::operatorType::BitOr) {
+                traits = get_traits_from_bounds(binop->m_left, traits);
+                traits = get_traits_from_bounds(binop->m_right, traits);
+            }
+        } else {
+            throw SemanticError("Unsupported expression for restrictions", value->base.loc);
+        }
+        return traits;
     }
 
     void visit_Expr(const AST::Expr_t &/*x*/) {
@@ -2891,7 +2997,22 @@ public:
             this->visit_expr(*x.m_targets[i]);
             target = ASRUtils::EXPR(tmp);
             ASR::ttype_t *target_type = ASRUtils::expr_type(target);
-            ASR::ttype_t *value_type = ASRUtils::expr_type(tmp_value);
+            ASR::ttype_t *value_type = ASRUtils::expr_type(assign_value);
+            // Check if the target parameter type can be assigned with zero
+            if (ASR::is_a<ASR::TypeParameter_t>(*target_type)
+                    && ASR::is_a<ASR::IntegerConstant_t>(*assign_value)) {
+                ASR::IntegerConstant_t *value_constant = ASR::down_cast<ASR::IntegerConstant_t>(assign_value);
+                if (value_constant->m_n == 0) {
+                    if (!ASRUtils::has_trait(ASR::down_cast<ASR::TypeParameter_t>(target_type),
+                                             ASR::traitType::SupportsZero)) {
+                        throw SemanticError("A generic variable must support zero "
+                                            "to be assignable with zero.",
+                                            target_type->base.loc);
+                    }
+                    tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, assign_value, nullptr);
+                    return ;    
+                }
+            }
             if( ASR::is_a<ASR::Pointer_t>(*target_type) &&
                 ASR::is_a<ASR::Var_t>(*target) ) {
                 if( !ASR::is_a<ASR::GetPointer_t>(*tmp_value) ) {

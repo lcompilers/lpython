@@ -329,7 +329,11 @@ ttype
     | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
     | CPtr()
-    | TypeParameter(identifier param, dimension* dims)
+    | TypeParameter(identifier param, dimension* dims, restriction* rt)
+
+restriction = Restriction(trait rt)
+
+trait = SupportsZero | SupportsPlus | Divisible | Any
 
 binop = Add | Sub | Mul | Div | Pow | BitAnd | BitOr | BitXor | BitLShift | BitRShift
 
@@ -346,6 +350,7 @@ cast_kind
     | IntegerToReal
     | LogicalToReal
     | RealToReal
+    | TemplateToReal
     | IntegerToInteger
     | RealToComplex
     | IntegerToComplex

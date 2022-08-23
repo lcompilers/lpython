@@ -118,6 +118,8 @@ public:
         return result;
     }
 
+
+
     ASR::asr_t* duplicate_Var(ASR::Var_t *x) {
         std::string sym_name = ASRUtils::symbol_name(x->m_v);
         ASR::symbol_t *sym = current_scope->get_symbol(sym_name);
@@ -139,6 +141,16 @@ public:
         return ASR::make_ArrayItem_t(al, x->base.base.loc, m_v, args.p, x->n_args, type, m_value);
     }
 
+    ASR::asr_t* duplicate_ListItem(ASR::ListItem_t *x) {
+        ASR::expr_t *m_a = duplicate_expr(x->m_a);
+        ASR::expr_t *m_pos = duplicate_expr(x->m_pos);
+        ASR::ttype_t *type = substitute_type(x->m_type);
+        ASR::expr_t *m_value = duplicate_expr(x->m_value);
+
+        return ASR::make_ListItem_t(al, x->base.base.loc, 
+            m_a, m_pos, type, m_value);
+    }
+
     ASR::array_index_t duplicate_array_index(ASR::array_index_t x) {
         ASR::expr_t *left = duplicate_expr(x.m_left);
         ASR::expr_t *right = duplicate_expr(x.m_right);
@@ -148,6 +160,21 @@ public:
         result.m_right = right;
         result.m_step = step;
         return result;
+    }
+
+    ASR::asr_t* duplicate_Assignment(ASR::Assignment_t *x) {
+        ASR::expr_t *target = duplicate_expr(x->m_target);
+        ASR::ttype_t *target_type = substitute_type(ASRUtils::expr_type(x->m_target));
+        ASR::expr_t *value = duplicate_expr(x->m_value);
+        if (ASRUtils::is_real(*target_type) && ASR::is_a<ASR::IntegerConstant_t>(*x->m_value)) {
+            ASR::IntegerConstant_t *int_value = ASR::down_cast<ASR::IntegerConstant_t>(x->m_value);
+            if (int_value->m_n == 0) {
+                value = ASRUtils::EXPR(ASR::make_RealConstant_t(al, value->base.loc, 0, 
+                    ASRUtils::duplicate_type(al, target_type)));
+            }
+        }
+        ASR::stmt_t *overloaded = duplicate_stmt(x->m_overloaded);
+        return ASR::make_Assignment_t(al, x->base.base.loc, target, value, overloaded);
     }
 
     ASR::asr_t* duplicate_TemplateBinOp(ASR::TemplateBinOp_t *x) {
@@ -172,11 +199,20 @@ public:
         return ASR::make_DoLoop_t(al, x->base.base.loc, head, m_body.p, x->n_body);
     }
 
+    ASR::asr_t* duplicate_Cast(ASR::Cast_t *x) {
+        ASR::expr_t *arg = duplicate_expr(x->m_arg);
+        ASR::ttype_t *type = substitute_type(ASRUtils::expr_type(x->m_arg));
+        if (ASRUtils::is_real(*type)) {
+            return (ASR::asr_t*) arg;
+        }
+        return ASRUtils::make_Cast_t_value(al, x->base.base.loc, arg, ASR::cast_kindType::IntegerToReal, x->m_type); 
+    }
+
     ASR::ttype_t* substitute_type(ASR::ttype_t *param_type) {
         if (ASR::is_a<ASR::List_t>(*param_type)) {
-            ASR::List_t *list_type = ASR::down_cast<ASR::List_t>(param_type);
-            ASR::ttype_t *elem_type = substitute_type(list_type->m_type);
-            return ASRUtils::TYPE(ASR::make_List_t(al, param_type->base.loc, elem_type));
+            ASR::List_t *tlist = ASR::down_cast<ASR::List_t>(param_type);
+            return ASRUtils::TYPE(ASR::make_List_t(al, param_type->base.loc, 
+                substitute_type(tlist->m_type)));
         }
         if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
             ASR::TypeParameter_t *param = ASR::down_cast<ASR::TypeParameter_t>(param_type);
@@ -191,28 +227,26 @@ public:
                     ASR::Real_t* tnew = ASR::down_cast<ASR::Real_t>(t);
                     return ASRUtils::TYPE(ASR::make_Real_t(al, t->base.loc,
                             tnew->m_kind, param->m_dims, param->n_dims));
-                }  
+                }                  
                 case ASR::ttypeType::Character: {
                     ASR::Character_t* tnew = ASR::down_cast<ASR::Character_t>(t);
                     return ASRUtils::TYPE(ASR::make_Character_t(al, t->base.loc,
                                 tnew->m_kind, tnew->m_len, tnew->m_len_expr,
                                 param->m_dims, param->n_dims));
-                }    
+                }            
                 default: return subs[param->m_param];                          
             }
         }
         return param_type;
     }    
     
+    // Commented out part is not yet considered for generic functions
     ASR::asr_t* make_BinOp_helper(ASR::expr_t *left, ASR::expr_t *right,
             ASR::binopType op, const Location &loc) {
         ASR::ttype_t *left_type = ASRUtils::expr_type(left);
         ASR::ttype_t *right_type = ASRUtils::expr_type(right);
         ASR::ttype_t *dest_type = nullptr;
         ASR::expr_t *value = nullptr;
-    
-        // bool right_is_int = ASRUtils::is_character(*left_type) && ASRUtils::is_integer(*right_type);
-        // bool left_is_int = ASRUtils::is_integer(*left_type) && ASRUtils::is_character(*right_type);   
 
         if ((ASRUtils::is_integer(*left_type) || ASRUtils::is_real(*left_type) ||
                 ASRUtils::is_complex(*left_type) || ASRUtils::is_logical(*left_type)) &&
@@ -223,7 +257,6 @@ public:
             dest_type = ASRUtils::expr_type(left);
         } else if (ASRUtils::is_character(*left_type) && ASRUtils::is_character(*right_type)
                 && op == ASR::binopType::Add) {
-            // string concat
             ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
             ASR::Character_t *right_type2 = ASR::down_cast<ASR::Character_t>(right_type);
             LFORTRAN_ASSERT(left_type2->n_dims == 0);
@@ -250,9 +283,10 @@ public:
                 int64_t result;
                 switch (op) {
                     case (ASR::binopType::Add): { result = left_value + right_value; break; }
-                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
-                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
+                    // case (ASR::binopType::Sub): { result = left_value - right_value; break; }
+                    // case (ASR::binopType::Mul): { result = left_value * right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
+                    /*
                     case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
                     case (ASR::binopType::BitAnd): { result = left_value & right_value; break; }
                     case (ASR::binopType::BitOr): { result = left_value | right_value; break; }
@@ -271,17 +305,20 @@ public:
                         result = left_value >> right_value;
                         break;
                     }
+                    */
                     default: { LFORTRAN_ASSERT(false); } // should never happen
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, result, dest_type));
             }
             return ASR::make_IntegerBinOp_t(al, loc, left, op, right, dest_type, value);
         } else if (ASRUtils::is_real(*dest_type)) {
+            /*
             if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
                 op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift) {
                 throw LCompilersException("ICE: failure in instantiation: Unsupported binary operation on floats: '"
                     + ASRUtils::binop_to_str_python(op) + "'");
             }
+            */
             right = cast_helper(left_type, right);
             dest_type = ASRUtils::expr_type(right);
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {

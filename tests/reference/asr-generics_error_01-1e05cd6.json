@@ -1,0 +1,13 @@
+{
+    "basename": "asr-generics_error_01-1e05cd6",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/generics_error_01.py",
+    "infile_hash": "e9a5a87fcb4122eb496b0fb328021b718ddec00b273a5bb7f8fd8ee7",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-generics_error_01-1e05cd6.stderr",
+    "stderr_hash": "250fdce0b4c2eccb7782e2c8baa903ad40e31e0367563ace99b1aa87",
+    "returncode": 2
+}
