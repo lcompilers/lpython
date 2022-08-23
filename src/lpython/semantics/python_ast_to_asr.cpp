@@ -1307,7 +1307,7 @@ public:
                         al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type));
                 } else if (ASR::is_a<ASR::TypeParameter_t>(*left_type)) {
                     left = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
-                        al, left->base.loc, left, ASR::cast_kindType::TemplateToReal, dest_type));                    
+                        al, left->base.loc, left, ASR::cast_kindType::TemplateToReal, dest_type));
                 }
                 if (ASRUtils::is_integer(*right_type)) {
                     if (ASRUtils::expr_value(right) != nullptr) {
@@ -1428,7 +1428,7 @@ public:
                 } else {
                     throw SemanticError("Both type variables must support addition operation", loc);
                 }
-            } 
+            }
             if (op == ASR::binopType::Div) {
                 if (ASRUtils::has_trait(left_param, ASR::traitType::Divisible)) {
                     dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
@@ -2673,7 +2673,7 @@ public:
                         std::string tvar_name = AST::down_cast<AST::Name_t>(x.m_targets[0])->m_id;
                         // Check if the type variable name is a reserved type keyword
                         const char* type_list[14]
-                            = { "list", "set", "dict", "tuple", 
+                            = { "list", "set", "dict", "tuple",
                                 "i8", "i16", "i32", "i64", "f32",
                                 "f64", "c32", "c64", "str", "bool"};
                         for (int i = 0; i < 14; i++) {
@@ -3064,7 +3064,7 @@ public:
                                             target_type->base.loc);
                     }
                     tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, assign_value, nullptr);
-                    return ;    
+                    return ;
                 }
             }
             if( ASR::is_a<ASR::Pointer_t>(*target_type) &&
