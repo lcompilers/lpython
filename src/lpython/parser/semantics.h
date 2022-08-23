@@ -336,7 +336,7 @@ static inline Vec<withitem_t> convert_exprlist_to_withitem(Allocator &al,
     Vec<withitem_t> v;
     v.reserve(al, expr_list.size());
     for (size_t i=0; i<expr_list.size(); i++) {
-        WITH_ITEM(l, EXPR(expr_list[i]), nullptr);
+        v.push_back(al, WITH_ITEM(l, EXPR(expr_list[i]), nullptr));
     }
     return v;
 }
