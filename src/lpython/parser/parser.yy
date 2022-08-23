@@ -707,12 +707,12 @@ class_def
         $$ = CLASS_01($1, $3, $5, @$); }
     | decorators_opt KW_CLASS id "(" expr_list_opt ")" ":" body_stmts {
         $$ = CLASS_02($1, $3, $5, $8, @$); }
-    | decorators_opt KW_CLASS id "(" expr_list "," keyword_items ")"
-        ":" body_stmts { $$ = CLASS_03($1, $3, $5, $7, $10, @$); }
+    | decorators_opt KW_CLASS id "(" expr_list "," keyword_items comma_opt ")"
+        ":" body_stmts { $$ = CLASS_03($1, $3, $5, $7, $11, @$); }
     | decorators_opt KW_CLASS id "(" keyword_items "," expr_list ")"
         ":" body_stmts { $$ = CLASS_03($1, $3, $7, $5, $10, @$); }
-    | decorators_opt KW_CLASS id "(" keyword_items ")" ":" body_stmts {
-        $$ = CLASS_04($1, $3, $5, $8, @$); }
+    | decorators_opt KW_CLASS id "(" keyword_items comma_opt ")" ":" body_stmts
+        { $$ = CLASS_04($1, $3, $5, $9, @$); }
     ;
 
 async_func_def
@@ -770,7 +770,7 @@ while_statement
     ;
 
 expr_list_opt
-    : expr_list { $$ = $1; }
+    : expr_list comma_opt { $$ = $1; }
     | %empty { LIST_NEW($$); }
     ;
 
@@ -1002,7 +1002,6 @@ expr
     | function_call { $$ = $1; }
     | subscript { $$ = $1; }
     | "[" expr_list_opt "]" { $$ = LIST($2, @$); }
-    | "[" expr_list "," "]" { $$ = LIST($2, @$); }
     | "{" expr_list "}" { $$ = SET($2, @$); }
     | "{" expr_list "," "}" { $$ = SET($2, @$); }
     | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
