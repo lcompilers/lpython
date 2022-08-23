@@ -3328,6 +3328,11 @@ public:
 
     void visit_Dict(const AST::Dict_t &x) {
         LFORTRAN_ASSERT(x.n_keys == x.n_values);
+        if( x.n_keys == 0 && ann_assign_target_type != nullptr ) {
+            tmp = ASR::make_DictConstant_t(al, x.base.base.loc, nullptr, 0,
+                                           nullptr, 0, ann_assign_target_type);
+            return ;
+        }
         Vec<ASR::expr_t*> keys;
         keys.reserve(al, x.n_keys);
         ASR::ttype_t* key_type = nullptr;
