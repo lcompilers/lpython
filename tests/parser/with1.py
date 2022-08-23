@@ -18,3 +18,6 @@ with open('examples/expr2.py', 'r') as file: x = file.read()
 with a, b, c as y, \
             z:
     pass
+
+with tag('x'):
+    pass
