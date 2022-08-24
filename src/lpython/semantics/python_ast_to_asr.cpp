@@ -4585,7 +4585,7 @@ public:
                     }
                     AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
                     std::string res = n->m_value;
-                    int ind = res.size()-1;
+                    int ind = (int)res.size() - 1;
                     while (ind >= 0 && res[ind] == ' '){
                         ind--;
                     }
@@ -4601,7 +4601,7 @@ public:
                     }
                     AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
                     std::string res = n->m_value;
-                    int ind = 0;
+                    size_t ind = 0;
                     while (ind < res.size() && res[ind] == ' ') {
                         ind++;
                     }
@@ -4617,8 +4617,9 @@ public:
                     }
                     AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
                     std::string res = n->m_value;
-                    int l = 0 ,r = res.size() - 1;
-                    while (l < res.size() && r >= 0 && (res[l] == ' ' || res[r] == ' ')) {
+                    size_t l = 0;
+                    int r = (int)res.size() - 1;
+                    while (l < res.size() && (int)r >= 0 && (res[l] == ' ' || res[r] == ' ')) {
                         l += res[l] == ' ';
                         r -= res[r] == ' ';
                     }
