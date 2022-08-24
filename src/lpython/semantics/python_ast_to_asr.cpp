@@ -2807,7 +2807,8 @@ public:
 
     BodyVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
          bool main_module, std::map<int, ASR::symbol_t*> &ast_overload)
-         : CommonVisitor(al, nullptr, diagnostics, main_module, ast_overload, ""), asr{unit} {}
+         : CommonVisitor(al, nullptr, diagnostics, main_module, ast_overload, ""), asr{unit}
+         {}
 
     // Transforms statements to a list of ASR statements
     // In addition, it also inserts the following nodes if needed:
@@ -2984,7 +2985,7 @@ public:
                 AST::Subscript_t *sb = AST::down_cast<AST::Subscript_t>(x.m_targets[i]);
                 if (AST::is_a<AST::Name_t>(*sb->m_value)) {
                     std::string name = AST::down_cast<AST::Name_t>(sb->m_value)->m_id;
-                    ASR::symbol_t *s = current_scope->get_symbol(name);
+                    ASR::symbol_t *s = current_scope->resolve_symbol(name);
                     if (!s) {
                         throw SemanticError("Variable: '" + name + "' is not declared",
                                 x.base.base.loc);
@@ -3152,7 +3153,8 @@ public:
     }
 
     ASR::expr_t* for_iterable_helper(std::string var_name, const Location& loc) {
-        auto loop_src_var_symbol = current_scope->get_symbol(var_name);
+        auto loop_src_var_symbol = current_scope->resolve_symbol(var_name);
+        LFORTRAN_ASSERT(loop_src_var_symbol!=nullptr);
         auto loop_src_var_ttype = ASRUtils::symbol_type(loop_src_var_symbol);
         auto int_type = ASR::make_Integer_t(al, loc, 4, nullptr, 0);
         // create a new variable called/named __explicit_iterator of type i32 and add it to symbol table
@@ -3245,7 +3247,7 @@ public:
                 loop_src_var_name = AST::down_cast<AST::Name_t>(sbt->m_value)->m_id;
                 visit_Subscript(*sbt);
                 ASR::expr_t *target = ASRUtils::EXPR(tmp);
-                auto loop_src_var_symbol = current_scope->get_symbol(loop_src_var_name);
+                auto loop_src_var_symbol = current_scope->resolve_symbol(loop_src_var_name);
                 auto loop_src_var_ttype = ASRUtils::symbol_type(loop_src_var_symbol);
                 std::string tmp_assign_name = current_scope->get_unique_name("__tmp_assign_for_loop");
                 auto tmp_assign_variable = ASR::make_Variable_t(al, sbt->base.base.loc, current_scope,
@@ -3285,7 +3287,7 @@ public:
             auto explicit_iter_var = ASR::make_Var_t(al, x.base.base.loc, current_scope->get_symbol("__explicit_iterator"));
             auto index_plus_one = ASR::make_IntegerBinOp_t(al, x.base.base.loc, ASRUtils::EXPR(explicit_iter_var),
                 ASR::binopType::Add, constant_one, a_type, nullptr);
-            auto loop_src_var = ASR::make_Var_t(al, x.base.base.loc, current_scope->get_symbol(loop_src_var_name));
+            auto loop_src_var = ASR::make_Var_t(al, x.base.base.loc, current_scope->resolve_symbol(loop_src_var_name));
             ASR::asr_t* loop_src_var_element = nullptr;
             if (ASR::is_a<ASR::StringLen_t>(*for_iter_type)) {
                 loop_src_var_element = ASR::make_StringItem_t(
@@ -3305,7 +3307,42 @@ public:
             head.m_v = target;
         }
 
+        SymbolTable *parent_scope = current_scope;
+        current_scope = al.make_new<SymbolTable>(parent_scope);
         transform_stmts(body, x.n_body, x.m_body);
+        int32_t total_syms = current_scope->get_scope().size();
+        for( auto& item: current_scope->get_scope() ) {
+            total_syms -= ASR::is_a<ASR::ExternalSymbol_t>(*item.second);
+        }
+        if( total_syms > 0 ) {
+            std::string name = parent_scope->get_unique_name("block");
+            ASR::asr_t* block = ASR::make_Block_t(al, x.base.base.loc,
+                                                current_scope, s2c(al, name),
+                                                body.p, body.size());
+            current_scope = parent_scope;
+            current_scope->add_symbol(name, ASR::down_cast<ASR::symbol_t>(block));
+            ASR::stmt_t* decls = ASRUtils::STMT(ASR::make_BlockCall_t(al, x.base.base.loc,  -1,
+                ASR::down_cast<ASR::symbol_t>(block)));
+            body.reserve(al, 1);
+            body.push_back(al, decls);
+        } else {
+            // Revert global counter as no variables
+            // were declared inside the loop so
+            // current_scope is not needed.
+            for( auto& item: current_scope->get_scope() ) {
+                if( !ASR::is_a<ASR::ExternalSymbol_t>(*item.second) ) {
+                    continue ;
+                }
+
+                ASR::ExternalSymbol_t* ext_sym = ASR::down_cast<ASR::ExternalSymbol_t>(item.second);
+                ASR::symbol_t* new_ext_sym = ASR::down_cast<ASR::symbol_t>(
+                    ASR::make_ExternalSymbol_t(al, ext_sym->base.base.loc, parent_scope, ext_sym->m_name,
+                            ext_sym->m_external, ext_sym->m_module_name, ext_sym->m_scope_names,
+                            ext_sym->n_scope_names, ext_sym->m_original_name, ext_sym->m_access));
+                parent_scope->add_symbol(item.first, new_ext_sym);
+            }
+            current_scope = parent_scope;
+        }
 
         if (loop_start) {
             head.m_start = loop_start;
@@ -3797,7 +3834,8 @@ public:
 
     void visit_Return(const AST::Return_t &x) {
         std::string return_var_name = "_lpython_return_variable";
-        if(current_scope->get_scope().find(return_var_name) == current_scope->get_scope().end()) {
+        ASR::symbol_t *return_var = current_scope->resolve_symbol(return_var_name);
+        if(!return_var) {
             if (x.m_value) {
                 throw SemanticError("Return type of function is not defined",
                                 x.base.base.loc);
@@ -3808,7 +3846,6 @@ public:
         }
         this->visit_expr(*x.m_value);
         ASR::expr_t *value = ASRUtils::EXPR(tmp);
-        ASR::symbol_t *return_var = current_scope->get_symbol(return_var_name);
         ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc, return_var);
         ASR::expr_t *target = ASRUtils::EXPR(return_var_ref);
         ASR::ttype_t *target_type = ASRUtils::expr_type(target);
@@ -3893,7 +3930,7 @@ public:
                 AST::Attribute_t *at = AST::down_cast<AST::Attribute_t>(c->m_func);
                 if (AST::is_a<AST::Name_t>(*at->m_value)) {
                     std::string value = AST::down_cast<AST::Name_t>(at->m_value)->m_id;
-                    ASR::symbol_t *t = current_scope->get_symbol(value);
+                    ASR::symbol_t *t = current_scope->resolve_symbol(value);
                     if (!t) {
                         throw SemanticError("'" + value + "' is not defined in the scope",
                             x.base.base.loc);
