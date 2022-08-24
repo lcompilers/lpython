@@ -4464,15 +4464,15 @@ public:
                 call_name = at->m_attr;
                 std::string call_name_store = "__" + mod_name + "_" + call_name;
                 ASR::symbol_t *st = nullptr;
-                if (current_scope->get_scope().find(call_name_store) != current_scope->get_scope().end()) {
+                if (current_scope->resolve_symbol(call_name_store) != nullptr) {
                     st = current_scope->get_symbol(call_name_store);
                 } else {
                     SymbolTable *symtab = current_scope;
                     while (symtab->parent != nullptr) symtab = symtab->parent;
-                    if (symtab->get_scope().find(mod_name) == symtab->get_scope().end()) {
-                        if (current_scope->get_scope().find(mod_name) != current_scope->get_scope().end()) {
+                    if (symtab->resolve_symbol(mod_name) == nullptr) {
+                        if (current_scope->resolve_symbol(mod_name) != nullptr) {
                             // this case when we have variable and attribute
-                            st = current_scope->get_symbol(mod_name);
+                            st = current_scope->resolve_symbol(mod_name);
                             Vec<ASR::expr_t*> eles;
                             eles.reserve(al, x.n_args);
                             for (size_t i=0; i<x.n_args; i++) {
