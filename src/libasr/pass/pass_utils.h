@@ -159,6 +159,12 @@ namespace LFortran {
                     transform_stmts(xx.m_body, xx.n_body);
                 }
 
+                void visit_Block(const ASR::Block_t& x) {
+                    ASR::Block_t &xx = const_cast<ASR::Block_t&>(x);
+                    current_scope = xx.m_symtab;
+                    transform_stmts(xx.m_body, xx.n_body);
+                }
+
         };
 
         template <class Derived>
