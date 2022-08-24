@@ -1019,6 +1019,7 @@ expr
     | KW_NONE { $$ = NONE(@$); }
     | TK_ELLIPSIS { $$ = ELLIPSIS(@$); }
     | "(" expr ")" { $$ = $2; }
+    | "(" yield_expr ")" { $$ = $2; }
     | "(" TK_TYPE_IGNORE expr ")" { $$ = $3; extract_type_comment(p, @$, $2); }
     | "(" ")" { $$ = TUPLE_EMPTY(@$); }
     | "(" expr_list "," ")" { $$ = TUPLE_03($2, @$); }
