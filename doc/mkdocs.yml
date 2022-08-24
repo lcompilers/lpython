@@ -10,6 +10,7 @@ nav:
         - developer_tutorial.md
         - AST and ASR.md
         - CONTRIBUTING.md
+        - rebasing.md
 
 # Until https://gitlab.com/lfortran/lfortran/issues/89 is fixed, we disable the
 # "Edit on GitLab" link:
