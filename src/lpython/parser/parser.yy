@@ -267,6 +267,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_arg> lambda_defparameter_list
 %type <ast> await_expr
 %type <ast> expr_or_await
+%type <ast> yield_expr
 
 // Precedence
 
@@ -403,6 +404,10 @@ yield_expr
     ;
 
 expr_or_await
+    : expr { $$ = $1; }
+    | await_expr { $$ = $1; }
+    ;
+
 expression_statment
     : tuple_list { $$ = EXPR_01($1, @$); }
     | await_expr { $$ = EXPR_01($1, @$); }
@@ -446,7 +451,7 @@ assignment_statement
     ;
 
 augassign_statement
-    : expr augassign_op expr { $$ = AUGASSIGN_01($1, $2, $3, @$); }
+    : expr augassign_op expr_or_await { $$ = AUGASSIGN_01($1, $2, $3, @$); }
     ;
 
 augassign_op
@@ -841,13 +846,13 @@ primary
     ;
 
 comp_for
-    : KW_FOR id_list KW_IN expr {
+    : KW_FOR id_list KW_IN expr_or_await {
         $$ = COMP_FOR_01(ID_TUPLE_01($2, @$), $4, @$); }
-    | KW_FOR id_list "," KW_IN expr {
+    | KW_FOR id_list "," KW_IN expr_or_await {
         $$ = COMP_FOR_01(ID_TUPLE_03($2, @$), $5, @$); }
-    | KW_FOR id_list KW_IN expr KW_IF expr {
+    | KW_FOR id_list KW_IN expr KW_IF expr_or_await {
         $$ = COMP_FOR_02(ID_TUPLE_01($2, @$), $4, $6, @$); }
-    | KW_FOR id_list "," KW_IN expr KW_IF expr {
+    | KW_FOR id_list "," KW_IN expr KW_IF expr_or_await {
         $$ = COMP_FOR_02(ID_TUPLE_03($2, @$), $5, $7, @$); }
     ;
 
@@ -995,9 +1000,10 @@ lambda_expression
     ;
 
 comprehension
-    : "[" expr comp_for_items "]" { $$ = LIST_COMP_1($2, $3, @$); }
-    | "{" expr comp_for_items "}" { $$ = SET_COMP_1($2, $3, @$); }
-    | "{" expr ":" expr comp_for_items "}" { $$ = DICT_COMP_1($2, $4, $5, @$); }
+    : "[" expr_or_await comp_for_items "]" { $$ = LIST_COMP_1($2, $3, @$); }
+    | "{" expr_or_await comp_for_items "}" { $$ = SET_COMP_1($2, $3, @$); }
+    | "{" expr ":" expr_or_await comp_for_items "}" {
+        $$ = DICT_COMP_1($2, $4, $5, @$); }
     | "(" expr comp_for_items ")" { $$ = COMP_EXPR_1($2, $3, @$); }
     ;
 
