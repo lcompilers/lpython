@@ -622,6 +622,7 @@ with_as_items
     | "(" expr_list "," expr KW_AS expr_list comma_opt ")" {
         $$ = withitem_to_list(p.m_a, WITH_ITEM_01(TUPLE_01(TUPLE_($2, $4), @$),
                               TUPLE_01($6, @$), @$)); }
+    | await_expr { $$ = withitem_to_list(p.m_a, WITH_ITEM_02($1, @$));}
     ;
 
 with_statement
