@@ -265,6 +265,8 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <args_> lambda_parameter_list_no_posonly
 %type <var_kw> lambda_parameter_list_starargs
 %type <vec_arg> lambda_defparameter_list
+%type <ast> await_expr
+%type <ast> expr_or_await
 
 // Precedence
 
@@ -390,12 +392,21 @@ multi_line_statement
     | while_statement
     ;
 
+await_expr
+    : KW_AWAIT tuple_list { $$ = AWAIT($2, @$); }
+    ;
+
+yield_expr
+    : KW_YIELD { $$ = YIELD_01(@$); }
+    | KW_YIELD tuple_list { $$ = YIELD_02($2, @$); }
+    | KW_YIELD_FROM tuple_list { $$ = YIELD_03($2, @$); }
+    ;
+
+expr_or_await
 expression_statment
     : tuple_list { $$ = EXPR_01($1, @$); }
-    | KW_AWAIT tuple_list { $$ = EXPR_01(AWAIT($2, @$), @$); }
-    | KW_YIELD { $$ = EXPR_01(YIELD_01(@$), @$); }
-    | KW_YIELD tuple_list { $$ = EXPR_01(YIELD_02($2, @$), @$); }
-    | KW_YIELD_FROM tuple_list { $$ = EXPR_01(YIELD_03($2, @$), @$); }
+    | await_expr { $$ = EXPR_01($1, @$); }
+    | yield_expr { $$ = EXPR_01($1, @$); }
     ;
 
 pass_statement
