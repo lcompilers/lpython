@@ -225,6 +225,29 @@ R"(#include <stdio.h>
         indentation_level -= 2;
     }
 
+    void visit_BlockCall(const ASR::BlockCall_t &x) {
+        LFORTRAN_ASSERT(ASR::is_a<ASR::Block_t>(*x.m_m));
+        ASR::Block_t* block = ASR::down_cast<ASR::Block_t>(x.m_m);
+        std::string decl, body;
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string open_paranthesis = indent + "{\n";
+        std::string close_paranthesis = indent + "}\n";
+        indent += std::string(indentation_spaces, ' ');
+        indentation_level += 1;
+        for (auto &item : block->m_symtab->get_scope()) {
+            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
+                decl += indent + self().convert_variable_decl(*v) + ";\n";
+            }
+        }
+        for (size_t i=0; i<block->n_body; i++) {
+            self().visit_stmt(*block->m_body[i]);
+            body += src;
+        }
+        src = open_paranthesis + decl + body + close_paranthesis;
+        indentation_level -= 1;
+    }
+
     // Returns the declaration, no semi colon at the end
     std::string get_function_declaration(const ASR::Function_t &x) {
         template_for_Kokkos.clear();
@@ -806,7 +829,7 @@ R"(#include <stdio.h>
                 }
                 return;
             }
-            default: throw CodeGenError("BinOp: operator not implemented yet");
+            default: throw CodeGenError("BinOp: " + std::to_string(x.m_op) + " operator not implemented yet");
         }
         src = "";
         if (left_precedence == 3) {

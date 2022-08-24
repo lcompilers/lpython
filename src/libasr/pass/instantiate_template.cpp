@@ -8,12 +8,12 @@ namespace LFortran {
 
 class FunctionInstantiator : public ASR::BaseExprStmtDuplicator<FunctionInstantiator>
 {
-public: 
+public:
     SymbolTable *current_scope;
     std::map<std::string, ASR::ttype_t*> subs;
     std::string new_func_name;
 
-    FunctionInstantiator(Allocator &al, std::map<std::string, ASR::ttype_t*> subs, 
+    FunctionInstantiator(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,
             SymbolTable *current_scope, std::string new_func_name):
         BaseExprStmtDuplicator(al),
         current_scope{current_scope},
@@ -67,15 +67,15 @@ public:
                 return_var->m_presence, return_var->m_value_attr);
             current_scope->add_symbol(return_var_name, ASR::down_cast<ASR::symbol_t>(new_return_var));
             new_return_var_ref = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc,
-                current_scope->get_symbol(return_var_name)));   
+                current_scope->get_symbol(return_var_name)));
         }
 
         // Rebuild the symbol table
         for (auto const &sym_pair: x.m_symtab->get_scope()) {
             if (current_scope->resolve_symbol(sym_pair.first) == nullptr) {
                 ASR::symbol_t *sym = sym_pair.second;
-                ASR::ttype_t *new_sym_type = substitute_type(ASRUtils::symbol_type(sym));
                 if (ASR::is_a<ASR::Variable_t>(*sym)) {
+                    ASR::ttype_t *new_sym_type = substitute_type(ASRUtils::symbol_type(sym));
                     ASR::Variable_t *var_sym = ASR::down_cast<ASR::Variable_t>(sym);
                     std::string var_sym_name = var_sym->m_name;
                     ASR::asr_t *new_var = ASR::make_Variable_t(al, var_sym->base.base.loc,
@@ -129,7 +129,7 @@ public:
     ASR::asr_t* duplicate_ArrayItem(ASR::ArrayItem_t *x) {
         ASR::expr_t *m_v = duplicate_expr(x->m_v);
         ASR::expr_t *m_value = duplicate_expr(x->m_value);
-        
+
         Vec<ASR::array_index_t> args;
         args.reserve(al, x->n_args);
         for (size_t i=0; i<x->n_args; i++) {
@@ -147,7 +147,7 @@ public:
         ASR::ttype_t *type = substitute_type(x->m_type);
         ASR::expr_t *m_value = duplicate_expr(x->m_value);
 
-        return ASR::make_ListItem_t(al, x->base.base.loc, 
+        return ASR::make_ListItem_t(al, x->base.base.loc,
             m_a, m_pos, type, m_value);
     }
 
@@ -169,7 +169,7 @@ public:
         if (ASRUtils::is_real(*target_type) && ASR::is_a<ASR::IntegerConstant_t>(*x->m_value)) {
             ASR::IntegerConstant_t *int_value = ASR::down_cast<ASR::IntegerConstant_t>(x->m_value);
             if (int_value->m_n == 0) {
-                value = ASRUtils::EXPR(ASR::make_RealConstant_t(al, value->base.loc, 0, 
+                value = ASRUtils::EXPR(ASR::make_RealConstant_t(al, value->base.loc, 0,
                     ASRUtils::duplicate_type(al, target_type)));
             }
         }
@@ -181,7 +181,7 @@ public:
         ASR::expr_t *left = duplicate_expr(x->m_left);
         ASR::expr_t *right = duplicate_expr(x->m_right);
 
-        return make_BinOp_helper(left, right, x->m_op, x->base.base.loc); 
+        return make_BinOp_helper(left, right, x->m_op, x->base.base.loc);
     }
 
     ASR::asr_t* duplicate_DoLoop(ASR::DoLoop_t *x) {
@@ -205,13 +205,13 @@ public:
         if (ASRUtils::is_real(*type)) {
             return (ASR::asr_t*) arg;
         }
-        return ASRUtils::make_Cast_t_value(al, x->base.base.loc, arg, ASR::cast_kindType::IntegerToReal, x->m_type); 
+        return ASRUtils::make_Cast_t_value(al, x->base.base.loc, arg, ASR::cast_kindType::IntegerToReal, x->m_type);
     }
 
     ASR::ttype_t* substitute_type(ASR::ttype_t *param_type) {
         if (ASR::is_a<ASR::List_t>(*param_type)) {
             ASR::List_t *tlist = ASR::down_cast<ASR::List_t>(param_type);
-            return ASRUtils::TYPE(ASR::make_List_t(al, param_type->base.loc, 
+            return ASRUtils::TYPE(ASR::make_List_t(al, param_type->base.loc,
                 substitute_type(tlist->m_type)));
         }
         if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
@@ -227,19 +227,19 @@ public:
                     ASR::Real_t* tnew = ASR::down_cast<ASR::Real_t>(t);
                     return ASRUtils::TYPE(ASR::make_Real_t(al, t->base.loc,
                             tnew->m_kind, param->m_dims, param->n_dims));
-                }                  
+                }
                 case ASR::ttypeType::Character: {
                     ASR::Character_t* tnew = ASR::down_cast<ASR::Character_t>(t);
                     return ASRUtils::TYPE(ASR::make_Character_t(al, t->base.loc,
                                 tnew->m_kind, tnew->m_len, tnew->m_len_expr,
                                 param->m_dims, param->n_dims));
-                }            
-                default: return subs[param->m_param];                          
+                }
+                default: return subs[param->m_param];
             }
         }
         return param_type;
-    }    
-    
+    }
+
     // Commented out part is not yet considered for generic functions
     ASR::asr_t* make_BinOp_helper(ASR::expr_t *left, ASR::expr_t *right,
             ASR::binopType op, const Location &loc) {
@@ -336,9 +336,9 @@ public:
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(al, loc, result, dest_type));
             }
             return ASR::make_RealBinOp_t(al, loc, left, op, right, dest_type, value);
-        }  
+        }
 
-        return nullptr;      
+        return nullptr;
     }
 
     ASR::expr_t *cast_helper(ASR::ttype_t *left_type, ASR::expr_t *right,
@@ -354,7 +354,7 @@ public:
             }
         }
         return right;
-    }    
+    }
 };
 
 ASR::symbol_t* pass_instantiate_generic_function(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,
