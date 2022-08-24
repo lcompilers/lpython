@@ -588,7 +588,7 @@ namespace LFortran {
         llvm::Value* capacity, llvm::Value* key_hash,
         llvm::Value* key, llvm::Value* key_list,
         llvm::Value* key_mask, llvm::Module& module,
-        ASR::ttype_t* key_asr_type, bool /*for_read*/) {
+        ASR::ttype_t* key_asr_type, bool for_read) {
         if( !are_iterators_set ) {
             pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
             is_key_matching_var = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
@@ -605,9 +605,11 @@ namespace LFortran {
         llvm_utils->start_new_block(loophead);
         {
             llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
-            llvm::Value* is_key_set = LLVM::CreateLoad(*builder,
-                                        llvm_utils->create_ptr_gep(key_mask, pos));
-            is_key_set = builder->CreateICmpNE(is_key_set,
+            llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
+                llvm_utils->create_ptr_gep(key_mask, pos));
+            llvm::Value* is_key_skip = builder->CreateICmpEQ(key_mask_value,
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 3)));
+            llvm::Value* is_key_set = builder->CreateICmpNE(key_mask_value,
                 llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 0)));
             llvm::Value* is_key_matching = llvm::ConstantInt::get(llvm::Type::getInt1Ty(context),
                                                                   llvm::APInt(1, 0));
@@ -616,7 +618,9 @@ namespace LFortran {
             llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
             llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
             llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-            builder->CreateCondBr(is_key_set, thenBB, elseBB);
+            llvm::Value* compare_keys = builder->CreateAnd(is_key_set,
+                                            builder->CreateNot(is_key_skip));
+            builder->CreateCondBr(compare_keys, thenBB, elseBB);
             builder->SetInsertPoint(thenBB);
             {
                 llvm::Value* original_key = llvm_utils->list_api->read_item(key_list, pos,
@@ -635,8 +639,16 @@ namespace LFortran {
             // load factor touches a threshold (which will always be less than 1)
             // so there will be some key which will not be set. However for safety
             // we can add an exit from the loop with a error message.
-            llvm::Value *cond = builder->CreateAnd(is_key_set, builder->CreateNot(
-                                    LLVM::CreateLoad(*builder, is_key_matching_var)));
+            llvm::Value *cond = nullptr;
+            if( for_read ) {
+                cond = builder->CreateAnd(is_key_set, builder->CreateNot(
+                            LLVM::CreateLoad(*builder, is_key_matching_var)));
+                cond = builder->CreateOr(is_key_skip, cond);
+            } else {
+                cond = builder->CreateAnd(is_key_set, builder->CreateNot(is_key_skip));
+                cond = builder->CreateAnd(cond, builder->CreateNot(
+                            LLVM::CreateLoad(*builder, is_key_matching_var)));
+            }
             builder->CreateCondBr(cond, loopbody, loopend);
         }
 
@@ -681,9 +693,11 @@ namespace LFortran {
         llvm_utils->start_new_block(loophead);
         {
             llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
-            llvm::Value* is_key_set = LLVM::CreateLoad(*builder,
-                                        llvm_utils->create_ptr_gep(key_mask, pos));
-            is_key_set = builder->CreateICmpNE(is_key_set,
+            llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
+                llvm_utils->create_ptr_gep(key_mask, pos));
+            llvm::Value* is_key_skip = builder->CreateICmpEQ(key_mask_value,
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 3)));
+            llvm::Value* is_key_set = builder->CreateICmpNE(key_mask_value,
                 llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 0)));
             llvm::Value* is_key_matching = llvm::ConstantInt::get(llvm::Type::getInt1Ty(context),
                                                                 llvm::APInt(1, 0));
@@ -692,7 +706,9 @@ namespace LFortran {
             llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
             llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
             llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-            builder->CreateCondBr(is_key_set, thenBB, elseBB);
+            llvm::Value* compare_keys = builder->CreateAnd(is_key_set,
+                                            builder->CreateNot(is_key_skip));
+            builder->CreateCondBr(compare_keys, thenBB, elseBB);
             builder->SetInsertPoint(thenBB);
             {
                 llvm::Value* original_key = llvm_utils->list_api->read_item(key_list, pos,
@@ -710,8 +726,16 @@ namespace LFortran {
             // load factor touches a threshold (which will always be less than 1)
             // so there will be some key which will not be set. However for safety
             // we can add an exit from the loop with a error message.
-            llvm::Value *cond = builder->CreateAnd(is_key_set, builder->CreateNot(
-                LLVM::CreateLoad(*builder, is_key_matching_var)));
+            llvm::Value *cond = nullptr;
+            if( for_read ) {
+                cond = builder->CreateAnd(is_key_set, builder->CreateNot(
+                            LLVM::CreateLoad(*builder, is_key_matching_var)));
+                cond = builder->CreateOr(is_key_skip, cond);
+            } else {
+                cond = builder->CreateAnd(is_key_set, builder->CreateNot(is_key_skip));
+                cond = builder->CreateAnd(cond, builder->CreateNot(
+                            LLVM::CreateLoad(*builder, is_key_matching_var)));
+            }
             builder->CreateCondBr(cond, loopbody, loopend);
         }
 
@@ -1025,6 +1049,38 @@ namespace LFortran {
         if( get_pointer ) {
             return value_ptr;
         }
+        return LLVM::CreateLoad(*builder, value_ptr);
+    }
+
+    llvm::Value* LLVMDict::pop_item(llvm::Value* dict, llvm::Value* key,
+        llvm::Module& module, ASR::Dict_t* dict_type,
+        bool get_pointer) {
+        llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
+        llvm::Value* key_hash = get_key_hash(current_capacity, key, dict_type->m_key_type, module);
+        llvm::Value* value_ptr = this->resolve_collision_for_read(dict, key_hash, key, module,
+                                                                  dict_type->m_key_type);
+        llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
+        llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
+        llvm::Value* key_mask_i = llvm_utils->create_ptr_gep(key_mask, pos);
+        llvm::Value* tombstone_marker = llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 3));
+        LLVM::CreateStore(*builder, tombstone_marker, key_mask_i);
+
+        llvm::Value* occupancy_ptr = get_pointer_to_occupancy(dict);
+        llvm::Value* occupancy = LLVM::CreateLoad(*builder, occupancy_ptr);
+        occupancy = builder->CreateSub(occupancy, llvm::ConstantInt::get(
+                        llvm::Type::getInt32Ty(context), llvm::APInt(32, 1)));
+        LLVM::CreateStore(*builder, occupancy, occupancy_ptr);
+
+        if( get_pointer ) {
+            std::string key_type_code = ASRUtils::get_type_code(dict_type->m_key_type);
+            std::string value_type_code = ASRUtils::get_type_code(dict_type->m_value_type);
+            llvm::Type* llvm_value_type = std::get<2>(typecode2dicttype[std::make_pair(
+                key_type_code, value_type_code)]).second;
+            llvm::Value* return_ptr = builder->CreateAlloca(llvm_value_type, nullptr);
+            LLVM::CreateStore(*builder, LLVM::CreateLoad(*builder, value_ptr), return_ptr);
+            return return_ptr;
+        }
+
         return LLVM::CreateLoad(*builder, value_ptr);
     }
 
