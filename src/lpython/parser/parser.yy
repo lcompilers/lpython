@@ -477,6 +477,8 @@ delete_statement
 return_statement
     : KW_RETURN { $$ = RETURN_01(@$); }
     | KW_RETURN tuple_list { $$ = RETURN_02($2, @$); }
+    | KW_RETURN await_expr { $$ = RETURN_02($2, @$); }
+    | KW_RETURN yield_expr { $$ = RETURN_02($2, @$); }
     ;
 
 module
