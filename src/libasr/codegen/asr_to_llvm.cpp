@@ -1294,6 +1294,23 @@ public:
                                   LLVM::is_llvm_struct(dict_type->m_value_type));
     }
 
+    void visit_DictPop(const ASR::DictPop_t& x) {
+        ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(
+                                    ASRUtils::expr_type(x.m_a));
+        uint64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_a);
+        llvm::Value* pdict = tmp;
+
+        ptr_loads = !LLVM::is_llvm_struct(dict_type->m_key_type);
+        this->visit_expr_wrapper(x.m_key, true);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value *key = tmp;
+
+        tmp = dict_api->pop_item(pdict, key, *module, dict_type,
+                                 LLVM::is_llvm_struct(dict_type->m_value_type));
+    }
+
     void visit_ListLen(const ASR::ListLen_t& x) {
         if (x.m_value) {
             this->visit_expr(*x.m_value);

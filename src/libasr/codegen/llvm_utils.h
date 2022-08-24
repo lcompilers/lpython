@@ -290,6 +290,10 @@ namespace LFortran {
                                    llvm::Module& module, ASR::ttype_t* key_asr_type,
                                    bool get_pointer=false);
 
+            llvm::Value* pop_item(llvm::Value* dict, llvm::Value* key,
+                                   llvm::Module& module, ASR::Dict_t* dict_type,
+                                   bool get_pointer=false);
+
             llvm::Value* get_pointer_to_keymask(llvm::Value* dict);
 
             void set_iterators();
