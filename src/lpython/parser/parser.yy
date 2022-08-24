@@ -439,6 +439,8 @@ target_list
 
 assignment_statement
     : target_list tuple_list { $$ = ASSIGNMENT($1, $2, @$); }
+    | target_list await_expr { $$ = ASSIGNMENT($1, $2, @$); }
+    | target_list yield_expr { $$ = ASSIGNMENT($1, $2, @$); }
     | target_list tuple_list TK_TYPE_COMMENT {
         $$ = ASSIGNMENT2($1, $2, $3, @$); }
     ;
