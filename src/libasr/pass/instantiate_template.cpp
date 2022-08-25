@@ -109,7 +109,7 @@ public:
             body.p, body.size(),
             new_return_var_ref,
             func_abi, func_access, func_deftype, bindc_name,
-            false, false, false);
+            false, false, false, x.m_inline);
 
         ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(result);
         parent_scope->add_symbol(new_func_name, t);

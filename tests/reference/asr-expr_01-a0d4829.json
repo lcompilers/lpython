@@ -1,0 +1,13 @@
+{
+    "basename": "asr-expr_01-a0d4829",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/expr_01.py",
+    "infile_hash": "d9a85a1c6bc50a17c74af218dcd9ee87047b4c3f3bc54f699810d339",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-expr_01-a0d4829.stdout",
+    "stdout_hash": "3b7c5a7a71d5398c67c630cb06af463e785676b02a2cfb077e290500",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

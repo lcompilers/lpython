@@ -132,7 +132,7 @@ public:
             s->m_name, a_args.p, a_args.size(), nullptr, 0, s->m_body, s->n_body,
             nullptr,
             s->m_abi, s->m_access, s->m_deftype, nullptr, false, false,
-            false);
+            false, s->m_inline);
         ASR::symbol_t* s_sub = ASR::down_cast<ASR::symbol_t>(s_sub_asr);
         return s_sub;
     }
