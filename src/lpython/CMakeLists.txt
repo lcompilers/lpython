@@ -22,7 +22,12 @@ if (WITH_XEUS)
     )
 endif()
 add_library(lpython_lib ${SRC})
-target_link_libraries(lpython_lib asr lpython_runtime_static ZLIB::ZLIB)
+target_link_libraries(lpython_lib asr lpython_runtime_static)
+
+if (WITH_ZLIB)
+    target_link_libraries(lpython_lib ZLIB::ZLIB)
+endif()
+
 target_include_directories(lpython_lib BEFORE PUBLIC ${lpython_SOURCE_DIR}/src)
 target_include_directories(lpython_lib BEFORE PUBLIC ${lpython_BINARY_DIR}/src)
 if (WITH_XEUS)
