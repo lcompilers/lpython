@@ -50,11 +50,11 @@ class SupportsPlus:
 
 class SupportsZero:
     def __init__(self):
-        pass  
+        pass
 
 class Divisible:
     def __init__(self):
-        pass    
+        pass
 
 
 # Overloading support
@@ -120,6 +120,10 @@ def overload(f):
 
 # To be handled in ASR
 def vectorize(f):
+    return f
+
+# To be handled in ASR
+def inline(f):
     return f
 
 def interface(f):

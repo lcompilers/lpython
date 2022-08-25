@@ -2397,7 +2397,7 @@ public:
         bool overload = false;
         Vec<ASR::ttype_t*> tps;
         tps.reserve(al, x.m_args.n_args);
-        bool vectorize = false;
+        bool vectorize = false, is_inline = false;
         if (x.n_decorator_list > 0) {
             for(size_t i=0; i<x.n_decorator_list; i++) {
                 AST::expr_t *dec = x.m_decorator_list[i];
@@ -2414,6 +2414,8 @@ public:
                         // TODO: Implement @interface
                     } else if (name == "vectorize") {
                         vectorize = true;
+                    } else if (name == "inline") {
+                        is_inline = true;
                     } else {
                         throw SemanticError("Decorator: " + name + " is not supported",
                             x.base.base.loc);
@@ -2529,7 +2531,7 @@ public:
                     /* n_body */ 0,
                     /* a_return_var */ ASRUtils::EXPR(return_var_ref),
                     current_procedure_abi_type,
-                    s_access, deftype, bindc_name, vectorize, false, false);
+                    s_access, deftype, bindc_name, vectorize, false, false, is_inline);
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
                     x.m_returns->base.loc);
@@ -2549,7 +2551,7 @@ public:
                 nullptr,
                 current_procedure_abi_type,
                 s_access, deftype, bindc_name,
-                false, is_pure, is_module);
+                false, is_pure, is_module, is_inline);
         }
         ASR::symbol_t * t = ASR::down_cast<ASR::symbol_t>(tmp);
         parent_scope->add_symbol(sym_name, t);

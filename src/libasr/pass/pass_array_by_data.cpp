@@ -135,7 +135,7 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
                                             new_args.size(), nullptr, 0, new_body.p, new_body.size(),
                                             return_var, x->m_abi, x->m_access, x->m_deftype,
                                             s2c(al, new_bindc_name), x->m_elemental,
-                                            x->m_pure, x->m_module);
+                                            x->m_pure, x->m_module, x->m_inline);
                 new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
             }
             current_scope->add_symbol(new_name, new_symbol);
