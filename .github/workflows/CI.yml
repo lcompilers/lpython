@@ -158,6 +158,7 @@ jobs:
         run: |
             set -ex
             source $HOME/ext/emsdk/emsdk_env.sh # Activate Emscripten
+            ./build0.sh
             ./build_to_wasm.sh
 
       - name: Test built lpython.wasm
