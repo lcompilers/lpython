@@ -14,6 +14,8 @@
 #include <libasr/codegen/asr_to_c.h>
 #include <libasr/codegen/asr_to_py.h>
 #include <libasr/codegen/asr_to_x86.h>
+#include <libasr/codegen/asr_to_wasm.h>
+#include <libasr/codegen/wasm_to_wat.h>
 #include <lpython/python_evaluator.h>
 #include <libasr/codegen/evaluator.h>
 #include <libasr/pass/pass_manager.h>
@@ -257,6 +259,54 @@ int emit_c(const std::string &infile,
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 3;
+    }
+    std::cout << res.result;
+    return 0;
+}
+
+int emit_wat(const std::string &infile,
+    const std::string &runtime_library_dir,
+    CompilerOptions &compiler_options)
+{
+    Allocator al(4*1024);
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    std::string input = LFortran::read_file(infile);
+    lm.init_simple(input);
+    LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
+        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r.ok) {
+        return 1;
+    }
+    LFortran::LPython::AST::ast_t* ast = r.result;
+
+    diagnostics.diagnostics.clear();
+    LFortran::Result<LFortran::ASR::TranslationUnit_t*>
+        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
+            compiler_options.disable_main, compiler_options.symtab_only, infile);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r1.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        return 2;
+    }
+    LFortran::ASR::TranslationUnit_t* asr = r1.result;
+
+    diagnostics.diagnostics.clear();
+    LFortran::Result<LFortran::Vec<uint8_t>> r2 = LFortran::asr_to_wasm_bytes_stream(*asr, al, diagnostics);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r2.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        return 3;
+    }
+
+    diagnostics.diagnostics.clear();
+    LFortran::Result<std::string> res = LFortran::wasm_to_wat(r2.result, al, diagnostics);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!res.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        return 4;
     }
     std::cout << res.result;
     return 0;
@@ -792,6 +842,7 @@ int main(int argc, char *argv[])
         bool arg_no_color = false;
         bool show_llvm = false;
         bool show_asm = false;
+        bool show_wat = false;
         bool time_report = false;
         bool static_link = false;
         std::string arg_backend = "llvm";
@@ -844,6 +895,7 @@ int main(int argc, char *argv[])
         app.add_flag("--show-cpp", show_cpp, "Show C++ translation source for the given python file and exit");
         app.add_flag("--show-c", show_c, "Show C translation source for the given python file and exit");
         app.add_flag("--show-asm", show_asm, "Show assembly for the given file and exit");
+        app.add_flag("--show-wat", show_wat, "Show WAT (WebAssembly Text Format) and exit");
         app.add_flag("--show-stacktrace", compiler_options.show_stacktrace, "Show internal stacktrace on compiler errors");
         app.add_flag("--with-intrinsic-mods", with_intrinsic_modules, "Show intrinsic modules in ASR");
         app.add_flag("--no-color", arg_no_color, "Turn off colored AST/ASR");
@@ -1002,6 +1054,8 @@ int main(int argc, char *argv[])
             outfile = basename + ".asr";
         } else if (show_llvm) {
             outfile = basename + ".ll";
+        } else if (show_wat) {
+            outfile = basename + ".wat";
         } else {
             outfile = "a.out";
         }
@@ -1026,6 +1080,9 @@ int main(int argc, char *argv[])
         }
         if (show_c) {
             return emit_c(arg_file, runtime_library_dir, compiler_options);
+        }
+        if (show_wat) {
+            return emit_wat(arg_file, runtime_library_dir, compiler_options);
         }
         if (show_document_symbols) {
 #ifdef HAVE_LFORTRAN_RAPIDJSON
