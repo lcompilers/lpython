@@ -277,7 +277,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %left "and"
 %precedence "not"
 %left "==" "!=" ">=" ">" "<=" "<" "is not" "is" "not in" "in"
-%left KW_IF KW_ELSE
 %precedence FOR
 %left "|"
 %left "^"
@@ -412,6 +411,7 @@ expression_statment
     : tuple_list { $$ = EXPR_01($1, @$); }
     | await_expr { $$ = EXPR_01($1, @$); }
     | yield_expr { $$ = EXPR_01($1, @$); }
+    | ternary_if_statement { $$ = EXPR_01($1, @$); }
     ;
 
 pass_statement
@@ -446,6 +446,7 @@ assignment_statement
     : target_list tuple_list { $$ = ASSIGNMENT($1, $2, @$); }
     | target_list await_expr { $$ = ASSIGNMENT($1, $2, @$); }
     | target_list yield_expr { $$ = ASSIGNMENT($1, $2, @$); }
+    | target_list ternary_if_statement { $$ = ASSIGNMENT($1, $2, @$); }
     | target_list tuple_list TK_TYPE_COMMENT {
         $$ = ASSIGNMENT2($1, $2, $3, @$); }
     ;
@@ -1074,7 +1075,6 @@ expr
     | "not" expr { $$ = UNARY($2, Not, @$); }
 
     | comprehension { $$ = $1; }
-    | ternary_if_statement { $$ = $1; }
     | lambda_expression { $$ = $1; }
     ;
 
