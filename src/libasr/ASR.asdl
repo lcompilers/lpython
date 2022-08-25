@@ -87,7 +87,7 @@ symbol
     | Function(symbol_table symtab, identifier name, expr* args,
         ttype* type_params, stmt* body, expr? return_var, abi abi,
         access access, deftype deftype, string? bindc_name, bool elemental,
-        bool pure, bool module)
+        bool pure, bool module, bool inline)
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
     | CustomOperator(symbol_table parent_symtab, identifier name,
