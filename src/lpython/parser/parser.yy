@@ -257,6 +257,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> id_item
 %type <ast> subscript
 %type <comp> comp_for
+%type <vec_ast> comp_if_items
 %type <vec_comp> comp_for_items
 %type <ast> lambda_expression
 %type <args> lambda_parameter_list_opt
@@ -847,15 +848,20 @@ primary
     | expr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
     ;
 
+comp_if_items
+    : comp_if_items KW_IF expr_or_await { $$ = $1; LIST_ADD($$, $3); }
+    | KW_IF expr_or_await { LIST_NEW($$); LIST_ADD($$, $2); }
+    ;
+
 comp_for
     : KW_FOR id_list KW_IN expr_or_await {
         $$ = COMP_FOR_01(ID_TUPLE_01($2, @$), $4, @$); }
     | KW_FOR id_list "," KW_IN expr_or_await {
         $$ = COMP_FOR_01(ID_TUPLE_03($2, @$), $5, @$); }
-    | KW_FOR id_list KW_IN expr KW_IF expr_or_await {
-        $$ = COMP_FOR_02(ID_TUPLE_01($2, @$), $4, $6, @$); }
-    | KW_FOR id_list "," KW_IN expr KW_IF expr_or_await {
-        $$ = COMP_FOR_02(ID_TUPLE_03($2, @$), $5, $7, @$); }
+    | KW_FOR id_list KW_IN expr comp_if_items {
+        $$ = COMP_FOR_02(ID_TUPLE_01($2, @$), $4, $5, @$); }
+    | KW_FOR id_list "," KW_IN expr comp_if_items {
+        $$ = COMP_FOR_02(ID_TUPLE_03($2, @$), $5, $6, @$); }
     ;
 
 comp_for_items

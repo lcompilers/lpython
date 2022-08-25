@@ -876,7 +876,7 @@ static inline comprehension_t *COMP(Allocator &al, Location &l,
         EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), nullptr, 0, 0)
 #define COMP_FOR_02(target, iter, ifs, l) COMP(p.m_a, l, \
         EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
-        EXPRS(A2LIST(p.m_a, ifs)), 1, 0)
+        EXPRS(ifs), ifs.size(), 0)
 
 #define GENERATOR_EXPR(elt, generators, l) make_GeneratorExp_t(p.m_a, l, \
         EXPR(elt), generators.p, generators.n)
