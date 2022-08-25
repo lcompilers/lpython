@@ -17,6 +17,7 @@ namespace LFortran {
 
 void get_executable_path(std::string &executable_path, int &dirname_length)
 {
+#ifdef HAVE_WHEREAMI
     int length;
 
     length = wai_getExecutablePath(NULL, 0, &dirname_length);
@@ -30,6 +31,10 @@ void get_executable_path(std::string &executable_path, int &dirname_length)
     } else {
         throw LCompilersException("Cannot determine executable path.");
     }
+#else
+    executable_path = "src/bin/lpython.js";
+    dirname_length = 7;
+#endif
 }
 
 std::string get_runtime_library_dir()

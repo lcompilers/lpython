@@ -10,9 +10,12 @@ set(SRC
     python_serialization.cpp
 
     utils.cpp
-
-    ../bin/tpl/whereami/whereami.cpp
 )
+
+if (WITH_WHEREAMI)
+    set(SRC ${SRC} ../bin/tpl/whereami/whereami.cpp)
+endif()
+
 if (WITH_XEUS)
     set(SRC ${SRC}
 #        fortran_kernel.cpp
