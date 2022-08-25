@@ -57,9 +57,13 @@ void lex_dec_int_large(Allocator &al, const unsigned char *s,
     u.from_largeint(al, num);
 }
 
+const char *remove_underscore(std::string s) {
+    s.erase(remove(s.begin(), s.end(), '_'), s.end());
+    return s.c_str();
+}
 
 uint64_t get_value(char *s, int base, const Location &loc) {
-    std::string str(s);
+    std::string str(remove_underscore(s));
     uint64_t n;
     try {
         n = std::stoull(str, nullptr, base);
@@ -167,7 +171,6 @@ void Tokenizer::record_paren(Location &loc, char c) {
 #define KW(x) token(yylval.string); RET(KW_##x);
 #define RET(x) token_loc(loc); last_token=yytokentype::x; return yytokentype::x;
 
-
 int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnostics &/*diagnostics*/)
 {
     if(dedent == 1) {
@@ -264,17 +267,17 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             whitespace = [ \t\v\r]+;
             newline = "\n";
             digit = [0-9];
-            int_oct = "0"[oO][0-7]+;
-            int_bin = "0"[bB][01]+;
-            int_hex = "0"[xX][0-9a-fA-F]+;
-            int_dec = digit+ (digit | "_" digit)*;
+            int_oct = "0"[oO]([0-7] | "_" [0-7])+;
+            int_bin = "0"[bB]([01] | "_" [01])+;
+            int_hex = "0"[xX]([0-9a-fA-F] | "_" [0-9a-fA-F])+;
+            digits = digit+ (digit | "_" digit)*;
             char =  [^\x00-\x7F]|[a-zA-Z_];
             name = char (char | digit)*;
-            significand = (digit+ "." digit*) | ("." digit+);
-            exp = [eE][-+]? digit+;
-            integer = int_dec | int_oct | int_bin | int_hex;
-            real = (significand exp?) | (digit+ exp);
-            imag_number = (real | digit+)[jJ];
+            significand = (digits "." digits?) | ("." digits);
+            exp = [eE][-+]? digits;
+            integer = digits | int_oct | int_bin | int_hex;
+            real = (significand exp?) | (digits exp);
+            imag_number = (real | digits)[jJ];
             string1 = '"' ('\\'[^\x00] | [^"\x00\n\\])* '"';
             string2 = "'" ("\\"[^\x00] | [^'\x00\n\\])* "'";
             string3 = '"""' ( '\\'[^\x00]
@@ -458,7 +461,10 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "True" { RET(TK_TRUE) }
             "False" { RET(TK_FALSE) }
 
-            real { yylval.f = std::atof(token().c_str()); RET(TK_REAL) }
+            real {
+                yylval.f = std::atof(remove_underscore(token()));
+                RET(TK_REAL)
+            }
             integer {
                 BigInt::BigInt n;
                 token_loc(loc);
@@ -467,7 +473,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 RET(TK_INTEGER)
             }
             imag_number {
-                yylval.f = std::atof(token().c_str());
+                yylval.f = std::atof(remove_underscore(token()));
                 RET(TK_IMAG_NUM)
             }
 
