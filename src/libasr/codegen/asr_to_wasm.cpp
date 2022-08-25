@@ -261,6 +261,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     }
                 }
 
+                // Process procedures first:
+                declare_all_functions(*x.m_global_scope);
+
                 // then the main program:
                 for (auto &item : x.m_global_scope->get_scope()) {
                     if (ASR::is_a<ASR::Program_t>(*item.second)) {
@@ -287,14 +290,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             }
         }
 
-        //  // Process procedures first:
-        // for (auto &item : x.m_global_scope->get_scope()) {
-        //     if (ASR::is_a<ASR::Function_t>(*item.second)
-        //         || ASR::is_a<ASR::Subroutine_t>(*item.second)) {
-        //         visit_symbol(*item.second);
-        //         // std::cout << "I am here -1: " << src << std::endl;
-        //     }
-        // }
+        // Process procedures first:
+        declare_all_functions(*x.m_global_scope);
 
         // // Then do all the modules in the right order
         // std::vector<std::string> build_order
