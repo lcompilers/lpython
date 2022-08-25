@@ -114,7 +114,7 @@ To contribute, submit a Pull Request (PR) against our repository at:
 
 https://github.com/lcompilers/lpython
 
-and don't forget to clean your history, see [example](./readme_utils/rebasing.md).
+and don't forget to clean your history, see [example](./doc/src/rebasing.md).
 
 Please report any bugs you may find at our issue tracker: https://github.com/lcompilers/lpython/issues.
 Or, even better, fork the repository on GitHub and create a PR. We welcome all changes, big or small, and we will help you make a PR if you are new to git.
