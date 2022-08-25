@@ -31,3 +31,11 @@ def test_dict_pop():
     y = {"a": 1, "b": 2}
     x: i32
     x = y.pop("a")
+
+
+def f(x: dict[i32, i32]):
+    x[2] = 4
+
+def test_issue_204():
+    x: dict[i32, i32]
+    f(x)
