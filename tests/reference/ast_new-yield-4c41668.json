@@ -2,11 +2,11 @@
     "basename": "ast_new-yield-4c41668",
     "cmd": "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
     "infile": "tests/parser/yield.py",
-    "infile_hash": "acf514c9231bf9a1b68a30074944574470af47dab7562be71ab99d3e",
+    "infile_hash": "8be8f045d190dbc958c308128da40d7e8b590f0320166d10b545722b",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast_new-yield-4c41668.stdout",
-    "stdout_hash": "27053c77574330eda52c32b802e24e5f9aeb17844245d8b92a42319d",
+    "stdout_hash": "57b53209a43ea3c08dfd63cf5ef940e96e60c46457babb93c30d5ba7",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

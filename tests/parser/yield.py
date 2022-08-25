@@ -27,3 +27,8 @@ def iterable2():
     yield 3
 
 assert list(iterable2()) == [1, 2, 3]
+
+def test_02():
+    x = yield 123
+    generator = type((lambda: (yield))())
+    return (yield from awaitable.__await__())

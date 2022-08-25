@@ -343,6 +343,7 @@ static inline Vec<withitem_t> convert_exprlist_to_withitem(Allocator &al,
 
 #define WITH_ITEM_01(expr, vars, l) WITH_ITEM(l, \
         EXPR(expr), EXPR(SET_EXPR_CTX_01(vars, Store)))
+#define WITH_ITEM_02(expr, l) WITH_ITEM(l, EXPR(expr), nullptr)
 #define WITH(items, body, l) make_With_t(p.m_a, l, \
         convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
         STMTS(body), body.size(), nullptr)
