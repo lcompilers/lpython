@@ -226,8 +226,9 @@ public:
                     ASR::expr_t* right_arg = duplicate_expr(x->m_args[1].m_value);
                     ASR::ttype_t* left_type = substitute_type(ASRUtils::expr_type(left_arg));
                     ASR::ttype_t* right_type = substitute_type(ASRUtils::expr_type(right_arg));
-                    if (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type) ||
-                            ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type)) {
+                    if ((ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) ||
+                            (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type)) ||
+                            (ASRUtils::is_character(*left_type) && ASRUtils::is_character(*right_type))) {
                         return make_BinOp_helper(left_arg, right_arg, ASR::binopType::Add, x->base.base.loc);
                     }
                 }
@@ -235,7 +236,7 @@ public:
         }
 
         return ASR::make_FunctionCall_t(al, x->base.base.loc, x->m_name, x->m_original_name,
-            x->m_args, x->n_args, x->m_type, x->m_value, x->m_dt);
+            x->m_args, x->n_args, x->m_type, x->m_value, x->m_dt, nullptr, 0);
     }
 
     ASR::ttype_t* substitute_type(ASR::ttype_t *param_type) {

@@ -197,7 +197,8 @@ stmt
     | Select(expr test, case_stmt* body, stmt* default)
     | Stop(expr? code)
     | Assert(expr test, expr? msg)
-    | SubroutineCall(symbol name, symbol? original_name, call_arg* args, expr? dt)
+    | SubroutineCall(symbol name, symbol? original_name, call_arg* args, expr? dt
+        restriction_arg* restrictions)
     | Where(expr test, stmt* body, stmt* orelse)
     | WhileLoop(expr test, stmt* body)
     | Nullify(symbol* vars)
@@ -219,8 +220,8 @@ expr
         -- Such as: (x, y+z), (3.0, 2.0) generally not known at compile time
     | ComplexConstructor(expr re, expr im, ttype type, expr? value)
     | NamedExpr(expr target, expr value, ttype type)
-    | FunctionCall(symbol name, symbol? original_name,
-            call_arg* args, ttype type, expr? value, expr? dt)
+    | FunctionCall(symbol name, symbol? original_name, call_arg* args,
+            ttype type, expr? value, expr? dt, restriction_arg* restrictions)
     | DerivedTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
     | ImpliedDoLoop(expr* values, expr var, expr start, expr end,
                     expr? increment, ttype type, expr? value)
@@ -335,7 +336,7 @@ ttype
     | CPtr()
     | TypeParameter(identifier param, dimension* dims)
 
-trait = SupportsZero | SupportsPlus | Divisible | Any
+restriction_arg = RestrictionArg(identifier restriction_name, symbol restriction_func)
 
 binop = Add | Sub | Mul | Div | Pow | BitAnd | BitOr | BitXor | BitLShift | BitRShift
 

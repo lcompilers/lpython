@@ -250,7 +250,7 @@ class ReplaceSubroutineCallsVisitor : public PassUtils::PassVisitor<ReplaceSubro
 
             ASR::stmt_t* new_call = ASRUtils::STMT(ASR::make_SubroutineCall_t(al,
                                         x.base.base.loc, new_subrout_sym, new_subrout_sym,
-                                        new_args.p, new_args.size(), x.m_dt));
+                                        new_args.p, new_args.size(), x.m_dt, nullptr, 0));
             pass_result.push_back(al, new_call);
         }
 };
@@ -298,7 +298,7 @@ class ReplaceFunctionCalls: public ASR::BaseExprReplacer<ReplaceFunctionCalls> {
         ASR::expr_t* new_call = ASRUtils::EXPR(ASR::make_FunctionCall_t(al,
                                     x->base.base.loc, new_func_sym, new_func_sym,
                                     new_args.p, new_args.size(), x->m_type, nullptr,
-                                    x->m_dt));
+                                    x->m_dt, nullptr, 0));
         *current_expr = new_call;
     }
 

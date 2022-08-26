@@ -863,7 +863,8 @@ public:
             tmp_val = result_var;
             ASR::stmt_t* subrout_call = LFortran::ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc,
                                                 sub, nullptr,
-                                                s_args.p, s_args.size(), nullptr));
+                                                s_args.p, s_args.size(), nullptr,
+                                                nullptr, 0));
             pass_result.push_back(al, subrout_call);
         } else if( is_elemental(x.m_name) && x.n_args == 1 &&
                    ASRUtils::is_array(ASRUtils::expr_type(x.m_args[0].m_value)) ) {
@@ -915,7 +916,7 @@ public:
                         ASR::ttype_t* dim_less_type = ASRUtils::duplicate_type(al, x.m_type, &empty_dim);
                         op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_FunctionCall_t(al, x.base.base.loc,
                                         x.m_name, x.m_original_name, ref_args.p, ref_args.size(), dim_less_type,
-                                        nullptr, x.m_dt));
+                                        nullptr, x.m_dt, nullptr, 0));
                         ASR::stmt_t* assign = LFortran::ASRUtils::STMT(ASR::make_Assignment_t(al, x.base.base.loc, res, op_el_wise, nullptr));
                         doloop_body.push_back(al, assign);
                     } else {

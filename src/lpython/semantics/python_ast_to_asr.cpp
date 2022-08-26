@@ -29,7 +29,7 @@
 #include <lpython/semantics/python_attribute_eval.h>
 #include <lpython/parser/parser.h>
 #include <libasr/serialization.h>
-
+#include <lpython/pickle.h>
 
 namespace LFortran::LPython {
 
@@ -657,6 +657,44 @@ public:
         }
     }
 
+    void visit_keywords_list(AST::keyword_t* keywords, size_t n,
+                             Vec<ASR::restriction_arg_t*> call_keywords_vec) {
+        LFORTRAN_ASSERT(call_keywords_vec.reserve_called);
+        for( size_t i = 0; i < n; i++) {
+            AST::keyword_t keyword = keywords[0];
+            std::string keyword_arg = keyword.m_arg;
+            ASR::symbol_t* keyword_sym = current_scope->resolve_symbol(keyword_arg);
+            if (!keyword_sym) {
+                std::string msg = "The symbol " + keyword_arg + " is not found";
+                throw SemanticError(msg, keyword.loc);
+            }
+            ASR::Function_t* keyword_rt = ASR::is_a<ASR::Function_t>(*keyword_sym) 
+                ? ASR::down_cast<ASR::Function_t>(keyword_sym) : nullptr;
+            if (keyword_rt) {
+                if (keyword_rt->m_is_restriction) {
+                    if (AST::is_a<AST::Name_t>(*keyword.m_value)) {
+                        AST::Name_t* arg_name = AST::down_cast<AST::Name_t>(keyword.m_value);
+                        std::string arg_id = arg_name->m_id;
+                        ASR::symbol_t* arg_sym = current_scope->resolve_symbol(arg_id);
+                        if (!arg_sym) {
+                            std::string msg = "The symbol " + arg_id + " is not found";
+                            throw SemanticError(msg, arg_name->base.base.loc);
+                        }
+                        if (ASR::is_a<ASR::Function_t>(*arg_sym)) {
+                            ASR::restriction_arg_t* rt_arg = ASR::down_cast<ASR::restriction_arg_t>(
+                                ASR::make_RestrictionArg_t(al, keyword.loc, s2c(al, keyword_arg), arg_sym));
+                            call_keywords_vec.push_back(al, rt_arg);
+                        } else {
+                            std::string msg = "The restriction " + keyword_arg + 
+                                " can't be assigned with a non-function " + arg_id;
+                            throw SemanticError(msg, keyword.loc);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     void visit_expr_list(Vec<ASR::call_arg_t>& exprs, size_t n,
                          Vec<ASR::expr_t*>& exprs_vec) {
         LFORTRAN_ASSERT(exprs_vec.reserve_called);
@@ -748,7 +786,7 @@ public:
     // generic symbol then it changes the name accordingly.
     ASR::asr_t* make_call_helper(Allocator &al, ASR::symbol_t* s, SymbolTable *current_scope,
                     Vec<ASR::call_arg_t> args, std::string call_name, const Location &loc,
-                    bool ignore_return_value=false) {
+                    Vec<ASR::restriction_arg_t*> rt_args, bool ignore_return_value=false) {
         ASR::symbol_t *s_generic = nullptr, *stemp = s;
         // handling ExternalSymbol
         s = ASRUtils::symbol_get_past_external(s);
@@ -816,14 +854,14 @@ public:
                 }
                 for (size_t i=0; i<func->n_restrictions; i++) {
                     ASR::Function_t* rt = ASR::down_cast<ASR::Function_t>(func->m_restrictions[i]);
-
+                    std::string rt_name = rt->m_name;
                 }
                 ASR::symbol_t *t = get_generic_function(subs, *func);
                 std::string new_call_name = call_name;
                 if (ASR::is_a<ASR::Function_t>(*t)) {
                     new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
                 }
-                return make_call_helper(al, t, current_scope, args, new_call_name, loc);                    
+                return make_call_helper(al, t, current_scope, args, new_call_name, loc, rt_args);                    
             }
             if (ASR::down_cast<ASR::Function_t>(s)->m_return_var != nullptr) {
                 ASR::ttype_t *a_type = nullptr;
@@ -844,7 +882,7 @@ public:
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
                 ASR::asr_t* func_call_asr = ASR::make_FunctionCall_t(al, loc, stemp,
                                                 s_generic, args_new.p, args_new.size(),
-                                                a_type, value, nullptr);
+                                                a_type, value, nullptr, nullptr, 0);
                 if( ignore_return_value ) {
                     std::string dummy_ret_name = current_scope->get_unique_name("__lcompilers_dummy");
                     ASR::asr_t* variable_asr = ASR::make_Variable_t(al, loc, current_scope,
@@ -864,7 +902,7 @@ public:
                 args_new.reserve(al, func->n_args);
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
                 return ASR::make_SubroutineCall_t(al, loc, stemp,
-                    s_generic, args_new.p, args_new.size(), nullptr);
+                    s_generic, args_new.p, args_new.size(), nullptr, nullptr, 0);
             }
         } else if(ASR::is_a<ASR::DerivedType_t>(*s)) {
             Vec<ASR::expr_t*> args_new;
@@ -1305,7 +1343,9 @@ public:
                 arg2.m_value = right;
                 args.push_back(al, arg1);
                 args.push_back(al, arg2);
-                tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_floordiv", loc);
+                Vec<ASR::restriction_arg_t*> rt_args;
+                rt_args.reserve(al, 1);
+                tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_floordiv", loc, rt_args);
                 return;
 
             } else { // real divison in python using (`/`)
@@ -1938,9 +1978,11 @@ public:
         arg2.loc = right->base.loc;
         arg2.m_value = right;
         args.push_back(al, arg2);
+        Vec<ASR::restriction_arg_t*> rt_args;
+        rt_args.reserve(al, 1);
         if (op_name != "") {
             ASR::symbol_t *fn_mod = resolve_intrinsic_function(x.base.base.loc, op_name);
-            tmp = make_call_helper(al, fn_mod, current_scope, args, op_name, x.base.base.loc);
+            tmp = make_call_helper(al, fn_mod, current_scope, args, op_name, x.base.base.loc, rt_args);
             return;
         }
         bool floordiv = (x.m_op == AST::operatorType::FloorDiv);
@@ -3986,6 +4028,9 @@ public:
             Vec<ASR::call_arg_t> args;
             args.reserve(al, c->n_args);
             visit_expr_list(c->m_args, c->n_args, args);
+            Vec<ASR::restriction_arg_t*> rt_args;
+            rt_args.reserve(al, c->n_keywords);
+            visit_keywords_list(c->m_keywords, c->n_keywords, rt_args);
             if (call_name == "print") {
                 ASR::expr_t *fmt = nullptr;
                 Vec<ASR::expr_t*> args_expr = ASRUtils::call_arg2expr(al, args);
@@ -4052,7 +4097,7 @@ public:
                     x.base.base.loc);
             }
             tmp = make_call_helper(al, s, current_scope, args, call_name,
-                    x.base.base.loc, true);
+                    x.base.base.loc, rt_args, true);
             return;
         }
         this->visit_expr(*x.m_value);
@@ -4485,6 +4530,9 @@ public:
         Vec<ASR::call_arg_t> args;
         args.reserve(al, x.n_args);
         visit_expr_list(x.m_args, x.n_args, args);
+        Vec<ASR::restriction_arg_t*> rt_args;
+        rt_args.reserve(al, x.n_keywords);
+        visit_keywords_list(x.m_keywords, x.n_keywords, rt_args);
         if (AST::is_a<AST::Name_t>(*x.m_func)) {
             AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
             call_name = n->m_id;
@@ -4525,7 +4573,7 @@ public:
                                     arg.loc = x.base.base.loc;
                                     arg.m_value = se;
                                     args.push_back(al, arg);
-                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_capitalize", x.base.base.loc);
+                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_capitalize", x.base.base.loc, rt_args);
                                     return;
                                 } else if (std::string(at->m_attr) == std::string("lower")) {
                                     if(args.size() != 0) {
@@ -4539,7 +4587,7 @@ public:
                                     arg.loc = x.base.base.loc;
                                     arg.m_value = se;
                                     args.push_back(al, arg);
-                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_lower", x.base.base.loc);
+                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_lower", x.base.base.loc, rt_args);
                                     return;
                                 } else if (std::string(at->m_attr) == std::string("rstrip")) {
                                     if(args.size() != 0) {
@@ -4553,7 +4601,7 @@ public:
                                     arg.loc = x.base.base.loc;
                                     arg.m_value = se;
                                     args.push_back(al, arg);
-                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_rstrip", x.base.base.loc);
+                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_rstrip", x.base.base.loc, rt_args);
                                     return;
                                 } else if (std::string(at->m_attr) == std::string("lstrip")) {
                                     if(args.size() != 0) {
@@ -4567,7 +4615,7 @@ public:
                                     arg.loc = x.base.base.loc;
                                     arg.m_value = se;
                                     args.push_back(al, arg);
-                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_lstrip", x.base.base.loc);
+                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_lstrip", x.base.base.loc, rt_args);
                                     return;
                                 } else if (std::string(at->m_attr) == std::string("strip")) {
                                     if(args.size() != 0) {
@@ -4581,7 +4629,7 @@ public:
                                     arg.loc = x.base.base.loc;
                                     arg.m_value = se;
                                     args.push_back(al, arg);
-                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_strip", x.base.base.loc);
+                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_strip", x.base.base.loc, rt_args);
                                     return;
                                 }
                             }
@@ -4597,7 +4645,7 @@ public:
                                         call_name, call_name_store, x.base.base.loc);
                     current_scope->add_symbol(call_name_store, st);
                 }
-                tmp = make_call_helper(al, st, current_scope, args, call_name, x.base.base.loc);
+                tmp = make_call_helper(al, st, current_scope, args, call_name, x.base.base.loc, rt_args);
                 return;
             } else if (AST::is_a<AST::ConstantInt_t>(*at->m_value)) {
                 if (std::string(at->m_attr) == std::string("bit_length")) {
@@ -4864,7 +4912,7 @@ public:
             }
             } // end of "comment"
         }
-        tmp = make_call_helper(al, s, current_scope, args, call_name, x.base.base.loc);
+        tmp = make_call_helper(al, s, current_scope, args, call_name, x.base.base.loc, rt_args, false);
     }
 
     void visit_ImportFrom(const AST::ImportFrom_t &/*x*/) {
@@ -4961,6 +5009,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
         } else {
             return res2.error;
         }
+        // std::cout << pickle(*tu, 1, 1, 0) << std::endl;
         LFORTRAN_ASSERT(asr_verify(*tu));
     }
 

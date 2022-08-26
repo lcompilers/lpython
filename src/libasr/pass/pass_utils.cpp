@@ -576,7 +576,8 @@ namespace LFortran {
             args.push_back(al, arg5_);
             return ASRUtils::STMT(ASR::make_SubroutineCall_t(al, loc, v,
                                                              nullptr, args.p, args.size(),
-                                                             nullptr));
+                                                             nullptr,
+                                                             nullptr, 0));
         }
 
         ASR::expr_t* get_sign_from_value(ASR::expr_t* arg0, ASR::expr_t* arg1,
