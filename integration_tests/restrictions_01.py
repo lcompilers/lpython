@@ -9,7 +9,6 @@ def plus(x: T, y: T) -> T:
 def f(x: T, y: T) -> T:
     return plus(x,y)
 
-# For integers, automatically finding the function is better
 # print(f(1,2,plus=int.__add__))
 print(f(1,2))
 '''

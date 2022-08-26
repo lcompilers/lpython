@@ -373,21 +373,21 @@ filename = "../integration_tests/print_01.py"
 c = true
 cpp = true
 
-[[test]]
-filename = "../integration_tests/generics_01.py"
-asr = true
+#[[test]]
+#filename = "../integration_tests/generics_01.py"
+#asr = true
 
-[[test]]
-filename = "../integration_tests/generics_02.py"
-asr = true
+#[[test]]
+#filename = "../integration_tests/generics_02.py"
+#asr = true
 
-[[test]]
-filename = "../integration_tests/generics_array_01.py"
-asr = true
+#[[test]]
+#filename = "../integration_tests/generics_array_01.py"
+#asr = true
 
-[[test]]
-filename = "../integration_tests/generics_list_01.py"
-asr = true
+#[[test]]
+#filename = "../integration_tests/generics_list_01.py"
+#asr = true
 
 # tests/tokens
 
@@ -773,17 +773,17 @@ asr = true
 filename = "errors/test_unsupported_type.py"
 asr = true
 
-[[test]]
-filename = "errors/generics_error_01.py"
-asr = true
+#[[test]]
+#filename = "errors/generics_error_01.py"
+#asr = true
 
-[[test]]
-filename = "errors/restriction_error_01.py"
-asr = true
+#[[test]]
+#filename = "errors/restriction_error_01.py"
+#asr = true
 
-[[test]]
-filename = "errors/restriction_error_02.py"
-asr = true
+#[[test]]
+#filename = "errors/restriction_error_02.py"
+#asr = true
 
 [[test]]
 filename = "errors/test_str_capitalize.py"
