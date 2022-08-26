@@ -2084,6 +2084,23 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             m_code_section, m_al,
             nesting_level - cur_loop_nesting_level);  // branch to start of loop
     }
+
+    void visit_Assert(const ASR::Assert_t &x) {
+        this->visit_expr(*x.m_test);
+        wasm::emit_i32_eqz(m_code_section, m_al);
+        wasm::emit_b8(m_code_section, m_al, 0x04);  // emit if start
+        wasm::emit_b8(m_code_section, m_al, 0x40);  // empty block type
+        if (x.m_msg) {
+            std::string msg =
+                ASR::down_cast<ASR::StringConstant_t>(x.m_msg)->m_s;
+            print_msg("AssertionError: " + msg);
+        } else {
+            print_msg("AssertionError");
+        }
+        wasm::emit_i32_const(m_code_section, m_al, 1);  // non-zero exit code
+        exit();
+        wasm::emit_expr_end(m_code_section, m_al);  // emit if end
+    }
 };
 
 Result<Vec<uint8_t>> asr_to_wasm_bytes_stream(ASR::TranslationUnit_t &asr,
