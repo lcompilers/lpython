@@ -71,6 +71,9 @@ namespace LFortran {
 
             llvm::LLVMContext& context;
             llvm::IRBuilder<>* builder;
+            llvm::AllocaInst *str_cmp_itr;
+
+            bool are_iterators_set;
 
         public:
 
@@ -98,6 +101,10 @@ namespace LFortran {
 
             llvm::Value* is_equal_by_value(llvm::Value* left, llvm::Value* right,
                                            llvm::Module& module, ASR::ttype_t* asr_type);
+
+            void set_iterators();
+
+            void reset_iterators();
 
             void deepcopy(llvm::Value* src, llvm::Value* dest,
                           ASR::ttype_t* asr_type, llvm::Module& module);
@@ -223,7 +230,8 @@ namespace LFortran {
             LLVMUtils* llvm_utils;
             llvm::IRBuilder<>* builder;
             llvm::AllocaInst *pos_ptr, *is_key_matching_var;
-            llvm::AllocaInst *idx_ptr;
+            llvm::AllocaInst *idx_ptr, *hash_iter, *hash_value;
+            llvm::AllocaInst *polynomial_powers;
             bool are_iterators_set;
 
             std::map<std::pair<std::string, std::string>,
