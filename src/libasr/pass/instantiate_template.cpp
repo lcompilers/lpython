@@ -3,6 +3,7 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr.h>
 #include <libasr/pass/pass_utils.h>
+#include <lpython/semantics/semantic_exception.h>
 
 namespace LFortran {
 
@@ -12,6 +13,7 @@ public:
     SymbolTable *current_scope;
     std::map<std::string, ASR::ttype_t*> subs;
     std::string new_func_name;
+    std::vector<ASR::symbol_t*> rts;
 
     FunctionInstantiator(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,
             SymbolTable *current_scope, std::string new_func_name):
@@ -22,6 +24,8 @@ public:
         {}
 
     ASR::asr_t* instantiate_Function(ASR::Function_t &x) {
+        for (size_t i=0; i<x.n_restrictions; i++) { rts.push_back(x.m_restrictions[i]); }
+
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
 
@@ -101,15 +105,19 @@ public:
         ASR::deftypeType func_deftype = x.m_deftype;
         char *bindc_name = x.m_bindc_name;
 
+        bool func_elemental = x.m_elemental;
+        bool func_pure = x.m_pure;
+        bool func_module = x.m_module;
+
         ASR::asr_t *result = ASR::make_Function_t(
             al, x.base.base.loc,
             current_scope, s2c(al, new_func_name),
             args.p, args.size(),
-            nullptr, 0,
             body.p, body.size(),
             new_return_var_ref,
             func_abi, func_access, func_deftype, bindc_name,
-            false, false, false);
+            func_elemental, func_pure, func_module,
+            nullptr, 0, nullptr, 0, false);
 
         ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(result);
         parent_scope->add_symbol(new_func_name, t);
@@ -206,6 +214,28 @@ public:
             return (ASR::asr_t*) arg;
         }
         return ASRUtils::make_Cast_t_value(al, x->base.base.loc, arg, ASR::cast_kindType::IntegerToReal, x->m_type);
+    } 
+
+    ASR::asr_t* duplicate_FunctionCall(ASR::FunctionCall_t *x) {
+        std::string call_name = ASRUtils::symbol_name(x->m_name);
+        for (ASR::symbol_t* rt: rts) {
+            ASR::Function_t* func_rt = ASR::down_cast<ASR::Function_t>(rt);
+            if (call_name.compare(func_rt->m_name) == 0) {
+                if (call_name.compare("plus") == 0) {
+                    ASR::expr_t* left_arg = duplicate_expr(x->m_args[0].m_value);
+                    ASR::expr_t* right_arg = duplicate_expr(x->m_args[1].m_value);
+                    ASR::ttype_t* left_type = substitute_type(ASRUtils::expr_type(left_arg));
+                    ASR::ttype_t* right_type = substitute_type(ASRUtils::expr_type(right_arg));
+                    if (ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type) ||
+                            ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type)) {
+                        return make_BinOp_helper(left_arg, right_arg, ASR::binopType::Add, x->base.base.loc);
+                    }
+                }
+            }
+        }
+
+        return ASR::make_FunctionCall_t(al, x->base.base.loc, x->m_name, x->m_original_name,
+            x->m_args, x->n_args, x->m_type, x->m_value, x->m_dt);
     }
 
     ASR::ttype_t* substitute_type(ASR::ttype_t *param_type) {
@@ -248,13 +278,11 @@ public:
         ASR::ttype_t *dest_type = nullptr;
         ASR::expr_t *value = nullptr;
 
-        if ((ASRUtils::is_integer(*left_type) || ASRUtils::is_real(*left_type) ||
-                ASRUtils::is_complex(*left_type) || ASRUtils::is_logical(*left_type)) &&
-                (ASRUtils::is_integer(*right_type) || ASRUtils::is_real(*right_type) ||
-                ASRUtils::is_complex(*right_type) || ASRUtils::is_logical(*right_type))) {
+        if ((ASRUtils::is_integer(*left_type) || ASRUtils::is_real(*left_type)) &&
+                (ASRUtils::is_integer(*right_type) || ASRUtils::is_real(*right_type))) {
             left = cast_helper(ASRUtils::expr_type(right), left);
             right = cast_helper(ASRUtils::expr_type(left), right);
-            dest_type = ASRUtils::expr_type(left);
+            dest_type = substitute_type(ASRUtils::expr_type(left));
         } else if (ASRUtils::is_character(*left_type) && ASRUtils::is_character(*right_type)
                 && op == ASR::binopType::Add) {
             ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
@@ -283,42 +311,13 @@ public:
                 int64_t result;
                 switch (op) {
                     case (ASR::binopType::Add): { result = left_value + right_value; break; }
-                    // case (ASR::binopType::Sub): { result = left_value - right_value; break; }
-                    // case (ASR::binopType::Mul): { result = left_value * right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
-                    /*
-                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
-                    case (ASR::binopType::BitAnd): { result = left_value & right_value; break; }
-                    case (ASR::binopType::BitOr): { result = left_value | right_value; break; }
-                    case (ASR::binopType::BitXor): { result = left_value ^ right_value; break; }
-                    case (ASR::binopType::BitLShift): {
-                        if (right_value < 0) {
-                            throw LCompilersException("ICE: failure in instantiation: Negative shift count not allowed.");
-                        }
-                        result = left_value << right_value;
-                        break;
-                    }
-                    case (ASR::binopType::BitRShift): {
-                        if (right_value < 0) {
-                            throw LCompilersException("ICE: failure in instantiation: Negative shift count not allowed.");
-                        }
-                        result = left_value >> right_value;
-                        break;
-                    }
-                    */
                     default: { LFORTRAN_ASSERT(false); } // should never happen
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, result, dest_type));
             }
             return ASR::make_IntegerBinOp_t(al, loc, left, op, right, dest_type, value);
         } else if (ASRUtils::is_real(*dest_type)) {
-            /*
-            if (op == ASR::binopType::BitAnd || op == ASR::binopType::BitOr || op == ASR::binopType::BitXor ||
-                op == ASR::binopType::BitLShift || op == ASR::binopType::BitRShift) {
-                throw LCompilersException("ICE: failure in instantiation: Unsupported binary operation on floats: '"
-                    + ASRUtils::binop_to_str_python(op) + "'");
-            }
-            */
             right = cast_helper(left_type, right);
             dest_type = ASRUtils::expr_type(right);
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
@@ -327,10 +326,7 @@ public:
                 double result;
                 switch (op) {
                     case (ASR::binopType::Add): { result = left_value + right_value; break; }
-                    case (ASR::binopType::Sub): { result = left_value - right_value; break; }
-                    case (ASR::binopType::Mul): { result = left_value * right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
-                    case (ASR::binopType::Pow): { result = std::pow(left_value, right_value); break; }
                     default: { LFORTRAN_ASSERT(false); }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(al, loc, result, dest_type));

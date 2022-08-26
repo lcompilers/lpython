@@ -447,6 +447,7 @@ public:
 
     std::map<std::string, int> generic_func_nums;
     std::map<std::string, std::map<std::string, ASR::ttype_t*>> generic_func_subs;
+    std::vector<ASR::symbol_t*> rt_vec;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module,
@@ -725,8 +726,10 @@ public:
                     ASR::Variable_t *var_sym = ASR::down_cast<ASR::Variable_t>(s);
                     if (var_sym->m_type->type == ASR::ttypeType::TypeParameter) {
                         ASR::TypeParameter_t *type_param = ASR::down_cast<ASR::TypeParameter_t>(var_sym->m_type);
+                        //return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, loc,
+                        //    type_param->m_param, dims.p, dims.size(), type_param->m_rt, type_param->n_rt));
                         return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, loc,
-                            type_param->m_param, dims.p, dims.size(), type_param->m_rt, type_param->n_rt));
+                            type_param->m_param, dims.p, dims.size()));
                     }
                 } else {
                     ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
@@ -781,20 +784,46 @@ public:
         }
         if (ASR::is_a<ASR::Function_t>(*s)) {
             ASR::Function_t *func = ASR::down_cast<ASR::Function_t>(s);
-            if (func->n_type_params > 0) {
+            if (args.size() != func->n_args) {
+                std::string fnd = std::to_string(args.size());
+                std::string org = std::to_string(func->n_args);
+                diag.add(diag::Diagnostic(
+                    "Number of arguments does not match in the function call",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("(found: '" + fnd + "', expected: '" + org + "')",
+                                {loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
+            if (func->m_is_restriction) {
+                ASR::symbol_t* caller = ASR::down_cast<ASR::symbol_t>(current_scope->asr_owner);
+                if (ASR::is_a<ASR::Function_t>(*caller)) {
+                    ASR::Function_t* caller_func = ASR::down_cast<ASR::Function_t>(caller);
+                    if (caller_func->n_type_params == 0) {
+                        std::string msg = "Restrictions can't be called "
+                            "from the non-generic function " + std::string(caller_func->m_name);
+                        throw SemanticError(msg, loc);                        
+                    }
+                }
+                rt_vec.push_back(s);
+            } else if (func->n_type_params > 0) {
                 std::map<std::string, ASR::ttype_t*> subs;
                 for (size_t i=0; i<args.size(); i++) {
                     ASR::ttype_t *param_type = ASRUtils::expr_type(func->m_args[i]);
                     ASR::ttype_t *arg_type = ASRUtils::expr_type(args[i].m_value);
                     subs = check_type_substitution(subs, param_type, arg_type, loc);
                 }
+                for (size_t i=0; i<func->n_restrictions; i++) {
+                    ASR::Function_t* rt = ASR::down_cast<ASR::Function_t>(func->m_restrictions[i]);
 
+                }
                 ASR::symbol_t *t = get_generic_function(subs, *func);
                 std::string new_call_name = call_name;
                 if (ASR::is_a<ASR::Function_t>(*t)) {
                     new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
                 }
-                return make_call_helper(al, t, current_scope, args, new_call_name, loc);
+                return make_call_helper(al, t, current_scope, args, new_call_name, loc);                    
             }
             if (ASR::down_cast<ASR::Function_t>(s)->m_return_var != nullptr) {
                 ASR::ttype_t *a_type = nullptr;
@@ -809,18 +838,7 @@ public:
                 if (ASRUtils::is_intrinsic_function2(func)) {
                     value = intrinsic_procedures.comptime_eval(call_name, al, loc, args);
                 }
-                if (args.size() != func->n_args) {
-                    std::string fnd = std::to_string(args.size());
-                    std::string org = std::to_string(func->n_args);
-                    diag.add(diag::Diagnostic(
-                        "Number of arguments does not match in the function call",
-                        diag::Level::Error, diag::Stage::Semantic, {
-                            diag::Label("(found: '" + fnd + "', expected: '" + org + "')",
-                                    {loc})
-                        })
-                    );
-                    throw SemanticAbort();
-                }
+
                 Vec<ASR::call_arg_t> args_new;
                 args_new.reserve(al, func->n_args);
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
@@ -842,18 +860,6 @@ public:
                     return func_call_asr;
                 }
             } else {
-                if (args.size() != func->n_args) {
-                    std::string fnd = std::to_string(args.size());
-                    std::string org = std::to_string(func->n_args);
-                    diag.add(diag::Diagnostic(
-                        "Number of arguments does not match in the function call",
-                        diag::Level::Error, diag::Stage::Semantic, {
-                            diag::Label("(found: '" + fnd + "', expected: '" + org + "')",
-                                    {loc})
-                        })
-                    );
-                    throw SemanticAbort();
-                }
                 Vec<ASR::call_arg_t> args_new;
                 args_new.reserve(al, func->n_args);
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
@@ -893,6 +899,7 @@ public:
         }
         if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
             ASR::TypeParameter_t *tp = ASR::down_cast<ASR::TypeParameter_t>(param_type);
+            /*
             if (!check_type_restriction(arg_type, tp)) {
                 diag.add(diag::Diagnostic(
                     "Argument type does not match parameter's restriction",
@@ -902,6 +909,7 @@ public:
                 ));
                 throw SemanticAbort();
             }
+            */
             std::string param_name = tp->m_param;
             if (subs.find(param_name) != subs.end()) {
                 if (!ASRUtils::check_equal_type(subs[param_name], arg_type)) {
@@ -925,7 +933,7 @@ public:
         return subs;
     }
 
-    // TODO: Think also about dimensions
+    /*
     bool check_type_restriction(ASR::ttype_t *expr_type, ASR::TypeParameter_t *tp) {
         for (size_t i=0; i<tp->n_rt; i++) {
             ASR::Restriction_t *restriction = ASR::down_cast<ASR::Restriction_t>(tp->m_rt[i]);
@@ -960,6 +968,7 @@ public:
         }
         return true;
     }
+    */
 
     ASR::symbol_t* get_generic_function(std::map<std::string, ASR::ttype_t*> subs,
             ASR::Function_t &func) {
@@ -1305,9 +1314,11 @@ public:
                 if (ASRUtils::is_integer(*left_type)) {
                     left = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
                         al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type));
+                /*
                 } else if (ASR::is_a<ASR::TypeParameter_t>(*left_type)) {
                     left = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
                         al, left->base.loc, left, ASR::cast_kindType::TemplateToReal, dest_type));
+                */
                 }
                 if (ASRUtils::is_integer(*right_type)) {
                     if (ASRUtils::expr_value(right) != nullptr) {
@@ -1418,6 +1429,7 @@ public:
             }
             tmp = ASR::make_StringConcat_t(al, loc, left, right, dest_type, value);
             return;
+        /*
         } else if (ASR::is_a<ASR::TypeParameter_t>(*left_type) && ASR::is_a<ASR::TypeParameter_t>(*right_type)) {
             ASR::TypeParameter_t *left_param = ASR::down_cast<ASR::TypeParameter_t>(left_type);
             ASR::TypeParameter_t *right_param = ASR::down_cast<ASR::TypeParameter_t>(right_type);
@@ -1436,6 +1448,7 @@ public:
                     throw SemanticError("The left expression of the division must be support division operation", loc);
                 }
             }
+        */
         } else if (ASR::is_a<ASR::List_t>(*left_type) && ASR::is_a<ASR::List_t>(*right_type)
                    && op == ASR::binopType::Add) {
             dest_type = left_type;
@@ -2395,9 +2408,12 @@ public:
         current_procedure_abi_type = ASR::abiType::Source;
         bool current_procedure_interface = false;
         bool overload = false;
+        bool vectorize = false;
+
         Vec<ASR::ttype_t*> tps;
         tps.reserve(al, x.m_args.n_args);
-        bool vectorize = false;
+        bool is_restriction = false;
+
         if (x.n_decorator_list > 0) {
             for(size_t i=0; i<x.n_decorator_list; i++) {
                 AST::expr_t *dec = x.m_decorator_list[i];
@@ -2414,6 +2430,8 @@ public:
                         // TODO: Implement @interface
                     } else if (name == "vectorize") {
                         vectorize = true;
+                    } else if (name == "restriction") {
+                        is_restriction = true;
                     } else {
                         throw SemanticError("Decorator: " + name + " is not supported",
                             x.base.base.loc);
@@ -2444,8 +2462,7 @@ public:
                         std::string new_param = ASR::down_cast<ASR::TypeParameter_t>(new_tt)->m_param;
                         std::string added_param = added_tp->m_param;
                         if (added_param.compare(new_param) == 0) {
-                            not_found = false;
-                            break;
+                            not_found = false; break;
                         }
                     }
                     if (not_found) {
@@ -2523,13 +2540,12 @@ public:
                     /* a_name */ s2c(al, sym_name),
                     /* a_args */ args.p,
                     /* n_args */ args.size(),
-                    /* a_type_params */ tps.p,
-                    /* n_type_params */ tps.size(),
                     /* a_body */ nullptr,
                     /* n_body */ 0,
                     /* a_return_var */ ASRUtils::EXPR(return_var_ref),
-                    current_procedure_abi_type,
-                    s_access, deftype, bindc_name, vectorize, false, false);
+                    current_procedure_abi_type, s_access, deftype, 
+                    bindc_name, vectorize, false, false,
+                    tps.p, tps.size(), nullptr, 0, is_restriction);
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
                     x.m_returns->base.loc);
@@ -2542,14 +2558,13 @@ public:
                 /* a_name */ s2c(al, sym_name),
                 /* a_args */ args.p,
                 /* n_args */ args.size(),
-                /* a_type_params */ tps.p,
-                /* n_type_params */ tps.size(),
                 /* a_body */ nullptr,
                 /* n_body */ 0,
                 nullptr,
                 current_procedure_abi_type,
                 s_access, deftype, bindc_name,
-                false, is_pure, is_module);
+                false, is_pure, is_module,
+                tps.p, tps.size(), nullptr, 0, is_restriction);
         }
         ASR::symbol_t * t = ASR::down_cast<ASR::symbol_t>(tmp);
         parent_scope->add_symbol(sym_name, t);
@@ -2698,6 +2713,7 @@ public:
                         Vec<ASR::dimension_t> dims;
                         dims.reserve(al, 4);
 
+                        /*
                         Vec<ASR::restriction_t*> restrictions;
                         restrictions.reserve(al, 4);
                         if (rh->n_keywords > 0) {
@@ -2712,9 +2728,13 @@ public:
                                 }
                             }
                         }
-
+                        
                         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, x.base.base.loc, s2c(al, tvar_name),
                             dims.p, dims.size(), restrictions.p, restrictions.size()));
+                        */
+
+                        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, x.base.base.loc, 
+                            s2c(al, tvar_name), dims.p, dims.size()));
 
                         ASR::expr_t *value = nullptr;
                         ASR::expr_t *init_expr = nullptr;
@@ -2748,6 +2768,7 @@ public:
      *  Convert bounds in type variables declarations into restrictions
      *    T = TypeVar('T', bounds=...(|...)*)
      */
+    /*
     std::set<ASR::traitType> get_traits_from_bounds(AST::expr_t *value, std::set<ASR::traitType> traits) {
         if (AST::is_a<AST::Name_t>(*value)) {
             std::string trait_name = AST::down_cast<AST::Name_t>(value)->m_id;
@@ -2773,6 +2794,7 @@ public:
         }
         return traits;
     }
+    */
 
     void visit_Expr(const AST::Expr_t &/*x*/) {
         // We skip this in the SymbolTable visitor, but visit it in the BodyVisitor
@@ -2880,9 +2902,15 @@ public:
         current_scope = v.m_symtab;
         Vec<ASR::stmt_t*> body;
         body.reserve(al, x.n_body);
+        Vec<ASR::symbol_t*> rts;
+        rts.reserve(al, 4);
         transform_stmts(body, x.n_body, x.m_body);
+        for (const auto &rt: rt_vec) { rts.push_back(al, rt); }
         v.m_body = body.p;
         v.n_body = body.size();
+        v.m_restrictions = rts.p;
+        v.n_restrictions = rts.size();
+        rt_vec.clear();
     }
 
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
@@ -2890,7 +2918,9 @@ public:
         ASR::symbol_t *t = current_scope->get_symbol(x.m_name);
         if (ASR::is_a<ASR::Function_t>(*t)) {
             ASR::Function_t *f = ASR::down_cast<ASR::Function_t>(t);
-            handle_fn(x, *f);
+            if (!f->m_is_restriction) {
+                handle_fn(x, *f);
+            }
         } else if (ASR::is_a<ASR::GenericProcedure_t>(*t)) {
             ASR::symbol_t *s = ast_overload[(int64_t)&x];
             if (ASR::is_a<ASR::Function_t>(*s)) {
@@ -3054,6 +3084,7 @@ public:
             ASR::ttype_t *target_type = ASRUtils::expr_type(target);
             ASR::ttype_t *value_type = ASRUtils::expr_type(assign_value);
             // Check if the target parameter type can be assigned with zero
+            /*
             if (ASR::is_a<ASR::TypeParameter_t>(*target_type)
                     && ASR::is_a<ASR::IntegerConstant_t>(*assign_value)) {
                 ASR::IntegerConstant_t *value_constant = ASR::down_cast<ASR::IntegerConstant_t>(assign_value);
@@ -3068,6 +3099,7 @@ public:
                     return ;
                 }
             }
+            */
             if( ASR::is_a<ASR::Pointer_t>(*target_type) &&
                 ASR::is_a<ASR::Var_t>(*target) ) {
                 if( !ASR::is_a<ASR::GetPointer_t>(*tmp_value) ) {

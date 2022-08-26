@@ -84,10 +84,14 @@ symbol
         stmt* body)
     | Module(symbol_table symtab, identifier name, identifier* dependencies,
         bool loaded_from_mod, bool intrinsic)
-    | Function(symbol_table symtab, identifier name, expr* args,
-        ttype* type_params, stmt* body, expr? return_var, abi abi,
-        access access, deftype deftype, string? bindc_name, bool elemental,
-        bool pure, bool module)
+    --| Function(symbol_table symtab, identifier name, expr* args,
+    --    ttype* type_params, stmt* body, expr? return_var, abi abi,
+    --    access access, deftype deftype, string? bindc_name, bool elemental,
+    --    bool pure, bool module)
+    | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
+        expr? return_var, abi abi, access access, deftype deftype,
+        string? bindc_name, bool elemental, bool pure, bool module,
+        ttype* type_params, symbol* restrictions, bool is_restriction)
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
     | CustomOperator(symbol_table parent_symtab, identifier name,
@@ -329,9 +333,7 @@ ttype
     | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
     | CPtr()
-    | TypeParameter(identifier param, dimension* dims, restriction* rt)
-
-restriction = Restriction(trait rt)
+    | TypeParameter(identifier param, dimension* dims)
 
 trait = SupportsZero | SupportsPlus | Divisible | Any
 
