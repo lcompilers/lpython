@@ -33,6 +33,8 @@ cd ..
 
 mkdir b4
 cd b4
+which node
+node -v
 cmake -DKIND=wasm ..
 make $jn
 ctest $jn --output-on-failure
