@@ -501,6 +501,14 @@ int get_errors (const std::string &infile,
 
 #endif
 
+void print_time_report(std::vector<std::pair<std::string, double>> &times, bool time_report) {
+    if (time_report) {
+        for (auto &stage :times) {
+            std::cout << stage.first << ": " << stage.second << "ms" << std::endl;
+        }
+    }
+}
+
 #ifdef HAVE_LFORTRAN_LLVM
 
 int emit_llvm(const std::string &infile,
@@ -546,14 +554,6 @@ int emit_llvm(const std::string &infile,
     }
     std::cout << (res.result)->str();
     return 0;
-}
-
-void print_time_report(std::vector<std::pair<std::string, double>> &times, bool time_report) {
-    if (time_report) {
-        for (auto &stage :times) {
-            std::cout << stage.first << ": " << stage.second << "ms" << std::endl;
-        }
-    }
 }
 
 int compile_python_to_object_file(
