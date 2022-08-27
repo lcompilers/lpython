@@ -198,7 +198,7 @@ int64_t __lpython_overloaded_1__pow(int64_t x, int64_t y)
 int32_t __lpython_overloaded_2___lpython_floordiv(int32_t a, int32_t b)
 {
     int32_t _lpython_return_variable;
-    float r;
+    double r;
     int32_t result;
     r = (float)(a)/(float)(b);
     result = (int)(r);
