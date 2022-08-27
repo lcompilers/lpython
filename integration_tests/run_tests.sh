@@ -26,10 +26,10 @@ cd ..
 
 mkdir b3
 cd b3
-
 cmake -DKIND=c ..
 make $jn
 ctest $jn --output-on-failure
+cd ..
 
 mkdir b4
 cd b4
