@@ -77,21 +77,27 @@ uint8_t read_b8(Vec<uint8_t> &code, uint32_t &offset) {
     return code.p[offset++];
 }
 
-float read_f32(Vec<uint8_t> & code, uint32_t & offset) {
+float read_f32(Vec<uint8_t> &code, uint32_t &offset) {
     LFORTRAN_ASSERT(offset + sizeof(float) <= code.size());
     return decode_ieee754_f32(code, offset);
 }
 
-double read_f64(Vec<uint8_t> & code, uint32_t & offset) {
+double read_f64(Vec<uint8_t> &code, uint32_t &offset) {
     LFORTRAN_ASSERT(offset + sizeof(double) <= code.size());
     return decode_ieee754_f64(code, offset);
 }
 
-uint32_t read_u32(Vec<uint8_t> &code, uint32_t &offset) { return decode_leb128_u32(code, offset); }
+uint32_t read_u32(Vec<uint8_t> &code, uint32_t &offset) {
+    return decode_leb128_u32(code, offset);
+}
 
-int32_t read_i32(Vec<uint8_t> &code, uint32_t &offset) { return decode_leb128_i32(code, offset); }
+int32_t read_i32(Vec<uint8_t> &code, uint32_t &offset) {
+    return decode_leb128_i32(code, offset);
+}
 
-int64_t read_i64(Vec<uint8_t> &code, uint32_t &offset) { return decode_leb128_i64(code, offset); }
+int64_t read_i64(Vec<uint8_t> &code, uint32_t &offset) {
+    return decode_leb128_i64(code, offset);
+}
 
 void hexdump(void *ptr, int buflen) {
     unsigned char *buf = (unsigned char *)ptr;
@@ -106,7 +112,8 @@ void hexdump(void *ptr, int buflen) {
         }
         printf(" ");
         for (j = 0; j < 16; j++) {
-            if (i + j < buflen) printf("%c", isprint(buf[i + j]) ? buf[i + j] : '.');
+            if (i + j < buflen)
+                printf("%c", isprint(buf[i + j]) ? buf[i + j] : '.');
         }
         printf("\n");
     }

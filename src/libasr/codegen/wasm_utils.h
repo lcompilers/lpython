@@ -54,9 +54,9 @@ int64_t decode_leb128_i64(Vec<uint8_t> &code, uint32_t &offset);
 
 uint8_t read_b8(Vec<uint8_t> &code, uint32_t &offset);
 
-float read_f32(Vec<uint8_t> & code, uint32_t & offset);
+float read_f32(Vec<uint8_t> &code, uint32_t &offset);
 
-double read_f64(Vec<uint8_t> & code, uint32_t & offset);
+double read_f64(Vec<uint8_t> &code, uint32_t &offset);
 
 uint32_t read_u32(Vec<uint8_t> &code, uint32_t &offset);
 
