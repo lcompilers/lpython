@@ -107,6 +107,29 @@ macro(RUN)
             if (${RUN_FAIL})
                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
+        elseif(KIND STREQUAL "wasm")
+            # wasm test
+            execute_process(COMMAND lpython --backend wasm ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name})
+
+            find_program(WASM_EXEC_RUNTIME node)
+            execute_process(COMMAND "${WASM_EXEC_RUNTIME}" --version
+                            OUTPUT_VARIABLE WASM_EXEC_VERSION
+                            OUTPUT_STRIP_TRAILING_WHITESPACE)
+            string(COMPARE GREATER_EQUAL "${WASM_EXEC_VERSION}"
+                                    "v16.0.0" IS_NODE_ABOVE_16)
+
+            if (NOT IS_NODE_ABOVE_16)
+                message(STATUS "${WASM_EXEC_RUNTIME} version: ${WASM_EXEC_VERSION}")
+                set(WASM_EXEC_FLAGS "--experimental-wasm-bigint")
+            endif()
+
+            add_test(${name} ${WASM_EXEC_RUNTIME} ${WASM_EXEC_FLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${name}.js)
+            if (RUN_LABELS)
+                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
+            endif()
+            if (${RUN_FAIL})
+               set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+            endif()
         endif()
     endif()
 endmacro(RUN)

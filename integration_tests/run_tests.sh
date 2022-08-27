@@ -2,7 +2,7 @@
 
 set -ex
 
-rm -rf b1 b2 b3
+rm -rf b1 b2 b3 b4
 
 # Append "-j4" or "-j" to run in parallel
 jn=$1
@@ -28,5 +28,11 @@ mkdir b3
 cd b3
 
 cmake -DKIND=c ..
+make $jn
+ctest $jn --output-on-failure
+
+mkdir b4
+cd b4
+cmake -DKIND=wasm ..
 make $jn
 ctest $jn --output-on-failure
