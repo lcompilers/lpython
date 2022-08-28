@@ -38,24 +38,10 @@ c32 = Type("c32")
 c64 = Type("c64")
 CPtr = Type("c_ptr")
 
-# Restrictions
+# Restriction
 
-class Any:
-    def __init__(self):
-        pass
-
-class SupportsPlus:
-    def __init__(self):
-        pass
-
-class SupportsZero:
-    def __init__(self):
-        pass  
-
-class Divisible:
-    def __init__(self):
-        pass    
-
+def restriction(func):
+    return func
 
 # Overloading support
 

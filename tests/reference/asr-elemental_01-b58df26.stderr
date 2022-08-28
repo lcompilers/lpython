@@ -1,0 +1,5 @@
+semantic error: The symbol dtype is not found
+   --> tests/../integration_tests/elemental_01.py:153:24
+    |
+153 |     newshape: i32[1] = empty(1, dtype=int)
+    |                        ^^^^^^^^^^^^^^^^^^^ 
