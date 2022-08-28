@@ -658,15 +658,14 @@ public:
     }
 
     void visit_keywords_list(AST::keyword_t* keywords, size_t n,
-                             Vec<ASR::restriction_arg_t*> call_keywords_vec) {
+                             Vec<ASR::restriction_arg_t*>& call_keywords_vec, const Location& loc) {
         LFORTRAN_ASSERT(call_keywords_vec.reserve_called);
-        for( size_t i = 0; i < n; i++) {
+        for (size_t i = 0; i<n; i++) {
             AST::keyword_t keyword = keywords[0];
             std::string keyword_arg = keyword.m_arg;
             ASR::symbol_t* keyword_sym = current_scope->resolve_symbol(keyword_arg);
-            if (!keyword_sym) {
-                std::string msg = "The symbol " + keyword_arg + " is not found";
-                throw SemanticError(msg, keyword.loc);
+            if (keyword_sym == nullptr) {
+                throw SemanticError("The symbol " + keyword_arg + " is not found", loc);
             }
             ASR::Function_t* keyword_rt = ASR::is_a<ASR::Function_t>(*keyword_sym) 
                 ? ASR::down_cast<ASR::Function_t>(keyword_sym) : nullptr;
@@ -681,13 +680,20 @@ public:
                             throw SemanticError(msg, arg_name->base.base.loc);
                         }
                         if (ASR::is_a<ASR::Function_t>(*arg_sym)) {
+                            ASR::Function_t* arg_sym_func = ASR::down_cast<ASR::Function_t>(arg_sym);
+                            for (size_t j=0; j<arg_sym_func->n_args; j++) {
+                                if (ASRUtils::is_generic(*ASRUtils::expr_type(arg_sym_func->m_args[j]))) {
+                                    throw SemanticError("The function bound to restrition should not "
+                                        "contain any type parameters", arg_name->base.base.loc);
+                                }
+                            }
                             ASR::restriction_arg_t* rt_arg = ASR::down_cast<ASR::restriction_arg_t>(
-                                ASR::make_RestrictionArg_t(al, keyword.loc, s2c(al, keyword_arg), arg_sym));
+                                ASR::make_RestrictionArg_t(al, arg_name->base.base.loc, s2c(al, keyword_arg), arg_sym));
                             call_keywords_vec.push_back(al, rt_arg);
                         } else {
                             std::string msg = "The restriction " + keyword_arg + 
                                 " can't be assigned with a non-function " + arg_id;
-                            throw SemanticError(msg, keyword.loc);
+                            throw SemanticError(msg, loc);
                         }
                     }
                 }
@@ -847,16 +853,18 @@ public:
                 rt_vec.push_back(s);
             } else if (func->n_type_params > 0) {
                 std::map<std::string, ASR::ttype_t*> subs;
+                std::map<std::string, ASR::symbol_t*> rt_subs;
                 for (size_t i=0; i<args.size(); i++) {
                     ASR::ttype_t *param_type = ASRUtils::expr_type(func->m_args[i]);
                     ASR::ttype_t *arg_type = ASRUtils::expr_type(args[i].m_value);
-                    subs = check_type_substitution(subs, param_type, arg_type, loc);
+                    check_type_substitution(subs, param_type, arg_type, loc);
                 }
                 for (size_t i=0; i<func->n_restrictions; i++) {
-                    ASR::Function_t* rt = ASR::down_cast<ASR::Function_t>(func->m_restrictions[i]);
-                    std::string rt_name = rt->m_name;
+                    ASR::Function_t* rt = ASR::down_cast<ASR::Function_t>(
+                        func->m_restrictions[i]);
+                    check_type_restriction(subs, rt_subs, rt, rt_args.p, rt_args.size());
                 }
-                ASR::symbol_t *t = get_generic_function(subs, *func);
+                ASR::symbol_t *t = get_generic_function(subs, rt_subs, *func);
                 std::string new_call_name = call_name;
                 if (ASR::is_a<ASR::Function_t>(*t)) {
                     new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
@@ -882,7 +890,7 @@ public:
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
                 ASR::asr_t* func_call_asr = ASR::make_FunctionCall_t(al, loc, stemp,
                                                 s_generic, args_new.p, args_new.size(),
-                                                a_type, value, nullptr, nullptr, 0);
+                                                a_type, value, nullptr, rt_args.p, rt_args.size());
                 if( ignore_return_value ) {
                     std::string dummy_ret_name = current_scope->get_unique_name("__lcompilers_dummy");
                     ASR::asr_t* variable_asr = ASR::make_Variable_t(al, loc, current_scope,
@@ -902,7 +910,7 @@ public:
                 args_new.reserve(al, func->n_args);
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
                 return ASR::make_SubroutineCall_t(al, loc, stemp,
-                    s_generic, args_new.p, args_new.size(), nullptr, nullptr, 0);
+                    s_generic, args_new.p, args_new.size(), nullptr, rt_args.p, rt_args.size());
             }
         } else if(ASR::is_a<ASR::DerivedType_t>(*s)) {
             Vec<ASR::expr_t*> args_new;
@@ -924,7 +932,7 @@ public:
         }
     }
 
-    std::map<std::string, ASR::ttype_t*> check_type_substitution(std::map<std::string, ASR::ttype_t*> subs,
+    void check_type_substitution(std::map<std::string, ASR::ttype_t*>& subs,
             ASR::ttype_t *param_type, ASR::ttype_t *arg_type, const Location &loc) {
         if (ASR::is_a<ASR::List_t>(*param_type)) {
             if (ASR::is_a<ASR::List_t>(*arg_type)) {
@@ -937,17 +945,6 @@ public:
         }
         if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
             ASR::TypeParameter_t *tp = ASR::down_cast<ASR::TypeParameter_t>(param_type);
-            /*
-            if (!check_type_restriction(arg_type, tp)) {
-                diag.add(diag::Diagnostic(
-                    "Argument type does not match parameter's restriction",
-                    diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("Type mismatch", {param_type->base.loc, arg_type->base.loc})
-                    }
-                ));
-                throw SemanticAbort();
-            }
-            */
             std::string param_name = tp->m_param;
             if (subs.find(param_name) != subs.end()) {
                 if (!ASRUtils::check_equal_type(subs[param_name], arg_type)) {
@@ -968,7 +965,59 @@ public:
                 }
             }
         }
-        return subs;
+    }
+
+    void check_type_restriction(std::map<std::string, ASR::ttype_t*> subs, 
+            std::map<std::string, ASR::symbol_t*>& rt_subs, ASR::Function_t* rt,
+            ASR::restriction_arg_t** rt_args, size_t size_args) {
+        for (size_t i=0; i<size_args; i++) {
+            ASR::RestrictionArg_t* rt_arg = ASR::down_cast<ASR::RestrictionArg_t>(rt_args[i]);
+            if (rt_arg->m_restriction_name) {
+                ASR::Function_t* rt_arg_func = ASR::down_cast<ASR::Function_t>(rt_arg->m_restriction_func);
+                if (rt->n_args != rt_arg_func->n_args) {
+                    std::string msg = "The function " + std::string(rt_arg_func->m_name) 
+                        + " provided for the restriction "
+                        + std::string(rt->m_name) + " have different number of arguments";
+                    throw SemanticError(msg, rt_arg->base.base.loc); 
+                }
+                for (size_t j=0; j<rt->n_args; j++) {
+                    ASR::ttype_t* rt_type = ASRUtils::expr_type(rt->m_args[j]);
+                    ASR::ttype_t* rt_arg_type = ASRUtils::expr_type(rt_arg_func->m_args[j]);
+                    if (ASRUtils::is_generic(*rt_type)) {
+                        std::string rt_type_param = ASR::down_cast<ASR::TypeParameter_t>(
+                            ASRUtils::get_type_parameter(rt_type))->m_param;
+                        if (!ASRUtils::check_equal_type(subs[rt_type_param], rt_arg_type)) {
+                            throw SemanticError("Restriction mismatch with provided arguments",
+                                rt_arg->base.base.loc);
+                        }
+                    }
+                }
+                if (rt->m_return_var) {
+                    if (!rt_arg_func->m_return_var) {
+                        throw SemanticError("The function provided to the restriction should "
+                            "have a return value", rt_arg->base.base.loc);
+                    }
+                    ASR::ttype_t* rt_return = ASRUtils::expr_type(rt->m_return_var);
+                    ASR::ttype_t* rt_arg_return = ASRUtils::expr_type(rt_arg_func->m_return_var);
+                    if (ASRUtils::is_generic(*rt_return)) {
+                        std::string rt_return_param = ASR::down_cast<ASR::TypeParameter_t>(
+                            ASRUtils::get_type_parameter(rt_return))->m_param;
+                        if (!ASRUtils::check_equal_type(subs[rt_return_param], rt_arg_return)) {
+                            throw SemanticError("Restriction mismatch with provided arguments",
+                                rt_arg->base.base.loc);
+                        }
+                    }
+                } else {
+                    if (rt_arg_func->m_return_var) {
+                        throw SemanticError("The function provided to the restriction should "
+                            "not have a return value", rt_arg->base.base.loc);
+                    }
+                }
+                rt_subs[rt->m_name] = rt_arg->m_restriction_func;
+            }
+        }
+        // TODO: Error when the appropriate restriction argument is not provided
+        //       except for plus where integer, real are hard-coded
     }
 
     /*
@@ -1008,8 +1057,10 @@ public:
     }
     */
 
+    // TODO: Consider different instantiations of functions, with same arguments
+    //       but different restriction arguments
     ASR::symbol_t* get_generic_function(std::map<std::string, ASR::ttype_t*> subs,
-            ASR::Function_t &func) {
+            std::map<std::string, ASR::symbol_t*> rt_subs, ASR::Function_t &func) {
         int new_function_num;
         ASR::symbol_t *t;
         std::string func_name = func.m_name;
@@ -1041,9 +1092,11 @@ public:
             new_function_num = 0;
         }
         generic_func_nums[func_name] = new_function_num + 1;
-        std::string new_func_name = "__lpython_generic_" + func_name + "_" + std::to_string(new_function_num);
+        std::string new_func_name = "__lpython_generic_" + func_name + "_" 
+            + std::to_string(new_function_num);
         generic_func_subs[new_func_name] = subs;
-        t = pass_instantiate_generic_function(al, subs, current_scope, new_func_name, func);
+        t = pass_instantiate_generic_function(al, subs, rt_subs, current_scope,
+                new_func_name, func);
         return t;
     }
 
@@ -4030,7 +4083,7 @@ public:
             visit_expr_list(c->m_args, c->n_args, args);
             Vec<ASR::restriction_arg_t*> rt_args;
             rt_args.reserve(al, c->n_keywords);
-            visit_keywords_list(c->m_keywords, c->n_keywords, rt_args);
+            visit_keywords_list(c->m_keywords, c->n_keywords, rt_args, c->base.base.loc);
             if (call_name == "print") {
                 ASR::expr_t *fmt = nullptr;
                 Vec<ASR::expr_t*> args_expr = ASRUtils::call_arg2expr(al, args);
@@ -4532,7 +4585,7 @@ public:
         visit_expr_list(x.m_args, x.n_args, args);
         Vec<ASR::restriction_arg_t*> rt_args;
         rt_args.reserve(al, x.n_keywords);
-        visit_keywords_list(x.m_keywords, x.n_keywords, rt_args);
+        visit_keywords_list(x.m_keywords, x.n_keywords, rt_args, x.base.base.loc);
         if (AST::is_a<AST::Name_t>(*x.m_func)) {
             AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
             call_name = n->m_id;
