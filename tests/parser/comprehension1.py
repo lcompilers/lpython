@@ -61,3 +61,5 @@ newSet = {element*3 for element in myList if element % 2 ==0}
 {x: x**3 for x in range(10) if x**3 % 4 == 0}
 
 square_dict = {num: num*num for num in range(1, 11)}
+
+error_names = [test_full_name.split(" ")[0] for (test_full_name, *_) in errors]
