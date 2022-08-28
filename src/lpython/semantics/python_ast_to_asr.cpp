@@ -2689,18 +2689,14 @@ public:
                     throw SemanticError("slice indices must be integers or None", tmp->loc);
                 }
                 ai.m_step = ASRUtils::EXPR(tmp);
-            }
-            if( ai.m_left != nullptr &&
-                ASR::is_a<ASR::Var_t>(*ai.m_left) &&
-                ASR::is_a<ASR::Var_t>(*ai.m_right) ) {
-                ASR::Variable_t* startv = ASRUtils::EXPR2VAR(ai.m_left);
-                ASR::Variable_t* endv = ASRUtils::EXPR2VAR(ai.m_right);
-                is_item = is_item && (startv == endv);
             } else {
-                is_item = is_item && (ai.m_left == nullptr &&
-                                      ai.m_step == nullptr &&
-                                      ai.m_right != nullptr);
+                ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                    4, nullptr, 0));
+                ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
+                                                    al, loc, 1, a_type));
+                ai.m_step = constant_one;
             }
+            is_item = false;
             if (ASR::is_a<ASR::List_t>(*type)) {
                 tmp = ASR::make_ListSection_t(al, loc, value, ai, type, nullptr);
                 return false;
