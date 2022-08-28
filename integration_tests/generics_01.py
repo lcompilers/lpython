@@ -1,10 +1,17 @@
-from ltypes import TypeVar, SupportsPlus
+from ltypes import TypeVar
 
-T = TypeVar('T', bound=SupportsPlus)
+T = TypeVar('T')
 
-def f(x: T, y: T) -> T:
+@restriction
+def plus(x: T, y: T) -> T:
+    pass
+
+def add_string(x: str, y: str) -> str:
     return x + y
 
+def f(x: T, y: T) -> T:
+    return plus(x,y)
+
 print(f(1,2))
-print(f("a","b"))
-print(f("c","d"))
+print(f("a","b",plus=add_string))
+print(f("c","d",plus=add_string))
