@@ -23,7 +23,7 @@ def verify_arcsin_2d(array: f64[:, :], result: f64[:, :], size1:i32, size2:i32):
     eps = 1e-12
     for i in range(size1):
         for j in range(size2):
-                assert abs(arcsin(array[i, j])**2 - result[i, j]) <= eps
+            assert abs(arcsin(array[i, j])**2 - result[i, j]) <= eps
 
 def verify_arccos_1d(array: f32[:], result: f32[:], size: i32):
     i: i32
@@ -39,7 +39,7 @@ def verify_arccos_2d(array: f64[:, :], result: f64[:, :], size1:i32, size2:i32):
     eps = 1e-12
     for i in range(size1):
         for j in range(size2):
-                assert abs(arccos(array[i, j])**2 - result[i, j]) <= eps
+            assert abs(arccos(array[i, j])**2 - result[i, j]) <= eps
 
 def elemental_arcsin():
     i: i32
