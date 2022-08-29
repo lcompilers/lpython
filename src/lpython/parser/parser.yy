@@ -469,6 +469,7 @@ augassign_op
     | ">>=" { $$ = OPERATOR(RShift, @$); }
     | "**=" { $$ = OPERATOR(Pow, @$); }
     | "//=" { $$ = OPERATOR(FloorDiv, @$); }
+    | "@=" { $$ = OPERATOR(MatMult, @$); }
     ;
 
 ann_assignment_statement

@@ -28,3 +28,8 @@ if (x not in\
 if x not\
     in\
     z: ... 
+
+def imatmul(a, b):
+    "Same as a @= b."
+    a @= b
+    return a
