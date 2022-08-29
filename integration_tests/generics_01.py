@@ -1,4 +1,4 @@
-from ltypes import TypeVar, restriction
+from ltypes import TypeVar
 
 T = TypeVar('T')
 
