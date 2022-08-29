@@ -252,7 +252,10 @@ R"(#include <stdio.h>
     std::string get_function_declaration(const ASR::Function_t &x) {
         template_for_Kokkos.clear();
         template_number = 0;
-        std::string sub;
+        std::string sub, inl;
+        if (x.m_inline) {
+            inl = "inline __attribute__((always_inline)) ";
+        }
         if (x.m_return_var) {
             ASR::Variable_t *return_var = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
             if (ASRUtils::is_integer(*return_var->m_type)) {
@@ -310,7 +313,7 @@ R"(#include <stdio.h>
         if (sym_name == "exit") {
             sym_name = "_xx_lcompilers_changed_exit_xx";
         }
-        std::string func = sub + sym_name + "(";
+        std::string func = inl + sub + sym_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
@@ -820,6 +823,11 @@ R"(#include <stdio.h>
             case (ASR::binopType::Sub) : { last_expr_precedence = 6; break; }
             case (ASR::binopType::Mul) : { last_expr_precedence = 5; break; }
             case (ASR::binopType::Div) : { last_expr_precedence = 5; break; }
+            case (ASR::binopType::BitAnd) : { last_expr_precedence = 11; break; }
+            case (ASR::binopType::BitOr) : { last_expr_precedence = 13; break; }
+            case (ASR::binopType::BitXor) : { last_expr_precedence = 12; break; }
+            case (ASR::binopType::BitLShift) : { last_expr_precedence = 7; break; }
+            case (ASR::binopType::BitRShift) : { last_expr_precedence = 7; break; }
             case (ASR::binopType::Pow) : {
                 src = "pow(" + left + ", " + right + ")";
                 if (is_c) {

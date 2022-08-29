@@ -57,6 +57,7 @@ filename = "expr2.py"
 ast = true
 asr = true
 cpp = true
+wat = true
 
 [[test]]
 filename = "expr3.py"
@@ -99,6 +100,7 @@ filename = "expr9.py"
 ast = true
 asr = true
 cpp = true
+wat = true
 
 [[test]]
 filename = "expr10.py"
@@ -124,6 +126,7 @@ asr = true
 [[test]]
 filename = "expr14.py"
 llvm = true
+wat = true
 
 [[test]]
 filename = "expr15.py"
@@ -158,6 +161,11 @@ asr = true
 [[test]]
 filename = "../integration_tests/test_numpy_04.py"
 asr = true
+
+[[test]]
+filename = "../integration_tests/expr_01.py"
+asr = true
+c = true
 
 [[test]]
 filename = "../integration_tests/expr_09.py"
@@ -203,6 +211,7 @@ ast = true
 asr = true
 cpp = true
 c = true
+wat = true
 
 [[test]]
 filename = "loop2.py"
@@ -241,6 +250,7 @@ asr = true
 [[test]]
 filename = "bool1.py"
 llvm = true
+wat = true
 
 [[test]]
 filename = "global_scope1.py"

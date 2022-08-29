@@ -1,5 +1,0 @@
-semantic error: The symbol end is not found
- --> tests/errors/test_print2.py:2:6
-  |
-2 |      print("a", "b", end=1)
-  |      ^^^^^^^^^^^^^^^^^^^^^^ 

@@ -145,7 +145,7 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
         case ASR::ttypeType::TypeParameter: {
             ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
             return tp->m_param;
-        }        
+        }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type) + ".");
     }
 }
@@ -1073,6 +1073,11 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
             break;
         }
         case ASR::ttypeType::Tuple: {
+            n_dims = 0;
+            m_dims = nullptr;
+            break;
+        }
+        case ASR::ttypeType::Dict: {
             n_dims = 0;
             m_dims = nullptr;
             break;

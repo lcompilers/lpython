@@ -18,3 +18,18 @@ if args[i][:1] in ['', '.']:
 x = [[-c % self for c in reversed(T.rep.rep)][:-1]]
 
 [x for x in G if self.ring.is_unit(x[0])][0]
+
+if x not in\
+    z: ... 
+
+if (x not in\
+    z): ... 
+
+if x not\
+    in\
+    z: ... 
+
+def imatmul(a, b):
+    "Same as a @= b."
+    a @= b
+    return a

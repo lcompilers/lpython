@@ -695,9 +695,8 @@ struct PythonIntrinsicProcedures {
             throw SemanticError("str.rstrip() takes no arguments", loc);
         }
         ASR::expr_t *arg = args[0];
-        ASR::ttype_t *arg_type = ASRUtils::expr_type(arg);
         std::string res = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
-         int ind = res.size()-1;
+        int ind = (int)res.size() - 1;
         while (ind >= 0 && res[ind--] == ' ');
         res = std::string(res.begin(), res.begin() + ind +1);
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
@@ -712,9 +711,8 @@ struct PythonIntrinsicProcedures {
             throw SemanticError("str.lstrip() takes no arguments", loc);
         }
         ASR::expr_t *arg = args[0];
-        ASR::ttype_t *arg_type = ASRUtils::expr_type(arg);
         std::string res = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
-        int ind = 0;
+        size_t ind = 0;
         while (ind < res.size() && res[ind++] == ' ');
         res = std::string(res.begin() + ind, res.end());
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
@@ -729,9 +727,9 @@ struct PythonIntrinsicProcedures {
             throw SemanticError("str.strip() takes no arguments", loc);
         }
         ASR::expr_t *arg = args[0];
-        ASR::ttype_t *arg_type = ASRUtils::expr_type(arg);
         std::string res = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
-        int l = 0 ,r = res.size() - 1;
+        size_t l = 0;
+        int r = (int)res.size() - 1;
         while (l < res.size() && r >= 0 && (res[l] == ' ' || res[r] == ' ')) {
             l += res[l] == ' ';
             r -= res[r] == ' ';

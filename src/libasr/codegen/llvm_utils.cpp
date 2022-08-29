@@ -108,7 +108,9 @@ namespace LFortran {
     LLVMUtils::LLVMUtils(llvm::LLVMContext& context,
         llvm::IRBuilder<>* _builder):
         context(context),
-        builder(std::move(_builder)) {
+        builder(std::move(_builder)),
+        str_cmp_itr(nullptr),
+        are_iterators_set(false) {
         }
 
     llvm::Value* LLVMUtils::create_gep(llvm::Value* ds, int idx) {
@@ -191,6 +193,21 @@ namespace LFortran {
         builder->SetInsertPoint(bb);
     }
 
+    void LLVMUtils::set_iterators() {
+        if( are_iterators_set ) {
+            return ;
+        }
+        str_cmp_itr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr, "str_cmp_itr");
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+            llvm::APInt(32, 0)), str_cmp_itr);
+        are_iterators_set = true;
+    }
+
+    void LLVMUtils::reset_iterators() {
+        str_cmp_itr = nullptr;
+        are_iterators_set = false;
+    }
+
     llvm::Value* LLVMUtils::lfortran_str_cmp(llvm::Value* left_arg, llvm::Value* right_arg,
                                              std::string runtime_func_name, llvm::Module& module)
     {
@@ -205,12 +222,10 @@ namespace LFortran {
             fn = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, runtime_func_name, module);
         }
-        llvm::AllocaInst *pleft_arg = builder->CreateAlloca(character_type,
-            nullptr);
-        builder->CreateStore(left_arg, pleft_arg);
-        llvm::AllocaInst *pright_arg = builder->CreateAlloca(character_type,
-            nullptr);
-        builder->CreateStore(right_arg, pright_arg);
+        llvm::AllocaInst *pleft_arg = builder->CreateAlloca(character_type, nullptr);
+        LLVM::CreateStore(*builder, left_arg, pleft_arg);
+        llvm::AllocaInst *pright_arg = builder->CreateAlloca(character_type, nullptr);
+        LLVM::CreateStore(*builder, right_arg, pright_arg);
         std::vector<llvm::Value*> args = {pleft_arg, pright_arg};
         return builder->CreateCall(fn, args);
     }
@@ -225,8 +240,50 @@ namespace LFortran {
                 return builder->CreateFCmpOEQ(left, right);
             }
             case ASR::ttypeType::Character: {
-                return lfortran_str_cmp(left, right, "_lpython_str_compare_eq",
-                                        module);
+                if( !are_iterators_set ) {
+                    str_cmp_itr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+                }
+                llvm::Value* null_char = llvm::ConstantInt::get(llvm::Type::getInt8Ty(context),
+                                                            llvm::APInt(8, '\0'));
+                llvm::Value* idx = str_cmp_itr;
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0)),
+                    idx);
+                llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+                llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+                llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+                // head
+                start_new_block(loophead);
+                {
+                    llvm::Value* i = LLVM::CreateLoad(*builder, idx);
+                    llvm::Value* l = LLVM::CreateLoad(*builder, create_ptr_gep(left, i));
+                    llvm::Value* r = LLVM::CreateLoad(*builder, create_ptr_gep(right, i));
+                    llvm::Value *cond = builder->CreateAnd(
+                        builder->CreateICmpNE(l, null_char),
+                        builder->CreateICmpNE(r, null_char)
+                    );
+                    cond = builder->CreateAnd(cond, builder->CreateICmpEQ(l, r));
+                    builder->CreateCondBr(cond, loopbody, loopend);
+                }
+
+                // body
+                start_new_block(loopbody);
+                {
+                    llvm::Value* i = LLVM::CreateLoad(*builder, idx);
+                    i = builder->CreateAdd(i, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                            llvm::APInt(32, 1)));
+                    LLVM::CreateStore(*builder, i, idx);
+                }
+
+                builder->CreateBr(loophead);
+
+                // end
+                start_new_block(loopend);
+                llvm::Value* i = LLVM::CreateLoad(*builder, idx);
+                llvm::Value* l = LLVM::CreateLoad(*builder, create_ptr_gep(left, i));
+                llvm::Value* r = LLVM::CreateLoad(*builder, create_ptr_gep(right, i));
+                return builder->CreateICmpEQ(l, r);
             }
             case ASR::ttypeType::Tuple: {
                 ASR::Tuple_t* tuple_type = ASR::down_cast<ASR::Tuple_t>(asr_type);
@@ -282,8 +339,9 @@ namespace LFortran {
         llvm_utils(std::move(llvm_utils_)),
         builder(std::move(builder_)),
         pos_ptr(nullptr), is_key_matching_var(nullptr),
-        idx_ptr(nullptr), are_iterators_set(false),
-        is_dict_present(false) {
+        idx_ptr(nullptr), hash_iter(nullptr),
+        hash_value(nullptr), polynomial_powers(nullptr),
+        are_iterators_set(false), is_dict_present(false) {
     }
 
     LLVMDictOptimizedLinearProbing::LLVMDictOptimizedLinearProbing(
@@ -564,6 +622,7 @@ namespace LFortran {
         if( are_iterators_set || !is_dict_present ) {
             return ;
         }
+        llvm_utils->set_iterators();
         pos_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr, "pos_ptr");
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
             llvm::APInt(32, 0)), pos_ptr);
@@ -574,13 +633,26 @@ namespace LFortran {
         idx_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr, "idx_ptr");
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
             llvm::APInt(32, 0)), idx_ptr);
+        hash_value = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_value");
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt64Ty(context),
+            llvm::APInt(64, 0)), hash_value);
+        hash_iter = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_iter");
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt64Ty(context),
+            llvm::APInt(64, 0)), hash_iter);
+        polynomial_powers = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "p_pow");
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(llvm::Type::getInt64Ty(context),
+            llvm::APInt(64, 1)), polynomial_powers);
         are_iterators_set = true;
     }
 
     void LLVMDict::reset_iterators() {
+        llvm_utils->reset_iterators();
         pos_ptr = nullptr;
         is_key_matching_var = nullptr;
         idx_ptr = nullptr;
+        hash_iter = nullptr;
+        hash_value = nullptr;
+        polynomial_powers = nullptr;
         are_iterators_set = false;
     }
 
@@ -826,7 +898,7 @@ namespace LFortran {
         llvm::Value* value_list = get_value_list(dict);
         llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
         llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
-        this->resolve_collision(capacity, key_hash, key, key_list, key_mask, module, key_asr_type);
+        this->resolve_collision(capacity, key_hash, key, key_list, key_mask, module, key_asr_type, true);
         llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
         llvm::Value* item = llvm_utils->list_api->read_item(value_list, pos, true, false);
         return item;
@@ -878,7 +950,77 @@ namespace LFortran {
                 // Simple modulo with the capacity of the dict.
                 // We can update it later to do a better hash function
                 // which produces lesser collisions.
-                return builder->CreateSRem(key, capacity);
+
+                return builder->CreateZExtOrTrunc(
+                    builder->CreateSRem(key,
+                    builder->CreateZExtOrTrunc(capacity, key->getType())),
+                    capacity->getType()
+                );
+            }
+            case ASR::ttypeType::Character: {
+                // Polynomial rolling hash function for strings
+                llvm::Value* null_char = llvm::ConstantInt::get(llvm::Type::getInt8Ty(context),
+                                                                llvm::APInt(8, '\0'));
+                llvm::Value* p = llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 31));
+                llvm::Value* m = llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 100000009));
+                if( !are_iterators_set ) {
+                    hash_value = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_value");
+                    hash_iter = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "hash_iter");
+                    polynomial_powers = builder->CreateAlloca(llvm::Type::getInt64Ty(context), nullptr, "p_pow");
+                }
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 0)),
+                    hash_value);
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 1)),
+                    polynomial_powers);
+                LLVM::CreateStore(*builder,
+                    llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 0)),
+                    hash_iter);
+                llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+                llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+                llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+
+                // head
+                llvm_utils->start_new_block(loophead);
+                {
+                    llvm::Value* i = LLVM::CreateLoad(*builder, hash_iter);
+                    llvm::Value* c = LLVM::CreateLoad(*builder, llvm_utils->create_ptr_gep(key, i));
+                    llvm::Value *cond = builder->CreateICmpNE(c, null_char);
+                    builder->CreateCondBr(cond, loopbody, loopend);
+                }
+
+                // body
+                llvm_utils->start_new_block(loopbody);
+                {
+                    // for c in key:
+                    //     hash_value = (hash_value + (ord(c) + 1) * p_pow) % m
+                    //     p_pow = (p_pow * p) % m
+                    llvm::Value* i = LLVM::CreateLoad(*builder, hash_iter);
+                    llvm::Value* c = LLVM::CreateLoad(*builder, llvm_utils->create_ptr_gep(key, i));
+                    llvm::Value* p_pow = LLVM::CreateLoad(*builder, polynomial_powers);
+                    llvm::Value* hash = LLVM::CreateLoad(*builder, hash_value);
+                    c = builder->CreateZExt(c, llvm::Type::getInt64Ty(context));
+                    c = builder->CreateAdd(c, llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 1)));
+                    c = builder->CreateMul(c, p_pow);
+                    c = builder->CreateSRem(c, m);
+                    hash = builder->CreateAdd(hash, c);
+                    hash = builder->CreateSRem(hash, m);
+                    LLVM::CreateStore(*builder, hash, hash_value);
+                    p_pow = builder->CreateMul(p_pow, p);
+                    p_pow = builder->CreateSRem(p_pow, m);
+                    LLVM::CreateStore(*builder, p_pow, polynomial_powers);
+                    i = builder->CreateAdd(i, llvm::ConstantInt::get(llvm::Type::getInt64Ty(context), llvm::APInt(64, 1)));
+                    LLVM::CreateStore(*builder, i, hash_iter);
+                }
+
+                builder->CreateBr(loophead);
+
+                // end
+                llvm_utils->start_new_block(loopend);
+                llvm::Value* hash = LLVM::CreateLoad(*builder, hash_value);
+                hash = builder->CreateTrunc(hash, llvm::Type::getInt32Ty(context));
+                return builder->CreateSRem(hash, capacity);
             }
             default: {
                 throw LCompilersException("Hashing " + ASRUtils::type_to_str_python(key_asr_type) +

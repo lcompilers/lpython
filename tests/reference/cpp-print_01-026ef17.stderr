@@ -1,5 +1,0 @@
-semantic error: The symbol sep is not found
- --> tests/../integration_tests/print_01.py:7:5
-  |
-7 |     print("a", "b", sep=x)
-  |     ^^^^^^^^^^^^^^^^^^^^^^ 

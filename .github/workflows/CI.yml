@@ -108,3 +108,62 @@ jobs:
             set MACOS=0
             call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
             xonsh ci\test.xsh
+
+  build_to_wasm:
+    name: Build LPython to WASM
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: mamba-org/provision-with-micromamba@main
+        with:
+          environment-file: ci/environment.yml
+          extra-specs: |
+            python=3.10
+            bison=3.4
+
+      - uses: hendrikmuhs/ccache-action@main
+        with:
+          variant: sccache
+          key: ${{ github.job }}-${{ matrix.os }}
+
+      - name: Install Emscripten from Git
+        shell: bash -l {0}
+        run: |
+            mkdir $HOME/ext
+            cd $HOME/ext
+
+            git clone https://github.com/emscripten-core/emsdk.git
+            cd emsdk
+
+            # Download and install the latest SDK tools.
+            ./emsdk install latest
+
+            # Make the "latest" SDK "active" for the current user. (writes .emscripten file)
+            ./emsdk activate latest
+
+      - name: Show Emscripten Info
+        shell: bash -l {0}
+        run: |
+            set -ex
+            # Activate PATH and other environment variables in the current terminal
+            source $HOME/ext/emsdk/emsdk_env.sh
+            emcc -v
+            em++ -v
+
+      - name: Build to WASM
+        shell: bash -l {0}
+        run: |
+            set -ex
+            source $HOME/ext/emsdk/emsdk_env.sh # Activate Emscripten
+            ./build0.sh
+            ./build_to_wasm.sh
+
+      - name: Test built lpython.wasm
+        shell: bash -l {0}
+        run: |
+            set -ex
+            source $HOME/ext/emsdk/emsdk_env.sh # Activate Emscripten
+            node src/lpython/tests/test_lpython.js

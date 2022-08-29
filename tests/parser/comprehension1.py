@@ -18,6 +18,13 @@ another_ten_elements = [(i) for (i) in range(10)]
 
 comp = [i**2 for i in range(10) if i not in [3, 5, 7] and i in list3]
 
+items = [
+    name
+    for name, value in vars(argparse).items()
+    if not (name.startswith("_") or name == 'ngettext')
+    if not inspect.ismodule(value)
+]
+
 # Generator Expression
 prm_tup = tuple(next(parameters) for _ in i.__parameters__)
 
@@ -37,6 +44,14 @@ func(*[[x*y] for [x] in self._module.gens for [y] in J._module.gens])
 
 (x for [] in y)
 
+(string[i] for i in range(len(string)-1, -1, -1))
+
+k = (j + k for j, k in range(10) if j > 0)
+
+(left + size + right for size, (left, right) in zip(array.shape, pad_width))
+
+viter = ((i, j) for ((i, _), (j, _)) in zip(newargs[1:], args[1:]))
+
 # Set Comprehension
 newSet = {element*3 for element in myList}
 
@@ -47,10 +62,4 @@ newSet = {element*3 for element in myList if element % 2 ==0}
 
 square_dict = {num: num*num for num in range(1, 11)}
 
-(string[i] for i in range(len(string)-1, -1, -1))
-
-k = (j + k for j, k in range(10) if j > 0)
-
-(left + size + right for size, (left, right) in zip(array.shape, pad_width))
-
-viter = ((i, j) for ((i, _), (j, _)) in zip(newargs[1:], args[1:]))
+error_names = [test_full_name.split(" ")[0] for (test_full_name, *_) in errors]

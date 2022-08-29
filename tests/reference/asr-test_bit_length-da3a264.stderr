@@ -1,5 +1,0 @@
-semantic error: int.bit_length() takes no arguments
- --> tests/errors/test_bit_length.py:4:11
-  |
-4 |     print(x.bit_length(23))
-  |           ^^^^^^^^^^^^^^^^ 

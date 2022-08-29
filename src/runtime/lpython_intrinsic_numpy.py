@@ -125,3 +125,43 @@ def log2(x: f64) -> f64:
 @vectorize
 def log2(x: f32) -> f32:
     return _lfortran_slog(x)/_lfortran_slog(2.0)
+
+########## arcsin ##########
+
+@ccall
+def _lfortran_dasin(x: f64) -> f64:
+    pass
+
+@overload
+@vectorize
+def arcsin(x: f64) -> f64:
+    return _lfortran_dasin(x)
+
+@ccall
+def _lfortran_sasin(x: f32) -> f32:
+    pass
+
+@overload
+@vectorize
+def arcsin(x: f32) -> f32:
+    return _lfortran_sasin(x)
+
+########## arccos ##########
+
+@ccall
+def _lfortran_dacos(x: f64) -> f64:
+    pass
+
+@overload
+@vectorize
+def arccos(x: f64) -> f64:
+    return _lfortran_dacos(x)
+
+@ccall
+def _lfortran_sacos(x: f32) -> f32:
+    pass
+
+@overload
+@vectorize
+def arccos(x: f32) -> f32:
+    return _lfortran_sacos(x)

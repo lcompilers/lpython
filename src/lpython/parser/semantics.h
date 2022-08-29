@@ -343,6 +343,7 @@ static inline Vec<withitem_t> convert_exprlist_to_withitem(Allocator &al,
 
 #define WITH_ITEM_01(expr, vars, l) WITH_ITEM(l, \
         EXPR(expr), EXPR(SET_EXPR_CTX_01(vars, Store)))
+#define WITH_ITEM_02(expr, l) WITH_ITEM(l, EXPR(expr), nullptr)
 #define WITH(items, body, l) make_With_t(p.m_a, l, \
         convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
         STMTS(body), body.size(), nullptr)
@@ -875,7 +876,7 @@ static inline comprehension_t *COMP(Allocator &al, Location &l,
         EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), nullptr, 0, 0)
 #define COMP_FOR_02(target, iter, ifs, l) COMP(p.m_a, l, \
         EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
-        EXPRS(A2LIST(p.m_a, ifs)), 1, 0)
+        EXPRS(ifs), ifs.size(), 0)
 
 #define GENERATOR_EXPR(elt, generators, l) make_GeneratorExp_t(p.m_a, l, \
         EXPR(elt), generators.p, generators.n)
@@ -963,6 +964,8 @@ ast_t *DICT1(Allocator &al, Location &l, Vec<Key_Val*> dict_list) {
         EXPR(SET_EXPR_CTX_01(x, Store)), EXPR(y))
 #define STARRED_ARG(e, l) make_Starred_t(p.m_a, l, \
         EXPR(e), expr_contextType::Load)
+#define STARRED_ARG_STORE(e, l) make_Starred_t(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(e, Store)), expr_contextType::Load)
 #define LAMBDA_01(args, e, l) make_Lambda_t(p.m_a, l, args->arguments, EXPR(e))
 
 #endif

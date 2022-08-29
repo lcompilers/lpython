@@ -121,7 +121,7 @@ public:
             body.p, body.size(),
             new_return_var_ref,
             func_abi, func_access, func_deftype, bindc_name,
-            func_elemental, func_pure, func_module,
+            func_elemental, func_pure, func_module, x.m_inline,
             nullptr, 0, nullptr, 0, false);
 
         ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(result);

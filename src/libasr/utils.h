@@ -55,9 +55,10 @@ namespace LCompilers {
         bool always_run; // for unused_functions pass
         bool inline_external_symbol_calls; // for inline_function_calls pass
         int64_t unroll_factor; // for loop_unroll pass
+        bool fast; // is fast flag enabled.
 
         PassOptions(): always_run(false), inline_external_symbol_calls(true),
-                       unroll_factor(32)
+                       unroll_factor(32), fast(false)
         {}
     };
 
