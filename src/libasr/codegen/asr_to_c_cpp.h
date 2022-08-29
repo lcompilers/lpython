@@ -823,6 +823,7 @@ R"(#include <stdio.h>
             case (ASR::binopType::Sub) : { last_expr_precedence = 6; break; }
             case (ASR::binopType::Mul) : { last_expr_precedence = 5; break; }
             case (ASR::binopType::Div) : { last_expr_precedence = 5; break; }
+            case (ASR::binopType::BitAnd) : { last_expr_precedence = 5; break; }
             case (ASR::binopType::Pow) : {
                 src = "pow(" + left + ", " + right + ")";
                 if (is_c) {
