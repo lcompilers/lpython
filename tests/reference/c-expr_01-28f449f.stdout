@@ -37,6 +37,7 @@ struct dimension_descriptor
 // Forward declarations
 void _lpython_main_program();
 inline __attribute__((always_inline)) int32_t add(int32_t x, int32_t y);
+inline __attribute__((always_inline)) int32_t and_op(int32_t x, int32_t y);
 void main0();
 
 // Implementations
@@ -52,14 +53,24 @@ inline __attribute__((always_inline)) int32_t add(int32_t x, int32_t y)
     return _lpython_return_variable;
 }
 
+inline __attribute__((always_inline)) int32_t and_op(int32_t x, int32_t y)
+{
+    int32_t _lpython_return_variable;
+    _lpython_return_variable = x&y;
+    return _lpython_return_variable;
+}
+
 void main0()
 {
     int32_t x;
     int32_t y;
+    int32_t z;
     x = (2 + 3)*5;
     y = add(x, 2)*2;
     ASSERT(x == 25);
     ASSERT(y == 54);
+    z = and_op(x, y);
+    ASSERT(z == 16);
 }
 
 int main(int argc, char* argv[])
