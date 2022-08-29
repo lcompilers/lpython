@@ -74,6 +74,48 @@ def _lfortran_stan(x: f32) -> f32:
 def tan(x: f32) -> f32:
     return _lfortran_stan(x)
 
+
+########## sinh ##########
+
+@ccall
+def _lfortran_dsinh(x: f64) -> f64:
+    pass
+
+@overload
+@vectorize
+def sinh(x: f64) -> f64:
+    return _lfortran_dsinh(x)
+
+@ccall
+def _lfortran_ssinh(x: f32) -> f32:
+    pass
+
+@overload
+@vectorize
+def sinh(x: f32) -> f32:
+    return _lfortran_ssinh(x)
+
+########## cosh ##########
+
+@ccall
+def _lfortran_dcosh(x: f64) -> f64:
+    pass
+
+@overload
+@vectorize
+def cosh(x: f64) -> f64:
+    return _lfortran_dcosh(x)
+
+@ccall
+def _lfortran_scosh(x: f32) -> f32:
+    pass
+
+@overload
+@vectorize
+def cosh(x: f32) -> f32:
+    return _lfortran_scosh(x)
+
+
 ########## log ##########
 
 @ccall
