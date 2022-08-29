@@ -918,6 +918,10 @@ public:
         }
     }
 
+    /**
+     * @brief Check if the type of the argument given does not contradict
+     *        with previously checked type substitution.
+     */
     void check_type_substitution(std::map<std::string, ASR::ttype_t*>& subs,
             ASR::ttype_t *param_type, ASR::ttype_t *arg_type, const Location &loc) {
         if (ASR::is_a<ASR::List_t>(*param_type)) {
@@ -953,6 +957,10 @@ public:
         }
     }
 
+    /**
+     * @brief Check if the given function and the type substitution satisfies
+     *        the restriction
+     */
     void check_type_restriction(std::map<std::string, ASR::ttype_t*> subs, 
             std::map<std::string, ASR::symbol_t*>& rt_subs, ASR::Function_t* rt,
             ASR::restriction_arg_t** rt_args, size_t size_args) {
@@ -962,6 +970,8 @@ public:
             std::string rt_name = rt->m_name;
             if (rt_arg_name.compare(rt_name) == 0) {
                 ASR::Function_t* rt_arg_func = ASR::down_cast<ASR::Function_t>(rt_arg->m_restriction_func);
+                /** @brief different argument number between the function given and the 
+                 *         restriction result in error **/
                 if (rt->n_args != rt_arg_func->n_args) {
                     std::string msg = "The function " + std::string(rt_arg_func->m_name) 
                         + " provided for the restriction "
@@ -974,6 +984,10 @@ public:
                     if (ASRUtils::is_generic(*rt_type)) {
                         std::string rt_type_param = ASR::down_cast<ASR::TypeParameter_t>(
                             ASRUtils::get_type_parameter(rt_type))->m_param;
+                        /**
+                         * @brief if the type of the function given for the restriction does not 
+                         *        satisfy the type substitution from the function argument, it
+                         *        results in error **/
                         if (!ASRUtils::check_equal_type(subs[rt_type_param], rt_arg_type)) {
                             throw SemanticError("Restriction mismatch with provided arguments",
                                 rt_arg->base.base.loc);
@@ -1004,11 +1018,13 @@ public:
                 rt_subs[rt->m_name] = rt_arg->m_restriction_func;
             }
         }
-        // Add checks if there is not argument given to the restriction
+        // TODO: Add checks if there is not argument given to the restriction
     }
 
-    // TODO: Consider different instantiations of functions, with same arguments
-    //       but different restriction arguments
+    /**
+     * @brief Check if the generic function has been instantiated with similar
+     *        arguments. If not, then instantiate a new function.
+     */
     ASR::symbol_t* get_generic_function(std::map<std::string, ASR::ttype_t*> subs,
             std::map<std::string, ASR::symbol_t*> rt_subs, ASR::Function_t &func) {
         int new_function_num;

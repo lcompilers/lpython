@@ -34,4 +34,4 @@ def mean(x: list[T]) -> f64:
 
 print(mean([1,2,3]))
 print(mean([1.0,2.0,3.0]))
-#print(sum(["a","b","c"], zero=empty_string, plus=empty_string))
+#print(sum(["a","b","c"], zero=empty_string, plus=add_string))

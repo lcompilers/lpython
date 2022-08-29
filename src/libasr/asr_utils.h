@@ -1429,19 +1429,6 @@ static inline ASR::ttype_t* get_type_parameter(ASR::ttype_t* t) {
     }
 }
 
-/*
-static inline bool has_trait(ASR::TypeParameter_t *tp, ASR::traitType rt) {
-    for (size_t i=0; i<tp->n_rt; i++) {
-        ASR::Restriction_t *restriction = ASR::down_cast<ASR::Restriction_t>(tp->m_rt[i]);
-        if (restriction->m_rt == rt) {
-            return true;
-        }
-    }
-    return false;
-}
-*/
-
-
 class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
 
     private:
