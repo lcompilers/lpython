@@ -1,0 +1,8 @@
+(Module [(Expr (ConstantStr "\"\\" ())) (Expr (ConstantStr "
+\\" ())) (Expr (ConstantStr "\\" ())) (Expr (ConstantStr "   \\" ())) (Expr (ConstantStr "\\ " ())) (Expr (ConstantStr "\
+" ())) (Expr (ConstantStr "\\|" ())) (Expr (ConstantStr "Text\\" ())) (Expr (ConstantStr "\
+" ())) (Expr (Call (Name x Load) [(ConstantStr "\
+class a:
+    def test():
+        return r"\\LaTeX"
+" ())] []))] [])

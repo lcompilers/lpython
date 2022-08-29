@@ -1,0 +1,13 @@
+{
+    "basename": "ast_new-import1-f643fd3",
+    "cmd": "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
+    "infile": "tests/parser/import1.py",
+    "infile_hash": "baedeb917c7640e02e97e04f46abac34111f55f714d6ad43091bf3de",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast_new-import1-f643fd3.stdout",
+    "stdout_hash": "a8919447efc54901c0c9906888abcf95001c7a649ee51ed5c42e98bb",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

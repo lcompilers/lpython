@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_annassign_type_mismatch-7dac7be",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_annassign_type_mismatch.py",
+    "infile_hash": "5dacc11ffb3bc47fb14e508f454836ce4b196598d1943237cba9c86c",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_annassign_type_mismatch-7dac7be.stderr",
+    "stderr_hash": "a794ce35be79f7fcbb0889e04091555055f3c1c537bcf14840d33e60",
+    "returncode": 2
+}

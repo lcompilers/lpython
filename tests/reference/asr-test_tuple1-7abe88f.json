@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_tuple1-7abe88f",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_tuple1.py",
+    "infile_hash": "4716ea56ce9d57a0d88ffeb9fca4e09204f7a2c1166a5315c4d1245c",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_tuple1-7abe88f.stderr",
+    "stderr_hash": "56df3d46c63077fcdd09c3b54b63e6e096d7d39b2f8cfb61dab0930a",
+    "returncode": 2
+}
