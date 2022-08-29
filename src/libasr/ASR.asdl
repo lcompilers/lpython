@@ -84,10 +84,6 @@ symbol
         stmt* body)
     | Module(symbol_table symtab, identifier name, identifier* dependencies,
         bool loaded_from_mod, bool intrinsic)
-    --| Function(symbol_table symtab, identifier name, expr* args,
-    --    ttype* type_params, stmt* body, expr? return_var, abi abi,
-    --    access access, deftype deftype, string? bindc_name, bool elemental,
-    --    bool pure, bool module)
     | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
         expr? return_var, abi abi, access access, deftype deftype,
         string? bindc_name, bool elemental, bool pure, bool module,
@@ -353,7 +349,6 @@ cast_kind
     | IntegerToReal
     | LogicalToReal
     | RealToReal
-    | TemplateToReal
     | IntegerToInteger
     | RealToComplex
     | IntegerToComplex

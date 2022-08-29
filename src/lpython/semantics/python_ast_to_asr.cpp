@@ -841,6 +841,7 @@ public:
                 throw SemanticAbort();
             }
             if (func->m_is_restriction) {
+                /*
                 ASR::symbol_t* caller = ASR::down_cast<ASR::symbol_t>(current_scope->asr_owner);
                 if (ASR::is_a<ASR::Function_t>(*caller)) {
                     ASR::Function_t* caller_func = ASR::down_cast<ASR::Function_t>(caller);
@@ -850,6 +851,7 @@ public:
                         throw SemanticError(msg, loc);                        
                     }
                 }
+                */
                 rt_vec.push_back(s);
             } else if (func->n_type_params > 0) {
                 std::map<std::string, ASR::ttype_t*> subs;
@@ -972,7 +974,9 @@ public:
             ASR::restriction_arg_t** rt_args, size_t size_args) {
         for (size_t i=0; i<size_args; i++) {
             ASR::RestrictionArg_t* rt_arg = ASR::down_cast<ASR::RestrictionArg_t>(rt_args[i]);
-            if (rt_arg->m_restriction_name) {
+            std::string rt_arg_name = rt_arg->m_restriction_name;
+            std::string rt_name = rt->m_name;
+            if (rt_arg_name.compare(rt_name) == 0) {
                 ASR::Function_t* rt_arg_func = ASR::down_cast<ASR::Function_t>(rt_arg->m_restriction_func);
                 if (rt->n_args != rt_arg_func->n_args) {
                     std::string msg = "The function " + std::string(rt_arg_func->m_name) 
@@ -1016,46 +1020,7 @@ public:
                 rt_subs[rt->m_name] = rt_arg->m_restriction_func;
             }
         }
-        // TODO: Error when the appropriate restriction argument is not provided
-        //       except for plus where integer, real are hard-coded
     }
-
-    /*
-    bool check_type_restriction(ASR::ttype_t *expr_type, ASR::TypeParameter_t *tp) {
-        for (size_t i=0; i<tp->n_rt; i++) {
-            ASR::Restriction_t *restriction = ASR::down_cast<ASR::Restriction_t>(tp->m_rt[i]);
-            switch (restriction->m_rt) {
-                case (ASR::traitType::SupportsZero): {
-                    switch (expr_type->type) {
-                        case (ASR::ttypeType::Integer): { continue; }
-                        case (ASR::ttypeType::Real): { continue; }
-                        default: return false;
-                    }
-                }
-                case (ASR::traitType::SupportsPlus): {
-                    switch (expr_type->type) {
-                        case (ASR::ttypeType::Integer): { continue; }
-                        case (ASR::ttypeType::Real): { continue; }
-                        case (ASR::ttypeType::Character): { continue; }
-                        default: return false;
-                    }
-                }
-                case (ASR::traitType::Divisible): {
-                    switch (expr_type -> type) {
-                        case (ASR::ttypeType::Integer): { continue; }
-                        case (ASR::ttypeType::Real): { continue; }
-                        default: return false;
-                    }
-                }
-                case (ASR::traitType::Any): {
-                    continue;
-                }
-                default: continue;
-            }
-        }
-        return true;
-    }
-    */
 
     // TODO: Consider different instantiations of functions, with same arguments
     //       but different restriction arguments

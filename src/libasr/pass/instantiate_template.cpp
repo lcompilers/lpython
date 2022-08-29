@@ -190,13 +190,6 @@ public:
         return ASR::make_Assignment_t(al, x->base.base.loc, target, value, overloaded);
     }
 
-    ASR::asr_t* duplicate_TemplateBinOp(ASR::TemplateBinOp_t *x) {
-        ASR::expr_t *left = duplicate_expr(x->m_left);
-        ASR::expr_t *right = duplicate_expr(x->m_right);
-
-        return make_BinOp_helper(left, right, x->m_op, x->base.base.loc);
-    }
-
     ASR::asr_t* duplicate_DoLoop(ASR::DoLoop_t *x) {
         Vec<ASR::stmt_t*> m_body;
         m_body.reserve(al, x->n_body);
@@ -251,6 +244,18 @@ public:
                         } else {
                             throw SemanticError("Intrinsic plus not yet supported for this type", x->base.base.loc);
                         }
+                    } else if (call_name.compare("zero") == 0) {
+                        ASR::expr_t* arg = duplicate_expr(x->m_args[0].m_value);
+                        ASR::ttype_t* arg_type = substitute_type(ASRUtils::expr_type(arg));
+                        if (ASRUtils::is_integer(*arg_type)) {
+                            return ASR::make_IntegerConstant_t(al, x->base.base.loc, 0, arg_type);
+                        } else if (ASRUtils::is_real(*arg_type)) {
+                            return ASR::make_RealConstant_t(al, x->base.base.loc, 0, arg_type);
+                        }
+                    } else if (call_name.compare("div") == 0) {
+                        ASR::expr_t* left_arg = duplicate_expr(x->m_args[0].m_value);
+                        ASR::expr_t* right_arg = duplicate_expr(x->m_args[1].m_value);
+                        return make_BinOp_helper(left_arg, right_arg, ASR::binopType::Div, x->base.base.loc);
                     }
                     LFORTRAN_ASSERT(false); // should never happen
                 }
@@ -293,7 +298,6 @@ public:
         return param_type;
     }
 
-    // Commented out part is not yet considered for generic functions
     ASR::asr_t* make_BinOp_helper(ASR::expr_t *left, ASR::expr_t *right,
             ASR::binopType op, const Location &loc) {
         ASR::ttype_t *left_type = ASRUtils::expr_type(left);
@@ -301,30 +305,36 @@ public:
         ASR::ttype_t *dest_type = nullptr;
         ASR::expr_t *value = nullptr;
 
+        if (op == ASR::binopType::Div) {
+            dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 8, nullptr, 0));
+            if (ASRUtils::is_integer(*left_type)) {
+                left = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                    al, left->base.loc, left, ASR::cast_kindType::IntegerToReal, dest_type));
+            }
+            if (ASRUtils::is_integer(*right_type)) {
+                if (ASRUtils::expr_value(right) != nullptr) {
+                    int64_t val = ASR::down_cast<ASR::IntegerConstant_t>(ASRUtils::expr_value(right))->m_n;
+                    if (val == 0) {
+                        throw SemanticError("division by zero is not allowed", right->base.loc);
+                    }
+                }
+                right = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                    al, right->base.loc, right, ASR::cast_kindType::IntegerToReal, dest_type));
+            } else if (ASRUtils::is_real(*right_type)) {
+                if (ASRUtils::expr_value(right) != nullptr) {
+                    double val = ASR::down_cast<ASR::RealConstant_t>(ASRUtils::expr_value(right))->m_r;
+                    if (val == 0.0) {
+                        throw SemanticError("float division by zero is not allowed", right->base.loc);
+                    }
+                }
+            }
+        }
+
         if ((ASRUtils::is_integer(*left_type) || ASRUtils::is_real(*left_type)) &&
                 (ASRUtils::is_integer(*right_type) || ASRUtils::is_real(*right_type))) {
             left = cast_helper(ASRUtils::expr_type(right), left);
             right = cast_helper(ASRUtils::expr_type(left), right);
             dest_type = substitute_type(ASRUtils::expr_type(left));
-        } else if (ASRUtils::is_character(*left_type) && ASRUtils::is_character(*right_type)
-                && op == ASR::binopType::Add) {
-            ASR::Character_t *left_type2 = ASR::down_cast<ASR::Character_t>(left_type);
-            ASR::Character_t *right_type2 = ASR::down_cast<ASR::Character_t>(right_type);
-            LFORTRAN_ASSERT(left_type2->n_dims == 0);
-            LFORTRAN_ASSERT(right_type2->n_dims == 0);
-            dest_type = ASR::down_cast<ASR::ttype_t>(
-                    ASR::make_Character_t(al, loc, left_type2->m_kind,
-                    left_type2->m_len + right_type2->m_len, nullptr, nullptr, 0));
-            if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
-                char* left_value = ASR::down_cast<ASR::StringConstant_t>(ASRUtils::expr_value(left))->m_s;
-                char* right_value = ASR::down_cast<ASR::StringConstant_t>(ASRUtils::expr_value(right))->m_s;
-                char* result;
-                std::string result_s = std::string(left_value) + std::string(right_value);
-                result = s2c(al, result_s);
-                LFORTRAN_ASSERT((int64_t)strlen(result) == ASR::down_cast<ASR::Character_t>(dest_type)->m_len)
-                value = ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, result, dest_type));
-            }
-            return ASR::make_StringConcat_t(al, loc, left, right, dest_type, value);
         }
 
         if (ASRUtils::is_integer(*dest_type)) {
