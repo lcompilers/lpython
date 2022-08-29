@@ -2681,7 +2681,13 @@ public:
                 if (!ASRUtils::is_integer(*ASRUtils::expr_type(ASRUtils::EXPR(tmp)))) {
                     throw SemanticError("slice indices must be integers or None", tmp->loc);
                 }
-                ai.m_right = ASRUtils::EXPR(tmp);
+                // Subtract 1 from right since python has exclusive right limits.
+                ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                    4, nullptr, 0));
+                ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
+                                                    al, loc, 1, a_type));
+                ai.m_right = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc, ASRUtils::EXPR(tmp),
+                    ASR::binopType::Sub, constant_one, a_type, nullptr));
             }
             if (sl->m_step != nullptr) {
                 this->visit_expr(*sl->m_step);
