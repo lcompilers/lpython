@@ -14,10 +14,6 @@
     #include <lpython/utils.h>
 #endif
 
-#if __has_include(<lpython/utils.h>)
-    #include <lpython/pickle.h>
-#endif
-
 #include <libasr/pass/do_loops.h>
 #include <libasr/pass/for_all.h>
 #include <libasr/pass/implied_do_loops.h>
@@ -80,32 +76,26 @@ namespace LCompilers {
 
         bool is_fast;
         bool apply_default_passes;
-        bool do_print_after_asr_pass;
+
+        std::string _apply_one_pass(Allocator& al, LFortran::ASR::TranslationUnit_t* asr,
+                           std::vector<std::string>& passes, size_t index, PassOptions pass_options) {
+            if (index >= passes.size())
+                return "";
+            _passes_db[passes[index]](al, *asr, pass_options);
+            return passes[index];
+        }
 
         void _apply_passes(Allocator& al, LFortran::ASR::TranslationUnit_t* asr,
                            std::vector<std::string>& passes, PassOptions pass_options) {
             pass_options.runtime_library_dir = LFortran::get_runtime_library_dir();
-            if (do_print_after_asr_pass) {
-                std::string cmd = "mkdir asr_pass_log";
-                int err = system(cmd.c_str());
-                if (err) {
-                    std::cout << "The command '" + cmd + "' failed." << std::endl;
-                    exit(1);
-                }
-                LFortran::write_asr_to_file("./asr_pass_log/0_raw.log", *asr, false, false);
-            }
             for (size_t i = 0; i < passes.size(); i++) {
                 _passes_db[passes[i]](al, *asr, pass_options);
-                if (do_print_after_asr_pass) {
-                    std::string file = "./asr_pass_log/" + std::to_string(i+1)+"_"+passes[i]+".log";
-                    LFortran::write_asr_to_file(file,*asr, false, false);
-                }
             }
         }
 
         public:
 
-        PassManager(): is_fast{false}, apply_default_passes{false}, do_print_after_asr_pass(false) {
+        PassManager(): is_fast{false}, apply_default_passes{false} {
             _passes = {
                 "global_stmts",
                 "class_constructor",
@@ -188,10 +178,18 @@ namespace LCompilers {
             }
         }
 
-
-
-        void print_after_asr_pass() {
-            do_print_after_asr_pass = true;
+        std::string apply_one_pass(Allocator& al, LFortran::ASR::TranslationUnit_t* asr,
+                          size_t index, PassOptions& pass_options) {
+            if( !_user_defined_passes.empty() ) {
+               return _apply_one_pass(al, asr, _user_defined_passes, index, pass_options);
+            } else if( apply_default_passes ) {
+                if( is_fast ) {
+                    return _apply_one_pass(al, asr, _with_optimization_passes, index, pass_options);
+                } else {
+                    return _apply_one_pass(al, asr, _passes, index, pass_options);
+                }
+            }
+            return "";
         }
 
         void use_optimization_passes() {

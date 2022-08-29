@@ -180,6 +180,60 @@ int emit_asr(const std::string &infile,
     return 0;
 }
 
+int emit_asr_after_pass(const std::string &infile,
+    LCompilers::PassManager& pass_manager,
+    const std::string &runtime_library_dir,
+    CompilerOptions &compiler_options)
+{
+    Allocator al(4*1024);
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    std::string input = LFortran::read_file(infile);
+    lm.init_simple(input);
+    LFortran::Result<LFortran::LPython::AST::ast_t*> r1 = parse_python_file(
+        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r1.ok) {
+        return 1;
+    }
+    LFortran::LPython::AST::ast_t* ast = r1.result;
+
+    diagnostics.diagnostics.clear();
+    LFortran::Result<LFortran::ASR::TranslationUnit_t*>
+        r = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
+            compiler_options.disable_main, compiler_options.symtab_only, infile);
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        return 2;
+    }
+    LFortran::ASR::TranslationUnit_t* asr = r.result;
+    LCompilers::PassOptions pass_options;
+    pass_options.run_fun = "f";
+    pass_options.always_run = true;
+
+    std::string cmd = "mkdir asr_pass_log/";
+    int err = system(cmd.c_str());
+    if (err) {
+        std::cout << "The command '" + cmd + "' failed." << std::endl;
+        exit(1);
+    }
+    LFortran::write_asr_to_file("./asr_pass_log/0_raw.asr", *asr, false, false);
+    int index = 0;
+    std::string pname, asr_file;
+    while (true) {
+        pname = pass_manager.apply_one_pass(al, asr, index, pass_options);
+        if (pname == "") break;
+        else {
+            index++;
+            asr_file = "./asr_pass_log/" + std::to_string(index)+"_"+pname+".asr";
+            LFortran::write_asr_to_file(asr_file,*asr, false, false);
+        }
+    }
+    return 0;
+}
+
 int emit_cpp(const std::string &infile,
     const std::string &runtime_library_dir,
     CompilerOptions &compiler_options)
@@ -960,10 +1014,6 @@ int main(int argc, char *argv[])
             return 1;
         }
 
-        if( print_after_asr_pass ) {
-            lpython_pass_manager.print_after_asr_pass();
-        }
-
         if (arg_backend == "llvm") {
             backend = Backend::llvm;
         } else if (arg_backend == "cpp") {
@@ -1045,6 +1095,10 @@ int main(int argc, char *argv[])
 #endif
         }
         lpython_pass_manager.use_default_passes();
+        if (print_after_asr_pass) {
+            return emit_asr_after_pass(arg_file, lpython_pass_manager, runtime_library_dir,
+                    compiler_options);
+        }
         if (show_llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
             return emit_llvm(arg_file, runtime_library_dir, lpython_pass_manager, compiler_options);
