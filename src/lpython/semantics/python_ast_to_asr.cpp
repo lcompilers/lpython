@@ -175,20 +175,8 @@ namespace CastingUtil {
 int save_pyc_files(const LFortran::ASR::TranslationUnit_t &u,
                    std::string infile) {
     LFORTRAN_ASSERT(LFortran::asr_verify(u));
-    Allocator al(4*1024);
-    SymbolTable *symtab =
-        al.make_new<SymbolTable>(nullptr);
-    for( auto item: u.m_global_scope->get_scope() ) {
-        symtab->add_symbol(item.first, item.second);
-    }
 
-    LFortran::Location loc;
-    LFortran::ASR::asr_t *asr = LFortran::ASR::make_TranslationUnit_t(al, loc,
-        symtab, nullptr, 0);
-    LFortran::ASR::TranslationUnit_t *tu =
-        LFortran::ASR::down_cast2<LFortran::ASR::TranslationUnit_t>(asr);
-
-    std::string modfile_binary = LFortran::save_pycfile(*tu);
+    std::string modfile_binary = LFortran::save_pycfile(u);
 
     while( infile.back() != '.' ) {
         infile.pop_back();
