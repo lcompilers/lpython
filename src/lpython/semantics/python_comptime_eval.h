@@ -66,7 +66,8 @@ struct PythonIntrinsicProcedures {
             {"_lpython_str_lower", {m_builtin, &eval__lpython_str_lower}},
             {"_lpython_str_rstrip", {m_builtin, &eval__lpython_str_rstrip}},
             {"_lpython_str_lstrip", {m_builtin, &eval__lpython_str_lstrip}},
-            {"_lpython_str_strip", {m_builtin, &eval__lpython_str_strip}}
+            {"_lpython_str_strip", {m_builtin, &eval__lpython_str_strip}},
+            {"_lpython_str_startswith", {m_builtin, &eval__lpython_str_startswith}}
         };
     }
 
@@ -740,6 +741,14 @@ struct PythonIntrinsicProcedures {
         ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_StringConstant_t(al, loc, s2c(al, ""), type));
         return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, res),  res_type));
     }
+
+    static ASR::expr_t *eval__lpython_str_startswith(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &/*args*/) {
+        // compile time action implemented on ast->asr
+        ASR::ttype_t* res_type =  ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
+                                    4, nullptr, 0));
+        return ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(al, loc, 0, res_type));
+    }
+
 }; // ComptimeEval
 
 } // namespace LFortran
