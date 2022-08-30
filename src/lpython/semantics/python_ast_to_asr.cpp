@@ -175,6 +175,26 @@ namespace CastingUtil {
 int save_pyc_files(const LFortran::ASR::TranslationUnit_t &u,
                    std::string infile) {
     LFORTRAN_ASSERT(LFortran::asr_verify(u));
+    Allocator al(4*1024);
+    LFortran::SymbolTable *symtab =
+        al.make_new<LFortran::SymbolTable>(nullptr);
+    std::vector<std::pair<ASR::Module_t*, SymbolTable*>> module_parent;
+    for (auto &item : u.m_global_scope->get_scope()) {
+        if (LFortran::ASR::is_a<LFortran::ASR::Module_t>(*item.second)) {
+            LFortran::ASR::Module_t *m = LFortran::ASR::down_cast<LFortran::ASR::Module_t>(item.second);
+
+            symtab->add_symbol(std::string(m->m_name), item.second);
+            module_parent.push_back(std::make_pair(m, m->m_symtab->parent));
+            m->m_symtab->parent = symtab;
+        }
+    }
+
+    LFortran::Location loc;
+    LFortran::ASR::asr_t *asr = LFortran::ASR::make_TranslationUnit_t(al, loc,
+        symtab, nullptr, 0);
+    LFortran::ASR::TranslationUnit_t *tu =
+        LFortran::ASR::down_cast2<LFortran::ASR::TranslationUnit_t>(asr);
+    LFORTRAN_ASSERT(LFortran::asr_verify(*tu));
 
     std::string modfile_binary = LFortran::save_pycfile(u);
 
@@ -186,6 +206,10 @@ int save_pyc_files(const LFortran::ASR::TranslationUnit_t &u,
         std::ofstream out;
         out.open(modfile, std::ofstream::out | std::ofstream::binary);
         out << modfile_binary;
+    }
+
+    for( auto& mod_par: module_parent ) {
+        mod_par.first->m_symtab->parent = mod_par.second;
     }
     return 0;
 }
@@ -265,11 +289,8 @@ ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
     // Convert the module from AST to ASR
     LFortran::LocationManager lm;
     lm.in_filename = infile;
-    unsigned int symtab_global_counter = SymbolTable::get_global_counter();
-    SymbolTable::reset_global_counter();
     Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast,
         diagnostics, false, true, false, infile, "");
-    SymbolTable::set_global_counter(symtab_global_counter);
     save_pyc_files(*r2.result, infile + "c");
     std::string input;
     read_file(infile, input);

@@ -33,8 +33,6 @@ struct SymbolTable {
         return std::to_string(counter);
     }
     static void reset_global_counter(); // Resets the internal global counter
-    static void set_global_counter(unsigned counter_);
-    static unsigned int get_global_counter();
 
     // Resolves the symbol `name` recursively in current and parent scopes.
     // Returns `nullptr` if symbol not found.
