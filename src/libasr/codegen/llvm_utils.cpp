@@ -883,6 +883,12 @@ namespace LFortran {
                           occupancy_ptr);
 
         llvm::Value* linear_prob_happened = builder->CreateICmpNE(key_hash, pos);
+        linear_prob_happened = builder->CreateOr(linear_prob_happened,
+            builder->CreateICmpEQ(
+                LLVM::CreateLoad(*builder, llvm_utils->create_ptr_gep(key_mask, key_hash)),
+                llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 2)
+            ))
+        );
         llvm::Value* set_max_2 = builder->CreateSelect(linear_prob_happened,
             llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 2)),
             llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, 1)));
@@ -941,7 +947,7 @@ namespace LFortran {
     }
 
     llvm::Value* LLVMDict::get_key_hash(llvm::Value* capacity, llvm::Value* key,
-                                        ASR::ttype_t* key_asr_type, llvm::Module& /*module*/) {
+                                        ASR::ttype_t* key_asr_type, llvm::Module& module) {
         // Write specialised hash functions for intrinsic types
         // This is to avoid unnecessary calls to C-runtime and do
         // as much as possible in LLVM directly.
@@ -951,11 +957,12 @@ namespace LFortran {
                 // We can update it later to do a better hash function
                 // which produces lesser collisions.
 
-                return builder->CreateZExtOrTrunc(
+                llvm::Value* int_hash = builder->CreateZExtOrTrunc(
                     builder->CreateSRem(key,
                     builder->CreateZExtOrTrunc(capacity, key->getType())),
                     capacity->getType()
                 );
+                return int_hash;
             }
             case ASR::ttypeType::Character: {
                 // Polynomial rolling hash function for strings
@@ -1021,6 +1028,18 @@ namespace LFortran {
                 llvm::Value* hash = LLVM::CreateLoad(*builder, hash_value);
                 hash = builder->CreateTrunc(hash, llvm::Type::getInt32Ty(context));
                 return builder->CreateSRem(hash, capacity);
+            }
+            case ASR::ttypeType::Tuple: {
+                llvm::Value* tuple_hash = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0));
+                ASR::Tuple_t* asr_tuple = ASR::down_cast<ASR::Tuple_t>(key_asr_type);
+                for( size_t i = 0; i < asr_tuple->n_type; i++ ) {
+                    llvm::Value* llvm_tuple_i = llvm_utils->tuple_api->read_item(key, i,
+                                                    LLVM::is_llvm_struct(asr_tuple->m_type[i]));
+                    tuple_hash = builder->CreateAdd(tuple_hash, get_key_hash(capacity, llvm_tuple_i,
+                                                                             asr_tuple->m_type[i], module));
+                    tuple_hash = builder->CreateSRem(tuple_hash, capacity);
+                }
+                return tuple_hash;
             }
             default: {
                 throw LCompilersException("Hashing " + ASRUtils::type_to_str_python(key_asr_type) +
