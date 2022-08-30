@@ -32,6 +32,17 @@
 #include <lpython/parser/parser.h>
 #include <libasr/serialization.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
+#ifdef _WIN32
+#define stat _stat
+#endif
+
+
 namespace LFortran::LPython {
 
 namespace CastingUtil {
@@ -162,9 +173,22 @@ namespace CastingUtil {
 }
 
 int save_pyc_files(const LFortran::ASR::TranslationUnit_t &u,
-                       std::string infile) {
+                   std::string infile) {
     LFORTRAN_ASSERT(LFortran::asr_verify(u));
-    std::string modfile_binary = LFortran::save_pycfile(u);
+    Allocator al(4*1024);
+    SymbolTable *symtab =
+        al.make_new<SymbolTable>(nullptr);
+    for( auto item: u.m_global_scope->get_scope() ) {
+        symtab->add_symbol(item.first, item.second);
+    }
+
+    LFortran::Location loc;
+    LFortran::ASR::asr_t *asr = LFortran::ASR::make_TranslationUnit_t(al, loc,
+        symtab, nullptr, 0);
+    LFortran::ASR::TranslationUnit_t *tu =
+        LFortran::ASR::down_cast2<LFortran::ASR::TranslationUnit_t>(asr);
+
+    std::string modfile_binary = LFortran::save_pycfile(*tu);
 
     while( infile.back() != '.' ) {
         infile.pop_back();
@@ -255,10 +279,7 @@ ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
     lm.in_filename = infile;
     Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast,
         diagnostics, false, true, false, infile, "");
-    // TODO: Uncomment once a check is added for ensuring
-    // that module.py file hasn't changed between
-    // builds.
-    // save_pyc_files(*r2.result, infile + "c");
+    save_pyc_files(*r2.result, infile + "c");
     std::string input;
     read_file(infile, input);
     CompilerOptions compiler_options;
@@ -284,6 +305,23 @@ void fill_module_dependencies(SymbolTable* symtab, std::set<std::string>& mod_de
             fill_module_dependencies(sym_symtab, mod_deps);
         }
     }
+}
+
+bool is_compilation_needed(std::string file_path) {
+    struct stat result;
+    int64_t pyc_modtime = -1, py_modtime = -1;
+    if (stat(file_path.c_str(), &result) == 0) {
+        pyc_modtime = result.st_mtime;
+    }
+    file_path.pop_back();
+
+    if (stat(file_path.c_str(), &result) == 0) {
+        py_modtime = result.st_mtime;
+    }
+
+    return (pyc_modtime <= py_modtime) ||
+           py_modtime == -1 ||
+           pyc_modtime == -1;
 }
 
 ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
@@ -322,11 +360,15 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         input.clear();
         found = set_module_path(infile0, rl_path, infile,
                                 path_used, input, ltypes, enum_py);
-    } else {
-        mod1 = load_pycfile(al, input, false);
-        fix_external_symbols(*mod1, *ASRUtils::get_tu_symtab(symtab));
-        LFORTRAN_ASSERT(asr_verify(*mod1));
-        compile_module = false;
+    } else{
+        if( !is_compilation_needed(infile) ) {
+            mod1 = load_pycfile(al, input, false);
+            fix_external_symbols(*mod1, *ASRUtils::get_tu_symtab(symtab));
+            LFORTRAN_ASSERT(asr_verify(*mod1));
+            compile_module = false;
+        } else {
+            infile.pop_back();
+        }
     }
 
     if( enum_py ) {
