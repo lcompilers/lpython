@@ -10,6 +10,8 @@
 #include <complex>
 #include <sstream>
 #include <iterator>
+#include <cstdio>
+#include <cstdlib>
 
 #include <libasr/asr.h>
 #include <libasr/asr_utils.h>
@@ -372,7 +374,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         input.clear();
         found = set_module_path(infile0, rl_path, infile,
                                 path_used, input, ltypes, enum_py);
-    } else{
+    } else {
         if( !is_compilation_needed(infile) ) {
             mod1 = load_pycfile(al, input, false);
             fix_external_symbols(*mod1, *ASRUtils::get_tu_symtab(symtab));
@@ -380,6 +382,14 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
             compile_module = false;
         } else {
             infile.pop_back();
+            std::string cmd = "lpython -c --disable-main " + infile;
+            system(cmd.c_str());
+            bool found = set_module_path(infile0c, rl_path, infile,
+                                         path_used, input, ltypes, enum_py);
+            mod1 = load_pycfile(al, input, false);
+            fix_external_symbols(*mod1, *ASRUtils::get_tu_symtab(symtab));
+            LFORTRAN_ASSERT(asr_verify(*mod1));
+            compile_module = false;
         }
     }
 
@@ -393,7 +403,14 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     if (ltypes) return nullptr;
 
     if( compile_module ) {
-        mod1 = compile_module_till_asr(al, rl_path, infile, loc, err);
+        // mod1 = compile_module_till_asr(al, rl_path, infile, loc, err);
+        std::string cmd = "lpython -c --disable-main " + infile;
+        system(cmd.c_str());
+        bool found = set_module_path(infile0c, rl_path, infile,
+                                        path_used, input, ltypes, enum_py);
+        mod1 = load_pycfile(al, input, false);
+        fix_external_symbols(*mod1, *ASRUtils::get_tu_symtab(symtab));
+        LFORTRAN_ASSERT(asr_verify(*mod1));
     }
 
     // insert into `symtab`
