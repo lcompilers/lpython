@@ -25,6 +25,24 @@ def strip():
     assert "     AASAsaSas    " .lstrip() == "AASAsaSas    "
     assert "     AASAsaSas    " .strip() == "AASAsaSas"
 
+def startswith():
+    s: str
+    s = "   empty"
+    assert s.startswith("  ") == True
+    assert "  @" .startswith(" ") == True
+    assert "   emptyAaaaAABBbbbbBB" .startswith(s) == True
+    assert "   emptyAaaaAABBbbbbBB" .startswith("AABB") == False
+    assert "   emptyAaaaAABBbbbbBB" .startswith("emptyAaxX") == False
+
+    assert "". startswith("sd") == False
+    assert "empty" .startswith("") == True
+    assert "".startswith("") == True
+    assert s.startswith("") == True
+    s = ""
+    assert s.startswith("") == True
+    assert s.startswith("sdd") == False
+
 capitalize()
 lower()
 strip()
+startswith()
