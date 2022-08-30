@@ -265,8 +265,11 @@ ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
     // Convert the module from AST to ASR
     LFortran::LocationManager lm;
     lm.in_filename = infile;
+    unsigned int symtab_global_counter = SymbolTable::get_global_counter();
+    SymbolTable::reset_global_counter();
     Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast,
         diagnostics, false, true, false, infile, "");
+    SymbolTable::set_global_counter(symtab_global_counter);
     save_pyc_files(*r2.result, infile + "c");
     std::string input;
     read_file(infile, input);

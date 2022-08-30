@@ -71,8 +71,16 @@ SymbolTable::SymbolTable(SymbolTable *parent) : parent{parent} {
     counter = symbol_table_counter;
 }
 
+void SymbolTable::set_global_counter(unsigned int counter_) {
+    symbol_table_counter = counter_;
+}
+
 void SymbolTable::reset_global_counter() {
     symbol_table_counter = 0;
+}
+
+unsigned int SymbolTable::get_global_counter() {
+    return symbol_table_counter;
 }
 
 void SymbolTable::mark_all_variables_external(Allocator &/*al*/) {
