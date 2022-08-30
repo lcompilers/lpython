@@ -196,7 +196,7 @@ int save_pyc_files(const LFortran::ASR::TranslationUnit_t &u,
         LFortran::ASR::down_cast2<LFortran::ASR::TranslationUnit_t>(asr);
     LFORTRAN_ASSERT(LFortran::asr_verify(*tu));
 
-    std::string modfile_binary = LFortran::save_pycfile(u);
+    std::string modfile_binary = LFortran::save_pycfile(*tu);
 
     while( infile.back() != '.' ) {
         infile.pop_back();
