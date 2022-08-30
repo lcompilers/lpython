@@ -57,9 +57,9 @@ void lex_dec_int_large(Allocator &al, const unsigned char *s,
     u.from_largeint(al, num);
 }
 
-const char *remove_underscore(std::string s) {
+const std::string remove_underscore(std::string s) {
     s.erase(remove(s.begin(), s.end(), '_'), s.end());
-    return s.c_str();
+    return s;
 }
 
 uint64_t get_value(char *s, int base, const Location &loc) {
@@ -464,7 +464,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "False" { RET(TK_FALSE) }
 
             real {
-                yylval.f = std::atof(remove_underscore(token()));
+                yylval.f = std::stod(remove_underscore(token()));
                 RET(TK_REAL)
             }
             integer {
@@ -475,7 +475,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 RET(TK_INTEGER)
             }
             imag_number {
-                yylval.f = std::atof(remove_underscore(token()));
+                yylval.f = std::stod(remove_underscore(token()));
                 RET(TK_IMAG_NUM)
             }
 
