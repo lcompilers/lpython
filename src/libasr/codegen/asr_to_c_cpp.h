@@ -582,7 +582,7 @@ R"(#include <stdio.h>
         self().visit_expr(*x.m_arg);
         switch (x.m_kind) {
             case (ASR::cast_kindType::IntegerToReal) : {
-                src = "(float)(" + src + ")";
+                src = "(double)(" + src + ")";
                 break;
             }
             case (ASR::cast_kindType::RealToInteger) : {
