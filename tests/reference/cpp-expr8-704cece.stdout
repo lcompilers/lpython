@@ -59,7 +59,7 @@ int32_t __lpython_overloaded_2___lpython_floordiv(int32_t a, int32_t b)
     double r;
     int32_t result;
     r = (double)(a)/(double)(b);
-    result = (int)(r);
+    result = (int64_t)(r);
     if (r >=   0.00000000000000000e+00 || (double)(result) == r) {
         _lpython_return_variable = result;
         return _lpython_return_variable;
