@@ -659,3 +659,16 @@ def _lpython_str_strip(x: str) -> str:
     res = _lpython_str_lstrip(x)
     res = _lpython_str_rstrip(res)
     return res
+
+@overload
+def _lpython_str_startswith(s: str ,sub: str) -> bool:
+    res :bool
+    res = not (len(s) == 0 and len(sub) > 0)
+    i: i32; j: i32
+    i = 0; j = 0
+    while (i < len(s)) and ((j < len(sub)) and res):
+        res = res and (s[i] == sub[j])
+        i += 1; j+=1
+    if res:
+        res = res and (j == len(sub))
+    return res
