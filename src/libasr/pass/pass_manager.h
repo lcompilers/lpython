@@ -86,6 +86,7 @@ namespace LCompilers {
 
         bool is_fast;
         bool apply_default_passes;
+        std::string skip_pass;
 
         void _apply_passes(Allocator& al, LFortran::ASR::TranslationUnit_t* asr,
                            std::vector<std::string>& passes, PassOptions &pass_options,
@@ -159,8 +160,9 @@ namespace LCompilers {
             _user_defined_passes.clear();
         }
 
-        void parse_pass_arg(std::string& arg_pass) {
+        void parse_pass_arg(std::string& arg_pass, std::string& s_pass) {
             _user_defined_passes.clear();
+            skip_pass = s_pass;
             if (arg_pass == "") {
                 return ;
             }
