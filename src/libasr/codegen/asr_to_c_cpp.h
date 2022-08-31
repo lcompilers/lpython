@@ -578,6 +578,13 @@ R"(#include <stdio.h>
         }
     }
 
+    void extract_kinds(const ASR::Cast_t &x, int &arg_kind, int &dest_kind) {
+        dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+        ASR::ttype_t *curr_type = ASRUtils::expr_type(x.m_arg);
+        LFORTRAN_ASSERT(curr_type != nullptr)
+        arg_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
+    }
+
     void visit_Cast(const ASR::Cast_t &x) {
         self().visit_expr(*x.m_arg);
         switch (x.m_kind) {
