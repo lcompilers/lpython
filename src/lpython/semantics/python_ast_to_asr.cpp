@@ -4512,6 +4512,30 @@ public:
                                     args.push_back(al, arg);
                                     tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_lower", x.base.base.loc);
                                     return;
+                                } else if (std::string(at->m_attr) == std::string("find")) {
+                                    if(args.size() != 1) {
+                                        throw SemanticError("str.find() takes one argument",
+                                            x.base.base.loc);
+                                    }
+                                    ASR::expr_t *arg_sub = args[0].m_value;
+                                    ASR::ttype_t *arg_sub_type = ASRUtils::expr_type(arg_sub);
+                                    if(!ASRUtils::is_character(*arg_sub_type)) {
+                                        throw SemanticError("str.find() takes one argument of type: str",
+                                            x.base.base.loc);
+                                    }
+                                    ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_find");
+                                    Vec<ASR::call_arg_t> function_args;
+                                    function_args.reserve(al, 1);
+                                    ASR::call_arg_t str;
+                                    str.loc = x.base.base.loc;
+                                    str.m_value = se;
+                                    ASR::call_arg_t sub;
+                                    sub.loc = x.base.base.loc;
+                                    sub.m_value = args[0].m_value;
+                                    function_args.push_back(al, str);
+                                    function_args.push_back(al, sub);
+                                    tmp = make_call_helper(al, fn_div, current_scope, function_args, "_lpython_str_find", x.base.base.loc);
+                                    return;
                                 } else if (std::string(at->m_attr) == std::string("rstrip")) {
                                     if(args.size() != 0) {
                                         throw SemanticError("str.srtrip() takes no arguments",
