@@ -15,3 +15,10 @@ class a:
     def test():
         return r"\\LaTeX"
 """)
+
+r"""
+    "\\"
+"""
+'''
+    '\\'
+'''

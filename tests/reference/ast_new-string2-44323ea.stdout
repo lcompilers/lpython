@@ -5,4 +5,8 @@
 class a:
     def test():
         return r"\\LaTeX"
-" ())] []))] [])
+" ())] [])) (Expr (ConstantStr "
+    "\\"
+" ())) (Expr (ConstantStr "
+    '\\'
+" ()))] [])
