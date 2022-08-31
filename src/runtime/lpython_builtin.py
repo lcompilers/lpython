@@ -638,6 +638,53 @@ def _lpython_str_lower(x: str) -> str:
     return res
 
 @overload
+def _lpython_str_find(s: str, sub: str) -> i32:
+    s_len :i32; sub_len :i32; flag: bool; _len: i32;
+    res: i32; i: i32;
+    lps: list[i32]
+    s_len = len(s)
+    sub_len = len(sub)
+    flag = False
+    res = -1
+    if s_len == 0 or sub_len == 0:
+        return 0 if sub_len == 0 or (sub_len == s_len) else -1
+
+    for i in range(sub_len):
+        lps.append(0)
+
+    i = 1
+    _len = 0
+    while i < sub_len:
+        if sub[i] == sub[_len]:
+            _len += 1
+            lps[i] = _len
+            i += 1
+        else:
+            if _len != 0:
+                _len = lps[_len - 1]
+            else:
+                lps[i] = 0
+                i += 1
+
+    j: i32
+    j = 0
+    i = 0
+    while (s_len - i) >= (sub_len - j) and not flag:
+        if sub[j] == s[i]:
+            i += 1
+            j += 1
+        if j == sub_len:
+            res = i- j
+            flag = True
+            j = lps[j - 1]
+        elif i < s_len and sub[j] != s[i]:
+            if j != 0:
+                j = lps[j - 1]
+            else:
+                i = i + 1
+
+    return res
+
 def _lpython_str_rstrip(x: str) -> str:
     ind: i32
     ind = len(x) - 1
