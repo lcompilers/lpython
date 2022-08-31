@@ -589,11 +589,23 @@ R"(#include <stdio.h>
         self().visit_expr(*x.m_arg);
         switch (x.m_kind) {
             case (ASR::cast_kindType::IntegerToReal) : {
-                src = "(double)(" + src + ")";
+                int arg_kind = -1, dest_kind = -1; // arg_kind is not used currently
+                extract_kinds(x, arg_kind, dest_kind);
+                switch (dest_kind) {
+                    case 4: src = "(float)(" + src + ")"; break;
+                    case 8: src = "(double)(" + src + ")"; break;
+                    default: throw CodeGenError("Cast IntegerToReal: Unsupported Kind");
+                }
                 break;
             }
             case (ASR::cast_kindType::RealToInteger) : {
-                src = "(int)(" + src + ")";
+                int arg_kind = -1, dest_kind = -1; // arg_kind is not used currently
+                extract_kinds(x, arg_kind, dest_kind);
+                switch (dest_kind) {
+                    case 4: src = "(int32_t)(" + src + ")"; break;
+                    case 8: src = "(int64_t)(" + src + ")"; break;
+                    default: throw CodeGenError("Cast RealToInteger: Unsupported Kind");
+                }
                 break;
             }
             case (ASR::cast_kindType::RealToReal) : {
