@@ -594,7 +594,7 @@ R"(#include <stdio.h>
                 switch (dest_kind) {
                     case 4: src = "(float)(" + src + ")"; break;
                     case 8: src = "(double)(" + src + ")"; break;
-                    default: throw CodeGenError("Cast IntegerToReal: Unsupported Kind");
+                    default: throw CodeGenError("Cast IntegerToReal: Unsupported Kind " + std::to_string(dest_kind));
                 }
                 break;
             }
@@ -604,7 +604,7 @@ R"(#include <stdio.h>
                 switch (dest_kind) {
                     case 4: src = "(int32_t)(" + src + ")"; break;
                     case 8: src = "(int64_t)(" + src + ")"; break;
-                    default: throw CodeGenError("Cast RealToInteger: Unsupported Kind");
+                    default: throw CodeGenError("Cast RealToInteger: Unsupported Kind " + std::to_string(dest_kind));
                 }
                 break;
             }
