@@ -25,6 +25,26 @@ def strip():
     assert "     AASAsaSas    " .lstrip() == "AASAsaSas    "
     assert "     AASAsaSas    " .strip() == "AASAsaSas"
 
+def find():
+    s: str
+    sub: str
+    s = "AaaaAABBbbbbBB!@12223BN"
+    sub = "@"
+    assert s.find(sub) == 15
+    assert s.find('B') == 6
+    assert "empty strings" .find("string") == 6
+    s2: str
+    s2 = "Well copying a string from a website makes us prone to copyright claims. Can you just write something of your own? Like just take this review comment and put it as a string?"
+    assert s2.find("of") == 102
+    assert s2.find("own") == 110
+    assert s2.find("this") == 130
+    assert s2.find("") == 0
+    assert "".find("dd") == -1
+    assert "".find("") == 0
+    s2 = ""
+    assert s2.find("") == 0
+    assert s2.find("we") == -1
+    
 def startswith():
     s: str
     s = "   empty"
@@ -45,4 +65,5 @@ def startswith():
 capitalize()
 lower()
 strip()
+find()
 startswith()
