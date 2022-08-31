@@ -4666,6 +4666,80 @@ public:
                                     1, 1, nullptr, nullptr , 0));
                     tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
                     return;
+                } else if (std::string(at->m_attr) == std::string("find")) {
+                    if (args.size() != 1) {
+                        throw SemanticError("str.find() takes one arguments",
+                            x.base.base.loc);
+                    }
+                    ASR::expr_t *arg = args[0].m_value;
+                    ASR::ttype_t *type = ASRUtils::expr_type(arg);
+                    if (ASRUtils::is_character(*type)) {
+                        AST::ConstantStr_t* str_str_con = AST::down_cast<AST::ConstantStr_t>(at->m_value);
+                        std::string str = str_str_con->m_value;
+                        if (ASRUtils::expr_value(arg) != nullptr) {
+                            ASR::StringConstant_t* sub_str_con = ASR::down_cast<ASR::StringConstant_t>(arg);
+                            std::string sub = sub_str_con->m_s;
+                            //KMP matching
+                            int str_len = str.size();
+                            int sub_len = sub.size();
+                            bool flag = 0;
+                            int res = -1;
+                            std::vector<int>lps(sub_len, 0);
+                            if (str_len == 0 || sub_len == 0) {
+                                res = (!sub_len || (sub_len == str_len))? 0: -1;
+                            } else {
+                                for(int i = 1, len = 0; i < sub_len;) {
+                                    if (sub[i] == sub[len]) {
+                                        lps[i++] = ++len;
+                                    } else {
+                                        if (len != 0) {
+                                            len = lps[len - 1];
+                                        } else {
+                                            lps[i++] = 0;
+                                        }
+                                    }
+                                }
+                                for (int i = 0, j = 0; (str_len - i) >= (sub_len - j) && !flag;) {
+                                    if (sub[j] == str[i]) {
+                                        j++, i++;
+                                    }
+                                    if (j == sub_len) {
+                                        res = i - j;
+                                        flag = 1;
+                                        j = lps[j - 1];
+                                    } else if (i < str_len && sub[j] != str[i]) {
+                                        if (j != 0) {
+                                            j = lps[j - 1];
+                                        } else {
+                                            i = i + 1;
+                                        }
+                                    }
+                                }
+                            }
+                            tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, res, ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                                        4, nullptr, 0)));
+                        } else {
+                            ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_find");
+                            Vec<ASR::call_arg_t> args;
+                            args.reserve(al, 1);
+                            ASR::call_arg_t str_arg;
+                            str_arg.loc = x.base.base.loc;
+                            ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
+                                    1, 0, nullptr, nullptr, 0));
+                            str_arg.m_value = ASRUtils::EXPR(
+                                    ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, str), str_type));
+                            ASR::call_arg_t sub_arg;
+                            sub_arg.loc = x.base.base.loc;
+                            sub_arg.m_value = arg;
+                            args.push_back(al, str_arg);
+                            args.push_back(al, sub_arg);
+                            tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_find", x.base.base.loc);
+                        }
+                    } else {
+                        throw SemanticError("str.find() takes one arguments of type: str",
+                            arg->base.loc);
+                    }
+                    return;
                 } else if (std::string(at->m_attr) == std::string("rstrip")) {
                     if(args.size() != 0) {
                         throw SemanticError("str.rstrip() takes no arguments",
