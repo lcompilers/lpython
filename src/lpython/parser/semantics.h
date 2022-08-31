@@ -964,6 +964,8 @@ ast_t *DICT1(Allocator &al, Location &l, Vec<Key_Val*> dict_list) {
         EXPR(SET_EXPR_CTX_01(x, Store)), EXPR(y))
 #define STARRED_ARG(e, l) make_Starred_t(p.m_a, l, \
         EXPR(e), expr_contextType::Load)
+#define STARRED_ARG_STORE(e, l) make_Starred_t(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(e, Store)), expr_contextType::Load)
 #define LAMBDA_01(args, e, l) make_Lambda_t(p.m_a, l, args->arguments, EXPR(e))
 
 #endif

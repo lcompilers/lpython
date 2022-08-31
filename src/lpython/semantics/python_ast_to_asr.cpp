@@ -2198,7 +2198,8 @@ public:
             } else if (ASR::is_a<ASR::Dict_t>(*type)) {
                 throw SemanticError("unhashable type in dict: 'slice'", loc);
             }
-        } else if(AST::is_a<AST::Tuple_t>(*m_slice)) {
+        } else if(AST::is_a<AST::Tuple_t>(*m_slice) &&
+                  !ASR::is_a<ASR::Dict_t>(*type)) {
             bool final_result = true;
             AST::Tuple_t* indices = AST::down_cast<AST::Tuple_t>(m_slice);
             for( size_t i = 0; i < indices->n_elts; i++ ) {
@@ -4553,6 +4554,30 @@ public:
                                     args.push_back(al, arg);
                                     tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_strip", x.base.base.loc);
                                     return;
+                                } else if (std::string(at->m_attr) == std::string("startswith")) {
+                                    if(args.size() != 1) {
+                                        throw SemanticError("str.startwith() takes one argument",
+                                            x.base.base.loc);
+                                    }
+                                    ASR::expr_t *arg_sub = args[0].m_value;
+                                    ASR::ttype_t *arg_sub_type = ASRUtils::expr_type(arg_sub);
+                                    if(!ASRUtils::is_character(*arg_sub_type)) {
+                                        throw SemanticError("str.startwith() takes one argument of type: str",
+                                            x.base.base.loc);
+                                    }
+                                    ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_startswith");
+                                    Vec<ASR::call_arg_t> function_args;
+                                    function_args.reserve(al, 1);
+                                    ASR::call_arg_t str;
+                                    str.loc = x.base.base.loc;
+                                    str.m_value = se;
+                                    ASR::call_arg_t sub;
+                                    sub.loc = x.base.base.loc;
+                                    sub.m_value = args[0].m_value;
+                                    function_args.push_back(al, str);
+                                    function_args.push_back(al, sub);
+                                    tmp = make_call_helper(al, fn_div, current_scope, function_args, "_lpython_str_startswith", x.base.base.loc);
+                                    return;
                                 }
                             }
                             handle_attribute(se, at->m_attr, x.base.base.loc, eles);
@@ -4666,6 +4691,51 @@ public:
                     ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
                                     1, 1, nullptr, nullptr , 0));
                     tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
+                    return;
+                } else if (std::string(at->m_attr) == std::string("startswith")) {
+                    if (args.size() != 1) {
+                        throw SemanticError("str.startswith() takes one arguments",
+                            x.base.base.loc);
+                    }
+                    ASR::expr_t *arg = args[0].m_value;
+                    ASR::ttype_t *type = ASRUtils::expr_type(arg);
+                    if (ASRUtils::is_character(*type)) {
+                        AST::ConstantStr_t* str_str_con = AST::down_cast<AST::ConstantStr_t>(at->m_value);
+                        std::string str = str_str_con->m_value;
+                        if (ASRUtils::expr_value(arg) != nullptr) {
+                            ASR::StringConstant_t* sub_str_con = ASR::down_cast<ASR::StringConstant_t>(arg);
+                            std::string sub = sub_str_con->m_s;
+                            size_t ind1 = 0, ind2 = 0;
+                            bool res = !(str.size() == 0 && sub.size());
+                            while ((ind1 < str.size()) && (ind2 < sub.size()) && res) {
+                                res &= str[ind1] == sub[ind2];
+                                ind1++;
+                                ind2++;
+                            }
+                            res &= res? (ind2 == sub.size()): true;
+                            tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, res, ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
+                                    4, nullptr, 0)));
+                        } else {
+                            ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_startswith");
+                            Vec<ASR::call_arg_t> args;
+                            args.reserve(al, 1);
+                            ASR::call_arg_t str_arg;
+                            str_arg.loc = x.base.base.loc;
+                            ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
+                                    1, 0, nullptr, nullptr, 0));
+                            str_arg.m_value = ASRUtils::EXPR(
+                                    ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, str), str_type));
+                            ASR::call_arg_t sub_arg;
+                            sub_arg.loc = x.base.base.loc;
+                            sub_arg.m_value = arg;
+                            args.push_back(al, str_arg);
+                            args.push_back(al, sub_arg);
+                            tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_startswith", x.base.base.loc);
+                        }
+                    } else {
+                        throw SemanticError("str.startwith() takes one arguments of type: str",
+                            arg->base.loc);
+                    }
                     return;
                 } else {
                     throw SemanticError("'str' object has no attribute '" + std::string(at->m_attr) + "'",

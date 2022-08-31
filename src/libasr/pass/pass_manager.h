@@ -101,6 +101,7 @@ namespace LCompilers {
                 "do_loops",
                 "forall",
                 "select_case",
+                "inline_function_calls",
                 "unused_functions"
             };
 
@@ -161,8 +162,10 @@ namespace LCompilers {
         void apply_passes(Allocator& al, LFortran::ASR::TranslationUnit_t* asr,
                           PassOptions& pass_options) {
             if( !_user_defined_passes.empty() ) {
+                pass_options.fast = true;
                 _apply_passes(al, asr, _user_defined_passes, pass_options);
             } else if( apply_default_passes ) {
+                pass_options.fast = is_fast;
                 if( is_fast ) {
                     _apply_passes(al, asr, _with_optimization_passes, pass_options);
                 } else {

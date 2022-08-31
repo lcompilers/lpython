@@ -1369,6 +1369,7 @@ public:
         ptr_loads = !LLVM::is_llvm_struct(dict_type->m_key_type);
         this->visit_expr_wrapper(x.m_key, true);
         llvm::Value *key = tmp;
+        ptr_loads = !LLVM::is_llvm_struct(dict_type->m_value_type);
         this->visit_expr_wrapper(x.m_value, true);
         llvm::Value *value = tmp;
         ptr_loads = ptr_loads_copy;

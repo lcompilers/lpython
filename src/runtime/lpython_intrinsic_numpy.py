@@ -74,6 +74,48 @@ def _lfortran_stan(x: f32) -> f32:
 def tan(x: f32) -> f32:
     return _lfortran_stan(x)
 
+
+########## sinh ##########
+
+@ccall
+def _lfortran_dsinh(x: f64) -> f64:
+    pass
+
+@overload
+@vectorize
+def sinh(x: f64) -> f64:
+    return _lfortran_dsinh(x)
+
+@ccall
+def _lfortran_ssinh(x: f32) -> f32:
+    pass
+
+@overload
+@vectorize
+def sinh(x: f32) -> f32:
+    return _lfortran_ssinh(x)
+
+########## cosh ##########
+
+@ccall
+def _lfortran_dcosh(x: f64) -> f64:
+    pass
+
+@overload
+@vectorize
+def cosh(x: f64) -> f64:
+    return _lfortran_dcosh(x)
+
+@ccall
+def _lfortran_scosh(x: f32) -> f32:
+    pass
+
+@overload
+@vectorize
+def cosh(x: f32) -> f32:
+    return _lfortran_scosh(x)
+
+
 ########## log ##########
 
 @ccall
@@ -125,3 +167,43 @@ def log2(x: f64) -> f64:
 @vectorize
 def log2(x: f32) -> f32:
     return _lfortran_slog(x)/_lfortran_slog(2.0)
+
+########## arcsin ##########
+
+@ccall
+def _lfortran_dasin(x: f64) -> f64:
+    pass
+
+@overload
+@vectorize
+def arcsin(x: f64) -> f64:
+    return _lfortran_dasin(x)
+
+@ccall
+def _lfortran_sasin(x: f32) -> f32:
+    pass
+
+@overload
+@vectorize
+def arcsin(x: f32) -> f32:
+    return _lfortran_sasin(x)
+
+########## arccos ##########
+
+@ccall
+def _lfortran_dacos(x: f64) -> f64:
+    pass
+
+@overload
+@vectorize
+def arccos(x: f64) -> f64:
+    return _lfortran_dacos(x)
+
+@ccall
+def _lfortran_sacos(x: f32) -> f32:
+    pass
+
+@overload
+@vectorize
+def arccos(x: f32) -> f32:
+    return _lfortran_sacos(x)

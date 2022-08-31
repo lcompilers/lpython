@@ -705,47 +705,55 @@ public:
                 if( doloop == nullptr ) {
                     ASR::expr_t* ref = PassUtils::create_array_ref(arr_expr, idx_vars_value, al);
                     ASR::expr_t* res = PassUtils::create_array_ref(result_var, idx_vars, al);
+                    ASR::expr_t *lexpr = nullptr, *rexpr = nullptr;
+                    if( rank_left > 0 ) {
+                        lexpr = ref;
+                        rexpr = other_expr;
+                    } else {
+                        rexpr = ref;
+                        lexpr = other_expr;
+                    }
                     ASR::expr_t* op_el_wise = nullptr;
                     switch( x.class_type ) {
                         case ASR::exprType::IntegerBinOp:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_IntegerBinOp_t(
                                                     al, x.base.base.loc,
-                                                    ref, (ASR::binopType)x.m_op, other_expr, x.m_type, nullptr));
+                                                    lexpr, (ASR::binopType)x.m_op, rexpr, x.m_type, nullptr));
                             break;
                         case ASR::exprType::RealBinOp:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_RealBinOp_t(
                                                     al, x.base.base.loc,
-                                                    ref, (ASR::binopType)x.m_op, other_expr, x.m_type, nullptr));
+                                                    lexpr, (ASR::binopType)x.m_op, rexpr, x.m_type, nullptr));
                             break;
                         case ASR::exprType::ComplexBinOp:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_ComplexBinOp_t(
                                                     al, x.base.base.loc,
-                                                    ref, (ASR::binopType)x.m_op, other_expr, x.m_type, nullptr));
+                                                    lexpr, (ASR::binopType)x.m_op, rexpr, x.m_type, nullptr));
                             break;
                         case ASR::exprType::LogicalBinOp:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_LogicalBinOp_t(
                                                     al, x.base.base.loc,
-                                                    ref, (ASR::logicalbinopType)x.m_op, other_expr, x.m_type, nullptr));
+                                                    lexpr, (ASR::logicalbinopType)x.m_op, rexpr, x.m_type, nullptr));
                             break;
                         case ASR::exprType::IntegerCompare:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_IntegerCompare_t(
                                                     al, x.base.base.loc,
-                                                    ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type, nullptr));
+                                                    lexpr, (ASR::cmpopType)x.m_op, rexpr, x.m_type, nullptr));
                             break;
                         case ASR::exprType::RealCompare:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_RealCompare_t(
                                                     al, x.base.base.loc,
-                                                    ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type, nullptr));
+                                                    lexpr, (ASR::cmpopType)x.m_op, rexpr, x.m_type, nullptr));
                             break;
                         case ASR::exprType::ComplexCompare:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_ComplexCompare_t(
                                                     al, x.base.base.loc,
-                                                    ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type, nullptr));
+                                                    lexpr, (ASR::cmpopType)x.m_op, rexpr, x.m_type, nullptr));
                             break;
                         case ASR::exprType::LogicalCompare:
                             op_el_wise = LFortran::ASRUtils::EXPR(ASR::make_LogicalCompare_t(
                                                     al, x.base.base.loc,
-                                                    ref, (ASR::cmpopType)x.m_op, other_expr, x.m_type, nullptr));
+                                                    lexpr, (ASR::cmpopType)x.m_op, rexpr, x.m_type, nullptr));
                             break;
                         default:
                             throw LCompilersException("The desired operation is not supported yet for arrays.");

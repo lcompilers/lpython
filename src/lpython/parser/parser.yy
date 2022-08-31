@@ -469,6 +469,7 @@ augassign_op
     | ">>=" { $$ = OPERATOR(RShift, @$); }
     | "**=" { $$ = OPERATOR(Pow, @$); }
     | "//=" { $$ = OPERATOR(FloorDiv, @$); }
+    | "@=" { $$ = OPERATOR(MatMult, @$); }
     ;
 
 ann_assignment_statement
@@ -825,6 +826,7 @@ id_list
 
 id_item
     : id { $$ = $1; }
+    | "*" id { $$ = STARRED_ARG_STORE($2, @$); }
     | "(" id ")" { $$ = $2; }
     | "(" id_list "," ")" { $$ = ID_TUPLE_03($2, @$); }
     | "(" id_list ","  id_item ")" { $$ = ID_TUPLE_01(TUPLE_($2, $4), @$); }
