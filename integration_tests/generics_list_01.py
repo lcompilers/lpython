@@ -21,6 +21,9 @@ def empty_string(x: str) -> str:
 def add_string(x: str, y: str) -> str:
     return x + y
 
+def div_string(x: str, k: i32) -> f64:
+    return 0.0
+
 def mean(x: list[T]) -> f64:
     k: i32 = len(x)
     if k == 0:
@@ -34,4 +37,4 @@ def mean(x: list[T]) -> f64:
 
 print(mean([1,2,3]))
 print(mean([1.0,2.0,3.0]))
-#print(sum(["a","b","c"], zero=empty_string, plus=add_string))
+print(mean(["a","b","c"], zero=empty_string, plus=add_string, div=div_string))
