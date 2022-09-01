@@ -454,7 +454,7 @@ def _lpython_floordiv(a: f32, b: f32) -> f32:
 @overload
 def _lpython_floordiv(a: i32, b: i32) -> i32:
     r: f64 # f32 rounds things up and gives incorrect results
-    r = a/b
+    r = float(a)/float(b)
     result: i32
     result = int(r)
     if r >= 0.0 or result == r:
