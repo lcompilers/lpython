@@ -578,19 +578,11 @@ R"(#include <stdio.h>
         }
     }
 
-    void extract_kinds(const ASR::Cast_t &x, int &arg_kind, int &dest_kind) {
-        dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
-        ASR::ttype_t *curr_type = ASRUtils::expr_type(x.m_arg);
-        LFORTRAN_ASSERT(curr_type != nullptr)
-        arg_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
-    }
-
     void visit_Cast(const ASR::Cast_t &x) {
         self().visit_expr(*x.m_arg);
         switch (x.m_kind) {
             case (ASR::cast_kindType::IntegerToReal) : {
-                int arg_kind = -1, dest_kind = -1; // arg_kind is not used currently
-                extract_kinds(x, arg_kind, dest_kind);
+                int dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
                 switch (dest_kind) {
                     case 4: src = "(float)(" + src + ")"; break;
                     case 8: src = "(double)(" + src + ")"; break;
@@ -599,8 +591,7 @@ R"(#include <stdio.h>
                 break;
             }
             case (ASR::cast_kindType::RealToInteger) : {
-                int arg_kind = -1, dest_kind = -1; // arg_kind is not used currently
-                extract_kinds(x, arg_kind, dest_kind);
+                int dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
                 switch (dest_kind) {
                     case 4: src = "(int32_t)(" + src + ")"; break;
                     case 8: src = "(int64_t)(" + src + ")"; break;
