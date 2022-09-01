@@ -229,8 +229,14 @@ public:
         ASR::expr_t* value = duplicate_expr(x->m_value);
         ASR::expr_t* dt = duplicate_expr(x->m_dt);
         std::string call_name = ASRUtils::symbol_name(x->m_name);
+        //std::cout << "--" << std::endl;
         for (ASR::Function_t* rt: rts) {
             if (call_name.compare(rt->m_name) == 0) {
+                /*
+                for (auto const& rt_sub: rt_subs) {
+                    std::cout << rt_sub.first << std::endl;
+                }
+                */
                 if (rt_subs.find(call_name) == rt_subs.end()) {
                     if (call_name.compare("plus") == 0) {
                         ASR::expr_t* left_arg = duplicate_expr(x->m_args[0].m_value);
@@ -238,8 +244,7 @@ public:
                         ASR::ttype_t* left_type = substitute_type(ASRUtils::expr_type(left_arg));
                         ASR::ttype_t* right_type = substitute_type(ASRUtils::expr_type(right_arg));
                         if ((ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) ||
-                                (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type)) ||
-                                (ASRUtils::is_character(*left_type) && ASRUtils::is_character(*right_type))) {
+                                (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type))) {
                             return make_BinOp_helper(left_arg, right_arg, ASR::binopType::Add, x->base.base.loc);
                         } else {
                             throw SemanticError("Intrinsic plus not yet supported for this type", x->base.base.loc);

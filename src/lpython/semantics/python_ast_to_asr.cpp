@@ -661,7 +661,7 @@ public:
                              Vec<ASR::restriction_arg_t*>& call_keywords_vec, const Location& loc) {
         LFORTRAN_ASSERT(call_keywords_vec.reserve_called);
         for (size_t i = 0; i<n; i++) {
-            AST::keyword_t keyword = keywords[0];
+            AST::keyword_t keyword = keywords[i];
             std::string keyword_arg = keyword.m_arg;
             ASR::symbol_t* keyword_sym = current_scope->resolve_symbol(keyword_arg);
             if (keyword_sym) {
