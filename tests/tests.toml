@@ -799,6 +799,10 @@ asr = true
 filename = "errors/test_str_capitalize.py"
 asr = true
 
+[[test]]
+filename = "errors/test_tuple1.py"
+asr = true
+
 # tests/tokens/errors
 
 [[test]]
@@ -818,5 +822,9 @@ filename = "tokens/errors/paren4.py"
 tokens = true
 
 [[test]]
-filename = "errors/test_tuple1.py"
-asr = true
+filename = "tokens/errors/indent1.py"
+tokens = true
+
+[[test]]
+filename = "tokens/errors/indent2.py"
+tokens = true

@@ -321,18 +321,37 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 }
                 if (indent) {
                     indent = false;
-                    indent_length.push_back(cur-tok);
-                    last_indent_length = cur-tok;
-                    RET(TK_INDENT);
-                } else {
-                    if(last_token == yytokentype::TK_NEWLINE && cur[0] != ' '
-                            && cur[0] != '\t' && last_indent_length > cur-tok) {
+                    if (last_indent_length == 0) {
+                        last_indent_type = tok[0];
+                    }
+                    if (last_indent_type == tok[0]) {
+                        indent_length.push_back(cur-tok);
                         last_indent_length = cur-tok;
-                        dedent = 2;
-                        if (!indent_length.empty()) {
-                            indent_length.pop_back();
+                        RET(TK_INDENT);
+                    } else {
+                        loc.first++; loc.last++;
+                        throw parser_local::TokenizerError(
+                        "Indentation should be of the same type "
+                        "(either tabs or spaces)", {loc});
+                    }
+                } else {
+                    if(last_token == yytokentype::TK_NEWLINE
+                            && cur[0] != ' ' && cur[0] != '\t') {
+                        if (last_indent_type == tok[0]) {
+                            if (last_indent_length > cur-tok) {
+                                last_indent_length = cur-tok;
+                                dedent = 2;
+                                if (!indent_length.empty()) {
+                                    indent_length.pop_back();
+                                }
+                                RET(TK_DEDENT);
+                            }
+                        } else {
+                            loc.first++; loc.last++;
+                            throw parser_local::TokenizerError(
+                            "Indentation should be of the same type "
+                            "(either tabs or spaces)", {loc});
                         }
-                        RET(TK_DEDENT);
                     }
                 }
                 continue;
