@@ -592,11 +592,7 @@ R"(#include <stdio.h>
             }
             case (ASR::cast_kindType::RealToInteger) : {
                 int dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
-                switch (dest_kind) {
-                    case 4: src = "(int32_t)(" + src + ")"; break;
-                    case 8: src = "(int64_t)(" + src + ")"; break;
-                    default: throw CodeGenError("Cast RealToInteger: Unsupported Kind " + std::to_string(dest_kind));
-                }
+                src = "(int" + std::to_string(dest_kind * 8) + "_t)(" + src + ")";
                 break;
             }
             case (ASR::cast_kindType::RealToReal) : {
