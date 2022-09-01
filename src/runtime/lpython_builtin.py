@@ -440,8 +440,8 @@ def _lpython_floordiv(a: f64, b: f64) -> f64:
 
 @overload
 def _lpython_floordiv(a: f32, b: f32) -> f32:
-    r: f32
-    r = a/b
+    r: f64
+    r = float(a)/float(b)
     result: i32
     resultf32: f32
     result = int(r)
