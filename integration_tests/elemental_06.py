@@ -1,5 +1,5 @@
 from ltypes import i32, f32, f64
-from numpy import empty, arcsin, arccos, sin, cos, sqrt
+from numpy import empty, arcsin, arccos, sin, cos, sqrt, arctan, tan, degrees, radians
 from math import pi
 
 def verify1d_same(array: f32[:], result: f32[:], size: i32):
@@ -41,6 +41,22 @@ def verify_arccos_2d(array: f64[:, :], result: f64[:, :], size1:i32, size2:i32):
         for j in range(size2):
             assert abs(arccos(array[i, j])**2 - result[i, j]) <= eps
 
+def verify_arctan_1d(array: f32[:], result: f32[:], size: i32):
+    i: i32
+    eps: f32
+    eps = 1e-6
+    for i in range(size):
+        assert abs(arctan(array[i])**2 - result[i]) <= eps
+
+def verify_arctan_2d(array: f64[:, :], result: f64[:, :], size1:i32, size2:i32):
+    i: i32
+    j: i32
+    eps: f64
+    eps = 1e-12
+    for i in range(size1):
+        for j in range(size2):
+            assert abs(arctan(array[i, j])**2 - result[i, j]) <= eps
+
 def elemental_arcsin():
     i: i32
     j: i32
@@ -79,6 +95,35 @@ def elemental_arccos():
     arccos2d = arccos(array2d) ** 2
     verify_arccos_2d(array2d, arccos2d, 64, 64)
 
+def elemental_arctan():
+    i: i32
+    j: i32
+    eps: f32
+    eps = 1e-6
+    array1d: f32[201] = empty(201)
+    array1d_rec: f32[201] = empty(201)
+    arctan1d: f32[201] = empty(201)
+    for i in range(201):
+        array1d[i] =  float(i-100)
+    arctan1d = arctan(array1d) ** 2
+    verify_arctan_1d(array1d, arctan1d, 201)
+
+    for i in range(201):
+        array1d[i] =  float(i+1)
+        array1d_rec[i] = float(1.0/(i+1))
+    arctan1d = arctan(array1d) + arctan(array1d_rec)
+    for i in range(201):
+        assert abs(arctan1d[i] - pi / 2) <= eps
+
+    array2d: f64[64, 64] = empty((64, 64))
+    arctan2d: f64[64, 64] = empty((64, 64))
+    for i in range(64):
+        for j in range(64):
+            array2d[i,j]= float(64*i+j-2048)
+
+    arctan2d = arctan(array2d) ** 2
+    verify_arctan_2d(array2d, arctan2d, 64, 64)
+
 def elemental_trig_identity():
     i: i32
     eps: f32
@@ -104,6 +149,12 @@ def elemental_reverse():
     observed1d = cos(arccos(array1d))
     verify1d_same(observed1d, array1d, 201)
 
+    observed1d = tan(arctan(array1d))
+    verify1d_same(observed1d, array1d, 201)
+
+    observed1d = degrees(radians(array1d))
+    verify1d_same(observed1d, array1d, 201)
+
 def elemental_trig_identity_extra():
     i: i32
     array1d: f32[201] = empty(201)
@@ -119,9 +170,64 @@ def elemental_trig_identity_extra():
     verify1d_same(array_x, array_y, 201)
     verify1d_same(array_x, array1d, 201)
 
+def elemental_degrees():
+    i: i32
+    j: i32
+    eps_32: f32
+    eps_64: f64
+    eps_32 = 1e-6
+    eps_64 = 1e-12
+    array1d: f32[200] = empty(200)
+    degrees1d: f32[200] = empty(200)
+    for i in range(200):
+        array1d[i] =  float(i)
+    degrees1d = sin(degrees(array1d))
+
+    for i in range(200):
+        assert abs(degrees1d[i]-sin(degrees(array1d[i]))) <= eps_32
+
+    array2d: f64[64, 64] = empty((64, 64))
+    degrees2d: f64[64, 64] = empty((64, 64))
+    for i in range(64):
+        for j in range(64):
+            array2d[i,j]= float(i*64+j)
+    degrees2d = sin(degrees(array2d))
+    for i in range(64):
+        for j in range(64):
+            assert abs(degrees2d[i,j]-sin(degrees(array2d[i,j]))) <= eps_64
+
+def elemental_radians():
+    i: i32
+    j: i32
+    eps_32: f32
+    eps_64: f64
+    eps_32 = 1e-6
+    eps_64 = 1e-12
+    array1d: f32[200] = empty(200)
+    radians1d: f32[200] = empty(200)
+    for i in range(200):
+        array1d[i] =  float(i)
+    radians1d = cos(radians(array1d))
+
+    for i in range(200):
+        assert abs(radians1d[i]-cos(radians(array1d[i]))) <= eps_32
+
+    array2d: f64[64, 64] = empty((64, 64))
+    radians2d: f64[64, 64] = empty((64, 64))
+    for i in range(64):
+        for j in range(64):
+            array2d[i,j]= float(i*64+j)
+    radians2d = cos(radians(array2d))
+    for i in range(64):
+        for j in range(64):
+            assert abs(radians2d[i,j]-cos(radians(array2d[i,j]))) <= eps_64
+
 
 elemental_arcsin()
 elemental_arccos()
+elemental_arctan()
+elemental_degrees()
+elemental_radians()
 elemental_trig_identity()
 elemental_reverse()
 elemental_trig_identity_extra()
