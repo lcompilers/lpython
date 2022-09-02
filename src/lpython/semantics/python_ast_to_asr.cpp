@@ -848,7 +848,7 @@ public:
                 for (size_t i=0; i<func->n_restrictions; i++) {
                     ASR::Function_t* rt = ASR::down_cast<ASR::Function_t>(
                         func->m_restrictions[i]);
-                    check_type_restriction(subs, rt_subs, rt, rt_args.p, rt_args.size());
+                    check_type_restriction(subs, rt_subs, rt, rt_args, loc);
                 }
                 ASR::symbol_t *t = get_generic_function(subs, rt_subs, *func);
                 std::string new_call_name = call_name;
@@ -963,11 +963,13 @@ public:
      */
     void check_type_restriction(std::map<std::string, ASR::ttype_t*> subs, 
             std::map<std::string, ASR::symbol_t*>& rt_subs, ASR::Function_t* rt,
-            ASR::restriction_arg_t** rt_args, size_t size_args) {
-        for (size_t i=0; i<size_args; i++) {
+            Vec<ASR::restriction_arg_t*> vec_rt_args, const Location& loc) {
+        std::string rt_name = rt->m_name;
+        ASR::restriction_arg_t** rt_args = vec_rt_args.p;
+        size_t size_rt_args = vec_rt_args.size();
+        for (size_t i=0; i<size_rt_args; i++) {
             ASR::RestrictionArg_t* rt_arg = ASR::down_cast<ASR::RestrictionArg_t>(rt_args[i]);
             std::string rt_arg_name = rt_arg->m_restriction_name;
-            std::string rt_name = rt->m_name;
             if (rt_arg_name.compare(rt_name) == 0) {
                 ASR::Function_t* rt_arg_func = ASR::down_cast<ASR::Function_t>(rt_arg->m_restriction_func);
                 /** @brief different argument number between the function given and the 
@@ -1016,9 +1018,44 @@ public:
                     }
                 }
                 rt_subs[rt->m_name] = rt_arg->m_restriction_func;
+                return;
             }
         }
-        // TODO: Add checks if there is not argument given to the restriction
+        /**
+         * @brief Check if there is not argument given to the restriction
+         *  plus : integer x integer -> integer, real x real -> real
+         *  zero : integer -> integer, real -> real
+         *  div  : integer x i32 -> f64, real x i32 -> f64
+         */
+        if (rt_name.compare("plus") == 0 && rt->n_args == 2) {
+            ASR::ttype_t* left_type = ASRUtils::expr_type(rt->m_args[0]);
+            ASR::ttype_t* right_type = ASRUtils::expr_type(rt->m_args[1]);
+            left_type = ASR::is_a<ASR::TypeParameter_t>(*left_type)
+                ? subs[ASR::down_cast<ASR::TypeParameter_t>(left_type)->m_param] : left_type;
+            right_type = ASR::is_a<ASR::TypeParameter_t>(*right_type)
+                ? subs[ASR::down_cast<ASR::TypeParameter_t>(right_type)->m_param] : right_type;
+            if ((ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) ||
+                    (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type))) {
+                return;
+            }
+        } else if (rt_name.compare("zero") == 0 && rt->n_args == 1) {
+            ASR::ttype_t* type = ASRUtils::expr_type(rt->m_args[0]);
+            type = ASR::is_a<ASR::TypeParameter_t>(*type)
+                ? subs[ASR::down_cast<ASR::TypeParameter_t>(type)->m_param] : type;
+            if (ASRUtils::is_integer(*type) || ASRUtils::is_real(*type)) {
+                return;
+            }
+        } else if (rt_name.compare("div") == 0 && rt->n_args == 2) {
+            ASR::ttype_t* left_type = ASRUtils::expr_type(rt->m_args[0]);
+            ASR::ttype_t* right_type = ASRUtils::expr_type(rt->m_args[1]);
+            left_type = ASR::is_a<ASR::TypeParameter_t>(*left_type)
+                ? subs[ASR::down_cast<ASR::TypeParameter_t>(left_type)->m_param] : left_type;
+            if ((ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) || 
+                    (ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type))) {
+                return;
+            }
+        }
+        throw SemanticError("No applicable argument to the restriction " + rt_name , loc);
     }
 
     /**
