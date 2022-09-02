@@ -322,7 +322,6 @@ def pstdev(x: list[i32]) -> f64:
     """
     return pvariance(x)**0.5
 
-
 @overload
 def correlation(x: list[i32], y: list[i32]) -> f64:
     """
@@ -422,3 +421,80 @@ def covariance(x: list[f64], y: list[f64]) -> f64:
     for i in range(n):
         num += (x[i] - xmean) * (y[i] - ymean)
     return num / (n-1)
+
+@overload
+def linear_regression(x: list[i32], y: list[i32]) -> tuple[f64, f64]:
+
+    """
+    Returns the slope and intercept of simple linear regression
+    parameters estimated using ordinary least squares.
+    """
+    n: i32 = len(x)
+    if len(y) !=  n:
+        raise Exception('linear regression requires that both inputs have same number of data points')
+    if n < 2:
+        raise Exception('linear regression requires at least two data points')
+    xmean: f64 = mean(x)
+    ymean: f64 = mean(y)
+
+    sxy: f64 = 0.0
+    i: i32
+    for i in range(n):
+        sxy += (x[i] - xmean) * (y[i] - ymean)
+
+    sxx: f64 = 0.0
+    j: i32
+    for j in range(n):
+        sxx += (x[j] - xmean) ** 2
+
+    slope: f64
+
+    if sxx == 0:
+        raise Exception('x is constant')
+    else:
+        slope = sxy / sxx
+
+    intercept: f64  = ymean - slope * xmean
+
+    LinReg: tuple[f64, f64] = (slope, intercept)
+
+    return LinReg
+
+@overload
+def linear_regression(x: list[f64], y: list[f64]) -> tuple[f64, f64]:
+
+    """
+    Returns the slope and intercept of simple linear regression
+    parameters estimated using ordinary least squares.
+    """
+    n: i32 = len(x)
+    if len(y) !=  n:
+        raise Exception('linear regression requires that both inputs have same number of data points')
+    if n < 2:
+        raise Exception('linear regression requires at least two data points')
+    xmean: f64 = mean(x)
+    ymean: f64 = mean(y)
+
+    sxy: f64 = 0.0
+    i: i32
+    for i in range(n):
+        sxy += (x[i] - xmean) * (y[i] - ymean)
+
+    sxx: f64 = 0.0
+    j: i32
+    for j in range(n):
+        sxx += (x[j] - xmean) ** 2
+
+    slope: f64
+
+    if sxx == 0:
+        raise Exception('x is constant')
+    else:
+        slope = sxy / sxx
+
+    intercept: f64  = ymean - slope * xmean
+
+    LinReg: tuple[f64, f64] = (slope, intercept)
+
+    return LinReg
+    

@@ -1,9 +1,10 @@
 from statistics import (mean, fmean, geometric_mean, harmonic_mean, variance,
-                        stdev, pvariance, pstdev, correlation, covariance)
+                        stdev, pvariance, pstdev, correlation, covariance, linear_regression)
 from ltypes import i32, f64, i64, f32
 
 eps: f64
 eps = 1e-12
+
 
 def test_mean():
     b: list[i32]
@@ -163,6 +164,28 @@ def test_correlation():
     j = correlation(c, d)
     assert abs(j - 0.9057925526720572) < eps
 
+def test_linear_regression():
+    c: list[f64]
+    c = [2.74, 1.23, 2.63, 2.22, 3.0, 1.98]
+    d: list[f64]
+    d = [9.4, 1.23, 2.63, 22.4, 1.9, 13.98]
+
+    slope: f64
+    intercept: f64
+    slope, intercept = linear_regression(c, d)
+
+    assert abs(slope + 0.6098133124816717) < eps
+    assert abs(intercept - 9.992570618707845) < eps
+
+    a: list[i32]
+    b: list[i32]
+    a = [12, 24, 2, 1, 43, 53, 23]
+    b = [2, 13, 14, 63, 49, 7, 3]
+
+    slope, intercept = linear_regression(a, b)
+
+    assert abs(slope + 0.18514007308160782) < eps
+    assert abs(intercept - 25.750304506699152) < eps
 
 def check():
     test_mean()
@@ -173,6 +196,7 @@ def check():
     test_stdev()
     test_pvariance()
     test_pstdev()
+    test_linear_regression()
     test_correlation()
     test_covariance()
 
