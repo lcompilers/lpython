@@ -93,7 +93,7 @@ void test_pow()
     assert (__lpython_overloaded_1__pow(i1, i2) == 32);
     i1 = 6;
     i2 = -3;
-    f1 = (float)(525346)/(float)(66456);
+    f1 = (double)(525346)/(double)(66456);
     f2 =   3.00000000000000000e+00;
     p = __lpython_overloaded_2__pow(f1, f2);
     f1 = __lpython_overloaded_4__pow(a, f2);
@@ -113,10 +113,10 @@ void test_pow()
     assert (__lpython_overloaded_0__abs(__lpython_overloaded_6__pow(x, y) -   1.25135025328431819e+01) < eps);
     assert (__lpython_overloaded_0__abs(__lpython_overloaded_7__pow(y, x) -   1.21669999999999980e+01) < eps);
     assert (__lpython_overloaded_0__abs(__lpython_overloaded_6__pow(x,   5.50000000000000000e+00) -   4.20888346239237194e+02) < eps);
-    assert (__lpython_overloaded_0__abs((float)(__lpython_overloaded_0__pow(2, -1)) -   5.00000000000000000e-01) < eps);
-    assert (__lpython_overloaded_0__abs((float)(__lpython_overloaded_0__pow(6, -4)) -   7.71604938271604895e-04) < eps);
-    assert (__lpython_overloaded_0__abs((float)(__lpython_overloaded_0__pow(-3, -5)) +   4.11522633744856002e-03) < eps);
-    assert (__lpython_overloaded_0__abs((float)(__lpython_overloaded_0__pow(6, -4)) -   7.71604938271604895e-04) < eps);
+    assert (__lpython_overloaded_0__abs((double)(__lpython_overloaded_0__pow(2, -1)) -   5.00000000000000000e-01) < eps);
+    assert (__lpython_overloaded_0__abs((double)(__lpython_overloaded_0__pow(6, -4)) -   7.71604938271604895e-04) < eps);
+    assert (__lpython_overloaded_0__abs((double)(__lpython_overloaded_0__pow(-3, -5)) +   4.11522633744856002e-03) < eps);
+    assert (__lpython_overloaded_0__abs((double)(__lpython_overloaded_0__pow(6, -4)) -   7.71604938271604895e-04) < eps);
     assert (__lpython_overloaded_0__abs(__lpython_overloaded_3__pow(  4.50000000000000000e+00,   2.29999999999999982e+00) -   3.17971929089206000e+01) < eps);
     assert (__lpython_overloaded_0__abs(__lpython_overloaded_3__pow(  2.29999999999999982e+00,   0.00000000000000000e+00) -   1.00000000000000000e+00) < eps);
     assert (__lpython_overloaded_0__abs(__lpython_overloaded_3__pow(  2.29999999999999982e+00, -  1.50000000000000000e+00) -   2.86687162345994395e-01) < eps);
@@ -200,9 +200,9 @@ int32_t __lpython_overloaded_2___lpython_floordiv(int32_t a, int32_t b)
     int32_t _lpython_return_variable;
     double r;
     int32_t result;
-    r = (float)(a)/(float)(b);
-    result = (int)(r);
-    if (r >=   0.00000000000000000e+00 || (float)(result) == r) {
+    r = (double)(a)/(double)(b);
+    result = (int64_t)(r);
+    if (r >=   0.00000000000000000e+00 || (double)(result) == r) {
         _lpython_return_variable = result;
         return _lpython_return_variable;
     }
@@ -229,9 +229,9 @@ int64_t __lpython_overloaded_3___lpython_floordiv(int64_t a, int64_t b)
     int64_t _lpython_return_variable;
     double r;
     int64_t result;
-    r = (float)(a)/(float)(b);
-    result = (int)(r);
-    if (r >=   0.00000000000000000e+00 || (float)(result) == r) {
+    r = (double)(a)/(double)(b);
+    result = (int64_t)(r);
+    if (r >=   0.00000000000000000e+00 || (double)(result) == r) {
         _lpython_return_variable = result;
         return _lpython_return_variable;
     }
@@ -263,14 +263,14 @@ float __lpython_overloaded_5__pow(float x, int32_t y)
 double __lpython_overloaded_6__pow(int32_t x, double y)
 {
     double _lpython_return_variable;
-    _lpython_return_variable = std::pow((float)(x), y);
+    _lpython_return_variable = std::pow((double)(x), y);
     return _lpython_return_variable;
 }
 
 double __lpython_overloaded_7__pow(double x, int32_t y)
 {
     double _lpython_return_variable;
-    _lpython_return_variable = std::pow(x, (float)(y));
+    _lpython_return_variable = std::pow(x, (double)(y));
     return _lpython_return_variable;
 }
 

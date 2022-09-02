@@ -38,7 +38,7 @@ void test_binop()
     int32_t x;
     float x2;
     x = std::pow(2, 3);
-    x2 = std::pow((float)(2),   3.50000000000000000e+00);
+    x2 = std::pow((double)(2),   3.50000000000000000e+00);
     x = 54 - 100;
     x2 =   3.45400000000000018e+00 -   7.65429999999999950e+02 +   5.34600000000000023e+02;
     x2 =   5.34656499999999960e+03*  3.45000000000000018e+00;
@@ -58,9 +58,9 @@ int32_t __lpython_overloaded_2___lpython_floordiv(int32_t a, int32_t b)
     int32_t _lpython_return_variable;
     double r;
     int32_t result;
-    r = (float)(a)/(float)(b);
-    result = (int)(r);
-    if (r >=   0.00000000000000000e+00 || (float)(result) == r) {
+    r = (double)(a)/(double)(b);
+    result = (int64_t)(r);
+    if (r >=   0.00000000000000000e+00 || (double)(result) == r) {
         _lpython_return_variable = result;
         return _lpython_return_variable;
     }
