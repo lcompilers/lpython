@@ -207,3 +207,44 @@ def _lfortran_sacos(x: f32) -> f32:
 @vectorize
 def arccos(x: f32) -> f32:
     return _lfortran_sacos(x)
+
+########## tanh ##########
+
+@ccall
+def _lfortran_dtanh(x: f64) -> f64:
+    pass
+
+@overload
+@vectorize
+def tanh(x: f64) -> f64:
+    return _lfortran_dtanh(x)
+
+@ccall
+def _lfortran_stanh(x: f32) -> f32:
+    pass
+
+@overload
+@vectorize
+def tanh(x: f32) -> f32:
+    return _lfortran_stanh(x)
+
+########## exp ##########
+
+@ccall
+def _lfortran_dexp(x: f64) -> f64:
+    pass
+
+@overload
+@vectorize
+def exp(x: f64) -> f64:
+    return _lfortran_dexp(x)
+
+@ccall
+def _lfortran_sexp(x: f32) -> f32:
+    pass
+
+@overload
+@vectorize
+def exp(x: f32) -> f32:
+    return _lfortran_sexp(x)
+
