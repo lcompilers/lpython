@@ -1,5 +1,8 @@
 from ltypes import f64, f32, ccall, vectorize, overload
 
+pi_64: f64 = 3.141592653589793238462643383279502884197
+pi_32: f32 = 3.141592653589793238462643383279502884197
+
 ########## sin ##########
 
 @ccall
@@ -248,3 +251,46 @@ def _lfortran_sexp(x: f32) -> f32:
 def exp(x: f32) -> f32:
     return _lfortran_sexp(x)
 
+########## arctan ##########
+
+@ccall
+def _lfortran_datan(x: f64) -> f64:
+    pass
+
+@overload
+@vectorize
+def arctan(x: f64) -> f64:
+    return _lfortran_datan(x)
+
+@ccall
+def _lfortran_satan(x: f32) -> f32:
+    pass
+
+@overload
+@vectorize
+def arctan(x: f32) -> f32:
+    return _lfortran_satan(x)
+
+########## degrees ##########
+
+@overload
+@vectorize
+def degrees(x: f64) -> f64:
+    return x*180/pi_64
+
+@overload
+@vectorize
+def degrees(x: f32) -> f32:
+    return x*180/pi_32
+
+########## radians ##########
+
+@overload
+@vectorize
+def radians(x: f64) -> f64:
+    return x*pi_64/180
+
+@overload
+@vectorize
+def radians(x: f32) -> f32:
+    return x*pi_32/180
