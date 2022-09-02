@@ -4421,6 +4421,25 @@ public:
                                     1, 1, nullptr, nullptr , 0));
                     tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
                     return;
+                } else if (std::string(at->m_attr) == std::string("swapcase")) {
+                    if(args.size() != 0) {
+                        throw SemanticError("str.swapcase() takes no arguments",
+                            x.base.base.loc);
+                    }
+                    AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
+                    std::string res = n->m_value;
+                    for (size_t i = 0; i < res.size(); i++)  {
+                        char &cur = res[i];
+                        if(cur >= 'a' && cur <= 'z') {
+                            cur = cur -'a' + 'A';
+                        } else if(cur >= 'A' && cur <= 'Z') {
+                            cur = cur - 'A' + 'a';
+                        }
+                    }
+                    ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
+                                    1, 1, nullptr, nullptr , 0));
+                    tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
+                    return;
                 } else if (std::string(at->m_attr) == std::string("startswith")) {
                     if (args.size() != 1) {
                         throw SemanticError("str.startswith() takes one arguments",
