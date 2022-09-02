@@ -708,6 +708,19 @@ def _lpython_str_strip(x: str) -> str:
     return res
 
 @overload
+def _lpython_str_swapcase(s: str) -> str:
+    res :str = ""
+    cur: str
+    for cur in s:
+        if ord(cur) >= ord('a') and ord(cur) <= ord('z'):
+            res += chr(ord(cur) - ord('a') + ord('A'))
+        elif ord(cur) >= ord('A') and ord(cur) <= ord('Z'):
+            res += chr(ord(cur) - ord('A') + ord('a'))
+        else:
+            res += cur
+    return res
+
+@overload
 def _lpython_str_startswith(s: str ,sub: str) -> bool:
     res :bool
     res = not (len(s) == 0 and len(sub) > 0)
