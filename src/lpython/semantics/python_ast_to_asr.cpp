@@ -4195,6 +4195,20 @@ public:
                                     args.push_back(al, arg);
                                     tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_strip", x.base.base.loc);
                                     return;
+                                } else if (std::string(at->m_attr) == std::string("swapcase")) {
+                                    if(args.size() != 0) {
+                                        throw SemanticError("str.swapcase() takes no arguments",
+                                            x.base.base.loc);
+                                    }
+                                    ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_swapcase");
+                                    Vec<ASR::call_arg_t> args;
+                                    args.reserve(al, 1);
+                                    ASR::call_arg_t arg;
+                                    arg.loc = x.base.base.loc;
+                                    arg.m_value = se;
+                                    args.push_back(al, arg);
+                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_swapcase", x.base.base.loc);
+                                    return;
                                 } else if (std::string(at->m_attr) == std::string("startswith")) {
                                     if(args.size() != 1) {
                                         throw SemanticError("str.startwith() takes one argument",
