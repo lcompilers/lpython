@@ -64,6 +64,7 @@ struct PythonIntrinsicProcedures {
             {"min" , {m_builtin , &eval_min}},
             {"_lpython_str_capitalize", {m_builtin, &eval__lpython_str_capitalize}},
             {"_lpython_str_lower", {m_builtin, &eval__lpython_str_lower}},
+            {"_lpython_str_find", {m_builtin, &eval_lpython_str_find}},
             {"_lpython_str_rstrip", {m_builtin, &eval__lpython_str_rstrip}},
             {"_lpython_str_lstrip", {m_builtin, &eval__lpython_str_lstrip}},
             {"_lpython_str_strip", {m_builtin, &eval__lpython_str_strip}},
@@ -741,7 +742,13 @@ struct PythonIntrinsicProcedures {
         ASR::ttype_t *res_type = ASRUtils::TYPE(ASR::make_StringConstant_t(al, loc, s2c(al, ""), type));
         return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, res),  res_type));
     }
-
+    
+    static ASR::expr_t *eval_lpython_str_find(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &/*args*/) {
+        // compile time action implemented on ast->asr
+        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
+        return ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, -1, int_type));
+    }
+    
     static ASR::expr_t *eval__lpython_str_startswith(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &/*args*/) {
         // compile time action implemented on ast->asr
         ASR::ttype_t* res_type =  ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
