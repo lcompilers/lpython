@@ -25,6 +25,12 @@ def strip():
     assert "     AASAsaSas    " .lstrip() == "AASAsaSas    "
     assert "     AASAsaSas    " .strip() == "AASAsaSas"
 
+def swapcase():
+    s: str
+    s = "aaaaaabbbbbbbb!@12223bn"
+    assert s.swapcase() == "AAAAAABBBBBBBB!@12223BN"
+    assert "AASAsaSas" .swapcase() == "aasaSAsAS"
+
 def find():
     s: str
     sub: str
@@ -65,5 +71,6 @@ def startswith():
 capitalize()
 lower()
 strip()
+swapcase()
 find()
 startswith()
