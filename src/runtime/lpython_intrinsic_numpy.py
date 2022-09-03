@@ -1,4 +1,4 @@
-from ltypes import f64, f32, ccall, vectorize, overload
+from ltypes import i32, i64, f64, f32, ccall, vectorize, overload
 
 pi_64: f64 = 3.141592653589793238462643383279502884197
 pi_32: f32 = 3.141592653589793238462643383279502884197
@@ -354,3 +354,19 @@ def _lfortran_satanh(x: f32) -> f32:
 @vectorize
 def arctanh(x: f32) -> f32:
     return _lfortran_satanh(x)
+
+########## mod ##########
+
+@overload
+@vectorize
+def mod(x1: i64, x2: i64) -> i64:
+    if x2 == 0:
+        return int(0)
+    return x1 % x2
+
+@overload
+@vectorize
+def mod(x1: i32, x2: i32) -> i32:
+    if x2 == 0:
+        return 0
+    return x1 % x2
