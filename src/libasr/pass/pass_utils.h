@@ -142,6 +142,10 @@ namespace LFortran {
                             ASR::AssociateBlock_t *s = ASR::down_cast<ASR::AssociateBlock_t>(item.second);
                             self().visit_AssociateBlock(*s);
                         }
+                        if (ASR::is_a<ASR::Block_t>(*item.second)) {
+                            ASR::Block_t *s = ASR::down_cast<ASR::Block_t>(item.second);
+                            self().visit_Block(*s);
+                        }
                     }
                 }
 
@@ -151,6 +155,13 @@ namespace LFortran {
                     ASR::Function_t &xx = const_cast<ASR::Function_t&>(x);
                     current_scope = xx.m_symtab;
                     transform_stmts(xx.m_body, xx.n_body);
+
+                    for (auto &item : x.m_symtab->get_scope()) {
+                        if (ASR::is_a<ASR::Block_t>(*item.second)) {
+                            ASR::Block_t *s = ASR::down_cast<ASR::Block_t>(item.second);
+                            self().visit_Block(*s);
+                        }
+                    }
                 }
 
                 void visit_AssociateBlock(const ASR::AssociateBlock_t& x) {
@@ -163,6 +174,10 @@ namespace LFortran {
                     ASR::Block_t &xx = const_cast<ASR::Block_t&>(x);
                     current_scope = xx.m_symtab;
                     transform_stmts(xx.m_body, xx.n_body);
+
+                    for (auto &item : x.m_symtab->get_scope()) {
+                        self().visit_symbol(*item.second);
+                    }
                 }
 
         };
