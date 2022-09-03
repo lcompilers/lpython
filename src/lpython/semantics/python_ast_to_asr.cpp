@@ -862,13 +862,10 @@ public:
             }
 
             SymbolTable *symtab = current_scope;
-            while (symtab->parent != nullptr && symtab->get_scope().find(local_sym) == symtab->get_scope().end()) {
-                symtab = symtab->parent;
-            }
-            if (symtab->get_scope().find(local_sym) == symtab->get_scope().end()) {
+            if (symtab->resolve_symbol(local_sym) == nullptr) {
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*stemp));
                 std::string mod_name = ASR::down_cast<ASR::ExternalSymbol_t>(stemp)->m_module_name;
-                ASR::symbol_t *mt = symtab->get_symbol(mod_name);
+                ASR::symbol_t *mt = symtab->resolve_symbol(mod_name);
                 ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(mt);
                 stemp = import_from_module(al, m, symtab, mod_name,
                                     remote_sym, local_sym, loc);
@@ -876,7 +873,7 @@ public:
                 symtab->add_symbol(local_sym, stemp);
                 s = ASRUtils::symbol_get_past_external(stemp);
             } else {
-                stemp = symtab->get_symbol(local_sym);
+                stemp = symtab->resolve_symbol(local_sym);
             }
         }
         if (ASR::is_a<ASR::Function_t>(*s)) {
@@ -3419,9 +3416,6 @@ public:
         current_scope = al.make_new<SymbolTable>(parent_scope);
         transform_stmts(body, x.n_body, x.m_body);
         int32_t total_syms = current_scope->get_scope().size();
-        for( auto& item: current_scope->get_scope() ) {
-            total_syms -= ASR::is_a<ASR::ExternalSymbol_t>(*item.second);
-        }
         if( total_syms > 0 ) {
             std::string name = parent_scope->get_unique_name("block");
             ASR::asr_t* block = ASR::make_Block_t(al, x.base.base.loc,
@@ -3433,24 +3427,8 @@ public:
                 ASR::down_cast<ASR::symbol_t>(block)));
             body.reserve(al, 1);
             body.push_back(al, decls);
-        } else {
-            // Revert global counter as no variables
-            // were declared inside the loop so
-            // current_scope is not needed.
-            for( auto& item: current_scope->get_scope() ) {
-                if( !ASR::is_a<ASR::ExternalSymbol_t>(*item.second) ) {
-                    continue ;
-                }
-
-                ASR::ExternalSymbol_t* ext_sym = ASR::down_cast<ASR::ExternalSymbol_t>(item.second);
-                ASR::symbol_t* new_ext_sym = ASR::down_cast<ASR::symbol_t>(
-                    ASR::make_ExternalSymbol_t(al, ext_sym->base.base.loc, parent_scope, ext_sym->m_name,
-                            ext_sym->m_external, ext_sym->m_module_name, ext_sym->m_scope_names,
-                            ext_sym->n_scope_names, ext_sym->m_original_name, ext_sym->m_access));
-                parent_scope->add_symbol(item.first, new_ext_sym);
-            }
-            current_scope = parent_scope;
         }
+        current_scope = parent_scope;
 
         if (loop_start) {
             head.m_start = loop_start;
