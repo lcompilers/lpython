@@ -828,3 +828,15 @@ tokens = true
 [[test]]
 filename = "tokens/errors/indent2.py"
 tokens = true
+
+[[test]]
+filename = "errors/kwargs_01_error.py"
+asr = true
+
+[[test]]
+filename = "errors/kwargs_02_error.py"
+asr = true
+
+[[test]]
+filename = "errors/kwargs_03_error.py"
+asr = true
