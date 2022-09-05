@@ -481,6 +481,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "is" whitespace? "\\" newline whitespace? "not" whitespace { RET(TK_IS_NOT) }
             "not" whitespace "in" "\\" newline { RET(TK_NOT_IN) }
             "not" whitespace "in" whitespace { RET(TK_NOT_IN) }
+            "not" whitespace "in" newline { RET(TK_NOT_IN) }
             "not" whitespace? "\\" newline whitespace? "in" "\\" newline { RET(TK_NOT_IN) }
             "not" whitespace? "\\" newline whitespace? "in" whitespace { RET(TK_NOT_IN) }
 

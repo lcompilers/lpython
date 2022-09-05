@@ -24,3 +24,10 @@ async def test_02():
     [s for c in [f(''), f('abc'), f(''), f(['de', 'fg'])]
                             for s in await c]
     return (i * 2 for i in range(n) if await wrap(i))
+
+async def t():
+    results.append(await anext(g))
+    self.assertIn('...', repr(await asyncio.wait_for(func(), timeout=10)))
+    x = -await bar()
+    return (await bar() + await wrap()() + await db['b']()()() +
+                        await bar() * 1000 + await DB.b()())
