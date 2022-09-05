@@ -650,9 +650,12 @@ public:
         LFORTRAN_ASSERT(call_args_vec.reserve_called);
         for( size_t i = 0; i < n; i++ ) {
             this->visit_expr(*exprs[i]);
-            ASR::expr_t* expr = ASRUtils::EXPR(tmp);
+            ASR::expr_t* expr = nullptr;
             ASR::call_arg_t arg;
-            arg.loc = expr->base.loc;
+            if (tmp) {
+                expr = ASRUtils::EXPR(tmp);
+                arg.loc = expr->base.loc;
+            }
             arg.m_value = expr;
             call_args_vec.push_back(al, arg);
         }
@@ -817,7 +820,8 @@ public:
                     bool ignore_return_value=false, AST::expr_t** pos_args=nullptr, size_t n_pos_args=0,
                     AST::keyword_t* kwargs=nullptr, size_t n_kwargs=0) {
         if (intrinsic_node_handler.is_present(call_name)) {
-            return intrinsic_node_handler.get_intrinsic_node(call_name, al, loc, args);
+            return intrinsic_node_handler.get_intrinsic_node(call_name, al, loc,
+                    args, ann_assign_target_type);
         }
         ASR::symbol_t *s_generic = nullptr, *stemp = s;
         // handling ExternalSymbol
@@ -4705,7 +4709,7 @@ public:
                 return ;
             } else if (intrinsic_node_handler.is_present(call_name)) {
                 tmp = intrinsic_node_handler.get_intrinsic_node(call_name, al,
-                                        x.base.base.loc, args);
+                                        x.base.base.loc, args, ann_assign_target_type);
                 return;
             } else {
                 // The function was not found and it is not intrinsic
