@@ -2,11 +2,11 @@
     "basename": "ast_new-if2-c3b6022",
     "cmd": "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
     "infile": "tests/parser/if2.py",
-    "infile_hash": "519806e6b51d47084255a725210dcae7d7451b8aa5e9b7e684941831",
+    "infile_hash": "09292d52335f9d0c6e9011355eb63afc6c32e6130ce7e03ff913cec9",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast_new-if2-c3b6022.stdout",
-    "stdout_hash": "acb8fee9254dc2a1fff51fd70b7350768c8696f9740a5abf5631cf78",
+    "stdout_hash": "78ba145bd97727929e0eb9bc9a23e9a47f9fcfa53195f39a91b78097",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

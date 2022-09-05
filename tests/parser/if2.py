@@ -30,12 +30,3 @@ if (a in list1):
 if x.shape == () or y.shape == () or x.shape[1] != y.shape[0]:
     assert arr[()] is ArrayLike
     pass
-
-# Ternary operator (Conditional expressions)
-b = 6 if a == 2 else 8
-
-'true' if True else 'false'
-
-result = x if not (a > b) else y
-
-print(a,"is greater") if (a > b) else print(b,"is Greater")
