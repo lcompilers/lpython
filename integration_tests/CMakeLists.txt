@@ -228,6 +228,7 @@ RUN(NAME test_version        LABELS cpython llvm)
 RUN(NAME vec_01              LABELS cpython llvm)
 RUN(NAME test_str_comparison LABELS cpython llvm)
 RUN(NAME test_bit_length     LABELS cpython llvm)
+RUN(NAME str_to_list_cast    LABELS cpython llvm)
 
 RUN(NAME generics_01         LABELS cpython llvm)
 RUN(NAME generics_02         LABELS cpython llvm)
