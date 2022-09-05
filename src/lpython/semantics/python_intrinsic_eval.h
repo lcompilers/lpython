@@ -12,7 +12,7 @@ namespace LFortran {
 struct IntrinsicNodeHandler {
 
     typedef ASR::asr_t* (*intrinsic_eval_callback)(Allocator &, Vec<ASR::call_arg_t>,
-                                        const Location &);
+                                        const Location &, ASR::ttype_t *);
 
     std::map<std::string, intrinsic_eval_callback> intrinsic_map;
 
@@ -26,6 +26,7 @@ struct IntrinsicNodeHandler {
             {"reshape", &handle_reshape},
             {"ord", &handle_intrinsic_ord},
             {"chr", &handle_intrinsic_chr},
+            {"list", &handle_intrinsic_list}
         };
     }
 
@@ -34,11 +35,12 @@ struct IntrinsicNodeHandler {
     }
 
     ASR::asr_t* get_intrinsic_node(std::string call_name,
-            Allocator &al, const Location &loc, Vec<ASR::call_arg_t> args) {
+            Allocator &al, const Location &loc, Vec<ASR::call_arg_t> args,
+                ASR::ttype_t *ann_assign_target_type) {
         auto search = intrinsic_map.find(call_name);
         if (search != intrinsic_map.end()) {
             intrinsic_eval_callback cb = search->second;
-            return cb(al, args, loc);
+            return cb(al, args, loc, ann_assign_target_type);
         } else {
             throw SemanticError(call_name + " is not implemented yet",
                 loc);
@@ -46,7 +48,7 @@ struct IntrinsicNodeHandler {
     }
 
     static ASR::asr_t* handle_intrinsic_int(Allocator &al, Vec<ASR::call_arg_t> args,
-                                        const Location &loc) {
+                                        const Location &loc, ASR::ttype_t * /*ann_assign_target_type*/) {
         ASR::expr_t *arg = nullptr, *value = nullptr;
         ASR::ttype_t *type = nullptr;
         if (args.size() > 1) {
@@ -127,7 +129,7 @@ struct IntrinsicNodeHandler {
 
 
     static ASR::asr_t* handle_intrinsic_float(Allocator &al, Vec<ASR::call_arg_t> args,
-                                        const Location &loc) {
+                                        const Location &loc, ASR::ttype_t */*ann_assign_target_type*/) {
         ASR::expr_t *arg = nullptr, *value = nullptr;
         ASR::ttype_t *type = nullptr;
         if (args.size() > 1) {
@@ -182,7 +184,7 @@ struct IntrinsicNodeHandler {
     }
 
     static ASR::asr_t* handle_intrinsic_bool(Allocator &al, Vec<ASR::call_arg_t> args,
-                                        const Location &loc) {
+                                        const Location &loc, ASR::ttype_t */*ann_assign_target_type*/) {
         if (args.size() > 1) {
             throw SemanticError("Either 0 or 1 argument is expected in 'bool()'",
                     loc);
@@ -253,7 +255,7 @@ struct IntrinsicNodeHandler {
 
 
     static ASR::asr_t* handle_intrinsic_str(Allocator &al, Vec<ASR::call_arg_t> args,
-                                        const Location &loc) {
+                                        const Location &loc, ASR::ttype_t */*ann_assign_target_type*/) {
         if (args.size() > 1) {
             throw SemanticError("Either 0 or 1 argument is expected in 'str()'",
                     loc);
@@ -314,7 +316,7 @@ struct IntrinsicNodeHandler {
     }
 
     static ASR::asr_t* handle_intrinsic_len(Allocator &al, Vec<ASR::call_arg_t> args,
-                                        const Location &loc) {
+                                        const Location &loc, ASR::ttype_t */*ann_assign_target_type*/) {
         if (args.size() != 1) {
             throw SemanticError("len() takes exactly one argument (" +
                 std::to_string(args.size()) + " given)", loc);
@@ -370,7 +372,7 @@ struct IntrinsicNodeHandler {
     }
 
     static ASR::asr_t* handle_reshape(Allocator &al, Vec<ASR::call_arg_t> args,
-                               const Location &loc) {
+                               const Location &loc, ASR::ttype_t */*ann_assign_target_type*/) {
         if( args.size() != 2 ) {
             throw SemanticError("reshape accepts only 2 arguments, got " +
                                 std::to_string(args.size()) + " arguments instead.",
@@ -396,7 +398,7 @@ struct IntrinsicNodeHandler {
     }
 
     static ASR::asr_t* handle_intrinsic_ord(Allocator &al, Vec<ASR::call_arg_t> args,
-                                        const Location &loc) {
+                                        const Location &loc, ASR::ttype_t */*ann_assign_target_type*/) {
         if (args.size() != 1) {
             throw SemanticError("ord() takes exactly one argument (" +
                 std::to_string(args.size()) + " given)", loc);
@@ -423,7 +425,7 @@ struct IntrinsicNodeHandler {
     }
 
     static ASR::asr_t* handle_intrinsic_chr(Allocator &al, Vec<ASR::call_arg_t> args,
-                                        const Location &loc) {
+                                        const Location &loc, ASR::ttype_t */*ann_assign_target_type*/) {
         if (args.size() != 1) {
             throw SemanticError("chr() takes exactly one argument (" +
                 std::to_string(args.size()) + " given)", loc);
@@ -448,6 +450,60 @@ struct IntrinsicNodeHandler {
             return ASR::make_StringChr_t(al, loc, arg, str_type, value);
         } else {
             throw SemanticError("'" + ASRUtils::type_to_str_python(type) + "' object cannot be interpreted as an integer",
+                arg->base.loc);
+        }
+    }
+
+    static ASR::asr_t* handle_intrinsic_list(Allocator &al, Vec<ASR::call_arg_t> args,
+                                        const Location &loc, ASR::ttype_t *ann_assign_target_type) {
+        if (args.size() > 1) {
+            throw SemanticError("list() takes 0 or 1 argument (" +
+                std::to_string(args.size()) + " given)", loc);
+        }
+        ASR::expr_t *arg = args[0].m_value;
+        if (args.size() == 0 ||  arg == nullptr) {
+            if (ann_assign_target_type) {
+                ASR::ttype_t *type = ASRUtils::get_contained_type(ann_assign_target_type);
+                ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, loc, type));
+                Vec<ASR::expr_t*> list;
+                list.reserve(al, 1);
+                return ASR::make_ListConstant_t(al, loc, list.p,
+                    list.size(), list_type);
+            }
+            return nullptr;
+        }
+        ASR::ttype_t *type = ASRUtils::expr_type(arg);
+        ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
+            loc, 1, 1, nullptr, nullptr, 0));
+        if (ASRUtils::is_integer(*type) || ASRUtils::is_real(*type)
+                || ASRUtils::is_complex(*type) || ASRUtils::is_logical(*type)) {
+            throw SemanticError("Integer, Real, Complex and Boolean are not iterable "
+                "and cannot be converted to List", loc);
+        } else if (ASR::is_a<ASR::List_t>(*type)) {
+            return (ASR::asr_t*) arg;
+        } else if (ASRUtils::is_character(*type)) {
+            ASR::ttype_t *list_type = ASRUtils::TYPE(ASR::make_List_t(al, loc, str_type));
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                std::string c = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
+                Vec<ASR::expr_t*> list;
+                list.reserve(al, c.length());
+                std::string r;
+                for (size_t i=0; i<c.length(); i++) {
+                    r.push_back(char(c[i]));
+                    list.push_back(al, ASR::down_cast<ASR::expr_t>(
+                        ASR::make_StringConstant_t(al, loc, s2c(al, r),
+                                str_type)));
+                    r.pop_back();
+                }
+                return ASR::make_ListConstant_t(al, loc, list.p,
+                    list.size(), list_type);
+            }
+            return ASR::make_Cast_t(
+                        al, loc, arg, ASR::cast_kindType::CharacterToList,
+                        list_type, nullptr);
+        } else {
+            throw SemanticError("'" + ASRUtils::type_to_str_python(type) +
+                "' object conversion to List is not implemented ",
                 arg->base.loc);
         }
     }
