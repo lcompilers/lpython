@@ -266,8 +266,6 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <args_> lambda_parameter_list_no_posonly
 %type <var_kw> lambda_parameter_list_starargs
 %type <vec_arg> lambda_defparameter_list
-%type <ast> await_expr
-%type <ast> expr_or_await
 %type <ast> yield_expr
 
 // Precedence
@@ -287,6 +285,7 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %left "%" "//" "/" "@" "*"
 %precedence UNARY
 %right "**"
+%precedence AWAIT
 %precedence "."
 
 %start units
@@ -393,24 +392,14 @@ multi_line_statement
     | while_statement
     ;
 
-await_expr
-    : KW_AWAIT tuple_list { $$ = AWAIT($2, @$); }
-    ;
-
 yield_expr
     : KW_YIELD { $$ = YIELD_01(@$); }
     | KW_YIELD tuple_list { $$ = YIELD_02($2, @$); }
     | KW_YIELD_FROM tuple_list { $$ = YIELD_03($2, @$); }
     ;
 
-expr_or_await
-    : expr { $$ = $1; }
-    | await_expr { $$ = $1; }
-    ;
-
 expression_statment
     : tuple_list { $$ = EXPR_01($1, @$); }
-    | await_expr { $$ = EXPR_01($1, @$); }
     | yield_expr { $$ = EXPR_01($1, @$); }
     | ternary_if_statement { $$ = EXPR_01($1, @$); }
     ;
@@ -445,7 +434,6 @@ target_list
 
 assignment_statement
     : target_list tuple_list { $$ = ASSIGNMENT($1, $2, @$); }
-    | target_list await_expr { $$ = ASSIGNMENT($1, $2, @$); }
     | target_list yield_expr { $$ = ASSIGNMENT($1, $2, @$); }
     | target_list ternary_if_statement { $$ = ASSIGNMENT($1, $2, @$); }
     | target_list tuple_list TK_TYPE_COMMENT {
@@ -453,7 +441,7 @@ assignment_statement
     ;
 
 augassign_statement
-    : expr augassign_op expr_or_await { $$ = AUGASSIGN_01($1, $2, $3, @$); }
+    : expr augassign_op expr { $$ = AUGASSIGN_01($1, $2, $3, @$); }
     ;
 
 augassign_op
@@ -485,7 +473,6 @@ delete_statement
 return_statement
     : KW_RETURN { $$ = RETURN_01(@$); }
     | KW_RETURN tuple_list { $$ = RETURN_02($2, @$); }
-    | KW_RETURN await_expr { $$ = RETURN_02($2, @$); }
     | KW_RETURN yield_expr { $$ = RETURN_02($2, @$); }
     ;
 
@@ -625,7 +612,6 @@ with_as_items
     | "(" expr_list "," expr KW_AS expr_list comma_opt ")" {
         $$ = withitem_to_list(p.m_a, WITH_ITEM_01(TUPLE_01(TUPLE_($2, $4), @$),
                               TUPLE_01($6, @$), @$)); }
-    | await_expr { $$ = withitem_to_list(p.m_a, WITH_ITEM_02($1, @$));}
     ;
 
 with_statement
@@ -851,14 +837,14 @@ primary
     ;
 
 comp_if_items
-    : comp_if_items KW_IF expr_or_await { $$ = $1; LIST_ADD($$, $3); }
-    | KW_IF expr_or_await { LIST_NEW($$); LIST_ADD($$, $2); }
+    : comp_if_items KW_IF expr { $$ = $1; LIST_ADD($$, $3); }
+    | KW_IF expr { LIST_NEW($$); LIST_ADD($$, $2); }
     ;
 
 comp_for
-    : KW_FOR id_list KW_IN expr_or_await {
+    : KW_FOR id_list KW_IN expr {
         $$ = COMP_FOR_01(ID_TUPLE_01($2, @$), $4, @$); }
-    | KW_FOR id_list "," KW_IN expr_or_await {
+    | KW_FOR id_list "," KW_IN expr {
         $$ = COMP_FOR_01(ID_TUPLE_03($2, @$), $5, @$); }
     | KW_FOR id_list KW_IN expr comp_if_items {
         $$ = COMP_FOR_02(ID_TUPLE_01($2, @$), $4, $5, @$); }
@@ -1010,9 +996,9 @@ lambda_expression
     ;
 
 comprehension
-    : "[" expr_or_await comp_for_items "]" { $$ = LIST_COMP_1($2, $3, @$); }
-    | "{" expr_or_await comp_for_items "}" { $$ = SET_COMP_1($2, $3, @$); }
-    | "{" expr ":" expr_or_await comp_for_items "}" {
+    : "[" expr comp_for_items "]" { $$ = LIST_COMP_1($2, $3, @$); }
+    | "{" expr comp_for_items "}" { $$ = SET_COMP_1($2, $3, @$); }
+    | "{" expr ":" expr comp_for_items "}" {
         $$ = DICT_COMP_1($2, $4, $5, @$); }
     | "(" expr comp_for_items ")" { $$ = COMP_EXPR_1($2, $3, @$); }
     ;
@@ -1028,6 +1014,7 @@ expr
     | KW_NONE { $$ = NONE(@$); }
     | TK_ELLIPSIS { $$ = ELLIPSIS(@$); }
     | "(" expr ")" { $$ = $2; }
+    | KW_AWAIT expr %prec AWAIT { $$ = AWAIT($2, @$); }
     | "(" yield_expr ")" { $$ = $2; }
     | "(" TK_TYPE_IGNORE expr ")" { $$ = $3; extract_type_comment(p, @$, $2); }
     | "(" ")" { $$ = TUPLE_EMPTY(@$); }
