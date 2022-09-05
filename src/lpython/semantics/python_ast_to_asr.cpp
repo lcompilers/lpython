@@ -762,13 +762,13 @@ public:
         } else if (var_annotation == "i32") {
             type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
                 4, dims.p, dims.size()));
-        } else if (var_annotation == "i64") {
+        } else if (var_annotation == "i64" || var_annotation == "int") {
             type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
                 8, dims.p, dims.size()));
         } else if (var_annotation == "f32") {
             type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
                 4, dims.p, dims.size()));
-        } else if (var_annotation == "f64") {
+        } else if (var_annotation == "f64" || var_annotation == "float") {
             type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
                 8, dims.p, dims.size()));
         } else if (var_annotation == "c32") {

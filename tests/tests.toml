@@ -143,6 +143,12 @@ asr = true
 llvm = true
 
 [[test]]
+filename = "dict_expr_01.py"
+ast = true
+asr = true
+llvm = true
+
+[[test]]
 filename = "../integration_tests/array_01_decl.py"
 asr = true
 
@@ -705,6 +711,10 @@ asr = true
 
 [[test]]
 filename = "errors/test_dict1.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict13.py"
 asr = true
 
 [[test]]
