@@ -465,6 +465,10 @@ filename = "parser/comprehension1.py"
 ast_new = true
 
 [[test]]
+filename = "parser/conditional_expr1.py"
+ast_new = true
+
+[[test]]
 filename = "parser/try1.py"
 ast_new = true
 
