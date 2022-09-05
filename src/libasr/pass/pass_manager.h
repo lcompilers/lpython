@@ -22,6 +22,7 @@
 #include <libasr/pass/global_stmts.h>
 #include <libasr/pass/param_to_const.h>
 #include <libasr/pass/print_arr.h>
+#include <libasr/pass/print_list.h>
 #include <libasr/pass/arr_slice.h>
 #include <libasr/pass/flip_sign.h>
 #include <libasr/pass/div_to_mul.h>
@@ -59,6 +60,7 @@ namespace LCompilers {
             {"array_op", &LFortran::pass_replace_array_op},
             {"arr_slice", &LFortran::pass_replace_arr_slice},
             {"print_arr", &LFortran::pass_replace_print_arr},
+            {"print_list", &LFortran::pass_replace_print_list},
             {"class_constructor", &LFortran::pass_replace_class_constructor},
             {"unused_functions", &LFortran::pass_unused_functions},
             {"flip_sign", &LFortran::pass_replace_flip_sign},
@@ -97,6 +99,7 @@ namespace LCompilers {
                 "arr_slice",
                 "array_op",
                 "print_arr",
+                "print_list",
                 "array_dim_intrinsics_update",
                 "do_loops",
                 "forall",
@@ -113,6 +116,7 @@ namespace LCompilers {
                 "arr_slice",
                 "array_op",
                 "print_arr",
+                "print_list",
                 "loop_vectorise",
                 "loop_unroll",
                 "array_dim_intrinsics_update",
