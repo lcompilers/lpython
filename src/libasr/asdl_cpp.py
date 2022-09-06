@@ -501,33 +501,6 @@ class CallReplacerOnExpressionsVisitor(ASDLVisitor):
             self.emit(  "this->visit_symbol(*a.second);", 3)
             self.emit("}", 2)
 
-class StatementsFirstWalkVisitorVisitor(ASTWalkVisitorVisitor, ASDLVisitor):
-
-     def visitModule(self, mod):
-         self.emit("/" + "*"*78 + "/")
-         self.emit("// Statements First Visitor base class")
-         self.emit("")
-         self.emit("template <class Derived>")
-         self.emit("class StatementsFirstBaseWalkVisitor : public BaseVisitor<Derived>")
-         self.emit("{")
-         self.emit("private:")
-         self.emit("    Derived& self() { return static_cast<Derived&>(*this); }")
-         self.emit("public:")
-         super(ASTWalkVisitorVisitor, self).visitModule(mod)
-         self.emit("};")
-
-     def make_visitor(self, name, fields):
-         self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
-         self.used = False
-         have_body = False
-         for field in fields[::-1]:
-             self.visitField(field)
-         if not self.used:
-             # Note: a better solution would be to change `&x` to `& /* x */`
-             # above, but we would need to change emit to return a string.
-             self.emit("if ((bool&)x) { } // Suppress unused warning", 2)
-         self.emit("}", 1)
-
 # This class generates a visitor that prints the tree structure of AST/ASR
 class TreeVisitorVisitor(ASDLVisitor):
 
@@ -2222,8 +2195,7 @@ FOOT = r"""} // namespace LFortran::%(MOD)s
 visitors = [ASTNodeVisitor0, ASTNodeVisitor1, ASTNodeVisitor,
         ASTVisitorVisitor1, ASTVisitorVisitor1b, ASTVisitorVisitor2,
         ASTWalkVisitorVisitor, TreeVisitorVisitor, PickleVisitorVisitor,
-        StatementsFirstWalkVisitorVisitor, SerializationVisitorVisitor,
-        DeserializationVisitorVisitor]
+        SerializationVisitorVisitor, DeserializationVisitorVisitor]
 
 
 def main(argv):
