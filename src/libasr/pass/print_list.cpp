@@ -8,8 +8,6 @@
 
 namespace LFortran {
 
-using LFortran::ASRUtils::expr_type;
-
 /*
 This ASR pass replaces print list with print every value,
 comma_space, brackets and newline. The function
