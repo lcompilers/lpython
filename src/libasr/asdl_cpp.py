@@ -503,30 +503,30 @@ class CallReplacerOnExpressionsVisitor(ASDLVisitor):
 
 class StatementsFirstWalkVisitorVisitor(ASTWalkVisitorVisitor, ASDLVisitor):
 
-    def visitModule(self, mod):
-        self.emit("/" + "*"*78 + "/")
-        self.emit("// Statements First Visitor base class")
-        self.emit("")
-        self.emit("template <class Derived>")
-        self.emit("class StatementsFirstBaseWalkVisitor : public BaseVisitor<Derived>")
-        self.emit("{")
-        self.emit("private:")
-        self.emit("    Derived& self() { return static_cast<Derived&>(*this); }")
-        self.emit("public:")
-        super(ASTWalkVisitorVisitor, self).visitModule(mod)
-        self.emit("};")
+     def visitModule(self, mod):
+         self.emit("/" + "*"*78 + "/")
+         self.emit("// Statements First Visitor base class")
+         self.emit("")
+         self.emit("template <class Derived>")
+         self.emit("class StatementsFirstBaseWalkVisitor : public BaseVisitor<Derived>")
+         self.emit("{")
+         self.emit("private:")
+         self.emit("    Derived& self() { return static_cast<Derived&>(*this); }")
+         self.emit("public:")
+         super(ASTWalkVisitorVisitor, self).visitModule(mod)
+         self.emit("};")
 
-    def make_visitor(self, name, fields):
-        self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
-        self.used = False
-        have_body = False
-        for field in fields[::-1]:
-            self.visitField(field)
-        if not self.used:
-            # Note: a better solution would be to change `&x` to `& /* x */`
-            # above, but we would need to change emit to return a string.
-            self.emit("if ((bool&)x) { } // Suppress unused warning", 2)
-        self.emit("}", 1)
+     def make_visitor(self, name, fields):
+         self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
+         self.used = False
+         have_body = False
+         for field in fields[::-1]:
+             self.visitField(field)
+         if not self.used:
+             # Note: a better solution would be to change `&x` to `& /* x */`
+             # above, but we would need to change emit to return a string.
+             self.emit("if ((bool&)x) { } // Suppress unused warning", 2)
+         self.emit("}", 1)
 
 # This class generates a visitor that prints the tree structure of AST/ASR
 class TreeVisitorVisitor(ASDLVisitor):
@@ -1217,12 +1217,10 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit("private:")
         self.emit(  "Derived& self() { return static_cast<Derived&>(*this); }", 1)
         self.emit("public:")
-        self.emit(  "std::string s, indtd;", 1)
+        self.emit(  "std::string s, indtd = \"\";", 1)
         self.emit(  "bool use_colors;", 1)
-        self.emit(  "bool indent, start_line = true;", 1)
-        self.emit(  "int indent_level = 0, indent_spaces = 3, lvl = 0;", 1)
-        self.emit(  "int tmp = 0, tmp1 = 0, tmp2 = 2;", 1)
-        self.emit(  "int curly[2000], round[2000];", 1)
+        self.emit(  "bool indent;", 1)
+        self.emit(  "int indent_level = 0, indent_spaces = 4;", 1)
         self.emit("public:")
         self.emit(  "PickleBaseVisitor() : use_colors(false), indent(false) { s.reserve(100000); }", 1)
         self.emit(  "void inc_indent() {", 1)
@@ -1258,18 +1256,6 @@ class PickleVisitorVisitor(ASDLVisitor):
 
     def make_visitor(self, name, fields, cons):
         self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
-        self.emit(      'if(indent) {',2)
-        self.emit(          'tmp1++;',3)
-        self.emit(          'round[tmp1] = indent_level;',3)
-        self.emit(          'if(start_line) {',3)
-        self.emit(              'start_line = false;', 4)
-        self.emit(              's.append(indtd);', 4)
-        self.emit(              'inc_indent();',4)
-        self.emit(          '} else {', 3)
-        self.emit(              's.append("\\n"+indtd);', 4)
-        self.emit(              'inc_indent();',4)
-        self.emit(          '}', 3)
-        self.emit(      '}', 2)
         self.emit(      's.append("(");', 2)
         subs = {
             "Assignment": "=",
@@ -1277,6 +1263,17 @@ class PickleVisitorVisitor(ASDLVisitor):
         }
         if name in subs:
             name = subs[name]
+
+        # For ASR
+        symbol = [
+            "Integer",
+            "Real",
+            "Complex",
+            "Character",
+            "Logical",
+            "Var",
+        ]
+
         if cons:
             self.emit(    'if (use_colors) {', 2)
             self.emit(        's.append(color(style::bold));', 3)
@@ -1289,16 +1286,23 @@ class PickleVisitorVisitor(ASDLVisitor):
             self.emit(    '}', 2)
             if len(fields) > 0:
                 self.emit(    's.append(" ");', 2)
+                if name not in symbol:
+                    self.emit(    'if(indent) {', 2)
+                    self.emit(        'inc_indent();', 3)
+                    self.emit(        's.append("\\n" + indtd);', 3)
+                    self.emit(    '}', 2)
         self.used = False
         for n, field in enumerate(fields):
             self.visitField(field, cons)
             if n < len(fields) - 1:
                 self.emit(    's.append(" ");', 2)
-        self.emit(    'if(indent) {', 2)
-        self.emit(          'lvl = indent_level;', 3)
-        self.emit(          'for(int times = 0; times < (lvl - round[tmp1] ); times++)', 3)
-        self.emit(              'dec_indent();', 4)
-        self.emit(          'round[tmp1] = 0; if(tmp1 > 1) tmp1--;}', 3)
+                if name not in symbol:
+                    self.emit(    'if(indent) s.append("\\n" + indtd);', 2)
+        if name not in symbol and cons and len(fields) > 0:
+            self.emit(    'if(indent) {', 2)
+            self.emit(        'dec_indent();', 3)
+            self.emit(        's.append("\\n" + indtd);', 3)
+            self.emit(    '}', 2)
         self.emit(    's.append(")");', 2)
         if not self.used:
             # Note: a better solution would be to change `&x` to `& /* x */`
@@ -1315,7 +1319,6 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit(    'switch (x) {', 2)
         for tp in types:
             self.emit(    'case (%s::%s) : {' % (name, tp.name), 3)
-            self.emit(      'if(indent) s.append("\\n"+indtd);',4)
             self.emit(      's.append("%s");' % (tp.name), 4)
             self.emit(     ' break; }',3)
         self.emit(    '}', 2)
@@ -1344,7 +1347,10 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit("self().visit_%s(*x.m_%s[i]);" % (field.type, field.name), level+1)
                 else:
                     self.emit("self().visit_%s(x.m_%s[i]);" % (field.type, field.name), level+1)
-                self.emit(    'if (i < x.n_%s-1) s.append(" ");' % (field.name), level+1)
+                self.emit('    if (i < x.n_%s-1) {' % (field.name), level+1)
+                self.emit('        if (indent) s.append("\\n" + indtd);', level+2)
+                self.emit('        else s.append(" ");', level+2)
+                self.emit('    };', level+1)
                 self.emit("}", level)
                 self.emit('s.append("]");', level)
             elif field.opt:
@@ -1362,8 +1368,11 @@ class PickleVisitorVisitor(ASDLVisitor):
                     level = 2
                     self.emit('s.append("[");', level)
                     self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
-                    self.emit("s.append(x.m_%s[i]);" % (field.name), level+1)
-                    self.emit(    'if (i < x.n_%s-1) s.append(" ");' % (field.name), level+1)
+                    self.emit("    s.append(x.m_%s[i]);" % (field.name), level+1)
+                    self.emit('    if (i < x.n_%s-1) {' % (field.name), level+1)
+                    self.emit('        if (indent) s.append("\\n" + indtd);', level+2)
+                    self.emit('        else s.append(" ");', level+2)
+                    self.emit('    };', level+1)
                     self.emit("}", level)
                     self.emit('s.append("]");', level)
                 else:
@@ -1374,18 +1383,19 @@ class PickleVisitorVisitor(ASDLVisitor):
                         self.emit(    's.append("()");', 3)
                         self.emit("}", 2)
                     else:
-                        self.emit('if(indent) s.append("\\n"+indtd);', 2)
                         self.emit('s.append(x.m_%s);' % field.name, 2)
             elif field.type == "node":
                 assert not field.opt
                 assert field.seq
                 level = 2
-                self.emit('if(indent) s.append("\\n"+indtd);', level)
                 self.emit('s.append("[");', level)
                 self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
                 mod_name = self.mod.name.lower()
-                self.emit("self().visit_%s(*x.m_%s[i]);" % (mod_name, field.name), level+1)
-                self.emit(    'if (i < x.n_%s-1) s.append(" ");' % (field.name), level+1)
+                self.emit("    self().visit_%s(*x.m_%s[i]);" % (mod_name, field.name), level+1)
+                self.emit('    if (i < x.n_%s-1) {' % (field.name), level+1)
+                self.emit('        if (indent) s.append("\\n" + indtd);', level+2)
+                self.emit('        else s.append(" ");', level+2)
+                self.emit('    };', level+1)
                 self.emit("}", level)
                 self.emit('s.append("]");', level)
             elif field.type == "symbol_table":
@@ -1393,15 +1403,9 @@ class PickleVisitorVisitor(ASDLVisitor):
                 assert not field.seq
                 if field.name == "parent_symtab":
                     level = 2
-                    self.emit('if(indent) s.append("\\n"+indtd);', level)
                     self.emit('s.append(x.m_%s->get_counter());' % field.name, level)
                 else:
                     level = 2
-                    self.emit(      'if(indent) {',level)
-                    self.emit(          's.append("\\n"+indtd);', level+1)
-                    self.emit(          'round[++tmp1] = indent_level;',level+1)
-                    self.emit(          'inc_indent();',level+1)
-                    self.emit(      '}', level)
                     self.emit(      's.append("(");', level)
                     self.emit('if (use_colors) {', level)
                     self.emit(    's.append(color(fg::yellow));', level+1)
@@ -1410,46 +1414,45 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit('if (use_colors) {', level)
                     self.emit(    's.append(color(fg::reset));', level+1)
                     self.emit('}', level)
-                    self.emit('s.append(" ");', level)
-                    self.emit(      'if(indent) s.append("\\n"+indtd);', level)
-                    self.emit(      's.append(x.m_%s->get_counter());' % field.name, level)
-                    self.emit(      's.append(" ");', level)
-                    self.emit(      'if(indent) {',level)
-                    self.emit(          's.append("\\n"+indtd);', level+1)
-                    self.emit(          'curly[++tmp] = indent_level;',level+1)
-                    self.emit(          'tmp2 = 1;',level+1)
-                    self.emit(          'inc_indent();',level+1)
-                    self.emit(      '}', level)
+                    self.emit('if(indent) {', level)
+                    self.emit(    'inc_indent();', level+1)
+                    self.emit(    's.append("\\n" + indtd);', level+1)
+                    self.emit('}', level)
+                    self.emit('else s.append(" ");', level)
+                    self.emit('s.append(x.m_%s->get_counter());' % field.name, level)
+                    self.emit('if(indent) s.append("\\n" + indtd);', level)
+                    self.emit('else s.append(" ");', level)
                     self.emit(      's.append("{");', level)
+                    self.emit('if(indent) {', level)
+                    self.emit(    'inc_indent();', level+1)
+                    self.emit(    's.append("\\n" + indtd);', level+1)
+                    self.emit('}', level)
                     self.emit('{', level)
                     self.emit('    size_t i = 0;', level)
                     self.emit('    for (auto &a : x.m_%s->get_scope()) {' % field.name, level)
-                    self.emit(      'if(indent) {',level)
-                    self.emit(          's.append("\\n"+indtd);', level+1)
-                    self.emit(          'inc_indent();',level+1)
-                    self.emit(      '}', level)
-                    self.emit('      s.append(a.first + ": ");', level)
+                    self.emit('        s.append(a.first + ":");', level)
+                    self.emit('        if(indent) {', level)
+                    self.emit('            inc_indent();', level+1)
+                    self.emit('            s.append("\\n" + indtd);', level+1)
+                    self.emit('        }', level)
+                    self.emit('        else s.append(" ");', level)
                     self.emit('        this->visit_symbol(*a.second);', level)
                     self.emit('        if (i < x.m_%s->get_scope().size()-1) { ' % field.name, level)
                     self.emit('            s.append(", ");', level)
-                    self.emit('            if(indent) {', level)
-                    self.emit('                for(int times = 0; times < tmp2; times++)', level+1)
-                    self.emit('                     dec_indent();', level)
-                    self.emit('             }', level)
+                    self.emit('        }', level)
+                    self.emit('        if(indent) {', level)
+                    self.emit('            dec_indent();', level+1)
+                    self.emit('            s.append("\\n" + indtd);', level+1)
                     self.emit('        }', level)
                     self.emit('        i++;', level)
                     self.emit('    }', level)
                     self.emit('}', level)
-                    self.emit(      'if(indent) {',level)
-                    self.emit(          'lvl = indent_level;', level+1)
-                    self.emit(          'for(int times = 0; times < (lvl - curly[tmp] ); times++)', level+1)
-                    self.emit(              'dec_indent();', level+2)
-                    self.emit(          'curly[tmp] = 0; if(tmp > 1) tmp--;', level+1)
-                    self.emit(          'tmp2++;', level+1)
-                    self.emit(          's.append("\\n"+indtd);', level+1)
-                    self.emit(      '}', level)
-                    self.emit(      's.append("})");', level)
-                    self.emit(      'if(indent) dec_indent();', level)
+                    self.emit('if(indent) {', level)
+                    self.emit(    'dec_indent();', level+1)
+                    self.emit(    's.append("\\n" + indtd);', level+1)
+                    self.emit('}', level)
+                    self.emit('s.append("})");', level)
+                    self.emit('if(indent) dec_indent();', level)
             elif field.type == "string" and not field.seq:
                 if field.opt:
                     self.emit("if (x.m_%s) {" % field.name, 2)

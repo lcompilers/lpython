@@ -1437,7 +1437,10 @@ public:
             uint32_t v_h = get_hash((ASR::asr_t*)v);
             LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
             array = llvm_symtab[v_h];
-            is_argument = v->m_intent == ASRUtils::intent_in || v->m_intent == ASRUtils::intent_out;
+            is_argument = (v->m_intent == ASRUtils::intent_in)
+                  || (v->m_intent == ASRUtils::intent_out)
+                  || (v->m_intent == ASRUtils::intent_inout)
+                  || (v->m_intent == ASRUtils::intent_unspecified);
         } else {
             int64_t ptr_loads_copy = ptr_loads;
             ptr_loads = 0;

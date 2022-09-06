@@ -35,6 +35,7 @@ struct CompilerOptions {
     std::string error_format = "human";
     bool new_parser = false;
     bool implicit_typing = false;
+    bool implicit_interface = false;
     std::string target = "";
     Platform platform;
 

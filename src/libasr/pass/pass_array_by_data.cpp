@@ -12,6 +12,24 @@
 
 namespace LFortran {
 
+/*
+The following visitor converts function/subroutines (a.k.a procedures)
+with array arguments having empty dimensions to arrays having dimensional
+information available from function arguments. See example below,
+
+    subroutine f(array1, array2)
+        integer, intent(in) :: array1(:)
+        integer, intent(out) :: array2(:)
+    end subroutine
+
+gets converted to,
+
+    subroutine f_array1_array2(array1, m1, n1, array2, m2, n2)
+        integer, intent(in) :: m1, m2, n1, n2
+        integer, intent(in) :: array1(m1:n1)
+        integer, intent(out) :: array2(m2:n2)
+    end subroutine
+ */
 class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayByDataProcedureVisitor>
 {
     private:
@@ -206,6 +224,19 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
         }
 };
 
+/*
+    The following visitor replaces subroutine calls with arrays as arguments
+    to subroutine calls having dimensional information passed as arguments. See example below,
+
+        call f(array1, array2)
+
+    gets converted to,
+
+        call f_array1_array2(array1, m1, n1, array2, m2, n2)
+
+    As can be seen dimensional information, m1, n1 is passed along
+    with array1 and similarly m2, n2 is passed along with array2.
+ */
 class ReplaceSubroutineCallsVisitor : public PassUtils::PassVisitor<ReplaceSubroutineCallsVisitor>
 {
     private:
@@ -254,6 +285,20 @@ class ReplaceSubroutineCallsVisitor : public PassUtils::PassVisitor<ReplaceSubro
         }
 };
 
+
+/*
+
+The following replacer replaces all the function call expressions with arrays
+as arguments to function call expressions having dimensional information of
+array arguments passed along. See example below,
+
+    sum = f(array) + g(array)
+
+gets converted to,
+
+    sum = f_array(array, m, n) + g_array(array, m, n)
+
+*/
 class ReplaceFunctionCalls: public ASR::BaseExprReplacer<ReplaceFunctionCalls> {
 
     private:
@@ -303,6 +348,11 @@ class ReplaceFunctionCalls: public ASR::BaseExprReplacer<ReplaceFunctionCalls> {
 
 };
 
+/*
+The following visitor calls the above replacer i.e., ReplaceFunctionCalls
+on expressions present in ASR so that FunctionCall get replaced everywhere
+and we don't end up with false positives.
+*/
 class ReplaceFunctionCallsVisitor : public ASR::CallReplacerOnExpressionsVisitor<ReplaceFunctionCallsVisitor>
 {
     private:
@@ -321,6 +371,14 @@ class ReplaceFunctionCallsVisitor : public ASR::CallReplacerOnExpressionsVisitor
 
 };
 
+/*
+Since the above visitors have replaced procedure and calls to those procedures
+with arrays as arguments, we don't need the original ones anymore. So we remove
+them from the ASR. The reason to do this is that some backends like WASM don't
+have support for accepting and returning arrays via array descriptors. Therefore,
+they cannot generate code for such functions. To avoid backends like WASM from failing
+we remove those functions by implementing and calling the following visitor.
+*/
 class RemoveArrayByDescriptorProceduresVisitor : public PassUtils::PassVisitor<RemoveArrayByDescriptorProceduresVisitor>
 {
     private:
@@ -336,10 +394,17 @@ class RemoveArrayByDescriptorProceduresVisitor : public PassUtils::PassVisitor<R
             ASR::Program_t& xx = const_cast<ASR::Program_t&>(x);
             current_scope = xx.m_symtab;
 
+            std::vector<std::string> to_be_erased;
+
             for( auto& item: current_scope->get_scope() ) {
                 if( v.proc2newproc.find(item.second) != v.proc2newproc.end() ) {
-                    current_scope->erase_symbol(ASRUtils::symbol_name(item.second));
+                    LFORTRAN_ASSERT(item.first == ASRUtils::symbol_name(item.second))
+                    to_be_erased.push_back(item.first);
                 }
+            }
+
+            for (auto &item: to_be_erased) {
+                current_scope->erase_symbol(item);
             }
         }
 
