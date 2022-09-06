@@ -1597,7 +1597,7 @@ namespace LFortran {
                 // which produces lesser collisions.
 
                 llvm::Value* int_hash = builder->CreateZExtOrTrunc(
-                    builder->CreateSRem(key,
+                    builder->CreateURem(key,
                     builder->CreateZExtOrTrunc(capacity, key->getType())),
                     capacity->getType()
                 );
