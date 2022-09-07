@@ -1099,6 +1099,69 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
     return n_dims;
 }
 
+// Sets the dimension member of `ttype_t`. Returns `true` if dimensions set.
+// Returns `false` if the `ttype_t` does not have a dimension member.
+inline bool ttype_set_dimensions(ASR::ttype_t *x,
+            ASR::dimension_t *m_dims, int64_t n_dims) {
+    switch (x->type) {
+        case ASR::ttypeType::Integer: {
+            ASR::Integer_t* Integer_type = ASR::down_cast<ASR::Integer_t>(x);
+            Integer_type->n_dims = n_dims;
+            Integer_type->m_dims = m_dims;
+            return true;
+        }
+        case ASR::ttypeType::Real: {
+            ASR::Real_t* Real_type = ASR::down_cast<ASR::Real_t>(x);
+            Real_type->n_dims = n_dims;
+            Real_type->m_dims = m_dims;
+            return true;
+        }
+        case ASR::ttypeType::Complex: {
+            ASR::Complex_t* Complex_type = ASR::down_cast<ASR::Complex_t>(x);
+            Complex_type->n_dims = n_dims;
+            Complex_type->m_dims = m_dims;
+            return true;
+        }
+        case ASR::ttypeType::Character: {
+            ASR::Character_t* Character_type = ASR::down_cast<ASR::Character_t>(x);
+            Character_type->n_dims = n_dims;
+            Character_type->m_dims = m_dims;
+            return true;
+        }
+        case ASR::ttypeType::Logical: {
+            ASR::Logical_t* Logical_type = ASR::down_cast<ASR::Logical_t>(x);
+            n_dims = Logical_type->n_dims;
+            m_dims = Logical_type->m_dims;
+            return true;
+        }
+        case ASR::ttypeType::Derived: {
+            ASR::Derived_t* Derived_type = ASR::down_cast<ASR::Derived_t>(x);
+            n_dims = Derived_type->n_dims;
+            m_dims = Derived_type->m_dims;
+            return true;
+        }
+        case ASR::ttypeType::Class: {
+            ASR::Class_t* Class_type = ASR::down_cast<ASR::Class_t>(x);
+            Class_type->n_dims = n_dims;
+            Class_type->m_dims = m_dims;
+            return true;
+        }
+        case ASR::ttypeType::TypeParameter: {
+            ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(x);
+            n_dims = tp->n_dims;
+            m_dims = tp->m_dims;
+            return true;
+        }
+        case ASR::ttypeType::Pointer: {
+            return ttype_set_dimensions(
+                ASR::down_cast<ASR::Pointer_t>(x)->m_type, m_dims, n_dims);
+        }
+        default:
+            return false;
+    }
+    return false;
+}
+
 inline bool is_array(ASR::ttype_t *x) {
     ASR::dimension_t* dims = nullptr;
     return extract_dimensions_from_ttype(x, dims) > 0;
