@@ -1,4 +1,4 @@
-from ltypes import i32, f32, TypeVar
+from ltypes import i32, f32, TypeVar, float
 from numpy import empty, sqrt, float32
 
 n: i32
