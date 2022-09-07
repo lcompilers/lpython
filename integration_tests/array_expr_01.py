@@ -9,7 +9,7 @@ def array_expr_01():
     i: i32
     shape1d: i32[1] = empty(1, dtype=int32)
     shape3d: i32[3] = empty(3, dtype=int32)
-    eps: f64
+    eps: float
     eps = 1e-12
 
     dim1 = 10
