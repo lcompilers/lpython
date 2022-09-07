@@ -1,1 +1,0 @@
-(Module [(FunctionDef test_dict ([] [] [] [] [] [] []) [(AnnAssign (Name mydictionarty3 Store) (Subscript (Name dict Load) (Tuple [(Name int Load) (Name float Load)] Load) Load) (Dict [] []) 1)] [] () ()) (Expr (Call (Name test_dict Load) [] []))] [])
