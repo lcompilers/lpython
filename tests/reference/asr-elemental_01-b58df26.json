@@ -7,10 +7,14 @@
     "outfile_hash": null,
     "stdout": "asr-elemental_01-b58df26.stdout",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "stdout_hash": "78062d7c90bf5efe6fff50690e6988c8f2b1f7225d3a4b8be845b30e",
 =======
     "stdout_hash": "4d1964932818aedb5f65163ddc7eea82d89673d919daa4144b83d28c",
 >>>>>>> a4a17654b (Updated reference tests)
+=======
+    "stdout_hash": "13ffbfeb0d039cda3baae91495b6f9b75f528088128b5c725e8fb188",
+>>>>>>> 8a5237993 (updating reference tets)
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

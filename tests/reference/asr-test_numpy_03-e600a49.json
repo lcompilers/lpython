@@ -7,10 +7,14 @@
     "outfile_hash": null,
     "stdout": "asr-test_numpy_03-e600a49.stdout",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "stdout_hash": "bfe062c2a4febf1e790824f672a9eec04bd547ba8957bc870a8964e0",
 =======
     "stdout_hash": "cfdb8119859cfca9144f0e061be38fd2e5ec5ea16a3258433bc4c265",
 >>>>>>> a4a17654b (Updated reference tests)
+=======
+    "stdout_hash": "b9ea98777242e669899749adb5fc81d126c0f904b000ea7c25795dc0",
+>>>>>>> 8a5237993 (updating reference tets)
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
