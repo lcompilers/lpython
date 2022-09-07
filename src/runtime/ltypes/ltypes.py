@@ -27,6 +27,8 @@ class Type:
             return py_float(arg)
         elif self._name == "int":
             return py_int(arg)
+        raise Exception("Type: %s cannot be called" % str(self._name))
+
 
 class Pointer:
     def __getitem__(self, type):
