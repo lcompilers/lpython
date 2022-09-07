@@ -336,10 +336,29 @@ R"(#include <stdio.h>
 
     std::string declare_all_functions(const SymbolTable &scope) {
         std::string code;
+        bool is_ccall_present = false;
+        code += "#ifndef IGNORE_DECLARATIONS\n";
         for (auto &item : scope.get_scope()) {
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
                 ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
-                code += get_function_declaration(*s) + ";\n";
+                if( s->m_abi == ASR::abiType::BindC &&
+                    s->m_deftype == ASR::deftypeType::Interface ) {
+                    is_ccall_present = true;
+                    code += get_function_declaration(*s) + ";\n";
+                }
+            }
+        }
+        code += "#endif\n";
+        if( !is_ccall_present ) {
+            code.clear();
+        }
+        for (auto &item : scope.get_scope()) {
+            if (ASR::is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
+                if( !(s->m_abi == ASR::abiType::BindC &&
+                      s->m_deftype == ASR::deftypeType::Interface) ) {
+                    code += get_function_declaration(*s) + ";\n";
+                }
             }
         }
         return code;
