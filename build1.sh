@@ -13,4 +13,4 @@ cmake \
     -DCMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH_LPYTHON;$CONDA_PREFIX" \
     -DCMAKE_INSTALL_PREFIX=`pwd`/inst \
     .
-cmake --build . -j16 --target install
+cmake --build . -j --target install
