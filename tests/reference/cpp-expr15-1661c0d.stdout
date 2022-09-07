@@ -27,9 +27,11 @@ void _lpython_main_program();
 double test1();
 std::complex<double> test2();
 int32_t test3();
-std::complex<double> __lpython_overloaded_9__complex(int32_t x, int32_t y);
+#ifndef IGNORE_DECLARATIONS
 float _lfortran_caimag(std::complex<float> x);
 double _lfortran_zaimag(std::complex<double> x);
+#endif
+std::complex<double> __lpython_overloaded_9__complex(int32_t x, int32_t y);
 namespace {
 }
 

@@ -24,9 +24,11 @@ struct dimension_descriptor
 };
 // Forward declarations
 void test_binop();
-int32_t __lpython_overloaded_2___lpython_floordiv(int32_t a, int32_t b);
+#ifndef IGNORE_DECLARATIONS
 float _lfortran_caimag(std::complex<float> x);
 double _lfortran_zaimag(std::complex<double> x);
+#endif
+int32_t __lpython_overloaded_2___lpython_floordiv(int32_t a, int32_t b);
 namespace {
 }
 

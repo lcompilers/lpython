@@ -25,6 +25,10 @@ struct dimension_descriptor
 // Forward declarations
 void _lpython_main_program();
 void test_pow();
+#ifndef IGNORE_DECLARATIONS
+float _lfortran_caimag(std::complex<float> x);
+double _lfortran_zaimag(std::complex<double> x);
+#endif
 int32_t __lpython_overloaded_0___mod(int32_t a, int32_t b);
 double __lpython_overloaded_0__abs(double x);
 int32_t __lpython_overloaded_0__pow(int32_t x, int32_t y);
@@ -43,8 +47,6 @@ double __lpython_overloaded_7__pow(double x, int32_t y);
 int32_t __lpython_overloaded_8__pow(bool x, bool y);
 std::complex<double> __lpython_overloaded_9__complex(int32_t x, int32_t y);
 std::complex<float> __lpython_overloaded_9__pow(std::complex<float> c, int32_t y);
-float _lfortran_caimag(std::complex<float> x);
-double _lfortran_zaimag(std::complex<double> x);
 namespace {
 }
 
