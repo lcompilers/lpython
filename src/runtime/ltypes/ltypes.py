@@ -8,7 +8,10 @@ from dataclasses import dataclass
 # TODO: this does not seem to restrict other imports
 __slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64", "CPtr",
         "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer",
-        "p_c_pointer", "vectorize", "inline"]
+        "p_c_pointer", "vectorize", "inline", "float", "int"]
+
+py_float = type(0.1)
+py_int = type(1)
 
 # data-types
 
@@ -18,6 +21,14 @@ class Type:
 
     def __getitem__(self, params):
         return Array(self, params)
+
+    def __call__(self, arg):
+        if self._name == "float":
+            return py_float(arg)
+        elif self._name == "int":
+            return py_int(arg)
+        raise Exception("Type: %s cannot be called" % str(self._name))
+
 
 class Pointer:
     def __getitem__(self, type):
@@ -37,6 +48,8 @@ f64 = Type("f64")
 c32 = Type("c32")
 c64 = Type("c64")
 CPtr = Type("c_ptr")
+int = Type("int")
+float = Type("float")
 
 # Restrictions
 
@@ -63,9 +76,9 @@ def ltype(x):
     """
     Converts CPython types to LPython types
     """
-    if type(x) == int:
+    if type(x) == py_int:
         return i32, i64
-    elif type(x) == float:
+    elif type(x) == py_float:
         return f32, f64
     elif type(x) == complex:
         return c32, c64

@@ -7,10 +7,16 @@ def accept_multidim_i32_array(xi32: i32[:, :]) -> i32:
 def accept_multidim_i64_array(xi64: i64[:, :, :]) -> i64:
     return xi64[9, 9, 9]
 
+def accept_multidim_i64_array_return_int(xi64: i64[:, :, :]) -> int:
+    return xi64[9, 9, 9]
+
 def accept_multidim_f32_array(xf32: f32[:]) -> f32:
     return xf32[0]
 
 def accept_multidim_f64_array(xf64: f64[:, :]) -> f64:
+    return xf64[0, 1]
+
+def accept_multidim_f64_array_return_float(xf64: f64[:, :]) -> float:
     return xf64[0, 1]
 
 def declare_arrays():
@@ -22,8 +28,10 @@ def declare_arrays():
     ac64: c64[10, 13, 11, 16] = empty([10, 13, 11, 16])
     print(accept_multidim_i32_array(ai32))
     print(accept_multidim_i64_array(ai64))
+    print(accept_multidim_i64_array_return_int(ai64))
     print(accept_multidim_f32_array(af32))
     print(accept_multidim_f64_array(af64))
+    print(accept_multidim_f64_array_return_float(af64))
 
 
 declare_arrays()
