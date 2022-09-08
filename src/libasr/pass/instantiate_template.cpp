@@ -238,7 +238,7 @@ public:
                 }
                 */
                 if (rt_subs.find(call_name) == rt_subs.end()) {
-                    if (call_name.compare("plus") == 0) {
+                    if (call_name.compare("add") == 0) {
                         ASR::expr_t* left_arg = duplicate_expr(x->m_args[0].m_value);
                         ASR::expr_t* right_arg = duplicate_expr(x->m_args[1].m_value);
                         ASR::ttype_t* left_type = substitute_type(ASRUtils::expr_type(left_arg));

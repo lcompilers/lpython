@@ -1027,7 +1027,7 @@ public:
          *  zero : integer -> integer, real -> real
          *  div  : integer x i32 -> f64, real x i32 -> f64
          */
-        if (rt_name.compare("plus") == 0 && rt->n_args == 2) {
+        if (rt_name.compare("add") == 0 && rt->n_args == 2) {
             ASR::ttype_t* left_type = ASRUtils::expr_type(rt->m_args[0]);
             ASR::ttype_t* right_type = ASRUtils::expr_type(rt->m_args[1]);
             left_type = ASR::is_a<ASR::TypeParameter_t>(*left_type)
