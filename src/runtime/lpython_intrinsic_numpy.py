@@ -334,3 +334,23 @@ def _lfortran_sacosh(x: f32) -> f32:
 @vectorize
 def arccosh(x: f32) -> f32:
     return _lfortran_sacosh(x)
+
+########## arctanh ##########
+
+@ccall
+def _lfortran_datanh(x: f64) -> f64:
+    pass
+
+@overload
+@vectorize
+def arctanh(x: f64) -> f64:
+    return _lfortran_datanh(x)
+
+@ccall
+def _lfortran_satanh(x: f32) -> f32:
+    pass
+
+@overload
+@vectorize
+def arctanh(x: f32) -> f32:
+    return _lfortran_satanh(x)
