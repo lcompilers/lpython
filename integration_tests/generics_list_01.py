@@ -1,5 +1,4 @@
-from ltypes import TypeVar
-from ltypes import f64, i32
+from ltypes import TypeVar, f64, i32, restriction
 
 T = TypeVar('T')
 
@@ -24,7 +23,7 @@ def add_string(x: str, y: str) -> str:
 def div_string(x: str, k: i32) -> f64:
     return 0.0
 
-def mean(x: list[T]) -> f64:
+def mean(x: list[T], **kwargs) -> f64:
     k: i32 = len(x)
     if k == 0:
         return 0.0

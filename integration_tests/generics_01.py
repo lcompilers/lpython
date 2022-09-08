@@ -1,4 +1,4 @@
-from ltypes import TypeVar
+from ltypes import TypeVar, restriction
 
 T = TypeVar('T')
 
@@ -9,7 +9,7 @@ def plus(x: T, y: T) -> T:
 def add_string(x: str, y: str) -> str:
     return x + y
 
-def f(x: T, y: T) -> T:
+def f(x: T, y: T, **kwargs) -> T:
     return plus(x,y)
 
 print(f(1,2))
