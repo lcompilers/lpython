@@ -7,7 +7,7 @@ def zero(x: T) -> T:
     pass
 
 @restriction
-def plus(x: T, y: T) -> T:
+def add(x: T, y: T) -> T:
     pass
 
 @restriction
@@ -31,9 +31,9 @@ def mean(x: list[T], **kwargs) -> f64:
     res = zero(x[0])
     i: i32
     for i in range(k):
-        res = plus(res, x[i])
+        res = add(res, x[i])
     return div(res, k)
 
 print(mean([1,2,3]))
 print(mean([1.0,2.0,3.0]))
-print(mean(["a","b","c"], zero=empty_string, plus=add_string, div=div_string))
+print(mean(["a","b","c"], zero=empty_string, add=add_string, div=div_string))
