@@ -6,11 +6,7 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "pass_loop_vectorise-vec_01-be9985e.stdout",
-<<<<<<< HEAD
-    "stdout_hash": "d9041ffbf8aaf5862f8a323fe8c1083221b9f4ed1e5d4dfb14adfe9c",
-=======
-    "stdout_hash": "c4c31f2eb4b5f8628626e4807273fc529e49321b9c3a72283cd9953a",
->>>>>>> a4a17654b (Updated reference tests)
+    "stdout_hash": "dfe0400ad5ee1e87458d0b4a0c6f13c7ab2786e07805c350067f7c86",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
