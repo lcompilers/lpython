@@ -294,3 +294,43 @@ def radians(x: f64) -> f64:
 @vectorize
 def radians(x: f32) -> f32:
     return x*pi_32/180
+
+########## arcsinh ##########
+
+@ccall
+def _lfortran_dasinh(x: f64) -> f64:
+    pass
+
+@overload
+@vectorize
+def arcsinh(x: f64) -> f64:
+    return _lfortran_dasinh(x)
+
+@ccall
+def _lfortran_sasinh(x: f32) -> f32:
+    pass
+
+@overload
+@vectorize
+def arcsinh(x: f32) -> f32:
+    return _lfortran_sasinh(x)
+
+########## arccosh ##########
+
+@ccall
+def _lfortran_dacosh(x: f64) -> f64:
+    pass
+
+@overload
+@vectorize
+def arccosh(x: f64) -> f64:
+    return _lfortran_dacosh(x)
+
+@ccall
+def _lfortran_sacosh(x: f32) -> f32:
+    pass
+
+@overload
+@vectorize
+def arccosh(x: f32) -> f32:
+    return _lfortran_sacosh(x)
