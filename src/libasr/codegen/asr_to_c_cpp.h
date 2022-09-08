@@ -695,11 +695,15 @@ R"(#include <stdio.h>
         } else {
             src += "(" + left + ")";
         }
-        src += ASRUtils::cmpop_to_str(x.m_op);
-        if (right_precedence <= last_expr_precedence) {
-            src += right;
+        if( T::class_type == ASR::exprType::StringCompare && is_c ) {
+            src = "strcmp(" + left + ", " + right + ") == 0";
         } else {
-            src += "(" + right + ")";
+            src += ASRUtils::cmpop_to_str(x.m_op);
+            if (right_precedence <= last_expr_precedence) {
+                src += right;
+            } else {
+                src += "(" + right + ")";
+            }
         }
     }
 
