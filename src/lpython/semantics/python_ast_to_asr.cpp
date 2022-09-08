@@ -2852,6 +2852,26 @@ public:
         }
     }
 
+    void visit_Call(const AST::Call_t &x) {
+        std::string call_name;
+        if (AST::is_a<AST::Name_t>(*x.m_func)) {
+            AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
+            call_name = n->m_id;
+        } else {
+            throw SemanticError("Only Name or Attribute type supported in Call",
+                x.base.base.loc);
+        }
+        if (call_name == "size") {
+            ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                4, nullptr, 0));
+            tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, 1234, a_type);
+            return;
+        } else {
+            throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
+                x.base.base.loc);
+        }
+    }
+
     /**
      *  Convert bounds in type variables declarations into restrictions
      *    T = TypeVar('T', bounds=...(|...)*)
