@@ -31,7 +31,6 @@
 #include <lpython/parser/parser.h>
 #include <libasr/serialization.h>
 
-
 namespace LFortran::LPython {
 
 namespace CastingUtil {
@@ -899,7 +898,7 @@ public:
                 if (ASR::is_a<ASR::Function_t>(*t)) {
                     new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
                 }
-                return make_call_helper(al, t, current_scope, args, new_call_name, loc);
+                return make_call_helper(al, t, current_scope, args, new_call_name, loc, ignore_return_value);
             }
             if (ASR::down_cast<ASR::Function_t>(s)->m_return_var != nullptr) {
                 ASR::ttype_t *a_type = nullptr;

@@ -216,23 +216,33 @@ public:
         }
         if (ASR::is_a<ASR::TypeParameter_t>(*param_type)) {
             ASR::TypeParameter_t *param = ASR::down_cast<ASR::TypeParameter_t>(param_type);
+            Vec<ASR::dimension_t> new_dims;
+            new_dims.reserve(al, param->n_dims);
+            for (size_t i=0; i<param->n_dims; i++) {
+                ASR::dimension_t old_dim = param->m_dims[i];
+                ASR::dimension_t new_dim;
+                new_dim.loc = old_dim.loc;
+                new_dim.m_start = duplicate_expr(old_dim.m_start);
+                new_dim.m_length = duplicate_expr(old_dim.m_length);
+                new_dims.push_back(al, new_dim);
+            }
             ASR::ttype_t *t = subs[param->m_param];
             switch (t->type) {
                 case ASR::ttypeType::Integer: {
                     ASR::Integer_t* tnew = ASR::down_cast<ASR::Integer_t>(t);
                     return ASRUtils::TYPE(ASR::make_Integer_t(al, t->base.loc,
-                            tnew->m_kind, param->m_dims, param->n_dims));
+                            tnew->m_kind, new_dims.p, new_dims.size()));
                 }
                 case ASR::ttypeType::Real: {
                     ASR::Real_t* tnew = ASR::down_cast<ASR::Real_t>(t);
                     return ASRUtils::TYPE(ASR::make_Real_t(al, t->base.loc,
-                            tnew->m_kind, param->m_dims, param->n_dims));
+                            tnew->m_kind, new_dims.p, new_dims.size()));
                 }
                 case ASR::ttypeType::Character: {
                     ASR::Character_t* tnew = ASR::down_cast<ASR::Character_t>(t);
                     return ASRUtils::TYPE(ASR::make_Character_t(al, t->base.loc,
                                 tnew->m_kind, tnew->m_len, tnew->m_len_expr,
-                                param->m_dims, param->n_dims));
+                                new_dims.p, new_dims.size()));
                 }
                 default: return subs[param->m_param];
             }
