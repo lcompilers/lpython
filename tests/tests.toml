@@ -151,6 +151,10 @@ filename = "../integration_tests/array_02_decl.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/array_expr_03.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/expr_07.py"
 asr = true
 
