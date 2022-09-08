@@ -639,6 +639,10 @@ R"(#include <stdio.h>
                 src = "(int)(" + src + ")";
                 break;
             }
+            case (ASR::cast_kindType::LogicalToCharacter) : {
+                 src = src + " ? \"True\" : \"False\"";
+                break;
+            }
             case (ASR::cast_kindType::IntegerToLogical) : {
                 src = "(bool)(" + src + ")";
                 break;
