@@ -660,7 +660,8 @@ R"(#include <stdio.h>
                 break;
             }
             case (ASR::cast_kindType::CharacterToLogical) : {
-                src = "(bool)(" + src + ")";
+
+                src = "(bool)(strlen(" + src + ") > 0 ? 1 : 0)";
                 break;
             }
             case (ASR::cast_kindType::ComplexToLogical) : {
