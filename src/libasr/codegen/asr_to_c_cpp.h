@@ -655,10 +655,6 @@ R"(#include <stdio.h>
                 src = "(bool)(" + src + ")";
                 break;
             }
-            case (ASR::cast_kindType::LogicalToCharacter) : {
-                src = "(char)(" + src + ")";
-                break;
-            }
             case (ASR::cast_kindType::CharacterToLogical) : {
 
                 src = "(bool)(strlen(" + src + ") > 0)";
