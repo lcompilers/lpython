@@ -221,7 +221,8 @@ public:
     std::unique_ptr<LLVMUtils> llvm_utils;
     std::unique_ptr<LLVMList> list_api;
     std::unique_ptr<LLVMTuple> tuple_api;
-    std::unique_ptr<LLVMDict> dict_api;
+    std::unique_ptr<LLVMDictInterface> dict_api_lp;
+    std::unique_ptr<LLVMDictInterface> dict_api_sc;
     std::unique_ptr<LLVMArrUtils::Descriptor> arr_descr;
 
     uint64_t ptr_loads;
@@ -238,7 +239,8 @@ public:
     llvm_utils(std::make_unique<LLVMUtils>(context, builder.get())),
     list_api(std::make_unique<LLVMList>(context, llvm_utils.get(), builder.get())),
     tuple_api(std::make_unique<LLVMTuple>(context, llvm_utils.get(), builder.get())),
-    dict_api(std::make_unique<LLVMDictOptimizedLinearProbing>(context, llvm_utils.get(), builder.get())),
+    dict_api_lp(std::make_unique<LLVMDictOptimizedLinearProbing>(context, llvm_utils.get(), builder.get())),
+    dict_api_sc(std::make_unique<LLVMDictSeparateChaining>(context, llvm_utils.get(), builder.get())),
     arr_descr(LLVMArrUtils::Descriptor::get_descriptor(context,
               builder.get(),
               llvm_utils.get(),
@@ -248,7 +250,7 @@ public:
     {
         llvm_utils->tuple_api = tuple_api.get();
         llvm_utils->list_api = list_api.get();
-        llvm_utils->dict_api = dict_api.get();
+        llvm_utils->dict_api = nullptr;
     }
 
     llvm::Value* CreateLoad(llvm::Value *x) {
@@ -1171,13 +1173,22 @@ public:
         tmp = const_list;
     }
 
+    void set_dict_api(ASR::Dict_t* dict_type) {
+        if( ASR::is_a<ASR::Character_t>(*dict_type->m_key_type) ) {
+            llvm_utils->dict_api = dict_api_sc.get();
+        } else {
+            llvm_utils->dict_api = dict_api_lp.get();
+        }
+    }
+
     void visit_DictConstant(const ASR::DictConstant_t& x) {
         llvm::Type* const_dict_type = get_dict_type(x.m_type);
         llvm::Value* const_dict = builder->CreateAlloca(const_dict_type, nullptr, "const_dict");
         ASR::Dict_t* x_dict = ASR::down_cast<ASR::Dict_t>(x.m_type);
+        set_dict_api(x_dict);
         std::string key_type_code = ASRUtils::get_type_code(x_dict->m_key_type);
         std::string value_type_code = ASRUtils::get_type_code(x_dict->m_value_type);
-        dict_api->dict_init(key_type_code, value_type_code, const_dict, module.get(), x.n_keys);
+        llvm_utils->dict_api->dict_init(key_type_code, value_type_code, const_dict, module.get(), x.n_keys);
         uint64_t ptr_loads_key = LLVM::is_llvm_struct(x_dict->m_key_type) ? 0 : 2;
         uint64_t ptr_loads_value = LLVM::is_llvm_struct(x_dict->m_value_type) ? 0 : 2;
         uint64_t ptr_loads_copy = ptr_loads;
@@ -1188,7 +1199,7 @@ public:
             ptr_loads = ptr_loads_value;
             visit_expr(*x.m_values[i]);
             llvm::Value* value = tmp;
-            dict_api->write_item(const_dict, key, value, module.get(),
+            llvm_utils->dict_api->write_item(const_dict, key, value, module.get(),
                                  x_dict->m_key_type, x_dict->m_value_type);
         }
         ptr_loads = ptr_loads_copy;
@@ -1290,7 +1301,8 @@ public:
         ptr_loads = ptr_loads_copy;
         llvm::Value *key = tmp;
 
-        tmp = dict_api->read_item(pdict, key, *module, dict_type->m_key_type,
+        set_dict_api(dict_type);
+        tmp = llvm_utils->dict_api->read_item(pdict, key, *module, dict_type,
                                   LLVM::is_llvm_struct(dict_type->m_value_type));
     }
 
@@ -1307,7 +1319,8 @@ public:
         ptr_loads = ptr_loads_copy;
         llvm::Value *key = tmp;
 
-        tmp = dict_api->pop_item(pdict, key, *module, dict_type,
+        set_dict_api(dict_type);
+        tmp = llvm_utils->dict_api->pop_item(pdict, key, *module, dict_type,
                                  LLVM::is_llvm_struct(dict_type->m_value_type));
     }
 
@@ -1335,7 +1348,9 @@ public:
         this->visit_expr(*x.m_arg);
         ptr_loads = ptr_loads_copy;
         llvm::Value* pdict = tmp;
-        tmp = dict_api->len(pdict);
+        ASR::Dict_t* x_dict = ASR::down_cast<ASR::Dict_t>(ASRUtils::expr_type(x.m_arg));
+        set_dict_api(x_dict);
+        tmp = llvm_utils->dict_api->len(pdict);
     }
 
     void visit_ListInsert(const ASR::ListInsert_t& x) {
@@ -1374,7 +1389,8 @@ public:
         llvm::Value *value = tmp;
         ptr_loads = ptr_loads_copy;
 
-        dict_api->write_item(pdict, key, value, module.get(),
+        set_dict_api(dict_type);
+        llvm_utils->dict_api->write_item(pdict, key, value, module.get(),
                              dict_type->m_key_type,
                              dict_type->m_value_type);
     }
@@ -1783,8 +1799,10 @@ public:
     }
 
     void visit_Program(const ASR::Program_t &x) {
-        bool is_dict_present_copy = dict_api->is_dict_present;
-        dict_api->is_dict_present = false;
+        bool is_dict_present_copy_lp = dict_api_lp->is_dict_present();
+        bool is_dict_present_copy_sc = dict_api_sc->is_dict_present();
+        dict_api_lp->set_is_dict_present(false);
+        dict_api_sc->set_is_dict_present(false);
         llvm_goto_targets.clear();
         // Generate code for nested subroutines and functions first:
         for (auto &item : x.m_symtab->get_scope()) {
@@ -1813,7 +1831,8 @@ public:
         llvm::Value *ret_val2 = llvm::ConstantInt::get(context,
             llvm::APInt(32, 0));
         builder->CreateRet(ret_val2);
-        dict_api->is_dict_present = is_dict_present_copy;
+        dict_api_lp->set_is_dict_present(is_dict_present_copy_lp);
+        dict_api_sc->set_is_dict_present(is_dict_present_copy_sc);
     }
 
     /*
@@ -1865,7 +1884,8 @@ public:
         int32_t value_type_size = get_type_size(asr_dict->m_value_type, value_llvm_type, local_a_kind);
         std::string key_type_code = ASRUtils::get_type_code(asr_dict->m_key_type);
         std::string value_type_code = ASRUtils::get_type_code(asr_dict->m_value_type);
-        return dict_api->get_dict_type(key_type_code, value_type_code, key_type_size,
+        set_dict_api(asr_dict);
+        return llvm_utils->dict_api->get_dict_type(key_type_code, value_type_code, key_type_size,
                                         value_type_size, key_llvm_type, value_llvm_type);
     }
 
@@ -2627,8 +2647,10 @@ public:
     }
 
     void visit_Function(const ASR::Function_t &x) {
-        bool is_dict_present_copy = dict_api->is_dict_present;
-        dict_api->is_dict_present = false;
+        bool is_dict_present_copy_lp = dict_api_lp->is_dict_present();
+        bool is_dict_present_copy_sc = dict_api_sc->is_dict_present();
+        dict_api_lp->set_is_dict_present(false);
+        dict_api_sc->set_is_dict_present(false);
         llvm_goto_targets.clear();
         instantiate_function(x);
         if (x.m_deftype == ASR::deftypeType::Interface) {
@@ -2639,7 +2661,8 @@ public:
         visit_procedures(x);
         generate_function(x);
         parent_function = nullptr;
-        dict_api->is_dict_present = is_dict_present_copy;
+        dict_api_lp->set_is_dict_present(is_dict_present_copy_lp);
+        dict_api_sc->set_is_dict_present(is_dict_present_copy_sc);
     }
 
     void instantiate_function(const ASR::Function_t &x){
@@ -3233,7 +3256,8 @@ public:
             llvm::Value* target_dict = tmp;
             ptr_loads = ptr_loads_copy;
             ASR::Dict_t* value_dict_type = ASR::down_cast<ASR::Dict_t>(asr_value_type);
-            dict_api->dict_deepcopy(value_dict, target_dict,
+            set_dict_api(value_dict_type);
+            llvm_utils->dict_api->dict_deepcopy(value_dict, target_dict,
                                     value_dict_type, module.get());
             return ;
         }
@@ -3638,7 +3662,8 @@ public:
     }
 
     void visit_WhileLoop(const ASR::WhileLoop_t &x) {
-        dict_api->set_iterators();
+        dict_api_lp->set_iterators();
+        dict_api_sc->set_iterators();
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
         llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
         llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
@@ -3660,7 +3685,8 @@ public:
 
         // end
         start_new_block(loopend);
-        dict_api->reset_iterators();
+        dict_api_lp->reset_iterators();
+        dict_api_sc->reset_iterators();
     }
 
     void visit_Exit(const ASR::Exit_t & /* x */) {
