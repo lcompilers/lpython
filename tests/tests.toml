@@ -708,6 +708,30 @@ filename = "errors/test_dict1.py"
 asr = true
 
 [[test]]
+filename = "errors/test_dict8.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict9.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict10.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict11.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict12.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict13.py"
+asr = true
+
+[[test]]
 filename = "errors/test_zero_division.py"
 asr = true
 

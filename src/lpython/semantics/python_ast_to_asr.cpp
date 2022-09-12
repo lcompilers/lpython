@@ -1147,6 +1147,15 @@ public:
         return false;
     }
 
+    void raise_error_when_dict_key_is_float_or_complex(ASR::ttype_t* key_type, const Location& loc) {
+        if(ASR::is_a<ASR::Real_t>(*key_type) || ASR::is_a<ASR::Complex_t>(*key_type)) {
+            throw SemanticError("'dict' key type cannot be float/complex because resolving collisions "
+                                "by exact comparison of float/complex values will result in unexpected "
+                                "behaviours. In addition fuzzy equality checks with a certain tolerance "
+                                "does not follow transitivity with float/complex values.", loc);
+        }
+    }
+
     // Convert Python AST type annotation to an ASR type
     // Examples:
     // i32, i64, f32, f64
@@ -1213,6 +1222,7 @@ public:
                     }
                     ASR::ttype_t *key_type = ast_expr_to_asr_type(loc, *t->m_elts[0]);
                     ASR::ttype_t *value_type = ast_expr_to_asr_type(loc, *t->m_elts[1]);
+                    raise_error_when_dict_key_is_float_or_complex(key_type, loc);
                     return ASRUtils::TYPE(ASR::make_Dict_t(al, loc, key_type, value_type));
                 } else {
                     throw SemanticError("`dict` annotation must have 2 elements: types of"
@@ -3663,6 +3673,7 @@ public:
             }
             values.push_back(al, value);
         }
+        raise_error_when_dict_key_is_float_or_complex(key_type, x.base.base.loc);
         ASR::ttype_t* type = ASRUtils::TYPE(ASR::make_Dict_t(al, x.base.base.loc,
                                              key_type, value_type));
         tmp = ASR::make_DictConstant_t(al, x.base.base.loc, keys.p, keys.size(),
