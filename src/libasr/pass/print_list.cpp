@@ -21,10 +21,9 @@ to:
 
     print("[", end="")
     for i in range(len(l)):
+        print(l[i], end="")
         if i < len(l) - 1:
-            print(l[i], end=", ")
-        else:
-            print(l[i], end="")
+            print(", ", end="")
     print("]")
 */
 
@@ -106,11 +105,13 @@ class PrintListVisitor
                     al, x.base.base.loc, list_iter_var, ASR::cmpopType::Lt,
                     list_len_minus_one, bool_type, nullptr));
 
-            Vec<ASR::expr_t *> v1, v2, v3;
+            Vec<ASR::expr_t *> v1, v2, v3, v4;
             v1.reserve(al, 1);
             v3.reserve(al, 1);
+            v4.reserve(al, 1);
             v1.push_back(al, open_bracket);
             v3.push_back(al, close_bracket);
+            v4.push_back(al, comma_space);
 
             if (ASR::is_a<ASR::Character_t>(*listC->m_type)) {
                 v2.reserve(al, 3);
@@ -125,9 +126,9 @@ class PrintListVisitor
             ASR::stmt_t *print_open_bracket = LFortran::ASRUtils::STMT(
                 ASR::make_Print_t(al, x.base.base.loc, nullptr, v1.p, v1.size(),
                                   nullptr, empty_str));
-            ASR::stmt_t *print_item_and_comma = ASRUtils::STMT(
-                ASR::make_Print_t(al, x.base.base.loc, nullptr, v2.p, v2.size(),
-                                  empty_str, comma_space));
+            ASR::stmt_t *print_comma_space = ASRUtils::STMT(
+                ASR::make_Print_t(al, x.base.base.loc, nullptr, v4.p, v4.size(),
+                                  empty_str, empty_str));
             ASR::stmt_t *print_item = ASRUtils::STMT(
                 ASR::make_Print_t(al, x.base.base.loc, nullptr, v2.p, v2.size(),
                                   empty_str, empty_str));
@@ -135,18 +136,16 @@ class PrintListVisitor
                 ASR::make_Print_t(al, x.base.base.loc, nullptr, v3.p, v3.size(),
                                   nullptr, nullptr));
 
-            Vec<ASR::stmt_t *> if_body, else_body;
+            Vec<ASR::stmt_t *> if_body;
             if_body.reserve(al, 1);
-            else_body.reserve(al, 1);
-            if_body.push_back(al, print_item_and_comma);
-            else_body.push_back(al, print_item);
+            if_body.push_back(al, print_comma_space);
+
             ASR::stmt_t *if_cond = ASRUtils::STMT(
                 ASR::make_If_t(al, x.base.base.loc, compare_cond, if_body.p,
-                               if_body.size(), else_body.p, else_body.size()));
+                               if_body.size(), nullptr, 0));
 
             ASR::do_loop_head_t loop_head;
             Vec<ASR::stmt_t *> loop_body;
-            loop_body.reserve(al, 1);
             {
                 loop_head.loc = x.base.base.loc;
                 loop_head.m_v = list_iter_var;
@@ -156,6 +155,9 @@ class PrintListVisitor
                 loop_head.m_increment =
                     ASRUtils::EXPR(ASR::make_IntegerConstant_t(
                         al, x.base.base.loc, 1, int_type));
+
+                loop_body.reserve(al, 2);
+                loop_body.push_back(al, print_item);
                 loop_body.push_back(al, if_cond);
             }
 
