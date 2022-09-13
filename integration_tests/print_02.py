@@ -16,4 +16,16 @@ def f():
     print([-3, 2, 1, 0])
     print(['a', 'b', 'c', 'd' , 'e', 'f'])
 
+def test_nested_lists():
+    w: list[list[list[list[list[f64]]]]] = [[[[[2.13, -98.17]]], [[[1.11]]]]]
+    x: list[list[list[i32]]] = [[[3, -1], [-2, 5], [5]], [[-3, 1], [2, -5], [-5]]]
+    y: list[list[f64]] = [[3.14, -1.0012], [-2.38, 5.51]]
+    z: list[list[str]] = [["bat", "ball"], ["cat", "dog"], ["c", "c++", "java", "python"]]
+
+    print(w)
+    print(x)
+    print(y)
+    print(z)
+
 f()
+test_nested_lists()
