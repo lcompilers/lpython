@@ -15,7 +15,7 @@ comma_space, brackets and newline. The function
 
 Converts:
 
-    print(l) # l is a list
+    print(l, sep="pqr", end="xyz") # l is a list
 
 to:
 
@@ -24,7 +24,7 @@ to:
         print(l[i], end="")
         if i < len(l) - 1:
             print(", ", end="")
-    print("]")
+    print("]", sep="pqr", end="xyz")
 
 for nested lists it transforms to:
 
@@ -41,7 +41,7 @@ for nested lists it transforms to:
 
         if i < len(l) - 1:
             print(", ", end="")
-    print("]")
+    print("]", sep="pqr", end="xyz")
 
 Note: In code, the variable `i` is named as `__list_iterator`
 */
