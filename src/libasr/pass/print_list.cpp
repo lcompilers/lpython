@@ -25,6 +25,25 @@ to:
         if i < len(l) - 1:
             print(", ", end="")
     print("]")
+
+for nested lists it transforms to:
+
+    print("[", end="")
+    for i in range(len(l)):
+        # print(l[i], end="") is replaced by the following code
+
+        print("[", end="")
+        for i1 in range(len(l[i])):
+            print(l[i][i1], end="")
+            if i1 < len(l[i]) - 1:
+                print(", ", end="")
+        print("]")
+
+        if i < len(l) - 1:
+            print(", ", end="")
+    print("]")
+
+Note: In code, the variable `i` is named as `__list_iterator`
 */
 
 class PrintListVisitor
