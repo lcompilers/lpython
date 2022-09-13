@@ -134,7 +134,7 @@ class PrintListVisitor
                                   empty_str, empty_str));
             ASR::stmt_t *print_close_bracket = LFortran::ASRUtils::STMT(
                 ASR::make_Print_t(al, x.base.base.loc, nullptr, v3.p, v3.size(),
-                                  nullptr, nullptr));
+                                  x.m_separator, x.m_end));
 
             Vec<ASR::stmt_t *> if_body;
             if_body.reserve(al, 1);
@@ -156,8 +156,14 @@ class PrintListVisitor
                     ASRUtils::EXPR(ASR::make_IntegerConstant_t(
                         al, x.base.base.loc, 1, int_type));
 
-                loop_body.reserve(al, 2);
-                loop_body.push_back(al, print_item);
+                if (!ASR::is_a<ASR::List_t>(*listC->m_type)) {
+                    loop_body.reserve(al, 2);
+                    loop_body.push_back(al, print_item);
+                } else {
+                    visit_Print(*ASR::down_cast<ASR::Print_t>(print_item));
+                    loop_body.from_pointer_n_copy(al, pass_result.p, pass_result.size());
+                    pass_result.n = 0;
+                }
                 loop_body.push_back(al, if_cond);
             }
 
