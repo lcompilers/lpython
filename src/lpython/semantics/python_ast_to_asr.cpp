@@ -445,7 +445,7 @@ public:
     std::map<int, ASR::symbol_t*> &ast_overload;
     std::string parent_dir;
     Vec<ASR::stmt_t*> *current_body;
-    ASR::ttype_t* ann_assign_target_type;
+    ASR::ttype_t *ann_assign_target_type, *assign_target_type;
 
     std::map<std::string, int> generic_func_nums;
     std::map<std::string, std::map<std::string, ASR::ttype_t*>> generic_func_subs;
@@ -455,7 +455,8 @@ public:
             std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir)
         : diag{diagnostics}, al{al}, current_scope{symbol_table}, main_module{main_module},
             ast_overload{ast_overload}, parent_dir{parent_dir},
-            current_body{nullptr}, ann_assign_target_type{nullptr} {
+            current_body{nullptr}, ann_assign_target_type{nullptr},
+            assign_target_type{nullptr} {
         current_module_dependencies.reserve(al, 4);
     }
 
@@ -3083,19 +3084,8 @@ public:
     }
 
     void visit_Assign(const AST::Assign_t &x) {
-        ASR::expr_t *target, *assign_value = nullptr, *tmp_value;
-        this->visit_expr(*x.m_value);
-        if (tmp) {
-            // This happens if `m.m_value` is `empty`, such as in:
-            // a = empty(16)
-            // We skip this statement for now, the array is declared
-            // by the annotation.
-            // TODO: enforce that empty(), ones(), zeros() is called
-            // for every declaration.
-            assign_value = ASRUtils::EXPR(tmp);
-        }
+        ASR::expr_t *target, *tmp_value = nullptr;
         for (size_t i=0; i<x.n_targets; i++) {
-            tmp_value = assign_value;
             if (AST::is_a<AST::Subscript_t>(*x.m_targets[i])) {
                 AST::Subscript_t *sb = AST::down_cast<AST::Subscript_t>(x.m_targets[i]);
                 if (AST::is_a<AST::Name_t>(*sb->m_value)) {
@@ -3124,6 +3114,17 @@ public:
                                 })
                             );
                             throw SemanticAbort();
+                        }
+                        assign_target_type = value_type;
+                        this->visit_expr(*x.m_value);
+                        if (tmp) {
+                            // This happens if `m.m_value` is `empty`, such as in:
+                            // a = empty(16)
+                            // We skip this statement for now, the array is declared
+                            // by the annotation.
+                            // TODO: enforce that empty(), ones(), zeros() is called
+                            // for every declaration.
+                            tmp_value = ASRUtils::EXPR(tmp);
                         }
                         if (!ASRUtils::check_equal_type(ASRUtils::expr_type(tmp_value), value_type)) {
                             std::string vtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(tmp_value));
@@ -3158,6 +3159,17 @@ public:
                     }
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(s);
                     ASR::ttype_t *type = v->m_type;
+                    assign_target_type = type;
+                    this->visit_expr(*x.m_value);
+                    if (tmp) {
+                        // This happens if `m.m_value` is `empty`, such as in:
+                        // a = empty(16)
+                        // We skip this statement for now, the array is declared
+                        // by the annotation.
+                        // TODO: enforce that empty(), ones(), zeros() is called
+                        // for every declaration.
+                        tmp_value = ASRUtils::EXPR(tmp);
+                    }
                     if (ASRUtils::is_immutable(type)) {
                         throw SemanticError("readonly attribute", x.base.base.loc);
                     }
@@ -3166,12 +3178,23 @@ public:
             if (!tmp_value) continue;
             this->visit_expr(*x.m_targets[i]);
             target = ASRUtils::EXPR(tmp);
+            assign_target_type = ASRUtils::expr_type(target);
+            this->visit_expr(*x.m_value);
+            if (tmp) {
+                // This happens if `m.m_value` is `empty`, such as in:
+                // a = empty(16)
+                // We skip this statement for now, the array is declared
+                // by the annotation.
+                // TODO: enforce that empty(), ones(), zeros() is called
+                // for every declaration.
+                tmp_value = ASRUtils::EXPR(tmp);
+            }
             ASR::ttype_t *target_type = ASRUtils::expr_type(target);
-            ASR::ttype_t *value_type = ASRUtils::expr_type(assign_value);
+            ASR::ttype_t *value_type = ASRUtils::expr_type(tmp_value);
             // Check if the target parameter type can be assigned with zero
             if (ASR::is_a<ASR::TypeParameter_t>(*target_type)
-                    && ASR::is_a<ASR::IntegerConstant_t>(*assign_value)) {
-                ASR::IntegerConstant_t *value_constant = ASR::down_cast<ASR::IntegerConstant_t>(assign_value);
+                    && ASR::is_a<ASR::IntegerConstant_t>(*tmp_value)) {
+                ASR::IntegerConstant_t *value_constant = ASR::down_cast<ASR::IntegerConstant_t>(tmp_value);
                 if (value_constant->m_n == 0) {
                     if (!ASRUtils::has_trait(ASR::down_cast<ASR::TypeParameter_t>(target_type),
                                              ASR::traitType::SupportsZero)) {
@@ -3179,7 +3202,7 @@ public:
                                             "to be assignable with zero.",
                                             target_type->base.loc);
                     }
-                    tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, assign_value, nullptr);
+                    tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, tmp_value, nullptr);
                     return ;
                 }
             }
@@ -3636,10 +3659,17 @@ public:
 
     void visit_Dict(const AST::Dict_t &x) {
         LFORTRAN_ASSERT(x.n_keys == x.n_values);
-        if( x.n_keys == 0 && ann_assign_target_type != nullptr ) {
-            tmp = ASR::make_DictConstant_t(al, x.base.base.loc, nullptr, 0,
-                                           nullptr, 0, ann_assign_target_type);
-            return ;
+        if( x.n_keys == 0 ) {
+            if( ann_assign_target_type != nullptr ) {
+                tmp = ASR::make_DictConstant_t(al, x.base.base.loc, nullptr, 0,
+                                               nullptr, 0, ann_assign_target_type);
+                return ;
+            }
+            if( assign_target_type != nullptr ) {
+                tmp = ASR::make_DictConstant_t(al, x.base.base.loc, nullptr, 0,
+                                               nullptr, 0, assign_target_type);
+                return ;
+            }
         }
         Vec<ASR::expr_t*> keys;
         keys.reserve(al, x.n_keys);

@@ -57,7 +57,8 @@ namespace LFortran {
             return ASR::is_a<ASR::Tuple_t>(*asr_type) ||
                    ASR::is_a<ASR::List_t>(*asr_type) ||
                    ASR::is_a<ASR::Derived_t>(*asr_type) ||
-                   ASR::is_a<ASR::Class_t>(*asr_type);
+                   ASR::is_a<ASR::Class_t>(*asr_type) ||
+                   ASR::is_a<ASR::Dict_t>(*asr_type);
         }
     }
 
@@ -107,7 +108,7 @@ namespace LFortran {
             void reset_iterators();
 
             void deepcopy(llvm::Value* src, llvm::Value* dest,
-                          ASR::ttype_t* asr_type, llvm::Module& module);
+                          ASR::ttype_t* asr_type, llvm::Module* module);
 
     }; // LLVMUtils
 
@@ -150,11 +151,11 @@ namespace LFortran {
 
             void list_deepcopy(llvm::Value* src, llvm::Value* dest,
                                 ASR::List_t* list_type,
-                                llvm::Module& module);
+                                llvm::Module* module);
 
             void list_deepcopy(llvm::Value* src, llvm::Value* dest,
                                 ASR::ttype_t* element_type,
-                                llvm::Module& module);
+                                llvm::Module* module);
 
             llvm::Value* read_item(llvm::Value* list, llvm::Value* pos,
                                    bool get_pointer=false, bool check_index_bound=true);
@@ -165,17 +166,17 @@ namespace LFortran {
 
             void write_item(llvm::Value* list, llvm::Value* pos,
                             llvm::Value* item, ASR::ttype_t* asr_type,
-                            llvm::Module& module, bool check_index_bound=true);
+                            llvm::Module* module, bool check_index_bound=true);
 
             void write_item(llvm::Value* list, llvm::Value* pos,
                             llvm::Value* item, bool check_index_bound=true);
 
             void append(llvm::Value* list, llvm::Value* item,
-                        ASR::ttype_t* asr_type, llvm::Module& module);
+                        ASR::ttype_t* asr_type, llvm::Module* module);
 
             void insert_item(llvm::Value* list, llvm::Value* pos,
                             llvm::Value* item, ASR::ttype_t* asr_type,
-                            llvm::Module& module);
+                            llvm::Module* module);
 
             void remove(llvm::Value* list, llvm::Value* item,
                         ASR::ttype_t* item_type, llvm::Module& module);
@@ -216,7 +217,7 @@ namespace LFortran {
                                    bool get_pointer=false);
 
             void tuple_deepcopy(llvm::Value* src, llvm::Value* dest,
-                                ASR::Tuple_t* type_code, llvm::Module& module);
+                                ASR::Tuple_t* type_code, llvm::Module* module);
 
             llvm::Value* check_tuple_equality(llvm::Value* t1, llvm::Value* t2,
                 ASR::Tuple_t* tuple_type, llvm::LLVMContext& context,

@@ -298,7 +298,7 @@ namespace LFortran {
     }
 
     void LLVMUtils::deepcopy(llvm::Value* src, llvm::Value* dest,
-                             ASR::ttype_t* asr_type, llvm::Module& module) {
+                             ASR::ttype_t* asr_type, llvm::Module* module) {
         switch( asr_type->type ) {
             case ASR::ttypeType::Integer:
             case ASR::ttypeType::Real:
@@ -317,6 +317,11 @@ namespace LFortran {
                 ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(asr_type);
                 list_api->list_deepcopy(src, dest, list_type, module);
                 break ;
+            }
+            case ASR::ttypeType::Dict: {
+                ASR::Dict_t* dict_type = ASR::down_cast<ASR::Dict_t>(asr_type);
+                dict_api->dict_deepcopy(src, dest, dict_type, module);
+                break;
             }
             default: {
                 throw LCompilersException("LLVMUtils::deepcopy isn't implemented for " +
@@ -611,12 +616,12 @@ namespace LFortran {
     }
 
     void LLVMList::list_deepcopy(llvm::Value* src, llvm::Value* dest,
-                                 ASR::List_t* list_type, llvm::Module& module) {
+                                 ASR::List_t* list_type, llvm::Module* module) {
         list_deepcopy(src, dest, list_type->m_type, module);
     }
 
     void LLVMList::list_deepcopy(llvm::Value* src, llvm::Value* dest,
-                                 ASR::ttype_t* element_type, llvm::Module& module) {
+                                 ASR::ttype_t* element_type, llvm::Module* module) {
         LFORTRAN_ASSERT(src->getType() == dest->getType());
         std::string src_type_code = ASRUtils::get_type_code(element_type);
         llvm::Value* src_end_point = LLVM::CreateLoad(*builder, get_pointer_to_current_end_point(src));
@@ -629,7 +634,7 @@ namespace LFortran {
         int32_t type_size = std::get<1>(typecode2listtype[src_type_code]);
         llvm::Value* arg_size = builder->CreateMul(llvm::ConstantInt::get(context,
                                                    llvm::APInt(32, type_size)), src_capacity);
-        llvm::Value* copy_data = LLVM::lfortran_malloc(context, module, *builder,
+        llvm::Value* copy_data = LLVM::lfortran_malloc(context, *module, *builder,
                                                        arg_size);
         llvm::Type* el_type = std::get<2>(typecode2listtype[src_type_code]);
         copy_data = builder->CreateBitCast(copy_data, el_type->getPointerTo());
@@ -700,12 +705,12 @@ namespace LFortran {
         llvm::Value* src_key_list = get_key_list(src);
         llvm::Value* dest_key_list = get_key_list(dest);
         llvm_utils->list_api->list_deepcopy(src_key_list, dest_key_list,
-                                            dict_type->m_key_type, *module);
+                                            dict_type->m_key_type, module);
 
         llvm::Value* src_value_list = get_value_list(src);
         llvm::Value* dest_value_list = get_value_list(dest);
         llvm_utils->list_api->list_deepcopy(src_value_list, dest_value_list,
-                                            dict_type->m_value_type, *module);
+                                            dict_type->m_value_type, module);
 
         llvm::Value* src_key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(src));
         llvm::Value* dest_key_mask_ptr = get_pointer_to_keymask(dest);
@@ -768,8 +773,8 @@ namespace LFortran {
             }
             llvm::Value* dest_key_ptr = llvm_utils->create_gep(curr_dest, 0);
             llvm::Value* dest_value_ptr = llvm_utils->create_gep(curr_dest, 1);
-            llvm_utils->deepcopy(src_key, dest_key_ptr, dict_type->m_key_type, *module);
-            llvm_utils->deepcopy(src_value, dest_value_ptr, dict_type->m_value_type, *module);
+            llvm_utils->deepcopy(src_key, dest_key_ptr, dict_type->m_key_type, module);
+            llvm_utils->deepcopy(src_value, dest_value_ptr, dict_type->m_value_type, module);
 
             llvm::Value* src_next_ptr = LLVM::CreateLoad(*builder, llvm_utils->create_gep(curr_src, 2));
             llvm::Value* curr_dest_next_ptr = llvm_utils->create_gep(curr_dest, 2);
@@ -957,7 +962,7 @@ namespace LFortran {
 
     void LLVMList::write_item(llvm::Value* list, llvm::Value* pos,
                               llvm::Value* item, ASR::ttype_t* asr_type,
-                              llvm::Module& module, bool check_index_bound) {
+                              llvm::Module* module, bool check_index_bound) {
         if( check_index_bound ) {
             check_index_within_bounds(list, pos);
         }
@@ -1323,9 +1328,9 @@ namespace LFortran {
         this->resolve_collision(capacity, key_hash, key, key_list, key_mask, *module, key_asr_type);
         llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
         llvm_utils->list_api->write_item(key_list, pos, key,
-                                         key_asr_type, *module, false);
+                                         key_asr_type, module, false);
         llvm_utils->list_api->write_item(value_list, pos, value,
-                                         value_asr_type, *module, false);
+                                         value_asr_type, module, false);
         llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
             llvm_utils->create_ptr_gep(key_mask, pos));
         llvm::Value* is_slot_empty = builder->CreateICmpEQ(key_mask_value,
@@ -1352,9 +1357,9 @@ namespace LFortran {
         this->resolve_collision(capacity, key_hash, key, key_list, key_mask, *module, key_asr_type);
         llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
         llvm_utils->list_api->write_item(key_list, pos, key,
-                                         key_asr_type, *module, false);
+                                         key_asr_type, module, false);
         llvm_utils->list_api->write_item(value_list, pos, value,
-                                         value_asr_type, *module, false);
+                                         value_asr_type, module, false);
 
         llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
             llvm_utils->create_ptr_gep(key_mask, pos));
@@ -1407,8 +1412,8 @@ namespace LFortran {
             llvm::Value* malloc_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), kv_struct_size);
             llvm::Value* new_kv_struct_i8 = LLVM::lfortran_malloc(context, *module, *builder, malloc_size);
             llvm::Value* new_kv_struct = builder->CreateBitCast(new_kv_struct_i8, kv_struct_type->getPointerTo());
-            llvm_utils->deepcopy(key, llvm_utils->create_gep(new_kv_struct, 0), key_asr_type, *module);
-            llvm_utils->deepcopy(value, llvm_utils->create_gep(new_kv_struct, 1), value_asr_type, *module);
+            llvm_utils->deepcopy(key, llvm_utils->create_gep(new_kv_struct, 0), key_asr_type, module);
+            llvm_utils->deepcopy(value, llvm_utils->create_gep(new_kv_struct, 1), value_asr_type, module);
             LLVM::CreateStore(*builder,
                 llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)),
                 llvm_utils->create_gep(new_kv_struct, 2));
@@ -1420,8 +1425,8 @@ namespace LFortran {
         llvm_utils->start_new_block(elseBB);
         {
             llvm::Value* kv_struct = builder->CreateBitCast(kv_struct_i8, kv_struct_type->getPointerTo());
-            llvm_utils->deepcopy(key, llvm_utils->create_gep(kv_struct, 0), key_asr_type, *module);
-            llvm_utils->deepcopy(value, llvm_utils->create_gep(kv_struct, 1), value_asr_type, *module);
+            llvm_utils->deepcopy(key, llvm_utils->create_gep(kv_struct, 0), key_asr_type, module);
+            llvm_utils->deepcopy(value, llvm_utils->create_gep(kv_struct, 1), value_asr_type, module);
         }
         llvm_utils->start_new_block(mergeBB);
         llvm::Value* occupancy_ptr = get_pointer_to_occupancy(dict);
@@ -1766,10 +1771,10 @@ namespace LFortran {
                 llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
                 llvm::Value* key_dest = llvm_utils->list_api->read_item(new_key_list, pos,
                                             true, false);
-                llvm_utils->deepcopy(key, key_dest, key_asr_type, *module);
+                llvm_utils->deepcopy(key, key_dest, key_asr_type, module);
                 llvm::Value* value_dest = llvm_utils->list_api->read_item(new_value_list, pos,
                                             true, false);
-                llvm_utils->deepcopy(value, value_dest, value_asr_type, *module);
+                llvm_utils->deepcopy(value, value_dest, value_asr_type, module);
 
                 llvm::Value* linear_prob_happened = builder->CreateICmpNE(key_hash, pos);
                 llvm::Value* set_max_2 = builder->CreateSelect(linear_prob_happened,
@@ -2225,21 +2230,21 @@ namespace LFortran {
     }
 
     void LLVMList::append(llvm::Value* list, llvm::Value* item,
-                          ASR::ttype_t* asr_type, llvm::Module& module) {
+                          ASR::ttype_t* asr_type, llvm::Module* module) {
         llvm::Value* current_end_point = LLVM::CreateLoad(*builder, get_pointer_to_current_end_point(list));
         llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_current_capacity(list));
         std::string type_code = ASRUtils::get_type_code(asr_type);
         int type_size = std::get<1>(typecode2listtype[type_code]);
         llvm::Type* el_type = std::get<2>(typecode2listtype[type_code]);
         resize_if_needed(list, current_end_point, current_capacity,
-                         type_size, el_type, module);
+                         type_size, el_type, *module);
         write_item(list, current_end_point, item, asr_type, module);
         shift_end_point_by_one(list);
     }
 
     void LLVMList::insert_item(llvm::Value* list, llvm::Value* pos,
                                llvm::Value* item, ASR::ttype_t* asr_type,
-                               llvm::Module& module) {
+                               llvm::Module* module) {
         std::string type_code = ASRUtils::get_type_code(asr_type);
         llvm::Value* current_end_point = LLVM::CreateLoad(*builder,
                                         get_pointer_to_current_end_point(list));
@@ -2248,7 +2253,7 @@ namespace LFortran {
         int type_size = std::get<1>(typecode2listtype[type_code]);
         llvm::Type* el_type = std::get<2>(typecode2listtype[type_code]);
         resize_if_needed(list, current_end_point, current_capacity,
-                         type_size, el_type, module);
+                         type_size, el_type, *module);
 
         /* While loop equivalent in C++:
          *  end_point         // nth index of list
@@ -2514,7 +2519,7 @@ namespace LFortran {
     }
 
     void LLVMTuple::tuple_deepcopy(llvm::Value* src, llvm::Value* dest,
-                                   ASR::Tuple_t* tuple_type, llvm::Module& module) {
+                                   ASR::Tuple_t* tuple_type, llvm::Module* module) {
         LFORTRAN_ASSERT(src->getType() == dest->getType());
         for( size_t i = 0; i < tuple_type->n_type; i++ ) {
             llvm::Value* src_item = read_item(src, i, LLVM::is_llvm_struct(

@@ -1167,7 +1167,7 @@ public:
             this->visit_expr(*x.m_args[i]);
             llvm::Value* item = tmp;
             llvm::Value* pos = llvm::ConstantInt::get(context, llvm::APInt(32, i));
-            list_api->write_item(const_list, pos, item, list_type->m_type, *module);
+            list_api->write_item(const_list, pos, item, list_type->m_type, module.get());
         }
         ptr_loads = ptr_loads_copy;
         tmp = const_list;
@@ -1267,7 +1267,7 @@ public:
         llvm::Value *item = tmp;
         ptr_loads = ptr_loads_copy;
 
-        list_api->append(plist, item, asr_list->m_type, *module);
+        list_api->append(plist, item, asr_list->m_type, module.get());
     }
 
     void visit_ListItem(const ASR::ListItem_t& x) {
@@ -1303,7 +1303,8 @@ public:
 
         set_dict_api(dict_type);
         tmp = llvm_utils->dict_api->read_item(pdict, key, *module, dict_type,
-                                  LLVM::is_llvm_struct(dict_type->m_value_type));
+                                  LLVM::is_llvm_struct(dict_type->m_value_type) ||
+                                  ptr_loads == 0);
     }
 
     void visit_DictPop(const ASR::DictPop_t& x) {
@@ -1370,7 +1371,7 @@ public:
         llvm::Value *item = tmp;
         ptr_loads = ptr_loads_copy;
 
-        list_api->insert_item(plist, pos, item, asr_list->m_type, *module);
+        list_api->insert_item(plist, pos, item, asr_list->m_type, module.get());
     }
 
     void visit_DictInsert(const ASR::DictInsert_t& x) {
@@ -3191,7 +3192,7 @@ public:
                                             ASRUtils::expr_type(x.m_value));
             std::string value_type_code = ASRUtils::get_type_code(value_asr_list->m_type);
             list_api->list_deepcopy(value_list, target_list,
-                                    value_asr_list, *module);
+                                    value_asr_list, module.get());
             return ;
         } else if( is_target_tuple && is_value_tuple ) {
             uint64_t ptr_loads_copy = ptr_loads;
@@ -3220,7 +3221,7 @@ public:
                     llvm::Value* llvm_tuple_i = builder->CreateAlloca(llvm_tuple_i_type, nullptr);
                     ptr_loads = !LLVM::is_llvm_struct(asr_tuple_i_type);
                     visit_expr(*asr_value_tuple->m_elements[i]);
-                    llvm_utils->deepcopy(tmp, llvm_tuple_i, asr_tuple_i_type, *module);
+                    llvm_utils->deepcopy(tmp, llvm_tuple_i, asr_tuple_i_type, module.get());
                     src_deepcopies.push_back(al, llvm_tuple_i);
                 }
                 ASR::TupleConstant_t* asr_target_tuple = ASR::down_cast<ASR::TupleConstant_t>(x.m_target);
@@ -3244,7 +3245,7 @@ public:
                 std::string type_code = ASRUtils::get_type_code(value_tuple_type->m_type,
                                                                 value_tuple_type->n_type);
                 tuple_api->tuple_deepcopy(value_tuple, target_tuple,
-                                          value_tuple_type, *module);
+                                          value_tuple_type, module.get());
             }
             return ;
         } else if( is_target_dict && is_value_dict ) {
@@ -3277,7 +3278,8 @@ public:
         if( x.m_target->type == ASR::exprType::ArrayItem ||
             x.m_target->type == ASR::exprType::ArraySection ||
             x.m_target->type == ASR::exprType::DerivedRef ||
-            x.m_target->type == ASR::exprType::ListItem ) {
+            x.m_target->type == ASR::exprType::ListItem ||
+            x.m_target->type == ASR::exprType::DictItem ) {
             is_assignment_target = true;
             this->visit_expr(*x.m_target);
             is_assignment_target = false;
@@ -3316,6 +3318,12 @@ public:
                 this->visit_expr_wrapper(asr_target0->m_pos, true);
                 llvm::Value* pos = tmp;
                 target = list_api->read_item(list, pos, true);
+            } else if( ASR::is_a<ASR::DictItem_t>(*x.m_target) ) {
+                uint64_t ptr_loads_copy = ptr_loads;
+                ptr_loads = 0;
+                visit_expr(*x.m_target);
+                ptr_loads = ptr_loads_copy;
+                target = tmp;
             }
         } else {
             ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
@@ -5295,7 +5303,7 @@ public:
                                     }
                                     if( ASR::is_a<ASR::Tuple_t>(*arg_type) ||
                                         ASR::is_a<ASR::List_t>(*arg_type) ) {
-                                        llvm_utils->deepcopy(value, target, arg_type, *module);
+                                        llvm_utils->deepcopy(value, target, arg_type, module.get());
                                     } else {
                                         builder->CreateStore(value, target);
                                     }
