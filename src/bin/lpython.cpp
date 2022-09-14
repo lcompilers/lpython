@@ -33,6 +33,10 @@
 #include <cpp-terminal/terminal.h>
 #include <cpp-terminal/prompt0.h>
 
+#ifdef HAVE_BUILD_TO_WASM
+    #include <emscripten/emscripten.h>
+#endif
+
 #ifdef HAVE_LFORTRAN_RAPIDJSON
     #include <rapidjson/document.h>
     #include <rapidjson/stringbuffer.h>
@@ -868,6 +872,158 @@ int link_executable(const std::vector<std::string> &infiles,
 // }
 
 } // anonymous namespace
+
+#ifdef HAVE_BUILD_TO_WASM
+
+namespace wasm {
+
+#define INITIALIZE_VARS CompilerOptions compiler_options; \
+                        compiler_options.use_colors = true; \
+                        compiler_options.indent = true; \
+                        Allocator al(4*1024); \
+                        LFortran::LocationManager lm; \
+                        LFortran::diag::Diagnostics diagnostics; \
+                        lm.in_filename = "input";
+
+
+
+std::string out;
+
+extern "C" { // using extern "C" to prevent function name mangling
+
+EMSCRIPTEN_KEEPALIVE char* emit_ast_from_source(char *input) {
+    INITIALIZE_VARS;
+    lm.init_simple(input);
+    LFortran::Result<LFortran::LPython::AST::Module_t*> ast = LFortran::parse(al, input, diagnostics);
+    out = diagnostics.render(input, lm, compiler_options);
+    if (ast.ok) {
+        auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
+        out += LFortran::LPython::pickle_python(*casted_ast,
+            compiler_options.use_colors, compiler_options.indent);
+    }
+    return &out[0];
+}
+
+EMSCRIPTEN_KEEPALIVE char* emit_asr_from_source(char *input) {
+    INITIALIZE_VARS;
+    lm.init_simple(input);
+    LFortran::Result<LFortran::LPython::AST::Module_t*> ast = LFortran::parse(al, input, diagnostics);
+    out = diagnostics.render(input, lm, compiler_options);
+    if (ast.ok) {
+        auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
+        LFortran::Result<LFortran::ASR::TranslationUnit_t*>
+        asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, true,
+            compiler_options.disable_main, compiler_options.symtab_only, "input");
+        out = diagnostics.render(input, lm, compiler_options);
+        if (asr.ok) {
+            out += LFortran::pickle(*asr.result, compiler_options.use_colors, compiler_options.indent,
+                false /* with_intrinsic_modules */);
+        }
+    }
+    return &out[0];
+}
+
+EMSCRIPTEN_KEEPALIVE char* emit_wat_from_source(char *input) {
+    INITIALIZE_VARS;
+    lm.init_simple(input);
+    LFortran::Result<LFortran::LPython::AST::Module_t*> ast = LFortran::parse(al, input, diagnostics);
+    out = diagnostics.render(input, lm, compiler_options);
+    if (ast.ok) {
+        auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
+        LFortran::Result<LFortran::ASR::TranslationUnit_t*>
+        asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, true,
+            compiler_options.disable_main, compiler_options.symtab_only, "input");
+        out = diagnostics.render(input, lm, compiler_options);
+        if (asr.ok) {
+            LFortran::Result<LFortran::Vec<uint8_t>>
+            wasm = LFortran::asr_to_wasm_bytes_stream(*asr.result, al, diagnostics);
+            out = diagnostics.render(input, lm, compiler_options);
+            if (wasm.ok) {
+                LFortran::Result<std::string>
+                wat = LFortran::wasm_to_wat(wasm.result, al, diagnostics);
+                out = diagnostics.render(input, lm, compiler_options);
+                if (wat.ok) {
+                    out += wat.result;
+                }
+            }
+        }
+    }
+    return &out[0];
+}
+
+EMSCRIPTEN_KEEPALIVE char* emit_cpp_from_source(char *input) {
+    INITIALIZE_VARS;
+    lm.init_simple(input);
+    LFortran::Result<LFortran::LPython::AST::Module_t*> ast = LFortran::parse(al, input, diagnostics);
+    out = diagnostics.render(input, lm, compiler_options);
+    if (ast.ok) {
+        auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
+        LFortran::Result<LFortran::ASR::TranslationUnit_t*>
+        asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, true,
+            compiler_options.disable_main, compiler_options.symtab_only, "input");
+        out = diagnostics.render(input, lm, compiler_options);
+        if (asr.ok) {
+            auto res = LFortran::asr_to_cpp(al, *asr.result, diagnostics,
+                compiler_options.platform, 0);
+            out = diagnostics.render(input, lm, compiler_options);
+            if (res.ok) {
+                out += res.result;
+            }
+        }
+    }
+    return &out[0];
+}
+
+// EMSCRIPTEN_KEEPALIVE char* emit_c_from_source(char *input) {
+//     INITIALIZE_VARS;
+//     LFortran::Result<std::string> r = fe.get_c(input, lm, diagnostics, 1);
+//     out = diagnostics.render(input, lm, compiler_options);
+//     if (r.ok) { out += r.result; }
+//     return &out[0];
+// }
+
+// EMSCRIPTEN_KEEPALIVE char* emit_py_from_source(char *input) {
+//     INITIALIZE_VARS;
+//     LFortran::Result<std::string> r = fe.get_py(input, lm, diagnostics);
+//     out = diagnostics.render(input, lm, compiler_options);
+//     if (r.ok) { out += r.result; }
+//     return &out[0];
+// }
+
+EMSCRIPTEN_KEEPALIVE char* emit_wasm_from_source(char *input) {
+    INITIALIZE_VARS;
+    lm.init_simple(input);
+    LFortran::Result<LFortran::LPython::AST::Module_t*> ast = LFortran::parse(al, input, diagnostics);
+    out = diagnostics.render(input, lm, compiler_options);
+    if (ast.ok) {
+        auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
+        LFortran::Result<LFortran::ASR::TranslationUnit_t*>
+        asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, true,
+            compiler_options.disable_main, compiler_options.symtab_only, "input");
+        out = diagnostics.render(input, lm, compiler_options);
+        if (asr.ok) {
+            LFortran::Result<LFortran::Vec<uint8_t>>
+            wasm = LFortran::asr_to_wasm_bytes_stream(*asr.result, al, diagnostics);
+            out = diagnostics.render(input, lm, compiler_options);
+            if (wasm.ok) {
+                out = "0"; // exit code
+                for (size_t i = 0; i < wasm.result.size(); i++) {
+                    out += "," + std::to_string(wasm.result[i]);
+                }
+                return &out[0];
+            }
+        }
+    }
+    out = "1"; // non-zero exit code
+    out += "," + diagnostics.render(input, lm, compiler_options);
+    return &out[0];
+}
+
+}
+
+} // namespace wasm
+
+#endif
 
 int main(int argc, char *argv[])
 {
