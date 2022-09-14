@@ -866,6 +866,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     }
                     break;
                 };
+                case ASR::binopType::BitAnd: {
+                    wasm::emit_i32_and(m_code_section, m_al);
+                    break;
+                };
                 default: {
                     throw CodeGenError(
                         "ICE IntegerBinop kind 4: unknown operation");
@@ -909,6 +913,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                             "IntegerBinop kind 8: only x**2 implemented so far "
                             "for powers");
                     }
+                    break;
+                };
+                case ASR::binopType::BitAnd: {
+                    wasm::emit_i64_and(m_code_section, m_al);
                     break;
                 };
                 default: {
