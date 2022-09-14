@@ -849,7 +849,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_asr_from_source(char *input) {
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, true,
             compiler_options.disable_main, compiler_options.symtab_only, "input");
-        out += diagnostics.render(input, lm, compiler_options);
+        out = diagnostics.render(input, lm, compiler_options);
         if (asr.ok) {
             out += LFortran::pickle(*asr.result, compiler_options.use_colors, compiler_options.indent,
                 false /* with_intrinsic_modules */);
@@ -868,15 +868,15 @@ EMSCRIPTEN_KEEPALIVE char* emit_wat_from_source(char *input) {
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, true,
             compiler_options.disable_main, compiler_options.symtab_only, "input");
-        out += diagnostics.render(input, lm, compiler_options);
+        out = diagnostics.render(input, lm, compiler_options);
         if (asr.ok) {
             LFortran::Result<LFortran::Vec<uint8_t>>
             wasm = LFortran::asr_to_wasm_bytes_stream(*asr.result, al, diagnostics);
-            out += diagnostics.render(input, lm, compiler_options);
+            out = diagnostics.render(input, lm, compiler_options);
             if (wasm.ok) {
                 LFortran::Result<std::string>
                 wat = LFortran::wasm_to_wat(wasm.result, al, diagnostics);
-                out += diagnostics.render(input, lm, compiler_options);
+                out = diagnostics.render(input, lm, compiler_options);
                 if (wat.ok) {
                     out += wat.result;
                 }
@@ -896,11 +896,11 @@ EMSCRIPTEN_KEEPALIVE char* emit_cpp_from_source(char *input) {
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, true,
             compiler_options.disable_main, compiler_options.symtab_only, "input");
-        out += diagnostics.render(input, lm, compiler_options);
+        out = diagnostics.render(input, lm, compiler_options);
         if (asr.ok) {
             auto res = LFortran::asr_to_cpp(al, *asr.result, diagnostics,
                 compiler_options.platform, 0);
-            out += diagnostics.render(input, lm, compiler_options);
+            out = diagnostics.render(input, lm, compiler_options);
             if (res.ok) {
                 out += res.result;
             }
@@ -935,11 +935,11 @@ EMSCRIPTEN_KEEPALIVE char* emit_wasm_from_source(char *input) {
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, true,
             compiler_options.disable_main, compiler_options.symtab_only, "input");
-        out += diagnostics.render(input, lm, compiler_options);
+        out = diagnostics.render(input, lm, compiler_options);
         if (asr.ok) {
             LFortran::Result<LFortran::Vec<uint8_t>>
             wasm = LFortran::asr_to_wasm_bytes_stream(*asr.result, al, diagnostics);
-            out += diagnostics.render(input, lm, compiler_options);
+            out = diagnostics.render(input, lm, compiler_options);
             if (wasm.ok) {
                 out = "0"; // exit code
                 for (size_t i = 0; i < wasm.result.size(); i++) {
