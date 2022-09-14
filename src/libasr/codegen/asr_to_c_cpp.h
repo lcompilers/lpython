@@ -648,7 +648,12 @@ R"(#include <stdio.h>
                 break;
             }
             case (ASR::cast_kindType::LogicalToReal) : {
-                src = "(float)(" + src + ")";
+                int dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                switch (dest_kind) {
+                    case 4: src = "(float)(" + src + ")"; break;
+                    case 8: src = "(double)(" + src + ")"; break;
+                    default: throw CodeGenError("Cast LogicalToReal: Unsupported Kind " + std::to_string(dest_kind));
+                }
                 break;
             }
             case (ASR::cast_kindType::RealToLogical) : {
