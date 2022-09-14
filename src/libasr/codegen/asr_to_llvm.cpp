@@ -277,6 +277,36 @@ public:
         builder->SetInsertPoint(bb);
     }
 
+    template <typename Cond, typename Body>
+    void create_loop(Cond condition, Body loop_body) {
+        dict_api_lp->set_iterators();
+        dict_api_sc->set_iterators();
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+        this->current_loophead = loophead;
+        this->current_loopend = loopend;
+
+        // head
+        start_new_block(loophead);
+        {
+            llvm::Value* cond = condition();
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        start_new_block(loopbody);
+        {
+            loop_body();
+            builder->CreateBr(loophead);
+        }
+
+        // end
+        start_new_block(loopend);
+        dict_api_lp->reset_iterators();
+        dict_api_sc->reset_iterators();
+    }
+
     inline bool verify_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
         if( n_dims <= 0 ) {
             return false;
@@ -3662,31 +3692,17 @@ public:
     }
 
     void visit_WhileLoop(const ASR::WhileLoop_t &x) {
-        dict_api_lp->set_iterators();
-        dict_api_sc->set_iterators();
-        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
-        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
-        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
-        this->current_loophead = loophead;
-        this->current_loopend = loopend;
-
-        // head
-        start_new_block(loophead);
-        this->visit_expr_wrapper(x.m_test, true);
-        llvm::Value *cond = tmp;
-        builder->CreateCondBr(cond, loopbody, loopend);
-
-        // body
-        start_new_block(loopbody);
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-        }
-        builder->CreateBr(loophead);
-
-        // end
-        start_new_block(loopend);
-        dict_api_lp->reset_iterators();
-        dict_api_sc->reset_iterators();
+        create_loop(
+            [this, x]() {
+                this->visit_expr_wrapper(x.m_test, true);
+                return tmp;
+            },
+            [this, x]() {
+                for (size_t i=0; i<x.n_body; i++) {
+                    this->visit_stmt(*x.m_body[i]);
+                }
+            }
+        );
     }
 
     void visit_Exit(const ASR::Exit_t & /* x */) {
