@@ -866,6 +866,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     }
                     break;
                 };
+                case ASR::binopType::BitAnd: {
+                    wasm::emit_i32_and(m_code_section, m_al);
+                    break;
+                };
                 default: {
                     throw CodeGenError(
                         "ICE IntegerBinop kind 4: unknown operation");
@@ -909,6 +913,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                             "IntegerBinop kind 8: only x**2 implemented so far "
                             "for powers");
                     }
+                    break;
+                };
+                case ASR::binopType::BitAnd: {
+                    wasm::emit_i64_and(m_code_section, m_al);
                     break;
                 };
                 default: {
@@ -2083,6 +2091,23 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         wasm::emit_branch(
             m_code_section, m_al,
             nesting_level - cur_loop_nesting_level);  // branch to start of loop
+    }
+
+    void visit_Assert(const ASR::Assert_t &x) {
+        this->visit_expr(*x.m_test);
+        wasm::emit_i32_eqz(m_code_section, m_al);
+        wasm::emit_b8(m_code_section, m_al, 0x04);  // emit if start
+        wasm::emit_b8(m_code_section, m_al, 0x40);  // empty block type
+        if (x.m_msg) {
+            std::string msg =
+                ASR::down_cast<ASR::StringConstant_t>(x.m_msg)->m_s;
+            print_msg("AssertionError: " + msg);
+        } else {
+            print_msg("AssertionError");
+        }
+        wasm::emit_i32_const(m_code_section, m_al, 1);  // non-zero exit code
+        exit();
+        wasm::emit_expr_end(m_code_section, m_al);  // emit if end
     }
 };
 

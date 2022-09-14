@@ -45,7 +45,7 @@ using LFortran::CompilerOptions;
 using LFortran::parse_python_file;
 
 enum Backend {
-    llvm, cpp, x86
+    llvm, cpp, x86, wasm
 };
 
 std::string remove_extension(const std::string& filename) {
@@ -501,6 +501,14 @@ int get_errors (const std::string &infile,
 
 #endif
 
+void print_time_report(std::vector<std::pair<std::string, double>> &times, bool time_report) {
+    if (time_report) {
+        for (auto &stage :times) {
+            std::cout << stage.first << ": " << stage.second << "ms" << std::endl;
+        }
+    }
+}
+
 #ifdef HAVE_LFORTRAN_LLVM
 
 int emit_llvm(const std::string &infile,
@@ -546,14 +554,6 @@ int emit_llvm(const std::string &infile,
     }
     std::cout << (res.result)->str();
     return 0;
-}
-
-void print_time_report(std::vector<std::pair<std::string, double>> &times, bool time_report) {
-    if (time_report) {
-        for (auto &stage :times) {
-            std::cout << stage.first << ": " << stage.second << "ms" << std::endl;
-        }
-    }
 }
 
 int compile_python_to_object_file(
@@ -641,6 +641,71 @@ void do_print_rtlib_header_dir() {
     std::cout << rtlib_header_dir << std::endl;
 }
 
+int compile_to_binary_wasm(
+        const std::string &infile,
+        const std::string &outfile,
+        const std::string &runtime_library_dir,
+        CompilerOptions &compiler_options,
+        bool time_report)
+{
+    Allocator al(4*1024);
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    std::vector<std::pair<std::string, double>>times;
+    auto file_reading_start = std::chrono::high_resolution_clock::now();
+    std::string input = LFortran::read_file(infile);
+    auto file_reading_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("File reading", std::chrono::duration<double, std::milli>(file_reading_end - file_reading_start).count()));
+    lm.init_simple(input);
+    auto parsing_start = std::chrono::high_resolution_clock::now();
+    LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
+        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+    auto parsing_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("Parsing", std::chrono::duration<double, std::milli>(parsing_end - parsing_start).count()));
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r.ok) {
+        print_time_report(times, time_report);
+        return 1;
+    }
+
+    // Src -> AST -> ASR
+    LFortran::LPython::AST::ast_t* ast = r.result;
+    diagnostics.diagnostics.clear();
+    auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
+    LFortran::Result<LFortran::ASR::TranslationUnit_t*>
+        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
+            compiler_options.disable_main, compiler_options.symtab_only, infile);
+    auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r1.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        print_time_report(times, time_report);
+        return 2;
+    }
+    LFortran::ASR::TranslationUnit_t* asr = r1.result;
+    if( compiler_options.disable_main ) {
+        int err = LFortran::LPython::save_pyc_files(*asr, infile);
+        if( err ) {
+            return err;
+        }
+    }
+    diagnostics.diagnostics.clear();
+
+    // ASR -> WASM
+    auto asr_to_wasm_start = std::chrono::high_resolution_clock::now();
+    LFortran::Result<int> res = LFortran::asr_to_wasm(*asr, al,  outfile, time_report, diagnostics);
+    auto asr_to_wasm_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("ASR to WASM", std::chrono::duration<double, std::milli>(asr_to_wasm_end - asr_to_wasm_start).count()));
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    print_time_report(times, time_report);
+    if (!res.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        return 3;
+    }
+    return 0;
+}
 
 // infile is an object file
 // outfile will become the executable
@@ -1022,8 +1087,10 @@ int main(int argc, char *argv[])
             backend = Backend::cpp;
         } else if (arg_backend == "x86") {
             backend = Backend::x86;
-        } else {
-            std::cerr << "The backend must be one of: llvm, cpp, x86." << std::endl;
+        } else if (arg_backend == "wasm") {
+            backend = Backend::wasm;
+        }else {
+            std::cerr << "The backend must be one of: llvm, cpp, x86, wasm." << std::endl;
             return 1;
         }
 
@@ -1142,6 +1209,11 @@ int main(int argc, char *argv[])
 
         if (endswith(arg_file, ".py"))
         {
+            if (backend == Backend::wasm) {
+                return compile_to_binary_wasm(arg_file, outfile,
+                        runtime_library_dir, compiler_options, time_report);
+            }
+
             std::string tmp_o = outfile + ".tmp.o";
             int err;
             if (backend == Backend::llvm) {

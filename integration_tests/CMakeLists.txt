@@ -107,6 +107,29 @@ macro(RUN)
             if (${RUN_FAIL})
                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
+        elseif(KIND STREQUAL "wasm")
+            # wasm test
+            execute_process(COMMAND lpython --backend wasm ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name})
+
+            find_program(WASM_EXEC_RUNTIME node)
+            execute_process(COMMAND "${WASM_EXEC_RUNTIME}" --version
+                            OUTPUT_VARIABLE WASM_EXEC_VERSION
+                            OUTPUT_STRIP_TRAILING_WHITESPACE)
+            string(COMPARE GREATER_EQUAL "${WASM_EXEC_VERSION}"
+                                    "v16.0.0" IS_NODE_ABOVE_16)
+
+            if (NOT IS_NODE_ABOVE_16)
+                message(STATUS "${WASM_EXEC_RUNTIME} version: ${WASM_EXEC_VERSION}")
+                set(WASM_EXEC_FLAGS "--experimental-wasm-bigint")
+            endif()
+
+            add_test(${name} ${WASM_EXEC_RUNTIME} ${WASM_EXEC_FLAGS} ${CMAKE_CURRENT_BINARY_DIR}/${name}.js)
+            if (RUN_LABELS)
+                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
+            endif()
+            if (${RUN_FAIL})
+               set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+            endif()
         endif()
     endif()
 endmacro(RUN)
@@ -122,17 +145,17 @@ RUN(NAME bindc_02            LABELS llvm c)
 RUN(NAME bindc_04            LABELS llvm)
 RUN(NAME exit_01             LABELS cpython llvm c)
 RUN(NAME exit_02     FAIL    LABELS cpython llvm c)
-RUN(NAME exit_01b            LABELS cpython llvm c)
-RUN(NAME exit_02b    FAIL    LABELS cpython llvm c)
+RUN(NAME exit_01b            LABELS cpython llvm c wasm)
+RUN(NAME exit_02b    FAIL    LABELS cpython llvm c wasm)
 RUN(NAME exit_02c    FAIL    LABELS cpython llvm c)
 
-# Test all three backends
-RUN(NAME print_01            LABELS cpython llvm c)
+# Test all four backends
+RUN(NAME print_01            LABELS cpython llvm c wasm) # wasm not yet supports sep and end keywords
 
 # CPython and LLVM
-RUN(NAME expr_01             LABELS cpython llvm c)
-RUN(NAME expr_02             LABELS cpython llvm c)
-RUN(NAME expr_03             LABELS cpython llvm c)
+RUN(NAME expr_01             LABELS cpython llvm c wasm)
+RUN(NAME expr_02             LABELS cpython llvm c wasm)
+RUN(NAME expr_03             LABELS cpython llvm c wasm)
 RUN(NAME expr_04             LABELS cpython llvm c)
 RUN(NAME expr_05             LABELS cpython llvm c)
 RUN(NAME expr_06             LABELS cpython llvm c)
@@ -140,7 +163,7 @@ RUN(NAME expr_07             LABELS cpython llvm c)
 RUN(NAME expr_08             LABELS llvm c)
 RUN(NAME expr_09             LABELS cpython llvm)
 RUN(NAME expr_10             LABELS cpython llvm)
-RUN(NAME expr_11             LABELS cpython llvm c)
+RUN(NAME expr_11             LABELS cpython llvm c wasm)
 RUN(NAME expr_12             LABELS llvm c)
 RUN(NAME loop_01             LABELS cpython llvm c)
 RUN(NAME test_types_01       LABELS cpython llvm)
@@ -241,3 +264,5 @@ RUN(NAME generics_list_01    LABELS cpython llvm)
 RUN(NAME test_statistics     LABELS cpython llvm)
 RUN(NAME test_str_attributes LABELS cpython llvm)
 RUN(NAME kwargs_01           LABELS cpython llvm)
+
+RUN(NAME func_inline_01 LABELS llvm wasm)
