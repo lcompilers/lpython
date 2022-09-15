@@ -17,4 +17,9 @@ def test_dict():
         for j in range(1, nodes):
             assert abs( graph[i][j] - 1.0/float(j + i) ) <= eps
 
+    for i in range(1, nodes):
+        for j in range(1, nodes):
+            assert abs( graph[i].pop(j) - 1.0/float(j + i) ) <= eps
+        graph.pop(i)
+
 test_dict()

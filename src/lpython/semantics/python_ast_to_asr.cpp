@@ -814,6 +814,20 @@ public:
     }
 
 
+    ASR::asr_t* ignore_return_value_util(const Location &loc, ASR::ttype_t* a_type,
+        ASR::asr_t* func_call_asr) {
+        std::string dummy_ret_name = current_scope->get_unique_name("__lcompilers_dummy");
+        ASR::asr_t* variable_asr = ASR::make_Variable_t(al, loc, current_scope,
+                                        s2c(al, dummy_ret_name), ASR::intentType::Local,
+                                        nullptr, nullptr, ASR::storage_typeType::Default,
+                                        a_type, ASR::abiType::Source, ASR::accessType::Public,
+                                        ASR::presenceType::Required, false);
+        ASR::symbol_t* variable_sym = ASR::down_cast<ASR::symbol_t>(variable_asr);
+        current_scope->add_symbol(dummy_ret_name, variable_sym);
+        ASR::expr_t* variable_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, variable_sym));
+        return ASR::make_Assignment_t(al, loc, variable_var, ASRUtils::EXPR(func_call_asr), nullptr);
+    }
+
     // Function to create appropriate call based on symbol type. If it is external
     // generic symbol then it changes the name accordingly.
     ASR::asr_t* make_call_helper(Allocator &al, ASR::symbol_t* s, SymbolTable *current_scope,
@@ -931,16 +945,7 @@ public:
                                                 s_generic, args_new.p, args_new.size(),
                                                 a_type, value, nullptr);
                 if( ignore_return_value ) {
-                    std::string dummy_ret_name = current_scope->get_unique_name("__lcompilers_dummy");
-                    ASR::asr_t* variable_asr = ASR::make_Variable_t(al, loc, current_scope,
-                                                    s2c(al, dummy_ret_name), ASR::intentType::Local,
-                                                    nullptr, nullptr, ASR::storage_typeType::Default,
-                                                    a_type, ASR::abiType::Source, ASR::accessType::Public,
-                                                    ASR::presenceType::Required, false);
-                    ASR::symbol_t* variable_sym = ASR::down_cast<ASR::symbol_t>(variable_asr);
-                    current_scope->add_symbol(dummy_ret_name, variable_sym);
-                    ASR::expr_t* variable_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, variable_sym));
-                    return ASR::make_Assignment_t(al, loc, variable_var, ASRUtils::EXPR(func_call_asr), nullptr);
+                    return ignore_return_value_util(loc, a_type, func_call_asr);
                 } else {
                     return func_call_asr;
                 }
@@ -4068,7 +4073,11 @@ public:
                     ASR::expr_t *te = ASR::down_cast<ASR::expr_t>(
                                         ASR::make_Var_t(al, x.base.base.loc, t));
                     handle_attribute(te, at->m_attr, x.base.base.loc, elements);
-                    return;
+                    if( ASR::is_a<ASR::expr_t>(*tmp) ) {
+                        ASR::expr_t* tmp_expr = ASRUtils::EXPR(tmp);
+                        tmp = ignore_return_value_util(x.base.base.loc, ASRUtils::expr_type(tmp_expr), tmp);
+                    }
+                    return ;
                 }
             } else {
                 throw SemanticError("Only Name/Attribute supported in Call",
@@ -4611,6 +4620,18 @@ public:
                     throw SemanticError("'str' object has no attribute '" + std::string(at->m_attr) + "'",
                         x.base.base.loc);
                 }
+            } else if (AST::is_a<AST::Subscript_t>(*at->m_value)) {
+                AST::Subscript_t* subscript = AST::down_cast<AST::Subscript_t>(at->m_value);
+                visit_Subscript(*subscript);
+                ASR::expr_t* subscript_expr = ASRUtils::EXPR(tmp);
+                Vec<ASR::expr_t*> elements;
+                elements.reserve(al, args.size());
+                for (size_t i = 0; i < args.size(); ++i) {
+                    elements.push_back(al, args.p[i].m_value);
+                }
+                handle_attribute(subscript_expr, std::string(at->m_attr),
+                    at->m_value->base.loc, elements);
+                return ;
             } else {
                 throw SemanticError("Only Name type and constant integers supported in Call",
                     x.base.base.loc);
