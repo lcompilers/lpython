@@ -1304,7 +1304,7 @@ public:
         set_dict_api(dict_type);
         tmp = llvm_utils->dict_api->read_item(pdict, key, *module, dict_type,
                                   LLVM::is_llvm_struct(dict_type->m_value_type) ||
-                                  ptr_loads == 0);
+                                  is_assignment_target);
     }
 
     void visit_DictPop(const ASR::DictPop_t& x) {
@@ -3318,12 +3318,6 @@ public:
                 this->visit_expr_wrapper(asr_target0->m_pos, true);
                 llvm::Value* pos = tmp;
                 target = list_api->read_item(list, pos, true);
-            } else if( ASR::is_a<ASR::DictItem_t>(*x.m_target) ) {
-                uint64_t ptr_loads_copy = ptr_loads;
-                ptr_loads = 0;
-                visit_expr(*x.m_target);
-                ptr_loads = ptr_loads_copy;
-                target = tmp;
             }
         } else {
             ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
