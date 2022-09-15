@@ -647,6 +647,28 @@ R"(#include <stdio.h>
                 src = "(bool)(" + src + ")";
                 break;
             }
+            case (ASR::cast_kindType::LogicalToReal) : {
+                int dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                switch (dest_kind) {
+                    case 4: src = "(float)(" + src + ")"; break;
+                    case 8: src = "(double)(" + src + ")"; break;
+                    default: throw CodeGenError("Cast LogicalToReal: Unsupported Kind " + std::to_string(dest_kind));
+                }
+                break;
+            }
+            case (ASR::cast_kindType::RealToLogical) : {
+                src = "(bool)(" + src + ")";
+                break;
+            }
+            case (ASR::cast_kindType::CharacterToLogical) : {
+
+                src = "(bool)(strlen(" + src + ") > 0)";
+                break;
+            }
+            case (ASR::cast_kindType::ComplexToLogical) : {
+                src = "(bool)(" + src + ")";
+                break;
+            }
             default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented",
                 x.base.base.loc);
         }

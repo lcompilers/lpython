@@ -490,6 +490,22 @@ R"(
         array_types_decls += open_struct + body + end_struct;
     }
 
+    void visit_ComplexConstant(const ASR::ComplexConstant_t &x) {
+        headers.insert("complex");
+
+        ASR::Complex_t *t = ASR::down_cast<ASR::Complex_t>(x.m_type);
+
+        std::string re = std::to_string(x.m_re);
+        std::string im = std::to_string(x.m_im);
+
+        std::string type_name = "float complex";
+        if (t->m_kind == 8) type_name = "double complex";
+
+        src = "(" + type_name + ") (" + re + ", " + im + ")";
+
+        last_expr_precedence = 2;
+    }
+
     void visit_LogicalConstant(const ASR::LogicalConstant_t &x) {
         if (x.m_value == true) {
             src = "true";
