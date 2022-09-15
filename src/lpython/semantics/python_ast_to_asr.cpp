@@ -4057,28 +4057,20 @@ public:
                 }
             } else if (AST::is_a<AST::Attribute_t>(*c->m_func)) {
                 AST::Attribute_t *at = AST::down_cast<AST::Attribute_t>(c->m_func);
-                if (AST::is_a<AST::Name_t>(*at->m_value)) {
-                    std::string value = AST::down_cast<AST::Name_t>(at->m_value)->m_id;
-                    ASR::symbol_t *t = current_scope->resolve_symbol(value);
-                    if (!t) {
-                        throw SemanticError("'" + value + "' is not defined in the scope",
-                            x.base.base.loc);
-                    }
-                    Vec<ASR::expr_t*> elements;
-                    elements.reserve(al, c->n_args);
-                    for (size_t i = 0; i < c->n_args; ++i) {
-                        visit_expr(*c->m_args[i]);
-                        elements.push_back(al, ASRUtils::EXPR(tmp));
-                    }
-                    ASR::expr_t *te = ASR::down_cast<ASR::expr_t>(
-                                        ASR::make_Var_t(al, x.base.base.loc, t));
-                    handle_attribute(te, at->m_attr, x.base.base.loc, elements);
-                    if( ASR::is_a<ASR::expr_t>(*tmp) ) {
-                        ASR::expr_t* tmp_expr = ASRUtils::EXPR(tmp);
-                        tmp = ignore_return_value_util(x.base.base.loc, ASRUtils::expr_type(tmp_expr), tmp);
-                    }
-                    return ;
+                Vec<ASR::expr_t*> elements;
+                elements.reserve(al, c->n_args);
+                for (size_t i = 0; i < c->n_args; ++i) {
+                    visit_expr(*c->m_args[i]);
+                    elements.push_back(al, ASRUtils::EXPR(tmp));
                 }
+                visit_expr(*at->m_value);
+                ASR::expr_t *te = ASRUtils::EXPR(tmp);
+                handle_attribute(te, at->m_attr, x.base.base.loc, elements);
+                if( ASR::is_a<ASR::expr_t>(*tmp) ) {
+                    ASR::expr_t* tmp_expr = ASRUtils::EXPR(tmp);
+                    tmp = ignore_return_value_util(x.base.base.loc, ASRUtils::expr_type(tmp_expr), tmp);
+                }
+                return ;
             } else {
                 throw SemanticError("Only Name/Attribute supported in Call",
                     x.base.base.loc);

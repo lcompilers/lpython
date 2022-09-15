@@ -1174,11 +1174,15 @@ public:
     }
 
     void set_dict_api(ASR::Dict_t* dict_type) {
-        if( ASR::is_a<ASR::Character_t>(*dict_type->m_key_type) ) {
-            llvm_utils->dict_api = dict_api_sc.get();
-        } else {
-            llvm_utils->dict_api = dict_api_lp.get();
-        }
+        // if( llvm_utils->dict_api != nullptr ) {
+        //     return ;
+        // }
+        // if( ASR::is_a<ASR::Character_t>(*dict_type->m_key_type) ) {
+        //     llvm_utils->dict_api = dict_api_sc.get();
+        // } else {
+        //     llvm_utils->dict_api = dict_api_lp.get();
+        // }
+        llvm_utils->dict_api = dict_api_lp.get();
     }
 
     void visit_DictConstant(const ASR::DictConstant_t& x) {
@@ -1865,8 +1869,11 @@ public:
         return a_kind;
     }
 
-    llvm::Type* get_dict_type(ASR::ttype_t* asr_type) {
+    llvm::Type* get_dict_type(ASR::ttype_t* asr_type, bool is_nested_call=false) {
         ASR::Dict_t* asr_dict = ASR::down_cast<ASR::Dict_t>(asr_type);
+        if( !is_nested_call ) {
+            set_dict_api(asr_dict);
+        }
         bool is_local_array_type = false, is_local_malloc_array_type = false;
         bool is_local_list = false;
         ASR::dimension_t* local_m_dims = nullptr;
@@ -1874,18 +1881,17 @@ public:
         int local_a_kind = -1;
         ASR::storage_typeType local_m_storage = ASR::storage_typeType::Default;
         llvm::Type* key_llvm_type = get_type_from_ttype_t(asr_dict->m_key_type, local_m_storage,
-                                                            is_local_array_type, is_local_malloc_array_type,
-                                                            is_local_list, local_m_dims, local_n_dims,
-                                                            local_a_kind);
+                                                          is_local_array_type, is_local_malloc_array_type,
+                                                          is_local_list, local_m_dims, local_n_dims,
+                                                          local_a_kind, true);
         int32_t key_type_size = get_type_size(asr_dict->m_key_type, key_llvm_type, local_a_kind);
         llvm::Type* value_llvm_type = get_type_from_ttype_t(asr_dict->m_value_type, local_m_storage,
                                                             is_local_array_type, is_local_malloc_array_type,
                                                             is_local_list, local_m_dims, local_n_dims,
-                                                            local_a_kind);
+                                                            local_a_kind, true);
         int32_t value_type_size = get_type_size(asr_dict->m_value_type, value_llvm_type, local_a_kind);
         std::string key_type_code = ASRUtils::get_type_code(asr_dict->m_key_type);
         std::string value_type_code = ASRUtils::get_type_code(asr_dict->m_value_type);
-        set_dict_api(asr_dict);
         return llvm_utils->dict_api->get_dict_type(key_type_code, value_type_code, key_type_size,
                                         value_type_size, key_llvm_type, value_llvm_type);
     }
@@ -1894,7 +1900,7 @@ public:
         ASR::storage_typeType m_storage,
         bool& is_array_type, bool& is_malloc_array_type,
         bool& is_list, ASR::dimension_t*& m_dims,
-        int& n_dims, int& a_kind) {
+        int& n_dims, int& a_kind, bool is_nested_call=false) {
         llvm::Type* llvm_type = nullptr;
         switch (asr_type->type) {
             case (ASR::ttypeType::Integer) : {
@@ -2014,7 +2020,7 @@ public:
                 ASR::ttype_t *t2 = ASR::down_cast<ASR::Pointer_t>(asr_type)->m_type;
                 llvm_type = get_type_from_ttype_t(t2, m_storage, is_array_type,
                                         is_malloc_array_type, is_list, m_dims,
-                                        n_dims, a_kind);
+                                        n_dims, a_kind, is_nested_call);
                 llvm_type = llvm_type->getPointerTo();
                 break;
             }
@@ -2024,7 +2030,7 @@ public:
                 llvm::Type* el_llvm_type = get_type_from_ttype_t(asr_list->m_type, m_storage,
                                                                  is_array_type, is_malloc_array_type,
                                                                  is_list, m_dims, n_dims,
-                                                                 a_kind);
+                                                                 a_kind, is_nested_call);
                 std::string el_type_code = ASRUtils::get_type_code(asr_list->m_type);
                 int32_t type_size = -1;
                 if( LLVM::is_llvm_struct(asr_list->m_type) ||
@@ -2039,7 +2045,7 @@ public:
                 break;
             }
             case (ASR::ttypeType::Dict): {
-                llvm_type = get_dict_type(asr_type);
+                llvm_type = get_dict_type(asr_type, is_nested_call);
                 break;
             }
             case (ASR::ttypeType::Tuple) : {
@@ -2056,7 +2062,8 @@ public:
                     ASR::storage_typeType local_m_storage = ASR::storage_typeType::Default;
                     llvm_el_types.push_back(get_type_from_ttype_t(asr_tuple->m_type[i], local_m_storage,
                                             is_local_array_type, is_local_malloc_array_type,
-                                            is_local_list, local_m_dims, local_n_dims, local_a_kind));
+                                            is_local_list, local_m_dims, local_n_dims, local_a_kind,
+                                            is_nested_call));
                 }
                 llvm_type = tuple_api->get_tuple_type(type_code, llvm_el_types);
                 break;

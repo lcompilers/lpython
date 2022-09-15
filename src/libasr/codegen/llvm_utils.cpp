@@ -729,7 +729,9 @@ namespace LFortran {
     void LLVMDictSeparateChaining::deepcopy_key_value_pair_linked_list(
         llvm::Value* srci, llvm::Value* desti, llvm::Value* dest_key_value_pairs,
         llvm::Value* src_capacity, ASR::Dict_t* dict_type, llvm::Module* module) {
+        llvm::AllocaInst *src_itr_copy = nullptr, *dest_itr_copy = nullptr, *next_ptr_copy = nullptr;
         if( !are_iterators_set ) {
+            src_itr_copy = src_itr, dest_itr_copy = dest_itr, next_ptr_copy = next_ptr;
             src_itr = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
             dest_itr = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
             next_ptr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
@@ -812,6 +814,9 @@ namespace LFortran {
 
         // end
         llvm_utils->start_new_block(loopend);
+        if( !are_iterators_set ) {
+            src_itr = src_itr_copy, dest_itr = dest_itr_copy, next_ptr = next_ptr_copy;
+        }
     }
 
     void LLVMDictSeparateChaining::write_key_value_pair_linked_list(
@@ -897,7 +902,9 @@ namespace LFortran {
         dest_key_value_pairs = builder->CreateBitCast(
             dest_key_value_pairs,
             get_key_value_pair_type(dict_type->m_key_type, dict_type->m_value_type)->getPointerTo());
+        llvm::AllocaInst *copy_itr_copy = nullptr;
         if( !are_iterators_set ) {
+            copy_itr_copy = copy_itr;
             copy_itr = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
         }
         llvm::Value* llvm_zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, 0));
@@ -954,6 +961,9 @@ namespace LFortran {
         // end
         llvm_utils->start_new_block(loopend);
         LLVM::CreateStore(*builder, dest_key_value_pairs, get_pointer_to_key_value_pairs(dest));
+        if( !are_iterators_set ) {
+            copy_itr = copy_itr_copy;
+        }
     }
 
     void LLVMList::check_index_within_bounds(llvm::Value* /*list*/, llvm::Value* /*pos*/) {
@@ -986,6 +996,7 @@ namespace LFortran {
     }
 
     llvm::Value* LLVMDictSeparateChaining::get_pointer_to_keymask(llvm::Value* dict) {
+        std::cout<<"dict->type: "<<dict->getType()->isPointerTy()<<" "<<dict->getType()->getContainedType(0)->isStructTy()<<std::endl;
         return llvm_utils->create_gep(dict, 4);
     }
 
