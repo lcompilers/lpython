@@ -222,6 +222,17 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                         }
                     }
                 }
+            } else if (ASR::is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *fn =
+                    ASR::down_cast<ASR::Function_t>(item.second);
+                if (fn->m_abi == ASR::abiType::BindC &&
+                    fn->m_deftype == ASR::deftypeType::Interface &&
+                    !ASRUtils::is_intrinsic_function2(fn)) {
+                    wasm::emit_import_fn(m_import_section, m_al, "js",
+                                            fn->m_name, no_of_types);
+                    no_of_imports++;
+                    emit_function_prototype(*fn);
+                }
             }
         }
 
