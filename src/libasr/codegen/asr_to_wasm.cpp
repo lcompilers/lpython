@@ -1416,7 +1416,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 size_t jmin, jmax;
 
                 // TODO: add this flag to ASR for each array:
-                bool column_major = true;
+                bool column_major = false;
                 if (column_major) {
                     // Column-major order
                     jmin = 0;
