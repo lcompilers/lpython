@@ -1411,7 +1411,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         for (uint32_t i = 0; i < x.n_args; i++) {
             if (x.m_args[i].m_right) {
                 this->visit_expr(*x.m_args[i].m_right);
-                wasm::emit_i32_const(m_code_section, m_al, 1);
+                this->visit_expr(*m_dims[i].m_start);
                 wasm::emit_i32_sub(m_code_section, m_al);
                 size_t jmin, jmax;
 
