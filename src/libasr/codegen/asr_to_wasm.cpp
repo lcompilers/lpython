@@ -222,6 +222,17 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                         }
                     }
                 }
+            } else if (ASR::is_a<ASR::Function_t>(*item.second)) {
+                ASR::Function_t *fn =
+                    ASR::down_cast<ASR::Function_t>(item.second);
+                if (fn->m_abi == ASR::abiType::BindC &&
+                    fn->m_deftype == ASR::deftypeType::Interface &&
+                    !ASRUtils::is_intrinsic_function2(fn)) {
+                    wasm::emit_import_fn(m_import_section, m_al, "js",
+                                            fn->m_name, no_of_types);
+                    no_of_imports++;
+                    emit_function_prototype(*fn);
+                }
             }
         }
 
@@ -1411,12 +1422,12 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         for (uint32_t i = 0; i < x.n_args; i++) {
             if (x.m_args[i].m_right) {
                 this->visit_expr(*x.m_args[i].m_right);
-                wasm::emit_i32_const(m_code_section, m_al, 1);
+                this->visit_expr(*m_dims[i].m_start);
                 wasm::emit_i32_sub(m_code_section, m_al);
                 size_t jmin, jmax;
 
                 // TODO: add this flag to ASR for each array:
-                bool column_major = true;
+                bool column_major = false;
                 if (column_major) {
                     // Column-major order
                     jmin = 0;
