@@ -1149,10 +1149,37 @@ R"(#include <stdio.h>
                 break;
             }
             case (ASR::cast_kindType::IntegerToCharacter) : {
-                ASR::ttype_t* src_type = ASRUtils::expr_type(x.m_arg);
-                int src_kind = ASRUtils::extract_kind_from_ttype_t(src_type);
-                src = "_lfortran_int_to_str" + std::to_string(src_kind) + "(" + src + ")";
-                break ;
+                if (is_c) {
+                    ASR::ttype_t *arg_type = ASRUtils::expr_type(x.m_arg);
+                    int arg_kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
+                    switch (arg_kind) {
+                        case 1: src = "_lfortran_int_to_str1(" + src + ")"; break;
+                        case 2: src = "_lfortran_int_to_str2(" + src + ")"; break;
+                        case 4: src = "_lfortran_int_to_str4(" + src + ")"; break;
+                        case 8: src = "_lfortran_int_to_str8(" + src + ")"; break;
+                        default: throw CodeGenError("Cast IntegerToCharacter: Unsupported Kind " + \
+                                        std::to_string(arg_kind));
+                    }
+
+                } else {
+                    src = "std::to_string(" + src + ")";
+                }
+                break;
+            }
+            case (ASR::cast_kindType::RealToCharacter) : {
+                if (is_c) {
+                    ASR::ttype_t *arg_type = ASRUtils::expr_type(x.m_arg);
+                    int arg_kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
+                    switch (arg_kind) {
+                        case 4: src = "_lfortran_float_to_str4(" + src + ")"; break;
+                        case 8: src = "_lfortran_float_to_str8(" + src + ")"; break;
+                        default: throw CodeGenError("Cast RealToCharacter: Unsupported Kind " + \
+                                        std::to_string(arg_kind));
+                    }
+                } else {
+                    src = "std::to_string(" + src + ")";
+                }
+                break;
             }
             default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented",
                 x.base.base.loc);
