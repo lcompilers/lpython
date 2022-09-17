@@ -1,0 +1,13 @@
+{
+    "basename": "asr-print_02-afbe092",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/print_02.py",
+    "infile_hash": "80609aedaf75258395fafe6c444c79cc3217f000380bd39e1b0f6a84",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-print_02-afbe092.stdout",
+    "stdout_hash": "4426c0f2cb900df00ddd7facbec9b7648c60d703a4fec573bdaf57e0",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
