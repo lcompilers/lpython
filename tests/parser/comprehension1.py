@@ -25,6 +25,8 @@ items = [
     if not inspect.ismodule(value)
 ]
 
+[0 async for tgt[0] in source()]
+
 # Generator Expression
 prm_tup = tuple(next(parameters) for _ in i.__parameters__)
 
