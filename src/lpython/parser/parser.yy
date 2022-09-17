@@ -805,6 +805,7 @@ id_list
 
 id_item
     : id { $$ = $1; }
+    | id "[" slice_item "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
     | "*" id { $$ = STARRED_ARG_STORE($2, @$); }
     | "(" id ")" { $$ = $2; }
     | "(" id_list "," ")" { $$ = ID_TUPLE_03($2, @$); }
@@ -827,6 +828,14 @@ comp_for
         $$ = COMP_FOR_02(ID_TUPLE_01($2, @$), $4, $5, @$); }
     | KW_FOR id_list "," KW_IN expr comp_if_items {
         $$ = COMP_FOR_02(ID_TUPLE_03($2, @$), $5, $6, @$); }
+    | KW_ASYNC KW_FOR id_list KW_IN expr {
+        $$ = COMP_FOR_03(ID_TUPLE_01($3, @$), $5, @$); }
+    | KW_ASYNC KW_FOR id_list "," KW_IN expr {
+        $$ = COMP_FOR_03(ID_TUPLE_03($3, @$), $6, @$); }
+    | KW_ASYNC KW_FOR id_list KW_IN expr comp_if_items {
+        $$ = COMP_FOR_04(ID_TUPLE_01($3, @$), $5, $6, @$); }
+    | KW_ASYNC KW_FOR id_list "," KW_IN expr comp_if_items {
+        $$ = COMP_FOR_04(ID_TUPLE_03($3, @$), $6, $7, @$); }
     ;
 
 comp_for_items
