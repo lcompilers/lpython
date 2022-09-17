@@ -742,15 +742,15 @@ async_func_def
     ;
 
 async_for_stmt
-    : KW_ASYNC KW_FOR expr KW_IN expr ":" body_stmts {
+    : KW_ASYNC KW_FOR for_target_list KW_IN tuple_list ":" body_stmts {
         $$ = ASYNC_FOR_01($3, $5, $7, @$); }
-    | KW_ASYNC KW_FOR expr KW_IN expr ":" body_stmts
+    | KW_ASYNC KW_FOR for_target_list KW_IN tuple_list ":" body_stmts
         KW_ELSE ":" body_stmts {
         $$ = ASYNC_FOR_02($3, $5, $7, $10, @$); }
-    | KW_ASYNC KW_FOR expr KW_IN expr ":"
+    | KW_ASYNC KW_FOR for_target_list KW_IN tuple_list ":"
         TK_TYPE_COMMENT sep statements {
         $$ = ASYNC_FOR_03($3, $5, $9, $7, @$); }
-    | KW_ASYNC KW_FOR expr KW_IN expr ":"
+    | KW_ASYNC KW_FOR for_target_list KW_IN tuple_list ":"
         TK_TYPE_COMMENT sep statements KW_ELSE ":" body_stmts {
         $$ = ASYNC_FOR_04($3, $5, $9, $12, $7, @$); }
     ;
