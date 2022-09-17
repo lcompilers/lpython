@@ -414,7 +414,7 @@ cpp = true
 [[test]]
 filename = "../integration_tests/print_02.py"
 asr = true
-pass = "print_list"
+pass = "print_list_tuple"
 
 [[test]]
 filename = "../integration_tests/print_04.py"

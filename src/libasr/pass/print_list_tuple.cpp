@@ -4,14 +4,14 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/pass/pass_utils.h>
-#include <libasr/pass/print_list.h>
+#include <libasr/pass/print_list_tuple.h>
 
 namespace LCompilers {
 
 /*
 This ASR pass replaces print list or print tuple with print every value,
 comma_space, brackets and newline. The function
-`pass_replace_print_list` transforms the ASR tree in-place.
+`pass_replace_print_list_tuple` transforms the ASR tree in-place.
 
 Converts:
 
@@ -62,14 +62,14 @@ to:
 It also works the same way for nested lists/tuples using recursion.
 */
 
-class PrintListVisitor
-    : public PassUtils::PassVisitor<PrintListVisitor> {
+class PrintListTupleVisitor
+    : public PassUtils::PassVisitor<PrintListTupleVisitor> {
    private:
     std::string rl_path;
 
    public:
    Vec<ASR::stmt_t*> print_pass_result_tmp;
-    PrintListVisitor(Allocator &al, const std::string &rl_path_)
+    PrintListTupleVisitor(Allocator &al, const std::string &rl_path_)
         : PassVisitor(al, nullptr), rl_path(rl_path_) {
         pass_result.reserve(al, 1);
         print_pass_result_tmp.reserve(al, 1);
@@ -376,11 +376,11 @@ class PrintListVisitor
     }
 };
 
-void pass_replace_print_list(
+void pass_replace_print_list_tuple(
     Allocator &al, ASR::TranslationUnit_t &unit,
     const LCompilers::PassOptions &pass_options) {
     std::string rl_path = pass_options.runtime_library_dir;
-    PrintListVisitor v(al, rl_path);
+    PrintListTupleVisitor v(al, rl_path);
     v.visit_TranslationUnit(unit);
 }
 
