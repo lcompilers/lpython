@@ -920,6 +920,7 @@ subscript
         $$ = SUBSCRIPT_01(TUPLE_01(TUPLE_($2, $4), @$), $7, @$); }
     | "{" dict_list comma_opt "}" "[" slice_item "]" {
         $$ = SUBSCRIPT_01(DICT_02($2, @$), $6, @$); }
+    | "{" "}" "[" slice_item "]" { $$ = SUBSCRIPT_01(DICT_01(@$), $4, @$); }
     | subscript "[" slice_item "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
     | comprehension "[" slice_item "]" { $$ = SUBSCRIPT_01($1, $3, @$); }
     ;
