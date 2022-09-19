@@ -38,7 +38,6 @@
 #include <libasr/pass/loop_vectorise.h>
 #include <libasr/pass/update_array_dim_intrinsic_calls.h>
 #include <libasr/pass/pass_array_by_data.h>
-
 #include <map>
 #include <vector>
 
@@ -79,6 +78,14 @@ namespace LCompilers {
 
         bool is_fast;
         bool apply_default_passes;
+
+        std::string _apply_one_pass(Allocator& al, LFortran::ASR::TranslationUnit_t* asr,
+                           std::vector<std::string>& passes, size_t index, PassOptions pass_options) {
+            if (index >= passes.size())
+                return "";
+            _passes_db[passes[index]](al, *asr, pass_options);
+            return passes[index];
+        }
 
         void _apply_passes(Allocator& al, LFortran::ASR::TranslationUnit_t* asr,
                            std::vector<std::string>& passes, PassOptions pass_options) {
@@ -176,6 +183,20 @@ namespace LCompilers {
                     _apply_passes(al, asr, _passes, pass_options);
                 }
             }
+        }
+
+        std::string apply_one_pass(Allocator& al, LFortran::ASR::TranslationUnit_t* asr,
+                          size_t index, PassOptions& pass_options) {
+            if( !_user_defined_passes.empty() ) {
+               return _apply_one_pass(al, asr, _user_defined_passes, index, pass_options);
+            } else if( apply_default_passes ) {
+                if( is_fast ) {
+                    return _apply_one_pass(al, asr, _with_optimization_passes, index, pass_options);
+                } else {
+                    return _apply_one_pass(al, asr, _passes, index, pass_options);
+                }
+            }
+            return "";
         }
 
         void use_optimization_passes() {

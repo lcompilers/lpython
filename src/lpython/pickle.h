@@ -14,6 +14,7 @@ namespace LFortran {
     // Print the tree structure
     std::string pickle_tree(LFortran::ASR::asr_t &asr, bool colors, bool show_intrinsic_modules);
     std::string pickle_tree(LFortran::ASR::TranslationUnit_t &asr, bool colors, bool show_intrinsic_modules);
+    void write_asr_to_file(std::string file, LFortran::ASR::TranslationUnit_t &asr, bool colors, bool show_intrinsic_modules);
 
 }
 

@@ -1,4 +1,5 @@
 #include <string>
+#include <fstream>
 
 #include <lpython/pickle.h>
 #include <lpython/pickle.h>
@@ -95,7 +96,7 @@ class ASRTreeVisitor :
 {
 public:
     bool show_intrinsic_modules;
-    
+
     std::string get_str() {
         return s;
     }
@@ -112,6 +113,13 @@ std::string pickle_tree(LFortran::ASR::asr_t &asr, bool colors, bool show_intrin
 
 std::string pickle_tree(LFortran::ASR::TranslationUnit_t &asr, bool colors, bool show_intrinsic_modules) {
     return pickle_tree((ASR::asr_t &)asr, colors, show_intrinsic_modules);
+}
+
+void write_asr_to_file(std::string file, LFortran::ASR::TranslationUnit_t &asr, bool colors, bool show_intrinsic_modules) {
+    std::ofstream f;
+    f.open(file);
+    f << pickle_tree(asr, colors, show_intrinsic_modules);
+    f.close();
 }
 
 }
