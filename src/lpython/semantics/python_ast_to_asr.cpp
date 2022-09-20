@@ -175,8 +175,9 @@ int save_pyc_files(const LFortran::ASR::TranslationUnit_t &u,
 // * Then the LPython runtime directory
 LFortran::Result<std::string> get_full_path(const std::string &filename,
         const std::string &runtime_library_dir, std::string& input,
-        bool &ltypes) {
+        bool &ltypes, bool& enum_py) {
     ltypes = false;
+    enum_py = false;
     bool status = read_file(filename, input);
     if (status) {
         return filename;
@@ -204,6 +205,9 @@ LFortran::Result<std::string> get_full_path(const std::string &filename,
                 } else {
                     return LFortran::Error();
                 }
+            } else if (startswith(filename, "enum.py")) {
+                enum_py = true;
+                return LFortran::Error();
             } else {
                 return LFortran::Error();
             }
@@ -213,9 +217,9 @@ LFortran::Result<std::string> get_full_path(const std::string &filename,
 
 bool set_module_path(std::string infile0, std::vector<std::string> &rl_path,
                      std::string& infile, std::string& path_used, std::string& input,
-                     bool& ltypes) {
+                     bool& ltypes, bool& enum_py) {
     for (auto path: rl_path) {
-        Result<std::string> rinfile = get_full_path(infile0, path, input, ltypes);
+        Result<std::string> rinfile = get_full_path(infile0, path, input, ltypes, enum_py);
         if (rinfile.ok) {
             infile = rinfile.result;
             path_used = path;
@@ -263,12 +267,13 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const std::string &module_name,
                             const Location &loc, bool intrinsic,
                             std::vector<std::string> &rl_path,
-                            bool &ltypes,
+                            bool &ltypes, bool& enum_py,
                             const std::function<void (const std::string &, const Location &)> err) {
     if( module_name == "copy" ) {
         return nullptr;
     }
     ltypes = false;
+    enum_py = false;
     LFORTRAN_ASSERT(symtab);
     if (symtab->get_scope().find(module_name) != symtab->get_scope().end()) {
         ASR::symbol_t *m = symtab->get_symbol(module_name);
@@ -288,11 +293,11 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     ASR::TranslationUnit_t* mod1 = nullptr;
     std::string input;
     bool found = set_module_path(infile0c, rl_path, infile,
-                                 path_used, input, ltypes);
+                                 path_used, input, ltypes, enum_py);
     if( !found ) {
         input.clear();
         found = set_module_path(infile0, rl_path, infile,
-                                path_used, input, ltypes);
+                                path_used, input, ltypes, enum_py);
     } else {
         mod1 = load_pycfile(al, input, false);
         fix_external_symbols(*mod1, *ASRUtils::get_tu_symtab(symtab));
@@ -300,6 +305,9 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         compile_module = false;
     }
 
+    if( enum_py ) {
+        return nullptr;
+    }
     if (!found) {
         err("Could not find the module '" + infile0 + "'", loc);
     }
@@ -478,13 +486,13 @@ public:
         SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
         std::string rl_path = get_runtime_library_dir();
         std::vector<std::string> paths = {rl_path, parent_dir};
-        bool ltypes;
+        bool ltypes, enum_py;
         ASR::Module_t *m = load_module(al, tu_symtab, module_name,
                 loc, true, paths,
-                ltypes,
+                ltypes, enum_py,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
                 );
-        LFORTRAN_ASSERT(!ltypes)
+        LFORTRAN_ASSERT(!ltypes && !enum_py)
 
         ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
         if (!t) {
@@ -802,8 +810,12 @@ public:
                     }
                 } else {
                     ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
-                    if (der_sym && der_sym->type == ASR::symbolType::DerivedType) {
-                        return ASRUtils::TYPE(ASR::make_Derived_t(al, loc, der_sym, dims.p, dims.size()));
+                    if( der_sym ) {
+                        if ( ASR::is_a<ASR::DerivedType_t>(*der_sym) ) {
+                            return ASRUtils::TYPE(ASR::make_Derived_t(al, loc, der_sym, dims.p, dims.size()));
+                        } else if( ASR::is_a<ASR::EnumType_t>(*der_sym) ) {
+                            return ASRUtils::TYPE(ASR::make_Enum_t(al, loc, der_sym, dims.p, dims.size()));
+                        }
                     }
                 }
             }
@@ -977,6 +989,21 @@ public:
             }
             ASR::ttype_t* der_type = ASRUtils::TYPE(ASR::make_Derived_t(al, loc, s, nullptr, 0));
             return ASR::make_DerivedTypeConstructor_t(al, loc, s, args_new.p, args_new.size(), der_type, nullptr);
+        } else if( ASR::is_a<ASR::EnumType_t>(*s) ) {
+            Vec<ASR::expr_t*> args_new;
+            args_new.reserve(al, args.size());
+            visit_expr_list(args, args.size(), args_new);
+            ASR::EnumType_t* enumtype = ASR::down_cast<ASR::EnumType_t>(s);
+            for( size_t i = 0; i < std::min(args.size(), enumtype->n_members); i++ ) {
+                std::string member_name = enumtype->m_members[i];
+                ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(
+                                                enumtype->m_symtab->resolve_symbol(member_name));
+                ASR::expr_t* arg_new_i = args_new[i];
+                cast_helper(member_var->m_type, arg_new_i);
+                args_new.p[i] = arg_new_i;
+            }
+            ASR::ttype_t* der_type = ASRUtils::TYPE(ASR::make_Enum_t(al, loc, s, nullptr, 0));
+            return ASR::make_EnumTypeConstructor_t(al, loc, s, args_new.p, args_new.size(), der_type, nullptr);
         } else {
             throw SemanticError("Unsupported call type for " + call_name, loc);
         }
@@ -1701,6 +1728,20 @@ public:
         return std::string(dec_name->m_id) == "dataclass";
     }
 
+    bool is_enum(AST::expr_t** bases, size_t n) {
+        if( n != 1 ) {
+            return false;
+        }
+
+        AST::expr_t* base = bases[0];
+        if( !AST::is_a<AST::Name_t>(*base) ) {
+            return false;
+        }
+
+        AST::Name_t* base_name = AST::down_cast<AST::Name_t>(base);
+        return std::string(base_name->m_id) == "Enum";
+    }
+
     void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name,
                              bool wrap_derived_type_in_pointer=false) {
         ASR::ttype_t *type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation);
@@ -1771,13 +1812,54 @@ public:
         ann_assign_target_type = ann_assign_target_type_copy;
     }
 
+    void visit_ClassMembers(const AST::ClassDef_t& x, Vec<char*>& member_names) {
+        for( size_t i = 0; i < x.n_body; i++ ) {
+            LFORTRAN_ASSERT(AST::is_a<AST::AnnAssign_t>(*x.m_body[i]));
+            AST::AnnAssign_t* ann_assign = AST::down_cast<AST::AnnAssign_t>(x.m_body[i]);
+            LFORTRAN_ASSERT(AST::is_a<AST::Name_t>(*ann_assign->m_target));
+            AST::Name_t *n = AST::down_cast<AST::Name_t>(ann_assign->m_target);
+            std::string var_name = n->m_id;
+            visit_AnnAssignUtil(*ann_assign, var_name, true);
+            member_names.push_back(al, n->m_id);
+        }
+    }
+
     void visit_ClassDef(const AST::ClassDef_t& x) {
         std::string x_m_name = x.m_name;
         if( current_scope->resolve_symbol(x_m_name) ) {
             return ;
         }
+        if( is_enum(x.m_bases, x.n_bases) ) {
+            SymbolTable *parent_scope = current_scope;
+            current_scope = al.make_new<SymbolTable>(parent_scope);
+            Vec<char*> member_names;
+            member_names.reserve(al, x.n_body);
+            Vec<ASR::stmt_t*>* current_body_copy = current_body;
+            current_body = nullptr;
+            visit_ClassMembers(x, member_names);
+            current_body = current_body_copy;
+            ASR::ttype_t* common_type = nullptr;
+            for( auto sym: current_scope->get_scope() ) {
+                ASR::Variable_t* enum_mem_var = ASR::down_cast<ASR::Variable_t>(sym.second);
+                if( common_type == nullptr ) {
+                    common_type = enum_mem_var->m_type;
+                } else {
+                    if( !ASRUtils::check_equal_type(common_type, enum_mem_var->m_type) ) {
+                        throw SemanticError("All members of enum should be of the same type.", x.base.base.loc);
+                    }
+                }
+            }
+            ASR::symbol_t* enum_type = ASR::down_cast<ASR::symbol_t>(ASR::make_EnumType_t(al,
+                                            x.base.base.loc, current_scope, x.m_name,
+                                            member_names.p, member_names.size(),
+                                            ASR::abiType::Source, ASR::accessType::Public,
+                                            common_type, nullptr));
+            current_scope = parent_scope;
+            current_scope->add_symbol(std::string(x.m_name), enum_type);
+            return ;
+        }
         if( !is_dataclass(x.m_decorator_list, x.n_decorator_list) ) {
-            throw SemanticError("Only dataclass decorated classes are supported.",
+            throw SemanticError("Only dataclass decorated classes and Enum subclasses are supported.",
                                 x.base.base.loc);
         }
 
@@ -1788,18 +1870,9 @@ public:
 
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
-
         Vec<char*> member_names;
         member_names.reserve(al, x.n_body);
-        for( size_t i = 0; i < x.n_body; i++ ) {
-            LFORTRAN_ASSERT(AST::is_a<AST::AnnAssign_t>(*x.m_body[i]));
-            AST::AnnAssign_t* ann_assign = AST::down_cast<AST::AnnAssign_t>(x.m_body[i]);
-            LFORTRAN_ASSERT(AST::is_a<AST::Name_t>(*ann_assign->m_target));
-            AST::Name_t *n = AST::down_cast<AST::Name_t>(ann_assign->m_target);
-            std::string var_name = n->m_id;
-            visit_AnnAssignUtil(*ann_assign, var_name, true);
-            member_names.push_back(al, n->m_id);
-        }
+        visit_ClassMembers(x, member_names);
         ASR::symbol_t* class_type = ASR::down_cast<ASR::symbol_t>(ASR::make_DerivedType_t(al,
                                         x.base.base.loc, current_scope, x.m_name,
                                         member_names.p, member_names.size(),
@@ -2704,12 +2777,12 @@ public:
             if (!main_module) {
                 st = st->parent;
             }
-            bool ltypes;
+            bool ltypes, enum_py;
             t = (ASR::symbol_t*)(load_module(al, st,
-                msym, x.base.base.loc, false, paths, ltypes,
+                msym, x.base.base.loc, false, paths, ltypes, enum_py,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
                 ));
-            if (ltypes) {
+            if (ltypes || enum_py) {
                 // TODO: For now we skip ltypes import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
                 // importing it.
@@ -2749,12 +2822,12 @@ public:
             st = st->parent;
         }
         for (auto &mod_sym : mods) {
-            bool ltypes;
+            bool ltypes, enum_py;
             t = (ASR::symbol_t*)(load_module(al, st,
-                mod_sym, x.base.base.loc, false, paths, ltypes,
+                mod_sym, x.base.base.loc, false, paths, ltypes, enum_py,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
                 ));
-            if (ltypes) {
+            if (ltypes || enum_py) {
                 // TODO: For now we skip ltypes import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
                 // importing it.
@@ -3580,6 +3653,21 @@ public:
             ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member_sym);
             tmp = ASR::make_DerivedRef_t(al, loc, val, member_sym,
                                             member_var->m_type, nullptr);
+        } else if (ASR::is_a<ASR::Enum_t>(*type)) {
+            ASR::Enum_t* enum_ = ASR::down_cast<ASR::Enum_t>(type);
+            ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_->m_enum_type);
+            std::string attr_name = attr_char;
+            if( attr_name != "value" && attr_name != "name" ) {
+                throw SemanticError(attr_name + " property not yet supported with Enums. "
+                    "Only value and name properties are supported for now.", loc);
+            }
+            if( attr_name == "value" ) {
+                tmp = ASR::make_EnumValue_t(al, loc, t, type, enum_type->m_type, nullptr);
+            } else if( attr_name == "name" ) {
+                ASR::ttype_t* char_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, -2,
+                                            nullptr, nullptr, 0));
+                tmp = ASR::make_EnumName_t(al, loc, t, type, char_type, nullptr);
+            }
         } else if(ASR::is_a<ASR::Pointer_t>(*type)) {
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(type);
             visit_AttributeUtil(p->m_type, attr_char, t, loc);
@@ -3600,6 +3688,18 @@ public:
             if (ASR::is_a<ASR::Variable_t>(*t)) {
                 ASR::Variable_t *var = ASR::down_cast<ASR::Variable_t>(t);
                 visit_AttributeUtil(var->m_type, x.m_attr, t, x.base.base.loc);
+            } else if (ASR::is_a<ASR::EnumType_t>(*t)) {
+                ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(t);
+                ASR::symbol_t* enum_member = enum_type->m_symtab->resolve_symbol(std::string(x.m_attr));
+                if( !enum_member ) {
+                    throw SemanticError(std::string(x.m_attr) + " not present in " +
+                                        std::string(enum_type->m_name) + " enum.",
+                                        x.base.base.loc);
+                }
+                ASR::Variable_t* enum_member_variable = ASR::down_cast<ASR::Variable_t>(enum_member);
+                ASR::ttype_t* enum_ttype = ASRUtils::TYPE(ASR::make_Enum_t(al, x.base.base.loc, t, nullptr, 0));
+                tmp = ASR::make_EnumValue_t(al, x.base.base.loc, enum_member, enum_ttype,
+                        enum_member_variable->m_type, ASRUtils::expr_value(enum_member_variable->m_symbolic_value));
             } else {
                 throw SemanticError("Only Variable type is supported for now in Attribute",
                     x.base.base.loc);
@@ -3609,7 +3709,37 @@ public:
             AST::Attribute_t* x_m_value = AST::down_cast<AST::Attribute_t>(x.m_value);
             visit_Attribute(*x_m_value);
             ASR::expr_t* e = ASRUtils::EXPR(tmp);
-            visit_AttributeUtil(ASRUtils::expr_type(e), x.m_attr, e, x.base.base.loc);
+            if( ASR::is_a<ASR::EnumValue_t>(*e) ) {
+                std::string enum_property = std::string(x.m_attr);
+                if( enum_property != "value" &&
+                    enum_property != "name" ) {
+                    throw SemanticError(enum_property + " is not a supported property of enum member."
+                                        " Only value and name are supported for now.",
+                                        x.base.base.loc);
+                }
+                ASR::EnumValue_t* enum_ref = ASR::down_cast<ASR::EnumValue_t>(e);
+                ASR::ttype_t* enum_ref_type = nullptr;
+                ASR::expr_t* enum_ref_value = nullptr;
+                ASR::Variable_t* enum_m_var = ASR::down_cast<ASR::Variable_t>(enum_ref->m_v);
+                if( enum_property == "value" ) {
+                    enum_ref_type = enum_ref->m_type;
+                    enum_ref_value = enum_m_var->m_symbolic_value;
+                    tmp = ASR::make_EnumValue_t(al, x.base.base.loc, enum_ref->m_v,
+                                enum_ref->m_enum_type, enum_ref_type,
+                                ASRUtils::expr_value(enum_ref_value));
+                } else if( enum_property == "name" ) {
+                    char *s = enum_m_var->m_name;
+                    size_t s_size = std::string(s).size();
+                    enum_ref_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
+                            1, s_size, nullptr, nullptr, 0));
+                    enum_ref_value = ASRUtils::EXPR(ASR::make_StringConstant_t(al, x.base.base.loc,
+                                        s, enum_ref_type));
+                    tmp = ASR::make_EnumName_t(al, x.base.base.loc, enum_ref->m_v,
+                                 enum_ref->m_enum_type, enum_ref_type, enum_ref_value);
+                }
+            } else {
+                visit_AttributeUtil(ASRUtils::expr_type(e), x.m_attr, e, x.base.base.loc);
+            }
         } else if(AST::is_a<AST::Subscript_t>(*x.m_value)) {
             AST::Subscript_t* x_m_value = AST::down_cast<AST::Subscript_t>(x.m_value);
             visit_Subscript(*x_m_value);
@@ -3763,6 +3893,9 @@ public:
             ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
         ASR::expr_t *value = nullptr;
 
+        if( ASR::is_a<ASR::Enum_t>(*dest_type) ) {
+            dest_type = ASRUtils::get_contained_type(dest_type);
+        }
         if (ASRUtils::is_integer(*dest_type)) {
 
             if (ASRUtils::expr_value(left) != nullptr && ASRUtils::expr_value(right) != nullptr) {
