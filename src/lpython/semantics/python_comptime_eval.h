@@ -23,7 +23,9 @@ struct ProceduresDatabase {
     ProceduresDatabase() {
         to_be_ignored = {{"numpy", {"empty", "int64", "int32",
                                     "float32", "float64",
-                                    "reshape", "array"}}};
+                                    "reshape", "array"}},
+                         {"enum", {"Enum"}}
+                        };
     }
 
     bool is_function_to_be_ignored(std::string& module_name,
@@ -758,7 +760,7 @@ struct PythonIntrinsicProcedures {
         ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         return ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, -1, int_type));
     }
-    
+
     static ASR::expr_t *eval__lpython_str_startswith(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &/*args*/) {
         // compile time action implemented on ast->asr
         ASR::ttype_t* res_type =  ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
