@@ -1,5 +1,0 @@
-semantic error: Type mismatch in 'remove', the types must be compatible
- --> tests/errors/test_list1.py:6:14
-  |
-6 |     a.remove('error')
-  |              ^^^^^^^ type mismatch (found: 'str', expected: 'i32')
