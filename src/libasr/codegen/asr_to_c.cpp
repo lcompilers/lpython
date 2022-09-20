@@ -287,6 +287,10 @@ public:
                 }
             } else if (ASR::is_a<ASR::CPtr_t>(*v.m_type)) {
                 sub = format_type_c("", "void*", v.m_name, false, false);
+            } else if (ASR::is_a<ASR::Enum_t>(*v.m_type)) {
+                ASR::Enum_t* enum_ = ASR::down_cast<ASR::Enum_t>(v.m_type);
+                ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_->m_enum_type);
+                sub = format_type_c("", "enum " + std::string(enum_type->m_name), v.m_name, false, false);
             } else {
                 diag.codegen_error_label("Type number '"
                     + std::to_string(v.m_type->type)
@@ -351,6 +355,8 @@ R"(
         for (auto &item : x.m_global_scope->get_scope()) {
             if (ASR::is_a<ASR::DerivedType_t>(*item.second)) {
                 array_types_decls += "struct " + item.first + ";\n\n";
+            } else if (ASR::is_a<ASR::EnumType_t>(*item.second)) {
+                array_types_decls += "enum " + item.first + ";\n\n";
             }
         }
 
@@ -362,7 +368,8 @@ R"(
         }
 
         for (auto &item : x.m_global_scope->get_scope()) {
-            if (ASR::is_a<ASR::DerivedType_t>(*item.second)) {
+            if (ASR::is_a<ASR::DerivedType_t>(*item.second) ||
+                ASR::is_a<ASR::EnumType_t>(*item.second)) {
                 visit_symbol(*item.second);
                 array_types_decls += src;
             }
@@ -490,6 +497,99 @@ R"(
         array_types_decls += open_struct + body + end_struct;
     }
 
+    void visit_EnumType(const ASR::EnumType_t& x) {
+        if( !ASR::is_a<ASR::Integer_t>(*x.m_type) ) {
+            throw CodeGenError("C backend only supports integer valued Enum. " +
+                std::string(x.m_name) + " is not integer valued.");
+        }
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        std::string tab(indentation_spaces, ' ');
+        std::string meta_data = " = {";
+        std::string open_struct = indent + "enum " + std::string(x.m_name) + " {\n";
+        std::string body = "";
+        std::string src_copy = src;
+        int64_t min_value = INT64_MAX;
+        int64_t max_value = INT64_MIN;
+        size_t max_name_len = 0;
+        std::map<int64_t, int64_t> value2count;
+        for( size_t i = 0; i < x.n_members; i++ ) {
+            ASR::symbol_t* member = x.m_symtab->get_symbol(x.m_members[i]);
+            LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
+            ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member);
+            ASR::expr_t* value = ASRUtils::expr_value(member_var->m_symbolic_value);
+            int64_t value_int64 = -1;
+            ASRUtils::extract_value(value, value_int64);
+            if( value2count.find(value_int64) == value2count.end() ) {
+                value2count[value_int64] = 0;
+            }
+            value2count[value_int64] += 1;
+            min_value = std::min(value_int64, min_value);
+            max_value = std::max(value_int64, max_value);
+            max_name_len = std::max(max_name_len, std::string(x.m_members[i]).size());
+            this->visit_expr(*member_var->m_symbolic_value);
+            body += indent + tab + std::string(member_var->m_name) + " = " + src + ",\n";
+        }
+        for( auto itr: value2count ) {
+            if( itr.second > 1 ) {
+                throw CodeGenError("C backend only supports uniquely valued integer Enum. " +
+                    std::string(x.m_name) + " Enum is having duplicate values for its members.");
+            }
+        }
+        size_t max_names = max_value - min_value + 1;
+        std::vector<std::string> enum_names(max_names, "\"\"");
+        for( size_t i = 0; i < x.n_members; i++ ) {
+            ASR::symbol_t* member = x.m_symtab->get_symbol(x.m_members[i]);
+            LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
+            ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member);
+            ASR::expr_t* value = ASRUtils::expr_value(member_var->m_symbolic_value);
+            int64_t value_int64 = -1;
+            ASRUtils::extract_value(value, value_int64);
+            min_value = std::min(value_int64, min_value);
+            enum_names[value_int64 - min_value] = "\"" + std::string(member_var->m_name) + "\"";
+        }
+        for( auto enum_name: enum_names ) {
+            meta_data += enum_name + ", ";
+        }
+        meta_data.pop_back();
+        meta_data.pop_back();
+        meta_data += "};\n";
+        std::string end_struct = "};\n\n";
+        std::string enum_names_type = "char " + global_scope->get_unique_name("enum_names_") +
+            std::string(x.m_name) + "[" + std::to_string(max_names) + "][" + std::to_string(max_name_len + 1) + "] ";
+        array_types_decls += enum_names_type + meta_data + open_struct + body + end_struct;
+        src = src_copy;
+    }
+
+    void visit_EnumTypeConstructor(const ASR::EnumTypeConstructor_t& x) {
+        LFORTRAN_ASSERT(x.n_args == 1);
+        ASR::expr_t* m_arg = x.m_args[0];
+        this->visit_expr(*m_arg);
+        ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x.m_dt_sym);
+        src = "(enum " + std::string(enum_type->m_name) + ") (" + src + ")";
+    }
+
+    void visit_EnumValue(const ASR::EnumValue_t& x) {
+        ASR::Variable_t* enum_var = ASR::down_cast<ASR::Variable_t>(x.m_v);
+        src = std::string(enum_var->m_name);
+    }
+
+    void visit_EnumName(const ASR::EnumName_t& x) {
+        ASR::Variable_t* enum_var = ASR::down_cast<ASR::Variable_t>(x.m_v);
+        int64_t min_value = INT64_MAX;
+        ASR::Enum_t* x_enum = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
+        ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x_enum->m_enum_type);
+
+        for( auto itr: enum_type->m_symtab->get_scope() ) {
+            ASR::Variable_t* itr_var = ASR::down_cast<ASR::Variable_t>(itr.second);
+            ASR::expr_t* value = itr_var->m_symbolic_value;
+            int64_t value_int64 = -1;
+            ASRUtils::extract_value(value, value_int64);
+            min_value = std::min(value_int64, min_value);
+        }
+        src = global_scope->get_unique_name("enum_names_" + std::string(enum_type->m_name)) +
+                "[" + std::string(enum_var->m_name) + " - " + std::to_string(min_value) + "]";
+    }
+
     void visit_ComplexConstant(const ASR::ComplexConstant_t &x) {
         headers.insert("complex");
 
@@ -574,6 +674,10 @@ R"(
                     ASR::Pointer_t* type_ptr = ASR::down_cast<ASR::Pointer_t>(t);
                     return get_print_type(type_ptr->m_type, false);
                 }
+            }
+            case ASR::ttypeType::Enum: {
+                ASR::ttype_t* enum_underlying_type = ASRUtils::get_contained_type(t);
+                return get_print_type(enum_underlying_type, deref_ptr);
             }
             default : throw LCompilersException("Not implemented");
         }
