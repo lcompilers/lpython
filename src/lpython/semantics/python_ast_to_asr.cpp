@@ -30,7 +30,6 @@
 #include <lpython/semantics/python_intrinsic_eval.h>
 #include <lpython/parser/parser.h>
 #include <libasr/serialization.h>
-#include <lpython/pickle.h>
 
 namespace LFortran::LPython {
 
@@ -669,49 +668,6 @@ public:
             call_args_vec.push_back(al, arg);
         }
     }
-
-    /*
-    void visit_keywords_list(AST::keyword_t* keywords, size_t n,
-                             Vec<ASR::restriction_arg_t*>& call_keywords_vec, const Location& loc) {
-        LFORTRAN_ASSERT(call_keywords_vec.reserve_called);
-        for (size_t i = 0; i<n; i++) {
-            AST::keyword_t keyword = keywords[i];
-            std::string keyword_arg = keyword.m_arg;
-            ASR::symbol_t* keyword_sym = current_scope->resolve_symbol(keyword_arg);
-            if (keyword_sym) {
-                ASR::Function_t* keyword_rt = ASR::is_a<ASR::Function_t>(*keyword_sym) 
-                    ? ASR::down_cast<ASR::Function_t>(keyword_sym) : nullptr;
-                if (keyword_rt && keyword_rt->m_is_restriction) {
-                    if (AST::is_a<AST::Name_t>(*keyword.m_value)) {
-                        AST::Name_t* arg_name = AST::down_cast<AST::Name_t>(keyword.m_value);
-                        std::string arg_id = arg_name->m_id;
-                        ASR::symbol_t* arg_sym = current_scope->resolve_symbol(arg_id);
-                        if (!arg_sym) {
-                            std::string msg = "The symbol " + arg_id + " is not found";
-                            throw SemanticError(msg, arg_name->base.base.loc);
-                        }
-                        if (ASR::is_a<ASR::Function_t>(*arg_sym)) {
-                            ASR::Function_t* arg_sym_func = ASR::down_cast<ASR::Function_t>(arg_sym);
-                            for (size_t j=0; j<arg_sym_func->n_args; j++) {
-                                if (ASRUtils::is_generic(*ASRUtils::expr_type(arg_sym_func->m_args[j]))) {
-                                    throw SemanticError("The function bound to restrition should not "
-                                        "contain any type parameters", arg_name->base.base.loc);
-                                }
-                            }
-                            ASR::restriction_arg_t* rt_arg = ASR::down_cast<ASR::restriction_arg_t>(
-                                ASR::make_RestrictionArg_t(al, arg_name->base.base.loc, s2c(al, keyword_arg), arg_sym));
-                            call_keywords_vec.push_back(al, rt_arg);
-                        } else {
-                            std::string msg = "The restriction " + keyword_arg + 
-                                " can't be assigned with a non-function " + arg_id;
-                            throw SemanticError(msg, loc);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    */
     
     int64_t find_argument_position_from_name(ASR::Function_t* orig_func, std::string arg_name,
                                              const Location& call_loc, bool raise_error) {
@@ -5012,7 +4968,6 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
         } else {
             return res2.error;
         }
-        // std::cout << pickle(*tu, 1, 1, 0) << std::endl;
         LFORTRAN_ASSERT(asr_verify(*tu));
     }
 
