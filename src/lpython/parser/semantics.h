@@ -317,44 +317,21 @@ static inline char *extract_type_comment(LFortran::Parser &p,
 #define EXCEPT_03(e, id, stmts, l) make_ExceptHandler_t(p.m_a, l, \
         EXPR(e), name2char(id), STMTS(stmts), stmts.size())
 
-static inline withitem_t WITH_ITEM(Location &l,
+static inline withitem_t* WITH_ITEM(Allocator &al, Location &l,
         expr_t* context_expr, expr_t* optional_vars) {
-    withitem_t r;
-    r.loc = l;
-    r.m_context_expr = context_expr;
-    r.m_optional_vars = optional_vars;
+    withitem_t* r = al.allocate<withitem_t>();
+    r->loc = l;
+    r->m_context_expr = context_expr;
+    r->m_optional_vars = optional_vars;
     return r;
 }
 
-Vec<withitem_t> withitem_to_list(Allocator &al, withitem_t x) {
-    Vec<withitem_t> v;
-    v.reserve(al, 1);
-    v.push_back(al, x);
-    return v;
-}
-
-static inline Vec<withitem_t> convert_exprlist_to_withitem(Allocator &al,
-        Location &l, Vec<ast_t*> &expr_list) {
-    Vec<withitem_t> v;
-    v.reserve(al, expr_list.size());
-    for (size_t i=0; i<expr_list.size(); i++) {
-        v.push_back(al, WITH_ITEM(l, EXPR(expr_list[i]), nullptr));
-    }
-    return v;
-}
-
-#define WITH_ITEM_01(expr, vars, l) WITH_ITEM(l, \
+#define WITH_ITEM_01(expr, vars, l) WITH_ITEM(p.m_a, l, \
         EXPR(expr), EXPR(SET_EXPR_CTX_01(vars, Store)))
-#define WITH_ITEM_02(expr, l) WITH_ITEM(l, EXPR(expr), nullptr)
-#define WITH(items, body, l) make_With_t(p.m_a, l, \
-        convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
-        STMTS(body), body.size(), nullptr)
-#define WITH_01(items, body, type_comment, l) make_With_t(p.m_a, l, \
-        convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
-        STMTS(body), body.size(), extract_type_comment(p, l, type_comment))
-#define WITH_02(items, body, l) make_With_t(p.m_a, l, \
+#define WITH_ITEM_02(expr, l) WITH_ITEM(p.m_a, l, EXPR(expr), nullptr)
+#define WITH_01(items, body, l) make_With_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), nullptr)
-#define WITH_03(items, body, type_comment, l) make_With_t(p.m_a, l, \
+#define WITH_02(items, body, type_comment, l) make_With_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), \
         extract_type_comment(p, l, type_comment))
 
@@ -598,15 +575,9 @@ static inline Var_Kw *VAR_KW(Allocator &al,
         STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), \
         extract_type_comment(p, l, type_comment))
 
-#define ASYNC_WITH(items, body, l) make_AsyncWith_t(p.m_a, l, \
-        convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
-        STMTS(body), body.size(), nullptr)
-#define ASYNC_WITH_02(items, body, l) make_AsyncWith_t(p.m_a, l, \
+#define ASYNC_WITH_01(items, body, l) make_AsyncWith_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), nullptr)
-#define ASYNC_WITH_01(items, body, type_comment, l) make_AsyncWith_t(p.m_a, l, \
-        convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
-        STMTS(body), body.size(), extract_type_comment(p, l, type_comment))
-#define ASYNC_WITH_03(items, body, type_comment, l) make_AsyncWith_t(p.m_a, l, \
+#define ASYNC_WITH_02(items, body, type_comment, l) make_AsyncWith_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), \
         extract_type_comment(p, l, type_comment))
 
