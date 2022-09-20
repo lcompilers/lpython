@@ -17,7 +17,7 @@ def div(x: T, k: i32) -> f64:
 def empty_string(x: str) -> str:
     return ""
 
-def add_string(x: str, y: i32) -> str:
+def add_string(x: i32, y: i32) -> i32:
     return x + y
 
 def div_string(x: str, k: i32) -> f64:
