@@ -65,7 +65,7 @@ void main0()
     int32_t x;
     int32_t y;
     int32_t z;
-    x = (2 + 3)*5;
+    x = 25;
     y = add(x, 2)*2;
     ASSERT(x == 25);
     ASSERT(y == 54);
