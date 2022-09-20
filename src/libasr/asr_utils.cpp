@@ -365,8 +365,7 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                             asr = ASR::make_FunctionCall_t(al, loc, a_name, sym,
                                                             a_args.p, 2,
                                                             return_type,
-                                                            nullptr, nullptr,
-                                                            nullptr, 0);
+                                                            nullptr, nullptr);
                         }
                     }
                     break;
@@ -465,8 +464,7 @@ bool use_overloaded_assignment(ASR::expr_t* target, ASR::expr_t* value,
                         err("Unable to resolve matched subroutine for assignment overloading, " + matched_subrout_name, loc);
                     }
                     asr = ASR::make_SubroutineCall_t(al, loc, a_name, sym,
-                                                     a_args.p, 2, nullptr,
-                                                     nullptr, 0);
+                                                     a_args.p, 2, nullptr);
                 }
             }
         }
@@ -525,8 +523,7 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                             asr = ASR::make_FunctionCall_t(al, loc, a_name, sym,
                                                             a_args.p, 2,
                                                             return_type,
-                                                            nullptr, nullptr,
-                                                            nullptr, 0);
+                                                            nullptr, nullptr);
                         }
                     }
                     break;
@@ -854,14 +851,12 @@ ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
     if( is_subroutine ) {
         return ASR::make_SubroutineCall_t(al, loc, final_sym,
                                         v, args.p, args.size(),
-                                        nullptr,
-                                        nullptr, 0);
+                                        nullptr);
     } else {
         return ASR::make_FunctionCall_t(al, loc, final_sym,
                                         v, args.p, args.size(),
                                         return_type,
-                                        nullptr, nullptr,
-                                        nullptr, 0);
+                                        nullptr, nullptr);
     }
 }
 

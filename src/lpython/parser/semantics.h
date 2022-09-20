@@ -27,6 +27,8 @@ using LFortran::Arg;
 using LFortran::Fn_Arg;
 using LFortran::Args_;
 using LFortran::Var_Kw;
+using LFortran::Kw_or_Star_Arg;
+using LFortran::Call_Arg;
 
 static inline char* name2char(const ast_t *n) {
     return down_cast2<Name_t>(n)->m_id;
@@ -546,32 +548,9 @@ static inline Var_Kw *VAR_KW(Allocator &al,
         STMTS(stmts), stmts.size(), \
         EXPRS(decorator), decorator.size())
 #define CLASS_02(decorator, id, args, stmts, l) make_ClassDef_t(p.m_a, l, \
-        name2char(id), EXPRS(args), args.size(), nullptr, 0, \
+        name2char(id), args->expr.p, args->expr.n, args->kw.p, args->kw.n, \
         STMTS(stmts), stmts.size(), \
         EXPRS(decorator), decorator.size())
-#define CLASS_03(decorator, id, args, keywords, stmts, l) \
-        make_ClassDef_t(p.m_a, l, name2char(id), EXPRS(args), args.size(), \
-        keywords.p, keywords.n, STMTS(stmts), stmts.size(), \
-        EXPRS(decorator), decorator.size())
-#define CLASS_04(decorator, id, keywords, stmts, l) make_ClassDef_t(p.m_a, l, \
-        name2char(id), nullptr, 0, keywords.p, keywords.n, \
-        STMTS(stmts), stmts.size(), \
-        EXPRS(decorator), decorator.size())
-#define CLASS_05(decorator, id, args, tc, stmts, l) make_ClassDef_t(p.m_a, l, \
-        name2char(id), EXPRS(args), args.size(), nullptr, 0, \
-        STMTS(stmts), stmts.size(), \
-        EXPRS(decorator), decorator.size()); \
-        extract_type_comment(p, l, tc)
-#define CLASS_06(decorator, id, args, keywords, tc, stmts, l) \
-        make_ClassDef_t(p.m_a, l, name2char(id), EXPRS(args), args.size(), \
-        keywords.p, keywords.n, STMTS(stmts), stmts.size(), \
-        EXPRS(decorator), decorator.size()); \
-        extract_type_comment(p, l, tc)
-#define CLASS_07(decorator, id, keywords, tc, stmts, l) make_ClassDef_t(p.m_a, l, \
-        name2char(id), nullptr, 0, keywords.p, keywords.n, \
-        STMTS(stmts), stmts.size(), \
-        EXPRS(decorator), decorator.size()); \
-        extract_type_comment(p, l, tc)
 
 #define ASYNC_FUNCTION_01(decorator, id, args, stmts, l) \
         make_AsyncFunctionDef_t(p.m_a, l, name2char(id), args->arguments, \
@@ -841,7 +820,7 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
     return tmp;
 }
 
-static inline keyword_t *CALL_KW(Allocator &al, Location &l,
+static inline keyword_t *CALL_ARG_KW(Allocator &al, Location &l,
         char *arg, expr_t* val) {
     keyword_t *r = al.allocate<keyword_t>();
     r->loc = l;
@@ -849,6 +828,59 @@ static inline keyword_t *CALL_KW(Allocator &al, Location &l,
     r->m_value = val;
     return r;
 }
+#define CALL_KW_01(arg, val, l) CALL_ARG_KW(p.m_a, l, \
+        name2char(arg), EXPR(val))
+#define CALL_EXPR_01(val, l) CALL_ARG_KW(p.m_a, l, nullptr, EXPR(val))
+
+static inline Kw_or_Star_Arg *KW_OR_EXPR(Allocator &al,
+        expr_t *expr, keyword_t *kw_arg) {
+    Kw_or_Star_Arg *r = al.allocate<Kw_or_Star_Arg>();
+    r->star_arg = expr;
+    r->kw_arg = kw_arg;
+    return r;
+}
+#define CALL_KW_02(id, e, l) KW_OR_EXPR(p.m_a, nullptr, CALL_KW_01(id, e, l))
+#define CALL_EXPR_02(e, l) KW_OR_EXPR(p.m_a, EXPR(e), nullptr)
+
+static inline Call_Arg *CALL_ARG(
+        Allocator &al,
+        Kw_or_Star_Arg *m_expr_or_kw, size_t n_expr_or_kw,
+        keyword_t *m_kw, size_t n_kw
+    ) {
+    Call_Arg *r = al.allocate<Call_Arg>();
+    Vec<expr_t*> exprs;
+    exprs.reserve(al, n_expr_or_kw);
+    Vec<keyword_t> kws;
+    kws.reserve(al, n_kw);
+
+    for (size_t i=0; i<n_expr_or_kw; i++) {
+        if (m_expr_or_kw[i].star_arg != nullptr) {
+            exprs.push_back(al, m_expr_or_kw[i].star_arg);
+        } else if (m_expr_or_kw[i].kw_arg != nullptr) {
+            kws.push_back(al, *m_expr_or_kw[i].kw_arg);
+        }
+    }
+    for (size_t i=0; i<n_kw; i++) {
+        kws.push_back(al, m_kw[i]);
+    }
+
+    r->expr.p = exprs.p;
+    r->expr.n = exprs.n;
+    r->kw.p = kws.p;
+    r->kw.n = kws.n;
+    return r;
+}
+
+#define CALL_ARG_00() CALL_ARG(p.m_a, nullptr, 0, nullptr, 0)
+#define CALL_ARG_01(exprs) CALL_ARG(p.m_a, exprs.p, exprs.n, nullptr, 0)
+#define CALL_ARG_02(kwargs) CALL_ARG(p.m_a, nullptr, 0, kwargs.p, kwargs.n)
+#define CALL_ARG_03(exprs, kwargs) CALL_ARG(p.m_a, exprs.p, exprs.n, \
+        kwargs.p, kwargs.n)
+
+#define CALL_01(func, args, l) make_Call_t(p.m_a, l, \
+        EXPR(func), args->expr.p, args->expr.n, args->kw.p, args->kw.n)
+#define CALL_02(func, comp, l) make_Call_t(p.m_a, l, \
+        EXPR(func), EXPRS(comp), comp.size(), nullptr, 0)
 
 static inline comprehension_t *COMP(Allocator &al, Location &l,
         expr_t *target, expr_t* iter, expr_t **ifs, size_t ifs_size,
@@ -862,21 +894,16 @@ static inline comprehension_t *COMP(Allocator &al, Location &l,
     r->m_is_async = is_async;
     return r;
 }
-
-#define CALL_KEYWORD_01(arg, val, l) CALL_KW(p.m_a, l, name2char(arg), EXPR(val))
-#define CALL_KEYWORD_02(val, l) CALL_KW(p.m_a, l, nullptr, EXPR(val))
-#define CALL_01(func, args, l) make_Call_t(p.m_a, l, \
-        EXPR(func), EXPRS(args), args.size(), nullptr, 0)
-#define CALL_02(func, args, keywords, l) make_Call_t(p.m_a, l, \
-        EXPR(func), EXPRS(args), args.size(), keywords.p, keywords.size())
-#define CALL_03(func, keywords, l) make_Call_t(p.m_a, l, \
-        EXPR(func), nullptr, 0, keywords.p, keywords.size())
-
 #define COMP_FOR_01(target, iter, l) COMP(p.m_a, l, \
         EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), nullptr, 0, 0)
 #define COMP_FOR_02(target, iter, ifs, l) COMP(p.m_a, l, \
         EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
         EXPRS(ifs), ifs.size(), 0)
+#define COMP_FOR_03(target, iter, l) COMP(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), nullptr, 0, 1)
+#define COMP_FOR_04(target, iter, ifs, l) COMP(p.m_a, l, \
+        EXPR(SET_EXPR_CTX_01(target, Store)), EXPR(iter), \
+        EXPRS(ifs), ifs.size(), 1)
 
 #define GENERATOR_EXPR(elt, generators, l) make_GeneratorExp_t(p.m_a, l, \
         EXPR(elt), generators.p, generators.n)

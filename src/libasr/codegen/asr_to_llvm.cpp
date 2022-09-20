@@ -221,10 +221,12 @@ public:
     std::unique_ptr<LLVMUtils> llvm_utils;
     std::unique_ptr<LLVMList> list_api;
     std::unique_ptr<LLVMTuple> tuple_api;
-    std::unique_ptr<LLVMDict> dict_api;
+    std::unique_ptr<LLVMDictInterface> dict_api_lp;
+    std::unique_ptr<LLVMDictInterface> dict_api_sc;
     std::unique_ptr<LLVMArrUtils::Descriptor> arr_descr;
 
     uint64_t ptr_loads;
+    bool lookup_enum_value_for_nonints;
     bool is_assignment_target;
 
     ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, Platform platform,
@@ -238,17 +240,19 @@ public:
     llvm_utils(std::make_unique<LLVMUtils>(context, builder.get())),
     list_api(std::make_unique<LLVMList>(context, llvm_utils.get(), builder.get())),
     tuple_api(std::make_unique<LLVMTuple>(context, llvm_utils.get(), builder.get())),
-    dict_api(std::make_unique<LLVMDictOptimizedLinearProbing>(context, llvm_utils.get(), builder.get())),
+    dict_api_lp(std::make_unique<LLVMDictOptimizedLinearProbing>(context, llvm_utils.get(), builder.get())),
+    dict_api_sc(std::make_unique<LLVMDictSeparateChaining>(context, llvm_utils.get(), builder.get())),
     arr_descr(LLVMArrUtils::Descriptor::get_descriptor(context,
               builder.get(),
               llvm_utils.get(),
               LLVMArrUtils::DESCR_TYPE::_SimpleCMODescriptor)),
     ptr_loads(2),
+    lookup_enum_value_for_nonints(false),
     is_assignment_target(false)
     {
         llvm_utils->tuple_api = tuple_api.get();
         llvm_utils->list_api = list_api.get();
-        llvm_utils->dict_api = dict_api.get();
+        llvm_utils->dict_api = nullptr;
     }
 
     llvm::Value* CreateLoad(llvm::Value *x) {
@@ -990,7 +994,8 @@ public:
 
         // Process Variables first:
         for (auto &item : x.m_global_scope->get_scope()) {
-            if (is_a<ASR::Variable_t>(*item.second)) {
+            if (is_a<ASR::Variable_t>(*item.second) ||
+                is_a<ASR::EnumType_t>(*item.second)) {
                 visit_symbol(*item.second);
             }
         }
@@ -1171,13 +1176,22 @@ public:
         tmp = const_list;
     }
 
+    void set_dict_api(ASR::Dict_t* dict_type) {
+        if( ASR::is_a<ASR::Character_t>(*dict_type->m_key_type) ) {
+            llvm_utils->dict_api = dict_api_sc.get();
+        } else {
+            llvm_utils->dict_api = dict_api_lp.get();
+        }
+    }
+
     void visit_DictConstant(const ASR::DictConstant_t& x) {
         llvm::Type* const_dict_type = get_dict_type(x.m_type);
         llvm::Value* const_dict = builder->CreateAlloca(const_dict_type, nullptr, "const_dict");
         ASR::Dict_t* x_dict = ASR::down_cast<ASR::Dict_t>(x.m_type);
+        set_dict_api(x_dict);
         std::string key_type_code = ASRUtils::get_type_code(x_dict->m_key_type);
         std::string value_type_code = ASRUtils::get_type_code(x_dict->m_value_type);
-        dict_api->dict_init(key_type_code, value_type_code, const_dict, module.get(), x.n_keys);
+        llvm_utils->dict_api->dict_init(key_type_code, value_type_code, const_dict, module.get(), x.n_keys);
         uint64_t ptr_loads_key = LLVM::is_llvm_struct(x_dict->m_key_type) ? 0 : 2;
         uint64_t ptr_loads_value = LLVM::is_llvm_struct(x_dict->m_value_type) ? 0 : 2;
         uint64_t ptr_loads_copy = ptr_loads;
@@ -1188,7 +1202,7 @@ public:
             ptr_loads = ptr_loads_value;
             visit_expr(*x.m_values[i]);
             llvm::Value* value = tmp;
-            dict_api->write_item(const_dict, key, value, module.get(),
+            llvm_utils->dict_api->write_item(const_dict, key, value, module.get(),
                                  x_dict->m_key_type, x_dict->m_value_type);
         }
         ptr_loads = ptr_loads_copy;
@@ -1290,7 +1304,8 @@ public:
         ptr_loads = ptr_loads_copy;
         llvm::Value *key = tmp;
 
-        tmp = dict_api->read_item(pdict, key, *module, dict_type->m_key_type,
+        set_dict_api(dict_type);
+        tmp = llvm_utils->dict_api->read_item(pdict, key, *module, dict_type,
                                   LLVM::is_llvm_struct(dict_type->m_value_type));
     }
 
@@ -1307,7 +1322,8 @@ public:
         ptr_loads = ptr_loads_copy;
         llvm::Value *key = tmp;
 
-        tmp = dict_api->pop_item(pdict, key, *module, dict_type,
+        set_dict_api(dict_type);
+        tmp = llvm_utils->dict_api->pop_item(pdict, key, *module, dict_type,
                                  LLVM::is_llvm_struct(dict_type->m_value_type));
     }
 
@@ -1335,7 +1351,9 @@ public:
         this->visit_expr(*x.m_arg);
         ptr_loads = ptr_loads_copy;
         llvm::Value* pdict = tmp;
-        tmp = dict_api->len(pdict);
+        ASR::Dict_t* x_dict = ASR::down_cast<ASR::Dict_t>(ASRUtils::expr_type(x.m_arg));
+        set_dict_api(x_dict);
+        tmp = llvm_utils->dict_api->len(pdict);
     }
 
     void visit_ListInsert(const ASR::ListInsert_t& x) {
@@ -1369,11 +1387,13 @@ public:
         ptr_loads = !LLVM::is_llvm_struct(dict_type->m_key_type);
         this->visit_expr_wrapper(x.m_key, true);
         llvm::Value *key = tmp;
+        ptr_loads = !LLVM::is_llvm_struct(dict_type->m_value_type);
         this->visit_expr_wrapper(x.m_value, true);
         llvm::Value *value = tmp;
         ptr_loads = ptr_loads_copy;
 
-        dict_api->write_item(pdict, key, value, module.get(),
+        set_dict_api(dict_type);
+        llvm_utils->dict_api->write_item(pdict, key, value, module.get(),
                              dict_type->m_key_type,
                              dict_type->m_value_type);
     }
@@ -1436,7 +1456,10 @@ public:
             uint32_t v_h = get_hash((ASR::asr_t*)v);
             LFORTRAN_ASSERT(llvm_symtab.find(v_h) != llvm_symtab.end());
             array = llvm_symtab[v_h];
-            is_argument = v->m_intent == ASRUtils::intent_in || v->m_intent == ASRUtils::intent_out;
+            is_argument = (v->m_intent == ASRUtils::intent_in)
+                  || (v->m_intent == ASRUtils::intent_out)
+                  || (v->m_intent == ASRUtils::intent_inout)
+                  || (v->m_intent == ASRUtils::intent_unspecified);
         } else {
             int64_t ptr_loads_copy = ptr_loads;
             ptr_loads = 0;
@@ -1554,6 +1577,78 @@ public:
         this->visit_expr(*x.m_shape);
         llvm::Value* shape = tmp;
         tmp = arr_descr->reshape(array, shape, module.get());
+    }
+
+    void lookup_EnumValue(const ASR::EnumValue_t& x) {
+        ASR::Enum_t* x_enum = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
+        ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x_enum->m_enum_type);
+        uint32_t h = get_hash((ASR::asr_t*) enum_type);
+        llvm::Value* array = llvm_symtab[h];
+        tmp = llvm_utils->create_gep(array, tmp);
+        tmp = LLVM::CreateLoad(*builder, llvm_utils->create_gep(tmp, 1));
+    }
+
+    void visit_EnumValue(const ASR::EnumValue_t& x) {
+        if( x.m_value ) {
+            if( ASR::is_a<ASR::Integer_t>(*x.m_type) ) {
+                this->visit_expr(*x.m_value);
+            } else {
+                ASR::Variable_t* x_mv = ASR::down_cast<ASR::Variable_t>(x.m_v);
+                ASR::Enum_t* x_enum = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
+                ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x_enum->m_enum_type);
+                for( size_t i = 0; i < enum_type->n_members; i++ ) {
+                    if( std::string(enum_type->m_members[i]) == std::string(x_mv->m_name) ) {
+                        tmp = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, i));
+                        break ;
+                    }
+                }
+                if( lookup_enum_value_for_nonints ) {
+                    lookup_EnumValue(x);
+                }
+            }
+            return ;
+        }
+
+        ASR::Variable_t* x_m_v = ASR::down_cast<ASR::Variable_t>(x.m_v);
+        fetch_val(x_m_v);
+        if( !ASR::is_a<ASR::Integer_t>(*x.m_type) && lookup_enum_value_for_nonints ) {
+            lookup_EnumValue(x);
+        }
+    }
+
+    void visit_EnumName(const ASR::EnumName_t& x) {
+        if( x.m_value ) {
+            this->visit_expr(*x.m_value);
+            return ;
+        }
+
+        ASR::Variable_t* x_m_v = ASR::down_cast<ASR::Variable_t>(x.m_v);
+        fetch_val(x_m_v);
+        ASR::Enum_t* x_enum = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
+        ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x_enum->m_enum_type);
+        uint32_t h = get_hash((ASR::asr_t*) enum_type);
+        llvm::Value* array = llvm_symtab[h];
+        if( ASR::is_a<ASR::Integer_t>(*enum_type->m_type) ) {
+            int64_t min_value = INT64_MAX;
+
+            for( auto itr: enum_type->m_symtab->get_scope() ) {
+                ASR::Variable_t* itr_var = ASR::down_cast<ASR::Variable_t>(itr.second);
+                ASR::expr_t* value = itr_var->m_symbolic_value;
+                int64_t value_int64 = -1;
+                ASRUtils::extract_value(value, value_int64);
+                min_value = std::min(value_int64, min_value);
+            }
+            tmp = builder->CreateSub(tmp, llvm::ConstantInt::get(tmp->getType(),
+                        llvm::APInt(32, min_value)));
+            tmp = llvm_utils->create_gep(array, tmp);
+            tmp = llvm_utils->create_gep(tmp, 0);
+        }
+    }
+
+    void visit_EnumTypeConstructor(const ASR::EnumTypeConstructor_t& x) {
+        LFORTRAN_ASSERT(x.n_args == 1);
+        ASR::expr_t* m_arg = x.m_args[0];
+        this->visit_expr(*m_arg);
     }
 
     void visit_DerivedRef(const ASR::DerivedRef_t& x) {
@@ -1734,6 +1829,115 @@ public:
         }
     }
 
+    void visit_EnumType(const ASR::EnumType_t& x) {
+        bool is_integer = ASR::is_a<ASR::Integer_t>(*x.m_type);
+        ASR::storage_typeType m_storage = ASR::storage_typeType::Default;
+        bool is_array_type = false, is_malloc_array_type = false, is_list = false;
+        ASR::dimension_t* m_dims = nullptr;
+        int n_dims = -1, a_kind = -1;
+        llvm::Type* value_type = get_type_from_ttype_t(x.m_type, m_storage, is_array_type,
+                                    is_malloc_array_type, is_list, m_dims, n_dims, a_kind);
+        if( is_integer ) {
+            int64_t min_value = INT64_MAX;
+            int64_t max_value = INT64_MIN;
+            size_t max_name_len = 0;
+            llvm::Value* itr_value = nullptr;
+            for( auto itr: x.m_symtab->get_scope() ) {
+                ASR::Variable_t* itr_var = ASR::down_cast<ASR::Variable_t>(itr.second);
+                ASR::expr_t* value = ASRUtils::expr_value(itr_var->m_symbolic_value);
+                int64_t value_int64 = -1;
+                this->visit_expr(*value);
+                itr_value = tmp;
+                ASRUtils::extract_value(value, value_int64);
+                min_value = std::min(value_int64, min_value);
+                max_value = std::max(value_int64, max_value);
+                max_name_len = std::max(max_name_len, itr.first.size());
+            }
+
+            llvm::ArrayType* name_array_type = llvm::ArrayType::get(llvm::Type::getInt8Ty(context),
+                                                                    max_name_len + 1);
+            llvm::StructType* enum_value_type = llvm::StructType::create({name_array_type, value_type});
+            llvm::Constant* empty_vt = llvm::ConstantStruct::get(enum_value_type, {llvm::ConstantArray::get(name_array_type,
+                {llvm::ConstantInt::get(llvm::Type::getInt8Ty(context), llvm::APInt(8, '\0'))}),
+                (llvm::Constant*) itr_value});
+            std::vector<llvm::Constant*> enum_value_pairs(max_value - min_value + 1, empty_vt);
+
+            for( auto itr: x.m_symtab->get_scope() ) {
+                ASR::Variable_t* itr_var = ASR::down_cast<ASR::Variable_t>(itr.second);
+                ASR::expr_t* value = ASRUtils::expr_value(itr_var->m_symbolic_value);
+                int64_t value_int64 = -1;
+                ASRUtils::extract_value(value, value_int64);
+                this->visit_expr(*value);
+                std::vector<llvm::Constant*> itr_var_name_v;
+                itr_var_name_v.reserve(itr.first.size());
+                for( size_t i = 0; i < itr.first.size(); i++ ) {
+                    itr_var_name_v.push_back(llvm::ConstantInt::get(
+                        llvm::Type::getInt8Ty(context), llvm::APInt(8, itr_var->m_name[i])));
+                }
+                itr_var_name_v.push_back(llvm::ConstantInt::get(
+                    llvm::Type::getInt8Ty(context), llvm::APInt(8, '\0')));
+                llvm::Constant* name = llvm::ConstantArray::get(name_array_type, itr_var_name_v);
+                enum_value_pairs[value_int64 - min_value] = llvm::ConstantStruct::get(
+                    enum_value_type, {name, (llvm::Constant*) tmp});
+            }
+
+            llvm::ArrayType* global_enum_array = llvm::ArrayType::get(enum_value_type,
+                                                    max_value - min_value + 1);
+            llvm::Constant *array = module->getOrInsertGlobal(x.m_name,
+                                        global_enum_array);
+            module->getNamedGlobal(x.m_name)->setInitializer(
+                llvm::ConstantArray::get(global_enum_array, enum_value_pairs));
+            uint32_t h = get_hash((ASR::asr_t*)&x);
+            llvm_symtab[h] = array;
+        } else {
+            size_t max_name_len = 0;
+
+            for( auto itr: x.m_symtab->get_scope() ) {
+                max_name_len = std::max(max_name_len, itr.first.size());
+            }
+
+            llvm::ArrayType* name_array_type = llvm::ArrayType::get(llvm::Type::getInt8Ty(context),
+                                                                    max_name_len + 1);
+            llvm::StructType* enum_value_type = llvm::StructType::create({name_array_type, value_type});
+            std::vector<llvm::Constant*> enum_value_pairs(x.n_members, nullptr);
+
+            for( auto itr: x.m_symtab->get_scope() ) {
+                ASR::Variable_t* itr_var = ASR::down_cast<ASR::Variable_t>(itr.second);
+                ASR::expr_t* value = itr_var->m_symbolic_value;
+                int64_t value_int64 = -1;
+                ASRUtils::extract_value(value, value_int64);
+                this->visit_expr(*value);
+                std::vector<llvm::Constant*> itr_var_name_v;
+                itr_var_name_v.reserve(itr.first.size());
+                for( size_t i = 0; i < itr.first.size(); i++ ) {
+                    itr_var_name_v.push_back(llvm::ConstantInt::get(
+                        llvm::Type::getInt8Ty(context), llvm::APInt(8, itr_var->m_name[i])));
+                }
+                itr_var_name_v.push_back(llvm::ConstantInt::get(
+                    llvm::Type::getInt8Ty(context), llvm::APInt(8, '\0')));
+                llvm::Constant* name = llvm::ConstantArray::get(name_array_type, itr_var_name_v);
+                size_t dest_idx = 0;
+                for( size_t j = 0; j < x.n_members; j++ ) {
+                    if( std::string(x.m_members[j]) == itr.first ) {
+                        dest_idx = j;
+                        break ;
+                    }
+                }
+                enum_value_pairs[dest_idx] = llvm::ConstantStruct::get(
+                    enum_value_type, {name, (llvm::Constant*) tmp});
+            }
+
+            llvm::ArrayType* global_enum_array = llvm::ArrayType::get(enum_value_type,
+                                                    x.n_members);
+            llvm::Constant *array = module->getOrInsertGlobal(x.m_name,
+                                        global_enum_array);
+            module->getNamedGlobal(x.m_name)->setInitializer(
+                llvm::ConstantArray::get(global_enum_array, enum_value_pairs));
+            uint32_t h = get_hash((ASR::asr_t*)&x);
+            llvm_symtab[h] = array;
+        }
+    }
+
     void start_module_init_function_prototype(const ASR::Module_t &x) {
         uint32_t h = get_hash((ASR::asr_t*)&x);
         llvm::FunctionType *function_type = llvm::FunctionType::get(
@@ -1779,8 +1983,10 @@ public:
     }
 
     void visit_Program(const ASR::Program_t &x) {
-        bool is_dict_present_copy = dict_api->is_dict_present;
-        dict_api->is_dict_present = false;
+        bool is_dict_present_copy_lp = dict_api_lp->is_dict_present();
+        bool is_dict_present_copy_sc = dict_api_sc->is_dict_present();
+        dict_api_lp->set_is_dict_present(false);
+        dict_api_sc->set_is_dict_present(false);
         llvm_goto_targets.clear();
         // Generate code for nested subroutines and functions first:
         for (auto &item : x.m_symtab->get_scope()) {
@@ -1809,7 +2015,8 @@ public:
         llvm::Value *ret_val2 = llvm::ConstantInt::get(context,
             llvm::APInt(32, 0));
         builder->CreateRet(ret_val2);
-        dict_api->is_dict_present = is_dict_present_copy;
+        dict_api_lp->set_is_dict_present(is_dict_present_copy_lp);
+        dict_api_sc->set_is_dict_present(is_dict_present_copy_sc);
     }
 
     /*
@@ -1861,7 +2068,8 @@ public:
         int32_t value_type_size = get_type_size(asr_dict->m_value_type, value_llvm_type, local_a_kind);
         std::string key_type_code = ASRUtils::get_type_code(asr_dict->m_key_type);
         std::string value_type_code = ASRUtils::get_type_code(asr_dict->m_value_type);
-        return dict_api->get_dict_type(key_type_code, value_type_code, key_type_size,
+        set_dict_api(asr_dict);
+        return llvm_utils->dict_api->get_dict_type(key_type_code, value_type_code, key_type_size,
                                         value_type_size, key_llvm_type, value_llvm_type);
     }
 
@@ -2039,6 +2247,10 @@ public:
             case (ASR::ttypeType::CPtr) : {
                 llvm_type = llvm::Type::getVoidTy(context)->getPointerTo();
                 break;
+            }
+            case (ASR::ttypeType::Enum) : {
+                llvm_type = llvm::Type::getInt32Ty(context);
+                break ;
             }
             default :
                 throw CodeGenError("Support for type " + ASRUtils::type_to_str(asr_type) +
@@ -2412,6 +2624,9 @@ public:
                 type = list_api->get_list_type(el_llvm_type, el_type_code, type_size)->getPointerTo();
                 break;
             }
+            case ASR::ttypeType::Enum: {
+                return llvm::Type::getInt32PtrTy(context);
+            }
             default :
                 LFORTRAN_ASSERT(false);
         }
@@ -2623,8 +2838,10 @@ public:
     }
 
     void visit_Function(const ASR::Function_t &x) {
-        bool is_dict_present_copy = dict_api->is_dict_present;
-        dict_api->is_dict_present = false;
+        bool is_dict_present_copy_lp = dict_api_lp->is_dict_present();
+        bool is_dict_present_copy_sc = dict_api_sc->is_dict_present();
+        dict_api_lp->set_is_dict_present(false);
+        dict_api_sc->set_is_dict_present(false);
         llvm_goto_targets.clear();
         instantiate_function(x);
         if (x.m_deftype == ASR::deftypeType::Interface) {
@@ -2635,7 +2852,8 @@ public:
         visit_procedures(x);
         generate_function(x);
         parent_function = nullptr;
-        dict_api->is_dict_present = is_dict_present_copy;
+        dict_api_lp->set_is_dict_present(is_dict_present_copy_lp);
+        dict_api_sc->set_is_dict_present(is_dict_present_copy_sc);
     }
 
     void instantiate_function(const ASR::Function_t &x){
@@ -3229,7 +3447,8 @@ public:
             llvm::Value* target_dict = tmp;
             ptr_loads = ptr_loads_copy;
             ASR::Dict_t* value_dict_type = ASR::down_cast<ASR::Dict_t>(asr_value_type);
-            dict_api->dict_deepcopy(value_dict, target_dict,
+            set_dict_api(value_dict_type);
+            llvm_utils->dict_api->dict_deepcopy(value_dict, target_dict,
                                     value_dict_type, module.get());
             return ;
         }
@@ -3634,7 +3853,8 @@ public:
     }
 
     void visit_WhileLoop(const ASR::WhileLoop_t &x) {
-        dict_api->set_iterators();
+        dict_api_lp->set_iterators();
+        dict_api_sc->set_iterators();
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
         llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
         llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
@@ -3656,7 +3876,8 @@ public:
 
         // end
         start_new_block(loopend);
-        dict_api->reset_iterators();
+        dict_api_lp->reset_iterators();
+        dict_api_sc->reset_iterators();
     }
 
     void visit_Exit(const ASR::Exit_t & /* x */) {
@@ -3917,10 +4138,12 @@ public:
             this->visit_expr_wrapper(x.m_value, true);
             return;
         }
+        lookup_enum_value_for_nonints = true;
         this->visit_expr_wrapper(x.m_left, true);
         llvm::Value *left_val = tmp;
         this->visit_expr_wrapper(x.m_right, true);
         llvm::Value *right_val = tmp;
+        lookup_enum_value_for_nonints = false;
         LFORTRAN_ASSERT(ASRUtils::is_real(*x.m_type))
         switch (x.m_op) {
             case ASR::binopType::Add: {
@@ -4842,7 +5065,9 @@ public:
                 args.push_back(sep);
             }
             ptr_loads = ptr_loads - reduce_loads;
+            lookup_enum_value_for_nonints = true;
             this->visit_expr_wrapper(x.m_values[i], true);
+            lookup_enum_value_for_nonints = false;
             ptr_loads = ptr_loads_copy;
             ASR::expr_t *v = x.m_values[i];
             ASR::ttype_t *t = expr_type(v);
@@ -4890,6 +5115,15 @@ public:
                 args.push_back(tmp);
             } else if (ASRUtils::is_real(*t)) {
                 llvm::Value *d;
+                // if( ASR::is_a<ASR::EnumValue_t>(*v) ) {
+                //     ASR::EnumValue_t* enum_value = ASR::down_cast<ASR::EnumValue_t>(v);
+                //     ASR::Enum_t* x_enum = ASR::down_cast<ASR::Enum_t>(enum_value->m_enum_type);
+                //     ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x_enum->m_enum_type);
+                //     uint32_t h = get_hash((ASR::asr_t*) enum_type);
+                //     llvm::Value* array = llvm_symtab[h];
+                //     tmp = llvm_utils->create_gep(array, tmp);
+                //     tmp = LLVM::CreateLoad(*builder, llvm_utils->create_gep(tmp, 1));
+                // }
                 switch( a_kind ) {
                     case 4 : {
                         // Cast float to double as a workaround for the fact that
@@ -4956,6 +5190,10 @@ public:
                 fmt.push_back("%lld");
                 llvm::Value* d = builder->CreatePtrToInt(tmp, getIntType(8, false));
                 args.push_back(d);
+            } else if (t->type == ASR::ttypeType::Enum) {
+                // TODO: Use recursion to generalise for any underlying type in enum
+                fmt.push_back("%d");
+                args.push_back(tmp);
             } else {
                 throw LCompilersException("Printing support is not available for " +
                     ASRUtils::type_to_str(t) + " type.");
@@ -5219,6 +5457,9 @@ public:
                         case (ASR::ttypeType::Logical) :
                             target_type = llvm::Type::getInt1Ty(context);
                             break;
+                        case (ASR::ttypeType::Enum) :
+                            target_type = llvm::Type::getInt32Ty(context);
+                            break;
                         case (ASR::ttypeType::Derived) :
                             break;
                         case (ASR::ttypeType::CPtr) :
@@ -5230,6 +5471,9 @@ public:
                         }
                         default :
                             throw CodeGenError("Type " + ASRUtils::type_to_str(arg_type) + " not implemented yet.");
+                    }
+                    if( ASR::is_a<ASR::EnumValue_t>(*x.m_args[i].m_value) ) {
+                        target_type = llvm::Type::getInt32Ty(context);
                     }
                     switch(arg_type->type) {
                         case ASR::ttypeType::Derived: {

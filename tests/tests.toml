@@ -384,6 +384,11 @@ c = true
 cpp = true
 
 [[test]]
+filename = "../integration_tests/print_02.py"
+asr = true
+pass = "print_list"
+
+[[test]]
 filename = "../integration_tests/generics_01.py"
 asr = true
 
@@ -397,6 +402,10 @@ asr = true
 
 [[test]]
 filename = "../integration_tests/generics_list_01.py"
+asr = true
+
+[[test]]
+filename = "cast.py"
 asr = true
 
 # tests/tokens
@@ -458,6 +467,10 @@ ast_new = true
 
 [[test]]
 filename = "parser/comprehension1.py"
+ast_new = true
+
+[[test]]
+filename = "parser/conditional_expr1.py"
 ast_new = true
 
 [[test]]
@@ -700,6 +713,30 @@ filename = "errors/test_dict1.py"
 asr = true
 
 [[test]]
+filename = "errors/test_dict8.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict9.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict10.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict11.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict12.py"
+asr = true
+
+[[test]]
+filename = "errors/test_dict13.py"
+asr = true
+
+[[test]]
 filename = "errors/test_zero_division.py"
 asr = true
 
@@ -799,6 +836,10 @@ asr = true
 filename = "errors/test_str_capitalize.py"
 asr = true
 
+[[test]]
+filename = "errors/test_tuple1.py"
+asr = true
+
 # tests/tokens/errors
 
 [[test]]
@@ -818,5 +859,25 @@ filename = "tokens/errors/paren4.py"
 tokens = true
 
 [[test]]
-filename = "errors/test_tuple1.py"
+filename = "tokens/errors/indent1.py"
+tokens = true
+
+[[test]]
+filename = "tokens/errors/indent2.py"
+tokens = true
+
+[[test]]
+filename = "tokens/errors/indent3.py"
+tokens = true
+
+[[test]]
+filename = "errors/kwargs_01_error.py"
+asr = true
+
+[[test]]
+filename = "errors/kwargs_02_error.py"
+asr = true
+
+[[test]]
+filename = "errors/kwargs_03_error.py"
 asr = true

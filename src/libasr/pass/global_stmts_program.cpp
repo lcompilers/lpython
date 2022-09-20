@@ -33,8 +33,7 @@ void pass_wrap_global_stmts_into_program(Allocator &al,
                     al, unit.base.base.loc,
                     fn, nullptr,
                     nullptr, 0,
-                    nullptr,
-                    nullptr, 0);
+                    nullptr);
             prog_body.push_back(al, ASR::down_cast<ASR::stmt_t>(stmt));
         } else {
             throw LCompilersException("Return type not supported yet");

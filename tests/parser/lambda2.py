@@ -11,6 +11,8 @@ fpos32 = lambda x, **k: np.format_float_positional(np.float32(x), **k)
 
 m = lambda self, *args, **kw: func(self, *args, **kw)
 
+stack.push(lambda *exc: {}[1])
+
 lambda *x, y, z: test
 
 lambda *x, y, z, **args: test

@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-ltypes1-dacf939",
+    "cmd": "lpython --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/ltypes1.py",
+    "infile_hash": "daac081f5e376233adabe24304126763178cfd3a6286c361b7955446",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-ltypes1-dacf939.stdout",
+    "stdout_hash": "6bf240f208e3d2f3c9f0e5173b2b431f84123e56a293373b7327d7af",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

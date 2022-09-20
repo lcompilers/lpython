@@ -33,9 +33,9 @@ set(SRC
     pass/implied_do_loops.cpp
     pass/array_op.cpp
     pass/class_constructor.cpp
-    pass/arr_dims_propagate.cpp
     pass/arr_slice.cpp
     pass/print_arr.cpp
+    pass/print_list.cpp
     pass/pass_utils.cpp
     pass/unused_functions.cpp
     pass/flip_sign.cpp

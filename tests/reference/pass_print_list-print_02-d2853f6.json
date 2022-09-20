@@ -1,0 +1,13 @@
+{
+    "basename": "pass_print_list-print_02-d2853f6",
+    "cmd": "lpython --pass=print_list --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/print_02.py",
+    "infile_hash": "80609aedaf75258395fafe6c444c79cc3217f000380bd39e1b0f6a84",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "pass_print_list-print_02-d2853f6.stdout",
+    "stdout_hash": "84889c209cbac4aa8a882f103d1c3298e6e74571778420a55abd4223",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

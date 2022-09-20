@@ -268,7 +268,7 @@ public:
             }
         }
         return ASR::make_FunctionCall_t(al, x->base.base.loc, name, x->m_original_name,
-            args.p, args.size(), type, value, dt, nullptr, 0);
+            args.p, args.size(), type, value, dt);
     }
 
     ASR::ttype_t* substitute_type(ASR::ttype_t *param_type) {

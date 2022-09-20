@@ -440,8 +440,8 @@ def _lpython_floordiv(a: f64, b: f64) -> f64:
 
 @overload
 def _lpython_floordiv(a: f32, b: f32) -> f32:
-    r: f32
-    r = a/b
+    r: f64
+    r = float(a)/float(b)
     result: i32
     resultf32: f32
     result = int(r)
@@ -454,7 +454,7 @@ def _lpython_floordiv(a: f32, b: f32) -> f32:
 @overload
 def _lpython_floordiv(a: i32, b: i32) -> i32:
     r: f64 # f32 rounds things up and gives incorrect results
-    r = a/b
+    r = float(a)/float(b)
     result: i32
     result = int(r)
     if r >= 0.0 or result == r:
@@ -638,6 +638,53 @@ def _lpython_str_lower(x: str) -> str:
     return res
 
 @overload
+def _lpython_str_find(s: str, sub: str) -> i32:
+    s_len :i32; sub_len :i32; flag: bool; _len: i32;
+    res: i32; i: i32;
+    lps: list[i32]
+    s_len = len(s)
+    sub_len = len(sub)
+    flag = False
+    res = -1
+    if s_len == 0 or sub_len == 0:
+        return 0 if sub_len == 0 or (sub_len == s_len) else -1
+
+    for i in range(sub_len):
+        lps.append(0)
+
+    i = 1
+    _len = 0
+    while i < sub_len:
+        if sub[i] == sub[_len]:
+            _len += 1
+            lps[i] = _len
+            i += 1
+        else:
+            if _len != 0:
+                _len = lps[_len - 1]
+            else:
+                lps[i] = 0
+                i += 1
+
+    j: i32
+    j = 0
+    i = 0
+    while (s_len - i) >= (sub_len - j) and not flag:
+        if sub[j] == s[i]:
+            i += 1
+            j += 1
+        if j == sub_len:
+            res = i- j
+            flag = True
+            j = lps[j - 1]
+        elif i < s_len and sub[j] != s[i]:
+            if j != 0:
+                j = lps[j - 1]
+            else:
+                i = i + 1
+
+    return res
+
 def _lpython_str_rstrip(x: str) -> str:
     ind: i32
     ind = len(x) - 1
@@ -658,4 +705,30 @@ def _lpython_str_strip(x: str) -> str:
     res :str
     res = _lpython_str_lstrip(x)
     res = _lpython_str_rstrip(res)
+    return res
+
+@overload
+def _lpython_str_swapcase(s: str) -> str:
+    res :str = ""
+    cur: str
+    for cur in s:
+        if ord(cur) >= ord('a') and ord(cur) <= ord('z'):
+            res += chr(ord(cur) - ord('a') + ord('A'))
+        elif ord(cur) >= ord('A') and ord(cur) <= ord('Z'):
+            res += chr(ord(cur) - ord('A') + ord('a'))
+        else:
+            res += cur
+    return res
+
+@overload
+def _lpython_str_startswith(s: str ,sub: str) -> bool:
+    res :bool
+    res = not (len(s) == 0 and len(sub) > 0)
+    i: i32; j: i32
+    i = 0; j = 0
+    while (i < len(s)) and ((j < len(sub)) and res):
+        res = res and (s[i] == sub[j])
+        i += 1; j+=1
+    if res:
+        res = res and (j == len(sub))
     return res

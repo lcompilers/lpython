@@ -1,0 +1,55 @@
+(module
+    (type (;0;) (func (param i32) (result)))
+    (type (;1;) (func (param i64) (result)))
+    (type (;2;) (func (param f32) (result)))
+    (type (;3;) (func (param f64) (result)))
+    (type (;4;) (func (param i32 i32) (result)))
+    (type (;5;) (func (param) (result)))
+    (type (;6;) (func (param i32) (result)))
+    (type (;7;) (func (param) (result)))
+    (type (;8;) (func (param) (result)))
+    (type (;9;) (func (param) (result)))
+    (import "js" "print_i32" (func (;0;) (type 0)))
+    (import "js" "print_i64" (func (;1;) (type 1)))
+    (import "js" "print_f32" (func (;2;) (type 2)))
+    (import "js" "print_f64" (func (;3;) (type 3)))
+    (import "js" "print_str" (func (;4;) (type 4)))
+    (import "js" "flush_buf" (func (;5;) (type 5)))
+    (import "js" "set_exit_code" (func (;6;) (type 6)))
+    (import "js" "memory" (memory (;0;) 100 100))
+    (func $7 (type 7) (param) (result)
+        (local)
+        call 8
+        return
+    )
+    (func $8 (type 8) (param) (result)
+        (local i32)
+        i32.const 1
+        call 0
+        call 5
+        i32.const 0
+        call 0
+        call 5
+        i32.const 1
+        local.set 0
+        local.get 0
+        call 0
+        call 5
+        i32.const 0
+        local.set 0
+        local.get 0
+        call 0
+        call 5
+        return
+    )
+    (func $9 (type 9) (param) (result)
+        (local)
+        call 7
+        i32.const 0
+        call 6
+        return
+    )
+    (export "_lpython_main_program" (func $7))
+    (export "test_bool" (func $8))
+    (export "_lcompilers_main" (func $9))
+)

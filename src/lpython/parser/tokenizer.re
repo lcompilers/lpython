@@ -57,9 +57,9 @@ void lex_dec_int_large(Allocator &al, const unsigned char *s,
     u.from_largeint(al, num);
 }
 
-const char *remove_underscore(std::string s) {
+const std::string remove_underscore(std::string s) {
     s.erase(remove(s.begin(), s.end(), '_'), s.end());
-    return s.c_str();
+    return s;
 }
 
 uint64_t get_value(char *s, int base, const Location &loc) {
@@ -281,12 +281,12 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             string1 = '"' ('\\'[^\x00] | [^"\x00\n\\])* '"';
             string2 = "'" ("\\"[^\x00] | [^'\x00\n\\])* "'";
             string3 = '"""' ( '\\'[^\x00]
-                            | ('"' | '"' '\\'+) [^"\x00\\]
+                            | ('"' | '"' '\\'+ '"' | '"' '\\'+) [^"\x00\\]
                             | ('""' | '""' '\\'+) [^"\x00\\]
                             | [^"\x00\\] )*
                       '"""';
             string4 = "'''" ( "\\"[^\x00]
-                            | ("'" | "'" "\\"+) [^'\x00\\]
+                            | ("'" | "'" "\\"+ "'" | "'" "\\"+) [^'\x00\\]
                             | ("''" | "''" "\\"+) [^'\x00\\]
                             | [^'\x00\\] )*
                       "'''";
@@ -321,18 +321,44 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 }
                 if (indent) {
                     indent = false;
-                    indent_length.push_back(cur-tok);
-                    last_indent_length = cur-tok;
-                    RET(TK_INDENT);
-                } else {
-                    if(last_token == yytokentype::TK_NEWLINE && cur[0] != ' '
-                            && cur[0] != '\t' && last_indent_length > cur-tok) {
-                        last_indent_length = cur-tok;
-                        dedent = 2;
-                        if (!indent_length.empty()) {
-                            indent_length.pop_back();
+                    if (cur[0] != ' ' && cur[0] != '\t'
+                        && last_indent_length < cur-tok) {
+                        if (last_indent_length == 0) {
+                            last_indent_type = tok[0];
                         }
-                        RET(TK_DEDENT);
+                        if (last_indent_type == tok[0]) {
+                            indent_length.push_back(cur-tok);
+                            last_indent_length = cur-tok;
+                            RET(TK_INDENT);
+                        } else {
+                            token_loc(loc);
+                            throw parser_local::TokenizerError(
+                            "Indentation should be of the same type "
+                            "(either tabs or spaces)", {loc});
+                        }
+                    } else {
+                        token_loc(loc);
+                        throw parser_local::TokenizerError(
+                        "Expected an indented block.", {loc});
+                    }
+                } else {
+                    if(last_token == yytokentype::TK_NEWLINE
+                            && cur[0] != ' ' && cur[0] != '\t') {
+                        if (last_indent_type == tok[0]) {
+                            if (last_indent_length > cur-tok) {
+                                last_indent_length = cur-tok;
+                                dedent = 2;
+                                if (!indent_length.empty()) {
+                                    indent_length.pop_back();
+                                }
+                                RET(TK_DEDENT);
+                            }
+                        } else {
+                            token_loc(loc);
+                            throw parser_local::TokenizerError(
+                            "Indentation should be of the same type "
+                            "(either tabs or spaces)", {loc});
+                        }
                     }
                 }
                 continue;
@@ -455,6 +481,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "is" whitespace? "\\" newline whitespace? "not" whitespace { RET(TK_IS_NOT) }
             "not" whitespace "in" "\\" newline { RET(TK_NOT_IN) }
             "not" whitespace "in" whitespace { RET(TK_NOT_IN) }
+            "not" whitespace "in" newline { RET(TK_NOT_IN) }
             "not" whitespace? "\\" newline whitespace? "in" "\\" newline { RET(TK_NOT_IN) }
             "not" whitespace? "\\" newline whitespace? "in" whitespace { RET(TK_NOT_IN) }
 
@@ -464,7 +491,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "False" { RET(TK_FALSE) }
 
             real {
-                yylval.f = std::atof(remove_underscore(token()));
+                yylval.f = std::stod(remove_underscore(token()));
                 RET(TK_REAL)
             }
             integer {
@@ -475,7 +502,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 RET(TK_INTEGER)
             }
             imag_number {
-                yylval.f = std::atof(remove_underscore(token()));
+                yylval.f = std::stod(remove_underscore(token()));
                 RET(TK_IMAG_NUM)
             }
 

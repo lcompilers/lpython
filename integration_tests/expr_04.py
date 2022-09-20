@@ -37,10 +37,25 @@ def test_floor_div():
     assert abs(x//2 + 3.0) < eps
     assert abs(x//2.0 + 3.0) < eps
 
+def test_floor_div_9_digits():
+    # reference: issue 768
+    x4: i32
+    y4: i32
+    y4 = 10
+    x4 = 123456789
+    assert x4//y4 == 12345678
+
+    x8: i64
+    y8: i64
+    y8 = 10
+    x8 = 123456789
+    assert x8//y8 == 12345678
+
 
 def check():
     test_issue_255()
     main0()
     test_floor_div()
+    test_floor_div_9_digits()
 
 check()

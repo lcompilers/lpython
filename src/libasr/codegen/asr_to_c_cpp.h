@@ -582,11 +582,17 @@ R"(#include <stdio.h>
         self().visit_expr(*x.m_arg);
         switch (x.m_kind) {
             case (ASR::cast_kindType::IntegerToReal) : {
-                src = "(float)(" + src + ")";
+                int dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                switch (dest_kind) {
+                    case 4: src = "(float)(" + src + ")"; break;
+                    case 8: src = "(double)(" + src + ")"; break;
+                    default: throw CodeGenError("Cast IntegerToReal: Unsupported Kind " + std::to_string(dest_kind));
+                }
                 break;
             }
             case (ASR::cast_kindType::RealToInteger) : {
-                src = "(int)(" + src + ")";
+                int dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                src = "(int" + std::to_string(dest_kind * 8) + "_t)(" + src + ")";
                 break;
             }
             case (ASR::cast_kindType::RealToReal) : {
@@ -633,7 +639,33 @@ R"(#include <stdio.h>
                 src = "(int)(" + src + ")";
                 break;
             }
+            case (ASR::cast_kindType::LogicalToCharacter) : {
+                 src = src + " ? \"True\" : \"False\"";
+                break;
+            }
             case (ASR::cast_kindType::IntegerToLogical) : {
+                src = "(bool)(" + src + ")";
+                break;
+            }
+            case (ASR::cast_kindType::LogicalToReal) : {
+                int dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+                switch (dest_kind) {
+                    case 4: src = "(float)(" + src + ")"; break;
+                    case 8: src = "(double)(" + src + ")"; break;
+                    default: throw CodeGenError("Cast LogicalToReal: Unsupported Kind " + std::to_string(dest_kind));
+                }
+                break;
+            }
+            case (ASR::cast_kindType::RealToLogical) : {
+                src = "(bool)(" + src + ")";
+                break;
+            }
+            case (ASR::cast_kindType::CharacterToLogical) : {
+
+                src = "(bool)(strlen(" + src + ") > 0)";
+                break;
+            }
+            case (ASR::cast_kindType::ComplexToLogical) : {
                 src = "(bool)(" + src + ")";
                 break;
             }
@@ -685,11 +717,15 @@ R"(#include <stdio.h>
         } else {
             src += "(" + left + ")";
         }
-        src += ASRUtils::cmpop_to_str(x.m_op);
-        if (right_precedence <= last_expr_precedence) {
-            src += right;
+        if( T::class_type == ASR::exprType::StringCompare && is_c ) {
+            src = "strcmp(" + left + ", " + right + ") == 0";
         } else {
-            src += "(" + right + ")";
+            src += ASRUtils::cmpop_to_str(x.m_op);
+            if (right_precedence <= last_expr_precedence) {
+                src += right;
+            } else {
+                src += "(" + right + ")";
+            }
         }
     }
 

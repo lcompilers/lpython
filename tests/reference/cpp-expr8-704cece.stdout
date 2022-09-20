@@ -1,0 +1,87 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cassert>
+#include <cmath>
+#include <complex>
+#include <Kokkos_Core.hpp>
+#include <lfortran_intrinsics.h>
+
+template <typename T>
+Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
+{
+    Kokkos::View<T*> r("r", v.size());
+    for (size_t i=0; i < v.size(); i++) {
+        r(i) = v[i];
+    }
+    return r;
+}
+
+
+struct dimension_descriptor
+{
+    int32_t lower_bound, length;
+};
+// Forward declarations
+void test_binop();
+int32_t __lpython_overloaded_2___lpython_floordiv(int32_t a, int32_t b);
+float _lfortran_caimag(std::complex<float> x);
+double _lfortran_zaimag(std::complex<double> x);
+namespace {
+}
+
+// Implementations
+void test_binop()
+{
+    bool b1;
+    bool b2;
+    int32_t x;
+    float x2;
+    x = std::pow(2, 3);
+    x2 = std::pow((double)(2),   3.50000000000000000e+00);
+    x = 54 - 100;
+    x2 =   3.45400000000000018e+00 -   7.65429999999999950e+02 +   5.34600000000000023e+02;
+    x2 =   5.34656499999999960e+03*  3.45000000000000018e+00;
+    x2 = std::pow(  5.34656499999999960e+03,   3.45000000000000018e+00);
+    x = (int)(true) + (int)(true);
+    x = (int)(true) - (int)(false);
+    x = (int)(true)*(int)(false);
+    x = std::pow((int)(true), (int)(false));
+    b1 = true;
+    b2 = false;
+    x = __lpython_overloaded_2___lpython_floordiv((int)(b1), (int)(b1));
+    x = std::pow((int)(b1), (int)(b2));
+}
+
+int32_t __lpython_overloaded_2___lpython_floordiv(int32_t a, int32_t b)
+{
+    int32_t _lpython_return_variable;
+    double r;
+    int32_t result;
+    r = (double)(a)/(double)(b);
+    result = (int64_t)(r);
+    if (r >=   0.00000000000000000e+00 || (double)(result) == r) {
+        _lpython_return_variable = result;
+        return _lpython_return_variable;
+    }
+    _lpython_return_variable = result - 1;
+    return _lpython_return_variable;
+}
+
+float _lfortran_caimag(std::complex<float> x);
+
+double _lfortran_zaimag(std::complex<double> x);
+
+namespace {
+
+void main2() {
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
+    Kokkos::finalize();
+    return 0;
+}
