@@ -825,11 +825,11 @@ filename = "errors/generics_error_01.py"
 asr = true
 
 [[test]]
-filename = "errors/restriction_error_01.py"
+filename = "errors/generics_error_02.py"
 asr = true
 
 [[test]]
-filename = "errors/restriction_error_02.py"
+filename = "errors/generics_error_03.py"
 asr = true
 
 [[test]]

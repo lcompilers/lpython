@@ -263,7 +263,7 @@ RUN(NAME str_to_list_cast    LABELS cpython llvm)
 
 RUN(NAME generics_01         LABELS cpython llvm)
 RUN(NAME generics_02         LABELS cpython llvm)
-RUN(NAME generics_array_01   LABELS llvm)
+RUN(NAME generics_array_01   LABELS cpython llvm)
 RUN(NAME generics_list_01    LABELS cpython llvm)
 RUN(NAME test_statistics     LABELS cpython llvm)
 RUN(NAME test_str_attributes LABELS cpython llvm)

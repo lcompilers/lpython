@@ -17,7 +17,7 @@ def div(x: T, k: i32) -> f64:
 def empty_string(x: str) -> str:
     return ""
 
-def add_string(x: str, y: str) -> str:
+def add_string(x: i32, y: i32) -> i32:
     return x + y
 
 def div_string(x: str, k: i32) -> f64:
@@ -34,6 +34,4 @@ def mean(x: list[T], **kwargs) -> f64:
         res = add(res, x[i])
     return div(res, k)
 
-print(mean([1,2,3]))
-print(mean([1.0,2.0,3.0]))
 print(mean(["a","b","c"], zero=empty_string, add=add_string, div=div_string))

@@ -34,6 +34,4 @@ def mean(x: list[T], **kwargs) -> f64:
         res = add(res, x[i])
     return div(res, k)
 
-print(mean([1,2,3]))
-print(mean([1.0,2.0,3.0]))
-print(mean(["a","b","c"], zero=empty_string, add=add_string, div=div_string))
+print(mean(["a","b","c"], add=add_string, div=div_string))
