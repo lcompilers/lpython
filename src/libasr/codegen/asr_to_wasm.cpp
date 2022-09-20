@@ -175,9 +175,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
         auto func = ASR::make_Function_t(
             m_al, global_scope_loc, global_scope, s2c(m_al, import_func.name),
-            params.data(), params.size(), nullptr, 0, nullptr, 0, nullptr,
+            params.data(), params.size(), nullptr, 0, nullptr,
             ASR::abiType::Source, ASR::accessType::Public,
-            ASR::deftypeType::Implementation, nullptr, false, false, false, false);
+            ASR::deftypeType::Implementation, nullptr, false, false, false, false,
+            nullptr, 0, nullptr, 0, false);
         m_import_func_asr_map[import_func.name] = func;
 
         wasm::emit_import_fn(m_import_section, m_al, "js", import_func.name,
@@ -197,6 +198,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
              {}},
             {"flush_buf", {}, {}},
             {"set_exit_code", {{ASR::ttypeType::Integer, 4}}, {}}};
+
 
         for (auto ImportFunc : import_funcs) {
             import_function(ImportFunc);
@@ -354,9 +356,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         // Generate main program code
         auto main_func = ASR::make_Function_t(
             m_al, x.base.base.loc, x.m_symtab, s2c(m_al, "_lcompilers_main"),
-            nullptr, 0, nullptr, 0, x.m_body, x.n_body, nullptr,
+            nullptr, 0, x.m_body, x.n_body, nullptr,
             ASR::abiType::Source, ASR::accessType::Public,
-            ASR::deftypeType::Implementation, nullptr, false, false, false, false);
+            ASR::deftypeType::Implementation, nullptr, false, false, false, false,
+            nullptr, 0, nullptr, 0, false);
         emit_function_prototype(*((ASR::Function_t *)main_func));
         emit_function_body(*((ASR::Function_t *)main_func));
     }

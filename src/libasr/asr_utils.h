@@ -1245,8 +1245,10 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
             ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
             ASR::dimension_t* dimsp = dims ? dims->p : tp->m_dims;
             size_t dimsn = dims ? dims->n : tp->n_dims;
+            //return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
+            //            tp->m_param, dimsp, dimsn, tp->m_rt, tp->n_rt));
             return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
-                        tp->m_param, dimsp, dimsn, tp->m_rt, tp->n_rt));
+                        tp->m_param, dimsp, dimsn));                        
         }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
@@ -1272,9 +1274,11 @@ static inline ASR::ttype_t* duplicate_type_without_dims(Allocator& al, const ASR
         }
         case ASR::ttypeType::TypeParameter: {
             ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
+            //return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
+            //            tp->m_param, nullptr, 0, tp->m_rt, tp->n_rt));
             return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
-                        tp->m_param, nullptr, 0, tp->m_rt, tp->n_rt));
-        }
+                        tp->m_param, nullptr, 0));
+        }    
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
 }
@@ -1462,7 +1466,11 @@ inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
         }
         return result;
     } else if (ASR::is_a<ASR::TypeParameter_t>(*x) && ASR::is_a<ASR::TypeParameter_t>(*y)) {
-        return true;
+        ASR::TypeParameter_t* left_tp = ASR::down_cast<ASR::TypeParameter_t>(x);
+        ASR::TypeParameter_t* right_tp = ASR::down_cast<ASR::TypeParameter_t>(y);
+        std::string left_param = left_tp->m_param;
+        std::string right_param = right_tp->m_param;
+        return left_param.compare(right_param) == 0;
     }
 
     int64_t x_kind = ASRUtils::extract_kind_from_ttype_t(x);
@@ -1532,17 +1540,6 @@ static inline ASR::ttype_t* get_type_parameter(ASR::ttype_t* t) {
         default: throw LCompilersException("Cannot get type parameter from this type.");
     }
 }
-
-static inline bool has_trait(ASR::TypeParameter_t *tp, ASR::traitType rt) {
-    for (size_t i=0; i<tp->n_rt; i++) {
-        ASR::Restriction_t *restriction = ASR::down_cast<ASR::Restriction_t>(tp->m_rt[i]);
-        if (restriction->m_rt == rt) {
-            return true;
-        }
-    }
-    return false;
-}
-
 
 class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
 

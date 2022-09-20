@@ -129,10 +129,13 @@ public:
         a_args.push_back(al, s->m_return_var);
         ASR::asr_t* s_sub_asr = ASR::make_Function_t(al, s->base.base.loc,
             s->m_symtab,
-            s->m_name, a_args.p, a_args.size(), nullptr, 0, s->m_body, s->n_body,
+            s->m_name, a_args.p, a_args.size(), s->m_body, s->n_body,
             nullptr,
             s->m_abi, s->m_access, s->m_deftype, nullptr, false, false,
-            false, s->m_inline);
+            false, s->m_inline,
+            s->m_type_params, s->n_type_params,
+            s->m_restrictions, s->n_restrictions,
+            s->m_is_restriction);
         ASR::symbol_t* s_sub = ASR::down_cast<ASR::symbol_t>(s_sub_asr);
         return s_sub;
     }
