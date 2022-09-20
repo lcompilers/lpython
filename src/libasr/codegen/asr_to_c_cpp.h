@@ -423,6 +423,10 @@ R"(#include <stdio.h>
     }
 
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
+        if (x.m_value) {
+            self().visit_expr(*x.m_value);
+            return;
+        }
         ASR::Function_t *fn = ASR::down_cast<ASR::Function_t>(
             LFortran::ASRUtils::symbol_get_past_external(x.m_name));
         std::string fn_name = fn->m_name;
@@ -579,6 +583,10 @@ R"(#include <stdio.h>
     }
 
     void visit_Cast(const ASR::Cast_t &x) {
+        if (x.m_value) {
+            self().visit_expr(*x.m_value);
+            return;
+        }
         self().visit_expr(*x.m_arg);
         switch (x.m_kind) {
             case (ASR::cast_kindType::IntegerToReal) : {
@@ -697,6 +705,10 @@ R"(#include <stdio.h>
 
     template<typename T>
     void handle_Compare(const T &x) {
+        if (x.m_value) {
+            self().visit_expr(*x.m_value);
+            return;
+        }
         self().visit_expr(*x.m_left);
         std::string left = std::move(src);
         int left_precedence = last_expr_precedence;
@@ -730,6 +742,10 @@ R"(#include <stdio.h>
     }
 
     void visit_IntegerBitNot(const ASR::IntegerBitNot_t& x) {
+        if (x.m_value) {
+            self().visit_expr(*x.m_value);
+            return;
+        }
         self().visit_expr(*x.m_arg);
         int expr_precedence = last_expr_precedence;
         last_expr_precedence = 3;
@@ -750,6 +766,10 @@ R"(#include <stdio.h>
 
     template <typename T>
     void handle_UnaryMinus(const T &x) {
+        if (x.m_value) {
+            self().visit_expr(*x.m_value);
+            return;
+        }
         self().visit_expr(*x.m_arg);
         int expr_precedence = last_expr_precedence;
         last_expr_precedence = 3;
@@ -761,6 +781,10 @@ R"(#include <stdio.h>
     }
 
     void visit_LogicalNot(const ASR::LogicalNot_t &x) {
+        if (x.m_value) {
+            self().visit_expr(*x.m_value);
+            return;
+        }
         self().visit_expr(*x.m_arg);
         int expr_precedence = last_expr_precedence;
         last_expr_precedence = 3;
@@ -848,6 +872,10 @@ R"(#include <stdio.h>
 
     template <typename T>
     void handle_BinOp(const T &x) {
+        if (x.m_value) {
+            self().visit_expr(*x.m_value);
+            return;
+        }
         self().visit_expr(*x.m_left);
         std::string left = std::move(src);
         int left_precedence = last_expr_precedence;
@@ -904,6 +932,10 @@ R"(#include <stdio.h>
     }
 
     void visit_LogicalBinOp(const ASR::LogicalBinOp_t &x) {
+        if (x.m_value) {
+            self().visit_expr(*x.m_value);
+            return;
+        }
         self().visit_expr(*x.m_left);
         std::string left = std::move(src);
         int left_precedence = last_expr_precedence;
@@ -1146,6 +1178,10 @@ R"(#include <stdio.h>
     }
 
     void visit_IfExp(const ASR::IfExp_t &x) {
+        if (x.m_value) {
+            self().visit_expr(*x.m_value);
+            return;
+        }
         // IfExp is like a ternary operator in c++
         // test ? body : orelse;
         std::string out = "(";

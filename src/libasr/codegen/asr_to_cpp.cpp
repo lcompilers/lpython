@@ -565,6 +565,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_StringConcat(const ASR::StringConcat_t &x) {
+        if (x.m_value) {
+            this->visit_expr(*x.m_value);
+            return;
+        }
         this->visit_expr(*x.m_left);
         std::string left = std::move(src);
         int left_precedence = last_expr_precedence;
@@ -586,6 +590,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_StringItem(const ASR::StringItem_t& x) {
+        if (x.m_value) {
+            this->visit_expr(*x.m_value);
+            return;
+        }
         this->visit_expr(*x.m_idx);
         std::string idx = std::move(src);
         this->visit_expr(*x.m_arg);
@@ -594,6 +602,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_StringLen(const ASR::StringLen_t &x) {
+        if (x.m_value) {
+            this->visit_expr(*x.m_value);
+            return;
+        }
         this->visit_expr(*x.m_arg);
         src = src + ".length()";
     }
@@ -668,6 +680,10 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_ArrayItem(const ASR::ArrayItem_t &x) {
+        if (x.m_value) {
+            this->visit_expr(*x.m_value);
+            return;
+        }
         this->visit_expr(*x.m_v);
         std::string array = src;
         std::string out = array;

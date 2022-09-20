@@ -724,6 +724,10 @@ R"(
     }
 
     void visit_ArrayItem(const ASR::ArrayItem_t &x) {
+        if (x.m_value) {
+            this->visit_expr(*x.m_value);
+            return;
+        }
         this->visit_expr(*x.m_v);
         std::string array = src;
         std::string out = array;
@@ -756,6 +760,10 @@ R"(
     }
 
     void visit_StringItem(const ASR::StringItem_t& x) {
+        if (x.m_value) {
+            this->visit_expr(*x.m_value);
+            return;
+        }
         this->visit_expr(*x.m_idx);
         std::string idx = std::move(src);
         this->visit_expr(*x.m_arg);
@@ -765,6 +773,10 @@ R"(
     }
 
     void visit_StringLen(const ASR::StringLen_t &x) {
+        if (x.m_value) {
+            this->visit_expr(*x.m_value);
+            return;
+        }
         this->visit_expr(*x.m_arg);
         src = "strlen(" + src + ")";
     }
