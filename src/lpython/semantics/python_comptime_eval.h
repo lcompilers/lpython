@@ -391,21 +391,20 @@ struct PythonIntrinsicProcedures {
             return arg;
         } else if (ASRUtils::is_character(*type)) {
             ASR::ttype_t *list_type = ASRUtils::TYPE(ASR::make_List_t(al, loc, str_type));
-            if (ASRUtils::expr_value(arg) != nullptr) {
-                std::string c = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
-                Vec<ASR::expr_t*> list;
-                list.reserve(al, c.length());
-                std::string r;
-                for (size_t i=0; i<c.length(); i++) {
-                    r.push_back(char(c[i]));
-                    list.push_back(al, ASR::down_cast<ASR::expr_t>(
-                        ASR::make_StringConstant_t(al, loc, s2c(al, r),
-                                str_type)));
-                    r.pop_back();
-                }
-                return ASR::down_cast<ASR::expr_t>(ASR::make_ListConstant_t(al, loc, list.p,
-                    list.size(), list_type));
+            LFORTRAN_ASSERT(ASRUtils::expr_value(arg) != nullptr)
+            std::string c = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
+            Vec<ASR::expr_t*> list;
+            list.reserve(al, c.length());
+            std::string r;
+            for (size_t i=0; i<c.length(); i++) {
+                r.push_back(char(c[i]));
+                list.push_back(al, ASR::down_cast<ASR::expr_t>(
+                    ASR::make_StringConstant_t(al, loc, s2c(al, r),
+                            str_type)));
+                r.pop_back();
             }
+            return ASR::down_cast<ASR::expr_t>(ASR::make_ListConstant_t(al, loc, list.p,
+                list.size(), list_type));
         } else {
             throw SemanticError("'" + ASRUtils::type_to_str_python(type) +
                 "' object conversion to List is not implemented ",
