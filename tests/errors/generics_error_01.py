@@ -1,8 +1,12 @@
-from ltypes import TypeVar, Any
+from ltypes import TypeVar
 
-T = TypeVar('T', bound=SupportsPlus)
+T = TypeVar('T')
+
+@restriction
+def add(x: T, y: T) -> T:
+    pass
 
 def f(x: T, y: T) -> T:
-    return x + y
+    return add(x, y) 
 
 print(f(1,"a"))

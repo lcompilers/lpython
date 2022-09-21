@@ -21,3 +21,16 @@ with a, b, c as y, \
 
 with tag('x'):
     pass
+
+with t as x, y(): ...
+
+with a as b, \
+        c(), \
+        d(), \
+        e as f, \
+        g as x:
+    pass
+
+# TODO
+# with (a as b, c()): ...
+# with (a as b, c(),): ...

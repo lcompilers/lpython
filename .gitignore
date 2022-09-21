@@ -67,6 +67,7 @@ integration_tests/py_*
 integration_tests/b1/*
 integration_tests/b2/*
 integration_tests/b3/*
+integration_tests/b4/*
 
 ### https://raw.github.com/github/gitignore/218a941be92679ce67d0484547e3e142b2f5f6f0/Global/macOS.gitignore
 

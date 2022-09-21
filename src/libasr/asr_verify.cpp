@@ -259,7 +259,8 @@ public:
         current_symtab = parent_symtab;
     }
 
-    void visit_DerivedType(const DerivedType_t &x) {
+    template <typename T>
+    void visit_DerivedTypeEnumType(const T &x) {
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;
         require(x.m_symtab != nullptr,
@@ -277,6 +278,29 @@ public:
             this->visit_symbol(*a.second);
         }
         current_symtab = parent_symtab;
+    }
+
+    void visit_DerivedType(const DerivedType_t& x) {
+        visit_DerivedTypeEnumType(x);
+    }
+
+    void visit_EnumType(const EnumType_t& x) {
+        visit_DerivedTypeEnumType(x);
+        require(x.m_type != nullptr,
+            "The common type of Enum cannot be nullptr. " +
+            std::string(x.m_name) + " doesn't seem to follow this rule.");
+        ASR::ttype_t* common_type = x.m_type;
+        for( auto itr: x.m_symtab->get_scope() ) {
+            ASR::Variable_t* itr_var = ASR::down_cast<ASR::Variable_t>(itr.second);
+            require(itr_var->m_symbolic_value != nullptr,
+                "All members of Enum must have their values to be set. " +
+                std::string(itr_var->m_name) + " doesn't seem to follow this rule in "
+                + std::string(x.m_name) + " Enum.");
+            require(ASRUtils::check_equal_type(itr_var->m_type, common_type),
+                "All members of Enum must the same type. " +
+                std::string(itr_var->m_name) + " doesn't seem to follow this rule in " +
+                std::string(x.m_name) + " Enum.");
+        }
     }
 
     void visit_Variable(const Variable_t &x) {

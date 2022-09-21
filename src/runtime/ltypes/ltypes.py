@@ -2,7 +2,6 @@ from inspect import getfullargspec, getcallargs
 import os
 import ctypes
 import platform
-from typing import TypeVar
 from dataclasses import dataclass
 
 # TODO: this does not seem to restrict other imports
@@ -38,24 +37,17 @@ c32 = Type("c32")
 c64 = Type("c64")
 CPtr = Type("c_ptr")
 
-# Restrictions
+# Generics
 
-class Any:
-    def __init__(self):
-        pass
+class TypeVar():
+    def __init__(self, name):
+        self._name = name
 
-class SupportsPlus:
-    def __init__(self):
-        pass
+    def __getitem__(self, params):
+        return Array(self, params)
 
-class SupportsZero:
-    def __init__(self):
-        pass
-
-class Divisible:
-    def __init__(self):
-        pass
-
+def restriction(func):
+    return func
 
 # Overloading support
 
