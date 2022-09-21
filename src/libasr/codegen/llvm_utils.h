@@ -63,7 +63,7 @@ namespace LFortran {
 
     class LLVMList;
     class LLVMTuple;
-    class LLVMDict;
+    class LLVMDictInterface;
 
     class LLVMUtils {
 
@@ -79,7 +79,7 @@ namespace LFortran {
 
             LLVMTuple* tuple_api;
             LLVMList* list_api;
-            LLVMDict* dict_api;
+            LLVMDictInterface* dict_api;
 
             LLVMUtils(llvm::LLVMContext& context,
                 llvm::IRBuilder<>* _builder);
@@ -223,7 +223,8 @@ namespace LFortran {
                 llvm::IRBuilder<>* builder, llvm::Module& module);
     };
 
-    class LLVMDict {
+    class LLVMDictInterface {
+
         protected:
 
             llvm::LLVMContext& context;
@@ -232,6 +233,11 @@ namespace LFortran {
             llvm::AllocaInst *pos_ptr, *is_key_matching_var;
             llvm::AllocaInst *idx_ptr, *hash_iter, *hash_value;
             llvm::AllocaInst *polynomial_powers;
+            llvm::AllocaInst *chain_itr, *chain_itr_prev;
+            llvm::AllocaInst *old_capacity, *old_key_value_pairs, *old_key_mask;
+            llvm::AllocaInst *old_occupancy, *old_number_of_buckets_filled;
+            llvm::AllocaInst *src_itr, *dest_itr, *next_ptr, *copy_itr;
+            llvm::Value *tmp_value_ptr;
             bool are_iterators_set;
 
             std::map<std::pair<std::string, std::string>,
@@ -240,18 +246,112 @@ namespace LFortran {
 
         public:
 
-            bool is_dict_present;
+            bool is_dict_present_;
+
+            LLVMDictInterface(
+                llvm::LLVMContext& context_,
+                LLVMUtils* llvm_utils,
+                llvm::IRBuilder<>* builder);
+
+            virtual
+            llvm::Type* get_dict_type(std::string key_type_code, std::string value_type_code,
+                int32_t key_type_size, int32_t value_type_size,
+                llvm::Type* key_type, llvm::Type* value_type) = 0;
+
+            virtual
+            void dict_init(std::string key_type_code, std::string value_type_code,
+                llvm::Value* dict, llvm::Module* module, size_t initial_capacity) = 0;
+
+            virtual
+            llvm::Value* get_key_list(llvm::Value* dict) = 0;
+
+            virtual
+            llvm::Value* get_value_list(llvm::Value* dict) = 0;
+
+            virtual
+            llvm::Value* get_pointer_to_occupancy(llvm::Value* dict) = 0;
+
+            virtual
+            llvm::Value* get_pointer_to_capacity(llvm::Value* dict) = 0;
+
+            virtual
+            llvm::Value* get_key_hash(llvm::Value* capacity, llvm::Value* key,
+                ASR::ttype_t* key_asr_type, llvm::Module& module);
+
+            virtual
+            void resolve_collision_for_write(llvm::Value* dict, llvm::Value* key_hash,
+                llvm::Value* key, llvm::Value* value,
+                llvm::Module* module, ASR::ttype_t* key_asr_type,
+                ASR::ttype_t* value_asr_type) = 0;
+
+            virtual
+            llvm::Value* resolve_collision_for_read(llvm::Value* dict, llvm::Value* key_hash,
+                llvm::Value* key, llvm::Module& module,
+                ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type) = 0;
+
+            virtual
+            void rehash(llvm::Value* dict, llvm::Module* module,
+                ASR::ttype_t* key_asr_type,
+                ASR::ttype_t* value_asr_type) = 0;
+
+            virtual
+            void rehash_all_at_once_if_needed(llvm::Value* dict,
+                llvm::Module* module,
+                ASR::ttype_t* key_asr_type,
+                ASR::ttype_t* value_asr_type) = 0;
+
+            virtual
+            void write_item(llvm::Value* dict, llvm::Value* key,
+                llvm::Value* value, llvm::Module* module,
+                ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type) = 0;
+
+            virtual
+            llvm::Value* read_item(llvm::Value* dict, llvm::Value* key,
+                llvm::Module& module, ASR::Dict_t* dict_type,
+                bool get_pointer=false) = 0;
+
+            virtual
+            llvm::Value* pop_item(llvm::Value* dict, llvm::Value* key,
+                llvm::Module& module, ASR::Dict_t* dict_type,
+                bool get_pointer=false) = 0;
+
+            virtual
+            void set_iterators();
+
+            virtual
+            void reset_iterators();
+
+            virtual
+            void dict_deepcopy(llvm::Value* src, llvm::Value* dest,
+                ASR::Dict_t* dict_type, llvm::Module* module) = 0;
+
+            virtual
+            llvm::Value* len(llvm::Value* dict) = 0;
+
+            virtual
+            bool is_dict_present();
+
+            virtual
+            void set_is_dict_present(bool value);
+
+            virtual ~LLVMDictInterface() = 0;
+
+    };
+
+    class LLVMDict: public LLVMDictInterface {
+
+        public:
 
             LLVMDict(llvm::LLVMContext& context_,
                      LLVMUtils* llvm_utils,
                      llvm::IRBuilder<>* builder);
 
             llvm::Type* get_dict_type(std::string key_type_code, std::string value_type_code,
-                                      int32_t key_type_size, int32_t value_type_size,
-                                      llvm::Type* key_type, llvm::Type* value_type);
+                int32_t key_type_size, int32_t value_type_size,
+                llvm::Type* key_type, llvm::Type* value_type);
 
             void dict_init(std::string key_type_code, std::string value_type_code,
-                           llvm::Value* dict, llvm::Module* module, size_t initial_capacity);
+                llvm::Value* dict, llvm::Module* module, size_t initial_capacity);
 
             llvm::Value* get_key_list(llvm::Value* dict);
 
@@ -261,25 +361,20 @@ namespace LFortran {
 
             llvm::Value* get_pointer_to_capacity(llvm::Value* dict);
 
-            llvm::Value* get_key_hash(llvm::Value* capacity, llvm::Value* key,
-                                      ASR::ttype_t* key_asr_type, llvm::Module& module);
-
             virtual
             void resolve_collision(llvm::Value* capacity, llvm::Value* key_hash,
                                 llvm::Value* key, llvm::Value* key_list,
                                 llvm::Value* key_mask, llvm::Module& module,
                                 ASR::ttype_t* key_asr_type, bool for_read=false);
 
-            virtual
             void resolve_collision_for_write(llvm::Value* dict, llvm::Value* key_hash,
                                           llvm::Value* key, llvm::Value* value,
-                                          llvm::Module& module, ASR::ttype_t* key_asr_type,
+                                          llvm::Module* module, ASR::ttype_t* key_asr_type,
                                           ASR::ttype_t* value_asr_type);
 
-            virtual
             llvm::Value* resolve_collision_for_read(llvm::Value* dict, llvm::Value* key_hash,
                                                  llvm::Value* key, llvm::Module& module,
-                                                 ASR::ttype_t* key_asr_type);
+                                                 ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type);
 
             void rehash(llvm::Value* dict, llvm::Module* module,
                         ASR::ttype_t* key_asr_type,
@@ -295,18 +390,15 @@ namespace LFortran {
                             ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type);
 
             llvm::Value* read_item(llvm::Value* dict, llvm::Value* key,
-                                   llvm::Module& module, ASR::ttype_t* key_asr_type,
+                                   llvm::Module& module, ASR::Dict_t* key_asr_type,
                                    bool get_pointer=false);
 
             llvm::Value* pop_item(llvm::Value* dict, llvm::Value* key,
                                    llvm::Module& module, ASR::Dict_t* dict_type,
                                    bool get_pointer=false);
 
+            virtual
             llvm::Value* get_pointer_to_keymask(llvm::Value* dict);
-
-            void set_iterators();
-
-            void reset_iterators();
 
             void dict_deepcopy(llvm::Value* src, llvm::Value* dest,
                                ASR::Dict_t* dict_type, llvm::Module* module);
@@ -324,24 +416,116 @@ namespace LFortran {
                                     LLVMUtils* llvm_utils,
                                     llvm::IRBuilder<>* builder);
 
-            virtual
             void resolve_collision(llvm::Value* capacity, llvm::Value* key_hash,
                                 llvm::Value* key, llvm::Value* key_list,
                                 llvm::Value* key_mask, llvm::Module& module,
                                 ASR::ttype_t* key_asr_type, bool for_read=false);
 
-            virtual
             void resolve_collision_for_write(llvm::Value* dict, llvm::Value* key_hash,
                                             llvm::Value* key, llvm::Value* value,
-                                            llvm::Module& module, ASR::ttype_t* key_asr_type,
+                                            llvm::Module* module, ASR::ttype_t* key_asr_type,
                                             ASR::ttype_t* value_asr_type);
 
-            virtual
             llvm::Value* resolve_collision_for_read(llvm::Value* dict, llvm::Value* key_hash,
                                                     llvm::Value* key, llvm::Module& module,
-                                                    ASR::ttype_t* key_asr_type);
+                                                    ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type);
 
             virtual ~LLVMDictOptimizedLinearProbing();
+
+    };
+
+    class LLVMDictSeparateChaining: public LLVMDictInterface {
+
+        protected:
+
+            std::map<std::pair<std::string, std::string>, llvm::Type*> typecode2kvstruct;
+
+            llvm::Value* get_pointer_to_number_of_filled_buckets(llvm::Value* dict);
+
+            llvm::Value* get_pointer_to_key_value_pairs(llvm::Value* dict);
+
+            llvm::Value* get_pointer_to_rehash_flag(llvm::Value* dict);
+
+            void deepcopy_key_value_pair_linked_list(llvm::Value* srci, llvm::Value* desti,
+                llvm::Value* dest_key_value_pairs, llvm::Value* src_capacity, ASR::Dict_t* dict_type,
+                llvm::Module* module);
+
+            void write_key_value_pair_linked_list(llvm::Value* kv_ll, llvm::Value* dict,
+                llvm::Value* capacity, ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
+                llvm::Module* module);
+
+            void resolve_collision(llvm::Value* capacity, llvm::Value* key_hash,
+                llvm::Value* key, llvm::Value* key_value_pair_linked_list,
+                llvm::Type* kv_pair_type, llvm::Value* key_mask,
+                llvm::Module& module, ASR::ttype_t* key_asr_type);
+
+            llvm::Type* get_key_value_pair_type(std::string key_type_code, std::string value_type_code);
+
+            llvm::Type* get_key_value_pair_type(ASR::ttype_t* key_asr_type, ASR::ttype_t* value_pair_type);
+
+            void dict_init_given_initial_capacity(std::string key_type_code, std::string value_type_code,
+                llvm::Value* dict, llvm::Module* module, llvm::Value* initial_capacity);
+
+        public:
+
+            LLVMDictSeparateChaining(
+                llvm::LLVMContext& context_,
+                LLVMUtils* llvm_utils_,
+                llvm::IRBuilder<>* builder_);
+
+            llvm::Type* get_dict_type(std::string key_type_code, std::string value_type_code,
+                int32_t key_type_size, int32_t value_type_size,
+                llvm::Type* key_type, llvm::Type* value_type);
+
+            void dict_init(std::string key_type_code, std::string value_type_code,
+                llvm::Value* dict, llvm::Module* module, size_t initial_capacity);
+
+            llvm::Value* get_key_list(llvm::Value* dict);
+
+            llvm::Value* get_value_list(llvm::Value* dict);
+
+            llvm::Value* get_pointer_to_occupancy(llvm::Value* dict);
+
+            llvm::Value* get_pointer_to_capacity(llvm::Value* dict);
+
+            void resolve_collision_for_write(llvm::Value* dict, llvm::Value* key_hash,
+                llvm::Value* key, llvm::Value* value,
+                llvm::Module* module, ASR::ttype_t* key_asr_type,
+                ASR::ttype_t* value_asr_type);
+
+            llvm::Value* resolve_collision_for_read(llvm::Value* dict, llvm::Value* key_hash,
+                llvm::Value* key, llvm::Module& module,
+                ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type);
+
+            void rehash(llvm::Value* dict, llvm::Module* module,
+                ASR::ttype_t* key_asr_type,
+                ASR::ttype_t* value_asr_type);
+
+            void rehash_all_at_once_if_needed(llvm::Value* dict,
+                llvm::Module* module,
+                ASR::ttype_t* key_asr_type,
+                ASR::ttype_t* value_asr_type);
+
+            void write_item(llvm::Value* dict, llvm::Value* key,
+                llvm::Value* value, llvm::Module* module,
+                ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type);
+
+            llvm::Value* read_item(llvm::Value* dict, llvm::Value* key,
+                llvm::Module& module, ASR::Dict_t* dict_type,
+                bool get_pointer=false);
+
+            llvm::Value* pop_item(llvm::Value* dict, llvm::Value* key,
+                llvm::Module& module, ASR::Dict_t* dict_type,
+                bool get_pointer=false);
+
+            llvm::Value* get_pointer_to_keymask(llvm::Value* dict);
+
+            void dict_deepcopy(llvm::Value* src, llvm::Value* dest,
+                ASR::Dict_t* dict_type, llvm::Module* module);
+
+            llvm::Value* len(llvm::Value* dict);
+
+            virtual ~LLVMDictSeparateChaining();
 
     };
 

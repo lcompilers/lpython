@@ -30,3 +30,5 @@ if (a in list1):
 if x.shape == () or y.shape == () or x.shape[1] != y.shape[0]:
     assert arr[()] is ArrayLike
     pass
+
+async for i1, i2 in AsyncIter(): ...

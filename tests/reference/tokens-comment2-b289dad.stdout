@@ -1,0 +1,133 @@
+(KEYWORD "def") 0:2
+(TOKEN "identifier" main) 4:7
+(TOKEN "(") 8:8
+(TOKEN ")") 9:9
+(TOKEN ":") 10:10
+(NEWLINE) 11:11
+(TOKEN "comment") 12:14
+(NEWLINE) 15:15
+(TOKEN "comment") 20:22
+(NEWLINE) 23:23
+(TOKEN "indent") 24:27
+(KEYWORD "if") 28:29
+(TOKEN "identifier" foo) 31:33
+(TOKEN ":") 34:34
+(TOKEN "eolcomment") 36:38
+(NEWLINE) 39:39
+(TOKEN "comment") 48:50
+(NEWLINE) 51:51
+(TOKEN "comment") 56:58
+(NEWLINE) 59:59
+(TOKEN "comment") 60:61
+(NEWLINE) 62:62
+(TOKEN "indent") 63:70
+(KEYWORD "if") 71:72
+(TOKEN "identifier" bar) 74:76
+(TOKEN ":") 77:77
+(TOKEN "eolcomment") 79:81
+(NEWLINE) 82:82
+(TOKEN "indent") 83:94
+(KEYWORD "pass") 95:98
+(NEWLINE) 99:99
+(TOKEN "dedent") 100:103
+(TOKEN "dedent") 103:103
+(KEYWORD "else") 104:107
+(TOKEN ":") 108:108
+(NEWLINE) 109:109
+(TOKEN "indent") 110:117
+(KEYWORD "pass") 118:121
+(NEWLINE) 122:122
+(TOKEN "dedent") 123:126
+(KEYWORD "return") 127:132
+(NEWLINE) 133:133
+(NEWLINE) 134:134
+(TOKEN "dedent") 134:134
+(KEYWORD "def") 135:137
+(TOKEN "identifier" test) 139:142
+(TOKEN "(") 143:143
+(TOKEN ")") 144:144
+(TOKEN ":") 145:145
+(NEWLINE) 146:146
+(TOKEN "indent") 147:150
+(TOKEN "identifier" print) 151:155
+(TOKEN "(") 156:156
+(TOKEN ")") 157:157
+(NEWLINE) 158:158
+(NEWLINE) 159:159
+(TOKEN "comment") 160:168
+(NEWLINE) 169:169
+(NEWLINE) 170:170
+(TOKEN "dedent") 170:170
+(KEYWORD "def") 171:173
+(TOKEN "identifier" main) 175:178
+(TOKEN "(") 179:179
+(TOKEN ")") 180:180
+(TOKEN ":") 181:181
+(NEWLINE) 182:182
+(TOKEN "indent") 183:186
+(TOKEN "identifier" print) 187:191
+(TOKEN "(") 192:192
+(TOKEN ")") 193:193
+(NEWLINE) 194:194
+(TOKEN "comment") 199:207
+(NEWLINE) 208:208
+(NEWLINE) 209:209
+(TOKEN "dedent") 209:209
+(KEYWORD "def") 210:212
+(TOKEN "identifier" main) 214:217
+(TOKEN "(") 218:218
+(TOKEN ")") 219:219
+(TOKEN ":") 220:220
+(NEWLINE) 221:221
+(TOKEN "indent") 222:225
+(TOKEN "identifier" print) 226:230
+(TOKEN "(") 231:231
+(TOKEN ")") 232:232
+(NEWLINE) 233:233
+(TOKEN "comment") 234:242
+(NEWLINE) 243:243
+(KEYWORD "pass") 248:251
+(NEWLINE) 252:252
+(NEWLINE) 253:253
+(TOKEN "dedent") 253:253
+(KEYWORD "def") 254:256
+(TOKEN "identifier" main) 258:261
+(TOKEN "(") 262:262
+(TOKEN ")") 263:263
+(TOKEN ":") 264:264
+(NEWLINE) 265:265
+(TOKEN "indent") 266:269
+(KEYWORD "if") 270:271
+(TOKEN "identifier" foo) 273:275
+(TOKEN ":") 276:276
+(NEWLINE) 277:277
+(TOKEN "indent") 278:285
+(KEYWORD "pass") 286:289
+(NEWLINE) 290:290
+(TOKEN "comment") 291:299
+(NEWLINE) 300:300
+(KEYWORD "pass") 309:312
+(NEWLINE) 313:313
+(KEYWORD "if") 322:323
+(TOKEN "identifier" bar) 325:327
+(TOKEN ":") 328:328
+(NEWLINE) 329:329
+(TOKEN "indent") 330:341
+(KEYWORD "pass") 342:345
+(NEWLINE) 346:346
+(TOKEN "dedent") 347:354
+(KEYWORD "pass") 355:358
+(NEWLINE) 359:359
+(TOKEN "dedent") 360:363
+(KEYWORD "pass") 364:367
+(NEWLINE) 368:368
+(NEWLINE) 369:369
+(TOKEN "dedent") 369:369
+(TOKEN "identifier" x) 370:370
+(TOKEN "=") 372:372
+(TOKEN "[") 374:374
+(TOKEN "identifier" a) 390:390
+(TOKEN ",") 391:391
+(TOKEN "]") 393:393
+(NEWLINE) 394:394
+(EOF) 395:395

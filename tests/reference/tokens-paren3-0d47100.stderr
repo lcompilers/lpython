@@ -1,0 +1,5 @@
+tokenizer error: Parenthesis unexpected
+ --> tests/tokens/errors/paren3.py:2:1
+  |
+2 | ] {}}
+  | ^ 

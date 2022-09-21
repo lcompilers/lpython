@@ -43,6 +43,16 @@ struct Fn_Arg {
     Args_ *args;
 };
 
+struct Kw_or_Star_Arg {
+    LPython::AST::expr_t *star_arg;
+    LPython::AST::keyword_t *kw_arg;
+};
+
+struct Call_Arg {
+    Vec<LPython::AST::expr_t*> expr;
+    Vec<LPython::AST::keyword_t> kw;
+};
+
 union YYSTYPE {
     int64_t n;
     double f;
@@ -72,6 +82,11 @@ union YYSTYPE {
 
     LPython::AST::keyword_t* keyword;
     Vec<LPython::AST::keyword_t> vec_keyword;
+
+    Kw_or_Star_Arg* kw_or_star;
+    Vec<Kw_or_Star_Arg> vec_kw_or_star;
+
+    Call_Arg *call_arg;
 
     LPython::AST::comprehension_t* comp;
     Vec<LPython::AST::comprehension_t> vec_comp;

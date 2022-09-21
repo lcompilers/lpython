@@ -25,7 +25,7 @@ def single_test(test, specific_test, verbose, no_llvm, update_reference):
     pass_ = test.get("pass", None)
     optimization_passes = ["flip_sign", "div_to_mul", "fma", "sign_from_value",
                            "inline_function_calls", "loop_unroll",
-                           "dead_code_removal", "loop_vectorise"]
+                           "dead_code_removal", "loop_vectorise", "print_list"]
 
     if pass_ and (pass_ not in ["do_loops", "global_stmts"] and
                   pass_ not in optimization_passes):

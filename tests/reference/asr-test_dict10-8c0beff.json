@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_dict10-8c0beff",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_dict10.py",
+    "infile_hash": "6e7e12d241f428b975744850c68f7b4a401a6ba035922e37e66f07d1",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_dict10-8c0beff.stderr",
+    "stderr_hash": "95d5b555fbf664cf7bc7735845c89acc77393a00ad44b42fcf7c8fe8",
+    "returncode": 2
+}

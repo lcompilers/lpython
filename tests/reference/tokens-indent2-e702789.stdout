@@ -1,0 +1,88 @@
+(KEYWORD "class") 0:4
+(TOKEN "identifier" Test) 6:9
+(TOKEN ":") 10:10
+(NEWLINE) 11:11
+(TOKEN "indent") 12:15
+(KEYWORD "def") 16:18
+(TOKEN "identifier" foo) 20:22
+(TOKEN "(") 23:23
+(TOKEN "identifier" a) 24:24
+(TOKEN ")") 25:25
+(TOKEN ":") 26:26
+(NEWLINE) 27:27
+(TOKEN "indent") 28:35
+(KEYWORD "if") 36:37
+(TOKEN "identifier" a) 39:39
+(TOKEN "==") 41:42
+(TOKEN "string" "foo") 44:48
+(TOKEN ":") 49:49
+(NEWLINE) 50:50
+(TOKEN "indent") 51:62
+(KEYWORD "return") 63:68
+(TOKEN "string" "foo") 70:74
+(NEWLINE) 75:75
+(TOKEN "dedent") 76:83
+(KEYWORD "return") 84:89
+(TOKEN "string" "bar") 91:95
+(NEWLINE) 96:96
+(NEWLINE) 97:97
+(TOKEN "dedent") 97:97
+(TOKEN "dedent") 97:97
+(KEYWORD "def") 98:100
+(TOKEN "identifier" test) 102:105
+(TOKEN "(") 106:106
+(TOKEN ")") 107:107
+(TOKEN ":") 108:108
+(NEWLINE) 109:109
+(TOKEN "indent") 110:110
+(KEYWORD "if") 111:112
+(TOKEN "True") 114:117
+(TOKEN ":") 118:118
+(NEWLINE) 119:119
+(TOKEN "indent") 120:121
+(KEYWORD "pass") 122:125
+(NEWLINE) 126:126
+(TOKEN "dedent") 127:127
+(KEYWORD "else") 128:131
+(TOKEN ":") 132:132
+(NEWLINE) 133:133
+(TOKEN "indent") 134:135
+(KEYWORD "pass") 136:139
+(NEWLINE) 140:140
+(NEWLINE) 141:141
+(TOKEN "dedent") 141:141
+(TOKEN "dedent") 141:141
+(KEYWORD "def") 142:144
+(TOKEN "identifier" test) 146:149
+(TOKEN "(") 150:150
+(TOKEN "identifier" x) 151:151
+(TOKEN ":") 152:152
+(TOKEN "identifier" i32) 154:156
+(TOKEN ")") 157:157
+(TOKEN ":") 158:158
+(NEWLINE) 159:159
+(TOKEN "indent") 160:160
+(KEYWORD "if") 161:162
+(TOKEN "identifier" x) 164:164
+(TOKEN "<") 166:166
+(TOKEN "integer" 0) 168:168
+(TOKEN ":") 169:169
+(NEWLINE) 170:170
+(TOKEN "indent") 171:172
+(KEYWORD "pass") 173:176
+(NEWLINE) 177:177
+(TOKEN "dedent") 178:178
+(KEYWORD "else") 179:182
+(TOKEN ":") 183:183
+(NEWLINE) 184:184
+(TOKEN "indent") 185:186
+(TOKEN "identifier" Test) 187:190
+(TOKEN ".") 191:191
+(TOKEN "identifier" foo) 192:194
+(TOKEN "(") 195:195
+(TOKEN "identifier" x) 196:196
+(TOKEN ")") 197:197
+(NEWLINE) 198:198
+(TOKEN "dedent") 198:198
+(TOKEN "dedent") 198:198
+(EOF) 199:199

@@ -537,10 +537,11 @@ namespace LFortran {
                 unit.base.base.loc,
                 vector_copy_symtab,
                 s2c(al, vector_copy_name), arg_exprs.p, arg_exprs.size(),
-                nullptr, 0, body.p, body.size(), nullptr,
+                /* nullptr, 0, */ body.p, body.size(), nullptr,
                 ASR::abiType::Source, ASR::accessType::Public,
                 ASR::deftypeType::Implementation,
-                nullptr, false, false, false, false);
+                nullptr, false, false, false, false,
+                nullptr, 0, nullptr, 0, false);
             global_scope->add_symbol(vector_copy_name, ASR::down_cast<ASR::symbol_t>(vector_copy_asr));
             return ASR::down_cast<ASR::symbol_t>(vector_copy_asr);
         }

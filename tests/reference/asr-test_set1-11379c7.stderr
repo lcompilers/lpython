@@ -1,0 +1,5 @@
+semantic error: Type mismatch in 'add', the types must be compatible
+ --> tests/errors/test_set1.py:6:11
+  |
+6 |     a.add('err')
+  |           ^^^^^ type mismatch (found: 'str', expected: 'i32')
