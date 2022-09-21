@@ -849,8 +849,21 @@ public:
                     AST::keyword_t* kwargs=nullptr, size_t n_kwargs=0) {
         if (intrinsic_node_handler.is_present(call_name)) {
             return intrinsic_node_handler.get_intrinsic_node(call_name, al, loc,
-                    args, ann_assign_target_type);
+                    args);
         }
+
+        if (call_name == "list" && (args.size() == 0 ||  args[0].m_value == nullptr)) {
+            if (ann_assign_target_type) {
+                ASR::ttype_t *type = ASRUtils::get_contained_type(ann_assign_target_type);
+                ASR::ttype_t* list_type = ASRUtils::TYPE(ASR::make_List_t(al, loc, type));
+                Vec<ASR::expr_t*> list;
+                list.reserve(al, 1);
+                return ASR::make_ListConstant_t(al, loc, list.p,
+                    list.size(), list_type);
+            }
+            return nullptr;
+        }
+
         ASR::symbol_t *s_generic = nullptr, *stemp = s;
         // Type map for generic functions
         std::map<std::string, ASR::ttype_t*> subs;
@@ -4861,7 +4874,7 @@ public:
                 return ;
             } else if (intrinsic_node_handler.is_present(call_name)) {
                 tmp = intrinsic_node_handler.get_intrinsic_node(call_name, al,
-                                        x.base.base.loc, args, ann_assign_target_type);
+                                        x.base.base.loc, args);
                 return;
             } else {
                 // The function was not found and it is not intrinsic
