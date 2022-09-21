@@ -1,10 +1,17 @@
-T = TypeVar('T', bound=SupportsPlus)
+from ltypes import TypeVar, restriction, i32
+from numpy import empty
+
+T = TypeVar('T')
+
+@restriction
+def add(x: T, y: T) -> T:
+    pass
 
 def g(a: T[:], b: T[:]) -> T:
     r: T[size(a)]
     i: i32
     for i in range(size(a)):
-        r[i] = a[i] + b[i]
+        r[i] = add(a[i], b[i])
     return r
 
 def main():
