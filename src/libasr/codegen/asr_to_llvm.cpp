@@ -277,6 +277,31 @@ public:
         builder->SetInsertPoint(bb);
     }
 
+    // Note: `create_if_else` and `create_loop` are optional APIs
+    // that do not have to be used. Many times, for more complicated
+    // things, it might be more readable to just use the LLVM API
+    // without any extra layer on top. In some other cases, it might
+    // be more readable to use this abstraction.
+    template <typename IF, typename ELSE>
+    void create_if_else(llvm::Value * cond, IF if_block, ELSE else_block) {
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+
+        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+
+        builder->CreateCondBr(cond, thenBB, elseBB);
+        builder->SetInsertPoint(thenBB); {
+            if_block();
+        }
+        builder->CreateBr(mergeBB);
+
+        start_new_block(elseBB); {
+            else_block();
+        }
+        start_new_block(mergeBB);
+    }
+
     template <typename Cond, typename Body>
     void create_loop(Cond condition, Body loop_body) {
         dict_api_lp->set_iterators();
@@ -288,15 +313,13 @@ public:
         this->current_loopend = loopend;
 
         // head
-        start_new_block(loophead);
-        {
+        start_new_block(loophead); {
             llvm::Value* cond = condition();
             builder->CreateCondBr(cond, loopbody, loopend);
         }
 
         // body
-        start_new_block(loopbody);
-        {
+        start_new_block(loopbody); {
             loop_body();
             builder->CreateBr(loophead);
         }
@@ -1143,17 +1166,9 @@ public:
             fetch_var(v);
             if( x.class_type == ASR::stmtType::ImplicitDeallocate ) {
                 llvm::Value *cond = arr_descr->get_is_allocated_flag(tmp);
-                llvm::Function *fn = builder->GetInsertBlock()->getParent();
-                llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-                llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-                llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-                builder->CreateCondBr(cond, thenBB, elseBB);
-                builder->SetInsertPoint(thenBB);
-                //print_util(cond, "%d");
-                call_lfortran_free(free_fn);
-                builder->CreateBr(mergeBB);
-                start_new_block(elseBB);
-                start_new_block(mergeBB);
+                create_if_else(cond, [=]() {
+                    call_lfortran_free(free_fn);
+                }, [](){});
             } else {
                 call_lfortran_free(free_fn);
             }
@@ -3650,59 +3665,42 @@ public:
 
     void visit_If(const ASR::If_t &x) {
         this->visit_expr_wrapper(x.m_test, true);
-        llvm::Value *cond=tmp;
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-        builder->CreateCondBr(cond, thenBB, elseBB);
-        builder->SetInsertPoint(thenBB);
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-        }
-        builder->CreateBr(mergeBB);
-
-        start_new_block(elseBB);
-        for (size_t i=0; i<x.n_orelse; i++) {
-            this->visit_stmt(*x.m_orelse[i]);
-        }
-
-        start_new_block(mergeBB);
+        create_if_else(tmp, [=]() {
+            for (size_t i=0; i<x.n_body; i++) {
+                this->visit_stmt(*x.m_body[i]);
+            }
+        }, [=]() {
+            for (size_t i=0; i<x.n_orelse; i++) {
+                this->visit_stmt(*x.m_orelse[i]);
+            }
+        });
     }
 
     void visit_IfExp(const ASR::IfExp_t &x) {
         // IfExp(expr test, expr body, expr orelse, ttype type, expr? value)
         this->visit_expr_wrapper(x.m_test, true);
         llvm::Value *cond = tmp;
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-        builder->CreateCondBr(cond, thenBB, elseBB);
-        builder->SetInsertPoint(thenBB);
-        this->visit_expr_wrapper(x.m_body, true);
-        llvm::Value *then_val = tmp;
-        builder->CreateBr(mergeBB);
-        start_new_block(elseBB);
-        this->visit_expr_wrapper(x.m_orelse, true);
-        llvm::Value *else_val = tmp;
-        builder->CreateBr(mergeBB);
-        start_new_block(mergeBB);
+        llvm::Value *then_val = nullptr;
+        llvm::Value *else_val = nullptr;
+        create_if_else(cond, [=, &then_val]() {
+            this->visit_expr_wrapper(x.m_body, true);
+            then_val = tmp;
+        }, [=, &else_val]() {
+            this->visit_expr_wrapper(x.m_orelse, true);
+            else_val = tmp;
+        });
         tmp = builder->CreateSelect(cond, then_val, else_val);
     }
 
     void visit_WhileLoop(const ASR::WhileLoop_t &x) {
-        create_loop(
-            [this, x]() {
-                this->visit_expr_wrapper(x.m_test, true);
-                return tmp;
-            },
-            [this, x]() {
-                for (size_t i=0; i<x.n_body; i++) {
-                    this->visit_stmt(*x.m_body[i]);
-                }
+        create_loop([=]() {
+            this->visit_expr_wrapper(x.m_test, true);
+            return tmp;
+        }, [=]() {
+            for (size_t i=0; i<x.n_body; i++) {
+                this->visit_stmt(*x.m_body[i]);
             }
-        );
+        });
     }
 
     void visit_Exit(const ASR::Exit_t & /* x */) {
@@ -4270,19 +4268,7 @@ public:
 
     void visit_Assert(const ASR::Assert_t &x) {
         this->visit_expr_wrapper(x.m_test, true);
-        llvm::Value *cond = tmp;
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-        builder->CreateCondBr(cond, thenBB, elseBB);
-        builder->SetInsertPoint(thenBB);
-
-        builder->CreateBr(mergeBB);
-
-        start_new_block(elseBB);
-
-        {
+        create_if_else(tmp, []() {}, [=]() {
             if (x.m_msg) {
                 char* s = ASR::down_cast<ASR::StringConstant_t>(x.m_msg)->m_s;
                 llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("AssertionError: %s\n");
@@ -4296,9 +4282,7 @@ public:
             llvm::Value *exit_code = llvm::ConstantInt::get(context,
                     llvm::APInt(32, exit_code_int));
             exit(context, *module, *builder, exit_code);
-        }
-
-        start_new_block(mergeBB);
+        });
     }
 
     void visit_ComplexConstructor(const ASR::ComplexConstructor_t &x) {
