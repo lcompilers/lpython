@@ -57,6 +57,7 @@ struct PythonIntrinsicProcedures {
             {"bin", {m_builtin, &eval_bin}},
             {"hex", {m_builtin, &eval_hex}},
             {"oct", {m_builtin, &eval_oct}},
+            {"list", {m_builtin, &eval_list}},
             {"complex", {m_builtin, &eval_complex}},
             {"_lpython_imag", {m_builtin, &eval__lpython_imag}},
             {"divmod", {m_builtin, &eval_divmod}},
@@ -368,6 +369,47 @@ struct PythonIntrinsicProcedures {
         } else {
             throw SemanticError("oct() argument must be an integer, not '" +
                 ASRUtils::type_to_str_python(type) + "'", loc);
+        }
+    }
+
+    static ASR::expr_t *eval_list(Allocator &al, const Location &loc, Vec<ASR::expr_t*> &args) {
+        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
+        if (args.size() > 1) {
+            throw SemanticError("list() takes 0 or 1 argument (" +
+                std::to_string(args.size()) + " given)", loc);
+        }
+        LFORTRAN_ASSERT(args.size()==1);
+        ASR::expr_t *arg = args[0];
+        ASR::ttype_t *type = ASRUtils::expr_type(arg);
+        ASR::ttype_t* str_type = ASRUtils::TYPE(ASR::make_Character_t(al,
+            loc, 1, 1, nullptr, nullptr, 0));
+        if (ASRUtils::is_integer(*type) || ASRUtils::is_real(*type)
+                || ASRUtils::is_complex(*type) || ASRUtils::is_logical(*type)) {
+            throw SemanticError("Integer, Real, Complex and Boolean are not iterable "
+                "and cannot be converted to List", loc);
+        } else if (ASR::is_a<ASR::List_t>(*type)) {
+            return arg;
+        } else if (ASRUtils::is_character(*type)) {
+            ASR::ttype_t *list_type = ASRUtils::TYPE(ASR::make_List_t(al, loc, str_type));
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                std::string c = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
+                Vec<ASR::expr_t*> list;
+                list.reserve(al, c.length());
+                std::string r;
+                for (size_t i=0; i<c.length(); i++) {
+                    r.push_back(char(c[i]));
+                    list.push_back(al, ASR::down_cast<ASR::expr_t>(
+                        ASR::make_StringConstant_t(al, loc, s2c(al, r),
+                                str_type)));
+                    r.pop_back();
+                }
+                return ASR::down_cast<ASR::expr_t>(ASR::make_ListConstant_t(al, loc, list.p,
+                    list.size(), list_type));
+            }
+        } else {
+            throw SemanticError("'" + ASRUtils::type_to_str_python(type) +
+                "' object conversion to List is not implemented ",
+                arg->base.loc);
         }
     }
 
