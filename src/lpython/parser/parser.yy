@@ -235,7 +235,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <vec_ast> slice_item_list
 %type <ast> with_statement
 %type <vec_withitem> with_as_items
-%type <vec_withitem> with_as_items_list
+%type <withitem> with_item
+%type <vec_withitem> with_as_items_list_1
+%type <vec_withitem> with_as_items_list_2
 %type <ast> async_func_def
 %type <ast> async_for_stmt
 %type <ast> async_with_stmt
@@ -596,30 +598,32 @@ try_statement
     | KW_TRY ":" body_stmts KW_FINALLY ":" body_stmts { $$ = TRY_05($3, $6, @$); }
     ;
 
-with_as_items_list
-    : with_as_items_list "," expr KW_AS expr {
-        $$ = $1; LIST_ADD($$, WITH_ITEM_01($3, $5, @$)); }
-    | expr KW_AS expr { LIST_NEW($$); LIST_ADD($$, WITH_ITEM_01($1, $3, @$)); }
+with_item
+    : expr KW_AS expr { $$ = WITH_ITEM_01($1, $3, @$); }
+    | expr { $$ = WITH_ITEM_02($1, @$); }
+    ;
+
+with_as_items_list_1
+    : with_as_items_list_1 "," with_item { $$ = $1; PLIST_ADD($$, $3); }
+    | with_item { LIST_NEW($$); PLIST_ADD($$, $1); }
+    ;
+
+with_as_items_list_2
+    : with_as_items_list_2 "," expr KW_AS expr {
+        $$ = $1; PLIST_ADD($$, WITH_ITEM_01($3, $5, @$)); }
+    | expr KW_AS expr { LIST_NEW($$); PLIST_ADD($$, WITH_ITEM_01($1, $3, @$)); }
     ;
 
 with_as_items
-    : with_as_items_list { $$ = $1; }
-    | "(" with_as_items_list ")" { $$ = $2; }
-    | "(" with_as_items_list "," ")" { $$ = $2; }
-    | expr_list "," expr KW_AS expr_list { $$ = withitem_to_list(p.m_a,
-        WITH_ITEM_01(TUPLE_01(TUPLE_($1, $3), @$), TUPLE_03($5, @$), @$)); }
-    | "(" expr_list "," expr KW_AS expr_list comma_opt ")" {
-        $$ = withitem_to_list(p.m_a, WITH_ITEM_01(TUPLE_01(TUPLE_($2, $4), @$),
-                              TUPLE_01($6, @$), @$)); }
+    : with_as_items_list_1 { $$ = $1; }
+    | "(" with_as_items_list_2 ")" { $$ = $2; }
+    | "(" with_as_items_list_2 "," ")" { $$ = $2; }
     ;
 
 with_statement
-    : KW_WITH expr_list ":" body_stmts { $$ = WITH($2, $4, @$); }
-    | KW_WITH with_as_items ":" body_stmts { $$ = WITH_02($2, $4, @$); }
-    | KW_WITH expr_list ":" TK_TYPE_COMMENT sep statements {
-        $$ = WITH_01($2, $6, $4, @$); }
+    : KW_WITH with_as_items ":" body_stmts { $$ = WITH_01($2, $4, @$); }
     | KW_WITH with_as_items ":" TK_TYPE_COMMENT sep statements {
-        $$ = WITH_03($2, $6, $4, @$); }
+        $$ = WITH_02($2, $6, $4, @$); }
     ;
 
 decorators_opt
@@ -756,14 +760,10 @@ async_for_stmt
     ;
 
 async_with_stmt
-    : KW_ASYNC KW_WITH expr_list ":" body_stmts {
-        $$ = ASYNC_WITH($3, $5, @$); }
-    | KW_ASYNC KW_WITH with_as_items ":" body_stmts {
-        $$ = ASYNC_WITH_02($3, $5, @$); }
-    | KW_ASYNC KW_WITH expr_list ":" TK_TYPE_COMMENT sep statements {
-        $$ = ASYNC_WITH_01($3, $7, $5, @$); }
+    : KW_ASYNC KW_WITH with_as_items ":" body_stmts {
+        $$ = ASYNC_WITH_01($3, $5, @$); }
     | KW_ASYNC KW_WITH with_as_items ":" TK_TYPE_COMMENT sep statements {
-        $$ = ASYNC_WITH_03($3, $7, $5, @$); }
+        $$ = ASYNC_WITH_02($3, $7, $5, @$); }
     ;
 
 while_statement
