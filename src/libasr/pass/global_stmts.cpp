@@ -113,15 +113,16 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 /* a_name */ fn_name,
                 /* a_args */ nullptr,
                 /* n_args */ 0,
-                /* a_type_params */ nullptr,
-                /* n_type_params*/ 0,
                 /* a_body */ body.p,
                 /* n_body */ body.size(),
                 /* a_return_var */ return_var_ref,
                 ASR::abiType::BindC,
                 ASR::Public, ASR::Implementation,
                 nullptr,
-                false, false, false, false);
+                false, false, false, false,
+                nullptr, 0,
+                nullptr, 0,
+                false);
             std::string sym_name = fn_name;
             if (unit.m_global_scope->get_symbol(sym_name) != nullptr) {
                 throw LCompilersException("Function already defined");
@@ -136,13 +137,15 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 /* a_name */ fn_name,
                 /* a_args */ nullptr,
                 /* n_args */ 0,
-                nullptr, 0,
                 /* a_body */ body.p,
                 /* n_body */ body.size(),
                 nullptr,
                 ASR::abiType::Source,
                 ASR::Public, ASR::Implementation, nullptr,
-                false, false, false, false);
+                false, false, false, false,
+                nullptr, 0,
+                nullptr, 0,
+                false);
             std::string sym_name = fn_name;
             if (unit.m_global_scope->get_symbol(sym_name) != nullptr) {
                 throw LCompilersException("Function already defined");
