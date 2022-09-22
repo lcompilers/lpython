@@ -281,8 +281,8 @@ expr
 
     | BitCast(expr source, expr mold, expr? size, ttype type, expr? value)
     | DerivedRef(expr v, symbol m, ttype type, expr? value)
-    | EnumName(symbol v, ttype enum_type, ttype type, expr? value)
-    | EnumValue(symbol v, ttype enum_type, ttype type, expr? value)
+    | EnumName(symbol v, ttype type, expr? value)
+    | EnumValue(symbol v, ttype type, expr? value)
     | OverloadedCompare(expr left, cmpop op, expr right, ttype type, expr? value, expr overloaded)
     | OverloadedBinOp(expr left, binop op, expr right, ttype type, expr? value, expr overloaded)
     | Cast(expr arg, cast_kind kind, ttype type, expr? value)
