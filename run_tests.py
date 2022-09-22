@@ -16,7 +16,7 @@ def single_test(test, specific_test, verbose, no_llvm, update_reference):
     show_verbose = "" if not verbose else "-v"
     tokens = test.get("tokens", False)
     ast = test.get("ast", False)
-    ast_new = test.get("ast_new", False)
+    cpython_ast = test.get("cpython_ast", False)
     asr = test.get("asr", False)
     llvm = test.get("llvm", False)
     cpp = test.get("cpp", False)
@@ -52,11 +52,11 @@ def single_test(test, specific_test, verbose, no_llvm, update_reference):
             update_reference,
             extra_args)
 
-    if ast_new:
+    if cpython_ast:
         run_test(
             filename,
-            "ast_new",
-            "lpython --show-ast --new-parser --no-color {infile} -o {outfile}",
+            "cpython_ast",
+            "lpython --show-ast --cpython-parser --no-color {infile} -o {outfile}",
             filename,
             update_reference,
             extra_args)

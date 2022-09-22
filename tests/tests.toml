@@ -1,6 +1,6 @@
 # Possible tests:
 # ast ... run the Parser and output AST, compare against reference version
-# ast_new ... run the New Parser and output AST, compare against reference version
+# cpython_ast ... run the CPython Parser and output AST, compare against reference version
 # asr ... run the Semantics and output ASR, compare against reference version
 # llvm ... run the Semantics and output LLVM, compare against reference version
 # tokens ... output Tokens, compare against reference version
@@ -421,7 +421,7 @@ tokens = true
 [[test]]
 filename = "tokens/comment2.py"
 tokens = true
-ast_new = true
+ast = true
 
 [[test]]
 filename = "tokens/symbols1.py"
@@ -443,75 +443,75 @@ tokens = true
 
 [[test]]
 filename = "parser/import1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/statements1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/statements2.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/yield.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/if1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/for1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/comprehension1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/conditional_expr1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/try1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/function_def1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/function_def2.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/function_def3.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/class_def1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/class_def2.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/dictionary1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/with1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/async1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/slice1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/ellipsis1.py"
@@ -519,48 +519,48 @@ ast = true
 
 [[test]]
 filename = "parser/ellipsis2.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/while1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/string1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/string2.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/global1.py"
 ast = true
-ast_new = true
+cpython_ast = true
 
 [[test]]
 filename = "parser/if2.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/for2.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/boolOp1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/lambda1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/lambda2.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/tuple1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "errors/test_bit_length.py"
@@ -568,11 +568,11 @@ asr = true
 
 [[test]]
 filename = "parser/type_comment1.py"
-ast_new = true
+ast = true
 
 [[test]]
 filename = "parser/unicode.py"
-ast_new = true
+ast = true
 
 # tests/errors
 

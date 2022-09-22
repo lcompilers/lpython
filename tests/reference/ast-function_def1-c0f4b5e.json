@@ -1,0 +1,13 @@
+{
+    "basename": "ast-function_def1-c0f4b5e",
+    "cmd": "lpython --show-ast --no-color {infile} -o {outfile}",
+    "infile": "tests/parser/function_def1.py",
+    "infile_hash": "96c4a34f72e609e55af1688b793dc2d6fb375f82f661d16de0ea6fa9",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast-function_def1-c0f4b5e.stdout",
+    "stdout_hash": "ad5ea65f2ef1994819a5c48936f936ea955303c08253419d72aa450b",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

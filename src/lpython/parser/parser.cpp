@@ -116,9 +116,9 @@ Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
         const std::string &runtime_library_dir,
         const std::string &infile,
         diag::Diagnostics &diagnostics,
-        bool new_parser) {
+        bool cpython_parser) {
     LPython::AST::ast_t* ast;
-    if (new_parser) {
+    if (!cpython_parser) {
         std::string input = read_file(infile);
         Result<LPython::AST::Module_t*> res = parse(al, input, diagnostics);
         if (res.ok) {

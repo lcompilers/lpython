@@ -117,7 +117,7 @@ int emit_ast(const std::string &infile,
     Allocator al(4*1024);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+        al, runtime_library_dir, infile, diagnostics, compiler_options.cpython_parser);
     if (diagnostics.diagnostics.size() > 0) {
         LFortran::LocationManager lm;
         lm.in_filename = infile;
@@ -154,7 +154,7 @@ int emit_asr(const std::string &infile,
     std::string input = LFortran::read_file(infile);
     lm.init_simple(input);
     LFortran::Result<LFortran::LPython::AST::ast_t*> r1 = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+        al, runtime_library_dir, infile, diagnostics, compiler_options.cpython_parser);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         return 1;
@@ -197,7 +197,7 @@ int emit_cpp(const std::string &infile,
     std::string input = LFortran::read_file(infile);
     lm.init_simple(input);
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+        al, runtime_library_dir, infile, diagnostics, compiler_options.cpython_parser);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
         return 1;
@@ -238,7 +238,7 @@ int emit_c(const std::string &infile,
     std::string input = LFortran::read_file(infile);
     lm.init_simple(input);
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+        al, runtime_library_dir, infile, diagnostics, compiler_options.cpython_parser);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
         return 1;
@@ -279,7 +279,7 @@ int emit_wat(const std::string &infile,
     std::string input = LFortran::read_file(infile);
     lm.init_simple(input);
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+        al, runtime_library_dir, infile, diagnostics, compiler_options.cpython_parser);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
         return 1;
@@ -328,7 +328,7 @@ int get_symbols (const std::string &infile,
        std::string input = LFortran::read_file(infile);
        lm.init_simple(input);
        LFortran::Result<LFortran::LPython::AST::ast_t*> r1 = LFortran::parse_python_file(
-           al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+           al, runtime_library_dir, infile, diagnostics, compiler_options.cpython_parser);
        if (r1.ok) {
            LFortran::LPython::AST::ast_t* ast = r1.result;
            LFortran::Result<LFortran::ASR::TranslationUnit_t*>
@@ -421,7 +421,7 @@ int get_errors (const std::string &infile,
         lm.init_simple(input);
         LFortran::Result<LFortran::LPython::AST::ast_t*>
             r1 = LFortran::parse_python_file(al, runtime_library_dir, infile,
-                    diagnostics, compiler_options.new_parser);
+                    diagnostics, compiler_options.cpython_parser);
         if (r1.ok) {
             LFortran::LPython::AST::ast_t* ast = r1.result;
             LFortran::Result<LFortran::ASR::TranslationUnit_t*>
@@ -527,7 +527,7 @@ int emit_llvm(const std::string &infile,
     std::string input = LFortran::read_file(infile);
     lm.init_simple(input);
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+        al, runtime_library_dir, infile, diagnostics, compiler_options.cpython_parser);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
         return 1;
@@ -580,7 +580,7 @@ int compile_python_to_object_file(
     lm.init_simple(input);
     auto parsing_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+        al, runtime_library_dir, infile, diagnostics, compiler_options.cpython_parser);
     auto parsing_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("Parsing", std::chrono::duration<double, std::milli>(parsing_end - parsing_start).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
@@ -664,7 +664,7 @@ int compile_to_binary_wasm(
     lm.init_simple(input);
     auto parsing_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+        al, runtime_library_dir, infile, diagnostics, compiler_options.cpython_parser);
     auto parsing_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("Parsing", std::chrono::duration<double, std::milli>(parsing_end - parsing_start).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
@@ -1109,7 +1109,7 @@ int main(int argc, char *argv[])
         // LPython specific options
         app.add_flag("--cpp", compiler_options.c_preprocessor, "Enable C preprocessing");
         app.add_flag("--show-tokens", show_tokens, "Show tokens for the given python file and exit");
-        app.add_flag("--new-parser", compiler_options.new_parser, "Use the new LPython parser");
+        app.add_flag("--cpython-parser", compiler_options.cpython_parser, "Use the CPython parser");
         app.add_flag("--show-ast", show_ast, "Show AST for the given python file and exit");
         app.add_flag("--show-asr", show_asr, "Show ASR for the given python file and exit");
         app.add_flag("--show-llvm", show_llvm, "Show LLVM IR for the given file and exit");

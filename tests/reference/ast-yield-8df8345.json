@@ -1,0 +1,13 @@
+{
+    "basename": "ast-yield-8df8345",
+    "cmd": "lpython --show-ast --no-color {infile} -o {outfile}",
+    "infile": "tests/parser/yield.py",
+    "infile_hash": "8be8f045d190dbc958c308128da40d7e8b590f0320166d10b545722b",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast-yield-8df8345.stdout",
+    "stdout_hash": "57b53209a43ea3c08dfd63cf5ef940e96e60c46457babb93c30d5ba7",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

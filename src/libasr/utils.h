@@ -33,7 +33,7 @@ struct CompilerOptions {
     bool no_warnings = false;
     bool no_error_banner = false;
     std::string error_format = "human";
-    bool new_parser = false;
+    bool cpython_parser = false;
     bool implicit_typing = false;
     bool implicit_interface = false;
     std::string target = "";
