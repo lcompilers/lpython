@@ -2349,6 +2349,19 @@ public:
 
             } else if (ASR::is_a<ASR::List_t>(*type)) {
                 index = ASRUtils::EXPR(tmp);
+                ASR::expr_t* val = ASRUtils::expr_value(index);
+                if (val && ASR::is_a<ASR::IntegerConstant_t>(*val)) {
+                    if (ASR::down_cast<ASR::IntegerConstant_t>(val)->m_n < 0) {
+                        // Replace `x[-1]` to `x[len(x)+(-1)]`
+                        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(
+                                                        al, loc, 4, nullptr, 0));
+                        ASR::expr_t *list_len = ASRUtils::EXPR(ASR::make_ListLen_t(
+                                    al, loc, value, int_type, nullptr));
+                        ASR::expr_t *neg_idx = ASRUtils::expr_value(index);
+                        index = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al, loc,
+                            list_len, ASR::binopType::Add, neg_idx, int_type, nullptr));
+                    }
+                }
                 tmp = make_ListItem_t(al, loc, value, index,
                                       ASR::down_cast<ASR::List_t>(type)->m_type, nullptr);
                 return false;
