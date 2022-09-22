@@ -1248,7 +1248,7 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
             //return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
             //            tp->m_param, dimsp, dimsn, tp->m_rt, tp->n_rt));
             return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
-                        tp->m_param, dimsp, dimsn));                        
+                        tp->m_param, dimsp, dimsn));
         }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
@@ -1278,7 +1278,7 @@ static inline ASR::ttype_t* duplicate_type_without_dims(Allocator& al, const ASR
             //            tp->m_param, nullptr, 0, tp->m_rt, tp->n_rt));
             return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
                         tp->m_param, nullptr, 0));
-        }    
+        }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
 }
@@ -1910,6 +1910,17 @@ static inline void get_dimensions(ASR::expr_t* array, Vec<ASR::expr_t*>& dims,
         dims.push_back(al, start);
         dims.push_back(al, length);
     }
+}
+
+static inline ASR::EnumType_t* get_EnumType_from_symbol(ASR::symbol_t* s) {
+    ASR::Variable_t* s_var = ASR::down_cast<ASR::Variable_t>(s);
+    if( ASR::is_a<ASR::Enum_t>(*s_var->m_type) ) {
+        ASR::Enum_t* enum_ = ASR::down_cast<ASR::Enum_t>(s_var->m_type);
+        return ASR::down_cast<ASR::EnumType_t>(enum_->m_enum_type);
+    }
+    ASR::symbol_t* enum_type_cand = ASR::down_cast<ASR::symbol_t>(s_var->m_parent_symtab->asr_owner);
+    LFORTRAN_ASSERT(ASR::is_a<ASR::EnumType_t>(*enum_type_cand));
+    return ASR::down_cast<ASR::EnumType_t>(enum_type_cand);
 }
 
 } // namespace ASRUtils

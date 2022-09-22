@@ -1625,8 +1625,7 @@ public:
     }
 
     void lookup_EnumValue(const ASR::EnumValue_t& x) {
-        ASR::Enum_t* x_enum = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
-        ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x_enum->m_enum_type);
+        ASR::EnumType_t* enum_type = ASRUtils::get_EnumType_from_symbol(x.m_v);
         uint32_t h = get_hash((ASR::asr_t*) enum_type);
         llvm::Value* array = llvm_symtab[h];
         tmp = llvm_utils->create_gep(array, tmp);
@@ -1639,8 +1638,7 @@ public:
                 this->visit_expr(*x.m_value);
             } else {
                 ASR::Variable_t* x_mv = ASR::down_cast<ASR::Variable_t>(x.m_v);
-                ASR::Enum_t* x_enum = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
-                ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x_enum->m_enum_type);
+                ASR::EnumType_t* enum_type = ASRUtils::get_EnumType_from_symbol(x.m_v);
                 for( size_t i = 0; i < enum_type->n_members; i++ ) {
                     if( std::string(enum_type->m_members[i]) == std::string(x_mv->m_name) ) {
                         tmp = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, i));
@@ -1669,8 +1667,7 @@ public:
 
         ASR::Variable_t* x_m_v = ASR::down_cast<ASR::Variable_t>(x.m_v);
         fetch_val(x_m_v);
-        ASR::Enum_t* x_enum = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
-        ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x_enum->m_enum_type);
+        ASR::EnumType_t* enum_type = ASRUtils::get_EnumType_from_symbol(x.m_v);
         uint32_t h = get_hash((ASR::asr_t*) enum_type);
         llvm::Value* array = llvm_symtab[h];
         if( ASR::is_a<ASR::Integer_t>(*enum_type->m_type) ) {
@@ -5115,15 +5112,6 @@ public:
                 args.push_back(tmp);
             } else if (ASRUtils::is_real(*t)) {
                 llvm::Value *d;
-                // if( ASR::is_a<ASR::EnumValue_t>(*v) ) {
-                //     ASR::EnumValue_t* enum_value = ASR::down_cast<ASR::EnumValue_t>(v);
-                //     ASR::Enum_t* x_enum = ASR::down_cast<ASR::Enum_t>(enum_value->m_enum_type);
-                //     ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x_enum->m_enum_type);
-                //     uint32_t h = get_hash((ASR::asr_t*) enum_type);
-                //     llvm::Value* array = llvm_symtab[h];
-                //     tmp = llvm_utils->create_gep(array, tmp);
-                //     tmp = LLVM::CreateLoad(*builder, llvm_utils->create_gep(tmp, 1));
-                // }
                 switch( a_kind ) {
                     case 4 : {
                         // Cast float to double as a workaround for the fact that

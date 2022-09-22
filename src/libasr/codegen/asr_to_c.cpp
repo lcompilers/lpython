@@ -576,9 +576,7 @@ R"(
     void visit_EnumName(const ASR::EnumName_t& x) {
         ASR::Variable_t* enum_var = ASR::down_cast<ASR::Variable_t>(x.m_v);
         int64_t min_value = INT64_MAX;
-        ASR::Enum_t* x_enum = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
-        ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x_enum->m_enum_type);
-
+        ASR::EnumType_t* enum_type = ASRUtils::get_EnumType_from_symbol(x.m_v);
         for( auto itr: enum_type->m_symtab->get_scope() ) {
             ASR::Variable_t* itr_var = ASR::down_cast<ASR::Variable_t>(itr.second);
             ASR::expr_t* value = itr_var->m_symbolic_value;

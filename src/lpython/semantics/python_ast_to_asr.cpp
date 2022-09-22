@@ -668,7 +668,7 @@ public:
             call_args_vec.push_back(al, arg);
         }
     }
-    
+
     int64_t find_argument_position_from_name(ASR::Function_t* orig_func, std::string arg_name,
                                              const Location& call_loc, bool raise_error) {
         int64_t arg_position = -1;
@@ -955,7 +955,7 @@ public:
 
                 ASR::symbol_t *t = get_generic_function(subs, rt_subs, *func);
                 std::string new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
-                
+
                 // Currently ignoring keyword arguments for generic function calls
                 Vec<ASR::call_arg_t> new_args;
                 new_args.reserve(al, n_pos_args);
@@ -965,7 +965,7 @@ public:
                     new_call_arg.loc = args.p[i].loc;
                     new_args.push_back(al, new_call_arg);
                 }
-                return make_call_helper(al, t, current_scope, new_args, new_call_name, loc);                    
+                return make_call_helper(al, t, current_scope, new_args, new_call_name, loc);
             }
             if (args.size() != func->n_args) {
                 std::string fnd = std::to_string(args.size());
@@ -1099,7 +1099,7 @@ public:
      *        the restriction
      */
     void check_type_restriction(std::map<std::string, ASR::ttype_t*> subs,
-            std::map<std::string, ASR::symbol_t*> rt_subs, 
+            std::map<std::string, ASR::symbol_t*> rt_subs,
             ASR::Function_t* rt, const Location& loc) {
         std::string rt_name = rt->m_name;
         if (rt_subs.find(rt_name) != rt_subs.end()) {
@@ -1110,13 +1110,13 @@ public:
                 throw SemanticError(msg, loc);
             }
             ASR::Function_t* rt_arg_func = ASR::down_cast<ASR::Function_t>(rt_arg);
-            /** @brief different argument number between the function given and the 
+            /** @brief different argument number between the function given and the
              *         restriction result in error **/
             if (rt->n_args != rt_arg_func->n_args) {
-                std::string msg = "The function " + std::string(rt_arg_func->m_name) 
+                std::string msg = "The function " + std::string(rt_arg_func->m_name)
                     + " provided for the restriction "
                     + std::string(rt->m_name) + " have different number of arguments";
-                throw SemanticError(msg, rt_arg->base.loc); 
+                throw SemanticError(msg, rt_arg->base.loc);
             }
             for (size_t j=0; j<rt->n_args; j++) {
                 ASR::ttype_t* rt_type = ASRUtils::expr_type(rt->m_args[j]);
@@ -1125,7 +1125,7 @@ public:
                     std::string rt_type_param = ASR::down_cast<ASR::TypeParameter_t>(
                         ASRUtils::get_type_parameter(rt_type))->m_param;
                     /**
-                     * @brief if the type of the function given for the restriction does not 
+                     * @brief if the type of the function given for the restriction does not
                      *        satisfy the type substitution from the function argument, it
                      *        results in error **/
                     if (!ASRUtils::check_equal_type(subs[rt_type_param], rt_arg_type)) {
@@ -1186,7 +1186,7 @@ public:
             ASR::ttype_t* right_type = ASRUtils::expr_type(rt->m_args[1]);
             left_type = ASR::is_a<ASR::TypeParameter_t>(*left_type)
                 ? subs[ASR::down_cast<ASR::TypeParameter_t>(left_type)->m_param] : left_type;
-            if ((ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) || 
+            if ((ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) ||
                     (ASRUtils::is_real(*left_type) && ASRUtils::is_integer(*right_type))) {
                 return;
             }
@@ -1231,7 +1231,7 @@ public:
             new_function_num = 0;
         }
         generic_func_nums[func_name] = new_function_num + 1;
-        std::string new_func_name = "__lpython_generic_" + func_name + "_" 
+        std::string new_func_name = "__lpython_generic_" + func_name + "_"
             + std::to_string(new_function_num);
         generic_func_subs[new_func_name] = subs;
         t = pass_instantiate_generic_function(al, subs, rt_subs, current_scope,
@@ -2981,7 +2981,7 @@ public:
                         Vec<ASR::dimension_t> dims;
                         dims.reserve(al, 4);
 
-                        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, x.base.base.loc, 
+                        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, x.base.base.loc,
                             s2c(al, tvar_name), dims.p, dims.size()));
 
                         ASR::expr_t *value = nullptr;
@@ -3705,11 +3705,11 @@ public:
                     "Only value and name properties are supported for now.", loc);
             }
             if( attr_name == "value" ) {
-                tmp = ASR::make_EnumValue_t(al, loc, t, type, enum_type->m_type, nullptr);
+                tmp = ASR::make_EnumValue_t(al, loc, t, enum_type->m_type, nullptr);
             } else if( attr_name == "name" ) {
                 ASR::ttype_t* char_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, -2,
                                             nullptr, nullptr, 0));
-                tmp = ASR::make_EnumName_t(al, loc, t, type, char_type, nullptr);
+                tmp = ASR::make_EnumName_t(al, loc, t, char_type, nullptr);
             }
         } else if(ASR::is_a<ASR::Pointer_t>(*type)) {
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(type);
@@ -3740,8 +3740,7 @@ public:
                                         x.base.base.loc);
                 }
                 ASR::Variable_t* enum_member_variable = ASR::down_cast<ASR::Variable_t>(enum_member);
-                ASR::ttype_t* enum_ttype = ASRUtils::TYPE(ASR::make_Enum_t(al, x.base.base.loc, t, nullptr, 0));
-                tmp = ASR::make_EnumValue_t(al, x.base.base.loc, enum_member, enum_ttype,
+                tmp = ASR::make_EnumValue_t(al, x.base.base.loc, enum_member,
                         enum_member_variable->m_type, ASRUtils::expr_value(enum_member_variable->m_symbolic_value));
             } else {
                 throw SemanticError("Only Variable type is supported for now in Attribute",
@@ -3768,8 +3767,7 @@ public:
                     enum_ref_type = enum_ref->m_type;
                     enum_ref_value = enum_m_var->m_symbolic_value;
                     tmp = ASR::make_EnumValue_t(al, x.base.base.loc, enum_ref->m_v,
-                                enum_ref->m_enum_type, enum_ref_type,
-                                ASRUtils::expr_value(enum_ref_value));
+                                enum_ref_type, ASRUtils::expr_value(enum_ref_value));
                 } else if( enum_property == "name" ) {
                     char *s = enum_m_var->m_name;
                     size_t s_size = std::string(s).size();
@@ -3778,7 +3776,7 @@ public:
                     enum_ref_value = ASRUtils::EXPR(ASR::make_StringConstant_t(al, x.base.base.loc,
                                         s, enum_ref_type));
                     tmp = ASR::make_EnumName_t(al, x.base.base.loc, enum_ref->m_v,
-                                 enum_ref->m_enum_type, enum_ref_type, enum_ref_value);
+                                 enum_ref_type, enum_ref_value);
                 }
             } else {
                 visit_AttributeUtil(ASRUtils::expr_type(e), x.m_attr, e, x.base.base.loc);
