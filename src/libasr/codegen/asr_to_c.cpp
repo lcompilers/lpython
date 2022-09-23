@@ -590,16 +590,9 @@ R"(
 
     void visit_ComplexConstant(const ASR::ComplexConstant_t &x) {
         headers.insert("complex");
-
-        ASR::Complex_t *t = ASR::down_cast<ASR::Complex_t>(x.m_type);
-
         std::string re = std::to_string(x.m_re);
         std::string im = std::to_string(x.m_im);
-
-        std::string type_name = "float complex";
-        if (t->m_kind == 8) type_name = "double complex";
-
-        src = "(" + type_name + ") (" + re + ", " + im + ")";
+        src = "CMPLX(" + re + ", " + im + ")";
 
         last_expr_precedence = 2;
     }

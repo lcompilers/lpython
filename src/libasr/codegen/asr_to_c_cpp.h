@@ -748,6 +748,10 @@ R"(#include <stdio.h>
         handle_UnaryMinus(x);
     }
 
+    void visit_ComplexUnaryMinus(const ASR::ComplexUnaryMinus_t &x) {
+        handle_UnaryMinus(x);
+    }
+
     template <typename T>
     void handle_UnaryMinus(const T &x) {
         self().visit_expr(*x.m_arg);
@@ -757,6 +761,26 @@ R"(#include <stdio.h>
             src = "-" + src;
         } else {
             src = "-(" + src + ")";
+        }
+    }
+
+    void visit_ComplexRe(const ASR::ComplexRe_t &x) {
+        headers.insert("complex");
+        self().visit_expr(*x.m_arg);
+        if (is_c) {
+            src = "creal(" + src + ")";
+        } else {
+            src = src + ".real()";
+        }
+    }
+
+    void visit_ComplexIm(const ASR::ComplexIm_t &x) {
+        headers.insert("complex");
+        self().visit_expr(*x.m_arg);
+        if (is_c) {
+            src = "cimag(" + src + ")";
+        } else {
+            src = src + ".imag()";
         }
     }
 
