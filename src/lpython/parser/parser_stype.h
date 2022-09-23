@@ -101,12 +101,16 @@ static_assert(std::is_trivial<YYSTYPE>::value);
 // would reduce performance.
 static_assert(sizeof(YYSTYPE) == sizeof(Vec<LPython::AST::ast_t*>));
 
+static_assert(std::is_standard_layout<Location>::value);
+static_assert(std::is_trivial<Location>::value);
+
 } // namespace LFortran
 
 
 typedef struct LFortran::Location YYLTYPE;
 #define YYLTYPE_IS_DECLARED 1
 #define YYLTYPE_IS_TRIVIAL 0
+#define YYINITDEPTH 2000
 
 
 #endif // LPYTHON_PARSER_STYPE_H
