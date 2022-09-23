@@ -290,6 +290,7 @@ public:
             "The common type of Enum cannot be nullptr. " +
             std::string(x.m_name) + " doesn't seem to follow this rule.");
         ASR::ttype_t* common_type = x.m_type;
+        std::map<int64_t, int64_t> value2count;
         for( auto itr: x.m_symtab->get_scope() ) {
             ASR::Variable_t* itr_var = ASR::down_cast<ASR::Variable_t>(itr.second);
             require(itr_var->m_symbolic_value != nullptr,
@@ -300,7 +301,40 @@ public:
                 "All members of Enum must the same type. " +
                 std::string(itr_var->m_name) + " doesn't seem to follow this rule in " +
                 std::string(x.m_name) + " Enum.");
+            ASR::expr_t* value = ASRUtils::expr_value(itr_var->m_symbolic_value);
+            int64_t value_int64 = -1;
+            ASRUtils::extract_value(value, value_int64);
+            if( value2count.find(value_int64) == value2count.end() ) {
+                value2count[value_int64] = 0;
+            }
+            value2count[value_int64] += 1;
         }
+
+        bool is_enumtype_correct = false;
+        bool is_enum_integer = ASR::is_a<ASR::Integer_t>(*x.m_type);
+        if( x.m_enum_value_type == ASR::enumtypeType::IntegerConsecutiveFromZero ) {
+            is_enumtype_correct = (is_enum_integer &&
+                                   (value2count.find(0) != value2count.end()) &&
+                                   (value2count.size() == x.n_members));
+            int64_t prev = -1;
+            if( is_enumtype_correct ) {
+                for( auto enum_value: value2count ) {
+                    if( enum_value.first - prev != 1 ) {
+                        is_enumtype_correct = false;
+                        break ;
+                    }
+                    prev = enum_value.first;
+                }
+            }
+        } else if( x.m_enum_value_type == ASR::enumtypeType::IntegerNotUnique ) {
+            is_enumtype_correct = is_enum_integer && (value2count.size() != x.n_members);
+        } else if( x.m_enum_value_type == ASR::enumtypeType::IntegerUnique ) {
+            is_enumtype_correct = is_enum_integer && (value2count.size() == x.n_members);
+        } else if( x.m_enum_value_type == ASR::enumtypeType::NonInteger ) {
+            is_enumtype_correct = !is_enum_integer;
+        }
+        require(is_enumtype_correct, "Properties of enum value members don't match correspond "
+                                     "to EnumType::m_enum_value_type");
     }
 
     void visit_UnionType(const UnionType_t& x) {
