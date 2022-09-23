@@ -629,39 +629,59 @@ static inline std::string type_python_1dim_helper(const std::string & res,
     return res;
 }
 
-static inline void encode_dimensions(size_t n_dims, std::string& res) {
-    if( n_dims > 0 ) {
+static inline void encode_dimensions(size_t n_dims, std::string& res,
+    bool use_underscore_sep=false) {
+    if( n_dims == 0 ) {
+        return ;
+    }
+
+    if( use_underscore_sep ) {
+        res += "_";
+    } else {
         res += "[";
     }
+
     for( size_t i = 0; i < n_dims; i++ ) {
-        res += ":";
-        if( i == n_dims - 1 ) {
-            res += "]";
+        if( use_underscore_sep ) {
+            res += "_";
         } else {
-            res += ", ";
+            res += ":";
+        }
+        if( i == n_dims - 1 ) {
+            if( use_underscore_sep ) {
+                res += "_";
+            } else {
+                res += "]";
+            }
+        } else {
+            if( use_underscore_sep ) {
+                res += "_";
+            } else {
+                res += ", ";
+            }
         }
     }
 }
 
-static inline std::string get_type_code(const ASR::ttype_t *t)
+static inline std::string get_type_code(const ASR::ttype_t *t, bool use_underscore_sep=false)
 {
     switch (t->type) {
         case ASR::ttypeType::Integer: {
             ASR::Integer_t *integer = ASR::down_cast<ASR::Integer_t>(t);
             std::string res = "i" + std::to_string(integer->m_kind * 8);
-            encode_dimensions(integer->n_dims, res);
+            encode_dimensions(integer->n_dims, res, use_underscore_sep);
             return res;
         }
         case ASR::ttypeType::Real: {
             ASR::Real_t *real = ASR::down_cast<ASR::Real_t>(t);
             std::string res = "r" + std::to_string(real->m_kind * 8);
-            encode_dimensions(real->n_dims, res);
+            encode_dimensions(real->n_dims, res, use_underscore_sep);
             return res;
         }
         case ASR::ttypeType::Complex: {
             ASR::Complex_t *complx = ASR::down_cast<ASR::Complex_t>(t);
             std::string res = "r" + std::to_string(complx->m_kind * 8);
-            encode_dimensions(complx->n_dims, res);
+            encode_dimensions(complx->n_dims, res, use_underscore_sep);
             return res;
         }
         case ASR::ttypeType::Logical: {
@@ -672,28 +692,51 @@ static inline std::string get_type_code(const ASR::ttype_t *t)
         }
         case ASR::ttypeType::Tuple: {
             ASR::Tuple_t *tup = ASR::down_cast<ASR::Tuple_t>(t);
-            std::string result = "tuple[";
+            std::string result = "tuple";
+            if( use_underscore_sep ) {
+                result += "_";
+            } else {
+                result += "[";
+            }
             for (size_t i = 0; i < tup->n_type; i++) {
-                result += get_type_code(tup->m_type[i]);
+                result += get_type_code(tup->m_type[i], use_underscore_sep);
                 if (i + 1 != tup->n_type) {
-                    result += ", ";
+                    if( use_underscore_sep ) {
+                        result += "_";
+                    } else {
+                        result += ", ";
+                    }
                 }
             }
-            result += "]";
+            if( use_underscore_sep ) {
+                result += "_";
+            } else {
+                result += "]";
+            }
             return result;
         }
         case ASR::ttypeType::Set: {
             ASR::Set_t *s = ASR::down_cast<ASR::Set_t>(t);
-            return "set[" + get_type_code(s->m_type) + "]";
+            if( use_underscore_sep ) {
+                return "set_" + get_type_code(s->m_type, use_underscore_sep) + "_";
+            }
+            return "set[" + get_type_code(s->m_type, use_underscore_sep) + "]";
         }
         case ASR::ttypeType::Dict: {
             ASR::Dict_t *d = ASR::down_cast<ASR::Dict_t>(t);
-            return "dict[" + get_type_code(d->m_key_type) +
-                   ", " + get_type_code(d->m_value_type) + "]";
+            if( use_underscore_sep ) {
+                return "dict_" + get_type_code(d->m_key_type, use_underscore_sep) +
+                    "_" + get_type_code(d->m_value_type, use_underscore_sep) + "_";
+            }
+            return "dict[" + get_type_code(d->m_key_type, use_underscore_sep) +
+                    ", " + get_type_code(d->m_value_type, use_underscore_sep) + "]";
         }
         case ASR::ttypeType::List: {
             ASR::List_t *l = ASR::down_cast<ASR::List_t>(t);
-            return "list[" + get_type_code(l->m_type) + "]";
+            if( use_underscore_sep ) {
+                return "list_" + get_type_code(l->m_type, use_underscore_sep) + "_";
+            }
+            return "list[" + get_type_code(l->m_type, use_underscore_sep) + "]";
         }
         case ASR::ttypeType::CPtr: {
             return "CPtr";
@@ -704,7 +747,10 @@ static inline std::string get_type_code(const ASR::ttype_t *t)
         }
         case ASR::ttypeType::Pointer: {
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(t);
-            return "Pointer[" + get_type_code(p->m_type) + "]";
+            if( use_underscore_sep ) {
+                return "Pointer_" + get_type_code(p->m_type, use_underscore_sep) + "_";
+            }
+            return "Pointer[" + get_type_code(p->m_type, use_underscore_sep) + "]";
         }
         default: {
             throw LCompilersException("Type encoding not implemented for "
@@ -713,10 +759,11 @@ static inline std::string get_type_code(const ASR::ttype_t *t)
     }
 }
 
-static inline std::string get_type_code(ASR::ttype_t** types, size_t n_types) {
+static inline std::string get_type_code(ASR::ttype_t** types, size_t n_types,
+    bool use_underscore_sep=false) {
     std::string code = "";
     for( size_t i = 0; i < n_types; i++ ) {
-        code += get_type_code(types[i]) + "_";
+        code += get_type_code(types[i], use_underscore_sep) + "_";
     }
     return code;
 }

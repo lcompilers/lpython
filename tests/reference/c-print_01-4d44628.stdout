@@ -45,13 +45,13 @@ void _lpython_main_program()
 
 void f()
 {
-    char * x;
-    char * y;
+    char * x = (char*) malloc(40 * sizeof(char));
+    char * y = (char*) malloc(40 * sizeof(char));
     printf("%s\n", "Hello World!");
-    x = ",";
-    y = "!!";
+    strcpy(x, ",");
+    strcpy(y, "!!");
     printf("%s%s%s\n", "a", x, "b");
-    x = "-+-+-";
+    strcpy(x, "-+-+-");
     printf("%s%s%s%s%s\n", "a", x, "b", x, "c");
     printf("%s%s%s%s%s%s", "d", "=", "e", "=", "f", "+\n");
     printf("%s%s%s%s%s%s", "x", "*\n", "y", "*\n", "z", y);
