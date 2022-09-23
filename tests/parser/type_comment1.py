@@ -32,3 +32,6 @@ y)
 
 from sympy.simplify import (collect, powsimp,  # type: ignore
     separatevars, simplify)
+
+await test(  # type: ignore
+x, y, z)

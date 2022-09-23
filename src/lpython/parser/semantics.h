@@ -367,10 +367,17 @@ Arg** ARG2LIST(Allocator &al, Arg *x) {
         if(n_##x > 0) { \
             for(size_t i = 0; i < n_##x; i++) { \
                 _m_##x.push_back(al, m_##x[i]->_arg); \
-                if(m_##x[i]->default_value && !kw) { \
-                    defaults.push_back(al, m_##x[i]->defaults); \
-                } else if (m_##x[i]->default_value){ \
-                    kw_defaults.push_back(al, m_##x[i]->defaults); \
+                if(m_##x[i]->default_value) { \
+                    if (kw == 0) { \
+                        defaults.push_back(al, m_##x[i]->defaults); \
+                    } else { \
+                        kw_defaults.push_back(al, m_##x[i]->defaults); \
+                    } \
+                } else { \
+                    if (kw == 1) { \
+                        kw_defaults.push_back(al, \
+                            (expr_t*)make_ConstantNone_t(al, l, nullptr)); \
+                    } \
                 } \
             } \
             r->arguments.m_##x = _m_##x.p; \
@@ -394,25 +401,25 @@ static inline Args *FUNC_ARGS_01(Allocator &al, Location &l, Fn_Arg *parameters)
     if(parameters != nullptr) {
         Arg** m_posonlyargs = parameters->posonlyargs.p;
         size_t n_posonlyargs = parameters->posonlyargs.n;
-        FUNC_ARGS_(posonlyargs, false);
+        FUNC_ARGS_(posonlyargs, 0);
     }
     if(parameters != nullptr && parameters->args_val) {
         Arg** m_args = parameters->args->args.p;
         size_t n_args = parameters->args->args.n;
-        FUNC_ARGS_(args, false);
+        FUNC_ARGS_(args, 0);
 
         if(parameters->args->var_kw_val) {
             Arg** m_vararg = parameters->args->var_kw->vararg.p;
             size_t n_vararg = parameters->args->var_kw->vararg.n;
-            FUNC_ARGS_(vararg, false);
+            FUNC_ARGS_(vararg, 0);
 
             Arg** m_kwonlyargs = parameters->args->var_kw->kwonlyargs.p;
             size_t n_kwonlyargs = parameters->args->var_kw->kwonlyargs.n;
-            FUNC_ARGS_(kwonlyargs, true);
+            FUNC_ARGS_(kwonlyargs, 1);
 
             Arg** m_kwarg = parameters->args->var_kw->kwarg.p;
             size_t n_kwarg = parameters->args->var_kw->kwarg.n;
-            FUNC_ARGS_(kwarg, true);
+            FUNC_ARGS_(kwarg, 2);
         }
     }
     r->arguments.m_kw_defaults = kw_defaults.p;
@@ -905,22 +912,12 @@ static inline ast_t* ID_TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
 #define COMP_EXPR_1(expr, generators, l) make_GeneratorExp_t(p.m_a, l, \
         EXPR(expr), generators.p, generators.n)
 
-expr_t* CHECK_TUPLE(expr_t *x) {
-    if(is_a<Tuple_t>(*x) && down_cast<Tuple_t>(x)->n_elts == 1) {
-        return down_cast<Tuple_t>(x)->m_elts[0];
-    } else {
-        return x;
-    }
-}
-
 #define ELLIPSIS(l) make_ConstantEllipsis_t(p.m_a, l, nullptr)
 
 #define NONE(l) make_ConstantNone_t(p.m_a, l, nullptr)
 
-#define TUPLE(elts, l) make_Tuple_t(p.m_a, l, \
-        EXPRS(elts), elts.size(), expr_contextType::Load)
 #define SUBSCRIPT_01(value, slice, l) make_Subscript_t(p.m_a, l, \
-        EXPR(value), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
+        EXPR(value), EXPR(slice), expr_contextType::Load)
 
 static inline ast_t* SLICE(Allocator &al, Location &l,
         ast_t *lower, ast_t *upper, ast_t *_step) {

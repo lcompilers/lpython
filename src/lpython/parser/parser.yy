@@ -442,7 +442,7 @@ assignment_statement
     ;
 
 augassign_statement
-    : expr augassign_op expr { $$ = AUGASSIGN_01($1, $2, $3, @$); }
+    : expr augassign_op tuple_list { $$ = AUGASSIGN_01($1, $2, $3, @$); }
     ;
 
 augassign_op
@@ -879,6 +879,8 @@ primary
 
 function_call
     : primary "(" call_arguement_list ")" { $$ = CALL_01($1, $3, @$); }
+    | primary "(" TK_TYPE_IGNORE call_arguement_list ")" {
+        $$ = CALL_01($1, $4, @$); extract_type_comment(p, @$, $3); }
     | primary "(" expr comp_for_items ")" {
         $$ = CALL_02($1, A2LIST(p.m_a, GENERATOR_EXPR($3, $4, @$)), @$); }
     | function_call "(" call_arguement_list ")" { $$ = CALL_01($1, $3, @$); }
@@ -912,7 +914,8 @@ slice_items
     ;
 
 slice_item
-    : slice_item_list comma_opt { $$ = TUPLE($1, @$); }
+    : slice_item_list { $$ = TUPLE_01($1, @$); }
+    | slice_item_list "," { $$ = TUPLE_03($1, @$); }
     ;
 
 subscript
