@@ -581,9 +581,18 @@ R"(
     }
 
     void visit_EnumType(const ASR::EnumType_t& x) {
-        if( !ASR::is_a<ASR::Integer_t>(*x.m_type) ) {
+        if( x.m_enum_value_type == ASR::enumtypeType::NonInteger ) {
             throw CodeGenError("C backend only supports integer valued Enum. " +
                 std::string(x.m_name) + " is not integer valued.");
+        }
+        if( x.m_enum_value_type == ASR::enumtypeType::IntegerNotUnique ) {
+            throw CodeGenError("C backend only supports uniquely valued integer Enum. " +
+                std::string(x.m_name) + " Enum is having duplicate values for its members.");
+        }
+        if( x.m_enum_value_type == ASR::enumtypeType::IntegerUnique &&
+            x.m_abi == ASR::abiType::BindC ) {
+            throw CodeGenError("C-interoperation support for non-consecutive but uniquely "
+                               "valued integer enums isn't available yet.");
         }
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string tab(indentation_spaces, ' ');
@@ -594,7 +603,6 @@ R"(
         int64_t min_value = INT64_MAX;
         int64_t max_value = INT64_MIN;
         size_t max_name_len = 0;
-        std::map<int64_t, int64_t> value2count;
         for( size_t i = 0; i < x.n_members; i++ ) {
             ASR::symbol_t* member = x.m_symtab->get_symbol(x.m_members[i]);
             LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
@@ -602,21 +610,11 @@ R"(
             ASR::expr_t* value = ASRUtils::expr_value(member_var->m_symbolic_value);
             int64_t value_int64 = -1;
             ASRUtils::extract_value(value, value_int64);
-            if( value2count.find(value_int64) == value2count.end() ) {
-                value2count[value_int64] = 0;
-            }
-            value2count[value_int64] += 1;
             min_value = std::min(value_int64, min_value);
             max_value = std::max(value_int64, max_value);
             max_name_len = std::max(max_name_len, std::string(x.m_members[i]).size());
             this->visit_expr(*member_var->m_symbolic_value);
             body += indent + tab + std::string(member_var->m_name) + " = " + src + ",\n";
-        }
-        for( auto itr: value2count ) {
-            if( itr.second > 1 ) {
-                throw CodeGenError("C backend only supports uniquely valued integer Enum. " +
-                    std::string(x.m_name) + " Enum is having duplicate values for its members.");
-            }
         }
         size_t max_names = max_value - min_value + 1;
         std::vector<std::string> enum_names(max_names, "\"\"");

@@ -881,3 +881,11 @@ asr = true
 [[test]]
 filename = "errors/kwargs_03_error.py"
 asr = true
+
+[[test]]
+filename = "errors/enum_01.py"
+asr = true
+
+[[test]]
+filename = "errors/enum_02.py"
+asr = true

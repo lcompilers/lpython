@@ -1858,11 +1858,11 @@ public:
 
     void create_add_variable_to_scope(std::string& var_name, ASR::expr_t* init_expr,
         ASR::expr_t* value, ASR::ttype_t* type,
-        const Location& loc) {
+        const Location& loc, ASR::abiType abi) {
         ASR::intentType s_intent = ASRUtils::intent_local;
         ASR::storage_typeType storage_type =
                 ASR::storage_typeType::Default;
-        ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
+        ASR::abiType current_procedure_abi_type = abi;
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::presenceType s_presence = ASR::presenceType::Required;
         bool value_attr = false;
@@ -1889,7 +1889,7 @@ public:
 
     void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name,
                              bool wrap_derived_type_in_pointer=false,
-                             ASR::expr_t* init_expr=nullptr) {
+                             ASR::expr_t* init_expr=nullptr, ASR::abiType abi=ASR::abiType::Source) {
         ASR::ttype_t *type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation);
         ASR::ttype_t* ann_assign_target_type_copy = ann_assign_target_type;
         ann_assign_target_type = type;
@@ -1931,14 +1931,15 @@ public:
             cast_helper(type, init_expr);
         }
         create_add_variable_to_scope(var_name, init_expr, value, type,
-            x.base.base.loc);
+            x.base.base.loc, abi);
 
         tmp = nullptr;
         ann_assign_target_type = ann_assign_target_type_copy;
     }
 
     void visit_ClassMembers(const AST::ClassDef_t& x,
-        Vec<char*>& member_names, bool is_enum_scope=false) {
+        Vec<char*>& member_names, bool is_enum_scope=false,
+        ASR::abiType abi=ASR::abiType::Source) {
         int64_t prev_value = 1;
         for( size_t i = 0; i < x.n_body; i++ ) {
             LFORTRAN_ASSERT(AST::is_a<AST::AnnAssign_t>(*x.m_body[i]));
@@ -1970,9 +1971,24 @@ public:
                     init_expr = enum_value;
                 }
             }
-            visit_AnnAssignUtil(*ann_assign, var_name, true, init_expr);
+            visit_AnnAssignUtil(*ann_assign, var_name, true, init_expr, abi);
             member_names.push_back(al, n->m_id);
         }
+    }
+
+    ASR::abiType get_abi_from_decorators(AST::expr_t** decorators, size_t n) {
+        for( size_t i = 0; i < n; i++ ) {
+            AST::expr_t* decorator = decorators[i];
+            if( !AST::is_a<AST::Name_t>(*decorator) ) {
+                continue;
+            }
+
+            AST::Name_t* dec_name = AST::down_cast<AST::Name_t>(decorator);
+            if( std::string(dec_name->m_id) == "ccall" ) {
+                return ASR::abiType::BindC;
+            }
+        }
+        return ASR::abiType::Source;
     }
 
     void visit_ClassDef(const AST::ClassDef_t& x) {
@@ -1981,13 +1997,14 @@ public:
             return ;
         }
         if( is_enum(x.m_bases, x.n_bases) ) {
+            ASR::abiType enum_abi = get_abi_from_decorators(x.m_decorator_list, x.n_decorator_list);
             SymbolTable *parent_scope = current_scope;
             current_scope = al.make_new<SymbolTable>(parent_scope);
             Vec<char*> member_names;
             member_names.reserve(al, x.n_body);
             Vec<ASR::stmt_t*>* current_body_copy = current_body;
             current_body = nullptr;
-            visit_ClassMembers(x, member_names, true);
+            visit_ClassMembers(x, member_names, true, enum_abi);
             current_body = current_body_copy;
             ASR::ttype_t* common_type = nullptr;
             for( auto sym: current_scope->get_scope() ) {
@@ -2000,10 +2017,63 @@ public:
                     }
                 }
             }
+            ASR::enumtypeType enum_value_type = ASR::enumtypeType::NonInteger;
+            if( ASR::is_a<ASR::Integer_t>(*common_type) ) {
+                int8_t IntegerConsecutiveFromZero = 1;
+                int8_t IntegerNotUnique = 0;
+                int8_t IntegerUnique = 1;
+                std::map<int64_t, int64_t> value2count;
+                for( auto sym: current_scope->get_scope() ) {
+                    ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(sym.second);
+                    ASR::expr_t* value = ASRUtils::expr_value(member_var->m_symbolic_value);
+                    int64_t value_int64 = -1;
+                    ASRUtils::extract_value(value, value_int64);
+                    if( value2count.find(value_int64) == value2count.end() ) {
+                        value2count[value_int64] = 0;
+                    }
+                    value2count[value_int64] += 1;
+                }
+                int64_t prev = -1;
+                for( auto itr: value2count ) {
+                    if( itr.second > 1 ) {
+                        IntegerNotUnique = 1;
+                        IntegerUnique = 0;
+                        IntegerConsecutiveFromZero = 0;
+                        break ;
+                    }
+                    if( itr.first - prev != 1 ) {
+                        IntegerConsecutiveFromZero = 0;
+                    }
+                    prev = itr.first;
+                }
+                if( IntegerConsecutiveFromZero ) {
+                    if( value2count.find(0) == value2count.end() ) {
+                        IntegerConsecutiveFromZero = 0;
+                        IntegerUnique = 1;
+                    } else {
+                        IntegerUnique = 0;
+                    }
+                }
+                LFORTRAN_ASSERT(IntegerConsecutiveFromZero + IntegerNotUnique + IntegerUnique == 1);
+                if( IntegerConsecutiveFromZero ) {
+                    enum_value_type = ASR::enumtypeType::IntegerConsecutiveFromZero;
+                } else if( IntegerNotUnique ) {
+                    enum_value_type = ASR::enumtypeType::IntegerNotUnique;
+                } else if( IntegerUnique ) {
+                    enum_value_type = ASR::enumtypeType::IntegerUnique;
+                }
+            }
+            if( (enum_value_type == ASR::enumtypeType::NonInteger ||
+                 enum_value_type == ASR::enumtypeType::IntegerNotUnique) &&
+                 enum_abi == ASR::abiType::BindC ) {
+                throw SemanticError("Enumerations with non-integer or non-unique integer "
+                                    "values cannot interoperate with C code.",
+                                    x.base.base.loc);
+            }
             ASR::symbol_t* enum_type = ASR::down_cast<ASR::symbol_t>(ASR::make_EnumType_t(al,
                                             x.base.base.loc, current_scope, x.m_name,
                                             member_names.p, member_names.size(),
-                                            ASR::abiType::Source, ASR::accessType::Public,
+                                            enum_abi, ASR::accessType::Public, enum_value_type,
                                             common_type, nullptr));
             current_scope = parent_scope;
             current_scope->add_symbol(std::string(x.m_name), enum_type);
