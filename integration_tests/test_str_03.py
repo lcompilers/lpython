@@ -10,5 +10,16 @@ def test_int():
     l: i64 = 4
     print("abc:", i, j, k, l)
 
+
+def test_issue_1124():
+    a: str
+    a = "012345"
+    assert a[-1] == "5"
+    assert a[-1] == a[5]
+    assert a[-2] == a[4]
+    assert a[-4] == "2"
+
+
 test_new_line()
 test_int()
+test_issue_1124()
