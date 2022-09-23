@@ -260,7 +260,7 @@ public:
     }
 
     template <typename T>
-    void visit_DerivedTypeEnumType(const T &x) {
+    void visit_DerivedTypeEnumTypeUnionType(const T &x) {
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;
         require(x.m_symtab != nullptr,
@@ -281,11 +281,11 @@ public:
     }
 
     void visit_DerivedType(const DerivedType_t& x) {
-        visit_DerivedTypeEnumType(x);
+        visit_DerivedTypeEnumTypeUnionType(x);
     }
 
     void visit_EnumType(const EnumType_t& x) {
-        visit_DerivedTypeEnumType(x);
+        visit_DerivedTypeEnumTypeUnionType(x);
         require(x.m_type != nullptr,
             "The common type of Enum cannot be nullptr. " +
             std::string(x.m_name) + " doesn't seem to follow this rule.");
@@ -301,6 +301,10 @@ public:
                 std::string(itr_var->m_name) + " doesn't seem to follow this rule in " +
                 std::string(x.m_name) + " Enum.");
         }
+    }
+
+    void visit_UnionType(const UnionType_t& x) {
+        visit_DerivedTypeEnumTypeUnionType(x);
     }
 
     void visit_Variable(const Variable_t &x) {
