@@ -1737,7 +1737,7 @@ public:
 
             for( auto itr: enum_type->m_symtab->get_scope() ) {
                 ASR::Variable_t* itr_var = ASR::down_cast<ASR::Variable_t>(itr.second);
-                ASR::expr_t* value = itr_var->m_symbolic_value;
+                ASR::expr_t* value = ASRUtils::expr_value(itr_var->m_symbolic_value);
                 int64_t value_int64 = -1;
                 ASRUtils::extract_value(value, value_int64);
                 min_value = std::min(value_int64, min_value);
@@ -4442,6 +4442,14 @@ public:
         int a_kind = ((ASR::Integer_t*)(&(x.m_type->base)))->m_kind;
         switch( a_kind ) {
 
+            case 1: {
+                tmp = llvm::ConstantInt::get(context, llvm::APInt(8, val, true));
+                break ;
+            }
+            case 2: {
+                tmp = llvm::ConstantInt::get(context, llvm::APInt(16, val, true));
+                break ;
+            }
             case 4 : {
                 tmp = llvm::ConstantInt::get(context, llvm::APInt(32, static_cast<int32_t>(val), true));
                 break;
@@ -4451,7 +4459,8 @@ public:
                 break;
             }
             default : {
-                break;
+                throw CodeGenError("Constant integers of " + std::to_string(a_kind)
+                                    + " bytes aren't supported yet.");
             }
 
         }

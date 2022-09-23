@@ -634,7 +634,7 @@ R"(
         ASR::EnumType_t* enum_type = ASRUtils::get_EnumType_from_symbol(x.m_v);
         for( auto itr: enum_type->m_symtab->get_scope() ) {
             ASR::Variable_t* itr_var = ASR::down_cast<ASR::Variable_t>(itr.second);
-            ASR::expr_t* value = itr_var->m_symbolic_value;
+            ASR::expr_t* value = ASRUtils::expr_value(itr_var->m_symbolic_value);
             int64_t value_int64 = -1;
             ASRUtils::extract_value(value, value_int64);
             min_value = std::min(value_int64, min_value);
