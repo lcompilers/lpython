@@ -1938,6 +1938,11 @@ public:
     }
 
     void visit_EnumType(const ASR::EnumType_t& x) {
+        if( x.m_enum_value_type == ASR::enumtypeType::IntegerUnique &&
+            x.m_abi == ASR::abiType::BindC ) {
+            throw CodeGenError("C-interoperation support for non-consecutive but uniquely "
+                               "valued integer enums isn't available yet.");
+        }
         bool is_integer = ASR::is_a<ASR::Integer_t>(*x.m_type);
         ASR::storage_typeType m_storage = ASR::storage_typeType::Default;
         bool is_array_type = false, is_malloc_array_type = false, is_list = false;
@@ -2751,7 +2756,13 @@ public:
                 break;
             }
             case ASR::ttypeType::Enum: {
-                return llvm::Type::getInt32PtrTy(context);
+                if (arg_m_abi == ASR::abiType::BindC
+                    && arg_m_value_attr) {
+                    type = llvm::Type::getInt32Ty(context);
+                } else {
+                    type = llvm::Type::getInt32PtrTy(context);
+                }
+                break ;
             }
             default :
                 LFORTRAN_ASSERT(false);
