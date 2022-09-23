@@ -698,26 +698,26 @@ comma_opt
 
 function_def
     : decorators_opt KW_DEF id "(" parameter_list_opt ")" ":"
-        body_stmts { $$ = FUNCTION_01($1, $3, $5, $8, @$); }
+        body_stmts { FLOC(@$, @2); $$ = FUNCTION_01($1, $3, $5, $8, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
         body_stmts { FLOC(@$, @2); $$ = FUNCTION_02($1, $3, $5, $8, $10, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" ":"
         TK_TYPE_COMMENT sep statements {
-        $$ = FUNCTION_03($1, $3, $5, $10, $8, @$); }
+        FLOC(@$, @2); $$ = FUNCTION_03($1, $3, $5, $10, $8, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
         TK_TYPE_COMMENT sep statements {
-            $$ = FUNCTION_04($1, $3, $5, $8, $12, $10, @$); }
+            FLOC(@$, @2); $$ = FUNCTION_04($1, $3, $5, $8, $12, $10, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" ":"
         sep TK_TYPE_COMMENT sep statements {
-        $$ = FUNCTION_03($1, $3, $5, $11, $9, @$); }
+        FLOC(@$, @2); $$ = FUNCTION_03($1, $3, $5, $11, $9, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
         sep TK_TYPE_COMMENT sep statements {
-            $$ = FUNCTION_04($1, $3, $5, $8, $13, $11, @$); }
+            FLOC(@$, @2); $$ = FUNCTION_04($1, $3, $5, $8, $13, $11, @$); }
     ;
 
 class_def
     : decorators_opt KW_CLASS id ":" body_stmts {
-        $$ = CLASS_01($1, $3, $5, @$); }
+       FLOC(@$, @2); $$ = CLASS_01($1, $3, $5, @$); }
     | decorators_opt KW_CLASS id "(" call_arguement_list ")" ":" body_stmts {
        FLOC(@$, @2); $$ = CLASS_02($1, $3, $5, $8, @$); }
     ;
