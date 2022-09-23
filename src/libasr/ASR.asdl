@@ -98,7 +98,7 @@ symbol
     | DerivedType(symbol_table symtab, identifier name, identifier* members,
         abi abi, access access, symbol? parent)
     | EnumType(symbol_table symtab, identifier name, identifier* members,
-        abi abi, access access, ttype type, symbol? parent)
+        abi abi, access access, enumtype enum_value_type, ttype type, symbol? parent)
     | UnionType(symbol_table symtab, identifier name, identifier* members,
         abi abi, access access, symbol? parent)
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
@@ -392,5 +392,7 @@ array_index = (expr? left, expr? right, expr? step)
 do_loop_head = (expr? v, expr? start, expr? end, expr? increment)
 
 case_stmt = CaseStmt(expr* test, stmt* body) | CaseStmt_Range(expr? start, expr? end, stmt* body)
+
+enumtype = IntegerConsecutiveFromZero | IntegerUnique | IntegerNotUnique | NonInteger
 
 }
