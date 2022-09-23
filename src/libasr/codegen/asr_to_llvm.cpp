@@ -373,6 +373,10 @@ public:
                     el_type = getDerivedType(m_type_);
                     break;
                 }
+                case ASR::ttypeType::Union: {
+                    el_type = getUnionType(m_type_);
+                    break;
+                }
                 case ASR::ttypeType::Character: {
                     el_type = character_type;
                     break;
@@ -558,6 +562,10 @@ public:
                 llvm_mem_type = getDerivedType(mem_type);
                 break;
             }
+            case ASR::ttypeType::Union: {
+                llvm_mem_type = getUnionType(mem_type);
+                break;
+            }
             case ASR::ttypeType::Pointer: {
                 ASR::Pointer_t* ptr_type = ASR::down_cast<ASR::Pointer_t>(mem_type);
                 llvm_mem_type = getMemberType(ptr_type->m_type, member)->getPointerTo();
@@ -627,6 +635,40 @@ public:
         return getDerivedType(der_type, is_pointer);
     }
 
+    llvm::Type* getUnionType(ASR::UnionType_t* union_type, bool is_pointer=false) {
+        std::string union_type_name = std::string(union_type->m_name);
+        llvm::StructType* union_type_llvm = nullptr;
+        if( name2dertype.find(der_type_name) != name2dertype.end() ) {
+            union_type_llvm = name2dertype[union_type_name];
+        } else {
+            const std::map<std::string, ASR::symbol_t*>& scope = union_type->m_symtab->get_scope();
+            llvm::DataLayout data_layout(module.get());
+            llvm::Type* max_sized_type = nullptr;
+            size_t max_type_size = 0;
+            for( auto itr = scope.begin(); itr != scope.end(); itr++ ) {
+                ASR::Variable_t* member = ASR::down_cast<ASR::Variable_t>(itr->second);
+                llvm::Type* llvm_mem_type = getMemberType(member->m_type, member);
+                size_t type_size = data_layout.getTypeAllocSize(llvm_mem_type);
+                if( max_type_size < type_size ) {
+                    max_sized_type = llvm_mem_type;
+                    type_size = max_type_size;
+                }
+            }
+            union_type_llvm = llvm::StructType::create(context, {max_sized_type}, der_type_name);
+            name2dertype[der_type_name] = union_type_llvm;
+        }
+        if( is_pointer ) {
+            return union_type_llvm->getPointerTo();
+        }
+        return (llvm::Type*) union_type_llvm;
+    }
+
+    llvm::Type* getUnionType(ASR::ttype_t* _type, bool is_pointer=false) {
+        ASR::Union_t* union_ = ASR::down_cast<ASR::Union_t>(_type);
+        ASR::symbol_t* union_sym = ASRUtils::symbol_get_past_external(union_->m_union_type);
+        ASR::UnionType_t* union_type = ASR::down_cast<ASR::UnionType_t>(union_sym);
+        return getUnionType(union_type, is_pointer);
+    }
 
     llvm::Type* getClassType(ASR::ttype_t* _type, bool is_pointer=false) {
         ASR::Class_t* der = (ASR::Class_t*)(&(_type->base));
@@ -1318,6 +1360,26 @@ public:
         list_api->append(plist, item, asr_list->m_type, *module);
     }
 
+    void visit_UnionRef(const ASR::UnionRef_t& x) {
+        uint64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_v);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value* union_llvm = tmp;
+        ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(x.m_m);
+        ASR::ttype_t* member_type_asr = ASRUtils::get_contained_type(member_var->m_type);
+        if( ASR::is_a<ASR::Derived_t>(*member_type_asr) ) {
+            ASR::Derived_t* d = ASR::down_cast<ASR::Derived_t>(member_type_asr);
+            der_type_name = ASRUtils::symbol_name(d->m_derived_type);
+        }
+        member_type_asr = member_var->m_type;
+        llvm::Type* member_type_llvm = getMemberType(member_type_asr, member_var)->getPointerTo();
+        tmp = builder->CreateBitCast(union_llvm, member_type_llvm);
+        if( !is_assignment_target ) {
+            tmp = LLVM::CreateLoad(*builder, tmp);
+        }
+    }
+
     void visit_ListItem(const ASR::ListItem_t& x) {
         ASR::ttype_t* el_type = ASRUtils::get_contained_type(
                                         ASRUtils::expr_type(x.m_a));
@@ -1691,6 +1753,10 @@ public:
         LFORTRAN_ASSERT(x.n_args == 1);
         ASR::expr_t* m_arg = x.m_args[0];
         this->visit_expr(*m_arg);
+    }
+
+    void visit_UnionTypeConstructor(const ASR::UnionTypeConstructor_t& x) {
+        LFORTRAN_ASSERT(x.n_args == 0);
     }
 
     void visit_DerivedRef(const ASR::DerivedRef_t& x) {
@@ -2232,6 +2298,24 @@ public:
                     }
                 } else {
                     llvm_type = getDerivedType(asr_type, false);
+                }
+                break;
+            }
+            case (ASR::ttypeType::Union) : {
+                ASR::Union_t* v_type = ASR::down_cast<ASR::Union_t>(asr_type);
+                m_dims = v_type->m_dims;
+                n_dims = v_type->n_dims;
+                if( n_dims > 0 ) {
+                    is_array_type = true;
+                    llvm::Type* el_type = get_el_type(asr_type);
+                    if( m_storage == ASR::storage_typeType::Allocatable ) {
+                        is_malloc_array_type = true;
+                        llvm_type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type);
+                    } else {
+                        llvm_type = arr_descr->get_array_type(asr_type, a_kind, n_dims, el_type);
+                    }
+                } else {
+                    llvm_type = getUnionType(asr_type, false);
                 }
                 break;
             }
@@ -3510,7 +3594,8 @@ public:
         if( x.m_target->type == ASR::exprType::ArrayItem ||
             x.m_target->type == ASR::exprType::ArraySection ||
             x.m_target->type == ASR::exprType::DerivedRef ||
-            x.m_target->type == ASR::exprType::ListItem ) {
+            x.m_target->type == ASR::exprType::ListItem ||
+            x.m_target->type == ASR::exprType::UnionRef ) {
             is_assignment_target = true;
             this->visit_expr(*x.m_target);
             is_assignment_target = false;
@@ -3576,6 +3661,9 @@ public:
                     target = CreateLoad(arr_descr->get_pointer_to_data(target));
                 }
             }
+        }
+        if( ASR::is_a<ASR::UnionTypeConstructor_t>(*x.m_value) ) {
+            return ;
         }
         this->visit_expr_wrapper(x.m_value, true);
         value = tmp;
@@ -4613,6 +4701,16 @@ public:
             case ASR::ttypeType::Derived: {
                 ASR::Derived_t* der = (ASR::Derived_t*)(&(x->m_type->base));
                 ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
+                der_type_name = std::string(der_type->m_name);
+                uint32_t h = get_hash((ASR::asr_t*)x);
+                if( llvm_symtab.find(h) != llvm_symtab.end() ) {
+                    tmp = llvm_symtab[h];
+                }
+                break;
+            }
+            case ASR::ttypeType::Union: {
+                ASR::Union_t* der = ASR::down_cast<ASR::Union_t>(x->m_type);
+                ASR::UnionType_t* der_type = ASR::down_cast<ASR::UnionType_t>(der->m_union_type);
                 der_type_name = std::string(der_type->m_name);
                 uint32_t h = get_hash((ASR::asr_t*)x);
                 if( llvm_symtab.find(h) != llvm_symtab.end() ) {

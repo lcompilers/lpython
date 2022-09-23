@@ -99,6 +99,8 @@ symbol
         abi abi, access access, symbol? parent)
     | EnumType(symbol_table symtab, identifier name, identifier* members,
         abi abi, access access, ttype type, symbol? parent)
+    | UnionType(symbol_table symtab, identifier name, identifier* members,
+        abi abi, access access, symbol? parent)
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
         expr? symbolic_value, expr? value, storage_type storage, ttype type,
         abi abi, access access, presence presence, bool value_attr)
@@ -221,6 +223,7 @@ expr
             ttype type, expr? value, expr? dt)
     | DerivedTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
     | EnumTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
+    | UnionTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
     | ImpliedDoLoop(expr* values, expr var, expr start, expr end,
                     expr? increment, ttype type, expr? value)
     | IntegerConstant(int n, ttype type)
@@ -281,6 +284,7 @@ expr
 
     | BitCast(expr source, expr mold, expr? size, ttype type, expr? value)
     | DerivedRef(expr v, symbol m, ttype type, expr? value)
+    | UnionRef(expr v, symbol m, ttype type, expr? value)
     | EnumName(symbol v, ttype type, expr? value)
     | EnumValue(symbol v, ttype type, expr? value)
     | OverloadedCompare(expr left, cmpop op, expr right, ttype type, expr? value, expr overloaded)
@@ -331,6 +335,7 @@ ttype
     | Tuple(ttype* type)
     | Derived(symbol derived_type, dimension* dims)
     | Enum(symbol enum_type, dimension *dims)
+    | Union(symbol union_type, dimension *dims)
     | Class(symbol class_type, dimension* dims)
     | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)

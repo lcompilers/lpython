@@ -498,12 +498,25 @@ R"(#include <stdio.h>
         } else if (ASR::is_a<ASR::DerivedRef_t>(*x.m_target)) {
             visit_DerivedRef(*ASR::down_cast<ASR::DerivedRef_t>(x.m_target));
             target = src;
+        } else if (ASR::is_a<ASR::UnionRef_t>(*x.m_target)) {
+            visit_UnionRef(*ASR::down_cast<ASR::UnionRef_t>(x.m_target));
+            target = src;
         } else {
             LFORTRAN_ASSERT(false)
         }
         from_std_vector_helper.clear();
+        if( ASR::is_a<ASR::UnionTypeConstructor_t>(*x.m_value) ) {
+            src = "";
+            return ;
+        }
         self().visit_expr(*x.m_value);
         std::string value = src;
+        ASR::ttype_t* target_type = ASRUtils::expr_type(x.m_target);
+        if( ASR::is_a<ASR::UnionRef_t>(*x.m_target) &&
+            ASR::is_a<ASR::Pointer_t>(*target_type) &&
+            ASR::is_a<ASR::Derived_t>(*ASRUtils::get_contained_type(target_type)) ) {
+            value = "*" + value;
+        }
         std::string indent(indentation_level*indentation_spaces, ' ');
         if( !from_std_vector_helper.empty() ) {
             src = from_std_vector_helper;
@@ -571,11 +584,20 @@ R"(#include <stdio.h>
         this->visit_expr(*x.m_v);
         der_expr = std::move(src);
         member = ASRUtils::symbol_name(x.m_m);
-        if( ASR::is_a<ASR::ArrayItem_t>(*x.m_v) ) {
+        if( ASR::is_a<ASR::ArrayItem_t>(*x.m_v) ||
+            ASR::is_a<ASR::UnionRef_t>(*x.m_v) ) {
             src = der_expr + "." + member;
         } else {
             src = der_expr + "->" + member;
         }
+    }
+
+    void visit_UnionRef(const ASR::UnionRef_t& x) {
+        std::string der_expr, member;
+        this->visit_expr(*x.m_v);
+        der_expr = std::move(src);
+        member = ASRUtils::symbol_name(x.m_m);
+        src = der_expr + "." + member;
     }
 
     void visit_Cast(const ASR::Cast_t &x) {
