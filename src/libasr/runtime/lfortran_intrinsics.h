@@ -164,6 +164,8 @@ LFORTRAN_API int8_t* _lfortran_realloc(int8_t* ptr, int32_t size);
 LFORTRAN_API int8_t* _lfortran_calloc(int32_t count, int32_t size);
 LFORTRAN_API void _lfortran_free(char* ptr);
 LFORTRAN_API void _lfortran_string_init(int size_plus_one, char *s);
+LFORTRAN_API char* _lfortran_str_slice(char* s, int32_t idx1, int32_t idx2, int32_t step,
+                        bool idx1_present, bool idx2_present);
 LFORTRAN_API int32_t _lfortran_iand32(int32_t x, int32_t y);
 LFORTRAN_API int64_t _lfortran_iand64(int64_t x, int64_t y);
 LFORTRAN_API int32_t _lfortran_not32(int32_t x);
