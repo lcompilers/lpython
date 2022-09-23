@@ -367,10 +367,17 @@ Arg** ARG2LIST(Allocator &al, Arg *x) {
         if(n_##x > 0) { \
             for(size_t i = 0; i < n_##x; i++) { \
                 _m_##x.push_back(al, m_##x[i]->_arg); \
-                if(m_##x[i]->default_value && !kw) { \
-                    defaults.push_back(al, m_##x[i]->defaults); \
-                } else if (m_##x[i]->default_value){ \
-                    kw_defaults.push_back(al, m_##x[i]->defaults); \
+                if(m_##x[i]->default_value) { \
+                    if (kw == 0) { \
+                        defaults.push_back(al, m_##x[i]->defaults); \
+                    } else { \
+                        kw_defaults.push_back(al, m_##x[i]->defaults); \
+                    } \
+                } else { \
+                    if (kw == 1) { \
+                        kw_defaults.push_back(al, \
+                            (expr_t*)make_ConstantNone_t(al, l, nullptr)); \
+                    } \
                 } \
             } \
             r->arguments.m_##x = _m_##x.p; \
@@ -394,25 +401,25 @@ static inline Args *FUNC_ARGS_01(Allocator &al, Location &l, Fn_Arg *parameters)
     if(parameters != nullptr) {
         Arg** m_posonlyargs = parameters->posonlyargs.p;
         size_t n_posonlyargs = parameters->posonlyargs.n;
-        FUNC_ARGS_(posonlyargs, false);
+        FUNC_ARGS_(posonlyargs, 0);
     }
     if(parameters != nullptr && parameters->args_val) {
         Arg** m_args = parameters->args->args.p;
         size_t n_args = parameters->args->args.n;
-        FUNC_ARGS_(args, false);
+        FUNC_ARGS_(args, 0);
 
         if(parameters->args->var_kw_val) {
             Arg** m_vararg = parameters->args->var_kw->vararg.p;
             size_t n_vararg = parameters->args->var_kw->vararg.n;
-            FUNC_ARGS_(vararg, false);
+            FUNC_ARGS_(vararg, 0);
 
             Arg** m_kwonlyargs = parameters->args->var_kw->kwonlyargs.p;
             size_t n_kwonlyargs = parameters->args->var_kw->kwonlyargs.n;
-            FUNC_ARGS_(kwonlyargs, true);
+            FUNC_ARGS_(kwonlyargs, 1);
 
             Arg** m_kwarg = parameters->args->var_kw->kwarg.p;
             size_t n_kwarg = parameters->args->var_kw->kwarg.n;
-            FUNC_ARGS_(kwarg, true);
+            FUNC_ARGS_(kwarg, 2);
         }
     }
     r->arguments.m_kw_defaults = kw_defaults.p;
