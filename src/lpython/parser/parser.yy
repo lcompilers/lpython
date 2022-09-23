@@ -914,7 +914,8 @@ slice_items
     ;
 
 slice_item
-    : slice_item_list comma_opt { $$ = TUPLE($1, @$); }
+    : slice_item_list { $$ = TUPLE_01($1, @$); }
+    | slice_item_list "," { $$ = TUPLE_03($1, @$); }
     ;
 
 subscript

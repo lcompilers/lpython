@@ -905,22 +905,12 @@ static inline ast_t* ID_TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
 #define COMP_EXPR_1(expr, generators, l) make_GeneratorExp_t(p.m_a, l, \
         EXPR(expr), generators.p, generators.n)
 
-expr_t* CHECK_TUPLE(expr_t *x) {
-    if(is_a<Tuple_t>(*x) && down_cast<Tuple_t>(x)->n_elts == 1) {
-        return down_cast<Tuple_t>(x)->m_elts[0];
-    } else {
-        return x;
-    }
-}
-
 #define ELLIPSIS(l) make_ConstantEllipsis_t(p.m_a, l, nullptr)
 
 #define NONE(l) make_ConstantNone_t(p.m_a, l, nullptr)
 
-#define TUPLE(elts, l) make_Tuple_t(p.m_a, l, \
-        EXPRS(elts), elts.size(), expr_contextType::Load)
 #define SUBSCRIPT_01(value, slice, l) make_Subscript_t(p.m_a, l, \
-        EXPR(value), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
+        EXPR(value), EXPR(slice), expr_contextType::Load)
 
 static inline ast_t* SLICE(Allocator &al, Location &l,
         ast_t *lower, ast_t *upper, ast_t *_step) {
