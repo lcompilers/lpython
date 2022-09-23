@@ -796,6 +796,36 @@ R"(#include <stdio.h>
         }
     }
 
+    void visit_StringSection(const ASR::StringSection_t& x) {
+        self().visit_expr(*x.m_arg);
+        std::string arg, left, right, step, left_present, rig_present;
+        arg = src;
+        if (x.m_start) {
+            self().visit_expr(*x.m_start);
+            left = src;
+            left_present = "true";
+        } else {
+            left = "0";
+            left_present = "false";
+        }
+        if (x.m_end) {
+            self().visit_expr(*x.m_end);
+            right = src;
+            rig_present = "true";
+        } else {
+            right = "0";
+            rig_present = "false";
+        }
+        if (x.m_step) {
+            self().visit_expr(*x.m_step);
+            step = src;
+        } else {
+            step = "1";
+        }
+        src = "_lfortran_str_slice(" + arg + ", " + left + ", " + right + ", " + \
+                    step + ", " + left_present + ", " + rig_present + ")";
+    }
+
     void visit_ArraySize(const ASR::ArraySize_t& x) {
         self().visit_expr(*x.m_v);
         std::string var_name = src;
