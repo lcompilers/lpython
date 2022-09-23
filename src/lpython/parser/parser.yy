@@ -879,6 +879,8 @@ primary
 
 function_call
     : primary "(" call_arguement_list ")" { $$ = CALL_01($1, $3, @$); }
+    | primary "(" TK_TYPE_IGNORE call_arguement_list ")" {
+        $$ = CALL_01($1, $4, @$); extract_type_comment(p, @$, $3); }
     | primary "(" expr comp_for_items ")" {
         $$ = CALL_02($1, A2LIST(p.m_a, GENERATOR_EXPR($3, $4, @$)), @$); }
     | function_call "(" call_arguement_list ")" { $$ = CALL_01($1, $3, @$); }
