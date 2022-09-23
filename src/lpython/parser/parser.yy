@@ -315,13 +315,12 @@ script_unit
     ;
 
 statements
-    : TK_INDENT statements1 TK_DEDENT { $$ = $2; LLOC(@$,@2);
-        @$.first = @2.first; }
+    : TK_INDENT statements1 TK_DEDENT { @$.first = @2.first; LLOC(@$,@2); $$ = $2; }
     ;
 
 sep_statements
-    : sep statements { $$ = $2; }
-    | type_ignore_sep statements { $$ = $2; }
+    : sep statements { @$.first = @2.first; $$ = $2; }
+    | type_ignore_sep statements { @$.first = @2.first; $$ = $2; }
     ;
 
 body_stmts
@@ -335,9 +334,9 @@ statements1
     ;
 
 single_line_statements
-    : single_line_multi_statements TK_NEWLINE { $$ = $1; LLOC(@$,@1); }
+    : single_line_multi_statements TK_NEWLINE { LLOC(@$,@1); $$ = $1; }
     | single_line_multi_statements TK_EOLCOMMENT { $$ = $1; }
-    | single_line_statement TK_NEWLINE { $$ = A2LIST(p.m_a, $1); LLOC(@$,@1); }
+    | single_line_statement TK_NEWLINE { LLOC(@$,@1); $$ = A2LIST(p.m_a, $1); }
     | single_line_statement TK_SEMICOLON TK_NEWLINE { $$ = A2LIST(p.m_a, $1); }
     | single_line_statement TK_SEMICOLON TK_EOLCOMMENT { $$ = A2LIST(p.m_a, $1); }
     | single_line_statement TK_EOLCOMMENT { $$ = A2LIST(p.m_a, $1); }
@@ -359,10 +358,10 @@ type_ignore_sep
     ;
 
 statement
-    : single_line_statement sep { $$ = $1; LLOC(@$,@1); }
+    : single_line_statement sep { LLOC(@$,@1); $$ = $1; }
     | single_line_statement type_ignore_sep { $$ = $1; }
     | multi_line_statement
-    | multi_line_statement sep { $$ = $1; LLOC(@$,@1); }
+    | multi_line_statement sep { LLOC(@$,@1); $$ = $1; }
     | multi_line_statement type_ignore_sep { $$ = $1; }
     ;
 
