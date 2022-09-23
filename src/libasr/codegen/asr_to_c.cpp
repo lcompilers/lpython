@@ -145,6 +145,7 @@ public:
 
     std::string convert_variable_decl(const ASR::Variable_t &v,
                                       bool pre_initialise_derived_type=true,
+                                      bool use_ptr_for_derived_type=true,
                                       bool use_static=true)
     {
         std::string sub;
@@ -176,7 +177,11 @@ public:
                 ASR::Derived_t *t = ASR::down_cast<ASR::Derived_t>(t2);
                 std::string der_type_name = ASRUtils::symbol_name(t->m_derived_type);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
-                sub = format_type_c(dims, "struct " + der_type_name + "*",
+                std::string ptr_char = "*";
+                if( !use_ptr_for_derived_type ) {
+                    ptr_char.clear();
+                }
+                sub = format_type_c(dims, "struct " + der_type_name + ptr_char,
                                     v.m_name, use_ref, dummy);
             } else {
                 diag.codegen_error_label("Type number '"
@@ -268,7 +273,11 @@ public:
                         sub += "=" + init;
                     }
                     sub += ";\n";
-                    sub += indent + format_type_c("", "struct " + der_type_name + "*", v.m_name, use_ref, dummy);
+                    std::string ptr_char = "*";
+                    if( !use_ptr_for_derived_type ) {
+                        ptr_char.clear();
+                    }
+                    sub += indent + format_type_c("", "struct " + der_type_name + ptr_char, v.m_name, use_ref, dummy);
                     if( t->n_dims != 0 ) {
                         sub += " = " + value_var_name;
                     } else {
@@ -282,7 +291,34 @@ public:
                         use_ref = false;
                         dims = "";
                     }
-                    sub = format_type_c(dims, "struct " + der_type_name + "*",
+                    std::string ptr_char = "*";
+                    if( !use_ptr_for_derived_type ) {
+                        ptr_char.clear();
+                    }
+                    sub = format_type_c(dims, "struct " + der_type_name + ptr_char,
+                                        v.m_name, use_ref, dummy);
+                }
+            } else if (ASR::is_a<ASR::Union_t>(*v.m_type)) {
+                std::string indent(indentation_level*indentation_spaces, ' ');
+                ASR::Union_t *t = ASR::down_cast<ASR::Union_t>(v.m_type);
+                std::string der_type_name = ASRUtils::symbol_name(t->m_union_type);
+                if( is_array ) {
+                    dims = convert_dims_c(t->n_dims, t->m_dims, true);
+                    std::string encoded_type_name = "x" + der_type_name;
+                    std::string type_name = std::string("union ") + der_type_name;
+                    generate_array_decl(sub, std::string(v.m_name), type_name, dims,
+                                        encoded_type_name, t->m_dims, t->n_dims,
+                                        use_ref, dummy,
+                                        v.m_intent != ASRUtils::intent_in &&
+                                        v.m_intent != ASRUtils::intent_inout);
+                } else {
+                    dims = convert_dims_c(t->n_dims, t->m_dims);
+                    if( v.m_intent == ASRUtils::intent_in ||
+                        v.m_intent == ASRUtils::intent_inout ) {
+                        use_ref = false;
+                        dims = "";
+                    }
+                    sub = format_type_c(dims, "union " + der_type_name,
                                         v.m_name, use_ref, dummy);
                 }
             } else if (ASR::is_a<ASR::CPtr_t>(*v.m_type)) {
@@ -357,6 +393,8 @@ R"(
                 array_types_decls += "struct " + item.first + ";\n\n";
             } else if (ASR::is_a<ASR::EnumType_t>(*item.second)) {
                 array_types_decls += "enum " + item.first + ";\n\n";
+            } else if (ASR::is_a<ASR::UnionType_t>(*item.second)) {
+                array_types_decls += "union " + item.first + ";\n\n";
             }
         }
 
@@ -369,7 +407,8 @@ R"(
 
         for (auto &item : x.m_global_scope->get_scope()) {
             if (ASR::is_a<ASR::DerivedType_t>(*item.second) ||
-                ASR::is_a<ASR::EnumType_t>(*item.second)) {
+                ASR::is_a<ASR::EnumType_t>(*item.second) ||
+                ASR::is_a<ASR::UnionType_t>(*item.second)) {
                 visit_symbol(*item.second);
                 array_types_decls += src;
             }
@@ -481,20 +520,32 @@ R"(
         indentation_level -= 2;
     }
 
-    void visit_DerivedType(const ASR::DerivedType_t& x) {
+    template <typename T>
+    void visit_AggregateTypeUtil(const T& x, std::string c_type_name) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         indentation_level += 1;
-        std::string open_struct = indent + "struct " + std::string(x.m_name) + " {\n";
+        std::string open_struct = indent + c_type_name + " " + std::string(x.m_name) + " {\n";
         std::string body = "";
         indent.push_back(' ');
         for( size_t i = 0; i < x.n_members; i++ ) {
             ASR::symbol_t* member = x.m_symtab->get_symbol(x.m_members[i]);
             LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
-            body += indent + convert_variable_decl(*ASR::down_cast<ASR::Variable_t>(member), false) + ";\n";
+            body += indent + convert_variable_decl(
+                        *ASR::down_cast<ASR::Variable_t>(member),
+                        false,
+                        (c_type_name != "union")) + ";\n";
         }
         indentation_level -= 1;
         std::string end_struct = "};\n\n";
         array_types_decls += open_struct + body + end_struct;
+    }
+
+    void visit_DerivedType(const ASR::DerivedType_t& x) {
+        visit_AggregateTypeUtil(x, "struct");
+    }
+
+    void visit_UnionType(const ASR::UnionType_t& x) {
+        visit_AggregateTypeUtil(x, "union");
     }
 
     void visit_EnumType(const ASR::EnumType_t& x) {
@@ -566,6 +617,10 @@ R"(
         this->visit_expr(*m_arg);
         ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x.m_dt_sym);
         src = "(enum " + std::string(enum_type->m_name) + ") (" + src + ")";
+    }
+
+    void visit_UnionTypeConstructor(const ASR::UnionTypeConstructor_t& /*x*/) {
+
     }
 
     void visit_EnumValue(const ASR::EnumValue_t& x) {
