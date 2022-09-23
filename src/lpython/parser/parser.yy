@@ -315,12 +315,12 @@ script_unit
     ;
 
 statements
-    : TK_INDENT statements1 TK_DEDENT { @$.first = @2.first; LLOC(@$,@2); $$ = $2; }
+    : TK_INDENT statements1 TK_DEDENT { FLOC(@$, @2); LLOC(@$,@2); $$ = $2; }
     ;
 
 sep_statements
-    : sep statements { @$.first = @2.first; $$ = $2; }
-    | type_ignore_sep statements { @$.first = @2.first; $$ = $2; }
+    : sep statements { FLOC(@$, @2); $$ = $2; }
+    | type_ignore_sep statements { FLOC(@$, @2); $$ = $2; }
     ;
 
 body_stmts
@@ -700,7 +700,7 @@ function_def
     : decorators_opt KW_DEF id "(" parameter_list_opt ")" ":"
         body_stmts { $$ = FUNCTION_01($1, $3, $5, $8, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
-        body_stmts { @$.first = @2.first; $$ = FUNCTION_02($1, $3, $5, $8, $10, @$); }
+        body_stmts { FLOC(@$, @2); $$ = FUNCTION_02($1, $3, $5, $8, $10, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" ":"
         TK_TYPE_COMMENT sep statements {
         $$ = FUNCTION_03($1, $3, $5, $10, $8, @$); }
@@ -719,7 +719,7 @@ class_def
     : decorators_opt KW_CLASS id ":" body_stmts {
         $$ = CLASS_01($1, $3, $5, @$); }
     | decorators_opt KW_CLASS id "(" call_arguement_list ")" ":" body_stmts {
-       @$.first = @2.first; $$ = CLASS_02($1, $3, $5, $8, @$); }
+       FLOC(@$, @2); $$ = CLASS_02($1, $3, $5, $8, @$); }
     ;
 
 async_func_def

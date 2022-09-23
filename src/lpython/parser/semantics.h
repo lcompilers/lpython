@@ -58,7 +58,8 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
     return s;
 }
 
-// Assign last location to `a` from `b`
+// Assign first/last location to `a` from `b`
+#define FLOC(a, b) a.first = b.first;
 #define LLOC(a, b) a.last = b.last;
 
 
