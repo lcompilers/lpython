@@ -720,7 +720,7 @@ class_def
     : decorators_opt KW_CLASS id ":" body_stmts {
         $$ = CLASS_01($1, $3, $5, @$); }
     | decorators_opt KW_CLASS id "(" call_arguement_list ")" ":" body_stmts {
-        $$ = CLASS_02($1, $3, $5, $8, @$); }
+       @$.first = @2.first; $$ = CLASS_02($1, $3, $5, $8, @$); }
     ;
 
 async_func_def
