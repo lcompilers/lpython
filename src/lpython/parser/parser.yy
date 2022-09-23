@@ -700,7 +700,7 @@ function_def
     : decorators_opt KW_DEF id "(" parameter_list_opt ")" ":"
         body_stmts { $$ = FUNCTION_01($1, $3, $5, $8, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" "->" expr ":"
-        body_stmts { $$ = FUNCTION_02($1, $3, $5, $8, $10, @$); }
+        body_stmts { @$.first = @2.first; $$ = FUNCTION_02($1, $3, $5, $8, $10, @$); }
     | decorators_opt KW_DEF id "(" parameter_list_opt ")" ":"
         TK_TYPE_COMMENT sep statements {
         $$ = FUNCTION_03($1, $3, $5, $10, $8, @$); }
