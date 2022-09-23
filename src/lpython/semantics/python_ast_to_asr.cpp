@@ -831,6 +831,8 @@ public:
                             return ASRUtils::TYPE(ASR::make_Derived_t(al, loc, der_sym, dims.p, dims.size()));
                         } else if( ASR::is_a<ASR::EnumType_t>(*der_sym) ) {
                             return ASRUtils::TYPE(ASR::make_Enum_t(al, loc, der_sym, dims.p, dims.size()));
+                        } else if( ASR::is_a<ASR::UnionType_t>(*der_sym) ) {
+                            return ASRUtils::TYPE(ASR::make_Union_t(al, loc, der_sym, dims.p, dims.size()));
                         }
                     }
                 }
@@ -1050,6 +1052,13 @@ public:
             }
             ASR::ttype_t* der_type = ASRUtils::TYPE(ASR::make_Enum_t(al, loc, s, nullptr, 0));
             return ASR::make_EnumTypeConstructor_t(al, loc, s, args_new.p, args_new.size(), der_type, nullptr);
+        } else if( ASR::is_a<ASR::UnionType_t>(*s) ) {
+            if( args.size() != 0 ) {
+                throw SemanticError("Union constructors do not accept any argument as of now.",
+                    loc);
+            }
+            ASR::ttype_t* union_ = ASRUtils::TYPE(ASR::make_Union_t(al, loc, s, nullptr, 0));
+            return ASR::make_UnionTypeConstructor_t(al, loc, s, nullptr, 0, union_, nullptr);
         } else {
             throw SemanticError("Unsupported call type for " + call_name, loc);
         }
@@ -1833,6 +1842,51 @@ public:
         return std::string(base_name->m_id) == "Enum";
     }
 
+    bool is_union(AST::expr_t** bases, size_t n) {
+        if( n != 1 ) {
+            return false;
+        }
+
+        AST::expr_t* base = bases[0];
+        if( !AST::is_a<AST::Name_t>(*base) ) {
+            return false;
+        }
+
+        AST::Name_t* base_name = AST::down_cast<AST::Name_t>(base);
+        return std::string(base_name->m_id) == "Union";
+    }
+
+    void create_add_variable_to_scope(std::string& var_name, ASR::expr_t* init_expr,
+        ASR::expr_t* value, ASR::ttype_t* type,
+        const Location& loc) {
+        ASR::intentType s_intent = ASRUtils::intent_local;
+        ASR::storage_typeType storage_type =
+                ASR::storage_typeType::Default;
+        ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
+        ASR::accessType s_access = ASR::accessType::Public;
+        ASR::presenceType s_presence = ASR::presenceType::Required;
+        bool value_attr = false;
+        ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
+                s2c(al, var_name), s_intent, init_expr, value, storage_type, type,
+                current_procedure_abi_type, s_access, s_presence,
+                value_attr);
+        ASR::symbol_t* v_sym = ASR::down_cast<ASR::symbol_t>(v);
+        // Convert initialisation at declaration to assignment
+        // only for non-global variables. For global variables
+        // keep relying on `m_symbolic_value`.
+        if( init_expr && current_body) {
+            ASR::expr_t* v_expr = ASRUtils::EXPR(ASR::make_Var_t(al, loc, v_sym));
+            cast_helper(v_expr, init_expr, true);
+            ASR::asr_t* assign = ASR::make_Assignment_t(al, loc, v_expr,
+                                                        init_expr, nullptr);
+            current_body->push_back(al, ASRUtils::STMT(assign));
+            ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
+            v_variable->m_symbolic_value = nullptr;
+            v_variable->m_value = nullptr;
+        }
+        current_scope->add_symbol(var_name, v_sym);
+    }
+
     void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name,
                              bool wrap_derived_type_in_pointer=false) {
         ASR::ttype_t *type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation);
@@ -1872,32 +1926,8 @@ public:
             // otherwise ASRUtils::expr_value(init_expr).
             value = nullptr;
         }
-        ASR::intentType s_intent = ASRUtils::intent_local;
-        ASR::storage_typeType storage_type =
-                ASR::storage_typeType::Default;
-        ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
-        ASR::accessType s_access = ASR::accessType::Public;
-        ASR::presenceType s_presence = ASR::presenceType::Required;
-        bool value_attr = false;
-        ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
-                s2c(al, var_name), s_intent, init_expr, value, storage_type, type,
-                current_procedure_abi_type, s_access, s_presence,
-                value_attr);
-        ASR::symbol_t* v_sym = ASR::down_cast<ASR::symbol_t>(v);
-        // Convert initialisation at declaration to assignment
-        // only for non-global variables. For global variables
-        // keep relying on `m_symbolic_value`.
-        if( init_expr && current_body) {
-            ASR::expr_t* v_expr = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, v_sym));
-            cast_helper(v_expr, init_expr, true);
-            ASR::asr_t* assign = ASR::make_Assignment_t(al, x.base.base.loc, v_expr,
-                                                        init_expr, nullptr);
-            current_body->push_back(al, ASRUtils::STMT(assign));
-            ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
-            v_variable->m_symbolic_value = nullptr;
-            v_variable->m_value = nullptr;
-        }
-        current_scope->add_symbol(var_name, v_sym);
+        create_add_variable_to_scope(var_name, init_expr, value, type,
+            x.base.base.loc);
 
         tmp = nullptr;
         ann_assign_target_type = ann_assign_target_type_copy;
@@ -1947,6 +1977,20 @@ public:
                                             common_type, nullptr));
             current_scope = parent_scope;
             current_scope->add_symbol(std::string(x.m_name), enum_type);
+            return ;
+        } else if( is_union(x.m_bases, x.n_bases) ) {
+            SymbolTable *parent_scope = current_scope;
+            current_scope = al.make_new<SymbolTable>(parent_scope);
+            Vec<char*> member_names;
+            member_names.reserve(al, x.n_body);
+            visit_ClassMembers(x, member_names);
+            ASR::symbol_t* union_type = ASR::down_cast<ASR::symbol_t>(ASR::make_UnionType_t(al,
+                                            x.base.base.loc, current_scope, x.m_name,
+                                            member_names.p, member_names.size(),
+                                            ASR::abiType::Source, ASR::accessType::Public,
+                                            nullptr));
+            current_scope = parent_scope;
+            current_scope->add_symbol(std::string(x.m_name), union_type);
             return ;
         }
         if( !is_dataclass(x.m_decorator_list, x.n_decorator_list) ) {
@@ -3656,6 +3700,23 @@ public:
             ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member_sym);
             tmp = ASR::make_DerivedRef_t(al, loc, e, member_sym,
                                          member_var->m_type, nullptr);
+        } else if (ASRUtils::is_complex(*type)) {
+            std::string attr = attr_char;
+            int kind = ASRUtils::extract_kind_from_ttype_t(type);
+            ASR::ttype_t *dest_type = ASR::down_cast<ASR::ttype_t>(ASR::make_Real_t(al, loc,
+                                                kind, nullptr, 0));
+            if (attr == "imag") {
+                tmp = ASR::make_ComplexIm_t(al, loc, e, dest_type, nullptr);
+                return;
+            } else if (attr == "real") {
+                ASR::expr_t *value = ASR::down_cast<ASR::expr_t>(ASRUtils::make_Cast_t_value(
+                    al, e->base.loc, e, ASR::cast_kindType::ComplexToReal, dest_type));
+                tmp = ASR::make_ComplexRe_t(al, loc, e, dest_type, ASRUtils::expr_value(value));
+                return;
+            } else {
+                throw SemanticError("'" + attr + "' is not implemented for Complex type",
+                    loc);
+            }
         } else if( ASR::is_a<ASR::Pointer_t>(*type) ) {
             ASR::Pointer_t* ptr_type = ASR::down_cast<ASR::Pointer_t>(type);
             visit_AttributeUtil(ptr_type->m_type, attr_char, e, loc);
@@ -3724,6 +3785,26 @@ public:
                                             nullptr, nullptr, 0));
                 tmp = ASR::make_EnumName_t(al, loc, t, char_type, nullptr);
             }
+        } else if (ASR::is_a<ASR::Union_t>(*type)) {
+            ASR::Union_t* union_asr = ASR::down_cast<ASR::Union_t>(type);
+            ASR::symbol_t* union_sym = ASRUtils::symbol_get_past_external(union_asr->m_union_type);
+            ASR::UnionType_t* union_type = ASR::down_cast<ASR::UnionType_t>(union_sym);
+            bool member_found = false;
+            std::string member_name = attr_char;
+            for( size_t i = 0; i < union_type->n_members && !member_found; i++ ) {
+                member_found = std::string(union_type->m_members[i]) == member_name;
+            }
+            if( !member_found ) {
+                throw SemanticError("No member " + member_name +
+                                    " found in " + std::string(union_type->m_name),
+                                    loc);
+            }
+            ASR::expr_t *val = ASR::down_cast<ASR::expr_t>(ASR::make_Var_t(al, loc, t));
+            ASR::symbol_t* member_sym = union_type->m_symtab->resolve_symbol(member_name);
+            LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member_sym));
+            ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member_sym);
+            tmp = ASR::make_UnionRef_t(al, loc, val, member_sym,
+                                            member_var->m_type, nullptr);
         } else if(ASR::is_a<ASR::Pointer_t>(*type)) {
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(type);
             visit_AttributeUtil(p->m_type, attr_char, t, loc);
@@ -5009,7 +5090,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
                 // We have to remove the code
                 tu->m_items=nullptr;
                 tu->n_items=0;
-                LFORTRAN_ASSERT(asr_verify(*tu));
+                // LFORTRAN_ASSERT(asr_verify(*tu));
             }
         } else {
             LCompilers::PassOptions pass_options;

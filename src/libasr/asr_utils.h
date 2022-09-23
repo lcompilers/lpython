@@ -138,6 +138,9 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
         case ASR::ttypeType::Derived: {
             return "derived type";
         }
+        case ASR::ttypeType::Union: {
+            return "union";
+        }
         case ASR::ttypeType::CPtr: {
             return "type(c_ptr)";
         }
@@ -211,6 +214,9 @@ static inline char *symbol_name(const ASR::symbol_t *f)
         case ASR::symbolType::EnumType: {
             return ASR::down_cast<ASR::EnumType_t>(f)->m_name;
         }
+        case ASR::symbolType::UnionType: {
+            return ASR::down_cast<ASR::UnionType_t>(f)->m_name;
+        }
         case ASR::symbolType::Variable: {
             return ASR::down_cast<ASR::Variable_t>(f)->m_name;
         }
@@ -253,6 +259,9 @@ static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
         }
         case ASR::symbolType::EnumType: {
             return ASR::down_cast<ASR::EnumType_t>(f)->m_symtab->parent;
+        }
+        case ASR::symbolType::UnionType: {
+            return ASR::down_cast<ASR::UnionType_t>(f)->m_symtab->parent;
         }
         case ASR::symbolType::Variable: {
             return ASR::down_cast<ASR::Variable_t>(f)->m_parent_symtab;
@@ -298,6 +307,9 @@ static inline SymbolTable *symbol_symtab(const ASR::symbol_t *f)
         }
         case ASR::symbolType::EnumType: {
             return ASR::down_cast<ASR::EnumType_t>(f)->m_symtab;
+        }
+        case ASR::symbolType::UnionType: {
+            return ASR::down_cast<ASR::UnionType_t>(f)->m_symtab;
         }
         case ASR::symbolType::Variable: {
             return nullptr;
@@ -1079,6 +1091,12 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
             m_dims = Enum_type->m_dims;
             break;
         }
+        case ASR::ttypeType::Union: {
+            ASR::Union_t* Union_type = ASR::down_cast<ASR::Union_t>(x);
+            n_dims = Union_type->n_dims;
+            m_dims = Union_type->m_dims;
+            break;
+        }
         case ASR::ttypeType::Class: {
             ASR::Class_t* Class_type = ASR::down_cast<ASR::Class_t>(x);
             n_dims = Class_type->n_dims;
@@ -1521,6 +1539,10 @@ static inline ASR::ttype_t* get_contained_type(ASR::ttype_t* asr_type) {
             ASR::Enum_t* enum_asr = ASR::down_cast<ASR::Enum_t>(asr_type);
             ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_asr->m_enum_type);
             return enum_type->m_type;
+        }
+        case ASR::ttypeType::Pointer: {
+            ASR::Pointer_t* pointer_asr = ASR::down_cast<ASR::Pointer_t>(asr_type);
+            return pointer_asr->m_type;
         }
         default: {
             return asr_type;
