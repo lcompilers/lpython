@@ -315,7 +315,7 @@ script_unit
     ;
 
 statements
-    : TK_INDENT statements1 TK_DEDENT { $$ = $2; }
+    : TK_INDENT statements1 TK_DEDENT { $$ = $2; LLOC(@$,$2); }
     ;
 
 sep_statements
