@@ -1888,7 +1888,8 @@ public:
     }
 
     void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name,
-                             bool wrap_derived_type_in_pointer=false) {
+                             bool wrap_derived_type_in_pointer=false,
+                             ASR::expr_t* init_expr=nullptr) {
         ASR::ttype_t *type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation);
         ASR::ttype_t* ann_assign_target_type_copy = ann_assign_target_type;
         ann_assign_target_type = type;
@@ -1898,33 +1899,36 @@ public:
         }
 
         ASR::expr_t *value = nullptr;
-        ASR::expr_t *init_expr = nullptr;
-        tmp = nullptr;
-        if (x.m_value) {
-            this->visit_expr(*x.m_value);
-        }
-        if (tmp) {
-            value = ASRUtils::EXPR(tmp);
-            cast_helper(type, value);
-            if (!ASRUtils::check_equal_type(type, ASRUtils::expr_type(value))) {
-                std::string ltype = ASRUtils::type_to_str_python(type);
-                std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(value));
-                diag.add(diag::Diagnostic(
-                    "Type mismatch in annotation-assignment, the types must be compatible",
-                    diag::Level::Error, diag::Stage::Semantic, {
-                        diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
-                                {x.m_target->base.loc, value->base.loc})
-                    })
-                );
-                throw SemanticAbort();
+        if( !init_expr ) {
+            tmp = nullptr;
+            if (x.m_value) {
+                this->visit_expr(*x.m_value);
             }
-            init_expr = value;
-            // Set compile time to value to nullptr
-            // Once constant variables are supported
-            // in LPython set value according to the
-            // nature of the variable (nullptr if non-constant,
-            // otherwise ASRUtils::expr_value(init_expr).
-            value = nullptr;
+            if (tmp) {
+                value = ASRUtils::EXPR(tmp);
+                cast_helper(type, value);
+                if (!ASRUtils::check_equal_type(type, ASRUtils::expr_type(value))) {
+                    std::string ltype = ASRUtils::type_to_str_python(type);
+                    std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(value));
+                    diag.add(diag::Diagnostic(
+                        "Type mismatch in annotation-assignment, the types must be compatible",
+                        diag::Level::Error, diag::Stage::Semantic, {
+                            diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
+                                    {x.m_target->base.loc, value->base.loc})
+                        })
+                    );
+                    throw SemanticAbort();
+                }
+                init_expr = value;
+                // Set compile time to value to nullptr
+                // Once constant variables are supported
+                // in LPython set value according to the
+                // nature of the variable (nullptr if non-constant,
+                // otherwise ASRUtils::expr_value(init_expr).
+                value = nullptr;
+            }
+        } else {
+            cast_helper(type, init_expr);
         }
         create_add_variable_to_scope(var_name, init_expr, value, type,
             x.base.base.loc);
@@ -1933,14 +1937,40 @@ public:
         ann_assign_target_type = ann_assign_target_type_copy;
     }
 
-    void visit_ClassMembers(const AST::ClassDef_t& x, Vec<char*>& member_names) {
+    void visit_ClassMembers(const AST::ClassDef_t& x,
+        Vec<char*>& member_names, bool is_enum_scope=false) {
+        int64_t prev_value = 1;
         for( size_t i = 0; i < x.n_body; i++ ) {
             LFORTRAN_ASSERT(AST::is_a<AST::AnnAssign_t>(*x.m_body[i]));
             AST::AnnAssign_t* ann_assign = AST::down_cast<AST::AnnAssign_t>(x.m_body[i]);
             LFORTRAN_ASSERT(AST::is_a<AST::Name_t>(*ann_assign->m_target));
             AST::Name_t *n = AST::down_cast<AST::Name_t>(ann_assign->m_target);
             std::string var_name = n->m_id;
-            visit_AnnAssignUtil(*ann_assign, var_name, true);
+            ASR::expr_t* init_expr = nullptr;
+            if( is_enum_scope ) {
+                if( AST::is_a<AST::Call_t>(*ann_assign->m_value) ) {
+                    AST::Call_t* auto_call_cand = AST::down_cast<AST::Call_t>(ann_assign->m_value);
+                    if( AST::is_a<AST::Name_t>(*auto_call_cand->m_func) ) {
+                        AST::Name_t* func = AST::down_cast<AST::Name_t>(auto_call_cand->m_func);
+                        std::string func_name = func->m_id;
+                        if( func_name == "auto" ) {
+                            ASR::ttype_t* i64_type = ASRUtils::TYPE(ASR::make_Integer_t(al,
+                                auto_call_cand->base.base.loc, 8, nullptr, 0));
+                            init_expr = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al,
+                                auto_call_cand->base.base.loc, prev_value, i64_type));
+                            prev_value += 1;
+                        }
+                    }
+                } else {
+                    this->visit_expr(*ann_assign->m_value);
+                    ASR::expr_t* enum_value = ASRUtils::expr_value(ASRUtils::EXPR(tmp));
+                    LFORTRAN_ASSERT(ASRUtils::is_value_constant(enum_value));
+                    ASRUtils::extract_value(enum_value, prev_value);
+                    prev_value += 1;
+                    init_expr = enum_value;
+                }
+            }
+            visit_AnnAssignUtil(*ann_assign, var_name, true, init_expr);
             member_names.push_back(al, n->m_id);
         }
     }
@@ -1957,7 +1987,7 @@ public:
             member_names.reserve(al, x.n_body);
             Vec<ASR::stmt_t*>* current_body_copy = current_body;
             current_body = nullptr;
-            visit_ClassMembers(x, member_names);
+            visit_ClassMembers(x, member_names, true);
             current_body = current_body_copy;
             ASR::ttype_t* common_type = nullptr;
             for( auto sym: current_scope->get_scope() ) {
