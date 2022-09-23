@@ -23,6 +23,9 @@
 #include <libasr/string_utils.h>
 #include <libasr/pass/unused_functions.h>
 
+#include <map>
+#include <tuple>
+
 
 namespace LFortran {
 
@@ -62,6 +65,292 @@ struct SymbolInfo
     bool intrinsic_function = false;
 };
 
+typedef std::string (*DeepCopyFunction)(std::string, std::string, ASR::ttype_t*);
+
+namespace CUtils {
+    static std::string deepcopy(std::string target, std::string value, ASR::ttype_t* m_type) {
+        switch (m_type->type) {
+            case ASR::ttypeType::Character: {
+                return "strcpy(" + target + ", " + value + ");";
+            }
+            default: {
+                return target + " = " + value + ";";
+            }
+        }
+    }
+}
+
+namespace CPPUtils {
+    static std::string deepcopy(std::string target, std::string value, ASR::ttype_t* /*m_type*/) {
+            return target + " = " + value + ";";
+    }
+}
+
+class CCPPList {
+    private:
+
+        std::map<std::string, std::pair<std::string, std::string>> typecode2listtype;
+        std::map<std::string, std::map<std::string, std::string>> typecode2listfuncs;
+
+        int indentation_level, indentation_spaces;
+
+        std::string generated_code;
+        std::string list_func_decls;
+
+        SymbolTable* global_scope;
+        DeepCopyFunction deepcopy_function;
+
+    public:
+
+        CCPPList() {
+            generated_code.clear();
+            list_func_decls.clear();
+        }
+
+        void set_deepcopy_function(DeepCopyFunction func) {
+            deepcopy_function = func;
+        }
+
+        void set_indentation(int indendation_level_, int indendation_space_) {
+            indentation_level = indendation_level_;
+            indentation_spaces = indendation_space_;
+        }
+
+        void set_global_scope(SymbolTable* global_scope_) {
+            global_scope = global_scope_;
+        }
+
+        std::string get_list_type(ASR::List_t* list_type,
+            std::string list_element_type) {
+            std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
+            if( typecode2listtype.find(list_type_code) != typecode2listtype.end() ) {
+                return typecode2listtype[list_type_code].first;
+            }
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string list_struct_type = "struct list_" + list_type_code;
+            typecode2listtype[list_type_code] = std::make_pair(list_struct_type, list_element_type);
+            list_func_decls += indent + list_struct_type + " {\n";
+            list_func_decls += indent + tab + "int32_t capacity;\n";
+            list_func_decls += indent + tab + "int32_t current_end_point;\n";
+            list_func_decls += indent + tab + list_element_type + "* data;\n";
+            list_func_decls += indent + "};\n\n";
+            list_init(list_struct_type, list_type_code, list_element_type);
+            list_deepcopy(list_struct_type, list_type_code, list_element_type);
+            resize_if_needed(list_struct_type, list_type_code, list_element_type);
+            list_append(list_struct_type, list_type_code, list_element_type, list_type->m_type);
+            list_insert(list_struct_type, list_type_code, list_element_type, list_type->m_type);
+            list_find_item_position(list_struct_type, list_type_code, list_element_type, list_type->m_type);
+            list_remove(list_struct_type, list_type_code, list_element_type, list_type->m_type);
+            return list_struct_type;
+        }
+
+        std::string get_list_deepcopy_func(ASR::List_t* list_type) {
+            std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
+            return typecode2listfuncs[list_type_code]["list_deepcopy"];
+        }
+
+        std::string get_list_init_func(ASR::List_t* list_type) {
+            std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
+            return typecode2listfuncs[list_type_code]["list_init"];
+        }
+
+        std::string get_list_append_func(ASR::List_t* list_type) {
+            std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
+            return typecode2listfuncs[list_type_code]["list_append"];
+        }
+
+        std::string get_list_insert_func(ASR::List_t* list_type) {
+            std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
+            return typecode2listfuncs[list_type_code]["list_insert"];
+        }
+
+        std::string get_list_resize_func(std::string list_type_code) {
+            return typecode2listfuncs[list_type_code]["list_resize"];
+        }
+
+        std::string get_list_remove_func(ASR::List_t* list_type) {
+            std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
+            return typecode2listfuncs[list_type_code]["list_remove"];
+        }
+
+        std::string get_list_find_item_position_function(std::string list_type_code) {
+            return typecode2listfuncs[list_type_code]["list_find_item"];
+        }
+
+        std::string get_generated_code() {
+            return generated_code;
+        }
+
+        std::string get_list_func_decls() {
+            return list_func_decls;
+        }
+
+        void list_init(std::string list_struct_type,
+            std::string list_type_code,
+            std::string list_element_type) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string list_init_func = global_scope->get_unique_name("list_init_" + list_type_code);
+            typecode2listfuncs[list_type_code]["list_init"] = list_init_func;
+            std::string signature = "void " + list_init_func + "(" + list_struct_type + "* x, int32_t capacity)";
+            list_func_decls += indent + "inline " + signature + ";\n";
+            signature = indent + signature;
+            generated_code += indent + signature + " {\n";
+            generated_code += indent + tab + "x->capacity = capacity;\n";
+            generated_code += indent + tab + "x->current_end_point = 0;\n";
+            generated_code += indent + tab + "x->data = (" + list_element_type + "*) " +
+                              "malloc(capacity * sizeof(" + list_element_type + "));\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        void list_deepcopy(std::string list_struct_type,
+            std::string list_type_code,
+            std::string list_element_type) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string list_dc_func = global_scope->get_unique_name("list_deepcopy_" + list_type_code);
+            typecode2listfuncs[list_type_code]["list_deepcopy"] = list_dc_func;
+            std::string signature = "void " + list_dc_func + "("
+                                + list_struct_type + "* src, "
+                                + list_struct_type + "* dest)";
+            list_func_decls += "inline " + signature + ";\n";
+            generated_code += indent + signature + " {\n";
+            generated_code += indent + tab + "dest->capacity = src->capacity;\n";
+            generated_code += indent + tab + "dest->current_end_point = src->current_end_point;\n";
+            generated_code += indent + tab + "dest->data = (" + list_element_type + "*) " +
+                              "malloc(src->capacity * sizeof(" + list_element_type + "));\n";
+            generated_code += indent + tab + "memcpy(dest->data, src->data, " +
+                                "src->capacity * sizeof(" + list_element_type + "));\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        void resize_if_needed(std::string list_struct_type,
+            std::string list_type_code,
+            std::string list_element_type) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string list_resize_func = global_scope->get_unique_name("resize_if_needed_" + list_type_code);
+            typecode2listfuncs[list_type_code]["list_resize"] = list_resize_func;
+            std::string signature = "void " + list_resize_func + "(" + list_struct_type + "* x)";
+            list_func_decls += indent + "inline " + signature + ";\n";
+            signature = indent + signature;
+            generated_code += indent + signature + " {\n";
+            generated_code += indent + tab + "if (x->capacity == x->current_end_point) {\n";
+            generated_code += indent + tab + tab + "x->capacity = 2 * x->capacity + 1;\n";
+            generated_code += indent + tab + tab + "x->data = (" + list_element_type + "*) " +
+                              "realloc(x->data, x->capacity * sizeof(" + list_element_type + "));\n";
+            generated_code += indent + tab + "}\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        void list_append(std::string list_struct_type,
+            std::string list_type_code,
+            std::string list_element_type, ASR::ttype_t* m_type) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string list_append_func = global_scope->get_unique_name("list_append_" + list_type_code);
+            typecode2listfuncs[list_type_code]["list_append"] = list_append_func;
+            std::string signature = "void " + list_append_func + "("
+                                + list_struct_type + "* x, "
+                                + list_element_type + " element)";
+            list_func_decls += "inline " + signature + ";\n";
+            generated_code += indent + signature + " {\n";
+            std::string list_resize_func = get_list_resize_func(list_type_code);
+            generated_code += indent + tab + list_resize_func + "(x);\n";
+            if( ASR::is_a<ASR::Character_t>(*m_type) ) {
+                generated_code += indent + tab + "x->data[x->current_end_point] = (char*) malloc(40 * sizeof(char));\n";
+            }
+            generated_code += indent + tab + deepcopy_function("x->data[x->current_end_point]", "element", m_type) + "\n";
+            generated_code += indent + tab + "x->current_end_point += 1;\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        void list_insert(std::string list_struct_type,
+            std::string list_type_code, std::string list_element_type,
+            ASR::ttype_t* m_type) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string list_insert_func = global_scope->get_unique_name("list_insert_" + list_type_code);
+            typecode2listfuncs[list_type_code]["list_insert"] = list_insert_func;
+            std::string signature = "void " + list_insert_func + "("
+                                + list_struct_type + "* x, "
+                                + "int pos, "
+                                + list_element_type + " element)";
+            list_func_decls += "inline " + signature + ";\n";
+            generated_code += indent + signature + " {\n";
+            std::string list_resize_func = get_list_resize_func(list_type_code);
+            generated_code += indent + tab + list_resize_func + "(x);\n";
+            generated_code += indent + tab + "int pos_ptr = pos;\n";
+            generated_code += indent + tab + list_element_type + " tmp_ptr = x->data[pos];\n";
+            generated_code += indent + tab + list_element_type + " tmp = 0;\n";
+
+            generated_code += indent + tab + "while(x->current_end_point > pos_ptr) {\n";
+            generated_code += indent + tab + tab + "tmp = x->data[pos_ptr + 1];\n";
+            generated_code += indent + tab + tab + "x->data[pos_ptr + 1] = tmp_ptr;\n";
+            generated_code += indent + tab + tab + "tmp_ptr = tmp;\n";
+            generated_code += indent + tab + tab + "pos_ptr++;\n";
+            generated_code += indent + tab + "}\n\n";
+
+            if( ASR::is_a<ASR::Character_t>(*m_type) ) {
+                generated_code += indent + tab + "x->data[pos] = (char*) malloc(40 * sizeof(char));\n";
+            }
+            generated_code += indent + tab + deepcopy_function("x->data[pos]", "element", m_type) + "\n";
+            generated_code += indent + tab + "x->current_end_point += 1;\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        void list_find_item_position(std::string list_struct_type,
+            std::string list_type_code, std::string list_element_type,
+            ASR::ttype_t* /*m_type*/) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string list_find_item_pos_func = global_scope->get_unique_name("list_find_item_" + list_type_code);
+            typecode2listfuncs[list_type_code]["list_find_item"] = list_find_item_pos_func;
+            std::string signature = "int " + list_find_item_pos_func + "("
+                                + list_struct_type + "* x, "
+                                + list_element_type + " element)";
+            list_func_decls += "inline " + signature + ";\n";
+            generated_code += indent + signature + " {\n";
+            generated_code += indent + tab + "int el_pos = 0;\n";
+            generated_code += indent + tab + "while(x->current_end_point > el_pos) {;\n";
+            generated_code += indent + tab + tab + "if (x->data[el_pos] == element) return el_pos;\n";
+            generated_code += indent + tab + tab + "el_pos++;\n";
+            generated_code += indent + tab + "}\n";
+            generated_code += indent + tab + "return -1;\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        void list_remove(std::string list_struct_type,
+            std::string list_type_code, std::string list_element_type,
+            ASR::ttype_t* /*m_type*/) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string list_remove_func = global_scope->get_unique_name("list_remove_" + list_type_code);
+            typecode2listfuncs[list_type_code]["list_remove"] = list_remove_func;
+            std::string signature = "void " + list_remove_func + "("
+                                + list_struct_type + "* x, "
+                                + list_element_type + " element)";
+            list_func_decls += "inline " + signature + ";\n";
+            generated_code += indent + signature + " {\n";
+            std::string find_item_pos_func = get_list_find_item_position_function(list_type_code);
+            generated_code += indent + tab + "int el_pos = " + find_item_pos_func + "(x, element);\n";
+            generated_code += indent + tab + "while(x->current_end_point > el_pos) {;\n";
+            generated_code += indent + tab + tab + "int tmp = el_pos + 1;\n";
+            generated_code += indent + tab + tab + "x->data[el_pos] = x->data[tmp];\n";
+            generated_code += indent + tab + tab + "el_pos = tmp;\n";
+            generated_code += indent + tab + "}\n";
+
+            generated_code += indent + tab + "x->current_end_point -= 1;\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        ~CCPPList() {
+            typecode2listtype.clear();
+            generated_code.clear();
+        }
+};
+
 template <class Derived>
 class BaseCCPPVisitor : public ASR::BaseVisitor<Derived>
 {
@@ -71,6 +360,7 @@ public:
     diag::Diagnostics &diag;
     Platform platform;
     std::string src;
+    std::string current_body;
     int indentation_level;
     int indentation_spaces;
     // The precedence of the last expression, using the table:
@@ -95,13 +385,27 @@ public:
     size_t template_number;
     std::string from_std_vector_helper;
 
+    std::unique_ptr<CCPPList> list_api;
+    std::string const_name;
+    size_t const_list_count;
+
+    SymbolTable* current_scope;
+    bool is_string_concat_present;
+
     BaseCCPPVisitor(diag::Diagnostics &diag, Platform &platform,
             bool gen_stdstring, bool gen_stdcomplex, bool is_c,
             int64_t default_lower_bound) : diag{diag},
             platform{platform},
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
         is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound},
-        template_number{0} {}
+        template_number{0}, list_api{std::make_unique<CCPPList>()}, const_name{"constname"},
+        const_list_count{0}, is_string_concat_present{false} {
+            if( is_c ) {
+                list_api->set_deepcopy_function(&CUtils::deepcopy);
+            } else {
+                list_api->set_deepcopy_function(&CPPUtils::deepcopy);
+            }
+        }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         global_scope = x.m_global_scope;
@@ -111,6 +415,8 @@ public:
         std::string unit_src = "";
         indentation_level = 0;
         indentation_spaces = 4;
+        list_api->set_indentation(indentation_level + 1, indentation_spaces);
+        list_api->set_global_scope(global_scope);
 
         std::string headers =
 R"(#include <stdio.h>
@@ -190,6 +496,8 @@ R"(#include <stdio.h>
 
     void visit_Program(const ASR::Program_t &x) {
         // Generate code for nested subroutines and functions first:
+        SymbolTable* current_scope_copy = current_scope;
+        current_scope = x.m_symtab;
         std::string contains;
         for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Function_t>(*item.second)) {
@@ -223,6 +531,7 @@ R"(#include <stdio.h>
                 + decl + body
                 + indent1 + "return 0;\n}\n";
         indentation_level -= 2;
+        current_scope = current_scope_copy;
     }
 
     void visit_BlockCall(const ASR::BlockCall_t &x) {
@@ -298,6 +607,10 @@ R"(#include <stdio.h>
                 }
             } else if (ASR::is_a<ASR::CPtr_t>(*return_var->m_type)) {
                 sub = "void* ";
+            } else if (ASR::is_a<ASR::List_t>(*return_var->m_type)) {
+                ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(return_var->m_type);
+                std::string list_element_type = get_c_type_from_ttype_t(list_type->m_type);
+                sub = list_api->get_list_type(list_type, list_element_type) + " ";
             } else {
                 throw CodeGenError("Return type not supported in function '" +
                     std::string(x.m_name) +
@@ -346,6 +659,9 @@ R"(#include <stdio.h>
     }
 
     void visit_Function(const ASR::Function_t &x) {
+        current_body = "";
+        SymbolTable* current_scope_copy = current_scope;
+        current_scope = x.m_symtab;
         if (std::string(x.m_name) == "size" && intrinsic_module ) {
             // Intrinsic function `size`
             SymbolInfo s;
@@ -391,11 +707,10 @@ R"(#include <stdio.h>
             }
 
             current_function = &x;
-            std::string body;
 
             for (size_t i=0; i<x.n_body; i++) {
                 self().visit_stmt(*x.m_body[i]);
-                body += src;
+                current_body += src;
             }
             current_function = nullptr;
             bool visited_return = false;
@@ -405,13 +720,13 @@ R"(#include <stdio.h>
             }
 
             if (!visited_return && x.m_return_var) {
-                body += indent + "return "
+                current_body += indent + "return "
                     + LFortran::ASRUtils::EXPR2VAR(x.m_return_var)->m_name
                     + ";\n";
             }
 
-            if (decl.size() > 0 || body.size() > 0) {
-                sub += "{\n" + decl + body + "}\n";
+            if (decl.size() > 0 || current_body.size() > 0) {
+                sub += "{\n" + decl + current_body + "}\n";
             } else {
                 sub[sub.size()-1] = ';';
                 sub += "\n";
@@ -420,6 +735,7 @@ R"(#include <stdio.h>
         }
         sub += "\n";
         src = sub;
+        current_scope = current_scope_copy;
     }
 
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
@@ -464,6 +780,17 @@ R"(#include <stdio.h>
             src = fn_name + "(" + args + ")";
         }
         last_expr_precedence = 2;
+        if( ASR::is_a<ASR::List_t>(*x.m_type) ) {
+            ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(x.m_type);
+            std::string list_element_type = get_c_type_from_ttype_t(list_type->m_type);
+            const_name += std::to_string(const_list_count);
+            const_list_count += 1;
+            const_name = current_scope->get_unique_name(const_name);
+            std::string indent(indentation_level*indentation_spaces, ' ');
+            current_body += indent + list_api->get_list_type(list_type,
+                                list_element_type) + " " + const_name + " = " + src + ";\n";
+            src = const_name;
+        }
     }
 
     void visit_ArraySize(const ASR::ArraySize_t& x) {
@@ -486,6 +813,10 @@ R"(#include <stdio.h>
 
     void visit_Assignment(const ASR::Assignment_t &x) {
         std::string target;
+        ASR::ttype_t* m_target_type = ASRUtils::expr_type(x.m_target);
+        ASR::ttype_t* m_value_type = ASRUtils::expr_type(x.m_value);
+        bool is_target_list = ASR::is_a<ASR::List_t>(*m_target_type);
+        bool is_value_list = ASR::is_a<ASR::List_t>(*m_value_type);
         if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
             visit_Var(*ASR::down_cast<ASR::Var_t>(x.m_target));
             target = src;
@@ -500,6 +831,9 @@ R"(#include <stdio.h>
             target = src;
         } else if (ASR::is_a<ASR::UnionRef_t>(*x.m_target)) {
             visit_UnionRef(*ASR::down_cast<ASR::UnionRef_t>(x.m_target));
+            target = src;
+        } else if (ASR::is_a<ASR::ListItem_t>(*x.m_target)) {
+            self().visit_ListItem(*ASR::down_cast<ASR::ListItem_t>(x.m_target));
             target = src;
         } else {
             LFORTRAN_ASSERT(false)
@@ -523,7 +857,22 @@ R"(#include <stdio.h>
         } else {
             src.clear();
         }
-        src += indent + target + " = " + value + ";\n";
+        if( is_target_list && is_value_list ) {
+            ASR::List_t* list_target = ASR::down_cast<ASR::List_t>(ASRUtils::expr_type(x.m_target));
+            std::string list_dc_func = list_api->get_list_deepcopy_func(list_target);
+            if( ASR::is_a<ASR::ListConstant_t>(*x.m_value) ) {
+                src += value;
+                src += indent + list_dc_func + "(&" + const_name + ", &" + target + ");\n\n";
+            } else {
+                src += indent + list_dc_func + "(&" + value + ", &" + target + ");\n\n";
+            }
+        } else {
+            if( is_c ) {
+                src += indent + CUtils::deepcopy(target, value, m_target_type) + "\n";
+            } else {
+                src += indent + CPPUtils::deepcopy(target, value, m_target_type) + "\n";
+            }
+        }
         from_std_vector_helper.clear();
     }
 
@@ -554,6 +903,112 @@ R"(#include <stdio.h>
         }
         src += "\"";
         last_expr_precedence = 2;
+    }
+
+    void visit_StringConcat(const ASR::StringConcat_t& x) {
+        is_string_concat_present = true;
+        if( x.m_value ) {
+            self().visit_expr(*x.m_value);
+            return ;
+        }
+        self().visit_expr(*x.m_left);
+        std::string left = std::move(src);
+        self().visit_expr(*x.m_right);
+        std::string right = std::move(src);
+        if( is_c ) {
+            src = "strcat_(" + left + ", " + right +")";
+        } else {
+            src = left + " + " + right;
+        }
+    }
+
+    void visit_ListConstant(const ASR::ListConstant_t& x) {
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        std::string tab(indentation_spaces, ' ');
+        const_name += std::to_string(const_list_count);
+        const_list_count += 1;
+        const_name = current_scope->get_unique_name(const_name);
+        ASR::List_t* t = ASR::down_cast<ASR::List_t>(x.m_type);
+        std::string list_element_type = get_c_type_from_ttype_t(t->m_type);
+        std::string list_type_c = list_api->get_list_type(t, list_element_type);
+        std::string src_tmp = "";
+        src_tmp += indent + list_type_c + " " + const_name + ";\n";
+        std::string list_init_func = list_api->get_list_init_func(t);
+        src_tmp += indent + list_init_func + "(&" + const_name + ", " +
+               std::to_string(x.n_args) + ");\n";
+        for( size_t i = 0; i < x.n_args; i++ ) {
+            self().visit_expr(*x.m_args[i]);
+            if( ASR::is_a<ASR::Character_t>(*t->m_type) ) {
+                src_tmp += const_name + ".data[" + std::to_string(i) +"] = (char*) malloc(40 * sizeof(char));\n";
+            }
+            if( is_c ) {
+                src_tmp += indent + CUtils::deepcopy(const_name + ".data[" + std::to_string(i) +"]", src, t->m_type) + "\n";
+            } else {
+                src_tmp += indent + CPPUtils::deepcopy(const_name + ".data[" + std::to_string(i) +"]", src, t->m_type) + "\n";
+            }
+        }
+        src_tmp += indent + const_name + ".current_end_point = " + std::to_string(x.n_args) + ";\n";
+        src = src_tmp;
+    }
+
+    void visit_ListAppend(const ASR::ListAppend_t& x) {
+        ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
+        ASR::List_t* t = ASR::down_cast<ASR::List_t>(t_ttype);
+        std::string list_append_func = list_api->get_list_append_func(t);
+        self().visit_expr(*x.m_a);
+        std::string list_var = std::move(src);
+        self().visit_expr(*x.m_ele);
+        std::string element = std::move(src);
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        src = indent + list_append_func + "(&" + list_var + ", " + element + ");\n";
+    }
+
+    void visit_ListInsert(const ASR::ListInsert_t& x) {
+        ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
+        ASR::List_t* t = ASR::down_cast<ASR::List_t>(t_ttype);
+        std::string list_insert_func = list_api->get_list_insert_func(t);
+        self().visit_expr(*x.m_a);
+        std::string list_var = std::move(src);
+        self().visit_expr(*x.m_ele);
+        std::string element = std::move(src);
+        self().visit_expr(*x.m_pos);
+        std::string pos = std::move(src);
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        src = indent + list_insert_func + "(&" + list_var + ", " + pos + ", " + element + ");\n";
+    }
+
+    void visit_ListRemove(const ASR::ListRemove_t& x) {
+        ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
+        ASR::List_t* t = ASR::down_cast<ASR::List_t>(t_ttype);
+        std::string list_remove_func = list_api->get_list_remove_func(t);
+        self().visit_expr(*x.m_a);
+        std::string list_var = std::move(src);
+        self().visit_expr(*x.m_ele);
+        std::string element = std::move(src);
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        src = indent + list_remove_func + "(&" + list_var + ", " + element + ");\n";
+    }
+
+    void visit_ListLen(const ASR::ListLen_t& x) {
+        if( x.m_value ) {
+            self().visit_expr(*x.m_value);
+            return ;
+        }
+        self().visit_expr(*x.m_arg);
+        src = src + ".current_end_point";
+    }
+
+    void visit_ListItem(const ASR::ListItem_t& x) {
+        if( x.m_value ) {
+            self().visit_expr(*x.m_value);
+            return ;
+        }
+        self().visit_expr(*x.m_a);
+        std::string list_var = std::move(src);
+        self().visit_expr(*x.m_pos);
+        std::string pos = std::move(src);
+        // TODO: check for out of bound indices
+        src = list_var + ".data[" + pos + "]";
     }
 
     void visit_LogicalConstant(const ASR::LogicalConstant_t &x) {
@@ -662,7 +1117,7 @@ R"(#include <stdio.h>
                 break;
             }
             case (ASR::cast_kindType::LogicalToCharacter) : {
-                 src = src + " ? \"True\" : \"False\"";
+                src = src + " ? \"True\" : \"False\"";
                 break;
             }
             case (ASR::cast_kindType::IntegerToLogical) : {
@@ -683,13 +1138,18 @@ R"(#include <stdio.h>
                 break;
             }
             case (ASR::cast_kindType::CharacterToLogical) : {
-
                 src = "(bool)(strlen(" + src + ") > 0)";
                 break;
             }
             case (ASR::cast_kindType::ComplexToLogical) : {
                 src = "(bool)(" + src + ")";
                 break;
+            }
+            case (ASR::cast_kindType::IntegerToCharacter) : {
+                ASR::ttype_t* src_type = ASRUtils::expr_type(x.m_arg);
+                int src_kind = ASRUtils::extract_kind_from_ttype_t(src_type);
+                src = "_lfortran_int_to_str" + std::to_string(src_kind) + "(" + src + ")";
+                break ;
             }
             default : throw CodeGenError("Cast kind " + std::to_string(x.m_kind) + " not implemented",
                 x.base.base.loc);
@@ -823,6 +1283,20 @@ R"(#include <stdio.h>
         switch( t->type ) {
             case ASR::ttypeType::Integer: {
                 type_src = "int" + std::to_string(kind * 8) + "_t";
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                if( kind == 4 ) {
+                    type_src = "float";
+                } else if( kind == 8 ) {
+                    type_src = "double";
+                } else {
+                    throw CodeGenError(std::to_string(kind * 8) + "-bit floating points not yet supported.");
+                }
+                break;
+            }
+            case ASR::ttypeType::Character: {
+                type_src = "char*";
                 break;
             }
             case ASR::ttypeType::Pointer: {
@@ -1114,6 +1588,8 @@ R"(#include <stdio.h>
     }
 
     void visit_DoLoop(const ASR::DoLoop_t &x) {
+        std::string current_body_copy = current_body;
+        current_body = "";
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "for (";
         ASR::Variable_t *loop_var = LFortran::ASRUtils::EXPR2VAR(x.m_head.m_v);
@@ -1159,14 +1635,18 @@ R"(#include <stdio.h>
         indentation_level += 1;
         for (size_t i=0; i<x.n_body; i++) {
             self().visit_stmt(*x.m_body[i]);
-            out += src;
+            current_body += src;
         }
+        out += current_body;
         out += indent + "}\n";
         indentation_level -= 1;
         src = out;
+        current_body = current_body_copy;
     }
 
     void visit_If(const ASR::If_t &x) {
+        std::string current_body_copy = current_body;
+        current_body = "";
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "if (";
         self().visit_expr(*x.m_test);
@@ -1174,21 +1654,25 @@ R"(#include <stdio.h>
         indentation_level += 1;
         for (size_t i=0; i<x.n_body; i++) {
             self().visit_stmt(*x.m_body[i]);
-            out += src;
+            current_body += src;
         }
+        out += current_body;
         out += indent + "}";
         if (x.n_orelse == 0) {
             out += "\n";
         } else {
+            current_body = "";
             out += " else {\n";
             for (size_t i=0; i<x.n_orelse; i++) {
                 self().visit_stmt(*x.m_orelse[i]);
-                out += src;
+                current_body += src;
             }
+            out += current_body;
             out += indent + "}\n";
         }
         indentation_level -= 1;
         src = out;
+        current_body = current_body_copy;
     }
 
     void visit_IfExp(const ASR::IfExp_t &x) {

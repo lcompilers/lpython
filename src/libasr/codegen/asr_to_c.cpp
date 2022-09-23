@@ -42,8 +42,8 @@ public:
                   int64_t default_lower_bound)
          : BaseCCPPVisitor(diag, platform, false, false, true, default_lower_bound),
            array_types_decls(std::string("\nstruct dimension_descriptor\n"
-                                         "{\n    int32_t lower_bound, length;\n};\n"))  {
-    }
+                                         "{\n    int32_t lower_bound, length;\n};\n")) {
+           }
 
     std::string convert_dims_c(size_t n_dims, ASR::dimension_t *m_dims,
                                bool convert_to_1d=false)
@@ -249,6 +249,10 @@ public:
                 ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(v.m_type);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
                 sub = format_type_c(dims, "char *", v.m_name, use_ref, dummy);
+                if( v.m_intent == ASRUtils::intent_local ) {
+                    sub += " = (char*) malloc(40 * sizeof(char))";
+                    return sub;
+                }
             } else if (ASR::is_a<ASR::Derived_t>(*v.m_type)) {
                 std::string indent(indentation_level*indentation_spaces, ' ');
                 ASR::Derived_t *t = ASR::down_cast<ASR::Derived_t>(v.m_type);
@@ -321,6 +325,12 @@ public:
                     sub = format_type_c(dims, "union " + der_type_name,
                                         v.m_name, use_ref, dummy);
                 }
+            } else if (ASR::is_a<ASR::List_t>(*v.m_type)) {
+                ASR::List_t* t = ASR::down_cast<ASR::List_t>(v.m_type);
+                std::string list_element_type = get_c_type_from_ttype_t(t->m_type);
+                std::string list_type_c = list_api->get_list_type(t, list_element_type);
+                sub = format_type_c("", list_type_c, v.m_name,
+                                    false, false);
             } else if (ASR::is_a<ASR::CPtr_t>(*v.m_type)) {
                 sub = format_type_c("", "void*", v.m_name, false, false);
             } else if (ASR::is_a<ASR::Enum_t>(*v.m_type)) {
@@ -347,6 +357,7 @@ public:
 
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
+        is_string_concat_present = false;
         global_scope = x.m_global_scope;
         // All loose statements must be converted to a function, so the items
         // must be empty:
@@ -354,6 +365,8 @@ public:
         std::string unit_src = "";
         indentation_level = 0;
         indentation_spaces = 4;
+        list_api->set_indentation(indentation_level, indentation_spaces);
+        list_api->set_global_scope(global_scope);
 
         std::string head =
 R"(
@@ -387,6 +400,15 @@ R"(
     }
 
 )";
+
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        std::string tab(indentation_spaces, ' ');
+        std::string strcat_def = "";
+        strcat_def += indent + "char* " + global_scope->get_unique_name("strcat_") + "(char* x, char* y) {\n";
+        strcat_def += indent + tab + "char* str_tmp = (char*) malloc((strlen(x) + strlen(y) + 2) * sizeof(char));\n";
+        strcat_def += indent + tab + "strcpy(str_tmp, x);\n";
+        strcat_def += indent + tab + "return strcat(str_tmp, y);\n";
+        strcat_def += indent + "}\n\n";
 
         for (auto &item : x.m_global_scope->get_scope()) {
             if (ASR::is_a<ASR::DerivedType_t>(*item.second)) {
@@ -482,7 +504,17 @@ R"(
         for (auto s: headers) {
             to_include += "#include <" + s + ".h>\n";
         }
-        src = to_include + head + array_types_decls + unit_src;
+        if( list_api->get_list_func_decls().size() > 0 ) {
+            array_types_decls += "\n" + list_api->get_list_func_decls() + "\n";
+        }
+        std::string list_funcs_defined = "";
+        if( list_api->get_generated_code().size() > 0 ) {
+            list_funcs_defined =  "\n" + list_api->get_generated_code() + "\n";
+        }
+        if( is_string_concat_present ) {
+            head += strcat_def;
+        }
+        src = to_include + head + array_types_decls + unit_src + list_funcs_defined;
     }
 
     void visit_Program(const ASR::Program_t &x) {
