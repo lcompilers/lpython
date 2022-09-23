@@ -442,7 +442,7 @@ assignment_statement
     ;
 
 augassign_statement
-    : expr augassign_op expr { $$ = AUGASSIGN_01($1, $2, $3, @$); }
+    : expr augassign_op tuple_list { $$ = AUGASSIGN_01($1, $2, $3, @$); }
     ;
 
 augassign_op
