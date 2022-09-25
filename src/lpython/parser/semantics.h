@@ -343,6 +343,34 @@ static inline char *extract_type_comment(LFortran::Parser &p,
 #define MATCH_SEQUENCE_02(patterns, l) down_cast<pattern_t>( \
         make_MatchSequence_t(p.m_a, l, patterns.p, patterns.n))
 
+static inline Key_Val_Pattern* KEY_VAL_PATTERN(Allocator &al,
+        expr_t* key,  pattern_t* value) {
+    Key_Val_Pattern* r = al.allocate<Key_Val_Pattern>();
+    r->key = key;
+    r->val = value;
+    return r;
+}
+pattern_t *match_mapping(Allocator &al, Location &l,
+        Vec<Key_Val_Pattern> items, char *rest) {
+    Vec<expr_t*> key;
+    key.reserve(al, items.size());
+    Vec<pattern_t*> val;
+    val.reserve(al, items.size());
+    for (auto &item : items) {
+        key.push_back(al, item.key);
+        val.push_back(al, item.val);
+    }
+    return down_cast<pattern_t>(
+            make_MatchMapping_t(al, l, key.p, key.n, val.p, val.n, rest));
+}
+#define MATCH_MAPPING_01(l) down_cast<pattern_t>( \
+        make_MatchMapping_t(p.m_a, l, nullptr, 0, nullptr, 0, nullptr))
+#define MATCH_MAPPING_02(items, l) match_mapping(p.m_a, l, items, nullptr)
+#define MATCH_MAPPING_03(items, rest, l) match_mapping(p.m_a, l, \
+        items, name2char(rest))
+#define MATCH_MAPPING_04(rest, l) down_cast<pattern_t>( \
+        make_MatchMapping_t(p.m_a, l, nullptr, 0, nullptr, 0, name2char(rest)))
+
 static inline match_case_t* match_case(Allocator &al, Location &l,
         pattern_t* pattern, expr_t* guard, Vec<ast_t*> body) {
     match_case_t* r = al.allocate<match_case_t>();

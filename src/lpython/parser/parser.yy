@@ -286,6 +286,9 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <pattern> sequence_pattern
 %type <pattern> star_pattern
 %type <vec_pattern> open_sequence_pattern
+%type <pattern> mapping_pattern
+%type <kw_val_pattern> key_value_pattern
+%type <vec_kw_val_pattern> items_pattern
 %type <match_case> case_block
 
 // Precedence
@@ -645,6 +648,21 @@ with_statement
         $$ = WITH_02($2, $6, $4, @$); }
     ;
 
+mapping_pattern
+    :  "{" "}" { $$ = MATCH_MAPPING_01(@$); }
+    |  "{" items_pattern "}" { $$ = MATCH_MAPPING_02($2, @$); }
+    |  "{" items_pattern "," "**" id "}" { $$ = MATCH_MAPPING_03($2, $5, @$); }
+    |  "{" "**" id "}" { $$ = MATCH_MAPPING_04($3, @$); }
+
+items_pattern
+    : items_pattern "," key_value_pattern { $$ = $1; PLIST_ADD($$, $3); }
+    | key_value_pattern { LIST_NEW($$); PLIST_ADD($$, $1); }
+    ;
+
+key_value_pattern
+    : literal_pattern ":" pattern_2 {
+        $$ = KEY_VAL_PATTERN(p.m_a, EXPR($1), $3); }
+    ;
 
 star_pattern
     : "*" id { $$ = MATCH_STAR($2, @$); }
@@ -695,7 +713,10 @@ singleton_pattern
 closed_pattern
     : literal_pattern { $$ = MATCH_VALUE($1, @$); }
     | singleton_pattern { $$ = MATCH_SINGLETON($1, @$); }
+    | id { $$ = MATCH_AS_02($1, @$); }
+    | "(" pattern_2 ")" { $$ = $2; }
     | sequence_pattern { $$ = $1; }
+    | mapping_pattern { $$ = $1; }
     ;
 
 or_pattern
