@@ -3650,14 +3650,23 @@ public:
                 loop_src_var_name = AST::down_cast<AST::Name_t>(sbt->m_value)->m_id;
                 visit_Subscript(*sbt);
                 ASR::expr_t *target = ASRUtils::EXPR(tmp);
-                auto loop_src_var_symbol = current_scope->resolve_symbol(loop_src_var_name);
-                auto loop_src_var_ttype = ASRUtils::symbol_type(loop_src_var_symbol);
+                ASR::symbol_t *loop_src_var_symbol = current_scope->resolve_symbol(loop_src_var_name);
+                ASR::ttype_t *loop_src_var_ttype = ASRUtils::symbol_type(loop_src_var_symbol);
+
+                // Create a temporary variable that will contain the evaluated value of Subscript
                 std::string tmp_assign_name = current_scope->get_unique_name("__tmp_assign_for_loop");
-                auto tmp_assign_variable = ASR::make_Variable_t(al, sbt->base.base.loc, current_scope,
-                    s2c(al, tmp_assign_name), ASR::intentType::Local, nullptr, target, ASR::storage_typeType::Default,
+                ASR::asr_t* tmp_assign_variable = ASR::make_Variable_t(al, sbt->base.base.loc, current_scope,
+                    s2c(al, tmp_assign_name), ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
                     loop_src_var_ttype, ASR::abiType::Source, ASR::accessType::Public, ASR::presenceType::Required, false
                 );
-                current_scope->add_symbol(tmp_assign_name, ASR::down_cast<ASR::symbol_t>(tmp_assign_variable));
+                ASR::symbol_t *tmp_assign_variable_sym = ASR::down_cast<ASR::symbol_t>(tmp_assign_variable);
+                current_scope->add_symbol(tmp_assign_name, tmp_assign_variable_sym);
+
+                // Assign the Subscript expr to temporary variable
+                ASR::asr_t* assign = ASR::make_Assignment_t(al, x.base.base.loc,
+                                ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, tmp_assign_variable_sym)),
+                                target, nullptr);
+                current_body->push_back(al, ASRUtils::STMT(assign));
                 loop_end = for_iterable_helper(tmp_assign_name, x.base.base.loc);
                 for_iter_type = loop_end;
                 LFORTRAN_ASSERT(loop_end);
