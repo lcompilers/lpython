@@ -276,11 +276,16 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <ast> match_statement
 %type <ast> numbers
 %type <ast> literal_pattern
+%type <ast> singleton_pattern
 %type <ast> attr
 %type <vec_match_case> case_blocks
+%type <pattern> pattern_1
 %type <pattern> pattern_2
 %type <pattern> closed_pattern
 %type <vec_pattern> or_pattern
+%type <pattern> sequence_pattern
+%type <pattern> star_pattern
+%type <vec_pattern> open_sequence_pattern
 %type <match_case> case_block
 
 // Precedence
@@ -400,6 +405,7 @@ multi_line_statement
     | for_statement
     | try_statement
     | with_statement
+    | match_statement
     | function_def
     | class_def
     | async_func_def
@@ -640,6 +646,26 @@ with_statement
     ;
 
 
+star_pattern
+    : "*" id { $$ = MATCH_STAR($2, @$); }
+    | pattern_2 { $$ = $1; }
+    ;
+
+open_sequence_pattern
+    : open_sequence_pattern "," star_pattern { $$ = $1; LIST_ADD($$, $3); }
+    | star_pattern { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+sequence_pattern
+    : "[" "]" { $$ = MATCH_SEQUENCE_01(@$); }
+    | "(" ")" { $$ = MATCH_SEQUENCE_01(@$); }
+    | "(" open_sequence_pattern "," ")" { $$ = MATCH_SEQUENCE_02($2, @$); }
+    | "(" open_sequence_pattern "," star_pattern ")" { LIST_ADD($2, $4);
+        $$ = MATCH_SEQUENCE_02($2, @$); }
+    | "[" open_sequence_pattern "]" { $$ = MATCH_SEQUENCE_02($2, @$); }
+    | "[" open_sequence_pattern "," "]" { $$ = MATCH_SEQUENCE_02($2, @$); }
+    ;
+
 attr
     : attr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
     | id "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
@@ -659,8 +685,17 @@ literal_pattern
     | string { $$ = $1; }
     | attr { $$ = $1; }
     ;
+
+singleton_pattern
+    : KW_NONE  { $$ = NONE(@$); }
+    | TK_TRUE { $$ = BOOL(true, @$); }
+    | TK_FALSE { $$ = BOOL(false, @$); }
+    ;
+
 closed_pattern
     : literal_pattern { $$ = MATCH_VALUE($1, @$); }
+    | singleton_pattern { $$ = MATCH_SINGLETON($1, @$); }
+    | sequence_pattern { $$ = $1; }
     ;
 
 or_pattern
@@ -676,8 +711,17 @@ pattern_2
     | or_pattern KW_AS id { $$ = MATCH_AS_01(MATCH_OR($1, @$), $3, @$); }
     ;
 
+pattern_1
+    : open_sequence_pattern "," star_pattern { LIST_ADD($1, $3);
+        $$ = MATCH_SEQUENCE_02($1, @$); }
+    | open_sequence_pattern "," { $$ = MATCH_SEQUENCE_02($1, @$); }
+    ;
+
 case_block
-    : KW_CASE pattern_2 ":" body_stmts { $$ = MATCH_CASE_01($2, $4, @$); }
+    : KW_CASE pattern_1 ":" body_stmts { $$ = MATCH_CASE_01($2, $4, @$); }
+    | KW_CASE pattern_2 ":" body_stmts { $$ = MATCH_CASE_01($2, $4, @$); }
+    | KW_CASE pattern_1 KW_IF expr ":" body_stmts {
+        $$ = MATCH_CASE_02($2, $4, $6, @$); }
     | KW_CASE pattern_2 KW_IF expr ":" body_stmts {
         $$ = MATCH_CASE_02($2, $4, $6, @$); }
     ;

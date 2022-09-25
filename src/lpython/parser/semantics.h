@@ -326,12 +326,22 @@ static inline char *extract_type_comment(LFortran::Parser &p,
 #define MATCH_VALUE(val, l) down_cast<pattern_t>( \
         make_MatchValue_t(p.m_a, l, EXPR(val)))
 
+#define MATCH_SINGLETON(val, l) down_cast<pattern_t>( \
+        make_MatchSingleton_t(p.m_a, l, EXPR(val)))
+
 #define MATCH_AS_01(pattern, id, l) down_cast<pattern_t>( \
         make_MatchAs_t(p.m_a, l, pattern, name2char(id)))
 #define MATCH_AS_02(id, l) down_cast<pattern_t>( \
         make_MatchAs_t(p.m_a, l, nullptr, name2char(id)))
 
 #define MATCH_OR(v, l) down_cast<pattern_t>(make_MatchOr_t(p.m_a, l, v.p, v.n))
+
+#define MATCH_STAR(id, l) down_cast<pattern_t>( \
+        make_MatchStar_t(p.m_a, l, name2char(id)))
+#define MATCH_SEQUENCE_01(l) down_cast<pattern_t>( \
+        make_MatchSequence_t(p.m_a, l, nullptr, 0))
+#define MATCH_SEQUENCE_02(patterns, l) down_cast<pattern_t>( \
+        make_MatchSequence_t(p.m_a, l, patterns.p, patterns.n))
 
 static inline match_case_t* match_case(Allocator &al, Location &l,
         pattern_t* pattern, expr_t* guard, Vec<ast_t*> body) {
