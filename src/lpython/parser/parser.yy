@@ -174,6 +174,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token KW_YIELD
 %token KW_YIELD_FROM
 
+// Soft Keywords
+%token KW_MATCH
+%token KW_CASE
+
 // Nonterminal tokens
 
 %type <ast> script_unit
