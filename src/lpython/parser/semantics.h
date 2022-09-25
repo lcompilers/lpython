@@ -29,6 +29,7 @@ using LFortran::Args_;
 using LFortran::Var_Kw;
 using LFortran::Kw_or_Star_Arg;
 using LFortran::Call_Arg;
+using LFortran::Key_Val_Pattern;
 
 static inline char* name2char(const ast_t *n) {
     return down_cast2<Name_t>(n)->m_id;
@@ -321,6 +322,33 @@ static inline char *extract_type_comment(LFortran::Parser &p,
         EXPR(e), nullptr, STMTS(stmts), stmts.size())
 #define EXCEPT_03(e, id, stmts, l) make_ExceptHandler_t(p.m_a, l, \
         EXPR(e), name2char(id), STMTS(stmts), stmts.size())
+
+#define MATCH_VALUE(val, l) down_cast<pattern_t>( \
+        make_MatchValue_t(p.m_a, l, EXPR(val)))
+
+#define MATCH_AS_01(pattern, id, l) down_cast<pattern_t>( \
+        make_MatchAs_t(p.m_a, l, pattern, name2char(id)))
+#define MATCH_AS_02(id, l) down_cast<pattern_t>( \
+        make_MatchAs_t(p.m_a, l, nullptr, name2char(id)))
+
+#define MATCH_OR(v, l) down_cast<pattern_t>(make_MatchOr_t(p.m_a, l, v.p, v.n))
+
+static inline match_case_t* match_case(Allocator &al, Location &l,
+        pattern_t* pattern, expr_t* guard, Vec<ast_t*> body) {
+    match_case_t* r = al.allocate<match_case_t>();
+    r->loc = l;
+    r->m_pattern = pattern;
+    r->m_guard = guard;
+    r->m_body = STMTS(body);
+    r->n_body = body.size();
+    return r;
+}
+#define MATCH_CASE_01(pattern, body, l) match_case(p.m_a, l, \
+        pattern, nullptr, body)
+#define MATCH_CASE_02(pattern, guard, body, l) match_case(p.m_a, l, \
+        pattern, EXPR(guard), body)
+#define MATCH_01(subject, cases, l) make_Match_t(p.m_a, l, \
+        EXPR(subject), cases.p, cases.n)
 
 static inline withitem_t* WITH_ITEM(Allocator &al, Location &l,
         expr_t* context_expr, expr_t* optional_vars) {

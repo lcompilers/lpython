@@ -273,6 +273,15 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <var_kw> lambda_parameter_list_starargs
 %type <vec_arg> lambda_defparameter_list
 %type <ast> yield_expr
+%type <ast> match_statement
+%type <ast> numbers
+%type <ast> literal_pattern
+%type <ast> attr
+%type <vec_match_case> case_blocks
+%type <pattern> pattern_2
+%type <pattern> closed_pattern
+%type <vec_pattern> or_pattern
+%type <match_case> case_block
 
 // Precedence
 
@@ -628,6 +637,59 @@ with_statement
     : KW_WITH with_as_items ":" body_stmts { $$ = WITH_01($2, $4, @$); }
     | KW_WITH with_as_items ":" TK_TYPE_COMMENT sep statements {
         $$ = WITH_02($2, $6, $4, @$); }
+    ;
+
+
+attr
+    : attr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
+    | id "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
+    ;
+
+numbers
+    : numbers "+" numbers { $$ = BINOP($1, Add, $3, @$); }
+    | numbers "-" numbers { $$ = BINOP($1, Sub, $3, @$); }
+    | "-" numbers { $$ = UNARY($2, USub, @$); }
+    | TK_INTEGER { $$ = INTEGER($1, @$); }
+    | TK_REAL { $$ = FLOAT($1, @$); }
+    | TK_IMAG_NUM { $$ = COMPLEX($1, @$); }
+    ;
+
+literal_pattern
+    : numbers { $$ = $1; }
+    | string { $$ = $1; }
+    | attr { $$ = $1; }
+    ;
+closed_pattern
+    : literal_pattern { $$ = MATCH_VALUE($1, @$); }
+    ;
+
+or_pattern
+    : or_pattern "|" closed_pattern { $$ = $1; LIST_ADD($$, $3); }
+    | closed_pattern "|" closed_pattern { LIST_NEW($$);
+        LIST_ADD($$, $1); LIST_ADD($$, $3);}
+    ;
+
+pattern_2
+    : closed_pattern { $$ = $1; }
+    | or_pattern { $$ = MATCH_OR($1, @$); }
+    | closed_pattern KW_AS id { $$ = MATCH_AS_01($1, $3, @$); }
+    | or_pattern KW_AS id { $$ = MATCH_AS_01(MATCH_OR($1, @$), $3, @$); }
+    ;
+
+case_block
+    : KW_CASE pattern_2 ":" body_stmts { $$ = MATCH_CASE_01($2, $4, @$); }
+    | KW_CASE pattern_2 KW_IF expr ":" body_stmts {
+        $$ = MATCH_CASE_02($2, $4, $6, @$); }
+    ;
+
+case_blocks
+    : case_blocks case_block { $$ = $1; PLIST_ADD($$, $2); }
+    | case_block { LIST_NEW($$); PLIST_ADD($$, $1); }
+    ;
+
+match_statement
+    : KW_MATCH tuple_list ":" TK_NEWLINE TK_INDENT case_blocks TK_DEDENT {
+        $$ = MATCH_01($2, $6, @$); }
     ;
 
 decorators_opt

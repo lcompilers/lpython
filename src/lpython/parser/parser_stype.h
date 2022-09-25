@@ -53,6 +53,11 @@ struct Call_Arg {
     Vec<LPython::AST::keyword_t> kw;
 };
 
+struct Key_Val_Pattern {
+    LPython::AST::expr_t* key;
+    LPython::AST::pattern_t* val;
+};
+
 union YYSTYPE {
     int64_t n;
     double f;
@@ -92,6 +97,15 @@ union YYSTYPE {
     Vec<LPython::AST::comprehension_t> vec_comp;
 
     LPython::AST::operatorType operator_type;
+
+    LPython::AST::match_case_t* match_case;
+    Vec<LPython::AST::match_case_t> vec_match_case;
+
+    LPython::AST::pattern_t* pattern;
+    Vec<LPython::AST::pattern_t*> vec_pattern;
+
+    Key_Val_Pattern *kw_val_pattern;
+    Vec<Key_Val_Pattern> vec_kw_val_pattern;
 };
 
 static_assert(std::is_standard_layout<YYSTYPE>::value);
