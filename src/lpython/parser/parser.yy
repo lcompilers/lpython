@@ -289,6 +289,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <pattern> mapping_pattern
 %type <kw_val_pattern> key_value_pattern
 %type <vec_kw_val_pattern> items_pattern
+%type <vec_pattern> positional_patterns
+%type <ast> class_name
+%type <pattern> class_pattern
+%type <vec_kw_val_pattern> keyword_patterns
 %type <match_case> case_block
 
 // Precedence
@@ -648,6 +652,32 @@ with_statement
         $$ = WITH_02($2, $6, $4, @$); }
     ;
 
+class_name
+    : id { $$ = $1; }
+    | attr { $$ = $1; }
+    ;
+
+class_pattern
+    : class_name "(" ")" { $$ = MATCH_CLASS_01($1, @$); }
+    | class_name "(" positional_patterns ")" {
+        $$ = MATCH_CLASS_02($1, $3, @$); }
+    | class_name "(" positional_patterns "," keyword_patterns ")" {
+        $$ = MATCH_CLASS_03($1, $3, $5, @$); }
+    | class_name "(" keyword_patterns ")" { $$ = MATCH_CLASS_04($1, $3, @$); }
+    ;
+
+positional_patterns
+    : positional_patterns "," pattern_2 { $$ = $1; LIST_ADD($$, $3); }
+    | pattern_2 { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+keyword_patterns
+    : keyword_patterns "," id "=" pattern_2 { $$ = $1;
+        PLIST_ADD($$, KEY_VAL_PATTERN(p.m_a, EXPR($3), $5)); }
+    | id "=" pattern_2 { LIST_NEW($$);
+        PLIST_ADD($$, KEY_VAL_PATTERN(p.m_a, EXPR($1), $3)); }
+    ;
+
 mapping_pattern
     :  "{" "}" { $$ = MATCH_MAPPING_01(@$); }
     |  "{" items_pattern "}" { $$ = MATCH_MAPPING_02($2, @$); }
@@ -717,6 +747,7 @@ closed_pattern
     | "(" pattern_2 ")" { $$ = $2; }
     | sequence_pattern { $$ = $1; }
     | mapping_pattern { $$ = $1; }
+    | class_pattern { $$ = $1; }
     ;
 
 or_pattern

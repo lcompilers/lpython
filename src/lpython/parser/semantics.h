@@ -371,6 +371,31 @@ pattern_t *match_mapping(Allocator &al, Location &l,
 #define MATCH_MAPPING_04(rest, l) down_cast<pattern_t>( \
         make_MatchMapping_t(p.m_a, l, nullptr, 0, nullptr, 0, name2char(rest)))
 
+pattern_t *match_class(Allocator &al, Location &l, expr_t *cls,
+        pattern_t** m_patterns, size_t n_patterns,
+        Key_Val_Pattern* m_params, size_t n_params) {
+    Vec<char*> kwd_attrs;
+    kwd_attrs.reserve(al, n_params);
+    Vec<pattern_t*> kwd_patterns;
+    kwd_patterns.reserve(al, n_params);
+    for (size_t i = 0; i < n_params; i++) {
+        kwd_attrs.push_back(al, name2char((ast_t*)m_params[i].key));
+        kwd_patterns.push_back(al, m_params[i].val);
+    }
+    return down_cast<pattern_t>(make_MatchClass_t(al, l, cls,
+        m_patterns, n_patterns, kwd_attrs.p, kwd_attrs.n,
+        kwd_patterns.p, kwd_patterns.n));
+}
+#define MATCH_CLASS_01(cls, l) down_cast<pattern_t>( \
+        make_MatchClass_t(p.m_a, l, EXPR(cls), nullptr,0, \
+        nullptr, 0, nullptr, 0))
+#define MATCH_CLASS_02(cls, args, l) match_class(p.m_a, l, \
+        EXPR(cls), args.p, args.n, nullptr, 0)
+#define MATCH_CLASS_03(cls, args, kws, l) match_class(p.m_a, l, \
+        EXPR(cls), args.p, args.n, kws.p, kws.n)
+#define MATCH_CLASS_04(cls, kws, l) match_class(p.m_a, l, \
+        EXPR(cls), nullptr, 0, kws.p, kws.n)
+
 static inline match_case_t* match_case(Allocator &al, Location &l,
         pattern_t* pattern, expr_t* guard, Vec<ast_t*> body) {
     match_case_t* r = al.allocate<match_case_t>();
