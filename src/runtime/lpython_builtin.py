@@ -846,3 +846,30 @@ def list(s: str) -> list[str]:
     for i in range(len(s)):
         l.append(s[i])
     return l
+
+
+def partition(nums: list[f64], l: i32, r: i32) -> i32:
+    # Last element will be the pivot and the first element the pointer
+    pivot: f64; ptr: i32; i:i32
+    pivot, ptr = nums[r], l
+    for i in range(l, r):
+        if nums[i] <= pivot:
+            # Swapping values smaller than the pivot to the front
+            nums[i], nums[ptr] = nums[ptr], nums[i]
+            ptr += 1
+    # Finally swapping the last element with the pointer indexed number
+    nums[ptr], nums[r] = nums[r], nums[ptr]
+    return ptr
+
+def quick_sort(nums: list[f64], l:i32, r: i32):
+    if l < r:
+        pi : i32 = partition(nums, l, r)
+        quick_sort(nums, l, pi-1)  # Recursively sorting the left values
+        quick_sort(nums, pi+1, r)  # Recursively sorting the right values
+
+
+def sorted(array: list[f64]) -> list[f64]:
+    r: i32
+    r = len(array)
+    quick_sort(array, 0, r-1)
+    return array
