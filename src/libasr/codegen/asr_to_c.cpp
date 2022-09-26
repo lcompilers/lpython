@@ -10,12 +10,70 @@
 #include <libasr/string_utils.h>
 #include <libasr/pass/unused_functions.h>
 #include <libasr/pass/class_constructor.h>
+#include <libasr/pass/array_op.h>
 
 #include <map>
 #include <utility>
 
 
 namespace LFortran {
+
+class CUtilFunctions {
+
+    private:
+
+        SymbolTable* global_scope;
+        std::map<std::string, std::string> util2func;
+
+        int indentation_level, indentation_spaces;
+
+    public:
+
+        std::string util_func_decls;
+        std::string util_funcs;
+
+        CUtilFunctions() {
+            util2func.clear();
+            util_func_decls.clear();
+            util_funcs.clear();
+        }
+
+        void set_indentation(int indendation_level_, int indendation_space_) {
+            indentation_level = indendation_level_;
+            indentation_spaces = indendation_space_;
+        }
+
+        void set_global_scope(SymbolTable* global_scope_) {
+            global_scope = global_scope_;
+        }
+
+        void array_size() {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string array_size_func;
+            if( util2func.find("array_size") == util2func.end() ) {
+                array_size_func = global_scope->get_unique_name("array_size");
+                util2func["array_size"] = array_size_func;
+            } else {
+                return ;
+            }
+            array_size_func = util2func["array_size"];
+            std::string signature = "static inline int32_t " + array_size_func + "(struct dimension_descriptor dims[], size_t n)";
+            util_func_decls += indent + signature + ";\n";
+            std::string body = indent + signature + " {\n";
+            body += indent + tab + "int32_t size = 1;\n";
+            body += indent + tab + "for (size_t i = 0; i < n; i++) {\n";
+            body += indent + tab + tab + "size *= dims[i].length;\n";
+            body += indent + tab + "};\n";
+            body += indent + "}\n";
+            util_funcs += body;
+        }
+
+        std::string get_array_size() {
+            array_size();
+            return util2func["array_size"];
+        }
+};
 
 std::string format_type_c(const std::string &dims, const std::string &type,
         const std::string &name, bool use_ref, bool /*dummy*/)
@@ -38,11 +96,14 @@ public:
     std::string array_types_decls;
     std::map<std::string, std::map<size_t, std::string>> eltypedims2arraytype;
 
+    std::unique_ptr<CUtilFunctions> c_utils_functions;
+
     ASRToCVisitor(diag::Diagnostics &diag, Platform &platform,
                   int64_t default_lower_bound)
          : BaseCCPPVisitor(diag, platform, false, false, true, default_lower_bound),
            array_types_decls(std::string("\nstruct dimension_descriptor\n"
-                                         "{\n    int32_t lower_bound, length;\n};\n")) {
+                                         "{\n    int32_t lower_bound, length;\n};\n")),
+           c_utils_functions{std::make_unique<CUtilFunctions>()} {
            }
 
     std::string convert_dims_c(size_t n_dims, ASR::dimension_t *m_dims,
@@ -168,7 +229,8 @@ public:
                                         encoded_type_name, t->m_dims, t->n_dims,
                                         use_ref, dummy,
                                         v.m_intent != ASRUtils::intent_in &&
-                                        v.m_intent != ASRUtils::intent_inout, true);
+                                        v.m_intent != ASRUtils::intent_inout &&
+                                        v.m_intent != ASRUtils::intent_out, true);
                 } else {
                     std::string dims = convert_dims_c(t->n_dims, t->m_dims);
                     sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
@@ -219,7 +281,8 @@ public:
                                         encoded_type_name, t->m_dims, t->n_dims,
                                         use_ref, dummy,
                                         v.m_intent != ASRUtils::intent_in &&
-                                        v.m_intent != ASRUtils::intent_inout);
+                                        v.m_intent != ASRUtils::intent_inout &&
+                                        v.m_intent != ASRUtils::intent_out);
                 } else {
                     dims = convert_dims_c(t->n_dims, t->m_dims);
                     sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
@@ -367,6 +430,8 @@ public:
         indentation_spaces = 4;
         list_api->set_indentation(indentation_level, indentation_spaces);
         list_api->set_global_scope(global_scope);
+        c_utils_functions->set_indentation(indentation_level, indentation_spaces);
+        c_utils_functions->set_global_scope(global_scope);
 
         std::string head =
 R"(
@@ -799,6 +864,40 @@ R"(
         src = out;
     }
 
+    void visit_ArraySize(const ASR::ArraySize_t& x) {
+        visit_expr(*x.m_v);
+        std::string var_name = src;
+        std::string args = "";
+        std::string result_type = get_c_type_from_ttype_t(x.m_type);
+        if (x.m_dim == nullptr) {
+            std::string array_size_func = c_utils_functions->get_array_size();
+            ASR::dimension_t* m_dims = nullptr;
+            int n_dims = ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(x.m_v), m_dims);
+            src = "((" + result_type + ") " + array_size_func + "(" + var_name + "->dims, " + std::to_string(n_dims) + "))";
+        } else {
+            visit_expr(*x.m_dim);
+            std::string idx = src;
+            src = "((" + result_type + ")" + var_name + "->dims[" + idx + "-1].length)";
+        }
+    }
+
+    void visit_ArrayBound(const ASR::ArrayBound_t& x) {
+        visit_expr(*x.m_v);
+        std::string var_name = src;
+        std::string args = "";
+        std::string result_type = get_c_type_from_ttype_t(x.m_type);
+        visit_expr(*x.m_dim);
+        std::string idx = src;
+        if( x.m_bound == ASR::arrayboundType::LBound ) {
+            src = "((" + result_type + ")" + var_name + "->dims[" + idx + "-1].lower_bound)";
+        } else if( x.m_bound == ASR::arrayboundType::UBound ) {
+            std::string lower_bound = var_name + "->dims[" + idx + "-1].lower_bound";
+            std::string length = var_name + "->dims[" + idx + "-1].length";
+            std::string upper_bound = length + " + " + lower_bound + " - 1";
+            src = "((" + result_type + ") " + upper_bound + ")";
+        }
+    }
+
     void visit_ArrayItem(const ASR::ArrayItem_t &x) {
         this->visit_expr(*x.m_v);
         std::string array = src;
@@ -854,6 +953,7 @@ Result<std::string> asr_to_c(Allocator &al, ASR::TranslationUnit_t &asr,
 
     LCompilers::PassOptions pass_options;
     pass_options.always_run = true;
+    pass_replace_array_op(al, asr, pass_options);
     pass_unused_functions(al, asr, pass_options);
     pass_replace_class_constructor(al, asr, pass_options);
     ASRToCVisitor v(diagnostics, platform, default_lower_bound);

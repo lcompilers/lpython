@@ -704,7 +704,7 @@ R"(#include <stdio.h>
                 if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
                     if (v->m_intent == LFortran::ASRUtils::intent_local || v->m_intent == LFortran::ASRUtils::intent_return_var) {
-                    decl += indent + self().convert_variable_decl(*v) + ";\n";
+                        decl += indent + self().convert_variable_decl(*v) + ";\n";
                     }
                 }
             }
@@ -826,24 +826,6 @@ R"(#include <stdio.h>
                     step + ", " + left_present + ", " + rig_present + ")";
     }
 
-    void visit_ArraySize(const ASR::ArraySize_t& x) {
-        self().visit_expr(*x.m_v);
-        std::string var_name = src;
-        std::string args = "";
-        if (x.m_dim == nullptr) {
-            // TODO: return the product of all dimensions:
-            args = "0";
-        } else {
-            if( x.m_dim ) {
-                self().visit_expr(*x.m_dim);
-                args += src + "-1";
-                args += ", ";
-            }
-            args += std::to_string(ASRUtils::extract_kind_from_ttype_t(x.m_type)) + "-1";
-        }
-        src = var_name + "->data->extent(" + args + ")";
-    }
-
     void visit_Assignment(const ASR::Assignment_t &x) {
         std::string target;
         ASR::ttype_t* m_target_type = ASRUtils::expr_type(x.m_target);
@@ -915,6 +897,7 @@ R"(#include <stdio.h>
     }
 
     void visit_RealConstant(const ASR::RealConstant_t &x) {
+        // TODO: remove extra spaces from the front of double_to_scientific result
         src = double_to_scientific(x.m_r);
         last_expr_precedence = 2;
     }
