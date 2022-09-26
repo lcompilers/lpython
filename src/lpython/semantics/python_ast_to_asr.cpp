@@ -2844,7 +2844,7 @@ public:
         current_procedure_abi_type = ASR::abiType::Source;
         bool current_procedure_interface = false;
         bool overload = false;
-        bool vectorize = false, is_inline = false;
+        bool vectorize = false, is_inline = false, is_static = false;
 
         Vec<ASR::ttype_t*> tps;
         tps.reserve(al, x.m_args.n_args);
@@ -2870,6 +2870,8 @@ public:
                         is_restriction = true;
                     } else if (name == "inline") {
                         is_inline = true;
+                    } else if (name == "static") {
+                        is_static = true;
                     } else {
                         throw SemanticError("Decorator: " + name + " is not supported",
                             x.base.base.loc);
@@ -2982,7 +2984,7 @@ public:
                     /* n_body */ 0,
                     /* a_return_var */ ASRUtils::EXPR(return_var_ref),
                     current_procedure_abi_type,
-                    s_access, deftype, bindc_name, vectorize, false, false, is_inline,
+                    s_access, deftype, bindc_name, vectorize, false, false, is_inline, is_static,
                     tps.p, tps.size(), nullptr, 0, is_restriction);
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
@@ -3001,7 +3003,7 @@ public:
                 nullptr,
                 current_procedure_abi_type,
                 s_access, deftype, bindc_name,
-                false, is_pure, is_module, is_inline,
+                false, is_pure, is_module, is_inline, is_static,
                 tps.p, tps.size(), nullptr, 0, is_restriction);
         }
         ASR::symbol_t * t = ASR::down_cast<ASR::symbol_t>(tmp);
