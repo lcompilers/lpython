@@ -561,9 +561,12 @@ R"(#include <stdio.h>
     std::string get_function_declaration(const ASR::Function_t &x) {
         template_for_Kokkos.clear();
         template_number = 0;
-        std::string sub, inl;
+        std::string sub, inl, static_attr;
         if (x.m_inline) {
             inl = "inline __attribute__((always_inline)) ";
+        }
+        if( x.m_static ) {
+            static_attr = "static ";
         }
         if (x.m_return_var) {
             ASR::Variable_t *return_var = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
@@ -626,7 +629,7 @@ R"(#include <stdio.h>
         if (sym_name == "exit") {
             sym_name = "_xx_lcompilers_changed_exit_xx";
         }
-        std::string func = inl + sub + sym_name + "(";
+        std::string func = static_attr + inl + sub + sym_name + "(";
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
