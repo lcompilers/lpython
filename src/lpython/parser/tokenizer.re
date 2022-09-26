@@ -515,7 +515,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "False" { RET(TK_FALSE) }
 
             real {
-                yylval.f = std::stod(remove_underscore(token()));
+                yylval.f = std::strtod(remove_underscore(token()).c_str(), 0);
                 RET(TK_REAL)
             }
             integer {
@@ -526,7 +526,7 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
                 RET(TK_INTEGER)
             }
             imag_number {
-                yylval.f = std::stod(remove_underscore(token()));
+                yylval.f = std::strtod(remove_underscore(token()).c_str(), 0);
                 RET(TK_IMAG_NUM)
             }
 
