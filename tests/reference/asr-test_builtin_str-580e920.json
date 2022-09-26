@@ -2,11 +2,11 @@
     "basename": "asr-test_builtin_str-580e920",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/test_builtin_str.py",
-    "infile_hash": "0dc00fa12294bbc034bd22c1a6b6e32551ae63ccf539ecd57285cbca",
+    "infile_hash": "3e376153caf890035f9fa6d1a6ec00289bdb603b10d5e0f480524c79",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-test_builtin_str-580e920.stdout",
-    "stdout_hash": "56d061504869210ba34f129150f4b8c0b44fcf0f8497286ae3448ab4",
+    "stdout_hash": "458557b71b9fc43ab7a1a59c645aec68003693a0b6ebbf8a1a64f3bb",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
