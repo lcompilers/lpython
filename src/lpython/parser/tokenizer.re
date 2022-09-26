@@ -255,11 +255,11 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
         // These two variables are needed by the re2c block below internally,
         // initialization is not needed. One can think of them as local
         // variables of the re2c block.
-        unsigned char *mar;//, *ctxmar;
+        unsigned char *mar, *ctxmar;
         /*!re2c
             re2c:define:YYCURSOR = cur;
             re2c:define:YYMARKER = mar;
-            // re2c:define:YYCTXMARKER = ctxmar;
+            re2c:define:YYCTXMARKER = ctxmar;
             re2c:yyfill:enable = 0;
             re2c:define:YYCTYPE = "unsigned char";
 
@@ -396,6 +396,30 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "with"     { KW(WITH) }
             "yield"    { KW(YIELD) }
             "yield" whitespace "from" whitespace { KW(YIELD_FROM) }
+
+            // Soft Keywords
+            "match" / whitespace [^\n\x00]+ ":" newline {
+                if ((last_token == -1
+                  || last_token == yytokentype::TK_DEDENT
+                  || last_token == yytokentype::TK_INDENT
+                  || last_token == yytokentype::TK_NEWLINE)
+                  && !parenlevel) {
+                    KW(MATCH);
+                } else {
+                    token(yylval.string);
+                    RET(TK_NAME);
+                }
+            }
+            "case" / whitespace [^\n\x00]+ ":" newline {
+                if ((last_token == yytokentype::TK_DEDENT
+                  || last_token == yytokentype::TK_INDENT)
+                  && !parenlevel) {
+                    KW(CASE);
+                } else {
+                    token(yylval.string);
+                    RET(TK_NAME);
+                }
+            }
 
             // Tokens
             newline {
@@ -669,6 +693,9 @@ std::string token2text(const int token)
         T(KW_WITH, "with")
         T(KW_YIELD, "yield")
         T(KW_YIELD_FROM, "yield from")
+
+        T(KW_MATCH, "match")
+        T(KW_CASE, "case")
 
         default : {
             std::cout << "TOKEN: " << token << std::endl;

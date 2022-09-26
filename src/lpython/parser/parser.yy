@@ -174,6 +174,10 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %token KW_YIELD
 %token KW_YIELD_FROM
 
+// Soft Keywords
+%token KW_MATCH
+%token KW_CASE
+
 // Nonterminal tokens
 
 %type <ast> script_unit
@@ -269,6 +273,27 @@ void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
 %type <var_kw> lambda_parameter_list_starargs
 %type <vec_arg> lambda_defparameter_list
 %type <ast> yield_expr
+%type <ast> match_statement
+%type <ast> numbers
+%type <ast> literal_pattern
+%type <ast> singleton_pattern
+%type <ast> attr
+%type <vec_match_case> case_blocks
+%type <pattern> pattern_1
+%type <pattern> pattern_2
+%type <pattern> closed_pattern
+%type <vec_pattern> or_pattern
+%type <pattern> sequence_pattern
+%type <pattern> star_pattern
+%type <vec_pattern> open_sequence_pattern
+%type <pattern> mapping_pattern
+%type <kw_val_pattern> key_value_pattern
+%type <vec_kw_val_pattern> items_pattern
+%type <vec_pattern> positional_patterns
+%type <ast> class_name
+%type <pattern> class_pattern
+%type <vec_kw_val_pattern> keyword_patterns
+%type <match_case> case_block
 
 // Precedence
 
@@ -387,6 +412,7 @@ multi_line_statement
     | for_statement
     | try_statement
     | with_statement
+    | match_statement
     | function_def
     | class_def
     | async_func_def
@@ -624,6 +650,142 @@ with_statement
     : KW_WITH with_as_items ":" body_stmts { $$ = WITH_01($2, $4, @$); }
     | KW_WITH with_as_items ":" TK_TYPE_COMMENT sep statements {
         $$ = WITH_02($2, $6, $4, @$); }
+    ;
+
+class_name
+    : id { $$ = $1; }
+    | attr { $$ = $1; }
+    ;
+
+class_pattern
+    : class_name "(" ")" { $$ = MATCH_CLASS_01($1, @$); }
+    | class_name "(" positional_patterns ")" {
+        $$ = MATCH_CLASS_02($1, $3, @$); }
+    | class_name "(" positional_patterns "," keyword_patterns ")" {
+        $$ = MATCH_CLASS_03($1, $3, $5, @$); }
+    | class_name "(" keyword_patterns ")" { $$ = MATCH_CLASS_04($1, $3, @$); }
+    ;
+
+positional_patterns
+    : positional_patterns "," pattern_2 { $$ = $1; LIST_ADD($$, $3); }
+    | pattern_2 { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+keyword_patterns
+    : keyword_patterns "," id "=" pattern_2 { $$ = $1;
+        PLIST_ADD($$, KEY_VAL_PATTERN(p.m_a, EXPR($3), $5)); }
+    | id "=" pattern_2 { LIST_NEW($$);
+        PLIST_ADD($$, KEY_VAL_PATTERN(p.m_a, EXPR($1), $3)); }
+    ;
+
+mapping_pattern
+    :  "{" "}" { $$ = MATCH_MAPPING_01(@$); }
+    |  "{" items_pattern "}" { $$ = MATCH_MAPPING_02($2, @$); }
+    |  "{" items_pattern "," "**" id "}" { $$ = MATCH_MAPPING_03($2, $5, @$); }
+    |  "{" "**" id "}" { $$ = MATCH_MAPPING_04($3, @$); }
+
+items_pattern
+    : items_pattern "," key_value_pattern { $$ = $1; PLIST_ADD($$, $3); }
+    | key_value_pattern { LIST_NEW($$); PLIST_ADD($$, $1); }
+    ;
+
+key_value_pattern
+    : literal_pattern ":" pattern_2 {
+        $$ = KEY_VAL_PATTERN(p.m_a, EXPR($1), $3); }
+    ;
+
+star_pattern
+    : "*" id { $$ = MATCH_STAR($2, @$); }
+    | pattern_2 { $$ = $1; }
+    ;
+
+open_sequence_pattern
+    : open_sequence_pattern "," star_pattern { $$ = $1; LIST_ADD($$, $3); }
+    | star_pattern { LIST_NEW($$); LIST_ADD($$, $1); }
+    ;
+
+sequence_pattern
+    : "[" "]" { $$ = MATCH_SEQUENCE_01(@$); }
+    | "(" ")" { $$ = MATCH_SEQUENCE_01(@$); }
+    | "(" open_sequence_pattern "," ")" { $$ = MATCH_SEQUENCE_02($2, @$); }
+    | "(" open_sequence_pattern "," star_pattern ")" { LIST_ADD($2, $4);
+        $$ = MATCH_SEQUENCE_02($2, @$); }
+    | "[" open_sequence_pattern "]" { $$ = MATCH_SEQUENCE_02($2, @$); }
+    | "[" open_sequence_pattern "," "]" { $$ = MATCH_SEQUENCE_02($2, @$); }
+    ;
+
+attr
+    : attr "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
+    | id "." id { $$ = ATTRIBUTE_REF($1, $3, @$); }
+    ;
+
+numbers
+    : numbers "+" numbers { $$ = BINOP($1, Add, $3, @$); }
+    | numbers "-" numbers { $$ = BINOP($1, Sub, $3, @$); }
+    | "-" numbers { $$ = UNARY($2, USub, @$); }
+    | TK_INTEGER { $$ = INTEGER($1, @$); }
+    | TK_REAL { $$ = FLOAT($1, @$); }
+    | TK_IMAG_NUM { $$ = COMPLEX($1, @$); }
+    ;
+
+literal_pattern
+    : numbers { $$ = $1; }
+    | string { $$ = $1; }
+    | attr { $$ = $1; }
+    ;
+
+singleton_pattern
+    : KW_NONE  { $$ = NONE(@$); }
+    | TK_TRUE { $$ = BOOL(true, @$); }
+    | TK_FALSE { $$ = BOOL(false, @$); }
+    ;
+
+closed_pattern
+    : literal_pattern { $$ = MATCH_VALUE($1, @$); }
+    | singleton_pattern { $$ = MATCH_SINGLETON($1, @$); }
+    | id { $$ = MATCH_AS_02($1, @$); }
+    | "(" pattern_2 ")" { $$ = $2; }
+    | sequence_pattern { $$ = $1; }
+    | mapping_pattern { $$ = $1; }
+    | class_pattern { $$ = $1; }
+    ;
+
+or_pattern
+    : or_pattern "|" closed_pattern { $$ = $1; LIST_ADD($$, $3); }
+    | closed_pattern "|" closed_pattern { LIST_NEW($$);
+        LIST_ADD($$, $1); LIST_ADD($$, $3);}
+    ;
+
+pattern_2
+    : closed_pattern { $$ = $1; }
+    | or_pattern { $$ = MATCH_OR($1, @$); }
+    | closed_pattern KW_AS id { $$ = MATCH_AS_01($1, $3, @$); }
+    | or_pattern KW_AS id { $$ = MATCH_AS_01(MATCH_OR($1, @$), $3, @$); }
+    ;
+
+pattern_1
+    : open_sequence_pattern "," star_pattern { LIST_ADD($1, $3);
+        $$ = MATCH_SEQUENCE_02($1, @$); }
+    | open_sequence_pattern "," { $$ = MATCH_SEQUENCE_02($1, @$); }
+    ;
+
+case_block
+    : KW_CASE pattern_1 ":" body_stmts { $$ = MATCH_CASE_01($2, $4, @$); }
+    | KW_CASE pattern_2 ":" body_stmts { $$ = MATCH_CASE_01($2, $4, @$); }
+    | KW_CASE pattern_1 KW_IF expr ":" body_stmts {
+        $$ = MATCH_CASE_02($2, $4, $6, @$); }
+    | KW_CASE pattern_2 KW_IF expr ":" body_stmts {
+        $$ = MATCH_CASE_02($2, $4, $6, @$); }
+    ;
+
+case_blocks
+    : case_blocks case_block { $$ = $1; PLIST_ADD($$, $2); }
+    | case_block { LIST_NEW($$); PLIST_ADD($$, $1); }
+    ;
+
+match_statement
+    : KW_MATCH tuple_list ":" TK_NEWLINE TK_INDENT case_blocks TK_DEDENT {
+        $$ = MATCH_01($2, $6, @$); }
     ;
 
 decorators_opt

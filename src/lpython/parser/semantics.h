@@ -29,6 +29,7 @@ using LFortran::Args_;
 using LFortran::Var_Kw;
 using LFortran::Kw_or_Star_Arg;
 using LFortran::Call_Arg;
+using LFortran::Key_Val_Pattern;
 
 static inline char* name2char(const ast_t *n) {
     return down_cast2<Name_t>(n)->m_id;
@@ -321,6 +322,96 @@ static inline char *extract_type_comment(LFortran::Parser &p,
         EXPR(e), nullptr, STMTS(stmts), stmts.size())
 #define EXCEPT_03(e, id, stmts, l) make_ExceptHandler_t(p.m_a, l, \
         EXPR(e), name2char(id), STMTS(stmts), stmts.size())
+
+#define MATCH_VALUE(val, l) down_cast<pattern_t>( \
+        make_MatchValue_t(p.m_a, l, EXPR(val)))
+
+#define MATCH_SINGLETON(val, l) down_cast<pattern_t>( \
+        make_MatchSingleton_t(p.m_a, l, EXPR(val)))
+
+#define MATCH_AS_01(pattern, id, l) down_cast<pattern_t>( \
+        make_MatchAs_t(p.m_a, l, pattern, name2char(id)))
+#define MATCH_AS_02(id, l) down_cast<pattern_t>( \
+        make_MatchAs_t(p.m_a, l, nullptr, name2char(id)))
+
+#define MATCH_OR(v, l) down_cast<pattern_t>(make_MatchOr_t(p.m_a, l, v.p, v.n))
+
+#define MATCH_STAR(id, l) down_cast<pattern_t>( \
+        make_MatchStar_t(p.m_a, l, name2char(id)))
+#define MATCH_SEQUENCE_01(l) down_cast<pattern_t>( \
+        make_MatchSequence_t(p.m_a, l, nullptr, 0))
+#define MATCH_SEQUENCE_02(patterns, l) down_cast<pattern_t>( \
+        make_MatchSequence_t(p.m_a, l, patterns.p, patterns.n))
+
+static inline Key_Val_Pattern* KEY_VAL_PATTERN(Allocator &al,
+        expr_t* key,  pattern_t* value) {
+    Key_Val_Pattern* r = al.allocate<Key_Val_Pattern>();
+    r->key = key;
+    r->val = value;
+    return r;
+}
+pattern_t *match_mapping(Allocator &al, Location &l,
+        Vec<Key_Val_Pattern> items, char *rest) {
+    Vec<expr_t*> key;
+    key.reserve(al, items.size());
+    Vec<pattern_t*> val;
+    val.reserve(al, items.size());
+    for (auto &item : items) {
+        key.push_back(al, item.key);
+        val.push_back(al, item.val);
+    }
+    return down_cast<pattern_t>(
+            make_MatchMapping_t(al, l, key.p, key.n, val.p, val.n, rest));
+}
+#define MATCH_MAPPING_01(l) down_cast<pattern_t>( \
+        make_MatchMapping_t(p.m_a, l, nullptr, 0, nullptr, 0, nullptr))
+#define MATCH_MAPPING_02(items, l) match_mapping(p.m_a, l, items, nullptr)
+#define MATCH_MAPPING_03(items, rest, l) match_mapping(p.m_a, l, \
+        items, name2char(rest))
+#define MATCH_MAPPING_04(rest, l) down_cast<pattern_t>( \
+        make_MatchMapping_t(p.m_a, l, nullptr, 0, nullptr, 0, name2char(rest)))
+
+pattern_t *match_class(Allocator &al, Location &l, expr_t *cls,
+        pattern_t** m_patterns, size_t n_patterns,
+        Key_Val_Pattern* m_params, size_t n_params) {
+    Vec<char*> kwd_attrs;
+    kwd_attrs.reserve(al, n_params);
+    Vec<pattern_t*> kwd_patterns;
+    kwd_patterns.reserve(al, n_params);
+    for (size_t i = 0; i < n_params; i++) {
+        kwd_attrs.push_back(al, name2char((ast_t*)m_params[i].key));
+        kwd_patterns.push_back(al, m_params[i].val);
+    }
+    return down_cast<pattern_t>(make_MatchClass_t(al, l, cls,
+        m_patterns, n_patterns, kwd_attrs.p, kwd_attrs.n,
+        kwd_patterns.p, kwd_patterns.n));
+}
+#define MATCH_CLASS_01(cls, l) down_cast<pattern_t>( \
+        make_MatchClass_t(p.m_a, l, EXPR(cls), nullptr,0, \
+        nullptr, 0, nullptr, 0))
+#define MATCH_CLASS_02(cls, args, l) match_class(p.m_a, l, \
+        EXPR(cls), args.p, args.n, nullptr, 0)
+#define MATCH_CLASS_03(cls, args, kws, l) match_class(p.m_a, l, \
+        EXPR(cls), args.p, args.n, kws.p, kws.n)
+#define MATCH_CLASS_04(cls, kws, l) match_class(p.m_a, l, \
+        EXPR(cls), nullptr, 0, kws.p, kws.n)
+
+static inline match_case_t* match_case(Allocator &al, Location &l,
+        pattern_t* pattern, expr_t* guard, Vec<ast_t*> body) {
+    match_case_t* r = al.allocate<match_case_t>();
+    r->loc = l;
+    r->m_pattern = pattern;
+    r->m_guard = guard;
+    r->m_body = STMTS(body);
+    r->n_body = body.size();
+    return r;
+}
+#define MATCH_CASE_01(pattern, body, l) match_case(p.m_a, l, \
+        pattern, nullptr, body)
+#define MATCH_CASE_02(pattern, guard, body, l) match_case(p.m_a, l, \
+        pattern, EXPR(guard), body)
+#define MATCH_01(subject, cases, l) make_Match_t(p.m_a, l, \
+        EXPR(subject), cases.p, cases.n)
 
 static inline withitem_t* WITH_ITEM(Allocator &al, Location &l,
         expr_t* context_expr, expr_t* optional_vars) {
