@@ -205,6 +205,11 @@ llvm = true
 pass_with_llvm = true
 pass = "inline_function_calls"
 
+# to make sure static keyword is actually present in function declaration
+[[test]]
+filename = "../integration_tests/func_static_01.py"
+c = true
+
 [[test]]
 filename = "loop1.py"
 ast = true
