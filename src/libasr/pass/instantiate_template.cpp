@@ -17,7 +17,7 @@ public:
     std::vector<ASR::Function_t*> rts;
 
     FunctionInstantiator(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,
-            std::map<std::string, ASR::symbol_t*> rt_subs, SymbolTable *current_scope, 
+            std::map<std::string, ASR::symbol_t*> rt_subs, SymbolTable *current_scope,
             std::string new_func_name):
         BaseExprStmtDuplicator(al),
         current_scope{current_scope},
@@ -92,8 +92,8 @@ public:
             }
         }
 
-        for (size_t i=0; i<x.n_restrictions; i++) { 
-            rts.push_back(ASR::down_cast<ASR::Function_t>(x.m_restrictions[i])); 
+        for (size_t i=0; i<x.n_restrictions; i++) {
+            rts.push_back(ASR::down_cast<ASR::Function_t>(x.m_restrictions[i]));
         }
 
         Vec<ASR::stmt_t*> body;
@@ -122,7 +122,7 @@ public:
             new_return_var_ref,
             func_abi, func_access, func_deftype, bindc_name,
             func_elemental, func_pure, func_module, x.m_inline,
-            nullptr, 0, nullptr, 0, false);
+            x.m_static, nullptr, 0, nullptr, 0, false);
 
         ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(result);
         parent_scope->add_symbol(new_func_name, t);
@@ -212,7 +212,7 @@ public:
             return (ASR::asr_t*) arg;
         }
         return ASRUtils::make_Cast_t_value(al, x->base.base.loc, arg, ASR::cast_kindType::IntegerToReal, x->m_type);
-    } 
+    }
 
     ASR::asr_t* duplicate_FunctionCall(ASR::FunctionCall_t *x) {
         std::string sym_name = ASRUtils::symbol_name(x->m_name);
