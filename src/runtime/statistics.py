@@ -220,6 +220,29 @@ def harmonic_mean(x: list[f64]) -> f64:
 
     return k / sum
 
+
+# TODO: Use generics to support other types.
+def mode(x: list[i32]) -> i32:
+    k: i32 = len(x)
+    c: i32
+    count: dict[i32, i32] = {0: 0}
+
+    # insert keys in the dictionary
+    for c in range(k):
+        count[x[c]] = 0
+
+    # update the frequencies
+    for c in range(k):
+        count[x[c]] = count[x[c]] + 1
+
+    max_count: i32 = 0
+    ans: i32
+    for c in range(k):
+        if max_count < count[x[c]]:
+            max_count = count[x[c]]
+            ans = x[c]
+    return ans
+
 @overload
 def variance(x: list[f64]) -> f64:
     """
@@ -270,6 +293,7 @@ def stdev(x: list[i32]) -> f64:
     Returns the standard deviation of a data sequence of numbers
     """
     return variance(x)**0.5
+
 
 @overload
 def pvariance(x: list[f64]) -> f64:
@@ -497,4 +521,3 @@ def linear_regression(x: list[f64], y: list[f64]) -> tuple[f64, f64]:
     LinReg: tuple[f64, f64] = (slope, intercept)
 
     return LinReg
-    

@@ -1,6 +1,8 @@
 from statistics import (mean, fmean, geometric_mean, harmonic_mean, variance,
-                        stdev, pvariance, pstdev, correlation, covariance, linear_regression)
+                        stdev, pvariance, pstdev, correlation, covariance,
+                        linear_regression, mode)
 from ltypes import i32, f64, i64, f32
+
 
 eps: f64
 eps = 1e-12
@@ -187,6 +189,31 @@ def test_linear_regression():
     assert abs(slope + 0.18514007308160782) < eps
     assert abs(intercept - 25.750304506699152) < eps
 
+def test_mode():
+    a: list[i32]
+    a = [3, 1, 12, 4, 0]
+    i: i32
+    i = mode(a)
+    assert i == 3
+
+    b: list[i32]
+    b = [4, 2, 4, 4, 2, 3, 5]
+    j: i32
+    j = mode(b)
+    assert j == 4
+
+    c: list[i32]
+    c = [2, 3, 4, 1, 2, 4, 5]
+    k: i32
+    k = mode(c)
+    assert k == 2
+
+    d: list[i32]
+    d = [-1, 2, -3, -5, -3, -1, 4, -2, 4, -5, -3, 4, -3]
+    k = mode(d)
+    assert k == -3
+
+
 def check():
     test_mean()
     test_geometric_mean()
@@ -199,5 +226,6 @@ def check():
     test_linear_regression()
     test_correlation()
     test_covariance()
+    test_mode()
 
 check()
