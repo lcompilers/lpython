@@ -1546,7 +1546,7 @@ public:
                 }
                 ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_floordiv");
                 Vec<ASR::call_arg_t> args;
-                args.reserve(al, 1);
+                args.reserve(al, 2);
                 ASR::call_arg_t arg1, arg2;
                 arg1.loc = left->base.loc;
                 arg2.loc = right->base.loc;
@@ -1554,8 +1554,6 @@ public:
                 arg2.m_value = right;
                 args.push_back(al, arg1);
                 args.push_back(al, arg2);
-                Vec<ASR::restriction_arg_t*> rt_args;
-                rt_args.reserve(al, 1);
                 tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_floordiv", loc);
                 return;
 
