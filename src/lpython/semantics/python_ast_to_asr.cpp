@@ -3610,32 +3610,29 @@ public:
             head.m_increment = constant_one;
             inc = constant_one;
         }
-        ASR::expr_t *inc_value = ASRUtils::expr_value(inc);
-        // Loop end depends upon the sign of m_increment.
-        // if inc > 0 then: loop_end -=1 else loop_end += 1
-        if (inc_value) {
-            int sign = 0;
-            if (inc_value->type == ASR::exprType::IntegerConstant) {
-                sign = ASR::down_cast<ASR::IntegerConstant_t>(inc_value)->m_n;
-            } else if (inc_value->type == ASR::exprType::IntegerUnaryMinus) {
-                ASR::IntegerUnaryMinus_t *u = ASR::down_cast<ASR::IntegerUnaryMinus_t>(inc_value);
-                sign = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_arg)->m_n;
-            } else {
-                throw SemanticError("For loop increment type should be Integer.", loc);
-            }
 
-            if (sign < 0 ) {
-                make_BinOp_helper(loop_end, constant_one,
-                                    ASR::binopType::Add, loc, false);
-                head.m_end = ASRUtils::EXPR(tmp);
-            } else {
-                make_BinOp_helper(loop_end, constant_one,
-                                    ASR::binopType::Sub, loc, false);
-                head.m_end = ASRUtils::EXPR(tmp);
-            }
-        } else {
+        if( !ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(inc)) ) {
+            throw SemanticError("For loop increment type should be Integer.", loc);
+        }
+        ASR::expr_t *inc_value = ASRUtils::expr_value(inc);
+        int64_t inc_int = 1;
+        bool is_value_present = ASRUtils::extract_value(inc_value, inc_int);
+        if (!is_value_present) {
             throw SemanticError("For loop increment should Compile time constant.", loc);
         }
+
+        // Loop end depends upon the sign of m_increment.
+        // if inc > 0 then: loop_end -=1 else loop_end += 1
+        ASR::binopType offset_op;
+        if (inc_int < 0 ) {
+            offset_op = ASR::binopType::Add;
+        } else {
+            offset_op = ASR::binopType::Sub;
+        }
+        make_BinOp_helper(loop_end, constant_one,
+                          offset_op, loc, false);
+        head.m_end = ASRUtils::EXPR(tmp);
+
         return head;
     }
 
