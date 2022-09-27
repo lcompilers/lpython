@@ -140,7 +140,8 @@ public:
                              std::string& encoded_type_name,
                              ASR::dimension_t* m_dims, int n_dims, size_t size,
                              bool use_ref, bool dummy,
-                             bool declare_value, bool is_pointer=false) {
+                             bool declare_value, bool /*is_fixed_size*/,
+                             bool is_pointer=false) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string type_name_copy = type_name;
         type_name = get_array_type(type_name, encoded_type_name, dims, n_dims);
@@ -222,7 +223,7 @@ public:
                                             use_ref, dummy,
                                             v.m_intent != ASRUtils::intent_in &&
                                             v.m_intent != ASRUtils::intent_inout &&
-                                            v.m_intent != ASRUtils::intent_out, true);
+                                            v.m_intent != ASRUtils::intent_out, true, true);
                     }
                 } else {
                     sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
@@ -251,7 +252,7 @@ public:
                                             use_ref, dummy,
                                             v.m_intent != ASRUtils::intent_in &&
                                             v.m_intent != ASRUtils::intent_inout &&
-                                            v.m_intent != ASRUtils::intent_out);
+                                            v.m_intent != ASRUtils::intent_out, true);
                     }
                 } else {
                     sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
@@ -272,7 +273,7 @@ public:
                                             use_ref, dummy,
                                             v.m_intent != ASRUtils::intent_in &&
                                             v.m_intent != ASRUtils::intent_inout &&
-                                            v.m_intent != ASRUtils::intent_out);
+                                            v.m_intent != ASRUtils::intent_out, true);
                     }
                 } else {
                     sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
@@ -293,7 +294,7 @@ public:
                                             use_ref, dummy,
                                             v.m_intent != ASRUtils::intent_in &&
                                             v.m_intent != ASRUtils::intent_inout &&
-                                            v.m_intent != ASRUtils::intent_out);
+                                            v.m_intent != ASRUtils::intent_out, true);
                     }
                 } else {
                     sub = format_type(dims, type_name, v.m_name, use_ref, dummy);
@@ -324,7 +325,7 @@ public:
                                             use_ref, dummy,
                                             v.m_intent != ASRUtils::intent_in &&
                                             v.m_intent != ASRUtils::intent_inout &&
-                                            v.m_intent != ASRUtils::intent_out);
+                                            v.m_intent != ASRUtils::intent_out, true);
                     }
                 } else {
                     sub = format_type(dims, "struct", v.m_name, use_ref, dummy);
