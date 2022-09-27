@@ -42,8 +42,30 @@ def test_list_02():
     for j in range(len(y)):
         assert x[j] == y[j]
 
+# Negative Indexing
+def test_list_03():
+    x: list[f64] = []
+
+    i: i32
+    for i in range(2):
+        x.append(float(i))
+
+    assert x[1] == x[-1]
+    assert x[0] == x[-2]
+    assert x[-1] == 1.0
+    assert x[-2] == 0.0
+
+    size: i32 = 2
+    for i in range(100):
+        x.append((i * size)/2)
+        size = len(x)
+
+    for i in range(size):
+        assert x[i] == x[((i-len(x)) + size) % size]
+
 def tests():
     test_list_01()
     test_list_02()
+    test_list_03()
 
 tests()

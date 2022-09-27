@@ -17,7 +17,7 @@ public:
     std::vector<ASR::Function_t*> rts;
 
     FunctionInstantiator(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,
-            std::map<std::string, ASR::symbol_t*> rt_subs, SymbolTable *current_scope, 
+            std::map<std::string, ASR::symbol_t*> rt_subs, SymbolTable *current_scope,
             std::string new_func_name):
         BaseExprStmtDuplicator(al),
         current_scope{current_scope},
@@ -122,7 +122,7 @@ public:
             new_return_var_ref,
             func_abi, func_access, func_deftype, bindc_name,
             func_elemental, func_pure, func_module, x->m_inline,
-            nullptr, 0, nullptr, 0, false);
+            x->m_static, nullptr, 0, nullptr, 0, false);
 
         ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(result);
         x->m_symtab->parent->add_symbol(new_func_name, t);
@@ -210,7 +210,7 @@ public:
             return (ASR::asr_t*) arg;
         }
         return ASRUtils::make_Cast_t_value(al, x->base.base.loc, arg, ASR::cast_kindType::IntegerToReal, x->m_type);
-    } 
+    }
 
     ASR::asr_t* duplicate_FunctionCall(ASR::FunctionCall_t *x) {
         std::string sym_name = ASRUtils::symbol_name(x->m_name);
@@ -227,14 +227,8 @@ public:
         ASR::expr_t* value = duplicate_expr(x->m_value);
         ASR::expr_t* dt = duplicate_expr(x->m_dt);
         std::string call_name = ASRUtils::symbol_name(x->m_name);
-        //std::cout << "--" << std::endl;
         for (ASR::Function_t* rt: rts) {
             if (call_name.compare(rt->m_name) == 0) {
-                /*
-                for (auto const& rt_sub: rt_subs) {
-                    std::cout << rt_sub.first << std::endl;
-                }
-                */
                 if (rt_subs.find(call_name) == rt_subs.end()) {
                     if (call_name.compare("add") == 0) {
                         ASR::expr_t* left_arg = duplicate_expr(x->m_args[0].m_value);

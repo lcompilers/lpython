@@ -1,0 +1,9 @@
+semantic error: Enumerations with non-integer or non-unique integer values cannot interoperate with C code.
+ --> tests/errors/enum_01.py:5:1 - 8:19
+  |
+5 |    class Color(Enum):
+  |    ^^^^^^^^^^^^^^^^^^...
+...
+  |
+8 |        BLUE: f64 = 0.7
+  | ...^^^^^^^^^^^^^^^^^^^ 

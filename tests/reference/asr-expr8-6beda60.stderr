@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "$DIR/src/bin/../runtime/lpython_parser.py", line 3, in <module>
+    import ast
+  File "/home/lubis/miniforge3/envs/lp/lib/python3.10/ast.py", line 29, in <module>
+    from contextlib import contextmanager, nullcontext
+  File "/home/lubis/miniforge3/envs/lp/lib/python3.10/contextlib.py", line 5, in <module>
+    from collections import deque
+  File "/home/lubis/miniforge3/envs/lp/lib/python3.10/collections/__init__.py", line 35, in <module>
+    from keyword import iskeyword as _iskeyword
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1002, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 945, in _find_spec
+  File "<frozen importlib._bootstrap_external>", line 1430, in find_spec
+  File "<frozen importlib._bootstrap_external>", line 1397, in _get_spec
+KeyboardInterrupt
+The command 'python $DIR/src/bin/../runtime/lpython_parser.py $DIR/src/bin/../runtime/lpython_builtin.py $DIR/src/bin/../runtime/lpython_builtin.pyCD3E6F1' failed.
+semantic error: The file '$DIR/src/bin/../runtime/lpython_builtin.py' failed to parse
+  --> tests/expr8.py:20:9
+   |
+20 |     x = b1//b1
+   |         ^^^^^^ 

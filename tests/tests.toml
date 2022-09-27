@@ -205,6 +205,11 @@ llvm = true
 pass_with_llvm = true
 pass = "inline_function_calls"
 
+# to make sure static keyword is actually present in function declaration
+[[test]]
+filename = "../integration_tests/func_static_01.py"
+c = true
+
 [[test]]
 filename = "loop1.py"
 ast = true
@@ -582,6 +587,10 @@ ast_new = true
 filename = "parser/unicode.py"
 ast_new = true
 
+[[test]]
+filename = "parser/match_stmt1.py"
+ast_new = true
+
 # tests/errors
 
 [[test]]
@@ -848,6 +857,14 @@ asr = true
 filename = "errors/test_tuple1.py"
 asr = true
 
+[[test]]
+filename = "errors/test_for1.py"
+asr = true
+
+[[test]]
+filename = "errors/test_for2.py"
+asr = true
+
 # tests/tokens/errors
 
 [[test]]
@@ -888,4 +905,12 @@ asr = true
 
 [[test]]
 filename = "errors/kwargs_03_error.py"
+asr = true
+
+[[test]]
+filename = "errors/enum_01.py"
+asr = true
+
+[[test]]
+filename = "errors/enum_02.py"
 asr = true

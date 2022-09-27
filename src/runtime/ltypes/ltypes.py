@@ -1,4 +1,4 @@
-from inspect import getfullargspec, getcallargs
+from inspect import getfullargspec, getcallargs, isclass
 import os
 import ctypes
 import platform
@@ -7,7 +7,7 @@ from dataclasses import dataclass
 # TODO: this does not seem to restrict other imports
 __slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64", "CPtr",
         "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer",
-        "p_c_pointer", "vectorize", "inline"]
+        "p_c_pointer", "vectorize", "inline", "Union", "static"]
 
 # data-types
 
@@ -36,6 +36,7 @@ f64 = Type("f64")
 c32 = Type("c32")
 c64 = Type("c64")
 CPtr = Type("c_ptr")
+Union = ctypes.Union
 
 # Generics
 
@@ -66,7 +67,6 @@ def ltype(x):
     elif type(x) == bool:
         return (bool, )
     raise Exception("Unsupported Type: %s" % str(type(x)))
-
 
 class OverloadedFunction:
     """
@@ -118,6 +118,10 @@ def vectorize(f):
 def inline(f):
     return f
 
+# To be handled in backend
+def static(f):
+    return f
+
 def interface(f):
     def inner_func():
         raise Exception("Unexpected to be called by CPython")
@@ -126,36 +130,37 @@ def interface(f):
 
 # C interoperation support
 
+def convert_type_to_ctype(arg):
+    if arg == f64:
+        return ctypes.c_double
+    elif arg == f32:
+        return ctypes.c_float
+    elif arg == i64:
+        return ctypes.c_int64
+    elif arg == i32:
+        return ctypes.c_int32
+    elif arg == i16:
+        return ctypes.c_int16
+    elif arg == i8:
+        return ctypes.c_int8
+    elif arg == CPtr:
+        return ctypes.c_void_p
+    elif arg == str:
+        return ctypes.c_char_p
+    elif arg is None:
+        raise NotImplementedError("Type cannot be None")
+    elif isinstance(arg, Array):
+        type = convert_type_to_ctype(arg._type)
+        return ctypes.POINTER(type)
+    else:
+        raise NotImplementedError("Type %r not implemented" % arg)
+
 class CTypes:
     """
     A wrapper class for interfacing C via ctypes.
     """
 
     def __init__(self, f):
-        def convert_type_to_ctype(arg):
-            if arg == f64:
-                return ctypes.c_double
-            elif arg == f32:
-                return ctypes.c_float
-            elif arg == i64:
-                return ctypes.c_int64
-            elif arg == i32:
-                return ctypes.c_int32
-            elif arg == i16:
-                return ctypes.c_int16
-            elif arg == i8:
-                return ctypes.c_int8
-            elif arg == CPtr:
-                return ctypes.c_void_p
-            elif arg == str:
-                return ctypes.c_char_p
-            elif arg is None:
-                raise NotImplementedError("Type cannot be None")
-            elif isinstance(arg, Array):
-                type = convert_type_to_ctype(arg._type)
-                return ctypes.POINTER(type)
-            else:
-                raise NotImplementedError("Type %r not implemented" % arg)
         def get_rtlib_dir():
             current_dir = os.path.dirname(os.path.abspath(__file__))
             return os.path.join(current_dir, "..")
@@ -204,10 +209,31 @@ class CTypes:
                 new_args.append(arg)
         return self.cf(*new_args)
 
+def convert_to_ctypes_Union(f):
+    fields = []
+    for name in f.__annotations__:
+        ltype_ = f.__annotations__[name]
+        fields.append((name, convert_type_to_ctype(ltype_)))
+
+    f._fields_ = fields
+    f.__annotations__ = {}
+
+    return f
 
 def ccall(f):
-    wrapped_f = CTypes(f)
-    return wrapped_f
+    if isclass(f) and issubclass(f, Union):
+        return f
+    return CTypes(f)
+
+def union(f):
+    fields = []
+    for name in f.__annotations__:
+        ltype_ = f.__annotations__[name]
+        fields.append((name, convert_type_to_ctype(ltype_)))
+
+    f._fields_ = fields
+    f.__annotations__ = {}
+    return f
 
 def pointer(x, type=None):
     from numpy import ndarray

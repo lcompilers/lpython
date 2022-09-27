@@ -42,8 +42,8 @@ public:
                   int64_t default_lower_bound)
          : BaseCCPPVisitor(diag, platform, false, false, true, default_lower_bound),
            array_types_decls(std::string("\nstruct dimension_descriptor\n"
-                                         "{\n    int32_t lower_bound, length;\n};\n"))  {
-    }
+                                         "{\n    int32_t lower_bound, length;\n};\n")) {
+           }
 
     std::string convert_dims_c(size_t n_dims, ASR::dimension_t *m_dims,
                                bool convert_to_1d=false)
@@ -145,6 +145,7 @@ public:
 
     std::string convert_variable_decl(const ASR::Variable_t &v,
                                       bool pre_initialise_derived_type=true,
+                                      bool use_ptr_for_derived_type=true,
                                       bool use_static=true)
     {
         std::string sub;
@@ -176,7 +177,11 @@ public:
                 ASR::Derived_t *t = ASR::down_cast<ASR::Derived_t>(t2);
                 std::string der_type_name = ASRUtils::symbol_name(t->m_derived_type);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
-                sub = format_type_c(dims, "struct " + der_type_name + "*",
+                std::string ptr_char = "*";
+                if( !use_ptr_for_derived_type ) {
+                    ptr_char.clear();
+                }
+                sub = format_type_c(dims, "struct " + der_type_name + ptr_char,
                                     v.m_name, use_ref, dummy);
             } else {
                 diag.codegen_error_label("Type number '"
@@ -244,6 +249,10 @@ public:
                 ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(v.m_type);
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims);
                 sub = format_type_c(dims, "char *", v.m_name, use_ref, dummy);
+                if( v.m_intent == ASRUtils::intent_local ) {
+                    sub += " = (char*) malloc(40 * sizeof(char))";
+                    return sub;
+                }
             } else if (ASR::is_a<ASR::Derived_t>(*v.m_type)) {
                 std::string indent(indentation_level*indentation_spaces, ' ');
                 ASR::Derived_t *t = ASR::down_cast<ASR::Derived_t>(v.m_type);
@@ -268,7 +277,11 @@ public:
                         sub += "=" + init;
                     }
                     sub += ";\n";
-                    sub += indent + format_type_c("", "struct " + der_type_name + "*", v.m_name, use_ref, dummy);
+                    std::string ptr_char = "*";
+                    if( !use_ptr_for_derived_type ) {
+                        ptr_char.clear();
+                    }
+                    sub += indent + format_type_c("", "struct " + der_type_name + ptr_char, v.m_name, use_ref, dummy);
                     if( t->n_dims != 0 ) {
                         sub += " = " + value_var_name;
                     } else {
@@ -282,9 +295,42 @@ public:
                         use_ref = false;
                         dims = "";
                     }
-                    sub = format_type_c(dims, "struct " + der_type_name + "*",
+                    std::string ptr_char = "*";
+                    if( !use_ptr_for_derived_type ) {
+                        ptr_char.clear();
+                    }
+                    sub = format_type_c(dims, "struct " + der_type_name + ptr_char,
                                         v.m_name, use_ref, dummy);
                 }
+            } else if (ASR::is_a<ASR::Union_t>(*v.m_type)) {
+                std::string indent(indentation_level*indentation_spaces, ' ');
+                ASR::Union_t *t = ASR::down_cast<ASR::Union_t>(v.m_type);
+                std::string der_type_name = ASRUtils::symbol_name(t->m_union_type);
+                if( is_array ) {
+                    dims = convert_dims_c(t->n_dims, t->m_dims, true);
+                    std::string encoded_type_name = "x" + der_type_name;
+                    std::string type_name = std::string("union ") + der_type_name;
+                    generate_array_decl(sub, std::string(v.m_name), type_name, dims,
+                                        encoded_type_name, t->m_dims, t->n_dims,
+                                        use_ref, dummy,
+                                        v.m_intent != ASRUtils::intent_in &&
+                                        v.m_intent != ASRUtils::intent_inout);
+                } else {
+                    dims = convert_dims_c(t->n_dims, t->m_dims);
+                    if( v.m_intent == ASRUtils::intent_in ||
+                        v.m_intent == ASRUtils::intent_inout ) {
+                        use_ref = false;
+                        dims = "";
+                    }
+                    sub = format_type_c(dims, "union " + der_type_name,
+                                        v.m_name, use_ref, dummy);
+                }
+            } else if (ASR::is_a<ASR::List_t>(*v.m_type)) {
+                ASR::List_t* t = ASR::down_cast<ASR::List_t>(v.m_type);
+                std::string list_element_type = get_c_type_from_ttype_t(t->m_type);
+                std::string list_type_c = list_api->get_list_type(t, list_element_type);
+                sub = format_type_c("", list_type_c, v.m_name,
+                                    false, false);
             } else if (ASR::is_a<ASR::CPtr_t>(*v.m_type)) {
                 sub = format_type_c("", "void*", v.m_name, false, false);
             } else if (ASR::is_a<ASR::Enum_t>(*v.m_type)) {
@@ -311,6 +357,7 @@ public:
 
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
+        is_string_concat_present = false;
         global_scope = x.m_global_scope;
         // All loose statements must be converted to a function, so the items
         // must be empty:
@@ -318,6 +365,8 @@ public:
         std::string unit_src = "";
         indentation_level = 0;
         indentation_spaces = 4;
+        list_api->set_indentation(indentation_level, indentation_spaces);
+        list_api->set_global_scope(global_scope);
 
         std::string head =
 R"(
@@ -352,11 +401,22 @@ R"(
 
 )";
 
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        std::string tab(indentation_spaces, ' ');
+        std::string strcat_def = "";
+        strcat_def += indent + "char* " + global_scope->get_unique_name("strcat_") + "(char* x, char* y) {\n";
+        strcat_def += indent + tab + "char* str_tmp = (char*) malloc((strlen(x) + strlen(y) + 2) * sizeof(char));\n";
+        strcat_def += indent + tab + "strcpy(str_tmp, x);\n";
+        strcat_def += indent + tab + "return strcat(str_tmp, y);\n";
+        strcat_def += indent + "}\n\n";
+
         for (auto &item : x.m_global_scope->get_scope()) {
             if (ASR::is_a<ASR::DerivedType_t>(*item.second)) {
                 array_types_decls += "struct " + item.first + ";\n\n";
             } else if (ASR::is_a<ASR::EnumType_t>(*item.second)) {
                 array_types_decls += "enum " + item.first + ";\n\n";
+            } else if (ASR::is_a<ASR::UnionType_t>(*item.second)) {
+                array_types_decls += "union " + item.first + ";\n\n";
             }
         }
 
@@ -369,7 +429,8 @@ R"(
 
         for (auto &item : x.m_global_scope->get_scope()) {
             if (ASR::is_a<ASR::DerivedType_t>(*item.second) ||
-                ASR::is_a<ASR::EnumType_t>(*item.second)) {
+                ASR::is_a<ASR::EnumType_t>(*item.second) ||
+                ASR::is_a<ASR::UnionType_t>(*item.second)) {
                 visit_symbol(*item.second);
                 array_types_decls += src;
             }
@@ -443,7 +504,17 @@ R"(
         for (auto s: headers) {
             to_include += "#include <" + s + ".h>\n";
         }
-        src = to_include + head + array_types_decls + unit_src;
+        if( list_api->get_list_func_decls().size() > 0 ) {
+            array_types_decls += "\n" + list_api->get_list_func_decls() + "\n";
+        }
+        std::string list_funcs_defined = "";
+        if( list_api->get_generated_code().size() > 0 ) {
+            list_funcs_defined =  "\n" + list_api->get_generated_code() + "\n";
+        }
+        if( is_string_concat_present ) {
+            head += strcat_def;
+        }
+        src = to_include + head + array_types_decls + unit_src + list_funcs_defined;
     }
 
     void visit_Program(const ASR::Program_t &x) {
@@ -481,26 +552,47 @@ R"(
         indentation_level -= 2;
     }
 
-    void visit_DerivedType(const ASR::DerivedType_t& x) {
+    template <typename T>
+    void visit_AggregateTypeUtil(const T& x, std::string c_type_name) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         indentation_level += 1;
-        std::string open_struct = indent + "struct " + std::string(x.m_name) + " {\n";
+        std::string open_struct = indent + c_type_name + " " + std::string(x.m_name) + " {\n";
         std::string body = "";
         indent.push_back(' ');
         for( size_t i = 0; i < x.n_members; i++ ) {
             ASR::symbol_t* member = x.m_symtab->get_symbol(x.m_members[i]);
             LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
-            body += indent + convert_variable_decl(*ASR::down_cast<ASR::Variable_t>(member), false) + ";\n";
+            body += indent + convert_variable_decl(
+                        *ASR::down_cast<ASR::Variable_t>(member),
+                        false,
+                        (c_type_name != "union")) + ";\n";
         }
         indentation_level -= 1;
         std::string end_struct = "};\n\n";
         array_types_decls += open_struct + body + end_struct;
     }
 
+    void visit_DerivedType(const ASR::DerivedType_t& x) {
+        visit_AggregateTypeUtil(x, "struct");
+    }
+
+    void visit_UnionType(const ASR::UnionType_t& x) {
+        visit_AggregateTypeUtil(x, "union");
+    }
+
     void visit_EnumType(const ASR::EnumType_t& x) {
-        if( !ASR::is_a<ASR::Integer_t>(*x.m_type) ) {
+        if( x.m_enum_value_type == ASR::enumtypeType::NonInteger ) {
             throw CodeGenError("C backend only supports integer valued Enum. " +
                 std::string(x.m_name) + " is not integer valued.");
+        }
+        if( x.m_enum_value_type == ASR::enumtypeType::IntegerNotUnique ) {
+            throw CodeGenError("C backend only supports uniquely valued integer Enum. " +
+                std::string(x.m_name) + " Enum is having duplicate values for its members.");
+        }
+        if( x.m_enum_value_type == ASR::enumtypeType::IntegerUnique &&
+            x.m_abi == ASR::abiType::BindC ) {
+            throw CodeGenError("C-interoperation support for non-consecutive but uniquely "
+                               "valued integer enums isn't available yet.");
         }
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string tab(indentation_spaces, ' ');
@@ -511,7 +603,6 @@ R"(
         int64_t min_value = INT64_MAX;
         int64_t max_value = INT64_MIN;
         size_t max_name_len = 0;
-        std::map<int64_t, int64_t> value2count;
         for( size_t i = 0; i < x.n_members; i++ ) {
             ASR::symbol_t* member = x.m_symtab->get_symbol(x.m_members[i]);
             LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
@@ -519,21 +610,11 @@ R"(
             ASR::expr_t* value = ASRUtils::expr_value(member_var->m_symbolic_value);
             int64_t value_int64 = -1;
             ASRUtils::extract_value(value, value_int64);
-            if( value2count.find(value_int64) == value2count.end() ) {
-                value2count[value_int64] = 0;
-            }
-            value2count[value_int64] += 1;
             min_value = std::min(value_int64, min_value);
             max_value = std::max(value_int64, max_value);
             max_name_len = std::max(max_name_len, std::string(x.m_members[i]).size());
             this->visit_expr(*member_var->m_symbolic_value);
             body += indent + tab + std::string(member_var->m_name) + " = " + src + ",\n";
-        }
-        for( auto itr: value2count ) {
-            if( itr.second > 1 ) {
-                throw CodeGenError("C backend only supports uniquely valued integer Enum. " +
-                    std::string(x.m_name) + " Enum is having duplicate values for its members.");
-            }
         }
         size_t max_names = max_value - min_value + 1;
         std::vector<std::string> enum_names(max_names, "\"\"");
@@ -568,6 +649,10 @@ R"(
         src = "(enum " + std::string(enum_type->m_name) + ") (" + src + ")";
     }
 
+    void visit_UnionTypeConstructor(const ASR::UnionTypeConstructor_t& /*x*/) {
+
+    }
+
     void visit_EnumValue(const ASR::EnumValue_t& x) {
         ASR::Variable_t* enum_var = ASR::down_cast<ASR::Variable_t>(x.m_v);
         src = std::string(enum_var->m_name);
@@ -576,12 +661,10 @@ R"(
     void visit_EnumName(const ASR::EnumName_t& x) {
         ASR::Variable_t* enum_var = ASR::down_cast<ASR::Variable_t>(x.m_v);
         int64_t min_value = INT64_MAX;
-        ASR::Enum_t* x_enum = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
-        ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x_enum->m_enum_type);
-
+        ASR::EnumType_t* enum_type = ASRUtils::get_EnumType_from_symbol(x.m_v);
         for( auto itr: enum_type->m_symtab->get_scope() ) {
             ASR::Variable_t* itr_var = ASR::down_cast<ASR::Variable_t>(itr.second);
-            ASR::expr_t* value = itr_var->m_symbolic_value;
+            ASR::expr_t* value = ASRUtils::expr_value(itr_var->m_symbolic_value);
             int64_t value_int64 = -1;
             ASRUtils::extract_value(value, value_int64);
             min_value = std::min(value_int64, min_value);
@@ -592,16 +675,9 @@ R"(
 
     void visit_ComplexConstant(const ASR::ComplexConstant_t &x) {
         headers.insert("complex");
-
-        ASR::Complex_t *t = ASR::down_cast<ASR::Complex_t>(x.m_type);
-
         std::string re = std::to_string(x.m_re);
         std::string im = std::to_string(x.m_im);
-
-        std::string type_name = "float complex";
-        if (t->m_kind == 8) type_name = "double complex";
-
-        src = "(" + type_name + ") (" + re + ", " + im + ")";
+        src = "CMPLX(" + re + ", " + im + ")";
 
         last_expr_precedence = 2;
     }

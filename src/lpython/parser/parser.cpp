@@ -113,36 +113,21 @@ std::string unique_filename(const std::string &prefix) {
 }
 
 Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
-        const std::string &runtime_library_dir,
+        const std::string &/*runtime_library_dir*/,
         const std::string &infile,
         diag::Diagnostics &diagnostics,
         bool new_parser) {
     LPython::AST::ast_t* ast;
-    if (new_parser) {
-        std::string input = read_file(infile);
-        Result<LPython::AST::Module_t*> res = parse(al, input, diagnostics);
-        if (res.ok) {
-            ast = (LPython::AST::ast_t*)res.result;
-        } else {
-            LFORTRAN_ASSERT(diagnostics.has_error())
-            return Error();
-        }
+    // We will be using the new parser from now on
+    new_parser = true;
+    LFORTRAN_ASSERT(new_parser)
+    std::string input = read_file(infile);
+    Result<LPython::AST::Module_t*> res = parse(al, input, diagnostics);
+    if (res.ok) {
+        ast = (LPython::AST::ast_t*)res.result;
     } else {
-        std::string outfile = unique_filename(infile);
-        std::string pycmd = "python " + runtime_library_dir
-            + "/lpython_parser.py " + infile + " " + outfile;
-        int err = std::system(pycmd.c_str());
-        if (err != 0) {
-            std::cerr << "The command '" << pycmd << "' failed." << std::endl;
-            return Error();
-        }
-        std::string input;
-        bool status = read_file(outfile, input);
-        if (!status) {
-            std::cerr << "The file '" << outfile << "' cannot be read." << std::endl;
-            return Error();
-        }
-        ast = LPython::deserialize_ast(al, input);
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        return Error();
     }
     return ast;
 }

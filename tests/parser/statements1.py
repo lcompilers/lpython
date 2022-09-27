@@ -23,6 +23,8 @@ x, = t
 obj = obj,
 
 x += 1
+x += y, z
+x += (y, z),
 
 x: i64
 y: i32 = 1

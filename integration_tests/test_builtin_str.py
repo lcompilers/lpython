@@ -1,4 +1,4 @@
-def test_str_int():
+def test_str_int_float():
     s: str
     s = str(356)
     assert s == "356"
@@ -11,7 +11,7 @@ def test_str_int():
     assert str(False) == "False"
     assert str(True) == "True"
     assert str("just a str") == "just a str"
-    assert str(12.1234) == "12.1234"
+    assert str(12.1234)[:7] == "12.1234"
 
 def str_conv_for_variables():
     x: i32
@@ -48,30 +48,42 @@ def test_str_slice_step():
     start = 1
     end = 4
     step = 1
-    assert s[3:12:3] == "dgj"
-    assert s[3:9:3] == "dg"
-    assert s[10:3:-2] == "kige"
+
+    # Check all possible combinations
     assert s[::] == "abcdefghijk"
     assert s[1:4:] == "bcd"
     assert s[:4:5] == "a"
+    assert s[::-1] == "kjihgfedcba"
+    assert s[3:12:3] == "dgj"
+    assert s[1::3] == "behk"
+    assert s[4::] == "efghijk"
+    assert s[:5:] == "abcde"
+
+    assert s[3:9:3] == "dg"
+    assert s[10:3:-2] == "kige"
     assert s[-2:-10] == ""
     assert s[-3:-9:-3] == "if"
     assert s[-3:-10:-3] == "ifc"
     assert s[start:end:step] == "bcd"
     assert s[start:2*end-3:step] == "bcde"
     assert s[start:2*end-3:-step] == ""
-    assert s[::-1] == "kjihgfedcba"
+
 
 
 def test_issue_883():
     s: str
     s = "abcde"
     c: str
+    d: str
+    d = "edcba"
+    i: i32 = 0
     for c in s[::-1]:
         print(c)
+        assert c == d[i]
+        i += 1
 
 
-test_str_int()
+test_str_int_float()
 str_conv_for_variables()
 test_str_slice_step()
 test_issue_883()

@@ -29,6 +29,7 @@ using LFortran::Args_;
 using LFortran::Var_Kw;
 using LFortran::Kw_or_Star_Arg;
 using LFortran::Call_Arg;
+using LFortran::Key_Val_Pattern;
 
 static inline char* name2char(const ast_t *n) {
     return down_cast2<Name_t>(n)->m_id;
@@ -57,6 +58,11 @@ static inline T** vec_cast(const Vec<ast_t*> &x) {
     }
     return s;
 }
+
+// Assign first/last location to `a` from `b`
+#define FLOC(a, b) a.first = b.first;
+#define LLOC(a, b) a.last = b.last;
+
 
 #define VEC_CAST(x, type) vec_cast<type##_t, astType::type>(x)
 #define STMTS(x) VEC_CAST(x, stmt)
@@ -317,44 +323,111 @@ static inline char *extract_type_comment(LFortran::Parser &p,
 #define EXCEPT_03(e, id, stmts, l) make_ExceptHandler_t(p.m_a, l, \
         EXPR(e), name2char(id), STMTS(stmts), stmts.size())
 
-static inline withitem_t WITH_ITEM(Location &l,
+#define MATCH_VALUE(val, l) down_cast<pattern_t>( \
+        make_MatchValue_t(p.m_a, l, EXPR(val)))
+
+#define MATCH_SINGLETON(val, l) down_cast<pattern_t>( \
+        make_MatchSingleton_t(p.m_a, l, EXPR(val)))
+
+#define MATCH_AS_01(pattern, id, l) down_cast<pattern_t>( \
+        make_MatchAs_t(p.m_a, l, pattern, name2char(id)))
+#define MATCH_AS_02(id, l) down_cast<pattern_t>( \
+        make_MatchAs_t(p.m_a, l, nullptr, name2char(id)))
+
+#define MATCH_OR(v, l) down_cast<pattern_t>(make_MatchOr_t(p.m_a, l, v.p, v.n))
+
+#define MATCH_STAR(id, l) down_cast<pattern_t>( \
+        make_MatchStar_t(p.m_a, l, name2char(id)))
+#define MATCH_SEQUENCE_01(l) down_cast<pattern_t>( \
+        make_MatchSequence_t(p.m_a, l, nullptr, 0))
+#define MATCH_SEQUENCE_02(patterns, l) down_cast<pattern_t>( \
+        make_MatchSequence_t(p.m_a, l, patterns.p, patterns.n))
+
+static inline Key_Val_Pattern* KEY_VAL_PATTERN(Allocator &al,
+        expr_t* key,  pattern_t* value) {
+    Key_Val_Pattern* r = al.allocate<Key_Val_Pattern>();
+    r->key = key;
+    r->val = value;
+    return r;
+}
+pattern_t *match_mapping(Allocator &al, Location &l,
+        Vec<Key_Val_Pattern> items, char *rest) {
+    Vec<expr_t*> key;
+    key.reserve(al, items.size());
+    Vec<pattern_t*> val;
+    val.reserve(al, items.size());
+    for (auto &item : items) {
+        key.push_back(al, item.key);
+        val.push_back(al, item.val);
+    }
+    return down_cast<pattern_t>(
+            make_MatchMapping_t(al, l, key.p, key.n, val.p, val.n, rest));
+}
+#define MATCH_MAPPING_01(l) down_cast<pattern_t>( \
+        make_MatchMapping_t(p.m_a, l, nullptr, 0, nullptr, 0, nullptr))
+#define MATCH_MAPPING_02(items, l) match_mapping(p.m_a, l, items, nullptr)
+#define MATCH_MAPPING_03(items, rest, l) match_mapping(p.m_a, l, \
+        items, name2char(rest))
+#define MATCH_MAPPING_04(rest, l) down_cast<pattern_t>( \
+        make_MatchMapping_t(p.m_a, l, nullptr, 0, nullptr, 0, name2char(rest)))
+
+pattern_t *match_class(Allocator &al, Location &l, expr_t *cls,
+        pattern_t** m_patterns, size_t n_patterns,
+        Key_Val_Pattern* m_params, size_t n_params) {
+    Vec<char*> kwd_attrs;
+    kwd_attrs.reserve(al, n_params);
+    Vec<pattern_t*> kwd_patterns;
+    kwd_patterns.reserve(al, n_params);
+    for (size_t i = 0; i < n_params; i++) {
+        kwd_attrs.push_back(al, name2char((ast_t*)m_params[i].key));
+        kwd_patterns.push_back(al, m_params[i].val);
+    }
+    return down_cast<pattern_t>(make_MatchClass_t(al, l, cls,
+        m_patterns, n_patterns, kwd_attrs.p, kwd_attrs.n,
+        kwd_patterns.p, kwd_patterns.n));
+}
+#define MATCH_CLASS_01(cls, l) down_cast<pattern_t>( \
+        make_MatchClass_t(p.m_a, l, EXPR(cls), nullptr,0, \
+        nullptr, 0, nullptr, 0))
+#define MATCH_CLASS_02(cls, args, l) match_class(p.m_a, l, \
+        EXPR(cls), args.p, args.n, nullptr, 0)
+#define MATCH_CLASS_03(cls, args, kws, l) match_class(p.m_a, l, \
+        EXPR(cls), args.p, args.n, kws.p, kws.n)
+#define MATCH_CLASS_04(cls, kws, l) match_class(p.m_a, l, \
+        EXPR(cls), nullptr, 0, kws.p, kws.n)
+
+static inline match_case_t* match_case(Allocator &al, Location &l,
+        pattern_t* pattern, expr_t* guard, Vec<ast_t*> body) {
+    match_case_t* r = al.allocate<match_case_t>();
+    r->loc = l;
+    r->m_pattern = pattern;
+    r->m_guard = guard;
+    r->m_body = STMTS(body);
+    r->n_body = body.size();
+    return r;
+}
+#define MATCH_CASE_01(pattern, body, l) match_case(p.m_a, l, \
+        pattern, nullptr, body)
+#define MATCH_CASE_02(pattern, guard, body, l) match_case(p.m_a, l, \
+        pattern, EXPR(guard), body)
+#define MATCH_01(subject, cases, l) make_Match_t(p.m_a, l, \
+        EXPR(subject), cases.p, cases.n)
+
+static inline withitem_t* WITH_ITEM(Allocator &al, Location &l,
         expr_t* context_expr, expr_t* optional_vars) {
-    withitem_t r;
-    r.loc = l;
-    r.m_context_expr = context_expr;
-    r.m_optional_vars = optional_vars;
+    withitem_t* r = al.allocate<withitem_t>();
+    r->loc = l;
+    r->m_context_expr = context_expr;
+    r->m_optional_vars = optional_vars;
     return r;
 }
 
-Vec<withitem_t> withitem_to_list(Allocator &al, withitem_t x) {
-    Vec<withitem_t> v;
-    v.reserve(al, 1);
-    v.push_back(al, x);
-    return v;
-}
-
-static inline Vec<withitem_t> convert_exprlist_to_withitem(Allocator &al,
-        Location &l, Vec<ast_t*> &expr_list) {
-    Vec<withitem_t> v;
-    v.reserve(al, expr_list.size());
-    for (size_t i=0; i<expr_list.size(); i++) {
-        v.push_back(al, WITH_ITEM(l, EXPR(expr_list[i]), nullptr));
-    }
-    return v;
-}
-
-#define WITH_ITEM_01(expr, vars, l) WITH_ITEM(l, \
+#define WITH_ITEM_01(expr, vars, l) WITH_ITEM(p.m_a, l, \
         EXPR(expr), EXPR(SET_EXPR_CTX_01(vars, Store)))
-#define WITH_ITEM_02(expr, l) WITH_ITEM(l, EXPR(expr), nullptr)
-#define WITH(items, body, l) make_With_t(p.m_a, l, \
-        convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
-        STMTS(body), body.size(), nullptr)
-#define WITH_01(items, body, type_comment, l) make_With_t(p.m_a, l, \
-        convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
-        STMTS(body), body.size(), extract_type_comment(p, l, type_comment))
-#define WITH_02(items, body, l) make_With_t(p.m_a, l, \
+#define WITH_ITEM_02(expr, l) WITH_ITEM(p.m_a, l, EXPR(expr), nullptr)
+#define WITH_01(items, body, l) make_With_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), nullptr)
-#define WITH_03(items, body, type_comment, l) make_With_t(p.m_a, l, \
+#define WITH_02(items, body, type_comment, l) make_With_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), \
         extract_type_comment(p, l, type_comment))
 
@@ -390,10 +463,17 @@ Arg** ARG2LIST(Allocator &al, Arg *x) {
         if(n_##x > 0) { \
             for(size_t i = 0; i < n_##x; i++) { \
                 _m_##x.push_back(al, m_##x[i]->_arg); \
-                if(m_##x[i]->default_value && !kw) { \
-                    defaults.push_back(al, m_##x[i]->defaults); \
-                } else if (m_##x[i]->default_value){ \
-                    kw_defaults.push_back(al, m_##x[i]->defaults); \
+                if(m_##x[i]->default_value) { \
+                    if (kw == 0) { \
+                        defaults.push_back(al, m_##x[i]->defaults); \
+                    } else { \
+                        kw_defaults.push_back(al, m_##x[i]->defaults); \
+                    } \
+                } else { \
+                    if (kw == 1) { \
+                        kw_defaults.push_back(al, \
+                            (expr_t*)make_ConstantNone_t(al, l, nullptr)); \
+                    } \
                 } \
             } \
             r->arguments.m_##x = _m_##x.p; \
@@ -417,25 +497,25 @@ static inline Args *FUNC_ARGS_01(Allocator &al, Location &l, Fn_Arg *parameters)
     if(parameters != nullptr) {
         Arg** m_posonlyargs = parameters->posonlyargs.p;
         size_t n_posonlyargs = parameters->posonlyargs.n;
-        FUNC_ARGS_(posonlyargs, false);
+        FUNC_ARGS_(posonlyargs, 0);
     }
     if(parameters != nullptr && parameters->args_val) {
         Arg** m_args = parameters->args->args.p;
         size_t n_args = parameters->args->args.n;
-        FUNC_ARGS_(args, false);
+        FUNC_ARGS_(args, 0);
 
         if(parameters->args->var_kw_val) {
             Arg** m_vararg = parameters->args->var_kw->vararg.p;
             size_t n_vararg = parameters->args->var_kw->vararg.n;
-            FUNC_ARGS_(vararg, false);
+            FUNC_ARGS_(vararg, 0);
 
             Arg** m_kwonlyargs = parameters->args->var_kw->kwonlyargs.p;
             size_t n_kwonlyargs = parameters->args->var_kw->kwonlyargs.n;
-            FUNC_ARGS_(kwonlyargs, true);
+            FUNC_ARGS_(kwonlyargs, 1);
 
             Arg** m_kwarg = parameters->args->var_kw->kwarg.p;
             size_t n_kwarg = parameters->args->var_kw->kwarg.n;
-            FUNC_ARGS_(kwarg, true);
+            FUNC_ARGS_(kwarg, 2);
         }
     }
     r->arguments.m_kw_defaults = kw_defaults.p;
@@ -598,15 +678,9 @@ static inline Var_Kw *VAR_KW(Allocator &al,
         STMTS(stmts), stmts.size(), STMTS(orelse), orelse.size(), \
         extract_type_comment(p, l, type_comment))
 
-#define ASYNC_WITH(items, body, l) make_AsyncWith_t(p.m_a, l, \
-        convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
-        STMTS(body), body.size(), nullptr)
-#define ASYNC_WITH_02(items, body, l) make_AsyncWith_t(p.m_a, l, \
+#define ASYNC_WITH_01(items, body, l) make_AsyncWith_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), nullptr)
-#define ASYNC_WITH_01(items, body, type_comment, l) make_AsyncWith_t(p.m_a, l, \
-        convert_exprlist_to_withitem(p.m_a, l, items).p, items.size(), \
-        STMTS(body), body.size(), extract_type_comment(p, l, type_comment))
-#define ASYNC_WITH_03(items, body, type_comment, l) make_AsyncWith_t(p.m_a, l, \
+#define ASYNC_WITH_02(items, body, type_comment, l) make_AsyncWith_t(p.m_a, l, \
         items.p, items.size(), STMTS(body), body.size(), \
         extract_type_comment(p, l, type_comment))
 
@@ -934,22 +1008,12 @@ static inline ast_t* ID_TUPLE_02(Allocator &al, Location &l, Vec<ast_t*> elts) {
 #define COMP_EXPR_1(expr, generators, l) make_GeneratorExp_t(p.m_a, l, \
         EXPR(expr), generators.p, generators.n)
 
-expr_t* CHECK_TUPLE(expr_t *x) {
-    if(is_a<Tuple_t>(*x) && down_cast<Tuple_t>(x)->n_elts == 1) {
-        return down_cast<Tuple_t>(x)->m_elts[0];
-    } else {
-        return x;
-    }
-}
-
 #define ELLIPSIS(l) make_ConstantEllipsis_t(p.m_a, l, nullptr)
 
 #define NONE(l) make_ConstantNone_t(p.m_a, l, nullptr)
 
-#define TUPLE(elts, l) make_Tuple_t(p.m_a, l, \
-        EXPRS(elts), elts.size(), expr_contextType::Load)
 #define SUBSCRIPT_01(value, slice, l) make_Subscript_t(p.m_a, l, \
-        EXPR(value), CHECK_TUPLE(EXPR(slice)), expr_contextType::Load)
+        EXPR(value), EXPR(slice), expr_contextType::Load)
 
 static inline ast_t* SLICE(Allocator &al, Location &l,
         ast_t *lower, ast_t *upper, ast_t *_step) {

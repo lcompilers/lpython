@@ -279,6 +279,59 @@ public:
         builder->SetInsertPoint(bb);
     }
 
+    // Note: `create_if_else` and `create_loop` are optional APIs
+    // that do not have to be used. Many times, for more complicated
+    // things, it might be more readable to just use the LLVM API
+    // without any extra layer on top. In some other cases, it might
+    // be more readable to use this abstraction.
+    template <typename IF, typename ELSE>
+    void create_if_else(llvm::Value * cond, IF if_block, ELSE else_block) {
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+
+        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+
+        builder->CreateCondBr(cond, thenBB, elseBB);
+        builder->SetInsertPoint(thenBB); {
+            if_block();
+        }
+        builder->CreateBr(mergeBB);
+
+        start_new_block(elseBB); {
+            else_block();
+        }
+        start_new_block(mergeBB);
+    }
+
+    template <typename Cond, typename Body>
+    void create_loop(Cond condition, Body loop_body) {
+        dict_api_lp->set_iterators();
+        dict_api_sc->set_iterators();
+        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
+        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
+        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
+        this->current_loophead = loophead;
+        this->current_loopend = loopend;
+
+        // head
+        start_new_block(loophead); {
+            llvm::Value* cond = condition();
+            builder->CreateCondBr(cond, loopbody, loopend);
+        }
+
+        // body
+        start_new_block(loopbody); {
+            loop_body();
+            builder->CreateBr(loophead);
+        }
+
+        // end
+        start_new_block(loopend);
+        dict_api_lp->reset_iterators();
+        dict_api_sc->reset_iterators();
+    }
+
     inline bool verify_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
         if( n_dims <= 0 ) {
             return false;
@@ -318,6 +371,10 @@ public:
                 }
                 case ASR::ttypeType::Derived: {
                     el_type = getDerivedType(m_type_);
+                    break;
+                }
+                case ASR::ttypeType::Union: {
+                    el_type = getUnionType(m_type_);
                     break;
                 }
                 case ASR::ttypeType::Character: {
@@ -505,6 +562,10 @@ public:
                 llvm_mem_type = getDerivedType(mem_type);
                 break;
             }
+            case ASR::ttypeType::Union: {
+                llvm_mem_type = getUnionType(mem_type);
+                break;
+            }
             case ASR::ttypeType::Pointer: {
                 ASR::Pointer_t* ptr_type = ASR::down_cast<ASR::Pointer_t>(mem_type);
                 llvm_mem_type = getMemberType(ptr_type->m_type, member)->getPointerTo();
@@ -574,6 +635,40 @@ public:
         return getDerivedType(der_type, is_pointer);
     }
 
+    llvm::Type* getUnionType(ASR::UnionType_t* union_type, bool is_pointer=false) {
+        std::string union_type_name = std::string(union_type->m_name);
+        llvm::StructType* union_type_llvm = nullptr;
+        if( name2dertype.find(der_type_name) != name2dertype.end() ) {
+            union_type_llvm = name2dertype[union_type_name];
+        } else {
+            const std::map<std::string, ASR::symbol_t*>& scope = union_type->m_symtab->get_scope();
+            llvm::DataLayout data_layout(module.get());
+            llvm::Type* max_sized_type = nullptr;
+            size_t max_type_size = 0;
+            for( auto itr = scope.begin(); itr != scope.end(); itr++ ) {
+                ASR::Variable_t* member = ASR::down_cast<ASR::Variable_t>(itr->second);
+                llvm::Type* llvm_mem_type = getMemberType(member->m_type, member);
+                size_t type_size = data_layout.getTypeAllocSize(llvm_mem_type);
+                if( max_type_size < type_size ) {
+                    max_sized_type = llvm_mem_type;
+                    type_size = max_type_size;
+                }
+            }
+            union_type_llvm = llvm::StructType::create(context, {max_sized_type}, der_type_name);
+            name2dertype[der_type_name] = union_type_llvm;
+        }
+        if( is_pointer ) {
+            return union_type_llvm->getPointerTo();
+        }
+        return (llvm::Type*) union_type_llvm;
+    }
+
+    llvm::Type* getUnionType(ASR::ttype_t* _type, bool is_pointer=false) {
+        ASR::Union_t* union_ = ASR::down_cast<ASR::Union_t>(_type);
+        ASR::symbol_t* union_sym = ASRUtils::symbol_get_past_external(union_->m_union_type);
+        ASR::UnionType_t* union_type = ASR::down_cast<ASR::UnionType_t>(union_sym);
+        return getUnionType(union_type, is_pointer);
+    }
 
     llvm::Type* getClassType(ASR::ttype_t* _type, bool is_pointer=false) {
         ASR::Class_t* der = (ASR::Class_t*)(&(_type->base));
@@ -1116,17 +1211,9 @@ public:
             fetch_var(v);
             if( x.class_type == ASR::stmtType::ImplicitDeallocate ) {
                 llvm::Value *cond = arr_descr->get_is_allocated_flag(tmp);
-                llvm::Function *fn = builder->GetInsertBlock()->getParent();
-                llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-                llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-                llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-                builder->CreateCondBr(cond, thenBB, elseBB);
-                builder->SetInsertPoint(thenBB);
-                //print_util(cond, "%d");
-                call_lfortran_free(free_fn);
-                builder->CreateBr(mergeBB);
-                start_new_block(elseBB);
-                start_new_block(mergeBB);
+                create_if_else(cond, [=]() {
+                    call_lfortran_free(free_fn);
+                }, [](){});
             } else {
                 call_lfortran_free(free_fn);
             }
@@ -1271,6 +1358,26 @@ public:
         ptr_loads = ptr_loads_copy;
 
         list_api->append(plist, item, asr_list->m_type, *module);
+    }
+
+    void visit_UnionRef(const ASR::UnionRef_t& x) {
+        uint64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_v);
+        ptr_loads = ptr_loads_copy;
+        llvm::Value* union_llvm = tmp;
+        ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(x.m_m);
+        ASR::ttype_t* member_type_asr = ASRUtils::get_contained_type(member_var->m_type);
+        if( ASR::is_a<ASR::Derived_t>(*member_type_asr) ) {
+            ASR::Derived_t* d = ASR::down_cast<ASR::Derived_t>(member_type_asr);
+            der_type_name = ASRUtils::symbol_name(d->m_derived_type);
+        }
+        member_type_asr = member_var->m_type;
+        llvm::Type* member_type_llvm = getMemberType(member_type_asr, member_var)->getPointerTo();
+        tmp = builder->CreateBitCast(union_llvm, member_type_llvm);
+        if( !is_assignment_target ) {
+            tmp = LLVM::CreateLoad(*builder, tmp);
+        }
     }
 
     void visit_ListItem(const ASR::ListItem_t& x) {
@@ -1580,8 +1687,7 @@ public:
     }
 
     void lookup_EnumValue(const ASR::EnumValue_t& x) {
-        ASR::Enum_t* x_enum = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
-        ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x_enum->m_enum_type);
+        ASR::EnumType_t* enum_type = ASRUtils::get_EnumType_from_symbol(x.m_v);
         uint32_t h = get_hash((ASR::asr_t*) enum_type);
         llvm::Value* array = llvm_symtab[h];
         tmp = llvm_utils->create_gep(array, tmp);
@@ -1594,8 +1700,7 @@ public:
                 this->visit_expr(*x.m_value);
             } else {
                 ASR::Variable_t* x_mv = ASR::down_cast<ASR::Variable_t>(x.m_v);
-                ASR::Enum_t* x_enum = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
-                ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x_enum->m_enum_type);
+                ASR::EnumType_t* enum_type = ASRUtils::get_EnumType_from_symbol(x.m_v);
                 for( size_t i = 0; i < enum_type->n_members; i++ ) {
                     if( std::string(enum_type->m_members[i]) == std::string(x_mv->m_name) ) {
                         tmp = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, i));
@@ -1624,8 +1729,7 @@ public:
 
         ASR::Variable_t* x_m_v = ASR::down_cast<ASR::Variable_t>(x.m_v);
         fetch_val(x_m_v);
-        ASR::Enum_t* x_enum = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
-        ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x_enum->m_enum_type);
+        ASR::EnumType_t* enum_type = ASRUtils::get_EnumType_from_symbol(x.m_v);
         uint32_t h = get_hash((ASR::asr_t*) enum_type);
         llvm::Value* array = llvm_symtab[h];
         if( ASR::is_a<ASR::Integer_t>(*enum_type->m_type) ) {
@@ -1633,7 +1737,7 @@ public:
 
             for( auto itr: enum_type->m_symtab->get_scope() ) {
                 ASR::Variable_t* itr_var = ASR::down_cast<ASR::Variable_t>(itr.second);
-                ASR::expr_t* value = itr_var->m_symbolic_value;
+                ASR::expr_t* value = ASRUtils::expr_value(itr_var->m_symbolic_value);
                 int64_t value_int64 = -1;
                 ASRUtils::extract_value(value, value_int64);
                 min_value = std::min(value_int64, min_value);
@@ -1649,6 +1753,10 @@ public:
         LFORTRAN_ASSERT(x.n_args == 1);
         ASR::expr_t* m_arg = x.m_args[0];
         this->visit_expr(*m_arg);
+    }
+
+    void visit_UnionTypeConstructor(const ASR::UnionTypeConstructor_t& x) {
+        LFORTRAN_ASSERT(x.n_args == 0);
     }
 
     void visit_DerivedRef(const ASR::DerivedRef_t& x) {
@@ -1830,6 +1938,11 @@ public:
     }
 
     void visit_EnumType(const ASR::EnumType_t& x) {
+        if( x.m_enum_value_type == ASR::enumtypeType::IntegerUnique &&
+            x.m_abi == ASR::abiType::BindC ) {
+            throw CodeGenError("C-interoperation support for non-consecutive but uniquely "
+                               "valued integer enums isn't available yet.");
+        }
         bool is_integer = ASR::is_a<ASR::Integer_t>(*x.m_type);
         ASR::storage_typeType m_storage = ASR::storage_typeType::Default;
         bool is_array_type = false, is_malloc_array_type = false, is_list = false;
@@ -2190,6 +2303,24 @@ public:
                     }
                 } else {
                     llvm_type = getDerivedType(asr_type, false);
+                }
+                break;
+            }
+            case (ASR::ttypeType::Union) : {
+                ASR::Union_t* v_type = ASR::down_cast<ASR::Union_t>(asr_type);
+                m_dims = v_type->m_dims;
+                n_dims = v_type->n_dims;
+                if( n_dims > 0 ) {
+                    is_array_type = true;
+                    llvm::Type* el_type = get_el_type(asr_type);
+                    if( m_storage == ASR::storage_typeType::Allocatable ) {
+                        is_malloc_array_type = true;
+                        llvm_type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type);
+                    } else {
+                        llvm_type = arr_descr->get_array_type(asr_type, a_kind, n_dims, el_type);
+                    }
+                } else {
+                    llvm_type = getUnionType(asr_type, false);
                 }
                 break;
             }
@@ -2625,7 +2756,13 @@ public:
                 break;
             }
             case ASR::ttypeType::Enum: {
-                return llvm::Type::getInt32PtrTy(context);
+                if (arg_m_abi == ASR::abiType::BindC
+                    && arg_m_value_attr) {
+                    type = llvm::Type::getInt32Ty(context);
+                } else {
+                    type = llvm::Type::getInt32PtrTy(context);
+                }
+                break ;
             }
             default :
                 LFORTRAN_ASSERT(false);
@@ -3468,7 +3605,8 @@ public:
         if( x.m_target->type == ASR::exprType::ArrayItem ||
             x.m_target->type == ASR::exprType::ArraySection ||
             x.m_target->type == ASR::exprType::DerivedRef ||
-            x.m_target->type == ASR::exprType::ListItem ) {
+            x.m_target->type == ASR::exprType::ListItem ||
+            x.m_target->type == ASR::exprType::UnionRef ) {
             is_assignment_target = true;
             this->visit_expr(*x.m_target);
             is_assignment_target = false;
@@ -3534,6 +3672,9 @@ public:
                     target = CreateLoad(arr_descr->get_pointer_to_data(target));
                 }
             }
+        }
+        if( ASR::is_a<ASR::UnionTypeConstructor_t>(*x.m_value) ) {
+            return ;
         }
         this->visit_expr_wrapper(x.m_value, true);
         value = tmp;
@@ -3811,73 +3952,42 @@ public:
 
     void visit_If(const ASR::If_t &x) {
         this->visit_expr_wrapper(x.m_test, true);
-        llvm::Value *cond=tmp;
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-        builder->CreateCondBr(cond, thenBB, elseBB);
-        builder->SetInsertPoint(thenBB);
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-        }
-        builder->CreateBr(mergeBB);
-
-        start_new_block(elseBB);
-        for (size_t i=0; i<x.n_orelse; i++) {
-            this->visit_stmt(*x.m_orelse[i]);
-        }
-
-        start_new_block(mergeBB);
+        create_if_else(tmp, [=]() {
+            for (size_t i=0; i<x.n_body; i++) {
+                this->visit_stmt(*x.m_body[i]);
+            }
+        }, [=]() {
+            for (size_t i=0; i<x.n_orelse; i++) {
+                this->visit_stmt(*x.m_orelse[i]);
+            }
+        });
     }
 
     void visit_IfExp(const ASR::IfExp_t &x) {
         // IfExp(expr test, expr body, expr orelse, ttype type, expr? value)
         this->visit_expr_wrapper(x.m_test, true);
         llvm::Value *cond = tmp;
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-        builder->CreateCondBr(cond, thenBB, elseBB);
-        builder->SetInsertPoint(thenBB);
-        this->visit_expr_wrapper(x.m_body, true);
-        llvm::Value *then_val = tmp;
-        builder->CreateBr(mergeBB);
-        start_new_block(elseBB);
-        this->visit_expr_wrapper(x.m_orelse, true);
-        llvm::Value *else_val = tmp;
-        builder->CreateBr(mergeBB);
-        start_new_block(mergeBB);
+        llvm::Value *then_val = nullptr;
+        llvm::Value *else_val = nullptr;
+        create_if_else(cond, [=, &then_val]() {
+            this->visit_expr_wrapper(x.m_body, true);
+            then_val = tmp;
+        }, [=, &else_val]() {
+            this->visit_expr_wrapper(x.m_orelse, true);
+            else_val = tmp;
+        });
         tmp = builder->CreateSelect(cond, then_val, else_val);
     }
 
     void visit_WhileLoop(const ASR::WhileLoop_t &x) {
-        dict_api_lp->set_iterators();
-        dict_api_sc->set_iterators();
-        llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
-        llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
-        llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
-        this->current_loophead = loophead;
-        this->current_loopend = loopend;
-
-        // head
-        start_new_block(loophead);
-        this->visit_expr_wrapper(x.m_test, true);
-        llvm::Value *cond = tmp;
-        builder->CreateCondBr(cond, loopbody, loopend);
-
-        // body
-        start_new_block(loopbody);
-        for (size_t i=0; i<x.n_body; i++) {
-            this->visit_stmt(*x.m_body[i]);
-        }
-        builder->CreateBr(loophead);
-
-        // end
-        start_new_block(loopend);
-        dict_api_lp->reset_iterators();
-        dict_api_sc->reset_iterators();
+        create_loop([=]() {
+            this->visit_expr_wrapper(x.m_test, true);
+            return tmp;
+        }, [=]() {
+            for (size_t i=0; i<x.n_body; i++) {
+                this->visit_stmt(*x.m_body[i]);
+            }
+        });
     }
 
     void visit_Exit(const ASR::Exit_t & /* x */) {
@@ -4343,6 +4453,14 @@ public:
         int a_kind = ((ASR::Integer_t*)(&(x.m_type->base)))->m_kind;
         switch( a_kind ) {
 
+            case 1: {
+                tmp = llvm::ConstantInt::get(context, llvm::APInt(8, val, true));
+                break ;
+            }
+            case 2: {
+                tmp = llvm::ConstantInt::get(context, llvm::APInt(16, val, true));
+                break ;
+            }
             case 4 : {
                 tmp = llvm::ConstantInt::get(context, llvm::APInt(32, static_cast<int32_t>(val), true));
                 break;
@@ -4352,7 +4470,8 @@ public:
                 break;
             }
             default : {
-                break;
+                throw CodeGenError("Constant integers of " + std::to_string(a_kind)
+                                    + " bytes aren't supported yet.");
             }
 
         }
@@ -4447,19 +4566,7 @@ public:
 
     void visit_Assert(const ASR::Assert_t &x) {
         this->visit_expr_wrapper(x.m_test, true);
-        llvm::Value *cond = tmp;
-        llvm::Function *fn = builder->GetInsertBlock()->getParent();
-        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
-        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
-        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
-        builder->CreateCondBr(cond, thenBB, elseBB);
-        builder->SetInsertPoint(thenBB);
-
-        builder->CreateBr(mergeBB);
-
-        start_new_block(elseBB);
-
-        {
+        create_if_else(tmp, []() {}, [=]() {
             if (x.m_msg) {
                 char* s = ASR::down_cast<ASR::StringConstant_t>(x.m_msg)->m_s;
                 llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("AssertionError: %s\n");
@@ -4473,9 +4580,7 @@ public:
             llvm::Value *exit_code = llvm::ConstantInt::get(context,
                     llvm::APInt(32, exit_code_int));
             exit(context, *module, *builder, exit_code);
-        }
-
-        start_new_block(mergeBB);
+        });
     }
 
     void visit_ComplexConstructor(const ASR::ComplexConstructor_t &x) {
@@ -4616,6 +4721,16 @@ public:
             case ASR::ttypeType::Derived: {
                 ASR::Derived_t* der = (ASR::Derived_t*)(&(x->m_type->base));
                 ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
+                der_type_name = std::string(der_type->m_name);
+                uint32_t h = get_hash((ASR::asr_t*)x);
+                if( llvm_symtab.find(h) != llvm_symtab.end() ) {
+                    tmp = llvm_symtab[h];
+                }
+                break;
+            }
+            case ASR::ttypeType::Union: {
+                ASR::Union_t* der = ASR::down_cast<ASR::Union_t>(x->m_type);
+                ASR::UnionType_t* der_type = ASR::down_cast<ASR::UnionType_t>(der->m_union_type);
                 der_type_name = std::string(der_type->m_name);
                 uint32_t h = get_hash((ASR::asr_t*)x);
                 if( llvm_symtab.find(h) != llvm_symtab.end() ) {
@@ -5115,15 +5230,6 @@ public:
                 args.push_back(tmp);
             } else if (ASRUtils::is_real(*t)) {
                 llvm::Value *d;
-                // if( ASR::is_a<ASR::EnumValue_t>(*v) ) {
-                //     ASR::EnumValue_t* enum_value = ASR::down_cast<ASR::EnumValue_t>(v);
-                //     ASR::Enum_t* x_enum = ASR::down_cast<ASR::Enum_t>(enum_value->m_enum_type);
-                //     ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x_enum->m_enum_type);
-                //     uint32_t h = get_hash((ASR::asr_t*) enum_type);
-                //     llvm::Value* array = llvm_symtab[h];
-                //     tmp = llvm_utils->create_gep(array, tmp);
-                //     tmp = LLVM::CreateLoad(*builder, llvm_utils->create_gep(tmp, 1));
-                // }
                 switch( a_kind ) {
                     case 4 : {
                         // Cast float to double as a workaround for the fact that

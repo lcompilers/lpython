@@ -87,7 +87,7 @@ symbol
     | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
         expr? return_var, abi abi, access access, deftype deftype,
         string? bindc_name, bool elemental, bool pure, bool module, bool inline,
-        ttype* type_params, symbol* restrictions, bool is_restriction)
+        bool static, ttype* type_params, symbol* restrictions, bool is_restriction)
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
     | CustomOperator(symbol_table parent_symtab, identifier name,
@@ -98,7 +98,9 @@ symbol
     | DerivedType(symbol_table symtab, identifier name, identifier* members,
         abi abi, access access, symbol? parent)
     | EnumType(symbol_table symtab, identifier name, identifier* members,
-        abi abi, access access, ttype type, symbol? parent)
+        abi abi, access access, enumtype enum_value_type, ttype type, symbol? parent)
+    | UnionType(symbol_table symtab, identifier name, identifier* members,
+        abi abi, access access, symbol? parent)
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
         expr? symbolic_value, expr? value, storage_type storage, ttype type,
         abi abi, access access, presence presence, bool value_attr)
@@ -221,6 +223,7 @@ expr
             ttype type, expr? value, expr? dt)
     | DerivedTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
     | EnumTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
+    | UnionTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
     | ImpliedDoLoop(expr* values, expr var, expr start, expr end,
                     expr? increment, ttype type, expr? value)
     | IntegerConstant(int n, ttype type)
@@ -281,8 +284,9 @@ expr
 
     | BitCast(expr source, expr mold, expr? size, ttype type, expr? value)
     | DerivedRef(expr v, symbol m, ttype type, expr? value)
-    | EnumName(symbol v, ttype enum_type, ttype type, expr? value)
-    | EnumValue(symbol v, ttype enum_type, ttype type, expr? value)
+    | UnionRef(expr v, symbol m, ttype type, expr? value)
+    | EnumName(symbol v, ttype type, expr? value)
+    | EnumValue(symbol v, ttype type, expr? value)
     | OverloadedCompare(expr left, cmpop op, expr right, ttype type, expr? value, expr overloaded)
     | OverloadedBinOp(expr left, binop op, expr right, ttype type, expr? value, expr overloaded)
     | Cast(expr arg, cast_kind kind, ttype type, expr? value)
@@ -331,6 +335,7 @@ ttype
     | Tuple(ttype* type)
     | Derived(symbol derived_type, dimension* dims)
     | Enum(symbol enum_type, dimension *dims)
+    | Union(symbol union_type, dimension *dims)
     | Class(symbol class_type, dimension* dims)
     | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
@@ -387,5 +392,7 @@ array_index = (expr? left, expr? right, expr? step)
 do_loop_head = (expr? v, expr? start, expr? end, expr? increment)
 
 case_stmt = CaseStmt(expr* test, stmt* body) | CaseStmt_Range(expr? start, expr? end, stmt* body)
+
+enumtype = IntegerConsecutiveFromZero | IntegerUnique | IntegerNotUnique | NonInteger
 
 }
