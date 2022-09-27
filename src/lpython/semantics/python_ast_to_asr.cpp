@@ -1546,7 +1546,7 @@ public:
                 }
                 ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_floordiv");
                 Vec<ASR::call_arg_t> args;
-                args.reserve(al, 1);
+                args.reserve(al, 2);
                 ASR::call_arg_t arg1, arg2;
                 arg1.loc = left->base.loc;
                 arg2.loc = right->base.loc;
@@ -1554,8 +1554,6 @@ public:
                 arg2.m_value = right;
                 args.push_back(al, arg1);
                 args.push_back(al, arg2);
-                Vec<ASR::restriction_arg_t*> rt_args;
-                rt_args.reserve(al, 1);
                 tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_floordiv", loc);
                 return;
 
@@ -3594,6 +3592,50 @@ public:
         return nullptr;
     }
 
+    ASR::do_loop_head_t make_do_loop_head(ASR::expr_t *loop_start, ASR::expr_t *loop_end,
+                                            ASR::expr_t *inc, int a_kind, const Location& loc) {
+        ASR::do_loop_head_t head;
+        ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+            a_kind, nullptr, 0));
+        ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
+                                            al, loc, 1, a_type));
+        if (loop_start) {
+            head.m_start = loop_start;
+        } else {
+            head.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, 0, a_type));
+        }
+        if (inc) {
+            head.m_increment = inc;
+        } else {
+            head.m_increment = constant_one;
+            inc = constant_one;
+        }
+
+        if( !ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(inc)) ) {
+            throw SemanticError("For loop increment type should be Integer.", loc);
+        }
+        ASR::expr_t *inc_value = ASRUtils::expr_value(inc);
+        int64_t inc_int = 1;
+        bool is_value_present = ASRUtils::extract_value(inc_value, inc_int);
+        if (!is_value_present) {
+            throw SemanticError("For loop increment should Compile time constant.", loc);
+        }
+
+        // Loop end depends upon the sign of m_increment.
+        // if inc > 0 then: loop_end -=1 else loop_end += 1
+        ASR::binopType offset_op;
+        if (inc_int < 0 ) {
+            offset_op = ASR::binopType::Add;
+        } else {
+            offset_op = ASR::binopType::Sub;
+        }
+        make_BinOp_helper(loop_end, constant_one,
+                          offset_op, loc, false);
+        head.m_end = ASRUtils::EXPR(tmp);
+
+        return head;
+    }
+
     void visit_For(const AST::For_t &x) {
         this->visit_expr(*x.m_target);
         ASR::expr_t *target=ASRUtils::EXPR(tmp);
@@ -3688,10 +3730,8 @@ public:
             a_kind, nullptr, 0));
         ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                                             al, x.base.base.loc, 1, a_type));
-        make_BinOp_helper(loop_end, constant_one, ASR::binopType::Sub,
-                            x.base.base.loc, false);
-        loop_end = ASRUtils::EXPR(tmp);
-        ASR::do_loop_head_t head;
+        ASR::do_loop_head_t head = make_do_loop_head(loop_start, loop_end, inc, a_kind,
+                                            x.base.base.loc);
 
         if(is_explicit_iterator_required) {
             body.reserve(al, x.n_body + 1);
@@ -3736,18 +3776,6 @@ public:
             body.push_back(al, decls);
         }
         current_scope = parent_scope;
-
-        if (loop_start) {
-            head.m_start = loop_start;
-        } else {
-            head.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, x.base.base.loc, 0, a_type));
-        }
-        head.m_end = loop_end;
-        if (inc) {
-            head.m_increment = inc;
-        } else {
-            head.m_increment = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, a_type));
-        }
         head.loc = head.m_v->base.loc;
         bool parallel = false;
         if (x.m_type_comment) {
