@@ -1,0 +1,13 @@
+{
+    "basename": "pass_loop_vectorise-vec_01-be9985e",
+    "cmd": "lpython --pass=loop_vectorise --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/vec_01.py",
+    "infile_hash": "eb012561316a4c1f1359bf7b5a0b9aee40944ece197a5bafd387a19f",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "pass_loop_vectorise-vec_01-be9985e.stdout",
+    "stdout_hash": "d203ce3f30da1894836bbd1d2c5bffe06dd80aa255bcbbb76b964555",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

@@ -1,0 +1,13 @@
+{
+    "basename": "pass_inline_function_calls-func_inline_01-8b6a5da",
+    "cmd": "lpython --pass=inline_function_calls --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/func_inline_01.py",
+    "infile_hash": "6875179ba40c59c22fc55606261bf2c84290b50932f956c1d8152502",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "pass_inline_function_calls-func_inline_01-8b6a5da.stdout",
+    "stdout_hash": "5043cad0aef3a2dec485b2a7198bcb250b6067d9f3d2de4b069c25e9",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
