@@ -1,5 +1,0 @@
-semantic error: Type mismatch in binary operator; the types must be compatible
- --> tests/../integration_tests/generics_array_03.py:7:16
-  |
-7 |         r[i] = a[i] + b[i]
-  |                ^^^^   ^^^^ type mismatch (T and T)

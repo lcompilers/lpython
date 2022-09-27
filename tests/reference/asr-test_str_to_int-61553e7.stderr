@@ -1,5 +1,0 @@
-semantic error: invalid literal for int() with base 10: '3abc'
- --> tests/errors/test_str_to_int.py:2:15
-  |
-2 |     print(int('3abc'))
-  |               ^^^^^^ 

@@ -1,8 +1,0 @@
-The command 'python $DIR/src/bin/../runtime/lpython_parser.py tests/expr_01.py tests/expr_01.pyA24CFA1' failed.
-Internal Compiler Error: Unhandled exception
-Traceback (most recent call last):
-[2m  Binary file "[0m[1m[35m$DIR/src/bin/lpython[39m[0m[2m", in _start()[0m
-[2m  Binary file "[0m[1m[35m/lib/x86_64-linux-gnu/libc.so.6[39m[0m[2m", in __libc_start_main()[0m
-[2m  File "[0m[1m[35m$DIR/src/bin/lpython.cpp[39m[0m[2m", line 1295, in ??[0m
-    return emit_ast(arg_file, runtime_library_dir, compiler_options);
-AssertFailed: diagnostics.has_error()

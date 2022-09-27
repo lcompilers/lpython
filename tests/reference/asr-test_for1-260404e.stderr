@@ -1,9 +1,0 @@
-semantic error: For loop increment should Compile time constant.
- --> tests/errors/test_for1.py:5:5 - 6:16
-  |
-5 |        for i in range(0, -10, j):
-  |        ^^^^^^^^^^^^^^^^^^^^^^^^^^...
-...
-  |
-6 |            print(i)
-  | ...^^^^^^^^^^^^^^^^ 

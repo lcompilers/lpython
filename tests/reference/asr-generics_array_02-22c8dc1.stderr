@@ -1,5 +1,0 @@
-semantic error: Type mismatch in binary operator; the types must be compatible
- --> tests/../integration_tests/generics_array_02.py:4:12
-  |
-4 |     return a + b
-  |            ^   ^ type mismatch (T and T)

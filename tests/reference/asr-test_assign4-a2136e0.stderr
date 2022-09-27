@@ -1,5 +1,0 @@
-semantic error: Assigning integer to float is not supported
- --> tests/errors/test_assign4.py:5:9
-  |
-5 |     f = x
-  |         ^ 

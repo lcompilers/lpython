@@ -967,11 +967,7 @@ public:
                     new_call_arg.loc = args.p[i].loc;
                     new_args.push_back(al, new_call_arg);
                 }
-<<<<<<< HEAD
                 return make_call_helper(al, t, current_scope, new_args, new_call_name, loc, ignore_return_value);                    
-=======
-                return make_call_helper(al, t, current_scope, new_args, new_call_name, loc);
->>>>>>> master
             }
             if (args.size() != func->n_args) {
                 std::string fnd = std::to_string(args.size());
