@@ -3594,6 +3594,53 @@ public:
         return nullptr;
     }
 
+    ASR::do_loop_head_t make_do_loop_head(ASR::expr_t *loop_start, ASR::expr_t *loop_end,
+                                            ASR::expr_t *inc, int a_kind, const Location& loc) {
+        ASR::do_loop_head_t head;
+        ASR::ttype_t *a_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+            a_kind, nullptr, 0));
+        ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
+                                            al, loc, 1, a_type));
+        if (loop_start) {
+            head.m_start = loop_start;
+        } else {
+            head.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, 0, a_type));
+        }
+        if (inc) {
+            head.m_increment = inc;
+        } else {
+            head.m_increment = constant_one;
+            inc = constant_one;
+        }
+        ASR::expr_t *inc_value = ASRUtils::expr_value(inc);
+        // Loop end depends upon the sign of m_increment.
+        // if inc > 0 then: loop_end -=1 else loop_end += 1
+        if (inc_value) {
+            int sign = 0;
+            if (inc_value->type == ASR::exprType::IntegerConstant) {
+                sign = ASR::down_cast<ASR::IntegerConstant_t>(inc_value)->m_n;
+            } else if (inc_value->type == ASR::exprType::IntegerUnaryMinus) {
+                ASR::IntegerUnaryMinus_t *u = ASR::down_cast<ASR::IntegerUnaryMinus_t>(inc_value);
+                sign = - ASR::down_cast<ASR::IntegerConstant_t>(u->m_arg)->m_n;
+            } else {
+                throw SemanticError("For loop increment type should be Integer.", loc);
+            }
+
+            if (sign < 0 ) {
+                make_BinOp_helper(loop_end, constant_one,
+                                    ASR::binopType::Add, loc, false);
+                head.m_end = ASRUtils::EXPR(tmp);
+            } else {
+                make_BinOp_helper(loop_end, constant_one,
+                                    ASR::binopType::Sub, loc, false);
+                head.m_end = ASRUtils::EXPR(tmp);
+            }
+        } else {
+            throw SemanticError("For loop increment should Compile time constant.", loc);
+        }
+        return head;
+    }
+
     void visit_For(const AST::For_t &x) {
         this->visit_expr(*x.m_target);
         ASR::expr_t *target=ASRUtils::EXPR(tmp);
@@ -3688,10 +3735,8 @@ public:
             a_kind, nullptr, 0));
         ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                                             al, x.base.base.loc, 1, a_type));
-        make_BinOp_helper(loop_end, constant_one, ASR::binopType::Sub,
-                            x.base.base.loc, false);
-        loop_end = ASRUtils::EXPR(tmp);
-        ASR::do_loop_head_t head;
+        ASR::do_loop_head_t head = make_do_loop_head(loop_start, loop_end, inc, a_kind,
+                                            x.base.base.loc);
 
         if(is_explicit_iterator_required) {
             body.reserve(al, x.n_body + 1);
@@ -3736,18 +3781,6 @@ public:
             body.push_back(al, decls);
         }
         current_scope = parent_scope;
-
-        if (loop_start) {
-            head.m_start = loop_start;
-        } else {
-            head.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, x.base.base.loc, 0, a_type));
-        }
-        head.m_end = loop_end;
-        if (inc) {
-            head.m_increment = inc;
-        } else {
-            head.m_increment = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, x.base.base.loc, 1, a_type));
-        }
         head.loc = head.m_v->base.loc;
         bool parallel = false;
         if (x.m_type_comment) {
