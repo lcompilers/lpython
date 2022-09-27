@@ -221,6 +221,7 @@ def harmonic_mean(x: list[f64]) -> f64:
     return k / sum
 
 
+# TODO: Use generics to support other types.
 def mode(x: list[i32]) -> i32:
     k: i32 = len(x)
     c: i32
