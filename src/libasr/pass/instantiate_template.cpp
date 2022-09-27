@@ -26,16 +26,16 @@ public:
         new_func_name{new_func_name}
         {}
 
-    ASR::asr_t* instantiate_Function(ASR::Function_t &x) {
+    ASR::asr_t* instantiate_Function(ASR::Function_t *x) {
         SymbolTable *parent_scope = current_scope;
-        current_scope = al.make_new<SymbolTable>(parent_scope);
-
+        current_scope = al.make_new<SymbolTable>(x->m_symtab->parent);
+        
         Vec<ASR::expr_t*> args;
-        args.reserve(al, x.n_args);
-        for (size_t i=0; i<x.n_args; i++) {
+        args.reserve(al, x->n_args);
+        for (size_t i=0; i<x->n_args; i++) {
             ASR::Variable_t *param_var = ASR::down_cast<ASR::Variable_t>(
-                (ASR::down_cast<ASR::Var_t>(x.m_args[i]))->m_v);
-            ASR::ttype_t *param_type = ASRUtils::expr_type(x.m_args[i]);
+                (ASR::down_cast<ASR::Var_t>(x->m_args[i]))->m_v);
+            ASR::ttype_t *param_type = ASRUtils::expr_type(x->m_args[i]);
             ASR::ttype_t *arg_type = substitute_type(param_type);
 
             Location loc = param_var->base.base.loc;
@@ -56,27 +56,27 @@ public:
             current_scope->add_symbol(var_name, ASR::down_cast<ASR::symbol_t>(v));
 
             ASR::symbol_t *var = current_scope->get_symbol(var_name);
-            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, var)));
+            args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x->base.base.loc, var)));
         }
 
         ASR::expr_t *new_return_var_ref = nullptr;
-        if (x.m_return_var != nullptr) {
+        if (x->m_return_var != nullptr) {
             ASR::Variable_t *return_var = ASR::down_cast<ASR::Variable_t>(
-                (ASR::down_cast<ASR::Var_t>(x.m_return_var))->m_v);
+                (ASR::down_cast<ASR::Var_t>(x->m_return_var))->m_v);
             std::string return_var_name = return_var->m_name;
-            ASR::ttype_t *return_param_type = ASRUtils::expr_type(x.m_return_var);
+            ASR::ttype_t *return_param_type = ASRUtils::expr_type(x->m_return_var);
             ASR::ttype_t *return_type = substitute_type(return_param_type);
             ASR::asr_t *new_return_var = ASR::make_Variable_t(al, return_var->base.base.loc,
                 current_scope, s2c(al, return_var_name), return_var->m_intent, nullptr, nullptr,
                 return_var->m_storage, return_type, return_var->m_abi, return_var->m_access,
                 return_var->m_presence, return_var->m_value_attr);
             current_scope->add_symbol(return_var_name, ASR::down_cast<ASR::symbol_t>(new_return_var));
-            new_return_var_ref = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc,
+            new_return_var_ref = ASRUtils::EXPR(ASR::make_Var_t(al, x->base.base.loc,
                 current_scope->get_symbol(return_var_name)));
         }
 
         // Rebuild the symbol table
-        for (auto const &sym_pair: x.m_symtab->get_scope()) {
+        for (auto const &sym_pair: x->m_symtab->get_scope()) {
             if (current_scope->resolve_symbol(sym_pair.first) == nullptr) {
                 ASR::symbol_t *sym = sym_pair.second;
                 if (ASR::is_a<ASR::Variable_t>(*sym)) {
@@ -92,46 +92,44 @@ public:
             }
         }
 
-        for (size_t i=0; i<x.n_restrictions; i++) { 
-            rts.push_back(ASR::down_cast<ASR::Function_t>(x.m_restrictions[i])); 
+        for (size_t i=0; i<x->n_restrictions; i++) { 
+            rts.push_back(ASR::down_cast<ASR::Function_t>(x->m_restrictions[i])); 
         }
 
         Vec<ASR::stmt_t*> body;
-        body.reserve(al, x.n_body);
-        for (size_t i=0; i<x.n_body; i++) {
-            ASR::stmt_t *new_body = this->duplicate_stmt(x.m_body[i]);
+        body.reserve(al, x->n_body);
+        for (size_t i=0; i<x->n_body; i++) {
+            ASR::stmt_t *new_body = this->duplicate_stmt(x->m_body[i]);
             if (new_body != nullptr) {
                 body.push_back(al, new_body);
             }
         }
 
-        ASR::abiType func_abi = x.m_abi;
-        ASR::accessType func_access = x.m_access;
-        ASR::deftypeType func_deftype = x.m_deftype;
-        char *bindc_name = x.m_bindc_name;
+        ASR::abiType func_abi = x->m_abi;
+        ASR::accessType func_access = x->m_access;
+        ASR::deftypeType func_deftype = x->m_deftype;
+        char *bindc_name = x->m_bindc_name;
 
-        bool func_elemental = x.m_elemental;
-        bool func_pure = x.m_pure;
-        bool func_module = x.m_module;
+        bool func_elemental = x->m_elemental;
+        bool func_pure = x->m_pure;
+        bool func_module = x->m_module;
 
         ASR::asr_t *result = ASR::make_Function_t(
-            al, x.base.base.loc,
+            al, x->base.base.loc,
             current_scope, s2c(al, new_func_name),
             args.p, args.size(),
             body.p, body.size(),
             new_return_var_ref,
             func_abi, func_access, func_deftype, bindc_name,
-            func_elemental, func_pure, func_module, x.m_inline,
+            func_elemental, func_pure, func_module, x->m_inline,
             nullptr, 0, nullptr, 0, false);
 
         ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(result);
-        parent_scope->add_symbol(new_func_name, t);
+        x->m_symtab->parent->add_symbol(new_func_name, t);
         current_scope = parent_scope;
 
         return result;
     }
-
-
 
     ASR::asr_t* duplicate_Var(ASR::Var_t *x) {
         std::string sym_name = ASRUtils::symbol_name(x->m_v);
@@ -403,7 +401,7 @@ public:
 
 ASR::symbol_t* pass_instantiate_generic_function(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,
         std::map<std::string, ASR::symbol_t*> rt_subs, SymbolTable *current_scope,
-        std::string new_func_name, ASR::Function_t &func) {
+        std::string new_func_name, ASR::Function_t *func) {
     FunctionInstantiator tf(al, subs, rt_subs, current_scope, new_func_name);
     ASR::asr_t *new_function = tf.instantiate_Function(func);
     return ASR::down_cast<ASR::symbol_t>(new_function);
