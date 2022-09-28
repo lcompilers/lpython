@@ -116,6 +116,37 @@ class CUtilFunctions {
             util_funcs += body;
         }
 
+        void array_constant(std::string return_type, std::string element_type,
+            std::string array_type_code) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string array_const_func;
+            if( util2func.find("array_constant_" + array_type_code) == util2func.end() ) {
+                array_const_func = global_scope->get_unique_name("array_constant_" + array_type_code);
+                util2func["array_constant_" + array_type_code] = array_const_func;
+            } else {
+                return ;
+            }
+            array_const_func = util2func["array_constant_" + array_type_code];
+            std::string signature = "static inline " + return_type + "* " + array_const_func + "(int32_t n, ...)";
+            util_func_decls += indent + signature + ";\n";
+            std::string body = indent + signature + " {\n";
+            body += indent + tab + return_type + "* const_array  = (" + return_type + "*) malloc(sizeof(" + return_type + "));\n";
+            body += indent + tab + "va_list ap;\n";
+            body += indent + tab + "va_start(ap, n);\n";
+            body += indent + tab + "const_array->data = (" + element_type + "*) malloc(sizeof(" + element_type + ")*n);\n";
+            body += indent + tab + "const_array->n_dims = 1;\n";
+            body += indent + tab + "const_array->dims[0].lower_bound = 0;\n";
+            body += indent + tab + "const_array->dims[0].length = n;\n";
+            body += indent + tab + "for (int32_t i = 0; i < n; i++) {\n";
+            body += indent + tab + tab + "const_array->data[i] = va_arg(ap, " + element_type +");\n";
+            body += indent + tab + "}\n";
+            body += indent + tab + "va_end(ap);\n";
+            body += indent + tab + "return const_array;\n";
+            body += indent + "}\n\n";
+            util_funcs += body;
+        }
+
         std::string get_array_size() {
             array_size();
             return util2func["array_size"];
@@ -129,6 +160,12 @@ class CUtilFunctions {
                           return_type, element_type,
                           array_type_code);
             return util2func["array_reshape_" + array_type_code];
+        }
+
+        std::string get_array_constant(std::string return_type,
+            std::string element_type, std::string encoded_type) {
+            array_constant(return_type, element_type, encoded_type);
+            return util2func["array_constant_" + encoded_type];
         }
 };
 
@@ -1025,6 +1062,27 @@ R"(
             std::string upper_bound = length + " + " + lower_bound + " - 1";
             src = "((" + result_type + ") " + upper_bound + ")";
         }
+    }
+
+    void visit_ArrayConstant(const ASR::ArrayConstant_t& x) {
+        // TODO: Support and test for multi-dimensional array constants
+        headers.insert("stdarg");
+        std::string array_const = "";
+        for( size_t i = 0; i < x.n_args; i++ ) {
+            visit_expr(*x.m_args[i]);
+            array_const += src + ", ";
+        }
+        array_const.pop_back();
+        array_const.pop_back();
+
+        ASR::ttype_t* array_type_asr = x.m_type;
+        std::string array_type_name = get_c_type_from_ttype_t(array_type_asr);
+        std::string array_encoded_type_name = ASRUtils::get_type_code(array_type_asr, true, false);
+        int n_dims = 1;
+        std::string return_type = get_array_type(array_type_name, array_encoded_type_name, n_dims, false);
+
+        src = c_utils_functions->get_array_constant(return_type, array_type_name, array_encoded_type_name) +
+                "(" + std::to_string(x.n_args) + ", " + array_const + ")";
     }
 
     void visit_ArrayItem(const ASR::ArrayItem_t &x) {
