@@ -239,7 +239,7 @@ public:
     }
 
     std::string get_array_type(std::string type_name, std::string encoded_type_name,
-                               size_t n_dims, bool make_ptr=true) {
+                               bool make_ptr=true) {
         if( eltypedims2arraytype.find(encoded_type_name) != eltypedims2arraytype.end() ) {
             if( make_ptr ) {
                 return eltypedims2arraytype[encoded_type_name] + "*";
@@ -273,8 +273,8 @@ public:
                              bool is_pointer=false) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string type_name_copy = type_name;
-        type_name = get_array_type(type_name, encoded_type_name, n_dims);
-        std::string type_name_without_ptr = get_array_type(type_name, encoded_type_name, n_dims, false);
+        type_name = get_array_type(type_name, encoded_type_name);
+        std::string type_name_without_ptr = get_array_type(type_name, encoded_type_name, false);
         if( declare_value ) {
             std::string variable_name = std::string(v_m_name) + "_value";
             sub = format_type_c("", type_name_without_ptr, variable_name, use_ref, dummy) + ";\n";
@@ -1030,17 +1030,13 @@ R"(
         ASR::ttype_t* array_type_asr = ASRUtils::expr_type(x.m_array);
         std::string array_type_name = get_c_type_from_ttype_t(array_type_asr);
         std::string array_encoded_type_name = ASRUtils::get_type_code(array_type_asr, true, false);
-        ASR::dimension_t* m_dims = nullptr;
-        int n_dims = ASRUtils::extract_dimensions_from_ttype(array_type_asr, m_dims);
-        std::string array_type = get_array_type(array_type_name, array_encoded_type_name, n_dims, true);
-        std::string return_type = get_array_type(array_type_name, array_encoded_type_name, n_dims, false);
+        std::string array_type = get_array_type(array_type_name, array_encoded_type_name, true);
+        std::string return_type = get_array_type(array_type_name, array_encoded_type_name, false);
 
         ASR::ttype_t* shape_type_asr = ASRUtils::expr_type(x.m_shape);
         std::string shape_type_name = get_c_type_from_ttype_t(shape_type_asr);
         std::string shape_encoded_type_name = ASRUtils::get_type_code(shape_type_asr, true, false);
-        m_dims = nullptr;
-        n_dims = ASRUtils::extract_dimensions_from_ttype(shape_type_asr, m_dims);
-        std::string shape_type = get_array_type(shape_type_name, shape_encoded_type_name, n_dims, true);
+        std::string shape_type = get_array_type(shape_type_name, shape_encoded_type_name, true);
 
         std::string array_reshape_func = c_utils_functions->get_array_reshape(array_type, shape_type,
             return_type, array_type_name, array_encoded_type_name);
@@ -1078,8 +1074,7 @@ R"(
         ASR::ttype_t* array_type_asr = x.m_type;
         std::string array_type_name = get_c_type_from_ttype_t(array_type_asr);
         std::string array_encoded_type_name = ASRUtils::get_type_code(array_type_asr, true, false);
-        int n_dims = 1;
-        std::string return_type = get_array_type(array_type_name, array_encoded_type_name, n_dims, false);
+        std::string return_type = get_array_type(array_type_name, array_encoded_type_name, false);
 
         src = c_utils_functions->get_array_constant(return_type, array_type_name, array_encoded_type_name) +
                 "(" + std::to_string(x.n_args) + ", " + array_const + ")";
