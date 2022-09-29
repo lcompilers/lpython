@@ -203,24 +203,33 @@ namespace LFortran {
                          Allocator& al, SymbolTable*& current_scope, std::string suffix,
                          ASR::intentType intent) {
             vars.reserve(al, n_vars);
-            for( int i = 1; i <= n_vars; i++ ) {
-                Str str_name;
-                str_name.from_str(al, std::to_string(i) + suffix);
-                const char* const_var_name = str_name.c_str(al);
-                char* var_name = (char*)const_var_name;
-                ASR::expr_t* var = nullptr;
+            for (int i = 1; i <= n_vars; i++) {
+                std::string idx_var_name = "__" + std::to_string(i) + suffix;
                 ASR::ttype_t* int32_type = LFortran::ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-                if( current_scope->get_symbol(std::string(var_name)) == nullptr ) {
+                if( current_scope->get_symbol(idx_var_name) != nullptr ) {
+                    ASR::symbol_t* idx_sym = current_scope->get_symbol(idx_var_name);
+                    if( ASR::is_a<ASR::Variable_t>(*idx_sym) ) {
+                        ASR::Variable_t* idx_var = ASR::down_cast<ASR::Variable_t>(idx_sym);
+                        if( !(ASRUtils::check_equal_type(idx_var->m_type, int32_type) &&
+                              idx_var->m_symbolic_value == nullptr) ) {
+                            idx_var_name = current_scope->get_unique_name(idx_var_name);
+                        }
+                    } else {
+                        idx_var_name = current_scope->get_unique_name(idx_var_name);
+                    }
+                }
+                char* var_name = s2c(al, idx_var_name);;
+                ASR::expr_t* var = nullptr;
+                if( current_scope->get_symbol(idx_var_name) == nullptr ) {
                     ASR::asr_t* idx_sym = ASR::make_Variable_t(al, loc, current_scope, var_name,
                                                             intent, nullptr, nullptr, ASR::storage_typeType::Default,
                                                             int32_type, ASR::abiType::Source, ASR::accessType::Public,
                                                             ASR::presenceType::Required, false);
-                    current_scope->add_symbol(std::string(var_name), ASR::down_cast<ASR::symbol_t>(idx_sym));
+                    current_scope->add_symbol(idx_var_name, ASR::down_cast<ASR::symbol_t>(idx_sym));
                     var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, loc, ASR::down_cast<ASR::symbol_t>(idx_sym)));
                 } else {
-                    ASR::symbol_t* idx_sym = current_scope->get_symbol(std::string(var_name));
+                    ASR::symbol_t* idx_sym = current_scope->get_symbol(idx_var_name);
                     var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, loc, idx_sym));
-
                 }
                 vars.push_back(al, var);
             }
