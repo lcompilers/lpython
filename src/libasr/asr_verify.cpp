@@ -396,8 +396,8 @@ public:
                 || is_a<Function_t>(*x.m_v),
             "Var_t::m_v " + std::string(ASRUtils::symbol_name(x.m_v)) + " does not point to a Variable_t, ExternalSymbol_t," \
             "Function_t, or Subroutine_t");
-        require(symtab_in_scope(current_symtab, x.m_v),
-            "Var::m_v `" + std::string(ASRUtils::symbol_name(x.m_v)) + "` cannot point outside of its symbol table");
+        // require(symtab_in_scope(current_symtab, x.m_v),
+        //     "Var::m_v `" + std::string(ASRUtils::symbol_name(x.m_v)) + "` cannot point outside of its symbol table");
     }
 
     template <typename T>

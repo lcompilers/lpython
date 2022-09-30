@@ -274,7 +274,7 @@ namespace LFortran {
 
                 llvm::StructType* dim_des;
 
-                std::map<std::pair<std::pair<int, int>, int>, llvm::StructType*> tkr2array;
+                std::map<std::string, llvm::StructType*> tkr2array;
 
                 llvm::Value* cmo_convertor_single_element(
                     llvm::Value* arr, std::vector<llvm::Value*>& m_args,

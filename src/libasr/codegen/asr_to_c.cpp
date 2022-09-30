@@ -859,14 +859,13 @@ R"(
     }
 
     void visit_EnumValue(const ASR::EnumValue_t& x) {
-        ASR::Variable_t* enum_var = ASR::down_cast<ASR::Variable_t>(x.m_v);
-        src = std::string(enum_var->m_name);
+        visit_expr(*x.m_v);
     }
 
     void visit_EnumName(const ASR::EnumName_t& x) {
-        ASR::Variable_t* enum_var = ASR::down_cast<ASR::Variable_t>(x.m_v);
         int64_t min_value = INT64_MAX;
-        ASR::EnumType_t* enum_type = ASRUtils::get_EnumType_from_symbol(x.m_v);
+        ASR::Enum_t* enum_asr_type = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
+        ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_asr_type->m_enum_type);
         for( auto itr: enum_type->m_symtab->get_scope() ) {
             ASR::Variable_t* itr_var = ASR::down_cast<ASR::Variable_t>(itr.second);
             ASR::expr_t* value = ASRUtils::expr_value(itr_var->m_symbolic_value);
@@ -874,8 +873,10 @@ R"(
             ASRUtils::extract_value(value, value_int64);
             min_value = std::min(value_int64, min_value);
         }
+        visit_expr(*x.m_v);
+        std::string enum_var_name = src;
         src = global_scope->get_unique_name("enum_names_" + std::string(enum_type->m_name)) +
-                "[" + std::string(enum_var->m_name) + " - " + std::to_string(min_value) + "]";
+                "[" + std::string(enum_var_name) + " - " + std::to_string(min_value) + "]";
     }
 
     void visit_ComplexConstant(const ASR::ComplexConstant_t &x) {

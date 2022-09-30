@@ -750,7 +750,11 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
         }
         case ASR::ttypeType::Derived: {
             ASR::Derived_t* d = ASR::down_cast<ASR::Derived_t>(t);
-            return symbol_name(d->m_derived_type);
+            std::string res = symbol_name(d->m_derived_type);
+            if( encode_dimensions_ ) {
+                encode_dimensions(d->n_dims, res, use_underscore_sep);
+            }
+            return res;
         }
         case ASR::ttypeType::Pointer: {
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(t);
@@ -855,6 +859,10 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
         case ASR::ttypeType::Enum: {
             ASR::Enum_t* d = ASR::down_cast<ASR::Enum_t>(t);
             return symbol_name(d->m_enum_type);
+        }
+        case ASR::ttypeType::Union: {
+            ASR::Union_t* u = ASR::down_cast<ASR::Union_t>(t);
+            return symbol_name(u->m_union_type);
         }
         case ASR::ttypeType::Pointer: {
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(t);
