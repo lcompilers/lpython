@@ -13,7 +13,6 @@
 namespace LFortran {
 
 using ASR::down_cast;
-using ASR::is_a;
 
 /*
     This ASR pass replaces ListConcat with a FunctionCall where
@@ -34,10 +33,12 @@ private:
 
     Allocator& al;
     ASR::TranslationUnit_t &unit;
+    ASR::symbol_t* &list_concat_func_name;
 
 public:
-    ReplaceListConcat(Allocator &al_, ASR::TranslationUnit_t &unit_) :
-        al(al_), unit(unit_)
+    ReplaceListConcat(Allocator &al_, ASR::TranslationUnit_t &unit_,
+                      ASR::symbol_t* &list_concat_func_name_) :
+        al(al_), unit(unit_), list_concat_func_name(list_concat_func_name_)
         { }
 
     ASR::symbol_t* create_concat_function(Location& loc,
@@ -202,10 +203,12 @@ public:
         right_list.loc = x->m_right->base.loc;
         right_list.m_value = x->m_right;
         args.push_back(al, right_list);
-        ASR::symbol_t* fn_name = create_concat_function(unit.base.base.loc,
-            unit.m_global_scope, x->m_type);
+        if (list_concat_func_name == nullptr) {
+            list_concat_func_name = create_concat_function(unit.base.base.loc,
+                unit.m_global_scope, x->m_type);
+        }
         *current_expr = ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
-            fn_name, nullptr, args.p, 2, x->m_type, nullptr, nullptr));
+            list_concat_func_name, nullptr, args.p, 2, x->m_type, nullptr, nullptr));
     }
 
 };
@@ -215,11 +218,12 @@ class ListConcatVisitor : public ASR::CallReplacerOnExpressionsVisitor<ListConca
 private:
 
     ReplaceListConcat replacer;
+    ASR::symbol_t* list_concat_func = nullptr;
 
 public:
 
     ListConcatVisitor(Allocator& al_, ASR::TranslationUnit_t &unit_) :
-        replacer(al_, unit_)
+        replacer(al_, unit_, list_concat_func)
         { }
 
     void call_replacer() {
