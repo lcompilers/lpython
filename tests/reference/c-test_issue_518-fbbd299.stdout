@@ -44,7 +44,7 @@ void main0();
 void _lpython_main_program()
 {
     main0();
-    main();
+    _xx_lcompilers_changed_main_xx();
 }
 
 int64_t fib(int64_t n)
