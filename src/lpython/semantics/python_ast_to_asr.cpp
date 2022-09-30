@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <set>
 #include <memory>
 #include <string>
 #include <cmath>
@@ -2843,7 +2844,6 @@ public:
         bool current_procedure_interface = false;
         bool overload = false;
         bool vectorize = false, is_inline = false, is_static = false;
-
         Vec<ASR::ttype_t*> tps;
         tps.reserve(al, x.m_args.n_args);
         bool is_restriction = false;
@@ -2866,6 +2866,8 @@ public:
                         vectorize = true;
                     } else if (name == "restriction") {
                         is_restriction = true;
+                    } else if (name == "with_goto") {
+                        // TODO: Use goto attribute in function?
                     } else if (name == "inline") {
                         is_inline = true;
                     } else if (name == "static") {
@@ -3211,11 +3213,14 @@ private:
 
 public:
     ASR::asr_t *asr;
+    std::map<std::string, std::tuple<int64_t, bool, Location>> goto_name2id;
+    int64_t gotoids;
 
 
     BodyVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
          bool main_module, std::map<int, ASR::symbol_t*> &ast_overload)
-         : CommonVisitor(al, nullptr, diagnostics, main_module, ast_overload, ""), asr{unit}
+         : CommonVisitor(al, nullptr, diagnostics, main_module, ast_overload, ""), asr{unit},
+         gotoids{0}
          {}
 
     // Transforms statements to a list of ASR statements
@@ -3300,6 +3305,8 @@ public:
     }
 
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
+        goto_name2id.clear();
+        gotoids = 0;
         SymbolTable *old_scope = current_scope;
         ASR::symbol_t *t = current_scope->get_symbol(x.m_name);
         if (ASR::is_a<ASR::Function_t>(*t)) {
@@ -3320,6 +3327,13 @@ public:
         }
         current_scope = old_scope;
         tmp = nullptr;
+
+        for( auto itr: goto_name2id ) {
+            if( !std::get<1>(itr.second) ) {
+                throw SemanticError("Label '" + itr.first + "' is not defined in '"
+                                    + std::string(x.m_name) + "'", std::get<2>(itr.second));
+            }
+        }
     }
 
     void visit_Import(const AST::Import_t &/*x*/) {
@@ -3969,7 +3983,36 @@ public:
     void visit_Attribute(const AST::Attribute_t &x) {
         if (AST::is_a<AST::Name_t>(*x.m_value)) {
             std::string value = AST::down_cast<AST::Name_t>(x.m_value)->m_id;
+            if( value == "label" ) {
+                std::string labelname = x.m_attr;
+                if( goto_name2id.find(labelname) == goto_name2id.end() ) {
+                    goto_name2id[labelname] = std::make_tuple(gotoids, true, x.base.base.loc);
+                    gotoids += 1;
+                } else if( !std::get<1>(goto_name2id[labelname]) ) {
+                    goto_name2id[labelname] = std::make_tuple(
+                        std::get<0>(goto_name2id[labelname]),
+                        true,
+                        std::get<2>(goto_name2id[labelname])
+                    );
+                }
+                int id = std::get<0>(goto_name2id[labelname]);
+                tmp = ASR::make_GoToTarget_t(al, x.base.base.loc, id, x.m_attr);
+                return ;
+            }
+
+             if (value == "goto"){
+                std::string labelname = std::string(x.m_attr);
+                if( goto_name2id.find(labelname) == goto_name2id.end() ) {
+                    goto_name2id[labelname] = std::make_tuple(gotoids, false, x.base.base.loc);
+                    gotoids += 1;
+                }
+                int id = std::get<0>(goto_name2id[labelname]);
+                tmp = ASR::make_GoTo_t(al, x.base.base.loc, id, x.m_attr);
+                return ;
+            }
+
             ASR::symbol_t *t = current_scope->resolve_symbol(value);
+
             if (!t) {
                 throw SemanticError("'" + value + "' is not defined in the scope",
                     x.base.base.loc);
@@ -4543,8 +4586,14 @@ public:
             return;
         }
         this->visit_expr(*x.m_value);
-        ASRUtils::EXPR(tmp);
-        tmp = nullptr;
+
+        // If tmp is a statement and not an expression
+        // never cast into expression using ASRUtils::EXPR
+        // Just ignore and exit the function naturally.
+        if( !ASR::is_a<ASR::stmt_t>(*tmp) ) {
+            LFORTRAN_ASSERT(ASR::is_a<ASR::expr_t>(*tmp));
+            tmp = nullptr;
+        }
     }
 
 
