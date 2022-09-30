@@ -1126,6 +1126,14 @@ R"(
         src = "strlen(" + src + ")";
     }
 
+    void visit_GoTo(const ASR::GoTo_t &x) {
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        src =  indent + "goto " + std::string(x.m_name) + ";\n";
+    }
+
+    void visit_GoToTarget(const ASR::GoToTarget_t &x) {
+        src = std::string(x.m_name) + ":\n";
+    }
 };
 
 Result<std::string> asr_to_c(Allocator &al, ASR::TranslationUnit_t &asr,
