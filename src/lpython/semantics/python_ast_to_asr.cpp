@@ -956,7 +956,7 @@ public:
                     check_type_restriction(subs, rt_subs, rt, loc);
                 }
 
-                ASR::symbol_t *t = get_generic_function(subs, rt_subs, *func);
+                ASR::symbol_t *t = get_generic_function(subs, rt_subs, func);
                 std::string new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
 
                 // Currently ignoring keyword arguments for generic function calls
@@ -968,7 +968,7 @@ public:
                     new_call_arg.loc = args.p[i].loc;
                     new_args.push_back(al, new_call_arg);
                 }
-                return make_call_helper(al, t, current_scope, new_args, new_call_name, loc);
+                return make_call_helper(al, t, current_scope, new_args, new_call_name, loc, ignore_return_value);                    
             }
             if (args.size() != func->n_args) {
                 std::string fnd = std::to_string(args.size());
@@ -1209,10 +1209,10 @@ public:
      *        arguments. If not, then instantiate a new function.
      */
     ASR::symbol_t* get_generic_function(std::map<std::string, ASR::ttype_t*> subs,
-            std::map<std::string, ASR::symbol_t*> rt_subs, ASR::Function_t &func) {
+            std::map<std::string, ASR::symbol_t*> rt_subs, ASR::Function_t *func) {
         int new_function_num;
         ASR::symbol_t *t;
-        std::string func_name = func.m_name;
+        std::string func_name = func->m_name;
         if (generic_func_nums.find(func_name) != generic_func_nums.end()) {
             new_function_num = generic_func_nums[func_name];
             for (int i=0; i<generic_func_nums[func_name]; i++) {

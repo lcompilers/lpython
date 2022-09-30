@@ -406,6 +406,14 @@ filename = "../integration_tests/generics_array_01.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/generics_array_02.py"
+asr = true
+
+[[test]]
+filename = "../integration_tests/generics_array_03.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/generics_list_01.py"
 asr = true
 
