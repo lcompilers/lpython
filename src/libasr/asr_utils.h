@@ -1746,7 +1746,8 @@ class ReplaceReturnWithGotoVisitor: public ASR::BaseStmtReplacer<ReplaceReturnWi
     }
 
     void replace_Return(ASR::Return_t* x) {
-        *current_stmt = ASRUtils::STMT(ASR::make_GoTo_t(al, x->base.base.loc, goto_label));
+        *current_stmt = ASRUtils::STMT(ASR::make_GoTo_t(al, x->base.base.loc, goto_label,
+                            s2c(al, "__" + std::to_string(goto_label))));
         has_replacement_happened = true;
     }
 

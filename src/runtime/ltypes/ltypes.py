@@ -3,11 +3,12 @@ import os
 import ctypes
 import platform
 from dataclasses import dataclass
+from goto import with_goto
 
 # TODO: this does not seem to restrict other imports
 __slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64", "CPtr",
         "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer",
-        "p_c_pointer", "vectorize", "inline", "Union", "static"]
+        "p_c_pointer", "vectorize", "inline", "Union", "static", "with_goto"]
 
 # data-types
 
