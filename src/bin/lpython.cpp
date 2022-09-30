@@ -817,6 +817,13 @@ int link_executable(const std::vector<std::string> &infiles,
                 std::cout << "The command '" + cmd + "' failed." << std::endl;
                 return 10;
             }
+            if (outfile == "a.out") {
+                err = system("./a.out");
+                if (err) {
+                    std::cout << "The command './a.out' failed." << std::endl;
+                    return 10;
+                }
+            }
         }
         return 0;
     } else if (backend == Backend::cpp) {
