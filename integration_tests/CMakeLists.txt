@@ -275,6 +275,7 @@ RUN(NAME generics_list_01    LABELS cpython llvm)
 RUN(NAME test_statistics     LABELS cpython llvm)
 RUN(NAME test_str_attributes LABELS cpython llvm)
 RUN(NAME kwargs_01           LABELS cpython llvm)
+RUN(NAME test_01_goto        LABELS cpython llvm c)
 
 RUN(NAME func_inline_01 LABELS llvm wasm)
 RUN(NAME func_static_01 LABELS cpython llvm c wasm)
