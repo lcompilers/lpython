@@ -792,6 +792,13 @@ int link_executable(const std::vector<std::string> &infiles,
                 std::cout << "The command '" + cmd + "' failed." << std::endl;
                 return 10;
             }
+            if (outfile == "a.out") {
+                err = system("a.out");
+                if (err) {
+                    std::cout << "The command 'a.out' failed." << std::endl;
+                    return 10;
+                }
+            }
         } else {
             std::string CC = "cc";
             char *env_CC = std::getenv("LFORTRAN_CC");
