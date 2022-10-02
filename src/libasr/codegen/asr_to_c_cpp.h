@@ -832,11 +832,16 @@ R"(#include <stdio.h>
         ASR::ttype_t* m_value_type = ASRUtils::expr_type(x.m_value);
         bool is_target_list = ASR::is_a<ASR::List_t>(*m_target_type);
         bool is_value_list = ASR::is_a<ASR::List_t>(*m_value_type);
+        bool alloc_return_var = false;
         if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
             visit_Var(*ASR::down_cast<ASR::Var_t>(x.m_target));
             target = src;
             if (!is_c && ASRUtils::is_array(ASRUtils::expr_type(x.m_target))) {
                 target += "->data";
+            }
+            if (target == "_lpython_return_variable" && ASRUtils::is_character(*m_target_type)) {
+                // ASR assigns return variable only once at the end of function
+                alloc_return_var = true;
             }
         } else if (ASR::is_a<ASR::ArrayItem_t>(*x.m_target)) {
             self().visit_ArrayItem(*ASR::down_cast<ASR::ArrayItem_t>(x.m_target));
@@ -883,7 +888,13 @@ R"(#include <stdio.h>
             }
         } else {
             if( is_c ) {
-                src += indent + CUtils::deepcopy(target, value, m_target_type) + "\n";
+                std::string alloc = "";
+                if (alloc_return_var) {
+                    // char * return variable;
+                     alloc = indent + target + " = " + "(char *) malloc((strlen(" +
+                                    value + ") + 1 ) * sizeof(char));\n";
+                }
+                src += alloc + indent + CUtils::deepcopy(target, value, m_target_type) + "\n";
             } else {
                 src += indent + CPPUtils::deepcopy(target, value, m_target_type) + "\n";
             }
