@@ -142,6 +142,7 @@ class CCPPList {
             list_insert(list_struct_type, list_type_code, list_element_type, list_type->m_type);
             list_find_item_position(list_struct_type, list_type_code, list_element_type, list_type->m_type);
             list_remove(list_struct_type, list_type_code, list_element_type, list_type->m_type);
+            list_clear(list_struct_type, list_type_code, list_element_type);
             return list_struct_type;
         }
 
@@ -178,6 +179,11 @@ class CCPPList {
             return typecode2listfuncs[list_type_code]["list_find_item"];
         }
 
+        std::string get_list_clear_func(ASR::List_t* list_type) {
+            std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
+            return typecode2listfuncs[list_type_code]["list_clear"];
+        }
+
         std::string get_generated_code() {
             return generated_code;
         }
@@ -201,6 +207,25 @@ class CCPPList {
             generated_code += indent + tab + "x->current_end_point = 0;\n";
             generated_code += indent + tab + "x->data = (" + list_element_type + "*) " +
                               "malloc(capacity * sizeof(" + list_element_type + "));\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        void list_clear(std::string list_struct_type,
+            std::string list_type_code,
+            std::string list_element_type) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string list_init_func = global_scope->get_unique_name("list_clear_" + list_type_code);
+            typecode2listfuncs[list_type_code]["list_clear"] = list_init_func;
+            std::string signature = "void " + list_init_func + "(" + list_struct_type + "* x)";
+            list_func_decls += indent + "inline " + signature + ";\n";
+            signature = indent + signature;
+            generated_code += indent + signature + " {\n";
+            generated_code += indent + tab + "free(x->data);\n";
+            generated_code += indent + tab + "x->capacity = 4;\n";
+            generated_code += indent + tab + "x->current_end_point = 0;\n";
+            generated_code += indent + tab + "x->data = (" + list_element_type + "*) " +
+                              "malloc(x->capacity * sizeof(" + list_element_type + "));\n";
             generated_code += indent + "}\n\n";
         }
 
@@ -283,7 +308,7 @@ class CCPPList {
             generated_code += indent + tab + list_resize_func + "(x);\n";
             generated_code += indent + tab + "int pos_ptr = pos;\n";
             generated_code += indent + tab + list_element_type + " tmp_ptr = x->data[pos];\n";
-            generated_code += indent + tab + list_element_type + " tmp = 0;\n";
+            generated_code += indent + tab + list_element_type + " tmp;\n";
 
             generated_code += indent + tab + "while(x->current_end_point > pos_ptr) {\n";
             generated_code += indent + tab + tab + "tmp = x->data[pos_ptr + 1];\n";
@@ -1008,6 +1033,16 @@ R"(#include <stdio.h>
         src = indent + list_append_func + "(&" + list_var + ", " + element + ");\n";
     }
 
+    void visit_ListClear(const ASR::ListClear_t& x) {
+        ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
+        ASR::List_t* t = ASR::down_cast<ASR::List_t>(t_ttype);
+        std::string list_clear_func = list_api->get_list_clear_func(t);
+        self().visit_expr(*x.m_a);
+        std::string list_var = std::move(src);
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        src = indent + list_clear_func + "(&" + list_var + ");\n";
+    }
+
     void visit_ListInsert(const ASR::ListInsert_t& x) {
         ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
         ASR::List_t* t = ASR::down_cast<ASR::List_t>(t_ttype);
@@ -1405,6 +1440,13 @@ R"(#include <stdio.h>
             case ASR::ttypeType::Struct: {
                 ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(t);
                 type_src = std::string("struct ") + ASRUtils::symbol_name(der_type->m_derived_type);
+                break;
+            }
+            case ASR::ttypeType::List: {
+                ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(t);
+                std::string list_element_type = get_c_type_from_ttype_t(list_type->m_type);
+                std::string list_type_c = list_api->get_list_type(list_type, list_element_type);
+                type_src = list_type_c;
                 break;
             }
             default: {
