@@ -1263,10 +1263,11 @@ R"(#include <stdio.h>
         } else {
             src += "(" + left + ")";
         }
+        std::string op_str = ASRUtils::cmpop_to_str(x.m_op);
         if( T::class_type == ASR::exprType::StringCompare && is_c ) {
-            src = "strcmp(" + left + ", " + right + ") == 0";
+            src = "strcmp(" + left + ", " + right + ") " + op_str + " 0";
         } else {
-            src += ASRUtils::cmpop_to_str(x.m_op);
+            src += op_str;
             if (right_precedence <= last_expr_precedence) {
                 src += right;
             } else {
