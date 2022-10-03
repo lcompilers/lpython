@@ -310,7 +310,7 @@ class CCPPList {
             generated_code += indent + tab + list_element_type + " tmp_ptr = x->data[pos];\n";
             generated_code += indent + tab + list_element_type + " tmp;\n";
 
-            generated_code += indent + tab + "while(x->current_end_point > pos_ptr) {\n";
+            generated_code += indent + tab + "while (x->current_end_point > pos_ptr) {\n";
             generated_code += indent + tab + tab + "tmp = x->data[pos_ptr + 1];\n";
             generated_code += indent + tab + tab + "x->data[pos_ptr + 1] = tmp_ptr;\n";
             generated_code += indent + tab + tab + "tmp_ptr = tmp;\n";
@@ -338,7 +338,7 @@ class CCPPList {
             list_func_decls += "inline " + signature + ";\n";
             generated_code += indent + signature + " {\n";
             generated_code += indent + tab + "int el_pos = 0;\n";
-            generated_code += indent + tab + "while(x->current_end_point > el_pos) {;\n";
+            generated_code += indent + tab + "while (x->current_end_point > el_pos) {\n";
             generated_code += indent + tab + tab + "if (x->data[el_pos] == element) return el_pos;\n";
             generated_code += indent + tab + tab + "el_pos++;\n";
             generated_code += indent + tab + "}\n";
@@ -360,7 +360,7 @@ class CCPPList {
             generated_code += indent + signature + " {\n";
             std::string find_item_pos_func = get_list_find_item_position_function(list_type_code);
             generated_code += indent + tab + "int el_pos = " + find_item_pos_func + "(x, element);\n";
-            generated_code += indent + tab + "while(x->current_end_point > el_pos) {;\n";
+            generated_code += indent + tab + "while (x->current_end_point > el_pos) {\n";
             generated_code += indent + tab + tab + "int tmp = el_pos + 1;\n";
             generated_code += indent + tab + tab + "x->data[el_pos] = x->data[tmp];\n";
             generated_code += indent + tab + tab + "el_pos = tmp;\n";
