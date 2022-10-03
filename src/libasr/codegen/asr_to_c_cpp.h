@@ -826,6 +826,16 @@ R"(#include <stdio.h>
                     step + ", " + left_present + ", " + rig_present + ")";
     }
 
+    void visit_StringChr(const ASR::StringChr_t& x) {
+        self().visit_expr(*x.m_arg);
+        src = "_lfortran_str_chr(" + src + ")";
+    }
+
+    void visit_StringOrd(const ASR::StringOrd_t& x) {
+        self().visit_expr(*x.m_arg);
+        src = "(int)" + src + "[0]";
+    }
+
     void visit_Assignment(const ASR::Assignment_t &x) {
         std::string target;
         ASR::ttype_t* m_target_type = ASRUtils::expr_type(x.m_target);
