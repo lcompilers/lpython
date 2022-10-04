@@ -49,6 +49,7 @@ set(SRC
     pass/instantiate_template.cpp
     pass/update_array_dim_intrinsic_calls.cpp
     pass/pass_array_by_data.cpp
+    pass/pass_list_concat.cpp
 
     asr_verify.cpp
     asr_utils.cpp
