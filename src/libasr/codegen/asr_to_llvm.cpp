@@ -1330,6 +1330,7 @@ public:
             this->visit_expr_wrapper(x.m_value, true);
             return;
         }
+        this->visit_expr(*x.m_a);
         llvm::Value *int_val = tmp;
         int int_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
         std::string runtime_func_name = "_lpython_bit_length" + std::to_string(int_kind);
