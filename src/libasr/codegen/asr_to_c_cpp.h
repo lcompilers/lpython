@@ -1200,6 +1200,14 @@ R"(#include <stdio.h>
                 }
                 break;
             }
+            case (ASR::cast_kindType::CharacterToInteger) : {
+                if (is_c) {
+                    src = "atoi(" + src + ")";
+                } else {
+                    src = "std::stoi(" + src + ")";
+                }
+                break;
+            }
             case (ASR::cast_kindType::RealToCharacter) : {
                 if (is_c) {
                     ASR::ttype_t *arg_type = ASRUtils::expr_type(x.m_arg);
@@ -1219,6 +1227,19 @@ R"(#include <stdio.h>
                 x.base.base.loc);
         }
         last_expr_precedence = 2;
+    }
+
+    void visit_IntegerBitLen(const ASR::IntegerBitLen_t& x) {
+        self().visit_expr(*x.m_a);
+        int arg_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+        switch (arg_kind) {
+            case 1: src = "_lpython_bit_length1(" + src + ")"; break;
+            case 2: src = "_lpython_bit_length2(" + src + ")"; break;
+            case 4: src = "_lpython_bit_length4(" + src + ")"; break;
+            case 8: src = "_lpython_bit_length8(" + src + ")"; break;
+            default: throw CodeGenError("Unsupported Integer Kind: " + \
+                            std::to_string(arg_kind));
+        }
     }
 
     void visit_IntegerCompare(const ASR::IntegerCompare_t &x) {
