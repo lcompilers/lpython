@@ -1200,6 +1200,14 @@ R"(#include <stdio.h>
                 }
                 break;
             }
+            case (ASR::cast_kindType::CharacterToInteger) : {
+                if (is_c) {
+                    src = "atoi(" + src + ")";
+                } else {
+                    src = "std::stoi(" + src + ")";
+                }
+                break;
+            }
             case (ASR::cast_kindType::RealToCharacter) : {
                 if (is_c) {
                     ASR::ttype_t *arg_type = ASRUtils::expr_type(x.m_arg);
