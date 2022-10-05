@@ -1,5 +1,6 @@
 #include <libasr/codegen/llvm_array_utils.h>
 #include <libasr/codegen/llvm_utils.h>
+#include <libasr/asr_utils.h>
 
 namespace LFortran {
 
@@ -201,7 +202,7 @@ namespace LFortran {
         int rank, llvm::Type* el_type,
         bool get_pointer) {
             ASR::ttypeType type_ = m_type_->type;
-            std::pair<std::pair<int, int>, int> array_key = std::make_pair(std::make_pair((int)type_, a_kind), rank);
+            std::string array_key = ASRUtils::get_type_code(m_type_);
             if( tkr2array.find(array_key) != tkr2array.end() ) {
                 if( get_pointer ) {
                     return tkr2array[array_key]->getPointerTo();
@@ -230,7 +231,7 @@ namespace LFortran {
         llvm::Type* SimpleCMODescriptor::get_malloc_array_type
         (ASR::ttype_t* m_type_, int a_kind, int rank, llvm::Type* el_type, bool get_pointer) {
             ASR::ttypeType type_ = m_type_->type;
-            std::pair<std::pair<int, int>, int> array_key = std::make_pair(std::make_pair((int)type_, a_kind), rank);
+            std::string array_key = ASRUtils::get_type_code(m_type_);
             if( tkr2array.find(array_key) != tkr2array.end() ) {
                 if( get_pointer ) {
                     return tkr2array[array_key]->getPointerTo();
