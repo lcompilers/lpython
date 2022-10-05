@@ -758,6 +758,26 @@ LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
     *dest = &(dest_char[0]);
 }
 
+LFORTRAN_API char* _lfortran_strrepeat_c(char* s, int32_t n)
+{
+    int cntr = 0;
+    char trmn = '\0';
+    int s_len = strlen(s);
+    int trmn_size = sizeof(trmn);
+    int f_len = s_len*n;
+    if (f_len < 0)
+        f_len = 0;
+    char* dest_char = (char*)malloc(f_len+trmn_size);
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < s_len; j++) {
+            dest_char[cntr] = s[j];
+            cntr++;
+        }
+    }
+    dest_char[cntr] = trmn;
+    return dest_char;
+}
+
 // idx1 and idx2 both start from 1
 LFORTRAN_API char* _lfortran_str_copy(char* s, int32_t idx1, int32_t idx2) {
 

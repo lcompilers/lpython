@@ -836,6 +836,14 @@ R"(#include <stdio.h>
         src = "(int)" + src + "[0]";
     }
 
+    void visit_StringRepeat(const ASR::StringRepeat_t &x) {
+        self().visit_expr(*x.m_left);
+        std::string s = src;
+        self().visit_expr(*x.m_right);
+        std::string n = src;
+        src = "_lfortran_strrepeat_c(" + s + ", " + n + ")";
+    }
+
     void visit_Assignment(const ASR::Assignment_t &x) {
         std::string target;
         ASR::ttype_t* m_target_type = ASRUtils::expr_type(x.m_target);
