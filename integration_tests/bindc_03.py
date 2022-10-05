@@ -5,11 +5,11 @@ def g(a: CPtr, value: i32) -> None:
     pass
 
 @ccall
-def get_array(size: i32) -> CPtr:
+def get_array(size: i32) -> CPtr: # this function can be called from Python but is defined in C code
     pass
 
 @ccallable
-def f(q_void: CPtr) -> None:
+def f(q_void: CPtr) -> None: # this function can be called from C code
     i: i32
     el: i32
     q: Pointer[i32[:]]

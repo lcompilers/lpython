@@ -41,9 +41,11 @@ void _lpython_main_program();
 void main0();
 void test_pow();
 int32_t test_pow_1(int32_t a, int32_t b);
-int32_t __lpython_overloaded_0__pow(int32_t x, int32_t y);
+#ifndef IGNORE_DECLARATIONS
 float _lfortran_caimag(float complex x);
 double _lfortran_zaimag(double complex x);
+#endif
+int32_t __lpython_overloaded_0__pow(int32_t x, int32_t y);
 
 // Implementations
 void _lpython_main_program()

@@ -35,8 +35,10 @@ struct dimension_descriptor
     int32_t lower_bound, length;
 };
 // Forward declarations
+#ifndef IGNORE_DECLARATIONS
 double f(double x);
 void g(double a, float b, int64_t c, int32_t d);
+#endif
 double h(double x);
 void l(double a, float b, int64_t c, int32_t d);
 void main0();
