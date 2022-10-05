@@ -350,8 +350,8 @@ public:
                     std::string dims = convert_dims_c(t->n_dims, t->m_dims, v.m_type, is_fixed_size);
                     sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
                 }
-            } else if(ASR::is_a<ASR::Derived_t>(*t2)) {
-                ASR::Derived_t *t = ASR::down_cast<ASR::Derived_t>(t2);
+            } else if(ASR::is_a<ASR::Struct_t>(*t2)) {
+                ASR::Struct_t *t = ASR::down_cast<ASR::Struct_t>(t2);
                 std::string der_type_name = ASRUtils::symbol_name(t->m_derived_type);
                 bool is_fixed_size = true;
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims, v.m_type, is_fixed_size);
@@ -442,9 +442,9 @@ public:
                     sub += " = (char*) malloc(40 * sizeof(char))";
                     return sub;
                 }
-            } else if (ASR::is_a<ASR::Derived_t>(*v.m_type)) {
+            } else if (ASR::is_a<ASR::Struct_t>(*v.m_type)) {
                 std::string indent(indentation_level*indentation_spaces, ' ');
-                ASR::Derived_t *t = ASR::down_cast<ASR::Derived_t>(v.m_type);
+                ASR::Struct_t *t = ASR::down_cast<ASR::Struct_t>(v.m_type);
                 std::string der_type_name = ASRUtils::symbol_name(t->m_derived_type);
                  if( is_array ) {
                     bool is_fixed_size = true;
@@ -608,7 +608,7 @@ R"(
         strcat_def += indent + "}\n\n";
 
         for (auto &item : x.m_global_scope->get_scope()) {
-            if (ASR::is_a<ASR::DerivedType_t>(*item.second)) {
+            if (ASR::is_a<ASR::StructType_t>(*item.second)) {
                 array_types_decls += "struct " + item.first + ";\n\n";
             } else if (ASR::is_a<ASR::EnumType_t>(*item.second)) {
                 array_types_decls += "enum " + item.first + ";\n\n";
@@ -625,7 +625,7 @@ R"(
         }
 
         for (auto &item : x.m_global_scope->get_scope()) {
-            if (ASR::is_a<ASR::DerivedType_t>(*item.second) ||
+            if (ASR::is_a<ASR::StructType_t>(*item.second) ||
                 ASR::is_a<ASR::EnumType_t>(*item.second) ||
                 ASR::is_a<ASR::UnionType_t>(*item.second)) {
                 visit_symbol(*item.second);
@@ -777,7 +777,7 @@ R"(
         array_types_decls += open_struct + body + end_struct;
     }
 
-    void visit_DerivedType(const ASR::DerivedType_t& x) {
+    void visit_StructType(const ASR::StructType_t& x) {
         visit_AggregateTypeUtil(x, "struct");
     }
 
@@ -858,15 +858,19 @@ R"(
 
     }
 
-    void visit_EnumValue(const ASR::EnumValue_t& x) {
-        ASR::Variable_t* enum_var = ASR::down_cast<ASR::Variable_t>(x.m_v);
+    void visit_EnumMember(const ASR::EnumMember_t& x) {
+        ASR::Variable_t* enum_var = ASR::down_cast<ASR::Variable_t>(x.m_m);
         src = std::string(enum_var->m_name);
     }
 
+    void visit_EnumValue(const ASR::EnumValue_t& x) {
+        visit_expr(*x.m_v);
+    }
+
     void visit_EnumName(const ASR::EnumName_t& x) {
-        ASR::Variable_t* enum_var = ASR::down_cast<ASR::Variable_t>(x.m_v);
         int64_t min_value = INT64_MAX;
-        ASR::EnumType_t* enum_type = ASRUtils::get_EnumType_from_symbol(x.m_v);
+        ASR::Enum_t* enum_t = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
+        ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_t->m_enum_type);
         for( auto itr: enum_type->m_symtab->get_scope() ) {
             ASR::Variable_t* itr_var = ASR::down_cast<ASR::Variable_t>(itr.second);
             ASR::expr_t* value = ASRUtils::expr_value(itr_var->m_symbolic_value);
@@ -874,8 +878,10 @@ R"(
             ASRUtils::extract_value(value, value_int64);
             min_value = std::min(value_int64, min_value);
         }
+        visit_expr(*x.m_v);
+        std::string enum_var_name = src;
         src = global_scope->get_unique_name("enum_names_" + std::string(enum_type->m_name)) +
-                "[" + std::string(enum_var->m_name) + " - " + std::to_string(min_value) + "]";
+                "[" + std::string(enum_var_name) + " - " + std::to_string(min_value) + "]";
     }
 
     void visit_ComplexConstant(const ASR::ComplexConstant_t &x) {

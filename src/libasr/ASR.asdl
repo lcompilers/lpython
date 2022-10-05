@@ -95,7 +95,7 @@ symbol
     | ExternalSymbol(symbol_table parent_symtab, identifier name,
         symbol external, identifier module_name, identifier* scope_names,
         identifier original_name, access access)
-    | DerivedType(symbol_table symtab, identifier name, identifier* members,
+    | StructType(symbol_table symtab, identifier name, identifier* members,
         abi abi, access access, symbol? parent)
     | EnumType(symbol_table symtab, identifier name, identifier* members,
         abi abi, access access, enumtype enum_value_type, ttype type, symbol? parent)
@@ -221,7 +221,7 @@ expr
     | NamedExpr(expr target, expr value, ttype type)
     | FunctionCall(symbol name, symbol? original_name, call_arg* args,
             ttype type, expr? value, expr? dt)
-    | DerivedTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
+    | StructTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
     | EnumTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
     | UnionTypeConstructor(symbol dt_sym, expr* args, ttype type, expr? value)
     | ImpliedDoLoop(expr* values, expr var, expr start, expr end,
@@ -283,10 +283,11 @@ expr
     | ArrayReshape(expr array, expr shape, ttype type, expr? value)
 
     | BitCast(expr source, expr mold, expr? size, ttype type, expr? value)
-    | DerivedRef(expr v, symbol m, ttype type, expr? value)
+    | StructInstanceMember(expr v, symbol m, ttype type, expr? value)
+    | EnumMember(expr v, symbol m, ttype type, expr? value)
     | UnionRef(expr v, symbol m, ttype type, expr? value)
-    | EnumName(symbol v, ttype type, expr? value)
-    | EnumValue(symbol v, ttype type, expr? value)
+    | EnumName(expr v, ttype enum_type, ttype type, expr? value)
+    | EnumValue(expr v, ttype enum_type, ttype type, expr? value)
     | OverloadedCompare(expr left, cmpop op, expr right, ttype type, expr? value, expr overloaded)
     | OverloadedBinOp(expr left, binop op, expr right, ttype type, expr? value, expr overloaded)
     | Cast(expr arg, cast_kind kind, ttype type, expr? value)
@@ -333,7 +334,7 @@ ttype
     | Set(ttype type)
     | List(ttype type)
     | Tuple(ttype* type)
-    | Derived(symbol derived_type, dimension* dims)
+    | Struct(symbol derived_type, dimension* dims)
     | Enum(symbol enum_type, dimension *dims)
     | Union(symbol union_type, dimension *dims)
     | Class(symbol class_type, dimension* dims)

@@ -258,6 +258,7 @@ RUN(NAME enum_03             LABELS cpython llvm c)
 RUN(NAME enum_04             LABELS cpython llvm c)
 RUN(NAME enum_05             LABELS llvm c
         EXTRAFILES enum_05b.c)
+RUN(NAME enum_06             LABELS cpython llvm c)
 RUN(NAME union_01            LABELS cpython llvm c)
 RUN(NAME union_02            LABELS llvm c)
 RUN(NAME union_03            LABELS cpython llvm c)

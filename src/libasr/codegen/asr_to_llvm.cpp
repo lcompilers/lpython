@@ -132,7 +132,7 @@ void string_init(llvm::LLVMContext &context, llvm::Module &module,
 class ASRToLLVMVisitor : public ASR::BaseVisitor<ASRToLLVMVisitor>
 {
 private:
-  //! To be used by visit_DerivedRef.
+  //! To be used by visit_StructInstanceMember.
   std::string der_type_name;
 
   //! Helpful for debugging while testing LLVM code
@@ -369,8 +369,8 @@ public:
                     el_type = llvm::Type::getInt1Ty(context);
                     break;
                 }
-                case ASR::ttypeType::Derived: {
-                    el_type = getDerivedType(m_type_);
+                case ASR::ttypeType::Struct: {
+                    el_type = getStructType(m_type_);
                     break;
                 }
                 case ASR::ttypeType::Union: {
@@ -402,8 +402,8 @@ public:
                     el_type = llvm::Type::getInt1Ty(context);
                     break;
                 }
-                case ASR::ttypeType::Derived: {
-                    el_type = getDerivedType(m_type_);
+                case ASR::ttypeType::Struct: {
+                    el_type = getStructType(m_type_);
                     break;
                 }
                 case ASR::ttypeType::Character: {
@@ -558,9 +558,13 @@ public:
                 llvm_mem_type = getFPType(a_kind);
                 break;
             }
-            case ASR::ttypeType::Derived: {
-                llvm_mem_type = getDerivedType(mem_type);
+            case ASR::ttypeType::Struct: {
+                llvm_mem_type = getStructType(mem_type);
                 break;
+            }
+            case ASR::ttypeType::Enum: {
+                llvm_mem_type = llvm::Type::getInt32Ty(context);
+                break ;
             }
             case ASR::ttypeType::Union: {
                 llvm_mem_type = getUnionType(mem_type);
@@ -589,7 +593,7 @@ public:
         return llvm_mem_type;
     }
 
-    llvm::Type* getDerivedType(ASR::DerivedType_t* der_type, bool is_pointer=false) {
+    llvm::Type* getStructType(ASR::StructType_t* der_type, bool is_pointer=false) {
         std::string der_type_name = std::string(der_type->m_name);
         llvm::StructType* der_type_llvm;
         if( name2dertype.find(der_type_name) != name2dertype.end() ) {
@@ -598,9 +602,9 @@ public:
             std::vector<llvm::Type*> member_types;
             int member_idx = 0;
             if( der_type->m_parent != nullptr ) {
-                ASR::DerivedType_t *par_der_type = ASR::down_cast<ASR::DerivedType_t>(
+                ASR::StructType_t *par_der_type = ASR::down_cast<ASR::StructType_t>(
                                                         symbol_get_past_external(der_type->m_parent));
-                llvm::Type* par_llvm = getDerivedType(par_der_type);
+                llvm::Type* par_llvm = getStructType(par_der_type);
                 member_types.push_back(par_llvm);
                 dertype2parent[der_type_name] = std::string(par_der_type->m_name);
                 member_idx += 1;
@@ -622,8 +626,8 @@ public:
         return (llvm::Type*) der_type_llvm;
     }
 
-    llvm::Type* getDerivedType(ASR::ttype_t* _type, bool is_pointer=false) {
-        ASR::Derived_t* der = (ASR::Derived_t*)(&(_type->base));
+    llvm::Type* getStructType(ASR::ttype_t* _type, bool is_pointer=false) {
+        ASR::Struct_t* der = (ASR::Struct_t*)(&(_type->base));
         ASR::symbol_t* der_sym;
         if( der->m_derived_type->type == ASR::symbolType::ExternalSymbol ) {
             ASR::ExternalSymbol_t* der_extr = (ASR::ExternalSymbol_t*)(&(der->m_derived_type->base));
@@ -631,8 +635,8 @@ public:
         } else {
             der_sym = der->m_derived_type;
         }
-        ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der_sym->base));
-        return getDerivedType(der_type, is_pointer);
+        ASR::StructType_t* der_type = (ASR::StructType_t*)(&(der_sym->base));
+        return getStructType(der_type, is_pointer);
     }
 
     llvm::Type* getUnionType(ASR::UnionType_t* union_type, bool is_pointer=false) {
@@ -1369,8 +1373,8 @@ public:
         llvm::Value* union_llvm = tmp;
         ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(x.m_m);
         ASR::ttype_t* member_type_asr = ASRUtils::get_contained_type(member_var->m_type);
-        if( ASR::is_a<ASR::Derived_t>(*member_type_asr) ) {
-            ASR::Derived_t* d = ASR::down_cast<ASR::Derived_t>(member_type_asr);
+        if( ASR::is_a<ASR::Struct_t>(*member_type_asr) ) {
+            ASR::Struct_t* d = ASR::down_cast<ASR::Struct_t>(member_type_asr);
             der_type_name = ASRUtils::symbol_name(d->m_derived_type);
         }
         member_type_asr = member_var->m_type;
@@ -1557,8 +1561,8 @@ public:
         llvm::Value* array = nullptr;
         if( ASR::is_a<ASR::Var_t>(*x.m_v) ) {
             ASR::Variable_t *v = ASRUtils::EXPR2VAR(x.m_v);
-            if( ASR::is_a<ASR::Derived_t>(*v->m_type) ) {
-                ASR::Derived_t* der_type = ASR::down_cast<ASR::Derived_t>(v->m_type);
+            if( ASR::is_a<ASR::Struct_t>(*v->m_type) ) {
+                ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(v->m_type);
                 der_type_name = ASRUtils::symbol_name(ASRUtils::symbol_get_past_external(der_type->m_derived_type));
             }
             uint32_t v_h = get_hash((ASR::asr_t*)v);
@@ -1572,8 +1576,8 @@ public:
             int64_t ptr_loads_copy = ptr_loads;
             ptr_loads = 0;
             this->visit_expr(*x.m_v);
-            if( ASR::is_a<ASR::Derived_t>(*ASRUtils::expr_type(x.m_v)) ) {
-                ASR::Derived_t* der_type = ASR::down_cast<ASR::Derived_t>(ASRUtils::expr_type(x.m_v));
+            if( ASR::is_a<ASR::Struct_t>(*ASRUtils::expr_type(x.m_v)) ) {
+                ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(ASRUtils::expr_type(x.m_v));
                 der_type_name = ASRUtils::symbol_name(ASRUtils::symbol_get_past_external(der_type->m_derived_type));
             }
             ptr_loads = ptr_loads_copy;
@@ -1688,7 +1692,8 @@ public:
     }
 
     void lookup_EnumValue(const ASR::EnumValue_t& x) {
-        ASR::EnumType_t* enum_type = ASRUtils::get_EnumType_from_symbol(x.m_v);
+        ASR::Enum_t* enum_t = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
+        ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_t->m_enum_type);
         uint32_t h = get_hash((ASR::asr_t*) enum_type);
         llvm::Value* array = llvm_symtab[h];
         tmp = llvm_utils->create_gep(array, tmp);
@@ -1699,9 +1704,11 @@ public:
         if( x.m_value ) {
             if( ASR::is_a<ASR::Integer_t>(*x.m_type) ) {
                 this->visit_expr(*x.m_value);
-            } else {
-                ASR::Variable_t* x_mv = ASR::down_cast<ASR::Variable_t>(x.m_v);
-                ASR::EnumType_t* enum_type = ASRUtils::get_EnumType_from_symbol(x.m_v);
+            } else if( ASR::is_a<ASR::EnumMember_t>(*x.m_v) ) {
+                ASR::EnumMember_t* x_enum_member = ASR::down_cast<ASR::EnumMember_t>(x.m_v);
+                ASR::Variable_t* x_mv = ASR::down_cast<ASR::Variable_t>(x_enum_member->m_m);
+                ASR::Enum_t* enum_t = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
+                ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_t->m_enum_type);
                 for( size_t i = 0; i < enum_type->n_members; i++ ) {
                     if( std::string(enum_type->m_members[i]) == std::string(x_mv->m_name) ) {
                         tmp = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), llvm::APInt(32, i));
@@ -1715,8 +1722,10 @@ public:
             return ;
         }
 
-        ASR::Variable_t* x_m_v = ASR::down_cast<ASR::Variable_t>(x.m_v);
-        fetch_val(x_m_v);
+        visit_expr(*x.m_v);
+        if( ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v) ) {
+            tmp = LLVM::CreateLoad(*builder, tmp);
+        }
         if( !ASR::is_a<ASR::Integer_t>(*x.m_type) && lookup_enum_value_for_nonints ) {
             lookup_EnumValue(x);
         }
@@ -1728,9 +1737,12 @@ public:
             return ;
         }
 
-        ASR::Variable_t* x_m_v = ASR::down_cast<ASR::Variable_t>(x.m_v);
-        fetch_val(x_m_v);
-        ASR::EnumType_t* enum_type = ASRUtils::get_EnumType_from_symbol(x.m_v);
+        visit_expr(*x.m_v);
+        if( ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v) ) {
+            tmp = LLVM::CreateLoad(*builder, tmp);
+        }
+        ASR::Enum_t* enum_t = ASR::down_cast<ASR::Enum_t>(x.m_enum_type);
+        ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_t->m_enum_type);
         uint32_t h = get_hash((ASR::asr_t*) enum_type);
         llvm::Value* array = llvm_symtab[h];
         if( ASR::is_a<ASR::Integer_t>(*enum_type->m_type) ) {
@@ -1760,7 +1772,7 @@ public:
         LFORTRAN_ASSERT(x.n_args == 0);
     }
 
-    void visit_DerivedRef(const ASR::DerivedRef_t& x) {
+    void visit_StructInstanceMember(const ASR::StructInstanceMember_t& x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
             return;
@@ -1786,7 +1798,7 @@ public:
         std::vector<llvm::Value*> idx_vec = {
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, member_idx))};
-        if( ASR::is_a<ASR::DerivedRef_t>(*x.m_v) &&
+        if( ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v) &&
             is_nested_pointer(tmp) ) {
             tmp = CreateLoad(tmp);
         }
@@ -1795,9 +1807,9 @@ public:
         if( ASR::is_a<ASR::Pointer_t>(*member_type) ) {
             member_type = ASR::down_cast<ASR::Pointer_t>(member_type)->m_type;
         }
-        if( member_type->type == ASR::ttypeType::Derived ) {
-            ASR::Derived_t* der = (ASR::Derived_t*)(&(member_type->base));
-            ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
+        if( member_type->type == ASR::ttypeType::Struct ) {
+            ASR::Struct_t* der = (ASR::Struct_t*)(&(member_type->base));
+            ASR::StructType_t* der_type = (ASR::StructType_t*)(&(der->m_derived_type->base));
             der_type_name = std::string(der_type->m_name);
             uint32_t h = get_hash((ASR::asr_t*)member);
             if( llvm_symtab.find(h) != llvm_symtab.end() ) {
@@ -2289,8 +2301,8 @@ public:
                 }
                 break;
             }
-            case (ASR::ttypeType::Derived) : {
-                ASR::Derived_t* v_type = down_cast<ASR::Derived_t>(asr_type);
+            case (ASR::ttypeType::Struct) : {
+                ASR::Struct_t* v_type = down_cast<ASR::Struct_t>(asr_type);
                 m_dims = v_type->m_dims;
                 n_dims = v_type->n_dims;
                 if( n_dims > 0 ) {
@@ -2303,7 +2315,7 @@ public:
                         llvm_type = arr_descr->get_array_type(asr_type, a_kind, n_dims, el_type);
                     }
                 } else {
-                    llvm_type = getDerivedType(asr_type, false);
+                    llvm_type = getStructType(asr_type, false);
                 }
                 break;
             }
@@ -2680,8 +2692,8 @@ public:
                 }
                 break;
             }
-            case (ASR::ttypeType::Derived) : {
-                ASR::Derived_t* v_type = down_cast<ASR::Derived_t>(asr_type);
+            case (ASR::ttypeType::Struct) : {
+                ASR::Struct_t* v_type = down_cast<ASR::Struct_t>(asr_type);
                 n_dims = v_type->n_dims;
                 if( n_dims > 0 ) {
                     is_array_type = true;
@@ -2692,7 +2704,7 @@ public:
                         type = arr_descr->get_array_type(asr_type, a_kind, n_dims, el_type, true);
                     }
                 } else {
-                    type = getDerivedType(asr_type, true);
+                    type = getStructType(asr_type, true);
                 }
                 break;
             }
@@ -3103,8 +3115,8 @@ public:
                 case (ASR::ttypeType::CPtr) :
                     return_type = llvm::Type::getVoidTy(context)->getPointerTo();
                     break;
-                case (ASR::ttypeType::Derived) :
-                    throw CodeGenError("Derived return type not implemented yet");
+                case (ASR::ttypeType::Struct) :
+                    throw CodeGenError("Struct return type not implemented yet");
                     break;
                 case (ASR::ttypeType::Tuple) : {
                     ASR::Tuple_t* asr_tuple = ASR::down_cast<ASR::Tuple_t>(return_var_type0);
@@ -3605,7 +3617,7 @@ public:
         bool lhs_is_string_arrayref = false;
         if( x.m_target->type == ASR::exprType::ArrayItem ||
             x.m_target->type == ASR::exprType::ArraySection ||
-            x.m_target->type == ASR::exprType::DerivedRef ||
+            x.m_target->type == ASR::exprType::StructInstanceMember ||
             x.m_target->type == ASR::exprType::ListItem ||
             x.m_target->type == ASR::exprType::UnionRef ) {
             is_assignment_target = true;
@@ -3738,7 +3750,7 @@ public:
         this->visit_expr(*x);
         if( x->type == ASR::exprType::ArrayItem ||
             x->type == ASR::exprType::ArraySection ||
-            x->type == ASR::exprType::DerivedRef ) {
+            x->type == ASR::exprType::StructInstanceMember ) {
             if( load_ref ) {
                 tmp = CreateLoad(tmp);
             }
@@ -4702,9 +4714,9 @@ public:
                     case ASR::ttypeType::Integer:
                     case ASR::ttypeType::Real:
                     case ASR::ttypeType::Complex:
-                    case ASR::ttypeType::Derived: {
-                        if( t2->type == ASR::ttypeType::Derived ) {
-                            ASR::Derived_t* d = ASR::down_cast<ASR::Derived_t>(t2);
+                    case ASR::ttypeType::Struct: {
+                        if( t2->type == ASR::ttypeType::Struct ) {
+                            ASR::Struct_t* d = ASR::down_cast<ASR::Struct_t>(t2);
                             der_type_name = ASRUtils::symbol_name(d->m_derived_type);
                         }
                         fetch_ptr(x);
@@ -4719,9 +4731,9 @@ public:
                 }
                 break;
             }
-            case ASR::ttypeType::Derived: {
-                ASR::Derived_t* der = (ASR::Derived_t*)(&(x->m_type->base));
-                ASR::DerivedType_t* der_type = (ASR::DerivedType_t*)(&(der->m_derived_type->base));
+            case ASR::ttypeType::Struct: {
+                ASR::Struct_t* der = (ASR::Struct_t*)(&(x->m_type->base));
+                ASR::StructType_t* der_type = (ASR::StructType_t*)(&(der->m_derived_type->base));
                 der_type_name = std::string(der_type->m_name);
                 uint32_t h = get_hash((ASR::asr_t*)x);
                 if( llvm_symtab.find(h) != llvm_symtab.end() ) {
@@ -5567,7 +5579,7 @@ public:
                         case (ASR::ttypeType::Enum) :
                             target_type = llvm::Type::getInt32Ty(context);
                             break;
-                        case (ASR::ttypeType::Derived) :
+                        case (ASR::ttypeType::Struct) :
                             break;
                         case (ASR::ttypeType::CPtr) :
                             target_type = llvm::Type::getVoidTy(context)->getPointerTo();
@@ -5583,7 +5595,7 @@ public:
                         target_type = llvm::Type::getInt32Ty(context);
                     }
                     switch(arg_type->type) {
-                        case ASR::ttypeType::Derived: {
+                        case ASR::ttypeType::Struct: {
                             tmp = value;
                             break;
                         }
