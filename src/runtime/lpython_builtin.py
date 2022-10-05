@@ -850,15 +850,20 @@ def list(s: str) -> list[str]:
 
 def partition(nums: list[f64], l: i32, r: i32) -> i32:
     # Last element will be the pivot and the first element the pointer
-    pivot: f64; ptr: i32; i:i32
-    pivot, ptr = nums[r], l
+    pivot: f64; ptr: i32; i:i32; tmp: f64
+    pivot = nums[r]
+    ptr = l
     for i in range(l, r):
         if nums[i] <= pivot:
             # Swapping values smaller than the pivot to the front
-            nums[i], nums[ptr] = nums[ptr], nums[i]
+            tmp = nums[ptr]
+            nums[ptr] = nums[i]
+            nums[i] = tmp
             ptr += 1
     # Finally swapping the last element with the pointer indexed number
-    nums[ptr], nums[r] = nums[r], nums[ptr]
+    tmp = nums[ptr]
+    nums[ptr] = nums[r]
+    nums[r] = tmp
     return ptr
 
 def quick_sort(nums: list[f64], l:i32, r: i32):
