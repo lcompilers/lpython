@@ -71,8 +71,8 @@ namespace LFortran {
                     n_dims = v_type->n_dims;
                     break;
                 }
-                case ASR::ttypeType::Derived: {
-                    ASR::Derived_t* v_type = ASR::down_cast<ASR::Derived_t>(v->m_type);
+                case ASR::ttypeType::Struct: {
+                    ASR::Struct_t* v_type = ASR::down_cast<ASR::Struct_t>(v->m_type);
                     m_dims = v_type->m_dims;
                     n_dims = v_type->n_dims;
                     break;

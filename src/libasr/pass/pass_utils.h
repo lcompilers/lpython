@@ -71,12 +71,12 @@ namespace LFortran {
         Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop,
                                          int comp=-1);
 
-        template <class Derived>
-        class PassVisitor: public ASR::BaseWalkVisitor<Derived> {
+        template <class Struct>
+        class PassVisitor: public ASR::BaseWalkVisitor<Struct> {
 
             private:
 
-                Derived& self() { return static_cast<Derived&>(*this); }
+                Struct& self() { return static_cast<Struct&>(*this); }
 
             public:
 
@@ -182,19 +182,19 @@ namespace LFortran {
 
         };
 
-        template <class Derived>
-        class SkipOptimizationFunctionVisitor: public PassVisitor<Derived> {
+        template <class Struct>
+        class SkipOptimizationFunctionVisitor: public PassVisitor<Struct> {
 
             public:
 
-                SkipOptimizationFunctionVisitor(Allocator& al_): PassVisitor<Derived>(al_, nullptr) {
+                SkipOptimizationFunctionVisitor(Allocator& al_): PassVisitor<Struct>(al_, nullptr) {
                 }
 
                 void visit_Function(const ASR::Function_t &x) {
                     if( ASRUtils::is_intrinsic_optimization<ASR::Function_t>(&x) ) {
                         return ;
                     }
-                    PassUtils::PassVisitor<Derived>::visit_Function(x);
+                    PassUtils::PassVisitor<Struct>::visit_Function(x);
                 }
 
         };

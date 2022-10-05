@@ -36,16 +36,16 @@ class WASMInstructionsVisitor():
         self.data = data
 
     def visitWASMInstructions(self, mod, *args):
-        self.emit("template <class Derived>", 0)
+        self.emit("template <class Struct>", 0)
         self.emit("class BaseWASMVisitor {", 0)
         self.emit("private:", 0)
-        self.emit(    "Derived& self() { return static_cast<Derived&>(*this); }", 1)
+        self.emit(    "Struct& self() { return static_cast<Struct&>(*this); }", 1)
         self.emit("public:", 0)
         self.emit(    "Vec<uint8_t> &code;", 1)
         self.emit(    "uint32_t offset;\n", 1)
 
         self.emit(    "BaseWASMVisitor(Vec<uint8_t> &code, uint32_t offset): code(code), offset(offset) {}", 1)
-        
+
         for inst in mod["instructions"]:
             self.emit("void visit_%s(%s) {throw LFortran::LCompilersException(\"visit_%s() not implemented\");}\n" % (inst["func"], make_param_list(inst["params"]), inst["func"]), 1)
 
@@ -60,7 +60,7 @@ class WASMInstructionsVisitor():
             self.emit(                "self().visit_%s(%s);" % (inst["func"], make_param_list(inst["params"], call=True)), 5)
             self.emit(                "break;", 5)
             self.emit(            "}", 4)
-        
+
         self.emit(                "case 0xFC: {", 4)
         self.emit(                    "uint32_t num = wasm::read_u32(code, offset);", 5)
         self.emit(                    "switch(num) {", 5)
@@ -77,7 +77,7 @@ class WASMInstructionsVisitor():
         self.emit(                    "}", 5)
         self.emit(                    "break;", 5)
         self.emit(                "}", 4)
-        
+
         self.emit(                "case 0xFD: {", 4)
         self.emit(                    "uint32_t num = wasm::read_u32(code, offset);", 5)
         self.emit(                    "switch(num) {", 5)

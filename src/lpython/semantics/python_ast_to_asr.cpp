@@ -422,8 +422,8 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
 }
 
 
-template <class Derived>
-class CommonVisitor : public AST::BaseVisitor<Derived> {
+template <class Struct>
+class CommonVisitor : public AST::BaseVisitor<Struct> {
 public:
     diag::Diagnostics &diag;
 
@@ -828,8 +828,8 @@ public:
                 } else {
                     ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
                     if( der_sym ) {
-                        if ( ASR::is_a<ASR::DerivedType_t>(*der_sym) ) {
-                            return ASRUtils::TYPE(ASR::make_Derived_t(al, loc, der_sym, dims.p, dims.size()));
+                        if ( ASR::is_a<ASR::StructType_t>(*der_sym) ) {
+                            return ASRUtils::TYPE(ASR::make_Struct_t(al, loc, der_sym, dims.p, dims.size()));
                         } else if( ASR::is_a<ASR::EnumType_t>(*der_sym) ) {
                             return ASRUtils::TYPE(ASR::make_Enum_t(al, loc, der_sym, dims.p, dims.size()));
                         } else if( ASR::is_a<ASR::UnionType_t>(*der_sym) ) {
@@ -968,7 +968,7 @@ public:
                     new_call_arg.loc = args.p[i].loc;
                     new_args.push_back(al, new_call_arg);
                 }
-                return make_call_helper(al, t, current_scope, new_args, new_call_name, loc, ignore_return_value);                    
+                return make_call_helper(al, t, current_scope, new_args, new_call_name, loc, ignore_return_value);
             }
             if (args.size() != func->n_args) {
                 std::string fnd = std::to_string(args.size());
@@ -1023,21 +1023,21 @@ public:
                 return ASR::make_SubroutineCall_t(al, loc, stemp,
                     s_generic, args_new.p, args_new.size(), nullptr);
             }
-        } else if(ASR::is_a<ASR::DerivedType_t>(*s)) {
+        } else if(ASR::is_a<ASR::StructType_t>(*s)) {
             Vec<ASR::expr_t*> args_new;
             args_new.reserve(al, args.size());
             visit_expr_list(args, args.size(), args_new);
-            ASR::DerivedType_t* derivedtype = ASR::down_cast<ASR::DerivedType_t>(s);
-            for( size_t i = 0; i < std::min(args.size(), derivedtype->n_members); i++ ) {
-                std::string member_name = derivedtype->m_members[i];
+            ASR::StructType_t* StructType = ASR::down_cast<ASR::StructType_t>(s);
+            for( size_t i = 0; i < std::min(args.size(), StructType->n_members); i++ ) {
+                std::string member_name = StructType->m_members[i];
                 ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(
-                                                derivedtype->m_symtab->resolve_symbol(member_name));
+                                                StructType->m_symtab->resolve_symbol(member_name));
                 ASR::expr_t* arg_new_i = args_new[i];
                 cast_helper(member_var->m_type, arg_new_i);
                 args_new.p[i] = arg_new_i;
             }
-            ASR::ttype_t* der_type = ASRUtils::TYPE(ASR::make_Derived_t(al, loc, s, nullptr, 0));
-            return ASR::make_DerivedTypeConstructor_t(al, loc, s, args_new.p, args_new.size(), der_type, nullptr);
+            ASR::ttype_t* der_type = ASRUtils::TYPE(ASR::make_Struct_t(al, loc, s, nullptr, 0));
+            return ASR::make_StructTypeConstructor_t(al, loc, s, args_new.p, args_new.size(), der_type, nullptr);
         } else if( ASR::is_a<ASR::EnumType_t>(*s) ) {
             Vec<ASR::expr_t*> args_new;
             args_new.reserve(al, args.size());
@@ -1892,7 +1892,7 @@ public:
         ASR::ttype_t *type = ast_expr_to_asr_type(x.base.base.loc, *x.m_annotation);
         ASR::ttype_t* ann_assign_target_type_copy = ann_assign_target_type;
         ann_assign_target_type = type;
-        if( ASR::is_a<ASR::Derived_t>(*type) &&
+        if( ASR::is_a<ASR::Struct_t>(*type) &&
             wrap_derived_type_in_pointer ) {
             type = ASRUtils::TYPE(ASR::make_Pointer_t(al, type->base.loc, type));
         }
@@ -2107,7 +2107,7 @@ public:
         Vec<char*> member_names;
         member_names.reserve(al, x.n_body);
         visit_ClassMembers(x, member_names);
-        ASR::symbol_t* class_type = ASR::down_cast<ASR::symbol_t>(ASR::make_DerivedType_t(al,
+        ASR::symbol_t* class_type = ASR::down_cast<ASR::symbol_t>(ASR::make_StructType_t(al,
                                         x.base.base.loc, current_scope, x.m_name,
                                         member_names.p, member_names.size(),
                                         ASR::abiType::Source, ASR::accessType::Public,
@@ -3847,10 +3847,10 @@ public:
 
     void visit_AttributeUtil(ASR::ttype_t* type, char* attr_char,
                              ASR::expr_t *e, const Location& loc) {
-        if( ASR::is_a<ASR::Derived_t>(*type) ) {
-            ASR::Derived_t* der = ASR::down_cast<ASR::Derived_t>(type);
+        if( ASR::is_a<ASR::Struct_t>(*type) ) {
+            ASR::Struct_t* der = ASR::down_cast<ASR::Struct_t>(type);
             ASR::symbol_t* der_sym = ASRUtils::symbol_get_past_external(der->m_derived_type);
-            ASR::DerivedType_t* der_type = ASR::down_cast<ASR::DerivedType_t>(der_sym);
+            ASR::StructType_t* der_type = ASR::down_cast<ASR::StructType_t>(der_sym);
             bool member_found = false;
             std::string member_name = attr_char;
             for( size_t i = 0; i < der_type->n_members && !member_found; i++ ) {
@@ -3864,8 +3864,18 @@ public:
             ASR::symbol_t* member_sym = der_type->m_symtab->resolve_symbol(member_name);
             LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member_sym));
             ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member_sym);
-            tmp = ASR::make_DerivedRef_t(al, loc, e, member_sym,
+            tmp = ASR::make_StructInstanceMember_t(al, loc, e, member_sym,
                                          member_var->m_type, nullptr);
+        } else if(ASR::is_a<ASR::Enum_t>(*type)) {
+             if( std::string(attr_char) == "value" ) {
+                 ASR::Enum_t* enum_ = ASR::down_cast<ASR::Enum_t>(type);
+                 ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_->m_enum_type);
+                 tmp = ASR::make_EnumValue_t(al, loc, e, type, enum_type->m_type, nullptr);
+             } else if( std::string(attr_char) == "name" ) {
+                 ASR::ttype_t* char_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, -2,
+                                             nullptr, nullptr, 0));
+                 tmp = ASR::make_EnumName_t(al, loc, e, type, char_type, nullptr);
+             }
         } else if (ASRUtils::is_complex(*type)) {
             std::string attr = attr_char;
             int kind = ASRUtils::extract_kind_from_ttype_t(type);
@@ -3916,10 +3926,10 @@ public:
                 throw SemanticError("'" + attr + "' is not implemented for Complex type",
                     loc);
             }
-        } else if( ASR::is_a<ASR::Derived_t>(*type) ) {
-            ASR::Derived_t* der = ASR::down_cast<ASR::Derived_t>(type);
+        } else if( ASR::is_a<ASR::Struct_t>(*type) ) {
+            ASR::Struct_t* der = ASR::down_cast<ASR::Struct_t>(type);
             ASR::symbol_t* der_sym = ASRUtils::symbol_get_past_external(der->m_derived_type);
-            ASR::DerivedType_t* der_type = ASR::down_cast<ASR::DerivedType_t>(der_sym);
+            ASR::StructType_t* der_type = ASR::down_cast<ASR::StructType_t>(der_sym);
             bool member_found = false;
             std::string member_name = attr_char;
             for( size_t i = 0; i < der_type->n_members && !member_found; i++ ) {
@@ -3934,7 +3944,7 @@ public:
             ASR::symbol_t* member_sym = der_type->m_symtab->resolve_symbol(member_name);
             LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member_sym));
             ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member_sym);
-            tmp = ASR::make_DerivedRef_t(al, loc, val, member_sym,
+            tmp = ASR::make_StructInstanceMember_t(al, loc, val, member_sym,
                                             member_var->m_type, nullptr);
         } else if (ASR::is_a<ASR::Enum_t>(*type)) {
             ASR::Enum_t* enum_ = ASR::down_cast<ASR::Enum_t>(type);
@@ -3944,12 +3954,21 @@ public:
                 throw SemanticError(attr_name + " property not yet supported with Enums. "
                     "Only value and name properties are supported for now.", loc);
             }
+            ASR::Variable_t* t_var = ASR::down_cast<ASR::Variable_t>(t);
+            ASR::expr_t* t_mem = nullptr;
+            if( enum_type->m_symtab->get_symbol(std::string(t_var->m_name)) == t ) {
+                ASR::expr_t* enum_type_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, enum_->m_enum_type));
+                t_mem = ASRUtils::EXPR(ASR::make_EnumMember_t(al, loc, enum_type_var, t,
+                                        enum_type->m_type, ASRUtils::expr_value(t_var->m_symbolic_value)));
+            } else {
+                t_mem = ASRUtils::EXPR(ASR::make_Var_t(al, loc, t));
+            }
             if( attr_name == "value" ) {
-                tmp = ASR::make_EnumValue_t(al, loc, t, enum_type->m_type, nullptr);
+                tmp = ASR::make_EnumValue_t(al, loc, t_mem, type, enum_type->m_type, nullptr);
             } else if( attr_name == "name" ) {
                 ASR::ttype_t* char_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc, 1, -2,
                                             nullptr, nullptr, 0));
-                tmp = ASR::make_EnumName_t(al, loc, t, char_type, nullptr);
+                tmp = ASR::make_EnumName_t(al, loc, t_mem, type, char_type, nullptr);
             }
         } else if (ASR::is_a<ASR::Union_t>(*type)) {
             ASR::Union_t* union_asr = ASR::down_cast<ASR::Union_t>(type);
@@ -4029,8 +4048,14 @@ public:
                                         x.base.base.loc);
                 }
                 ASR::Variable_t* enum_member_variable = ASR::down_cast<ASR::Variable_t>(enum_member);
-                tmp = ASR::make_EnumValue_t(al, x.base.base.loc, enum_member,
-                        enum_member_variable->m_type, ASRUtils::expr_value(enum_member_variable->m_symbolic_value));
+                ASR::expr_t* enum_type_var = ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc, t));
+                ASR::expr_t* enum_member_var = ASRUtils::EXPR(ASR::make_EnumMember_t(al, x.base.base.loc, enum_type_var,
+                                                    enum_member, enum_type->m_type,
+                                                    ASRUtils::expr_value(enum_member_variable->m_symbolic_value)));
+                ASR::ttype_t* enum_t = ASRUtils::TYPE(ASR::make_Enum_t(al, x.base.base.loc, t, nullptr, 0));
+                tmp = ASR::make_EnumValue_t(al, x.base.base.loc, enum_member_var,
+                        enum_t, enum_member_variable->m_type,
+                        ASRUtils::expr_value(enum_member_variable->m_symbolic_value));
             } else {
                 throw SemanticError("Only Variable type is supported for now in Attribute",
                     x.base.base.loc);
@@ -4049,22 +4074,25 @@ public:
                                         x.base.base.loc);
                 }
                 ASR::EnumValue_t* enum_ref = ASR::down_cast<ASR::EnumValue_t>(e);
-                ASR::ttype_t* enum_ref_type = nullptr;
-                ASR::expr_t* enum_ref_value = nullptr;
-                ASR::Variable_t* enum_m_var = ASR::down_cast<ASR::Variable_t>(enum_ref->m_v);
                 if( enum_property == "value" ) {
-                    enum_ref_type = enum_ref->m_type;
-                    enum_ref_value = enum_m_var->m_symbolic_value;
+                    ASR::expr_t* enum_ref_value = ASRUtils::expr_value(enum_ref->m_v);
                     tmp = ASR::make_EnumValue_t(al, x.base.base.loc, enum_ref->m_v,
-                                enum_ref_type, ASRUtils::expr_value(enum_ref_value));
+                                enum_ref->m_enum_type, enum_ref->m_type,
+                                enum_ref_value);
                 } else if( enum_property == "name" ) {
-                    char *s = enum_m_var->m_name;
-                    size_t s_size = std::string(s).size();
-                    enum_ref_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                            1, s_size, nullptr, nullptr, 0));
-                    enum_ref_value = ASRUtils::EXPR(ASR::make_StringConstant_t(al, x.base.base.loc,
-                                        s, enum_ref_type));
-                    tmp = ASR::make_EnumName_t(al, x.base.base.loc, enum_ref->m_v,
+                    ASR::expr_t* enum_ref_value = nullptr;
+                    ASR::ttype_t* enum_ref_type = enum_ref->m_type;
+                    if( ASR::is_a<ASR::EnumMember_t>(*enum_ref->m_v) ) {
+                        ASR::EnumMember_t* enum_Var = ASR::down_cast<ASR::EnumMember_t>(enum_ref->m_v);
+                        ASR::Variable_t* enum_m_var = ASR::down_cast<ASR::Variable_t>(enum_Var->m_m);
+                        char *s = enum_m_var->m_name;
+                        size_t s_size = std::string(s).size();
+                        enum_ref_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
+                                1, s_size, nullptr, nullptr, 0));
+                        enum_ref_value = ASRUtils::EXPR(ASR::make_StringConstant_t(al, x.base.base.loc,
+                                            s, enum_ref_type));
+                    }
+                    tmp = ASR::make_EnumName_t(al, x.base.base.loc, enum_ref->m_v, enum_ref->m_enum_type,
                                  enum_ref_type, enum_ref_value);
                 }
             } else {

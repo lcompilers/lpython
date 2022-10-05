@@ -351,11 +351,11 @@ class CCPPList {
         }
 };
 
-template <class Derived>
-class BaseCCPPVisitor : public ASR::BaseVisitor<Derived>
+template <class Struct>
+class BaseCCPPVisitor : public ASR::BaseVisitor<Struct>
 {
 private:
-    Derived& self() { return static_cast<Derived&>(*this); }
+    Struct& self() { return static_cast<Struct&>(*this); }
 public:
     diag::Diagnostics &diag;
     Platform platform;
@@ -856,8 +856,8 @@ R"(#include <stdio.h>
         } else if (ASR::is_a<ASR::ArrayItem_t>(*x.m_target)) {
             self().visit_ArrayItem(*ASR::down_cast<ASR::ArrayItem_t>(x.m_target));
             target = src;
-        } else if (ASR::is_a<ASR::DerivedRef_t>(*x.m_target)) {
-            visit_DerivedRef(*ASR::down_cast<ASR::DerivedRef_t>(x.m_target));
+        } else if (ASR::is_a<ASR::StructInstanceMember_t>(*x.m_target)) {
+            visit_StructInstanceMember(*ASR::down_cast<ASR::StructInstanceMember_t>(x.m_target));
             target = src;
         } else if (ASR::is_a<ASR::UnionRef_t>(*x.m_target)) {
             visit_UnionRef(*ASR::down_cast<ASR::UnionRef_t>(x.m_target));
@@ -878,7 +878,7 @@ R"(#include <stdio.h>
         ASR::ttype_t* target_type = ASRUtils::expr_type(x.m_target);
         if( ASR::is_a<ASR::UnionRef_t>(*x.m_target) &&
             ASR::is_a<ASR::Pointer_t>(*target_type) &&
-            ASR::is_a<ASR::Derived_t>(*ASRUtils::get_contained_type(target_type)) ) {
+            ASR::is_a<ASR::Struct_t>(*ASRUtils::get_contained_type(target_type)) ) {
             value = "*" + value;
         }
         std::string indent(indentation_level*indentation_spaces, ' ');
@@ -1071,7 +1071,7 @@ R"(#include <stdio.h>
         last_expr_precedence = 2;
     }
 
-    void visit_DerivedRef(const ASR::DerivedRef_t& x) {
+    void visit_StructInstanceMember(const ASR::StructInstanceMember_t& x) {
         std::string der_expr, member;
         this->visit_expr(*x.m_v);
         der_expr = std::move(src);
@@ -1394,8 +1394,8 @@ R"(#include <stdio.h>
                 type_src = "void*";
                 break;
             }
-            case ASR::ttypeType::Derived: {
-                ASR::Derived_t* der_type = ASR::down_cast<ASR::Derived_t>(t);
+            case ASR::ttypeType::Struct: {
+                ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(t);
                 type_src = std::string("struct ") + ASRUtils::symbol_name(der_type->m_derived_type);
                 break;
             }
@@ -1411,7 +1411,7 @@ R"(#include <stdio.h>
         std::string arg_src = std::move(src);
         std::string addr_prefix = "&";
         if( ASRUtils::is_array(ASRUtils::expr_type(x.m_arg)) ||
-            ASR::is_a<ASR::Derived_t>(*ASRUtils::expr_type(x.m_arg)) ) {
+            ASR::is_a<ASR::Struct_t>(*ASRUtils::expr_type(x.m_arg)) ) {
             addr_prefix.clear();
         }
         src = addr_prefix + arg_src;
@@ -1801,7 +1801,7 @@ R"(#include <stdio.h>
             } else {
                 self().visit_expr(*x.m_args[i].m_value);
                 if( ASR::is_a<ASR::ArrayItem_t>(*x.m_args[i].m_value) &&
-                    ASR::is_a<ASR::Derived_t>(*ASRUtils::expr_type(x.m_args[i].m_value)) ) {
+                    ASR::is_a<ASR::Struct_t>(*ASRUtils::expr_type(x.m_args[i].m_value)) ) {
                     out += "&" + src;
                 } else {
                     out += src;
