@@ -91,6 +91,7 @@ class CCPPList {
 
         std::map<std::string, std::pair<std::string, std::string>> typecode2listtype;
         std::map<std::string, std::map<std::string, std::string>> typecode2listfuncs;
+        std::map<std::string, std::string> compare_list_eles;
 
         int indentation_level, indentation_spaces;
 
@@ -135,6 +136,7 @@ class CCPPList {
             list_func_decls += indent + tab + "int32_t current_end_point;\n";
             list_func_decls += indent + tab + list_element_type + "* data;\n";
             list_func_decls += indent + "};\n\n";
+            generate_compare_list_element(list_type->m_type);
             list_init(list_struct_type, list_type_code, list_element_type);
             list_deepcopy(list_struct_type, list_type_code, list_element_type);
             resize_if_needed(list_struct_type, list_type_code, list_element_type);
@@ -190,6 +192,44 @@ class CCPPList {
 
         std::string get_list_func_decls() {
             return list_func_decls;
+        }
+
+        void generate_compare_list_element(ASR::ttype_t *t) {
+            std::string type_code = ASRUtils::get_type_code(t, true);
+            std::string list_element_type = typecode2listtype[type_code].second;
+            if (compare_list_eles.find(type_code) != compare_list_eles.end()) {
+                return;
+            }
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string cmp_func = global_scope->get_unique_name("compare_" + type_code);
+            compare_list_eles[type_code] = cmp_func;
+            std::string tmp_gen = "";
+            if (ASR::is_a<ASR::List_t>(*t)) {
+                std::string signature = "bool " + cmp_func + "(" + list_element_type + " a, " + list_element_type+ " b)";
+                list_func_decls += indent + "inline " + signature + ";\n";
+                signature = indent + signature;
+                tmp_gen += indent + signature + " {\n";
+                ASR::ttype_t *tt = ASR::down_cast<ASR::List_t>(t)->m_type;
+                generate_compare_list_element(tt);
+                std::string ele_func = compare_list_eles[ASRUtils::get_type_code(tt, true)];
+                tmp_gen += indent + tab + "if (a.current_end_point != b.current_end_point)\n";
+                tmp_gen += indent + tab + tab + "return false;\n";
+                tmp_gen += indent + tab + "for (int i=0; i<a.current_end_point; i++) {\n";
+                tmp_gen += indent + tab + tab + "if (!" + ele_func + "(a.data[i], b.data[i]))\n";
+                tmp_gen += indent + tab + tab + tab + "return false;\n";
+                tmp_gen += indent + tab + "}\n";
+                tmp_gen += indent + tab + "return true;\n";
+
+            } else {
+                std::string signature = "bool " + cmp_func + "(" + list_element_type + " a, " + list_element_type + " b)";
+                list_func_decls += indent + "inline " + signature + ";\n";
+                signature = indent + signature;
+                tmp_gen += indent + signature + " {\n";
+                tmp_gen += indent + tab + "return a == b;\n";
+            }
+            tmp_gen += indent + "}\n\n";
+            generated_code += tmp_gen;
         }
 
         void list_init(std::string list_struct_type,
@@ -335,11 +375,12 @@ class CCPPList {
             std::string signature = "int " + list_find_item_pos_func + "("
                                 + list_struct_type + "* x, "
                                 + list_element_type + " element)";
+            std::string cmp_func = compare_list_eles[list_type_code];
             list_func_decls += "inline " + signature + ";\n";
             generated_code += indent + signature + " {\n";
             generated_code += indent + tab + "int el_pos = 0;\n";
             generated_code += indent + tab + "while (x->current_end_point > el_pos) {\n";
-            generated_code += indent + tab + tab + "if (x->data[el_pos] == element) return el_pos;\n";
+            generated_code += indent + tab + tab + "if (" + cmp_func + "(x->data[el_pos], element)) return el_pos;\n";
             generated_code += indent + tab + tab + "el_pos++;\n";
             generated_code += indent + tab + "}\n";
             generated_code += indent + tab + "return -1;\n";
@@ -373,6 +414,7 @@ class CCPPList {
         ~CCPPList() {
             typecode2listtype.clear();
             generated_code.clear();
+            compare_list_eles.clear();
         }
 };
 
