@@ -1,0 +1,24 @@
+# NOTE: use this conda environment file if you want to use compilers from
+# the conda environment.
+name: lp
+channels:
+  - nodefaults
+  - conda-forge
+dependencies:
+  - bison=3.4
+  - c-compiler
+  - cxx-compiler
+  - gcc >=11.0  # force the pinning
+  - gxx >=11.0  # force the pinning
+  - cmake
+  - flake8
+  - llvmdev 11.0.1
+  - make
+  - nodejs
+  - numpy
+  - pip
+  - python 3.10.2
+  - re2c
+  - setuptools
+  - toml
+  - zlib

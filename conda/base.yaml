@@ -1,3 +1,5 @@
+# NOTE: use this conda environment file if you want to use compilers from
+# the system operation
 name: lp
 channels:
   - conda-forge
