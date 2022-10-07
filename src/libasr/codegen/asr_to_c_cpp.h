@@ -326,7 +326,14 @@ class CCPPList {
             if( ASR::is_a<ASR::Character_t>(*m_type) ) {
                 generated_code += indent + tab + "x->data[x->current_end_point] = (char*) malloc(40 * sizeof(char));\n";
             }
-            generated_code += indent + tab + deepcopy_function("x->data[x->current_end_point]", "element", m_type) + "\n";
+            if (ASR::is_a<ASR::List_t>(*m_type)) {
+                ASR::ttype_t *tt = ASR::down_cast<ASR::List_t>(m_type)->m_type;
+                std::string deep_copy_func = typecode2listfuncs[ASRUtils::get_type_code(tt, true)]["list_deepcopy"];
+                assert(deep_copy_func.size());
+                generated_code += indent + tab + deep_copy_func + "(&element, &x->data[x->current_end_point]);\n";
+            } else {
+                generated_code += indent + tab + deepcopy_function("x->data[x->current_end_point]", "element", m_type) + "\n";
+            }
             generated_code += indent + tab + "x->current_end_point += 1;\n";
             generated_code += indent + "}\n\n";
         }
