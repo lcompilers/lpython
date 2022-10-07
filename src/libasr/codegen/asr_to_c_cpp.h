@@ -138,7 +138,7 @@ class CCPPList {
             list_func_decls += indent + "};\n\n";
             generate_compare_list_element(list_type->m_type);
             list_init(list_struct_type, list_type_code, list_element_type);
-            list_deepcopy(list_struct_type, list_type_code, list_element_type);
+            list_deepcopy(list_struct_type, list_type_code, list_element_type, list_type->m_type);
             resize_if_needed(list_struct_type, list_type_code, list_element_type);
             list_append(list_struct_type, list_type_code, list_element_type, list_type->m_type);
             list_insert(list_struct_type, list_type_code, list_element_type, list_type->m_type);
@@ -271,7 +271,7 @@ class CCPPList {
 
         void list_deepcopy(std::string list_struct_type,
             std::string list_type_code,
-            std::string list_element_type) {
+            std::string list_element_type, ASR::ttype_t *m_type) {
             std::string indent(indentation_level * indentation_spaces, ' ');
             std::string tab(indentation_spaces, ' ');
             std::string list_dc_func = global_scope->get_unique_name("list_deepcopy_" + list_type_code);
@@ -287,6 +287,13 @@ class CCPPList {
                               "malloc(src->capacity * sizeof(" + list_element_type + "));\n";
             generated_code += indent + tab + "memcpy(dest->data, src->data, " +
                                 "src->capacity * sizeof(" + list_element_type + "));\n";
+            if (ASR::is_a<ASR::List_t>(*m_type)) {
+                ASR::ttype_t *tt = ASR::down_cast<ASR::List_t>(m_type)->m_type;
+                std::string deep_copy_func = typecode2listfuncs[ASRUtils::get_type_code(tt, true)]["list_deepcopy"];
+                assert(deep_copy_func.size() > 0);
+                generated_code += indent + tab + "for(int i=0; i<src->current_end_point; i++)\n";
+                generated_code += indent + tab + tab + deep_copy_func + "(&src->data[i], &dest->data[i]);\n";
+            }
             generated_code += indent + "}\n\n";
         }
 
@@ -329,7 +336,7 @@ class CCPPList {
             if (ASR::is_a<ASR::List_t>(*m_type)) {
                 ASR::ttype_t *tt = ASR::down_cast<ASR::List_t>(m_type)->m_type;
                 std::string deep_copy_func = typecode2listfuncs[ASRUtils::get_type_code(tt, true)]["list_deepcopy"];
-                assert(deep_copy_func.size());
+                assert(deep_copy_func.size() > 0);
                 generated_code += indent + tab + deep_copy_func + "(&element, &x->data[x->current_end_point]);\n";
             } else {
                 generated_code += indent + tab + deepcopy_function("x->data[x->current_end_point]", "element", m_type) + "\n";
