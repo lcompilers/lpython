@@ -3,6 +3,8 @@
 set -e
 set -x
 
+WITH_STACKTRACE=yes
+
 if [[ -n "${CC}" ]]; then
   CC=$(which "${CC}")
 fi
@@ -22,6 +24,8 @@ if [[ -n "${CONDA_PREFIX}" ]] && [[ "$(echo ${CC} | grep -m 1 -c ${CONDA_PREFIX}
     EXTRA_FLAGS="${EXTRA_FLAGS} -I${GCC_INCLUDE_PATH}"
     EXTRA_FLAGS="${EXTRA_FLAGS} -I${GCC_ARCH_INCLUDE_PATH}/"
 
+    WITH_STACKTRACE=no
+
     export CFLAGS="${CFLAGS} ${EXTRA_FLAGS}"
     export CXXFLAGS="${CXXFLAGS} ${EXTRA_FLAGS}"
 fi
@@ -30,7 +34,7 @@ cmake \
     -DCMAKE_BUILD_TYPE=Debug \
     -DWITH_LLVM=yes \
     -DLPYTHON_BUILD_ALL=yes \
-    -DWITH_STACKTRACE=yes \
+    -DWITH_STACKTRACE="${WITH_STACKTRACE}" \
     -DWITH_LSP=no \
     -DWITH_LFORTRAN_BINARY_MODFILES=no \
     -DCMAKE_PREFIX_PATH="$CMAKE_PREFIX_PATH_LPYTHON;$CONDA_PREFIX" \

@@ -30,12 +30,12 @@ jobs:
         with:
           path: ~/conda_pkgs_dir
           key:
-            ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('ci/environment.yml') }}
+            ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('conda/ci.yaml') }}
 
       - uses: conda-incubator/setup-miniconda@v2
         with:
           auto-update-conda: true
-          environment-file: ci/environment.yml
+          environment-file: conda/ci.yaml
           python-version: ${{ matrix.python-version }}
           use-only-tar-bz2: true
 
@@ -119,7 +119,7 @@ jobs:
 
       - uses: mamba-org/provision-with-micromamba@main
         with:
-          environment-file: ci/environment.yml
+          environment-file: conda/ci.yaml
           extra-specs: |
             python=3.10
             bison=3.4

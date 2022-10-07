@@ -8,8 +8,6 @@ dependencies:
   - bison=3.4
   - c-compiler
   - cxx-compiler
-  - gcc >=11.0  # force the pinning
-  - gxx >=11.0  # force the pinning
   - cmake
   - flake8
   - llvmdev 11.0.1
