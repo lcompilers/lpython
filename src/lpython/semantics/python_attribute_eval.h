@@ -18,6 +18,7 @@ struct AttributeHandler {
 
     AttributeHandler() {
         attribute_map = {
+            {"int@to_bytes", &eval_int_to_bytes},
             {"int@bit_length", &eval_int_bit_length},
             {"list@append", &eval_list_append},
             {"list@remove", &eval_list_remove},
@@ -72,6 +73,17 @@ struct AttributeHandler {
         ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
                                         int_kind, nullptr, 0));
         return ASR::make_IntegerBitLen_t(al, loc, s, int_type, nullptr);
+    }
+
+    static ASR::asr_t* eval_int_to_bytes(ASR::expr_t *s, Allocator &al, const Location &loc,
+            Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
+        if (args.size() != 0) {
+            throw SemanticError("int.bit_length() takes no arguments", loc);
+        }
+        int int_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(s));
+        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
+                                        int_kind, nullptr, 0));
+        return ASR::make_IntegerToBytes_t(al, loc, s, int_type, nullptr);
     }
 
     static ASR::asr_t* eval_list_append(ASR::expr_t *s, Allocator &al, const Location &loc,

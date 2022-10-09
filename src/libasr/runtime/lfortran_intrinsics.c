@@ -737,6 +737,11 @@ LFORTRAN_API int32_t _lpython_bit_length8(int64_t num)
     return res;
 }
 
+LFORTRAN_API int32_t _lpython_to_bytes(int32_t num)
+{
+    return num;
+}
+
 //repeat str for n time
 LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
 {

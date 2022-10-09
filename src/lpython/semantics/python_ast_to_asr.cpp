@@ -4856,6 +4856,13 @@ public:
                         4, nullptr, 0));
                     tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, res, int_type);
                     return;
+                } else if (std::string(at->m_attr) == std::string("to_bytes")) {
+                    AST::ConstantInt_t *n = AST::down_cast<AST::ConstantInt_t>(at->m_value);
+                    int64_t int_val = std::abs(n->m_value);
+                    ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
+                        4, nullptr, 0));
+                    tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, int_val, int_type);
+                    return;
                 } else {
                     throw SemanticError("'int' object has no attribute '" + std::string(at->m_attr) + "'",
                         x.base.base.loc);
