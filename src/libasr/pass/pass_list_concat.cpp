@@ -261,14 +261,14 @@ public:
                     right_list: list[i32]) -> list[i32]:
                 result_list: list[i32]
                 result_list = []
-                1_k: i32 = 0
-                while len(left_list) > 1_k:
-                    result_list.append(left_list[1_k])
-                    1_k += 1
-                1_k = 0
-                while len(right_list) > 1_k:
-                    result_list.append(right_list[1_k])
-                    1_k += 1
+                __1_k: i32 = 0
+                while len(left_list) > __1_k:
+                    result_list.append(left_list[__1_k])
+                    __1_k += 1
+                __1_k = 0
+                while len(right_list) > __1_k:
+                    result_list.append(right_list[__1_k])
+                    __1_k += 1
                 return result_list
         */
         SymbolTable* list_concat_symtab = al.make_new<SymbolTable>(global_scope);
@@ -280,31 +280,12 @@ public:
         Vec<ASR::stmt_t*> body;
         body.reserve(al, 4);
 
-        // Declare `left_list`
+        // Declare `left_list` and `right_list`
+        create_args("left_list", list_type, list_concat_symtab)
+        create_args("right_list", list_type, list_concat_symtab)
+
+        // Declare `result_list`
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(
-            ASR::make_Variable_t(al, loc, list_concat_symtab,
-            s2c(al, "left_list"), ASR::intentType::In, nullptr, nullptr,
-            ASR::storage_typeType::Default, list_type,
-            ASR::abiType::Source, ASR::accessType::Public,
-            ASR::presenceType::Required, false));
-        ASR::expr_t* arg_expr = ASRUtils::EXPR(
-            ASR::make_Var_t(al, loc, arg));
-        arg_exprs.push_back(al, arg_expr);
-        list_concat_symtab->add_symbol("left_list", arg);
-
-        // Declare `right_list`
-        arg = ASR::down_cast<ASR::symbol_t>(
-            ASR::make_Variable_t(al, loc, list_concat_symtab,
-            s2c(al, "right_list"), ASR::intentType::In, nullptr, nullptr,
-            ASR::storage_typeType::Default, list_type,
-            ASR::abiType::Source, ASR::accessType::Public,
-            ASR::presenceType::Required, false));
-        arg_expr = ASRUtils::EXPR(ASR::make_Var_t(al, loc, arg));
-        arg_exprs.push_back(al, arg_expr);
-        list_concat_symtab->add_symbol("right_list", arg);
-
-        // Declare `right_list`
-        arg = ASR::down_cast<ASR::symbol_t>(
             ASR::make_Variable_t(al, loc, list_concat_symtab,
             s2c(al, "result_list"), ASR::intentType::Local, nullptr, nullptr,
             ASR::storage_typeType::Default, list_type,
