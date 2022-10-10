@@ -1,0 +1,13 @@
+{
+    "basename": "asr-assign2-8d1a2ee",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/assign2.py",
+    "infile_hash": "29a0112ddad4d12c7dc66c21cc5d668f1d700bc79158ca6792dd240a",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-assign2-8d1a2ee.stdout",
+    "stdout_hash": "aee9fc40178cade8234390602acf5453fd24b1820567aadb1c2fbfb2",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

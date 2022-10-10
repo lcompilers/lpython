@@ -1,0 +1,9 @@
+semantic error: Restriction mismatch with provided arguments
+  --> tests/errors/generics_error_03.py:20:1 - 21:16
+   |
+20 |    def add_string(x: i32, y: i32) -> i32:
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^...
+...
+   |
+21 |        return x + y
+   | ...^^^^^^^^^^^^^^^^ 

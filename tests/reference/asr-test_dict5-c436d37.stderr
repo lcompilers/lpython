@@ -1,0 +1,5 @@
+semantic error: Type mismatch in assignment, the types must be compatible
+ --> tests/errors/test_dict5.py:3:5
+  |
+3 |     d = {1: "a", 2: "b"}
+  |     ^   ^^^^^^^^^^^^^^^^ type mismatch ('dict[i32, i32]' and 'dict[i32, str]')

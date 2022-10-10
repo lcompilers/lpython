@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_assign5-694a98f",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_assign5.py",
+    "infile_hash": "41144111ae3dad56feed42b1b148334a8faef310fbbabde10f3af8df",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_assign5-694a98f.stderr",
+    "stderr_hash": "172b2f13e9b7670cbdd718452713fb15ed4bcd19f6193d328e459fbe",
+    "returncode": 2
+}
