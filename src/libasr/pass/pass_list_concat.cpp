@@ -303,64 +303,22 @@ public:
         body.push_back(al, list_concat_stmt);
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(
             al, loc, 4, nullptr, 0));
-        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(
-            al, loc, 4, nullptr, 0));
         ASR::ttype_t* item_type = ASR::down_cast<ASR::List_t>(list_type)->m_type;
 
-        // Declare `1_k` for iterations and assign `0`
-        Vec<ASR::expr_t*> idx_vars;
-        PassUtils::create_idx_vars(idx_vars, 1, loc, al, list_concat_symtab);
-        list_concat_stmt = ASRUtils::STMT(ASR::make_Assignment_t(
-            al, loc, idx_vars[0], ASRUtils::EXPR(make_IntegerConstant_t(
-                al, loc, 0, int_type)), nullptr));
-        body.push_back(al, list_concat_stmt);
-
+        // Declare `__1_k` for iterations and assign `0`
         // Copy `left_list` contents
-        ASR::expr_t* loop_test = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
-            al, loc, ASRUtils::EXPR(ASR::make_ListLen_t(
-                al, loc, arg_exprs[0], int_type, nullptr)
-            ), ASR::cmpopType::Gt, idx_vars[0], bool_type, nullptr));
-        Vec<ASR::stmt_t*> loop_body;
-        loop_body.reserve(al, 2);
-        list_concat_stmt = ASRUtils::STMT(ASR::make_ListAppend_t(
-            al, loc, res_list, ASRUtils::EXPR(ASR::make_ListItem_t(
-                al, loc, arg_exprs[0], idx_vars[0], item_type, nullptr))));
-        loop_body.push_back(al, list_concat_stmt);
-        list_concat_stmt = ASRUtils::STMT(ASR::make_Assignment_t(
-            al, loc, idx_vars[0], ASRUtils::EXPR(ASR::make_IntegerBinOp_t(
-                al, loc, idx_vars[0], ASR::binopType::Add, ASRUtils::EXPR(
-                    make_IntegerConstant_t(al, loc, 1, int_type)),
-                int_type, nullptr)), nullptr));
-        loop_body.push_back(al, list_concat_stmt);
-        list_concat_stmt = ASRUtils::STMT(ASR::make_WhileLoop_t(
-            al, loc, loop_test, loop_body.p, loop_body.n));
-        body.push_back(al, list_concat_stmt);
-
-        list_concat_stmt = ASRUtils::STMT(ASR::make_Assignment_t(
-            al, loc, idx_vars[0], ASRUtils::EXPR(make_IntegerConstant_t(
-                al, loc, 0, int_type)), nullptr));
-        body.push_back(al, list_concat_stmt);
+        create_while_loop(loc, list_concat_symtab, arg_exprs[0], ASRUtils::EXPR(
+            make_IntegerConstant_t(al, loc, 0, int_type)), ASRUtils::EXPR(
+                ASR::make_ListLen_t(al, loc, arg_exprs[0], int_type, nullptr)
+            ), ASRUtils::EXPR(make_IntegerConstant_t(al, loc, 1, int_type)),
+            res_list, body, item_type);
 
         // Copy `right_list` contents
-        loop_test = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
-            al, loc, ASRUtils::EXPR(ASR::make_ListLen_t(
-                al, loc, arg_exprs[1], int_type, nullptr)
-            ), ASR::cmpopType::Gt, idx_vars[0], bool_type, nullptr));
-        loop_body.p = nullptr, loop_body.n = 0;
-        loop_body.reserve(al, 2);
-        list_concat_stmt = ASRUtils::STMT(ASR::make_ListAppend_t(
-            al, loc, res_list, ASRUtils::EXPR(ASR::make_ListItem_t(
-                al, loc, arg_exprs[1], idx_vars[0], item_type, nullptr))));
-        loop_body.push_back(al, list_concat_stmt);
-        list_concat_stmt = ASRUtils::STMT(ASR::make_Assignment_t(
-            al, loc, idx_vars[0], ASRUtils::EXPR(ASR::make_IntegerBinOp_t(
-                al, loc, idx_vars[0], ASR::binopType::Add, ASRUtils::EXPR(
-                    make_IntegerConstant_t(al, loc, 1, int_type)),
-                int_type, nullptr)), nullptr));
-        loop_body.push_back(al, list_concat_stmt);
-        list_concat_stmt = ASRUtils::STMT(ASR::make_WhileLoop_t(
-            al, loc, loop_test, loop_body.p, loop_body.n));
-        body.push_back(al, list_concat_stmt);
+        create_while_loop(loc, list_concat_symtab, arg_exprs[1], ASRUtils::EXPR(
+            make_IntegerConstant_t(al, loc, 0, int_type)), ASRUtils::EXPR(
+                ASR::make_ListLen_t(al, loc, arg_exprs[1], int_type, nullptr)
+            ), ASRUtils::EXPR(make_IntegerConstant_t(al, loc, 1, int_type)),
+            res_list, body, item_type);
 
         // Return
         list_concat_stmt = ASRUtils::STMT(ASR::make_Return_t(al, loc));
