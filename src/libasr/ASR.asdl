@@ -304,6 +304,7 @@ expr
     | DictPop(expr a, expr key, ttype type, expr? value)
     | SetPop(expr a, ttype type, expr? value)
     | IntegerBitLen(expr a, ttype type, expr? value)
+    | Ichar(expr arg, ttype type, expr? value)
 
 
 -- `len` in Character:
@@ -341,7 +342,11 @@ ttype
     | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
     | CPtr()
-    | TypeParameter(identifier param, dimension* dims)
+    | TypeParameter(identifier param, dimension* dims, restriction* rt)
+
+restriction = Restriction(trait rt)
+
+trait = SupportsZero | SupportsPlus | Divisible | Any
 
 restriction_arg = RestrictionArg(identifier restriction_name, symbol restriction_func)
 
@@ -360,6 +365,7 @@ cast_kind
     | IntegerToReal
     | LogicalToReal
     | RealToReal
+    | TemplateToReal
     | IntegerToInteger
     | RealToComplex
     | IntegerToComplex
@@ -371,6 +377,7 @@ cast_kind
     | ComplexToLogical
     | ComplexToComplex
     | ComplexToReal
+    | ComplexToInteger
     | LogicalToInteger
     | RealToCharacter
     | IntegerToCharacter

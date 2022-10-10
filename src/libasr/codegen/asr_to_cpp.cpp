@@ -49,10 +49,23 @@ std::string format_type(const std::string &dims, const std::string &type,
     return fmt;
 }
 
-std::string remove_characters(std::string s, char c)
-{
-    s.erase(remove(s.begin(), s.end(), c), s.end());
-    return s;
+std::string trim_dims(std::string &dims) {
+    std::string trimmed;
+    bool last_is_digit = true;
+    size_t i = 0;
+    while (!isdigit(dims[i])) i++;
+    for (; i < dims.size(); i++) {
+        if (isdigit(dims[i])) {
+            if (!last_is_digit) {
+                trimmed += "_";
+                last_is_digit = true;
+            }
+            trimmed.push_back(dims[i]);
+        } else {
+            last_is_digit = false;
+        }
+    }
+    return trimmed;
 }
 
 class ASRToCPPVisitor : public BaseCCPPVisitor<ASRToCPPVisitor>
@@ -118,9 +131,7 @@ public:
 
         std::string struct_name;
         std::string new_array_type;
-        std::string dims_copy = remove_characters(dims, '[');
-        dims_copy = remove_characters(dims_copy, ']');
-        dims_copy = remove_characters(dims_copy, '*');
+        std::string dims_copy = trim_dims(dims);
         std::string name = encoded_type_name + "_" + dims_copy + "_" + std::to_string(n_dims);
         struct_name = "struct " + name;
         std::string array_data = format_type("*", type_name, "data", false, false, true, "*");

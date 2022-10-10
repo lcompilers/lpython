@@ -1320,7 +1320,7 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
             //return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
             //            tp->m_param, dimsp, dimsn, tp->m_rt, tp->n_rt));
             return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
-                        tp->m_param, dimsp, dimsn));
+                        tp->m_param, dimsp, dimsn, tp->m_rt, tp->n_rt));
         }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
@@ -1349,7 +1349,7 @@ static inline ASR::ttype_t* duplicate_type_without_dims(Allocator& al, const ASR
             //return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
             //            tp->m_param, nullptr, 0, tp->m_rt, tp->n_rt));
             return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
-                        tp->m_param, nullptr, 0));
+                        tp->m_param, nullptr, 0, tp->m_rt, tp->n_rt));
         }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }

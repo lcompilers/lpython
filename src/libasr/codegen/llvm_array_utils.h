@@ -110,8 +110,8 @@ namespace LFortran {
                 */
                 virtual
                 llvm::Type* get_array_type(
-                    ASR::ttype_t* m_type_, int a_kind,
-                    int rank, llvm::Type* el_type,
+                    ASR::ttype_t* m_type_,
+                    llvm::Type* el_type,
                     bool get_pointer=false) = 0;
 
                 /*
@@ -121,8 +121,8 @@ namespace LFortran {
                 */
                 virtual
                 llvm::Type* get_malloc_array_type(
-                    ASR::ttype_t* m_type_, int a_kind,
-                    int rank, llvm::Type* el_type,
+                    ASR::ttype_t* m_type_,
+                    llvm::Type* el_type,
                     bool get_pointer=false) = 0;
 
                 /*
@@ -307,14 +307,14 @@ namespace LFortran {
 
                 virtual
                 llvm::Type* get_array_type(
-                    ASR::ttype_t* m_type_, int a_kind,
-                    int rank, llvm::Type* el_type,
+                    ASR::ttype_t* m_type_,
+                    llvm::Type* el_type,
                     bool get_pointer=false);
 
                 virtual
                 llvm::Type* get_malloc_array_type(
-                    ASR::ttype_t* m_type_, int a_kind,
-                    int rank, llvm::Type* el_type,
+                    ASR::ttype_t* m_type_,
+                    llvm::Type* el_type,
                     bool get_pointer=false);
 
                 virtual
