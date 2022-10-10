@@ -9,7 +9,8 @@ sys.path.append(os.path.join(ROOT_DIR, "src", "libasr"))
 from compiler_tester.tester import color, fg, log, run_test, style, tester_main
 
 
-def single_test(test, specific_test, verbose, no_llvm, update_reference):
+def single_test(test, specific_test, verbose, no_llvm, update_reference,
+                specific_backends=None, excluded_backends=None):
     filename = test["filename"]
     if specific_test and specific_test not in filename:
         return
