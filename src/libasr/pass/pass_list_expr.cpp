@@ -3,7 +3,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
-#include <libasr/pass/pass_list_concat.h>
+#include <libasr/pass/pass_list_expr.h>
 #include <libasr/pass/pass_utils.h>
 
 #include <vector>
@@ -15,19 +15,11 @@ namespace LFortran {
 using ASR::down_cast;
 
 /*
-    This ASR pass replaces ListConcat with a FunctionCall where
-    the two lists are passed as arguments to the function.
-    Then, the function returns the concatenated list as a result.
-
-    Converts:
-        x = i + j // lists
-
-    to:
-        x = _lcompilers_list_concat(i, j)
+ * This ASR pass handles all the high level list features.
  */
 
 
-class ReplaceListConcat : public ASR::BaseExprReplacer<ReplaceListConcat>
+class ListExprReplacer : public ASR::BaseExprReplacer<ListExprReplacer>
 {
 private:
 
@@ -37,7 +29,7 @@ private:
     ASR::symbol_t* &list_section_func_name;
 
 public:
-    ReplaceListConcat(Allocator &al_, ASR::TranslationUnit_t &unit_,
+    ListExprReplacer(Allocator &al_, ASR::TranslationUnit_t &unit_,
                       ASR::symbol_t* &list_concat_func_name_,
                       ASR::symbol_t* &list_section_func_name_) :
         al(al_), unit(unit_),
@@ -344,6 +336,18 @@ public:
         return ASR::down_cast<ASR::symbol_t>(fn);
     }
 
+/*
+    This function replaces ListConcat with a FunctionCall where
+    the two lists are passed as arguments to the function.
+    Then, the function returns the concatenated list as a result.
+
+    Converts:
+        x = i + j // lists
+
+    to:
+        x = _lcompilers_list_concat(i, j)
+*/
+
     void replace_ListConcat(const ASR::ListConcat_t* x) {
         Location loc = x->base.base.loc;
         Vec<ASR::call_arg_t> args;
@@ -365,17 +369,18 @@ public:
 
 };
 
-class ListConcatVisitor : public ASR::CallReplacerOnExpressionsVisitor<ListConcatVisitor>
+class ListExprVisitor : public ASR::CallReplacerOnExpressionsVisitor<ListExprVisitor>
 {
 private:
 
-    ReplaceListConcat replacer;
+    ListExprReplacer replacer;
     ASR::symbol_t* list_concat_func = nullptr;
+    ASR::symbol_t* list_section_func = nullptr;
 
 public:
 
-    ListConcatVisitor(Allocator& al_, ASR::TranslationUnit_t &unit_) :
-        replacer(al_, unit_, list_concat_func)
+    ListExprVisitor(Allocator& al_, ASR::TranslationUnit_t &unit_) :
+        replacer(al_, unit_, list_concat_func, list_section_func)
         { }
 
     void call_replacer() {
@@ -385,9 +390,9 @@ public:
 
 };
 
-void pass_list_concat(Allocator &al, ASR::TranslationUnit_t &unit,
+void pass_list_expr(Allocator &al, ASR::TranslationUnit_t &unit,
                         const LCompilers::PassOptions& /*pass_options*/) {
-    ListConcatVisitor v(al, unit);
+    ListExprVisitor v(al, unit);
     v.visit_TranslationUnit(unit);
     LFORTRAN_ASSERT(asr_verify(unit));
 }
