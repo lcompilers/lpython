@@ -28,13 +28,13 @@ here to install Conda on your platform:
 
 https://github.com/conda-forge/miniforge/#download
 
-## Compile LPython
-
-Install required packages (Linux - 64 bit):
+Also, Install (Linux - 64 bit):
 
 ```bash
 sudo apt install binutils-dev
 ```
+
+## Compile LPython
 
 Clone LPython
 
@@ -95,7 +95,8 @@ You can run the following examples by hand in a terminal:
 
 ```bash
 ./src/bin/lpython examples/expr2.py
-./a.out
+./src/bin/lpython examples/expr2.py -o expr
+./expr
 ./src/bin/lpython --show-ast examples/expr2.py
 ./src/bin/lpython --show-asr examples/expr2.py
 ./src/bin/lpython --show-cpp examples/expr2.py

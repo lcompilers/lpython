@@ -432,7 +432,7 @@ void LLVMEvaluator::print_targets()
 #endif
 #ifdef HAVE_TARGET_WASM
     LLVMInitializeWebAssemblyTargetInfo();
-#endif    
+#endif
     llvm::raw_ostream &os = llvm::outs();
     llvm::TargetRegistry::printRegisteredTargetsForVersion(os);
 }

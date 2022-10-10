@@ -135,7 +135,7 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
         case ASR::ttypeType::List: {
             return "list";
         }
-        case ASR::ttypeType::Derived: {
+        case ASR::ttypeType::Struct: {
             return "derived type";
         }
         case ASR::ttypeType::Union: {
@@ -208,8 +208,8 @@ static inline char *symbol_name(const ASR::symbol_t *f)
         case ASR::symbolType::GenericProcedure: {
             return ASR::down_cast<ASR::GenericProcedure_t>(f)->m_name;
         }
-        case ASR::symbolType::DerivedType: {
-            return ASR::down_cast<ASR::DerivedType_t>(f)->m_name;
+        case ASR::symbolType::StructType: {
+            return ASR::down_cast<ASR::StructType_t>(f)->m_name;
         }
         case ASR::symbolType::EnumType: {
             return ASR::down_cast<ASR::EnumType_t>(f)->m_name;
@@ -254,8 +254,8 @@ static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
         case ASR::symbolType::GenericProcedure: {
             return ASR::down_cast<ASR::GenericProcedure_t>(f)->m_parent_symtab;
         }
-        case ASR::symbolType::DerivedType: {
-            return ASR::down_cast<ASR::DerivedType_t>(f)->m_symtab->parent;
+        case ASR::symbolType::StructType: {
+            return ASR::down_cast<ASR::StructType_t>(f)->m_symtab->parent;
         }
         case ASR::symbolType::EnumType: {
             return ASR::down_cast<ASR::EnumType_t>(f)->m_symtab->parent;
@@ -302,8 +302,8 @@ static inline SymbolTable *symbol_symtab(const ASR::symbol_t *f)
             return nullptr;
             //throw LCompilersException("GenericProcedure does not have a symtab");
         }
-        case ASR::symbolType::DerivedType: {
-            return ASR::down_cast<ASR::DerivedType_t>(f)->m_symtab;
+        case ASR::symbolType::StructType: {
+            return ASR::down_cast<ASR::StructType_t>(f)->m_symtab;
         }
         case ASR::symbolType::EnumType: {
             return ASR::down_cast<ASR::EnumType_t>(f)->m_symtab;
@@ -748,8 +748,8 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
         case ASR::ttypeType::CPtr: {
             return "CPtr";
         }
-        case ASR::ttypeType::Derived: {
-            ASR::Derived_t* d = ASR::down_cast<ASR::Derived_t>(t);
+        case ASR::ttypeType::Struct: {
+            ASR::Struct_t* d = ASR::down_cast<ASR::Struct_t>(t);
             return symbol_name(d->m_derived_type);
         }
         case ASR::ttypeType::Pointer: {
@@ -848,8 +848,8 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
         case ASR::ttypeType::CPtr: {
             return "CPtr";
         }
-        case ASR::ttypeType::Derived: {
-            ASR::Derived_t* d = ASR::down_cast<ASR::Derived_t>(t);
+        case ASR::ttypeType::Struct: {
+            ASR::Struct_t* d = ASR::down_cast<ASR::Struct_t>(t);
             return symbol_name(d->m_derived_type);
         }
         case ASR::ttypeType::Enum: {
@@ -986,7 +986,7 @@ ASR::TranslationUnit_t* find_and_load_module(Allocator &al, const std::string &m
 
 void set_intrinsic(ASR::TranslationUnit_t* trans_unit);
 
-ASR::asr_t* getDerivedRef_t(Allocator& al, const Location& loc,
+ASR::asr_t* getStructInstanceMember_t(Allocator& al, const Location& loc,
                             ASR::asr_t* v_var, ASR::symbol_t* member,
                             SymbolTable* current_scope);
 
@@ -1154,10 +1154,10 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
             m_dims = Logical_type->m_dims;
             break;
         }
-        case ASR::ttypeType::Derived: {
-            ASR::Derived_t* Derived_type = ASR::down_cast<ASR::Derived_t>(x);
-            n_dims = Derived_type->n_dims;
-            m_dims = Derived_type->m_dims;
+        case ASR::ttypeType::Struct: {
+            ASR::Struct_t* Struct_type = ASR::down_cast<ASR::Struct_t>(x);
+            n_dims = Struct_type->n_dims;
+            m_dims = Struct_type->m_dims;
             break;
         }
         case ASR::ttypeType::Enum: {
@@ -1249,10 +1249,10 @@ inline bool ttype_set_dimensions(ASR::ttype_t *x,
             m_dims = Logical_type->m_dims;
             return true;
         }
-        case ASR::ttypeType::Derived: {
-            ASR::Derived_t* Derived_type = ASR::down_cast<ASR::Derived_t>(x);
-            n_dims = Derived_type->n_dims;
-            m_dims = Derived_type->m_dims;
+        case ASR::ttypeType::Struct: {
+            ASR::Struct_t* Struct_type = ASR::down_cast<ASR::Struct_t>(x);
+            n_dims = Struct_type->n_dims;
+            m_dims = Struct_type->m_dims;
             return true;
         }
         case ASR::ttypeType::Class: {
@@ -1321,11 +1321,11 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
                         tnew->m_kind, tnew->m_len, tnew->m_len_expr,
                         dimsp, dimsn));
         }
-        case ASR::ttypeType::Derived: {
-            ASR::Derived_t* tnew = ASR::down_cast<ASR::Derived_t>(t);
+        case ASR::ttypeType::Struct: {
+            ASR::Struct_t* tnew = ASR::down_cast<ASR::Struct_t>(t);
             ASR::dimension_t* dimsp = dims ? dims->p : tnew->m_dims;
             size_t dimsn = dims ? dims->n : tnew->n_dims;
-            return ASRUtils::TYPE(ASR::make_Derived_t(al, t->base.loc,
+            return ASRUtils::TYPE(ASR::make_Struct_t(al, t->base.loc,
                         tnew->m_derived_type, dimsp, dimsn));
         }
         case ASR::ttypeType::Pointer: {

@@ -56,7 +56,7 @@ namespace LFortran {
         static inline bool is_llvm_struct(ASR::ttype_t* asr_type) {
             return ASR::is_a<ASR::Tuple_t>(*asr_type) ||
                    ASR::is_a<ASR::List_t>(*asr_type) ||
-                   ASR::is_a<ASR::Derived_t>(*asr_type) ||
+                   ASR::is_a<ASR::Struct_t>(*asr_type) ||
                    ASR::is_a<ASR::Class_t>(*asr_type);
         }
     }

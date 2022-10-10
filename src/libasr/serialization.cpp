@@ -116,7 +116,7 @@ public:
                 READ_SYMBOL_CASE(Function)
                 READ_SYMBOL_CASE(GenericProcedure)
                 READ_SYMBOL_CASE(ExternalSymbol)
-                READ_SYMBOL_CASE(DerivedType)
+                READ_SYMBOL_CASE(StructType)
                 READ_SYMBOL_CASE(Variable)
                 READ_SYMBOL_CASE(ClassProcedure)
                 default : throw LCompilersException("Symbol type not supported");
@@ -141,7 +141,7 @@ public:
                 INSERT_SYMBOL_CASE(Function)
                 INSERT_SYMBOL_CASE(GenericProcedure)
                 INSERT_SYMBOL_CASE(ExternalSymbol)
-                INSERT_SYMBOL_CASE(DerivedType)
+                INSERT_SYMBOL_CASE(StructType)
                 INSERT_SYMBOL_CASE(Variable)
                 INSERT_SYMBOL_CASE(ClassProcedure)
                 default : throw LCompilersException("Symbol type not supported");
@@ -220,7 +220,7 @@ public:
         current_symtab = parent_symtab;
     }
 
-    void visit_DerivedType(const DerivedType_t &x) {
+    void visit_StructType(const StructType_t &x) {
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;
         x.m_symtab->parent = parent_symtab;

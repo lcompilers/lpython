@@ -30,8 +30,8 @@ namespace LFortran {
                     m_dims = x_type_ref->m_dims;
                     break;
                 }
-                case ASR::ttypeType::Derived: {
-                    ASR::Derived_t* x_type_ref = ASR::down_cast<ASR::Derived_t>(t2);
+                case ASR::ttypeType::Struct: {
+                    ASR::Struct_t* x_type_ref = ASR::down_cast<ASR::Struct_t>(t2);
                     n_dims = x_type_ref->n_dims;
                     m_dims = x_type_ref->m_dims;
                     break;
@@ -91,10 +91,10 @@ namespace LFortran {
                     }
                     break;
                 }
-                case ASR::ttypeType::Derived: {
-                    ASR::Derived_t* x_type_ref = ASR::down_cast<ASR::Derived_t>(t2);
+                case ASR::ttypeType::Struct: {
+                    ASR::Struct_t* x_type_ref = ASR::down_cast<ASR::Struct_t>(t2);
                     if( create_new ) {
-                        new_type = LFortran::ASRUtils::TYPE(ASR::make_Derived_t(*al, x_type->base.loc, x_type_ref->m_derived_type,
+                        new_type = LFortran::ASRUtils::TYPE(ASR::make_Struct_t(*al, x_type->base.loc, x_type_ref->m_derived_type,
                                                             m_dims, n_dims));
                     } else {
                         x_type_ref->n_dims = n_dims;
