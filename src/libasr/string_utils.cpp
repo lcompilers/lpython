@@ -102,6 +102,33 @@ std::string read_file(const std::string &filename)
     return std::string(&bytes[0], filesize);
 }
 
+std::string parent_path(const std::string &path) {
+    int pos = path.size()-1;
+    while (pos >= 0 && path[pos] != '/') pos--;
+    if (pos == -1) {
+        return "";
+    } else {
+        return path.substr(0, pos);
+    }
+}
+
+bool is_relative_path(const std::string &path) {
+    return !startswith(path, "/");
+}
+
+std::string join_paths(const std::vector<std::string> &paths) {
+    std::string p;
+    std::string delim = "/";
+    for (auto &path : paths) {
+        if (path.size() > 0) {
+            if (p.size() > 0 && !endswith(p, delim)) {
+                p.append(delim);
+            }
+            p.append(path);
+        }
+    }
+    return p;
+}
 
 
 } // namespace LFortran

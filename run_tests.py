@@ -9,19 +9,22 @@ sys.path.append(os.path.join(ROOT_DIR, "src", "libasr"))
 from compiler_tester.tester import color, fg, log, run_test, style, tester_main
 
 
-def single_test(test, specific_test, verbose, no_llvm, update_reference):
+def single_test(test, verbose, no_llvm, update_reference,
+                specific_backends=None, excluded_backends=None):
     filename = test["filename"]
-    if specific_test and specific_test not in filename:
-        return
+    def is_included(backend):
+         return test.get(backend, False) \
+             and (specific_backends is None or backend in specific_backends) \
+             and (excluded_backends is None or backend not in excluded_backends)
     show_verbose = "" if not verbose else "-v"
-    tokens = test.get("tokens", False)
-    ast = test.get("ast", False)
-    ast_new = test.get("ast_new", False)
-    asr = test.get("asr", False)
-    llvm = test.get("llvm", False)
-    cpp = test.get("cpp", False)
-    c = test.get("c", False)
-    wat = test.get("wat", False)
+    tokens = is_included("tokens")
+    ast = is_included("ast")
+    ast_new = is_included("ast_new")
+    asr = is_included("asr")
+    llvm = is_included("llvm")
+    cpp = is_included("cpp")
+    c = is_included("c")
+    wat = is_included("wat")
     pass_ = test.get("pass", None)
     optimization_passes = ["flip_sign", "div_to_mul", "fma", "sign_from_value",
                            "inline_function_calls", "loop_unroll",

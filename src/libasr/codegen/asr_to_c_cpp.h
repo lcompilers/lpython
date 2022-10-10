@@ -54,7 +54,7 @@ namespace {
 }
 
 // Platform dependent fast unique hash:
-static uint64_t get_hash(ASR::asr_t *node)
+static inline uint64_t get_hash(ASR::asr_t *node)
 {
     return (uint64_t)node;
 }
@@ -68,7 +68,7 @@ struct SymbolInfo
 typedef std::string (*DeepCopyFunction)(std::string, std::string, ASR::ttype_t*);
 
 namespace CUtils {
-    static std::string deepcopy(std::string target, std::string value, ASR::ttype_t* m_type) {
+    static inline std::string deepcopy(std::string target, std::string value, ASR::ttype_t* m_type) {
         switch (m_type->type) {
             case ASR::ttypeType::Character: {
                 return "strcpy(" + target + ", " + value + ");";
@@ -81,7 +81,7 @@ namespace CUtils {
 }
 
 namespace CPPUtils {
-    static std::string deepcopy(std::string target, std::string value, ASR::ttype_t* /*m_type*/) {
+    static inline std::string deepcopy(std::string target, std::string value, ASR::ttype_t* /*m_type*/) {
             return target + " = " + value + ";";
     }
 }

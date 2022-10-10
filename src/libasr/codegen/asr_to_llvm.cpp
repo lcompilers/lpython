@@ -2216,9 +2216,9 @@ public:
                     llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
                         is_malloc_array_type = true;
-                        llvm_type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type);
+                        llvm_type = arr_descr->get_malloc_array_type(asr_type, el_type);
                     } else {
-                        llvm_type = arr_descr->get_array_type(asr_type, a_kind, n_dims, el_type);
+                        llvm_type = arr_descr->get_array_type(asr_type, el_type);
                     }
                 } else {
                     llvm_type = getIntType(a_kind);
@@ -2235,9 +2235,9 @@ public:
                     llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
                         is_malloc_array_type = true;
-                        llvm_type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type);
+                        llvm_type = arr_descr->get_malloc_array_type(asr_type, el_type);
                     } else {
-                        llvm_type = arr_descr->get_array_type(asr_type, a_kind, n_dims, el_type);
+                        llvm_type = arr_descr->get_array_type(asr_type, el_type);
                     }
                 } else {
                     llvm_type = getFPType(a_kind);
@@ -2254,9 +2254,9 @@ public:
                     llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
                         is_malloc_array_type = true;
-                        llvm_type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type);
+                        llvm_type = arr_descr->get_malloc_array_type(asr_type, el_type);
                     } else {
-                        llvm_type = arr_descr->get_array_type(asr_type, a_kind, n_dims, el_type);
+                        llvm_type = arr_descr->get_array_type(asr_type, el_type);
                     }
                 } else {
                     llvm_type = getComplexType(a_kind);
@@ -2273,9 +2273,9 @@ public:
                     llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
                         is_malloc_array_type = true;
-                        llvm_type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type);
+                        llvm_type = arr_descr->get_malloc_array_type(asr_type, el_type);
                     } else {
-                        llvm_type = arr_descr->get_array_type(asr_type, a_kind, n_dims, el_type);
+                        llvm_type = arr_descr->get_array_type(asr_type, el_type);
                     }
                 } else {
                     llvm_type = character_type;
@@ -2292,9 +2292,9 @@ public:
                     llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
                         is_malloc_array_type = true;
-                        llvm_type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type);
+                        llvm_type = arr_descr->get_malloc_array_type(asr_type, el_type);
                     } else {
-                        llvm_type = arr_descr->get_array_type(asr_type, a_kind, n_dims, el_type);
+                        llvm_type = arr_descr->get_array_type(asr_type, el_type);
                     }
                 } else {
                     llvm_type = llvm::Type::getInt1Ty(context);
@@ -2310,9 +2310,9 @@ public:
                     llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
                         is_malloc_array_type = true;
-                        llvm_type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type);
+                        llvm_type = arr_descr->get_malloc_array_type(asr_type, el_type);
                     } else {
-                        llvm_type = arr_descr->get_array_type(asr_type, a_kind, n_dims, el_type);
+                        llvm_type = arr_descr->get_array_type(asr_type, el_type);
                     }
                 } else {
                     llvm_type = getStructType(asr_type, false);
@@ -2328,9 +2328,9 @@ public:
                     llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
                         is_malloc_array_type = true;
-                        llvm_type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type);
+                        llvm_type = arr_descr->get_malloc_array_type(asr_type, el_type);
                     } else {
-                        llvm_type = arr_descr->get_array_type(asr_type, a_kind, n_dims, el_type);
+                        llvm_type = arr_descr->get_array_type(asr_type, el_type);
                     }
                 } else {
                     llvm_type = getUnionType(asr_type, false);
@@ -2563,9 +2563,9 @@ public:
                         is_array_type = true;
                         llvm::Type* el_type = get_el_type(asr_type);
                         if( m_storage == ASR::storage_typeType::Allocatable ) {
-                            type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type, true);
+                            type = arr_descr->get_malloc_array_type(asr_type, el_type, true);
                         } else {
-                            type = arr_descr->get_array_type(asr_type, a_kind, n_dims, el_type, true);
+                            type = arr_descr->get_array_type(asr_type, el_type, true);
                         }
                     }
                 } else {
@@ -2599,9 +2599,9 @@ public:
                         is_array_type = true;
                         llvm::Type* el_type = get_el_type(asr_type);
                         if( m_storage == ASR::storage_typeType::Allocatable ) {
-                            type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type, true);
+                            type = arr_descr->get_malloc_array_type(asr_type, el_type, true);
                         } else {
-                            type = arr_descr->get_array_type(asr_type, a_kind, n_dims, el_type, true);
+                            type = arr_descr->get_array_type(asr_type, el_type, true);
                         }
                     }
                 } else {
@@ -2625,9 +2625,9 @@ public:
                     is_array_type = true;
                     llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
-                        type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type, true);
+                        type = arr_descr->get_malloc_array_type(asr_type, el_type, true);
                     } else {
-                        type = arr_descr->get_array_type(asr_type, a_kind, n_dims, el_type, true);
+                        type = arr_descr->get_array_type(asr_type, el_type, true);
                     }
                 } else {
                     if (arg_m_abi == ASR::abiType::BindC
@@ -2682,9 +2682,9 @@ public:
                         is_array_type = true;
                         llvm::Type* el_type = get_el_type(asr_type);
                         if( m_storage == ASR::storage_typeType::Allocatable ) {
-                            type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type, true);
+                            type = arr_descr->get_malloc_array_type(asr_type, el_type, true);
                         } else {
-                            type = arr_descr->get_array_type(asr_type, a_kind, n_dims, el_type, true);
+                            type = arr_descr->get_array_type(asr_type, el_type, true);
                         }
                     }
                 } else {
@@ -2699,9 +2699,9 @@ public:
                     is_array_type = true;
                     llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
-                        type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type, true);
+                        type = arr_descr->get_malloc_array_type(asr_type, el_type, true);
                     } else {
-                        type = arr_descr->get_array_type(asr_type, a_kind, n_dims, el_type, true);
+                        type = arr_descr->get_array_type(asr_type, el_type, true);
                     }
                 } else {
                     type = getStructType(asr_type, true);
@@ -2715,9 +2715,9 @@ public:
                     is_array_type = true;
                     llvm::Type* el_type = get_el_type(asr_type);
                     if( m_storage == ASR::storage_typeType::Allocatable ) {
-                        type = arr_descr->get_malloc_array_type(asr_type, a_kind, n_dims, el_type, true);
+                        type = arr_descr->get_malloc_array_type(asr_type, el_type, true);
                     } else {
-                        type = arr_descr->get_array_type(asr_type, a_kind, n_dims, el_type, true);
+                        type = arr_descr->get_array_type(asr_type, el_type, true);
                     }
                 } else {
                     type = getClassType(asr_type, true);
@@ -5096,6 +5096,32 @@ public:
                 }
                 break;
             }
+            case (ASR::cast_kindType::ComplexToInteger) : {
+                int arg_kind = -1, dest_kind = -1;
+                extract_kinds(x, arg_kind, dest_kind);
+                llvm::Value *re;
+                if (arg_kind > 0 && dest_kind > 0)
+                {
+                    if (arg_kind == 4) {
+                        // complex(4) -> real(8)
+                        re = complex_re(tmp, complex_type_4);
+                        tmp = re;
+                    } else if (arg_kind == 8) {
+                        // complex(8) -> real(8)
+                        re = complex_re(tmp, complex_type_8);
+                        tmp = re;
+                    } else {
+                        std::string msg = "Unsupported Complex type kind: " + std::to_string(arg_kind);
+                        throw CodeGenError(msg);
+                    }
+                    llvm::Type *target_type;
+                    target_type = getIntType(dest_kind);
+                    tmp = builder->CreateFPToSI(tmp, target_type);
+                } else {
+                    throw CodeGenError("Negative kinds are not supported.");
+                }
+                break;
+             }
             case (ASR::cast_kindType::RealToCharacter) : {
                 llvm::Value *arg = tmp;
                 ASR::ttype_t* arg_type = extract_ttype_t_from_expr(x.m_arg);

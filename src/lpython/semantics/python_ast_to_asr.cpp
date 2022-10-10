@@ -823,7 +823,7 @@ public:
                     if (var_sym->m_type->type == ASR::ttypeType::TypeParameter) {
                         ASR::TypeParameter_t *type_param = ASR::down_cast<ASR::TypeParameter_t>(var_sym->m_type);
                         return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, loc,
-                            type_param->m_param, dims.p, dims.size()));
+                            type_param->m_param, dims.p, dims.size(), type_param->m_rt, type_param->n_rt));
                     }
                 } else {
                     ASR::symbol_t *der_sym = ASRUtils::symbol_get_past_external(s);
@@ -3154,7 +3154,7 @@ public:
                         dims.reserve(al, 4);
 
                         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_TypeParameter_t(al, x.base.base.loc,
-                            s2c(al, tvar_name), dims.p, dims.size()));
+                            s2c(al, tvar_name), dims.p, dims.size(), nullptr, 0));
 
                         ASR::expr_t *value = nullptr;
                         ASR::expr_t *init_expr = nullptr;
