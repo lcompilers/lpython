@@ -14,7 +14,6 @@ public:
     SymbolTable *new_scope;
     std::map<std::string, ASR::ttype_t*> subs;
     std::map<std::string, ASR::symbol_t*> rt_subs;
-    // std::string new_func_name;
     std::vector<ASR::Function_t*> rts;
 
     static std::map<std::string, int> generic_func_nums;
