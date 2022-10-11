@@ -198,10 +198,8 @@ namespace LFortran {
         }
 
         llvm::Type* SimpleCMODescriptor::get_array_type
-        (ASR::ttype_t* m_type_, int a_kind,
-        int rank, llvm::Type* el_type,
+        (ASR::ttype_t* m_type_, llvm::Type* el_type,
         bool get_pointer) {
-            ASR::ttypeType type_ = m_type_->type;
             std::string array_key = ASRUtils::get_type_code(m_type_);
             if( tkr2array.find(array_key) != tkr2array.end() ) {
                 if( get_pointer ) {
@@ -229,8 +227,7 @@ namespace LFortran {
         }
 
         llvm::Type* SimpleCMODescriptor::get_malloc_array_type
-        (ASR::ttype_t* m_type_, int a_kind, int rank, llvm::Type* el_type, bool get_pointer) {
-            ASR::ttypeType type_ = m_type_->type;
+        (ASR::ttype_t* m_type_, llvm::Type* el_type, bool get_pointer) {
             std::string array_key = ASRUtils::get_type_code(m_type_);
             if( tkr2array.find(array_key) != tkr2array.end() ) {
                 if( get_pointer ) {

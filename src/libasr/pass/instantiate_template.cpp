@@ -3,7 +3,7 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr.h>
 #include <libasr/pass/pass_utils.h>
-#include <lpython/semantics/semantic_exception.h>
+#include <libasr/semantic_exception.h>
 
 namespace LFortran {
 
@@ -92,8 +92,8 @@ public:
             }
         }
 
-        for (size_t i=0; i<x->n_restrictions; i++) { 
-            rts.push_back(ASR::down_cast<ASR::Function_t>(x->m_restrictions[i])); 
+        for (size_t i=0; i<x->n_restrictions; i++) {
+            rts.push_back(ASR::down_cast<ASR::Function_t>(x->m_restrictions[i]));
         }
 
         Vec<ASR::stmt_t*> body;
