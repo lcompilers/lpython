@@ -76,6 +76,9 @@ public:
     }
 
     void record_paren(Location &loc, char c);
+
+    void lex_match_or_case(Location &loc, unsigned char *cur,
+        bool &is_match_or_case_keyword);
 };
 
 std::string token2text(const int token);
