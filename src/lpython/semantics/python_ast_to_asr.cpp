@@ -1422,6 +1422,10 @@ public:
     }
 
     void cast_helper(ASR::expr_t*& left, ASR::expr_t*& right, bool is_assign) {
+        CompilerOptions compiler_options;
+        if(!compiler_options.implicit_type_cast) {
+            return;
+        }
         bool no_cast = ((ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(left)) &&
                         ASR::is_a<ASR::Var_t>(*left)) ||
                         (ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(right)) &&
@@ -1467,6 +1471,10 @@ public:
     }
 
     void cast_helper(ASR::ttype_t* dest_type, ASR::expr_t*& src_expr) {
+        CompilerOptions compiler_options;
+        if(!compiler_options.implicit_type_cast) {
+            return;
+        }
         ASR::ttype_t* src_type = ASRUtils::expr_type(src_expr);
         if( ASRUtils::check_equal_type(src_type, dest_type) ) {
             return ;
@@ -5193,6 +5201,43 @@ public:
                 }
                 tmp = (ASR::asr_t*) args[0].m_value;
                 return ;
+            } else if( call_name == "i32" ) {
+                if( args.size() != 1 ) {
+                    throw SemanticError("i32 only accepts one argument, found " +
+                                        std::to_string(args.size()) + " instead.",
+                                        x.base.base.loc);
+                }
+                ASR::expr_t *arg = args[0].m_value;
+                ASR::ttype_t *type = ASRUtils::expr_type(arg);
+                // std::cout<< "type: " << ASRUtils::type_to_str(type) << std::endl;
+                // int kind = ASRUtils::extract_kind_from_ttype_t(type);
+                // std::cout<< "kind: " << kind << std::endl;
+                // TODO: Perform type casting of the argument to i32
+                return;
+            } else if( call_name == "i64" ) {
+                if( args.size() != 1 ) {
+                    throw SemanticError("i64 only accepts one argument, found " +
+                                        std::to_string(args.size()) + " instead.",
+                                        x.base.base.loc);
+                }
+                // TODO: Perform type casting of the argument to i32
+                return;
+            } else if( call_name == "f32" ) {
+                if( args.size() != 1 ) {
+                    throw SemanticError("f32 only accepts one argument, found " +
+                                        std::to_string(args.size()) + " instead.",
+                                        x.base.base.loc);
+                }
+                // TODO: Perform type casting of the argument to f32
+                return;
+            } else if( call_name == "f64" ) {
+                if( args.size() != 1 ) {
+                    throw SemanticError("f64 only accepts one argument, found " +
+                                        std::to_string(args.size()) + " instead.",
+                                        x.base.base.loc);
+                }
+                // TODO: Perform type casting of the argument to f64
+                return;
             } else if (intrinsic_node_handler.is_present(call_name)) {
                 tmp = intrinsic_node_handler.get_intrinsic_node(call_name, al,
                                         x.base.base.loc, args);
