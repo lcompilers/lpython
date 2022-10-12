@@ -4857,12 +4857,65 @@ public:
                     tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, res, int_type);
                     return;
                 } else if (std::string(at->m_attr) == std::string("to_bytes")) {
-                    AST::ConstantInt_t *n = AST::down_cast<AST::ConstantInt_t>(at->m_value);
-                    int64_t int_val = std::abs(n->m_value);
+                    if(args.size() > 3) {
+                        throw SemanticError("int.to_bytes() takes at most 3 arguments",
+                        x.base.base.loc);
+                    }
+                    if(args.size() < 2) {
+                        throw SemanticError("int.to_bytes() takes at least 2 arguments",
+                        x.base.base.loc);
+                    }
                     ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                        4, nullptr, 0));
-                    tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, int_val, int_type);
-                    return;
+                            4, nullptr, 0));
+                    ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
+                                    1, 1, nullptr, nullptr , 0));
+                    if(args.size() == 2) {
+                        ASR::expr_t *arg1 = args[0].m_value;
+                        ASR::expr_t *arg2 = args[1].m_value;
+                        ASR::ttype_t *type1 = ASRUtils::expr_type(arg1);
+                        ASR::ttype_t *type2 = ASRUtils::expr_type(arg2);
+                        if(ASRUtils::is_integer(*type1) && ASRUtils::is_character(*type2)) {
+                            ASR::IntegerConstant_t* array_len = ASR::down_cast<ASR::IntegerConstant_t>(arg1);
+                            int64_t len = array_len->m_n;
+                            ASR::StringConstant_t* byte_order = ASR::down_cast<ASR::StringConstant_t>(arg2);
+                            std::string ord = byte_order->m_s;
+                            AST::ConstantInt_t *n = AST::down_cast<AST::ConstantInt_t>(at->m_value);
+                            int64_t int_val = n->m_value;
+
+                            if(ord != "big" && ord != "little") {
+                                throw SemanticError("byteOrder can only be 'big' or 'little'",
+                                x.base.base.loc);
+                            }
+
+                            std::string res = "b'";
+                            std::vector<int> byte_values(len,0);
+                            for(auto& byte:byte_values) {
+                                byte = int_val & 255;
+                                int_val >>= 8;
+                            }
+                            if(int_val) {
+                                throw SemanticError("Overflow error value can't be contained in given byte array size",
+                                x.base.base.loc);
+                            }
+                            if(ord == "big") reverse(byte_values.begin(), byte_values.end());
+                            for(auto& byte:byte_values) {
+                                char hex_val[10];
+                                if(byte < 16) sprintf(hex_val, "\\x0%x", byte);
+                                else sprintf(hex_val, "\\x%x", byte);
+                                for(int i=0; i<4; ++i) {
+                                    res += hex_val[i];
+                                }
+                            }
+                            res += "'";
+                            tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
+                            return;
+                        } else {
+                            throw SemanticError("int.to_bytes(byteArrayLength: int, byteOrder: 'big'/'little', signed=True)",
+                            x.base.base.loc);
+                        }
+                        
+                    }
+                    
                 } else {
                     throw SemanticError("'int' object has no attribute '" + std::string(at->m_attr) + "'",
                         x.base.base.loc);
