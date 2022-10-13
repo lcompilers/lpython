@@ -2429,8 +2429,6 @@ public:
         arg2.loc = right->base.loc;
         arg2.m_value = right;
         args.push_back(al, arg2);
-        Vec<ASR::restriction_arg_t*> rt_args;
-        rt_args.reserve(al, 1);
         if (op_name != "") {
             ASR::symbol_t *fn_mod = resolve_intrinsic_function(x.base.base.loc, op_name);
             tmp = make_call_helper(al, fn_mod, current_scope, args, op_name, x.base.base.loc);
