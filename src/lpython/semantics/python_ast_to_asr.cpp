@@ -2420,16 +2420,17 @@ public:
         }
 
         cast_helper(left, right, false);
-        Vec<ASR::call_arg_t> args;
-        args.reserve(al, 2);
-        ASR::call_arg_t arg1, arg2;
-        arg1.loc = left->base.loc;
-        arg1.m_value = left;
-        args.push_back(al, arg1);
-        arg2.loc = right->base.loc;
-        arg2.m_value = right;
-        args.push_back(al, arg2);
+
         if (op_name != "") {
+            Vec<ASR::call_arg_t> args;
+            args.reserve(al, 2);
+            ASR::call_arg_t arg1, arg2;
+            arg1.loc = left->base.loc;
+            arg1.m_value = left;
+            args.push_back(al, arg1);
+            arg2.loc = right->base.loc;
+            arg2.m_value = right;
+            args.push_back(al, arg2);
             ASR::symbol_t *fn_mod = resolve_intrinsic_function(x.base.base.loc, op_name);
             tmp = make_call_helper(al, fn_mod, current_scope, args, op_name, x.base.base.loc);
             return;
