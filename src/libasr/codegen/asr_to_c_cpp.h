@@ -333,6 +333,7 @@ class CCPPList {
                 generated_code += indent + tab + "memcpy(result->data + left->current_end_point, right->data, " +
                                     "right->current_end_point * sizeof(" + list_element_type + "));\n";
             }
+            generated_code += indent + tab + "result->current_end_point = left->current_end_point + right->current_end_point;\n";
             generated_code += indent + tab + "return result;\n";
             generated_code += indent + "}\n\n";
         }
