@@ -370,3 +370,46 @@ def mod(x1: i32, x2: i32) -> i32:
     if x2 == 0:
         return 0
     return x1 % x2
+
+
+########## floor ##########
+
+@overload
+@vectorize
+def floor(x: f64) -> f64:
+    result: i64
+    result = int(x)
+    if x >= 0 or x == result:
+        return float(result)
+    return float(result - 1)
+
+@overload
+@vectorize
+def floor(x: f32) -> f32:
+    result: i32 = int(x)
+    resultf: f32 = result
+    if x >= 0 or x == resultf:
+        return resultf
+    return resultf - 1
+
+
+########## ceil ##########
+
+
+@overload
+@vectorize
+def ceil(x: f64) -> f64:
+    result: i64
+    result = int(x)
+    if x <= 0 or x == result:
+        return float(result)
+    return float(result + 1)
+
+@overload
+@vectorize
+def ceil(x: f32) -> f32:
+    result: i32 = int(x)
+    resultf: f32 = result
+    if x <= 0 or x == resultf:
+        return resultf
+    return resultf + 1
