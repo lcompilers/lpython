@@ -34,16 +34,8 @@ struct dimension_descriptor
 {
     int32_t lower_bound, length;
 };
-// Forward declarations
-void _lpython_main_program();
-void f();
 
 // Implementations
-void _lpython_main_program()
-{
-    f();
-}
-
 void f()
 {
     bool b;
@@ -52,6 +44,11 @@ void f()
     b = (bool)(i);
     ASSERT(b);
     printf("%d\n", b);
+}
+
+void _lpython_main_program()
+{
+    f();
 }
 
 int main(int argc, char* argv[])

@@ -34,17 +34,8 @@ struct dimension_descriptor
 {
     int32_t lower_bound, length;
 };
-// Forward declarations
-void _lpython_main_program();
-static int64_t fib(int64_t n);
-void main0();
 
 // Implementations
-void _lpython_main_program()
-{
-    main0();
-}
-
 static int64_t fib(int64_t n)
 {
     int64_t _lpython_return_variable;
@@ -63,6 +54,11 @@ void main0()
     x = 5;
     ans = fib(x);
     ASSERT(ans == 5);
+}
+
+void _lpython_main_program()
+{
+    main0();
 }
 
 int main(int argc, char* argv[])
