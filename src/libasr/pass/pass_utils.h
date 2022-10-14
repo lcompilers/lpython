@@ -199,6 +199,37 @@ namespace LFortran {
 
         };
 
+        class UpdateDependenciesVisitor : public PassUtils::PassVisitor<UpdateDependenciesVisitor> {
+
+            private:
+
+                Vec<char*> dependencies;
+
+            public:
+
+                UpdateDependenciesVisitor(Allocator &al_)
+                : PassVisitor(al_, nullptr)
+                {}
+
+                void visit_Function(const ASR::Function_t& x) {
+                    ASR::Function_t& xx = const_cast<ASR::Function_t&>(x);
+                    dependencies.reserve(al, x.n_dependencies);
+                    PassUtils::PassVisitor<UpdateDependenciesVisitor>::visit_Function(x);
+                    xx.m_dependencies = dependencies.p;
+                    xx.n_dependencies = dependencies.size();
+                }
+
+                void visit_FunctionCall(const ASR::FunctionCall_t& x) {
+                    dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
+                    PassUtils::PassVisitor<UpdateDependenciesVisitor>::visit_FunctionCall(x);
+                }
+
+                void visit_SubroutineCall(const ASR::SubroutineCall_t& x) {
+                    dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
+                    PassUtils::PassVisitor<UpdateDependenciesVisitor>::visit_SubroutineCall(x);
+                }
+        };
+
     }
 
 } // namespace LFortran
