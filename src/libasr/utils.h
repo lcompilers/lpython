@@ -36,7 +36,6 @@ struct CompilerOptions {
     bool new_parser = false;
     bool implicit_typing = false;
     bool implicit_interface = false;
-    bool implicit_type_cast = false;
     std::string target = "";
     Platform platform;
 

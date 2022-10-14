@@ -1149,7 +1149,6 @@ int main(int argc, char *argv[])
         app.add_option("--target", compiler_options.target, "Generate code for the given target")->capture_default_str();
         app.add_flag("--print-targets", print_targets, "Print the registered targets");
         app.add_flag("--get-rtlib-header-dir", print_rtlib_header_dir, "Print the path to the runtime library header file");
-        app.add_flag("--allow-implicit-casting", compiler_options.implicit_type_cast, "Allow implicit type casting by the compiler");
 
         // LSP specific options
         app.add_flag("--show-errors", show_errors, "Show errors when LSP is running in the background");
