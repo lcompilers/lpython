@@ -1813,18 +1813,80 @@ public:
         }
     }
 
-    bool is_dataclass(AST::expr_t** decorators, size_t n) {
-        if( n != 1 ) {
-            return false;
+    bool is_dataclass(AST::expr_t** decorators, size_t n,
+        ASR::expr_t*& aligned_expr, bool& is_packed) {
+        if( n == 1 ) {
+            AST::expr_t* decorator = decorators[0];
+            if( !AST::is_a<AST::Name_t>(*decorator) ) {
+                return false;
+            }
+
+            AST::Name_t* dec_name = AST::down_cast<AST::Name_t>(decorator);
+            return std::string(dec_name->m_id) == "dataclass";
+        } else if( n == 2 ) {
+
+            if( AST::is_a<AST::Name_t>(*decorators[0]) &&
+                AST::is_a<AST::Name_t>(*decorators[1]) ) {
+                AST::Name_t* dc1_name = AST::down_cast<AST::Name_t>(decorators[0]);
+                AST::Name_t* dc2_name = AST::down_cast<AST::Name_t>(decorators[1]);
+                std::string dc1_str = dc1_name->m_id;
+                std::string dc2_str = dc2_name->m_id;
+                is_packed = true;
+                aligned_expr = nullptr;
+                return ((dc1_str == "dataclass" && dc2_str == "packed") ||
+                        (dc1_str == "packed" && dc2_str == "dataclass"));
+            }
+
+            int32_t dc_idx = -1, pck_idx = -1;
+            if( AST::is_a<AST::Name_t>(*decorators[0]) &&
+                AST::is_a<AST::Call_t>(*decorators[1]) ) {
+                dc_idx = 0, pck_idx = 1;
+            } else if( AST::is_a<AST::Call_t>(*decorators[0]) &&
+                    AST::is_a<AST::Name_t>(*decorators[1]) ) {
+                dc_idx = 1, pck_idx = 0;
+            }
+            if( dc_idx == -1 || pck_idx == -1 ) {
+                return false;
+            }
+            AST::Name_t* dc_name = AST::down_cast<AST::Name_t>(decorators[dc_idx]);
+            if( std::string(dc_name->m_id) != "dataclass" ) {
+                 return false;
+            }
+            AST::Call_t* pck_call = AST::down_cast<AST::Call_t>(decorators[pck_idx]);
+            AST::Name_t* pck_name = AST::down_cast<AST::Name_t>(pck_call->m_func);
+            if( std::string(pck_name->m_id) != "packed" ) {
+                return false;
+            }
+            if( !(pck_call->n_keywords == 1 && pck_call->n_args == 0) ) {
+                return false;
+            }
+
+            AST::keyword_t kwarg = pck_call->m_keywords[0];
+            std::string kwarg_name = kwarg.m_arg;
+            if( kwarg_name != "aligned" ) {
+                return false;
+            }
+            this->visit_expr(*kwarg.m_value);
+            aligned_expr = ASRUtils::EXPR(tmp);
+            ASR::expr_t* aligned_expr_value = ASRUtils::expr_value(aligned_expr);
+            std::string msg = "Alignment should always evaluate to a constant expressions.";
+            if( !aligned_expr_value ) {
+                throw SemanticError(msg, aligned_expr->base.loc);
+            }
+            int64_t alignment_int;
+            if( !ASRUtils::extract_value(aligned_expr_value, alignment_int) ) {
+                throw SemanticError(msg, aligned_expr->base.loc);
+            }
+            if( alignment_int == 0 || ((alignment_int & (alignment_int - 1)) != 0) ) {
+                throw SemanticError("Alignment " + std::to_string(alignment_int) +
+                                    " is not a positive power of 2.",
+                                    aligned_expr->base.loc);
+            }
+            is_packed = true;
+            return true;
         }
 
-        AST::expr_t* decorator = decorators[0];
-        if( !AST::is_a<AST::Name_t>(*decorator) ) {
-            return false;
-        }
-
-        AST::Name_t* dec_name = AST::down_cast<AST::Name_t>(decorator);
-        return std::string(dec_name->m_id) == "dataclass";
+        return false;
     }
 
     bool is_enum(AST::expr_t** bases, size_t n) {
@@ -2092,7 +2154,10 @@ public:
             current_scope->add_symbol(std::string(x.m_name), union_type);
             return ;
         }
-        if( !is_dataclass(x.m_decorator_list, x.n_decorator_list) ) {
+        ASR::expr_t* algined_expr = nullptr;
+        bool is_packed = false;
+        if( !is_dataclass(x.m_decorator_list, x.n_decorator_list,
+                          algined_expr, is_packed) ) {
             throw SemanticError("Only dataclass decorated classes and Enum subclasses are supported.",
                                 x.base.base.loc);
         }
@@ -2111,6 +2176,7 @@ public:
                                         x.base.base.loc, current_scope, x.m_name,
                                         member_names.p, member_names.size(),
                                         ASR::abiType::Source, ASR::accessType::Public,
+                                        is_packed, algined_expr,
                                         nullptr));
         current_scope = parent_scope;
         current_scope->add_symbol(std::string(x.m_name), class_type);
