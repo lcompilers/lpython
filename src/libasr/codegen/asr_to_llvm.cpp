@@ -617,7 +617,10 @@ public:
                 name2memidx[der_type_name][std::string(member->m_name)] = member_idx;
                 member_idx++;
             }
-            der_type_llvm = llvm::StructType::create(context, member_types, der_type_name);
+            der_type_llvm = llvm::StructType::create(context,
+                                member_types,
+                                der_type_name,
+                                der_type->m_is_packed);
             name2dertype[der_type_name] = der_type_llvm;
         }
         if( is_pointer ) {
@@ -2468,6 +2471,16 @@ public:
                         }
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(type, nullptr, v->m_name);
+                    if( ASR::is_a<ASR::Struct_t>(*v->m_type) ) {
+                        ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(v->m_type);
+                        ASR::StructType_t* struct_type = ASR::down_cast<ASR::StructType_t>(
+                                ASRUtils::symbol_get_past_external(struct_t->m_derived_type));
+                        int64_t alignment_value = -1;
+                        if( ASRUtils::extract_value(struct_type->m_alignment, alignment_value) ) {
+                            llvm::Align align(alignment_value);
+                            ptr->setAlignment(align);
+                        }
+                    }
                     llvm_symtab[h] = ptr;
                     if( is_malloc_array_type &&
                         v->m_type->type != ASR::ttypeType::Pointer &&

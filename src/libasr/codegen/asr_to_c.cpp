@@ -778,7 +778,22 @@ R"(
     }
 
     void visit_StructType(const ASR::StructType_t& x) {
-        visit_AggregateTypeUtil(x, "struct");
+        std::string c_type_name = "struct";
+        if( x.m_is_packed ) {
+            std::string attr_args = "(packed";
+            if( x.m_alignment ) {
+                LFORTRAN_ASSERT(ASRUtils::expr_value(x.m_alignment));
+                ASR::expr_t* alignment_value = ASRUtils::expr_value(x.m_alignment);
+                int64_t alignment_int = -1;
+                if( !ASRUtils::extract_value(alignment_value, alignment_int) ) {
+                    LFORTRAN_ASSERT(false);
+                }
+                attr_args += ", aligned(" + std::to_string(alignment_int) + ")";
+            }
+            attr_args += ")";
+            c_type_name += " __attribute__(" + attr_args + ")";
+        }
+        visit_AggregateTypeUtil(x, c_type_name);
     }
 
     void visit_UnionType(const ASR::UnionType_t& x) {

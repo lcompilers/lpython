@@ -96,7 +96,7 @@ symbol
         symbol external, identifier module_name, identifier* scope_names,
         identifier original_name, access access)
     | StructType(symbol_table symtab, identifier name, identifier* members,
-        abi abi, access access, symbol? parent)
+        abi abi, access access, bool is_packed, expr? alignment, symbol? parent)
     | EnumType(symbol_table symtab, identifier name, identifier* members,
         abi abi, access access, enumtype enum_value_type, ttype type, symbol? parent)
     | UnionType(symbol_table symtab, identifier name, identifier* members,
