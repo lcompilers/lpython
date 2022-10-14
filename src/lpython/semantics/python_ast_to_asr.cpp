@@ -2420,18 +2420,17 @@ public:
         }
 
         cast_helper(left, right, false);
-        Vec<ASR::call_arg_t> args;
-        args.reserve(al, 2);
-        ASR::call_arg_t arg1, arg2;
-        arg1.loc = left->base.loc;
-        arg1.m_value = left;
-        args.push_back(al, arg1);
-        arg2.loc = right->base.loc;
-        arg2.m_value = right;
-        args.push_back(al, arg2);
-        Vec<ASR::restriction_arg_t*> rt_args;
-        rt_args.reserve(al, 1);
+
         if (op_name != "") {
+            Vec<ASR::call_arg_t> args;
+            args.reserve(al, 2);
+            ASR::call_arg_t arg1, arg2;
+            arg1.loc = left->base.loc;
+            arg1.m_value = left;
+            args.push_back(al, arg1);
+            arg2.loc = right->base.loc;
+            arg2.m_value = right;
+            args.push_back(al, arg2);
             ASR::symbol_t *fn_mod = resolve_intrinsic_function(x.base.base.loc, op_name);
             tmp = make_call_helper(al, fn_mod, current_scope, args, op_name, x.base.base.loc);
             return;
@@ -3942,20 +3941,28 @@ public:
         ASR::ttype_t* left_type = ASRUtils::expr_type(left);
         ASR::ttype_t* right_type = ASRUtils::expr_type(right);
         ASR::binopType op;
+        std::string op_name = "";
         switch (x.m_op) {
             case (AST::operatorType::Add) : { op = ASR::binopType::Add; break; }
             case (AST::operatorType::Sub) : { op = ASR::binopType::Sub; break; }
             case (AST::operatorType::Mult) : { op = ASR::binopType::Mul; break; }
             case (AST::operatorType::Div) : { op = ASR::binopType::Div; break; }
             case (AST::operatorType::Pow) : { op = ASR::binopType::Pow; break; }
+            case (AST::operatorType::BitOr) : { op = ASR::binopType::BitOr; break; }
+            case (AST::operatorType::BitAnd) : { op = ASR::binopType::BitAnd; break; }
+            case (AST::operatorType::BitXor) : { op = ASR::binopType::BitXor; break; }
+            case (AST::operatorType::LShift) : { op = ASR::binopType::BitLShift; break; }
+            case (AST::operatorType::RShift) : { op = ASR::binopType::BitRShift; break; }
+            case (AST::operatorType::Mod) : { op_name = "_mod"; break; }
             default : {
                 throw SemanticError("Binary operator type not supported",
                     x.base.base.loc);
             }
         }
 
-        make_BinOp_helper(left, right, op, x.base.base.loc, false);
-        if( !ASRUtils::check_equal_type(left_type, right_type) ) {
+        cast_helper(left, right, false);
+
+        if (!ASRUtils::check_equal_type(left_type, right_type)) {
             std::string ltype = ASRUtils::type_to_str_python(left_type);
             std::string rtype = ASRUtils::type_to_str_python(right_type);
             diag.add(diag::Diagnostic(
@@ -3967,6 +3974,23 @@ public:
             );
             throw SemanticAbort();
         }
+
+        if (op_name != "") {
+            Vec<ASR::call_arg_t> args;
+            args.reserve(al, 2);
+            ASR::call_arg_t arg1, arg2;
+            arg1.loc = left->base.loc;
+            arg1.m_value = left;
+            args.push_back(al, arg1);
+            arg2.loc = right->base.loc;
+            arg2.m_value = right;
+            args.push_back(al, arg2);
+            ASR::symbol_t *fn_mod = resolve_intrinsic_function(x.base.base.loc, op_name);
+            tmp = make_call_helper(al, fn_mod, current_scope, args, op_name, x.base.base.loc);
+        } else {
+            make_BinOp_helper(left, right, op, x.base.base.loc, false);
+        }
+
         ASR::stmt_t* a_overloaded = nullptr;
         ASR::expr_t *tmp2 = ASR::down_cast<ASR::expr_t>(tmp);
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, left, tmp2, a_overloaded);

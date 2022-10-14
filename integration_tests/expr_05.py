@@ -52,5 +52,23 @@ def main0():
     assert i4 >> 3 == -541
     assert -i3 & i4 == -432534758
     assert -i3 ^ i4 == 432530657
+    a = 10
+    a |= 4
+    assert a == 14
+    a ^= 3
+    assert a == 13
+    b = 10
+    a %= b
+    assert a == 3
+    b = 4
+    a <<= b
+    assert a == 48
+    a >>= 1
+    assert a == 24
+    a &= b
+    assert a == 0
+    b **= 4
+    assert b == 256
+
 
 main0()
