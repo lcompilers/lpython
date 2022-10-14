@@ -2,6 +2,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
+#include <libasr/utils.h>
 
 
 namespace LFortran {
@@ -40,6 +41,9 @@ private:
     // is not part of this ASR).
     std::map<uint64_t,SymbolTable*> id_symtab_map;
     bool check_external;
+    std::vector<std::string> function_dependencies;
+    std::vector<std::string> module_dependencies;
+
 public:
     VerifyVisitor(bool check_external) : check_external{check_external} {}
 
@@ -198,6 +202,8 @@ public:
     }
 
     void visit_Module(const Module_t &x) {
+        module_dependencies.clear();
+        module_dependencies.reserve(x.n_dependencies);
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;
         require(x.m_symtab != nullptr,
@@ -227,10 +233,20 @@ public:
                 "A module dependency must be a valid string",
                 x.base.base.loc);
         }
+        for( auto& dep: module_dependencies ) {
+            require(present(x.m_dependencies, x.n_dependencies, dep),
+                    "Module " + std::string(x.m_name) +
+                    " dependencies must contain " + dep +
+                    " because a function present in it is getting called in "
+                    + std::string(x.m_name) + ".",
+                    x.base.base.loc);
+        }
         current_symtab = parent_symtab;
     }
 
     void visit_Function(const Function_t &x) {
+        function_dependencies.clear();
+        function_dependencies.reserve(x.n_dependencies);
         SymbolTable *parent_symtab = current_symtab;
         current_symtab = x.m_symtab;
         require(x.m_symtab != nullptr,
@@ -255,6 +271,23 @@ public:
         }
         if (x.m_return_var) {
             visit_expr(*x.m_return_var);
+        }
+
+        // Check if there are unnecessary dependencies
+        // present in the dependency list of the function
+        for( size_t i = 0; i < x.n_dependencies; i++ ) {
+            std::string found_dep = x.m_dependencies[i];
+            require(std::find(function_dependencies.begin(), function_dependencies.end(), found_dep) != function_dependencies.end(),
+                    "Function " + std::string(x.m_name) + " doesn't depend on " + found_dep +
+                    " but is found in its dependency list.");
+        }
+
+        // Check if all the dependencies found are
+        // present in the dependency list of the function
+        for( auto& found_dep: function_dependencies ) {
+            require(present(x.m_dependencies, x.n_dependencies, found_dep),
+                    "Function " + std::string(x.m_name) + " depends on " + found_dep +
+                    " but isn't found in its dependency list.");
         }
         current_symtab = parent_symtab;
     }
@@ -446,6 +479,11 @@ public:
                 "SubroutineCall::m_name '" + std::string(symbol_name(x.m_name)) + "' cannot point outside of its symbol table",
                 x.base.base.loc);
         }
+        function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
+        if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) ) {
+            ASR::ExternalSymbol_t* x_m_name = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
+            module_dependencies.push_back(std::string(x_m_name->m_module_name));
+        }
         for (size_t i=0; i<x.n_args; i++) {
             if( x.m_args[i].m_value ) {
                 visit_expr(*(x.m_args[i].m_value));
@@ -542,6 +580,11 @@ public:
         require(x.m_name,
             "FunctionCall::m_name must be present",
             x.base.base.loc);
+        function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
+        if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) ) {
+            ASR::ExternalSymbol_t* x_m_name = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
+            module_dependencies.push_back(std::string(x_m_name->m_module_name));
+        }
         if (x.m_dt) {
             SymbolTable *symtab = get_dt_symtab(x.m_dt, x.base.base.loc);
             require(symtab_in_scope(symtab, x.m_name),

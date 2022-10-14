@@ -34,15 +34,11 @@ struct dimension_descriptor
 {
     int32_t lower_bound, length;
 };
-// Forward declarations
-void _lpython_main_program();
-void test_for();
-void _xx_lcompilers_changed_exit_xx(int32_t error_code);
 
 // Implementations
-void _lpython_main_program()
+void _xx_lcompilers_changed_exit_xx(int32_t error_code)
 {
-    test_for();
+    exit(error_code);
 }
 
 void test_for()
@@ -62,9 +58,9 @@ void test_for()
     _xx_lcompilers_changed_exit_xx(2);
 }
 
-void _xx_lcompilers_changed_exit_xx(int32_t error_code)
+void _lpython_main_program()
 {
-    exit(error_code);
+    test_for();
 }
 
 int main(int argc, char* argv[])

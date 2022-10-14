@@ -263,6 +263,21 @@ ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
     return r2.result;
 }
 
+void fill_module_dependencies(SymbolTable* symtab, std::set<std::string>& mod_deps) {
+    if( symtab == nullptr ) {
+        return ;
+    }
+    for( auto& itr: symtab->get_scope() ) {
+        if( ASR::is_a<ASR::ExternalSymbol_t>(*itr.second) ) {
+            ASR::ExternalSymbol_t* ext_sym = ASR::down_cast<ASR::ExternalSymbol_t>(itr.second);
+            mod_deps.insert(std::string(ext_sym->m_module_name));
+        } else {
+            SymbolTable* sym_symtab = ASRUtils::symbol_symtab(itr.second);
+            fill_module_dependencies(sym_symtab, mod_deps);
+        }
+    }
+}
+
 ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const std::string &module_name,
                             const Location &loc, bool intrinsic,
@@ -458,6 +473,7 @@ public:
     std::map<std::string, int> generic_func_nums;
     std::map<std::string, std::map<std::string, ASR::ttype_t*>> generic_func_subs;
     std::vector<ASR::symbol_t*> rt_vec;
+    std::set<std::string> dependencies;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module,
@@ -843,7 +859,6 @@ public:
         return type;
     }
 
-
     // Function to create appropriate call based on symbol type. If it is external
     // generic symbol then it changes the name accordingly.
     ASR::asr_t* make_call_helper(Allocator &al, ASR::symbol_t* s, SymbolTable *current_scope,
@@ -999,6 +1014,7 @@ public:
                 Vec<ASR::call_arg_t> args_new;
                 args_new.reserve(al, func->n_args);
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
+                dependencies.insert(std::string(ASRUtils::symbol_name(stemp)));
                 ASR::asr_t* func_call_asr = ASR::make_FunctionCall_t(al, loc, stemp,
                                                 s_generic, args_new.p, args_new.size(),
                                                 a_type, value, nullptr);
@@ -1020,6 +1036,7 @@ public:
                 Vec<ASR::call_arg_t> args_new;
                 args_new.reserve(al, func->n_args);
                 visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
+                dependencies.insert(std::string(ASRUtils::symbol_name(stemp)));
                 return ASR::make_SubroutineCall_t(al, loc, stemp,
                     s_generic, args_new.p, args_new.size(), nullptr);
             }
@@ -1246,6 +1263,8 @@ public:
         generic_func_subs[new_func_name] = subs;
         t = pass_instantiate_generic_function(al, subs, rt_subs, current_scope,
                 new_func_name, func);
+        dependencies.erase(func_name);
+        dependencies.insert(new_func_name);
         return t;
     }
 
@@ -2508,6 +2527,10 @@ public:
             }
             else if (ASRUtils::is_complex(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
+                    if( ASR::is_a<ASR::FunctionCall_t>(*operand) ) {
+                        ASR::FunctionCall_t* operand_func_call = ASR::down_cast<ASR::FunctionCall_t>(operand);
+                        dependencies.erase(std::string(ASRUtils::symbol_name(operand_func_call->m_name)));
+                    }
                     ASR::ComplexConstant_t *c = ASR::down_cast<ASR::ComplexConstant_t>(
                                         ASRUtils::expr_value(operand));
                     std::complex<double> op_value(c->m_re, c->m_im);
@@ -2553,6 +2576,10 @@ public:
             }
             else if (ASRUtils::is_complex(*operand_type)) {
                 if (ASRUtils::expr_value(operand) != nullptr) {
+                    if( ASR::is_a<ASR::FunctionCall_t>(*operand) ) {
+                        ASR::FunctionCall_t* operand_func_call = ASR::down_cast<ASR::FunctionCall_t>(operand);
+                        dependencies.erase(std::string(ASRUtils::symbol_name(operand_func_call->m_name)));
+                    }
                     ASR::ComplexConstant_t *c = ASR::down_cast<ASR::ComplexConstant_t>(
                                         ASRUtils::expr_value(operand));
                     std::complex<double> op_value(c->m_re, c->m_im);
@@ -2902,6 +2929,7 @@ public:
     }
 
     void visit_FunctionDef(const AST::FunctionDef_t &x) {
+        dependencies.clear();
         SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(parent_scope);
         Vec<ASR::expr_t*> args;
@@ -3040,10 +3068,16 @@ public:
                         ASR::down_cast<ASR::symbol_t>(return_var));
                 ASR::asr_t *return_var_ref = ASR::make_Var_t(al, x.base.base.loc,
                     current_scope->get_symbol(return_var_name));
+                Vec<char*> func_deps;
+                func_deps.reserve(al, dependencies.size());
+                for( auto& dep: dependencies ) {
+                    func_deps.push_back(al, s2c(al, dep));
+                }
                 tmp = ASR::make_Function_t(
                     al, x.base.base.loc,
                     /* a_symtab */ current_scope,
                     /* a_name */ s2c(al, sym_name),
+                    func_deps.p, func_deps.size(),
                     /* a_args */ args.p,
                     /* n_args */ args.size(),
                     /* a_body */ nullptr,
@@ -3058,10 +3092,16 @@ public:
             }
         } else {
             bool is_pure = false, is_module = false;
+            Vec<char*> func_deps;
+            func_deps.reserve(al, dependencies.size());
+            for( auto& dep: dependencies ) {
+                func_deps.push_back(al, s2c(al, dep));
+            }
             tmp = ASR::make_Function_t(
                 al, x.base.base.loc,
                 /* a_symtab */ current_scope,
                 /* a_name */ s2c(al, sym_name),
+                func_deps.p, func_deps.size(),
                 /* a_args */ args.p,
                 /* n_args */ args.size(),
                 /* a_body */ nullptr,
@@ -3325,14 +3365,19 @@ public:
         ASR::TranslationUnit_t *unit = ASR::down_cast2<ASR::TranslationUnit_t>(asr);
         current_scope = unit->m_global_scope;
         LFORTRAN_ASSERT(current_scope != nullptr);
+        ASR::symbol_t* main_module_sym = current_scope->get_symbol("__main__");
+        ASR::Module_t* mod = nullptr;
+        if( main_module_sym ) {
+            mod = ASR::down_cast<ASR::Module_t>(main_module_sym);
+        }
         if (!main_module) {
-            ASR::Module_t *mod = ASR::down_cast<ASR::Module_t>(current_scope->get_symbol("__main__"));
             current_scope = mod->m_symtab;
             LFORTRAN_ASSERT(current_scope != nullptr);
         }
 
         Vec<ASR::asr_t*> items;
         items.reserve(al, 4);
+        current_module_dependencies.reserve(al, 1);
         for (size_t i=0; i<x.n_body; i++) {
             tmp = nullptr;
             tmp_vec.clear();
@@ -3346,6 +3391,15 @@ public:
                 // Ensure that statements in tmp_vec are used only once.
                 tmp_vec.clear();
             }
+        }
+        if( mod ) {
+            for( size_t i = 0; i < mod->n_dependencies; i++ ) {
+                if( !present(current_module_dependencies, mod->m_dependencies[i]) ) {
+                    current_module_dependencies.push_back(al, mod->m_dependencies[i]);
+                }
+            }
+            mod->m_dependencies = current_module_dependencies.p;
+            mod->n_dependencies = current_module_dependencies.size();
         }
         // These global statements are added to the translation unit for now,
         // but they should be adding to a module initialization function
@@ -3361,12 +3415,20 @@ public:
         body.reserve(al, x.n_body);
         Vec<ASR::symbol_t*> rts;
         rts.reserve(al, 4);
+        dependencies.clear();
         transform_stmts(body, x.n_body, x.m_body);
         for (const auto &rt: rt_vec) { rts.push_back(al, rt); }
         v.m_body = body.p;
         v.n_body = body.size();
         v.m_restrictions = rts.p;
         v.n_restrictions = rts.size();
+        Vec<char*> func_deps;
+        func_deps.reserve(al, dependencies.size());
+        for( auto& dep: dependencies ) {
+            func_deps.push_back(al, s2c(al, dep));
+        }
+        v.m_dependencies = func_deps.p;
+        v.n_dependencies = func_deps.size();
         rt_vec.clear();
     }
 

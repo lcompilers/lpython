@@ -604,13 +604,19 @@ R"(#include <stdio.h>
 
         std::string contains;
 
+        // Topologically sort all module functions
+        // and then define them in the right order
+        std::vector<std::string> func_order = ASRUtils::determine_function_definition_order(x.m_symtab);
+
         // Generate the bodies of subroutines
-        for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Function_t>(*item.second)) {
-                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
-                self().visit_Function(*s);
-                contains += src;
+        for (auto &item : func_order) {
+            ASR::symbol_t* sym = x.m_symtab->get_symbol(item);
+            if( !sym ) {
+                continue ;
             }
+            ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(sym);
+            self().visit_Function(*s);
+            contains += src;
         }
         src = contains;
         intrinsic_module = false;

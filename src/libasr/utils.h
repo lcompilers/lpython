@@ -44,6 +44,7 @@ struct CompilerOptions {
 
 bool read_file(const std::string &filename, std::string &text);
 bool present(Vec<char*> &v, const char* name);
+bool present(char** const v, size_t n, const std::string name);
 int initialize();
 
 } // LFortran

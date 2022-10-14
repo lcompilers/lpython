@@ -171,6 +171,7 @@ public:
             al, loc,
             /* a_symtab */ list_section_symtab,
             /* a_name */ s2c(al, fn_name),
+            nullptr, 0,
             /* a_args */ arg_exprs.p,
             /* n_args */ arg_exprs.n,
             /* a_body */ body.p,
@@ -320,6 +321,7 @@ public:
             al, loc,
             /* a_symtab */ list_concat_symtab,
             /* a_name */ s2c(al, fn_name),
+            nullptr, 0,
             /* a_args */ arg_exprs.p,
             /* n_args */ arg_exprs.n,
             /* a_body */ body.p,
@@ -394,9 +396,10 @@ void pass_list_expr(Allocator &al, ASR::TranslationUnit_t &unit,
                         const LCompilers::PassOptions& /*pass_options*/) {
     ListExprVisitor v(al, unit);
     v.visit_TranslationUnit(unit);
+    PassUtils::UpdateDependenciesVisitor u(al);
+    u.visit_TranslationUnit(unit);
     LFORTRAN_ASSERT(asr_verify(unit));
 }
 
 
 } // namespace LFortran
-
