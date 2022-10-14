@@ -84,7 +84,7 @@ symbol
         stmt* body)
     | Module(symbol_table symtab, identifier name, identifier* dependencies,
         bool loaded_from_mod, bool intrinsic)
-    | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
+    | Function(symbol_table symtab, identifier name, identifier* dependencies, expr* args, stmt* body,
         expr? return_var, abi abi, access access, deftype deftype,
         string? bindc_name, bool elemental, bool pure, bool module, bool inline,
         bool static, ttype* type_params, symbol* restrictions, bool is_restriction)
