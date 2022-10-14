@@ -4,6 +4,16 @@
 #include <string>
 #include <libasr/utils.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
+
+#ifdef _WIN32
+#define stat _stat
+#endif
+
 namespace LFortran {
 
 void get_executable_path(std::string &executable_path, int &dirname_length);
