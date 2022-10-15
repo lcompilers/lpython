@@ -4808,6 +4808,119 @@ public:
             cptr, ASR::down_cast<ASR::expr_t>(pp), nullptr);
     }
 
+    void handle_string_attributes(ASR::expr_t *s_var,
+                Vec<ASR::call_arg_t> &args, std::string attr_name, const Location &loc) {
+        std::string fn_call_name = "";
+        Vec<ASR::call_arg_t> fn_args;
+        fn_args.reserve(al, 1);
+        if (attr_name == "capitalize") {
+            if (args.size() != 0) {
+                throw SemanticError("str.capitalize() takes no arguments",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_capitalize";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else if (attr_name == "lower") {
+            if (args.size() != 0) {
+                throw SemanticError("str.lower() takes no arguments",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_lower";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else if (attr_name == "find") {
+            if (args.size() != 1) {
+                throw SemanticError("str.find() takes one argument",
+                    loc);
+            }
+            ASR::expr_t *arg_sub = args[0].m_value;
+            ASR::ttype_t *arg_sub_type = ASRUtils::expr_type(arg_sub);
+            if (!ASRUtils::is_character(*arg_sub_type)) {
+                throw SemanticError("str.find() takes one argument of type: str",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_find";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+            ASR::call_arg_t sub;
+            sub.loc = loc;
+            sub.m_value = args[0].m_value;
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, sub);
+        } else if (attr_name == "rstrip") {
+            if (args.size() != 0) {
+                throw SemanticError("str.rstrip() takes no arguments",
+                        loc);
+            }
+            fn_call_name = "_lpython_str_rstrip";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else if (attr_name == "lstrip") {
+            if (args.size() != 0) {
+                throw SemanticError("str.lstrip() takes no arguments",
+                        loc);
+            }
+            fn_call_name = "_lpython_str_lstrip";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else if (attr_name == "strip") {
+            if (args.size() != 0) {
+                throw SemanticError("str.strip() takes no arguments",
+                    loc);
+            }
+            fn_call_name = "_lpython_str_strip";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else if (attr_name == "swapcase") {
+            if (args.size() != 0) {
+                throw SemanticError("str.swapcase() takes no arguments",
+                        loc);
+            }
+            fn_call_name = "_lpython_str_swapcase";
+            ASR::call_arg_t arg;
+            arg.loc = loc;
+            arg.m_value = s_var;
+            fn_args.push_back(al, arg);
+        } else if (attr_name == "startswith") {
+            if(args.size() != 1) {
+                throw SemanticError("str.startwith() takes one argument",
+                        loc);
+            }
+            ASR::expr_t *arg_sub = args[0].m_value;
+            ASR::ttype_t *arg_sub_type = ASRUtils::expr_type(arg_sub);
+            if (!ASRUtils::is_character(*arg_sub_type)) {
+                throw SemanticError("str.startwith() takes one argument of type: str",
+                        loc);
+            }
+            fn_call_name = "_lpython_str_startswith";
+            ASR::call_arg_t str;
+            str.loc = loc;
+            str.m_value = s_var;
+            ASR::call_arg_t sub;
+            sub.loc = loc;
+            sub.m_value = args[0].m_value;
+            fn_args.push_back(al, str);
+            fn_args.push_back(al, sub);
+        } else {
+            throw SemanticError("String method not implemented: " + attr_name,
+                    loc);
+        }
+        ASR::symbol_t *fn_call = resolve_intrinsic_function(loc, fn_call_name);
+        tmp = make_call_helper(al, fn_call, current_scope, fn_args, fn_call_name, loc);
+    }
+
     void visit_Call(const AST::Call_t &x) {
         std::string call_name;
         Vec<ASR::call_arg_t> args;
@@ -4845,139 +4958,8 @@ public:
                             ASR::expr_t *se = ASR::down_cast<ASR::expr_t>(
                                             ASR::make_Var_t(al, x.base.base.loc, st));
                             if (ASR::is_a<ASR::Character_t>(*(ASRUtils::expr_type(se)))) {
-                                if (std::string(at->m_attr) == std::string("capitalize")) {
-                                    if(args.size() != 0) {
-                                        throw SemanticError("str.capitalize() takes no arguments",
-                                            x.base.base.loc);
-                                    }
-                                    ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_capitalize");
-                                    Vec<ASR::call_arg_t> args;
-                                    args.reserve(al, 1);
-                                    ASR::call_arg_t arg;
-                                    arg.loc = x.base.base.loc;
-                                    arg.m_value = se;
-                                    args.push_back(al, arg);
-                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_capitalize", x.base.base.loc);
-                                    return;
-                                } else if (std::string(at->m_attr) == std::string("lower")) {
-                                    if(args.size() != 0) {
-                                        throw SemanticError("str.lower() takes no arguments",
-                                            x.base.base.loc);
-                                    }
-                                    ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_lower");
-                                    Vec<ASR::call_arg_t> args;
-                                    args.reserve(al, 1);
-                                    ASR::call_arg_t arg;
-                                    arg.loc = x.base.base.loc;
-                                    arg.m_value = se;
-                                    args.push_back(al, arg);
-                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_lower", x.base.base.loc);
-                                    return;
-                                } else if (std::string(at->m_attr) == std::string("find")) {
-                                    if(args.size() != 1) {
-                                        throw SemanticError("str.find() takes one argument",
-                                            x.base.base.loc);
-                                    }
-                                    ASR::expr_t *arg_sub = args[0].m_value;
-                                    ASR::ttype_t *arg_sub_type = ASRUtils::expr_type(arg_sub);
-                                    if(!ASRUtils::is_character(*arg_sub_type)) {
-                                        throw SemanticError("str.find() takes one argument of type: str",
-                                            x.base.base.loc);
-                                    }
-                                    ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_find");
-                                    Vec<ASR::call_arg_t> function_args;
-                                    function_args.reserve(al, 1);
-                                    ASR::call_arg_t str;
-                                    str.loc = x.base.base.loc;
-                                    str.m_value = se;
-                                    ASR::call_arg_t sub;
-                                    sub.loc = x.base.base.loc;
-                                    sub.m_value = args[0].m_value;
-                                    function_args.push_back(al, str);
-                                    function_args.push_back(al, sub);
-                                    tmp = make_call_helper(al, fn_div, current_scope, function_args, "_lpython_str_find", x.base.base.loc);
-                                    return;
-                                } else if (std::string(at->m_attr) == std::string("rstrip")) {
-                                    if(args.size() != 0) {
-                                        throw SemanticError("str.srtrip() takes no arguments",
-                                            x.base.base.loc);
-                                    }
-                                    ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_rstrip");
-                                    Vec<ASR::call_arg_t> args;
-                                    args.reserve(al, 1);
-                                    ASR::call_arg_t arg;
-                                    arg.loc = x.base.base.loc;
-                                    arg.m_value = se;
-                                    args.push_back(al, arg);
-                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_rstrip", x.base.base.loc);
-                                    return;
-                                } else if (std::string(at->m_attr) == std::string("lstrip")) {
-                                    if(args.size() != 0) {
-                                        throw SemanticError("str.lrtrip() takes no arguments",
-                                            x.base.base.loc);
-                                    }
-                                    ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_lstrip");
-                                    Vec<ASR::call_arg_t> args;
-                                    args.reserve(al, 1);
-                                    ASR::call_arg_t arg;
-                                    arg.loc = x.base.base.loc;
-                                    arg.m_value = se;
-                                    args.push_back(al, arg);
-                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_lstrip", x.base.base.loc);
-                                    return;
-                                } else if (std::string(at->m_attr) == std::string("strip")) {
-                                    if(args.size() != 0) {
-                                        throw SemanticError("str.srtrip() takes no arguments",
-                                            x.base.base.loc);
-                                    }
-                                    ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_strip");
-                                    Vec<ASR::call_arg_t> args;
-                                    args.reserve(al, 1);
-                                    ASR::call_arg_t arg;
-                                    arg.loc = x.base.base.loc;
-                                    arg.m_value = se;
-                                    args.push_back(al, arg);
-                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_strip", x.base.base.loc);
-                                    return;
-                                } else if (std::string(at->m_attr) == std::string("swapcase")) {
-                                    if(args.size() != 0) {
-                                        throw SemanticError("str.swapcase() takes no arguments",
-                                            x.base.base.loc);
-                                    }
-                                    ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_swapcase");
-                                    Vec<ASR::call_arg_t> args;
-                                    args.reserve(al, 1);
-                                    ASR::call_arg_t arg;
-                                    arg.loc = x.base.base.loc;
-                                    arg.m_value = se;
-                                    args.push_back(al, arg);
-                                    tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_swapcase", x.base.base.loc);
-                                    return;
-                                } else if (std::string(at->m_attr) == std::string("startswith")) {
-                                    if(args.size() != 1) {
-                                        throw SemanticError("str.startwith() takes one argument",
-                                            x.base.base.loc);
-                                    }
-                                    ASR::expr_t *arg_sub = args[0].m_value;
-                                    ASR::ttype_t *arg_sub_type = ASRUtils::expr_type(arg_sub);
-                                    if(!ASRUtils::is_character(*arg_sub_type)) {
-                                        throw SemanticError("str.startwith() takes one argument of type: str",
-                                            x.base.base.loc);
-                                    }
-                                    ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_startswith");
-                                    Vec<ASR::call_arg_t> function_args;
-                                    function_args.reserve(al, 1);
-                                    ASR::call_arg_t str;
-                                    str.loc = x.base.base.loc;
-                                    str.m_value = se;
-                                    ASR::call_arg_t sub;
-                                    sub.loc = x.base.base.loc;
-                                    sub.m_value = args[0].m_value;
-                                    function_args.push_back(al, str);
-                                    function_args.push_back(al, sub);
-                                    tmp = make_call_helper(al, fn_div, current_scope, function_args, "_lpython_str_startswith", x.base.base.loc);
-                                    return;
-                                }
+                                handle_string_attributes(se, args, at->m_attr, x.base.base.loc);
+                                return;
                             }
                             handle_attribute(se, at->m_attr, x.base.base.loc, eles);
                             return;
