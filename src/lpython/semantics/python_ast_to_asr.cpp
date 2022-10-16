@@ -1422,15 +1422,31 @@ public:
     }
 
     void cast_helper(ASR::expr_t*& left, ASR::expr_t*& right, bool is_assign) {
-        // Comment out the next line if want implicit type-casting
+        // ----------------------------------------------------------------------------------
+        ASR::ttype_t *right_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(right));
+        ASR::ttype_t *left_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(left));
+        std::string _right = ASRUtils::get_type_code(right_type);
+        std::string _left = ASRUtils::get_type_code(left_type);
+        std::string rtype = ASRUtils::type_to_str_python(right_type);
+        std::string ltype = ASRUtils::type_to_str_python(left_type);
+        if(_right.compare(_left) != 0) {
+            diag.add(diag::Diagnostic(
+                    "Type mismatch found",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("type mismatch ('" + ltype + "' and '" + rtype + "')",
+                            {left->base.loc, right->base.loc})
+                })
+            );
+            throw SemanticAbort();
+        }
         return;
-
+        // ----------------------------------------------------------------------------------
         bool no_cast = ((ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(left)) &&
                          ASR::is_a<ASR::Var_t>(*left)) ||
                         (ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(right)) &&
                          ASR::is_a<ASR::Var_t>(*right)));
-        ASR::ttype_t *right_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(right));
-        ASR::ttype_t *left_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(left));
+        // ASR::ttype_t *right_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(right));
+        // ASR::ttype_t *left_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(left));
         if( no_cast ) {
             int lkind = ASRUtils::extract_kind_from_ttype_t(left_type);
             int rkind = ASRUtils::extract_kind_from_ttype_t(right_type);
