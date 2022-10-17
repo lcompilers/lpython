@@ -924,6 +924,11 @@ R"(#include <stdio.h>
         }
     }
 
+    void visit_SizeOfType(const ASR::SizeOfType_t& x) {
+        std::string c_type = get_c_type_from_ttype_t(x.m_arg);
+        src = "sizeof(" + c_type + ")";
+    }
+
     void visit_StringSection(const ASR::StringSection_t& x) {
         self().visit_expr(*x.m_arg);
         std::string arg, left, right, step, left_present, rig_present;
@@ -1569,6 +1574,26 @@ R"(#include <stdio.h>
                 std::string list_element_type = get_c_type_from_ttype_t(list_type->m_type);
                 std::string list_type_c = list_api->get_list_type(list_type, list_element_type);
                 type_src = list_type_c;
+                break;
+            }
+            case ASR::ttypeType::Complex: {
+                if( kind == 4 ) {
+                    if( is_c ) {
+                        headers.insert("complex");
+                        type_src = "float complex";
+                    } else {
+                        type_src = "std::complex<float>";
+                    }
+                } else if( kind == 8 ) {
+                    if( is_c ) {
+                        headers.insert("complex");
+                        type_src = "double complex";
+                    } else {
+                        type_src = "std::complex<double>";
+                    }
+                } else {
+                    throw CodeGenError(std::to_string(kind * 8) + "-bit floating points not yet supported.");
+                }
                 break;
             }
             default: {
