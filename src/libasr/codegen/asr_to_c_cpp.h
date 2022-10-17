@@ -18,6 +18,7 @@
 #include <libasr/asr.h>
 #include <libasr/containers.h>
 #include <libasr/codegen/asr_to_c.h>
+#include <libasr/codegen/c_utils.h>
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/string_utils.h>
@@ -29,29 +30,6 @@
 
 namespace LFortran {
 
-namespace {
-
-    // Local exception that is only used in this file to exit the visitor
-    // pattern and caught later (not propagated outside)
-    class CodeGenError
-    {
-    public:
-        diag::Diagnostic d;
-    public:
-        CodeGenError(const std::string &msg)
-            : d{diag::Diagnostic(msg, diag::Level::Error, diag::Stage::CodeGen)}
-        { }
-
-        CodeGenError(const std::string &msg, const Location &loc)
-            : d{diag::Diagnostic(msg, diag::Level::Error, diag::Stage::CodeGen, {
-                diag::Label("", {loc})
-            })}
-        { }
-    };
-
-    class Abort {};
-
-}
 
 // Platform dependent fast unique hash:
 static inline uint64_t get_hash(ASR::asr_t *node)
@@ -64,6 +42,7 @@ struct SymbolInfo
     bool needs_declaration = true;
     bool intrinsic_function = false;
 };
+
 
 typedef std::string (*DeepCopyFunction)(std::string, std::string, ASR::ttype_t*);
 
@@ -470,6 +449,82 @@ class CCPPList {
             typecode2listtype.clear();
             generated_code.clear();
             compare_list_eles.clear();
+        }
+};
+
+class CCPPTuple {
+    private:
+
+        std::map<std::string, std::string> typecode2tupletype;
+        std::map<std::string, std::map<std::string, std::string>> typecode2tuplefuncs;
+
+        int indentation_level, indentation_spaces;
+
+        std::string generated_code;
+        std::string tuple_func_decls;
+
+        SymbolTable* global_scope;
+        DeepCopyFunction deepcopy_function;
+
+    public:
+
+        CCPPTuple() {
+            generated_code.clear();
+            tuple_func_decls.clear();
+        }
+
+        void set_deepcopy_function(DeepCopyFunction func) {
+            deepcopy_function = func;
+        }
+
+        void set_indentation(int indendation_level_, int indendation_space_) {
+            indentation_level = indendation_level_;
+            indentation_spaces = indendation_space_;
+        }
+
+        void set_global_scope(SymbolTable* global_scope_) {
+            global_scope = global_scope_;
+        }
+
+        std::string get_tuple_type_code(ASR::Tuple_t *tup) {
+            std::string result = "tuple_";
+            for (size_t i = 0; i < tup->n_type; i++) {
+                result += ASRUtils::get_type_code(tup->m_type[i], true);
+                if (i + 1 != tup->n_type) {
+                    result += "_";
+                }
+            }
+            return result;
+        }
+
+        std::string get_tuple_type(ASR::Tuple_t* tuple_type) {
+            std::string tuple_type_code = get_tuple_type_code(tuple_type);
+            if (typecode2tupletype.find(tuple_type_code) != typecode2tupletype.end()) {
+                return typecode2tupletype[tuple_type_code];
+            }
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string tuple_struct_type = "struct tuple_" + tuple_type_code;
+            typecode2tupletype[tuple_type_code] = tuple_struct_type;
+            tuple_func_decls += indent + tuple_struct_type + " {\n";
+            tuple_func_decls += indent + tab + "int32_t length = " + \
+                            std::to_string(tuple_type->n_type) + ";\n";
+            for (size_t i = 0; i < tuple_type->n_type; i++) {
+                tuple_func_decls += indent + tab + \
+                    get_c_type_from_ttype_t(tuple_type->m_type[i]) + "element_" + std::to_string(i) + ";\n";
+            }
+            tuple_func_decls += indent + "};\n\n";
+            return tuple_struct_type;
+        }
+
+
+        std::string get_generated_code() {
+            return generated_code;
+        }
+
+        ~CCPPTuple() {
+            typecode2tupletype.clear();
+            generated_code.clear();
         }
 };
 
@@ -1531,76 +1586,6 @@ R"(#include <stdio.h>
         } else {
             src = "!(" + src + ")";
         }
-    }
-
-    std::string get_c_type_from_ttype_t(ASR::ttype_t* t) {
-        int kind = ASRUtils::extract_kind_from_ttype_t(t);
-        std::string type_src = "";
-        switch( t->type ) {
-            case ASR::ttypeType::Integer: {
-                type_src = "int" + std::to_string(kind * 8) + "_t";
-                break;
-            }
-            case ASR::ttypeType::Real: {
-                if( kind == 4 ) {
-                    type_src = "float";
-                } else if( kind == 8 ) {
-                    type_src = "double";
-                } else {
-                    throw CodeGenError(std::to_string(kind * 8) + "-bit floating points not yet supported.");
-                }
-                break;
-            }
-            case ASR::ttypeType::Character: {
-                type_src = "char*";
-                break;
-            }
-            case ASR::ttypeType::Pointer: {
-                ASR::Pointer_t* ptr_type = ASR::down_cast<ASR::Pointer_t>(t);
-                type_src = get_c_type_from_ttype_t(ptr_type->m_type) + "*";
-                break;
-            }
-            case ASR::ttypeType::CPtr: {
-                type_src = "void*";
-                break;
-            }
-            case ASR::ttypeType::Struct: {
-                ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(t);
-                type_src = std::string("struct ") + ASRUtils::symbol_name(der_type->m_derived_type);
-                break;
-            }
-            case ASR::ttypeType::List: {
-                ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(t);
-                std::string list_element_type = get_c_type_from_ttype_t(list_type->m_type);
-                std::string list_type_c = list_api->get_list_type(list_type, list_element_type);
-                type_src = list_type_c;
-                break;
-            }
-            case ASR::ttypeType::Complex: {
-                if( kind == 4 ) {
-                    if( is_c ) {
-                        headers.insert("complex");
-                        type_src = "float complex";
-                    } else {
-                        type_src = "std::complex<float>";
-                    }
-                } else if( kind == 8 ) {
-                    if( is_c ) {
-                        headers.insert("complex");
-                        type_src = "double complex";
-                    } else {
-                        type_src = "std::complex<double>";
-                    }
-                } else {
-                    throw CodeGenError(std::to_string(kind * 8) + "-bit floating points not yet supported.");
-                }
-                break;
-            }
-            default: {
-                throw CodeGenError("Type " + ASRUtils::type_to_str_python(t) + " not supported yet.");
-            }
-        }
-        return type_src;
     }
 
     void visit_GetPointer(const ASR::GetPointer_t& x) {
