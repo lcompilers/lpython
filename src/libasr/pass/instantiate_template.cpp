@@ -15,6 +15,7 @@ public:
     std::map<std::string, ASR::ttype_t*> subs;
     std::map<std::string, ASR::symbol_t*> rt_subs;
     std::vector<ASR::Function_t*> rts;
+    std::set<std::string> dependencies;
 
     static std::map<std::string, int> generic_func_nums;
     static std::map<std::string, std::map<std::string, ASR::ttype_t*>> generic_func_subs;
@@ -114,9 +115,20 @@ public:
         bool func_pure = x->m_pure;
         bool func_module = x->m_module;
 
+        Vec<char*> deps_vec;
+        deps_vec.reserve(al, dependencies.size());
+        for( auto& dep: dependencies ) {
+            deps_vec.push_back(al, s2c(al, dep));
+        }
+
         ASR::asr_t *result = ASR::make_Function_t(
             al, x->base.base.loc,
+<<<<<<< HEAD
             new_scope, s2c(al, new_func_name),
+=======
+            current_scope, s2c(al, new_func_name),
+            deps_vec.p, deps_vec.size(),
+>>>>>>> master
             args.p, args.size(),
             body.p, body.size(),
             new_return_var_ref,
@@ -259,10 +271,14 @@ public:
                 name = rt_subs[call_name];
             }
         }
+<<<<<<< HEAD
         if (ASRUtils::is_generic_function(name)) {
             FunctionInstantiator nested_tf(al, subs, rt_subs, func_scope);
             name = nested_tf.get_generic_function(ASR::down_cast<ASR::Function_t>(name));
         }
+=======
+        dependencies.insert(std::string(ASRUtils::symbol_name(name)));
+>>>>>>> master
         return ASR::make_FunctionCall_t(al, x->base.base.loc, name, x->m_original_name,
             args.p, args.size(), type, value, dt);
     }

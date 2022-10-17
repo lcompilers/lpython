@@ -43,16 +43,14 @@ struct i16
     bool is_allocated;
 };
 
-// Forward declarations
-void _lpython_main_program();
-void check(struct i16* *ptr);
-void f();
-void g(struct i16* *x, struct i16* y);
 
 // Implementations
-void _lpython_main_program()
+void g(struct i16* *x, struct i16* y)
 {
-    f();
+    y->data[(0 - y->dims[0].lower_bound)] = 1;
+    y->data[(1 - y->dims[0].lower_bound)] = 2;
+    (*x) = y;
+    printf("%d%s%d\n", (*x)->data[(0 - (*x)->dims[0].lower_bound)], " ", (*x)->data[(1 - (*x)->dims[0].lower_bound)]);
 }
 
 void check(struct i16* *ptr)
@@ -77,12 +75,9 @@ void f()
     check(&yptr1);
 }
 
-void g(struct i16* *x, struct i16* y)
+void _lpython_main_program()
 {
-    y->data[(0 - y->dims[0].lower_bound)] = 1;
-    y->data[(1 - y->dims[0].lower_bound)] = 2;
-    (*x) = y;
-    printf("%d%s%d\n", (*x)->data[(0 - (*x)->dims[0].lower_bound)], " ", (*x)->data[(1 - (*x)->dims[0].lower_bound)]);
+    f();
 }
 
 int main(int argc, char* argv[])

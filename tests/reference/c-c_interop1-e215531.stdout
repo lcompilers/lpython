@@ -34,14 +34,12 @@ struct dimension_descriptor
 {
     int32_t lower_bound, length;
 };
-// Forward declarations
-double f(double x);
-void g(double a, float b, int64_t c, int32_t d);
-double h(double x);
-void l(double a, float b, int64_t c, int32_t d);
-void main0();
 
 // Implementations
+double f(double x);
+
+void g(double a, float b, int64_t c, int32_t d);
+
 double h(double x)
 {
     double _lpython_return_variable;

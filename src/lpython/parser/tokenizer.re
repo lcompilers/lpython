@@ -255,11 +255,11 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
         // These two variables are needed by the re2c block below internally,
         // initialization is not needed. One can think of them as local
         // variables of the re2c block.
-        unsigned char *mar, *ctxmar;
+        unsigned char *mar; //, *ctxmar;
         /*!re2c
             re2c:define:YYCURSOR = cur;
             re2c:define:YYMARKER = mar;
-            re2c:define:YYCTXMARKER = ctxmar;
+            // re2c:define:YYCTXMARKER = ctxmar;
             re2c:yyfill:enable = 0;
             re2c:define:YYCTYPE = "unsigned char";
 
@@ -398,23 +398,37 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             "yield" whitespace "from" whitespace { KW(YIELD_FROM) }
 
             // Soft Keywords
-            "match" / whitespace [^\n\x00]+ ":" newline {
+            "match" / [^:\n\x00] {
                 if ((last_token == -1
                   || last_token == yytokentype::TK_DEDENT
                   || last_token == yytokentype::TK_INDENT
                   || last_token == yytokentype::TK_NEWLINE)
-                  && !parenlevel) {
-                    KW(MATCH);
+                  && parenlevel == 0) {
+                    bool is_match_keyword = false;
+                    lex_match_or_case(loc, cur, is_match_keyword);
+                    if (is_match_keyword) {
+                        KW(MATCH);
+                    } else {
+                        token(yylval.string);
+                        RET(TK_NAME);
+                    }
                 } else {
                     token(yylval.string);
                     RET(TK_NAME);
                 }
             }
-            "case" / whitespace [^\n\x00]+ ":" newline {
-                if ((last_token == yytokentype::TK_DEDENT
-                  || last_token == yytokentype::TK_INDENT)
-                  && !parenlevel) {
-                    KW(CASE);
+            "case" / [^:\n\x00] {
+                if ((last_token == yytokentype::TK_INDENT
+                  || last_token == yytokentype::TK_DEDENT)
+                  && parenlevel == 0) {
+                    bool is_case_keyword = false;
+                    lex_match_or_case(loc, cur, is_case_keyword);
+                    if (is_case_keyword) {
+                        KW(CASE);
+                    } else {
+                        token(yylval.string);
+                        RET(TK_NAME);
+                    }
                 } else {
                     token(yylval.string);
                     RET(TK_NAME);
@@ -575,6 +589,59 @@ int Tokenizer::lex(Allocator &al, YYSTYPE &yylval, Location &loc, diag::Diagnost
             string4 { token_str3(yylval.string); RET(TK_STRING) }
 
             name { token(yylval.string); RET(TK_NAME) }
+        */
+    }
+}
+
+void Tokenizer::lex_match_or_case(Location &loc, unsigned char *cur,
+        bool &is_match_or_case_keyword) {
+    for (;;) {
+        unsigned char *tok = cur;
+        unsigned char *mar;
+        /*!re2c
+            re2c:define:YYCURSOR = cur;
+            re2c:define:YYMARKER = mar;
+            re2c:yyfill:enable = 0;
+            re2c:define:YYCTYPE = "unsigned char";
+
+            * {
+                token_loc(loc);
+                std::string t = std::string((char *)tok, cur - tok);
+                throw LFortran::parser_local::TokenizerError("Token '" + t
+                    + "' is not recognized in `match` statement", loc);
+            }
+
+            end {
+                token_loc(loc);
+                std::string t = std::string((char *)tok, cur - tok);
+                throw LFortran::parser_local::TokenizerError(
+                    "End of file not expected within `match` statement: '" + t
+                    + "'", loc);
+            }
+
+            "(" { record_paren(loc, '('); continue; }
+            "[" { record_paren(loc, '['); continue; }
+            "{" { record_paren(loc, '{'); continue; }
+            ")" { record_paren(loc, ')'); continue; }
+            "]" { record_paren(loc, ']'); continue; }
+            "}" { record_paren(loc, '}'); continue; }
+
+            ":" newline | ":" whitespace? comment {
+                if (parenlevel == 0) {
+                    is_match_or_case_keyword = true;
+                    return;
+                }
+                continue;
+            }
+
+            "\\" newline { continue; }
+
+            newline {
+                if (parenlevel == 0) { return; }
+                continue;
+            }
+
+            [^\x00] { continue; }
         */
     }
 }

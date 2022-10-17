@@ -545,7 +545,7 @@ namespace LFortran {
             ASR::asr_t* vector_copy_asr = ASR::make_Function_t(al,
                 unit.base.base.loc,
                 vector_copy_symtab,
-                s2c(al, vector_copy_name), arg_exprs.p, arg_exprs.size(),
+                s2c(al, vector_copy_name), nullptr, 0, arg_exprs.p, arg_exprs.size(),
                 /* nullptr, 0, */ body.p, body.size(), nullptr,
                 ASR::abiType::Source, ASR::accessType::Public,
                 ASR::deftypeType::Implementation,

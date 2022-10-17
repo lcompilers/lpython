@@ -967,6 +967,9 @@ std::vector<std::string> order_deps(std::map<std::string,
 std::vector<std::string> determine_module_dependencies(
         const ASR::TranslationUnit_t &unit);
 
+std::vector<std::string> determine_function_definition_order(
+        SymbolTable* symtab);
+
 void extract_module_python(const ASR::TranslationUnit_t &m,
         std::vector<std::pair<std::string, ASR::Module_t*>>& children_modules,
         std::string module_name);

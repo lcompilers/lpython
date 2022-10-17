@@ -784,7 +784,7 @@ case_blocks
     ;
 
 match_statement
-    : KW_MATCH tuple_list ":" TK_NEWLINE TK_INDENT case_blocks TK_DEDENT {
+    : KW_MATCH tuple_list ":" sep TK_INDENT case_blocks TK_DEDENT {
         $$ = MATCH_01($2, $6, @$); }
     ;
 

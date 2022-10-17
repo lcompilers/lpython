@@ -633,20 +633,10 @@ R"(
             }
         }
 
-        // Pre-declare all functions first, then generate code
-        // Otherwise some function might not be found.
-        unit_src += "// Forward declarations\n";
-        unit_src += declare_all_functions(*x.m_global_scope);
-        // Now pre-declare all functions from modules and programs
-        for (auto &item : x.m_global_scope->get_scope()) {
-            if (ASR::is_a<ASR::Module_t>(*item.second)) {
-                ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(item.second);
-                unit_src += declare_all_functions(*m->m_symtab);
-            } else if (ASR::is_a<ASR::Program_t>(*item.second)) {
-                ASR::Program_t *p = ASR::down_cast<ASR::Program_t>(item.second);
-                unit_src += declare_all_functions(*p->m_symtab);
-            }
-        }
+        // Topologically sort all global functions
+        // and then define them in the right order
+        std::vector<std::string> global_func_order = ASRUtils::determine_function_definition_order(x.m_global_scope);
+
         unit_src += "\n";
         unit_src += "// Implementations\n";
 
@@ -667,17 +657,7 @@ R"(
             }
         }
 
-        // Process procedures first:
-        for (auto &item : x.m_global_scope->get_scope()) {
-            if (ASR::is_a<ASR::Function_t>(*item.second)) {
-                if( ASRUtils::get_body_size(item.second) != 0 ) {
-                    visit_symbol(*item.second);
-                    unit_src += src;
-                }
-            }
-        }
-
-        // Then do all the modules in the right order
+        // Process modules in the right order
         std::vector<std::string> build_order
             = LFortran::ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
@@ -688,6 +668,18 @@ R"(
                 visit_symbol(*mod);
                 unit_src += src;
             }
+        }
+
+        // Process global functions
+        size_t i;
+        for (i = 0; i < global_func_order.size(); i++) {
+            ASR::symbol_t* sym = x.m_global_scope->get_symbol(global_func_order[i]);
+            // Ignore external symbols because they are already defined by the loop above.
+            if( !sym || ASR::is_a<ASR::ExternalSymbol_t>(*sym) ) {
+                continue ;
+            }
+            visit_symbol(*sym);
+            unit_src += src;
         }
 
         // Then the main program:
@@ -723,14 +715,17 @@ R"(
     }
 
     void visit_Program(const ASR::Program_t &x) {
+        // Topologically sort all program functions
+        // and then define them in the right order
+        std::vector<std::string> func_order = ASRUtils::determine_function_definition_order(x.m_symtab);
+
         // Generate code for nested subroutines and functions first:
         std::string contains;
-        for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Function_t>(*item.second)) {
-                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
-                visit_Function(*s);
-                contains += src;
-            }
+        for (auto &item : func_order) {
+            ASR::symbol_t* sym = x.m_symtab->get_symbol(item);
+            ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(sym);
+            visit_Function(*s);
+            contains += src;
         }
 
         // Generate code for the main program
@@ -778,7 +773,22 @@ R"(
     }
 
     void visit_StructType(const ASR::StructType_t& x) {
-        visit_AggregateTypeUtil(x, "struct");
+        std::string c_type_name = "struct";
+        if( x.m_is_packed ) {
+            std::string attr_args = "(packed";
+            if( x.m_alignment ) {
+                LFORTRAN_ASSERT(ASRUtils::expr_value(x.m_alignment));
+                ASR::expr_t* alignment_value = ASRUtils::expr_value(x.m_alignment);
+                int64_t alignment_int = -1;
+                if( !ASRUtils::extract_value(alignment_value, alignment_int) ) {
+                    LFORTRAN_ASSERT(false);
+                }
+                attr_args += ", aligned(" + std::to_string(alignment_int) + ")";
+            }
+            attr_args += ")";
+            c_type_name += " __attribute__(" + attr_args + ")";
+        }
+        visit_AggregateTypeUtil(x, c_type_name);
     }
 
     void visit_UnionType(const ASR::UnionType_t& x) {
