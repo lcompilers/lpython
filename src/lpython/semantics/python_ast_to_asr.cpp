@@ -2260,11 +2260,13 @@ public:
         ASR::symbol_t *s = current_scope->resolve_symbol(name);
         if (s) {
             tmp = ASR::make_Var_t(al, x.base.base.loc, s);
-        } else if (name == "i32" || name == "i64" || name == "f32" || name == "f64") {
-            int64_t i = -1;
-            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                    4, nullptr, 0));
-            tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, i, type);
+        } else if (name == "i32" || name == "i64" || name == "f32" ||
+                   name == "f64" || name == "c32" || name == "c64") {
+            Vec<ASR::dimension_t> dims;
+            dims.reserve(al, 1);
+            ASR::ttype_t *type = get_type_from_var_annotation(name,
+                                    x.base.base.loc, dims, nullptr, 0);
+            tmp = (ASR::asr_t*) ASRUtils::get_constant_expression_with_given_type(al, type);
         } else if (name == "__name__") {
             // __name__ was not declared yet in this scope, so we
             // declare it first:
@@ -5326,6 +5328,34 @@ public:
                                         x.base.base.loc);
                 }
                 tmp = (ASR::asr_t*) args[0].m_value;
+                return ;
+            } else if( call_name == "sizeof" ) {
+                if( args.size() != 1 ) {
+                    throw SemanticError("sizeof only accepts one argument, found " +
+                                        std::to_string(args.size()) + " instead.",
+                                        x.base.base.loc);
+                }
+
+                ASR::ttype_t* arg_type = nullptr;
+                if( ASR::is_a<ASR::Var_t>(*args[0].m_value) ) {
+                    ASR::Var_t* arg_Var = ASR::down_cast<ASR::Var_t>(args[0].m_value);
+                    if( ASR::is_a<ASR::Variable_t>(*arg_Var->m_v) ) {
+                        arg_type = ASR::down_cast<ASR::Variable_t>(arg_Var->m_v)->m_type;
+                    } else if( ASR::is_a<ASR::StructType_t>(*arg_Var->m_v) ) {
+                        arg_type = ASRUtils::TYPE(ASR::make_Struct_t(al, x.base.base.loc,
+                                        arg_Var->m_v, nullptr, 0));
+                    } else {
+                        throw SemanticError("Symbol " + std::to_string(arg_Var->m_v->type) +
+                                            " is not yet supported in sizeof.",
+                                            x.base.base.loc);
+                    }
+                } else {
+                    arg_type = ASRUtils::expr_type(args[0].m_value);
+                }
+                ASR::ttype_t* size_type = ASRUtils::TYPE(ASR::make_Integer_t(al,
+                                            x.base.base.loc, 8, nullptr, 0));
+                tmp = ASR::make_SizeOfType_t(al, x.base.base.loc,
+                                             arg_type, size_type, nullptr);
                 return ;
             } else if (intrinsic_node_handler.is_present(call_name)) {
                 tmp = intrinsic_node_handler.get_intrinsic_node(call_name, al,
