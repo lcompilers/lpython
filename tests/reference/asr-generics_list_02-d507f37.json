@@ -1,0 +1,13 @@
+{
+    "basename": "asr-generics_list_02-d507f37",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/generics_list_02.py",
+    "infile_hash": "447b891f18ebad82668f854ed52d327d6673f6c00dec7674bbcce96d",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-generics_list_02-d507f37.stdout",
+    "stdout_hash": "d1892e315b055618ca5d5b1986edb5f2e473adec63d4a7eaecba6553",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
