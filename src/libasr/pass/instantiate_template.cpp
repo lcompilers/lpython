@@ -123,12 +123,8 @@ public:
 
         ASR::asr_t *result = ASR::make_Function_t(
             al, x->base.base.loc,
-<<<<<<< HEAD
             new_scope, s2c(al, new_func_name),
-=======
-            current_scope, s2c(al, new_func_name),
             deps_vec.p, deps_vec.size(),
->>>>>>> master
             args.p, args.size(),
             body.p, body.size(),
             new_return_var_ref,
@@ -271,14 +267,11 @@ public:
                 name = rt_subs[call_name];
             }
         }
-<<<<<<< HEAD
         if (ASRUtils::is_generic_function(name)) {
             FunctionInstantiator nested_tf(al, subs, rt_subs, func_scope);
             name = nested_tf.get_generic_function(ASR::down_cast<ASR::Function_t>(name));
         }
-=======
         dependencies.insert(std::string(ASRUtils::symbol_name(name)));
->>>>>>> master
         return ASR::make_FunctionCall_t(al, x->base.base.loc, name, x->m_original_name,
             args.p, args.size(), type, value, dt);
     }
