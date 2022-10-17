@@ -469,9 +469,7 @@ public:
     std::string parent_dir;
     Vec<ASR::stmt_t*> *current_body;
     ASR::ttype_t* ann_assign_target_type;
-
-    std::map<std::string, int> generic_func_nums;
-    std::map<std::string, std::map<std::string, ASR::ttype_t*>> generic_func_subs;
+    
     std::vector<ASR::symbol_t*> rt_vec;
     std::set<std::string> dependencies;
 
@@ -947,43 +945,55 @@ public:
             }
             if (func->m_is_restriction) {
                 rt_vec.push_back(s);
-            } else if (func->n_type_params > 0) {
-                if (n_pos_args != func->n_args) {
-                    std::string fnd = std::to_string(n_pos_args);
-                    std::string org = std::to_string(func->n_args);
-                    diag.add(diag::Diagnostic(
-                        "Number of arguments does not match in the function call",
-                        diag::Level::Error, diag::Stage::Semantic, {
-                            diag::Label("(found: '" + fnd + "', expected: '" + org + "')",
-                                    {loc})
-                        })
-                    );
-                    throw SemanticAbort();
-                }
-                for (size_t i=0; i<n_pos_args; i++) {
-                    ASR::ttype_t *param_type = ASRUtils::expr_type(func->m_args[i]);
-                    ASR::ttype_t *arg_type = ASRUtils::expr_type(args[i].m_value);
-                    check_type_substitution(subs, param_type, arg_type, loc);
-                }
-                for (size_t i=0; i<func->n_restrictions; i++) {
-                    ASR::Function_t* rt = ASR::down_cast<ASR::Function_t>(
-                        func->m_restrictions[i]);
-                    check_type_restriction(subs, rt_subs, rt, loc);
-                }
+            } else if (ASRUtils::is_generic_function(s)) {
+                if (ASRUtils::is_generic_enclosed(current_scope)) {
+                    for (size_t i=0; i<func->n_restrictions; i++) {
+                        ASR::symbol_t* nested_rt = func->m_restrictions[i];
+                        rt_vec.push_back(nested_rt);
+                    }
+                } else {
+                    /**
+                     * @brief generic function call is only instantiated if the enclosing
+                     *        function is also not a generic function
+                     */
+                    if (n_pos_args != func->n_args) {
+                        std::string fnd = std::to_string(n_pos_args);
+                        std::string org = std::to_string(func->n_args);
+                        diag.add(diag::Diagnostic(
+                            "Number of arguments does not match in the function call",
+                            diag::Level::Error, diag::Stage::Semantic, {
+                                diag::Label("(found: '" + fnd + "', expected: '" + org + "')",
+                                        {loc})
+                            })
+                        );
+                        throw SemanticAbort();
+                    }
+                    for (size_t i=0; i<n_pos_args; i++) {
+                        ASR::ttype_t *param_type = ASRUtils::expr_type(func->m_args[i]);
+                        ASR::ttype_t *arg_type = ASRUtils::expr_type(args[i].m_value);
+                        check_type_substitution(subs, param_type, arg_type, loc);
+                    }
+                    /* TODO: Restriction of nested generic function call has to be
+                            included in the restrictions */
+                    for (size_t i=0; i<func->n_restrictions; i++) {
+                        ASR::Function_t* rt = ASR::down_cast<ASR::Function_t>(func->m_restrictions[i]);
+                        check_type_restriction(subs, rt_subs, rt, loc);
+                    }
 
-                ASR::symbol_t *t = get_generic_function(subs, rt_subs, func);
-                std::string new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
+                    ASR::symbol_t *t = pass_instantiate_generic_function(al, subs, rt_subs, current_scope, func);
+                    std::string new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
 
-                // Currently ignoring keyword arguments for generic function calls
-                Vec<ASR::call_arg_t> new_args;
-                new_args.reserve(al, n_pos_args);
-                for (size_t i = 0; i<n_pos_args; i++) {
-                    ASR::call_arg_t new_call_arg;
-                    new_call_arg.m_value = args.p[i].m_value;
-                    new_call_arg.loc = args.p[i].loc;
-                    new_args.push_back(al, new_call_arg);
-                }
-                return make_call_helper(al, t, current_scope, new_args, new_call_name, loc, ignore_return_value);
+                    // Currently ignoring keyword arguments for generic function calls
+                    Vec<ASR::call_arg_t> new_args;
+                    new_args.reserve(al, n_pos_args);
+                    for (size_t i = 0; i<n_pos_args; i++) {
+                        ASR::call_arg_t new_call_arg;
+                        new_call_arg.m_value = args.p[i].m_value;
+                        new_call_arg.loc = args.p[i].loc;
+                        new_args.push_back(al, new_call_arg);
+                    }
+                    return make_call_helper(al, t, current_scope, new_args, new_call_name, loc, ignore_return_value);       
+                }             
             }
             if (args.size() != func->n_args) {
                 std::string fnd = std::to_string(args.size());
@@ -1219,53 +1229,6 @@ public:
             }
         }
         throw SemanticError("No applicable argument to the restriction " + rt_name , loc);
-    }
-
-    /**
-     * @brief Check if the generic function has been instantiated with similar
-     *        arguments. If not, then instantiate a new function.
-     */
-    ASR::symbol_t* get_generic_function(std::map<std::string, ASR::ttype_t*> subs,
-            std::map<std::string, ASR::symbol_t*> rt_subs, ASR::Function_t *func) {
-        int new_function_num;
-        ASR::symbol_t *t;
-        std::string func_name = func->m_name;
-        if (generic_func_nums.find(func_name) != generic_func_nums.end()) {
-            new_function_num = generic_func_nums[func_name];
-            for (int i=0; i<generic_func_nums[func_name]; i++) {
-                std::string generic_func_name = "__lpython_generic_" + func_name + "_" + std::to_string(i);
-                if (generic_func_subs.find(generic_func_name) != generic_func_subs.end()) {
-                    std::map<std::string, ASR::ttype_t*> subs_check = generic_func_subs[generic_func_name];
-                    if (subs_check.size() != subs.size()) { continue; }
-                    bool defined = true;
-                    for (auto const &subs_check_pair: subs_check) {
-                        if (subs.find(subs_check_pair.first) == subs.end()) {
-                            defined = false; break;
-                        }
-                        ASR::ttype_t* subs_type = subs[subs_check_pair.first];
-                        ASR::ttype_t* subs_check_type = subs_check_pair.second;
-                        if (!ASRUtils::check_equal_type(subs_type, subs_check_type)) {
-                            defined = false; break;
-                        }
-                    }
-                    if (defined) {
-                        t = current_scope->resolve_symbol(generic_func_name);
-                        return t;
-                    }
-                }
-            }
-        } else {
-            new_function_num = 0;
-        }
-        generic_func_nums[func_name] = new_function_num + 1;
-        std::string new_func_name = "__lpython_generic_" + func_name + "_"
-            + std::to_string(new_function_num);
-        generic_func_subs[new_func_name] = subs;
-        t = pass_instantiate_generic_function(al, subs, rt_subs, current_scope,
-                new_func_name, func);
-        dependencies.erase(func_name);
-        dependencies.insert(new_func_name);
-        return t;
     }
 
     void fill_dims_for_asr_type(Vec<ASR::dimension_t>& dims,
