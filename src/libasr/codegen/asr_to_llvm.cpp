@@ -1775,6 +1775,14 @@ public:
         LFORTRAN_ASSERT(x.n_args == 0);
     }
 
+    void visit_SizeOfType(const ASR::SizeOfType_t& x) {
+        llvm::Type* llvm_type = get_type_from_ttype_t_util(x.m_arg);
+        llvm::Type* llvm_type_size = get_type_from_ttype_t_util(x.m_type);
+        llvm::DataLayout data_layout(module.get());
+        int64_t type_size = data_layout.getTypeAllocSize(llvm_type);
+        tmp = llvm::ConstantInt::get(llvm_type_size, llvm::APInt(64, type_size));
+    }
+
     void visit_StructInstanceMember(const ASR::StructInstanceMember_t& x) {
         if (x.m_value) {
             this->visit_expr_wrapper(x.m_value, true);
