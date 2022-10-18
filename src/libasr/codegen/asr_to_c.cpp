@@ -438,7 +438,10 @@ public:
                 bool is_fixed_size = true;
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims, v.m_type, is_fixed_size);
                 sub = format_type_c(dims, "char *", v.m_name, use_ref, dummy);
-                if( v.m_intent == ASRUtils::intent_local ) {
+                if( v.m_intent == ASRUtils::intent_local &&
+                    !(ASR::is_a<ASR::symbol_t>(*v.m_parent_symtab->asr_owner) &&
+                      ASR::is_a<ASR::StructType_t>(
+                        *ASR::down_cast<ASR::symbol_t>(v.m_parent_symtab->asr_owner))) ) {
                     sub += " = (char*) malloc(40 * sizeof(char))";
                     return sub;
                 }
@@ -814,7 +817,6 @@ R"(
         std::string meta_data = " = {";
         std::string open_struct = indent + "enum " + std::string(x.m_name) + " {\n";
         std::string body = "";
-        std::string src_copy = src;
         int64_t min_value = INT64_MAX;
         int64_t max_value = INT64_MIN;
         size_t max_name_len = 0;
@@ -853,7 +855,7 @@ R"(
         std::string enum_names_type = "char " + global_scope->get_unique_name("enum_names_") +
             std::string(x.m_name) + "[" + std::to_string(max_names) + "][" + std::to_string(max_name_len + 1) + "] ";
         array_types_decls += enum_names_type + meta_data + open_struct + body + end_struct;
-        src = src_copy;
+        src = "";
     }
 
     void visit_EnumTypeConstructor(const ASR::EnumTypeConstructor_t& x) {
