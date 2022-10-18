@@ -4020,7 +4020,26 @@ public:
             ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member_sym);
             tmp = ASR::make_StructInstanceMember_t(al, loc, e, member_sym,
                                          member_var->m_type, nullptr);
-        } else if(ASR::is_a<ASR::Enum_t>(*type)) {
+        } else if(ASR::is_a<ASR::Union_t>(*type)) {
+             ASR::Union_t* u = ASR::down_cast<ASR::Union_t>(type);
+             ASR::symbol_t* u_sym = ASRUtils::symbol_get_past_external(u->m_union_type);
+             ASR::UnionType_t* u_type = ASR::down_cast<ASR::UnionType_t>(u_sym);
+             bool member_found = false;
+             std::string member_name = attr_char;
+             for( size_t i = 0; i < u_type->n_members && !member_found; i++ ) {
+                 member_found = std::string(u_type->m_members[i]) == member_name;
+             }
+             if( !member_found ) {
+                 throw SemanticError("No member " + member_name +
+                                     " found in " + std::string(u_type->m_name),
+                                     loc);
+             }
+             ASR::symbol_t* member_sym = u_type->m_symtab->resolve_symbol(member_name);
+             LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member_sym));
+             ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member_sym);
+             tmp = ASR::make_UnionRef_t(al, loc, e, member_sym,
+                                          member_var->m_type, nullptr);
+         } else if(ASR::is_a<ASR::Enum_t>(*type)) {
              if( std::string(attr_char) == "value" ) {
                  ASR::Enum_t* enum_ = ASR::down_cast<ASR::Enum_t>(type);
                  ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_->m_enum_type);

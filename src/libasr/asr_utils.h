@@ -864,6 +864,10 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
             ASR::TypeParameter_t *p = ASR::down_cast<ASR::TypeParameter_t>(t);
             return p->m_param;
         }
+        case ASR::ttypeType::Union: {
+            ASR::Union_t* u = ASR::down_cast<ASR::Union_t>(t);
+            return symbol_name(u->m_union_type);
+        }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));
     }
 }
