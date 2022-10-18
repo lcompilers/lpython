@@ -69,5 +69,25 @@ std::string get_runtime_library_header_dir()
     return get_runtime_library_dir() + "/impure";
 }
 
+bool is_directory(std::string path) {
+    struct stat buffer;
+    if (stat(path.c_str(), &buffer) == 0) {
+        if (S_ISDIR(buffer.st_mode)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return false;
+}
+
+bool path_exits(std::string path) {
+    struct stat buffer;
+    if (stat(path.c_str(), &buffer) == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 }
