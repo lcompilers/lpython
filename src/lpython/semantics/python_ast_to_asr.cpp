@@ -246,7 +246,7 @@ ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
     LFortran::LocationManager lm;
     lm.in_filename = infile;
     Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast,
-        diagnostics, false, true, false, infile);
+        diagnostics, false, true, false, infile, "");
     // TODO: Uncomment once a check is added for ensuring
     // that module.py file hasn't changed between
     // builds.
@@ -324,7 +324,8 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         return nullptr;
     }
     if (!found) {
-        err("Could not find the module '" + infile0 + "'", loc);
+        err("Could not find the module '" + infile0 + "'. If an import path "
+            "is available, please use the `-I` option to specify it", loc);
     }
     if (ltypes) return nullptr;
 
@@ -467,6 +468,7 @@ public:
     IntrinsicNodeHandler intrinsic_node_handler;
     std::map<int, ASR::symbol_t*> &ast_overload;
     std::string parent_dir;
+    std::string import_path;
     Vec<ASR::stmt_t*> *current_body;
     ASR::ttype_t* ann_assign_target_type;
 
@@ -477,9 +479,10 @@ public:
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module,
-            std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir)
+            std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
+            std::string import_path)
         : diag{diagnostics}, al{al}, current_scope{symbol_table}, main_module{main_module},
-            ast_overload{ast_overload}, parent_dir{parent_dir},
+            ast_overload{ast_overload}, parent_dir{parent_dir}, import_path{import_path},
             current_body{nullptr}, ann_assign_target_type{nullptr} {
         current_module_dependencies.reserve(al, 4);
     }
@@ -2865,8 +2868,10 @@ public:
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table,
         diag::Diagnostics &diagnostics, bool main_module,
-        std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir)
-      : CommonVisitor(al, symbol_table, diagnostics, main_module, ast_overload, parent_dir), is_derived_type{false} {}
+        std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
+        std::string import_path)
+      : CommonVisitor(al, symbol_table, diagnostics, main_module, ast_overload,
+            parent_dir, import_path), is_derived_type{false} {}
 
 
     ASR::symbol_t* resolve_symbol(const Location &loc, const std::string &sub_name) {
@@ -3298,9 +3303,11 @@ public:
 
 Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, const AST::Module_t &ast,
         diag::Diagnostics &diagnostics, bool main_module,
-        std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir)
+        std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
+        std::string import_path)
 {
-    SymbolTableVisitor v(al, nullptr, diagnostics, main_module, ast_overload, parent_dir);
+    SymbolTableVisitor v(al, nullptr, diagnostics, main_module, ast_overload,
+        parent_dir, import_path);
     try {
         v.visit_Module(ast);
     } catch (const SemanticError &e) {
@@ -3326,8 +3333,8 @@ public:
 
     BodyVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
          bool main_module, std::map<int, ASR::symbol_t*> &ast_overload)
-         : CommonVisitor(al, nullptr, diagnostics, main_module, ast_overload, ""), asr{unit},
-         gotoids{0}
+         : CommonVisitor(al, nullptr, diagnostics, main_module, ast_overload, "", ""),
+         asr{unit}, gotoids{0}
          {}
 
     // Transforms statements to a list of ASR statements
@@ -5441,7 +5448,8 @@ std::string get_parent_dir(const std::string &path) {
 
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     AST::ast_t &ast, diag::Diagnostics &diagnostics, bool main_module,
-    bool disable_main, bool symtab_only, std::string file_path)
+    bool disable_main, bool symtab_only, std::string file_path,
+    std::string import_path)
 {
     std::map<int, ASR::symbol_t*> ast_overload;
     std::string parent_dir = get_parent_dir(file_path);
@@ -5449,7 +5457,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
 
     ASR::asr_t *unit;
     auto res = symbol_table_visitor(al, *ast_m, diagnostics, main_module,
-        ast_overload, parent_dir);
+        ast_overload, parent_dir, import_path);
     if (res.ok) {
         unit = res.result;
     } else {

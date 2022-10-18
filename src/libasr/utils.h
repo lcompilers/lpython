@@ -37,6 +37,7 @@ struct CompilerOptions {
     bool implicit_typing = false;
     bool implicit_interface = false;
     std::string target = "";
+    std::string import_path = "";
     Platform platform;
 
     CompilerOptions () : platform{get_platform()} {};

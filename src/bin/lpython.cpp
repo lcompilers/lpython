@@ -164,7 +164,8 @@ int emit_asr(const std::string &infile,
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only, infile);
+            compiler_options.disable_main, compiler_options.symtab_only, infile,
+            compiler_options.import_path);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -207,7 +208,8 @@ int emit_cpp(const std::string &infile,
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only, infile);
+            compiler_options.disable_main, compiler_options.symtab_only, infile,
+            compiler_options.import_path);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -248,7 +250,8 @@ int emit_c(const std::string &infile,
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only, infile);
+            compiler_options.disable_main, compiler_options.symtab_only, infile,
+            compiler_options.import_path);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -289,7 +292,8 @@ int emit_wat(const std::string &infile,
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only, infile);
+            compiler_options.disable_main, compiler_options.symtab_only, infile,
+            compiler_options.import_path);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -333,7 +337,8 @@ int get_symbols (const std::string &infile,
            LFortran::LPython::AST::ast_t* ast = r1.result;
            LFortran::Result<LFortran::ASR::TranslationUnit_t*>
                x = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-                       compiler_options.disable_main, compiler_options.symtab_only, infile);
+                       compiler_options.disable_main, compiler_options.symtab_only,
+                       infile, compiler_options.import_path);
            if (!x.ok) {
                std::cout << "{}\n";
                return 0;
@@ -426,7 +431,8 @@ int get_errors (const std::string &infile,
             LFortran::LPython::AST::ast_t* ast = r1.result;
             LFortran::Result<LFortran::ASR::TranslationUnit_t*>
                 r = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-                        compiler_options.disable_main, compiler_options.symtab_only, infile);
+                        compiler_options.disable_main, compiler_options.symtab_only,
+                        infile, compiler_options.import_path);
         }
         std::vector<LFortran::LPython::error_highlight> diag_lists;
         LFortran::LPython::error_highlight h;
@@ -538,7 +544,8 @@ int emit_llvm(const std::string &infile,
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only, infile);
+            compiler_options.disable_main, compiler_options.symtab_only, infile,
+            compiler_options.import_path);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -596,7 +603,8 @@ int compile_python_to_object_file(
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics,
             !(arg_c && compiler_options.disable_main),
-            compiler_options.disable_main, compiler_options.symtab_only, infile);
+            compiler_options.disable_main, compiler_options.symtab_only, infile,
+            compiler_options.import_path);
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
@@ -679,7 +687,8 @@ int compile_to_binary_wasm(
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only, infile);
+            compiler_options.disable_main, compiler_options.symtab_only, infile,
+            compiler_options.import_path);
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
@@ -927,7 +936,8 @@ EMSCRIPTEN_KEEPALIVE char* emit_asr_from_source(char *input) {
         auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only, "input");
+            compiler_options.disable_main, compiler_options.symtab_only, "input",
+            compiler_options.import_path);
         out = diagnostics.render(input, lm, compiler_options);
         if (asr.ok) {
             out += LFortran::pickle(*asr.result, compiler_options.use_colors, compiler_options.indent,
@@ -946,7 +956,8 @@ EMSCRIPTEN_KEEPALIVE char* emit_wat_from_source(char *input) {
         auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only, "input");
+            compiler_options.disable_main, compiler_options.symtab_only, "input",
+            compiler_options.import_path);
         out = diagnostics.render(input, lm, compiler_options);
         if (asr.ok) {
             LFortran::Result<LFortran::Vec<uint8_t>>
@@ -974,7 +985,8 @@ EMSCRIPTEN_KEEPALIVE char* emit_cpp_from_source(char *input) {
         auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only, "input");
+            compiler_options.disable_main, compiler_options.symtab_only, "input",
+            compiler_options.import_path);
         out = diagnostics.render(input, lm, compiler_options);
         if (asr.ok) {
             auto res = LFortran::asr_to_cpp(al, *asr.result, diagnostics,
@@ -1013,7 +1025,8 @@ EMSCRIPTEN_KEEPALIVE char* emit_wasm_from_source(char *input) {
         auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
         asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, true,
-            compiler_options.disable_main, compiler_options.symtab_only, "input");
+            compiler_options.disable_main, compiler_options.symtab_only, "input",
+            compiler_options.import_path);
         out = diagnostics.render(input, lm, compiler_options);
         if (asr.ok) {
             LFortran::Result<LFortran::Vec<uint8_t>>
@@ -1114,7 +1127,8 @@ int main(int argc, char *argv[])
         // app.add_flag("-E", arg_E, "Preprocess only; do not compile, assemble or link");
         // app.add_option("-l", arg_l, "Link library option");
         // app.add_option("-L", arg_L, "Library path option");
-        // app.add_option("-I", arg_I, "Include path")->allow_extra_args(false);
+        app.add_option("-I", compiler_options.import_path, "Specify the path"
+            "to look for the module")->allow_extra_args(false);
         // app.add_option("-J", arg_J, "Where to save mod files");
         // app.add_flag("-g", arg_g, "Compile with debugging information");
         // app.add_option("-D", compiler_options.c_preprocessor_defines, "Define <macro>=<value> (or 1 if <value> omitted)")->allow_extra_args(false);
