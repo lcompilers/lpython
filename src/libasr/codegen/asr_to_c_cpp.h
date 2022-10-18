@@ -84,6 +84,12 @@ class CCPPList {
 
         std::string get_list_type(ASR::List_t* list_type,
             std::string list_element_type) {
+            if (ASR::is_a<ASR::List_t>(*list_type->m_type)) {
+                ASR::List_t* list_type_in = ASR::down_cast<ASR::List_t>(list_type->m_type);
+                std::string list_element_type_in = CUtils::get_c_type_from_ttype_t(list_type_in->m_type);
+                // Make sure that nested list are initialized
+                get_list_type(list_type_in, list_element_type_in);
+            }
             std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
             if( typecode2listtype.find(list_type_code) != typecode2listtype.end() ) {
                 return typecode2listtype[list_type_code].first;
