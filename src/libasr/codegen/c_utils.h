@@ -36,6 +36,10 @@ namespace CUtils {
                 type_src = "int" + std::to_string(kind * 8) + "_t";
                 break;
             }
+            case ASR::ttypeType::Logical: {
+                type_src = "bool";
+                break;
+            }
             case ASR::ttypeType::Real: {
                 if( kind == 4 ) {
                     type_src = "float";
@@ -579,6 +583,10 @@ class CCPPTuple {
 
         std::string get_generated_code() {
             return generated_code;
+        }
+
+        std::string get_tuple_func_decls() {
+            return tuple_func_decls;
         }
 
         ~CCPPTuple() {

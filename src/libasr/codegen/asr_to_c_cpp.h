@@ -79,6 +79,7 @@ public:
     std::string from_std_vector_helper;
 
     std::unique_ptr<CCPPList> list_api;
+    std::unique_ptr<CCPPTuple> tuple_api;
     std::string const_name;
     size_t const_list_count;
 
@@ -91,12 +92,15 @@ public:
             platform{platform},
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
         is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound},
-        template_number{0}, list_api{std::make_unique<CCPPList>()}, const_name{"constname"},
+        template_number{0}, list_api{std::make_unique<CCPPList>()},
+        tuple_api{std::make_unique<CCPPTuple>()}, const_name{"constname"},
         const_list_count{0}, is_string_concat_present{false} {
             if( is_c ) {
                 list_api->set_deepcopy_function(&CUtils::deepcopy);
+                tuple_api->set_deepcopy_function(&CUtils::deepcopy);
             } else {
                 list_api->set_deepcopy_function(&CPPUtils::deepcopy);
+                tuple_api->set_deepcopy_function(&CPPUtils::deepcopy);
             }
         }
 
@@ -110,6 +114,8 @@ public:
         indentation_spaces = 4;
         list_api->set_indentation(indentation_level + 1, indentation_spaces);
         list_api->set_global_scope(global_scope);
+        tuple_api->set_indentation(indentation_level + 1, indentation_spaces);
+        tuple_api->set_global_scope(global_scope);
 
         std::string headers =
 R"(#include <stdio.h>
@@ -719,6 +725,31 @@ R"(#include <stdio.h>
             }
         }
         src_tmp += indent + const_name + ".current_end_point = " + std::to_string(x.n_args) + ";\n";
+        src = src_tmp;
+    }
+
+    void visit_TupleConstant(const ASR::TupleConstant_t& x) {
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        std::string tab(indentation_spaces, ' ');
+        const_name += std::to_string(const_list_count);
+        const_list_count += 1;
+        const_name = current_scope->get_unique_name(const_name);
+        ASR::Tuple_t* t = ASR::down_cast<ASR::Tuple_t>(x.m_type);
+        std::string tuple_type_c = tuple_api->get_tuple_type(t);
+        std::string src_tmp = "";
+        src_tmp += indent + tuple_type_c + " " + const_name + ";\n";
+        for (size_t i = 0; i < x.n_elements; i++) {
+            self().visit_expr(*x.m_elements[i]);
+            std::string ele = ".element_" + std::to_string(i);
+            if (ASR::is_a<ASR::Character_t>(*t->m_type[i])) {
+                src_tmp += const_name + ele + " = (char*) malloc(40 * sizeof(char));\n";
+            }
+            if (is_c) {
+                src_tmp += indent + CUtils::deepcopy(const_name + ele , src, t->m_type[i]) + "\n";
+            } else {
+                src_tmp += indent + CPPUtils::deepcopy(const_name + ele, src, t->m_type[i]) + "\n";
+            }
+        }
         src = src_tmp;
     }
 

@@ -527,6 +527,11 @@ public:
                 std::string list_type_c = list_api->get_list_type(t, list_element_type);
                 sub = format_type_c("", list_type_c, v.m_name,
                                     false, false);
+            } else if (ASR::is_a<ASR::Tuple_t>(*v.m_type)) {
+                ASR::Tuple_t* t = ASR::down_cast<ASR::Tuple_t>(v.m_type);
+                std::string tuple_type_c = tuple_api->get_tuple_type(t);
+                sub = format_type_c("", tuple_type_c, v.m_name,
+                                    false, false);
             } else if (ASR::is_a<ASR::CPtr_t>(*v.m_type)) {
                 sub = format_type_c("", "void*", v.m_name, false, false);
             } else if (ASR::is_a<ASR::Const_t>(*v.m_type)) {
@@ -577,6 +582,8 @@ public:
         list_api->set_global_scope(global_scope);
         c_utils_functions->set_indentation(indentation_level, indentation_spaces);
         c_utils_functions->set_global_scope(global_scope);
+        tuple_api->set_indentation(indentation_level, indentation_spaces);
+        tuple_api->set_global_scope(global_scope);
 
         std::string head =
 R"(
@@ -716,9 +723,15 @@ R"(
         if( c_utils_functions->get_util_func_decls().size() > 0 ) {
             array_types_decls += "\n" + c_utils_functions->get_util_func_decls() + "\n";
         }
+        if( tuple_api->get_tuple_func_decls().size() > 0 ) {
+            array_types_decls += "\n" + tuple_api->get_tuple_func_decls() + "\n";
+        }
         std::string list_funcs_defined = "";
         if( list_api->get_generated_code().size() > 0 ) {
             list_funcs_defined =  "\n" + list_api->get_generated_code() + "\n";
+        }
+        if( tuple_api->get_generated_code().size() > 0 ) {
+            list_funcs_defined =  "\n" + tuple_api->get_generated_code() + "\n";
         }
         std::string util_funcs_defined = "";
         if( c_utils_functions->get_generated_code().size() > 0 ) {
