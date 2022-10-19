@@ -44,6 +44,8 @@ private:
     std::vector<std::string> function_dependencies;
     std::vector<std::string> module_dependencies;
 
+    std::set<std::pair<uint64_t, std::string>> const_assigned;
+
 public:
     VerifyVisitor(bool check_external) : check_external{check_external} {}
 
@@ -242,6 +244,23 @@ public:
                     x.base.base.loc);
         }
         current_symtab = parent_symtab;
+    }
+
+    void visit_Assignment(const Assignment_t& x) {
+        ASR::expr_t* target = x.m_target;
+        ASR::ttype_t* target_type = ASRUtils::expr_type(target);
+        if( ASR::is_a<ASR::Var_t>(*target) ) {
+            ASR::Var_t* target_Var = ASR::down_cast<ASR::Var_t>(target);
+            if( ASR::is_a<ASR::Const_t>(*target_type) ) {
+                std::string variable_name = ASRUtils::symbol_name(target_Var->m_v);
+                require(const_assigned.find(std::make_pair(current_symtab->counter,
+                    variable_name)) == const_assigned.end(),
+                    "Assignment target with " + ASRUtils::type_to_str_python(target_type)
+                    + " cannot be re-assigned.");
+                const_assigned.insert(std::make_pair(current_symtab->counter, variable_name));
+            }
+        }
+        BaseWalkVisitor<VerifyVisitor>::visit_Assignment(x);
     }
 
     void visit_Function(const Function_t &x) {
