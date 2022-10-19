@@ -2415,6 +2415,12 @@ public:
                 llvm_type = llvm::Type::getInt32Ty(context);
                 break ;
             }
+            case (ASR::ttypeType::Const) : {
+                llvm_type = get_type_from_ttype_t(ASRUtils::get_contained_type(asr_type),
+                                m_storage, is_array_type, is_malloc_array_type, is_list,
+                                m_dims, n_dims, a_kind);
+                break;
+            }
             default :
                 throw CodeGenError("Support for type " + ASRUtils::type_to_str(asr_type) +
                                    " not yet implemented.");
@@ -2615,6 +2621,13 @@ public:
                             m_storage, arg_m_value_attr, n_dims, a_kind,
                             is_array_type, arg_intent, get_pointer);
                 type = type->getPointerTo();
+                break;
+            }
+            case (ASR::ttypeType::Const) : {
+                ASR::ttype_t *t2 = ASRUtils::get_contained_type(asr_type);
+                type = get_arg_type_from_ttype_t(t2, m_abi, arg_m_abi,
+                            m_storage, arg_m_value_attr, n_dims, a_kind,
+                            is_array_type, arg_intent);
                 break;
             }
             case (ASR::ttypeType::Real) : {
@@ -3152,6 +3165,10 @@ public:
                 case (ASR::ttypeType::CPtr) :
                     return_type = llvm::Type::getVoidTy(context)->getPointerTo();
                     break;
+                case (ASR::ttypeType::Const) : {
+                    return_type = get_type_from_ttype_t_util(ASRUtils::get_contained_type(return_var_type0));
+                    break;
+                }
                 case (ASR::ttypeType::Struct) :
                     throw CodeGenError("Struct return type not implemented yet");
                     break;
@@ -5267,7 +5284,10 @@ public:
             lookup_enum_value_for_nonints = false;
             ptr_loads = ptr_loads_copy;
             ASR::expr_t *v = x.m_values[i];
-            ASR::ttype_t *t = expr_type(v);
+            ASR::ttype_t *t = ASRUtils::expr_type(v);
+            if( ASR::is_a<ASR::Const_t>(*t) ) {
+                t = ASRUtils::get_contained_type(t);
+            }
             int a_kind = ASRUtils::extract_kind_from_ttype_t(t);
             if( ASR::is_a<ASR::Pointer_t>(*t) && ASR::is_a<ASR::Var_t>(*v) ) {
                 if( ASRUtils::is_array(ASRUtils::type_get_past_pointer(t)) ) {
