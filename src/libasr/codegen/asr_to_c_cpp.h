@@ -644,7 +644,11 @@ R"(#include <stdio.h>
         for (auto &item : x.m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                decl += self().convert_variable_decl(*v) + ";\n";
+                decl += self().convert_variable_decl(*v);
+                if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
+                    v->m_intent == ASRUtils::intent_return_var ) {
+                    decl += ";\n";
+                }
             }
         }
 
@@ -674,7 +678,11 @@ R"(#include <stdio.h>
         for (auto &item : block->m_symtab->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                decl += indent + self().convert_variable_decl(*v) + ";\n";
+                decl += indent + self().convert_variable_decl(*v);
+                if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
+                    v->m_intent == ASRUtils::intent_return_var ) {
+                    decl += ";\n";
+                }
             }
         }
         for (size_t i=0; i<block->n_body; i++) {
@@ -742,6 +750,10 @@ R"(#include <stdio.h>
                 ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(return_var->m_type);
                 std::string list_element_type = get_c_type_from_ttype_t(list_type->m_type);
                 sub = list_api->get_list_type(list_type, list_element_type) + " ";
+            } else if (ASR::is_a<ASR::Const_t>(*return_var->m_type)) {
+                ASR::Const_t* const_type = ASR::down_cast<ASR::Const_t>(return_var->m_type);
+                std::string const_type_str = get_c_type_from_ttype_t(const_type->m_type);
+                sub = "const " + const_type_str + " ";
             } else {
                 throw CodeGenError("Return type not supported in function '" +
                     std::string(x.m_name) +
@@ -832,7 +844,11 @@ R"(#include <stdio.h>
                 if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
                     if (v->m_intent == LFortran::ASRUtils::intent_local || v->m_intent == LFortran::ASRUtils::intent_return_var) {
-                        decl += indent + self().convert_variable_decl(*v) + ";\n";
+                        decl += indent + self().convert_variable_decl(*v);
+                        if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
+                            v->m_intent == ASRUtils::intent_return_var ) {
+                            decl += ";\n";
+                        }
                     }
                 }
             }
@@ -980,6 +996,10 @@ R"(#include <stdio.h>
     void visit_Assignment(const ASR::Assignment_t &x) {
         std::string target;
         ASR::ttype_t* m_target_type = ASRUtils::expr_type(x.m_target);
+        if( ASR::is_a<ASR::Const_t>(*m_target_type) ) {
+            src = "";
+            return ;
+        }
         ASR::ttype_t* m_value_type = ASRUtils::expr_type(x.m_value);
         bool is_target_list = ASR::is_a<ASR::List_t>(*m_target_type);
         bool is_value_list = ASR::is_a<ASR::List_t>(*m_value_type);

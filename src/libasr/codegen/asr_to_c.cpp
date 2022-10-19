@@ -528,6 +528,18 @@ public:
                                     false, false);
             } else if (ASR::is_a<ASR::CPtr_t>(*v.m_type)) {
                 sub = format_type_c("", "void*", v.m_name, false, false);
+            } else if (ASR::is_a<ASR::Const_t>(*v.m_type)) {
+                if( v.m_intent == ASRUtils::intent_local ) {
+                    LFORTRAN_ASSERT(v.m_symbolic_value);
+                    visit_expr(*v.m_symbolic_value);
+                    sub = "#define " + std::string(v.m_name) + " " + src + "\n";
+                    return sub;
+                } else {
+                    std::string const_underlying_type = get_c_type_from_ttype_t(
+                        ASR::down_cast<ASR::Const_t>(v.m_type)->m_type);
+                    sub = format_type_c("", "const " + const_underlying_type + " ",
+                                        v.m_name, false, false);
+                }
             } else if (ASR::is_a<ASR::Enum_t>(*v.m_type)) {
                 ASR::Enum_t* enum_ = ASR::down_cast<ASR::Enum_t>(v.m_type);
                 ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_->m_enum_type);
@@ -620,7 +632,11 @@ R"(
         for (auto &item : x.m_global_scope->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                unit_src += convert_variable_decl(*v) + ";\n";
+                unit_src += convert_variable_decl(*v);
+                if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
+                    v->m_intent == ASRUtils::intent_return_var ) {
+                    unit_src += ";\n";
+                }
             }
         }
 
@@ -736,7 +752,11 @@ R"(
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
                 decl += indent1;
-                decl += convert_variable_decl(*v) + ";\n";
+                decl += convert_variable_decl(*v);
+                if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
+                    v->m_intent == ASRUtils::intent_return_var ) {
+                    decl += ";\n";
+                }
             }
         }
 
@@ -765,7 +785,11 @@ R"(
             body += indent + convert_variable_decl(
                         *ASR::down_cast<ASR::Variable_t>(member),
                         false,
-                        (c_type_name != "union")) + ";\n";
+                        (c_type_name != "union"));
+            if( !ASR::is_a<ASR::Const_t>(*ASRUtils::symbol_type(member)) ||
+                ASR::down_cast<ASR::Variable_t>(member)->m_intent == ASRUtils::intent_return_var ) {
+                body += ";\n";
+            }
         }
         indentation_level -= 1;
         std::string end_struct = "};\n\n";
@@ -975,6 +999,10 @@ R"(
             case ASR::ttypeType::Enum: {
                 ASR::ttype_t* enum_underlying_type = ASRUtils::get_contained_type(t);
                 return get_print_type(enum_underlying_type, deref_ptr);
+            }
+            case ASR::ttypeType::Const: {
+                ASR::ttype_t* const_underlying_type = ASRUtils::get_contained_type(t);
+                return get_print_type(const_underlying_type, deref_ptr);
             }
             default : throw LCompilersException("Not implemented");
         }
