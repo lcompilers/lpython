@@ -27,7 +27,8 @@ namespace LFortran {
 
 namespace CUtils {
 
-    static std::string get_c_type_from_ttype_t(ASR::ttype_t* t, bool is_c=true) {
+    static inline std::string get_c_type_from_ttype_t(ASR::ttype_t* t,
+            bool is_c=true) {
         int kind = ASRUtils::extract_kind_from_ttype_t(t);
         std::string type_src = "";
         switch( t->type ) {
@@ -93,6 +94,17 @@ namespace CUtils {
             }
         }
         return type_src;
+    }
+
+    static inline std::string get_tuple_type_code(ASR::Tuple_t *tup) {
+        std::string result = "tuple_";
+        for (size_t i = 0; i < tup->n_type; i++) {
+            result += ASRUtils::get_type_code(tup->m_type[i], true);
+            if (i + 1 != tup->n_type) {
+                result += "_";
+            }
+        }
+        return result;
     }
 
     static inline std::string deepcopy(std::string target, std::string value, ASR::ttype_t* m_type) {
@@ -544,19 +556,8 @@ class CCPPTuple {
             global_scope = global_scope_;
         }
 
-        std::string get_tuple_type_code(ASR::Tuple_t *tup) {
-            std::string result = "tuple_";
-            for (size_t i = 0; i < tup->n_type; i++) {
-                result += ASRUtils::get_type_code(tup->m_type[i], true);
-                if (i + 1 != tup->n_type) {
-                    result += "_";
-                }
-            }
-            return result;
-        }
-
         std::string get_tuple_type(ASR::Tuple_t* tuple_type) {
-            std::string tuple_type_code = get_tuple_type_code(tuple_type);
+            std::string tuple_type_code = CUtils::get_tuple_type_code(tuple_type);
             if (typecode2tupletype.find(tuple_type_code) != typecode2tupletype.end()) {
                 return typecode2tupletype[tuple_type_code];
             }
@@ -569,7 +570,7 @@ class CCPPTuple {
                             std::to_string(tuple_type->n_type) + ";\n";
             for (size_t i = 0; i < tuple_type->n_type; i++) {
                 tuple_func_decls += indent + tab + \
-                    CUtils::get_c_type_from_ttype_t(tuple_type->m_type[i]) + "element_" + std::to_string(i) + ";\n";
+                    CUtils::get_c_type_from_ttype_t(tuple_type->m_type[i]) + " element_" + std::to_string(i) + ";\n";
             }
             tuple_func_decls += indent + "};\n\n";
             return tuple_struct_type;

@@ -796,6 +796,15 @@ R"(#include <stdio.h>
         src = src + ".current_end_point";
     }
 
+    void visit_TupleLen(const ASR::TupleLen_t& x) {
+        if (x.m_value) {
+            self().visit_expr(*x.m_value);
+            return ;
+        }
+        self().visit_expr(*x.m_arg);
+        src = src + ".length";
+    }
+
     void visit_ListItem(const ASR::ListItem_t& x) {
         if( x.m_value ) {
             self().visit_expr(*x.m_value);
