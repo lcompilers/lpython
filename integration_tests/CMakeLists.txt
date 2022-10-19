@@ -154,6 +154,8 @@ RUN(NAME exit_02c    FAIL    LABELS cpython llvm c)
 RUN(NAME print_01            LABELS cpython llvm c wasm) # wasm not yet supports sep and end keywords
 
 # CPython and LLVM
+RUN(NAME const_01            LABELS cpython llvm c)
+RUN(NAME const_02            LABELS cpython llvm c)
 RUN(NAME expr_01             LABELS cpython llvm c wasm)
 RUN(NAME expr_02             LABELS cpython llvm c wasm)
 RUN(NAME expr_03             LABELS cpython llvm c wasm)

@@ -1,0 +1,5 @@
+semantic error: Targets with Const[i32] type cannot be re-assigned.
+ --> tests/errors/const_02.py:5:5
+  |
+5 |     x = 5
+  |     ^ 

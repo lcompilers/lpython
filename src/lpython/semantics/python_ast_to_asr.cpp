@@ -80,8 +80,16 @@ namespace CastingUtil {
                       ASR::expr_t*& src_expr, ASR::expr_t*& dest_expr,
                       ASR::ttype_t*& src_type, ASR::ttype_t*& dest_type,
                       bool is_assign) {
-        ASR::ttype_t* left_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(left_expr));
-        ASR::ttype_t* right_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(right_expr));
+        ASR::ttype_t* left_type = ASRUtils::expr_type(left_expr);
+        ASR::ttype_t* right_type = ASRUtils::expr_type(right_expr);
+        if( ASR::is_a<ASR::Const_t>(*left_type) ) {
+            left_type = ASRUtils::get_contained_type(left_type);
+        }
+        if( ASR::is_a<ASR::Const_t>(*right_type) ) {
+            right_type = ASRUtils::get_contained_type(right_type);
+        }
+        left_type = ASRUtils::type_get_past_pointer(left_type);
+        right_type = ASRUtils::type_get_past_pointer(right_type);
         if( ASRUtils::check_equal_type(left_type, right_type) ||
             ASRUtils::is_character(*left_type) || ASRUtils::is_character(*right_type) ) {
             return 2;
@@ -1397,6 +1405,9 @@ public:
             } else if (var_annotation == "Pointer") {
                 ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice);
                 return ASRUtils::TYPE(ASR::make_Pointer_t(al, loc, type));
+            } else if (var_annotation == "Const") {
+                ASR::ttype_t *type = ast_expr_to_asr_type(loc, *s->m_slice);
+                return ASRUtils::TYPE(ASR::make_Const_t(al, loc, type));
             } else {
                 if (AST::is_a<AST::Slice_t>(*s->m_slice)) {
                     ASR::dimension_t dim;
@@ -1445,8 +1456,16 @@ public:
                         ASR::is_a<ASR::Var_t>(*left)) ||
                         (ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(right)) &&
                         ASR::is_a<ASR::Var_t>(*right)));
-        ASR::ttype_t *right_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(right));
-        ASR::ttype_t *left_type = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(left));
+        ASR::ttype_t *right_type = ASRUtils::expr_type(right);
+        ASR::ttype_t *left_type = ASRUtils::expr_type(left);
+        if( ASR::is_a<ASR::Const_t>(*left_type) ) {
+            left_type = ASRUtils::get_contained_type(left_type);
+        }
+        if( ASR::is_a<ASR::Const_t>(*right_type) ) {
+            right_type = ASRUtils::get_contained_type(right_type);
+        }
+        left_type = ASRUtils::type_get_past_pointer(left_type);
+        right_type = ASRUtils::type_get_past_pointer(right_type);
         if( no_cast ) {
             int lkind = ASRUtils::extract_kind_from_ttype_t(left_type);
             int rkind = ASRUtils::extract_kind_from_ttype_t(right_type);
@@ -1495,9 +1514,15 @@ public:
     }
 
     void make_BinOp_helper(ASR::expr_t *left, ASR::expr_t *right,
-                            ASR::binopType op, const Location &loc, bool floordiv) {
+        ASR::binopType op, const Location &loc, bool floordiv) {
         ASR::ttype_t *left_type = ASRUtils::expr_type(left);
         ASR::ttype_t *right_type = ASRUtils::expr_type(right);
+        if( ASR::is_a<ASR::Const_t>(*left_type) ) {
+            left_type = ASRUtils::get_contained_type(left_type);
+        }
+        if( ASR::is_a<ASR::Const_t>(*right_type) ) {
+            right_type = ASRUtils::get_contained_type(right_type);
+        }
         ASR::ttype_t *dest_type = nullptr;
         ASR::expr_t *value = nullptr;
         ASR::expr_t *overloaded = nullptr;
@@ -1622,6 +1647,9 @@ public:
                     ASRUtils::is_complex(*right_type) || ASRUtils::is_logical(*right_type))) {
             cast_helper(left, right, false);
             dest_type = ASRUtils::expr_type(left);
+            if( ASR::is_a<ASR::Const_t>(*dest_type) ) {
+                dest_type = ASRUtils::get_contained_type(dest_type);
+            }
         } else if ((right_is_int || left_is_int) && op == ASR::binopType::Mul) {
             // string repeat
             int64_t left_int = 0, right_int = 0, dest_len = 0;
@@ -1939,9 +1967,16 @@ public:
     void create_add_variable_to_scope(std::string& var_name, ASR::expr_t* init_expr,
         ASR::expr_t* value, ASR::ttype_t* type,
         const Location& loc, ASR::abiType abi) {
+        if( ASR::is_a<ASR::Const_t>(*type) && !init_expr ) {
+            throw SemanticError("Constant variable " + var_name +
+                " is not initialised at declaration.", loc);
+        }
         ASR::intentType s_intent = ASRUtils::intent_local;
         ASR::storage_typeType storage_type =
                 ASR::storage_typeType::Default;
+        if( ASR::is_a<ASR::Const_t>(*type) ) {
+            storage_type = ASR::storage_typeType::Parameter;
+        }
         ASR::abiType current_procedure_abi_type = abi;
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::presenceType s_presence = ASR::presenceType::Required;
@@ -1961,8 +1996,10 @@ public:
                                                         init_expr, nullptr);
             current_body->push_back(al, ASRUtils::STMT(assign));
             ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
-            v_variable->m_symbolic_value = nullptr;
-            v_variable->m_value = nullptr;
+            if( !ASR::is_a<ASR::Const_t>(*type) ) {
+                v_variable->m_symbolic_value = nullptr;
+                v_variable->m_value = nullptr;
+            }
         }
         current_scope->add_symbol(var_name, v_sym);
     }
@@ -1986,9 +2023,13 @@ public:
             }
             if (tmp) {
                 value = ASRUtils::EXPR(tmp);
-                cast_helper(type, value);
-                if (!ASRUtils::check_equal_type(type, ASRUtils::expr_type(value))) {
-                    std::string ltype = ASRUtils::type_to_str_python(type);
+                ASR::ttype_t* underlying_type = type;
+                if( ASR::is_a<ASR::Const_t>(*type) ) {
+                    underlying_type = ASRUtils::get_contained_type(type);
+                }
+                cast_helper(underlying_type, value);
+                if (!ASRUtils::check_equal_type(underlying_type, ASRUtils::expr_type(value))) {
+                    std::string ltype = ASRUtils::type_to_str_python(underlying_type);
                     std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(value));
                     diag.add(diag::Diagnostic(
                         "Type mismatch in annotation-assignment, the types must be compatible",
@@ -2220,6 +2261,9 @@ public:
         ASR::intentType s_intent = ASRUtils::intent_local;
         ASR::storage_typeType storage_type =
                 ASR::storage_typeType::Default;
+        if( ASR::is_a<ASR::Const_t>(*type) ) {
+            storage_type = ASR::storage_typeType::Parameter;
+        }
         ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::presenceType s_presence = ASR::presenceType::Required;
@@ -2244,6 +2288,9 @@ public:
         ASR::intentType s_intent = ASRUtils::intent_local;
         ASR::storage_typeType storage_type =
                 ASR::storage_typeType::Default;
+        if( ASR::is_a<ASR::Const_t>(*type) ) {
+            storage_type = ASR::storage_typeType::Parameter;
+        }
         ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::presenceType s_presence = ASR::presenceType::Required;
@@ -3016,6 +3063,9 @@ public:
             }
             ASR::storage_typeType storage_type =
                     ASR::storage_typeType::Default;
+            if( ASR::is_a<ASR::Const_t>(*arg_type) ) {
+                storage_type = ASR::storage_typeType::Parameter;
+            }
             ASR::accessType s_access = ASR::accessType::Public;
             ASR::presenceType s_presence = ASR::presenceType::Required;
             bool value_attr = false;
@@ -3059,9 +3109,13 @@ public:
             if (AST::is_a<AST::Name_t>(*x.m_returns) || AST::is_a<AST::Subscript_t>(*x.m_returns)) {
                 std::string return_var_name = "_lpython_return_variable";
                 ASR::ttype_t *type = ast_expr_to_asr_type(x.m_returns->base.loc, *x.m_returns);
+                ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
+                if( ASR::is_a<ASR::Const_t>(*type) ) {
+                    storage_type = ASR::storage_typeType::Parameter;
+                }
                 ASR::asr_t *return_var = ASR::make_Variable_t(al, x.m_returns->base.loc,
                     current_scope, s2c(al, return_var_name), ASRUtils::intent_return_var, nullptr, nullptr,
-                    ASR::storage_typeType::Default, type,
+                    storage_type, type,
                     current_procedure_abi_type, ASR::Public, ASR::presenceType::Required,
                     false);
                 LFORTRAN_ASSERT(current_scope->get_scope().find(return_var_name) == current_scope->get_scope().end())
@@ -3267,6 +3321,9 @@ public:
                         ASR::expr_t *init_expr = nullptr;
                         ASR::intentType s_intent = ASRUtils::intent_local;
                         ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
+                        if( ASR::is_a<ASR::Const_t>(*type) ) {
+                            storage_type = ASR::storage_typeType::Parameter;
+                        }
                         ASR::abiType current_procedure_abi_type = ASR::abiType::Source;
                         ASR::accessType s_access = ASR::accessType::Public;
                         ASR::presenceType s_presence = ASR::presenceType::Required;
@@ -3631,6 +3688,12 @@ public:
                                     tmp_value, nullptr));
                 continue;
             }
+            if( ASR::is_a<ASR::Const_t>(*ASRUtils::expr_type(target)) ) {
+                throw SemanticError("Targets with " +
+                                    ASRUtils::type_to_str_python(ASRUtils::expr_type(target)) +
+                                    " type cannot be re-assigned.",
+                                    target->base.loc);
+            }
             cast_helper(target, tmp_value, true);
             value_type = ASRUtils::expr_type(tmp_value);
             if (!ASRUtils::check_equal_type(target_type, value_type)) {
@@ -3700,13 +3763,17 @@ public:
         auto loop_src_var_symbol = current_scope->resolve_symbol(var_name);
         LFORTRAN_ASSERT(loop_src_var_symbol!=nullptr);
         auto loop_src_var_ttype = ASRUtils::symbol_type(loop_src_var_symbol);
-        auto int_type = ASR::make_Integer_t(al, loc, 4, nullptr, 0);
+        ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
         // create a new variable called/named __explicit_iterator of type i32 and add it to symbol table
         std::string explicit_iter_name = current_scope->get_unique_name("__explicit_iterator");
+        ASR::storage_typeType storage_type = ASR::storage_typeType::Default;
+        if( ASR::is_a<ASR::Const_t>(*int_type) ) {
+            storage_type = ASR::storage_typeType::Parameter;
+        }
         auto explicit_iter_variable = ASR::make_Variable_t(al, loc,
             current_scope, s2c(al, explicit_iter_name), ASR::intentType::Local,
-            nullptr, nullptr, ASR::storage_typeType::Default,
-            ASRUtils::TYPE(int_type), ASR::abiType::Source,
+            nullptr, nullptr, storage_type,
+            int_type, ASR::abiType::Source,
             ASR::accessType::Public, ASR::presenceType::Required, false
         );
 
@@ -3718,11 +3785,11 @@ public:
         if (ASR::is_a<ASR::Character_t>(*loop_src_var_ttype)) {
             return ASRUtils::EXPR(ASR::make_StringLen_t(al, loc,
                                   ASRUtils::EXPR(loop_src_var),
-                                  ASRUtils::TYPE(int_type), nullptr));
+                                  int_type, nullptr));
         } else if (ASR::is_a<ASR::List_t>(*loop_src_var_ttype)) {
             return ASRUtils::EXPR(ASR::make_ListLen_t(al, loc,
                                   ASRUtils::EXPR(loop_src_var),
-                                  ASRUtils::TYPE(int_type), nullptr));
+                                  int_type, nullptr));
         } else if (ASR::is_a<ASR::Set_t>(*loop_src_var_ttype)) {
             throw SemanticError("Iterating on Set using for in loop not yet supported", loc);
         } else if (ASR::is_a<ASR::Tuple_t>(*loop_src_var_ttype)) {
@@ -4364,6 +4431,12 @@ public:
 
         ASR::ttype_t *left_type = ASRUtils::expr_type(left);
         ASR::ttype_t *right_type = ASRUtils::expr_type(right);
+        if( ASR::is_a<ASR::Const_t>(*left_type) ) {
+            left_type = ASRUtils::get_contained_type(left_type);
+        }
+        if( ASR::is_a<ASR::Const_t>(*right_type) ) {
+            right_type = ASRUtils::get_contained_type(right_type);
+        }
         ASR::expr_t *overloaded = nullptr;
         if (((left_type->type != ASR::ttypeType::Real &&
             left_type->type != ASR::ttypeType::Integer) &&
@@ -4385,11 +4458,11 @@ public:
         if (!ASRUtils::is_logical(*left_type) || !ASRUtils::is_logical(*right_type)) {
             cast_helper(left, right, false);
         }
-        ASR::ttype_t *dest_type = ASRUtils::expr_type(left);
 
-        // Check that the types are now the same
-        if (!ASRUtils::check_equal_type(ASRUtils::expr_type(left),
-                                    ASRUtils::expr_type(right))) {
+        left_type = ASRUtils::expr_type(left);
+        right_type = ASRUtils::expr_type(right);
+        ASR::ttype_t *dest_type = left_type;
+        if (!ASRUtils::check_equal_type(left_type, right_type)) {
             std::string ltype = ASRUtils::type_to_str_python(ASRUtils::expr_type(left));
             std::string rtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(right));
             diag.add(diag::Diagnostic(
@@ -4405,7 +4478,7 @@ public:
             ASR::make_Logical_t(al, x.base.base.loc, 4, nullptr, 0));
         ASR::expr_t *value = nullptr;
 
-        if( ASR::is_a<ASR::Enum_t>(*dest_type) ) {
+        if( ASR::is_a<ASR::Enum_t>(*dest_type) || ASR::is_a<ASR::Const_t>(*dest_type) ) {
             dest_type = ASRUtils::get_contained_type(dest_type);
         }
         if (ASRUtils::is_integer(*dest_type)) {
@@ -4592,6 +4665,12 @@ public:
         ASR::expr_t *target = ASRUtils::EXPR(return_var_ref);
         ASR::ttype_t *target_type = ASRUtils::expr_type(target);
         ASR::ttype_t *value_type = ASRUtils::expr_type(value);
+        if( ASR::is_a<ASR::Const_t>(*target_type) ) {
+            target_type = ASRUtils::get_contained_type(target_type);
+        }
+        if( ASR::is_a<ASR::Const_t>(*value_type) ) {
+            value_type = ASRUtils::get_contained_type(value_type);
+        }
         if (!ASRUtils::check_equal_type(target_type, value_type)) {
             std::string ltype = ASRUtils::type_to_str_python(target_type);
             std::string rtype = ASRUtils::type_to_str_python(value_type);
@@ -4602,6 +4681,10 @@ public:
         ASR::stmt_t *overloaded=nullptr;
         tmp = ASR::make_Assignment_t(al, x.base.base.loc, target, value,
                                 overloaded);
+        if( ASR::is_a<ASR::Const_t>(*ASRUtils::symbol_type(return_var)) ) {
+            ASR::Variable_t* return_variable = ASR::down_cast<ASR::Variable_t>(return_var);
+            return_variable->m_symbolic_value = value;
+        }
 
         // We can only return one statement in `tmp`, so we insert the current
         // `tmp` into the body of the function directly
