@@ -580,7 +580,10 @@ R"(#include <stdio.h>
         ASR::ttype_t* m_value_type = ASRUtils::expr_type(x.m_value);
         bool is_target_list = ASR::is_a<ASR::List_t>(*m_target_type);
         bool is_value_list = ASR::is_a<ASR::List_t>(*m_value_type);
+        bool is_target_tup = ASR::is_a<ASR::Tuple_t>(*m_target_type);
+        bool is_value_tup = ASR::is_a<ASR::Tuple_t>(*m_value_type);
         bool alloc_return_var = false;
+        std::string indent(indentation_level*indentation_spaces, ' ');
         if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
             visit_Var(*ASR::down_cast<ASR::Var_t>(x.m_target));
             target = src;
@@ -603,6 +606,26 @@ R"(#include <stdio.h>
         } else if (ASR::is_a<ASR::ListItem_t>(*x.m_target)) {
             self().visit_ListItem(*ASR::down_cast<ASR::ListItem_t>(x.m_target));
             target = src;
+        } else if (ASR::is_a<ASR::TupleItem_t>(*x.m_target)) {
+            self().visit_TupleItem(*ASR::down_cast<ASR::TupleItem_t>(x.m_target));
+            target = src;
+        } else if (ASR::is_a<ASR::TupleConstant_t>(*x.m_target)) {
+            ASR::TupleConstant_t *tup_c = ASR::down_cast<ASR::TupleConstant_t>(x.m_target);
+            std::string src_tmp = "", val_name = "";
+            if (ASR::is_a<ASR::TupleConstant_t>(*x.m_value)) {
+                self().visit_TupleConstant(*ASR::down_cast<ASR::TupleConstant_t>(x.m_value));
+                src_tmp += src;
+                val_name = const_name;
+            } else {
+                visit_Var(*ASR::down_cast<ASR::Var_t>(x.m_value));
+                val_name = src;
+            }
+            for (size_t i=0; i<tup_c->n_elements; i++) {
+                visit_Var(*ASR::down_cast<ASR::Var_t>(tup_c->m_elements[i]));
+                src_tmp += indent + src + " = " + val_name + ".element_" + std::to_string(i) + ";\n";
+            }
+            src = src_tmp;
+            return;
         } else {
             LFORTRAN_ASSERT(false)
         }
@@ -619,7 +642,6 @@ R"(#include <stdio.h>
             ASR::is_a<ASR::Struct_t>(*ASRUtils::get_contained_type(target_type)) ) {
             value = "*" + value;
         }
-        std::string indent(indentation_level*indentation_spaces, ' ');
         if( !from_std_vector_helper.empty() ) {
             src = from_std_vector_helper;
         } else {
@@ -635,6 +657,13 @@ R"(#include <stdio.h>
                 src += indent + list_dc_func + "(" + value + ", &" + target + ");\n\n";
             } else {
                 src += indent + list_dc_func + "(&" + value + ", &" + target + ");\n\n";
+            }
+        } else if ( is_target_tup && is_value_tup ) {
+            if( ASR::is_a<ASR::TupleConstant_t>(*x.m_value) ) {
+                src += value;
+                src += indent + target +  " = " + const_name + ";\n";
+            } else {
+                src += indent + target +  " = " + value + ";\n";
             }
         } else {
             if( is_c ) {
@@ -742,7 +771,7 @@ R"(#include <stdio.h>
             self().visit_expr(*x.m_elements[i]);
             std::string ele = ".element_" + std::to_string(i);
             if (ASR::is_a<ASR::Character_t>(*t->m_type[i])) {
-                src_tmp += const_name + ele + " = (char*) malloc(40 * sizeof(char));\n";
+                src_tmp += indent + const_name + ele + " = (char*) malloc(40 * sizeof(char));\n";
             }
             if (is_c) {
                 src_tmp += indent + CUtils::deepcopy(const_name + ele , src, t->m_type[i]) + "\n";
@@ -847,6 +876,23 @@ R"(#include <stdio.h>
         std::string pos = std::move(src);
         // TODO: check for out of bound indices
         src = list_var + ".data[" + pos + "]";
+    }
+
+    void visit_TupleItem(const ASR::TupleItem_t& x) {
+        if (x.m_value) {
+            self().visit_expr(*x.m_value);
+            return ;
+        }
+        self().visit_expr(*x.m_a);
+        std::string tup_var = std::move(src);
+        ASR::expr_t *pos_val = ASRUtils::expr_value(x.m_pos);
+        if (pos_val == nullptr) {
+            throw CodeGenError("Compile time constant values are supported in Tuple Item yet");
+        }
+        self().visit_expr(*pos_val);
+        std::string pos = std::move(src);
+        // TODO: check for out of bound indices
+        src = tup_var + ".element_" + pos;
     }
 
     void visit_LogicalConstant(const ASR::LogicalConstant_t &x) {

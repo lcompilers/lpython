@@ -567,11 +567,11 @@ class CCPPTuple {
             }
             std::string indent(indentation_level * indentation_spaces, ' ');
             std::string tab(indentation_spaces, ' ');
-            std::string tuple_struct_type = "struct tuple_" + tuple_type_code;
+            std::string tuple_struct_type = "struct " + tuple_type_code;
             typecode2tupletype[tuple_type_code] = tuple_struct_type;
             tuple_func_decls += indent + tuple_struct_type + " {\n";
-            tuple_func_decls += indent + tab + "int32_t length = " + \
-                            std::to_string(tuple_type->n_type) + ";\n";
+            tuple_func_decls += indent + tab + "int32_t length;\n";
+                            //std::to_string(tuple_type->n_type) + ";\n";
             for (size_t i = 0; i < tuple_type->n_type; i++) {
                 tuple_func_decls += indent + tab + \
                     CUtils::get_c_type_from_ttype_t(tuple_type->m_type[i]) + " element_" + std::to_string(i) + ";\n";
