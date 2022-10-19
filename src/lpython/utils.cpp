@@ -13,6 +13,19 @@
 #include <lpython/utils.h>
 #include <libasr/string_utils.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#ifndef _WIN32
+    #include <unistd.h>
+#endif
+
+#ifdef _WIN32
+    #define stat _stat
+    #if !defined S_ISDIR
+        #define S_ISDIR(m) (((m) & _S_IFDIR) == _S_IFDIR)
+    #endif
+#endif
+
 namespace LFortran {
 
 void get_executable_path(std::string &executable_path, int &dirname_length)
