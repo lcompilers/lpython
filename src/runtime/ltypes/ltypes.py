@@ -9,7 +9,7 @@ from goto import with_goto
 __slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64", "CPtr",
         "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer",
         "p_c_pointer", "vectorize", "inline", "Union", "static", "with_goto",
-        "packed"]
+        "packed", "Const"]
 
 # data-types
 
@@ -21,6 +21,10 @@ class Type:
         return Array(self, params)
 
 class Pointer:
+    def __getitem__(self, type):
+        return type
+
+class ConstType(Type):
     def __getitem__(self, type):
         return type
 
@@ -38,6 +42,7 @@ f64 = Type("f64")
 c32 = Type("c32")
 c64 = Type("c64")
 CPtr = Type("c_ptr")
+Const = ConstType("Const")
 Union = ctypes.Union
 
 # Generics
