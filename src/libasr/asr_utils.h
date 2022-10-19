@@ -807,6 +807,13 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
             }
             return "Pointer[" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_) + "]";
         }
+        case ASR::ttypeType::Const: {
+            ASR::Const_t* p = ASR::down_cast<ASR::Const_t>(t);
+            if( use_underscore_sep ) {
+                return "Const_" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_) + "_";
+            }
+            return "Const[" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_) + "]";
+        }
         default: {
             throw LCompilersException("Type encoding not implemented for "
                                       + std::to_string(t->type));
