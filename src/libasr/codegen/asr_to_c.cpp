@@ -541,7 +541,7 @@ public:
                     sub = "#define " + std::string(v.m_name) + " " + src + "\n";
                     return sub;
                 } else {
-                    std::string const_underlying_type = get_c_type_from_ttype_t(
+                    std::string const_underlying_type = CUtils::get_c_type_from_ttype_t(
                         ASR::down_cast<ASR::Const_t>(v.m_type)->m_type);
                     sub = format_type_c("", "const " + const_underlying_type + " ",
                                         v.m_name, false, false);

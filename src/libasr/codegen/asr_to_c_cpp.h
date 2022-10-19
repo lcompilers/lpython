@@ -329,7 +329,7 @@ R"(#include <stdio.h>
                 sub = list_api->get_list_type(list_type, list_element_type) + " ";
             } else if (ASR::is_a<ASR::Const_t>(*return_var->m_type)) {
                 ASR::Const_t* const_type = ASR::down_cast<ASR::Const_t>(return_var->m_type);
-                std::string const_type_str = get_c_type_from_ttype_t(const_type->m_type);
+                std::string const_type_str = CUtils::get_c_type_from_ttype_t(const_type->m_type);
                 sub = "const " + const_type_str + " ";
             } else {
                 throw CodeGenError("Return type not supported in function '" +
