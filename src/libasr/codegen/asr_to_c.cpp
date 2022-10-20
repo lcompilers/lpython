@@ -5,6 +5,7 @@
 #include <libasr/containers.h>
 #include <libasr/codegen/asr_to_c.h>
 #include <libasr/codegen/asr_to_c_cpp.h>
+#include <libasr/codegen/c_utils.h>
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/string_utils.h>
@@ -227,7 +228,7 @@ public:
             }
         }
         if( size == 0 ) {
-            std::string element_type_str = get_c_type_from_ttype_t(element_type);
+            std::string element_type_str = CUtils::get_c_type_from_ttype_t(element_type);
             dims = "(" + element_type_str + "*)" + " malloc(sizeof(" + element_type_str + ")" + array_size + ")";
             is_fixed_size = false;
             return dims;
@@ -522,9 +523,14 @@ public:
                 }
             } else if (ASR::is_a<ASR::List_t>(*v.m_type)) {
                 ASR::List_t* t = ASR::down_cast<ASR::List_t>(v.m_type);
-                std::string list_element_type = get_c_type_from_ttype_t(t->m_type);
+                std::string list_element_type = CUtils::get_c_type_from_ttype_t(t->m_type);
                 std::string list_type_c = list_api->get_list_type(t, list_element_type);
                 sub = format_type_c("", list_type_c, v.m_name,
+                                    false, false);
+            } else if (ASR::is_a<ASR::Tuple_t>(*v.m_type)) {
+                ASR::Tuple_t* t = ASR::down_cast<ASR::Tuple_t>(v.m_type);
+                std::string tuple_type_c = tuple_api->get_tuple_type(t);
+                sub = format_type_c("", tuple_type_c, v.m_name,
                                     false, false);
             } else if (ASR::is_a<ASR::CPtr_t>(*v.m_type)) {
                 sub = format_type_c("", "void*", v.m_name, false, false);
@@ -535,7 +541,7 @@ public:
                     sub = "#define " + std::string(v.m_name) + " " + src + "\n";
                     return sub;
                 } else {
-                    std::string const_underlying_type = get_c_type_from_ttype_t(
+                    std::string const_underlying_type = CUtils::get_c_type_from_ttype_t(
                         ASR::down_cast<ASR::Const_t>(v.m_type)->m_type);
                     sub = format_type_c("", "const " + const_underlying_type + " ",
                                         v.m_name, false, false);
@@ -576,6 +582,8 @@ public:
         list_api->set_global_scope(global_scope);
         c_utils_functions->set_indentation(indentation_level, indentation_spaces);
         c_utils_functions->set_global_scope(global_scope);
+        tuple_api->set_indentation(indentation_level, indentation_spaces);
+        tuple_api->set_global_scope(global_scope);
 
         std::string head =
 R"(
@@ -715,9 +723,15 @@ R"(
         if( c_utils_functions->get_util_func_decls().size() > 0 ) {
             array_types_decls += "\n" + c_utils_functions->get_util_func_decls() + "\n";
         }
+        if( tuple_api->get_tuple_func_decls().size() > 0 ) {
+            array_types_decls += "\n" + tuple_api->get_tuple_func_decls() + "\n";
+        }
         std::string list_funcs_defined = "";
         if( list_api->get_generated_code().size() > 0 ) {
             list_funcs_defined =  "\n" + list_api->get_generated_code() + "\n";
+        }
+        if( tuple_api->get_generated_code().size() > 0 ) {
+            list_funcs_defined =  "\n" + tuple_api->get_generated_code() + "\n";
         }
         std::string util_funcs_defined = "";
         if( c_utils_functions->get_generated_code().size() > 0 ) {
@@ -988,6 +1002,9 @@ R"(
             case ASR::ttypeType::CPtr: {
                 return "%p";
             }
+            case ASR::ttypeType::Complex: {
+                return "(%f, %f)";
+            }
             case ASR::ttypeType::Pointer: {
                 if( !deref_ptr ) {
                     return "%p";
@@ -1027,6 +1044,11 @@ R"(
             ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_values[i]);
             out += get_print_type(value_type, ASR::is_a<ASR::ArrayItem_t>(*x.m_values[i]));
             v.push_back(src);
+            if (value_type->type == ASR::ttypeType::Complex) {
+                v.pop_back();
+                v.push_back("creal(" + src + ")");
+                v.push_back("cimag(" + src + ")");
+            }
             if (i+1!=x.n_values) {
                 out += "\%s";
                 v.push_back(separator);
@@ -1052,7 +1074,7 @@ R"(
         visit_expr(*x.m_v);
         std::string var_name = src;
         std::string args = "";
-        std::string result_type = get_c_type_from_ttype_t(x.m_type);
+        std::string result_type = CUtils::get_c_type_from_ttype_t(x.m_type);
         if (x.m_dim == nullptr) {
             std::string array_size_func = c_utils_functions->get_array_size();
             ASR::dimension_t* m_dims = nullptr;
@@ -1072,13 +1094,13 @@ R"(
         std::string shape = src;
 
         ASR::ttype_t* array_type_asr = ASRUtils::expr_type(x.m_array);
-        std::string array_type_name = get_c_type_from_ttype_t(array_type_asr);
+        std::string array_type_name = CUtils::get_c_type_from_ttype_t(array_type_asr);
         std::string array_encoded_type_name = ASRUtils::get_type_code(array_type_asr, true, false);
         std::string array_type = get_array_type(array_type_name, array_encoded_type_name, true);
         std::string return_type = get_array_type(array_type_name, array_encoded_type_name, false);
 
         ASR::ttype_t* shape_type_asr = ASRUtils::expr_type(x.m_shape);
-        std::string shape_type_name = get_c_type_from_ttype_t(shape_type_asr);
+        std::string shape_type_name = CUtils::get_c_type_from_ttype_t(shape_type_asr);
         std::string shape_encoded_type_name = ASRUtils::get_type_code(shape_type_asr, true, false);
         std::string shape_type = get_array_type(shape_type_name, shape_encoded_type_name, true);
 
@@ -1091,7 +1113,7 @@ R"(
         visit_expr(*x.m_v);
         std::string var_name = src;
         std::string args = "";
-        std::string result_type = get_c_type_from_ttype_t(x.m_type);
+        std::string result_type = CUtils::get_c_type_from_ttype_t(x.m_type);
         visit_expr(*x.m_dim);
         std::string idx = src;
         if( x.m_bound == ASR::arrayboundType::LBound ) {
@@ -1116,7 +1138,7 @@ R"(
         array_const.pop_back();
 
         ASR::ttype_t* array_type_asr = x.m_type;
-        std::string array_type_name = get_c_type_from_ttype_t(array_type_asr);
+        std::string array_type_name = CUtils::get_c_type_from_ttype_t(array_type_asr);
         std::string array_encoded_type_name = ASRUtils::get_type_code(array_type_asr, true, false);
         std::string return_type = get_array_type(array_type_name, array_encoded_type_name, false);
 
