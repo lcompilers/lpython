@@ -254,7 +254,7 @@ ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
     LFortran::LocationManager lm;
     lm.in_filename = infile;
     Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast,
-        diagnostics, false, true, false, infile);
+        diagnostics, false, true, false, infile, "");
     // TODO: Uncomment once a check is added for ensuring
     // that module.py file hasn't changed between
     // builds.
@@ -315,6 +315,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     bool compile_module = true;
     ASR::TranslationUnit_t* mod1 = nullptr;
     std::string input;
+    std::string module_dir_name = "";
     bool found = set_module_path(infile0c, rl_path, infile,
                                  path_used, input, ltypes, enum_py);
     if( !found ) {
@@ -332,7 +333,8 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         return nullptr;
     }
     if (!found) {
-        err("Could not find the module '" + infile0 + "'", loc);
+        err("Could not find the module '" + infile0 + "'. If an import path "
+            "is available, please use the `-I` option to specify it", loc);
     }
     if (ltypes) return nullptr;
 
@@ -342,13 +344,25 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
 
     // insert into `symtab`
     std::vector<std::pair<std::string, ASR::Module_t*>> children_modules;
-    ASRUtils::extract_module_python(*mod1, children_modules, module_name);
+    if (module_name == "__init__") {
+        // remove `__init__.py`
+        module_dir_name = infile.substr(0, infile.find_last_of('/'));
+        // assign module directory name
+        module_dir_name = module_dir_name.substr(module_dir_name.find_last_of('/') + 1);
+        ASRUtils::extract_module_python(*mod1, children_modules, module_dir_name);
+    } else {
+        ASRUtils::extract_module_python(*mod1, children_modules, module_name);
+    }
     ASR::Module_t* mod2 = nullptr;
     for( auto& a: children_modules ) {
         std::string a_name = a.first;
         ASR::Module_t* a_mod = a.second;
         if( a_name == module_name ) {
             a_mod->m_name = s2c(al, module_name);
+            a_mod->m_intrinsic = intrinsic;
+            mod2 = a_mod;
+        } else if (a_name == module_dir_name) {
+            a_mod->m_name = s2c(al, module_dir_name);
             a_mod->m_intrinsic = intrinsic;
             mod2 = a_mod;
         }
@@ -436,9 +450,18 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
             ASR::accessType::Public
             );
         return ASR::down_cast<ASR::symbol_t>(v);
+    } else if (ASR::is_a<ASR::ExternalSymbol_t>(*t)) {
+        ASR::ExternalSymbol_t *es = ASR::down_cast<ASR::ExternalSymbol_t>(t);
+        SymbolTable *symtab = current_scope;
+        while (symtab->parent != nullptr) symtab = symtab->parent;
+        ASR::symbol_t *sym = symtab->get_symbol(es->m_module_name);
+        ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(sym);
+
+        return import_from_module(al, m, symtab, es->m_name,
+                            cur_sym_name, new_sym_name, loc);
     } else {
-        throw SemanticError("Only Subroutines, Functions and Variables are currently supported in 'import'",
-            loc);
+        throw SemanticError("Only Subroutines, Functions, Variables and "
+            "ExternalSymbol are currently supported in 'import'", loc);
     }
     LFORTRAN_ASSERT(false);
     return nullptr;
@@ -475,6 +498,7 @@ public:
     IntrinsicNodeHandler intrinsic_node_handler;
     std::map<int, ASR::symbol_t*> &ast_overload;
     std::string parent_dir;
+    std::string import_path;
     Vec<ASR::stmt_t*> *current_body;
     ASR::ttype_t* ann_assign_target_type;
 
@@ -485,9 +509,10 @@ public:
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module,
-            std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir)
+            std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
+            std::string import_path)
         : diag{diagnostics}, al{al}, current_scope{symbol_table}, main_module{main_module},
-            ast_overload{ast_overload}, parent_dir{parent_dir},
+            ast_overload{ast_overload}, parent_dir{parent_dir}, import_path{import_path},
             current_body{nullptr}, ann_assign_target_type{nullptr} {
         current_module_dependencies.reserve(al, 4);
     }
@@ -2912,8 +2937,10 @@ public:
 
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table,
         diag::Diagnostics &diagnostics, bool main_module,
-        std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir)
-      : CommonVisitor(al, symbol_table, diagnostics, main_module, ast_overload, parent_dir), is_derived_type{false} {}
+        std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
+        std::string import_path)
+      : CommonVisitor(al, symbol_table, diagnostics, main_module, ast_overload,
+            parent_dir, import_path), is_derived_type{false} {}
 
 
     ASR::symbol_t* resolve_symbol(const Location &loc, const std::string &sub_name) {
@@ -3206,6 +3233,24 @@ public:
                 st = st->parent;
             }
             bool ltypes, enum_py;
+            if (msym != "ltypes") {
+                if (import_path != "" &&
+                        !path_exits(paths[0] + '/' + msym + ".py")) {
+                    paths = {import_path};
+                    if (parent_dir != "") paths[0] += '/' + parent_dir;
+                    if(is_directory(paths[0])) {
+                        paths[0] += '/' + msym;
+                        msym = "__init__";
+                    }
+                } else if (is_directory(msym)) {
+                    paths = {rl_path, msym};
+                    msym = "__init__";
+                } else if (paths[1] != ""
+                        && is_directory(paths[1] + '/' + msym)) {
+                    paths[1] += '/' + msym;
+                    msym = "__init__";
+                }
+            }
             t = (ASR::symbol_t*)(load_module(al, st,
                 msym, x.base.base.loc, false, paths, ltypes, enum_py,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
@@ -3251,6 +3296,24 @@ public:
         }
         for (auto &mod_sym : mods) {
             bool ltypes, enum_py;
+            if (mod_sym != "ltypes") {
+                if (import_path != "" &&
+                        !path_exits(paths[0] + '/' + mod_sym + ".py")) {
+                    paths = {import_path};
+                    if (parent_dir != "") paths[0] += '/' + parent_dir;
+                    if(is_directory(paths[0])) {
+                        paths[0] += '/' + mod_sym;
+                        mod_sym = "__init__";
+                    }
+                } else if (is_directory(mod_sym)) {
+                    paths = {rl_path, mod_sym};
+                    mod_sym = "__init__";
+                } else if (paths[1] != ""
+                        && is_directory(paths[1] + '/' + mod_sym)) {
+                    paths[1] += '/' + mod_sym;
+                    mod_sym = "__init__";
+                }
+            }
             t = (ASR::symbol_t*)(load_module(al, st,
                 mod_sym, x.base.base.loc, false, paths, ltypes, enum_py,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); }
@@ -3355,9 +3418,11 @@ public:
 
 Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, const AST::Module_t &ast,
         diag::Diagnostics &diagnostics, bool main_module,
-        std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir)
+        std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
+        std::string import_path)
 {
-    SymbolTableVisitor v(al, nullptr, diagnostics, main_module, ast_overload, parent_dir);
+    SymbolTableVisitor v(al, nullptr, diagnostics, main_module, ast_overload,
+        parent_dir, import_path);
     try {
         v.visit_Module(ast);
     } catch (const SemanticError &e) {
@@ -3383,8 +3448,8 @@ public:
 
     BodyVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
          bool main_module, std::map<int, ASR::symbol_t*> &ast_overload)
-         : CommonVisitor(al, nullptr, diagnostics, main_module, ast_overload, ""), asr{unit},
-         gotoids{0}
+         : CommonVisitor(al, nullptr, diagnostics, main_module, ast_overload, "", ""),
+         asr{unit}, gotoids{0}
          {}
 
     // Transforms statements to a list of ASR statements
@@ -5524,7 +5589,8 @@ std::string get_parent_dir(const std::string &path) {
 
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     AST::ast_t &ast, diag::Diagnostics &diagnostics, bool main_module,
-    bool disable_main, bool symtab_only, std::string file_path)
+    bool disable_main, bool symtab_only, std::string file_path,
+    std::string import_path)
 {
     std::map<int, ASR::symbol_t*> ast_overload;
     std::string parent_dir = get_parent_dir(file_path);
@@ -5532,7 +5598,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
 
     ASR::asr_t *unit;
     auto res = symbol_table_visitor(al, *ast_m, diagnostics, main_module,
-        ast_overload, parent_dir);
+        ast_overload, parent_dir, import_path);
     if (res.ok) {
         unit = res.result;
     } else {

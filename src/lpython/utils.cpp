@@ -13,6 +13,19 @@
 #include <lpython/utils.h>
 #include <libasr/string_utils.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#ifndef _WIN32
+    #include <unistd.h>
+#endif
+
+#ifdef _WIN32
+    #define stat _stat
+    #if !defined S_ISDIR
+        #define S_ISDIR(m) (((m) & _S_IFDIR) == _S_IFDIR)
+    #endif
+#endif
+
 namespace LFortran {
 
 void get_executable_path(std::string &executable_path, int &dirname_length)
@@ -69,5 +82,25 @@ std::string get_runtime_library_header_dir()
     return get_runtime_library_dir() + "/impure";
 }
 
+bool is_directory(std::string path) {
+    struct stat buffer;
+    if (stat(path.c_str(), &buffer) == 0) {
+        if (S_ISDIR(buffer.st_mode)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return false;
+}
+
+bool path_exits(std::string path) {
+    struct stat buffer;
+    if (stat(path.c_str(), &buffer) == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 }
