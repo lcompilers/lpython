@@ -37,6 +37,15 @@ bool present(Vec<char*> &v, const char* name) {
     return false;
 }
 
+bool present(char** const v, size_t n, const std::string name) {
+    for (size_t i = 0; i < n; i++) {
+        if (std::string(v[i]) == name) {
+            return true;
+        }
+    }
+    return false;
+}
+
 Platform get_platform()
 {
 #ifdef _WIN32

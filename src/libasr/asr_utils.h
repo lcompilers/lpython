@@ -105,6 +105,33 @@ static inline ASR::ttype_t* symbol_type(const ASR::symbol_t *f)
     return nullptr;
 }
 
+static inline ASR::ttype_t* get_contained_type(ASR::ttype_t* asr_type) {
+    switch( asr_type->type ) {
+        case ASR::ttypeType::List: {
+            return ASR::down_cast<ASR::List_t>(asr_type)->m_type;
+        }
+        case ASR::ttypeType::Set: {
+            return ASR::down_cast<ASR::Set_t>(asr_type)->m_type;
+        }
+        case ASR::ttypeType::Enum: {
+            ASR::Enum_t* enum_asr = ASR::down_cast<ASR::Enum_t>(asr_type);
+            ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_asr->m_enum_type);
+            return enum_type->m_type;
+        }
+        case ASR::ttypeType::Pointer: {
+            ASR::Pointer_t* pointer_asr = ASR::down_cast<ASR::Pointer_t>(asr_type);
+            return pointer_asr->m_type;
+        }
+        case ASR::ttypeType::Const: {
+            ASR::Const_t* const_asr = ASR::down_cast<ASR::Const_t>(asr_type);
+            return const_asr->m_type;
+        }
+        default: {
+            return asr_type;
+        }
+    }
+}
+
 static inline std::string type_to_str(const ASR::ttype_t *t)
 {
     switch (t->type) {
@@ -147,6 +174,10 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
         case ASR::ttypeType::Pointer: {
             return type_to_str(ASRUtils::type_get_past_pointer(
                         const_cast<ASR::ttype_t*>(t))) + " pointer";
+        }
+        case ASR::ttypeType::Const: {
+            return type_to_str(ASRUtils::get_contained_type(
+                        const_cast<ASR::ttype_t*>(t))) + " const";
         }
         case ASR::ttypeType::TypeParameter: {
             ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
@@ -685,14 +716,19 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
         }
         case ASR::ttypeType::Complex: {
             ASR::Complex_t *complx = ASR::down_cast<ASR::Complex_t>(t);
-            std::string res = "r" + std::to_string(complx->m_kind * 8);
+            std::string res = "c" + std::to_string(complx->m_kind * 8);
             if( encode_dimensions_ ) {
                 encode_dimensions(complx->n_dims, res, use_underscore_sep);
             }
             return res;
         }
         case ASR::ttypeType::Logical: {
-            return "bool";
+            ASR::Logical_t* bool_ = ASR::down_cast<ASR::Logical_t>(t);
+            std::string res = "bool";
+            if( encode_dimensions_ ) {
+                encode_dimensions(bool_->n_dims, res, use_underscore_sep);
+            }
+            return res;
         }
         case ASR::ttypeType::Character: {
             return "str";
@@ -750,7 +786,19 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
         }
         case ASR::ttypeType::Struct: {
             ASR::Struct_t* d = ASR::down_cast<ASR::Struct_t>(t);
-            return symbol_name(d->m_derived_type);
+            std::string res = symbol_name(d->m_derived_type);
+            if( encode_dimensions_ ) {
+                encode_dimensions(d->n_dims, res, use_underscore_sep);
+            }
+            return res;
+        }
+        case ASR::ttypeType::Union: {
+            ASR::Union_t* d = ASR::down_cast<ASR::Union_t>(t);
+            std::string res = symbol_name(d->m_union_type);
+            if( encode_dimensions_ ) {
+                encode_dimensions(d->n_dims, res, use_underscore_sep);
+            }
+            return res;
         }
         case ASR::ttypeType::Pointer: {
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(t);
@@ -758,6 +806,13 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
                 return "Pointer_" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_) + "_";
             }
             return "Pointer[" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_) + "]";
+        }
+        case ASR::ttypeType::Const: {
+            ASR::Const_t* p = ASR::down_cast<ASR::Const_t>(t);
+            if( use_underscore_sep ) {
+                return "Const_" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_) + "_";
+            }
+            return "Const[" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_) + "]";
         }
         default: {
             throw LCompilersException("Type encoding not implemented for "
@@ -860,6 +915,10 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(t);
             return "Pointer[" + type_to_str_python(p->m_type) + "]";
         }
+        case ASR::ttypeType::Const: {
+            ASR::Const_t* p = ASR::down_cast<ASR::Const_t>(t);
+            return "Const[" + type_to_str_python(p->m_type) + "]";
+        }
         case ASR::ttypeType::TypeParameter: {
             ASR::TypeParameter_t *p = ASR::down_cast<ASR::TypeParameter_t>(t);
             return p->m_param;
@@ -938,6 +997,27 @@ static inline Vec<char*> get_scope_names(Allocator &al, const SymbolTable *symta
     return scope_names;
 }
 
+static inline ASR::expr_t* get_constant_expression_with_given_type(Allocator& al, ASR::ttype_t* asr_type) {
+    switch (asr_type->type) {
+        case ASR::ttypeType::Integer: {
+            return ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, asr_type->base.loc, -1, asr_type));
+        }
+        case ASR::ttypeType::Real: {
+            return ASRUtils::EXPR(ASR::make_RealConstant_t(al, asr_type->base.loc, 0.0, asr_type));
+        }
+        case ASR::ttypeType::Complex: {
+            return ASRUtils::EXPR(ASR::make_ComplexConstant_t(al, asr_type->base.loc, 0.0, 0.0, asr_type));
+        }
+        case ASR::ttypeType::Logical: {
+            return ASRUtils::EXPR(ASR::make_LogicalConstant_t(al, asr_type->base.loc, false, asr_type));
+        }
+        default: {
+            throw LCompilersException("Not implemented " + std::to_string(asr_type->type));
+        }
+    }
+    return nullptr;
+}
+
 const ASR::intentType intent_local=ASR::intentType::Local; // local variable (not a dummy argument)
 const ASR::intentType intent_in   =ASR::intentType::In; // dummy argument, intent(in)
 const ASR::intentType intent_out  =ASR::intentType::Out; // dummy argument, intent(out)
@@ -966,6 +1046,9 @@ std::vector<std::string> order_deps(std::map<std::string,
 
 std::vector<std::string> determine_module_dependencies(
         const ASR::TranslationUnit_t &unit);
+
+std::vector<std::string> determine_function_definition_order(
+        SymbolTable* symtab);
 
 void extract_module_python(const ASR::TranslationUnit_t &m,
         std::vector<std::pair<std::string, ASR::Module_t*>>& children_modules,
@@ -1161,6 +1244,10 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
             n_dims = extract_dimensions_from_ttype(ASR::down_cast<ASR::Pointer_t>(x)->m_type, m_dims);
             break;
         }
+        case ASR::ttypeType::Const: {
+            n_dims = extract_dimensions_from_ttype(ASR::down_cast<ASR::Const_t>(x)->m_type, m_dims);
+            break;
+        }
         case ASR::ttypeType::List: {
             n_dims = 0;
             m_dims = nullptr;
@@ -1338,11 +1425,26 @@ static inline ASR::ttype_t* duplicate_type_without_dims(Allocator& al, const ASR
             return ASRUtils::TYPE(ASR::make_Real_t(al, t->base.loc,
                         tnew->m_kind, nullptr, 0));
         }
+        case ASR::ttypeType::Complex: {
+            ASR::Complex_t* tnew = ASR::down_cast<ASR::Complex_t>(t);
+            return ASRUtils::TYPE(ASR::make_Complex_t(al, t->base.loc,
+                        tnew->m_kind, nullptr, 0));
+        }
+        case ASR::ttypeType::Logical: {
+            ASR::Logical_t* tnew = ASR::down_cast<ASR::Logical_t>(t);
+            return ASRUtils::TYPE(ASR::make_Logical_t(al, t->base.loc,
+                        tnew->m_kind, nullptr, 0));
+        }
         case ASR::ttypeType::Character: {
             ASR::Character_t* tnew = ASR::down_cast<ASR::Character_t>(t);
             return ASRUtils::TYPE(ASR::make_Character_t(al, t->base.loc,
                         tnew->m_kind, tnew->m_len, tnew->m_len_expr,
                         nullptr, 0));
+        }
+        case ASR::ttypeType::Struct: {
+            ASR::Struct_t* tstruct = ASR::down_cast<ASR::Struct_t>(t);
+            return ASRUtils::TYPE(ASR::make_Struct_t(al, t->base.loc,
+                    tstruct->m_derived_type, nullptr, 0));
         }
         case ASR::ttypeType::TypeParameter: {
             ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
@@ -1508,6 +1610,11 @@ inline bool check_equal_type(ASR::ttype_t* x, ASR::ttype_t* y) {
         x = ASRUtils::type_get_past_pointer(x);
         y = ASRUtils::type_get_past_pointer(y);
         return check_equal_type(x, y);
+    } else if(ASR::is_a<ASR::Const_t>(*x) ||
+              ASR::is_a<ASR::Const_t>(*y)) {
+        x = ASRUtils::get_contained_type(x);
+        y = ASRUtils::get_contained_type(y);
+        return check_equal_type(x, y);
     } else if (ASR::is_a<ASR::List_t>(*x) && ASR::is_a<ASR::List_t>(*y)) {
         x = ASR::down_cast<ASR::List_t>(x)->m_type;
         y = ASR::down_cast<ASR::List_t>(y)->m_type;
@@ -1579,29 +1686,6 @@ static inline bool is_dimension_empty(ASR::dimension_t* dims, size_t n) {
         }
     }
     return false;
-}
-
-static inline ASR::ttype_t* get_contained_type(ASR::ttype_t* asr_type) {
-    switch( asr_type->type ) {
-        case ASR::ttypeType::List: {
-            return ASR::down_cast<ASR::List_t>(asr_type)->m_type;
-        }
-        case ASR::ttypeType::Set: {
-            return ASR::down_cast<ASR::Set_t>(asr_type)->m_type;
-        }
-        case ASR::ttypeType::Enum: {
-            ASR::Enum_t* enum_asr = ASR::down_cast<ASR::Enum_t>(asr_type);
-            ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_asr->m_enum_type);
-            return enum_type->m_type;
-        }
-        case ASR::ttypeType::Pointer: {
-            ASR::Pointer_t* pointer_asr = ASR::down_cast<ASR::Pointer_t>(asr_type);
-            return pointer_asr->m_type;
-        }
-        default: {
-            return asr_type;
-        }
-    }
 }
 
 static inline ASR::ttype_t* get_type_parameter(ASR::ttype_t* t) {

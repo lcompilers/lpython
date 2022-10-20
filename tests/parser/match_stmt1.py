@@ -13,6 +13,10 @@ match match:
     case case:
         x = 0
 
+match match ()  :
+    case case ()  :
+        x = 0
+
 match case:
     case match:
         x = 0
@@ -37,6 +41,9 @@ match 0:
     case 0 | 1 | 2 | 3:
         x = True
     case {0: ([1, 2, {}] | False)} | {1: [[]]} | {0: [1, 2, {}]} | [] | "X" | {}:
+        y = 1
+    case {0: ([1, 2, {}] | False)} | \
+        {1: [[]]} | {0: [1, 2, {}]} | [] | "X" | {}:
         y = 1
     case {0: [1, 2, {}]}:
         y = 0
@@ -149,23 +156,20 @@ def file_handler_v1(command):
     match command.split():
         case ['show']:
             print('List all files and directories: ')
-        # TODO
-        # case ['remove',
-        #       *files]:
-        #     print('Removing files: {}'.format(files))
+        case ['remove',
+              *files]:
+            print('Removing files: {}'.format(files))
         case _:
             print('Command not recognized')
 
-# TODO
-# match():
-#    # Comment
-#     case():
-#         x = 0
+match():
+    # Comment
+    case():
+        x = 0
 
-# match ():     # Comment
-#     case ():
-#         pass
-
+match ():     # Comment
+    case ():
+        pass
 
 # Match/Case as an identifier
 def case(x):
@@ -207,8 +211,7 @@ case ["ok"]:
   6}
 print(a)
 
-# TODO
-# match = {2:
-#     3}
-# match[2:
-#     8]
+match = {2:
+    3}
+match[2:
+    8]

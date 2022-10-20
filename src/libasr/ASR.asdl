@@ -84,7 +84,7 @@ symbol
         stmt* body)
     | Module(symbol_table symtab, identifier name, identifier* dependencies,
         bool loaded_from_mod, bool intrinsic)
-    | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
+    | Function(symbol_table symtab, identifier name, identifier* dependencies, expr* args, stmt* body,
         expr? return_var, abi abi, access access, deftype deftype,
         string? bindc_name, bool elemental, bool pure, bool module, bool inline,
         bool static, ttype* type_params, symbol* restrictions, bool is_restriction)
@@ -96,7 +96,7 @@ symbol
         symbol external, identifier module_name, identifier* scope_names,
         identifier original_name, access access)
     | StructType(symbol_table symtab, identifier name, identifier* members,
-        abi abi, access access, symbol? parent)
+        abi abi, access access, bool is_packed, expr? alignment, symbol? parent)
     | EnumType(symbol_table symtab, identifier name, identifier* members,
         abi abi, access access, enumtype enum_value_type, ttype type, symbol? parent)
     | UnionType(symbol_table symtab, identifier name, identifier* members,
@@ -306,6 +306,8 @@ expr
     | IntegerBitLen(expr a, ttype type, expr? value)
     | Ichar(expr arg, ttype type, expr? value)
 
+    | SizeOfType(ttype arg, ttype type, expr? value)
+
 
 -- `len` in Character:
 -- >=0 ... the length of the string, known at compile time
@@ -341,6 +343,7 @@ ttype
     | Class(symbol class_type, dimension* dims)
     | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
+    | Const(ttype type)
     | CPtr()
     | TypeParameter(identifier param, dimension* dims)
 

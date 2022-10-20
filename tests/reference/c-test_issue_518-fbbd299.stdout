@@ -34,19 +34,8 @@ struct dimension_descriptor
 {
     int32_t lower_bound, length;
 };
-// Forward declarations
-void _lpython_main_program();
-int64_t fib(int64_t n);
-void _xx_lcompilers_changed_main_xx();
-void main0();
 
 // Implementations
-void _lpython_main_program()
-{
-    main0();
-    _xx_lcompilers_changed_main_xx();
-}
-
 int64_t fib(int64_t n)
 {
     int64_t _lpython_return_variable;
@@ -60,6 +49,13 @@ int64_t fib(int64_t n)
     return _lpython_return_variable;
 }
 
+void main0()
+{
+    int64_t ans;
+    ans = fib(15);
+    ASSERT(ans == 610);
+}
+
 void _xx_lcompilers_changed_main_xx()
 {
     int64_t ans;
@@ -67,11 +63,10 @@ void _xx_lcompilers_changed_main_xx()
     ASSERT(ans == 55);
 }
 
-void main0()
+void _lpython_main_program()
 {
-    int64_t ans;
-    ans = fib(15);
-    ASSERT(ans == 610);
+    main0();
+    _xx_lcompilers_changed_main_xx();
 }
 
 int main(int argc, char* argv[])

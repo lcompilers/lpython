@@ -5,6 +5,7 @@
 #include <libasr/containers.h>
 #include <libasr/codegen/asr_to_c.h>
 #include <libasr/codegen/asr_to_c_cpp.h>
+#include <libasr/codegen/c_utils.h>
 #include <libasr/exception.h>
 #include <libasr/asr_utils.h>
 #include <libasr/string_utils.h>
@@ -227,7 +228,7 @@ public:
             }
         }
         if( size == 0 ) {
-            std::string element_type_str = get_c_type_from_ttype_t(element_type);
+            std::string element_type_str = CUtils::get_c_type_from_ttype_t(element_type);
             dims = "(" + element_type_str + "*)" + " malloc(sizeof(" + element_type_str + ")" + array_size + ")";
             is_fixed_size = false;
             return dims;
@@ -522,12 +523,29 @@ public:
                 }
             } else if (ASR::is_a<ASR::List_t>(*v.m_type)) {
                 ASR::List_t* t = ASR::down_cast<ASR::List_t>(v.m_type);
-                std::string list_element_type = get_c_type_from_ttype_t(t->m_type);
+                std::string list_element_type = CUtils::get_c_type_from_ttype_t(t->m_type);
                 std::string list_type_c = list_api->get_list_type(t, list_element_type);
                 sub = format_type_c("", list_type_c, v.m_name,
                                     false, false);
+            } else if (ASR::is_a<ASR::Tuple_t>(*v.m_type)) {
+                ASR::Tuple_t* t = ASR::down_cast<ASR::Tuple_t>(v.m_type);
+                std::string tuple_type_c = tuple_api->get_tuple_type(t);
+                sub = format_type_c("", tuple_type_c, v.m_name,
+                                    false, false);
             } else if (ASR::is_a<ASR::CPtr_t>(*v.m_type)) {
                 sub = format_type_c("", "void*", v.m_name, false, false);
+            } else if (ASR::is_a<ASR::Const_t>(*v.m_type)) {
+                if( v.m_intent == ASRUtils::intent_local ) {
+                    LFORTRAN_ASSERT(v.m_symbolic_value);
+                    visit_expr(*v.m_symbolic_value);
+                    sub = "#define " + std::string(v.m_name) + " " + src + "\n";
+                    return sub;
+                } else {
+                    std::string const_underlying_type = CUtils::get_c_type_from_ttype_t(
+                        ASR::down_cast<ASR::Const_t>(v.m_type)->m_type);
+                    sub = format_type_c("", "const " + const_underlying_type + " ",
+                                        v.m_name, false, false);
+                }
             } else if (ASR::is_a<ASR::Enum_t>(*v.m_type)) {
                 ASR::Enum_t* enum_ = ASR::down_cast<ASR::Enum_t>(v.m_type);
                 ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(enum_->m_enum_type);
@@ -564,6 +582,8 @@ public:
         list_api->set_global_scope(global_scope);
         c_utils_functions->set_indentation(indentation_level, indentation_spaces);
         c_utils_functions->set_global_scope(global_scope);
+        tuple_api->set_indentation(indentation_level, indentation_spaces);
+        tuple_api->set_global_scope(global_scope);
 
         std::string head =
 R"(
@@ -620,7 +640,11 @@ R"(
         for (auto &item : x.m_global_scope->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                unit_src += convert_variable_decl(*v) + ";\n";
+                unit_src += convert_variable_decl(*v);
+                if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
+                    v->m_intent == ASRUtils::intent_return_var ) {
+                    unit_src += ";\n";
+                }
             }
         }
 
@@ -633,20 +657,10 @@ R"(
             }
         }
 
-        // Pre-declare all functions first, then generate code
-        // Otherwise some function might not be found.
-        unit_src += "// Forward declarations\n";
-        unit_src += declare_all_functions(*x.m_global_scope);
-        // Now pre-declare all functions from modules and programs
-        for (auto &item : x.m_global_scope->get_scope()) {
-            if (ASR::is_a<ASR::Module_t>(*item.second)) {
-                ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(item.second);
-                unit_src += declare_all_functions(*m->m_symtab);
-            } else if (ASR::is_a<ASR::Program_t>(*item.second)) {
-                ASR::Program_t *p = ASR::down_cast<ASR::Program_t>(item.second);
-                unit_src += declare_all_functions(*p->m_symtab);
-            }
-        }
+        // Topologically sort all global functions
+        // and then define them in the right order
+        std::vector<std::string> global_func_order = ASRUtils::determine_function_definition_order(x.m_global_scope);
+
         unit_src += "\n";
         unit_src += "// Implementations\n";
 
@@ -667,17 +681,7 @@ R"(
             }
         }
 
-        // Process procedures first:
-        for (auto &item : x.m_global_scope->get_scope()) {
-            if (ASR::is_a<ASR::Function_t>(*item.second)) {
-                if( ASRUtils::get_body_size(item.second) != 0 ) {
-                    visit_symbol(*item.second);
-                    unit_src += src;
-                }
-            }
-        }
-
-        // Then do all the modules in the right order
+        // Process modules in the right order
         std::vector<std::string> build_order
             = LFortran::ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
@@ -688,6 +692,18 @@ R"(
                 visit_symbol(*mod);
                 unit_src += src;
             }
+        }
+
+        // Process global functions
+        size_t i;
+        for (i = 0; i < global_func_order.size(); i++) {
+            ASR::symbol_t* sym = x.m_global_scope->get_symbol(global_func_order[i]);
+            // Ignore external symbols because they are already defined by the loop above.
+            if( !sym || ASR::is_a<ASR::ExternalSymbol_t>(*sym) ) {
+                continue ;
+            }
+            visit_symbol(*sym);
+            unit_src += src;
         }
 
         // Then the main program:
@@ -707,9 +723,15 @@ R"(
         if( c_utils_functions->get_util_func_decls().size() > 0 ) {
             array_types_decls += "\n" + c_utils_functions->get_util_func_decls() + "\n";
         }
+        if( tuple_api->get_tuple_func_decls().size() > 0 ) {
+            array_types_decls += "\n" + tuple_api->get_tuple_func_decls() + "\n";
+        }
         std::string list_funcs_defined = "";
         if( list_api->get_generated_code().size() > 0 ) {
             list_funcs_defined =  "\n" + list_api->get_generated_code() + "\n";
+        }
+        if( tuple_api->get_generated_code().size() > 0 ) {
+            list_funcs_defined =  "\n" + tuple_api->get_generated_code() + "\n";
         }
         std::string util_funcs_defined = "";
         if( c_utils_functions->get_generated_code().size() > 0 ) {
@@ -723,14 +745,17 @@ R"(
     }
 
     void visit_Program(const ASR::Program_t &x) {
+        // Topologically sort all program functions
+        // and then define them in the right order
+        std::vector<std::string> func_order = ASRUtils::determine_function_definition_order(x.m_symtab);
+
         // Generate code for nested subroutines and functions first:
         std::string contains;
-        for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Function_t>(*item.second)) {
-                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
-                visit_Function(*s);
-                contains += src;
-            }
+        for (auto &item : func_order) {
+            ASR::symbol_t* sym = x.m_symtab->get_symbol(item);
+            ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(sym);
+            visit_Function(*s);
+            contains += src;
         }
 
         // Generate code for the main program
@@ -741,7 +766,11 @@ R"(
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
                 decl += indent1;
-                decl += convert_variable_decl(*v) + ";\n";
+                decl += convert_variable_decl(*v);
+                if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
+                    v->m_intent == ASRUtils::intent_return_var ) {
+                    decl += ";\n";
+                }
             }
         }
 
@@ -770,7 +799,11 @@ R"(
             body += indent + convert_variable_decl(
                         *ASR::down_cast<ASR::Variable_t>(member),
                         false,
-                        (c_type_name != "union")) + ";\n";
+                        (c_type_name != "union"));
+            if( !ASR::is_a<ASR::Const_t>(*ASRUtils::symbol_type(member)) ||
+                ASR::down_cast<ASR::Variable_t>(member)->m_intent == ASRUtils::intent_return_var ) {
+                body += ";\n";
+            }
         }
         indentation_level -= 1;
         std::string end_struct = "};\n\n";
@@ -778,7 +811,22 @@ R"(
     }
 
     void visit_StructType(const ASR::StructType_t& x) {
-        visit_AggregateTypeUtil(x, "struct");
+        std::string c_type_name = "struct";
+        if( x.m_is_packed ) {
+            std::string attr_args = "(packed";
+            if( x.m_alignment ) {
+                LFORTRAN_ASSERT(ASRUtils::expr_value(x.m_alignment));
+                ASR::expr_t* alignment_value = ASRUtils::expr_value(x.m_alignment);
+                int64_t alignment_int = -1;
+                if( !ASRUtils::extract_value(alignment_value, alignment_int) ) {
+                    LFORTRAN_ASSERT(false);
+                }
+                attr_args += ", aligned(" + std::to_string(alignment_int) + ")";
+            }
+            attr_args += ")";
+            c_type_name += " __attribute__(" + attr_args + ")";
+        }
+        visit_AggregateTypeUtil(x, c_type_name);
     }
 
     void visit_UnionType(const ASR::UnionType_t& x) {
@@ -954,6 +1002,9 @@ R"(
             case ASR::ttypeType::CPtr: {
                 return "%p";
             }
+            case ASR::ttypeType::Complex: {
+                return "(%f, %f)";
+            }
             case ASR::ttypeType::Pointer: {
                 if( !deref_ptr ) {
                     return "%p";
@@ -965,6 +1016,10 @@ R"(
             case ASR::ttypeType::Enum: {
                 ASR::ttype_t* enum_underlying_type = ASRUtils::get_contained_type(t);
                 return get_print_type(enum_underlying_type, deref_ptr);
+            }
+            case ASR::ttypeType::Const: {
+                ASR::ttype_t* const_underlying_type = ASRUtils::get_contained_type(t);
+                return get_print_type(const_underlying_type, deref_ptr);
             }
             default : throw LCompilersException("Not implemented");
         }
@@ -989,6 +1044,11 @@ R"(
             ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_values[i]);
             out += get_print_type(value_type, ASR::is_a<ASR::ArrayItem_t>(*x.m_values[i]));
             v.push_back(src);
+            if (value_type->type == ASR::ttypeType::Complex) {
+                v.pop_back();
+                v.push_back("creal(" + src + ")");
+                v.push_back("cimag(" + src + ")");
+            }
             if (i+1!=x.n_values) {
                 out += "\%s";
                 v.push_back(separator);
@@ -1014,7 +1074,7 @@ R"(
         visit_expr(*x.m_v);
         std::string var_name = src;
         std::string args = "";
-        std::string result_type = get_c_type_from_ttype_t(x.m_type);
+        std::string result_type = CUtils::get_c_type_from_ttype_t(x.m_type);
         if (x.m_dim == nullptr) {
             std::string array_size_func = c_utils_functions->get_array_size();
             ASR::dimension_t* m_dims = nullptr;
@@ -1034,13 +1094,13 @@ R"(
         std::string shape = src;
 
         ASR::ttype_t* array_type_asr = ASRUtils::expr_type(x.m_array);
-        std::string array_type_name = get_c_type_from_ttype_t(array_type_asr);
+        std::string array_type_name = CUtils::get_c_type_from_ttype_t(array_type_asr);
         std::string array_encoded_type_name = ASRUtils::get_type_code(array_type_asr, true, false);
         std::string array_type = get_array_type(array_type_name, array_encoded_type_name, true);
         std::string return_type = get_array_type(array_type_name, array_encoded_type_name, false);
 
         ASR::ttype_t* shape_type_asr = ASRUtils::expr_type(x.m_shape);
-        std::string shape_type_name = get_c_type_from_ttype_t(shape_type_asr);
+        std::string shape_type_name = CUtils::get_c_type_from_ttype_t(shape_type_asr);
         std::string shape_encoded_type_name = ASRUtils::get_type_code(shape_type_asr, true, false);
         std::string shape_type = get_array_type(shape_type_name, shape_encoded_type_name, true);
 
@@ -1053,7 +1113,7 @@ R"(
         visit_expr(*x.m_v);
         std::string var_name = src;
         std::string args = "";
-        std::string result_type = get_c_type_from_ttype_t(x.m_type);
+        std::string result_type = CUtils::get_c_type_from_ttype_t(x.m_type);
         visit_expr(*x.m_dim);
         std::string idx = src;
         if( x.m_bound == ASR::arrayboundType::LBound ) {
@@ -1078,7 +1138,7 @@ R"(
         array_const.pop_back();
 
         ASR::ttype_t* array_type_asr = x.m_type;
-        std::string array_type_name = get_c_type_from_ttype_t(array_type_asr);
+        std::string array_type_name = CUtils::get_c_type_from_ttype_t(array_type_asr);
         std::string array_encoded_type_name = ASRUtils::get_type_code(array_type_asr, true, false);
         std::string return_type = get_array_type(array_type_name, array_encoded_type_name, false);
 
