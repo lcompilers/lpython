@@ -920,3 +920,8 @@ asr = true
 [[test]]
 filename = "errors/test_goto.py"
 asr = true
+
+# tests/runtime_errors
+[[test]]
+filename = "runtime_errors/test_list_01.py"
+run = true
