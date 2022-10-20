@@ -779,6 +779,7 @@ R"(#include <stdio.h>
                 src_tmp += indent + CPPUtils::deepcopy(const_name + ele, src, t->m_type[i]) + "\n";
             }
         }
+        src_tmp += indent + const_name + ".length" + " = " + std::to_string(x.n_elements) + ";\n";
         src = src_tmp;
     }
 
