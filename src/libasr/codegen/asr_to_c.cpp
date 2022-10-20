@@ -1002,6 +1002,9 @@ R"(
             case ASR::ttypeType::CPtr: {
                 return "%p";
             }
+            case ASR::ttypeType::Complex: {
+                return "(%f, %f)";
+            }
             case ASR::ttypeType::Pointer: {
                 if( !deref_ptr ) {
                     return "%p";
@@ -1041,6 +1044,11 @@ R"(
             ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_values[i]);
             out += get_print_type(value_type, ASR::is_a<ASR::ArrayItem_t>(*x.m_values[i]));
             v.push_back(src);
+            if (value_type->type == ASR::ttypeType::Complex) {
+                v.pop_back();
+                v.push_back("creal(" + src + ")");
+                v.push_back("cimag(" + src + ")");
+            }
             if (i+1!=x.n_values) {
                 out += "\%s";
                 v.push_back(separator);
