@@ -7,7 +7,8 @@ on:
   pull_request:
     branches:
       - main
-
+env:
+  MACOSX_DEPLOYMENT_TARGET: 12.0
 
 jobs:
   Build:
