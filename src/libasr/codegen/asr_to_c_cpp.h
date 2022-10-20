@@ -327,6 +327,9 @@ R"(#include <stdio.h>
                 ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(return_var->m_type);
                 std::string list_element_type = CUtils::get_c_type_from_ttype_t(list_type->m_type);
                 sub = list_api->get_list_type(list_type, list_element_type) + " ";
+            } else if (ASR::is_a<ASR::Tuple_t>(*return_var->m_type)) {
+                ASR::Tuple_t* tup_type = ASR::down_cast<ASR::Tuple_t>(return_var->m_type);
+                sub = tuple_api->get_tuple_type(tup_type) + " ";
             } else if (ASR::is_a<ASR::Const_t>(*return_var->m_type)) {
                 ASR::Const_t* const_type = ASR::down_cast<ASR::Const_t>(return_var->m_type);
                 std::string const_type_str = CUtils::get_c_type_from_ttype_t(const_type->m_type);

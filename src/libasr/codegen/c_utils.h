@@ -27,6 +27,17 @@ namespace LFortran {
 
 namespace CUtils {
 
+    static inline std::string get_tuple_type_code(ASR::Tuple_t *tup) {
+        std::string result = "tuple_";
+        for (size_t i = 0; i < tup->n_type; i++) {
+            result += ASRUtils::get_type_code(tup->m_type[i], true);
+            if (i + 1 != tup->n_type) {
+                result += "_";
+            }
+        }
+        return result;
+    }
+
     static inline std::string get_c_type_from_ttype_t(ASR::ttype_t* t,
             bool is_c=true) {
         int kind = ASRUtils::extract_kind_from_ttype_t(t);
@@ -75,6 +86,11 @@ namespace CUtils {
                 type_src = "struct list_" + list_type_code;
                 break;
             }
+            case ASR::ttypeType::Tuple: {
+                ASR::Tuple_t* tup_type = ASR::down_cast<ASR::Tuple_t>(t);
+                type_src = "struct " + get_tuple_type_code(tup_type);
+                break;
+            }
             case ASR::ttypeType::Complex: {
                 if( kind == 4 ) {
                     if( is_c ) {
@@ -98,17 +114,6 @@ namespace CUtils {
             }
         }
         return type_src;
-    }
-
-    static inline std::string get_tuple_type_code(ASR::Tuple_t *tup) {
-        std::string result = "tuple_";
-        for (size_t i = 0; i < tup->n_type; i++) {
-            result += ASRUtils::get_type_code(tup->m_type[i], true);
-            if (i + 1 != tup->n_type) {
-                result += "_";
-            }
-        }
-        return result;
     }
 
     static inline std::string deepcopy(std::string target, std::string value, ASR::ttype_t* m_type) {
