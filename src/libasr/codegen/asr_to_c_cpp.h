@@ -640,7 +640,6 @@ R"(#include <stdio.h>
         self().visit_expr(*x.m_value);
         std::string value = src;
         ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_value);
-        ASR::ttype_t* target_type = ASRUtils::expr_type(x.m_target);
         if( ASR::is_a<ASR::Struct_t>(*value_type) &&
             ASR::is_a<ASR::Var_t>(*x.m_value) ) {
             value = "*" + value;
