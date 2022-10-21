@@ -2118,7 +2118,7 @@ public:
                     init_expr = enum_value;
                 }
             }
-            visit_AnnAssignUtil(*ann_assign, var_name, true, init_expr, abi);
+            visit_AnnAssignUtil(*ann_assign, var_name, false, init_expr, abi);
             ASR::symbol_t* var_sym = current_scope->resolve_symbol(var_name);
             ASR::ttype_t* var_type = ASRUtils::type_get_past_pointer(ASRUtils::symbol_type(var_sym));
             char* aggregate_type_name = nullptr;
