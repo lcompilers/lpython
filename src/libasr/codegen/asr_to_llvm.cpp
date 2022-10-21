@@ -585,6 +585,10 @@ public:
                 llvm_mem_type = character_type;
                 break;
             }
+            case ASR::ttypeType::CPtr: {
+                llvm_mem_type = llvm::Type::getVoidTy(context)->getPointerTo();
+                break;
+            }
             default:
                 throw CodeGenError("Cannot identify the type of member, '" +
                                     std::string(member->m_name) +
@@ -2733,7 +2737,12 @@ public:
                         }
                     }
                 } else {
-                    type = llvm::Type::getInt1PtrTy(context);
+                    if (arg_m_abi == ASR::abiType::BindC
+                        && arg_m_value_attr) {
+                        type = llvm::Type::getInt1Ty(context);
+                    } else {
+                        type = llvm::Type::getInt1PtrTy(context);
+                    }
                 }
                 break;
             }
@@ -5455,10 +5464,16 @@ public:
                                         std::string& orig_arg_name, ASR::intentType& arg_intent,
                                         size_t arg_idx) {
         m_h = get_hash((ASR::asr_t*)func_subrout);
-        orig_arg = EXPR2VAR(func_subrout->m_args[arg_idx]);
-        orig_arg_name = orig_arg->m_name;
+        if( ASR::is_a<ASR::Var_t>(*func_subrout->m_args[arg_idx]) ) {
+            ASR::Var_t* arg_var = ASR::down_cast<ASR::Var_t>(func_subrout->m_args[arg_idx]);
+            ASR::symbol_t* arg_sym = symbol_get_past_external(arg_var->m_v);
+            if( ASR::is_a<ASR::Variable_t>(*arg_sym) ) {
+                orig_arg = ASR::down_cast<ASR::Variable_t>(arg_sym);
+                orig_arg_name = orig_arg->m_name;
+                arg_intent = orig_arg->m_intent;
+            }
+        }
         x_abi = func_subrout->m_abi;
-        arg_intent = orig_arg->m_intent;
     }
 
 
@@ -5491,6 +5506,24 @@ public:
         }
         if( args.size() == 0 ) {
             for (size_t i=0; i<x.n_args; i++) {
+                func_subrout = symbol_get_past_external(x.m_name);
+                x_abi = (ASR::abiType) 0;
+                ASR::intentType orig_arg_intent = ASR::intentType::Unspecified;
+                std::uint32_t m_h;
+                ASR::Variable_t *orig_arg = nullptr;
+                std::string orig_arg_name = "";
+                if( func_subrout->type == ASR::symbolType::Function ) {
+                    ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
+                    set_func_subrout_params(func, x_abi, m_h, orig_arg, orig_arg_name, orig_arg_intent, i);
+                } else if( func_subrout->type == ASR::symbolType::ClassProcedure ) {
+                    ASR::ClassProcedure_t* clss_proc = ASR::down_cast<ASR::ClassProcedure_t>(func_subrout);
+                    if( clss_proc->m_proc->type == ASR::symbolType::Function ) {
+                        ASR::Function_t* func = down_cast<ASR::Function_t>(clss_proc->m_proc);
+                        set_func_subrout_params(func, x_abi, m_h, orig_arg, orig_arg_name, orig_arg_intent, i);
+                    }
+                } else {
+                    LFORTRAN_ASSERT(false)
+                }
                 if (x.m_args[i].m_value->type == ASR::exprType::Var) {
                     if (is_a<ASR::Variable_t>(*symbol_get_past_external(
                             ASR::down_cast<ASR::Var_t>(x.m_args[i].m_value)->m_v))) {
@@ -5498,24 +5531,6 @@ public:
                         uint32_t h = get_hash((ASR::asr_t*)arg);
                         if (llvm_symtab.find(h) != llvm_symtab.end()) {
                             tmp = llvm_symtab[h];
-                            func_subrout = symbol_get_past_external(x.m_name);
-                            x_abi = (ASR::abiType) 0;
-                            ASR::intentType orig_arg_intent = ASR::intentType::Unspecified;
-                            std::uint32_t m_h;
-                            ASR::Variable_t *orig_arg = nullptr;
-                            std::string orig_arg_name = "";
-                            if( func_subrout->type == ASR::symbolType::Function ) {
-                                ASR::Function_t* func = down_cast<ASR::Function_t>(func_subrout);
-                                set_func_subrout_params(func, x_abi, m_h, orig_arg, orig_arg_name, orig_arg_intent, i);
-                            } else if( func_subrout->type == ASR::symbolType::ClassProcedure ) {
-                                ASR::ClassProcedure_t* clss_proc = ASR::down_cast<ASR::ClassProcedure_t>(func_subrout);
-                                if( clss_proc->m_proc->type == ASR::symbolType::Function ) {
-                                    ASR::Function_t* func = down_cast<ASR::Function_t>(clss_proc->m_proc);
-                                    set_func_subrout_params(func, x_abi, m_h, orig_arg, orig_arg_name, orig_arg_intent, i);
-                                }
-                            } else {
-                                LFORTRAN_ASSERT(false)
-                            }
                             if( x_abi == ASR::abiType::Source && arr_descr->is_array(arg->m_type) ) {
                                 llvm::Type* new_arr_type = arr_arg_type_cache[m_h][orig_arg_name];
                                 ASR::dimension_t* dims;
@@ -5523,6 +5538,13 @@ public:
                                 n = ASRUtils::extract_dimensions_from_ttype(orig_arg->m_type, dims);
                                 tmp = arr_descr->convert_to_argument(tmp, arg->m_type, new_arr_type,
                                                                     (!ASRUtils::is_dimension_empty(dims, n)));
+                            } else if (x_abi == ASR::abiType::Source && ASR::is_a<ASR::CPtr_t>(*arg->m_type)) {
+                                  if (arg->m_intent == intent_local) {
+                                      // Local variable of type
+                                      // CPtr is a void**, so we
+                                      // have to load it
+                                      tmp = CreateLoad(tmp);
+                                  }
                             } else if ( x_abi == ASR::abiType::BindC ) {
                                 if( arr_descr->is_array(ASRUtils::get_contained_type(arg->m_type)) ) {
                                     tmp = CreateLoad(arr_descr->get_pointer_to_data(tmp));
@@ -5628,7 +5650,12 @@ public:
                     uint64_t ptr_loads_copy = ptr_loads;
                     ptr_loads = !LLVM::is_llvm_struct(arg_type);
                     this->visit_expr_wrapper(x.m_args[i].m_value);
-                    llvm::Value *value=tmp;
+                    if( x_abi == ASR::abiType::BindC &&
+                        ASR::is_a<ASR::CPtr_t>(*arg_type) &&
+                        ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value) ) {
+                        tmp = LLVM::CreateLoad(*builder, tmp);
+                    }
+                    llvm::Value *value = tmp;
                     ptr_loads = ptr_loads_copy;
                     llvm::Type *target_type;
                     bool character_bindc = false;
