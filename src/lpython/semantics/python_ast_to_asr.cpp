@@ -1531,6 +1531,9 @@ public:
 
     void cast_helper(ASR::ttype_t* dest_type, ASR::expr_t*& src_expr) {
         ASR::ttype_t* src_type = ASRUtils::expr_type(src_expr);
+        if( ASR::is_a<ASR::Const_t>(*src_type) ) {
+            src_type = ASRUtils::get_contained_type(src_type);
+        }
         if( ASRUtils::check_equal_type(src_type, dest_type) ) {
             return ;
         }
@@ -2066,12 +2069,10 @@ public:
                     throw SemanticAbort();
                 }
                 init_expr = value;
-                // Set compile time to value to nullptr
-                // Once constant variables are supported
-                // in LPython set value according to the
-                // nature of the variable (nullptr if non-constant,
-                // otherwise ASRUtils::expr_value(init_expr).
                 value = nullptr;
+                if( ASR::is_a<ASR::Const_t>(*type) ) {
+                    value = ASRUtils::expr_value(init_expr);
+                }
             }
         } else {
             cast_helper(type, init_expr);
