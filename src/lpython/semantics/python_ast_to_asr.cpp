@@ -2084,8 +2084,8 @@ public:
     }
 
     void visit_ClassMembers(const AST::ClassDef_t& x,
-        Vec<char*>& member_names, bool is_enum_scope=false,
-        ASR::abiType abi=ASR::abiType::Source) {
+        Vec<char*>& member_names, Vec<char*>& struct_dependencies,
+        bool is_enum_scope=false, ASR::abiType abi=ASR::abiType::Source) {
         int64_t prev_value = 1;
         for( size_t i = 0; i < x.n_body; i++ ) {
             LFORTRAN_ASSERT(AST::is_a<AST::AnnAssign_t>(*x.m_body[i]));
@@ -2118,6 +2118,22 @@ public:
                 }
             }
             visit_AnnAssignUtil(*ann_assign, var_name, true, init_expr, abi);
+            ASR::symbol_t* var_sym = current_scope->resolve_symbol(var_name);
+            ASR::ttype_t* var_type = ASRUtils::type_get_past_pointer(ASRUtils::symbol_type(var_sym));
+            char* aggregate_type_name = nullptr;
+            if( ASR::is_a<ASR::Struct_t>(*var_type) ) {
+                aggregate_type_name = ASRUtils::symbol_name(
+                    ASR::down_cast<ASR::Struct_t>(var_type)->m_derived_type);
+            } else if( ASR::is_a<ASR::Enum_t>(*var_type) ) {
+                aggregate_type_name = ASRUtils::symbol_name(
+                    ASR::down_cast<ASR::Enum_t>(var_type)->m_enum_type);
+            } else if( ASR::is_a<ASR::Union_t>(*var_type) ) {
+                aggregate_type_name = ASRUtils::symbol_name(
+                    ASR::down_cast<ASR::Union_t>(var_type)->m_union_type);
+            }
+            if( aggregate_type_name ) {
+                struct_dependencies.push_back(al, aggregate_type_name);
+            }
             member_names.push_back(al, n->m_id);
         }
     }
@@ -2150,7 +2166,9 @@ public:
             member_names.reserve(al, x.n_body);
             Vec<ASR::stmt_t*>* current_body_copy = current_body;
             current_body = nullptr;
-            visit_ClassMembers(x, member_names, true, enum_abi);
+            Vec<char*> struct_dependencies;
+            struct_dependencies.reserve(al, 1);
+            visit_ClassMembers(x, member_names, struct_dependencies, true, enum_abi);
             current_body = current_body_copy;
             ASR::ttype_t* common_type = nullptr;
             for( auto sym: current_scope->get_scope() ) {
@@ -2218,6 +2236,7 @@ public:
             }
             ASR::symbol_t* enum_type = ASR::down_cast<ASR::symbol_t>(ASR::make_EnumType_t(al,
                                             x.base.base.loc, current_scope, x.m_name,
+                                            struct_dependencies.p, struct_dependencies.size(),
                                             member_names.p, member_names.size(),
                                             enum_abi, ASR::accessType::Public, enum_value_type,
                                             common_type, nullptr));
@@ -2229,9 +2248,12 @@ public:
             current_scope = al.make_new<SymbolTable>(parent_scope);
             Vec<char*> member_names;
             member_names.reserve(al, x.n_body);
-            visit_ClassMembers(x, member_names);
+            Vec<char*> struct_dependencies;
+            struct_dependencies.reserve(al, 1);
+            visit_ClassMembers(x, member_names, struct_dependencies);
             ASR::symbol_t* union_type = ASR::down_cast<ASR::symbol_t>(ASR::make_UnionType_t(al,
                                             x.base.base.loc, current_scope, x.m_name,
+                                            struct_dependencies.p, struct_dependencies.size(),
                                             member_names.p, member_names.size(),
                                             ASR::abiType::Source, ASR::accessType::Public,
                                             nullptr));
@@ -2256,9 +2278,12 @@ public:
         current_scope = al.make_new<SymbolTable>(parent_scope);
         Vec<char*> member_names;
         member_names.reserve(al, x.n_body);
-        visit_ClassMembers(x, member_names);
+        Vec<char*> struct_dependencies;
+        struct_dependencies.reserve(al, 1);
+        visit_ClassMembers(x, member_names, struct_dependencies);
         ASR::symbol_t* class_type = ASR::down_cast<ASR::symbol_t>(ASR::make_StructType_t(al,
                                         x.base.base.loc, current_scope, x.m_name,
+                                        struct_dependencies.p, struct_dependencies.size(),
                                         member_names.p, member_names.size(),
                                         ASR::abiType::Source, ASR::accessType::Public,
                                         is_packed, algined_expr,
@@ -4162,7 +4187,26 @@ public:
                                              nullptr, nullptr, 0));
                  tmp = ASR::make_EnumName_t(al, loc, e, type, char_type, nullptr);
              }
-        } else if (ASRUtils::is_complex(*type)) {
+        } else if(ASR::is_a<ASR::Union_t>(*type)) {
+             ASR::Union_t* u = ASR::down_cast<ASR::Union_t>(type);
+             ASR::symbol_t* u_sym = ASRUtils::symbol_get_past_external(u->m_union_type);
+             ASR::UnionType_t* u_type = ASR::down_cast<ASR::UnionType_t>(u_sym);
+             bool member_found = false;
+             std::string member_name = attr_char;
+             for( size_t i = 0; i < u_type->n_members && !member_found; i++ ) {
+                 member_found = std::string(u_type->m_members[i]) == member_name;
+             }
+             if( !member_found ) {
+                 throw SemanticError("No member " + member_name +
+                                     " found in " + std::string(u_type->m_name),
+                                     loc);
+             }
+             ASR::symbol_t* member_sym = u_type->m_symtab->resolve_symbol(member_name);
+             LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member_sym));
+             ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member_sym);
+             tmp = ASR::make_UnionRef_t(al, loc, e, member_sym,
+                                          member_var->m_type, nullptr);
+         } else if (ASRUtils::is_complex(*type)) {
             std::string attr = attr_char;
             int kind = ASRUtils::extract_kind_from_ttype_t(type);
             ASR::ttype_t *dest_type = ASR::down_cast<ASR::ttype_t>(ASR::make_Real_t(al, loc,
