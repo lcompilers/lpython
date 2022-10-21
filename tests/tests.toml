@@ -4,6 +4,8 @@
 # asr ... run the Semantics and output ASR, compare against reference version
 # llvm ... run the Semantics and output LLVM, compare against reference version
 # tokens ... output Tokens, compare against reference version
+# run ... compiles and executes the specified file;
+#         checks both runtime errors and successful runs
 
 # tests
 
@@ -930,3 +932,8 @@ asr = true
 [[test]]
 filename = "errors/test_goto.py"
 asr = true
+
+# tests/runtime_errors
+[[test]]
+filename = "runtime_errors/test_list_01.py"
+run = true

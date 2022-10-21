@@ -40,6 +40,7 @@ LFORTRAN_API double _lfortran_random();
 LFORTRAN_API int _lfortran_randrange(int lower, int upper);
 LFORTRAN_API int _lfortran_random_int(int lower, int upper);
 LFORTRAN_API void _lfortran_printf(const char* format, ...);
+LFORTRAN_API void _lcompilers_print_error(const char* format, ...);
 
 LFORTRAN_API void _lfortran_complex_add_32(struct _lfortran_complex_32* a,
         struct _lfortran_complex_32* b, struct _lfortran_complex_32 *result);

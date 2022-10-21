@@ -1505,7 +1505,7 @@ namespace LFortran {
                 std::string message = "The dict does not contain the specified key";
                 llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
                 llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
-                printf(context, module, *builder, {fmt_ptr, fmt_ptr2});
+                print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
                 int exit_code_int = 1;
                 llvm::Value *exit_code = llvm::ConstantInt::get(context,
                         llvm::APInt(32, exit_code_int));
@@ -1575,7 +1575,7 @@ namespace LFortran {
             std::string message = "The dict does not contain the specified key";
             llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("KeyError: %s\n");
             llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
-            printf(context, module, *builder, {fmt_ptr, fmt_ptr2});
+            print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
             int exit_code_int = 1;
             llvm::Value *exit_code = llvm::ConstantInt::get(context,
                     llvm::APInt(32, exit_code_int));
@@ -2391,7 +2391,7 @@ namespace LFortran {
             std::string message = "The list does not contain the element";
             llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("ValueError: %s\n");
             llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
-            printf(context, module, *builder, {fmt_ptr, fmt_ptr2});
+            print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
             int exit_code_int = 1;
             llvm::Value *exit_code = llvm::ConstantInt::get(context,
                     llvm::APInt(32, exit_code_int));

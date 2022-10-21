@@ -25,6 +25,7 @@ def single_test(test, verbose, no_llvm, update_reference,
     cpp = is_included("cpp")
     c = is_included("c")
     wat = is_included("wat")
+    run = is_included("run")
     pass_ = test.get("pass", None)
     optimization_passes = ["flip_sign", "div_to_mul", "fma", "sign_from_value",
                            "inline_function_calls", "loop_unroll",
@@ -102,7 +103,9 @@ def single_test(test, verbose, no_llvm, update_reference,
         run_test(filename, "wat", "lpython --no-color --show-wat {infile}",
                  filename, update_reference, extra_args)
 
-
+    if run:
+        run_test(filename, "runtime", "lpython {infile}",
+                 filename, update_reference, extra_args)
 
 if __name__ == "__main__":
     tester_main("LPython", single_test)
