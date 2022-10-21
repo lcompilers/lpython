@@ -260,6 +260,7 @@ RUN(NAME structs_05          LABELS llvm c)
 RUN(NAME structs_06          LABELS cpython llvm c)
 RUN(NAME structs_07          LABELS llvm c
         EXTRAFILES structs_07b.c)
+RUN(NAME structs_08          LABELS cpython llvm c)
 RUN(NAME sizeof_01          LABELS llvm c
         EXTRAFILES sizeof_01b.c)
 RUN(NAME enum_01             LABELS cpython llvm c)
