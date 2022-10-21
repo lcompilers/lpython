@@ -270,6 +270,37 @@ static inline char *symbol_name(const ASR::symbol_t *f)
     }
 }
 
+static inline std::pair<char**, size_t> symbol_dependencies(const ASR::symbol_t *f)
+{
+    switch (f->type) {
+        case ASR::symbolType::Program: {
+            ASR::Program_t* sym = ASR::down_cast<ASR::Program_t>(f);
+            return std::make_pair(sym->m_dependencies, sym->n_dependencies);
+        }
+        case ASR::symbolType::Module: {
+            ASR::Module_t* sym = ASR::down_cast<ASR::Module_t>(f);
+            return std::make_pair(sym->m_dependencies, sym->n_dependencies);
+        }
+        case ASR::symbolType::Function: {
+            ASR::Function_t* sym = ASR::down_cast<ASR::Function_t>(f);
+            return std::make_pair(sym->m_dependencies, sym->n_dependencies);
+        }
+        case ASR::symbolType::StructType: {
+            ASR::StructType_t* sym = ASR::down_cast<ASR::StructType_t>(f);
+            return std::make_pair(sym->m_dependencies, sym->n_dependencies);
+        }
+        case ASR::symbolType::EnumType: {
+            ASR::EnumType_t* sym = ASR::down_cast<ASR::EnumType_t>(f);
+            return std::make_pair(sym->m_dependencies, sym->n_dependencies);
+        }
+        case ASR::symbolType::UnionType: {
+            ASR::UnionType_t* sym = ASR::down_cast<ASR::UnionType_t>(f);
+            return std::make_pair(sym->m_dependencies, sym->n_dependencies);
+        }
+        default : throw LCompilersException("Not implemented");
+    }
+}
+
 static inline SymbolTable *symbol_parent_symtab(const ASR::symbol_t *f)
 {
     switch (f->type) {
@@ -910,6 +941,10 @@ static inline std::string type_to_str_python(const ASR::ttype_t *t,
         case ASR::ttypeType::Enum: {
             ASR::Enum_t* d = ASR::down_cast<ASR::Enum_t>(t);
             return symbol_name(d->m_enum_type);
+        }
+        case ASR::ttypeType::Union: {
+            ASR::Union_t* d = ASR::down_cast<ASR::Union_t>(t);
+            return symbol_name(d->m_union_type);
         }
         case ASR::ttypeType::Pointer: {
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(t);

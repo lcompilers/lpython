@@ -646,7 +646,7 @@ public:
     llvm::Type* getUnionType(ASR::UnionType_t* union_type, bool is_pointer=false) {
         std::string union_type_name = std::string(union_type->m_name);
         llvm::StructType* union_type_llvm = nullptr;
-        if( name2dertype.find(der_type_name) != name2dertype.end() ) {
+        if( name2dertype.find(union_type_name) != name2dertype.end() ) {
             union_type_llvm = name2dertype[union_type_name];
         } else {
             const std::map<std::string, ASR::symbol_t*>& scope = union_type->m_symtab->get_scope();
@@ -662,8 +662,8 @@ public:
                     type_size = max_type_size;
                 }
             }
-            union_type_llvm = llvm::StructType::create(context, {max_sized_type}, der_type_name);
-            name2dertype[der_type_name] = union_type_llvm;
+            union_type_llvm = llvm::StructType::create(context, {max_sized_type}, union_type_name);
+            name2dertype[union_type_name] = union_type_llvm;
         }
         if( is_pointer ) {
             return union_type_llvm->getPointerTo();
@@ -1817,7 +1817,8 @@ public:
         std::vector<llvm::Value*> idx_vec = {
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, member_idx))};
-        if( ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v) &&
+        if( (ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v) ||
+             ASR::is_a<ASR::UnionRef_t>(*x.m_v)) &&
             is_nested_pointer(tmp) ) {
             tmp = CreateLoad(tmp);
         }
@@ -3750,6 +3751,10 @@ public:
             return ;
         }
         this->visit_expr_wrapper(x.m_value, true);
+        if( ASR::is_a<ASR::Var_t>(*x.m_value) &&
+            ASR::is_a<ASR::Union_t>(*ASRUtils::expr_type(x.m_value)) ) {
+            tmp = LLVM::CreateLoad(*builder, tmp);
+        }
         value = tmp;
         if ( is_a<ASR::Character_t>(*expr_type(x.m_value)) ) {
             ASR::Character_t *t = ASR::down_cast<ASR::Character_t>(expr_type(x.m_value));

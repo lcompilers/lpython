@@ -439,7 +439,10 @@ public:
                 bool is_fixed_size = true;
                 std::string dims = convert_dims_c(t->n_dims, t->m_dims, v.m_type, is_fixed_size);
                 sub = format_type_c(dims, "char *", v.m_name, use_ref, dummy);
-                if( v.m_intent == ASRUtils::intent_local ) {
+                if( v.m_intent == ASRUtils::intent_local &&
+                    !(ASR::is_a<ASR::symbol_t>(*v.m_parent_symtab->asr_owner) &&
+                      ASR::is_a<ASR::StructType_t>(
+                        *ASR::down_cast<ASR::symbol_t>(v.m_parent_symtab->asr_owner))) ) {
                     sub += " = (char*) malloc(40 * sizeof(char))";
                     return sub;
                 }
@@ -628,16 +631,6 @@ R"(
         strcat_def += indent + "}\n\n";
 
         for (auto &item : x.m_global_scope->get_scope()) {
-            if (ASR::is_a<ASR::StructType_t>(*item.second)) {
-                array_types_decls += "struct " + item.first + ";\n\n";
-            } else if (ASR::is_a<ASR::EnumType_t>(*item.second)) {
-                array_types_decls += "enum " + item.first + ";\n\n";
-            } else if (ASR::is_a<ASR::UnionType_t>(*item.second)) {
-                array_types_decls += "union " + item.first + ";\n\n";
-            }
-        }
-
-        for (auto &item : x.m_global_scope->get_scope()) {
             if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
                 unit_src += convert_variable_decl(*v);
@@ -648,13 +641,27 @@ R"(
             }
         }
 
+
+        std::map<std::string, std::vector<std::string>> struct_dep_graph;
         for (auto &item : x.m_global_scope->get_scope()) {
             if (ASR::is_a<ASR::StructType_t>(*item.second) ||
                 ASR::is_a<ASR::EnumType_t>(*item.second) ||
                 ASR::is_a<ASR::UnionType_t>(*item.second)) {
-                visit_symbol(*item.second);
-                array_types_decls += src;
+                std::vector<std::string> struct_deps_vec;
+                std::pair<char**, size_t> struct_deps_ptr = ASRUtils::symbol_dependencies(item.second);
+                for( size_t i = 0; i < struct_deps_ptr.second; i++ ) {
+                    struct_deps_vec.push_back(std::string(struct_deps_ptr.first[i]));
+                }
+                struct_dep_graph[item.first] = struct_deps_vec;
             }
+        }
+
+        std::vector<std::string> struct_deps = ASRUtils::order_deps(struct_dep_graph);
+
+        for (auto &item : struct_deps) {
+            ASR::symbol_t* struct_sym = x.m_global_scope->get_symbol(item);
+            visit_symbol(*struct_sym);
+            array_types_decls += src;
         }
 
         // Topologically sort all global functions
@@ -852,7 +859,6 @@ R"(
         std::string meta_data = " = {";
         std::string open_struct = indent + "enum " + std::string(x.m_name) + " {\n";
         std::string body = "";
-        std::string src_copy = src;
         int64_t min_value = INT64_MAX;
         int64_t max_value = INT64_MIN;
         size_t max_name_len = 0;
@@ -891,7 +897,7 @@ R"(
         std::string enum_names_type = "char " + global_scope->get_unique_name("enum_names_") +
             std::string(x.m_name) + "[" + std::to_string(max_names) + "][" + std::to_string(max_name_len + 1) + "] ";
         array_types_decls += enum_names_type + meta_data + open_struct + body + end_struct;
-        src = src_copy;
+        src = "";
     }
 
     void visit_EnumTypeConstructor(const ASR::EnumTypeConstructor_t& x) {

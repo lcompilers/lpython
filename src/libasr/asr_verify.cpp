@@ -326,8 +326,33 @@ public:
         require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
             "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
+        std::vector<std::string> struct_dependencies;
         for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
+            ASR::ttype_t* var_type = ASRUtils::type_get_past_pointer(ASRUtils::symbol_type(a.second));
+            char* aggregate_type_name = nullptr;
+            if( ASR::is_a<ASR::Struct_t>(*var_type) ) {
+                ASR::symbol_t* sym = ASR::down_cast<ASR::Struct_t>(var_type)->m_derived_type;
+                aggregate_type_name = ASRUtils::symbol_name(sym);
+            } else if( ASR::is_a<ASR::Enum_t>(*var_type) ) {
+                ASR::symbol_t* sym = ASR::down_cast<ASR::Enum_t>(var_type)->m_enum_type;
+                aggregate_type_name = ASRUtils::symbol_name(sym);
+            } else if( ASR::is_a<ASR::Union_t>(*var_type) ) {
+                ASR::symbol_t* sym = ASR::down_cast<ASR::Union_t>(var_type)->m_union_type;
+                aggregate_type_name = ASRUtils::symbol_name(sym);
+            }
+            if( aggregate_type_name ) {
+                struct_dependencies.push_back(std::string(aggregate_type_name));
+                require(present(x.m_dependencies, x.n_dependencies, std::string(aggregate_type_name)),
+                    std::string(x.m_name) + " depends on " + std::string(aggregate_type_name)
+                    + " but it isn't found in its dependency list.");
+            }
+        }
+        for( size_t i = 0; i < x.n_dependencies; i++ ) {
+            require(std::find(struct_dependencies.begin(), struct_dependencies.end(),
+                    std::string(x.m_dependencies[i])) != struct_dependencies.end(),
+                std::string(x.m_dependencies[i]) + " is not a dependency of " + std::string(x.m_name)
+                + " but it is present in its dependency list.");
         }
         current_symtab = parent_symtab;
     }
