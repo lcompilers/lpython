@@ -1391,7 +1391,10 @@ public:
         member_type_asr = member_var->m_type;
         llvm::Type* member_type_llvm = getMemberType(member_type_asr, member_var)->getPointerTo();
         tmp = builder->CreateBitCast(union_llvm, member_type_llvm);
-        if( !is_assignment_target ) {
+        if( is_assignment_target ) {
+            return ;
+        }
+        if( ptr_loads > 0 ) {
             tmp = LLVM::CreateLoad(*builder, tmp);
         }
     }
@@ -1803,7 +1806,11 @@ public:
         der_type_name = "";
         ASR::ttype_t* x_m_v_type = ASRUtils::expr_type(x.m_v);
         uint64_t ptr_loads_copy = ptr_loads;
-        ptr_loads = ptr_loads_copy - ASR::is_a<ASR::Pointer_t>(*x_m_v_type);
+        if( ASR::is_a<ASR::UnionRef_t>(*x.m_v) ) {
+            ptr_loads = 0;
+        } else {
+            ptr_loads = ptr_loads_copy - ASR::is_a<ASR::Pointer_t>(*x_m_v_type);
+        }
         this->visit_expr(*x.m_v);
         ptr_loads = ptr_loads_copy;
         ASR::Variable_t* member = down_cast<ASR::Variable_t>(symbol_get_past_external(x.m_m));
@@ -1821,11 +1828,11 @@ public:
         std::vector<llvm::Value*> idx_vec = {
             llvm::ConstantInt::get(context, llvm::APInt(32, 0)),
             llvm::ConstantInt::get(context, llvm::APInt(32, member_idx))};
-        if( (ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v) ||
-             ASR::is_a<ASR::UnionRef_t>(*x.m_v)) &&
-            is_nested_pointer(tmp) ) {
-            tmp = CreateLoad(tmp);
-        }
+        // if( (ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v) ||
+        //      ASR::is_a<ASR::UnionRef_t>(*x.m_v)) &&
+        //     is_nested_pointer(tmp) ) {
+        //     tmp = CreateLoad(tmp);
+        // }
         llvm::Value* tmp1 = CreateGEP(tmp, idx_vec);
         ASR::ttype_t* member_type = member->m_type;
         if( ASR::is_a<ASR::Pointer_t>(*member_type) ) {
@@ -3590,6 +3597,8 @@ public:
         bool is_value_tuple = ASR::is_a<ASR::Tuple_t>(*asr_value_type);
         bool is_target_dict = ASR::is_a<ASR::Dict_t>(*asr_target_type);
         bool is_value_dict = ASR::is_a<ASR::Dict_t>(*asr_value_type);
+        bool is_target_struct = ASR::is_a<ASR::Struct_t>(*asr_target_type);
+        bool is_value_struct = ASR::is_a<ASR::Struct_t>(*asr_value_type);
         if( is_target_list && is_value_list ) {
             uint64_t ptr_loads_copy = ptr_loads;
             ptr_loads = 0;
@@ -3671,7 +3680,24 @@ public:
             llvm_utils->dict_api->dict_deepcopy(value_dict, target_dict,
                                     value_dict_type, module.get());
             return ;
+        } else if( is_target_struct && is_value_struct ) {
+            uint64_t ptr_loads_copy = ptr_loads;
+            ptr_loads = 0;
+            this->visit_expr(*x.m_value);
+            llvm::Value* value_struct = tmp;
+            bool is_assignment_target_copy = is_assignment_target;
+            is_assignment_target = true;
+            this->visit_expr(*x.m_target);
+            is_assignment_target = is_assignment_target_copy;
+            llvm::Value* target_struct = tmp;
+            ptr_loads = ptr_loads_copy;
+            LLVM::CreateStore(*builder,
+                LLVM::CreateLoad(*builder, value_struct),
+                target_struct
+            );
+            return ;
         }
+
         if( ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_target)) &&
             ASR::is_a<ASR::GetPointer_t>(*x.m_value) ) {
             ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);

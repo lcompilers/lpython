@@ -805,8 +805,7 @@ R"(
             LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
             body += indent + convert_variable_decl(
                         *ASR::down_cast<ASR::Variable_t>(member),
-                        false,
-                        (c_type_name != "union"));
+                        false, false);
             if( !ASR::is_a<ASR::Const_t>(*ASRUtils::symbol_type(member)) ||
                 ASR::down_cast<ASR::Variable_t>(member)->m_intent == ASRUtils::intent_return_var ) {
                 body += ";\n";
