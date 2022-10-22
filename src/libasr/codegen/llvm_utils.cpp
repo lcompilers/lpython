@@ -670,8 +670,8 @@ namespace LFortran {
             llvm_utils->start_new_block(loopbody);
             {
                 llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
-                llvm::Value* srci = read_item(src, pos, true);
-                llvm::Value* desti = read_item(dest, pos, true);
+                llvm::Value* srci = read_item(src, pos, false, module, true);
+                llvm::Value* desti = read_item(dest, pos, false, module, true);
                 llvm_utils->deepcopy(srci, desti, element_type, module);
                 llvm::Value* tmp = builder->CreateAdd(
                             pos,
@@ -951,15 +951,44 @@ namespace LFortran {
         LLVM::CreateStore(*builder, dest_key_value_pairs, get_pointer_to_key_value_pairs(dest));
     }
 
-    void LLVMList::check_index_within_bounds(llvm::Value* /*list*/, llvm::Value* /*pos*/) {
+    void LLVMList::check_index_within_bounds(llvm::Value* list,
+                                    llvm::Value* pos, llvm::Module& module) {
+        llvm::Value* end_point = LLVM::CreateLoad(*builder,
+                                    get_pointer_to_current_end_point(list));
+        llvm::Value* zero = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                                   llvm::APInt(32, 0));
 
+        llvm::Function *fn = builder->GetInsertBlock()->getParent();
+        llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "ifcont");
+
+        llvm::Value* cond = builder->CreateOr(
+                                builder->CreateICmpSGE(pos, end_point),
+                                builder->CreateICmpSLT(pos, zero));
+        builder->CreateCondBr(cond, thenBB, elseBB);
+        builder->SetInsertPoint(thenBB);
+        {
+            std::string message = "list index out of range";
+            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("IndexError: %s\n");
+            llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
+            print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
+            int exit_code_int = 1;
+            llvm::Value *exit_code = llvm::ConstantInt::get(context,
+                    llvm::APInt(32, exit_code_int));
+            exit(context, module, *builder, exit_code);
+        }
+        builder->CreateBr(mergeBB);
+
+        llvm_utils->start_new_block(elseBB);
+        llvm_utils->start_new_block(mergeBB);
     }
 
     void LLVMList::write_item(llvm::Value* list, llvm::Value* pos,
                               llvm::Value* item, ASR::ttype_t* asr_type,
-                              llvm::Module& module, bool check_index_bound) {
-        if( check_index_bound ) {
-            check_index_within_bounds(list, pos);
+                              bool enable_bounds_checking, llvm::Module& module) {
+        if( enable_bounds_checking ) {
+            check_index_within_bounds(list, pos, module);
         }
         llvm::Value* list_data = LLVM::CreateLoad(*builder, get_pointer_to_list_data(list));
         llvm::Value* element_ptr = llvm_utils->create_ptr_gep(list_data, pos);
@@ -967,9 +996,10 @@ namespace LFortran {
     }
 
     void LLVMList::write_item(llvm::Value* list, llvm::Value* pos,
-                              llvm::Value* item, bool check_index_bound) {
-        if( check_index_bound ) {
-            check_index_within_bounds(list, pos);
+                              llvm::Value* item, bool enable_bounds_checking,
+                              llvm::Module& module) {
+        if( enable_bounds_checking ) {
+            check_index_within_bounds(list, pos, module);
         }
         llvm::Value* list_data = LLVM::CreateLoad(*builder, get_pointer_to_list_data(list));
         llvm::Value* element_ptr = llvm_utils->create_ptr_gep(list_data, pos);
@@ -1108,7 +1138,7 @@ namespace LFortran {
             builder->SetInsertPoint(thenBB);
             {
                 llvm::Value* original_key = llvm_utils->list_api->read_item(key_list, pos,
-                                                LLVM::is_llvm_struct(key_asr_type), false);
+                                    false, module, LLVM::is_llvm_struct(key_asr_type));
                 is_key_matching = llvm_utils->is_equal_by_value(key, original_key, module,
                                                                 key_asr_type);
                 LLVM::CreateStore(*builder, is_key_matching, is_key_matching_var);
@@ -1196,7 +1226,7 @@ namespace LFortran {
             builder->SetInsertPoint(thenBB);
             {
                 llvm::Value* original_key = llvm_utils->list_api->read_item(key_list, pos,
-                                                LLVM::is_llvm_struct(key_asr_type), false);
+                                false, module, LLVM::is_llvm_struct(key_asr_type));
                 is_key_matching = llvm_utils->is_equal_by_value(key, original_key, module,
                                                                 key_asr_type);
                 LLVM::CreateStore(*builder, is_key_matching, is_key_matching_var);
@@ -1323,9 +1353,9 @@ namespace LFortran {
         this->resolve_collision(capacity, key_hash, key, key_list, key_mask, *module, key_asr_type);
         llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
         llvm_utils->list_api->write_item(key_list, pos, key,
-                                         key_asr_type, *module, false);
+                                         key_asr_type, false, *module);
         llvm_utils->list_api->write_item(value_list, pos, value,
-                                         value_asr_type, *module, false);
+                                         value_asr_type, false, *module);
         llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
             llvm_utils->create_ptr_gep(key_mask, pos));
         llvm::Value* is_slot_empty = builder->CreateICmpEQ(key_mask_value,
@@ -1352,9 +1382,9 @@ namespace LFortran {
         this->resolve_collision(capacity, key_hash, key, key_list, key_mask, *module, key_asr_type);
         llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
         llvm_utils->list_api->write_item(key_list, pos, key,
-                                         key_asr_type, *module, false);
+                                         key_asr_type, false, *module);
         llvm_utils->list_api->write_item(value_list, pos, value,
-                                         value_asr_type, *module, false);
+                                         value_asr_type, false, *module);
 
         llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
             llvm_utils->create_ptr_gep(key_mask, pos));
@@ -1455,7 +1485,7 @@ namespace LFortran {
         llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
         this->resolve_collision(capacity, key_hash, key, key_list, key_mask, module, key_asr_type, true);
         llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
-        llvm::Value* item = llvm_utils->list_api->read_item(value_list, pos, true, false);
+        llvm::Value* item = llvm_utils->list_api->read_item(value_list, pos, false, module, true);
         return item;
     }
 
@@ -1493,9 +1523,8 @@ namespace LFortran {
             llvm::BasicBlock *elseBB_single_match = llvm::BasicBlock::Create(context, "else");
             llvm::BasicBlock *mergeBB_single_match = llvm::BasicBlock::Create(context, "ifcont");
             llvm::Value* is_key_matching = llvm_utils->is_equal_by_value(key,
-                llvm_utils->list_api->read_item(key_list, key_hash,
-                    LLVM::is_llvm_struct(key_asr_type), false),
-                module, key_asr_type);
+                llvm_utils->list_api->read_item(key_list, key_hash, false, module,
+                    LLVM::is_llvm_struct(key_asr_type)), module, key_asr_type);
             builder->CreateCondBr(is_key_matching, thenBB_single_match, elseBB_single_match);
             builder->SetInsertPoint(thenBB_single_match);
             LLVM::CreateStore(*builder, key_hash, pos_ptr);
@@ -1521,7 +1550,8 @@ namespace LFortran {
         }
         llvm_utils->start_new_block(mergeBB);
         llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
-        llvm::Value* item = llvm_utils->list_api->read_item(value_list, pos, true, false);
+        llvm::Value* item = llvm_utils->list_api->read_item(value_list, pos,
+                                                        false, module, true);
         return item;
     }
 
@@ -1757,18 +1787,18 @@ namespace LFortran {
             builder->SetInsertPoint(thenBB);
             {
                 llvm::Value* key = llvm_utils->list_api->read_item(key_list, idx,
-                                    LLVM::is_llvm_struct(key_asr_type), false);
-                llvm::Value* value = llvm_utils->list_api->read_item(value_list, idx,
-                                        LLVM::is_llvm_struct(value_asr_type), false);
+                        false, *module, LLVM::is_llvm_struct(key_asr_type));
+                llvm::Value* value = llvm_utils->list_api->read_item(value_list,
+                    idx, false, *module, LLVM::is_llvm_struct(value_asr_type));
                 llvm::Value* key_hash = get_key_hash(current_capacity, key, key_asr_type, *module);
                 this->resolve_collision(current_capacity, key_hash, key, new_key_list,
                                new_key_mask, *module, key_asr_type);
                 llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
-                llvm::Value* key_dest = llvm_utils->list_api->read_item(new_key_list, pos,
-                                            true, false);
+                llvm::Value* key_dest = llvm_utils->list_api->read_item(
+                                    new_key_list, pos, false, *module, true);
                 llvm_utils->deepcopy(key, key_dest, key_asr_type, *module);
-                llvm::Value* value_dest = llvm_utils->list_api->read_item(new_value_list, pos,
-                                            true, false);
+                llvm::Value* value_dest = llvm_utils->list_api->read_item(
+                                    new_value_list, pos, false, *module, true);
                 llvm_utils->deepcopy(value, value_dest, value_asr_type, *module);
 
                 llvm::Value* linear_prob_happened = builder->CreateICmpNE(key_hash, pos);
@@ -2143,10 +2173,11 @@ namespace LFortran {
         return LLVM::CreateLoad(*builder, value_ptr);
     }
 
-    llvm::Value* LLVMList::read_item(llvm::Value* list, llvm::Value* pos, bool get_pointer,
-                                     bool check_index_bound) {
-        if( check_index_bound ) {
-            check_index_within_bounds(list, pos);
+    llvm::Value* LLVMList::read_item(llvm::Value* list, llvm::Value* pos,
+                                     bool enable_bounds_checking,
+                                     llvm::Module& module, bool get_pointer) {
+        if( enable_bounds_checking ) {
+            check_index_within_bounds(list, pos, module);
         }
         llvm::Value* list_data = LLVM::CreateLoad(*builder, get_pointer_to_list_data(list));
         llvm::Value* element_ptr = llvm_utils->create_ptr_gep(list_data, pos);
@@ -2233,7 +2264,7 @@ namespace LFortran {
         llvm::Type* el_type = std::get<2>(typecode2listtype[type_code]);
         resize_if_needed(list, current_end_point, current_capacity,
                          type_size, el_type, module);
-        write_item(list, current_end_point, item, asr_type, module);
+        write_item(list, current_end_point, item, asr_type, false, module);
         shift_end_point_by_one(list);
     }
 
@@ -2271,7 +2302,7 @@ namespace LFortran {
         // LLVMList should treat them as data members and create them
         // only if they are NULL
         llvm::AllocaInst *tmp_ptr = builder->CreateAlloca(el_type, nullptr);
-        LLVM::CreateStore(*builder, read_item(list, pos, false), tmp_ptr);
+        LLVM::CreateStore(*builder, read_item(list, pos, false, module, false), tmp_ptr);
         llvm::Value* tmp = nullptr;
 
         // TODO: Should be created outside the user loop and not here.
@@ -2300,8 +2331,8 @@ namespace LFortran {
             llvm::Value* next_index = builder->CreateAdd(
                             LLVM::CreateLoad(*builder, pos_ptr),
                             llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
-            tmp = read_item(list, next_index, false);
-            write_item(list, next_index, LLVM::CreateLoad(*builder, tmp_ptr));
+            tmp = read_item(list, next_index, false, module, false);
+            write_item(list, next_index, LLVM::CreateLoad(*builder, tmp_ptr), false, module);
             LLVM::CreateStore(*builder, tmp, tmp_ptr);
 
             tmp = builder->CreateAdd(
@@ -2314,7 +2345,7 @@ namespace LFortran {
         // end
         llvm_utils->start_new_block(loopend);
 
-        write_item(list, pos, item, asr_type, module);
+        write_item(list, pos, item, asr_type, false, module);
         shift_end_point_by_one(list);
     }
 
@@ -2350,7 +2381,7 @@ namespace LFortran {
         llvm_utils->start_new_block(loophead);
         {
             llvm::Value* left_arg = read_item(list, LLVM::CreateLoad(*builder, i),
-                                              LLVM::is_llvm_struct(item_type));
+                false, module, LLVM::is_llvm_struct(item_type));
             llvm::Value* is_item_not_equal = builder->CreateNot(
                                                 llvm_utils->is_equal_by_value(
                                                     left_arg, item,
@@ -2445,7 +2476,7 @@ namespace LFortran {
                         LLVM::CreateLoad(*builder, item_pos),
                         llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
             write_item(list, LLVM::CreateLoad(*builder, item_pos),
-                       read_item(list, tmp, false));
+                read_item(list, tmp, false, module, false), false, module);
             LLVM::CreateStore(*builder, tmp, item_pos);
         }
         builder->CreateBr(loophead);

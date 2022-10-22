@@ -164,6 +164,7 @@ public:
     bool emit_debug_info;
     std::string infile;
     bool emit_debug_line_column;
+    bool enable_bounds_checking;
     Allocator &al;
 
     llvm::Value *tmp;
@@ -242,7 +243,7 @@ public:
 
     ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, Platform platform,
         bool emit_debug_info, std::string infile, bool emit_debug_line_column,
-        diag::Diagnostics &diagnostics) :
+        bool enable_bounds_checking, diag::Diagnostics &diagnostics) :
     diag{diagnostics},
     context(context),
     builder(std::make_unique<llvm::IRBuilder<>>(context)),
@@ -250,6 +251,7 @@ public:
     emit_debug_info{emit_debug_info},
     infile{infile},
     emit_debug_line_column{emit_debug_line_column},
+    enable_bounds_checking{enable_bounds_checking},
     al{al},
     prototype_only(false),
     llvm_utils(std::make_unique<LLVMUtils>(context, builder.get())),
@@ -1380,7 +1382,7 @@ public:
             this->visit_expr(*x.m_args[i]);
             llvm::Value* item = tmp;
             llvm::Value* pos = llvm::ConstantInt::get(context, llvm::APInt(32, i));
-            list_api->write_item(const_list, pos, item, list_type->m_type, *module);
+            list_api->write_item(const_list, pos, item, list_type->m_type, false, *module);
         }
         ptr_loads = ptr_loads_copy;
         tmp = const_list;
@@ -1520,9 +1522,8 @@ public:
         ptr_loads = ptr_loads_copy;
         llvm::Value *pos = tmp;
 
-        tmp = list_api->read_item(plist, pos,
-                (LLVM::is_llvm_struct(el_type) ||
-                ptr_loads == 0));
+        tmp = list_api->read_item(plist, pos, enable_bounds_checking, *module,
+                (LLVM::is_llvm_struct(el_type) || ptr_loads == 0));
     }
 
     void visit_DictItem(const ASR::DictItem_t& x) {
@@ -3914,7 +3915,9 @@ public:
                 llvm::Value* list = tmp;
                 this->visit_expr_wrapper(asr_target0->m_pos, true);
                 llvm::Value* pos = tmp;
-                target = list_api->read_item(list, pos, true);
+
+                target = list_api->read_item(list, pos, enable_bounds_checking,
+                                             *module, true);
             }
         } else {
             ASR::Variable_t *asr_target = EXPR2VAR(x.m_target);
@@ -6397,7 +6400,7 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
     context.setOpaquePointers(false);
 #endif
     ASRToLLVMVisitor v(al, context, co.platform, co.emit_debug_info, infile,
-        co.emit_debug_line_column, diagnostics);
+        co.emit_debug_line_column, co.enable_bounds_checking, diagnostics);
     LCompilers::PassOptions pass_options;
     pass_options.run_fun = run_fn;
     pass_options.always_run = false;

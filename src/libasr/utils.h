@@ -32,6 +32,7 @@ struct CompilerOptions {
     bool generate_object_code = false;
     bool no_warnings = false;
     bool no_error_banner = false;
+    bool enable_bounds_checking = false;
     std::string error_format = "human";
     bool new_parser = false;
     bool implicit_typing = false;
