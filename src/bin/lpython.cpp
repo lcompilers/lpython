@@ -1293,10 +1293,6 @@ int main(int argc, char *argv[])
         app.add_flag("--show-errors", show_errors, "Show errors when LSP is running in the background");
         app.add_flag("--show-document-symbols", show_document_symbols, "Show symbols in lpython file");
 
-        if( compiler_options.fast ) {
-            lpython_pass_manager.use_optimization_passes();
-        }
-
         /*
         * Subcommands:
         */
@@ -1328,6 +1324,16 @@ int main(int argc, char *argv[])
         app.get_formatter()->column_width(25);
         app.require_subcommand(0, 1);
         CLI11_PARSE(app, argc, argv);
+
+        if( compiler_options.fast && compiler_options.enable_bounds_checking ) {
+        // ReleaseSafe Mode
+        } else if ( compiler_options.fast ) {
+        // Release Mode
+            lpython_pass_manager.use_optimization_passes();
+        } else {
+        // Debug Mode
+            compiler_options.enable_bounds_checking = true;
+        }
 
         if (arg_version) {
             std::string version = LFORTRAN_VERSION;
