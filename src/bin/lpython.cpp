@@ -927,8 +927,8 @@ int link_executable(const std::vector<std::string> &infiles,
                 std::cout << "The command '" + cmd + "' failed." << std::endl;
                 return 10;
             }
-            if (outfile == "a.out" && compiler_options.arg_o == "") {
-                err = system("a.out");
+            if (compiler_options.arg_o == "") {
+                err = system(outfile.c_str());
                 if (err != 0) {
                     if (0 < err && err < 256) {
                         return err;
@@ -962,8 +962,8 @@ int link_executable(const std::vector<std::string> &infiles,
                 std::cout << "The command '" + cmd + "' failed." << std::endl;
                 return 10;
             }
-            if (outfile == "a.out" && compiler_options.arg_o == "") {
-                err = system("./a.out");
+            if (compiler_options.arg_o == "") {
+                err = system(("./" + outfile).c_str());
                 if (err != 0) {
                     if (0 < err && err < 256) {
                         return err;
@@ -1441,7 +1441,7 @@ int main(int argc, char *argv[])
         } else if (show_wat) {
             outfile = basename + ".wat";
         } else {
-            outfile = "a.out";
+            outfile = basename + ".out";
         }
 
         // if (arg_E) {
