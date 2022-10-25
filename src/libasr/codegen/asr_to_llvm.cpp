@@ -5557,7 +5557,16 @@ public:
                         uint32_t h = get_hash((ASR::asr_t*)arg);
                         if (llvm_symtab.find(h) != llvm_symtab.end()) {
                             tmp = llvm_symtab[h];
-                            if( x_abi == ASR::abiType::Source && arr_descr->is_array(arg->m_type) ) {
+                            bool is_data_only_array = false;
+                            ASR::dimension_t* dims_arg = nullptr;
+                            size_t n_arg = ASRUtils::extract_dimensions_from_ttype(arg->m_type, dims_arg);
+                            if( ASRUtils::is_arg_dummy(arg->m_intent) &&
+                                !ASRUtils::is_dimension_empty(dims_arg, n_arg) ) {
+                                is_data_only_array = true;
+                            }
+                            if( x_abi == ASR::abiType::Source &&
+                                arr_descr->is_array(arg->m_type) &&
+                                !is_data_only_array ) {
                                 llvm::Type* new_arr_type = arr_arg_type_cache[m_h][orig_arg_name];
                                 ASR::dimension_t* dims;
                                 size_t n;
