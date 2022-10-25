@@ -93,8 +93,17 @@ class WATGenerator : public WASMDecoder<WATGenerator> {
         }
 
         for (uint32_t i = 0; i < data_segments.size(); i++) {
+            std::string date_segment_insts;
+            {
+                WASM_INSTS_VISITOR::WATVisitor v =
+                    WASM_INSTS_VISITOR::WATVisitor(
+                        wasm_bytes, data_segments.p[i].insts_start_index, "",
+                        "");
+                v.decode_instructions();
+                date_segment_insts = v.src;
+            }
             result += indent + "(data (;" + std::to_string(i) + ";) (" +
-                      data_segments[i].insts + ") \"" + data_segments[i].text +
+                      date_segment_insts + ") \"" + data_segments[i].text +
                       "\")";
         }
 
