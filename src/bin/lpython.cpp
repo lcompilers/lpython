@@ -16,6 +16,7 @@
 #include <libasr/codegen/asr_to_x86.h>
 #include <libasr/codegen/asr_to_wasm.h>
 #include <libasr/codegen/wasm_to_wat.h>
+#include <libasr/codegen/wasm_to_x86.h>
 #include <lpython/python_evaluator.h>
 #include <libasr/codegen/evaluator.h>
 #include <libasr/pass/pass_manager.h>
@@ -49,7 +50,7 @@ using LFortran::CompilerOptions;
 using LFortran::parse_python_file;
 
 enum Backend {
-    llvm, cpp, x86, wasm
+    llvm, cpp, x86, wasm, wasm_x86
 };
 
 std::string remove_extension(const std::string& filename) {
@@ -720,6 +721,150 @@ int compile_to_binary_wasm(
     return 0;
 }
 
+int compile_to_binary_x86(
+        const std::string &infile,
+        const std::string &outfile,
+        const std::string &runtime_library_dir,
+        CompilerOptions &compiler_options,
+        bool time_report)
+{
+    Allocator al(4*1024);
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    std::vector<std::pair<std::string, double>>times;
+    auto file_reading_start = std::chrono::high_resolution_clock::now();
+    std::string input = LFortran::read_file(infile);
+    auto file_reading_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("File reading", std::chrono::duration<double, std::milli>(file_reading_end - file_reading_start).count()));
+    lm.init_simple(input);
+    auto parsing_start = std::chrono::high_resolution_clock::now();
+    LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
+        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+    auto parsing_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("Parsing", std::chrono::duration<double, std::milli>(parsing_end - parsing_start).count()));
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r.ok) {
+        print_time_report(times, time_report);
+        return 1;
+    }
+
+    // Src -> AST -> ASR
+    LFortran::LPython::AST::ast_t* ast = r.result;
+    diagnostics.diagnostics.clear();
+    auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
+    LFortran::Result<LFortran::ASR::TranslationUnit_t*>
+        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
+            compiler_options.disable_main, compiler_options.symtab_only, infile, compiler_options.import_path);
+    auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r1.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        print_time_report(times, time_report);
+        return 2;
+    }
+    LFortran::ASR::TranslationUnit_t* asr = r1.result;
+    if( compiler_options.disable_main ) {
+        int err = LFortran::LPython::save_pyc_files(*asr, infile);
+        if( err ) {
+            return err;
+        }
+    }
+    diagnostics.diagnostics.clear();
+
+    // ASR -> X86
+    auto asr_to_x86_start = std::chrono::high_resolution_clock::now();
+    LFortran::Result<int> r3 = LFortran::asr_to_x86(*asr, al, outfile, time_report);
+    auto asr_to_x86_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("ASR to X86", std::chrono::duration<double, std::milli>(asr_to_x86_end - asr_to_x86_start).count()));
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    print_time_report(times, time_report);
+    if (!r3.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        return 3;
+    }
+    return 0;
+}
+
+int compile_to_binary_wasm_to_x86(
+        const std::string &infile,
+        const std::string &outfile,
+        const std::string &runtime_library_dir,
+        CompilerOptions &compiler_options,
+        bool time_report)
+{
+    Allocator al(4*1024);
+    LFortran::diag::Diagnostics diagnostics;
+    LFortran::LocationManager lm;
+    lm.in_filename = infile;
+    std::vector<std::pair<std::string, double>>times;
+    auto file_reading_start = std::chrono::high_resolution_clock::now();
+    std::string input = LFortran::read_file(infile);
+    auto file_reading_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("File reading", std::chrono::duration<double, std::milli>(file_reading_end - file_reading_start).count()));
+    lm.init_simple(input);
+    auto parsing_start = std::chrono::high_resolution_clock::now();
+    LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
+        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+    auto parsing_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("Parsing", std::chrono::duration<double, std::milli>(parsing_end - parsing_start).count()));
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r.ok) {
+        print_time_report(times, time_report);
+        return 1;
+    }
+
+    // Src -> AST -> ASR
+    LFortran::LPython::AST::ast_t* ast = r.result;
+    diagnostics.diagnostics.clear();
+    auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
+    LFortran::Result<LFortran::ASR::TranslationUnit_t*>
+        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, true,
+            compiler_options.disable_main, compiler_options.symtab_only, infile, compiler_options.import_path);
+    auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r1.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        print_time_report(times, time_report);
+        return 2;
+    }
+    LFortran::ASR::TranslationUnit_t* asr = r1.result;
+    if( compiler_options.disable_main ) {
+        int err = LFortran::LPython::save_pyc_files(*asr, infile);
+        if( err ) {
+            return err;
+        }
+    }
+    diagnostics.diagnostics.clear();
+
+    // ASR -> WASM
+    auto asr_to_wasm_start = std::chrono::high_resolution_clock::now();
+    LFortran::Result<LFortran::Vec<uint8_t>> r3 = LFortran::asr_to_wasm_bytes_stream(*asr, al, diagnostics);
+    auto asr_to_wasm_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("ASR to WASM", std::chrono::duration<double, std::milli>(asr_to_wasm_end - asr_to_wasm_start).count()));
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    if (!r3.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        print_time_report(times, time_report);
+        return 3;
+    }
+
+    // WASM -> X86
+    auto wasm_to_x86_start = std::chrono::high_resolution_clock::now();
+    LFortran::Result<int> res = LFortran::wasm_to_x86(r3.result, al,  outfile, time_report, diagnostics);
+    auto wasm_to_x86_end = std::chrono::high_resolution_clock::now();
+    times.push_back(std::make_pair("WASM to X86", std::chrono::duration<double, std::milli>(wasm_to_x86_end - wasm_to_x86_start).count()));
+    std::cerr << diagnostics.render(input, lm, compiler_options);
+    print_time_report(times, time_report);
+    if (!res.ok) {
+        LFORTRAN_ASSERT(diagnostics.has_error())
+        return 4;
+    }
+    return 0;
+}
+
 // infile is an object file
 // outfile will become the executable
 int link_executable(const std::vector<std::string> &infiles,
@@ -1162,7 +1307,7 @@ int main(int argc, char *argv[])
         app.add_flag("--static", static_link, "Create a static executable");
         app.add_flag("--no-warnings", compiler_options.no_warnings, "Turn off all warnings");
         app.add_flag("--no-error-banner", compiler_options.no_error_banner, "Turn off error banner");
-        app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86)")->capture_default_str();
+        app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86, wasm, wasm_x86)")->capture_default_str();
         app.add_flag("--openmp", compiler_options.openmp, "Enable openmp");
         app.add_flag("--fast", compiler_options.fast, "Best performance (disable strict standard compliance)");
         app.add_option("--target", compiler_options.target, "Generate code for the given target")->capture_default_str();
@@ -1278,8 +1423,10 @@ int main(int argc, char *argv[])
             backend = Backend::x86;
         } else if (arg_backend == "wasm") {
             backend = Backend::wasm;
-        }else {
-            std::cerr << "The backend must be one of: llvm, cpp, x86, wasm." << std::endl;
+        } else if (arg_backend == "wasm_x86") {
+            backend = Backend::wasm_x86;
+        } else {
+            std::cerr << "The backend must be one of: llvm, cpp, x86, wasm, wasm_x86." << std::endl;
             return 1;
         }
 
@@ -1398,8 +1545,14 @@ int main(int argc, char *argv[])
 
         if (endswith(arg_file, ".py"))
         {
-            if (backend == Backend::wasm) {
+            if (backend == Backend::x86) {
+                return compile_to_binary_x86(arg_file, outfile,
+                        runtime_library_dir, compiler_options, time_report);
+            } else if (backend == Backend::wasm) {
                 return compile_to_binary_wasm(arg_file, outfile,
+                        runtime_library_dir, compiler_options, time_report);
+            } else if (backend == Backend::wasm_x86) {
+                return compile_to_binary_wasm_to_x86(arg_file, outfile,
                         runtime_library_dir, compiler_options, time_report);
             }
 
