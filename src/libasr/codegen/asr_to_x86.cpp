@@ -60,21 +60,24 @@ public:
         // must be empty:
         LFORTRAN_ASSERT(x.n_items == 0);
 
-        for (auto &item : x.m_global_scope->get_scope()) {
-            if (!is_a<ASR::Variable_t>(*item.second)) {
-                visit_symbol(*item.second);
-            }
-        }
-    }
-
-    void visit_Program(const ASR::Program_t &x) {
-
         emit_elf32_header(m_a);
 
         // Add runtime library functions
         emit_print_int(m_a, "print_int");
         emit_exit(m_a, "exit", 0);
         emit_exit(m_a, "exit_error_stop", 1);
+        for (auto &item : x.m_global_scope->get_scope()) {
+            if (!is_a<ASR::Variable_t>(*item.second)) {
+                visit_symbol(*item.second);
+            }
+        }
+
+        emit_elf32_footer(m_a);
+    }
+
+    void visit_Program(const ASR::Program_t &x) {
+
+
 
         // Generate code for nested subroutines and functions first:
         for (auto &item : x.m_symtab->get_scope()) {
@@ -126,7 +129,6 @@ public:
             emit_data_string(m_a, s.first, s.second);
         }
 
-        emit_elf32_footer(m_a);
     }
 
     void visit_Function(const ASR::Function_t &x) {
@@ -186,7 +188,7 @@ public:
         }
 
         // Leave return value in eax
-        {
+        if (x.m_return_var) {
             ASR::Variable_t *retv = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
 
             uint32_t h = get_hash((ASR::asr_t*)retv);
@@ -203,6 +205,8 @@ public:
         m_a.asm_pop_r32(X86Reg::ebp);
         m_a.asm_ret();
     }
+
+    void visit_Return(const ASR::Return_t &/*x*/) { }
 
     // Expressions leave integer values in eax
 
