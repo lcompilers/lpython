@@ -3763,9 +3763,11 @@ public:
             h = get_hash((ASR::asr_t*)asr_target);
             if (llvm_symtab.find(h) != llvm_symtab.end()) {
                 target = llvm_symtab[h];
-                // if (ASR::is_a<ASR::Pointer_t>(*asr_target->m_type)) {
-                //     target = CreateLoad(target);
-                // }
+                if (ASR::is_a<ASR::Pointer_t>(*asr_target->m_type) &&
+                    !ASR::is_a<ASR::CPtr_t>(
+                        *ASR::down_cast<ASR::Pointer_t>(asr_target->m_type)->m_type)) {
+                    target = CreateLoad(target);
+                }
             } else {
                 /* Target for assignment not in the symbol table - must be
                 assigning to an outer scope from a nested function - see
