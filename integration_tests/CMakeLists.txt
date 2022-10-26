@@ -169,6 +169,8 @@ RUN(NAME expr_09             LABELS cpython llvm)
 RUN(NAME expr_10             LABELS cpython llvm c)
 RUN(NAME expr_11             LABELS cpython llvm c wasm)
 RUN(NAME expr_12             LABELS llvm c)
+RUN(NAME expr_13             LABELS llvm c
+        EXTRAFILES expr_13b.c)
 RUN(NAME loop_01             LABELS cpython llvm c)
 RUN(NAME print_02            LABELS cpython llvm)
 RUN(NAME test_types_01       LABELS cpython llvm)

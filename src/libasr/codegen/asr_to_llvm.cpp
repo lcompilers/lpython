@@ -3186,6 +3186,10 @@ public:
                     return_type = get_type_from_ttype_t_util(ASRUtils::get_contained_type(return_var_type0));
                     break;
                 }
+                case (ASR::ttypeType::Pointer) : {
+                    return_type = get_type_from_ttype_t_util(ASRUtils::get_contained_type(return_var_type0))->getPointerTo();
+                    break;
+                }
                 case (ASR::ttypeType::Struct) :
                     throw CodeGenError("Struct return type not implemented yet");
                     break;
@@ -3234,8 +3238,7 @@ public:
                     break;
                 }
                 default :
-                    LFORTRAN_ASSERT(false);
-                    throw CodeGenError("Type not implemented");
+                    throw CodeGenError("Type not implemented " + std::to_string(return_var_type));
             }
         } else {
             return_type = llvm::Type::getVoidTy(context);
@@ -3760,9 +3763,9 @@ public:
             h = get_hash((ASR::asr_t*)asr_target);
             if (llvm_symtab.find(h) != llvm_symtab.end()) {
                 target = llvm_symtab[h];
-                if (ASR::is_a<ASR::Pointer_t>(*asr_target->m_type)) {
-                    target = CreateLoad(target);
-                }
+                // if (ASR::is_a<ASR::Pointer_t>(*asr_target->m_type)) {
+                //     target = CreateLoad(target);
+                // }
             } else {
                 /* Target for assignment not in the symbol table - must be
                 assigning to an outer scope from a nested function - see
@@ -5736,6 +5739,11 @@ public:
                         case (ASR::ttypeType::CPtr) :
                             target_type = llvm::Type::getVoidTy(context)->getPointerTo();
                             break;
+                        case (ASR::ttypeType::Pointer) : {
+                            target_type = get_type_from_ttype_t_util(ASRUtils::get_contained_type(arg_type));
+                            target_type = target_type->getPointerTo();
+                            break;
+                        }
                         case (ASR::ttypeType::List) : {
                             target_type = get_type_from_ttype_t_util(arg_type);
                             break ;
