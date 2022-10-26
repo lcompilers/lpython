@@ -22,7 +22,7 @@ struct ProceduresDatabase {
 
     ProceduresDatabase() {
         to_be_ignored = {{"numpy", {"empty", "int64", "int32",
-                                    "float32", "float64",
+                                    "int16",  "float32", "float64",
                                     "reshape", "array"}},
                          {"enum", {"Enum"}}
                         };

@@ -1327,10 +1327,14 @@ public:
                 ASR::expr_t *value = tuple_constant->m_elements[i];
                 fill_dims_for_asr_type(dims, value, loc);
             }
+        } else if(ASR::is_a<ASR::EnumValue_t>(*value)) {
+            ASR::expr_t* enum_value = ASRUtils::expr_value(
+                ASR::down_cast<ASR::EnumValue_t>(value)->m_value);
+            fill_dims_for_asr_type(dims, enum_value, loc);
         } else {
-            throw SemanticError("Only Integer, `:` or identifier in [] in Subscript supported for now in annotation"
-                                "found, " + std::to_string(value->type),
-                loc);
+            throw SemanticError("Only Integer, `:` or identifier in [] "
+                                "in Subscript supported for now in annotation "
+                                "found, " + std::to_string(value->type), loc);
         }
     }
 
@@ -2359,7 +2363,8 @@ public:
         if (s) {
             tmp = ASR::make_Var_t(al, x.base.base.loc, s);
         } else if (name == "i32" || name == "i64" || name == "f32" ||
-                   name == "f64" || name == "c32" || name == "c64") {
+                   name == "f64" || name == "c32" || name == "c64" ||
+                   name == "i16") {
             Vec<ASR::dimension_t> dims;
             dims.reserve(al, 1);
             ASR::ttype_t *type = get_type_from_var_annotation(name,
