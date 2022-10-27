@@ -362,6 +362,8 @@ public:
                 }
                 sub = format_type_c(dims, "struct " + der_type_name + ptr_char,
                                     v.m_name, use_ref, dummy);
+            } else if(ASR::is_a<ASR::CPtr_t>(*t2)) {
+                sub = format_type_c("", "void**", v.m_name, false, false);
             } else {
                 diag.codegen_error_label("Type number '"
                     + std::to_string(v.m_type->type)

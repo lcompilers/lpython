@@ -3762,12 +3762,6 @@ public:
             ASR::ttype_t *value_type = ASRUtils::expr_type(assign_value);
             if( ASR::is_a<ASR::Pointer_t>(*target_type) &&
                 ASR::is_a<ASR::Var_t>(*target) ) {
-                if( !ASR::is_a<ASR::GetPointer_t>(*tmp_value) ) {
-                    throw SemanticError("A pointer variable can only "
-                                        "be associated with the output "
-                                        "of pointer() call.",
-                                        tmp_value->base.loc);
-                }
                 if( !ASRUtils::check_equal_type(target_type, value_type) ) {
                     throw SemanticError("Casting not supported for different pointer types. Received "
                                         "target pointer type, " + ASRUtils::type_to_str_python(target_type) +
