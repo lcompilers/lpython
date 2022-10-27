@@ -566,7 +566,6 @@ R"(#include <stdio.h>
 
     void visit_StringOrd(const ASR::StringOrd_t& x) {
         self().visit_expr(*x.m_arg);
-        src = "(int)" + src + "[0]";
         if (ASR::is_a<ASR::StringConstant_t>(*x.m_arg)) {
             src = "(int)" + src + "[0]";
         } else {
