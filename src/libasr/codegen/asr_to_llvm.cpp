@@ -4880,7 +4880,6 @@ public:
     void visit_Var(const ASR::Var_t &x) {
         ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(
                 symbol_get_past_external(x.m_v));
-        std::cout<<"v: "<<v->m_name<<std::endl;
         fetch_var(v);
     }
 
@@ -6082,7 +6081,6 @@ public:
         } else {
             llvm::Function *fn = llvm_symtab_fn[h];
             std::string m_name = std::string(((ASR::Function_t*)(&(x.m_name->base)))->m_name);
-            std::cout<<"m_name: "<<m_name<<std::endl;
             std::vector<llvm::Value *> args2 = convert_call_args(x, m_name);
             args.insert(args.end(), args2.begin(), args2.end());
             ASR::ttype_t *return_var_type0 = EXPR2VAR(s->m_return_var)->m_type;
