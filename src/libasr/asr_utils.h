@@ -1156,6 +1156,9 @@ static inline int extract_kind_from_ttype_t(const ASR::ttype_t* type) {
         case ASR::ttypeType::Pointer: {
             return extract_kind_from_ttype_t(ASR::down_cast<ASR::Pointer_t>(type)->m_type);
         }
+        case ASR::ttypeType::Const: {
+            return extract_kind_from_ttype_t(ASR::down_cast<ASR::Const_t>(type)->m_type);
+        }
         default : {
             return -1;
         }

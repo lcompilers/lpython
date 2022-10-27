@@ -1850,26 +1850,10 @@ public:
         tmp = tmp1;
     }
 
-    void visit_Variable(const ASR::Variable_t &x) {
-        if (x.m_value) {
-            this->visit_expr_wrapper(x.m_value, true);
-            return;
-        }
-        uint32_t h = get_hash((ASR::asr_t*)&x);
-        // This happens at global scope, so the intent can only be either local
-        // (global variable declared/initialized in this translation unit), or
-        // external (global variable not declared/initialized in this
-        // translation unit, just referenced).
-        LFORTRAN_ASSERT(x.m_intent == intent_local
-            || x.m_abi == ASR::abiType::Interactive);
-        bool external = (x.m_abi != ASR::abiType::Source);
-        llvm::Constant* init_value = nullptr;
-        if (x.m_symbolic_value != nullptr){
-            this->visit_expr_wrapper(x.m_symbolic_value, true);
-            init_value = llvm::dyn_cast<llvm::Constant>(tmp);
-        }
-        if (x.m_type->type == ASR::ttypeType::Integer) {
-            int a_kind = down_cast<ASR::Integer_t>(x.m_type)->m_kind;
+    void visit_VariableUtil(const ASR::Variable_t& x, uint32_t h,
+        bool external, llvm::Constant* init_value, ASR::ttype_t* x_m_type) {
+        if (x_m_type->type == ASR::ttypeType::Integer) {
+            int a_kind = down_cast<ASR::Integer_t>(x_m_type)->m_kind;
             llvm::Type *type;
             int init_value_bits = 8*a_kind;
             type = getIntType(a_kind);
@@ -1886,8 +1870,8 @@ public:
                 }
             }
             llvm_symtab[h] = ptr;
-        } else if (x.m_type->type == ASR::ttypeType::Real) {
-            int a_kind = down_cast<ASR::Real_t>(x.m_type)->m_kind;
+        } else if (x_m_type->type == ASR::ttypeType::Real) {
+            int a_kind = down_cast<ASR::Real_t>(x_m_type)->m_kind;
             llvm::Type *type;
             int init_value_bits = 8*a_kind;
             type = getFPType(a_kind);
@@ -1909,7 +1893,7 @@ public:
                 }
             }
             llvm_symtab[h] = ptr;
-        } else if (x.m_type->type == ASR::ttypeType::Logical) {
+        } else if (x_m_type->type == ASR::ttypeType::Logical) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 llvm::Type::getInt1Ty(context));
             if (!external) {
@@ -1923,7 +1907,7 @@ public:
                 }
             }
             llvm_symtab[h] = ptr;
-        } else if (x.m_type->type == ASR::ttypeType::Character) {
+        } else if (x_m_type->type == ASR::ttypeType::Character) {
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                     character_type);
             if (!external) {
@@ -1937,7 +1921,7 @@ public:
                 }
             }
             llvm_symtab[h] = ptr;
-        } else if( x.m_type->type == ASR::ttypeType::CPtr ) {
+        } else if( x_m_type->type == ASR::ttypeType::CPtr ) {
             llvm::Type* void_ptr = llvm::Type::getVoidTy(context)->getPointerTo();
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
                 void_ptr);
@@ -1953,11 +1937,11 @@ public:
                 }
             }
             llvm_symtab[h] = ptr;
-        } else if(x.m_type->type == ASR::ttypeType::Pointer) {
+        } else if(x_m_type->type == ASR::ttypeType::Pointer) {
             ASR::dimension_t* m_dims = nullptr;
             int n_dims = -1, a_kind = -1;
             bool is_array_type = false, is_malloc_array_type = false, is_list = false;
-            llvm::Type* x_ptr = get_type_from_ttype_t(x.m_type, x.m_storage, is_array_type,
+            llvm::Type* x_ptr = get_type_from_ttype_t(x_m_type, x.m_storage, is_array_type,
                                                       is_malloc_array_type, is_list,
                                                       m_dims, n_dims, a_kind);
             llvm::Constant *ptr = module->getOrInsertGlobal(x.m_name,
@@ -1974,11 +1958,31 @@ public:
                 }
             }
             llvm_symtab[h] = ptr;
-        } else if (x.m_type->type == ASR::ttypeType::TypeParameter) {
+        } else if (x_m_type->type == ASR::ttypeType::TypeParameter) {
             // Ignore type variables
+        } else if (x_m_type->type == ASR::ttypeType::Const) {
+            x_m_type = ASR::down_cast<ASR::Const_t>(x_m_type)->m_type;
+            visit_VariableUtil(x, h, external, init_value, x_m_type);
         } else {
             throw CodeGenError("Variable type not supported", x.base.base.loc);
         }
+    }
+
+    void visit_Variable(const ASR::Variable_t &x) {
+        uint32_t h = get_hash((ASR::asr_t*)&x);
+        // This happens at global scope, so the intent can only be either local
+        // (global variable declared/initialized in this translation unit), or
+        // external (global variable not declared/initialized in this
+        // translation unit, just referenced).
+        LFORTRAN_ASSERT(x.m_intent == intent_local
+            || x.m_abi == ASR::abiType::Interactive);
+        bool external = (x.m_abi != ASR::abiType::Source);
+        llvm::Constant* init_value = nullptr;
+        if (x.m_symbolic_value != nullptr){
+            this->visit_expr_wrapper(x.m_symbolic_value, true);
+            init_value = llvm::dyn_cast<llvm::Constant>(tmp);
+        }
+        visit_VariableUtil(x, h, external, init_value, x.m_type);
     }
 
     void visit_EnumType(const ASR::EnumType_t& x) {
@@ -4568,7 +4572,7 @@ public:
 
     void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {
         int64_t val = x.m_n;
-        int a_kind = ((ASR::Integer_t*)(&(x.m_type->base)))->m_kind;
+        int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
         switch( a_kind ) {
 
             case 1: {
@@ -4876,6 +4880,7 @@ public:
     void visit_Var(const ASR::Var_t &x) {
         ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(
                 symbol_get_past_external(x.m_v));
+        std::cout<<"v: "<<v->m_name<<std::endl;
         fetch_var(v);
     }
 
@@ -6077,6 +6082,7 @@ public:
         } else {
             llvm::Function *fn = llvm_symtab_fn[h];
             std::string m_name = std::string(((ASR::Function_t*)(&(x.m_name->base)))->m_name);
+            std::cout<<"m_name: "<<m_name<<std::endl;
             std::vector<llvm::Value *> args2 = convert_call_args(x, m_name);
             args.insert(args.end(), args2.begin(), args2.end());
             ASR::ttype_t *return_var_type0 = EXPR2VAR(s->m_return_var)->m_type;
