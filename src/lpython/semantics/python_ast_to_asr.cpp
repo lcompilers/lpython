@@ -1327,8 +1327,17 @@ public:
                 ASR::expr_t *value = tuple_constant->m_elements[i];
                 fill_dims_for_asr_type(dims, value, loc);
             }
+        } else if(ASR::is_a<ASR::EnumValue_t>(*value)) {
+            ASR::expr_t* enum_value = ASRUtils::expr_value(
+                 ASR::down_cast<ASR::EnumValue_t>(value)->m_value);
+            if (!enum_value) {
+                throw SemanticError("Only constant enumeration values are "
+                                    "supported as array dimensions.", loc);
+            }
+            fill_dims_for_asr_type(dims, enum_value, loc);
         } else {
-            throw SemanticError("Only Integer, `:` or identifier in [] in Subscript supported for now in annotation"
+            throw SemanticError("Only Integer, `:` or identifier in [] in "
+                                "Subscript supported for now in annotation "
                                 "found, " + std::to_string(value->type),
                 loc);
         }
