@@ -37,6 +37,7 @@
 #include <llvm/ExecutionEngine/ObjectCache.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Path.h>
+#include <llvm/IR/DIBuilder.h>
 
 #include <libasr/asr.h>
 #include <libasr/containers.h>
@@ -228,6 +229,9 @@ public:
     uint64_t ptr_loads;
     bool lookup_enum_value_for_nonints;
     bool is_assignment_target;
+
+    std::unique_ptr<llvm::DIBuilder> DBuilder;
+    llvm::DICompileUnit *debug_CU;
 
     ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, Platform platform,
         diag::Diagnostics &diagnostics) :
@@ -1068,6 +1072,10 @@ public:
         module = std::make_unique<llvm::Module>("LFortran", context);
         module->setDataLayout("");
 
+        DBuilder = std::make_unique<llvm::DIBuilder>(*module);
+        debug_CU = DBuilder->createCompileUnit(
+            llvm::dwarf::DW_LANG_C, DBuilder->createFile("xxexpr.py", "/yy/"),
+            "Kaleidoscope Compiler", false, "", 0);
 
         // All loose statements must be converted to a function, so the items
         // must be empty:
@@ -3102,6 +3110,30 @@ public:
                 llvm_symtab_fn_names[fn_name] = h;
                 F = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, fn_name, module.get());
+
+                // Add Debugging information to the LLVM function F
+                llvm::DIFile *Unit = DBuilder->createFile(
+                    debug_CU->getFilename(),
+                    debug_CU->getDirectory());
+                llvm::DIScope *FContext = Unit;
+                unsigned LineNo = 0;
+                unsigned ScopeLine = 0;
+                std::string fn_debug_name = x.m_name;
+                llvm::SmallVector<llvm::Metadata *, 8> el_types;
+                llvm::DIType *DblTy = DBuilder->createBasicType("double", 64,
+                    llvm::dwarf::DW_ATE_float);
+                el_types.push_back(DblTy);
+                el_types.push_back(DblTy);
+                el_types.push_back(DblTy);
+                llvm::DISubroutineType *dtype = DBuilder->createSubroutineType(
+                    DBuilder->getOrCreateTypeArray(el_types));
+                llvm::DISubprogram *SP = DBuilder->createFunction(
+                    FContext, fn_debug_name, llvm::StringRef(), Unit, LineNo,
+                    dtype,
+                    ScopeLine,
+                    llvm::DINode::FlagPrototyped,
+                    llvm::DISubprogram::SPFlagDefinition);
+                F->setSubprogram(SP);
             } else {
                 uint32_t old_h = llvm_symtab_fn_names[fn_name];
                 F = llvm_symtab_fn[old_h];
