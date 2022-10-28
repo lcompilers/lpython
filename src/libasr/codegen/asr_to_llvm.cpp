@@ -3092,6 +3092,7 @@ public:
         parent_function = nullptr;
         dict_api_lp->set_is_dict_present(is_dict_present_copy_lp);
         dict_api_sc->set_is_dict_present(is_dict_present_copy_sc);
+        DBuilder->finalize();
     }
 
     void instantiate_function(const ASR::Function_t &x){
