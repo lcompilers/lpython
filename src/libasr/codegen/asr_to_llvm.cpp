@@ -232,6 +232,7 @@ public:
 
     std::unique_ptr<llvm::DIBuilder> DBuilder;
     llvm::DICompileUnit *debug_CU;
+    llvm::DIScope *debug_current_scope;
 
     ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, Platform platform,
         diag::Diagnostics &diagnostics) :
@@ -334,6 +335,17 @@ public:
         start_new_block(loopend);
         dict_api_lp->reset_iterators();
         dict_api_sc->reset_iterators();
+    }
+
+    template <typename T>
+    void debug_emit_loc(const T &x) {
+        // TODO: convert the linear location to line and column
+        Location loc = x.base.base.loc;
+        uint64_t line = loc.first;
+        uint64_t column = loc.first;
+        builder->SetCurrentDebugLocation(
+            llvm::DILocation::get(debug_current_scope->getContext(),
+                line, column, debug_current_scope));
     }
 
     inline bool verify_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
@@ -3134,6 +3146,7 @@ public:
                     llvm::DINode::FlagPrototyped,
                     llvm::DISubprogram::SPFlagDefinition);
                 F->setSubprogram(SP);
+                debug_current_scope = SP;
             } else {
                 uint32_t old_h = llvm_symtab_fn_names[fn_name];
                 F = llvm_symtab_fn[old_h];
@@ -3619,6 +3632,7 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
+        debug_emit_loc(x);
         if( x.m_overloaded ) {
             this->visit_stmt(*x.m_overloaded);
             return ;
@@ -5902,6 +5916,7 @@ public:
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
+        //debug_emit_loc(x);
         if( ASRUtils::is_intrinsic_optimization(x.m_name) ) {
             ASR::Function_t* routine = ASR::down_cast<ASR::Function_t>(
                         ASRUtils::symbol_get_past_external(x.m_name));
