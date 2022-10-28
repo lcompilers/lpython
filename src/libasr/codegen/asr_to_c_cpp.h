@@ -623,6 +623,15 @@ R"(#include <stdio.h>
                 self().visit_TupleConstant(*ASR::down_cast<ASR::TupleConstant_t>(x.m_value));
                 src_tmp += src;
                 val_name = const_name;
+            } else if (ASR::is_a<ASR::FunctionCall_t>(*x.m_value)) {
+                self().visit_FunctionCall(*ASR::down_cast<ASR::FunctionCall_t>(x.m_value));
+                ASR::Tuple_t* t = ASR::down_cast<ASR::Tuple_t>(tup_c->m_type);
+                std::string tuple_type_c = tuple_api->get_tuple_type(t);
+                const_name += std::to_string(const_list_count);
+                const_list_count += 1;
+                const_name = current_scope->get_unique_name(const_name);
+                src_tmp += indent + tuple_type_c + " " + const_name + " = " + src + ";\n";
+                val_name = const_name;
             } else {
                 visit_Var(*ASR::down_cast<ASR::Var_t>(x.m_value));
                 val_name = src;
