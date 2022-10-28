@@ -735,9 +735,10 @@ def _lpython_str_startswith(s: str ,sub: str) -> bool:
 
 
 def list(s: str) -> list[str]:
-    l: list[str]
-    l = []
+    l: list[str] = []
     i: i32
+    if len(s) == 0:
+        return l
     for i in range(len(s)):
         l.append(s[i])
     return l
