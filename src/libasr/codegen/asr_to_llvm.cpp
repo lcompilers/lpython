@@ -183,6 +183,7 @@ public:
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
+    std::map<uint64_t, llvm::DIScope*> llvm_symtab_fn_discope;
     std::map<std::string, uint64_t> llvm_symtab_fn_names;
     std::map<uint64_t, llvm::Value*> llvm_symtab_fn_arg;
     std::map<uint64_t, llvm::BasicBlock*> llvm_goto_targets;
@@ -3096,6 +3097,7 @@ public:
     void instantiate_function(const ASR::Function_t &x){
         uint32_t h = get_hash((ASR::asr_t*)&x);
         llvm::Function *F = nullptr;
+        llvm::DISubprogram *SP;
         std::string sym_name = x.m_name;
         if (sym_name == "main") {
             sym_name = "_xx_lcompilers_changed_main_xx";
@@ -3139,7 +3141,7 @@ public:
                 el_types.push_back(DblTy);
                 llvm::DISubroutineType *dtype = DBuilder->createSubroutineType(
                     DBuilder->getOrCreateTypeArray(el_types));
-                llvm::DISubprogram *SP = DBuilder->createFunction(
+                SP = DBuilder->createFunction(
                     FContext, fn_debug_name, llvm::StringRef(), Unit, LineNo,
                     dtype,
                     ScopeLine,
@@ -3150,8 +3152,10 @@ public:
             } else {
                 uint32_t old_h = llvm_symtab_fn_names[fn_name];
                 F = llvm_symtab_fn[old_h];
+                SP = (llvm::DISubprogram*)llvm_symtab_fn_discope[old_h];
             }
             llvm_symtab_fn[h] = F;
+            llvm_symtab_fn_discope[h] = SP;
 
             // Instantiate (pre-declare) all nested interfaces
             for (auto &item : x.m_symtab->get_scope()) {
@@ -3348,6 +3352,7 @@ public:
         parent_function = &x;
         parent_function_hash = h;
         llvm::Function* F = llvm_symtab_fn[h];
+        debug_current_scope = llvm_symtab_fn_discope[h];
         proc_return = llvm::BasicBlock::Create(context, "return");
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
