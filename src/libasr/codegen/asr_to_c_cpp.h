@@ -181,6 +181,21 @@ R"(#include <stdio.h>
 
         std::string contains;
 
+        // Declare the global variables that are imported from the module
+        for (auto &item : x.m_symtab->get_scope()) {
+            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(
+                        item.second);
+                std::string decl = self().convert_variable_decl(*v);
+                if (v->m_value) {
+                    self().visit_expr(*v->m_value);
+                    decl += " = " + src;
+                }
+                decl += ";\n\n";
+                contains += decl;
+            }
+        }
+
         // Topologically sort all module functions
         // and then define them in the right order
         std::vector<std::string> func_order = ASRUtils::determine_function_definition_order(x.m_symtab);
@@ -195,6 +210,7 @@ R"(#include <stdio.h>
             self().visit_Function(*s);
             contains += src;
         }
+
         src = contains;
         intrinsic_module = false;
     }
