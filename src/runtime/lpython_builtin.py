@@ -641,7 +641,7 @@ def _lpython_str_lower(x: str) -> str:
 def _lpython_str_find(s: str, sub: str) -> i32:
     s_len :i32; sub_len :i32; flag: bool; _len: i32;
     res: i32; i: i32;
-    lps: list[i32]
+    lps: list[i32] = []
     s_len = len(s)
     sub_len = len(sub)
     flag = False
