@@ -3131,21 +3131,14 @@ public:
                     debug_CU->getFilename(),
                     debug_CU->getDirectory());
                 llvm::DIScope *FContext = Unit;
-                unsigned LineNo = 0;
-                unsigned ScopeLine = 0;
+                uint64_t LineNo = 0;
+                uint64_t ScopeLine = 0;
                 std::string fn_debug_name = x.m_name;
-                llvm::SmallVector<llvm::Metadata *, 8> el_types;
-                llvm::DIType *DblTy = DBuilder->createBasicType("double", 64,
-                    llvm::dwarf::DW_ATE_float);
-                el_types.push_back(DblTy);
-                el_types.push_back(DblTy);
-                el_types.push_back(DblTy);
                 llvm::DISubroutineType *dtype = DBuilder->createSubroutineType(
-                    DBuilder->getOrCreateTypeArray(el_types));
+                    DBuilder->getOrCreateTypeArray(nullptr));
                 SP = DBuilder->createFunction(
-                    FContext, fn_debug_name, llvm::StringRef(), Unit, LineNo,
-                    dtype,
-                    ScopeLine,
+                    FContext, fn_debug_name, llvm::StringRef(), Unit,
+                    LineNo, dtype, ScopeLine,
                     llvm::DINode::FlagPrototyped,
                     llvm::DISubprogram::SPFlagDefinition);
                 F->setSubprogram(SP);
