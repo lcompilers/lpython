@@ -3150,6 +3150,7 @@ public:
                     llvm::DISubprogram::SPFlagDefinition);
                 F->setSubprogram(SP);
                 debug_current_scope = SP;
+                debug_emit_loc(x);
             } else {
                 uint32_t old_h = llvm_symtab_fn_names[fn_name];
                 F = llvm_symtab_fn[old_h];
@@ -3358,6 +3359,7 @@ public:
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
         builder->SetInsertPoint(BB);
+        debug_emit_loc(x);
         declare_args(x, *F);
         declare_local_vars(x);
     }
@@ -5922,7 +5924,7 @@ public:
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        //debug_emit_loc(x);
+        debug_emit_loc(x);
         if( ASRUtils::is_intrinsic_optimization(x.m_name) ) {
             ASR::Function_t* routine = ASR::down_cast<ASR::Function_t>(
                         ASRUtils::symbol_get_past_external(x.m_name));
