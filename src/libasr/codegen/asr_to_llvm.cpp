@@ -161,6 +161,7 @@ public:
     std::unique_ptr<llvm::Module> module;
     std::unique_ptr<llvm::IRBuilder<>> builder;
     Platform platform;
+    bool enable_debug_info;
     Allocator &al;
 
     llvm::Value *tmp;
@@ -231,7 +232,6 @@ public:
     bool is_assignment_target;
 
     // For handling debug information
-    bool enable_debug_info;
     std::unique_ptr<llvm::DIBuilder> DBuilder;
     llvm::DICompileUnit *debug_CU;
     llvm::DIScope *debug_current_scope;
@@ -348,6 +348,26 @@ public:
         builder->SetCurrentDebugLocation(
             llvm::DILocation::get(debug_current_scope->getContext(),
                 line, column, debug_current_scope));
+    }
+
+    template <typename T>
+    void debug_emit_function(const T &x, llvm::DISubprogram *&SP) {
+        llvm::DIFile *debug_Unit = DBuilder->createFile(
+            debug_CU->getFilename(),
+            debug_CU->getDirectory());
+        llvm::DIScope *FContext = debug_Unit;
+        uint64_t LineNo = 0;
+        uint64_t ScopeLine = 0;
+        std::string fn_debug_name = x.m_name;
+        llvm::DISubroutineType *dtype = DBuilder->createSubroutineType(
+        DBuilder->getOrCreateTypeArray(nullptr));
+        SP = DBuilder->createFunction(
+            FContext, fn_debug_name, llvm::StringRef(), debug_Unit,
+            LineNo, dtype, ScopeLine,
+            llvm::DINode::FlagPrototyped,
+            llvm::DISubprogram::SPFlagDefinition);
+        debug_current_scope = SP;
+        debug_emit_loc(x);
     }
 
     inline bool verify_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
@@ -2188,6 +2208,11 @@ public:
                 llvm::Function::ExternalLinkage, "main", module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
+        if (enable_debug_info) {
+            llvm::DISubprogram *SP;
+            debug_emit_function(x, SP);
+            F->setSubprogram(SP);
+        }
         builder->SetInsertPoint(BB);
         declare_vars(x);
         for (size_t i=0; i<x.n_body; i++) {
@@ -2198,6 +2223,9 @@ public:
         builder->CreateRet(ret_val2);
         dict_api_lp->set_is_dict_present(is_dict_present_copy_lp);
         dict_api_sc->set_is_dict_present(is_dict_present_copy_sc);
+
+        // Finalize the debug info.
+        if (enable_debug_info) DBuilder->finalize();
     }
 
     /*
@@ -3095,6 +3123,8 @@ public:
         parent_function = nullptr;
         dict_api_lp->set_is_dict_present(is_dict_present_copy_lp);
         dict_api_sc->set_is_dict_present(is_dict_present_copy_sc);
+
+        // Finalize the debug info.
         if (enable_debug_info) DBuilder->finalize();
     }
 
@@ -3131,23 +3161,8 @@ public:
 
                 // Add Debugging information to the LLVM function F
                 if (enable_debug_info) {
-                    llvm::DIFile *Unit = DBuilder->createFile(
-                        debug_CU->getFilename(),
-                        debug_CU->getDirectory());
-                    llvm::DIScope *FContext = Unit;
-                    uint64_t LineNo = 0;
-                    uint64_t ScopeLine = 0;
-                    std::string fn_debug_name = x.m_name;
-                    llvm::DISubroutineType *dtype = DBuilder->createSubroutineType(
-                        DBuilder->getOrCreateTypeArray(nullptr));
-                    SP = DBuilder->createFunction(
-                        FContext, fn_debug_name, llvm::StringRef(), Unit,
-                        LineNo, dtype, ScopeLine,
-                        llvm::DINode::FlagPrototyped,
-                        llvm::DISubprogram::SPFlagDefinition);
+                    debug_emit_function(x, SP);
                     F->setSubprogram(SP);
-                    debug_current_scope = SP;
-                    debug_emit_loc(x);
                 }
             } else {
                 uint32_t old_h = llvm_symtab_fn_names[fn_name];
