@@ -1,0 +1,53 @@
+; ModuleID = 'LFortran'
+source_filename = "LFortran"
+
+@0 = private unnamed_addr constant [2 x i8] c" \00", align 1
+@1 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
+@2 = private unnamed_addr constant [5 x i8] c"%d%s\00", align 1
+
+define void @_lpython_main_program() !dbg !3 {
+.entry:
+  call void @main0(), !dbg !6
+  br label %return, !dbg !6
+
+return:                                           ; preds = %.entry
+  ret void, !dbg !6
+}
+
+define void @main0() !dbg !7 {
+.entry:
+  %x = alloca i32, align 4, !dbg !8
+  %x2 = alloca i64, align 8, !dbg !8
+  %y = alloca float, align 4, !dbg !8
+  %y2 = alloca double, align 8, !dbg !8
+  store i32 25, i32* %x, align 4, !dbg !9
+  %0 = load i32, i32* %x, align 4, !dbg !9
+  call void (i8*, ...) @_lfortran_printf(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @2, i32 0, i32 0), i32 %0, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @1, i32 0, i32 0)), !dbg !9
+  br label %return, !dbg !9
+
+return:                                           ; preds = %.entry
+  ret void, !dbg !9
+}
+
+declare void @_lfortran_printf(i8*, ...)
+
+define i32 @main() !dbg !10 {
+.entry:
+  call void @_lpython_main_program(), !dbg !11
+  ret i32 0, !dbg !11
+}
+
+!llvm.dbg.cu = !{!0}
+
+!0 = distinct !DICompileUnit(language: DW_LANG_C, file: !1, producer: "LPython Compiler", isOptimized: false, runtimeVersion: 0, emissionKind: FullDebug, enums: !2)
+!1 = !DIFile(filename: "xxexpr.py", directory: "/yy/")
+!2 = !{}
+!3 = distinct !DISubprogram(name: "_lpython_main_program", scope: !1, file: !1, type: !4, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
+!4 = !DISubroutineType(types: !5)
+!5 = !{null}
+!6 = !DILocation(line: 89, column: 89, scope: !3)
+!7 = distinct !DISubprogram(name: "main0", scope: !1, file: !1, type: !4, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
+!8 = !DILocation(line: 0, scope: !7)
+!9 = !DILocation(line: 63, column: 63, scope: !7)
+!10 = distinct !DISubprogram(name: "main_program", scope: !1, file: !1, type: !4, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
+!11 = !DILocation(line: 0, scope: !10)

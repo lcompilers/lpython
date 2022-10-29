@@ -144,6 +144,7 @@ filename = "expr_01.py"
 ast = true
 asr = true
 llvm = true
+llvm_dbg = true
 
 [[test]]
 filename = "../integration_tests/array_01_decl.py"
