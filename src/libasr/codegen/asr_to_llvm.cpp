@@ -183,7 +183,6 @@ public:
 
     std::map<uint64_t, llvm::Value*> llvm_symtab; // llvm_symtab_value
     std::map<uint64_t, llvm::Function*> llvm_symtab_fn;
-    std::map<uint64_t, llvm::DIScope*> llvm_symtab_fn_discope;
     std::map<std::string, uint64_t> llvm_symtab_fn_names;
     std::map<uint64_t, llvm::Value*> llvm_symtab_fn_arg;
     std::map<uint64_t, llvm::BasicBlock*> llvm_goto_targets;
@@ -231,16 +230,19 @@ public:
     bool lookup_enum_value_for_nonints;
     bool is_assignment_target;
 
+    // For handling debug information
+    bool enable_debug_info;
     std::unique_ptr<llvm::DIBuilder> DBuilder;
     llvm::DICompileUnit *debug_CU;
     llvm::DIScope *debug_current_scope;
+    std::map<uint64_t, llvm::DIScope*> llvm_symtab_fn_discope;
 
     ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, Platform platform,
-        diag::Diagnostics &diagnostics) :
+        bool enable_debug_info, diag::Diagnostics &diagnostics) :
     diag{diagnostics},
     context(context),
     builder(std::make_unique<llvm::IRBuilder<>>(context)),
-    platform{platform},
+    platform{platform}, enable_debug_info{enable_debug_info},
     al{al},
     prototype_only(false),
     llvm_utils(std::make_unique<LLVMUtils>(context, builder.get())),
@@ -340,7 +342,6 @@ public:
 
     template <typename T>
     void debug_emit_loc(const T &x) {
-        // TODO: convert the linear location to line and column
         Location loc = x.base.base.loc;
         uint64_t line = loc.first;
         uint64_t column = loc.first;
@@ -1085,10 +1086,12 @@ public:
         module = std::make_unique<llvm::Module>("LFortran", context);
         module->setDataLayout("");
 
-        DBuilder = std::make_unique<llvm::DIBuilder>(*module);
-        debug_CU = DBuilder->createCompileUnit(
-            llvm::dwarf::DW_LANG_C, DBuilder->createFile("xxexpr.py", "/yy/"),
-            "Kaleidoscope Compiler", false, "", 0);
+        if (enable_debug_info) {
+            DBuilder = std::make_unique<llvm::DIBuilder>(*module);
+            debug_CU = DBuilder->createCompileUnit(
+                llvm::dwarf::DW_LANG_C, DBuilder->createFile("xxexpr.py", "/yy/"),
+                "LPython Compiler", false, "", 0);
+        }
 
         // All loose statements must be converted to a function, so the items
         // must be empty:
@@ -3092,7 +3095,7 @@ public:
         parent_function = nullptr;
         dict_api_lp->set_is_dict_present(is_dict_present_copy_lp);
         dict_api_sc->set_is_dict_present(is_dict_present_copy_sc);
-        DBuilder->finalize();
+        if (enable_debug_info) DBuilder->finalize();
     }
 
     void instantiate_function(const ASR::Function_t &x){
@@ -3127,30 +3130,34 @@ public:
                     llvm::Function::ExternalLinkage, fn_name, module.get());
 
                 // Add Debugging information to the LLVM function F
-                llvm::DIFile *Unit = DBuilder->createFile(
-                    debug_CU->getFilename(),
-                    debug_CU->getDirectory());
-                llvm::DIScope *FContext = Unit;
-                uint64_t LineNo = 0;
-                uint64_t ScopeLine = 0;
-                std::string fn_debug_name = x.m_name;
-                llvm::DISubroutineType *dtype = DBuilder->createSubroutineType(
-                    DBuilder->getOrCreateTypeArray(nullptr));
-                SP = DBuilder->createFunction(
-                    FContext, fn_debug_name, llvm::StringRef(), Unit,
-                    LineNo, dtype, ScopeLine,
-                    llvm::DINode::FlagPrototyped,
-                    llvm::DISubprogram::SPFlagDefinition);
-                F->setSubprogram(SP);
-                debug_current_scope = SP;
-                debug_emit_loc(x);
+                if (enable_debug_info) {
+                    llvm::DIFile *Unit = DBuilder->createFile(
+                        debug_CU->getFilename(),
+                        debug_CU->getDirectory());
+                    llvm::DIScope *FContext = Unit;
+                    uint64_t LineNo = 0;
+                    uint64_t ScopeLine = 0;
+                    std::string fn_debug_name = x.m_name;
+                    llvm::DISubroutineType *dtype = DBuilder->createSubroutineType(
+                        DBuilder->getOrCreateTypeArray(nullptr));
+                    SP = DBuilder->createFunction(
+                        FContext, fn_debug_name, llvm::StringRef(), Unit,
+                        LineNo, dtype, ScopeLine,
+                        llvm::DINode::FlagPrototyped,
+                        llvm::DISubprogram::SPFlagDefinition);
+                    F->setSubprogram(SP);
+                    debug_current_scope = SP;
+                    debug_emit_loc(x);
+                }
             } else {
                 uint32_t old_h = llvm_symtab_fn_names[fn_name];
                 F = llvm_symtab_fn[old_h];
-                SP = (llvm::DISubprogram*)llvm_symtab_fn_discope[old_h];
+                if (enable_debug_info) {
+                    SP = (llvm::DISubprogram*) llvm_symtab_fn_discope[old_h];
+                }
             }
             llvm_symtab_fn[h] = F;
-            llvm_symtab_fn_discope[h] = SP;
+            if (enable_debug_info) llvm_symtab_fn_discope[h] = SP;
 
             // Instantiate (pre-declare) all nested interfaces
             for (auto &item : x.m_symtab->get_scope()) {
@@ -3347,12 +3354,12 @@ public:
         parent_function = &x;
         parent_function_hash = h;
         llvm::Function* F = llvm_symtab_fn[h];
-        debug_current_scope = llvm_symtab_fn_discope[h];
+        if (enable_debug_info) debug_current_scope = llvm_symtab_fn_discope[h];
         proc_return = llvm::BasicBlock::Create(context, "return");
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
         builder->SetInsertPoint(BB);
-        debug_emit_loc(x);
+        if (enable_debug_info) debug_emit_loc(x);
         declare_args(x, *F);
         declare_local_vars(x);
     }
@@ -3633,7 +3640,7 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
-        debug_emit_loc(x);
+        if (enable_debug_info) debug_emit_loc(x);
         if( x.m_overloaded ) {
             this->visit_stmt(*x.m_overloaded);
             return ;
@@ -5917,7 +5924,7 @@ public:
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        debug_emit_loc(x);
+        if (enable_debug_info) debug_emit_loc(x);
         if( ASRUtils::is_intrinsic_optimization(x.m_name) ) {
             ASR::Function_t* routine = ASR::down_cast<ASR::Function_t>(
                         ASRUtils::symbol_get_past_external(x.m_name));
@@ -6259,12 +6266,12 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
         diag::Diagnostics &diagnostics,
         llvm::LLVMContext &context, Allocator &al,
         LCompilers::PassManager& pass_manager,
-        Platform platform, const std::string &run_fn)
+        CompilerOptions &co, const std::string &run_fn)
 {
 #if LLVM_VERSION_MAJOR >= 15
     context.setOpaquePointers(false);
 #endif
-    ASRToLLVMVisitor v(al, context, platform, diagnostics);
+    ASRToLLVMVisitor v(al, context, co.platform, co.arg_g, diagnostics);
     LCompilers::PassOptions pass_options;
     pass_options.run_fun = run_fn;
     pass_options.always_run = false;
