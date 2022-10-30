@@ -4391,6 +4391,13 @@ public:
                 tmp = ASR::make_EnumValue_t(al, x.base.base.loc, enum_member_var,
                         enum_t, enum_member_variable->m_type,
                         ASRUtils::expr_value(enum_member_variable->m_symbolic_value));
+            } else if (ASR::is_a<ASR::Module_t>(*t)) {
+                ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
+                ASR::symbol_t *sym = import_from_module(al, m, current_scope, value,
+                                    x.m_attr, x.m_attr, x.base.base.loc);
+                LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*sym));
+                current_scope->add_symbol(x.m_attr, sym);
+                tmp = ASR::make_Var_t(al, x.base.base.loc, sym);
             } else {
                 throw SemanticError("Only Variable type is supported for now in Attribute",
                     x.base.base.loc);
