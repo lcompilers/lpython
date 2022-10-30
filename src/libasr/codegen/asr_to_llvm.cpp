@@ -236,6 +236,7 @@ public:
     llvm::DICompileUnit *debug_CU;
     llvm::DIScope *debug_current_scope;
     std::map<uint64_t, llvm::DIScope*> llvm_symtab_fn_discope;
+    llvm::DIFile *debug_Unit;
 
     ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, Platform platform,
         bool enable_debug_info, diag::Diagnostics &diagnostics) :
@@ -352,7 +353,7 @@ public:
 
     template <typename T>
     void debug_emit_function(const T &x, llvm::DISubprogram *&SP) {
-        llvm::DIFile *debug_Unit = DBuilder->createFile(
+        debug_Unit = DBuilder->createFile(
             debug_CU->getFilename(),
             debug_CU->getDirectory());
         llvm::DIScope *FContext = debug_Unit;
@@ -2506,6 +2507,7 @@ public:
     template<typename T>
     void declare_vars(const T &x) {
         llvm::Value *target_var;
+        uint32_t debug_arg_count = 0;
         for (auto &item : x.m_symtab->get_scope()) {
             if (is_a<ASR::Variable_t>(*item.second)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
@@ -2557,6 +2559,42 @@ public:
                         }
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(type, nullptr, v->m_name);
+                    if (enable_debug_info) {
+                        uint64_t LineNo = v->base.base.loc.first;
+                        std::string type_name;
+                        uint32_t type_size = ASRUtils::extract_kind_from_ttype_t(v->m_type)*8;
+                        uint32_t type_encoding;
+                        switch( v->m_type->type ) {
+                            case ASR::ttypeType::Integer: {
+                                type_name = "integer";
+                                type_encoding = llvm::dwarf::DW_ATE_signed;
+                                break;
+                            }
+                            case ASR::ttypeType::Logical: {
+                                type_name = "boolean";
+                                type_encoding = llvm::dwarf::DW_ATE_boolean;
+                                break;
+                            }
+                            case ASR::ttypeType::Real: {
+                                if( type_size == 32 ) {
+                                    type_name = "float";
+                                } else if( type_size == 64 ) {
+                                    type_name = "double";
+                                }
+                                type_encoding = llvm::dwarf::DW_ATE_float;
+                                break;
+                            }
+                            default : throw LCompilersException("Debug information for the type: `"
+                                + ASRUtils::type_to_str_python(v->m_type) + "` is not yet implemented");
+                        }
+                        llvm::DILocalVariable *debug_var = DBuilder->createParameterVariable(
+                            debug_current_scope, v->m_name, ++debug_arg_count, debug_Unit, LineNo,
+                            DBuilder->createBasicType(type_name, type_size, type_encoding), true);
+                        DBuilder->insertDeclare(ptr, debug_var, DBuilder->createExpression(),
+                            llvm::DILocation::get(debug_current_scope->getContext(),
+                            LineNo, 0, debug_current_scope), builder->GetInsertBlock());
+                    }
+
                     if( ASR::is_a<ASR::Struct_t>(*v->m_type) ) {
                         ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(v->m_type);
                         ASR::StructType_t* struct_type = ASR::down_cast<ASR::StructType_t>(
