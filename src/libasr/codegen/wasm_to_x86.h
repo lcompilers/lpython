@@ -43,7 +43,7 @@ class X86Visitor : public BaseWASMVisitor<X86Visitor> {
             if (func_index == 0) {
                 m_a.asm_call_label("print_i32");
             } else if (func_index == 5) {
-                // currently ignoring print_buf
+                // currently ignoring flush_buf
             } else if (func_index == 6) {
                 m_a.asm_call_label("exit");
             } else {
