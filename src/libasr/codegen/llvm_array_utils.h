@@ -258,7 +258,9 @@ namespace LFortran {
                                      llvm::Module* module) = 0;
 
                 virtual
-                void copy_array(llvm::Value* src, llvm::Value* dest) = 0;
+                void copy_array(llvm::Value* src, llvm::Value* dest,
+                                llvm::Module* module, ASR::ttype_t* asr_data_type,
+                                bool create_dim_des_array) = 0;
 
                 virtual
                 llvm::Value* get_array_size(llvm::Value* array, llvm::Value* dim,
@@ -276,7 +278,7 @@ namespace LFortran {
 
                 llvm::StructType* dim_des;
 
-                std::map<std::string, llvm::StructType*> tkr2array;
+                std::map<std::string, std::pair<llvm::StructType*, llvm::Type*>> tkr2array;
 
                 llvm::Value* cmo_convertor_single_element(
                     llvm::Value* arr, std::vector<llvm::Value*>& m_args,
@@ -390,7 +392,9 @@ namespace LFortran {
                                      llvm::Module* module);
 
                 virtual
-                void copy_array(llvm::Value* src, llvm::Value* dest);
+                void copy_array(llvm::Value* src, llvm::Value* dest,
+                                llvm::Module* module, ASR::ttype_t* asr_data_type,
+                                bool create_dim_des_array);
 
                 virtual
                 llvm::Value* get_array_size(llvm::Value* array, llvm::Value* dim,
