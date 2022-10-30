@@ -381,12 +381,15 @@ public:
                     bool is_fixed_size = true;
                     dims = convert_dims_c(t->n_dims, t->m_dims, v.m_type, is_fixed_size, true);
                     std::string encoded_type_name = "i" + std::to_string(t->m_kind * 8);
+                    bool is_struct_type_member = ASR::is_a<ASR::StructType_t>(
+                         *ASR::down_cast<ASR::symbol_t>(v.m_parent_symtab->asr_owner));
                     generate_array_decl(sub, std::string(v.m_name), type_name, dims,
                                         encoded_type_name, t->m_dims, t->n_dims,
                                         use_ref, dummy,
                                         v.m_intent != ASRUtils::intent_in &&
                                         v.m_intent != ASRUtils::intent_inout &&
-                                        v.m_intent != ASRUtils::intent_out, is_fixed_size);
+                                        v.m_intent != ASRUtils::intent_out &&
+                                        !is_struct_type_member, is_fixed_size);
                 } else {
                     bool is_fixed_size = true;
                     dims = convert_dims_c(t->n_dims, t->m_dims, v.m_type, is_fixed_size);
@@ -400,12 +403,15 @@ public:
                     bool is_fixed_size = true;
                     dims = convert_dims_c(t->n_dims, t->m_dims, v.m_type, is_fixed_size, true);
                     std::string encoded_type_name = "r" + std::to_string(t->m_kind * 8);
+                    bool is_struct_type_member = ASR::is_a<ASR::StructType_t>(
+                         *ASR::down_cast<ASR::symbol_t>(v.m_parent_symtab->asr_owner));
                     generate_array_decl(sub, std::string(v.m_name), type_name, dims,
                                         encoded_type_name, t->m_dims, t->n_dims,
                                         use_ref, dummy,
                                         v.m_intent != ASRUtils::intent_in &&
                                         v.m_intent != ASRUtils::intent_inout &&
-                                        v.m_intent != ASRUtils::intent_out, is_fixed_size);
+                                        v.m_intent != ASRUtils::intent_out &&
+                                        !is_struct_type_member, is_fixed_size);
                 } else {
                     bool is_fixed_size = true;
                     dims = convert_dims_c(t->n_dims, t->m_dims, v.m_type, is_fixed_size);
@@ -819,6 +825,7 @@ R"(
     }
 
     void visit_StructType(const ASR::StructType_t& x) {
+        src = "";
         std::string c_type_name = "struct";
         if( x.m_is_packed ) {
             std::string attr_args = "(packed";
@@ -835,6 +842,7 @@ R"(
             c_type_name += " __attribute__(" + attr_args + ")";
         }
         visit_AggregateTypeUtil(x, c_type_name);
+        src = "";
     }
 
     void visit_UnionType(const ASR::UnionType_t& x) {
@@ -1102,13 +1110,13 @@ R"(
 
         ASR::ttype_t* array_type_asr = ASRUtils::expr_type(x.m_array);
         std::string array_type_name = CUtils::get_c_type_from_ttype_t(array_type_asr);
-        std::string array_encoded_type_name = ASRUtils::get_type_code(array_type_asr, true, false);
+        std::string array_encoded_type_name = ASRUtils::get_type_code(array_type_asr, true, false, false);
         std::string array_type = get_array_type(array_type_name, array_encoded_type_name, true);
         std::string return_type = get_array_type(array_type_name, array_encoded_type_name, false);
 
         ASR::ttype_t* shape_type_asr = ASRUtils::expr_type(x.m_shape);
         std::string shape_type_name = CUtils::get_c_type_from_ttype_t(shape_type_asr);
-        std::string shape_encoded_type_name = ASRUtils::get_type_code(shape_type_asr, true, false);
+        std::string shape_encoded_type_name = ASRUtils::get_type_code(shape_type_asr, true, false, false);
         std::string shape_type = get_array_type(shape_type_name, shape_encoded_type_name, true);
 
         std::string array_reshape_func = c_utils_functions->get_array_reshape(array_type, shape_type,

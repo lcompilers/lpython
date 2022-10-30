@@ -116,7 +116,7 @@ namespace LFortran {
         }
 
         bool SimpleCMODescriptor::is_array(ASR::ttype_t* asr_type) {
-            std::string asr_type_code = ASRUtils::get_type_code(asr_type);
+            std::string asr_type_code = ASRUtils::get_type_code(asr_type, false, false);
             return tkr2array.find(asr_type_code) != tkr2array.end();
         }
 
@@ -128,8 +128,8 @@ namespace LFortran {
             }
             llvm::Value* arg_struct = builder->CreateAlloca(arg_type, nullptr);
             llvm::Value* first_ele_ptr = nullptr;
-            std::string asr_arg_type_code = ASRUtils::get_type_code(ASRUtils::get_contained_type(asr_arg_type));
-            llvm::StructType* tmp_struct_type = tkr2array[asr_arg_type_code];
+            std::string asr_arg_type_code = ASRUtils::get_type_code(ASRUtils::get_contained_type(asr_arg_type), false, false);
+            llvm::StructType* tmp_struct_type = tkr2array[asr_arg_type_code].first;
             if( tmp_struct_type->getElementType(0)->isArrayTy() ) {
                 first_ele_ptr = llvm_utils->create_gep(get_pointer_to_data(tmp), 0);
             } else if( tmp_struct_type->getNumElements() < 5 ) {
@@ -186,12 +186,12 @@ namespace LFortran {
         llvm::Type* SimpleCMODescriptor::get_array_type
         (ASR::ttype_t* m_type_, llvm::Type* el_type,
         bool get_pointer) {
-            std::string array_key = ASRUtils::get_type_code(m_type_);
+            std::string array_key = ASRUtils::get_type_code(m_type_, false, false);
             if( tkr2array.find(array_key) != tkr2array.end() ) {
                 if( get_pointer ) {
-                    return tkr2array[array_key]->getPointerTo();
+                    return tkr2array[array_key].first->getPointerTo();
                 }
-                return tkr2array[array_key];
+                return tkr2array[array_key].first;
             }
             llvm::Type* dim_des_array = create_dimension_descriptor_array_type();
             std::vector<llvm::Type*> array_type_vec;
@@ -201,11 +201,11 @@ namespace LFortran {
                                 llvm::Type::getInt1Ty(context),
                                 llvm::Type::getInt32Ty(context)  };
             llvm::StructType* new_array_type = llvm::StructType::create(context, array_type_vec, "array");
-            tkr2array[array_key] = new_array_type;
+            tkr2array[array_key] = std::make_pair(new_array_type, el_type);
             if( get_pointer ) {
-                return tkr2array[array_key]->getPointerTo();
+                return tkr2array[array_key].first->getPointerTo();
             }
-            return (llvm::Type*) tkr2array[array_key];
+            return (llvm::Type*) tkr2array[array_key].first;
         }
 
         llvm::Type* SimpleCMODescriptor::create_dimension_descriptor_array_type() {
@@ -214,12 +214,12 @@ namespace LFortran {
 
         llvm::Type* SimpleCMODescriptor::get_malloc_array_type
         (ASR::ttype_t* m_type_, llvm::Type* el_type, bool get_pointer) {
-            std::string array_key = ASRUtils::get_type_code(m_type_);
+            std::string array_key = ASRUtils::get_type_code(m_type_, false, false);
             if( tkr2array.find(array_key) != tkr2array.end() ) {
                 if( get_pointer ) {
-                    return tkr2array[array_key]->getPointerTo();
+                    return tkr2array[array_key].first->getPointerTo();
                 }
-                return tkr2array[array_key];
+                return tkr2array[array_key].first;
             }
             llvm::Type* dim_des_array = create_dimension_descriptor_array_type();
             std::vector<llvm::Type*> array_type_vec = {
@@ -229,11 +229,11 @@ namespace LFortran {
                 llvm::Type::getInt1Ty(context),
                 llvm::Type::getInt32Ty(context)};
             llvm::StructType* new_array_type = llvm::StructType::create(context, array_type_vec, "array");
-            tkr2array[array_key] = new_array_type;
+            tkr2array[array_key] = std::make_pair(new_array_type, el_type);
             if( get_pointer ) {
-                return tkr2array[array_key]->getPointerTo();
+                return tkr2array[array_key].first->getPointerTo();
             }
-            return (llvm::Type*) tkr2array[array_key];
+            return (llvm::Type*) tkr2array[array_key].first;
         }
 
         llvm::Type* SimpleCMODescriptor::get_dimension_descriptor_type
@@ -570,14 +570,36 @@ namespace LFortran {
         }
 
         // Shallow copies source array descriptor to destination descriptor
-        void SimpleCMODescriptor::copy_array(llvm::Value* src, llvm::Value* dest) {
-            llvm::Value* src_data_ptr = LLVM::CreateLoad(*builder, this->get_pointer_to_data(src));
-            builder->CreateStore(src_data_ptr, this->get_pointer_to_data(dest));
+        void SimpleCMODescriptor::copy_array(llvm::Value* src, llvm::Value* dest,
+            llvm::Module* module, ASR::ttype_t* asr_data_type, bool create_dim_des_array) {
+            llvm::Value* num_elements = this->get_array_size(src, nullptr, 4);
+
+            llvm::Value* first_ptr = this->get_pointer_to_data(dest);
+            llvm::Type* llvm_data_type = tkr2array[ASRUtils::get_type_code(asr_data_type, false, false)].second;
+            llvm::Value* arr_first = builder->CreateAlloca(llvm_data_type, num_elements);
+            builder->CreateStore(arr_first, first_ptr);
+
+            llvm::Value* ptr2firstptr = this->get_pointer_to_data(src);
+            llvm::DataLayout data_layout(module);
+            uint64_t size = data_layout.getTypeAllocSize(llvm_data_type);
+            llvm::Value* llvm_size = llvm::ConstantInt::get(context, llvm::APInt(32, size));
+            num_elements = builder->CreateMul(num_elements, llvm_size);
+            builder->CreateMemCpy(LLVM::CreateLoad(*builder, first_ptr), llvm::MaybeAlign(),
+                                  LLVM::CreateLoad(*builder, ptr2firstptr), llvm::MaybeAlign(),
+                                  num_elements);
+
             llvm::Value* src_offset_ptr = LLVM::CreateLoad(*builder, llvm_utils->create_gep(src, 1));
             builder->CreateStore(src_offset_ptr, llvm_utils->create_gep(dest, 1));
             llvm::Value* src_dim_des_val = this->get_pointer_to_dimension_descriptor_array(src, true);
-            llvm::Value* dest_dim_des_val = this->get_pointer_to_dimension_descriptor_array(dest, true);
-            llvm::Value* n_dims = this->get_rank(dest, false);
+            llvm::Value* n_dims = this->get_rank(src, false);
+            llvm::Value* dest_dim_des_val = nullptr;
+            if( !create_dim_des_array ) {
+                dest_dim_des_val = this->get_pointer_to_dimension_descriptor_array(dest, true);
+            } else {
+                llvm::Value* dest_dim_des_ptr = this->get_pointer_to_dimension_descriptor_array(dest, false);
+                dest_dim_des_val = builder->CreateAlloca(dim_des, n_dims);
+                builder->CreateStore(dest_dim_des_val, dest_dim_des_ptr);
+            }
             llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
             llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
             llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
@@ -594,11 +616,22 @@ namespace LFortran {
             llvm::Value* r_val = LLVM::CreateLoad(*builder, r);
             llvm::Value* src_dim_val = llvm_utils->create_ptr_gep(src_dim_des_val, r_val);
             llvm::Value* src_s_val = llvm_utils->create_gep(src_dim_val, 0);
+            llvm::Value* src_l_val = nullptr;
+            if( create_dim_des_array ) {
+                src_l_val = llvm_utils->create_gep(src_dim_val, 1);
+            }
             llvm::Value* src_dim_size_ptr = llvm_utils->create_gep(src_dim_val, 2);
             llvm::Value* dest_dim_val = llvm_utils->create_ptr_gep(dest_dim_des_val, r_val);
             llvm::Value* dest_s_val = llvm_utils->create_gep(dest_dim_val, 0);
+            llvm::Value* dest_l_val = nullptr;
+            if( create_dim_des_array ) {
+                dest_l_val = llvm_utils->create_gep(dest_dim_val, 1);
+            }
             llvm::Value* dest_dim_size_ptr = llvm_utils->create_gep(dest_dim_val, 2);
             builder->CreateStore(LLVM::CreateLoad(*builder, src_s_val), dest_s_val);
+            if( create_dim_des_array ) {
+                builder->CreateStore(LLVM::CreateLoad(*builder, src_l_val), dest_l_val);
+            }
             builder->CreateStore(LLVM::CreateLoad(*builder, src_dim_size_ptr), dest_dim_size_ptr);
             r_val = builder->CreateAdd(r_val, llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
             builder->CreateStore(r_val, r);
@@ -609,8 +642,7 @@ namespace LFortran {
 
             llvm::Value* src_is_allocated_ptr = this->get_is_allocated_flag(src);
             builder->CreateStore(src_is_allocated_ptr, llvm_utils->create_gep(src, 3));
-            llvm::Value* src_rank_ptr = LLVM::CreateLoad(*builder, llvm_utils->create_gep(src, 4));
-            builder->CreateStore(src_rank_ptr, llvm_utils->create_gep(dest, 4));
+            builder->CreateStore(n_dims, this->get_rank(dest, true));
         }
 
     } // LLVMArrUtils

@@ -726,40 +726,50 @@ static inline void encode_dimensions(size_t n_dims, std::string& res,
 }
 
 static inline std::string get_type_code(const ASR::ttype_t *t, bool use_underscore_sep=false,
-    bool encode_dimensions_=true)
+    bool encode_dimensions_=true, bool set_dimensional_hint=true)
 {
+    bool is_dimensional = false;
+    std::string res = "";
     switch (t->type) {
         case ASR::ttypeType::Integer: {
             ASR::Integer_t *integer = ASR::down_cast<ASR::Integer_t>(t);
-            std::string res = "i" + std::to_string(integer->m_kind * 8);
+            res = "i" + std::to_string(integer->m_kind * 8);
             if( encode_dimensions_ ) {
                 encode_dimensions(integer->n_dims, res, use_underscore_sep);
+                return res;
             }
-            return res;
+            is_dimensional = integer->n_dims > 0;
+            break;
         }
         case ASR::ttypeType::Real: {
             ASR::Real_t *real = ASR::down_cast<ASR::Real_t>(t);
-            std::string res = "r" + std::to_string(real->m_kind * 8);
+            res = "r" + std::to_string(real->m_kind * 8);
             if( encode_dimensions_ ) {
                 encode_dimensions(real->n_dims, res, use_underscore_sep);
+                return res;
             }
-            return res;
+            is_dimensional = real->n_dims > 0;
+            break;
         }
         case ASR::ttypeType::Complex: {
             ASR::Complex_t *complx = ASR::down_cast<ASR::Complex_t>(t);
-            std::string res = "c" + std::to_string(complx->m_kind * 8);
+            res = "c" + std::to_string(complx->m_kind * 8);
             if( encode_dimensions_ ) {
                 encode_dimensions(complx->n_dims, res, use_underscore_sep);
+                return res;
             }
-            return res;
+            is_dimensional = complx->n_dims > 0;
+            break;
         }
         case ASR::ttypeType::Logical: {
             ASR::Logical_t* bool_ = ASR::down_cast<ASR::Logical_t>(t);
             std::string res = "bool";
             if( encode_dimensions_ ) {
                 encode_dimensions(bool_->n_dims, res, use_underscore_sep);
+                return res;
             }
-            return res;
+            is_dimensional = bool_->n_dims > 0;
+            break;
         }
         case ASR::ttypeType::Character: {
             return "str";
@@ -773,7 +783,8 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
                 result += "[";
             }
             for (size_t i = 0; i < tup->n_type; i++) {
-                result += get_type_code(tup->m_type[i], use_underscore_sep, encode_dimensions_);
+                result += get_type_code(tup->m_type[i], use_underscore_sep,
+                                        encode_dimensions_, set_dimensional_hint);
                 if (i + 1 != tup->n_type) {
                     if( use_underscore_sep ) {
                         result += "_";
@@ -792,64 +803,80 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
         case ASR::ttypeType::Set: {
             ASR::Set_t *s = ASR::down_cast<ASR::Set_t>(t);
             if( use_underscore_sep ) {
-                return "set_" + get_type_code(s->m_type, use_underscore_sep, encode_dimensions_) + "_";
+                return "set_" + get_type_code(s->m_type, use_underscore_sep,
+                                              encode_dimensions_, set_dimensional_hint) + "_";
             }
-            return "set[" + get_type_code(s->m_type, use_underscore_sep, encode_dimensions_) + "]";
+            return "set[" + get_type_code(s->m_type, use_underscore_sep,
+                                          encode_dimensions_, set_dimensional_hint) + "]";
         }
         case ASR::ttypeType::Dict: {
             ASR::Dict_t *d = ASR::down_cast<ASR::Dict_t>(t);
             if( use_underscore_sep ) {
-                return "dict_" + get_type_code(d->m_key_type, use_underscore_sep, encode_dimensions_) +
-                    "_" + get_type_code(d->m_value_type, use_underscore_sep, encode_dimensions_) + "_";
+                return "dict_" + get_type_code(d->m_key_type, use_underscore_sep,
+                                               encode_dimensions_, set_dimensional_hint) +
+                    "_" + get_type_code(d->m_value_type, use_underscore_sep,
+                                        encode_dimensions_, set_dimensional_hint) + "_";
             }
-            return "dict[" + get_type_code(d->m_key_type, use_underscore_sep, encode_dimensions_) +
-                    ", " + get_type_code(d->m_value_type, use_underscore_sep, encode_dimensions_) + "]";
+            return "dict[" + get_type_code(d->m_key_type, use_underscore_sep,
+                                           encode_dimensions_, set_dimensional_hint) +
+                    ", " + get_type_code(d->m_value_type, use_underscore_sep,
+                                         encode_dimensions_, set_dimensional_hint) + "]";
         }
         case ASR::ttypeType::List: {
             ASR::List_t *l = ASR::down_cast<ASR::List_t>(t);
             if( use_underscore_sep ) {
-                return "list_" + get_type_code(l->m_type, use_underscore_sep, encode_dimensions_) + "_";
+                return "list_" + get_type_code(l->m_type, use_underscore_sep,
+                                               encode_dimensions_, set_dimensional_hint) + "_";
             }
-            return "list[" + get_type_code(l->m_type, use_underscore_sep, encode_dimensions_) + "]";
+            return "list[" + get_type_code(l->m_type, use_underscore_sep,
+                                           encode_dimensions_, set_dimensional_hint) + "]";
         }
         case ASR::ttypeType::CPtr: {
             return "CPtr";
         }
         case ASR::ttypeType::Struct: {
             ASR::Struct_t* d = ASR::down_cast<ASR::Struct_t>(t);
-            std::string res = symbol_name(d->m_derived_type);
+            res = symbol_name(d->m_derived_type);
             if( encode_dimensions_ ) {
                 encode_dimensions(d->n_dims, res, use_underscore_sep);
+                return res;
             }
-            return res;
+            is_dimensional = d->n_dims > 0;
+            break;
         }
         case ASR::ttypeType::Union: {
             ASR::Union_t* d = ASR::down_cast<ASR::Union_t>(t);
-            std::string res = symbol_name(d->m_union_type);
+            res = symbol_name(d->m_union_type);
             if( encode_dimensions_ ) {
                 encode_dimensions(d->n_dims, res, use_underscore_sep);
+                return res;
             }
-            return res;
+            is_dimensional = d->n_dims > 0;
+            break;
         }
         case ASR::ttypeType::Pointer: {
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(t);
             if( use_underscore_sep ) {
-                return "Pointer_" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_) + "_";
+                return "Pointer_" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_, set_dimensional_hint) + "_";
             }
-            return "Pointer[" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_) + "]";
+            return "Pointer[" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_, set_dimensional_hint) + "]";
         }
         case ASR::ttypeType::Const: {
             ASR::Const_t* p = ASR::down_cast<ASR::Const_t>(t);
             if( use_underscore_sep ) {
-                return "Const_" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_) + "_";
+                return "Const_" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_, set_dimensional_hint) + "_";
             }
-            return "Const[" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_) + "]";
+            return "Const[" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_, set_dimensional_hint) + "]";
         }
         default: {
             throw LCompilersException("Type encoding not implemented for "
                                       + std::to_string(t->type));
         }
     }
+    if( is_dimensional && set_dimensional_hint ) {
+        res += "dim";
+    }
+    return res;
 }
 
 static inline std::string get_type_code(ASR::ttype_t** types, size_t n_types,
