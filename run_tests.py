@@ -22,6 +22,7 @@ def single_test(test, verbose, no_llvm, update_reference,
     ast_new = is_included("ast_new")
     asr = is_included("asr")
     llvm = is_included("llvm")
+    llvm_dbg = is_included("llvm_dbg")
     cpp = is_included("cpp")
     c = is_included("c")
     wat = is_included("wat")
@@ -80,14 +81,22 @@ def single_test(test, verbose, no_llvm, update_reference,
         run_test(filename, "pass_{}".format(pass_), cmd,
                  filename, update_reference, extra_args)
 
-    if llvm:
-        if no_llvm:
-            log.info(f"{filename} * llvm   SKIPPED as requested")
-        else:
+    if no_llvm:
+        log.info(f"{filename} * llvm   SKIPPED as requested")
+    else:
+        if llvm:
             run_test(
                 filename,
                 "llvm",
                 "lpython --no-color --show-llvm {infile} -o {outfile}",
+                filename,
+                update_reference,
+                extra_args)
+        if llvm_dbg:
+            run_test(
+                filename,
+                "llvm_dbg",
+                "lpython --no-color --show-llvm -g {infile} -o {outfile}",
                 filename,
                 update_reference,
                 extra_args)

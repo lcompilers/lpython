@@ -54,7 +54,7 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
     std::unique_ptr<LFortran::LLVMModule> m;
     Result<std::unique_ptr<LFortran::LLVMModule>> res
         = asr_to_llvm(asr, diagnostics,
-            e->get_context(), al, lpm, compiler_options.platform,
+            e->get_context(), al, lpm, compiler_options,
             run_fn);
     if (res.ok) {
         m = std::move(res.result);

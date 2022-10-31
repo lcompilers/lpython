@@ -3,6 +3,7 @@
 # ast_new ... run the New Parser and output AST, compare against reference version
 # asr ... run the Semantics and output ASR, compare against reference version
 # llvm ... run the Semantics and output LLVM, compare against reference version
+# llvm_dbg ... run the Semantics and output LLVM with debug information
 # tokens ... output Tokens, compare against reference version
 # run ... compiles and executes the specified file;
 #         checks both runtime errors and successful runs
@@ -143,6 +144,7 @@ filename = "expr_01.py"
 ast = true
 asr = true
 llvm = true
+llvm_dbg = true
 
 [[test]]
 filename = "../integration_tests/array_01_decl.py"
