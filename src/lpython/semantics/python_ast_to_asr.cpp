@@ -395,14 +395,15 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
 
 ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *current_scope,
                 std::string mname, std::string cur_sym_name, std::string new_sym_name,
-                const Location &loc) {
+                const Location &loc, bool skip_current_scope_check=false) {
     ASR::symbol_t *t = m->m_symtab->resolve_symbol(cur_sym_name);
     if (!t) {
         throw SemanticError("The symbol '" + cur_sym_name + "' not found in the module '" + mname + "'",
                 loc);
     }
-    if (current_scope->get_scope().find(cur_sym_name) != current_scope->get_scope().end()) {
-        throw SemanticError(cur_sym_name + " already defined", loc);
+    if (!skip_current_scope_check &&
+        current_scope->get_scope().find(new_sym_name) != current_scope->get_scope().end()) {
+        throw SemanticError(new_sym_name + " already defined", loc);
     }
     if (ASR::is_a<ASR::Function_t>(*t)) {
         ASR::Function_t *mfn = ASR::down_cast<ASR::Function_t>(t);
@@ -4393,10 +4394,14 @@ public:
                         ASRUtils::expr_value(enum_member_variable->m_symbolic_value));
             } else if (ASR::is_a<ASR::Module_t>(*t)) {
                 ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
-                ASR::symbol_t *sym = import_from_module(al, m, current_scope, value,
-                                    x.m_attr, x.m_attr, x.base.base.loc);
-                LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*sym));
-                current_scope->add_symbol(x.m_attr, sym);
+                std::string sym_name = value + "@" + x.m_attr;
+                ASR::symbol_t *sym = current_scope->resolve_symbol(sym_name);
+                if (!sym) {
+                    sym = import_from_module(al, m, current_scope, value,
+                                    x.m_attr, sym_name, x.base.base.loc, true);
+                    LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*sym));
+                    current_scope->add_symbol(sym_name, sym);
+                }
                 tmp = ASR::make_Var_t(al, x.base.base.loc, sym);
             } else {
                 throw SemanticError("Only Variable type is supported for now in Attribute",
