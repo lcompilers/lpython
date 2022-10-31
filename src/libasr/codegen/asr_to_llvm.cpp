@@ -341,6 +341,34 @@ public:
         dict_api_sc->reset_iterators();
     }
 
+    void get_type_debug_info(ASR::ttype_t* t, std::string &type_name,
+            uint32_t &type_size, uint32_t &type_encoding) {
+        type_size = ASRUtils::extract_kind_from_ttype_t(t)*8;
+        switch( t->type ) {
+            case ASR::ttypeType::Integer: {
+                type_name = "integer";
+                type_encoding = llvm::dwarf::DW_ATE_signed;
+                break;
+            }
+            case ASR::ttypeType::Logical: {
+                type_name = "boolean";
+                type_encoding = llvm::dwarf::DW_ATE_boolean;
+                break;
+            }
+            case ASR::ttypeType::Real: {
+                if( type_size == 32 ) {
+                    type_name = "float";
+                } else if( type_size == 64 ) {
+                    type_name = "double";
+                }
+                type_encoding = llvm::dwarf::DW_ATE_float;
+                break;
+            }
+            default : throw LCompilersException("Debug information for the type: `"
+                + ASRUtils::type_to_str_python(t) + "` is not yet implemented");
+        }
+    }
+
     template <typename T>
     void debug_emit_loc(const T &x) {
         Location loc = x.base.base.loc;
@@ -357,18 +385,30 @@ public:
             debug_CU->getFilename(),
             debug_CU->getDirectory());
         llvm::DIScope *FContext = debug_Unit;
-        uint64_t LineNo = 0;
-        uint64_t ScopeLine = 0;
+        uint64_t LineNo, ScopeLine;
+        LineNo = ScopeLine = 0;
         std::string fn_debug_name = x.m_name;
-        llvm::DISubroutineType *dtype = DBuilder->createSubroutineType(
-        DBuilder->getOrCreateTypeArray(nullptr));
+        llvm::DIBasicType *return_type_info = nullptr;
+        if constexpr (std::is_same_v<T, ASR::Function_t>){
+            if(x.m_return_var != nullptr) {
+                std::string type_name; uint32_t type_size, type_encoding;
+                get_type_debug_info(ASRUtils::expr_type(x.m_return_var),
+                    type_name, type_size, type_encoding);
+                return_type_info = DBuilder->createBasicType(type_name,
+                    type_size, type_encoding);
+            }
+        } else if constexpr (std::is_same_v<T, ASR::Program_t>) {
+            return_type_info = DBuilder->createBasicType("integer", 32,
+                llvm::dwarf::DW_ATE_signed);
+        }
+        llvm::DISubroutineType *return_type = DBuilder->createSubroutineType(
+            DBuilder->getOrCreateTypeArray(return_type_info));
         SP = DBuilder->createFunction(
             FContext, fn_debug_name, llvm::StringRef(), debug_Unit,
-            LineNo, dtype, ScopeLine,
+            LineNo, return_type, ScopeLine,
             llvm::DINode::FlagPrototyped,
             llvm::DISubprogram::SPFlagDefinition);
         debug_current_scope = SP;
-        debug_emit_loc(x);
     }
 
     inline bool verify_dimensions_t(ASR::dimension_t* m_dims, int n_dims) {
@@ -2560,33 +2600,13 @@ public:
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(type, nullptr, v->m_name);
                     if (enable_debug_info) {
+                        // Reset the debug location
+                        builder->SetCurrentDebugLocation(nullptr);
                         uint64_t LineNo = v->base.base.loc.first;
                         std::string type_name;
-                        uint32_t type_size = ASRUtils::extract_kind_from_ttype_t(v->m_type)*8;
-                        uint32_t type_encoding;
-                        switch( v->m_type->type ) {
-                            case ASR::ttypeType::Integer: {
-                                type_name = "integer";
-                                type_encoding = llvm::dwarf::DW_ATE_signed;
-                                break;
-                            }
-                            case ASR::ttypeType::Logical: {
-                                type_name = "boolean";
-                                type_encoding = llvm::dwarf::DW_ATE_boolean;
-                                break;
-                            }
-                            case ASR::ttypeType::Real: {
-                                if( type_size == 32 ) {
-                                    type_name = "float";
-                                } else if( type_size == 64 ) {
-                                    type_name = "double";
-                                }
-                                type_encoding = llvm::dwarf::DW_ATE_float;
-                                break;
-                            }
-                            default : throw LCompilersException("Debug information for the type: `"
-                                + ASRUtils::type_to_str_python(v->m_type) + "` is not yet implemented");
-                        }
+                        uint32_t type_size, type_encoding;
+                        get_type_debug_info(v->m_type, type_name, type_size,
+                            type_encoding);
                         llvm::DILocalVariable *debug_var = DBuilder->createParameterVariable(
                             debug_current_scope, v->m_name, ++debug_arg_count, debug_Unit, LineNo,
                             DBuilder->createBasicType(type_name, type_size, type_encoding), true);

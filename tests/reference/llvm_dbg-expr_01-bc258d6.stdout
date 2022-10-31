@@ -18,11 +18,11 @@ define void @main0() !dbg !7 {
 .entry:
   %x = alloca i32, align 4, !dbg !8
   call void @llvm.dbg.declare(metadata i32* %x, metadata !9, metadata !DIExpression()), !dbg !11
-  %x2 = alloca i64, align 8, !dbg !8
+  %x2 = alloca i64, align 8
   call void @llvm.dbg.declare(metadata i64* %x2, metadata !12, metadata !DIExpression()), !dbg !14
-  %y = alloca float, align 4, !dbg !8
+  %y = alloca float, align 4
   call void @llvm.dbg.declare(metadata float* %y, metadata !15, metadata !DIExpression()), !dbg !17
-  %y2 = alloca double, align 8, !dbg !8
+  %y2 = alloca double, align 8
   call void @llvm.dbg.declare(metadata double* %y2, metadata !18, metadata !DIExpression()), !dbg !20
   store i32 25, i32* %x, align 4, !dbg !21
   %0 = load i32, i32* %x, align 4, !dbg !21
@@ -40,8 +40,8 @@ declare void @_lfortran_printf(i8*, ...)
 
 define i32 @main() !dbg !22 {
 .entry:
-  call void @_lpython_main_program(), !dbg !23
-  ret i32 0, !dbg !23
+  call void @_lpython_main_program(), !dbg !25
+  ret i32 0, !dbg !25
 }
 
 attributes #0 = { nounwind readnone speculatable willreturn }
@@ -54,7 +54,7 @@ attributes #0 = { nounwind readnone speculatable willreturn }
 !3 = distinct !DISubprogram(name: "_lpython_main_program", scope: !1, file: !1, type: !4, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
 !4 = !DISubroutineType(types: !5)
 !5 = !{null}
-!6 = !DILocation(line: 89, column: 89, scope: !3)
+!6 = !DILocation(line: 89, scope: !3)
 !7 = distinct !DISubprogram(name: "main0", scope: !1, file: !1, type: !4, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
 !8 = !DILocation(line: 0, scope: !7)
 !9 = !DILocalVariable(name: "x", arg: 1, scope: !7, file: !1, line: 17, type: !10)
@@ -69,6 +69,8 @@ attributes #0 = { nounwind readnone speculatable willreturn }
 !18 = !DILocalVariable(name: "y2", arg: 4, scope: !7, file: !1, line: 51, type: !19)
 !19 = !DIBasicType(name: "double", size: 64, encoding: DW_ATE_float)
 !20 = !DILocation(line: 51, scope: !7)
-!21 = !DILocation(line: 63, column: 63, scope: !7)
-!22 = distinct !DISubprogram(name: "main_program", scope: !1, file: !1, type: !4, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
-!23 = !DILocation(line: 0, scope: !22)
+!21 = !DILocation(line: 63, scope: !7)
+!22 = distinct !DISubprogram(name: "main_program", scope: !1, file: !1, type: !23, flags: DIFlagPrototyped, spFlags: DISPFlagDefinition, unit: !0, retainedNodes: !2)
+!23 = !DISubroutineType(types: !24)
+!24 = !{!10}
+!25 = !DILocation(line: 0, scope: !22)
