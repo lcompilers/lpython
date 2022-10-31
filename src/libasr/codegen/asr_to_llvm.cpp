@@ -345,7 +345,7 @@ public:
     void debug_emit_loc(const T &x) {
         Location loc = x.base.base.loc;
         uint64_t line = loc.first;
-        uint64_t column = loc.first;
+        uint64_t column = 0;
         builder->SetCurrentDebugLocation(
             llvm::DILocation::get(debug_current_scope->getContext(),
                 line, column, debug_current_scope));
