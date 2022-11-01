@@ -3585,10 +3585,13 @@ public:
         // For pointers, the actual LLVM variable will be a
         // double pointer, so we need to load one time and then
         // use it later on.
-        if( is_nested_pointer(llvm_tmp) ) {
+        if( is_nested_pointer(llvm_tmp) &&
+            !ASR::is_a<ASR::CPtr_t>(*asr_type) ) {
             llvm_tmp = CreateLoad(llvm_tmp);
         }
-        if( arr_descr->is_array(asr_type) ) {
+        // std::cout<<"asr_type: "<<ASRUtils::get_type_code(asr_type, false, false)<<" "<<arr_descr->is_array(asr_type)<<" "<<llvm_tmp->getType()->isPointerTy()<<std::endl;
+        if( arr_descr->is_array(asr_type) &&
+            !ASR::is_a<ASR::CPtr_t>(*asr_type) ) {
             llvm_tmp = CreateLoad(arr_descr->get_pointer_to_data(llvm_tmp));
         }
 
