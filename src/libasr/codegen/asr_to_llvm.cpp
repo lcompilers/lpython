@@ -4697,7 +4697,7 @@ public:
 
     void visit_IntegerConstant(const ASR::IntegerConstant_t &x) {
         int64_t val = x.m_n;
-        int a_kind = ((ASR::Integer_t*)(&(x.m_type->base)))->m_kind;
+        int a_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
         switch( a_kind ) {
 
             case 1: {
@@ -5795,11 +5795,24 @@ public:
                         } else {
                             auto finder = std::find(nested_globals.begin(),
                                     nested_globals.end(), h);
-                            LFORTRAN_ASSERT(finder != nested_globals.end());
-                            llvm::Value* ptr = module->getOrInsertGlobal(nested_desc_name,
-                                nested_global_struct);
-                            int idx = std::distance(nested_globals.begin(), finder);
-                            tmp = CreateLoad(llvm_utils->create_gep(ptr, idx));
+                            if (finder == nested_globals.end()) {
+                                if (arg->m_value == nullptr) {
+                                    throw CodeGenError(std::string(arg->m_name) + " isn't defined in any scope.");
+                                }
+                                this->visit_expr_wrapper(arg->m_value, true);
+                                llvm::BasicBlock &entry_block = builder->GetInsertBlock()->getParent()->getEntryBlock();
+                                llvm::IRBuilder<> builder0(context);
+                                builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
+                                llvm::AllocaInst *target = builder0.CreateAlloca(
+                                    get_type_from_ttype_t_util(arg->m_type), nullptr, "call_arg_value");
+                                builder->CreateStore(tmp, target);
+                                tmp = target;
+                            } else {
+                                llvm::Value* ptr = module->getOrInsertGlobal(nested_desc_name,
+                                    nested_global_struct);
+                                int idx = std::distance(nested_globals.begin(), finder);
+                                tmp = CreateLoad(llvm_utils->create_gep(ptr, idx));
+                            }
                         }
                     } else if (is_a<ASR::Function_t>(*symbol_get_past_external(
                         ASR::down_cast<ASR::Var_t>(x.m_args[i].m_value)->m_v))) {
