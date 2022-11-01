@@ -5800,13 +5800,15 @@ public:
                                     throw CodeGenError(std::string(arg->m_name) + " isn't defined in any scope.");
                                 }
                                 this->visit_expr_wrapper(arg->m_value, true);
-                                llvm::BasicBlock &entry_block = builder->GetInsertBlock()->getParent()->getEntryBlock();
-                                llvm::IRBuilder<> builder0(context);
-                                builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
-                                llvm::AllocaInst *target = builder0.CreateAlloca(
-                                    get_type_from_ttype_t_util(arg->m_type), nullptr, "call_arg_value");
-                                builder->CreateStore(tmp, target);
-                                tmp = target;
+                                if( x_abi != ASR::abiType::BindC ) {
+                                    llvm::BasicBlock &entry_block = builder->GetInsertBlock()->getParent()->getEntryBlock();
+                                    llvm::IRBuilder<> builder0(context);
+                                    builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
+                                    llvm::AllocaInst *target = builder0.CreateAlloca(
+                                        get_type_from_ttype_t_util(arg->m_type), nullptr, "call_arg_value");
+                                    builder->CreateStore(tmp, target);
+                                    tmp = target;
+                                }
                             } else {
                                 llvm::Value* ptr = module->getOrInsertGlobal(nested_desc_name,
                                     nested_global_struct);
