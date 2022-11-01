@@ -244,7 +244,7 @@ RUN(NAME test_c_interop_05   LABELS llvm c
         EXTRAFILES test_c_interop_05b.c)
 RUN(NAME bindc_03   LABELS llvm
         EXTRAFILES bindc_03b.c)
-RUN(NAME bindc_05   LABELS llvm
+RUN(NAME bindc_05   LABELS llvm c
         EXTRAFILES bindc_05b.c)
 RUN(NAME test_generics_01    LABELS cpython llvm)
 RUN(NAME test_cmath          LABELS cpython llvm c)
