@@ -10,6 +10,8 @@
 #include <complex>
 #include <sstream>
 #include <iterator>
+#include <cstdio>
+#include <cstdlib>
 
 #include <libasr/asr.h>
 #include <libasr/asr_utils.h>
@@ -162,9 +164,30 @@ namespace CastingUtil {
 }
 
 int save_pyc_files(const LFortran::ASR::TranslationUnit_t &u,
-                       std::string infile) {
+                   std::string infile) {
     LFORTRAN_ASSERT(LFortran::asr_verify(u));
-    std::string modfile_binary = LFortran::save_pycfile(u);
+    Allocator al(4*1024);
+    LFortran::SymbolTable *symtab =
+        al.make_new<LFortran::SymbolTable>(nullptr);
+    std::vector<std::pair<ASR::Module_t*, SymbolTable*>> module_parent;
+    for (auto &item : u.m_global_scope->get_scope()) {
+        if (LFortran::ASR::is_a<LFortran::ASR::Module_t>(*item.second)) {
+            LFortran::ASR::Module_t *m = LFortran::ASR::down_cast<LFortran::ASR::Module_t>(item.second);
+
+            symtab->add_symbol(std::string(m->m_name), item.second);
+            module_parent.push_back(std::make_pair(m, m->m_symtab->parent));
+            m->m_symtab->parent = symtab;
+        }
+    }
+
+    LFortran::Location loc;
+    LFortran::ASR::asr_t *asr = LFortran::ASR::make_TranslationUnit_t(al, loc,
+        symtab, nullptr, 0);
+    LFortran::ASR::TranslationUnit_t *tu =
+        LFortran::ASR::down_cast2<LFortran::ASR::TranslationUnit_t>(asr);
+    LFORTRAN_ASSERT(LFortran::asr_verify(*tu));
+
+    std::string modfile_binary = LFortran::save_pycfile(*tu);
 
     while( infile.back() != '.' ) {
         infile.pop_back();
@@ -174,6 +197,10 @@ int save_pyc_files(const LFortran::ASR::TranslationUnit_t &u,
         std::ofstream out;
         out.open(modfile, std::ofstream::out | std::ofstream::binary);
         out << modfile_binary;
+    }
+
+    for( auto& mod_par: module_parent ) {
+        mod_par.first->m_symtab->parent = mod_par.second;
     }
     return 0;
 }
@@ -255,10 +282,7 @@ ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
     lm.in_filename = infile;
     Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast,
         diagnostics, false, true, false, infile, "");
-    // TODO: Uncomment once a check is added for ensuring
-    // that module.py file hasn't changed between
-    // builds.
-    // save_pyc_files(*r2.result, infile + "c");
+    save_pyc_files(*r2.result, infile + "c");
     std::string input;
     read_file(infile, input);
     CompilerOptions compiler_options;
@@ -284,6 +308,23 @@ void fill_module_dependencies(SymbolTable* symtab, std::set<std::string>& mod_de
             fill_module_dependencies(sym_symtab, mod_deps);
         }
     }
+}
+
+bool is_compilation_needed(std::string file_path) {
+    struct stat result;
+    int64_t pyc_modtime = -1, py_modtime = -1;
+    if (stat(file_path.c_str(), &result) == 0) {
+        pyc_modtime = result.st_mtime;
+    }
+    file_path.pop_back();
+
+    if (stat(file_path.c_str(), &result) == 0) {
+        py_modtime = result.st_mtime;
+    }
+
+    return (pyc_modtime <= py_modtime) ||
+           py_modtime == -1 ||
+           pyc_modtime == -1;
 }
 
 ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
@@ -323,7 +364,17 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         found = set_module_path(infile0, rl_path, infile,
                                 path_used, input, ltypes, enum_py);
     } else {
-        mod1 = load_pycfile(al, input, false);
+        if( !is_compilation_needed(infile) ) {
+            mod1 = load_pycfile(al, input, false);
+        } else {
+            infile.pop_back();
+            mod1 = compile_module_till_asr(al, rl_path, infile, loc, err);
+            // std::string cmd = "lpython -c --disable-main " + infile;
+            // system(cmd.c_str());
+            // bool found = set_module_path(infile0c, rl_path, infile,
+            //                              path_used, input, ltypes, enum_py);
+            // mod1 = load_pycfile(al, input, false);
+        }
         fix_external_symbols(*mod1, *ASRUtils::get_tu_symtab(symtab));
         LFORTRAN_ASSERT(asr_verify(*mod1));
         compile_module = false;
@@ -340,6 +391,13 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
 
     if( compile_module ) {
         mod1 = compile_module_till_asr(al, rl_path, infile, loc, err);
+        // std::string cmd = "lpython -c --disable-main " + infile;
+        // system(cmd.c_str());
+        // bool found = set_module_path(infile0c, rl_path, infile,
+        //                              path_used, input, ltypes, enum_py);
+        // mod1 = load_pycfile(al, input, false);
+        fix_external_symbols(*mod1, *ASRUtils::get_tu_symtab(symtab));
+        LFORTRAN_ASSERT(asr_verify(*mod1));
     }
 
     // insert into `symtab`
