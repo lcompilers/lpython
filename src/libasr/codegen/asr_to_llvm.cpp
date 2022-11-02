@@ -162,6 +162,7 @@ public:
     std::unique_ptr<llvm::IRBuilder<>> builder;
     Platform platform;
     bool emit_debug_info;
+    std::string infile;
     bool emit_debug_line_column;
     Allocator &al;
 
@@ -240,12 +241,14 @@ public:
     llvm::DIFile *debug_Unit;
 
     ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, Platform platform,
-        bool emit_debug_info, diag::Diagnostics &diagnostics) :
+        bool emit_debug_info, std::string infile, bool emit_debug_line_column,
+        diag::Diagnostics &diagnostics) :
     diag{diagnostics},
     context(context),
     builder(std::make_unique<llvm::IRBuilder<>>(context)),
     platform{platform},
     emit_debug_info{emit_debug_info},
+    infile{infile},
     emit_debug_line_column{emit_debug_line_column},
     al{al},
     prototype_only(false),
@@ -1160,7 +1163,7 @@ public:
         if (emit_debug_info) {
             DBuilder = std::make_unique<llvm::DIBuilder>(*module);
             debug_CU = DBuilder->createCompileUnit(
-                llvm::dwarf::DW_LANG_C, DBuilder->createFile("xxexpr.py", "/yy/"),
+                llvm::dwarf::DW_LANG_C, DBuilder->createFile(infile, "."),
                 "LPython Compiler", false, "", 0);
         }
 
@@ -6369,12 +6372,14 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
         diag::Diagnostics &diagnostics,
         llvm::LLVMContext &context, Allocator &al,
         LCompilers::PassManager& pass_manager,
-        CompilerOptions &co, const std::string &run_fn)
+        CompilerOptions &co, const std::string &run_fn,
+        const std::string &infile)
 {
 #if LLVM_VERSION_MAJOR >= 15
     context.setOpaquePointers(false);
 #endif
-    ASRToLLVMVisitor v(al, context, co.platform, co.emit_debug_info, diagnostics);
+    ASRToLLVMVisitor v(al, context, co.platform, co.emit_debug_info, infile,
+        co.emit_debug_line_column, diagnostics);
     LCompilers::PassOptions pass_options;
     pass_options.run_fun = run_fn;
     pass_options.always_run = false;
