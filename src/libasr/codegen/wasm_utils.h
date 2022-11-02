@@ -44,7 +44,7 @@ struct Import {
 };
 
 struct Data {
-    std::string insts;
+    uint32_t insts_start_index;
     std::string text;
 };
 
