@@ -35,7 +35,7 @@ class X86Generator : public WASMDecoder<X86Generator> {
                 m_a.asm_push_r32(X86Reg::ebp);
                 m_a.asm_mov_r32_r32(X86Reg::ebp, X86Reg::esp);
 
-                // Initialze space for local variables to zero
+                // Initialze local variables to zero and thus allocate space
                 m_a.asm_mov_r32_imm32(X86Reg::eax, 0U);
                 for (uint32_t j = 0; j < codes.p[i].locals.size(); j++) {
                     for (uint32_t k = 0; k < codes.p[i].locals.p[j].count;
@@ -106,7 +106,9 @@ Result<int> wasm_to_x86(Vec<uint8_t> &wasm_bytes, Allocator &al,
         auto t1 = std::chrono::high_resolution_clock::now();
         m_a.verify();
         auto t2 = std::chrono::high_resolution_clock::now();
-        time_verify = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+        time_verify =
+            std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
+                .count();
     }
 
     {
@@ -124,9 +126,11 @@ Result<int> wasm_to_x86(Vec<uint8_t> &wasm_bytes, Allocator &al,
                   << std::endl;
         std::cout << "Generate asm: " << std::setw(5) << time_gen_x86_bytes
                   << std::endl;
-        std::cout << "Verify:       " << std::setw(5) << time_verify << std::endl;
+        std::cout << "Verify:       " << std::setw(5) << time_verify
+                  << std::endl;
         std::cout << "Save:       " << std::setw(5) << time_save << std::endl;
-        int total = time_decode_wasm + time_gen_x86_bytes + time_verify + time_save;
+        int total =
+            time_decode_wasm + time_gen_x86_bytes + time_verify + time_save;
         std::cout << "Total:      " << std::setw(5) << total << std::endl;
     }
     return 0;

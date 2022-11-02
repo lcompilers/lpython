@@ -43,7 +43,7 @@ class X86Visitor : public BaseWASMVisitor<X86Visitor> {
             if (func_index == 0) {
                 m_a.asm_call_label("print_i32");
             } else if (func_index == 5) {
-                // currently ignoring print_buf
+                // currently ignoring flush_buf
             } else if (func_index == 6) {
                 m_a.asm_call_label("exit");
             } else {
@@ -51,12 +51,15 @@ class X86Visitor : public BaseWASMVisitor<X86Visitor> {
                                  std::to_string(func_index) +
                                  " not yet supported";
             }
-        } else {
-            m_a.asm_call_label(exports[func_index - 7].name);
+            return;
         }
 
+        uint32_t imports_adjusted_func_index = func_index - 7U;
+        m_a.asm_call_label(exports[imports_adjusted_func_index].name);
+
+
         // Pop the passed function arguments
-        wasm::FuncType func_type = func_types[type_indices[func_index]];
+        wasm::FuncType func_type = func_types[type_indices[imports_adjusted_func_index]];
         for (uint32_t i = 0; i < func_type.param_types.size(); i++) {
             m_a.asm_pop_r32(X86Reg::eax);
         }
@@ -68,7 +71,7 @@ class X86Visitor : public BaseWASMVisitor<X86Visitor> {
             m_a.asm_mov_r32_m32(
                 X86Reg::eax, &base, nullptr, 1,
                 -(4 * (func_type.param_types.size() + 2 +
-                       func_codes[func_index].locals.size() + 1)));
+                       func_codes[imports_adjusted_func_index].locals.size() + 1)));
 
             // push eax value onto stack
             m_a.asm_push_r32(X86Reg::eax);
