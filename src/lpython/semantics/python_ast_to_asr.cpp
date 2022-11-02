@@ -2940,7 +2940,7 @@ public:
             empty_dims.reserve(al, 1);
             type = ASRUtils::duplicate_type(al, type, &empty_dims);
             tmp = ASR::make_ArrayItem_t(al, x.base.base.loc, v_Var, args.p,
-                        args.size(), type, nullptr);
+                        args.size(), type, ASR::arraystorageType::RowMajor, nullptr);
         } else {
             tmp = ASR::make_ArraySection_t(al, x.base.base.loc, v_Var, args.p,
                         args.size(), type, nullptr);
@@ -5524,7 +5524,7 @@ public:
                     ASR::ListConstant_t* list = ASR::down_cast<ASR::ListConstant_t>(arg);
                     ASR::expr_t **m_args = list->m_args;
                     size_t n_args = list->n_args;
-                    tmp = ASR::make_ArrayConstant_t(al, x.base.base.loc, m_args, n_args, type);
+                    tmp = ASR::make_ArrayConstant_t(al, x.base.base.loc, m_args, n_args, type, ASR::arraystorageType::RowMajor);
                 } else {
                     throw SemanticError("array accepts only list for now, got " +
                                         ASRUtils::type_to_str(type) + " type.", x.base.base.loc);

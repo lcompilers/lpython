@@ -273,8 +273,8 @@ expr
 
     | Var(symbol v)
 
-    | ArrayConstant(expr* args, ttype type)
-    | ArrayItem(expr v, array_index* args, ttype type, expr? value)
+    | ArrayConstant(expr* args, ttype type, arraystorage storage_format)
+    | ArrayItem(expr v, array_index* args, ttype type, arraystorage storage_format, expr? value)
     | ArraySection(expr v, array_index* args, ttype type, expr? value)
     | ArraySize(expr v, expr? dim, ttype type, expr? value)
     | ArrayBound(expr v, expr? dim, ttype type, arraybound bound,
