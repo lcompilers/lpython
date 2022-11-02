@@ -161,7 +161,7 @@ public:
     std::unique_ptr<llvm::Module> module;
     std::unique_ptr<llvm::IRBuilder<>> builder;
     Platform platform;
-    bool enable_debug_info;
+    bool emit_debug_info;
     Allocator &al;
 
     llvm::Value *tmp;
@@ -239,11 +239,11 @@ public:
     llvm::DIFile *debug_Unit;
 
     ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, Platform platform,
-        bool enable_debug_info, diag::Diagnostics &diagnostics) :
+        bool emit_debug_info, diag::Diagnostics &diagnostics) :
     diag{diagnostics},
     context(context),
     builder(std::make_unique<llvm::IRBuilder<>>(context)),
-    platform{platform}, enable_debug_info{enable_debug_info},
+    platform{platform}, emit_debug_info{emit_debug_info},
     al{al},
     prototype_only(false),
     llvm_utils(std::make_unique<LLVMUtils>(context, builder.get())),
@@ -1147,7 +1147,7 @@ public:
         module = std::make_unique<llvm::Module>("LFortran", context);
         module->setDataLayout("");
 
-        if (enable_debug_info) {
+        if (emit_debug_info) {
             DBuilder = std::make_unique<llvm::DIBuilder>(*module);
             debug_CU = DBuilder->createCompileUnit(
                 llvm::dwarf::DW_LANG_C, DBuilder->createFile("xxexpr.py", "/yy/"),
@@ -2249,7 +2249,7 @@ public:
                 llvm::Function::ExternalLinkage, "main", module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
-        if (enable_debug_info) {
+        if (emit_debug_info) {
             llvm::DISubprogram *SP;
             debug_emit_function(x, SP);
             F->setSubprogram(SP);
@@ -2266,7 +2266,7 @@ public:
         dict_api_sc->set_is_dict_present(is_dict_present_copy_sc);
 
         // Finalize the debug info.
-        if (enable_debug_info) DBuilder->finalize();
+        if (emit_debug_info) DBuilder->finalize();
     }
 
     /*
@@ -2599,7 +2599,7 @@ public:
                         }
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(type, nullptr, v->m_name);
-                    if (enable_debug_info) {
+                    if (emit_debug_info) {
                         // Reset the debug location
                         builder->SetCurrentDebugLocation(nullptr);
                         uint64_t LineNo = v->base.base.loc.first;
@@ -3183,7 +3183,7 @@ public:
         dict_api_sc->set_is_dict_present(is_dict_present_copy_sc);
 
         // Finalize the debug info.
-        if (enable_debug_info) DBuilder->finalize();
+        if (emit_debug_info) DBuilder->finalize();
     }
 
     void instantiate_function(const ASR::Function_t &x){
@@ -3218,19 +3218,19 @@ public:
                     llvm::Function::ExternalLinkage, fn_name, module.get());
 
                 // Add Debugging information to the LLVM function F
-                if (enable_debug_info) {
+                if (emit_debug_info) {
                     debug_emit_function(x, SP);
                     F->setSubprogram(SP);
                 }
             } else {
                 uint32_t old_h = llvm_symtab_fn_names[fn_name];
                 F = llvm_symtab_fn[old_h];
-                if (enable_debug_info) {
+                if (emit_debug_info) {
                     SP = (llvm::DISubprogram*) llvm_symtab_fn_discope[old_h];
                 }
             }
             llvm_symtab_fn[h] = F;
-            if (enable_debug_info) llvm_symtab_fn_discope[h] = SP;
+            if (emit_debug_info) llvm_symtab_fn_discope[h] = SP;
 
             // Instantiate (pre-declare) all nested interfaces
             for (auto &item : x.m_symtab->get_scope()) {
@@ -3427,12 +3427,12 @@ public:
         parent_function = &x;
         parent_function_hash = h;
         llvm::Function* F = llvm_symtab_fn[h];
-        if (enable_debug_info) debug_current_scope = llvm_symtab_fn_discope[h];
+        if (emit_debug_info) debug_current_scope = llvm_symtab_fn_discope[h];
         proc_return = llvm::BasicBlock::Create(context, "return");
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
         builder->SetInsertPoint(BB);
-        if (enable_debug_info) debug_emit_loc(x);
+        if (emit_debug_info) debug_emit_loc(x);
         declare_args(x, *F);
         declare_local_vars(x);
     }
@@ -3713,7 +3713,7 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
-        if (enable_debug_info) debug_emit_loc(x);
+        if (emit_debug_info) debug_emit_loc(x);
         if( x.m_overloaded ) {
             this->visit_stmt(*x.m_overloaded);
             return ;
@@ -6012,7 +6012,7 @@ public:
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        if (enable_debug_info) debug_emit_loc(x);
+        if (emit_debug_info) debug_emit_loc(x);
         if( ASRUtils::is_intrinsic_optimization(x.m_name) ) {
             ASR::Function_t* routine = ASR::down_cast<ASR::Function_t>(
                         ASRUtils::symbol_get_past_external(x.m_name));
@@ -6359,7 +6359,7 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
 #if LLVM_VERSION_MAJOR >= 15
     context.setOpaquePointers(false);
 #endif
-    ASRToLLVMVisitor v(al, context, co.platform, co.arg_g, diagnostics);
+    ASRToLLVMVisitor v(al, context, co.platform, co.emit_debug_info, diagnostics);
     LCompilers::PassOptions pass_options;
     pass_options.run_fun = run_fn;
     pass_options.always_run = false;

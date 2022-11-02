@@ -1134,7 +1134,7 @@ int main(int argc, char *argv[])
         app.add_option("-I", compiler_options.import_path, "Specify the path"
             "to look for the module")->allow_extra_args(false);
         // app.add_option("-J", arg_J, "Where to save mod files");
-        app.add_flag("-g", compiler_options.arg_g, "Compile with debugging information");
+        app.add_flag("-g", compiler_options.emit_debug_info, "Compile with debugging information");
         // app.add_option("-D", compiler_options.c_preprocessor_defines, "Define <macro>=<value> (or 1 if <value> omitted)")->allow_extra_args(false);
         app.add_flag("--version", arg_version, "Display compiler version information");
 
