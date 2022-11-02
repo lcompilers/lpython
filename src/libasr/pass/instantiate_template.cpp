@@ -158,7 +158,7 @@ public:
 
         ASR::ttype_t *type = substitute_type(x->m_type);
 
-        return ASR::make_ArrayItem_t(al, x->base.base.loc, m_v, args.p, x->n_args, type, m_value);
+        return ASR::make_ArrayItem_t(al, x->base.base.loc, m_v, args.p, x->n_args, type, ASR::arraystorageType::RowMajor, m_value);
     }
 
     ASR::asr_t* duplicate_ListItem(ASR::ListItem_t *x) {

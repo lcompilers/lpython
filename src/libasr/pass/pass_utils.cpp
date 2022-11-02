@@ -173,7 +173,8 @@ namespace LFortran {
             ASR::expr_t* array_ref = LFortran::ASRUtils::EXPR(ASR::make_ArrayItem_t(al,
                                                               arr_expr->base.loc, arr_expr,
                                                               args.p, args.size(),
-                                                              _type, nullptr));
+                                                              _type, ASR::arraystorageType::RowMajor,
+                                                              nullptr));
             return array_ref;
         }
 
@@ -195,7 +196,8 @@ namespace LFortran {
             ASR::expr_t* arr_var = ASRUtils::EXPR(ASR::make_Var_t(al, loc, arr));
             ASR::expr_t* array_ref = LFortran::ASRUtils::EXPR(ASR::make_ArrayItem_t(al, loc, arr_var,
                                                                 args.p, args.size(),
-                                                                _type, nullptr));
+                                                                _type, ASR::arraystorageType::RowMajor,
+                                                                nullptr));
             return array_ref;
         }
 

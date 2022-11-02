@@ -1429,9 +1429,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 wasm::emit_i32_sub(m_code_section, m_al);
                 size_t jmin, jmax;
 
-                // TODO: add this flag to ASR for each array:
-                bool column_major = false;
-                if (column_major) {
+                if (x.m_storage_format == ASR::arraystorageType::ColMajor) {
                     // Column-major order
                     jmin = 0;
                     jmax = i;
