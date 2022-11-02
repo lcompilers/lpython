@@ -10,6 +10,7 @@ namespace LFortran {
 class FunctionInstantiator : public ASR::BaseExprStmtDuplicator<FunctionInstantiator>
 {
 public:
+    SymbolTable *func_scope;
     SymbolTable *current_scope;
     std::map<std::string, ASR::ttype_t*> subs;
     std::map<std::string, ASR::symbol_t*> rt_subs;
@@ -18,10 +19,10 @@ public:
     std::set<std::string> dependencies;
 
     FunctionInstantiator(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,
-            std::map<std::string, ASR::symbol_t*> rt_subs, SymbolTable *current_scope,
+            std::map<std::string, ASR::symbol_t*> rt_subs, SymbolTable *func_scope,
             std::string new_func_name):
         BaseExprStmtDuplicator(al),
-        current_scope{current_scope},
+        func_scope{func_scope},
         subs{subs},
         rt_subs{rt_subs},
         new_func_name{new_func_name}
@@ -29,7 +30,6 @@ public:
 
     ASR::asr_t* instantiate_Function(ASR::Function_t *x) {
         dependencies.clear();
-        SymbolTable *parent_scope = current_scope;
         current_scope = al.make_new<SymbolTable>(x->m_symtab->parent);
 
         Vec<ASR::expr_t*> args;
@@ -135,7 +135,6 @@ public:
 
         ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(result);
         x->m_symtab->parent->add_symbol(new_func_name, t);
-        current_scope = parent_scope;
 
         return result;
     }
@@ -223,7 +222,7 @@ public:
 
     ASR::asr_t* duplicate_FunctionCall(ASR::FunctionCall_t *x) {
         std::string sym_name = ASRUtils::symbol_name(x->m_name);
-        ASR::symbol_t *name = current_scope->get_symbol(sym_name);
+        ASR::symbol_t *name = func_scope->get_symbol(sym_name);
         Vec<ASR::call_arg_t> args;
         args.reserve(al, x->n_args);
         for (size_t i=0; i<x->n_args; i++) {
