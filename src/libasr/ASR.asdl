@@ -361,6 +361,8 @@ integerboz = Binary | Hex | Octal
 
 arraybound = LBound | UBound
 
+arraystorage = RowMajor | ColMajor
+
 cast_kind
     = RealToInteger
     | IntegerToReal
