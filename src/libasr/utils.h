@@ -39,6 +39,7 @@ struct CompilerOptions {
     std::string target = "";
     std::string arg_o = "";
     bool emit_debug_info = false;
+    bool emit_debug_line_column = false;
     std::string import_path = "";
     Platform platform;
 

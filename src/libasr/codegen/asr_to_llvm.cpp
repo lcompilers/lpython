@@ -162,6 +162,7 @@ public:
     std::unique_ptr<llvm::IRBuilder<>> builder;
     Platform platform;
     bool emit_debug_info;
+    bool emit_debug_line_column;
     Allocator &al;
 
     llvm::Value *tmp;
@@ -243,7 +244,9 @@ public:
     diag{diagnostics},
     context(context),
     builder(std::make_unique<llvm::IRBuilder<>>(context)),
-    platform{platform}, emit_debug_info{emit_debug_info},
+    platform{platform},
+    emit_debug_info{emit_debug_info},
+    emit_debug_line_column{emit_debug_line_column},
     al{al},
     prototype_only(false),
     llvm_utils(std::make_unique<LLVMUtils>(context, builder.get())),
@@ -372,8 +375,12 @@ public:
     template <typename T>
     void debug_emit_loc(const T &x) {
         Location loc = x.base.base.loc;
-        uint64_t line = loc.first;
-        uint64_t column = 0;
+        uint32_t line, column;
+        if (emit_debug_line_column) {
+        } else {
+            line = loc.first;
+            column = 0;
+        }
         builder->SetCurrentDebugLocation(
             llvm::DILocation::get(debug_current_scope->getContext(),
                 line, column, debug_current_scope));
@@ -385,8 +392,11 @@ public:
             debug_CU->getFilename(),
             debug_CU->getDirectory());
         llvm::DIScope *FContext = debug_Unit;
-        uint64_t LineNo, ScopeLine;
-        LineNo = ScopeLine = 0;
+        uint32_t line, column;
+        if (emit_debug_line_column) {
+        } else {
+            line = 0;
+        }
         std::string fn_debug_name = x.m_name;
         llvm::DIBasicType *return_type_info = nullptr;
         if constexpr (std::is_same_v<T, ASR::Function_t>){
@@ -405,7 +415,7 @@ public:
             DBuilder->getOrCreateTypeArray(return_type_info));
         SP = DBuilder->createFunction(
             FContext, fn_debug_name, llvm::StringRef(), debug_Unit,
-            LineNo, return_type, ScopeLine,
+            line, return_type, 0, // TODO: ScopeLine
             llvm::DINode::FlagPrototyped,
             llvm::DISubprogram::SPFlagDefinition);
         debug_current_scope = SP;
@@ -2602,17 +2612,22 @@ public:
                     if (emit_debug_info) {
                         // Reset the debug location
                         builder->SetCurrentDebugLocation(nullptr);
-                        uint64_t LineNo = v->base.base.loc.first;
+                        uint32_t line, column;
+                        if (emit_debug_line_column) {
+                        } else {
+                            line = v->base.base.loc.first;
+                            column = 0;
+                        }
                         std::string type_name;
                         uint32_t type_size, type_encoding;
                         get_type_debug_info(v->m_type, type_name, type_size,
                             type_encoding);
                         llvm::DILocalVariable *debug_var = DBuilder->createParameterVariable(
-                            debug_current_scope, v->m_name, ++debug_arg_count, debug_Unit, LineNo,
+                            debug_current_scope, v->m_name, ++debug_arg_count, debug_Unit, line,
                             DBuilder->createBasicType(type_name, type_size, type_encoding), true);
                         DBuilder->insertDeclare(ptr, debug_var, DBuilder->createExpression(),
                             llvm::DILocation::get(debug_current_scope->getContext(),
-                            LineNo, 0, debug_current_scope), builder->GetInsertBlock());
+                            line, 0, debug_current_scope), builder->GetInsertBlock());
                     }
 
                     if( ASR::is_a<ASR::Struct_t>(*v->m_type) ) {
