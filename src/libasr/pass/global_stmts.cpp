@@ -29,7 +29,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
         SymbolTable *fn_scope = al.make_new<SymbolTable>(unit.m_global_scope);
 
         ASR::ttype_t *type;
-        Location loc;
+        Location loc = unit.base.base.loc;
         ASR::asr_t *return_var=nullptr;
         ASR::expr_t *return_var_ref=nullptr;
         char *var_name;
