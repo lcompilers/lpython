@@ -65,6 +65,7 @@ struct SymbolTable {
 
     void erase_symbol(const std::string &name) {
         //auto it = scope.find(to_lower(name));
+        LFORTRAN_ASSERT(scope.find(name) != scope.end())
         scope.erase(name);
     }
 
