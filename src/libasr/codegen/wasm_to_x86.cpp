@@ -11,12 +11,128 @@ namespace LFortran {
 
 namespace wasm {
 
-class X86Generator : public WASMDecoder<X86Generator> {
+class X86Visitor : public WASMDecoder<X86Visitor>,
+                   public WASM_INSTS_VISITOR::BaseWASMVisitor<X86Visitor> {
    public:
-    X86Generator(Allocator &al, diag::Diagnostics &diagonostics)
-        : WASMDecoder(al, diagonostics) {}
+    X86Assembler &m_a;
+    uint32_t cur_func_idx;
 
-    void gen_x86_bytes(X86Assembler &m_a) {
+    X86Visitor(X86Assembler &m_a, Allocator &al,
+               diag::Diagnostics &diagonostics, Vec<uint8_t> &code)
+        : WASMDecoder(al, diagonostics),
+          BaseWASMVisitor(code, 0U /* temporary offset */),
+          m_a(m_a) {
+        wasm_bytes.from_pointer_n(code.data(), code.size());
+    }
+
+    void visit_Return() {}
+
+    void visit_Call(uint32_t func_index) {
+        if (func_index <= 6U) {
+            // call to imported functions
+            if (func_index == 0) {
+                m_a.asm_call_label("print_i32");
+            } else if (func_index == 5) {
+                // currently ignoring flush_buf
+            } else if (func_index == 6) {
+                m_a.asm_call_label("exit");
+            } else {
+                std::cerr << "Call to imported function with index " +
+                                 std::to_string(func_index) +
+                                 " not yet supported";
+            }
+            return;
+        }
+
+        uint32_t imports_adjusted_func_index = func_index - 7U;
+        m_a.asm_call_label(exports[imports_adjusted_func_index].name);
+
+        // Pop the passed function arguments
+        wasm::FuncType func_type =
+            func_types[type_indices[imports_adjusted_func_index]];
+        for (uint32_t i = 0; i < func_type.param_types.size(); i++) {
+            m_a.asm_pop_r32(X86Reg::eax);
+        }
+
+        // Adjust the return values of the called function
+        X86Reg base = X86Reg::esp;
+        for (uint32_t i = 0; i < func_type.result_types.size(); i++) {
+            // take value into eax
+            m_a.asm_mov_r32_m32(
+                X86Reg::eax, &base, nullptr, 1,
+                -(4 * (func_type.param_types.size() + 2 +
+                       codes[imports_adjusted_func_index].locals.size() + 1)));
+
+            // push eax value onto stack
+            m_a.asm_push_r32(X86Reg::eax);
+        }
+    }
+
+    void visit_LocalGet(uint32_t localidx) {
+        X86Reg base = X86Reg::ebp;
+        int no_of_params =
+            (int)func_types[type_indices[cur_func_idx]].param_types.size();
+        if ((int)localidx < no_of_params) {
+            m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1,
+                                (4 * localidx + 8));
+            m_a.asm_push_r32(X86Reg::eax);
+        } else {
+            m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1,
+                                -(4 * ((int)localidx - no_of_params + 1)));
+            m_a.asm_push_r32(X86Reg::eax);
+        }
+    }
+    void visit_LocalSet(uint32_t localidx) {
+        X86Reg base = X86Reg::ebp;
+        int no_of_params =
+            (int)func_types[type_indices[cur_func_idx]].param_types.size();
+        if ((int)localidx < no_of_params) {
+            m_a.asm_pop_r32(X86Reg::eax);
+            m_a.asm_mov_m32_r32(&base, nullptr, 1, (4 * localidx + 8),
+                                X86Reg::eax);
+        } else {
+            m_a.asm_pop_r32(X86Reg::eax);
+            m_a.asm_mov_m32_r32(&base, nullptr, 1,
+                                -(4 * ((int)localidx - no_of_params + 1)),
+                                X86Reg::eax);
+        }
+    }
+
+    void visit_I32Const(int32_t value) {
+        m_a.asm_push_imm32(value);
+        // if (value < 0) {
+        // 	m_a.asm_pop_r32(X86Reg::eax);
+        // 	m_a.asm_neg_r32(X86Reg::eax);
+        // 	m_a.asm_push_r32(X86Reg::eax);
+        // }
+    }
+
+    void visit_I32Add() {
+        m_a.asm_pop_r32(X86Reg::ebx);
+        m_a.asm_pop_r32(X86Reg::eax);
+        m_a.asm_add_r32_r32(X86Reg::eax, X86Reg::ebx);
+        m_a.asm_push_r32(X86Reg::eax);
+    }
+    void visit_I32Sub() {
+        m_a.asm_pop_r32(X86Reg::ebx);
+        m_a.asm_pop_r32(X86Reg::eax);
+        m_a.asm_sub_r32_r32(X86Reg::eax, X86Reg::ebx);
+        m_a.asm_push_r32(X86Reg::eax);
+    }
+    void visit_I32Mul() {
+        m_a.asm_pop_r32(X86Reg::ebx);
+        m_a.asm_pop_r32(X86Reg::eax);
+        m_a.asm_mul_r32(X86Reg::ebx);
+        m_a.asm_push_r32(X86Reg::eax);
+    }
+    void visit_I32DivS() {
+        m_a.asm_pop_r32(X86Reg::ebx);
+        m_a.asm_pop_r32(X86Reg::eax);
+        m_a.asm_div_r32(X86Reg::ebx);
+        m_a.asm_push_r32(X86Reg::eax);
+    }
+
+    void gen_x86_bytes() {
         emit_elf32_header(m_a);
 
         // Add runtime library functions
@@ -44,13 +160,9 @@ class X86Generator : public WASMDecoder<X86Generator> {
                     }
                 }
 
-                WASM_INSTS_VISITOR::X86Visitor v =
-                    WASM_INSTS_VISITOR::X86Visitor(
-                        wasm_bytes, codes.p[i].insts_start_index, m_a,
-                        func_types, imports, type_indices, exports, codes,
-                        data_segments, i);
-
-                v.decode_instructions();
+                offset = codes.p[i].insts_start_index;
+                cur_func_idx = i;
+                decode_instructions();
 
                 // Restore stack
                 m_a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
@@ -75,14 +187,12 @@ Result<int> wasm_to_x86(Vec<uint8_t> &wasm_bytes, Allocator &al,
 
     X86Assembler m_a(al);
 
-    wasm::X86Generator x86_generator(al, diagnostics);
-    x86_generator.wasm_bytes.from_pointer_n(wasm_bytes.data(),
-                                            wasm_bytes.size());
+    wasm::X86Visitor x86_visitor(m_a, al, diagnostics, wasm_bytes);
 
     {
         auto t1 = std::chrono::high_resolution_clock::now();
         try {
-            x86_generator.decode_wasm();
+            x86_visitor.decode_wasm();
         } catch (const CodeGenError &e) {
             diagnostics.diagnostics.push_back(e.d);
             return Error();
@@ -95,7 +205,7 @@ Result<int> wasm_to_x86(Vec<uint8_t> &wasm_bytes, Allocator &al,
 
     {
         auto t1 = std::chrono::high_resolution_clock::now();
-        x86_generator.gen_x86_bytes(m_a);
+        x86_visitor.gen_x86_bytes();
         auto t2 = std::chrono::high_resolution_clock::now();
         time_gen_x86_bytes =
             std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
