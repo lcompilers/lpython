@@ -38,7 +38,8 @@ struct CompilerOptions {
     bool implicit_interface = false;
     std::string target = "";
     std::string arg_o = "";
-    bool arg_g = false;
+    bool emit_debug_info = false;
+    bool emit_debug_line_column = false;
     std::string import_path = "";
     Platform platform;
 

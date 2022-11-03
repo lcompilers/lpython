@@ -558,7 +558,7 @@ int emit_llvm(const std::string &infile,
     // ASR -> LLVM
     LFortran::PythonCompiler fe(compiler_options);
     LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
-        res = fe.get_llvm3(*asr, pass_manager, diagnostics);
+        res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -629,7 +629,7 @@ int compile_python_to_object_file(
     std::unique_ptr<LFortran::LLVMModule> m;
     auto asr_to_llvm_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
-        res = fe.get_llvm3(*asr, pass_manager, diagnostics);
+        res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
     auto asr_to_llvm_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("ASR to LLVM", std::chrono::duration<double, std::milli>(asr_to_llvm_end - asr_to_llvm_start).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
@@ -1279,7 +1279,9 @@ int main(int argc, char *argv[])
         app.add_option("-I", compiler_options.import_path, "Specify the path"
             "to look for the module")->allow_extra_args(false);
         // app.add_option("-J", arg_J, "Where to save mod files");
-        app.add_flag("-g", compiler_options.arg_g, "Compile with debugging information");
+        app.add_flag("-g", compiler_options.emit_debug_info, "Compile with debugging information");
+        app.add_flag("--debug-with-line-column", compiler_options.emit_debug_line_column,
+            "Convert the linear location info into line + column in the debugging information");
         // app.add_option("-D", compiler_options.c_preprocessor_defines, "Define <macro>=<value> (or 1 if <value> omitted)")->allow_extra_args(false);
         app.add_flag("--version", arg_version, "Display compiler version information");
 

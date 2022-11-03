@@ -12,7 +12,8 @@ namespace LFortran {
             llvm::LLVMContext &context, Allocator &al,
             LCompilers::PassManager& pass_manager,
             CompilerOptions &co,
-            const std::string &run_fn);
+            const std::string &run_fn,
+            const std::string &infile);
 
 } // namespace LFortran
 

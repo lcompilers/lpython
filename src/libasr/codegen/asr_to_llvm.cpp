@@ -161,7 +161,9 @@ public:
     std::unique_ptr<llvm::Module> module;
     std::unique_ptr<llvm::IRBuilder<>> builder;
     Platform platform;
-    bool enable_debug_info;
+    bool emit_debug_info;
+    std::string infile;
+    bool emit_debug_line_column;
     Allocator &al;
 
     llvm::Value *tmp;
@@ -239,11 +241,15 @@ public:
     llvm::DIFile *debug_Unit;
 
     ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, Platform platform,
-        bool enable_debug_info, diag::Diagnostics &diagnostics) :
+        bool emit_debug_info, std::string infile, bool emit_debug_line_column,
+        diag::Diagnostics &diagnostics) :
     diag{diagnostics},
     context(context),
     builder(std::make_unique<llvm::IRBuilder<>>(context)),
-    platform{platform}, enable_debug_info{enable_debug_info},
+    platform{platform},
+    emit_debug_info{emit_debug_info},
+    infile{infile},
+    emit_debug_line_column{emit_debug_line_column},
     al{al},
     prototype_only(false),
     llvm_utils(std::make_unique<LLVMUtils>(context, builder.get())),
@@ -369,11 +375,24 @@ public:
         }
     }
 
+    void debug_get_line_column(const uint32_t &loc_first,
+            uint32_t &line, uint32_t &column) {
+        LocationManager lm;
+        lm.in_filename = infile;
+        lm.init_simple(LFortran::read_file(infile));
+        lm.pos_to_linecol(lm.output_to_input_pos(loc_first, false), line, column);
+    }
+
     template <typename T>
     void debug_emit_loc(const T &x) {
         Location loc = x.base.base.loc;
-        uint64_t line = loc.first;
-        uint64_t column = 0;
+        uint32_t line, column;
+        if (emit_debug_line_column) {
+            debug_get_line_column(loc.first, line, column);
+        } else {
+            line = loc.first;
+            column = 0;
+        }
         builder->SetCurrentDebugLocation(
             llvm::DILocation::get(debug_current_scope->getContext(),
                 line, column, debug_current_scope));
@@ -385,8 +404,12 @@ public:
             debug_CU->getFilename(),
             debug_CU->getDirectory());
         llvm::DIScope *FContext = debug_Unit;
-        uint64_t LineNo, ScopeLine;
-        LineNo = ScopeLine = 0;
+        uint32_t line, column;
+        if (emit_debug_line_column) {
+            debug_get_line_column(x.base.base.loc.first, line, column);
+        } else {
+            line = 0;
+        }
         std::string fn_debug_name = x.m_name;
         llvm::DIBasicType *return_type_info = nullptr;
         if constexpr (std::is_same_v<T, ASR::Function_t>){
@@ -405,7 +428,7 @@ public:
             DBuilder->getOrCreateTypeArray(return_type_info));
         SP = DBuilder->createFunction(
             FContext, fn_debug_name, llvm::StringRef(), debug_Unit,
-            LineNo, return_type, ScopeLine,
+            line, return_type, 0, // TODO: ScopeLine
             llvm::DINode::FlagPrototyped,
             llvm::DISubprogram::SPFlagDefinition);
         debug_current_scope = SP;
@@ -1147,10 +1170,10 @@ public:
         module = std::make_unique<llvm::Module>("LFortran", context);
         module->setDataLayout("");
 
-        if (enable_debug_info) {
+        if (emit_debug_info) {
             DBuilder = std::make_unique<llvm::DIBuilder>(*module);
             debug_CU = DBuilder->createCompileUnit(
-                llvm::dwarf::DW_LANG_C, DBuilder->createFile("xxexpr.py", "/yy/"),
+                llvm::dwarf::DW_LANG_C, DBuilder->createFile(infile, "."),
                 "LPython Compiler", false, "", 0);
         }
 
@@ -2249,7 +2272,7 @@ public:
                 llvm::Function::ExternalLinkage, "main", module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
-        if (enable_debug_info) {
+        if (emit_debug_info) {
             llvm::DISubprogram *SP;
             debug_emit_function(x, SP);
             F->setSubprogram(SP);
@@ -2266,7 +2289,7 @@ public:
         dict_api_sc->set_is_dict_present(is_dict_present_copy_sc);
 
         // Finalize the debug info.
-        if (enable_debug_info) DBuilder->finalize();
+        if (emit_debug_info) DBuilder->finalize();
     }
 
     /*
@@ -2599,20 +2622,26 @@ public:
                         }
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(type, nullptr, v->m_name);
-                    if (enable_debug_info) {
+                    if (emit_debug_info) {
                         // Reset the debug location
                         builder->SetCurrentDebugLocation(nullptr);
-                        uint64_t LineNo = v->base.base.loc.first;
+                        uint32_t line, column;
+                        if (emit_debug_line_column) {
+                            debug_get_line_column(v->base.base.loc.first, line, column);
+                        } else {
+                            line = v->base.base.loc.first;
+                            column = 0;
+                        }
                         std::string type_name;
                         uint32_t type_size, type_encoding;
                         get_type_debug_info(v->m_type, type_name, type_size,
                             type_encoding);
                         llvm::DILocalVariable *debug_var = DBuilder->createParameterVariable(
-                            debug_current_scope, v->m_name, ++debug_arg_count, debug_Unit, LineNo,
+                            debug_current_scope, v->m_name, ++debug_arg_count, debug_Unit, line,
                             DBuilder->createBasicType(type_name, type_size, type_encoding), true);
                         DBuilder->insertDeclare(ptr, debug_var, DBuilder->createExpression(),
                             llvm::DILocation::get(debug_current_scope->getContext(),
-                            LineNo, 0, debug_current_scope), builder->GetInsertBlock());
+                            line, 0, debug_current_scope), builder->GetInsertBlock());
                     }
 
                     if( ASR::is_a<ASR::Struct_t>(*v->m_type) ) {
@@ -3183,7 +3212,7 @@ public:
         dict_api_sc->set_is_dict_present(is_dict_present_copy_sc);
 
         // Finalize the debug info.
-        if (enable_debug_info) DBuilder->finalize();
+        if (emit_debug_info) DBuilder->finalize();
     }
 
     void instantiate_function(const ASR::Function_t &x){
@@ -3218,19 +3247,19 @@ public:
                     llvm::Function::ExternalLinkage, fn_name, module.get());
 
                 // Add Debugging information to the LLVM function F
-                if (enable_debug_info) {
+                if (emit_debug_info) {
                     debug_emit_function(x, SP);
                     F->setSubprogram(SP);
                 }
             } else {
                 uint32_t old_h = llvm_symtab_fn_names[fn_name];
                 F = llvm_symtab_fn[old_h];
-                if (enable_debug_info) {
+                if (emit_debug_info) {
                     SP = (llvm::DISubprogram*) llvm_symtab_fn_discope[old_h];
                 }
             }
             llvm_symtab_fn[h] = F;
-            if (enable_debug_info) llvm_symtab_fn_discope[h] = SP;
+            if (emit_debug_info) llvm_symtab_fn_discope[h] = SP;
 
             // Instantiate (pre-declare) all nested interfaces
             for (auto &item : x.m_symtab->get_scope()) {
@@ -3427,12 +3456,12 @@ public:
         parent_function = &x;
         parent_function_hash = h;
         llvm::Function* F = llvm_symtab_fn[h];
-        if (enable_debug_info) debug_current_scope = llvm_symtab_fn_discope[h];
+        if (emit_debug_info) debug_current_scope = llvm_symtab_fn_discope[h];
         proc_return = llvm::BasicBlock::Create(context, "return");
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
         builder->SetInsertPoint(BB);
-        if (enable_debug_info) debug_emit_loc(x);
+        if (emit_debug_info) debug_emit_loc(x);
         declare_args(x, *F);
         declare_local_vars(x);
     }
@@ -3715,7 +3744,7 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
-        if (enable_debug_info) debug_emit_loc(x);
+        if (emit_debug_info) debug_emit_loc(x);
         if( x.m_overloaded ) {
             this->visit_stmt(*x.m_overloaded);
             return ;
@@ -6014,7 +6043,7 @@ public:
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        if (enable_debug_info) debug_emit_loc(x);
+        if (emit_debug_info) debug_emit_loc(x);
         if( ASRUtils::is_intrinsic_optimization(x.m_name) ) {
             ASR::Function_t* routine = ASR::down_cast<ASR::Function_t>(
                         ASRUtils::symbol_get_past_external(x.m_name));
@@ -6356,12 +6385,14 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
         diag::Diagnostics &diagnostics,
         llvm::LLVMContext &context, Allocator &al,
         LCompilers::PassManager& pass_manager,
-        CompilerOptions &co, const std::string &run_fn)
+        CompilerOptions &co, const std::string &run_fn,
+        const std::string &infile)
 {
 #if LLVM_VERSION_MAJOR >= 15
     context.setOpaquePointers(false);
 #endif
-    ASRToLLVMVisitor v(al, context, co.platform, co.arg_g, diagnostics);
+    ASRToLLVMVisitor v(al, context, co.platform, co.emit_debug_info, infile,
+        co.emit_debug_line_column, diagnostics);
     LCompilers::PassOptions pass_options;
     pass_options.run_fun = run_fn;
     pass_options.always_run = false;

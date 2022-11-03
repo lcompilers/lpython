@@ -96,7 +96,8 @@ def single_test(test, verbose, no_llvm, update_reference,
             run_test(
                 filename,
                 "llvm_dbg",
-                "lpython --no-color --show-llvm -g {infile} -o {outfile}",
+                "lpython --no-color --show-llvm -g --debug-with-line-column "
+                    "{infile} -o {outfile}",
                 filename,
                 update_reference,
                 extra_args)
