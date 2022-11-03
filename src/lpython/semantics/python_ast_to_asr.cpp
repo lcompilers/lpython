@@ -813,13 +813,28 @@ public:
 
     void visit_expr_list_with_cast(ASR::expr_t** m_args, size_t n_args,
                                    Vec<ASR::call_arg_t>& call_args_vec,
-                                   Vec<ASR::call_arg_t>& args) {
+                                   Vec<ASR::call_arg_t>& args,
+                                   bool check_type_equality=true) {
         LFORTRAN_ASSERT(call_args_vec.reserve_called);
         for (size_t i = 0; i < n_args; i++) {
             ASR::call_arg_t c_arg;
             c_arg.loc = args[i].loc;
             c_arg.m_value = args[i].m_value;
             cast_helper(m_args[i], c_arg.m_value, true);
+            ASR::ttype_t* left_type = ASRUtils::expr_type(m_args[i]);
+            ASR::ttype_t* right_type = ASRUtils::expr_type(c_arg.m_value);
+            if( check_type_equality && !ASRUtils::check_equal_type(left_type, right_type) ) {
+                std::string ltype = ASRUtils::type_to_str_python(left_type);
+                std::string rtype = ASRUtils::type_to_str_python(right_type);
+                diag.add(diag::Diagnostic(
+                    "Type mismatch in procedure call; the types must be compatible",
+                    diag::Level::Error, diag::Stage::Semantic, {
+                        diag::Label("type mismatch (passed argument type is " + rtype + " but required type is " + ltype + ")",
+                                { c_arg.loc, left_type->base.loc})
+                    })
+                );
+                throw SemanticAbort();
+            }
             call_args_vec.push_back(al, c_arg);
         }
     }
@@ -1047,7 +1062,8 @@ public:
 
                 Vec<ASR::call_arg_t> args_new;
                 args_new.reserve(al, func->n_args);
-                visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args);
+                visit_expr_list_with_cast(func->m_args, func->n_args, args_new, args,
+                    !ASRUtils::is_intrinsic_function2(func));
                 dependencies.insert(std::string(ASRUtils::symbol_name(stemp)));
                 ASR::asr_t* func_call_asr = ASR::make_FunctionCall_t(al, loc, stemp,
                                                 s_generic, args_new.p, args_new.size(),
@@ -1085,6 +1101,20 @@ public:
                                                 StructType->m_symtab->resolve_symbol(member_name));
                 ASR::expr_t* arg_new_i = args_new[i];
                 cast_helper(member_var->m_type, arg_new_i);
+                ASR::ttype_t* left_type = member_var->m_type;
+                ASR::ttype_t* right_type = ASRUtils::expr_type(arg_new_i);
+                if( !ASRUtils::check_equal_type(left_type, right_type) ) {
+                    std::string ltype = ASRUtils::type_to_str_python(left_type);
+                    std::string rtype = ASRUtils::type_to_str_python(right_type);
+                    diag.add(diag::Diagnostic(
+                        "Type mismatch in procedure call; the types must be compatible",
+                        diag::Level::Error, diag::Stage::Semantic, {
+                            diag::Label("type mismatch (passed argument type is " + rtype + " but required type is " + ltype + ")",
+                                    { arg_new_i->base.loc, left_type->base.loc})
+                        })
+                    );
+                    throw SemanticAbort();
+                }
                 args_new.p[i] = arg_new_i;
             }
             ASR::ttype_t* der_type = ASRUtils::TYPE(ASR::make_Struct_t(al, loc, s, nullptr, 0));
