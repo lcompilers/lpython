@@ -2,7 +2,7 @@
 
 set -ex
 
-rm -rf b1 b2 b3 b4
+rm -rf b1 b2 b3 b4 b5
 
 # Append "-j4" or "-j" to run in parallel
 jn=$1
@@ -36,5 +36,12 @@ cd b4
 which node
 node -v
 cmake -DKIND=wasm ..
+make $jn
+ctest $jn --output-on-failure
+cd ..
+
+mkdir b5
+cd b5
+cmake -DKIND=x86 ..
 make $jn
 ctest $jn --output-on-failure

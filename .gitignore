@@ -68,6 +68,7 @@ integration_tests/b1/*
 integration_tests/b2/*
 integration_tests/b3/*
 integration_tests/b4/*
+integration_tests/b5/*
 integration_tests/_lpython-tmp-test-*
 inst/bin/*
 *.tlog
