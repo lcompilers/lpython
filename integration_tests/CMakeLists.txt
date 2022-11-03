@@ -186,6 +186,7 @@ RUN(NAME exit_02c    FAIL    LABELS cpython llvm c)
 
 # Test all four backends
 RUN(NAME print_01            LABELS cpython llvm c wasm) # wasm not yet supports sep and end keywords
+RUN(NAME print_03            LABELS x86 wasm_x86) # simple test case specifically for x86 and wasm_x86
 
 # CPython and LLVM
 RUN(NAME const_01            LABELS cpython llvm c)
