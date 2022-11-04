@@ -5865,10 +5865,13 @@ public:
                     uint64_t ptr_loads_copy = ptr_loads;
                     ptr_loads = !LLVM::is_llvm_struct(arg_type);
                     this->visit_expr_wrapper(x.m_args[i].m_value);
-                    if( x_abi == ASR::abiType::BindC &&
-                        ASR::is_a<ASR::CPtr_t>(*arg_type) &&
-                        ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value) ) {
-                        tmp = LLVM::CreateLoad(*builder, tmp);
+                    if( x_abi == ASR::abiType::BindC ) {
+                        if( ASR::is_a<ASR::ArrayItem_t>(*x.m_args[i].m_value) ||
+                            ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value) ||
+                            (ASR::is_a<ASR::CPtr_t>(*arg_type) &&
+                             ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value)) ) {
+                            tmp = LLVM::CreateLoad(*builder, tmp);
+                        }
                     }
                     llvm::Value *value = tmp;
                     ptr_loads = ptr_loads_copy;

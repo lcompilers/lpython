@@ -489,7 +489,16 @@ public:
                     if( t->n_dims != 0 ) {
                         sub += " = " + value_var_name;
                     } else {
-                        sub += " = &" + value_var_name;
+                        sub += " = &" + value_var_name + ";\n";
+                        ASR::StructType_t* der_type_t = ASR::down_cast<ASR::StructType_t>(
+                        ASRUtils::symbol_get_past_external(t->m_derived_type));
+                        for( auto itr: der_type_t->m_symtab->get_scope() ) {
+                            if( ASRUtils::is_character(*ASRUtils::symbol_type(itr.second)) ) {
+                                sub += indent + std::string(v.m_name) + "->" + itr.first + " = (char*) malloc(40 * sizeof(char));\n";
+                            }
+                        }
+                        sub.pop_back();
+                        sub.pop_back();
                     }
                     return sub;
                 } else {
