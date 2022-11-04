@@ -1129,6 +1129,7 @@ R"(#include <stdio.h>
         }
     }
 
+    /*
     void visit_IntegerToBytes(const ASR::IntegerToBytes_t& x) {
         self().visit_expr(*x.m_a);
         //int arg_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
@@ -1142,6 +1143,7 @@ R"(#include <stdio.h>
         //                     std::to_string(arg_kind));
         // }
     }
+    */
 
 
 
