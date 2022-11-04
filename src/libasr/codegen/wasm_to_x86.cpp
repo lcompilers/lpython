@@ -28,20 +28,45 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
 
     void visit_Return() {}
 
+    void call_imported_function(uint32_t func_index) {
+        switch (func_index) {
+            case 0: {  // print_i32
+                m_a.asm_call_label("print_i32");
+                break;
+            }
+            case 1: {  // print_i64
+                std::cerr << "Call to print_i64() is not yet supported";
+                break;
+            }
+            case 2: {  // print_f32
+                std::cerr << "Call to print_f32() is not yet supported";
+                break;
+            }
+            case 3: {  // print_f64
+                std::cerr << "Call to print_f64() is not yet supported";
+                break;
+            }
+            case 4: {  // print_str
+                std::cerr << "Call to print_str() is not yet supported";
+                break;
+            }
+            case 5: {  // flush_buf
+                std::cerr << "Call to flush_buf() is not yet supported";
+                break;
+            }
+            case 6: {  // set_exit_code
+                m_a.asm_call_label("exit");
+                break;
+            }
+            default: {
+                std::cerr << "Unsupported func_index";
+            }
+        }
+    }
+
     void visit_Call(uint32_t func_index) {
         if (func_index <= 6U) {
-            // call to imported functions
-            if (func_index == 0) {
-                m_a.asm_call_label("print_i32");
-            } else if (func_index == 5) {
-                // currently ignoring flush_buf
-            } else if (func_index == 6) {
-                m_a.asm_call_label("exit");
-            } else {
-                std::cerr << "Call to imported function with index " +
-                                 std::to_string(func_index) +
-                                 " not yet supported";
-            }
+            call_imported_function(func_index);
             return;
         }
 
