@@ -2778,7 +2778,7 @@ public:
                 ASR::ttype_t *t2 = ASRUtils::get_contained_type(asr_type);
                 type = get_arg_type_from_ttype_t(t2, m_abi, arg_m_abi,
                             m_storage, arg_m_value_attr, n_dims, a_kind,
-                            is_array_type, arg_intent);
+                            is_array_type, arg_intent, get_pointer);
                 break;
             }
             case (ASR::ttypeType::Real) : {
