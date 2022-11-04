@@ -77,8 +77,8 @@ struct AttributeHandler {
 
     static ASR::asr_t* eval_int_to_bytes(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
-        if (args.size() != 0) {
-            throw SemanticError("int.to_bytes() takes no arguments", loc);
+        if (args.size() != 2) {
+            throw SemanticError("int.to_bytes(i, s) takes exactly two arguments", loc);
         }
         ASR::ttype_t *char_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
                                         1, -1, nullptr, nullptr, 0));
