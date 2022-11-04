@@ -746,9 +746,12 @@ LFORTRAN_API int32_t _lpython_bit_length8(int64_t num)
     return res;
 }
 
-LFORTRAN_API int32_t _lpython_to_bytes(int32_t num)
+LFORTRAN_API char* _lcompilers_to_bytes(int32_t num)
 {
-    return num;
+    char* res = (char*)malloc(40);
+    // TODO: do the conversion to string representation of bytes here:
+    sprintf(res, "(TODO: %d)", num);
+    return res;
 }
 
 //repeat str for n time
