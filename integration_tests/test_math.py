@@ -1,6 +1,7 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
                   ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc,
                   modf, fsum, prod)
+import math
 from ltypes import i32, i64, f32, f64
 
 eps: f64
@@ -234,6 +235,17 @@ def test_modf():
     assert abs(res[1] + 442.0) <= 1e-6
 
 
+def test_issue_1242():
+    assert abs(math.pi - 3.14159265358979323846) < 1e-10
+    assert abs(math.e - 2.7182818284590452353) < 1e-10
+
+    # https://github.com/lcompilers/lpython/pull/1243#discussion_r1008810444
+    pi: f64 = 8.4603959020429502
+    assert abs(pi - 8.4603959020429502) < 1e-10
+    assert abs(math.pi - 3.14159265358979323846) < 1e-10
+    assert abs(math.pi - 3.14159265358979323846) < 1e-10
+
+
 def check():
     test_factorial_1()
     test_comb()
@@ -257,6 +269,7 @@ def check():
     test_fsum()
     test_prod()
     test_modf()
+    test_issue_1242()
 
 
 check()

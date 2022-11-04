@@ -64,6 +64,23 @@ std::vector<std::string> determine_module_dependencies(
     return order_deps(deps);
 }
 
+std::vector<std::string> determine_function_definition_order(
+        SymbolTable* symtab) {
+    std::map<std::string, std::vector<std::string>> func_dep_graph;
+    for( auto itr: symtab->get_scope() ) {
+        if( ASR::is_a<ASR::Function_t>(*itr.second) ) {
+            std::vector<std::string> deps;
+            ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(itr.second);
+            for( size_t i = 0; i < func->n_dependencies; i++ ) {
+                std::string dep = func->m_dependencies[i];
+                deps.push_back(dep);
+            }
+            func_dep_graph[itr.first] = deps;
+        }
+    }
+    return ASRUtils::order_deps(func_dep_graph);
+}
+
 void extract_module_python(const ASR::TranslationUnit_t &m,
                 std::vector<std::pair<std::string, ASR::Module_t*>>& children_modules,
                 std::string module_name) {

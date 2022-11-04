@@ -84,7 +84,7 @@ symbol
         stmt* body)
     | Module(symbol_table symtab, identifier name, identifier* dependencies,
         bool loaded_from_mod, bool intrinsic)
-    | Function(symbol_table symtab, identifier name, expr* args, stmt* body,
+    | Function(symbol_table symtab, identifier name, identifier* dependencies, expr* args, stmt* body,
         expr? return_var, abi abi, access access, deftype deftype,
         string? bindc_name, bool elemental, bool pure, bool module, bool inline,
         bool static, ttype* type_params, symbol* restrictions, bool is_restriction)
@@ -95,12 +95,14 @@ symbol
     | ExternalSymbol(symbol_table parent_symtab, identifier name,
         symbol external, identifier module_name, identifier* scope_names,
         identifier original_name, access access)
-    | StructType(symbol_table symtab, identifier name, identifier* members,
-        abi abi, access access, symbol? parent)
-    | EnumType(symbol_table symtab, identifier name, identifier* members,
-        abi abi, access access, enumtype enum_value_type, ttype type, symbol? parent)
-    | UnionType(symbol_table symtab, identifier name, identifier* members,
-        abi abi, access access, symbol? parent)
+    | StructType(symbol_table symtab, identifier name, identifier* dependencies,
+        identifier* members, abi abi, access access, bool is_packed,
+        expr? alignment, symbol? parent)
+    | EnumType(symbol_table symtab, identifier name, identifier* dependencies,
+        identifier* members, abi abi, access access, enumtype enum_value_type,
+        ttype type, symbol? parent)
+    | UnionType(symbol_table symtab, identifier name, identifier* dependencies,
+        identifier* members, abi abi, access access, symbol? parent)
     | Variable(symbol_table parent_symtab, identifier name, intent intent,
         expr? symbolic_value, expr? value, storage_type storage, ttype type,
         abi abi, access access, presence presence, bool value_attr)
@@ -271,8 +273,8 @@ expr
 
     | Var(symbol v)
 
-    | ArrayConstant(expr* args, ttype type)
-    | ArrayItem(expr v, array_index* args, ttype type, expr? value)
+    | ArrayConstant(expr* args, ttype type, arraystorage storage_format)
+    | ArrayItem(expr v, array_index* args, ttype type, arraystorage storage_format, expr? value)
     | ArraySection(expr v, array_index* args, ttype type, expr? value)
     | ArraySize(expr v, expr? dim, ttype type, expr? value)
     | ArrayBound(expr v, expr? dim, ttype type, arraybound bound,
@@ -305,6 +307,9 @@ expr
     | SetPop(expr a, ttype type, expr? value)
     | IntegerBitLen(expr a, ttype type, expr? value)
     | IntegerToBytes(expr a, ttype type, expr? value)
+    | Ichar(expr arg, ttype type, expr? value)
+
+    | SizeOfType(ttype arg, ttype type, expr? value)
 
 
 -- `len` in Character:
@@ -341,6 +346,7 @@ ttype
     | Class(symbol class_type, dimension* dims)
     | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
+    | Const(ttype type)
     | CPtr()
     | TypeParameter(identifier param, dimension* dims)
 
@@ -355,6 +361,8 @@ cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 integerboz = Binary | Hex | Octal
 
 arraybound = LBound | UBound
+
+arraystorage = RowMajor | ColMajor
 
 cast_kind
     = RealToInteger
@@ -372,6 +380,7 @@ cast_kind
     | ComplexToLogical
     | ComplexToComplex
     | ComplexToReal
+    | ComplexToInteger
     | LogicalToInteger
     | RealToCharacter
     | IntegerToCharacter

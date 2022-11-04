@@ -1,4 +1,4 @@
-semantic error: Both the lists should be of the same type for concatenation.
+semantic error: Type mismatch in shorthand operator, the types must be compatible
  --> tests/errors/test_list_concat.py:8:3
   |
 8 |   a += b

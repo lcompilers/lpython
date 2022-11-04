@@ -9,19 +9,24 @@ sys.path.append(os.path.join(ROOT_DIR, "src", "libasr"))
 from compiler_tester.tester import color, fg, log, run_test, style, tester_main
 
 
-def single_test(test, specific_test, verbose, no_llvm, update_reference):
+def single_test(test, verbose, no_llvm, update_reference,
+                specific_backends=None, excluded_backends=None):
     filename = test["filename"]
-    if specific_test and specific_test not in filename:
-        return
+    def is_included(backend):
+         return test.get(backend, False) \
+             and (specific_backends is None or backend in specific_backends) \
+             and (excluded_backends is None or backend not in excluded_backends)
     show_verbose = "" if not verbose else "-v"
-    tokens = test.get("tokens", False)
-    ast = test.get("ast", False)
-    ast_new = test.get("ast_new", False)
-    asr = test.get("asr", False)
-    llvm = test.get("llvm", False)
-    cpp = test.get("cpp", False)
-    c = test.get("c", False)
-    wat = test.get("wat", False)
+    tokens = is_included("tokens")
+    ast = is_included("ast")
+    ast_new = is_included("ast_new")
+    asr = is_included("asr")
+    llvm = is_included("llvm")
+    llvm_dbg = is_included("llvm_dbg")
+    cpp = is_included("cpp")
+    c = is_included("c")
+    wat = is_included("wat")
+    run = is_included("run")
     pass_ = test.get("pass", None)
     optimization_passes = ["flip_sign", "div_to_mul", "fma", "sign_from_value",
                            "inline_function_calls", "loop_unroll",
@@ -76,14 +81,23 @@ def single_test(test, specific_test, verbose, no_llvm, update_reference):
         run_test(filename, "pass_{}".format(pass_), cmd,
                  filename, update_reference, extra_args)
 
-    if llvm:
-        if no_llvm:
-            log.info(f"{filename} * llvm   SKIPPED as requested")
-        else:
+    if no_llvm:
+        log.info(f"{filename} * llvm   SKIPPED as requested")
+    else:
+        if llvm:
             run_test(
                 filename,
                 "llvm",
                 "lpython --no-color --show-llvm {infile} -o {outfile}",
+                filename,
+                update_reference,
+                extra_args)
+        if llvm_dbg:
+            run_test(
+                filename,
+                "llvm_dbg",
+                "lpython --no-color --show-llvm -g --debug-with-line-column "
+                    "{infile} -o {outfile}",
                 filename,
                 update_reference,
                 extra_args)
@@ -99,7 +113,9 @@ def single_test(test, specific_test, verbose, no_llvm, update_reference):
         run_test(filename, "wat", "lpython --no-color --show-wat {infile}",
                  filename, update_reference, extra_args)
 
-
+    if run:
+        run_test(filename, "runtime", "lpython {infile}",
+                 filename, update_reference, extra_args)
 
 if __name__ == "__main__":
     tester_main("LPython", single_test)

@@ -25,6 +25,19 @@ namespace LFortran {
         builder.CreateCall(fn_printf, args);
     }
 
+    static inline void print_error(llvm::LLVMContext &context, llvm::Module &module,
+        llvm::IRBuilder<> &builder, const std::vector<llvm::Value*> &args)
+    {
+        llvm::Function *fn_printf = module.getFunction("_lcompilers_print_error");
+        if (!fn_printf) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {llvm::Type::getInt8PtrTy(context)}, true);
+            fn_printf = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, "_lcompilers_print_error", &module);
+        }
+        builder.CreateCall(fn_printf, args);
+    }
+
     static inline void exit(llvm::LLVMContext &context, llvm::Module &module,
         llvm::IRBuilder<> &builder, llvm::Value* exit_code)
     {

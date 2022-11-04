@@ -27,6 +27,13 @@ std::string replace(const std::string &s,
 
 std::string read_file(const std::string &filename);
 
+// Returns the parent path to the given path
+std::string parent_path(const std::string &path);
+// Returns true if the path is relative
+bool is_relative_path(const std::string &path);
+// Joins paths (paths can be empty)
+std::string join_paths(const std::vector<std::string> &paths);
+
 } // namespace LFortran
 
 #endif // LFORTRAN_STRING_UTILS_H

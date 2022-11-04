@@ -2,9 +2,11 @@ import argparse
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 import hashlib
+import itertools
 import json
 import logging
 import os
+import re
 import pathlib
 import pprint
 import shutil
@@ -127,8 +129,11 @@ def fixdir(s: bytes) -> bytes:
     local_dir = os.getcwd()
     return s.replace(local_dir.encode(), "$DIR".encode())
 
+
 def unl_loop_del(b):
-    return b.replace(bytes('\r\n', encoding='utf-8'), bytes('\n', encoding='utf-8'))
+    return b.replace(bytes('\r\n', encoding='utf-8'),
+                     bytes('\n', encoding='utf-8'))
+
 
 def run(basename: str, cmd: Union[pathlib.Path, str],
         out_dir: Union[pathlib.Path, str], infile=None, extra_args=None):
@@ -164,7 +169,7 @@ def run(basename: str, cmd: Union[pathlib.Path, str],
         raise RunException("The input file does not exist")
     outfile = os.path.join(out_dir, basename + "." + "out")
 
-    infile=infile.replace("\\\\","\\").replace("\\","/")
+    infile = infile.replace("\\\\", "\\").replace("\\", "/")
 
     cmd2 = cmd.format(infile=infile, outfile=outfile)
     if extra_args:
@@ -186,12 +191,12 @@ def run(basename: str, cmd: Union[pathlib.Path, str],
         stderr_file = None
 
     if infile:
-        temp=unl_loop_del(open(infile, "rb").read())
+        temp = unl_loop_del(open(infile, "rb").read())
         infile_hash = hashlib.sha224(temp).hexdigest()
     else:
         infile_hash = None
     if outfile:
-        temp=unl_loop_del(open(outfile, "rb").read())
+        temp = unl_loop_del(open(outfile, "rb").read())
         outfile_hash = hashlib.sha224(temp).hexdigest()
         outfile = os.path.basename(outfile)
     else:
@@ -203,7 +208,7 @@ def run(basename: str, cmd: Union[pathlib.Path, str],
     else:
         stdout_hash = None
     if stderr_file:
-        temp=unl_loop_del(open(stderr_file, "rb").read())
+        temp = unl_loop_del(open(stderr_file, "rb").read())
         stderr_hash = hashlib.sha224(temp).hexdigest()
         stderr_file = os.path.basename(stderr_file)
     else:
@@ -326,16 +331,27 @@ def run_test(testname, basename, cmd, infile, update_reference=False,
             full_err_str)
     log.debug(s + " " + check())
 
+
 def tester_main(compiler, single_test):
     parser = argparse.ArgumentParser(description=f"{compiler} Test Suite")
     parser.add_argument("-u", "--update", action="store_true",
                         help="update all reference results")
     parser.add_argument("-l", "--list", action="store_true",
                         help="list all tests")
-    parser.add_argument("-t", metavar="TEST",
-                        help="Run a specific test")
+    parser.add_argument("-t", "--test",
+                        action="append", nargs="*",
+                        help="Run specific tests")
+    parser.add_argument("-b", "--backend",
+                        action="append", nargs="*",
+                        help="Run specific backends")
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="increase test verbosity")
+    parser.add_argument("--exclude-test", metavar="TEST",
+                        action="append", nargs="*",
+                        help="Exclude specific tests"),
+    parser.add_argument("--exclude-backend", metavar="BACKEND",
+                        action="append", nargs="*",
+                        help="Exclude specific backends, only works when -b is not specified"),
     parser.add_argument("--no-llvm", action="store_true",
                         help="Skip LLVM tests")
     parser.add_argument("-s", "--sequential", action="store_true",
@@ -343,7 +359,16 @@ def tester_main(compiler, single_test):
     args = parser.parse_args()
     update_reference = args.update
     list_tests = args.list
-    specific_test = args.t
+    specific_tests = list(
+        itertools.chain.from_iterable(
+            args.test)) if args.test else None
+    specific_backends = set(
+        itertools.chain.from_iterable(
+            args.backend)) if args.backend else None
+    excluded_tests = list(itertools.chain.from_iterable(
+        args.exclude_test)) if args.exclude_test else None
+    excluded_backends = set(itertools.chain.from_iterable(
+        args.exclude_backend)) if args.exclude_backend and specific_backends is None else None
     verbose = args.verbose
     no_llvm = args.no_llvm
 
@@ -351,22 +376,26 @@ def tester_main(compiler, single_test):
     os.environ["PATH"] = os.path.join(SRC_DIR, "bin") \
         + os.pathsep + os.environ["PATH"]
     test_data = toml.load(open(os.path.join(ROOT_DIR, "tests", "tests.toml")))
-    if specific_test:
-        # some fuzzy comparison to get all seemingly fitting tests tested
-        specific = [test for test in test_data["test"]
-                    if specific_test in test["filename"]]
-        # no concurrent execution
-        for test in specific:
+    filtered_tests = test_data["test"]
+    if specific_tests:
+        filtered_tests = [test for test in filtered_tests if any(
+            re.search(t, test["filename"]) for t in specific_tests)]
+    if excluded_tests:
+        filtered_tests = [test for test in filtered_tests if not any(
+            re.search(t, test["filename"]) for t in excluded_tests)]
+    if specific_backends:
+        filtered_tests = [
+            test for test in filtered_tests if any(
+                b in test for b in specific_backends)]
+    if excluded_backends:
+        filtered_tests = [test for test in filtered_tests if any(
+            b not in excluded_backends and b != "filename" for b in test)]
+    if args.sequential:
+        for test in filtered_tests:
             single_test(test,
                         update_reference=update_reference,
-                        specific_test=specific_test,
-                        verbose=verbose,
-                        no_llvm=no_llvm)
-    elif args.sequential:
-        for test in test_data["test"]:
-            single_test(test,
-                        update_reference=update_reference,
-                        specific_test=specific_test,
+                        specific_backends=specific_backends,
+                        excluded_backends=excluded_backends,
                         verbose=verbose,
                         no_llvm=no_llvm)
     # run in parallel
@@ -374,13 +403,12 @@ def tester_main(compiler, single_test):
         single_tester_partial_args = partial(
             single_test,
             update_reference=update_reference,
-            specific_test=specific_test,
+            specific_backends=specific_backends,
+            excluded_backends=excluded_backends,
             verbose=verbose,
             no_llvm=no_llvm)
         with ThreadPoolExecutor() as ex:
-            futures = ex.map(
-                single_tester_partial_args, [
-                    test for test in test_data["test"]])
+            futures = ex.map(single_tester_partial_args, filtered_tests)
             for f in futures:
                 if not f:
                     ex.shutdown(wait=False)

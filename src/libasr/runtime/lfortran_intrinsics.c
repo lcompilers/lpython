@@ -56,6 +56,15 @@ LFORTRAN_API void _lfortran_printf(const char* format, ...)
     va_end(args);
 }
 
+LFORTRAN_API void _lcompilers_print_error(const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    fflush(stderr);
+    va_end(args);
+}
+
 LFORTRAN_API void _lfortran_complex_add_32(struct _lfortran_complex_32* a,
         struct _lfortran_complex_32* b, struct _lfortran_complex_32 *result)
 {
@@ -867,6 +876,11 @@ LFORTRAN_API int _lfortran_str_to_int(char** s)
 LFORTRAN_API int _lfortran_str_ord(char** s)
 {
     return (*s)[0];
+}
+
+LFORTRAN_API int _lfortran_str_ord_c(char* s)
+{
+    return s[0];
 }
 
 LFORTRAN_API char* _lfortran_str_chr(int val)

@@ -52,7 +52,8 @@ public:
     };
 
     Result<std::unique_ptr<LLVMModule>> get_llvm3(ASR::TranslationUnit_t &asr,
-        LCompilers::PassManager& lpm, diag::Diagnostics &diagnostics);
+        LCompilers::PassManager& lpm, diag::Diagnostics &diagnostics,
+        const std::string &infile);
 
 private:
     Allocator al;

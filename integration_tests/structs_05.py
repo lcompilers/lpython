@@ -7,12 +7,15 @@ class A:
 
 def verify(s: A[:], x1: i32, y1: f64, x2: i32, y2: f64):
     eps: f64 = 1e-12
-    print(s[0].x, s[0].y)
-    assert s[0].x == x1
-    assert abs(s[0].y - y1) < eps
-    print(s[1].x, s[1].y)
-    assert s[1].x == x2
-    assert abs(s[1].y - y2) < eps
+    s0: A = s[0]
+    print(s0.x, s0.y)
+    assert s0.x == x1
+    assert abs(s0.y - y1) < eps
+
+    s1: A = s[1]
+    print(s1.x, s1.y)
+    assert s1.x == x2
+    assert abs(s1.y - y2) < eps
 
 def update_1(s: A):
     s.x = 2

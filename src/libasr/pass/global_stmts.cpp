@@ -4,6 +4,7 @@
 #include <libasr/asr_utils.h>
 #include <libasr/asr_verify.h>
 #include <libasr/pass/global_stmts.h>
+#include <libasr/pass/pass_utils.h>
 
 
 namespace LFortran {
@@ -28,7 +29,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
         SymbolTable *fn_scope = al.make_new<SymbolTable>(unit.m_global_scope);
 
         ASR::ttype_t *type;
-        Location loc;
+        Location loc = unit.base.base.loc;
         ASR::asr_t *return_var=nullptr;
         ASR::expr_t *return_var_ref=nullptr;
         char *var_name;
@@ -111,6 +112,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 al, loc,
                 /* a_symtab */ fn_scope,
                 /* a_name */ fn_name,
+                nullptr, 0,
                 /* a_args */ nullptr,
                 /* n_args */ 0,
                 /* a_body */ body.p,
@@ -135,6 +137,7 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
                 al, loc,
                 /* a_symtab */ fn_scope,
                 /* a_name */ fn_name,
+                nullptr, 0,
                 /* a_args */ nullptr,
                 /* n_args */ 0,
                 /* a_body */ body.p,
@@ -154,6 +157,8 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
         }
         unit.m_items = nullptr;
         unit.n_items = 0;
+        PassUtils::UpdateDependenciesVisitor v(al);
+        v.visit_TranslationUnit(unit);
         LFORTRAN_ASSERT(asr_verify(unit));
     }
 }
