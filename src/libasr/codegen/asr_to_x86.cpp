@@ -526,7 +526,8 @@ public:
 
 
 Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
-        const std::string &filename, bool time_report)
+        const std::string &filename, bool time_report,
+        diag::Diagnostics &diagnostics)
 {
     int time_pass_global=0;
     int time_pass_do_loops=0;
@@ -558,8 +559,8 @@ Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
         try {
             v.visit_asr((ASR::asr_t &)asr);
         } catch (const CodeGenError &e) {
-            Error error;
-            return error;
+            diagnostics.diagnostics.push_back(e.d);
+            return Error();
         }
         auto t2 = std::chrono::high_resolution_clock::now();
         time_visit_asr = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
@@ -578,6 +579,9 @@ Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
         auto t2 = std::chrono::high_resolution_clock::now();
         time_save = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     }
+
+    //! Helpful for debugging
+    // std::cout << v.m_a.get_asm() << std::endl;
 
     if (time_report) {
         std::cout << "Codegen Time report:" << std::endl;
