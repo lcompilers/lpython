@@ -1476,7 +1476,7 @@ public:
         }
         this->visit_expr(*x.m_a);
         llvm::Value *int_val = tmp;
-        int int_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
+        int int_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_a));
         std::string runtime_func_name = "_lpython_to_bytes";
         llvm::Function *fn = module->getFunction(runtime_func_name);
         if (!fn) {
