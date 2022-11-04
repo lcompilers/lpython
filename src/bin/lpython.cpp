@@ -775,7 +775,7 @@ int compile_to_binary_x86(
 
     // ASR -> X86
     auto asr_to_x86_start = std::chrono::high_resolution_clock::now();
-    LFortran::Result<int> r3 = LFortran::asr_to_x86(*asr, al, outfile, time_report);
+    LFortran::Result<int> r3 = LFortran::asr_to_x86(*asr, al, outfile, time_report, diagnostics);
     auto asr_to_x86_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("ASR to X86", std::chrono::duration<double, std::milli>(asr_to_x86_end - asr_to_x86_start).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
