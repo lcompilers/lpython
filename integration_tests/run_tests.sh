@@ -40,15 +40,17 @@ make $jn
 ctest $jn --output-on-failure
 cd ..
 
-mkdir b5
-cd b5
-cmake -DKIND=x86 ..
-make $jn
-ctest $jn --output-on-failure
-cd ..
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    mkdir b5
+    cd b5
+    cmake -DKIND=x86 ..
+    make $jn
+    ctest $jn --output-on-failure
+    cd ..
 
-mkdir b6
-cd b6
-cmake -DKIND=wasm_x86 ..
-make $jn
-ctest $jn --output-on-failure
+    mkdir b6
+    cd b6
+    cmake -DKIND=wasm_x86 ..
+    make $jn
+    ctest $jn --output-on-failure
+fi
