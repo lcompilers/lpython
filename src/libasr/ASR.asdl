@@ -306,7 +306,7 @@ expr
     | DictPop(expr a, expr key, ttype type, expr? value)
     | SetPop(expr a, ttype type, expr? value)
     | IntegerBitLen(expr a, ttype type, expr? value)
-    | IntegerToBytes(expr a, ttype type, expr? value)
+    | IntegerToBytes(expr a, expr length, expr byte_order, ttype type, expr? value)
     | Ichar(expr arg, ttype type, expr? value)
 
     | SizeOfType(ttype arg, ttype type, expr? value)

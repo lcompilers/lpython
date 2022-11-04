@@ -82,7 +82,7 @@ struct AttributeHandler {
         }
         ASR::ttype_t *char_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
                                         1, -1, nullptr, nullptr, 0));
-        return ASR::make_IntegerToBytes_t(al, loc, s, char_type, nullptr);
+        return ASR::make_IntegerToBytes_t(al, loc, s, args[0], args[1], char_type, nullptr);
     }
 
     static ASR::asr_t* eval_list_append(ASR::expr_t *s, Allocator &al, const Location &loc,
