@@ -2048,11 +2048,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         for (size_t i = 0; i < x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);
         }
-        if (x.n_orelse) {
-            wasm::emit_b8(m_code_section, m_al, 0x05);  // starting of else
-            for (size_t i = 0; i < x.n_orelse; i++) {
-                this->visit_stmt(*x.m_orelse[i]);
-            }
+        wasm::emit_b8(m_code_section, m_al, 0x05);  // starting of else
+        for (size_t i = 0; i < x.n_orelse; i++) {
+            this->visit_stmt(*x.m_orelse[i]);
         }
         nesting_level--;
         wasm::emit_expr_end(m_code_section, m_al);  // emit if end
@@ -2119,6 +2117,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         }
         wasm::emit_i32_const(m_code_section, m_al, 1);  // non-zero exit code
         exit();
+        wasm::emit_b8(m_code_section, m_al, 0x05);  // starting of else
         wasm::emit_expr_end(m_code_section, m_al);  // emit if end
     }
 };
