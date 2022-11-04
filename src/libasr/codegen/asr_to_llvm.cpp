@@ -1477,17 +1477,21 @@ public:
         this->visit_expr(*x.m_a);
         llvm::Value *int_val = tmp;
         int int_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_a));
+        this->visit_expr(*x.m_length);
+        llvm::Value *int_length = tmp;
+        int int_kind2 = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(x.m_length));
         std::string runtime_func_name = "_lcompilers_to_bytes";
         llvm::Function *fn = module->getFunction(runtime_func_name);
         if (!fn) {
             llvm::FunctionType *function_type = llvm::FunctionType::get(
                     character_type, {
-                        getIntType(int_kind)
+                        getIntType(int_kind),
+                        getIntType(int_kind2)
                     }, false);
             fn = llvm::Function::Create(function_type,
                     llvm::Function::ExternalLinkage, runtime_func_name, *module);
         }
-        tmp = builder->CreateCall(fn, {int_val});
+        tmp = builder->CreateCall(fn, {int_val, int_length});
     }
 
     void visit_ListAppend(const ASR::ListAppend_t& x) {

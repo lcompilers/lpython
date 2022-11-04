@@ -746,11 +746,11 @@ LFORTRAN_API int32_t _lpython_bit_length8(int64_t num)
     return res;
 }
 
-LFORTRAN_API char* _lcompilers_to_bytes(int32_t num)
+LFORTRAN_API char* _lcompilers_to_bytes(int32_t num, int32_t length)
 {
     char* res = (char*)malloc(40);
     // TODO: do the conversion to string representation of bytes here:
-    sprintf(res, "(TODO: %d)", num);
+    sprintf(res, "(TODO: %d length=%d)", num, length);
     return res;
 }
 
