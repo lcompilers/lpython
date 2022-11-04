@@ -252,6 +252,9 @@ Result<int> wasm_to_x86(Vec<uint8_t> &wasm_bytes, Allocator &al,
                 .count();
     }
 
+    //! Helpful for debugging
+    // std::cout << x86_visitor.m_a.get_asm() << std::endl;
+
     if (time_report) {
         std::cout << "Codegen Time report:" << std::endl;
         std::cout << "Decode wasm: " << std::setw(5) << time_decode_wasm
