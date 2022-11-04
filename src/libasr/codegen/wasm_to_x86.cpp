@@ -62,7 +62,11 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
                 break;
             }
             case 5: {  // flush_buf
-                std::cerr << "Call to flush_buf() is not yet supported";
+                std::string label = "string-1";
+                std::string msg = "\n";
+                int32_t loc = -1; // tmp negative index used
+                emit_print(m_a, label, msg.size());
+                loc_to_str[loc] = msg;
                 break;
             }
             case 6: {  // set_exit_code
