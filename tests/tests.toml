@@ -935,6 +935,14 @@ asr = true
 filename = "errors/test_goto.py"
 asr = true
 
+[[test]]
+filename = "errors/bindc_01.py"
+asr = true
+
+[[test]]
+filename = "errors/bindc_02.py"
+asr = true
+
 # tests/runtime_errors
 [[test]]
 filename = "runtime_errors/test_list_01.py"
