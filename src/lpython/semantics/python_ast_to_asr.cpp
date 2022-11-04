@@ -5240,8 +5240,10 @@ public:
                         throw SemanticError("int.to_bytes() takes at least 2 arguments",
                         x.base.base.loc);
                     }
+                    /*
                     ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
                             4, nullptr, 0));
+                    */
                     ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
                                     1, 1, nullptr, nullptr , 0));
                     if(args.size() == 2) {

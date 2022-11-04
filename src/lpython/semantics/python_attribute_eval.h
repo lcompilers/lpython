@@ -78,12 +78,11 @@ struct AttributeHandler {
     static ASR::asr_t* eval_int_to_bytes(ASR::expr_t *s, Allocator &al, const Location &loc,
             Vec<ASR::expr_t*> &args, diag::Diagnostics &/*diag*/) {
         if (args.size() != 0) {
-            throw SemanticError("int.bit_length() takes no arguments", loc);
+            throw SemanticError("int.to_bytes() takes no arguments", loc);
         }
-        int int_kind = ASRUtils::extract_kind_from_ttype_t(ASRUtils::expr_type(s));
-        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
-                                        int_kind, nullptr, 0));
-        return ASR::make_IntegerToBytes_t(al, loc, s, int_type, nullptr);
+        ASR::ttype_t *char_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                                        1, -1, nullptr, nullptr, 0));
+        return ASR::make_IntegerToBytes_t(al, loc, s, char_type, nullptr);
     }
 
     static ASR::asr_t* eval_list_append(ASR::expr_t *s, Allocator &al, const Location &loc,
