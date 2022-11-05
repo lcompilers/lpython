@@ -253,15 +253,17 @@ ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
     // Convert the module from AST to ASR
     LFortran::LocationManager lm;
     lm.in_filename = infile;
+    LFortran::CompilerOptions compiler_options;
+    compiler_options.disable_main = true;
+    compiler_options.symtab_only = false;
     Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast,
-        diagnostics, false, true, false, infile, "");
+        diagnostics, compiler_options, false, infile);
     // TODO: Uncomment once a check is added for ensuring
     // that module.py file hasn't changed between
     // builds.
     // save_pyc_files(*r2.result, infile + "c");
     std::string input;
     read_file(infile, input);
-    CompilerOptions compiler_options;
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r2.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -5679,9 +5681,8 @@ std::string get_parent_dir(const std::string &path) {
 }
 
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
-    AST::ast_t &ast, diag::Diagnostics &diagnostics, bool main_module,
-    bool disable_main, bool symtab_only, std::string file_path,
-    std::string import_path)
+    AST::ast_t &ast, diag::Diagnostics &diagnostics, CompilerOptions &compiler_options,
+    bool main_module, std::string file_path)
 {
     std::map<int, ASR::symbol_t*> ast_overload;
     std::string parent_dir = get_parent_dir(file_path);
@@ -5689,7 +5690,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
 
     ASR::asr_t *unit;
     auto res = symbol_table_visitor(al, *ast_m, diagnostics, main_module,
-        ast_overload, parent_dir, import_path);
+        ast_overload, parent_dir, compiler_options.import_path);
     if (res.ok) {
         unit = res.result;
     } else {
@@ -5698,7 +5699,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
     LFORTRAN_ASSERT(asr_verify(*tu));
 
-    if (!symtab_only) {
+    if (!compiler_options.symtab_only) {
         auto res2 = body_visitor(al, *ast_m, diagnostics, unit, main_module,
             ast_overload);
         if (res2.ok) {
@@ -5712,7 +5713,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     if (main_module) {
         // If it is a main module, turn it into a program
         // Note: we can modify this behavior for interactive mode later
-        if (disable_main) {
+        if (compiler_options.disable_main) {
             if (tu->n_items > 0) {
                 diagnostics.add(diag::Diagnostic(
                     "The script is invoked as the main module and it has code to execute,\n"
