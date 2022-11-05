@@ -10,6 +10,7 @@ SUPPORTED_BACKENDS = ['llvm', 'c', 'wasm', 'cpython']
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 LPYTHON_PATH = f"{BASE_DIR}/../src/bin"
 
+
 def run_cmd(cmd, cwd=None):
     print(f"+ {cmd}")
     process = subprocess.run(cmd, shell=True, cwd=cwd)
@@ -17,8 +18,9 @@ def run_cmd(cmd, cwd=None):
         print(f"Command failed: {cmd}")
         exit(1)
 
+
 def run_test(backend):
-    run_cmd(f"mkdir {BASE_DIR}/_lpython-tmp-test-{backend}")
+    run_cmd(f"mkdir {BASE_DIR}/_lpython-tmp-test-{backend}", cwd=BASE_DIR)
     cwd = f"{BASE_DIR}/_lpython-tmp-test-{backend}"
     run_cmd(f"cmake -DKIND={backend} ..", cwd=cwd)
     run_cmd(f"make -j{DEFAULT_THREADS_TO_USE}", cwd=cwd)
@@ -32,6 +34,7 @@ def test_backend(backend):
         return
     run_test(backend)
 
+
 def get_args():
     parser = argparse.ArgumentParser(description="LPython Integration Test Suite")
     parser.add_argument("-j", "-n", "--no_of_threads", type=int,
@@ -40,6 +43,7 @@ def get_args():
                 type=str, help="Test the requested backends (%s)" % \
                         ", ".join(SUPPORTED_BACKENDS))
     return parser.parse_args()
+
 
 def main():
     args = get_args()
@@ -54,6 +58,7 @@ def main():
     DEFAULT_THREADS_TO_USE = args.no_of_threads or DEFAULT_THREADS_TO_USE
     for backend in args.backends:
         test_backend(backend)
+
 
 if __name__ == "__main__":
     main()
