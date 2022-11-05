@@ -8,7 +8,7 @@ import os
 DEFAULT_THREADS_TO_USE = 8 # default no of threads is 8
 SUPPORTED_BACKENDS = ['llvm', 'c', 'wasm', 'cpython']
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
-LPYTHON_PATH = f"{BASE_DIR}/../src/bin:$PATH"
+LPYTHON_PATH = f"{BASE_DIR}/../src/bin"
 
 def run_cmd(cmd, cwd=None):
     print(f"+ {cmd}")
@@ -18,11 +18,12 @@ def run_cmd(cmd, cwd=None):
         exit(1)
 
 def run_test(backend):
-    run_cmd(f"mkdir {BASE_DIR}/test-{backend}")
-    cwd = f"{BASE_DIR}/test-{backend}"
+    run_cmd(f"mkdir {BASE_DIR}/_lpython-tmp-test-{backend}")
+    cwd = f"{BASE_DIR}/_lpython-tmp-test-{backend}"
     run_cmd(f"cmake -DKIND={backend} ..", cwd=cwd)
     run_cmd(f"make -j{DEFAULT_THREADS_TO_USE}", cwd=cwd)
-    run_cmd(f"ctest -j{DEFAULT_THREADS_TO_USE} --output-on-failure", cwd=cwd)
+    run_cmd(f"ctest -j{DEFAULT_THREADS_TO_USE} --output-on-failure",
+            cwd=cwd)
 
 
 def test_backend(backend):
@@ -48,7 +49,7 @@ def main():
     os.environ["PATH"] += os.pathsep + LPYTHON_PATH
     # delete previously created directories (if any)
     for backend in SUPPORTED_BACKENDS:
-        run_cmd(f"rm -rf {BASE_DIR}/test-{backend}")
+        run_cmd(f"rm -rf {BASE_DIR}/_lpython-tmp-test--{backend}")
 
     DEFAULT_THREADS_TO_USE = args.no_of_threads or DEFAULT_THREADS_TO_USE
     for backend in args.backends:
