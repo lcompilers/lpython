@@ -5679,9 +5679,8 @@ std::string get_parent_dir(const std::string &path) {
 }
 
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
-    AST::ast_t &ast, diag::Diagnostics &diagnostics, bool main_module,
-    bool disable_main, bool symtab_only, std::string file_path,
-    std::string import_path)
+    AST::ast_t &ast, diag::Diagnostics &diagnostics, CompilerOptions &compiler_options,
+    bool main_module, std::string file_path)
 {
     std::map<int, ASR::symbol_t*> ast_overload;
     std::string parent_dir = get_parent_dir(file_path);
@@ -5689,7 +5688,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
 
     ASR::asr_t *unit;
     auto res = symbol_table_visitor(al, *ast_m, diagnostics, main_module,
-        ast_overload, parent_dir, import_path);
+        ast_overload, parent_dir, compiler_options.import_path);
     if (res.ok) {
         unit = res.result;
     } else {
@@ -5698,7 +5697,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
     LFORTRAN_ASSERT(asr_verify(*tu));
 
-    if (!symtab_only) {
+    if (!compiler_options.symtab_only) {
         auto res2 = body_visitor(al, *ast_m, diagnostics, unit, main_module,
             ast_overload);
         if (res2.ok) {
@@ -5712,7 +5711,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     if (main_module) {
         // If it is a main module, turn it into a program
         // Note: we can modify this behavior for interactive mode later
-        if (disable_main) {
+        if (compiler_options.disable_main) {
             if (tu->n_items > 0) {
                 diagnostics.add(diag::Diagnostic(
                     "The script is invoked as the main module and it has code to execute,\n"
