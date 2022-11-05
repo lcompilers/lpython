@@ -264,13 +264,11 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 for (auto &item : build_order) {
                     LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item) !=
                                     x.m_global_scope->get_scope().end());
-                    if (startswith(item, "lfortran_intrinsic")) {
-                        ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
-                        if (ASR::is_a<ASR::Module_t>(*mod)) {
-                            ASR::Module_t *m =
-                                ASR::down_cast<ASR::Module_t>(mod);
-                            declare_all_functions(*(m->m_symtab));
-                        }
+                    ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+                    if (ASR::is_a<ASR::Module_t>(*mod)) {
+                        ASR::Module_t *m =
+                            ASR::down_cast<ASR::Module_t>(mod);
+                        declare_all_functions(*(m->m_symtab));
                     }
                 }
 
@@ -296,10 +294,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             for (auto &item : build_order) {
                 LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item) !=
                                 x.m_global_scope->get_scope().end());
-                if (startswith(item, "lfortran_intrinsic")) {
-                    ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
-                    this->visit_symbol(*mod);
-                }
+                ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
+                this->visit_symbol(*mod);
             }
         }
 
