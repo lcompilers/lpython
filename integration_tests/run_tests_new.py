@@ -49,7 +49,7 @@ def main():
     os.environ["PATH"] += os.pathsep + LPYTHON_PATH
     # delete previously created directories (if any)
     for backend in SUPPORTED_BACKENDS:
-        run_cmd(f"rm -rf {BASE_DIR}/_lpython-tmp-test--{backend}")
+        run_cmd(f"rm -rf {BASE_DIR}/_lpython-tmp-test-{backend}")
 
     DEFAULT_THREADS_TO_USE = args.no_of_threads or DEFAULT_THREADS_TO_USE
     for backend in args.backends:
