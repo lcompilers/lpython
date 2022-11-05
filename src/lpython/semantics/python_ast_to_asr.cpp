@@ -253,15 +253,17 @@ ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
     // Convert the module from AST to ASR
     LFortran::LocationManager lm;
     lm.in_filename = infile;
+    LFortran::CompilerOptions compiler_options;
+    compiler_options.disable_main = true;
+    compiler_options.symtab_only = false;
     Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast,
-        diagnostics, false, true, false, infile, "");
+        diagnostics, compiler_options, false, infile);
     // TODO: Uncomment once a check is added for ensuring
     // that module.py file hasn't changed between
     // builds.
     // save_pyc_files(*r2.result, infile + "c");
     std::string input;
     read_file(infile, input);
-    CompilerOptions compiler_options;
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r2.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
