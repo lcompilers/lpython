@@ -279,6 +279,10 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
         for (auto &item : func_order) {
             ASR::symbol_t* sym = symtab.get_symbol(item);
+            if( !sym || ASR::is_a<ASR::ExternalSymbol_t>(*sym) ) {
+                continue;
+            }
+
             ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(sym);
             this->visit_Function(*s);
         }
