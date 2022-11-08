@@ -141,7 +141,7 @@ typedef std::string (*DeepCopyFunction)(std::string, std::string, ASR::ttype_t*)
 class CCPPDSUtils {
     private:
 
-        std::map<std::string, std::pair<std::string, std::string>> typecodeToDStype;
+        std::map<std::string, std::string> typecodeToDStype;
         std::map<std::string, std::map<std::string, std::string>> typecodeToDSfuncs;
         std::map<std::string, std::string> compareTwoDS;
 
@@ -155,7 +155,7 @@ class CCPPDSUtils {
 
     public:
 
-        CCPPList() {
+        CCPPDSUtils() {
             generated_code.clear();
             func_decls.clear();
         }
@@ -197,12 +197,12 @@ class CCPPDSUtils {
             }
             std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
             if( typecodeToDStype.find(list_type_code) != typecodeToDStype.end() ) {
-                return typecodeToDStype[list_type_code].first;
+                return typecodeToDStype[list_type_code];
             }
             std::string indent(indentation_level * indentation_spaces, ' ');
             std::string tab(indentation_spaces, ' ');
             std::string list_struct_type = "struct list_" + list_type_code;
-            typecodeToDStype[list_type_code] = std::make_pair(list_struct_type, list_element_type);
+            typecodeToDStype[list_type_code] = list_struct_type;
             func_decls += indent + list_struct_type + " {\n";
             func_decls += indent + tab + "int32_t capacity;\n";
             func_decls += indent + tab + "int32_t current_end_point;\n";
@@ -274,17 +274,17 @@ class CCPPDSUtils {
 
         void generate_compare_list_element(ASR::ttype_t *t) {
             std::string type_code = ASRUtils::get_type_code(t, true);
-            std::string list_element_type = typecodeToDStype[type_code].second;
             if (compareTwoDS.find(type_code) != compareTwoDS.end()) {
                 return;
             }
+            std::string element_type = CUtils::get_c_type_from_ttype_t(t);
             std::string indent(indentation_level * indentation_spaces, ' ');
             std::string tab(indentation_spaces, ' ');
             std::string cmp_func = global_scope->get_unique_name("compare_" + type_code);
             compareTwoDS[type_code] = cmp_func;
             std::string tmp_gen = "";
             if (ASR::is_a<ASR::List_t>(*t)) {
-                std::string signature = "bool " + cmp_func + "(" + list_element_type + " a, " + list_element_type+ " b)";
+                std::string signature = "bool " + cmp_func + "(" + element_type + " a, " + element_type + " b)";
                 func_decls += indent + "inline " + signature + ";\n";
                 signature = indent + signature;
                 tmp_gen += indent + signature + " {\n";
@@ -300,7 +300,7 @@ class CCPPDSUtils {
                 tmp_gen += indent + tab + "return true;\n";
 
             } else {
-                std::string signature = "bool " + cmp_func + "(" + list_element_type + " a, " + list_element_type + " b)";
+                std::string signature = "bool " + cmp_func + "(" + element_type + " a, " + element_type + " b)";
                 func_decls += indent + "inline " + signature + ";\n";
                 signature = indent + signature;
                 tmp_gen += indent + signature + " {\n";
@@ -552,7 +552,7 @@ class CCPPDSUtils {
             for (size_t i = 0; i < tuple_type->n_type; i++) {
                 if (is_non_primitive_DT(tuple_type->m_type[i])) {
                     // Make sure the nested types work
-                    get_type(list_type->m_type);
+                    get_type(tuple_type->m_type[i]);
                 }
                 func_decls += indent + tab + \
                     CUtils::get_c_type_from_ttype_t(tuple_type->m_type[i]) + " element_" + std::to_string(i) + ";\n";
