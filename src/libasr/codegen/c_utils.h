@@ -570,17 +570,19 @@ class CCPPDSUtils {
             std::string tab(indentation_spaces, ' ');
             std::string tuple_struct_type = "struct " + tuple_type_code;
             typecodeToDStype[tuple_type_code] = tuple_struct_type;
-            func_decls += indent + tuple_struct_type + " {\n";
-            func_decls += indent + tab + "int32_t length;\n";
+            std::string tmp_gen = "";
+            tmp_gen += indent + tuple_struct_type + " {\n";
+            tmp_gen += indent + tab + "int32_t length;\n";
             for (size_t i = 0; i < tuple_type->n_type; i++) {
                 if (is_non_primitive_DT(tuple_type->m_type[i])) {
                     // Make sure the nested types work
                     get_type(tuple_type->m_type[i]);
                 }
-                func_decls += indent + tab + \
+                tmp_gen += indent + tab + \
                     CUtils::get_c_type_from_ttype_t(tuple_type->m_type[i]) + " element_" + std::to_string(i) + ";\n";
             }
-            func_decls += indent + "};\n\n";
+            tmp_gen += indent + "};\n\n";
+            func_decls += tmp_gen;
             generate_compare_funcs((ASR::ttype_t *)tuple_type);
             return tuple_struct_type;
         }
