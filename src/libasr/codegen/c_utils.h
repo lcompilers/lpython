@@ -177,13 +177,23 @@ class CCPPDSUtils {
             return ASR::is_a<ASR::List_t>(*t) || ASR::is_a<ASR::Tuple_t>(*t);
         }
 
-        std::string get_list_type(ASR::List_t* list_type,
-            std::string list_element_type) {
+        std::string get_type(ASR::ttype_t *t) {
+            LFORTRAN_ASSERT(is_non_primitive_DT(t));
+            if (ASR::is_a<ASR::List_t>(*t)) {
+                ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(t);
+                return get_list_type(list_type);
+            } else if (ASR::is_a<ASR::Tuple_t>(*t)) {
+                ASR::Tuple_t* tup_type = ASR::down_cast<ASR::Tuple_t>(t);
+                return get_tuple_type(tup_type);
+            }
+            LFORTRAN_ASSERT(false);
+        }
+
+        std::string get_list_type(ASR::List_t* list_type) {
+            std::string list_element_type = CUtils::get_c_type_from_ttype_t(list_type->m_type);
             if (is_non_primitive_DT(list_type->m_type)) {
-                ASR::List_t* list_type_in = ASR::down_cast<ASR::List_t>(list_type->m_type);
-                std::string list_element_type_in = CUtils::get_c_type_from_ttype_t(list_type_in->m_type);
-                // Make sure that nested list are initialized
-                get_list_type(list_type_in, list_element_type_in);
+                // Make sure the nested types work
+                get_type(list_type->m_type);
             }
             std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
             if( typecodeToDStype.find(list_type_code) != typecodeToDStype.end() ) {
@@ -540,6 +550,10 @@ class CCPPDSUtils {
             func_decls += indent + tuple_struct_type + " {\n";
             func_decls += indent + tab + "int32_t length;\n";
             for (size_t i = 0; i < tuple_type->n_type; i++) {
+                if (is_non_primitive_DT(tuple_type->m_type[i])) {
+                    // Make sure the nested types work
+                    get_type(list_type->m_type);
+                }
                 func_decls += indent + tab + \
                     CUtils::get_c_type_from_ttype_t(tuple_type->m_type[i]) + " element_" + std::to_string(i) + ";\n";
             }
