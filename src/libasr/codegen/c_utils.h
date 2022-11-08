@@ -208,7 +208,7 @@ class CCPPDSUtils {
             func_decls += indent + tab + "int32_t current_end_point;\n";
             func_decls += indent + tab + list_element_type + "* data;\n";
             func_decls += indent + "};\n\n";
-            generate_compare_list_element(list_type->m_type);
+            generate_compare_funcs((ASR::ttype_t *)list_type);
             list_init(list_struct_type, list_type_code, list_element_type);
             list_deepcopy(list_struct_type, list_type_code, list_element_type, list_type->m_type);
             resize_if_needed(list_struct_type, list_type_code, list_element_type);
@@ -272,7 +272,7 @@ class CCPPDSUtils {
             return func_decls;
         }
 
-        void generate_compare_list_element(ASR::ttype_t *t) {
+        void generate_compare_funcs(ASR::ttype_t *t) {
             std::string type_code = ASRUtils::get_type_code(t, true);
             if (compareTwoDS.find(type_code) != compareTwoDS.end()) {
                 return;
@@ -289,7 +289,7 @@ class CCPPDSUtils {
                 signature = indent + signature;
                 tmp_gen += indent + signature + " {\n";
                 ASR::ttype_t *tt = ASR::down_cast<ASR::List_t>(t)->m_type;
-                generate_compare_list_element(tt);
+                generate_compare_funcs(tt);
                 std::string ele_func = compareTwoDS[ASRUtils::get_type_code(tt, true)];
                 tmp_gen += indent + tab + "if (a.current_end_point != b.current_end_point)\n";
                 tmp_gen += indent + tab + tab + "return false;\n";
@@ -299,6 +299,29 @@ class CCPPDSUtils {
                 tmp_gen += indent + tab + "}\n";
                 tmp_gen += indent + tab + "return true;\n";
 
+            } else if (ASR::is_a<ASR::Tuple_t>(*t)) {
+                ASR::Tuple_t *tt = ASR::down_cast<ASR::Tuple_t>(t);
+                std::string signature = "bool " + cmp_func + "(" + element_type + " a, " + element_type+ " b)";
+                func_decls += indent + "inline " + signature + ";\n";
+                signature = indent + signature;
+                tmp_gen += indent + signature + " {\n";
+                tmp_gen += indent + tab + "if (a.length != b.length)\n";
+                tmp_gen += indent + tab + tab + "return false;\n";
+                tmp_gen += indent + tab + "bool ans = true;\n";
+                for (size_t i=0; i<tt->n_type; i++) {
+                    generate_compare_funcs(tt->m_type[i]);
+                    std::string ele_func = compareTwoDS[ASRUtils::get_type_code(tt->m_type[i], true)];
+                    std::string num = std::to_string(i);
+                    tmp_gen += indent + tab + "ans &= " + ele_func + "(a.element_" +
+                                num + ", " + "b.element_" + num + ");\n";
+                }
+                tmp_gen += indent + tab + "return ans;\n";
+            } else if (ASR::is_a<ASR::Character_t>(*t)) {
+                std::string signature = "bool " + cmp_func + "(" + element_type + " a, " + element_type + " b)";
+                func_decls += indent + "inline " + signature + ";\n";
+                signature = indent + signature;
+                tmp_gen += indent + signature + " {\n";
+                tmp_gen += indent + tab + "return strcmp(a, b) == 0;\n";
             } else {
                 std::string signature = "bool " + cmp_func + "(" + element_type + " a, " + element_type + " b)";
                 func_decls += indent + "inline " + signature + ";\n";
@@ -558,6 +581,7 @@ class CCPPDSUtils {
                     CUtils::get_c_type_from_ttype_t(tuple_type->m_type[i]) + " element_" + std::to_string(i) + ";\n";
             }
             func_decls += indent + "};\n\n";
+            generate_compare_funcs((ASR::ttype_t *)tuple_type);
             return tuple_struct_type;
         }
 
