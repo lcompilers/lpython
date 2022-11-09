@@ -154,6 +154,41 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         m_a.asm_push_r32(X86Reg::eax);
     }
 
+    void handle_I32Compare(const std::string &compare_op) {
+        unique_id.push_back(std::to_string(offset));
+        m_a.asm_pop_r32(X86Reg::ebx);
+        m_a.asm_pop_r32(X86Reg::eax);
+        m_a.asm_cmp_r32_r32(X86Reg::eax, X86Reg::ebx);
+        if (compare_op == "Eq") {
+            m_a.asm_je_label(".compare_1" + unique_id.back());
+        } else if (compare_op == "Gt") {
+            m_a.asm_jg_label(".compare_1" + unique_id.back());
+        } else if (compare_op == "GtE") {
+            m_a.asm_jge_label(".compare_1" + unique_id.back());
+        } else if (compare_op == "Lt") {
+            m_a.asm_jl_label(".compare_1" + unique_id.back());
+        } else if (compare_op == "LtE") {
+            m_a.asm_jle_label(".compare_1" + unique_id.back());
+        } else if (compare_op == "NotEq") {
+            m_a.asm_jne_label(".compare_1" + unique_id.back());
+        } else {
+            throw CodeGenError("Comparison operator not implemented");
+        }
+        m_a.asm_mov_r32_imm32(X86Reg::eax, 0);
+        m_a.asm_jmp_label(".compare.end_" + unique_id.back());
+        m_a.add_label(".compare_1" + unique_id.back());
+        m_a.asm_mov_r32_imm32(X86Reg::eax, 1);
+        m_a.add_label(".compare.end_" + unique_id.back());
+        m_a.asm_push_r32(X86Reg::eax);
+    }
+
+    void visit_I32Eq() { handle_I32Compare("Eq"); }
+    void visit_I32GtS() { handle_I32Compare("Gt"); }
+    void visit_I32GeS() { handle_I32Compare("GtE"); }
+    void visit_I32LtS() { handle_I32Compare("Lt"); }
+    void visit_I32LeS() { handle_I32Compare("LtE"); }
+    void visit_I32Ne() { handle_I32Compare("NotEq"); }
+
     void gen_x86_bytes() {
         emit_elf32_header(m_a);
 
@@ -253,7 +288,7 @@ Result<int> wasm_to_x86(Vec<uint8_t> &wasm_bytes, Allocator &al,
     }
 
     //! Helpful for debugging
-    // std::cout << x86_visitor.m_a.get_asm() << std::endl;
+    std::cout << x86_visitor.m_a.get_asm() << std::endl;
 
     if (time_report) {
         std::cout << "Codegen Time report:" << std::endl;
