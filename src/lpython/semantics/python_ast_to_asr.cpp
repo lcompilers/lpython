@@ -3303,7 +3303,12 @@ public:
             }
             bool ltypes, enum_py;
             if (msym != "ltypes") {
-                if (import_path != "" &&
+                if (msym.find(".") != std::string::npos) {
+                    msym.replace(msym.find("."), 1, "/");
+                    if (paths[1] != "") paths[1] += "/";
+                    paths[1] += msym;
+                    msym = "__init__";
+                } else if (import_path != "" &&
                         !path_exits(paths[0] + '/' + msym + ".py")) {
                     paths = {import_path};
                     if (parent_dir != "") paths[0] += '/' + parent_dir;
