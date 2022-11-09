@@ -20,6 +20,9 @@ class Type:
     def __getitem__(self, params):
         return Array(self, params)
 
+    def __call__(self, arg):
+        return arg
+
 class Pointer:
     def __getitem__(self, type):
         return type
