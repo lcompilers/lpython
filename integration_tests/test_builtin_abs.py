@@ -10,8 +10,8 @@ def test_abs():
     assert abs(-5.5) == 5.5
 
     x2: f32
-    x2 = -5.5
-    assert abs(x2) == 5.5
+    x2 = -f32(5.5)
+    assert abs(x2) == f32(5.5)
 
     i: i32
     i = -5
@@ -19,16 +19,16 @@ def test_abs():
     assert abs(-1) == 1
 
     i2: i64
-    i2 = -6
-    assert abs(i2) == 6
+    i2 = -i64(6)
+    assert abs(i2) == i64(6)
 
     i3: i8
-    i3 = -7
-    assert abs(i3) == 7
+    i3 = -i8(7)
+    assert abs(i3) == i8(7)
 
     i4: i16
-    i4 = -8
-    assert abs(i4) == 8
+    i4 = -i16(8)
+    assert abs(i4) == i16(8)
 
     b: bool
     b = True

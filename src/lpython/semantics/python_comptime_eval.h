@@ -243,12 +243,12 @@ struct PythonIntrinsicProcedures {
                     pow(a, b), real_type));
             else {// Positive power
                 if (mod_by == -1)
-                    return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
-                        (int64_t)pow(a, b), int_type));
+                    return ASR::down_cast<ASR::expr_t>(make_RealConstant_t(al, loc,
+                        pow(a, b), real_type));
                 else {
                     int64_t res = (int64_t)pow(a, b);
-                    return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc,
-                        res % mod_by, int_type));
+                    return ASR::down_cast<ASR::expr_t>(make_RealConstant_t(al, loc,
+                        (double) (res % mod_by), real_type));
                 }
             }
 
@@ -530,8 +530,17 @@ struct PythonIntrinsicProcedures {
                 res = ival-1;
             }
             return ASR::down_cast<ASR::expr_t>(make_IntegerConstant_t(al, loc, res, type));
+        } else if (ASRUtils::is_logical(*arg1_type) && ASRUtils::is_logical(*arg2_type)) {
+            ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 1, nullptr, 0));
+            bool n = false, d = false;
+            ASRUtils::extract_value(arg1, n);
+            ASRUtils::extract_value(arg2, d);
+            if( !d ) {
+                throw SemanticError("Denominator cannot be False or 0.", arg2->base.loc);
+            }
+            return ASR::down_cast<ASR::expr_t>(make_LogicalConstant_t(al, loc, n, type));
         } else {
-            throw SemanticError("Only real/integers arguments are expected.", loc);
+            throw SemanticError("Only real/integers/logical arguments are expected.", loc);
         }
     }
 

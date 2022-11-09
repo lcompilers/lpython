@@ -1,5 +1,5 @@
 semantic error: readonly attribute
- --> tests/errors/test_assign8.py:4:5
+ --> tests/errors/test_assign8.py:6:5
   |
-4 |     c.real = 5.0
+6 |     c.real = 5.0
   |     ^^^^^^^^^^^^ 

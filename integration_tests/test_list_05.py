@@ -57,7 +57,7 @@ def test_list_of_tuples():
 
     t = l1[len(l1) - 1]
     assert t[0] == size//2 - 1
-    assert t[1] == size//2 - 1
+    assert t[1] == f64(size//2 - 1)
     assert t[2] == str(size//2 - 1) + "_str"
 
     l1 = insert_tuples_into_list(l1, size)

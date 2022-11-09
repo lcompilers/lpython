@@ -1,3 +1,5 @@
+from ltypes import f64, c64, i32, c32
+
 def test1() -> f64:
     x: f64
     x = 1.0
@@ -14,7 +16,7 @@ def test3() -> i32:
     x: c64
     x = 4j
     y: c32
-    y = 4j
+    y = c32(4j)
     return 0
 
 

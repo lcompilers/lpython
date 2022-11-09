@@ -1,4 +1,4 @@
-from ltypes import i32, f32, dataclass, Pointer, pointer
+from ltypes import i32, f32, f64, dataclass, Pointer, pointer
 
 @dataclass
 class A:
@@ -10,12 +10,12 @@ def f(pa: Pointer[A]):
     print(pa.y)
 
 def g():
-    x: A = A(3, 3.25)
+    x: A = A(3, f32(3.25))
     xp: Pointer[A] = pointer(x)
     assert xp.x == 3
-    assert xp.y == 3.25
+    assert f64(xp.y) == 3.25
     xp.x = 5
-    xp.y = 5.5
+    xp.y = f32(5.5)
     f(xp)
 
 g()

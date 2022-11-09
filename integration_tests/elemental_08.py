@@ -3,7 +3,7 @@ from numpy import empty, reshape, int32, exp
 
 def verify1d(array: f32[:], result: f32[:], size: i32):
     i: i32
-    eps: f32 = 1e-6
+    eps: f32 = f32(1e-6)
 
     for i in range(size):
         assert abs(exp(array[i]) - result[i]) <= eps
@@ -27,7 +27,7 @@ def elemental_exp():
     exp1d: f32[80] = empty(80)
 
     for i in range(80):
-        array1d[i] = i / 50.0
+        array1d[i] = f32(f64(i) / 50.0)
 
     exp1d = exp(array1d)
     verify1d(array1d, exp1d, 80)
@@ -40,9 +40,9 @@ def elemental_exp():
         for j in range(8):
             for k in range(4):
                 for l in range(2):
-                    arraynd[i, j, k, l] = float( i / 8 + j / 4 + k / 2 + l ) / size
+                    arraynd[i, j, k, l] = float( f64(i) / 8.0 + f64(j) / 4.0 + f64(k) / 2.0 + f64(l) ) / size
 
-    expnd = (exp(arraynd) + exp(arraynd / 3)) / 2
+    expnd = (exp(arraynd) + exp(arraynd / 3.0)) / 2.0
 
     verifynd(arraynd, expnd, 16, 8, 4, 2)
 

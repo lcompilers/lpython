@@ -20,31 +20,31 @@ def elemental_sqrt64():
     shape[0] = 4096
     observed = reshape(sqrt(array), shape)
     for l in range(4096):
-        i = int(l/256)
+        i = i32(int(l/256))
         j = (l - i*256)//16
         k = (l - i*256 - j*16)
-        assert abs(observed[l]**2 - i - j - k) <= eps
+        assert abs(observed[l]**2.0 - f64(i + j + k)) <= eps
 
 def elemental_sqrt32():
     array: f32[16, 16] = empty((16, 16))
     observed: f32[256] = empty(256)
     shape: i32[1] = empty(1, dtype=int)
     eps: f32
-    eps = 2e-6
+    eps = f32(2e-6)
     i: i32
     j: i32
     l: i32
 
     for i in range(16):
         for j in range(16):
-            array[i, j] = float(i + j)
+            array[i, j] = f32(i + j)
 
     shape[0] = 256
     observed = reshape(sqrt(array), shape)
     for l in range(256):
-        i = int(l/16)
+        i = i32(int(l/16))
         j = (l - i*16)
-        assert abs(observed[l]**2 - i - j) <= eps
+        assert abs(observed[l]**f32(2.0) - f32(i + j)) <= eps
 
 
 def elemental_norm():
@@ -61,13 +61,13 @@ def elemental_norm():
     for j in range(100):
         array_b[j] = float(j+5)
 
-    array_c = sqrt(array_a**2 + array_b**2)
+    array_c = sqrt(array_a**2.0 + array_b**2.0)
 
     eps: f64
     eps = 1e-12
 
     for i in range(100):
-        assert abs(array_c[i] - sqrt(array_a[i]**2 + array_b[i]**2)) <= eps
+        assert abs(array_c[i] - sqrt(array_a[i]**2.0 + array_b[i]**2.0)) <= eps
 
 
 elemental_sqrt64()

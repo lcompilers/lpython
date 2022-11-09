@@ -17,12 +17,12 @@ def sum_carray(arr: CPtr, size: i32) -> i64:
     pass
 
 def test_sizeof():
-    xi16: i16 = 0
+    xi16: i16 = i16(0)
     xi: i32 = 0
-    yi: i64 = 0
-    xf: f32 = 0.0
+    yi: i64 = i64(0)
+    xf: f32 = f32(0.0)
     yf: f64 = 0.0
-    xz: c32 = complex(0, 0)
+    xz: c32 = c32(complex(0, 0))
     yz: c64 = complex(0, 0)
     assert sizeof(xi16) == sizeof(i16)
     assert sizeof(xi) == sizeof(i32)
@@ -35,7 +35,7 @@ def test_sizeof():
 
 def test_c_array():
     summed_up: i64
-    carray: CPtr = cmalloc(sizeof(i64) * 100)
+    carray: CPtr = cmalloc(sizeof(i64) * i64(100))
     fill_carray(carray, 100)
     summed_up = sum_carray(carray, 100)
     print(summed_up)

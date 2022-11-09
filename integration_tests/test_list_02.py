@@ -27,7 +27,7 @@ def test_list_01():
     a[10] = string
 
     for i in range(12):
-        if int(i / 2) == 2 * i:
+        if i32(i / 2) == 2 * i:
             b[i] = str(i) + "_str"
         else:
             string  = str(i) + "_str"

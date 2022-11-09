@@ -37,7 +37,7 @@ def add(a: i32, b: i32):
 
 @overload
 def add(a: i32, b: i64):
-    print(a + b)
+    print(i64(a) + b)
 
 
 def check():
@@ -60,7 +60,7 @@ def check():
     add(1, 2)
     add(3)
     i: i64
-    i = 10
+    i = i64(10)
     add(2, i)
 
 check()

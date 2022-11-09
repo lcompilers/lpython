@@ -22,9 +22,9 @@ def print_Truck(car: Truck):
 
 def test_enum_as_struct_member():
     cars: Truck[3] = empty(3, dtype=Truck)
-    cars[0] = Truck(700.0, 4, 100000, Color.RED)
-    cars[1] = Truck(800.0, 5, 200000, Color.BLUE)
-    cars[2] = Truck(400.0, 4, 50000, Color.WHITE)
+    cars[0] = Truck(700.0, 4, 100000.0, Color.RED)
+    cars[1] = Truck(800.0, 5, 200000.0, Color.BLUE)
+    cars[2] = Truck(400.0, 4, 50000.0, Color.WHITE)
     print_Truck(cars[0])
     print_Truck(cars[1])
     print_Truck(cars[2])

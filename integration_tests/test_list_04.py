@@ -1,5 +1,5 @@
 from math import sqrt
-from ltypes import i32
+from ltypes import i32, f64
 
 def test_list_01():
     x: list[i32] = []
@@ -12,7 +12,7 @@ def test_list_01():
         x.insert(len(x), j)
 
     for i in x:
-        j = int(sqrt(i - 10.0))
+        j = i32(sqrt(f64(i - 10)))
         y.append(j)
 
     for i in range(len(x)):

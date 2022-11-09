@@ -12,7 +12,7 @@ def check_mat_and_vec(mat: list[list[f64]], vec: list[f64]):
             assert mat[i][j] == float(i + j)
 
     for i in range(cols):
-        assert vec[i] == 2 * float(i)
+        assert vec[i] == 2.0 * float(i)
 
 def test_list_of_lists():
     tensors: list[list[list[list[f64]]]] = []
@@ -33,7 +33,7 @@ def test_list_of_lists():
         vec.clear()
 
     for i in range(cols):
-        vec.append(2 * float(i))
+        vec.append(2.0 * float(i))
 
     check_mat_and_vec(mat, vec)
 
@@ -46,7 +46,7 @@ def test_list_of_lists():
     for k in range(rows):
         for i in range(rows):
             for j in range(cols):
-                assert mat[i][j] - tensor[k][i][j] == rows - k
+                assert mat[i][j] - tensor[k][i][j] == f64(rows - k)
 
     for l in range(2 * rows):
         tensors.append(deepcopy(tensor))
@@ -59,6 +59,6 @@ def test_list_of_lists():
         for i in range(rows):
             for j in range(rows):
                 for k in range(cols):
-                    assert tensor[i][j][k] - tensors[l][i][j][k] == 2 * rows - l
+                    assert tensor[i][j][k] - tensors[l][i][j][k] == f64(2 * rows - l)
 
 test_list_of_lists()
