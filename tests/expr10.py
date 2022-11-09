@@ -1,3 +1,5 @@
+from ltypes import i32, f32, c32
+
 def test_UnaryOp():
     a: i32
     a = +4
@@ -9,8 +11,8 @@ def test_UnaryOp():
     b = not 0
 
     f: f32
-    f = +1.0
-    f = -183745.534
+    f = +f32(1.0)
+    f = -f32(183745.534)
 
     b1: bool
     b2: bool
@@ -23,7 +25,7 @@ def test_UnaryOp():
     a = ~True
 
     c: c32
-    c = +complex(1, 2)
-    c = -complex(3, 65.0)
+    c = +c32(complex(1, 2))
+    c = -c32(complex(3, 65.0))
     b1 = not complex(3, 4)
     b2 = not complex(0, 0)
