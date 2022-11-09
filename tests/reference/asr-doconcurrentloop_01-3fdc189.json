@@ -2,7 +2,7 @@
     "basename": "asr-doconcurrentloop_01-3fdc189",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/doconcurrentloop_01.py",
-    "infile_hash": "cbb1e60c50c639cdbd0e94f5aa6f6c4a8532438c52d77257ac9ccd1e",
+    "infile_hash": "dc0022671a9fa7b620378903a700dd8c4390297cacb1aca2b904069d",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-doconcurrentloop_01-3fdc189.stdout",
