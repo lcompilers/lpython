@@ -1,4 +1,4 @@
-from ltypes import i32, f32, dataclass
+from ltypes import i32, f32, f64, dataclass
 
 @dataclass
 class C:
@@ -23,11 +23,11 @@ def f(a: A):
 
 def g():
     x: A
-    x = A(3.25, 3, B(71, C(4.0)))
+    x = A(f32(3.25), 3, B(71, C(f32(4.0))))
     f(x)
     assert x.x == 3
-    assert x.y == 3.25
+    assert f64(x.y) == 3.25
     assert x.b.z == 71
-    assert x.b.bc.cz == 4.0
+    assert f64(x.b.bc.cz) == 4.0
 
 g()

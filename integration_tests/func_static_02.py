@@ -15,9 +15,9 @@ def fib(n: i64) -> i64:
 
 def main0():
     ans: i64; x: i64
-    x = 5
+    x = i64(5)
     ans = fib(x)
     print(ans)
-    assert ans == 5
+    assert ans == i64(5)
 
 main0()

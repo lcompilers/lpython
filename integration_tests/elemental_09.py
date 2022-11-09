@@ -4,7 +4,7 @@ from numpy import empty, arcsinh, arccosh, reshape, float64, sinh, sqrt, sin,  c
 def verify1d_arcsinh(array: f32[:], result: f32[:], size: i32):
     i: i32
     eps: f32
-    eps = 1e-6
+    eps = f32(1e-6)
 
     for i in range(size):
         assert abs(arcsinh(arcsinh(array[i])) - result[i]) <= eps
@@ -19,7 +19,7 @@ def verifynd_arcsinh(array: f64[:, :, :], result: f64[:, :, :], size1: i32, size
     for i in range(size1):
         for j in range(size2):
             for k in range(size3):
-                assert abs( (1 + arcsinh(array[i, j, k])) - result[i, j, k]) <= eps
+                assert abs( (1.0 + arcsinh(array[i, j, k])) - result[i, j, k]) <= eps
 
 
 def elemental_arcsinh():
@@ -31,7 +31,7 @@ def elemental_arcsinh():
     arcsinh1d: f32[256] = empty(256)
 
     for i in range(256):
-        array1d[i] = float(i)
+        array1d[i] = f32(i)
 
     arcsinh1d = arcsinh(arcsinh(array1d))
     verify1d_arcsinh(array1d, arcsinh1d, 256)
@@ -44,7 +44,7 @@ def elemental_arcsinh():
             for k in range(16):
                 arraynd[i, j, k] = float(i + j + k)
 
-    arcsinhnd = (1 + arcsinh(arraynd))
+    arcsinhnd = (1.0 + arcsinh(arraynd))
     verifynd_arcsinh(arraynd, arcsinhnd, 256, 64, 16)
 
 def verify2d_arccosh(array: f64[:, :], result: f64[:, :], size1: i32, size2: i32):
@@ -55,7 +55,7 @@ def verify2d_arccosh(array: f64[:, :], result: f64[:, :], size1: i32, size2: i32
 
     for i in range(size1):
         for j in range(size2):
-            assert abs(arccosh(array[i, j])**2 - result[i, j]) <= eps
+            assert abs(arccosh(array[i, j])**2.0 - result[i, j]) <= eps
 
 def verifynd_arccosh(array: f64[:, :, :, :], result: f64[:, :, :, :], size1: i32, size2: i32, size3: i32, size4: i32):
     i: i32
@@ -82,9 +82,9 @@ def elemental_arccosh():
 
     for i in range(256):
         for j in range(64):
-                array2d[i, j] = 2 + float(i + j * 2)
+                array2d[i, j] = 2.0 + float(i + j * 2)
 
-    arccosh2d = arccosh(array2d)**2
+    arccosh2d = arccosh(array2d)**2.0
     verify2d_arccosh(array2d, arccosh2d, 256, 64)
 
     arraynd: f64[32, 16, 4, 2] = empty((32, 16, 4, 2))
@@ -94,7 +94,7 @@ def elemental_arccosh():
         for j in range(16):
             for k in range(4):
                 for l in range(2):
-                    arraynd[i, j, k, l] = 2.0 + float(i / 4 + j / 3 + k / 2 + l) / 100.0
+                    arraynd[i, j, k, l] = 2.0 + float(i / 4 + j / 3 + k / 2 + f64(l)) / 100.0
 
     arccosh_nd =  100.0 + arccosh(arraynd) / 100.0
     verifynd_arccosh(arraynd, arccosh_nd, 32, 16, 4, 2)
@@ -119,11 +119,11 @@ def elemental_trig_identity():
         for j in range(5):
             for k in range(2):
                 for l in range(4):
-                    arraynd[i, j, k, l] = 2 + sin((float(i + j + k + l)))
+                    arraynd[i, j, k, l] = 2.0 + sin((float(i + j + k + l)))
 
-    identity1 = 2 * arccosh(arraynd) - arccosh((arraynd**2) * 2 - 1)
-    identity2 =  sinh(arccosh(arraynd)) - sqrt((arraynd**2) - 1)
-    identity3 =  2 * arcsinh(arraynd) - arccosh((arraynd**2) * 2 + 1)
+    identity1 = 2.0 * arccosh(arraynd) - arccosh((arraynd**2.0) * 2.0 - 1.0)
+    identity2 =  sinh(arccosh(arraynd)) - sqrt((arraynd**2.0) - 1.0)
+    identity3 =  2.0 * arcsinh(arraynd) - arccosh((arraynd**2.0) * 2.0 + 1.0)
 
 
     newshape: i32[1] = empty(1, dtype=int)

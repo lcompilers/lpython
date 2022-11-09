@@ -1,3 +1,4 @@
+from ltypes import i32, f32, f64, i64
 def main0():
     i: i32
     sum: i32
@@ -30,12 +31,12 @@ def test_floor_div():
     x: f32
     eps: f64
     eps = 1e-12
-    x = 5.0
-    assert abs(x//2 - 2) < eps
-    assert abs(x//2.0 - 2.0) < eps
-    x = -5.0
-    assert abs(x//2 + 3.0) < eps
-    assert abs(x//2.0 + 3.0) < eps
+    x = f32(5.0)
+    assert f64(abs(x//f32(2) - f32(2))) < eps
+    assert f64(abs(x//f32(2.0) - f32(2.0))) < eps
+    x = -f32(5.0)
+    assert f64(abs(x//f32(2) + f32(3.0))) < eps
+    assert f64(abs(x//f32(2.0) + f32(3.0))) < eps
 
 def test_floor_div_9_digits():
     # reference: issue 768
@@ -47,9 +48,9 @@ def test_floor_div_9_digits():
 
     x8: i64
     y8: i64
-    y8 = 10
-    x8 = 123456789
-    assert x8//y8 == 12345678
+    y8 = i64(10)
+    x8 = i64(123456789)
+    assert x8//y8 == i64(12345678)
 
 
 def check():

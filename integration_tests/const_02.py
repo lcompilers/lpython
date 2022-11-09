@@ -20,10 +20,10 @@ def test_call_cases():
     assert f(y) == 2
 
     # argument const, parameter const
-    assert g(yconst) == 6
+    assert g(yconst) == 6.0
 
 def test_assign_cases():
-    y: i32
+    y: f64
     yconst: Const[i32] = 4
     # target const, value non-const - error case
 
