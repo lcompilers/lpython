@@ -19,3 +19,6 @@ if $WIN != "1":
     python run_tests.py
     cd integration_tests
     python run_tests_new.py -j16 -b llvm cpython c wasm
+
+    if $(uname).strip() == "Linux":
+        python run_tests_new.py -j16 -b x86 wasm_x86
