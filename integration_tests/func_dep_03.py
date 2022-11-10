@@ -2,7 +2,7 @@ from ltypes import i32, i64
 
 def casti32(x: i64) -> i32:
     y: i32
-    y = x
+    y = i32(x)
     return y
 
 def casti64(x: i32) -> i64:
@@ -16,6 +16,6 @@ def addi32(x: i32, y: i64) -> i32:
 
 def test_add():
     assert addi32(5, int(6)) == 11
-    assert addi64(7, int(8)) == 15
+    assert addi64(7, int(8)) == i64(15)
 
 test_add()

@@ -1,12 +1,12 @@
 from ltypes import f64, i32, i64
 
 def power2(i: i64, mod: i64) -> i64:
-    if i == 0 or i == 1:
-        return 2**i
+    if i == i64(0) or i == i64(1):
+        return i64(2)**i
 
     p1: i64; p2: i64; px: i64; py: i64;
 
-    p1 = i//2
+    p1 = i//i64(2)
     p2 = i - p1
     px = power2(p1, mod) % mod
     py = power2(p2, mod) % mod
@@ -18,7 +18,7 @@ def generate_key(i: i32) -> str:
                            8: 'i', 9: 'j'}
     mod: i32 = 99997
     key_digits: i32
-    key_digits = power2(int(i), int(mod))
+    key_digits = i32(power2(int(i), int(mod)))
     key: str = ""
 
     while key_digits > 0:

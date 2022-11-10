@@ -25,7 +25,7 @@ def test_mean():
     d = [1, 3, 11]
     l: f64
     l = mean(d)
-    assert abs(l - 5) < eps
+    assert abs(l - 5.0) < eps
 
 def test_fmean():
     a: list[i32]

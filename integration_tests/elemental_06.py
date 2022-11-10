@@ -5,16 +5,16 @@ from math import pi
 def verify1d_same(array: f32[:], result: f32[:], size: i32):
     i: i32
     eps: f32
-    eps = 1e-6
+    eps = f32(1e-6)
     for i in range(size):
         assert abs(array[i] - result[i]) <= eps
 
 def verify_arcsin_1d(array: f32[:], result: f32[:], size: i32):
     i: i32
     eps: f32
-    eps = 1e-6
+    eps = f32(1e-6)
     for i in range(size):
-        assert abs(arcsin(array[i])**2 - result[i]) <= eps
+        assert abs(arcsin(array[i])**f32(2.0) - result[i]) <= eps
 
 def verify_arcsin_2d(array: f64[:, :], result: f64[:, :], size1:i32, size2:i32):
     i: i32
@@ -23,14 +23,14 @@ def verify_arcsin_2d(array: f64[:, :], result: f64[:, :], size1:i32, size2:i32):
     eps = 1e-12
     for i in range(size1):
         for j in range(size2):
-            assert abs(arcsin(array[i, j])**2 - result[i, j]) <= eps
+            assert abs(arcsin(array[i, j])**2.0 - result[i, j]) <= eps
 
 def verify_arccos_1d(array: f32[:], result: f32[:], size: i32):
     i: i32
     eps: f32
-    eps = 1e-6
+    eps = f32(1e-6)
     for i in range(size):
-        assert abs(arccos(array[i])**2 - result[i]) <= eps
+        assert abs(arccos(array[i])**f32(2.0) - result[i]) <= eps
 
 def verify_arccos_2d(array: f64[:, :], result: f64[:, :], size1:i32, size2:i32):
     i: i32
@@ -39,14 +39,14 @@ def verify_arccos_2d(array: f64[:, :], result: f64[:, :], size1:i32, size2:i32):
     eps = 1e-12
     for i in range(size1):
         for j in range(size2):
-            assert abs(arccos(array[i, j])**2 - result[i, j]) <= eps
+            assert abs(arccos(array[i, j])**2.0 - result[i, j]) <= eps
 
 def verify_arctan_1d(array: f32[:], result: f32[:], size: i32):
     i: i32
     eps: f32
-    eps = 1e-6
+    eps = f32(1e-6)
     for i in range(size):
-        assert abs(arctan(array[i])**2 - result[i]) <= eps
+        assert abs(arctan(array[i])**f32(2.0) - result[i]) <= eps
 
 def verify_arctan_2d(array: f64[:, :], result: f64[:, :], size1:i32, size2:i32):
     i: i32
@@ -55,7 +55,7 @@ def verify_arctan_2d(array: f64[:, :], result: f64[:, :], size1:i32, size2:i32):
     eps = 1e-12
     for i in range(size1):
         for j in range(size2):
-            assert abs(arctan(array[i, j])**2 - result[i, j]) <= eps
+            assert abs(arctan(array[i, j])**2.0 - result[i, j]) <= eps
 
 def elemental_arcsin():
     i: i32
@@ -63,8 +63,8 @@ def elemental_arcsin():
     array1d: f32[201] = empty(201)
     arcsin1d: f32[201] = empty(201)
     for i in range(201):
-        array1d[i] =  float((i - 100)/100)
-    arcsin1d = arcsin(array1d) ** 2
+        array1d[i] =  f32((i - 100)/100)
+    arcsin1d = arcsin(array1d) ** f32(2.0)
     verify_arcsin_1d(array1d, arcsin1d, 201)
 
     array2d: f64[64, 64] = empty((64, 64))
@@ -73,7 +73,7 @@ def elemental_arcsin():
         for j in range(64): # 2048 = 64 * 32
             array2d[i,j]= float((i * 64 + j - 2048 )/2048)
 
-    arcsin2d = arcsin(array2d) ** 2
+    arcsin2d = arcsin(array2d) ** 2.0
     verify_arcsin_2d(array2d, arcsin2d, 64, 64)
 
 def elemental_arccos():
@@ -82,8 +82,8 @@ def elemental_arccos():
     array1d: f32[201] = empty(201)
     arccos1d: f32[201] = empty(201)
     for i in range(201):
-        array1d[i] =  float((i - 100)/100)
-    arccos1d = arccos(array1d) ** 2
+        array1d[i] =  f32((i - 100)/100)
+    arccos1d = arccos(array1d) ** f32(2.0)
     verify_arccos_1d(array1d, arccos1d, 201)
 
     array2d: f64[64, 64] = empty((64, 64))
@@ -92,57 +92,57 @@ def elemental_arccos():
         for j in range(64): # 2048 = 64 * 32
             array2d[i,j]= float((i * 64 + j - 2048 )/2048)
 
-    arccos2d = arccos(array2d) ** 2
+    arccos2d = arccos(array2d) ** 2.0
     verify_arccos_2d(array2d, arccos2d, 64, 64)
 
 def elemental_arctan():
     i: i32
     j: i32
     eps: f32
-    eps = 1e-6
+    eps = f32(1e-6)
     array1d: f32[201] = empty(201)
     array1d_rec: f32[201] = empty(201)
     arctan1d: f32[201] = empty(201)
     for i in range(201):
-        array1d[i] =  float(i-100)
-    arctan1d = arctan(array1d) ** 2
+        array1d[i] =  f32(i - 100)
+    arctan1d = arctan(array1d) ** f32(2.0)
     verify_arctan_1d(array1d, arctan1d, 201)
 
     for i in range(201):
-        array1d[i] =  float(i+1)
-        array1d_rec[i] = float(1.0/(i+1))
+        array1d[i] =  f32(i + 1)
+        array1d_rec[i] = f32(1.0/(i+1))
     arctan1d = arctan(array1d) + arctan(array1d_rec)
     for i in range(201):
-        assert abs(arctan1d[i] - pi / 2) <= eps
+        assert abs(arctan1d[i] - f32(f64(pi) / 2.0)) <= eps
 
     array2d: f64[64, 64] = empty((64, 64))
     arctan2d: f64[64, 64] = empty((64, 64))
     for i in range(64):
         for j in range(64):
-            array2d[i,j]= float(64*i+j-2048)
+            array2d[i,j]= float(64*i + j - 2048)
 
-    arctan2d = arctan(array2d) ** 2
+    arctan2d = arctan(array2d) ** 2.0
     verify_arctan_2d(array2d, arctan2d, 64, 64)
 
 def elemental_trig_identity():
     i: i32
     eps: f32
-    eps = 1e-6
+    eps = f32(1e-6)
     array1d: f32[201] = empty(201)
     observed1d: f32[201] = empty(201)
     for i in range(201):
-        array1d[i] =  float((i - 100)/100)
+        array1d[i] =  f32((i - 100)/100)
 
     observed1d = arcsin(array1d) + arccos(array1d)
     for i in range(201):
-        assert abs(observed1d[i] - pi / 2) <= eps
+        assert abs(observed1d[i] - f32(pi / 2.0)) <= eps
 
 def elemental_reverse():
     i: i32
     array1d: f32[201] = empty(201)
     observed1d: f32[201] = empty(201)
     for i in range(201):
-        array1d[i] =  float((i - 100)/100)
+        array1d[i] =  f32((i - 100)/100)
     observed1d = sin(arcsin(array1d))
     verify1d_same(observed1d, array1d, 201)
 
@@ -161,11 +161,11 @@ def elemental_trig_identity_extra():
     array_x: f32[201] = empty(201)
     array_y: f32[201] = empty(201)
     for i in range(201):
-        array1d[i] =  float((i - 100)/100)
+        array1d[i] =  f32((i - 100)/100)
     array_x = sin(arccos(array1d))
     array_y = cos(arcsin(array1d))
     for i in range(201):
-        array1d[i] =  1 - array1d[i] ** 2
+        array1d[i] =  f32(1.0) - array1d[i] ** f32(2.0)
     array1d = sqrt(array1d)
     verify1d_same(array_x, array_y, 201)
     verify1d_same(array_x, array1d, 201)
@@ -175,16 +175,16 @@ def elemental_degrees():
     j: i32
     eps_32: f32
     eps_64: f64
-    eps_32 = 1e-6
+    eps_32 = f32(1e-6)
     eps_64 = 1e-12
     array1d: f32[200] = empty(200)
     degrees1d: f32[200] = empty(200)
     for i in range(200):
-        array1d[i] =  float(i)
+        array1d[i] =  f32(i)
     degrees1d = sin(degrees(array1d))
 
     for i in range(200):
-        assert abs(degrees1d[i]-sin(degrees(array1d[i]))) <= eps_32
+        assert abs(degrees1d[i] - sin(degrees(array1d[i]))) <= eps_32
 
     array2d: f64[64, 64] = empty((64, 64))
     degrees2d: f64[64, 64] = empty((64, 64))
@@ -194,23 +194,23 @@ def elemental_degrees():
     degrees2d = sin(degrees(array2d))
     for i in range(64):
         for j in range(64):
-            assert abs(degrees2d[i,j]-sin(degrees(array2d[i,j]))) <= eps_64
+            assert abs(degrees2d[i, j] - sin(degrees(array2d[i, j]))) <= eps_64
 
 def elemental_radians():
     i: i32
     j: i32
     eps_32: f32
     eps_64: f64
-    eps_32 = 1e-6
+    eps_32 = f32(1e-6)
     eps_64 = 1e-12
     array1d: f32[200] = empty(200)
     radians1d: f32[200] = empty(200)
     for i in range(200):
-        array1d[i] =  float(i)
+        array1d[i] =  f32(i)
     radians1d = cos(radians(array1d))
 
     for i in range(200):
-        assert abs(radians1d[i]-cos(radians(array1d[i]))) <= eps_32
+        assert abs(radians1d[i] - cos(radians(array1d[i]))) <= eps_32
 
     array2d: f64[64, 64] = empty((64, 64))
     radians2d: f64[64, 64] = empty((64, 64))
@@ -220,7 +220,7 @@ def elemental_radians():
     radians2d = cos(radians(array2d))
     for i in range(64):
         for j in range(64):
-            assert abs(radians2d[i,j]-cos(radians(array2d[i,j]))) <= eps_64
+            assert abs(radians2d[i, j] - cos(radians(array2d[i, j]))) <= eps_64
 
 
 elemental_arcsin()

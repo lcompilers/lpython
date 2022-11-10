@@ -23,7 +23,7 @@ def test_round():
     assert round(56.78) == 57
 
     f2: f32
-    f2 = 5.678
+    f2 = f32(5.678)
     assert round(f2) == 6
 
     i: i32
@@ -32,16 +32,16 @@ def test_round():
     assert round(4) == 4
 
     i2: i8
-    i2 = 7
-    assert round(i2) == 7
+    i2 = i8(7)
+    assert round(i2) == i8(7)
 
     i3: i16
-    i3 = -8
-    assert round(i3) == -8
+    i3 = i16(-8)
+    assert round(i3) == i16(-8)
 
     i4: i64
-    i4 = 0
-    assert round(i4) == 0
+    i4 = i64(0)
+    assert round(i4) == i64(0)
 
     b: bool
     b = True

@@ -14,7 +14,7 @@ def print_value(value: CPtr):
 
 def test_trunc():
     float_cptr: CPtr = empty_c_void_p()
-    float_obj: f32 = 1.3
+    float_obj: f32 = f32(1.3)
 
     p_c_pointer(pointer(float_obj), float_cptr)
     voidobj: Void = Void(float_cptr)

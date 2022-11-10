@@ -11,9 +11,9 @@ def test_array_01():
 def test_array_02():
     x: i32[3] = array([1, 2, 3])
     eps: f64 = 1e-16
-    assert abs(x[0] - 1) < eps
-    assert abs(x[1] - 2) < eps
-    assert abs(x[2] - 3) < eps
+    assert f64(abs(x[0] - 1)) < eps
+    assert f64(abs(x[1] - 2)) < eps
+    assert f64(abs(x[2] - 3)) < eps
 
 def check():
     test_array_01()

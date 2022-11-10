@@ -1,6 +1,6 @@
 from cmath import (exp, log, sqrt, acos, asin, atan, cos, sin, tan,
                    acosh, asinh, atanh, cosh, sinh, tanh)
-from ltypes import c64
+from ltypes import c64, c32
 
 def test_power_logarithmic():
     x: c64
@@ -11,7 +11,7 @@ def test_power_logarithmic():
     y = sqrt(x)
     a: c32
     b: c32
-    a = complex(3, 3)
+    a = c32(complex(3, 3))
     b = exp(a)
     b = log(a)
     b = sqrt(a)
@@ -29,7 +29,7 @@ def test_trigonometric():
     y = tan(x)
     a: c32
     b: c32
-    a = complex(3, 3)
+    a = c32(complex(3, 3))
     b = acos(a)
     b = asin(a)
     b = atan(a)
@@ -50,7 +50,7 @@ def test_hyperbolic():
     y = tanh(x)
     a: c32
     b: c32
-    a = complex(3, 3)
+    a = c32(complex(3, 3))
     b = acosh(a)
     b = asinh(a)
     b = atanh(a)

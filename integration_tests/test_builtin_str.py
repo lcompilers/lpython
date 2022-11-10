@@ -1,3 +1,5 @@
+from ltypes import f32, f64, i32
+
 def test_str_int_float():
     s: str
     s = str(356)
@@ -24,7 +26,7 @@ def str_conv_for_variables():
     x = -121212
     assert "-121212" == str(x)
     xx: f32
-    xx = 12.322234
+    xx = f32(12.322234)
     assert str(xx) == "12.322234"
     yy : f64
     yy = 12.322234

@@ -16,24 +16,24 @@ def test_nd_to_1d(a: f64[:, :]):
     for k in range(256):
         i = k//16
         j = k - i*16
-        assert abs(b[k] - i - j - 0.5) <= eps
+        assert abs(b[k] - f64(i + j) - 0.5) <= eps
 
     c: f64[16, 16, 16] = empty((16, 16, 16))
     c = empty((16, 16, 16))
     for i in range(16):
         for j in range(16):
             for k in range(16):
-                c[i, j, k] = i + j + k + 0.5
+                c[i, j, k] = f64(i + j + k) + 0.5
 
     d: f64[4096] = empty(4096)
     newshape1: i32[1] = empty(1, dtype=int)
     newshape1[0] = 4096
     d = reshape(c, newshape1)
     for l in range(4096):
-        i = int(l/256)
+        i = i32(int(l/256))
         j = (l - i*256)//16
         k = (l - i*256 - j*16)
-        assert abs(d[l] - i - j - k - 0.5) <= eps
+        assert abs(d[l] - f64(i + j + k) - 0.5) <= eps
 
 def test_1d_to_nd(d: f64[:]):
     i: i32
@@ -47,7 +47,7 @@ def test_1d_to_nd(d: f64[:]):
     for k in range(256):
         i = k//16
         j = k - i*16
-        b[k] = i + j + 0.5
+        b[k] = f64(i + j) + 0.5
 
     a: f64[16, 16]
     a = empty((16, 16))
@@ -57,7 +57,7 @@ def test_1d_to_nd(d: f64[:]):
     a = reshape(b, newshape)
     for i in range(16):
         for j in range(16):
-            assert abs(a[i, j] - i - j - 0.5) <= eps
+            assert abs(a[i, j] - f64(i + j) - 0.5) <= eps
 
     c: f64[16, 16, 16]
     c = empty((16, 16, 16))
@@ -69,7 +69,7 @@ def test_1d_to_nd(d: f64[:]):
     for i in range(16):
         for j in range(16):
             for k in range(16):
-                assert abs(c[i, j, k] - i - j - k - 0.5) <= eps
+                assert abs(c[i, j, k] - f64(i + j + k) - 0.5) <= eps
 
 def test_reshape_with_argument():
     i: i32
@@ -81,16 +81,16 @@ def test_reshape_with_argument():
     a = empty((16, 16))
     for i in range(16):
         for j in range(16):
-            a[i, j] = i + j + 0.5
+            a[i, j] = f64(i + j) + 0.5
 
     test_nd_to_1d(a)
 
     d: f64[4096] = empty(4096)
     for l in range(4096):
-        i = int(l/256)
+        i = i32(int(l/256))
         j = (l - i*256)//16
         k = (l - i*256 - j*16)
-        d[l] = i + j + k + 0.5
+        d[l] = f64(i + j + k) + 0.5
 
     test_1d_to_nd(d)
 

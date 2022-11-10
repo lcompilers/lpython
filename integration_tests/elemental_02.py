@@ -39,10 +39,10 @@ def elemental_tan32():
     i: i32
     j: i32
     eps: f32
-    eps = 1e-6
+    eps = f32(1e-6)
 
     for i in range(25):
-        theta1d[i] = float(i + 1)
+        theta1d[i] = f32(i + 1)
 
     shapend[0] = 5
     shapend[1] = 5

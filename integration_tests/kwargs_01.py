@@ -19,7 +19,7 @@ def test_arg_passing():
 
     arg1 = 1
     arg2 = int(2)
-    arg3 = 3.0
+    arg3 = f32(3.0)
     arg4 = float(4.0)
     arg5 = complex(5.0, 5.0)
     arg6 = "testing"

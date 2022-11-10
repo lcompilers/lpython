@@ -133,7 +133,7 @@ def geometric_mean(x: list[i64]) -> f64:
     i: i32
 
     for i in range(k):
-        if x[i] <= 0:
+        if x[i] <= i64(0):
             raise Exception("geometric mean requires a non-empty dataset containing positive numbers")
         product *= float(x[i])
 
@@ -173,7 +173,7 @@ def harmonic_mean(x: list[i32]) -> f64:
     for i in range(k):
         if x[i] == 0:
             return 0.0
-        if x[i] < 0.0:
+        if x[i] < 0:
             raise Exception("Harmonic mean does not support negative values")
         sum += 1 / x[i]
 
@@ -192,9 +192,9 @@ def harmonic_mean(x: list[i64]) -> f64:
     i: i32
 
     for i in range(k):
-        if x[i] == 0:
+        if x[i] == i64(0):
             return 0.0
-        if x[i] < 0 :
+        if x[i] < i64(0):
             raise Exception("Harmonic mean does not support negative values")
         sum += 1 / x[i]
     return k/sum
@@ -258,7 +258,7 @@ def variance(x: list[f64]) -> f64:
     num = 0.0
     i: i32
     for i in range(n):
-        num += (x[i] - xmean)**2
+        num += (x[i] - xmean)**2.0
     return num / (n-1)
 
 @overload
@@ -276,7 +276,7 @@ def variance(x: list[i32]) -> f64:
     num = 0.0
     i: i32
     for i in range(n):
-        num += (x[i] - xmean)**2
+        num += (f64(x[i]) - xmean)**2.0
     return num / (n-1)
 
 
@@ -310,7 +310,7 @@ def pvariance(x: list[f64]) -> f64:
     num = 0.0
     i: i32
     for i in range(n):
-        num += (x[i] - xmean)**2
+        num += (x[i] - xmean)**2.0
     return num / n
 
 @overload
@@ -328,7 +328,7 @@ def pvariance(x: list[i32]) -> f64:
     num = 0.0
     i: i32
     for i in range(n):
-        num += (x[i] - xmean)**2
+        num += (f64(x[i]) - xmean)**2.0
     return num / n
 
 
@@ -363,18 +363,18 @@ def correlation(x: list[i32], y: list[i32]) -> f64:
     sxy: f64 = 0.0
     i: i32
     for i in range(n):
-        sxy += (x[i] - xmean) * (y[i] - ymean)
+        sxy += (f64(x[i]) - xmean) * (f64(y[i]) - ymean)
 
     sxx: f64 = 0.0
     j: i32
     for j in range(n):
-        sxx += (x[j] - xmean) ** 2
+        sxx += (f64(x[j]) - xmean) ** 2.0
 
     syy: f64 = 0.0
     k: i32
     for k in range(n):
-        syy += (y[k] - ymean) ** 2
-    if (sxx * syy) == 0:
+        syy += (f64(y[k]) - ymean) ** 2.0
+    if (sxx * syy) == 0.0:
         raise Exception('at least one of the inputs is constant')
     return sxy / (sxx * syy)**0.5
 
@@ -400,13 +400,13 @@ def correlation(x: list[f64], y: list[f64]) -> f64:
     sxx: f64 = 0.0
     j: i32
     for j in range(n):
-        sxx += (x[j] - xmean) ** 2
+        sxx += (f64(x[j]) - xmean) ** 2.0
 
     syy: f64 = 0.0
     k: i32
     for k in range(n):
-        syy += (y[k] - ymean) ** 2
-    if (sxx * syy) == 0:
+        syy += (f64(y[k]) - ymean) ** 2.0
+    if (sxx * syy) == 0.0:
         raise Exception('at least one of the inputs is constant')
     return sxy / (sxx * syy)**0.5
 
@@ -425,7 +425,7 @@ def covariance(x: list[i32], y: list[i32]) -> f64:
     num = 0.0
     i: i32
     for i in range(n):
-        num += (x[i] - xmean) * (y[i] - ymean)
+        num += (f64(x[i]) - xmean) * (f64(y[i]) - ymean)
     return num / (n-1)
 
 @overload
@@ -464,16 +464,16 @@ def linear_regression(x: list[i32], y: list[i32]) -> tuple[f64, f64]:
     sxy: f64 = 0.0
     i: i32
     for i in range(n):
-        sxy += (x[i] - xmean) * (y[i] - ymean)
+        sxy += (f64(x[i]) - xmean) * (f64(y[i]) - ymean)
 
     sxx: f64 = 0.0
     j: i32
     for j in range(n):
-        sxx += (x[j] - xmean) ** 2
+        sxx += (f64(x[j]) - xmean) ** 2.0
 
     slope: f64
 
-    if sxx == 0:
+    if sxx == 0.0:
         raise Exception('x is constant')
     else:
         slope = sxy / sxx
@@ -507,11 +507,11 @@ def linear_regression(x: list[f64], y: list[f64]) -> tuple[f64, f64]:
     sxx: f64 = 0.0
     j: i32
     for j in range(n):
-        sxx += (x[j] - xmean) ** 2
+        sxx += (f64(x[j]) - xmean) ** 2.0
 
     slope: f64
 
-    if sxx == 0:
+    if sxx == 0.0:
         raise Exception('x is constant')
     else:
         slope = sxy / sxx

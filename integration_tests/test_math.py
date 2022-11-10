@@ -9,8 +9,8 @@ eps = 1e-12
 
 def test_factorial_1():
     i: i64
-    i = factorial(10)
-    assert i == 3628800
+    i = factorial(i64(10))
+    assert i == i64(3628800)
 
 
 def test_comb():
@@ -71,10 +71,10 @@ def test_pow():
     assert abs(pow(x, y) - 43.14280115650323) < eps
 
     a: i64
-    a = 2
+    a = i64(2)
     b: i64
-    b = 4
-    assert pow(a, b) == 16
+    b = i64(4)
+    assert pow(a, b) == i64(16)
 
 def test_ldexp():
     i: f64
@@ -118,21 +118,21 @@ def test_lcm():
 def test_floor():
     i: i64
     i = floor(10.02)
-    assert i == 10
-    i = floor(-13)
-    assert i == -13
+    assert i == i64(10)
+    i = floor(-i64(13))
+    assert i == -i64(13)
     i = floor(-13.31)
-    assert i == -14
+    assert i == -i64(14)
 
 
 def test_ceil():
     i: i64
     i = ceil(10.02)
-    assert i == 11
-    i = ceil(-13)
-    assert i == -13
+    assert i == i64(11)
+    i = ceil(-i64(13))
+    assert i == -i64(13)
     i = ceil(-13.31)
-    assert i == -13
+    assert i == -i64(13)
 
 
 def test_remainder():
@@ -156,13 +156,13 @@ def test_expm1():
 def test_trunc():
     i: i64
     i = trunc(3.5)
-    assert i == 3
+    assert i == i64(3)
     i = trunc(-4.5)
-    assert i == -4
+    assert i == -i64(4)
     i = trunc(5.5)
-    assert i == 5
+    assert i == i64(5)
     i = trunc(-4.5)
-    assert i == -4
+    assert i == -i64(4)
 
 def test_fsum():
     res: f64
@@ -173,15 +173,15 @@ def test_fsum():
     res = fsum(arr_i32)
     assert abs(res - 18.0) < eps
 
-    a: i64 = 12
-    b: i64 = 6
+    a: i64 = i64(12)
+    b: i64 = i64(6)
     arr_i64: list[i64]
     arr_i64 = [a, b]
     res = fsum(arr_i64)
     assert abs(res - 18.0) < eps
 
-    x: f32 = 12.5
-    y: f32 = 6.5
+    x: f32 = f32(12.5)
+    y: f32 = f32(6.5)
     arr_f32: list[f32]
     arr_f32 = [x, y]
     res = fsum(arr_f32)
@@ -201,15 +201,15 @@ def test_prod():
     res = prod(arr_i32)
     assert abs(res - 72.0) < eps
 
-    a: i64 = 12
-    b: i64 = 6
+    a: i64 = i64(12)
+    b: i64 = i64(6)
     arr_i64: list[i64]
     arr_i64 = [a, b]
     res = prod(arr_i64)
     assert abs(res - 72.0) < eps
 
-    x: f32 = 12.5
-    y: f32 = 6.5
+    x: f32 = f32(12.5)
+    y: f32 = f32(6.5)
     arr_f32: list[f32]
     arr_f32 = [x, y]
     res = prod(arr_f32)

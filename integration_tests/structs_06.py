@@ -25,22 +25,22 @@ class PackedStructUnaligned:
     Data4: i8
 
 def sum_data(sarg: PackedStruct) -> i64:
-    return int(sarg.Data1) + sarg.Data2 + int(sarg.Data3) + int(sarg.Data4)
+    return i64(i32(sarg.Data1) + sarg.Data2 + i32(sarg.Data3) + i32(sarg.Data4))
 
 def sum_and_product_data(sarg: PackedStructAligned2) -> i64:
-    product: i64 = int(sarg.Data1) * sarg.Data2 * int(sarg.Data3) * int(sarg.Data4)
-    summation: i64 = int(sarg.Data1) + sarg.Data2 + int(sarg.Data3) + int(sarg.Data4)
+    product: i64 = i64(i32(sarg.Data1) * sarg.Data2 * i32(sarg.Data3) * i32(sarg.Data4))
+    summation: i64 = i64(i32(sarg.Data1) + sarg.Data2 + i32(sarg.Data3) + i32(sarg.Data4))
     return product + summation
 
 def product_data(sarg: PackedStructUnaligned) -> i64:
-    return int(sarg.Data1) * sarg.Data2 * int(sarg.Data3) * int(sarg.Data4)
+    return i64(i32(sarg.Data1) * sarg.Data2 * i32(sarg.Data3) * i32(sarg.Data4))
 
 def test_sample_struct():
     data1: i8; data2: i32; data3: i8; data4: i8
-    data1 = 1
+    data1 = i8(1)
     data2 = 2
-    data3 = 3
-    data4 = 4
+    data3 = i8(3)
+    data4 = i8(4)
     s: PackedStruct = PackedStruct(data1, data2, data3, data4)
     assert sum_data(s) == int(10)
 

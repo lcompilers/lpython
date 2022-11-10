@@ -2,7 +2,7 @@
     "basename": "asr-test_bitwise_on_float-2e09b30",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/errors/test_bitwise_on_float.py",
-    "infile_hash": "db0fdc79b1041fc5745a4bc839181d870f95d8ebd5169a29530cb178",
+    "infile_hash": "34c9ba802bdc18b54b616f3689f76af19a2e62a68b7db1e0daed1c58",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,

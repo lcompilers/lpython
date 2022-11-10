@@ -2,11 +2,11 @@
     "basename": "ast-constants1-91cb6ff",
     "cmd": "lpython --show-ast --no-color {infile} -o {outfile}",
     "infile": "tests/constants1.py",
-    "infile_hash": "cee5ee435f95d4ce19c6602a539e212d144920b7635557962fb0de2d",
+    "infile_hash": "5d624d8607e3c7f476ef4e7e70e36b0e9779b08b456a2d09d8974abf",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "ast-constants1-91cb6ff.stdout",
-    "stdout_hash": "3c9c2a308bd472db88f520a61a4874046ee7e289bf4ce50ec274212d",
+    "stdout_hash": "66fbdb5f3b8cbb44977406b34e1041bc1cb8e390c94bb9a3e5a1584d",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

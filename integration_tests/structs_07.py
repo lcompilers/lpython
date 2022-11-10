@@ -15,7 +15,7 @@ def cfree(x: CPtr) -> i32:
     pass
 
 def call_malloc():
-   x: CPtr = cmalloc(sizeof(A) * 20)
-   assert cfree(x) == True
+   x: CPtr = cmalloc(sizeof(A) * i64(20))
+   assert cfree(x) == 1
 
 call_malloc()

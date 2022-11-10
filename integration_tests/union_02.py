@@ -42,7 +42,7 @@ def test_struct_union():
 
     d.c = cobj
     print(d.c.cx, d.c.cy, d.c.cz)
-    assert d.c.cx == 5
+    assert d.c.cx == i64(5)
     assert abs(d.c.cy - 13.0) <= 1e-12
     assert abs(d.c.cz - 8.0) <= 1e-12
 

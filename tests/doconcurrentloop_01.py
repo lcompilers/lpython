@@ -1,3 +1,5 @@
+from ltypes import f32, i32
+
 def triad(a: f32[:], b: f32[:], scalar: f32, c: f32[:]):
     N: i32
     i: i32
@@ -12,11 +14,11 @@ def main0():
     scalar: f32
     i: i32
     nsize: i32
-    scalar = 10.0
+    scalar = f32(10.0)
     nsize = size(a)
     for i in range(nsize): # type: parallel
-        a[i] = 5.0
-        b[i] = 5.0
+        a[i] = f32(5.0)
+        b[i] = f32(5.0)
     triad(a, b, scalar, c)
     print("End Stream Triad")
 

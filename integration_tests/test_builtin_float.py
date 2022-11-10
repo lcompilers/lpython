@@ -4,7 +4,7 @@ def test_float():
     i: i32
     i = 34
     f: f32
-    f = 0.0
+    f = f32(0.0)
     assert float() == 0.0
     assert float(34) == 34.0
     assert float(i) == 34.0
@@ -23,6 +23,6 @@ def test_float():
     f2 = float(b)
     assert f2 == 1.0
     b = False
-    assert b == 0.0
+    assert f64(b) == 0.0
 
 test_float()

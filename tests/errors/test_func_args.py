@@ -1,10 +1,10 @@
 from ltypes import i64
 
 def fib(n: i64) -> i64:
-    if n < 2:
+    if n < i64(2):
         return n
     else:
-        return fib(n - 1) + fib(n - 2)
+        return fib(n - i64(1)) + fib(n - i64(2))
 
 def main():
     ans: i64

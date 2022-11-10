@@ -1,3 +1,5 @@
+from ltypes import i32, i64
+
 def test_factorial_1(x: i32) -> i32:
     if x < 0:
         return 0
@@ -20,12 +22,12 @@ def test_factorial_2(x: i32) -> i32:
 
 def test_factorial_3(x: i32) -> i64:
     result: i64
-    result = 0
+    result = i64(0)
     if x < 0:
         return result
-    result = 1
+    result = i64(1)
     while x > 0:
-        result = result * x
+        result = result * i64(x)
         x -= 1
     return result
 
