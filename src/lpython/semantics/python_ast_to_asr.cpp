@@ -3391,19 +3391,22 @@ public:
             }
             bool ltypes, enum_py;
             if (msym != "ltypes") {
-                if (msym.find(".") != std::string::npos) {
-                    msym.replace(msym.find("."), 1, "/");
-                    if (paths[1] != "") paths[1] += "/";
-                    paths[1] += msym;
-                    msym = "__init__";
-                } else if (import_path != "" &&
+                if (import_path != "" &&
                         !path_exits(paths[0] + '/' + msym + ".py")) {
                     paths = {import_path};
                     if (parent_dir != "") paths[0] += '/' + parent_dir;
                     if(is_directory(paths[0])) {
+                        if (msym.find(".") != std::string::npos) {
+                            msym.replace(msym.find("."), 1, "/");
+                        }
                         paths[0] += '/' + msym;
                         msym = "__init__";
                     }
+                } else if (msym.find(".") != std::string::npos) {
+                    msym.replace(msym.find("."), 1, "/");
+                    if (parent_dir != "") paths[1] += "/";
+                    paths[1] += msym;
+                    msym = "__init__";
                 } else if (is_directory(msym)) {
                     paths = {rl_path, msym};
                     msym = "__init__";
@@ -3464,9 +3467,17 @@ public:
                     paths = {import_path};
                     if (parent_dir != "") paths[0] += '/' + parent_dir;
                     if(is_directory(paths[0])) {
+                        if (mod_sym.find(".") != std::string::npos) {
+                            mod_sym.replace(mod_sym.find("."), 1, "/");
+                        }
                         paths[0] += '/' + mod_sym;
                         mod_sym = "__init__";
                     }
+                } else if (mod_sym.find(".") != std::string::npos) {
+                    mod_sym.replace(mod_sym.find("."), 1, "/");
+                    if (parent_dir != "") paths[1] += "/";
+                    paths[1] += mod_sym;
+                    mod_sym = "__init__";
                 } else if (is_directory(mod_sym)) {
                     paths = {rl_path, mod_sym};
                     mod_sym = "__init__";
