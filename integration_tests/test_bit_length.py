@@ -1,4 +1,6 @@
 from math import floor, log2
+from ltypes import i8, i32, i16
+
 def ff():
     assert -8 .bit_length() == -4
     #TODO:(1 << 12).bit_length()
@@ -12,15 +14,15 @@ def ff1():
 
 def ff2():
     x: i8
-    x = 1 << 6
-    assert x.bit_length() == 7
+    x = i8(1 << 6)
+    assert i32(x.bit_length()) == 7
 
 def ff3():
     x: i16
     one: i16
-    one = 1
-    x = -(one << 13)
-    assert x.bit_length() == 14
+    one = i16(1)
+    x = -i16(one << i16(13))
+    assert i32(x.bit_length()) == 14
 
 
 ff()

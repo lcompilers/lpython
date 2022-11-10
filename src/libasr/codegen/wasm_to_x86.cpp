@@ -288,7 +288,7 @@ Result<int> wasm_to_x86(Vec<uint8_t> &wasm_bytes, Allocator &al,
     }
 
     //! Helpful for debugging
-    std::cout << x86_visitor.m_a.get_asm() << std::endl;
+    // std::cout << x86_visitor.m_a.get_asm() << std::endl;
 
     if (time_report) {
         std::cout << "Codegen Time report:" << std::endl;

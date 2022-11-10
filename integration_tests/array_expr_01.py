@@ -36,6 +36,6 @@ def array_expr_01():
     g = reshape(e + f, shape1d)
 
     for i in range(dim1d):
-        assert abs(g[i] - 2*(i + 1)) <= eps
+        assert abs(g[i] - f64(2*(i + 1))) <= eps
 
 array_expr_01()

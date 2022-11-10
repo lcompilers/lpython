@@ -1,7 +1,7 @@
 from ltypes import i32, i64, f64, f32, ccall, vectorize, overload
 
-pi_64: f64 = 3.141592653589793238462643383279502884197
-pi_32: f32 = 3.141592653589793238462643383279502884197
+pi_64: f64 = f64(3.141592653589793238462643383279502884197)
+pi_32: f32 = f32(3.141592653589793238462643383279502884197)
 
 ########## sin ##########
 
@@ -53,9 +53,7 @@ def sqrt(x: f64) -> f64:
 @overload
 @vectorize
 def sqrt(x: f32) -> f32:
-    result: f32
-    result = x**(1/2)
-    return result
+    return x**f32(1/2)
 
 ########## tan ##########
 
@@ -169,7 +167,7 @@ def log2(x: f64) -> f64:
 @overload
 @vectorize
 def log2(x: f32) -> f32:
-    return _lfortran_slog(x)/_lfortran_slog(2.0)
+    return f32(_lfortran_slog(x)/_lfortran_slog(f32(2.0)))
 
 ########## arcsin ##########
 
@@ -276,24 +274,24 @@ def arctan(x: f32) -> f32:
 @overload
 @vectorize
 def degrees(x: f64) -> f64:
-    return x*180/pi_64
+    return x*180.0/pi_64
 
 @overload
 @vectorize
 def degrees(x: f32) -> f32:
-    return x*180/pi_32
+    return x*f32(f32(180)/pi_32)
 
 ########## radians ##########
 
 @overload
 @vectorize
 def radians(x: f64) -> f64:
-    return x*pi_64/180
+    return x*pi_64/180.0
 
 @overload
 @vectorize
 def radians(x: f32) -> f32:
-    return x*pi_32/180
+    return x*f32(pi_32/f32(180))
 
 ########## arcsinh ##########
 
@@ -360,7 +358,7 @@ def arctanh(x: f32) -> f32:
 @overload
 @vectorize
 def mod(x1: i64, x2: i64) -> i64:
-    if x2 == 0:
+    if x2 == i64(0):
         return int(0)
     return x1 % x2
 
@@ -379,18 +377,17 @@ def mod(x1: i32, x2: i32) -> i32:
 def floor(x: f64) -> f64:
     result: i64
     result = int(x)
-    if x >= 0 or x == result:
+    if x >= f64(0) or x == f64(result):
         return float(result)
-    return float(result - 1)
+    return float(result - i64(1))
 
 @overload
 @vectorize
 def floor(x: f32) -> f32:
-    result: i32 = int(x)
-    resultf: f32 = result
-    if x >= 0 or x == resultf:
+    resultf: f32 = f32(i32(x))
+    if x >= f32(0) or x == resultf:
         return resultf
-    return resultf - 1
+    return resultf - f32(1)
 
 
 ########## ceil ##########
@@ -401,15 +398,14 @@ def floor(x: f32) -> f32:
 def ceil(x: f64) -> f64:
     result: i64
     result = int(x)
-    if x <= 0 or x == result:
+    if x <= f64(0) or x == f64(result):
         return float(result)
-    return float(result + 1)
+    return float(result + i64(1))
 
 @overload
 @vectorize
 def ceil(x: f32) -> f32:
-    result: i32 = int(x)
-    resultf: f32 = result
-    if x <= 0 or x == resultf:
+    resultf: f32 = f32(i32(x))
+    if x <= f32(0) or x == resultf:
         return resultf
-    return resultf + 1
+    return resultf + f32(1)

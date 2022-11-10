@@ -7,7 +7,7 @@ class ArraySizes(Enum):
     SIZE_10: i32 = 10
 
 def accept_i16_array(xi16: i16[:]) -> i16:
-    xi16[2] = 32
+    xi16[2] = i16(32)
     return xi16[2]
 
 def accept_i32_array(xi32: i32[:]) -> i32:
@@ -15,11 +15,11 @@ def accept_i32_array(xi32: i32[:]) -> i32:
     return xi32[1]
 
 def accept_i64_array(xi64: i64[:]) -> i64:
-    xi64[1] = 64
+    xi64[1] = i64(64)
     return xi64[1]
 
 def accept_f32_array(xf32: f32[:]) -> f32:
-    xf32[1] = 32.0
+    xf32[1] = f32(32.0)
     return xf32[1]
 
 def accept_f64_array(xf64: f64[:]) -> f64:

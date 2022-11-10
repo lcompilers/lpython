@@ -21,7 +21,7 @@ def f():
         t2 = set_tuple(i, j)
         t1 = merge_tuple(t1, t2)
     assert t1[0] == 55
-    assert t1[1] == 55
+    assert t1[1] == 55.0
     assert t1[2] == "4510"
     assert t1[3] == complex(55, 55)
     print(t1[0], t1[1], t1[2], t1[3])

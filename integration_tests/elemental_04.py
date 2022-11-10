@@ -15,7 +15,7 @@ def elemental_log():
     observed = log(array)
 
     for i in range(100):
-        assert abs(exp(observed[i]) - i - 1) <= eps
+        assert abs(exp(observed[i]) - f64(i + 1)) <= eps
 
 def verify(observed: f32[:], base: i32, eps: f32):
     k: i32
@@ -23,9 +23,9 @@ def verify(observed: f32[:], base: i32, eps: f32):
     j: i32
 
     for k in range(100):
-        i = int(k/10)
+        i = i32(int(k/10))
         j = (k - i*10)
-        assert abs(base**(observed[k]) - i - j - 1) <= eps
+        assert abs(f32(base)**(observed[k]) - f32(i + j + 1)) <= eps
 
 def elemental_log2_log10():
     array: f32[10, 10] = empty((10, 10))
@@ -34,11 +34,11 @@ def elemental_log2_log10():
     i: i32
     j: i32
     eps: f32
-    eps = 2e-6
+    eps = f32(2e-6)
 
     for i in range(10):
         for j in range(10):
-            array[i, j] = float(i + j + 1)
+            array[i, j] = f32(i + j + 1)
 
     shape[0] = 100
     observed = reshape(log2(array), shape)

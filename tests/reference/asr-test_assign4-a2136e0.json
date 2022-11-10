@@ -2,12 +2,12 @@
     "basename": "asr-test_assign4-a2136e0",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/errors/test_assign4.py",
-    "infile_hash": "561fdb2fa9ddab21de687217119c385589018aeb839f53ad9ece0942",
+    "infile_hash": "fa72583bcde55d59b4dae9b510e6d5245eaf3e5cf28e36108dada27a",
     "outfile": null,
     "outfile_hash": null,
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-test_assign4-a2136e0.stderr",
-    "stderr_hash": "633559add9bb76a26f7919c71128a853ac537411d65b75ac2f319e26",
+    "stderr_hash": "a871819fb4bd2139f16a7407208ea210276e5b12c9f13ae442132483",
     "returncode": 2
 }

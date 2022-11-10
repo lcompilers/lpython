@@ -2,11 +2,11 @@
     "basename": "asr-test_numpy_04-ecbb614",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/test_numpy_04.py",
-    "infile_hash": "57f8336a4905a7284ae40eb6752fd1b5765d7cf95802aedfe8810830",
+    "infile_hash": "d9a0e72a70d0793614d26709f45959d7d43fd60f81bde0a8bf69746b",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-test_numpy_04-ecbb614.stdout",
-    "stdout_hash": "ad06c398c88b9a54987c58e0eca29989107efc7c26a923862a60edb0",
+    "stdout_hash": "b23c55460ca9d537d479a5bb674cc57276c0544181902a9a4ba9230b",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

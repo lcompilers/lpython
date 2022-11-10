@@ -4,10 +4,10 @@ def main0():
         print(c)
 
 def test_issue_770():
-    i: i64; res: i64 = 0
+    i: i32; res: i64 = int(0)
     for i in range(10):
-        res += i
-    assert res == 45
+        res += int(i)
+    assert res == int(45)
 
 main0()
 test_issue_770()

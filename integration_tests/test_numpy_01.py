@@ -8,7 +8,7 @@ def test_local_arrays():
     a = empty(16)
     i: i32
     for i in range(16):
-        a[i] = i+0.5
+        a[i] = f64(i) + 0.5
     eps: f64
     eps = 1e-12
     assert abs(a[0] - 0.5) < eps
@@ -21,7 +21,7 @@ def f() -> f64[4]:
     a = empty(4)
     i: i32
     for i in range(4):
-        a[i] = 1.0 * i
+        a[i] = 1.0 * f64(i)
     return a
 
 def test_return_arrays():
@@ -29,10 +29,10 @@ def test_return_arrays():
     a = f()
     eps: f64
     eps = 1e-12
-    assert abs(a[0] - 0) < eps
-    assert abs(a[1] - 1) < eps
-    assert abs(a[2] - 2) < eps
-    assert abs(a[3] - 3) < eps
+    assert abs(a[0] - 0.0) < eps
+    assert abs(a[1] - 1.0) < eps
+    assert abs(a[2] - 2.0) < eps
+    assert abs(a[3] - 3.0) < eps
 
 def check():
     test_local_arrays()

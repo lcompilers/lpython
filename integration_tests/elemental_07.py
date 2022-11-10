@@ -3,7 +3,7 @@ from numpy import empty, tanh, reshape, int32, float64, sin, log10
 
 def verify1d(array: f32[:], result: f32[:], size: i32):
     i: i32
-    eps: f32 = 1e-6
+    eps: f32 = f32(1e-6)
 
     for i in range(size):
         assert abs(tanh(sin(array[i])) - result[i]) <= eps
@@ -18,7 +18,7 @@ def verifynd(array: f64[:, :, :, :], result: f64[:, :, :, :], size1: i32, size2:
     result1d: f64[1024] = reshape(result, shape)
 
     for i in range(size):
-        assert abs((tanh(sin(array1d[i])) + 2)/2 - result1d[i]) <= eps
+        assert abs((tanh(sin(array1d[i])) + 2.0)/2.0 - result1d[i]) <= eps
 
 
 def elemental_tanh():
@@ -28,7 +28,7 @@ def elemental_tanh():
     tanh1d: f32[80] = empty(80)
 
     for i in range(80):
-        array1d[i] = i / 10.0
+        array1d[i] = f32(f64(i) / 10.0)
 
     tanh1d = tanh(sin(array1d))
     verify1d(array1d, tanh1d, 10)
@@ -43,7 +43,7 @@ def elemental_tanh():
                 for l in range(2):
                     arraynd[i, j, k, l] = float(i + 2*j + 3*k + 4*k)/size
 
-    tanhnd = (tanh(sin(arraynd)) + 2)/2
+    tanhnd = (tanh(sin(arraynd)) + 2.0)/2.0
 
     verifynd(arraynd, tanhnd, 16, 8, 4, 2)
 

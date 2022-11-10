@@ -3,7 +3,7 @@ from numpy import empty, sinh, cosh, reshape, int32, float64, sin
 
 def verify1d(array: f32[:], result: f32[:], size: i32):
     i: i32
-    eps: f32 = 1e-6
+    eps: f32 = f32(1e-6)
 
     for i in range(size):
         assert abs(sinh(sinh(array[i])) - result[i]) <= eps
@@ -18,7 +18,7 @@ def verifynd(array: f64[:, :, :, :], result: f64[:, :, :, :], size1: i32, size2:
     result1d: f64[12800] = reshape(result, shape)
 
     for i in range(size):
-        assert abs((sinh(array1d[i]) + 2)/2 - result1d[i]) <= eps
+        assert abs((sinh(array1d[i]) + 2.0)/2 - result1d[i]) <= eps
 
 
 def elemental_sinh():
@@ -28,7 +28,7 @@ def elemental_sinh():
     sinh1d: f32[10] = empty(10)
 
     for i in range(10):
-        array1d[i] = i/10.0
+        array1d[i] = f32(f64(i)/10.0)
 
     sinh1d = sinh(sinh(array1d))
     verify1d(array1d, sinh1d, 10)
@@ -43,7 +43,7 @@ def elemental_sinh():
                 for l in range(2):
                     arraynd[i, j, k, l] = float(i + 2*j + 3*k + 4*k)/size
 
-    sinhnd = (sinh(arraynd) + 2)/2
+    sinhnd = (sinh(arraynd) + 2.0)/2.0
 
     verifynd(arraynd, sinhnd, 40, 10, 16, 2)
 
@@ -53,7 +53,7 @@ def verify2d(array: f64[:, :], result: f64[:, :], size1: i32, size2: i32):
 
     for i in range(size1):
         for j in range(size2):
-            assert abs(cosh(5 + array[i, j])**2 - result[i, j]) <= eps
+            assert abs(cosh(5.0 + array[i, j])**2.0 - result[i, j]) <= eps
 
 def elemental_cosh():
     i: i32; j: i32
@@ -65,7 +65,7 @@ def elemental_cosh():
         for j in range(10):
                 array2d[i, j] = (i + 2*j)/200.0
 
-    cosh2d = cosh(5 + (array2d))**2
+    cosh2d = cosh(5.0 + (array2d))**2.0
     verify2d(array2d, cosh2d, 20, 10)
 
 def elemental_cosh_():
@@ -79,7 +79,7 @@ def elemental_cosh_():
         for j in range(10):
                 array2d[i, j] = (i + 2*j)/200.0
 
-    cosh2d = cosh(5 + (array2d))**2
+    cosh2d = cosh(5.0 + (array2d))**2.0
     verify2d(array2d, cosh2d, 20, 10)
 
 def elemental_trig_identity():
@@ -104,12 +104,12 @@ def elemental_trig_identity():
                 for l in range(4):
                     arraynd[i, j, k, l] = sin(float(i + j + k + l))
 
-    identity1 = 1.0 - cosh(arraynd)**2 + sinh(arraynd)**2
-    identity2 =  cosh(-1 * arraynd) - cosh(arraynd)
-    identity3 =  sinh(-1 * arraynd) + sinh(arraynd)
-    identity4 =  (cosh(arraynd/4 + arraynd/2) -
-                  cosh(arraynd/4) * cosh(arraynd/2) -
-                  sinh(arraynd/4) * sinh(arraynd/2))
+    identity1 = 1.0 - cosh(arraynd)**2.0 + sinh(arraynd)**2.0
+    identity2 =  cosh(-1.0 * arraynd) - cosh(arraynd)
+    identity3 =  sinh(-1.0 * arraynd) + sinh(arraynd)
+    identity4 =  (cosh(arraynd/4.0 + arraynd/2.0) -
+                  cosh(arraynd/4.0) * cosh(arraynd/2.0) -
+                  sinh(arraynd/4.0) * sinh(arraynd/2.0))
 
     newshape: i32[1] = empty(1, dtype=int)
     newshape[0] = 400

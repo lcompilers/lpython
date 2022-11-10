@@ -19,13 +19,13 @@ def test_list_01():
         f.append(float(i + 6))
 
     for i in range(15):
-        assert (f[i] - a[i]) == 1.0
+        assert (f[i] - f64(a[i])) == 1.0
 
     for i in range(15):
-        f[i] = f[i] + i
+        f[i] = f[i] + f64(i)
 
     for i in range(15):
-        assert (f[i] - a[i]) == (i + 1.0)
+        assert (f[i] - f64(a[i])) == (f64(i) + 1.0)
 
 def test_list_02():
     x: list[i32] = [1, 2]

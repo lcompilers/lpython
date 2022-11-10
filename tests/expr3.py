@@ -1,8 +1,10 @@
+from ltypes import i32, f32
+
 def test_cast():
     a: i32
     b: f32
     a = 2
-    b = 4.2
+    b = f32(4.2)
     a *= b
     b += 1
     a = 5

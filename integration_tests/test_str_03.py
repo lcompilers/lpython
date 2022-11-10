@@ -1,13 +1,15 @@
+from ltypes import i8, i16, i32, i64
+
 def test_new_line():
     print("abc\n")
     print("\ndef")
     print("x\nyz")
 
 def test_int():
-    i: i8 = 1
-    j: i16 = 2
+    i: i8 = i8(1)
+    j: i16 = i16(2)
     k: i32 = 3
-    l: i64 = 4
+    l: i64 = i64(4)
     print("abc:", i, j, k, l)
 
 
