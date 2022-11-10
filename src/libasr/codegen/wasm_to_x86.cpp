@@ -28,6 +28,8 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         wasm_bytes.from_pointer_n(code.data(), code.size());
     }
 
+    void visit_Unreachable() {}
+
     void visit_Return() {}
 
     void call_imported_function(uint32_t func_index) {
@@ -238,7 +240,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
 
         // Add runtime library functions
         emit_print_int(m_a, "print_i32");
-        emit_exit(m_a, "exit", 0);
+        emit_exit2(m_a, "exit");
 
         // declare compile-time strings
         for (uint32_t i = 0; i < data_segments.size(); i++) {
