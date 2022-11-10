@@ -154,11 +154,11 @@ void emit_print_int(X86Assembler &a, const std::string &name)
     a.asm_je_label(".print");
 //    jmp .loop
     a.asm_jmp_label(".loop");
-    
+
     a.add_label(".print");
 //    cmp esi, 0
     a.asm_cmp_r32_imm8(X86Reg::esi, 0);
-//    jz end 
+//    jz end
     a.asm_je_label(".end");
 //    dec esi
     a.asm_dec_r32(X86Reg::esi);
