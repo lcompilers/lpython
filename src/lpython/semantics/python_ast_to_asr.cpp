@@ -5419,7 +5419,7 @@ public:
                             ASR::call_arg_t str_arg;
                             str_arg.loc = x.base.base.loc;
                             ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                                    1, 0, nullptr, nullptr, 0));
+                                    1, str.size(), nullptr, nullptr, 0));
                             str_arg.m_value = ASRUtils::EXPR(
                                     ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, str), str_type));
                             ASR::call_arg_t sub_arg;
@@ -5447,7 +5447,7 @@ public:
                     }
                     res = std::string(res.begin(), res.begin() + ind +1);
                     ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                                    1, 1, nullptr, nullptr , 0));
+                                    1, res.size(), nullptr, nullptr , 0));
                     tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
                     return;
                 } else if (std::string(at->m_attr) == std::string("lstrip")) {
@@ -5463,7 +5463,7 @@ public:
                     }
                     res = std::string(res.begin() + ind, res.end());
                     ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                                    1, 1, nullptr, nullptr , 0));
+                                    1, res.size(), nullptr, nullptr , 0));
                     tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
                     return;
                 } else if (std::string(at->m_attr) == std::string("strip")) {
@@ -5481,7 +5481,7 @@ public:
                     }
                     res = std::string(res.begin() + l, res.begin() + r + 1);
                     ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                                    1, 1, nullptr, nullptr , 0));
+                                    1, res.size(), nullptr, nullptr , 0));
                     tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
                     return;
                 } else if (std::string(at->m_attr) == std::string("swapcase")) {
@@ -5500,7 +5500,7 @@ public:
                         }
                     }
                     ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                                    1, 1, nullptr, nullptr , 0));
+                                    1, res.size(), nullptr, nullptr , 0));
                     tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
                     return;
                 } else if (std::string(at->m_attr) == std::string("startswith")) {
@@ -5533,7 +5533,7 @@ public:
                             ASR::call_arg_t str_arg;
                             str_arg.loc = x.base.base.loc;
                             ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                                    1, 0, nullptr, nullptr, 0));
+                                    1, str.size(), nullptr, nullptr, 0));
                             str_arg.m_value = ASRUtils::EXPR(
                                     ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, str), str_type));
                             ASR::call_arg_t sub_arg;
