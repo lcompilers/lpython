@@ -210,8 +210,11 @@ public:
     }
 
     std::string convert_variable_decl(const ASR::Variable_t &v, bool use_static=true,
-                                      bool use_templates_for_arrays=false)
+                                      bool use_templates_for_arrays=false, bool _=false)
     {
+        if( _ ) {
+
+        }
         std::string sub;
         bool use_ref = (v.m_intent == LFortran::ASRUtils::intent_out ||
 

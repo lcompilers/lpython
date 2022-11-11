@@ -354,6 +354,9 @@ R"(#include <stdio.h>
                 ASR::Pointer_t* ptr_type = ASR::down_cast<ASR::Pointer_t>(return_var->m_type);
                 std::string pointer_type_str = CUtils::get_c_type_from_ttype_t(ptr_type->m_type);
                 sub = pointer_type_str + "*";
+            } else if (ASR::is_a<ASR::Struct_t>(*return_var->m_type)) {
+                std::string struct_type_str = CUtils::get_c_type_from_ttype_t(return_var->m_type);
+                sub = struct_type_str + " ";
             } else {
                 throw CodeGenError("Return type not supported in function '" +
                     std::string(x.m_name) +
@@ -443,8 +446,15 @@ R"(#include <stdio.h>
             for (auto &item : x.m_symtab->get_scope()) {
                 if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                    if (v->m_intent == LFortran::ASRUtils::intent_local || v->m_intent == LFortran::ASRUtils::intent_return_var) {
-                        decl += indent + self().convert_variable_decl(*v);
+                    if (v->m_intent == LFortran::ASRUtils::intent_local ||
+                        v->m_intent == LFortran::ASRUtils::intent_return_var) {
+                        if (is_c) {
+                            decl += indent + self().convert_variable_decl(*v, true,
+                                !(ASR::is_a<ASR::Struct_t>(*v->m_type) &&
+                                std::string(v->m_name) == "_lpython_return_variable"), true);
+                        } else {
+                            decl += indent + self().convert_variable_decl(*v);
+                        }
                         if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
                             v->m_intent == ASRUtils::intent_return_var ) {
                             decl += ";\n";
@@ -678,6 +688,8 @@ R"(#include <stdio.h>
                  value = "*" + value;
              } else if (ASR::is_a<ASR::ArrayItem_t>(*x.m_value)) {
                  value = "&" + value;
+             } else if (ASR::is_a<ASR::FunctionCall_t>(*x.m_value)) {
+                 target = "*" + target;
              }
         }
         if( !from_std_vector_helper.empty() ) {
