@@ -225,12 +225,11 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         } else {
             throw CodeGenError("Comparison operator not implemented");
         }
-        m_a.asm_mov_r32_imm32(X86Reg::eax, 0);
+        m_a.asm_push_imm8(0);
         m_a.asm_jmp_label(".compare.end_" + label);
         m_a.add_label(".compare_1" + label);
-        m_a.asm_mov_r32_imm32(X86Reg::eax, 1);
+        m_a.asm_push_imm8(1);
         m_a.add_label(".compare.end_" + label);
-        m_a.asm_push_r32(X86Reg::eax);
     }
 
     void visit_I32Eq() { handle_I32Compare("Eq"); }
