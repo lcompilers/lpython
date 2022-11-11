@@ -72,7 +72,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
                 break;
             }
             case 6: {  // set_exit_code
-                m_a.asm_call_label("exit");
+                m_a.asm_jmp_label("exit");
                 break;
             }
             default: {
