@@ -11,6 +11,22 @@ namespace LFortran {
 
 namespace wasm {
 
+/*
+
+This X86Visitor uses stack to pass arguments and return values from functions.
+Since in X86, instructions operate on registers (and not on stack),
+for every instruction we pop elements from top of stack and store them into
+registers. After operating on the registers, the result value is then
+pushed back onto the stack.
+
+One of the reasons to use stack to pass function arguments is that,
+it allows us to define and call functions with any number of parameters.
+As registers are limited in number, if we use them to pass function arugments,
+the number of arguments we could pass to a function would get limited by
+the number of registers available with the CPU.
+
+*/
+
 class X86Visitor : public WASMDecoder<X86Visitor>,
                    public WASM_INSTS_VISITOR::BaseWASMVisitor<X86Visitor> {
    public:
