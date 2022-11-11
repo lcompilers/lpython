@@ -969,10 +969,16 @@ namespace LFortran {
         builder->CreateCondBr(cond, thenBB, elseBB);
         builder->SetInsertPoint(thenBB);
         {
-            std::string message = "list index out of range";
-            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("IndexError: %s\n");
-            llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
-            print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
+            std::string index_error = "IndexError: %s%d%s%d\n",
+            message1 = "List index is out of range. Index range is (0, ",
+            message2 = "), but the given index is ";
+            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(index_error);
+            llvm::Value *fmt_ptr1 = builder->CreateGlobalStringPtr(message1);
+            llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message2);
+            llvm::Value *end_minus_one = builder->CreateSub(end_point,
+                llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
+            print_error(context, module, *builder, {fmt_ptr, fmt_ptr1,
+                end_minus_one, fmt_ptr2, pos});
             int exit_code_int = 1;
             llvm::Value *exit_code = llvm::ConstantInt::get(context,
                     llvm::APInt(32, exit_code_int));
@@ -2417,12 +2423,10 @@ namespace LFortran {
         builder->CreateCondBr(cond, thenBB, elseBB);
         builder->SetInsertPoint(thenBB);
         {
-            // TODO: Allow runtime information like the exact element which is
-            // not found.
-            std::string message = "The list does not contain the element";
-            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("ValueError: %s\n");
+            std::string message = "The list does not contain the element: ";
+            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("ValueError: %s%d\n");
             llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(message);
-            print_error(context, module, *builder, {fmt_ptr, fmt_ptr2});
+            print_error(context, module, *builder, {fmt_ptr, fmt_ptr2, item});
             int exit_code_int = 1;
             llvm::Value *exit_code = llvm::ConstantInt::get(context,
                     llvm::APInt(32, exit_code_int));
