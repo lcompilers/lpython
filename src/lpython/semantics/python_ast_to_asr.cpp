@@ -1182,7 +1182,7 @@ public:
                     int param_dims = ASRUtils::extract_dimensions_from_ttype(param_type, dims);
                     int arg_dims = ASRUtils::extract_dimensions_from_ttype(arg_type, dims);
                     if (param_dims == arg_dims) {
-                        subs[param_name] = ASRUtils::duplicate_type_without_dims(al, arg_type);
+                        subs[param_name] = ASRUtils::duplicate_type_without_dims(al, arg_type, arg_type->base.loc);
                     } else {
                         throw SemanticError("Inconsistent type subsititution for array type", loc);
                     }
@@ -1705,8 +1705,32 @@ public:
                 int n_dims_left = ASRUtils::extract_dimensions_from_ttype(left_type, m_dims_left);
                 int n_dims_right = ASRUtils::extract_dimensions_from_ttype(right_type, m_dims_right);
                 if( n_dims_left == 0 && n_dims_right == 0 ) {
-                    dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
-                    8, nullptr, 0));
+                    int left_type_priority = CastingUtil::get_type_priority(left_type->type);
+                    int right_type_priority = CastingUtil::get_type_priority(right_type->type);
+                    int left_kind = ASRUtils::extract_kind_from_ttype_t(left_type);
+                    int right_kind = ASRUtils::extract_kind_from_ttype_t(right_type);
+                    bool is_left_f32 = ASR::is_a<ASR::Real_t>(*left_type) && left_kind == 4;
+                    bool is_right_f32 = ASR::is_a<ASR::Real_t>(*right_type) && right_kind == 4;
+                    if( (left_type_priority >= right_type_priority && is_left_f32) ||
+                        (right_type_priority >= left_type_priority && is_right_f32) ) {
+                        dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc, 4, nullptr, 0));
+                    } else if( left_type_priority <= CastingUtil::get_type_priority(ASR::ttypeType::Real) &&
+                               right_type_priority <= CastingUtil::get_type_priority(ASR::ttypeType::Real)) {
+                        dest_type = ASRUtils::TYPE(ASR::make_Real_t(al, loc,
+                        8, nullptr, 0));
+                    } else {
+                        if( left_type_priority > right_type_priority ) {
+                            dest_type = ASRUtils::duplicate_type_without_dims(al, left_type, loc);
+                        } else if( left_type_priority < right_type_priority ) {
+                            dest_type = ASRUtils::duplicate_type_without_dims(al, right_type, loc);
+                        } else {
+                            if( left_kind >= right_kind ) {
+                                dest_type = ASRUtils::duplicate_type_without_dims(al, left_type, loc);
+                            } else {
+                                dest_type = ASRUtils::duplicate_type_without_dims(al, right_type, loc);
+                            }
+                        }
+                    }
                     cast_helper(dest_type, left, left->base.loc, true);
                     double val = -1.0;
                     if (ASRUtils::extract_value(ASRUtils::expr_value(right), val) &&
@@ -3217,7 +3241,8 @@ public:
             ASR::ttype_t *arg_type = ast_expr_to_asr_type(x.base.base.loc, *x.m_args.m_args[i].m_annotation);
             // Set the function as generic if an argument is typed with a type parameter
             if (ASRUtils::is_generic(*arg_type)) {
-                ASR::ttype_t *new_tt = ASRUtils::duplicate_type_without_dims(al, ASRUtils::get_type_parameter(arg_type));
+                ASR::ttype_t* arg_type_type = ASRUtils::get_type_parameter(arg_type);
+                ASR::ttype_t *new_tt = ASRUtils::duplicate_type_without_dims(al, arg_type_type, arg_type_type->base.loc);
                 size_t current_size = tps.size();
                 if (current_size == 0) {
                     tps.push_back(al, new_tt);
