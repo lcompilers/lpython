@@ -162,6 +162,11 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         }
     }
 
+    void visit_I32Eqz() {
+        m_a.asm_push_imm32(0U);
+        handle_I32Compare("Eq");
+    }
+
     void visit_I32Const(int32_t value) {
         m_a.asm_push_imm32(value);
         // if (value < 0) {
