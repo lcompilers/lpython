@@ -170,18 +170,21 @@ namespace LFortran {
                                 llvm::Module& module);
 
             llvm::Value* read_item(llvm::Value* list, llvm::Value* pos,
-                                   bool get_pointer=false, bool check_index_bound=true);
+                                   bool enable_bounds_checking,
+                                   llvm::Module& module, bool get_pointer=false);
 
             llvm::Value* len(llvm::Value* list);
 
-            void check_index_within_bounds(llvm::Value* list, llvm::Value* pos);
+            void check_index_within_bounds(llvm::Value* list, llvm::Value* pos,
+                                           llvm::Module& module);
 
             void write_item(llvm::Value* list, llvm::Value* pos,
                             llvm::Value* item, ASR::ttype_t* asr_type,
-                            llvm::Module& module, bool check_index_bound=true);
+                            bool enable_bounds_checking, llvm::Module& module);
 
             void write_item(llvm::Value* list, llvm::Value* pos,
-                            llvm::Value* item, bool check_index_bound=true);
+                            llvm::Value* item, bool enable_bounds_checking,
+                            llvm::Module& module);
 
             void append(llvm::Value* list, llvm::Value* item,
                         ASR::ttype_t* asr_type, llvm::Module& module);

@@ -1,0 +1,4 @@
+def test():
+    raise
+
+test()

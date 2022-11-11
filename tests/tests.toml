@@ -951,3 +951,23 @@ asr = true
 [[test]]
 filename = "runtime_errors/test_list_01.py"
 run = true
+
+[[test]]
+filename = "runtime_errors/test_list_02.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_assert_01.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_assert_02.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_quit_01.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_raise_01.py"
+run = true

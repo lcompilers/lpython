@@ -927,8 +927,8 @@ int link_executable(const std::vector<std::string> &infiles,
                 std::cout << "The command '" + cmd + "' failed." << std::endl;
                 return 10;
             }
-            if (outfile == "a.out" && compiler_options.arg_o == "") {
-                err = system("a.out");
+            if (compiler_options.arg_o == "") {
+                err = system(outfile.c_str());
                 if (err != 0) {
                     if (0 < err && err < 256) {
                         return err;
@@ -962,8 +962,8 @@ int link_executable(const std::vector<std::string> &infiles,
                 std::cout << "The command '" + cmd + "' failed." << std::endl;
                 return 10;
             }
-            if (outfile == "a.out" && compiler_options.arg_o == "") {
-                err = system("./a.out");
+            if (compiler_options.arg_o == "") {
+                err = system(("./" + outfile).c_str());
                 if (err != 0) {
                     if (0 < err && err < 256) {
                         return err;
@@ -1282,6 +1282,7 @@ int main(int argc, char *argv[])
         app.add_flag("--no-warnings", compiler_options.no_warnings, "Turn off all warnings");
         app.add_flag("--no-error-banner", compiler_options.no_error_banner, "Turn off error banner");
         app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86, wasm, wasm_x86)")->capture_default_str();
+        app.add_flag("--enable-bounds-checking", compiler_options.enable_bounds_checking, "Turn on index bounds checking");
         app.add_flag("--openmp", compiler_options.openmp, "Enable openmp");
         app.add_flag("--fast", compiler_options.fast, "Best performance (disable strict standard compliance)");
         app.add_option("--target", compiler_options.target, "Generate code for the given target")->capture_default_str();
@@ -1291,10 +1292,6 @@ int main(int argc, char *argv[])
         // LSP specific options
         app.add_flag("--show-errors", show_errors, "Show errors when LSP is running in the background");
         app.add_flag("--show-document-symbols", show_document_symbols, "Show symbols in lpython file");
-
-        if( compiler_options.fast ) {
-            lpython_pass_manager.use_optimization_passes();
-        }
 
         /*
         * Subcommands:
@@ -1327,6 +1324,16 @@ int main(int argc, char *argv[])
         app.get_formatter()->column_width(25);
         app.require_subcommand(0, 1);
         CLI11_PARSE(app, argc, argv);
+
+        if( compiler_options.fast && compiler_options.enable_bounds_checking ) {
+        // ReleaseSafe Mode
+        } else if ( compiler_options.fast ) {
+        // Release Mode
+            lpython_pass_manager.use_optimization_passes();
+        } else {
+        // Debug Mode
+            compiler_options.enable_bounds_checking = true;
+        }
 
         if (arg_version) {
             std::string version = LFORTRAN_VERSION;
@@ -1434,7 +1441,7 @@ int main(int argc, char *argv[])
         } else if (show_wat) {
             outfile = basename + ".wat";
         } else {
-            outfile = "a.out";
+            outfile = basename + ".out";
         }
 
         // if (arg_E) {
