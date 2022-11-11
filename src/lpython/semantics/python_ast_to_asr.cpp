@@ -5294,6 +5294,198 @@ public:
         tmp = make_call_helper(al, fn_call, current_scope, fn_args, fn_call_name, loc);
     }
 
+    int KMP_string_match(std::string &s_var, std::string &sub) {
+        int str_len = s_var.size();
+        int sub_len = sub.size();
+        bool flag = 0;
+        int res = -1;
+        std::vector<int> lps(sub_len, 0);
+        if (str_len == 0 || sub_len == 0) {
+            res = (!sub_len || (sub_len == str_len))? 0: -1;
+        } else {
+            for(int i = 1, len = 0; i < sub_len;) {
+                if (sub[i] == sub[len]) {
+                    lps[i++] = ++len;
+                } else {
+                    if (len != 0) {
+                        len = lps[len - 1];
+                    } else {
+                        lps[i++] = 0;
+                    }
+                }
+            }
+            for (int i = 0, j = 0; (str_len - i) >= (sub_len - j) && !flag;) {
+                if (sub[j] == s_var[i]) {
+                    j++, i++;
+                }
+                if (j == sub_len) {
+                    res = i - j;
+                    flag = 1;
+                    j = lps[j - 1];
+                } else if (i < str_len && sub[j] != s_var[i]) {
+                    if (j != 0) {
+                        j = lps[j - 1];
+                    } else {
+                        i = i + 1;
+                    }
+                }
+            }
+        }
+        return res;
+    }
+
+    void handle_constant_string_attributes(std::string &s_var,
+                Vec<ASR::call_arg_t> &args, std::string attr_name, const Location &loc) {
+        if (attr_name == "capitalize") {
+            if (args.size() != 0) {
+                throw SemanticError("str.capitalize() takes no arguments",
+                    loc);
+            }
+            if (s_var.length() > 0) {
+                s_var[0] = toupper(s_var[0]);
+            }
+        } else if (attr_name == "lower") {
+            if (args.size() != 0) {
+                throw SemanticError("str.lower() takes no arguments",
+                        loc);
+            }
+            for (auto &i : s_var) {
+                if (i >= 'A' && i<= 'Z') {
+                    i = tolower(i);
+                }
+            }
+        } else if (attr_name == "find") {
+            if (args.size() != 1) {
+                throw SemanticError("str.find() takes one arguments",
+                        loc);
+            }
+            ASR::expr_t *arg = args[0].m_value;
+            ASR::ttype_t *type = ASRUtils::expr_type(arg);
+            if (!ASRUtils::is_character(*type)) {
+                throw SemanticError("str.find() takes one arguments of type: str",
+                    arg->base.loc);
+            }
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                ASR::StringConstant_t* sub_str_con = ASR::down_cast<ASR::StringConstant_t>(arg);
+                std::string sub = sub_str_con->m_s;
+                int res = KMP_string_match(s_var, sub);
+                tmp = ASR::make_IntegerConstant_t(al, loc, res,
+                    ASRUtils::TYPE(ASR::make_Integer_t(al,loc, 4, nullptr, 0)));
+            } else {
+                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_find");
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, 1);
+                ASR::call_arg_t str_arg;
+                str_arg.loc = loc;
+                ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                        1, s_var.size(), nullptr, nullptr, 0));
+                str_arg.m_value = ASRUtils::EXPR(
+                        ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
+                ASR::call_arg_t sub_arg;
+                sub_arg.loc = loc;
+                sub_arg.m_value = arg;
+                args.push_back(al, str_arg);
+                args.push_back(al, sub_arg);
+                tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_find", loc);
+            }
+            return;
+        } else if (attr_name == "rstrip") {
+            if (args.size() != 0) {
+                throw SemanticError("str.rstrip() takes no arguments",
+                    loc);
+            }
+            int ind = (int)s_var.size() - 1;
+            while (ind >= 0 && s_var[ind] == ' '){
+                ind--;
+            }
+            s_var = std::string(s_var.begin(), s_var.begin() + ind + 1);
+        } else if (attr_name == "lstrip") {
+            if (args.size() != 0) {
+                throw SemanticError("str.lstrip() takes no arguments",
+                        loc);
+            }
+            size_t ind = 0;
+            while (ind < s_var.size() && s_var[ind] == ' ') {
+                ind++;
+            }
+            s_var = std::string(s_var.begin() + ind, s_var.end());
+        } else if (attr_name == "strip") {
+            if (args.size() != 0) {
+                throw SemanticError("str.strip() takes no arguments",
+                        loc);
+            }
+            size_t l = 0;
+            int r = (int)s_var.size() - 1;
+            while (l < s_var.size() && (int)r >= 0 && (s_var[l] == ' ' || s_var[r] == ' ')) {
+                l += s_var[l] == ' ';
+                r -= s_var[r] == ' ';
+            }
+            s_var = std::string(s_var.begin() + l, s_var.begin() + r + 1);
+        } else if (attr_name == "swapcase") {
+            if (args.size() != 0) {
+                throw SemanticError("str.swapcase() takes no arguments",
+                        loc);
+            }
+            for (size_t i = 0; i < s_var.size(); i++)  {
+                char &cur = s_var[i];
+                if(cur >= 'a' && cur <= 'z') {
+                    cur = cur -'a' + 'A';
+                } else if(cur >= 'A' && cur <= 'Z') {
+                    cur = cur - 'A' + 'a';
+                }
+            }
+        } else if (attr_name == "startswith") {
+            if (args.size() != 1) {
+                throw SemanticError("str.startswith() takes one arguments",
+                        loc);
+            }
+            ASR::expr_t *arg = args[0].m_value;
+            ASR::ttype_t *type = ASRUtils::expr_type(arg);
+            if (!ASRUtils::is_character(*type)) {
+                throw SemanticError("str.startwith() takes one arguments of type: str",
+                    arg->base.loc);
+            }
+            if (ASRUtils::expr_value(arg) != nullptr) {
+                ASR::StringConstant_t* sub_str_con = ASR::down_cast<ASR::StringConstant_t>(arg);
+                std::string sub = sub_str_con->m_s;
+                size_t ind1 = 0, ind2 = 0;
+                bool res = !(s_var.size() == 0 && sub.size());
+                while ((ind1 < s_var.size()) && (ind2 < sub.size()) && res) {
+                    res &= s_var[ind1] == sub[ind2];
+                    ind1++;
+                    ind2++;
+                }
+                res &= res ? (ind2 == sub.size()): true;
+                tmp = ASR::make_LogicalConstant_t(al, loc, res,
+                    ASRUtils::TYPE(ASR::make_Logical_t(al, loc, 4, nullptr, 0)));
+            } else {
+                ASR::symbol_t *fn_div = resolve_intrinsic_function(loc, "_lpython_str_startswith");
+                Vec<ASR::call_arg_t> args;
+                args.reserve(al, 1);
+                ASR::call_arg_t str_arg;
+                str_arg.loc = loc;
+                ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                        1, s_var.size(), nullptr, nullptr, 0));
+                str_arg.m_value = ASRUtils::EXPR(
+                        ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type));
+                ASR::call_arg_t sub_arg;
+                sub_arg.loc = loc;
+                sub_arg.m_value = arg;
+                args.push_back(al, str_arg);
+                args.push_back(al, sub_arg);
+                tmp = make_call_helper(al, fn_div, current_scope, args,
+                        "_lpython_str_startswith", loc);
+            }
+            return;
+        } else {
+            throw SemanticError("'str' object has no attribute '" + attr_name + "'",
+                    loc);
+        }
+        ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
+                1, s_var.size(), nullptr, nullptr, 0));
+        tmp = ASR::make_StringConstant_t(al, loc, s2c(al, s_var), str_type);
+    }
+
     void visit_Call(const AST::Call_t &x) {
         std::string call_name;
         Vec<ASR::call_arg_t> args;
@@ -5368,226 +5560,10 @@ public:
                         x.base.base.loc);
                 }
             } else if (AST::is_a<AST::ConstantStr_t>(*at->m_value)) {
-                if (std::string(at->m_attr) == std::string("capitalize")) {
-                    if(args.size() != 0) {
-                        throw SemanticError("str.capitalize() takes no arguments",
-                            x.base.base.loc);
-                    }
-                    AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
-                    std::string res = n->m_value;
-                    res[0] = toupper(res[0]);
-                    ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                                    1, 1, nullptr, nullptr , 0));
-                    tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
-                    return;
-                } else if (std::string(at->m_attr) == std::string("lower")) {
-                    if(args.size() != 0) {
-                        throw SemanticError("str.lower() takes no arguments",
-                            x.base.base.loc);
-                    }
-                    AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
-                    std::string res = n->m_value;
-                    for (auto &i : res) {
-                        if (i >= 'A' && i<= 'Z') {
-                            i = tolower(i);
-                        }
-                    }
-                    ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                                    1, 1, nullptr, nullptr , 0));
-                    tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
-                    return;
-                } else if (std::string(at->m_attr) == std::string("find")) {
-                    if (args.size() != 1) {
-                        throw SemanticError("str.find() takes one arguments",
-                            x.base.base.loc);
-                    }
-                    ASR::expr_t *arg = args[0].m_value;
-                    ASR::ttype_t *type = ASRUtils::expr_type(arg);
-                    if (ASRUtils::is_character(*type)) {
-                        AST::ConstantStr_t* str_str_con = AST::down_cast<AST::ConstantStr_t>(at->m_value);
-                        std::string str = str_str_con->m_value;
-                        if (ASRUtils::expr_value(arg) != nullptr) {
-                            ASR::StringConstant_t* sub_str_con = ASR::down_cast<ASR::StringConstant_t>(arg);
-                            std::string sub = sub_str_con->m_s;
-                            //KMP matching
-                            int str_len = str.size();
-                            int sub_len = sub.size();
-                            bool flag = 0;
-                            int res = -1;
-                            std::vector<int>lps(sub_len, 0);
-                            if (str_len == 0 || sub_len == 0) {
-                                res = (!sub_len || (sub_len == str_len))? 0: -1;
-                            } else {
-                                for(int i = 1, len = 0; i < sub_len;) {
-                                    if (sub[i] == sub[len]) {
-                                        lps[i++] = ++len;
-                                    } else {
-                                        if (len != 0) {
-                                            len = lps[len - 1];
-                                        } else {
-                                            lps[i++] = 0;
-                                        }
-                                    }
-                                }
-                                for (int i = 0, j = 0; (str_len - i) >= (sub_len - j) && !flag;) {
-                                    if (sub[j] == str[i]) {
-                                        j++, i++;
-                                    }
-                                    if (j == sub_len) {
-                                        res = i - j;
-                                        flag = 1;
-                                        j = lps[j - 1];
-                                    } else if (i < str_len && sub[j] != str[i]) {
-                                        if (j != 0) {
-                                            j = lps[j - 1];
-                                        } else {
-                                            i = i + 1;
-                                        }
-                                    }
-                                }
-                            }
-                            tmp = ASR::make_IntegerConstant_t(al, x.base.base.loc, res, ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc,
-                                        4, nullptr, 0)));
-                        } else {
-                            ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_find");
-                            Vec<ASR::call_arg_t> args;
-                            args.reserve(al, 1);
-                            ASR::call_arg_t str_arg;
-                            str_arg.loc = x.base.base.loc;
-                            ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                                    1, str.size(), nullptr, nullptr, 0));
-                            str_arg.m_value = ASRUtils::EXPR(
-                                    ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, str), str_type));
-                            ASR::call_arg_t sub_arg;
-                            sub_arg.loc = x.base.base.loc;
-                            sub_arg.m_value = arg;
-                            args.push_back(al, str_arg);
-                            args.push_back(al, sub_arg);
-                            tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_find", x.base.base.loc);
-                        }
-                    } else {
-                        throw SemanticError("str.find() takes one arguments of type: str",
-                            arg->base.loc);
-                    }
-                    return;
-                } else if (std::string(at->m_attr) == std::string("rstrip")) {
-                    if(args.size() != 0) {
-                        throw SemanticError("str.rstrip() takes no arguments",
-                            x.base.base.loc);
-                    }
-                    AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
-                    std::string res = n->m_value;
-                    int ind = (int)res.size() - 1;
-                    while (ind >= 0 && res[ind] == ' '){
-                        ind--;
-                    }
-                    res = std::string(res.begin(), res.begin() + ind +1);
-                    ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                                    1, res.size(), nullptr, nullptr , 0));
-                    tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
-                    return;
-                } else if (std::string(at->m_attr) == std::string("lstrip")) {
-                    if(args.size() != 0) {
-                        throw SemanticError("str.lstrip() takes no arguments",
-                            x.base.base.loc);
-                    }
-                    AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
-                    std::string res = n->m_value;
-                    size_t ind = 0;
-                    while (ind < res.size() && res[ind] == ' ') {
-                        ind++;
-                    }
-                    res = std::string(res.begin() + ind, res.end());
-                    ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                                    1, res.size(), nullptr, nullptr , 0));
-                    tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
-                    return;
-                } else if (std::string(at->m_attr) == std::string("strip")) {
-                    if(args.size() != 0) {
-                        throw SemanticError("str.strip() takes no arguments",
-                            x.base.base.loc);
-                    }
-                    AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
-                    std::string res = n->m_value;
-                    size_t l = 0;
-                    int r = (int)res.size() - 1;
-                    while (l < res.size() && (int)r >= 0 && (res[l] == ' ' || res[r] == ' ')) {
-                        l += res[l] == ' ';
-                        r -= res[r] == ' ';
-                    }
-                    res = std::string(res.begin() + l, res.begin() + r + 1);
-                    ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                                    1, res.size(), nullptr, nullptr , 0));
-                    tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
-                    return;
-                } else if (std::string(at->m_attr) == std::string("swapcase")) {
-                    if(args.size() != 0) {
-                        throw SemanticError("str.swapcase() takes no arguments",
-                            x.base.base.loc);
-                    }
-                    AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
-                    std::string res = n->m_value;
-                    for (size_t i = 0; i < res.size(); i++)  {
-                        char &cur = res[i];
-                        if(cur >= 'a' && cur <= 'z') {
-                            cur = cur -'a' + 'A';
-                        } else if(cur >= 'A' && cur <= 'Z') {
-                            cur = cur - 'A' + 'a';
-                        }
-                    }
-                    ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                                    1, res.size(), nullptr, nullptr , 0));
-                    tmp = ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, res), str_type);
-                    return;
-                } else if (std::string(at->m_attr) == std::string("startswith")) {
-                    if (args.size() != 1) {
-                        throw SemanticError("str.startswith() takes one arguments",
-                            x.base.base.loc);
-                    }
-                    ASR::expr_t *arg = args[0].m_value;
-                    ASR::ttype_t *type = ASRUtils::expr_type(arg);
-                    if (ASRUtils::is_character(*type)) {
-                        AST::ConstantStr_t* str_str_con = AST::down_cast<AST::ConstantStr_t>(at->m_value);
-                        std::string str = str_str_con->m_value;
-                        if (ASRUtils::expr_value(arg) != nullptr) {
-                            ASR::StringConstant_t* sub_str_con = ASR::down_cast<ASR::StringConstant_t>(arg);
-                            std::string sub = sub_str_con->m_s;
-                            size_t ind1 = 0, ind2 = 0;
-                            bool res = !(str.size() == 0 && sub.size());
-                            while ((ind1 < str.size()) && (ind2 < sub.size()) && res) {
-                                res &= str[ind1] == sub[ind2];
-                                ind1++;
-                                ind2++;
-                            }
-                            res &= res? (ind2 == sub.size()): true;
-                            tmp = ASR::make_LogicalConstant_t(al, x.base.base.loc, res, ASRUtils::TYPE(ASR::make_Logical_t(al, x.base.base.loc,
-                                    4, nullptr, 0)));
-                        } else {
-                            ASR::symbol_t *fn_div = resolve_intrinsic_function(x.base.base.loc, "_lpython_str_startswith");
-                            Vec<ASR::call_arg_t> args;
-                            args.reserve(al, 1);
-                            ASR::call_arg_t str_arg;
-                            str_arg.loc = x.base.base.loc;
-                            ASR::ttype_t *str_type = ASRUtils::TYPE(ASR::make_Character_t(al, x.base.base.loc,
-                                    1, str.size(), nullptr, nullptr, 0));
-                            str_arg.m_value = ASRUtils::EXPR(
-                                    ASR::make_StringConstant_t(al, x.base.base.loc, s2c(al, str), str_type));
-                            ASR::call_arg_t sub_arg;
-                            sub_arg.loc = x.base.base.loc;
-                            sub_arg.m_value = arg;
-                            args.push_back(al, str_arg);
-                            args.push_back(al, sub_arg);
-                            tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_str_startswith", x.base.base.loc);
-                        }
-                    } else {
-                        throw SemanticError("str.startwith() takes one arguments of type: str",
-                            arg->base.loc);
-                    }
-                    return;
-                } else {
-                    throw SemanticError("'str' object has no attribute '" + std::string(at->m_attr) + "'",
-                        x.base.base.loc);
-                }
+                AST::ConstantStr_t *n = AST::down_cast<AST::ConstantStr_t>(at->m_value);
+                std::string res = n->m_value;
+                handle_constant_string_attributes(res, args, at->m_attr, x.base.base.loc);
+                return;
             } else {
                 throw SemanticError("Only Name type and constant integers supported in Call",
                     x.base.base.loc);
