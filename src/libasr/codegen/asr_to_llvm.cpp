@@ -3346,9 +3346,10 @@ public:
                     return_type = get_type_from_ttype_t_util(ASRUtils::get_contained_type(return_var_type0))->getPointerTo();
                     break;
                 }
-                case (ASR::ttypeType::Struct) :
-                    throw CodeGenError("Struct return type not implemented yet");
+                case (ASR::ttypeType::Struct) : {
+                    return_type = get_type_from_ttype_t_util(return_var_type0);
                     break;
+                }
                 case (ASR::ttypeType::Tuple) : {
                     ASR::Tuple_t* asr_tuple = ASR::down_cast<ASR::Tuple_t>(return_var_type0);
                     std::string type_code = ASRUtils::get_type_code(asr_tuple->m_type,
