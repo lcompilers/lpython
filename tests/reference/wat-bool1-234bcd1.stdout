@@ -18,11 +18,6 @@
     (import "js" "set_exit_code" (func (;6;) (type 6)))
     (import "js" "memory" (memory (;0;) 100 100))
     (func $7 (type 7) (param) (result)
-        (local)
-        call 8
-        return
-    )
-    (func $8 (type 8) (param) (result)
         (local i32)
         i32.const 1
         call 0
@@ -42,14 +37,19 @@
         call 5
         return
     )
-    (func $9 (type 9) (param) (result)
+    (func $8 (type 8) (param) (result)
         (local)
         call 7
+        return
+    )
+    (func $9 (type 9) (param) (result)
+        (local)
+        call 8
         i32.const 0
         call 6
         return
     )
-    (export "_lpython_main_program" (func $7))
-    (export "test_bool" (func $8))
+    (export "test_bool" (func $7))
+    (export "_lpython_main_program" (func $8))
     (export "_lcompilers_main" (func $9))
 )
