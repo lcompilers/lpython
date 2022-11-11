@@ -17,6 +17,8 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
     X86Assembler &m_a;
     uint32_t cur_func_idx;
     std::vector<std::string> unique_id;
+    int32_t last_vis_i32_const, last_last_vis_i32_const;
+    std::unordered_map<int32_t, std::string> loc_to_str;
 
     X86Visitor(X86Assembler &m_a, Allocator &al,
                diag::Diagnostics &diagonostics, Vec<uint8_t> &code)
@@ -28,20 +30,58 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
 
     void visit_Return() {}
 
+    void call_imported_function(uint32_t func_index) {
+        switch (func_index) {
+            case 0: {  // print_i32
+                m_a.asm_call_label("print_i32");
+                break;
+            }
+            case 1: {  // print_i64
+                std::cerr << "Call to print_i64() is not yet supported";
+                break;
+            }
+            case 2: {  // print_f32
+                std::cerr << "Call to print_f32() is not yet supported";
+                break;
+            }
+            case 3: {  // print_f64
+                std::cerr << "Call to print_f64() is not yet supported";
+                break;
+            }
+            case 4: {  // print_str
+                {
+                    // pop the string length and string location
+                    // we do not need them at the moment
+                    m_a.asm_pop_r32(X86Reg::eax);
+                    m_a.asm_pop_r32(X86Reg::eax);
+                }
+                std::string label =
+                    "string" + std::to_string(last_last_vis_i32_const);
+                emit_print(m_a, label,
+                           loc_to_str[last_last_vis_i32_const].size());
+                break;
+            }
+            case 5: {  // flush_buf
+                std::string label = "string-1";
+                std::string msg = "\n";
+                int32_t loc = -1; // tmp negative index used
+                emit_print(m_a, label, msg.size());
+                loc_to_str[loc] = msg;
+                break;
+            }
+            case 6: {  // set_exit_code
+                m_a.asm_call_label("exit");
+                break;
+            }
+            default: {
+                std::cerr << "Unsupported func_index";
+            }
+        }
+    }
+
     void visit_Call(uint32_t func_index) {
         if (func_index <= 6U) {
-            // call to imported functions
-            if (func_index == 0) {
-                m_a.asm_call_label("print_i32");
-            } else if (func_index == 5) {
-                // currently ignoring flush_buf
-            } else if (func_index == 6) {
-                m_a.asm_call_label("exit");
-            } else {
-                std::cerr << "Call to imported function with index " +
-                                 std::to_string(func_index) +
-                                 " not yet supported";
-            }
+            call_imported_function(func_index);
             return;
         }
 
@@ -127,6 +167,10 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         // 	m_a.asm_neg_r32(X86Reg::eax);
         // 	m_a.asm_push_r32(X86Reg::eax);
         // }
+
+        // TODO: Following seems/is hackish. Fix/Improve it.
+        last_last_vis_i32_const = last_vis_i32_const;
+        last_vis_i32_const = value;
     }
 
     void visit_I32Add() {
@@ -196,6 +240,13 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         emit_print_int(m_a, "print_i32");
         emit_exit(m_a, "exit", 0);
 
+        // declare compile-time strings
+        for (uint32_t i = 0; i < data_segments.size(); i++) {
+            offset = data_segments[i].insts_start_index;
+            decode_instructions();
+            loc_to_str[last_vis_i32_const] = data_segments[i].text;
+        }
+
         for (uint32_t i = 0; i < type_indices.size(); i++) {
             if (i < type_indices.size() - 1U) {
                 m_a.add_label(exports[i].name);
@@ -226,6 +277,11 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
                 m_a.asm_pop_r32(X86Reg::ebp);
                 m_a.asm_ret();
             }
+        }
+
+        for (auto &s : loc_to_str) {
+            std::string label = "string" + std::to_string(s.first);
+            emit_data_string(m_a, label, s.second);
         }
 
         emit_elf32_footer(m_a);
