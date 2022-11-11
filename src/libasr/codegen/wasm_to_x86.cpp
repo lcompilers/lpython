@@ -11,6 +11,22 @@ namespace LFortran {
 
 namespace wasm {
 
+/*
+
+This X86Visitor uses stack to pass arguments and return values from functions.
+Since in X86, instructions operate on registers (and not on stack),
+for every instruction we pop elements from top of stack and store them into
+registers. After operating on the registers, the result value is then
+pushed back onto the stack.
+
+One of the reasons to use stack to pass function arguments is that,
+it allows us to define and call functions with any number of parameters.
+As registers are limited in number, if we use them to pass function arugments,
+the number of arguments we could pass to a function would get limited by
+the number of registers available with the CPU.
+
+*/
+
 class X86Visitor : public WASMDecoder<X86Visitor>,
                    public WASM_INSTS_VISITOR::BaseWASMVisitor<X86Visitor> {
    public:
@@ -27,6 +43,8 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
           m_a(m_a) {
         wasm_bytes.from_pointer_n(code.data(), code.size());
     }
+
+    void visit_Unreachable() {}
 
     void visit_Return() {}
 
@@ -70,7 +88,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
                 break;
             }
             case 6: {  // set_exit_code
-                m_a.asm_call_label("exit");
+                m_a.asm_jmp_label("exit");
                 break;
             }
             default: {
@@ -160,6 +178,11 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         }
     }
 
+    void visit_I32Eqz() {
+        m_a.asm_push_imm32(0U);
+        handle_I32Compare("Eq");
+    }
+
     void visit_I32Const(int32_t value) {
         m_a.asm_push_imm32(value);
         // if (value < 0) {
@@ -199,31 +222,30 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
     }
 
     void handle_I32Compare(const std::string &compare_op) {
-        unique_id.push_back(std::to_string(offset));
+        std::string label = std::to_string(offset);
         m_a.asm_pop_r32(X86Reg::ebx);
         m_a.asm_pop_r32(X86Reg::eax);
         m_a.asm_cmp_r32_r32(X86Reg::eax, X86Reg::ebx);
         if (compare_op == "Eq") {
-            m_a.asm_je_label(".compare_1" + unique_id.back());
+            m_a.asm_je_label(".compare_1" + label);
         } else if (compare_op == "Gt") {
-            m_a.asm_jg_label(".compare_1" + unique_id.back());
+            m_a.asm_jg_label(".compare_1" + label);
         } else if (compare_op == "GtE") {
-            m_a.asm_jge_label(".compare_1" + unique_id.back());
+            m_a.asm_jge_label(".compare_1" + label);
         } else if (compare_op == "Lt") {
-            m_a.asm_jl_label(".compare_1" + unique_id.back());
+            m_a.asm_jl_label(".compare_1" + label);
         } else if (compare_op == "LtE") {
-            m_a.asm_jle_label(".compare_1" + unique_id.back());
+            m_a.asm_jle_label(".compare_1" + label);
         } else if (compare_op == "NotEq") {
-            m_a.asm_jne_label(".compare_1" + unique_id.back());
+            m_a.asm_jne_label(".compare_1" + label);
         } else {
             throw CodeGenError("Comparison operator not implemented");
         }
-        m_a.asm_mov_r32_imm32(X86Reg::eax, 0);
-        m_a.asm_jmp_label(".compare.end_" + unique_id.back());
-        m_a.add_label(".compare_1" + unique_id.back());
-        m_a.asm_mov_r32_imm32(X86Reg::eax, 1);
-        m_a.add_label(".compare.end_" + unique_id.back());
-        m_a.asm_push_r32(X86Reg::eax);
+        m_a.asm_push_imm8(0);
+        m_a.asm_jmp_label(".compare.end_" + label);
+        m_a.add_label(".compare_1" + label);
+        m_a.asm_push_imm8(1);
+        m_a.add_label(".compare.end_" + label);
     }
 
     void visit_I32Eq() { handle_I32Compare("Eq"); }
@@ -238,7 +260,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
 
         // Add runtime library functions
         emit_print_int(m_a, "print_i32");
-        emit_exit(m_a, "exit", 0);
+        emit_exit2(m_a, "exit");
 
         // declare compile-time strings
         for (uint32_t i = 0; i < data_segments.size(); i++) {
