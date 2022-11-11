@@ -1489,44 +1489,44 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
     }
 }
 
-static inline ASR::ttype_t* duplicate_type_without_dims(Allocator& al, const ASR::ttype_t* t) {
+static inline ASR::ttype_t* duplicate_type_without_dims(Allocator& al, const ASR::ttype_t* t, const Location& loc) {
     switch (t->type) {
         case ASR::ttypeType::Integer: {
             ASR::Integer_t* tnew = ASR::down_cast<ASR::Integer_t>(t);
-            return ASRUtils::TYPE(ASR::make_Integer_t(al, t->base.loc,
+            return ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
                         tnew->m_kind, nullptr, 0));
         }
         case ASR::ttypeType::Real: {
             ASR::Real_t* tnew = ASR::down_cast<ASR::Real_t>(t);
-            return ASRUtils::TYPE(ASR::make_Real_t(al, t->base.loc,
+            return ASRUtils::TYPE(ASR::make_Real_t(al, loc,
                         tnew->m_kind, nullptr, 0));
         }
         case ASR::ttypeType::Complex: {
             ASR::Complex_t* tnew = ASR::down_cast<ASR::Complex_t>(t);
-            return ASRUtils::TYPE(ASR::make_Complex_t(al, t->base.loc,
+            return ASRUtils::TYPE(ASR::make_Complex_t(al, loc,
                         tnew->m_kind, nullptr, 0));
         }
         case ASR::ttypeType::Logical: {
             ASR::Logical_t* tnew = ASR::down_cast<ASR::Logical_t>(t);
-            return ASRUtils::TYPE(ASR::make_Logical_t(al, t->base.loc,
+            return ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
                         tnew->m_kind, nullptr, 0));
         }
         case ASR::ttypeType::Character: {
             ASR::Character_t* tnew = ASR::down_cast<ASR::Character_t>(t);
-            return ASRUtils::TYPE(ASR::make_Character_t(al, t->base.loc,
+            return ASRUtils::TYPE(ASR::make_Character_t(al, loc,
                         tnew->m_kind, tnew->m_len, tnew->m_len_expr,
                         nullptr, 0));
         }
         case ASR::ttypeType::Struct: {
             ASR::Struct_t* tstruct = ASR::down_cast<ASR::Struct_t>(t);
-            return ASRUtils::TYPE(ASR::make_Struct_t(al, t->base.loc,
+            return ASRUtils::TYPE(ASR::make_Struct_t(al, loc,
                     tstruct->m_derived_type, nullptr, 0));
         }
         case ASR::ttypeType::TypeParameter: {
             ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
             //return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
             //            tp->m_param, nullptr, 0, tp->m_rt, tp->n_rt));
-            return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
+            return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, loc,
                         tp->m_param, nullptr, 0));
         }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));

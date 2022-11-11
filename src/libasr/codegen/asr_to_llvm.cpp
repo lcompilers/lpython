@@ -1275,8 +1275,9 @@ public:
             std::uint32_t h = get_hash((ASR::asr_t*)curr_arg.m_a);
             LFORTRAN_ASSERT(llvm_symtab.find(h) != llvm_symtab.end());
             llvm::Value* x_arr = llvm_symtab[h];
+            ASR::ttype_t* curr_arg_m_a_type = ASRUtils::symbol_type(curr_arg.m_a);
             ASR::ttype_t* asr_data_type = ASRUtils::duplicate_type_without_dims(al,
-                                             ASRUtils::symbol_type(curr_arg.m_a));
+                curr_arg_m_a_type, curr_arg_m_a_type->base.loc);
             llvm::Type* llvm_data_type = get_type_from_ttype_t_util(asr_data_type);
             fill_malloc_array_details(x_arr, llvm_data_type, curr_arg.m_dims, curr_arg.n_dims);
         }
@@ -1810,8 +1811,9 @@ public:
         llvm::Value* array = tmp;
         this->visit_expr(*x.m_shape);
         llvm::Value* shape = tmp;
+        ASR::ttype_t* x_m_array_type = ASRUtils::expr_type(x.m_array);
         ASR::ttype_t* asr_data_type = ASRUtils::duplicate_type_without_dims(al,
-                                         ASRUtils::expr_type(x.m_array));
+            x_m_array_type, x_m_array_type->base.loc);
         ASR::ttype_t* asr_shape_type = ASRUtils::get_contained_type(ASRUtils::expr_type(x.m_shape));
         llvm::Type* llvm_data_type = get_type_from_ttype_t_util(asr_data_type);
         tmp = arr_descr->reshape(array, llvm_data_type, shape, asr_shape_type, module.get());
@@ -2663,7 +2665,7 @@ public:
                     if( is_array_type && !is_malloc_array_type &&
                         v->m_type->type != ASR::ttypeType::Pointer &&
                         !is_list ) {
-                        ASR::ttype_t* asr_data_type = ASRUtils::duplicate_type_without_dims(al, v->m_type);
+                        ASR::ttype_t* asr_data_type = ASRUtils::duplicate_type_without_dims(al, v->m_type, v->m_type->base.loc);
                         llvm::Type* llvm_data_type = get_type_from_ttype_t_util(asr_data_type);
                         fill_array_details(ptr, llvm_data_type, m_dims, n_dims);
                     }
