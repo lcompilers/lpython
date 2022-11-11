@@ -194,6 +194,10 @@ asr = true
 c = true
 
 [[test]]
+filename = "../integration_tests/expr_14.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/modules_02.py"
 asr = true
 
