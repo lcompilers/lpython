@@ -1685,8 +1685,8 @@ public:
         llvm::Value* array = nullptr;
         if( ASR::is_a<ASR::Var_t>(*x.m_v) ) {
             ASR::Variable_t *v = ASRUtils::EXPR2VAR(x.m_v);
-            if( ASR::is_a<ASR::Struct_t>(*v->m_type) ) {
-                ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(v->m_type);
+            if( ASR::is_a<ASR::Struct_t>(*ASRUtils::get_contained_type(v->m_type)) ) {
+                ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(ASRUtils::get_contained_type(v->m_type));
                 der_type_name = ASRUtils::symbol_name(ASRUtils::symbol_get_past_external(der_type->m_derived_type));
             }
             uint32_t v_h = get_hash((ASR::asr_t*)v);
@@ -1920,7 +1920,7 @@ public:
         if( ASR::is_a<ASR::UnionRef_t>(*x.m_v) ) {
             ptr_loads = 0;
         } else {
-            ptr_loads = ptr_loads_copy - ASR::is_a<ASR::Pointer_t>(*x_m_v_type);
+            ptr_loads = 1;
         }
         this->visit_expr(*x.m_v);
         ptr_loads = ptr_loads_copy;
@@ -5871,13 +5871,11 @@ public:
                     uint64_t ptr_loads_copy = ptr_loads;
                     ptr_loads = !LLVM::is_llvm_struct(arg_type);
                     this->visit_expr_wrapper(x.m_args[i].m_value);
-                    if( x_abi == ASR::abiType::BindC ) {
-                        if( ASR::is_a<ASR::ArrayItem_t>(*x.m_args[i].m_value) ||
-                            ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value) ||
-                            (ASR::is_a<ASR::CPtr_t>(*arg_type) &&
-                             ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value)) ) {
-                            tmp = LLVM::CreateLoad(*builder, tmp);
-                        }
+                    if( ASR::is_a<ASR::ArrayItem_t>(*x.m_args[i].m_value) ||
+                        ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value) ||
+                        (ASR::is_a<ASR::CPtr_t>(*arg_type) &&
+                            ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value)) ) {
+                        tmp = LLVM::CreateLoad(*builder, tmp);
                     }
                     llvm::Value *value = tmp;
                     ptr_loads = ptr_loads_copy;
