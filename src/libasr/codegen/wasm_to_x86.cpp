@@ -32,7 +32,8 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
    public:
     X86Assembler &m_a;
     uint32_t cur_func_idx;
-    std::vector<std::string> unique_id;
+    std::vector<std::string> if_unique_id;
+    std::vector<std::string> loop_unique_id;
     int32_t last_vis_i32_const, last_last_vis_i32_const;
     std::unordered_map<int32_t, std::string> loc_to_str;
 
@@ -135,7 +136,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
     }
 
     void visit_Loop() {
-        unique_id.push_back(std::to_string(offset));
+        loop_unique_id.push_back(std::to_string(offset));
         /*
         The loop statement starts with `loop.head`. The `loop.body` and
         `loop.branch` are enclosed within the `if.block`. If the condition
@@ -148,34 +149,34 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
             .endIf
         .end
         */
-        m_a.add_label(".loop.head_" + unique_id.back());
+        m_a.add_label(".loop.head_" + loop_unique_id.back());
         {
             decode_instructions();
         }
         // end
-        m_a.add_label(".loop.end_" + unique_id.back());
-        unique_id.pop_back();
+        m_a.add_label(".loop.end_" + loop_unique_id.back());
+        loop_unique_id.pop_back();
     }
 
     void visit_If() {
-        unique_id.push_back(std::to_string(offset));
+        if_unique_id.push_back(std::to_string(offset));
         // `eax` contains the logical value (true = 1, false = 0)
         // of the if condition
         m_a.asm_pop_r32(X86Reg::eax);
         m_a.asm_cmp_r32_imm8(LFortran::X86Reg::eax, 1);
-        m_a.asm_je_label(".then_" + unique_id.back());
-        m_a.asm_jmp_label(".else_" + unique_id.back());
-        m_a.add_label(".then_" + unique_id.back());
+        m_a.asm_je_label(".then_" + if_unique_id.back());
+        m_a.asm_jmp_label(".else_" + if_unique_id.back());
+        m_a.add_label(".then_" + if_unique_id.back());
         {
             decode_instructions();
         }
-        m_a.add_label(".endif_" + unique_id.back());
-        unique_id.pop_back();
+        m_a.add_label(".endif_" + if_unique_id.back());
+        if_unique_id.pop_back();
     }
 
     void visit_Else() {
-        m_a.asm_jmp_label(".endif_" + unique_id.back());
-        m_a.add_label(".else_" + unique_id.back());
+        m_a.asm_jmp_label(".endif_" + if_unique_id.back());
+        m_a.add_label(".else_" + if_unique_id.back());
     }
 
     void visit_LocalGet(uint32_t localidx) {
