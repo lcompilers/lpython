@@ -1,26 +1,27 @@
 def Test_if_01():
+    z: i32 = 0
     if True:
-        print(1)
+        assert True
 
     if False:
-        print(0)
+        assert False
 
     if 1 < 0:
-        print(0)
+        assert False
     else:
-        print(1)
+        assert True
 
     if 1 > 0:
-        print(1)
+        assert True
     else:
-        print(0)
+        assert False
 
     if 1 < 0:
-        print(1)
+        assert False
     elif 1 > 0:
-        print(1)
+        assert True
     else:
-        print(0)
+        assert False
 
 def Test_if_02():
     if True:
@@ -28,18 +29,18 @@ def Test_if_02():
         if True:
             print(2)
             if False:
-                print(3)
+                assert False
             elif True:
                 print(4)
             else:
-                print(5)
+                assert False
         else:
-            print(6)
+            assert False
 
     if True:
         print(7)
         if False:
-            print(8)
+            assert False
             if False:
                 print(9)
             else:
@@ -48,7 +49,7 @@ def Test_if_02():
             if True:
                 print(11)
             else:
-                print(12)
+                assert False
             print(13)
     print(14)
 

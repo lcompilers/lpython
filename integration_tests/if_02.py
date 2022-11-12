@@ -1,4 +1,4 @@
-from ltypes import bool, i32
+from ltypes import i32
 
 def test_if_01():
     x: bool = True
@@ -33,8 +33,7 @@ def test_if_01():
     if y >= 2:
         z += 1
 
-    # TODO: replace this an assert statement
-    print(z)
+    assert z == 9
 
 def verify():
     test_if_01()
