@@ -131,6 +131,8 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
 
     void visit_If() {
         unique_id.push_back(std::to_string(offset));
+        // `eax` contains the logical value (true = 1, false = 0)
+        // of the if condition
         m_a.asm_pop_r32(X86Reg::eax);
         m_a.asm_cmp_r32_imm8(LFortran::X86Reg::eax, 1);
         m_a.asm_je_label(".then_" + unique_id.back());
@@ -225,6 +227,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         std::string label = std::to_string(offset);
         m_a.asm_pop_r32(X86Reg::ebx);
         m_a.asm_pop_r32(X86Reg::eax);
+        // `eax` and `ebx` contain the left and right operands, respectively
         m_a.asm_cmp_r32_r32(X86Reg::eax, X86Reg::ebx);
         if (compare_op == "Eq") {
             m_a.asm_je_label(".compare_1" + label);
@@ -241,6 +244,8 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         } else {
             throw CodeGenError("Comparison operator not implemented");
         }
+        // if the `compare` condition in `true`, jump to compare_1
+        // and assign `1` else assign `0`
         m_a.asm_push_imm8(0);
         m_a.asm_jmp_label(".compare.end_" + label);
         m_a.add_label(".compare_1" + label);
