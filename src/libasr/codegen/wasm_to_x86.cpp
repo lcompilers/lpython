@@ -129,6 +129,34 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
 
     void visit_EmtpyBlockType() {}
 
+    void visit_Br(uint32_t /*label_index*/) {
+        // Branch is used to jump to the `loop.head`.
+        m_a.asm_jmp_label(".loop.head_" + unique_id.rbegin()[1]);
+    }
+
+    void visit_Loop() {
+        unique_id.push_back(std::to_string(offset));
+        /*
+        The loop statement starts with `loop.head`. The `loop.body` and
+        `loop.branch` are enclosed within the `if.block`. If the condition
+        fails, the loop is exited through `else.block`.
+        .head
+            .If
+                # Statements
+                .Br
+            .Else
+            .endIf
+        .end
+        */
+        m_a.add_label(".loop.head_" + unique_id.back());
+        {
+            decode_instructions();
+        }
+        // end
+        m_a.add_label(".loop.end_" + unique_id.back());
+        unique_id.pop_back();
+    }
+
     void visit_If() {
         unique_id.push_back(std::to_string(offset));
         // `eax` contains the logical value (true = 1, false = 0)
