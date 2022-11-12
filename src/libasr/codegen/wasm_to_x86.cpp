@@ -130,9 +130,15 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
 
     void visit_EmtpyBlockType() {}
 
-    void visit_Br(uint32_t /*label_index*/) {
-        // Branch is used to jump to the `loop.head`.
-        m_a.asm_jmp_label(".loop.head_" + unique_id.rbegin()[1]);
+    void visit_Br(uint32_t label_index) {
+        // Branch is used to jump to the `loop.head` or `loop.end`.
+        if (if_unique_id.size() - loop_unique_id.size() == label_index - 1) {
+            // cycle/continue or loop.end
+            m_a.asm_jmp_label(".loop.head_" + loop_unique_id.back());
+        } else {
+            // exit/break
+            m_a.asm_jmp_label(".loop.end_" + loop_unique_id.back());
+        }
     }
 
     void visit_Loop() {
