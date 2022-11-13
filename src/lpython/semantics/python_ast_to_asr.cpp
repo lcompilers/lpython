@@ -270,7 +270,7 @@ ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
     lm.init_simple(input);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r2.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        // LFORTRAN_ASSERT(diagnostics.has_error())
         return nullptr; // Error
     }
 
@@ -3460,9 +3460,12 @@ public:
             if (!t) {
                 diag.message_label("Imported here", {x.base.base.loc}, "",
                         diag::Level::Note, diag::Stage::Semantic);
-                throw SemanticError("The module '" + msym + "' cannot be loaded",
+                if (main_module) {
+                    throw SemanticError("The module '" + msym + "' cannot be loaded",
                         x.base.base.loc);
-                // throw SemanticAbort();
+                } else {
+                    throw SemanticAbort();
+                }
             }
             current_module_dependencies.push_back(al, s2c(al, msym));
         }
