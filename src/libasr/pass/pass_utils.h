@@ -180,6 +180,12 @@ namespace LFortran {
                     }
                 }
 
+                void visit_DoLoop(const ASR::DoLoop_t& x) {
+                    self().visit_do_loop_head(x.m_head);
+                    ASR::DoLoop_t& xx = const_cast<ASR::DoLoop_t&>(x);
+                    transform_stmts(xx.m_body, xx.n_body);
+                }
+
         };
 
         template <class Struct>
