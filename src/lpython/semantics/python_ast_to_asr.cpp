@@ -267,6 +267,7 @@ ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
     // save_pyc_files(*r2.result, infile + "c");
     std::string input;
     read_file(infile, input);
+    lm.init_simple(input);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r2.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -346,6 +347,10 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
 
     if( compile_module ) {
         mod1 = compile_module_till_asr(al, rl_path, infile, loc, err, allow_implicit_casting);
+    }
+
+    if (!mod1) {
+        return nullptr;
     }
 
     // insert into `symtab`
@@ -3453,8 +3458,11 @@ public:
                 return;
             }
             if (!t) {
+                diag.message_label("Imported here", {x.base.base.loc}, "",
+                        diag::Level::Note, diag::Stage::Semantic);
                 throw SemanticError("The module '" + msym + "' cannot be loaded",
                         x.base.base.loc);
+                // throw SemanticAbort();
             }
             current_module_dependencies.push_back(al, s2c(al, msym));
         }
