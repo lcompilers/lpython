@@ -205,13 +205,14 @@ public:
                                ASR::ttype_t* element_type, bool& is_fixed_size,
                                bool convert_to_1d=false)
     {
-        std::string dims;
+        std::string dims = "";
         size_t size = 1;
         std::string array_size = "";
         for (size_t i=0; i<n_dims; i++) {
             ASR::expr_t *length = m_dims[i].m_length;
             if (!length) {
-                dims += "*";
+                is_fixed_size = false;
+                return dims;
             } else {
                 visit_expr(*length);
                 array_size += "*" + src;
@@ -285,7 +286,11 @@ public:
                 if( !is_fixed_size ) {
                     sub += indent + format_type_c("*", type_name_copy, std::string(v_m_name) + "_data",
                                                 use_ref, dummy);
-                    sub += " = " + dims + ";\n";
+                    if( dims.size() > 0 ) {
+                        sub += " = " + dims + ";\n";
+                    } else {
+                        sub += ";\n";
+                    }
                 } else {
                     sub += indent + format_type_c(dims, type_name_copy, std::string(v_m_name) + "_data",
                                                 use_ref, dummy) + ";\n";
@@ -360,14 +365,25 @@ public:
             } else if(ASR::is_a<ASR::Struct_t>(*t2)) {
                 ASR::Struct_t *t = ASR::down_cast<ASR::Struct_t>(t2);
                 std::string der_type_name = ASRUtils::symbol_name(t->m_derived_type);
-                bool is_fixed_size = true;
-                std::string dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
-                std::string ptr_char = "*";
-                if( !use_ptr_for_derived_type ) {
-                    ptr_char.clear();
+                if( is_array ) {
+                    bool is_fixed_size = true;
+                    std::string dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size, true);
+                    std::string encoded_type_name = "x" + der_type_name;
+                    std::string type_name = std::string("struct ") + der_type_name;
+                    generate_array_decl(sub, std::string(v.m_name), type_name, dims,
+                                        encoded_type_name, t->m_dims, t->n_dims,
+                                        use_ref, dummy,
+                                        v.m_intent != ASRUtils::intent_in &&
+                                        v.m_intent != ASRUtils::intent_inout,
+                                        is_fixed_size);
+                 } else {
+                    std::string ptr_char = "*";
+                    if( !use_ptr_for_derived_type ) {
+                        ptr_char.clear();
+                    }
+                    sub = format_type_c("", "struct " + der_type_name + ptr_char,
+                                        v.m_name, use_ref, dummy);
                 }
-                sub = format_type_c(dims, "struct " + der_type_name + ptr_char,
-                                    v.m_name, use_ref, dummy);
             } else if(ASR::is_a<ASR::CPtr_t>(*t2)) {
                 sub = format_type_c("", "void**", v.m_name, false, false);
             } else {

@@ -313,7 +313,7 @@ RUN(NAME structs_08          LABELS cpython llvm c)
 RUN(NAME structs_09          LABELS cpython llvm c)
 RUN(NAME structs_10          LABELS cpython llvm c)
 RUN(NAME structs_12          LABELS cpython llvm c)
-RUN(NAME structs_13          LABELS llvm
+RUN(NAME structs_13          LABELS llvm c
     EXTRAFILES structs_13b.c)
 RUN(NAME sizeof_01          LABELS llvm c
         EXTRAFILES sizeof_01b.c)
