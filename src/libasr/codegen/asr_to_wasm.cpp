@@ -2032,6 +2032,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             m_code_section, m_al,
             nesting_level -
                 cur_loop_nesting_level);  // emit_branch and label the loop
+        wasm::emit_b8(m_code_section, m_al, 0x05);  // starting of else
         wasm::emit_expr_end(m_code_section, m_al);  // end if
 
         nesting_level--;

@@ -32,7 +32,8 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
    public:
     X86Assembler &m_a;
     uint32_t cur_func_idx;
-    std::vector<std::string> unique_id;
+    std::vector<std::string> if_unique_id;
+    std::vector<std::string> loop_unique_id;
     int32_t last_vis_i32_const, last_last_vis_i32_const;
     std::unordered_map<int32_t, std::string> loc_to_str;
 
@@ -129,23 +130,59 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
 
     void visit_EmtpyBlockType() {}
 
-    void visit_If() {
-        unique_id.push_back(std::to_string(offset));
-        m_a.asm_pop_r32(X86Reg::eax);
-        m_a.asm_cmp_r32_imm8(LFortran::X86Reg::eax, 1);
-        m_a.asm_je_label(".then_" + unique_id.back());
-        m_a.asm_jmp_label(".else_" + unique_id.back());
-        m_a.add_label(".then_" + unique_id.back());
+    void visit_Br(uint32_t label_index) {
+        // Branch is used to jump to the `loop.head` or `loop.end`.
+        if (if_unique_id.size() - loop_unique_id.size() == label_index - 1) {
+            // cycle/continue or loop.end
+            m_a.asm_jmp_label(".loop.head_" + loop_unique_id.back());
+        } else {
+            // exit/break
+            m_a.asm_jmp_label(".loop.end_" + loop_unique_id.back());
+        }
+    }
+
+    void visit_Loop() {
+        loop_unique_id.push_back(std::to_string(offset));
+        /*
+        The loop statement starts with `loop.head`. The `loop.body` and
+        `loop.branch` are enclosed within the `if.block`. If the condition
+        fails, the loop is exited through `else.block`.
+        .head
+            .If
+                # Statements
+                .Br
+            .Else
+            .endIf
+        .end
+        */
+        m_a.add_label(".loop.head_" + loop_unique_id.back());
         {
             decode_instructions();
         }
-        m_a.add_label(".endif_" + unique_id.back());
-        unique_id.pop_back();
+        // end
+        m_a.add_label(".loop.end_" + loop_unique_id.back());
+        loop_unique_id.pop_back();
+    }
+
+    void visit_If() {
+        if_unique_id.push_back(std::to_string(offset));
+        // `eax` contains the logical value (true = 1, false = 0)
+        // of the if condition
+        m_a.asm_pop_r32(X86Reg::eax);
+        m_a.asm_cmp_r32_imm8(LFortran::X86Reg::eax, 1);
+        m_a.asm_je_label(".then_" + if_unique_id.back());
+        m_a.asm_jmp_label(".else_" + if_unique_id.back());
+        m_a.add_label(".then_" + if_unique_id.back());
+        {
+            decode_instructions();
+        }
+        m_a.add_label(".endif_" + if_unique_id.back());
+        if_unique_id.pop_back();
     }
 
     void visit_Else() {
-        m_a.asm_jmp_label(".endif_" + unique_id.back());
-        m_a.add_label(".else_" + unique_id.back());
+        m_a.asm_jmp_label(".endif_" + if_unique_id.back());
+        m_a.add_label(".else_" + if_unique_id.back());
     }
 
     void visit_LocalGet(uint32_t localidx) {
@@ -225,6 +262,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         std::string label = std::to_string(offset);
         m_a.asm_pop_r32(X86Reg::ebx);
         m_a.asm_pop_r32(X86Reg::eax);
+        // `eax` and `ebx` contain the left and right operands, respectively
         m_a.asm_cmp_r32_r32(X86Reg::eax, X86Reg::ebx);
         if (compare_op == "Eq") {
             m_a.asm_je_label(".compare_1" + label);
@@ -241,6 +279,8 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         } else {
             throw CodeGenError("Comparison operator not implemented");
         }
+        // if the `compare` condition in `true`, jump to compare_1
+        // and assign `1` else assign `0`
         m_a.asm_push_imm8(0);
         m_a.asm_jmp_label(".compare.end_" + label);
         m_a.add_label(".compare_1" + label);
