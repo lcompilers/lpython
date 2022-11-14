@@ -3082,7 +3082,7 @@ public:
         if( is_item ) {
             Vec<ASR::dimension_t> empty_dims;
             empty_dims.reserve(al, 1);
-            type = ASRUtils::duplicate_type(al, type, &empty_dims);
+            type = ASRUtils::duplicate_type(al, ASRUtils::type_get_past_pointer(type), &empty_dims);
             tmp = ASR::make_ArrayItem_t(al, x.base.base.loc, v_Var, args.p,
                         args.size(), type, ASR::arraystorageType::RowMajor, nullptr);
         } else {

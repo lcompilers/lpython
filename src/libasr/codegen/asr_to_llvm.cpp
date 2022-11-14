@@ -1685,8 +1685,9 @@ public:
         llvm::Value* array = nullptr;
         if( ASR::is_a<ASR::Var_t>(*x.m_v) ) {
             ASR::Variable_t *v = ASRUtils::EXPR2VAR(x.m_v);
-            if( ASR::is_a<ASR::Struct_t>(*v->m_type) ) {
-                ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(v->m_type);
+            if( ASR::is_a<ASR::Struct_t>(*ASRUtils::get_contained_type(v->m_type)) ) {
+                ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(
+                    ASRUtils::get_contained_type(v->m_type));
                 der_type_name = ASRUtils::symbol_name(ASRUtils::symbol_get_past_external(der_type->m_derived_type));
             }
             uint32_t v_h = get_hash((ASR::asr_t*)v);
@@ -5968,7 +5969,8 @@ public:
                                     builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
                                     llvm::AllocaInst *target = builder0.CreateAlloca(
                                         target_type, nullptr, "call_arg_value");
-                                    if( ASR::is_a<ASR::ArrayItem_t>(*x.m_args[i].m_value) ) {
+                                    if( ASR::is_a<ASR::ArrayItem_t>(*x.m_args[i].m_value) ||
+                                        ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value) ) {
                                         value = CreateLoad(value);
                                     }
                                     if( ASR::is_a<ASR::Tuple_t>(*arg_type) ||
