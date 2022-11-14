@@ -173,6 +173,18 @@ class CCPPDSUtils {
             global_scope = global_scope_;
         }
 
+        std::string get_deepcopy(ASR::ttype_t *t, std::string value, std::string target) {
+            if (ASR::is_a<ASR::List_t>(*t)) {
+                ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(t);
+                std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
+                std::string func = typecodeToDSfuncs[list_type_code]["list_deepcopy"];
+                return func + "(&" + value + ", &" + target + ");";
+            } else if (ASR::is_a<ASR::Character_t>(*t)) {
+                return "strcpy(" + target + ", " + value + ");";
+            }
+            LFORTRAN_ASSERT(false);
+        }
+
         bool is_non_primitive_DT(ASR::ttype_t *t) {
             return ASR::is_a<ASR::List_t>(*t) || ASR::is_a<ASR::Tuple_t>(*t);
         }
@@ -469,14 +481,8 @@ class CCPPDSUtils {
             if( ASR::is_a<ASR::Character_t>(*m_type) ) {
                 generated_code += indent + tab + "x->data[x->current_end_point] = (char*) malloc(40 * sizeof(char));\n";
             }
-            if (ASR::is_a<ASR::List_t>(*m_type)) {
-                ASR::ttype_t *tt = ASR::down_cast<ASR::List_t>(m_type)->m_type;
-                std::string deep_copy_func = typecodeToDSfuncs[ASRUtils::get_type_code(tt, true)]["list_deepcopy"];
-                LFORTRAN_ASSERT(deep_copy_func.size() > 0);
-                generated_code += indent + tab + deep_copy_func + "(&element, &x->data[x->current_end_point]);\n";
-            } else {
-                generated_code += indent + tab + deepcopy_function("x->data[x->current_end_point]", "element", m_type) + "\n";
-            }
+            generated_code += indent + generated_code += indent + tab + \
+                        get_deepcopy(m_type, "element", "x->data[x->current_end_point]") + "\n";
             generated_code += indent + tab + "x->current_end_point += 1;\n";
             generated_code += indent + "}\n\n";
         }
