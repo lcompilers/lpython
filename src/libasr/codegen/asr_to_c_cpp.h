@@ -690,11 +690,13 @@ R"(#include <stdio.h>
                 src += indent + list_dc_func + "(&" + value + ", &" + target + ");\n\n";
             }
         } else if ( is_target_tup && is_value_tup ) {
+            ASR::Tuple_t* tup_target = ASR::down_cast<ASR::Tuple_t>(ASRUtils::expr_type(x.m_target));
+            std::string dc_func = c_ds_api->get_tuple_deepcopy_func(tup_target);
             if( ASR::is_a<ASR::TupleConstant_t>(*x.m_value) ) {
                 src += value;
-                src += indent + target +  " = " + const_name + ";\n";
+                src += indent + dc_func + "(" + const_name + ", &" + target + ");\n";
             } else {
-                src += indent + target +  " = " + value + ";\n";
+                src += indent + dc_func + "(" + value + ", &" + target + ");\n";
             }
         } else {
             if( is_c ) {

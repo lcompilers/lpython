@@ -186,8 +186,9 @@ class CCPPDSUtils {
                 return func + "(" + value + ", &" + target + ");";
             } else if (ASR::is_a<ASR::Character_t>(*t)) {
                 return "strcpy(" + target + ", " + value + ");";
+            } else {
+                return target + " = " + value  + ";";
             }
-            LFORTRAN_ASSERT(false);
         }
 
         bool is_non_primitive_DT(ASR::ttype_t *t) {
@@ -486,7 +487,7 @@ class CCPPDSUtils {
             if( ASR::is_a<ASR::Character_t>(*m_type) ) {
                 generated_code += indent + tab + "x->data[x->current_end_point] = (char*) malloc(40 * sizeof(char));\n";
             }
-            generated_code += indent + generated_code += indent + tab + \
+            generated_code += indent + tab + \
                         get_deepcopy(m_type, "element", "x->data[x->current_end_point]") + "\n";
             generated_code += indent + tab + "x->current_end_point += 1;\n";
             generated_code += indent + "}\n\n";
@@ -620,11 +621,11 @@ class CCPPDSUtils {
             for (size_t i=0; i<t->n_type; i++) {
                 std::string n = std::to_string(i);
                 if (ASR::is_a<ASR::Character_t>(*t->m_type[i])) {
-                    tmp_gen += indent + tab + "data->element_" + n + " = " + \
+                    tmp_gen += indent + tab + "dest->element_" + n + " = " + \
                                 "(char *) malloc(40*sizeof(char));\n";
                 }
                 tmp_gen += indent + tab + get_deepcopy(t->m_type[i], "src.element_" + n,
-                                "data->element_" + n) + "\n";
+                                "dest->element_" + n) + "\n";
             }
             tmp_gen += indent + "}\n\n";
             func_decls += tmp_def;
