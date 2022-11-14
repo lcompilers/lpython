@@ -173,6 +173,24 @@ class CCPPDSUtils {
             global_scope = global_scope_;
         }
 
+        std::string get_deepcopy(ASR::ttype_t *t, std::string value, std::string target) {
+            if (ASR::is_a<ASR::List_t>(*t)) {
+                ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(t);
+                std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
+                std::string func = typecodeToDSfuncs[list_type_code]["list_deepcopy"];
+                return func + "(&" + value + ", &" + target + ");";
+            } else if (ASR::is_a<ASR::Tuple_t>(*t)) {
+                ASR::Tuple_t* tup_type = ASR::down_cast<ASR::Tuple_t>(t);
+                std::string tup_type_code = CUtils::get_tuple_type_code(tup_type);
+                std::string func = typecodeToDSfuncs[tup_type_code]["tuple_deepcopy"];
+                return func + "(" + value + ", &" + target + ");";
+            } else if (ASR::is_a<ASR::Character_t>(*t)) {
+                return "strcpy(" + target + ", " + value + ");";
+            } else {
+                return target + " = " + value  + ";";
+            }
+        }
+
         bool is_non_primitive_DT(ASR::ttype_t *t) {
             return ASR::is_a<ASR::List_t>(*t) || ASR::is_a<ASR::Tuple_t>(*t);
         }
@@ -469,14 +487,8 @@ class CCPPDSUtils {
             if( ASR::is_a<ASR::Character_t>(*m_type) ) {
                 generated_code += indent + tab + "x->data[x->current_end_point] = (char*) malloc(40 * sizeof(char));\n";
             }
-            if (ASR::is_a<ASR::List_t>(*m_type)) {
-                ASR::ttype_t *tt = ASR::down_cast<ASR::List_t>(m_type)->m_type;
-                std::string deep_copy_func = typecodeToDSfuncs[ASRUtils::get_type_code(tt, true)]["list_deepcopy"];
-                LFORTRAN_ASSERT(deep_copy_func.size() > 0);
-                generated_code += indent + tab + deep_copy_func + "(&element, &x->data[x->current_end_point]);\n";
-            } else {
-                generated_code += indent + tab + deepcopy_function("x->data[x->current_end_point]", "element", m_type) + "\n";
-            }
+            generated_code += indent + tab + \
+                        get_deepcopy(m_type, "element", "x->data[x->current_end_point]") + "\n";
             generated_code += indent + tab + "x->current_end_point += 1;\n";
             generated_code += indent + "}\n\n";
         }
@@ -561,6 +573,12 @@ class CCPPDSUtils {
             generated_code += indent + "}\n\n";
         }
 
+        std::string get_tuple_deepcopy_func(ASR::Tuple_t* tup_type) {
+            std::string tuple_type_code = CUtils::get_tuple_type_code(tup_type);
+            return typecodeToDSfuncs[tuple_type_code]["tuple_deepcopy"];
+        }
+
+
         std::string get_tuple_type(ASR::Tuple_t* tuple_type) {
             std::string tuple_type_code = CUtils::get_tuple_type_code(tuple_type);
             if (typecodeToDStype.find(tuple_type_code) != typecodeToDStype.end()) {
@@ -584,9 +602,35 @@ class CCPPDSUtils {
             tmp_gen += indent + "};\n\n";
             func_decls += tmp_gen;
             generate_compare_funcs((ASR::ttype_t *)tuple_type);
+            tuple_deepcopy(tuple_type, tuple_type_code);
             return tuple_struct_type;
         }
 
+        void tuple_deepcopy(ASR::Tuple_t *t, std::string tuple_type_code) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string tup_dc_func = global_scope->get_unique_name("tuple_deepcopy_" + tuple_type_code);
+            typecodeToDSfuncs[tuple_type_code]["tuple_deepcopy"] = tup_dc_func;
+            std::string tuple_struct_type = typecodeToDStype[tuple_type_code];
+            std::string signature = "void " + tup_dc_func + "("
+                                + tuple_struct_type + " src, "
+                                + tuple_struct_type + "* dest)";
+            std::string tmp_def = "", tmp_gen = "";
+            tmp_def += "inline " + signature + ";\n";
+            tmp_gen += indent + signature + " {\n";
+            for (size_t i=0; i<t->n_type; i++) {
+                std::string n = std::to_string(i);
+                if (ASR::is_a<ASR::Character_t>(*t->m_type[i])) {
+                    tmp_gen += indent + tab + "dest->element_" + n + " = " + \
+                                "(char *) malloc(40*sizeof(char));\n";
+                }
+                tmp_gen += indent + tab + get_deepcopy(t->m_type[i], "src.element_" + n,
+                                "dest->element_" + n) + "\n";
+            }
+            tmp_gen += indent + "}\n\n";
+            func_decls += tmp_def;
+            generated_code += tmp_gen;
+        }
 
         ~CCPPDSUtils() {
             typecodeToDStype.clear();
