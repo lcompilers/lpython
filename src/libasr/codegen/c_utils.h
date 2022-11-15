@@ -522,7 +522,7 @@ class CCPPDSUtils {
             if( ASR::is_a<ASR::Character_t>(*m_type) ) {
                 generated_code += indent + tab + "x->data[pos] = (char*) malloc(40 * sizeof(char));\n";
             }
-            generated_code += indent + tab + deepcopy_function("x->data[pos]", "element", m_type) + "\n";
+            generated_code += indent + tab + get_deepcopy(m_type, "element", "x->data[pos]") + "\n";
             generated_code += indent + tab + "x->current_end_point += 1;\n";
             generated_code += indent + "}\n\n";
         }
