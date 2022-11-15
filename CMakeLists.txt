@@ -7,7 +7,7 @@ if (LPYTHON_BUILD_ALL)
   execute_process(COMMAND "build0.sh")
 endif()
 
-file(STRINGS "version" LFORTRAN_VERSION)
+file(STRINGS "version" LCOMPILERS_VERSION)
 
 project(lpython LANGUAGES C CXX)
 
@@ -45,10 +45,10 @@ include(GNUInstallDirs)
 include(InstallRequiredSystemLibraries)
 set(CPACK_GENERATOR "TBZ2")
 set(CPACK_STRIP_FILES YES)
-set(CPACK_PACKAGE_FILE_NAME lpython-${LFORTRAN_VERSION}-${CMAKE_SYSTEM_NAME})
+set(CPACK_PACKAGE_FILE_NAME lpython-${LCOMPILERS_VERSION}-${CMAKE_SYSTEM_NAME})
 include(CPack)
 # So that CPACK_PACKAGE_FILE_NAME prints the correct value below
-set(CPACK_PACKAGE_FILE_NAME lpython-${LFORTRAN_VERSION}-${CMAKE_SYSTEM_NAME})
+set(CPACK_PACKAGE_FILE_NAME lpython-${LCOMPILERS_VERSION}-${CMAKE_SYSTEM_NAME})
 
 
 if (NOT CMAKE_CXX_STANDARD)
@@ -73,8 +73,8 @@ set(WITH_LCOMPILERS_ASSERT ${WITH_LCOMPILERS_ASSERT_DEFAULT}
 # LPYTHON_STATIC_BIN
 set(LPYTHON_STATIC_BIN no CACHE BOOL "Build LPython as a static binary")
 
-# WITH_LFORTRAN_BINARY_MODFILES
-set(WITH_LFORTRAN_BINARY_MODFILES YES
+# WITH_LCOMPILERS_BINARY_MODFILES
+set(WITH_LCOMPILERS_BINARY_MODFILES YES
     CACHE BOOL "Use binary modfiles")
 
 set(WITH_RUNTIME_LIBRARY YES
@@ -188,14 +188,14 @@ if (WITH_LLVM)
         target_link_directories(p::llvm BEFORE INTERFACE ${mypath})
         message(STATUS "ZLIB LIBRARY PATH: ${mypath}")
     endif()
-    set(HAVE_LFORTRAN_LLVM yes)
+    set(HAVE_LCOMPILERS_LLVM yes)
 endif()
 
 # XEUS (Fortran kernel)
 set(WITH_XEUS no CACHE BOOL "Build with XEUS support")
 if (WITH_XEUS)
     find_package(xeus 0.24.1 REQUIRED)
-    set(HAVE_LFORTRAN_XEUS yes)
+    set(HAVE_LCOMPILERS_XEUS yes)
 
     # Generate kernel.json with correct paths
     configure_file (
@@ -218,15 +218,15 @@ set(WITH_JSON no CACHE BOOL "Build with JSON support")
 set(WITH_LSP no CACHE BOOL "Build with LSP support")
 if (WITH_JSON OR WITH_LSP)
     find_package(RapidJSON REQUIRED)
-    set(HAVE_LFORTRAN_RAPIDJSON yes)
+    set(HAVE_LCOMPILERS_RAPIDJSON yes)
 endif()
 
-set(HAVE_LFORTRAN_DEMANGLE yes
+set(HAVE_LCOMPILERS_DEMANGLE yes
     CACHE BOOL "Build with C++ name demangling support (cxxabi.h)")
 
 if (MSVC)
     # MSVC doesn't have cxxabi.h
-    set(HAVE_LFORTRAN_DEMANGLE no)
+    set(HAVE_LCOMPILERS_DEMANGLE no)
 endif()
 
 # fmt (`conda install fmt`)
@@ -259,7 +259,7 @@ if (WITH_STACKTRACE)
         set(WITH_LINKH yes)
         set(WITH_BFD yes)
     endif()
-    set(HAVE_LFORTRAN_STACKTRACE yes)
+    set(HAVE_LCOMPILERS_STACKTRACE yes)
 endif()
 if (WITH_RUNTIME_STACKTRACE)
     set(WITH_UNWIND yes)
@@ -272,21 +272,21 @@ if (WITH_RUNTIME_STACKTRACE)
 endif()
 if (WITH_BFD)
     find_package(BFD REQUIRED)
-    set(HAVE_LFORTRAN_BFD yes)
+    set(HAVE_LCOMPLIERS_BFD yes)
 endif()
 if (WITH_DWARFDUMP)
-    set(HAVE_LFORTRAN_DWARFDUMP yes)
+    set(HAVE_LCOMPILERS_DWARFDUMP yes)
 endif()
 if (WITH_LINKH)
     find_package(LINKH REQUIRED)
-    set(HAVE_LFORTRAN_LINK yes)
+    set(HAVE_LCOMPILERS_LINK yes)
 endif()
 if (WITH_MACHO)
     find_package(MACHO REQUIRED)
-    set(HAVE_LFORTRAN_MACHO yes)
+    set(HAVE_LCOMPILERS_MACHO yes)
 endif()
 if (WITH_UNWIND)
-    set(HAVE_LFORTRAN_UNWIND yes)
+    set(HAVE_LCOMPILERS_UNWIND yes)
 endif()
 
 enable_testing()
@@ -294,7 +294,7 @@ enable_testing()
 message("\n")
 message("Configuration results")
 message("---------------------")
-message("LPYTHON_VERSION: ${LFORTRAN_VERSION}")
+message("LPYTHON_VERSION: ${LCOMPILERS_VERSION}")
 message("CPACK_PACKAGE_FILE_NAME: ${CPACK_PACKAGE_FILE_NAME}")
 message("C compiler      : ${CMAKE_C_COMPILER}")
 message("C++ compiler    : ${CMAKE_CXX_COMPILER}")
@@ -317,13 +317,13 @@ message("WITH_BFD: ${WITH_BFD}")
 message("WITH_DWARFDUMP: ${WITH_DWARFDUMP}")
 message("WITH_LINKH: ${WITH_LINKH}")
 message("WITH_MACHO: ${WITH_MACHO}")
-message("HAVE_LFORTRAN_DEMANGLE: ${HAVE_LFORTRAN_DEMANGLE}")
+message("HAVE_LCOMPILERS_DEMANGLE: ${HAVE_LCOMPILERS_DEMANGLE}")
 message("WITH_LLVM: ${WITH_LLVM}")
 message("WITH_XEUS: ${WITH_XEUS}")
 message("WITH_JSON: ${WITH_JSON}")
 message("WITH_LSP: ${WITH_LSP}")
 message("WITH_FMT: ${WITH_FMT}")
-message("WITH_LFORTRAN_BINARY_MODFILES: ${WITH_LFORTRAN_BINARY_MODFILES}")
+message("WITH_LCOMPILERS_BINARY_MODFILES: ${WITH_LCOMPILERS_BINARY_MODFILES}")
 message("WITH_RUNTIME_LIBRARY: ${WITH_RUNTIME_LIBRARY}")
 message("WITH_WHEREAMI: ${WITH_WHEREAMI}")
 message("WITH_ZLIB: ${WITH_ZLIB}")

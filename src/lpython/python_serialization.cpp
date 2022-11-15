@@ -9,7 +9,7 @@
 namespace LCompilers::LPython {
 
 class ASTDeserializationVisitor :
-#ifdef WITH_LFORTRAN_BINARY_MODFILES
+#ifdef WITH_LCOMPILERS_BINARY_MODFILES
     public BinaryReader,
 #else
     public TextReader,
@@ -18,7 +18,7 @@ class ASTDeserializationVisitor :
 {
 public:
     ASTDeserializationVisitor(Allocator &al, const std::string &s) :
-#ifdef WITH_LFORTRAN_BINARY_MODFILES
+#ifdef WITH_LCOMPILERS_BINARY_MODFILES
         BinaryReader(s),
 #else
         TextReader(s),

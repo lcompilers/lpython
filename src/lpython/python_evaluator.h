@@ -57,7 +57,7 @@ public:
 
 private:
     Allocator al;
-#ifdef HAVE_LFORTRAN_LLVM
+#ifdef HAVE_LCOMPILERS_LLVM
     std::unique_ptr<LLVMEvaluator> e;
     int eval_count;
 #endif

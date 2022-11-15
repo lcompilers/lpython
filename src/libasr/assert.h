@@ -12,7 +12,7 @@
 #if !defined(LCOMPILERS_ASSERT)
 #define stringize(s) #s
 #define XSTR(s) stringize(s)
-#if defined(HAVE_LFORTRAN_STACKTRACE)
+#if defined(HAVE_LCOMPILERS_STACKTRACE)
 #define LCOMPILERS_ASSERT(cond)                                                  \
     {                                                                          \
         if (!(cond)) {                                                         \
@@ -30,7 +30,7 @@
             abort();                                                           \
         }                                                                      \
     }
-#endif // defined(HAVE_LFORTRAN_STACKTRACE)
+#endif // defined(HAVE_LCOMPILERS_STACKTRACE)
 #endif // !defined(LCOMPILERS_ASSERT)
 
 #if !defined(LCOMPILERS_ASSERT_MSG)

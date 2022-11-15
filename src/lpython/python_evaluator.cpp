@@ -6,7 +6,7 @@
 #include <libasr/exception.h>
 #include <libasr/asr.h>
 
-#ifdef HAVE_LFORTRAN_LLVM
+#ifdef HAVE_LCOMPILERS_LLVM
 #include <libasr/codegen/evaluator.h>
 #include <libasr/codegen/asr_to_llvm.h>
 #else
@@ -24,7 +24,7 @@ namespace LCompilers {
 PythonCompiler::PythonCompiler(CompilerOptions compiler_options)
     :
     al{1024*1024},
-#ifdef HAVE_LFORTRAN_LLVM
+#ifdef HAVE_LCOMPILERS_LLVM
     e{std::make_unique<LLVMEvaluator>()},
     eval_count{0},
 #endif
@@ -37,7 +37,7 @@ PythonCompiler::~PythonCompiler() = default;
 
 
 Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
-#ifdef HAVE_LFORTRAN_LLVM
+#ifdef HAVE_LCOMPILERS_LLVM
     ASR::TranslationUnit_t &asr, LCompilers::PassManager& lpm,
     diag::Diagnostics &diagnostics, const std::string &infile
 #else
@@ -46,7 +46,7 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
 #endif
     )
 {
-#ifdef HAVE_LFORTRAN_LLVM
+#ifdef HAVE_LCOMPILERS_LLVM
     eval_count++;
     run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
 
