@@ -1,5 +1,6 @@
 #include <libasr/assert.h>
 #include <libasr/codegen/llvm_utils.h>
+#include <libasr/codegen/llvm_array_utils.h>
 #include <libasr/asr_utils.h>
 
 namespace LFortran {
@@ -298,24 +299,52 @@ namespace LFortran {
     }
 
     void LLVMUtils::deepcopy(llvm::Value* src, llvm::Value* dest,
-                             ASR::ttype_t* asr_type, llvm::Module& module) {
+                             ASR::ttype_t* asr_type, llvm::Module* module,
+                             std::map<std::string, std::map<std::string, int>>& name2memidx) {
         switch( asr_type->type ) {
             case ASR::ttypeType::Integer:
             case ASR::ttypeType::Real:
-            case ASR::ttypeType::Character:
             case ASR::ttypeType::Logical:
             case ASR::ttypeType::Complex: {
-                LLVM::CreateStore(*builder, src, dest);
+                if( ASRUtils::is_array(asr_type) ) {
+                    arr_api->copy_array(src, dest, module, asr_type, false, false);
+                } else {
+                    LLVM::CreateStore(*builder, src, dest);
+                }
                 break ;
             };
+            case ASR::ttypeType::Character: {
+                LLVM::CreateStore(*builder, src, dest);
+                break ;
+            }
             case ASR::ttypeType::Tuple: {
                 ASR::Tuple_t* tuple_type = ASR::down_cast<ASR::Tuple_t>(asr_type);
-                tuple_api->tuple_deepcopy(src, dest, tuple_type, module);
+                tuple_api->tuple_deepcopy(src, dest, tuple_type, module, name2memidx);
                 break ;
             }
             case ASR::ttypeType::List: {
                 ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(asr_type);
-                list_api->list_deepcopy(src, dest, list_type, module);
+                list_api->list_deepcopy(src, dest, list_type, module, name2memidx);
+                break ;
+            }
+            case ASR::ttypeType::Struct: {
+                ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(asr_type);
+                ASR::StructType_t* struct_type_t = ASR::down_cast<ASR::StructType_t>(
+                    ASRUtils::symbol_get_past_external(struct_t->m_derived_type));
+                std::string der_type_name = std::string(struct_type_t->m_name);
+                for( auto item: struct_type_t->m_symtab->get_scope() ) {
+                    std::string mem_name = item.first;
+                    int mem_idx = name2memidx[der_type_name][mem_name];
+                    llvm::Value* src_member = create_gep(src, mem_idx);
+                    if( !LLVM::is_llvm_struct(ASRUtils::symbol_type(item.second)) &&
+                        !ASRUtils::is_array(ASRUtils::symbol_type(item.second)) ) {
+                        src_member = LLVM::CreateLoad(*builder, src_member);
+                    }
+                    llvm::Value* dest_member = create_gep(dest, mem_idx);
+                    deepcopy(src_member, dest_member,
+                        ASRUtils::symbol_type(item.second),
+                        module, name2memidx);
+                }
                 break ;
             }
             default: {
@@ -611,12 +640,14 @@ namespace LFortran {
     }
 
     void LLVMList::list_deepcopy(llvm::Value* src, llvm::Value* dest,
-                                 ASR::List_t* list_type, llvm::Module& module) {
-        list_deepcopy(src, dest, list_type->m_type, module);
+        ASR::List_t* list_type, llvm::Module* module,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
+        list_deepcopy(src, dest, list_type->m_type, module, name2memidx);
     }
 
     void LLVMList::list_deepcopy(llvm::Value* src, llvm::Value* dest,
-                                 ASR::ttype_t* element_type, llvm::Module& module) {
+                                 ASR::ttype_t* element_type, llvm::Module* module,
+                                 std::map<std::string, std::map<std::string, int>>& name2memidx) {
         LFORTRAN_ASSERT(src->getType() == dest->getType());
         std::string src_type_code = ASRUtils::get_type_code(element_type);
         llvm::Value* src_end_point = LLVM::CreateLoad(*builder, get_pointer_to_current_end_point(src));
@@ -629,7 +660,7 @@ namespace LFortran {
         int32_t type_size = std::get<1>(typecode2listtype[src_type_code]);
         llvm::Value* arg_size = builder->CreateMul(llvm::ConstantInt::get(context,
                                                    llvm::APInt(32, type_size)), src_capacity);
-        llvm::Value* copy_data = LLVM::lfortran_malloc(context, module, *builder,
+        llvm::Value* copy_data = LLVM::lfortran_malloc(context, *module, *builder,
                                                        arg_size);
         llvm::Type* el_type = std::get<2>(typecode2listtype[src_type_code]);
         copy_data = builder->CreateBitCast(copy_data, el_type->getPointerTo());
@@ -670,9 +701,9 @@ namespace LFortran {
             llvm_utils->start_new_block(loopbody);
             {
                 llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
-                llvm::Value* srci = read_item(src, pos, false, module, true);
-                llvm::Value* desti = read_item(dest, pos, false, module, true);
-                llvm_utils->deepcopy(srci, desti, element_type, module);
+                llvm::Value* srci = read_item(src, pos, false, *module, true);
+                llvm::Value* desti = read_item(dest, pos, false, *module, true);
+                llvm_utils->deepcopy(srci, desti, element_type, module, name2memidx);
                 llvm::Value* tmp = builder->CreateAdd(
                             pos,
                             llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
@@ -691,7 +722,8 @@ namespace LFortran {
     }
 
     void LLVMDict::dict_deepcopy(llvm::Value* src, llvm::Value* dest,
-                                 ASR::Dict_t* dict_type, llvm::Module* module) {
+                                 ASR::Dict_t* dict_type, llvm::Module* module,
+                                 std::map<std::string, std::map<std::string, int>>& name2memidx) {
         LFORTRAN_ASSERT(src->getType() == dest->getType());
         llvm::Value* src_occupancy = LLVM::CreateLoad(*builder, get_pointer_to_occupancy(src));
         llvm::Value* dest_occupancy_ptr = get_pointer_to_occupancy(dest);
@@ -700,12 +732,13 @@ namespace LFortran {
         llvm::Value* src_key_list = get_key_list(src);
         llvm::Value* dest_key_list = get_key_list(dest);
         llvm_utils->list_api->list_deepcopy(src_key_list, dest_key_list,
-                                            dict_type->m_key_type, *module);
+                                            dict_type->m_key_type, module,
+                                            name2memidx);
 
         llvm::Value* src_value_list = get_value_list(src);
         llvm::Value* dest_value_list = get_value_list(dest);
         llvm_utils->list_api->list_deepcopy(src_value_list, dest_value_list,
-                                            dict_type->m_value_type, *module);
+                                            dict_type->m_value_type, module, name2memidx);
 
         llvm::Value* src_key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(src));
         llvm::Value* dest_key_mask_ptr = get_pointer_to_keymask(dest);
@@ -723,7 +756,8 @@ namespace LFortran {
 
     void LLVMDictSeparateChaining::deepcopy_key_value_pair_linked_list(
         llvm::Value* srci, llvm::Value* desti, llvm::Value* dest_key_value_pairs,
-        llvm::Value* src_capacity, ASR::Dict_t* dict_type, llvm::Module* module) {
+        llvm::Value* src_capacity, ASR::Dict_t* dict_type, llvm::Module* module,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
         if( !are_iterators_set ) {
             src_itr = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
             dest_itr = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
@@ -768,8 +802,8 @@ namespace LFortran {
             }
             llvm::Value* dest_key_ptr = llvm_utils->create_gep(curr_dest, 0);
             llvm::Value* dest_value_ptr = llvm_utils->create_gep(curr_dest, 1);
-            llvm_utils->deepcopy(src_key, dest_key_ptr, dict_type->m_key_type, *module);
-            llvm_utils->deepcopy(src_value, dest_value_ptr, dict_type->m_value_type, *module);
+            llvm_utils->deepcopy(src_key, dest_key_ptr, dict_type->m_key_type, module, name2memidx);
+            llvm_utils->deepcopy(src_value, dest_value_ptr, dict_type->m_value_type, module, name2memidx);
 
             llvm::Value* src_next_ptr = LLVM::CreateLoad(*builder, llvm_utils->create_gep(curr_src, 2));
             llvm::Value* curr_dest_next_ptr = llvm_utils->create_gep(curr_dest, 2);
@@ -811,7 +845,8 @@ namespace LFortran {
 
     void LLVMDictSeparateChaining::write_key_value_pair_linked_list(
         llvm::Value* kv_ll, llvm::Value* dict, llvm::Value* capacity,
-        ASR::ttype_t* m_key_type, ASR::ttype_t* m_value_type, llvm::Module* module) {
+        ASR::ttype_t* m_key_type, ASR::ttype_t* m_value_type, llvm::Module* module,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
         if( !are_iterators_set ) {
             src_itr = builder->CreateAlloca(llvm::Type::getInt8PtrTy(context), nullptr);
         }
@@ -850,7 +885,8 @@ namespace LFortran {
             resolve_collision_for_write(
                 dict, key_hash, src_key,
                 src_value, module,
-                m_key_type, m_value_type);
+                m_key_type, m_value_type,
+                name2memidx);
 
             llvm::Value* src_next_ptr = LLVM::CreateLoad(*builder, llvm_utils->create_gep(curr_src, 2));
             LLVM::CreateStore(*builder, src_next_ptr, src_itr);
@@ -864,7 +900,8 @@ namespace LFortran {
 
     void LLVMDictSeparateChaining::dict_deepcopy(
         llvm::Value* src, llvm::Value* dest,
-        ASR::Dict_t* dict_type, llvm::Module* module) {
+        ASR::Dict_t* dict_type, llvm::Module* module,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
         llvm::Value* src_occupancy = LLVM::CreateLoad(*builder, get_pointer_to_occupancy(src));
         llvm::Value* src_filled_buckets = LLVM::CreateLoad(*builder, get_pointer_to_number_of_filled_buckets(src));
         llvm::Value* src_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(src));
@@ -933,7 +970,7 @@ namespace LFortran {
                 llvm::Value* srci = llvm_utils->create_ptr_gep(src_key_value_pairs, itr);
                 llvm::Value* desti = llvm_utils->create_ptr_gep(dest_key_value_pairs, itr);
                 deepcopy_key_value_pair_linked_list(srci, desti, dest_key_value_pairs,
-                    src_capacity, dict_type, module);
+                    src_capacity, dict_type, module, name2memidx);
             }
             builder->CreateBr(mergeBB);
             llvm_utils->start_new_block(elseBB);
@@ -992,13 +1029,14 @@ namespace LFortran {
 
     void LLVMList::write_item(llvm::Value* list, llvm::Value* pos,
                               llvm::Value* item, ASR::ttype_t* asr_type,
-                              bool enable_bounds_checking, llvm::Module& module) {
+                              bool enable_bounds_checking, llvm::Module* module,
+                              std::map<std::string, std::map<std::string, int>>& name2memidx) {
         if( enable_bounds_checking ) {
-            check_index_within_bounds(list, pos, module);
+            check_index_within_bounds(list, pos, *module);
         }
         llvm::Value* list_data = LLVM::CreateLoad(*builder, get_pointer_to_list_data(list));
         llvm::Value* element_ptr = llvm_utils->create_ptr_gep(list_data, pos);
-        llvm_utils->deepcopy(item, element_ptr, asr_type, module);
+        llvm_utils->deepcopy(item, element_ptr, asr_type, module, name2memidx);
     }
 
     void LLVMList::write_item(llvm::Value* list, llvm::Value* pos,
@@ -1351,7 +1389,8 @@ namespace LFortran {
         llvm::Value* dict, llvm::Value* key_hash,
         llvm::Value* key, llvm::Value* value,
         llvm::Module* module, ASR::ttype_t* key_asr_type,
-        ASR::ttype_t* value_asr_type) {
+        ASR::ttype_t* value_asr_type,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
         llvm::Value* key_list = get_key_list(dict);
         llvm::Value* value_list = get_value_list(dict);
         llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
@@ -1359,9 +1398,9 @@ namespace LFortran {
         this->resolve_collision(capacity, key_hash, key, key_list, key_mask, *module, key_asr_type);
         llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
         llvm_utils->list_api->write_item(key_list, pos, key,
-                                         key_asr_type, false, *module);
+                                         key_asr_type, false, module, name2memidx);
         llvm_utils->list_api->write_item(value_list, pos, value,
-                                         value_asr_type, false, *module);
+                                         value_asr_type, false, module, name2memidx);
         llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
             llvm_utils->create_ptr_gep(key_mask, pos));
         llvm::Value* is_slot_empty = builder->CreateICmpEQ(key_mask_value,
@@ -1380,7 +1419,8 @@ namespace LFortran {
         llvm::Value* dict, llvm::Value* key_hash,
         llvm::Value* key, llvm::Value* value,
         llvm::Module* module, ASR::ttype_t* key_asr_type,
-        ASR::ttype_t* value_asr_type) {
+        ASR::ttype_t* value_asr_type,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
         llvm::Value* key_list = get_key_list(dict);
         llvm::Value* value_list = get_value_list(dict);
         llvm::Value* key_mask = LLVM::CreateLoad(*builder, get_pointer_to_keymask(dict));
@@ -1388,9 +1428,9 @@ namespace LFortran {
         this->resolve_collision(capacity, key_hash, key, key_list, key_mask, *module, key_asr_type);
         llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
         llvm_utils->list_api->write_item(key_list, pos, key,
-                                         key_asr_type, false, *module);
+                                         key_asr_type, false, module, name2memidx);
         llvm_utils->list_api->write_item(value_list, pos, value,
-                                         value_asr_type, false, *module);
+                                         value_asr_type, false, module, name2memidx);
 
         llvm::Value* key_mask_value = LLVM::CreateLoad(*builder,
             llvm_utils->create_ptr_gep(key_mask, pos));
@@ -1420,7 +1460,8 @@ namespace LFortran {
         llvm::Value* dict, llvm::Value* key_hash,
         llvm::Value* key, llvm::Value* value,
         llvm::Module* module, ASR::ttype_t* key_asr_type,
-        ASR::ttype_t* value_asr_type) {
+        ASR::ttype_t* value_asr_type,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
         llvm::Value* capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
         llvm::Value* key_value_pairs = LLVM::CreateLoad(*builder, get_pointer_to_key_value_pairs(dict));
         llvm::Value* key_value_pair_linked_list = llvm_utils->create_ptr_gep(key_value_pairs, key_hash);
@@ -1443,8 +1484,8 @@ namespace LFortran {
             llvm::Value* malloc_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), kv_struct_size);
             llvm::Value* new_kv_struct_i8 = LLVM::lfortran_malloc(context, *module, *builder, malloc_size);
             llvm::Value* new_kv_struct = builder->CreateBitCast(new_kv_struct_i8, kv_struct_type->getPointerTo());
-            llvm_utils->deepcopy(key, llvm_utils->create_gep(new_kv_struct, 0), key_asr_type, *module);
-            llvm_utils->deepcopy(value, llvm_utils->create_gep(new_kv_struct, 1), value_asr_type, *module);
+            llvm_utils->deepcopy(key, llvm_utils->create_gep(new_kv_struct, 0), key_asr_type, module, name2memidx);
+            llvm_utils->deepcopy(value, llvm_utils->create_gep(new_kv_struct, 1), value_asr_type, module, name2memidx);
             LLVM::CreateStore(*builder,
                 llvm::ConstantPointerNull::get(llvm::Type::getInt8PtrTy(context)),
                 llvm_utils->create_gep(new_kv_struct, 2));
@@ -1456,8 +1497,8 @@ namespace LFortran {
         llvm_utils->start_new_block(elseBB);
         {
             llvm::Value* kv_struct = builder->CreateBitCast(kv_struct_i8, kv_struct_type->getPointerTo());
-            llvm_utils->deepcopy(key, llvm_utils->create_gep(kv_struct, 0), key_asr_type, *module);
-            llvm_utils->deepcopy(value, llvm_utils->create_gep(kv_struct, 1), value_asr_type, *module);
+            llvm_utils->deepcopy(key, llvm_utils->create_gep(kv_struct, 0), key_asr_type, module, name2memidx);
+            llvm_utils->deepcopy(value, llvm_utils->create_gep(kv_struct, 1), value_asr_type, module, name2memidx);
         }
         llvm_utils->start_new_block(mergeBB);
         llvm::Value* occupancy_ptr = get_pointer_to_occupancy(dict);
@@ -1724,8 +1765,9 @@ namespace LFortran {
     }
 
     void LLVMDict::rehash(llvm::Value* dict, llvm::Module* module,
-                          ASR::ttype_t* key_asr_type,
-                          ASR::ttype_t* value_asr_type) {
+        ASR::ttype_t* key_asr_type,
+        ASR::ttype_t* value_asr_type,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
         llvm::Value* capacity_ptr = get_pointer_to_capacity(dict);
         llvm::Value* old_capacity = LLVM::CreateLoad(*builder, capacity_ptr);
         llvm::Value* capacity = builder->CreateMul(old_capacity, llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
@@ -1802,10 +1844,10 @@ namespace LFortran {
                 llvm::Value* pos = LLVM::CreateLoad(*builder, pos_ptr);
                 llvm::Value* key_dest = llvm_utils->list_api->read_item(
                                     new_key_list, pos, false, *module, true);
-                llvm_utils->deepcopy(key, key_dest, key_asr_type, *module);
+                llvm_utils->deepcopy(key, key_dest, key_asr_type, module, name2memidx);
                 llvm::Value* value_dest = llvm_utils->list_api->read_item(
                                     new_value_list, pos, false, *module, true);
-                llvm_utils->deepcopy(value, value_dest, value_asr_type, *module);
+                llvm_utils->deepcopy(value, value_dest, value_asr_type, module, name2memidx);
 
                 llvm::Value* linear_prob_happened = builder->CreateICmpNE(key_hash, pos);
                 llvm::Value* set_max_2 = builder->CreateSelect(linear_prob_happened,
@@ -1840,7 +1882,8 @@ namespace LFortran {
     void LLVMDictSeparateChaining::rehash(
         llvm::Value* dict, llvm::Module* module,
         ASR::ttype_t* key_asr_type,
-        ASR::ttype_t* value_asr_type) {
+        ASR::ttype_t* value_asr_type,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
         if( !are_iterators_set ) {
             old_capacity = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
             old_occupancy = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
@@ -1919,7 +1962,7 @@ namespace LFortran {
             {
 
                 llvm::Value* srci = llvm_utils->create_ptr_gep(old_key_value_pairs_value, itr);
-                write_key_value_pair_linked_list(srci, dict, capacity, key_asr_type, value_asr_type, module);
+                write_key_value_pair_linked_list(srci, dict, capacity, key_asr_type, value_asr_type, module, name2memidx);
             }
             builder->CreateBr(mergeBB);
             llvm_utils->start_new_block(elseBB);
@@ -1965,7 +2008,8 @@ namespace LFortran {
     }
 
     void LLVMDict::rehash_all_at_once_if_needed(llvm::Value* dict, llvm::Module* module,
-        ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type) {
+        ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
         llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
@@ -1987,7 +2031,7 @@ namespace LFortran {
         builder->CreateCondBr(rehash_condition, thenBB, elseBB);
         builder->SetInsertPoint(thenBB);
         {
-            rehash(dict, module, key_asr_type, value_asr_type);
+            rehash(dict, module, key_asr_type, value_asr_type, name2memidx);
         }
         builder->CreateBr(mergeBB);
 
@@ -1997,7 +2041,8 @@ namespace LFortran {
 
     void LLVMDictSeparateChaining::rehash_all_at_once_if_needed(
         llvm::Value* dict, llvm::Module* module,
-        ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type) {
+        ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
         llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "else");
@@ -2018,7 +2063,7 @@ namespace LFortran {
         builder->CreateCondBr(rehash_condition, thenBB, elseBB);
         builder->SetInsertPoint(thenBB);
         {
-            rehash(dict, module, key_asr_type, value_asr_type);
+            rehash(dict, module, key_asr_type, value_asr_type, name2memidx);
         }
         builder->CreateBr(mergeBB);
 
@@ -2028,22 +2073,24 @@ namespace LFortran {
 
     void LLVMDict::write_item(llvm::Value* dict, llvm::Value* key,
                               llvm::Value* value, llvm::Module* module,
-                              ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type) {
-        rehash_all_at_once_if_needed(dict, module, key_asr_type, value_asr_type);
+                              ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
+                              std::map<std::string, std::map<std::string, int>>& name2memidx) {
+        rehash_all_at_once_if_needed(dict, module, key_asr_type, value_asr_type, name2memidx);
         llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
         llvm::Value* key_hash = get_key_hash(current_capacity, key, key_asr_type, *module);
         this->resolve_collision_for_write(dict, key_hash, key, value, module,
-                                          key_asr_type, value_asr_type);
+                                          key_asr_type, value_asr_type, name2memidx);
     }
 
     void LLVMDictSeparateChaining::write_item(llvm::Value* dict, llvm::Value* key,
         llvm::Value* value, llvm::Module* module,
-        ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type) {
-        rehash_all_at_once_if_needed(dict, module, key_asr_type, value_asr_type);
+        ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
+        rehash_all_at_once_if_needed(dict, module, key_asr_type, value_asr_type, name2memidx);
         llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_capacity(dict));
         llvm::Value* key_hash = get_key_hash(current_capacity, key, key_asr_type, *module);
         this->resolve_collision_for_write(dict, key_hash, key, value, module,
-                                          key_asr_type, value_asr_type);
+                                          key_asr_type, value_asr_type, name2memidx);
     }
 
     llvm::Value* LLVMDict::read_item(llvm::Value* dict, llvm::Value* key,
@@ -2227,7 +2274,7 @@ namespace LFortran {
 
     void LLVMList::resize_if_needed(llvm::Value* list, llvm::Value* n,
                                     llvm::Value* capacity, int32_t type_size,
-                                    llvm::Type* el_type, llvm::Module& module) {
+                                    llvm::Type* el_type, llvm::Module* module) {
         llvm::Value *cond = builder->CreateICmpEQ(n, capacity);
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
@@ -2244,7 +2291,7 @@ namespace LFortran {
                                                    new_capacity);
         llvm::Value* copy_data_ptr = get_pointer_to_list_data(list);
         llvm::Value* copy_data = LLVM::CreateLoad(*builder, copy_data_ptr);
-        copy_data = LLVM::lfortran_realloc(context, module, *builder,
+        copy_data = LLVM::lfortran_realloc(context, *module, *builder,
                                            copy_data, arg_size);
         copy_data = builder->CreateBitCast(copy_data, el_type->getPointerTo());
         builder->CreateStore(copy_data, copy_data_ptr);
@@ -2262,7 +2309,8 @@ namespace LFortran {
     }
 
     void LLVMList::append(llvm::Value* list, llvm::Value* item,
-                          ASR::ttype_t* asr_type, llvm::Module& module) {
+                          ASR::ttype_t* asr_type, llvm::Module* module,
+                          std::map<std::string, std::map<std::string, int>>& name2memidx) {
         llvm::Value* current_end_point = LLVM::CreateLoad(*builder, get_pointer_to_current_end_point(list));
         llvm::Value* current_capacity = LLVM::CreateLoad(*builder, get_pointer_to_current_capacity(list));
         std::string type_code = ASRUtils::get_type_code(asr_type);
@@ -2270,13 +2318,14 @@ namespace LFortran {
         llvm::Type* el_type = std::get<2>(typecode2listtype[type_code]);
         resize_if_needed(list, current_end_point, current_capacity,
                          type_size, el_type, module);
-        write_item(list, current_end_point, item, asr_type, false, module);
+        write_item(list, current_end_point, item, asr_type, false, module, name2memidx);
         shift_end_point_by_one(list);
     }
 
     void LLVMList::insert_item(llvm::Value* list, llvm::Value* pos,
                                llvm::Value* item, ASR::ttype_t* asr_type,
-                               llvm::Module& module) {
+                               llvm::Module* module,
+                               std::map<std::string, std::map<std::string, int>>& name2memidx) {
         std::string type_code = ASRUtils::get_type_code(asr_type);
         llvm::Value* current_end_point = LLVM::CreateLoad(*builder,
                                         get_pointer_to_current_end_point(list));
@@ -2308,7 +2357,7 @@ namespace LFortran {
         // LLVMList should treat them as data members and create them
         // only if they are NULL
         llvm::AllocaInst *tmp_ptr = builder->CreateAlloca(el_type, nullptr);
-        LLVM::CreateStore(*builder, read_item(list, pos, false, module, false), tmp_ptr);
+        LLVM::CreateStore(*builder, read_item(list, pos, false, *module, false), tmp_ptr);
         llvm::Value* tmp = nullptr;
 
         // TODO: Should be created outside the user loop and not here.
@@ -2337,8 +2386,8 @@ namespace LFortran {
             llvm::Value* next_index = builder->CreateAdd(
                             LLVM::CreateLoad(*builder, pos_ptr),
                             llvm::ConstantInt::get(context, llvm::APInt(32, 1)));
-            tmp = read_item(list, next_index, false, module, false);
-            write_item(list, next_index, LLVM::CreateLoad(*builder, tmp_ptr), false, module);
+            tmp = read_item(list, next_index, false, *module, false);
+            write_item(list, next_index, LLVM::CreateLoad(*builder, tmp_ptr), false, *module);
             LLVM::CreateStore(*builder, tmp, tmp_ptr);
 
             tmp = builder->CreateAdd(
@@ -2351,7 +2400,7 @@ namespace LFortran {
         // end
         llvm_utils->start_new_block(loopend);
 
-        write_item(list, pos, item, asr_type, false, module);
+        write_item(list, pos, item, asr_type, false, module, name2memidx);
         shift_end_point_by_one(list);
     }
 
@@ -2549,14 +2598,16 @@ namespace LFortran {
     }
 
     void LLVMTuple::tuple_deepcopy(llvm::Value* src, llvm::Value* dest,
-                                   ASR::Tuple_t* tuple_type, llvm::Module& module) {
+        ASR::Tuple_t* tuple_type, llvm::Module* module,
+        std::map<std::string, std::map<std::string, int>>& name2memidx) {
         LFORTRAN_ASSERT(src->getType() == dest->getType());
         for( size_t i = 0; i < tuple_type->n_type; i++ ) {
             llvm::Value* src_item = read_item(src, i, LLVM::is_llvm_struct(
                                               tuple_type->m_type[i]));
             llvm::Value* dest_item_ptr = read_item(dest, i, true);
             llvm_utils->deepcopy(src_item, dest_item_ptr,
-                                 tuple_type->m_type[i], module);
+                                 tuple_type->m_type[i], module,
+                                 name2memidx);
         }
     }
 

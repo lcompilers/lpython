@@ -71,6 +71,10 @@ namespace LFortran {
         Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop,
                                          int comp=-1);
 
+        static inline bool is_aggregate_type(ASR::expr_t* var) {
+            return ASR::is_a<ASR::Struct_t>(*ASRUtils::expr_type(var));
+        }
+
         template <class Struct>
         class PassVisitor: public ASR::BaseWalkVisitor<Struct> {
 

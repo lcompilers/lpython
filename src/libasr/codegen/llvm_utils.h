@@ -12,6 +12,10 @@
 
 namespace LFortran {
 
+    namespace LLVMArrUtils {
+        class Descriptor;
+    }
+
     static inline void printf(llvm::LLVMContext &context, llvm::Module &module,
         llvm::IRBuilder<> &builder, const std::vector<llvm::Value*> &args)
     {
@@ -93,6 +97,7 @@ namespace LFortran {
             LLVMTuple* tuple_api;
             LLVMList* list_api;
             LLVMDictInterface* dict_api;
+            LLVMArrUtils::Descriptor* arr_api;
 
             LLVMUtils(llvm::LLVMContext& context,
                 llvm::IRBuilder<>* _builder);
@@ -120,7 +125,8 @@ namespace LFortran {
             void reset_iterators();
 
             void deepcopy(llvm::Value* src, llvm::Value* dest,
-                          ASR::ttype_t* asr_type, llvm::Module& module);
+                ASR::ttype_t* asr_type, llvm::Module* module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
 
     }; // LLVMUtils
 
@@ -135,7 +141,7 @@ namespace LFortran {
 
             void resize_if_needed(llvm::Value* list, llvm::Value* n,
                                   llvm::Value* capacity, int32_t type_size,
-                                  llvm::Type* el_type, llvm::Module& module);
+                                  llvm::Type* el_type, llvm::Module* module);
 
             void shift_end_point_by_one(llvm::Value* list);
 
@@ -162,12 +168,12 @@ namespace LFortran {
             llvm::Value* get_pointer_to_current_capacity(llvm::Value* list);
 
             void list_deepcopy(llvm::Value* src, llvm::Value* dest,
-                                ASR::List_t* list_type,
-                                llvm::Module& module);
+                ASR::List_t* list_type, llvm::Module* module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             void list_deepcopy(llvm::Value* src, llvm::Value* dest,
-                                ASR::ttype_t* element_type,
-                                llvm::Module& module);
+                ASR::ttype_t* element_type, llvm::Module* module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* read_item(llvm::Value* list, llvm::Value* pos,
                                    bool enable_bounds_checking,
@@ -179,19 +185,22 @@ namespace LFortran {
                                            llvm::Module& module);
 
             void write_item(llvm::Value* list, llvm::Value* pos,
-                            llvm::Value* item, ASR::ttype_t* asr_type,
-                            bool enable_bounds_checking, llvm::Module& module);
+                llvm::Value* item, ASR::ttype_t* asr_type,
+                bool enable_bounds_checking, llvm::Module* module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             void write_item(llvm::Value* list, llvm::Value* pos,
                             llvm::Value* item, bool enable_bounds_checking,
                             llvm::Module& module);
 
             void append(llvm::Value* list, llvm::Value* item,
-                        ASR::ttype_t* asr_type, llvm::Module& module);
+                        ASR::ttype_t* asr_type, llvm::Module* module,
+                        std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             void insert_item(llvm::Value* list, llvm::Value* pos,
                             llvm::Value* item, ASR::ttype_t* asr_type,
-                            llvm::Module& module);
+                            llvm::Module* module,
+                            std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             void remove(llvm::Value* list, llvm::Value* item,
                         ASR::ttype_t* item_type, llvm::Module& module);
@@ -232,7 +241,8 @@ namespace LFortran {
                                    bool get_pointer=false);
 
             void tuple_deepcopy(llvm::Value* src, llvm::Value* dest,
-                                ASR::Tuple_t* type_code, llvm::Module& module);
+                                ASR::Tuple_t* type_code, llvm::Module* module,
+                                std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* check_tuple_equality(llvm::Value* t1, llvm::Value* t2,
                 ASR::Tuple_t* tuple_type, llvm::LLVMContext& context,
@@ -298,7 +308,8 @@ namespace LFortran {
             void resolve_collision_for_write(llvm::Value* dict, llvm::Value* key_hash,
                 llvm::Value* key, llvm::Value* value,
                 llvm::Module* module, ASR::ttype_t* key_asr_type,
-                ASR::ttype_t* value_asr_type) = 0;
+                ASR::ttype_t* value_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx) = 0;
 
             virtual
             llvm::Value* resolve_collision_for_read(llvm::Value* dict, llvm::Value* key_hash,
@@ -307,19 +318,21 @@ namespace LFortran {
 
             virtual
             void rehash(llvm::Value* dict, llvm::Module* module,
-                ASR::ttype_t* key_asr_type,
-                ASR::ttype_t* value_asr_type) = 0;
+                ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx) = 0;
 
             virtual
             void rehash_all_at_once_if_needed(llvm::Value* dict,
                 llvm::Module* module,
                 ASR::ttype_t* key_asr_type,
-                ASR::ttype_t* value_asr_type) = 0;
+                ASR::ttype_t* value_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx) = 0;
 
             virtual
             void write_item(llvm::Value* dict, llvm::Value* key,
                 llvm::Value* value, llvm::Module* module,
-                ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type) = 0;
+                ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx) = 0;
 
             virtual
             llvm::Value* read_item(llvm::Value* dict, llvm::Value* key,
@@ -339,7 +352,8 @@ namespace LFortran {
 
             virtual
             void dict_deepcopy(llvm::Value* src, llvm::Value* dest,
-                ASR::Dict_t* dict_type, llvm::Module* module) = 0;
+                ASR::Dict_t* dict_type, llvm::Module* module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx) = 0;
 
             virtual
             llvm::Value* len(llvm::Value* dict) = 0;
@@ -386,24 +400,27 @@ namespace LFortran {
             void resolve_collision_for_write(llvm::Value* dict, llvm::Value* key_hash,
                                           llvm::Value* key, llvm::Value* value,
                                           llvm::Module* module, ASR::ttype_t* key_asr_type,
-                                          ASR::ttype_t* value_asr_type);
+                                          ASR::ttype_t* value_asr_type,
+                                          std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* resolve_collision_for_read(llvm::Value* dict, llvm::Value* key_hash,
                                                  llvm::Value* key, llvm::Module& module,
                                                  ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type);
 
             void rehash(llvm::Value* dict, llvm::Module* module,
-                        ASR::ttype_t* key_asr_type,
-                        ASR::ttype_t* value_asr_type);
+                        ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
+                        std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             void rehash_all_at_once_if_needed(llvm::Value* dict,
                                               llvm::Module* module,
                                               ASR::ttype_t* key_asr_type,
-                                              ASR::ttype_t* value_asr_type);
+                                              ASR::ttype_t* value_asr_type,
+                                              std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             void write_item(llvm::Value* dict, llvm::Value* key,
                             llvm::Value* value, llvm::Module* module,
-                            ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type);
+                            ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
+                            std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* read_item(llvm::Value* dict, llvm::Value* key,
                                    llvm::Module& module, ASR::Dict_t* key_asr_type,
@@ -417,7 +434,8 @@ namespace LFortran {
             llvm::Value* get_pointer_to_keymask(llvm::Value* dict);
 
             void dict_deepcopy(llvm::Value* src, llvm::Value* dest,
-                               ASR::Dict_t* dict_type, llvm::Module* module);
+                ASR::Dict_t* dict_type, llvm::Module* module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* len(llvm::Value* dict);
 
@@ -440,7 +458,8 @@ namespace LFortran {
             void resolve_collision_for_write(llvm::Value* dict, llvm::Value* key_hash,
                                             llvm::Value* key, llvm::Value* value,
                                             llvm::Module* module, ASR::ttype_t* key_asr_type,
-                                            ASR::ttype_t* value_asr_type);
+                                            ASR::ttype_t* value_asr_type,
+                                            std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* resolve_collision_for_read(llvm::Value* dict, llvm::Value* key_hash,
                                                     llvm::Value* key, llvm::Module& module,
@@ -464,11 +483,11 @@ namespace LFortran {
 
             void deepcopy_key_value_pair_linked_list(llvm::Value* srci, llvm::Value* desti,
                 llvm::Value* dest_key_value_pairs, llvm::Value* src_capacity, ASR::Dict_t* dict_type,
-                llvm::Module* module);
+                llvm::Module* module, std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             void write_key_value_pair_linked_list(llvm::Value* kv_ll, llvm::Value* dict,
                 llvm::Value* capacity, ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
-                llvm::Module* module);
+                llvm::Module* module, std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             void resolve_collision(llvm::Value* capacity, llvm::Value* key_hash,
                 llvm::Value* key, llvm::Value* key_value_pair_linked_list,
@@ -507,24 +526,27 @@ namespace LFortran {
             void resolve_collision_for_write(llvm::Value* dict, llvm::Value* key_hash,
                 llvm::Value* key, llvm::Value* value,
                 llvm::Module* module, ASR::ttype_t* key_asr_type,
-                ASR::ttype_t* value_asr_type);
+                ASR::ttype_t* value_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* resolve_collision_for_read(llvm::Value* dict, llvm::Value* key_hash,
                 llvm::Value* key, llvm::Module& module,
                 ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type);
 
             void rehash(llvm::Value* dict, llvm::Module* module,
-                ASR::ttype_t* key_asr_type,
-                ASR::ttype_t* value_asr_type);
+                ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             void rehash_all_at_once_if_needed(llvm::Value* dict,
                 llvm::Module* module,
                 ASR::ttype_t* key_asr_type,
-                ASR::ttype_t* value_asr_type);
+                ASR::ttype_t* value_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             void write_item(llvm::Value* dict, llvm::Value* key,
                 llvm::Value* value, llvm::Module* module,
-                ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type);
+                ASR::ttype_t* key_asr_type, ASR::ttype_t* value_asr_type,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* read_item(llvm::Value* dict, llvm::Value* key,
                 llvm::Module& module, ASR::Dict_t* dict_type,
@@ -537,7 +559,8 @@ namespace LFortran {
             llvm::Value* get_pointer_to_keymask(llvm::Value* dict);
 
             void dict_deepcopy(llvm::Value* src, llvm::Value* dest,
-                ASR::Dict_t* dict_type, llvm::Module* module);
+                ASR::Dict_t* dict_type, llvm::Module* module,
+                std::map<std::string, std::map<std::string, int>>& name2memidx);
 
             llvm::Value* len(llvm::Value* dict);
 

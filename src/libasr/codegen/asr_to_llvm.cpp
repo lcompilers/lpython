@@ -270,6 +270,7 @@ public:
         llvm_utils->tuple_api = tuple_api.get();
         llvm_utils->list_api = list_api.get();
         llvm_utils->dict_api = nullptr;
+        llvm_utils->arr_api = arr_descr.get();
     }
 
     llvm::Value* CreateLoad(llvm::Value *x) {
@@ -1383,7 +1384,8 @@ public:
             this->visit_expr(*x.m_args[i]);
             llvm::Value* item = tmp;
             llvm::Value* pos = llvm::ConstantInt::get(context, llvm::APInt(32, i));
-            list_api->write_item(const_list, pos, item, list_type->m_type, false, *module);
+            list_api->write_item(const_list, pos, item, list_type->m_type,
+                                 false, module.get(), name2memidx);
         }
         ptr_loads = ptr_loads_copy;
         tmp = const_list;
@@ -1416,7 +1418,7 @@ public:
             visit_expr(*x.m_values[i]);
             llvm::Value* value = tmp;
             llvm_utils->dict_api->write_item(const_dict, key, value, module.get(),
-                                 x_dict->m_key_type, x_dict->m_value_type);
+                                 x_dict->m_key_type, x_dict->m_value_type, name2memidx);
         }
         ptr_loads = ptr_loads_copy;
         tmp = const_dict;
@@ -1484,7 +1486,7 @@ public:
         llvm::Value *item = tmp;
         ptr_loads = ptr_loads_copy;
 
-        list_api->append(plist, item, asr_list->m_type, *module);
+        list_api->append(plist, item, asr_list->m_type, module.get(), name2memidx);
     }
 
     void visit_UnionRef(const ASR::UnionRef_t& x) {
@@ -1609,7 +1611,7 @@ public:
         llvm::Value *item = tmp;
         ptr_loads = ptr_loads_copy;
 
-        list_api->insert_item(plist, pos, item, asr_list->m_type, *module);
+        list_api->insert_item(plist, pos, item, asr_list->m_type, module.get(), name2memidx);
     }
 
     void visit_DictInsert(const ASR::DictInsert_t& x) {
@@ -1631,7 +1633,7 @@ public:
         set_dict_api(dict_type);
         llvm_utils->dict_api->write_item(pdict, key, value, module.get(),
                              dict_type->m_key_type,
-                             dict_type->m_value_type);
+                             dict_type->m_value_type, name2memidx);
     }
 
     void visit_ListRemove(const ASR::ListRemove_t& x) {
@@ -2571,6 +2573,49 @@ public:
                                      m_dims_local, n_dims_local, a_kind_local);
     }
 
+    void fill_array_details_(llvm::Value* ptr, ASR::dimension_t* m_dims,
+        size_t n_dims, bool is_malloc_array_type, bool is_array_type,
+        bool is_list, ASR::ttype_t* m_type) {
+        if( is_malloc_array_type &&
+            m_type->type != ASR::ttypeType::Pointer &&
+            !is_list ) {
+            arr_descr->fill_dimension_descriptor(ptr, n_dims);
+        }
+        if( is_array_type && !is_malloc_array_type &&
+            m_type->type != ASR::ttypeType::Pointer &&
+            !is_list ) {
+            ASR::ttype_t* asr_data_type = ASRUtils::duplicate_type_without_dims(al, m_type, m_type->base.loc);
+            llvm::Type* llvm_data_type = get_type_from_ttype_t_util(asr_data_type);
+            fill_array_details(ptr, llvm_data_type, m_dims, n_dims);
+        }
+        if( is_array_type && is_malloc_array_type &&
+            m_type->type != ASR::ttypeType::Pointer &&
+            !is_list ) {
+            // Set allocatable arrays as unallocated
+            arr_descr->set_is_allocated_flag(ptr, 0);
+        }
+    }
+
+    void allocate_array_members_of_struct(llvm::Value* ptr, ASR::ttype_t* asr_type) {
+        LFORTRAN_ASSERT(ASR::is_a<ASR::Struct_t>(*asr_type));
+        ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(asr_type);
+        ASR::StructType_t* struct_type_t = ASR::down_cast<ASR::StructType_t>(struct_t->m_derived_type);
+        std::string struct_type_name = struct_type_t->m_name;
+        for( auto item: struct_type_t->m_symtab->get_scope() ) {
+            ASR::ttype_t* symbol_type = ASRUtils::symbol_type(item.second);
+            int idx = name2memidx[struct_type_name][item.first];
+            llvm::Value* ptr_member = llvm_utils->create_gep(ptr, idx);
+            if( ASRUtils::is_array(symbol_type) ) {
+                // Assume that struct member array is not allocatable
+                ASR::dimension_t* m_dims = nullptr;
+                size_t n_dims = ASRUtils::extract_dimensions_from_ttype(symbol_type, m_dims);
+                fill_array_details_(ptr_member, m_dims, n_dims, false, true, false, symbol_type);
+            } else if( ASR::is_a<ASR::Struct_t>(*symbol_type) ) {
+                allocate_array_members_of_struct(ptr_member, symbol_type);
+            }
+        }
+    }
+
     template<typename T>
     void declare_vars(const T &x) {
         llvm::Value *target_var;
@@ -2626,6 +2671,9 @@ public:
                         }
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(type, nullptr, v->m_name);
+                    if( ASR::is_a<ASR::Struct_t>(*v->m_type) ) {
+                        allocate_array_members_of_struct(ptr, v->m_type);
+                    }
                     if (emit_debug_info) {
                         // Reset the debug location
                         builder->SetCurrentDebugLocation(nullptr);
@@ -2659,24 +2707,9 @@ public:
                         }
                     }
                     llvm_symtab[h] = ptr;
-                    if( is_malloc_array_type &&
-                        v->m_type->type != ASR::ttypeType::Pointer &&
-                        !is_list ) {
-                        arr_descr->fill_dimension_descriptor(ptr, n_dims);
-                    }
-                    if( is_array_type && !is_malloc_array_type &&
-                        v->m_type->type != ASR::ttypeType::Pointer &&
-                        !is_list ) {
-                        ASR::ttype_t* asr_data_type = ASRUtils::duplicate_type_without_dims(al, v->m_type, v->m_type->base.loc);
-                        llvm::Type* llvm_data_type = get_type_from_ttype_t_util(asr_data_type);
-                        fill_array_details(ptr, llvm_data_type, m_dims, n_dims);
-                    }
-                    if( is_array_type && is_malloc_array_type &&
-                        v->m_type->type != ASR::ttypeType::Pointer &&
-                        !is_list ) {
-                        // Set allocatable arrays as unallocated
-                        arr_descr->set_is_allocated_flag(ptr, 0);
-                    }
+                    fill_array_details_(ptr, m_dims, n_dims,
+                        is_malloc_array_type,
+                        is_array_type, is_list, v->m_type);
                     if( v->m_symbolic_value != nullptr &&
                         !ASR::is_a<ASR::List_t>(*v->m_type)) {
                         target_var = ptr;
@@ -3776,7 +3809,8 @@ public:
                                             ASRUtils::expr_type(x.m_value));
             std::string value_type_code = ASRUtils::get_type_code(value_asr_list->m_type);
             list_api->list_deepcopy(value_list, target_list,
-                                    value_asr_list, *module);
+                                    value_asr_list, module.get(),
+                                    name2memidx);
             return ;
         } else if( is_target_tuple && is_value_tuple ) {
             uint64_t ptr_loads_copy = ptr_loads;
@@ -3805,7 +3839,7 @@ public:
                     llvm::Value* llvm_tuple_i = builder->CreateAlloca(llvm_tuple_i_type, nullptr);
                     ptr_loads = !LLVM::is_llvm_struct(asr_tuple_i_type);
                     visit_expr(*asr_value_tuple->m_elements[i]);
-                    llvm_utils->deepcopy(tmp, llvm_tuple_i, asr_tuple_i_type, *module);
+                    llvm_utils->deepcopy(tmp, llvm_tuple_i, asr_tuple_i_type, module.get(), name2memidx);
                     src_deepcopies.push_back(al, llvm_tuple_i);
                 }
                 ASR::TupleConstant_t* asr_target_tuple = ASR::down_cast<ASR::TupleConstant_t>(x.m_target);
@@ -3829,7 +3863,8 @@ public:
                 std::string type_code = ASRUtils::get_type_code(value_tuple_type->m_type,
                                                                 value_tuple_type->n_type);
                 tuple_api->tuple_deepcopy(value_tuple, target_tuple,
-                                          value_tuple_type, *module);
+                                          value_tuple_type, module.get(),
+                                          name2memidx);
             }
             return ;
         } else if( is_target_dict && is_value_dict ) {
@@ -3843,7 +3878,7 @@ public:
             ASR::Dict_t* value_dict_type = ASR::down_cast<ASR::Dict_t>(asr_value_type);
             set_dict_api(value_dict_type);
             llvm_utils->dict_api->dict_deepcopy(value_dict, target_dict,
-                                    value_dict_type, module.get());
+                                    value_dict_type, module.get(), name2memidx);
             return ;
         } else if( is_target_struct && is_value_struct ) {
             uint64_t ptr_loads_copy = ptr_loads;
@@ -3856,10 +3891,8 @@ public:
             is_assignment_target = is_assignment_target_copy;
             llvm::Value* target_struct = tmp;
             ptr_loads = ptr_loads_copy;
-            LLVM::CreateStore(*builder,
-                LLVM::CreateLoad(*builder, value_struct),
-                target_struct
-            );
+            llvm_utils->deepcopy(value_struct, target_struct,
+                asr_target_type, module.get(), name2memidx);
             return ;
         }
 
@@ -3973,9 +4006,8 @@ public:
         if( ASRUtils::is_array(target_type) &&
             ASRUtils::is_array(value_type) &&
             ASRUtils::check_equal_type(target_type, value_type) ) {
-            bool create_dim_des_array = !ASR::is_a<ASR::Var_t>(*x.m_target);
             arr_descr->copy_array(value, target, module.get(),
-                                  target_type, create_dim_des_array);
+                                  target_type, false, false);
         } else {
             builder->CreateStore(value, target);
         }
@@ -5975,7 +6007,7 @@ public:
                                     }
                                     if( ASR::is_a<ASR::Tuple_t>(*arg_type) ||
                                         ASR::is_a<ASR::List_t>(*arg_type) ) {
-                                        llvm_utils->deepcopy(value, target, arg_type, *module);
+                                        llvm_utils->deepcopy(value, target, arg_type, module.get(), name2memidx);
                                     } else {
                                         builder->CreateStore(value, target);
                                     }

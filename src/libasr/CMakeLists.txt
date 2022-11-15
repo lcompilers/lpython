@@ -34,6 +34,7 @@ set(SRC
     pass/select_case.cpp
     pass/implied_do_loops.cpp
     pass/array_op.cpp
+    pass/subroutine_from_function.cpp
     pass/class_constructor.cpp
     pass/arr_slice.cpp
     pass/print_arr.cpp

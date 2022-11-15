@@ -39,6 +39,7 @@
 #include <libasr/pass/update_array_dim_intrinsic_calls.h>
 #include <libasr/pass/pass_array_by_data.h>
 #include <libasr/pass/pass_list_expr.h>
+#include <libasr/pass/subroutine_from_function.h>
 
 #include <map>
 #include <vector>
@@ -76,7 +77,8 @@ namespace LCompilers {
             {"loop_vectorise", &LFortran::pass_loop_vectorise},
             {"array_dim_intrinsics_update", &LFortran::pass_update_array_dim_intrinsic_calls},
             {"pass_list_expr", &LFortran::pass_list_expr},
-            {"pass_array_by_data", &LFortran::pass_array_by_data}
+            {"pass_array_by_data", &LFortran::pass_array_by_data},
+            {"subroutine_from_function", &LFortran::pass_create_subroutine_from_function}
         };
 
         bool is_fast;
@@ -100,6 +102,7 @@ namespace LCompilers {
                 "pass_array_by_data",
                 "pass_list_expr",
                 "arr_slice",
+                "subroutine_from_function",
                 "array_op",
                 "print_arr",
                 "print_list",
@@ -117,6 +120,7 @@ namespace LCompilers {
                 "implied_do_loops",
                 "pass_array_by_data",
                 "arr_slice",
+                "subroutine_from_function",
                 "array_op",
                 "print_arr",
                 "print_list",
