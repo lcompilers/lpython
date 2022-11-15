@@ -10,7 +10,7 @@ typedef enum {
     LFORTRAN_RUNTIME_ERROR   = 1,
     LFORTRAN_EXCEPTION       = 2,
     LFORTRAN_PARSER_ERROR    = 4,
-    LFORTRAN_ASSERT_FAILED   = 7,
+    LCOMPILERS_ASSERT_FAILED   = 7,
     LFORTRAN_ASSEMBLER_ERROR = 8,
 } lfortran_exceptions_t;
 
@@ -123,7 +123,7 @@ public:
         switch (ec) {
             case (lfortran_exceptions_t::LFORTRAN_EXCEPTION) :
                 return "LCompilersException";
-            case (lfortran_exceptions_t::LFORTRAN_ASSERT_FAILED) :
+            case (lfortran_exceptions_t::LCOMPILERS_ASSERT_FAILED) :
                 return "AssertFailed";
             default : return "Unknown Exception";
         }
@@ -142,7 +142,7 @@ class AssertFailed : public LCompilersException
 {
 public:
     AssertFailed(const std::string &msg)
-        : LCompilersException(msg, LFORTRAN_ASSERT_FAILED)
+        : LCompilersException(msg, LCOMPILERS_ASSERT_FAILED)
     {
     }
 };

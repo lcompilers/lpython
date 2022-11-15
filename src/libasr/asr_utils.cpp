@@ -324,7 +324,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     PassUtils::UpdateDependenciesVisitor v(al);
     v.visit_TranslationUnit(*tu);
     if (run_verify) {
-#if defined(WITH_LFORTRAN_ASSERT)
+#if defined(WITH_LCOMPILERS_ASSERT)
         diag::Diagnostics diagnostics;
         if (!asr_verify(*tu, true, diagnostics)) {
             std::cerr << diagnostics.render2();
@@ -618,7 +618,7 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                             }
                             if (ASRUtils::symbol_parent_symtab(a_name)->get_counter() != curr_scope->get_counter()) {
                                 ADD_ASR_DEPENDENCIES_WITH_NAME(curr_scope, a_name, current_function_dependencies, s2c(al, matched_func_name));
-                            }  
+                            }
                             ASRUtils::insert_module_dependency(a_name, al, current_module_dependencies);
                             ASRUtils::set_absent_optional_arguments_to_null(a_args, func, al);
                             asr = ASRUtils::make_FunctionCall_t_util(al, loc, a_name, sym,
@@ -703,7 +703,7 @@ void process_overloaded_unary_minus_function(ASR::symbol_t* proc, ASR::expr_t* o
             }
             if (ASRUtils::symbol_parent_symtab(a_name)->get_counter() != curr_scope->get_counter()) {
                 ADD_ASR_DEPENDENCIES_WITH_NAME(curr_scope, a_name, current_function_dependencies, s2c(al, matched_func_name));
-            }  
+            }
             ASRUtils::insert_module_dependency(a_name, al, current_module_dependencies);
             ASRUtils::set_absent_optional_arguments_to_null(a_args, func, al);
             asr = ASRUtils::make_FunctionCall_t_util(al, loc, a_name, proc,

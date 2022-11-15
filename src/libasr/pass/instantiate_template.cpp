@@ -650,7 +650,7 @@ void check_restriction(std::map<std::string, ASR::ttype_t*> type_subs,
                         diag::Label("Function's parameter " + avar + " of type " + atype,
                                 {arg->m_args[i]->base.loc})
 
-   
+
                     }
                 ));
                 throw SemanticAbort();
