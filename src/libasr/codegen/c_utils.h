@@ -136,7 +136,6 @@ namespace CPPUtils {
     }
 } // namespace CPPUtils
 
-typedef std::string (*DeepCopyFunction)(std::string, std::string, ASR::ttype_t*);
 
 class CCPPDSUtils {
     private:
@@ -151,17 +150,12 @@ class CCPPDSUtils {
         std::string func_decls;
 
         SymbolTable* global_scope;
-        DeepCopyFunction deepcopy_function;
 
     public:
 
         CCPPDSUtils() {
             generated_code.clear();
             func_decls.clear();
-        }
-
-        void set_deepcopy_function(DeepCopyFunction func) {
-            deepcopy_function = func;
         }
 
         void set_indentation(int indendation_level_, int indendation_space_) {
