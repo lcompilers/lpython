@@ -91,14 +91,9 @@ public:
             platform{platform},
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
         is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound},
-        template_number{0}, c_ds_api{std::make_unique<CCPPDSUtils>()},
+        template_number{0}, c_ds_api{std::make_unique<CCPPDSUtils>(is_c)},
         const_name{"constname"},
         const_list_count{0}, is_string_concat_present{false} {
-            if( is_c ) {
-                c_ds_api->set_deepcopy_function(&CUtils::deepcopy);
-            } else {
-                c_ds_api->set_deepcopy_function(&CPPUtils::deepcopy);
-            }
         }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
@@ -706,9 +701,9 @@ R"(#include <stdio.h>
                      alloc = indent + target + " = " + "(char *) malloc((strlen(" +
                                     value + ") + 1 ) * sizeof(char));\n";
                 }
-                src += alloc + indent + CUtils::deepcopy(target, value, m_target_type) + "\n";
+                src += alloc + indent + c_ds_api->get_deepcopy(m_target_type, value, target) + "\n";
             } else {
-                src += indent + CPPUtils::deepcopy(target, value, m_target_type) + "\n";
+                src += indent + c_ds_api->get_deepcopy(m_target_type, value, target) + "\n";
             }
         }
         from_std_vector_helper.clear();
@@ -779,11 +774,8 @@ R"(#include <stdio.h>
             if( ASR::is_a<ASR::Character_t>(*t->m_type) ) {
                 src_tmp += const_name + ".data[" + std::to_string(i) +"] = (char*) malloc(40 * sizeof(char));\n";
             }
-            if( is_c ) {
-                src_tmp += indent + CUtils::deepcopy(const_name + ".data[" + std::to_string(i) +"]", src, t->m_type) + "\n";
-            } else {
-                src_tmp += indent + CPPUtils::deepcopy(const_name + ".data[" + std::to_string(i) +"]", src, t->m_type) + "\n";
-            }
+            src_tmp += indent + c_ds_api->get_deepcopy(t->m_type, src,
+                        const_name + ".data[" + std::to_string(i) +"]") + "\n";
         }
         src_tmp += indent + const_name + ".current_end_point = " + std::to_string(x.n_args) + ";\n";
         src = src_tmp;
@@ -805,11 +797,7 @@ R"(#include <stdio.h>
             if (ASR::is_a<ASR::Character_t>(*t->m_type[i])) {
                 src_tmp += indent + const_name + ele + " = (char*) malloc(40 * sizeof(char));\n";
             }
-            if (is_c) {
-                src_tmp += indent + CUtils::deepcopy(const_name + ele , src, t->m_type[i]) + "\n";
-            } else {
-                src_tmp += indent + CPPUtils::deepcopy(const_name + ele, src, t->m_type[i]) + "\n";
-            }
+            src_tmp += indent + c_ds_api->get_deepcopy(t->m_type[i], src, const_name + ele) + "\n";
         }
         src_tmp += indent + const_name + ".length" + " = " + std::to_string(x.n_elements) + ";\n";
         src = src_tmp;
