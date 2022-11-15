@@ -75,6 +75,18 @@ def test_loop_03():
         i += 1
     assert k == 826
 
+    i = 0
+    if i == 0:
+        while i < 10:
+            j = 0
+            if j == 0:
+                while j < 10:
+                    k += 1
+                    if i == 9:
+                        break
+                    j += 1
+                i += 1
+    assert k == 917
 
 def verify():
     test_loop_01()
