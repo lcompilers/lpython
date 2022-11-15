@@ -116,25 +116,7 @@ namespace CUtils {
         return type_src;
     }
 
-    static inline std::string deepcopy(std::string target, std::string value, ASR::ttype_t* m_type) {
-        switch (m_type->type) {
-            case ASR::ttypeType::Character: {
-                return "strcpy(" + target + ", " + value + ");";
-            }
-            default: {
-                return target + " = " + value + ";";
-            }
-        }
-    }
-
 } // namespace CUtils
-
-
-namespace CPPUtils {
-    static inline std::string deepcopy(std::string target, std::string value, ASR::ttype_t* /*m_type*/) {
-            return target + " = " + value + ";";
-    }
-} // namespace CPPUtils
 
 
 class CCPPDSUtils {
@@ -150,10 +132,11 @@ class CCPPDSUtils {
         std::string func_decls;
 
         SymbolTable* global_scope;
+        bool is_c;
 
     public:
 
-        CCPPDSUtils() {
+        CCPPDSUtils(bool is_c): is_c{is_c} {
             generated_code.clear();
             func_decls.clear();
         }
@@ -168,21 +151,35 @@ class CCPPDSUtils {
         }
 
         std::string get_deepcopy(ASR::ttype_t *t, std::string value, std::string target) {
-            if (ASR::is_a<ASR::List_t>(*t)) {
-                ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(t);
-                std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
-                std::string func = typecodeToDSfuncs[list_type_code]["list_deepcopy"];
-                return func + "(&" + value + ", &" + target + ");";
-            } else if (ASR::is_a<ASR::Tuple_t>(*t)) {
-                ASR::Tuple_t* tup_type = ASR::down_cast<ASR::Tuple_t>(t);
-                std::string tup_type_code = CUtils::get_tuple_type_code(tup_type);
-                std::string func = typecodeToDSfuncs[tup_type_code]["tuple_deepcopy"];
-                return func + "(" + value + ", &" + target + ");";
-            } else if (ASR::is_a<ASR::Character_t>(*t)) {
-                return "strcpy(" + target + ", " + value + ");";
-            } else {
-                return target + " = " + value  + ";";
+            std::string result;
+            switch (t->type) {
+                case ASR::ttypeType::List : {
+                    ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(t);
+                    std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
+                    std::string func = typecodeToDSfuncs[list_type_code]["list_deepcopy"];
+                    result = func + "(&" + value + ", &" + target + ");";
+                    break;
+                }
+                case ASR::ttypeType::Tuple : {
+                    ASR::Tuple_t* tup_type = ASR::down_cast<ASR::Tuple_t>(t);
+                    std::string tup_type_code = CUtils::get_tuple_type_code(tup_type);
+                    std::string func = typecodeToDSfuncs[tup_type_code]["tuple_deepcopy"];
+                    result = func + "(" + value + ", &" + target + ");";
+                    break;
+                }
+                case ASR::ttypeType::Character : {
+                    if (is_c) {
+                        result = "strcpy(" + target + ", " + value + ");";
+                    } else {
+                        result = target + " = " + value  + ";";
+                    }
+                    break;
+                }
+                default: {
+                    result = target + " = " + value  + ";";
+                }
             }
+            return result;
         }
 
         bool is_non_primitive_DT(ASR::ttype_t *t) {

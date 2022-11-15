@@ -91,7 +91,7 @@ public:
             platform{platform},
         gen_stdstring{gen_stdstring}, gen_stdcomplex{gen_stdcomplex},
         is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound},
-        template_number{0}, c_ds_api{std::make_unique<CCPPDSUtils>()},
+        template_number{0}, c_ds_api{std::make_unique<CCPPDSUtils>(is_c)},
         const_name{"constname"},
         const_list_count{0}, is_string_concat_present{false} {
         }
