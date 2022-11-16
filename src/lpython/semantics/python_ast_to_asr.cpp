@@ -240,12 +240,13 @@ bool set_module_path(std::string infile0, std::vector<std::string> &rl_path,
 }
 
 ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
+    LocationManager &lm, diag::Diagnostics &diagnostics,
     std::vector<std::string> &rl_path, std::string infile,
     const Location &loc,
     const std::function<void (const std::string &, const Location &)> err,
+    std::string &src_code,
     bool allow_implicit_casting) {
     // TODO: diagnostic should be an argument to this function
-    diag::Diagnostics diagnostics;
     Result<AST::ast_t*> r = parse_python_file(al, rl_path[0], infile,
         diagnostics, false);
     if (!r.ok) {
@@ -254,13 +255,12 @@ ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
     LFortran::LPython::AST::ast_t* ast = r.result;
 
     // Convert the module from AST to ASR
-    LFortran::LocationManager lm;
     lm.in_filename = infile;
     LFortran::CompilerOptions compiler_options;
     compiler_options.disable_main = true;
     compiler_options.symtab_only = false;
-    Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast,
-        diagnostics, compiler_options, false, infile, allow_implicit_casting);
+    Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, *ast, lm,
+        diagnostics, compiler_options, false, infile, src_code, allow_implicit_casting);
     // TODO: Uncomment once a check is added for ensuring
     // that module.py file hasn't changed between
     // builds.
@@ -268,9 +268,14 @@ ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
     std::string input;
     read_file(infile, input);
     lm.init_simple(input);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    src_code += input;
+
+
+    std::cout << "lm.file_ends.size()" << lm.file_ends.size() << std::endl;
+    // std::cout << "src_code" << src_code << std::endl;
+    // std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r2.ok) {
-        // LFORTRAN_ASSERT(diagnostics.has_error())
+        LFORTRAN_ASSERT(diagnostics.has_error())
         return nullptr; // Error
     }
 
@@ -292,12 +297,16 @@ void fill_module_dependencies(SymbolTable* symtab, std::set<std::string>& mod_de
     }
 }
 
-ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
+ASR::Module_t* load_module(Allocator &al,
+                            LocationManager &lm,
+                            diag::Diagnostics &diag,
+                            SymbolTable *symtab,
                             const std::string &module_name,
                             const Location &loc, bool intrinsic,
                             std::vector<std::string> &rl_path,
                             bool &ltypes, bool& enum_py,
                             const std::function<void (const std::string &, const Location &)> err,
+                            std::string &src_code,
                             bool allow_implicit_casting) {
     if( module_name == "copy" ) {
         return nullptr;
@@ -346,7 +355,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     if (ltypes) return nullptr;
 
     if( compile_module ) {
-        mod1 = compile_module_till_asr(al, rl_path, infile, loc, err, allow_implicit_casting);
+        mod1 = compile_module_till_asr(al, lm, diag, rl_path, infile, loc, err, src_code, allow_implicit_casting);
     }
 
     if (!mod1) {
@@ -518,15 +527,17 @@ public:
     std::map<std::string, std::map<std::string, ASR::ttype_t*>> generic_func_subs;
     std::vector<ASR::symbol_t*> rt_vec;
     std::set<std::string> dependencies;
+    std::string &src_code;
+    LocationManager &lm;
     bool allow_implicit_casting;
 
     CommonVisitor(Allocator &al, SymbolTable *symbol_table,
             diag::Diagnostics &diagnostics, bool main_module,
             std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
-            std::string import_path, bool allow_implicit_casting_)
+            std::string import_path, std::string &src_code, LocationManager &lm, bool allow_implicit_casting_)
         : diag{diagnostics}, al{al}, current_scope{symbol_table}, main_module{main_module},
             ast_overload{ast_overload}, parent_dir{parent_dir}, import_path{import_path},
-            current_body{nullptr}, ann_assign_target_type{nullptr},
+            current_body{nullptr}, ann_assign_target_type{nullptr}, src_code{src_code}, lm{lm},
             allow_implicit_casting{allow_implicit_casting_} {
         current_module_dependencies.reserve(al, 4);
     }
@@ -551,11 +562,11 @@ public:
         std::string rl_path = get_runtime_library_dir();
         std::vector<std::string> paths = {rl_path, parent_dir};
         bool ltypes, enum_py;
-        ASR::Module_t *m = load_module(al, tu_symtab, module_name,
+        ASR::Module_t *m = load_module(al, lm, diag, tu_symtab, module_name,
                 loc, true, paths,
                 ltypes, enum_py,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
-                allow_implicit_casting);
+                src_code, allow_implicit_casting);
         LFORTRAN_ASSERT(!ltypes && !enum_py)
 
         ASR::symbol_t *t = m->m_symtab->resolve_symbol(remote_sym);
@@ -3120,13 +3131,13 @@ public:
     std::vector<std::string> excluded_from_symtab;
     std::map<std::string, Vec<ASR::symbol_t* >> overload_defs;
 
-
     SymbolTableVisitor(Allocator &al, SymbolTable *symbol_table,
+        LocationManager &lm,
         diag::Diagnostics &diagnostics, bool main_module,
         std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
-        std::string import_path, bool allow_implicit_casting_)
+        std::string import_path, std::string &src_code, bool allow_implicit_casting_)
       : CommonVisitor(al, symbol_table, diagnostics, main_module, ast_overload,
-            parent_dir, import_path, allow_implicit_casting_), is_derived_type{false} {}
+            parent_dir, import_path, src_code, lm, allow_implicit_casting_), is_derived_type{false} {}
 
 
     ASR::symbol_t* resolve_symbol(const Location &loc, const std::string &sub_name) {
@@ -3446,10 +3457,10 @@ public:
                     msym = "__init__";
                 }
             }
-            t = (ASR::symbol_t*)(load_module(al, st,
+            t = (ASR::symbol_t*)(load_module(al, lm, diag, st,
                 msym, x.base.base.loc, false, paths, ltypes, enum_py,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
-                allow_implicit_casting));
+                src_code, allow_implicit_casting));
             if (ltypes || enum_py) {
                 // TODO: For now we skip ltypes import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
@@ -3523,10 +3534,10 @@ public:
                     mod_sym = "__init__";
                 }
             }
-            t = (ASR::symbol_t*)(load_module(al, st,
+            t = (ASR::symbol_t*)(load_module(al, lm, diag, st,
                 mod_sym, x.base.base.loc, false, paths, ltypes, enum_py,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
-                allow_implicit_casting));
+                src_code, allow_implicit_casting));
             if (ltypes || enum_py) {
                 // TODO: For now we skip ltypes import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
@@ -3626,12 +3637,12 @@ public:
 };
 
 Result<ASR::asr_t*> symbol_table_visitor(Allocator &al, const AST::Module_t &ast,
-        diag::Diagnostics &diagnostics, bool main_module,
+        LFortran::LocationManager &lm, diag::Diagnostics &diagnostics, bool main_module,
         std::map<int, ASR::symbol_t*> &ast_overload, std::string parent_dir,
-        std::string import_path, bool allow_implicit_casting)
+        std::string import_path, std::string &src_code, bool allow_implicit_casting)
 {
-    SymbolTableVisitor v(al, nullptr, diagnostics, main_module, ast_overload,
-        parent_dir, import_path, allow_implicit_casting);
+    SymbolTableVisitor v(al, nullptr, lm, diagnostics, main_module, ast_overload,
+        parent_dir, import_path, src_code, allow_implicit_casting);
     try {
         v.visit_Module(ast);
     } catch (const SemanticError &e) {
@@ -3655,10 +3666,10 @@ public:
     int64_t gotoids;
 
 
-    BodyVisitor(Allocator &al, ASR::asr_t *unit, diag::Diagnostics &diagnostics,
-         bool main_module, std::map<int, ASR::symbol_t*> &ast_overload,
+    BodyVisitor(Allocator &al, ASR::asr_t *unit, LocationManager &lm, diag::Diagnostics &diagnostics,
+         bool main_module, std::map<int, ASR::symbol_t*> &ast_overload, std::string &src_code,
          bool allow_implicit_casting_)
-         : CommonVisitor(al, nullptr, diagnostics, main_module, ast_overload, "", "", allow_implicit_casting_),
+         : CommonVisitor(al, nullptr, diagnostics, main_module, ast_overload, "", "", src_code, lm, allow_implicit_casting_),
          asr{unit}, gotoids{0}
          {}
 
@@ -5763,12 +5774,14 @@ public:
 
 Result<ASR::TranslationUnit_t*> body_visitor(Allocator &al,
         const AST::Module_t &ast,
+        LocationManager &lm,
         diag::Diagnostics &diagnostics,
         ASR::asr_t *unit, bool main_module,
         std::map<int, ASR::symbol_t*> &ast_overload,
+        std::string &src_code,
         bool allow_implicit_casting)
 {
-    BodyVisitor b(al, unit, diagnostics, main_module, ast_overload, allow_implicit_casting);
+    BodyVisitor b(al, unit, lm, diagnostics, main_module, ast_overload, src_code, allow_implicit_casting);
     try {
         b.visit_Module(ast);
     } catch (const SemanticError &e) {
@@ -5824,16 +5837,16 @@ std::string get_parent_dir(const std::string &path) {
 }
 
 Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
-    AST::ast_t &ast, diag::Diagnostics &diagnostics, CompilerOptions &compiler_options,
-    bool main_module, std::string file_path, bool allow_implicit_casting)
+    AST::ast_t &ast, LFortran::LocationManager &lm, diag::Diagnostics &diagnostics, CompilerOptions &compiler_options,
+    bool main_module, std::string file_path, std::string &src_code, bool allow_implicit_casting)
 {
     std::map<int, ASR::symbol_t*> ast_overload;
     std::string parent_dir = get_parent_dir(file_path);
     AST::Module_t *ast_m = AST::down_cast2<AST::Module_t>(&ast);
 
     ASR::asr_t *unit;
-    auto res = symbol_table_visitor(al, *ast_m, diagnostics, main_module,
-        ast_overload, parent_dir, compiler_options.import_path, allow_implicit_casting);
+    auto res = symbol_table_visitor(al, *ast_m, lm, diagnostics, main_module,
+        ast_overload, parent_dir, compiler_options.import_path, src_code, allow_implicit_casting);
     if (res.ok) {
         unit = res.result;
     } else {
@@ -5843,8 +5856,8 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
     LFORTRAN_ASSERT(asr_verify(*tu));
 
     if (!compiler_options.symtab_only) {
-        auto res2 = body_visitor(al, *ast_m, diagnostics, unit, main_module,
-            ast_overload, allow_implicit_casting);
+        auto res2 = body_visitor(al, *ast_m, lm, diagnostics, unit, main_module,
+            ast_overload, src_code, allow_implicit_casting);
         if (res2.ok) {
             tu = res2.result;
         } else {

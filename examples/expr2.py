@@ -1,6 +1,9 @@
+from a import i
+
 def main0():
     x: i32
-    x = (2+3)*5
+    x = i
+    x = 2.14
     print(x)
 
 main0()

@@ -164,7 +164,7 @@ int emit_asr(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
+        r = LFortran::LPython::python_ast_to_asr(al, *ast, lm, diagnostics, compiler_options, true, infile, input);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -206,7 +206,7 @@ int emit_cpp(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, lm, diagnostics, compiler_options, true, infile, input);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -246,7 +246,7 @@ int emit_c(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, lm, diagnostics, compiler_options, true, infile, input);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -286,7 +286,7 @@ int emit_wat(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, lm, diagnostics, compiler_options, true, infile, input);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -329,7 +329,7 @@ int get_symbols (const std::string &infile,
        if (r1.ok) {
            LFortran::LPython::AST::ast_t* ast = r1.result;
            LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-               x = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
+               x = LFortran::LPython::python_ast_to_asr(al, *ast, lm, diagnostics, compiler_options, true, infile, input);
            if (!x.ok) {
                std::cout << "{}\n";
                return 0;
@@ -421,7 +421,7 @@ int get_errors (const std::string &infile,
         if (r1.ok) {
             LFortran::LPython::AST::ast_t* ast = r1.result;
             LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-                r = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
+                r = LFortran::LPython::python_ast_to_asr(al, *ast, lm, diagnostics, compiler_options, true, infile, input);
         }
         std::vector<LFortran::LPython::error_highlight> diag_lists;
         LFortran::LPython::error_highlight h;
@@ -532,7 +532,7 @@ int emit_llvm(const std::string &infile,
     LFortran::LPython::AST::ast_t* ast = r.result;
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, lm, diagnostics, compiler_options, true, infile, input);
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -572,6 +572,7 @@ int compile_python_to_object_file(
     auto file_reading_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("File reading", std::chrono::duration<double, std::milli>(file_reading_end - file_reading_start).count()));
     lm.init_simple(input);
+    std::cout << "lpython.cpp: " << lm.files[0].in_filename << std::endl;
     auto parsing_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
         al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
@@ -588,11 +589,12 @@ int compile_python_to_object_file(
     diagnostics.diagnostics.clear();
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options,
-            !(arg_c && compiler_options.disable_main), infile);
+        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, lm, diagnostics, compiler_options,
+            !(arg_c && compiler_options.disable_main), infile, input);
 
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
+    std::cout << "input: \n" << input << std::endl;
     std::cerr << diagnostics.render(input, lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -672,7 +674,7 @@ int compile_to_binary_wasm(
     diagnostics.diagnostics.clear();
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, lm, diagnostics, compiler_options, true, infile, input);
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
@@ -737,7 +739,7 @@ int compile_to_binary_x86(
     diagnostics.diagnostics.clear();
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, lm, diagnostics, compiler_options, true, infile, input);
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
@@ -802,7 +804,7 @@ int compile_to_binary_wasm_to_x86(
     diagnostics.diagnostics.clear();
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, lm, diagnostics, compiler_options, true, infile, input);
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(input, lm, compiler_options);
@@ -1067,7 +1069,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_asr_from_source(char *input) {
     if (ast.ok) {
         auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, compiler_options, true, "input");
+        asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, compiler_options, true, "input", input);
         out = diagnostics.render(input, lm, compiler_options);
         if (asr.ok) {
             out += LFortran::pickle(*asr.result, compiler_options.use_colors, compiler_options.indent,
@@ -1085,7 +1087,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_wat_from_source(char *input) {
     if (ast.ok) {
         auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, compiler_options, true, "input");
+        asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, compiler_options, true, "input", input);
         out = diagnostics.render(input, lm, compiler_options);
         if (asr.ok) {
             LFortran::Result<LFortran::Vec<uint8_t>>
@@ -1112,7 +1114,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_cpp_from_source(char *input) {
     if (ast.ok) {
         auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, compiler_options, true, "input");
+        asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, compiler_options, true, "input", input);
         out = diagnostics.render(input, lm, compiler_options);
         if (asr.ok) {
             auto res = LFortran::asr_to_cpp(al, *asr.result, diagnostics,
@@ -1150,7 +1152,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_wasm_from_source(char *input) {
     if (ast.ok) {
         auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, compiler_options, true, "input");
+        asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, compiler_options, true, "input", input);
         out = diagnostics.render(input, lm, compiler_options);
         if (asr.ok) {
             LFortran::Result<LFortran::Vec<uint8_t>>

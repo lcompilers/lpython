@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <iostream>
 
 namespace LFortran
 {
@@ -94,94 +95,144 @@ struct LocationManager {
     //
     //
     //
-    std::vector<uint32_t> out_start; // consecutive intervals in the output code
-    std::vector<uint32_t> in_start; // start + size in the original code
-    std::vector<uint32_t> in_newlines; // position of all \n in the original code
+    struct FileLocations {
+        std::vector<uint32_t> out_start; // consecutive intervals in the output code
+        std::vector<uint32_t> in_start; // start + size in the original code
+        std::vector<uint32_t> in_newlines; // position of all \n in the original code
 
-    // For preprocessor (if preprocessor==true).
-    // TODO: design a common structure, that also works with #include, that
-    // has these mappings for each file
-    bool preprocessor = false;
-    std::string in_filename;
-    uint32_t current_line=0;
-    std::vector<uint32_t> out_start0; // consecutive intervals in the output code
-    std::vector<uint32_t> in_start0; // start + size in the original code
-    std::vector<uint32_t> in_size0; // Size of the `in` interval
-    std::vector<uint32_t> interval_type0; // 0 .... 1:1; 1 ... many to many;
-    std::vector<uint32_t> in_newlines0; // position of all \n in the original code
-//    std::vector<uint32_t> filename_id; // file name for each interval, ID
-//    std::vector<std::string> filenames; // filenames lookup for an ID
+        // For preprocessor (if preprocessor==true).
+        // TODO: design a common structure, that also works with #include, that
+        // has these mappings for each file
+        bool preprocessor = false;
+        std::string in_filename;
+        uint32_t current_line=0;
+        std::vector<uint32_t> out_start0; // consecutive intervals in the output code
+        std::vector<uint32_t> in_start0; // start + size in the original code
+        std::vector<uint32_t> in_size0; // Size of the `in` interval
+        std::vector<uint32_t> interval_type0; // 0 .... 1:1; 1 ... many to many;
+        std::vector<uint32_t> in_newlines0; // position of all \n in the original code
 
-    // Converts a position in the output code to a position in the original code
-    // Every character in the output code has a corresponding location in the
-    // original code, so this function always succeeds
-    uint32_t output_to_input_pos(uint32_t out_pos, bool show_last) const {
-        if (out_start.size() == 0) return 0;
-        uint32_t interval = bisection(out_start, out_pos)-1;
-        uint32_t rel_pos = out_pos - out_start[interval];
-        uint32_t in_pos = in_start[interval] + rel_pos;
-        if (preprocessor) {
-            // If preprocessor was used, do one more remapping
-            uint32_t interval0 = bisection(out_start0, in_pos)-1;
-            if (interval_type0[interval0] == 0) {
-                // 1:1 interval
-                uint32_t rel_pos0 = in_pos - out_start0[interval0];
-                uint32_t in_pos0 = in_start0[interval0] + rel_pos0;
-                return in_pos0;
-            } else {
-                // many to many interval
-                uint32_t in_pos0;
-                if (in_pos == out_start0[interval0+1]-1 || show_last) {
-                    // The end of the interval in "out" code
-                    // Return the end of the interval in "in" code
-                    in_pos0 = in_start0[interval0]+in_size0[interval0]-1;
+        // Converts a position in the output code to a position in the original code
+        // Every character in the output code has a corresponding location in the
+        // original code, so this function always succeeds
+        uint32_t output_to_input_pos(uint32_t out_pos, bool show_last) const {
+            if (out_start.size() == 0) return 0;
+            uint32_t interval = bisection(out_start, out_pos)-1;
+            uint32_t rel_pos = out_pos - out_start[interval];
+            uint32_t in_pos = in_start[interval] + rel_pos;
+            if (preprocessor) {
+                // If preprocessor was used, do one more remapping
+                uint32_t interval0 = bisection(out_start0, in_pos)-1;
+                if (interval_type0[interval0] == 0) {
+                    // 1:1 interval
+                    uint32_t rel_pos0 = in_pos - out_start0[interval0];
+                    uint32_t in_pos0 = in_start0[interval0] + rel_pos0;
+                    return in_pos0;
                 } else {
-                    // Otherwise return the beginning of the interval in "in"
-                    in_pos0 = in_start0[interval0];
+                    // many to many interval
+                    uint32_t in_pos0;
+                    if (in_pos == out_start0[interval0+1]-1 || show_last) {
+                        // The end of the interval in "out" code
+                        // Return the end of the interval in "in" code
+                        in_pos0 = in_start0[interval0]+in_size0[interval0]-1;
+                    } else {
+                        // Otherwise return the beginning of the interval in "in"
+                        in_pos0 = in_start0[interval0];
+                    }
+                    return in_pos0;
                 }
-                return in_pos0;
+            } else {
+                return in_pos;
             }
-        } else {
-            return in_pos;
         }
-    }
 
-    // Converts a linear position `position` to a (line, col) tuple
-    // `position` starts from 0
-    // `line` and `col` starts from 1
-    // `in_newlines` starts from 0
-    void pos_to_linecol(uint32_t position, uint32_t &line, uint32_t &col) const {
-        const std::vector<uint32_t> *newlines;
-        if (preprocessor) {
-            newlines = &in_newlines0;
-        } else {
-            newlines = &in_newlines;
+        // Converts a linear position `position` to a (line, col) tuple
+        // `position` starts from 0
+        // `line` and `col` starts from 1
+        // `in_newlines` starts from 0
+        void pos_to_linecol(uint32_t position, uint32_t &line, uint32_t &col) const {
+            const std::vector<uint32_t> *newlines;
+            if (preprocessor) {
+                newlines = &in_newlines0;
+            } else {
+                newlines = &in_newlines;
+            }
+            int32_t interval = bisection(*newlines, position);
+            if (interval >= 1 && position == (*newlines)[interval-1]) {
+                // position is exactly the \n character, make sure `line` is
+                // the line with \n, and `col` points to the position of \n
+                interval -= 1;
+            }
+            line = interval+1;
+            if (line == 1) {
+                col = position+1;
+            } else {
+                col = position-(*newlines)[interval-1];
+            }
         }
-        int32_t interval = bisection(*newlines, position);
-        if (interval >= 1 && position == (*newlines)[interval-1]) {
-            // position is exactly the \n character, make sure `line` is
-            // the line with \n, and `col` points to the position of \n
-            interval -= 1;
-        }
-        line = interval+1;
-        if (line == 1) {
-            col = position+1;
-        } else {
-            col = position-(*newlines)[interval-1];
-        }
-    }
 
-    void get_newlines(const std::string &s, std::vector<uint32_t> &newlines) {
-        for (uint32_t pos=0; pos < s.size(); pos++) {
-            if (s[pos] == '\n') newlines.push_back(pos);
+        void get_newlines(const std::string &s, std::vector<uint32_t> &newlines) {
+            for (uint32_t pos=0; pos < s.size(); pos++) {
+                if (s[pos] == '\n') newlines.push_back(pos);
+            }
         }
+
+        void init_simple(const std::string &input) {
+            uint32_t n = input.size();
+            out_start = {0, n};
+            in_start = {0, n};
+            get_newlines(input, in_newlines);
+        }
+    };
+
+    std::string in_filename;
+    FileLocations lm;
+    std::vector<FileLocations> files;
+    std::vector<uint32_t> file_ends; // position of all ends of files
+    // For a given Location we use the `file_ends` and bisection to determine
+    // the file (index) which the location is from. Then we use this index into
+    // the `files` vector and use `in_newlines` and other information to
+    // determin the line and column inside this file, and the `in_filename`
+    // field to determine the filename. This happens when the diagnostic is
+    // printed. The `pos_to_linecol` function below should be modified to
+    // return line, column and the filename:
+    //
+    void pos_to_linecol(uint32_t position, uint32_t &line, uint32_t &col,
+        std::string &filename) const {
+
+        std::cout << "I am here-1" << std::endl;
+        for (size_t i = 0; i < file_ends.size(); i++) {
+        std::cout << "I am here-2" << std::endl;
+            if (position < file_ends[i]) {
+        std::cout << "I am here-3" << std::endl;
+                files[i].pos_to_linecol(files[i].output_to_input_pos(position, false), line, col);
+                filename = files[i].in_filename;
+        std::cout << "Filename: " << filename << std::endl;
+                return;
+            }
+        }
+
+        // files.back().pos_to_linecol(files.back().output_to_input_pos(position, false), line, col);
+        // filename = files.back().in_filename;
+        // std::cout << "Filename: " << filename << std::endl;
+        // return;
     }
 
     void init_simple(const std::string &input) {
         uint32_t n = input.size();
-        out_start = {0, n};
-        in_start = {0, n};
-        get_newlines(input, in_newlines);
+        FileLocations file_loc;
+        file_loc.in_filename = this->in_filename;
+        if (file_ends.empty()) {
+            file_loc.out_start = {0, n};
+            file_loc.in_start = {0, n};
+            file_ends.push_back(n); // is this fine??
+        } else {
+            file_loc.out_start = {0, n};
+            file_loc.in_start = {file_ends.back(), file_ends.back() + n}; // is this fine??
+            file_ends.push_back(file_ends.back() + n); // is this fine??
+        }
+        file_loc.get_newlines(input, file_loc.in_newlines);
+        files.push_back(file_loc);
     }
 
 };

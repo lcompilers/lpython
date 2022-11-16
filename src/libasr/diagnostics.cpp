@@ -110,11 +110,11 @@ std::string get_line(std::string str, int n)
 
 void populate_span(diag::Span &s, const LocationManager &lm,
         const std::string &input) {
-    lm.pos_to_linecol(lm.output_to_input_pos(s.loc.first, false),
-        s.first_line, s.first_column);
-    lm.pos_to_linecol(lm.output_to_input_pos(s.loc.last, true),
-        s.last_line, s.last_column);
-    s.filename = lm.in_filename;
+    lm.pos_to_linecol(s.loc.first,
+        s.first_line, s.first_column, s.filename);
+    lm.pos_to_linecol(s.loc.last,
+        s.last_line, s.last_column, s.filename);
+    // s.filename = lm.in_filename;
     for (uint32_t i = s.first_line; i <= s.last_line; i++) {
         s.source_code.push_back(get_line(input, i));
     }
@@ -178,7 +178,7 @@ std::string render_diagnostic_human(const Diagnostic &d, bool use_colors) {
     std::string type_color = "";
     switch (d.level) {
         case (Level::Error):
-            primary_color = red_bold;    
+            primary_color = red_bold;
             type_color = primary_color;
             switch (d.stage) {
                 case (Stage::CPreprocessor):
@@ -205,17 +205,17 @@ std::string render_diagnostic_human(const Diagnostic &d, bool use_colors) {
             }
             break;
         case (Level::Warning):
-            primary_color = yellow_bold;    
+            primary_color = yellow_bold;
             type_color = primary_color;
             message_type = "warning";
             break;
         case (Level::Note):
-            primary_color = bold;    
+            primary_color = bold;
             type_color = primary_color;
             message_type = "note";
             break;
         case (Level::Help):
-            primary_color = bold;    
+            primary_color = bold;
             type_color = primary_color;
             message_type = "help";
             break;

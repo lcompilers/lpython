@@ -381,9 +381,9 @@ public:
     void debug_get_line_column(const uint32_t &loc_first,
             uint32_t &line, uint32_t &column) {
         LocationManager lm;
-        lm.in_filename = infile;
-        lm.init_simple(LFortran::read_file(infile));
-        lm.pos_to_linecol(lm.output_to_input_pos(loc_first, false), line, column);
+        lm.lm.in_filename = infile;
+        lm.lm.init_simple(LFortran::read_file(infile));
+        lm.lm.pos_to_linecol(lm.lm.output_to_input_pos(loc_first, false), line, column);
     }
 
     template <typename T>

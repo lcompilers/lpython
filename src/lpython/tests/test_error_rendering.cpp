@@ -62,12 +62,12 @@ TEST_CASE("Error Render: primary/secondary labels, single line") {
     Location loc1, loc2, loc3;
     LocationManager lm;
     input = "One line text\n";
-    lm.in_filename = "input";
-    lm.get_newlines(input, lm.in_newlines);
-    lm.out_start.push_back(0);
-    lm.in_start.push_back(0);
-    lm.in_start.push_back(input.size());
-    lm.out_start.push_back(input.size());
+    lm.lm.in_filename = "input";
+    lm.lm.get_newlines(input, lm.lm.in_newlines);
+    lm.lm.out_start.push_back(0);
+    lm.lm.in_start.push_back(0);
+    lm.lm.in_start.push_back(input.size());
+    lm.lm.out_start.push_back(input.size());
 
     loc1.first = 4;
     loc1.last = 7;
@@ -89,7 +89,7 @@ semantic error: Error with label no message
  --> input:1:5
   |
 1 | One line text
-  |     ^^^^ 
+  |     ^^^^
 )""");
     CHECK(out == ref);
 
@@ -233,12 +233,12 @@ TEST_CASE("Error Render: primary/secondary labels, multi line") {
     Location loc1, loc2, loc3;
     LocationManager lm;
     input = "One line text\nSecond line text\nThird line text\n";
-    lm.in_filename = "input";
-    lm.get_newlines(input, lm.in_newlines);
-    lm.out_start.push_back(0);
-    lm.in_start.push_back(0);
-    lm.in_start.push_back(input.size());
-    lm.out_start.push_back(input.size());
+    lm.lm.in_filename = "input";
+    lm.lm.get_newlines(input, lm.lm.in_newlines);
+    lm.lm.out_start.push_back(0);
+    lm.lm.in_start.push_back(0);
+    lm.lm.in_start.push_back(input.size());
+    lm.lm.out_start.push_back(input.size());
 
     loc1.first = 4; // 1 line
     loc1.last = 24; // 2 line
