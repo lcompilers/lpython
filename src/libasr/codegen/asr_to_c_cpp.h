@@ -628,9 +628,9 @@ R"(#include <stdio.h>
             ASR::TupleConstant_t *tup_c = ASR::down_cast<ASR::TupleConstant_t>(x.m_target);
             std::string src_tmp = "", val_name = "";
             if (ASR::is_a<ASR::TupleConstant_t>(*x.m_value)) {
+                val_name = const_name + std::to_string(const_list_count);
                 self().visit_TupleConstant(*ASR::down_cast<ASR::TupleConstant_t>(x.m_value));
                 src_tmp += src;
-                val_name = const_name;
             } else if (ASR::is_a<ASR::FunctionCall_t>(*x.m_value)) {
                 self().visit_FunctionCall(*ASR::down_cast<ASR::FunctionCall_t>(x.m_value));
                 ASR::Tuple_t* t = ASR::down_cast<ASR::Tuple_t>(tup_c->m_type);
@@ -645,8 +645,10 @@ R"(#include <stdio.h>
                 val_name = src;
             }
             for (size_t i=0; i<tup_c->n_elements; i++) {
-                visit_Var(*ASR::down_cast<ASR::Var_t>(tup_c->m_elements[i]));
-                src_tmp += indent + src + " = " + val_name + ".element_" + std::to_string(i) + ";\n";
+                self().visit_expr(*tup_c->m_elements[i]);
+                ASR::ttype_t *t = ASRUtils::expr_type(tup_c->m_elements[i]);
+                src_tmp += indent + c_ds_api->get_deepcopy(t,
+                        val_name + ".element_" + std::to_string(i), src) + "\n";
             }
             src = src_tmp;
             return;
@@ -787,6 +789,7 @@ R"(#include <stdio.h>
         const_name += std::to_string(const_list_count);
         const_list_count += 1;
         const_name = current_scope->get_unique_name(const_name);
+        std::string var_name = const_name;
         ASR::Tuple_t* t = ASR::down_cast<ASR::Tuple_t>(x.m_type);
         std::string tuple_type_c = c_ds_api->get_tuple_type(t);
         std::string src_tmp = "";
@@ -795,11 +798,11 @@ R"(#include <stdio.h>
             self().visit_expr(*x.m_elements[i]);
             std::string ele = ".element_" + std::to_string(i);
             if (ASR::is_a<ASR::Character_t>(*t->m_type[i])) {
-                src_tmp += indent + const_name + ele + " = (char*) malloc(40 * sizeof(char));\n";
+                src_tmp += indent + var_name + ele + " = (char*) malloc(40 * sizeof(char));\n";
             }
-            src_tmp += indent + c_ds_api->get_deepcopy(t->m_type[i], src, const_name + ele) + "\n";
+            src_tmp += indent + c_ds_api->get_deepcopy(t->m_type[i], src, var_name + ele) + "\n";
         }
-        src_tmp += indent + const_name + ".length" + " = " + std::to_string(x.n_elements) + ";\n";
+        src_tmp += indent + var_name + ".length" + " = " + std::to_string(x.n_elements) + ";\n";
         src = src_tmp;
     }
 
