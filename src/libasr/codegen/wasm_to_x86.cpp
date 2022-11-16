@@ -34,6 +34,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
     uint32_t cur_func_idx;
     std::vector<std::string> if_unique_id;
     std::vector<std::string> loop_unique_id;
+    uint32_t cur_nesting_length;
     int32_t last_vis_i32_const, last_last_vis_i32_const;
     std::unordered_map<int32_t, std::string> loc_to_str;
 
@@ -43,6 +44,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
           BaseWASMVisitor(code, 0U /* temporary offset */),
           m_a(m_a) {
         wasm_bytes.from_pointer_n(code.data(), code.size());
+        cur_nesting_length = 0;
     }
 
     void visit_Unreachable() {}
@@ -132,7 +134,8 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
 
     void visit_Br(uint32_t label_index) {
         // Branch is used to jump to the `loop.head` or `loop.end`.
-        if (if_unique_id.size() - loop_unique_id.size() == label_index - 1) {
+        if (loop_unique_id.size() + if_unique_id.size() - cur_nesting_length
+                == label_index  + 1) {
             // cycle/continue or loop.end
             m_a.asm_jmp_label(".loop.head_" + loop_unique_id.back());
         } else {
@@ -142,6 +145,8 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
     }
 
     void visit_Loop() {
+        uint32_t prev_nesting_length = cur_nesting_length;
+        cur_nesting_length = loop_unique_id.size() + if_unique_id.size();
         loop_unique_id.push_back(std::to_string(offset));
         /*
         The loop statement starts with `loop.head`. The `loop.body` and
@@ -162,6 +167,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         // end
         m_a.add_label(".loop.end_" + loop_unique_id.back());
         loop_unique_id.pop_back();
+        cur_nesting_length = prev_nesting_length;
     }
 
     void visit_If() {
