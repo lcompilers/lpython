@@ -85,6 +85,9 @@ bool read_file(const std::string &filename, std::string &text);
 bool present(Vec<char*> &v, const char* name);
 bool present(char** const v, size_t n, const std::string name);
 int initialize();
+std::string get_runtime_library_dir();
+void get_executable_path(std::string &executable_path, int &dirname_length);
+std::string get_runtime_library_header_dir();
 
 } // namespace LCompilers
 

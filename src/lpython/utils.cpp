@@ -7,8 +7,6 @@
 
 #include <fstream>
 
-#include <bin/tpl/whereami/whereami.h>
-
 #include <libasr/exception.h>
 #include <lpython/utils.h>
 #include <libasr/string_utils.h>

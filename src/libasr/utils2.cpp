@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <random>
 
+#include <bin/tpl/whereami/whereami.h>
 #include <libasr/exception.h>
 #include <libasr/utils.h>
 #include <libasr/string_utils.h>
