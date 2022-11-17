@@ -2671,7 +2671,8 @@ public:
                         }
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(type, nullptr, v->m_name);
-                    if( ASR::is_a<ASR::Struct_t>(*v->m_type) ) {
+                    if( ASR::is_a<ASR::Struct_t>(*v->m_type) &&
+                        !(is_array_type || is_malloc_array_type) ) {
                         allocate_array_members_of_struct(ptr, v->m_type);
                     }
                     if (emit_debug_info) {
