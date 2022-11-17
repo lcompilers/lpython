@@ -311,9 +311,8 @@ RUN(NAME structs_07          LABELS llvm c
         EXTRAFILES structs_07b.c)
 RUN(NAME structs_08          LABELS cpython llvm c)
 RUN(NAME structs_09          LABELS cpython llvm c)
-# TODO: Re-enable c in structs_10
-RUN(NAME structs_10          LABELS cpython llvm)
-RUN(NAME structs_11          LABELS cpython llvm)
+RUN(NAME structs_10          LABELS cpython llvm c)
+RUN(NAME structs_11          LABELS cpython llvm c)
 RUN(NAME structs_12          LABELS cpython llvm c)
 RUN(NAME structs_13          LABELS llvm c
     EXTRAFILES structs_13b.c)
