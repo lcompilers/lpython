@@ -351,6 +351,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
             std::string label = "string" + std::to_string(s.first);
             emit_data_string(m_a, label, s.second);
         }
+        emit_data_string(m_a, "string-", "-"); // - symbol for printing negative ints
 
         emit_elf32_footer(m_a);
     }

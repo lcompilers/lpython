@@ -141,6 +141,7 @@ public:
         for (auto &s : m_global_strings) {
             emit_data_string(m_a, s.first, s.second);
         }
+        emit_data_string(m_a, "string-", "-"); // - symbol for printing negative ints
 
     }
 
