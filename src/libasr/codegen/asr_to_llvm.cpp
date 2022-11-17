@@ -1923,7 +1923,7 @@ public:
         if( ASR::is_a<ASR::UnionRef_t>(*x.m_v) ) {
             ptr_loads = 0;
         } else {
-            ptr_loads = ptr_loads_copy - ASR::is_a<ASR::Pointer_t>(*x_m_v_type);
+            ptr_loads = 2 - ASR::is_a<ASR::Pointer_t>(*x_m_v_type);
         }
         this->visit_expr(*x.m_v);
         ptr_loads = ptr_loads_copy;
@@ -2671,7 +2671,8 @@ public:
                         }
                     }
                     llvm::AllocaInst *ptr = builder->CreateAlloca(type, nullptr, v->m_name);
-                    if( ASR::is_a<ASR::Struct_t>(*v->m_type) ) {
+                    if( ASR::is_a<ASR::Struct_t>(*v->m_type) &&
+                        !(is_array_type || is_malloc_array_type) ) {
                         allocate_array_members_of_struct(ptr, v->m_type);
                     }
                     if (emit_debug_info) {

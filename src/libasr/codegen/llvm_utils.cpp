@@ -313,7 +313,8 @@ namespace LFortran {
                 }
                 break ;
             };
-            case ASR::ttypeType::Character: {
+            case ASR::ttypeType::Character:
+            case ASR::ttypeType::CPtr: {
                 LLVM::CreateStore(*builder, src, dest);
                 break ;
             }
