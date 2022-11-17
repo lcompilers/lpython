@@ -662,10 +662,17 @@ R"(#include <stdio.h>
         std::string value = src;
         ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_value);
         if( ASR::is_a<ASR::Struct_t>(*value_type) ) {
-             if (ASR::is_a<ASR::Var_t>(*x.m_value)) {
-                 value = "*" + value;
-             } else if (ASR::is_a<ASR::ArrayItem_t>(*x.m_value)) {
+             if (ASR::is_a<ASR::ArrayItem_t>(*x.m_value) ||
+                 ASR::is_a<ASR::StructInstanceMember_t>(*x.m_value) ||
+                 ASR::is_a<ASR::UnionRef_t>(*x.m_value)) {
                  value = "&" + value;
+             }
+        }
+        if( ASR::is_a<ASR::Struct_t>(*m_target_type) ) {
+             if (ASR::is_a<ASR::ArrayItem_t>(*x.m_target) ||
+                 ASR::is_a<ASR::StructInstanceMember_t>(*x.m_target) ||
+                 ASR::is_a<ASR::UnionRef_t>(*x.m_target)) {
+                 target = "&" + target;
              }
         }
         if( !from_std_vector_helper.empty() ) {

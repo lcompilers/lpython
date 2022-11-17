@@ -5,6 +5,21 @@
 #include <libasr/asr_utils.h>
 
 namespace LFortran {
+
+    static inline std::string format_type_c(const std::string &dims, const std::string &type,
+        const std::string &name, bool use_ref, bool /*dummy*/)
+    {
+        std::string fmt;
+        std::string ref = "";
+        if (use_ref) ref = "*";
+        if( dims == "*" ) {
+            fmt = type + " " + dims + ref + name;
+        } else {
+            fmt = type + " " + ref + name + dims;
+        }
+        return fmt;
+    }
+
     // Local exception that is only used in this file to exit the visitor
     // pattern and caught later (not propagated outside)
     class CodeGenError
@@ -27,6 +42,197 @@ namespace LFortran {
 
 namespace CUtils {
 
+    static inline bool is_non_primitive_DT(ASR::ttype_t *t) {
+        return ASR::is_a<ASR::List_t>(*t) || ASR::is_a<ASR::Tuple_t>(*t) || ASR::is_a<ASR::Struct_t>(*t);
+    }
+
+    class CUtilFunctions {
+
+        private:
+
+            SymbolTable* global_scope;
+            std::map<std::string, std::string> util2func;
+
+            int indentation_level, indentation_spaces;
+
+        public:
+
+            std::string util_func_decls;
+            std::string util_funcs;
+
+            CUtilFunctions() {
+                util2func.clear();
+                util_func_decls.clear();
+                util_funcs.clear();
+            }
+
+            void set_indentation(int indendation_level_, int indendation_space_) {
+                indentation_level = indendation_level_;
+                indentation_spaces = indendation_space_;
+            }
+
+            void set_global_scope(SymbolTable* global_scope_) {
+                global_scope = global_scope_;
+            }
+
+            std::string get_generated_code() {
+                return util_funcs;
+            }
+
+            std::string get_util_func_decls() {
+                return util_func_decls;
+            }
+
+            void array_size() {
+                std::string indent(indentation_level * indentation_spaces, ' ');
+                std::string tab(indentation_spaces, ' ');
+                std::string array_size_func;
+                if( util2func.find("array_size") == util2func.end() ) {
+                    array_size_func = global_scope->get_unique_name("array_size");
+                    util2func["array_size"] = array_size_func;
+                } else {
+                    return ;
+                }
+                array_size_func = util2func["array_size"];
+                std::string signature = "static inline int32_t " + array_size_func + "(struct dimension_descriptor dims[], size_t n)";
+                util_func_decls += indent + signature + ";\n";
+                std::string body = indent + signature + " {\n";
+                body += indent + tab + "int32_t size = 1;\n";
+                body += indent + tab + "for (size_t i = 0; i < n; i++) {\n";
+                body += indent + tab + tab + "size *= dims[i].length;\n";
+                body += indent + tab + "}\n";
+                body += indent + tab + "return size;\n";
+                body += indent + "}\n\n";
+                util_funcs += body;
+            }
+
+            void array_deepcopy(ASR::ttype_t* array_type_asr, std::string array_type_name,
+                                std::string array_encoded_type_name, std::string array_type_str) {
+                LFORTRAN_ASSERT(!is_non_primitive_DT(array_type_asr));
+                std::string indent(indentation_level * indentation_spaces, ' ');
+                std::string tab(indentation_spaces, ' ');
+                std::string array_dc_func;
+                if( util2func.find("array_deepcopy_" + array_encoded_type_name) == util2func.end() ) {
+                    array_dc_func = global_scope->get_unique_name("array_deepcopy_" + array_encoded_type_name);
+                    util2func["array_deepcopy_" + array_encoded_type_name] = array_dc_func;
+                } else {
+                    return ;
+                }
+                array_dc_func = util2func["array_deepcopy_" + array_encoded_type_name];
+                std::string array_types_decls = "";
+                std::string signature = "void " + array_dc_func + "("
+                                    + array_type_str + " src, "
+                                    + array_type_str + " dest)";
+                util_func_decls += "inline " + signature + ";\n";
+                std::string body = indent + signature + " {\n";
+                body += indent + tab + "int32_t src_size = " + get_array_size() + "(src->dims, src->n_dims);\n";
+                body += indent + tab + "memcpy(dest->data, src->data, src_size * sizeof(" + array_type_name +"));\n";
+                body += indent + tab + "memcpy(dest->dims, src->dims, 32 * sizeof(struct dimension_descriptor));\n";
+                body += indent + tab + "dest->n_dims = src->n_dims;\n";
+                body += indent + tab + "dest->is_allocated = src->is_allocated;\n";
+                body += indent + "}\n\n";
+                util_funcs += body;
+            }
+
+            void array_reshape(std::string array_type, std::string shape_type,
+                std::string return_type, std::string element_type,
+                std::string array_type_code) {
+                std::string indent(indentation_level * indentation_spaces, ' ');
+                std::string tab(indentation_spaces, ' ');
+                std::string array_reshape_func;
+                if( util2func.find("array_reshape_" + array_type_code) == util2func.end() ) {
+                    array_reshape_func = global_scope->get_unique_name("array_reshape_" + array_type_code);
+                    util2func["array_reshape_" + array_type_code] = array_reshape_func;
+                } else {
+                    return ;
+                }
+                array_reshape_func = util2func["array_reshape_" + array_type_code];
+                std::string signature = "static inline " + return_type + "* " + array_reshape_func + "(" +
+                                        array_type + " array" + ", " + shape_type + " shape)";
+                util_func_decls += indent + signature + ";\n";
+                std::string body = indent + signature + " {\n";
+                body += indent + tab + "int32_t n = shape->dims[0].length;\n";
+                body += indent + tab + return_type + "* reshaped = (" + return_type + "*) malloc(sizeof(" + return_type + "));\n";
+                body += indent + tab + "int32_t array_size_ = " + get_array_size() + "(array->dims, array->n_dims);\n";
+                body += indent + tab + "int32_t shape_size_ = " + get_array_size() + "(shape->dims, shape->n_dims);\n";
+                body += indent + tab + "int32_t reshaped_size = 1;\n";
+                body += indent + tab + "for (int32_t i = 0; i < shape_size_; i++) {\n";
+                body += indent + tab + tab + "reshaped_size *= shape->data[i];\n";
+                body += indent + tab + "}\n";
+                body += indent + tab + "ASSERT(array_size_ == reshaped_size);\n";
+                body += indent + tab + "reshaped->data = (" + element_type + "*) malloc(sizeof(" + element_type + ")*array_size_);\n";
+                body += indent + tab + "reshaped->data = (" + element_type + "*) memcpy(reshaped->data, array->data, sizeof(" + element_type + ")*array_size_);\n";
+                body += indent + tab + "reshaped->n_dims = shape_size_;\n";
+                body += indent + tab + "for (int32_t i = 0; i < shape_size_; i++) {\n";
+                body += indent + tab + tab + "reshaped->dims[i].lower_bound = 0;\n";
+                body += indent + tab + tab + "reshaped->dims[i].length = shape->data[i];\n";
+                body += indent + tab + "}\n";
+                body += indent + tab + "return reshaped;\n";
+                body += indent + "}\n\n";
+                util_funcs += body;
+            }
+
+            void array_constant(std::string return_type, std::string element_type,
+                std::string array_type_code) {
+                std::string indent(indentation_level * indentation_spaces, ' ');
+                std::string tab(indentation_spaces, ' ');
+                std::string array_const_func;
+                if( util2func.find("array_constant_" + array_type_code) == util2func.end() ) {
+                    array_const_func = global_scope->get_unique_name("array_constant_" + array_type_code);
+                    util2func["array_constant_" + array_type_code] = array_const_func;
+                } else {
+                    return ;
+                }
+                array_const_func = util2func["array_constant_" + array_type_code];
+                std::string signature = "static inline " + return_type + "* " + array_const_func + "(int32_t n, ...)";
+                util_func_decls += indent + signature + ";\n";
+                std::string body = indent + signature + " {\n";
+                body += indent + tab + return_type + "* const_array  = (" + return_type + "*) malloc(sizeof(" + return_type + "));\n";
+                body += indent + tab + "va_list ap;\n";
+                body += indent + tab + "va_start(ap, n);\n";
+                body += indent + tab + "const_array->data = (" + element_type + "*) malloc(sizeof(" + element_type + ")*n);\n";
+                body += indent + tab + "const_array->n_dims = 1;\n";
+                body += indent + tab + "const_array->dims[0].lower_bound = 0;\n";
+                body += indent + tab + "const_array->dims[0].length = n;\n";
+                body += indent + tab + "for (int32_t i = 0; i < n; i++) {\n";
+                body += indent + tab + tab + "const_array->data[i] = va_arg(ap, " + element_type +");\n";
+                body += indent + tab + "}\n";
+                body += indent + tab + "va_end(ap);\n";
+                body += indent + tab + "return const_array;\n";
+                body += indent + "}\n\n";
+                util_funcs += body;
+            }
+
+            std::string get_array_size() {
+                array_size();
+                return util2func["array_size"];
+            }
+
+            std::string get_array_reshape(
+                std::string array_type, std::string shape_type,
+                std::string return_type, std::string element_type,
+                std::string array_type_code) {
+                array_reshape(array_type, shape_type,
+                            return_type, element_type,
+                            array_type_code);
+                return util2func["array_reshape_" + array_type_code];
+            }
+
+            std::string get_array_constant(std::string return_type,
+                std::string element_type, std::string encoded_type) {
+                array_constant(return_type, element_type, encoded_type);
+                return util2func["array_constant_" + encoded_type];
+            }
+
+            std::string get_array_deepcopy(ASR::ttype_t* array_type_asr,
+            std::string array_type_name, std::string array_encoded_type_name,
+            std::string array_type_str) {
+                array_deepcopy(array_type_asr, array_type_name,
+                               array_encoded_type_name, array_type_str);
+                return util2func["array_deepcopy_" + array_encoded_type_name];
+            }
+    };
+
     static inline std::string get_tuple_type_code(ASR::Tuple_t *tup) {
         std::string result = "tuple_";
         for (size_t i = 0; i < tup->n_type; i++) {
@@ -36,6 +242,10 @@ namespace CUtils {
             }
         }
         return result;
+    }
+
+    static inline std::string get_struct_type_code(ASR::Struct_t* struct_t) {
+        return ASRUtils::symbol_name(struct_t->m_derived_type);
     }
 
     static inline std::string get_c_type_from_ttype_t(ASR::ttype_t* t,
@@ -125,6 +335,8 @@ class CCPPDSUtils {
         std::map<std::string, std::string> typecodeToDStype;
         std::map<std::string, std::map<std::string, std::string>> typecodeToDSfuncs;
         std::map<std::string, std::string> compareTwoDS;
+        std::map<std::string, std::string> eltypedims2arraytype;
+        CUtils::CUtilFunctions* c_utils_functions;
 
         int indentation_level, indentation_spaces;
 
@@ -139,6 +351,10 @@ class CCPPDSUtils {
         CCPPDSUtils(bool is_c): is_c{is_c} {
             generated_code.clear();
             func_decls.clear();
+        }
+
+        void set_c_utils_functions(CUtils::CUtilFunctions* c_utils_functions_) {
+            c_utils_functions = c_utils_functions_;
         }
 
         void set_indentation(int indendation_level_, int indendation_space_) {
@@ -175,6 +391,23 @@ class CCPPDSUtils {
                     }
                     break;
                 }
+                case ASR::ttypeType::Struct: {
+                    std::string func = get_struct_deepcopy_func(t);
+                    result = func + "(" + value + ", " + target + ");";
+                    break;
+                }
+                case ASR::ttypeType::Integer:
+                case ASR::ttypeType::Real:
+                case ASR::ttypeType::Complex:
+                case ASR::ttypeType::Logical: {
+                    if( !ASRUtils::is_array(t) ) {
+                        result = target + " = " + value  + ";";
+                    } else {
+                        std::string func = get_array_deepcopy_func(t);
+                        result = func + "(" + value + ", " + target + ");";
+                    }
+                    break;
+                }
                 default: {
                     result = target + " = " + value  + ";";
                 }
@@ -182,12 +415,8 @@ class CCPPDSUtils {
             return result;
         }
 
-        bool is_non_primitive_DT(ASR::ttype_t *t) {
-            return ASR::is_a<ASR::List_t>(*t) || ASR::is_a<ASR::Tuple_t>(*t);
-        }
-
         std::string get_type(ASR::ttype_t *t) {
-            LFORTRAN_ASSERT(is_non_primitive_DT(t));
+            LFORTRAN_ASSERT(CUtils::is_non_primitive_DT(t));
             if (ASR::is_a<ASR::List_t>(*t)) {
                 ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(t);
                 return get_list_type(list_type);
@@ -198,9 +427,38 @@ class CCPPDSUtils {
             LFORTRAN_ASSERT(false);
         }
 
+        std::string get_array_type(std::string type_name, std::string encoded_type_name,
+                               std::string& array_types_decls, bool make_ptr=true,
+                               bool create_if_not_present=true) {
+            if( eltypedims2arraytype.find(encoded_type_name) != eltypedims2arraytype.end() ) {
+                if( make_ptr ) {
+                    return eltypedims2arraytype[encoded_type_name] + "*";
+                } else {
+                    return eltypedims2arraytype[encoded_type_name];
+                }
+            }
+
+            LFORTRAN_ASSERT(create_if_not_present);
+
+            std::string struct_name;
+            std::string new_array_type;
+            struct_name = "struct " + encoded_type_name;
+            std::string array_data = format_type_c("*", type_name, "data", false, false);
+            new_array_type = struct_name + "\n{\n    " + array_data +
+                                ";\n    struct dimension_descriptor dims[32];\n" +
+                                "    int32_t n_dims;\n"
+                                "    bool is_allocated;\n};\n";
+            if( make_ptr ) {
+                type_name = struct_name + "*";
+            }
+            eltypedims2arraytype[encoded_type_name] = struct_name;
+            array_types_decls += "\n" + new_array_type + "\n";
+            return type_name;
+        }
+
         std::string get_list_type(ASR::List_t* list_type) {
             std::string list_element_type = CUtils::get_c_type_from_ttype_t(list_type->m_type);
-            if (is_non_primitive_DT(list_type->m_type)) {
+            if (CUtils::is_non_primitive_DT(list_type->m_type)) {
                 // Make sure the nested types work
                 get_type(list_type->m_type);
             }
@@ -233,6 +491,26 @@ class CCPPDSUtils {
         std::string get_list_deepcopy_func(ASR::List_t* list_type) {
             std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
             return typecodeToDSfuncs[list_type_code]["list_deepcopy"];
+        }
+
+        std::string get_struct_deepcopy_func(ASR::ttype_t* struct_type_asr) {
+            ASR::Struct_t* struct_type = ASR::down_cast<ASR::Struct_t>(struct_type_asr);
+            std::string struct_type_code = CUtils::get_struct_type_code(struct_type);
+            if( typecodeToDSfuncs.find(struct_type_code) == typecodeToDSfuncs.end() ) {
+                struct_deepcopy(struct_type_asr);
+            }
+            return typecodeToDSfuncs[struct_type_code]["struct_deepcopy"];
+        }
+
+        std::string get_array_deepcopy_func(ASR::ttype_t* array_type_asr) {
+            LFORTRAN_ASSERT(is_c);
+            std::string array_type_name = CUtils::get_c_type_from_ttype_t(array_type_asr);
+            std::string array_encoded_type_name = ASRUtils::get_type_code(array_type_asr, true, false, false);
+            std::string array_types_decls = "";
+            std::string array_type_str = get_array_type(array_type_name, array_encoded_type_name,
+                                                            array_types_decls, true, false);
+            return c_utils_functions->get_array_deepcopy(array_type_asr, array_type_name,
+                array_encoded_type_name, array_type_str);
         }
 
         std::string get_list_init_func(ASR::List_t* list_type) {
@@ -376,6 +654,37 @@ class CCPPDSUtils {
             generated_code += indent + tab + "x->current_end_point = 0;\n";
             generated_code += indent + tab + "x->data = (" + list_element_type + "*) " +
                               "malloc(x->capacity * sizeof(" + list_element_type + "));\n";
+            generated_code += indent + "}\n\n";
+        }
+
+        void struct_deepcopy(ASR::ttype_t* struct_type_asr) {
+            ASR::Struct_t* struct_type = ASR::down_cast<ASR::Struct_t>(struct_type_asr);
+            ASR::StructType_t* struct_type_t = ASR::down_cast<ASR::StructType_t>(
+                ASRUtils::symbol_get_past_external(struct_type->m_derived_type));
+            std::string struct_type_code = CUtils::get_struct_type_code(struct_type);
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string struct_dc_func = global_scope->get_unique_name("struct_deepcopy_" + struct_type_code);
+            typecodeToDSfuncs[struct_type_code]["struct_deepcopy"] = struct_dc_func;
+            std::string struct_type_str = CUtils::get_c_type_from_ttype_t(struct_type_asr);
+            std::string signature = "void " + struct_dc_func + "("
+                                + struct_type_str + "* src, "
+                                + struct_type_str + "* dest)";
+            func_decls += "inline " + signature + ";\n";
+            generated_code += indent + signature + " {\n";
+            for( auto item: struct_type_t->m_symtab->get_scope() ) {
+                ASR::ttype_t* member_type_asr = ASRUtils::symbol_type(item.second);
+                if( CUtils::is_non_primitive_DT(member_type_asr) ||
+                    ASR::is_a<ASR::Character_t>(*member_type_asr) ) {
+                    generated_code += indent + tab + get_deepcopy(member_type_asr, "&(src->" + item.first + ")",
+                                 "&(dest->" + item.first + ")") + ";\n";
+                } else if( ASRUtils::is_array(member_type_asr) ) {
+                    generated_code += indent + tab + get_deepcopy(member_type_asr, "src->" + item.first,
+                                 "dest->" + item.first) + ";\n";
+                } else {
+                    generated_code += indent + tab + "dest->" + item.first + " = " + " src->" + item.first + ";\n";
+                }
+            }
             generated_code += indent + "}\n\n";
         }
 
@@ -583,7 +892,7 @@ class CCPPDSUtils {
             tmp_gen += indent + tuple_struct_type + " {\n";
             tmp_gen += indent + tab + "int32_t length;\n";
             for (size_t i = 0; i < tuple_type->n_type; i++) {
-                if (is_non_primitive_DT(tuple_type->m_type[i])) {
+                if (CUtils::is_non_primitive_DT(tuple_type->m_type[i])) {
                     // Make sure the nested types work
                     get_type(tuple_type->m_type[i]);
                 }
