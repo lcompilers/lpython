@@ -16,6 +16,10 @@ def is_null(ptr: CPtr) -> i32:
 def add_A_members(Ax: i32, Ay: i16) -> i32:
     return Ax + i32(Ay)
 
+@ccall
+def add_Aptr_members(Ax: i32, Ay: i16) -> i32:
+    pass
+
 def test_A_member_passing():
     array_cptr: CPtr = cmalloc(sizeof(A) * i64(10))
     assert not bool(is_null(array_cptr)), "Failed to allocate array on memory"
@@ -40,4 +44,13 @@ def test_A_member_passing():
         print(sum_A_members)
         assert sum_A_members == 2*i + 1
 
+def test_Aptr_member_passing():
+    a_cptr: CPtr = cmalloc(sizeof(A) * i64(1))
+    assert not bool(is_null(a_cptr)), "Failed to allocate array on memory"
+    a_ptr: Pointer[A]
+    c_p_pointer(a_cptr, a_ptr)
+    print(add_A_members(a_ptr.x, a_ptr.y), add_Aptr_members(a_ptr.x, a_ptr.y))
+    assert add_A_members(a_ptr.x, a_ptr.y) == add_Aptr_members(a_ptr.x, a_ptr.y)
+
 test_A_member_passing()
+test_Aptr_member_passing()
