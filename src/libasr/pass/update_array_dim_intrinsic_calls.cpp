@@ -98,7 +98,7 @@ class ReplaceArrayDimIntrinsicCalls: public ASR::BaseExprReplacer<ReplaceArrayDi
         ASR::ttype_t* array_type = ASRUtils::expr_type(x->m_v);
         ASR::dimension_t* dims = nullptr;
         int n = ASRUtils::extract_dimensions_from_ttype(array_type, dims);
-        bool is_argument = v->m_intent == ASRUtils::intent_in || v->m_intent == ASRUtils::intent_out;
+        bool is_argument = ASRUtils::is_arg_dummy(v->m_intent);
         if( !(n > 0 && is_argument &&
               !ASRUtils::is_dimension_empty(dims, n)) ) {
             return ;
@@ -147,7 +147,6 @@ void pass_update_array_dim_intrinsic_calls(Allocator &al, ASR::TranslationUnit_t
                                            const LCompilers::PassOptions& /*pass_options*/) {
     ArrayDimIntrinsicCallsVisitor v(al);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
 }
 
 } // namespace LFortran

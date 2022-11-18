@@ -262,7 +262,6 @@ void pass_unused_functions(Allocator &al, ASR::TranslationUnit_t &unit,
             UnusedFunctionsVisitor v(al);
             v.fn_unused = fn_unused;
             v.visit_TranslationUnit(unit);
-            LFORTRAN_ASSERT(asr_verify(unit));
         }
     }
 }

@@ -160,11 +160,7 @@ public:
     llvm::LLVMContext &context;
     std::unique_ptr<llvm::Module> module;
     std::unique_ptr<llvm::IRBuilder<>> builder;
-    Platform platform;
-    bool emit_debug_info;
     std::string infile;
-    bool emit_debug_line_column;
-    bool enable_bounds_checking;
     Allocator &al;
 
     llvm::Value *tmp;
@@ -234,6 +230,8 @@ public:
     bool lookup_enum_value_for_nonints;
     bool is_assignment_target;
 
+    CompilerOptions &compiler_options;
+
     // For handling debug information
     std::unique_ptr<llvm::DIBuilder> DBuilder;
     llvm::DICompileUnit *debug_CU;
@@ -241,17 +239,12 @@ public:
     std::map<uint64_t, llvm::DIScope*> llvm_symtab_fn_discope;
     llvm::DIFile *debug_Unit;
 
-    ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, Platform platform,
-        bool emit_debug_info, std::string infile, bool emit_debug_line_column,
-        bool enable_bounds_checking, diag::Diagnostics &diagnostics) :
+    ASRToLLVMVisitor(Allocator &al, llvm::LLVMContext &context, std::string infile,
+        CompilerOptions &compiler_options_, diag::Diagnostics &diagnostics) :
     diag{diagnostics},
     context(context),
     builder(std::make_unique<llvm::IRBuilder<>>(context)),
-    platform{platform},
-    emit_debug_info{emit_debug_info},
     infile{infile},
-    emit_debug_line_column{emit_debug_line_column},
-    enable_bounds_checking{enable_bounds_checking},
     al{al},
     prototype_only(false),
     llvm_utils(std::make_unique<LLVMUtils>(context, builder.get())),
@@ -265,7 +258,8 @@ public:
               LLVMArrUtils::DESCR_TYPE::_SimpleCMODescriptor)),
     ptr_loads(2),
     lookup_enum_value_for_nonints(false),
-    is_assignment_target(false)
+    is_assignment_target(false),
+    compiler_options(compiler_options_)
     {
         llvm_utils->tuple_api = tuple_api.get();
         llvm_utils->list_api = list_api.get();
@@ -300,7 +294,7 @@ public:
     // Note: `create_if_else` and `create_loop` are optional APIs
     // that do not have to be used. Many times, for more complicated
     // things, it might be more readable to just use the LLVM API
-    // without any extra layer on top. In some other cases, it might
+    // without any extra layer on top. In some other cases, it might
     // be more readable to use this abstraction.
     template <typename IF, typename ELSE>
     void create_if_else(llvm::Value * cond, IF if_block, ELSE else_block) {
@@ -390,7 +384,7 @@ public:
     void debug_emit_loc(const T &x) {
         Location loc = x.base.base.loc;
         uint32_t line, column;
-        if (emit_debug_line_column) {
+        if (compiler_options.emit_debug_line_column) {
             debug_get_line_column(loc.first, line, column);
         } else {
             line = loc.first;
@@ -408,7 +402,7 @@ public:
             debug_CU->getDirectory());
         llvm::DIScope *FContext = debug_Unit;
         uint32_t line, column;
-        if (emit_debug_line_column) {
+        if (compiler_options.emit_debug_line_column) {
             debug_get_line_column(x.base.base.loc.first, line, column);
         } else {
             line = 0;
@@ -1173,7 +1167,7 @@ public:
         module = std::make_unique<llvm::Module>("LFortran", context);
         module->setDataLayout("");
 
-        if (emit_debug_info) {
+        if (compiler_options.emit_debug_info) {
             DBuilder = std::make_unique<llvm::DIBuilder>(*module);
             debug_CU = DBuilder->createCompileUnit(
                 llvm::dwarf::DW_LANG_C, DBuilder->createFile(infile, "."),
@@ -1525,7 +1519,7 @@ public:
         ptr_loads = ptr_loads_copy;
         llvm::Value *pos = tmp;
 
-        tmp = list_api->read_item(plist, pos, enable_bounds_checking, *module,
+        tmp = list_api->read_item(plist, pos, compiler_options.enable_bounds_checking, *module,
                 (LLVM::is_llvm_struct(el_type) || ptr_loads == 0));
     }
 
@@ -1764,6 +1758,8 @@ public:
                     llvm_diminfo.push_back(al, dim_size);
                 }
             }
+            LFORTRAN_ASSERT(ASRUtils::extract_n_dims_from_ttype(
+                ASRUtils::expr_type(x.m_v)) > 0);
             tmp = arr_descr->get_single_element(array, indices, x.n_args,
                                                 is_data_only, llvm_diminfo.p);
         }
@@ -2278,7 +2274,7 @@ public:
                 llvm::Function::ExternalLinkage, "main", module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
-        if (emit_debug_info) {
+        if (compiler_options.emit_debug_info) {
             llvm::DISubprogram *SP;
             debug_emit_function(x, SP);
             F->setSubprogram(SP);
@@ -2295,7 +2291,7 @@ public:
         dict_api_sc->set_is_dict_present(is_dict_present_copy_sc);
 
         // Finalize the debug info.
-        if (emit_debug_info) DBuilder->finalize();
+        if (compiler_options.emit_debug_info) DBuilder->finalize();
     }
 
     /*
@@ -2599,9 +2595,14 @@ public:
     void allocate_array_members_of_struct(llvm::Value* ptr, ASR::ttype_t* asr_type) {
         LFORTRAN_ASSERT(ASR::is_a<ASR::Struct_t>(*asr_type));
         ASR::Struct_t* struct_t = ASR::down_cast<ASR::Struct_t>(asr_type);
-        ASR::StructType_t* struct_type_t = ASR::down_cast<ASR::StructType_t>(struct_t->m_derived_type);
+        ASR::StructType_t* struct_type_t = ASR::down_cast<ASR::StructType_t>(
+            ASRUtils::symbol_get_past_external(struct_t->m_derived_type));
         std::string struct_type_name = struct_type_t->m_name;
         for( auto item: struct_type_t->m_symtab->get_scope() ) {
+            if( ASR::is_a<ASR::ClassProcedure_t>(*item.second) ||
+                ASR::is_a<ASR::GenericProcedure_t>(*item.second) ) {
+                continue ;
+            }
             ASR::ttype_t* symbol_type = ASRUtils::symbol_type(item.second);
             int idx = name2memidx[struct_type_name][item.first];
             llvm::Value* ptr_member = llvm_utils->create_gep(ptr, idx);
@@ -2675,11 +2676,11 @@ public:
                         !(is_array_type || is_malloc_array_type) ) {
                         allocate_array_members_of_struct(ptr, v->m_type);
                     }
-                    if (emit_debug_info) {
+                    if (compiler_options.emit_debug_info) {
                         // Reset the debug location
                         builder->SetCurrentDebugLocation(nullptr);
                         uint32_t line, column;
-                        if (emit_debug_line_column) {
+                        if (compiler_options.emit_debug_line_column) {
                             debug_get_line_column(v->base.base.loc.first, line, column);
                         } else {
                             line = v->base.base.loc.first;
@@ -2866,11 +2867,11 @@ public:
                     if (arg_m_abi == ASR::abiType::BindC
                             && arg_m_value_attr) {
                         if (a_kind == 4) {
-                            if (platform == Platform::Windows) {
+                            if (compiler_options.platform == Platform::Windows) {
                                 // type_fx2 is i64
                                 llvm::Type* type_fx2 = llvm::Type::getInt64Ty(context);
                                 type = type_fx2;
-                            } else if (platform == Platform::macOS_ARM) {
+                            } else if (compiler_options.platform == Platform::macOS_ARM) {
                                 // type_fx2 is [2 x float]
                                 llvm::Type* type_fx2 = llvm::ArrayType::get(llvm::Type::getFloatTy(context), 2);
                                 type = type_fx2;
@@ -2881,7 +2882,7 @@ public:
                             }
                         } else {
                             LFORTRAN_ASSERT(a_kind == 8)
-                            if (platform == Platform::Windows) {
+                            if (compiler_options.platform == Platform::Windows) {
                                 // 128 bit aggregate type is passed by reference
                                 type = getComplexType(a_kind, true);
                             } else {
@@ -3250,7 +3251,7 @@ public:
         dict_api_sc->set_is_dict_present(is_dict_present_copy_sc);
 
         // Finalize the debug info.
-        if (emit_debug_info) DBuilder->finalize();
+        if (compiler_options.emit_debug_info) DBuilder->finalize();
     }
 
     void instantiate_function(const ASR::Function_t &x){
@@ -3276,6 +3277,9 @@ public:
                 } else {
                     fn_name = sym_name;
                 }
+            } else if (x.m_deftype == ASR::deftypeType::Interface &&
+                x.m_abi != ASR::abiType::Intrinsic) {
+                fn_name = sym_name;
             } else {
                 fn_name = mangle_prefix + sym_name;
             }
@@ -3285,19 +3289,19 @@ public:
                     llvm::Function::ExternalLinkage, fn_name, module.get());
 
                 // Add Debugging information to the LLVM function F
-                if (emit_debug_info) {
+                if (compiler_options.emit_debug_info) {
                     debug_emit_function(x, SP);
                     F->setSubprogram(SP);
                 }
             } else {
                 uint32_t old_h = llvm_symtab_fn_names[fn_name];
                 F = llvm_symtab_fn[old_h];
-                if (emit_debug_info) {
+                if (compiler_options.emit_debug_info) {
                     SP = (llvm::DISubprogram*) llvm_symtab_fn_discope[old_h];
                 }
             }
             llvm_symtab_fn[h] = F;
-            if (emit_debug_info) llvm_symtab_fn_discope[h] = SP;
+            if (compiler_options.emit_debug_info) llvm_symtab_fn_discope[h] = SP;
 
             // Instantiate (pre-declare) all nested interfaces
             for (auto &item : x.m_symtab->get_scope()) {
@@ -3331,10 +3335,10 @@ public:
                     int a_kind = down_cast<ASR::Complex_t>(return_var_type0)->m_kind;
                     if (a_kind == 4) {
                         if (x.m_abi == ASR::abiType::BindC) {
-                            if (platform == Platform::Windows) {
+                            if (compiler_options.platform == Platform::Windows) {
                                 // i64
                                 return_type = llvm::Type::getInt64Ty(context);
-                            } else if (platform == Platform::macOS_ARM) {
+                            } else if (compiler_options.platform == Platform::macOS_ARM) {
                                 // {float, float}
                                 return_type = getComplexType(a_kind);
                             } else {
@@ -3347,7 +3351,7 @@ public:
                     } else {
                         LFORTRAN_ASSERT(a_kind == 8)
                         if (x.m_abi == ASR::abiType::BindC) {
-                            if (platform == Platform::Windows) {
+                            if (compiler_options.platform == Platform::Windows) {
                                 // pass as subroutine
                                 return_type = getComplexType(a_kind, true);
                                 std::vector<llvm::Type*> args = convert_args(x);
@@ -3494,12 +3498,12 @@ public:
         parent_function = &x;
         parent_function_hash = h;
         llvm::Function* F = llvm_symtab_fn[h];
-        if (emit_debug_info) debug_current_scope = llvm_symtab_fn_discope[h];
+        if (compiler_options.emit_debug_info) debug_current_scope = llvm_symtab_fn_discope[h];
         proc_return = llvm::BasicBlock::Create(context, "return");
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
                 ".entry", F);
         builder->SetInsertPoint(BB);
-        if (emit_debug_info) debug_emit_loc(x);
+        if (compiler_options.emit_debug_info) debug_emit_loc(x);
         declare_args(x, *F);
         declare_local_vars(x);
     }
@@ -3519,7 +3523,7 @@ public:
                 if (is_a<ASR::Complex_t>(*arg_type)) {
                     int c_kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
                     if (c_kind == 4) {
-                        if (platform == Platform::Windows) {
+                        if (compiler_options.platform == Platform::Windows) {
                             // tmp is {float, float}*
                             // type_fx2p is i64*
                             llvm::Type* type_fx2p = llvm::Type::getInt64PtrTy(context);
@@ -3527,7 +3531,7 @@ public:
                             tmp = builder->CreateBitCast(tmp, type_fx2p);
                             // Then convert i64* -> i64
                             tmp = CreateLoad(tmp);
-                        } else if (platform == Platform::macOS_ARM) {
+                        } else if (compiler_options.platform == Platform::macOS_ARM) {
                             // Pass by value
                             tmp = CreateLoad(tmp);
                         } else {
@@ -3541,7 +3545,7 @@ public:
                         }
                     } else {
                         LFORTRAN_ASSERT(c_kind == 8)
-                        if (platform == Platform::Windows) {
+                        if (compiler_options.platform == Platform::Windows) {
                             // 128 bit aggregate type is passed by reference
                         } else {
                             // Pass by value
@@ -3563,6 +3567,14 @@ public:
         if (x.m_deftype == ASR::deftypeType::Implementation ) {
 
             if (interactive) return;
+
+            if (compiler_options.generate_object_code
+                    && (x.m_abi == ASR::abiType::Intrinsic)
+                    && !compiler_options.rtlib) {
+                // Skip intrinsic functions in generate_object_code mode
+                // They must be later linked
+                return;
+            }
 
             if (!prototype_only) {
                 define_function_entry(x);
@@ -3724,9 +3736,8 @@ public:
                 this->visit_expr(*shape);
                 llvm_shape = tmp;
             }
-            llvm::Type* llvm_fptr_type = llvm_fptr->getType();
-            llvm_fptr_type = static_cast<llvm::PointerType*>(llvm_fptr_type)->getElementType();
-            llvm_fptr_type = static_cast<llvm::PointerType*>(llvm_fptr_type)->getElementType();
+            ASR::ttype_t* fptr_type = ASRUtils::expr_type(fptr);
+            llvm::Type* llvm_fptr_type = get_type_from_ttype_t_util(ASRUtils::get_contained_type(fptr_type));
             llvm::Value* fptr_array = builder->CreateAlloca(llvm_fptr_type);
             ASR::dimension_t* fptr_dims;
             int fptr_rank = ASRUtils::extract_dimensions_from_ttype(
@@ -3738,14 +3749,15 @@ public:
             arr_descr->set_rank(fptr_array, llvm_rank);
             builder->CreateStore(fptr_array, llvm_fptr);
             llvm_fptr = fptr_array;
+            ASR::ttype_t* fptr_data_type = ASRUtils::duplicate_type_without_dims(al, ASRUtils::get_contained_type(fptr_type), fptr_type->base.loc);
+            llvm::Type* llvm_fptr_data_type = get_type_from_ttype_t_util(fptr_data_type);
             llvm::Value* fptr_data = arr_descr->get_pointer_to_data(llvm_fptr);
             llvm::Value* fptr_des = arr_descr->get_pointer_to_dimension_descriptor_array(llvm_fptr);
             llvm::Value* shape_data = llvm_shape;
             if( llvm_shape && !ASR::is_a<ASR::ArrayConstant_t>(*shape) && arr_descr->is_array(asr_shape_type) ) {
                 shape_data = CreateLoad(arr_descr->get_pointer_to_data(llvm_shape));
             }
-            llvm_cptr = builder->CreateBitCast(llvm_cptr,
-                            static_cast<llvm::PointerType*>(fptr_data->getType())->getElementType());
+            llvm_cptr = builder->CreateBitCast(llvm_cptr, llvm_fptr_data_type->getPointerTo());
             builder->CreateStore(llvm_cptr, fptr_data);
             for( int i = 0; i < fptr_rank; i++ ) {
                 llvm::Value* curr_dim = llvm::ConstantInt::get(context, llvm::APInt(32, i));
@@ -3767,8 +3779,9 @@ public:
             this->visit_expr(*fptr);
             llvm::Value* llvm_fptr = tmp;
             ptr_loads = ptr_loads_copy;
-            llvm_cptr = builder->CreateBitCast(llvm_cptr,
-                            static_cast<llvm::PointerType*>(llvm_fptr->getType())->getElementType());
+            llvm::Type* llvm_fptr_type = get_type_from_ttype_t_util(
+                ASRUtils::get_contained_type(ASRUtils::expr_type(fptr)));
+            llvm_cptr = builder->CreateBitCast(llvm_cptr, llvm_fptr_type->getPointerTo());
             builder->CreateStore(llvm_cptr, llvm_fptr);
         }
     }
@@ -3782,7 +3795,7 @@ public:
     }
 
     void visit_Assignment(const ASR::Assignment_t &x) {
-        if (emit_debug_info) debug_emit_loc(x);
+        if (compiler_options.emit_debug_info) debug_emit_loc(x);
         if( x.m_overloaded ) {
             this->visit_stmt(*x.m_overloaded);
             return ;
@@ -3953,7 +3966,7 @@ public:
                 this->visit_expr_wrapper(asr_target0->m_pos, true);
                 llvm::Value* pos = tmp;
 
-                target = list_api->read_item(list, pos, enable_bounds_checking,
+                target = list_api->read_item(list, pos, compiler_options.enable_bounds_checking,
                                              *module, true);
             }
         } else {
@@ -5581,13 +5594,13 @@ public:
                         // Cast float to double as a workaround for the fact that
                         // vprintf() seems to cast to double even for %f, which
                         // causes it to print 0.000000.
-                        fmt.push_back("%f");
+                        fmt.push_back("%13.8e");
                         d = builder->CreateFPExt(tmp,
                         llvm::Type::getDoubleTy(context));
                         break;
                     }
                     case 8 : {
-                        fmt.push_back("%23.17f");
+                        fmt.push_back("%23.17e");
                         d = builder->CreateFPExt(tmp,
                         llvm::Type::getDoubleTy(context));
                         break;
@@ -5776,7 +5789,7 @@ public:
                                         if (is_a<ASR::Complex_t>(*arg_type)) {
                                             int c_kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
                                             if (c_kind == 4) {
-                                                if (platform == Platform::Windows) {
+                                                if (compiler_options.platform == Platform::Windows) {
                                                     // tmp is {float, float}*
                                                     // type_fx2p is i64*
                                                     llvm::Type* type_fx2p = llvm::Type::getInt64PtrTy(context);
@@ -5784,7 +5797,7 @@ public:
                                                     tmp = builder->CreateBitCast(tmp, type_fx2p);
                                                     // Then convert i64* -> i64
                                                     tmp = CreateLoad(tmp);
-                                                } else if (platform == Platform::macOS_ARM) {
+                                                } else if (compiler_options.platform == Platform::macOS_ARM) {
                                                     // tmp is {float, float}*
                                                     // type_fx2p is [2 x float]*
                                                     llvm::Type* type_fx2p = llvm::ArrayType::get(llvm::Type::getFloatTy(context), 2)->getPointerTo();
@@ -5803,7 +5816,7 @@ public:
                                                 }
                                             } else {
                                                 LFORTRAN_ASSERT(c_kind == 8)
-                                                if (platform == Platform::Windows) {
+                                                if (compiler_options.platform == Platform::Windows) {
                                                     // 128 bit aggregate type is passed by reference
                                                 } else {
                                                     // Pass by value
@@ -6073,7 +6086,7 @@ public:
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        if (emit_debug_info) debug_emit_loc(x);
+        if (compiler_options.emit_debug_info) debug_emit_loc(x);
         if( ASRUtils::is_intrinsic_optimization(x.m_name) ) {
             ASR::Function_t* routine = ASR::down_cast<ASR::Function_t>(
                         ASRUtils::symbol_get_past_external(x.m_name));
@@ -6288,7 +6301,7 @@ public:
                 if (is_a<ASR::Complex_t>(*return_var_type0)) {
                     int a_kind = down_cast<ASR::Complex_t>(return_var_type0)->m_kind;
                     if (a_kind == 8) {
-                        if (platform == Platform::Windows) {
+                        if (compiler_options.platform == Platform::Windows) {
                             tmp = builder->CreateAlloca(complex_type_8, nullptr);
                             args.insert(args.begin(), tmp);
                             builder->CreateCall(fn, args);
@@ -6312,7 +6325,7 @@ public:
             if (is_a<ASR::Complex_t>(*return_var_type0)) {
                 int a_kind = down_cast<ASR::Complex_t>(return_var_type0)->m_kind;
                 if (a_kind == 4) {
-                    if (platform == Platform::Windows) {
+                    if (compiler_options.platform == Platform::Windows) {
                         // tmp is i64, have to convert to {float, float}
 
                         // i64
@@ -6324,7 +6337,7 @@ public:
                         tmp = builder->CreateBitCast(p_fx2, complex_type_4->getPointerTo());
                         // Convert {float,float}* to {float,float}
                         tmp = CreateLoad(tmp);
-                    } else if (platform == Platform::macOS_ARM) {
+                    } else if (compiler_options.platform == Platform::macOS_ARM) {
                         // pass
                     } else {
                         // tmp is <2 x float>, have to convert to {float, float}
@@ -6421,12 +6434,15 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
 #if LLVM_VERSION_MAJOR >= 15
     context.setOpaquePointers(false);
 #endif
-    ASRToLLVMVisitor v(al, context, co.platform, co.emit_debug_info, infile,
-        co.emit_debug_line_column, co.enable_bounds_checking, diagnostics);
+    ASRToLLVMVisitor v(al, context, infile, co, diagnostics);
     LCompilers::PassOptions pass_options;
+    pass_options.runtime_library_dir = co.runtime_library_dir;
+    pass_options.mod_files_dir = co.mod_files_dir;
+    pass_options.include_dirs = co.include_dirs;
     pass_options.run_fun = run_fn;
     pass_options.always_run = false;
-    pass_manager.apply_passes(al, &asr, pass_options);
+    pass_manager.rtlib = co.rtlib;
+    pass_manager.apply_passes(al, &asr, pass_options, diagnostics);
 
     // Uncomment for debugging the ASR after the transformation
     // std::cout << pickle(asr, true, true, true) << std::endl;

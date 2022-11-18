@@ -165,7 +165,8 @@ namespace CastingUtil {
 
 int save_pyc_files(const LFortran::ASR::TranslationUnit_t &u,
                        std::string infile) {
-    LFORTRAN_ASSERT(LFortran::asr_verify(u));
+    LFortran::diag::Diagnostics diagnostics;
+    LFORTRAN_ASSERT(LFortran::asr_verify(u, true, diagnostics));
     std::string modfile_binary = LFortran::save_pycfile(u);
 
     while( infile.back() != '.' ) {
@@ -331,7 +332,8 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     } else {
         mod1 = load_pycfile(al, input, false);
         fix_external_symbols(*mod1, *ASRUtils::get_tu_symtab(symtab));
-        LFORTRAN_ASSERT(asr_verify(*mod1));
+        LFortran::diag::Diagnostics diagnostics;
+        LFORTRAN_ASSERT(asr_verify(*mod1, true, diagnostics));
         compile_module = false;
     }
 
@@ -5829,7 +5831,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
         return res.error;
     }
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
-    LFORTRAN_ASSERT(asr_verify(*tu));
+    LFORTRAN_ASSERT(asr_verify(*tu, true, diagnostics));
 
     if (!compiler_options.symtab_only) {
         auto res2 = body_visitor(al, *ast_m, diagnostics, unit, main_module,
@@ -5839,7 +5841,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
         } else {
             return res2.error;
         }
-        LFORTRAN_ASSERT(asr_verify(*tu));
+        LFORTRAN_ASSERT(asr_verify(*tu, true, diagnostics));
     }
 
     if (main_module) {
@@ -5863,7 +5865,7 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al,
             pass_options.run_fun = "_lpython_main_program";
             pass_options.runtime_library_dir = get_runtime_library_dir();
             pass_wrap_global_stmts_into_program(al, *tu, pass_options);
-            LFORTRAN_ASSERT(asr_verify(*tu));
+            LFORTRAN_ASSERT(asr_verify(*tu, true, diagnostics));
         }
     }
 

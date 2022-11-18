@@ -174,7 +174,7 @@ int emit_asr(const std::string &infile,
     LCompilers::PassOptions pass_options;
     pass_options.run_fun = "f";
     pass_options.always_run = true;
-    pass_manager.apply_passes(al, asr, pass_options);
+    pass_manager.apply_passes(al, asr, pass_options, diagnostics);
 
     if (compiler_options.tree) {
         std::cout << LFortran::pickle_tree(*asr, compiler_options.use_colors,
@@ -1345,6 +1345,7 @@ int main(int argc, char *argv[])
                 case (LFortran::Platform::macOS_ARM) : std::cout << "macOS ARM"; break;
                 case (LFortran::Platform::Windows) : std::cout << "Windows"; break;
                 case (LFortran::Platform::FreeBSD) : std::cout << "FreeBSD"; break;
+                case (LFortran::Platform::OpenBSD) : std::cout << "OpenBSD"; break;
             }
             std::cout << std::endl;
 #ifdef HAVE_LFORTRAN_LLVM

@@ -213,7 +213,6 @@ void pass_create_subroutine_from_function(Allocator &al, ASR::TranslationUnit_t 
     v.visit_TranslationUnit(unit);
     ReplaceFunctionCallWithSubroutineCall u(al);
     u.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
 }
 
 
