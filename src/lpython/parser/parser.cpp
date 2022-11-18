@@ -15,11 +15,11 @@
 namespace LFortran {
 
 Result<LPython::AST::Module_t*> parse(Allocator &al, const std::string &s,
-        diag::Diagnostics &diagnostics)
+        uint32_t prev_loc, diag::Diagnostics &diagnostics)
 {
     Parser p(al, diagnostics);
     try {
-        p.parse(s);
+        p.parse(s, prev_loc);
     } catch (const parser_local::TokenizerError &e) {
         Error error;
         diagnostics.diagnostics.push_back(e.d);
@@ -42,7 +42,7 @@ Result<LPython::AST::Module_t*> parse(Allocator &al, const std::string &s,
         p.result.p, p.result.size(), p.type_ignore.p, p.type_ignore.size());
 }
 
-void Parser::parse(const std::string &input)
+void Parser::parse(const std::string &input, uint32_t prev_loc)
 {
     inp = input;
     if (inp.size() > 0) {
@@ -50,7 +50,7 @@ void Parser::parse(const std::string &input)
     } else {
         inp.append("\n");
     }
-    m_tokenizer.set_string(inp);
+    m_tokenizer.set_string(inp, prev_loc);
     if (yyparse(*this) == 0) {
         return;
     }
@@ -116,13 +116,14 @@ Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
         const std::string &/*runtime_library_dir*/,
         const std::string &infile,
         diag::Diagnostics &diagnostics,
+        uint32_t prev_loc,
         bool new_parser) {
     LPython::AST::ast_t* ast;
     // We will be using the new parser from now on
     new_parser = true;
     LFORTRAN_ASSERT(new_parser)
     std::string input = read_file(infile);
-    Result<LPython::AST::Module_t*> res = parse(al, input, diagnostics);
+    Result<LPython::AST::Module_t*> res = parse(al, input, prev_loc, diagnostics);
     if (res.ok) {
         ast = (LPython::AST::ast_t*)res.result;
     } else {

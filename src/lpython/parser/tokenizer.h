@@ -18,6 +18,7 @@ public:
     unsigned char *cur_line;
     unsigned int line_num;
     unsigned char *string_start;
+    uint32_t prev_loc; // The previous file ended at this location.
 
     int last_token=-1;
 
@@ -34,7 +35,7 @@ public:
 public:
     // Set the string to tokenize. The caller must ensure `str` will stay valid
     // as long as `lex` is being called.
-    void set_string(const std::string &str);
+    void set_string(const std::string &str, uint32_t prev_loc_);
 
     // Get next token. Token ID is returned as function result, the semantic
     // value is put into `yylval`.
@@ -71,8 +72,8 @@ public:
     // Return the current token's location
     void token_loc(Location &loc) const
     {
-        loc.first = tok-string_start;
-        loc.last = cur-string_start-1;
+        loc.first = prev_loc + (tok-string_start);
+        loc.last = prev_loc + (cur-string_start-1);
     }
 
     void record_paren(Location &loc, char c);
