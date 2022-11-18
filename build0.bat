@@ -1,2 +1,2 @@
 
-xonsh ./build1_win.sh
+xonsh ./build0_win.xsh

@@ -13,3 +13,4 @@ python src/libasr/asdl_cpp.py src/libasr/ASR.asdl src/libasr/asr.h
 
 pushd src/lpython/parser && re2c -W -b tokenizer.re -o tokenizer.cpp && popd
 pushd src/lpython/parser && bison -Wall -d -r all parser.yy && popd
+python src/libasr/wasm_instructions_visitor.py
