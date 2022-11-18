@@ -11,6 +11,7 @@ namespace LFortran::LPython {
               uint32_t first_column;
               uint32_t last_line;
               uint32_t last_column;
+              std::string filename;
               uint32_t severity;
        };
        struct document_symbols {
@@ -19,6 +20,7 @@ namespace LFortran::LPython {
               uint32_t first_column;
               uint32_t last_line;
               uint32_t last_column;
+              std::string filename;
        };
 
 } // namespace LFortran::Python
