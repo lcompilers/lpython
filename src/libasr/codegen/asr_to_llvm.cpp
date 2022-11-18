@@ -5979,22 +5979,26 @@ public:
                                 // at the beginning of the function to avoid
                                 // using alloca inside a loop, which would
                                 // run out of stack
-                                llvm::BasicBlock &entry_block = builder->GetInsertBlock()->getParent()->getEntryBlock();
-                                llvm::IRBuilder<> builder0(context);
-                                builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
-                                llvm::AllocaInst *target = builder0.CreateAlloca(
-                                    target_type, nullptr, "call_arg_value");
                                 if( ASR::is_a<ASR::ArrayItem_t>(*x.m_args[i].m_value) ||
                                     ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value) ) {
                                     value = CreateLoad(value);
                                 }
-                                if( ASR::is_a<ASR::Tuple_t>(*arg_type) ||
-                                    ASR::is_a<ASR::List_t>(*arg_type) ) {
-                                    llvm_utils->deepcopy(value, target, arg_type, module.get(), name2memidx);
+                                if( !ASR::is_a<ASR::CPtr_t>(*arg_type) ) {
+                                    llvm::BasicBlock &entry_block = builder->GetInsertBlock()->getParent()->getEntryBlock();
+                                    llvm::IRBuilder<> builder0(context);
+                                    builder0.SetInsertPoint(&entry_block, entry_block.getFirstInsertionPt());
+                                    llvm::AllocaInst *target = builder0.CreateAlloca(
+                                        target_type, nullptr, "call_arg_value");
+                                    if( ASR::is_a<ASR::Tuple_t>(*arg_type) ||
+                                        ASR::is_a<ASR::List_t>(*arg_type) ) {
+                                        llvm_utils->deepcopy(value, target, arg_type, module.get(), name2memidx);
+                                    } else {
+                                        builder->CreateStore(value, target);
+                                    }
+                                    tmp = target;
                                 } else {
-                                    builder->CreateStore(value, target);
+                                    tmp = value;
                                 }
-                                tmp = target;
                             }
                         }
                     }
