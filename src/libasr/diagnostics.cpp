@@ -8,8 +8,8 @@
 
 namespace LFortran::diag {
 
-const static std::string redon  = "\033[0;31m";
-const static std::string redoff = "\033[0;00m";
+const static std::string redon  = ColorsANSI::RED;
+const static std::string redoff = ColorsANSI::RESET;
 
 std::string highlight_line(const std::string &line,
         const size_t first_column,
@@ -82,8 +82,8 @@ std::string Diagnostics::render(const std::string &input,
     if (compiler_options.error_format == "human") {
         if (this->diagnostics.size() > 0 && !compiler_options.no_error_banner) {
             if (!compiler_options.no_warnings || has_error()) {
-                std::string bold  = "\033[0;1m";
-                std::string reset = "\033[0;00m";
+                std::string bold  = ColorsANSI::BOLD;
+                std::string reset = ColorsANSI::RESET;
                 if (!compiler_options.use_colors) {
                     bold = "";
                     reset = "";
@@ -94,6 +94,17 @@ std::string Diagnostics::render(const std::string &input,
                 out += "context please report it to us (we consider that a bug that needs to be fixed).\n";
             }
         }
+    }
+    return out;
+}
+
+std::string render_diagnostic_short_nospan(const Diagnostic &d);
+
+std::string Diagnostics::render2() {
+    std::string out;
+    for (auto &d : this->diagnostics) {
+        out += render_diagnostic_short_nospan(d);
+        if (&d != &this->diagnostics.back()) out += "\n";
     }
     return out;
 }
@@ -157,12 +168,12 @@ std::string render_diagnostic_short(Diagnostic &d, const std::string &input,
 }
 
 std::string render_diagnostic_human(const Diagnostic &d, bool use_colors) {
-    std::string bold  = "\033[0;1m";
-    std::string red_bold  = "\033[0;31;1m";
-    std::string yellow_bold  = "\033[0;33;1m";
-    std::string green_bold  = "\033[0;32;1m";
-    std::string blue_bold  = "\033[0;34;1m";
-    std::string reset = "\033[0;00m";
+    std::string bold  = ColorsANSI::BOLD;
+    std::string red_bold  = ColorsANSI::BOLDCYAN;
+    std::string yellow_bold  = ColorsANSI::BOLDYELLOW;
+    std::string green_bold  = ColorsANSI::BOLDGREEN;
+    std::string blue_bold  = ColorsANSI::BOLDBLUE;
+    std::string reset = ColorsANSI::RESET;
     if (!use_colors) {
         bold = "";
         red_bold = "";
@@ -173,59 +184,7 @@ std::string render_diagnostic_human(const Diagnostic &d, bool use_colors) {
     }
     std::stringstream out;
 
-    std::string message_type = "";
-    std::string primary_color = "";
-    std::string type_color = "";
-    switch (d.level) {
-        case (Level::Error):
-            primary_color = red_bold;    
-            type_color = primary_color;
-            switch (d.stage) {
-                case (Stage::CPreprocessor):
-                    message_type = "C preprocessor error";
-                    break;
-                case (Stage::Prescanner):
-                    message_type = "prescanner error";
-                    break;
-                case (Stage::Tokenizer):
-                    message_type = "tokenizer error";
-                    break;
-                case (Stage::Parser):
-                    message_type = "syntax error";
-                    break;
-                case (Stage::Semantic):
-                    message_type = "semantic error";
-                    break;
-                case (Stage::ASRPass):
-                    message_type = "ASR pass error";
-                    break;
-                case (Stage::CodeGen):
-                    message_type = "code generation error";
-                    break;
-            }
-            break;
-        case (Level::Warning):
-            primary_color = yellow_bold;    
-            type_color = primary_color;
-            message_type = "warning";
-            break;
-        case (Level::Note):
-            primary_color = bold;    
-            type_color = primary_color;
-            message_type = "note";
-            break;
-        case (Level::Help):
-            primary_color = bold;    
-            type_color = primary_color;
-            message_type = "help";
-            break;
-        case (Level::Style):
-            primary_color = green_bold;
-            type_color = yellow_bold;
-            message_type = "style suggestion";
-            break;
-    }
-
+    auto [message_type, primary_color, type_color] = diag_level_to_str(d, use_colors);
     out << type_color << message_type << reset << bold << ": " << d.message << reset << std::endl;
 
     if (d.labels.size() > 0) {
@@ -345,9 +304,37 @@ std::string render_diagnostic_human(const Diagnostic &d, bool use_colors) {
 std::string render_diagnostic_short(const Diagnostic &d) {
     std::stringstream out;
 
+    // Message anatomy:
+    // <filename>:<line start>-<end>:<column start>-<end>: <severity>: <message>
+    if (d.labels.size() > 0) {
+        Label l = d.labels[0];
+        Span s = l.spans[0];
+        // TODO: print the primary line+column here, not the first label:
+        out << s.filename << ":" << s.first_line << "-" << s.last_line << ":";
+        out << s.first_column << "-" << s.last_column << ": ";
+    }
+    auto [message_type, primary, type] = diag_level_to_str(d, false);
+    out << message_type << ": " << d.message << std::endl;
+
+    return out.str();
+}
+
+std::string render_diagnostic_short_nospan(const Diagnostic &d) {
+    std::stringstream out;
+    auto [message_type, primary, type] = diag_level_to_str(d, false);
+    out << message_type << ": " << d.message << std::endl;
+    return out.str();
+}
+
+std::tuple<std::string, std::string, std::string> diag_level_to_str(
+    const Diagnostic &d, const bool use_color) {
     std::string message_type = "";
+    std::string primary_color = "";
+    std::string type_color = "";
     switch (d.level) {
         case (Level::Error):
+            primary_color = use_color ? ColorsANSI::BOLDRED : "";
+            type_color = primary_color;
             switch (d.stage) {
                 case (Stage::CPreprocessor):
                     message_type = "C preprocessor error";
@@ -367,39 +354,36 @@ std::string render_diagnostic_short(const Diagnostic &d) {
                 case (Stage::ASRPass):
                     message_type = "ASR pass error";
                     break;
+                case (Stage::ASRVerify):
+                    message_type = "ASR verify pass error";
+                    break;
                 case (Stage::CodeGen):
                     message_type = "code generation error";
                     break;
             }
             break;
         case (Level::Warning):
+            primary_color = use_color ? ColorsANSI::BOLDYELLOW : "";
+            type_color = primary_color;
             message_type = "warning";
             break;
         case (Level::Note):
+            primary_color = use_color ? ColorsANSI::BOLD : "";
+            type_color = primary_color;
             message_type = "note";
             break;
         case (Level::Help):
+            primary_color = use_color ? ColorsANSI::BOLD : "";
+            type_color = primary_color;
             message_type = "help";
             break;
         case (Level::Style):
+            primary_color = use_color ? ColorsANSI::BOLDGREEN : "";
+            type_color = use_color ? ColorsANSI::BOLDYELLOW : "";
             message_type = "style suggestion";
             break;
     }
-
-    if (d.labels.size() > 0) {
-        Label l = d.labels[0];
-        Span s = l.spans[0];
-        // TODO: print the primary line+column here, not the first label:
-        out << s.filename << ":" << s.first_line << ":" << s.first_column;
-        if (s.first_line != s.last_line) {
-            out << " - " << s.last_line << ":" << s.last_column;
-        }
-        out << " ";
-    }
-
-    out << message_type << ": " << d.message << std::endl;
-
-    return out.str();
+    return std::make_tuple(message_type, primary_color, type_color);
 }
 
 } // namespace LFortran::diag

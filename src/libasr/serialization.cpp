@@ -322,7 +322,8 @@ ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
     ASR::FixParentSymtabVisitor p;
     p.visit_TranslationUnit(*tu);
 
-    LFORTRAN_ASSERT(asr_verify(*tu, false));
+    diag::Diagnostics diagnostics;
+    LFORTRAN_ASSERT(asr_verify(*tu, false, diagnostics));
 
     return node;
 }

@@ -278,7 +278,6 @@ void pass_replace_arr_slice(Allocator &al, ASR::TranslationUnit_t &unit,
     std::string rl_path = pass_options.runtime_library_dir;
     ArrSliceVisitor v(al, rl_path);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
 }
 
 

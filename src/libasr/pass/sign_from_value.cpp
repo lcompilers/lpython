@@ -36,7 +36,7 @@ class SignFromValueVisitor : public PassUtils::SkipOptimizationFunctionVisitor<S
 private:
     ASR::TranslationUnit_t &unit;
 
-    std::string rl_path;
+    LCompilers::PassOptions pass_options;
 
     ASR::expr_t* sign_from_value_var;
 
@@ -45,8 +45,9 @@ private:
     bool from_sign_from_value;
 
 public:
-    SignFromValueVisitor(Allocator &al_, ASR::TranslationUnit_t &unit_, const std::string& rl_path_) : SkipOptimizationFunctionVisitor(al_),
-    unit(unit_), rl_path(rl_path_), sign_from_value_var(nullptr), from_sign_from_value(false)
+    SignFromValueVisitor(Allocator &al_, ASR::TranslationUnit_t &unit_,
+                         const LCompilers::PassOptions& pass_options_) : SkipOptimizationFunctionVisitor(al_),
+    unit(unit_), pass_options(pass_options_), sign_from_value_var(nullptr), from_sign_from_value(false)
     {
         pass_result.reserve(al, 1);
     }
@@ -132,7 +133,7 @@ public:
         }
 
         sign_from_value_var = PassUtils::get_sign_from_value(first_arg, second_arg,
-                                     al, unit, rl_path, current_scope, x.base.base.loc,
+                                     al, unit, pass_options, current_scope, x.base.base.loc,
                                      [&](const std::string &msg, const Location &) { throw LCompilersException(msg); });
         from_sign_from_value = false;
     }
@@ -153,10 +154,8 @@ public:
 
 void pass_replace_sign_from_value(Allocator &al, ASR::TranslationUnit_t &unit,
                                   const LCompilers::PassOptions& pass_options) {
-    std::string rl_path = pass_options.runtime_library_dir;
-    SignFromValueVisitor v(al, unit, rl_path);
+    SignFromValueVisitor v(al, unit, pass_options);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
 }
 
 

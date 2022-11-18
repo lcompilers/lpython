@@ -187,7 +187,7 @@ public:
                              const std::string& right,
                              int left_precedence,
                              int right_precedence,
-                             bool is_sub = false)
+                             bool is_sub_div = false)
     {
         std::string out;
         if (is_right_associated_julia(left_precedence)) {
@@ -202,7 +202,7 @@ public:
         out += op;
         if (is_right_associated_julia(right_precedence)) {
             out += "(" + right + ")";
-        } else if (is_sub) {
+        } else if (is_sub_div) {
             if (right_precedence < last_expr_precedence) {
                 out += right;
             } else {
@@ -872,7 +872,8 @@ public:
                                    + " operator not implemented yet");
         }
         src = format_binop(
-            left, op, right, left_precedence, right_precedence, x.m_op == ASR::binopType::Sub);
+            left, op, right, left_precedence, right_precedence,
+                x.m_op == ASR::binopType::Sub || x.m_op == ASR::binopType::Div);
     }
 
     void visit_LogicalBinOp(const ASR::LogicalBinOp_t& x)
