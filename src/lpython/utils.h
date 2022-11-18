@@ -10,7 +10,7 @@ void get_executable_path(std::string &executable_path, int &dirname_length);
 std::string get_runtime_library_dir();
 std::string get_runtime_library_header_dir();
 bool is_directory(std::string path);
-bool path_exits(std::string path);
+bool path_exists(std::string path);
 
 } // LFortran
 

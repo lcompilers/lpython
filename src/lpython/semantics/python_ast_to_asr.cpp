@@ -3397,6 +3397,57 @@ public:
         }
     }
 
+    void set_module_symbol(std::string &mod_sym, std::vector<std::string> &paths) {
+        if (mod_sym != "ltypes") {
+            // Check for the import path and mod_sym not in runtime library
+            if (import_path != "" &&
+                    !path_exists(paths[0] + '/' + mod_sym + ".py")) {
+                paths = {import_path};
+                if (parent_dir != "") paths[0] += '/' + parent_dir;
+                if(path_exists(paths[0])) {
+                    // Check for the nested modules with "."
+                    // Example: from x.y import z
+                    if (mod_sym.find(".") != std::string::npos) {
+                        mod_sym.replace(mod_sym.find("."), 1, "/");
+                        if(is_directory(paths[0] + "/" + mod_sym)) {
+                            // Directory i.e., x/y/__init__.py
+                            paths[0] += '/' + mod_sym;
+                            mod_sym = "__init__";
+                        } else {
+                            // File i.e., x/y.py
+                            paths[0] += '/' + mod_sym.substr(0,
+                                mod_sym.find_last_of('/'));
+                            mod_sym = mod_sym.substr(mod_sym.find_last_of('/') + 1,
+                                mod_sym.size() - 1);
+                        }
+                    } else if(is_directory(paths[0] + "/" + mod_sym)) {
+                        // Directory i.e., x/__init__.py
+                        paths[0] += '/' + mod_sym;
+                        mod_sym = "__init__";
+                    }
+                }
+            } else if (mod_sym.find(".") != std::string::npos) {
+                // Check for the nested modules with "."
+                // Example: from x.y import z
+                mod_sym.replace(mod_sym.find("."), 1, "/");
+                if(is_directory(paths[1] + "/" + mod_sym)) {
+                    if (parent_dir != "") paths[1] += "/";
+                    paths[1] += mod_sym;
+                    mod_sym = "__init__";
+                }
+            } else if (parent_dir != ""
+                    && is_directory(paths[1] + '/' + mod_sym)) {
+                // Directory i.e., parent_dir/x/__init__.py
+                paths[1] += '/' + mod_sym;
+                mod_sym = "__init__";
+            } else if (is_directory(mod_sym)) {
+                // Directory i.e., x/__init__.py
+                paths.push_back(mod_sym);
+                mod_sym = "__init__";
+            }
+        }
+    }
+
     void visit_ImportFrom(const AST::ImportFrom_t &x) {
         if (!x.m_module) {
             throw SemanticError("Not implemented: The import statement must currently specify the module name", x.base.base.loc);
@@ -3417,32 +3468,7 @@ public:
                 st = st->parent;
             }
             bool ltypes, enum_py;
-            if (msym != "ltypes") {
-                if (import_path != "" &&
-                        !path_exits(paths[0] + '/' + msym + ".py")) {
-                    paths = {import_path};
-                    if (parent_dir != "") paths[0] += '/' + parent_dir;
-                    if(is_directory(paths[0])) {
-                        if (msym.find(".") != std::string::npos) {
-                            msym.replace(msym.find("."), 1, "/");
-                        }
-                        paths[0] += '/' + msym;
-                        msym = "__init__";
-                    }
-                } else if (msym.find(".") != std::string::npos) {
-                    msym.replace(msym.find("."), 1, "/");
-                    if (parent_dir != "") paths[1] += "/";
-                    paths[1] += msym;
-                    msym = "__init__";
-                } else if (is_directory(msym)) {
-                    paths = {rl_path, msym};
-                    msym = "__init__";
-                } else if (paths[1] != ""
-                        && is_directory(paths[1] + '/' + msym)) {
-                    paths[1] += '/' + msym;
-                    msym = "__init__";
-                }
-            }
+            set_module_symbol(msym, paths);
             t = (ASR::symbol_t*)(load_module(al, st,
                 msym, x.base.base.loc, false, paths, ltypes, enum_py,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
@@ -3488,32 +3514,7 @@ public:
         }
         for (auto &mod_sym : mods) {
             bool ltypes, enum_py;
-            if (mod_sym != "ltypes") {
-                if (import_path != "" &&
-                        !path_exits(paths[0] + '/' + mod_sym + ".py")) {
-                    paths = {import_path};
-                    if (parent_dir != "") paths[0] += '/' + parent_dir;
-                    if(is_directory(paths[0])) {
-                        if (mod_sym.find(".") != std::string::npos) {
-                            mod_sym.replace(mod_sym.find("."), 1, "/");
-                        }
-                        paths[0] += '/' + mod_sym;
-                        mod_sym = "__init__";
-                    }
-                } else if (mod_sym.find(".") != std::string::npos) {
-                    mod_sym.replace(mod_sym.find("."), 1, "/");
-                    if (parent_dir != "") paths[1] += "/";
-                    paths[1] += mod_sym;
-                    mod_sym = "__init__";
-                } else if (is_directory(mod_sym)) {
-                    paths = {rl_path, mod_sym};
-                    mod_sym = "__init__";
-                } else if (paths[1] != ""
-                        && is_directory(paths[1] + '/' + mod_sym)) {
-                    paths[1] += '/' + mod_sym;
-                    mod_sym = "__init__";
-                }
-            }
+            set_module_symbol(mod_sym, paths);
             t = (ASR::symbol_t*)(load_module(al, st,
                 mod_sym, x.base.base.loc, false, paths, ltypes, enum_py,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
