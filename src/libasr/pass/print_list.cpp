@@ -204,7 +204,6 @@ void pass_replace_print_list(
     std::string rl_path = pass_options.runtime_library_dir;
     PrintListVisitor v(al, rl_path);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
 }
 
 }  // namespace LFortran

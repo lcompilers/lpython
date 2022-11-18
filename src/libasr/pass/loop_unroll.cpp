@@ -112,7 +112,6 @@ void pass_loop_unroll(Allocator &al, ASR::TranslationUnit_t &unit,
     int64_t unroll_factor = pass_options.unroll_factor;
     LoopUnrollVisitor v(al, rl_path, unroll_factor);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
 }
 
 

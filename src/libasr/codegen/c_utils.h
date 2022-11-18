@@ -403,8 +403,12 @@ class CCPPDSUtils {
                     if( !ASRUtils::is_array(t) ) {
                         result = target + " = " + value  + ";";
                     } else {
-                        std::string func = get_array_deepcopy_func(t);
-                        result = func + "(" + value + ", " + target + ");";
+                        if( is_c ) {
+                            std::string func = get_array_deepcopy_func(t);
+                            result = func + "(" + value + ", " + target + ");";
+                        } else {
+                            result = target + " = " + value + ";";
+                        }
                     }
                     break;
                 }

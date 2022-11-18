@@ -54,9 +54,7 @@
 #    include <llvm/Support/TargetRegistry.h>
 #endif
 #include <llvm/Support/Host.h>
-#if LLVM_VERSION_MAJOR <= 11
-#    include <libasr/codegen/KaleidoscopeJIT.h>
-#endif
+#include <libasr/codegen/KaleidoscopeJIT.h>
 
 #include <libasr/codegen/evaluator.h>
 #include <libasr/codegen/asr_to_llvm.h>
@@ -184,19 +182,14 @@ LLVMEvaluator::LLVMEvaluator(const std::string &t)
     TM = target->createTargetMachine(target_triple, CPU, features, opt, RM);
 
     // For some reason the JIT requires a different TargetMachine
-    llvm::TargetMachine *TM2 = llvm::EngineBuilder().selectTarget();
-#if LLVM_VERSION_MAJOR <= 11
-    jit = std::make_unique<llvm::orc::KaleidoscopeJIT>(TM2);
-#endif
+    jit = cantFail(llvm::orc::KaleidoscopeJIT::Create());
 
     _lfortran_stan(0.5);
 }
 
 LLVMEvaluator::~LLVMEvaluator()
 {
-#if LLVM_VERSION_MAJOR <= 11
     jit.reset();
-#endif
     context.reset();
 }
 
@@ -213,9 +206,7 @@ std::unique_ptr<llvm::Module> LLVMEvaluator::parse_module(const std::string &sou
         throw LCompilersException("parse_module(): module failed verification.");
     };
     module->setTargetTriple(target_triple);
-#if LLVM_VERSION_MAJOR <= 11
     module->setDataLayout(jit->getTargetMachine().createDataLayout());
-#endif
     return module;
 }
 
@@ -236,10 +227,17 @@ void LLVMEvaluator::add_module(std::unique_ptr<llvm::Module> mod) {
     // These are already set in parse_module(), but we set it here again for
     // cases when the Module was constructed directly, not via parse_module().
     mod->setTargetTriple(target_triple);
-#if LLVM_VERSION_MAJOR <= 11
-    mod->setDataLayout(jit->getTargetMachine().createDataLayout());
-    jit->addModule(std::move(mod));
-#endif
+    mod->setDataLayout(jit->getDataLayout());
+    llvm::Error err = jit->addModule(std::move(mod));
+    if (err) {
+        llvm::SmallVector<char, 128> buf;
+        llvm::raw_svector_ostream dest(buf);
+        llvm::logAllUnhandledErrors(std::move(err), dest, "");
+        std::string msg = std::string(dest.str().data(), dest.str().size());
+        if (msg[msg.size()-1] == '\n') msg = msg.substr(0, msg.size()-1);
+        throw LCompilersException("addModule() returned an error: " + msg);
+    }
+
 }
 
 void LLVMEvaluator::add_module(std::unique_ptr<LLVMModule> m) {
@@ -247,17 +245,18 @@ void LLVMEvaluator::add_module(std::unique_ptr<LLVMModule> m) {
 }
 
 intptr_t LLVMEvaluator::get_symbol_address(const std::string &name) {
-#if LLVM_VERSION_MAJOR <= 11
-    llvm::JITSymbol s = jit->findSymbol(name);
-#else
-    llvm::JITSymbol s = nullptr;
-#endif
+    llvm::Expected<llvm::JITEvaluatedSymbol> s = jit->lookup(name);
     if (!s) {
-        throw std::runtime_error("findSymbol() failed to find the symbol '"
-            + name + "'");
+        llvm::Error e = s.takeError();
+        llvm::SmallVector<char, 128> buf;
+        llvm::raw_svector_ostream dest(buf);
+        llvm::logAllUnhandledErrors(std::move(e), dest, "");
+        std::string msg = std::string(dest.str().data(), dest.str().size());
+        if (msg[msg.size()-1] == '\n') msg = msg.substr(0, msg.size()-1);
+        throw LCompilersException("lookup() failed to find the symbol '"
+            + name + "', error: " + msg);
     }
-#if LLVM_VERSION_MAJOR <= 11
-    llvm::Expected<uint64_t> addr0 = s.getAddress();
+    llvm::Expected<uint64_t> addr0 = s->getAddress();
     if (!addr0) {
         llvm::Error e = addr0.takeError();
         llvm::SmallVector<char, 128> buf;
@@ -268,7 +267,6 @@ intptr_t LLVMEvaluator::get_symbol_address(const std::string &name) {
         throw LCompilersException("JITSymbol::getAddress() returned an error: " + msg);
     }
     return (intptr_t)cantFail(std::move(addr0));
-#endif
 }
 
 int32_t LLVMEvaluator::int32fn(const std::string &name) {
@@ -332,11 +330,9 @@ std::string LLVMEvaluator::get_asm(llvm::Module &m)
     llvm::CodeGenFileType ft = llvm::CGFT_AssemblyFile;
     llvm::SmallVector<char, 128> buf;
     llvm::raw_svector_ostream dest(buf);
-#if LLVM_VERSION_MAJOR <= 11
     if (jit->getTargetMachine().addPassesToEmitFile(pass, dest, nullptr, ft)) {
         throw std::runtime_error("TargetMachine can't emit a file of this type");
     }
-#endif
     pass.run(m);
     return std::string(dest.str().data(), dest.str().size());
 }
