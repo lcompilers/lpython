@@ -94,50 +94,64 @@ struct LocationManager {
     //
     //
     //
-    std::vector<uint32_t> out_start; // consecutive intervals in the output code
-    std::vector<uint32_t> in_start; // start + size in the original code
-    std::vector<uint32_t> in_newlines; // position of all \n in the original code
+    struct FileLocations {
+        std::vector<uint32_t> out_start; // consecutive intervals in the output code
+        std::vector<uint32_t> in_start; // start + size in the original code
+        std::vector<uint32_t> in_newlines; // position of all \n in the original code
 
-    // For preprocessor (if preprocessor==true).
-    // TODO: design a common structure, that also works with #include, that
-    // has these mappings for each file
-    bool preprocessor = false;
-    std::string in_filename;
-    uint32_t current_line=0;
-    std::vector<uint32_t> out_start0; // consecutive intervals in the output code
-    std::vector<uint32_t> in_start0; // start + size in the original code
-    std::vector<uint32_t> in_size0; // Size of the `in` interval
-    std::vector<uint32_t> interval_type0; // 0 .... 1:1; 1 ... many to many;
-    std::vector<uint32_t> in_newlines0; // position of all \n in the original code
-//    std::vector<uint32_t> filename_id; // file name for each interval, ID
-//    std::vector<std::string> filenames; // filenames lookup for an ID
+        // For preprocessor (if preprocessor==true).
+        // TODO: design a common structure, that also works with #include, that
+        // has these mappings for each file
+        bool preprocessor = false;
+        std::string in_filename;
+        uint32_t current_line=0;
+        std::vector<uint32_t> out_start0; // consecutive intervals in the output code
+        std::vector<uint32_t> in_start0; // start + size in the original code
+        std::vector<uint32_t> in_size0; // Size of the `in` interval
+        std::vector<uint32_t> interval_type0; // 0 .... 1:1; 1 ... many to many;
+        std::vector<uint32_t> in_newlines0; // position of all \n in the original code
+    };
+    std::vector<FileLocations> files;
+    // Location is continued for the imported files, i.e.,if the new file is
+    // imported then the location starts from the size of the previous file.
+    // For example: file_ends = [120, 200, 350]
+    std::vector<uint32_t> file_ends; // position of all ends of files
+    // For a given Location, we use the `file_ends` and `bisection` to determine
+    // the file (files' index), which the location is from. Then we use this index into
+    // the `files` vector and use `in_newlines` and other information to
+    // determine the line and column inside this file, and the `in_filename`
+    // field to determine the filename. This happens when the diagnostic is
+    // printed.
 
     // Converts a position in the output code to a position in the original code
     // Every character in the output code has a corresponding location in the
     // original code, so this function always succeeds
     uint32_t output_to_input_pos(uint32_t out_pos, bool show_last) const {
-        if (out_start.size() == 0) return 0;
-        uint32_t interval = bisection(out_start, out_pos)-1;
-        uint32_t rel_pos = out_pos - out_start[interval];
-        uint32_t in_pos = in_start[interval] + rel_pos;
-        if (preprocessor) {
+        // Determine where the error is from using position, i.e., loc
+        uint32_t index = bisection(file_ends, out_pos);
+        if (index == file_ends.size()) index -= 1;
+        if (files[index].out_start.size() == 0) return 0;
+        uint32_t interval = bisection(files[index].out_start, out_pos)-1;
+        uint32_t rel_pos = out_pos - files[index].out_start[interval];
+        uint32_t in_pos = files[index].in_start[interval] + rel_pos;
+        if (files[index].preprocessor) {
             // If preprocessor was used, do one more remapping
-            uint32_t interval0 = bisection(out_start0, in_pos)-1;
-            if (interval_type0[interval0] == 0) {
+            uint32_t interval0 = bisection(files[index].out_start0, in_pos)-1;
+            if (files[index].interval_type0[interval0] == 0) {
                 // 1:1 interval
-                uint32_t rel_pos0 = in_pos - out_start0[interval0];
-                uint32_t in_pos0 = in_start0[interval0] + rel_pos0;
+                uint32_t rel_pos0 = in_pos - files[index].out_start0[interval0];
+                uint32_t in_pos0 = files[index].in_start0[interval0] + rel_pos0;
                 return in_pos0;
             } else {
                 // many to many interval
                 uint32_t in_pos0;
-                if (in_pos == out_start0[interval0+1]-1 || show_last) {
+                if (in_pos == files[index].out_start0[interval0+1]-1 || show_last) {
                     // The end of the interval in "out" code
                     // Return the end of the interval in "in" code
-                    in_pos0 = in_start0[interval0]+in_size0[interval0]-1;
+                    in_pos0 = files[index].in_start0[interval0]+files[index].in_size0[interval0]-1;
                 } else {
                     // Otherwise return the beginning of the interval in "in"
-                    in_pos0 = in_start0[interval0];
+                    in_pos0 = files[index].in_start0[interval0];
                 }
                 return in_pos0;
             }
@@ -150,12 +164,19 @@ struct LocationManager {
     // `position` starts from 0
     // `line` and `col` starts from 1
     // `in_newlines` starts from 0
-    void pos_to_linecol(uint32_t position, uint32_t &line, uint32_t &col) const {
+    void pos_to_linecol(uint32_t position, uint32_t &line, uint32_t &col,
+            std::string &filename) const {
+        // Determine where the error is from using position, i.e., loc
+        uint32_t index = bisection(file_ends, position);
+        if (index == file_ends.size()) index -= 1;
+        filename = files[index].in_filename;
+        // Get the actual location by subtracting the previous file size.
+        if (index > 0) position -= file_ends[index - 1];
         const std::vector<uint32_t> *newlines;
-        if (preprocessor) {
-            newlines = &in_newlines0;
+        if (files[index].preprocessor) {
+            newlines = &files[index].in_newlines0;
         } else {
-            newlines = &in_newlines;
+            newlines = &files[index].in_newlines;
         }
         int32_t interval = bisection(*newlines, position);
         if (interval >= 1 && position == (*newlines)[interval-1]) {
@@ -179,9 +200,9 @@ struct LocationManager {
 
     void init_simple(const std::string &input) {
         uint32_t n = input.size();
-        out_start = {0, n};
-        in_start = {0, n};
-        get_newlines(input, in_newlines);
+        files.back().out_start = {0, n};
+        files.back().in_start = {0, n};
+        get_newlines(input, files.back().in_newlines);
     }
 
 };
