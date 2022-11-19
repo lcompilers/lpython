@@ -927,16 +927,6 @@ int link_executable(const std::vector<std::string> &infiles,
                 std::cout << "The command '" + cmd + "' failed." << std::endl;
                 return 10;
             }
-            if (compiler_options.arg_o == "") {
-                err = system(outfile.c_str());
-                if (err != 0) {
-                    if (0 < err && err < 256) {
-                        return err;
-                    } else {
-                        return 1;
-                    }
-                }
-            }
         } else {
             std::string CC = "cc";
             char *env_CC = std::getenv("LFORTRAN_CC");
@@ -961,16 +951,6 @@ int link_executable(const std::vector<std::string> &infiles,
             if (err) {
                 std::cout << "The command '" + cmd + "' failed." << std::endl;
                 return 10;
-            }
-            if (compiler_options.arg_o == "") {
-                err = system(("./" + outfile).c_str());
-                if (err != 0) {
-                    if (0 < err && err < 256) {
-                        return err;
-                    } else {
-                        return 1;
-                    }
-                }
             }
         }
         return 0;
@@ -1527,22 +1507,25 @@ int main(int argc, char *argv[])
 
         if (endswith(arg_file, ".py"))
         {
+            int err = 0;
             if (backend == Backend::x86) {
-                return compile_to_binary_x86(arg_file, outfile,
+                err = compile_to_binary_x86(arg_file, outfile,
                         runtime_library_dir, compiler_options, time_report);
             } else if (backend == Backend::wasm) {
-                return compile_to_binary_wasm(arg_file, outfile,
+                err = compile_to_binary_wasm(arg_file, outfile,
                         runtime_library_dir, compiler_options, time_report);
             } else if (backend == Backend::wasm_x86) {
-                return compile_to_binary_wasm_to_x86(arg_file, outfile,
+                err = compile_to_binary_wasm_to_x86(arg_file, outfile,
                         runtime_library_dir, compiler_options, time_report);
-            }
-
-            std::string tmp_o = outfile + ".tmp.o";
-            int err;
-            if (backend == Backend::llvm) {
+            } else if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
-                err = compile_python_to_object_file(arg_file, tmp_o, runtime_library_dir, lpython_pass_manager, compiler_options, time_report);
+                std::string tmp_o = outfile + ".tmp.o";
+                err = compile_python_to_object_file(arg_file, tmp_o, runtime_library_dir,
+                    lpython_pass_manager, compiler_options, time_report);
+                if (err != 0) return err;
+                err = link_executable({tmp_o}, outfile, runtime_library_dir,
+                    backend, static_link, true, compiler_options);
+                if (err != 0) return err;
 #else
                 std::cerr << "Compiling Python files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
@@ -1550,9 +1533,22 @@ int main(int argc, char *argv[])
             } else {
                 throw LFortran::LCompilersException("Unsupported backend.");
             }
-            if (err) return err;
-            return link_executable({tmp_o}, outfile, runtime_library_dir,
-                    backend, static_link, true, compiler_options);
+
+            if (compiler_options.arg_o == "") {
+                if (backend == Backend::wasm) {
+                    err = system(("js " + outfile +".js").c_str());
+                } else {
+                    err = system(("./" + outfile).c_str());
+                }
+                if (err != 0) {
+                    if (0 < err && err < 256) {
+                        return err;
+                    } else {
+                        return 1;
+                    }
+                }
+            }
+            return 0;
         } else {
             return link_executable(arg_files, outfile, runtime_library_dir,
                     backend, static_link, true, compiler_options);
