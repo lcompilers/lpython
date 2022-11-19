@@ -3408,7 +3408,7 @@ public:
                     // Check for the nested modules with "."
                     // Example: from x.y import z
                     if (mod_sym.find(".") != std::string::npos) {
-                        mod_sym.replace(mod_sym.find("."), 1, "/");
+                        mod_sym = replace(mod_sym, "[.]", "/");
                         if(is_directory(paths[0] + "/" + mod_sym)) {
                             // Directory i.e., x/y/__init__.py
                             paths[0] += '/' + mod_sym;
@@ -3429,7 +3429,7 @@ public:
             } else if (mod_sym.find(".") != std::string::npos) {
                 // Check for the nested modules with "."
                 // Example: from x.y import z
-                mod_sym.replace(mod_sym.find("."), 1, "/");
+                mod_sym = replace(mod_sym, "[.]", "/");
                 if(is_directory(paths[1] + "/" + mod_sym)) {
                     if (parent_dir != "") paths[1] += "/";
                     paths[1] += mod_sym;
