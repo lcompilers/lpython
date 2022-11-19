@@ -259,7 +259,7 @@ std::string render_diagnostic_human(const Diagnostic &d, bool use_colors) {
                         << reset << std::endl;
                     std::string line = s0.source_code[0];
                     std::replace(std::begin(line), std::end(line), '\t', ' ');
-                    std::remove(std::begin(line), std::end(line), '\r');
+                    line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
                     out << blue_bold << std::setw(line_num_width)
                         << std::to_string(s0.first_line) << " |" << reset << " "
                         << line << std::endl;
@@ -273,7 +273,7 @@ std::string render_diagnostic_human(const Diagnostic &d, bool use_colors) {
                             << reset << std::endl;
                         std::string line = s0.source_code[0];
                         std::replace(std::begin(line), std::end(line), '\t', ' ');
-                        std::remove(std::begin(line), std::end(line), '\r');
+                        line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
                         out << blue_bold << std::setw(line_num_width)
                             << std::to_string(s0.first_line) << " |" << reset << " "
                             << "   " + line << std::endl;
@@ -292,7 +292,7 @@ std::string render_diagnostic_human(const Diagnostic &d, bool use_colors) {
                             << reset << std::endl;
                         line = s0.source_code[s0.source_code.size()-1];
                         std::replace(std::begin(line), std::end(line), '\t', ' ');
-                        std::remove(std::begin(line), std::end(line), '\r');
+                        line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
                         out << blue_bold << std::setw(line_num_width)
                             << std::to_string(s0.last_line) << " |" << reset << " "
                             << "   " + line << std::endl;
