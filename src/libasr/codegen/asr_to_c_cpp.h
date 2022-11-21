@@ -689,7 +689,9 @@ R"(#include <stdio.h>
             std::string list_dc_func = c_ds_api->get_list_deepcopy_func(list_target);
             if( ASR::is_a<ASR::ListConstant_t>(*x.m_value) ) {
                 src += value;
-                src += indent + list_dc_func + "(&" + const_name + ", &" + target + ");\n\n";
+                ASR::ListConstant_t *l_const = ASR::down_cast<ASR::ListConstant_t>(x.m_value);
+                std::string var_name = const_var_names[get_hash((ASR::asr_t*)l_const)];
+                src += indent + list_dc_func + "(&" + var_name + ", &" + target + ");\n\n";
             } else if (ASR::is_a<ASR::ListConcat_t>(*x.m_value)) {
                 src += indent + list_dc_func + "(" + value + ", &" + target + ");\n\n";
             } else {
@@ -805,7 +807,7 @@ R"(#include <stdio.h>
         ASR::Tuple_t* t = ASR::down_cast<ASR::Tuple_t>(x.m_type);
         std::string tuple_type_c = c_ds_api->get_tuple_type(t);
         std::string src_tmp = "";
-        src_tmp += indent + tuple_type_c + " " + const_name + ";\n";
+        src_tmp += indent + tuple_type_c + " " + var_name + ";\n";
         for (size_t i = 0; i < x.n_elements; i++) {
             self().visit_expr(*x.m_elements[i]);
             std::string ele = ".element_" + std::to_string(i);
