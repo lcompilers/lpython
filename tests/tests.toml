@@ -885,6 +885,14 @@ asr = true
 filename = "errors/test_for2.py"
 asr = true
 
+[[test]]
+filename = "errors/test_import_01.py"
+asr = true
+
+[[test]]
+filename = "errors/test_import_02.py"
+asr = true
+
 # tests/tokens/errors
 
 [[test]]

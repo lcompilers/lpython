@@ -115,9 +115,7 @@ struct Diagnostic {
 struct Diagnostics {
     std::vector<Diagnostic> diagnostics;
 
-    // Render nice error messages using all the information we have
-    std::string render(const std::string &input,
-            const LocationManager &lm, const CompilerOptions &compiler_options);
+    std::string render(LocationManager &lm, const CompilerOptions &compiler_options);
 
     // Renders the error message using only the information in Diagnostics
     std::string render2();
@@ -214,10 +212,9 @@ std::string render_diagnostic_human(const Diagnostic &d, bool use_colors);
 std::string render_diagnostic_short(const Diagnostic &d);
 
 // Fills Diagnostic with span details and renders it
-std::string render_diagnostic_human(Diagnostic &d, const std::string &input,
-        const LocationManager &lm, bool use_colors, bool show_stacktrace);
-std::string render_diagnostic_short(Diagnostic &d, const std::string &input,
-        const LocationManager &lm); 
+std::string render_diagnostic_human(Diagnostic &d, const LocationManager &lm,
+    bool use_colors, bool show_stacktrace);
+std::string render_diagnostic_short(Diagnostic &d, const LocationManager &lm);
 /**
  * @brief Convert diagnostic `Level` i.e. severity to string and color accordingly.
  *

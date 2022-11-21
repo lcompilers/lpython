@@ -90,9 +90,15 @@ int emit_tokens(const std::string &infile, bool line_numbers, const CompilerOpti
     LFortran::diag::Diagnostics diagnostics;
     auto res = LFortran::tokens(al, input, diagnostics, &stypes, &locations);
     LFortran::LocationManager lm;
-    lm.in_filename = infile;
-    lm.init_simple(input);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    {
+        LFortran::LocationManager::FileLocations fl;
+        fl.in_filename = infile;
+        lm.files.push_back(fl);
+        std::string input = LFortran::read_file(infile);
+        lm.init_simple(input);
+        lm.file_ends.push_back(input.size());
+    }
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (res.ok) {
         toks = res.result;
     } else {
@@ -118,14 +124,18 @@ int emit_ast(const std::string &infile,
     Allocator al(4*1024);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+        al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
     if (diagnostics.diagnostics.size() > 0) {
         LFortran::LocationManager lm;
-        lm.in_filename = infile;
-        // TODO: only read this once, and pass it as an argument to parse_python_file()
-        std::string input = LFortran::read_file(infile);
-        lm.init_simple(input);
-        std::cerr << diagnostics.render(input, lm, compiler_options);
+        {
+            LFortran::LocationManager::FileLocations fl;
+            fl.in_filename = infile;
+            lm.files.push_back(fl);
+            std::string input = LFortran::read_file(infile);
+            lm.init_simple(input);
+            lm.file_ends.push_back(input.size());
+        }
+        std::cerr << diagnostics.render(lm, compiler_options);
     }
     if (!r.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -151,12 +161,17 @@ int emit_asr(const std::string &infile,
     Allocator al(4*1024);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::LocationManager lm;
-    lm.in_filename = infile;
-    std::string input = LFortran::read_file(infile);
-    lm.init_simple(input);
+    {
+        LFortran::LocationManager::FileLocations fl;
+        fl.in_filename = infile;
+        lm.files.push_back(fl);
+        std::string input = LFortran::read_file(infile);
+        lm.init_simple(input);
+        lm.file_ends.push_back(input.size());
+    }
     LFortran::Result<LFortran::LPython::AST::ast_t*> r1 = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+        al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         return 1;
     }
@@ -164,8 +179,9 @@ int emit_asr(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+        r = LFortran::LPython::python_ast_to_asr(al, lm, *ast, diagnostics,
+            compiler_options, true, infile);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 2;
@@ -193,12 +209,17 @@ int emit_cpp(const std::string &infile,
     Allocator al(4*1024);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::LocationManager lm;
-    lm.in_filename = infile;
-    std::string input = LFortran::read_file(infile);
-    lm.init_simple(input);
+    {
+        LFortran::LocationManager::FileLocations fl;
+        fl.in_filename = infile;
+        lm.files.push_back(fl);
+        std::string input = LFortran::read_file(infile);
+        lm.init_simple(input);
+        lm.file_ends.push_back(input.size());
+    }
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+        al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r.ok) {
         return 1;
     }
@@ -206,8 +227,8 @@ int emit_cpp(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+        r1 = LFortran::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 2;
@@ -217,7 +238,7 @@ int emit_cpp(const std::string &infile,
     diagnostics.diagnostics.clear();
     auto res = LFortran::asr_to_cpp(al, *asr, diagnostics,
         compiler_options.platform, 0);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 3;
@@ -233,12 +254,17 @@ int emit_c(const std::string &infile,
     Allocator al(4*1024);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::LocationManager lm;
-    lm.in_filename = infile;
-    std::string input = LFortran::read_file(infile);
-    lm.init_simple(input);
+    {
+        LFortran::LocationManager::FileLocations fl;
+        fl.in_filename = infile;
+        lm.files.push_back(fl);
+        std::string input = LFortran::read_file(infile);
+        lm.init_simple(input);
+        lm.file_ends.push_back(input.size());
+    }
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+        al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r.ok) {
         return 1;
     }
@@ -246,8 +272,8 @@ int emit_c(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+        r1 = LFortran::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 2;
@@ -257,7 +283,7 @@ int emit_c(const std::string &infile,
     diagnostics.diagnostics.clear();
     auto res = LFortran::asr_to_c(al, *asr, diagnostics,
         compiler_options.platform, 0);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 3;
@@ -273,12 +299,17 @@ int emit_wat(const std::string &infile,
     Allocator al(4*1024);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::LocationManager lm;
-    lm.in_filename = infile;
-    std::string input = LFortran::read_file(infile);
-    lm.init_simple(input);
+    {
+        LFortran::LocationManager::FileLocations fl;
+        fl.in_filename = infile;
+        lm.files.push_back(fl);
+        std::string input = LFortran::read_file(infile);
+        lm.init_simple(input);
+        lm.file_ends.push_back(input.size());
+    }
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+        al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r.ok) {
         return 1;
     }
@@ -286,8 +317,8 @@ int emit_wat(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+        r1 = LFortran::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 2;
@@ -296,7 +327,7 @@ int emit_wat(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::Vec<uint8_t>> r2 = LFortran::asr_to_wasm_bytes_stream(*asr, al, diagnostics);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r2.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 3;
@@ -304,7 +335,7 @@ int emit_wat(const std::string &infile,
 
     diagnostics.diagnostics.clear();
     LFortran::Result<std::string> res = LFortran::wasm_to_wat(r2.result, al, diagnostics);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 4;
@@ -320,16 +351,21 @@ int get_symbols (const std::string &infile,
    CompilerOptions &compiler_options) {
        Allocator al(4*1024);
        LFortran::diag::Diagnostics diagnostics;
-       LFortran::LocationManager lm;
-       lm.in_filename = infile;
-       std::string input = LFortran::read_file(infile);
-       lm.init_simple(input);
+        LFortran::LocationManager lm;
+        {
+            LFortran::LocationManager::FileLocations fl;
+            fl.in_filename = infile;
+            lm.files.push_back(fl);
+            std::string input = LFortran::read_file(infile);
+            lm.init_simple(input);
+            lm.file_ends.push_back(input.size());
+        }
        LFortran::Result<LFortran::LPython::AST::ast_t*> r1 = LFortran::parse_python_file(
-           al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+           al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
        if (r1.ok) {
            LFortran::LPython::AST::ast_t* ast = r1.result;
            LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-               x = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
+               x = LFortran::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
            if (!x.ok) {
                std::cout << "{}\n";
                return 0;
@@ -342,13 +378,17 @@ int get_symbols (const std::string &infile,
                uint32_t last_line;
                uint32_t first_column;
                uint32_t last_column;
-               lm.pos_to_linecol(a.second->base.loc.first, first_line, first_column);
-               lm.pos_to_linecol(a.second->base.loc.last, last_line, last_column);
+               std::string filename;
+               lm.pos_to_linecol(a.second->base.loc.first, first_line,
+                    first_column, filename);
+               lm.pos_to_linecol(a.second->base.loc.last, last_line,
+                    last_column, filename);
                loc.first_column = first_column;
                loc.last_column = last_column;
                loc.first_line = first_line-1;
                loc.last_line = last_line-1;
                loc.symbol_name = symbol_name;
+               loc.filename = filename;
                symbol_lists.push_back(loc);
            }
            rapidjson::Document test_output(rapidjson::kArrayType);
@@ -412,16 +452,21 @@ int get_errors (const std::string &infile,
         Allocator al(4*1024);
         LFortran::diag::Diagnostics diagnostics;
         LFortran::LocationManager lm;
-        lm.in_filename = infile;
-        std::string input = LFortran::read_file(infile);
-        lm.init_simple(input);
+        {
+            LFortran::LocationManager::FileLocations fl;
+            fl.in_filename = infile;
+            lm.files.push_back(fl);
+            std::string input = LFortran::read_file(infile);
+            lm.init_simple(input);
+            lm.file_ends.push_back(input.size());
+        }
         LFortran::Result<LFortran::LPython::AST::ast_t*>
             r1 = LFortran::parse_python_file(al, runtime_library_dir, infile,
-                    diagnostics, compiler_options.new_parser);
+                    diagnostics, 0, compiler_options.new_parser);
         if (r1.ok) {
             LFortran::LPython::AST::ast_t* ast = r1.result;
             LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-                r = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
+                r = LFortran::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
         }
         std::vector<LFortran::LPython::error_highlight> diag_lists;
         LFortran::LPython::error_highlight h;
@@ -437,12 +482,16 @@ int get_errors (const std::string &infile,
                     uint32_t first_column;
                     uint32_t last_line;
                     uint32_t last_column;
-                    lm.pos_to_linecol(span.loc.first, first_line, first_column);
-                    lm.pos_to_linecol(span.loc.last, last_line, last_column);
+                    std::string filename;
+                    lm.pos_to_linecol(span.loc.first, first_line, first_column,
+                        filename);
+                    lm.pos_to_linecol(span.loc.last, last_line, last_column,
+                        filename);
                     h.first_column = first_column;
                     h.last_column = last_column;
                     h.first_line = first_line-1;
                     h.last_line = last_line-1;
+                    h.filename = filename;
                     diag_lists.push_back(h);
                 }
             }
@@ -518,12 +567,17 @@ int emit_llvm(const std::string &infile,
     Allocator al(4*1024);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::LocationManager lm;
-    lm.in_filename = infile;
-    std::string input = LFortran::read_file(infile);
-    lm.init_simple(input);
+    {
+        LFortran::LocationManager::FileLocations fl;
+        fl.in_filename = infile;
+        lm.files.push_back(fl);
+        std::string input = LFortran::read_file(infile);
+        lm.init_simple(input);
+        lm.file_ends.push_back(input.size());
+    }
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+        al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r.ok) {
         return 1;
     }
@@ -532,8 +586,8 @@ int emit_llvm(const std::string &infile,
     LFortran::LPython::AST::ast_t* ast = r.result;
     diagnostics.diagnostics.clear();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+        r1 = LFortran::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 2;
@@ -545,7 +599,7 @@ int emit_llvm(const std::string &infile,
     LFortran::PythonCompiler fe(compiler_options);
     LFortran::Result<std::unique_ptr<LFortran::LLVMModule>>
         res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 3;
@@ -565,19 +619,27 @@ int compile_python_to_object_file(
     Allocator al(4*1024);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::LocationManager lm;
-    lm.in_filename = infile;
     std::vector<std::pair<std::string, double>>times;
-    auto file_reading_start = std::chrono::high_resolution_clock::now();
-    std::string input = LFortran::read_file(infile);
-    auto file_reading_end = std::chrono::high_resolution_clock::now();
-    times.push_back(std::make_pair("File reading", std::chrono::duration<double, std::milli>(file_reading_end - file_reading_start).count()));
-    lm.init_simple(input);
+    {
+        LFortran::LocationManager::FileLocations fl;
+        fl.in_filename = infile;
+        lm.files.push_back(fl);
+
+        auto file_reading_start = std::chrono::high_resolution_clock::now();
+        std::string input = LFortran::read_file(infile);
+        auto file_reading_end = std::chrono::high_resolution_clock::now();
+        times.push_back(std::make_pair("File reading", std::chrono::duration<
+            double, std::milli>(file_reading_end - file_reading_start).count()));
+
+        lm.init_simple(input);
+        lm.file_ends.push_back(input.size());
+    }
     auto parsing_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+        al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
     auto parsing_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("Parsing", std::chrono::duration<double, std::milli>(parsing_end - parsing_start).count()));
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r.ok) {
         print_time_report(times, time_report);
         return 1;
@@ -588,12 +650,12 @@ int compile_python_to_object_file(
     diagnostics.diagnostics.clear();
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options,
+        r1 = LFortran::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options,
             !(arg_c && compiler_options.disable_main), infile);
 
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         print_time_report(times, time_report);
@@ -617,7 +679,7 @@ int compile_python_to_object_file(
         res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
     auto asr_to_llvm_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("ASR to LLVM", std::chrono::duration<double, std::milli>(asr_to_llvm_end - asr_to_llvm_start).count()));
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         print_time_report(times, time_report);
@@ -649,19 +711,27 @@ int compile_to_binary_wasm(
     Allocator al(4*1024);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::LocationManager lm;
-    lm.in_filename = infile;
     std::vector<std::pair<std::string, double>>times;
-    auto file_reading_start = std::chrono::high_resolution_clock::now();
-    std::string input = LFortran::read_file(infile);
-    auto file_reading_end = std::chrono::high_resolution_clock::now();
-    times.push_back(std::make_pair("File reading", std::chrono::duration<double, std::milli>(file_reading_end - file_reading_start).count()));
-    lm.init_simple(input);
+    {
+        LFortran::LocationManager::FileLocations fl;
+        fl.in_filename = infile;
+        lm.files.push_back(fl);
+
+        auto file_reading_start = std::chrono::high_resolution_clock::now();
+        std::string input = LFortran::read_file(infile);
+        auto file_reading_end = std::chrono::high_resolution_clock::now();
+        times.push_back(std::make_pair("File reading", std::chrono::duration
+            <double, std::milli>(file_reading_end - file_reading_start).count()));
+
+        lm.init_simple(input);
+        lm.file_ends.push_back(input.size());
+    }
     auto parsing_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+        al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
     auto parsing_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("Parsing", std::chrono::duration<double, std::milli>(parsing_end - parsing_start).count()));
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r.ok) {
         print_time_report(times, time_report);
         return 1;
@@ -672,10 +742,10 @@ int compile_to_binary_wasm(
     diagnostics.diagnostics.clear();
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LFortran::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         print_time_report(times, time_report);
@@ -695,7 +765,7 @@ int compile_to_binary_wasm(
     LFortran::Result<int> res = LFortran::asr_to_wasm(*asr, al,  outfile, time_report, diagnostics);
     auto asr_to_wasm_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("ASR to WASM", std::chrono::duration<double, std::milli>(asr_to_wasm_end - asr_to_wasm_start).count()));
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     print_time_report(times, time_report);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -714,19 +784,27 @@ int compile_to_binary_x86(
     Allocator al(4*1024);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::LocationManager lm;
-    lm.in_filename = infile;
     std::vector<std::pair<std::string, double>>times;
-    auto file_reading_start = std::chrono::high_resolution_clock::now();
-    std::string input = LFortran::read_file(infile);
-    auto file_reading_end = std::chrono::high_resolution_clock::now();
-    times.push_back(std::make_pair("File reading", std::chrono::duration<double, std::milli>(file_reading_end - file_reading_start).count()));
-    lm.init_simple(input);
+    {
+        LFortran::LocationManager::FileLocations fl;
+        fl.in_filename = infile;
+        lm.files.push_back(fl);
+
+        auto file_reading_start = std::chrono::high_resolution_clock::now();
+        std::string input = LFortran::read_file(infile);
+        auto file_reading_end = std::chrono::high_resolution_clock::now();
+        times.push_back(std::make_pair("File reading", std::chrono::duration
+            <double, std::milli>(file_reading_end - file_reading_start).count()));
+
+        lm.init_simple(input);
+        lm.file_ends.push_back(input.size());
+    }
     auto parsing_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+        al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
     auto parsing_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("Parsing", std::chrono::duration<double, std::milli>(parsing_end - parsing_start).count()));
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r.ok) {
         print_time_report(times, time_report);
         return 1;
@@ -737,10 +815,10 @@ int compile_to_binary_x86(
     diagnostics.diagnostics.clear();
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LFortran::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         print_time_report(times, time_report);
@@ -760,7 +838,7 @@ int compile_to_binary_x86(
     LFortran::Result<int> r3 = LFortran::asr_to_x86(*asr, al, outfile, time_report, diagnostics);
     auto asr_to_x86_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("ASR to X86", std::chrono::duration<double, std::milli>(asr_to_x86_end - asr_to_x86_start).count()));
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     print_time_report(times, time_report);
     if (!r3.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -779,19 +857,27 @@ int compile_to_binary_wasm_to_x86(
     Allocator al(4*1024);
     LFortran::diag::Diagnostics diagnostics;
     LFortran::LocationManager lm;
-    lm.in_filename = infile;
     std::vector<std::pair<std::string, double>>times;
-    auto file_reading_start = std::chrono::high_resolution_clock::now();
-    std::string input = LFortran::read_file(infile);
-    auto file_reading_end = std::chrono::high_resolution_clock::now();
-    times.push_back(std::make_pair("File reading", std::chrono::duration<double, std::milli>(file_reading_end - file_reading_start).count()));
-    lm.init_simple(input);
+    {
+        LFortran::LocationManager::FileLocations fl;
+        fl.in_filename = infile;
+        lm.files.push_back(fl);
+
+        auto file_reading_start = std::chrono::high_resolution_clock::now();
+        std::string input = LFortran::read_file(infile);
+        auto file_reading_end = std::chrono::high_resolution_clock::now();
+        times.push_back(std::make_pair("File reading", std::chrono::duration
+            <double, std::milli>(file_reading_end - file_reading_start).count()));
+
+        lm.init_simple(input);
+        lm.file_ends.push_back(input.size());
+    }
     auto parsing_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::LPython::AST::ast_t*> r = parse_python_file(
-        al, runtime_library_dir, infile, diagnostics, compiler_options.new_parser);
+        al, runtime_library_dir, infile, diagnostics, 0, compiler_options.new_parser);
     auto parsing_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("Parsing", std::chrono::duration<double, std::milli>(parsing_end - parsing_start).count()));
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r.ok) {
         print_time_report(times, time_report);
         return 1;
@@ -802,10 +888,10 @@ int compile_to_binary_wasm_to_x86(
     diagnostics.diagnostics.clear();
     auto ast_to_asr_start = std::chrono::high_resolution_clock::now();
     LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        r1 = LFortran::LPython::python_ast_to_asr(al, *ast, diagnostics, compiler_options, true, infile);
+        r1 = LFortran::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
     auto ast_to_asr_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         print_time_report(times, time_report);
@@ -825,7 +911,7 @@ int compile_to_binary_wasm_to_x86(
     LFortran::Result<LFortran::Vec<uint8_t>> r3 = LFortran::asr_to_wasm_bytes_stream(*asr, al, diagnostics);
     auto asr_to_wasm_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("ASR to WASM", std::chrono::duration<double, std::milli>(asr_to_wasm_end - asr_to_wasm_start).count()));
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     if (!r3.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         print_time_report(times, time_report);
@@ -837,7 +923,7 @@ int compile_to_binary_wasm_to_x86(
     LFortran::Result<int> res = LFortran::wasm_to_x86(r3.result, al,  outfile, time_report, diagnostics);
     auto wasm_to_x86_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("WASM to X86", std::chrono::duration<double, std::milli>(wasm_to_x86_end - wasm_to_x86_start).count()));
-    std::cerr << diagnostics.render(input, lm, compiler_options);
+    std::cerr << diagnostics.render(lm, compiler_options);
     print_time_report(times, time_report);
     if (!res.ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
@@ -1016,9 +1102,17 @@ namespace wasm {
                         compiler_options.use_colors = true; \
                         compiler_options.indent = true; \
                         Allocator al(4*1024); \
-                        LFortran::LocationManager lm; \
                         LFortran::diag::Diagnostics diagnostics; \
-                        lm.in_filename = "input";
+                        LFortran::LocationManager lm; \
+                        { \
+                            LFortran::LocationManager::FileLocations fl; \
+                            fl.in_filename = "input.txt"; \
+                            std::ofstream out("input.txt"); \
+                            out << input; \
+                            lm.files.push_back(fl); \
+                            lm.init_simple(std::string(input)); \
+                            lm.file_ends.push_back(strlen(input)); \
+                        }
 
 
 
@@ -1029,8 +1123,8 @@ extern "C" { // using extern "C" to prevent function name mangling
 EMSCRIPTEN_KEEPALIVE char* emit_ast_from_source(char *input) {
     INITIALIZE_VARS;
     lm.init_simple(input);
-    LFortran::Result<LFortran::LPython::AST::Module_t*> ast = LFortran::parse(al, input, diagnostics);
-    out = diagnostics.render(input, lm, compiler_options);
+    LFortran::Result<LFortran::LPython::AST::Module_t*> ast = LFortran::parse(al, input, 0, diagnostics);
+    out = diagnostics.render(lm, compiler_options);
     if (ast.ok) {
         auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
         out += LFortran::LPython::pickle_python(*casted_ast,
@@ -1042,13 +1136,13 @@ EMSCRIPTEN_KEEPALIVE char* emit_ast_from_source(char *input) {
 EMSCRIPTEN_KEEPALIVE char* emit_asr_from_source(char *input) {
     INITIALIZE_VARS;
     lm.init_simple(input);
-    LFortran::Result<LFortran::LPython::AST::Module_t*> ast = LFortran::parse(al, input, diagnostics);
-    out = diagnostics.render(input, lm, compiler_options);
+    LFortran::Result<LFortran::LPython::AST::Module_t*> ast = LFortran::parse(al, input, 0, diagnostics);
+    out = diagnostics.render(lm, compiler_options);
     if (ast.ok) {
         auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, compiler_options, true, "input");
-        out = diagnostics.render(input, lm, compiler_options);
+        asr = LFortran::LPython::python_ast_to_asr(al, lm, *casted_ast, diagnostics, compiler_options, true, "input");
+        out = diagnostics.render(lm, compiler_options);
         if (asr.ok) {
             out += LFortran::pickle(*asr.result, compiler_options.use_colors, compiler_options.indent,
                 false /* with_intrinsic_modules */);
@@ -1060,21 +1154,21 @@ EMSCRIPTEN_KEEPALIVE char* emit_asr_from_source(char *input) {
 EMSCRIPTEN_KEEPALIVE char* emit_wat_from_source(char *input) {
     INITIALIZE_VARS;
     lm.init_simple(input);
-    LFortran::Result<LFortran::LPython::AST::Module_t*> ast = LFortran::parse(al, input, diagnostics);
-    out = diagnostics.render(input, lm, compiler_options);
+    LFortran::Result<LFortran::LPython::AST::Module_t*> ast = LFortran::parse(al, input, 0, diagnostics);
+    out = diagnostics.render(lm, compiler_options);
     if (ast.ok) {
         auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, compiler_options, true, "input");
-        out = diagnostics.render(input, lm, compiler_options);
+        asr = LFortran::LPython::python_ast_to_asr(al, lm, *casted_ast, diagnostics, compiler_options, true, "input");
+        out = diagnostics.render(lm, compiler_options);
         if (asr.ok) {
             LFortran::Result<LFortran::Vec<uint8_t>>
             wasm = LFortran::asr_to_wasm_bytes_stream(*asr.result, al, diagnostics);
-            out = diagnostics.render(input, lm, compiler_options);
+            out = diagnostics.render(lm, compiler_options);
             if (wasm.ok) {
                 LFortran::Result<std::string>
                 wat = LFortran::wasm_to_wat(wasm.result, al, diagnostics);
-                out = diagnostics.render(input, lm, compiler_options);
+                out = diagnostics.render(lm, compiler_options);
                 if (wat.ok) {
                     out += wat.result;
                 }
@@ -1087,17 +1181,17 @@ EMSCRIPTEN_KEEPALIVE char* emit_wat_from_source(char *input) {
 EMSCRIPTEN_KEEPALIVE char* emit_cpp_from_source(char *input) {
     INITIALIZE_VARS;
     lm.init_simple(input);
-    LFortran::Result<LFortran::LPython::AST::Module_t*> ast = LFortran::parse(al, input, diagnostics);
-    out = diagnostics.render(input, lm, compiler_options);
+    LFortran::Result<LFortran::LPython::AST::Module_t*> ast = LFortran::parse(al, input, 0, diagnostics);
+    out = diagnostics.render(lm, compiler_options);
     if (ast.ok) {
         auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, compiler_options, true, "input");
-        out = diagnostics.render(input, lm, compiler_options);
+        asr = LFortran::LPython::python_ast_to_asr(al, lm, *casted_ast, diagnostics, compiler_options, true, "input");
+        out = diagnostics.render(lm, compiler_options);
         if (asr.ok) {
             auto res = LFortran::asr_to_cpp(al, *asr.result, diagnostics,
                 compiler_options.platform, 0);
-            out = diagnostics.render(input, lm, compiler_options);
+            out = diagnostics.render(lm, compiler_options);
             if (res.ok) {
                 out += res.result;
             }
@@ -1109,7 +1203,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_cpp_from_source(char *input) {
 // EMSCRIPTEN_KEEPALIVE char* emit_c_from_source(char *input) {
 //     INITIALIZE_VARS;
 //     LFortran::Result<std::string> r = fe.get_c(input, lm, diagnostics, 1);
-//     out = diagnostics.render(input, lm, compiler_options);
+//     out = diagnostics.render(lm, compiler_options);
 //     if (r.ok) { out += r.result; }
 //     return &out[0];
 // }
@@ -1117,7 +1211,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_cpp_from_source(char *input) {
 // EMSCRIPTEN_KEEPALIVE char* emit_py_from_source(char *input) {
 //     INITIALIZE_VARS;
 //     LFortran::Result<std::string> r = fe.get_py(input, lm, diagnostics);
-//     out = diagnostics.render(input, lm, compiler_options);
+//     out = diagnostics.render(lm, compiler_options);
 //     if (r.ok) { out += r.result; }
 //     return &out[0];
 // }
@@ -1125,17 +1219,17 @@ EMSCRIPTEN_KEEPALIVE char* emit_cpp_from_source(char *input) {
 EMSCRIPTEN_KEEPALIVE char* emit_wasm_from_source(char *input) {
     INITIALIZE_VARS;
     lm.init_simple(input);
-    LFortran::Result<LFortran::LPython::AST::Module_t*> ast = LFortran::parse(al, input, diagnostics);
-    out = diagnostics.render(input, lm, compiler_options);
+    LFortran::Result<LFortran::LPython::AST::Module_t*> ast = LFortran::parse(al, input, 0, diagnostics);
+    out = diagnostics.render(lm, compiler_options);
     if (ast.ok) {
         auto casted_ast = (LFortran::LPython::AST::ast_t*)ast.result;
         LFortran::Result<LFortran::ASR::TranslationUnit_t*>
-        asr = LFortran::LPython::python_ast_to_asr(al, *casted_ast, diagnostics, compiler_options, true, "input");
-        out = diagnostics.render(input, lm, compiler_options);
+        asr = LFortran::LPython::python_ast_to_asr(al, lm, *casted_ast, diagnostics, compiler_options, true, "input");
+        out = diagnostics.render(lm, compiler_options);
         if (asr.ok) {
             LFortran::Result<LFortran::Vec<uint8_t>>
             wasm = LFortran::asr_to_wasm_bytes_stream(*asr.result, al, diagnostics);
-            out = diagnostics.render(input, lm, compiler_options);
+            out = diagnostics.render(lm, compiler_options);
             if (wasm.ok) {
                 out = "0"; // exit code
                 for (size_t i = 0; i < wasm.result.size(); i++) {
@@ -1146,7 +1240,7 @@ EMSCRIPTEN_KEEPALIVE char* emit_wasm_from_source(char *input) {
         }
     }
     out = "1"; // non-zero exit code
-    out += "," + diagnostics.render(input, lm, compiler_options);
+    out += "," + diagnostics.render(lm, compiler_options);
     return &out[0];
 }
 

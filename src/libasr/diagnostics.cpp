@@ -61,20 +61,19 @@ bool Diagnostics::has_error() const {
     return false;
 }
 
-std::string Diagnostics::render(const std::string &input,
-        const LocationManager &lm, const CompilerOptions &compiler_options) {
+std::string Diagnostics::render(LocationManager &lm,
+        const CompilerOptions &compiler_options) {
     std::string out;
     for (auto &d : this->diagnostics) {
         if (compiler_options.no_warnings && d.level != Level::Error) {
             continue;
         }
         if (compiler_options.error_format == "human") {
-            out += render_diagnostic_human(d, input, lm,
-                compiler_options.use_colors,
+            out += render_diagnostic_human(d, lm, compiler_options.use_colors,
                 compiler_options.show_stacktrace);
             if (&d != &this->diagnostics.back()) out += "\n";
         } else if (compiler_options.error_format == "short") {
-            out += render_diagnostic_short(d, input, lm);
+            out += render_diagnostic_short(d, lm);
         } else {
             throw LCompilersException("Error format not supported.");
         }
@@ -119,13 +118,13 @@ std::string get_line(std::string str, int n)
     return line;
 }
 
-void populate_span(diag::Span &s, const LocationManager &lm,
-        const std::string &input) {
+void populate_span(diag::Span &s, const LocationManager &lm) {
     lm.pos_to_linecol(lm.output_to_input_pos(s.loc.first, false),
-        s.first_line, s.first_column);
+        s.first_line, s.first_column, s.filename);
     lm.pos_to_linecol(lm.output_to_input_pos(s.loc.last, true),
-        s.last_line, s.last_column);
-    s.filename = lm.in_filename;
+        s.last_line, s.last_column, s.filename);
+    std::string input;
+    read_file(s.filename, input);
     for (uint32_t i = s.first_line; i <= s.last_line; i++) {
         s.source_code.push_back(get_line(input, i));
     }
@@ -133,35 +132,33 @@ void populate_span(diag::Span &s, const LocationManager &lm,
 }
 
 // Loop over all labels and their spans, populate all of them
-void populate_spans(diag::Diagnostic &d, const LocationManager &lm,
-        const std::string &input) {
+void populate_spans(diag::Diagnostic &d, const LocationManager &lm) {
     for (auto &l : d.labels) {
         for (auto &s : l.spans) {
-            populate_span(s, lm, input);
+            populate_span(s, lm);
         }
     }
 }
 
 // Fills Diagnostic with span details and renders it
-std::string render_diagnostic_human(Diagnostic &d, const std::string &input,
-        const LocationManager &lm, bool use_colors, bool show_stacktrace) {
+std::string render_diagnostic_human(Diagnostic &d, const LocationManager &lm,
+        bool use_colors, bool show_stacktrace) {
     std::string out;
     if (show_stacktrace) {
         out += error_stacktrace(d.stacktrace);
     }
     // Convert to line numbers and get source code strings
-    populate_spans(d, lm, input);
+    populate_spans(d, lm);
     // Render the message
     out += render_diagnostic_human(d, use_colors);
     return out;
 }
 
 // Fills Diagnostic with span details and renders it
-std::string render_diagnostic_short(Diagnostic &d, const std::string &input,
-        const LocationManager &lm) {
+std::string render_diagnostic_short(Diagnostic &d, const LocationManager &lm) {
     std::string out;
     // Convert to line numbers and get source code strings
-    populate_spans(d, lm, input);
+    populate_spans(d, lm);
     // Render the message
     out += render_diagnostic_short(d);
     return out;
@@ -245,11 +242,24 @@ std::string render_diagnostic_human(const Diagnostic &d, bool use_colors) {
                 }
                 // and start a new one:
                 s0 = s2;
+                if (s0.filename != s.filename) {
+                    out << std::endl;
+                    // TODO: print the primary line+column here, not the first label:
+                    out << std::string(line_num_width, ' ') << blue_bold;
+                    out << "-->" << reset << " " << s0.filename << ":";
+                    out << s0.first_line << ":" << s0.first_column;
+                    if (s0.first_line != s0.last_line) {
+                        out << " - " << s0.last_line << ":" << s0.last_column;
+                    }
+                    out << std::endl;
+                }
+
                 if (s0.first_line == s0.last_line) {
                     out << std::string(line_num_width+1, ' ') << blue_bold << "|"
                         << reset << std::endl;
                     std::string line = s0.source_code[0];
                     std::replace(std::begin(line), std::end(line), '\t', ' ');
+                    line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
                     out << blue_bold << std::setw(line_num_width)
                         << std::to_string(s0.first_line) << " |" << reset << " "
                         << line << std::endl;
@@ -263,6 +273,7 @@ std::string render_diagnostic_human(const Diagnostic &d, bool use_colors) {
                             << reset << std::endl;
                         std::string line = s0.source_code[0];
                         std::replace(std::begin(line), std::end(line), '\t', ' ');
+                        line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
                         out << blue_bold << std::setw(line_num_width)
                             << std::to_string(s0.first_line) << " |" << reset << " "
                             << "   " + line << std::endl;
@@ -281,6 +292,7 @@ std::string render_diagnostic_human(const Diagnostic &d, bool use_colors) {
                             << reset << std::endl;
                         line = s0.source_code[s0.source_code.size()-1];
                         std::replace(std::begin(line), std::end(line), '\t', ' ');
+                        line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
                         out << blue_bold << std::setw(line_num_width)
                             << std::to_string(s0.last_line) << " |" << reset << " "
                             << "   " + line << std::endl;
