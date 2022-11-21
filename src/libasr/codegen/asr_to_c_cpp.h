@@ -62,6 +62,7 @@ public:
     bool intrinsic_module = false;
     const ASR::Function_t *current_function = nullptr;
     std::map<uint64_t, SymbolInfo> sym_info;
+    std::map<uint64_t, std::string> const_var_names;
 
     // Output configuration:
     // Use std::string or char*
@@ -628,8 +629,9 @@ R"(#include <stdio.h>
             ASR::TupleConstant_t *tup_c = ASR::down_cast<ASR::TupleConstant_t>(x.m_target);
             std::string src_tmp = "", val_name = "";
             if (ASR::is_a<ASR::TupleConstant_t>(*x.m_value)) {
-                val_name = const_name + std::to_string(const_list_count);
-                self().visit_TupleConstant(*ASR::down_cast<ASR::TupleConstant_t>(x.m_value));
+                ASR::TupleConstant_t *tup_const = ASR::down_cast<ASR::TupleConstant_t>(x.m_value);
+                self().visit_TupleConstant(*tup_const);
+                val_name = const_var_names[get_hash((ASR::asr_t*)tup_const)];
                 src_tmp += src;
             } else if (ASR::is_a<ASR::FunctionCall_t>(*x.m_value)) {
                 self().visit_FunctionCall(*ASR::down_cast<ASR::FunctionCall_t>(x.m_value));
@@ -771,22 +773,24 @@ R"(#include <stdio.h>
         const_name += std::to_string(const_list_count);
         const_list_count += 1;
         const_name = current_scope->get_unique_name(const_name);
+        std::string var_name = const_name;
+        const_var_names[get_hash((ASR::asr_t*)&x)] = var_name;
         ASR::List_t* t = ASR::down_cast<ASR::List_t>(x.m_type);
         std::string list_type_c = c_ds_api->get_list_type(t);
         std::string src_tmp = "";
-        src_tmp += indent + list_type_c + " " + const_name + ";\n";
+        src_tmp += indent + list_type_c + " " + var_name + ";\n";
         std::string list_init_func = c_ds_api->get_list_init_func(t);
-        src_tmp += indent + list_init_func + "(&" + const_name + ", " +
+        src_tmp += indent + list_init_func + "(&" + var_name + ", " +
                std::to_string(x.n_args) + ");\n";
         for( size_t i = 0; i < x.n_args; i++ ) {
             self().visit_expr(*x.m_args[i]);
             if( ASR::is_a<ASR::Character_t>(*t->m_type) ) {
-                src_tmp += const_name + ".data[" + std::to_string(i) +"] = (char*) malloc(40 * sizeof(char));\n";
+                src_tmp += var_name + ".data[" + std::to_string(i) +"] = (char*) malloc(40 * sizeof(char));\n";
             }
             src_tmp += indent + c_ds_api->get_deepcopy(t->m_type, src,
-                        const_name + ".data[" + std::to_string(i) +"]") + "\n";
+                        var_name + ".data[" + std::to_string(i) +"]") + "\n";
         }
-        src_tmp += indent + const_name + ".current_end_point = " + std::to_string(x.n_args) + ";\n";
+        src_tmp += indent + var_name + ".current_end_point = " + std::to_string(x.n_args) + ";\n";
         src = src_tmp;
     }
 
@@ -797,6 +801,7 @@ R"(#include <stdio.h>
         const_list_count += 1;
         const_name = current_scope->get_unique_name(const_name);
         std::string var_name = const_name;
+        const_var_names[get_hash((ASR::asr_t*)&x)] = var_name;
         ASR::Tuple_t* t = ASR::down_cast<ASR::Tuple_t>(x.m_type);
         std::string tuple_type_c = c_ds_api->get_tuple_type(t);
         std::string src_tmp = "";
