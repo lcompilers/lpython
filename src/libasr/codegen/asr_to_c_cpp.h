@@ -81,7 +81,7 @@ public:
 
     std::unique_ptr<CCPPDSUtils> c_ds_api;
     std::string const_name;
-    size_t const_list_count;
+    size_t const_vars_count;
 
     SymbolTable* current_scope;
     bool is_string_concat_present;
@@ -94,7 +94,7 @@ public:
         is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound},
         template_number{0}, c_ds_api{std::make_unique<CCPPDSUtils>(is_c)},
         const_name{"constname"},
-        const_list_count{0}, is_string_concat_present{false} {
+        const_vars_count{0}, is_string_concat_present{false} {
         }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
@@ -519,8 +519,8 @@ R"(#include <stdio.h>
         last_expr_precedence = 2;
         if( ASR::is_a<ASR::List_t>(*x.m_type) ) {
             ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(x.m_type);
-            const_name += std::to_string(const_list_count);
-            const_list_count += 1;
+            const_name += std::to_string(const_vars_count);
+            const_vars_count += 1;
             const_name = current_scope->get_unique_name(const_name);
             std::string indent(indentation_level*indentation_spaces, ' ');
             current_body += indent + c_ds_api->get_list_type(list_type) + " " +
@@ -637,8 +637,8 @@ R"(#include <stdio.h>
                 self().visit_FunctionCall(*ASR::down_cast<ASR::FunctionCall_t>(x.m_value));
                 ASR::Tuple_t* t = ASR::down_cast<ASR::Tuple_t>(tup_c->m_type);
                 std::string tuple_type_c = c_ds_api->get_tuple_type(t);
-                const_name += std::to_string(const_list_count);
-                const_list_count += 1;
+                const_name += std::to_string(const_vars_count);
+                const_vars_count += 1;
                 const_name = current_scope->get_unique_name(const_name);
                 src_tmp += indent + tuple_type_c + " " + const_name + " = " + src + ";\n";
                 val_name = const_name;
@@ -770,8 +770,8 @@ R"(#include <stdio.h>
     void visit_ListConstant(const ASR::ListConstant_t& x) {
         std::string indent(indentation_level * indentation_spaces, ' ');
         std::string tab(indentation_spaces, ' ');
-        const_name += std::to_string(const_list_count);
-        const_list_count += 1;
+        const_name += std::to_string(const_vars_count);
+        const_vars_count += 1;
         const_name = current_scope->get_unique_name(const_name);
         std::string var_name = const_name;
         const_var_names[get_hash((ASR::asr_t*)&x)] = var_name;
@@ -797,8 +797,8 @@ R"(#include <stdio.h>
     void visit_TupleConstant(const ASR::TupleConstant_t& x) {
         std::string indent(indentation_level * indentation_spaces, ' ');
         std::string tab(indentation_spaces, ' ');
-        const_name += std::to_string(const_list_count);
-        const_list_count += 1;
+        const_name += std::to_string(const_vars_count);
+        const_vars_count += 1;
         const_name = current_scope->get_unique_name(const_name);
         std::string var_name = const_name;
         const_var_names[get_hash((ASR::asr_t*)&x)] = var_name;
