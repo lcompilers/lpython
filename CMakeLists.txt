@@ -203,7 +203,7 @@ if (WITH_XEUS)
         "${CMAKE_CURRENT_BINARY_DIR}/share/jupyter/kernels/fortran/kernel.json"
     )
 
-    # Configuration and data directories for Jupyter and LFortran
+    # Configuration and data directories for Jupyter and LPython
     set(XJUPYTER_DATA_DIR "share/jupyter" CACHE STRING "Jupyter data directory")
 
     # Install Jupyter kernelspecs

@@ -810,7 +810,7 @@ public:
     }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
-        module = std::make_unique<llvm::Module>("LFortran", context);
+        module = std::make_unique<llvm::Module>("LCompilers", context);
         module->setDataLayout("");
         llvm_utils->set_module(module.get());
 

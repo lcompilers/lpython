@@ -9,7 +9,7 @@ endif ()
 
 if (NOT LCOMPILERS_VERSION)
     set(LCOMPILERS_VERSION "0.1-git"
-        CACHE STRING "LFortran version" FORCE)
+        CACHE STRING "LCompilers version" FORCE)
 endif ()
 
 configure_file(config.h.in config.h)

@@ -1638,6 +1638,6 @@ void emit_print_64(X86Assembler &a, const std::string &msg_label, uint64_t size)
 void emit_print_int_64(X86Assembler &a, const std::string &name);
 void emit_print_double(X86Assembler &a, const std::string &name);
 
-} // namespace LFortran
+} // namespace LCompilers
 
 #endif // LFORTRAN_CODEGEN_X86_ASSEMBER_H

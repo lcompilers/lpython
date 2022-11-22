@@ -332,7 +332,7 @@ namespace LCompilers {
                 }
 
                 void visit_FunctionCall(const ASR::FunctionCall_t& x) {
-                    if (fill_function_dependencies) { 
+                    if (fill_function_dependencies) {
                         ASR::symbol_t* asr_owner_sym = nullptr;
                         if (current_scope->asr_owner && ASR::is_a<ASR::symbol_t>(*current_scope->asr_owner)) {
                             asr_owner_sym = ASR::down_cast<ASR::symbol_t>(current_scope->asr_owner);
@@ -412,7 +412,7 @@ namespace LCompilers {
                         visit_stmt(*x.m_body[i]);
                     }
                     current_scope = parent_symtab;
-                }                
+                }
         };
 
     namespace ReplacerUtils {
