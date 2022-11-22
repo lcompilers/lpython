@@ -571,13 +571,16 @@ namespace LFortran {
 
         // Shallow copies source array descriptor to destination descriptor
         void SimpleCMODescriptor::copy_array(llvm::Value* src, llvm::Value* dest,
-            llvm::Module* module, ASR::ttype_t* asr_data_type, bool create_dim_des_array) {
+            llvm::Module* module, ASR::ttype_t* asr_data_type, bool create_dim_des_array,
+            bool reserve_memory) {
             llvm::Value* num_elements = this->get_array_size(src, nullptr, 4);
 
             llvm::Value* first_ptr = this->get_pointer_to_data(dest);
             llvm::Type* llvm_data_type = tkr2array[ASRUtils::get_type_code(asr_data_type, false, false)].second;
-            llvm::Value* arr_first = builder->CreateAlloca(llvm_data_type, num_elements);
-            builder->CreateStore(arr_first, first_ptr);
+            if( reserve_memory ) {
+                llvm::Value* arr_first = builder->CreateAlloca(llvm_data_type, num_elements);
+                builder->CreateStore(arr_first, first_ptr);
+            }
 
             llvm::Value* ptr2firstptr = this->get_pointer_to_data(src);
             llvm::DataLayout data_layout(module);

@@ -9,14 +9,20 @@
 #include <libasr/assert.h>
 #include <libasr/asr.h>
 #include <libasr/string_utils.h>
+#include <libasr/utils.h>
 
 namespace LFortran  {
 
     namespace ASRUtils  {
 
 static inline  double extract_real(const char *s) {
-        return std::atof(s);
-    }
+    // TODO: this is inefficient. We should
+    // convert this in the tokenizer where we know most information
+    std::string x = s;
+    x = replace(x, "d", "e");
+    x = replace(x, "D", "E");
+    return std::atof(x.c_str());
+}
 
 static inline ASR::expr_t* EXPR(const ASR::asr_t *f)
 {
@@ -664,14 +670,14 @@ static inline bool extract_value(ASR::expr_t* value_expr, T& value) {
             value = (T) const_int->m_n;
             break;
         }
-        case ASR::exprType::LogicalConstant: {
-            ASR::LogicalConstant_t* const_logical = ASR::down_cast<ASR::LogicalConstant_t>(value_expr);
-            value = (T) const_logical->m_value;
-            break;
-        }
         case ASR::exprType::RealConstant: {
             ASR::RealConstant_t* const_real = ASR::down_cast<ASR::RealConstant_t>(value_expr);
             value = (T) const_real->m_r;
+            break;
+        }
+        case ASR::exprType::LogicalConstant: {
+            ASR::LogicalConstant_t* const_logical = ASR::down_cast<ASR::LogicalConstant_t>(value_expr);
+            value = (T) const_logical->m_value;
             break;
         }
         default:
@@ -768,7 +774,7 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
         }
         case ASR::ttypeType::Logical: {
             ASR::Logical_t* bool_ = ASR::down_cast<ASR::Logical_t>(t);
-            std::string res = "bool";
+            res = "bool";
             if( encode_dimensions_ ) {
                 encode_dimensions(bool_->n_dims, res, use_underscore_sep);
                 return res;
@@ -862,16 +868,20 @@ static inline std::string get_type_code(const ASR::ttype_t *t, bool use_undersco
         case ASR::ttypeType::Pointer: {
             ASR::Pointer_t* p = ASR::down_cast<ASR::Pointer_t>(t);
             if( use_underscore_sep ) {
-                return "Pointer_" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_, set_dimensional_hint) + "_";
+                return "Pointer_" + get_type_code(p->m_type, use_underscore_sep,
+                                                  encode_dimensions_, set_dimensional_hint) + "_";
             }
-            return "Pointer[" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_, set_dimensional_hint) + "]";
+            return "Pointer[" + get_type_code(p->m_type, use_underscore_sep,
+                                              encode_dimensions_, set_dimensional_hint) + "]";
         }
         case ASR::ttypeType::Const: {
             ASR::Const_t* p = ASR::down_cast<ASR::Const_t>(t);
             if( use_underscore_sep ) {
-                return "Const_" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_, set_dimensional_hint) + "_";
+                return "Const_" + get_type_code(p->m_type, use_underscore_sep,
+                                                encode_dimensions_, set_dimensional_hint) + "_";
             }
-            return "Const[" + get_type_code(p->m_type, use_underscore_sep, encode_dimensions_, set_dimensional_hint) + "]";
+            return "Const[" + get_type_code(p->m_type, use_underscore_sep,
+                                            encode_dimensions_, set_dimensional_hint) + "]";
         }
         default: {
             throw LCompilersException("Type encoding not implemented for "
@@ -1115,7 +1125,7 @@ std::vector<std::string> determine_module_dependencies(
         const ASR::TranslationUnit_t &unit);
 
 std::vector<std::string> determine_function_definition_order(
-        SymbolTable* symtab);
+         SymbolTable* symtab);
 
 void extract_module_python(const ASR::TranslationUnit_t &m,
         std::vector<std::pair<std::string, ASR::Module_t*>>& children_modules,
@@ -1126,13 +1136,13 @@ ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m);
 ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const std::string &module_name,
                             const Location &loc, bool intrinsic,
-                            const std::string &rl_path,
+                            LCompilers::PassOptions& pass_options,
                             bool run_verify,
                             const std::function<void (const std::string &, const Location &)> err);
 
 ASR::TranslationUnit_t* find_and_load_module(Allocator &al, const std::string &msym,
                                                 SymbolTable &symtab, bool intrinsic,
-                                                const std::string &rl_path);
+                                                LCompilers::PassOptions& pass_options);
 
 void set_intrinsic(ASR::TranslationUnit_t* trans_unit);
 
@@ -1189,8 +1199,8 @@ static inline int extract_kind_from_ttype_t(const ASR::ttype_t* type) {
             return extract_kind_from_ttype_t(ASR::down_cast<ASR::Pointer_t>(type)->m_type);
         }
         case ASR::ttypeType::Const: {
-             return extract_kind_from_ttype_t(ASR::down_cast<ASR::Const_t>(type)->m_type);
-         }
+            return extract_kind_from_ttype_t(ASR::down_cast<ASR::Const_t>(type)->m_type);
+        }
         default : {
             return -1;
         }
@@ -1350,6 +1360,11 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
     return n_dims;
 }
 
+inline int extract_n_dims_from_ttype(ASR::ttype_t *x) {
+    ASR::dimension_t* m_dims_temp = nullptr;
+    return extract_dimensions_from_ttype(x, m_dims_temp);
+}
+
 // Sets the dimension member of `ttype_t`. Returns `true` if dimensions set.
 // Returns `false` if the `ttype_t` does not have a dimension member.
 inline bool ttype_set_dimensions(ASR::ttype_t *x,
@@ -1489,44 +1504,44 @@ static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
     }
 }
 
-static inline ASR::ttype_t* duplicate_type_without_dims(Allocator& al, const ASR::ttype_t* t) {
+static inline ASR::ttype_t* duplicate_type_without_dims(Allocator& al, const ASR::ttype_t* t, const Location& loc) {
     switch (t->type) {
         case ASR::ttypeType::Integer: {
             ASR::Integer_t* tnew = ASR::down_cast<ASR::Integer_t>(t);
-            return ASRUtils::TYPE(ASR::make_Integer_t(al, t->base.loc,
+            return ASRUtils::TYPE(ASR::make_Integer_t(al, loc,
                         tnew->m_kind, nullptr, 0));
         }
         case ASR::ttypeType::Real: {
             ASR::Real_t* tnew = ASR::down_cast<ASR::Real_t>(t);
-            return ASRUtils::TYPE(ASR::make_Real_t(al, t->base.loc,
+            return ASRUtils::TYPE(ASR::make_Real_t(al, loc,
                         tnew->m_kind, nullptr, 0));
         }
         case ASR::ttypeType::Complex: {
             ASR::Complex_t* tnew = ASR::down_cast<ASR::Complex_t>(t);
-            return ASRUtils::TYPE(ASR::make_Complex_t(al, t->base.loc,
+            return ASRUtils::TYPE(ASR::make_Complex_t(al, loc,
                         tnew->m_kind, nullptr, 0));
         }
         case ASR::ttypeType::Logical: {
             ASR::Logical_t* tnew = ASR::down_cast<ASR::Logical_t>(t);
-            return ASRUtils::TYPE(ASR::make_Logical_t(al, t->base.loc,
+            return ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
                         tnew->m_kind, nullptr, 0));
         }
         case ASR::ttypeType::Character: {
             ASR::Character_t* tnew = ASR::down_cast<ASR::Character_t>(t);
-            return ASRUtils::TYPE(ASR::make_Character_t(al, t->base.loc,
+            return ASRUtils::TYPE(ASR::make_Character_t(al, loc,
                         tnew->m_kind, tnew->m_len, tnew->m_len_expr,
                         nullptr, 0));
         }
         case ASR::ttypeType::Struct: {
             ASR::Struct_t* tstruct = ASR::down_cast<ASR::Struct_t>(t);
-            return ASRUtils::TYPE(ASR::make_Struct_t(al, t->base.loc,
+            return ASRUtils::TYPE(ASR::make_Struct_t(al, loc,
                     tstruct->m_derived_type, nullptr, 0));
         }
         case ASR::ttypeType::TypeParameter: {
             ASR::TypeParameter_t* tp = ASR::down_cast<ASR::TypeParameter_t>(t);
             //return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
             //            tp->m_param, nullptr, 0, tp->m_rt, tp->n_rt));
-            return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, t->base.loc,
+            return ASRUtils::TYPE(ASR::make_TypeParameter_t(al, loc,
                         tp->m_param, nullptr, 0));
         }
         default : throw LCompilersException("Not implemented " + std::to_string(t->type));

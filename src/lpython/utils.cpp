@@ -94,7 +94,7 @@ bool is_directory(std::string path) {
     return false;
 }
 
-bool path_exits(std::string path) {
+bool path_exists(std::string path) {
     struct stat buffer;
     if (stat(path.c_str(), &buffer) == 0) {
         return true;

@@ -66,14 +66,16 @@ struct PythonIntrinsicProcedures {
             {"_mod", {m_builtin, &eval__mod}},
             {"max" , {m_builtin , &eval_max}},
             {"min" , {m_builtin , &eval_min}},
-            {"_lpython_str_capitalize", {m_builtin, &eval__lpython_str_capitalize}},
-            {"_lpython_str_lower", {m_builtin, &eval__lpython_str_lower}},
-            {"_lpython_str_find", {m_builtin, &eval_lpython_str_find}},
-            {"_lpython_str_rstrip", {m_builtin, &eval__lpython_str_rstrip}},
-            {"_lpython_str_lstrip", {m_builtin, &eval__lpython_str_lstrip}},
-            {"_lpython_str_strip", {m_builtin, &eval__lpython_str_strip}},
-            {"_lpython_str_swapcase", {m_builtin, &eval__lpython_str_swapcase}},
-            {"_lpython_str_startswith", {m_builtin, &eval__lpython_str_startswith}}
+            // The following functions for string methods are not used
+            // for evaluation.
+            {"_lpython_str_capitalize", {m_builtin, &not_implemented}},
+            {"_lpython_str_lower", {m_builtin, &not_implemented}},
+            {"_lpython_str_find", {m_builtin, &not_implemented}},
+            {"_lpython_str_rstrip", {m_builtin, &not_implemented}},
+            {"_lpython_str_lstrip", {m_builtin, &not_implemented}},
+            {"_lpython_str_strip", {m_builtin, &not_implemented}},
+            {"_lpython_str_swapcase", {m_builtin, &not_implemented}},
+            {"_lpython_str_startswith", {m_builtin, &not_implemented}}
         };
     }
 
@@ -122,6 +124,12 @@ struct PythonIntrinsicProcedures {
                 + "' compile time evaluation is not implemented yet",
                 loc);
         }
+    }
+
+    static ASR::expr_t *not_implemented(Allocator &/*al*/, const Location &/*loc*/,
+            Vec<ASR::expr_t*> &/*args*/) {
+        // This intrinsic is not evaluated at compile time yet.
+        return nullptr;
     }
 
     static ASR::expr_t *eval_abs(Allocator &al, const Location &loc,
@@ -709,113 +717,6 @@ struct PythonIntrinsicProcedures {
         }
         throw SemanticError(msg, loc);
 
-    }
-
-    static ASR::expr_t *eval__lpython_str_capitalize(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &args) {
-        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        if (args.size() != 0) {
-            throw SemanticError("str.capitalize() takes no arguments", loc);
-        }
-        ASR::expr_t *arg = args[0];
-        std::string val = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
-        if (val.size()) {
-            val[0] = std::toupper(val[0]);
-        }
-        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                                    1, val.size(), nullptr, nullptr, 0));
-        return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc, s2c(al, val),  type));
-    }
-
-    static ASR::expr_t *eval__lpython_str_lower(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &args) {
-        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        if (args.size() != 0) {
-            throw SemanticError("str.lower() takes no arguments", loc);
-        }
-        ASR::expr_t *arg = args[0];
-        std::string val = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
-        for (auto &i: val) {
-            if (i >= 'A' && i <= 'Z') {
-                i = std::tolower(i);
-            }
-        }
-        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                                    1, val.size(), nullptr, nullptr, 0));
-        return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc,
-                s2c(al, val),  type));
-    }
-
-    static ASR::expr_t *eval__lpython_str_rstrip(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &args) {
-        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        if (args.size() != 0) {
-            throw SemanticError("str.rstrip() takes no arguments", loc);
-        }
-        ASR::expr_t *arg = args[0];
-        std::string res = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
-        int ind = (int)res.size() - 1;
-        while (ind >= 0 && res[ind--] == ' ');
-        res = std::string(res.begin(), res.begin() + ind +1);
-        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                                    1, res.size(), nullptr, nullptr, 0));
-        return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc,
-                        s2c(al, res), type));
-    }
-
-    static ASR::expr_t *eval__lpython_str_lstrip(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &args) {
-        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        if (args.size() != 0) {
-            throw SemanticError("str.lstrip() takes no arguments", loc);
-        }
-        ASR::expr_t *arg = args[0];
-        std::string res = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
-        size_t ind = 0;
-        while (ind < res.size() && res[ind++] == ' ');
-        res = std::string(res.begin() + ind, res.end());
-        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                                    1, res.size(), nullptr, nullptr, 0));
-        return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc,
-                s2c(al, res), type));
-    }
-
-    static ASR::expr_t *eval__lpython_str_strip(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &args) {
-        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        if (args.size() != 0) {
-            throw SemanticError("str.strip() takes no arguments", loc);
-        }
-        ASR::expr_t *arg = args[0];
-        std::string res = ASR::down_cast<ASR::StringConstant_t>(arg)->m_s;
-        size_t l = 0;
-        int r = (int)res.size() - 1;
-        while (l < res.size() && r >= 0 && (res[l] == ' ' || res[r] == ' ')) {
-            l += res[l] == ' ';
-            r -= res[r] == ' ';
-        }
-        res = std::string(res.begin() + l, res.begin() + r + 1);
-        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                                    1, res.size(), nullptr, nullptr, 0));
-        return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc,
-                    s2c(al, res), type));
-    }
-
-    static ASR::expr_t *eval__lpython_str_swapcase(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &args) {
-        LFORTRAN_ASSERT(ASRUtils::all_args_evaluated(args));
-        std::string res = "";
-        ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
-                                    1, res.size(), nullptr, nullptr, 0));
-        return ASR::down_cast<ASR::expr_t>(ASR::make_StringConstant_t(al, loc,
-                s2c(al, res), type));
-    }
-
-    static ASR::expr_t *eval_lpython_str_find(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &/*args*/) {
-        // compile time action implemented on ast->asr
-        ASR::ttype_t *int_type = ASRUtils::TYPE(ASR::make_Integer_t(al, loc, 4, nullptr, 0));
-        return ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, -1, int_type));
-    }
-
-    static ASR::expr_t *eval__lpython_str_startswith(Allocator &al, const Location &loc, Vec<ASR::expr_t *> &/*args*/) {
-        // compile time action implemented on ast->asr
-        ASR::ttype_t* res_type =  ASRUtils::TYPE(ASR::make_Logical_t(al, loc,
-                                    4, nullptr, 0));
-        return ASR::down_cast<ASR::expr_t>(ASR::make_LogicalConstant_t(al, loc, 0, res_type));
     }
 
 }; // ComptimeEval

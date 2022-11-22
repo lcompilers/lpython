@@ -66,8 +66,21 @@ public:
         emit_print_int(m_a, "print_int");
         emit_exit(m_a, "exit", 0);
         emit_exit(m_a, "exit_error_stop", 1);
+
+
+        std::vector<std::string> global_func_order = ASRUtils::determine_function_definition_order(x.m_global_scope);
+        for (size_t i = 0; i < global_func_order.size(); i++) {
+            ASR::symbol_t* sym = x.m_global_scope->get_symbol(global_func_order[i]);
+            // Ignore external symbols because they are already defined by the loop above.
+            if( !sym || ASR::is_a<ASR::ExternalSymbol_t>(*sym) ) {
+                continue;
+            }
+            visit_symbol(*sym);
+        }
+
+        // Then the main program:
         for (auto &item : x.m_global_scope->get_scope()) {
-            if (!is_a<ASR::Variable_t>(*item.second)) {
+            if (ASR::is_a<ASR::Program_t>(*item.second)) {
                 visit_symbol(*item.second);
             }
         }
@@ -79,12 +92,12 @@ public:
 
 
 
+        std::vector<std::string> func_order = ASRUtils::determine_function_definition_order(x.m_symtab);
         // Generate code for nested subroutines and functions first:
-        for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Function_t>(*item.second)) {
-                ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(item.second);
-                visit_Function(*s);
-            }
+        for (auto &item : func_order) {
+            ASR::symbol_t* sym = x.m_symtab->get_symbol(item);
+            ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(sym);
+            visit_Function(*s);
         }
 
         // Generate code for the main program
@@ -526,7 +539,8 @@ public:
 
 
 Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
-        const std::string &filename, bool time_report)
+        const std::string &filename, bool time_report,
+        diag::Diagnostics &diagnostics)
 {
     int time_pass_global=0;
     int time_pass_do_loops=0;
@@ -558,8 +572,8 @@ Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
         try {
             v.visit_asr((ASR::asr_t &)asr);
         } catch (const CodeGenError &e) {
-            Error error;
-            return error;
+            diagnostics.diagnostics.push_back(e.d);
+            return Error();
         }
         auto t2 = std::chrono::high_resolution_clock::now();
         time_visit_asr = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
@@ -578,6 +592,9 @@ Result<int> asr_to_x86(ASR::TranslationUnit_t &asr, Allocator &al,
         auto t2 = std::chrono::high_resolution_clock::now();
         time_save = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
     }
+
+    //! Helpful for debugging
+    // std::cout << v.m_a.get_asm() << std::endl;
 
     if (time_report) {
         std::cout << "Codegen Time report:" << std::endl;

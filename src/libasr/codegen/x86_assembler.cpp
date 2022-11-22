@@ -94,6 +94,15 @@ void emit_exit(X86Assembler &a, const std::string &name,
     a.asm_int_imm8(0x80); // syscall
 }
 
+void emit_exit2(X86Assembler &a, const std::string &name)
+{
+    a.add_label(name);
+    // void exit();
+    a.asm_mov_r32_imm32(LFortran::X86Reg::eax, 1); // sys_exit
+    a.asm_pop_r32(X86Reg::ebx); // exit code on stack, move to register
+    a.asm_int_imm8(0x80); // syscall
+}
+
 void emit_data_string(X86Assembler &a, const std::string &label,
     const std::string &s)
 {
@@ -124,6 +133,21 @@ void emit_print_int(X86Assembler &a, const std::string &name)
     X86Reg base = X86Reg::ebp;
     // mov eax, [ebp+8]  // argument "i"
     a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, 8);
+
+    a.asm_mov_r32_r32(X86Reg::ecx, X86Reg::eax); // make a copy in ecx
+    a.asm_mov_r32_imm32(X86Reg::ebx, 0);
+    a.asm_cmp_r32_r32(X86Reg::eax, X86Reg::ebx);
+    a.asm_jge_label(".print_int_"); // if num >= 0 then print it
+
+    // print "-" and then negate the integer
+    emit_print(a, "string-", 1U);
+    // ecx value changed during print so fetch back
+    a.asm_mov_r32_m32(X86Reg::ecx, &base, nullptr, 1, 8);
+    a.asm_neg_r32(X86Reg::ecx);
+
+    a.add_label(".print_int_");
+
+    a.asm_mov_r32_r32(X86Reg::eax, X86Reg::ecx); // fetch the val in ecx back to eax
     a.asm_xor_r32_r32(X86Reg::esi, X86Reg::esi);
 
     a.add_label(".loop");
@@ -145,11 +169,11 @@ void emit_print_int(X86Assembler &a, const std::string &name)
     a.asm_je_label(".print");
 //    jmp .loop
     a.asm_jmp_label(".loop");
-    
+
     a.add_label(".print");
 //    cmp esi, 0
     a.asm_cmp_r32_imm8(X86Reg::esi, 0);
-//    jz end 
+//    jz end
     a.asm_je_label(".end");
 //    dec esi
     a.asm_dec_r32(X86Reg::esi);
@@ -174,6 +198,8 @@ void emit_print_int(X86Assembler &a, const std::string &name)
     a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
     a.asm_pop_r32(X86Reg::ebp);
     a.asm_ret();
+
+    emit_data_string(a, "string-", "-"); // - symbol for printing negative ints
 }
 
 } // namespace LFortran

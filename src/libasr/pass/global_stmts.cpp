@@ -159,7 +159,6 @@ void pass_wrap_global_stmts_into_function(Allocator &al,
         unit.n_items = 0;
         PassUtils::UpdateDependenciesVisitor v(al);
         v.visit_TranslationUnit(unit);
-        LFORTRAN_ASSERT(asr_verify(unit));
     }
 }
 

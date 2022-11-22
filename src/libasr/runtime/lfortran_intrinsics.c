@@ -1108,7 +1108,7 @@ LFORTRAN_API void _lfortran_cpu_time(double *t) {
 
 LFORTRAN_API void _lfortran_i32sys_clock(
         int32_t *count, int32_t *rate, int32_t *max) {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MACH__)
         *count = - INT_MAX;
         *rate = 0;
         *max = 0;
@@ -1128,7 +1128,7 @@ LFORTRAN_API void _lfortran_i32sys_clock(
 
 LFORTRAN_API void _lfortran_i64sys_clock(
         uint64_t *count, int64_t *rate, int64_t *max) {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MACH__)
         *count = - INT_MAX;
         *rate = 0;
         *max = 0;

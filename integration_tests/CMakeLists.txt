@@ -70,7 +70,7 @@ macro(RUN)
                 set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
             endif()
             if (${RUN_FAIL})
-               set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         elseif(KIND STREQUAL "c")
             add_custom_command(
@@ -86,7 +86,7 @@ macro(RUN)
                 set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
             endif()
             if (${RUN_FAIL})
-               set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         elseif(KIND STREQUAL "cpython")
             # CPython test
@@ -105,7 +105,41 @@ macro(RUN)
                 set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
             endif()
             if (${RUN_FAIL})
-               set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+            endif()
+        elseif(KIND STREQUAL "x86")
+            # x86 test
+            add_custom_command(
+                OUTPUT ${name}.x86
+                COMMAND lpython --backend x86 ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.x86
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                VERBATIM
+            )
+            add_custom_target(${name} ALL
+            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${name}.x86)
+            add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name}.x86)
+            if (RUN_LABELS)
+                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
+            endif()
+            if (${RUN_FAIL})
+                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+            endif()
+        elseif(KIND STREQUAL "wasm_x86")
+            # wasm_to_x86 test
+            add_custom_command(
+                OUTPUT ${name}.x86
+                COMMAND lpython --backend wasm_x86 ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.x86
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                VERBATIM
+            )
+            add_custom_target(${name} ALL
+            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${name}.x86)
+            add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name}.x86)
+            if (RUN_LABELS)
+                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
+            endif()
+            if (${RUN_FAIL})
+                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         elseif(KIND STREQUAL "wasm")
             # wasm test
@@ -128,7 +162,7 @@ macro(RUN)
                 set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
             endif()
             if (${RUN_FAIL})
-               set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         endif()
     endif()
@@ -146,12 +180,13 @@ RUN(NAME bindc_02            LABELS llvm c)
 RUN(NAME bindc_04            LABELS llvm)
 RUN(NAME exit_01             LABELS cpython llvm c)
 RUN(NAME exit_02     FAIL    LABELS cpython llvm c)
-RUN(NAME exit_01b            LABELS cpython llvm c wasm)
-RUN(NAME exit_02b    FAIL    LABELS cpython llvm c wasm)
+RUN(NAME exit_01b            LABELS cpython llvm c wasm wasm_x86)
+RUN(NAME exit_02b    FAIL    LABELS cpython llvm c wasm wasm_x86)
 RUN(NAME exit_02c    FAIL    LABELS cpython llvm c)
 
 # Test all four backends
 RUN(NAME print_01            LABELS cpython llvm c wasm) # wasm not yet supports sep and end keywords
+RUN(NAME print_03            LABELS x86 wasm_x86) # simple test case specifically for x86 and wasm_x86
 
 # CPython and LLVM
 RUN(NAME const_01            LABELS cpython llvm c)
@@ -173,7 +208,11 @@ RUN(NAME expr_11             LABELS cpython llvm c wasm)
 RUN(NAME expr_12             LABELS llvm c)
 RUN(NAME expr_13             LABELS llvm c
         EXTRAFILES expr_13b.c)
+RUN(NAME expr_14             LABELS cpython llvm c)
 RUN(NAME loop_01             LABELS cpython llvm c)
+RUN(NAME loop_02             LABELS cpython llvm wasm wasm_x86)
+RUN(NAME if_01               LABELS cpython llvm wasm wasm_x86)
+RUN(NAME if_02               LABELS cpython llvm wasm wasm_x86)
 RUN(NAME print_02            LABELS cpython llvm)
 RUN(NAME test_types_01       LABELS cpython llvm c)
 RUN(NAME test_str_01         LABELS cpython llvm c)
@@ -184,10 +223,10 @@ RUN(NAME test_list_01        LABELS cpython llvm c)
 RUN(NAME test_list_02        LABELS cpython llvm c)
 RUN(NAME test_list_03        LABELS cpython llvm c)
 RUN(NAME test_list_04        LABELS cpython llvm c)
-RUN(NAME test_list_05        LABELS cpython llvm)
+RUN(NAME test_list_05        LABELS cpython llvm c)
 RUN(NAME test_list_06        LABELS cpython llvm c)
-RUN(NAME test_list_07        LABELS cpython llvm)
-RUN(NAME test_list_08        LABELS cpython llvm)
+RUN(NAME test_list_07        LABELS cpython llvm c)
+RUN(NAME test_list_08        LABELS cpython llvm c)
 RUN(NAME test_list_09        LABELS cpython llvm c)
 RUN(NAME test_list_10        LABELS cpython llvm)
 RUN(NAME test_tuple_01       LABELS cpython llvm c)
@@ -198,10 +237,11 @@ RUN(NAME test_dict_03        LABELS cpython llvm)
 RUN(NAME test_dict_04        LABELS cpython llvm)
 RUN(NAME test_dict_05        LABELS cpython llvm)
 RUN(NAME test_for_loop       LABELS cpython llvm c)
-RUN(NAME modules_01          LABELS cpython llvm wasm)
-RUN(NAME modules_02          LABELS cpython llvm wasm)
+RUN(NAME modules_01          LABELS cpython llvm wasm wasm_x86)
+RUN(NAME modules_02          LABELS cpython llvm wasm wasm_x86)
 RUN(NAME test_import_01      LABELS cpython llvm)
 RUN(NAME test_import_02      LABELS cpython llvm)
+RUN(NAME test_import_03      LABELS cpython llvm)
 RUN(NAME test_math           LABELS cpython llvm)
 RUN(NAME test_numpy_01       LABELS cpython llvm c)
 RUN(NAME test_numpy_02       LABELS cpython llvm c)
@@ -274,6 +314,10 @@ RUN(NAME structs_07          LABELS llvm c
 RUN(NAME structs_08          LABELS cpython llvm c)
 RUN(NAME structs_09          LABELS cpython llvm c)
 RUN(NAME structs_10          LABELS cpython llvm c)
+RUN(NAME structs_11          LABELS cpython llvm c)
+RUN(NAME structs_12          LABELS cpython llvm c)
+RUN(NAME structs_13          LABELS llvm c
+    EXTRAFILES structs_13b.c)
 RUN(NAME sizeof_01          LABELS llvm c
         EXTRAFILES sizeof_01b.c)
 RUN(NAME enum_01             LABELS cpython llvm c)

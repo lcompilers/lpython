@@ -11,11 +11,32 @@ namespace LFortran {
 
 namespace wasm {
 
+/*
+
+This X86Visitor uses stack to pass arguments and return values from functions.
+Since in X86, instructions operate on registers (and not on stack),
+for every instruction we pop elements from top of stack and store them into
+registers. After operating on the registers, the result value is then
+pushed back onto the stack.
+
+One of the reasons to use stack to pass function arguments is that,
+it allows us to define and call functions with any number of parameters.
+As registers are limited in number, if we use them to pass function arugments,
+the number of arguments we could pass to a function would get limited by
+the number of registers available with the CPU.
+
+*/
+
 class X86Visitor : public WASMDecoder<X86Visitor>,
                    public WASM_INSTS_VISITOR::BaseWASMVisitor<X86Visitor> {
    public:
     X86Assembler &m_a;
     uint32_t cur_func_idx;
+    std::vector<std::string> if_unique_id;
+    std::vector<std::string> loop_unique_id;
+    uint32_t cur_nesting_length;
+    int32_t last_vis_i32_const, last_last_vis_i32_const;
+    std::unordered_map<int32_t, std::string> loc_to_str;
 
     X86Visitor(X86Assembler &m_a, Allocator &al,
                diag::Diagnostics &diagonostics, Vec<uint8_t> &code)
@@ -23,24 +44,65 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
           BaseWASMVisitor(code, 0U /* temporary offset */),
           m_a(m_a) {
         wasm_bytes.from_pointer_n(code.data(), code.size());
+        cur_nesting_length = 0;
     }
+
+    void visit_Unreachable() {}
 
     void visit_Return() {}
 
+    void call_imported_function(uint32_t func_index) {
+        switch (func_index) {
+            case 0: {  // print_i32
+                m_a.asm_call_label("print_i32");
+                break;
+            }
+            case 1: {  // print_i64
+                std::cerr << "Call to print_i64() is not yet supported";
+                break;
+            }
+            case 2: {  // print_f32
+                std::cerr << "Call to print_f32() is not yet supported";
+                break;
+            }
+            case 3: {  // print_f64
+                std::cerr << "Call to print_f64() is not yet supported";
+                break;
+            }
+            case 4: {  // print_str
+                {
+                    // pop the string length and string location
+                    // we do not need them at the moment
+                    m_a.asm_pop_r32(X86Reg::eax);
+                    m_a.asm_pop_r32(X86Reg::eax);
+                }
+                std::string label =
+                    "string" + std::to_string(last_last_vis_i32_const);
+                emit_print(m_a, label,
+                           loc_to_str[last_last_vis_i32_const].size());
+                break;
+            }
+            case 5: {  // flush_buf
+                std::string label = "string-1";
+                std::string msg = "\n";
+                int32_t loc = -1; // tmp negative index used
+                emit_print(m_a, label, msg.size());
+                loc_to_str[loc] = msg;
+                break;
+            }
+            case 6: {  // set_exit_code
+                m_a.asm_jmp_label("exit");
+                break;
+            }
+            default: {
+                std::cerr << "Unsupported func_index";
+            }
+        }
+    }
+
     void visit_Call(uint32_t func_index) {
         if (func_index <= 6U) {
-            // call to imported functions
-            if (func_index == 0) {
-                m_a.asm_call_label("print_i32");
-            } else if (func_index == 5) {
-                // currently ignoring flush_buf
-            } else if (func_index == 6) {
-                m_a.asm_call_label("exit");
-            } else {
-                std::cerr << "Call to imported function with index " +
-                                 std::to_string(func_index) +
-                                 " not yet supported";
-            }
+            call_imported_function(func_index);
             return;
         }
 
@@ -66,6 +128,67 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
             // push eax value onto stack
             m_a.asm_push_r32(X86Reg::eax);
         }
+    }
+
+    void visit_EmtpyBlockType() {}
+
+    void visit_Br(uint32_t label_index) {
+        // Branch is used to jump to the `loop.head` or `loop.end`.
+        if (loop_unique_id.size() + if_unique_id.size() - cur_nesting_length
+                == label_index  + 1) {
+            // cycle/continue or loop.end
+            m_a.asm_jmp_label(".loop.head_" + loop_unique_id.back());
+        } else {
+            // exit/break
+            m_a.asm_jmp_label(".loop.end_" + loop_unique_id.back());
+        }
+    }
+
+    void visit_Loop() {
+        uint32_t prev_nesting_length = cur_nesting_length;
+        cur_nesting_length = loop_unique_id.size() + if_unique_id.size();
+        loop_unique_id.push_back(std::to_string(offset));
+        /*
+        The loop statement starts with `loop.head`. The `loop.body` and
+        `loop.branch` are enclosed within the `if.block`. If the condition
+        fails, the loop is exited through `else.block`.
+        .head
+            .If
+                # Statements
+                .Br
+            .Else
+            .endIf
+        .end
+        */
+        m_a.add_label(".loop.head_" + loop_unique_id.back());
+        {
+            decode_instructions();
+        }
+        // end
+        m_a.add_label(".loop.end_" + loop_unique_id.back());
+        loop_unique_id.pop_back();
+        cur_nesting_length = prev_nesting_length;
+    }
+
+    void visit_If() {
+        if_unique_id.push_back(std::to_string(offset));
+        // `eax` contains the logical value (true = 1, false = 0)
+        // of the if condition
+        m_a.asm_pop_r32(X86Reg::eax);
+        m_a.asm_cmp_r32_imm8(LFortran::X86Reg::eax, 1);
+        m_a.asm_je_label(".then_" + if_unique_id.back());
+        m_a.asm_jmp_label(".else_" + if_unique_id.back());
+        m_a.add_label(".then_" + if_unique_id.back());
+        {
+            decode_instructions();
+        }
+        m_a.add_label(".endif_" + if_unique_id.back());
+        if_unique_id.pop_back();
+    }
+
+    void visit_Else() {
+        m_a.asm_jmp_label(".endif_" + if_unique_id.back());
+        m_a.add_label(".else_" + if_unique_id.back());
     }
 
     void visit_LocalGet(uint32_t localidx) {
@@ -98,6 +221,11 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         }
     }
 
+    void visit_I32Eqz() {
+        m_a.asm_push_imm32(0U);
+        handle_I32Compare("Eq");
+    }
+
     void visit_I32Const(int32_t value) {
         m_a.asm_push_imm32(value);
         // if (value < 0) {
@@ -105,6 +233,10 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         // 	m_a.asm_neg_r32(X86Reg::eax);
         // 	m_a.asm_push_r32(X86Reg::eax);
         // }
+
+        // TODO: Following seems/is hackish. Fix/Improve it.
+        last_last_vis_i32_const = last_vis_i32_const;
+        last_vis_i32_const = value;
     }
 
     void visit_I32Add() {
@@ -132,12 +264,56 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         m_a.asm_push_r32(X86Reg::eax);
     }
 
+    void handle_I32Compare(const std::string &compare_op) {
+        std::string label = std::to_string(offset);
+        m_a.asm_pop_r32(X86Reg::ebx);
+        m_a.asm_pop_r32(X86Reg::eax);
+        // `eax` and `ebx` contain the left and right operands, respectively
+        m_a.asm_cmp_r32_r32(X86Reg::eax, X86Reg::ebx);
+        if (compare_op == "Eq") {
+            m_a.asm_je_label(".compare_1" + label);
+        } else if (compare_op == "Gt") {
+            m_a.asm_jg_label(".compare_1" + label);
+        } else if (compare_op == "GtE") {
+            m_a.asm_jge_label(".compare_1" + label);
+        } else if (compare_op == "Lt") {
+            m_a.asm_jl_label(".compare_1" + label);
+        } else if (compare_op == "LtE") {
+            m_a.asm_jle_label(".compare_1" + label);
+        } else if (compare_op == "NotEq") {
+            m_a.asm_jne_label(".compare_1" + label);
+        } else {
+            throw CodeGenError("Comparison operator not implemented");
+        }
+        // if the `compare` condition in `true`, jump to compare_1
+        // and assign `1` else assign `0`
+        m_a.asm_push_imm8(0);
+        m_a.asm_jmp_label(".compare.end_" + label);
+        m_a.add_label(".compare_1" + label);
+        m_a.asm_push_imm8(1);
+        m_a.add_label(".compare.end_" + label);
+    }
+
+    void visit_I32Eq() { handle_I32Compare("Eq"); }
+    void visit_I32GtS() { handle_I32Compare("Gt"); }
+    void visit_I32GeS() { handle_I32Compare("GtE"); }
+    void visit_I32LtS() { handle_I32Compare("Lt"); }
+    void visit_I32LeS() { handle_I32Compare("LtE"); }
+    void visit_I32Ne() { handle_I32Compare("NotEq"); }
+
     void gen_x86_bytes() {
         emit_elf32_header(m_a);
 
         // Add runtime library functions
         emit_print_int(m_a, "print_i32");
-        emit_exit(m_a, "exit", 0);
+        emit_exit2(m_a, "exit");
+
+        // declare compile-time strings
+        for (uint32_t i = 0; i < data_segments.size(); i++) {
+            offset = data_segments[i].insts_start_index;
+            decode_instructions();
+            loc_to_str[last_vis_i32_const] = data_segments[i].text;
+        }
 
         for (uint32_t i = 0; i < type_indices.size(); i++) {
             if (i < type_indices.size() - 1U) {
@@ -169,6 +345,11 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
                 m_a.asm_pop_r32(X86Reg::ebp);
                 m_a.asm_ret();
             }
+        }
+
+        for (auto &s : loc_to_str) {
+            std::string label = "string" + std::to_string(s.first);
+            emit_data_string(m_a, label, s.second);
         }
 
         emit_elf32_footer(m_a);
@@ -229,6 +410,9 @@ Result<int> wasm_to_x86(Vec<uint8_t> &wasm_bytes, Allocator &al,
             std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1)
                 .count();
     }
+
+    //! Helpful for debugging
+    // std::cout << x86_visitor.m_a.get_asm() << std::endl;
 
     if (time_report) {
         std::cout << "Codegen Time report:" << std::endl;

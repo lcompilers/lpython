@@ -1998,6 +1998,7 @@ static inline ASR::ttype_t* expr_type0(const ASR::expr_t *f)
             ASR::symbol_t *s = ((ASR::%s_t*)f)->m_v;
             if (s->type == ASR::symbolType::ExternalSymbol) {
                 ASR::ExternalSymbol_t *e = ASR::down_cast<ASR::ExternalSymbol_t>(s);
+                LFORTRAN_ASSERT(e->m_external);
                 LFORTRAN_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
                 s = e->m_external;
             }

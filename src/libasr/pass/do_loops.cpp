@@ -54,7 +54,6 @@ void pass_replace_do_loops(Allocator &al, ASR::TranslationUnit_t &unit,
         v.asr_changed = false;
         v.visit_TranslationUnit(unit);
     }
-    LFORTRAN_ASSERT(asr_verify(unit));
 }
 
 

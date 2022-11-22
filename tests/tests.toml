@@ -194,6 +194,10 @@ asr = true
 c = true
 
 [[test]]
+filename = "../integration_tests/expr_14.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/modules_02.py"
 asr = true
 
@@ -881,6 +885,14 @@ asr = true
 filename = "errors/test_for2.py"
 asr = true
 
+[[test]]
+filename = "errors/test_import_01.py"
+asr = true
+
+[[test]]
+filename = "errors/test_import_02.py"
+asr = true
+
 # tests/tokens/errors
 
 [[test]]
@@ -946,4 +958,24 @@ asr = true
 # tests/runtime_errors
 [[test]]
 filename = "runtime_errors/test_list_01.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_list_02.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_assert_01.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_assert_02.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_quit_01.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_raise_01.py"
 run = true

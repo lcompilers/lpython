@@ -48,6 +48,7 @@
             local.set 1
             local.get 1
             return
+        else
         end
         i32.const 1
         local.set 2
@@ -65,6 +66,7 @@
                 i32.sub
                 local.set 0
                 br 1
+            else
             end
         end
         local.get 2
@@ -100,6 +102,7 @@
                 i32.mul
                 local.set 3
                 br 1
+            else
             end
         end
         local.get 3
@@ -119,6 +122,7 @@
             local.set 1
             local.get 1
             return
+        else
         end
         i64.const 1
         local.set 2
@@ -137,6 +141,7 @@
                 i32.sub
                 local.set 0
                 br 1
+            else
             end
         end
         local.get 2

@@ -9,11 +9,14 @@ def capitalize():
     assert "empty string" .capitalize() == "Empty string"
     assert "".capitalize() == ""
 
+
 def lower():
     s: str
     s = "AaaaAABBbbbbBB!@12223BN"
     assert s.lower() == "aaaaaabbbbbbbb!@12223bn"
     assert "DDd12Vv" .lower() == "ddd12vv"
+    assert "".lower() == ""
+
 
 def strip():
     s: str
@@ -24,12 +27,16 @@ def strip():
     assert "     AASAsaSas    " .rstrip() == "     AASAsaSas"
     assert "     AASAsaSas    " .lstrip() == "AASAsaSas    "
     assert "     AASAsaSas    " .strip() == "AASAsaSas"
+    assert "".strip() == ""
+
 
 def swapcase():
     s: str
     s = "aaaaaabbbbbbbb!@12223bn"
     assert s.swapcase() == "AAAAAABBBBBBBB!@12223BN"
     assert "AASAsaSas" .swapcase() == "aasaSAsAS"
+    assert "".swapcase() == ""
+
 
 def find():
     s: str
@@ -50,7 +57,9 @@ def find():
     s2 = ""
     assert s2.find("") == 0
     assert s2.find("we") == -1
-    
+    assert "".find("") == 0
+
+
 def startswith():
     s: str
     s = "   empty"
@@ -67,10 +76,15 @@ def startswith():
     s = ""
     assert s.startswith("") == True
     assert s.startswith("sdd") == False
+    assert "".startswith("ok") == False
 
-capitalize()
-lower()
-strip()
-swapcase()
-find()
-startswith()
+
+def check():
+    capitalize()
+    lower()
+    strip()
+    swapcase()
+    find()
+    startswith()
+
+check()

@@ -196,6 +196,12 @@ public:
         return ASR::make_Assignment_t(al, x->base.base.loc, target, value, overloaded);
     }
 
+    ASR::asr_t* duplicate_TemplateBinOp(ASR::TemplateBinOp_t *x) {
+        ASR::expr_t *left = duplicate_expr(x->m_left);
+        ASR::expr_t *right = duplicate_expr(x->m_right);
+        return make_BinOp_helper(left, right, x->m_op, x->base.base.loc);
+    }
+
     ASR::asr_t* duplicate_DoLoop(ASR::DoLoop_t *x) {
         Vec<ASR::stmt_t*> m_body;
         m_body.reserve(al, x->n_body);
@@ -235,8 +241,8 @@ public:
         ASR::expr_t* value = duplicate_expr(x->m_value);
         ASR::expr_t* dt = duplicate_expr(x->m_dt);
         std::string call_name = ASRUtils::symbol_name(x->m_name);
-        for (ASR::Function_t* rt: rts) {
-            if (call_name.compare(rt->m_name) == 0) {
+        //for (ASR::Function_t* rt: rts) {
+        //    if (call_name.compare(rt->m_name) == 0) {
                 if (rt_subs.find(call_name) == rt_subs.end()) {
                     if (call_name.compare("add") == 0) {
                         ASR::expr_t* left_arg = duplicate_expr(x->m_args[0].m_value);
@@ -265,8 +271,9 @@ public:
                     LFORTRAN_ASSERT(false); // should never happen
                 }
                 name = rt_subs[call_name];
-            }
-        }
+        //    }
+        //}
+        // TODO: Nested generic function call
         dependencies.insert(std::string(ASRUtils::symbol_name(name)));
         return ASR::make_FunctionCall_t(al, x->base.base.loc, name, x->m_original_name,
             args.p, args.size(), type, value, dt);
@@ -400,6 +407,7 @@ public:
         }
         return right;
     }
+
 };
 
 ASR::symbol_t* pass_instantiate_generic_function(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,

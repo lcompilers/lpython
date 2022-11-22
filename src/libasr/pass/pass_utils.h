@@ -41,7 +41,7 @@ namespace LFortran {
 
         ASR::stmt_t* get_flipsign(ASR::expr_t* arg0, ASR::expr_t* arg1,
                                   Allocator& al, ASR::TranslationUnit_t& unit,
-                                  const std::string &rl_path,
+                                  LCompilers::PassOptions& pass_options,
                                   SymbolTable*& current_scope,
                                   const std::function<void (const std::string &, const Location &)> err);
 
@@ -54,12 +54,13 @@ namespace LFortran {
             Allocator& al, SymbolTable*& current_scope, ASR::ttype_t* var_type);
 
         ASR::expr_t* get_fma(ASR::expr_t* arg0, ASR::expr_t* arg1, ASR::expr_t* arg2,
-                             Allocator& al, ASR::TranslationUnit_t& unit, std::string& rl_path,
+                             Allocator& al, ASR::TranslationUnit_t& unit, LCompilers::PassOptions& pass_options,
                              SymbolTable*& current_scope,Location& loc,
                              const std::function<void (const std::string &, const Location &)> err);
 
         ASR::expr_t* get_sign_from_value(ASR::expr_t* arg0, ASR::expr_t* arg1,
-                                         Allocator& al, ASR::TranslationUnit_t& unit, std::string& rl_path,
+                                         Allocator& al, ASR::TranslationUnit_t& unit,
+                                         LCompilers::PassOptions& pass_options,
                                          SymbolTable*& current_scope, Location& loc,
                                          const std::function<void (const std::string &, const Location &)> err);
 
@@ -70,6 +71,10 @@ namespace LFortran {
 
         Vec<ASR::stmt_t*> replace_doloop(Allocator &al, const ASR::DoLoop_t &loop,
                                          int comp=-1);
+
+        static inline bool is_aggregate_type(ASR::expr_t* var) {
+            return ASR::is_a<ASR::Struct_t>(*ASRUtils::expr_type(var));
+        }
 
         template <class Struct>
         class PassVisitor: public ASR::BaseWalkVisitor<Struct> {
@@ -180,6 +185,12 @@ namespace LFortran {
                     }
                 }
 
+                void visit_DoLoop(const ASR::DoLoop_t& x) {
+                    self().visit_do_loop_head(x.m_head);
+                    ASR::DoLoop_t& xx = const_cast<ASR::DoLoop_t&>(x);
+                    transform_stmts(xx.m_body, xx.n_body);
+                }
+
         };
 
         template <class Struct>
@@ -199,34 +210,74 @@ namespace LFortran {
 
         };
 
-        class UpdateDependenciesVisitor : public PassUtils::PassVisitor<UpdateDependenciesVisitor> {
+        class UpdateDependenciesVisitor : public ASR::BaseWalkVisitor<UpdateDependenciesVisitor> {
 
             private:
 
-                Vec<char*> dependencies;
+                Vec<char*> function_dependencies;
+                Vec<char*> module_dependencies;
+                Allocator& al;
+                bool fill_function_dependencies;
+                bool fill_module_dependencies;
 
             public:
 
                 UpdateDependenciesVisitor(Allocator &al_)
-                : PassVisitor(al_, nullptr)
+                : al(al_), fill_function_dependencies(false),
+                fill_module_dependencies(false)
                 {}
 
                 void visit_Function(const ASR::Function_t& x) {
                     ASR::Function_t& xx = const_cast<ASR::Function_t&>(x);
-                    dependencies.reserve(al, x.n_dependencies);
-                    PassUtils::PassVisitor<UpdateDependenciesVisitor>::visit_Function(x);
-                    xx.m_dependencies = dependencies.p;
-                    xx.n_dependencies = dependencies.size();
+                    function_dependencies.n = 0;
+                    function_dependencies.reserve(al, 1);
+                    bool fill_function_dependencies_copy = fill_function_dependencies;
+                    fill_function_dependencies = true;
+                    BaseWalkVisitor<UpdateDependenciesVisitor>::visit_Function(x);
+                    // std::cout<<"dependencies of "<<x.m_name<<" {";
+                    // for( size_t i = 0; i < dependencies.size(); i++ ) {
+                    //     std::cout<<dependencies[i]<<", ";
+                    // }
+                    // std::cout<<"}"<<std::endl;
+                    xx.m_dependencies = function_dependencies.p;
+                    xx.n_dependencies = function_dependencies.size();
+                    fill_function_dependencies = fill_function_dependencies_copy;
+                }
+
+                void visit_Module(const ASR::Module_t& x) {
+                    ASR::Module_t& xx = const_cast<ASR::Module_t&>(x);
+                    module_dependencies.n = 0;
+                    module_dependencies.from_pointer_n_copy(al, xx.m_dependencies, xx.n_dependencies);
+                    bool fill_module_dependencies_copy = fill_module_dependencies;
+                    fill_module_dependencies = true;
+                    BaseWalkVisitor<UpdateDependenciesVisitor>::visit_Module(x);
+                    xx.n_dependencies = module_dependencies.size();
+                    xx.m_dependencies = module_dependencies.p;
+                    fill_module_dependencies = fill_module_dependencies_copy;
                 }
 
                 void visit_FunctionCall(const ASR::FunctionCall_t& x) {
-                    dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
-                    PassUtils::PassVisitor<UpdateDependenciesVisitor>::visit_FunctionCall(x);
+                    if( fill_function_dependencies ) {
+                        function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
+                    }
+                    if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) &&
+                        fill_module_dependencies ) {
+                        ASR::ExternalSymbol_t* x_m_name = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
+                        module_dependencies.push_back(al, x_m_name->m_module_name);
+                    }
+                    BaseWalkVisitor<UpdateDependenciesVisitor>::visit_FunctionCall(x);
                 }
 
                 void visit_SubroutineCall(const ASR::SubroutineCall_t& x) {
-                    dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
-                    PassUtils::PassVisitor<UpdateDependenciesVisitor>::visit_SubroutineCall(x);
+                    if( fill_function_dependencies ) {
+                        function_dependencies.push_back(al, ASRUtils::symbol_name(x.m_name));
+                    }
+                    if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) &&
+                        fill_module_dependencies ) {
+                        ASR::ExternalSymbol_t* x_m_name = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
+                        module_dependencies.push_back(al, x_m_name->m_module_name);
+                    }
+                    BaseWalkVisitor<UpdateDependenciesVisitor>::visit_SubroutineCall(x);
                 }
         };
 

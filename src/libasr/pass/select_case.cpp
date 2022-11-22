@@ -172,7 +172,6 @@ void pass_replace_select_case(Allocator &al, ASR::TranslationUnit_t &unit,
     // to transform doubly nested loops:
     v.visit_TranslationUnit(unit);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
 }
 
 

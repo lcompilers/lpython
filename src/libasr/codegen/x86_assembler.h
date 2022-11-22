@@ -815,6 +815,14 @@ void emit_elf32_footer(X86Assembler &a);
 
 void emit_exit(X86Assembler &a, const std::string &name,
     uint32_t exit_code);
+
+// this is similar to emit_exit() but takes the argument (i.e. exit code)
+// from top of stack. To call this exit2, one needs to jump to it
+// instead of call it. (Because calling pushes the instruction address and
+// base pointer value (ebp) of previous function and thus makes the
+// exit code parameter less reachable)
+void emit_exit2(X86Assembler &a, const std::string &name);
+
 void emit_data_string(X86Assembler &a, const std::string &label,
     const std::string &s);
 void emit_print(X86Assembler &a, const std::string &msg_label,
