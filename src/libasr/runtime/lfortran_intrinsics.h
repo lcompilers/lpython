@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_INTRINSICS_H
-#define LFORTRAN_INTRINSICS_H
+#ifndef LIBASR_INTRINSICS_H
+#define LIBASR_INTRINSICS_H
 
 #include <stdarg.h>
 #include <complex.h>

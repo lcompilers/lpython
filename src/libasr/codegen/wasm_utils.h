@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_WASM_UTILS_H
-#define LFORTRAN_WASM_UTILS_H
+#ifndef LIBASR_WASM_UTILS_H
+#define LIBASR_WASM_UTILS_H
 
 #include <iostream>
 #include <unordered_map>
@@ -145,4 +145,4 @@ void hexdump(void *ptr, int buflen);
 
 }  // namespace LCompilers
 
-#endif  // LFORTRAN_WASM_UTILS_H
+#endif  // LIBASR_WASM_UTILS_H

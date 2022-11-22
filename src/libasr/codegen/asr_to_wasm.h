@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_ASR_TO_WASM_H
-#define LFORTRAN_ASR_TO_WASM_H
+#ifndef LIBASR_ASR_TO_WASM_H
+#define LIBASR_ASR_TO_WASM_H
 
 #include <libasr/asr.h>
 
@@ -18,4 +18,4 @@ Result<int> asr_to_wasm(ASR::TranslationUnit_t &asr, Allocator &al,
 
 }  // namespace LCompilers
 
-#endif  // LFORTRAN_ASR_TO_WASM_H
+#endif  // LIBASR_ASR_TO_WASM_H

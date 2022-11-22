@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_STRING_UTILS_H
-#define LFORTRAN_STRING_UTILS_H
+#ifndef LIBASR_STRING_UTILS_H
+#define LIBASR_STRING_UTILS_H
 
 #include <string>
 #include <vector>
@@ -46,4 +46,4 @@ char* str_unescape_fortran(Allocator &al, LCompilers::Str &s, char ch);
 
 } // namespace LCompilers
 
-#endif // LFORTRAN_STRING_UTILS_H
+#endif // LIBASR_STRING_UTILS_H

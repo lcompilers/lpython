@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_C_UTILS_H
-#define LFORTRAN_C_UTILS_H
+#ifndef LIBASR_C_UTILS_H
+#define LIBASR_C_UTILS_H
 
 #include <libasr/asr.h>
 #include <libasr/asr_utils.h>
@@ -1880,4 +1880,4 @@ namespace BindPyUtils {
 
 } // namespace LCompilers
 
-#endif // LFORTRAN_C_UTILS_H
+#endif // LIBASR_C_UTILS_H

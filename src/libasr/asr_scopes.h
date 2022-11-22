@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_SEMANTICS_ASR_SCOPES_H
-#define LFORTRAN_SEMANTICS_ASR_SCOPES_H
+#ifndef LIBASR_SEMANTICS_ASR_SCOPES_H
+#define LIBASR_SEMANTICS_ASR_SCOPES_H
 
 #include <map>
 
@@ -100,4 +100,4 @@ struct SymbolTable {
 
 } // namespace LCompilers
 
-#endif // LFORTRAN_SEMANTICS_ASR_SCOPES_H
+#endif // LIBASR_SEMANTICS_ASR_SCOPES_H

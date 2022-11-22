@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_BIGINT_H
-#define LFORTRAN_BIGINT_H
+#ifndef LIBASR_BIGINT_H
+#define LIBASR_BIGINT_H
 
 #include <cstdint>
 
@@ -171,4 +171,4 @@ static_assert(sizeof(BigInt) == 8);
 
 } // namespace LCompilers
 
-#endif // LFORTRAN_BIGINT_H
+#endif // LIBASR_BIGINT_H

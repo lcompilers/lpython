@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_ASR_UTILS_H
-#define LFORTRAN_ASR_UTILS_H
+#ifndef LIBASR_ASR_UTILS_H
+#define LIBASR_ASR_UTILS_H
 
 #include <functional>
 #include <map>
@@ -4633,4 +4633,4 @@ inline ASR::ttype_t* make_Pointer_t_util(Allocator& al, const Location& loc, ASR
 
 } // namespace LCompilers
 
-#endif // LFORTRAN_ASR_UTILS_H
+#endif // LIBASR_ASR_UTILS_H

@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_PYTHON_EVALUATOR_H
-#define LFORTRAN_PYTHON_EVALUATOR_H
+#ifndef LPYTHON_PYTHON_EVALUATOR_H
+#define LPYTHON_PYTHON_EVALUATOR_H
 
 #include <iostream>
 #include <memory>
@@ -68,4 +68,4 @@ private:
 
 } // namespace LCompilers
 
-#endif // LFORTRAN_PYTHON_EVALUATOR_H
+#endif // LPYTHON_PYTHON_EVALUATOR_H

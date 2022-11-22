@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_COLORS_H
-#define LFORTRAN_COLORS_H
+#ifndef LIBASR_COLORS_H
+#define LIBASR_COLORS_H
 
 namespace LCompilers {
 
@@ -72,4 +72,4 @@ std::string color(T const value)
 
 } // namespace LCompilers
 
-#endif // LFORTRAN_COLORS_H
+#endif // LIBASR_COLORS_H

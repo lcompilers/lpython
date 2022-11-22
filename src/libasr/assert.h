@@ -55,7 +55,7 @@
 
 #endif // defined(WITH_LCOMPILERS_ASSERT)
 
-#define LFORTRAN_ERROR(description)                                           \
+#define LCOMPILERS_ERROR(description)                                           \
     std::cerr << description;                                                  \
     std::cerr << "\n";                                                         \
     abort();

@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_PASS_UTILS_H
-#define LFORTRAN_PASS_UTILS_H
+#ifndef LIBASR_PASS_UTILS_H
+#define LIBASR_PASS_UTILS_H
 
 #include <libasr/asr.h>
 #include <libasr/containers.h>
@@ -817,4 +817,4 @@ namespace LCompilers {
 
 } // namespace LCompilers
 
-#endif // LFORTRAN_PASS_UTILS_H
+#endif // LIBASR_PASS_UTILS_H

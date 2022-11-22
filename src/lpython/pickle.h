@@ -1,5 +1,5 @@
-#ifndef LFORTRAN_PICKLE_H
-#define LFORTRAN_PICKLE_H
+#ifndef LPYTHON_PICKLE_H
+#define LPYTHON_PICKLE_H
 
 #include <lpython/python_ast.h>
 #include <libasr/asr.h>
@@ -25,4 +25,4 @@ namespace LCompilers::LPython {
 
 }
 
-#endif // LFORTRAN_PICKLE_H
+#endif // LPYTHON_PICKLE_H
