@@ -38,7 +38,7 @@
 #  include <mach-o/dyld.h>
 #endif
 
-#ifdef HAVE_LCOMPLIERS_BFD
+#ifdef HAVE_LCOMPILERS_BFD
 // For bfd_* family of functions for loading debugging symbols from the binary
 // This is the only nonstandard header file and the binary must be linked
 // with "-lbfd".
@@ -218,7 +218,7 @@ std::string demangle_function_name(std::string name)
 }
 
 
-#ifdef HAVE_LCOMPLIERS_BFD
+#ifdef HAVE_LCOMPILERS_BFD
 
 /* This struct is used to pass information into process_section().
 */
@@ -365,7 +365,7 @@ void get_symbol_info_bfd(std::string binary_filename, uintptr_t addr,
   }
 }
 
-#endif // HAVE_LCOMPLIERS_BFD
+#endif // HAVE_LCOMPILERS_BFD
 
 
 
@@ -627,11 +627,11 @@ void get_local_info(std::vector<StacktraceItem> &d)
 #ifdef HAVE_LCOMPILERS_DWARFDUMP
   get_local_info_dwarfdump(d);
 #else
-#  ifdef HAVE_LCOMPLIERS_BFD
+#  ifdef HAVE_LCOMPILERS_BFD
   bfd_init();
 #  endif
   for (size_t i=0; i < d.size(); i++) {
-#  ifdef HAVE_LCOMPLIERS_BFD
+#  ifdef HAVE_LCOMPILERS_BFD
     get_symbol_info_bfd(d[i].binary_filename, d[i].local_pc,
       d[i].source_filename, d[i].function_name, d[i].line_number);
 #  endif

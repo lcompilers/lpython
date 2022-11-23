@@ -7,8 +7,8 @@ if (NOT CMAKE_CXX_STANDARD)
         CACHE STRING "C++ standard" FORCE)
 endif ()
 
-if (NOT LCOMPILERS_VERSION)
-    set(LCOMPILERS_VERSION "0.1-git"
+if (NOT LFORTRAN_VERSION)
+    set(LFORTRAN_VERSION "0.1-git"
         CACHE STRING "LCompilers version" FORCE)
 endif ()
 

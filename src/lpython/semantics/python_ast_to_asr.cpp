@@ -3150,7 +3150,7 @@ public:
 
     void add_lpython_version(const Location &loc) {
         std::string var_name = "__LPYTHON_VERSION__";
-        std::string var_value = LCOMPILERS_VERSION;
+        std::string var_value = LFORTRAN_VERSION;
         size_t s_size = var_value.size();
         ASR::ttype_t *type = ASRUtils::TYPE(ASR::make_Character_t(al, loc,
                 1, s_size, nullptr));

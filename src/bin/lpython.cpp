@@ -1650,7 +1650,7 @@ int main(int argc, char *argv[])
         }
 
         if (arg_version) {
-            std::string version = LCOMPILERS_VERSION;
+            std::string version = LFORTRAN_VERSION;
             std::cout << "LPython version: " << version << std::endl;
             std::cout << "Platform: " << pf2s(compiler_options.platform) << std::endl;
 #ifdef HAVE_LFORTRAN_LLVM

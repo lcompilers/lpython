@@ -20,7 +20,7 @@ inline void save_asr(const ASR::TranslationUnit_t &m, std::string& asr_string) {
 #endif
     // Header
     b.write_string(lfortran_modfile_type_string);
-    b.write_string(LCOMPILERS_VERSION);
+    b.write_string(LFORTRAN_VERSION);
 
     // AST section: Original module source code:
     // Currently empty.
@@ -81,8 +81,8 @@ inline void load_serialised_asr(const std::string &s, std::string& asr_binary) {
         throw LCompilersException("LCompilers Modfile format not recognized");
     }
     std::string version = b.read_string();
-    if (version != LCOMPILERS_VERSION) {
-        throw LCompilersException("Incompatible format: LCompilers Modfile was generated using version '" + version + "', but current LCompilers version is '" + LCOMPILERS_VERSION + "'");
+    if (version != LFORTRAN_VERSION) {
+        throw LCompilersException("Incompatible format: LCompilers Modfile was generated using version '" + version + "', but current LCompilers version is '" + LFORTRAN_VERSION + "'");
     }
     asr_binary = b.read_string();
 }

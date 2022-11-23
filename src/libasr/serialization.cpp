@@ -13,7 +13,6 @@ using LCompilers::ASRUtils::symbol_name;
 
 namespace LCompilers {
 
-
 class ASRSerializationVisitor :
 #ifdef WITH_LCOMPILERS_BINARY_MODFILES
         public BinaryWriter,

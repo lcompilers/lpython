@@ -5,7 +5,7 @@
 #cmakedefine WITH_LCOMPILERS_ASSERT
 
 /* LCompilers version */
-#cmakedefine LCOMPILERS_VERSION "@LCOMPILERS_VERSION@"
+#cmakedefine LFORTRAN_VERSION "@LFORTRAN_VERSION@"
 
 /* Define if LLVM is enabled */
 #cmakedefine HAVE_LCOMPILERS_LLVM
