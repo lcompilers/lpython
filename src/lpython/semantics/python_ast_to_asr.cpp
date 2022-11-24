@@ -189,30 +189,35 @@ LFortran::Result<std::string> get_full_path(const std::string &filename,
         bool &ltypes, bool& enum_py) {
     ltypes = false;
     enum_py = false;
-    bool status = read_file(filename, input);
-    if (status) {
-        return filename;
+    std::string file_path;
+    if( *(runtime_library_dir.rbegin()) == '/' ) {
+        file_path = runtime_library_dir + filename;
     } else {
-        std::string filename_intrinsic = runtime_library_dir + "/" + filename;
-        status = read_file(filename_intrinsic, input);
+        file_path = runtime_library_dir + "/" + filename;
+    }
+    bool status = read_file(file_path, input);
+    if (status) {
+        return file_path;
+    } else {
+        status = read_file(file_path, input);
         if (status) {
-            return filename_intrinsic;
+            return file_path;
         } else {
             // If this is `ltypes`, do a special lookup
             if (filename == "ltypes.py") {
-                filename_intrinsic = runtime_library_dir + "/ltypes/" + filename;
-                status = read_file(filename_intrinsic, input);
+                file_path = runtime_library_dir + "/ltypes/" + filename;
+                status = read_file(file_path, input);
                 if (status) {
                     ltypes = true;
-                    return filename_intrinsic;
+                    return file_path;
                 } else {
                     return LFortran::Error();
                 }
             } else if (startswith(filename, "numpy.py")) {
-                filename_intrinsic = runtime_library_dir + "/lpython_intrinsic_" + filename;
-                status = read_file(filename_intrinsic, input);
+                file_path = runtime_library_dir + "/lpython_intrinsic_" + filename;
+                status = read_file(file_path, input);
                 if (status) {
-                    return filename_intrinsic;
+                    return file_path;
                 } else {
                     return LFortran::Error();
                 }
@@ -343,14 +348,14 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
         return nullptr;
     }
     if (!found) {
-        err("Could not find the module '" + infile0 + "'. If an import path "
+        err("Could not find the module '" + module_name + "'. If an import path "
             "is available, please use the `-I` option to specify it", loc);
     }
     if (ltypes) return nullptr;
 
     if( compile_module ) {
         diagnostics.add(diag::Diagnostic(
-            "The module '" + module_name + "' cannot be loaded",
+            "The module '" + module_name + "' located in " + infile +" cannot be loaded",
             diag::Level::Warning, diag::Stage::Semantic, {
                 diag::Label("imported here", {loc})
             })
@@ -479,7 +484,6 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
         while (symtab->parent != nullptr) symtab = symtab->parent;
         ASR::symbol_t *sym = symtab->get_symbol(es->m_module_name);
         ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(sym);
-
         return import_from_module(al, m, symtab, es->m_name,
                             cur_sym_name, new_sym_name, loc);
     } else {
@@ -3413,52 +3417,77 @@ public:
     }
 
     void set_module_symbol(std::string &mod_sym, std::vector<std::string> &paths) {
-        if (mod_sym != "ltypes") {
-            // Check for the import path and mod_sym not in runtime library
-            if (import_path != "" &&
-                    !path_exists(paths[0] + '/' + mod_sym + ".py")) {
-                paths = {import_path};
-                if (parent_dir != "") paths[0] += '/' + parent_dir;
-                if(path_exists(paths[0])) {
-                    // Check for the nested modules with "."
-                    // Example: from x.y import z
-                    if (mod_sym.find(".") != std::string::npos) {
-                        mod_sym = replace(mod_sym, "[.]", "/");
-                        if(is_directory(paths[0] + "/" + mod_sym)) {
-                            // Directory i.e., x/y/__init__.py
-                            paths[0] += '/' + mod_sym;
-                            mod_sym = "__init__";
-                        } else {
-                            // File i.e., x/y.py
-                            paths[0] += '/' + mod_sym.substr(0,
-                                mod_sym.find_last_of('/'));
-                            mod_sym = mod_sym.substr(mod_sym.find_last_of('/') + 1,
-                                mod_sym.size() - 1);
-                        }
-                    } else if(is_directory(paths[0] + "/" + mod_sym)) {
-                        // Directory i.e., x/__init__.py
-                        paths[0] += '/' + mod_sym;
-                        mod_sym = "__init__";
-                    }
-                }
-            } else if (mod_sym.find(".") != std::string::npos) {
-                // Check for the nested modules with "."
-                // Example: from x.y import z
-                mod_sym = replace(mod_sym, "[.]", "/");
-                if(is_directory(paths[1] + "/" + mod_sym)) {
-                    if (parent_dir != "") paths[1] += "/";
-                    paths[1] += mod_sym;
-                    mod_sym = "__init__";
-                }
-            } else if (parent_dir != ""
-                    && is_directory(paths[1] + '/' + mod_sym)) {
-                // Directory i.e., parent_dir/x/__init__.py
-                paths[1] += '/' + mod_sym;
+        /*
+            Extracts the directory and module name.
+            If the import is of type from x.y.z import a
+            then directory would be x/y/ and module name
+            would be z.
+            If the import is of type from x import a then
+            directory would be empty and module name
+            would be z.
+        */
+        size_t last_dot = mod_sym.find_last_of(".");
+        std::string directory = "";
+        if( last_dot != std::string::npos ) {
+            directory = mod_sym.substr(0, last_dot);
+            directory = replace(directory, "[.]", "/") + "/";
+            mod_sym = mod_sym.substr(last_dot + 1, std::string::npos);
+        }
+
+        /*
+            Return in case of ltypes module.
+            TODO: Restrict the check only if
+            ltypes is the same module as src/runtime/ltypes
+            For now its wild card i.e., ltypes.py present
+            in any directory other than src/runtime will also
+            be ignored.
+        */
+        if (mod_sym == "ltypes") {
+            return ;
+        }
+
+        /*
+            If import_path is not empty then insert it
+            in the second priority. Top priority path
+            is runtime library path.
+        */
+        if( import_path != "" ) {
+            paths.insert(paths.begin() + 1, import_path);
+        }
+
+        /*
+            Search all the paths in order and stop
+            when the desired module is found.
+        */
+        bool module_found = false;
+        for( auto& path: paths ) {
+            if(is_directory(path + "/" + directory + mod_sym)) {
+                module_found = true;
+                // Directory i.e., x/y/__init__.py
+                path += '/' + directory + mod_sym;
                 mod_sym = "__init__";
-            } else if (is_directory(mod_sym)) {
+            } else if(path_exists(path + "/" + directory + mod_sym + ".py")) {
+                module_found = true;
+                // File i.e., x/y.py
+                path += '/' + directory;
+            }
+            if( module_found ) {
+                break;
+            }
+        }
+
+        /*
+            If module is not found in any of the paths
+            specified and if its a directory
+            then prioritise the directory itself.
+        */
+        if( !module_found ) {
+            if (is_directory(directory + mod_sym)) {
                 // Directory i.e., x/__init__.py
-                paths.push_back(mod_sym);
+                paths.insert(paths.begin(), directory + mod_sym);
                 mod_sym = "__init__";
+            } else if (path_exists(directory + mod_sym + ".py")) {
+                paths.insert(paths.begin(), directory);
             }
         }
     }
@@ -3507,9 +3536,10 @@ public:
             if( procedures_db.is_function_to_be_ignored(msym, remote_sym) ) {
                 continue ;
             }
+            std::string new_sym_name = ASRUtils::get_mangled_name(m, remote_sym);
             ASR::symbol_t *t = import_from_module(al, m, current_scope, msym,
-                                remote_sym, remote_sym, x.base.base.loc);
-            current_scope->add_symbol(remote_sym, t);
+                                remote_sym, new_sym_name, x.base.base.loc, false);
+            current_scope->add_symbol(new_sym_name, t);
         }
 
         tmp = nullptr;
@@ -5552,6 +5582,7 @@ public:
                     }
                     ASR::symbol_t *mt = symtab->get_symbol(mod_name);
                     ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(mt);
+                    call_name_store = ASRUtils::get_mangled_name(m, call_name_store);
                     st = import_from_module(al, m, current_scope, mod_name,
                                         call_name, call_name_store, x.base.base.loc);
                     current_scope->add_symbol(call_name_store, st);
@@ -5592,6 +5623,10 @@ public:
         }
 
         ASR::symbol_t *s = current_scope->resolve_symbol(call_name);
+        if( s && ASR::is_a<ASR::Module_t>(*s) ) {
+            std::string mangled_name = ASRUtils::get_mangled_name(ASR::down_cast<ASR::Module_t>(s), call_name);
+            s = current_scope->resolve_symbol(mangled_name);
+        }
 
         if (!s) {
             if (intrinsic_procedures.is_intrinsic(call_name)) {
