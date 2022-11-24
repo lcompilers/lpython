@@ -3567,7 +3567,7 @@ public:
         }
     }
 
-    void generate_function(const ASR::Function_t &x){
+    void generate_function(const ASR::Function_t &x) {
         bool interactive = (x.m_abi == ASR::abiType::Interactive);
         if (x.m_deftype == ASR::deftypeType::Implementation ) {
 
@@ -5791,6 +5791,9 @@ public:
                                 if (orig_arg->m_abi == ASR::abiType::BindC
                                     && orig_arg->m_value_attr) {
                                         ASR::ttype_t* arg_type = arg->m_type;
+                                        if( ASR::is_a<ASR::Const_t>(*arg_type) ) {
+                                            arg_type = ASR::down_cast<ASR::Const_t>(arg_type)->m_type;
+                                        }
                                         if (is_a<ASR::Complex_t>(*arg_type)) {
                                             int c_kind = ASRUtils::extract_kind_from_ttype_t(arg_type);
                                             if (c_kind == 4) {
