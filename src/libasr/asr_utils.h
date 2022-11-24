@@ -627,6 +627,15 @@ static inline bool all_args_evaluated(const Vec<ASR::expr_t*> &args) {
     return true;
 }
 
+static inline std::string get_mangled_name(ASR::Module_t* module, std::string symbol_name) {
+    std::string module_name = module->m_name;
+    if( module_name == symbol_name ) {
+        return "__" + std::string(module->m_name) + "_" + symbol_name;
+    } else {
+        return symbol_name;
+    }
+}
+
 // Returns true if all arguments are evaluated
 // Overload for array
 static inline bool all_args_evaluated(const Vec<ASR::array_index_t> &args) {
