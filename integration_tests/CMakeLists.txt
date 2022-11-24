@@ -360,6 +360,7 @@ RUN(NAME kwargs_01           LABELS cpython llvm)
 RUN(NAME test_01_goto        LABELS cpython llvm c)
 
 RUN(NAME func_inline_01 LABELS llvm wasm)
+RUN(NAME func_inline_02 LABELS cpython llvm c)
 RUN(NAME func_static_01 LABELS cpython llvm c wasm)
 RUN(NAME func_static_02 LABELS cpython llvm c wasm)
 RUN(NAME func_dep_03    LABELS cpython llvm c)
