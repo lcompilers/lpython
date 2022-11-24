@@ -1,4 +1,4 @@
-warning: The module 'test_import/test_import_2' cannot be loaded
+warning: The module 'test_import_2' located in tests/errors/test_import/test_import_2.py cannot be loaded
  --> tests/errors/test_import_02.py:1:1
   |
 1 | from test_import.test_import_2 import X
