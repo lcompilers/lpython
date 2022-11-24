@@ -290,18 +290,19 @@ public:
                     success = false;
                     break;
                 }
+                ASR::ttype_t* local_var_type = func_var->m_type;
                 ASR::symbol_t* local_var = (ASR::symbol_t*) ASR::make_Variable_t(
                                                 al, func_var->base.base.loc, current_scope,
                                                 s2c(al, local_var_name), ASR::intentType::Local,
                                                 nullptr, nullptr, ASR::storage_typeType::Default,
-                                                func_var->m_type, ASR::abiType::Source, ASR::accessType::Public,
+                                                local_var_type, ASR::abiType::Source, ASR::accessType::Public,
                                                 ASR::presenceType::Required, false);
                 current_scope->add_symbol(local_var_name, local_var);
                 arg2value[func_var_name] = local_var;
-                if( m_symbolic_value ) {
+                if( m_symbolic_value && !ASR::is_a<ASR::Const_t>(*local_var_type) ) {
                     exprs_to_be_visited.push_back(std::make_pair(m_symbolic_value, local_var));
                 }
-                if( m_value ) {
+                if( m_value && !ASR::is_a<ASR::Const_t>(*local_var_type) ) {
                     exprs_to_be_visited.push_back(std::make_pair(m_value, local_var));
                 }
             }

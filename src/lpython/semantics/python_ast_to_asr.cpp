@@ -3103,6 +3103,10 @@ public:
         if( is_item ) {
             Vec<ASR::dimension_t> empty_dims;
             empty_dims.reserve(al, 1);
+            if( ASR::is_a<ASR::CPtr_t>(*ASRUtils::type_get_past_pointer(type)) ) {
+                throw SemanticError("Indexing CPtr typed expressions is not supported yet",
+                                    x.base.base.loc);
+            }
             type = ASRUtils::duplicate_type(al, ASRUtils::type_get_past_pointer(type), &empty_dims);
             tmp = ASR::make_ArrayItem_t(al, x.base.base.loc, v_Var, args.p,
                         args.size(), type, ASR::arraystorageType::RowMajor, nullptr);
@@ -3253,6 +3257,24 @@ public:
                 }
             }
         }
+
+        std::string sym_name = x.m_name;
+        if (overload) {
+            std::string overload_number;
+            if (overload_defs.find(sym_name) == overload_defs.end()){
+                overload_number = "0";
+                Vec<ASR::symbol_t *> v;
+                v.reserve(al, 1);
+                overload_defs[sym_name] = v;
+            } else {
+                overload_number = std::to_string(overload_defs[sym_name].size());
+            }
+            sym_name = "__lpython_overloaded_" + overload_number + "__" + sym_name;
+        }
+        if (parent_scope->get_scope().find(sym_name) != parent_scope->get_scope().end()) {
+            throw SemanticError("Function " + std::string(x.m_name) +  " is already defined", x.base.base.loc);
+        }
+
         for (size_t i=0; i<x.m_args.n_args; i++) {
             char *arg=x.m_args.m_args[i].m_arg;
             Location loc = x.m_args.m_args[i].loc;
@@ -3311,22 +3333,6 @@ public:
             ASR::symbol_t *var = current_scope->get_symbol(arg_s);
             args.push_back(al, ASRUtils::EXPR(ASR::make_Var_t(al, x.base.base.loc,
                 var)));
-        }
-        std::string sym_name = x.m_name;
-        if (overload) {
-            std::string overload_number;
-            if (overload_defs.find(sym_name) == overload_defs.end()){
-                overload_number = "0";
-                Vec<ASR::symbol_t *> v;
-                v.reserve(al, 1);
-                overload_defs[sym_name] = v;
-            } else {
-                overload_number = std::to_string(overload_defs[sym_name].size());
-            }
-            sym_name = "__lpython_overloaded_" + overload_number + "__" + sym_name;
-        }
-        if (parent_scope->get_scope().find(sym_name) != parent_scope->get_scope().end()) {
-            throw SemanticError("Subroutine already defined", tmp->loc);
         }
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::deftypeType deftype = ASR::deftypeType::Implementation;
