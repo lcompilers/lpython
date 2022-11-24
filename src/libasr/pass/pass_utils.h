@@ -234,11 +234,6 @@ namespace LFortran {
                     bool fill_function_dependencies_copy = fill_function_dependencies;
                     fill_function_dependencies = true;
                     BaseWalkVisitor<UpdateDependenciesVisitor>::visit_Function(x);
-                    // std::cout<<"dependencies of "<<x.m_name<<" {";
-                    // for( size_t i = 0; i < dependencies.size(); i++ ) {
-                    //     std::cout<<dependencies[i]<<", ";
-                    // }
-                    // std::cout<<"}"<<std::endl;
                     xx.m_dependencies = function_dependencies.p;
                     xx.n_dependencies = function_dependencies.size();
                     fill_function_dependencies = fill_function_dependencies_copy;
