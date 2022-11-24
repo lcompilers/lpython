@@ -902,18 +902,21 @@ class CCPPDSUtils {
             tmp_gen += indent + tab + "idx2 = idx2 < 0 ? idx2 + s_len : idx2;\n";
             tmp_gen += indent + tab + "idx1 = i1_present ? idx1 : (step > 0 ? 0 : s_len-1);\n";
             tmp_gen += indent + tab + "idx2 = i2_present ? idx2 : (step > 0 ? s_len : -1);\n";
+            tmp_gen += indent + tab + "idx2 = step > 0 ? (idx2 > s_len ? s_len : idx2) : idx2;\n";
+            tmp_gen += indent + tab + "idx1 = step < 0 ? (idx1 >= s_len ? s_len-1 : idx1) : idx1;\n";
             tmp_gen += indent + tab + list_struct_type + " *__tmp = (" +
                     list_struct_type + "*) malloc(sizeof(" + list_struct_type + "));\n";
             // tmp_gen += indent + tab + list_struct_type + " __tmp;\n";
             std::string list_init_func = typecodeToDSfuncs[list_type_code]["list_init"];
-            tmp_gen += indent + tab + list_init_func + "(__tmp, 4)\n;";
+            tmp_gen += indent + tab + list_init_func + "(__tmp, 4);\n";
             tmp_gen += indent + tab + "int s_i = idx1;\n";
             tmp_gen += indent + tab + "while((step > 0 && s_i >= idx1 && s_i < idx2) ||\n";
             tmp_gen += indent + tab + "    (step < 0 && s_i <= idx1 && s_i > idx2)) {\n";
             std::string list_append_func  = typecodeToDSfuncs[list_type_code]["list_append"];
             tmp_gen += indent + tab + list_append_func + "(__tmp, x->data[s_i]);\n";
-            tmp_gen += indent + tab + "s_i+=step;\n" + tab + "}\n";
-            tmp_gen += indent + tab + "return tmp;\n}\n\n";
+            tmp_gen += indent + tab + "s_i+=step;\n" + indent + tab + "}\n";
+            tmp_gen += indent + tab + "return __tmp;\n}\n\n";
+            generated_code += tmp_gen;
         }
 
         std::string get_tuple_deepcopy_func(ASR::Tuple_t* tup_type) {
