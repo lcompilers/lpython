@@ -694,6 +694,11 @@ R"(#include <stdio.h>
                 src += indent + list_dc_func + "(&" + var_name + ", &" + target + ");\n\n";
             } else if (ASR::is_a<ASR::ListConcat_t>(*x.m_value)) {
                 src += indent + list_dc_func + "(" + value + ", &" + target + ");\n\n";
+            } else if (ASR::is_a<ASR::ListSection_t>(*x.m_value)) {
+                src += value;
+                ASR::ListSection_t *l_sec = ASR::down_cast<ASR::ListSection_t>(x.m_value);
+                std::string var_name = const_var_names[get_hash((ASR::asr_t*)l_sec)];
+                src += indent + list_dc_func + "(" + var_name + ", &" + target + ");\n\n";
             } else {
                 src += indent + list_dc_func + "(&" + value + ", &" + target + ");\n\n";
             }
@@ -847,6 +852,49 @@ R"(#include <stdio.h>
         }
         std::string indent(indentation_level * indentation_spaces, ' ');
         src = list_concat_func + "(" + left + ", " + rig + ")";
+    }
+
+    void visit_ListSection(const ASR::ListSection_t& x) {
+        std::string left, right, step, l_present, r_present;
+        if (x.m_section.m_left) {
+            self().visit_expr(*x.m_section.m_left);
+            left = src;
+            l_present = "true";
+        } else {
+            left = "0";
+            l_present = "false";
+        }
+        if (x.m_section.m_right) {
+            self().visit_expr(*x.m_section.m_right);
+            right = src;
+            r_present = "true";
+        } else {
+            right = "0";
+            r_present = "false";
+        }
+        if (x.m_section.m_step) {
+            self().visit_expr(*x.m_section.m_step);
+            step = src;
+        } else {
+            step = "1";
+        }
+        self().visit_expr(*x.m_a);
+        
+        ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
+        ASR::List_t* t = ASR::down_cast<ASR::List_t>(t_ttype);
+        std::string list_var = std::move(src);
+        std::string list_type_c = c_ds_api->get_list_type(t);
+        std::string list_section_func = c_ds_api->get_list_section_func(t);
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        const_name += std::to_string(const_vars_count);
+        const_vars_count += 1;
+        const_name = current_scope->get_unique_name(const_name);
+        std::string var_name = const_name, tmp_src = "";
+        tmp_src = indent + list_type_c + "* " + var_name + " = ";
+        tmp_src += list_section_func + "(&" + list_var + ", " + left + ", " +
+            right + ", " + step + ", " + l_present + ", " + r_present + ");\n";
+        const_var_names[get_hash((ASR::asr_t*)&x)] = var_name;
+        src = tmp_src;
     }
 
     void visit_ListClear(const ASR::ListClear_t& x) {
