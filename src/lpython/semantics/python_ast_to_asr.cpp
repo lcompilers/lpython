@@ -421,11 +421,12 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
 }
 
 ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *current_scope,
-                std::string mname, std::string cur_sym_name, std::string new_sym_name,
+                std::string /*mname*/, std::string cur_sym_name, std::string& new_sym_name,
                 const Location &loc, bool skip_current_scope_check=false) {
+    new_sym_name = ASRUtils::get_mangled_name(m, new_sym_name);
     ASR::symbol_t *t = m->m_symtab->resolve_symbol(cur_sym_name);
     if (!t) {
-        throw SemanticError("The symbol '" + cur_sym_name + "' not found in the module '" + mname + "'",
+        throw SemanticError("The symbol '" + cur_sym_name + "' not found in the module '" + std::string(m->m_name) + "'",
                 loc);
     }
     if (!skip_current_scope_check &&
@@ -481,11 +482,19 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
     } else if (ASR::is_a<ASR::ExternalSymbol_t>(*t)) {
         ASR::ExternalSymbol_t *es = ASR::down_cast<ASR::ExternalSymbol_t>(t);
         SymbolTable *symtab = current_scope;
-        while (symtab->parent != nullptr) symtab = symtab->parent;
-        ASR::symbol_t *sym = symtab->get_symbol(es->m_module_name);
+        // while (symtab->parent != nullptr) symtab = symtab->parent;
+        ASR::symbol_t *sym = symtab->resolve_symbol(es->m_module_name);
         ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(sym);
-        return import_from_module(al, m, symtab, es->m_name,
+        return import_from_module(al, m, symtab, es->m_module_name,
                             cur_sym_name, new_sym_name, loc);
+    } else if (ASR::is_a<ASR::Module_t>(*t)) {
+        ASR::Module_t* mt = ASR::down_cast<ASR::Module_t>(t);
+        std::string mangled_cur_sym_name = ASRUtils::get_mangled_name(mt, new_sym_name);
+        if( cur_sym_name == mangled_cur_sym_name ) {
+            throw SemanticError("Importing modules isn't supported yet.", loc);
+        }
+        return import_from_module(al, mt, current_scope, std::string(mt->m_name),
+                                  cur_sym_name, new_sym_name, loc);
     } else {
         throw SemanticError("Only Subroutines, Functions, Variables and "
             "ExternalSymbol are currently supported in 'import'", loc);
@@ -1007,6 +1016,7 @@ public:
                 std::string mod_name = ASR::down_cast<ASR::ExternalSymbol_t>(stemp)->m_module_name;
                 ASR::symbol_t *mt = symtab->resolve_symbol(mod_name);
                 ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(mt);
+                local_sym = ASRUtils::get_mangled_name(m, local_sym);
                 stemp = import_from_module(al, m, symtab, mod_name,
                                     remote_sym, local_sym, loc);
                 LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*stemp));
@@ -3534,7 +3544,18 @@ public:
                 throw SemanticError("The module '" + msym + "' cannot be loaded",
                         x.base.base.loc);
             }
-            current_module_dependencies.push_back(al, s2c(al, msym));
+            if( msym == "__init__" ) {
+                for( auto item: ASRUtils::symbol_symtab(t)->get_scope() ) {
+                    if( ASR::is_a<ASR::ExternalSymbol_t>(*item.second) &&
+                        !present(current_module_dependencies,
+                        ASR::down_cast<ASR::ExternalSymbol_t>(item.second)->m_module_name) ) {
+                        current_module_dependencies.push_back(al,
+                            ASR::down_cast<ASR::ExternalSymbol_t>(item.second)->m_module_name);
+                    }
+                }
+            } else {
+                current_module_dependencies.push_back(al, s2c(al, msym));
+            }
         }
 
         ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
@@ -3544,7 +3565,7 @@ public:
             }
             std::string new_sym_name = ASRUtils::get_mangled_name(m, remote_sym);
             ASR::symbol_t *t = import_from_module(al, m, current_scope, msym,
-                                remote_sym, new_sym_name, x.base.base.loc, false);
+                                remote_sym, new_sym_name, x.base.base.loc, true);
             current_scope->add_symbol(new_sym_name, t);
         }
 
@@ -4614,7 +4635,7 @@ public:
                 ASR::symbol_t *sym = current_scope->resolve_symbol(sym_name);
                 if (!sym) {
                     sym = import_from_module(al, m, current_scope, value,
-                                    x.m_attr, sym_name, x.base.base.loc, true);
+                                    x.m_attr, sym_name, x.base.base.loc, false);
                     LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*sym));
                     current_scope->add_symbol(sym_name, sym);
                 }
@@ -5898,7 +5919,13 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
         } else {
             return res2.error;
         }
-        LFORTRAN_ASSERT(asr_verify(*tu, true, diagnostics));
+#if defined(WITH_LFORTRAN_ASSERT)
+        diag::Diagnostics diagnostics;
+        if (!asr_verify(*tu, true, diagnostics)) {
+            std::cerr << diagnostics.render2();
+            throw LCompilersException("Verify failed");
+        };
+#endif
     }
 
     if (main_module) {
