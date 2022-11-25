@@ -61,7 +61,7 @@ macro(RUN)
             if (import_path)
                 add_custom_command(
                     OUTPUT ${name}.o
-                    COMMAND lpython -c -I ${import_path} ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
+                    COMMAND lpython -c -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.o
                     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                     VERBATIM)
             else ()
@@ -109,7 +109,7 @@ macro(RUN)
 
             add_test(${name} python ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py)
             set_tests_properties(${name} PROPERTIES
-                ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/../src/runtime/ltypes;LPYTHON_PY_MOD_NAME=${PY_MOD};LPYTHON_PY_MOD_PATH=${CMAKE_CURRENT_BINARY_DIR}")
+                ENVIRONMENT "PYTHONPATH=${CMAKE_SOURCE_DIR}/../src/runtime/ltypes:${CMAKE_SOURCE_DIR}/..;LPYTHON_PY_MOD_NAME=${PY_MOD};LPYTHON_PY_MOD_PATH=${CMAKE_CURRENT_BINARY_DIR}")
             if (RUN_LABELS)
                 set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
             endif()
@@ -248,9 +248,10 @@ RUN(NAME test_for_loop       LABELS cpython llvm c)
 RUN(NAME modules_01          LABELS cpython llvm wasm wasm_x86)
 RUN(NAME modules_02          LABELS cpython llvm wasm wasm_x86)
 RUN(NAME test_import_01      LABELS cpython llvm)
-RUN(NAME test_import_02      IMPORT_PATH integration_tests
-        LABELS cpython llvm)
+RUN(NAME test_import_02      LABELS cpython llvm)
 RUN(NAME test_import_03      LABELS cpython llvm)
+RUN(NAME test_import_04      IMPORT_PATH ..
+        LABELS cpython llvm)
 RUN(NAME test_math           LABELS cpython llvm)
 RUN(NAME test_numpy_01       LABELS cpython llvm c)
 RUN(NAME test_numpy_02       LABELS cpython llvm c)
