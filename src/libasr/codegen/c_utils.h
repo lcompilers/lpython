@@ -489,6 +489,7 @@ class CCPPDSUtils {
             list_remove(list_struct_type, list_type_code, list_element_type, list_type->m_type);
             list_clear(list_struct_type, list_type_code, list_element_type);
             list_concat(list_struct_type, list_type_code, list_element_type, list_type->m_type);
+            list_section(list_struct_type, list_type_code);
             return list_struct_type;
         }
 
@@ -553,6 +554,11 @@ class CCPPDSUtils {
         std::string get_list_clear_func(ASR::List_t* list_type) {
             std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
             return typecodeToDSfuncs[list_type_code]["list_clear"];
+        }
+
+        std::string get_list_section_func(ASR::List_t* list_type) {
+            std::string list_type_code = ASRUtils::get_type_code(list_type->m_type, true);
+            return typecodeToDSfuncs[list_type_code]["list_section"];
         }
 
         std::string get_generated_code() {
@@ -875,6 +881,42 @@ class CCPPDSUtils {
 
             generated_code += indent + tab + "x->current_end_point -= 1;\n";
             generated_code += indent + "}\n\n";
+        }
+
+        void list_section(std::string list_struct_type, std::string list_type_code) {
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string list_section_func = global_scope->get_unique_name("list_section_" + list_type_code);
+            typecodeToDSfuncs[list_type_code]["list_section"] = list_section_func;
+            std::string signature = list_struct_type + "* " + list_section_func + "("
+                                + list_struct_type + "* x, "
+                                + "int32_t idx1, int32_t idx2, int32_t step, bool i1_present, bool i2_present)";
+            func_decls += "inline " + signature + ";\n";
+            std::string tmp_gen = "";
+            tmp_gen += indent + signature + " {\n";
+            tmp_gen += indent + tab + "int s_len = x->current_end_point;\n";
+            tmp_gen += indent + tab + "if (step == 0) {\n";
+            tmp_gen += indent + tab + tab + "printf(\"slice step cannot be zero\");\n";
+            tmp_gen += indent + tab + tab + "exit(1);\n" + tab + "}\n";
+            tmp_gen += indent + tab + "idx1 = idx1 < 0 ? idx1 + s_len : idx1;\n";
+            tmp_gen += indent + tab + "idx2 = idx2 < 0 ? idx2 + s_len : idx2;\n";
+            tmp_gen += indent + tab + "idx1 = i1_present ? idx1 : (step > 0 ? 0 : s_len-1);\n";
+            tmp_gen += indent + tab + "idx2 = i2_present ? idx2 : (step > 0 ? s_len : -1);\n";
+            tmp_gen += indent + tab + "idx2 = step > 0 ? (idx2 > s_len ? s_len : idx2) : idx2;\n";
+            tmp_gen += indent + tab + "idx1 = step < 0 ? (idx1 >= s_len ? s_len-1 : idx1) : idx1;\n";
+            tmp_gen += indent + tab + list_struct_type + " *__tmp = (" +
+                    list_struct_type + "*) malloc(sizeof(" + list_struct_type + "));\n";
+            // tmp_gen += indent + tab + list_struct_type + " __tmp;\n";
+            std::string list_init_func = typecodeToDSfuncs[list_type_code]["list_init"];
+            tmp_gen += indent + tab + list_init_func + "(__tmp, 4);\n";
+            tmp_gen += indent + tab + "int s_i = idx1;\n";
+            tmp_gen += indent + tab + "while((step > 0 && s_i >= idx1 && s_i < idx2) ||\n";
+            tmp_gen += indent + tab + "    (step < 0 && s_i <= idx1 && s_i > idx2)) {\n";
+            std::string list_append_func  = typecodeToDSfuncs[list_type_code]["list_append"];
+            tmp_gen += indent + tab + list_append_func + "(__tmp, x->data[s_i]);\n";
+            tmp_gen += indent + tab + "s_i+=step;\n" + indent + tab + "}\n";
+            tmp_gen += indent + tab + "return __tmp;\n}\n\n";
+            generated_code += tmp_gen;
         }
 
         std::string get_tuple_deepcopy_func(ASR::Tuple_t* tup_type) {
