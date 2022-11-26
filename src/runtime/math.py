@@ -218,7 +218,7 @@ def dist(x: list[f64], y: list[f64]) -> f64:
 
     i: i32
     for i in range(len(x)):
-        res += (x[i] - y[i]) ** 2
+        res += (x[i] - y[i]) * (x[i] - y[i])
     return res**0.5
 
 
