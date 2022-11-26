@@ -37,6 +37,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
     uint32_t cur_nesting_length;
     int32_t last_vis_i32_const, last_last_vis_i32_const;
     std::map<std::string, std::string> label_to_str;
+    std::map<std::string, float> float_consts;
 
     X86Visitor(X86Assembler &m_a, Allocator &al,
                diag::Diagnostics &diagonostics, Vec<uint8_t> &code)
@@ -207,17 +208,36 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
     }
     void visit_LocalSet(uint32_t localidx) {
         X86Reg base = X86Reg::ebp;
-        int no_of_params =
-            (int)func_types[type_indices[cur_func_idx]].param_types.size();
+        auto cur_func_param_type = func_types[type_indices[cur_func_idx]];
+        int no_of_params = (int)cur_func_param_type.param_types.size();
         if ((int)localidx < no_of_params) {
-            m_a.asm_pop_r32(X86Reg::eax);
-            m_a.asm_mov_m32_r32(&base, nullptr, 1, (4 * localidx + 8),
-                                X86Reg::eax);
+            std::string var_type = var_type_to_string[cur_func_param_type.param_types[localidx]];
+            if (var_type == "i32") {
+                m_a.asm_pop_r32(X86Reg::eax);
+                m_a.asm_mov_m32_r32(&base, nullptr, 1, 8 + 4 * localidx, X86Reg::eax);
+            } else if (var_type == "f64") {
+                X86Reg stack_top = X86Reg::esp;
+                m_a.asm_fld_m32(&stack_top, nullptr, 1, 0); // load stack top into floating register stack
+                m_a.asm_fstp_m32(&base, nullptr, 1, 8 + 4 * localidx); // store float at variable location
+                // m_a.asm_pop_r32(X86Reg::eax); // pop stack top
+            } else {
+                throw CodeGenError("WASM_X86: Var type not supported");
+            }
+
         } else {
-            m_a.asm_pop_r32(X86Reg::eax);
-            m_a.asm_mov_m32_r32(&base, nullptr, 1,
-                                -(4 * ((int)localidx - no_of_params + 1)),
-                                X86Reg::eax);
+            localidx -= no_of_params;
+            std::string var_type = var_type_to_string[codes[cur_func_idx].locals[localidx].type];
+            if (var_type == "i32") {
+                m_a.asm_pop_r32(X86Reg::eax);
+                m_a.asm_mov_m32_r32(&base, nullptr, 1, -4 - 4 * localidx, X86Reg::eax);
+            } else if (var_type == "f64") {
+                X86Reg stack_top = X86Reg::esp;
+                m_a.asm_fld_m32(&stack_top, nullptr, 1, 0); // load stack top into floating register stack
+                m_a.asm_fstp_m32(&base, nullptr, 1, -4 - 4 * localidx); // store float at variable location
+                // m_a.asm_pop_r32(X86Reg::eax); // pop stack top
+            } else {
+                throw CodeGenError("WASM_X86: Var type not supported");
+            }
         }
     }
 
@@ -350,6 +370,10 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
 
         for (auto &s : label_to_str) {
             emit_data_string(m_a, s.first, s.second);
+        }
+
+        for (auto &f : float_consts) {
+            emit_float_const(m_a, f.first, f.second);
         }
 
         emit_elf32_footer(m_a);
