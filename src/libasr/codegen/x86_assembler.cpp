@@ -109,6 +109,14 @@ void emit_data_string(X86Assembler &a, const std::string &label,
     a.asm_db_imm8(s.c_str(), s.size());
 }
 
+void emit_float_const(X86Assembler &a, const std::string &label,
+    const float z) {
+    uint8_t encoded_float[sizeof(z)];
+    std::memcpy(&encoded_float, &z, sizeof(z));
+    a.add_label(label);
+    a.asm_db_imm8(encoded_float, sizeof(z));
+}
+
 void emit_print(X86Assembler &a, const std::string &msg_label,
     uint32_t size)
 {
