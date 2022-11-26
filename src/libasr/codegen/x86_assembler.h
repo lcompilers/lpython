@@ -102,6 +102,19 @@ static std::string r2s(X64Reg r64) {
         default : throw AssemblerError("Unknown instruction");
     }
 }
+// Not sure if this numbering is correct. Numbering info
+// about these registers does not seem easily available.
+enum X86FloatReg : uint8_t {
+    st0 = 0,
+    st1 = 1,
+    st2 = 2,
+    st3 = 3,
+    st4 = 4,
+    st5 = 5,
+    st6 = 6,
+    st7 = 7,
+};
+
 
 static std::string r2s(X86Reg r32) {
     switch (r32) {
@@ -1101,6 +1114,27 @@ public:
         m_code.push_back(m_al, 0x0F);
         m_code.push_back(m_al, 0x05);
         EMIT("syscall");
+    }
+
+    void asm_fld_m32(X86Reg *base, X86Reg *index,
+                uint8_t scale, int32_t disp) {
+        m_code.push_back(m_al, 0xd9);
+        m_code.push_back(m_al, ModRM_byte(0b00, 0, *base));
+        EMIT("fld dword " + m2s(base, index, scale, disp));
+    }
+
+    void asm_fst_m32(X86Reg *base, X86Reg *index,
+                uint8_t scale, int32_t disp) {
+        m_code.push_back(m_al, 0xd9);
+        m_code.push_back(m_al, ModRM_byte(0b00, 2, *base));
+        EMIT("fst dword " + m2s(base, index, scale, disp));
+    }
+
+    void asm_fstp_m32(X86Reg *base, X86Reg *index,
+                uint8_t scale, int32_t disp) {
+        m_code.push_back(m_al, 0xd9);
+        m_code.push_back(m_al, ModRM_byte(0b00, 3, *base));
+        EMIT("fstp dword " + m2s(base, index, scale, disp));
     }
 
 };
