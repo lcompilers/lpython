@@ -321,6 +321,17 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
     void visit_I32LeS() { handle_I32Compare("LtE"); }
     void visit_I32Ne() { handle_I32Compare("NotEq"); }
 
+    void visit_F64Const(double Z) {
+        float z = Z; // down cast 64-bit double to 32-bit float
+        std::string label = "float-" + std::to_string(z);
+        float_consts[label] = z;
+        m_a.asm_mov_r32_label(X86Reg::eax, label);
+        X86Reg label_reg = X86Reg::eax;
+        m_a.asm_fld_m32(&label_reg, nullptr, 1, 0); // loads into floating register stack
+        X86Reg stack_top = X86Reg::esp;
+        m_a.asm_fstp_m32(&stack_top, nullptr, 1, 0); // store float on integer stack top;
+    }
+
     void gen_x86_bytes() {
         emit_elf32_header(m_a);
 
