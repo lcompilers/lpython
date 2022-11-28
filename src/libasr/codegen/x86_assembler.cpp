@@ -140,7 +140,7 @@ void emit_print_int(X86Assembler &a, const std::string &name)
     a.asm_jge_label(".print_int_"); // if num >= 0 then print it
 
     // print "-" and then negate the integer
-    emit_print(a, "string-", 1U);
+    emit_print(a, "string_neg", 1U);
     // ecx value changed during print so fetch back
     a.asm_mov_r32_m32(X86Reg::ecx, &base, nullptr, 1, 8);
     a.asm_neg_r32(X86Reg::ecx);
@@ -199,7 +199,7 @@ void emit_print_int(X86Assembler &a, const std::string &name)
     a.asm_pop_r32(X86Reg::ebp);
     a.asm_ret();
 
-    emit_data_string(a, "string-", "-"); // - symbol for printing negative ints
+    emit_data_string(a, "string_neg", "-"); // - symbol for printing negative ints
 }
 
 } // namespace LFortran
