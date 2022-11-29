@@ -36,7 +36,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
     std::vector<std::string> loop_unique_id;
     uint32_t cur_nesting_length;
     int32_t last_vis_i32_const, last_last_vis_i32_const;
-    std::unordered_map<int32_t, std::string> loc_to_str;
+    std::map<std::string, std::string> label_to_str;
 
     X86Visitor(X86Assembler &m_a, Allocator &al,
                diag::Diagnostics &diagonostics, Vec<uint8_t> &code)
@@ -79,15 +79,14 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
                 std::string label =
                     "string" + std::to_string(last_last_vis_i32_const);
                 emit_print(m_a, label,
-                           loc_to_str[last_last_vis_i32_const].size());
+                           label_to_str[label].size());
                 break;
             }
             case 5: {  // flush_buf
-                std::string label = "string-1";
+                std::string label = "string_newline";
                 std::string msg = "\n";
-                int32_t loc = -1; // tmp negative index used
                 emit_print(m_a, label, msg.size());
-                loc_to_str[loc] = msg;
+                label_to_str["string_newline"] = msg;
                 break;
             }
             case 6: {  // set_exit_code
@@ -312,7 +311,8 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         for (uint32_t i = 0; i < data_segments.size(); i++) {
             offset = data_segments[i].insts_start_index;
             decode_instructions();
-            loc_to_str[last_vis_i32_const] = data_segments[i].text;
+            std::string label = "string" + std::to_string(last_vis_i32_const);
+            label_to_str[label] = data_segments[i].text;
         }
 
         for (uint32_t i = 0; i < type_indices.size(); i++) {
@@ -347,9 +347,8 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
             }
         }
 
-        for (auto &s : loc_to_str) {
-            std::string label = "string" + std::to_string(s.first);
-            emit_data_string(m_a, label, s.second);
+        for (auto &s : label_to_str) {
+            emit_data_string(m_a, s.first, s.second);
         }
 
         emit_elf32_footer(m_a);
