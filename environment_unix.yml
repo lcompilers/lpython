@@ -14,3 +14,4 @@ dependencies:
   - setuptools
   - toml
   - zlib
+  - git
