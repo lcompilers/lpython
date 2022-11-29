@@ -52,6 +52,7 @@ struct CompilerOptions {
     bool emit_debug_info = false;
     bool emit_debug_line_column = false;
     std::string import_path = "";
+    std::string c_postprocessor_script = "";
     Platform platform;
 
     CompilerOptions () : platform{get_platform()} {};
