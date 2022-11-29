@@ -1869,10 +1869,10 @@ class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
         }
         // The following substitutes args from the current scope
         for (size_t i = 0; i < x->n_args; i++) {
-            current_expr_copy = current_expr;
+            ASR::expr_t** current_expr_copy_ = current_expr;
             current_expr = &(x->m_args[i].m_value);
             replace_expr(x->m_args[i].m_value);
-            current_expr = current_expr_copy;
+            current_expr = current_expr_copy_;
         }
         x->m_name = new_es;
     }

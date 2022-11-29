@@ -407,6 +407,10 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
 
 class CallReplacerOnExpressionsVisitor(ASDLVisitor):
 
+    def __init__(self, stream, data):
+        self.current_expr_copy_variable_count = 0
+        super(CallReplacerOnExpressionsVisitor, self).__init__(stream, data)
+
     def visitModule(self, mod):
         self.emit("/" + "*"*78 + "/")
         self.emit("// Walk Visitor base class")
@@ -418,7 +422,6 @@ class CallReplacerOnExpressionsVisitor(ASDLVisitor):
         self.emit("    Struct& self() { return static_cast<Struct&>(*this); }")
         self.emit("public:")
         self.emit("    ASR::expr_t** current_expr;")
-        self.emit("    ASR::expr_t** current_expr_copy;")
         self.emit("")
         self.emit("    void call_replacer() {}")
         super(CallReplacerOnExpressionsVisitor, self).visitModule(mod)
@@ -448,10 +451,11 @@ class CallReplacerOnExpressionsVisitor(ASDLVisitor):
         self.emit("}", 1)
 
     def insert_call_replacer_code(self, name, level, index=""):
-        self.emit("    current_expr_copy = current_expr;", level)
+        self.emit("    ASR::expr_t** current_expr_copy_%d = current_expr;" % (self.current_expr_copy_variable_count), level)
         self.emit("    current_expr = const_cast<ASR::expr_t**>(&(x.m_%s%s));" % (name, index), level)
         self.emit("    self().call_replacer();", level)
-        self.emit("    current_expr = current_expr_copy;", level)
+        self.emit("    current_expr = current_expr_copy_%d;" % (self.current_expr_copy_variable_count), level)
+        self.current_expr_copy_variable_count += 1
 
     def visitField(self, field):
         if (field.type not in asdl.builtin_types and
@@ -995,6 +999,7 @@ class ExprBaseReplacerVisitor(ASDLVisitor):
         self.replace_expr = []
         self.is_expr = False
         self.is_product = False
+        self.current_expr_copy_variable_count = 0
         super(ExprBaseReplacerVisitor, self).__init__(stream, data)
 
     def visitModule(self, mod):
@@ -1007,7 +1012,6 @@ class ExprBaseReplacerVisitor(ASDLVisitor):
         self.emit("    Struct& self() { return static_cast<Struct&>(*this); }")
         self.emit("")
         self.emit("    ASR::expr_t** current_expr;")
-        self.emit("    ASR::expr_t** current_expr_copy;")
         self.emit("")
         self.emit("    BaseExprReplacer() : current_expr(nullptr) {}")
         self.emit("")
@@ -1074,18 +1078,20 @@ class ExprBaseReplacerVisitor(ASDLVisitor):
                 self.used = True
                 self.emit("for (size_t i = 0; i < x->n_%s; i++) {" % field.name, level)
                 if field.type == "call_arg":
-                    self.emit("    current_expr_copy = current_expr;", level)
+                    self.emit("    ASR::expr_t** current_expr_copy_%d = current_expr;" % (self.current_expr_copy_variable_count), level)
                     self.emit("    current_expr = &(x->m_%s[i].m_value);" % (field.name), level)
                     self.emit("    self().replace_expr(x->m_%s[i].m_value);"%(field.name), level)
-                    self.emit("    current_expr = current_expr_copy;", level)
+                    self.emit("    current_expr = current_expr_copy_%d;" % (self.current_expr_copy_variable_count), level)
+                    self.current_expr_copy_variable_count += 1
                 self.emit("}", level)
             else:
                 if field.type != "symbol":
                     self.used = True
-                    self.emit("current_expr_copy = current_expr;", level)
+                    self.emit("ASR::expr_t** current_expr_copy_%d = current_expr;" % (self.current_expr_copy_variable_count), level)
                     self.emit("current_expr = &(x->m_%s);" % (field.name), level)
                     self.emit("self().replace_%s(x->m_%s);" % (field.type, field.name), level)
-                    self.emit("current_expr = current_expr_copy;", level)
+                    self.emit("current_expr = current_expr_copy_%d;" % (self.current_expr_copy_variable_count), level)
+                    self.current_expr_copy_variable_count += 1
 
 class StmtBaseReplacerVisitor(ASDLVisitor):
 
