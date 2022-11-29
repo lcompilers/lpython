@@ -1632,7 +1632,11 @@ int main(int argc, char *argv[])
                 if (backend == Backend::wasm) {
                     err = system(("js " + outfile +".js").c_str());
                 } else {
-                    err = system(("./" + outfile).c_str());
+                    if (compiler_options.platform == LFortran::Platform::Windows) {
+                        err = system(outfile.c_str());
+                    } else {
+                        err = system(("./" + outfile).c_str());
+                    }
                 }
                 if (err != 0) {
                     if (0 < err && err < 256) {
