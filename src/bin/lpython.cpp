@@ -17,6 +17,7 @@
 #include <libasr/codegen/asr_to_wasm.h>
 #include <libasr/codegen/wasm_to_wat.h>
 #include <libasr/codegen/wasm_to_x86.h>
+#include <libasr/codegen/wasm_to_x64.h>
 #include <lpython/python_evaluator.h>
 #include <libasr/codegen/evaluator.h>
 #include <libasr/pass/pass_manager.h>
@@ -50,7 +51,7 @@ using LFortran::CompilerOptions;
 using LFortran::parse_python_file;
 
 enum Backend {
-    llvm, cpp, x86, wasm, wasm_x86
+    llvm, cpp, x86, wasm, wasm_x86, wasm_x64
 };
 
 std::string remove_extension(const std::string& filename) {
@@ -852,7 +853,8 @@ int compile_to_binary_wasm_to_x86(
         const std::string &outfile,
         const std::string &runtime_library_dir,
         CompilerOptions &compiler_options,
-        bool time_report)
+        bool time_report,
+        Backend backend)
 {
     Allocator al(4*1024);
     LFortran::diag::Diagnostics diagnostics;
@@ -918,14 +920,26 @@ int compile_to_binary_wasm_to_x86(
         return 3;
     }
 
-    // WASM -> X86
-    auto wasm_to_x86_start = std::chrono::high_resolution_clock::now();
-    LFortran::Result<int> res = LFortran::wasm_to_x86(r3.result, al,  outfile, time_report, diagnostics);
-    auto wasm_to_x86_end = std::chrono::high_resolution_clock::now();
-    times.push_back(std::make_pair("WASM to X86", std::chrono::duration<double, std::milli>(wasm_to_x86_end - wasm_to_x86_start).count()));
+    bool is_result_ok;
+    if (backend == Backend::wasm_x86) {
+        // WASM -> X86
+        auto wasm_to_x86_start = std::chrono::high_resolution_clock::now();
+        LFortran::Result<int> res = LFortran::wasm_to_x86(r3.result, al,  outfile, time_report, diagnostics);
+        auto wasm_to_x86_end = std::chrono::high_resolution_clock::now();
+        times.push_back(std::make_pair("WASM to X86", std::chrono::duration<double, std::milli>(wasm_to_x86_end - wasm_to_x86_start).count()));
+        is_result_ok = res.ok;
+    } else {
+        // WASM -> X64
+        auto wasm_to_x64_start = std::chrono::high_resolution_clock::now();
+        LFortran::Result<int> res = LFortran::wasm_to_x64(r3.result, al,  outfile, time_report, diagnostics);
+        auto wasm_to_x64_end = std::chrono::high_resolution_clock::now();
+        times.push_back(std::make_pair("WASM to X64", std::chrono::duration<double, std::milli>(wasm_to_x64_end - wasm_to_x64_start).count()));
+        is_result_ok = res.ok;
+    }
+
     std::cerr << diagnostics.render(lm, compiler_options);
     print_time_report(times, time_report);
-    if (!res.ok) {
+    if (!is_result_ok) {
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 4;
     }
@@ -1355,7 +1369,7 @@ int main(int argc, char *argv[])
         app.add_flag("--static", static_link, "Create a static executable");
         app.add_flag("--no-warnings", compiler_options.no_warnings, "Turn off all warnings");
         app.add_flag("--no-error-banner", compiler_options.no_error_banner, "Turn off error banner");
-        app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86, wasm, wasm_x86)")->capture_default_str();
+        app.add_option("--backend", arg_backend, "Select a backend (llvm, cpp, x86, wasm, wasm_x86, wasm_x64)")->capture_default_str();
         app.add_flag("--enable-bounds-checking", compiler_options.enable_bounds_checking, "Turn on index bounds checking");
         app.add_flag("--openmp", compiler_options.openmp, "Enable openmp");
         app.add_flag("--fast", compiler_options.fast, "Best performance (disable strict standard compliance)");
@@ -1481,8 +1495,10 @@ int main(int argc, char *argv[])
             backend = Backend::wasm;
         } else if (arg_backend == "wasm_x86") {
             backend = Backend::wasm_x86;
+        } else if (arg_backend == "wasm_x64") {
+            backend = Backend::wasm_x64;
         } else {
-            std::cerr << "The backend must be one of: llvm, cpp, x86, wasm, wasm_x86." << std::endl;
+            std::cerr << "The backend must be one of: llvm, cpp, x86, wasm, wasm_x86, wasm_x64." << std::endl;
             return 1;
         }
 
@@ -1608,9 +1624,9 @@ int main(int argc, char *argv[])
             } else if (backend == Backend::wasm) {
                 err = compile_to_binary_wasm(arg_file, outfile,
                         runtime_library_dir, compiler_options, time_report);
-            } else if (backend == Backend::wasm_x86) {
+            } else if (backend == Backend::wasm_x86 || backend == Backend::wasm_x64) {
                 err = compile_to_binary_wasm_to_x86(arg_file, outfile,
-                        runtime_library_dir, compiler_options, time_report);
+                        runtime_library_dir, compiler_options, time_report, backend);
             } else if (backend == Backend::llvm) {
 #ifdef HAVE_LFORTRAN_LLVM
                 std::string tmp_o = outfile + ".tmp.o";

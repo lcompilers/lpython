@@ -20,7 +20,9 @@ macro for best performance.
 References:
 
 [1] Intel 64 and IA-32 Architectures Software Developer's Manual
-https://www.systutorials.com/go/intel-x86-64-reference-manual/
+Link: https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-instruction-set-reference-manual-325383.pdf
+
+Old Link: https://www.systutorials.com/go/intel-x86-64-reference-manual/
 
 */
 
@@ -57,6 +59,47 @@ enum X86Reg : uint8_t {
     esi = 6,
     edi = 7,
 };
+
+enum X64Reg : uint8_t {
+    rax =  0,
+    rcx =  1,
+    rdx =  2,
+    rbx =  3,
+    rsp =  4,
+    rbp =  5,
+    rsi =  6,
+    rdi =  7,
+    r8 =   8,
+    r9 =   9,
+    r10 = 10,
+    r11 = 11,
+    r12 = 12,
+    r13 = 13,
+    r14 = 14,
+    r15 = 15,
+};
+
+static std::string r2s(X64Reg r64) {
+    switch (r64) {
+        case (X64Reg::rax) : return "rax";
+        case (X64Reg::rcx) : return "rcx";
+        case (X64Reg::rdx) : return "rdx";
+        case (X64Reg::rbx) : return "rbx";
+        case (X64Reg::rsp) : return "rsp";
+        case (X64Reg::rbp) : return "rbp";
+        case (X64Reg::rsi) : return "rsi";
+        case (X64Reg::rdi) : return "rdi";
+        case (X64Reg::r8 ) : return "r8" ;
+        case (X64Reg::r9 ) : return "r9" ;
+        case (X64Reg::r10) : return "r10";
+        case (X64Reg::r11) : return "r11";
+        case (X64Reg::r12) : return "r12";
+        case (X64Reg::r13) : return "r13";
+        case (X64Reg::r14) : return "r14";
+        case (X64Reg::r15) : return "r15";
+        default : throw AssemblerError("Unknown instruction");
+    }
+}
 
 static std::string r2s(X86Reg r32) {
     switch (r32) {
@@ -101,6 +144,10 @@ static std::string hexify(T i)
     return buf.str();
 }
 
+static std::string i2s(uint64_t imm64) {
+    return "0x" + hexify(imm64);
+}
+
 static std::string i2s(uint32_t imm32) {
     return "0x" + hexify(imm32);
 }
@@ -117,11 +164,25 @@ static std::string i2s(uint8_t imm8) {
     return "0x" + s.substr(2,4);
 }
 
+static void push_back_uint64(Vec<uint8_t> &code, Allocator &al, uint32_t i64) {
+    for (size_t i = 0u; i < 8u; i++) {
+        code.push_back(al, i64 & 0xFF);
+        i64 >>= 8;
+    }
+}
+
 static void push_back_uint32(Vec<uint8_t> &code, Allocator &al, uint32_t i32) {
     code.push_back(al, (i32      ) & 0xFF);
     code.push_back(al, (i32 >>  8) & 0xFF);
     code.push_back(al, (i32 >> 16) & 0xFF);
     code.push_back(al, (i32 >> 24) & 0xFF);
+}
+
+static void insert_uint64(Vec<uint8_t> &code, size_t pos, uint64_t i64) {
+    for (size_t i = 0u; i < 8u; i++) {
+        code.p[pos + i] = (i64 & 0xFF);
+        i64 >>= 8;
+    }
 }
 
 static void insert_uint32(Vec<uint8_t> &code, size_t pos, uint32_t i32) {
@@ -256,6 +317,7 @@ struct Symbol {
     Vec<uint32_t> undefined_positions;
     Vec<uint32_t> undefined_positions_imm16;
     Vec<uint32_t> undefined_positions_rel;
+    Vec<uint64_t> undefined_positions_64_bit;
 };
 
 class X86Assembler {
@@ -281,6 +343,10 @@ public:
 #ifdef LFORTRAN_ASM_PRINT
     std::string get_asm() {
         return m_asm_code;
+    }
+
+    void update_asm(std::string asm_code) {
+        m_asm_code = asm_code;
     }
 
     // Saves the generated assembly into a file
@@ -321,6 +387,10 @@ public:
                 uint32_t pos = s.undefined_positions_imm16[i];
                 insert_uint16(m_code, pos, s.value);
             }
+            for (size_t i=0; i < s.undefined_positions_64_bit.size(); i++) {
+                uint64_t pos = s.undefined_positions_64_bit[i];
+                insert_uint64(m_code, pos, s.value);
+            }
         }
     }
 
@@ -337,6 +407,7 @@ public:
             s.undefined_positions.reserve(m_al, 8);
             s.undefined_positions_imm16.reserve(m_al, 8);
             s.undefined_positions_rel.reserve(m_al, 8);
+            s.undefined_positions_64_bit.reserve(m_al, 8);
             m_symbols[name] = s;
         }
         Symbol &s = m_symbols[name];
@@ -350,6 +421,9 @@ public:
                     break;
                 case (2) :
                     s.undefined_positions_rel.push_back(m_al, pos()-m_origin);
+                    break;
+                case (3) : // for 64-bit label
+                    s.undefined_positions_64_bit.push_back(m_al, pos()-m_origin);
                     break;
                 default : throw AssemblerError("Unknown label type");
             }
@@ -567,6 +641,21 @@ public:
         EMIT("mov " + r2s(r32) + ", " + i2s(imm32));
     }
 
+    uint8_t rex(uint8_t W, uint8_t R, uint8_t X, uint8_t B) {
+        LFORTRAN_ASSERT(W <= 1);
+        LFORTRAN_ASSERT(R <= 1);
+        LFORTRAN_ASSERT(X <= 1);
+        LFORTRAN_ASSERT(B <= 1);
+        return (0b01000000 | (W << 3) | (R << 2) | (X << 1) | B);
+    }
+
+    void asm_mov_r64_imm64(X64Reg r64, uint64_t imm64) {
+        m_code.push_back(m_al, rex(1, 0, 0, 0));
+        m_code.push_back(m_al, 0xb8 + r64);
+        push_back_uint64(m_code, m_al, imm64);
+        EMIT("mov " + r2s(r64) + ", " + i2s(imm64));
+    }
+
     void asm_mov_r32_label(X86Reg r32, const std::string &label) {
         m_code.push_back(m_al, 0xb8 + r32);
         uint32_t imm32 = reference_symbol(label).value;
@@ -722,6 +811,11 @@ public:
         EMIT("dd " + i2s(imm32));
     }
 
+    void asm_dq_imm64(uint64_t imm64) {
+        push_back_uint64(m_code, m_al, imm64);
+        EMIT("dq " + i2s(imm64));
+    }
+
     void asm_dw_label(const std::string &label) {
         uint32_t imm16 = reference_symbol(label, 1).value;
         push_back_uint16(m_code, m_al, imm16);
@@ -732,6 +826,12 @@ public:
         uint32_t imm32 = reference_symbol(label).value;
         push_back_uint32(m_code, m_al, imm32);
         EMIT("dd " + label);
+    }
+
+    void asm_dq_label(const std::string &label) {
+        uint64_t imm64 = reference_symbol(label, 3).value;
+        push_back_uint64(m_code, m_al, imm64);
+        EMIT("dq " + label);
     }
 
     void asm_add_m32_r32(X86Reg *base, X86Reg *index,
@@ -804,6 +904,12 @@ public:
         EMIT("and " + r2s(r32) + ", " + i2s(imm32));
     }
 
+    void asm_syscall() {
+        m_code.push_back(m_al, 0x0F);
+        m_code.push_back(m_al, 0x05);
+        EMIT("syscall");
+    }
+
 };
 
 
@@ -828,6 +934,14 @@ void emit_data_string(X86Assembler &a, const std::string &label,
 void emit_print(X86Assembler &a, const std::string &msg_label,
     uint32_t size);
 void emit_print_int(X86Assembler &a, const std::string &name);
+
+// Generate an ELF 64 bit header and footer
+// With these two functions, one only has to generate a `_start` assembly
+// function to have a working binary on Linux.
+void emit_elf64_header(X86Assembler &a, uint32_t p_flags=5);
+void emit_elf64_footer(X86Assembler &a);
+
+void emit_exit_64(X86Assembler &a, std::string label, int exit_code);
 
 } // namespace LFortran
 

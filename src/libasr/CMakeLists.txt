@@ -24,6 +24,7 @@ set(SRC
     codegen/asr_to_wasm.cpp
     codegen/wasm_to_wat.cpp
     codegen/wasm_to_x86.cpp
+    codegen/wasm_to_x64.cpp
     codegen/wasm_utils.cpp
 
     pass/param_to_const.cpp
