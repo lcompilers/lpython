@@ -641,16 +641,16 @@ public:
         EMIT("mov " + r2s(r32) + ", " + i2s(imm32));
     }
 
-    void rex(int W, int R, int X, int B) {
+    uint8_t rex(uint8_t W, uint8_t R, uint8_t X, uint8_t B) {
         LFORTRAN_ASSERT(W <= 1);
         LFORTRAN_ASSERT(R <= 1);
         LFORTRAN_ASSERT(X <= 1);
         LFORTRAN_ASSERT(B <= 1);
-        m_code.push_back(m_al, (0b01000000 | (W << 3) | (R << 2) | (X << 1) | B));
+        return (0b01000000 | (W << 3) | (R << 2) | (X << 1) | B);
     }
 
     void asm_mov_r64_imm64(X64Reg r64, uint64_t imm64) {
-        rex(1, 0, 0, 0);
+        m_code.push_back(m_al, rex(1, 0, 0, 0));
         m_code.push_back(m_al, 0xb8 + r64);
         push_back_uint64(m_code, m_al, imm64);
         EMIT("mov " + r2s(r64) + ", " + i2s(imm64));
