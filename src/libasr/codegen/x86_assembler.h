@@ -20,7 +20,9 @@ macro for best performance.
 References:
 
 [1] Intel 64 and IA-32 Architectures Software Developer's Manual
-https://www.systutorials.com/go/intel-x86-64-reference-manual/
+Link: https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-instruction-set-reference-manual-325383.pdf
+
+Old Link: https://www.systutorials.com/go/intel-x86-64-reference-manual/
 
 */
 
