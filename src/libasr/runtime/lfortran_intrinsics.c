@@ -886,6 +886,10 @@ LFORTRAN_API char* _lfortran_str_chr(int val)
     return dest_char;
 }
 
+LFORTRAN_API void _lfortran_memset(char* s, int c, int size) {
+    memset(s, c, size);
+}
+
 LFORTRAN_API char* _lfortran_malloc(int size) {
     return (char*)malloc(size);
 }
