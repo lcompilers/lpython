@@ -9,7 +9,7 @@ from goto import with_goto
 __slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64", "CPtr",
         "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer",
         "p_c_pointer", "vectorize", "inline", "Union", "static", "with_goto",
-        "packed", "Const"]
+        "packed", "Const", "sizeof"]
 
 # data-types
 
@@ -25,6 +25,8 @@ class Type:
 
 class Pointer:
     def __getitem__(self, type):
+        if is_dataclass(type):
+            return convert_to_ctypes_Structure(type)
         return type
 
 class ConstType(Type):
@@ -174,6 +176,8 @@ def convert_type_to_ctype(arg):
     elif isinstance(arg, Array):
         type = convert_type_to_ctype(arg._type)
         return ctypes.POINTER(type)
+    elif is_dataclass(arg):
+        return convert_to_ctypes_Structure(arg)
     else:
         raise NotImplementedError("Type %r not implemented" % arg)
 
@@ -196,7 +200,7 @@ class CTypes:
             else:
                 raise NotImplementedError("Platform not implemented")
         def get_crtlib_path():
-            py_mod = os.environ["LPYTHON_PY_MOD_NAME"]
+            py_mod = os.environ.get("LPYTHON_PY_MOD_NAME", "")
             if py_mod == "":
                 return os.path.join(get_rtlib_dir(),
                     get_lib_name("lpython_runtime"))
@@ -242,6 +246,19 @@ def convert_to_ctypes_Union(f):
 
     return f
 
+def convert_to_ctypes_Structure(f):
+    fields = []
+    for name in f.__annotations__:
+        ltype_ = f.__annotations__[name]
+        fields.append((name, convert_type_to_ctype(ltype_)))
+
+    class ctypes_Structure(ctypes.Structure):
+        _fields_ = fields
+
+    ctypes_Structure.__name__ = f.__name__
+
+    return ctypes_Structure
+
 def ccall(f):
     if isclass(f) and issubclass(f, Union):
         return f
@@ -281,10 +298,18 @@ def pointer(x, type=None):
             raise Exception("Type not supported in pointer()")
 
 def c_p_pointer(cptr, targettype):
-    return pointer(targettype)
+    targettype_ptr = ctypes.POINTER(convert_type_to_ctype(targettype))
+    newa = ctypes.cast(cptr, targettype_ptr)
+    if is_dataclass(targettype):
+        # return the underlying struct which is newa.contents
+        return newa.contents
+    return newa
 
 def p_c_pointer(ptr, cptr):
     cptr.value = ptr.value
 
 def empty_c_void_p():
     return ctypes.c_void_p()
+
+def sizeof(arg):
+    return ctypes.sizeof(convert_type_to_ctype(arg))
