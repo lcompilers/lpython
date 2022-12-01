@@ -2,7 +2,7 @@
     "basename": "llvm-bindc_01-c984f09",
     "cmd": "lpython --no-color --show-llvm {infile} -o {outfile}",
     "infile": "tests/../integration_tests/bindc_01.py",
-    "infile_hash": "d4690d665de9b941c2581ad02041822e1e322dba55485cf8534dfe0a",
+    "infile_hash": "ce44dc48f31bcf876253727ca139210d99193565be1cf9b5fd3dea40",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-bindc_01-c984f09.stdout",
