@@ -1,8 +1,7 @@
 from ltypes import c_p_pointer, CPtr, pointer, i16, Pointer
 
 queries: CPtr
-x: Pointer[i16[:]]
-c_p_pointer(queries, x)
+x: Pointer[i16[:]] = c_p_pointer(queries, i16[:])
 print(queries, x)
 
 def f():
@@ -17,7 +16,7 @@ def f():
     assert yptr1[0] == i16(1)
     assert yptr1[1] == i16(2)
 
-    c_p_pointer(yq, yptr1)
+    yptr1 = c_p_pointer(yq, i16[:])
 
     print(yq, yptr1)
 

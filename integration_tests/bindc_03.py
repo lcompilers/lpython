@@ -19,8 +19,7 @@ def get_array(size: i32) -> CPtr:
 def f(q_void: CPtr) -> None:
     i: i32
     el: i32
-    q: Pointer[i32[:]]
-    c_p_pointer(q_void, q)
+    q: Pointer[i32[:]] = c_p_pointer(q_void, i32[:])
     for i in range(10):
         q2: CPtr
         p_c_pointer(pointer(q[i]), q2)
@@ -33,8 +32,7 @@ def f(q_void: CPtr) -> None:
 def h(q_void: CPtr) -> None:
     i: i32
     el: i32
-    q: Pointer[i32[:]]
-    c_p_pointer(q_void, q)
+    q: Pointer[i32[:]] = c_p_pointer(q_void, i32[:])
     for i in range(10):
         # TODO: Use q[i] directly in the assert.
         el = q[i]

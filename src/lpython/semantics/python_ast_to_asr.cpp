@@ -2249,9 +2249,9 @@ public:
                 AST::expr_t* cptr = c_p_pointer_call->m_args[0];
                 AST::expr_t* pptr = assign_ast_target;
                 tmp = create_CPtrToPointerFromArgs(cptr, pptr, x.base.base.loc);
-                if( current_body ) {
-                    current_body->push_back(al, ASRUtils::STMT(tmp));
-                }
+                // if( current_body ) {
+                //     current_body->push_back(al, ASRUtils::STMT(tmp));
+                // }
             } else if (tmp) {
                 value = ASRUtils::EXPR(tmp);
                 ASR::ttype_t* underlying_type = type;
@@ -2286,8 +2286,10 @@ public:
                 x.base.base.loc, abi);
         }
 
+        if( !is_c_p_pointer_call ) {
+            tmp = nullptr;
+        }
         is_c_p_pointer_call = is_c_p_pointer_call_copy;
-        tmp = nullptr;
         ann_assign_target_type = ann_assign_target_type_copy;
     }
 
@@ -3955,7 +3957,19 @@ public:
 
     void visit_Assign(const AST::Assign_t &x) {
         ASR::expr_t *target, *assign_value = nullptr, *tmp_value;
+        bool is_c_p_pointer_call_copy = is_c_p_pointer_call;
+        is_c_p_pointer_call = false;
         this->visit_expr(*x.m_value);
+        if( is_c_p_pointer_call ) {
+            LFORTRAN_ASSERT(x.n_targets == 1);
+            AST::Call_t* c_p_pointer_call = AST::down_cast<AST::Call_t>(x.m_value);
+            AST::expr_t* cptr = c_p_pointer_call->m_args[0];
+            AST::expr_t* pptr = x.m_targets[0];
+            tmp = create_CPtrToPointerFromArgs(cptr, pptr, x.base.base.loc);
+            is_c_p_pointer_call = is_c_p_pointer_call;
+            return ;
+        }
+        is_c_p_pointer_call = is_c_p_pointer_call_copy;
         if (tmp) {
             // This happens if `m.m_value` is `empty`, such as in:
             // a = empty(16)
