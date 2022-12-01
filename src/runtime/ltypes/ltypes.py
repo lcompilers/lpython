@@ -297,12 +297,25 @@ def pointer(x, type=None):
         else:
             raise Exception("Type not supported in pointer()")
 
+class PointerToStruct:
+
+    def __init__(self, ctypes_ptr_):
+        self.__dict__["ctypes_ptr"] = ctypes_ptr_
+
+    def __getattr__(self, name: str):
+        if name == "ctypes_ptr":
+            return self.__dict__[name]
+        return self.ctypes_ptr.contents.__getattribute__(name)
+
+    def __setattr__(self, name: str, value):
+        self.ctypes_ptr.contents.__setattr__(name, value)
+
 def c_p_pointer(cptr, targettype):
     targettype_ptr = ctypes.POINTER(convert_type_to_ctype(targettype))
     newa = ctypes.cast(cptr, targettype_ptr)
     if is_dataclass(targettype):
-        # return the underlying struct which is newa.contents
-        return newa.contents
+        # return after wrapping newa inside PointerToStruct
+        return PointerToStruct(newa)
     return newa
 
 def p_c_pointer(ptr, cptr):

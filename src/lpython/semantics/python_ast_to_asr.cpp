@@ -5813,6 +5813,8 @@ public:
                 tmp = intrinsic_node_handler.get_intrinsic_node(call_name, al,
                                         x.base.base.loc, args);
                 return;
+            } else if (call_name == "c_p_pointer") {
+                ann_assign_target_type
             } else {
                 // The function was not found and it is not intrinsic
                 throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",
