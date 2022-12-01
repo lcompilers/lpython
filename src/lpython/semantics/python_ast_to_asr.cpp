@@ -538,6 +538,8 @@ public:
     std::string import_path;
     Vec<ASR::stmt_t*> *current_body;
     ASR::ttype_t* ann_assign_target_type;
+    AST::expr_t* assign_ast_target;
+    bool is_c_p_pointer_call;
 
     std::map<std::string, int> generic_func_nums;
     std::map<std::string, std::map<std::string, ASR::ttype_t*>> generic_func_subs;
@@ -551,8 +553,8 @@ public:
             std::string import_path, bool allow_implicit_casting_)
         : diag{diagnostics}, al{al}, lm{lm}, current_scope{symbol_table}, main_module{main_module},
             ast_overload{ast_overload}, parent_dir{parent_dir}, import_path{import_path},
-            current_body{nullptr}, ann_assign_target_type{nullptr},
-            allow_implicit_casting{allow_implicit_casting_} {
+            current_body{nullptr}, ann_assign_target_type{nullptr}, assign_ast_target{nullptr},
+            is_c_p_pointer_call{false}, allow_implicit_casting{allow_implicit_casting_} {
         current_module_dependencies.reserve(al, 4);
     }
 
@@ -2211,6 +2213,16 @@ public:
         current_scope->add_symbol(var_name, v_sym);
     }
 
+    ASR::asr_t* create_CPtrToPointerFromArgs(AST::expr_t* ast_cptr, AST::expr_t* ast_pptr,
+        const Location& loc) {
+        this->visit_expr(*ast_cptr);
+        ASR::expr_t* cptr = ASRUtils::EXPR(tmp);
+        this->visit_expr(*ast_pptr);
+        ASR::expr_t* pptr = ASRUtils::EXPR(tmp);
+        return ASR::make_CPtrToPointer_t(al, loc, cptr,
+                                         pptr, nullptr);
+    }
+
     void visit_AnnAssignUtil(const AST::AnnAssign_t& x, std::string& var_name,
                              bool wrap_derived_type_in_pointer=false,
                              ASR::expr_t* init_expr=nullptr, ASR::abiType abi=ASR::abiType::Source) {
@@ -2222,13 +2234,25 @@ public:
             type = ASRUtils::TYPE(ASR::make_Pointer_t(al, type->base.loc, type));
         }
 
+        bool is_c_p_pointer_call_copy = is_c_p_pointer_call;
         ASR::expr_t *value = nullptr;
         if( !init_expr ) {
             tmp = nullptr;
+            is_c_p_pointer_call = false;
             if (x.m_value) {
                 this->visit_expr(*x.m_value);
             }
-            if (tmp) {
+            if( is_c_p_pointer_call ) {
+                create_add_variable_to_scope(var_name, nullptr, nullptr, type,
+                    x.base.base.loc, abi);
+                AST::Call_t* c_p_pointer_call = AST::down_cast<AST::Call_t>(x.m_value);
+                AST::expr_t* cptr = c_p_pointer_call->m_args[0];
+                AST::expr_t* pptr = assign_ast_target;
+                tmp = create_CPtrToPointerFromArgs(cptr, pptr, x.base.base.loc);
+                if( current_body ) {
+                    current_body->push_back(al, ASRUtils::STMT(tmp));
+                }
+            } else if (tmp) {
                 value = ASRUtils::EXPR(tmp);
                 ASR::ttype_t* underlying_type = type;
                 if( ASR::is_a<ASR::Const_t>(*type) ) {
@@ -2256,9 +2280,13 @@ public:
         } else {
             cast_helper(type, init_expr, init_expr->base.loc);
         }
-        create_add_variable_to_scope(var_name, init_expr, value, type,
-            x.base.base.loc, abi);
 
+        if( !is_c_p_pointer_call ) {
+            create_add_variable_to_scope(var_name, init_expr, value, type,
+                x.base.base.loc, abi);
+        }
+
+        is_c_p_pointer_call = is_c_p_pointer_call_copy;
         tmp = nullptr;
         ann_assign_target_type = ann_assign_target_type_copy;
     }
@@ -3869,6 +3897,8 @@ public:
         // We treat this as a declaration
         std::string var_name;
         std::string var_annotation;
+        AST::expr_t* assign_ast_target_copy = assign_ast_target;
+        assign_ast_target = x.m_target;
         if (AST::is_a<AST::Name_t>(*x.m_target)) {
             AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_target);
             var_name = n->m_id;
@@ -3893,6 +3923,7 @@ public:
         }
 
         visit_AnnAssignUtil(x, var_name);
+        assign_ast_target = assign_ast_target_copy;
     }
 
     void visit_Delete(const AST::Delete_t &x) {
@@ -5814,7 +5845,9 @@ public:
                                         x.base.base.loc, args);
                 return;
             } else if (call_name == "c_p_pointer") {
-                ann_assign_target_type
+                is_c_p_pointer_call = true;
+                tmp = nullptr;
+                return ;
             } else {
                 // The function was not found and it is not intrinsic
                 throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",

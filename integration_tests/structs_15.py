@@ -13,8 +13,8 @@ def _lfortran_malloc(size: i32) -> CPtr:
 def _lfortran_memset(cptr: CPtr, value: i32, size: i32):
     pass
 
-def add_A_members(Ax: i32, Ay: i16) -> i32:
-    return Ax + i32(Ay)
+def add_A_members(Ax: i16, Ay: i8) -> i16:
+    return Ax + i16(Ay)
 
 def test_Aptr_member_passing():
     print(sizeof(A))
@@ -28,14 +28,14 @@ def test_Aptr_member_passing():
     b_ptr: Pointer[A] = c_p_pointer(b_cptr, A)
     print(a_ptr.x, a_ptr.y)
     print(b_ptr.x, b_ptr.y)
-    assert a_ptr.x * 3 == b_ptr.x
-    assert a_ptr.y * 3 == b_ptr.y
+    assert a_ptr.x * i16(3) == b_ptr.x
+    assert a_ptr.y * i8(3) == b_ptr.y
 
-    a_ptr.y = i16(-18)
-    assert a_ptr.x * 3 == b_ptr.x
-    a_ptr.x = 20
+    a_ptr.y = i8(-18)
+    assert a_ptr.x * i16(3) == b_ptr.x
+    a_ptr.x = i16(20)
     print(a_ptr.x, a_ptr.y)
     print(add_A_members(a_ptr.x, a_ptr.y))
-    assert add_A_members(a_ptr.x, a_ptr.y) == 2
+    assert add_A_members(a_ptr.x, a_ptr.y) == i16(2)
 
 test_Aptr_member_passing()
