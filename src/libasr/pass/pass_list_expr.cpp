@@ -26,15 +26,15 @@ private:
     Allocator& al;
     ASR::TranslationUnit_t &unit;
     std::map<std::string, ASR::symbol_t*> &list_concat_func_map;
-    ASR::symbol_t* &list_section_func_name;
+    std::map<std::string, ASR::symbol_t*> &list_section_func_map;
 
 public:
     ListExprReplacer(Allocator &al_, ASR::TranslationUnit_t &unit_,
                       std::map<std::string, ASR::symbol_t*> &list_concat_func_map_,
-                      ASR::symbol_t* &list_section_func_name_) :
+                      std::map<std::string, ASR::symbol_t*> &list_section_func_map_) :
         al(al_), unit(unit_),
         list_concat_func_map(list_concat_func_map_),
-        list_section_func_name(list_section_func_name_)
+        list_section_func_map(list_section_func_map_)
         { }
 
     void create_while_loop(Location &loc, SymbolTable* symtab,
@@ -85,7 +85,7 @@ public:
         symtab->add_symbol(x, arg); \
     }
 
-    ASR::symbol_t* create_list_section_func(Location& loc,
+    void create_list_section_func(Location& loc,
                 SymbolTable*& global_scope, ASR::ttype_t* list_type) {
         /*
             def _lcompilers_list_section(a_list: list[i32], start: i32,
@@ -101,7 +101,8 @@ public:
                 return result_list
         */
         SymbolTable* list_section_symtab = al.make_new<SymbolTable>(global_scope);
-        std::string fn_name = global_scope->get_unique_name("_lcompilers_list_section");
+        std::string list_type_name = ASRUtils::type_to_str_python(list_type);
+        std::string fn_name = global_scope->get_unique_name("_lcompilers_list_section_" + list_type_name);
         ASR::ttype_t* item_type = ASR::down_cast<ASR::List_t>(list_type)->m_type;
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(
             al, loc, 4, nullptr, 0));
@@ -184,8 +185,9 @@ public:
             nullptr, 0,
             nullptr, 0,
             false);
-        global_scope->add_symbol(fn_name, down_cast<ASR::symbol_t>(fn));
-        return ASR::down_cast<ASR::symbol_t>(fn);
+        ASR::symbol_t *fn_sym = ASR::down_cast<ASR::symbol_t>(fn);
+        global_scope->add_symbol(fn_name, fn_sym);
+        list_section_func_map[list_type_name] = fn_sym;
     }
 
 /*
@@ -238,13 +240,14 @@ public:
                 al, loc, 1, int_type));
         }
         args.push_back(al, call_arg);
-        if (list_section_func_name == nullptr) {
-            list_section_func_name = create_list_section_func(unit.base.base.loc,
+        std::string list_type_name = ASRUtils::type_to_str_python(x->m_type);
+        if (list_section_func_map.find(list_type_name) == list_section_func_map.end()) {
+            create_list_section_func(unit.base.base.loc,
                 unit.m_global_scope, x->m_type);
         }
+        ASR::symbol_t *fn_sym = list_section_func_map[list_type_name];
         *current_expr = ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
-            list_section_func_name, nullptr, args.p, args.n,
-            x->m_type, nullptr, nullptr));
+            fn_sym, nullptr, args.p, args.n, x->m_type, nullptr, nullptr));
     }
 
     void create_concat_function(Location& loc,
@@ -380,13 +383,12 @@ class ListExprVisitor : public ASR::CallReplacerOnExpressionsVisitor<ListExprVis
 private:
 
     ListExprReplacer replacer;
-    std::map<std::string, ASR::symbol_t*> list_concat_func_map;
-    ASR::symbol_t* list_section_func = nullptr;
+    std::map<std::string, ASR::symbol_t*> list_concat_func_map, list_section_func_map;
 
 public:
 
     ListExprVisitor(Allocator& al_, ASR::TranslationUnit_t &unit_) :
-        replacer(al_, unit_, list_concat_func_map, list_section_func)
+        replacer(al_, unit_, list_concat_func_map, list_section_func_map)
         { }
 
     void call_replacer() {
