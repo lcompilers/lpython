@@ -117,9 +117,9 @@ public:
 
         // Declare `a_list`, `start`, `end` and `step`
         create_args("a_list", list_type, list_section_symtab)
-        create_args("start", item_type, list_section_symtab)
-        create_args("end", item_type, list_section_symtab)
-        create_args("step", item_type, list_section_symtab)
+        create_args("start", int_type, list_section_symtab)
+        create_args("end", int_type, list_section_symtab)
+        create_args("step", int_type, list_section_symtab)
 
         // Declare `result_list`
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(
