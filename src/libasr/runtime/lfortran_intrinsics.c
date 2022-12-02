@@ -1201,4 +1201,20 @@ LFORTRAN_API int32_t _lpython_get_argc() {
 
 LFORTRAN_API char *_lpython_get_argv(int32_t index) {
     return argv[index];
+#include <unwind.h>
+
+static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
+        void *vdata, int size) {
+    // std::vector<StacktraceItem> &d = *(std::vector<StacktraceItem> *)vdata;
+    struct stacktrace *d = (struct stacktrace *) vdata;
+    uintptr_t pc;
+    pc = _Unwind_GetIP(context);
+    if (pc != 0) {
+        pc--;
+        struct stacktrace i;
+        i.pc = pc;
+        d[size] = i;
+        size += 1;
+    }
+    return _URC_NO_REASON;
 }

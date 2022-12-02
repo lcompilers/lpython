@@ -18,6 +18,11 @@ struct _lfortran_complex_64 {
     double re, im;
 };
 
+struct stacktrace {
+    // Always found
+    uintptr_t pc;
+};
+
 #ifdef _MSC_VER
 typedef _Fcomplex float_complex_t;
 typedef _Dcomplex double_complex_t;
