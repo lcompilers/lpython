@@ -2,7 +2,7 @@
     "basename": "asr-tuple1-09972ab",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/tuple1.py",
-    "infile_hash": "f02acdb1d699677006d588559df9554308f77a2d171bfec71ed41c41",
+    "infile_hash": "aed9320f34b5eec1d9ce30d9ef28abeaf9c1faaf421d87b34148ae04",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-tuple1-09972ab.stdout",
