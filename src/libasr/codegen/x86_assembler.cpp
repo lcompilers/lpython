@@ -256,12 +256,12 @@ void emit_elf64_header(X86Assembler &a, uint32_t p_flags) {
     a.asm_dq_imm64(0x1000);   // p_align
 
     a.add_var("phdrsize", a.pos()-a.get_defined_symbol("phdr").value);
-    a.add_var("e_phoff", a.get_defined_symbol("phdr").value-a.origin());
+    a.add_var64("e_phoff", a.get_defined_symbol("phdr").value-a.origin());
 }
 
 void emit_elf64_footer(X86Assembler &a) {
-    a.add_var("e_entry", a.get_defined_symbol("_start").value);
-    a.add_var("filesize", a.pos()-a.origin());
+    a.add_var64("e_entry", a.get_defined_symbol("_start").value);
+    a.add_var64("filesize", a.pos()-a.origin());
 }
 
 void emit_exit_64(X86Assembler &a, std::string name, int exit_code) {

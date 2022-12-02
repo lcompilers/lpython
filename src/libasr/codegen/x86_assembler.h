@@ -466,6 +466,12 @@ public:
         EMIT_LABEL(label + ":");
     }
 
+    void add_var64(const std::string &var, uint64_t val) {
+        // TODO: Support 64-bit or 8 byte parameter val in define_symbol()
+        define_symbol(var, val);
+        EMIT_VAR(var, val);
+    }
+
     void add_var(const std::string &var, uint32_t val) {
         define_symbol(var, val);
         EMIT_VAR(var, val);
