@@ -27,3 +27,9 @@ def test_Tuple():
     b1: i32
     b0 = a1[0]
     b0, b1 = a1[2], a1[1]
+
+    a11: tuple[i32, i32]
+    b11: tuple[i32, i32]
+    a11 = (1, 2)
+    b11 = (1, 2)
+    assert a11 == b11
