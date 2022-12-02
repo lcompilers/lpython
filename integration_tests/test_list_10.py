@@ -38,5 +38,15 @@ def test_list_section():
     for i in range(0, len(x), 2):
         assert x[i] == y[j]
         j += 1
+    
+    c: list[str]
+    c = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+    d: list[str]
+    d = c[3:6]
+    assert d[0] == 'd'
+    assert d[1] == 'e'
+    assert d[2] == 'f'
+    assert len(d) == 3
+
 
 test_list_section()
