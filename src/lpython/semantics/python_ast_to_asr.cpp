@@ -5115,6 +5115,12 @@ public:
                                 x.base.base.loc);
             }
             tmp = ASR::make_TupleCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
+        } else if (ASR::is_a<ASR::List_t>(*dest_type)) {
+            if (asr_op != ASR::cmpopType::Eq && asr_op != ASR::cmpopType::NotEq) {
+                throw SemanticError("Only Equal and Not-equal operators are supported for Tuples",
+                                x.base.base.loc);
+            }
+            tmp = ASR::make_ListCompare_t(al, x.base.base.loc, left, asr_op, right, type, value);
         } else {
             throw SemanticError("Compare not supported for type: " + ASRUtils::type_to_str_python(dest_type),
                                 x.base.base.loc);
