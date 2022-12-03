@@ -56,6 +56,22 @@ namespace LFortran {
         builder.CreateCall(fn_exit, {exit_code});
     }
 
+    // Insert the following anywhere inside the LLVM backend to print
+    // addresses at runtime:
+    // call_print_stacktrace_addresses(context, *module, *builder, {});
+    static inline void call_print_stacktrace_addresses(llvm::LLVMContext &context, llvm::Module &module,
+        llvm::IRBuilder<> &builder, const std::vector<llvm::Value*> &args)
+    {
+        llvm::Function *fn_printf = module.getFunction("print_stacktrace_addresses2");
+        if (!fn_printf) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {}, true);
+            fn_printf = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, "print_stacktrace_addresses2", &module);
+        }
+        builder.CreateCall(fn_printf, args);
+    }
+
     namespace LLVM {
 
         llvm::Value* CreateLoad(llvm::IRBuilder<> &builder, llvm::Value *x);

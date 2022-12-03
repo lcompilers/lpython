@@ -1230,7 +1230,7 @@ struct Stacktrace get_stacktrace_addresses()
 void print_stacktrace_addresses(struct Stacktrace *d)
 {
     for (int32_t i=0; i < d->size; i++) {
-        printf("%d %lx", i, d->pc[i]);
+        printf("%d %lx\n", i, d->pc[i]);
     }
 }
 
