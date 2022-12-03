@@ -317,7 +317,6 @@ llvm = true
 [[test]]
 filename = "../integration_tests/bindc_02.py"
 asr = true
-llvm = true
 
 [[test]]
 filename = "../integration_tests/test_builtin_abs.py"

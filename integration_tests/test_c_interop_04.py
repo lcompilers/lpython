@@ -2,9 +2,9 @@ from ltypes import (ccall, f32, f64, i32, i64, CPtr, pointer, Pointer,
         p_c_pointer, empty_c_void_p)
 from numpy import empty, int32
 
-@ccall
-def sum_pi32_i32(x: CPtr) -> i32:
-    pass
+# @ccall
+# def sum_pi32_i32(x: CPtr) -> i32:
+#     pass
 
 def test_c_callbacks():
     xi32: i32[4]
@@ -19,8 +19,8 @@ def test_c_callbacks():
     p = empty_c_void_p()
     p_c_pointer(pointer(xi32), p)
     print(pointer(xi32), p)
-    sumi32 =  sum_pi32_i32(p)
-    print(sumi32)
-    assert sumi32 == 18
+    # sumi32 =  sum_pi32_i32(p)
+    # print(sumi32)
+    # assert sumi32 == 18
 
 test_c_callbacks()

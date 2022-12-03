@@ -9,7 +9,7 @@ from goto import with_goto
 __slots__ = ["i8", "i16", "i32", "i64", "f32", "f64", "c32", "c64", "CPtr",
         "overload", "ccall", "TypeVar", "pointer", "c_p_pointer", "Pointer",
         "p_c_pointer", "vectorize", "inline", "Union", "static", "with_goto",
-        "packed", "Const", "sizeof"]
+        "packed", "Const", "sizeof", "ccallable"]
 
 # data-types
 
@@ -23,7 +23,7 @@ class Type:
     def __call__(self, arg):
         return arg
 
-class Pointer:
+class PointerType(Type):
     def __getitem__(self, type):
         if is_dataclass(type):
             return convert_to_ctypes_Structure(type)
@@ -49,6 +49,7 @@ c64 = Type("c64")
 CPtr = Type("c_ptr")
 Const = ConstType("Const")
 Union = ctypes.Union
+Pointer = PointerType("Pointer")
 
 # Generics
 
@@ -181,6 +182,27 @@ def convert_type_to_ctype(arg):
     else:
         raise NotImplementedError("Type %r not implemented" % arg)
 
+def convert_numpy_dtype_to_ctype(arg):
+    import numpy as np
+    if arg == np.float64:
+        return ctypes.c_double
+    elif arg == np.float32:
+        return ctypes.c_float
+    elif arg == np.int64:
+        return ctypes.c_int64
+    elif arg == np.int32:
+        return ctypes.c_int32
+    elif arg == np.int16:
+        return ctypes.c_int16
+    elif arg == np.int8:
+        return ctypes.c_int8
+    elif arg == np.void:
+        return ctypes.c_void_p
+    elif arg is None:
+        raise NotImplementedError("Type cannot be None")
+    else:
+        raise NotImplementedError("Type %r not implemented" % arg)
+
 class CTypes:
     """
     A wrapper class for interfacing C via ctypes.
@@ -274,26 +296,27 @@ def union(f):
     f.__annotations__ = {}
     return f
 
-def pointer(x, type=None):
+def pointer(x, type_=None):
+    if type_ is None:
+        type_ = type(x)
     from numpy import ndarray
     if isinstance(x, ndarray):
-        return ctypes.c_void_p(x.ctypes.data)
-        #return x.ctypes.data_as(ctypes.POINTER(ctypes.c_int32))
+        return x.ctypes.data_as(ctypes.POINTER(convert_numpy_dtype_to_ctype(x.dtype)))
     else:
-        if type == i32:
-            #return ctypes.c_void_p(ctypes.pointer(ctypes.c_int32(x)))
-            #return ctypes.pointer(ctypes.c_int32(x))
+        if type_ == i32:
             return ctypes.cast(ctypes.pointer(ctypes.c_int32(x)),
                     ctypes.c_void_p)
-        elif type == i64:
+        elif type_ == i64:
             return ctypes.cast(ctypes.pointer(ctypes.c_int64(x)),
                     ctypes.c_void_p)
-        elif type == f32:
+        elif type_ == f32:
             return ctypes.cast(ctypes.pointer(ctypes.c_float(x)),
                     ctypes.c_void_p)
-        elif type == f64:
+        elif type_ == f64:
             return ctypes.cast(ctypes.pointer(ctypes.c_double(x)),
                     ctypes.c_void_p)
+        elif is_dataclass(type_):
+            return x
         else:
             raise Exception("Type not supported in pointer()")
 
@@ -319,10 +342,18 @@ def c_p_pointer(cptr, targettype):
     return newa
 
 def p_c_pointer(ptr, cptr):
-    cptr.value = ptr.value
+    if isinstance(ptr, ctypes.c_void_p):
+        cptr.value = ptr.value
+    else:
+        # assign the address of ptr in memory to cptr.value
+        # the case for numpy arrays converted to a pointer
+        cptr.value = id(ptr)
 
 def empty_c_void_p():
     return ctypes.c_void_p()
 
 def sizeof(arg):
     return ctypes.sizeof(convert_type_to_ctype(arg))
+
+def ccallable(f):
+    return f

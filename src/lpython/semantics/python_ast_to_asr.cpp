@@ -5607,18 +5607,25 @@ public:
     }
 
     void visit_Call(const AST::Call_t &x) {
-        std::string call_name;
+        std::string call_name = "";
         Vec<ASR::call_arg_t> args;
+        if (AST::is_a<AST::Name_t>(*x.m_func)) {
+            AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
+            call_name = n->m_id;
+        }
+        if (call_name == "c_p_pointer" &&
+            !current_scope->resolve_symbol(call_name)) {
+            is_c_p_pointer_call = true;
+            tmp = nullptr;
+            return ;
+        }
         // Keyword arguments handled in make_call_helper
         if( x.n_keywords == 0 ) {
             args.reserve(al, x.n_args);
             visit_expr_list(x.m_args, x.n_args, args);
         }
 
-        if (AST::is_a<AST::Name_t>(*x.m_func)) {
-            AST::Name_t *n = AST::down_cast<AST::Name_t>(x.m_func);
-            call_name = n->m_id;
-        } else if (AST::is_a<AST::Attribute_t>(*x.m_func)) {
+        if (AST::is_a<AST::Attribute_t>(*x.m_func)) {
             AST::Attribute_t *at = AST::down_cast<AST::Attribute_t>(x.m_func);
             if (AST::is_a<AST::Name_t>(*at->m_value)) {
                 AST::Name_t *n = AST::down_cast<AST::Name_t>(at->m_value);
@@ -5689,7 +5696,7 @@ public:
                 throw SemanticError("Only Name type and constant integers supported in Call",
                     x.base.base.loc);
             }
-        } else {
+        } else if( call_name == "" ) {
             throw SemanticError("Only Name or Attribute type supported in Call",
                 x.base.base.loc);
         }
@@ -5858,10 +5865,6 @@ public:
                 tmp = intrinsic_node_handler.get_intrinsic_node(call_name, al,
                                         x.base.base.loc, args);
                 return;
-            } else if (call_name == "c_p_pointer") {
-                is_c_p_pointer_call = true;
-                tmp = nullptr;
-                return ;
             } else {
                 // The function was not found and it is not intrinsic
                 throw SemanticError("Function '" + call_name + "' is not declared and not intrinsic",

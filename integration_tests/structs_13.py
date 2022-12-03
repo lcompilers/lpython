@@ -1,4 +1,4 @@
-from ltypes import i32, i16, i64, CPtr, dataclass, ccall, Pointer, c_p_pointer
+from ltypes import i32, i16, i64, CPtr, dataclass, ccall, Pointer, c_p_pointer, sizeof
 
 @dataclass
 class A:
@@ -23,8 +23,7 @@ def add_Aptr_members(Ax: i32, Ay: i16) -> i32:
 def test_A_member_passing():
     array_cptr: CPtr = cmalloc(sizeof(A) * i64(10))
     assert not bool(is_null(array_cptr)), "Failed to allocate array on memory"
-    array_ptr: Pointer[A[:]]
-    c_p_pointer(array_cptr, array_ptr)
+    array_ptr: Pointer[A[:]] = c_p_pointer(array_cptr, A[:])
     i: i32; sum_A_members: i32
     for i in range(10):
         array_ptr[i] = A(i, i16(i + 1))
@@ -47,8 +46,7 @@ def test_A_member_passing():
 def test_Aptr_member_passing():
     a_cptr: CPtr = cmalloc(sizeof(A) * i64(1))
     assert not bool(is_null(a_cptr)), "Failed to allocate array on memory"
-    a_ptr: Pointer[A]
-    c_p_pointer(a_cptr, a_ptr)
+    a_ptr: Pointer[A] = c_p_pointer(a_cptr, A)
     print(add_A_members(a_ptr.x, a_ptr.y), add_Aptr_members(a_ptr.x, a_ptr.y))
     assert add_A_members(a_ptr.x, a_ptr.y) == add_Aptr_members(a_ptr.x, a_ptr.y)
 
