@@ -1221,8 +1221,21 @@ static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
 
 struct Stacktrace get_stacktrace_addresses()
 {
-  struct Stacktrace d;
-  d.size = 0;
-  _Unwind_Backtrace(unwind_callback, &d);
-  return d;
+    struct Stacktrace d;
+    d.size = 0;
+    _Unwind_Backtrace(unwind_callback, &d);
+    return d;
+}
+
+void print_stacktrace_addresses(struct Stacktrace *d)
+{
+    for (int32_t i=0; i < d->size; i++) {
+        printf("%d %lx", i, d->pc[i]);
+    }
+}
+
+void print_stacktrace_addresses2()
+{
+    struct Stacktrace d = get_stacktrace_addresses();
+    print_stacktrace_addresses(&d);
 }

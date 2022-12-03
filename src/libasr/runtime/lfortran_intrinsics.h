@@ -24,6 +24,8 @@ struct Stacktrace {
     uintptr_t pc[LCOMPILERS_MAX_STACKTRACE_LENGTH];
     uint64_t size;
 };
+void print_stacktrace_addresses(struct Stacktrace *d);
+void print_stacktrace_addresses2();
 
 #ifdef _MSC_VER
 typedef _Fcomplex float_complex_t;
