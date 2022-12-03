@@ -1,4 +1,4 @@
-from ltypes import i32, f32, dataclass, CPtr, Pointer, c_p_pointer, pointer
+from ltypes import i32, f32, dataclass, CPtr, Pointer, c_p_pointer, pointer, ccallable, empty_c_void_p, f64
 
 @dataclass
 class A:
@@ -18,11 +18,11 @@ def f(a: CPtr) -> None:
     y = a2.y
     assert x == 3
     assert f64(y) == 3.25
-    c_p_pointer(a, a2)
+    a2 = c_p_pointer(a, A)
     print(a, a2, pointer(a1))
 
 def g():
-    b: CPtr
+    b: CPtr = empty_c_void_p()
     f(b)
 
 g()
