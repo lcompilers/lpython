@@ -39,6 +39,7 @@
 #include <libasr/pass/update_array_dim_intrinsic_calls.h>
 #include <libasr/pass/pass_array_by_data.h>
 #include <libasr/pass/pass_list_expr.h>
+#include <libasr/pass/pass_compare.h>
 #include <libasr/pass/subroutine_from_function.h>
 #include <libasr/asr_verify.h>
 
@@ -79,7 +80,8 @@ namespace LCompilers {
             {"array_dim_intrinsics_update", &LFortran::pass_update_array_dim_intrinsic_calls},
             {"pass_list_expr", &LFortran::pass_list_expr},
             {"pass_array_by_data", &LFortran::pass_array_by_data},
-            {"subroutine_from_function", &LFortran::pass_create_subroutine_from_function}
+            {"subroutine_from_function", &LFortran::pass_create_subroutine_from_function},
+            {"pass_compare", &LFortran::pass_compare}
         };
 
         bool is_fast;
@@ -126,7 +128,8 @@ namespace LCompilers {
                 "forall",
                 "select_case",
                 "inline_function_calls",
-                "unused_functions"
+                "unused_functions",
+                "pass_compare"
             };
 
             _with_optimization_passes = {
