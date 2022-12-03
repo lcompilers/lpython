@@ -1204,17 +1204,25 @@ LFORTRAN_API char *_lpython_get_argv(int32_t index) {
 #include <unwind.h>
 
 static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
-        void *vdata, int size) {
-    // std::vector<StacktraceItem> &d = *(std::vector<StacktraceItem> *)vdata;
-    struct stacktrace *d = (struct stacktrace *) vdata;
-    uintptr_t pc;
-    pc = _Unwind_GetIP(context);
+        void *vdata) {
+    struct Stacktrace *d = (struct Stacktrace *) vdata;
+    uintptr_t pc = _Unwind_GetIP(context);
     if (pc != 0) {
         pc--;
-        struct stacktrace i;
-        i.pc = pc;
-        d[size] = i;
-        size += 1;
+        if (d->size < LCOMPILERS_MAX_STACKTRACE_LENGTH) {
+            d->pc[d->size] = pc;
+            d->size++;
+        } else {
+            // TODO: Do not know how to report an error here
+        }
     }
     return _URC_NO_REASON;
+}
+
+struct Stacktrace get_stacktrace_addresses()
+{
+  struct Stacktrace d;
+  d.size = 0;
+  _Unwind_Backtrace(unwind_callback, &d);
+  return d;
 }

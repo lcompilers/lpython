@@ -18,9 +18,11 @@ struct _lfortran_complex_64 {
     double re, im;
 };
 
-struct stacktrace {
-    // Always found
-    uintptr_t pc;
+#define LCOMPILERS_MAX_STACKTRACE_LENGTH 200
+
+struct Stacktrace {
+    uintptr_t pc[LCOMPILERS_MAX_STACKTRACE_LENGTH];
+    uint64_t size;
 };
 
 #ifdef _MSC_VER
