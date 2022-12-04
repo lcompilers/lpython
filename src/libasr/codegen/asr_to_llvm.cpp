@@ -2984,7 +2984,8 @@ public:
                     ASR::storage_typeType local_m_storage = ASR::storage_typeType::Default;
                     llvm_el_types.push_back(get_arg_type_from_ttype_t(asr_tuple->m_type[i], m_abi,
                                             arg_m_abi, local_m_storage, arg_m_value_attr, local_n_dims,
-                                            local_a_kind, is_local_array_type, ASRUtils::intent_local));
+                                            local_a_kind, is_local_array_type,
+                                            ASRUtils::intent_local)->getPointerElementType());
                 }
                 type = tuple_api->get_tuple_type(type_code, llvm_el_types)->getPointerTo();
                 break;
