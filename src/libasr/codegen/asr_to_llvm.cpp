@@ -2973,20 +2973,7 @@ public:
                 break;
             }
             case (ASR::ttypeType::Tuple) : {
-                ASR::Tuple_t* asr_tuple = ASR::down_cast<ASR::Tuple_t>(asr_type);
-                std::string type_code = ASRUtils::get_type_code(asr_tuple->m_type,
-                                                                asr_tuple->n_type);
-                std::vector<llvm::Type*> llvm_el_types;
-                for( size_t i = 0; i < asr_tuple->n_type; i++ ) {
-                    bool is_local_array_type = false;
-                    int local_n_dims = 0;
-                    int local_a_kind = -1;
-                    ASR::storage_typeType local_m_storage = ASR::storage_typeType::Default;
-                    llvm_el_types.push_back(get_arg_type_from_ttype_t(asr_tuple->m_type[i], m_abi,
-                                            arg_m_abi, local_m_storage, arg_m_value_attr, local_n_dims,
-                                            local_a_kind, is_local_array_type, ASRUtils::intent_local));
-                }
-                type = tuple_api->get_tuple_type(type_code, llvm_el_types)->getPointerTo();
+                type = get_type_from_ttype_t_util(asr_type)->getPointerTo();
                 break;
             }
             case (ASR::ttypeType::List) : {
