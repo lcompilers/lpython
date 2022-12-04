@@ -93,7 +93,7 @@ public:
                 call_arg.loc = rig->base.loc;
                 call_arg.m_value = rig;
                 args.push_back(al, call_arg);
-                
+
                 return ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
                     fn, nullptr, args.p, args.n,
                     bool_type, nullptr, nullptr));
@@ -116,7 +116,7 @@ public:
         SymbolTable* tup_compare_symtab = al.make_new<SymbolTable>(global_scope);
         std::string tuple_type_name = ASRUtils::type_to_str_python(type);
         ASR::Tuple_t *tuple_type = ASR::down_cast<ASR::Tuple_t>(type);
-        
+
         std::string fn_name = global_scope->get_unique_name("_lcompilers_tuple_compare_" + tuple_type_name);
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(
             al, loc, 4, nullptr, 0));
@@ -207,6 +207,10 @@ public:
                 unit.m_global_scope, ASRUtils::expr_type(x->m_left));
         *current_expr = ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
             fn_sym, nullptr, args.p, args.n, bool_type, nullptr, nullptr));
+        if (x->m_op == ASR::cmpopType::NotEq) {
+            *current_expr = ASRUtils::EXPR(ASR::make_LogicalNot_t(al, loc,
+                        *current_expr, bool_type, nullptr));
+        }
     }
 
 };
