@@ -471,6 +471,13 @@ public:
     // Saves the generated machine code into a binary file
     void save_binary(const std::string &filename);
 
+    void asm_pop_r64(X64Reg r64) {
+        X86Reg r32 = X86Reg(r64 & 7);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, 0));
+        m_code.push_back(m_al, 0x58 + r32);
+        EMIT("pop " + r2s(r64));
+    }
+
     void asm_pop_r32(X86Reg r32) {
         m_code.push_back(m_al, 0x58 + r32);
         EMIT("pop " + r2s(r32));
@@ -480,6 +487,13 @@ public:
         m_code.push_back(m_al, 0x66);
         m_code.push_back(m_al, 0x58 + r16);
         EMIT("popl " + r2s(r16));
+    }
+
+    void asm_push_r64(X64Reg r64) {
+        X86Reg r32 = X86Reg(r64 & 7);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, 0));
+        m_code.push_back(m_al, 0x50 + r32);
+        EMIT("push " + r2s(r64));
     }
 
     void asm_push_r32(X86Reg r32) {
@@ -661,6 +675,15 @@ public:
         uint32_t imm32 = reference_symbol(label).value;
         push_back_uint32(m_code, m_al, imm32);
         EMIT("mov " + r2s(r32) + ", " + label);
+    }
+
+    void asm_mov_r64_r64(X64Reg r64, X64Reg s64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x89);
+        modrm_sib_disp(m_code, m_al,
+                s32, &r32, nullptr, 1, 0, false);
+        EMIT("mov " + r2s(r64) + ", " + r2s(s64));
     }
 
     void asm_mov_r32_r32(X86Reg r32, X86Reg s32) {

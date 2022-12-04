@@ -95,6 +95,10 @@ struct Vec {
         return p;
     }
 
+    T& back() const {
+        return p[n - 1];
+    }
+
     const T& operator[](size_t pos) const {
         return p[pos];
     }
