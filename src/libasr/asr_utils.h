@@ -111,6 +111,23 @@ static inline ASR::ttype_t* symbol_type(const ASR::symbol_t *f)
     return nullptr;
 }
 
+static inline ASR::abiType symbol_abi(const ASR::symbol_t *f)
+{
+    switch( f->type ) {
+        case ASR::symbolType::Variable: {
+            return ASR::down_cast<ASR::Variable_t>(f)->m_abi;
+        }
+        case ASR::symbolType::EnumType: {
+            return ASR::down_cast<ASR::EnumType_t>(f)->m_abi;
+        }
+        default: {
+            throw LCompilersException("Cannot return ABI of, " +
+                                    std::to_string(f->type) + " symbol.");
+        }
+    }
+    return ASR::abiType::Source;
+}
+
 static inline ASR::ttype_t* get_contained_type(ASR::ttype_t* asr_type) {
     switch( asr_type->type ) {
         case ASR::ttypeType::List: {
@@ -135,6 +152,20 @@ static inline ASR::ttype_t* get_contained_type(ASR::ttype_t* asr_type) {
         default: {
             return asr_type;
         }
+    }
+}
+
+static inline ASR::abiType expr_abi(ASR::expr_t* e) {
+    switch( e->type ) {
+        case ASR::exprType::Var: {
+            return ASRUtils::symbol_abi(ASR::down_cast<ASR::Var_t>(e)->m_v);
+        }
+        case ASR::exprType::StructInstanceMember: {
+            return ASRUtils::symbol_abi(ASR::down_cast<ASR::StructInstanceMember_t>(e)->m_m);
+        }
+        default:
+            throw LCompilersException("Cannot extract the ABI of " +
+                    std::to_string(e->type) + " expression.");
     }
 }
 
@@ -1367,6 +1398,19 @@ inline int extract_dimensions_from_ttype(ASR::ttype_t *x,
             throw LCompilersException("Not implemented.");
     }
     return n_dims;
+}
+
+static inline bool is_fixed_size_array(ASR::dimension_t* m_dims, size_t n_dims) {
+    if( n_dims == 0 ) {
+        return false;
+    }
+    for( size_t i = 0; i < n_dims; i++ ) {
+        int64_t dim_size = -1;
+        if( !ASRUtils::extract_value(ASRUtils::expr_value(m_dims[i].m_length), dim_size) ) {
+            return false;
+        }
+    }
+    return true;
 }
 
 inline int extract_n_dims_from_ttype(ASR::ttype_t *x) {
