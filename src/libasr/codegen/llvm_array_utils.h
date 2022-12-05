@@ -263,6 +263,11 @@ namespace LFortran {
                                 bool create_dim_des_array, bool reserve_memory) = 0;
 
                 virtual
+                void copy_array_data_only(llvm::Value* src, llvm::Value* dest,
+                                          llvm::Module* module, ASR::ttype_t* asr_data_type,
+                                          llvm::Value* num_elements) = 0;
+
+                virtual
                 llvm::Value* get_array_size(llvm::Value* array, llvm::Value* dim,
                                             int output_kind, int dim_kind=4) = 0;
 
@@ -395,6 +400,11 @@ namespace LFortran {
                 void copy_array(llvm::Value* src, llvm::Value* dest,
                                 llvm::Module* module, ASR::ttype_t* asr_data_type,
                                 bool create_dim_des_array, bool reserve_memory);
+
+                virtual
+                void copy_array_data_only(llvm::Value* src, llvm::Value* dest,
+                                          llvm::Module* module, ASR::ttype_t* asr_data_type,
+                                          llvm::Value* num_elements);
 
                 virtual
                 llvm::Value* get_array_size(llvm::Value* array, llvm::Value* dim,
