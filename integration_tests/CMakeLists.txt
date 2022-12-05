@@ -87,13 +87,13 @@ macro(RUN)
                 add_custom_command(
                     OUTPUT ${name}.c
                     COMMAND lpython --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
-                            --custom-c-postprocessor ${CMAKE_CURRENT_SOURCE_DIR}/${custom_c_postprocessor} > ${name}.c
+                            --custom-c-postprocessor ${CMAKE_CURRENT_SOURCE_DIR}/${custom_c_postprocessor} -o ${name}.c
                     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                     VERBATIM)
             else ()
                 add_custom_command(
                     OUTPUT ${name}.c
-                    COMMAND lpython --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                    COMMAND lpython --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.c
                     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
                     VERBATIM)
             endif()

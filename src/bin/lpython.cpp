@@ -295,21 +295,34 @@ int emit_c(const std::string &infile,
         LFORTRAN_ASSERT(diagnostics.has_error())
         return 3;
     }
+
+    std::string output_file;
+    bool print_to_std = true;
+    if( !compiler_options.arg_o.empty() ) {
+        output_file = compiler_options.arg_o;
+        print_to_std = false;
+    } else {
+        output_file = remove_extension(infile) + ".c";
+    }
+    std::string ccode_file = output_file;
+    std::ofstream ccode_out(ccode_file);
+    ccode_out << res.result;
+    ccode_out.close();
     if( !compiler_options.c_postprocessor_script.empty() ) {
-        std::string ccode_file = remove_extension(infile) + "_generated.c";
-        std::ofstream ccode_out(ccode_file);
-        ccode_out << res.result;
         std::string command = "python " + compiler_options.c_postprocessor_script + " " + ccode_file;
         system(command.c_str());
-        ccode_out.close();
-        std::ifstream ccode_in(ccode_file);
-        std::string modified_result = "";
-        while( std::getline(ccode_in, modified_result) ) {
-            std::cout << modified_result << "\n";
+        if( print_to_std ) {
+            std::ifstream ccode_in(ccode_file);
+            std::string modified_result = "";
+            while( std::getline(ccode_in, modified_result) ) {
+                std::cout << modified_result << "\n";
+            }
+            ccode_in.close();
         }
-        ccode_in.close();
     } else {
-        std::cout << res.result;
+        if( print_to_std ) {
+            std::cout << res.result;
+        }
     }
     return 0;
 }

@@ -218,3 +218,9 @@ integration_tests/array_02_decl.c
 integration_tests/expr_12
 integration_tests/expr_12.c
 integration_tests/expr_07_generated.c
+integration_tests/expr_07.c
+expr_07.c
+tests/c_interop1.c
+tests/expr7.c
+tests/loop1.c
+tests/loop2.c

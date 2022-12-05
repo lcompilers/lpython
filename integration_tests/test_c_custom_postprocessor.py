@@ -4,6 +4,10 @@ import sys
 
 filename = sys.argv[1]
 
-f = open(filename).read()
+file = open(filename, "r")
+f = file.read()
+file.close()
 
-open(filename, "w").write(f)
+file = open(filename, "w")
+file.write(f)
+file.close()
