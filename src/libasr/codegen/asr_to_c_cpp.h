@@ -719,7 +719,41 @@ R"(#include <stdio.h>
                      alloc = indent + target + " = " + "(char *) malloc((strlen(" +
                                     value + ") + 1 ) * sizeof(char));\n";
                 }
-                src += alloc + indent + c_ds_api->get_deepcopy(m_target_type, value, target) + "\n";
+                if( ASRUtils::is_array(m_target_type) && ASRUtils::is_array(m_value_type) ) {
+                    bool is_target_i8_array = (ASR::is_a<ASR::Integer_t>(*m_target_type) &&
+                                           ASRUtils::extract_kind_from_ttype_t(m_target_type) == 1 &&
+                                           ASRUtils::expr_abi(x.m_target) == ASR::abiType::BindC);
+                    bool is_value_i8_array = (ASR::is_a<ASR::Integer_t>(*m_value_type) &&
+                                            ASRUtils::extract_kind_from_ttype_t(m_value_type) == 1 &&
+                                            ASRUtils::expr_abi(x.m_value) == ASR::abiType::BindC);
+                    bool is_target_fixed_size = false, is_value_fixed_size = false;
+                    if( is_target_i8_array ) {
+                        ASR::Integer_t* target_integer_t = ASR::down_cast<ASR::Integer_t>(m_target_type);
+                        if( ASRUtils::is_fixed_size_array(target_integer_t->m_dims, target_integer_t->n_dims) ) {
+                            is_target_fixed_size = true;
+                        }
+                    }
+                    if( is_value_i8_array ) {
+                        ASR::Integer_t* value_integer_t = ASR::down_cast<ASR::Integer_t>(m_value_type);
+                        if( ASRUtils::is_fixed_size_array(value_integer_t->m_dims, value_integer_t->n_dims) ) {
+                            is_value_fixed_size = true;
+                        }
+                    }
+                    if( (is_target_i8_array && is_target_fixed_size) ||
+                        (is_value_i8_array && is_value_fixed_size) ) {
+                        if( !(is_target_i8_array && is_target_fixed_size) ) {
+                            target = "(char*) " + target + "->data";
+                        }
+                        if( !(is_value_i8_array && is_value_fixed_size) ) {
+                            value = "(char*) " + value + "->data";
+                        }
+                        src += indent + "strcpy(" + target + ", " + value + ");\n";
+                    } else {
+                        src += alloc + indent + c_ds_api->get_deepcopy(m_target_type, value, target) + "\n";
+                    }
+                } else {
+                    src += alloc + indent + c_ds_api->get_deepcopy(m_target_type, value, target) + "\n";
+                }
             } else {
                 src += indent + c_ds_api->get_deepcopy(m_target_type, value, target) + "\n";
             }
@@ -879,7 +913,7 @@ R"(#include <stdio.h>
             step = "1";
         }
         self().visit_expr(*x.m_a);
-        
+
         ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
         ASR::List_t* t = ASR::down_cast<ASR::List_t>(t_ttype);
         std::string list_var = std::move(src);
