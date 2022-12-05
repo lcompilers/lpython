@@ -303,14 +303,16 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             const Location &loc, diag::Diagnostics &diagnostics,
                             LocationManager &lm, bool intrinsic,
                             std::vector<std::string> &rl_path,
-                            bool &ltypes, bool& enum_py,
+                            bool &ltypes, bool& enum_py, bool& copy,
                             const std::function<void (const std::string &, const Location &)> err,
                             bool allow_implicit_casting) {
-    if( module_name == "copy" ) {
-        return nullptr;
-    }
     ltypes = false;
     enum_py = false;
+    copy = false;
+    if( module_name == "copy" ) {
+        copy = true;
+        return nullptr;
+    }
     LFORTRAN_ASSERT(symtab);
     if (symtab->get_scope().find(module_name) != symtab->get_scope().end()) {
         ASR::symbol_t *m = symtab->get_symbol(module_name);
@@ -577,10 +579,10 @@ public:
         SymbolTable *tu_symtab = ASRUtils::get_tu_symtab(current_scope);
         std::string rl_path = get_runtime_library_dir();
         std::vector<std::string> paths = {rl_path, parent_dir};
-        bool ltypes, enum_py;
+        bool ltypes, enum_py, copy;
         ASR::Module_t *m = load_module(al, tu_symtab, module_name,
                 loc, diag, lm, true, paths,
-                ltypes, enum_py,
+                ltypes, enum_py, copy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting);
         LFORTRAN_ASSERT(!ltypes && !enum_py)
@@ -2069,6 +2071,22 @@ public:
         }
     }
 
+    bool is_bindc_class(AST::expr_t** decorators, size_t n) {
+        for( size_t i = 0; i < n; i++ ) {
+            AST::expr_t* decorator = decorators[0];
+            if( !AST::is_a<AST::Name_t>(*decorator) ) {
+                return false;
+            }
+
+            AST::Name_t* dec_name = AST::down_cast<AST::Name_t>(decorator);
+            if (std::string(dec_name->m_id) == "ccallable" ||
+                std::string(dec_name->m_id) == "ccall") {
+                return true;
+            }
+        }
+        return false;
+    }
+
     bool is_dataclass(AST::expr_t** decorators, size_t n,
         ASR::expr_t*& aligned_expr, bool& is_packed) {
         if( n == 1 ) {
@@ -2087,10 +2105,12 @@ public:
                 AST::Name_t* dc2_name = AST::down_cast<AST::Name_t>(decorators[1]);
                 std::string dc1_str = dc1_name->m_id;
                 std::string dc2_str = dc2_name->m_id;
-                is_packed = true;
+                if( dc2_str == "packed" || dc1_str == "packed" ) {
+                    is_packed = true;
+                }
                 aligned_expr = nullptr;
-                return ((dc1_str == "dataclass" && dc2_str == "packed") ||
-                        (dc1_str == "packed" && dc2_str == "dataclass"));
+                return ((dc1_str == "dataclass" && (dc2_str == "packed" || dc2_str == "ccallable")) ||
+                        ((dc1_str == "packed" || dc1_str == "ccallable") && dc2_str == "dataclass"));
             }
 
             int32_t dc_idx = -1, pck_idx = -1;
@@ -2496,12 +2516,16 @@ public:
         member_names.reserve(al, x.n_body);
         Vec<char*> struct_dependencies;
         struct_dependencies.reserve(al, 1);
-        visit_ClassMembers(x, member_names, struct_dependencies);
+        ASR::abiType class_abi = ASR::abiType::Source;
+        if( is_bindc_class(x.m_decorator_list, x.n_decorator_list) ) {
+            class_abi = ASR::abiType::BindC;
+        }
+        visit_ClassMembers(x, member_names, struct_dependencies, false, class_abi);
         ASR::symbol_t* class_type = ASR::down_cast<ASR::symbol_t>(ASR::make_StructType_t(al,
                                         x.base.base.loc, current_scope, x.m_name,
                                         struct_dependencies.p, struct_dependencies.size(),
                                         member_names.p, member_names.size(),
-                                        ASR::abiType::Source, ASR::accessType::Public,
+                                        class_abi, ASR::accessType::Public,
                                         is_packed, algined_expr,
                                         nullptr));
         current_scope = parent_scope;
@@ -3557,13 +3581,13 @@ public:
             if (!main_module) {
                 st = st->parent;
             }
-            bool ltypes, enum_py;
+            bool ltypes, enum_py, copy;
             set_module_symbol(msym, paths);
             t = (ASR::symbol_t*)(load_module(al, st,
-                msym, x.base.base.loc, diag, lm, false, paths, ltypes, enum_py,
+                msym, x.base.base.loc, diag, lm, false, paths, ltypes, enum_py, copy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting));
-            if (ltypes || enum_py) {
+            if (ltypes || enum_py || copy) {
                 // TODO: For now we skip ltypes import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
                 // importing it.
@@ -3615,13 +3639,13 @@ public:
             st = st->parent;
         }
         for (auto &mod_sym : mods) {
-            bool ltypes, enum_py;
+            bool ltypes, enum_py, copy;
             set_module_symbol(mod_sym, paths);
             t = (ASR::symbol_t*)(load_module(al, st,
-                mod_sym, x.base.base.loc, diag, lm, false, paths, ltypes, enum_py,
+                mod_sym, x.base.base.loc, diag, lm, false, paths, ltypes, enum_py, copy,
                 [&](const std::string &msg, const Location &loc) { throw SemanticError(msg, loc); },
                 allow_implicit_casting));
-            if (ltypes || enum_py) {
+            if (ltypes || enum_py || copy) {
                 // TODO: For now we skip ltypes import completely. Later on we should note what symbols
                 // got imported from it, and give an error message if an annotation is used without
                 // importing it.
