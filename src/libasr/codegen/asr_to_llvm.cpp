@@ -522,7 +522,7 @@ public:
     }
 
     void fill_array_details(llvm::Value* arr, llvm::Type* llvm_data_type,
-                            ASR::dimension_t* m_dims, int n_dims) {
+                            ASR::dimension_t* m_dims, int n_dims, bool is_data_only=false) {
         std::vector<std::pair<llvm::Value*, llvm::Value*>> llvm_dims;
         for( int r = 0; r < n_dims; r++ ) {
             ASR::dimension_t m_dim = m_dims[r];
@@ -532,7 +532,19 @@ public:
             llvm::Value* end = tmp;
             llvm_dims.push_back(std::make_pair(start, end));
         }
-        arr_descr->fill_array_details(arr, llvm_data_type, n_dims, llvm_dims);
+        if( is_data_only ) {
+            // llvm::Value* llvm_size = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+            llvm::Value* const_1 = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
+            llvm::Value* prod = const_1;
+            for( int r = 0; r < n_dims; r++ ) {
+                llvm::Value* dim_size = llvm_dims[r].second;
+                prod = builder->CreateMul(prod, dim_size);
+            }
+            llvm::Value* arr_first = builder->CreateAlloca(llvm_data_type, prod);
+            builder->CreateStore(arr_first, arr);
+        } else {
+            arr_descr->fill_array_details(arr, llvm_data_type, n_dims, llvm_dims);
+        }
     }
 
     /*
@@ -720,8 +732,8 @@ public:
             }
             const std::map<std::string, ASR::symbol_t*>& scope = der_type->m_symtab->get_scope();
             for( auto itr = scope.begin(); itr != scope.end(); itr++ ) {
-                ASR::Variable_t* member = (ASR::Variable_t*)(&(itr->second->base));
-                llvm::Type* llvm_mem_type = get_type_from_ttype_t_util(member->m_type);
+                ASR::Variable_t* member = ASR::down_cast<ASR::Variable_t>(itr->second);
+                llvm::Type* llvm_mem_type = get_type_from_ttype_t_util(member->m_type, member->m_abi);
                 member_types.push_back(llvm_mem_type);
                 name2memidx[der_type_name][std::string(member->m_name)] = member_idx;
                 member_idx++;
@@ -1682,6 +1694,7 @@ public:
             this->visit_expr_wrapper(x.m_value, true);
             return;
         }
+        ASR::ttype_t* x_mv_type = ASRUtils::expr_type(x.m_v);
         bool is_argument = false;
         llvm::Value* array = nullptr;
         if( ASR::is_a<ASR::Var_t>(*x.m_v) ) {
@@ -1702,16 +1715,15 @@ public:
             int64_t ptr_loads_copy = ptr_loads;
             ptr_loads = 0;
             this->visit_expr(*x.m_v);
-            if( ASR::is_a<ASR::Struct_t>(*ASRUtils::expr_type(x.m_v)) ) {
-                ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(ASRUtils::expr_type(x.m_v));
+            if( ASR::is_a<ASR::Struct_t>(*x_mv_type) ) {
+                ASR::Struct_t* der_type = ASR::down_cast<ASR::Struct_t>(x_mv_type);
                 der_type_name = ASRUtils::symbol_name(ASRUtils::symbol_get_past_external(der_type->m_derived_type));
             }
             ptr_loads = ptr_loads_copy;
             array = tmp;
         }
         ASR::dimension_t* m_dims;
-        int n_dims = ASRUtils::extract_dimensions_from_ttype(
-                        ASRUtils::expr_type(x.m_v), m_dims);
+        int n_dims = ASRUtils::extract_dimensions_from_ttype(x_mv_type, m_dims);
         if (ASR::is_a<ASR::Character_t>(*x.m_type) && n_dims == 0) {
             // String indexing:
             if (x.n_args != 1) {
@@ -1747,10 +1759,15 @@ public:
                 ptr_loads = ptr_loads_copy;
                 indices.push_back(tmp);
             }
-            if (ASRUtils::expr_type(x.m_v)->type == ASR::ttypeType::Pointer) {
+            int a_kind = ASRUtils::extract_kind_from_ttype_t(x_mv_type);
+            bool is_i8_array = (ASR::is_a<ASR::Integer_t>(*x_mv_type) && a_kind == 1 &&
+                                ASRUtils::expr_abi(x.m_v) == ASR::abiType::BindC);
+            if (ASR::is_a<ASR::Pointer_t>(*x_mv_type) ||
+               (is_i8_array && ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v))) {
                 array = CreateLoad(array);
             }
             bool is_data_only = is_argument && !ASRUtils::is_dimension_empty(m_dims, n_dims);
+            is_data_only = is_data_only || is_i8_array;
             Vec<llvm::Value*> llvm_diminfo;
             llvm_diminfo.reserve(al, 2 * x.n_args + 1);
             if( is_data_only ) {
@@ -1763,8 +1780,7 @@ public:
                     llvm_diminfo.push_back(al, dim_size);
                 }
             }
-            LFORTRAN_ASSERT(ASRUtils::extract_n_dims_from_ttype(
-                ASRUtils::expr_type(x.m_v)) > 0);
+            LFORTRAN_ASSERT(ASRUtils::extract_n_dims_from_ttype(x_mv_type) > 0);
             tmp = arr_descr->get_single_element(array, indices, x.n_args,
                                                 is_data_only, llvm_diminfo.p);
         }
@@ -2357,7 +2373,7 @@ public:
         ASR::storage_typeType m_storage,
         bool& is_array_type, bool& is_malloc_array_type,
         bool& is_list, ASR::dimension_t*& m_dims,
-        int& n_dims, int& a_kind) {
+        int& n_dims, int& a_kind, ASR::abiType m_abi=ASR::abiType::Source) {
         llvm::Type* llvm_type = nullptr;
         switch (asr_type->type) {
             case (ASR::ttypeType::Integer) : {
@@ -2366,13 +2382,17 @@ public:
                 n_dims = v_type->n_dims;
                 a_kind = v_type->m_kind;
                 if( n_dims > 0 ) {
-                    is_array_type = true;
-                    llvm::Type* el_type = get_el_type(asr_type);
-                    if( m_storage == ASR::storage_typeType::Allocatable ) {
-                        is_malloc_array_type = true;
-                        llvm_type = arr_descr->get_malloc_array_type(asr_type, el_type);
+                    if( a_kind == 1 && m_abi == ASR::abiType::BindC ) {
+                        llvm_type = llvm::Type::getInt8PtrTy(context);
                     } else {
-                        llvm_type = arr_descr->get_array_type(asr_type, el_type);
+                        is_array_type = true;
+                        llvm::Type* el_type = get_el_type(asr_type);
+                        if( m_storage == ASR::storage_typeType::Allocatable ) {
+                            is_malloc_array_type = true;
+                            llvm_type = arr_descr->get_malloc_array_type(asr_type, el_type);
+                        } else {
+                            llvm_type = arr_descr->get_array_type(asr_type, el_type);
+                        }
                     }
                 } else {
                     llvm_type = getIntType(a_kind);
@@ -2495,7 +2515,7 @@ public:
                 ASR::ttype_t *t2 = ASR::down_cast<ASR::Pointer_t>(asr_type)->m_type;
                 llvm_type = get_type_from_ttype_t(t2, m_storage, is_array_type,
                                         is_malloc_array_type, is_list, m_dims,
-                                        n_dims, a_kind);
+                                        n_dims, a_kind, m_abi);
                 llvm_type = llvm_type->getPointerTo();
                 break;
             }
@@ -2505,7 +2525,7 @@ public:
                 llvm::Type* el_llvm_type = get_type_from_ttype_t(asr_list->m_type, m_storage,
                                                                  is_array_type, is_malloc_array_type,
                                                                  is_list, m_dims, n_dims,
-                                                                 a_kind);
+                                                                 a_kind, m_abi);
                 std::string el_type_code = ASRUtils::get_type_code(asr_list->m_type);
                 int32_t type_size = -1;
                 if( LLVM::is_llvm_struct(asr_list->m_type) ||
@@ -2537,7 +2557,7 @@ public:
                     ASR::storage_typeType local_m_storage = ASR::storage_typeType::Default;
                     llvm_el_types.push_back(get_type_from_ttype_t(asr_tuple->m_type[i], local_m_storage,
                                             is_local_array_type, is_local_malloc_array_type,
-                                            is_local_list, local_m_dims, local_n_dims, local_a_kind));
+                                            is_local_list, local_m_dims, local_n_dims, local_a_kind, m_abi));
                 }
                 llvm_type = tuple_api->get_tuple_type(type_code, llvm_el_types);
                 break;
@@ -2553,7 +2573,7 @@ public:
             case (ASR::ttypeType::Const) : {
                 llvm_type = get_type_from_ttype_t(ASRUtils::get_contained_type(asr_type),
                                 m_storage, is_array_type, is_malloc_array_type, is_list,
-                                m_dims, n_dims, a_kind);
+                                m_dims, n_dims, a_kind, m_abi);
                 break;
             }
             default :
@@ -2563,7 +2583,7 @@ public:
         return llvm_type;
     }
 
-    inline llvm::Type* get_type_from_ttype_t_util(ASR::ttype_t* asr_type) {
+    inline llvm::Type* get_type_from_ttype_t_util(ASR::ttype_t* asr_type, ASR::abiType asr_abi=ASR::abiType::Source) {
         ASR::storage_typeType m_storage_local = ASR::storage_typeType::Default;
         bool is_array_type_local, is_malloc_array_type_local;
         bool is_list_local;
@@ -2571,15 +2591,15 @@ public:
         int n_dims_local, a_kind_local;
         return get_type_from_ttype_t(asr_type, m_storage_local, is_array_type_local,
                                      is_malloc_array_type_local, is_list_local,
-                                     m_dims_local, n_dims_local, a_kind_local);
+                                     m_dims_local, n_dims_local, a_kind_local, asr_abi);
     }
 
     void fill_array_details_(llvm::Value* ptr, ASR::dimension_t* m_dims,
         size_t n_dims, bool is_malloc_array_type, bool is_array_type,
-        bool is_list, ASR::ttype_t* m_type) {
+        bool is_list, ASR::ttype_t* m_type, bool is_data_only=false) {
         if( is_malloc_array_type &&
             m_type->type != ASR::ttypeType::Pointer &&
-            !is_list ) {
+            !is_list && !is_data_only ) {
             arr_descr->fill_dimension_descriptor(ptr, n_dims);
         }
         if( is_array_type && !is_malloc_array_type &&
@@ -2587,11 +2607,11 @@ public:
             !is_list ) {
             ASR::ttype_t* asr_data_type = ASRUtils::duplicate_type_without_dims(al, m_type, m_type->base.loc);
             llvm::Type* llvm_data_type = get_type_from_ttype_t_util(asr_data_type);
-            fill_array_details(ptr, llvm_data_type, m_dims, n_dims);
+            fill_array_details(ptr, llvm_data_type, m_dims, n_dims, is_data_only);
         }
         if( is_array_type && is_malloc_array_type &&
             m_type->type != ASR::ttypeType::Pointer &&
-            !is_list ) {
+            !is_list && !is_data_only ) {
             // Set allocatable arrays as unallocated
             arr_descr->set_is_allocated_flag(ptr, 0);
         }
@@ -2615,7 +2635,11 @@ public:
                 // Assume that struct member array is not allocatable
                 ASR::dimension_t* m_dims = nullptr;
                 size_t n_dims = ASRUtils::extract_dimensions_from_ttype(symbol_type, m_dims);
-                fill_array_details_(ptr_member, m_dims, n_dims, false, true, false, symbol_type);
+                int a_kind = ASRUtils::extract_kind_from_ttype_t(symbol_type);
+                bool is_data_only = (ASRUtils::symbol_abi(item.second) == ASR::abiType::BindC &&
+                                     a_kind == 1 && ASR::is_a<ASR::Integer_t>(*symbol_type) &&
+                                     ASRUtils::is_fixed_size_array(m_dims, n_dims));
+                fill_array_details_(ptr_member, m_dims, n_dims, false, true, false, symbol_type, is_data_only);
             } else if( ASR::is_a<ASR::Struct_t>(*symbol_type) ) {
                 allocate_array_members_of_struct(ptr_member, symbol_type);
             }
@@ -2985,7 +3009,7 @@ public:
                                                                  is_array_type,
                                                                  is_malloc_array_type,
                                                                  is_list, m_dims, n_dims,
-                                                                 a_kind);
+                                                                 a_kind, m_abi);
                 int32_t type_size = -1;
                 if( LLVM::is_llvm_struct(asr_list->m_type) ||
                     ASR::is_a<ASR::Character_t>(*asr_list->m_type) ||
@@ -4012,8 +4036,67 @@ public:
         if( ASRUtils::is_array(target_type) &&
             ASRUtils::is_array(value_type) &&
             ASRUtils::check_equal_type(target_type, value_type) ) {
-            arr_descr->copy_array(value, target, module.get(),
-                                  target_type, false, false);
+            int target_kind = ASRUtils::extract_kind_from_ttype_t(target_type);
+            int value_kind = ASRUtils::extract_kind_from_ttype_t(value_type);
+            bool data_only_copy = false;
+            bool is_target_i8_array = (ASR::is_a<ASR::Integer_t>(*target_type) && target_kind == 1 &&
+                                       ASRUtils::expr_abi(x.m_target) == ASR::abiType::BindC);
+            bool is_value_i8_array = (ASR::is_a<ASR::Integer_t>(*value_type) && value_kind == 1 &&
+                                      ASRUtils::expr_abi(x.m_value) == ASR::abiType::BindC);
+            if( is_target_i8_array || is_value_i8_array ) {
+                llvm::Value *target_data = nullptr, *value_data = nullptr, *llvm_size = nullptr;
+                if( is_target_i8_array ) {
+                    target_data = target;
+                    ASR::dimension_t* target_dims = nullptr;
+                    int target_ndims = ASRUtils::extract_dimensions_from_ttype(target_type, target_dims);
+                    size_t target_size = 1;
+                    data_only_copy = true;
+                    for( int i = 0; i < target_ndims; i++ ) {
+                        int dim_length = -1;
+                        if( !ASRUtils::extract_value(ASRUtils::expr_value(target_dims[i].m_length), dim_length) ) {
+                            data_only_copy = false;
+                            break;
+                        }
+                        target_size *= dim_length;
+                    }
+                    if( data_only_copy ) {
+                        llvm_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                                           llvm::APInt(32, target_size));
+                        data_only_copy = false;
+                    }
+                } else {
+                    target_data = LLVM::CreateLoad(*builder, arr_descr->get_pointer_to_data(target));
+                }
+                if( is_value_i8_array ) {
+                    value_data = value;
+                    ASR::dimension_t* value_dims = nullptr;
+                    int value_ndims = ASRUtils::extract_dimensions_from_ttype(value_type, value_dims);
+                    size_t value_size = 1;
+                    data_only_copy = true;
+                    for( int i = 0; i < value_ndims; i++ ) {
+                        int dim_length = -1;
+                        if( !ASRUtils::extract_value(ASRUtils::expr_value(value_dims[i].m_length), dim_length) ) {
+                            data_only_copy = false;
+                            break;
+                        }
+                        value_size *= dim_length;
+                    }
+                    if( data_only_copy ) {
+                        llvm_size = llvm::ConstantInt::get(llvm::Type::getInt32Ty(context),
+                                                           llvm::APInt(32, value_size));
+                        data_only_copy = false;
+                    }
+                } else {
+                    value_data = LLVM::CreateLoad(*builder, arr_descr->get_pointer_to_data(value));
+                }
+                if( llvm_size ) {
+                    arr_descr->copy_array_data_only(value_data, target_data, module.get(),
+                                                    target_type, llvm_size);
+                }
+            } else {
+                arr_descr->copy_array(value, target, module.get(),
+                                    target_type, false, false);
+            }
         } else {
             builder->CreateStore(value, target);
         }
