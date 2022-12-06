@@ -505,7 +505,6 @@ ASR::symbol_t* import_from_module(Allocator &al, ASR::Module_t *m, SymbolTable *
     return nullptr;
 }
 
-
 template <class Struct>
 class CommonVisitor : public AST::BaseVisitor<Struct> {
 public:
@@ -1113,8 +1112,12 @@ public:
                                                 a_type, value, nullptr);
                 if( ignore_return_value ) {
                     std::string dummy_ret_name = current_scope->get_unique_name("__lcompilers_dummy");
+                    Vec<char*> variable_dependencies_vec;
+                    variable_dependencies_vec.reserve(al, 1);
+                    ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, a_type);
                     ASR::asr_t* variable_asr = ASR::make_Variable_t(al, loc, current_scope,
-                                                    s2c(al, dummy_ret_name), ASR::intentType::Local,
+                                                    s2c(al, dummy_ret_name), variable_dependencies_vec.p,
+                                                    variable_dependencies_vec.size(), ASR::intentType::Local,
                                                     nullptr, nullptr, ASR::storage_typeType::Default,
                                                     a_type, ASR::abiType::Source, ASR::accessType::Public,
                                                     ASR::presenceType::Required, false);
@@ -2210,14 +2213,17 @@ public:
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::presenceType s_presence = ASR::presenceType::Required;
         bool value_attr = false;
+        Vec<char*> variable_dependencies_vec;
+        variable_dependencies_vec.reserve(al, 1);
+        ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type, init_expr, value);
         ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
-                s2c(al, var_name), s_intent, init_expr, value, storage_type, type,
+                s2c(al, var_name), variable_dependencies_vec.p,
+                variable_dependencies_vec.size(),
+                s_intent, init_expr, value, storage_type, type,
                 current_procedure_abi_type, s_access, s_presence,
                 value_attr);
         ASR::symbol_t* v_sym = ASR::down_cast<ASR::symbol_t>(v);
-        // Convert initialisation at declaration to assignment
-        // only for non-global variables. For global variables
-        // keep relying on `m_symbolic_value`.
+
         if( init_expr && current_body) {
             ASR::expr_t* v_expr = ASRUtils::EXPR(ASR::make_Var_t(al, loc, v_sym));
             cast_helper(v_expr, init_expr, true);
@@ -2225,9 +2231,15 @@ public:
                                                         init_expr, nullptr);
             current_body->push_back(al, ASRUtils::STMT(assign));
             ASR::Variable_t* v_variable = ASR::down_cast<ASR::Variable_t>(v_sym);
-            if( !ASR::is_a<ASR::Const_t>(*type) ) {
+            if( !ASR::is_a<ASR::Const_t>(*type) &&
+                ASRUtils::is_aggregate_type(type) ) {
                 v_variable->m_symbolic_value = nullptr;
                 v_variable->m_value = nullptr;
+                Vec<char*> variable_dependencies_vec;
+                variable_dependencies_vec.reserve(al, 1);
+                ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type);
+                v_variable->m_dependencies = variable_dependencies_vec.p;
+                v_variable->n_dependencies = variable_dependencies_vec.size();
             }
         }
         current_scope->add_symbol(var_name, v_sym);
@@ -2323,8 +2335,11 @@ public:
             LFORTRAN_ASSERT(AST::is_a<AST::Name_t>(*ann_assign->m_target));
             AST::Name_t *n = AST::down_cast<AST::Name_t>(ann_assign->m_target);
             std::string var_name = n->m_id;
-            ASR::ttype_t* i64_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8, nullptr, 0));
-            ASR::expr_t* init_expr = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, -1, i64_type));
+            ASR::expr_t* init_expr = nullptr;
+            if( is_enum_scope ) {
+                ASR::ttype_t* i64_type = ASRUtils::TYPE(ASR::make_Integer_t(al, x.base.base.loc, 8, nullptr, 0));
+                init_expr = ASRUtils::EXPR(ASR::make_IntegerConstant_t(al, x.base.base.loc, -1, i64_type));
+            }
             visit_AnnAssignUtil(*ann_assign, var_name, false, init_expr, abi);
             ASR::symbol_t* var_sym = current_scope->resolve_symbol(var_name);
             if( is_enum_scope ) {
@@ -2558,10 +2573,14 @@ public:
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::presenceType s_presence = ASR::presenceType::Required;
         bool value_attr = false;
+        Vec<char*> variable_dependencies_vec;
+        variable_dependencies_vec.reserve(al, 1);
+        ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type, init_expr, value);
         ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
-                s2c(al, var_name), s_intent, init_expr, value, storage_type, type,
-                current_procedure_abi_type, s_access, s_presence,
-                value_attr);
+                s2c(al, var_name), variable_dependencies_vec.p,
+                variable_dependencies_vec.size(), s_intent, init_expr,
+                value, storage_type, type, current_procedure_abi_type,
+                s_access, s_presence, value_attr);
         current_scope->add_symbol(var_name, ASR::down_cast<ASR::symbol_t>(v));
     }
 
@@ -2585,8 +2604,13 @@ public:
         ASR::accessType s_access = ASR::accessType::Public;
         ASR::presenceType s_presence = ASR::presenceType::Required;
         bool value_attr = false;
+        Vec<char*> variable_dependencies_vec;
+        variable_dependencies_vec.reserve(al, 1);
+        ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type, init_expr, value);
         ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
-                s2c(al, var_name), s_intent, init_expr, value, storage_type, type,
+                s2c(al, var_name), variable_dependencies_vec.p,
+                variable_dependencies_vec.size(),
+                s_intent, init_expr, value, storage_type, type,
                 current_procedure_abi_type, s_access, s_presence,
                 value_attr);
         current_scope->add_symbol(var_name, ASR::down_cast<ASR::symbol_t>(v));
@@ -3388,8 +3412,13 @@ public:
             if (current_procedure_abi_type == ASR::abiType::BindC) {
                 value_attr = true;
             }
+            Vec<char*> variable_dependencies_vec;
+            variable_dependencies_vec.reserve(al, 1);
+            ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, arg_type, init_expr, value);
             ASR::asr_t *v = ASR::make_Variable_t(al, loc, current_scope,
-                    s2c(al, arg_s), s_intent, init_expr, value, storage_type, arg_type,
+                    s2c(al, arg_s), variable_dependencies_vec.p,
+                    variable_dependencies_vec.size(),
+                    s_intent, init_expr, value, storage_type, arg_type,
                     current_procedure_abi_type, s_access, s_presence,
                     value_attr);
             current_scope->add_symbol(arg_s, ASR::down_cast<ASR::symbol_t>(v));
@@ -3413,11 +3442,14 @@ public:
                 if( ASR::is_a<ASR::Const_t>(*type) ) {
                     storage_type = ASR::storage_typeType::Parameter;
                 }
+                Vec<char*> variable_dependencies_vec;
+                variable_dependencies_vec.reserve(al, 1);
+                ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type);
                 ASR::asr_t *return_var = ASR::make_Variable_t(al, x.m_returns->base.loc,
-                    current_scope, s2c(al, return_var_name), ASRUtils::intent_return_var, nullptr, nullptr,
-                    storage_type, type,
-                    current_procedure_abi_type, ASR::Public, ASR::presenceType::Required,
-                    false);
+                    current_scope, s2c(al, return_var_name), variable_dependencies_vec.p,
+                    variable_dependencies_vec.size(), ASRUtils::intent_return_var,
+                    nullptr, nullptr, storage_type, type, current_procedure_abi_type, ASR::Public,
+                    ASR::presenceType::Required, false);
                 LFORTRAN_ASSERT(current_scope->get_scope().find(return_var_name) == current_scope->get_scope().end())
                 current_scope->add_symbol(return_var_name,
                         ASR::down_cast<ASR::symbol_t>(return_var));
@@ -3719,11 +3751,14 @@ public:
                         ASR::presenceType s_presence = ASR::presenceType::Required;
                         bool value_attr = false;
 
+                        Vec<char*> variable_dependencies_vec;
+                        variable_dependencies_vec.reserve(al, 1);
+                        ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, type, init_expr, value);
                         // Build the variable and add it to the scope
                         ASR::asr_t *v = ASR::make_Variable_t(al, x.base.base.loc, current_scope,
-                            s2c(al, tvar_name), s_intent, init_expr, value, storage_type, type,
-                            current_procedure_abi_type, s_access, s_presence,
-                            value_attr);
+                            s2c(al, tvar_name), variable_dependencies_vec.p, variable_dependencies_vec.size(),
+                            s_intent, init_expr, value, storage_type, type, current_procedure_abi_type,
+                            s_access, s_presence, value_attr);
                         current_scope->add_symbol(tvar_name, ASR::down_cast<ASR::symbol_t>(v));
 
                         tmp = nullptr;
@@ -4172,13 +4207,16 @@ public:
         if( ASR::is_a<ASR::Const_t>(*int_type) ) {
             storage_type = ASR::storage_typeType::Parameter;
         }
+        Vec<char*> variable_dependencies_vec;
+        variable_dependencies_vec.reserve(al, 1);
+        ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, int_type);
         auto explicit_iter_variable = ASR::make_Variable_t(al, loc,
-            current_scope, s2c(al, explicit_iter_name), ASR::intentType::Local,
-            nullptr, nullptr, storage_type,
-            int_type, ASR::abiType::Source,
-            ASR::accessType::Public, ASR::presenceType::Required, false
+            current_scope, s2c(al, explicit_iter_name),
+            variable_dependencies_vec.p, variable_dependencies_vec.size(),
+            ASR::intentType::Local, nullptr, nullptr, storage_type,
+            int_type, ASR::abiType::Source, ASR::accessType::Public,
+            ASR::presenceType::Required, false
         );
-
         current_scope->add_symbol(explicit_iter_name,
                         ASR::down_cast<ASR::symbol_t>(explicit_iter_variable));
         // make loop_end = len(loop_src_var), where loop_src_var is the variable over which
@@ -4309,8 +4347,12 @@ public:
 
                 // Create a temporary variable that will contain the evaluated value of Subscript
                 std::string tmp_assign_name = current_scope->get_unique_name("__tmp_assign_for_loop");
+                Vec<char*> variable_dependencies_vec;
+                variable_dependencies_vec.reserve(al, 1);
+                ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, loop_src_var_ttype);
                 ASR::asr_t* tmp_assign_variable = ASR::make_Variable_t(al, sbt->base.base.loc, current_scope,
-                    s2c(al, tmp_assign_name), ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
+                    s2c(al, tmp_assign_name), variable_dependencies_vec.p, variable_dependencies_vec.size(),
+                    ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
                     loop_src_var_ttype, ASR::abiType::Source, ASR::accessType::Public, ASR::presenceType::Required, false
                 );
                 ASR::symbol_t *tmp_assign_variable_sym = ASR::down_cast<ASR::symbol_t>(tmp_assign_variable);
@@ -5116,6 +5158,12 @@ public:
         if( ASR::is_a<ASR::Const_t>(*ASRUtils::symbol_type(return_var)) ) {
             ASR::Variable_t* return_variable = ASR::down_cast<ASR::Variable_t>(return_var);
             return_variable->m_symbolic_value = value;
+            Vec<char*> variable_dependencies_vec;
+            variable_dependencies_vec.from_pointer_n_copy(al, return_variable->m_dependencies,
+                                                          return_variable->n_dependencies);
+            ASRUtils::collect_variable_dependencies(al, variable_dependencies_vec, nullptr, value, nullptr);
+            return_variable->m_dependencies = variable_dependencies_vec.p;
+            return_variable->n_dependencies = variable_dependencies_vec.size();
         }
 
         // We can only return one statement in `tmp`, so we insert the current
@@ -5985,7 +6033,12 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
         return res.error;
     }
     ASR::TranslationUnit_t *tu = ASR::down_cast2<ASR::TranslationUnit_t>(unit);
-    LFORTRAN_ASSERT(asr_verify(*tu, true, diagnostics));
+#if defined(WITH_LFORTRAN_ASSERT)
+        if (!asr_verify(*tu, true, diagnostics)) {
+            std::cerr << diagnostics.render2();
+            throw LCompilersException("Verify failed");
+        };
+#endif
 
     if (!compiler_options.symtab_only) {
         auto res2 = body_visitor(al, lm, *ast_m, diagnostics, unit, main_module,
