@@ -216,15 +216,18 @@ namespace LFortran {
 
                 Vec<char*> function_dependencies;
                 Vec<char*> module_dependencies;
+                Vec<char*> variable_dependencies;
                 Allocator& al;
                 bool fill_function_dependencies;
                 bool fill_module_dependencies;
+                bool fill_variable_dependencies;
 
             public:
 
                 UpdateDependenciesVisitor(Allocator &al_)
                 : al(al_), fill_function_dependencies(false),
-                fill_module_dependencies(false)
+                fill_module_dependencies(false),
+                fill_variable_dependencies(false)
                 {}
 
                 void visit_Function(const ASR::Function_t& x) {
@@ -242,13 +245,36 @@ namespace LFortran {
                 void visit_Module(const ASR::Module_t& x) {
                     ASR::Module_t& xx = const_cast<ASR::Module_t&>(x);
                     module_dependencies.n = 0;
-                    module_dependencies.from_pointer_n_copy(al, xx.m_dependencies, xx.n_dependencies);
+                    module_dependencies.reserve(al, 1);
                     bool fill_module_dependencies_copy = fill_module_dependencies;
                     fill_module_dependencies = true;
                     BaseWalkVisitor<UpdateDependenciesVisitor>::visit_Module(x);
+                    for( size_t i = 0; i < xx.n_dependencies; i++ ) {
+                        if( !present(module_dependencies, xx.m_dependencies[i]) ) {
+                            module_dependencies.push_back(al, xx.m_dependencies[i]);
+                        }
+                    }
                     xx.n_dependencies = module_dependencies.size();
                     xx.m_dependencies = module_dependencies.p;
                     fill_module_dependencies = fill_module_dependencies_copy;
+                }
+
+                void visit_Variable(const ASR::Variable_t& x) {
+                    ASR::Variable_t& xx = const_cast<ASR::Variable_t&>(x);
+                    variable_dependencies.n = 0;
+                    variable_dependencies.reserve(al, 1);
+                    bool fill_variable_dependencies_copy = fill_variable_dependencies;
+                    fill_variable_dependencies = true;
+                    BaseWalkVisitor<UpdateDependenciesVisitor>::visit_Variable(x);
+                    xx.n_dependencies = variable_dependencies.size();
+                    xx.m_dependencies = variable_dependencies.p;
+                    fill_variable_dependencies = fill_variable_dependencies_copy;
+                }
+
+                void visit_Var(const ASR::Var_t& x) {
+                    if( fill_variable_dependencies ) {
+                        variable_dependencies.push_back(al, ASRUtils::symbol_name(x.m_v));
+                    }
                 }
 
                 void visit_FunctionCall(const ASR::FunctionCall_t& x) {

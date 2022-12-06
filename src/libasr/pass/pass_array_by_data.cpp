@@ -104,7 +104,7 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
                     ASR::Variable_t* arg = ASR::down_cast<ASR::Variable_t>(item.second);
                     new_arg = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(al,
                                                 arg->base.base.loc, new_symtab, s2c(al, item.first),
-                                                arg->m_intent, arg->m_symbolic_value, arg->m_value,
+                                                nullptr, 0, arg->m_intent, arg->m_symbolic_value, arg->m_value,
                                                 arg->m_storage, arg->m_type, arg->m_abi, arg->m_access,
                                                 arg->m_presence, arg->m_value_attr));
                 } else if( ASR::is_a<ASR::ExternalSymbol_t>(*item.second) ) {

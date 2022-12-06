@@ -164,7 +164,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             auto type = get_import_func_var_type(param);
             auto variable = ASR::make_Variable_t(
                 m_al, global_scope_loc, nullptr,
-                s2c(m_al, std::to_string(var_idx)), ASR::intentType::In,
+                s2c(m_al, std::to_string(var_idx)), nullptr, 0, ASR::intentType::In,
                 nullptr, nullptr, ASR::storage_typeType::Default,
                 ASRUtils::TYPE(type), ASR::abiType::Source,
                 ASR::accessType::Public, ASR::presenceType::Required, false);

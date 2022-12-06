@@ -150,7 +150,7 @@ public:
             new_name_str.from_str(al, "~" + std::to_string(slice_counter) + "_slice");
             slice_counter += 1;
             char* new_var_name = (char*)new_name_str.c_str(al);
-            ASR::asr_t* slice_asr = ASR::make_Variable_t(al, x.base.base.loc, current_scope, new_var_name,
+            ASR::asr_t* slice_asr = ASR::make_Variable_t(al, x.base.base.loc, current_scope, new_var_name, nullptr, 0,
                                                         ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,
                                                         get_array_from_slice(x, x_arr_var), ASR::abiType::Source, ASR::accessType::Public,
                                                         ASR::presenceType::Required, false);
@@ -278,6 +278,8 @@ void pass_replace_arr_slice(Allocator &al, ASR::TranslationUnit_t &unit,
     std::string rl_path = pass_options.runtime_library_dir;
     ArrSliceVisitor v(al, rl_path);
     v.visit_TranslationUnit(unit);
+    PassUtils::UpdateDependenciesVisitor u(al);
+    u.visit_TranslationUnit(unit);
 }
 
 
