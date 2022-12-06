@@ -455,7 +455,7 @@ public:
             if (dims.size() == 0 && v.m_symbolic_value) {
                 this->visit_expr(*v.m_symbolic_value);
                 std::string init = src;
-                sub += "=" + init;
+                sub += " = " + init;
             }
         }
         return sub;
@@ -652,9 +652,13 @@ R"(
         indentation_level += 1;
         std::string indent1(indentation_level*indentation_spaces, ' ');
         std::string decl;
-        for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
+        // Topologically sort all program functions
+        // and then define them in the right order
+        std::vector<std::string> var_order = ASRUtils::determine_variable_declaration_order(x.m_symtab);
+        for (auto &item : var_order) {
+            ASR::symbol_t* var_sym = x.m_symtab->get_symbol(item);
+            if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
                 decl += indent1;
                 decl += convert_variable_decl(*v);
                 if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||

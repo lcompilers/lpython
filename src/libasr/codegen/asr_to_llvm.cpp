@@ -2650,9 +2650,11 @@ public:
     void declare_vars(const T &x) {
         llvm::Value *target_var;
         uint32_t debug_arg_count = 0;
-        for (auto &item : x.m_symtab->get_scope()) {
-            if (is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *v = down_cast<ASR::Variable_t>(item.second);
+        std::vector<std::string> var_order = ASRUtils::determine_variable_declaration_order(x.m_symtab);
+        for (auto &item : var_order) {
+            ASR::symbol_t* var_sym = x.m_symtab->get_symbol(item);
+            if (is_a<ASR::Variable_t>(*var_sym)) {
+                ASR::Variable_t *v = down_cast<ASR::Variable_t>(var_sym);
                 uint32_t h = get_hash((ASR::asr_t*)v);
                 llvm::Type *type;
                 int n_dims = 0, a_kind = 4;

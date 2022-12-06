@@ -1167,6 +1167,9 @@ std::vector<std::string> determine_module_dependencies(
 std::vector<std::string> determine_function_definition_order(
          SymbolTable* symtab);
 
+std::vector<std::string> determine_variable_declaration_order(
+         SymbolTable* symtab);
+
 void extract_module_python(const ASR::TranslationUnit_t &m,
         std::vector<std::pair<std::string, ASR::Module_t*>>& children_modules,
         std::string module_name);
@@ -1484,6 +1487,17 @@ inline bool ttype_set_dimensions(ASR::ttype_t *x,
 inline bool is_array(ASR::ttype_t *x) {
     ASR::dimension_t* dims = nullptr;
     return extract_dimensions_from_ttype(x, dims) > 0;
+}
+
+static inline bool is_aggregate_type(ASR::ttype_t* asr_type) {
+    if( ASR::is_a<ASR::Const_t>(*asr_type) ) {
+        asr_type = ASR::down_cast<ASR::Const_t>(asr_type)->m_type;
+    }
+    return ASRUtils::is_array(asr_type) ||
+            !(ASR::is_a<ASR::Integer_t>(*asr_type) ||
+              ASR::is_a<ASR::Real_t>(*asr_type) ||
+              ASR::is_a<ASR::Complex_t>(*asr_type) ||
+              ASR::is_a<ASR::Logical_t>(*asr_type));
 }
 
 static inline ASR::ttype_t* duplicate_type(Allocator& al, const ASR::ttype_t* t,
@@ -2226,6 +2240,38 @@ static inline ASR::EnumType_t* get_EnumType_from_symbol(ASR::symbol_t* s) {
     ASR::symbol_t* enum_type_cand = ASR::down_cast<ASR::symbol_t>(s_var->m_parent_symtab->asr_owner);
     LFORTRAN_ASSERT(ASR::is_a<ASR::EnumType_t>(*enum_type_cand));
     return ASR::down_cast<ASR::EnumType_t>(enum_type_cand);
+}
+
+class CollectIdentifiersFromASRExpression: public ASR::BaseWalkVisitor<CollectIdentifiersFromASRExpression> {
+    private:
+
+        Allocator& al;
+        Vec<char*>& identifiers;
+
+    public:
+
+        CollectIdentifiersFromASRExpression(Allocator& al_, Vec<char*>& identifiers_) :
+        al(al_), identifiers(identifiers_)
+        {}
+
+        void visit_Var(const ASR::Var_t& x) {
+            identifiers.push_back(al, ASRUtils::symbol_name(x.m_v));
+        }
+};
+
+static inline void collect_variable_dependencies(Allocator& al, Vec<char*>& deps_vec,
+    ASR::ttype_t* type=nullptr, ASR::expr_t* init_expr=nullptr,
+    ASR::expr_t* value=nullptr) {
+    ASRUtils::CollectIdentifiersFromASRExpression collector(al, deps_vec);
+    if( init_expr ) {
+        collector.visit_expr(*init_expr);
+    }
+    if( value ) {
+        collector.visit_expr(*value);
+    }
+    if( type ) {
+        collector.visit_ttype(*type);
+    }
 }
 
 } // namespace ASRUtils

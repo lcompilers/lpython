@@ -76,7 +76,7 @@ public:
     #define create_args(x, type, symtab) { \
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>( \
             ASR::make_Variable_t(al, loc, symtab, \
-            s2c(al, x), ASR::intentType::In, nullptr, nullptr, \
+            s2c(al, x), nullptr, 0, ASR::intentType::In, nullptr, nullptr, \
             ASR::storage_typeType::Default, type, \
             ASR::abiType::Source, ASR::accessType::Public, \
             ASR::presenceType::Required, false)); \
@@ -124,7 +124,7 @@ public:
         // Declare `result_list`
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(
             ASR::make_Variable_t(al, loc, list_section_symtab,
-            s2c(al, "result_list"), ASR::intentType::Local, nullptr, nullptr,
+            s2c(al, "result_list"), nullptr, 0, ASR::intentType::Local, nullptr, nullptr,
             ASR::storage_typeType::Default, list_type,
             ASR::abiType::Source, ASR::accessType::Public,
             ASR::presenceType::Required, false));
@@ -284,7 +284,7 @@ public:
         // Declare `result_list`
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(
             ASR::make_Variable_t(al, loc, list_concat_symtab,
-            s2c(al, "result_list"), ASR::intentType::Local, nullptr, nullptr,
+            s2c(al, "result_list"), nullptr, 0, ASR::intentType::Local, nullptr, nullptr,
             ASR::storage_typeType::Default, list_type,
             ASR::abiType::Source, ASR::accessType::Public,
             ASR::presenceType::Required, false));

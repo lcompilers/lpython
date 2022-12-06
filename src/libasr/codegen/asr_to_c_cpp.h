@@ -173,10 +173,11 @@ R"(#include <stdio.h>
         std::string contains;
 
         // Declare the global variables that are imported from the module
-        for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(
-                        item.second);
+        std::vector<std::string> var_order = ASRUtils::determine_variable_declaration_order(x.m_symtab);
+        for (auto &item : var_order) {
+            ASR::symbol_t* var_sym = x.m_symtab->get_symbol(item);
+            if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
                 std::string decl = self().convert_variable_decl(*v);
                 if (v->m_value) {
                     self().visit_expr(*v->m_value);
@@ -225,9 +226,11 @@ R"(#include <stdio.h>
         indentation_level += 1;
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string decl;
-        for (auto &item : x.m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
+        std::vector<std::string> var_order = ASRUtils::determine_variable_declaration_order(x.m_symtab);
+        for (auto &item : var_order) {
+            ASR::symbol_t* var_sym = x.m_symtab->get_symbol(item);
+            if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
                 decl += self().convert_variable_decl(*v);
                 if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
                     v->m_intent == ASRUtils::intent_return_var ) {
@@ -259,9 +262,11 @@ R"(#include <stdio.h>
         std::string close_paranthesis = indent + "}\n";
         indent += std::string(indentation_spaces, ' ');
         indentation_level += 1;
-        for (auto &item : block->m_symtab->get_scope()) {
-            if (ASR::is_a<ASR::Variable_t>(*item.second)) {
-                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
+        std::vector<std::string> var_order = ASRUtils::determine_variable_declaration_order(block->m_symtab);
+        for (auto &item : var_order) {
+            ASR::symbol_t* var_sym = block->m_symtab->get_symbol(item);
+            if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
+                ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
                 decl += indent + self().convert_variable_decl(*v);
                 if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
                     v->m_intent == ASRUtils::intent_return_var ) {
@@ -430,10 +435,13 @@ R"(#include <stdio.h>
             indentation_level += 1;
             std::string indent(indentation_level*indentation_spaces, ' ');
             std::string decl;
-            for (auto &item : x.m_symtab->get_scope()) {
-                if (ASR::is_a<ASR::Variable_t>(*item.second)) {
-                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(item.second);
-                    if (v->m_intent == LFortran::ASRUtils::intent_local || v->m_intent == LFortran::ASRUtils::intent_return_var) {
+            std::vector<std::string> var_order = ASRUtils::determine_variable_declaration_order(x.m_symtab);
+            for (auto &item : var_order) {
+                ASR::symbol_t* var_sym = x.m_symtab->get_symbol(item);
+                if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
+                    ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
+                    if (v->m_intent == LFortran::ASRUtils::intent_local ||
+                        v->m_intent == LFortran::ASRUtils::intent_return_var) {
                         decl += indent + self().convert_variable_decl(*v);
                         if( !ASR::is_a<ASR::Const_t>(*v->m_type) ||
                             v->m_intent == ASRUtils::intent_return_var ) {

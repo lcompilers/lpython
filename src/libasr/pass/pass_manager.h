@@ -96,7 +96,12 @@ namespace LCompilers {
                 // it
                 if (rtlib && passes[i] == "unused_functions") continue;
                 _passes_db[passes[i]](al, *asr, pass_options);
-                LFORTRAN_ASSERT(LFortran::asr_verify(*asr, true, diagnostics));
+            #if defined(WITH_LFORTRAN_ASSERT)
+                if (!LFortran::asr_verify(*asr, true, diagnostics)) {
+                    std::cerr << diagnostics.render2();
+                    throw LFortran::LCompilersException("Verify failed");
+                };
+            #endif
             }
         }
 

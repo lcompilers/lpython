@@ -97,7 +97,7 @@ class PrintListVisitor
                 list_iter_variable =
                     ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
                         al, x.base.base.loc, current_scope,
-                        s2c(al, list_iter_var_name), ASR::intentType::Local,
+                        s2c(al, list_iter_var_name), nullptr, 0, ASR::intentType::Local,
                         nullptr, nullptr, ASR::storage_typeType::Default,
                         int_type, ASR::abiType::Source, ASR::accessType::Public,
                         ASR::presenceType::Required, false));
