@@ -82,6 +82,23 @@ std::vector<std::string> determine_function_definition_order(
     return ASRUtils::order_deps(func_dep_graph);
 }
 
+std::vector<std::string> determine_variable_declaration_order(
+         SymbolTable* symtab) {
+    std::map<std::string, std::vector<std::string>> var_dep_graph;
+    for( auto itr: symtab->get_scope() ) {
+        if( ASR::is_a<ASR::Variable_t>(*itr.second) ) {
+            std::vector<std::string> deps;
+            ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(itr.second);
+            for( size_t i = 0; i < var->n_dependencies; i++ ) {
+                std::string dep = var->m_dependencies[i];
+                deps.push_back(dep);
+            }
+            var_dep_graph[itr.first] = deps;
+        }
+    }
+    return ASRUtils::order_deps(var_dep_graph);
+}
+
 void extract_module_python(const ASR::TranslationUnit_t &m,
                 std::vector<std::pair<std::string, ASR::Module_t*>>& children_modules,
                 std::string module_name) {

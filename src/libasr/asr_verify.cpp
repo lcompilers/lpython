@@ -49,6 +49,7 @@ private:
     std::map<uint64_t,SymbolTable*> id_symtab_map;
     std::vector<std::string> function_dependencies;
     std::vector<std::string> module_dependencies;
+    std::vector<std::string> variable_dependencies;
 
     std::set<std::pair<uint64_t, std::string>> const_assigned;
 
@@ -434,6 +435,7 @@ public:
     }
 
     void visit_Variable(const Variable_t &x) {
+        variable_dependencies.clear();
         SymbolTable *symtab = x.m_parent_symtab;
         require(symtab != nullptr,
             "Variable::m_parent_symtab cannot be nullptr");
@@ -450,6 +452,23 @@ public:
         if (x.m_symbolic_value)
             visit_expr(*x.m_symbolic_value);
         visit_ttype(*x.m_type);
+
+        // Verify dependencies
+        for( size_t i = 0; i < x.n_dependencies; i++ ) {
+            require(std::find(
+                variable_dependencies.begin(),
+                variable_dependencies.end(),
+                std::string(x.m_dependencies[i])
+            ) != variable_dependencies.end(),
+                "Variable " + std::string(x.m_name) + " doesn't depend on " +
+                std::string(x.m_dependencies[i]) + " but is found in its dependency list.");
+        }
+
+        for( size_t i = 0; i < variable_dependencies.size(); i++ ) {
+            require(present(x.m_dependencies, x.n_dependencies, variable_dependencies[i]),
+                "Variable " + std::string(x.m_name) + " depends on " +
+                std::string(variable_dependencies[i]) + " but isn't found in its dependency list.");
+        }
     }
 
     void visit_ExternalSymbol(const ExternalSymbol_t &x) {
@@ -484,12 +503,14 @@ public:
     void visit_Var(const Var_t &x) {
         require(x.m_v != nullptr,
             "Var_t::m_v cannot be nullptr");
+        std::string x_mv_name = ASRUtils::symbol_name(x.m_v);
         require(is_a<Variable_t>(*x.m_v) || is_a<ExternalSymbol_t>(*x.m_v)
                 || is_a<Function_t>(*x.m_v) || is_a<ASR::EnumType_t>(*x.m_v),
-            "Var_t::m_v " + std::string(ASRUtils::symbol_name(x.m_v)) + " does not point to a Variable_t, ExternalSymbol_t, " \
+            "Var_t::m_v " + x_mv_name + " does not point to a Variable_t, ExternalSymbol_t, " \
             "Function_t, Subroutine_t or EnumType_t");
         require(symtab_in_scope(current_symtab, x.m_v),
-            "Var::m_v `" + std::string(ASRUtils::symbol_name(x.m_v)) + "` cannot point outside of its symbol table");
+            "Var::m_v `" + x_mv_name + "` cannot point outside of its symbol table");
+        variable_dependencies.push_back(x_mv_name);
     }
 
     void check_var_external(const ASR::expr_t &x) {
