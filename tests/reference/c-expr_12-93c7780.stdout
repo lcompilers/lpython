@@ -70,7 +70,6 @@ void f()
     y->dims[0].length = 2;
     struct i16 yptr1_value;
     struct i16* yptr1 = &yptr1_value;
-;
     g(&yptr1, y);
     check(&yptr1);
 }

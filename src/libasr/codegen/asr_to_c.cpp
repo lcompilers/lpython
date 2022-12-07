@@ -93,8 +93,9 @@ public:
             std::string variable_name = std::string(v_m_name) + "_value";
             sub = format_type_c("", type_name_without_ptr, variable_name, use_ref, dummy) + ";\n";
             sub += indent + format_type_c("", type_name, v_m_name, use_ref, dummy);
-            sub += " = &" + variable_name + ";\n";
+            sub += " = &" + variable_name;
             if( !is_pointer ) {
+                sub += ";\n";
                 if( !is_fixed_size ) {
                     sub += indent + format_type_c("*", type_name_copy, std::string(v_m_name) + "_data",
                                                 use_ref, dummy);
@@ -917,6 +918,36 @@ R"(
             }
             default : throw LCompilersException("Not implemented");
         }
+    }
+
+    void visit_CPtrToPointer(const ASR::CPtrToPointer_t& x) {
+        visit_expr(*x.m_cptr);
+        std::string source_src = std::move(src);
+        visit_expr(*x.m_ptr);
+        std::string dest_src = std::move(src);
+        src = "";
+        std::string indent(indentation_level*indentation_spaces, ' ');
+        if( ASRUtils::is_array(ASRUtils::expr_type(x.m_ptr)) ) {
+            std::string dim_set_code = "";
+            ASR::dimension_t* m_dims = nullptr;
+            int n_dims = ASRUtils::extract_dimensions_from_ttype(ASRUtils::expr_type(x.m_ptr), m_dims);
+            dim_set_code = indent + dest_src + "->n_dims = " + std::to_string(n_dims) + ";\n";
+            for( int i = 0; i < n_dims; i++ ) {
+                if( m_dims[i].m_start ) {
+                    visit_expr(*m_dims[i].m_start);
+                    dim_set_code += indent + dest_src + "->dims[" + std::to_string(i) + "].lower_bound = " + src + ";\n";
+                }
+                if( m_dims[i].m_length ) {
+                    visit_expr(*m_dims[i].m_length);
+                    dim_set_code += indent + dest_src + "->dims[" + std::to_string(i) + "].length = " + src + ";\n";
+                }
+            }
+            src.clear();
+            src += dim_set_code;
+            dest_src += "->data";
+        }
+        std::string type_src = CUtils::get_c_type_from_ttype_t(ASRUtils::expr_type(x.m_ptr));
+        src += indent + dest_src + " = (" + type_src + ") " + source_src + ";\n";
     }
 
     void visit_Print(const ASR::Print_t &x) {
