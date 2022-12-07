@@ -1360,19 +1360,6 @@ R"(#include <stdio.h>
         src = "(" + type_src + ") " + arg_src;
     }
 
-    void visit_CPtrToPointer(const ASR::CPtrToPointer_t& x) {
-        self().visit_expr(*x.m_cptr);
-        std::string source_src = std::move(src);
-        self().visit_expr(*x.m_ptr);
-        std::string dest_src = std::move(src);
-        if( ASRUtils::is_array(ASRUtils::expr_type(x.m_ptr)) ) {
-            dest_src += "->data";
-        }
-        std::string type_src = CUtils::get_c_type_from_ttype_t(ASRUtils::expr_type(x.m_ptr));
-        std::string indent(indentation_level*indentation_spaces, ' ');
-        src = indent + dest_src + " = (" + type_src + ") " + source_src + ";\n";
-    }
-
     void visit_IntegerBinOp(const ASR::IntegerBinOp_t &x) {
         handle_BinOp(x);
     }
