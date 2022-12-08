@@ -1,6 +1,6 @@
 from math import (factorial, isqrt, perm, comb, degrees, radians, exp, pow,
                   ldexp, fabs, gcd, lcm, floor, ceil, remainder, expm1, fmod, log1p, trunc,
-                  modf, fsum, prod)
+                  modf, fsum, prod, dist)
 import math
 from ltypes import i32, i64, f32, f64
 
@@ -220,6 +220,14 @@ def test_prod():
     res = prod(arr_f64)
     assert abs(res - 80.64) < eps
 
+def test_dist():
+    x: list[f64]
+    y: list[f64]
+    eps: f64 = 1e-12
+    x = [1.0, 2.2, 3.333, 4.0, 5.0]
+    y = [6.1, 7.2, 8.0, 9.0, 10.0]
+    assert abs(dist(x, y) - 11.081105044173166) < eps
+
 def test_modf():
     i: f64
     i = 3.14
@@ -268,6 +276,7 @@ def check():
     test_trunc()
     test_fsum()
     test_prod()
+    test_dist()
     test_modf()
     test_issue_1242()
 

@@ -207,6 +207,21 @@ def prod(arr: list[f64]) -> f64:
     return result
 
 
+def dist(x: list[f64], y: list[f64]) -> f64:
+    """
+    Return euclidean distance between `x` and `y` points.
+    """
+    if len(x) != len(y):
+         raise ValueError("Length of lists should be same")
+    res: f64
+    res = 0.0
+
+    i: i32
+    for i in range(len(x)):
+        res += (x[i] - y[i]) * (x[i] - y[i])
+    return res**0.5
+
+
 def comb(n: i32, k: i32) -> i32:
     """
     Computes the result of `nCk`, i.e, the number of ways to choose `k`
