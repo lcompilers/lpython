@@ -1304,10 +1304,47 @@ void get_local_info_dwarfdump(struct Stacktrace *d) {
     }
 }
 
+char *read_line_from_file(char * filename, uint32_t line_number) {
+    FILE * fp;
+    char * line = NULL;
+    size_t len = 0, n = 0;
+
+    fp = fopen(filename, "r");
+    if (fp == NULL) exit(1);
+    while (n < line_number && (getline(&line, &len, fp) != -1)) n++;
+    fclose(fp);
+
+    return line;
+}
+
+static inline uint64_t bisection(const uint64_t vec[], uint64_t size, uint64_t i) {
+    if (i < vec[0]) return 0;
+    if (i >= vec[size-1]) return size;
+    uint64_t i1 = 0, i2 = size-1;
+    while (i1 < i2-1) {
+        uint64_t imid = (i1+i2)/2;
+        if (i < vec[imid]) {
+            i2 = imid;
+        } else {
+            i1 = imid;
+        }
+    }
+    return i1 + 1;
+}
+
 void print_stacktrace_addresses(struct Stacktrace d)
 {
-    get_local_address(d);
-    get_local_info_dwarfdump(d);
+    get_local_address(&d);
+    get_local_info_dwarfdump(&d);
+
+    for (size_t i = 0; i < d.local_pc_size; i++) {
+        uint64_t index = bisection(d.addresses, d.stack_size, d.local_pc[i]);
+        if (d.binary_filename[i] == binary_filename) {
+            printf("%s: %ld\n\t%s\n", binary_filename, d.line_numbers[index],
+                read_line_from_file(binary_filename, d.line_numbers[index]));
+        }
+    }
+
     // print stacktrace
 }
 
