@@ -1208,9 +1208,9 @@ static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
     uintptr_t pc = _Unwind_GetIP(context);
     if (pc != 0) {
         pc--;
-        if (d->size < LCOMPILERS_MAX_STACKTRACE_LENGTH) {
-            d->pc[d->size] = pc;
-            d->size++;
+        if (d->pc_size < LCOMPILERS_MAX_STACKTRACE_LENGTH) {
+            d->pc[d->pc_size] = pc;
+            d->pc_size++;
         } else {
             // TODO: Do not know how to report an error here
         }
@@ -1221,7 +1221,8 @@ static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
 struct Stacktrace get_stacktrace_addresses()
 {
     struct Stacktrace d;
-    d.size = 0;
+    d.pc_size = 0;
+    d.filename_size = 0;
     _Unwind_Backtrace(unwind_callback, &d);
     return d;
 }
@@ -1234,6 +1235,11 @@ int shared_lib_callback(struct dl_phdr_info *info,
             ElfW(Addr) min_addr = info->dlpi_addr + info->dlpi_phdr[i].p_vaddr;
             ElfW(Addr) max_addr = min_addr + info->dlpi_phdr[i].p_memsz;
             if ((d->current_pc >= min_addr) && (d->current_pc < max_addr)) {
+                d->binary_filename[d->filename_size] = (char *)info->dlpi_name;
+                if (d->binary_filename[d->filename_size][0] == '\0') {
+                    d->binary_filename[d->filename_size] = binary_filename;
+                }
+                d->filename_size++;
                 d->local_pc = d->current_pc - info->dlpi_addr;
                 // We found a match, return a non-zero value
                 return 1;
@@ -1262,8 +1268,9 @@ void print_stacktrace_addresses(struct Stacktrace d)
     // print stacktrace
 }
 
-void print_stacktrace_addresses2()
+void print_stacktrace_addresses2(char *filename)
 {
+    binary_filename = filename;
     struct Stacktrace d = get_stacktrace_addresses();
     print_stacktrace_addresses(d);
 }

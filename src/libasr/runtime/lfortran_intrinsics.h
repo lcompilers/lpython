@@ -22,15 +22,19 @@ struct _lfortran_complex_64 {
 };
 
 #define LCOMPILERS_MAX_STACKTRACE_LENGTH 200
+char *binary_filename;
 
 struct Stacktrace {
     uintptr_t pc[LCOMPILERS_MAX_STACKTRACE_LENGTH];
-    uint64_t pc;
+    uint64_t pc_size;
     uintptr_t current_pc;
 
     uintptr_t local_pc;
+    char *binary_filename[LCOMPILERS_MAX_STACKTRACE_LENGTH];
+    uint32_t filename_size;
 };
 void print_stacktrace_addresses(struct Stacktrace d);
+void print_stacktrace_addresses2(char *filename);
 
 struct dl_phdr_info {
     ElfW(Addr) dlpi_addr;

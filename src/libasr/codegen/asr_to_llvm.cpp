@@ -5166,6 +5166,8 @@ public:
 
     void visit_Assert(const ASR::Assert_t &x) {
         if (compiler_options.emit_debug_info) debug_emit_loc(x);
+        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(infile);
+        call_print_stacktrace_addresses(context, *module, *builder, {fmt_ptr});
         this->visit_expr_wrapper(x.m_test, true);
         create_if_else(tmp, []() {}, [=]() {
             if (x.m_msg) {
