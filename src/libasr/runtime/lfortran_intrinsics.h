@@ -6,6 +6,9 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
+#include <unwind.h>
+#include <link.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,10 +25,22 @@ struct _lfortran_complex_64 {
 
 struct Stacktrace {
     uintptr_t pc[LCOMPILERS_MAX_STACKTRACE_LENGTH];
-    uint64_t size;
+    uint64_t pc;
+    uintptr_t current_pc;
+
+    uintptr_t local_pc;
 };
-void print_stacktrace_addresses(struct Stacktrace *d);
-void print_stacktrace_addresses2();
+void print_stacktrace_addresses(struct Stacktrace d);
+
+struct dl_phdr_info {
+    ElfW(Addr) dlpi_addr;
+    const char *dlpi_name;
+    const ElfW(Phdr) *dlpi_phdr;
+    ElfW(Half) dlpi_phnum;
+};
+
+extern int dl_iterate_phdr (int (*__callback) (struct dl_phdr_info *,
+    size_t, void *), void *__data);
 
 #ifdef _MSC_VER
 typedef _Fcomplex float_complex_t;

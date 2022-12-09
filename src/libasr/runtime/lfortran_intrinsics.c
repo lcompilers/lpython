@@ -1201,7 +1201,6 @@ LFORTRAN_API int32_t _lpython_get_argc() {
 
 LFORTRAN_API char *_lpython_get_argv(int32_t index) {
     return argv[index];
-#include <unwind.h>
 
 static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
         void *vdata) {
@@ -1227,15 +1226,44 @@ struct Stacktrace get_stacktrace_addresses()
     return d;
 }
 
-void print_stacktrace_addresses(struct Stacktrace *d)
-{
-    for (int32_t i=0; i < d->size; i++) {
-        printf("%d %lx\n", i, d->pc[i]);
+int shared_lib_callback(struct dl_phdr_info *info,
+        size_t /* size */, void *_data) {
+    struct Stacktrace *d = (struct Stacktrace *) _data;
+    for (int i = 0; i < info->dlpi_phnum; i++) {
+        if (info->dlpi_phdr[i].p_type == PT_LOAD) {
+            ElfW(Addr) min_addr = info->dlpi_addr + info->dlpi_phdr[i].p_vaddr;
+            ElfW(Addr) max_addr = min_addr + info->dlpi_phdr[i].p_memsz;
+            if ((d->current_pc >= min_addr) && (d->current_pc < max_addr)) {
+                d->local_pc = d->current_pc - info->dlpi_addr;
+                // We found a match, return a non-zero value
+                return 1;
+            }
+        }
     }
+    // We didn't find a match, return a zero value
+    return 0;
+}
+
+void get_local_address(struct Stacktrace d) {
+    for (int32_t i=0; i < d.pc_size; i++) {
+        d.current_pc = d.pc[i];
+        if (dl_iterate_phdr(shared_lib_callback, &d) == 0) {
+            // TODO: throw error "The stack address was not found in any shared
+            // library or the main program, the stack is probably corrupted. Aborting."
+        }
+        // printf("%d %lx: pc\n%lx: local_pc\n%s\n", i, d.pc[i], d.local_pc, d.binary_filename[i]);
+    }
+}
+
+void print_stacktrace_addresses(struct Stacktrace d)
+{
+    get_local_address(d);
+    // get_local_info_dwarfdump(d);
+    // print stacktrace
 }
 
 void print_stacktrace_addresses2()
 {
     struct Stacktrace d = get_stacktrace_addresses();
-    print_stacktrace_addresses(&d);
+    print_stacktrace_addresses(d);
 }
