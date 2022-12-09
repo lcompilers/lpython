@@ -29,9 +29,13 @@ struct Stacktrace {
     uint64_t pc_size;
     uintptr_t current_pc;
 
-    uintptr_t local_pc;
+    uintptr_t local_pc[LCOMPILERS_MAX_STACKTRACE_LENGTH];
     char *binary_filename[LCOMPILERS_MAX_STACKTRACE_LENGTH];
-    uint32_t filename_size;
+    uint64_t local_pc_size;
+
+    uint64_t addresses[LCOMPILERS_MAX_STACKTRACE_LENGTH];
+    uint64_t line_numbers[LCOMPILERS_MAX_STACKTRACE_LENGTH];
+    uint64_t stack_size;
 };
 void print_stacktrace_addresses(struct Stacktrace d);
 void print_stacktrace_addresses2(char *filename);

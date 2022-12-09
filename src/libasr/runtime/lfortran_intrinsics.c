@@ -1222,7 +1222,6 @@ struct Stacktrace get_stacktrace_addresses()
 {
     struct Stacktrace d;
     d.pc_size = 0;
-    d.filename_size = 0;
     _Unwind_Backtrace(unwind_callback, &d);
     return d;
 }
@@ -1235,12 +1234,12 @@ int shared_lib_callback(struct dl_phdr_info *info,
             ElfW(Addr) min_addr = info->dlpi_addr + info->dlpi_phdr[i].p_vaddr;
             ElfW(Addr) max_addr = min_addr + info->dlpi_phdr[i].p_memsz;
             if ((d->current_pc >= min_addr) && (d->current_pc < max_addr)) {
-                d->binary_filename[d->filename_size] = (char *)info->dlpi_name;
-                if (d->binary_filename[d->filename_size][0] == '\0') {
-                    d->binary_filename[d->filename_size] = binary_filename;
+                d->binary_filename[d->local_pc_size] = (char *)info->dlpi_name;
+                if (d->binary_filename[d->local_pc_size][0] == '\0') {
+                    d->binary_filename[d->local_pc_size] = binary_filename;
                 }
-                d->filename_size++;
-                d->local_pc = d->current_pc - info->dlpi_addr;
+                d->local_pc_size++;
+                d->local_pc[d->local_pc_size] = d->current_pc - info->dlpi_addr;
                 // We found a match, return a non-zero value
                 return 1;
             }
@@ -1250,10 +1249,11 @@ int shared_lib_callback(struct dl_phdr_info *info,
     return 0;
 }
 
-void get_local_address(struct Stacktrace d) {
-    for (int32_t i=0; i < d.pc_size; i++) {
-        d.current_pc = d.pc[i];
-        if (dl_iterate_phdr(shared_lib_callback, &d) == 0) {
+void get_local_address(struct Stacktrace *d) {
+    d->local_pc_size = 0;
+    for (int32_t i=0; i < d->pc_size; i++) {
+        d->current_pc = d->pc[i];
+        if (dl_iterate_phdr(shared_lib_callback, d) == 0) {
             // TODO: throw error "The stack address was not found in any shared
             // library or the main program, the stack is probably corrupted. Aborting."
         }
@@ -1261,10 +1261,53 @@ void get_local_address(struct Stacktrace d) {
     }
 }
 
+uint32_t file_size(int64_t fp){
+    FILE *fp_ = (FILE *)fp;
+    int prev = ftell(fp_);
+    fseek(fp_, 0, SEEK_END);
+    int size = ftell(fp_);
+    fseek(fp_, prev, SEEK_SET);
+    return size;
+}
+
+void get_local_info_dwarfdump(struct Stacktrace *d) {
+    char *filename = "lines_dat.txt";
+    int64_t fd = _lpython_open(filename, "r");
+    uint32_t size = file_size(fd);
+    char *file_contents = _lpython_read(fd, size);
+    _lpython_close(fd);
+
+    char s[size];
+    bool address = true;
+    uint32_t j = 0;
+    d->stack_size = 0;
+    for (uint32_t i = 0; i < size; i++) {
+        if (file_contents[i] == '\n') {
+            memset(s, '\0', sizeof(s));
+            j = 0;
+            d->stack_size++;
+            continue;
+        } else if (file_contents[i] == ' ') {
+            s[j] = '\0';
+            j = 0;
+            if (address) {
+                d->addresses[d->stack_size] = atoi(s);
+                address = false;
+            } else {
+                d->line_numbers[d->stack_size] = atoi(s);
+                address = true;
+            }
+            memset(s, '\0', sizeof(s));
+            continue;
+        }
+        s[j++] = file_contents[i];
+    }
+}
+
 void print_stacktrace_addresses(struct Stacktrace d)
 {
     get_local_address(d);
-    // get_local_info_dwarfdump(d);
+    get_local_info_dwarfdump(d);
     // print stacktrace
 }
 
