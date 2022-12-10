@@ -1238,8 +1238,7 @@ int shared_lib_callback(struct dl_phdr_info *info,
                 if (d->binary_filename[d->local_pc_size][0] == '\0') {
                     d->binary_filename[d->local_pc_size] = binary_filename;
                 }
-                d->local_pc_size++;
-                d->local_pc[d->local_pc_size] = d->current_pc - info->dlpi_addr;
+                d->local_pc[d->local_pc_size++] = d->current_pc - info->dlpi_addr;
                 // We found a match, return a non-zero value
                 return 1;
             }
@@ -1257,7 +1256,6 @@ void get_local_address(struct Stacktrace *d) {
             // TODO: throw error "The stack address was not found in any shared
             // library or the main program, the stack is probably corrupted. Aborting."
         }
-        // printf("%d %lx: pc\n%lx: local_pc\n%s\n", i, d.pc[i], d.local_pc, d.binary_filename[i]);
     }
 }
 
@@ -1317,7 +1315,8 @@ char *read_line_from_file(char * filename, uint32_t line_number) {
     return line;
 }
 
-static inline uint64_t bisection(const uint64_t vec[], uint64_t size, uint64_t i) {
+static inline uint64_t bisection(const uint64_t vec[],
+        uint64_t size, uint64_t i) {
     if (i < vec[0]) return 0;
     if (i >= vec[size-1]) return size;
     uint64_t i1 = 0, i2 = size-1;
@@ -1329,7 +1328,22 @@ static inline uint64_t bisection(const uint64_t vec[], uint64_t size, uint64_t i
             i1 = imid;
         }
     }
-    return i1 + 1;
+    return i1;
+}
+
+char *remove_whitespace(char *str)
+{
+    char *end;
+    // remove leading space
+    while(isspace((unsigned char)*str)) str++;
+    if(*str == 0) // All spaces?
+        return str;
+    // remove trailing space
+    end = str + strlen(str) - 1;
+    while(end > str && isspace((unsigned char)*end)) end--;
+    // Write new null terminator character
+    end[1] = '\0';
+    return str;
 }
 
 void print_stacktrace_addresses(struct Stacktrace d)
@@ -1340,12 +1354,14 @@ void print_stacktrace_addresses(struct Stacktrace d)
     for (size_t i = 0; i < d.local_pc_size; i++) {
         uint64_t index = bisection(d.addresses, d.stack_size, d.local_pc[i]);
         if (d.binary_filename[i] == binary_filename) {
-            printf("%s: %ld\n\t%s\n", binary_filename, d.line_numbers[index],
-                read_line_from_file(binary_filename, d.line_numbers[index]));
+            printf(DIM "  File " S_RESET
+                   BOLD MAGENTA "\"%s\"" C_RESET S_RESET
+                   DIM ", line %ld\n" S_RESET
+                   "    %s\n", binary_filename, d.line_numbers[index],
+                   remove_whitespace(read_line_from_file(binary_filename,
+                   d.line_numbers[index])));
         }
     }
-
-    // print stacktrace
 }
 
 void print_stacktrace_addresses2(char *filename)

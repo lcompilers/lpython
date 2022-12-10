@@ -8,6 +8,7 @@
 
 #include <unwind.h>
 #include <link.h>
+#include <ctype.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,6 +22,7 @@ struct _lfortran_complex_64 {
     double re, im;
 };
 
+// Runtime Stacktrace
 #define LCOMPILERS_MAX_STACKTRACE_LENGTH 200
 char *binary_filename;
 
@@ -39,16 +41,21 @@ struct Stacktrace {
 };
 void print_stacktrace_addresses(struct Stacktrace d);
 void print_stacktrace_addresses2(char *filename);
-
 struct dl_phdr_info {
     ElfW(Addr) dlpi_addr;
     const char *dlpi_name;
     const ElfW(Phdr) *dlpi_phdr;
     ElfW(Half) dlpi_phnum;
 };
-
 extern int dl_iterate_phdr (int (*__callback) (struct dl_phdr_info *,
     size_t, void *), void *__data);
+
+// Styles and Colors
+#define DIM "\033[2m"
+#define BOLD "\033[1m"
+#define S_RESET "\033[0m"
+#define MAGENTA "\033[35m"
+#define C_RESET "\033[39m"
 
 #ifdef _MSC_VER
 typedef _Fcomplex float_complex_t;
