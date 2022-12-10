@@ -365,6 +365,10 @@ public:
         return m_asm_code;
     }
 
+    void append_asm(std::string asm_code) {
+        m_asm_code += asm_code;
+    }
+
     void update_asm(std::string asm_code) {
         m_asm_code = asm_code;
     }

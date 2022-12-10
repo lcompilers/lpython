@@ -208,7 +208,9 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void gen_x64_bytes() {
         {   // Initialize/Modify values of entities for code simplicity later
 
-            m_a.update_asm("BITS 64\n\n"); // Update initial value of asm text as per X64 text format
+            m_a.update_asm(""); // delete previous asm code
+            m_a.append_asm("BITS 64\n");
+            m_a.append_asm("\torg " + i2s((uint64_t)m_a.origin()) + "\n\n"); // specify origin info
             exports.back().name = "_start"; // Update _lcompilers_main() to _start
         }
 
