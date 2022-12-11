@@ -215,6 +215,19 @@ public:
         compare_func_map[tuple_type_name] = fn_sym;
     }
 
+    /*
+    This function replaces `TupleCompare` with a `FunctionCall` which returns
+    the True if both the Tuples are equal or else returns False.
+    Converts:
+        a: tuple[i32, i32]
+        b: tuple[i32, i32]
+        assert a == b
+
+    to:
+        a: tuple[i32, i32]
+        b: tuple[i32, i32]
+        assert _lcompilers_tuple_compare(a, b)
+    */
     void replace_TupleCompare(const ASR::TupleCompare_t* x) {
         Location loc = x->base.base.loc;
         ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(
@@ -393,6 +406,19 @@ public:
         compare_func_map[list_type_name] = fn_sym;
     }
 
+    /*
+    This function replaces `ListCompare` with a `FunctionCall` which returns
+    the True if both the lists are equal or else returns False.
+    Converts:
+        a: list[i32]
+        b: list[i32]
+        assert a == b
+
+    to:
+        a: list[i32]
+        b: list[i32]
+        assert _lcompilers_list_compare(a, b)
+    */
     void replace_ListCompare(const ASR::ListCompare_t* x) {
         Location loc = x->base.base.loc;
         ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(
