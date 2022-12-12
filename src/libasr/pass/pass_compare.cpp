@@ -161,7 +161,7 @@ public:
         // Declare `result`
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(
             ASR::make_Variable_t(al, loc, tup_compare_symtab,
-            s2c(al, "result"), nullptr, 0, ASR::intentType::In, nullptr, nullptr,
+            s2c(al, "result"), nullptr, 0, ASR::intentType::ReturnVar, nullptr, nullptr,
             ASR::storage_typeType::Default, bool_type,
             ASR::abiType::Source, ASR::accessType::Public,
             ASR::presenceType::Required, false));
@@ -341,7 +341,7 @@ public:
         // Declare `result`
         ASR::symbol_t* res_arg = ASR::down_cast<ASR::symbol_t>(
             ASR::make_Variable_t(al, loc, list_compare_symtab,
-            s2c(al, "result"), nullptr, 0, ASR::intentType::In, nullptr, nullptr,
+            s2c(al, "result"), nullptr, 0, ASR::intentType::ReturnVar, nullptr, nullptr,
             ASR::storage_typeType::Default, bool_type,
             ASR::abiType::Source, ASR::accessType::Public,
             ASR::presenceType::Required, false));
