@@ -46,12 +46,13 @@ message("LPYTHON_RTLIB_LIBRARY: ${LPYTHON_RTLIB_LIBRARY}")
 
 macro(RUN)
     set(options FAIL)
-    set(oneValueArgs NAME IMPORT_PATH)
+    set(oneValueArgs NAME IMPORT_PATH CUSTOM_C_POSTPROCESSOR)
     set(multiValueArgs LABELS EXTRAFILES)
     cmake_parse_arguments(RUN "${options}" "${oneValueArgs}"
                           "${multiValueArgs}" ${ARGN} )
     set(name ${RUN_NAME})
     set(import_path ${RUN_IMPORT_PATH})
+    set(custom_c_postprocessor ${RUN_CUSTOM_C_POSTPROCESSOR})
     if (NOT name)
         message(FATAL_ERROR "Must specify the NAME argument")
     endif()
@@ -82,11 +83,20 @@ macro(RUN)
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         elseif(KIND STREQUAL "c")
-            add_custom_command(
-                OUTPUT ${name}.c
-                COMMAND lpython --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
-                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
-                VERBATIM)
+            if (custom_c_postprocessor)
+                add_custom_command(
+                    OUTPUT ${name}.c
+                    COMMAND lpython --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                            --custom-c-postprocessor ${CMAKE_CURRENT_SOURCE_DIR}/${custom_c_postprocessor} -o ${name}.c
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    VERBATIM)
+            else ()
+                add_custom_command(
+                    OUTPUT ${name}.c
+                    COMMAND lpython --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.c
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    VERBATIM)
+            endif()
             add_executable(${name} ${name}.c ${RUN_EXTRAFILES})
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             target_link_libraries(${name} lpython_rtlib)
@@ -212,7 +222,8 @@ RUN(NAME expr_03             LABELS cpython llvm c wasm)
 RUN(NAME expr_04             LABELS cpython llvm c)
 RUN(NAME expr_05             LABELS cpython llvm c)
 RUN(NAME expr_06             LABELS cpython llvm c)
-RUN(NAME expr_07             LABELS cpython llvm c)
+RUN(NAME expr_07             CUSTOM_C_POSTPROCESSOR test_c_custom_postprocessor.py
+        LABELS cpython llvm c)
 RUN(NAME expr_08             LABELS llvm c)
 RUN(NAME expr_09             LABELS cpython llvm c)
 RUN(NAME expr_10             LABELS cpython llvm c)
