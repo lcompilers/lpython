@@ -2,11 +2,11 @@
     "basename": "llvm-print_04-443a8d8",
     "cmd": "lpython --no-color --show-llvm {infile} -o {outfile}",
     "infile": "tests/../integration_tests/print_04.py",
-    "infile_hash": "f48b309e033684e79b576ef6e0ed05cd42ce4e112071f248ace6d2d3",
+    "infile_hash": "d9eb6feb9aaa52c5cac94b3edd6c62f2611eda2c5ad191e44b42f480",
     "outfile": null,
     "outfile_hash": null,
     "stdout": "llvm-print_04-443a8d8.stdout",
-    "stdout_hash": "945841703f16bf772adac50a50a7e2f34e9877809c5f733c67d0fc3f",
+    "stdout_hash": "e31293d8330c55c3ec75e1d9b929a70bfabe43a5272a5dbf29c5aadb",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
