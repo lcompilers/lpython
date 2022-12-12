@@ -1,7 +1,7 @@
 ; ModuleID = 'LFortran'
 source_filename = "LFortran"
 
-@u = global i64 -4611686019677322894
+@u = global i64 -4611686019777986190
 @x = global i32 -2147483648
 @y = global i16 -32768
 @z = global i8 -128
