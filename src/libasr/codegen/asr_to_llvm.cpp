@@ -6042,6 +6042,10 @@ public:
                         target_type = get_type_from_ttype_t_util(arg_type);
                         break ;
                     }
+                    case (ASR::ttypeType::Tuple) : {
+                        target_type = get_type_from_ttype_t_util(arg_type);
+                        break ;
+                    }
                     default :
                         throw CodeGenError("Type " + ASRUtils::type_to_str(arg_type) + " not implemented yet.");
                 }
