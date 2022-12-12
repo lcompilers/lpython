@@ -4864,13 +4864,30 @@ public:
                 }
             } else if (ASR::is_a<ASR::Module_t>(*t)) {
                 ASR::Module_t *m = ASR::down_cast<ASR::Module_t>(t);
-                std::string sym_name = value + "@" + x.m_attr;
+                std::string sym_name = value + "_" + x.m_attr + "_external__";
                 ASR::symbol_t *sym = current_scope->resolve_symbol(sym_name);
                 if (!sym) {
                     sym = import_from_module(al, m, current_scope, value,
                                     x.m_attr, sym_name, x.base.base.loc, false);
                     LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*sym));
                     current_scope->add_symbol(sym_name, sym);
+                } else {
+                    if( ASR::is_a<ASR::ExternalSymbol_t>(*sym) ) {
+                        ASR::ExternalSymbol_t* ext_sym = ASR::down_cast<ASR::ExternalSymbol_t>(sym);
+                        if( ext_sym->m_external != m->m_symtab->resolve_symbol(std::string(x.m_attr)) ) {
+                            sym_name = current_scope->get_unique_name(sym_name);
+                            sym = import_from_module(al, m, current_scope, value,
+                                    x.m_attr, sym_name, x.base.base.loc, false);
+                            LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*sym));
+                            current_scope->add_symbol(sym_name, sym);
+                        }
+                    } else {
+                        sym_name = current_scope->get_unique_name(sym_name);
+                        sym = import_from_module(al, m, current_scope, value,
+                                x.m_attr, sym_name, x.base.base.loc, false);
+                        LFORTRAN_ASSERT(ASR::is_a<ASR::ExternalSymbol_t>(*sym));
+                        current_scope->add_symbol(sym_name, sym);
+                    }
                 }
                 tmp = ASR::make_Var_t(al, x.base.base.loc, sym);
             } else {

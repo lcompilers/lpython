@@ -1099,9 +1099,9 @@ R"(#include <stdio.h>
             sv->m_intent == ASRUtils::intent_inout) &&
             is_c && ASRUtils::is_array(sv->m_type) &&
             ASRUtils::is_pointer(sv->m_type)) {
-            src = "(*" + std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name) + ")";
+            src = "(*" + std::string(ASRUtils::symbol_name(x.m_v)) + ")";
         } else {
-            src = std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name);
+            src = std::string(ASRUtils::symbol_name(x.m_v));
         }
         last_expr_precedence = 2;
     }

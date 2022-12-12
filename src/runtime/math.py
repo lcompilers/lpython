@@ -567,6 +567,7 @@ def tan(x: f64) -> f64:
 def _lfortran_dlog(x: f64) -> f64:
     pass
 
+@overload
 def log(x: f64) -> f64:
     return _lfortran_dlog(x)
 
