@@ -106,6 +106,31 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         m_a.asm_push_r64(X64Reg::rax);
     }
 
+    void visit_I32Add() {
+        m_a.asm_pop_r64(X64Reg::rbx);
+        m_a.asm_pop_r64(X64Reg::rax);
+        m_a.asm_add_r64_r64(X64Reg::rax, X64Reg::rbx);
+        m_a.asm_push_r64(X64Reg::rax);
+    }
+    void visit_I32Sub() {
+        m_a.asm_pop_r64(X64Reg::rbx);
+        m_a.asm_pop_r64(X64Reg::rax);
+        m_a.asm_sub_r64_r64(X64Reg::rax, X64Reg::rbx);
+        m_a.asm_push_r64(X64Reg::rax);
+    }
+    void visit_I32Mul() {
+        m_a.asm_pop_r64(X64Reg::rbx);
+        m_a.asm_pop_r64(X64Reg::rax);
+        m_a.asm_mul_r64(X64Reg::rbx);
+        m_a.asm_push_r64(X64Reg::rax);
+    }
+    void visit_I32DivS() {
+        m_a.asm_pop_r64(X64Reg::rbx);
+        m_a.asm_pop_r64(X64Reg::rax);
+        m_a.asm_div_r64(X64Reg::rbx);
+        m_a.asm_push_r64(X64Reg::rax);
+    }
+
     void gen_x64_bytes() {
         {   // Initialize/Modify values of entities for code simplicity later
 
