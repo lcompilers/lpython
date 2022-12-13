@@ -236,7 +236,10 @@ namespace LFortran {
         switch( asr_type->type ) {
             case ASR::ttypeType::Integer: {
                 return builder->CreateICmpEQ(left, right);
-            };
+            }
+            case ASR::ttypeType::Logical: {
+                return builder->CreateICmpEQ(left, right);
+            }
             case ASR::ttypeType::Real: {
                 return builder->CreateFCmpOEQ(left, right);
             }
@@ -2619,8 +2622,10 @@ namespace LFortran {
                                                  llvm::Module& module) {
         llvm::Value* is_equal = llvm::ConstantInt::get(context, llvm::APInt(1, 1));
         for( size_t i = 0; i < tuple_type->n_type; i++ ) {
-            llvm::Value* t1i = llvm_utils->tuple_api->read_item(t1, i);
-            llvm::Value* t2i = llvm_utils->tuple_api->read_item(t2, i);
+            llvm::Value* t1i = llvm_utils->tuple_api->read_item(t1, i, LLVM::is_llvm_struct(
+                                              tuple_type->m_type[i]));
+            llvm::Value* t2i = llvm_utils->tuple_api->read_item(t2, i, LLVM::is_llvm_struct(
+                                              tuple_type->m_type[i]));
             llvm::Value* is_t1_eq_t2 = llvm_utils->is_equal_by_value(t1i, t2i, module,
                                         tuple_type->m_type[i]);
             is_equal = builder->CreateAnd(is_equal, is_t1_eq_t2);
