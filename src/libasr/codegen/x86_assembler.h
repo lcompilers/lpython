@@ -736,6 +736,15 @@ public:
         EMIT("sub " + r2s(r32) + ", " + i2s(imm8));
     }
 
+    void asm_sub_r64_r64(X64Reg r64, X64Reg s64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x29);
+        modrm_sib_disp(m_code, m_al,
+                s32, &r32, nullptr, 1, 0, false);
+        EMIT("sub " + r2s(r64) + ", " + r2s(s64));
+    }
+
     void asm_sub_r32_r32(X86Reg r32, X86Reg s32) {
         m_code.push_back(m_al, 0x29);
         modrm_sib_disp(m_code, m_al,
@@ -865,6 +874,15 @@ public:
         EMIT("add " + m2s(base, index, scale, disp) + ", " + r2s(r32));
     }
 
+    void asm_add_r64_r64(X64Reg s64, X64Reg r64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, rex(1, s64 >> 3, 0, r64 >> 3));
+        m_code.push_back(m_al, 0x01);
+        modrm_sib_disp(m_code, m_al,
+                r32, &s32, nullptr, 1, 0, false);
+        EMIT("add " + r2s(s64) + ", " + r2s(r64));
+    }
+
     void asm_add_r32_r32(X86Reg s32, X86Reg r32) {
         m_code.push_back(m_al, 0x01);
         modrm_sib_disp(m_code, m_al,
@@ -888,11 +906,29 @@ public:
         EMIT("add " + r2s(r32) + ", " + i2s(imm32));
     }
 
+    void asm_mul_r64(X64Reg r64) {
+        X86Reg r32 = X86Reg(r64 & 7);
+        m_code.push_back(m_al, rex(1, 0, 0, r64 >> 3));
+        m_code.push_back(m_al, 0xF7);
+        modrm_sib_disp(m_code, m_al,
+                X86Reg::esp, &r32, nullptr, 1, 0, false);
+        EMIT("mul " + r2s(r64));
+    }
+
     void asm_mul_r32(X86Reg r32) {
         m_code.push_back(m_al, 0xF7);
         modrm_sib_disp(m_code, m_al,
                 X86Reg::esp, &r32, nullptr, 1, 0, false);
         EMIT("mul " + r2s(r32));
+    }
+
+    void asm_div_r64(X64Reg r64) {
+        X86Reg r32 = X86Reg(r64 & 7);
+        m_code.push_back(m_al, rex(1, 0, 0, r64 >> 3));
+        m_code.push_back(m_al, 0xF7);
+        modrm_sib_disp(m_code, m_al,
+                X86Reg::esi, &r32, nullptr, 1, 0, false);
+        EMIT("div " + r2s(r64));
     }
 
     void asm_div_r32(X86Reg r32) {
