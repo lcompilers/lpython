@@ -5642,11 +5642,11 @@ public:
             } else if (ASRUtils::is_integer(*t)) {
                 switch( a_kind ) {
                     case 1 : {
-                        fmt.push_back("%d");
+                        fmt.push_back("%hhi");
                         break;
                     }
                     case 2 : {
-                        fmt.push_back("%d");
+                        fmt.push_back("%hi");
                         break;
                     }
                     case 4 : {
