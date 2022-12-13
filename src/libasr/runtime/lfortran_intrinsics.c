@@ -10,6 +10,7 @@
 #include <limits.h>
 
 #include "lfortran_intrinsics.h"
+#include "../config.h"
 
 #ifdef HAVE_LFORTRAN_LINK
 // For dl_iterate_phdr() functionality
@@ -1230,6 +1231,7 @@ struct Stacktrace get_stacktrace_addresses()
     return d;
 }
 
+#ifdef HAVE_LFORTRAN_LINK
 int shared_lib_callback(struct dl_phdr_info *info,
         size_t /* size */, void *_data) {
     struct Stacktrace *d = (struct Stacktrace *) _data;
@@ -1251,15 +1253,18 @@ int shared_lib_callback(struct dl_phdr_info *info,
     // We didn't find a match, return a zero value
     return 0;
 }
+#endif
 
 void get_local_address(struct Stacktrace *d) {
     d->local_pc_size = 0;
     for (int32_t i=0; i < d->pc_size; i++) {
         d->current_pc = d->pc[i];
+#ifdef HAVE_LFORTRAN_LINK
         if (dl_iterate_phdr(shared_lib_callback, d) == 0) {
             // TODO: throw error "The stack address was not found in any shared
             // library or the main program, the stack is probably corrupted. Aborting."
         }
+#endif
     }
 }
 
