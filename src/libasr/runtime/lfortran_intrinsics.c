@@ -17,6 +17,7 @@
 #  include <link.h>
 #endif
 
+
 LFORTRAN_API double _lfortran_sum(int n, double *v)
 {
     int i, r;
@@ -1365,7 +1366,7 @@ void print_stacktrace_addresses(struct Stacktrace d)
         if (d.binary_filename[i] == binary_filename) {
             printf(DIM "  File " S_RESET
                    BOLD MAGENTA "\"%s\"" C_RESET S_RESET
-                   DIM ", line %ld\n" S_RESET
+                   DIM ", line %lld\n" S_RESET
                    "    %s\n", binary_filename, d.line_numbers[index],
                    remove_whitespace(read_line_from_file(binary_filename,
                    d.line_numbers[index])));
