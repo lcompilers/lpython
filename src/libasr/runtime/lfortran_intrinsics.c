@@ -1245,7 +1245,8 @@ int shared_lib_callback(struct dl_phdr_info *info,
                 if (d->binary_filename[d->local_pc_size][0] == '\0') {
                     d->binary_filename[d->local_pc_size] = binary_filename;
                 }
-                d->local_pc[d->local_pc_size++] = d->current_pc - info->dlpi_addr;
+                d->local_pc[d->local_pc_size] = d->current_pc - info->dlpi_addr;
+                d->local_pc_size++;
                 // We found a match, return a non-zero value
                 return 1;
             }
