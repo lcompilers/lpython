@@ -7,7 +7,6 @@
 #include <stdbool.h>
 
 #include <unwind.h>
-#include <link.h>
 #include <ctype.h>
 
 #ifdef __cplusplus
@@ -41,14 +40,6 @@ struct Stacktrace {
 };
 void print_stacktrace_addresses(struct Stacktrace d);
 void print_stacktrace_addresses2(char *filename);
-struct dl_phdr_info {
-    ElfW(Addr) dlpi_addr;
-    const char *dlpi_name;
-    const ElfW(Phdr) *dlpi_phdr;
-    ElfW(Half) dlpi_phnum;
-};
-extern int dl_iterate_phdr (int (*__callback) (struct dl_phdr_info *,
-    size_t, void *), void *__data);
 
 // Styles and Colors
 #define DIM "\033[2m"

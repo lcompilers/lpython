@@ -11,6 +11,10 @@
 
 #include "lfortran_intrinsics.h"
 
+#ifdef HAVE_LFORTRAN_LINK
+// For dl_iterate_phdr() functionality
+#  include <link.h>
+#endif
 
 LFORTRAN_API double _lfortran_sum(int n, double *v)
 {
