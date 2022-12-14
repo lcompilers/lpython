@@ -1454,7 +1454,7 @@ int generate_stacktrace_files() {
     return status;
 }
 
-LFORTRAN_API void print_stacktrace_addresses(char *filename) {
+LFORTRAN_API void print_stacktrace_addresses(char *filename, bool use_colors) {
     executable_filename = filename;
     int status = generate_stacktrace_files();
     if (status == 0) {
@@ -1465,12 +1465,19 @@ LFORTRAN_API void print_stacktrace_addresses(char *filename) {
         for (size_t i = d.local_pc_size-1; i > 0; i--) {
             uint64_t index = bisection(d.addresses, d.stack_size, d.local_pc[i]);
             if (d.binary_filename[i] == executable_filename) {
-                fprintf(stderr, DIM "  File " S_RESET
-                    BOLD MAGENTA "\"%s\"" C_RESET S_RESET
-                    DIM ", line %ld\n" S_RESET
-                    "    %s\n", executable_filename, d.line_numbers[index],
-                    remove_whitespace(read_line_from_file(executable_filename,
-                    d.line_numbers[index])));
+                if(use_colors) {
+                    fprintf(stderr, DIM "  File " S_RESET
+                        BOLD MAGENTA "\"%s\"" C_RESET S_RESET
+                        DIM ", line %ld\n" S_RESET
+                        "    %s\n", executable_filename, d.line_numbers[index],
+                        remove_whitespace(read_line_from_file(executable_filename,
+                        d.line_numbers[index])));
+                } else {
+                    fprintf(stderr, "  File \"%s\", line %ld\n    %s\n",
+                        executable_filename, d.line_numbers[index],
+                        remove_whitespace(read_line_from_file(executable_filename,
+                        d.line_numbers[index])));
+                }
             }
         }
     }

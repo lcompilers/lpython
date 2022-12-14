@@ -5169,7 +5169,10 @@ public:
         this->visit_expr_wrapper(x.m_test, true);
         create_if_else(tmp, []() {}, [=]() {
             llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(infile);
-            call_print_stacktrace_addresses(context, *module, *builder, {fmt_ptr});
+            llvm::Value *fmt_ptr1 = llvm::ConstantInt::get(context, llvm::APInt(
+                1, compiler_options.use_colors));
+            call_print_stacktrace_addresses(context, *module, *builder,
+                {fmt_ptr, fmt_ptr1});
             if (x.m_msg) {
                 char* s = ASR::down_cast<ASR::StringConstant_t>(x.m_msg)->m_s;
                 fmt_ptr = builder->CreateGlobalStringPtr("AssertionError: %s\n");
@@ -5953,7 +5956,10 @@ public:
 
     void visit_Stop(const ASR::Stop_t &x) {
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(infile);
-        call_print_stacktrace_addresses(context, *module, *builder, {fmt_ptr});
+        llvm::Value *fmt_ptr1 = llvm::ConstantInt::get(context, llvm::APInt(
+            1, compiler_options.use_colors));
+        call_print_stacktrace_addresses(context, *module, *builder,
+            {fmt_ptr, fmt_ptr1});
         fmt_ptr = builder->CreateGlobalStringPtr("STOP\n");
         print_error(context, *module, *builder, {fmt_ptr});
         llvm::Value *exit_code;
@@ -5970,7 +5976,10 @@ public:
 
     void visit_ErrorStop(const ASR::ErrorStop_t & /* x */) {
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(infile);
-        call_print_stacktrace_addresses(context, *module, *builder, {fmt_ptr});
+        llvm::Value *fmt_ptr1 = llvm::ConstantInt::get(context, llvm::APInt(
+            1, compiler_options.use_colors));
+        call_print_stacktrace_addresses(context, *module, *builder,
+            {fmt_ptr, fmt_ptr1});
         fmt_ptr = builder->CreateGlobalStringPtr("ERROR STOP\n");
         print_error(context, *module, *builder, {fmt_ptr});
         int exit_code_int = 1;
