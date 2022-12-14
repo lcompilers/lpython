@@ -5955,6 +5955,7 @@ public:
     }
 
     void visit_Stop(const ASR::Stop_t &x) {
+        if (compiler_options.emit_debug_info) debug_emit_loc(x);
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(infile);
         llvm::Value *fmt_ptr1 = llvm::ConstantInt::get(context, llvm::APInt(
             1, compiler_options.use_colors));
@@ -5974,7 +5975,8 @@ public:
         exit(context, *module, *builder, exit_code);
     }
 
-    void visit_ErrorStop(const ASR::ErrorStop_t & /* x */) {
+    void visit_ErrorStop(const ASR::ErrorStop_t &x) {
+        if (compiler_options.emit_debug_info) debug_emit_loc(x);
         llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(infile);
         llvm::Value *fmt_ptr1 = llvm::ConstantInt::get(context, llvm::APInt(
             1, compiler_options.use_colors));
