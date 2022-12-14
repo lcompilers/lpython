@@ -6,9 +6,6 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
-#include <unwind.h>
-#include <ctype.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -20,33 +17,6 @@ struct _lfortran_complex_32 {
 struct _lfortran_complex_64 {
     double re, im;
 };
-
-// Runtime Stacktrace
-#define LCOMPILERS_MAX_STACKTRACE_LENGTH 200
-char *binary_filename;
-
-struct Stacktrace {
-    uintptr_t pc[LCOMPILERS_MAX_STACKTRACE_LENGTH];
-    uint64_t pc_size;
-    uintptr_t current_pc;
-
-    uintptr_t local_pc[LCOMPILERS_MAX_STACKTRACE_LENGTH];
-    char *binary_filename[LCOMPILERS_MAX_STACKTRACE_LENGTH];
-    uint64_t local_pc_size;
-
-    uint64_t addresses[LCOMPILERS_MAX_STACKTRACE_LENGTH];
-    uint64_t line_numbers[LCOMPILERS_MAX_STACKTRACE_LENGTH];
-    uint64_t stack_size;
-};
-void print_stacktrace_addresses(struct Stacktrace d);
-void print_stacktrace_addresses2(char *filename);
-
-// Styles and Colors
-#define DIM "\033[2m"
-#define BOLD "\033[1m"
-#define S_RESET "\033[0m"
-#define MAGENTA "\033[35m"
-#define C_RESET "\033[39m"
 
 #ifdef _MSC_VER
 typedef _Fcomplex float_complex_t;
@@ -245,6 +215,7 @@ LFORTRAN_API int32_t _lfortran_iachar(char *c);
 LFORTRAN_API void _lpython_set_argv(int32_t argc_1, char *argv_1[]);
 LFORTRAN_API int32_t _lpython_get_argc();
 LFORTRAN_API char *_lpython_get_argv(int32_t index);
+LFORTRAN_API void print_stacktrace_addresses(char *filename);
 
 #ifdef __cplusplus
 }
