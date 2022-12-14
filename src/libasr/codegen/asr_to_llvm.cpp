@@ -5168,16 +5168,14 @@ public:
         if (compiler_options.emit_debug_info) debug_emit_loc(x);
         this->visit_expr_wrapper(x.m_test, true);
         create_if_else(tmp, []() {}, [=]() {
+            llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(infile);
+            call_print_stacktrace_addresses(context, *module, *builder, {fmt_ptr});
             if (x.m_msg) {
-                llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(infile);
-                call_print_stacktrace_addresses(context, *module, *builder, {fmt_ptr});
                 char* s = ASR::down_cast<ASR::StringConstant_t>(x.m_msg)->m_s;
                 fmt_ptr = builder->CreateGlobalStringPtr("AssertionError: %s\n");
                 llvm::Value *fmt_ptr2 = builder->CreateGlobalStringPtr(s);
                 print_error(context, *module, *builder, {fmt_ptr, fmt_ptr2});
             } else {
-                llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(infile);
-                call_print_stacktrace_addresses(context, *module, *builder, {fmt_ptr});
                 fmt_ptr = builder->CreateGlobalStringPtr("AssertionError\n");
                 print_error(context, *module, *builder, {fmt_ptr});
             }

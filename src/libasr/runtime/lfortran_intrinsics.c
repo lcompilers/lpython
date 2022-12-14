@@ -1321,6 +1321,20 @@ void get_local_address(struct Stacktrace *d) {
     }
 }
 
+char *get_base_name() {
+    size_t start = strrchr(executable_filename, '/')-executable_filename+1;
+    size_t end = strrchr(executable_filename, '.')-executable_filename-1;
+    int nos_of_chars = end - start + 1;
+    char *base_name;
+    if (nos_of_chars < 0) {
+        return NULL;
+    }
+    base_name = malloc (sizeof (char) * (nos_of_chars + 1));
+    base_name[nos_of_chars] = '\0';
+    strncpy (base_name, executable_filename + start, nos_of_chars);
+    return base_name;
+}
+
 uint32_t get_file_size(int64_t fp) {
     FILE *fp_ = (FILE *)fp;
     int prev = ftell(fp_);
@@ -1337,11 +1351,15 @@ uint32_t get_file_size(int64_t fp) {
  */
 void get_local_info_dwarfdump(struct Stacktrace *d) {
     // TODO: Read the contents of lines.dat from here itself.
-    char *filename = "lines_dat.txt";
+    char *base_name = get_base_name();
+    char *filename = malloc(strlen(base_name) + 14);
+    strcpy(filename, base_name);
+    strcat(filename, "_lines.dat.txt");
     int64_t fd = _lpython_open(filename, "r");
     uint32_t size = get_file_size(fd);
     char *file_contents = _lpython_read(fd, size);
     _lpython_close(fd);
+    free(filename);
 
     char s[size];
     bool address = true;
@@ -1413,21 +1431,47 @@ char *remove_whitespace(char *str) {
     return str;
 }
 
+int generate_stacktrace_files() {
+    // TODO: Replace the hardcoded part
+    char *base_name = get_base_name();
+    char *cmd = malloc(strlen(base_name)*6 + 157);
+    strcpy(cmd, "llvm-dwarfdump --debug-line ");
+    strcat(cmd, base_name);
+    strcat(cmd, ".out > ");
+    strcat(cmd, base_name);
+    strcat(cmd, ".txt && ");
+    strcat(cmd, "(cd src/bin; ./dwarf_convert.py ../../");
+    strcat(cmd, base_name);
+    strcat(cmd, ".txt ../../");
+    strcat(cmd, base_name);
+    strcat(cmd, "_lines.txt ../../");
+    strcat(cmd, base_name);
+    strcat(cmd, "_lines.dat && ./dat_convert.py ../../");
+    strcat(cmd, base_name);
+    strcat(cmd, "_lines.dat)");
+    int status = system(cmd);
+    free(cmd);
+    return status;
+}
+
 LFORTRAN_API void print_stacktrace_addresses(char *filename) {
     executable_filename = filename;
-    struct Stacktrace d = get_stacktrace_addresses();
-    get_local_address(&d);
-    get_local_info_dwarfdump(&d);
+    int status = generate_stacktrace_files();
+    if (status == 0) {
+        struct Stacktrace d = get_stacktrace_addresses();
+        get_local_address(&d);
+        get_local_info_dwarfdump(&d);
 
-    for (size_t i = d.local_pc_size-1; i > 0; i--) {
-        uint64_t index = bisection(d.addresses, d.stack_size, d.local_pc[i]);
-        if (d.binary_filename[i] == executable_filename) {
-            printf(DIM "  File " S_RESET
-                   BOLD MAGENTA "\"%s\"" C_RESET S_RESET
-                   DIM ", line %ld\n" S_RESET
-                   "    %s\n", executable_filename, d.line_numbers[index],
-                   remove_whitespace(read_line_from_file(executable_filename,
-                   d.line_numbers[index])));
+        for (size_t i = d.local_pc_size-1; i > 0; i--) {
+            uint64_t index = bisection(d.addresses, d.stack_size, d.local_pc[i]);
+            if (d.binary_filename[i] == executable_filename) {
+                fprintf(stderr, DIM "  File " S_RESET
+                    BOLD MAGENTA "\"%s\"" C_RESET S_RESET
+                    DIM ", line %ld\n" S_RESET
+                    "    %s\n", executable_filename, d.line_numbers[index],
+                    remove_whitespace(read_line_from_file(executable_filename,
+                    d.line_numbers[index])));
+            }
         }
     }
 }
