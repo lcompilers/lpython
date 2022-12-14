@@ -5954,7 +5954,9 @@ public:
     }
 
     void visit_Stop(const ASR::Stop_t &x) {
-        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("STOP\n");
+        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(infile);
+        call_print_stacktrace_addresses(context, *module, *builder, {fmt_ptr});
+        fmt_ptr = builder->CreateGlobalStringPtr("STOP\n");
         print_error(context, *module, *builder, {fmt_ptr});
         llvm::Value *exit_code;
         if (x.m_code && ASRUtils::expr_type(x.m_code)->type == ASR::ttypeType::Integer) {
@@ -5969,7 +5971,9 @@ public:
     }
 
     void visit_ErrorStop(const ASR::ErrorStop_t & /* x */) {
-        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr("ERROR STOP\n");
+        llvm::Value *fmt_ptr = builder->CreateGlobalStringPtr(infile);
+        call_print_stacktrace_addresses(context, *module, *builder, {fmt_ptr});
+        fmt_ptr = builder->CreateGlobalStringPtr("ERROR STOP\n");
         print_error(context, *module, *builder, {fmt_ptr});
         int exit_code_int = 1;
         llvm::Value *exit_code = llvm::ConstantInt::get(context,
