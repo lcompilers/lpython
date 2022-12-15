@@ -2414,7 +2414,8 @@ public:
                 aggregate_type_name = ASRUtils::symbol_name(
                     ASR::down_cast<ASR::Union_t>(var_type)->m_union_type);
             }
-            if( aggregate_type_name ) {
+            if( aggregate_type_name &&
+                !current_scope->get_symbol(std::string(aggregate_type_name)) ) {
                 struct_dependencies.push_back(al, aggregate_type_name);
             }
             member_names.push_back(al, n->m_id);
