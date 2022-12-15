@@ -115,6 +115,26 @@ static std::string r2s(X86Reg r32) {
     }
 }
 
+static std::string m2s(X64Reg *base, X64Reg *index, uint8_t scale, int64_t disp) {
+    std::string r;
+    r = "[";
+    if (base) r += r2s(*base);
+    if (index) {
+        if (base) r += "+";
+        if (scale == 1) {
+            r += r2s(*index);
+        } else {
+            r += std::to_string(scale) + "*" + r2s(*index);
+        }
+    }
+    if (disp) {
+        if ((base || index) && (disp > 0)) r += "+";
+        r += std::to_string(disp);
+    }
+    r += "]";
+    return r;
+}
+
 static std::string m2s(X86Reg *base, X86Reg *index, uint8_t scale, int32_t disp) {
     std::string r;
     r = "[";
@@ -693,6 +713,16 @@ public:
         EMIT("mov " + r2s(r32) + ", " + r2s(s32));
     }
 
+    void asm_mov_r64_m64(X64Reg r64, X64Reg *base, X64Reg *index,
+                uint8_t scale, int64_t disp) {
+        X86Reg r32 = X86Reg(r64 & 7), base32 = X86Reg(base & 7), index32 = X86Reg(index & 7);
+        m_code.push_back(m_al, rex(1, r64 >> 3, index32 >> 3, base32 >> 3));
+        m_code.push_back(m_al, 0x8b);
+            modrm_sib_disp(m_code, m_al,
+                    r32, base32, index32, scale, (int32_t)disp, true);
+        EMIT("mov " + r2s(r64) + ", " + m2s(base, index, scale, disp));
+    }
+
     void asm_mov_r32_m32(X86Reg r32, X86Reg *base, X86Reg *index,
                 uint8_t scale, int32_t disp) {
         if (r32 == X86Reg::eax && !base && !index) {
@@ -705,6 +735,16 @@ public:
                     r32, base, index, scale, disp, true);
         }
         EMIT("mov " + r2s(r32) + ", " + m2s(base, index, scale, disp));
+    }
+
+    void asm_mov_m64_r64(X64Reg *base, X64Reg *index,
+                uint8_t scale, int64_t disp, X64Reg r64) {
+        X86Reg r32 = X86Reg(r64 & 7), base32 = X86Reg(base & 7), index32 = X86Reg(index & 7);
+        m_code.push_back(m_al, rex(1, r64 >> 3, index32 >> 3, base32 >> 3));
+        m_code.push_back(m_al, 0x89);
+        modrm_sib_disp(m_code, m_al,
+                    r32, base32, index32, scale, (int32_t)disp, true);
+        EMIT("mov " + m2s(base, index, scale, disp) + ", " + r2s(r64));
     }
 
     void asm_mov_m32_r32(X86Reg *base, X86Reg *index,
