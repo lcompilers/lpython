@@ -96,6 +96,80 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
 
         func_idx -= 7u; // adjust function index as per imports
         m_a.asm_call_label(exports[func_idx].name);
+
+        // Pop the passed function arguments
+        wasm::FuncType func_type = func_types[type_indices[func_idx]];
+        for (uint32_t i = 0; i < func_type.param_types.size(); i++) {
+            m_a.asm_pop_r64(X64Reg::rax);
+        }
+
+        // Adjust the return values of the called function
+        X64Reg base = X64Reg::rsp;
+        for (uint32_t i = 0; i < func_type.result_types.size(); i++) {
+            // take value into eax
+            m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1,
+                -8 * (func_type.param_types.size() + 2 +
+                       codes[func_idx].locals.size() + 1));
+
+            // push eax value onto stack
+            m_a.asm_push_r64(X64Reg::rax);
+        }
+    }
+
+    void visit_LocalGet(uint32_t localidx) {
+        X64Reg base = X64Reg::rbp;
+        auto cur_func_param_type = func_types[type_indices[cur_func_idx]];
+        int no_of_params = (int)cur_func_param_type.param_types.size();
+        if ((int)localidx < no_of_params) {
+            std::string var_type = var_type_to_string[cur_func_param_type.param_types[localidx]];
+            if (var_type == "i32") {
+                m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, 8 * (2 + localidx));
+                m_a.asm_push_r64(X64Reg::rax);
+            } else if (var_type == "f64") {
+                std::cerr << "Floats are not yet supported" << std::endl;
+            } else {
+                throw CodeGenError("WASM_X64: Var type not supported");
+            }
+        } else {
+            localidx -= no_of_params;
+            std::string var_type = var_type_to_string[codes[cur_func_idx].locals[localidx].type];
+            if (var_type == "i32") {
+                m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, -8 * (1 + localidx));
+                m_a.asm_push_r64(X64Reg::rax);
+            } else if (var_type == "f64") {
+                std::cerr << "Floats are not yet supported" << std::endl;
+            } else {
+                throw CodeGenError("WASM_X64: Var type not supported");
+            }
+        }
+    }
+
+    void visit_LocalSet(uint32_t localidx) {
+        X64Reg base = X64Reg::rbp;
+        auto cur_func_param_type = func_types[type_indices[cur_func_idx]];
+        int no_of_params = (int)cur_func_param_type.param_types.size();
+        if ((int)localidx < no_of_params) {
+            std::string var_type = var_type_to_string[cur_func_param_type.param_types[localidx]];
+            if (var_type == "i32") {
+                m_a.asm_pop_r64(X64Reg::rax);
+                m_a.asm_mov_m64_r64(&base, nullptr, 1, 8 * (2 + localidx), X64Reg::rax);
+            } else if (var_type == "f64") {
+                std::cerr << "Floats are not yet supported" << std::endl;
+            } else {
+                throw CodeGenError("WASM_X64: Var type not supported");
+            }
+        } else {
+            localidx -= no_of_params;
+            std::string var_type = var_type_to_string[codes[cur_func_idx].locals[localidx].type];
+            if (var_type == "i32") {
+                m_a.asm_pop_r64(X64Reg::rax);
+                m_a.asm_mov_m64_r64(&base, nullptr, 1, -8 * (1 + localidx), X64Reg::rax);
+            } else if (var_type == "f64") {
+                std::cerr << "Floats are not yet supported" << std::endl;
+            } else {
+                throw CodeGenError("WASM_X64: Var type not supported");
+            }
+        }
     }
 
     void visit_I32Const(int32_t value) {
