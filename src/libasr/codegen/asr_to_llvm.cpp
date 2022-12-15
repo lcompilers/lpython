@@ -732,6 +732,9 @@ public:
             }
             const std::map<std::string, ASR::symbol_t*>& scope = der_type->m_symtab->get_scope();
             for( auto itr = scope.begin(); itr != scope.end(); itr++ ) {
+                if( ASR::is_a<ASR::UnionType_t>(*itr->second) ) {
+                    continue ;
+                }
                 ASR::Variable_t* member = ASR::down_cast<ASR::Variable_t>(itr->second);
                 llvm::Type* llvm_mem_type = get_type_from_ttype_t_util(member->m_type, member->m_abi);
                 member_types.push_back(llvm_mem_type);
@@ -2665,7 +2668,8 @@ public:
         std::string struct_type_name = struct_type_t->m_name;
         for( auto item: struct_type_t->m_symtab->get_scope() ) {
             if( ASR::is_a<ASR::ClassProcedure_t>(*item.second) ||
-                ASR::is_a<ASR::GenericProcedure_t>(*item.second) ) {
+                ASR::is_a<ASR::GenericProcedure_t>(*item.second) ||
+                ASR::is_a<ASR::UnionType_t>(*item.second) ) {
                 continue ;
             }
             ASR::ttype_t* symbol_type = ASRUtils::symbol_type(item.second);
@@ -5171,7 +5175,8 @@ public:
             }
             case ASR::ttypeType::Union: {
                 ASR::Union_t* der = ASR::down_cast<ASR::Union_t>(x->m_type);
-                ASR::UnionType_t* der_type = ASR::down_cast<ASR::UnionType_t>(der->m_union_type);
+                ASR::UnionType_t* der_type = ASR::down_cast<ASR::UnionType_t>(
+                    ASRUtils::symbol_get_past_external(der->m_union_type));
                 der_type_name = std::string(der_type->m_name);
                 uint32_t h = get_hash((ASR::asr_t*)x);
                 if( llvm_symtab.find(h) != llvm_symtab.end() ) {
