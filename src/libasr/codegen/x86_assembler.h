@@ -493,7 +493,7 @@ public:
 
     void asm_pop_r64(X64Reg r64) {
         X86Reg r32 = X86Reg(r64 & 7);
-        m_code.push_back(m_al, rex(1, r64 >> 3, 0, 0));
+        m_code.push_back(m_al, rex(1, 0, 0, r64 >> 3));
         m_code.push_back(m_al, 0x58 + r32);
         EMIT("pop " + r2s(r64));
     }
@@ -511,7 +511,7 @@ public:
 
     void asm_push_r64(X64Reg r64) {
         X86Reg r32 = X86Reg(r64 & 7);
-        m_code.push_back(m_al, rex(1, r64 >> 3, 0, 0));
+        m_code.push_back(m_al, rex(1, 0, 0, r64 >> 3));
         m_code.push_back(m_al, 0x50 + r32);
         EMIT("push " + r2s(r64));
     }
@@ -684,8 +684,9 @@ public:
     }
 
     void asm_mov_r64_imm64(X64Reg r64, uint64_t imm64) {
-        m_code.push_back(m_al, rex(1, 0, 0, 0));
-        m_code.push_back(m_al, 0xb8 + r64);
+        X86Reg r32 = X86Reg(r64 & 7);
+        m_code.push_back(m_al, rex(1, 0, 0, r64 >> 3));
+        m_code.push_back(m_al, 0xb8 + r32);
         push_back_uint64(m_code, m_al, imm64);
         EMIT("mov " + r2s(r64) + ", " + i2s(imm64));
     }
@@ -699,7 +700,7 @@ public:
 
     void asm_mov_r64_r64(X64Reg r64, X64Reg s64) {
         X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
-        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, rex(1, s64 >> 3, 0, r64 >> 3));
         m_code.push_back(m_al, 0x89);
         modrm_sib_disp(m_code, m_al,
                 s32, &r32, nullptr, 1, 0, false);
