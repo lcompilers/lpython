@@ -98,6 +98,62 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         m_a.asm_call_label(exports[func_idx].name);
     }
 
+    void visit_LocalGet(uint32_t localidx) {
+        X64Reg base = X64Reg::rbp;
+        auto cur_func_param_type = func_types[type_indices[cur_func_idx]];
+        int no_of_params = (int)cur_func_param_type.param_types.size();
+        if ((int)localidx < no_of_params) {
+            std::string var_type = var_type_to_string[cur_func_param_type.param_types[localidx]];
+            if (var_type == "i32") {
+                m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, 8 * (2 + localidx));
+                m_a.asm_push_r64(X64Reg::rax);
+            } else if (var_type == "f64") {
+                std::cerr << "Floats are not yet supported" << std::endl;
+            } else {
+                throw CodeGenError("WASM_X64: Var type not supported");
+            }
+        } else {
+            localidx -= no_of_params;
+            std::string var_type = var_type_to_string[codes[cur_func_idx].locals[localidx].type];
+            if (var_type == "i32") {
+                m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, -8 * (1 + localidx));
+                m_a.asm_push_r64(X64Reg::rax);
+            } else if (var_type == "f64") {
+                std::cerr << "Floats are not yet supported" << std::endl;
+            } else {
+                throw CodeGenError("WASM_X64: Var type not supported");
+            }
+        }
+    }
+
+    void visit_LocalSet(uint32_t localidx) {
+        X64Reg base = X64Reg::rbp;
+        auto cur_func_param_type = func_types[type_indices[cur_func_idx]];
+        int no_of_params = (int)cur_func_param_type.param_types.size();
+        if ((int)localidx < no_of_params) {
+            std::string var_type = var_type_to_string[cur_func_param_type.param_types[localidx]];
+            if (var_type == "i32") {
+                m_a.asm_pop_r64(X64Reg::rax);
+                m_a.asm_mov_m64_r64(&base, nullptr, 1, 8 * (2 + localidx), X64Reg::rax);
+            } else if (var_type == "f64") {
+                std::cerr << "Floats are not yet supported" << std::endl;
+            } else {
+                throw CodeGenError("WASM_X64: Var type not supported");
+            }
+        } else {
+            localidx -= no_of_params;
+            std::string var_type = var_type_to_string[codes[cur_func_idx].locals[localidx].type];
+            if (var_type == "i32") {
+                m_a.asm_pop_r64(X64Reg::rax);
+                m_a.asm_mov_m64_r64(&base, nullptr, 1, -8 * (1 + localidx), X64Reg::rax);
+            } else if (var_type == "f64") {
+                std::cerr << "Floats are not yet supported" << std::endl;
+            } else {
+                throw CodeGenError("WASM_X64: Var type not supported");
+            }
+        }
+    }
+
     void visit_I32Const(int32_t value) {
         // direct addition of imm64 to stack is not available with us yet
         // so temporarily using a combination of instructions
