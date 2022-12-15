@@ -96,6 +96,24 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
 
         func_idx -= 7u; // adjust function index as per imports
         m_a.asm_call_label(exports[func_idx].name);
+
+        // Pop the passed function arguments
+        wasm::FuncType func_type = func_types[type_indices[func_idx]];
+        for (uint32_t i = 0; i < func_type.param_types.size(); i++) {
+            m_a.asm_pop_r64(X64Reg::rax);
+        }
+
+        // Adjust the return values of the called function
+        X64Reg base = X64Reg::rsp;
+        for (uint32_t i = 0; i < func_type.result_types.size(); i++) {
+            // take value into eax
+            m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1,
+                -8 * (func_type.param_types.size() + 2 +
+                       codes[func_idx].locals.size() + 1));
+
+            // push eax value onto stack
+            m_a.asm_push_r64(X64Reg::rax);
+        }
     }
 
     void visit_LocalGet(uint32_t localidx) {
