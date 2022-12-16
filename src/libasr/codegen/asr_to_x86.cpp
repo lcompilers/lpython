@@ -64,7 +64,7 @@ public:
 
         // Add runtime library functions
         emit_print_int(m_a, "print_int");
-        emit_exit(m_a, "exit", 0);
+        emit_exit(m_a, "my_exit", 0);
         emit_exit(m_a, "exit_error_stop", 1);
 
 
@@ -131,7 +131,7 @@ public:
             this->visit_stmt(*x.m_body[i]);
         }
 
-        m_a.asm_call_label("exit");
+        m_a.asm_call_label("my_exit");
 
         // Restore stack
         m_a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
