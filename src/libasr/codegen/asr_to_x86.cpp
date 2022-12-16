@@ -53,7 +53,7 @@ public:
     std::map<uint64_t, Sym> x86_symtab;
 public:
 
-    ASRToX86Visitor(Allocator &al) : m_al{al}, m_a{al} {}
+    ASRToX86Visitor(Allocator &al) : m_al{al}, m_a{al, false} {}
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
