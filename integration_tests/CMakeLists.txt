@@ -150,6 +150,23 @@ macro(RUN)
             if (${RUN_FAIL})
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
+        elseif(KIND STREQUAL "wasm_x64")
+            # wasm_to_x64 test
+            add_custom_command(
+                OUTPUT ${name}.x64
+                COMMAND lpython --backend wasm_x64 ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name}.x64
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                VERBATIM
+            )
+            add_custom_target(${name} ALL
+            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${name}.x64)
+            add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name}.x64)
+            if (RUN_LABELS)
+                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
+            endif()
+            if (${RUN_FAIL})
+                set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+            endif()
         elseif(KIND STREQUAL "wasm")
             # wasm test
             execute_process(COMMAND lpython --backend wasm ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py -o ${name})
