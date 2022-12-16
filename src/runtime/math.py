@@ -688,6 +688,7 @@ def log1p(x: f64) -> f64:
     return log(1.0 + x)
 
 
+@overload
 def fmod(x: f64, y: f64) -> f64:
     if y == 0.0:
         raise ValueError('math domain error')
