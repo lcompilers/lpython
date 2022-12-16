@@ -711,6 +711,7 @@ public:
         X86Reg r32 = X86Reg(r64 & 7);
         m_code.push_back(m_al, rex(1, 0, 0, r64 >> 3));
         m_code.push_back(m_al, 0xb8 + r32);
+        // TODO: reference_symbol().value should return 64-bit value
         uint64_t imm64 = reference_symbol(label).value;
         push_back_uint64(m_code, m_al, imm64);
         EMIT("mov " + r2s(r64) + ", " + label);
