@@ -41,10 +41,12 @@ Old Link: https://www.systutorials.com/go/intel-x86-64-reference-manual/
 #    define EMIT(s) emit("    ", s)
 #    define EMIT_LABEL(s) emit("", s)
 #    define EMIT_VAR(a, b) emit("\n", a + " equ " + i2s(b) + "\n")
+#    define EMIT_VAR_SIZE(a) emit("\n", a + " equ $ - $$\n") // $ is current addr, $$ is start addr
 #else
 #    define EMIT(s)
 #    define EMIT_LABEL(s)
 #    define EMIT_VAR(a, b)
+#    define EMIT_VAR_SIZE(a)
 #endif
 
 namespace LFortran {
@@ -370,14 +372,6 @@ public:
         return m_asm_code;
     }
 
-    void append_asm(std::string asm_code) {
-        m_asm_code += asm_code;
-    }
-
-    void update_asm(std::string asm_code) {
-        m_asm_code = asm_code;
-    }
-
     // Saves the generated assembly into a file
     // Can be compiled with:
     // nasm -f bin filename.asm
@@ -473,6 +467,13 @@ public:
     void add_label(const std::string &label) {
         define_symbol(label, pos());
         EMIT_LABEL(label + ":");
+    }
+
+    void add_var_size(const std::string &var) {
+        uint64_t val = pos() - origin();
+        // TODO: Support 64-bit or 8 byte parameter val in define_symbol()
+        define_symbol(var, val);
+        EMIT_VAR_SIZE(var);
     }
 
     void add_var64(const std::string &var, uint64_t val) {

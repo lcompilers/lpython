@@ -260,10 +260,7 @@ void emit_elf64_header(X86Assembler &a, uint32_t p_flags) {
 }
 
 void emit_elf64_footer(X86Assembler &a) {
-    a.define_symbol("filesize", a.pos()-a.origin());
-    a.append_asm("\n\nfilesize equ $ - $$"); // $ refers current address, $$ refers starting address
-    // a.add_var64("e_entry", a.get_defined_symbol("_start").value);
-    // a.add_var64("filesize", a.pos()-a.origin());
+    a.add_var_size("filesize");
 }
 
 void emit_exit_64(X86Assembler &a, std::string name, int exit_code) {
