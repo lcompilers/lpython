@@ -463,13 +463,13 @@ R"(#include <stdio.h>
                 if( ASR::is_a<ASR::ExternalSymbol_t>(*var_sym) ) {
                     ASR::ExternalSymbol_t* v_ext = ASR::down_cast<ASR::ExternalSymbol_t>(var_sym);
                     ASR::symbol_t* v_sym = v_ext->m_external;
-                    // std::cout<<"v_sym: "<<v_sym->type<<" "<<v_ext->m_name<<std::endl;
                     if (ASR::is_a<ASR::Variable_t>(*v_sym)) {
                         ASR::Variable_t* v = ASR::down_cast<ASR::Variable_t>(v_sym);
-                        char* v_m_name = v->m_name;
-                        v->m_name = v_ext->m_name;
-                        decl += indent + self().convert_variable_decl(*v) + ";\n";
-                        v->m_name = v_m_name;
+                        if( v->m_symbolic_value ) {
+                            this->visit_expr(*v->m_symbolic_value);
+                            decl += indent + "#define " + std::string(v_ext->m_name) + " " + src + "\n";
+                            src.clear();
+                        }
                     }
                 }
             }
