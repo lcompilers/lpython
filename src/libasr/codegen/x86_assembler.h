@@ -1086,6 +1086,7 @@ void emit_elf64_footer(X86Assembler &a);
 
 void emit_exit_64(X86Assembler &a, std::string label, int exit_code);
 
+void emit_print_64(X86Assembler &a, const std::string &msg_label, uint64_t size);
 } // namespace LFortran
 
 #endif // LFORTRAN_CODEGEN_X86_ASSEMBER_H
