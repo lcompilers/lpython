@@ -32,6 +32,8 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
    public:
     X86Assembler &m_a;
     uint32_t cur_func_idx;
+    int32_t last_vis_i32_const, last_last_vis_i32_const;
+    std::map<std::string, std::string> label_to_str;
 
     X64Visitor(X86Assembler &m_a, Allocator &al,
                diag::Diagnostics &diagonostics, Vec<uint8_t> &code)
@@ -69,11 +71,19 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 break;
             }
             case 4: {  // print_str
-                std::cerr << "Call to print_str() is not yet supported\n";
+
+                // pop the string length and string location
+                // we do not need them at the moment
+                m_a.asm_pop_r64(X64Reg::rax);
+                m_a.asm_pop_r64(X64Reg::rax);
+
+                // we need compile-time string length and location
+                std::string label = "string" + std::to_string(last_last_vis_i32_const);
+                emit_print_64(m_a, label, label_to_str[label].size());
                 break;
             }
             case 5: {  // flush_buf
-                std::cerr << "Call to flush_buf() is not yet supported\n";
+                emit_print_64(m_a, "string_newline", 2);
                 break;
             }
             case 6: {  // set_exit_code
@@ -178,6 +188,10 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         // TODO: Update this once we have support for push_imm64()
         m_a.asm_mov_r64_imm64(X64Reg::rax, value);
         m_a.asm_push_r64(X64Reg::rax);
+
+        // TODO: Following seems/is hackish. Fix/Improve it.
+        last_last_vis_i32_const = last_vis_i32_const;
+        last_vis_i32_const = value;
     }
 
     void visit_I32Add() {
@@ -208,9 +222,18 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void gen_x64_bytes() {
         {   // Initialize/Modify values of entities
             exports.back().name = "_start"; // Update _lcompilers_main() to _start
+            label_to_str["string_newline"] = "\n";
         }
 
         emit_elf64_header(m_a);
+
+        // declare compile-time strings
+        for (uint32_t i = 0; i < data_segments.size(); i++) {
+            offset = data_segments[i].insts_start_index;
+            decode_instructions();
+            std::string label = "string" + std::to_string(last_vis_i32_const);
+            label_to_str[label] = data_segments[i].text;
+        }
 
         for (uint32_t idx = 0; idx < type_indices.size(); idx++) {
             m_a.add_label(exports[idx].name);
@@ -237,6 +260,10 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 m_a.asm_ret();
             }
 
+        }
+
+        for (auto &s : label_to_str) {
+            emit_data_string(m_a, s.first, s.second);
         }
 
         emit_elf64_footer(m_a);
