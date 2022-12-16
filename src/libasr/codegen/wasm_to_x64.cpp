@@ -206,11 +206,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     }
 
     void gen_x64_bytes() {
-        {   // Initialize/Modify values of entities for code simplicity later
-
-            m_a.update_asm(""); // delete previous asm code
-            m_a.append_asm("BITS 64\n");
-            m_a.append_asm("\torg " + i2s((uint64_t)m_a.origin()) + "\n\n"); // specify origin info
+        {   // Initialize/Modify values of entities
             exports.back().name = "_start"; // Update _lcompilers_main() to _start
         }
 
@@ -257,7 +253,7 @@ Result<int> wasm_to_x64(Vec<uint8_t> &wasm_bytes, Allocator &al,
     int time_save = 0;
     int time_verify = 0;
 
-    X86Assembler m_a(al);
+    X86Assembler m_a(al, true /* bits 64 */);
 
     wasm::X64Visitor x64_visitor(m_a, al, diagnostics, wasm_bytes);
 

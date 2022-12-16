@@ -365,7 +365,7 @@ Result<int> wasm_to_x86(Vec<uint8_t> &wasm_bytes, Allocator &al,
     int time_save = 0;
     int time_verify = 0;
 
-    X86Assembler m_a(al);
+    X86Assembler m_a(al, false /* bits 64 */);
 
     wasm::X86Visitor x86_visitor(m_a, al, diagnostics, wasm_bytes);
 
