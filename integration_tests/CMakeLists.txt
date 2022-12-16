@@ -354,6 +354,7 @@ RUN(NAME structs_13          LABELS llvm c
 RUN(NAME structs_14          LABELS cpython llvm c)
 RUN(NAME structs_15          LABELS cpython llvm c)
 RUN(NAME structs_16          LABELS cpython llvm c)
+RUN(NAME structs_17          LABELS cpython llvm c)
 RUN(NAME sizeof_01           LABELS llvm c
         EXTRAFILES sizeof_01b.c)
 RUN(NAME enum_01             LABELS cpython llvm c)

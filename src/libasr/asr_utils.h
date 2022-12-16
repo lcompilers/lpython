@@ -454,6 +454,9 @@ static inline ASR::Module_t *get_sym_module(const ASR::symbol_t *sym) {
 // Returns the ASR owner of the symbol
 static inline ASR::symbol_t *get_asr_owner(const ASR::symbol_t *sym) {
     const SymbolTable *s = symbol_parent_symtab(sym);
+    if( !ASR::is_a<ASR::symbol_t>(*s->asr_owner) ) {
+        return nullptr;
+    }
     return ASR::down_cast<ASR::symbol_t>(s->asr_owner);
 }
 

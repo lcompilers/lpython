@@ -306,7 +306,7 @@ ASR::TranslationUnit_t* find_and_load_module(Allocator &al, const std::string &m
 ASR::asr_t* getStructInstanceMember_t(Allocator& al, const Location& loc,
                             ASR::asr_t* v_var, ASR::symbol_t* member,
                             SymbolTable* current_scope) {
-    ASR::Variable_t* member_variable = ((ASR::Variable_t*)(&(member->base)));
+    ASR::Variable_t* member_variable = ASR::down_cast<ASR::Variable_t>(member);
     ASR::ttype_t* member_type = member_variable->m_type;
     switch( member_type->type ) {
         case ASR::ttypeType::Struct: {
@@ -317,23 +317,27 @@ ASR::asr_t* getStructInstanceMember_t(Allocator& al, const Location& loc,
                 ASR::symbol_t* der_ext;
                 char* module_name = (char*)"~nullptr";
                 ASR::symbol_t* m_external = der->m_derived_type;
-                if( m_external->type == ASR::symbolType::ExternalSymbol ) {
-                    ASR::ExternalSymbol_t* m_ext = (ASR::ExternalSymbol_t*)(&(m_external->base));
+                if( ASR::is_a<ASR::ExternalSymbol_t>(*m_external) ) {
+                    ASR::ExternalSymbol_t* m_ext = ASR::down_cast<ASR::ExternalSymbol_t>(m_external);
                     m_external = m_ext->m_external;
                     module_name = m_ext->m_module_name;
+                } else if( ASR::is_a<ASR::StructType_t>(*m_external) ) {
+                    ASR::symbol_t* asr_owner = ASRUtils::get_asr_owner(m_external);
+                    if( ASR::is_a<ASR::StructType_t>(*asr_owner) ) {
+                        module_name = ASRUtils::symbol_name(asr_owner);
+                    }
                 }
-                Str mangled_name;
-                mangled_name.from_str(al, "1_" +
+                std::string mangled_name = current_scope->get_unique_name(
                                             std::string(module_name) + "_" +
                                             std::string(der_type_name));
-                char* mangled_name_char = mangled_name.c_str(al);
-                if( current_scope->get_symbol(mangled_name.str()) == nullptr ) {
+                char* mangled_name_char = s2c(al, mangled_name);
+                if( current_scope->get_symbol(mangled_name) == nullptr ) {
                     bool make_new_ext_sym = true;
                     ASR::symbol_t* der_tmp = nullptr;
                     if( current_scope->get_symbol(std::string(der_type_name)) != nullptr ) {
                         der_tmp = current_scope->get_symbol(std::string(der_type_name));
-                        if( der_tmp->type == ASR::symbolType::ExternalSymbol ) {
-                            ASR::ExternalSymbol_t* der_ext_tmp = (ASR::ExternalSymbol_t*)(&(der_tmp->base));
+                        if( ASR::is_a<ASR::ExternalSymbol_t>(*der_tmp) ) {
+                            ASR::ExternalSymbol_t* der_ext_tmp = ASR::down_cast<ASR::ExternalSymbol_t>(der_tmp);
                             if( der_ext_tmp->m_external == m_external ) {
                                 make_new_ext_sym = false;
                             }
@@ -342,15 +346,17 @@ ASR::asr_t* getStructInstanceMember_t(Allocator& al, const Location& loc,
                         }
                     }
                     if( make_new_ext_sym ) {
-                        der_ext = (ASR::symbol_t*)ASR::make_ExternalSymbol_t(al, loc, current_scope, mangled_name_char, m_external,
-                                                                            module_name, nullptr, 0, s2c(al, der_type_name), ASR::accessType::Public);
-                        current_scope->add_symbol(mangled_name.str(), der_ext);
+                        der_ext = ASR::down_cast<ASR::symbol_t>(ASR::make_ExternalSymbol_t(
+                                        al, loc, current_scope, mangled_name_char, m_external,
+                                        module_name, nullptr, 0, s2c(al, der_type_name),
+                                        ASR::accessType::Public));
+                        current_scope->add_symbol(mangled_name, der_ext);
                     } else {
                         LFORTRAN_ASSERT(der_tmp != nullptr);
                         der_ext = der_tmp;
                     }
                 } else {
-                    der_ext = current_scope->get_symbol(mangled_name.str());
+                    der_ext = current_scope->get_symbol(mangled_name);
                 }
                 ASR::asr_t* der_new = ASR::make_Struct_t(al, loc, der_ext, der->m_dims, der->n_dims);
                 member_type = ASRUtils::TYPE(der_new);

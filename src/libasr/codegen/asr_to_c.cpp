@@ -139,7 +139,8 @@ public:
     void allocate_array_members_of_struct(ASR::StructType_t* der_type_t, std::string& sub,
         std::string indent, std::string name) {
         for( auto itr: der_type_t->m_symtab->get_scope() ) {
-            if( ASR::is_a<ASR::UnionType_t>(*itr.second) ) {
+            if( ASR::is_a<ASR::UnionType_t>(*itr.second) ||
+                ASR::is_a<ASR::StructType_t>(*itr.second) ) {
                 continue ;
             }
             ASR::ttype_t* mem_type = ASRUtils::symbol_type(itr.second);
@@ -715,9 +716,14 @@ R"(
         std::string body = "";
         int indendation_level_copy = indentation_level;
         for( auto itr: x.m_symtab->get_scope() ) {
-            if(ASR::is_a<ASR::UnionType_t>(*itr.second)) {
+            if( ASR::is_a<ASR::UnionType_t>(*itr.second) ) {
                 visit_AggregateTypeUtil(*ASR::down_cast<ASR::UnionType_t>(itr.second),
                                         "union", src_dest);
+            } else if( ASR::is_a<ASR::StructType_t>(*itr.second) ) {
+                std::string struct_c_type_name = get_StructCTypeName(
+                    *ASR::down_cast<ASR::StructType_t>(itr.second));
+                visit_AggregateTypeUtil(*ASR::down_cast<ASR::StructType_t>(itr.second),
+                                        struct_c_type_name, src_dest);
             }
         }
         indentation_level = indendation_level_copy;
@@ -741,8 +747,7 @@ R"(
         src_dest += open_struct + body + end_struct;
     }
 
-    void visit_StructType(const ASR::StructType_t& x) {
-        src = "";
+    std::string get_StructCTypeName(const ASR::StructType_t& x) {
         std::string c_type_name = "struct";
         if( x.m_is_packed ) {
             std::string attr_args = "(packed";
@@ -758,6 +763,12 @@ R"(
             attr_args += ")";
             c_type_name += " __attribute__(" + attr_args + ")";
         }
+        return c_type_name;
+    }
+
+    void visit_StructType(const ASR::StructType_t& x) {
+        src = "";
+        std::string c_type_name = get_StructCTypeName(x);
         visit_AggregateTypeUtil(x, c_type_name, array_types_decls);
         src = "";
     }
