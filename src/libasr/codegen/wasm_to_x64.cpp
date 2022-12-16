@@ -134,7 +134,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             localidx -= no_of_params;
             std::string var_type = var_type_to_string[codes[cur_func_idx].locals[localidx].type];
             if (var_type == "i32") {
-                m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, -8 * (1 + localidx));
+                m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, -8 * (1 + (int)localidx));
                 m_a.asm_push_r64(X64Reg::rax);
             } else if (var_type == "f64") {
                 std::cerr << "Floats are not yet supported" << std::endl;
@@ -163,7 +163,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             std::string var_type = var_type_to_string[codes[cur_func_idx].locals[localidx].type];
             if (var_type == "i32") {
                 m_a.asm_pop_r64(X64Reg::rax);
-                m_a.asm_mov_m64_r64(&base, nullptr, 1, -8 * (1 + localidx), X64Reg::rax);
+                m_a.asm_mov_m64_r64(&base, nullptr, 1, -8 * (1 + (int)localidx), X64Reg::rax);
             } else if (var_type == "f64") {
                 std::cerr << "Floats are not yet supported" << std::endl;
             } else {
