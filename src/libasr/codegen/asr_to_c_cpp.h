@@ -949,6 +949,21 @@ R"(#include <stdio.h>
         src = indent + list_clear_func + "(&" + list_var + ");\n";
     }
 
+    void visit_ListCompare(const ASR::ListCompare_t& x) {
+        ASR::ttype_t* type = ASRUtils::expr_type(x.m_left);
+        std::string list_cmp_func = c_ds_api->get_compare_func(type);
+        self().visit_expr(*x.m_left);
+        std::string left = std::move(src);
+        self().visit_expr(*x.m_right);
+        std::string right = std::move(src);
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        std::string op = "";
+        if (x.m_op == ASR::cmpopType::NotEq) {
+            op = "!";
+        }
+        src = indent + op + list_cmp_func + "(" + left + ", " + right + ");\n";
+    }
+
     void visit_ListInsert(const ASR::ListInsert_t& x) {
         ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
         ASR::List_t* t = ASR::down_cast<ASR::List_t>(t_ttype);
