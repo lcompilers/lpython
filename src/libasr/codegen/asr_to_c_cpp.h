@@ -867,6 +867,20 @@ R"(#include <stdio.h>
         src = src_tmp;
     }
 
+    void visit_TupleCompare(const ASR::TupleCompare_t& x) {
+        ASR::ttype_t* type = ASRUtils::expr_type(x.m_left);
+        std::string tup_cmp_func = c_ds_api->get_compare_func(type);
+        self().visit_expr(*x.m_left);
+        std::string left = std::move(src);
+        self().visit_expr(*x.m_right);
+        std::string right = std::move(src);
+        std::string indent(indentation_level * indentation_spaces, ' ');
+        src = tup_cmp_func + "(" + left + ", " + right + ")";
+        if (x.m_op == ASR::cmpopType::NotEq) {
+            src = "!" + src;
+        }
+    }
+
     void visit_ListAppend(const ASR::ListAppend_t& x) {
         ASR::ttype_t* t_ttype = ASRUtils::expr_type(x.m_a);
         ASR::List_t* t = ASR::down_cast<ASR::List_t>(t_ttype);
@@ -957,11 +971,10 @@ R"(#include <stdio.h>
         self().visit_expr(*x.m_right);
         std::string right = std::move(src);
         std::string indent(indentation_level * indentation_spaces, ' ');
-        std::string op = "";
+        src = list_cmp_func + "(" + left + ", " + right + ")";
         if (x.m_op == ASR::cmpopType::NotEq) {
-            op = "!";
+            src = "!" + src;
         }
-        src = indent + op + list_cmp_func + "(" + left + ", " + right + ");\n";
     }
 
     void visit_ListInsert(const ASR::ListInsert_t& x) {
