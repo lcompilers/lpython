@@ -2573,8 +2573,8 @@ namespace LFortran {
                                                  llvm::Module& module) {
         llvm::AllocaInst *is_equal = builder->CreateAlloca(llvm::Type::getInt1Ty(context), nullptr);
         LLVM::CreateStore(*builder, llvm::ConstantInt::get(context, llvm::APInt(1, 1)), is_equal);
-        llvm::Value *a_len = len(l1);
-        llvm::Value *b_len = len(l2);
+        llvm::Value *a_len = llvm_utils->list_api->len(l1);
+        llvm::Value *b_len = llvm_utils->list_api->len(l2);
         llvm::Value *cond = builder->CreateICmpEQ(a_len, b_len);
         llvm::Function *fn = builder->GetInsertBlock()->getParent();
         llvm::BasicBlock *thenBB = llvm::BasicBlock::Create(context, "then", fn);
@@ -2583,6 +2583,8 @@ namespace LFortran {
         builder->CreateCondBr(cond, thenBB, elseBB);
         builder->SetInsertPoint(thenBB);
         llvm::AllocaInst *idx = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(
+                                    context, llvm::APInt(32, 0)), idx);
         llvm::BasicBlock *loophead = llvm::BasicBlock::Create(context, "loop.head");
         llvm::BasicBlock *loopbody = llvm::BasicBlock::Create(context, "loop.body");
         llvm::BasicBlock *loopend = llvm::BasicBlock::Create(context, "loop.end");
@@ -2591,17 +2593,17 @@ namespace LFortran {
            llvm_utils->start_new_block(loophead);
             {
                 llvm::Value* i = LLVM::CreateLoad(*builder, idx);
-                cond = builder->CreateICmpNE(i, a_len);
-                builder->CreateCondBr(cond, loopbody, loopend);
+                llvm::Value* cnd = builder->CreateICmpSLT(i, a_len);
+                builder->CreateCondBr(cnd, loopbody, loopend);
             }
 
             // body
             llvm_utils->start_new_block(loopbody);
             {
                 llvm::Value* i = LLVM::CreateLoad(*builder, idx);
-                llvm::Value* left_arg = read_item(l1, i,
+                llvm::Value* left_arg = llvm_utils->list_api->read_item(l1, i,
                         false, module, LLVM::is_llvm_struct(item_type));
-                llvm::Value* right_arg = read_item(l2, i,
+                llvm::Value* right_arg = llvm_utils->list_api->read_item(l2, i,
                         false, module, LLVM::is_llvm_struct(item_type));
                 llvm::Value* res = llvm_utils->is_equal_by_value(left_arg, right_arg, module,
                                         item_type);
@@ -2619,7 +2621,7 @@ namespace LFortran {
 
         builder->CreateBr(mergeBB);
         llvm_utils->start_new_block(elseBB);
-        builder->CreateStore(llvm::ConstantInt::get(context, llvm::APInt(1, 0)), is_equal);
+        LLVM::CreateStore(*builder, llvm::ConstantInt::get(context, llvm::APInt(1, 0)), is_equal);
         llvm_utils->start_new_block(mergeBB);
         return LLVM::CreateLoad(*builder, is_equal);
     }
