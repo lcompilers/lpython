@@ -978,6 +978,7 @@ class CCPPDSUtils {
                 tmp_gen += indent + tab + get_deepcopy(t->m_type[i], "src.element_" + n,
                                 "dest->element_" + n) + "\n";
             }
+            tmp_gen += indent + tab + "dest->length = src.length;\n";
             tmp_gen += indent + "}\n\n";
             func_decls += tmp_def;
             generated_code += tmp_gen;
