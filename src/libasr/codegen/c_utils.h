@@ -366,6 +366,11 @@ class CCPPDSUtils {
             global_scope = global_scope_;
         }
 
+        std::string get_compare_func(ASR::ttype_t *t) {
+            std::string type_code = ASRUtils::get_type_code(t, true);
+            return compareTwoDS[type_code];
+        }
+
         std::string get_deepcopy(ASR::ttype_t *t, std::string value, std::string target) {
             std::string result;
             switch (t->type) {
@@ -568,6 +573,7 @@ class CCPPDSUtils {
         std::string get_func_decls() {
             return func_decls;
         }
+
 
         void generate_compare_funcs(ASR::ttype_t *t) {
             std::string type_code = ASRUtils::get_type_code(t, true);
@@ -906,7 +912,6 @@ class CCPPDSUtils {
             tmp_gen += indent + tab + "idx1 = step < 0 ? (idx1 >= s_len ? s_len-1 : idx1) : idx1;\n";
             tmp_gen += indent + tab + list_struct_type + " *__tmp = (" +
                     list_struct_type + "*) malloc(sizeof(" + list_struct_type + "));\n";
-            // tmp_gen += indent + tab + list_struct_type + " __tmp;\n";
             std::string list_init_func = typecodeToDSfuncs[list_type_code]["list_init"];
             tmp_gen += indent + tab + list_init_func + "(__tmp, 4);\n";
             tmp_gen += indent + tab + "int s_i = idx1;\n";
@@ -973,6 +978,7 @@ class CCPPDSUtils {
                 tmp_gen += indent + tab + get_deepcopy(t->m_type[i], "src.element_" + n,
                                 "dest->element_" + n) + "\n";
             }
+            tmp_gen += indent + tab + "dest->length = src.length;\n";
             tmp_gen += indent + "}\n\n";
             func_decls += tmp_def;
             generated_code += tmp_gen;
