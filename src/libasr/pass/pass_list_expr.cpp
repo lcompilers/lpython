@@ -213,7 +213,7 @@ public:
             if_body.reserve(al, 1);
             ASR::stmt_t* if_body_stmt = ASRUtils::STMT(ASR::make_Assignment_t(
                 al, loc, arg_exprs[i], ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al,
-                loc, arg_exprs[i], ASR::binopType::Add, const_one,
+                loc, arg_exprs[i], ASR::binopType::Add, a_len,
                 int_type, nullptr)), nullptr));
             if_body.push_back(al, if_body_stmt);
 
@@ -234,11 +234,11 @@ public:
             ASR::expr_t* a_test_1 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc,
                     arg_exprs[3], ASR::cmpopType::Gt, const_zero, bool_type, nullptr));
             ASR::stmt_t* if_body_stmt_1 = ASRUtils::STMT(ASR::make_Assignment_t(
-                al, loc, arg_exprs[2], a_len, nullptr));
+                al, loc, arg_exprs[1], const_zero, nullptr));
             if_body_1.push_back(al, if_body_stmt_1);
 
             ASR::stmt_t* else_body_stmt_1 = ASRUtils::STMT(ASR::make_Assignment_t(
-                al, loc, arg_exprs[2], a_len_1, nullptr));
+                al, loc, arg_exprs[1], a_len_1, nullptr));
             else_body_1.push_back(al, else_body_stmt_1);
 
             list_section_stmt = ASRUtils::STMT(ASR::make_If_t(al, loc, a_test_1,
@@ -261,7 +261,7 @@ public:
             ASR::expr_t* a_test_1 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc,
                     arg_exprs[3], ASR::cmpopType::Gt, const_zero, bool_type, nullptr));
             ASR::stmt_t* if_body_stmt_1 = ASRUtils::STMT(ASR::make_Assignment_t(
-                al, loc, arg_exprs[2], const_zero, nullptr));
+                al, loc, arg_exprs[2], a_len, nullptr));
             if_body_1.push_back(al, if_body_stmt_1);
 
             ASR::stmt_t* else_body_stmt_1 = ASRUtils::STMT(ASR::make_Assignment_t(
@@ -358,28 +358,39 @@ public:
         Location loc = x->base.base.loc;
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(
             al, loc, 4, nullptr, 0));
+        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(
+            al, loc, 4, nullptr, 0));
         Vec<ASR::call_arg_t> args;
         args.reserve(al, 4);
         ASR::call_arg_t call_arg;
         call_arg.loc = x->m_a->base.loc;
         call_arg.m_value = x->m_a;
         args.push_back(al, call_arg);
+        ASR::expr_t *is_start_present, *is_end_present;
         if (x->m_section.m_left != nullptr) {
             call_arg.loc = x->m_section.m_left->base.loc;
             call_arg.m_value = x->m_section.m_left;
+            is_start_present = ASRUtils::EXPR(ASR::make_LogicalConstant_t(al,
+                    loc, true, bool_type));
         } else {
             call_arg.loc = loc;
             call_arg.m_value = ASRUtils::EXPR(make_IntegerConstant_t(
                 al, loc, 0, int_type));
+            is_start_present = ASRUtils::EXPR(ASR::make_LogicalConstant_t(al,
+                    loc, false, bool_type));
         }
         args.push_back(al, call_arg);
         if (x->m_section.m_right != nullptr) {
             call_arg.loc = x->m_section.m_right->base.loc;
             call_arg.m_value = x->m_section.m_right;
+            is_end_present = ASRUtils::EXPR(ASR::make_LogicalConstant_t(al,
+                    loc, true, bool_type));
         } else {
             call_arg.loc = loc;
             call_arg.m_value = ASRUtils::EXPR(ASR::make_ListLen_t(
                 al, loc, x->m_a, int_type, nullptr));
+            is_end_present = ASRUtils::EXPR(ASR::make_LogicalConstant_t(al,
+                    loc, false, bool_type));
         }
         args.push_back(al, call_arg);
         if (x->m_section.m_step != nullptr) {
@@ -391,6 +402,13 @@ public:
                 al, loc, 1, int_type));
         }
         args.push_back(al, call_arg);
+        call_arg.loc = x->m_a->base.loc;
+        call_arg.m_value = is_start_present;
+        args.push_back(al, call_arg);
+        call_arg.loc = x->m_a->base.loc;
+        call_arg.m_value = is_end_present;
+        args.push_back(al, call_arg);
+
         std::string list_type_name = ASRUtils::type_to_str_python(x->m_type);
         if (list_section_func_map.find(list_type_name) == list_section_func_map.end()) {
             create_list_section_func(unit.base.base.loc,
