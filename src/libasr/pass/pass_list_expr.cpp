@@ -52,8 +52,33 @@ public:
             al, loc, 4, nullptr, 0));
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(
             al, loc, 4, nullptr, 0));
-        ASR::expr_t* loop_test = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
-            al, loc, end, ASR::cmpopType::Gt, idx_vars[0], bool_type, nullptr));
+        ASR::expr_t *const_zero = ASRUtils::EXPR(
+                    ASR::make_IntegerConstant_t(al, loc, 0, int_type));
+
+        ASR::expr_t* loop_test_1 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
+            al, loc, step, ASR::cmpopType::Gt, const_zero, bool_type, nullptr));
+        ASR::expr_t* loop_test_2 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
+            al, loc, idx_vars[0], ASR::cmpopType::GtE, start, bool_type, nullptr));
+        ASR::expr_t* loop_test_3 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
+            al, loc, idx_vars[0], ASR::cmpopType::Lt, end, bool_type, nullptr));
+        ASR::expr_t *loop_test_11 = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al,
+                loc, loop_test_1, ASR::logicalbinopType::And, loop_test_2, bool_type, nullptr));
+        loop_test_11 = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al,
+                loc, loop_test_11, ASR::logicalbinopType::And, loop_test_3, bool_type, nullptr));
+
+        ASR::expr_t* loop_test_4 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
+            al, loc, step, ASR::cmpopType::Lt, const_zero, bool_type, nullptr));
+        ASR::expr_t* loop_test_5 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
+            al, loc, idx_vars[0], ASR::cmpopType::LtE, start, bool_type, nullptr));
+        ASR::expr_t* loop_test_6 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
+            al, loc, idx_vars[0], ASR::cmpopType::Gt, end, bool_type, nullptr));
+        ASR::expr_t *loop_test_22 = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al,
+                loc, loop_test_4, ASR::logicalbinopType::And, loop_test_5, bool_type, nullptr));
+        loop_test_22 = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al,
+                loc, loop_test_22, ASR::logicalbinopType::And, loop_test_6, bool_type, nullptr));
+
+        ASR::expr_t *loop_test = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al,
+                loc, loop_test_11, ASR::logicalbinopType::Or, loop_test_22, bool_type, nullptr));
 
         Vec<ASR::stmt_t*> loop_body;
         loop_body.reserve(al, 2);
@@ -167,24 +192,120 @@ public:
             al, loc, res_list, value, nullptr));
         body.push_back(al, list_section_stmt);
 
+        ASR::expr_t *a_len = ASRUtils::EXPR(ASR::make_ListLen_t(
+                            al, loc, arg_exprs[0], int_type, nullptr));
+        ASR::expr_t *const_one = ASRUtils::EXPR(
+                    ASR::make_IntegerConstant_t(al, loc, 1, int_type));
+        ASR::expr_t *const_zero = ASRUtils::EXPR(
+                    ASR::make_IntegerConstant_t(al, loc, 0, int_type));
+        ASR::expr_t *a_len_1 = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al,
+                    loc, a_len, ASR::binopType::Sub, const_one, int_type, nullptr));
+        ASR::expr_t *minus_one = ASRUtils::EXPR(
+                    ASR::make_IntegerConstant_t(al, loc, -1, int_type));
 
-
-        // If statement
+        for (int i=1; i<3; i++)
         {
             ASR::expr_t* a_test = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
-                al, loc, arg_exprs[2], ASR::cmpopType::Gt, ASRUtils::EXPR(
-                    ASR::make_ListLen_t(al, loc, arg_exprs[0], int_type, nullptr)),
+                al, loc, arg_exprs[i], ASR::cmpopType::Lt, const_zero,
                 bool_type, nullptr));
 
             Vec<ASR::stmt_t*> if_body;
             if_body.reserve(al, 1);
             ASR::stmt_t* if_body_stmt = ASRUtils::STMT(ASR::make_Assignment_t(
-                al, loc, arg_exprs[2], ASRUtils::EXPR(ASR::make_ListLen_t(
-                    al, loc, arg_exprs[0], int_type, nullptr)), nullptr));
+                al, loc, arg_exprs[i], ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al,
+                loc, arg_exprs[i], ASR::binopType::Add, const_one,
+                int_type, nullptr)), nullptr));
             if_body.push_back(al, if_body_stmt);
 
             list_section_stmt = ASRUtils::STMT(ASR::make_If_t(al, loc, a_test,
                 if_body.p, if_body.n, nullptr, 0));
+            body.push_back(al, list_section_stmt);
+        }
+
+        // If statement
+        {
+            ASR::expr_t* a_test = ASRUtils::EXPR(ASR::make_LogicalNot_t(al,
+                loc, arg_exprs[4], bool_type, nullptr));
+
+            Vec<ASR::stmt_t*> if_body, if_body_1, else_body_1;
+            if_body_1.reserve(al, 1);
+            if_body.reserve(al, 1);
+            else_body_1.reserve(al, 1);
+            ASR::expr_t* a_test_1 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc,
+                    arg_exprs[3], ASR::cmpopType::Gt, const_zero, bool_type, nullptr));
+            ASR::stmt_t* if_body_stmt_1 = ASRUtils::STMT(ASR::make_Assignment_t(
+                al, loc, arg_exprs[2], a_len, nullptr));
+            if_body_1.push_back(al, if_body_stmt_1);
+
+            ASR::stmt_t* else_body_stmt_1 = ASRUtils::STMT(ASR::make_Assignment_t(
+                al, loc, arg_exprs[2], a_len_1, nullptr));
+            else_body_1.push_back(al, else_body_stmt_1);
+
+            list_section_stmt = ASRUtils::STMT(ASR::make_If_t(al, loc, a_test_1,
+                if_body_1.p, if_body_1.n, else_body_1.p, else_body_1.n));
+            if_body.push_back(al, list_section_stmt);
+            list_section_stmt = ASRUtils::STMT(ASR::make_If_t(al, loc, a_test,
+                if_body.p, if_body.n, nullptr, 0));
+            body.push_back(al, list_section_stmt);
+        }
+
+        // If statement
+        {
+            ASR::expr_t* a_test = ASRUtils::EXPR(ASR::make_LogicalNot_t(al,
+                loc, arg_exprs[5], bool_type, nullptr));
+
+            Vec<ASR::stmt_t*> if_body, if_body_1, else_body_1;
+            if_body_1.reserve(al, 1);
+            if_body.reserve(al, 1);
+            else_body_1.reserve(al, 1);
+            ASR::expr_t* a_test_1 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc,
+                    arg_exprs[3], ASR::cmpopType::Gt, const_zero, bool_type, nullptr));
+            ASR::stmt_t* if_body_stmt_1 = ASRUtils::STMT(ASR::make_Assignment_t(
+                al, loc, arg_exprs[2], const_zero, nullptr));
+            if_body_1.push_back(al, if_body_stmt_1);
+
+            ASR::stmt_t* else_body_stmt_1 = ASRUtils::STMT(ASR::make_Assignment_t(
+                al, loc, arg_exprs[2], minus_one, nullptr));
+            else_body_1.push_back(al, else_body_stmt_1);
+
+            list_section_stmt = ASRUtils::STMT(ASR::make_If_t(al, loc, a_test_1,
+                if_body_1.p, if_body_1.n, else_body_1.p, else_body_1.n));
+            if_body.push_back(al, list_section_stmt);
+            list_section_stmt = ASRUtils::STMT(ASR::make_If_t(al, loc, a_test,
+                if_body.p, if_body.n, nullptr, 0));
+            body.push_back(al, list_section_stmt);
+        }
+
+        // If statement
+        {
+            ASR::expr_t* a_test = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc,
+                    arg_exprs[3], ASR::cmpopType::Gt, const_zero, bool_type, nullptr));
+
+            Vec<ASR::stmt_t*> if_body, if_body_1, else_body, if_body_2;
+            if_body_1.reserve(al, 1);
+            if_body_2.reserve(al, 1);
+            if_body.reserve(al, 1);
+            else_body.reserve(al, 1);
+            ASR::expr_t* a_test_1 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc,
+                    arg_exprs[2], ASR::cmpopType::Gt, a_len, bool_type, nullptr));
+            ASR::stmt_t* if_body_stmt_1 = ASRUtils::STMT(ASR::make_Assignment_t(
+                al, loc, arg_exprs[2], a_len, nullptr));
+            if_body_1.push_back(al, if_body_stmt_1);
+            list_section_stmt = ASRUtils::STMT(ASR::make_If_t(al, loc, a_test_1,
+                if_body_1.p, if_body_1.n, nullptr, 0));
+            if_body.push_back(al, list_section_stmt);
+
+            ASR::expr_t* a_test_2 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc,
+                    arg_exprs[1], ASR::cmpopType::GtE, a_len, bool_type, nullptr));
+            ASR::stmt_t* if_body_stmt_2 = ASRUtils::STMT(ASR::make_Assignment_t(
+                al, loc, arg_exprs[1], a_len_1, nullptr));
+            if_body_2.push_back(al, if_body_stmt_2);
+            list_section_stmt = ASRUtils::STMT(ASR::make_If_t(al, loc, a_test_2,
+                if_body_2.p, if_body_2.n, nullptr, 0));
+            else_body.push_back(al, list_section_stmt);
+
+            list_section_stmt = ASRUtils::STMT(ASR::make_If_t(al, loc, a_test,
+                if_body.p, if_body.n, else_body.p, else_body.n));
             body.push_back(al, list_section_stmt);
         }
 
