@@ -89,17 +89,43 @@ public:
                 SymbolTable*& global_scope, ASR::ttype_t* list_type) {
         /*
             def _lcompilers_list_section(a_list: list[i32], start: i32,
-                    end: i32, step: i32) -> list[i32]:
+                    end: i32, step: i32, is_start_present: bool,
+                    is_end_present: bool): -> list[i32]:
                 result_list: list[i32]
                 result_list = []
-                if (end > len(a_list)):
-                    end = len(a_list)
+
+                a_len = len(a)
+                if start < 0:
+                    start += a_len
+                if end < 0:
+                    end += a_len
+
+                if not is_start_present:
+                    if step > 0:
+                        start = 0
+                    else:
+                        start = a_len - 1
+
+                if not is_end_present:
+                    if step > 0:
+                        end = a_len
+                    else:
+                        end = -1
+
+                if step > 0:
+                    if end > a_len:
+                        end = a_len
+                else:
+                    if start >= a_len:
+                        start = a_len - 1
                 __1_k: i32 = start
-                while end > __1_k:
+                while ((step > 0 and __1_k >= start and __1_k < end) or
+                    (step < 0 and __1_k <= start and __1_k > end)):
                     result_list.append(a_list[__1_k])
                     __1_k = __1_k + step
                 return result_list
         */
+
         SymbolTable* list_section_symtab = al.make_new<SymbolTable>(global_scope);
         std::string list_type_name = ASRUtils::type_to_str_python(list_type);
         std::string fn_name = global_scope->get_unique_name("_lcompilers_list_section_" + list_type_name);
@@ -120,6 +146,8 @@ public:
         create_args("start", int_type, list_section_symtab)
         create_args("end", int_type, list_section_symtab)
         create_args("step", int_type, list_section_symtab)
+        create_args("is_start_present", bool_type, list_section_symtab)
+        create_args("is_end_present", bool_type, list_section_symtab)
 
         // Declare `result_list`
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(
@@ -138,6 +166,8 @@ public:
         ASR::stmt_t* list_section_stmt = ASRUtils::STMT(ASR::make_Assignment_t(
             al, loc, res_list, value, nullptr));
         body.push_back(al, list_section_stmt);
+
+
 
         // If statement
         {
