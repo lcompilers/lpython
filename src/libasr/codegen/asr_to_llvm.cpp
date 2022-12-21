@@ -1589,6 +1589,21 @@ public:
         }
     }
 
+    void visit_ListCompare(const ASR::ListCompare_t x) {
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_left);
+        llvm::Value* left = tmp;
+        this->visit_expr(*x.m_right);
+        llvm::Value* right = tmp;
+        ptr_loads = ptr_loads_copy;
+        tmp = llvm_utils->is_equal_by_value(left, right, *module,
+                ASRUtils::expr_type(x.m_left));
+        if (x.m_op == ASR::cmpopType::NotEq) {
+            tmp = builder->CreateNot(tmp);
+        }
+    }
+
     void visit_DictLen(const ASR::DictLen_t& x) {
         if (x.m_value) {
             this->visit_expr(*x.m_value);
@@ -1669,6 +1684,21 @@ public:
         ptr_loads = ptr_loads_copy;
 
         list_api->list_clear(plist);
+    }
+
+    void visit_TupleCompare(const ASR::TupleCompare_t& x) {
+        int64_t ptr_loads_copy = ptr_loads;
+        ptr_loads = 0;
+        this->visit_expr(*x.m_left);
+        llvm::Value* left = tmp;
+        this->visit_expr(*x.m_right);
+        llvm::Value* right = tmp;
+        ptr_loads = ptr_loads_copy;
+        tmp = llvm_utils->is_equal_by_value(left, right, *module,
+                ASRUtils::expr_type(x.m_left));
+        if (x.m_op == ASR::cmpopType::NotEq) {
+            tmp = builder->CreateNot(tmp);
+        }
     }
 
     void visit_TupleLen(const ASR::TupleLen_t& x) {

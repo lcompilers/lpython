@@ -129,7 +129,6 @@ namespace LCompilers {
                 "select_case",
                 "inline_function_calls",
                 "unused_functions",
-                "pass_compare"
             };
 
             _with_optimization_passes = {
