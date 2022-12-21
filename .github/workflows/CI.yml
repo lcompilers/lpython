@@ -20,12 +20,12 @@ jobs:
         os: ["ubuntu-latest", "macos-latest", "windows-2019"]
         python-version: ["3.10"]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Cache conda
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         env:
           CACHE_NUMBER: 0
         with:
