@@ -438,7 +438,8 @@ R"(#include <stdio.h>
             std::vector<std::string> var_order = ASRUtils::determine_variable_declaration_order(x.m_symtab);
             for (auto &item : var_order) {
                 ASR::symbol_t* var_sym = x.m_symtab->get_symbol(item);
-                if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
+                // var_sym can be nullptr and present in the parent scope.
+                if (var_sym != nullptr && ASR::is_a<ASR::Variable_t>(*var_sym)) {
                     ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
                     if (v->m_intent == LFortran::ASRUtils::intent_local ||
                         v->m_intent == LFortran::ASRUtils::intent_return_var) {
