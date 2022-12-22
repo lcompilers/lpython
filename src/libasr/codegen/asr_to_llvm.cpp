@@ -2683,7 +2683,8 @@ public:
         std::vector<std::string> var_order = ASRUtils::determine_variable_declaration_order(x.m_symtab);
         for (auto &item : var_order) {
             ASR::symbol_t* var_sym = x.m_symtab->get_symbol(item);
-            if (is_a<ASR::Variable_t>(*var_sym)) {
+            // var_sym can be nullptr and present in the parent scope.
+            if (var_sym != nullptr && is_a<ASR::Variable_t>(*var_sym)) {
                 ASR::Variable_t *v = down_cast<ASR::Variable_t>(var_sym);
                 uint32_t h = get_hash((ASR::asr_t*)v);
                 llvm::Type *type;
