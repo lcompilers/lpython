@@ -271,4 +271,19 @@ void emit_exit_64(X86Assembler &a, std::string name, int exit_code) {
     a.asm_syscall(); // syscall
 }
 
+void emit_print_64(X86Assembler &a, const std::string &msg_label, uint64_t size)
+{
+    // mov rax, 1        ; write(
+    // mov rdi, 1        ;   STDOUT_FILENO,
+    // mov rsi, msg      ;   "Hello, world!\n",
+    // mov rdx, msglen   ;   sizeof("Hello, world!\n")
+    // syscall           ; );
+
+    a.asm_mov_r64_imm64(X64Reg::rax, 1);
+    a.asm_mov_r64_imm64(X64Reg::rdi, 1);
+    a.asm_mov_r64_label(X64Reg::rsi, msg_label); // buf
+    a.asm_mov_r64_imm64(X64Reg::rdx, size);
+    a.asm_syscall();
+}
+
 } // namespace LFortran
