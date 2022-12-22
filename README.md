@@ -57,7 +57,7 @@ Clone LPython
 git clone https://github.com/lcompilers/lpython.git
 cd lpython
 ```
-### Linus and MacOS
+### Linux and MacOS
 - Create a Conda environment using the pre-existing file:
   ```bash
   conda env create -f environment_unix.yml
