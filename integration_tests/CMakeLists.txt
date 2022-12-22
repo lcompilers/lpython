@@ -97,6 +97,22 @@ macro(RUN)
             if (${RUN_FAIL})
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
+        elseif(KIND STREQUAL "cpp")
+            add_custom_command(
+                OUTPUT ${name}.cpp
+                COMMAND lpython --show-cpp ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.cpp
+                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                VERBATIM)
+            add_executable(${name} ${name}.cpp ${RUN_EXTRAFILES})
+            set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
+            target_link_libraries(${name} lpython_rtlib)
+            add_test(${name} ${CMAKE_CURRENT_BINARY_DIR}/${name})
+            if (RUN_LABELS)
+                set_tests_properties(${name} PROPERTIES LABELS "${RUN_LABELS}")
+            endif()
+            if (${RUN_FAIL})
+               set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
+            endif()
         elseif(KIND STREQUAL "cpython")
             # CPython test
             if (RUN_EXTRAFILES)
@@ -207,7 +223,7 @@ RUN(NAME const_02            LABELS cpython llvm c)
 RUN(NAME const_03            LABELS cpython llvm c
         EXTRAFILES const_03b.c)
 RUN(NAME const_04            LABELS cpython llvm c)
-RUN(NAME expr_01             LABELS cpython llvm c wasm)
+RUN(NAME expr_01             LABELS cpython llvm c wasm cpp)
 RUN(NAME expr_02             LABELS cpython llvm c wasm)
 RUN(NAME expr_03             LABELS cpython llvm c wasm)
 RUN(NAME expr_04             LABELS cpython llvm c)
