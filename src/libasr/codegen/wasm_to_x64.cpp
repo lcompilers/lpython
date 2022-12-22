@@ -134,7 +134,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             localidx -= no_of_params;
             std::string var_type = var_type_to_string[codes[cur_func_idx].locals[localidx].type];
             if (var_type == "i32") {
-                m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, -8 * (1 + localidx));
+                m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, -8 * (1 + (int)localidx));
                 m_a.asm_push_r64(X64Reg::rax);
             } else if (var_type == "f64") {
                 std::cerr << "Floats are not yet supported" << std::endl;
@@ -163,7 +163,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             std::string var_type = var_type_to_string[codes[cur_func_idx].locals[localidx].type];
             if (var_type == "i32") {
                 m_a.asm_pop_r64(X64Reg::rax);
-                m_a.asm_mov_m64_r64(&base, nullptr, 1, -8 * (1 + localidx), X64Reg::rax);
+                m_a.asm_mov_m64_r64(&base, nullptr, 1, -8 * (1 + (int)localidx), X64Reg::rax);
             } else if (var_type == "f64") {
                 std::cerr << "Floats are not yet supported" << std::endl;
             } else {
@@ -206,9 +206,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     }
 
     void gen_x64_bytes() {
-        {   // Initialize/Modify values of entities for code simplicity later
-
-            m_a.update_asm("BITS 64\n\n"); // Update initial value of asm text as per X64 text format
+        {   // Initialize/Modify values of entities
             exports.back().name = "_start"; // Update _lcompilers_main() to _start
         }
 
@@ -255,7 +253,7 @@ Result<int> wasm_to_x64(Vec<uint8_t> &wasm_bytes, Allocator &al,
     int time_save = 0;
     int time_verify = 0;
 
-    X86Assembler m_a(al);
+    X86Assembler m_a(al, true /* bits 64 */);
 
     wasm::X64Visitor x64_visitor(m_a, al, diagnostics, wasm_bytes);
 

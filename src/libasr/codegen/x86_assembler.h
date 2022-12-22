@@ -41,10 +41,12 @@ Old Link: https://www.systutorials.com/go/intel-x86-64-reference-manual/
 #    define EMIT(s) emit("    ", s)
 #    define EMIT_LABEL(s) emit("", s)
 #    define EMIT_VAR(a, b) emit("\n", a + " equ " + i2s(b) + "\n")
+#    define EMIT_VAR_SIZE(a) emit("\n", a + " equ $ - $$\n") // $ is current addr, $$ is start addr
 #else
 #    define EMIT(s)
 #    define EMIT_LABEL(s)
 #    define EMIT_VAR(a, b)
+#    define EMIT_VAR_SIZE(a)
 #endif
 
 namespace LFortran {
@@ -352,21 +354,22 @@ class X86Assembler {
     }
 #endif
 public:
-    X86Assembler(Allocator &al) : m_al{al} {
+    X86Assembler(Allocator &al, bool bits64) : m_al{al} {
         m_code.reserve(m_al, 1024*128);
         m_origin = 0x08048000;
 #ifdef LFORTRAN_ASM_PRINT
-        m_asm_code = "BITS 32\n\n";
+        if (bits64) {
+            m_asm_code = "BITS 64\n";
+            emit("    ", "org " + i2s((uint64_t)m_origin) + "\n"); // specify origin info
+        } else {
+            m_asm_code = "BITS 32\n\n";
+        }
 #endif
     }
 
 #ifdef LFORTRAN_ASM_PRINT
     std::string get_asm() {
         return m_asm_code;
-    }
-
-    void update_asm(std::string asm_code) {
-        m_asm_code = asm_code;
     }
 
     // Saves the generated assembly into a file
@@ -464,6 +467,19 @@ public:
     void add_label(const std::string &label) {
         define_symbol(label, pos());
         EMIT_LABEL(label + ":");
+    }
+
+    void add_var_size(const std::string &var) {
+        uint64_t val = pos() - origin();
+        // TODO: Support 64-bit or 8 byte parameter val in define_symbol()
+        define_symbol(var, val);
+        EMIT_VAR_SIZE(var);
+    }
+
+    void add_var64(const std::string &var, uint64_t val) {
+        // TODO: Support 64-bit or 8 byte parameter val in define_symbol()
+        define_symbol(var, val);
+        EMIT_VAR(var, val);
     }
 
     void add_var(const std::string &var, uint32_t val) {
@@ -689,6 +705,15 @@ public:
         m_code.push_back(m_al, 0xb8 + r32);
         push_back_uint64(m_code, m_al, imm64);
         EMIT("mov " + r2s(r64) + ", " + i2s(imm64));
+    }
+
+    void asm_mov_r64_label(X64Reg r64, const std::string &label) {
+        X86Reg r32 = X86Reg(r64 & 7);
+        m_code.push_back(m_al, rex(1, 0, 0, r64 >> 3));
+        m_code.push_back(m_al, 0xb8 + r32);
+        uint64_t imm64 = reference_symbol(label).value;
+        push_back_uint64(m_code, m_al, imm64);
+        EMIT("mov " + r2s(r64) + ", " + label);
     }
 
     void asm_mov_r32_label(X86Reg r32, const std::string &label) {

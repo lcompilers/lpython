@@ -231,7 +231,7 @@ void emit_elf64_header(X86Assembler &a, uint32_t p_flags) {
     a.asm_dw_imm16(2);  // e_type
     a.asm_dw_imm16(0x3e);  // e_machine
     a.asm_dd_imm32(1);  // e_version
-    a.asm_dq_label("e_entry");  // e_entry
+    a.asm_dq_label("_start");  // e_entry
     a.asm_dq_label("e_phoff");  // e_phoff
     a.asm_dq_imm64(0);  // e_shoff
     a.asm_dd_imm32(0);  // e_flags
@@ -256,12 +256,11 @@ void emit_elf64_header(X86Assembler &a, uint32_t p_flags) {
     a.asm_dq_imm64(0x1000);   // p_align
 
     a.add_var("phdrsize", a.pos()-a.get_defined_symbol("phdr").value);
-    a.add_var("e_phoff", a.get_defined_symbol("phdr").value-a.origin());
+    a.add_var64("e_phoff", a.get_defined_symbol("phdr").value-a.origin());
 }
 
 void emit_elf64_footer(X86Assembler &a) {
-    a.add_var("e_entry", a.get_defined_symbol("_start").value);
-    a.add_var("filesize", a.pos()-a.origin());
+    a.add_var_size("filesize");
 }
 
 void emit_exit_64(X86Assembler &a, std::string name, int exit_code) {

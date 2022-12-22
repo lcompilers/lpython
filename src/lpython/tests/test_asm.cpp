@@ -54,7 +54,7 @@ std::string S(const std::string &s) {
 
 TEST_CASE("Store and get instructions") {
     Allocator al(1024);
-    LFortran::X86Assembler a(al);
+    LFortran::X86Assembler a(al, false);
     a.asm_pop_r32(LFortran::X86Reg::eax);
     a.asm_jz_imm8(13);
 
@@ -272,7 +272,7 @@ TEST_CASE("modrm_sib_disp") {
 
 TEST_CASE("Memory operand") {
     Allocator al(1024);
-    LFortran::X86Assembler a(al);
+    LFortran::X86Assembler a(al, false);
     LFortran::X86Reg base = LFortran::X86Reg::ebx;
     LFortran::X86Reg index = LFortran::X86Reg::ecx;
 
@@ -325,7 +325,7 @@ BITS 32
 
 TEST_CASE("elf32 binary") {
     Allocator al(1024);
-    LFortran::X86Assembler a(al);
+    LFortran::X86Assembler a(al, false);
 
     LFortran::emit_elf32_header(a);
 
@@ -473,7 +473,7 @@ filesize equ 0x00000088
 
 TEST_CASE("print") {
     Allocator al(1024);
-    LFortran::X86Assembler a(al);
+    LFortran::X86Assembler a(al, false);
     std::string msg = "Hello World!\n";
 
     LFortran::emit_elf32_header(a);
@@ -491,7 +491,7 @@ TEST_CASE("print") {
 
 TEST_CASE("cmp") {
     Allocator al(1024);
-    LFortran::X86Assembler a(al);
+    LFortran::X86Assembler a(al, false);
     std::string msg1 = "Branch 1\n";
     std::string msg2 = "Branch 2\n";
 
@@ -521,7 +521,7 @@ TEST_CASE("cmp") {
 
 TEST_CASE("subroutines") {
     Allocator al(1024);
-    LFortran::X86Assembler a(al);
+    LFortran::X86Assembler a(al, false);
     std::string msg1 = "Subroutine 1, calling 2\n";
     std::string msg1b = "Subroutine 1, done\n";
     std::string msg2 = "Subroutine 2, modifying a message\n";
@@ -560,7 +560,7 @@ TEST_CASE("subroutines") {
 
 TEST_CASE("subroutine args") {
     Allocator al(1024);
-    LFortran::X86Assembler a(al);
+    LFortran::X86Assembler a(al, false);
     std::string msg1 = "Subroutine 1\n";
     std::string msg2 = "Sum equal to 9\n";
     std::string msg3 = "Sum not equal to 9\n";
@@ -626,7 +626,7 @@ TEST_CASE("subroutine args") {
 
 TEST_CASE("print integer") {
     Allocator al(1024);
-    LFortran::X86Assembler a(al);
+    LFortran::X86Assembler a(al, false);
 
     LFortran::emit_elf32_header(a);
     LFortran::emit_print_int(a, "print_int");
