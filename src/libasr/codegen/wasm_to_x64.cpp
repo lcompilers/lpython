@@ -182,7 +182,8 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         // direct addition of imm64 to stack is not available with us yet
         // so temporarily using a combination of instructions
         // TODO: Update this once we have support for push_imm64()
-        m_a.asm_mov_r64_imm64(X64Reg::rax, value);
+        m_a.asm_mov_r64_imm64(X64Reg::rax, abs(value));
+        if (value < 0) m_a.asm_neg_r64(X64Reg::rax);
         m_a.asm_push_r64(X64Reg::rax);
 
         // TODO: Following seems/is hackish. Fix/Improve it.
@@ -219,6 +220,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         {   // Initialize/Modify values of entities
             exports.back().name = "_start"; // Update _lcompilers_main() to _start
             label_to_str["string_newline"] = "\n";
+            label_to_str["string_neg"] = "-"; // - symbol for printing negative ints
         }
 
         emit_elf64_header(m_a);
