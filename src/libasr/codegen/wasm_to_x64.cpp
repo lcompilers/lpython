@@ -179,9 +179,6 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     }
 
     void visit_I32Const(int32_t value) {
-        // direct addition of imm64 to stack is not available with us yet
-        // so temporarily using a combination of instructions
-        // TODO: Update this once we have support for push_imm64()
         m_a.asm_mov_r64_imm64(X64Reg::rax, abs(value));
         if (value < 0) m_a.asm_neg_r64(X64Reg::rax);
         m_a.asm_push_r64(X64Reg::rax);
