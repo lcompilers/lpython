@@ -50,14 +50,8 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void call_imported_function(uint32_t func_idx) {
         switch (func_idx) {
             case 0: {  // print_i32
-                std::cerr << "Call to print_i32() will be printed as exit code\n";
-
-                // Currently, for print we are setting the value to be printed
-                // as the exit code. Later we can access/view this value from console
-                // using: echo $?
-                m_a.asm_pop_r64(X64Reg::rdi); // get exit code from stack top
-                m_a.asm_mov_r64_imm64(X64Reg::rax, 60); // sys_exit
-                m_a.asm_syscall(); // syscall
+                m_a.asm_call_label("print_i64");
+                m_a.asm_pop_r64(X64Reg::r15); // pop the passed argument
                 break;
             }
             case 1: {  // print_i64
@@ -228,6 +222,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         }
 
         emit_elf64_header(m_a);
+        emit_print_int_64(m_a, "print_i64");
 
         // declare compile-time strings
         for (uint32_t i = 0; i < data_segments.size(); i++) {

@@ -286,4 +286,50 @@ void emit_print_64(X86Assembler &a, const std::string &msg_label, uint64_t size)
     a.asm_syscall();
 }
 
+void emit_print_int_64(X86Assembler &a, const std::string &name)
+{
+    // void print_int_64(uint64_t i);
+    a.add_label(name);
+        // Initialize stack
+        a.asm_push_r64(X64Reg::rbp);
+        a.asm_mov_r64_r64(X64Reg::rbp, X64Reg::rsp);
+
+        X64Reg base = X64Reg::rbp;
+        a.asm_mov_r64_m64(X64Reg::r8, &base, nullptr, 1, 16); // mov r8, [rbp+16]  // argument "i"
+        a.asm_mov_r64_imm64(X64Reg::r9, 0); // r9 holds count of digits
+
+        a.asm_mov_r64_r64(X64Reg::rax, X64Reg::r8);// rax as quotient
+        a.asm_mov_r64_imm64(X64Reg::r10, 10); // 10 as divisor
+
+
+    a.add_label("_print_i64_loop");
+        a.asm_mov_r64_imm64(X64Reg::rdx, 0);
+        a.asm_div_r64(X64Reg::r10);
+        a.asm_add_r64_imm32(X64Reg::rdx, 48);
+        a.asm_push_r64(X64Reg::rdx);
+        a.asm_inc_r64(X64Reg::r9);
+        a.asm_cmp_r64_imm8(X64Reg::rax, 0);
+        a.asm_je_label("_print_i64_digit");
+        a.asm_jmp_label("_print_i64_loop");
+
+    a.add_label("_print_i64_digit");
+        a.asm_cmp_r64_imm8(X64Reg::r9, 0);
+        a.asm_je_label("_print_i64_end");
+        a.asm_dec_r64(X64Reg::r9);
+        { // write() syscall
+            a.asm_mov_r64_imm64(X64Reg::rax, 1);
+            a.asm_mov_r64_imm64(X64Reg::rdi, 1);
+            a.asm_mov_r64_r64(X64Reg::rsi, X64Reg::rsp);
+            a.asm_mov_r64_imm64(X64Reg::rdx, 1);
+            a.asm_syscall();
+        }
+        a.asm_pop_r64(X64Reg::r15); // increment stack pointer by pop operation
+        a.asm_jmp_label("_print_i64_digit");
+
+    a.add_label("_print_i64_end");
+        // Restore stack
+        a.asm_mov_r64_r64(X64Reg::rsp, X64Reg::rbp);
+        a.asm_pop_r64(X64Reg::rbp);
+        a.asm_ret();
+}
 } // namespace LFortran
