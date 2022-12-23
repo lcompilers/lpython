@@ -675,7 +675,7 @@ public:
 
     void asm_dec_r32(X86Reg r32) {
         m_code.push_back(m_al, 0x48+r32);
-        EMIT("inc " + r2s(r32));
+        EMIT("dec " + r2s(r32));
     }
 
     void asm_inc_m32(X86Reg *base, X86Reg *index, uint8_t scale, int32_t disp) {
@@ -989,7 +989,7 @@ public:
 
     void asm_add_r64_r64(X64Reg s64, X64Reg r64) {
         X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
-        m_code.push_back(m_al, rex(1, s64 >> 3, 0, r64 >> 3));
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
         m_code.push_back(m_al, 0x01);
         modrm_sib_disp(m_code, m_al,
                 r32, &s32, nullptr, 1, 0, false);
