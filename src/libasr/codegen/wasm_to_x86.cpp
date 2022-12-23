@@ -90,7 +90,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
                 break;
             }
             case 6: {  // set_exit_code
-                m_a.asm_jmp_label("exit");
+                m_a.asm_jmp_label("my_exit");
                 break;
             }
             default: {
@@ -305,7 +305,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
 
         // Add runtime library functions
         emit_print_int(m_a, "print_i32");
-        emit_exit2(m_a, "exit");
+        emit_exit2(m_a, "my_exit");
 
         // declare compile-time strings
         for (uint32_t i = 0; i < data_segments.size(); i++) {

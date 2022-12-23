@@ -45,6 +45,8 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
 
     void visit_Return() {}
 
+    void visit_Unreachable() {}
+
     void call_imported_function(uint32_t func_idx) {
         switch (func_idx) {
             case 0: {  // print_i32
