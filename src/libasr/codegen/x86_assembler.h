@@ -650,9 +650,27 @@ public:
         EMIT("jge " + label);
     }
 
+    void asm_inc_r64(X64Reg r64) {
+        X86Reg r32 = X86Reg(r64 & 7);
+        m_code.push_back(m_al, rex(1, 0, 0, r64 >> 3));
+        m_code.push_back(m_al, 0xFF);
+        modrm_sib_disp(m_code, m_al,
+            X86Reg::eax, &r32, nullptr, 1, 0, false);
+        EMIT("inc " + r2s(r64));
+    }
+
     void asm_inc_r32(X86Reg r32) {
         m_code.push_back(m_al, 0x40+r32);
         EMIT("inc " + r2s(r32));
+    }
+
+    void asm_dec_r64(X64Reg r64) {
+        X86Reg r32 = X86Reg(r64 & 7);
+        m_code.push_back(m_al, rex(1, 0, 0, r64 >> 3));
+        m_code.push_back(m_al, 0xFF);
+        modrm_sib_disp(m_code, m_al,
+            X86Reg::ecx, &r32, nullptr, 1, 0, false);
+        EMIT("dec " + r2s(r64));
     }
 
     void asm_dec_r32(X86Reg r32) {
@@ -848,6 +866,16 @@ public:
         EMIT("sar " + r2s(r32) + ", " + i2s(imm8));
     }
 
+    void asm_cmp_r64_imm8(X64Reg r64, uint8_t imm8) {
+        X86Reg r32 = X86Reg(r64 & 7);
+        m_code.push_back(m_al, rex(1, 0, 0, r64 >> 3));
+        m_code.push_back(m_al, 0x83);
+        modrm_sib_disp(m_code, m_al,
+                X86Reg::edi, &r32, nullptr, 1, 0, false);
+        m_code.push_back(m_al, imm8);
+        EMIT("cmp " + r2s(r64) + ", " + i2s(imm8));
+    }
+
     void asm_cmp_r32_imm8(X86Reg r32, uint8_t imm8) {
         m_code.push_back(m_al, 0x83);
         modrm_sib_disp(m_code, m_al,
@@ -981,6 +1009,17 @@ public:
                 X86Reg::eax, &r32, nullptr, 1, 0, false);
         m_code.push_back(m_al, imm8);
         EMIT("add " + r2s(r32) + ", " + i2s(imm8));
+    }
+
+    // Only 'ADD r/m64, imm32' is available in assembly
+    void asm_add_r64_imm32(X64Reg r64, uint32_t imm32) {
+        X86Reg r32 = X86Reg(r64 & 7);
+        m_code.push_back(m_al, rex(1, 0, 0, r64 >> 3));
+        m_code.push_back(m_al, 0x81);
+        modrm_sib_disp(m_code, m_al,
+                X86Reg::eax, &r32, nullptr, 1, 0, false);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("add " + r2s(r64) + ", " + i2s(imm32));
     }
 
     void asm_add_r32_imm32(X86Reg r32, uint32_t imm32) {
