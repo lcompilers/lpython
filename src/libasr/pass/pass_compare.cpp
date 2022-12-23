@@ -15,7 +15,31 @@ namespace LFortran {
 using ASR::down_cast;
 
 /*
- * This ASR pass handles TupleCompare.
+ * This ASR pass handles TupleCompare and ListCompare Nodes.
+ * Converts:
+ *      a: tuple[T1, T2]
+ *      b: tuple[T1, T2]
+ *      assert a == b
+ *
+ *  to:
+ *      a: tuple[T1, T2]
+ *      b: tuple[T1, T2]
+ *      # Replaces with as FunctionCall
+ *      assert _lcompilers_tuple_compare_tuple[T1,T2](a, b)
+ *
+ *
+ * Similarly,
+ *
+ * Converts:
+ *       a: list[T]
+ *       b: list[T]
+ *       assert a == b
+ *
+ *   to:
+ *       a: list[T]
+ *       b: list[T]
+ *       # Replaces with as FunctionCall
+ *       assert _lcompilers_list_compare_list[T](a, b)
  */
 
 
