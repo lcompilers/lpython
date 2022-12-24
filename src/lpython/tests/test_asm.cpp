@@ -65,6 +65,7 @@ TEST_CASE("Store and get instructions") {
     std::string asm_code = a.get_asm();
     std::string ref = S(R"""(
 BITS 32
+    org 0x08048000
 
     pop eax
     jz 0x0d
@@ -300,6 +301,7 @@ TEST_CASE("Memory operand") {
     std::string asm_code = a.get_asm();
     std::string ref = S(R"""(
 BITS 32
+    org 0x08048000
 
     inc [ebx]
     inc [ebx+3]
@@ -369,6 +371,7 @@ TEST_CASE("elf32 binary") {
     std::string asm_code = a.get_asm();
     std::string ref = S(R"""(
 BITS 32
+    org 0x08048000
 
 ehdr:
     db 0x7f
@@ -390,7 +393,7 @@ ehdr:
     dw 0x0002
     dw 0x0003
     dd 0x00000001
-    dd e_entry
+    dd _start
     dd e_phoff
     dd 0x00000000
     dd 0x00000000
@@ -444,10 +447,7 @@ exit:
     mov ebx, 0x00000000
     int 0x80
 
-e_entry equ 0x08048061
-
-
-filesize equ 0x00000088
+filesize equ $ - $$
 
 )""");
     CHECK(asm_code == ref);
