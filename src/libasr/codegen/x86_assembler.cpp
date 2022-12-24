@@ -51,7 +51,7 @@ void emit_elf32_header(X86Assembler &a, uint32_t p_flags) {
     a.asm_dw_imm16(2);  // e_type
     a.asm_dw_imm16(3);  // e_machine
     a.asm_dd_imm32(1);  // e_version
-    a.asm_dd_label("e_entry");  // e_entry
+    a.asm_dd_label("_start");  // e_entry
     a.asm_dd_label("e_phoff");  // e_phoff
     a.asm_dd_imm32(0);  // e_shoff
     a.asm_dd_imm32(0);  // e_flags
@@ -80,8 +80,7 @@ void emit_elf32_header(X86Assembler &a, uint32_t p_flags) {
 }
 
 void emit_elf32_footer(X86Assembler &a) {
-    a.add_var("e_entry", a.get_defined_symbol("_start").value);
-    a.add_var("filesize", a.pos()-a.origin());
+    a.add_var_size("filesize");
 }
 
 void emit_exit(X86Assembler &a, const std::string &name,
