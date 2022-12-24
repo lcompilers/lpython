@@ -362,7 +362,8 @@ public:
             m_asm_code = "BITS 64\n";
             emit("    ", "org " + i2s((uint64_t)m_origin) + "\n"); // specify origin info
         } else {
-            m_asm_code = "BITS 32\n\n";
+            m_asm_code = "BITS 32\n";
+            emit("    ", "org " + i2s(m_origin) + "\n"); // specify origin info
         }
 #endif
     }

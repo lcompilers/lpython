@@ -55,6 +55,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         switch (func_index) {
             case 0: {  // print_i32
                 m_a.asm_call_label("print_i32");
+                m_a.asm_pop_r32(X86Reg::eax);
                 break;
             }
             case 1: {  // print_i64
