@@ -1789,15 +1789,13 @@ public:
                 ptr_loads = ptr_loads_copy;
                 indices.push_back(tmp);
             }
-            int a_kind = ASRUtils::extract_kind_from_ttype_t(x_mv_type);
-            bool is_i8_array = (ASR::is_a<ASR::Integer_t>(*x_mv_type) && a_kind == 1 &&
-                                ASRUtils::expr_abi(x.m_v) == ASR::abiType::BindC);
+            bool is_data_only_array = ASRUtils::expr_abi(x.m_v) == ASR::abiType::BindC;
             if (ASR::is_a<ASR::Pointer_t>(*x_mv_type) ||
-               (is_i8_array && ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v))) {
+               (is_data_only_array && ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v))) {
                 array = CreateLoad(array);
             }
             bool is_data_only = is_argument && !ASRUtils::is_dimension_empty(m_dims, n_dims);
-            is_data_only = is_data_only || is_i8_array;
+            is_data_only = is_data_only || is_data_only_array;
             Vec<llvm::Value*> llvm_diminfo;
             llvm_diminfo.reserve(al, 2 * x.n_args + 1);
             if( is_data_only ) {
@@ -2412,8 +2410,8 @@ public:
                 n_dims = v_type->n_dims;
                 a_kind = v_type->m_kind;
                 if( n_dims > 0 ) {
-                    if( a_kind == 1 && m_abi == ASR::abiType::BindC ) {
-                        llvm_type = llvm::Type::getInt8PtrTy(context);
+                    if( m_abi == ASR::abiType::BindC ) {
+                        llvm_type = get_el_type(asr_type)->getPointerTo();
                     } else {
                         is_array_type = true;
                         llvm::Type* el_type = get_el_type(asr_type);
@@ -2435,13 +2433,17 @@ public:
                 n_dims = v_type->n_dims;
                 a_kind = v_type->m_kind;
                 if( n_dims > 0 ) {
-                    is_array_type = true;
-                    llvm::Type* el_type = get_el_type(asr_type);
-                    if( m_storage == ASR::storage_typeType::Allocatable ) {
-                        is_malloc_array_type = true;
-                        llvm_type = arr_descr->get_malloc_array_type(asr_type, el_type);
+                    if( m_abi == ASR::abiType::BindC ) {
+                        llvm_type = get_el_type(asr_type)->getPointerTo();
                     } else {
-                        llvm_type = arr_descr->get_array_type(asr_type, el_type);
+                        is_array_type = true;
+                        llvm::Type* el_type = get_el_type(asr_type);
+                        if( m_storage == ASR::storage_typeType::Allocatable ) {
+                            is_malloc_array_type = true;
+                            llvm_type = arr_descr->get_malloc_array_type(asr_type, el_type);
+                        } else {
+                            llvm_type = arr_descr->get_array_type(asr_type, el_type);
+                        }
                     }
                 } else {
                     llvm_type = getFPType(a_kind);
@@ -2454,13 +2456,17 @@ public:
                 n_dims = v_type->n_dims;
                 a_kind = v_type->m_kind;
                 if( n_dims > 0 ) {
-                    is_array_type = true;
-                    llvm::Type* el_type = get_el_type(asr_type);
-                    if( m_storage == ASR::storage_typeType::Allocatable ) {
-                        is_malloc_array_type = true;
-                        llvm_type = arr_descr->get_malloc_array_type(asr_type, el_type);
+                    if( m_abi == ASR::abiType::BindC ) {
+                        llvm_type = get_el_type(asr_type)->getPointerTo();
                     } else {
-                        llvm_type = arr_descr->get_array_type(asr_type, el_type);
+                        is_array_type = true;
+                        llvm::Type* el_type = get_el_type(asr_type);
+                        if( m_storage == ASR::storage_typeType::Allocatable ) {
+                            is_malloc_array_type = true;
+                            llvm_type = arr_descr->get_malloc_array_type(asr_type, el_type);
+                        } else {
+                            llvm_type = arr_descr->get_array_type(asr_type, el_type);
+                        }
                     }
                 } else {
                     llvm_type = getComplexType(a_kind);
@@ -2492,13 +2498,17 @@ public:
                 n_dims = v_type->n_dims;
                 a_kind = v_type->m_kind;
                 if( n_dims > 0 ) {
-                    is_array_type = true;
-                    llvm::Type* el_type = get_el_type(asr_type);
-                    if( m_storage == ASR::storage_typeType::Allocatable ) {
-                        is_malloc_array_type = true;
-                        llvm_type = arr_descr->get_malloc_array_type(asr_type, el_type);
+                    if( m_abi == ASR::abiType::BindC ) {
+                        llvm_type = get_el_type(asr_type)->getPointerTo();
                     } else {
-                        llvm_type = arr_descr->get_array_type(asr_type, el_type);
+                        is_array_type = true;
+                        llvm::Type* el_type = get_el_type(asr_type);
+                        if( m_storage == ASR::storage_typeType::Allocatable ) {
+                            is_malloc_array_type = true;
+                            llvm_type = arr_descr->get_malloc_array_type(asr_type, el_type);
+                        } else {
+                            llvm_type = arr_descr->get_array_type(asr_type, el_type);
+                        }
                     }
                 } else {
                     llvm_type = llvm::Type::getInt1Ty(context);
@@ -2665,9 +2675,7 @@ public:
                 // Assume that struct member array is not allocatable
                 ASR::dimension_t* m_dims = nullptr;
                 size_t n_dims = ASRUtils::extract_dimensions_from_ttype(symbol_type, m_dims);
-                int a_kind = ASRUtils::extract_kind_from_ttype_t(symbol_type);
                 bool is_data_only = (ASRUtils::symbol_abi(item.second) == ASR::abiType::BindC &&
-                                     a_kind == 1 && ASR::is_a<ASR::Integer_t>(*symbol_type) &&
                                      ASRUtils::is_fixed_size_array(m_dims, n_dims));
                 fill_array_details_(ptr_member, m_dims, n_dims, false, true, false, symbol_type, is_data_only);
             } else if( ASR::is_a<ASR::Struct_t>(*symbol_type) ) {
@@ -4068,16 +4076,12 @@ public:
         if( ASRUtils::is_array(target_type) &&
             ASRUtils::is_array(value_type) &&
             ASRUtils::check_equal_type(target_type, value_type) ) {
-            int target_kind = ASRUtils::extract_kind_from_ttype_t(target_type);
-            int value_kind = ASRUtils::extract_kind_from_ttype_t(value_type);
             bool data_only_copy = false;
-            bool is_target_i8_array = (ASR::is_a<ASR::Integer_t>(*target_type) && target_kind == 1 &&
-                                       ASRUtils::expr_abi(x.m_target) == ASR::abiType::BindC);
-            bool is_value_i8_array = (ASR::is_a<ASR::Integer_t>(*value_type) && value_kind == 1 &&
-                                      ASRUtils::expr_abi(x.m_value) == ASR::abiType::BindC);
-            if( is_target_i8_array || is_value_i8_array ) {
+            bool is_target_data_only_array = ASRUtils::expr_abi(x.m_target) == ASR::abiType::BindC;
+            bool is_value_data_only_array = ASRUtils::expr_abi(x.m_value) == ASR::abiType::BindC;
+            if( is_target_data_only_array || is_value_data_only_array ) {
                 llvm::Value *target_data = nullptr, *value_data = nullptr, *llvm_size = nullptr;
-                if( is_target_i8_array ) {
+                if( is_target_data_only_array ) {
                     target_data = target;
                     ASR::dimension_t* target_dims = nullptr;
                     int target_ndims = ASRUtils::extract_dimensions_from_ttype(target_type, target_dims);
@@ -4099,7 +4103,7 @@ public:
                 } else {
                     target_data = LLVM::CreateLoad(*builder, arr_descr->get_pointer_to_data(target));
                 }
-                if( is_value_i8_array ) {
+                if( is_value_data_only_array ) {
                     value_data = value;
                     ASR::dimension_t* value_dims = nullptr;
                     int value_ndims = ASRUtils::extract_dimensions_from_ttype(value_type, value_dims);
