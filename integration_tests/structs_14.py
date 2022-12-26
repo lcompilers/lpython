@@ -1,5 +1,5 @@
-from ltypes import i8, dataclass, i32, f32, c32, f64, i16, i64, ccallable
-from numpy import empty, int8, int16, int32, int64, float32, complex64, float64
+from ltypes import i8, dataclass, i32, f32, c32, f64, i16, i64, c64, ccallable
+from numpy import empty, int8, int16, int32, int64, float32, complex64, complex128, float64
 from copy import deepcopy
 
 @dataclass
@@ -11,6 +11,7 @@ class buffer_struct:
     buffer4: f64[32]
     buffer5: i16[32]
     buffer6: i64[32]
+    buffer7: c64[32]
 
 @ccallable
 @dataclass
@@ -22,6 +23,7 @@ class buffer_struct_clink:
     buffer4: f64[32]
     buffer5: i16[32]
     buffer6: i64[32]
+    buffer7: c64[32]
 
 def f():
     i: i32
@@ -32,14 +34,15 @@ def f():
     buffer4_var: f64[32] = empty(32, dtype=float64)
     buffer5_var: i16[32] = empty(32, dtype=int16)
     buffer6_var: i64[32] = empty(32, dtype=int64)
+    buffer7_var: c64[32] = empty(32, dtype=complex128)
     buffer_: buffer_struct = buffer_struct(deepcopy(buffer_var), deepcopy(buffer1_var),
                                            deepcopy(buffer2_var), deepcopy(buffer3_var),
                                            deepcopy(buffer4_var), deepcopy(buffer5_var),
-                                           deepcopy(buffer6_var))
+                                           deepcopy(buffer6_var), deepcopy(buffer7_var))
     buffer_clink_: buffer_struct_clink = buffer_struct_clink(deepcopy(buffer_var), deepcopy(buffer1_var),
                                                              deepcopy(buffer2_var), deepcopy(buffer3_var),
                                                              deepcopy(buffer4_var), deepcopy(buffer5_var),
-                                                             deepcopy(buffer6_var))
+                                                             deepcopy(buffer6_var), deepcopy(buffer7_var))
     print(buffer_.buffer[15])
     print(buffer_.buffer1[15])
     print(buffer_.buffer2[15])
@@ -47,6 +50,7 @@ def f():
     print(buffer_.buffer4[15])
     print(buffer_.buffer5[15])
     print(buffer_.buffer6[15])
+    print(buffer_.buffer7[15])
     print(buffer_clink_.buffer[15])
     print(buffer_clink_.buffer1[15])
     print(buffer_clink_.buffer2[15])
@@ -54,6 +58,7 @@ def f():
     print(buffer_clink_.buffer4[15])
     print(buffer_clink_.buffer5[15])
     print(buffer_clink_.buffer6[15])
+    print(buffer_clink_.buffer7[15])
 
     for i in range(32):
         buffer_.buffer[i] = i8(i + 1)
@@ -70,6 +75,8 @@ def f():
         buffer_clink_.buffer5[i] = i16(i + 12)
         buffer_.buffer6[i] = i64(i + 13)
         buffer_clink_.buffer6[i] = i64(i + 14)
+        buffer_.buffer7[i] = c64(i + 15)
+        buffer_clink_.buffer7[i] = c64(i + 16)
 
     for i in range(32):
         print(i, buffer_.buffer[i], buffer_clink_.buffer[i])
@@ -79,6 +86,7 @@ def f():
         print(i, buffer_clink_.buffer4[i], buffer_.buffer4[i])
         print(i, buffer_clink_.buffer5[i], buffer_.buffer5[i])
         print(i, buffer_clink_.buffer6[i], buffer_.buffer6[i])
+        print(i, buffer_clink_.buffer7[i], buffer_.buffer7[i])
         assert buffer_.buffer[i] == i8(i + 1)
         assert buffer_clink_.buffer[i] == i8(i + 2)
         assert buffer_clink_.buffer[i] - buffer_.buffer[i] == i8(1)
@@ -88,5 +96,6 @@ def f():
         assert buffer_clink_.buffer4[i] - buffer_.buffer4[i] == f64(1)
         assert buffer_clink_.buffer5[i] - buffer_.buffer5[i] == i16(1)
         assert buffer_clink_.buffer6[i] - buffer_.buffer6[i] == i64(1)
+        assert buffer_clink_.buffer7[i] - buffer_.buffer7[i] == c64(1)
 
 f()
