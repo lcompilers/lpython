@@ -163,6 +163,12 @@ static inline ASR::abiType expr_abi(ASR::expr_t* e) {
         case ASR::exprType::StructInstanceMember: {
             return ASRUtils::symbol_abi(ASR::down_cast<ASR::StructInstanceMember_t>(e)->m_m);
         }
+        case ASR::exprType::ArrayReshape: {
+            return ASRUtils::expr_abi(ASR::down_cast<ASR::ArrayReshape_t>(e)->m_array);
+        }
+        case ASR::exprType::GetPointer: {
+            return ASRUtils::expr_abi(ASR::down_cast<ASR::GetPointer_t>(e)->m_arg);
+        }
         default:
             throw LCompilersException("Cannot extract the ABI of " +
                     std::to_string(e->type) + " expression.");
@@ -1409,11 +1415,29 @@ static inline bool is_fixed_size_array(ASR::dimension_t* m_dims, size_t n_dims) 
     }
     for( size_t i = 0; i < n_dims; i++ ) {
         int64_t dim_size = -1;
+        if( m_dims[i].m_length == nullptr ) {
+            return false;
+        }
         if( !ASRUtils::extract_value(ASRUtils::expr_value(m_dims[i].m_length), dim_size) ) {
             return false;
         }
     }
     return true;
+}
+
+static inline int64_t get_fixed_size_of_array(ASR::dimension_t* m_dims, size_t n_dims) {
+    if( n_dims == 0 ) {
+        return 0;
+    }
+    int64_t array_size = 1;
+    for( size_t i = 0; i < n_dims; i++ ) {
+        int64_t dim_size = -1;
+        if( !ASRUtils::extract_value(ASRUtils::expr_value(m_dims[i].m_length), dim_size) ) {
+            return -1;
+        }
+        array_size *= dim_size;
+    }
+    return array_size;
 }
 
 inline int extract_n_dims_from_ttype(ASR::ttype_t *x) {
