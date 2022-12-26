@@ -139,6 +139,10 @@ public:
     void allocate_array_members_of_struct(ASR::StructType_t* der_type_t, std::string& sub,
         std::string indent, std::string name) {
         for( auto itr: der_type_t->m_symtab->get_scope() ) {
+            if( ASR::is_a<ASR::UnionType_t>(*itr.second) ||
+                ASR::is_a<ASR::StructType_t>(*itr.second) ) {
+                continue ;
+            }
             ASR::ttype_t* mem_type = ASRUtils::symbol_type(itr.second);
             if( ASRUtils::is_character(*mem_type) ) {
                 sub += indent + name + "->" + itr.first + " = (char*) malloc(40 * sizeof(char));\n";
@@ -418,7 +422,8 @@ public:
             } else if (ASR::is_a<ASR::Union_t>(*v_m_type)) {
                 std::string indent(indentation_level*indentation_spaces, ' ');
                 ASR::Union_t *t = ASR::down_cast<ASR::Union_t>(v_m_type);
-                std::string der_type_name = ASRUtils::symbol_name(t->m_union_type);
+                std::string der_type_name = ASRUtils::symbol_name(
+                    ASRUtils::symbol_get_past_external(t->m_union_type));
                 if( is_array ) {
                     bool is_fixed_size = true;
                     dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size, true);
@@ -706,11 +711,25 @@ R"(
     }
 
     template <typename T>
-    void visit_AggregateTypeUtil(const T& x, std::string c_type_name) {
+    void visit_AggregateTypeUtil(const T& x, std::string c_type_name,
+        std::string& src_dest) {
+        std::string body = "";
+        int indendation_level_copy = indentation_level;
+        for( auto itr: x.m_symtab->get_scope() ) {
+            if( ASR::is_a<ASR::UnionType_t>(*itr.second) ) {
+                visit_AggregateTypeUtil(*ASR::down_cast<ASR::UnionType_t>(itr.second),
+                                        "union", src_dest);
+            } else if( ASR::is_a<ASR::StructType_t>(*itr.second) ) {
+                std::string struct_c_type_name = get_StructCTypeName(
+                    *ASR::down_cast<ASR::StructType_t>(itr.second));
+                visit_AggregateTypeUtil(*ASR::down_cast<ASR::StructType_t>(itr.second),
+                                        struct_c_type_name, src_dest);
+            }
+        }
+        indentation_level = indendation_level_copy;
         std::string indent(indentation_level*indentation_spaces, ' ');
         indentation_level += 1;
         std::string open_struct = indent + c_type_name + " " + std::string(x.m_name) + " {\n";
-        std::string body = "";
         indent.push_back(' ');
         for( size_t i = 0; i < x.n_members; i++ ) {
             ASR::symbol_t* member = x.m_symtab->get_symbol(x.m_members[i]);
@@ -725,11 +744,10 @@ R"(
         }
         indentation_level -= 1;
         std::string end_struct = "};\n\n";
-        array_types_decls += open_struct + body + end_struct;
+        src_dest += open_struct + body + end_struct;
     }
 
-    void visit_StructType(const ASR::StructType_t& x) {
-        src = "";
+    std::string get_StructCTypeName(const ASR::StructType_t& x) {
         std::string c_type_name = "struct";
         if( x.m_is_packed ) {
             std::string attr_args = "(packed";
@@ -745,12 +763,18 @@ R"(
             attr_args += ")";
             c_type_name += " __attribute__(" + attr_args + ")";
         }
-        visit_AggregateTypeUtil(x, c_type_name);
+        return c_type_name;
+    }
+
+    void visit_StructType(const ASR::StructType_t& x) {
+        src = "";
+        std::string c_type_name = get_StructCTypeName(x);
+        visit_AggregateTypeUtil(x, c_type_name, array_types_decls);
         src = "";
     }
 
     void visit_UnionType(const ASR::UnionType_t& x) {
-        visit_AggregateTypeUtil(x, "union");
+        visit_AggregateTypeUtil(x, "union", array_types_decls);
     }
 
     void visit_EnumType(const ASR::EnumType_t& x) {
