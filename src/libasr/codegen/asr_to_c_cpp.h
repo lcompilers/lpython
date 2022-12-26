@@ -728,34 +728,37 @@ R"(#include <stdio.h>
                                     value + ") + 1 ) * sizeof(char));\n";
                 }
                 if( ASRUtils::is_array(m_target_type) && ASRUtils::is_array(m_value_type) ) {
-                    bool is_target_i8_array = (ASR::is_a<ASR::Integer_t>(*m_target_type) &&
-                                           ASRUtils::extract_kind_from_ttype_t(m_target_type) == 1 &&
-                                           ASRUtils::expr_abi(x.m_target) == ASR::abiType::BindC);
-                    bool is_value_i8_array = (ASR::is_a<ASR::Integer_t>(*m_value_type) &&
-                                            ASRUtils::extract_kind_from_ttype_t(m_value_type) == 1 &&
-                                            ASRUtils::expr_abi(x.m_value) == ASR::abiType::BindC);
-                    bool is_target_fixed_size = false, is_value_fixed_size = false;
-                    if( is_target_i8_array ) {
-                        ASR::Integer_t* target_integer_t = ASR::down_cast<ASR::Integer_t>(m_target_type);
-                        if( ASRUtils::is_fixed_size_array(target_integer_t->m_dims, target_integer_t->n_dims) ) {
-                            is_target_fixed_size = true;
+                    ASR::dimension_t* m_target_dims = nullptr;
+                    size_t n_target_dims = ASRUtils::extract_dimensions_from_ttype(m_target_type, m_target_dims);
+                    ASR::dimension_t* m_value_dims = nullptr;
+                    size_t n_value_dims = ASRUtils::extract_dimensions_from_ttype(m_value_type, m_value_dims);
+                    bool is_target_data_only_array = (ASRUtils::expr_abi(x.m_target) == ASR::abiType::BindC &&
+                                                      ASRUtils::is_fixed_size_array(m_target_dims, n_target_dims));
+                    bool is_value_data_only_array = (ASRUtils::expr_abi(x.m_value) == ASR::abiType::BindC &&
+                                                     ASRUtils::is_fixed_size_array(m_value_dims, n_value_dims));
+                    if( is_target_data_only_array || is_value_data_only_array ) {
+                        int64_t target_size = -1, value_size = -1;
+                        if( !is_target_data_only_array ) {
+                            target = target + "->data";
+                        } else {
+                            target_size = ASRUtils::get_fixed_size_of_array(m_target_dims, n_target_dims);
                         }
-                    }
-                    if( is_value_i8_array ) {
-                        ASR::Integer_t* value_integer_t = ASR::down_cast<ASR::Integer_t>(m_value_type);
-                        if( ASRUtils::is_fixed_size_array(value_integer_t->m_dims, value_integer_t->n_dims) ) {
-                            is_value_fixed_size = true;
+                        if( !is_value_data_only_array ) {
+                            value = value + "->data";
+                        } else {
+                            value_size = ASRUtils::get_fixed_size_of_array(m_value_dims, n_value_dims);
                         }
-                    }
-                    if( (is_target_i8_array && is_target_fixed_size) ||
-                        (is_value_i8_array && is_value_fixed_size) ) {
-                        if( !(is_target_i8_array && is_target_fixed_size) ) {
-                            target = "(char*) " + target + "->data";
+                        if( target_size != -1 && value_size != -1 ) {
+                            LFORTRAN_ASSERT(target_size == value_size);
                         }
-                        if( !(is_value_i8_array && is_value_fixed_size) ) {
-                            value = "(char*) " + value + "->data";
+                        int64_t array_size = -1;
+                        if( target_size != -1 ) {
+                            array_size = target_size;
+                        } else {
+                            array_size = value_size;
                         }
-                        src += indent + "strcpy(" + target + ", " + value + ");\n";
+                        src += indent + "memcpy(" + target + ", " + value + ", " + std::to_string(array_size) + "*sizeof(" +
+                                    CUtils::get_c_type_from_ttype_t(m_target_type) + "));\n";
                     } else {
                         src += alloc + indent + c_ds_api->get_deepcopy(m_target_type, value, target) + "\n";
                     }
