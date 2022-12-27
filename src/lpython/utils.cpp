@@ -79,7 +79,23 @@ std::string get_runtime_library_header_dir()
     char *env_p = std::getenv("LFORTRAN_RUNTIME_LIBRARY_HEADER_DIR");
     if (env_p) return env_p;
 
-    return get_runtime_library_dir() + "/impure";
+    std::string path;
+    int dirname_length;
+    get_executable_path(path, dirname_length);
+    std::string dirname = path.substr(0, dirname_length);
+    if (   endswith(dirname, "src/bin")
+        || endswith(dirname, "src\\bin")
+        || endswith(dirname, "SRC\\BIN")) {
+        // Development version
+        return dirname + "/../libasr/runtime";
+    } else if (endswith(dirname, "src/lpython/tests") ||
+               endswith(to_lower(dirname), "src\\lpython\\tests")) {
+        // CTest Tests
+        return dirname + "/../../runtime/impure";
+    } else {
+        // Installed version
+        return dirname + "/../share/lpython/lib/impure";
+    }
 }
 
 bool is_directory(std::string path) {
