@@ -1,4 +1,4 @@
-from ltypes import i8, dataclass, i32, f32, c32, f64, i16, i64, c64, ccallable
+from ltypes import i8, dataclass, i32, f32, c32, f64, i16, i64, c64, ccallable, packed
 from numpy import empty, int8, int16, int32, int64, float32, complex64, complex128, float64
 from copy import deepcopy
 
@@ -14,6 +14,7 @@ class buffer_struct:
     buffer7: c64[32]
 
 @ccallable
+@packed
 @dataclass
 class buffer_struct_clink:
     buffer: i8[32]
