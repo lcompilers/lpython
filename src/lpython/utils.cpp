@@ -103,4 +103,8 @@ bool path_exists(std::string path) {
     }
 }
 
+int32_t get_exit_status(int32_t err) {
+    return (((err) >> 8) & 0x000000ff);
+}
+
 }

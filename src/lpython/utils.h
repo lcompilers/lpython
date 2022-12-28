@@ -12,6 +12,8 @@ std::string get_runtime_library_header_dir();
 bool is_directory(std::string path);
 bool path_exists(std::string path);
 
+int32_t get_exit_status(int32_t err);
+
 } // LFortran
 
 #endif // LFORTRAN_UTILS_H

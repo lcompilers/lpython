@@ -1649,7 +1649,7 @@ int main(int argc, char *argv[])
                     err = system(("js " + outfile +".js").c_str());
                 } else {
                     if (compiler_options.platform == LFortran::Platform::Windows) {
-                        err = system(outfile.c_str());
+                        return system(outfile.c_str());
                     } else {
                         err = system(("./" + outfile).c_str());
                     }
@@ -1658,7 +1658,9 @@ int main(int argc, char *argv[])
                     if (0 < err && err < 256) {
                         return err;
                     } else {
-                        return 1;
+                        // https://stackoverflow.com/a/27117435/15913193
+                        // https://linux.die.net/man/3/system
+                        return LFortran::get_exit_status(err);
                     }
                 }
             }
