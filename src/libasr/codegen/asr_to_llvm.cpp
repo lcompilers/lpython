@@ -2321,8 +2321,12 @@ public:
         visit_procedures(x);
 
         // Generate code for the main program
+        std::vector<llvm::Type*> command_line_args = {
+            llvm::Type::getInt32Ty(context),
+            character_type->getPointerTo()
+        };
         llvm::FunctionType *function_type = llvm::FunctionType::get(
-                llvm::Type::getInt32Ty(context), {}, false);
+                llvm::Type::getInt32Ty(context), command_line_args, false);
         llvm::Function *F = llvm::Function::Create(function_type,
                 llvm::Function::ExternalLinkage, "main", module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
