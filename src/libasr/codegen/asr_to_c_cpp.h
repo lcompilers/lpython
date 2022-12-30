@@ -71,6 +71,7 @@ public:
     bool gen_stdcomplex;
     bool is_c;
     std::set<std::string> headers;
+    std::vector<std::string> tmp_src;
 
     SymbolTable* global_scope;
     int64_t lower_bound;
@@ -972,11 +973,34 @@ R"(#include <stdio.h>
         self().visit_expr(*x.m_left);
         std::string left = std::move(src);
         self().visit_expr(*x.m_right);
-        std::string right = std::move(src);
+        std::string right = std::move(src), tmp_gen="";
         std::string indent(indentation_level * indentation_spaces, ' ');
-        src = list_cmp_func + "(" + left + ", " + right + ")";
+        if (ASR::is_a<ASR::ListConstant_t>(*x.m_left) ) {
+            tmp_gen += left;
+            ASR::ListConstant_t *l_const = ASR::down_cast<ASR::ListConstant_t>(x.m_left);
+            left = const_var_names[get_hash((ASR::asr_t*)l_const)];
+        } else if (ASR::is_a<ASR::ListSection_t>(*x.m_left)) {
+            tmp_gen += left;
+            ASR::ListSection_t *l_sec = ASR::down_cast<ASR::ListSection_t>(x.m_left);
+            left = "*" + const_var_names[get_hash((ASR::asr_t*)l_sec)];
+        }
+
+        if (ASR::is_a<ASR::ListConstant_t>(*x.m_right) ) {
+            tmp_gen += right;
+            ASR::ListConstant_t *l_const = ASR::down_cast<ASR::ListConstant_t>(x.m_right);
+            right = const_var_names[get_hash((ASR::asr_t*)l_const)];
+        } else if (ASR::is_a<ASR::ListSection_t>(*x.m_right)) {
+            tmp_gen += right;
+            ASR::ListSection_t *l_sec = ASR::down_cast<ASR::ListSection_t>(x.m_right);
+            right = "*" + const_var_names[get_hash((ASR::asr_t*)l_sec)];
+        }
+        std::string val = list_cmp_func + "(" + left + ", " + right + ")";
         if (x.m_op == ASR::cmpopType::NotEq) {
-            src = "!" + src;
+            val = "!" + val;
+        }
+        src = val;
+        if (tmp_gen.size() > 0) {
+            tmp_src.push_back(tmp_gen);
         }
     }
 
