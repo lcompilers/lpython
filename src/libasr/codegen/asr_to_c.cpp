@@ -896,6 +896,7 @@ R"(
     void visit_Assert(const ASR::Assert_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent;
+        tmp_src.clear();
         if (x.m_msg) {
             out += "ASSERT_MSG(";
             visit_expr(*x.m_test);
@@ -907,7 +908,12 @@ R"(
             visit_expr(*x.m_test);
             out += src + ");\n";
         }
-        src = out;
+        src = "";
+        if (!tmp_src.empty()) {
+            for (auto &s: tmp_src) src += s;
+        }
+        src += out;
+        tmp_src.clear();
     }
 
     std::string get_print_type(ASR::ttype_t *t, bool deref_ptr) {
