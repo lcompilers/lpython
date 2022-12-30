@@ -244,7 +244,8 @@ namespace LFortran {
                 virtual
                 llvm::Value* get_single_element(llvm::Value* array,
                     std::vector<llvm::Value*>& m_args, int n_args,
-                    bool data_only=false, llvm::Value** llvm_diminfo=nullptr) = 0;
+                    bool data_only=false, bool is_fixed_size=false,
+                    llvm::Value** llvm_diminfo=nullptr) = 0;
 
                 virtual
                 llvm::Value* get_is_allocated_flag(llvm::Value* array) = 0;
@@ -383,7 +384,8 @@ namespace LFortran {
                 virtual
                 llvm::Value* get_single_element(llvm::Value* array,
                     std::vector<llvm::Value*>& m_args, int n_args,
-                    bool data_only=false, llvm::Value** llvm_diminfo=nullptr);
+                    bool data_only=false, bool is_fixed_size=false,
+                    llvm::Value** llvm_diminfo=nullptr);
 
                 virtual
                 llvm::Value* get_is_allocated_flag(llvm::Value* array);

@@ -695,8 +695,17 @@ class CCPPDSUtils {
                     generated_code += indent + tab + get_deepcopy(member_type_asr, "&(src->" + item.first + ")",
                                  "&(dest->" + item.first + ")") + ";\n";
                 } else if( ASRUtils::is_array(member_type_asr) ) {
-                    generated_code += indent + tab + get_deepcopy(member_type_asr, "src->" + item.first,
-                                 "dest->" + item.first) + ";\n";
+                    ASR::dimension_t* m_dims = nullptr;
+                    size_t n_dims = ASRUtils::extract_dimensions_from_ttype(member_type_asr, m_dims);
+                    if( ASRUtils::is_fixed_size_array(m_dims, n_dims) ) {
+                        std::string array_size = std::to_string(ASRUtils::get_fixed_size_of_array(m_dims, n_dims));
+                        array_size += "*sizeof(" + CUtils::get_c_type_from_ttype_t(member_type_asr) + ")";
+                        generated_code += indent + tab + "memcpy(dest->" + item.first + ", src->" + item.first +
+                                            ", " + array_size + ");\n";
+                    } else {
+                        generated_code += indent + tab + get_deepcopy(member_type_asr, "src->" + item.first,
+                                            "dest->" + item.first) + ";\n";
+                    }
                 } else {
                     generated_code += indent + tab + "dest->" + item.first + " = " + " src->" + item.first + ";\n";
                 }

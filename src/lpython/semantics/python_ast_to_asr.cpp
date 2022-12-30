@@ -2138,6 +2138,7 @@ public:
             if( AST::is_a<AST::Name_t>(*decorators[i]) ) {
                 AST::Name_t* dc_name = AST::down_cast<AST::Name_t>(decorators[i]);
                 is_dataclass_ = std::string(dc_name->m_id) == "dataclass";
+                is_packed = is_packed || std::string(dc_name->m_id) == "packed";
             } else if( AST::is_a<AST::Call_t>(*decorators[i]) ) {
                 AST::Call_t* dc_call = AST::down_cast<AST::Call_t>(decorators[i]);
                 AST::Name_t* dc_name = AST::down_cast<AST::Name_t>(dc_call->m_func);

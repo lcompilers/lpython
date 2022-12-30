@@ -732,10 +732,10 @@ R"(#include <stdio.h>
                     size_t n_target_dims = ASRUtils::extract_dimensions_from_ttype(m_target_type, m_target_dims);
                     ASR::dimension_t* m_value_dims = nullptr;
                     size_t n_value_dims = ASRUtils::extract_dimensions_from_ttype(m_value_type, m_value_dims);
-                    bool is_target_data_only_array = (ASRUtils::expr_abi(x.m_target) == ASR::abiType::BindC &&
-                                                      ASRUtils::is_fixed_size_array(m_target_dims, n_target_dims));
-                    bool is_value_data_only_array = (ASRUtils::expr_abi(x.m_value) == ASR::abiType::BindC &&
-                                                     ASRUtils::is_fixed_size_array(m_value_dims, n_value_dims));
+                    bool is_target_data_only_array = ASRUtils::is_fixed_size_array(m_target_dims, n_target_dims) &&
+                                                     ASR::is_a<ASR::StructType_t>(*ASRUtils::get_asr_owner(x.m_target));
+                    bool is_value_data_only_array = ASRUtils::is_fixed_size_array(m_value_dims, n_value_dims) &&
+                                                    ASR::is_a<ASR::StructType_t>(*ASRUtils::get_asr_owner(x.m_value));
                     if( is_target_data_only_array || is_value_data_only_array ) {
                         int64_t target_size = -1, value_size = -1;
                         if( !is_target_data_only_array ) {

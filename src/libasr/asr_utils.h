@@ -460,6 +460,25 @@ static inline ASR::symbol_t *get_asr_owner(const ASR::symbol_t *sym) {
     return ASR::down_cast<ASR::symbol_t>(s->asr_owner);
 }
 
+static inline ASR::symbol_t *get_asr_owner(const ASR::expr_t *expr) {
+    switch( expr->type ) {
+        case ASR::exprType::Var: {
+            return ASRUtils::get_asr_owner(ASR::down_cast<ASR::Var_t>(expr)->m_v);
+        }
+        case ASR::exprType::StructInstanceMember: {
+            return ASRUtils::get_asr_owner(ASR::down_cast<ASR::StructInstanceMember_t>(expr)->m_m);
+        }
+        case ASR::exprType::GetPointer: {
+            return ASRUtils::get_asr_owner(ASR::down_cast<ASR::GetPointer_t>(expr)->m_arg);
+        }
+        default: {
+            throw LCompilersException("Cannot find the ASR owner of underlying symbol of expression "
+                                        + std::to_string(expr->type));
+        }
+    }
+    return nullptr;
+}
+
 // Returns the Module_t the symbol is in, or nullptr if not in a module
 // or no asr_owner yet
 static inline ASR::Module_t *get_sym_module0(const ASR::symbol_t *sym) {
