@@ -837,7 +837,7 @@ R"(#include <stdio.h>
         for( size_t i = 0; i < x.n_args; i++ ) {
             self().visit_expr(*x.m_args[i]);
             if( ASR::is_a<ASR::Character_t>(*t->m_type) ) {
-                src_tmp += var_name + ".data[" + std::to_string(i) +"] = (char*) malloc(40 * sizeof(char));\n";
+                src_tmp += indent + var_name + ".data[" + std::to_string(i) +"] = (char*) malloc(40 * sizeof(char));\n";
             }
             src_tmp += indent + c_ds_api->get_deepcopy(t->m_type, src,
                         var_name + ".data[" + std::to_string(i) +"]") + "\n";
