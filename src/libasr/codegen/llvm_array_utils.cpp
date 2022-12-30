@@ -439,7 +439,7 @@ namespace LFortran {
 
         llvm::Value* SimpleCMODescriptor::get_single_element(llvm::Value* array,
             std::vector<llvm::Value*>& m_args, int n_args, bool data_only,
-            llvm::Value** llvm_diminfo) {
+            bool is_fixed_size, llvm::Value** llvm_diminfo) {
             llvm::Value* tmp = nullptr;
             // TODO: Uncomment later
             // bool check_for_bounds = is_explicit_shape(v);
@@ -448,7 +448,11 @@ namespace LFortran {
             if( data_only ) {
                 LFORTRAN_ASSERT(llvm_diminfo);
                 idx = cmo_convertor_single_element_data_only(llvm_diminfo, m_args, n_args, check_for_bounds);
-                tmp = llvm_utils->create_ptr_gep(array, idx);
+                if( is_fixed_size ) {
+                    tmp = llvm_utils->create_gep(array, idx);
+                } else {
+                    tmp = llvm_utils->create_ptr_gep(array, idx);
+                }
             } else {
                 idx = cmo_convertor_single_element(array, m_args, n_args, check_for_bounds);
                 llvm::Value* full_array = get_pointer_to_data(array);

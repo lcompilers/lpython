@@ -533,15 +533,16 @@ public:
             llvm_dims.push_back(std::make_pair(start, end));
         }
         if( is_data_only ) {
-            // llvm::Value* llvm_size = builder->CreateAlloca(llvm::Type::getInt32Ty(context), nullptr);
-            llvm::Value* const_1 = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
-            llvm::Value* prod = const_1;
-            for( int r = 0; r < n_dims; r++ ) {
-                llvm::Value* dim_size = llvm_dims[r].second;
-                prod = builder->CreateMul(prod, dim_size);
+            if( !ASRUtils::is_fixed_size_array(m_dims, n_dims) ) {
+                llvm::Value* const_1 = llvm::ConstantInt::get(context, llvm::APInt(32, 1));
+                llvm::Value* prod = const_1;
+                for( int r = 0; r < n_dims; r++ ) {
+                    llvm::Value* dim_size = llvm_dims[r].second;
+                    prod = builder->CreateMul(prod, dim_size);
+                }
+                llvm::Value* arr_first = builder->CreateAlloca(llvm_data_type, prod);
+                builder->CreateStore(arr_first, arr);
             }
-            llvm::Value* arr_first = builder->CreateAlloca(llvm_data_type, prod);
-            builder->CreateStore(arr_first, arr);
         } else {
             arr_descr->fill_array_details(arr, llvm_data_type, n_dims, llvm_dims);
         }
@@ -730,13 +731,10 @@ public:
                 dertype2parent[der_type_name] = std::string(par_der_type->m_name);
                 member_idx += 1;
             }
-            const std::map<std::string, ASR::symbol_t*>& scope = der_type->m_symtab->get_scope();
-            for( auto itr = scope.begin(); itr != scope.end(); itr++ ) {
-                if( ASR::is_a<ASR::UnionType_t>(*itr->second) ||
-                    ASR::is_a<ASR::StructType_t>(*itr->second) ) {
-                    continue ;
-                }
-                ASR::Variable_t* member = ASR::down_cast<ASR::Variable_t>(itr->second);
+
+            for( size_t i = 0; i < der_type->n_members; i++ ) {
+                std::string member_name = der_type->m_members[i];
+                ASR::Variable_t* member = ASR::down_cast<ASR::Variable_t>(der_type->m_symtab->get_symbol(member_name));
                 llvm::Type* llvm_mem_type = get_type_from_ttype_t_util(member->m_type, member->m_abi);
                 member_types.push_back(llvm_mem_type);
                 name2memidx[der_type_name][std::string(member->m_name)] = member_idx;
@@ -1793,13 +1791,14 @@ public:
                 ptr_loads = ptr_loads_copy;
                 indices.push_back(tmp);
             }
-            bool is_data_only_array = ASRUtils::expr_abi(x.m_v) == ASR::abiType::BindC;
+            bool is_bindc_array = ASRUtils::expr_abi(x.m_v) == ASR::abiType::BindC;
             if (ASR::is_a<ASR::Pointer_t>(*x_mv_type) ||
-               (is_data_only_array && ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v))) {
+               ((is_bindc_array && !ASRUtils::is_fixed_size_array(m_dims, n_dims)) &&
+                ASR::is_a<ASR::StructInstanceMember_t>(*x.m_v))) {
                 array = CreateLoad(array);
             }
             bool is_data_only = is_argument && !ASRUtils::is_dimension_empty(m_dims, n_dims);
-            is_data_only = is_data_only || is_data_only_array;
+            is_data_only = is_data_only || is_bindc_array;
             Vec<llvm::Value*> llvm_diminfo;
             llvm_diminfo.reserve(al, 2 * x.n_args + 1);
             if( is_data_only ) {
@@ -1814,7 +1813,9 @@ public:
             }
             LFORTRAN_ASSERT(ASRUtils::extract_n_dims_from_ttype(x_mv_type) > 0);
             tmp = arr_descr->get_single_element(array, indices, x.n_args,
-                                                is_data_only, llvm_diminfo.p);
+                                                is_data_only,
+                                                ASRUtils::is_fixed_size_array(m_dims, n_dims) && is_bindc_array,
+                                                llvm_diminfo.p);
         }
     }
 
@@ -2415,7 +2416,12 @@ public:
                 a_kind = v_type->m_kind;
                 if( n_dims > 0 ) {
                     if( m_abi == ASR::abiType::BindC ) {
-                        llvm_type = get_el_type(asr_type)->getPointerTo();
+                        if( ASRUtils::is_fixed_size_array(v_type->m_dims, v_type->n_dims) ) {
+                            llvm_type = llvm::ArrayType::get(get_el_type(asr_type), ASRUtils::get_fixed_size_of_array(
+                                                                                    v_type->m_dims, v_type->n_dims));
+                        } else {
+                            llvm_type = get_el_type(asr_type)->getPointerTo();
+                        }
                     } else {
                         is_array_type = true;
                         llvm::Type* el_type = get_el_type(asr_type);
@@ -2438,7 +2444,12 @@ public:
                 a_kind = v_type->m_kind;
                 if( n_dims > 0 ) {
                     if( m_abi == ASR::abiType::BindC ) {
-                        llvm_type = get_el_type(asr_type)->getPointerTo();
+                        if( ASRUtils::is_fixed_size_array(v_type->m_dims, v_type->n_dims) ) {
+                            llvm_type = llvm::ArrayType::get(get_el_type(asr_type), ASRUtils::get_fixed_size_of_array(
+                                                                                    v_type->m_dims, v_type->n_dims));
+                        } else {
+                            llvm_type = get_el_type(asr_type)->getPointerTo();
+                        }
                     } else {
                         is_array_type = true;
                         llvm::Type* el_type = get_el_type(asr_type);
@@ -2461,7 +2472,12 @@ public:
                 a_kind = v_type->m_kind;
                 if( n_dims > 0 ) {
                     if( m_abi == ASR::abiType::BindC ) {
-                        llvm_type = get_el_type(asr_type)->getPointerTo();
+                        if( ASRUtils::is_fixed_size_array(v_type->m_dims, v_type->n_dims) ) {
+                            llvm_type = llvm::ArrayType::get(get_el_type(asr_type), ASRUtils::get_fixed_size_of_array(
+                                                                                    v_type->m_dims, v_type->n_dims));
+                        } else {
+                            llvm_type = get_el_type(asr_type)->getPointerTo();
+                        }
                     } else {
                         is_array_type = true;
                         llvm::Type* el_type = get_el_type(asr_type);
@@ -6024,8 +6040,21 @@ public:
                     if( ASR::is_a<ASR::ArrayItem_t>(*x.m_args[i].m_value) ||
                         ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value) ||
                         (ASR::is_a<ASR::CPtr_t>(*arg_type) &&
-                            ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value)) ) {
-                        tmp = LLVM::CreateLoad(*builder, tmp);
+                         ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value)) ) {
+                        if( ASR::is_a<ASR::StructInstanceMember_t>(*x.m_args[i].m_value) &&
+                            ASRUtils::is_array(arg_type) ) {
+                            ASR::dimension_t* arg_m_dims = nullptr;
+                            size_t n_dims = ASRUtils::extract_dimensions_from_ttype(arg_type, arg_m_dims);
+                            if( !(ASRUtils::is_fixed_size_array(arg_m_dims, n_dims) &&
+                                  ASRUtils::expr_abi(x.m_args[i].m_value) == ASR::abiType::BindC) ) {
+                                tmp = LLVM::CreateLoad(*builder, arr_descr->get_pointer_to_data(tmp));
+                            } else {
+                                tmp = llvm_utils->create_gep(tmp, llvm::ConstantInt::get(
+                                        llvm::Type::getInt32Ty(context), llvm::APInt(32, 0)));
+                            }
+                        } else {
+                            tmp = LLVM::CreateLoad(*builder, tmp);
+                        }
                     }
                 }
                 llvm::Value *value = tmp;
