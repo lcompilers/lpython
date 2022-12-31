@@ -45,7 +45,10 @@ declare void @_lcompilers_print_error(i8*, ...)
 
 declare void @exit(i32)
 
-define i32 @main() {
+define i32 @main(i32 %0, i8** %1) {
 .entry:
+  call void @_lpython_set_argv(i32 %0, i8** %1)
   ret i32 0
 }
+
+declare void @_lpython_set_argv(i32, i8**)

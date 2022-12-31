@@ -27,6 +27,8 @@ void _lpython_main_program();
 void test_for();
 namespace {
 }
+int32_t _lpython_get_argc();
+std::string _lpython_get_argv(int32_t index);
 void _xx_lcompilers_changed_exit_xx(int32_t error_code);
 
 // Implementations
@@ -51,6 +53,10 @@ void test_for()
     }
     _xx_lcompilers_changed_exit_xx(2);
 }
+
+int32_t _lpython_get_argc();
+
+std::string _lpython_get_argv(int32_t index);
 
 void _xx_lcompilers_changed_exit_xx(int32_t error_code)
 {
