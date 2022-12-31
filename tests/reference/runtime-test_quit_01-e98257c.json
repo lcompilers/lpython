@@ -9,5 +9,5 @@
     "stdout_hash": null,
     "stderr": "runtime-test_quit_01-e98257c.stderr",
     "stderr_hash": "9c63ade47f347b4c61353d2af6e780092daa84d287747e19ac89fdf9",
-    "returncode": 1
+    "returncode": 10
 }
