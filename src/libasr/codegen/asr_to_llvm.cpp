@@ -2322,8 +2322,12 @@ public:
         visit_procedures(x);
 
         // Generate code for the main program
+        std::vector<llvm::Type*> command_line_args = {
+            llvm::Type::getInt32Ty(context),
+            character_type->getPointerTo()
+        };
         llvm::FunctionType *function_type = llvm::FunctionType::get(
-                llvm::Type::getInt32Ty(context), {}, false);
+                llvm::Type::getInt32Ty(context), command_line_args, false);
         llvm::Function *F = llvm::Function::Create(function_type,
                 llvm::Function::ExternalLinkage, "main", module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context,
@@ -2334,6 +2338,28 @@ public:
             F->setSubprogram(SP);
         }
         builder->SetInsertPoint(BB);
+
+        // Call the `_lpython_set_argv` function to assign command line argument
+        // values to `argc` and `argv`.
+        {
+            if (compiler_options.emit_debug_info) debug_emit_loc(x);
+            llvm::Function *fn = module->getFunction("_lpython_set_argv");
+            if(!fn) {
+                llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    llvm::Type::getVoidTy(context), {
+                        llvm::Type::getInt32Ty(context),
+                        character_type->getPointerTo()
+                    }, false);
+                fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, "_lpython_set_argv", *module);
+            }
+            std::vector<llvm::Value *> args;
+            for (llvm::Argument &llvm_arg : F->args()) {
+                args.push_back(&llvm_arg);
+            }
+            builder->CreateCall(fn, args);
+        }
+
         declare_vars(x);
         for (size_t i=0; i<x.n_body; i++) {
             this->visit_stmt(*x.m_body[i]);

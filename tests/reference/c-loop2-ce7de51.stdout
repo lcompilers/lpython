@@ -36,6 +36,10 @@ struct dimension_descriptor
 };
 
 // Implementations
+int32_t _lpython_get_argc();
+
+char* _lpython_get_argv(int32_t index);
+
 void _xx_lcompilers_changed_exit_xx(int32_t error_code)
 {
     exit(error_code);

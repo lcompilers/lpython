@@ -209,6 +209,9 @@ LFORTRAN_API void _lfortran_dp_rand_num(double *x);
 LFORTRAN_API int64_t _lpython_open(char *path, char *flags);
 LFORTRAN_API char* _lpython_read(int64_t fd, int64_t n);
 LFORTRAN_API void _lpython_close(int64_t fd);
+LFORTRAN_API void _lpython_set_argv(int32_t argc_1, char *argv_1[]);
+LFORTRAN_API int32_t _lpython_get_argc();
+LFORTRAN_API char *_lpython_get_argv(int32_t index);
 
 #ifdef __cplusplus
 }
