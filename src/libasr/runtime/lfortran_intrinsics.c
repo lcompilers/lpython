@@ -1177,3 +1177,11 @@ LFORTRAN_API void _lpython_set_argv(int32_t argc_1, char *argv_1[]) {
     }
     argc = argc_1;
 }
+
+LFORTRAN_API int32_t _lpython_get_argc() {
+    return argc;
+}
+
+LFORTRAN_API char *_lpython_get_argv(int32_t index) {
+    return argv[index];
+}
