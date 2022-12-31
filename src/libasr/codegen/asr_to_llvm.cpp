@@ -2341,6 +2341,7 @@ public:
         // Call the `_lpython_set_argv` function to assign command line argument
         // values to `argc` and `argv`.
         {
+            if (compiler_options.emit_debug_info) debug_emit_loc(x);
             llvm::Function *fn = module->getFunction("_lpython_set_argv");
             if(!fn) {
                 llvm::FunctionType *function_type = llvm::FunctionType::get(
