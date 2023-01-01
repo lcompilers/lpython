@@ -350,6 +350,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         X86Reg label_reg = X86Reg::eax;
         m_a.asm_fld_m32(&label_reg, nullptr, 1, 0); // loads into floating register stack
         X86Reg stack_top = X86Reg::esp;
+        m_a.asm_push_imm32(0); // decrement stack and create space
         m_a.asm_fstp_m32(&stack_top, nullptr, 1, 0); // store float on integer stack top;
     }
 
