@@ -1119,21 +1119,24 @@ public:
     void asm_fld_m32(X86Reg *base, X86Reg *index,
                 uint8_t scale, int32_t disp) {
         m_code.push_back(m_al, 0xd9);
-        m_code.push_back(m_al, ModRM_byte(0b00, 0, *base));
+        modrm_sib_disp(m_code, m_al,
+            X86Reg::eax, base, index, scale, disp, true);
         EMIT("fld dword " + m2s(base, index, scale, disp));
     }
 
     void asm_fst_m32(X86Reg *base, X86Reg *index,
                 uint8_t scale, int32_t disp) {
         m_code.push_back(m_al, 0xd9);
-        m_code.push_back(m_al, ModRM_byte(0b00, 2, *base));
+        modrm_sib_disp(m_code, m_al,
+            X86Reg::edx, base, index, scale, disp, true);
         EMIT("fst dword " + m2s(base, index, scale, disp));
     }
 
     void asm_fstp_m32(X86Reg *base, X86Reg *index,
                 uint8_t scale, int32_t disp) {
         m_code.push_back(m_al, 0xd9);
-        m_code.push_back(m_al, ModRM_byte(0b00, 3, *base));
+        modrm_sib_disp(m_code, m_al,
+            X86Reg::ebx, base, index, scale, disp, true);
         EMIT("fstp dword " + m2s(base, index, scale, disp));
     }
 
