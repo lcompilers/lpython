@@ -1166,6 +1166,7 @@ void emit_float_const(X86Assembler &a, const std::string &label,
 void emit_print(X86Assembler &a, const std::string &msg_label,
     uint32_t size);
 void emit_print_int(X86Assembler &a, const std::string &name);
+void emit_print_float(X86Assembler &a, const std::string &name);
 
 // Generate an ELF 64 bit header and footer
 // With these two functions, one only has to generate a `_start` assembly
