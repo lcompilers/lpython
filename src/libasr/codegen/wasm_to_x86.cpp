@@ -343,7 +343,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
 
     void visit_F64Const(double Z) {
         float z = Z; // down cast 64-bit double to 32-bit float
-        std::string label = "float-" + std::to_string(z);
+        std::string label = "float_" + std::to_string(z);
         float_consts[label] = z;
         m_a.asm_mov_r32_label(X86Reg::eax, label);
         X86Reg label_reg = X86Reg::eax;
