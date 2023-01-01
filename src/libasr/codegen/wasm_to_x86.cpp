@@ -68,7 +68,8 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
                 break;
             }
             case 3: {  // print_f64
-                std::cerr << "Call to print_f64() is not yet supported";
+                m_a.asm_call_label("print_f64");
+                m_a.asm_add_r32_imm32(X86Reg::esp, 4);  // increment stack top and thus pop the value passed as argument
                 break;
             }
             case 4: {  // print_str
@@ -357,6 +358,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
 
         // Add runtime library functions
         emit_print_int(m_a, "print_i32");
+        emit_print_float(m_a, "print_f64");
         emit_exit2(m_a, "my_exit");
 
         // declare compile-time strings
