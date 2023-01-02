@@ -102,6 +102,33 @@ static std::string r2s(X64Reg r64) {
         default : throw AssemblerError("Unknown instruction");
     }
 }
+// Not sure if this numbering is correct. Numbering info
+// about these registers does not seem easily available.
+enum X86FloatReg : uint8_t {
+    st0 = 0,
+    st1 = 1,
+    st2 = 2,
+    st3 = 3,
+    st4 = 4,
+    st5 = 5,
+    st6 = 6,
+    st7 = 7,
+};
+
+
+static std::string r2s(X86FloatReg st) {
+    switch (st) {
+        case (X86FloatReg::st0) : return "st0";
+        case (X86FloatReg::st1) : return "st1";
+        case (X86FloatReg::st2) : return "st2";
+        case (X86FloatReg::st3) : return "st3";
+        case (X86FloatReg::st4) : return "st4";
+        case (X86FloatReg::st5) : return "st5";
+        case (X86FloatReg::st6) : return "st6";
+        case (X86FloatReg::st7) : return "st7";
+        default : throw AssemblerError("Unknown instruction");
+    }
+}
 
 static std::string r2s(X86Reg r32) {
     switch (r32) {
@@ -1103,6 +1130,71 @@ public:
         EMIT("syscall");
     }
 
+    void asm_fld_m32(X86Reg *base, X86Reg *index,
+                uint8_t scale, int32_t disp) {
+        m_code.push_back(m_al, 0xd9);
+        modrm_sib_disp(m_code, m_al,
+            X86Reg::eax, base, index, scale, disp, true);
+        EMIT("fld dword " + m2s(base, index, scale, disp));
+    }
+
+    void asm_fst_m32(X86Reg *base, X86Reg *index,
+                uint8_t scale, int32_t disp) {
+        m_code.push_back(m_al, 0xd9);
+        modrm_sib_disp(m_code, m_al,
+            X86Reg::edx, base, index, scale, disp, true);
+        EMIT("fst dword " + m2s(base, index, scale, disp));
+    }
+
+    void asm_fstp_m32(X86Reg *base, X86Reg *index,
+                uint8_t scale, int32_t disp) {
+        m_code.push_back(m_al, 0xd9);
+        modrm_sib_disp(m_code, m_al,
+            X86Reg::ebx, base, index, scale, disp, true);
+        EMIT("fstp dword " + m2s(base, index, scale, disp));
+    }
+
+    void asm_fist_m32(X86Reg *base, X86Reg *index,
+                uint8_t scale, int32_t disp) {
+        m_code.push_back(m_al, 0xdb);
+        modrm_sib_disp(m_code, m_al,
+            X86Reg::edx, base, index, scale, disp, true);
+        EMIT("fist dword " + m2s(base, index, scale, disp));
+    }
+
+    void asm_fistp_m32(X86Reg *base, X86Reg *index,
+                uint8_t scale, int32_t disp) {
+        m_code.push_back(m_al, 0xdb);
+        modrm_sib_disp(m_code, m_al,
+            X86Reg::ebx, base, index, scale, disp, true);
+        EMIT("fistp dword " + m2s(base, index, scale, disp));
+    }
+
+    void asm_frndint() {
+        m_code.push_back(m_al, 0xd9);
+        m_code.push_back(m_al, 0xfc);
+        EMIT("frndint");
+    }
+
+    void asm_fsub(X86FloatReg st) {
+        m_code.push_back(m_al, 0xd8);
+        m_code.push_back(m_al, 0xe0 + st);
+        EMIT("fsub " + r2s(X86FloatReg::st0) + ", " + r2s(st));
+    }
+
+    void asm_fsubp() {
+        m_code.push_back(m_al, 0xde);
+        m_code.push_back(m_al, 0xe9);
+        EMIT("fsubp");
+    }
+
+    void asm_fimul_m32int(X86Reg *base, X86Reg *index,
+                uint8_t scale, int32_t disp) {
+        m_code.push_back(m_al, 0xda);
+        modrm_sib_disp(m_code, m_al,
+            X86Reg::ecx, base, index, scale, disp, true);
+        EMIT("fimul dword " + m2s(base, index, scale, disp));
+    }
 };
 
 
@@ -1124,9 +1216,12 @@ void emit_exit2(X86Assembler &a, const std::string &name);
 
 void emit_data_string(X86Assembler &a, const std::string &label,
     const std::string &s);
+void emit_float_const(X86Assembler &a, const std::string &label,
+    const float z);
 void emit_print(X86Assembler &a, const std::string &msg_label,
     uint32_t size);
 void emit_print_int(X86Assembler &a, const std::string &name);
+void emit_print_float(X86Assembler &a, const std::string &name);
 
 // Generate an ELF 64 bit header and footer
 // With these two functions, one only has to generate a `_start` assembly

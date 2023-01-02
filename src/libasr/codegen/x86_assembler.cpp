@@ -109,6 +109,14 @@ void emit_data_string(X86Assembler &a, const std::string &label,
     a.asm_db_imm8(s.c_str(), s.size());
 }
 
+void emit_float_const(X86Assembler &a, const std::string &label,
+    const float z) {
+    uint8_t encoded_float[sizeof(z)];
+    std::memcpy(&encoded_float, &z, sizeof(z));
+    a.add_label(label);
+    a.asm_db_imm8(encoded_float, sizeof(z));
+}
+
 void emit_print(X86Assembler &a, const std::string &msg_label,
     uint32_t size)
 {
@@ -201,6 +209,55 @@ void emit_print_int(X86Assembler &a, const std::string &name)
     emit_data_string(a, "string_neg", "-"); // - symbol for printing negative ints
 }
 
+void emit_print_float(X86Assembler &a, const std::string &name) {
+    // void print_float(float z);
+    a.add_label(name);
+
+    // Initialize stack
+    a.asm_push_r32(X86Reg::ebp);
+    a.asm_mov_r32_r32(X86Reg::ebp, X86Reg::esp);
+
+    X86Reg base = X86Reg::ebp;
+    a.asm_fld_m32(&base, nullptr, 1, 8); // load argument into floating register stack
+    a.asm_push_imm32(0); // decrement stack pointer and create space
+    X86Reg stack_top = X86Reg::esp;
+    a.asm_fistp_m32(&stack_top, nullptr, 1, 0);
+
+    // print the integral part
+    {
+        a.asm_call_label("print_i32");
+        a.asm_pop_r32(X86Reg::eax); // increament the stack pointer and thus remove space
+    }
+
+    // print dot
+    emit_print(a, "string_dot", 1U);
+
+    // print fractional part
+    {
+        a.asm_fld_m32(&base, nullptr, 1, 8); // load argument into floating register stack
+        a.asm_fld_m32(&base, nullptr, 1, 8); // load another copy of argument into floating register stack
+        a.asm_frndint(); // round st(0) to integral part
+        a.asm_fsubp();
+
+        // st(0) now contains only the fractional part
+
+        a.asm_push_imm32(100000000);
+        a.asm_fimul_m32int(&stack_top, nullptr, 1, 0);
+        a.asm_fistp_m32(&stack_top, nullptr, 1, 0);
+        // print the fractional part
+        {
+            a.asm_call_label("print_i32");
+            a.asm_pop_r32(X86Reg::eax); // increament the stack pointer and thus remove space
+        }
+    }
+
+    // Restore stack
+    a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
+    a.asm_pop_r32(X86Reg::ebp);
+    a.asm_ret();
+
+    emit_data_string(a, "string_dot", "."); // - symbol for printing floats
+}
 
 /************************* 64-bit functions **************************/
 
