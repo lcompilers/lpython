@@ -34,6 +34,8 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     uint32_t cur_func_idx;
     int32_t last_vis_i32_const, last_last_vis_i32_const;
     std::map<std::string, std::string> label_to_str;
+    std::vector<std::string> if_unique_id;
+
 
     X64Visitor(X86Assembler &m_a, Allocator &al,
                diag::Diagnostics &diagonostics, Vec<uint8_t> &code)
@@ -46,6 +48,8 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void visit_Return() {}
 
     void visit_Unreachable() {}
+
+    void visit_EmtpyBlockType() {}
 
     void call_imported_function(uint32_t func_idx) {
         switch (func_idx) {
@@ -120,6 +124,25 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             // push eax value onto stack
             m_a.asm_push_r64(X64Reg::rax);
         }
+    }
+
+    void visit_If() {
+        if_unique_id.push_back(std::to_string(offset));
+        m_a.asm_pop_r64(X64Reg::rax); // now `rax` contains the logical value (true = 1, false = 0) of the if condition
+        m_a.asm_cmp_r64_imm8(X64Reg::rax, 1);
+        m_a.asm_je_label(".then_" + if_unique_id.back());
+        m_a.asm_jmp_label(".else_" + if_unique_id.back());
+        m_a.add_label(".then_" + if_unique_id.back());
+        {
+            decode_instructions();
+        }
+        m_a.add_label(".endif_" + if_unique_id.back());
+        if_unique_id.pop_back();
+    }
+
+    void visit_Else() {
+        m_a.asm_jmp_label(".endif_" + if_unique_id.back());
+        m_a.add_label(".else_" + if_unique_id.back());
     }
 
     void visit_LocalGet(uint32_t localidx) {
