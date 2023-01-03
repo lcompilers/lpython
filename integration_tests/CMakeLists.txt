@@ -82,11 +82,20 @@ macro(RUN)
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         elseif(KIND STREQUAL "c")
-            add_custom_command(
-                OUTPUT ${name}.c
-                COMMAND lpython --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
-                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
-                VERBATIM)
+            if (import_path)
+                add_custom_command(
+                    OUTPUT ${name}.c
+                    COMMAND lpython -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    VERBATIM)
+            else ()
+                add_custom_command(
+                    OUTPUT ${name}.c
+                    COMMAND lpython --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    VERBATIM)
+            endif()
+
             add_executable(${name} ${name}.c ${RUN_EXTRAFILES})
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             target_link_libraries(${name} lpython_rtlib)
