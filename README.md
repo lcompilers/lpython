@@ -6,7 +6,7 @@ pre-alpha stage. Some of the goals of LPython:
 * The best possible performance for numerical, array-oriented code
 * Run on all platforms
 * Compile a subset of Python yet be fully compatible with Python
-* Explore designs so that LPython eventually compile all Python code
+* Explore designs so that LPython eventually can compile all Python code
 * Fast compilation
 * Excellent user-friendly diagnostic messages: error, warnings, hints, notes,
   etc.
