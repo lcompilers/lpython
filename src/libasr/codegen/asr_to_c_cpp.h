@@ -180,6 +180,12 @@ R"(#include <stdio.h>
             if (ASR::is_a<ASR::Variable_t>(*var_sym)) {
                 ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var_sym);
                 std::string decl = self().convert_variable_decl(*v);
+                bool used_define_for_const = (ASR::is_a<ASR::Const_t>(*v->m_type) &&
+                        v->m_intent == ASRUtils::intent_local);
+                if (used_define_for_const) {
+                    contains += decl + "\n";
+                    continue;
+                }
                 if (v->m_value) {
                     self().visit_expr(*v->m_value);
                     decl += " = " + src;
