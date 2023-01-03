@@ -67,42 +67,41 @@ cd lpython
 - Create a Conda environment using the pre-existing file:
 
 ```bash
-  conda env create -f environment_unix.yml
-  conda activate lp
-  ```
+conda env create -f environment_unix.yml
+conda activate lp
+```
 
 - Generate prerequisite files; build in Debug Mode:
 
-  ```bash
-  ./build0.sh
-  ./build1.sh
-  ```
+```bash
+./build0.sh
+./build1.sh
+```
 
 ### Windows
 
 - Create a Conda environment using the pre-existing file:
 
-  ```bash
-  conda env create -f environment_win.yml
-  conda activate lp
-  ```
+```bash
+conda env create -f environment_win.yml
+conda activate lp
+```
 
 - Generate prerequisite files; build in Release Mode:
 
-  ```bash
-  call build0.bat
-  call build1.bat
-  ```
-
+```bash
+call build0.bat
+call build1.bat
+```
 
 - Tests and examples
 
-  ```bash
-  ctest
-  inst\bin\lpython examples\expr2.py
-  inst\bin\lpython examples\expr2.py -o a.out
-  a.out
-  ```
+```bash
+ctest
+inst\bin\lpython examples\expr2.py
+inst\bin\lpython examples\expr2.py -o a.out
+a.out
+```
 
 ## Tests (Linux or MacOs):
 
