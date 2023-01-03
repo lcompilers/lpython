@@ -202,6 +202,10 @@ filename = "../integration_tests/modules_02.py"
 asr = true
 
 [[test]]
+filename = "../integration_tests/test_import_02.py"
+c = true
+
+[[test]]
 filename = "../integration_tests/vec_01.py"
 asr = true
 pass = "loop_vectorise"
