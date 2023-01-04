@@ -236,6 +236,43 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         m_a.asm_push_r64(X64Reg::rax);
     }
 
+    void handle_I32Compare(const std::string &compare_op) {
+        std::string label = std::to_string(offset);
+        m_a.asm_pop_r64(X64Reg::rbx);
+        m_a.asm_pop_r64(X64Reg::rax);
+        // `rax` and `rbx` contain the left and right operands, respectively
+        m_a.asm_cmp_r64_r64(X64Reg::rax, X64Reg::rbx);
+        if (compare_op == "Eq") {
+            m_a.asm_je_label(".compare_1" + label);
+        } else if (compare_op == "Gt") {
+            m_a.asm_jg_label(".compare_1" + label);
+        } else if (compare_op == "GtE") {
+            m_a.asm_jge_label(".compare_1" + label);
+        } else if (compare_op == "Lt") {
+            m_a.asm_jl_label(".compare_1" + label);
+        } else if (compare_op == "LtE") {
+            m_a.asm_jle_label(".compare_1" + label);
+        } else if (compare_op == "NotEq") {
+            m_a.asm_jne_label(".compare_1" + label);
+        } else {
+            throw CodeGenError("Comparison operator not implemented");
+        }
+        // if the `compare` condition in `true`, jump to compare_1
+        // and assign `1` else assign `0`
+        m_a.asm_push_imm8(0);
+        m_a.asm_jmp_label(".compare.end_" + label);
+        m_a.add_label(".compare_1" + label);
+        m_a.asm_push_imm8(1);
+        m_a.add_label(".compare.end_" + label);
+    }
+
+    void visit_I32Eq() { handle_I32Compare("Eq"); }
+    void visit_I32GtS() { handle_I32Compare("Gt"); }
+    void visit_I32GeS() { handle_I32Compare("GtE"); }
+    void visit_I32LtS() { handle_I32Compare("Lt"); }
+    void visit_I32LeS() { handle_I32Compare("LtE"); }
+    void visit_I32Ne() { handle_I32Compare("NotEq"); }
+
     void gen_x64_bytes() {
         {   // Initialize/Modify values of entities
             exports.back().name = "_start"; // Update _lcompilers_main() to _start
