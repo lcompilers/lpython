@@ -1,1 +1,1 @@
-from .sin import sin, cos
+from .sin import sinx, cosx
