@@ -746,6 +746,37 @@ LFORTRAN_API int32_t _lpython_bit_length8(int64_t num)
     return res;
 }
 
+LFORTRAN_API char* _lcompilers_to_bytes(int32_t num, int32_t length)
+{
+    char  trmn = '\0';
+    int trmn_size = sizeof(trmn);
+    int byte_values[length];
+    for(int i=0; i<length; ++i) {
+        byte_values[i] = num & 255;
+        num >>= 8;
+    }
+    for(int i=0; i<length/2; ++i) {
+        byte_values[i] -= byte_values[length-i-1];
+        byte_values[length-i-1] += byte_values[i];
+        byte_values[i] = byte_values[length-i-1]-byte_values[i];
+    }
+    char* res = (char*)malloc(4*length+3+trmn_size);
+    int pos_in_res = 0;
+    res[pos_in_res++] = 'b';
+    res[pos_in_res++] = '\'';
+    for(int i=0; i<length; ++i) {
+        char hex_val[10];
+        if(byte_values[i] < 16) sprintf(hex_val, "\\x0%x", byte_values[i]);
+        else sprintf(hex_val, "\\x%x", byte_values[i]);
+        for(int j=0; j<4; ++j, ++pos_in_res) {
+            res[pos_in_res] = hex_val[j];
+        }
+    }
+    res[pos_in_res++] = '\'';
+    res[pos_in_res++] = trmn;
+    return res;
+}
+
 //repeat str for n time
 LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest)
 {

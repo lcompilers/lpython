@@ -1487,6 +1487,29 @@ public:
         tmp = builder->CreateCall(fn, {int_val});
     }
 
+    void visit_IntegerToBytes(const ASR::IntegerToBytes_t& x) {
+        if (x.m_value) {
+            this->visit_expr_wrapper(x.m_value, true);
+            return;
+        }
+        this->visit_expr(*x.m_a);
+        llvm::Value *int_val = tmp;
+        this->visit_expr(*x.m_length);
+        llvm::Value *int_length = tmp;
+        std::string runtime_func_name = "_lcompilers_to_bytes";
+        llvm::Function *fn = module->getFunction(runtime_func_name);
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                    character_type, {
+                        llvm::Type::getInt32Ty(context),
+                        llvm::Type::getInt32Ty(context)
+                    }, false);
+            fn = llvm::Function::Create(function_type,
+                    llvm::Function::ExternalLinkage, runtime_func_name, *module);
+        }
+        tmp = builder->CreateCall(fn, {int_val, int_length});
+    }
+
     void visit_ListAppend(const ASR::ListAppend_t& x) {
         ASR::List_t* asr_list = ASR::down_cast<ASR::List_t>(ASRUtils::expr_type(x.m_a));
         int64_t ptr_loads_copy = ptr_loads;
