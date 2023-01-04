@@ -132,6 +132,45 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         }
     }
 
+    void visit_Loop() {
+        std::string label = std::to_string(block_id);
+        blocks.push_back({block_id++, Block::LOOP});
+        /*
+        The loop statement starts with `loop.head`. The `loop.body` and
+        `loop.branch` are enclosed within the `if.block`. If the condition
+        fails, the loop is exited through `else.block`.
+        .head
+            .If
+                # Statements
+                .Br to loop head
+            .Else
+            .endIf
+        .end
+        */
+        m_a.add_label(".loop.head_" + label);
+        {
+            decode_instructions();
+        }
+        // end
+        m_a.add_label(".loop.end_" + label);
+        blocks.pop_back();
+    }
+
+    void visit_Br(uint32_t labelidx) {
+        // Branch is used to jump to the `loop.head` or `loop.end`.
+
+        uint32_t b_id;
+        Block block_type;
+        std::tie(b_id, block_type) = blocks[blocks.size() - 1 - labelidx];
+        std::string label = std::to_string(b_id);
+        switch (block_type) {
+            case Block::LOOP: m_a.asm_jmp_label(".loop.head_" + label); break;
+
+            // In wasm, branching to an if, takes control to the if's end
+            case Block::IF: m_a.asm_jmp_label(".else_" + label); break;
+        }
+    }
+
     void visit_If() {
         std::string label = std::to_string(block_id);
         blocks.push_back({block_id++, Block::IF});
