@@ -164,9 +164,13 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         std::tie(b_id, block_type) = blocks[blocks.size() - 1 - labelidx];
         std::string label = std::to_string(b_id);
         switch (block_type) {
+            /*
+            From WebAssembly Docs:
+                The exact effect of branch depends on that control construct.
+                In case of block or if it is a forward jump, resuming execution after the matching end.
+                In case of loop it is a backward jump to the beginning of the loop.
+            */
             case Block::LOOP: m_a.asm_jmp_label(".loop.head_" + label); break;
-
-            // In wasm, branching to an if, takes control to the if's end
             case Block::IF: m_a.asm_jmp_label(".else_" + label); break;
         }
     }
