@@ -26,6 +26,10 @@ the number of arguments we could pass to a function would get limited by
 the number of registers available with the CPU.
 
 */
+enum Block {
+    LOOP = 0,
+    IF = 1
+};
 
 class X64Visitor : public WASMDecoder<X64Visitor>,
                    public WASM_INSTS_VISITOR::BaseWASMVisitor<X64Visitor> {
@@ -34,7 +38,8 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     uint32_t cur_func_idx;
     int32_t last_vis_i32_const, last_last_vis_i32_const;
     std::map<std::string, std::string> label_to_str;
-    std::vector<std::string> if_unique_id;
+    uint32_t block_id;
+    std::vector<std::pair<uint32_t, Block>> blocks;
 
 
     X64Visitor(X86Assembler &m_a, Allocator &al,
@@ -43,6 +48,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
           BaseWASMVisitor(code, 0U /* temporary offset */),
           m_a(m_a) {
         wasm_bytes.from_pointer_n(code.data(), code.size());
+        block_id = 1;
     }
 
     void visit_Return() {}
@@ -127,22 +133,24 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     }
 
     void visit_If() {
-        if_unique_id.push_back(std::to_string(offset));
+        std::string label = std::to_string(block_id);
+        blocks.push_back({block_id++, Block::IF});
         m_a.asm_pop_r64(X64Reg::rax); // now `rax` contains the logical value (true = 1, false = 0) of the if condition
         m_a.asm_cmp_r64_imm8(X64Reg::rax, 1);
-        m_a.asm_je_label(".then_" + if_unique_id.back());
-        m_a.asm_jmp_label(".else_" + if_unique_id.back());
-        m_a.add_label(".then_" + if_unique_id.back());
+        m_a.asm_je_label(".then_" + label);
+        m_a.asm_jmp_label(".else_" + label);
+        m_a.add_label(".then_" + label);
         {
             decode_instructions();
         }
-        m_a.add_label(".endif_" + if_unique_id.back());
-        if_unique_id.pop_back();
+        m_a.add_label(".endif_" + label);
+        blocks.pop_back();
     }
 
     void visit_Else() {
-        m_a.asm_jmp_label(".endif_" + if_unique_id.back());
-        m_a.add_label(".else_" + if_unique_id.back());
+        std::string label = std::to_string(blocks.back().first);
+        m_a.asm_jmp_label(".endif_" + label);
+        m_a.add_label(".else_" + label);
     }
 
     void visit_LocalGet(uint32_t localidx) {
