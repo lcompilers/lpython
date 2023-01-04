@@ -82,11 +82,20 @@ macro(RUN)
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         elseif(KIND STREQUAL "c")
-            add_custom_command(
-                OUTPUT ${name}.c
-                COMMAND lpython --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
-                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
-                VERBATIM)
+            if (import_path)
+                add_custom_command(
+                    OUTPUT ${name}.c
+                    COMMAND lpython -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    VERBATIM)
+            else ()
+                add_custom_command(
+                    OUTPUT ${name}.c
+                    COMMAND lpython --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    VERBATIM)
+            endif()
+
             add_executable(${name} ${name}.c ${RUN_EXTRAFILES})
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             target_link_libraries(${name} lpython_rtlib)
@@ -270,10 +279,10 @@ RUN(NAME test_for_loop       LABELS cpython llvm c)
 RUN(NAME modules_01          LABELS cpython llvm c wasm wasm_x86)
 RUN(NAME modules_02          LABELS cpython llvm wasm wasm_x86)
 RUN(NAME test_import_01      LABELS cpython llvm c)
-RUN(NAME test_import_02      LABELS cpython llvm)
-RUN(NAME test_import_03      LABELS cpython llvm)
+RUN(NAME test_import_02      LABELS cpython llvm c)
+RUN(NAME test_import_03      LABELS cpython llvm c)
 RUN(NAME test_import_04      IMPORT_PATH ..
-        LABELS cpython llvm)
+        LABELS cpython llvm c)
 RUN(NAME test_math           LABELS cpython llvm)
 RUN(NAME test_numpy_01       LABELS cpython llvm c)
 RUN(NAME test_numpy_02       LABELS cpython llvm c)
