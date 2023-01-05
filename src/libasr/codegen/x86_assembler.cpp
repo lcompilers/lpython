@@ -396,4 +396,50 @@ void emit_print_int_64(X86Assembler &a, const std::string &name)
         a.asm_pop_r64(X64Reg::rbp);
         a.asm_ret();
 }
+
+void emit_print_double(X86Assembler &a, const std::string &name) {
+    // void print_double(double z);
+    a.add_label(name);
+
+    // Initialize stack
+    a.asm_push_r64(X64Reg::rbp);
+    a.asm_mov_r64_r64(X64Reg::rbp, X64Reg::rsp);
+
+    X64Reg base = X64Reg::rbp;
+    a.asm_movsd_r64_m64(X64FReg::xmm0, &base, nullptr, 1, 16); // load argument into floating-point register
+    a.asm_cvttsd2si_r64_r64(X64Reg::rax, X64FReg::xmm0);
+    a.asm_push_r64(X64Reg::rax);
+
+    // print the integral part
+    {
+        a.asm_call_label("print_i64");
+        a.asm_pop_r64(X64Reg::rax); // remove the passed argument to print_i64
+    }
+
+    // print dot
+    emit_print_64(a, "string_dot", 1U);
+
+    // print fractional part
+    {
+        a.asm_cvttsd2si_r64_r64(X64Reg::rax, X64FReg::xmm0); // rax now contains value int(xmm0)
+        a.asm_cvtsi2sd_r64_r64(X64FReg::xmm1, X64Reg::rax);
+        a.asm_subsd_r64_r64(X64FReg::xmm0, X64FReg::xmm1);
+        a.asm_mov_r64_imm64(X64Reg::rax, 100000000); // to multiply by 10^8
+        a.asm_cvtsi2sd_r64_r64(X64FReg::xmm1, X64Reg::rax);
+        a.asm_mulsd_r64_r64(X64FReg::xmm0, X64FReg::xmm1);
+        a.asm_cvttsd2si_r64_r64(X64Reg::rax, X64FReg::xmm0);
+        a.asm_push_r64(X64Reg::rax);
+
+        // print the fractional part
+        {
+            a.asm_call_label("print_i64");
+            a.asm_pop_r64(X64Reg::rax); // pop the passed argument
+        }
+    }
+
+    // Restore stack
+    a.asm_mov_r64_r64(X64Reg::rsp, X64Reg::rbp);
+    a.asm_pop_r64(X64Reg::rbp);
+    a.asm_ret();
+}
 } // namespace LFortran
