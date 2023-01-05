@@ -41,6 +41,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     uint32_t block_id;
     std::vector<std::pair<uint32_t, Block>> blocks;
 
+    bool decoding_data_segment;
 
     X64Visitor(X86Assembler &m_a, Allocator &al,
                diag::Diagnostics &diagonostics, Vec<uint8_t> &code)
@@ -49,6 +50,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
           m_a(m_a) {
         wasm_bytes.from_pointer_n(code.data(), code.size());
         block_id = 1;
+        decoding_data_segment = false;
     }
 
     void visit_Return() {}
@@ -253,9 +255,11 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     }
 
     void visit_I32Const(int32_t value) {
-        m_a.asm_mov_r64_imm64(X64Reg::rax, labs((int64_t)value));
-        if (value < 0) m_a.asm_neg_r64(X64Reg::rax);
-        m_a.asm_push_r64(X64Reg::rax);
+        if (!decoding_data_segment) {
+            m_a.asm_mov_r64_imm64(X64Reg::rax, labs((int64_t)value));
+            if (value < 0) m_a.asm_neg_r64(X64Reg::rax);
+            m_a.asm_push_r64(X64Reg::rax);
+        }
 
         // TODO: Following seems/is hackish. Fix/Improve it.
         last_last_vis_i32_const = last_vis_i32_const;
@@ -334,6 +338,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         emit_elf64_header(m_a);
         emit_print_int_64(m_a, "print_i64");
 
+        decoding_data_segment = true;
         // declare compile-time strings
         for (uint32_t i = 0; i < data_segments.size(); i++) {
             offset = data_segments[i].insts_start_index;
@@ -341,6 +346,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             std::string label = "string" + std::to_string(last_vis_i32_const);
             label_to_str[label] = data_segments[i].text;
         }
+        decoding_data_segment = false;
 
         for (uint32_t idx = 0; idx < type_indices.size(); idx++) {
             m_a.add_label(exports[idx].name);
