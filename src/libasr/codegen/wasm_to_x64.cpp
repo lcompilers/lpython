@@ -93,7 +93,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 break;
             }
             case 5: {  // flush_buf
-                emit_print_64(m_a, "string_newline", 2);
+                emit_print_64(m_a, "string_newline", 1);
                 break;
             }
             case 6: {  // set_exit_code
