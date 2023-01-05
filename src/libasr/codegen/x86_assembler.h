@@ -118,7 +118,7 @@ static std::string r2s(X64Reg r64) {
 }
 // Not sure if this numbering is correct. Numbering info
 // about these registers does not seem easily available.
-enum X86FloatReg : uint8_t {
+enum X86FReg : uint8_t {
     st0 = 0,
     st1 = 1,
     st2 = 2,
@@ -130,16 +130,16 @@ enum X86FloatReg : uint8_t {
 };
 
 
-static std::string r2s(X86FloatReg st) {
+static std::string r2s(X86FReg st) {
     switch (st) {
-        case (X86FloatReg::st0) : return "st0";
-        case (X86FloatReg::st1) : return "st1";
-        case (X86FloatReg::st2) : return "st2";
-        case (X86FloatReg::st3) : return "st3";
-        case (X86FloatReg::st4) : return "st4";
-        case (X86FloatReg::st5) : return "st5";
-        case (X86FloatReg::st6) : return "st6";
-        case (X86FloatReg::st7) : return "st7";
+        case (X86FReg::st0) : return "st0";
+        case (X86FReg::st1) : return "st1";
+        case (X86FReg::st2) : return "st2";
+        case (X86FReg::st3) : return "st3";
+        case (X86FReg::st4) : return "st4";
+        case (X86FReg::st5) : return "st5";
+        case (X86FReg::st6) : return "st6";
+        case (X86FReg::st7) : return "st7";
         default : throw AssemblerError("Unknown instruction");
     }
 }
@@ -1185,10 +1185,10 @@ public:
         EMIT("frndint");
     }
 
-    void asm_fsub(X86FloatReg st) {
+    void asm_fsub(X86FReg st) {
         m_code.push_back(m_al, 0xd8);
         m_code.push_back(m_al, 0xe0 + st);
-        EMIT("fsub " + r2s(X86FloatReg::st0) + ", " + r2s(st));
+        EMIT("fsub " + r2s(X86FReg::st0) + ", " + r2s(st));
     }
 
     void asm_fsubp() {
