@@ -1246,6 +1246,110 @@ public:
             X86Reg::ecx, base, index, scale, disp, true);
         EMIT("fimul dword " + m2s(base, index, scale, disp));
     }
+
+    // Move or Merge Scalar Double Precision Floating-Point Value
+    void asm_movsd_r64_m64(X64FReg r64, X64Reg *base, X64Reg *index,
+                uint8_t scale, int64_t disp) {
+        X86Reg r32 = X86Reg(r64 & 7);
+        X86Reg* base32 = nullptr, *index32 = nullptr;
+        if (base) {
+            base32 = new X86Reg;
+            *base32 = X86Reg(*base & 7);
+        }
+        if (index) {
+            index32 = new X86Reg;
+            *index32 = X86Reg(*index & 7);
+        }
+        m_code.push_back(m_al, 0xf2);
+        m_code.push_back(m_al, rex(1, r64 >> 3, (index32 ? (*index32 >> 3) : 0), (base32 ? (*base32 >> 3) : 0)));
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x10);
+        modrm_sib_disp(m_code, m_al,
+                    r32, base32, index32, scale, (int32_t)disp, true);
+        EMIT("movsd " + r2s(r64) + ", " + m2s(base, index, scale, disp));
+    }
+
+    // Move or Merge Scalar Double Precision Floating-Point Value
+    void asm_movsd_m64_r64(X64Reg *base, X64Reg *index,
+                uint8_t scale, int64_t disp, X64FReg r64) {
+        X86Reg r32 = X86Reg(r64 & 7);
+        X86Reg* base32 = nullptr, *index32 = nullptr;
+        if (base) {
+            base32 = new X86Reg;
+            *base32 = X86Reg(*base & 7);
+        }
+        if (index) {
+            index32 = new X86Reg;
+            *index32 = X86Reg(*index & 7);
+        }
+        m_code.push_back(m_al, 0xf2);
+        m_code.push_back(m_al, rex(1, r64 >> 3, (index32 ? (*index32 >> 3) : 0), (base32 ? (*base32 >> 3) : 0)));
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x11);
+        modrm_sib_disp(m_code, m_al,
+                    r32, base32, index32, scale, (int32_t)disp, true);
+        EMIT("movsd " + m2s(base, index, scale, disp) + ", " + r2s(r64));
+    }
+
+    // ADDSD—Add Scalar Double Precision Floating-Point Values
+    void asm_addsd_r64_r64(X64FReg r64, X64FReg s64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, 0xf2);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x58);
+        modrm_sib_disp(m_code, m_al,
+                r32, &s32, nullptr, 1, 0, false);
+        EMIT("addsd " + r2s(r64) + ", " + r2s(s64));
+    }
+
+    // Subtract Scalar Double Precision Floating-Point Value
+    void asm_subsd_r64_r64(X64FReg r64, X64FReg s64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, 0xf2);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x5c);
+        modrm_sib_disp(m_code, m_al,
+                r32, &s32, nullptr, 1, 0, false);
+        EMIT("subsd " + r2s(r64) + ", " + r2s(s64));
+    }
+
+    // Multiply Scalar Double Precision Floating-Point Value
+    void asm_mulsd_r64_r64(X64FReg r64, X64FReg s64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, 0xf2);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x59);
+        modrm_sib_disp(m_code, m_al,
+                r32, &s32, nullptr, 1, 0, false);
+        EMIT("addsd " + r2s(r64) + ", " + r2s(s64));
+    }
+
+    // Convert Doubleword Integer to Scalar Double Precision Floating-Point Value
+    void asm_cvtsi2sd_r64_r64(X64FReg r64, X64Reg s64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, 0xf2);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x2a);
+        modrm_sib_disp(m_code, m_al,
+                r32, &s32, nullptr, 1, 0, false);
+        EMIT("cvtsi2sd " + r2s(r64) + ", " + r2s(s64));
+    }
+
+    // Convert With Truncation Scalar Double Precision Floating-Point Value to Signed Integer
+    void asm_cvttsd2si_r64_r64(X64Reg r64, X64FReg s64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, 0xf2);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x2c);
+        modrm_sib_disp(m_code, m_al,
+                r32, &s32, nullptr, 1, 0, false);
+        EMIT("cvttsd2si " + r2s(r64) + ", " + r2s(s64));
+    }
 };
 
 
