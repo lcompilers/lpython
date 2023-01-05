@@ -144,6 +144,48 @@ static std::string r2s(X86FReg st) {
     }
 }
 
+enum X64FReg : uint8_t {
+    xmm0 = 0,
+    xmm1 = 1,
+    xmm2 = 2,
+    xmm3 = 3,
+    xmm4 = 4,
+    xmm5 = 5,
+    xmm6 = 6,
+    xmm7 = 7,
+    xmm8 = 8,
+    xmm9 = 9,
+    xmm10 = 10,
+    xmm11 = 11,
+    xmm12 = 12,
+    xmm13 = 13,
+    xmm14 = 14,
+    xmm15 = 15,
+};
+
+
+static std::string r2s(X64FReg xmm) {
+    switch (xmm) {
+        case (X64FReg::xmm0) : return "xmm0";
+        case (X64FReg::xmm1) : return "xmm1";
+        case (X64FReg::xmm2) : return "xmm2";
+        case (X64FReg::xmm3) : return "xmm3";
+        case (X64FReg::xmm4) : return "xmm4";
+        case (X64FReg::xmm5) : return "xmm5";
+        case (X64FReg::xmm6) : return "xmm6";
+        case (X64FReg::xmm7) : return "xmm7";
+        case (X64FReg::xmm8) : return "xmm8";
+        case (X64FReg::xmm9) : return "xmm9";
+        case (X64FReg::xmm10) : return "xmm10";
+        case (X64FReg::xmm11) : return "xmm11";
+        case (X64FReg::xmm12) : return "xmm12";
+        case (X64FReg::xmm13) : return "xmm13";
+        case (X64FReg::xmm14) : return "xmm14";
+        case (X64FReg::xmm15) : return "xmm15";
+        default : throw AssemblerError("Unknown instruction");
+    }
+}
+
 static std::string m2s(X64Reg *base, X64Reg *index, uint8_t scale, int64_t disp) {
     std::string r;
     r = "[";
