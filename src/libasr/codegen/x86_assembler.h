@@ -62,6 +62,20 @@ enum X86Reg : uint8_t {
     edi = 7,
 };
 
+static std::string r2s(X86Reg r32) {
+    switch (r32) {
+        case (X86Reg::eax) : return "eax";
+        case (X86Reg::ecx) : return "ecx";
+        case (X86Reg::edx) : return "edx";
+        case (X86Reg::ebx) : return "ebx";
+        case (X86Reg::esp) : return "esp";
+        case (X86Reg::ebp) : return "ebp";
+        case (X86Reg::esi) : return "esi";
+        case (X86Reg::edi) : return "edi";
+        default : throw AssemblerError("Unknown instruction");
+    }
+}
+
 enum X64Reg : uint8_t {
     rax =  0,
     rcx =  1,
@@ -126,20 +140,6 @@ static std::string r2s(X86FloatReg st) {
         case (X86FloatReg::st5) : return "st5";
         case (X86FloatReg::st6) : return "st6";
         case (X86FloatReg::st7) : return "st7";
-        default : throw AssemblerError("Unknown instruction");
-    }
-}
-
-static std::string r2s(X86Reg r32) {
-    switch (r32) {
-        case (X86Reg::eax) : return "eax";
-        case (X86Reg::ecx) : return "ecx";
-        case (X86Reg::edx) : return "edx";
-        case (X86Reg::ebx) : return "ebx";
-        case (X86Reg::esp) : return "esp";
-        case (X86Reg::ebp) : return "ebp";
-        case (X86Reg::esi) : return "esi";
-        case (X86Reg::edi) : return "edi";
         default : throw AssemblerError("Unknown instruction");
     }
 }
