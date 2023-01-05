@@ -40,6 +40,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     std::map<std::string, std::string> label_to_str;
     uint32_t block_id;
     std::vector<std::pair<uint32_t, Block>> blocks;
+    std::map<std::string, double> double_consts;
 
     bool decoding_data_segment;
 
@@ -75,7 +76,8 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 break;
             }
             case 3: {  // print_f64
-                std::cerr << "Call to print_f64() is not yet supported\n";
+                m_a.asm_call_label("print_f64");
+                m_a.asm_pop_r64(X64Reg::r15); // pop the passed argument
                 break;
             }
             case 4: {  // print_str
@@ -328,15 +330,29 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void visit_I32LeS() { handle_I32Compare("LtE"); }
     void visit_I32Ne() { handle_I32Compare("NotEq"); }
 
+    void visit_F64Const(double z) {
+        std::string label = "float_" + std::to_string(z);
+        // std::cerr << label << " " << z << std::endl;
+        double_consts[label] = z;
+        m_a.asm_mov_r64_label(X64Reg::rax, label);
+        X64Reg label_reg = X64Reg::rax;
+        m_a.asm_movsd_r64_m64(X64FReg::xmm0, &label_reg, nullptr, 1, 0); // load into floating-point register
+        m_a.asm_push_r64(X64Reg::rax); // decrement stack and create space
+        X64Reg stack_top = X64Reg::rsp;
+        m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0); // store float on integer stack top;
+    }
+
     void gen_x64_bytes() {
         {   // Initialize/Modify values of entities
             exports.back().name = "_start"; // Update _lcompilers_main() to _start
             label_to_str["string_newline"] = "\n";
             label_to_str["string_neg"] = "-"; // - symbol for printing negative ints
+            label_to_str["string_dot"] = "."; // . symbol for printing floats
         }
 
         emit_elf64_header(m_a);
         emit_print_int_64(m_a, "print_i64");
+        emit_print_double(m_a, "print_f64");
 
         decoding_data_segment = true;
         // declare compile-time strings
@@ -377,6 +393,10 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
 
         for (auto &s : label_to_str) {
             emit_data_string(m_a, s.first, s.second);
+        }
+
+        for (auto &d : double_consts) {
+            emit_double_const(m_a, d.first, d.second);
         }
 
         emit_elf64_footer(m_a);
