@@ -1,0 +1,13 @@
+{
+    "basename": "asr-loop_02-5741651",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/loop_02.py",
+    "infile_hash": "e88f2cac76a9de67c851a22a64cdae4553321d80ae64f5720a424a15",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-loop_02-5741651.stderr",
+    "stderr_hash": "a8262496250102a77a9e5718d40aaf1067fb21a18fb047885aa643ac",
+    "returncode": 2
+}

@@ -951,6 +951,14 @@ filename = "errors/enum_02.py"
 asr = true
 
 [[test]]
+filename = "errors/loop_01.py"
+asr = true
+
+[[test]]
+filename = "errors/loop_02.py"
+asr = true
+
+[[test]]
 filename = "errors/test_goto.py"
 asr = true
 

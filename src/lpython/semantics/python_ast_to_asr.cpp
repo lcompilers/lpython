@@ -4259,17 +4259,43 @@ public:
             a_kind, nullptr, 0));
         ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                                             al, loc, 1, a_type));
-        if (loop_start) {
-            head.m_start = loop_start;
-        } else {
-            head.m_start = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, 0, a_type));
+        if (!loop_start) {
+            loop_start = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, 0, a_type));
         }
-        if (inc) {
-            head.m_increment = inc;
-        } else {
-            head.m_increment = constant_one;
+        if (!inc) {
             inc = constant_one;
         }
+
+        if( !ASRUtils::check_equal_type(ASRUtils::expr_type(loop_start), ASRUtils::expr_type(loop_end)) ) {
+            std::string loop_start_strtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(loop_start));
+            std::string loop_end_strtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(loop_end));
+            diag.add(diag::Diagnostic(
+                "Type mismatch in loop start and loop end values, the types must be compatible",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch ('" + loop_start_strtype +
+                                "' and '" + loop_end_strtype + "')",
+                            {loop_start->base.loc, loop_end->base.loc})
+                })
+            );
+            throw SemanticAbort();
+        }
+
+        if( !ASRUtils::check_equal_type(ASRUtils::expr_type(loop_start), ASRUtils::expr_type(inc)) ) {
+            std::string loop_start_strtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(loop_start));
+            std::string inc_strtype = ASRUtils::type_to_str_python(ASRUtils::expr_type(inc));
+            diag.add(diag::Diagnostic(
+                "Type mismatch in loop start and increment values, the types must be compatible",
+                diag::Level::Error, diag::Stage::Semantic, {
+                    diag::Label("type mismatch ('" + loop_start_strtype +
+                                "' and '" + inc_strtype + "')",
+                            {loop_start->base.loc, inc->base.loc})
+                })
+            );
+            throw SemanticAbort();
+        }
+
+        head.m_start = loop_start;
+        head.m_increment = inc;
 
         if( !ASR::is_a<ASR::Integer_t>(*ASRUtils::expr_type(inc)) ) {
             throw SemanticError("For loop increment type should be Integer.", loc);
@@ -4292,6 +4318,7 @@ public:
         make_BinOp_helper(loop_end, constant_one,
                           offset_op, loc, false);
         head.m_end = ASRUtils::EXPR(tmp);
+
 
         return head;
     }

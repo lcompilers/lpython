@@ -1670,12 +1670,9 @@ R"(#include <stdio.h>
         if (!c) {
             increment = 1;
         } else {
-            if (c->type == ASR::exprType::IntegerConstant) {
-                increment = ASR::down_cast<ASR::IntegerConstant_t>(c)->m_n;
-            } else if (c->type == ASR::exprType::IntegerUnaryMinus) {
-                ASR::IntegerUnaryMinus_t *ium = ASR::down_cast<ASR::IntegerUnaryMinus_t>(c);
-                increment = - ASR::down_cast<ASR::IntegerConstant_t>(ium->m_arg)->m_n;
-            } else {
+            c = ASRUtils::expr_value(c);
+            bool is_c_constant = ASRUtils::extract_value(c, increment);
+            if( !is_c_constant ) {
                 throw CodeGenError("Do loop increment type not supported");
             }
         }
