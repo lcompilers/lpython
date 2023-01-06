@@ -948,7 +948,7 @@ R"(
 
     void visit_Print(const ASR::Print_t &x) {
         std::string indent(indentation_level*indentation_spaces, ' ');
-        std::string out = indent + "printf(\"";
+        std::string tmp_gen = indent + "printf(\"", out = "";
         std::vector<std::string> v;
         std::string separator;
         if (x.m_separator) {
@@ -963,7 +963,22 @@ R"(
                 src += "->data";
             }
             ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_values[i]);
-            out += c_ds_api->get_print_type(value_type, ASR::is_a<ASR::ArrayItem_t>(*x.m_values[i]));
+            if (value_type->type == ASR::ttypeType::List) {
+                tmp_gen += "\"";
+                if (!v.empty()) {
+                    for (auto &s: v) {
+                        tmp_gen += ", " + s;
+                    }
+                }
+                tmp_gen += ");\n";
+                out += tmp_gen;
+                tmp_gen = indent + "printf(\"";
+                v.clear();
+                std::string p_func = c_ds_api->get_print_func(value_type);
+                out += indent + p_func + "(" + src + ");\n";
+                continue;
+            }
+            tmp_gen += c_ds_api->get_print_type(value_type, ASR::is_a<ASR::ArrayItem_t>(*x.m_values[i]));
             v.push_back(src);
             if (value_type->type == ASR::ttypeType::Complex) {
                 v.pop_back();
@@ -971,23 +986,24 @@ R"(
                 v.push_back("cimag(" + src + ")");
             }
             if (i+1!=x.n_values) {
-                out += "\%s";
+                tmp_gen += "\%s";
                 v.push_back(separator);
             }
         }
         if (x.m_end) {
             this->visit_expr(*x.m_end);
-            out += "\%s\"";
+            tmp_gen += "\%s\"";
             v.push_back(src);
         } else {
-            out += "\\n\"";
+            tmp_gen += "\\n\"";
         }
         if (!v.empty()) {
-            for (auto s: v) {
-                out += ", " + s;
+            for (auto &s: v) {
+                tmp_gen += ", " + s;
             }
         }
-        out += ");\n";
+        tmp_gen += ");\n";
+        out += tmp_gen;
         src = out;
     }
 

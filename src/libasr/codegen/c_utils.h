@@ -661,11 +661,11 @@ class CCPPDSUtils {
                 tmp_gen += indent + signature + " {\n";
                 tmp_gen += indent + tab + "printf(\"[\");\n";
                 tmp_gen += indent + tab + "for (int i=0; i<a.current_end_point; i++) {\n";
-                tmp_gen += indent + tab + tab + ele_func + "(a.data[i]));\n";
-                tmp_gen += indent + tab + tab + "if (i+1!=a.current_end_point)";
+                tmp_gen += indent + tab + tab + ele_func + "(a.data[i]);\n";
+                tmp_gen += indent + tab + tab + "if (i+1!=a.current_end_point)\n";
                 tmp_gen += indent + tab + tab + tab + "printf(\", \");\n";
                 tmp_gen += indent + tab + "}\n";
-                tmp_gen += indent + tab + tab + "printf(\"]\\n\");\n";
+                tmp_gen += indent + tab + "printf(\"]\\n\");\n";
             } else {
                 std::string signature = "void " + p_func + "(" + element_type + " a)";
                 func_decls += indent + "inline " + signature + ";\n";
