@@ -74,7 +74,12 @@ std::vector<std::string> determine_function_definition_order(
             ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(itr.second);
             for( size_t i = 0; i < func->n_dependencies; i++ ) {
                 std::string dep = func->m_dependencies[i];
-                deps.push_back(dep);
+                // Check if the dependent variable is present in the symtab.
+                // This will help us to include only local dependencies, and we
+                // assume that dependencies in the parent symtab are already declared
+                // earlier.
+                if (symtab->get_symbol(dep) != nullptr)
+                    deps.push_back(dep);
             }
             func_dep_graph[itr.first] = deps;
         }
@@ -91,7 +96,12 @@ std::vector<std::string> determine_variable_declaration_order(
             ASR::Variable_t* var = ASR::down_cast<ASR::Variable_t>(itr.second);
             for( size_t i = 0; i < var->n_dependencies; i++ ) {
                 std::string dep = var->m_dependencies[i];
-                deps.push_back(dep);
+                // Check if the dependent variable is present in the symtab.
+                // This will help us to include only local dependencies, and we
+                // assume that dependencies in the parent symtab are already declared
+                // earlier.
+                if (symtab->get_symbol(dep) != nullptr)
+                    deps.push_back(dep);
             }
             var_dep_graph[itr.first] = deps;
         }
