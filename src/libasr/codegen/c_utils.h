@@ -651,10 +651,10 @@ class CCPPDSUtils {
             std::string p_func = global_scope->get_unique_name("print_" + type_code);
             printFuncs[type_code] = p_func;
             std::string tmp_gen = "";
+            std::string signature = "void " + p_func + "(" + element_type + " a)";
+            func_decls += indent + "inline " + signature + ";\n";
+            signature = indent + signature;
             if (ASR::is_a<ASR::List_t>(*t)) {
-                std::string signature = "void " + p_func + "(" + element_type + " a)";
-                func_decls += indent + "inline " + signature + ";\n";
-                signature = indent + signature;
                 ASR::ttype_t *tt = ASR::down_cast<ASR::List_t>(t)->m_type;
                 generate_print_funcs(tt);
                 std::string ele_func = printFuncs[ASRUtils::get_type_code(tt, true)];
@@ -668,9 +668,6 @@ class CCPPDSUtils {
                 tmp_gen += indent + tab + "printf(\"]\\n\");\n";
             } else if (ASR::is_a<ASR::Tuple_t>(*t)) {
                 ASR::Tuple_t *tt = ASR::down_cast<ASR::Tuple_t>(t);
-                std::string signature = "void " + p_func + "(" + element_type + " a)";
-                func_decls += indent + "inline " + signature + ";\n";
-                signature = indent + signature;
                 tmp_gen += indent + signature + " {\n";
                 tmp_gen += indent + tab + "printf(\"(\");\n";
                 for (size_t i=0; i<tt->n_type; i++) {
@@ -682,10 +679,11 @@ class CCPPDSUtils {
                         tmp_gen += indent + tab + "printf(\", \");\n";
                 }
                 tmp_gen += indent + tab + "printf(\")\\n\");\n";
+            } else if (ASR::is_a<ASR::Complex_t>(*t)) {
+                tmp_gen += indent + signature + " {\n";
+                std::string print_type = get_print_type(t, false);
+                tmp_gen += indent + tab + "printf(\"" + print_type + "\", creal(a), cimag(a));\n";
             } else {
-                std::string signature = "void " + p_func + "(" + element_type + " a)";
-                func_decls += indent + "inline " + signature + ";\n";
-                signature = indent + signature;
                 tmp_gen += indent + signature + " {\n";
                 std::string print_type = get_print_type(t, false);
                 tmp_gen += indent + tab + "printf(\"" + print_type + "\", a);\n";
