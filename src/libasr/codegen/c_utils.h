@@ -345,10 +345,11 @@ class CCPPDSUtils {
 
         SymbolTable* global_scope;
         bool is_c;
+        Platform platform;
 
     public:
 
-        CCPPDSUtils(bool is_c): is_c{is_c} {
+        CCPPDSUtils(bool is_c, Platform &platform): is_c{is_c}, platform{platform} {
             generated_code.clear();
             func_decls.clear();
         }
@@ -434,6 +435,64 @@ class CCPPDSUtils {
                 return get_tuple_type(tup_type);
             }
             LFORTRAN_ASSERT(false);
+        }
+
+        std::string get_print_type(ASR::ttype_t *t, bool deref_ptr) {
+            switch (t->type) {
+                case ASR::ttypeType::Integer: {
+                    ASR::Integer_t *i = (ASR::Integer_t*)t;
+                    switch (i->m_kind) {
+                        case 1: { return "%d"; }
+                        case 2: { return "%d"; }
+                        case 4: { return "%d"; }
+                        case 8: {
+                            if (platform == Platform::Linux) {
+                                return "%li";
+                            } else {
+                                return "%lli";
+                            }
+                        }
+                        default: { throw LCompilersException("Integer kind not supported"); }
+                    }
+                }
+                case ASR::ttypeType::Real: {
+                    ASR::Real_t *r = (ASR::Real_t*)t;
+                    switch (r->m_kind) {
+                        case 4: { return "%f"; }
+                        case 8: { return "%lf"; }
+                        default: { throw LCompilersException("Float kind not supported"); }
+                    }
+                }
+                case ASR::ttypeType::Logical: {
+                    return "%d";
+                }
+                case ASR::ttypeType::Character: {
+                    return "%s";
+                }
+                case ASR::ttypeType::CPtr: {
+                    return "%p";
+                }
+                case ASR::ttypeType::Complex: {
+                    return "(%f, %f)";
+                }
+                case ASR::ttypeType::Pointer: {
+                    if( !deref_ptr ) {
+                        return "%p";
+                    } else {
+                        ASR::Pointer_t* type_ptr = ASR::down_cast<ASR::Pointer_t>(t);
+                        return get_print_type(type_ptr->m_type, false);
+                    }
+                }
+                case ASR::ttypeType::Enum: {
+                    ASR::ttype_t* enum_underlying_type = ASRUtils::get_contained_type(t);
+                    return get_print_type(enum_underlying_type, deref_ptr);
+                }
+                case ASR::ttypeType::Const: {
+                    ASR::ttype_t* const_underlying_type = ASRUtils::get_contained_type(t);
+                    return get_print_type(const_underlying_type, deref_ptr);
+                }
+                default : throw LCompilersException("Not implemented");
+            }
         }
 
         std::string get_array_type(std::string type_name, std::string encoded_type_name,

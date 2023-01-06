@@ -916,64 +916,6 @@ R"(
         tmp_src.clear();
     }
 
-    std::string get_print_type(ASR::ttype_t *t, bool deref_ptr) {
-        switch (t->type) {
-            case ASR::ttypeType::Integer: {
-                ASR::Integer_t *i = (ASR::Integer_t*)t;
-                switch (i->m_kind) {
-                    case 1: { return "%d"; }
-                    case 2: { return "%d"; }
-                    case 4: { return "%d"; }
-                    case 8: {
-                        if (platform == Platform::Linux) {
-                            return "%li";
-                        } else {
-                            return "%lli";
-                        }
-                    }
-                    default: { throw LCompilersException("Integer kind not supported"); }
-                }
-            }
-            case ASR::ttypeType::Real: {
-                ASR::Real_t *r = (ASR::Real_t*)t;
-                switch (r->m_kind) {
-                    case 4: { return "%f"; }
-                    case 8: { return "%lf"; }
-                    default: { throw LCompilersException("Float kind not supported"); }
-                }
-            }
-            case ASR::ttypeType::Logical: {
-                return "%d";
-            }
-            case ASR::ttypeType::Character: {
-                return "%s";
-            }
-            case ASR::ttypeType::CPtr: {
-                return "%p";
-            }
-            case ASR::ttypeType::Complex: {
-                return "(%f, %f)";
-            }
-            case ASR::ttypeType::Pointer: {
-                if( !deref_ptr ) {
-                    return "%p";
-                } else {
-                    ASR::Pointer_t* type_ptr = ASR::down_cast<ASR::Pointer_t>(t);
-                    return get_print_type(type_ptr->m_type, false);
-                }
-            }
-            case ASR::ttypeType::Enum: {
-                ASR::ttype_t* enum_underlying_type = ASRUtils::get_contained_type(t);
-                return get_print_type(enum_underlying_type, deref_ptr);
-            }
-            case ASR::ttypeType::Const: {
-                ASR::ttype_t* const_underlying_type = ASRUtils::get_contained_type(t);
-                return get_print_type(const_underlying_type, deref_ptr);
-            }
-            default : throw LCompilersException("Not implemented");
-        }
-    }
-
     void visit_CPtrToPointer(const ASR::CPtrToPointer_t& x) {
         visit_expr(*x.m_cptr);
         std::string source_src = std::move(src);
@@ -1021,7 +963,7 @@ R"(
                 src += "->data";
             }
             ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_values[i]);
-            out += get_print_type(value_type, ASR::is_a<ASR::ArrayItem_t>(*x.m_values[i]));
+            out += c_ds_api->get_print_type(value_type, ASR::is_a<ASR::ArrayItem_t>(*x.m_values[i]));
             v.push_back(src);
             if (value_type->type == ASR::ttypeType::Complex) {
                 v.pop_back();
