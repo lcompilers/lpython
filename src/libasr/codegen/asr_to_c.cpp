@@ -963,7 +963,8 @@ R"(
                 src += "->data";
             }
             ASR::ttype_t* value_type = ASRUtils::expr_type(x.m_values[i]);
-            if (value_type->type == ASR::ttypeType::List) {
+            if (value_type->type == ASR::ttypeType::List ||
+                value_type->type == ASR::ttypeType::Tuple) {
                 tmp_gen += "\"";
                 if (!v.empty()) {
                     for (auto &s: v) {
