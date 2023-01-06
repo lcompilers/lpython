@@ -8,13 +8,13 @@ namespace LFortran {
 
 namespace wasm {
 
-class WATGenerator : public WASMDecoder<WATGenerator>,
-                     public WASM_INSTS_VISITOR::BaseWASMVisitor<WATGenerator> {
+class WATVisitor : public WASMDecoder<WATVisitor>,
+                     public WASM_INSTS_VISITOR::BaseWASMVisitor<WATVisitor> {
 
     std::string src, indent;
 
    public:
-    WATGenerator(Allocator &al, diag::Diagnostics &diagonostics, Vec<uint8_t> &code)
+    WATVisitor(Allocator &al, diag::Diagnostics &diagonostics, Vec<uint8_t> &code)
         : WASMDecoder(al, diagonostics), BaseWASMVisitor(code, 0U /* temporary offset */),
          src(""), indent("") {
             // We are currently maintaining the two copies of code
@@ -286,7 +286,7 @@ class WATGenerator : public WASMDecoder<WATGenerator>,
                " align=" + std::to_string(1U << mem_align);
     }
 
-    std::string get_wat() {
+    std::string gen_wat() {
         std::string result = "(module";
         std::string indent = "\n    ";
         for (uint32_t i = 0U; i < func_types.size(); i++) {
@@ -388,7 +388,7 @@ class WATGenerator : public WASMDecoder<WATGenerator>,
 
 Result<std::string> wasm_to_wat(Vec<uint8_t> &wasm_bytes, Allocator &al,
                                 diag::Diagnostics &diagnostics) {
-    wasm::WATGenerator wasm_generator(al, diagnostics, wasm_bytes);
+    wasm::WATVisitor wasm_generator(al, diagnostics, wasm_bytes);
     std::string wat;
 
     try {
@@ -398,7 +398,7 @@ Result<std::string> wasm_to_wat(Vec<uint8_t> &wasm_bytes, Allocator &al,
         return Error();
     }
 
-    wat = wasm_generator.get_wat();
+    wat = wasm_generator.gen_wat();
 
     return wat;
 }
