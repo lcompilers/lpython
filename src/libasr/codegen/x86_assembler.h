@@ -1324,7 +1324,7 @@ public:
         m_code.push_back(m_al, 0x59);
         modrm_sib_disp(m_code, m_al,
                 r32, &s32, nullptr, 1, 0, false);
-        EMIT("addsd " + r2s(r64) + ", " + r2s(s64));
+        EMIT("mulsd " + r2s(r64) + ", " + r2s(s64));
     }
 
     // Convert Doubleword Integer to Scalar Double Precision Floating-Point Value
