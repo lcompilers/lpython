@@ -1,4 +1,4 @@
-from ltypes import f64, i32
+from ltypes import f64, i32, c64
 
 
 def test_print_list():
@@ -14,8 +14,10 @@ def test_print_list():
     x: tuple[i32, str, i32] = (12, 'lpython', 32)
     y: tuple[i32, str, str, i32] = (1, 'test', 'tuple', 3)
     z: tuple[f64, f64, i32, bool] = (4.3, 6.45, 8, True)
+    t: tuple[i32, f64, str, c64]
+    t = (500, 240.02, 'complex-test', complex(42.0, 1.0))
 
-    print(x, y, z)
+    print(x, y, z, t)
 
 
 test_print_list()
