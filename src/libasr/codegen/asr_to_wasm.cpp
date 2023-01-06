@@ -1733,9 +1733,9 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                         wasm::emit_i32_eqz(m_code_section, m_al);
                         wasm::emit_i32_eqz(m_code_section, m_al);
                     } else if (arg_kind == 8 && dest_kind == 4) {
-                        wasm::emit_i32_eqz(m_code_section, m_al);
-                        wasm::emit_i32_eqz(m_code_section, m_al);
-                        wasm::emit_i64_extend_i32_s(m_code_section, m_al);
+                        wasm::emit_i64_eqz(m_code_section, m_al);
+                        wasm::emit_i64_eqz(m_code_section, m_al);
+                        wasm::emit_i32_wrap_i64(m_code_section, m_al);
                     } else {
                         std::string msg = "Conversion from kinds " +
                                           std::to_string(arg_kind) + " to " +
