@@ -666,6 +666,22 @@ class CCPPDSUtils {
                 tmp_gen += indent + tab + tab + tab + "printf(\", \");\n";
                 tmp_gen += indent + tab + "}\n";
                 tmp_gen += indent + tab + "printf(\"]\\n\");\n";
+            } else if (ASR::is_a<ASR::Tuple_t>(*t)) {
+                ASR::Tuple_t *tt = ASR::down_cast<ASR::Tuple_t>(t);
+                std::string signature = "void " + p_func + "(" + element_type + " a)";
+                func_decls += indent + "inline " + signature + ";\n";
+                signature = indent + signature;
+                tmp_gen += indent + signature + " {\n";
+                tmp_gen += indent + tab + "printf(\"(\");\n";
+                for (size_t i=0; i<tt->n_type; i++) {
+                    generate_print_funcs(tt->m_type[i]);
+                    std::string ele_func = printFuncs[ASRUtils::get_type_code(tt->m_type[i], true)];
+                    std::string num = std::to_string(i);
+                    tmp_gen += indent + tab + ele_func + "(a.element_" + num + ");\n";
+                    if (i+1 != tt->n_type)
+                        tmp_gen += indent + tab + "printf(\", \");\n";
+                }
+                tmp_gen += indent + tab + "printf(\")\\n\");\n";
             } else {
                 std::string signature = "void " + p_func + "(" + element_type + " a)";
                 func_decls += indent + "inline " + signature + ";\n";
@@ -1065,6 +1081,7 @@ class CCPPDSUtils {
             tmp_gen += indent + "};\n\n";
             func_decls += tmp_gen;
             generate_compare_funcs((ASR::ttype_t *)tuple_type);
+            generate_print_funcs((ASR::ttype_t *)tuple_type);
             tuple_deepcopy(tuple_type, tuple_type_code);
             return tuple_struct_type;
         }
