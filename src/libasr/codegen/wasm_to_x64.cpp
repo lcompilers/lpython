@@ -26,6 +26,10 @@ the number of arguments we could pass to a function would get limited by
 the number of registers available with the CPU.
 
 */
+enum Block {
+    LOOP = 0,
+    IF = 1
+};
 
 class X64Visitor : public WASMDecoder<X64Visitor>,
                    public WASM_INSTS_VISITOR::BaseWASMVisitor<X64Visitor> {
@@ -34,7 +38,8 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     uint32_t cur_func_idx;
     int32_t last_vis_i32_const, last_last_vis_i32_const;
     std::map<std::string, std::string> label_to_str;
-    std::vector<std::string> if_unique_id;
+    uint32_t block_id;
+    std::vector<std::pair<uint32_t, Block>> blocks;
 
 
     X64Visitor(X86Assembler &m_a, Allocator &al,
@@ -43,6 +48,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
           BaseWASMVisitor(code, 0U /* temporary offset */),
           m_a(m_a) {
         wasm_bytes.from_pointer_n(code.data(), code.size());
+        block_id = 1;
     }
 
     void visit_Return() {}
@@ -126,23 +132,68 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         }
     }
 
-    void visit_If() {
-        if_unique_id.push_back(std::to_string(offset));
-        m_a.asm_pop_r64(X64Reg::rax); // now `rax` contains the logical value (true = 1, false = 0) of the if condition
-        m_a.asm_cmp_r64_imm8(X64Reg::rax, 1);
-        m_a.asm_je_label(".then_" + if_unique_id.back());
-        m_a.asm_jmp_label(".else_" + if_unique_id.back());
-        m_a.add_label(".then_" + if_unique_id.back());
+    void visit_Loop() {
+        std::string label = std::to_string(block_id);
+        blocks.push_back({block_id++, Block::LOOP});
+        /*
+        The loop statement starts with `loop.head`. The `loop.body` and
+        `loop.branch` are enclosed within the `if.block`. If the condition
+        fails, the loop is exited through `else.block`.
+        .head
+            .If
+                # Statements
+                .Br to loop head
+            .Else
+            .endIf
+        .end
+        */
+        m_a.add_label(".loop.head_" + label);
         {
             decode_instructions();
         }
-        m_a.add_label(".endif_" + if_unique_id.back());
-        if_unique_id.pop_back();
+        // end
+        m_a.add_label(".loop.end_" + label);
+        blocks.pop_back();
+    }
+
+    void visit_Br(uint32_t labelidx) {
+        // Branch is used to jump to the `loop.head` or `loop.end`.
+
+        uint32_t b_id;
+        Block block_type;
+        std::tie(b_id, block_type) = blocks[blocks.size() - 1 - labelidx];
+        std::string label = std::to_string(b_id);
+        switch (block_type) {
+            /*
+            From WebAssembly Docs:
+                The exact effect of branch depends on that control construct.
+                In case of block or if it is a forward jump, resuming execution after the matching end.
+                In case of loop it is a backward jump to the beginning of the loop.
+            */
+            case Block::LOOP: m_a.asm_jmp_label(".loop.head_" + label); break;
+            case Block::IF: m_a.asm_jmp_label(".else_" + label); break;
+        }
+    }
+
+    void visit_If() {
+        std::string label = std::to_string(block_id);
+        blocks.push_back({block_id++, Block::IF});
+        m_a.asm_pop_r64(X64Reg::rax); // now `rax` contains the logical value (true = 1, false = 0) of the if condition
+        m_a.asm_cmp_r64_imm8(X64Reg::rax, 1);
+        m_a.asm_je_label(".then_" + label);
+        m_a.asm_jmp_label(".else_" + label);
+        m_a.add_label(".then_" + label);
+        {
+            decode_instructions();
+        }
+        m_a.add_label(".endif_" + label);
+        blocks.pop_back();
     }
 
     void visit_Else() {
-        m_a.asm_jmp_label(".endif_" + if_unique_id.back());
-        m_a.add_label(".else_" + if_unique_id.back());
+        std::string label = std::to_string(blocks.back().first);
+        m_a.asm_jmp_label(".endif_" + label);
+        m_a.add_label(".else_" + label);
     }
 
     void visit_LocalGet(uint32_t localidx) {
@@ -235,6 +286,43 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         m_a.asm_div_r64(X64Reg::rbx);
         m_a.asm_push_r64(X64Reg::rax);
     }
+
+    void handle_I32Compare(const std::string &compare_op) {
+        std::string label = std::to_string(offset);
+        m_a.asm_pop_r64(X64Reg::rbx);
+        m_a.asm_pop_r64(X64Reg::rax);
+        // `rax` and `rbx` contain the left and right operands, respectively
+        m_a.asm_cmp_r64_r64(X64Reg::rax, X64Reg::rbx);
+        if (compare_op == "Eq") {
+            m_a.asm_je_label(".compare_1" + label);
+        } else if (compare_op == "Gt") {
+            m_a.asm_jg_label(".compare_1" + label);
+        } else if (compare_op == "GtE") {
+            m_a.asm_jge_label(".compare_1" + label);
+        } else if (compare_op == "Lt") {
+            m_a.asm_jl_label(".compare_1" + label);
+        } else if (compare_op == "LtE") {
+            m_a.asm_jle_label(".compare_1" + label);
+        } else if (compare_op == "NotEq") {
+            m_a.asm_jne_label(".compare_1" + label);
+        } else {
+            throw CodeGenError("Comparison operator not implemented");
+        }
+        // if the `compare` condition in `true`, jump to compare_1
+        // and assign `1` else assign `0`
+        m_a.asm_push_imm8(0);
+        m_a.asm_jmp_label(".compare.end_" + label);
+        m_a.add_label(".compare_1" + label);
+        m_a.asm_push_imm8(1);
+        m_a.add_label(".compare.end_" + label);
+    }
+
+    void visit_I32Eq() { handle_I32Compare("Eq"); }
+    void visit_I32GtS() { handle_I32Compare("Gt"); }
+    void visit_I32GeS() { handle_I32Compare("GtE"); }
+    void visit_I32LtS() { handle_I32Compare("Lt"); }
+    void visit_I32LeS() { handle_I32Compare("LtE"); }
+    void visit_I32Ne() { handle_I32Compare("NotEq"); }
 
     void gen_x64_bytes() {
         {   // Initialize/Modify values of entities
