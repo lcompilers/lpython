@@ -831,19 +831,13 @@ public:
     void asm_mov_r64_m64(X64Reg r64, X64Reg *base, X64Reg *index,
                 uint8_t scale, int64_t disp) {
         X86Reg r32 = X86Reg(r64 & 7);
-        X86Reg* base32 = nullptr, *index32 = nullptr;
-        if (base) {
-            base32 = new X86Reg;
-            *base32 = X86Reg(*base & 7);
-        }
-        if (index) {
-            index32 = new X86Reg;
-            *index32 = X86Reg(*index & 7);
-        }
-        m_code.push_back(m_al, rex(1, r64 >> 3, (index32 ? (*index32 >> 3) : 0), (base32 ? (*base32 >> 3) : 0)));
+        m_code.push_back(m_al, rex(1, r64 >> 3, (index ? (*index >> 3) : 0), (base ? (*base >> 3) : 0)));
         m_code.push_back(m_al, 0x8b);
-        modrm_sib_disp(m_code, m_al,
-                    r32, base32, index32, scale, (int32_t)disp, true);
+        X86Reg base32, index32;
+        if (base) base32 = X86Reg(*base & 7);
+        if (index) index32 = X86Reg(*index & 7);
+        modrm_sib_disp(m_code, m_al, r32, (base ? &base32 : nullptr),
+                (index ? &index32 : nullptr),  scale, (int32_t)disp, true);
         EMIT("mov " + r2s(r64) + ", " + m2s(base, index, scale, disp));
     }
 
@@ -864,19 +858,13 @@ public:
     void asm_mov_m64_r64(X64Reg *base, X64Reg *index,
                 uint8_t scale, int64_t disp, X64Reg r64) {
         X86Reg r32 = X86Reg(r64 & 7);
-        X86Reg* base32 = nullptr, *index32 = nullptr;
-        if (base) {
-            base32 = new X86Reg;
-            *base32 = X86Reg(*base & 7);
-        }
-        if (index) {
-            index32 = new X86Reg;
-            *index32 = X86Reg(*index & 7);
-        }
-        m_code.push_back(m_al, rex(1, r64 >> 3, (index32 ? (*index32 >> 3) : 0), (base32 ? (*base32 >> 3) : 0)));
+        m_code.push_back(m_al, rex(1, r64 >> 3, (index ? (*index >> 3) : 0), (base ? (*base >> 3) : 0)));
         m_code.push_back(m_al, 0x89);
-        modrm_sib_disp(m_code, m_al,
-                    r32, base32, index32, scale, (int32_t)disp, true);
+        X86Reg base32, index32;
+        if (base) base32 = X86Reg(*base & 7);
+        if (index) index32 = X86Reg(*index & 7);
+        modrm_sib_disp(m_code, m_al, r32, (base ? &base32 : nullptr),
+                (index ? &index32 : nullptr),  scale, (int32_t)disp, true);
         EMIT("mov " + m2s(base, index, scale, disp) + ", " + r2s(r64));
     }
 
@@ -1251,21 +1239,15 @@ public:
     void asm_movsd_r64_m64(X64FReg r64, X64Reg *base, X64Reg *index,
                 uint8_t scale, int64_t disp) {
         X86Reg r32 = X86Reg(r64 & 7);
-        X86Reg* base32 = nullptr, *index32 = nullptr;
-        if (base) {
-            base32 = new X86Reg;
-            *base32 = X86Reg(*base & 7);
-        }
-        if (index) {
-            index32 = new X86Reg;
-            *index32 = X86Reg(*index & 7);
-        }
         m_code.push_back(m_al, 0xf2);
-        m_code.push_back(m_al, rex(1, r64 >> 3, (index32 ? (*index32 >> 3) : 0), (base32 ? (*base32 >> 3) : 0)));
+        m_code.push_back(m_al, rex(1, r64 >> 3, (index ? (*index >> 3) : 0), (base ? (*base >> 3) : 0)));
         m_code.push_back(m_al, 0x0f);
         m_code.push_back(m_al, 0x10);
-        modrm_sib_disp(m_code, m_al,
-                    r32, base32, index32, scale, (int32_t)disp, true);
+        X86Reg base32, index32;
+        if (base) base32 = X86Reg(*base & 7);
+        if (index) index32 = X86Reg(*index & 7);
+        modrm_sib_disp(m_code, m_al, r32, (base ? &base32 : nullptr),
+                (index ? &index32 : nullptr),  scale, (int32_t)disp, true);
         EMIT("movsd " + r2s(r64) + ", " + m2s(base, index, scale, disp));
     }
 
@@ -1273,21 +1255,15 @@ public:
     void asm_movsd_m64_r64(X64Reg *base, X64Reg *index,
                 uint8_t scale, int64_t disp, X64FReg r64) {
         X86Reg r32 = X86Reg(r64 & 7);
-        X86Reg* base32 = nullptr, *index32 = nullptr;
-        if (base) {
-            base32 = new X86Reg;
-            *base32 = X86Reg(*base & 7);
-        }
-        if (index) {
-            index32 = new X86Reg;
-            *index32 = X86Reg(*index & 7);
-        }
         m_code.push_back(m_al, 0xf2);
-        m_code.push_back(m_al, rex(1, r64 >> 3, (index32 ? (*index32 >> 3) : 0), (base32 ? (*base32 >> 3) : 0)));
+        m_code.push_back(m_al, rex(1, r64 >> 3, (index ? (*index >> 3) : 0), (base ? (*base >> 3) : 0)));
         m_code.push_back(m_al, 0x0f);
         m_code.push_back(m_al, 0x11);
-        modrm_sib_disp(m_code, m_al,
-                    r32, base32, index32, scale, (int32_t)disp, true);
+        X86Reg base32, index32;
+        if (base) base32 = X86Reg(*base & 7);
+        if (index) index32 = X86Reg(*index & 7);
+        modrm_sib_disp(m_code, m_al, r32, (base ? &base32 : nullptr),
+                (index ? &index32 : nullptr),  scale, (int32_t)disp, true);
         EMIT("movsd " + m2s(base, index, scale, disp) + ", " + r2s(r64));
     }
 
