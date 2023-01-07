@@ -42,6 +42,15 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     std::vector<std::pair<uint32_t, Block>> blocks;
     std::map<std::string, double> double_consts;
 
+    /*
+     A data segment in wasm uses a set of instructions/expressions to specify
+     the offset in memory where the string/data is to be stored.
+     To obtain the string offset we need to decode these set of instructions.
+     Since, we currently support compile-time strings and the string offset is
+     stored in last_vis_i32_const, the instructions are not needed for us at the moment.
+     The following variables helps us control the emitting of instructions when
+     deconding a data segment in wasm.
+    */
     bool decoding_data_segment;
 
     X64Visitor(X86Assembler &m_a, Allocator &al,
