@@ -335,6 +335,7 @@ class CCPPDSUtils {
         std::map<std::string, std::string> typecodeToDStype;
         std::map<std::string, std::map<std::string, std::string>> typecodeToDSfuncs;
         std::map<std::string, std::string> compareTwoDS;
+        std::map<std::string, std::string> printFuncs;
         std::map<std::string, std::string> eltypedims2arraytype;
         CUtils::CUtilFunctions* c_utils_functions;
 
@@ -345,10 +346,11 @@ class CCPPDSUtils {
 
         SymbolTable* global_scope;
         bool is_c;
+        Platform platform;
 
     public:
 
-        CCPPDSUtils(bool is_c): is_c{is_c} {
+        CCPPDSUtils(bool is_c, Platform &platform): is_c{is_c}, platform{platform} {
             generated_code.clear();
             func_decls.clear();
         }
@@ -369,6 +371,11 @@ class CCPPDSUtils {
         std::string get_compare_func(ASR::ttype_t *t) {
             std::string type_code = ASRUtils::get_type_code(t, true);
             return compareTwoDS[type_code];
+        }
+
+        std::string get_print_func(ASR::ttype_t *t) {
+            std::string type_code = ASRUtils::get_type_code(t, true);
+            return printFuncs[type_code];
         }
 
         std::string get_deepcopy(ASR::ttype_t *t, std::string value, std::string target) {
@@ -436,6 +443,64 @@ class CCPPDSUtils {
             LFORTRAN_ASSERT(false);
         }
 
+        std::string get_print_type(ASR::ttype_t *t, bool deref_ptr) {
+            switch (t->type) {
+                case ASR::ttypeType::Integer: {
+                    ASR::Integer_t *i = (ASR::Integer_t*)t;
+                    switch (i->m_kind) {
+                        case 1: { return "%d"; }
+                        case 2: { return "%d"; }
+                        case 4: { return "%d"; }
+                        case 8: {
+                            if (platform == Platform::Linux) {
+                                return "%li";
+                            } else {
+                                return "%lli";
+                            }
+                        }
+                        default: { throw LCompilersException("Integer kind not supported"); }
+                    }
+                }
+                case ASR::ttypeType::Real: {
+                    ASR::Real_t *r = (ASR::Real_t*)t;
+                    switch (r->m_kind) {
+                        case 4: { return "%f"; }
+                        case 8: { return "%lf"; }
+                        default: { throw LCompilersException("Float kind not supported"); }
+                    }
+                }
+                case ASR::ttypeType::Logical: {
+                    return "%d";
+                }
+                case ASR::ttypeType::Character: {
+                    return "%s";
+                }
+                case ASR::ttypeType::CPtr: {
+                    return "%p";
+                }
+                case ASR::ttypeType::Complex: {
+                    return "(%f, %f)";
+                }
+                case ASR::ttypeType::Pointer: {
+                    if( !deref_ptr ) {
+                        return "%p";
+                    } else {
+                        ASR::Pointer_t* type_ptr = ASR::down_cast<ASR::Pointer_t>(t);
+                        return get_print_type(type_ptr->m_type, false);
+                    }
+                }
+                case ASR::ttypeType::Enum: {
+                    ASR::ttype_t* enum_underlying_type = ASRUtils::get_contained_type(t);
+                    return get_print_type(enum_underlying_type, deref_ptr);
+                }
+                case ASR::ttypeType::Const: {
+                    ASR::ttype_t* const_underlying_type = ASRUtils::get_contained_type(t);
+                    return get_print_type(const_underlying_type, deref_ptr);
+                }
+                default : throw LCompilersException("Not implemented");
+            }
+        }
+
         std::string get_array_type(std::string type_name, std::string encoded_type_name,
                                std::string& array_types_decls, bool make_ptr=true,
                                bool create_if_not_present=true) {
@@ -485,6 +550,7 @@ class CCPPDSUtils {
             func_decls += indent + tab + list_element_type + "* data;\n";
             func_decls += indent + "};\n\n";
             generate_compare_funcs((ASR::ttype_t *)list_type);
+            generate_print_funcs((ASR::ttype_t *)list_type);
             list_init(list_struct_type, list_type_code, list_element_type);
             list_deepcopy(list_struct_type, list_type_code, list_element_type, list_type->m_type);
             resize_if_needed(list_struct_type, list_type_code, list_element_type);
@@ -574,6 +640,57 @@ class CCPPDSUtils {
             return func_decls;
         }
 
+        void generate_print_funcs(ASR::ttype_t *t) {
+            std::string type_code = ASRUtils::get_type_code(t, true);
+            if (printFuncs.find(type_code) != printFuncs.end()) {
+                return;
+            }
+            std::string element_type = CUtils::get_c_type_from_ttype_t(t);
+            std::string indent(indentation_level * indentation_spaces, ' ');
+            std::string tab(indentation_spaces, ' ');
+            std::string p_func = global_scope->get_unique_name("print_" + type_code);
+            printFuncs[type_code] = p_func;
+            std::string tmp_gen = "";
+            std::string signature = "void " + p_func + "(" + element_type + " a)";
+            func_decls += indent + "inline " + signature + ";\n";
+            signature = indent + signature;
+            if (ASR::is_a<ASR::List_t>(*t)) {
+                ASR::ttype_t *tt = ASR::down_cast<ASR::List_t>(t)->m_type;
+                generate_print_funcs(tt);
+                std::string ele_func = printFuncs[ASRUtils::get_type_code(tt, true)];
+                tmp_gen += indent + signature + " {\n";
+                tmp_gen += indent + tab + "printf(\"[\");\n";
+                tmp_gen += indent + tab + "for (int i=0; i<a.current_end_point; i++) {\n";
+                tmp_gen += indent + tab + tab + ele_func + "(a.data[i]);\n";
+                tmp_gen += indent + tab + tab + "if (i+1!=a.current_end_point)\n";
+                tmp_gen += indent + tab + tab + tab + "printf(\", \");\n";
+                tmp_gen += indent + tab + "}\n";
+                tmp_gen += indent + tab + "printf(\"]\\n\");\n";
+            } else if (ASR::is_a<ASR::Tuple_t>(*t)) {
+                ASR::Tuple_t *tt = ASR::down_cast<ASR::Tuple_t>(t);
+                tmp_gen += indent + signature + " {\n";
+                tmp_gen += indent + tab + "printf(\"(\");\n";
+                for (size_t i=0; i<tt->n_type; i++) {
+                    generate_print_funcs(tt->m_type[i]);
+                    std::string ele_func = printFuncs[ASRUtils::get_type_code(tt->m_type[i], true)];
+                    std::string num = std::to_string(i);
+                    tmp_gen += indent + tab + ele_func + "(a.element_" + num + ");\n";
+                    if (i+1 != tt->n_type)
+                        tmp_gen += indent + tab + "printf(\", \");\n";
+                }
+                tmp_gen += indent + tab + "printf(\")\\n\");\n";
+            } else if (ASR::is_a<ASR::Complex_t>(*t)) {
+                tmp_gen += indent + signature + " {\n";
+                std::string print_type = get_print_type(t, false);
+                tmp_gen += indent + tab + "printf(\"" + print_type + "\", creal(a), cimag(a));\n";
+            } else {
+                tmp_gen += indent + signature + " {\n";
+                std::string print_type = get_print_type(t, false);
+                tmp_gen += indent + tab + "printf(\"" + print_type + "\", a);\n";
+            }
+            tmp_gen += indent + "}\n\n";
+            generated_code += tmp_gen;
+        }
 
         void generate_compare_funcs(ASR::ttype_t *t) {
             std::string type_code = ASRUtils::get_type_code(t, true);
@@ -962,6 +1079,7 @@ class CCPPDSUtils {
             tmp_gen += indent + "};\n\n";
             func_decls += tmp_gen;
             generate_compare_funcs((ASR::ttype_t *)tuple_type);
+            generate_print_funcs((ASR::ttype_t *)tuple_type);
             tuple_deepcopy(tuple_type, tuple_type_code);
             return tuple_struct_type;
         }
