@@ -1321,9 +1321,9 @@ void get_local_address(struct Stacktrace *d) {
     }
 }
 
-char *get_base_name() {
-    size_t start = strrchr(executable_filename, '/')-executable_filename+1;
-    size_t end = strrchr(executable_filename, '.')-executable_filename-1;
+char *get_base_name(char *filename) {
+    size_t start = strrchr(filename, '/')-filename+1;
+    size_t end = strrchr(filename, '.')-filename-1;
     int nos_of_chars = end - start + 1;
     char *base_name;
     if (nos_of_chars < 0) {
@@ -1331,7 +1331,7 @@ char *get_base_name() {
     }
     base_name = malloc (sizeof (char) * (nos_of_chars + 1));
     base_name[nos_of_chars] = '\0';
-    strncpy (base_name, executable_filename + start, nos_of_chars);
+    strncpy (base_name, filename + start, nos_of_chars);
     return base_name;
 }
 
@@ -1345,13 +1345,15 @@ uint32_t get_file_size(int64_t fp) {
 }
 
 /*
- * `lines_dat.txt` must be created before calling this function, using:
- * ./src/bin/dat_convert.py lines.dat
- * Fills in the `addresses` and `line_numbers` from the `lines_dat.txt` file.
+ * `lines_dat.txt` file must be created before calling this function,
+ * The file can be created using the command:
+ *     ./src/bin/dat_convert.py lines.dat
+ * This function fills in the `addresses` and `line_numbers`
+ * from the `lines_dat.txt` file.
  */
 void get_local_info_dwarfdump(struct Stacktrace *d) {
     // TODO: Read the contents of lines.dat from here itself.
-    char *base_name = get_base_name();
+    char *base_name = get_base_name(executable_filename);
     char *filename = malloc(strlen(base_name) + 14);
     strcpy(filename, base_name);
     strcat(filename, "_lines.dat.txt");
@@ -1433,7 +1435,7 @@ char *remove_whitespace(char *str) {
 
 int generate_stacktrace_files() {
     // TODO: Replace the hardcoded part
-    char *base_name = get_base_name();
+    char *base_name = get_base_name(executable_filename);
     char *cmd = malloc(strlen(base_name)*6 + 157);
     strcpy(cmd, "llvm-dwarfdump --debug-line ");
     strcat(cmd, base_name);
