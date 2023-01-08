@@ -1541,12 +1541,21 @@ LFORTRAN_API void print_stacktrace_addresses(char *filename, bool use_colors) {
             if(use_colors) {
                 fprintf(stderr, DIM "  File " S_RESET
                     BOLD MAGENTA "\"%s\"" C_RESET S_RESET
+#ifdef HAVE_LFORTRAN_MACHO
                     DIM ", line %lld\n" S_RESET
+#else
+                    DIM ", line %ld\n" S_RESET
+#endif
                     "    %s\n", source_filename, d.line_numbers[index],
                     remove_whitespace(read_line_from_file(source_filename,
                     d.line_numbers[index])));
             } else {
-                fprintf(stderr, "  File \"%s\", line %lld\n    %s\n",
+                fprintf(stderr, "  File \"%s\", "
+#ifdef HAVE_LFORTRAN_MACHO
+                    "line %lld\n    %s\n",
+#else
+                    "line %ld\n    %s\n",
+#endif
                     source_filename, d.line_numbers[index],
                     remove_whitespace(read_line_from_file(source_filename,
                     d.line_numbers[index])));
