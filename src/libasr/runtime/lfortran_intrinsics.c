@@ -1296,9 +1296,9 @@ int shared_lib_callback(struct dl_phdr_info *info,
                 d->binary_filename[d->local_pc_size] = (char *)info->dlpi_name;
                 if (d->binary_filename[d->local_pc_size][0] == '\0') {
                     d->binary_filename[d->local_pc_size] = binary_executable_path;
+                    d->local_pc[d->local_pc_size] = d->current_pc - info->dlpi_addr;
+                    d->local_pc_size++;
                 }
-                d->local_pc[d->local_pc_size] = d->current_pc - info->dlpi_addr;
-                d->local_pc_size++;
                 // We found a match, return a non-zero value
                 return 1;
             }
@@ -1536,7 +1536,7 @@ LFORTRAN_API void print_stacktrace_addresses(char *filename, bool use_colors) {
         get_local_address(&d);
         get_local_info_dwarfdump(&d);
 
-        for (size_t i = d.local_pc_size-1; i > 0; i--) {
+        for (int32_t i = d.local_pc_size-1; i >= 0; i--) {
             uint64_t index = bisection(d.addresses, d.stack_size, d.local_pc[i]);
             if(use_colors) {
                 fprintf(stderr, DIM "  File " S_RESET
