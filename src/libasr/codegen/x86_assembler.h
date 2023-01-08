@@ -62,6 +62,20 @@ enum X86Reg : uint8_t {
     edi = 7,
 };
 
+static std::string r2s(X86Reg r32) {
+    switch (r32) {
+        case (X86Reg::eax) : return "eax";
+        case (X86Reg::ecx) : return "ecx";
+        case (X86Reg::edx) : return "edx";
+        case (X86Reg::ebx) : return "ebx";
+        case (X86Reg::esp) : return "esp";
+        case (X86Reg::ebp) : return "ebp";
+        case (X86Reg::esi) : return "esi";
+        case (X86Reg::edi) : return "edi";
+        default : throw AssemblerError("Unknown instruction");
+    }
+}
+
 enum X64Reg : uint8_t {
     rax =  0,
     rcx =  1,
@@ -104,7 +118,7 @@ static std::string r2s(X64Reg r64) {
 }
 // Not sure if this numbering is correct. Numbering info
 // about these registers does not seem easily available.
-enum X86FloatReg : uint8_t {
+enum X86FReg : uint8_t {
     st0 = 0,
     st1 = 1,
     st2 = 2,
@@ -116,30 +130,58 @@ enum X86FloatReg : uint8_t {
 };
 
 
-static std::string r2s(X86FloatReg st) {
+static std::string r2s(X86FReg st) {
     switch (st) {
-        case (X86FloatReg::st0) : return "st0";
-        case (X86FloatReg::st1) : return "st1";
-        case (X86FloatReg::st2) : return "st2";
-        case (X86FloatReg::st3) : return "st3";
-        case (X86FloatReg::st4) : return "st4";
-        case (X86FloatReg::st5) : return "st5";
-        case (X86FloatReg::st6) : return "st6";
-        case (X86FloatReg::st7) : return "st7";
+        case (X86FReg::st0) : return "st0";
+        case (X86FReg::st1) : return "st1";
+        case (X86FReg::st2) : return "st2";
+        case (X86FReg::st3) : return "st3";
+        case (X86FReg::st4) : return "st4";
+        case (X86FReg::st5) : return "st5";
+        case (X86FReg::st6) : return "st6";
+        case (X86FReg::st7) : return "st7";
         default : throw AssemblerError("Unknown instruction");
     }
 }
 
-static std::string r2s(X86Reg r32) {
-    switch (r32) {
-        case (X86Reg::eax) : return "eax";
-        case (X86Reg::ecx) : return "ecx";
-        case (X86Reg::edx) : return "edx";
-        case (X86Reg::ebx) : return "ebx";
-        case (X86Reg::esp) : return "esp";
-        case (X86Reg::ebp) : return "ebp";
-        case (X86Reg::esi) : return "esi";
-        case (X86Reg::edi) : return "edi";
+enum X64FReg : uint8_t {
+    xmm0 = 0,
+    xmm1 = 1,
+    xmm2 = 2,
+    xmm3 = 3,
+    xmm4 = 4,
+    xmm5 = 5,
+    xmm6 = 6,
+    xmm7 = 7,
+    xmm8 = 8,
+    xmm9 = 9,
+    xmm10 = 10,
+    xmm11 = 11,
+    xmm12 = 12,
+    xmm13 = 13,
+    xmm14 = 14,
+    xmm15 = 15,
+};
+
+
+static std::string r2s(X64FReg xmm) {
+    switch (xmm) {
+        case (X64FReg::xmm0) : return "xmm0";
+        case (X64FReg::xmm1) : return "xmm1";
+        case (X64FReg::xmm2) : return "xmm2";
+        case (X64FReg::xmm3) : return "xmm3";
+        case (X64FReg::xmm4) : return "xmm4";
+        case (X64FReg::xmm5) : return "xmm5";
+        case (X64FReg::xmm6) : return "xmm6";
+        case (X64FReg::xmm7) : return "xmm7";
+        case (X64FReg::xmm8) : return "xmm8";
+        case (X64FReg::xmm9) : return "xmm9";
+        case (X64FReg::xmm10) : return "xmm10";
+        case (X64FReg::xmm11) : return "xmm11";
+        case (X64FReg::xmm12) : return "xmm12";
+        case (X64FReg::xmm13) : return "xmm13";
+        case (X64FReg::xmm14) : return "xmm14";
+        case (X64FReg::xmm15) : return "xmm15";
         default : throw AssemblerError("Unknown instruction");
     }
 }
@@ -789,19 +831,13 @@ public:
     void asm_mov_r64_m64(X64Reg r64, X64Reg *base, X64Reg *index,
                 uint8_t scale, int64_t disp) {
         X86Reg r32 = X86Reg(r64 & 7);
-        X86Reg* base32 = nullptr, *index32 = nullptr;
-        if (base) {
-            base32 = new X86Reg;
-            *base32 = X86Reg(*base & 7);
-        }
-        if (index) {
-            index32 = new X86Reg;
-            *index32 = X86Reg(*index & 7);
-        }
-        m_code.push_back(m_al, rex(1, r64 >> 3, (index32 ? (*index32 >> 3) : 0), (base32 ? (*base32 >> 3) : 0)));
+        m_code.push_back(m_al, rex(1, r64 >> 3, (index ? (*index >> 3) : 0), (base ? (*base >> 3) : 0)));
         m_code.push_back(m_al, 0x8b);
-        modrm_sib_disp(m_code, m_al,
-                    r32, base32, index32, scale, (int32_t)disp, true);
+        X86Reg base32, index32;
+        if (base) base32 = X86Reg(*base & 7);
+        if (index) index32 = X86Reg(*index & 7);
+        modrm_sib_disp(m_code, m_al, r32, (base ? &base32 : nullptr),
+                (index ? &index32 : nullptr),  scale, (int32_t)disp, true);
         EMIT("mov " + r2s(r64) + ", " + m2s(base, index, scale, disp));
     }
 
@@ -822,19 +858,13 @@ public:
     void asm_mov_m64_r64(X64Reg *base, X64Reg *index,
                 uint8_t scale, int64_t disp, X64Reg r64) {
         X86Reg r32 = X86Reg(r64 & 7);
-        X86Reg* base32 = nullptr, *index32 = nullptr;
-        if (base) {
-            base32 = new X86Reg;
-            *base32 = X86Reg(*base & 7);
-        }
-        if (index) {
-            index32 = new X86Reg;
-            *index32 = X86Reg(*index & 7);
-        }
-        m_code.push_back(m_al, rex(1, r64 >> 3, (index32 ? (*index32 >> 3) : 0), (base32 ? (*base32 >> 3) : 0)));
+        m_code.push_back(m_al, rex(1, r64 >> 3, (index ? (*index >> 3) : 0), (base ? (*base >> 3) : 0)));
         m_code.push_back(m_al, 0x89);
-        modrm_sib_disp(m_code, m_al,
-                    r32, base32, index32, scale, (int32_t)disp, true);
+        X86Reg base32, index32;
+        if (base) base32 = X86Reg(*base & 7);
+        if (index) index32 = X86Reg(*index & 7);
+        modrm_sib_disp(m_code, m_al, r32, (base ? &base32 : nullptr),
+                (index ? &index32 : nullptr),  scale, (int32_t)disp, true);
         EMIT("mov " + m2s(base, index, scale, disp) + ", " + r2s(r64));
     }
 
@@ -1185,10 +1215,10 @@ public:
         EMIT("frndint");
     }
 
-    void asm_fsub(X86FloatReg st) {
+    void asm_fsub(X86FReg st) {
         m_code.push_back(m_al, 0xd8);
         m_code.push_back(m_al, 0xe0 + st);
-        EMIT("fsub " + r2s(X86FloatReg::st0) + ", " + r2s(st));
+        EMIT("fsub " + r2s(X86FReg::st0) + ", " + r2s(st));
     }
 
     void asm_fsubp() {
@@ -1203,6 +1233,98 @@ public:
         modrm_sib_disp(m_code, m_al,
             X86Reg::ecx, base, index, scale, disp, true);
         EMIT("fimul dword " + m2s(base, index, scale, disp));
+    }
+
+    // Move or Merge Scalar Double Precision Floating-Point Value
+    void asm_movsd_r64_m64(X64FReg r64, X64Reg *base, X64Reg *index,
+                uint8_t scale, int64_t disp) {
+        X86Reg r32 = X86Reg(r64 & 7);
+        m_code.push_back(m_al, 0xf2);
+        m_code.push_back(m_al, rex(1, r64 >> 3, (index ? (*index >> 3) : 0), (base ? (*base >> 3) : 0)));
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x10);
+        X86Reg base32, index32;
+        if (base) base32 = X86Reg(*base & 7);
+        if (index) index32 = X86Reg(*index & 7);
+        modrm_sib_disp(m_code, m_al, r32, (base ? &base32 : nullptr),
+                (index ? &index32 : nullptr),  scale, (int32_t)disp, true);
+        EMIT("movsd " + r2s(r64) + ", " + m2s(base, index, scale, disp));
+    }
+
+    // Move or Merge Scalar Double Precision Floating-Point Value
+    void asm_movsd_m64_r64(X64Reg *base, X64Reg *index,
+                uint8_t scale, int64_t disp, X64FReg r64) {
+        X86Reg r32 = X86Reg(r64 & 7);
+        m_code.push_back(m_al, 0xf2);
+        m_code.push_back(m_al, rex(1, r64 >> 3, (index ? (*index >> 3) : 0), (base ? (*base >> 3) : 0)));
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x11);
+        X86Reg base32, index32;
+        if (base) base32 = X86Reg(*base & 7);
+        if (index) index32 = X86Reg(*index & 7);
+        modrm_sib_disp(m_code, m_al, r32, (base ? &base32 : nullptr),
+                (index ? &index32 : nullptr),  scale, (int32_t)disp, true);
+        EMIT("movsd " + m2s(base, index, scale, disp) + ", " + r2s(r64));
+    }
+
+    // ADDSD—Add Scalar Double Precision Floating-Point Values
+    void asm_addsd_r64_r64(X64FReg r64, X64FReg s64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, 0xf2);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x58);
+        modrm_sib_disp(m_code, m_al,
+                r32, &s32, nullptr, 1, 0, false);
+        EMIT("addsd " + r2s(r64) + ", " + r2s(s64));
+    }
+
+    // Subtract Scalar Double Precision Floating-Point Value
+    void asm_subsd_r64_r64(X64FReg r64, X64FReg s64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, 0xf2);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x5c);
+        modrm_sib_disp(m_code, m_al,
+                r32, &s32, nullptr, 1, 0, false);
+        EMIT("subsd " + r2s(r64) + ", " + r2s(s64));
+    }
+
+    // Multiply Scalar Double Precision Floating-Point Value
+    void asm_mulsd_r64_r64(X64FReg r64, X64FReg s64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, 0xf2);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x59);
+        modrm_sib_disp(m_code, m_al,
+                r32, &s32, nullptr, 1, 0, false);
+        EMIT("mulsd " + r2s(r64) + ", " + r2s(s64));
+    }
+
+    // Convert Doubleword Integer to Scalar Double Precision Floating-Point Value
+    void asm_cvtsi2sd_r64_r64(X64FReg r64, X64Reg s64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, 0xf2);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x2a);
+        modrm_sib_disp(m_code, m_al,
+                r32, &s32, nullptr, 1, 0, false);
+        EMIT("cvtsi2sd " + r2s(r64) + ", " + r2s(s64));
+    }
+
+    // Convert With Truncation Scalar Double Precision Floating-Point Value to Signed Integer
+    void asm_cvttsd2si_r64_r64(X64Reg r64, X64FReg s64) {
+        X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
+        m_code.push_back(m_al, 0xf2);
+        m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
+        m_code.push_back(m_al, 0x0f);
+        m_code.push_back(m_al, 0x2c);
+        modrm_sib_disp(m_code, m_al,
+                r32, &s32, nullptr, 1, 0, false);
+        EMIT("cvttsd2si " + r2s(r64) + ", " + r2s(s64));
     }
 };
 
@@ -1227,6 +1349,8 @@ void emit_data_string(X86Assembler &a, const std::string &label,
     const std::string &s);
 void emit_float_const(X86Assembler &a, const std::string &label,
     const float z);
+void emit_double_const(X86Assembler &a, const std::string &label,
+    const double z);
 void emit_print(X86Assembler &a, const std::string &msg_label,
     uint32_t size);
 void emit_print_int(X86Assembler &a, const std::string &name);
@@ -1242,6 +1366,8 @@ void emit_exit_64(X86Assembler &a, std::string label, int exit_code);
 
 void emit_print_64(X86Assembler &a, const std::string &msg_label, uint64_t size);
 void emit_print_int_64(X86Assembler &a, const std::string &name);
+void emit_print_double(X86Assembler &a, const std::string &name);
+
 } // namespace LFortran
 
 #endif // LFORTRAN_CODEGEN_X86_ASSEMBER_H

@@ -38,6 +38,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
     int32_t last_vis_i32_const, last_last_vis_i32_const;
     std::map<std::string, std::string> label_to_str;
     std::map<std::string, float> float_consts;
+    bool decoding_data_segment;
 
     X86Visitor(X86Assembler &m_a, Allocator &al,
                diag::Diagnostics &diagonostics, Vec<uint8_t> &code)
@@ -46,6 +47,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
           m_a(m_a) {
         wasm_bytes.from_pointer_n(code.data(), code.size());
         cur_nesting_length = 0;
+        decoding_data_segment = false;
     }
 
     void visit_Unreachable() {}
@@ -268,12 +270,9 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
     }
 
     void visit_I32Const(int32_t value) {
-        m_a.asm_push_imm32(value);
-        // if (value < 0) {
-        // 	m_a.asm_pop_r32(X86Reg::eax);
-        // 	m_a.asm_neg_r32(X86Reg::eax);
-        // 	m_a.asm_push_r32(X86Reg::eax);
-        // }
+        if (!decoding_data_segment) {
+            m_a.asm_push_imm32(value);
+        }
 
         // TODO: Following seems/is hackish. Fix/Improve it.
         last_last_vis_i32_const = last_vis_i32_const;
@@ -362,6 +361,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         emit_print_float(m_a, "print_f64");
         emit_exit2(m_a, "my_exit");
 
+        decoding_data_segment = true;
         // declare compile-time strings
         for (uint32_t i = 0; i < data_segments.size(); i++) {
             offset = data_segments[i].insts_start_index;
@@ -369,6 +369,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
             std::string label = "string" + std::to_string(last_vis_i32_const);
             label_to_str[label] = data_segments[i].text;
         }
+        decoding_data_segment = false;
 
         for (uint32_t i = 0; i < type_indices.size(); i++) {
             if (i < type_indices.size() - 1U) {
