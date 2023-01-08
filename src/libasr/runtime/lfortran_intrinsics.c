@@ -31,6 +31,10 @@ extern int dl_iterate_phdr (int (*__callback) (struct dl_phdr_info *,
 #  include <unwind.h>
 #endif
 
+#ifdef HAVE_LFORTRAN_MACHO
+#  include <mach-o/dyld.h>
+#endif
+
 // Runtime Stacktrace
 #define LCOMPILERS_MAX_STACKTRACE_LENGTH 200
 char *executable_filename;
@@ -1304,19 +1308,77 @@ int shared_lib_callback(struct dl_phdr_info *info,
 }
 #endif // HAVE_LFORTRAN_LINK
 
+#ifdef HAVE_LFORTRAN_MACHO
+void get_local_address_mac(struct Stacktrace *d) {
+    for (uint32_t i = 0; i < _dyld_image_count(); i++) {
+        const struct mach_header *header = _dyld_get_image_header(i);
+        intptr_t offset = _dyld_get_image_vmaddr_slide(i);
+        struct load_command* cmd = (struct load_command*)((char *)header + sizeof(struct mach_header));
+        if(header->magic == MH_MAGIC_64) {
+            cmd = (struct load_command*)((char *)header + sizeof(struct mach_header_64));
+        }
+        for (uint32_t j = 0; j < header->ncmds; j++) {
+            if (cmd->cmd == LC_SEGMENT) {
+                struct segment_command* seg = (struct segment_command*)cmd;
+                if (((intptr_t)d->current_pc >= (seg->vmaddr+offset)) &&
+                    ((intptr_t)d->current_pc < (seg->vmaddr+offset + seg->vmsize))) {
+                    d->local_pc[d->local_pc_size] = d->current_pc - offset;
+                    d->binary_filename[d->local_pc_size] = (char *)_dyld_get_image_name(i);
+                    // Resolve symlinks to a real path:
+                    char buffer[PATH_MAX];
+                    char* resolved;
+                    resolved = realpath(d->binary_filename[d->local_pc_size], buffer);
+                    if (resolved) d->binary_filename[d->local_pc_size] = resolved;
+                    d->local_pc_size++;
+                    return;
+                }
+            }
+            if (cmd->cmd == LC_SEGMENT_64) {
+                struct segment_command_64* seg = (struct segment_command_64*)cmd;
+                if ((d->current_pc >= (seg->vmaddr + offset)) &&
+                    (d->current_pc < (seg->vmaddr + offset + seg->vmsize))) {
+                    d->local_pc[d->local_pc_size] = d->current_pc - offset;
+                    d->binary_filename[d->local_pc_size] = (char *)_dyld_get_image_name(i);
+                    // Resolve symlinks to a real path:
+                    char buffer[PATH_MAX];
+                    char* resolved;
+                    resolved = realpath(d->binary_filename[d->local_pc_size], buffer);
+                    if (resolved) d->binary_filename[d->local_pc_size] = resolved;
+                    d->local_pc_size++;
+                    return;
+                }
+            }
+            cmd = (struct load_command*)((char*)cmd + cmd->cmdsize);
+        }
+    }
+    printf("The stack address was not found in any shared library or"
+        " the main program, the stack is probably corrupted.\n"
+        "Aborting...\n");
+    abort();
+}
+#endif // HAVE_LFORTRAN_MACHO
+
 // Fills in `local_pc` and `binary_filename`
 void get_local_address(struct Stacktrace *d) {
     d->local_pc_size = 0;
     for (int32_t i=0; i < d->pc_size; i++) {
         d->current_pc = d->pc[i];
 #ifdef HAVE_LFORTRAN_LINK
-        // Iterate over all loaded shared libraries
+        // Iterates over all loaded shared libraries
         // See `stacktrace.cpp` to get more information
         if (dl_iterate_phdr(shared_lib_callback, d) == 0) {
-            printf("The stack address was not found in any shared library or "
-                " the main program, the stack is probably corrupted.\nAborting...");
+            printf("The stack address was not found in any shared library or"
+                " the main program, the stack is probably corrupted.\n"
+                "Aborting...\n");
             abort();
         }
+#else
+#ifdef HAVE_LFORTRAN_MACHO
+        get_local_address_mac(& *d);
+#else
+    d->local_pc[d->local_pc_size] = 0
+    d->local_pc_size++;
+#endif // HAVE_LFORTRAN_MACHO
 #endif // HAVE_LFORTRAN_LINK
     }
 }
@@ -1475,20 +1537,18 @@ LFORTRAN_API void print_stacktrace_addresses(char *filename, bool use_colors) {
 
         for (size_t i = d.local_pc_size-1; i > 0; i--) {
             uint64_t index = bisection(d.addresses, d.stack_size, d.local_pc[i]);
-            if (d.binary_filename[i] == executable_filename) {
-                if(use_colors) {
-                    fprintf(stderr, DIM "  File " S_RESET
-                        BOLD MAGENTA "\"%s\"" C_RESET S_RESET
-                        DIM ", line %ld\n" S_RESET
-                        "    %s\n", executable_filename, d.line_numbers[index],
-                        remove_whitespace(read_line_from_file(executable_filename,
-                        d.line_numbers[index])));
-                } else {
-                    fprintf(stderr, "  File \"%s\", line %ld\n    %s\n",
-                        executable_filename, d.line_numbers[index],
-                        remove_whitespace(read_line_from_file(executable_filename,
-                        d.line_numbers[index])));
-                }
+            if(use_colors) {
+                fprintf(stderr, DIM "  File " S_RESET
+                    BOLD MAGENTA "\"%s\"" C_RESET S_RESET
+                    DIM ", line %lld\n" S_RESET
+                    "    %s\n", executable_filename, d.line_numbers[index],
+                    remove_whitespace(read_line_from_file(executable_filename,
+                    d.line_numbers[index])));
+            } else {
+                fprintf(stderr, "  File \"%s\", line %lld\n    %s\n",
+                    executable_filename, d.line_numbers[index],
+                    remove_whitespace(read_line_from_file(executable_filename,
+                    d.line_numbers[index])));
             }
         }
     }
