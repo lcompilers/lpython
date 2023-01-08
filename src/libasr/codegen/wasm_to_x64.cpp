@@ -219,7 +219,10 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, 8 * (2 + localidx));
                 m_a.asm_push_r64(X64Reg::rax);
             } else if (var_type == "f64") {
-                std::cerr << "Floats are not yet supported" << std::endl;
+                m_a.asm_push_r64(X64Reg::rax); // temporary push to create space for value to be fetched
+                m_a.asm_movsd_r64_m64(X64FReg::xmm0, &base, nullptr, 1, 8 * (2 + localidx));
+                X64Reg stack_top = X64Reg::rsp;
+                m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0);
             } else {
                 throw CodeGenError("WASM_X64: Var type not supported");
             }
@@ -230,7 +233,10 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, -8 * (1 + (int)localidx));
                 m_a.asm_push_r64(X64Reg::rax);
             } else if (var_type == "f64") {
-                std::cerr << "Floats are not yet supported" << std::endl;
+                m_a.asm_push_r64(X64Reg::rax); // temporary push to create space for value to be fetched
+                m_a.asm_movsd_r64_m64(X64FReg::xmm0, &base, nullptr, 1, -8 * (1 + (int)localidx));
+                X64Reg stack_top = X64Reg::rsp;
+                m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0);
             } else {
                 throw CodeGenError("WASM_X64: Var type not supported");
             }
@@ -247,7 +253,10 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 m_a.asm_pop_r64(X64Reg::rax);
                 m_a.asm_mov_m64_r64(&base, nullptr, 1, 8 * (2 + localidx), X64Reg::rax);
             } else if (var_type == "f64") {
-                std::cerr << "Floats are not yet supported" << std::endl;
+                X64Reg stack_top = X64Reg::rsp;
+                m_a.asm_movsd_r64_m64(X64FReg::xmm0, &stack_top, nullptr, 1, 0);
+                m_a.asm_movsd_m64_r64(&base, nullptr, 1, 8 * (2 + localidx), X64FReg::xmm0);
+                m_a.asm_pop_r64(X64Reg::rax); // temporary pop to remove from stack top
             } else {
                 throw CodeGenError("WASM_X64: Var type not supported");
             }
@@ -258,7 +267,10 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 m_a.asm_pop_r64(X64Reg::rax);
                 m_a.asm_mov_m64_r64(&base, nullptr, 1, -8 * (1 + (int)localidx), X64Reg::rax);
             } else if (var_type == "f64") {
-                std::cerr << "Floats are not yet supported" << std::endl;
+                X64Reg stack_top = X64Reg::rsp;
+                m_a.asm_movsd_r64_m64(X64FReg::xmm0, &stack_top, nullptr, 1, 0);
+                m_a.asm_movsd_m64_r64(&base, nullptr, 1, -8 * (1 + (int)localidx), X64FReg::xmm0);
+                m_a.asm_pop_r64(X64Reg::rax); // temporary pop to remove from stack top
             } else {
                 throw CodeGenError("WASM_X64: Var type not supported");
             }
@@ -350,6 +362,32 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         X64Reg stack_top = X64Reg::rsp;
         m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0); // store float on integer stack top;
     }
+
+    void handleF64Operations(char opt) {
+        X64Reg stack_top = X64Reg::rsp;
+        // load second operand into floating-point register
+        m_a.asm_movsd_r64_m64(X64FReg::xmm1, &stack_top, nullptr, 1, 0);
+        m_a.asm_pop_r64(X64Reg::rax); // pop the argument
+        // load first operand into floating-point register
+        m_a.asm_movsd_r64_m64(X64FReg::xmm0, &stack_top, nullptr, 1, 0);
+        // no need to pop this operand since we need space to output back result
+
+        switch (opt) {
+            case '+': m_a.asm_addsd_r64_r64(X64FReg::xmm0, X64FReg::xmm1); break;
+            case '-': m_a.asm_subsd_r64_r64(X64FReg::xmm0, X64FReg::xmm1); break;
+            case '*': m_a.asm_mulsd_r64_r64(X64FReg::xmm0, X64FReg::xmm1); break;
+            case '/': m_a.asm_divsd_r64_r64(X64FReg::xmm0, X64FReg::xmm1); break;
+            default: throw CodeGenError("Unknown floating-point operation");
+        }
+
+        // store float result back on stack top;
+        m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0);
+    }
+
+    void visit_F64Add() { handleF64Operations('+'); }
+    void visit_F64Sub() { handleF64Operations('-'); }
+    void visit_F64Mul() { handleF64Operations('*'); }
+    void visit_F64Div() { handleF64Operations('/'); }
 
     void gen_x64_bytes() {
         {   // Initialize/Modify values of entities
