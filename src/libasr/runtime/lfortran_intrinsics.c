@@ -37,7 +37,8 @@ extern int dl_iterate_phdr (int (*__callback) (struct dl_phdr_info *,
 
 // Runtime Stacktrace
 #define LCOMPILERS_MAX_STACKTRACE_LENGTH 200
-char *executable_filename;
+char *source_filename;
+char *binary_executable_path = "/proc/self/exe";
 
 struct Stacktrace {
     uintptr_t pc[LCOMPILERS_MAX_STACKTRACE_LENGTH];
@@ -1294,7 +1295,7 @@ int shared_lib_callback(struct dl_phdr_info *info,
             if ((d->current_pc >= min_addr) && (d->current_pc < max_addr)) {
                 d->binary_filename[d->local_pc_size] = (char *)info->dlpi_name;
                 if (d->binary_filename[d->local_pc_size][0] == '\0') {
-                    d->binary_filename[d->local_pc_size] = executable_filename;
+                    d->binary_filename[d->local_pc_size] = binary_executable_path;
                 }
                 d->local_pc[d->local_pc_size] = d->current_pc - info->dlpi_addr;
                 d->local_pc_size++;
@@ -1415,7 +1416,7 @@ uint32_t get_file_size(int64_t fp) {
  */
 void get_local_info_dwarfdump(struct Stacktrace *d) {
     // TODO: Read the contents of lines.dat from here itself.
-    char *base_name = get_base_name(executable_filename);
+    char *base_name = get_base_name(source_filename);
     char *filename = malloc(strlen(base_name) + 14);
     strcpy(filename, base_name);
     strcat(filename, "_lines.dat.txt");
@@ -1497,7 +1498,7 @@ char *remove_whitespace(char *str) {
 
 int generate_stacktrace_files() {
     // TODO: Replace the hardcoded part
-    char *base_name = get_base_name(executable_filename);
+    char *base_name = get_base_name(source_filename);
     char *cmd = malloc(strlen(base_name)*6 + 157);
 #ifdef HAVE_LFORTRAN_MACHO
     strcpy(cmd, "dsymutil ");
@@ -1528,7 +1529,7 @@ int generate_stacktrace_files() {
 }
 
 LFORTRAN_API void print_stacktrace_addresses(char *filename, bool use_colors) {
-    executable_filename = filename;
+    source_filename = filename;
     int status = generate_stacktrace_files();
     if (status == 0) {
         struct Stacktrace d = get_stacktrace_addresses();
@@ -1541,13 +1542,13 @@ LFORTRAN_API void print_stacktrace_addresses(char *filename, bool use_colors) {
                 fprintf(stderr, DIM "  File " S_RESET
                     BOLD MAGENTA "\"%s\"" C_RESET S_RESET
                     DIM ", line %lld\n" S_RESET
-                    "    %s\n", executable_filename, d.line_numbers[index],
-                    remove_whitespace(read_line_from_file(executable_filename,
+                    "    %s\n", source_filename, d.line_numbers[index],
+                    remove_whitespace(read_line_from_file(source_filename,
                     d.line_numbers[index])));
             } else {
                 fprintf(stderr, "  File \"%s\", line %lld\n    %s\n",
-                    executable_filename, d.line_numbers[index],
-                    remove_whitespace(read_line_from_file(executable_filename,
+                    source_filename, d.line_numbers[index],
+                    remove_whitespace(read_line_from_file(source_filename,
                     d.line_numbers[index])));
             }
         }
