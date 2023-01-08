@@ -1377,10 +1377,10 @@ void get_local_info_dwarfdump(struct Stacktrace *d) {
             s[j] = '\0';
             j = 0;
             if (address) {
-                d->addresses[d->stack_size] = atoi(s);
+                d->addresses[d->stack_size] = strtol(s, NULL, 10);
                 address = false;
             } else {
-                d->line_numbers[d->stack_size] = atoi(s);
+                d->line_numbers[d->stack_size] = strtol(s, NULL, 10);
                 address = true;
             }
             memset(s, '\0', sizeof(s));
