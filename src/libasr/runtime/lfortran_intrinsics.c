@@ -1377,7 +1377,7 @@ void get_local_address(struct Stacktrace *d) {
 #ifdef HAVE_LFORTRAN_MACHO
         get_local_address_mac(& *d);
 #else
-    d->local_pc[d->local_pc_size] = 0
+    d->local_pc[d->local_pc_size] = 0;
     d->local_pc_size++;
 #endif // HAVE_LFORTRAN_MACHO
 #endif // HAVE_LFORTRAN_LINK
@@ -1536,7 +1536,11 @@ LFORTRAN_API void print_stacktrace_addresses(char *filename, bool use_colors) {
         get_local_address(&d);
         get_local_info_dwarfdump(&d);
 
-        for (int32_t i = d.local_pc_size-1; i >= 0; i--) {
+#ifdef HAVE_LFORTRAN_MACHO
+        for (int32_t i = d.local_pc_size-2; i > 1; i--) {
+#else
+        for (int32_t i = d.local_pc_size-3; i >= 0; i--) {
+#endif
             uint64_t index = bisection(d.addresses, d.stack_size, d.local_pc[i]);
             if(use_colors) {
                 fprintf(stderr, DIM "  File " S_RESET
@@ -1560,7 +1564,11 @@ LFORTRAN_API void print_stacktrace_addresses(char *filename, bool use_colors) {
                     remove_whitespace(read_line_from_file(source_filename,
                     d.line_numbers[index])));
             }
+#ifdef HAVE_LFORTRAN_MACHO
         }
+#else
+        }
+#endif
     }
 }
 
