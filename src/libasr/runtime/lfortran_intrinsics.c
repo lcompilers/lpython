@@ -1437,9 +1437,18 @@ int generate_stacktrace_files() {
     // TODO: Replace the hardcoded part
     char *base_name = get_base_name(executable_filename);
     char *cmd = malloc(strlen(base_name)*6 + 157);
+#ifdef HAVE_LFORTRAN_MACHO
+    strcpy(cmd, "dsymutil ");
+    strcat(cmd, base_name);
+    strcat(cmd, ".out && ");
+    strcat(cmd, "llvm-dwarfdump --debug-line ");
+    strcat(cmd, base_name);
+    strcat(cmd, ".out.dSYM > ");
+#else
     strcpy(cmd, "llvm-dwarfdump --debug-line ");
     strcat(cmd, base_name);
     strcat(cmd, ".out > ");
+#endif
     strcat(cmd, base_name);
     strcat(cmd, ".txt && ");
     strcat(cmd, "(cd src/bin; ./dwarf_convert.py ../../");
