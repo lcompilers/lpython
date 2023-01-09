@@ -1364,7 +1364,7 @@ int main(int argc, char *argv[])
         app.add_flag("--indent", compiler_options.indent, "Indented print ASR/AST");
         app.add_flag("--tree", compiler_options.tree, "Tree structure print ASR/AST");
         app.add_option("--pass", arg_pass, "Apply the ASR pass and show ASR (implies --show-asr)");
-        app.add_option("--skip_pass", skip_pass, "Skip an ASR pass in default pipeline");
+        app.add_option("--skip-pass", skip_pass, "Skip an ASR pass in default pipeline");
         app.add_flag("--disable-main", compiler_options.disable_main, "Do not generate any code for the `main` function");
         app.add_flag("--symtab-only", compiler_options.symtab_only, "Only create symbol tables in ASR (skip executable stmt)");
         app.add_flag("--time-report", time_report, "Show compilation time report");
