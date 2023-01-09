@@ -731,8 +731,7 @@ R"(#include <stdio.h>
                 std::string alloc = "";
                 if (alloc_return_var) {
                     // char * return variable;
-                     alloc = indent + target + " = " + "(char *) malloc((strlen(" +
-                                    value + ") + 1 ) * sizeof(char));\n";
+                     alloc = indent + target + " = NULL;\n";
                 }
                 if( ASRUtils::is_array(m_target_type) && ASRUtils::is_array(m_value_type) ) {
                     ASR::dimension_t* m_target_dims = nullptr;
@@ -844,7 +843,7 @@ R"(#include <stdio.h>
         for( size_t i = 0; i < x.n_args; i++ ) {
             self().visit_expr(*x.m_args[i]);
             if( ASR::is_a<ASR::Character_t>(*t->m_type) ) {
-                src_tmp += indent + var_name + ".data[" + std::to_string(i) +"] = (char*) malloc(40 * sizeof(char));\n";
+                src_tmp += indent + var_name + ".data[" + std::to_string(i) +"] = NULL;\n";
             }
             src_tmp += indent + c_ds_api->get_deepcopy(t->m_type, src,
                         var_name + ".data[" + std::to_string(i) +"]") + "\n";
@@ -869,7 +868,7 @@ R"(#include <stdio.h>
             self().visit_expr(*x.m_elements[i]);
             std::string ele = ".element_" + std::to_string(i);
             if (ASR::is_a<ASR::Character_t>(*t->m_type[i])) {
-                src_tmp += indent + var_name + ele + " = (char*) malloc(40 * sizeof(char));\n";
+                src_tmp += indent + var_name + ele + " = NULL;\n";
             }
             src_tmp += indent + c_ds_api->get_deepcopy(t->m_type[i], src, var_name + ele) + "\n";
         }
