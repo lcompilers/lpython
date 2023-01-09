@@ -623,6 +623,14 @@ LFORTRAN_API void _lfortran_strcat(char** s1, char** s2, char** dest)
     *dest = &(dest_char[0]);
 }
 
+// strcpy -----------------------------------------------------------
+
+LFORTRAN_API void _lfortran_strcpy(char* x, char *y)
+{
+    x = (char*) malloc((strlen(y) + 1) * sizeof(char));
+    strcpy(x, y);
+}
+
 #define MIN(x, y) ((x < y) ? x : y)
 
 int str_compare(char **s1, char **s2)

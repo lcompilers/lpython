@@ -156,6 +156,7 @@ LFORTRAN_API int32_t _lpython_bit_length8(int64_t num);
 LFORTRAN_API void _lfortran_strrepeat(char** s, int32_t n, char** dest);
 LFORTRAN_API char* _lfortran_strrepeat_c(char* s, int32_t n);
 LFORTRAN_API void _lfortran_strcat(char** s1, char** s2, char** dest);
+LFORTRAN_API void _lfortran_strcpy(char* x, char *y);
 LFORTRAN_API int _lfortran_str_len(char** s);
 LFORTRAN_API int _lfortran_str_ord(char** s);
 LFORTRAN_API int _lfortran_str_ord_c(char* s);
