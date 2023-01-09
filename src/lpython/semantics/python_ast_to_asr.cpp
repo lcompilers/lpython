@@ -658,7 +658,7 @@ public:
         ASRUtils::ExprStmtDuplicator expr_duplicator(al);
         expr_duplicator.allow_procedure_calls = true;
         ASRUtils::ReplaceArgVisitor arg_replacer(al, current_scope, orig_func,
-                                                 orig_args);
+                                                 orig_args, dependencies);
         for( size_t i = 0; i < exprs.size(); i++ ) {
             ASR::expr_t* expri = exprs[i];
             if (expri) {
@@ -1336,7 +1336,7 @@ public:
      *        arguments. If not, then instantiate a new function.
      */
     ASR::symbol_t* get_generic_function(std::map<std::string, ASR::ttype_t*> subs,
-            std::map<std::string, ASR::symbol_t*> rt_subs, ASR::Function_t *func) {
+            std::map<std::string, ASR::symbol_t*>& rt_subs, ASR::Function_t *func) {
         int new_function_num;
         ASR::symbol_t *t;
         std::string func_name = func->m_name;
@@ -1371,7 +1371,7 @@ public:
         std::string new_func_name = "__lpython_generic_" + func_name + "_"
             + std::to_string(new_function_num);
         generic_func_subs[new_func_name] = subs;
-        t = pass_instantiate_generic_function(al, subs, rt_subs, current_scope,
+        t = pass_instantiate_generic_function(al, subs, rt_subs, func->m_symtab->parent,
                 new_func_name, func);
         dependencies.erase(func_name);
         dependencies.insert(new_func_name);

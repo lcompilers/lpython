@@ -30,7 +30,13 @@ namespace BigInt {
  * in int64_t.
  *
  * To check if the integer has a pointer tag, we check that the first two bits
- * (1-2) are equal to 01:
+ * (1-2) are equal to 01.
+ *
+ * If the first bit is 0, then it can either be a positive integer or a
+ * pointer. We check the second bit, if it is 1, then it is a pointer (shifted
+ * by 2), if it is 0, then is is a positive integer, represented by the rest of
+ * the 62 bits. If the first bit is 1, then it is a negative integer,
+ * represented by the full 64 bits in 2's complement representation.
  */
 
 // Returns true if "i" is a pointer and false if "i" is an integer
@@ -104,7 +110,7 @@ inline static bool is_int64(std::string str_repr) {
     if( str_repr.size() > str_int64.size() ) {
         return false;
     }
-    
+
     if( str_repr.size() < str_int64.size() ) {
         return true;
     }

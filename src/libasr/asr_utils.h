@@ -103,6 +103,13 @@ static inline ASR::ttype_t* symbol_type(const ASR::symbol_t *f)
         case ASR::symbolType::EnumType: {
             return ASR::down_cast<ASR::EnumType_t>(f)->m_type;
         }
+        case ASR::symbolType::ExternalSymbol: {
+            return symbol_type(ASRUtils::symbol_get_past_external(f));
+        }
+        case ASR::symbolType::Function: {
+            return ASRUtils::expr_type(
+                ASR::down_cast<ASR::Function_t>(f)->m_return_var);
+        }
         default: {
             throw LCompilersException("Cannot return type of, " +
                                     std::to_string(f->type) + " symbol.");
@@ -175,6 +182,52 @@ static inline ASR::abiType expr_abi(ASR::expr_t* e) {
     }
 }
 
+static inline char *symbol_name(const ASR::symbol_t *f)
+{
+    switch (f->type) {
+        case ASR::symbolType::Program: {
+            return ASR::down_cast<ASR::Program_t>(f)->m_name;
+        }
+        case ASR::symbolType::Module: {
+            return ASR::down_cast<ASR::Module_t>(f)->m_name;
+        }
+        case ASR::symbolType::Function: {
+            return ASR::down_cast<ASR::Function_t>(f)->m_name;
+        }
+        case ASR::symbolType::GenericProcedure: {
+            return ASR::down_cast<ASR::GenericProcedure_t>(f)->m_name;
+        }
+        case ASR::symbolType::StructType: {
+            return ASR::down_cast<ASR::StructType_t>(f)->m_name;
+        }
+        case ASR::symbolType::EnumType: {
+            return ASR::down_cast<ASR::EnumType_t>(f)->m_name;
+        }
+        case ASR::symbolType::UnionType: {
+            return ASR::down_cast<ASR::UnionType_t>(f)->m_name;
+        }
+        case ASR::symbolType::Variable: {
+            return ASR::down_cast<ASR::Variable_t>(f)->m_name;
+        }
+        case ASR::symbolType::ExternalSymbol: {
+            return ASR::down_cast<ASR::ExternalSymbol_t>(f)->m_name;
+        }
+        case ASR::symbolType::ClassProcedure: {
+            return ASR::down_cast<ASR::ClassProcedure_t>(f)->m_name;
+        }
+        case ASR::symbolType::CustomOperator: {
+            return ASR::down_cast<ASR::CustomOperator_t>(f)->m_name;
+        }
+        case ASR::symbolType::AssociateBlock: {
+            return ASR::down_cast<ASR::AssociateBlock_t>(f)->m_name;
+        }
+        case ASR::symbolType::Block: {
+            return ASR::down_cast<ASR::Block_t>(f)->m_name;
+        }
+        default : throw LCompilersException("Not implemented");
+    }
+}
+
 static inline std::string type_to_str(const ASR::ttype_t *t)
 {
     switch (t->type) {
@@ -206,7 +259,7 @@ static inline std::string type_to_str(const ASR::ttype_t *t)
             return "list";
         }
         case ASR::ttypeType::Struct: {
-            return "derived type";
+            return ASRUtils::symbol_name(ASR::down_cast<ASR::Struct_t>(t)->m_derived_type);
         }
         case ASR::ttypeType::Union: {
             return "union";
@@ -265,52 +318,6 @@ static inline std::string logicalbinop_to_str_python(const ASR::logicalbinopType
 static inline ASR::expr_t* expr_value(ASR::expr_t *f)
 {
     return ASR::expr_value0(f);
-}
-
-static inline char *symbol_name(const ASR::symbol_t *f)
-{
-    switch (f->type) {
-        case ASR::symbolType::Program: {
-            return ASR::down_cast<ASR::Program_t>(f)->m_name;
-        }
-        case ASR::symbolType::Module: {
-            return ASR::down_cast<ASR::Module_t>(f)->m_name;
-        }
-        case ASR::symbolType::Function: {
-            return ASR::down_cast<ASR::Function_t>(f)->m_name;
-        }
-        case ASR::symbolType::GenericProcedure: {
-            return ASR::down_cast<ASR::GenericProcedure_t>(f)->m_name;
-        }
-        case ASR::symbolType::StructType: {
-            return ASR::down_cast<ASR::StructType_t>(f)->m_name;
-        }
-        case ASR::symbolType::EnumType: {
-            return ASR::down_cast<ASR::EnumType_t>(f)->m_name;
-        }
-        case ASR::symbolType::UnionType: {
-            return ASR::down_cast<ASR::UnionType_t>(f)->m_name;
-        }
-        case ASR::symbolType::Variable: {
-            return ASR::down_cast<ASR::Variable_t>(f)->m_name;
-        }
-        case ASR::symbolType::ExternalSymbol: {
-            return ASR::down_cast<ASR::ExternalSymbol_t>(f)->m_name;
-        }
-        case ASR::symbolType::ClassProcedure: {
-            return ASR::down_cast<ASR::ClassProcedure_t>(f)->m_name;
-        }
-        case ASR::symbolType::CustomOperator: {
-            return ASR::down_cast<ASR::CustomOperator_t>(f)->m_name;
-        }
-        case ASR::symbolType::AssociateBlock: {
-            return ASR::down_cast<ASR::AssociateBlock_t>(f)->m_name;
-        }
-        case ASR::symbolType::Block: {
-            return ASR::down_cast<ASR::Block_t>(f)->m_name;
-        }
-        default : throw LCompilersException("Not implemented");
-    }
 }
 
 static inline std::pair<char**, size_t> symbol_dependencies(const ASR::symbol_t *f)
@@ -1231,6 +1238,8 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                     ASR::binopType op, std::string& intrinsic_op_name,
                     SymbolTable* curr_scope, ASR::asr_t*& asr,
                     Allocator &al, const Location& loc,
+                    std::set<std::string>& current_function_dependencies,
+                    Vec<char*>& current_module_dependencies,
                     const std::function<void (const std::string &, const Location &)> err);
 
 bool is_op_overloaded(ASR::binopType op, std::string& intrinsic_op_name,
@@ -1240,6 +1249,8 @@ bool use_overloaded(ASR::expr_t* left, ASR::expr_t* right,
                     ASR::cmpopType op, std::string& intrinsic_op_name,
                     SymbolTable* curr_scope, ASR::asr_t*& asr,
                     Allocator &al, const Location& loc,
+                    std::set<std::string>& current_function_dependencies,
+                    Vec<char*>& current_module_dependencies,
                     const std::function<void (const std::string &, const Location &)> err);
 
 bool is_op_overloaded(ASR::cmpopType op, std::string& intrinsic_op_name,
@@ -1248,6 +1259,8 @@ bool is_op_overloaded(ASR::cmpopType op, std::string& intrinsic_op_name,
 bool use_overloaded_assignment(ASR::expr_t* target, ASR::expr_t* value,
                                SymbolTable* curr_scope, ASR::asr_t*& asr,
                                Allocator &al, const Location& loc,
+                               std::set<std::string>& current_function_dependencies,
+                               Vec<char*>& /*current_module_dependencies*/,
                                const std::function<void (const std::string &, const Location &)> err);
 
 void set_intrinsic(ASR::symbol_t* sym);
@@ -1318,6 +1331,27 @@ static inline bool is_generic(ASR::ttype_t &x) {
     }
 }
 
+static inline bool is_generic_function(ASR::symbol_t *x) {
+    ASR::symbol_t* x2 = symbol_get_past_external(x);
+    switch (x2->type) {
+        case ASR::symbolType::Function: {
+            ASR::Function_t *func_sym = ASR::down_cast<ASR::Function_t>(x2);
+            return func_sym->n_type_params > 0 && !func_sym->m_is_restriction;
+        }
+        default: return false;
+    }
+}
+
+static inline bool is_restriction_function(ASR::symbol_t *x) {
+    ASR::symbol_t* x2 = symbol_get_past_external(x);
+    switch (x2->type) {
+        case ASR::symbolType::Function: {
+            ASR::Function_t *func_sym = ASR::down_cast<ASR::Function_t>(x2);
+            return func_sym->m_is_restriction;
+        }
+        default: return false;
+    }
+}
 
 static inline int get_body_size(ASR::symbol_t* s) {
     int n_body = 0;
@@ -1678,7 +1712,12 @@ inline bool is_same_type_pointer(ASR::ttype_t* source, ASR::ttype_t* dest) {
         source = dest;
         dest = temp;
     }
-    bool res = source->type == ASR::down_cast<ASR::Pointer_t>(dest)->m_type->type;
+    dest = ASR::down_cast<ASR::Pointer_t>(dest)->m_type;
+    if( (ASR::is_a<ASR::Class_t>(*source) || ASR::is_a<ASR::Struct_t>(*source)) &&
+        (ASR::is_a<ASR::Class_t>(*dest) || ASR::is_a<ASR::Struct_t>(*dest)) ) {
+        return true;
+    }
+    bool res = source->type == dest->type;
     return res;
 }
 
@@ -1923,12 +1962,15 @@ class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
 
     Vec<ASR::call_arg_t>& orig_args;
 
+    std::set<std::string>& current_function_dependencies;
+
     public:
 
     ReplaceArgVisitor(Allocator& al_, SymbolTable* current_scope_,
-                      ASR::Function_t* orig_func_, Vec<ASR::call_arg_t>& orig_args_) :
+                      ASR::Function_t* orig_func_, Vec<ASR::call_arg_t>& orig_args_,
+                      std::set<std::string>& current_function_dependencies_) :
         al(al_), current_scope(current_scope_), orig_func(orig_func_),
-        orig_args(orig_args_)
+        orig_args(orig_args_), current_function_dependencies(current_function_dependencies_)
     {}
 
     void replace_FunctionCall(ASR::FunctionCall_t* x) {
@@ -1984,6 +2026,7 @@ class ReplaceArgVisitor: public ASR::BaseExprReplacer<ReplaceArgVisitor> {
             replace_expr(x->m_args[i].m_value);
             current_expr = current_expr_copy_;
         }
+        current_function_dependencies.insert(std::string(ASRUtils::symbol_name(new_es)));
         x->m_name = new_es;
     }
 
