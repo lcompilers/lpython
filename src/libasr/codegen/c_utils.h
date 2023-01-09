@@ -397,7 +397,7 @@ class CCPPDSUtils {
                 }
                 case ASR::ttypeType::Character : {
                     if (is_c) {
-                        result = "strcpy(" + target + ", " + value + ");";
+                        result = "_lfortran_strcpy(" + target + ", " + value + ");";
                     } else {
                         result = target + " = " + value  + ";";
                     }

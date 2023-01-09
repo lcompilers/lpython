@@ -627,6 +627,7 @@ LFORTRAN_API void _lfortran_strcat(char** s1, char** s2, char** dest)
 
 LFORTRAN_API void _lfortran_strcpy(char* x, char *y)
 {
+    if (x) free((void *)x);
     x = (char*) malloc((strlen(y) + 1) * sizeof(char));
     strcpy(x, y);
 }
