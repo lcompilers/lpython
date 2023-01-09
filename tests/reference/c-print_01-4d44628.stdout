@@ -37,13 +37,13 @@ struct dimension_descriptor
 // Implementations
 void f()
 {
-    char * x = (char*) malloc(40 * sizeof(char));
-    char * y = (char*) malloc(40 * sizeof(char));
+    char * x = NULL;
+    char * y = NULL;
     printf("%s\n", "Hello World!");
-    strcpy(x, ",");
-    strcpy(y, "!!");
+    _lfortran_strcpy(&x, ",");
+    _lfortran_strcpy(&y, "!!");
     printf("%s%s%s\n", "a", x, "b");
-    strcpy(x, "-+-+-");
+    _lfortran_strcpy(&x, "-+-+-");
     printf("%s%s%s%s%s\n", "a", x, "b", x, "c");
     printf("%s%s%s%s%s%s", "d", "=", "e", "=", "f", "+\n");
     printf("%s%s%s%s%s%s", "x", "*\n", "y", "*\n", "z", y);
