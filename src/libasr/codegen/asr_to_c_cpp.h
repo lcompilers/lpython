@@ -30,7 +30,6 @@
 
 namespace LFortran {
 
-
 // Platform dependent fast unique hash:
 static inline uint64_t get_hash(ASR::asr_t *node)
 {
@@ -43,6 +42,38 @@ struct SymbolInfo
     bool intrinsic_function = false;
 };
 
+struct DeclarationOptions {
+};
+
+struct CDeclarationOptions: public DeclarationOptions {
+    bool pre_initialise_derived_type;
+    bool use_ptr_for_derived_type;
+    bool use_static;
+    bool force_declare;
+    std::string force_declare_name;
+    bool declare_as_constant;
+    std::string const_name;
+
+    CDeclarationOptions() :
+    pre_initialise_derived_type{true},
+    use_ptr_for_derived_type{true},
+    use_static{true},
+    force_declare{false},
+    force_declare_name{""},
+    declare_as_constant{false},
+    const_name{""} {
+    }
+};
+
+struct CPPDeclarationOptions: public DeclarationOptions {
+    bool use_static;
+    bool use_templates_for_arrays;
+
+    CPPDeclarationOptions() :
+    use_static{true},
+    use_templates_for_arrays{false} {
+    }
+};
 
 template <class Struct>
 class BaseCCPPVisitor : public ASR::BaseVisitor<Struct>
@@ -376,9 +407,14 @@ R"(#include <stdio.h>
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
             LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
             if( is_c ) {
-                func += self().convert_variable_decl(*arg, false);
+                CDeclarationOptions c_decl_options;
+                c_decl_options.pre_initialise_derived_type = false;
+                func += self().convert_variable_decl(*arg, &c_decl_options);
             } else {
-                func += self().convert_variable_decl(*arg, false, true);
+                CPPDeclarationOptions cpp_decl_options;
+                cpp_decl_options.use_static = false;
+                cpp_decl_options.use_templates_for_arrays = true;
+                func += self().convert_variable_decl(*arg, &cpp_decl_options);
             }
             if (i < x.n_args-1) func += ", ";
         }
@@ -466,8 +502,15 @@ R"(#include <stdio.h>
                     if (ASR::is_a<ASR::Variable_t>(*v_sym)) {
                         ASR::Variable_t* v = ASR::down_cast<ASR::Variable_t>(v_sym);
                         if( v->m_symbolic_value ) {
-                            this->visit_expr(*v->m_symbolic_value);
-                            decl += indent + "#define " + std::string(v_ext->m_name) + " " + src + "\n";
+                            if( is_c ) {
+                                CDeclarationOptions c_decl_options;
+                                c_decl_options.declare_as_constant = true;
+                                c_decl_options.const_name = v_ext->m_name;
+                                decl += indent + self().convert_variable_decl(*v, &c_decl_options) + ";\n";
+                            } else {
+                                // TODO: Do for CPP when the use case shows up
+                                decl += indent + self().convert_variable_decl(*v) + ";\n";
+                            }
                             src.clear();
                         }
                     }
