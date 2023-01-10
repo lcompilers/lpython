@@ -158,7 +158,13 @@ public:
                 counter += 1;
                 ASR::dimension_t* m_dims = nullptr;
                 size_t n_dims = ASRUtils::extract_dimensions_from_ttype(mem_type, m_dims);
-                sub += indent + convert_variable_decl(*mem_var, true, true, true, true, mem_var_name) + ";\n";
+                CDeclarationOptions c_decl_options_;
+                c_decl_options_.pre_initialise_derived_type = true;
+                c_decl_options_.use_ptr_for_derived_type = true;
+                c_decl_options_.use_static = true;
+                c_decl_options_.force_declare = true;
+                c_decl_options_.force_declare_name = mem_var_name;
+                sub += indent + convert_variable_decl(*mem_var, &c_decl_options_) + ";\n";
                 if( !ASRUtils::is_fixed_size_array(m_dims, n_dims) ) {
                     sub += indent + name + "->" + itr.first + " = " + mem_var_name + ";\n";
                 }
@@ -172,12 +178,34 @@ public:
     }
 
     std::string convert_variable_decl(const ASR::Variable_t &v,
-                                      bool pre_initialise_derived_type=true,
-                                      bool use_ptr_for_derived_type=true,
-                                      bool use_static=true,
-                                      bool force_declare=false,
-                                      std::string force_declare_name="")
+        DeclarationOptions* decl_options=nullptr)
     {
+        bool pre_initialise_derived_type;
+        bool use_ptr_for_derived_type;
+        bool use_static;
+        bool force_declare;
+        std::string force_declare_name;
+        bool declare_as_constant;
+        std::string const_name;
+
+        if( decl_options ) {
+            CDeclarationOptions* c_decl_options = reinterpret_cast<CDeclarationOptions*>(decl_options);
+            pre_initialise_derived_type = c_decl_options->pre_initialise_derived_type;
+            use_ptr_for_derived_type = c_decl_options->use_ptr_for_derived_type;
+            use_static = c_decl_options->use_static;
+            force_declare = c_decl_options->force_declare;
+            force_declare_name = c_decl_options->force_declare_name;
+            declare_as_constant = c_decl_options->declare_as_constant;
+            const_name = c_decl_options->const_name;
+        } else {
+            pre_initialise_derived_type = true;
+            use_ptr_for_derived_type = true;
+            use_static = true;
+            force_declare = false;
+            force_declare_name = "";
+            declare_as_constant = false;
+            const_name = "";
+        }
         std::string sub;
         bool use_ref = (v.m_intent == ASRUtils::intent_out ||
                         v.m_intent == ASRUtils::intent_inout);
@@ -275,8 +303,13 @@ public:
                     }
                 } else {
                     bool is_fixed_size = true;
+                    std::string v_m_name = v.m_name;
+                    if( declare_as_constant ) {
+                        type_name = "const " + type_name;
+                        v_m_name = const_name;
+                    }
                     dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
-                    sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
+                    sub = format_type_c(dims, type_name, v_m_name, use_ref, dummy);
                 }
             } else if (ASRUtils::is_real(*v_m_type)) {
                 ASR::Real_t *t = ASR::down_cast<ASR::Real_t>(v_m_type);
@@ -307,8 +340,13 @@ public:
                     }
                 } else {
                     bool is_fixed_size = true;
+                    std::string v_m_name = v.m_name;
+                    if( declare_as_constant ) {
+                        type_name = "const " + type_name;
+                        v_m_name = const_name;
+                    }
                     dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
-                    sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
+                    sub = format_type_c(dims, type_name, v_m_name, use_ref, dummy);
                 }
             } else if (ASRUtils::is_complex(*v_m_type)) {
                 headers.insert("complex");
@@ -340,8 +378,13 @@ public:
                     }
                 } else {
                     bool is_fixed_size = true;
+                    std::string v_m_name = v.m_name;
+                    if( declare_as_constant ) {
+                        type_name = "const " + type_name;
+                        v_m_name = const_name;
+                    }
                     dims = convert_dims_c(t->n_dims, t->m_dims, v_m_type, is_fixed_size);
-                    sub = format_type_c(dims, type_name, v.m_name, use_ref, dummy);
+                    sub = format_type_c(dims, type_name, v_m_name, use_ref, dummy);
                 }
             } else if (ASRUtils::is_logical(*v_m_type)) {
                 ASR::Logical_t *t = ASR::down_cast<ASR::Logical_t>(v_m_type);
@@ -731,12 +774,15 @@ R"(
         indentation_level += 1;
         std::string open_struct = indent + c_type_name + " " + std::string(x.m_name) + " {\n";
         indent.push_back(' ');
+        CDeclarationOptions c_decl_options_;
+        c_decl_options_.pre_initialise_derived_type = false;
+        c_decl_options_.use_ptr_for_derived_type = false;
         for( size_t i = 0; i < x.n_members; i++ ) {
             ASR::symbol_t* member = x.m_symtab->get_symbol(x.m_members[i]);
             LCOMPILERS_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
             body += indent + convert_variable_decl(
                         *ASR::down_cast<ASR::Variable_t>(member),
-                        false, false);
+                        &c_decl_options_);
             if( !ASR::is_a<ASR::Const_t>(*ASRUtils::symbol_type(member)) ||
                 ASR::down_cast<ASR::Variable_t>(member)->m_intent == ASRUtils::intent_return_var ) {
                 body += ";\n";
