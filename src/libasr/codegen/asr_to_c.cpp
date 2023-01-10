@@ -150,7 +150,7 @@ public:
             }
             ASR::ttype_t* mem_type = ASRUtils::symbol_type(itr.second);
             if( ASRUtils::is_character(*mem_type) ) {
-                sub += indent + name + "->" + itr.first + " = (char*) malloc(40 * sizeof(char));\n";
+                sub += indent + name + "->" + itr.first + " = NULL;\n";
             } else if( ASRUtils::is_array(mem_type) &&
                         ASR::is_a<ASR::Variable_t>(*itr.second) ) {
                 ASR::Variable_t* mem_var = ASR::down_cast<ASR::Variable_t>(itr.second);
@@ -357,7 +357,7 @@ public:
                     !(ASR::is_a<ASR::symbol_t>(*v.m_parent_symtab->asr_owner) &&
                       ASR::is_a<ASR::StructType_t>(
                         *ASR::down_cast<ASR::symbol_t>(v.m_parent_symtab->asr_owner))) ) {
-                    sub += " = (char*) malloc(40 * sizeof(char))";
+                    sub += " = NULL";
                     return sub;
                 }
             } else if (ASR::is_a<ASR::Struct_t>(*v_m_type)) {
