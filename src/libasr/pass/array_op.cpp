@@ -125,7 +125,7 @@ public:
         for( size_t i = 0; i < s->n_args; i++ ) {
             a_args.push_back(al, s->m_args[i]);
         }
-        LFORTRAN_ASSERT(s->m_return_var)
+        LCOMPILERS_ASSERT(s->m_return_var)
         a_args.push_back(al, s->m_return_var);
         ASR::asr_t* s_sub_asr = ASR::make_Function_t(al, s->base.base.loc,
             s->m_symtab,

@@ -399,7 +399,7 @@ class RemoveArrayByDescriptorProceduresVisitor : public PassUtils::PassVisitor<R
 
             for( auto& item: current_scope->get_scope() ) {
                 if( v.proc2newproc.find(item.second) != v.proc2newproc.end() ) {
-                    LFORTRAN_ASSERT(item.first == ASRUtils::symbol_name(item.second))
+                    LCOMPILERS_ASSERT(item.first == ASRUtils::symbol_name(item.second))
                     to_be_erased.push_back(item.first);
                 }
             }

@@ -103,7 +103,7 @@ int emit_tokens(const std::string &infile, bool line_numbers, const CompilerOpti
     if (res.ok) {
         toks = res.result;
     } else {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 1;
     }
 
@@ -139,7 +139,7 @@ int emit_ast(const std::string &infile,
         std::cerr << diagnostics.render(lm, compiler_options);
     }
     if (!r.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 1;
     }
     LFortran::LPython::AST::ast_t* ast = r.result;
@@ -184,7 +184,7 @@ int emit_asr(const std::string &infile,
             compiler_options, true, infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 2;
     }
     LFortran::ASR::TranslationUnit_t* asr = r.result;
@@ -231,7 +231,7 @@ int emit_cpp(const std::string &infile,
         r1 = LFortran::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 2;
     }
     LFortran::ASR::TranslationUnit_t* asr = r1.result;
@@ -241,7 +241,7 @@ int emit_cpp(const std::string &infile,
         compiler_options.platform, 0);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 3;
     }
     std::cout << res.result;
@@ -276,7 +276,7 @@ int emit_c(const std::string &infile,
         r1 = LFortran::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 2;
     }
     LFortran::ASR::TranslationUnit_t* asr = r1.result;
@@ -286,7 +286,7 @@ int emit_c(const std::string &infile,
         compiler_options.platform, 0);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 3;
     }
     std::cout << res.result;
@@ -321,7 +321,7 @@ int emit_wat(const std::string &infile,
         r1 = LFortran::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 2;
     }
     LFortran::ASR::TranslationUnit_t* asr = r1.result;
@@ -330,7 +330,7 @@ int emit_wat(const std::string &infile,
     LFortran::Result<LFortran::Vec<uint8_t>> r2 = LFortran::asr_to_wasm_bytes_stream(*asr, al, diagnostics);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r2.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 3;
     }
 
@@ -338,7 +338,7 @@ int emit_wat(const std::string &infile,
     LFortran::Result<std::string> res = LFortran::wasm_to_wat(r2.result, al, diagnostics);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 4;
     }
     std::cout << res.result;
@@ -590,7 +590,7 @@ int emit_llvm(const std::string &infile,
         r1 = LFortran::LPython::python_ast_to_asr(al, lm, *ast, diagnostics, compiler_options, true, infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 2;
     }
     LFortran::ASR::TranslationUnit_t* asr = r1.result;
@@ -602,7 +602,7 @@ int emit_llvm(const std::string &infile,
         res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 3;
     }
     std::cout << (res.result)->str();
@@ -658,7 +658,7 @@ int compile_python_to_object_file(
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         print_time_report(times, time_report);
         return 2;
     }
@@ -682,7 +682,7 @@ int compile_python_to_object_file(
     times.push_back(std::make_pair("ASR to LLVM", std::chrono::duration<double, std::milli>(asr_to_llvm_end - asr_to_llvm_start).count()));
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         print_time_report(times, time_report);
         return 3;
     }
@@ -748,7 +748,7 @@ int compile_to_binary_wasm(
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         print_time_report(times, time_report);
         return 2;
     }
@@ -769,7 +769,7 @@ int compile_to_binary_wasm(
     std::cerr << diagnostics.render(lm, compiler_options);
     print_time_report(times, time_report);
     if (!res.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 3;
     }
     return 0;
@@ -821,7 +821,7 @@ int compile_to_binary_x86(
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         print_time_report(times, time_report);
         return 2;
     }
@@ -842,7 +842,7 @@ int compile_to_binary_x86(
     std::cerr << diagnostics.render(lm, compiler_options);
     print_time_report(times, time_report);
     if (!r3.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 3;
     }
     return 0;
@@ -895,7 +895,7 @@ int compile_to_binary_wasm_to_x86(
     times.push_back(std::make_pair("AST to ASR", std::chrono::duration<double, std::milli>(ast_to_asr_end - ast_to_asr_start).count()));
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r1.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         print_time_report(times, time_report);
         return 2;
     }
@@ -915,7 +915,7 @@ int compile_to_binary_wasm_to_x86(
     times.push_back(std::make_pair("ASR to WASM", std::chrono::duration<double, std::milli>(asr_to_wasm_end - asr_to_wasm_start).count()));
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!r3.ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         print_time_report(times, time_report);
         return 3;
     }
@@ -940,7 +940,7 @@ int compile_to_binary_wasm_to_x86(
     std::cerr << diagnostics.render(lm, compiler_options);
     print_time_report(times, time_report);
     if (!is_result_ok) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return 4;
     }
     return 0;
@@ -1089,7 +1089,7 @@ int link_executable(const std::vector<std::string> &infiles,
         }
         return 0;
     } else {
-        LFORTRAN_ASSERT(false);
+        LCOMPILERS_ASSERT(false);
         return 1;
     }
 }
@@ -1599,7 +1599,7 @@ int main(int argc, char *argv[])
                 std::cerr << "The C++ backend does not work with the -S option yet." << std::endl;
                 return 1;
             } else {
-                LFORTRAN_ASSERT(false);
+                LCOMPILERS_ASSERT(false);
             }
         }
 

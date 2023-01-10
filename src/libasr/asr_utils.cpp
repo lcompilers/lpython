@@ -131,9 +131,9 @@ void extract_module_python(const ASR::TranslationUnit_t &m,
 }
 
 ASR::Module_t* extract_module(const ASR::TranslationUnit_t &m) {
-    LFORTRAN_ASSERT(m.m_global_scope->get_scope().size()== 1);
+    LCOMPILERS_ASSERT(m.m_global_scope->get_scope().size()== 1);
     for (auto &a : m.m_global_scope->get_scope()) {
-        LFORTRAN_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
+        LCOMPILERS_ASSERT(ASR::is_a<ASR::Module_t>(*a.second));
         return ASR::down_cast<ASR::Module_t>(a.second);
     }
     throw LCompilersException("ICE: Module not found");
@@ -145,7 +145,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
                             LCompilers::PassOptions& pass_options,
                             bool run_verify,
                             const std::function<void (const std::string &, const Location &)> err) {
-    LFORTRAN_ASSERT(symtab);
+    LCOMPILERS_ASSERT(symtab);
     if (symtab->get_symbol(module_name) != nullptr) {
         ASR::symbol_t *m = symtab->get_symbol(module_name);
         if (ASR::is_a<ASR::Module_t>(*m)) {
@@ -154,7 +154,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
             err("The symbol '" + module_name + "' is not a module", loc);
         }
     }
-    LFORTRAN_ASSERT(symtab->parent == nullptr);
+    LCOMPILERS_ASSERT(symtab->parent == nullptr);
     ASR::TranslationUnit_t *mod1 = find_and_load_module(al, module_name,
             *symtab, intrinsic, pass_options);
     if (mod1 == nullptr && !intrinsic) {
@@ -174,7 +174,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     symtab->add_symbol(module_name, (ASR::symbol_t*)mod2);
     mod2->m_symtab->parent = symtab;
     mod2->m_loaded_from_mod = true;
-    LFORTRAN_ASSERT(symtab->resolve_symbol(module_name));
+    LCOMPILERS_ASSERT(symtab->resolve_symbol(module_name));
 
     // Create a temporary TranslationUnit just for fixing the symbols
     ASR::asr_t *orig_asr_owner = symtab->asr_owner;
@@ -362,7 +362,7 @@ ASR::asr_t* getStructInstanceMember_t(Allocator& al, const Location& loc,
                                         ASR::accessType::Public));
                         current_scope->add_symbol(mangled_name, der_ext);
                     } else {
-                        LFORTRAN_ASSERT(der_tmp != nullptr);
+                        LCOMPILERS_ASSERT(der_tmp != nullptr);
                         der_ext = der_tmp;
                     }
                 } else {
@@ -504,7 +504,7 @@ bool is_parent(ASR::StructType_t* a, ASR::StructType_t* b) {
         if( current_parent == (ASR::symbol_t*) a ) {
             return true;
         }
-        LFORTRAN_ASSERT(ASR::is_a<ASR::StructType_t>(*current_parent));
+        LCOMPILERS_ASSERT(ASR::is_a<ASR::StructType_t>(*current_parent));
         current_parent = ASR::down_cast<ASR::StructType_t>(current_parent)->m_parent;
     }
     return false;
@@ -958,7 +958,7 @@ ASR::asr_t* symbol_resolve_external_generic_procedure_without_eval(
     int idx = select_generic_procedure(args, *g, loc, err);
     ASR::symbol_t *final_sym;
     final_sym = g->m_procs[idx];
-    LFORTRAN_ASSERT(ASR::is_a<ASR::Function_t>(*final_sym));
+    LCOMPILERS_ASSERT(ASR::is_a<ASR::Function_t>(*final_sym));
     bool is_subroutine = ASR::down_cast<ASR::Function_t>(final_sym)->m_return_var == nullptr;
     ASR::ttype_t *return_type = nullptr;
     if( ASR::is_a<ASR::Function_t>(*final_sym) ) {

@@ -463,7 +463,7 @@ public:
                 sub = format_type_c("", "enum " + std::string(enum_type->m_name), v.m_name, false, false);
             } else if (ASR::is_a<ASR::Const_t>(*v_m_type)) {
                 if( v.m_intent == ASRUtils::intent_local ) {
-                    LFORTRAN_ASSERT(v.m_symbolic_value);
+                    LCOMPILERS_ASSERT(v.m_symbolic_value);
                     visit_expr(*v.m_symbolic_value);
                     sub = "#define " + std::string(v.m_name) + " " + src + "\n";
                     return sub;
@@ -497,7 +497,7 @@ public:
         global_scope = x.m_global_scope;
         // All loose statements must be converted to a function, so the items
         // must be empty:
-        LFORTRAN_ASSERT(x.n_items == 0);
+        LCOMPILERS_ASSERT(x.n_items == 0);
         std::string unit_src = "";
         indentation_level = 0;
         indentation_spaces = 4;
@@ -595,7 +595,7 @@ R"(
             std::vector<std::string> build_order
                 = LFortran::ASRUtils::determine_module_dependencies(x);
             for (auto &item : build_order) {
-                LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item)
+                LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
                     != x.m_global_scope->get_scope().end());
                 if (startswith(item, "lfortran_intrinsic")) {
                     ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
@@ -611,7 +611,7 @@ R"(
         std::vector<std::string> build_order
             = LFortran::ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
-            LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item)
+            LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
                 != x.m_global_scope->get_scope().end());
             if (!startswith(item, "lfortran_intrinsic")) {
                 ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
@@ -733,7 +733,7 @@ R"(
         indent.push_back(' ');
         for( size_t i = 0; i < x.n_members; i++ ) {
             ASR::symbol_t* member = x.m_symtab->get_symbol(x.m_members[i]);
-            LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
+            LCOMPILERS_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
             body += indent + convert_variable_decl(
                         *ASR::down_cast<ASR::Variable_t>(member),
                         false, false);
@@ -752,11 +752,11 @@ R"(
         if( x.m_is_packed ) {
             std::string attr_args = "(packed";
             if( x.m_alignment ) {
-                LFORTRAN_ASSERT(ASRUtils::expr_value(x.m_alignment));
+                LCOMPILERS_ASSERT(ASRUtils::expr_value(x.m_alignment));
                 ASR::expr_t* alignment_value = ASRUtils::expr_value(x.m_alignment);
                 int64_t alignment_int = -1;
                 if( !ASRUtils::extract_value(alignment_value, alignment_int) ) {
-                    LFORTRAN_ASSERT(false);
+                    LCOMPILERS_ASSERT(false);
                 }
                 attr_args += ", aligned(" + std::to_string(alignment_int) + ")";
             }
@@ -801,7 +801,7 @@ R"(
         size_t max_name_len = 0;
         for( size_t i = 0; i < x.n_members; i++ ) {
             ASR::symbol_t* member = x.m_symtab->get_symbol(x.m_members[i]);
-            LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
+            LCOMPILERS_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
             ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member);
             ASR::expr_t* value = ASRUtils::expr_value(member_var->m_symbolic_value);
             int64_t value_int64 = -1;
@@ -816,7 +816,7 @@ R"(
         std::vector<std::string> enum_names(max_names, "\"\"");
         for( size_t i = 0; i < x.n_members; i++ ) {
             ASR::symbol_t* member = x.m_symtab->get_symbol(x.m_members[i]);
-            LFORTRAN_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
+            LCOMPILERS_ASSERT(ASR::is_a<ASR::Variable_t>(*member));
             ASR::Variable_t* member_var = ASR::down_cast<ASR::Variable_t>(member);
             ASR::expr_t* value = ASRUtils::expr_value(member_var->m_symbolic_value);
             int64_t value_int64 = -1;
@@ -838,7 +838,7 @@ R"(
     }
 
     void visit_EnumTypeConstructor(const ASR::EnumTypeConstructor_t& x) {
-        LFORTRAN_ASSERT(x.n_args == 1);
+        LCOMPILERS_ASSERT(x.n_args == 1);
         ASR::expr_t* m_arg = x.m_args[0];
         this->visit_expr(*m_arg);
         ASR::EnumType_t* enum_type = ASR::down_cast<ASR::EnumType_t>(x.m_dt_sym);

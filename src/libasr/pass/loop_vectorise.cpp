@@ -99,7 +99,7 @@ public:
     void get_vector_intrinsic(ASR::stmt_t* loop_stmt, ASR::expr_t* index,
                               ASR::expr_t*& vector_length,
                               Vec<ASR::stmt_t*>& vectorised_loop_body) {
-        LFORTRAN_ASSERT(vectorised_loop_body.reserve_called);
+        LCOMPILERS_ASSERT(vectorised_loop_body.reserve_called);
         Vec<ASR::expr_t*> arrays;
         arrays.reserve(al, 2);
         if( is_vector_copy(loop_stmt, arrays) ) {

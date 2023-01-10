@@ -58,7 +58,7 @@ public:
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
         // must be empty:
-        LFORTRAN_ASSERT(x.n_items == 0);
+        LCOMPILERS_ASSERT(x.n_items == 0);
 
         emit_elf32_header(m_a);
 
@@ -159,9 +159,9 @@ public:
         // Add arguments to x86_symtab with their correct offset
         for (size_t i=0; i<x.n_args; i++) {
             ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
+            LCOMPILERS_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
             // TODO: we are assuming integer here:
-            LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
+            LCOMPILERS_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
             Sym s;
             s.stack_offset = -(i*4+8); // TODO: reverse the sign of offset
             // We pass intent(in) as value, otherwise as pointer
@@ -205,12 +205,12 @@ public:
             ASR::Variable_t *retv = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
 
             uint32_t h = get_hash((ASR::asr_t*)retv);
-            LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
+            LCOMPILERS_ASSERT(x86_symtab.find(h) != x86_symtab.end());
             Sym s = x86_symtab[h];
             X86Reg base = X86Reg::ebp;
             // mov eax, [ebp-s.stack_offset]
             m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, -s.stack_offset);
-            LFORTRAN_ASSERT(!s.pointer);
+            LCOMPILERS_ASSERT(!s.pointer);
         }
 
         // Restore stack
@@ -240,7 +240,7 @@ public:
     void visit_Var(const ASR::Var_t &x) {
         ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(x.m_v);
         uint32_t h = get_hash((ASR::asr_t*)v);
-        LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
+        LCOMPILERS_ASSERT(x86_symtab.find(h) != x86_symtab.end());
         Sym s = x86_symtab[h];
         X86Reg base = X86Reg::ebp;
         // mov eax, [ebp-s.stack_offset]
@@ -341,7 +341,7 @@ public:
 
         ASR::Variable_t *v = LFortran::ASRUtils::EXPR2VAR(x.m_target);
         uint32_t h = get_hash((ASR::asr_t*)v);
-        LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
+        LCOMPILERS_ASSERT(x86_symtab.find(h) != x86_symtab.end());
         Sym s = x86_symtab[h];
         X86Reg base = X86Reg::ebp;
         if (s.pointer) {
@@ -357,7 +357,7 @@ public:
     }
 
     void visit_Print(const ASR::Print_t &x) {
-        LFORTRAN_ASSERT(x.n_values == 1);
+        LCOMPILERS_ASSERT(x.n_values == 1);
         ASR::expr_t *e = x.m_values[0];
         if (e->type == ASR::exprType::StringConstant) {
             ASR::StringConstant_t *s = down_cast<ASR::StringConstant_t>(e);
@@ -442,16 +442,16 @@ public:
     // Push arguments to stack (last argument first)
     template <typename T, typename T2>
     uint8_t push_call_args(const T &x, const T2 &sub) {
-        LFORTRAN_ASSERT(sub.n_args == x.n_args);
+        LCOMPILERS_ASSERT(sub.n_args == x.n_args);
         // Note: when counting down in a loop, we have to use signed ints
         // for `i`, so that it can become negative and fail the i>=0 condition.
         for (int i=x.n_args-1; i>=0; i--) {
             bool pass_as_pointer;
             {
                 ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(sub.m_args[i]);
-                LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
+                LCOMPILERS_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
                 // TODO: we are assuming integer here:
-                LFORTRAN_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
+                LCOMPILERS_ASSERT(arg->m_type->type == ASR::ttypeType::Integer);
                 uint32_t h = get_hash((ASR::asr_t*)arg);
                 Sym &s = x86_symtab[h];
                 pass_as_pointer = s.pointer;
@@ -459,7 +459,7 @@ public:
             if (x.m_args[i].m_value->type == ASR::exprType::Var) {
                 ASR::Variable_t *arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i].m_value);
                 uint32_t h = get_hash((ASR::asr_t*)arg);
-                LFORTRAN_ASSERT(x86_symtab.find(h) != x86_symtab.end());
+                LCOMPILERS_ASSERT(x86_symtab.find(h) != x86_symtab.end());
                 Sym s = x86_symtab[h];
                 X86Reg base = X86Reg::ebp;
                 if (s.pointer) {
@@ -492,7 +492,7 @@ public:
                     m_a.asm_push_r32(X86Reg::eax);
                 }
             } else {
-                LFORTRAN_ASSERT(!pass_as_pointer);
+                LCOMPILERS_ASSERT(!pass_as_pointer);
                 this->visit_expr(*(x.m_args[i].m_value));
                 // The value of the argument is in eax, push it onto the stack
                 m_a.asm_push_r32(X86Reg::eax);

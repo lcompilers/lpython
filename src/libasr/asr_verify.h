@@ -33,7 +33,7 @@ namespace LFortran {
     // The function will raise an exception if there is an error. Otherwise
     // it will return true. It can be used in Debug mode only as:
     //
-    //   LFORTRAN_ASSERT(asr_verify(*asr));
+    //   LCOMPILERS_ASSERT(asr_verify(*asr));
     //
     bool asr_verify(const ASR::TranslationUnit_t &unit,
         bool check_external, diag::Diagnostics &diagnostics);

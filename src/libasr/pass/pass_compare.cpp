@@ -148,7 +148,7 @@ public:
                     bool_type, nullptr, nullptr));
             }
             default: {
-                LFORTRAN_ASSERT(false);
+                LCOMPILERS_ASSERT(false);
             }
         }
     }

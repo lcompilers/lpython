@@ -71,7 +71,7 @@ public:
         }
 
         from_fma = true;
-        LFORTRAN_ASSERT(ASRUtils::is_real(*x_const.m_type))
+        LCOMPILERS_ASSERT(ASRUtils::is_real(*x_const.m_type))
         ASR::RealBinOp_t& x = const_cast<ASR::RealBinOp_t&>(x_const);
 
         fma_var = nullptr;

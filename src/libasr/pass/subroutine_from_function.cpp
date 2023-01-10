@@ -42,7 +42,7 @@ class CreateFunctionFromSubroutine: public PassUtils::PassVisitor<CreateFunction
             for( size_t i = 0; i < s->n_args; i++ ) {
                 a_args.push_back(al, s->m_args[i]);
             }
-            LFORTRAN_ASSERT(s->m_return_var)
+            LCOMPILERS_ASSERT(s->m_return_var)
             a_args.push_back(al, s->m_return_var);
             ASR::asr_t* s_sub_asr = ASR::make_Function_t(al, s->base.base.loc,
                 s->m_symtab,
@@ -187,7 +187,7 @@ class ReplaceFunctionCallWithSubroutineCall: public PassUtils::PassVisitor<Repla
             ASR::symbol_t *sub = current_scope->resolve_symbol(x_name);
             if (sub && ASR::is_a<ASR::Function_t>(*sub)
                 && ASR::down_cast<ASR::Function_t>(sub)->m_return_var == nullptr) {
-                LFORTRAN_ASSERT(result_var != nullptr);
+                LCOMPILERS_ASSERT(result_var != nullptr);
                 Vec<ASR::call_arg_t> s_args;
                 s_args.reserve(al, x.n_args + 1);
                 for( size_t i = 0; i < x.n_args; i++ ) {

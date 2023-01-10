@@ -97,8 +97,8 @@ public:
         set_flip_sign();
         if( is_flip_sign_present ) {
             // xi = xor(shiftl(int(Nd),63), xi)
-            LFORTRAN_ASSERT(flip_sign_signal_variable);
-            LFORTRAN_ASSERT(flip_sign_variable);
+            LCOMPILERS_ASSERT(flip_sign_signal_variable);
+            LCOMPILERS_ASSERT(flip_sign_variable);
             ASR::stmt_t* flip_sign_call = PassUtils::get_flipsign(flip_sign_signal_variable,
                                             flip_sign_variable, al, unit, pass_options, current_scope,
                                             [&](const std::string &msg, const Location &) { throw LCompilersException(msg); });

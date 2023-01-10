@@ -443,7 +443,7 @@ namespace LFortran {
             bool check_for_bounds = false;
             llvm::Value* idx = nullptr;
             if( data_only ) {
-                LFORTRAN_ASSERT(llvm_diminfo);
+                LCOMPILERS_ASSERT(llvm_diminfo);
                 idx = cmo_convertor_single_element_data_only(llvm_diminfo, m_args, n_args, check_for_bounds);
                 if( is_fixed_size ) {
                     tmp = llvm_utils->create_gep(array, idx);

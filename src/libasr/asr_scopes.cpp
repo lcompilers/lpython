@@ -116,7 +116,7 @@ ASR::symbol_t *SymbolTable::find_scoped_symbol(const std::string &name,
     }
     if (s->scope.find(name) != scope.end()) {
         ASR::symbol_t *sym = s->scope.at(name);
-        LFORTRAN_ASSERT(sym)
+        LCOMPILERS_ASSERT(sym)
         return sym;
     } else {
         // The `name` not found in the appropriate symbol table
