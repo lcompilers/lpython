@@ -166,7 +166,7 @@ public:
                 return ;
             }
 
-            LFORTRAN_ASSERT_MSG(PassUtils::get_rank(x.m_target) == 1,
+            LCOMPILERS_ASSERT_MSG(PassUtils::get_rank(x.m_target) == 1,
                                 "Initialisation using ArrayConstant is "
                                 "supported only for single dimensional arrays.")
             ASR::Var_t* arr_var = ASR::down_cast<ASR::Var_t>(x.m_target);

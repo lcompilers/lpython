@@ -91,7 +91,7 @@ inline static int64_t string_to_largeint(Allocator &al, const Str &s) {
 
 // Converts a large int to a string
 inline static char* largeint_to_string(int64_t i) {
-    LFORTRAN_ASSERT(is_int_ptr(i));
+    LCOMPILERS_ASSERT(is_int_ptr(i));
     void *p = int_to_ptr(i);
     char *cs = (char*)p;
     return cs;
@@ -138,7 +138,7 @@ struct BigInt {
     BigInt& operator=(const BigInt &) = default;
 
     void from_smallint(int64_t i) {
-        LFORTRAN_ASSERT(is_small_int(i));
+        LCOMPILERS_ASSERT(is_small_int(i));
         n = i;
     }
 
@@ -151,7 +151,7 @@ struct BigInt {
     }
 
     int64_t as_smallint() const {
-        LFORTRAN_ASSERT(!is_large());
+        LCOMPILERS_ASSERT(!is_large());
         return n;
     }
 

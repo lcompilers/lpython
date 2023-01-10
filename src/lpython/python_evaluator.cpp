@@ -59,7 +59,7 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
     if (res.ok) {
         m = std::move(res.result);
     } else {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return res.error;
     }
 

@@ -52,7 +52,7 @@ struct Vec {
     void reserve(Allocator &al, size_t max) {
         n = 0;
         if (max == 0) max++;
-        LFORTRAN_ASSERT(max > 0)
+        LCOMPILERS_ASSERT(max > 0)
         this->max = max;
         p = al.allocate<T>(max);
 #ifdef WITH_LFORTRAN_ASSERT
@@ -65,7 +65,7 @@ struct Vec {
         // reserve_called happens to be equal to vec_called_const when Vec is
         // allocated in memory), but the chance is small. It catches such bugs
         // in practice.
-        LFORTRAN_ASSERT(reserve_called == vec_called_const);
+        LCOMPILERS_ASSERT(reserve_called == vec_called_const);
         if (n == max) {
             size_t max2 = 2*max;
             T* p2 = al.allocate<T>(max2);

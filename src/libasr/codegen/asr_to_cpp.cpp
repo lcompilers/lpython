@@ -366,7 +366,7 @@ public:
         global_scope = x.m_global_scope;
         // All loose statements must be converted to a function, so the items
         // must be empty:
-        LFORTRAN_ASSERT(x.n_items == 0);
+        LCOMPILERS_ASSERT(x.n_items == 0);
         std::string unit_src = "";
         indentation_level = 0;
         indentation_spaces = 4;
@@ -418,7 +418,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
             std::vector<std::string> build_order
                 = LFortran::ASRUtils::determine_module_dependencies(x);
             for (auto &item : build_order) {
-                LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item)
+                LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
                     != x.m_global_scope->get_scope().end());
                 if (startswith(item, "lfortran_intrinsic")) {
                     ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
@@ -440,7 +440,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
         std::vector<std::string> build_order
             = LFortran::ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
-            LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item)
+            LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
                 != x.m_global_scope->get_scope().end());
             if (!startswith(item, "lfortran_intrinsic")) {
                 ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
@@ -548,7 +548,7 @@ Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
     }
 
     void visit_DictConstant(const ASR::DictConstant_t &x) {
-        LFORTRAN_ASSERT(x.n_keys == x.n_values);
+        LCOMPILERS_ASSERT(x.n_keys == x.n_values);
         std::string out = "{";
         for(size_t i=0; i<x.n_keys; i++) {
             out += "{";

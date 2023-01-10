@@ -164,7 +164,7 @@ public:
         /* get_arg_infos */ for (size_t i=0; i<n_args; i++) {
 
             ASR::Variable_t *arg = ASRUtils::EXPR2VAR(args[i]);
-            LFORTRAN_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
+            LCOMPILERS_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
 
             // TODO add support for (or emit error on) assumed-shape arrays
             // TODO add support for interoperable derived types
@@ -333,7 +333,7 @@ public:
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
         // must be empty:
-        LFORTRAN_ASSERT(x.n_items == 0);
+        LCOMPILERS_ASSERT(x.n_items == 0);
 
         std::string chdr_tmp ;
         std::string pxd_tmp  ;
@@ -370,7 +370,7 @@ public:
         std::vector<std::string> build_order
             = ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
-            LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item)
+            LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
                     != x.m_global_scope->get_scope().end());
             if (!startswith(item, "lfortran_intrinsic")) {
                 ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);

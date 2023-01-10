@@ -20,9 +20,9 @@ std::string highlight_line(const std::string &line,
     if (last_column > line.size()+1) {
         throw LCompilersException("The `last_column` in highlight_line is longer than the source line");
     }
-    LFORTRAN_ASSERT(first_column >= 1)
-    LFORTRAN_ASSERT(first_column <= last_column)
-    LFORTRAN_ASSERT(last_column <= line.size()+1)
+    LCOMPILERS_ASSERT(first_column >= 1)
+    LCOMPILERS_ASSERT(first_column <= last_column)
+    LCOMPILERS_ASSERT(last_column <= line.size()+1)
     std::stringstream out;
     if (line.size() > 0) {
         out << line.substr(0, first_column-1);
@@ -128,7 +128,7 @@ void populate_span(diag::Span &s, const LocationManager &lm) {
     for (uint32_t i = s.first_line; i <= s.last_line; i++) {
         s.source_code.push_back(get_line(input, i));
     }
-    LFORTRAN_ASSERT(s.source_code.size() > 0)
+    LCOMPILERS_ASSERT(s.source_code.size() > 0)
 }
 
 // Loop over all labels and their spans, populate all of them

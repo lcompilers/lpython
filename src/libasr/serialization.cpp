@@ -101,7 +101,7 @@ public:
         // it in write_symbol() above
         uint64_t symbol_type = read_int8();
         std::string symbol_name  = read_string();
-        LFORTRAN_ASSERT(id_symtab_map.find(symtab_id) != id_symtab_map.end());
+        LCOMPILERS_ASSERT(id_symtab_map.find(symtab_id) != id_symtab_map.end());
         SymbolTable *symtab = id_symtab_map[symtab_id];
         if (symtab->get_symbol(symbol_name) == nullptr) {
             // Symbol is not in the symbol table yet. We construct an empty
@@ -253,7 +253,7 @@ public:
             // Nothing to do, the external symbol is already resolved
             return;
         }
-        LFORTRAN_ASSERT(x.m_external == nullptr);
+        LCOMPILERS_ASSERT(x.m_external == nullptr);
         if (x.m_module_name == nullptr) {
             throw LCompilersException("The ExternalSymbol was referenced in some ASR node, but it was not loaded as part of the SymbolTable");
         }
@@ -323,7 +323,7 @@ ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
     p.visit_TranslationUnit(*tu);
 
     diag::Diagnostics diagnostics;
-    LFORTRAN_ASSERT(asr_verify(*tu, false, diagnostics));
+    LCOMPILERS_ASSERT(asr_verify(*tu, false, diagnostics));
 
     return node;
 }

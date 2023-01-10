@@ -483,7 +483,7 @@ public:
         std::string func = inl + "function " + sym_name + "(";
         for (size_t i = 0; i < x.n_args; i++) {
             ASR::Variable_t* arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
+            LCOMPILERS_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
             func += this->convert_variable_decl(*arg, true);
             if (i < x.n_args - 1)
                 func += ", ";
@@ -501,7 +501,7 @@ public:
 
         // All loose statements must be converted to a function, so the items
         // must be empty:
-        LFORTRAN_ASSERT(x.n_items == 0);
+        LCOMPILERS_ASSERT(x.n_items == 0);
         std::string unit_src = "";
         indentation_level = 0;
         indentation_spaces = 4;
@@ -514,7 +514,7 @@ public:
             std::vector<std::string> build_order
                 = LFortran::ASRUtils::determine_module_dependencies(x);
             for (auto& item : build_order) {
-                LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item)
+                LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
                                 != x.m_global_scope->get_scope().end());
                 if (startswith(item, "lfortran_intrinsic")) {
                     ASR::symbol_t* mod = x.m_global_scope->get_symbol(item);
@@ -535,7 +535,7 @@ public:
         // Then do all the modules in the right order
         std::vector<std::string> build_order = LFortran::ASRUtils::determine_module_dependencies(x);
         for (auto& item : build_order) {
-            LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item)
+            LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
                             != x.m_global_scope->get_scope().end());
             if (!startswith(item, "lfortran_intrinsic")) {
                 ASR::symbol_t* mod = x.m_global_scope->get_symbol(item);
@@ -619,7 +619,7 @@ public:
 
     void visit_BlockCall(const ASR::BlockCall_t& x)
     {
-        LFORTRAN_ASSERT(ASR::is_a<ASR::Block_t>(*x.m_m));
+        LCOMPILERS_ASSERT(ASR::is_a<ASR::Block_t>(*x.m_m));
         ASR::Block_t* block = ASR::down_cast<ASR::Block_t>(x.m_m);
         std::string indent(indentation_level * indentation_spaces, ' ');
         std::string decl, body;
@@ -726,7 +726,7 @@ public:
         if (sym_info[get_hash((ASR::asr_t*) fn)].intrinsic_function) {
             if (fn_name == "size") {
                 // TODO: implement this properly
-                LFORTRAN_ASSERT(x.n_args > 0);
+                LCOMPILERS_ASSERT(x.n_args > 0);
                 visit_expr(*x.m_args[0].m_value);
                 std::string var_name = src;
                 std::string args;
@@ -1174,8 +1174,8 @@ public:
         ASR::expr_t* a = x.m_head.m_start;
         ASR::expr_t* b = x.m_head.m_end;
         ASR::expr_t* c = x.m_head.m_increment;
-        LFORTRAN_ASSERT(a);
-        LFORTRAN_ASSERT(b);
+        LCOMPILERS_ASSERT(a);
+        LCOMPILERS_ASSERT(b);
         int increment;
         if (!c) {
             increment = 1;
@@ -1386,7 +1386,7 @@ public:
 
     void visit_DictConstant(const ASR::DictConstant_t& x)
     {
-        LFORTRAN_ASSERT(x.n_keys == x.n_values);
+        LCOMPILERS_ASSERT(x.n_keys == x.n_values);
         std::string out = "Dict(";
         for (size_t i = 0; i < x.n_keys; i++) {
             visit_expr(*x.m_keys[i]);

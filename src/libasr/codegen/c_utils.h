@@ -108,7 +108,7 @@ namespace CUtils {
 
             void array_deepcopy(ASR::ttype_t* array_type_asr, std::string array_type_name,
                                 std::string array_encoded_type_name, std::string array_type_str) {
-                LFORTRAN_ASSERT(!is_non_primitive_DT(array_type_asr));
+                LCOMPILERS_ASSERT(!is_non_primitive_DT(array_type_asr));
                 std::string indent(indentation_level * indentation_spaces, ' ');
                 std::string tab(indentation_spaces, ' ');
                 std::string array_dc_func;
@@ -432,7 +432,7 @@ class CCPPDSUtils {
         }
 
         std::string get_type(ASR::ttype_t *t) {
-            LFORTRAN_ASSERT(CUtils::is_non_primitive_DT(t));
+            LCOMPILERS_ASSERT(CUtils::is_non_primitive_DT(t));
             if (ASR::is_a<ASR::List_t>(*t)) {
                 ASR::List_t* list_type = ASR::down_cast<ASR::List_t>(t);
                 return get_list_type(list_type);
@@ -440,7 +440,7 @@ class CCPPDSUtils {
                 ASR::Tuple_t* tup_type = ASR::down_cast<ASR::Tuple_t>(t);
                 return get_tuple_type(tup_type);
             }
-            LFORTRAN_ASSERT(false);
+            LCOMPILERS_ASSERT(false);
         }
 
         std::string get_print_type(ASR::ttype_t *t, bool deref_ptr) {
@@ -512,7 +512,7 @@ class CCPPDSUtils {
                 }
             }
 
-            LFORTRAN_ASSERT(create_if_not_present);
+            LCOMPILERS_ASSERT(create_if_not_present);
 
             std::string struct_name;
             std::string new_array_type;
@@ -579,7 +579,7 @@ class CCPPDSUtils {
         }
 
         std::string get_array_deepcopy_func(ASR::ttype_t* array_type_asr) {
-            LFORTRAN_ASSERT(is_c);
+            LCOMPILERS_ASSERT(is_c);
             std::string array_type_name = CUtils::get_c_type_from_ttype_t(array_type_asr);
             std::string array_encoded_type_name = ASRUtils::get_type_code(array_type_asr, true, false, false);
             std::string array_types_decls = "";
@@ -851,7 +851,7 @@ class CCPPDSUtils {
             if (ASR::is_a<ASR::List_t>(*m_type)) {
                 ASR::ttype_t *tt = ASR::down_cast<ASR::List_t>(m_type)->m_type;
                 std::string deep_copy_func = typecodeToDSfuncs[ASRUtils::get_type_code(tt, true)]["list_deepcopy"];
-                LFORTRAN_ASSERT(deep_copy_func.size() > 0);
+                LCOMPILERS_ASSERT(deep_copy_func.size() > 0);
                 generated_code += indent + tab + "for(int i=0; i<src->current_end_point; i++)\n";
                 generated_code += indent + tab + tab + deep_copy_func + "(&src->data[i], &dest->data[i]);\n";
             }
@@ -877,7 +877,7 @@ class CCPPDSUtils {
             if (ASR::is_a<ASR::List_t>(*m_type)) {
                 ASR::ttype_t *tt = ASR::down_cast<ASR::List_t>(m_type)->m_type;
                 std::string deep_copy_func = typecodeToDSfuncs[ASRUtils::get_type_code(tt, true)]["list_deepcopy"];
-                LFORTRAN_ASSERT(deep_copy_func.size() > 0);
+                LCOMPILERS_ASSERT(deep_copy_func.size() > 0);
                 generated_code += indent + tab + "for(int i=0; i<left->current_end_point; i++)\n";
                 generated_code += indent + tab + tab + deep_copy_func + "(&left->data[i], &result->data[i]);\n";
                 generated_code += indent + tab + "for(int i=0; i<right->current_end_point; i++)\n";
