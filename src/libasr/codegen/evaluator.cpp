@@ -64,7 +64,7 @@
 #include <libasr/string_utils.h>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 // Extracts the integer from APInt.
 // APInt does not seem to have this functionality, so we implement it here.
@@ -87,7 +87,7 @@ LLVMModule::~LLVMModule() = default;
 
 std::string LLVMModule::str()
 {
-    return LFortran::LLVMEvaluator::module_to_string(*m_m);
+    return LLVMEvaluator::module_to_string(*m_m);
 }
 
 std::string LLVMModule::get_return_type(const std::string &fn_name)
@@ -438,4 +438,4 @@ std::string LLVMEvaluator::get_default_target_triple()
     return llvm::sys::getDefaultTargetTriple();
 }
 
-} // namespace LFortran
+} // namespace LCompilers

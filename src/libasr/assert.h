@@ -16,7 +16,7 @@
 #define LCOMPILERS_ASSERT(cond)                                                  \
     {                                                                          \
         if (!(cond)) {                                                         \
-            throw LFortran::AssertFailed(XSTR(cond));                  \
+            throw LCompilers::AssertFailed(XSTR(cond));                  \
         }                                                                      \
     }
 #else

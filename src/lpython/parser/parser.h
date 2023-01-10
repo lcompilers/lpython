@@ -5,8 +5,7 @@
 #include <libasr/diagnostics.h>
 #include <lpython/parser/tokenizer.h>
 
-namespace LFortran
-{
+namespace LCompilers::LPython {
 
 class Parser
 {
@@ -42,6 +41,6 @@ Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
         diag::Diagnostics &diagnostics,
         uint32_t prev_loc, bool new_parser);
 
-} // namespace LFortran
+} // namespace LCompilers::LPython
 
 #endif

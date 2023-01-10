@@ -4,8 +4,7 @@
 #include <cstring>
 #include <libasr/alloc.h>
 
-namespace LFortran
-{
+namespace LCompilers {
 
 // Vector implementation
 
@@ -197,7 +196,7 @@ static inline std::string double_to_scientific(double x) {
     return string_format("%25.17e", x);
 }
 
-} // namespace LFortran
+} // namespace LCompilers
 
 
 

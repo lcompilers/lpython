@@ -16,7 +16,7 @@
 #define DEBUG(s)
 #endif
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace {
 
@@ -328,6 +328,7 @@ class WASMDecoder {
 };
 
 }  // namespace wasm
-}  // namespace LFortran
+
+}  // namespace LCompilers
 
 #endif  // LFORTRAN_WASM_DECODER_H

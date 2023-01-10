@@ -8,7 +8,7 @@
 #include <cstring>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 // Platform dependent fast unique hash:
 uint64_t static get_hash(ASR::asr_t *node)
@@ -267,4 +267,4 @@ void pass_unused_functions(Allocator &al, ASR::TranslationUnit_t &unit,
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

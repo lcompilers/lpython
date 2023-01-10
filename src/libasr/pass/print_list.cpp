@@ -6,7 +6,7 @@
 #include <libasr/pass/pass_utils.h>
 #include <libasr/pass/print_list.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 /*
 This ASR pass replaces print list with print every value,
@@ -142,7 +142,7 @@ class PrintListVisitor
                 v2.push_back(al, list_item);
             }
 
-            ASR::stmt_t *print_open_bracket = LFortran::ASRUtils::STMT(
+            ASR::stmt_t *print_open_bracket = ASRUtils::STMT(
                 ASR::make_Print_t(al, x.base.base.loc, nullptr, v1.p, v1.size(),
                                   nullptr, empty_str));
             ASR::stmt_t *print_comma_space = ASRUtils::STMT(
@@ -151,7 +151,7 @@ class PrintListVisitor
             ASR::stmt_t *print_item = ASRUtils::STMT(
                 ASR::make_Print_t(al, x.base.base.loc, nullptr, v2.p, v2.size(),
                                   empty_str, empty_str));
-            ASR::stmt_t *print_close_bracket = LFortran::ASRUtils::STMT(
+            ASR::stmt_t *print_close_bracket = ASRUtils::STMT(
                 ASR::make_Print_t(al, x.base.base.loc, nullptr, v3.p, v3.size(),
                                   x.m_separator, x.m_end));
 
@@ -206,4 +206,4 @@ void pass_replace_print_list(
     v.visit_TranslationUnit(unit);
 }
 
-}  // namespace LFortran
+}  // namespace LCompilers

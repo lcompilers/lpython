@@ -11,7 +11,7 @@
 #include <libasr/string_utils.h>
 #include <libasr/utils.h>
 
-namespace LFortran  {
+namespace LCompilers  {
 
     namespace ASRUtils  {
 
@@ -2371,6 +2371,6 @@ static inline void collect_variable_dependencies(Allocator& al, Vec<char*>& deps
 
 } // namespace ASRUtils
 
-} // namespace LFortran
+} // namespace LCompilers
 
 #endif // LFORTRAN_ASR_UTILS_H

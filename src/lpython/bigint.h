@@ -5,7 +5,7 @@
 
 #include <libasr/containers.h>
 
-namespace LFortran {
+namespace LCompilers::LPython {
 
 namespace BigInt {
 
@@ -163,6 +163,6 @@ static_assert(sizeof(BigInt) == 8);
 
 } // BigInt
 
-} // LFortran
+} // LCompilers::LPython
 
 #endif // LFORTRAN_BIGINT_H

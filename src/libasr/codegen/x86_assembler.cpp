@@ -8,7 +8,7 @@
 
 #include <libasr/codegen/x86_assembler.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 void X86Assembler::save_binary(const std::string &filename) {
     {
@@ -88,8 +88,8 @@ void emit_exit(X86Assembler &a, const std::string &name,
 {
     a.add_label(name);
     // void exit(int status);
-    a.asm_mov_r32_imm32(LFortran::X86Reg::eax, 1); // sys_exit
-    a.asm_mov_r32_imm32(LFortran::X86Reg::ebx, exit_code); // exit code
+    a.asm_mov_r32_imm32(X86Reg::eax, 1); // sys_exit
+    a.asm_mov_r32_imm32(X86Reg::ebx, exit_code); // exit code
     a.asm_int_imm8(0x80); // syscall
 }
 
@@ -97,7 +97,7 @@ void emit_exit2(X86Assembler &a, const std::string &name)
 {
     a.add_label(name);
     // void exit();
-    a.asm_mov_r32_imm32(LFortran::X86Reg::eax, 1); // sys_exit
+    a.asm_mov_r32_imm32(X86Reg::eax, 1); // sys_exit
     a.asm_pop_r32(X86Reg::ebx); // exit code on stack, move to register
     a.asm_int_imm8(0x80); // syscall
 }
@@ -129,10 +129,10 @@ void emit_print(X86Assembler &a, const std::string &msg_label,
     uint32_t size)
 {
     // ssize_t write(int fd, const void *buf, size_t count);
-    a.asm_mov_r32_imm32(LFortran::X86Reg::eax, 4); // sys_write
-    a.asm_mov_r32_imm32(LFortran::X86Reg::ebx, 1); // fd (stdout)
-    a.asm_mov_r32_label(LFortran::X86Reg::ecx, msg_label); // buf
-    a.asm_mov_r32_imm32(LFortran::X86Reg::edx, size); // count
+    a.asm_mov_r32_imm32(X86Reg::eax, 4); // sys_write
+    a.asm_mov_r32_imm32(X86Reg::ebx, 1); // fd (stdout)
+    a.asm_mov_r32_label(X86Reg::ecx, msg_label); // buf
+    a.asm_mov_r32_imm32(X86Reg::edx, size); // count
     a.asm_int_imm8(0x80);
 }
 
@@ -330,8 +330,8 @@ void emit_elf64_footer(X86Assembler &a) {
 void emit_exit_64(X86Assembler &a, std::string name, int exit_code) {
     a.add_label(name);
     // void exit(int status);
-    a.asm_mov_r64_imm64(LFortran::X64Reg::rax, 60); // sys_exit
-    a.asm_mov_r64_imm64(LFortran::X64Reg::rdi, exit_code); // exit code
+    a.asm_mov_r64_imm64(LCompilers::X64Reg::rax, 60); // sys_exit
+    a.asm_mov_r64_imm64(LCompilers::X64Reg::rdi, exit_code); // exit code
     a.asm_syscall(); // syscall
 }
 

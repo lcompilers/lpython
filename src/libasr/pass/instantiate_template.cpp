@@ -5,7 +5,7 @@
 #include <libasr/pass/pass_utils.h>
 #include <libasr/semantic_exception.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 class FunctionInstantiator : public ASR::BaseExprStmtDuplicator<FunctionInstantiator>
 {
@@ -442,4 +442,4 @@ ASR::symbol_t* pass_instantiate_generic_function(Allocator &al, std::map<std::st
     return ASR::down_cast<ASR::symbol_t>(new_function);
 }
 
-}
+} // namespace LCompilers

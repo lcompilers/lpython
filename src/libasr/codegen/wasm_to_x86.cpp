@@ -7,7 +7,7 @@
 #include <libasr/codegen/wasm_to_x86.h>
 #include <libasr/codegen/x86_assembler.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace wasm {
 
@@ -179,7 +179,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         // `eax` contains the logical value (true = 1, false = 0)
         // of the if condition
         m_a.asm_pop_r32(X86Reg::eax);
-        m_a.asm_cmp_r32_imm8(LFortran::X86Reg::eax, 1);
+        m_a.asm_cmp_r32_imm8(X86Reg::eax, 1);
         m_a.asm_je_label(".then_" + if_unique_id.back());
         m_a.asm_jmp_label(".else_" + if_unique_id.back());
         m_a.add_label(".then_" + if_unique_id.back());
@@ -489,4 +489,4 @@ Result<int> wasm_to_x86(Vec<uint8_t> &wasm_bytes, Allocator &al,
     return 0;
 }
 
-}  // namespace LFortran
+}  // namespace LCompilers

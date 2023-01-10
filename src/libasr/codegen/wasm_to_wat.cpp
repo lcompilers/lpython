@@ -4,7 +4,7 @@
 #include <libasr/codegen/wasm_decoder.h>
 #include <libasr/codegen/wasm_to_wat.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace wasm {
 
@@ -403,4 +403,4 @@ Result<std::string> wasm_to_wat(Vec<uint8_t> &wasm_bytes, Allocator &al,
     return wat;
 }
 
-}  // namespace LFortran
+}  // namespace LCompilers

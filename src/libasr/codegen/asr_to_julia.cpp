@@ -3,8 +3,7 @@
 #include "libasr/diagnostics.h"
 #include <libasr/codegen/asr_to_julia.h>
 
-namespace LFortran
-{
+namespace LCompilers {
 
 /*
 Julia operator precedence:
@@ -279,8 +278,8 @@ public:
     {
         std::string sub;
         bool is_array = ASRUtils::is_array(v.m_type);
-        bool use_ref = (v.m_intent == LFortran::ASRUtils::intent_out
-                        || v.m_intent == LFortran::ASRUtils::intent_inout)
+        bool use_ref = (v.m_intent == ASRUtils::intent_out
+                        || v.m_intent == ASRUtils::intent_inout)
                        && !is_array;
         std::string dims;
         if (ASRUtils::is_pointer(v.m_type)) {
@@ -430,7 +429,7 @@ public:
             inl = "@inline ";
         }
         if (x.m_return_var) {
-            ASR::Variable_t* return_var = LFortran::ASRUtils::EXPR2VAR(x.m_return_var);
+            ASR::Variable_t* return_var = ASRUtils::EXPR2VAR(x.m_return_var);
             if (ASRUtils::is_integer(*return_var->m_type)) {
                 int kind = ASR::down_cast<ASR::Integer_t>(return_var->m_type)->m_kind;
                 switch (kind) {
@@ -482,8 +481,8 @@ public:
         }
         std::string func = inl + "function " + sym_name + "(";
         for (size_t i = 0; i < x.n_args; i++) {
-            ASR::Variable_t* arg = LFortran::ASRUtils::EXPR2VAR(x.m_args[i]);
-            LCOMPILERS_ASSERT(LFortran::ASRUtils::is_arg_dummy(arg->m_intent));
+            ASR::Variable_t* arg = ASRUtils::EXPR2VAR(x.m_args[i]);
+            LCOMPILERS_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
             func += this->convert_variable_decl(*arg, true);
             if (i < x.n_args - 1)
                 func += ", ";
@@ -512,7 +511,7 @@ public:
         {
             // Process intrinsic modules in the right order
             std::vector<std::string> build_order
-                = LFortran::ASRUtils::determine_module_dependencies(x);
+                = ASRUtils::determine_module_dependencies(x);
             for (auto& item : build_order) {
                 LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
                                 != x.m_global_scope->get_scope().end());
@@ -533,7 +532,7 @@ public:
         }
 
         // Then do all the modules in the right order
-        std::vector<std::string> build_order = LFortran::ASRUtils::determine_module_dependencies(x);
+        std::vector<std::string> build_order = ASRUtils::determine_module_dependencies(x);
         for (auto& item : build_order) {
             LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
                             != x.m_global_scope->get_scope().end());
@@ -674,8 +673,8 @@ public:
             for (auto& item : x.m_symtab->get_scope()) {
                 if (ASR::is_a<ASR::Variable_t>(*item.second)) {
                     ASR::Variable_t* v = ASR::down_cast<ASR::Variable_t>(item.second);
-                    if (v->m_intent == LFortran::ASRUtils::intent_local
-                        || v->m_intent == LFortran::ASRUtils::intent_return_var) {
+                    if (v->m_intent == ASRUtils::intent_local
+                        || v->m_intent == ASRUtils::intent_return_var) {
                         decl += indent + "local " + this->convert_variable_decl(*v) + "\n";
                     }
                 }
@@ -697,7 +696,7 @@ public:
             }
 
             if (!visited_return && x.m_return_var) {
-                body += indent + "return " + LFortran::ASRUtils::EXPR2VAR(x.m_return_var)->m_name
+                body += indent + "return " + ASRUtils::EXPR2VAR(x.m_return_var)->m_name
                         + "\n";
             }
 
@@ -721,7 +720,7 @@ public:
         }
 
         ASR::Function_t* fn = ASR::down_cast<ASR::Function_t>(
-            LFortran::ASRUtils::symbol_get_past_external(x.m_name));
+            ASRUtils::symbol_get_past_external(x.m_name));
         std::string fn_name = fn->m_name;
         if (sym_info[get_hash((ASR::asr_t*) fn)].intrinsic_function) {
             if (fn_name == "size") {
@@ -1117,7 +1116,7 @@ public:
         std::string indent(indentation_level * indentation_spaces, ' ');
         if (current_function && current_function->m_return_var) {
             src = indent + "return "
-                  + LFortran::ASRUtils::EXPR2VAR(current_function->m_return_var)->m_name + "\n";
+                  + ASRUtils::EXPR2VAR(current_function->m_return_var)->m_name + "\n";
         } else {
             src = indent + "return\n";
         }
@@ -1169,7 +1168,7 @@ public:
             out += "Threads.@threads ";
         }
         out += "for ";
-        ASR::Variable_t* loop_var = LFortran::ASRUtils::EXPR2VAR(x.m_head.m_v);
+        ASR::Variable_t* loop_var = ASRUtils::EXPR2VAR(x.m_head.m_v);
         std::string lvname = loop_var->m_name;
         ASR::expr_t* a = x.m_head.m_start;
         ASR::expr_t* b = x.m_head.m_end;
@@ -1261,7 +1260,7 @@ public:
 
         std::string indent(indentation_level * indentation_spaces, ' ');
         ASR::Function_t* s = ASR::down_cast<ASR::Function_t>(
-            LFortran::ASRUtils::symbol_get_past_external(x.m_name));
+            ASRUtils::symbol_get_past_external(x.m_name));
         // TODO: use a mapping with a hash(s) instead:
         std::string sym_name = s->m_name;
         if (sym_name == "exit") {
@@ -1443,9 +1442,9 @@ public:
             src = "(*" + std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name) + ")";
         } else {
             src = std::string(ASR::down_cast<ASR::Variable_t>(s)->m_name);
-            bool use_ref = (sv->m_intent == LFortran::ASRUtils::intent_out ||
+            bool use_ref = (sv->m_intent == ASRUtils::intent_out ||
 
-                            sv->m_intent == LFortran::ASRUtils::intent_inout)
+                            sv->m_intent == ASRUtils::intent_inout)
                            && !ASRUtils::is_array(sv->m_type);
             if (use_ref) {
                 src += "[]";
@@ -1877,4 +1876,5 @@ asr_to_julia(Allocator& al, ASR::TranslationUnit_t& asr, diag::Diagnostics& diag
     }
     return v.src;
 };
-}
+
+} // namespace LCompilers

@@ -15,7 +15,7 @@
 #include <lpython/utils.h>
 #include <lpython/semantics/semantic_exception.h>
 
-namespace LFortran {
+namespace LCompilers::LPython {
 
 struct ProceduresDatabase {
     std::map<std::string, std::set<std::string>> to_be_ignored;
@@ -722,6 +722,6 @@ struct PythonIntrinsicProcedures {
 
 }; // ComptimeEval
 
-} // namespace LFortran
+} // namespace LCompilers::LPython
 
 #endif /* LPYTHON_SEMANTICS_COMPTIME_EVAL_H */

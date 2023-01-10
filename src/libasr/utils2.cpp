@@ -9,7 +9,7 @@
 #include <libasr/utils.h>
 #include <libasr/string_utils.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 bool read_file(const std::string &filename, std::string &text)
 {

@@ -8,9 +8,9 @@
 #include <libasr/bwriter.h>
 
 
-namespace LFortran {
+namespace LCompilers {
 
-const std::string lfortran_modfile_type_string = "LFortran Modfile";
+const std::string lfortran_modfile_type_string = "LCompilers Modfile";
 
 inline void save_asr(const ASR::TranslationUnit_t &m, std::string& asr_string) {
     #ifdef WITH_LFORTRAN_BINARY_MODFILES
@@ -78,7 +78,7 @@ inline void load_serialised_asr(const std::string &s, std::string& asr_binary) {
 #endif
     std::string file_type = b.read_string();
     if (file_type != lfortran_modfile_type_string) {
-        throw LCompilersException("LFortran Modfile format not recognized");
+        throw LCompilersException("LCompilers Modfile format not recognized");
     }
     std::string version = b.read_string();
     if (version != LFORTRAN_VERSION) {
@@ -107,4 +107,4 @@ ASR::TranslationUnit_t* load_pycfile(Allocator &al, const std::string &s,
     return tu;
 }
 
-} // namespace LFortran
+} // namespace LCompilers

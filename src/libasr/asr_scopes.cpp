@@ -4,7 +4,7 @@
 #include <libasr/asr_scopes.h>
 #include <libasr/asr_utils.h>
 
-namespace LFortran  {
+namespace LCompilers  {
 
 // This function is taken from:
 // https://github.com/aappleby/smhasher/blob/61a0530f28277f2e850bfc39600ce61d02b518de/src/MurmurHash2.cpp#L37
@@ -134,4 +134,4 @@ std::string SymbolTable::get_unique_name(const std::string &name) {
     return unique_name;
 }
 
-} // namespace LFortran
+} // namespace LCompilers

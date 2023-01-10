@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <libasr/containers.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 enum Platform {
     Linux,
@@ -63,7 +63,7 @@ bool present(Vec<char*> &v, const char* name);
 bool present(char** const v, size_t n, const std::string name);
 int initialize();
 
-} // LFortran
+} // namespace LCompilers
 
 namespace LCompilers {
 

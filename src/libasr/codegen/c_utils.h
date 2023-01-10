@@ -4,7 +4,7 @@
 #include <libasr/asr.h>
 #include <libasr/asr_utils.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     static inline std::string format_type_c(const std::string &dims, const std::string &type,
         const std::string &name, bool use_ref, bool /*dummy*/)
@@ -1118,6 +1118,6 @@ class CCPPDSUtils {
         }
 };
 
-} // namespace LFortran
+} // namespace LCompilers
 
 #endif // LFORTRAN_C_UTILS_H

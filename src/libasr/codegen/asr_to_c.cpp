@@ -18,7 +18,7 @@
 #include <utility>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 class ASRToCVisitor : public BaseCCPPVisitor<ASRToCVisitor>
 {
@@ -179,10 +179,10 @@ public:
                                       std::string force_declare_name="")
     {
         std::string sub;
-        bool use_ref = (v.m_intent == LFortran::ASRUtils::intent_out ||
-                        v.m_intent == LFortran::ASRUtils::intent_inout);
+        bool use_ref = (v.m_intent == ASRUtils::intent_out ||
+                        v.m_intent == ASRUtils::intent_inout);
         bool is_array = ASRUtils::is_array(v.m_type);
-        bool dummy = LFortran::ASRUtils::is_arg_dummy(v.m_intent);
+        bool dummy = ASRUtils::is_arg_dummy(v.m_intent);
         ASR::ttype_t* v_m_type = v.m_type;
         if (ASR::is_a<ASR::Const_t>(*v_m_type)) {
             if( is_array ) {
@@ -593,7 +593,7 @@ R"(
         {
             // Process intrinsic modules in the right order
             std::vector<std::string> build_order
-                = LFortran::ASRUtils::determine_module_dependencies(x);
+                = ASRUtils::determine_module_dependencies(x);
             for (auto &item : build_order) {
                 LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
                     != x.m_global_scope->get_scope().end());
@@ -609,7 +609,7 @@ R"(
 
         // Process modules in the right order
         std::vector<std::string> build_order
-            = LFortran::ASRUtils::determine_module_dependencies(x);
+            = ASRUtils::determine_module_dependencies(x);
         for (auto &item : build_order) {
             LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
                 != x.m_global_scope->get_scope().end());
@@ -1181,4 +1181,4 @@ Result<std::string> asr_to_c(Allocator &al, ASR::TranslationUnit_t &asr,
     return v.src;
 }
 
-} // namespace LFortran
+} // namespace LCompilers

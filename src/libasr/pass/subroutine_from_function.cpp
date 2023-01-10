@@ -10,7 +10,7 @@
 #include <string>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 using ASR::is_a;
@@ -197,7 +197,7 @@ class ReplaceFunctionCallWithSubroutineCall: public PassUtils::PassVisitor<Repla
                 result_arg.loc = result_var->base.loc;
                 result_arg.m_value = result_var;
                 s_args.push_back(al, result_arg);
-                ASR::stmt_t* subrout_call = LFortran::ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc,
+                ASR::stmt_t* subrout_call = ASRUtils::STMT(ASR::make_SubroutineCall_t(al, x.base.base.loc,
                                                     sub, nullptr,
                                                     s_args.p, s_args.size(), nullptr));
                 pass_result.push_back(al, subrout_call);
@@ -216,4 +216,4 @@ void pass_create_subroutine_from_function(Allocator &al, ASR::TranslationUnit_t 
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

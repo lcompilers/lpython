@@ -326,7 +326,7 @@ class ASTVisitorVisitor2(ASDLVisitor):
             self.emit("void visit_%s(const %s_t &b) { visit_%s_t(b, self()); }"\
                     % (base, base, base), 1)
             for type_ in sum.types:
-                self.emit("""void visit_%s(const %s_t & /* x */) { throw LFortran::LCompilersException("visit_%s() not implemented"); }""" \
+                self.emit("""void visit_%s(const %s_t & /* x */) { throw LCompilersException("visit_%s() not implemented"); }""" \
                         % (type_.name, type_.name, type_.name), 2)
 
 
@@ -2426,7 +2426,7 @@ HEAD = r"""#ifndef LFORTRAN_%(MOD2)s_H
 #include <libasr/asr_scopes.h>
 
 
-namespace LFortran::%(MOD)s {
+namespace LCompilers::%(MOD)s {
 
 enum %(mod)sType
 {
@@ -2468,7 +2468,7 @@ static inline T* down_cast2(const %(mod)s_t *f)
 
 """
 
-FOOT = r"""} // namespace LFortran::%(MOD)s
+FOOT = r"""} // namespace LCompilers::%(MOD)s
 
 #endif // LFORTRAN_%(MOD2)s_H
 """

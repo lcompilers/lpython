@@ -3,7 +3,7 @@
 #include <libasr/codegen/llvm_array_utils.h>
 #include <libasr/asr_utils.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     namespace LLVM {
 
@@ -2697,4 +2697,4 @@ namespace LFortran {
         return is_equal;
     }
 
-} // namespace LFortran
+} // namespace LCompilers

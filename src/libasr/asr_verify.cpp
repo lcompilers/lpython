@@ -10,11 +10,11 @@ namespace {
     };
 }
 
-namespace LFortran {
+namespace LCompilers {
 namespace ASR {
 
-using LFortran::ASRUtils::symbol_name;
-using LFortran::ASRUtils::symbol_parent_symtab;
+using ASRUtils::symbol_name;
+using ASRUtils::symbol_parent_symtab;
 
 bool valid_char(char c) {
     if (c >= 'a' && c <= 'z') return true;
@@ -800,4 +800,4 @@ bool asr_verify(const ASR::TranslationUnit_t &unit, bool check_external,
     return true;
 }
 
-} // namespace LFortran
+} // namespace LCompilers

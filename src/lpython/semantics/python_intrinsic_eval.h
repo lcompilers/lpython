@@ -7,7 +7,7 @@
 #include <lpython/utils.h>
 #include <lpython/semantics/semantic_exception.h>
 
-namespace LFortran {
+namespace LCompilers::LPython {
 
 struct IntrinsicNodeHandler {
 
@@ -462,6 +462,6 @@ struct IntrinsicNodeHandler {
 
 }; // IntrinsicNodeHandler
 
-} // namespace LFortran
+} // namespace LCompilers::LPython
 
 #endif /* LPYTHON_INTRINSIC_EVAL_H */

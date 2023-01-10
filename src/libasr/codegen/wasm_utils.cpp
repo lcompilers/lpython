@@ -1,6 +1,6 @@
 #include <libasr/codegen/wasm_utils.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace wasm {
 
@@ -121,4 +121,4 @@ void hexdump(void *ptr, int buflen) {
 
 }  // namespace wasm
 
-}  // namespace LFortran
+}  // namespace LCompilers

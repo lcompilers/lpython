@@ -7,10 +7,10 @@
 #include <libasr/bwriter.h>
 #include <libasr/string_utils.h>
 
-using LFortran::ASRUtils::symbol_parent_symtab;
-using LFortran::ASRUtils::symbol_name;
+using LCompilers::ASRUtils::symbol_parent_symtab;
+using LCompilers::ASRUtils::symbol_name;
 
-namespace LFortran {
+namespace LCompilers {
 
 
 class ASRSerializationVisitor :
@@ -73,7 +73,7 @@ public:
 
     char* read_cstring() {
         std::string s = read_string();
-        LFortran::Str cs;
+        LCompilers::Str cs;
         cs.from_str_view(s);
         char* p = cs.c_str(al);
         return p;
@@ -328,4 +328,4 @@ ASR::asr_t* deserialize_asr(Allocator &al, const std::string &s,
     return node;
 }
 
-} // namespace LFortran
+} // namespace LCompilers

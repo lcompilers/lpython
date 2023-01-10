@@ -6,7 +6,7 @@
 #include <libasr/exception.h>
 #include <libasr/utils.h>
 
-namespace LFortran::diag {
+namespace LCompilers::diag {
 
 const static std::string redon  = ColorsANSI::RED;
 const static std::string redoff = ColorsANSI::RESET;
@@ -398,4 +398,4 @@ std::tuple<std::string, std::string, std::string> diag_level_to_str(
     return std::make_tuple(message_type, primary_color, type_color);
 }
 
-} // namespace LFortran::diag
+} // namespace LCompilers::diag

@@ -4,8 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace LFortran
-{
+namespace LCompilers {
 
 struct Location
 {
@@ -208,7 +207,7 @@ struct LocationManager {
 };
 
 
-} // namespace LFortran
+} // namespace LCompilers
 
 
 #endif

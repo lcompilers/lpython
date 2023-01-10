@@ -5,8 +5,7 @@
 #include <lpython/parser/parser.tab.hh>
 #include <libasr/bigint.h>
 
-namespace LFortran
-{
+namespace LCompilers::LPython {
 
 template<int base>
 bool adddgt(uint64_t &u, uint64_t d)
@@ -608,14 +607,14 @@ void Tokenizer::lex_match_or_case(Location &loc, unsigned char *cur,
             * {
                 token_loc(loc);
                 std::string t = std::string((char *)tok, cur - tok);
-                throw LFortran::parser_local::TokenizerError("Token '" + t
-                    + "' is not recognized in `match` statement", loc);
+                throw parser_local::TokenizerError("Token '"
+                    + t + "' is not recognized in `match` statement", loc);
             }
 
             end {
                 token_loc(loc);
                 std::string t = std::string((char *)tok, cur - tok);
-                throw LFortran::parser_local::TokenizerError(
+                throw parser_local::TokenizerError(
                     "End of file not expected within `match` statement: '" + t
                     + "'", loc);
             }
@@ -797,7 +796,7 @@ Result<std::vector<int>> tokens(Allocator &al, const std::string &input,
     return tst;
 }
 
-std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
+std::string pickle_token(int token, const YYSTYPE &yystype)
 {
     std::string t;
     t += "(";
@@ -837,4 +836,4 @@ std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers::LPython

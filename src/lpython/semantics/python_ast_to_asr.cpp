@@ -32,7 +32,7 @@
 #include <lpython/parser/parser.h>
 #include <libasr/serialization.h>
 
-namespace LFortran::LPython {
+namespace LCompilers::LPython {
 
 namespace CastingUtil {
 
@@ -163,11 +163,11 @@ namespace CastingUtil {
     }
 }
 
-int save_pyc_files(const LFortran::ASR::TranslationUnit_t &u,
+int save_pyc_files(const ASR::TranslationUnit_t &u,
                        std::string infile) {
-    LFortran::diag::Diagnostics diagnostics;
-    LCOMPILERS_ASSERT(LFortran::asr_verify(u, true, diagnostics));
-    std::string modfile_binary = LFortran::save_pycfile(u);
+    diag::Diagnostics diagnostics;
+    LCOMPILERS_ASSERT(asr_verify(u, true, diagnostics));
+    std::string modfile_binary = save_pycfile(u);
 
     while( infile.back() != '.' ) {
         infile.pop_back();
@@ -184,7 +184,7 @@ int save_pyc_files(const LFortran::ASR::TranslationUnit_t &u,
 // Does a CPython style lookup for a module:
 // * First the current directory (this is incorrect, we need to do it relative to the current file)
 // * Then the LPython runtime directory
-LFortran::Result<std::string> get_full_path(const std::string &filename,
+Result<std::string> get_full_path(const std::string &filename,
         const std::string &runtime_library_dir, std::string& input,
         bool &ltypes, bool& enum_py) {
     ltypes = false;
@@ -211,7 +211,7 @@ LFortran::Result<std::string> get_full_path(const std::string &filename,
                     ltypes = true;
                     return file_path;
                 } else {
-                    return LFortran::Error();
+                    return Error();
                 }
             } else if (startswith(filename, "numpy.py")) {
                 file_path = runtime_library_dir + "/lpython_intrinsic_" + filename;
@@ -219,13 +219,13 @@ LFortran::Result<std::string> get_full_path(const std::string &filename,
                 if (status) {
                     return file_path;
                 } else {
-                    return LFortran::Error();
+                    return Error();
                 }
             } else if (startswith(filename, "enum.py")) {
                 enum_py = true;
-                return LFortran::Error();
+                return Error();
             } else {
-                return LFortran::Error();
+                return Error();
             }
         }
     }
@@ -251,10 +251,10 @@ ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
         const std::function<void (const std::string &, const Location &)> err,
         bool allow_implicit_casting) {
     {
-        LFortran::LocationManager::FileLocations fl;
+        LocationManager::FileLocations fl;
         fl.in_filename = infile;
         lm.files.push_back(fl);
-        std::string input = LFortran::read_file(infile);
+        std::string input = read_file(infile);
         lm.file_ends.push_back(lm.file_ends.back() + input.size());
         lm.init_simple(input);
     }
@@ -263,10 +263,10 @@ ASR::TranslationUnit_t* compile_module_till_asr(Allocator& al,
     if (!r.ok) {
         err("The file '" + infile + "' failed to parse", loc);
     }
-    LFortran::LPython::AST::ast_t* ast = r.result;
+    LCompilers::LPython::AST::ast_t* ast = r.result;
 
     // Convert the module from AST to ASR
-    LFortran::CompilerOptions compiler_options;
+    CompilerOptions compiler_options;
     compiler_options.disable_main = true;
     compiler_options.symtab_only = false;
     Result<ASR::TranslationUnit_t*> r2 = python_ast_to_asr(al, lm, *ast,
@@ -341,7 +341,7 @@ ASR::Module_t* load_module(Allocator &al, SymbolTable *symtab,
     } else {
         mod1 = load_pycfile(al, input, false);
         fix_external_symbols(*mod1, *ASRUtils::get_tu_symtab(symtab));
-        LFortran::diag::Diagnostics diagnostics;
+        diag::Diagnostics diagnostics;
         LCOMPILERS_ASSERT(asr_verify(*mod1, true, diagnostics));
         compile_module = false;
     }
@@ -6255,4 +6255,4 @@ Result<ASR::TranslationUnit_t*> python_ast_to_asr(Allocator &al, LocationManager
     return tu;
 }
 
-} // namespace LFortran::Python
+} // namespace LCompilers::LPython

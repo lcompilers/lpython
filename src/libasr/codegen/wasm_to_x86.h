@@ -3,12 +3,12 @@
 
 #include <libasr/wasm_visitor.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 Result<int> wasm_to_x86(Vec<uint8_t> &wasm_bytes, Allocator &al,
                         const std::string &filename, bool time_report,
                         diag::Diagnostics &diagnostics);
 
-}  // namespace LFortran
+}  // namespace LCompilers
 
 #endif  // LFORTRAN_WASM_TO_X86_H

@@ -10,7 +10,7 @@
 #include <utility>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 /*
 The following visitor converts function/subroutines (a.k.a procedures)
@@ -425,4 +425,4 @@ void pass_array_by_data(Allocator &al, ASR::TranslationUnit_t &unit,
     y.visit_TranslationUnit(unit);
 }
 
-} // namespace LFortran
+} // namespace LCompilers

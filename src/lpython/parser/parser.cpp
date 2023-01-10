@@ -12,7 +12,7 @@
 #include <lpython/parser/parser_exception.h>
 #include <lpython/python_serialization.h>
 
-namespace LFortran {
+namespace LCompilers::LPython {
 
 Result<LPython::AST::Module_t*> parse(Allocator &al, const std::string &s,
         uint32_t prev_loc, diag::Diagnostics &diagnostics)
@@ -63,7 +63,7 @@ void Parser::handle_yyerror(const Location &loc, const std::string &msg)
     if (msg == "syntax is ambiguous") {
         message = "Internal Compiler Error: syntax is ambiguous in the parser";
     } else if (msg == "syntax error") {
-        LFortran::YYSTYPE yylval_;
+        YYSTYPE yylval_;
         YYLTYPE yyloc_;
         this->m_tokenizer.cur = this->m_tokenizer.tok;
         int token = this->m_tokenizer.lex(this->m_a, yylval_, yyloc_, diag);
@@ -134,4 +134,4 @@ Result<LPython::AST::ast_t*> parse_python_file(Allocator &al,
 }
 
 
-} // LFortran
+} // namespace LCompilers::LPython

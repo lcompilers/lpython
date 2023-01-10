@@ -26,7 +26,7 @@
     #endif
 #endif
 
-namespace LFortran {
+namespace LCompilers::LPython {
 
 void get_executable_path(std::string &executable_path, int &dirname_length)
 {

@@ -20,7 +20,7 @@
 #include <lfortran/pickle.h>
 #endif
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace {
 
@@ -361,8 +361,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void emit_var_type(Vec<uint8_t> &code, ASR::Variable_t *v) {
-        // bool use_ref = (v->m_intent == LFortran::ASRUtils::intent_out ||
-        //                 v->m_intent == LFortran::ASRUtils::intent_inout);
+        // bool use_ref = (v->m_intent == ASRUtils::intent_out ||
+        //                 v->m_intent == ASRUtils::intent_inout);
         bool is_array = ASRUtils::is_array(v->m_type);
 
         if (ASRUtils::is_pointer(v->m_type)) {
@@ -2196,4 +2196,4 @@ Result<int> asr_to_wasm(ASR::TranslationUnit_t &asr, Allocator &al,
     return 0;
 }
 
-}  // namespace LFortran
+}  // namespace LCompilers

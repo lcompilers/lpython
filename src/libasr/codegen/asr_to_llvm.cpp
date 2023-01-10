@@ -56,7 +56,7 @@
 #endif
 
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace {
 
@@ -98,14 +98,14 @@ using ASR::is_a;
 using ASR::down_cast;
 using ASR::down_cast2;
 
-using LFortran::ASRUtils::expr_type;
-using LFortran::ASRUtils::symbol_get_past_external;
-using LFortran::ASRUtils::EXPR2VAR;
-using LFortran::ASRUtils::EXPR2FUN;
-using LFortran::ASRUtils::intent_local;
-using LFortran::ASRUtils::intent_return_var;
-using LFortran::ASRUtils::determine_module_dependencies;
-using LFortran::ASRUtils::is_arg_dummy;
+using ASRUtils::expr_type;
+using ASRUtils::symbol_get_past_external;
+using ASRUtils::EXPR2VAR;
+using ASRUtils::EXPR2FUN;
+using ASRUtils::intent_local;
+using ASRUtils::intent_return_var;
+using ASRUtils::determine_module_dependencies;
+using ASRUtils::is_arg_dummy;
 
 // Platform dependent fast unique hash:
 uint64_t static get_hash(ASR::asr_t *node)
@@ -268,12 +268,12 @@ public:
     }
 
     llvm::Value* CreateLoad(llvm::Value *x) {
-        return LFortran::LLVM::CreateLoad(*builder, x);
+        return LLVM::CreateLoad(*builder, x);
     }
 
 
     llvm::Value* CreateGEP(llvm::Value *x, std::vector<llvm::Value *> &idx) {
-        return LFortran::LLVM::CreateGEP(*builder, x, idx);
+        return LLVM::CreateGEP(*builder, x, idx);
     }
 
     // Inserts a new block `bb` using the current builder
@@ -378,7 +378,7 @@ public:
         LocationManager::FileLocations fl;
         fl.in_filename = infile;
         lm.files.push_back(fl);
-        std::string input = LFortran::read_file(infile);
+        std::string input = read_file(infile);
         lm.init_simple(input);
         lm.file_ends.push_back(input.size());
         lm.pos_to_linecol(lm.output_to_input_pos(loc_first, false),
@@ -6423,7 +6423,7 @@ public:
         }
         uint32_t h;
         if (s->m_abi == ASR::abiType::LFortranModule) {
-            throw CodeGenError("Subroutine LFortran interfaces not implemented yet");
+            throw CodeGenError("Subroutine LCompilers interfaces not implemented yet");
         } else if (s->m_abi == ASR::abiType::Interactive) {
             h = get_hash((ASR::asr_t*)s);
         } else if (s->m_abi == ASR::abiType::Source) {
@@ -6565,7 +6565,7 @@ public:
         if (s->m_abi == ASR::abiType::Source && !intrinsic_function) {
             h = get_hash((ASR::asr_t*)s);
         } else if (s->m_abi == ASR::abiType::LFortranModule) {
-            throw CodeGenError("Function LFortran interfaces not implemented yet");
+            throw CodeGenError("Function LCompilers interfaces not implemented yet");
         } else if (s->m_abi == ASR::abiType::Interactive) {
             h = get_hash((ASR::asr_t*)s);
         } else if (s->m_abi == ASR::abiType::BindC) {
@@ -6785,4 +6785,4 @@ Result<std::unique_ptr<LLVMModule>> asr_to_llvm(ASR::TranslationUnit_t &asr,
     return std::make_unique<LLVMModule>(std::move(v.module));
 }
 
-} // namespace LFortran
+} // namespace LCompilers
