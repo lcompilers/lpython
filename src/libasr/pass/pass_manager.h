@@ -128,7 +128,7 @@ namespace LCompilers {
                 "forall",
                 "select_case",
                 "inline_function_calls",
-                "unused_functions",
+                "unused_functions"
             };
 
             _with_optimization_passes = {

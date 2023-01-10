@@ -228,7 +228,7 @@ public:
     }
 
     void visit_FunctionCall(const ASR::FunctionCall_t &x) {
-        if (nesting_depth == 1){
+        if (nesting_depth) {
             // Have to save all the calls out and make sure they are not solely
             // to the nested function
             ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
@@ -238,18 +238,28 @@ public:
                 calls_to.end()){
                 calls_to.push_back(call_hash);
             }
+            for (size_t i=0; i<x.n_args; i++) {
+                if (ASR::is_a<ASR::Var_t>(*x.m_args[i].m_value)) {
+                    visit_Var(*ASR::down_cast<ASR::Var_t>(x.m_args[i].m_value));
+                }
+            }
             calls_out = true;
         }
     }
 
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
-        if (nesting_depth == 1){
+        if (nesting_depth) {
             ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
                 LFortran::ASRUtils::symbol_get_past_external(x.m_name));
             uint32_t call_hash = get_hash((ASR::asr_t*)s);
             if (std::find(calls_to.begin(), calls_to.end(), call_hash) ==
                 calls_to.end()){
                 calls_to.push_back(call_hash);
+            }
+            for (size_t i=0; i<x.n_args; i++) {
+                if (ASR::is_a<ASR::Var_t>(*x.m_args[i].m_value)) {
+                    visit_Var(*ASR::down_cast<ASR::Var_t>(x.m_args[i].m_value));
+                }
             }
             calls_out = true;
         }

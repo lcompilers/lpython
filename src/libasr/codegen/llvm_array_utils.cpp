@@ -33,10 +33,7 @@ namespace LFortran {
                     is_ok = false;
                     break;
                 }
-                if( (m_dims[r].m_length != nullptr &&
-                    m_dims[r].m_length->type != ASR::exprType::IntegerConstant) ||
-                    (m_dims[r].m_start != nullptr &&
-                    m_dims[r].m_start->type != ASR::exprType::IntegerConstant) ) {
+                if( m_dims[r].m_length == nullptr ) {
                     is_ok = false;
                     break;
                 }

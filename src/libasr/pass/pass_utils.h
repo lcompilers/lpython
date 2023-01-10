@@ -191,6 +191,39 @@ namespace LFortran {
                     transform_stmts(xx.m_body, xx.n_body);
                 }
 
+                void visit_If(const ASR::If_t& x) {
+                    ASR::If_t &xx = const_cast<ASR::If_t&>(x);
+                    self().visit_expr(*xx.m_test);
+                    transform_stmts(xx.m_body, xx.n_body);
+                    transform_stmts(xx.m_orelse, xx.n_orelse);
+                }
+
+                void visit_CaseStmt(const ASR::CaseStmt_t& x) {
+                    ASR::CaseStmt_t &xx = const_cast<ASR::CaseStmt_t&>(x);
+                    for (size_t i=0; i<xx.n_test; i++) {
+                        self().visit_expr(*xx.m_test[i]);
+                    }
+                    transform_stmts(xx.m_body, xx.n_body);
+                }
+
+                void visit_CaseStmt_Range(const ASR::CaseStmt_Range_t& x) {
+                    ASR::CaseStmt_Range_t &xx = const_cast<ASR::CaseStmt_Range_t&>(x);
+                    if (xx.m_start)
+                        self().visit_expr(*xx.m_start);
+                    if (xx.m_end)
+                        self().visit_expr(*xx.m_end);
+                    transform_stmts(xx.m_body, xx.n_body);
+                }
+
+                void visit_Select(const ASR::Select_t& x) {
+                    ASR::Select_t &xx = const_cast<ASR::Select_t&>(x);
+                    self().visit_expr(*xx.m_test);
+                    for (size_t i=0; i<xx.n_body; i++) {
+                        self().visit_case_stmt(*xx.m_body[i]);
+                    }
+                    transform_stmts(xx.m_default, xx.n_default);
+                }
+
         };
 
         template <class Struct>

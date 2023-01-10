@@ -35,6 +35,7 @@ struct CompilerOptions {
     bool show_stacktrace = false;
     bool use_colors = true;
     bool indent = false;
+    bool json = false;
     bool tree = false;
     bool fast = false;
     bool openmp = false;
