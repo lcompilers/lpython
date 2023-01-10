@@ -52,7 +52,12 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
 
     void visit_Unreachable() {}
 
-    void visit_Return() {}
+    void visit_Return() {
+        // Restore stack
+        m_a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
+        m_a.asm_pop_r32(X86Reg::ebp);
+        m_a.asm_ret();
+    }
 
     void call_imported_function(uint32_t func_index) {
         switch (func_index) {
@@ -395,11 +400,6 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
                 offset = codes.p[i].insts_start_index;
                 cur_func_idx = i;
                 decode_instructions();
-
-                // Restore stack
-                m_a.asm_mov_r32_r32(X86Reg::esp, X86Reg::ebp);
-                m_a.asm_pop_r32(X86Reg::ebp);
-                m_a.asm_ret();
             }
         }
 
