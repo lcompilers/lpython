@@ -408,5 +408,6 @@ RUN(NAME func_dep_03    LABELS cpython llvm c)
 RUN(NAME func_dep_04    LABELS cpython llvm c)
 
 RUN(NAME float_01 LABELS cpython llvm wasm wasm_x64)
+RUN(NAME recursive_01 LABELS cpython llvm wasm wasm_x64 wasm_x86)
 
 RUN(NAME test_argv_01    LABELS llvm) # TODO: Test using CPython
