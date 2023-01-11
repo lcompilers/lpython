@@ -10,8 +10,8 @@
 #include <limits.h>
 #include <ctype.h>
 
-#include "lfortran_intrinsics.h"
-#include "../config.h"
+#include <libasr/runtime/lfortran_intrinsics.h>
+#include <libasr/config.h>
 
 #ifdef HAVE_LFORTRAN_LINK
 // For dl_iterate_phdr() functionality
@@ -1513,10 +1513,10 @@ int generate_stacktrace_files() {
     strcat(cmd, ".out > ");
 #endif
     strcat(cmd, base_name);
-    strcat(cmd, ".txt && ");
+    strcat(cmd, "_ldd.txt && ");
     strcat(cmd, "(cd src/bin; ./dwarf_convert.py ../../");
     strcat(cmd, base_name);
-    strcat(cmd, ".txt ../../");
+    strcat(cmd, "_ldd.txt ../../");
     strcat(cmd, base_name);
     strcat(cmd, "_lines.txt ../../");
     strcat(cmd, base_name);
