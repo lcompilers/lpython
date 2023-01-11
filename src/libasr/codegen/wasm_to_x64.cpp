@@ -63,7 +63,12 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         decoding_data_segment = false;
     }
 
-    void visit_Return() {}
+    void visit_Return() {
+        // Restore stack
+        m_a.asm_mov_r64_r64(X64Reg::rsp, X64Reg::rbp);
+        m_a.asm_pop_r64(X64Reg::rbp);
+        m_a.asm_ret();
+    }
 
     void visit_Unreachable() {}
 
@@ -429,11 +434,6 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 offset = codes[idx].insts_start_index;
                 cur_func_idx = idx;
                 decode_instructions();
-
-                // Restore stack
-                m_a.asm_mov_r64_r64(X64Reg::rsp, X64Reg::rbp);
-                m_a.asm_pop_r64(X64Reg::rbp);
-                m_a.asm_ret();
             }
 
         }
