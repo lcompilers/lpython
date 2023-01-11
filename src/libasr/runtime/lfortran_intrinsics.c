@@ -1499,12 +1499,11 @@ char *remove_whitespace(char *str) {
 int generate_stacktrace_files() {
     // TODO: Replace the hardcoded part
     char *base_name = get_base_name(source_filename);
-    char *cmd = malloc(strlen(base_name)*6 + 157);
+    char *cmd = malloc(strlen(base_name)*7 + 200);
 #ifdef HAVE_LFORTRAN_MACHO
     strcpy(cmd, "dsymutil ");
     strcat(cmd, base_name);
-    strcat(cmd, ".out && ");
-    strcat(cmd, "llvm-dwarfdump --debug-line ");
+    strcat(cmd, ".out && llvm-dwarfdump --debug-line ");
     strcat(cmd, base_name);
     strcat(cmd, ".out.dSYM > ");
 #else
@@ -1513,8 +1512,7 @@ int generate_stacktrace_files() {
     strcat(cmd, ".out > ");
 #endif
     strcat(cmd, base_name);
-    strcat(cmd, "_ldd.txt && ");
-    strcat(cmd, "(cd src/bin; ./dwarf_convert.py ../../");
+    strcat(cmd, "_ldd.txt && (cd src/bin; ./dwarf_convert.py ../../");
     strcat(cmd, base_name);
     strcat(cmd, "_ldd.txt ../../");
     strcat(cmd, base_name);
