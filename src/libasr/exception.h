@@ -28,8 +28,7 @@ typedef enum {
 #include <libasr/stacktrace.h>
 #include <libasr/diagnostics.h>
 
-namespace LFortran
-{
+namespace LCompilers {
 
 /*
     This Error structure is returned in Result when failure happens.
@@ -167,7 +166,7 @@ static inline T TRY(Result<T> result) {
 }
 
 
-} // Namespace LFortran
+} // namespace LCompilers
 
 #endif // __cplusplus
 #endif // LFORTRAN_EXCEPTION_H

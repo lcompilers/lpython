@@ -1,7 +1,7 @@
 %require "3.0"
 %define api.pure
-%define api.value.type {LFortran::YYSTYPE}
-%param {LFortran::Parser &p}
+%define api.value.type {LCompilers::LPython::YYSTYPE}
+%param {LCompilers::LPython::Parser &p}
 %locations
 %expect    0   // shift/reduce conflicts
 
@@ -31,12 +31,13 @@
 #include <lpython/parser/tokenizer.h>
 #include <lpython/parser/semantics.h>
 
-int yylex(LFortran::YYSTYPE *yylval, YYLTYPE *yyloc, LFortran::Parser &p)
+int yylex(LCompilers::LPython::YYSTYPE *yylval, YYLTYPE *yyloc,
+    LCompilers::LPython::Parser &p)
 {
     return p.m_tokenizer.lex(p.m_a, *yylval, *yyloc, p.diag);
 } // ylex
 
-void yyerror(YYLTYPE *yyloc, LFortran::Parser &p, const std::string &msg)
+void yyerror(YYLTYPE *yyloc, LCompilers::LPython::Parser &p, const std::string &msg)
 {
     p.handle_yyerror(*yyloc, msg);
 }

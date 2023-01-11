@@ -20,7 +20,7 @@
 #include <lfortran/pickle.h>
 #endif
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace {
 
@@ -246,7 +246,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
         // All loose statements must be converted to a function, so the items
         // must be empty:
-        LFORTRAN_ASSERT(x.n_items == 0);
+        LCOMPILERS_ASSERT(x.n_items == 0);
 
         global_scope = x.m_global_scope;
         global_scope_loc = x.base.base.loc;
@@ -262,7 +262,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 std::vector<std::string> build_order =
                     ASRUtils::determine_module_dependencies(x);
                 for (auto &item : build_order) {
-                    LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item) !=
+                    LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item) !=
                                     x.m_global_scope->get_scope().end());
                     ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
                     if (ASR::is_a<ASR::Module_t>(*mod)) {
@@ -292,7 +292,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             std::vector<std::string> build_order =
                 ASRUtils::determine_module_dependencies(x);
             for (auto &item : build_order) {
-                LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item) !=
+                LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item) !=
                                 x.m_global_scope->get_scope().end());
                 ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
                 this->visit_symbol(*mod);
@@ -306,7 +306,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         // std::vector<std::string> build_order
         //     = LFortran::ASRUtils::determine_module_dependencies(x);
         // for (auto &item : build_order) {
-        //     LFORTRAN_ASSERT(x.m_global_scope->get_scope().find(item)
+        //     LCOMPILERS_ASSERT(x.m_global_scope->get_scope().find(item)
         //         != x.m_global_scope->get_scope().end());
         //     if (!startswith(item, "lfortran_intrinsic")) {
         //         ASR::symbol_t *mod = x.m_global_scope->get_symbol(item);
@@ -361,8 +361,8 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void emit_var_type(Vec<uint8_t> &code, ASR::Variable_t *v) {
-        // bool use_ref = (v->m_intent == LFortran::ASRUtils::intent_out ||
-        //                 v->m_intent == LFortran::ASRUtils::intent_inout);
+        // bool use_ref = (v->m_intent == ASRUtils::intent_out ||
+        //                 v->m_intent == ASRUtils::intent_inout);
         bool is_array = ASRUtils::is_array(v->m_type);
 
         if (ASRUtils::is_pointer(v->m_type)) {
@@ -498,7 +498,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     if (v->m_symbolic_value) {
                         this->visit_expr(*v->m_symbolic_value);
                         // Todo: Checking for Array is currently omitted
-                        LFORTRAN_ASSERT(m_var_name_idx_map.find(
+                        LCOMPILERS_ASSERT(m_var_name_idx_map.find(
                                             get_hash((ASR::asr_t *)v)) !=
                                         m_var_name_idx_map.end())
                         wasm::emit_set_local(
@@ -516,7 +516,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                             total_array_size *= dim;
                         }
 
-                        LFORTRAN_ASSERT(m_var_name_idx_map.find(
+                        LCOMPILERS_ASSERT(m_var_name_idx_map.find(
                                             get_hash((ASR::asr_t *)v)) !=
                                         m_var_name_idx_map.end());
                         wasm::emit_i32_const(m_code_section, m_al,
@@ -542,7 +542,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         wasm::emit_u32(m_type_section, m_al, x.n_args);
         for (size_t i = 0; i < x.n_args; i++) {
             ASR::Variable_t *arg = ASRUtils::EXPR2VAR(x.m_args[i]);
-            LFORTRAN_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
+            LCOMPILERS_ASSERT(ASRUtils::is_arg_dummy(arg->m_intent));
             emit_var_type(m_type_section, arg);
             m_var_name_idx_map[get_hash((ASR::asr_t *)arg)] =
                 s->no_of_variables++;
@@ -581,7 +581,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     }
 
     void emit_function_body(const ASR::Function_t &x) {
-        LFORTRAN_ASSERT(m_func_name_idx_map.find(get_hash((ASR::asr_t *)&x)) !=
+        LCOMPILERS_ASSERT(m_func_name_idx_map.find(get_hash((ASR::asr_t *)&x)) !=
                         m_func_name_idx_map.end());
 
         cur_sym_info = m_func_name_idx_map[get_hash((ASR::asr_t *)&x)];
@@ -814,7 +814,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
         if (ASR::is_a<ASR::Var_t>(*x.m_target)) {
             this->visit_expr(*x.m_value);
             ASR::Variable_t *asr_target = ASRUtils::EXPR2VAR(x.m_target);
-            LFORTRAN_ASSERT(
+            LCOMPILERS_ASSERT(
                 m_var_name_idx_map.find(get_hash((ASR::asr_t *)asr_target)) !=
                 m_var_name_idx_map.end());
             wasm::emit_set_local(
@@ -826,7 +826,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             this->visit_expr(*x.m_value);
             emit_memory_store(x.m_value);
         } else {
-            LFORTRAN_ASSERT(false)
+            LCOMPILERS_ASSERT(false)
         }
     }
 
@@ -1333,7 +1333,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             case ASR::ttypeType::Logical:
             case ASR::ttypeType::Real:
             case ASR::ttypeType::Character: {
-                LFORTRAN_ASSERT(
+                LCOMPILERS_ASSERT(
                     m_var_name_idx_map.find(get_hash((ASR::asr_t *)v)) !=
                     m_var_name_idx_map.end());
                 wasm::emit_get_local(
@@ -1497,7 +1497,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
 
     void handle_return() {
         if (cur_sym_info->return_var) {
-            LFORTRAN_ASSERT(m_var_name_idx_map.find(get_hash(
+            LCOMPILERS_ASSERT(m_var_name_idx_map.find(get_hash(
                                 (ASR::asr_t *)cur_sym_info->return_var)) !=
                             m_var_name_idx_map.end());
             wasm::emit_get_local(m_code_section, m_al,
@@ -1611,7 +1611,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             visit_expr(*x.m_args[i].m_value);
         }
 
-        LFORTRAN_ASSERT(m_func_name_idx_map.find(get_hash((ASR::asr_t *)fn)) !=
+        LCOMPILERS_ASSERT(m_func_name_idx_map.find(get_hash((ASR::asr_t *)fn)) !=
                         m_func_name_idx_map.end())
         wasm::emit_call(m_code_section, m_al,
                         m_func_name_idx_map[get_hash((ASR::asr_t *)fn)]->index);
@@ -1644,14 +1644,14 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 "the number of parameters");
         }
 
-        LFORTRAN_ASSERT(m_func_name_idx_map.find(get_hash((ASR::asr_t *)s)) !=
+        LCOMPILERS_ASSERT(m_func_name_idx_map.find(get_hash((ASR::asr_t *)s)) !=
                         m_func_name_idx_map.end())
         wasm::emit_call(m_code_section, m_al,
                         m_func_name_idx_map[get_hash((ASR::asr_t *)s)]->index);
         for (auto return_expr : vars_passed_by_refs) {
             if (ASR::is_a<ASR::Var_t>(*return_expr)) {
                 auto return_var = ASRUtils::EXPR2VAR(return_expr);
-                LFORTRAN_ASSERT(
+                LCOMPILERS_ASSERT(
                 m_var_name_idx_map.find(get_hash((ASR::asr_t *)return_var)) !=
                 m_var_name_idx_map.end());
                 wasm::emit_set_local(
@@ -1664,7 +1664,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                     "Passing array elements as arguments (with intent out, "
                     "inout, unspecified) to Subroutines is not yet supported");
             } else {
-                LFORTRAN_ASSERT(false);
+                LCOMPILERS_ASSERT(false);
             }
         }
     }
@@ -1676,7 +1676,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
     void extract_kinds(const ASR::Cast_t &x, int &arg_kind, int &dest_kind) {
         dest_kind = ASRUtils::extract_kind_from_ttype_t(x.m_type);
         ASR::ttype_t *curr_type = extract_ttype_t_from_expr(x.m_arg);
-        LFORTRAN_ASSERT(curr_type != nullptr)
+        LCOMPILERS_ASSERT(curr_type != nullptr)
         arg_kind = ASRUtils::extract_kind_from_ttype_t(curr_type);
     }
 
@@ -2196,4 +2196,4 @@ Result<int> asr_to_wasm(ASR::TranslationUnit_t &asr, Allocator &al,
     return 0;
 }
 
-}  // namespace LFortran
+}  // namespace LCompilers

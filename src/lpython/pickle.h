@@ -3,7 +3,7 @@
 
 #include <libasr/asr.h>
 
-namespace LFortran {
+namespace LCompilers::LPython {
 
     // Pickle an ASR node
     std::string pickle(ASR::asr_t &asr, bool colors=false, bool indent=false,
@@ -12,8 +12,8 @@ namespace LFortran {
             bool indent=false, bool show_intrinsic_modules=false);
 
     // Print the tree structure
-    std::string pickle_tree(LFortran::ASR::asr_t &asr, bool colors, bool show_intrinsic_modules);
-    std::string pickle_tree(LFortran::ASR::TranslationUnit_t &asr, bool colors, bool show_intrinsic_modules);
+    std::string pickle_tree(ASR::asr_t &asr, bool colors, bool show_intrinsic_modules);
+    std::string pickle_tree(ASR::TranslationUnit_t &asr, bool colors, bool show_intrinsic_modules);
 
 }
 

@@ -7,16 +7,16 @@
 
 #include <lpython/bigint.h>
 
-using LFortran::TRY;
-using LFortran::Result;
+using LCompilers::TRY;
+using LCompilers::Result;
 
-using LFortran::BigInt::is_int_ptr;
-using LFortran::BigInt::ptr_to_int;
-using LFortran::BigInt::int_to_ptr;
-using LFortran::BigInt::string_to_largeint;
-using LFortran::BigInt::largeint_to_string;
-using LFortran::BigInt::MAX_SMALL_INT;
-using LFortran::BigInt::MIN_SMALL_INT;
+using LCompilers::LPython::BigInt::is_int_ptr;
+using LCompilers::LPython::BigInt::ptr_to_int;
+using LCompilers::LPython::BigInt::int_to_ptr;
+using LCompilers::LPython::BigInt::string_to_largeint;
+using LCompilers::LPython::BigInt::largeint_to_string;
+using LCompilers::LPython::BigInt::MAX_SMALL_INT;
+using LCompilers::LPython::BigInt::MIN_SMALL_INT;
 
 // Print any vector like iterable to a string
 template <class T>
@@ -101,7 +101,7 @@ TEST_CASE("Test Big Int") {
 
     /* Big int tests */
     Allocator al(1024);
-    LFortran::Str s;
+    LCompilers::Str s;
     char *cs;
 
     s.from_str(al, "123");
@@ -117,9 +117,9 @@ TEST_CASE("Test Big Int") {
     CHECK(std::string(cs) == "123567890123456789012345678901234567890");
 }
 
-TEST_CASE("Test LFortran::Vec") {
+TEST_CASE("Test LCompilers::Vec") {
     Allocator al(1024);
-    LFortran::Vec<int> v;
+    LCompilers::Vec<int> v;
 
     v.reserve(al, 2);
     CHECK(v.size() == 0);
@@ -186,9 +186,9 @@ TEST_CASE("Test LFortran::Vec") {
     CHECK(sv[4] == 5);
 }
 
-TEST_CASE("LFortran::Vec iterators") {
+TEST_CASE("LCompilers::Vec iterators") {
     Allocator al(1024);
-    LFortran::Vec<int> v;
+    LCompilers::Vec<int> v;
 
     v.reserve(al, 2);
     v.push_back(al, 1);
@@ -232,9 +232,9 @@ TEST_CASE("LFortran::Vec iterators") {
     CHECK(i == 10);
 }
 
-TEST_CASE("Test LFortran::Str") {
+TEST_CASE("Test LCompilers::Str") {
     Allocator al(1024);
-    LFortran::Str s;
+    LCompilers::Str s;
     const char *data = "Some string.";
 
     s.p = const_cast<char*>(data);
@@ -257,7 +257,7 @@ TEST_CASE("Test LFortran::Str") {
     CHECK(copy[2] == '\x00');
 }
 
-TEST_CASE("Test LFortran::Allocator") {
+TEST_CASE("Test LCompilers::Allocator") {
     Allocator al(32);
     // Size is what we asked (32) plus alignment (8) = 40
     CHECK(al.size_total() == 40);
@@ -280,7 +280,7 @@ TEST_CASE("Test LFortran::Allocator") {
     CHECK(al.size_total() == 1032);
 }
 
-TEST_CASE("Test LFortran::Allocator 2") {
+TEST_CASE("Test LCompilers::Allocator 2") {
     Allocator al(32);
     int *p = al.allocate<int>();
     p[0] = 5;

@@ -10,11 +10,11 @@ namespace {
     };
 }
 
-namespace LFortran {
+namespace LCompilers {
 namespace ASR {
 
-using LFortran::ASRUtils::symbol_name;
-using LFortran::ASRUtils::symbol_parent_symtab;
+using ASRUtils::symbol_name;
+using ASRUtils::symbol_parent_symtab;
 
 bool valid_char(char c) {
     if (c >= 'a' && c <= 'z') return true;
@@ -658,7 +658,7 @@ public:
     }
 
     SymbolTable *get_dt_symtab(ASR::symbol_t *dt) {
-        LFORTRAN_ASSERT(dt)
+        LCOMPILERS_ASSERT(dt)
         SymbolTable *symtab = ASRUtils::symbol_symtab(ASRUtils::symbol_get_past_external(dt));
         require_impl(symtab,
             "m_dt::m_v::m_type::class/derived_type must point to a symbol with a symbol table",
@@ -794,10 +794,10 @@ bool asr_verify(const ASR::TranslationUnit_t &unit, bool check_external,
     try {
         v.visit_TranslationUnit(unit);
     } catch (const VerifyAbort &) {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return false;
     }
     return true;
 }
 
-} // namespace LFortran
+} // namespace LCompilers

@@ -17,19 +17,19 @@
 #include <lpython/parser/parser_exception.h>
 
 // This is only used in parser.tab.cc, nowhere else, so we simply include
-// everything from LFortran::AST to save typing:
-using namespace LFortran::LPython::AST;
-using LFortran::Location;
-using LFortran::Vec;
-using LFortran::Key_Val;
-using LFortran::Args;
-using LFortran::Arg;
-using LFortran::Fn_Arg;
-using LFortran::Args_;
-using LFortran::Var_Kw;
-using LFortran::Kw_or_Star_Arg;
-using LFortran::Call_Arg;
-using LFortran::Key_Val_Pattern;
+// everything from LCompilers::LPython::AST to save typing:
+using namespace LCompilers::LPython::AST;
+using LCompilers::Location;
+using LCompilers::Vec;
+using LCompilers::LPython::Key_Val;
+using LCompilers::LPython::Args;
+using LCompilers::LPython::Arg;
+using LCompilers::LPython::Fn_Arg;
+using LCompilers::LPython::Args_;
+using LCompilers::LPython::Var_Kw;
+using LCompilers::LPython::Kw_or_Star_Arg;
+using LCompilers::LPython::Call_Arg;
+using LCompilers::LPython::Key_Val_Pattern;
 
 static inline char* name2char(const ast_t *n) {
     return down_cast2<Name_t>(n)->m_id;
@@ -54,7 +54,7 @@ template <typename T, astType type>
 static inline T** vec_cast(const Vec<ast_t*> &x) {
     T **s = (T**)x.p;
     for (size_t i=0; i < x.size(); i++) {
-        LFORTRAN_ASSERT((s[i]->base.type == type))
+        LCOMPILERS_ASSERT((s[i]->base.type == type))
     }
     return s;
 }
@@ -89,7 +89,7 @@ static inline expr_t* EXPR_OPT(const ast_t *f)
         }
 
 static inline ast_t* SET_EXPR_CTX_01(ast_t* x, expr_contextType ctx) {
-    LFORTRAN_ASSERT(is_a<expr_t>(*x))
+    LCOMPILERS_ASSERT(is_a<expr_t>(*x))
     switch(EXPR(x)->type) {
         SET_EXPR_CTX_(Attribute, ctx)
         SET_EXPR_CTX_(Subscript, ctx)
@@ -212,7 +212,7 @@ static inline char *mod2char(Allocator &al, Vec<ast_t*> module) {
         s.append(name2char(module[i]));
         if (i < module.size()-1)s.append(".");
     }
-    LFortran::Str str;
+    LCompilers::Str str;
     str.from_str_view(s);
     return str.c_str(al);
 }
@@ -246,8 +246,8 @@ int dot_count = 0;
 #define TERNARY(test, body, orelse, l) make_IfExp_t(p.m_a, l, \
         EXPR(test), EXPR(body), EXPR(orelse))
 
-static inline char *extract_type_comment(LFortran::Parser &p,
-        Location &loc, LFortran::Str &s) {
+static inline char *extract_type_comment(LCompilers::LPython::Parser &p,
+        Location &loc, LCompilers::Str &s) {
     std::string str = s.str();
 
     str.erase(str.begin()); // removes "#" at the beginning
@@ -534,8 +534,8 @@ static inline Args *FUNC_ARGS_01(Allocator &al, Location &l, Fn_Arg *parameters)
 #define ARGS_04(arg, ann, defaults, l) FUNC_ARG(p.m_a, l, \
         name2char((ast_t *)arg), EXPR(ann), EXPR(defaults))
 
-static inline void ADD_TYPE_COMMENT_(LFortran::Parser &p, Location l,
-        Vec<Arg*> &x, LFortran::Str &type_comment) {
+static inline void ADD_TYPE_COMMENT_(LCompilers::LPython::Parser &p, Location l,
+        Vec<Arg*> &x, LCompilers::Str &type_comment) {
     x[x.size() - 1]->_arg.m_type_comment = extract_type_comment(p, l, type_comment);
 }
 
@@ -734,7 +734,7 @@ static inline ast_t* concat_string(Allocator &al, Location &l,
             str1 = std::string(down_cast<ConstantStr_t>(string)->m_value);
             str = std::string(down_cast<ConstantStr_t>(string_literal)->m_value);
             str1 = str1 + str;
-            tmp = make_ConstantStr_t(al, l, LFortran::s2c(al, str1), nullptr);
+            tmp = make_ConstantStr_t(al, l, LCompilers::s2c(al, str1), nullptr);
         } else if (is_a<JoinedStr_t>(*string)
                 && is_a<JoinedStr_t>(*string_literal)) {
             JoinedStr_t *t = down_cast<JoinedStr_t>(string);
@@ -769,32 +769,32 @@ static inline ast_t* concat_string(Allocator &al, Location &l,
             str = std::string(down_cast<ConstantBytes_t>(string_literal)->m_value);
             str = str.substr(2, str.size());
             str1 = str1 + str;
-            tmp = make_ConstantBytes_t(al, l, LFortran::s2c(al, str1), nullptr);
+            tmp = make_ConstantBytes_t(al, l, LCompilers::s2c(al, str1), nullptr);
         } else {
-            throw LFortran::parser_local::ParserError(
+            throw LCompilers::LPython::parser_local::ParserError(
                 "The byte and non-byte literals can not be combined", l);
         }
     } else {
         if (is_a<ConstantStr_t>(*string)) {
             str1 = std::string(down_cast<ConstantStr_t>(string)->m_value);
             str1 = str1 + str;
-            tmp = make_ConstantStr_t(al, l, LFortran::s2c(al, str1), nullptr);
+            tmp = make_ConstantStr_t(al, l, LCompilers::s2c(al, str1), nullptr);
         } else if (is_a<JoinedStr_t>(*string)) {
             JoinedStr_t *t = down_cast<JoinedStr_t>(string);
             for (size_t i = 0; i < t->n_values; i++) {
                 exprs.push_back(al, t->m_values[i]);
             }
             exprs.push_back(al, (expr_t *)make_ConstantStr_t(al, l,
-                            LFortran::s2c(al, str), nullptr));
+                            LCompilers::s2c(al, str), nullptr));
             tmp = make_JoinedStr_t(al, l, exprs.p, exprs.size());
         } else {
-            LFORTRAN_ASSERT(false);
+            LCOMPILERS_ASSERT(false);
         }
     }
     return tmp;
 }
 
-char* unescape(Allocator &al, LFortran::Str &s) {
+char* unescape(Allocator &al, LCompilers::Str &s) {
     std::string x;
     for (size_t idx=0; idx < s.size(); idx++) {
         if (s.p[idx] == '\\' && s.p[idx+1] == 'n') {
@@ -804,7 +804,7 @@ char* unescape(Allocator &al, LFortran::Str &s) {
             x += s.p[idx];
         }
     }
-    return LFortran::s2c(al, x);
+    return LCompilers::s2c(al, x);
 }
 
 #define SYMBOL(x, l) make_Name_t(p.m_a, l, \
@@ -864,11 +864,11 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
         for (size_t i = 0; i < strs.size(); i++) {
             if (strs[i][0] == '"') {
                 strs[i] = strs[i].substr(1, strs[i].length() - 2);
-                tmp = make_ConstantStr_t(al, l, LFortran::s2c(al, strs[i]), nullptr);
+                tmp = make_ConstantStr_t(al, l, LCompilers::s2c(al, strs[i]), nullptr);
                 exprs.push_back(al, down_cast<expr_t>(tmp));
             } else {
                 tmp = make_Name_t(al, l,
-                        LFortran::s2c(al, strs[i]), expr_contextType::Load);
+                        LCompilers::s2c(al, strs[i]), expr_contextType::Load);
                 tmp = make_FormattedValue_t(al, l, EXPR(tmp), -1, nullptr);
                 exprs.push_back(al, down_cast<expr_t>(tmp));
             }
@@ -883,13 +883,13 @@ static inline ast_t *PREFIX_STRING(Allocator &al, Location &l, char *prefix, cha
                 start_pos += 2;
         }
         str = "b'" + str + "'";
-        tmp = make_ConstantBytes_t(al, l, LFortran::s2c(al, str), nullptr);
+        tmp = make_ConstantBytes_t(al, l, LCompilers::s2c(al, str), nullptr);
     } else if (strcmp(prefix, "r") == 0 ) {
         tmp = make_ConstantStr_t(al, l,  s, nullptr);
     } else if (strcmp(prefix, "u") == 0 ) {
-        tmp = make_ConstantStr_t(al, l,  s, LFortran::s2c(al, "u"));
+        tmp = make_ConstantStr_t(al, l,  s, LCompilers::s2c(al, "u"));
     } else {
-        throw LFortran::LCompilersException("The string is not recognized by the parser.");
+        throw LCompilers::LCompilersException("The string is not recognized by the parser.");
     }
     return tmp;
 }

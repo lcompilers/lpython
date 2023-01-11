@@ -3,7 +3,7 @@
 
 #include <libasr/asr.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     /**
      * @brief Instantiate a generic function into a function that does not

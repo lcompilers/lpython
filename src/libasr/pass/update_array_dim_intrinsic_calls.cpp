@@ -10,7 +10,7 @@
 #include <utility>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 /*
 
@@ -149,4 +149,4 @@ void pass_update_array_dim_intrinsic_calls(Allocator &al, ASR::TranslationUnit_t
     v.visit_TranslationUnit(unit);
 }
 
-} // namespace LFortran
+} // namespace LCompilers

@@ -7,8 +7,7 @@
 #include <libasr/containers.h>
 #include <libasr/bigint.h>
 
-namespace LFortran
-{
+namespace LCompilers::LPython {
 
 struct Key_Val {
     LPython::AST::expr_t* key;
@@ -118,10 +117,10 @@ static_assert(sizeof(YYSTYPE) == sizeof(Vec<LPython::AST::ast_t*>));
 static_assert(std::is_standard_layout<Location>::value);
 static_assert(std::is_trivial<Location>::value);
 
-} // namespace LFortran
+} // namespace LCompilers::LPython
 
 
-typedef struct LFortran::Location YYLTYPE;
+typedef struct LCompilers::Location YYLTYPE;
 #define YYLTYPE_IS_DECLARED 1
 #define YYLTYPE_IS_TRIVIAL 0
 #define YYINITDEPTH 2000

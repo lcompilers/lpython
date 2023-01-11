@@ -5,7 +5,7 @@
 #include <libasr/location.h>
 #include <libasr/stacktrace.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 struct LocationManager;
 struct CompilerOptions;
@@ -253,6 +253,7 @@ std::tuple<std::string, std::string, std::string> diag_level_to_str(const Diagno
         const bool use_colors = true);
 
 } // namespace diag
-} // namespace LFortran
+
+} // namespace LCompilers
 
 #endif // LFORTRAN_DIAGNOSTICS_H

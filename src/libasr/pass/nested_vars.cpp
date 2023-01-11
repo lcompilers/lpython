@@ -7,7 +7,7 @@
 #include <llvm/IR/Verifier.h>
 #include <unordered_map>
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 
@@ -144,7 +144,7 @@ public:
             std::vector<llvm::Type*> proc_types_i;
             nested_func_types.insert({cur_func_hash, proc_types_i});
             current_scope = x.m_symtab;
-            if (calls_out && x.m_deftype == LFortran::ASR::Implementation){
+            if (calls_out && x.m_deftype == ASR::Implementation){
                 if (std::find(calls_to.begin(), calls_to.end(), cur_func_hash)
                     == calls_to.end() && calls_to.size() >= 1){
                     /* Parent function does not call the nested function - if
@@ -232,7 +232,7 @@ public:
             // Have to save all the calls out and make sure they are not solely
             // to the nested function
             ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
-                LFortran::ASRUtils::symbol_get_past_external(x.m_name));
+                ASRUtils::symbol_get_past_external(x.m_name));
             uint32_t call_hash = get_hash((ASR::asr_t*)s);
             if (std::find(calls_to.begin(), calls_to.end(), call_hash) ==
                 calls_to.end()){
@@ -250,7 +250,7 @@ public:
     void visit_SubroutineCall(const ASR::SubroutineCall_t &x) {
         if (nesting_depth) {
             ASR::Function_t *s = ASR::down_cast<ASR::Function_t>(
-                LFortran::ASRUtils::symbol_get_past_external(x.m_name));
+                ASRUtils::symbol_get_past_external(x.m_name));
             uint32_t call_hash = get_hash((ASR::asr_t*)s);
             if (std::find(calls_to.begin(), calls_to.end(), call_hash) ==
                 calls_to.end()){
@@ -269,7 +269,7 @@ public:
         // Only attempt if we are actually in a nested function
         if (nesting_depth > 1) {
             ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(
-                    LFortran::ASRUtils::symbol_get_past_external(x.m_v));
+                    ASRUtils::symbol_get_past_external(x.m_v));
             // If the variable is not defined in the current scope, it is a
             // "needed global" since we need to be able to access it from the
             // nested procedure.
@@ -327,4 +327,4 @@ std::map<uint64_t, std::vector<llvm::Type*>> pass_find_nested_vars(
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

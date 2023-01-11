@@ -4,8 +4,7 @@
 #include <cstring>
 #include <libasr/alloc.h>
 
-namespace LFortran
-{
+namespace LCompilers {
 
 // Vector implementation
 
@@ -52,7 +51,7 @@ struct Vec {
     void reserve(Allocator &al, size_t max) {
         n = 0;
         if (max == 0) max++;
-        LFORTRAN_ASSERT(max > 0)
+        LCOMPILERS_ASSERT(max > 0)
         this->max = max;
         p = al.allocate<T>(max);
 #ifdef WITH_LFORTRAN_ASSERT
@@ -65,7 +64,7 @@ struct Vec {
         // reserve_called happens to be equal to vec_called_const when Vec is
         // allocated in memory), but the chance is small. It catches such bugs
         // in practice.
-        LFORTRAN_ASSERT(reserve_called == vec_called_const);
+        LCOMPILERS_ASSERT(reserve_called == vec_called_const);
         if (n == max) {
             size_t max2 = 2*max;
             T* p2 = al.allocate<T>(max2);
@@ -197,7 +196,7 @@ static inline std::string double_to_scientific(double x) {
     return string_format("%25.17e", x);
 }
 
-} // namespace LFortran
+} // namespace LCompilers
 
 
 

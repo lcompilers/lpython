@@ -49,7 +49,7 @@ Old Link: https://www.systutorials.com/go/intel-x86-64-reference-manual/
 #    define EMIT_VAR_SIZE(a)
 #endif
 
-namespace LFortran {
+namespace LCompilers {
 
 enum X86Reg : uint8_t {
     eax = 0,
@@ -295,17 +295,17 @@ static void insert_uint16(Vec<uint8_t> &code, size_t pos, uint16_t i16) {
 
 // Implements table 2-2 in [1].
 static uint8_t ModRM_byte(uint8_t mode, uint8_t reg, uint8_t rm) {
-    LFORTRAN_ASSERT(mode <= 3);
-    LFORTRAN_ASSERT(reg <= 7);
-    LFORTRAN_ASSERT(rm <= 7);
+    LCOMPILERS_ASSERT(mode <= 3);
+    LCOMPILERS_ASSERT(reg <= 7);
+    LCOMPILERS_ASSERT(rm <= 7);
     return (mode << 6) | (reg << 3) | rm;
 }
 
 // Implements table 2-3 in [1].
 static uint8_t SIB_byte(uint8_t base, uint8_t index, uint8_t scale_index) {
-    LFORTRAN_ASSERT(base <= 7);
-    LFORTRAN_ASSERT(index <= 7);
-    LFORTRAN_ASSERT(scale_index <= 3);
+    LCOMPILERS_ASSERT(base <= 7);
+    LCOMPILERS_ASSERT(index <= 7);
+    LCOMPILERS_ASSERT(scale_index <= 3);
     return (scale_index << 6) | (index << 3) | base;
 }
 
@@ -321,7 +321,7 @@ static void ModRM_SIB_disp_bytes(Vec<uint8_t> &code, Allocator &al,
     }
     if (mod == 0b01) {
         // disp8 is present
-        LFORTRAN_ASSERT(-128 <= disp && disp < 128);
+        LCOMPILERS_ASSERT(-128 <= disp && disp < 128);
         uint8_t disp8 = disp;
         code.push_back(al, disp8);
     } else if ((mod == 0b00 && (rm==0b101 || base==0b101)) || (mod == 0b10)) {
@@ -530,7 +530,7 @@ public:
 
     // Does not touch undefined_positions, symbol must be defined
     Symbol &get_defined_symbol(const std::string &name) {
-        LFORTRAN_ASSERT(m_symbols.find(name) != m_symbols.end());
+        LCOMPILERS_ASSERT(m_symbols.find(name) != m_symbols.end());
         return m_symbols[name];
     }
 
@@ -780,10 +780,10 @@ public:
     }
 
     uint8_t rex(uint8_t W, uint8_t R, uint8_t X, uint8_t B) {
-        LFORTRAN_ASSERT(W <= 1);
-        LFORTRAN_ASSERT(R <= 1);
-        LFORTRAN_ASSERT(X <= 1);
-        LFORTRAN_ASSERT(B <= 1);
+        LCOMPILERS_ASSERT(W <= 1);
+        LCOMPILERS_ASSERT(R <= 1);
+        LCOMPILERS_ASSERT(X <= 1);
+        LCOMPILERS_ASSERT(B <= 1);
         return (0b01000000 | (W << 3) | (R << 2) | (X << 1) | B);
     }
 

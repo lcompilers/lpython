@@ -7,7 +7,7 @@
 #include <libasr/codegen/wasm_to_x64.h>
 #include <libasr/codegen/x86_assembler.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace wasm {
 
@@ -524,4 +524,4 @@ Result<int> wasm_to_x64(Vec<uint8_t> &wasm_bytes, Allocator &al,
     return 0;
 }
 
-}  // namespace LFortran
+}  // namespace LCompilers

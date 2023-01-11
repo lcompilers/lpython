@@ -55,7 +55,7 @@
 #  include <bfd.h>
 #endif
 
-namespace LFortran {
+namespace LCompilers {
 
 std::string binary_executable_path = "/proc/self/exe";
 
@@ -647,4 +647,4 @@ std::string error_stacktrace(const std::vector<StacktraceItem> &stacktrace)
     return stacktrace2str(d, stacktrace_depth-1);
 }
 
-} // namespace LFortran
+} // namespace LCompilers
