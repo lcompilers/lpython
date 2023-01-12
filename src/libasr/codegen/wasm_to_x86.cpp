@@ -284,29 +284,25 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         last_vis_i32_const = value;
     }
 
-    void visit_I32Add() {
+    template<typename F>
+    void handleI32Opt(F && f) {
         m_a.asm_pop_r32(X86Reg::ebx);
         m_a.asm_pop_r32(X86Reg::eax);
-        m_a.asm_add_r32_r32(X86Reg::eax, X86Reg::ebx);
+        f();
         m_a.asm_push_r32(X86Reg::eax);
+    }
+
+    void visit_I32Add() {
+        handleI32Opt([&](){ m_a.asm_add_r32_r32(X86Reg::eax, X86Reg::ebx);});
     }
     void visit_I32Sub() {
-        m_a.asm_pop_r32(X86Reg::ebx);
-        m_a.asm_pop_r32(X86Reg::eax);
-        m_a.asm_sub_r32_r32(X86Reg::eax, X86Reg::ebx);
-        m_a.asm_push_r32(X86Reg::eax);
+        handleI32Opt([&](){ m_a.asm_sub_r32_r32(X86Reg::eax, X86Reg::ebx);});
     }
     void visit_I32Mul() {
-        m_a.asm_pop_r32(X86Reg::ebx);
-        m_a.asm_pop_r32(X86Reg::eax);
-        m_a.asm_mul_r32(X86Reg::ebx);
-        m_a.asm_push_r32(X86Reg::eax);
+        handleI32Opt([&](){  m_a.asm_mul_r32(X86Reg::ebx);});
     }
     void visit_I32DivS() {
-        m_a.asm_pop_r32(X86Reg::ebx);
-        m_a.asm_pop_r32(X86Reg::eax);
-        m_a.asm_div_r32(X86Reg::ebx);
-        m_a.asm_push_r32(X86Reg::eax);
+        handleI32Opt([&](){ m_a.asm_div_r32(X86Reg::ebx);});
     }
 
     void handle_I32Compare(const std::string &compare_op) {

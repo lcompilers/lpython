@@ -294,29 +294,25 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         last_vis_i32_const = value;
     }
 
-    void visit_I32Add() {
+    template<typename F>
+    void handleI32Opt(F && f) {
         m_a.asm_pop_r64(X64Reg::rbx);
         m_a.asm_pop_r64(X64Reg::rax);
-        m_a.asm_add_r64_r64(X64Reg::rax, X64Reg::rbx);
+        f();
         m_a.asm_push_r64(X64Reg::rax);
+    }
+
+    void visit_I32Add() {
+        handleI32Opt([&](){ m_a.asm_add_r64_r64(X64Reg::rax, X64Reg::rbx);});
     }
     void visit_I32Sub() {
-        m_a.asm_pop_r64(X64Reg::rbx);
-        m_a.asm_pop_r64(X64Reg::rax);
-        m_a.asm_sub_r64_r64(X64Reg::rax, X64Reg::rbx);
-        m_a.asm_push_r64(X64Reg::rax);
+        handleI32Opt([&](){ m_a.asm_sub_r64_r64(X64Reg::rax, X64Reg::rbx);});
     }
     void visit_I32Mul() {
-        m_a.asm_pop_r64(X64Reg::rbx);
-        m_a.asm_pop_r64(X64Reg::rax);
-        m_a.asm_mul_r64(X64Reg::rbx);
-        m_a.asm_push_r64(X64Reg::rax);
+        handleI32Opt([&](){ m_a.asm_mul_r64(X64Reg::rbx);});
     }
     void visit_I32DivS() {
-        m_a.asm_pop_r64(X64Reg::rbx);
-        m_a.asm_pop_r64(X64Reg::rax);
-        m_a.asm_div_r64(X64Reg::rbx);
-        m_a.asm_push_r64(X64Reg::rax);
+        handleI32Opt([&](){ m_a.asm_div_r64(X64Reg::rbx);});
     }
 
     void handle_I32Compare(const std::string &compare_op) {
