@@ -17,9 +17,6 @@ public:
     std::vector<ASR::Function_t*> rts;
     std::set<std::string> dependencies;
 
-    static std::map<std::string, int> generic_func_nums;
-    static std::map<std::string, std::map<std::string, ASR::ttype_t*>> generic_func_subs;
-
     FunctionInstantiator(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,
             std::map<std::string, ASR::symbol_t*> rt_subs, SymbolTable *func_scope):
         BaseExprStmtDuplicator(al),
@@ -410,43 +407,23 @@ public:
      *        arguments. If not, then instantiate a new function.
      */
     ASR::symbol_t* get_generic_function(ASR::Function_t *func) {
-        int new_function_num;
-        ASR::symbol_t *t;
+        bool found = true;
+        int new_function_num = 0;
         std::string func_name = func->m_name;
-        if (generic_func_nums.find(func_name) != generic_func_nums.end()) {
-            new_function_num = generic_func_nums[func_name];
-            for (int i=0; i<generic_func_nums[func_name]; i++) {
-                std::string generic_func_name = "__lpython_generic_" + func_name + "_" + std::to_string(i);
-                std::map<std::string, ASR::ttype_t*> subs_check = generic_func_subs[generic_func_name];
-                bool defined = true;
-                for (auto const &subs_check_pair: subs_check) {
-                    if (subs.find(subs_check_pair.first) == subs.end()) {
-                        defined = false;
-                    }
-                    ASR::ttype_t* subs_type = subs[subs_check_pair.first];
-                    ASR::ttype_t* subs_check_type = subs_check_pair.second;
-                    if (!ASRUtils::check_equal_type(subs_type, subs_check_type)) {
-                        defined = false;
-                    }
-                }
-                if (defined) {
-                    t = func_scope->resolve_symbol(generic_func_name);
-                    return t;
-                }
+        while (found) {
+            std::string name = "__lpython_generic_" + func_name + "_" + std::to_string(new_function_num);
+            ASR::symbol_t *s = func_scope->resolve_symbol(name);
+            if (s) {
+                new_function_num += 1;
+            } else {
+                found = false;
             }
-        } else {
-            new_function_num = 0;
         }
-        generic_func_nums[func_name] = new_function_num + 1;
         std::string new_func_name = "__lpython_generic_" + func_name + "_" + std::to_string(new_function_num);
-        generic_func_subs[new_func_name] = subs;
-        t = ASR::down_cast<ASR::symbol_t>(this->instantiate_Function(func, new_func_name));
+        ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(this->instantiate_Function(func, new_func_name));
         return t;
     }
 };
-
-std::map<std::string, int> FunctionInstantiator::generic_func_nums;
-std::map<std::string, std::map<std::string, ASR::ttype_t*>> FunctionInstantiator::generic_func_subs;
 
 ASR::symbol_t* pass_instantiate_generic_function(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,
         std::map<std::string, ASR::symbol_t*> rt_subs, SymbolTable *func_scope, ASR::Function_t *func) {
