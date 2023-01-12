@@ -347,7 +347,7 @@ R"(#include <stdio.h>
                 sub = c_ds_api->get_list_type(list_type) + " ";
             } else if (ASR::is_a<ASR::Tuple_t>(*return_var->m_type)) {
                 ASR::Tuple_t* tup_type = ASR::down_cast<ASR::Tuple_t>(return_var->m_type);
-                sub = c_ds_api->get_tuple_type(tup_type) + " ";
+                sub = c_ds_api->get_tuple_type(tup_type) + "* ";
             } else if (ASR::is_a<ASR::Const_t>(*return_var->m_type)) {
                 ASR::Const_t* const_type = ASR::down_cast<ASR::Const_t>(return_var->m_type);
                 std::string const_type_str = CUtils::get_c_type_from_ttype_t(const_type->m_type);
@@ -665,7 +665,7 @@ R"(#include <stdio.h>
                 self().visit_expr(*tup_c->m_elements[i]);
                 ASR::ttype_t *t = ASRUtils::expr_type(tup_c->m_elements[i]);
                 src_tmp += indent + c_ds_api->get_deepcopy(t,
-                        val_name + ".element_" + std::to_string(i), src) + "\n";
+                        val_name + "->element_" + std::to_string(i), src) + "\n";
             }
             src = src_tmp;
             return;
@@ -722,9 +722,9 @@ R"(#include <stdio.h>
             std::string dc_func = c_ds_api->get_tuple_deepcopy_func(tup_target);
             if( ASR::is_a<ASR::TupleConstant_t>(*x.m_value) ) {
                 src += value;
-                src += indent + dc_func + "(" + const_name + ", &" + target + ");\n";
+                src += indent + dc_func + "(" + const_name + ", " + target + ");\n";
             } else {
-                src += indent + dc_func + "(" + value + ", &" + target + ");\n";
+                src += indent + dc_func + "(" + value + ", " + target + ");\n";
             }
         } else {
             if( is_c ) {
@@ -863,16 +863,17 @@ R"(#include <stdio.h>
         ASR::Tuple_t* t = ASR::down_cast<ASR::Tuple_t>(x.m_type);
         std::string tuple_type_c = c_ds_api->get_tuple_type(t);
         std::string src_tmp = "";
-        src_tmp += indent + tuple_type_c + " " + var_name + ";\n";
+        src_tmp += indent + tuple_type_c + "* " + var_name + " = (" + \
+            tuple_type_c + "*) malloc(sizeof(" +tuple_type_c + "));\n";
         for (size_t i = 0; i < x.n_elements; i++) {
             self().visit_expr(*x.m_elements[i]);
-            std::string ele = ".element_" + std::to_string(i);
+            std::string ele = "->element_" + std::to_string(i);
             if (ASR::is_a<ASR::Character_t>(*t->m_type[i])) {
                 src_tmp += indent + var_name + ele + " = NULL;\n";
             }
             src_tmp += indent + c_ds_api->get_deepcopy(t->m_type[i], src, var_name + ele) + "\n";
         }
-        src_tmp += indent + var_name + ".length" + " = " + std::to_string(x.n_elements) + ";\n";
+        src_tmp += indent + var_name + "->length" + " = " + std::to_string(x.n_elements) + ";\n";
         src = src_tmp;
     }
 
@@ -1050,7 +1051,7 @@ R"(#include <stdio.h>
             return ;
         }
         self().visit_expr(*x.m_arg);
-        src = src + ".length";
+        src = src + "->length";
     }
 
     void visit_ListItem(const ASR::ListItem_t& x) {
@@ -1080,7 +1081,7 @@ R"(#include <stdio.h>
         self().visit_expr(*pos_val);
         std::string pos = std::move(src);
         // TODO: check for out of bound indices
-        src = tup_var + ".element_" + pos;
+        src = tup_var + "->element_" + pos;
     }
 
     void visit_LogicalConstant(const ASR::LogicalConstant_t &x) {

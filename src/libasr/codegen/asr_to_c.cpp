@@ -453,8 +453,16 @@ public:
             } else if (ASR::is_a<ASR::Tuple_t>(*v_m_type)) {
                 ASR::Tuple_t* t = ASR::down_cast<ASR::Tuple_t>(v_m_type);
                 std::string tuple_type_c = c_ds_api->get_tuple_type(t);
-                sub = format_type_c("", tuple_type_c, v.m_name,
+                sub = format_type_c("", tuple_type_c + "*", v.m_name,
                                     false, false);
+                if (v.m_intent == ASR::intentType::ReturnVar || (v.m_intent == ASRUtils::intent_local &&
+                    !(ASR::is_a<ASR::symbol_t>(*v.m_parent_symtab->asr_owner) &&
+                      ASR::is_a<ASR::StructType_t>(
+                        *ASR::down_cast<ASR::symbol_t>(v.m_parent_symtab->asr_owner)))) ) {
+                    sub += " = (" + tuple_type_c + "*) malloc(sizeof(" +\
+                        tuple_type_c + "))";
+                    return sub;
+                }
             } else if (ASR::is_a<ASR::CPtr_t>(*v_m_type)) {
                 sub = format_type_c("", "void*", v.m_name, false, false);
             } else if (ASR::is_a<ASR::Enum_t>(*v_m_type)) {
