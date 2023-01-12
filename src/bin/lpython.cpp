@@ -1638,6 +1638,29 @@ int main(int argc, char *argv[])
                 err = link_executable({tmp_o}, outfile, runtime_library_dir,
                     backend, static_link, true, compiler_options);
                 if (err != 0) return err;
+
+                if (compiler_options.emit_debug_info) {
+                    // TODO: Replace the following hardcoded part
+                    std::string cmd = "";
+#ifdef HAVE_LFORTRAN_MACHO
+                    cmd += "dsymutil " + basename + ".out && llvm-dwarfdump --debug-line "
+                        + basename + ".out.dSYM > ";
+#else
+                    cmd += "llvm-dwarfdump --debug-line " + basename + ".out > ";
+#endif
+                    cmd += basename + "_ldd.txt && (cd src/bin; ./dwarf_convert.py ../../"
+                        + basename + "_ldd.txt ../../" + basename + "_lines.txt ../../"
+                        + basename + "_lines.dat && ./dat_convert.py ../../"
+                        + basename + "_lines.dat)";
+                    int status = system(cmd.c_str());
+                    if ( status != 0 ) {
+                        std::cerr << "Error in creating the files used to generate "
+                            "the debug information. This might be caused because either"
+                            "`llvm-dwarfdump` or `Python` are not available. "
+                            "Please activate the CONDA environment and compile again.\n";
+                        return status;
+                    }
+                }
 #else
                 std::cerr << "Compiling Python files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;

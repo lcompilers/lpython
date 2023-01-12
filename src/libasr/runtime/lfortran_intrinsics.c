@@ -10,7 +10,7 @@
 #include <limits.h>
 #include <ctype.h>
 
-#include <libasr/runtime/lfortran_intrinsics.h>w
+#include <libasr/runtime/lfortran_intrinsics.h>
 #include <libasr/config.h>
 
 #ifdef HAVE_RUNTIME_STACKTRACE
@@ -1501,78 +1501,45 @@ char *remove_whitespace(char *str) {
     return str;
 }
 
-int generate_stacktrace_files() {
-    // TODO: Replace the hardcoded part
-    char *base_name = get_base_name(source_filename);
-    char *cmd = malloc(strlen(base_name)*7 + 200);
-#ifdef HAVE_LFORTRAN_MACHO
-    strcpy(cmd, "dsymutil ");
-    strcat(cmd, base_name);
-    strcat(cmd, ".out && llvm-dwarfdump --debug-line ");
-    strcat(cmd, base_name);
-    strcat(cmd, ".out.dSYM > ");
-#else
-    strcpy(cmd, "llvm-dwarfdump --debug-line ");
-    strcat(cmd, base_name);
-    strcat(cmd, ".out > ");
-#endif
-    strcat(cmd, base_name);
-    strcat(cmd, "_ldd.txt && (cd src/bin; ./dwarf_convert.py ../../");
-    strcat(cmd, base_name);
-    strcat(cmd, "_ldd.txt ../../");
-    strcat(cmd, base_name);
-    strcat(cmd, "_lines.txt ../../");
-    strcat(cmd, base_name);
-    strcat(cmd, "_lines.dat && ./dat_convert.py ../../");
-    strcat(cmd, base_name);
-    strcat(cmd, "_lines.dat)");
-    int status = system(cmd);
-    free(cmd);
-    return status;
-}
-
 LFORTRAN_API void print_stacktrace_addresses(char *filename, bool use_colors) {
     source_filename = filename;
-    int status = generate_stacktrace_files();
-    if (status == 0) {
-        struct Stacktrace d = get_stacktrace_addresses();
-        get_local_address(&d);
-        get_local_info_dwarfdump(&d);
+    struct Stacktrace d = get_stacktrace_addresses();
+    get_local_address(&d);
+    get_local_info_dwarfdump(&d);
 
 #ifdef HAVE_LFORTRAN_MACHO
-        for (int32_t i = d.local_pc_size-2; i > 1; i--) {
+    for (int32_t i = d.local_pc_size-2; i > 1; i--) {
 #else
-        for (int32_t i = d.local_pc_size-3; i >= 0; i--) {
+    for (int32_t i = d.local_pc_size-3; i >= 0; i--) {
 #endif
-            uint64_t index = bisection(d.addresses, d.stack_size, d.local_pc[i]);
-            if(use_colors) {
-                fprintf(stderr, DIM "  File " S_RESET
-                    BOLD MAGENTA "\"%s\"" C_RESET S_RESET
+        uint64_t index = bisection(d.addresses, d.stack_size, d.local_pc[i]);
+        if(use_colors) {
+            fprintf(stderr, DIM "  File " S_RESET
+                BOLD MAGENTA "\"%s\"" C_RESET S_RESET
 #ifdef HAVE_LFORTRAN_MACHO
-                    DIM ", line %lld\n" S_RESET
+                DIM ", line %lld\n" S_RESET
 #else
-                    DIM ", line %ld\n" S_RESET
+                DIM ", line %ld\n" S_RESET
 #endif
-                    "    %s\n", source_filename, d.line_numbers[index],
-                    remove_whitespace(read_line_from_file(source_filename,
-                    d.line_numbers[index])));
-            } else {
-                fprintf(stderr, "  File \"%s\", "
+                "    %s\n", source_filename, d.line_numbers[index],
+                remove_whitespace(read_line_from_file(source_filename,
+                d.line_numbers[index])));
+        } else {
+            fprintf(stderr, "  File \"%s\", "
 #ifdef HAVE_LFORTRAN_MACHO
-                    "line %lld\n    %s\n",
+                "line %lld\n    %s\n",
 #else
-                    "line %ld\n    %s\n",
+                "line %ld\n    %s\n",
 #endif
-                    source_filename, d.line_numbers[index],
-                    remove_whitespace(read_line_from_file(source_filename,
-                    d.line_numbers[index])));
-            }
-#ifdef HAVE_LFORTRAN_MACHO
+                source_filename, d.line_numbers[index],
+                remove_whitespace(read_line_from_file(source_filename,
+                d.line_numbers[index])));
         }
-#else
-        }
-#endif
+#ifdef HAVE_LFORTRAN_MACHO
     }
+#else
+    }
+#endif
 }
 
 #endif // HAVE_RUNTIME_STACKTRACE
