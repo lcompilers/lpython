@@ -1289,6 +1289,20 @@ struct Stacktrace get_stacktrace_addresses() {
     return d;
 }
 
+char *get_base_name(char *filename) {
+    size_t start = strrchr(filename, '/')-filename+1;
+    size_t end = strrchr(filename, '.')-filename-1;
+    int nos_of_chars = end - start + 1;
+    char *base_name;
+    if (nos_of_chars < 0) {
+        return NULL;
+    }
+    base_name = malloc (sizeof (char) * (nos_of_chars + 1));
+    base_name[nos_of_chars] = '\0';
+    strncpy (base_name, filename + start, nos_of_chars);
+    return base_name;
+}
+
 #ifdef HAVE_LFORTRAN_LINK
 int shared_lib_callback(struct dl_phdr_info *info,
         size_t /* size */, void *_data) {
@@ -1328,6 +1342,10 @@ void get_local_address_mac(struct Stacktrace *d) {
                 struct segment_command* seg = (struct segment_command*)cmd;
                 if (((intptr_t)d->current_pc >= (seg->vmaddr+offset)) &&
                     ((intptr_t)d->current_pc < (seg->vmaddr+offset + seg->vmsize))) {
+                    int check_filename = strcmp(get_base_name(
+                        (char *)_dyld_get_image_name(i)),
+                        get_base_name(source_filename));
+                    if ( check_filename != 0 ) return;
                     d->local_pc[d->local_pc_size] = d->current_pc - offset;
                     d->binary_filename[d->local_pc_size] = (char *)_dyld_get_image_name(i);
                     // Resolve symlinks to a real path:
@@ -1343,6 +1361,10 @@ void get_local_address_mac(struct Stacktrace *d) {
                 struct segment_command_64* seg = (struct segment_command_64*)cmd;
                 if ((d->current_pc >= (seg->vmaddr + offset)) &&
                     (d->current_pc < (seg->vmaddr + offset + seg->vmsize))) {
+                    int check_filename = strcmp(get_base_name(
+                        (char *)_dyld_get_image_name(i)),
+                        get_base_name(source_filename));
+                    if ( check_filename != 0 ) return;
                     d->local_pc[d->local_pc_size] = d->current_pc - offset;
                     d->binary_filename[d->local_pc_size] = (char *)_dyld_get_image_name(i);
                     // Resolve symlinks to a real path:
@@ -1387,20 +1409,6 @@ void get_local_address(struct Stacktrace *d) {
 #endif // HAVE_LFORTRAN_MACHO
 #endif // HAVE_LFORTRAN_LINK
     }
-}
-
-char *get_base_name(char *filename) {
-    size_t start = strrchr(filename, '/')-filename+1;
-    size_t end = strrchr(filename, '.')-filename-1;
-    int nos_of_chars = end - start + 1;
-    char *base_name;
-    if (nos_of_chars < 0) {
-        return NULL;
-    }
-    base_name = malloc (sizeof (char) * (nos_of_chars + 1));
-    base_name[nos_of_chars] = '\0';
-    strncpy (base_name, filename + start, nos_of_chars);
-    return base_name;
 }
 
 uint32_t get_file_size(int64_t fp) {
@@ -1508,7 +1516,7 @@ LFORTRAN_API void print_stacktrace_addresses(char *filename, bool use_colors) {
     get_local_info_dwarfdump(&d);
 
 #ifdef HAVE_LFORTRAN_MACHO
-    for (int32_t i = d.local_pc_size-2; i > 1; i--) {
+    for (int32_t i = d.local_pc_size-2; i >= 0; i--) {
 #else
     for (int32_t i = d.local_pc_size-3; i >= 0; i--) {
 #endif
