@@ -897,6 +897,24 @@ public:
         EMIT("sub " + r2s(r32) + ", " + i2s(imm8));
     }
 
+    void asm_sub_r32_imm32(X86Reg r32, uint32_t imm32) {
+        m_code.push_back(m_al, 0x81);
+        modrm_sib_disp(m_code, m_al,
+                X86Reg::ebp, &r32, nullptr, 1, 0, false);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("sub " + r2s(r32) + ", " + i2s(imm32));
+    }
+
+    void asm_sub_r64_imm32(X64Reg r64, uint32_t imm32) {
+        X86Reg r32 = X86Reg(r64 & 7);
+        m_code.push_back(m_al, rex(1, 0, 0, r64 >> 3));
+        m_code.push_back(m_al, 0x81);
+        modrm_sib_disp(m_code, m_al,
+                X86Reg::ebp, &r32, nullptr, 1, 0, false);
+        push_back_uint32(m_code, m_al, imm32);
+        EMIT("sub " + r2s(r64) + ", " + i2s(imm32));
+    }
+
     void asm_sub_r64_r64(X64Reg r64, X64Reg s64) {
         X86Reg r32 = X86Reg(r64 & 7), s32 = X86Reg(s64 & 7);
         m_code.push_back(m_al, rex(1, r64 >> 3, 0, s64 >> 3));
