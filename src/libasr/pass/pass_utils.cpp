@@ -459,7 +459,7 @@ namespace LCompilers {
             return var;
         }
 
-        ASR::expr_t* create_auxiliary_variable(Location& loc, std::string& name,
+        ASR::expr_t* create_auxiliary_variable(const Location& loc, std::string& name,
             Allocator& al, SymbolTable*& current_scope, ASR::ttype_t* var_type) {
             ASR::asr_t* expr_sym = ASR::make_Variable_t(al, loc, current_scope, s2c(al, name), nullptr, 0,
                                                     ASR::intentType::Local, nullptr, nullptr, ASR::storage_typeType::Default,

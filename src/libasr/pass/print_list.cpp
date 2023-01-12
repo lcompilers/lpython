@@ -59,7 +59,8 @@ class PrintListVisitor
         print_pass_result_tmp.reserve(al, 1);
     }
 
-    void print_list_helper(ASR::expr_t *list_expr, ASR::expr_t *sep_expr,const Location &loc) {
+    void print_list_helper(ASR::expr_t *list_expr, ASR::expr_t *sep_expr,
+                ASR::expr_t *end_expr, const Location &loc) {
         ASR::List_t *listC =
                 ASR::down_cast<ASR::List_t>(ASRUtils::expr_type(list_expr));
         ASR::ttype_t *int_type = ASRUtils::TYPE(
@@ -88,23 +89,12 @@ class PrintListVisitor
                 al, loc, s2c(al, "]"), str_type_len_1));
 
         std::string list_iter_var_name;
-        ASR::symbol_t *list_iter_variable;
         ASR::expr_t *list_iter_var;
         {
             list_iter_var_name =
                 current_scope->get_unique_name("__list_iterator");
-            list_iter_variable =
-                ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(
-                    al, loc, current_scope,
-                    s2c(al, list_iter_var_name), nullptr, 0, ASR::intentType::Local,
-                    nullptr, nullptr, ASR::storage_typeType::Default,
-                    int_type, ASR::abiType::Source, ASR::accessType::Public,
-                    ASR::presenceType::Required, false));
-
-            current_scope->add_symbol(list_iter_var_name,
-                                        list_iter_variable);
-            list_iter_var = ASRUtils::EXPR(
-                ASR::make_Var_t(al, loc, list_iter_variable));
+            list_iter_var = PassUtils::create_auxiliary_variable(loc,
+                list_iter_var_name, al, current_scope, int_type);
         }
 
         ASR::expr_t *list_item = ASRUtils::EXPR(
@@ -152,7 +142,7 @@ class PrintListVisitor
                                 empty_str, empty_str));
         ASR::stmt_t *print_close_bracket = ASRUtils::STMT(
             ASR::make_Print_t(al, loc, nullptr, v3.p, v3.size(),
-                                sep_expr, nullptr));
+                                sep_expr, end_expr));
 
         Vec<ASR::stmt_t *> if_body;
         if_body.reserve(al, 1);
@@ -178,7 +168,7 @@ class PrintListVisitor
                 loop_body.reserve(al, 2);
                 loop_body.push_back(al, print_item);
             } else {
-                print_list_helper(list_item, comma_space, loc);
+                print_list_helper(list_item, nullptr, empty_str, loc);
                 loop_body.from_pointer_n_copy(al, print_pass_result_tmp.p, print_pass_result_tmp.size());
                 print_pass_result_tmp.n = 0;
             }
@@ -212,7 +202,7 @@ class PrintListVisitor
                     pass_result.push_back(al, print_stmt);
 
                 }
-                print_list_helper(x.m_values[i], x.m_separator, x.base.base.loc);
+                print_list_helper(x.m_values[i], x.m_separator, nullptr, x.base.base.loc);
                 for (size_t j=0; j<print_pass_result_tmp.n; j++)
                     pass_result.push_back(al, print_pass_result_tmp[j]);
                 print_pass_result_tmp.n = 0;
