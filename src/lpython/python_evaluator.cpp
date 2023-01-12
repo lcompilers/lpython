@@ -56,6 +56,16 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
         = asr_to_llvm(asr, diagnostics,
             e->get_context(), al, lpm, compiler_options,
             run_fn, infile);
+    if (compiler_options.emit_debug_info) {
+        if (!compiler_options.emit_debug_line_column) {
+            diagnostics.add(diag::Diagnostic(
+                "The `emit_debug_line_column` is not enabled; please use the "
+                "`--debug-with-line-column` option to get the correct "
+                "location information",
+                diag::Level::Warning, diag::Stage::Semantic, {})
+            );
+        }
+    }
     if (res.ok) {
         m = std::move(res.result);
     } else {
