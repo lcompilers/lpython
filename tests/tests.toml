@@ -997,6 +997,10 @@ filename = "runtime_errors/test_assert_02.py"
 run_with_dbg = true
 
 [[test]]
+filename = "runtime_errors/test_assert_03.py"
+run_with_dbg = true
+
+[[test]]
 filename = "runtime_errors/test_quit_01.py"
 run_with_dbg = true
 
