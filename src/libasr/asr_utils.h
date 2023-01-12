@@ -1072,23 +1072,19 @@ static inline bool is_logical(ASR::ttype_t &x) {
 }
 
 static inline bool is_generic(ASR::ttype_t &x) {
-    switch (x.type) {
-        case ASR::ttypeType::List: {
-            ASR::List_t *list_type = ASR::down_cast<ASR::List_t>(type_get_past_pointer(&x));
-            return is_generic(*list_type->m_type);
-        }
-        default : return ASR::is_a<ASR::TypeParameter_t>(*type_get_past_pointer(&x));
+    if (ASR::is_a<ASR::List_t>(x)) {
+        ASR::List_t *list_type = ASR::down_cast<ASR::List_t>(type_get_past_pointer(&x));
+        return is_generic(*list_type->m_type);
     }
+    return ASR::is_a<ASR::TypeParameter_t>(*type_get_past_pointer(&x));
 }
 
 static inline bool is_generic_function(ASR::symbol_t *x) {
-    switch (x->type) {
-        case ASR::symbolType::Function: {
-            ASR::Function_t *func_sym = ASR::down_cast<ASR::Function_t>(x);
-            return func_sym->n_type_params > 0;
-        }
-        default: return false;
+    if (ASR::is_a<ASR::Function_t>(*x)) {
+        ASR::Function_t *func_sym = ASR::down_cast<ASR::Function_t>(x);
+        return func_sym->n_type_params > 0;
     }
+    return false;
 }
 
 static inline bool is_generic_enclosed(SymbolTable *x) {
@@ -1102,6 +1098,20 @@ static inline bool is_generic_enclosed(SymbolTable *x) {
     return false;
 }
 
+static inline int get_generic_function_num(std::string name, SymbolTable *x) {
+    bool found = true;
+    int num = 0;
+    while (found) {
+        std::string check = "__lpython_generic_" + name + "_" + std::to_string(num);
+        ASR::symbol_t *s = x->resolve_symbol(check);
+        if (s) {
+            num += 1;
+        } else {
+            found = false;
+        }
+    }
+    return num;
+}
 
 static inline int get_body_size(ASR::symbol_t* s) {
     int n_body = 0;

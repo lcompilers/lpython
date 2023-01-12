@@ -712,7 +712,7 @@ public:
     bool visit_expr_list(AST::expr_t** pos_args, size_t n_pos_args,
                          AST::keyword_t* kwargs, size_t n_kwargs,
                          Vec<ASR::call_arg_t>& call_args_vec,
-                         std::map<std::string, ASR::symbol_t*>& rt_subs,
+                         std::map<std::string, ASR::symbol_t*>& restriction_subs,
                          ASR::Function_t* orig_func, const Location& call_loc,
                          bool raise_error=true) {
         LFORTRAN_ASSERT(call_args_vec.reserve_called);
@@ -749,7 +749,7 @@ public:
             if (arg_pos == -2) {
                 if (ASR::is_a<ASR::Var_t>(*expr)) {
                     ASR::Var_t* var = ASR::down_cast<ASR::Var_t>(expr);
-                    rt_subs[arg_name] = var->m_v;
+                    restriction_subs[arg_name] = var->m_v;
                 }
                 continue;
             }
@@ -883,7 +883,7 @@ public:
         ASR::symbol_t *s_generic = nullptr, *stemp = s;
         // Type map for generic functions
         std::map<std::string, ASR::ttype_t*> subs;
-        std::map<std::string, ASR::symbol_t*> rt_subs;
+        std::map<std::string, ASR::symbol_t*> restriction_subs;
         // handling ExternalSymbol
         s = ASRUtils::symbol_get_past_external(s);
         bool is_generic_procedure = ASR::is_a<ASR::GenericProcedure_t>(*s);
@@ -897,7 +897,7 @@ public:
                     args.n = 0;
                     ASR::Function_t* orig_func = ASR::down_cast<ASR::Function_t>(p->m_procs[iproc]);
                     if( !visit_expr_list(pos_args, n_pos_args, kwargs, n_kwargs,
-                                         args, rt_subs, orig_func, loc, false) ) {
+                                         args, restriction_subs, orig_func, loc, false) ) {
                         continue;
                     }
                     idx = ASRUtils::select_generic_procedure(args, *p, loc,
@@ -941,7 +941,7 @@ public:
             if( n_kwargs > 0 && !is_generic_procedure ) {
                 args.reserve(al, n_pos_args + n_kwargs);
                 visit_expr_list(pos_args, n_pos_args, kwargs, n_kwargs,
-                                args, rt_subs, func, loc);
+                                args, restriction_subs, func, loc);
             }
             if (func->m_is_restriction) {
                 rt_vec.push_back(s);
@@ -968,19 +968,24 @@ public:
                         );
                         throw SemanticAbort();
                     }
+                    
                     for (size_t i=0; i<n_pos_args; i++) {
                         ASR::ttype_t *param_type = ASRUtils::expr_type(func->m_args[i]);
                         ASR::ttype_t *arg_type = ASRUtils::expr_type(args[i].m_value);
                         check_type_substitution(subs, param_type, arg_type, loc);
                     }
-                    /* TODO: Restriction of nested generic function call has to be
-                            included in the restrictions */
+
                     for (size_t i=0; i<func->n_restrictions; i++) {
                         ASR::Function_t* rt = ASR::down_cast<ASR::Function_t>(func->m_restrictions[i]);
-                        check_type_restriction(subs, rt_subs, rt, loc);
+                        check_type_restriction(subs, restriction_subs, rt, loc);
                     }
 
-                    ASR::symbol_t *t = pass_instantiate_generic_function(al, subs, rt_subs, current_scope, func);
+                    /* Get the new function name */
+                    std::string func_name = func->m_name;
+                    int num = ASRUtils::get_generic_function_num(func_name, current_scope);
+                    std::string new_func_name = "__lpython_generic_" + func_name + "_" + std::to_string(num);
+
+                    ASR::symbol_t *t = pass_instantiate_generic_function(al, subs, restriction_subs, current_scope, new_func_name, s);
                     std::string new_call_name = (ASR::down_cast<ASR::Function_t>(t))->m_name;
 
                     // Currently ignoring keyword arguments for generic function calls
@@ -1136,11 +1141,11 @@ public:
      *        the restriction
      */
     void check_type_restriction(std::map<std::string, ASR::ttype_t*> subs,
-            std::map<std::string, ASR::symbol_t*> rt_subs,
+            std::map<std::string, ASR::symbol_t*> restriction_subs,
             ASR::Function_t* rt, const Location& loc) {
         std::string rt_name = rt->m_name;
-        if (rt_subs.find(rt_name) != rt_subs.end()) {
-            ASR::symbol_t* rt_arg = rt_subs[rt_name];
+        if (restriction_subs.find(rt_name) != restriction_subs.end()) {
+            ASR::symbol_t* rt_arg = restriction_subs[rt_name];
             if (!ASR::is_a<ASR::Function_t>(*rt_arg)) {
                 std::string msg = "The restriction " + rt_name + " requires a "
                     + "function as an argument";
