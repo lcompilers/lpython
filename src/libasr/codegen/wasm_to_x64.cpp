@@ -315,27 +315,17 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         handleI32Opt([&](){ m_a.asm_div_r64(X64Reg::rbx);});
     }
 
-    void handle_I32Compare(const std::string &compare_op) {
+    using JumpFn = void(X86Assembler::*)(const std::string&);
+    template<JumpFn T>
+    void handle_I32Compare() {
         std::string label = std::to_string(offset);
         m_a.asm_pop_r64(X64Reg::rbx);
         m_a.asm_pop_r64(X64Reg::rax);
         // `rax` and `rbx` contain the left and right operands, respectively
         m_a.asm_cmp_r64_r64(X64Reg::rax, X64Reg::rbx);
-        if (compare_op == "Eq") {
-            m_a.asm_je_label(".compare_1" + label);
-        } else if (compare_op == "Gt") {
-            m_a.asm_jg_label(".compare_1" + label);
-        } else if (compare_op == "GtE") {
-            m_a.asm_jge_label(".compare_1" + label);
-        } else if (compare_op == "Lt") {
-            m_a.asm_jl_label(".compare_1" + label);
-        } else if (compare_op == "LtE") {
-            m_a.asm_jle_label(".compare_1" + label);
-        } else if (compare_op == "NotEq") {
-            m_a.asm_jne_label(".compare_1" + label);
-        } else {
-            throw CodeGenError("Comparison operator not implemented");
-        }
+
+        (m_a.*T)(".compare_1" + label);
+
         // if the `compare` condition in `true`, jump to compare_1
         // and assign `1` else assign `0`
         m_a.asm_push_imm8(0);
@@ -345,12 +335,12 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         m_a.add_label(".compare.end_" + label);
     }
 
-    void visit_I32Eq() { handle_I32Compare("Eq"); }
-    void visit_I32GtS() { handle_I32Compare("Gt"); }
-    void visit_I32GeS() { handle_I32Compare("GtE"); }
-    void visit_I32LtS() { handle_I32Compare("Lt"); }
-    void visit_I32LeS() { handle_I32Compare("LtE"); }
-    void visit_I32Ne() { handle_I32Compare("NotEq"); }
+    void visit_I32Eq() { handle_I32Compare<&X86Assembler::asm_je_label>(); }
+    void visit_I32GtS() { handle_I32Compare<&X86Assembler::asm_jg_label>(); }
+    void visit_I32GeS() { handle_I32Compare<&X86Assembler::asm_jge_label>(); }
+    void visit_I32LtS() { handle_I32Compare<&X86Assembler::asm_jl_label>(); }
+    void visit_I32LeS() { handle_I32Compare<&X86Assembler::asm_jle_label>(); }
+    void visit_I32Ne() { handle_I32Compare<&X86Assembler::asm_jne_label>(); }
 
     void visit_F64Const(double z) {
         std::string label = "float_" + std::to_string(z);
@@ -364,7 +354,9 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0); // store float on integer stack top;
     }
 
-    void handleF64Operations(char opt) {
+    using F64OptFn = void(X86Assembler::*)(X64FReg, X64FReg);
+    template<F64OptFn T>
+    void handleF64Operations() {
         X64Reg stack_top = X64Reg::rsp;
         // load second operand into floating-point register
         m_a.asm_movsd_r64_m64(X64FReg::xmm1, &stack_top, nullptr, 1, 0);
@@ -373,22 +365,16 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         m_a.asm_movsd_r64_m64(X64FReg::xmm0, &stack_top, nullptr, 1, 0);
         // no need to pop this operand since we need space to output back result
 
-        switch (opt) {
-            case '+': m_a.asm_addsd_r64_r64(X64FReg::xmm0, X64FReg::xmm1); break;
-            case '-': m_a.asm_subsd_r64_r64(X64FReg::xmm0, X64FReg::xmm1); break;
-            case '*': m_a.asm_mulsd_r64_r64(X64FReg::xmm0, X64FReg::xmm1); break;
-            case '/': m_a.asm_divsd_r64_r64(X64FReg::xmm0, X64FReg::xmm1); break;
-            default: throw CodeGenError("Unknown floating-point operation");
-        }
+        (m_a.*T)(X64FReg::xmm0, X64FReg::xmm1);
 
         // store float result back on stack top;
         m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0);
     }
 
-    void visit_F64Add() { handleF64Operations('+'); }
-    void visit_F64Sub() { handleF64Operations('-'); }
-    void visit_F64Mul() { handleF64Operations('*'); }
-    void visit_F64Div() { handleF64Operations('/'); }
+    void visit_F64Add() { handleF64Operations<&X86Assembler::asm_addsd_r64_r64>(); }
+    void visit_F64Sub() { handleF64Operations<&X86Assembler::asm_subsd_r64_r64>(); }
+    void visit_F64Mul() { handleF64Operations<&X86Assembler::asm_mulsd_r64_r64>(); }
+    void visit_F64Div() { handleF64Operations<&X86Assembler::asm_divsd_r64_r64>(); }
 
     void gen_x64_bytes() {
         {   // Initialize/Modify values of entities
