@@ -234,7 +234,7 @@ void emit_print_float(X86Assembler &a, const std::string &name) {
     // print the integral part
     {
         a.asm_call_label("print_i32");
-        a.asm_pop_r32(X86Reg::eax); // increament the stack pointer and thus remove space
+        a.asm_add_r32_imm32(X86Reg::esp, 4); // increment stack top and thus pop the value to be set
     }
 
     // print dot
@@ -255,7 +255,7 @@ void emit_print_float(X86Assembler &a, const std::string &name) {
         // print the fractional part
         {
             a.asm_call_label("print_i32");
-            a.asm_pop_r32(X86Reg::eax); // increament the stack pointer and thus remove space
+            a.asm_add_r32_imm32(X86Reg::esp, 4); // increment stack top and thus pop the value to be set
         }
     }
 
