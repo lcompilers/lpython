@@ -1,5 +1,0 @@
-semantic error: Label 'end' is not defined in 'f'
- --> tests/errors/test_goto.py:8:13
-  |
-8 |             goto .end
-  |             ^^^^^^^^^ 
