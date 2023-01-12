@@ -10,8 +10,10 @@
 #include <limits.h>
 #include <ctype.h>
 
-#include <libasr/runtime/lfortran_intrinsics.h>
+#include <libasr/runtime/lfortran_intrinsics.h>w
 #include <libasr/config.h>
+
+#ifdef HAVE_RUNTIME_STACKTRACE
 
 #ifdef HAVE_LFORTRAN_LINK
 // For dl_iterate_phdr() functionality
@@ -60,6 +62,8 @@ struct Stacktrace {
 #define S_RESET "\033[0m"
 #define MAGENTA "\033[35m"
 #define C_RESET "\033[39m"
+
+#endif // HAVE_RUNTIME_STACKTRACE
 
 LFORTRAN_API double _lfortran_sum(int n, double *v)
 {
@@ -1255,6 +1259,7 @@ LFORTRAN_API char *_lpython_get_argv(int32_t index) {
 // << Command line arguments << ------------------------------------------------
 
 // >> Runtime Stacktrace >> ----------------------------------------------------
+#ifdef HAVE_RUNTIME_STACKTRACE
 
 #ifdef HAVE_LFORTRAN_UNWIND
 static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
@@ -1426,7 +1431,7 @@ void get_local_info_dwarfdump(struct Stacktrace *d) {
     _lpython_close(fd);
     free(filename);
 
-    char s[size];
+    char s[LCOMPILERS_MAX_STACKTRACE_LENGTH];
     bool address = true;
     uint32_t j = 0;
     d->stack_size = 0;
@@ -1570,4 +1575,5 @@ LFORTRAN_API void print_stacktrace_addresses(char *filename, bool use_colors) {
     }
 }
 
+#endif // HAVE_RUNTIME_STACKTRACE
 // << Runtime Stacktrace << ----------------------------------------------------
