@@ -271,7 +271,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
 
     void visit_I32Eqz() {
         m_a.asm_push_imm32(0U);
-        handle_I32Compare("Eq");
+        handle_I32Compare<&X86Assembler::asm_je_label>();
     }
 
     void visit_I32Const(int32_t value) {
@@ -284,52 +284,37 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         last_vis_i32_const = value;
     }
 
-    void visit_I32Add() {
+    template<typename F>
+    void handleI32Opt(F && f) {
         m_a.asm_pop_r32(X86Reg::ebx);
         m_a.asm_pop_r32(X86Reg::eax);
-        m_a.asm_add_r32_r32(X86Reg::eax, X86Reg::ebx);
-        m_a.asm_push_r32(X86Reg::eax);
-    }
-    void visit_I32Sub() {
-        m_a.asm_pop_r32(X86Reg::ebx);
-        m_a.asm_pop_r32(X86Reg::eax);
-        m_a.asm_sub_r32_r32(X86Reg::eax, X86Reg::ebx);
-        m_a.asm_push_r32(X86Reg::eax);
-    }
-    void visit_I32Mul() {
-        m_a.asm_pop_r32(X86Reg::ebx);
-        m_a.asm_pop_r32(X86Reg::eax);
-        m_a.asm_mul_r32(X86Reg::ebx);
-        m_a.asm_push_r32(X86Reg::eax);
-    }
-    void visit_I32DivS() {
-        m_a.asm_pop_r32(X86Reg::ebx);
-        m_a.asm_pop_r32(X86Reg::eax);
-        m_a.asm_div_r32(X86Reg::ebx);
+        f();
         m_a.asm_push_r32(X86Reg::eax);
     }
 
-    void handle_I32Compare(const std::string &compare_op) {
+    void visit_I32Add() {
+        handleI32Opt([&](){ m_a.asm_add_r32_r32(X86Reg::eax, X86Reg::ebx);});
+    }
+    void visit_I32Sub() {
+        handleI32Opt([&](){ m_a.asm_sub_r32_r32(X86Reg::eax, X86Reg::ebx);});
+    }
+    void visit_I32Mul() {
+        handleI32Opt([&](){  m_a.asm_mul_r32(X86Reg::ebx);});
+    }
+    void visit_I32DivS() {
+        handleI32Opt([&](){ m_a.asm_div_r32(X86Reg::ebx);});
+    }
+
+    using JumpFn = void(X86Assembler::*)(const std::string&);
+    template<JumpFn T>
+    void handle_I32Compare() {
         std::string label = std::to_string(offset);
         m_a.asm_pop_r32(X86Reg::ebx);
         m_a.asm_pop_r32(X86Reg::eax);
         // `eax` and `ebx` contain the left and right operands, respectively
         m_a.asm_cmp_r32_r32(X86Reg::eax, X86Reg::ebx);
-        if (compare_op == "Eq") {
-            m_a.asm_je_label(".compare_1" + label);
-        } else if (compare_op == "Gt") {
-            m_a.asm_jg_label(".compare_1" + label);
-        } else if (compare_op == "GtE") {
-            m_a.asm_jge_label(".compare_1" + label);
-        } else if (compare_op == "Lt") {
-            m_a.asm_jl_label(".compare_1" + label);
-        } else if (compare_op == "LtE") {
-            m_a.asm_jle_label(".compare_1" + label);
-        } else if (compare_op == "NotEq") {
-            m_a.asm_jne_label(".compare_1" + label);
-        } else {
-            throw CodeGenError("Comparison operator not implemented");
-        }
+
+        (m_a.*T)(".compare_1" + label);
         // if the `compare` condition in `true`, jump to compare_1
         // and assign `1` else assign `0`
         m_a.asm_push_imm8(0);
@@ -339,12 +324,12 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         m_a.add_label(".compare.end_" + label);
     }
 
-    void visit_I32Eq() { handle_I32Compare("Eq"); }
-    void visit_I32GtS() { handle_I32Compare("Gt"); }
-    void visit_I32GeS() { handle_I32Compare("GtE"); }
-    void visit_I32LtS() { handle_I32Compare("Lt"); }
-    void visit_I32LeS() { handle_I32Compare("LtE"); }
-    void visit_I32Ne() { handle_I32Compare("NotEq"); }
+    void visit_I32Eq() { handle_I32Compare<&X86Assembler::asm_je_label>(); }
+    void visit_I32GtS() { handle_I32Compare<&X86Assembler::asm_jg_label>(); }
+    void visit_I32GeS() { handle_I32Compare<&X86Assembler::asm_jge_label>(); }
+    void visit_I32LtS() { handle_I32Compare<&X86Assembler::asm_jl_label>(); }
+    void visit_I32LeS() { handle_I32Compare<&X86Assembler::asm_jle_label>(); }
+    void visit_I32Ne() { handle_I32Compare<&X86Assembler::asm_jne_label>(); }
 
     void visit_F64Const(double Z) {
         float z = Z; // down cast 64-bit double to 32-bit float
