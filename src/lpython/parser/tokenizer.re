@@ -5,8 +5,7 @@
 #include <lpython/parser/parser.tab.hh>
 #include <libasr/bigint.h>
 
-namespace LFortran
-{
+namespace LCompilers::LPython {
 
 template<int base>
 bool adddgt(uint64_t &u, uint64_t d)
@@ -122,14 +121,15 @@ void lex_imag(Allocator &al, const unsigned char *s,
     }
 }
 
-void Tokenizer::set_string(const std::string &str)
+void Tokenizer::set_string(const std::string &str, uint32_t prev_loc_)
 {
     // The input string must be NULL terminated, otherwise the tokenizer will
     // not detect the end of string. After C++11, the std::string is guaranteed
     // to end with \0, but we check this here just in case.
-    LFORTRAN_ASSERT(str[str.size()] == '\0');
+    LCOMPILERS_ASSERT(str[str.size()] == '\0');
     cur = (unsigned char *)(&str[0]);
     string_start = cur;
+    prev_loc = prev_loc_;
     cur_line = cur;
     line_num = 1;
 }
@@ -607,14 +607,14 @@ void Tokenizer::lex_match_or_case(Location &loc, unsigned char *cur,
             * {
                 token_loc(loc);
                 std::string t = std::string((char *)tok, cur - tok);
-                throw LFortran::parser_local::TokenizerError("Token '" + t
-                    + "' is not recognized in `match` statement", loc);
+                throw parser_local::TokenizerError("Token '"
+                    + t + "' is not recognized in `match` statement", loc);
             }
 
             end {
                 token_loc(loc);
                 std::string t = std::string((char *)tok, cur - tok);
-                throw LFortran::parser_local::TokenizerError(
+                throw parser_local::TokenizerError(
                     "End of file not expected within `match` statement: '" + t
                     + "'", loc);
             }
@@ -777,7 +777,7 @@ Result<std::vector<int>> tokens(Allocator &al, const std::string &input,
         std::vector<Location> *locations)
 {
     Tokenizer t;
-    t.set_string(input);
+    t.set_string(input, 0);
     std::vector<int> tst;
     int token = yytokentype::END_OF_FILE + 1; // Something different from EOF
     while (token != yytokentype::END_OF_FILE) {
@@ -796,7 +796,7 @@ Result<std::vector<int>> tokens(Allocator &al, const std::string &input,
     return tst;
 }
 
-std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
+std::string pickle_token(int token, const YYSTYPE &yystype)
 {
     std::string t;
     t += "(";
@@ -836,4 +836,4 @@ std::string pickle_token(int token, const LFortran::YYSTYPE &yystype)
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers::LPython

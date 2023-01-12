@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-test_issue_518-cdb641a",
+    "cmd": "lpython --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/test_issue_518.py",
+    "infile_hash": "a1e1222536e4b64cb96e0e8087120fe0ab4c18b09f32ef9b05719aaa",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-test_issue_518-cdb641a.stdout",
+    "stdout_hash": "c7e5b541ad8f2e87be58d83c8dcf970e9086c5d8e083148ea5e40b6d",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

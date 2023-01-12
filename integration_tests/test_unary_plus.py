@@ -13,10 +13,10 @@ def f():
     assert abs(+f + 67.6457) < eps
 
     c: c32
-    c = 4-5j
+    c = c32(4) - c32(5j)
     c = +c
-    assert abs(c.real - 4.000000) < eps
-    assert abs(c.imag - (-5.000000)) < eps
+    assert abs(f64(c.real) - 4.000000) < eps
+    assert abs(f64(c.imag) - (-5.000000)) < eps
 
     assert +True == 1
     b: bool

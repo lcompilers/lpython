@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-expr8-704cece",
+    "cmd": "lpython --no-color --show-cpp {infile}",
+    "infile": "tests/expr8.py",
+    "infile_hash": "4e9a7a5642d721ee6a41db2c3d587c1811c5baad582bddc67cc68842",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-expr8-704cece.stdout",
+    "stdout_hash": "2f2d7f22f494b9a50890f6e33a12e4dcb7aa728a108157e38448f22f",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

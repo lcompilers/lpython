@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-expr_01-54467c1",
+    "cmd": "lpython --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/expr_01.py",
+    "infile_hash": "4284fe3a1b4dd3e5d1de1357a79e9a25b426ca245b4cc91cf99e8547",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-expr_01-54467c1.stdout",
+    "stdout_hash": "a9697d265a7e8f07974543e04f19d80cadd7d874c820afb6f9ec2569",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

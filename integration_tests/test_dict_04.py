@@ -13,7 +13,7 @@ def test_dict():
     coords: tuple[f64, f64]
     eps: f64 = 1e-12
 
-    n = 0
+    n = i64(0)
     for i in range(1000, 1000 + size, 7):
         terms2poly[(i, i*i)] = int(i + i*i)
 
@@ -23,8 +23,8 @@ def test_dict():
 
         n += int(1)
 
-    size1 = size/7
-    n = 0
+    size1 = i32(size/7)
+    n = i64(0)
     for i in range(1000, 1000 + size//2, 7):
         assert terms2poly.pop((i, i*i)) == int(i + i*i)
 
@@ -38,7 +38,7 @@ def test_dict():
         assert len(terms2poly) == size1
         n += int(1)
 
-    n = 0
+    n = i64(0)
     for i in range(1000, 1000 + size//2, 7):
         terms2poly[(i, i*i)] = int(1 + 2*i + i*i)
 
@@ -48,9 +48,9 @@ def test_dict():
 
         n += int(1)
 
-    n = 0
+    n = i64(0)
     for i in range(1000, 1000 + size//2, 7):
-        assert terms2poly[(i, i*i)] == (i + 1)*(i + 1)
+        assert terms2poly[(i, i*i)] == i64((i + 1)*(i + 1))
 
         theta = float(n) * pi
         r = float(i)
@@ -59,7 +59,7 @@ def test_dict():
 
         n += int(1)
 
-    n = 0
+    n = i64(0)
     for i in range(1000, 1000 + size, 7):
         terms2poly[(i, i*i)] = int(1 + 2*i + i*i)
 
@@ -68,13 +68,13 @@ def test_dict():
         rtheta2coords[(int(i), n)] = (r * cos(theta), r * sin(theta))
         n += int(1)
 
-    n = 0
+    n = i64(0)
     for i in range(1000, 1000 + size, 7):
-        assert terms2poly[(i, i*i)] == (i + 1)*(i + 1)
+        assert terms2poly[(i, i*i)] == i64((i + 1)*(i + 1))
 
         theta = float(n) * pi
         r = float(i)
-        assert abs(r**2 - rtheta2coords[(int(i), n)][0]**2 - r**2 * sin(theta)**2) <= eps
+        assert abs(r**2.0 - rtheta2coords[(int(i), n)][0]**2.0 - r**2.0 * sin(theta)**2.0) <= eps
         n += int(1)
 
 test_dict()

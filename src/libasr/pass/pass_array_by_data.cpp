@@ -10,7 +10,7 @@
 #include <utility>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 /*
 The following visitor converts function/subroutines (a.k.a procedures)
@@ -104,7 +104,7 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
                     ASR::Variable_t* arg = ASR::down_cast<ASR::Variable_t>(item.second);
                     new_arg = ASR::down_cast<ASR::symbol_t>(ASR::make_Variable_t(al,
                                                 arg->base.base.loc, new_symtab, s2c(al, item.first),
-                                                arg->m_intent, arg->m_symbolic_value, arg->m_value,
+                                                nullptr, 0, arg->m_intent, arg->m_symbolic_value, arg->m_value,
                                                 arg->m_storage, arg->m_type, arg->m_abi, arg->m_access,
                                                 arg->m_presence, arg->m_value_attr));
                 } else if( ASR::is_a<ASR::ExternalSymbol_t>(*item.second) ) {
@@ -149,8 +149,8 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
                     new_bindc_name = std::string(x->m_bindc_name) + suffix;
                 }
                 ASR::asr_t* new_subrout = ASR::make_Function_t(al, x->base.base.loc,
-                                            new_symtab, s2c(al, new_name), nullptr, 0, new_args.p,
-                                            new_args.size(),  new_body.p, new_body.size(),
+                                            new_symtab, s2c(al, new_name), x->m_dependencies, x->n_dependencies,
+                                            new_args.p, new_args.size(),  new_body.p, new_body.size(),
                                             return_var, x->m_abi, x->m_access, x->m_deftype,
                                             s2c(al, new_bindc_name), x->m_elemental,
                                             x->m_pure, x->m_module, x->m_inline,
@@ -399,7 +399,7 @@ class RemoveArrayByDescriptorProceduresVisitor : public PassUtils::PassVisitor<R
 
             for( auto& item: current_scope->get_scope() ) {
                 if( v.proc2newproc.find(item.second) != v.proc2newproc.end() ) {
-                    LFORTRAN_ASSERT(item.first == ASRUtils::symbol_name(item.second))
+                    LCOMPILERS_ASSERT(item.first == ASRUtils::symbol_name(item.second))
                     to_be_erased.push_back(item.first);
                 }
             }
@@ -421,7 +421,8 @@ void pass_array_by_data(Allocator &al, ASR::TranslationUnit_t &unit,
     w.visit_TranslationUnit(unit);
     RemoveArrayByDescriptorProceduresVisitor x(al,v);
     x.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
+    PassUtils::UpdateDependenciesVisitor y(al);
+    y.visit_TranslationUnit(unit);
 }
 
-} // namespace LFortran
+} // namespace LCompilers

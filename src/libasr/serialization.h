@@ -3,7 +3,7 @@
 
 #include <libasr/asr.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     std::string serialize(const ASR::asr_t &asr);
     std::string serialize(const ASR::TranslationUnit_t &unit);
@@ -14,6 +14,6 @@ namespace LFortran {
 
     void fix_external_symbols(ASR::TranslationUnit_t &unit,
             SymbolTable &external_symtab);
-}
+} // namespace LCompilers
 
 #endif // LIBASR_SERIALIZATION_H

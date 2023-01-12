@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace LFortran {
+namespace LCompilers {
 
 /* Returns the current stacktrace as a string.
  *
@@ -51,7 +51,7 @@ void get_local_addresses(std::vector<StacktraceItem> &d);
 void get_local_info(std::vector<StacktraceItem> &d);
 
 // Converts the information stored in `d` into a string
-std::string stacktrace2str(const std::vector<LFortran::StacktraceItem> &d,
+std::string stacktrace2str(const std::vector<StacktraceItem> &d,
     int skip);
 
 // Returns line number information from address
@@ -63,6 +63,6 @@ void address_to_line_number(const std::vector<std::string> &filenames,
 
 std::string error_stacktrace(const std::vector<StacktraceItem> &stacktrace);
 
-} // namespace LFortran
+} // namespace LCompilers
 
 #endif // LFORTRAN_STACKTRACE_H

@@ -1,7 +1,7 @@
 #include <tests/doctest.h>
 
 #include <iostream>
-#include <sstream>
+#include <fstream>
 
 #include <libasr/diagnostics.h>
 
@@ -14,12 +14,12 @@ namespace {
 
 }
 
-using LFortran::diag::Diagnostic;
-using LFortran::diag::Level;
-using LFortran::diag::Stage;
-using LFortran::diag::Label;
-using LFortran::Location;
-using LFortran::LocationManager;
+using LCompilers::diag::Diagnostic;
+using LCompilers::diag::Level;
+using LCompilers::diag::Stage;
+using LCompilers::diag::Label;
+using LCompilers::Location;
+using LCompilers::LocationManager;
 
 TEST_CASE("Error Render: no labels") {
     std::string out, ref;
@@ -62,12 +62,19 @@ TEST_CASE("Error Render: primary/secondary labels, single line") {
     Location loc1, loc2, loc3;
     LocationManager lm;
     input = "One line text\n";
-    lm.in_filename = "input";
-    lm.get_newlines(input, lm.in_newlines);
-    lm.out_start.push_back(0);
-    lm.in_start.push_back(0);
-    lm.in_start.push_back(input.size());
-    lm.out_start.push_back(input.size());
+    {
+        std::ofstream out("input.txt");
+        out << input;
+        LocationManager::FileLocations fl;
+        fl.in_filename = "input.txt";
+        lm.get_newlines(input, fl.in_newlines);
+        fl.out_start.push_back(0);
+        fl.in_start.push_back(0);
+        fl.in_start.push_back(input.size());
+        fl.out_start.push_back(input.size());
+        lm.files.push_back(fl);
+        lm.file_ends.push_back(input.size());
+    }
 
     loc1.first = 4;
     loc1.last = 7;
@@ -83,10 +90,10 @@ TEST_CASE("Error Render: primary/secondary labels, single line") {
                 Label("", {loc1})
             }
         );
-    out = render_diagnostic_human(d, input, lm, false, false);
+    out = render_diagnostic_human(d, lm, false, false);
     ref = S(R"""(
 semantic error: Error with label no message
- --> input:1:5
+ --> input.txt:1:5
   |
 1 | One line text
   |     ^^^^ 
@@ -101,10 +108,10 @@ semantic error: Error with label no message
                 Label("label message", {loc1, loc2})
             }
         );
-    out = render_diagnostic_human(d, input, lm, false, false);
+    out = render_diagnostic_human(d, lm, false, false);
     ref = S(R"""(
 semantic error: Error with label and message
- --> input:1:5
+ --> input.txt:1:5
   |
 1 | One line text
   |     ^^^^ ^^^^ label message
@@ -118,10 +125,10 @@ semantic error: Error with label and message
                 Label("label message", {loc1, loc2, loc3})
             }
         );
-    out = render_diagnostic_human(d, input, lm, false, false);
+    out = render_diagnostic_human(d, lm, false, false);
     ref = S(R"""(
 semantic error: Error with label and message
- --> input:1:5
+ --> input.txt:1:5
   |
 1 | One line text
   |     ^^^^ ^^^^ label message
@@ -139,10 +146,10 @@ semantic error: Error with label and message
                 Label("label2 message", {loc2})
             }
         );
-    out = render_diagnostic_human(d, input, lm, false, false);
+    out = render_diagnostic_human(d, lm, false, false);
     ref = S(R"""(
 semantic error: Error with two labels and message
- --> input:1:5
+ --> input.txt:1:5
   |
 1 | One line text
   |     ^^^^ label1 message
@@ -161,10 +168,10 @@ semantic error: Error with two labels and message
                 Label("label3 message", {loc3})
             }
         );
-    out = render_diagnostic_human(d, input, lm, false, false);
+    out = render_diagnostic_human(d, lm, false, false);
     ref = S(R"""(
 semantic error: Error with two labels and message
- --> input:1:5
+ --> input.txt:1:5
   |
 1 | One line text
   |     ^^^^ label1 message
@@ -186,10 +193,10 @@ semantic error: Error with two labels and message
                 Label("label3 secondary message", {loc3}, false)
             }
         );
-    out = render_diagnostic_human(d, input, lm, false, false);
+    out = render_diagnostic_human(d, lm, false, false);
     ref = S(R"""(
 semantic error: Error with two labels and message
- --> input:1:5
+ --> input.txt:1:5
   |
 1 | One line text
   |     ^^^^ label1 primary message
@@ -211,10 +218,10 @@ semantic error: Error with two labels and message
                 Label("label3 secondary message", {loc3}, false)
             }
         );
-    out = render_diagnostic_human(d, input, lm, false, false);
+    out = render_diagnostic_human(d, lm, false, false);
     ref = S(R"""(
 semantic error: Error with three labels and message, two spans
- --> input:1:5
+ --> input.txt:1:5
   |
 1 | One line text
   |     ~~~~ ~~~~ label1 secondary message
@@ -233,13 +240,19 @@ TEST_CASE("Error Render: primary/secondary labels, multi line") {
     Location loc1, loc2, loc3;
     LocationManager lm;
     input = "One line text\nSecond line text\nThird line text\n";
-    lm.in_filename = "input";
-    lm.get_newlines(input, lm.in_newlines);
-    lm.out_start.push_back(0);
-    lm.in_start.push_back(0);
-    lm.in_start.push_back(input.size());
-    lm.out_start.push_back(input.size());
-
+    {
+        std::ofstream out("input.txt");
+        out << input;
+        LocationManager::FileLocations fl;
+        fl.in_filename = "input.txt";
+        lm.get_newlines(input, fl.in_newlines);
+        fl.out_start.push_back(0);
+        fl.in_start.push_back(0);
+        fl.in_start.push_back(input.size());
+        fl.out_start.push_back(input.size());
+        lm.files.push_back(fl);
+        lm.file_ends.push_back(input.size());
+    }
     loc1.first = 4; // 1 line
     loc1.last = 24; // 2 line
     loc2.first = 9; // 1 text
@@ -254,10 +267,10 @@ TEST_CASE("Error Render: primary/secondary labels, multi line") {
                 Label("Multilines", {loc1})
             }
         );
-    out = render_diagnostic_human(d, input, lm, false, false);
+    out = render_diagnostic_human(d, lm, false, false);
     ref = S(R"""(
 semantic error: Error with label no message
- --> input:1:5 - 2:11
+ --> input.txt:1:5 - 2:11
   |
 1 |    One line text
   |        ^^^^^^^^^...
@@ -275,10 +288,10 @@ semantic error: Error with label no message
                 Label("Two spans", {loc1, loc2})
             }
         );
-    out = render_diagnostic_human(d, input, lm, false, false);
+    out = render_diagnostic_human(d, lm, false, false);
     ref = S(R"""(
 semantic error: Error with label, two spans
- --> input:1:5 - 2:11
+ --> input.txt:1:5 - 2:11
   |
 1 |    One line text
   |        ^^^^^^^^^...
@@ -303,10 +316,10 @@ semantic error: Error with label, two spans
                 Label("Two spans", {loc3, loc2})
             }
         );
-    out = render_diagnostic_human(d, input, lm, false, false);
+    out = render_diagnostic_human(d, lm, false, false);
     ref = S(R"""(
 semantic error: Error with label, two spans
- --> input:1:1
+ --> input.txt:1:1
   |
 1 | One line text
   | ^^^ Two spans

@@ -56,6 +56,15 @@ LFORTRAN_API void _lfortran_printf(const char* format, ...)
     va_end(args);
 }
 
+LFORTRAN_API void _lcompilers_print_error(const char* format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    vfprintf(stderr, format, args);
+    fflush(stderr);
+    va_end(args);
+}
+
 LFORTRAN_API void _lfortran_complex_add_32(struct _lfortran_complex_32* a,
         struct _lfortran_complex_32* b, struct _lfortran_complex_32 *result)
 {
@@ -614,6 +623,15 @@ LFORTRAN_API void _lfortran_strcat(char** s1, char** s2, char** dest)
     *dest = &(dest_char[0]);
 }
 
+// strcpy -----------------------------------------------------------
+
+LFORTRAN_API void _lfortran_strcpy(char** x, char *y)
+{
+    if (*x) free((void *)*x);
+    *x = (char*) malloc((strlen(y) + 1) * sizeof(char));
+    strcpy(*x, y);
+}
+
 #define MIN(x, y) ((x < y) ? x : y)
 
 int str_compare(char **s1, char **s2)
@@ -864,6 +882,11 @@ LFORTRAN_API int _lfortran_str_ord(char** s)
     return (*s)[0];
 }
 
+LFORTRAN_API int _lfortran_str_ord_c(char* s)
+{
+    return s[0];
+}
+
 LFORTRAN_API char* _lfortran_str_chr(int val)
 {
     char* dest_char = (char*)malloc(2);
@@ -872,8 +895,12 @@ LFORTRAN_API char* _lfortran_str_chr(int val)
     return dest_char;
 }
 
-LFORTRAN_API char* _lfortran_malloc(int size) {
-    return (char*)malloc(size);
+LFORTRAN_API void _lfortran_memset(void* s, int32_t c, int32_t size) {
+    memset(s, c, size);
+}
+
+LFORTRAN_API void* _lfortran_malloc(int32_t size) {
+    return malloc(size);
 }
 
 LFORTRAN_API int8_t* _lfortran_realloc(int8_t* ptr, int32_t size) {
@@ -1063,7 +1090,7 @@ LFORTRAN_API void _lfortran_cpu_time(double *t) {
 
 LFORTRAN_API void _lfortran_i32sys_clock(
         int32_t *count, int32_t *rate, int32_t *max) {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MACH__)
         *count = - INT_MAX;
         *rate = 0;
         *max = 0;
@@ -1083,7 +1110,7 @@ LFORTRAN_API void _lfortran_i32sys_clock(
 
 LFORTRAN_API void _lfortran_i64sys_clock(
         uint64_t *count, int64_t *rate, int64_t *max) {
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MACH__)
         *count = - INT_MAX;
         *rate = 0;
         *max = 0;
@@ -1146,4 +1173,32 @@ LFORTRAN_API void _lpython_close(int64_t fd)
         printf("Error in closing the file!\n");
         exit(1);
     }
+}
+
+LFORTRAN_API int32_t _lfortran_ichar(char *c) {
+     return (int32_t) c[0];
+}
+
+LFORTRAN_API int32_t _lfortran_iachar(char *c) {
+     return (int32_t) c[0];
+ }
+
+// Command line arguments
+int32_t argc;
+char **argv;
+
+LFORTRAN_API void _lpython_set_argv(int32_t argc_1, char *argv_1[]) {
+    argv = malloc(argc_1 * sizeof(char *));
+    for (size_t i = 0; i < argc_1; i++) {
+        argv[i] = strdup(argv_1[i]);
+    }
+    argc = argc_1;
+}
+
+LFORTRAN_API int32_t _lpython_get_argc() {
+    return argc;
+}
+
+LFORTRAN_API char *_lpython_get_argv(int32_t index) {
+    return argv[index];
 }

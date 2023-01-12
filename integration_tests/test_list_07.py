@@ -46,7 +46,7 @@ def test_tuple_with_lists():
 
     for i in range(rows):
         for j in range(cols):
-            assert mat[i][j] - vec[j] == i - j
+            assert mat[i][j] - vec[j] == c64(i - j)
 
     tensor = (deepcopy(mat), deepcopy(vec))
 
@@ -69,10 +69,10 @@ def test_tuple_with_lists():
     for k in range(2 * rows):
         for i in range(rows):
             for j in range(cols):
-                assert tensors[k][0][i][j] - mat[i][j] == -(2 * rows - k) * complex(1.0, 2.0)
+                assert tensors[k][0][i][j] - mat[i][j] == -c64(2 * rows - k) * complex(1.0, 2.0)
 
     for k in range(2 * rows):
         for i in range(cols):
-            assert tensors[k][1][i] - vec[i] == -(2 * rows - k) * complex(1.0, 2.0)
+            assert tensors[k][1][i] - vec[i] == -c64(2 * rows - k) * complex(1.0, 2.0)
 
 test_tuple_with_lists()

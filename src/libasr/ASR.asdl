@@ -95,18 +95,20 @@ symbol
     | ExternalSymbol(symbol_table parent_symtab, identifier name,
         symbol external, identifier module_name, identifier* scope_names,
         identifier original_name, access access)
-    | StructType(symbol_table symtab, identifier name, identifier* members,
-        abi abi, access access, bool is_packed, expr? alignment, symbol? parent)
-    | EnumType(symbol_table symtab, identifier name, identifier* members,
-        abi abi, access access, enumtype enum_value_type, ttype type, symbol? parent)
-    | UnionType(symbol_table symtab, identifier name, identifier* members,
-        abi abi, access access, symbol? parent)
-    | Variable(symbol_table parent_symtab, identifier name, intent intent,
-        expr? symbolic_value, expr? value, storage_type storage, ttype type,
+    | StructType(symbol_table symtab, identifier name, identifier* dependencies,
+        identifier* members, abi abi, access access, bool is_packed,
+        expr? alignment, symbol? parent)
+    | EnumType(symbol_table symtab, identifier name, identifier* dependencies,
+        identifier* members, abi abi, access access, enumtype enum_value_type,
+        ttype type, symbol? parent)
+    | UnionType(symbol_table symtab, identifier name, identifier* dependencies,
+        identifier* members, abi abi, access access, symbol? parent)
+    | Variable(symbol_table parent_symtab, identifier name, identifier* dependencies,
+        intent intent, expr? symbolic_value, expr? value, storage_type storage, ttype type,
         abi abi, access access, presence presence, bool value_attr)
     | ClassType(symbol_table symtab, identifier name, abi abi, access access)
-    | ClassProcedure(symbol_table parent_symtab, identifier name, identifier
-        proc_name, symbol proc, abi abi)
+    | ClassProcedure(symbol_table parent_symtab, identifier name, identifier? self_argument,
+        identifier proc_name, symbol proc, abi abi)
     | AssociateBlock(symbol_table symtab, identifier name, stmt* body)
     | Block(symbol_table symtab, identifier name, stmt* body)
 
@@ -183,6 +185,7 @@ stmt
     | FileOpen(int label, expr? newunit, expr? filename, expr? status)
     | FileClose(int label, expr? unit, expr? iostat, expr? iomsg, expr? err, expr? status)
     | FileRead(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values)
+    | FileBackspace(int label, expr? unit, expr? iostat, expr? err)
     | FileRewind(int label, expr? unit, expr? iostat, expr? err)
     | FileInquire(int label, expr? unit, expr? file, expr? iostat, expr? err,
               expr? exist, expr? opened, expr? number, expr? named,
@@ -204,6 +207,7 @@ stmt
     | Flush(int label, expr unit, expr? err, expr? iomsg, expr? iostat)
     | ListAppend(expr a, expr ele)
     | AssociateBlockCall(symbol m)
+    | SelectType(type_stmt* body, stmt* default)
     | CPtrToPointer(expr cptr, expr ptr, expr? shape)
     | BlockCall(int label, symbol m)
     | SetInsert(expr a, expr ele)
@@ -249,12 +253,14 @@ expr
     | ListConstant(expr* args, ttype type)
     | ListLen(expr arg, ttype type, expr? value)
     | ListConcat(expr left, expr right, ttype type, expr? value)
+    | ListCompare(expr left, cmpop op, expr right, ttype type, expr? value)
 
     | SetConstant(expr* elements, ttype type)
     | SetLen(expr arg, ttype type, expr? value)
 
     | TupleConstant(expr* elements, ttype type)
     | TupleLen(expr arg, ttype type, expr value)
+    | TupleCompare(expr left, cmpop op, expr right, ttype type, expr? value)
 
     | StringConstant(string s, ttype type)
     | StringConcat(expr left, expr right, ttype type, expr? value)
@@ -271,8 +277,8 @@ expr
 
     | Var(symbol v)
 
-    | ArrayConstant(expr* args, ttype type)
-    | ArrayItem(expr v, array_index* args, ttype type, expr? value)
+    | ArrayConstant(expr* args, ttype type, arraystorage storage_format)
+    | ArrayItem(expr v, array_index* args, ttype type, arraystorage storage_format, expr? value)
     | ArraySection(expr v, array_index* args, ttype type, expr? value)
     | ArraySize(expr v, expr? dim, ttype type, expr? value)
     | ArrayBound(expr v, expr? dim, ttype type, arraybound bound,
@@ -281,9 +287,11 @@ expr
     | ArrayMatMul(expr matrix_a, expr matrix_b, ttype type, expr? value)
     | ArrayPack(expr array, expr mask, expr? vector, ttype type, expr? value)
     | ArrayReshape(expr array, expr shape, ttype type, expr? value)
+    | ArrayMaxloc(expr array, expr? dim, expr? mask, expr? kind, expr? back, ttype type, expr? value)
 
     | BitCast(expr source, expr mold, expr? size, ttype type, expr? value)
     | StructInstanceMember(expr v, symbol m, ttype type, expr? value)
+    | StructStaticMember(expr v, symbol m, ttype type, expr? value)
     | EnumMember(expr v, symbol m, ttype type, expr? value)
     | UnionRef(expr v, symbol m, ttype type, expr? value)
     | EnumName(expr v, ttype enum_type, ttype type, expr? value)
@@ -305,6 +313,12 @@ expr
     | SetPop(expr a, ttype type, expr? value)
     | IntegerBitLen(expr a, ttype type, expr? value)
     | Ichar(expr arg, ttype type, expr? value)
+    | Iachar(expr arg, ttype type, expr? value)
+
+    | SizeOfType(ttype arg, ttype type, expr? value)
+
+    | PointerNullConstant(ttype type)
+    | PointerAssociated(expr ptr, expr? tgt, ttype type, expr? value)
 
 
 -- `len` in Character:
@@ -341,6 +355,7 @@ ttype
     | Class(symbol class_type, dimension* dims)
     | Dict(ttype key_type, ttype value_type)
     | Pointer(ttype type)
+    | Const(ttype type)
     | CPtr()
     | TypeParameter(identifier param, dimension* dims)
 
@@ -355,6 +370,8 @@ cmpop = Eq | NotEq | Lt | LtE | Gt | GtE
 integerboz = Binary | Hex | Octal
 
 arraybound = LBound | UBound
+
+arraystorage = RowMajor | ColMajor
 
 cast_kind
     = RealToInteger
@@ -395,6 +412,8 @@ array_index = (expr? left, expr? right, expr? step)
 do_loop_head = (expr? v, expr? start, expr? end, expr? increment)
 
 case_stmt = CaseStmt(expr* test, stmt* body) | CaseStmt_Range(expr? start, expr? end, stmt* body)
+
+type_stmt = TypeStmt(symbol sym, stmt* body)
 
 enumtype = IntegerConsecutiveFromZero | IntegerUnique | IntegerNotUnique | NonInteger
 

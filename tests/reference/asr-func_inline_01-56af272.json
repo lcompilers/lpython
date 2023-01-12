@@ -1,0 +1,13 @@
+{
+    "basename": "asr-func_inline_01-56af272",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/func_inline_01.py",
+    "infile_hash": "e9d50789dd554b57842e52e0818c0803943173620119bfb6f3787f83",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-func_inline_01-56af272.stdout",
+    "stdout_hash": "3ab4bcf538673a2a527075a617633dd73d2dac3ebe00cdc7fbd07412",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

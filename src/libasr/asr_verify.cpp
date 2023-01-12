@@ -4,12 +4,17 @@
 #include <libasr/asr_verify.h>
 #include <libasr/utils.h>
 
+namespace {
+    class VerifyAbort
+    {
+    };
+}
 
-namespace LFortran {
+namespace LCompilers {
 namespace ASR {
 
-using LFortran::ASRUtils::symbol_name;
-using LFortran::ASRUtils::symbol_parent_symtab;
+using ASRUtils::symbol_name;
+using ASRUtils::symbol_parent_symtab;
 
 bool valid_char(char c) {
     if (c >= 'a' && c <= 'z') return true;
@@ -34,34 +39,33 @@ class VerifyVisitor : public BaseWalkVisitor<VerifyVisitor>
 private:
     // For checking correct parent symbtab relationship
     SymbolTable *current_symtab;
+    bool check_external;
+    diag::Diagnostics &diagnostics;
 
     // For checking that all symtabs have a unique ID.
     // We first walk all symtabs, and then we check that everything else
     // points to them (i.e., that nothing points to some symbol table that
     // is not part of this ASR).
     std::map<uint64_t,SymbolTable*> id_symtab_map;
-    bool check_external;
     std::vector<std::string> function_dependencies;
     std::vector<std::string> module_dependencies;
+    std::vector<std::string> variable_dependencies;
+
+    std::set<std::pair<uint64_t, std::string>> const_assigned;
 
 public:
-    VerifyVisitor(bool check_external) : check_external{check_external} {}
+    VerifyVisitor(bool check_external, diag::Diagnostics &diagnostics) : check_external{check_external},
+        diagnostics{diagnostics} {}
 
     // Requires the condition `cond` to be true. Raise an exception otherwise.
-    void require(bool cond, const std::string &error_msg) {
+#define require(cond, error_msg) require_impl((cond), (error_msg), x.base.base.loc)
+    void require_impl(bool cond, const std::string &error_msg, const Location &loc) {
         if (!cond) {
-            throw LCompilersException("ASR verify failed: " + error_msg);
+            diagnostics.message_label("ASR verify: " + error_msg,
+                {loc}, "failed here",
+                diag::Level::Error, diag::Stage::ASRVerify);
+            throw VerifyAbort();
         }
-    }
-    void require(bool cond, const std::string &error_msg,
-                const Location &loc) {
-        std::string msg = std::to_string(loc.first) + ":"
-            + std::to_string(loc.last) + ": " + error_msg;
-        /*
-        std::string msg = std::to_string(loc.first_line) + ":"
-            + std::to_string(loc.first_column) + ": " + error_msg;
-        */
-        require(cond, msg);
     }
 
     // Returns true if the `symtab_ID` (sym->symtab->parent) is the current
@@ -201,6 +205,13 @@ public:
         current_symtab = parent_symtab;
     }
 
+    void visit_BlockCall(const BlockCall_t& x) {
+        require(x.m_m != nullptr, "Block call made to inexisting block");
+        require(symtab_in_scope(current_symtab, x.m_m),
+            "Block " + std::string(ASRUtils::symbol_name(x.m_m)) +
+            " should resolve in current scope.");
+    }
+
     void visit_Module(const Module_t &x) {
         module_dependencies.clear();
         module_dependencies.reserve(x.n_dependencies);
@@ -224,24 +235,81 @@ public:
         }
         for (size_t i=0; i < x.n_dependencies; i++) {
             require(x.m_dependencies[i] != nullptr,
-                "A module dependency must not be a nullptr",
-                x.base.base.loc);
+                "A module dependency must not be a nullptr");
             require(std::string(x.m_dependencies[i]) != "",
-                "A module dependency must not be an empty string",
-                x.base.base.loc);
+                "A module dependency must not be an empty string");
             require(valid_name(x.m_dependencies[i]),
-                "A module dependency must be a valid string",
-                x.base.base.loc);
+                "A module dependency must be a valid string");
         }
         for( auto& dep: module_dependencies ) {
-            require(present(x.m_dependencies, x.n_dependencies, dep),
-                    "Module " + std::string(x.m_name) +
-                    " dependencies must contain " + dep +
-                    " because a function present in it is getting called in "
-                    + std::string(x.m_name) + ".",
-                    x.base.base.loc);
+            if( dep != x.m_name ) {
+                require(present(x.m_dependencies, x.n_dependencies, dep),
+                        "Module " + std::string(x.m_name) +
+                        " dependencies must contain " + dep +
+                        " because a function present in it is getting called in "
+                        + std::string(x.m_name) + ".");
+            }
         }
         current_symtab = parent_symtab;
+    }
+
+    void visit_Assignment(const Assignment_t& x) {
+        ASR::expr_t* target = x.m_target;
+        if( ASR::is_a<ASR::Var_t>(*target) ) {
+            ASR::Var_t* target_Var = ASR::down_cast<ASR::Var_t>(target);
+            ASR::ttype_t* target_type = nullptr;
+            if( ASR::is_a<ASR::Variable_t>(*target_Var->m_v) ||
+                ASR::is_a<ASR::ExternalSymbol_t>(*target_Var->m_v)) {
+                target_type = ASRUtils::expr_type(target);
+            }
+            if( target_type && ASR::is_a<ASR::Const_t>(*target_type) ) {
+                std::string variable_name = ASRUtils::symbol_name(target_Var->m_v);
+                require(const_assigned.find(std::make_pair(current_symtab->counter,
+                    variable_name)) == const_assigned.end(),
+                    "Assignment target with " + ASRUtils::type_to_str_python(target_type)
+                    + " cannot be re-assigned.");
+                const_assigned.insert(std::make_pair(current_symtab->counter, variable_name));
+            }
+        }
+        BaseWalkVisitor<VerifyVisitor>::visit_Assignment(x);
+    }
+
+    void visit_ClassProcedure(const ClassProcedure_t &x) {
+        require(x.m_name != nullptr,
+            "The ClassProcedure::m_name cannot be nullptr");
+        require(x.m_proc != nullptr,
+            "The ClassProcedure::m_proc cannot be nullptr");
+        require(x.m_proc_name != nullptr,
+            "The ClassProcedure::m_proc_name cannot be nullptr");
+
+        SymbolTable *symtab = x.m_parent_symtab;
+        require(symtab != nullptr,
+            "ClassProcedure::m_parent_symtab cannot be nullptr");
+        require(symtab->get_symbol(std::string(x.m_name)) != nullptr,
+            "ClassProcedure '" + std::string(x.m_name) + "' not found in parent_symtab symbol table");
+        symbol_t *symtab_sym = symtab->get_symbol(std::string(x.m_name));
+        const symbol_t *current_sym = &x.base;
+        require(symtab_sym == current_sym,
+            "ClassProcedure's parent symbol table does not point to it");
+        require(id_symtab_map.find(symtab->counter) != id_symtab_map.end(),
+            "ClassProcedure::m_parent_symtab must be present in the ASR ("
+                + std::string(x.m_name) + ")");
+
+        ASR::Function_t* x_m_proc = ASR::down_cast<ASR::Function_t>(x.m_proc);
+        if( x.m_self_argument ) {
+            bool arg_found = false;
+            std::string self_arg_name = std::string(x.m_self_argument);
+            for( size_t i = 0; i < x_m_proc->n_args; i++ ) {
+                std::string arg_name = std::string(ASRUtils::symbol_name(
+                    ASR::down_cast<ASR::Var_t>(x_m_proc->m_args[i])->m_v));
+                if( self_arg_name == arg_name ) {
+                    arg_found = true;
+                    break ;
+                }
+            }
+            require(arg_found, self_arg_name + " must be present in " +
+                    std::string(x.m_name) + " procedures.");
+        }
     }
 
     void visit_Function(const Function_t &x) {
@@ -272,7 +340,6 @@ public:
         if (x.m_return_var) {
             visit_expr(*x.m_return_var);
         }
-
         // Check if there are unnecessary dependencies
         // present in the dependency list of the function
         for( size_t i = 0; i < x.n_dependencies; i++ ) {
@@ -307,8 +374,41 @@ public:
         require(ASRUtils::symbol_symtab(down_cast<symbol_t>(current_symtab->asr_owner)) == current_symtab,
             "The asr_owner invariant failed");
         id_symtab_map[x.m_symtab->counter] = x.m_symtab;
+        std::vector<std::string> struct_dependencies;
         for (auto &a : x.m_symtab->get_scope()) {
             this->visit_symbol(*a.second);
+            if( ASR::is_a<ASR::ClassProcedure_t>(*a.second) ||
+                ASR::is_a<ASR::GenericProcedure_t>(*a.second) ||
+                ASR::is_a<ASR::StructType_t>(*a.second) ||
+                ASR::is_a<ASR::UnionType_t>(*a.second) ||
+                ASR::is_a<ASR::CustomOperator_t>(*a.second) ) {
+                continue ;
+            }
+            ASR::ttype_t* var_type = ASRUtils::type_get_past_pointer(ASRUtils::symbol_type(a.second));
+            char* aggregate_type_name = nullptr;
+            ASR::symbol_t* sym = nullptr;
+            if( ASR::is_a<ASR::Struct_t>(*var_type) ) {
+                sym = ASR::down_cast<ASR::Struct_t>(var_type)->m_derived_type;
+                aggregate_type_name = ASRUtils::symbol_name(sym);
+            } else if( ASR::is_a<ASR::Enum_t>(*var_type) ) {
+                sym = ASR::down_cast<ASR::Enum_t>(var_type)->m_enum_type;
+                aggregate_type_name = ASRUtils::symbol_name(sym);
+            } else if( ASR::is_a<ASR::Union_t>(*var_type) ) {
+                sym = ASR::down_cast<ASR::Union_t>(var_type)->m_union_type;
+                aggregate_type_name = ASRUtils::symbol_name(sym);
+            }
+            if( aggregate_type_name && ASRUtils::symbol_parent_symtab(sym) != current_symtab ) {
+                struct_dependencies.push_back(std::string(aggregate_type_name));
+                require(present(x.m_dependencies, x.n_dependencies, std::string(aggregate_type_name)),
+                    std::string(x.m_name) + " depends on " + std::string(aggregate_type_name)
+                    + " but it isn't found in its dependency list.");
+            }
+        }
+        for( size_t i = 0; i < x.n_dependencies; i++ ) {
+            require(std::find(struct_dependencies.begin(), struct_dependencies.end(),
+                    std::string(x.m_dependencies[i])) != struct_dependencies.end(),
+                std::string(x.m_dependencies[i]) + " is not a dependency of " + std::string(x.m_name)
+                + " but it is present in its dependency list.");
         }
         current_symtab = parent_symtab;
     }
@@ -386,6 +486,7 @@ public:
     }
 
     void visit_Variable(const Variable_t &x) {
+        variable_dependencies.clear();
         SymbolTable *symtab = x.m_parent_symtab;
         require(symtab != nullptr,
             "Variable::m_parent_symtab cannot be nullptr");
@@ -402,6 +503,23 @@ public:
         if (x.m_symbolic_value)
             visit_expr(*x.m_symbolic_value);
         visit_ttype(*x.m_type);
+
+        // Verify dependencies
+        for( size_t i = 0; i < x.n_dependencies; i++ ) {
+            require(std::find(
+                variable_dependencies.begin(),
+                variable_dependencies.end(),
+                std::string(x.m_dependencies[i])
+            ) != variable_dependencies.end(),
+                "Variable " + std::string(x.m_name) + " doesn't depend on " +
+                std::string(x.m_dependencies[i]) + " but is found in its dependency list.");
+        }
+
+        for( size_t i = 0; i < variable_dependencies.size(); i++ ) {
+            require(present(x.m_dependencies, x.n_dependencies, variable_dependencies[i]),
+                "Variable " + std::string(x.m_name) + " depends on " +
+                std::string(variable_dependencies[i]) + " but isn't found in its dependency list.");
+        }
     }
 
     void visit_ExternalSymbol(const ExternalSymbol_t &x) {
@@ -414,17 +532,34 @@ public:
             require(std::string(x.m_original_name) == std::string(orig_name),
                 "ExternalSymbol::m_original_name must match external->m_name");
             ASR::Module_t *m = ASRUtils::get_sym_module(x.m_external);
-            require(m,
-                "ExternalSymbol::m_external is not in a module");
-            require(std::string(x.m_module_name) == std::string(m->m_name),
+            ASR::StructType_t* sm = nullptr;
+            bool is_valid_owner = false;
+            is_valid_owner = m != nullptr;
+            std::string asr_owner_name = "";
+            if( !is_valid_owner ) {
+                ASR::symbol_t* asr_owner_sym = ASRUtils::get_asr_owner(x.m_external);
+                is_valid_owner = ASR::is_a<ASR::StructType_t>(*asr_owner_sym);
+                sm = ASR::down_cast<ASR::StructType_t>(asr_owner_sym);
+                asr_owner_name = sm->m_name;
+            } else {
+                asr_owner_name = m->m_name;
+            }
+            require(is_valid_owner,
+                "ExternalSymbol::m_external is not in a module or struct type");
+            require(std::string(x.m_module_name) == asr_owner_name,
                 "ExternalSymbol::m_module_name `" + std::string(x.m_module_name)
-                + "` must match external's module name `" + std::string(m->m_name) + "`");
-            ASR::symbol_t *s = m->m_symtab->find_scoped_symbol(x.m_original_name, x.n_scope_names, x.m_scope_names);
+                + "` must match external's module name `" + asr_owner_name + "`");
+            ASR::symbol_t *s = nullptr;
+            if( m ) {
+                s = m->m_symtab->find_scoped_symbol(x.m_original_name, x.n_scope_names, x.m_scope_names);
+            } else if( sm ) {
+                s = sm->m_symtab->resolve_symbol(std::string(x.m_original_name));
+            }
             require(s != nullptr,
                 "ExternalSymbol::m_original_name ('"
                 + std::string(x.m_original_name)
                 + "') + scope_names not found in a module '"
-                + std::string(m->m_name) + "'");
+                + asr_owner_name + "'");
             require(s == x.m_external,
                 "ExternalSymbol::m_name + scope_names found but not equal to m_external");
         }
@@ -436,48 +571,79 @@ public:
     void visit_Var(const Var_t &x) {
         require(x.m_v != nullptr,
             "Var_t::m_v cannot be nullptr");
+        std::string x_mv_name = ASRUtils::symbol_name(x.m_v);
         require(is_a<Variable_t>(*x.m_v) || is_a<ExternalSymbol_t>(*x.m_v)
                 || is_a<Function_t>(*x.m_v) || is_a<ASR::EnumType_t>(*x.m_v),
-            "Var_t::m_v " + std::string(ASRUtils::symbol_name(x.m_v)) + " does not point to a Variable_t, ExternalSymbol_t, " \
+            "Var_t::m_v " + x_mv_name + " does not point to a Variable_t, ExternalSymbol_t, " \
             "Function_t, Subroutine_t or EnumType_t");
         require(symtab_in_scope(current_symtab, x.m_v),
-            "Var::m_v `" + std::string(ASRUtils::symbol_name(x.m_v)) + "` cannot point outside of its symbol table");
+            "Var::m_v `" + x_mv_name + "` cannot point outside of its symbol table");
+        variable_dependencies.push_back(x_mv_name);
+    }
+
+    void check_var_external(const ASR::expr_t &x) {
+        if (ASR::is_a<ASR::Var_t>(x)) {
+            ASR::symbol_t *s = ((ASR::Var_t*)&x)->m_v;
+            if (ASR::is_a<ASR::ExternalSymbol_t>(*s)) {
+                ASR::ExternalSymbol_t *e = ASR::down_cast<ASR::ExternalSymbol_t>(s);
+                require_impl(e->m_external, "m_external cannot be null here",
+                        x.base.loc);
+            }
+        }
     }
 
     template <typename T>
-    void visit_ArrayItemSection(const T &x) {
+    void handle_ArrayItemSection(const T &x) {
         visit_expr(*x.m_v);
         for (size_t i=0; i<x.n_args; i++) {
             visit_array_index(x.m_args[i]);
         }
+        require(x.m_type != nullptr,
+            "ArrayItemSection::m_type cannot be nullptr");
         visit_ttype(*x.m_type);
+        if (check_external) {
+            check_var_external(*x.m_v);
+            int n_dims = ASRUtils::extract_n_dims_from_ttype(
+                    ASRUtils::expr_type(x.m_v));
+            if (ASR::is_a<ASR::Character_t>(*x.m_type) && n_dims == 0) {
+                // TODO: This seems like a bug, we should not use ArrayItem with
+                // strings but StringItem. For now we ignore it, but we should
+                // fix it
+            } else {
+                require(n_dims > 0,
+                    "The variable in ArrayItem must be an array, not a scalar");
+            }
+        }
     }
 
     void visit_ArrayItem(const ArrayItem_t &x) {
-        visit_ArrayItemSection(x);
+        handle_ArrayItemSection(x);
     }
 
     void visit_ArraySection(const ArraySection_t &x) {
-        visit_ArrayItemSection(x);
+        handle_ArrayItemSection(x);
     }
 
     void visit_SubroutineCall(const SubroutineCall_t &x) {
         if (x.m_dt) {
-            SymbolTable *symtab = get_dt_symtab(x.m_dt, x.base.base.loc);
+            SymbolTable *symtab = get_dt_symtab(x.m_dt);
             bool result = symtab_in_scope(symtab, x.m_name);
-            ASR::symbol_t* parent = get_parent_type_dt(x.m_dt, x.base.base.loc);
+            ASR::symbol_t* parent = get_parent_type_dt(x.m_dt);
             while( !result && parent ) {
-                symtab = get_dt_symtab(parent, x.base.base.loc);
+                symtab = get_dt_symtab(parent);
                 result = symtab_in_scope(symtab, x.m_name);
-                parent = get_parent_type_dt(parent, x.base.base.loc);
+                parent = get_parent_type_dt(parent);
             }
             require(symtab_in_scope(symtab, x.m_name),
-                "SubroutineCall::m_name cannot point outside of its symbol table",
-                x.base.base.loc);
+                "SubroutineCall::m_name cannot point outside of its symbol table");
         } else {
             require(symtab_in_scope(current_symtab, x.m_name),
-                "SubroutineCall::m_name '" + std::string(symbol_name(x.m_name)) + "' cannot point outside of its symbol table",
-                x.base.base.loc);
+                "SubroutineCall::m_name '" + std::string(symbol_name(x.m_name)) + "' cannot point outside of its symbol table");
+            if (check_external) {
+                ASR::symbol_t *s = ASRUtils::symbol_get_past_external(x.m_name);
+                require(ASR::is_a<ASR::Function_t>(*s),
+                    "SubroutineCall::m_name '" + std::string(symbol_name(x.m_name)) + "' must be a Function");
+            }
         }
         function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
         if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) ) {
@@ -491,22 +657,17 @@ public:
         }
     }
 
-    SymbolTable *get_dt_symtab(ASR::symbol_t *dt, const Location &loc) {
-        LFORTRAN_ASSERT(dt)
+    SymbolTable *get_dt_symtab(ASR::symbol_t *dt) {
+        LCOMPILERS_ASSERT(dt)
         SymbolTable *symtab = ASRUtils::symbol_symtab(ASRUtils::symbol_get_past_external(dt));
-        require(symtab,
+        require_impl(symtab,
             "m_dt::m_v::m_type::class/derived_type must point to a symbol with a symbol table",
-            loc);
+            dt->base.loc);
         return symtab;
     }
 
-    SymbolTable *get_dt_symtab(ASR::expr_t *dt, const Location &loc) {
-        require(ASR::is_a<ASR::Var_t>(*dt),
-            "m_dt must point to a Var",
-            loc);
-        ASR::Var_t *var = ASR::down_cast<ASR::Var_t>(dt);
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var->m_v);
-        ASR::ttype_t *t2 = ASRUtils::type_get_past_pointer(v->m_type);
+    SymbolTable *get_dt_symtab(ASR::expr_t *dt) {
+        ASR::ttype_t *t2 = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(dt));
         ASR::symbol_t *type_sym=nullptr;
         switch (t2->type) {
             case (ASR::ttypeType::Struct): {
@@ -518,14 +679,14 @@ public:
                 break;
             }
             default :
-                require(false,
+                require_impl(false,
                     "m_dt::m_v::m_type must point to a type with a symbol table (Struct or Class)",
-                    loc);
+                    dt->base.loc);
         }
-        return get_dt_symtab(type_sym, loc);
+        return get_dt_symtab(type_sym);
     }
 
-    ASR::symbol_t *get_parent_type_dt(ASR::symbol_t *dt, const Location &loc) {
+    ASR::symbol_t *get_parent_type_dt(ASR::symbol_t *dt) {
         ASR::symbol_t *parent = nullptr;
         switch (dt->type) {
             case (ASR::symbolType::StructType): {
@@ -535,20 +696,15 @@ public:
                 break;
             }
             default :
-                require(false,
+                require_impl(false,
                     "m_dt::m_v::m_type must point to a Struct type",
-                    loc);
+                    dt->base.loc);
         }
         return parent;
     }
 
-    ASR::symbol_t *get_parent_type_dt(ASR::expr_t *dt, const Location &loc) {
-        require(ASR::is_a<ASR::Var_t>(*dt),
-            "m_dt must point to a Var",
-            loc);
-        ASR::Var_t *var = ASR::down_cast<ASR::Var_t>(dt);
-        ASR::Variable_t *v = ASR::down_cast<ASR::Variable_t>(var->m_v);
-        ASR::ttype_t *t2 = ASRUtils::type_get_past_pointer(v->m_type);
+    ASR::symbol_t *get_parent_type_dt(ASR::expr_t *dt) {
+        ASR::ttype_t *t2 = ASRUtils::type_get_past_pointer(ASRUtils::expr_type(dt));
         ASR::symbol_t *type_sym=nullptr;
         ASR::symbol_t *parent = nullptr;
         switch (t2->type) {
@@ -569,40 +725,40 @@ public:
                 break;
             }
             default :
-                require(false,
+                require_impl(false,
                     "m_dt::m_v::m_type must point to a Struct type",
-                    loc);
+                    dt->base.loc);
         }
         return parent;
     }
 
+    void visit_PointerNullConstant(const PointerNullConstant_t& x) {
+        require(x.m_type != nullptr, "null() must have a type");
+    }
+
     void visit_FunctionCall(const FunctionCall_t &x) {
         require(x.m_name,
-            "FunctionCall::m_name must be present",
-            x.base.base.loc);
+            "FunctionCall::m_name must be present");
         function_dependencies.push_back(std::string(ASRUtils::symbol_name(x.m_name)));
         if( ASR::is_a<ASR::ExternalSymbol_t>(*x.m_name) ) {
             ASR::ExternalSymbol_t* x_m_name = ASR::down_cast<ASR::ExternalSymbol_t>(x.m_name);
             module_dependencies.push_back(std::string(x_m_name->m_module_name));
         }
         if (x.m_dt) {
-            SymbolTable *symtab = get_dt_symtab(x.m_dt, x.base.base.loc);
+            SymbolTable *symtab = get_dt_symtab(x.m_dt);
             require(symtab_in_scope(symtab, x.m_name),
-                "FunctionCall::m_name cannot point outside of its symbol table",
-                x.base.base.loc);
+                "FunctionCall::m_name cannot point outside of its symbol table");
         } else {
             require(symtab_in_scope(current_symtab, x.m_name),
                 "FunctionCall::m_name `" + std::string(symbol_name(x.m_name)) +
-                "` cannot point outside of its symbol table",
-                x.base.base.loc);
+                "` cannot point outside of its symbol table");
             // Check both `name` and `orig_name` that `orig_name` points
             // to GenericProcedure (if applicable), both external and non
             // external
             if (check_external) {
                 const ASR::symbol_t *fn = ASRUtils::symbol_get_past_external(x.m_name);
                 require(ASR::is_a<ASR::Function_t>(*fn),
-                    "FunctionCall::m_name must be a Function",
-                    x.base.base.loc);
+                    "FunctionCall::m_name must be a Function");
             }
         }
         for (size_t i=0; i<x.n_args; i++) {
@@ -632,10 +788,16 @@ public:
 
 } // namespace ASR
 
-bool asr_verify(const ASR::TranslationUnit_t &unit, bool check_external) {
-    ASR::VerifyVisitor v(check_external);
-    v.visit_TranslationUnit(unit);
+bool asr_verify(const ASR::TranslationUnit_t &unit, bool check_external,
+            diag::Diagnostics &diagnostics) {
+    ASR::VerifyVisitor v(check_external, diagnostics);
+    try {
+        v.visit_TranslationUnit(unit);
+    } catch (const VerifyAbort &) {
+        LCOMPILERS_ASSERT(diagnostics.has_error())
+        return false;
+    }
     return true;
 }
 
-} // namespace LFortran
+} // namespace LCompilers

@@ -8,8 +8,7 @@
 #include <libasr/string_utils.h>
 #include <libasr/containers.h>
 
-namespace LFortran
-{
+namespace LCompilers {
 
 
 bool startswith(const std::string &s, const std::string &e)
@@ -131,4 +130,4 @@ std::string join_paths(const std::vector<std::string> &paths) {
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

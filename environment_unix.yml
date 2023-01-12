@@ -1,0 +1,17 @@
+name: lp
+channels:
+  - conda-forge
+dependencies:
+  - bison=3.4
+  - cmake
+  - flake8
+  - llvmdev=11.0.1
+  - make
+  - numpy
+  - pip
+  - python=3.10.2
+  - re2c
+  - setuptools
+  - toml
+  - zlib
+  - git

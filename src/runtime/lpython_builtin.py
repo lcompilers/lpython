@@ -44,21 +44,21 @@ def abs(x: f64) -> f64:
 
 @overload
 def abs(x: f32) -> f32:
-    if x >= 0.0:
+    if x >= f32(0.0):
         return x
     else:
         return -x
 
 @overload
 def abs(x: i8) -> i8:
-    if x >= 0:
+    if x >= i8(0):
         return x
     else:
         return -x
 
 @overload
 def abs(x: i16) -> i16:
-    if x >= 0:
+    if x >= i16(0):
         return x
     else:
         return -x
@@ -72,7 +72,7 @@ def abs(x: i32) -> i32:
 
 @overload
 def abs(x: i64) -> i64:
-    if x >= 0:
+    if x >= i64(0):
         return x
     else:
         return -x
@@ -88,21 +88,17 @@ def abs(b: bool) -> i32:
 def abs(c: c32) -> f32:
     a: f32
     b: f32
-    result: f32
     a = c.real
     b = _lfortran_caimag(c)
-    result = (a**2 + b**2)**(1/2)
-    return result
+    return f32((a**f32(2) + b**f32(2))**f32(1/2))
 
 @overload
 def abs(c: c64) -> f64:
     a: f64
     b: f64
-    result: f64
     a = c.real
     b = _lfortran_zaimag(c)
-    result = (a**2 + b**2)**(1/2)
-    return result
+    return (a**2.0 + b**2.0)**(1/2)
 
 @interface
 def len(s: str) -> i32:
@@ -117,15 +113,15 @@ def len(s: str) -> i32:
 #: (f32, f32), (i32, f64), (f64, i32),
 #: (i32, f32), (f32, i32), (bool, bool), (c32, i32)
 @overload
-def pow(x: i32, y: i32) -> i32:
+def pow(x: i32, y: i32) -> f64:
     """
     Returns x**y.
     """
-    return x**y
+    return f64(x**y)
 
 @overload
-def pow(x: i64, y: i64) -> i64:
-    return x**y
+def pow(x: i64, y: i64) -> f64:
+    return f64(x**y)
 
 @overload
 def pow(x: f32, y: f32) -> f32:
@@ -140,19 +136,19 @@ def pow(x: f64, y: f64) -> f64:
 
 @overload
 def pow(x: i32, y: f32) -> f32:
-    return x**y
+    return f32(x)**y
 
 @overload
 def pow(x: f32, y: i32) -> f32:
-    return x**y
+    return x**f32(y)
 
 @overload
 def pow(x: i32, y: f64) -> f64:
-    return x**y
+    return f64(x)**y
 
 @overload
 def pow(x: f64, y: i32) -> f64:
-    return x**y
+    return x**f64(y)
 
 @overload
 def pow(x: bool, y: bool) -> i32:
@@ -163,7 +159,7 @@ def pow(x: bool, y: bool) -> i32:
 
 @overload
 def pow(c: c32, y: i32) -> c32:
-    return c**y
+    return c**c32(y)
 
 
 def bin(n: i32) -> str:
@@ -250,9 +246,9 @@ def round(value: f64) -> i32:
     Rounds a floating point number to the nearest integer.
     """
     i: i32
-    i = int(value)
+    i = i32(value)
     f: f64
-    f = abs(value - i)
+    f = abs(value - f64(i))
     if f < 0.5:
         return i
     elif f > 0.5:
@@ -266,9 +262,9 @@ def round(value: f64) -> i32:
 @overload
 def round(value: f32) -> i32:
     i: i32
-    i = int(value)
+    i = i32(value)
     f: f64
-    f = abs(value - i)
+    f = f64(abs(value - f32(i)))
     if f < 0.5:
         return i
     elif f > 0.5:
@@ -308,32 +304,28 @@ def round(b: bool) -> i32:
 @interface
 @overload
 def complex() -> c64:
-    return 0 + 0*1j
+    return c64(0) + c64(0)*1j
 
 
 @interface
 @overload
 def complex(x: f64) -> c64:
-    return x + 0*1j
+    return c64(x) + c64(0)*1j
 
 @interface
 @overload
 def complex(x: i32) -> c32:
-    result: c32
-    result = x + 0*1j
-    return result
+    return c32(x) + c32(0)*1j
 
 @interface
 @overload
 def complex(x: f32) -> c32:
-    result: c32
-    result = x + 0*1j
-    return result
+    return c32(x) + c32(0)*1j
 
 @interface
 @overload
 def complex(x: i64) -> c64:
-    return x + 0*1j
+    return c64(x) + c64(0)*1j
 
 @interface
 @overload
@@ -341,54 +333,52 @@ def complex(x: f64, y: f64) -> c64:
     """
     Return a complex number with the given real and imaginary parts.
     """
-    return x + y*1j
+    return c64(x) + c64(y)*1j
 
 @interface
 @overload
 def complex(x: f32, y: f32) -> c32:
-    result: c32
-    result = x + y*1j
-    return result
+    return c32(x) + c32(y)*c32(1j)
 
 @interface
 @overload
 def complex(x: f32, y: f64) -> c64:
-    return x + y*1j
+    return c64(x) + c64(y)*1j
 
 @interface
 @overload
 def complex(x: f64, y: f32) -> c64:
-    return x + y*1j
+    return c64(x) + c64(y)*1j
 
 @interface
 @overload
 def complex(x: i32, y: i32) -> c64:
-    return x + y*1j
+    return c64(x) + c64(y)*1j
 
 @interface
 @overload
 def complex(x: i64, y: i64) -> c64:
-    return x + y*1j
+    return c64(x) + c64(y)*1j
 
 @interface
 @overload
 def complex(x: i32, y: i64) -> c64:
-    return x + y*1j
+    return c64(x) + c64(y)*1j
 
 @interface
 @overload
 def complex(x: i64, y: i32) -> c64:
-    return x + y*1j
+    return c64(x) + c64(y)*1j
 
 @interface
 @overload
 def complex(x: i32, y: f64) -> c64:
-    return x + y*1j
+    return c64(x) + c64(y)*1j
 
 @interface
 @overload
 def complex(x: f64, y: i32) -> c64:
-    return x + y*1j
+    return c64(x) + c64(y)*1j
 
 @interface
 def divmod(x: i32, y: i32) -> tuple[i32, i32]:
@@ -433,9 +423,9 @@ def _lpython_floordiv(a: f64, b: f64) -> f64:
     r = a/b
     result: i64
     result = int(r)
-    if r >= 0.0 or result == r:
+    if r >= 0.0 or f64(result) == r:
         return float(result)
-    return float(result-1)
+    return float(result - i64(1))
 
 
 @overload
@@ -444,11 +434,11 @@ def _lpython_floordiv(a: f32, b: f32) -> f32:
     r = float(a)/float(b)
     result: i32
     resultf32: f32
-    result = int(r)
-    if r >= 0.0 or result == r:
-        resultf32 = 1.0 * result
+    result = i32(r)
+    if r >= 0.0 or f64(result) == r:
+        resultf32 = f32(1.0) * f32(result)
     else:
-        resultf32 = 1.0 * result-1
+        resultf32 = f32(1.0) * f32(result) - f32(1.0)
     return resultf32
 
 @overload
@@ -456,8 +446,8 @@ def _lpython_floordiv(a: i32, b: i32) -> i32:
     r: f64 # f32 rounds things up and gives incorrect results
     r = float(a)/float(b)
     result: i32
-    result = int(r)
-    if r >= 0.0 or result == r:
+    result = i32(r)
+    if r >= 0.0 or f64(result) == r:
         return result
     return result - 1
 
@@ -467,9 +457,15 @@ def _lpython_floordiv(a: i64, b: i64) -> i64:
     r = a/b
     result: i64
     result = int(r)
-    if r >= 0.0 or result == r:
+    if r >= 0.0 or f64(result) == r:
         return result
-    return result - 1
+    return result - i64(1)
+
+@overload
+def _lpython_floordiv(a: bool, b: bool) -> bool:
+    if b == False:
+        raise ValueError('Denominator cannot be False or 0.')
+    return a
 
 
 @overload
@@ -558,15 +554,15 @@ def min(a: f64, b: f64) -> f64:
 def _floor(x: f64) -> i64:
     r: i64
     r = int(x)
-    if x >= 0 or x == r:
+    if x >= f64(0) or x == f64(r):
         return r
-    return r - 1
+    return r - i64(1)
 
 @overload
 def _floor(x: f32) -> i32:
     r: i32
-    r = int(x)
-    if x >= 0 or x == r:
+    r = i32(x)
+    if x >= f32(0) or x == f32(r):
         return r
     return r - 1
 
@@ -576,9 +572,7 @@ def _mod(a: i32, b: i32) -> i32:
     """
     Returns a%b
     """
-    r: i32
-    r = _floor(a/b)
-    return a - r*b
+    return a - i32(_floor(a/b))*b
 
 
 @overload
@@ -608,7 +602,7 @@ def pow(x: i64, y: i64, z: i64) -> i64:
     """
     Return `x` raised to the power `y`.
     """
-    if y < 0:
+    if y < i64(0):
         raise ValueError('y should be nonnegative')
     result: i64
     result = _mod(x**y, z)
@@ -641,7 +635,7 @@ def _lpython_str_lower(x: str) -> str:
 def _lpython_str_find(s: str, sub: str) -> i32:
     s_len :i32; sub_len :i32; flag: bool; _len: i32;
     res: i32; i: i32;
-    lps: list[i32]
+    lps: list[i32] = []
     s_len = len(s)
     sub_len = len(sub)
     flag = False
@@ -735,9 +729,10 @@ def _lpython_str_startswith(s: str ,sub: str) -> bool:
 
 
 def list(s: str) -> list[str]:
-    l: list[str]
-    l = []
+    l: list[str] = []
     i: i32
+    if len(s) == 0:
+        return l
     for i in range(len(s)):
         l.append(s[i])
     return l

@@ -36,7 +36,7 @@ def arange(n: i32) -> i64[n]:
     A = empty(n, dtype=int64)
     i: i32
     for i in range(n):
-        A[i] = i
+        A[i] = i64(i)
     return A
 
 #: sqrt() as a generic procedure.
@@ -44,16 +44,16 @@ def arange(n: i32) -> i64[n]:
 #: i32, i64, f32, f64, bool
 @overload
 def sqrt(n: i32) -> f64:
-    return n**(1/2)
+    return f64(n)**(1/2)
 
 @overload
 def sqrt(n: i64) -> f64:
-    return n**(1/2)
+    return f64(n)**(1/2)
 
 @overload
 def sqrt(f: f32) -> f32:
     half: f32
-    half = 1/2
+    half = f32(1/2)
     return f**half
 
 @overload
@@ -72,16 +72,16 @@ def sqrt(b: bool) -> f64:
 #: i32, i64, f32, f64, bool
 @overload
 def exp(n: i32) -> f64:
-    return e**n
+    return e**f64(n)
 
 @overload
 def exp(n: i64) -> f64:
-    return e**n
+    return e**f64(n)
 
 @overload
 def exp(f: f32) -> f32:
     ef32: f32
-    ef32 = e
+    ef32 = f32(e)
     return ef32**f
 
 @overload
@@ -101,18 +101,18 @@ def exp(b: bool) -> f64:
 @overload
 def fabs(n: i32) -> f64:
     if n < 0:
-        return -1.0*n
-    return 1.0*n
+        return -f64(n)
+    return f64(n)
 
 @overload
 def fabs(n: i64) -> f64:
-    if n < 0:
-        return -1.0*n
-    return 1.0*n
+    if n < i64(0):
+        return -f64(n)
+    return f64(n)
 
 @overload
 def fabs(f: f32) -> f32:
-    if f < 0.0:
+    if f < f32(0.0):
         return -f
     return f
 
@@ -133,7 +133,7 @@ def linspace(start: f64, stop: f64, num: i32) -> f64[num]:
     A = empty(num)
     i: i32
     for i in range(num):
-        A[i] = start + (stop-start)*i/(num-1)
+        A[i] = start + (stop-start)*f64(i)/f64(num-1)
     return A
 
 #------------------------------
@@ -149,19 +149,19 @@ def sign(x: i32) -> i32:
 @overload
 def sign(x: i64) -> i64:
     result: i64
-    if x == 0:
-        result = 0
-    elif x > 0:
-        result = 1
+    if x == i64(0):
+        result = i64(0)
+    elif x > i64(0):
+        result = i64(1)
     else:
-        result = -1
+        result = -i64(1)
     return result
 
 @overload
 def sign(x: f32) -> f32:
     fabsf32: f32
     fabsf32 = fabs(x)
-    return x/fabsf32
+    return f32(x/fabsf32)
 
 @overload
 def sign(x: f64) -> f64:
@@ -202,7 +202,7 @@ def real(b: bool) -> i32:
 #------------------------------
 @overload
 def imag(c: c32) -> f32:
-    return c.imag
+    return f32(c.imag)
 
 @overload
 def imag(c: c64) -> f64:
@@ -214,15 +214,11 @@ def imag(x: i32) -> i32:
 
 @overload
 def imag(x: i64) -> i64:
-    result: i64
-    result = 0
-    return result
+    return i64(0)
 
 @overload
 def imag(f: f32) -> f32:
-    result: f32
-    result = 0.0
-    return result
+    return f32(0.0)
 
 @overload
 def imag(f: f64) -> f64:
@@ -252,10 +248,10 @@ def test_ones():
 def test_arange():
     a: i64[4]
     a = arange(4)
-    assert a[0] == 0
-    assert a[1] == 1
-    assert a[2] == 2
-    assert a[3] == 3
+    assert a[0] == i64(0)
+    assert a[1] == i64(1)
+    assert a[2] == i64(2)
+    assert a[3] == i64(3)
 
 def test_sqrt():
     a: f64
@@ -267,13 +263,13 @@ def test_sqrt():
     assert abs(sqrt(False) - 0.0) < eps
 
     i: i64
-    i = 4
+    i = i64(4)
     a = sqrt(i)
-    assert abs(a - 2.0) < eps
+    assert abs(f64(a) - 2.0) < eps
 
     f: f32
-    f = 4.0
-    assert abs(sqrt(f) - 2.0) < eps
+    f = f32(4.0)
+    assert abs(f64(sqrt(f)) - 2.0) < eps
 
 def test_exp():
     a: f64
@@ -286,12 +282,12 @@ def test_exp():
     assert abs(exp(True) - 2.719) < eps
 
     i: i64
-    i = 4
+    i = i64(4)
     a = exp(i)
     assert abs(a - 54.598150033144236) < eps
 
     f: f32
-    f = -4.0
+    f = -f32(4.0)
     print(exp(f))
 
 def test_fabs():
@@ -304,13 +300,13 @@ def test_fabs():
     assert abs(fabs(True) - 1.0) < eps
 
     i: i64
-    i = -4
+    i = -i64(4)
     a = fabs(i)
     assert abs(a - 4.0) < eps
 
     f: f32
-    f = -4.0
-    assert abs(fabs(f) - 4.0) < eps
+    f = -f32(4.0)
+    assert abs(f64(fabs(f)) - 4.0) < eps
 
 def test_linspace():
     a: f64[4]
@@ -327,14 +323,14 @@ def test_sign():
     assert sign(0) == 0
 
     f: f32
-    f = -3.0
-    assert sign(f) == -1.0
-    f = 235.4142135623730951
-    assert sign(f) == 1.0
+    f = -f32(3.0)
+    assert sign(f) == -f32(1.0)
+    f = f32(235.4142135623730951)
+    assert sign(f) == f32(1.0)
 
     a2: i64
-    a2 = sign(3)
-    assert a2 == 1
+    a2 = sign(i64(3))
+    assert a2 == i64(1)
 
     f2: f64
     f2 = -3.0
@@ -342,8 +338,8 @@ def test_sign():
 
 def test_real():
     c: c32
-    c = 4 + 3j
-    assert abs(real(c) - 4.0) < eps
+    c = c32(4) + 3j
+    assert abs(f64(real(c)) - 4.0) < eps
 
     c2: c64
     c2 = complex(5, -6)
@@ -354,8 +350,8 @@ def test_real():
     assert real(i) == 4
 
     i2: i64
-    i2 = -4
-    assert real(i2) == -4
+    i2 = -i64(4)
+    assert real(i2) == -i64(4)
 
     f: f64
     f = 534.6475
@@ -364,20 +360,20 @@ def test_real():
 
 def test_imag():
     c: c32
-    c = 4 + 3j
-    assert abs(imag(c) - 3.0) < eps
+    c = c32(4) + 3j
+    assert abs(f64(imag(c)) - 3.0) < eps
 
     c2: c64
     c2 = complex(5, -6)
-    assert abs(imag(c2) - -6.0) < eps
+    assert abs(f64(imag(c2)) - -6.0) < eps
 
     i: i32
     i = 4
     assert imag(i) == 0
 
     i2: i64
-    i2 = -4
-    assert imag(i2) == 0
+    i2 = -i64(4)
+    assert imag(i2) == i64(0)
 
     f: f64
     f = 534.6475

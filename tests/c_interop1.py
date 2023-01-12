@@ -22,9 +22,9 @@ def main0():
     x = 5.0
     i = f(x)
     y: f32
-    y = 5.4
+    y = f32(5.4)
     z: i64
-    z = 3
+    z = i64(3)
     zz: i32
     zz = 2
     g(x, y, z, zz)

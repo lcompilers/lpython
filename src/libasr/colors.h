@@ -1,7 +1,7 @@
 #ifndef LFORTRAN_COLORS_H
 #define LFORTRAN_COLORS_H
 
-namespace LFortran {
+namespace LCompilers {
 
 enum class style {
     reset     = 0,
@@ -70,6 +70,6 @@ std::string color(T const value)
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers
 
 #endif // LFORTRAN_COLORS_H

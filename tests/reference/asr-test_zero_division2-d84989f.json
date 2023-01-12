@@ -1,0 +1,13 @@
+{
+    "basename": "asr-test_zero_division2-d84989f",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/errors/test_zero_division2.py",
+    "infile_hash": "0ddca188fc2e8d665c5af0d438e34ed8afe255611320caa3a27ed483",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_zero_division2-d84989f.stderr",
+    "stderr_hash": "09fcb9f6244ddf2c2d14cd76ec91274cffd240e24e2b2f1c0697c8b5",
+    "returncode": 2
+}

@@ -5,7 +5,7 @@
 
 #include <libasr/alloc.h>
 
-namespace LFortran  {
+namespace LCompilers  {
 
 namespace ASR {
     struct asr_t;
@@ -65,6 +65,7 @@ struct SymbolTable {
 
     void erase_symbol(const std::string &name) {
         //auto it = scope.find(to_lower(name));
+        LCOMPILERS_ASSERT(scope.find(name) != scope.end())
         scope.erase(name);
     }
 
@@ -81,6 +82,6 @@ struct SymbolTable {
     std::string get_unique_name(const std::string &name);
 };
 
-} // namespace LFortran
+} // namespace LCompilers
 
 #endif // LFORTRAN_SEMANTICS_ASR_SCOPES_H

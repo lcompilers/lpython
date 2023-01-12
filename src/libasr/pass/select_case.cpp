@@ -7,7 +7,7 @@
 #include <libasr/pass/select_case.h>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 using ASR::is_a;
@@ -172,8 +172,7 @@ void pass_replace_select_case(Allocator &al, ASR::TranslationUnit_t &unit,
     // to transform doubly nested loops:
     v.visit_TranslationUnit(unit);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

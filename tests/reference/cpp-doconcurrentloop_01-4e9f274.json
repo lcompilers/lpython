@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-doconcurrentloop_01-4e9f274",
+    "cmd": "lpython --no-color --show-cpp {infile}",
+    "infile": "tests/doconcurrentloop_01.py",
+    "infile_hash": "dc0022671a9fa7b620378903a700dd8c4390297cacb1aca2b904069d",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-doconcurrentloop_01-4e9f274.stdout",
+    "stdout_hash": "b01128b49ef0e395e4398f5aa360c654c67d396e038777e3a7986ab1",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

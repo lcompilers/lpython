@@ -10,7 +10,7 @@ T = TypeVar('T')
 @restriction
 def add(x: T, y: T) -> T:
     pass
-    
+
 def g(n: i32, m: i32, a: T[n,m], b: T[n,m]) -> T[n,m]:
     r: T[n,m]
     r = empty([n,m])
@@ -20,16 +20,16 @@ def g(n: i32, m: i32, a: T[n,m], b: T[n,m]) -> T[n,m]:
       for j in range(m):
         r[i,j] = add(a[i,j],b[i,j])
     print(r[0,0])
-    
+
 def main():
     a_int: i32[1,1] = empty([1,1])
     a_int[0,0] = 400
     b_int: i32[1,1] = empty([1,1])
     b_int[0,0] = 20
     g(1, 1, a_int, b_int)
-    a_float: f32[1,1] = empty([1,1])
+    a_float: f64[1,1] = empty([1,1])
     a_float[0,0] = 400.0
-    b_float: f32[1,1] = empty([1,1])
+    b_float: f64[1,1] = empty([1,1])
     b_float[0,0] = 20.0
     g(1, 1, a_float, b_float)
 

@@ -11,7 +11,7 @@
 #include <utility>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 using ASR::is_a;
@@ -290,18 +290,19 @@ public:
                     success = false;
                     break;
                 }
+                ASR::ttype_t* local_var_type = func_var->m_type;
                 ASR::symbol_t* local_var = (ASR::symbol_t*) ASR::make_Variable_t(
                                                 al, func_var->base.base.loc, current_scope,
-                                                s2c(al, local_var_name), ASR::intentType::Local,
+                                                s2c(al, local_var_name), nullptr, 0, ASR::intentType::Local,
                                                 nullptr, nullptr, ASR::storage_typeType::Default,
-                                                func_var->m_type, ASR::abiType::Source, ASR::accessType::Public,
+                                                local_var_type, ASR::abiType::Source, ASR::accessType::Public,
                                                 ASR::presenceType::Required, false);
                 current_scope->add_symbol(local_var_name, local_var);
                 arg2value[func_var_name] = local_var;
-                if( m_symbolic_value ) {
+                if( m_symbolic_value && !ASR::is_a<ASR::Const_t>(*local_var_type) ) {
                     exprs_to_be_visited.push_back(std::make_pair(m_symbolic_value, local_var));
                 }
-                if( m_value ) {
+                if( m_value && !ASR::is_a<ASR::Const_t>(*local_var_type) ) {
                     exprs_to_be_visited.push_back(std::make_pair(m_value, local_var));
                 }
             }
@@ -320,7 +321,7 @@ public:
                 break;
             }
             ASR::symbol_t* variable = exprs_to_be_visited[i].second;
-            ASR::expr_t* var = LFortran::ASRUtils::EXPR(ASR::make_Var_t(al, variable->base.loc, variable));
+            ASR::expr_t* var = ASRUtils::EXPR(ASR::make_Var_t(al, variable->base.loc, variable));
             ASR::stmt_t* assign_stmt = ASRUtils::STMT(ASR::make_Assignment_t(al, var->base.loc, var, value, nullptr));
             pass_result_local.push_back(al, assign_stmt);
         }
@@ -462,8 +463,7 @@ void pass_inline_function_calls(Allocator &al, ASR::TranslationUnit_t &unit,
     v.visit_TranslationUnit(unit);
     PassUtils::UpdateDependenciesVisitor u(al);
     u.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

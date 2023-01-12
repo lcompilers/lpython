@@ -10,7 +10,7 @@
 #include <utility>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 
@@ -25,16 +25,16 @@ private:
 
     Allocator& al;
     ASR::TranslationUnit_t &unit;
-    ASR::symbol_t* &list_concat_func_name;
-    ASR::symbol_t* &list_section_func_name;
+    std::map<std::string, ASR::symbol_t*> &list_concat_func_map;
+    std::map<std::string, ASR::symbol_t*> &list_section_func_map;
 
 public:
     ListExprReplacer(Allocator &al_, ASR::TranslationUnit_t &unit_,
-                      ASR::symbol_t* &list_concat_func_name_,
-                      ASR::symbol_t* &list_section_func_name_) :
+                      std::map<std::string, ASR::symbol_t*> &list_concat_func_map_,
+                      std::map<std::string, ASR::symbol_t*> &list_section_func_map_) :
         al(al_), unit(unit_),
-        list_concat_func_name(list_concat_func_name_),
-        list_section_func_name(list_section_func_name_)
+        list_concat_func_map(list_concat_func_map_),
+        list_section_func_map(list_section_func_map_)
         { }
 
     void create_while_loop(Location &loc, SymbolTable* symtab,
@@ -52,8 +52,33 @@ public:
             al, loc, 4, nullptr, 0));
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(
             al, loc, 4, nullptr, 0));
-        ASR::expr_t* loop_test = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
-            al, loc, end, ASR::cmpopType::Gt, idx_vars[0], bool_type, nullptr));
+        ASR::expr_t *const_zero = ASRUtils::EXPR(
+                    ASR::make_IntegerConstant_t(al, loc, 0, int_type));
+
+        ASR::expr_t* loop_test_1 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
+            al, loc, step, ASR::cmpopType::Gt, const_zero, bool_type, nullptr));
+        ASR::expr_t* loop_test_2 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
+            al, loc, idx_vars[0], ASR::cmpopType::GtE, start, bool_type, nullptr));
+        ASR::expr_t* loop_test_3 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
+            al, loc, idx_vars[0], ASR::cmpopType::Lt, end, bool_type, nullptr));
+        ASR::expr_t *loop_test_11 = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al,
+                loc, loop_test_1, ASR::logicalbinopType::And, loop_test_2, bool_type, nullptr));
+        loop_test_11 = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al,
+                loc, loop_test_11, ASR::logicalbinopType::And, loop_test_3, bool_type, nullptr));
+
+        ASR::expr_t* loop_test_4 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
+            al, loc, step, ASR::cmpopType::Lt, const_zero, bool_type, nullptr));
+        ASR::expr_t* loop_test_5 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
+            al, loc, idx_vars[0], ASR::cmpopType::LtE, start, bool_type, nullptr));
+        ASR::expr_t* loop_test_6 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
+            al, loc, idx_vars[0], ASR::cmpopType::Gt, end, bool_type, nullptr));
+        ASR::expr_t *loop_test_22 = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al,
+                loc, loop_test_4, ASR::logicalbinopType::And, loop_test_5, bool_type, nullptr));
+        loop_test_22 = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al,
+                loc, loop_test_22, ASR::logicalbinopType::And, loop_test_6, bool_type, nullptr));
+
+        ASR::expr_t *loop_test = ASRUtils::EXPR(ASR::make_LogicalBinOp_t(al,
+                loc, loop_test_11, ASR::logicalbinopType::Or, loop_test_22, bool_type, nullptr));
 
         Vec<ASR::stmt_t*> loop_body;
         loop_body.reserve(al, 2);
@@ -76,7 +101,7 @@ public:
     #define create_args(x, type, symtab) { \
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>( \
             ASR::make_Variable_t(al, loc, symtab, \
-            s2c(al, x), ASR::intentType::In, nullptr, nullptr, \
+            s2c(al, x), nullptr, 0, ASR::intentType::In, nullptr, nullptr, \
             ASR::storage_typeType::Default, type, \
             ASR::abiType::Source, ASR::accessType::Public, \
             ASR::presenceType::Required, false)); \
@@ -85,23 +110,50 @@ public:
         symtab->add_symbol(x, arg); \
     }
 
-    ASR::symbol_t* create_list_section_func(Location& loc,
+    void create_list_section_func(Location& loc,
                 SymbolTable*& global_scope, ASR::ttype_t* list_type) {
         /*
             def _lcompilers_list_section(a_list: list[i32], start: i32,
-                    end: i32, step: i32) -> list[i32]:
+                    end: i32, step: i32, is_start_present: bool,
+                    is_end_present: bool): -> list[i32]:
                 result_list: list[i32]
                 result_list = []
-                if (end > len(a_list)):
-                    end = len(a_list)
+
+                a_len = len(a)
+                if start < 0:
+                    start += a_len
+                if end < 0:
+                    end += a_len
+
+                if not is_start_present:
+                    if step > 0:
+                        start = 0
+                    else:
+                        start = a_len - 1
+
+                if not is_end_present:
+                    if step > 0:
+                        end = a_len
+                    else:
+                        end = -1
+
+                if step > 0:
+                    if end > a_len:
+                        end = a_len
+                else:
+                    if start >= a_len:
+                        start = a_len - 1
                 __1_k: i32 = start
-                while end > __1_k:
+                while ((step > 0 and __1_k >= start and __1_k < end) or
+                    (step < 0 and __1_k <= start and __1_k > end)):
                     result_list.append(a_list[__1_k])
                     __1_k = __1_k + step
                 return result_list
         */
+
         SymbolTable* list_section_symtab = al.make_new<SymbolTable>(global_scope);
-        std::string fn_name = global_scope->get_unique_name("_lcompilers_list_section");
+        std::string list_type_name = ASRUtils::type_to_str_python(list_type);
+        std::string fn_name = global_scope->get_unique_name("_lcompilers_list_section_" + list_type_name);
         ASR::ttype_t* item_type = ASR::down_cast<ASR::List_t>(list_type)->m_type;
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(
             al, loc, 4, nullptr, 0));
@@ -116,14 +168,16 @@ public:
 
         // Declare `a_list`, `start`, `end` and `step`
         create_args("a_list", list_type, list_section_symtab)
-        create_args("start", item_type, list_section_symtab)
-        create_args("end", item_type, list_section_symtab)
-        create_args("step", item_type, list_section_symtab)
+        create_args("start", int_type, list_section_symtab)
+        create_args("end", int_type, list_section_symtab)
+        create_args("step", int_type, list_section_symtab)
+        create_args("is_start_present", bool_type, list_section_symtab)
+        create_args("is_end_present", bool_type, list_section_symtab)
 
         // Declare `result_list`
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(
             ASR::make_Variable_t(al, loc, list_section_symtab,
-            s2c(al, "result_list"), ASR::intentType::Local, nullptr, nullptr,
+            s2c(al, "result_list"), nullptr, 0, ASR::intentType::Local, nullptr, nullptr,
             ASR::storage_typeType::Default, list_type,
             ASR::abiType::Source, ASR::accessType::Public,
             ASR::presenceType::Required, false));
@@ -138,22 +192,120 @@ public:
             al, loc, res_list, value, nullptr));
         body.push_back(al, list_section_stmt);
 
-        // If statement
+        ASR::expr_t *a_len = ASRUtils::EXPR(ASR::make_ListLen_t(
+                            al, loc, arg_exprs[0], int_type, nullptr));
+        ASR::expr_t *const_one = ASRUtils::EXPR(
+                    ASR::make_IntegerConstant_t(al, loc, 1, int_type));
+        ASR::expr_t *const_zero = ASRUtils::EXPR(
+                    ASR::make_IntegerConstant_t(al, loc, 0, int_type));
+        ASR::expr_t *a_len_1 = ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al,
+                    loc, a_len, ASR::binopType::Sub, const_one, int_type, nullptr));
+        ASR::expr_t *minus_one = ASRUtils::EXPR(
+                    ASR::make_IntegerConstant_t(al, loc, -1, int_type));
+
+        for (int i=1; i<3; i++)
         {
             ASR::expr_t* a_test = ASRUtils::EXPR(ASR::make_IntegerCompare_t(
-                al, loc, arg_exprs[2], ASR::cmpopType::Gt, ASRUtils::EXPR(
-                    ASR::make_ListLen_t(al, loc, arg_exprs[0], int_type, nullptr)),
+                al, loc, arg_exprs[i], ASR::cmpopType::Lt, const_zero,
                 bool_type, nullptr));
 
             Vec<ASR::stmt_t*> if_body;
             if_body.reserve(al, 1);
             ASR::stmt_t* if_body_stmt = ASRUtils::STMT(ASR::make_Assignment_t(
-                al, loc, arg_exprs[2], ASRUtils::EXPR(ASR::make_ListLen_t(
-                    al, loc, arg_exprs[0], int_type, nullptr)), nullptr));
+                al, loc, arg_exprs[i], ASRUtils::EXPR(ASR::make_IntegerBinOp_t(al,
+                loc, arg_exprs[i], ASR::binopType::Add, a_len,
+                int_type, nullptr)), nullptr));
             if_body.push_back(al, if_body_stmt);
 
             list_section_stmt = ASRUtils::STMT(ASR::make_If_t(al, loc, a_test,
                 if_body.p, if_body.n, nullptr, 0));
+            body.push_back(al, list_section_stmt);
+        }
+
+        // If statement
+        {
+            ASR::expr_t* a_test = ASRUtils::EXPR(ASR::make_LogicalNot_t(al,
+                loc, arg_exprs[4], bool_type, nullptr));
+
+            Vec<ASR::stmt_t*> if_body, if_body_1, else_body_1;
+            if_body_1.reserve(al, 1);
+            if_body.reserve(al, 1);
+            else_body_1.reserve(al, 1);
+            ASR::expr_t* a_test_1 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc,
+                    arg_exprs[3], ASR::cmpopType::Gt, const_zero, bool_type, nullptr));
+            ASR::stmt_t* if_body_stmt_1 = ASRUtils::STMT(ASR::make_Assignment_t(
+                al, loc, arg_exprs[1], const_zero, nullptr));
+            if_body_1.push_back(al, if_body_stmt_1);
+
+            ASR::stmt_t* else_body_stmt_1 = ASRUtils::STMT(ASR::make_Assignment_t(
+                al, loc, arg_exprs[1], a_len_1, nullptr));
+            else_body_1.push_back(al, else_body_stmt_1);
+
+            list_section_stmt = ASRUtils::STMT(ASR::make_If_t(al, loc, a_test_1,
+                if_body_1.p, if_body_1.n, else_body_1.p, else_body_1.n));
+            if_body.push_back(al, list_section_stmt);
+            list_section_stmt = ASRUtils::STMT(ASR::make_If_t(al, loc, a_test,
+                if_body.p, if_body.n, nullptr, 0));
+            body.push_back(al, list_section_stmt);
+        }
+
+        // If statement
+        {
+            ASR::expr_t* a_test = ASRUtils::EXPR(ASR::make_LogicalNot_t(al,
+                loc, arg_exprs[5], bool_type, nullptr));
+
+            Vec<ASR::stmt_t*> if_body, if_body_1, else_body_1;
+            if_body_1.reserve(al, 1);
+            if_body.reserve(al, 1);
+            else_body_1.reserve(al, 1);
+            ASR::expr_t* a_test_1 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc,
+                    arg_exprs[3], ASR::cmpopType::Gt, const_zero, bool_type, nullptr));
+            ASR::stmt_t* if_body_stmt_1 = ASRUtils::STMT(ASR::make_Assignment_t(
+                al, loc, arg_exprs[2], a_len, nullptr));
+            if_body_1.push_back(al, if_body_stmt_1);
+
+            ASR::stmt_t* else_body_stmt_1 = ASRUtils::STMT(ASR::make_Assignment_t(
+                al, loc, arg_exprs[2], minus_one, nullptr));
+            else_body_1.push_back(al, else_body_stmt_1);
+
+            list_section_stmt = ASRUtils::STMT(ASR::make_If_t(al, loc, a_test_1,
+                if_body_1.p, if_body_1.n, else_body_1.p, else_body_1.n));
+            if_body.push_back(al, list_section_stmt);
+            list_section_stmt = ASRUtils::STMT(ASR::make_If_t(al, loc, a_test,
+                if_body.p, if_body.n, nullptr, 0));
+            body.push_back(al, list_section_stmt);
+        }
+
+        // If statement
+        {
+            ASR::expr_t* a_test = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc,
+                    arg_exprs[3], ASR::cmpopType::Gt, const_zero, bool_type, nullptr));
+
+            Vec<ASR::stmt_t*> if_body, if_body_1, else_body, if_body_2;
+            if_body_1.reserve(al, 1);
+            if_body_2.reserve(al, 1);
+            if_body.reserve(al, 1);
+            else_body.reserve(al, 1);
+            ASR::expr_t* a_test_1 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc,
+                    arg_exprs[2], ASR::cmpopType::Gt, a_len, bool_type, nullptr));
+            ASR::stmt_t* if_body_stmt_1 = ASRUtils::STMT(ASR::make_Assignment_t(
+                al, loc, arg_exprs[2], a_len, nullptr));
+            if_body_1.push_back(al, if_body_stmt_1);
+            list_section_stmt = ASRUtils::STMT(ASR::make_If_t(al, loc, a_test_1,
+                if_body_1.p, if_body_1.n, nullptr, 0));
+            if_body.push_back(al, list_section_stmt);
+
+            ASR::expr_t* a_test_2 = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, loc,
+                    arg_exprs[1], ASR::cmpopType::GtE, a_len, bool_type, nullptr));
+            ASR::stmt_t* if_body_stmt_2 = ASRUtils::STMT(ASR::make_Assignment_t(
+                al, loc, arg_exprs[1], a_len_1, nullptr));
+            if_body_2.push_back(al, if_body_stmt_2);
+            list_section_stmt = ASRUtils::STMT(ASR::make_If_t(al, loc, a_test_2,
+                if_body_2.p, if_body_2.n, nullptr, 0));
+            else_body.push_back(al, list_section_stmt);
+
+            list_section_stmt = ASRUtils::STMT(ASR::make_If_t(al, loc, a_test,
+                if_body.p, if_body.n, else_body.p, else_body.n));
             body.push_back(al, list_section_stmt);
         }
 
@@ -184,8 +336,9 @@ public:
             nullptr, 0,
             nullptr, 0,
             false);
-        global_scope->add_symbol(fn_name, down_cast<ASR::symbol_t>(fn));
-        return ASR::down_cast<ASR::symbol_t>(fn);
+        ASR::symbol_t *fn_sym = ASR::down_cast<ASR::symbol_t>(fn);
+        global_scope->add_symbol(fn_name, fn_sym);
+        list_section_func_map[list_type_name] = fn_sym;
     }
 
 /*
@@ -205,28 +358,39 @@ public:
         Location loc = x->base.base.loc;
         ASR::ttype_t* int_type = ASRUtils::TYPE(ASR::make_Integer_t(
             al, loc, 4, nullptr, 0));
+        ASR::ttype_t* bool_type = ASRUtils::TYPE(ASR::make_Logical_t(
+            al, loc, 4, nullptr, 0));
         Vec<ASR::call_arg_t> args;
         args.reserve(al, 4);
         ASR::call_arg_t call_arg;
         call_arg.loc = x->m_a->base.loc;
         call_arg.m_value = x->m_a;
         args.push_back(al, call_arg);
+        ASR::expr_t *is_start_present, *is_end_present;
         if (x->m_section.m_left != nullptr) {
             call_arg.loc = x->m_section.m_left->base.loc;
             call_arg.m_value = x->m_section.m_left;
+            is_start_present = ASRUtils::EXPR(ASR::make_LogicalConstant_t(al,
+                    loc, true, bool_type));
         } else {
             call_arg.loc = loc;
             call_arg.m_value = ASRUtils::EXPR(make_IntegerConstant_t(
                 al, loc, 0, int_type));
+            is_start_present = ASRUtils::EXPR(ASR::make_LogicalConstant_t(al,
+                    loc, false, bool_type));
         }
         args.push_back(al, call_arg);
         if (x->m_section.m_right != nullptr) {
             call_arg.loc = x->m_section.m_right->base.loc;
             call_arg.m_value = x->m_section.m_right;
+            is_end_present = ASRUtils::EXPR(ASR::make_LogicalConstant_t(al,
+                    loc, true, bool_type));
         } else {
             call_arg.loc = loc;
             call_arg.m_value = ASRUtils::EXPR(ASR::make_ListLen_t(
                 al, loc, x->m_a, int_type, nullptr));
+            is_end_present = ASRUtils::EXPR(ASR::make_LogicalConstant_t(al,
+                    loc, false, bool_type));
         }
         args.push_back(al, call_arg);
         if (x->m_section.m_step != nullptr) {
@@ -238,16 +402,24 @@ public:
                 al, loc, 1, int_type));
         }
         args.push_back(al, call_arg);
-        if (list_section_func_name == nullptr) {
-            list_section_func_name = create_list_section_func(unit.base.base.loc,
+        call_arg.loc = x->m_a->base.loc;
+        call_arg.m_value = is_start_present;
+        args.push_back(al, call_arg);
+        call_arg.loc = x->m_a->base.loc;
+        call_arg.m_value = is_end_present;
+        args.push_back(al, call_arg);
+
+        std::string list_type_name = ASRUtils::type_to_str_python(x->m_type);
+        if (list_section_func_map.find(list_type_name) == list_section_func_map.end()) {
+            create_list_section_func(unit.base.base.loc,
                 unit.m_global_scope, x->m_type);
         }
+        ASR::symbol_t *fn_sym = list_section_func_map[list_type_name];
         *current_expr = ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
-            list_section_func_name, nullptr, args.p, args.n,
-            x->m_type, nullptr, nullptr));
+            fn_sym, nullptr, args.p, args.n, x->m_type, nullptr, nullptr));
     }
 
-    ASR::symbol_t* create_concat_function(Location& loc,
+    void create_concat_function(Location& loc,
             SymbolTable*& global_scope, ASR::ttype_t* list_type) {
         /*
             def _lcompilers_list_concat(left_list: list[i32],
@@ -265,7 +437,8 @@ public:
                 return result_list
         */
         SymbolTable* list_concat_symtab = al.make_new<SymbolTable>(global_scope);
-        std::string fn_name = global_scope->get_unique_name("_lcompilers_list_concat");
+        std::string list_type_name = ASRUtils::type_to_str_python(list_type);
+        std::string fn_name = global_scope->get_unique_name("_lcompilers_list_concat_" + list_type_name);
 
         Vec<ASR::expr_t*> arg_exprs;
         arg_exprs.reserve(al, 2);
@@ -280,7 +453,7 @@ public:
         // Declare `result_list`
         ASR::symbol_t* arg = ASR::down_cast<ASR::symbol_t>(
             ASR::make_Variable_t(al, loc, list_concat_symtab,
-            s2c(al, "result_list"), ASR::intentType::Local, nullptr, nullptr,
+            s2c(al, "result_list"), nullptr, 0, ASR::intentType::Local, nullptr, nullptr,
             ASR::storage_typeType::Default, list_type,
             ASR::abiType::Source, ASR::accessType::Public,
             ASR::presenceType::Required, false));
@@ -334,8 +507,9 @@ public:
             nullptr, 0,
             nullptr, 0,
             false);
-        global_scope->add_symbol(fn_name, down_cast<ASR::symbol_t>(fn));
-        return ASR::down_cast<ASR::symbol_t>(fn);
+        ASR::symbol_t *fn_sym = ASR::down_cast<ASR::symbol_t>(fn);
+        global_scope->add_symbol(fn_name, fn_sym);
+        list_concat_func_map[list_type_name] = fn_sym;
     }
 
 /*
@@ -361,12 +535,14 @@ public:
         right_list.loc = x->m_right->base.loc;
         right_list.m_value = x->m_right;
         args.push_back(al, right_list);
-        if (list_concat_func_name == nullptr) {
-            list_concat_func_name = create_concat_function(unit.base.base.loc,
+        std::string list_type_name = ASRUtils::type_to_str_python(x->m_type);
+        if (list_concat_func_map.find(list_type_name) == list_concat_func_map.end()) {
+            create_concat_function(unit.base.base.loc,
                 unit.m_global_scope, x->m_type);
         }
+        ASR::symbol_t *fn_sym = list_concat_func_map[list_type_name];
         *current_expr = ASRUtils::EXPR(ASR::make_FunctionCall_t(al, loc,
-            list_concat_func_name, nullptr, args.p, 2, x->m_type, nullptr, nullptr));
+            fn_sym, nullptr, args.p, 2, x->m_type, nullptr, nullptr));
     }
 
 };
@@ -376,13 +552,12 @@ class ListExprVisitor : public ASR::CallReplacerOnExpressionsVisitor<ListExprVis
 private:
 
     ListExprReplacer replacer;
-    ASR::symbol_t* list_concat_func = nullptr;
-    ASR::symbol_t* list_section_func = nullptr;
+    std::map<std::string, ASR::symbol_t*> list_concat_func_map, list_section_func_map;
 
 public:
 
     ListExprVisitor(Allocator& al_, ASR::TranslationUnit_t &unit_) :
-        replacer(al_, unit_, list_concat_func, list_section_func)
+        replacer(al_, unit_, list_concat_func_map, list_section_func_map)
         { }
 
     void call_replacer() {
@@ -398,8 +573,7 @@ void pass_list_expr(Allocator &al, ASR::TranslationUnit_t &unit,
     v.visit_TranslationUnit(unit);
     PassUtils::UpdateDependenciesVisitor u(al);
     u.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

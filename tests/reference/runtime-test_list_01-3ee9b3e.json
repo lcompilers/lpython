@@ -1,0 +1,13 @@
+{
+    "basename": "runtime-test_list_01-3ee9b3e",
+    "cmd": "lpython {infile}",
+    "infile": "tests/runtime_errors/test_list_01.py",
+    "infile_hash": "7d62ba61085d24d42b3a726889aeebb226bf1fe1918004d909d50520",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "runtime-test_list_01-3ee9b3e.stderr",
+    "stderr_hash": "c9cbdc4df1e7fbe0a6e73db7ac7809f71102fb524c8aa86139271006",
+    "returncode": 1
+}

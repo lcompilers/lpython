@@ -3,10 +3,10 @@
 
 #include <libasr/exception.h>
 
-namespace LFortran {
+namespace LCompilers::LPython {
 
-// This exception is only used internally in the lfortran/semantics/ directory
-// and in lfortran/asr_utils.h/cpp. Nowhere else.
+// This exception is only used internally in the lpython/semantics/ directory
+// and in lpython/asr_utils.h/cpp. Nowhere else.
 
 class SemanticError
 {
@@ -26,7 +26,7 @@ class SemanticAbort
 {
 };
 
-}
+} // namespace LCompilers::LPython
 
 
 #endif

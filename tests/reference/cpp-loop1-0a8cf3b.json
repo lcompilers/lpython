@@ -1,0 +1,13 @@
+{
+    "basename": "cpp-loop1-0a8cf3b",
+    "cmd": "lpython --no-color --show-cpp {infile}",
+    "infile": "tests/loop1.py",
+    "infile_hash": "0eee568be1d20a4c31b59c33ae2b47509fce3f6047fa1ffa592947e9",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "cpp-loop1-0a8cf3b.stdout",
+    "stdout_hash": "b6a85b8f6c08d7dd64cf8bffe330dd2bef4a216fd02c87b311c890d1",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

@@ -1,0 +1,13 @@
+{
+    "basename": "asr-bindc_02-bc1a7ea",
+    "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/bindc_02.py",
+    "infile_hash": "b63020f2df6e1cdbc6bd3fd8ef551b6b62fda00345bbeb12c7b94305",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-bindc_02-bc1a7ea.stdout",
+    "stdout_hash": "340427cb095972a4cbc1f394d08a22161da70f1c14d2652ff69b0658",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

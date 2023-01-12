@@ -34,5 +34,15 @@ def test_list_concat():
     y.clear()
     for i in range(1, 100):
         assert z[i-1] == i
+    
+    c: list[str]
+    d: list[str]
+    c = ['a', 'b']
+    d = ['c', 'd', 'e']
+    c += d
+    assert len(c) == 5
+    for i in range(5):
+        assert ord(c[i]) - ord('a') == i
+
 
 test_list_concat()

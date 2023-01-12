@@ -18,7 +18,7 @@ def f():
     bf: f64
     (a, b) = t3
     (af, bf) = t4
-    assert af == a
-    assert bf == b
+    assert af == f64(a)
+    assert bf == f64(b)
 
 f()

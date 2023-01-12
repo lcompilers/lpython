@@ -1,0 +1,13 @@
+{
+    "basename": "c-test_issue_518-fbbd299",
+    "cmd": "lpython --no-color --show-c {infile}",
+    "infile": "tests/../integration_tests/test_issue_518.py",
+    "infile_hash": "a1e1222536e4b64cb96e0e8087120fe0ab4c18b09f32ef9b05719aaa",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "c-test_issue_518-fbbd299.stdout",
+    "stdout_hash": "be32ee6f42f8fa4ad96f6aec6cc8ec1c46aac25b197cb8de4d07ee54",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

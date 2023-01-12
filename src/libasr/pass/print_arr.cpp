@@ -7,7 +7,7 @@
 #include <libasr/pass/print_arr.h>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 using ASR::is_a;
@@ -25,6 +25,21 @@ to:
     do i = 1, 3
         print *, y(i)
     end do
+
+
+Converts:
+    a: not_array
+    b: array
+    c: not_array
+    d: not_array
+    print *, a, b(1:10), c, d
+
+to:
+    print *, a
+    do i = 1, 10
+        print *, b(i)
+    end do
+    print *, c, d
 */
 
 class PrintArrVisitor : public PassUtils::PassVisitor<PrintArrVisitor>
@@ -38,41 +53,78 @@ public:
 
     }
 
-    void visit_Print(const ASR::Print_t& x) {
-        if( x.n_values == 1 && PassUtils::is_array(x.m_values[0]) ) {
-            ASR::expr_t* arr_expr = x.m_values[0];
-
-            int n_dims = PassUtils::get_rank(arr_expr);
-            Vec<ASR::expr_t*> idx_vars;
-            PassUtils::create_idx_vars(idx_vars, n_dims, x.base.base.loc, al, current_scope);
-            ASR::stmt_t* doloop = nullptr;
-            ASR::stmt_t* empty_print_endl = LFortran::ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc,
-                                                nullptr, nullptr, 0, nullptr, nullptr));
-            for( int i = n_dims - 1; i >= 0; i-- ) {
-                ASR::do_loop_head_t head;
-                head.m_v = idx_vars[i];
-                head.m_start = PassUtils::get_bound(arr_expr, i + 1, "lbound", al);
-                head.m_end = PassUtils::get_bound(arr_expr, i + 1, "ubound", al);
-                head.m_increment = nullptr;
-                head.loc = head.m_v->base.loc;
-                Vec<ASR::stmt_t*> doloop_body;
-                doloop_body.reserve(al, 1);
-                if( doloop == nullptr ) {
-                    ASR::expr_t* ref = PassUtils::create_array_ref(arr_expr, idx_vars, al);
-                    Vec<ASR::expr_t*> print_args;
-                    print_args.reserve(al, 1);
-                    print_args.push_back(al, ref);
-                    ASR::stmt_t* print_stmt = LFortran::ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc, nullptr,
-                                                                 print_args.p, print_args.size(), nullptr, nullptr));
-                    doloop_body.push_back(al, print_stmt);
-                } else {
-                    doloop_body.push_back(al, doloop);
-                    doloop_body.push_back(al, empty_print_endl);
-                }
-                doloop = LFortran::ASRUtils::STMT(ASR::make_DoLoop_t(al, x.base.base.loc, head, doloop_body.p, doloop_body.size()));
+    ASR::stmt_t* print_array_using_doloop(ASR::expr_t *arr_expr, const Location &loc) {
+        int n_dims = PassUtils::get_rank(arr_expr);
+        Vec<ASR::expr_t*> idx_vars;
+        PassUtils::create_idx_vars(idx_vars, n_dims, loc, al, current_scope);
+        ASR::stmt_t* doloop = nullptr;
+        ASR::stmt_t* empty_print_endl = ASRUtils::STMT(ASR::make_Print_t(al, loc,
+                                            nullptr, nullptr, 0, nullptr, nullptr));
+        for( int i = n_dims - 1; i >= 0; i-- ) {
+            ASR::do_loop_head_t head;
+            head.m_v = idx_vars[i];
+            head.m_start = PassUtils::get_bound(arr_expr, i + 1, "lbound", al);
+            head.m_end = PassUtils::get_bound(arr_expr, i + 1, "ubound", al);
+            head.m_increment = nullptr;
+            head.loc = head.m_v->base.loc;
+            Vec<ASR::stmt_t*> doloop_body;
+            doloop_body.reserve(al, 1);
+            if( doloop == nullptr ) {
+                ASR::expr_t* ref = PassUtils::create_array_ref(arr_expr, idx_vars, al);
+                Vec<ASR::expr_t*> print_args;
+                print_args.reserve(al, 1);
+                print_args.push_back(al, ref);
+                ASR::stmt_t* print_stmt = ASRUtils::STMT(ASR::make_Print_t(al, loc, nullptr,
+                                                                print_args.p, print_args.size(), nullptr, nullptr));
+                doloop_body.push_back(al, print_stmt);
+            } else {
+                doloop_body.push_back(al, doloop);
+                doloop_body.push_back(al, empty_print_endl);
             }
-            pass_result.push_back(al, doloop);
-            pass_result.push_back(al, empty_print_endl);
+            doloop = ASRUtils::STMT(ASR::make_DoLoop_t(al, loc, head, doloop_body.p, doloop_body.size()));
+        }
+        return doloop;
+    }
+
+    void visit_Print(const ASR::Print_t& x) {
+        std::vector<ASR::expr_t*> print_body;
+        ASR::stmt_t* empty_print_endl = ASRUtils::STMT(ASR::make_Print_t(al, x.base.base.loc,
+                                            nullptr, nullptr, 0, nullptr, nullptr));
+        ASR::stmt_t* print_stmt;
+        for (size_t i=0; i<x.n_values; i++) {
+            if (!ASR::is_a<ASR::Pointer_t>(*ASRUtils::expr_type(x.m_values[i])) &&
+                PassUtils::is_array(x.m_values[i])) {
+                if (print_body.size() > 0) {
+                    Vec<ASR::expr_t*> body;
+                    body.reserve(al, print_body.size());
+                    for (size_t j=0; j<print_body.size(); j++) {
+                        body.push_back(al, print_body[j]);
+                    }
+                    print_stmt = ASRUtils::STMT(ASR::make_Print_t(
+                        al, x.base.base.loc, nullptr, body.p, body.size(),
+                        nullptr, nullptr));
+                    pass_result.push_back(al, print_stmt);
+                    pass_result.push_back(al, empty_print_endl);
+                    print_body.clear();
+                }
+                print_stmt = print_array_using_doloop(x.m_values[i], x.base.base.loc);
+                pass_result.push_back(al, print_stmt);
+                pass_result.push_back(al, empty_print_endl);
+            } else {
+                print_body.push_back(x.m_values[i]);
+            }
+        }
+        if (print_body.size() > 0) {
+            Vec<ASR::expr_t*> body;
+            body.reserve(al, print_body.size());
+            for (size_t j=0; j<print_body.size(); j++) {
+                body.push_back(al, print_body[j]);
+            }
+            print_stmt = ASRUtils::STMT(ASR::make_Print_t(
+                al, x.base.base.loc, nullptr, body.p, body.size(),
+                nullptr, nullptr));
+            pass_result.push_back(al, print_stmt);
+            print_body.clear();
         }
     }
 
@@ -83,8 +135,7 @@ void pass_replace_print_arr(Allocator &al, ASR::TranslationUnit_t &unit,
     std::string rl_path = pass_options.runtime_library_dir;
     PrintArrVisitor v(al, rl_path);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

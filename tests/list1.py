@@ -25,3 +25,9 @@ def test_List():
     d = a.pop(2)
     a += [4, 5]
     a = [6, 7] + a
+
+    a11: list[i32]
+    b11: list[i32]
+    a11 = [1, 2]
+    b11 = [3, 4]
+    assert a11 == b11

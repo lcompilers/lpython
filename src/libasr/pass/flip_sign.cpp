@@ -10,7 +10,7 @@
 #include <utility>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 using ASR::is_a;
@@ -60,7 +60,7 @@ class FlipSignVisitor : public PassUtils::SkipOptimizationFunctionVisitor<FlipSi
 private:
     ASR::TranslationUnit_t &unit;
 
-    std::string rl_path;
+    LCompilers::PassOptions pass_options;
 
     ASR::expr_t *flip_sign_signal_variable, *flip_sign_variable;
 
@@ -73,8 +73,8 @@ private:
 
 public:
     FlipSignVisitor(Allocator &al_, ASR::TranslationUnit_t &unit_,
-                    const std::string& rl_path_) : SkipOptimizationFunctionVisitor(al_),
-    unit(unit_), rl_path(rl_path_)
+                    const LCompilers::PassOptions& pass_options_) : SkipOptimizationFunctionVisitor(al_),
+    unit(unit_), pass_options(pass_options_)
     {
         pass_result.reserve(al, 1);
     }
@@ -97,10 +97,10 @@ public:
         set_flip_sign();
         if( is_flip_sign_present ) {
             // xi = xor(shiftl(int(Nd),63), xi)
-            LFORTRAN_ASSERT(flip_sign_signal_variable);
-            LFORTRAN_ASSERT(flip_sign_variable);
+            LCOMPILERS_ASSERT(flip_sign_signal_variable);
+            LCOMPILERS_ASSERT(flip_sign_variable);
             ASR::stmt_t* flip_sign_call = PassUtils::get_flipsign(flip_sign_signal_variable,
-                                            flip_sign_variable, al, unit, rl_path, current_scope,
+                                            flip_sign_variable, al, unit, pass_options, current_scope,
                                             [&](const std::string &msg, const Location &) { throw LCompilersException(msg); });
             pass_result.push_back(al, flip_sign_call);
         }
@@ -210,11 +210,9 @@ public:
 
 void pass_replace_flip_sign(Allocator &al, ASR::TranslationUnit_t &unit,
                             const LCompilers::PassOptions& pass_options) {
-    std::string rl_path = pass_options.runtime_library_dir;
-    FlipSignVisitor v(al, unit, rl_path);
+    FlipSignVisitor v(al, unit, pass_options);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

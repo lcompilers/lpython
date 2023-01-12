@@ -15,7 +15,7 @@ def modf(x: f64) -> tuple[f64, f64]:
 
     Both results carry the sign of x and are floats.
     """
-    return (x - int(x), float(int(x)))
+    return (x - f64(int(x)), float(int(x)))
 
 @overload
 def factorial(x: i32) -> i32:
@@ -39,13 +39,13 @@ def factorial(x: i64) -> i64:
     Computes the factorial of `x`.
     """
     result: i64
-    result = 0
-    if x < 0:
+    result = i64(0)
+    if x < i64(0):
         return result
-    result = 1
+    result = i64(1)
     i: i64
-    for i in range(1, x+1):
-        result *= i
+    for i in range(i64(1), x + i64(1)):
+        result *= i64(i)
     return result
 
 @overload
@@ -60,15 +60,15 @@ def floor(x: i64) -> i64:
 def floor(x: f64) -> i64:
     r: i64
     r = int(x)
-    if x >= 0 or x == r:
+    if x >= f64(0) or x == f64(r):
         return r
-    return r - 1
+    return r - i64(1)
 
 @overload
 def floor(x: f32) -> i32:
     r: i32
-    r = int(x)
-    if x >= 0 or x == r:
+    r = i32(x)
+    if x >= f32(0) or x == f32(r):
         return r
     return r - 1
 
@@ -84,15 +84,15 @@ def ceil(x: i64) -> i64:
 def ceil(x: f64) -> i64:
     r: i64
     r = int(x)
-    if x <= 0 or r == x:
+    if x <= f64(0) or f64(r) == x:
         return r
-    return r + 1
+    return r + i64(1)
 
 @overload
 def ceil(x: f32) -> i32:
     r: i32
-    r = int(x)
-    if x <= 0 or r == x:
+    r = i32(x)
+    if x <= f32(0) or f32(r) == x:
         return r
     return r + 1
 
@@ -207,6 +207,21 @@ def prod(arr: list[f64]) -> f64:
     return result
 
 
+def dist(x: list[f64], y: list[f64]) -> f64:
+    """
+    Return euclidean distance between `x` and `y` points.
+    """
+    if len(x) != len(y):
+         raise ValueError("Length of lists should be same")
+    res: f64
+    res = 0.0
+
+    i: i32
+    for i in range(len(x)):
+        res += (x[i] - y[i]) * (x[i] - y[i])
+    return res**0.5
+
+
 def comb(n: i32, k: i32) -> i32:
     """
     Computes the result of `nCk`, i.e, the number of ways to choose `k`
@@ -215,9 +230,7 @@ def comb(n: i32, k: i32) -> i32:
 
     if n < k or n < 0:
         return 0
-    res: i32
-    res = floor(factorial(n)/(factorial(k)*factorial(n-k)))
-    return res
+    return i32(floor(factorial(n)/(factorial(k)*factorial(n-k))))
 
 
 def perm(n: i32, k: i32) -> i32:
@@ -228,9 +241,7 @@ def perm(n: i32, k: i32) -> i32:
 
     if n < k or n < 0:
         return 0
-    res: i32
-    res = floor(factorial(n)/factorial(n-k))
-    return res
+    return i32(floor(factorial(n)/factorial(n-k)))
 
 
 def isqrt(n: i32) -> i32:
@@ -245,7 +256,7 @@ def isqrt(n: i32) -> i32:
     low = 0
     high = n+1
     while low + 1 < high:
-        mid = floor((low + high)/2)
+        mid = i32(floor((low + high)/2))
         if mid*mid <= n:
             low = mid
         else:
@@ -260,35 +271,35 @@ def degrees(x: i8) -> f64:
     """
     Convert angle `x` from radians to degrees.
     """
-    return x * 180.0 / pi
+    return f64(x) * 180.0 / pi
 
 @overload
 def degrees(x: i16) -> f64:
     """
     Convert angle `x` from radians to degrees.
     """
-    return x * 180.0 / pi
+    return f64(x) * 180.0 / pi
 
 @overload
 def degrees(x: i32) -> f64:
     """
     Convert angle `x` from radians to degrees.
     """
-    return x * 180.0 / pi
+    return f64(x) * 180.0 / pi
 
 @overload
 def degrees(x: i64) -> f64:
     """
     Convert angle `x` from radians to degrees.
     """
-    return x * 180.0 / pi
+    return f64(x) * 180.0 / pi
 
 @overload
 def degrees(x: f32) -> f64:
     """
     Convert angle `x` from radians to degrees.
     """
-    return x * 180.0 / pi
+    return f64(x) * 180.0 / pi
 
 @overload
 def degrees(x: f64) -> f64:
@@ -305,35 +316,35 @@ def radians(x: i8) -> f64:
     """
     Convert angle `x` from degrees to radians.
     """
-    return x * pi / 180.0
+    return f64(x) * pi / 180.0
 
 @overload
 def radians(x: i16) -> f64:
     """
     Convert angle `x` from degrees to radians.
     """
-    return x * pi / 180.0
+    return f64(x) * pi / 180.0
 
 @overload
 def radians(x: i32) -> f64:
     """
     Convert angle `x` from degrees to radians.
     """
-    return x * pi / 180.0
+    return f64(x) * pi / 180.0
 
 @overload
 def radians(x: i64) -> f64:
     """
     Convert angle `x` from degrees to radians.
     """
-    return x * pi / 180.0
+    return f64(x) * pi / 180.0
 
 @overload
 def radians(x: f32) -> f64:
     """
     Convert angle `x` from degrees to radians.
     """
-    return x * pi / 180.0
+    return f64(x) * pi / 180.0
 
 @overload
 def radians(x: f64) -> f64:
@@ -349,7 +360,7 @@ def fabs(x: f32) -> f32:
     """
     Return the absolute value of `x`.
     """
-    if x < 0.0:
+    if x < f32(0.0):
         return -x
     return x
 
@@ -367,7 +378,7 @@ def fabs(x: i64) -> f64:
     """
     Return the absolute value of `x`.
     """
-    if x < 0.0:
+    if f64(x) < 0.0:
         return -float(x)
     return float(x)
 
@@ -376,7 +387,7 @@ def fabs(x: i32) -> f64:
     """
     Return the absolute value of `x`.
     """
-    if x < 0.0:
+    if f64(x) < 0.0:
         return -float(x)
     return float(x)
 
@@ -385,7 +396,7 @@ def fabs(x: i16) -> f64:
     """
     Return the absolute value of `x`.
     """
-    if x < 0.0:
+    if f64(x) < 0.0:
         return -float(x)
     return float(x)
 
@@ -394,7 +405,7 @@ def fabs(x: i8) -> f64:
     """
     Return the absolute value of `x`.
     """
-    if x < 0.0:
+    if f64(x) < 0.0:
         return -float(x)
     return float(x)
 
@@ -405,7 +416,7 @@ def pow(x: f64, y: f64) -> f64:
     """
     Return `x` raised to the power  `y`.
     """
-    if y < 0:
+    if y < 0.0:
         raise ValueError('y should be nonnegative')
     result: f64
     result = x**y
@@ -417,22 +428,18 @@ def pow(x: i64, y: i64) -> i64:
     """
     Return `x` raised to the power `y`.
     """
-    if y < 0:
+    if y < i64(0):
         raise ValueError('y should be nonnegative')
-    result: i64
-    result = x**y
-    return result
+    return i64(x**y)
 
 @overload
 def pow(x: f32, y: f32) -> f64:
     """
     Return `x` raised to the power `y`.
     """
-    if y < 0:
+    if y < f32(0):
         raise ValueError('y should be nonnegative')
-    result: f64
-    result = x**y
-    return result
+    return f64(x**y)
 
 @overload
 def pow(x: i32, y: i32) -> i32:
@@ -448,7 +455,7 @@ def pow(x: i32, y: i32) -> i32:
 @overload
 def ldexp(x: f64, i: i32) -> f64:
     result: f64
-    result = x * (2**i)
+    result = x * f64(2**i)
     return result
 
 
@@ -463,9 +470,7 @@ def mod(a: i32, b: i32) -> i32:
     """
     Returns a%b
     """
-    r: i32
-    r = floor(a/b)
-    return a - r*b
+    return a - i32(floor(a/b))*b
 
 
 def gcd(a: i32, b: i32) -> i32:
@@ -495,9 +500,7 @@ def lcm(a: i32, b: i32) -> i32:
         b = -b
     if a*b == 0:
         return 0
-    res: i32
-    res = floor((a*b)/gcd(a, b))
-    return res
+    return i32(floor((a*b)/gcd(a, b)))
 
 
 def copysign(x: f64, y: f64) -> f64:
@@ -514,14 +517,14 @@ def hypot(x: i32, y: i32) -> f64:
     """
     Returns the hypotenuse of the right triangle with sides `x` and `y`.
     """
-    return sqrt(1.0*(x**2 + y**2))
+    return sqrt(f64(1.0)*f64(x**2 + y**2))
 
 @overload
 def trunc(x: f64) -> i64:
     """
     Return x with the fractional part removed, leaving the integer part.
     """
-    if x>0:
+    if x > f64(0):
         return floor(x)
     else:
         return ceil(x)
@@ -531,7 +534,7 @@ def trunc(x: f32) -> i32:
     """
     Return x with the fractional part removed, leaving the integer part.
     """
-    if x>0:
+    if x > f32(0):
         return floor(x)
     else:
         return ceil(x)
@@ -677,15 +680,15 @@ def atanh(x: f64) -> f64:
 
 
 def expm1(x: f64) -> f64:
-    return exp(x) - 1
+    return exp(x) - 1.0
 
 
 def log1p(x: f64) -> f64:
-    return log(1 + x)
+    return log(1.0 + x)
 
 
 def fmod(x: f64, y: f64) -> f64:
-    if y == 0:
+    if y == 0.0:
         raise ValueError('math domain error')
     return _lfortran_dfmod(x, y)
 
@@ -698,6 +701,6 @@ def _lfortran_dfmod(x: f64, y: f64) -> f64:
 def remainder(x: f64, y: f64) -> f64:
     q: i64
     q = int(x/y)
-    if x - y*q > y*(q + 1) - x:
-        return x - y*(q + 1)
-    return x - y*q
+    if x - y*f64(q) > y*f64(q + i64(1)) - x:
+        return x - y*f64(q + i64(1))
+    return x - y*f64(q)

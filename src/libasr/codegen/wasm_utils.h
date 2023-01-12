@@ -7,7 +7,7 @@
 #include <libasr/alloc.h>
 #include <libasr/containers.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace wasm {
 
@@ -44,7 +44,7 @@ struct Import {
 };
 
 struct Data {
-    std::string insts;
+    uint32_t insts_start_index;
     std::string text;
 };
 
@@ -68,6 +68,6 @@ void hexdump(void *ptr, int buflen);
 
 }  // namespace wasm
 
-}  // namespace LFortran
+}  // namespace LCompilers
 
 #endif  // LFORTRAN_WASM_UTILS_H

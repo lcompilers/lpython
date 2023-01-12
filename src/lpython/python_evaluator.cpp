@@ -10,12 +10,12 @@
 #include <libasr/codegen/evaluator.h>
 #include <libasr/codegen/asr_to_llvm.h>
 #else
-namespace LFortran {
+namespace LCompilers {
     class LLVMEvaluator {};
 }
 #endif
 
-namespace LFortran {
+namespace LCompilers {
 
 
 /* ------------------------------------------------------------------------- */
@@ -39,10 +39,10 @@ PythonCompiler::~PythonCompiler() = default;
 Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
 #ifdef HAVE_LFORTRAN_LLVM
     ASR::TranslationUnit_t &asr, LCompilers::PassManager& lpm,
-    diag::Diagnostics &diagnostics
+    diag::Diagnostics &diagnostics, const std::string &infile
 #else
     ASR::TranslationUnit_t &/*asr*/, LCompilers::PassManager&/*lpm*/,
-    diag::Diagnostics &/*diagnostics*/
+    diag::Diagnostics &/*diagnostics*/,const std::string &/*infile*/
 #endif
     )
 {
@@ -51,15 +51,15 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
     run_fn = "__lfortran_evaluate_" + std::to_string(eval_count);
 
     // ASR -> LLVM
-    std::unique_ptr<LFortran::LLVMModule> m;
-    Result<std::unique_ptr<LFortran::LLVMModule>> res
+    std::unique_ptr<LCompilers::LLVMModule> m;
+    Result<std::unique_ptr<LCompilers::LLVMModule>> res
         = asr_to_llvm(asr, diagnostics,
-            e->get_context(), al, lpm, compiler_options.platform,
-            run_fn);
+            e->get_context(), al, lpm, compiler_options,
+            run_fn, infile);
     if (res.ok) {
         m = std::move(res.result);
     } else {
-        LFORTRAN_ASSERT(diagnostics.has_error())
+        LCOMPILERS_ASSERT(diagnostics.has_error())
         return res.error;
     }
 
@@ -73,4 +73,4 @@ Result<std::unique_ptr<LLVMModule>> PythonCompiler::get_llvm3(
 #endif
 }
 
-} // namespace LFortran
+} // namespace LCompilers::LPython

@@ -10,7 +10,7 @@
 #include <utility>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 using ASR::is_a;
@@ -82,8 +82,7 @@ void pass_replace_div_to_mul(Allocator &al, ASR::TranslationUnit_t &unit,
     std::string rl_path = pass_options.runtime_library_dir;
     DivToMulVisitor v(al, rl_path);
     v.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

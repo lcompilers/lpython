@@ -10,8 +10,8 @@ def f():
     x: i32 = 3
     x = 5
     b: i32 = x + 1
-    assert b == 6
     print(a, b)
+    assert b == 6
     g(a*b + 3)
 
 

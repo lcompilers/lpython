@@ -1,4 +1,4 @@
-from ltypes import i32
+from ltypes import i32, f64, f32
 
 def main0():
     i1: i32 = 10
@@ -11,14 +11,14 @@ def main0():
 
 def test_multiple_assign_1():
     a: i32; b: i32; c: i32
-    d: f64; e: f32; g: i32
+    d: f64; e: f64; g: i32
     g = 5
-    d = e = g + 1.0
+    d = e = f64(g) + 1.0
     a = b = c = 10
     assert a == b
     assert b == c
     assert a == 10
-    x: f32; y: f64
+    x: f64; y: f64
     x = y = 23.0
     assert abs(x - 23.0) < 1e-6
     assert abs(y - 23.0) < 1e-12
@@ -27,12 +27,12 @@ def test_multiple_assign_1():
     i: list[f64]; j: list[f64]; k: list[f64] = []
     g = 0
     for g in range(10):
-        k.append(g*2.0 + 5.0)
+        k.append(f64(g)*2.0 + 5.0)
     i = j = k
     for g in range(10):
         assert abs(i[g] - j[g]) < 1e-12
         assert abs(i[g] - k[g]) < 1e-12
-        assert abs(g*2.0 + 5.0 - k[g]) < 1e-12
+        assert abs(f64(g)*2.0 + 5.0 - k[g]) < 1e-12
 
 
 def test_issue_928():

@@ -1,0 +1,13 @@
+{
+    "basename": "ast-loop1-194a137",
+    "cmd": "lpython --show-ast --no-color {infile} -o {outfile}",
+    "infile": "tests/loop1.py",
+    "infile_hash": "0eee568be1d20a4c31b59c33ae2b47509fce3f6047fa1ffa592947e9",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "ast-loop1-194a137.stdout",
+    "stdout_hash": "f80e8babf4c7c844136d04f2e4bc9f79ade9a2202f1cd6f12f6bb781",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}

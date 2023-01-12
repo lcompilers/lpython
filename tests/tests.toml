@@ -3,7 +3,10 @@
 # ast_new ... run the New Parser and output AST, compare against reference version
 # asr ... run the Semantics and output ASR, compare against reference version
 # llvm ... run the Semantics and output LLVM, compare against reference version
+# llvm_dbg ... run the Semantics and output LLVM with debug information
 # tokens ... output Tokens, compare against reference version
+# run ... compiles and executes the specified file;
+#         checks both runtime errors and successful runs
 
 # tests
 
@@ -141,6 +144,7 @@ filename = "expr_01.py"
 ast = true
 asr = true
 llvm = true
+llvm_dbg = true
 
 [[test]]
 filename = "../integration_tests/array_01_decl.py"
@@ -190,8 +194,16 @@ asr = true
 c = true
 
 [[test]]
+filename = "../integration_tests/expr_14.py"
+asr = true
+
+[[test]]
 filename = "../integration_tests/modules_02.py"
 asr = true
+
+[[test]]
+filename = "../integration_tests/test_import_02.py"
+c = true
 
 [[test]]
 filename = "../integration_tests/vec_01.py"
@@ -309,7 +321,6 @@ llvm = true
 [[test]]
 filename = "../integration_tests/bindc_02.py"
 asr = true
-llvm = true
 
 [[test]]
 filename = "../integration_tests/test_builtin_abs.py"
@@ -392,6 +403,10 @@ cpp = true
 filename = "../integration_tests/print_02.py"
 asr = true
 pass = "print_list"
+
+[[test]]
+filename = "../integration_tests/print_04.py"
+llvm = true
 
 [[test]]
 filename = "../integration_tests/generics_01.py"
@@ -585,6 +600,14 @@ asr = true
 
 [[test]]
 filename = "errors/structs_01.py"
+asr = true
+
+[[test]]
+filename = "errors/const_01.py"
+asr = true
+
+[[test]]
+filename = "errors/const_02.py"
 asr = true
 
 [[test]]
@@ -873,6 +896,14 @@ asr = true
 filename = "errors/test_for2.py"
 asr = true
 
+[[test]]
+filename = "errors/test_import_01.py"
+asr = true
+
+[[test]]
+filename = "errors/test_import_02.py"
+asr = true
+
 # tests/tokens/errors
 
 [[test]]
@@ -924,5 +955,54 @@ filename = "errors/enum_02.py"
 asr = true
 
 [[test]]
+filename = "errors/loop_01.py"
+asr = true
+
+[[test]]
+filename = "errors/loop_02.py"
+asr = true
+
+[[test]]
 filename = "errors/test_goto.py"
 asr = true
+
+[[test]]
+filename = "errors/bindc_01.py"
+asr = true
+
+[[test]]
+filename = "errors/bindc_02.py"
+asr = true
+
+[[test]]
+filename = "errors/cptr_01.py"
+asr = true
+
+[[test]]
+filename = "errors/func_01.py"
+asr = true
+
+# tests/runtime_errors
+[[test]]
+filename = "runtime_errors/test_list_01.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_list_02.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_assert_01.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_assert_02.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_quit_01.py"
+run = true
+
+[[test]]
+filename = "runtime_errors/test_raise_01.py"
+run = true

@@ -27,11 +27,11 @@ def sort_list():
     assert len(x) == size
 
 def l1norm(v: list[i32]) -> f64:
-    result: f64 = 0
+    result: f64 = 0.0
     i: i32
 
     for i in range(len(v)):
-        result = result + v[i]
+        result = result + f64(v[i])
 
     return result
 

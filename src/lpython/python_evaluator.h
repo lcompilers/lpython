@@ -12,7 +12,7 @@
 #include <libasr/diagnostics.h>
 #include <libasr/pass/pass_manager.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 class LLVMModule;
 class LLVMEvaluator;
@@ -52,7 +52,8 @@ public:
     };
 
     Result<std::unique_ptr<LLVMModule>> get_llvm3(ASR::TranslationUnit_t &asr,
-        LCompilers::PassManager& lpm, diag::Diagnostics &diagnostics);
+        LCompilers::PassManager& lpm, diag::Diagnostics &diagnostics,
+        const std::string &infile);
 
 private:
     Allocator al;
@@ -65,6 +66,6 @@ private:
     std::string run_fn;
 };
 
-} // namespace LFortran
+} // namespace LCompilers
 
 #endif // LFORTRAN_PYTHON_EVALUATOR_H

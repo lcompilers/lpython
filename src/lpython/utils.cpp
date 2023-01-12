@@ -13,7 +13,20 @@
 #include <lpython/utils.h>
 #include <libasr/string_utils.h>
 
-namespace LFortran {
+#include <sys/types.h>
+#include <sys/stat.h>
+#ifndef _WIN32
+    #include <unistd.h>
+#endif
+
+#ifdef _WIN32
+    #define stat _stat
+    #if !defined S_ISDIR
+        #define S_ISDIR(m) (((m) & _S_IFDIR) == _S_IFDIR)
+    #endif
+#endif
+
+namespace LCompilers::LPython {
 
 void get_executable_path(std::string &executable_path, int &dirname_length)
 {
@@ -69,5 +82,33 @@ std::string get_runtime_library_header_dir()
     return get_runtime_library_dir() + "/impure";
 }
 
+bool is_directory(std::string path) {
+    struct stat buffer;
+    if (stat(path.c_str(), &buffer) == 0) {
+        if (S_ISDIR(buffer.st_mode)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    return false;
+}
+
+bool path_exists(std::string path) {
+    struct stat buffer;
+    if (stat(path.c_str(), &buffer) == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+// Decodes the exit status code of the process (in Unix)
+// See `WEXITSTATUS` for more information.
+// https://stackoverflow.com/a/27117435/15913193
+// https://linux.die.net/man/3/system
+int32_t get_exit_status(int32_t err) {
+    return (((err) >> 8) & 0x000000ff);
+}
 
 }

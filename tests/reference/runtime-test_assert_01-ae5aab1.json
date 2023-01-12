@@ -1,0 +1,13 @@
+{
+    "basename": "runtime-test_assert_01-ae5aab1",
+    "cmd": "lpython {infile}",
+    "infile": "tests/runtime_errors/test_assert_01.py",
+    "infile_hash": "7a380295a35651b1a5120e1e64a44cae95d2c14c89cf5a4b6ea3dd1a",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "runtime-test_assert_01-ae5aab1.stderr",
+    "stderr_hash": "1da14d6c59aa1b5a3a152d383ff5690112283324db6d93f3d937bc7c",
+    "returncode": 1
+}

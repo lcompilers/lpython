@@ -11,7 +11,7 @@
 #include <cmath>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 using ASR::is_a;
@@ -99,7 +99,7 @@ public:
     void get_vector_intrinsic(ASR::stmt_t* loop_stmt, ASR::expr_t* index,
                               ASR::expr_t*& vector_length,
                               Vec<ASR::stmt_t*>& vectorised_loop_body) {
-        LFORTRAN_ASSERT(vectorised_loop_body.reserve_called);
+        LCOMPILERS_ASSERT(vectorised_loop_body.reserve_called);
         Vec<ASR::expr_t*> arrays;
         arrays.reserve(al, 2);
         if( is_vector_copy(loop_stmt, arrays) ) {
@@ -195,8 +195,7 @@ void pass_loop_vectorise(Allocator &al, ASR::TranslationUnit_t &unit,
     v.visit_TranslationUnit(unit);
     PassUtils::UpdateDependenciesVisitor u(al);
     u.visit_TranslationUnit(unit);
-    LFORTRAN_ASSERT(asr_verify(unit));
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

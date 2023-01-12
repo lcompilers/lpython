@@ -279,7 +279,7 @@ class ASTVisitorVisitor1(ASDLVisitor):
             self.emit("template <class Visitor>")
             self.emit("static void visit_%s_t(const %s_t &x, Visitor &v) {" \
                     % (base, base))
-            self.emit(    "LFORTRAN_ASSERT(x.base.type == %sType::%s)" \
+            self.emit(    "LCOMPILERS_ASSERT(x.base.type == %sType::%s)" \
                     % (subs["mod"], base), 1)
             self.emit(    "switch (x.type) {", 1)
             for type_ in sum.types:
@@ -326,7 +326,7 @@ class ASTVisitorVisitor2(ASDLVisitor):
             self.emit("void visit_%s(const %s_t &b) { visit_%s_t(b, self()); }"\
                     % (base, base, base), 1)
             for type_ in sum.types:
-                self.emit("""void visit_%s(const %s_t & /* x */) { throw LFortran::LCompilersException("visit_%s() not implemented"); }""" \
+                self.emit("""void visit_%s(const %s_t & /* x */) { throw LCompilersException("visit_%s() not implemented"); }""" \
                         % (type_.name, type_.name, type_.name), 2)
 
 
@@ -407,6 +407,10 @@ class ASTWalkVisitorVisitor(ASDLVisitor):
 
 class CallReplacerOnExpressionsVisitor(ASDLVisitor):
 
+    def __init__(self, stream, data):
+        self.current_expr_copy_variable_count = 0
+        super(CallReplacerOnExpressionsVisitor, self).__init__(stream, data)
+
     def visitModule(self, mod):
         self.emit("/" + "*"*78 + "/")
         self.emit("// Walk Visitor base class")
@@ -418,7 +422,6 @@ class CallReplacerOnExpressionsVisitor(ASDLVisitor):
         self.emit("    Struct& self() { return static_cast<Struct&>(*this); }")
         self.emit("public:")
         self.emit("    ASR::expr_t** current_expr;")
-        self.emit("    ASR::expr_t** current_expr_copy;")
         self.emit("")
         self.emit("    void call_replacer() {}")
         super(CallReplacerOnExpressionsVisitor, self).visitModule(mod)
@@ -448,10 +451,11 @@ class CallReplacerOnExpressionsVisitor(ASDLVisitor):
         self.emit("}", 1)
 
     def insert_call_replacer_code(self, name, level, index=""):
-        self.emit("    current_expr_copy = current_expr;", level)
+        self.emit("    ASR::expr_t** current_expr_copy_%d = current_expr;" % (self.current_expr_copy_variable_count), level)
         self.emit("    current_expr = const_cast<ASR::expr_t**>(&(x.m_%s%s));" % (name, index), level)
         self.emit("    self().call_replacer();", level)
-        self.emit("    current_expr = current_expr_copy;", level)
+        self.emit("    current_expr = current_expr_copy_%d;" % (self.current_expr_copy_variable_count), level)
+        self.current_expr_copy_variable_count += 1
 
     def visitField(self, field):
         if (field.type not in asdl.builtin_types and
@@ -531,7 +535,7 @@ class TreeVisitorVisitor(ASDLVisitor):
         self.emit(  "}", 1)
         self.emit(  "void dec_indent() {", 1)
         self.emit(      "indent_level--;", 2)
-        self.emit(      "LFORTRAN_ASSERT(indent_level >= 0);", 2)
+        self.emit(      "LCOMPILERS_ASSERT(indent_level >= 0);", 2)
         self.emit(      "indtd = indtd.substr(0, indent_level*indent_spaces);",2)
         self.emit(  "}", 1)
         self.mod = mod
@@ -810,7 +814,7 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
 
         super(ExprStmtDuplicatorVisitor, self).visitModule(mod)
         self.duplicate_stmt.append(("    default: {", 2))
-        self.duplicate_stmt.append(('    LFORTRAN_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " statement is not supported yet.");', 3))
+        self.duplicate_stmt.append(('    LCOMPILERS_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " statement is not supported yet.");', 3))
         self.duplicate_stmt.append(("    }", 2))
         self.duplicate_stmt.append(("    }", 1))
         self.duplicate_stmt.append(("", 0))
@@ -818,7 +822,7 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
         self.duplicate_stmt.append(("    }", 0))
 
         self.duplicate_expr.append(("    default: {", 2))
-        self.duplicate_expr.append(('    LFORTRAN_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " expression is not supported yet.");', 3))
+        self.duplicate_expr.append(('    LCOMPILERS_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " expression is not supported yet.");', 3))
         self.duplicate_expr.append(("    }", 2))
         self.duplicate_expr.append(("    }", 1))
         self.duplicate_expr.append(("", 0))
@@ -826,7 +830,7 @@ class ExprStmtDuplicatorVisitor(ASDLVisitor):
         self.duplicate_expr.append(("    }", 0))
 
         self.duplicate_case_stmt.append(("    default: {", 2))
-        self.duplicate_case_stmt.append(('    LFORTRAN_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " case statement is not supported yet.");', 3))
+        self.duplicate_case_stmt.append(('    LCOMPILERS_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " case statement is not supported yet.");', 3))
         self.duplicate_case_stmt.append(("    }", 2))
         self.duplicate_case_stmt.append(("    }", 1))
         self.duplicate_case_stmt.append(("", 0))
@@ -995,6 +999,7 @@ class ExprBaseReplacerVisitor(ASDLVisitor):
         self.replace_expr = []
         self.is_expr = False
         self.is_product = False
+        self.current_expr_copy_variable_count = 0
         super(ExprBaseReplacerVisitor, self).__init__(stream, data)
 
     def visitModule(self, mod):
@@ -1007,7 +1012,6 @@ class ExprBaseReplacerVisitor(ASDLVisitor):
         self.emit("    Struct& self() { return static_cast<Struct&>(*this); }")
         self.emit("")
         self.emit("    ASR::expr_t** current_expr;")
-        self.emit("    ASR::expr_t** current_expr_copy;")
         self.emit("")
         self.emit("    BaseExprReplacer() : current_expr(nullptr) {}")
         self.emit("")
@@ -1022,7 +1026,7 @@ class ExprBaseReplacerVisitor(ASDLVisitor):
         super(ExprBaseReplacerVisitor, self).visitModule(mod)
 
         self.replace_expr.append(("    default: {", 2))
-        self.replace_expr.append(('    LFORTRAN_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " expression is not supported yet.");', 3))
+        self.replace_expr.append(('    LCOMPILERS_ASSERT_MSG(false, "Duplication of " + std::to_string(x->type) + " expression is not supported yet.");', 3))
         self.replace_expr.append(("    }", 2))
         self.replace_expr.append(("    }", 1))
         self.replace_expr.append(("", 0))
@@ -1074,18 +1078,20 @@ class ExprBaseReplacerVisitor(ASDLVisitor):
                 self.used = True
                 self.emit("for (size_t i = 0; i < x->n_%s; i++) {" % field.name, level)
                 if field.type == "call_arg":
-                    self.emit("    current_expr_copy = current_expr;", level)
+                    self.emit("    ASR::expr_t** current_expr_copy_%d = current_expr;" % (self.current_expr_copy_variable_count), level)
                     self.emit("    current_expr = &(x->m_%s[i].m_value);" % (field.name), level)
                     self.emit("    self().replace_expr(x->m_%s[i].m_value);"%(field.name), level)
-                    self.emit("    current_expr = current_expr_copy;", level)
+                    self.emit("    current_expr = current_expr_copy_%d;" % (self.current_expr_copy_variable_count), level)
+                    self.current_expr_copy_variable_count += 1
                 self.emit("}", level)
             else:
                 if field.type != "symbol":
                     self.used = True
-                    self.emit("current_expr_copy = current_expr;", level)
+                    self.emit("ASR::expr_t** current_expr_copy_%d = current_expr;" % (self.current_expr_copy_variable_count), level)
                     self.emit("current_expr = &(x->m_%s);" % (field.name), level)
                     self.emit("self().replace_%s(x->m_%s);" % (field.type, field.name), level)
-                    self.emit("current_expr = current_expr_copy;", level)
+                    self.emit("current_expr = current_expr_copy_%d;" % (self.current_expr_copy_variable_count), level)
+                    self.current_expr_copy_variable_count += 1
 
 class StmtBaseReplacerVisitor(ASDLVisitor):
 
@@ -1121,7 +1127,7 @@ class StmtBaseReplacerVisitor(ASDLVisitor):
         super(StmtBaseReplacerVisitor, self).visitModule(mod)
 
         self.replace_stmt.append(("    default: {", 2))
-        self.replace_stmt.append(('    LFORTRAN_ASSERT_MSG(false, "Replacement of " + std::to_string(x->type) + " statement is not supported yet.");', 3))
+        self.replace_stmt.append(('    LCOMPILERS_ASSERT_MSG(false, "Replacement of " + std::to_string(x->type) + " statement is not supported yet.");', 3))
         self.replace_stmt.append(("    }", 2))
         self.replace_stmt.append(("    }", 1))
         self.replace_stmt.append(("", 0))
@@ -1190,7 +1196,7 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit("private:")
         self.emit(  "Struct& self() { return static_cast<Struct&>(*this); }", 1)
         self.emit("public:")
-        self.emit(  "std::string s, indtd = \"\";", 1)
+        self.emit(  "std::string s, indented = \"\";", 1)
         self.emit(  "bool use_colors;", 1)
         self.emit(  "bool indent;", 1)
         self.emit(  "int indent_level = 0, indent_spaces = 4;", 1)
@@ -1198,12 +1204,12 @@ class PickleVisitorVisitor(ASDLVisitor):
         self.emit(  "PickleBaseVisitor() : use_colors(false), indent(false) { s.reserve(100000); }", 1)
         self.emit(  "void inc_indent() {", 1)
         self.emit(      "indent_level++;", 2)
-        self.emit(      "indtd = std::string(indent_level*indent_spaces, ' ');",2)
+        self.emit(      "indented = std::string(indent_level*indent_spaces, ' ');",2)
         self.emit(  "}",1)
         self.emit(  "void dec_indent() {", 1)
         self.emit(      "indent_level--;", 2)
-        self.emit(      "LFORTRAN_ASSERT(indent_level >= 0);", 2)
-        self.emit(      "indtd = std::string(indent_level*indent_spaces, ' ');",2)
+        self.emit(      "LCOMPILERS_ASSERT(indent_level >= 0);", 2)
+        self.emit(      "indented = std::string(indent_level*indent_spaces, ' ');",2)
         self.emit(  "}",1)
         self.mod = mod
         super(PickleVisitorVisitor, self).visitModule(mod)
@@ -1258,23 +1264,28 @@ class PickleVisitorVisitor(ASDLVisitor):
             self.emit(        's.append(color(style::reset));', 3)
             self.emit(    '}', 2)
             if len(fields) > 0:
-                self.emit(    's.append(" ");', 2)
                 if name not in symbol:
                     self.emit(    'if(indent) {', 2)
                     self.emit(        'inc_indent();', 3)
-                    self.emit(        's.append("\\n" + indtd);', 3)
+                    self.emit(        's.append("\\n" + indented);', 3)
+                    self.emit(    '} else {', 2)
+                    self.emit(        's.append(" ");', 3)
                     self.emit(    '}', 2)
+                else:
+                    self.emit(    's.append(" ");', 2)
         self.used = False
         for n, field in enumerate(fields):
             self.visitField(field, cons)
             if n < len(fields) - 1:
-                self.emit(    's.append(" ");', 2)
                 if name not in symbol:
-                    self.emit(    'if(indent) s.append("\\n" + indtd);', 2)
+                    self.emit(    'if(indent) s.append("\\n" + indented);', 2)
+                    self.emit(    'else s.append(" ");', 2)
+                else:
+                    self.emit(    's.append(" ");', 2)
         if name not in symbol and cons and len(fields) > 0:
             self.emit(    'if(indent) {', 2)
             self.emit(        'dec_indent();', 3)
-            self.emit(        's.append("\\n" + indtd);', 3)
+            self.emit(        's.append("\\n" + indented);', 3)
             self.emit(    '}', 2)
         self.emit(    's.append(")");', 2)
         if not self.used:
@@ -1320,10 +1331,10 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit("self().visit_%s(*x.m_%s[i]);" % (field.type, field.name), level+1)
                 else:
                     self.emit("self().visit_%s(x.m_%s[i]);" % (field.type, field.name), level+1)
-                self.emit('    if (i < x.n_%s-1) {' % (field.name), level+1)
-                self.emit('        if (indent) s.append("\\n" + indtd);', level+2)
-                self.emit('        else s.append(" ");', level+2)
-                self.emit('    };', level+1)
+                self.emit('    if (i < x.n_%s-1) {' % (field.name), level)
+                self.emit('        if (indent) s.append("\\n" + indented);', level)
+                self.emit('        else s.append(" ");', level)
+                self.emit('    };', level)
                 self.emit("}", level)
                 self.emit('s.append("]");', level)
             elif field.opt:
@@ -1341,11 +1352,11 @@ class PickleVisitorVisitor(ASDLVisitor):
                     level = 2
                     self.emit('s.append("[");', level)
                     self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
-                    self.emit("    s.append(x.m_%s[i]);" % (field.name), level+1)
-                    self.emit('    if (i < x.n_%s-1) {' % (field.name), level+1)
-                    self.emit('        if (indent) s.append("\\n" + indtd);', level+2)
-                    self.emit('        else s.append(" ");', level+2)
-                    self.emit('    };', level+1)
+                    self.emit("    s.append(x.m_%s[i]);" % (field.name), level)
+                    self.emit('    if (i < x.n_%s-1) {' % (field.name), level)
+                    self.emit('        if (indent) s.append("\\n" + indented);', level)
+                    self.emit('        else s.append(" ");', level)
+                    self.emit('    };', level)
                     self.emit("}", level)
                     self.emit('s.append("]");', level)
                 else:
@@ -1364,11 +1375,11 @@ class PickleVisitorVisitor(ASDLVisitor):
                 self.emit('s.append("[");', level)
                 self.emit("for (size_t i=0; i<x.n_%s; i++) {" % field.name, level)
                 mod_name = self.mod.name.lower()
-                self.emit("    self().visit_%s(*x.m_%s[i]);" % (mod_name, field.name), level+1)
-                self.emit('    if (i < x.n_%s-1) {' % (field.name), level+1)
-                self.emit('        if (indent) s.append("\\n" + indtd);', level+2)
-                self.emit('        else s.append(" ");', level+2)
-                self.emit('    };', level+1)
+                self.emit("    self().visit_%s(*x.m_%s[i]);" % (mod_name, field.name), level)
+                self.emit('    if (i < x.n_%s-1) {' % (field.name), level)
+                self.emit('        if (indent) s.append("\\n" + indented);', level)
+                self.emit('        else s.append(" ");', level)
+                self.emit('    };', level)
                 self.emit("}", level)
                 self.emit('s.append("]");', level)
             elif field.type == "symbol_table":
@@ -1388,41 +1399,42 @@ class PickleVisitorVisitor(ASDLVisitor):
                     self.emit(    's.append(color(fg::reset));', level+1)
                     self.emit('}', level)
                     self.emit('if(indent) {', level)
-                    self.emit(    'inc_indent();', level+1)
-                    self.emit(    's.append("\\n" + indtd);', level+1)
+                    self.emit('    inc_indent();', level)
+                    self.emit('    s.append("\\n" + indented);', level)
+                    self.emit('} else {', level)
+                    self.emit('    s.append(" ");', level)
                     self.emit('}', level)
-                    self.emit('else s.append(" ");', level)
                     self.emit('s.append(x.m_%s->get_counter());' % field.name, level)
-                    self.emit('if(indent) s.append("\\n" + indtd);', level)
+                    self.emit('if(indent) s.append("\\n" + indented);', level)
                     self.emit('else s.append(" ");', level)
                     self.emit(      's.append("{");', level)
                     self.emit('if(indent) {', level)
-                    self.emit(    'inc_indent();', level+1)
-                    self.emit(    's.append("\\n" + indtd);', level+1)
+                    self.emit('    inc_indent();', level)
+                    self.emit('    s.append("\\n" + indented);', level)
                     self.emit('}', level)
                     self.emit('{', level)
                     self.emit('    size_t i = 0;', level)
                     self.emit('    for (auto &a : x.m_%s->get_scope()) {' % field.name, level)
                     self.emit('        s.append(a.first + ":");', level)
                     self.emit('        if(indent) {', level)
-                    self.emit('            inc_indent();', level+1)
-                    self.emit('            s.append("\\n" + indtd);', level+1)
+                    self.emit('            inc_indent();', level)
+                    self.emit('            s.append("\\n" + indented);', level)
+                    self.emit('        } else {', level)
+                    self.emit('            s.append(" ");', level)
                     self.emit('        }', level)
-                    self.emit('        else s.append(" ");', level)
                     self.emit('        this->visit_symbol(*a.second);', level)
-                    self.emit('        if (i < x.m_%s->get_scope().size()-1) { ' % field.name, level)
-                    self.emit('            s.append(", ");', level)
-                    self.emit('        }', level)
-                    self.emit('        if(indent) {', level)
-                    self.emit('            dec_indent();', level+1)
-                    self.emit('            s.append("\\n" + indtd);', level+1)
+                    self.emit('        if(indent) dec_indent();', level)
+                    self.emit('        if (i < x.m_%s->get_scope().size()-1) {' % field.name, level)
+                    self.emit('            s.append(",");', level)
+                    self.emit('            if(indent) s.append("\\n" + indented);', level)
+                    self.emit('            else s.append(" ");', level)
                     self.emit('        }', level)
                     self.emit('        i++;', level)
                     self.emit('    }', level)
                     self.emit('}', level)
                     self.emit('if(indent) {', level)
                     self.emit(    'dec_indent();', level+1)
-                    self.emit(    's.append("\\n" + indtd);', level+1)
+                    self.emit(    's.append("\\n" + indented);', level+1)
                     self.emit('}', level)
                     self.emit('s.append("})");', level)
                     self.emit('if(indent) dec_indent();', level)
@@ -1461,6 +1473,274 @@ class PickleVisitorVisitor(ASDLVisitor):
             else:
                 self.emit('s.append("Unimplemented' + field.type + '");', 2)
 
+class JsonVisitorVisitor(ASDLVisitor):
+
+    def visitModule(self, mod):
+        self.emit("/" + "*"*78 + "/")
+        self.emit("// Json Visitor base class")
+        self.emit("")
+        self.emit("template <class Struct>")
+        self.emit("class JsonBaseVisitor : public BaseVisitor<Struct>")
+        self.emit("{")
+        self.emit("private:")
+        self.emit(  "Struct& self() { return static_cast<Struct&>(*this); }", 1)
+        self.emit("public:")
+        self.emit(  "std::string s, indtd = \"\";", 1)
+        self.emit(  "int indent_level = 0, indent_spaces = 4;", 1)
+        # Storing a reference to LocationManager like this isn't ideal.
+        # One must make sure JsonBaseVisitor isn't reused in a case where AST/ASR has changed
+        # but lm wasn't updated correspondingly.
+        # If LocationManager becomes needed in any of the other visitors, it should be
+        # passed by reference into all the visit functions instead of storing the reference here.
+        self.emit(  "LocationManager &lm;", 1)
+        self.emit("public:")
+        self.emit(  "JsonBaseVisitor(LocationManager &lmref) : lm(lmref) {", 1);
+        self.emit(     "s.reserve(100000);", 2)
+        self.emit(  "}", 1)
+        self.emit(  "void inc_indent() {", 1)
+        self.emit(      "indent_level++;", 2)
+        self.emit(      "indtd = std::string(indent_level*indent_spaces, ' ');",2)
+        self.emit(  "}",1)
+        self.emit(  "void dec_indent() {", 1)
+        self.emit(      "indent_level--;", 2)
+        self.emit(      "LCOMPILERS_ASSERT(indent_level >= 0);", 2)
+        self.emit(      "indtd = std::string(indent_level*indent_spaces, ' ');",2)
+        self.emit(  "}",1)
+        self.emit(  "void append_location(std::string &s, uint32_t first, uint32_t last) {", 1)
+        self.emit(      's.append("\\"loc\\": {");', 2);
+        self.emit(      'inc_indent();', 2)
+        self.emit(      's.append("\\n" + indtd);', 2)
+        self.emit(      's.append("\\"first\\": " + std::to_string(first));', 2)
+        self.emit(      's.append(",\\n" + indtd);', 2)
+        self.emit(      's.append("\\"last\\": " + std::to_string(last));', 2)
+        self.emit(      '')
+        self.emit(      'uint32_t first_line = 0, first_col = 0;', 2)
+        self.emit(      'std::string first_filename;', 2)
+        self.emit(      'uint32_t last_line = 0, last_col = 0;', 2)
+        self.emit(      'std::string last_filename;', 2)
+        self.emit(      '')
+        self.emit(      'lm.pos_to_linecol(first, first_line, first_col, first_filename);', 2)
+        self.emit(      'lm.pos_to_linecol(last, last_line, last_col, last_filename);', 2)
+        self.emit(      '')
+        self.emit(      's.append(",\\n" + indtd);', 2)
+        self.emit(      's.append("\\"first_filename\\": \\"" + first_filename + "\\"");', 2)
+        self.emit(      's.append(",\\n" + indtd);', 2)
+        self.emit(      's.append("\\"first_line\\": " + std::to_string(first_line));', 2)
+        self.emit(      's.append(",\\n" + indtd);', 2)
+        self.emit(      's.append("\\"first_column\\": " + std::to_string(first_col));', 2)
+        self.emit(      's.append(",\\n" + indtd);', 2)
+        self.emit(      's.append("\\"last_filename\\": \\"" + last_filename + "\\"");', 2)
+        self.emit(      's.append(",\\n" + indtd);', 2)
+        self.emit(      's.append("\\"last_line\\": " + std::to_string(last_line));', 2)
+        self.emit(      's.append(",\\n" + indtd);', 2)
+        self.emit(      's.append("\\"last_column\\": " + std::to_string(last_col));', 2)
+        self.emit(      '')
+        self.emit(      'dec_indent();', 2)
+        self.emit(      's.append("\\n" + indtd);', 2)
+        self.emit(      's.append("}");', 2)
+        self.emit(  '}', 1)
+
+        self.mod = mod
+        super(JsonVisitorVisitor, self).visitModule(mod)
+        self.emit("};")
+
+    def visitType(self, tp):
+        super(JsonVisitorVisitor, self).visitType(tp, tp.name)
+
+    def visitSum(self, sum, *args):
+        assert isinstance(sum, asdl.Sum)
+        if is_simple_sum(sum):
+            name = args[0] + "Type"
+            self.make_simple_sum_visitor(name, sum.types)
+        else:
+            for tp in sum.types:
+                self.visit(tp, *args)
+
+    def visitProduct(self, prod, name):
+        self.make_visitor(name, prod.fields, False)
+
+    def visitConstructor(self, cons, _):
+        self.make_visitor(cons.name, cons.fields, True)
+
+    def make_visitor(self, name, fields, cons):
+        self.emit("void visit_%s(const %s_t &x) {" % (name, name), 1)
+        self.emit(    's.append("{");', 2)
+        self.emit(    'inc_indent(); s.append("\\n" + indtd);', 2)
+        self.emit(    's.append("\\"node\\": \\"%s\\"");' % name, 2)
+        self.emit(    's.append(",\\n" + indtd);', 2)
+        self.emit(    's.append("\\"fields\\": {");', 2)
+        if len(fields) > 0:
+            self.emit('inc_indent(); s.append("\\n" + indtd);', 2)
+            for n, field in enumerate(fields):
+                self.visitField(field, cons)
+                if n < len(fields) - 1:
+                    self.emit('s.append(",\\n" + indtd);', 2)
+            self.emit('dec_indent(); s.append("\\n" + indtd);', 2)
+        self.emit(    's.append("}");', 2)
+        self.emit(    's.append(",\\n" + indtd);', 2)
+        if name in products:
+            self.emit(    'append_location(s, x.loc.first, x.loc.last);', 2)
+        else:
+            self.emit(    'append_location(s, x.base.base.loc.first, x.base.base.loc.last);', 2)
+
+        self.emit(    'dec_indent(); s.append("\\n" + indtd);', 2)
+        self.emit(    's.append("}");', 2)
+        self.emit(    'if ((bool&)x) { } // Suppress unused warning', 2)
+        self.emit("}", 1)
+
+    def make_simple_sum_visitor(self, name, types):
+        self.emit("void visit_%s(const %s &x) {" % (name, name), 1)
+        self.emit(    'switch (x) {', 2)
+        for tp in types:
+            self.emit(    'case (%s::%s) : {' % (name, tp.name), 3)
+            self.emit(      's.append("\\"%s\\"");' % (tp.name), 4)
+            self.emit(     ' break; }',3)
+        self.emit(    '}', 2)
+        self.emit("}", 1)
+
+    def visitField(self, field, cons):
+        self.emit('s.append("\\"%s\\": ");' % field.name, 2)
+        if (field.type not in asdl.builtin_types and
+            field.type not in self.data.simple_types):
+            self.used = True
+            level = 2
+            if field.type in products:
+                if field.opt:
+                    template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
+                else:
+                    template = "self().visit_%s(x.m_%s);" % (field.type, field.name)
+            else:
+                template = "self().visit_%s(*x.m_%s);" % (field.type, field.name)
+            if field.seq:
+                self.emit('s.append("[");', level)
+                self.emit('if (x.n_%s > 0) {' % field.name, level)
+                self.emit(    'inc_indent(); s.append("\\n" + indtd);', level+1)
+                self.emit(    "for (size_t i=0; i<x.n_%s; i++) {" % field.name, level+1)
+                if field.type in sums:
+                    self.emit(    "self().visit_%s(*x.m_%s[i]);" % (field.type, field.name), level+2)
+                else:
+                    self.emit(    "self().visit_%s(x.m_%s[i]);" % (field.type, field.name), level+2)
+                self.emit(        'if (i < x.n_%s-1) {' % (field.name), level+2)
+                self.emit(            's.append(",\\n" + indtd);', level+3)
+                self.emit(        '};', level+2)
+                self.emit(    "}", level+1)
+                self.emit(    'dec_indent(); s.append("\\n" + indtd);', level+1)
+                self.emit('}', level)
+                self.emit('s.append("]");', level)
+            elif field.opt:
+                self.emit("if (x.m_%s) {" % field.name, level)
+                self.emit(    template, level+1)
+                self.emit("} else {", level)
+                self.emit(    's.append("[]");', level+1)
+                self.emit("}", 2)
+            else:
+                self.emit(template, level)
+        else:
+            if field.type == "identifier":
+                if field.seq:
+                    assert not field.opt
+                    level = 2
+                    self.emit('s.append("[");', level)
+                    self.emit('if (x.n_%s > 0) {' % field.name, level)
+                    self.emit(    'inc_indent(); s.append("\\n" + indtd);', level+1)
+                    self.emit(    "for (size_t i=0; i<x.n_%s; i++) {" % field.name, level+1)
+                    self.emit(        's.append("\\"" + std::string(x.m_%s[i]) + "\\"");' % (field.name), level+2)
+                    self.emit(        'if (i < x.n_%s-1) {' % (field.name), level+2)
+                    self.emit(            's.append(",\\n" + indtd);', level+3)
+                    self.emit(        '};', level+2)
+                    self.emit(    "}", level+1)
+                    self.emit(    'dec_indent(); s.append("\\n" + indtd);', level+1)
+                    self.emit('}', level)
+                    self.emit('s.append("]");', level)
+                else:
+                    if field.opt:
+                        self.emit("if (x.m_%s) {" % field.name, 2)
+                        self.emit(    's.append("\\"" + std::string(x.m_%s) + "\\"");' % field.name, 3)
+                        self.emit("} else {", 2)
+                        self.emit(    's.append("[]");', 3)
+                        self.emit("}", 2)
+                    else:
+                        self.emit('s.append("\\"" + std::string(x.m_%s) + "\\"");' % field.name, 2)
+            elif field.type == "node":
+                assert not field.opt
+                assert field.seq
+                level = 2
+                mod_name = self.mod.name.lower()
+                self.emit('s.append("[");', level)
+                self.emit('if (x.n_%s > 0) {' % field.name, level)
+                self.emit(    'inc_indent(); s.append("\\n" + indtd);', level+1)
+                self.emit(    "for (size_t i=0; i<x.n_%s; i++) {" % field.name, level+1)
+                self.emit(        "self().visit_%s(*x.m_%s[i]);" % (mod_name, field.name), level+2)
+                self.emit(        'if (i < x.n_%s-1) {' % (field.name), level+2)
+                self.emit(            's.append(",\\n" + indtd);', level+3)
+                self.emit(        '};', level+2)
+                self.emit(    "}", level+1)
+                self.emit(    'dec_indent(); s.append("\\n" + indtd);', level+1)
+                self.emit('}', level)
+                self.emit('s.append("]");', level)
+            elif field.type == "symbol_table":
+                assert not field.opt
+                assert not field.seq
+                if field.name == "parent_symtab":
+                    level = 2
+                    self.emit('s.append(x.m_%s->get_counter());' % field.name, level)
+                else:
+                    level = 2
+                    self.emit('s.append("{");', level)
+                    self.emit('inc_indent(); s.append("\\n" + indtd);', level)
+                    self.emit('s.append("\\"node\\": \\"SymbolTable" + x.m_%s->get_counter() +"\\"");' % field.name, level)
+                    self.emit('s.append(",\\n" + indtd);', level)
+                    self.emit('s.append("\\"fields\\": {");', level)
+                    self.emit('if (x.m_%s->get_scope().size() > 0) {' % field.name, level)
+                    self.emit(    'inc_indent(); s.append("\\n" + indtd);', level+1)
+                    self.emit(    'size_t i = 0;', level+1)
+                    self.emit(    'for (auto &a : x.m_%s->get_scope()) {' % field.name, level+1)
+                    self.emit(        's.append("\\"" + a.first + "\\": ");', level+2)
+                    self.emit(        'this->visit_symbol(*a.second);', level+2)
+                    self.emit(        'if (i < x.m_%s->get_scope().size()-1) { ' % field.name, level+2)
+                    self.emit(        '    s.append(",\\n" + indtd);', level+3)
+                    self.emit(        '}', level+2)
+                    self.emit(        'i++;', level+2)
+                    self.emit(    '}', level+1)
+                    self.emit(    'dec_indent(); s.append("\\n" + indtd);', level+1)
+                    self.emit('}', level)
+                    self.emit('s.append("}");', level)
+                    self.emit('dec_indent(); s.append("\\n" + indtd);', level)
+                    self.emit('s.append("}");', level)
+            elif field.type == "string" and not field.seq:
+                if field.opt:
+                    self.emit("if (x.m_%s) {" % field.name, 2)
+                    self.emit(    's.append("\\"" + std::string(x.m_%s) + "\\"");' % field.name, 3)
+                    self.emit("} else {", 2)
+                    self.emit(    's.append("[]");', 3)
+                    self.emit("}", 2)
+                else:
+                    self.emit('s.append("\\"" + std::string(x.m_%s) + "\\"");' % field.name, 2)
+            elif field.type == "int" and not field.seq:
+                if field.opt:
+                    self.emit("if (x.m_%s) {" % field.name, 2)
+                    self.emit(    's.append(std::to_string(x.m_%s));' % field.name, 3)
+                    self.emit("} else {", 2)
+                    self.emit(    's.append("[]");', 3)
+                    self.emit("}", 2)
+                else:
+                    self.emit('s.append(std::to_string(x.m_%s));' % field.name, 2)
+            elif field.type == "float" and not field.seq and not field.opt:
+                self.emit('s.append(std::to_string(x.m_%s));' % field.name, 2)
+            elif field.type == "bool" and not field.seq and not field.opt:
+                self.emit("if (x.m_%s) {" % field.name, 2)
+                self.emit(    's.append("true");', 3)
+                self.emit("} else {", 2)
+                self.emit(    's.append("false");', 3)
+                self.emit("}", 2)
+            elif field.type in self.data.simple_types:
+                if field.opt:
+                    self.emit('s.append("\\"Unimplementedopt\\"");', 2)
+                else:
+                    self.emit('visit_%sType(x.m_%s);' \
+                            % (field.type, field.name), 2)
+            else:
+                self.emit('s.append("\\"Unimplemented%s\\"");' % field.type, 2)
 
 
 class SerializationVisitorVisitor(ASDLVisitor):
@@ -1883,12 +2163,12 @@ class DeserializationVisitorVisitor(ASDLVisitor):
                             # symbol table that was not constructed yet. If
                             # that ever happens, we would have to remember
                             # this and come back later to fix the pointer.
-                            lines.append("LFORTRAN_ASSERT(id_symtab_map.find(m_%s_counter) != id_symtab_map.end());" % f.name)
+                            lines.append("LCOMPILERS_ASSERT(id_symtab_map.find(m_%s_counter) != id_symtab_map.end());" % f.name)
                             lines.append("SymbolTable *m_%s = id_symtab_map[m_%s_counter];" % (f.name, f.name))
                         else:
                             # We construct a new table. It should not
                             # be present:
-                            lines.append("LFORTRAN_ASSERT(id_symtab_map.find(m_%s_counter) == id_symtab_map.end());" % f.name)
+                            lines.append("LCOMPILERS_ASSERT(id_symtab_map.find(m_%s_counter) == id_symtab_map.end());" % f.name)
                             lines.append("SymbolTable *m_%s = al.make_new<SymbolTable>(nullptr);" % (f.name))
                             lines.append("if (load_symtab_id) m_%s->counter = m_%s_counter;" % (f.name, f.name))
                             lines.append("id_symtab_map[m_%s_counter] = m_%s;" % (f.name, f.name))
@@ -1965,7 +2245,7 @@ class ExprTypeVisitor(ASDLVisitor):
         self.emit("""\
 static inline ASR::ttype_t* expr_type0(const ASR::expr_t *f)
 {
-    LFORTRAN_ASSERT(f != nullptr);
+    LCOMPILERS_ASSERT(f != nullptr);
     switch (f->type) {""")
 
         super(ExprTypeVisitor, self).visitModule(mod)
@@ -1998,7 +2278,8 @@ static inline ASR::ttype_t* expr_type0(const ASR::expr_t *f)
             ASR::symbol_t *s = ((ASR::%s_t*)f)->m_v;
             if (s->type == ASR::symbolType::ExternalSymbol) {
                 ASR::ExternalSymbol_t *e = ASR::down_cast<ASR::ExternalSymbol_t>(s);
-                LFORTRAN_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
+                LCOMPILERS_ASSERT(e->m_external);
+                LCOMPILERS_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
                 s = e->m_external;
             }
             return ASR::down_cast<ASR::Variable_t>(s)->m_type;
@@ -2035,7 +2316,7 @@ class ExprValueVisitor(ASDLVisitor):
         self.emit("""\
 static inline ASR::expr_t* expr_value0(ASR::expr_t *f)
 {
-    LFORTRAN_ASSERT(f != nullptr);
+    LCOMPILERS_ASSERT(f != nullptr);
     switch (f->type) {""")
 
         super(ExprValueVisitor, self).visitModule(mod)
@@ -2068,7 +2349,7 @@ static inline ASR::expr_t* expr_value0(ASR::expr_t *f)
             ASR::symbol_t *s = ((ASR::%s_t*)f)->m_v;
             if (s->type == ASR::symbolType::ExternalSymbol) {
                 ASR::ExternalSymbol_t *e = ASR::down_cast<ASR::ExternalSymbol_t>(s);
-                LFORTRAN_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
+                LCOMPILERS_ASSERT(!ASR::is_a<ASR::ExternalSymbol_t>(*e->m_external));
                 s = e->m_external;
             }
             return ASR::down_cast<ASR::Variable_t>(s)->m_value;
@@ -2145,7 +2426,7 @@ HEAD = r"""#ifndef LFORTRAN_%(MOD2)s_H
 #include <libasr/asr_scopes.h>
 
 
-namespace LFortran::%(MOD)s {
+namespace LCompilers::%(MOD)s {
 
 enum %(mod)sType
 {
@@ -2170,8 +2451,8 @@ inline bool is_a(const U &x)
 template <class T, class U>
 static inline T* down_cast(const U *f)
 {
-    LFORTRAN_ASSERT(f != nullptr);
-    LFORTRAN_ASSERT(is_a<T>(*f));
+    LCOMPILERS_ASSERT(f != nullptr);
+    LCOMPILERS_ASSERT(is_a<T>(*f));
     return (T*)f;
 }
 
@@ -2187,7 +2468,7 @@ static inline T* down_cast2(const %(mod)s_t *f)
 
 """
 
-FOOT = r"""} // namespace LFortran::%(MOD)s
+FOOT = r"""} // namespace LCompilers::%(MOD)s
 
 #endif // LFORTRAN_%(MOD2)s_H
 """
@@ -2195,7 +2476,7 @@ FOOT = r"""} // namespace LFortran::%(MOD)s
 visitors = [ASTNodeVisitor0, ASTNodeVisitor1, ASTNodeVisitor,
         ASTVisitorVisitor1, ASTVisitorVisitor1b, ASTVisitorVisitor2,
         ASTWalkVisitorVisitor, TreeVisitorVisitor, PickleVisitorVisitor,
-        SerializationVisitorVisitor, DeserializationVisitorVisitor]
+        JsonVisitorVisitor, SerializationVisitorVisitor, DeserializationVisitorVisitor]
 
 
 def main(argv):

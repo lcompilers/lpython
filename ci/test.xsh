@@ -18,4 +18,7 @@ src/bin/lpython --show-cpp tests/doconcurrentloop_01.py
 if $WIN != "1":
     python run_tests.py
     cd integration_tests
-    ./run_tests.sh -j16
+    python run_tests_new.py -j16 -b llvm cpython c wasm
+
+    if $(uname).strip() == "Linux":
+        python run_tests_new.py -j16 -b x86 wasm_x86 wasm_x64

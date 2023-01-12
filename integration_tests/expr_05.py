@@ -13,9 +13,9 @@ def main0():
     b = -5
     assert test_multiply(a, b) == -50
     i: i64
-    i = 1
+    i = i64(1)
     i += int(1)
-    assert i == 2
+    assert i == i64(2)
     a = 2
     b = 5
     assert test_mod(a, b) == 2

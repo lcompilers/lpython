@@ -1,3 +1,5 @@
+from ltypes import f32, i32, i64, f64
+
 def test_boz():
     b: str
     b = bin(5)
@@ -25,9 +27,9 @@ def test_abs():
     a = abs(False)
     a = abs(True)
     b: f32
-    b = abs(3.45)
-    b = abs(-5346.34)
-    b = abs(complex(3.45, 5.6))
+    b = f32(abs(3.45))
+    b = f32(abs(-5346.34))
+    b = f32(abs(complex(3.45, 5.6)))
 
 
 def test_len():

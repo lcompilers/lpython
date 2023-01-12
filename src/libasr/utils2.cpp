@@ -9,7 +9,7 @@
 #include <libasr/utils.h>
 #include <libasr/string_utils.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 bool read_file(const std::string &filename, std::string &text)
 {
@@ -48,22 +48,20 @@ bool present(char** const v, size_t n, const std::string name) {
 
 Platform get_platform()
 {
-#ifdef _WIN32
+#if defined(_WIN32)
     return Platform::Windows;
-#else
-#    ifdef __APPLE__
-#        ifdef __aarch64__
+#elif defined(__APPLE__)
+#    ifdef __aarch64__
     return Platform::macOS_ARM;
-#        else
-    return Platform::macOS_Intel;
-#        endif
 #    else
-#        ifdef __FreeBSD__
-    return Platform::FreeBSD;
-#        else
-    return Platform::Linux;
-#        endif
+    return Platform::macOS_Intel;
 #    endif
+#elif defined(__FreeBSD__)
+    return Platform::FreeBSD;
+#elif defined(__OpenBSD__)
+    return Platform::OpenBSD;
+#else
+    return Platform::Linux;
 #endif
 }
 

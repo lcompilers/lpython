@@ -7,8 +7,7 @@
 
 #include <libasr/alloc.h>
 
-namespace LFortran
-{
+namespace LCompilers {
 
 
 bool startswith(const std::string &s, const std::string &e);
@@ -34,6 +33,6 @@ bool is_relative_path(const std::string &path);
 // Joins paths (paths can be empty)
 std::string join_paths(const std::vector<std::string> &paths);
 
-} // namespace LFortran
+} // namespace LCompilers
 
 #endif // LFORTRAN_STRING_UTILS_H

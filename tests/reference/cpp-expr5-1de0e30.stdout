@@ -1,0 +1,51 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <cassert>
+#include <cmath>
+#include <complex>
+#include <Kokkos_Core.hpp>
+#include <lfortran_intrinsics.h>
+
+template <typename T>
+Kokkos::View<T*> from_std_vector(const std::vector<T> &v)
+{
+    Kokkos::View<T*> r("r", v.size());
+    for (size_t i=0; i < v.size(); i++) {
+        r(i) = v[i];
+    }
+    return r;
+}
+
+
+struct dimension_descriptor
+{
+    int32_t lower_bound, length;
+};
+// Forward declarations
+void test_StrOp_concat();
+namespace {
+}
+
+// Implementations
+void test_StrOp_concat()
+{
+    std::string s;
+    s = std::string("3") + std::string("4");
+    s = std::string("a ") + std::string("test");
+    s = std::string(std::string("test") + std::string("test")) + std::string("test");
+}
+
+namespace {
+
+void main2() {
+}
+
+}
+int main(int argc, char* argv[])
+{
+    Kokkos::initialize(argc, argv);
+    main2();
+    Kokkos::finalize();
+    return 0;
+}

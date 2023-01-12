@@ -1,0 +1,13 @@
+{
+    "basename": "llvm-print_04-443a8d8",
+    "cmd": "lpython --no-color --show-llvm {infile} -o {outfile}",
+    "infile": "tests/../integration_tests/print_04.py",
+    "infile_hash": "d9eb6feb9aaa52c5cac94b3edd6c62f2611eda2c5ad191e44b42f480",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "llvm-print_04-443a8d8.stdout",
+    "stdout_hash": "1155cc520c53a4f152706d469e9abb0a2fbb96924300f27168b92c82",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+}
