@@ -395,7 +395,7 @@ void emit_print_int_64(X86Assembler &a, const std::string &name)
             a.asm_mov_r64_imm64(X64Reg::rdx, 1);
             a.asm_syscall();
         }
-        a.asm_pop_r64(X64Reg::r15); // increment stack pointer by pop operation
+        a.asm_add_r64_imm32(X64Reg::rsp, 8); // pop and increment stack pointer
         a.asm_jmp_label("_print_i64_digit");
 
     a.add_label("_print_i64_end");
@@ -421,7 +421,7 @@ void emit_print_double(X86Assembler &a, const std::string &name) {
     // print the integral part
     {
         a.asm_call_label("print_i64");
-        a.asm_pop_r64(X64Reg::rax); // remove the passed argument to print_i64
+        a.asm_add_r64_imm32(X64Reg::rsp, 8); // pop and increment stack pointer
     }
 
     // print dot
@@ -441,7 +441,7 @@ void emit_print_double(X86Assembler &a, const std::string &name) {
         // print the fractional part
         {
             a.asm_call_label("print_i64");
-            a.asm_pop_r64(X64Reg::rax); // pop the passed argument
+            a.asm_add_r64_imm32(X64Reg::rsp, 8); // pop and increment stack pointer
         }
     }
 
