@@ -56,6 +56,27 @@ namespace LCompilers {
         builder.CreateCall(fn_exit, {exit_code});
     }
 
+    // Insert the following anywhere inside the LLVM backend to print
+    // addresses at runtime:
+    // call_print_stacktrace_addresses(context, *module, *builder, {filename, use_colors});
+    static inline void call_print_stacktrace_addresses(llvm::LLVMContext &context,
+            llvm::Module &module, llvm::IRBuilder<> &builder,
+            const std::vector<llvm::Value*> &args)
+    {
+        llvm::Function *fn = module.getFunction("print_stacktrace_addresses");
+        if (!fn) {
+            llvm::FunctionType *function_type = llvm::FunctionType::get(
+                llvm::Type::getVoidTy(context), {
+                    llvm::Type::getInt8PtrTy(context),
+                    llvm::Type::getInt1Ty(context)
+                }, true);
+            fn = llvm::Function::Create(function_type,
+                llvm::Function::ExternalLinkage, "print_stacktrace_addresses",
+                &module);
+        }
+        builder.CreateCall(fn, args);
+    }
+
     namespace LLVM {
 
         llvm::Value* CreateLoad(llvm::IRBuilder<> &builder, llvm::Value *x);

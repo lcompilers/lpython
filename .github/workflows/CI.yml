@@ -63,6 +63,7 @@ jobs:
             echo "LFORTRAN_CMAKE_GENERATOR=Unix Makefiles" >> $GITHUB_ENV
             echo "WIN=0" >> $GITHUB_ENV
             echo "MACOS=0" >> $GITHUB_ENV
+            echo "ENABLE_RUNTIME_STACKTRACE=yes" >> $GITHUB_ENV
 
       - name: Setup Platform (macOS)
         if: contains(matrix.os, 'macos')
@@ -71,6 +72,7 @@ jobs:
             echo "LFORTRAN_CMAKE_GENERATOR=Unix Makefiles" >> $GITHUB_ENV
             echo "WIN=0" >> $GITHUB_ENV
             echo "MACOS=1" >> $GITHUB_ENV
+            echo "ENABLE_RUNTIME_STACKTRACE=yes" >> $GITHUB_ENV
 
       - name: Build (Linux / macOS)
         shell: bash -l {0}
@@ -88,6 +90,7 @@ jobs:
             set LFORTRAN_CMAKE_GENERATOR=Ninja
             set WIN=1
             set MACOS=0
+            set ENABLE_RUNTIME_STACKTRACE=no
             call "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
             xonsh ci\build.xsh
 

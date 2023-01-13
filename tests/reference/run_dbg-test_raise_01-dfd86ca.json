@@ -1,0 +1,13 @@
+{
+    "basename": "run_dbg-test_raise_01-dfd86ca",
+    "cmd": "lpython {infile} -g --debug-with-line-column --no-color",
+    "infile": "tests/runtime_errors/test_raise_01.py",
+    "infile_hash": "359f595e813294fccdacb372c25a2aa6d3827066af7d91db62e32d83",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "run_dbg-test_raise_01-dfd86ca.stderr",
+    "stderr_hash": "073aae20bbe7cf78e116825e3e825365b07230972ff7bcb3a5dddb93",
+    "returncode": 1
+}
