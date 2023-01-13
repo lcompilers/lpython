@@ -1751,50 +1751,53 @@ R"(#include <stdio.h>
         LCOMPILERS_ASSERT(a);
         LCOMPILERS_ASSERT(b);
         int increment;
+        bool is_c_constant = false;
         if (!c) {
             increment = 1;
+            is_c_constant = true;
         } else {
             ASR::expr_t* c_value = ASRUtils::expr_value(c);
-            bool is_c_constant = ASRUtils::extract_value(c_value, increment);
-            if( is_c_constant ) {
-                std::string cmp_op;
-                if (increment > 0) {
-                    cmp_op = "<=";
-                } else {
-                    cmp_op = ">=";
-                }
+            is_c_constant = ASRUtils::extract_value(c_value, increment);
+        }
 
-                out += lvname + "=";
-                self().visit_expr(*a);
-                out += src + "; " + lvname + cmp_op;
-                self().visit_expr(*b);
-                out += src + "; " + lvname;
-                if (increment == 1) {
-                    out += "++";
-                } else if (increment == -1) {
-                    out += "--";
-                } else {
-                    out += "+=" + std::to_string(increment);
-                }
+        if( is_c_constant ) {
+            std::string cmp_op;
+            if (increment > 0) {
+                cmp_op = "<=";
             } else {
-                this->visit_expr(*c);
-                std::string increment_ = std::move(src);
-                self().visit_expr(*b);
-                std::string do_loop_end = std::move(src);
-                std::string do_loop_end_name = current_scope->get_unique_name(
-                    "loop_end___" + std::to_string(loop_end_count));
-                loop_end_count += 1;
-                loop_end_decl = indent + CUtils::get_c_type_from_ttype_t(ASRUtils::expr_type(b), is_c) +
-                                " " + do_loop_end_name + " = " + do_loop_end + ";\n";
-                out += lvname + " = ";
-                self().visit_expr(*a);
-                out += src + "; ";
-                out += "((" + increment_ + " >= 0) && (" +
-                        lvname + " <= " + do_loop_end_name + ")) || (("
-                        + increment_ + " < 0) && (" + lvname + " >= "
-                        + do_loop_end_name + ")); " + lvname;
-                out += " += " + increment_;
+                cmp_op = ">=";
             }
+
+            out += lvname + "=";
+            self().visit_expr(*a);
+            out += src + "; " + lvname + cmp_op;
+            self().visit_expr(*b);
+            out += src + "; " + lvname;
+            if (increment == 1) {
+                out += "++";
+            } else if (increment == -1) {
+                out += "--";
+            } else {
+                out += "+=" + std::to_string(increment);
+            }
+        } else {
+            this->visit_expr(*c);
+            std::string increment_ = std::move(src);
+            self().visit_expr(*b);
+            std::string do_loop_end = std::move(src);
+            std::string do_loop_end_name = current_scope->get_unique_name(
+                "loop_end___" + std::to_string(loop_end_count));
+            loop_end_count += 1;
+            loop_end_decl = indent + CUtils::get_c_type_from_ttype_t(ASRUtils::expr_type(b), is_c) +
+                            " " + do_loop_end_name + " = " + do_loop_end + ";\n";
+            out += lvname + " = ";
+            self().visit_expr(*a);
+            out += src + "; ";
+            out += "((" + increment_ + " >= 0) && (" +
+                    lvname + " <= " + do_loop_end_name + ")) || (("
+                    + increment_ + " < 0) && (" + lvname + " >= "
+                    + do_loop_end_name + ")); " + lvname;
+            out += " += " + increment_;
         }
 
         out += ") {\n";
