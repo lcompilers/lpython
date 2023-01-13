@@ -4261,6 +4261,10 @@ public:
             a_kind, nullptr, 0));
         ASR::expr_t *constant_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
                                             al, loc, 1, a_type));
+        ASR::expr_t *constant_neg_one = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
+                                            al, loc, -1, a_type));
+        ASR::expr_t *constant_zero = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(
+                                            al, loc, 0, a_type));
         if (!loop_start) {
             loop_start = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, 0, a_type));
         }
@@ -4305,20 +4309,34 @@ public:
         ASR::expr_t *inc_value = ASRUtils::expr_value(inc);
         int64_t inc_int = 1;
         bool is_value_present = ASRUtils::extract_value(inc_value, inc_int);
-        if (!is_value_present) {
-            throw SemanticError("For loop increment should Compile time constant.", loc);
+        if (is_value_present) {
+            // Loop end depends upon the sign of m_increment.
+            // if inc > 0 then: loop_end -=1 else loop_end += 1
+            ASR::binopType offset_op;
+            if (inc_int < 0 ) {
+                offset_op = ASR::binopType::Add;
+            } else {
+                offset_op = ASR::binopType::Sub;
+            }
+            make_BinOp_helper(loop_end, constant_one,
+                            offset_op, loc, false);
+        } else {
+            ASR::ttype_t* logical_type = ASRUtils::TYPE(ASR::make_Logical_t(al, inc->base.loc, 4, nullptr, 0));
+            ASR::expr_t* inc_pos = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, inc->base.loc, inc,
+                ASR::cmpopType::GtE, constant_zero, logical_type, nullptr));
+            ASR::expr_t* inc_neg = ASRUtils::EXPR(ASR::make_IntegerCompare_t(al, inc->base.loc, inc,
+                ASR::cmpopType::Lt, constant_zero, logical_type, nullptr));
+            cast_helper(a_type, inc_pos, inc->base.loc, true);
+            cast_helper(a_type, inc_neg, inc->base.loc, true);
+            make_BinOp_helper(inc_pos, constant_neg_one, ASR::binopType::Mul, inc->base.loc, false);
+            ASR::expr_t* case_1 = ASRUtils::EXPR(tmp);
+            make_BinOp_helper(inc_neg, constant_one, ASR::binopType::Mul, inc->base.loc, false);
+            ASR::expr_t* case_2 = ASRUtils::EXPR(tmp);
+            make_BinOp_helper(case_1, case_2, ASR::binopType::Add, inc->base.loc, false);
+            ASR::expr_t* cases_combined = ASRUtils::EXPR(tmp);
+            make_BinOp_helper(loop_end, cases_combined, ASR::binopType::Add, loop_end->base.loc, false);
         }
 
-        // Loop end depends upon the sign of m_increment.
-        // if inc > 0 then: loop_end -=1 else loop_end += 1
-        ASR::binopType offset_op;
-        if (inc_int < 0 ) {
-            offset_op = ASR::binopType::Add;
-        } else {
-            offset_op = ASR::binopType::Sub;
-        }
-        make_BinOp_helper(loop_end, constant_one,
-                          offset_op, loc, false);
         head.m_end = ASRUtils::EXPR(tmp);
 
 
