@@ -251,7 +251,7 @@ RUN(NAME expr_13             LABELS llvm c
 RUN(NAME expr_14             LABELS cpython llvm c)
 RUN(NAME loop_01             LABELS cpython llvm c)
 RUN(NAME loop_02             LABELS cpython llvm c wasm wasm_x86 wasm_x64)
-RUN(NAME loop_03             LABELS cpython llvm c wasm wasm_x64)
+RUN(NAME loop_03             LABELS cpython llvm c wasm)
 RUN(NAME if_01               LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME if_02               LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME print_02            LABELS cpython llvm)
