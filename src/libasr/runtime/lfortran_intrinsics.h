@@ -6,6 +6,10 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
+#ifdef WASM_RT_LIB
+	#include <emscripten.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -32,6 +36,11 @@ typedef double _Complex double_complex_t;
 #define LFORTRAN_API __attribute__((visibility("default")))
 #else
 #define LFORTRAN_API /* Nothing */
+#endif
+
+#ifdef WASM_RT_LIB
+	#undef LFORTRAN_API
+	#define LFORTRAN_API EMSCRIPTEN_KEEPALIVE
 #endif
 
 LFORTRAN_API double _lfortran_sum(int n, double *v);
