@@ -91,7 +91,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
             }
             case 3: {  // print_f64
                 m_a.asm_call_label("print_f64");
-                m_a.asm_pop_r64(X64Reg::r15); // pop the passed argument
+                m_a.asm_add_r64_imm32(X64Reg::rsp, 8); // pop the passed argument
                 break;
             }
             case 4: {  // print_str
@@ -133,9 +133,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
 
         // Pop the passed function arguments
         wasm::FuncType func_type = func_types[type_indices[func_idx]];
-        for (uint32_t i = 0; i < func_type.param_types.size(); i++) {
-            m_a.asm_pop_r64(X64Reg::rax);
-        }
+        m_a.asm_add_r64_imm32(X64Reg::rsp, 8 * func_type.param_types.size()); // pop the passed argument
 
         // Adjust the return values of the called function
         X64Reg base = X64Reg::rsp;
@@ -224,7 +222,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, 8 * (2 + localidx));
                 m_a.asm_push_r64(X64Reg::rax);
             } else if (var_type == "f64") {
-                m_a.asm_push_r64(X64Reg::rax); // temporary push to create space for value to be fetched
+                m_a.asm_sub_r64_imm32(X64Reg::rsp,  8); // create space for value to be fetched
                 m_a.asm_movsd_r64_m64(X64FReg::xmm0, &base, nullptr, 1, 8 * (2 + localidx));
                 X64Reg stack_top = X64Reg::rsp;
                 m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0);
@@ -238,7 +236,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 m_a.asm_mov_r64_m64(X64Reg::rax, &base, nullptr, 1, -8 * (1 + (int)localidx));
                 m_a.asm_push_r64(X64Reg::rax);
             } else if (var_type == "f64") {
-                m_a.asm_push_r64(X64Reg::rax); // temporary push to create space for value to be fetched
+                m_a.asm_sub_r64_imm32(X64Reg::rsp,  8); // create space for value to be fetched
                 m_a.asm_movsd_r64_m64(X64FReg::xmm0, &base, nullptr, 1, -8 * (1 + (int)localidx));
                 X64Reg stack_top = X64Reg::rsp;
                 m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0);
@@ -261,7 +259,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 X64Reg stack_top = X64Reg::rsp;
                 m_a.asm_movsd_r64_m64(X64FReg::xmm0, &stack_top, nullptr, 1, 0);
                 m_a.asm_movsd_m64_r64(&base, nullptr, 1, 8 * (2 + localidx), X64FReg::xmm0);
-                m_a.asm_pop_r64(X64Reg::rax); // temporary pop to remove from stack top
+                m_a.asm_add_r64_imm32(X64Reg::rsp, 8); // remove from stack top
             } else {
                 throw CodeGenError("WASM_X64: Var type not supported");
             }
@@ -275,7 +273,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 X64Reg stack_top = X64Reg::rsp;
                 m_a.asm_movsd_r64_m64(X64FReg::xmm0, &stack_top, nullptr, 1, 0);
                 m_a.asm_movsd_m64_r64(&base, nullptr, 1, -8 * (1 + (int)localidx), X64FReg::xmm0);
-                m_a.asm_pop_r64(X64Reg::rax); // temporary pop to remove from stack top
+                m_a.asm_add_r64_imm32(X64Reg::rsp, 8); // remove from stack top
             } else {
                 throw CodeGenError("WASM_X64: Var type not supported");
             }
@@ -349,7 +347,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         m_a.asm_mov_r64_label(X64Reg::rax, label);
         X64Reg label_reg = X64Reg::rax;
         m_a.asm_movsd_r64_m64(X64FReg::xmm0, &label_reg, nullptr, 1, 0); // load into floating-point register
-        m_a.asm_push_r64(X64Reg::rax); // decrement stack and create space
+        m_a.asm_sub_r64_imm32(X64Reg::rsp, 8); // decrement stack and create space
         X64Reg stack_top = X64Reg::rsp;
         m_a.asm_movsd_m64_r64(&stack_top, nullptr, 1, 0, X64FReg::xmm0); // store float on integer stack top;
     }
@@ -360,7 +358,7 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         X64Reg stack_top = X64Reg::rsp;
         // load second operand into floating-point register
         m_a.asm_movsd_r64_m64(X64FReg::xmm1, &stack_top, nullptr, 1, 0);
-        m_a.asm_pop_r64(X64Reg::rax); // pop the argument
+        m_a.asm_add_r64_imm32(X64Reg::rsp, 8); // pop the argument
         // load first operand into floating-point register
         m_a.asm_movsd_r64_m64(X64FReg::xmm0, &stack_top, nullptr, 1, 0);
         // no need to pop this operand since we need space to output back result
@@ -405,13 +403,9 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
                 m_a.asm_push_r64(X64Reg::rbp);
                 m_a.asm_mov_r64_r64(X64Reg::rbp, X64Reg::rsp);
 
-                // Initialize local variables to zero and thus allocate space
-                m_a.asm_mov_r64_imm64(X64Reg::rax, 0u);
-                for (auto &local_var_info:codes[idx].locals) {
-                    for (uint32_t cnt = 0u; cnt < local_var_info.count; cnt++) {
-                        m_a.asm_push_r64(X64Reg::rax);
-                    }
-                }
+                // Allocate space for local variables
+                // TODO: locals is an array where every element has a count (currently wasm emits count = 1 always)
+                m_a.asm_sub_r64_imm32(X64Reg::rsp, 8 * codes[idx].locals.size());
 
                 offset = codes[idx].insts_start_index;
                 cur_func_idx = idx;

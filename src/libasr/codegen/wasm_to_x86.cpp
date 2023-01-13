@@ -121,9 +121,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         // Pop the passed function arguments
         wasm::FuncType func_type =
             func_types[type_indices[imports_adjusted_func_index]];
-        for (uint32_t i = 0; i < func_type.param_types.size(); i++) {
-            m_a.asm_pop_r32(X86Reg::eax);
-        }
+        m_a.asm_add_r32_imm32(X86Reg::esp, 4 * func_type.param_types.size()); // pop the passed arguments
 
         // Adjust the return values of the called function
         X86Reg base = X86Reg::esp;
@@ -210,7 +208,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
                 m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, 8 + 4 * localidx);
                 m_a.asm_push_r32(X86Reg::eax);
             } else if (var_type == "f64") {
-                m_a.asm_push_imm32(0); // decrement stack top and thus create space for value to get
+                m_a.asm_sub_r32_imm32(X86Reg::esp,  4); // create space for value to be fetched
                 X86Reg stack_top = X86Reg::esp;
                 m_a.asm_fld_m32(&base, nullptr, 1, 8 + 4 * localidx);
                 m_a.asm_fstp_m32(&stack_top, nullptr, 1, 0);
@@ -225,7 +223,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
                 m_a.asm_mov_r32_m32(X86Reg::eax, &base, nullptr, 1, -4 - 4 * localidx);
                 m_a.asm_push_r32(X86Reg::eax);
             } else if (var_type == "f64") {
-                m_a.asm_push_imm32(0); // decrement stack top and thus create space for value to get
+                m_a.asm_sub_r32_imm32(X86Reg::esp,  4); // create space for value to be fetched
                 X86Reg stack_top = X86Reg::esp;
                 m_a.asm_fld_m32(&base, nullptr, 1, -4 - 4 * localidx);
                 m_a.asm_fstp_m32(&stack_top, nullptr, 1, 0);
@@ -338,8 +336,8 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
         m_a.asm_mov_r32_label(X86Reg::eax, label);
         X86Reg label_reg = X86Reg::eax;
         m_a.asm_fld_m32(&label_reg, nullptr, 1, 0); // loads into floating register stack
+        m_a.asm_sub_r32_imm32(X86Reg::esp,  4); // decrement stack and create space
         X86Reg stack_top = X86Reg::esp;
-        m_a.asm_push_imm32(0); // decrement stack and create space
         m_a.asm_fstp_m32(&stack_top, nullptr, 1, 0); // store float on integer stack top;
     }
 
@@ -373,14 +371,9 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
                 m_a.asm_push_r32(X86Reg::ebp);
                 m_a.asm_mov_r32_r32(X86Reg::ebp, X86Reg::esp);
 
-                // Initialze local variables to zero and thus allocate space
-                m_a.asm_mov_r32_imm32(X86Reg::eax, 0U);
-                for (uint32_t j = 0; j < codes.p[i].locals.size(); j++) {
-                    for (uint32_t k = 0; k < codes.p[i].locals.p[j].count;
-                         k++) {
-                        m_a.asm_push_r32(X86Reg::eax);
-                    }
-                }
+                 // Allocate space for local variables
+                // TODO: locals is an array where every element has a count (currently wasm emits count = 1 always)
+                m_a.asm_sub_r32_imm32(X86Reg::esp, 4 * codes[i].locals.size());
 
                 offset = codes.p[i].insts_start_index;
                 cur_func_idx = i;
