@@ -3320,6 +3320,8 @@ public:
         Vec<ASR::ttype_t*> tps;
         tps.reserve(al, x.m_args.n_args);
         bool is_restriction = false;
+        bool is_deterministic = false;
+        bool is_side_effect_free = false;
 
         if (x.n_decorator_list > 0) {
             for(size_t i=0; i<x.n_decorator_list; i++) {
@@ -3482,7 +3484,7 @@ public:
                     /* a_return_var */ ASRUtils::EXPR(return_var_ref),
                     current_procedure_abi_type,
                     s_access, deftype, bindc_name, vectorize, false, false, is_inline, is_static,
-                    tps.p, tps.size(), nullptr, 0, is_restriction);
+                    tps.p, tps.size(), nullptr, 0, is_restriction, is_deterministic, is_side_effect_free);
             } else {
                 throw SemanticError("Return variable must be an identifier (Name AST node) or an array (Subscript AST node)",
                     x.m_returns->base.loc);
@@ -3507,7 +3509,7 @@ public:
                 current_procedure_abi_type,
                 s_access, deftype, bindc_name,
                 false, is_pure, is_module, is_inline, is_static,
-                tps.p, tps.size(), nullptr, 0, is_restriction);
+                tps.p, tps.size(), nullptr, 0, is_restriction, is_deterministic, is_side_effect_free);
         }
         ASR::symbol_t * t = ASR::down_cast<ASR::symbol_t>(tmp);
         parent_scope->add_symbol(sym_name, t);

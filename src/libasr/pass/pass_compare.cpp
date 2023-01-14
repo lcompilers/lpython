@@ -233,7 +233,7 @@ public:
             false, false, false, false, false,
             nullptr, 0,
             nullptr, 0,
-            false);
+            false, false, false);
         ASR::symbol_t *fn_sym = ASR::down_cast<ASR::symbol_t>(fn);
         global_scope->add_symbol(fn_name, fn_sym);
         compare_func_map[tuple_type_name] = fn_sym;
@@ -424,7 +424,7 @@ public:
             false, false, false, false, false,
             nullptr, 0,
             nullptr, 0,
-            false);
+            false, false, false);
         ASR::symbol_t *fn_sym = ASR::down_cast<ASR::symbol_t>(fn);
         global_scope->add_symbol(fn_name, fn_sym);
         compare_func_map[list_type_name] = fn_sym;

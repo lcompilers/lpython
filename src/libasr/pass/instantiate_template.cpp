@@ -147,7 +147,7 @@ public:
             new_return_var_ref,
             func_abi, func_access, func_deftype, bindc_name,
             func_elemental, func_pure, func_module, x->m_inline,
-            x->m_static, nullptr, 0, nullptr, 0, false);
+            x->m_static, nullptr, 0, nullptr, 0, false, false, false);
 
         ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(result);
         func_scope->add_symbol(new_func_name, t);
