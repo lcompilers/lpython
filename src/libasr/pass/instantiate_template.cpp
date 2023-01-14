@@ -29,8 +29,10 @@ public:
         {}
 
     ASR::asr_t* instantiate_Function(ASR::Function_t *x) {
+        current_scope = al.make_new<SymbolTable>(x->m_symtab->parent);
+        
         dependencies.clear();
-        current_scope = al.make_new<SymbolTable>(func_scope);
+        //current_scope = al.make_new<SymbolTable>(func_scope);
 
         Vec<ASR::expr_t*> args;
         args.reserve(al, x->n_args);
@@ -150,7 +152,8 @@ public:
             x->m_static, nullptr, 0, nullptr, 0, false);
 
         ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(result);
-        func_scope->add_symbol(new_func_name, t);
+        x->m_symtab->parent->add_symbol(new_func_name, t);
+        //func_scope->add_symbol(new_func_name, t);
 
         return result;
     }
@@ -236,7 +239,7 @@ public:
 
     ASR::asr_t* duplicate_FunctionCall(ASR::FunctionCall_t *x) {
         std::string sym_name = ASRUtils::symbol_name(x->m_name);
-        ASR::symbol_t *name = func_scope->get_symbol(sym_name);
+        ASR::symbol_t *name = func_scope->resolve_symbol(sym_name);
         Vec<ASR::call_arg_t> args;
         args.reserve(al, x->n_args);
         for (size_t i=0; i<x->n_args; i++) {
@@ -281,7 +284,8 @@ public:
         if (ASRUtils::is_restriction_function(name)) {
             name = rt_subs[call_name];
         } else if (ASRUtils::is_generic_function(name)) {
-            std::string nested_func_name = "__lfortran_generic_" + sym_name;
+            int nested_func_num = ASRUtils::get_generic_function_num(sym_name, func_scope);
+            std::string nested_func_name = "__lpython_generic_" + sym_name + "_" + std::to_string(nested_func_num);
             ASR::symbol_t* name2 = ASRUtils::symbol_get_past_external(name);
             ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(name2);
             FunctionInstantiator nested_tf(al, subs, rt_subs, func_scope, nested_func_name);
@@ -425,18 +429,10 @@ public:
 };
 
 ASR::symbol_t* pass_instantiate_generic_function(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,
-        std::map<std::string, ASR::symbol_t*>& rt_subs, SymbolTable *current_scope,
+        std::map<std::string, ASR::symbol_t*> rt_subs, SymbolTable *current_scope,
         std::string new_func_name, ASR::symbol_t *sym) {
     ASR::symbol_t* sym2 = ASRUtils::symbol_get_past_external(sym);
     ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(sym2);
-    FunctionInstantiator tf(al, subs, rt_subs, current_scope, new_func_name);
-    ASR::asr_t *new_function = tf.instantiate_Function(func);
-    return ASR::down_cast<ASR::symbol_t>(new_function);
-}
-
-ASR::symbol_t* pass_instantiate_generic_function(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,
-        std::map<std::string, ASR::symbol_t*>& rt_subs, SymbolTable *current_scope,
-        std::string new_func_name, ASR::Function_t *func) {
     FunctionInstantiator tf(al, subs, rt_subs, current_scope, new_func_name);
     ASR::asr_t *new_function = tf.instantiate_Function(func);
     return ASR::down_cast<ASR::symbol_t>(new_function);

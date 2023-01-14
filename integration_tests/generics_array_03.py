@@ -27,10 +27,10 @@ def main():
     b_int: i32[1,1] = empty([1,1])
     b_int[0,0] = 20
     g(1, 1, a_int, b_int)
-    a_float: i32[1,1] = empty([1,1])
-    a_float[0,0] = 400
-    b_float: i32[1,1] = empty([1,1])
-    b_float[0,0] = 20
+    a_float: f64[1,1] = empty([1,1])
+    a_float[0,0] = 400.0
+    b_float: f64[1,1] = empty([1,1])
+    b_float[0,0] = 20.0
     g(1, 1, a_float, b_float)
 
 main()
