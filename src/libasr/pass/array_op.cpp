@@ -136,7 +136,7 @@ public:
             false, s->m_inline, s->m_static,
             s->m_type_params, s->n_type_params,
             s->m_restrictions, s->n_restrictions,
-            s->m_is_restriction);
+            s->m_is_restriction, s->m_deterministic, s->m_side_effect_free);
         ASR::symbol_t* s_sub = ASR::down_cast<ASR::symbol_t>(s_sub_asr);
         return s_sub;
     }

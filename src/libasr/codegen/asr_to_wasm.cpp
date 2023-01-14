@@ -178,7 +178,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             nullptr, 0, params.data(), params.size(), nullptr, 0, nullptr,
             ASR::abiType::Source, ASR::accessType::Public,
             ASR::deftypeType::Implementation, nullptr, false, false, false, false, false,
-            nullptr, 0, nullptr, 0, false);
+            nullptr, 0, nullptr, 0, false, false, false);
         m_import_func_asr_map[import_func.name] = func;
 
         wasm::emit_import_fn(m_import_section, m_al, "js", import_func.name,
@@ -355,7 +355,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
             nullptr, 0, nullptr, 0, x.m_body, x.n_body, nullptr,
             ASR::abiType::Source, ASR::accessType::Public,
             ASR::deftypeType::Implementation, nullptr, false, false, false, false, false,
-            nullptr, 0, nullptr, 0, false);
+            nullptr, 0, nullptr, 0, false, false, false);
         emit_function_prototype(*((ASR::Function_t *)main_func));
         emit_function_body(*((ASR::Function_t *)main_func));
     }
