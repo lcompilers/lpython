@@ -1260,7 +1260,6 @@ LFORTRAN_API char *_lpython_get_argv(int32_t index) {
 
 // >> Runtime Stacktrace >> ----------------------------------------------------
 #ifdef HAVE_RUNTIME_STACKTRACE
-
 #ifdef HAVE_LFORTRAN_UNWIND
 static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
         void *vdata) {
@@ -1508,8 +1507,10 @@ char *remove_whitespace(char *str) {
     end[1] = '\0';
     return str;
 }
+#endif // HAVE_RUNTIME_STACKTRACE
 
 LFORTRAN_API void print_stacktrace_addresses(char *filename, bool use_colors) {
+#ifdef HAVE_RUNTIME_STACKTRACE
     source_filename = filename;
     struct Stacktrace d = get_stacktrace_addresses();
     get_local_address(&d);
@@ -1548,7 +1549,7 @@ LFORTRAN_API void print_stacktrace_addresses(char *filename, bool use_colors) {
 #else
     }
 #endif
+#endif // HAVE_RUNTIME_STACKTRACE
 }
 
-#endif // HAVE_RUNTIME_STACKTRACE
 // << Runtime Stacktrace << ----------------------------------------------------

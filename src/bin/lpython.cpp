@@ -601,6 +601,17 @@ int emit_llvm(const std::string &infile,
     LCompilers::PythonCompiler fe(compiler_options);
     LCompilers::Result<std::unique_ptr<LCompilers::LLVMModule>>
         res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
+    if (compiler_options.emit_debug_info) {
+        if (!compiler_options.emit_debug_line_column) {
+            diagnostics.add(LCompilers::diag::Diagnostic(
+                "The `emit_debug_line_column` is not enabled; please use the "
+                "`--debug-with-line-column` option to get the correct "
+                "location information",
+                LCompilers::diag::Level::Warning,
+                LCompilers::diag::Stage::Semantic, {})
+            );
+        }
+    }
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -681,6 +692,27 @@ int compile_python_to_object_file(
         res = fe.get_llvm3(*asr, pass_manager, diagnostics, infile);
     auto asr_to_llvm_end = std::chrono::high_resolution_clock::now();
     times.push_back(std::make_pair("ASR to LLVM", std::chrono::duration<double, std::milli>(asr_to_llvm_end - asr_to_llvm_start).count()));
+
+    if (compiler_options.emit_debug_info) {
+#ifdef HAVE_RUNTIME_STACKTRACE
+        if (!compiler_options.emit_debug_line_column) {
+            diagnostics.add(LCompilers::diag::Diagnostic(
+                "The `emit_debug_line_column` is not enabled; please use the "
+                "`--debug-with-line-column` option to get the correct "
+                "location information",
+                LCompilers::diag::Level::Warning,
+                LCompilers::diag::Stage::Semantic, {})
+            );
+        }
+#else
+    diagnostics.add(LCompilers::diag::Diagnostic(
+        "The `runtime stacktrace` is not enabled. To get the stacktraces, "
+        "recompile with `-DWITH_RUNTIME_STACKTRACE=yes`",
+        LCompilers::diag::Level::Warning,
+        LCompilers::diag::Stage::Semantic, {})
+    );
+#endif
+    }
     std::cerr << diagnostics.render(lm, compiler_options);
     if (!res.ok) {
         LCOMPILERS_ASSERT(diagnostics.has_error())
@@ -1640,6 +1672,7 @@ int main(int argc, char *argv[])
                     backend, static_link, true, compiler_options);
                 if (err != 0) return err;
 
+#ifdef HAVE_RUNTIME_STACKTRACE
                 if (compiler_options.emit_debug_info) {
                     // TODO: Replace the following hardcoded part
                     std::string cmd = "";
@@ -1662,6 +1695,7 @@ int main(int argc, char *argv[])
                         return status;
                     }
                 }
+#endif
 #else
                 std::cerr << "Compiling Python files to object files requires the LLVM backend to be enabled. Recompile with `WITH_LLVM=yes`." << std::endl;
                 return 1;
