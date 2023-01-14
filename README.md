@@ -116,7 +116,7 @@ Run integration tests:
 
 ```bash
 cd integration_tests
-./run_tests.sh
+./run_tests.py
 ```
 
 ### Speed up Integration Test on Macs
