@@ -1495,6 +1495,9 @@ static inline uint64_t bisection(const uint64_t vec[],
 }
 
 char *remove_whitespace(char *str) {
+    if (str == NULL || str[0] == '\0') {
+        return "(null)";
+    }
     char *end;
     // remove leading space
     while(isspace((unsigned char)*str)) str++;
