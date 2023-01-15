@@ -246,7 +246,7 @@ def mode(x: list[i32]) -> i32:
 @overload
 def variance(x: list[f64]) -> f64:
     """
-    Returns the varience of a data sequence of numbers
+    Returns the variance of a data sequence of numbers
     """
     n: i32
     n = len(x)
@@ -264,7 +264,7 @@ def variance(x: list[f64]) -> f64:
 @overload
 def variance(x: list[i32]) -> f64:
     """
-    Returns the varience of a data sequence of numbers
+    Returns the variance of a data sequence of numbers
     """
     n: i32
     n = len(x)
@@ -298,7 +298,7 @@ def stdev(x: list[i32]) -> f64:
 @overload
 def pvariance(x: list[f64]) -> f64:
     """
-    Returns the population varience of a data sequence of numbers
+    Returns the population variance of a data sequence of numbers
     """
     n: i32
     n = len(x)
@@ -316,7 +316,7 @@ def pvariance(x: list[f64]) -> f64:
 @overload
 def pvariance(x: list[i32]) -> f64:
     """
-    Returns the population varience of a data sequence of numbers
+    Returns the population variance of a data sequence of numbers
     """
     n: i32
     n = len(x)

@@ -1256,7 +1256,7 @@ public:
         }
         prototype_only = false;
 
-        // TODO: handle depencencies across modules and main program
+        // TODO: handle dependencies across modules and main program
 
         // Then do all the modules in the right order
         std::vector<std::string> build_order

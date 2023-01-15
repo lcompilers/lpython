@@ -1777,7 +1777,7 @@ public:
                 tmp = make_call_helper(al, fn_div, current_scope, args, "_lpython_floordiv", loc);
                 return;
 
-            } else { // real divison in python using (`/`)
+            } else { // real division in python using (`/`)
                 ASR::ttype_t* left_type = ASRUtils::expr_type(left);
                 ASR::ttype_t* right_type = ASRUtils::expr_type(right);
                 ASR::dimension_t *m_dims_left = nullptr, *m_dims_right = nullptr;

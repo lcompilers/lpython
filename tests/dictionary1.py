@@ -1,7 +1,7 @@
 def test_Dict():
     x: dict[i32, i32]
     x = {1: 2, 3: 4}
-    # x = {1: "2", "3": 4} -> sematic error
+    # x = {1: "2", "3": 4} -> semantic error
 
     y: dict[str, i32]
     y = {"a": -1, "b": -2}

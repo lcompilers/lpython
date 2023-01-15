@@ -21,7 +21,7 @@ pushed back onto the stack.
 
 One of the reasons to use stack to pass function arguments is that,
 it allows us to define and call functions with any number of parameters.
-As registers are limited in number, if we use them to pass function arugments,
+As registers are limited in number, if we use them to pass function arguments,
 the number of arguments we could pass to a function would get limited by
 the number of registers available with the CPU.
 
@@ -382,7 +382,7 @@ class X86Visitor : public WASMDecoder<X86Visitor>,
                 m_a.asm_push_r32(X86Reg::ebp);
                 m_a.asm_mov_r32_r32(X86Reg::ebp, X86Reg::esp);
 
-                // Initialze local variables to zero and thus allocate space
+                // Initialize local variables to zero and thus allocate space
                 m_a.asm_mov_r32_imm32(X86Reg::eax, 0U);
                 for (uint32_t j = 0; j < codes.p[i].locals.size(); j++) {
                     for (uint32_t k = 0; k < codes.p[i].locals.p[j].count;
