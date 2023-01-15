@@ -707,7 +707,7 @@ int compile_python_to_object_file(
 #else
     diagnostics.add(LCompilers::diag::Diagnostic(
         "The `runtime stacktrace` is not enabled. To get the stacktraces, "
-        "recompile with `-DWITH_RUNTIME_STACKTRACE=yes`",
+        "re-build LPython with `-DWITH_RUNTIME_STACKTRACE=yes`",
         LCompilers::diag::Level::Warning,
         LCompilers::diag::Stage::Semantic, {})
     );
