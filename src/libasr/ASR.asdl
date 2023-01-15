@@ -87,7 +87,8 @@ symbol
     | Function(symbol_table symtab, identifier name, identifier* dependencies, expr* args, stmt* body,
         expr? return_var, abi abi, access access, deftype deftype,
         string? bindc_name, bool elemental, bool pure, bool module, bool inline,
-        bool static, ttype* type_params, symbol* restrictions, bool is_restriction)
+        bool static, ttype* type_params, symbol* restrictions, bool is_restriction,
+        bool deterministic, bool side_effect_free)
     | GenericProcedure(symbol_table parent_symtab, identifier name,
         symbol* procs, access access)
     | CustomOperator(symbol_table parent_symtab, identifier name,
@@ -107,8 +108,8 @@ symbol
         intent intent, expr? symbolic_value, expr? value, storage_type storage, ttype type,
         abi abi, access access, presence presence, bool value_attr)
     | ClassType(symbol_table symtab, identifier name, abi abi, access access)
-    | ClassProcedure(symbol_table parent_symtab, identifier name, identifier proc_name,
-        symbol proc, abi abi)
+    | ClassProcedure(symbol_table parent_symtab, identifier name, identifier? self_argument,
+        identifier proc_name, symbol proc, abi abi)
     | AssociateBlock(symbol_table symtab, identifier name, stmt* body)
     | Block(symbol_table symtab, identifier name, stmt* body)
 
@@ -185,6 +186,7 @@ stmt
     | FileOpen(int label, expr? newunit, expr? filename, expr? status)
     | FileClose(int label, expr? unit, expr? iostat, expr? iomsg, expr? err, expr? status)
     | FileRead(int label, expr? unit, expr? fmt, expr? iomsg, expr? iostat, expr? id, expr* values)
+    | FileBackspace(int label, expr? unit, expr? iostat, expr? err)
     | FileRewind(int label, expr? unit, expr? iostat, expr? err)
     | FileInquire(int label, expr? unit, expr? file, expr? iostat, expr? err,
               expr? exist, expr? opened, expr? number, expr? named,
@@ -206,6 +208,7 @@ stmt
     | Flush(int label, expr unit, expr? err, expr? iomsg, expr? iostat)
     | ListAppend(expr a, expr ele)
     | AssociateBlockCall(symbol m)
+    | SelectType(type_stmt* body, stmt* default)
     | CPtrToPointer(expr cptr, expr ptr, expr? shape)
     | BlockCall(int label, symbol m)
     | SetInsert(expr a, expr ele)
@@ -285,6 +288,7 @@ expr
     | ArrayMatMul(expr matrix_a, expr matrix_b, ttype type, expr? value)
     | ArrayPack(expr array, expr mask, expr? vector, ttype type, expr? value)
     | ArrayReshape(expr array, expr shape, ttype type, expr? value)
+    | ArrayMaxloc(expr array, expr? dim, expr? mask, expr? kind, expr? back, ttype type, expr? value)
 
     | BitCast(expr source, expr mold, expr? size, ttype type, expr? value)
     | StructInstanceMember(expr v, symbol m, ttype type, expr? value)
@@ -310,8 +314,12 @@ expr
     | SetPop(expr a, ttype type, expr? value)
     | IntegerBitLen(expr a, ttype type, expr? value)
     | Ichar(expr arg, ttype type, expr? value)
+    | Iachar(expr arg, ttype type, expr? value)
 
     | SizeOfType(ttype arg, ttype type, expr? value)
+
+    | PointerNullConstant(ttype type)
+    | PointerAssociated(expr ptr, expr? tgt, ttype type, expr? value)
 
 
 -- `len` in Character:
@@ -405,6 +413,8 @@ array_index = (expr? left, expr? right, expr? step)
 do_loop_head = (expr? v, expr? start, expr? end, expr? increment)
 
 case_stmt = CaseStmt(expr* test, stmt* body) | CaseStmt_Range(expr? start, expr? end, stmt* body)
+
+type_stmt = TypeStmt(symbol sym, stmt* body)
 
 enumtype = IntegerConsecutiveFromZero | IntegerUnique | IntegerNotUnique | NonInteger
 

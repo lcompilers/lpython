@@ -6,13 +6,13 @@
 #include <libasr/asr_utils.h>
 #include <libasr/string_utils.h>
 
-namespace LFortran {
+namespace LCompilers::LPython {
 
 /* -----------------------------------------------------------------------*/
 // ASR
 
 class ASRPickleVisitor :
-    public LFortran::ASR::PickleBaseVisitor<ASRPickleVisitor>
+    public ASR::PickleBaseVisitor<ASRPickleVisitor>
 {
 public:
     bool show_intrinsic_modules;
@@ -21,12 +21,12 @@ public:
         return s;
     }
     void visit_symbol(const ASR::symbol_t &x) {
-        s.append(LFortran::ASRUtils::symbol_parent_symtab(&x)->get_counter());
+        s.append(ASRUtils::symbol_parent_symtab(&x)->get_counter());
         s.append(" ");
         if (use_colors) {
             s.append(color(fg::yellow));
         }
-        s.append(LFortran::ASRUtils::symbol_name(&x));
+        s.append(ASRUtils::symbol_name(&x));
         if (use_colors) {
             s.append(color(fg::reset));
         }
@@ -71,12 +71,12 @@ public:
             s.append(x.m_name);
             s.append(")");
         } else {
-            LFortran::ASR::PickleBaseVisitor<ASRPickleVisitor>::visit_Module(x);
+            ASR::PickleBaseVisitor<ASRPickleVisitor>::visit_Module(x);
         };
     }
 };
 
-std::string pickle(LFortran::ASR::asr_t &asr, bool colors, bool indent,
+std::string pickle(ASR::asr_t &asr, bool colors, bool indent,
         bool show_intrinsic_modules) {
     ASRPickleVisitor v;
     v.use_colors = colors;
@@ -86,23 +86,23 @@ std::string pickle(LFortran::ASR::asr_t &asr, bool colors, bool indent,
     return v.get_str();
 }
 
-std::string pickle(LFortran::ASR::TranslationUnit_t &asr, bool colors, bool indent, bool show_intrinsic_modules) {
+std::string pickle(ASR::TranslationUnit_t &asr, bool colors, bool indent, bool show_intrinsic_modules) {
     return pickle((ASR::asr_t &)asr, colors, indent, show_intrinsic_modules);
 }
 
 class ASRTreeVisitor :
-    public LFortran::ASR::TreeBaseVisitor<ASRTreeVisitor>
+    public ASR::TreeBaseVisitor<ASRTreeVisitor>
 {
 public:
     bool show_intrinsic_modules;
-    
+
     std::string get_str() {
         return s;
     }
 
 };
 
-std::string pickle_tree(LFortran::ASR::asr_t &asr, bool colors, bool show_intrinsic_modules) {
+std::string pickle_tree(ASR::asr_t &asr, bool colors, bool show_intrinsic_modules) {
     ASRTreeVisitor v;
     v.use_colors = colors;
     v.show_intrinsic_modules = show_intrinsic_modules;
@@ -110,7 +110,7 @@ std::string pickle_tree(LFortran::ASR::asr_t &asr, bool colors, bool show_intrin
     return v.get_str();
 }
 
-std::string pickle_tree(LFortran::ASR::TranslationUnit_t &asr, bool colors, bool show_intrinsic_modules) {
+std::string pickle_tree(ASR::TranslationUnit_t &asr, bool colors, bool show_intrinsic_modules) {
     return pickle_tree((ASR::asr_t &)asr, colors, show_intrinsic_modules);
 }
 

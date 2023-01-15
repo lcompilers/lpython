@@ -10,7 +10,7 @@
 #include <utility>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 /*
 The following visitor converts function/subroutines (a.k.a procedures)
@@ -154,7 +154,7 @@ class PassArrayByDataProcedureVisitor : public PassUtils::PassVisitor<PassArrayB
                                             return_var, x->m_abi, x->m_access, x->m_deftype,
                                             s2c(al, new_bindc_name), x->m_elemental,
                                             x->m_pure, x->m_module, x->m_inline,
-                                            x->m_static, nullptr, 0, nullptr, 0, false);
+                                            x->m_static, nullptr, 0, nullptr, 0, false, false, false);
                 new_symbol = ASR::down_cast<ASR::symbol_t>(new_subrout);
             }
             current_scope->add_symbol(new_name, new_symbol);
@@ -399,7 +399,7 @@ class RemoveArrayByDescriptorProceduresVisitor : public PassUtils::PassVisitor<R
 
             for( auto& item: current_scope->get_scope() ) {
                 if( v.proc2newproc.find(item.second) != v.proc2newproc.end() ) {
-                    LFORTRAN_ASSERT(item.first == ASRUtils::symbol_name(item.second))
+                    LCOMPILERS_ASSERT(item.first == ASRUtils::symbol_name(item.second))
                     to_be_erased.push_back(item.first);
                 }
             }
@@ -425,4 +425,4 @@ void pass_array_by_data(Allocator &al, ASR::TranslationUnit_t &unit,
     y.visit_TranslationUnit(unit);
 }
 
-} // namespace LFortran
+} // namespace LCompilers

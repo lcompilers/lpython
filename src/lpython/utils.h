@@ -4,7 +4,7 @@
 #include <string>
 #include <libasr/utils.h>
 
-namespace LFortran {
+namespace LCompilers::LPython {
 
 void get_executable_path(std::string &executable_path, int &dirname_length);
 std::string get_runtime_library_dir();

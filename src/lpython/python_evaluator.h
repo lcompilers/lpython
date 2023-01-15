@@ -12,7 +12,7 @@
 #include <libasr/diagnostics.h>
 #include <libasr/pass/pass_manager.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 class LLVMModule;
 class LLVMEvaluator;
@@ -66,6 +66,6 @@ private:
     std::string run_fn;
 };
 
-} // namespace LFortran
+} // namespace LCompilers
 
 #endif // LFORTRAN_PYTHON_EVALUATOR_H

@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace LFortran::LPython {
+namespace LCompilers {
 
        struct error_highlight {
               std::string message;
@@ -23,6 +23,6 @@ namespace LFortran::LPython {
               std::string filename;
        };
 
-} // namespace LFortran::Python
+} // namespace LCompilers
 
 #endif

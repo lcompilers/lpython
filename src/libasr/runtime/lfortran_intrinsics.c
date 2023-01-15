@@ -8,9 +8,62 @@
 #include <time.h>
 #include <float.h>
 #include <limits.h>
+#include <ctype.h>
 
-#include "lfortran_intrinsics.h"
+#include <libasr/runtime/lfortran_intrinsics.h>
+#include <libasr/config.h>
 
+#ifdef HAVE_RUNTIME_STACKTRACE
+
+#ifdef HAVE_LFORTRAN_LINK
+// For dl_iterate_phdr() functionality
+#  include <link.h>
+struct dl_phdr_info {
+    ElfW(Addr) dlpi_addr;
+    const char *dlpi_name;
+    const ElfW(Phdr) *dlpi_phdr;
+    ElfW(Half) dlpi_phnum;
+};
+extern int dl_iterate_phdr (int (*__callback) (struct dl_phdr_info *,
+    size_t, void *), void *__data);
+#endif
+
+#ifdef HAVE_LFORTRAN_UNWIND
+// For _Unwind_Backtrace() function
+#  include <unwind.h>
+#endif
+
+#ifdef HAVE_LFORTRAN_MACHO
+#  include <mach-o/dyld.h>
+#endif
+
+// Runtime Stacktrace
+#define LCOMPILERS_MAX_STACKTRACE_LENGTH 200
+char *source_filename;
+char *binary_executable_path = "/proc/self/exe";
+
+struct Stacktrace {
+    uintptr_t pc[LCOMPILERS_MAX_STACKTRACE_LENGTH];
+    uint64_t pc_size;
+    uintptr_t current_pc;
+
+    uintptr_t local_pc[LCOMPILERS_MAX_STACKTRACE_LENGTH];
+    char *binary_filename[LCOMPILERS_MAX_STACKTRACE_LENGTH];
+    uint64_t local_pc_size;
+
+    uint64_t addresses[LCOMPILERS_MAX_STACKTRACE_LENGTH];
+    uint64_t line_numbers[LCOMPILERS_MAX_STACKTRACE_LENGTH];
+    uint64_t stack_size;
+};
+
+// Styles and Colors
+#define DIM "\033[2m"
+#define BOLD "\033[1m"
+#define S_RESET "\033[0m"
+#define MAGENTA "\033[35m"
+#define C_RESET "\033[39m"
+
+#endif // HAVE_RUNTIME_STACKTRACE
 
 LFORTRAN_API double _lfortran_sum(int n, double *v)
 {
@@ -623,6 +676,15 @@ LFORTRAN_API void _lfortran_strcat(char** s1, char** s2, char** dest)
     *dest = &(dest_char[0]);
 }
 
+// strcpy -----------------------------------------------------------
+
+LFORTRAN_API void _lfortran_strcpy(char** x, char *y)
+{
+    if (*x) free((void *)*x);
+    *x = (char*) malloc((strlen(y) + 1) * sizeof(char));
+    strcpy(*x, y);
+}
+
 #define MIN(x, y) ((x < y) ? x : y)
 
 int str_compare(char **s1, char **s2)
@@ -1166,7 +1228,15 @@ LFORTRAN_API void _lpython_close(int64_t fd)
     }
 }
 
-// Command line arguments
+LFORTRAN_API int32_t _lfortran_ichar(char *c) {
+    return (int32_t) c[0];
+}
+
+LFORTRAN_API int32_t _lfortran_iachar(char *c) {
+    return (int32_t) c[0];
+}
+
+// >> Command line arguments >> ------------------------------------------------
 int32_t argc;
 char **argv;
 
@@ -1185,3 +1255,300 @@ LFORTRAN_API int32_t _lpython_get_argc() {
 LFORTRAN_API char *_lpython_get_argv(int32_t index) {
     return argv[index];
 }
+
+// << Command line arguments << ------------------------------------------------
+
+// >> Runtime Stacktrace >> ----------------------------------------------------
+#ifdef HAVE_RUNTIME_STACKTRACE
+
+#ifdef HAVE_LFORTRAN_UNWIND
+static _Unwind_Reason_Code unwind_callback(struct _Unwind_Context *context,
+        void *vdata) {
+    struct Stacktrace *d = (struct Stacktrace *) vdata;
+    uintptr_t pc = _Unwind_GetIP(context);
+    if (pc != 0) {
+        pc--;
+        if (d->pc_size < LCOMPILERS_MAX_STACKTRACE_LENGTH) {
+            d->pc[d->pc_size] = pc;
+            d->pc_size++;
+        } else {
+            printf("The stacktrace length is out of range.\nAborting...");
+            abort();
+        }
+    }
+    return _URC_NO_REASON;
+}
+#endif // HAVE_LFORTRAN_UNWIND
+
+struct Stacktrace get_stacktrace_addresses() {
+    struct Stacktrace d;
+    d.pc_size = 0;
+#ifdef HAVE_LFORTRAN_UNWIND
+    _Unwind_Backtrace(unwind_callback, &d);
+#endif
+    return d;
+}
+
+char *get_base_name(char *filename) {
+    size_t start = strrchr(filename, '/')-filename+1;
+    size_t end = strrchr(filename, '.')-filename-1;
+    int nos_of_chars = end - start + 1;
+    char *base_name;
+    if (nos_of_chars < 0) {
+        return NULL;
+    }
+    base_name = malloc (sizeof (char) * (nos_of_chars + 1));
+    base_name[nos_of_chars] = '\0';
+    strncpy (base_name, filename + start, nos_of_chars);
+    return base_name;
+}
+
+#ifdef HAVE_LFORTRAN_LINK
+int shared_lib_callback(struct dl_phdr_info *info,
+        size_t /* size */, void *_data) {
+    struct Stacktrace *d = (struct Stacktrace *) _data;
+    for (int i = 0; i < info->dlpi_phnum; i++) {
+        if (info->dlpi_phdr[i].p_type == PT_LOAD) {
+            ElfW(Addr) min_addr = info->dlpi_addr + info->dlpi_phdr[i].p_vaddr;
+            ElfW(Addr) max_addr = min_addr + info->dlpi_phdr[i].p_memsz;
+            if ((d->current_pc >= min_addr) && (d->current_pc < max_addr)) {
+                d->binary_filename[d->local_pc_size] = (char *)info->dlpi_name;
+                if (d->binary_filename[d->local_pc_size][0] == '\0') {
+                    d->binary_filename[d->local_pc_size] = binary_executable_path;
+                    d->local_pc[d->local_pc_size] = d->current_pc - info->dlpi_addr;
+                    d->local_pc_size++;
+                }
+                // We found a match, return a non-zero value
+                return 1;
+            }
+        }
+    }
+    // We didn't find a match, return a zero value
+    return 0;
+}
+#endif // HAVE_LFORTRAN_LINK
+
+#ifdef HAVE_LFORTRAN_MACHO
+void get_local_address_mac(struct Stacktrace *d) {
+    for (uint32_t i = 0; i < _dyld_image_count(); i++) {
+        const struct mach_header *header = _dyld_get_image_header(i);
+        intptr_t offset = _dyld_get_image_vmaddr_slide(i);
+        struct load_command* cmd = (struct load_command*)((char *)header + sizeof(struct mach_header));
+        if(header->magic == MH_MAGIC_64) {
+            cmd = (struct load_command*)((char *)header + sizeof(struct mach_header_64));
+        }
+        for (uint32_t j = 0; j < header->ncmds; j++) {
+            if (cmd->cmd == LC_SEGMENT) {
+                struct segment_command* seg = (struct segment_command*)cmd;
+                if (((intptr_t)d->current_pc >= (seg->vmaddr+offset)) &&
+                    ((intptr_t)d->current_pc < (seg->vmaddr+offset + seg->vmsize))) {
+                    int check_filename = strcmp(get_base_name(
+                        (char *)_dyld_get_image_name(i)),
+                        get_base_name(source_filename));
+                    if ( check_filename != 0 ) return;
+                    d->local_pc[d->local_pc_size] = d->current_pc - offset;
+                    d->binary_filename[d->local_pc_size] = (char *)_dyld_get_image_name(i);
+                    // Resolve symlinks to a real path:
+                    char buffer[PATH_MAX];
+                    char* resolved;
+                    resolved = realpath(d->binary_filename[d->local_pc_size], buffer);
+                    if (resolved) d->binary_filename[d->local_pc_size] = resolved;
+                    d->local_pc_size++;
+                    return;
+                }
+            }
+            if (cmd->cmd == LC_SEGMENT_64) {
+                struct segment_command_64* seg = (struct segment_command_64*)cmd;
+                if ((d->current_pc >= (seg->vmaddr + offset)) &&
+                    (d->current_pc < (seg->vmaddr + offset + seg->vmsize))) {
+                    int check_filename = strcmp(get_base_name(
+                        (char *)_dyld_get_image_name(i)),
+                        get_base_name(source_filename));
+                    if ( check_filename != 0 ) return;
+                    d->local_pc[d->local_pc_size] = d->current_pc - offset;
+                    d->binary_filename[d->local_pc_size] = (char *)_dyld_get_image_name(i);
+                    // Resolve symlinks to a real path:
+                    char buffer[PATH_MAX];
+                    char* resolved;
+                    resolved = realpath(d->binary_filename[d->local_pc_size], buffer);
+                    if (resolved) d->binary_filename[d->local_pc_size] = resolved;
+                    d->local_pc_size++;
+                    return;
+                }
+            }
+            cmd = (struct load_command*)((char*)cmd + cmd->cmdsize);
+        }
+    }
+    printf("The stack address was not found in any shared library or"
+        " the main program, the stack is probably corrupted.\n"
+        "Aborting...\n");
+    abort();
+}
+#endif // HAVE_LFORTRAN_MACHO
+
+// Fills in `local_pc` and `binary_filename`
+void get_local_address(struct Stacktrace *d) {
+    d->local_pc_size = 0;
+    for (int32_t i=0; i < d->pc_size; i++) {
+        d->current_pc = d->pc[i];
+#ifdef HAVE_LFORTRAN_LINK
+        // Iterates over all loaded shared libraries
+        // See `stacktrace.cpp` to get more information
+        if (dl_iterate_phdr(shared_lib_callback, d) == 0) {
+            printf("The stack address was not found in any shared library or"
+                " the main program, the stack is probably corrupted.\n"
+                "Aborting...\n");
+            abort();
+        }
+#else
+#ifdef HAVE_LFORTRAN_MACHO
+        get_local_address_mac(& *d);
+#else
+    d->local_pc[d->local_pc_size] = 0;
+    d->local_pc_size++;
+#endif // HAVE_LFORTRAN_MACHO
+#endif // HAVE_LFORTRAN_LINK
+    }
+}
+
+uint32_t get_file_size(int64_t fp) {
+    FILE *fp_ = (FILE *)fp;
+    int prev = ftell(fp_);
+    fseek(fp_, 0, SEEK_END);
+    int size = ftell(fp_);
+    fseek(fp_, prev, SEEK_SET);
+    return size;
+}
+
+/*
+ * `lines_dat.txt` file must be created before calling this function,
+ * The file can be created using the command:
+ *     ./src/bin/dat_convert.py lines.dat
+ * This function fills in the `addresses` and `line_numbers`
+ * from the `lines_dat.txt` file.
+ */
+void get_local_info_dwarfdump(struct Stacktrace *d) {
+    // TODO: Read the contents of lines.dat from here itself.
+    char *base_name = get_base_name(source_filename);
+    char *filename = malloc(strlen(base_name) + 14);
+    strcpy(filename, base_name);
+    strcat(filename, "_lines.dat.txt");
+    int64_t fd = _lpython_open(filename, "r");
+    uint32_t size = get_file_size(fd);
+    char *file_contents = _lpython_read(fd, size);
+    _lpython_close(fd);
+    free(filename);
+
+    char s[LCOMPILERS_MAX_STACKTRACE_LENGTH];
+    bool address = true;
+    uint32_t j = 0;
+    d->stack_size = 0;
+    for (uint32_t i = 0; i < size; i++) {
+        if (file_contents[i] == '\n') {
+            memset(s, '\0', sizeof(s));
+            j = 0;
+            d->stack_size++;
+            continue;
+        } else if (file_contents[i] == ' ') {
+            s[j] = '\0';
+            j = 0;
+            if (address) {
+                d->addresses[d->stack_size] = strtol(s, NULL, 10);
+                address = false;
+            } else {
+                d->line_numbers[d->stack_size] = strtol(s, NULL, 10);
+                address = true;
+            }
+            memset(s, '\0', sizeof(s));
+            continue;
+        }
+        s[j++] = file_contents[i];
+    }
+}
+
+char *read_line_from_file(char *filename, uint32_t line_number) {
+    FILE *fp;
+    char *line = NULL;
+    size_t len = 0, n = 0;
+
+    fp = fopen(filename, "r");
+    if (fp == NULL) exit(1);
+    while (n < line_number && (getline(&line, &len, fp) != -1)) n++;
+    fclose(fp);
+
+    return line;
+}
+
+static inline uint64_t bisection(const uint64_t vec[],
+        uint64_t size, uint64_t i) {
+    if (i < vec[0]) return 0;
+    if (i >= vec[size-1]) return size;
+    uint64_t i1 = 0, i2 = size-1;
+    while (i1 < i2-1) {
+        uint64_t imid = (i1+i2)/2;
+        if (i < vec[imid]) {
+            i2 = imid;
+        } else {
+            i1 = imid;
+        }
+    }
+    return i1;
+}
+
+char *remove_whitespace(char *str) {
+    char *end;
+    // remove leading space
+    while(isspace((unsigned char)*str)) str++;
+    if(*str == 0) // All spaces?
+        return str;
+    // remove trailing space
+    end = str + strlen(str) - 1;
+    while(end > str && isspace((unsigned char)*end)) end--;
+    // Write new null terminator character
+    end[1] = '\0';
+    return str;
+}
+
+LFORTRAN_API void print_stacktrace_addresses(char *filename, bool use_colors) {
+    source_filename = filename;
+    struct Stacktrace d = get_stacktrace_addresses();
+    get_local_address(&d);
+    get_local_info_dwarfdump(&d);
+
+#ifdef HAVE_LFORTRAN_MACHO
+    for (int32_t i = d.local_pc_size-2; i >= 0; i--) {
+#else
+    for (int32_t i = d.local_pc_size-3; i >= 0; i--) {
+#endif
+        uint64_t index = bisection(d.addresses, d.stack_size, d.local_pc[i]);
+        if(use_colors) {
+            fprintf(stderr, DIM "  File " S_RESET
+                BOLD MAGENTA "\"%s\"" C_RESET S_RESET
+#ifdef HAVE_LFORTRAN_MACHO
+                DIM ", line %lld\n" S_RESET
+#else
+                DIM ", line %ld\n" S_RESET
+#endif
+                "    %s\n", source_filename, d.line_numbers[index],
+                remove_whitespace(read_line_from_file(source_filename,
+                d.line_numbers[index])));
+        } else {
+            fprintf(stderr, "  File \"%s\", "
+#ifdef HAVE_LFORTRAN_MACHO
+                "line %lld\n    %s\n",
+#else
+                "line %ld\n    %s\n",
+#endif
+                source_filename, d.line_numbers[index],
+                remove_whitespace(read_line_from_file(source_filename,
+                d.line_numbers[index])));
+        }
+#ifdef HAVE_LFORTRAN_MACHO
+    }
+#else
+    }
+#endif
+}
+
+#endif // HAVE_RUNTIME_STACKTRACE
+// << Runtime Stacktrace << ----------------------------------------------------

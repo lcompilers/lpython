@@ -7,7 +7,7 @@
 #include <libasr/pass/stmt_walk_visitor.h>
 #include <libasr/pass/pass_utils.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 using ASR::down_cast;
 using ASR::is_a;
@@ -57,4 +57,4 @@ void pass_replace_do_loops(Allocator &al, ASR::TranslationUnit_t &unit,
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers

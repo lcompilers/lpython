@@ -24,7 +24,7 @@ namespace llvm {
     }
 }
 
-namespace LFortran {
+namespace LCompilers {
 
 class LLVMModule
 {
@@ -73,6 +73,6 @@ public:
 };
 
 
-} // namespace LFortran
+} // namespace LCompilers
 
 #endif // LFORTRAN_EVALUATOR_H

@@ -53,7 +53,7 @@ public:
         // doing it. This try/catch approach effectively achieves the same using
         // standard C++.
         try {
-            LFORTRAN_ASSERT(start != nullptr);
+            LCOMPILERS_ASSERT(start != nullptr);
             size_t addr = current_pos;
             current_pos += align(s);
             if (size_current() > size_total()) throw std::bad_alloc();
@@ -77,7 +77,7 @@ public:
         size_t addr = current_pos;
         current_pos += align(s);
 
-        LFORTRAN_ASSERT(size_current() <= size_total());
+        LCOMPILERS_ASSERT(size_current() <= size_total());
         return (void*)addr;
     }
 

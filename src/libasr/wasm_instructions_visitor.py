@@ -16,7 +16,7 @@ HEAD = r"""#ifndef LFORTRAN_%(MOD)s_H
 #include <libasr/codegen/wasm_utils.h>
 
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace %(MOD)s {
 
@@ -25,7 +25,7 @@ namespace %(MOD)s {
 FOOT = r"""
 } // namespace %(MOD)s
 
-} // namespace LFortran
+} // namespace LCompilers
 
 #endif // LFORTRAN_%(MOD)s_H
 """
@@ -47,7 +47,7 @@ class WASMInstructionsVisitor():
         self.emit(    "BaseWASMVisitor(Vec<uint8_t> &code, uint32_t offset): code(code), offset(offset) {}", 1)
 
         for inst in mod["instructions"]:
-            self.emit("void visit_%s(%s) {throw LFortran::LCompilersException(\"visit_%s() not implemented\");}\n" % (inst["func"], make_param_list(inst["params"]), inst["func"]), 1)
+            self.emit("void visit_%s(%s) {throw LCompilersException(\"visit_%s() not implemented\");}\n" % (inst["func"], make_param_list(inst["params"]), inst["func"]), 1)
 
         self.emit(    "void decode_instructions() {", 1)
         self.emit(        "uint8_t cur_byte = wasm::read_b8(code, offset);", 2)
@@ -72,7 +72,7 @@ class WASMInstructionsVisitor():
             self.emit(                        "break;", 7)
             self.emit(                    "}", 6)
         self.emit(                        "default: {", 6)
-        self.emit(                            "throw LFortran::LCompilersException(\"Unknown num for opcode 0xFC\");", 7)
+        self.emit(                            "throw LCompilersException(\"Unknown num for opcode 0xFC\");", 7)
         self.emit(                        "}", 6)
         self.emit(                    "}", 5)
         self.emit(                    "break;", 5)
@@ -89,14 +89,14 @@ class WASMInstructionsVisitor():
             self.emit(                        "break;", 7)
             self.emit(                    "}", 6)
         self.emit(                        "default: {", 6)
-        self.emit(                            "throw LFortran::LCompilersException(\"Unknown num for opcode 0xFD\");", 7)
+        self.emit(                            "throw LCompilersException(\"Unknown num for opcode 0xFD\");", 7)
         self.emit(                        "}", 6)
         self.emit(                    "}", 5)
         self.emit(                    "break;", 5)
         self.emit(                "}", 4)
 
         self.emit(                "default: {", 4)
-        self.emit(                    "throw LFortran::LCompilersException(\"Unknown opcode\");", 5)
+        self.emit(                    "throw LCompilersException(\"Unknown opcode\");", 5)
         self.emit(                "}", 4)
         self.emit(            "}", 3)
         self.emit(            "cur_byte = wasm::read_b8(code, offset);", 3)

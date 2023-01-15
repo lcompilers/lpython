@@ -7,7 +7,7 @@
 #include <lpython/utils.h>
 #include <lpython/semantics/semantic_exception.h>
 
-namespace LFortran {
+namespace LCompilers::LPython {
 
 struct AttributeHandler {
 
@@ -331,6 +331,6 @@ struct AttributeHandler {
 
 }; // AttributeHandler
 
-} // namespace LFortran
+} // namespace LCompilers::LPython
 
 #endif /* LPYTHON_ATTRIBUTE_EVAL_H */
