@@ -83,6 +83,7 @@ public:
     std::unique_ptr<CCPPDSUtils> c_ds_api;
     std::string const_name;
     size_t const_vars_count;
+    size_t loop_end_count;
 
     SymbolTable* current_scope;
     bool is_string_concat_present;
@@ -95,7 +96,8 @@ public:
         is_c{is_c}, global_scope{nullptr}, lower_bound{default_lower_bound},
         template_number{0}, c_ds_api{std::make_unique<CCPPDSUtils>(is_c, platform)},
         const_name{"constname"},
-        const_vars_count{0}, is_string_concat_present{false} {
+        const_vars_count{0}, loop_end_count{0},
+        is_string_concat_present{false} {
         }
 
     void visit_TranslationUnit(const ASR::TranslationUnit_t &x) {
@@ -1738,6 +1740,7 @@ R"(#include <stdio.h>
     void visit_DoLoop(const ASR::DoLoop_t &x) {
         std::string current_body_copy = current_body;
         current_body = "";
+        std::string loop_end_decl = "";
         std::string indent(indentation_level*indentation_spaces, ' ');
         std::string out = indent + "for (";
         ASR::Variable_t *loop_var = ASRUtils::EXPR2VAR(x.m_head.m_v);
@@ -1748,34 +1751,55 @@ R"(#include <stdio.h>
         LCOMPILERS_ASSERT(a);
         LCOMPILERS_ASSERT(b);
         int increment;
+        bool is_c_constant = false;
         if (!c) {
             increment = 1;
+            is_c_constant = true;
         } else {
-            c = ASRUtils::expr_value(c);
-            bool is_c_constant = ASRUtils::extract_value(c, increment);
-            if( !is_c_constant ) {
-                throw CodeGenError("Do loop increment type not supported");
-            }
-        }
-        std::string cmp_op;
-        if (increment > 0) {
-            cmp_op = "<=";
-        } else {
-            cmp_op = ">=";
+            ASR::expr_t* c_value = ASRUtils::expr_value(c);
+            is_c_constant = ASRUtils::extract_value(c_value, increment);
         }
 
-        out += lvname + "=";
-        self().visit_expr(*a);
-        out += src + "; " + lvname + cmp_op;
-        self().visit_expr(*b);
-        out += src + "; " + lvname;
-        if (increment == 1) {
-            out += "++";
-        } else if (increment == -1) {
-            out += "--";
+        if( is_c_constant ) {
+            std::string cmp_op;
+            if (increment > 0) {
+                cmp_op = "<=";
+            } else {
+                cmp_op = ">=";
+            }
+
+            out += lvname + "=";
+            self().visit_expr(*a);
+            out += src + "; " + lvname + cmp_op;
+            self().visit_expr(*b);
+            out += src + "; " + lvname;
+            if (increment == 1) {
+                out += "++";
+            } else if (increment == -1) {
+                out += "--";
+            } else {
+                out += "+=" + std::to_string(increment);
+            }
         } else {
-            out += "+=" + std::to_string(increment);
+            this->visit_expr(*c);
+            std::string increment_ = std::move(src);
+            self().visit_expr(*b);
+            std::string do_loop_end = std::move(src);
+            std::string do_loop_end_name = current_scope->get_unique_name(
+                "loop_end___" + std::to_string(loop_end_count));
+            loop_end_count += 1;
+            loop_end_decl = indent + CUtils::get_c_type_from_ttype_t(ASRUtils::expr_type(b), is_c) +
+                            " " + do_loop_end_name + " = " + do_loop_end + ";\n";
+            out += lvname + " = ";
+            self().visit_expr(*a);
+            out += src + "; ";
+            out += "((" + increment_ + " >= 0) && (" +
+                    lvname + " <= " + do_loop_end_name + ")) || (("
+                    + increment_ + " < 0) && (" + lvname + " >= "
+                    + do_loop_end_name + ")); " + lvname;
+            out += " += " + increment_;
         }
+
         out += ") {\n";
         indentation_level += 1;
         for (size_t i=0; i<x.n_body; i++) {
@@ -1785,7 +1809,7 @@ R"(#include <stdio.h>
         out += current_body;
         out += indent + "}\n";
         indentation_level -= 1;
-        src = out;
+        src = loop_end_decl + out;
         current_body = current_body_copy;
     }
 

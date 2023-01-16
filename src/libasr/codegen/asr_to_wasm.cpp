@@ -1798,6 +1798,7 @@ class ASRToWASMVisitor : public ASR::BaseVisitor<ASRToWASMVisitor> {
                 if (arg_kind > 0 && dest_kind > 0) {
                     if (arg_kind == 4 && dest_kind == 8) {
                         wasm::emit_i64_extend_i32_s(m_code_section, m_al);
+                    } else if (arg_kind == 4 && dest_kind == 4) {
                     } else {
                         std::string msg = "Conversion from kinds " +
                                           std::to_string(arg_kind) + " to " +
