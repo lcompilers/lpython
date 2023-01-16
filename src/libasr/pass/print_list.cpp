@@ -9,7 +9,7 @@
 namespace LCompilers {
 
 /*
-This ASR pass replaces print list with print every value,
+This ASR pass replaces print list or print tuple with print every value,
 comma_space, brackets and newline. The function
 `pass_replace_print_list` transforms the ASR tree in-place.
 
@@ -44,6 +44,22 @@ for nested lists it transforms to:
     print("]", sep="pqr", end="xyz")
 
 Note: In code, the variable `i` is named as `__list_iterator`
+
+For tuples:
+
+Converts:
+    a: tuple[i32, str, f32] = (10, 'lpython', 24.04)
+    print(a, sep="pqr", end="xyz")
+
+to:
+    print("(", end="")
+    for i in range(3):
+        print(a[i], end="")
+        if i < len(a) - 1:
+            print(", ", end="")
+    print(")", sep="pqr", end="xyz")
+
+It also works the same way for nested lists/tuples using recursion.
 */
 
 class PrintListVisitor
@@ -284,7 +300,8 @@ class PrintListVisitor
     void visit_Print(const ASR::Print_t &x) {
         std::vector<ASR::expr_t*> print_tmp;
         for (size_t i=0; i<x.n_values; i++) {
-            if (ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_values[i]))) {
+            if (ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_values[i])) ||
+                ASR::is_a<ASR::Tuple_t>(*ASRUtils::expr_type(x.m_values[i]))) {
                 if (!print_tmp.empty()) {
                     Vec<ASR::expr_t*> tmp_vec;
                     tmp_vec.reserve(al, print_tmp.size());
@@ -298,7 +315,10 @@ class PrintListVisitor
                     pass_result.push_back(al, print_stmt);
 
                 }
-                print_list_helper(x.m_values[i], x.m_separator, nullptr, x.base.base.loc);
+                if (ASR::is_a<ASR::List_t>(*ASRUtils::expr_type(x.m_values[i])))
+                    print_list_helper(x.m_values[i], x.m_separator, nullptr, x.base.base.loc);
+                else
+                    print_tuple_helper(x.m_values[i], x.m_separator, nullptr, x.base.base.loc);
                 for (size_t j=0; j<print_pass_result_tmp.n; j++)
                     pass_result.push_back(al, print_pass_result_tmp[j]);
                 print_pass_result_tmp.n = 0;
