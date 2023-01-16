@@ -50,27 +50,46 @@ void get_executable_path(std::string &executable_path, int &dirname_length)
 #endif
 }
 
+enum LCompilerVersionType {
+    Installed,
+    CTest,
+    Development
+};
+
+LCompilerVersionType get_lcompiler_version_type(std::string& dirname) {
+    std::string path;
+    int dirname_length;
+    get_executable_path(path, dirname_length);
+    dirname = path.substr(0,dirname_length);
+    if (   endswith(dirname, "src/bin")
+        || endswith(dirname, "src\\bin")
+        || endswith(dirname, "SRC\\BIN")) {
+        return LCompilerVersionType::Development;
+    } else if (endswith(dirname, "src/lpython/tests") ||
+               endswith(to_lower(dirname), "src\\lpython\\tests")) {
+        return LCompilerVersionType::CTest;
+    } else {
+        return LCompilerVersionType::Installed;
+    }
+}
+
 std::string get_runtime_library_dir()
 {
     char *env_p = std::getenv("LFORTRAN_RUNTIME_LIBRARY_DIR");
     if (env_p) return env_p;
 
-    std::string path;
-    int dirname_length;
-    get_executable_path(path, dirname_length);
-    std::string dirname = path.substr(0,dirname_length);
-    if (   endswith(dirname, "src/bin")
-        || endswith(dirname, "src\\bin")
-        || endswith(dirname, "SRC\\BIN")) {
-        // Development version
-        return dirname + "/../runtime";
-    } else if (endswith(dirname, "src/lpython/tests") ||
-               endswith(to_lower(dirname), "src\\lpython\\tests")) {
-        // CTest Tests
-        return dirname + "/../../runtime";
-    } else {
-        // Installed version
-        return dirname + "/../share/lpython/lib";
+    std::string dirname = "";
+    LCompilerVersionType lcompilers_version_type = get_lcompiler_version_type(dirname);
+    switch( lcompilers_version_type ) {
+        case LCompilerVersionType::Development: {
+            return dirname + "/../runtime";
+        }
+        case LCompilerVersionType::CTest: {
+            return dirname + "/../../runtime";
+        }
+        case LCompilerVersionType::Installed: {
+            return dirname + "/../share/lpython/lib";
+        }
     }
 }
 
@@ -79,7 +98,19 @@ std::string get_runtime_library_header_dir()
     char *env_p = std::getenv("LFORTRAN_RUNTIME_LIBRARY_HEADER_DIR");
     if (env_p) return env_p;
 
-    return get_runtime_library_dir() + "/impure";
+    std::string dirname = "";
+    LCompilerVersionType lcompilers_version_type = get_lcompiler_version_type(dirname);
+    switch( lcompilers_version_type ) {
+        case LCompilerVersionType::Development: {
+            return dirname + "/../libasr/runtime";
+        }
+        case LCompilerVersionType::CTest: {
+            return dirname + "/../../runtime/impure";
+        }
+        case LCompilerVersionType::Installed: {
+            return dirname + "/../share/lpython/lib/impure";
+        }
+    }
 }
 
 bool is_directory(std::string path) {
