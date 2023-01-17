@@ -886,10 +886,6 @@ filename = "errors/test_tuple1.py"
 asr = true
 
 [[test]]
-filename = "errors/test_for1.py"
-asr = true
-
-[[test]]
 filename = "errors/test_for2.py"
 asr = true
 
