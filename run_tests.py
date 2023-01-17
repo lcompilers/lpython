@@ -27,6 +27,7 @@ def single_test(test, verbose, no_llvm, update_reference,
     c = is_included("c")
     wat = is_included("wat")
     run = is_included("run")
+    run_with_dbg = is_included("run_with_dbg")
     pass_ = test.get("pass", None)
     optimization_passes = ["flip_sign", "div_to_mul", "fma", "sign_from_value",
                            "inline_function_calls", "loop_unroll",
@@ -116,6 +117,12 @@ def single_test(test, verbose, no_llvm, update_reference,
     if run:
         run_test(filename, "runtime", "lpython {infile}",
                  filename, update_reference, extra_args)
+
+    if run_with_dbg:
+        run_test(
+            filename, "run_dbg",
+            "lpython {infile} -g --debug-with-line-column --no-color",
+            filename, update_reference, extra_args)
 
 if __name__ == "__main__":
     tester_main("LPython", single_test)

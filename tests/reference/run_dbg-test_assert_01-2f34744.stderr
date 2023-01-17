@@ -1,0 +1,5 @@
+  File "tests/runtime_errors/test_assert_01.py", line 4
+    test()
+  File "tests/runtime_errors/test_assert_01.py", line 2
+    assert False
+AssertionError

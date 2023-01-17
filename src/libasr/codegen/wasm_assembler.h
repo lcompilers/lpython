@@ -3,7 +3,8 @@
 #include <libasr/alloc.h>
 #include <libasr/containers.h>
 
-namespace LFortran {
+namespace LCompilers {
+
 namespace wasm {
 
 enum type { i32 = 0x7F, i64 = 0x7E, f32 = 0x7D, f64 = 0x7C };
@@ -1187,4 +1188,4 @@ void emit_i64_store32(Vec<uint8_t> &code, Allocator &al, uint32_t mem_align,
 
 }  // namespace wasm
 
-}  // namespace LFortran
+}  // namespace LCompilers

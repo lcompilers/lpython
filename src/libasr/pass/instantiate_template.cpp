@@ -5,7 +5,7 @@
 #include <libasr/pass/pass_utils.h>
 #include <libasr/semantic_exception.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 class FunctionInstantiator : public ASR::BaseExprStmtDuplicator<FunctionInstantiator>
 {
@@ -30,7 +30,7 @@ public:
 
     ASR::asr_t* instantiate_Function(ASR::Function_t *x) {
         dependencies.clear();
-        current_scope = al.make_new<SymbolTable>(x->m_symtab->parent);
+        current_scope = al.make_new<SymbolTable>(func_scope);
 
         Vec<ASR::expr_t*> args;
         args.reserve(al, x->n_args);
@@ -147,10 +147,10 @@ public:
             new_return_var_ref,
             func_abi, func_access, func_deftype, bindc_name,
             func_elemental, func_pure, func_module, x->m_inline,
-            x->m_static, nullptr, 0, nullptr, 0, false);
+            x->m_static, nullptr, 0, nullptr, 0, false, false, false);
 
         ASR::symbol_t *t = ASR::down_cast<ASR::symbol_t>(result);
-        x->m_symtab->parent->add_symbol(new_func_name, t);
+        func_scope->add_symbol(new_func_name, t);
 
         return result;
     }
@@ -199,15 +199,7 @@ public:
 
     ASR::asr_t* duplicate_Assignment(ASR::Assignment_t *x) {
         ASR::expr_t *target = duplicate_expr(x->m_target);
-        ASR::ttype_t *target_type = substitute_type(ASRUtils::expr_type(x->m_target));
         ASR::expr_t *value = duplicate_expr(x->m_value);
-        if (ASRUtils::is_real(*target_type) && ASR::is_a<ASR::IntegerConstant_t>(*x->m_value)) {
-            ASR::IntegerConstant_t *int_value = ASR::down_cast<ASR::IntegerConstant_t>(x->m_value);
-            if (int_value->m_n == 0) {
-                value = ASRUtils::EXPR(ASR::make_RealConstant_t(al, value->base.loc, 0,
-                    ASRUtils::duplicate_type(al, target_type)));
-            }
-        }
         ASR::stmt_t *overloaded = duplicate_stmt(x->m_overloaded);
         return ASR::make_Assignment_t(al, x->base.base.loc, target, value, overloaded);
     }
@@ -257,39 +249,45 @@ public:
         ASR::expr_t* value = duplicate_expr(x->m_value);
         ASR::expr_t* dt = duplicate_expr(x->m_dt);
         std::string call_name = ASRUtils::symbol_name(x->m_name);
-        //for (ASR::Function_t* rt: rts) {
-        //    if (call_name.compare(rt->m_name) == 0) {
-                if (rt_subs.find(call_name) == rt_subs.end()) {
-                    if (call_name.compare("add") == 0) {
-                        ASR::expr_t* left_arg = duplicate_expr(x->m_args[0].m_value);
-                        ASR::expr_t* right_arg = duplicate_expr(x->m_args[1].m_value);
-                        ASR::ttype_t* left_type = substitute_type(ASRUtils::expr_type(left_arg));
-                        ASR::ttype_t* right_type = substitute_type(ASRUtils::expr_type(right_arg));
-                        if ((ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) ||
-                                (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type))) {
-                            return make_BinOp_helper(left_arg, right_arg, ASR::binopType::Add, x->base.base.loc);
-                        } else {
-                            throw SemanticError("Intrinsic plus not yet supported for this type", x->base.base.loc);
-                        }
-                    } else if (call_name.compare("zero") == 0) {
-                        ASR::expr_t* arg = duplicate_expr(x->m_args[0].m_value);
-                        ASR::ttype_t* arg_type = substitute_type(ASRUtils::expr_type(arg));
-                        if (ASRUtils::is_integer(*arg_type)) {
-                            return ASR::make_IntegerConstant_t(al, x->base.base.loc, 0, arg_type);
-                        } else if (ASRUtils::is_real(*arg_type)) {
-                            return ASR::make_RealConstant_t(al, x->base.base.loc, 0, arg_type);
-                        }
-                    } else if (call_name.compare("div") == 0) {
-                        ASR::expr_t* left_arg = duplicate_expr(x->m_args[0].m_value);
-                        ASR::expr_t* right_arg = duplicate_expr(x->m_args[1].m_value);
-                        return make_BinOp_helper(left_arg, right_arg, ASR::binopType::Div, x->base.base.loc);
-                    }
-                    LFORTRAN_ASSERT(false); // should never happen
+        if ((name && ASRUtils::is_restriction_function(name) && rt_subs.find(call_name) == rt_subs.end()) ||
+            !name) {
+            if (call_name.compare("add") == 0) {
+                ASR::expr_t* left_arg = duplicate_expr(x->m_args[0].m_value);
+                ASR::expr_t* right_arg = duplicate_expr(x->m_args[1].m_value);
+                ASR::ttype_t* left_type = substitute_type(ASRUtils::expr_type(left_arg));
+                ASR::ttype_t* right_type = substitute_type(ASRUtils::expr_type(right_arg));
+                if ((ASRUtils::is_integer(*left_type) && ASRUtils::is_integer(*right_type)) ||
+                        (ASRUtils::is_real(*left_type) && ASRUtils::is_real(*right_type))) {
+                    return make_BinOp_helper(left_arg, right_arg, ASR::binopType::Add, x->base.base.loc);
+                } else {
+                    throw SemanticError("Intrinsic plus not yet supported for this type", x->base.base.loc);
                 }
-                name = rt_subs[call_name];
-        //    }
-        //}
-        // TODO: Nested generic function call
+            } else if (call_name.compare("zero") == 0) {
+                ASR::expr_t* arg = duplicate_expr(x->m_args[0].m_value);
+                ASR::ttype_t* arg_type = substitute_type(ASRUtils::expr_type(arg));
+                if (ASRUtils::is_integer(*arg_type)) {
+                    return ASR::make_IntegerConstant_t(al, x->base.base.loc, 0, arg_type);
+                } else if (ASRUtils::is_real(*arg_type)) {
+                    return ASR::make_RealConstant_t(al, x->base.base.loc, 0, arg_type);
+                }
+            } else if (call_name.compare("div") == 0) {
+                ASR::expr_t* left_arg = duplicate_expr(x->m_args[0].m_value);
+                ASR::expr_t* right_arg = duplicate_expr(x->m_args[1].m_value);
+                return make_BinOp_helper(left_arg, right_arg, ASR::binopType::Div, x->base.base.loc);
+            }
+            LCOMPILERS_ASSERT(false); // should never happen
+            name = rt_subs[call_name];
+        }
+        if (ASRUtils::is_restriction_function(name)) {
+            name = rt_subs[call_name];
+        } else if (ASRUtils::is_generic_function(name)) {
+            std::string nested_func_name = "__lfortran_generic_" + sym_name;
+            ASR::symbol_t* name2 = ASRUtils::symbol_get_past_external(name);
+            ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(name2);
+            FunctionInstantiator nested_tf(al, subs, rt_subs, func_scope, nested_func_name);
+            ASR::asr_t* nested_generic_func = nested_tf.instantiate_Function(func);
+            name = ASR::down_cast<ASR::symbol_t>(nested_generic_func);
+        }
         dependencies.insert(std::string(ASRUtils::symbol_name(name)));
         return ASR::make_FunctionCall_t(al, x->base.base.loc, name, x->m_original_name,
             args.p, args.size(), type, value, dt);
@@ -384,7 +382,7 @@ public:
                 switch (op) {
                     case (ASR::binopType::Add): { result = left_value + right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
-                    default: { LFORTRAN_ASSERT(false); } // should never happen
+                    default: { LCOMPILERS_ASSERT(false); } // should never happen
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_IntegerConstant_t(al, loc, result, dest_type));
             }
@@ -399,7 +397,7 @@ public:
                 switch (op) {
                     case (ASR::binopType::Add): { result = left_value + right_value; break; }
                     case (ASR::binopType::Div): { result = left_value / right_value; break; }
-                    default: { LFORTRAN_ASSERT(false); }
+                    default: { LCOMPILERS_ASSERT(false); }
                 }
                 value = ASR::down_cast<ASR::expr_t>(ASR::make_RealConstant_t(al, loc, result, dest_type));
             }
@@ -427,11 +425,21 @@ public:
 };
 
 ASR::symbol_t* pass_instantiate_generic_function(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,
-        std::map<std::string, ASR::symbol_t*> rt_subs, SymbolTable *current_scope,
+        std::map<std::string, ASR::symbol_t*>& rt_subs, SymbolTable *current_scope,
+        std::string new_func_name, ASR::symbol_t *sym) {
+    ASR::symbol_t* sym2 = ASRUtils::symbol_get_past_external(sym);
+    ASR::Function_t* func = ASR::down_cast<ASR::Function_t>(sym2);
+    FunctionInstantiator tf(al, subs, rt_subs, current_scope, new_func_name);
+    ASR::asr_t *new_function = tf.instantiate_Function(func);
+    return ASR::down_cast<ASR::symbol_t>(new_function);
+}
+
+ASR::symbol_t* pass_instantiate_generic_function(Allocator &al, std::map<std::string, ASR::ttype_t*> subs,
+        std::map<std::string, ASR::symbol_t*>& rt_subs, SymbolTable *current_scope,
         std::string new_func_name, ASR::Function_t *func) {
     FunctionInstantiator tf(al, subs, rt_subs, current_scope, new_func_name);
     ASR::asr_t *new_function = tf.instantiate_Function(func);
     return ASR::down_cast<ASR::symbol_t>(new_function);
 }
 
-}
+} // namespace LCompilers

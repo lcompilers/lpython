@@ -5,7 +5,7 @@
 
 #include <libasr/containers.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace BigInt {
 
@@ -30,7 +30,13 @@ namespace BigInt {
  * in int64_t.
  *
  * To check if the integer has a pointer tag, we check that the first two bits
- * (1-2) are equal to 01:
+ * (1-2) are equal to 01.
+ *
+ * If the first bit is 0, then it can either be a positive integer or a
+ * pointer. We check the second bit, if it is 1, then it is a pointer (shifted
+ * by 2), if it is 0, then is is a positive integer, represented by the rest of
+ * the 62 bits. If the first bit is 1, then it is a negative integer,
+ * represented by the full 64 bits in 2's complement representation.
  */
 
 // Returns true if "i" is a pointer and false if "i" is an integer
@@ -85,7 +91,7 @@ inline static int64_t string_to_largeint(Allocator &al, const Str &s) {
 
 // Converts a large int to a string
 inline static char* largeint_to_string(int64_t i) {
-    LFORTRAN_ASSERT(is_int_ptr(i));
+    LCOMPILERS_ASSERT(is_int_ptr(i));
     void *p = int_to_ptr(i);
     char *cs = (char*)p;
     return cs;
@@ -104,7 +110,7 @@ inline static bool is_int64(std::string str_repr) {
     if( str_repr.size() > str_int64.size() ) {
         return false;
     }
-    
+
     if( str_repr.size() < str_int64.size() ) {
         return true;
     }
@@ -132,7 +138,7 @@ struct BigInt {
     BigInt& operator=(const BigInt &) = default;
 
     void from_smallint(int64_t i) {
-        LFORTRAN_ASSERT(is_small_int(i));
+        LCOMPILERS_ASSERT(is_small_int(i));
         n = i;
     }
 
@@ -145,7 +151,7 @@ struct BigInt {
     }
 
     int64_t as_smallint() const {
-        LFORTRAN_ASSERT(!is_large());
+        LCOMPILERS_ASSERT(!is_large());
         return n;
     }
 
@@ -163,6 +169,6 @@ static_assert(sizeof(BigInt) == 8);
 
 } // BigInt
 
-} // LFortran
+} // namespace LCompilers
 
 #endif // LFORTRAN_BIGINT_H

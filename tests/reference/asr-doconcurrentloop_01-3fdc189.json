@@ -6,7 +6,11 @@
     "outfile": null,
     "outfile_hash": null,
     "stdout": "asr-doconcurrentloop_01-3fdc189.stdout",
+<<<<<<< HEAD
     "stdout_hash": "41a01e4b71e030ff5b702394c5a91d2f8df2f5d99e7030301e6cbc52",
+=======
+    "stdout_hash": "e88504553dd1c22ee6e22e0d9adaad8c8d16579fca02ac7f5de6cf65",
+>>>>>>> c0a1914ece2ce78553806f4caa1853ae562ba77e
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0

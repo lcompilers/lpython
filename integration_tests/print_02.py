@@ -11,10 +11,14 @@ def f():
     print(b)
     print(c)
     print(d)
+    print(a, a, b, c, d)
+    print(a, a, 1, b, c, 1.1, d)
 
     # print list constant
     print([-3, 2, 1, 0])
     print(['a', 'b', 'c', 'd' , 'e', 'f'])
+    print([1, 2, 3, 4], a, c)
+
 
 def test_nested_lists():
     w: list[list[list[list[list[f64]]]]] = [[[[[2.13, -98.17]]], [[[1.11]]]]]

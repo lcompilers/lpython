@@ -1,6 +1,6 @@
 #include <libasr/codegen/wasm_utils.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace wasm {
 
@@ -73,17 +73,17 @@ double decode_ieee754_f64(Vec<uint8_t> &code, uint32_t &offset) {
 }
 
 uint8_t read_b8(Vec<uint8_t> &code, uint32_t &offset) {
-    LFORTRAN_ASSERT(offset < code.size());
+    LCOMPILERS_ASSERT(offset < code.size());
     return code.p[offset++];
 }
 
 float read_f32(Vec<uint8_t> &code, uint32_t &offset) {
-    LFORTRAN_ASSERT(offset + sizeof(float) <= code.size());
+    LCOMPILERS_ASSERT(offset + sizeof(float) <= code.size());
     return decode_ieee754_f32(code, offset);
 }
 
 double read_f64(Vec<uint8_t> &code, uint32_t &offset) {
-    LFORTRAN_ASSERT(offset + sizeof(double) <= code.size());
+    LCOMPILERS_ASSERT(offset + sizeof(double) <= code.size());
     return decode_ieee754_f64(code, offset);
 }
 
@@ -121,4 +121,4 @@ void hexdump(void *ptr, int buflen) {
 
 }  // namespace wasm
 
-}  // namespace LFortran
+}  // namespace LCompilers

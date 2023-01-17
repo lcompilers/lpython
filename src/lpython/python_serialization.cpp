@@ -6,7 +6,7 @@
 #include <libasr/string_utils.h>
 
 
-namespace LFortran::LPython {
+namespace LCompilers::LPython {
 
 class ASTDeserializationVisitor :
 #ifdef WITH_LFORTRAN_BINARY_MODFILES
@@ -32,7 +32,7 @@ public:
 
     char* read_cstring() {
         std::string s = read_string();
-        LFortran::Str cs;
+        LCompilers::Str cs;
         cs.from_str_view(s);
         char* p = cs.c_str(al);
         return p;
@@ -45,4 +45,4 @@ AST::ast_t* deserialize_ast(Allocator &al, const std::string &s) {
 }
 
 
-} // namespace LFortran
+} // namespace LCompilers::LPython

@@ -5,9 +5,17 @@
     "infile_hash": "202a938e4c8c64b8c906fb99e1c68e0df609ff2e445cb9c90e415a82",
     "outfile": null,
     "outfile_hash": null,
+<<<<<<< HEAD
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-test_builtin_bin-52ba9fa.stderr",
     "stderr_hash": "df2b9ffdf55eaae2e2371268a58d20f57eaac21d16b9f0533f479650",
     "returncode": 1
+=======
+    "stdout": "asr-test_builtin_bin-52ba9fa.stdout",
+    "stdout_hash": "1290a2e747b1ef015d83422e8260aba3f2165f9abaf9f8272c18d7ee",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+>>>>>>> c0a1914ece2ce78553806f4caa1853ae562ba77e
 }

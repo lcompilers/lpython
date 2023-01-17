@@ -2,7 +2,7 @@
 #include <libasr/codegen/llvm_utils.h>
 #include <libasr/asr_utils.h>
 
-namespace LFortran {
+namespace LCompilers {
 
     namespace LLVMArrUtils {
 
@@ -33,10 +33,7 @@ namespace LFortran {
                     is_ok = false;
                     break;
                 }
-                if( (m_dims[r].m_length != nullptr &&
-                    m_dims[r].m_length->type != ASR::exprType::IntegerConstant) ||
-                    (m_dims[r].m_start != nullptr &&
-                    m_dims[r].m_start->type != ASR::exprType::IntegerConstant) ) {
+                if( m_dims[r].m_length == nullptr ) {
                     is_ok = false;
                     break;
                 }
@@ -446,7 +443,7 @@ namespace LFortran {
             bool check_for_bounds = false;
             llvm::Value* idx = nullptr;
             if( data_only ) {
-                LFORTRAN_ASSERT(llvm_diminfo);
+                LCOMPILERS_ASSERT(llvm_diminfo);
                 idx = cmo_convertor_single_element_data_only(llvm_diminfo, m_args, n_args, check_for_bounds);
                 if( is_fixed_size ) {
                     tmp = llvm_utils->create_gep(array, idx);
@@ -664,4 +661,4 @@ namespace LFortran {
 
     } // LLVMArrUtils
 
-} // LFortran
+} // namespace LCompilers

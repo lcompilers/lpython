@@ -7,6 +7,7 @@
 # tokens ... output Tokens, compare against reference version
 # run ... compiles and executes the specified file;
 #         checks both runtime errors and successful runs
+# run_with_dbg ... runtime checks with debug information enabled
 
 # tests
 
@@ -200,6 +201,10 @@ asr = true
 [[test]]
 filename = "../integration_tests/modules_02.py"
 asr = true
+
+[[test]]
+filename = "../integration_tests/test_import_02.py"
+c = true
 
 [[test]]
 filename = "../integration_tests/vec_01.py"
@@ -947,6 +952,14 @@ filename = "errors/enum_02.py"
 asr = true
 
 [[test]]
+filename = "errors/loop_01.py"
+asr = true
+
+[[test]]
+filename = "errors/loop_02.py"
+asr = true
+
+[[test]]
 filename = "errors/test_goto.py"
 asr = true
 
@@ -977,16 +990,20 @@ run = true
 
 [[test]]
 filename = "runtime_errors/test_assert_01.py"
-run = true
+run_with_dbg = true
 
 [[test]]
 filename = "runtime_errors/test_assert_02.py"
-run = true
+run_with_dbg = true
+
+[[test]]
+filename = "runtime_errors/test_assert_03.py"
+run_with_dbg = true
 
 [[test]]
 filename = "runtime_errors/test_quit_01.py"
-run = true
+run_with_dbg = true
 
 [[test]]
 filename = "runtime_errors/test_raise_01.py"
-run = true
+run_with_dbg = true

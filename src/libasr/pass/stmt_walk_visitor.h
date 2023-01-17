@@ -1,6 +1,6 @@
 #include <libasr/pass/pass_utils.h>
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace ASR {
     template <class Struct>
@@ -28,4 +28,4 @@ namespace ASR {
     };
 } // namespace ASR
 
-} // namespace LFortran
+} // namespace LCompilers

@@ -16,7 +16,7 @@
 #define DEBUG(s)
 #endif
 
-namespace LFortran {
+namespace LCompilers {
 
 namespace {
 
@@ -167,7 +167,7 @@ class WASMDecoder {
                         imports.p[i].mem_page_size_limits.second =
                             imports.p[i].mem_page_size_limits.first;
                     } else {
-                        LFORTRAN_ASSERT(byte == 0x01);
+                        LCOMPILERS_ASSERT(byte == 0x01);
                         imports.p[i].mem_page_size_limits.first =
                             read_u32(wasm_bytes, offset);
                         imports.p[i].mem_page_size_limits.second =
@@ -322,12 +322,13 @@ class WASMDecoder {
             index += section_size;
         }
 
-        LFORTRAN_ASSERT(index == wasm_bytes.size());
-        LFORTRAN_ASSERT(type_indices.size() == codes.size());
+        LCOMPILERS_ASSERT(index == wasm_bytes.size());
+        LCOMPILERS_ASSERT(type_indices.size() == codes.size());
     }
 };
 
 }  // namespace wasm
-}  // namespace LFortran
+
+}  // namespace LCompilers
 
 #endif  // LFORTRAN_WASM_DECODER_H

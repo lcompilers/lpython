@@ -2,6 +2,7 @@
     "basename": "asr-print_02-afbe092",
     "cmd": "lpython --show-asr --no-color {infile} -o {outfile}",
     "infile": "tests/../integration_tests/print_02.py",
+<<<<<<< HEAD
     "infile_hash": "d97cb829d7c6e3cac60d8d9d66e11c8c5c6d57222fe00d1f07471223",
     "outfile": null,
     "outfile_hash": null,
@@ -10,4 +11,14 @@
     "stderr": "asr-print_02-afbe092.stderr",
     "stderr_hash": "e7c0f13f3dc8b0d1b7d3a19538fe31d3da95c2c005cefdd48a9ed38f",
     "returncode": 2
+=======
+    "infile_hash": "f6d5752799b0774617f5197091f0edb663256214a554f88c56eb2fc2",
+    "outfile": null,
+    "outfile_hash": null,
+    "stdout": "asr-print_02-afbe092.stdout",
+    "stdout_hash": "554247d30bf6072a711f5cd7cab4deb72a29995b4a219c95616a3ebb",
+    "stderr": null,
+    "stderr_hash": null,
+    "returncode": 0
+>>>>>>> c0a1914ece2ce78553806f4caa1853ae562ba77e
 }

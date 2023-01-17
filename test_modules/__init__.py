@@ -1,1 +1,1 @@
-from .mathfn import sin, cos
+from .mathfn import sinx, cosx

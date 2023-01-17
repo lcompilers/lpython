@@ -82,11 +82,20 @@ macro(RUN)
                 set_tests_properties(${name} PROPERTIES WILL_FAIL TRUE)
             endif()
         elseif(KIND STREQUAL "c")
-            add_custom_command(
-                OUTPUT ${name}.c
-                COMMAND lpython --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
-                DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
-                VERBATIM)
+            if (import_path)
+                add_custom_command(
+                    OUTPUT ${name}.c
+                    COMMAND lpython -I ${CMAKE_CURRENT_SOURCE_DIR}/${import_path} --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    VERBATIM)
+            else ()
+                add_custom_command(
+                    OUTPUT ${name}.c
+                    COMMAND lpython --show-c ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py > ${name}.c
+                    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${name}.py
+                    VERBATIM)
+            endif()
+
             add_executable(${name} ${name}.c ${RUN_EXTRAFILES})
             set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
             target_link_libraries(${name} lpython_rtlib)
@@ -209,14 +218,15 @@ RUN(NAME bindc_04            LABELS llvm c)
 RUN(NAME bindc_07            LABELS llvm c)
 RUN(NAME exit_01             LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME exit_02     FAIL    LABELS cpython llvm c wasm wasm_x86 wasm_x64)
-RUN(NAME exit_01b            LABELS cpython llvm c wasm wasm_x86)
-RUN(NAME exit_02b    FAIL    LABELS cpython llvm c wasm wasm_x86)
+RUN(NAME exit_01b            LABELS cpython llvm c wasm wasm_x86 wasm_x64)
+RUN(NAME exit_02b    FAIL    LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME exit_02c    FAIL    LABELS cpython llvm c)
 
 # Test all four backends
 RUN(NAME print_01            LABELS cpython llvm c wasm) # wasm not yet supports sep and end keywords
 RUN(NAME print_03            LABELS x86 c wasm wasm_x86 wasm_x64) # simple test case specifically for x86, wasm_x86 and wasm_x64
 RUN(NAME print_04            LABELS cpython llvm c)
+RUN(NAME print_list_tuple    LABELS cpython c) # TODO: llvm doesn't completely support printing list
 
 # CPython and LLVM
 RUN(NAME const_01            LABELS cpython llvm c)
@@ -240,9 +250,9 @@ RUN(NAME expr_13             LABELS llvm c
         EXTRAFILES expr_13b.c)
 RUN(NAME expr_14             LABELS cpython llvm c)
 RUN(NAME loop_01             LABELS cpython llvm c)
-RUN(NAME loop_02             LABELS cpython llvm c wasm wasm_x86)
+RUN(NAME loop_02             LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME if_01               LABELS cpython llvm c wasm wasm_x86 wasm_x64)
-RUN(NAME if_02               LABELS cpython llvm c wasm wasm_x86)
+RUN(NAME if_02               LABELS cpython llvm c wasm wasm_x86 wasm_x64)
 RUN(NAME print_02            LABELS cpython llvm)
 RUN(NAME test_types_01       LABELS cpython llvm c)
 RUN(NAME test_str_01         LABELS cpython llvm c)
@@ -267,13 +277,13 @@ RUN(NAME test_dict_03        LABELS cpython llvm)
 RUN(NAME test_dict_04        LABELS cpython llvm)
 RUN(NAME test_dict_05        LABELS cpython llvm)
 RUN(NAME test_for_loop       LABELS cpython llvm c)
-RUN(NAME modules_01          LABELS cpython llvm c wasm wasm_x86)
-RUN(NAME modules_02          LABELS cpython llvm wasm wasm_x86)
+RUN(NAME modules_01          LABELS cpython llvm c wasm wasm_x86 wasm_x64)
+RUN(NAME modules_02          LABELS cpython llvm wasm wasm_x86 wasm_x64)
 RUN(NAME test_import_01      LABELS cpython llvm c)
-RUN(NAME test_import_02      LABELS cpython llvm)
-RUN(NAME test_import_03      LABELS cpython llvm)
+RUN(NAME test_import_02      LABELS cpython llvm c)
+RUN(NAME test_import_03      LABELS cpython llvm c)
 RUN(NAME test_import_04      IMPORT_PATH ..
-        LABELS cpython llvm)
+        LABELS cpython llvm c)
 RUN(NAME test_math           LABELS cpython llvm)
 RUN(NAME test_numpy_01       LABELS cpython llvm c)
 RUN(NAME test_numpy_02       LABELS cpython llvm c)
@@ -329,7 +339,8 @@ RUN(NAME test_generics_01    LABELS cpython llvm c)
 RUN(NAME test_cmath          LABELS cpython llvm c)
 RUN(NAME test_complex        LABELS cpython llvm c)
 RUN(NAME test_max_min        LABELS cpython llvm c)
-RUN(NAME test_global         LABELS cpython llvm)
+RUN(NAME test_global         LABELS cpython llvm c)
+RUN(NAME test_global_decl    LABELS cpython llvm c)
 RUN(NAME test_integer_bitnot LABELS cpython llvm c)
 RUN(NAME test_ifexp          LABELS cpython llvm c)
 RUN(NAME test_unary_minus    LABELS cpython llvm c)
@@ -372,7 +383,7 @@ RUN(NAME union_03            LABELS cpython llvm c)
 RUN(NAME test_str_to_int     LABELS cpython llvm c)
 RUN(NAME test_platform       LABELS cpython llvm c)
 RUN(NAME test_vars_01        LABELS cpython llvm)
-RUN(NAME test_version        LABELS cpython llvm c)
+RUN(NAME test_version        LABELS cpython llvm)
 RUN(NAME vec_01              LABELS cpython llvm c)
 RUN(NAME test_str_comparison LABELS cpython llvm c)
 RUN(NAME test_bit_length     LABELS cpython llvm c)
@@ -395,5 +406,8 @@ RUN(NAME func_static_01 LABELS cpython llvm c wasm)
 RUN(NAME func_static_02 LABELS cpython llvm c wasm)
 RUN(NAME func_dep_03    LABELS cpython llvm c)
 RUN(NAME func_dep_04    LABELS cpython llvm c)
+
+RUN(NAME float_01 LABELS cpython llvm wasm wasm_x64)
+RUN(NAME recursive_01 LABELS cpython llvm wasm wasm_x64 wasm_x86)
 
 RUN(NAME test_argv_01    LABELS llvm) # TODO: Test using CPython

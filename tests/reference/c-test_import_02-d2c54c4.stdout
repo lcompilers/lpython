@@ -1,0 +1,76 @@
+#include <inttypes.h>
+
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+#include <lfortran_intrinsics.h>
+
+#define ASSERT(cond)                                                           \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+#define ASSERT_MSG(cond, msg)                                                  \
+    {                                                                          \
+        if (!(cond)) {                                                         \
+            printf("%s%s", "ASSERT failed: ", __FILE__);                       \
+            printf("%s%s", "\nfunction ", __func__);                           \
+            printf("%s%d%s", "(), line number ", __LINE__, " at \n");          \
+            printf("%s%s", #cond, "\n");                                       \
+            printf("%s", "ERROR MESSAGE:\n");                                  \
+            printf("%s%s", msg, "\n");                                         \
+            exit(1);                                                           \
+        }                                                                      \
+    }
+
+
+struct dimension_descriptor
+{
+    int32_t lower_bound, length;
+};
+
+// Implementations
+#define e   2.71828182845904509e+00
+
+int32_t multiply(int32_t x, int32_t y)
+{
+    int32_t _lpython_return_variable;
+    _lpython_return_variable = x*y;
+    return _lpython_return_variable;
+}
+
+#define μ   1.45136923488338110e+00
+
+int32_t add(int32_t x, int32_t y)
+{
+    int32_t _lpython_return_variable;
+    _lpython_return_variable = x + y;
+    return _lpython_return_variable;
+}
+
+void f()
+{
+    printf("%lf\n", e);
+    printf("%lf\n", μ);
+    printf("%d\n", add(10, 20));
+    printf("%d\n", multiply(10, 20));
+    ASSERT(add(10, 20) == 30);
+    ASSERT(multiply(10, 20) == 200);
+}
+
+void _lpython_main_program()
+{
+    f();
+}
+
+int main(int argc, char* argv[])
+{
+    _lpython_main_program();
+    return 0;
+}
