@@ -31,6 +31,18 @@ def test_nested_lists():
     print(y)
     print(z)
 
+
+def test_print_list_tuple():
+    a: list[tuple[i32, i32]] = [(1, 2), (3, 4), (5, 6)]
+    b: tuple[list[str], list[i32], f64]
+    c: list[list[tuple[i32, str]]] = [[(1, 'a'), (2, 'b')], [(3, 'c'), (4, 'd')]]
+    b1: list[str] = ['a', 'bb', 'ccc', 'dddd', 'eeeee']
+    b2: list[i32] = [10, 20, 30, 40]
+    b = (b1, b2, 6.0305)
+    print(a, b)
+    print(c, b1, b2, 3.420, 'okay', True, 14483)
+
+
 def test_nested_lists2():
     # It tests list printing on scale like lists of size (approx) 100.
 
@@ -83,6 +95,11 @@ def test_nested_lists2():
     print(q)
     print(r)
 
-f()
-test_nested_lists()
-test_nested_lists2()
+
+def check():
+  f()
+  test_nested_lists()
+  test_nested_lists2()
+  test_print_list_tuple()
+
+check()
