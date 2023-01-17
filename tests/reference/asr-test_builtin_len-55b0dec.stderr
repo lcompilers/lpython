@@ -1,5 +1,0 @@
-syntax error: Token '' (of type 'dedent') is unexpected here
-  --> tests/../integration_tests/test_builtin_len.py:24:4
-   |
-24 |     assert len(l3) == 50
-   |    ^ 

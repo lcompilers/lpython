@@ -1,5 +1,0 @@
-tokenizer error: Token '"' is not recognized
- --> tests/parser/string2.py:6:1
-  |
-6 | "\
-  | ^ token not recognized

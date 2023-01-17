@@ -1,5 +1,0 @@
-tokenizer error: Token '\' is not recognized
-  --> tests/parser/statements1.py:80:16
-   |
-80 | x = ("String " \
-   |                ^ token not recognized

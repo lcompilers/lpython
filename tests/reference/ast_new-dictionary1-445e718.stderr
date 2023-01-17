@@ -1,5 +1,0 @@
-tokenizer error: Token '\' is not recognized
- --> tests/parser/dictionary1.py:3:31
-  |
-3 |     dict = { "brand": "Ford", \
-  |                               ^ token not recognized

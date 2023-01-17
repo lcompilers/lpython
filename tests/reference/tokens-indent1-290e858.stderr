@@ -1,5 +1,0 @@
-tokenizer error: Token '\' is not recognized
- --> tests/tokens/indent1.py:1:20
-  |
-1 | from ltypes import \
-  |                    ^ token not recognized

@@ -1,5 +1,0 @@
-tokenizer error: Token '\' is not recognized
-  --> tests/tokens/symbols1.py:50:14
-   |
-50 | if i >= 1 or \
-   |              ^ token not recognized

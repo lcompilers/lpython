@@ -1,5 +1,0 @@
-tokenizer error: Token '\' is not recognized
-  --> tests/parser/with1.py:18:20
-   |
-18 | with a, b, c as y, \
-   |                    ^ token not recognized

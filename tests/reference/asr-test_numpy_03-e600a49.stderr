@@ -1,3 +1,0 @@
-Internal Compiler Error: Unhandled exception
-Traceback (most recent call last):
-LCompilersException: visit_Return() not implemented
