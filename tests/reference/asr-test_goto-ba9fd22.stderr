@@ -1,3 +1,5 @@
-Internal Compiler Error: Unhandled exception
-Traceback (most recent call last):
-LCompilersException: visit_Assert() not implemented
+semantic error: Label 'end' is not defined in 'f'
+ --> tests/errors/test_goto.py:8:13
+  |
+8 |             goto .end
+  |             ^^^^^^^^^ 

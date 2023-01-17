@@ -1,3 +1,11 @@
-Internal Compiler Error: Unhandled exception
-Traceback (most recent call last):
-LCompilersException: visit_Return() not implemented
+style suggestion: Could have used '**' instead of 'pow'
+ --> tests/expr7.py:4:13
+  |
+4 |     a = i32(pow(2, 2))
+  |             ^^^^^^^^^ '**' could be used instead
+
+style suggestion: Could have used '**' instead of 'pow'
+ --> tests/expr7.py:8:15
+  |
+8 |     res = i32(pow(a, b))
+  |               ^^^^^^^^^ '**' could be used instead

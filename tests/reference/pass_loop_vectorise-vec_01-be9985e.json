@@ -5,17 +5,9 @@
     "infile_hash": "eb012561316a4c1f1359bf7b5a0b9aee40944ece197a5bafd387a19f",
     "outfile": null,
     "outfile_hash": null,
-<<<<<<< HEAD
-    "stdout": null,
-    "stdout_hash": null,
-    "stderr": "pass_loop_vectorise-vec_01-be9985e.stderr",
-    "stderr_hash": "df2b9ffdf55eaae2e2371268a58d20f57eaac21d16b9f0533f479650",
-    "returncode": 1
-=======
     "stdout": "pass_loop_vectorise-vec_01-be9985e.stdout",
     "stdout_hash": "42ca3b04ea69d94149059e5333c1947587cbcc1d9cf2cfcf94b954cf",
     "stderr": null,
     "stderr_hash": null,
     "returncode": 0
->>>>>>> c0a1914ece2ce78553806f4caa1853ae562ba77e
 }

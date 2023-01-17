@@ -8,6 +8,6 @@
     "stdout": null,
     "stdout_hash": null,
     "stderr": "asr-test_pow4-ef60978.stderr",
-    "stderr_hash": "df2b9ffdf55eaae2e2371268a58d20f57eaac21d16b9f0533f479650",
-    "returncode": 1
+    "stderr_hash": "ddc8a81609479bf82d256c9cb8d4d54526bd6656632a0d1e2f1ada2c",
+    "returncode": 2
 }

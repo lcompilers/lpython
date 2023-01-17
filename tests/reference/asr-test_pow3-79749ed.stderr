@@ -1,3 +1,11 @@
-Internal Compiler Error: Unhandled exception
-Traceback (most recent call last):
-LCompilersException: visit_Return() not implemented
+style suggestion: Could have used '**' instead of 'pow'
+ --> tests/errors/test_pow3.py:8:11
+  |
+8 |     print(pow(x, a))
+  |           ^^^^^^^^^ '**' could be used instead
+
+semantic error: Arguments do not match for any generic procedure, pow
+ --> tests/errors/test_pow3.py:8:11
+  |
+8 |     print(pow(x, a))
+  |           ^^^^^^^^^ 

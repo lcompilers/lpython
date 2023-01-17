@@ -69,10 +69,10 @@ void main0()
     float scalar;
     scalar =   1.00000000000000000e+01;
     nsize = 1234;
-    for (i=0; i<=nsize - 1; i++) {
+    Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(0, nsize - 1+1), KOKKOS_LAMBDA(const long i) {
         a->data->operator[](i - a->dims[0].lower_bound) =   5.00000000000000000e+00;
         b->data->operator[](i - b->dims[0].lower_bound) =   5.00000000000000000e+00;
-    }
+    });
     triad(a, b, scalar, c);
     std::cout << "End Stream Triad" << std::endl;
 }
@@ -84,9 +84,9 @@ void triad(T0* a, T1* b, float scalar, T2* c)
     int32_t N;
     int32_t i;
     N = 1234;
-    for (i=0; i<=N - 1; i++) {
+    Kokkos::parallel_for(Kokkos::RangePolicy<Kokkos::DefaultExecutionSpace>(0, N - 1+1), KOKKOS_LAMBDA(const long i) {
         c->data->operator[](i - c->dims[0].lower_bound) = a->data->operator[](i - a->dims[0].lower_bound) + scalar*b->data->operator[](i - b->dims[0].lower_bound);
-    }
+    });
 }
 
 namespace {
