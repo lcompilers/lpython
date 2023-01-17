@@ -5,9 +5,9 @@
     "infile_hash": "d9a0e72a70d0793614d26709f45959d7d43fd60f81bde0a8bf69746b",
     "outfile": null,
     "outfile_hash": null,
-    "stdout": "asr-test_numpy_04-ecbb614.stdout",
-    "stdout_hash": "e6298e2836bfab6b6b8bb7469685ea35b9f703fec0b5a7328bf2f57c",
-    "stderr": null,
-    "stderr_hash": null,
-    "returncode": 0
+    "stdout": null,
+    "stdout_hash": null,
+    "stderr": "asr-test_numpy_04-ecbb614.stderr",
+    "stderr_hash": "df2b9ffdf55eaae2e2371268a58d20f57eaac21d16b9f0533f479650",
+    "returncode": 1
 }

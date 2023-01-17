@@ -1,0 +1,11 @@
+warning: The module 'sys' located in $DIR\src\bin/../runtime/sys.py cannot be loaded
+ --> tests/loop2.py:1:1
+  |
+1 | from sys import exit
+  | ^^^^^^^^^^^^^^^^^^^^ imported here
+
+semantic error: Variable 'error_code' not declared
+ --> $DIR\src\bin/../runtime/sys.py:8:10
+  |
+8 |     quit(error_code)
+  |          ^^^^^^^^^^ 

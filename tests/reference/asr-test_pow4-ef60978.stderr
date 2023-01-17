@@ -1,11 +1,3 @@
-style suggestion: Could have used '**' instead of 'pow'
-  --> tests/errors/test_pow4.py:10:11
-   |
-10 |     print(pow(x, a, b))
-   |           ^^^^^^^^^^^^ '**' could be used instead
-
-semantic error: Arguments do not match for any generic procedure, pow
-  --> tests/errors/test_pow4.py:10:11
-   |
-10 |     print(pow(x, a, b))
-   |           ^^^^^^^^^^^^ 
+Internal Compiler Error: Unhandled exception
+Traceback (most recent call last):
+LCompilersException: visit_Return() not implemented

@@ -3,42 +3,42 @@
 (TOKEN "(") 9:9
 (TOKEN ")") 10:10
 (TOKEN ":") 11:11
-(NEWLINE) 12:12
-(TOKEN "indent") 13:16
-(TOKEN "string" "A multi-line
-    docstring.
-    ") 17:54
-(NEWLINE) 55:55
-(NEWLINE) 56:56
-(TOKEN "dedent") 56:56
-(KEYWORD "def") 57:59
-(TOKEN "identifier" test2) 61:65
-(TOKEN "(") 66:66
-(TOKEN ")") 67:67
-(TOKEN ":") 68:68
-(NEWLINE) 69:69
-(TOKEN "indent") 70:73
-(TOKEN "string" "
-    A multi-line
-    docstring.
-    ") 74:116
-(NEWLINE) 117:117
-(NEWLINE) 118:118
-(TOKEN "dedent") 118:118
-(KEYWORD "def") 119:121
-(TOKEN "identifier" test2) 123:127
-(TOKEN "(") 128:128
-(TOKEN ")") 129:129
-(TOKEN ":") 130:130
-(NEWLINE) 131:131
-(TOKEN "indent") 132:135
-(TOKEN "string" " A single-line docstring.") 136:166
-(NEWLINE) 167:167
-(NEWLINE) 168:168
-(TOKEN "dedent") 168:168
-(TOKEN "string" "
-A multi-line
-docstring.
-") 169:199
-(NEWLINE) 200:200
-(EOF) 201:201
+(NEWLINE) 13:13
+(TOKEN "indent") 14:17
+(TOKEN "string" "A multi-line
+    docstring.
+    ") 18:57
+(NEWLINE) 59:59
+(TOKEN "dedent") 59:59
+(NEWLINE) 61:61
+(KEYWORD "def") 62:64
+(TOKEN "identifier" test2) 66:70
+(TOKEN "(") 71:71
+(TOKEN ")") 72:72
+(TOKEN ":") 73:73
+(NEWLINE) 75:75
+(TOKEN "indent") 76:79
+(TOKEN "string" "
+    A multi-line
+    docstring.
+    ") 80:125
+(NEWLINE) 127:127
+(TOKEN "dedent") 127:127
+(NEWLINE) 129:129
+(KEYWORD "def") 130:132
+(TOKEN "identifier" test2) 134:138
+(TOKEN "(") 139:139
+(TOKEN ")") 140:140
+(TOKEN ":") 141:141
+(NEWLINE) 143:143
+(TOKEN "indent") 144:147
+(TOKEN "string" " A single-line docstring.") 148:178
+(NEWLINE) 180:180
+(TOKEN "dedent") 180:180
+(NEWLINE) 182:182
+(TOKEN "string" "
+A multi-line
+docstring.
+") 183:216
+(NEWLINE) 218:218
+(EOF) 219:219

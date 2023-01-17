@@ -1,0 +1,5 @@
+semantic error: 'a' is not defined in the scope
+ --> tests/set1.py:6:5
+  |
+6 |     a.add(9)
+  |     ^^^^^^^^ 

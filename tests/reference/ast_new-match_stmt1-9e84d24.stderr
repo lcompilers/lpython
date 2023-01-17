@@ -1,0 +1,5 @@
+syntax error: Token '0' (of type 'integer') is unexpected here
+ --> tests/parser/match_stmt1.py:2:7
+  |
+2 | match 0:
+  |       ^ 

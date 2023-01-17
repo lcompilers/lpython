@@ -1,0 +1,5 @@
+tokenizer error: Indentation should be of the same type (either tabs or spaces)
+ --> tests/tokens/comment2.py:4:1
+  |
+4 |     if foo: # c
+  | ^^^^ 

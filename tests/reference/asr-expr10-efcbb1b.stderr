@@ -1,0 +1,5 @@
+semantic error: Variable 'a' not declared
+  --> tests/expr10.py:23:5
+   |
+23 |     a = +True
+   |     ^ 

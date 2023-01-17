@@ -1,0 +1,1 @@
+The command 'link /NOLOGO /OUT:test_raise_01.out test_raise_01.out.tmp.o $DIR\src\bin/../runtime\lpython_runtime_static.lib' failed.

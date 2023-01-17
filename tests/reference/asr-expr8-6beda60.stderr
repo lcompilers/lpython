@@ -1,0 +1,5 @@
+semantic error: Variable 'x' not declared
+  --> tests/expr8.py:14:5
+   |
+14 |     x = True + True
+   |     ^ 

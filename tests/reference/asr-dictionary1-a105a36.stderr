@@ -1,0 +1,5 @@
+semantic error: Variable 'x' not declared
+  --> tests/dictionary1.py:12:9
+   |
+12 |     z = x[1]
+   |         ^ 

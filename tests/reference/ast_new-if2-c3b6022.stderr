@@ -1,0 +1,5 @@
+tokenizer error: Token '\' is not recognized
+  --> tests/parser/if2.py:10:9
+   |
+10 | if x is \
+   |         ^ token not recognized

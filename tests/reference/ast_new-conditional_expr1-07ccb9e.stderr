@@ -1,0 +1,5 @@
+tokenizer error: Token '\' is not recognized
+  --> tests/parser/conditional_expr1.py:23:62
+   |
+23 | (self.assertTrue if tktype in whentrue else self.assertFalse)\
+   |                                                              ^ token not recognized

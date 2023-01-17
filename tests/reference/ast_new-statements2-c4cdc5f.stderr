@@ -1,0 +1,5 @@
+syntax error: Token 'not' is unexpected here
+  --> tests/parser/statements2.py:22:6
+   |
+22 | if x not in\
+   |      ^^^ 

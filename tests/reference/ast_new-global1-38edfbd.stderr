@@ -1,0 +1,5 @@
+syntax error: Token '' (of type 'dedent') is unexpected here
+  --> tests/parser/global1.py:10:4
+   |
+10 |     inner()
+   |    ^ 
