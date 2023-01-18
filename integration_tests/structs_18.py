@@ -20,13 +20,13 @@ def fill_buffer(buffer_cptr: CPtr):
 def f():
     b: CPtr = get_buffer()
     pb: Pointer[buffer_struct] = c_p_pointer(b, buffer_struct)
-    pb.x = 3
+    pb.x = i64(3)
     print(pb.x)
-    assert pb.x == 3
+    assert pb.x == i64(3)
 
     fill_buffer(b)
     print(pb.x)
-    assert pb.x == 8
+    assert pb.x == i64(8)
 
 
 f()
