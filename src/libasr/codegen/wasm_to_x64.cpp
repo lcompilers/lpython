@@ -374,6 +374,17 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void visit_F64Mul() { handleF64Operations<&X86Assembler::asm_mulsd_r64_r64>(); }
     void visit_F64Div() { handleF64Operations<&X86Assembler::asm_divsd_r64_r64>(); }
 
+    void handleF64Compare(Fcmp cmp) {
+        m_a.asm_cmpsd_r64_r64(X64FReg::xmm0, X64FReg::xmm1, cmp);
+    }
+
+    void visit_F64Eq() { handleF64Compare(Fcmp::eq); }
+    void visit_F64Gt() { handleF64Compare(Fcmp::gt); }
+    void visit_F64Ge() { handleF64Compare(Fcmp::ge); }
+    void visit_F64Lt() { handleF64Compare(Fcmp::lt); }
+    void visit_F64Le() { handleF64Compare(Fcmp::le); }
+    void visit_F64Ne() { handleF64Compare(Fcmp::ne); }
+
     void gen_x64_bytes() {
         {   // Initialize/Modify values of entities
             exports.back().name = "_start"; // Update _lcompilers_main() to _start
