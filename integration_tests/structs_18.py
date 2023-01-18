@@ -27,7 +27,6 @@ def f():
     fill_buffer(b)
     print(pb.x)
     assert pb.x == 8
-    stop
 
 
 f()
