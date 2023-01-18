@@ -313,6 +313,12 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
         handleI32Opt([&](){ m_a.asm_div_r64(X64Reg::rbx);});
     }
 
+    void visit_I32Eqz() {
+        m_a.asm_mov_r64_imm64(X64Reg::rax, 0);
+        m_a.asm_push_r64(X64Reg::rax);
+        handle_I32Compare<&X86Assembler::asm_je_label>();
+    }
+
     using JumpFn = void(X86Assembler::*)(const std::string&);
     template<JumpFn T>
     void handle_I32Compare() {
@@ -375,7 +381,22 @@ class X64Visitor : public WASMDecoder<X64Visitor>,
     void visit_F64Div() { handleF64Operations<&X86Assembler::asm_divsd_r64_r64>(); }
 
     void handleF64Compare(Fcmp cmp) {
+        X64Reg stack_top = X64Reg::rsp;
+        // load second operand into floating-point register
+        m_a.asm_movsd_r64_m64(X64FReg::xmm1, &stack_top, nullptr, 1, 0);
+        m_a.asm_add_r64_imm32(X64Reg::rsp, 8); // pop the argument
+        // load first operand into floating-point register
+        m_a.asm_movsd_r64_m64(X64FReg::xmm0, &stack_top, nullptr, 1, 0);
+        m_a.asm_add_r64_imm32(X64Reg::rsp, 8); // pop the argument
+
         m_a.asm_cmpsd_r64_r64(X64FReg::xmm0, X64FReg::xmm1, cmp);
+        /* From Assembly Docs:
+            The result of the compare is a 64-bit value of all 1s (TRUE) or all 0s (FALSE).
+        */
+
+        m_a.asm_pmovmskb_r64_r64(X64Reg::rax, X64FReg::xmm0);
+        m_a.asm_and_r64_imm8(X64Reg::rax, 1);
+        m_a.asm_push_r64(X64Reg::rax);
     }
 
     void visit_F64Eq() { handleF64Compare(Fcmp::eq); }
